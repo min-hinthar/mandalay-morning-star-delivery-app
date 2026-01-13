@@ -154,6 +154,12 @@
   - Public read: menu_categories, menu_items, modifier_groups, modifier_options, item_modifier_groups
   - Admin policies for future dashboard
   - Isolation test script added
+- Coverage checker implemented (V0-005)
+  - Coverage check API endpoint with Zod validation
+  - Google Maps integration (geocoding + distance matrix)
+  - Coverage UI component on homepage
+  - 50mi/90min delivery radius enforcement
+  - CI test command fix
 
 ---
 
