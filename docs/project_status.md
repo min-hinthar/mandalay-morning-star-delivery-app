@@ -2,7 +2,7 @@
 
 > **Last Updated**: 2026-01-13
 > **Current Phase**: V0 Skeleton
-> **Current Milestone**: V0 (Skeleton) - 60% Complete
+> **Current Milestone**: V0 (Skeleton) - 67% Complete
 
 ---
 
@@ -13,7 +13,7 @@
 | ?? Planning | ? Complete | Spec doc finalized |
 | ??? Scaffold | ? Complete | Base scaffold in place |
 | ?? Auth | Done | Supabase auth flow implemented |
-| ??? Coverage | ? Pending | Google Maps API key needed |
+| ??? Coverage | Done | Coverage check implemented |
 | ?? Menu UI | ? Pending | Depends on scaffold |
 | ?? Cart | ? Pending | V1 scope |
 | ?? Checkout | ? Pending | V1 scope |
@@ -24,7 +24,7 @@
 
 ## Milestone Progress
 
-### V0 - Skeleton (60% Complete)
+### V0 - Skeleton (67% Complete)
 
 | Task | Status | Owner | PR |
 |------|--------|-------|-----|
@@ -36,8 +36,8 @@
 | RLS policies (all 10 tables) | Done | Codex | V0-004 |
 | RLS isolation test script | Done | Codex | V0-004 |
 | Google Maps API setup | Pending | Manual | - |
-| Coverage check endpoint | Pending | Codex | - |
-| Coverage UI component | Pending | Codex | - |
+| Coverage check endpoint | Done | Codex | V0-005 |
+| Coverage UI component | Done | Codex | V0-005 |
 | Menu data model + seed import | Pending | Codex | - |
 | Menu browse page | Pending | Codex | - |
 | Category tabs + sticky header | Pending | Codex | - |
@@ -47,7 +47,7 @@
 
 **V0 Exit Criteria**:
 - [x] User can sign up with email
-- [ ] User can check if address is deliverable
+- [x] User can check if address is deliverable
 - [ ] User can browse full menu on mobile
 - [x] RLS prevents cross-user data access (tested via isolation script)
 - [x] CI passes on all PRs (lint, typecheck, test, build)
@@ -130,12 +130,9 @@
 
 ## Next Actions
 
-1. **[V0-005]** Coverage checker (requires Google Maps API key)
-2. **[V0-006]** Menu data model + seed import
-3. **[V0-007]** Menu browse UI
-4. **[External]** Get Google Maps API key (blocking V0-005)
-
----
+1. **[V0-006]** Menu data model + seed import
+2. **[V0-007]** Menu browse UI
+3. **[External]** Get Google Maps API key (blocking coverage checks)
 
 ## Weekly Standup Notes
 
@@ -157,9 +154,16 @@
   - Public read: menu_categories, menu_items, modifier_groups, modifier_options, item_modifier_groups
   - Admin policies for future dashboard
   - Isolation test script added
+- Coverage checker implemented (V0-005)
+  - Coverage check API endpoint with Zod validation
+  - Google Maps integration (geocoding + distance matrix)
+  - Coverage UI component on homepage
+  - 50mi/90min delivery radius enforcement
+  - CI test command fix
 
 ---
 
-*Updated by: Claude (Review) | Next review: After V0-005 coverage checker*
+*Updated by: Claude (Review) | Next review: After V0-006 menu seeding*
+
 
 
