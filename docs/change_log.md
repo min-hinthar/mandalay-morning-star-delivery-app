@@ -8,6 +8,37 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### V0-005 - Coverage Checker (2026-01-13)
+
+**Added**
+- Coverage check API endpoint (`/api/coverage/check`)
+- Coverage check UI component with address input form
+- Google Maps client library for geocoding and distance matrix
+- Zod validators for coverage request/response schemas
+- Homepage integration with coverage checker component
+
+**Features**
+- Address geocoding via Google Maps Geocoding API
+- Driving distance/duration calculation via Distance Matrix API
+- Enforces 50mi distance and 90min drive time limits
+- Clear feedback for deliverable/non-deliverable addresses
+- Displays formatted address with distance and duration
+
+**Files Created/Modified**
+- `src/app/api/coverage/check/route.ts` - Coverage check API endpoint
+- `src/components/coverage/coverage-check.tsx` - Coverage check UI component
+- `src/components/coverage/index.ts` - Component barrel export
+- `src/lib/maps/client.ts` - Google Maps API client
+- `src/lib/validators/coverage.ts` - Zod schemas and types
+- `src/app/(public)/page.tsx` - Homepage with coverage checker
+- `.github/workflows/ci.yml` - Fixed test command
+
+**Dependencies**
+- Requires `GOOGLE_MAPS_API_KEY` environment variable
+- Configurable via `KITCHEN_LAT`, `KITCHEN_LNG`, `MAX_DISTANCE_MILES`, `MAX_DURATION_MINUTES`
+
+---
+
 ### V0-004 - RLS Policies (2026-01-13)
 
 **Added**
