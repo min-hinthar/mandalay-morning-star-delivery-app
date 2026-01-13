@@ -21,7 +21,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test --run
+      - run: pnpm test:ci
       - run: pnpm build
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
@@ -29,4 +29,3 @@ jobs:
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: placeholder
           NEXT_PUBLIC_APP_URL: https://placeholder.vercel.app
-
