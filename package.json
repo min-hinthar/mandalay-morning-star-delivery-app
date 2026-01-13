@@ -33,10 +33,10 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
-    "@eslint/eslintrc": "^3.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -48,6 +48,7 @@
     "jsdom": "^27.4.0",
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
+    "supabase": "^2.72.6",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.0.17"

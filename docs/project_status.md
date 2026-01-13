@@ -1,6 +1,6 @@
 # Project Status - Mandalay Morning Star
 
-> **Last Updated**: 2026-01-12  
+> **Last Updated**: 2026-01-13  
 > **Current Phase**: Scaffold  
 > **Current Milestone**: V0 (Skeleton) - In Progress
 
@@ -24,15 +24,15 @@
 
 ## Milestone Progress
 
-### V0 - Skeleton (15% Complete)
+### V0 - Skeleton (30% Complete)
 
 | Task | Status | Owner | PR |
 |------|--------|-------|-----|
 | Project scaffold | ? Done | Codex | - |
 | Supabase project setup | ? | - | - |
-| Database migrations (base) | ? | Codex | - |
+| Database migrations (base) | ? Done | Codex | - |
 | Supabase Auth integration | ? | Codex | - |
-| Profile creation trigger | ? | Codex | - |
+| Profile creation trigger | ? Done | Codex | - |
 | RLS policies (profiles, addresses) | ? | Codex | - |
 | Google Maps API setup | ? | - | - |
 | Coverage check endpoint | ? | Codex | - |
@@ -133,7 +133,6 @@
 2. **[Immediate]** Create Supabase project
 3. **[Immediate]** Create Stripe test account
 4. **[Immediate]** Get Google Maps API key
-5. **[Next]** Create base database migrations
 
 ---
 
@@ -147,3 +146,5 @@
 ---
 
 *Updated by: Codex (Implementation) | Next review: After V0 scaffold*
+
+
