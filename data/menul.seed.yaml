@@ -1,0 +1,737 @@
+version: 1
+currency: usd
+
+allergens_enum:
+  - peanuts
+  - tree_nuts
+  - egg
+  - shellfish
+  - fish
+  - soy
+  - gluten_wheat
+  - sesame
+  - dairy
+
+categories:
+  - slug: all-day-breakfast
+    name: "All-Day Breakfast"
+    sort_order: 10
+  - slug: rice-noodles-soups
+    name: "Rice / Noodles / Soups"
+    sort_order: 20
+  - slug: sides
+    name: "Sides"
+    sort_order: 30
+  - slug: curries-a-la-carte
+    name: "Curries (A la Carte)"
+    sort_order: 40
+  - slug: vegetables
+    name: "Vegetables"
+    sort_order: 50
+  - slug: seafood-curries
+    name: "Seafood Curries"
+    sort_order: 60
+  - slug: appetizers-salads
+    name: "Appetizers / Salads"
+    sort_order: 70
+  - slug: drinks
+    name: "Drinks"
+    sort_order: 80
+
+modifier_groups:
+  - slug: kyay_o_style
+    name: "Style"
+    selection_type: single
+    min_select: 1
+    max_select: 1
+    options:
+      - slug: soup
+        name: "Kyay-O (Soup)"
+        price_delta_cents: 0
+      - slug: si_chat
+        name: "Si-Chat (Dry)"
+        price_delta_cents: 0
+
+  - slug: kyay_o_protein
+    name: "Protein Option"
+    selection_type: single
+    min_select: 1
+    max_select: 1
+    options:
+      - slug: pork_default
+        name: "Pork (default)"
+        price_delta_cents: 0
+      - slug: chicken_plus_egg
+        name: "Chicken + egg"
+        price_delta_cents: 0
+
+  - slug: kyay_o_addons
+    name: "Add-ons"
+    selection_type: multiple
+    min_select: 0
+    max_select: 5
+    options:
+      - slug: brains
+        name: "Brains add-on"
+        price_delta_cents: 200  # +$2 noted on your menu page
+
+  - slug: goat_curry_cut
+    name: "Goat Choice"
+    selection_type: single
+    min_select: 1
+    max_select: 1
+    options:
+      - slug: original
+        name: "Original"
+        price_delta_cents: 0
+      - slug: offal
+        name: "Offal"
+        price_delta_cents: 0
+
+  - slug: beef_curry_style
+    name: "Beef Curry Style"
+    selection_type: single
+    min_select: 1
+    max_select: 1
+    options:
+      - slug: spiced
+        name: "Spiced"
+        price_delta_cents: 0
+      - slug: non_spicy_braised
+        name: "Non-spicy braised"
+        price_delta_cents: 0
+
+  - slug: chicken_curry_style
+    name: "Chicken Curry Style"
+    selection_type: single
+    min_select: 1
+    max_select: 1
+    options:
+      - slug: original
+        name: "Original"
+        price_delta_cents: 0
+      - slug: masala
+        name: "Masala"
+        price_delta_cents: 0
+      - slug: coconut
+        name: "Coconut"
+        price_delta_cents: 0
+
+  - slug: tom_yum_base
+    name: "Choose Base"
+    selection_type: single
+    min_select: 1
+    max_select: 1
+    options:
+      - slug: fried_rice
+        name: "Fried Rice"
+        price_delta_cents: 0
+      - slug: fried_noodles
+        name: "Fried Noodles"
+        price_delta_cents: 0
+
+items:
+  # --- All-Day Breakfast ---
+  - slug: kyay-o
+    category_slug: all-day-breakfast
+    name_en: "Kyay-O / Si-Chat"
+    name_my: "ကြေးအိုး/ဆီချက်"
+    description_en: "Rice vermicelli noodle soup (or dry) with pork, meatballs, intestines, eggs, bok choy. Chicken + egg option available."
+    base_price_cents: 1800
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_egg", "contains_gluten_wheat_optional"]
+    allergens: ["egg"]
+    modifier_group_slugs: ["kyay_o_style", "kyay_o_protein", "kyay_o_addons"]
+
+  - slug: nan-gyi-mont-ti
+    category_slug: all-day-breakfast
+    name_en: "Nan-Gyi Mont Ti"
+    name_my: "နန်းကြီးမုန့်တီ"
+    description_en: "Rice noodles with fish cake, garnishes, and crunch tossed in Mandalay chicken curry sauce."
+    base_price_cents: 1300
+    is_active: true
+    is_sold_out: false
+    tags: ["popular"]
+    allergens: []
+    modifier_group_slugs: []
+
+  - slug: mee-shay
+    category_slug: all-day-breakfast
+    name_en: "Mee-Shay"
+    name_my: "မြှီးရှည်"
+    description_en: "Mandalay specialty rice noodles in sweet soybean sauce with pork, crunchy rind, pickled mustard."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_soy"]
+    allergens: ["soy"]
+    modifier_group_slugs: []
+
+  - slug: ohno-khao-swe
+    category_slug: all-day-breakfast
+    name_en: "Ohno Khao-Swe"
+    name_my: "အုန်းနို့ခေါက်ဆွဲ"
+    description_en: "Coconut cream + chickpea curry broth with wheat noodles, chicken drum, egg, garnishes."
+    base_price_cents: 1500
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_egg", "contains_gluten_wheat"]
+    allergens: ["egg", "gluten_wheat"]
+    modifier_group_slugs: []
+
+  - slug: shan-noodles
+    category_slug: all-day-breakfast
+    name_en: "Shan Noodles"
+    name_my: "ရှမ်းခေါက်ဆွဲ"
+    description_en: "Rice noodles with savory tomato-based sauce (pork) + peanuts, fried garlic, pickled mustard, chili paste."
+    base_price_cents: 1300
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_peanuts"]
+    allergens: ["peanuts"]
+    modifier_group_slugs: []
+
+  - slug: mohinga
+    category_slug: all-day-breakfast
+    name_en: "Mohinga"
+    name_my: "မုန့်ဟင်းခါး"
+    description_en: "Traditional fish broth soup with rice noodles, garnishes, bean fritters, egg slices."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_fish", "contains_egg"]
+    allergens: ["fish", "egg"]
+    modifier_group_slugs: []
+
+  # --- Rice / Noodles / Soups ---
+  - slug: burmese-fried-rice
+    category_slug: rice-noodles-soups
+    name_en: "Burmese Fried Rice"
+    name_my: "ပဲပြုတ်ထမင်းကြော်"
+    description_en: "Stir-fried rice with eggs, onion, garlic, and boiled yellow peas."
+    base_price_cents: 1900
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_egg"]
+    allergens: ["egg"]
+    modifier_group_slugs: []
+
+  - slug: goat-marrow-soup
+    category_slug: rice-noodles-soups
+    name_en: "Goat-Marrow Soup"
+    name_my: "ဆိတ်ရိုးစွပ်ပြုတ်"
+    description_en: "Goat stew + bone marrow infused soup with chickpeas and potatoes. Best paired with Parata."
+    base_price_cents: 1200
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: []
+    modifier_group_slugs: []
+
+  - slug: coconut-chicken-and-rice
+    category_slug: rice-noodles-soups
+    name_en: "Coconut Chicken & Rice"
+    name_my: "ကြက်အုန်းထမင်း"
+    description_en: "Coconut rice with balachaung + Burmese chicken curry cooked in coconut oil."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_shellfish_optional"]
+    allergens: ["shellfish"]
+    modifier_group_slugs: []
+
+  - slug: ngapi-rice-salad
+    category_slug: rice-noodles-soups
+    name_en: "Ngapi-Rice Salad"
+    name_my: "ငပိထမင်း"
+    description_en: "Rice tossed in fermented fish paste curry (Nga-Pi), served with sunny-side-up egg."
+    base_price_cents: 1300
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_fish", "contains_egg"]
+    allergens: ["fish", "egg"]
+    modifier_group_slugs: []
+
+  - slug: rice-with-pickled-tea-salad
+    category_slug: rice-noodles-soups
+    name_en: "Rice with Pickled Tea Salad"
+    name_my: "လက်ဖက်ထမင်း"
+    description_en: "Rice tossed in pickled tea salad + garnishes, served with sunny-side-up egg."
+    base_price_cents: 1300
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_egg"]
+    allergens: ["egg"]
+    modifier_group_slugs: []
+
+  - slug: tom-yum-fried-rice-or-noodles
+    category_slug: rice-noodles-soups
+    name_en: "Tom-Yum Fried Rice / Noodles"
+    name_my: "တုန်ရန်းထမင်းကြော်/ခေါက်ဆွဲကြော်"
+    description_en: "Stir-fry with shrimp + vegetables + tom yum aromatics (lemongrass/galangal/kaffir lime)."
+    base_price_cents: 1600
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_shellfish"]
+    allergens: ["shellfish"]
+    modifier_group_slugs: ["tom_yum_base"]
+
+  # --- Sides ---
+  - slug: parata
+    category_slug: sides
+    name_en: "Parata (2 pcs)"
+    name_my: "ပလာတာ"
+    description_en: "Two pieces. Great with goat marrow soup/curries."
+    base_price_cents: 500
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_gluten_wheat"]
+    allergens: ["gluten_wheat"]
+    modifier_group_slugs: []
+
+  - slug: coconut-rice
+    category_slug: sides
+    name_en: "Coconut Rice"
+    name_my: "အုန်းထမင်း"
+    description_en: "Coconut-cream cooked rice."
+    base_price_cents: 300
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: []
+    modifier_group_slugs: []
+
+  - slug: rice
+    category_slug: sides
+    name_en: "Rice"
+    name_my: "ထမင်းဖြူ"
+    description_en: "Steamed plain white rice."
+    base_price_cents: 200
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: []
+    modifier_group_slugs: []
+
+  - slug: balachaung
+    category_slug: sides
+    name_en: "Balachaung"
+    name_my: "ဘာလချောင်ကြော်"
+    description_en: "Shrimp condiment with fried onions, shrimp, garlic, ginger & red chilies."
+    base_price_cents: 300
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_shellfish"]
+    allergens: ["shellfish"]
+    modifier_group_slugs: []
+
+  # --- Curries (A la Carte) ---
+  - slug: goat-curry
+    category_slug: curries-a-la-carte
+    name_en: "Goat Curry [Original/Offal]"
+    name_my: "ဆိတ်သားဟင်း/ဆိတ်ကလီစာ"
+    description_en: "Braised goat in Burmese-Indian masala curry (choice of meat or offal)."
+    base_price_cents: 3000
+    is_active: true
+    is_sold_out: false
+    tags: ["spicy_optional"]
+    allergens: []
+    modifier_group_slugs: ["goat_curry_cut"]
+
+  - slug: beef-curry
+    category_slug: curries-a-la-carte
+    name_en: "Beef Curry"
+    name_my: "အမဲသားဟင်း/အမဲကြော်နှပ်"
+    description_en: "Slow-cooked Burmese-Indian beef curry; non-spicy braised option available."
+    base_price_cents: 1900
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["soy"]
+    modifier_group_slugs: ["beef_curry_style"]
+
+  - slug: beef-pounded-deep-fried
+    category_slug: curries-a-la-carte
+    name_en: "Beef Pounded Deep Fried"
+    name_my: "အမဲထောင်းကြော်"
+    description_en: "Pulled braised beef cooked in spicy chili oil."
+    base_price_cents: 1900
+    is_active: true
+    is_sold_out: false
+    tags: ["spicy"]
+    allergens: []
+    modifier_group_slugs: []
+
+  - slug: chicken-curry
+    category_slug: curries-a-la-carte
+    name_en: "Chicken Curry (Original / Masala / Coconut)"
+    name_my: "ကြက်သားဟင်း"
+    description_en: "Farm-raised chicken curry; masala spicy or sweet coconut option available."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["soy"]
+    modifier_group_slugs: ["chicken_curry_style"]
+
+  - slug: chicken-giblets-curry
+    category_slug: curries-a-la-carte
+    name_en: "Chicken Giblets Curry"
+    name_my: "ကြက်အသဲမြစ်"
+    description_en: "Chicken gizzards and liver in traditional Burmese curry."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: []
+    modifier_group_slugs: []
+
+  - slug: pork-curry
+    category_slug: curries-a-la-carte
+    name_en: "Pork Curry"
+    name_my: "ဝက်သနီ"
+    description_en: "Classic pork curry in sweet, mildly spiced sauce."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["soy"]
+    modifier_group_slugs: []
+
+  - slug: pork-horsegram-bean-curry
+    category_slug: curries-a-la-carte
+    name_en: "Pork Horsegram Bean Curry"
+    name_my: "ဝက်ပုန်းရည်ကြီး"
+    description_en: "Pork curry with horse gram beans; mildly spiced, earthy/nutty."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["soy"]
+    modifier_group_slugs: []
+
+  - slug: pork-skewers
+    category_slug: curries-a-la-carte
+    name_en: "Pork Skewers"
+    name_my: "ဝက်သားဒုတ်ထိုး"
+    description_en: "Slow-cooked pork + intestines + liver in herbal spices; served with dipping sauce."
+    base_price_cents: 1500
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: []
+    modifier_group_slugs: []
+
+  - slug: bamboo-shoot-with-pork-soup
+    category_slug: curries-a-la-carte
+    name_en: "Bamboo Shoot with Pork Soup"
+    name_my: "ဝက်မျှစ်ချဥ်"
+    description_en: "Pork in mildly spiced tamarind broth infused with bamboo shoots."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["fish"]
+    modifier_group_slugs: []
+
+  - slug: pork-offals-curry
+    category_slug: curries-a-la-carte
+    name_en: "Pork Offals Curry"
+    name_my: "ဝက်ကလီစာ"
+    description_en: "Pork offal + intestines + liver in mildly spiced sauce."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["soy"]
+    modifier_group_slugs: []
+
+  - slug: duck-egg-curry
+    category_slug: curries-a-la-carte
+    name_en: "Duck Egg"
+    name_my: "ဘဲဥဟင်း"
+    description_en: "Boiled duck eggs cooked in tomato-based curry."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_egg"]
+    allergens: ["egg"]
+    modifier_group_slugs: []
+
+  # --- Vegetables ---
+  - slug: roselle-with-shrimp-curry
+    category_slug: vegetables
+    name_en: "Roselle with Shrimp Curry"
+    name_my: "ချဥ်ပေါင်ကြော်"
+    description_en: "Roselle sour leaf curry with shrimp."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_shellfish"]
+    allergens: ["shellfish"]
+    modifier_group_slugs: []
+
+  - slug: acacia-with-shrimp-curry
+    category_slug: vegetables
+    name_en: "Acacia with Shrimp Curry"
+    name_my: "ကင်ပွန်းချဥ်ကြော်"
+    description_en: "Acacia sour leaf curry with shrimp."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_shellfish"]
+    allergens: ["shellfish"]
+    modifier_group_slugs: []
+
+  - slug: bamboo-shoot-mushroom-soup
+    category_slug: vegetables
+    name_en: "Bamboo Shoot Mushroom Soup"
+    name_my: "မျှစ်တောချက်"
+    description_en: "Young bamboo shoots cooked with mushrooms in savory soup."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: ["vegetarian"]
+    allergens: []
+    modifier_group_slugs: []
+
+  - slug: mixed-veggie-soup
+    category_slug: vegetables
+    name_en: "Mixed Veggie Soup"
+    name_my: "သီးစုံပဲကုလားဟင်း"
+    description_en: "Burmese Indian-style assorted vegetables in savory, mildly spicy soup."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: ["vegetarian", "spicy_optional"]
+    allergens: []
+    modifier_group_slugs: []
+
+  # --- Seafood Curries ---
+  - slug: crab-masala-curry
+    category_slug: seafood-curries
+    name_en: "Crab Masala Curry"
+    name_my: "ဂဏန်းမဆလာ"
+    description_en: "Whole Dungeness crab simmered in masala chili curry with tamarind."
+    base_price_cents: 3000
+    is_active: true
+    is_sold_out: false
+    tags: ["spicy_optional"]
+    allergens: ["shellfish"]
+    modifier_group_slugs: []
+
+  - slug: swai-fish-curry
+    category_slug: seafood-curries
+    name_en: "Swai Fish Curry"
+    name_my: "ငါးမြင်းဟင်း"
+    description_en: "Swai fish in mildly spiced sauce."
+    base_price_cents: 1900
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["fish"]
+    modifier_group_slugs: []
+
+  - slug: hilsa-fish
+    category_slug: seafood-curries
+    name_en: "Hilsa Fish"
+    name_my: "ငါးသလောက်ပေါင်း"
+    description_en: "Hilsa fish in tomato-based curry."
+    base_price_cents: 2400
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["fish"]
+    modifier_group_slugs: []
+
+  - slug: river-prawns-curry
+    category_slug: seafood-curries
+    name_en: "River Prawns Curry"
+    name_my: "ပုဇွန်ထုပ်ဟင်း"
+    description_en: "Whole river prawns curry with aromatics + prawn oil."
+    base_price_cents: 2400
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["shellfish"]
+    modifier_group_slugs: []
+
+  - slug: sweet-shrimps-curry
+    category_slug: seafood-curries
+    name_en: "Sweet Shrimps Curry"
+    name_my: "ပုဇွန်ကြော်နှပ်"
+    description_en: "Shrimp in mildly spiced sauce."
+    base_price_cents: 1900
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["shellfish"]
+    modifier_group_slugs: []
+
+  - slug: snakehead-innards-curry
+    category_slug: seafood-curries
+    name_en: "Snakehead Innards Curry"
+    name_my: "ငါးရံအူဟင်း"
+    description_en: "Snakehead intestines curry in spiced sauce."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["fish"]
+    modifier_group_slugs: []
+
+  - slug: fried-fish-cake-curry
+    category_slug: seafood-curries
+    name_en: "Fried Fish Cake Curry"
+    name_my: "ငါးဖယ်ချက်"
+    description_en: "Crispy fish cakes simmered in mildly spiced tamarind sauce."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["fish"]
+    modifier_group_slugs: []
+
+  - slug: boneless-catfish-curry
+    category_slug: seafood-curries
+    name_en: "Boneless Catfish Curry"
+    name_my: "ငါးခူမွှေချက်"
+    description_en: "Boneless catfish in mildly spiced tamarind sauce."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["fish"]
+    modifier_group_slugs: []
+
+  - slug: fermented-fish-paste-ngapi
+    category_slug: seafood-curries
+    name_en: "Fermented Fish Paste Nga-Pi"
+    name_my: "ငပိရည်ကျို"
+    description_en: "Platter of vegetables with fermented fish paste dip."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_fish"]
+    allergens: ["fish"]
+    modifier_group_slugs: []
+
+  - slug: fried-catfish-curry
+    category_slug: seafood-curries
+    name_en: "Fried Catfish Curry"
+    name_my: "ငါးခူကြော်နှပ်"
+    description_en: "Fried catfish curry."
+    base_price_cents: 1900
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["fish"]
+    modifier_group_slugs: []
+
+  - slug: fish-paste-tomato-curry
+    category_slug: seafood-curries
+    name_en: "Fish Paste Tomato Curry"
+    name_my: "ခရမ်းချဥ်သီးငါးပိချက်"
+    description_en: "Fish paste in tomato curry with ginger/onions/garlic."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_fish"]
+    allergens: ["fish"]
+    modifier_group_slugs: []
+
+  # --- Appetizers / Salads ---
+  - slug: pickled-tea-salad
+    category_slug: appetizers-salads
+    name_en: "Pickled Tea Salad"
+    name_my: "လက်ဖတ်သုပ်"
+    description_en: "Pickled tea leaves + lettuce + crispy beans/nuts; includes peanuts + dried shrimp powder."
+    base_price_cents: 1200
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_peanuts", "contains_shellfish"]
+    allergens: ["peanuts", "shellfish"]
+    modifier_group_slugs: []
+
+  - slug: tomato-salad
+    category_slug: appetizers-salads
+    name_en: "Tomato Salad"
+    name_my: "ခရမ်းချဥ်သီးသုပ်"
+    description_en: "Organic tomatoes + shallots + chickpea powder + lettuce + Thai chili."
+    base_price_cents: 1200
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: []
+    modifier_group_slugs: []
+
+  - slug: everything-salad
+    category_slug: appetizers-salads
+    name_en: "Everything Salad"
+    name_my: "အသုပ်စုံ"
+    description_en: "Seaweed, noodles, potato, banana shoots, papaya, lettuce; includes peanuts + dried shrimp powder."
+    base_price_cents: 1200
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_peanuts", "contains_shellfish"]
+    allergens: ["peanuts", "shellfish"]
+    modifier_group_slugs: []
+
+  - slug: century-egg-salad
+    category_slug: appetizers-salads
+    name_en: "Century Egg Salad"
+    name_my: "ဆေးဘဲဥသုပ်"
+    description_en: "Century egg + tomato + shallot + chickpea powder; includes peanuts + dried shrimp powder."
+    base_price_cents: 1200
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_peanuts", "contains_shellfish", "contains_egg"]
+    allergens: ["peanuts", "shellfish", "egg"]
+    modifier_group_slugs: []
+
+  - slug: grilled-aubergine-salad
+    category_slug: appetizers-salads
+    name_en: "Grilled Aubergine Salad"
+    name_my: "ခရမ်းသီးမီးဖုတ်သုပ်"
+    description_en: "Grilled eggplant with shallot, chili, lime, peanuts; crispy shallots + coriander."
+    base_price_cents: 1200
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_peanuts"]
+    allergens: ["peanuts"]
+    modifier_group_slugs: []
+
+  # --- Drinks ---
+  - slug: burmese-milk-tea
+    category_slug: drinks
+    name_en: "Burmese Milk Tea"
+    name_my: "လက်ဖတ်ရည်"
+    description_en: "Burmese roasted black tea with evaporated + condensed milk."
+    base_price_cents: 400
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_dairy"]
+    allergens: ["dairy"]
+    modifier_group_slugs: []
+
+  - slug: faluda
+    category_slug: drinks
+    name_en: "Faluda"
+    name_my: "ဖါလူဒါ"
+    description_en: "Burmese sundae with pudding, jelly, assorted nuts."
+    base_price_cents: 900
+    is_active: true
+    is_sold_out: false
+    tags: ["contains_tree_nuts_optional", "contains_dairy_optional"]
+    allergens: ["tree_nuts", "dairy"]
+    modifier_group_slugs: []
+
+external_reference_items_unverified:
+  # DoorDash shows an item "Mont Ti / မုန့်တီ" at $17.50, separate from Nan-Gyi Mont Ti.
+  # Keep here until you confirm whether it should be a distinct item in your first-party app.
+  - source: doordash
+    name_en: "Mont Ti"
+    name_my: "မုန့်တီ"
+    observed_price_cents: 1750
+    notes: "Appears as a featured item on DoorDash; verify if distinct from Nan-Gyi Mont Ti."
