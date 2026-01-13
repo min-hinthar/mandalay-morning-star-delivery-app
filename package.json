@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:ci": "vitest run",
     "rls:test": "node scripts/rls-isolation-test.mjs"
   },
   "dependencies": {
@@ -55,4 +56,3 @@
     "vitest": "^4.0.17"
   }
 }
-
