@@ -9,7 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "rls:test": "node scripts/rls-isolation-test.js"
+    "rls:test": "node scripts/rls-isolation-test.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -55,3 +55,4 @@
     "vitest": "^4.0.17"
   }
 }
+
