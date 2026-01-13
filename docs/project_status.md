@@ -2,7 +2,7 @@
 
 > **Last Updated**: 2026-01-13
 > **Current Phase**: V0 Skeleton
-> **Current Milestone**: V0 (Skeleton) - 45% Complete
+> **Current Milestone**: V0 (Skeleton) - 60% Complete
 
 ---
 
@@ -24,7 +24,7 @@
 
 ## Milestone Progress
 
-### V0 - Skeleton (45% Complete)
+### V0 - Skeleton (60% Complete)
 
 | Task | Status | Owner | PR |
 |------|--------|-------|-----|
@@ -33,7 +33,8 @@
 | Database migrations (base) | Done | Codex | V0-002 |
 | Supabase Auth integration | Done | Codex | V0-003 |
 | Profile creation trigger | Done | Codex | V0-002 |
-| RLS policies (profiles, addresses) | Pending | Codex | - |
+| RLS policies (all 10 tables) | Done | Codex | V0-004 |
+| RLS isolation test script | Done | Codex | V0-004 |
 | Google Maps API setup | Pending | Manual | - |
 | Coverage check endpoint | Pending | Codex | - |
 | Coverage UI component | Pending | Codex | - |
@@ -48,8 +49,8 @@
 - [x] User can sign up with email
 - [ ] User can check if address is deliverable
 - [ ] User can browse full menu on mobile
-- [ ] RLS prevents cross-user data access
-- [ ] CI passes on all PRs
+- [x] RLS prevents cross-user data access (tested via isolation script)
+- [x] CI passes on all PRs (lint, typecheck, test, build)
 
 ---
 
@@ -129,10 +130,10 @@
 
 ## Next Actions
 
-1. **[V0-004]** Coverage checker (requires Google Maps API key)
-2. **[V0-005]** Menu data model + seed import
-3. **[V0-006]** Menu browse UI
-4. **[External]** Get Google Maps API key (blocking V0-004)
+1. **[V0-005]** Coverage checker (requires Google Maps API key)
+2. **[V0-006]** Menu data model + seed import
+3. **[V0-007]** Menu browse UI
+4. **[External]** Get Google Maps API key (blocking V0-005)
 
 ---
 
@@ -150,7 +151,15 @@
   - Password reset flow
   - Protected routes with middleware
   - User menu in header
+- RLS policies implemented (V0-004)
+  - All 10 tables secured with RLS
+  - User-scoped: profiles, addresses, orders, order_items, order_item_modifiers
+  - Public read: menu_categories, menu_items, modifier_groups, modifier_options, item_modifier_groups
+  - Admin policies for future dashboard
+  - Isolation test script added
 
 ---
 
-*Updated by: Claude (Review) | Next review: After V0-004 coverage checker*
+*Updated by: Claude (Review) | Next review: After V0-005 coverage checker*
+
+
