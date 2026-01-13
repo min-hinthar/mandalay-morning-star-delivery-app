@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import type { ReactElement, ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import { Header } from "@/components/layout/header";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -41,13 +43,14 @@ export const viewport: Viewport = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
-}>) {
+  children: ReactNode;
+}>): ReactElement {
   return (
     <html lang="en">
       <body
         className={`${inter.variable} ${playfair.variable} font-body bg-background text-foreground antialiased`}
       >
+        <Header />
         {children}
       </body>
     </html>

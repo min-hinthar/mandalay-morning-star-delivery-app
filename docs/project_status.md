@@ -12,7 +12,7 @@
 |------|--------|-------|
 | ?? Planning | ? Complete | Spec doc finalized |
 | ??? Scaffold | ? Complete | Base scaffold in place |
-| ?? Auth | ? Pending | Supabase setup required |
+| ?? Auth | Done | Supabase auth flow implemented |
 | ??? Coverage | ? Pending | Google Maps API key needed |
 | ?? Menu UI | ? Pending | Depends on scaffold |
 | ?? Cart | ? Pending | V1 scope |
@@ -24,14 +24,14 @@
 
 ## Milestone Progress
 
-### V0 - Skeleton (30% Complete)
+### V0 - Skeleton (40% Complete)
 
 | Task | Status | Owner | PR |
 |------|--------|-------|-----|
 | Project scaffold | ? Done | Codex | - |
 | Supabase project setup | ? | - | - |
 | Database migrations (base) | ? Done | Codex | - |
-| Supabase Auth integration | ? | Codex | - |
+| Supabase Auth integration | Done | Codex | - |
 | Profile creation trigger | ? Done | Codex | - |
 | RLS policies (profiles, addresses) | ? | Codex | - |
 | Google Maps API setup | ? | - | - |
@@ -45,7 +45,7 @@
 | CI pipeline (lint/typecheck/build) | ? Done | Codex | - |
 
 **V0 Exit Criteria**:
-- [ ] User can sign up with email
+- [x] User can sign up with email
 - [ ] User can check if address is deliverable
 - [ ] User can browse full menu on mobile
 - [ ] RLS prevents cross-user data access
@@ -146,5 +146,3 @@
 ---
 
 *Updated by: Codex (Implementation) | Next review: After V0 scaffold*
-
-
