@@ -2,7 +2,7 @@
 
 > **Last Updated**: 2026-01-13
 > **Current Phase**: V0 Skeleton
-> **Current Milestone**: V0 (Skeleton) - 50% Complete
+> **Current Milestone**: V0 (Skeleton) - 60% Complete
 
 ---
 
@@ -24,7 +24,7 @@
 
 ## Milestone Progress
 
-### V0 - Skeleton (50% Complete)
+### V0 - Skeleton (60% Complete)
 
 | Task | Status | Owner | PR |
 |------|--------|-------|-----|
@@ -33,7 +33,8 @@
 | Database migrations (base) | Done | Codex | V0-002 |
 | Supabase Auth integration | Done | Codex | V0-003 |
 | Profile creation trigger | Done | Codex | V0-002 |
-| RLS policies (profiles, addresses) | Done | Codex | - |
+| RLS policies (all 10 tables) | Done | Codex | V0-004 |
+| RLS isolation test script | Done | Codex | V0-004 |
 | Google Maps API setup | Pending | Manual | - |
 | Coverage check endpoint | Pending | Codex | - |
 | Coverage UI component | Pending | Codex | - |
@@ -48,8 +49,8 @@
 - [x] User can sign up with email
 - [ ] User can check if address is deliverable
 - [ ] User can browse full menu on mobile
-- [x] RLS prevents cross-user data access
-- [ ] CI passes on all PRs
+- [x] RLS prevents cross-user data access (tested via isolation script)
+- [x] CI passes on all PRs (lint, typecheck, test, build)
 
 ---
 
@@ -150,6 +151,12 @@
   - Password reset flow
   - Protected routes with middleware
   - User menu in header
+- RLS policies implemented (V0-004)
+  - All 10 tables secured with RLS
+  - User-scoped: profiles, addresses, orders, order_items, order_item_modifiers
+  - Public read: menu_categories, menu_items, modifier_groups, modifier_options, item_modifier_groups
+  - Admin policies for future dashboard
+  - Isolation test script added
 
 ---
 
