@@ -8,10 +8,34 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Planning Phase
-- Initial project spec created
-- Architecture documented
-- Milestone definitions (V0/V1/V2) finalized
+### V0-003 - Supabase Auth Integration (2026-01-13)
+
+**Added**
+- Login page at `/login` with email/password form
+- Signup page at `/signup` with password confirmation
+- Forgot password page at `/forgot-password`
+- Password reset page at `/auth/reset-password`
+- Auth callback route for email confirmation
+- User menu component in header (sign in/out state)
+- Protected route middleware (cart, checkout, orders)
+- Server actions for all auth operations
+- Form validation with error messages
+- Loading states during auth operations
+
+**Files Created/Modified**
+- `src/lib/supabase/actions.ts` - Server actions (signUp, signIn, signOut, resetPassword, updatePassword)
+- `src/app/auth/callback/route.ts` - Email confirmation handler
+- `src/app/(auth)/login/page.tsx` - Login page
+- `src/app/(auth)/signup/page.tsx` - Signup page
+- `src/app/(auth)/forgot-password/page.tsx` - Forgot password page
+- `src/app/auth/reset-password/page.tsx` - Password reset page
+- `src/components/auth/login-form.tsx` - Login form component
+- `src/components/auth/signup-form.tsx` - Signup form component
+- `src/components/auth/forgot-password-form.tsx` - Forgot password form
+- `src/components/auth/reset-password-form.tsx` - Reset password form
+- `src/components/auth/user-menu.tsx` - Header user menu
+- `src/middleware.ts` - Protected routes + session refresh
+- `src/components/layout/header.tsx` - Added user menu integration
 
 ---
 

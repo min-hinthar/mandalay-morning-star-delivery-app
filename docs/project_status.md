@@ -1,8 +1,8 @@
 # Project Status - Mandalay Morning Star
 
-> **Last Updated**: 2026-01-13  
-> **Current Phase**: Scaffold  
-> **Current Milestone**: V0 (Skeleton) - In Progress
+> **Last Updated**: 2026-01-13
+> **Current Phase**: V0 Skeleton
+> **Current Milestone**: V0 (Skeleton) - 45% Complete
 
 ---
 
@@ -24,25 +24,25 @@
 
 ## Milestone Progress
 
-### V0 - Skeleton (40% Complete)
+### V0 - Skeleton (45% Complete)
 
 | Task | Status | Owner | PR |
 |------|--------|-------|-----|
-| Project scaffold | ? Done | Codex | - |
-| Supabase project setup | ? | - | - |
-| Database migrations (base) | ? Done | Codex | - |
-| Supabase Auth integration | Done | Codex | - |
-| Profile creation trigger | ? Done | Codex | - |
-| RLS policies (profiles, addresses) | ? | Codex | - |
-| Google Maps API setup | ? | - | - |
-| Coverage check endpoint | ? | Codex | - |
-| Coverage UI component | ? | Codex | - |
-| Menu data model + seed import | ? | Codex | - |
-| Menu browse page | ? | Codex | - |
-| Category tabs + sticky header | ? | Codex | - |
-| Item cards grid | ? | Codex | - |
-| Mobile responsive testing | ? | Codex | - |
-| CI pipeline (lint/typecheck/build) | ? Done | Codex | - |
+| Project scaffold | Done | Codex | V0-001 |
+| Supabase project setup | Pending | Manual | - |
+| Database migrations (base) | Done | Codex | V0-002 |
+| Supabase Auth integration | Done | Codex | V0-003 |
+| Profile creation trigger | Done | Codex | V0-002 |
+| RLS policies (profiles, addresses) | Pending | Codex | - |
+| Google Maps API setup | Pending | Manual | - |
+| Coverage check endpoint | Pending | Codex | - |
+| Coverage UI component | Pending | Codex | - |
+| Menu data model + seed import | Pending | Codex | - |
+| Menu browse page | Pending | Codex | - |
+| Category tabs + sticky header | Pending | Codex | - |
+| Item cards grid | Pending | Codex | - |
+| Mobile responsive testing | Pending | Codex | - |
+| CI pipeline (lint/typecheck/build) | Done | Codex | V0-001 |
 
 **V0 Exit Criteria**:
 - [x] User can sign up with email
@@ -129,10 +129,10 @@
 
 ## Next Actions
 
-1. **[Immediate]** Set up GitHub repository
-2. **[Immediate]** Create Supabase project
-3. **[Immediate]** Create Stripe test account
-4. **[Immediate]** Get Google Maps API key
+1. **[V0-004]** Coverage checker (requires Google Maps API key)
+2. **[V0-005]** Menu data model + seed import
+3. **[V0-006]** Menu browse UI
+4. **[External]** Get Google Maps API key (blocking V0-004)
 
 ---
 
@@ -141,8 +141,16 @@
 ### Week 1 (2026-01-12)
 - Project kickoff
 - Spec document completed
-- Scaffold baseline completed
+- Scaffold baseline completed (V0-001)
+- Database schema defined (V0-002)
+
+### Week 2 (2026-01-13)
+- Supabase auth flow integrated (V0-003)
+  - Login/signup/logout pages
+  - Password reset flow
+  - Protected routes with middleware
+  - User menu in header
 
 ---
 
-*Updated by: Codex (Implementation) | Next review: After V0 scaffold*
+*Updated by: Claude (Review) | Next review: After V0-004 coverage checker*

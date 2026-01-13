@@ -15,18 +15,18 @@ Implement complete authentication flow using Supabase Auth with email/password. 
 
 ## Acceptance Criteria
 
-- [ ] Login page at `/login` with email/password form
-- [ ] Signup page at `/signup` with email/password/confirm form
-- [ ] User can sign up with email and receive confirmation
-- [ ] User can log in with credentials
-- [ ] User can log out
-- [ ] Profile auto-created on signup (via V0-002 trigger)
-- [ ] Session persists across page refresh
-- [ ] Protected routes redirect to `/login`
-- [ ] Auth'd users on `/login` redirect to home
-- [ ] Password reset flow (request + update)
-- [ ] Form validation with error messages
-- [ ] Loading states during auth operations
+- [x] Login page at `/login` with email/password form
+- [x] Signup page at `/signup` with email/password/confirm form
+- [x] User can sign up with email and receive confirmation
+- [x] User can log in with credentials
+- [x] User can log out
+- [x] Profile auto-created on signup (via V0-002 trigger)
+- [x] Session persists across page refresh
+- [x] Protected routes redirect to `/login`
+- [x] Auth'd users on `/login` redirect to home
+- [x] Password reset flow (request + update)
+- [x] Form validation with error messages
+- [x] Loading states during auth operations
 
 ---
 
@@ -601,20 +601,20 @@ pnpm build
 
 ## Definition of Done
 
-1. [ ] Login page functional with form validation
-2. [ ] Signup page functional with password confirmation
-3. [ ] Auth callback route handles email confirmation
-4. [ ] Session persists across refresh
-5. [ ] Protected routes redirect to login
-6. [ ] Logged-in users redirect from login/signup pages
-7. [ ] Sign out clears session
-8. [ ] Profile created automatically on signup
-9. [ ] Loading states during auth operations
-10. [ ] Error messages display correctly
-11. [ ] `pnpm lint` passes
-12. [ ] `pnpm typecheck` passes
-13. [ ] `pnpm build` succeeds
-14. [ ] `docs/project_status.md` updated
+1. [x] Login page functional with form validation
+2. [x] Signup page functional with password confirmation
+3. [x] Auth callback route handles email confirmation
+4. [x] Session persists across refresh
+5. [x] Protected routes redirect to login
+6. [x] Logged-in users redirect from login/signup pages
+7. [x] Sign out clears session
+8. [x] Profile created automatically on signup
+9. [x] Loading states during auth operations
+10. [x] Error messages display correctly
+11. [x] `pnpm lint` passes
+12. [x] `pnpm typecheck` passes
+13. [x] `pnpm build` succeeds
+14. [x] `docs/project_status.md` updated
 
 ---
 
