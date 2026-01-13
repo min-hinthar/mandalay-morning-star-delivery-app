@@ -8,6 +8,28 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### V0-004 - RLS Policies (2026-01-13)
+
+**Added**
+- Row Level Security policies for all 10 database tables
+- User-scoped policies for profiles, addresses, orders, order_items, order_item_modifiers
+- Public read policies for menu tables (categories, items, modifier_groups, modifier_options, item_modifier_groups)
+- Admin policies for viewing/updating orders and profiles
+- Cross-user isolation test script (`scripts/rls-isolation-test.mjs`)
+
+**Security**
+- Users can only read/write their own data
+- Menu data is publicly readable (active items only)
+- Admins can view all orders and update order status
+- Service role bypasses RLS for backend operations
+
+**Files Created/Modified**
+- `supabase/migrations/20260112000002_rls_policies.sql` - RLS policy definitions
+- `scripts/rls-isolation-test.mjs` - Isolation test script
+- `.github/workflows/ci.yml` - Added test script support
+
+---
+
 ### V0-003 - Supabase Auth Integration (2026-01-13)
 
 **Added**
