@@ -1,26 +1,34 @@
 import { forwardRef } from "react";
-import { MenuCategory } from "@/lib/queries/menu";
+import { MenuCategory, MenuItem } from "@/lib/queries/menu";
 import { MenuItemCard } from "./menu-item-card";
 
 interface MenuSectionProps {
   category: MenuCategory;
   id?: string;
+  onItemSelect?: (item: MenuItem) => void;
 }
 
 export const MenuSection = forwardRef<HTMLElement, MenuSectionProps>(
-  function MenuSection({ category, id }, ref) {
+  function MenuSection({ category, id, onItemSelect }, ref) {
     return (
-      <section ref={ref} id={id ?? category.slug} className="pt-6">
-        <h2 className="text-xl font-display text-brand-red mb-4 sticky top-[60px] bg-background py-2 z-[5]">
-          {category.name}
-          <span className="text-sm font-normal text-muted ml-2">
-            ({category.items.length})
-          </span>
-        </h2>
+      <section
+        ref={ref}
+        id={id ?? category.slug}
+        className="scroll-mt-20 pt-6"
+      >
+        <div className="sticky top-[60px] z-[5] -mx-4 border-b border-border/50 bg-background/95 py-3 backdrop-blur-sm">
+          <h2 className="px-4 text-xl font-display text-brand-red">
+            {category.name}
+            <span className="ml-2 text-sm font-normal text-muted">
+              ({category.items.length}{" "}
+              {category.items.length === 1 ? "item" : "items"})
+            </span>
+          </h2>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {category.items.map((item) => (
-            <MenuItemCard key={item.id} item={item} />
+            <MenuItemCard key={item.id} item={item} onSelect={onItemSelect} />
           ))}
         </div>
       </section>
