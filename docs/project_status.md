@@ -2,7 +2,7 @@
 
 > **Last Updated**: 2026-01-13
 > **Current Phase**: V0 Skeleton
-> **Current Milestone**: V0 (Skeleton) - 83% Complete
+> **Current Milestone**: V0 (Skeleton) - 92% Complete
 
 ---
 
@@ -14,7 +14,7 @@
 | ??? Scaffold | ? Complete | Base scaffold in place |
 | ?? Auth | Done | Supabase auth flow implemented |
 | ??? Coverage | Done | Coverage check implemented |
-| ?? Menu UI | ? Pending | Depends on scaffold |
+| ?? Menu UI | Done | Menu browsing UI delivered |
 | ?? Cart | ? Pending | V1 scope |
 | ?? Checkout | ? Pending | V1 scope |
 | ????? Admin | ? Pending | V2 scope |
@@ -24,7 +24,7 @@
 
 ## Milestone Progress
 
-### V0 - Skeleton (83% Complete)
+### V0 - Skeleton (92% Complete)
 
 | Task | Status | Owner | PR |
 |------|--------|-------|-----|
@@ -39,16 +39,16 @@
 | Coverage check endpoint | Done | Codex | V0-005 |
 | Coverage UI component | Done | Codex | V0-005 |
 | Menu data model + seed import | Done | Codex | V0-006 |
-| Menu browse page | Pending | Codex | - |
-| Category tabs + sticky header | Pending | Codex | - |
-| Item cards grid | Pending | Codex | - |
-| Mobile responsive testing | Pending | Codex | - |
+| Menu browse page | Done | Codex | V0-007 |
+| Category tabs + sticky header | Done | Codex | V0-007 |
+| Item cards grid | Done | Codex | V0-007 |
+| Mobile responsive testing | Done | Codex | V0-007 |
 | CI pipeline (lint/typecheck/build) | Done | Codex | V0-001 |
 
 **V0 Exit Criteria**:
 - [x] User can sign up with email
 - [x] User can check if address is deliverable
-- [ ] User can browse full menu on mobile
+- [x] User can browse full menu on mobile
 - [x] RLS prevents cross-user data access (tested via isolation script)
 - [x] CI passes on all PRs (lint, typecheck, test, build)
 
@@ -130,8 +130,7 @@
 
 ## Next Actions
 
-1. **[V0-007]** Menu browse UI
-2. **[External]** Get Google Maps API key (blocking coverage checks)
+1. **[External]** Get Google Maps API key (blocking coverage checks)
 
 ## Weekly Standup Notes
 
@@ -167,7 +166,5 @@
 
 ---
 
-*Updated by: Claude (Review) | Next review: After V0-007 menu browse UI*
-
-
+*Updated by: Codex | Next review: After Google Maps API key setup*
 
