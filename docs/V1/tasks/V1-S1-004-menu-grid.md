@@ -15,15 +15,15 @@ Create the responsive menu grid layout that displays items by category. The grid
 
 ## Acceptance Criteria
 
-- [ ] Responsive grid: 1 col mobile, 2 col tablet, 3-4 col desktop
-- [ ] Category sections with sticky headers
-- [ ] Section headers show category name + item count
-- [ ] Skeleton loading state during fetch
-- [ ] Empty state if no items (category or search)
-- [ ] "Menu coming soon" if no active categories
-- [ ] Smooth grid transitions
-- [ ] Proper spacing between sections
-- [ ] `pnpm lint && pnpm typecheck && pnpm build` pass
+- [x] Responsive grid: 1 col mobile, 2 col tablet, 3-4 col desktop
+- [x] Category sections with sticky headers
+- [x] Section headers show category name + item count
+- [x] Skeleton loading state during fetch
+- [x] Empty state if no items (category or search)
+- [x] "Menu coming soon" if no active categories
+- [x] Smooth grid transitions
+- [x] Proper spacing between sections
+- [x] `pnpm lint && pnpm typecheck && pnpm build` pass
 
 ---
 
@@ -354,19 +354,19 @@ pnpm build
 
 ## Definition of Done
 
-1. [ ] Responsive grid layout (1/2/3/4 cols)
-2. [ ] Category sections with headers
-3. [ ] Sticky section headers
-4. [ ] Item count in headers
-5. [ ] Empty state: no menu
-6. [ ] Empty state: no search results
-7. [ ] Skeleton loading state
-8. [ ] Search results grid
-9. [ ] Smooth animations
-10. [ ] `pnpm lint` passes
-11. [ ] `pnpm typecheck` passes
-12. [ ] `pnpm build` succeeds
-13. [ ] `docs/project_status.md` updated
+1. [x] Responsive grid layout (1/2/3/4 cols)
+2. [x] Category sections with headers
+3. [x] Sticky section headers
+4. [x] Item count in headers
+5. [x] Empty state: no menu
+6. [x] Empty state: no search results
+7. [x] Skeleton loading state
+8. [x] Search results grid
+9. [x] Smooth animations
+10. [x] `pnpm lint` passes
+11. [x] `pnpm typecheck` passes
+12. [x] `pnpm build` succeeds
+13. [x] `docs/project_status.md` updated
 
 ---
 
@@ -381,4 +381,4 @@ pnpm build
 
 ---
 
-*Task ready for implementation*
+*Task complete ✅*

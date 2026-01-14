@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { MenuItem } from "@/types/menu";
-import { ItemCard } from "./ItemCard";
+import type { MenuItem } from "@/lib/queries/menu";
+import { MenuItemCard } from "./menu-item-card";
 import { MenuEmptyState } from "./menu-empty-state";
 
 interface SearchResultsGridProps {
@@ -48,7 +48,7 @@ export function SearchResultsGrid({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.03 }}
           >
-            <ItemCard item={item} onSelect={onItemSelect} />
+            <MenuItemCard item={item} onSelect={onItemSelect} />
           </motion.div>
         ))}
       </div>
