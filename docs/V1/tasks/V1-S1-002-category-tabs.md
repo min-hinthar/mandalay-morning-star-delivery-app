@@ -1,9 +1,10 @@
-# Task: V1-S1-002 — Category Tabs Component
+# Task: V1-S1-002 — Category Tabs Component ✅
 
 > **Sprint**: 1 (Menu Browse)
 > **Priority**: P0
 > **Depends On**: V1-S1-001 (Menu Data Layer)
 > **Branch**: `feat/category-tabs-v1`
+> **Status**: Complete (2026-01-14)
 
 ---
 
@@ -15,18 +16,18 @@ Enhance the category tabs component from V0 with improved UX: "All" pseudo-tab, 
 
 ## Acceptance Criteria
 
-- [ ] "All" pseudo-tab shows all items (first tab)
-- [ ] Horizontal scrollable tabs on mobile
-- [ ] Sticky below header on scroll (top: 0)
-- [ ] Active tab visually highlighted (brand-red background)
-- [ ] Clicking tab scrolls to corresponding section
-- [ ] Scroll position updates active tab (scroll-spy)
-- [ ] Active tab auto-scrolls into view
-- [ ] Order matches `sortOrder` from API
-- [ ] Only active categories displayed
-- [ ] Touch targets minimum 44px
-- [ ] Smooth scroll behavior
-- [ ] `pnpm lint && pnpm typecheck && pnpm build` pass
+- [x] "All" pseudo-tab shows all items (first tab)
+- [x] Horizontal scrollable tabs on mobile
+- [x] Sticky below header on scroll (top: 0)
+- [x] Active tab visually highlighted (brand-red background)
+- [x] Clicking tab scrolls to corresponding section
+- [x] Scroll position updates active tab (scroll-spy)
+- [x] Active tab auto-scrolls into view
+- [x] Order matches `sortOrder` from API
+- [x] Only active categories displayed
+- [x] Touch targets minimum 44px
+- [x] Smooth scroll behavior
+- [x] `pnpm lint && pnpm typecheck && pnpm build` pass
 
 ---
 
@@ -321,18 +322,18 @@ pnpm build
 
 ## Definition of Done
 
-1. [ ] "All" pseudo-tab implemented
-2. [ ] Horizontal scroll on mobile
-3. [ ] Sticky positioning works
-4. [ ] Active tab styling with Framer Motion
-5. [ ] Scroll-spy updates active tab
-6. [ ] Active tab auto-scrolls into view
-7. [ ] Touch targets ≥ 44px
-8. [ ] Keyboard accessible
-9. [ ] `pnpm lint` passes
-10. [ ] `pnpm typecheck` passes
-11. [ ] `pnpm build` succeeds
-12. [ ] `docs/project_status.md` updated
+1. [x] "All" pseudo-tab implemented
+2. [x] Horizontal scroll on mobile
+3. [x] Sticky positioning works
+4. [x] Active tab styling with Framer Motion
+5. [x] Scroll-spy updates active tab
+6. [x] Active tab auto-scrolls into view
+7. [x] Touch targets ≥ 44px
+8. [x] Keyboard accessible
+9. [x] `pnpm lint` passes
+10. [x] `pnpm typecheck` passes
+11. [x] `pnpm build` succeeds
+12. [x] `docs/project_status.md` updated
 
 ---
 
