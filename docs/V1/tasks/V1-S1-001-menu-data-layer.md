@@ -499,7 +499,7 @@ pnpm build
 11. [ ] `pnpm lint` passes
 12. [ ] `pnpm typecheck` passes
 13. [ ] `pnpm build` succeeds
-14. [ ] `docs/project_status.md` updated
+14. [ ] `docs/project_status.md` updated, completion percentage updated
 
 ---
 
