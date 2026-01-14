@@ -8,6 +8,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Auth Fix - OTP Profile Trigger (2026-01-13)
+
+**Fixed**
+- Allow profile creation when OTP signups provide a null email
+- Hardened auth trigger to ignore duplicate profile inserts
+
+**Files Modified**
+- `supabase/migrations/20260113000001_fix_profile_trigger.sql` - Nullable email + trigger fix
+- `src/types/database.ts` - Updated profiles email nullability
+
+
 ### Auth Improvement - Magic Link Authentication (2026-01-13)
 
 **Changed**
