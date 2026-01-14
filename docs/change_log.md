@@ -8,6 +8,48 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### V0-007 - Menu Browse UI (2026-01-13)
+
+**Added**
+- Menu browse page at `/menu` with server-side rendering
+- Category tabs component with horizontal scrolling
+- Menu item card component with image, pricing, and allergen display
+- Menu section component for grouped category display
+- Menu skeleton component for loading states
+- Menu query function for fetching categories with items
+
+**Features**
+- Sticky category tabs with scroll-spy activation
+- Touch-friendly 44px minimum hit targets for mobile
+- Auto-scroll tabs to keep active category visible
+- Smooth scrolling to category sections on tab click
+- Reduced motion support for accessibility
+- Sold out overlay state on item cards
+- Bilingual display (English + Burmese names)
+- Allergen badges with semantic colors
+- Image optimization with Next.js Image component
+- Responsive grid layout (1-3 columns)
+- Loading skeleton with pulse animation
+
+**Files Created/Modified**
+- `src/app/(public)/menu/page.tsx` - Menu browse page with SSR
+- `src/components/menu/menu-content.tsx` - Main content orchestrator
+- `src/components/menu/category-tabs.tsx` - Sticky category navigation
+- `src/components/menu/menu-section.tsx` - Category section wrapper
+- `src/components/menu/menu-item-card.tsx` - Individual item card
+- `src/components/menu/menu-skeleton.tsx` - Loading state skeleton
+- `src/components/menu/index.ts` - Barrel exports
+- `src/lib/queries/menu.ts` - Supabase menu queries
+- `src/lib/utils/format.ts` - Price formatting utility
+
+**Mobile Responsive**
+- Single column on small screens
+- Two columns on medium screens (sm breakpoint)
+- Three columns on large screens (lg breakpoint)
+- Horizontally scrollable category tabs
+
+---
+
 ### V0-006 - Menu Seed Import (2026-01-13)
 
 **Added**
