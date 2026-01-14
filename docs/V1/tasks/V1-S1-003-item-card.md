@@ -15,17 +15,17 @@ Enhance the menu item card from V0 with "Popular" badges, improved sold-out over
 
 ## Acceptance Criteria
 
-- [ ] Card shows: image, name_en, name_my, base_price
-- [ ] "Popular" badge on items with `featured` tag
-- [ ] Sold out items show overlay + disabled state
-- [ ] Allergen icons displayed with hover tooltips
-- [ ] Skeleton loading state for images
-- [ ] Hover lift effect (desktop)
-- [ ] Tap scale effect (mobile)
-- [ ] Click triggers `onSelect` callback
-- [ ] Burmese text renders with Padauk font
-- [ ] Responsive image sizing
-- [ ] `pnpm lint && pnpm typecheck && pnpm build` pass
+- [x] Card shows: image, name_en, name_my, base_price
+- [x] "Popular" badge on items with `featured` tag
+- [x] Sold out items show overlay + disabled state
+- [x] Allergen icons displayed with hover tooltips
+- [x] Skeleton loading state for images
+- [x] Hover lift effect (desktop)
+- [x] Tap scale effect (mobile)
+- [x] Click triggers `onSelect` callback
+- [x] Burmese text renders with Padauk font
+- [x] Responsive image sizing
+- [x] `pnpm lint && pnpm typecheck && pnpm build` pass
 
 ---
 
@@ -382,19 +382,19 @@ pnpm build
 
 ## Definition of Done
 
-1. [ ] Card shows image, name, price
-2. [ ] Popular badge on featured items
-3. [ ] Sold out overlay + disabled state
-4. [ ] Allergen icons with tooltips
-5. [ ] Image skeleton loading
-6. [ ] Hover/tap animations
-7. [ ] Click triggers callback
-8. [ ] Burmese font renders
-9. [ ] Keyboard accessible
-10. [ ] `pnpm lint` passes
-11. [ ] `pnpm typecheck` passes
-12. [ ] `pnpm build` succeeds
-13. [ ] `docs/project_status.md` updated
+1. [x] Card shows image, name, price
+2. [x] Popular badge on featured items
+3. [x] Sold out overlay + disabled state
+4. [x] Allergen icons with tooltips
+5. [x] Image skeleton loading
+6. [x] Hover/tap animations
+7. [x] Click triggers callback
+8. [x] Burmese font renders
+9. [x] Keyboard accessible
+10. [x] `pnpm lint` passes
+11. [x] `pnpm typecheck` passes
+12. [x] `pnpm build` succeeds
+13. [x] `docs/project_status.md` updated
 
 ---
 
