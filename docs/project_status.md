@@ -1,182 +1,201 @@
-# Project Status - Mandalay Morning Star
+# docs/project_status.md — Milestone Tracking (v1.0)
 
-> **Last Updated**: 2026-01-13
-> **Current Phase**: V0 Skeleton
-> **Current Milestone**: V0 (Skeleton) - 100% Complete (code)
-
----
-
-## Quick Status
-
-| Area | Status | Notes |
-|------|--------|-------|
-| ?? Planning | ? Complete | Spec doc finalized |
-| ??? Scaffold | ? Complete | Base scaffold in place |
-| ?? Auth | Done | Magic link auth (no passwords) |
-| ??? Coverage | Done | Coverage check implemented |
-| ?? Menu UI | Done | Menu browsing UI delivered |
-| ?? Cart | ? Pending | V1 scope |
-| ?? Checkout | ? Pending | V1 scope |
-| ????? Admin | ? Pending | V2 scope |
-| ?? Delivery | ? Pending | V2 scope |
+> **Last Updated**: 2026-01-14
+> **Current Phase**: V1 Development
 
 ---
 
-## Milestone Progress
+## 📊 Milestone Overview
 
-### V0 - Skeleton (100% Complete - Code)
-
-| Task | Status | Owner | PR |
-|------|--------|-------|-----|
-| Project scaffold | Done | Codex | V0-001 |
-| Supabase project setup | Pending | Manual | - |
-| Database migrations (base) | Done | Codex | V0-002 |
-| Supabase Auth integration | Done | Codex | V0-003 |
-| Profile creation trigger | Done | Codex | V0-002 |
-| RLS policies (all 10 tables) | Done | Codex | V0-004 |
-| RLS isolation test script | Done | Codex | V0-004 |
-| Google Maps API setup | Pending | Manual | - |
-| Coverage check endpoint | Done | Codex | V0-005 |
-| Coverage UI component | Done | Codex | V0-005 |
-| Menu data model + seed import | Done | Codex | V0-006 |
-| Menu browse page | Done | Codex | V0-007 |
-| Category tabs + sticky header | Done | Codex | V0-007 |
-| Item cards grid | Done | Codex | V0-007 |
-| Mobile responsive testing | Done | Codex | V0-007 |
-| CI pipeline (lint/typecheck/build) | Done | Codex | V0-001 |
-
-**V0 Exit Criteria**:
-- [x] User can sign up/login with magic link (email OTP)
-- [x] User can check if address is deliverable
-- [x] User can browse full menu on mobile
-- [x] RLS prevents cross-user data access (tested via isolation script)
-- [x] CI passes on all PRs (lint, typecheck, test, build)
+| Version | Status | Target | Focus |
+|---------|--------|--------|-------|
+| **V0** | ✅ Complete | - | Scaffold + Foundation |
+| **V1** | 🔄 In Progress | Week 4 | Full Ordering Flow |
+| **V2** | 📋 Planned | Week 8 | Driver Ops + Tracking |
+| **V3** | 💭 Future | TBD | Scale + Polish |
 
 ---
 
-### V1 - Ordering Core (0% Complete)
+## ✅ V0: Foundation (Complete)
 
-| Task | Status | Owner | PR |
-|------|--------|-------|-----|
-| Cart store (Zustand) | ? | Codex | - |
-| Item detail modal | ? | Codex | - |
-| Modifier selection UI | ? | Codex | - |
-| Cart drawer component | ? | Codex | - |
-| Delivery fee threshold logic | ? | Codex | - |
-| Address picker component | ? | Codex | - |
-| Time window selector | ? | Codex | - |
-| Checkout stepper flow | ? | Codex | - |
-| Stripe Checkout integration | ? | Codex | - |
-| Webhook handler | ? | Codex | - |
-| Order confirmation page | ? | Codex | - |
-| Order status page | ? | Codex | - |
-| Order history list | ? | Codex | - |
-| Cutoff enforcement | ? | Codex | - |
-| Basic admin order list | ? | Codex | - |
-| E2E tests (happy path) | ? | Codex | - |
+### Deliverables
+- [x] Project scaffold (Next.js 15 + TypeScript)
+- [x] Tailwind + shadcn/ui setup
+- [x] Supabase project + connection
+- [x] Database schema (core tables)
+- [x] RLS policies (baseline)
+- [x] Supabase Auth (email + profile creation)
+- [x] Environment configuration
+- [x] CI pipeline (lint + typecheck + build)
+- [x] Documentation foundation
 
-**V1 Exit Criteria**:
-- [ ] User can complete a paid order (Stripe test mode)
-- [ ] Order appears in Supabase with correct status
-- [ ] Admin can see order in dashboard
-- [ ] Post-cutoff blocks editing
-- [ ] Coverage validation blocks invalid addresses
+### Acceptance Criteria (Met)
+- [x] `pnpm dev` starts without errors
+- [x] User can register + login
+- [x] Profile created on signup (trigger)
+- [x] Menu seed YAML validated
+- [x] TypeScript strict mode enabled
+- [x] All docs up to date
 
 ---
 
-### V2 - Ops-Ready (0% Complete)
+## 🔄 V1: Core Ordering Flow (In Progress)
 
-| Task | Status | Owner | PR |
-|------|--------|-------|-----|
-| Admin order management | ? | Codex | - |
-| Admin status updates | ? | Codex | - |
-| Admin menu CRUD | ? | Codex | - |
-| Admin sold-out toggle | ? | Codex | - |
-| Admin refund flow | ? | Codex | - |
-| Route planning UI | ? | Codex | - |
-| Driver assignment | ? | Codex | - |
-| Driver mobile view | ? | Codex | - |
-| Driver stop status updates | ? | Codex | - |
-| Driver location pings | ? | Codex | - |
-| Real-time customer map | ? | Codex | - |
-| ETA calculation | ? | Codex | - |
-| Delivery photo capture | ? | Codex | - |
+### Sprint 1: Menu Browse (Week 1-2)
+| Task | ID | Status | Owner | Notes |
+|------|-----|--------|-------|-------|
+| Menu Data Layer | V1-S1-001 | ⬜ | Codex | API routes + React Query hooks |
+| Category Tabs | V1-S1-002 | ⬜ | Codex | "All" tab, sticky, scroll-spy |
+| Item Card | V1-S1-003 | ⬜ | Codex | Popular badge, allergens, animations |
+| Menu Grid | V1-S1-004 | ⬜ | Codex | Responsive grid, empty states |
+| Search Component | V1-S1-005 | ⬜ | Codex | Debounced, mobile expandable |
+| Item Detail Modal | V1-S1-006 | ⬜ | Codex | Modifiers, qty, notes, live price |
 
-**V2 Exit Criteria**:
-- [ ] Kitchen can fulfill orders from dashboard
-- [ ] Driver can complete delivery route
-- [ ] Customer sees real-time tracking
+**Task Files**: `docs/V1/tasks/V1-S1-*.md`
 
----
+### Sprint 2: Cart + Checkout (Week 2-3)
+| Task | Status | Owner | Notes |
+|------|--------|-------|-------|
+| Cart drawer component | ⬜ | Codex | Slide-over, mobile-first |
+| Cart state (Zustand) | ⬜ | Codex | Add/update/remove/clear |
+| Cart summary component | ⬜ | Codex | Subtotal + fee display |
+| Address management | ⬜ | Codex | CRUD + validation |
+| Coverage checker | ⬜ | Codex | Google Maps integration |
+| Time slot picker | ⬜ | Codex | Saturday hourly windows |
+| Checkout stepper | ⬜ | Codex | Address → Time → Pay |
 
-## Blockers & Risks
+### Sprint 3: Payment + Confirmation (Week 3-4)
+| Task | Status | Owner | Notes |
+|------|--------|-------|-------|
+| Stripe integration | ⬜ | Codex | Checkout Sessions |
+| Webhook handler | ⬜ | Codex | Signature verification |
+| Order creation flow | ⬜ | Codex | Server-side totals |
+| Confirmation page | ⬜ | Codex | Order details display |
+| Order status page | ⬜ | Codex | Timeline component |
+| Order history page | ⬜ | Codex | Customer's orders list |
+| Email notifications | ⬜ | Codex | Confirmation email |
 
-| Issue | Severity | Status | Resolution |
-|-------|----------|--------|------------|
-| None currently | - | - | - |
+### Sprint 4: Admin Basics (Week 4)
+| Task | Status | Owner | Notes |
+|------|--------|-------|-------|
+| Admin layout + nav | ⬜ | Codex | Role-gated shell |
+| Menu item CRUD | ⬜ | Codex | Add/edit/delete items |
+| Category management | ⬜ | Codex | Reorder, activate |
+| Orders list view | ⬜ | Codex | Filter, status update |
+| Basic analytics | ⬜ | Codex | Order count, revenue |
 
----
+### V1 Acceptance Criteria
+- [ ] Customer can browse full menu by category
+- [ ] Customer can search menu items
+- [ ] Customer can view item details + modifiers
+- [ ] Customer can add items to cart with modifiers
+- [ ] Customer can manage cart (update qty, remove)
+- [ ] Customer can save/select delivery address
+- [ ] Coverage validation blocks out-of-range addresses
+- [ ] Customer can select Saturday time window
+- [ ] Cutoff logic prevents late orders for current Saturday
+- [ ] Stripe Checkout completes payment
+- [ ] Webhook updates order to paid/confirmed
+- [ ] Order confirmation displays correctly
+- [ ] Customer can view order history
+- [ ] Admin can CRUD menu items
+- [ ] Admin can view/manage orders
+- [ ] Mobile-responsive across all flows
+- [ ] E2E test covers happy path
 
-## Decisions Log
-
-| Date | Decision | Choice | Rationale |
-|------|----------|--------|-----------|
-| 2026-01-12 | Project goal | Shipping MVP | Real business launch |
-| 2026-01-12 | Mobile strategy | PWA | Faster than native; revisit V2 |
-| 2026-01-12 | Tipping | V2 | Reduce V1 scope |
-| 2026-01-12 | Tax handling | Fixed rate V1 | Simplicity; Stripe Tax V2 |
-
----
-
-## Next Actions
-
-1. **[External]** Get Google Maps API key (blocking coverage checks)
-
-## Weekly Standup Notes
-
-### Week 1 (2026-01-12)
-- Project kickoff
-- Spec document completed
-- Scaffold baseline completed (V0-001)
-- Database schema defined (V0-002)
-
-### Week 2 (2026-01-13)
-- Supabase auth flow integrated (V0-003)
-  - Login/signup/logout pages
-  - Password reset flow
-  - Protected routes with middleware
-  - User menu in header
-  - **Updated**: Switched to magic link auth (no passwords)
-    - Simpler UX with email-only forms
-    - Added unit tests for auth forms
-- RLS policies implemented (V0-004)
-  - All 10 tables secured with RLS
-  - User-scoped: profiles, addresses, orders, order_items, order_item_modifiers
-  - Public read: menu_categories, menu_items, modifier_groups, modifier_options, item_modifier_groups
-  - Admin policies for future dashboard
-  - Isolation test script added
-- Coverage checker implemented (V0-005)
-  - Coverage check API endpoint with Zod validation
-  - Google Maps integration (geocoding + distance matrix)
-  - Coverage UI component on homepage
-  - 50mi/90min delivery radius enforcement
-  - CI test command fix
-- Menu seed import implemented (V0-006)
-  - Seed script for importing 47 menu items from YAML
-  - Verify script for validating seeded data
-  - 8 categories, 7 modifier groups with options
-  - Upsert logic for idempotent seeding
-- Menu browse UI implemented (V0-007)
-  - Menu page at `/menu` with SSR and Suspense loading
-  - Sticky category tabs with scroll-spy and auto-scroll
-  - Menu item cards with images, pricing, allergens
-  - Bilingual support (English + Burmese names)
-  - Mobile responsive (1-3 column grid)
-  - Accessibility: reduced motion support, 44px touch targets
-
-**V0 Skeleton Complete** - All code tasks finished. Ready for V1 after external setup (Supabase project, Google Maps API key).
+### V1 Test Coverage Requirements
+- [ ] Unit: Subtotal calculation with modifiers
+- [ ] Unit: Delivery fee threshold ($100)
+- [ ] Unit: Cutoff date calculation
+- [ ] Unit: Coverage validation logic
+- [ ] Integration: Checkout session creation
+- [ ] Integration: Webhook processing
+- [ ] E2E: Browse → Cart → Checkout → Confirm
 
 ---
 
-*Updated by: Claude | Next review: Start of V1*
+## 📋 V2: Driver Ops + Tracking (Planned)
 
+### Features
+| Feature | Priority | Complexity | Notes |
+|---------|----------|------------|-------|
+| Driver mobile interface | P0 | Medium | Route view, status updates |
+| Route optimization | P0 | High | Google Routes API |
+| Real-time location updates | P0 | Medium | Driver GPS → customer map |
+| Customer order tracking | P0 | Medium | Live map + timeline |
+| Admin route management | P1 | Medium | Assign orders to routes |
+| Delivery proof (photo) | P1 | Medium | Driver captures photo |
+| SMS notifications | P1 | Low | Twilio integration |
+| Driver earnings dashboard | P2 | Low | Track deliveries + tips |
+
+### V2 Acceptance Criteria
+- [ ] Admin can create delivery routes for Saturday
+- [ ] Admin can assign orders to routes
+- [ ] Driver can view assigned route + stops
+- [ ] Driver can update stop status (enroute/arrived/delivered)
+- [ ] Driver location updates every 5 minutes
+- [ ] Customer sees live map when order is out_for_delivery
+- [ ] Customer sees ETA band on tracking page
+- [ ] Driver can capture delivery photo
+- [ ] Customer receives SMS when order is dispatched
+- [ ] Route optimization suggests stop order
+
+---
+
+## 💭 V3: Scale + Polish (Future)
+
+### Potential Features
+- Multiple payment methods (saved cards)
+- Subscription/recurring orders
+- Loyalty program / rewards
+- Referral system
+- Multi-language support (full Burmese UI)
+- Gift cards
+- Catering / bulk orders
+- Kitchen display system (KDS)
+- Inventory management
+- Advanced analytics dashboard
+- A/B testing framework
+
+---
+
+## 🚧 Known Issues / Tech Debt
+
+| Issue | Severity | Status | Notes |
+|-------|----------|--------|-------|
+| None yet | - | - | V0 just completed |
+
+---
+
+## 📝 Decision Log
+
+| Date | Decision | Rationale | Status |
+|------|----------|-----------|--------|
+| 2026-01-13 | Stripe Checkout Sessions over custom forms | Lower PCI scope, faster to ship | Active |
+| 2026-01-13 | Zustand for cart state | Lightweight, no context boilerplate | Active |
+| 2026-01-13 | React Query for server state | Caching, optimistic updates, refetch | Active |
+| 2026-01-13 | Saturday-only delivery (V1) | Simplify scheduling, match kitchen ops | Active |
+| 2026-01-13 | Single kitchen origin | No multi-location complexity in V1 | Active |
+
+---
+
+## 🔮 Open Questions
+
+| Question | Context | Status |
+|----------|---------|--------|
+| Tax calculation approach? | Fixed rate vs Stripe Tax vs external service | Defer to V1.1 |
+| Tip handling in UI? | Before or after payment? Editable? | Defer to V1.1 |
+| Refund policy details? | Cutoff rules, partial refunds | Needs business input |
+| Image hosting? | Supabase Storage vs CDN (Cloudinary) | Decide in Sprint 1 |
+
+---
+
+## 📈 Velocity Tracking
+
+| Sprint | Planned | Completed | Notes |
+|--------|---------|-----------|-------|
+| V0 | 15 tasks | 15 tasks | Foundation complete |
+| V1 S1 | - | - | Starting |
+| V1 S2 | - | - | - |
+| V1 S3 | - | - | - |
+| V1 S4 | - | - | - |
