@@ -12,7 +12,7 @@
 |------|--------|-------|
 | ?? Planning | ? Complete | Spec doc finalized |
 | ??? Scaffold | ? Complete | Base scaffold in place |
-| ?? Auth | Done | Supabase auth flow implemented |
+| ?? Auth | Done | Magic link auth (no passwords) |
 | ??? Coverage | Done | Coverage check implemented |
 | ?? Menu UI | Done | Menu browsing UI delivered |
 | ?? Cart | ? Pending | V1 scope |
@@ -46,7 +46,7 @@
 | CI pipeline (lint/typecheck/build) | Done | Codex | V0-001 |
 
 **V0 Exit Criteria**:
-- [x] User can sign up with email
+- [x] User can sign up/login with magic link (email OTP)
 - [x] User can check if address is deliverable
 - [x] User can browse full menu on mobile
 - [x] RLS prevents cross-user data access (tested via isolation script)
@@ -146,6 +146,9 @@
   - Password reset flow
   - Protected routes with middleware
   - User menu in header
+  - **Updated**: Switched to magic link auth (no passwords)
+    - Simpler UX with email-only forms
+    - Added unit tests for auth forms
 - RLS policies implemented (V0-004)
   - All 10 tables secured with RLS
   - User-scoped: profiles, addresses, orders, order_items, order_item_modifiers

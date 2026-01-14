@@ -17,7 +17,7 @@ function SubmitButton(): ReactElement {
       className="w-full bg-brand-red hover:bg-brand-red-dark"
       disabled={pending}
     >
-      {pending ? "Creating account..." : "Create Account"}
+      {pending ? "Sending magic link..." : "Send magic link"}
     </Button>
   );
 }
@@ -52,6 +52,9 @@ export function SignupForm(): ReactElement {
               {success}
             </div>
           )}
+          <p className="text-sm text-muted">
+            We&apos;ll email you a magic link to finish signup.
+          </p>
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
               Email
@@ -61,32 +64,6 @@ export function SignupForm(): ReactElement {
               name="email"
               type="email"
               placeholder="you@example.com"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
-            </label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="At least 8 characters"
-              minLength={8}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="confirmPassword" className="text-sm font-medium">
-              Confirm Password
-            </label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              placeholder="Confirm your password"
-              minLength={8}
               required
             />
           </div>

@@ -17,19 +17,24 @@ function SubmitButton(): ReactElement {
       className="w-full bg-brand-red hover:bg-brand-red-dark"
       disabled={pending}
     >
-      {pending ? "Signing in..." : "Sign In"}
+      {pending ? "Sending magic link..." : "Send magic link"}
     </Button>
   );
 }
 
 export function LoginForm(): ReactElement {
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   async function handleSubmit(formData: FormData): Promise<void> {
     setError(null);
+    setSuccess(null);
     const result = await signIn(formData);
     if (result?.error) {
       setError(result.error);
+    }
+    if (result?.success) {
+      setSuccess(result.success);
     }
   }
 
@@ -42,6 +47,14 @@ export function LoginForm(): ReactElement {
               {error}
             </div>
           )}
+          {success && (
+            <div className="p-3 text-sm text-green-600 bg-green-50 rounded-md">
+              {success}
+            </div>
+          )}
+          <p className="text-sm text-muted">
+            We&apos;ll email you a magic link to sign in.
+          </p>
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
               Email
@@ -53,26 +66,6 @@ export function LoginForm(): ReactElement {
               placeholder="you@example.com"
               required
             />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
-            </label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-          <div className="text-right">
-            <Link
-              href="/forgot-password"
-              className="text-sm text-brand-red hover:underline"
-            >
-              Forgot password?
-            </Link>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
