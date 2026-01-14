@@ -1,6 +1,6 @@
 # docs/project_status.md — Milestone Tracking (v1.0)
 
-> **Last Updated**: 2026-01-13
+> **Last Updated**: 2026-01-14
 > **Current Phase**: V1 Development
 
 ---
@@ -48,11 +48,13 @@
 | Menu search component | ⬜ | Codex | Debounced, fuzzy match |
 | Item card grid | ⬜ | Codex | Responsive, image + price |
 | Item detail modal | ⬜ | Codex | Modifiers, qty, notes |
-| Menu data hooks | ⬜ | Codex | React Query setup |
-| Menu API routes | ⬜ | Codex | Public, cached |
+| Menu data hooks | ✅ | Codex | React Query setup |
+| Menu API routes | ✅ | Codex | Public, cached |
 | Menu seeding script | ⬜ | Codex | YAML → DB import |
 
 **Task Files**: `docs/V1/tasks/V1-S1-*.md`
+
+**Sprint 1 completion**: 2/7 (29%)
 
 ### Sprint 2: Cart + Checkout (Week 2-3)
 | Task | Status | Owner | Notes |

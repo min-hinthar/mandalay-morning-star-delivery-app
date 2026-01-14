@@ -3,6 +3,7 @@ import type { ReactElement, ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
+import { Providers } from "@/app/providers";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -50,8 +51,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} font-body bg-background text-foreground antialiased`}
       >
-        <Header />
-        {children}
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   );
