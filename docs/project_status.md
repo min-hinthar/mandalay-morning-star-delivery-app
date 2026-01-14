@@ -2,7 +2,7 @@
 
 > **Last Updated**: 2026-01-13
 > **Current Phase**: V0 Skeleton
-> **Current Milestone**: V0 (Skeleton) - 92% Complete
+> **Current Milestone**: V0 (Skeleton) - 100% Complete (code)
 
 ---
 
@@ -24,7 +24,7 @@
 
 ## Milestone Progress
 
-### V0 - Skeleton (92% Complete)
+### V0 - Skeleton (100% Complete - Code)
 
 | Task | Status | Owner | PR |
 |------|--------|-------|-----|
@@ -163,8 +163,17 @@
   - Verify script for validating seeded data
   - 8 categories, 7 modifier groups with options
   - Upsert logic for idempotent seeding
+- Menu browse UI implemented (V0-007)
+  - Menu page at `/menu` with SSR and Suspense loading
+  - Sticky category tabs with scroll-spy and auto-scroll
+  - Menu item cards with images, pricing, allergens
+  - Bilingual support (English + Burmese names)
+  - Mobile responsive (1-3 column grid)
+  - Accessibility: reduced motion support, 44px touch targets
+
+**V0 Skeleton Complete** - All code tasks finished. Ready for V1 after external setup (Supabase project, Google Maps API key).
 
 ---
 
-*Updated by: Codex | Next review: After Google Maps API key setup*
+*Updated by: Claude | Next review: Start of V1*
 
