@@ -1,10 +1,12 @@
 export { MenuContent } from "./menu-content";
 export { CategoryTabs } from "./category-tabs";
 export { MenuGrid } from "./menu-grid";
+export { MenuHeader } from "./menu-header";
 export { MenuSection } from "./menu-section";
 export { MenuItemCard } from "./menu-item-card";
 export { MenuSkeleton } from "./menu-skeleton";
 export { MenuEmptyState } from "./menu-empty-state";
 export { SearchResultsGrid } from "./search-results-grid";
+export { SearchInput } from "./search-input";
 export { ItemCard } from "./ItemCard";
 export { ItemCardSkeleton } from "./ItemCardSkeleton";
