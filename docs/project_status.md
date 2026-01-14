@@ -48,12 +48,12 @@
 | Category tabs (V1-S1-002) | ✅ | Codex | Sticky, horizontal scroll, scroll-spy |
 | Item card (V1-S1-003) | ✅ | Codex | Responsive card with image + price |
 | Menu grid (V1-S1-004) | ✅ | Codex | Responsive grid layout |
-| Menu search (V1-S1-005) | ⬜ | Codex | Debounced, fuzzy match |
+| Menu search (V1-S1-005) | ✅ | Codex | Debounced, fuzzy match |
 | Item detail modal (V1-S1-006) | ⬜ | Codex | Modifiers, qty, notes |
 
 **Task Files**: `docs/V1/tasks/V1-S1-*.md`
 
-**Sprint 1 completion**: 4/6 (67%)
+**Sprint 1 completion**: 5/6 (83%)
 
 ### Sprint 2: Cart + Checkout (Week 2-3)
 | Task | Status | Owner | Notes |
@@ -90,7 +90,7 @@
 
 ### V1 Acceptance Criteria
 - [ ] Customer can browse full menu by category
-- [ ] Customer can search menu items
+- [x] Customer can search menu items
 - [ ] Customer can view item details + modifiers
 - [ ] Customer can add items to cart with modifiers
 - [ ] Customer can manage cart (update qty, remove)
@@ -199,7 +199,7 @@
 | Sprint | Planned | Completed | Notes |
 |--------|---------|-----------|-------|
 | V0 | 15 tasks | 15 tasks | Foundation complete |
-| V1 S1 | 6 tasks | 4 tasks | Menu data layer + category tabs + item card + menu grid done |
+| V1 S1 | 6 tasks | 5 tasks | Menu data layer + category tabs + item card + menu grid + menu search done |
 | V1 S2 | 7 tasks | 0 tasks | Pending S1 completion |
 | V1 S3 | - | - | - |
 | V1 S4 | - | - | - |
