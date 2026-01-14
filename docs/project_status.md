@@ -2,7 +2,7 @@
 
 > **Last Updated**: 2026-01-13
 > **Current Phase**: V0 Skeleton
-> **Current Milestone**: V0 (Skeleton) - 83% Complete
+> **Current Milestone**: V0 (Skeleton) - 100% Complete (code)
 
 ---
 
@@ -14,7 +14,7 @@
 | ??? Scaffold | ? Complete | Base scaffold in place |
 | ?? Auth | Done | Supabase auth flow implemented |
 | ??? Coverage | Done | Coverage check implemented |
-| ?? Menu UI | ? Pending | Depends on scaffold |
+| ?? Menu UI | Done | Menu browsing UI delivered |
 | ?? Cart | ? Pending | V1 scope |
 | ?? Checkout | ? Pending | V1 scope |
 | ????? Admin | ? Pending | V2 scope |
@@ -24,7 +24,7 @@
 
 ## Milestone Progress
 
-### V0 - Skeleton (83% Complete)
+### V0 - Skeleton (100% Complete - Code)
 
 | Task | Status | Owner | PR |
 |------|--------|-------|-----|
@@ -39,16 +39,16 @@
 | Coverage check endpoint | Done | Codex | V0-005 |
 | Coverage UI component | Done | Codex | V0-005 |
 | Menu data model + seed import | Done | Codex | V0-006 |
-| Menu browse page | Pending | Codex | - |
-| Category tabs + sticky header | Pending | Codex | - |
-| Item cards grid | Pending | Codex | - |
-| Mobile responsive testing | Pending | Codex | - |
+| Menu browse page | Done | Codex | V0-007 |
+| Category tabs + sticky header | Done | Codex | V0-007 |
+| Item cards grid | Done | Codex | V0-007 |
+| Mobile responsive testing | Done | Codex | V0-007 |
 | CI pipeline (lint/typecheck/build) | Done | Codex | V0-001 |
 
 **V0 Exit Criteria**:
 - [x] User can sign up with email
 - [x] User can check if address is deliverable
-- [ ] User can browse full menu on mobile
+- [x] User can browse full menu on mobile
 - [x] RLS prevents cross-user data access (tested via isolation script)
 - [x] CI passes on all PRs (lint, typecheck, test, build)
 
@@ -130,8 +130,7 @@
 
 ## Next Actions
 
-1. **[V0-007]** Menu browse UI
-2. **[External]** Get Google Maps API key (blocking coverage checks)
+1. **[External]** Get Google Maps API key (blocking coverage checks)
 
 ## Weekly Standup Notes
 
@@ -164,10 +163,17 @@
   - Verify script for validating seeded data
   - 8 categories, 7 modifier groups with options
   - Upsert logic for idempotent seeding
+- Menu browse UI implemented (V0-007)
+  - Menu page at `/menu` with SSR and Suspense loading
+  - Sticky category tabs with scroll-spy and auto-scroll
+  - Menu item cards with images, pricing, allergens
+  - Bilingual support (English + Burmese names)
+  - Mobile responsive (1-3 column grid)
+  - Accessibility: reduced motion support, 44px touch targets
+
+**V0 Skeleton Complete** - All code tasks finished. Ready for V1 after external setup (Supabase project, Google Maps API key).
 
 ---
 
-*Updated by: Claude (Review) | Next review: After V0-007 menu browse UI*
-
-
+*Updated by: Claude | Next review: Start of V1*
 

@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:ci": "vitest run",
+    "test:menu": "vitest run src/components/menu/__tests__/menu-content.test.tsx",
     "rls:test": "node scripts/rls-isolation-test.mjs",
     "seed:menu": "npx tsx scripts/seed-menu.ts",
     "verify:menu": "npx tsx scripts/verify-menu.ts"
