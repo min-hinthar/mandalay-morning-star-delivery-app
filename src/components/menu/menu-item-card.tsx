@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils/cn";
 
 interface MenuItemCardProps {
   item: MenuItem;
+  onSelect?: (item: MenuItem) => void;
 }
 
 const allergenLabels: Record<string, string> = {
@@ -21,15 +22,32 @@ const allergenLabels: Record<string, string> = {
   dairy: "Dairy",
 };
 
-export function MenuItemCard({ item }: MenuItemCardProps) {
+export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
   const hasAllergens = item.allergens && item.allergens.length > 0;
+  const isInteractive = Boolean(onSelect) && !item.is_sold_out;
 
   return (
     <Card
       className={cn(
-        "overflow-hidden transition-shadow hover:shadow-md",
+        "overflow-hidden transition-shadow",
+        isInteractive && "cursor-pointer hover:shadow-md",
         item.is_sold_out && "opacity-60"
       )}
+      onClick={() => {
+        if (isInteractive) {
+          onSelect?.(item);
+        }
+      }}
+      onKeyDown={(event) => {
+        if (!isInteractive) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect?.(item);
+        }
+      }}
+      role={isInteractive ? "button" : undefined}
+      tabIndex={isInteractive ? 0 : -1}
+      aria-disabled={!isInteractive}
     >
       {item.image_url ? (
         <div className="relative h-40 bg-gray-100">
