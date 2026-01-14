@@ -246,6 +246,7 @@ export interface ModifierOptionsRow {
   slug: string;
   name: string;
   price_delta_cents: number;
+  is_active: boolean;
   sort_order: number;
   created_at: string;
 }
@@ -256,6 +257,7 @@ export interface ModifierOptionsInsert {
   slug: string;
   name: string;
   price_delta_cents?: number;
+  is_active?: boolean;
   sort_order?: number;
   created_at?: string;
 }
@@ -266,6 +268,7 @@ export interface ModifierOptionsUpdate {
   slug?: string;
   name?: string;
   price_delta_cents?: number;
+  is_active?: boolean;
   sort_order?: number;
   created_at?: string;
 }

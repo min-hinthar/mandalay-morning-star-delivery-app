@@ -1,20 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { createPublicClient } from "@/lib/supabase/server";
-import type {
-  MenuCategory,
-  MenuItem,
-  MenuResponse,
-  ModifierGroup,
-} from "@/types/menu";
+import type { MenuItem, MenuSearchResponse, ModifierGroup } from "@/types/menu";
 
-export const revalidate = 300;
-
-type MenuCategoryRow = {
-  id: string;
-  slug: string;
-  name: string;
-  sort_order: number;
-};
+const searchSchema = z.object({
+  q: z.string().trim().min(1).max(100),
+});
 
 type ModifierOptionRow = {
   id: string;
@@ -55,22 +46,22 @@ type MenuItemRow = {
   item_modifier_groups: ItemModifierGroupRow[] | null;
 };
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const supabase = createPublicClient();
+    const { searchParams } = new URL(request.url);
+    const result = searchSchema.safeParse({ q: searchParams.get("q") });
 
-    const { data: categories, error: catError } = await supabase
-      .from("menu_categories")
-      .select("id, slug, name, sort_order")
-      .eq("is_active", true)
-      .order("sort_order")
-      .returns<MenuCategoryRow[]>();
-
-    if (catError) {
-      throw catError;
+    if (!result.success) {
+      return NextResponse.json(
+        { error: { code: "VALIDATION_ERROR", details: result.error.issues } },
+        { status: 400 }
+      );
     }
 
-    const { data: items, error: itemError } = await supabase
+    const query = result.data.q;
+    const supabase = createPublicClient();
+
+    const { data: items, error } = await supabase
       .from("menu_items")
       .select(
         `
@@ -107,31 +98,17 @@ export async function GET() {
       `
       )
       .eq("is_active", true)
+      .or(
+        `name_en.ilike.%${query}%,name_my.ilike.%${query}%,description_en.ilike.%${query}%`
+      )
       .order("name_en")
       .returns<MenuItemRow[]>();
 
-    if (itemError) {
-      throw itemError;
+    if (error) {
+      throw error;
     }
 
-    const categoryMap = new Map<string, MenuCategory>();
-
-    for (const cat of categories || []) {
-      categoryMap.set(cat.id, {
-        id: cat.id,
-        slug: cat.slug,
-        name: cat.name,
-        sortOrder: cat.sort_order,
-        items: [],
-      });
-    }
-
-    for (const item of items || []) {
-      const category = categoryMap.get(item.category_id);
-      if (!category) {
-        continue;
-      }
-
+    const menuItems: MenuItem[] = (items || []).map((item) => {
       const modifierGroups: ModifierGroup[] = (item.item_modifier_groups || [])
         .map((img) => img.modifier_groups)
         .filter((mg): mg is ModifierGroupRow => Boolean(mg))
@@ -155,7 +132,7 @@ export async function GET() {
             })),
         }));
 
-      const menuItem: MenuItem = {
+      return {
         id: item.id,
         slug: item.slug,
         nameEn: item.name_en,
@@ -169,15 +146,13 @@ export async function GET() {
         allergens: item.allergens || [],
         modifierGroups,
       };
+    });
 
-      category.items.push(menuItem);
-    }
-
-    const response: MenuResponse = {
+    const response: MenuSearchResponse = {
       data: {
-        categories: Array.from(categoryMap.values()).sort(
-          (a, b) => a.sortOrder - b.sortOrder
-        ),
+        items: menuItems,
+        query,
+        count: menuItems.length,
       },
       meta: {
         timestamp: new Date().toISOString(),
@@ -186,9 +161,9 @@ export async function GET() {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Menu API error:", error);
+    console.error("Menu search error:", error);
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Failed to fetch menu" } },
+      { error: { code: "INTERNAL_ERROR", message: "Failed to search menu" } },
       { status: 500 }
     );
   }
