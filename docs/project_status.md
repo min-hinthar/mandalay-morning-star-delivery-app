@@ -57,13 +57,15 @@
 ### Sprint 2: Cart + Checkout (Week 2-3)
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Cart drawer component | ⬜ | Codex | Slide-over, mobile-first |
 | Cart state (Zustand) | ⬜ | Codex | Add/update/remove/clear |
+| Cart drawer component | ⬜ | Codex | Slide-over, mobile-first |
 | Cart summary component | ⬜ | Codex | Subtotal + fee display |
 | Address management | ⬜ | Codex | CRUD + validation |
 | Coverage checker | ⬜ | Codex | Google Maps integration |
 | Time slot picker | ⬜ | Codex | Saturday hourly windows |
 | Checkout stepper | ⬜ | Codex | Address → Time → Pay |
+
+**Task Files**: `docs/V1/tasks/V1-S2-*.md`
 
 ### Sprint 3: Payment + Confirmation (Week 3-4)
 | Task | Status | Owner | Notes |
