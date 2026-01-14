@@ -46,14 +46,14 @@
 |------|--------|-------|-------|
 | Menu data layer (V1-S1-001) | ✅ | Codex | Types, API routes, React Query hooks |
 | Category tabs (V1-S1-002) | ✅ | Codex | Sticky, horizontal scroll, scroll-spy |
-| Item card (V1-S1-003) | ⬜ | Codex | Responsive card with image + price |
+| Item card (V1-S1-003) | ✅ | Codex | Responsive card with image + price |
 | Menu grid (V1-S1-004) | ⬜ | Codex | Responsive grid layout |
 | Menu search (V1-S1-005) | ⬜ | Codex | Debounced, fuzzy match |
 | Item detail modal (V1-S1-006) | ⬜ | Codex | Modifiers, qty, notes |
 
 **Task Files**: `docs/V1/tasks/V1-S1-*.md`
 
-**Sprint 1 completion**: 2/6 (33%)
+**Sprint 1 completion**: 3/6 (50%)
 
 ### Sprint 2: Cart + Checkout (Week 2-3)
 | Task | Status | Owner | Notes |
@@ -199,7 +199,8 @@
 | Sprint | Planned | Completed | Notes |
 |--------|---------|-----------|-------|
 | V0 | 15 tasks | 15 tasks | Foundation complete |
-| V1 S1 | 6 tasks | 2 tasks | Menu data layer + category tabs done |
+| V1 S1 | 6 tasks | 3 tasks | Menu data layer + category tabs + item card done |
 | V1 S2 | 7 tasks | 0 tasks | Pending S1 completion |
 | V1 S3 | - | - | - |
 | V1 S4 | - | - | - |
+
