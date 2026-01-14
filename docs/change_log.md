@@ -8,6 +8,45 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Auth Improvement - Magic Link Authentication (2026-01-13)
+
+**Changed**
+- Switched from password-based auth to magic link (OTP) authentication
+- Login form now only requires email, sends magic link via email
+- Signup form now only requires email, sends magic link to complete registration
+- Simplified auth flow reduces user friction and improves security
+
+**Added**
+- `getAppUrl()` helper function for dynamic redirect URL resolution
+- Success message display after magic link is sent
+- Helper text explaining magic link flow to users
+- Unit tests for login and signup forms
+- Vitest globals types in tsconfig.json
+
+**Removed**
+- Password fields from login form
+- Password and confirm password fields from signup form
+- "Forgot password" link from login form (no longer needed with magic links)
+- Immediate redirect after login (now shows success message)
+
+**Files Modified**
+- `src/components/auth/login-form.tsx` - Simplified to email-only magic link form
+- `src/components/auth/signup-form.tsx` - Simplified to email-only magic link form
+- `src/lib/supabase/actions.ts` - Uses `signInWithOtp` instead of password auth
+- `tsconfig.json` - Added vitest/globals types
+
+**Files Created**
+- `src/components/auth/__tests__/login-form.test.tsx` - Login form unit tests
+- `src/components/auth/__tests__/signup-form.test.tsx` - Signup form unit tests
+
+**Rationale**
+- Magic links are more secure (no passwords to leak/guess)
+- Better UX with fewer form fields
+- Users don't need to remember passwords
+- Aligns with modern authentication best practices
+
+---
+
 ### V0-007 - Menu Browse UI (2026-01-13)
 
 **Added**
