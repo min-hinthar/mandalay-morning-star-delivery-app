@@ -4,16 +4,21 @@ import { useCallback, useMemo } from "react";
 import { MenuCategory } from "@/lib/queries/menu";
 import { useScrollSpy } from "@/lib/hooks/useScrollSpy";
 import { CategoryTabs } from "./category-tabs";
-import { MenuSection } from "./menu-section";
+import { MenuGrid } from "./menu-grid";
 
 interface MenuContentProps {
   categories: MenuCategory[];
 }
 
 export function MenuContent({ categories }: MenuContentProps) {
-  const sectionIds = useMemo(
-    () => categories.map((category) => `category-${category.slug}`),
+  const visibleCategories = useMemo(
+    () => categories.filter((category) => category.items.length > 0),
     [categories]
+  );
+
+  const sectionIds = useMemo(
+    () => visibleCategories.map((category) => `category-${category.slug}`),
+    [visibleCategories]
   );
 
   const activeSectionId = useScrollSpy(sectionIds);
@@ -40,23 +45,20 @@ export function MenuContent({ categories }: MenuContentProps) {
     }
   }, []);
 
+  const handleItemSelect = useCallback(() => undefined, []);
+
   return (
     <>
       <CategoryTabs
-        categories={categories}
+        categories={visibleCategories}
         activeCategory={activeCategory}
         onCategoryClick={scrollToCategory}
       />
 
-      <div className="px-4 pb-8 pt-2">
-        {categories.map((category) => (
-          <MenuSection
-            key={category.id}
-            category={category}
-            id={`category-${category.slug}`}
-          />
-        ))}
-      </div>
+      <MenuGrid
+        categories={visibleCategories}
+        onItemSelect={handleItemSelect}
+      />
     </>
   );
 }
