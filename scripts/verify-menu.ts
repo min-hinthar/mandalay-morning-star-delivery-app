@@ -77,7 +77,7 @@ async function verifyMenu(): Promise<void> {
 
   if (itemCountsError) throw itemCountsError;
 
-  const countRows = (itemCounts ?? []) as ItemCategoryCountRow[];
+  const countRows = (itemCounts ?? []) as unknown as ItemCategoryCountRow[];
   const countByCategory = new Map<string, number>();
 
   countRows.forEach((row) => {
@@ -117,7 +117,7 @@ async function verifyMenu(): Promise<void> {
 
   if (groupsError) throw groupsError;
 
-  const groupRows = (groups ?? []) as ModifierGroupWithOptions[];
+  const groupRows = (groups ?? []) as unknown as ModifierGroupWithOptions[];
 
   groupRows.forEach((group) => {
     console.log(`  ${group.name} (${group.selection_type}):`);
