@@ -26,6 +26,33 @@
 
 ---
 
+## [V1-S1] — 2026-01-14 (In Progress)
+
+### Added
+- [FEATURE] Menu data layer (V1-S1-001) — @Codex
+  - `src/types/menu.ts`: Menu type definitions (MenuItem, MenuCategory, ModifierGroup, etc.)
+  - `src/app/api/menu/route.ts`: Full menu API with categories and modifiers
+  - `src/app/api/menu/search/route.ts`: Search API with Zod validation
+  - `src/lib/hooks/useMenu.ts`: React Query hooks (useMenu, useMenuSearch)
+  - `src/lib/providers/query-provider.tsx`: QueryClient configuration
+  - 5-minute stale time caching for menu data
+
+- [FEATURE] Category tabs component (V1-S1-002) — @Codex
+  - `src/components/menu/category-tabs.tsx`: Enhanced tab navigation
+  - `src/lib/hooks/useScrollSpy.ts`: Scroll-spy hook for active section detection
+  - `src/components/menu/menu-content.tsx`: Integration component
+  - "All" pseudo-tab for showing all items
+  - Sticky positioning with backdrop blur
+  - Framer Motion shared layout animation
+  - Touch targets ≥ 44px, keyboard accessible
+  - Respects `prefers-reduced-motion`
+
+### Technical Decisions
+- [DECISION] React Query for server state — Caching with 5-min stale time, automatic refetch
+- [DECISION] Intersection Observer pattern for scroll-spy — Better performance than scroll events
+
+---
+
 ## [V0] — 2026-01-13
 
 ### Added

@@ -1,9 +1,10 @@
-# Task: V1-S1-001 — Menu Data Layer
+# Task: V1-S1-001 — Menu Data Layer ✅
 
 > **Sprint**: 1 (Menu Browse)
 > **Priority**: P0
 > **Depends On**: V0 completion
 > **Branch**: `feat/menu-data-layer`
+> **Status**: Complete (2026-01-14)
 
 ---
 
@@ -15,14 +16,14 @@ Create the menu API routes and React Query hooks for fetching menu data. This es
 
 ## Acceptance Criteria
 
-- [ ] `GET /api/menu` returns full menu with categories and modifiers
-- [ ] `GET /api/menu/search?q=` returns filtered items
-- [ ] Response follows standard envelope pattern
-- [ ] React Query hooks (`useMenu`, `useMenuSearch`) created
-- [ ] Menu types defined in `types/menu.ts`
-- [ ] API responses are cached (5 min stale time)
-- [ ] Error states handled gracefully
-- [ ] `pnpm lint && pnpm typecheck && pnpm build` pass
+- [x] `GET /api/menu` returns full menu with categories and modifiers
+- [x] `GET /api/menu/search?q=` returns filtered items
+- [x] Response follows standard envelope pattern
+- [x] React Query hooks (`useMenu`, `useMenuSearch`) created
+- [x] Menu types defined in `types/menu.ts`
+- [x] API responses are cached (5 min stale time)
+- [x] Error states handled gracefully
+- [x] `pnpm lint && pnpm typecheck && pnpm build` pass
 
 ---
 
@@ -486,20 +487,20 @@ pnpm build
 
 ## Definition of Done
 
-1. [ ] Menu types defined in `src/types/menu.ts`
-2. [ ] `GET /api/menu` returns all categories with items
-3. [ ] `GET /api/menu/search` returns filtered results
-4. [ ] Response envelope pattern used
-5. [ ] Zod validation on search endpoint
-6. [ ] React Query provider configured
-7. [ ] `useMenu` hook works correctly
-8. [ ] `useMenuSearch` hook works correctly
-9. [ ] API returns modifiers with items
-10. [ ] Error handling implemented
-11. [ ] `pnpm lint` passes
-12. [ ] `pnpm typecheck` passes
-13. [ ] `pnpm build` succeeds
-14. [ ] `docs/project_status.md` updated, completion percentage updated
+1. [x] Menu types defined in `src/types/menu.ts`
+2. [x] `GET /api/menu` returns all categories with items
+3. [x] `GET /api/menu/search` returns filtered results
+4. [x] Response envelope pattern used
+5. [x] Zod validation on search endpoint
+6. [x] React Query provider configured
+7. [x] `useMenu` hook works correctly
+8. [x] `useMenuSearch` hook works correctly
+9. [x] API returns modifiers with items
+10. [x] Error handling implemented
+11. [x] `pnpm lint` passes
+12. [x] `pnpm typecheck` passes
+13. [x] `pnpm build` succeeds
+14. [x] `docs/project_status.md` updated, completion percentage updated
 
 ---
 
