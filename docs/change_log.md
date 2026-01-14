@@ -8,6 +8,42 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### V0-006 - Menu Seed Import (2026-01-13)
+
+**Added**
+- Menu seed script (`scripts/seed-menu.ts`) for importing menu data from YAML
+- Menu verify script (`scripts/verify-menu.ts`) for validating seeded data
+- NPM scripts: `seed:menu` and `verify:menu`
+
+**Features**
+- Upsert logic for categories, menu items, modifier groups, and modifier options
+- Unique slug generation for modifier options (`groupSlug__optionSlug`)
+- Automatic linking of items to modifier groups via join table
+- Verification step confirms data integrity after seeding
+- Uses service role key to bypass RLS for admin operations
+
+**Files Created/Modified**
+- `scripts/seed-menu.ts` - Menu seeding script (389 lines)
+- `scripts/verify-menu.ts` - Menu verification script (139 lines)
+- `package.json` - Added `yaml` and `tsx` dependencies, npm scripts
+
+**Data**
+- 8 categories from `data/menul.seed.yaml`
+- 47 menu items across all categories
+- 7 modifier groups with multiple options
+- Allergen and tag metadata preserved
+
+**Usage**
+```bash
+npm run seed:menu    # Seed menu data to Supabase
+npm run verify:menu  # Verify seeded data
+```
+
+**Dependencies**
+- Requires `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
+
+---
+
 ### V0-005 - Coverage Checker (2026-01-13)
 
 **Added**

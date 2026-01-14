@@ -159,10 +159,15 @@
   - Coverage UI component on homepage
   - 50mi/90min delivery radius enforcement
   - CI test command fix
+- Menu seed import implemented (V0-006)
+  - Seed script for importing 47 menu items from YAML
+  - Verify script for validating seeded data
+  - 8 categories, 7 modifier groups with options
+  - Upsert logic for idempotent seeding
 
 ---
 
-*Updated by: Claude (Review) | Next review: After V0-006 menu seeding*
+*Updated by: Claude (Review) | Next review: After V0-007 menu browse UI*
 
 
 
