@@ -74,8 +74,9 @@ describe("MenuContent", () => {
   it("renders category tabs and items", () => {
     render(<MenuContent categories={categories} />);
 
-    expect(screen.getByRole("button", { name: "Breakfast" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Sides" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "All" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Breakfast" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Sides" })).toBeInTheDocument();
     expect(screen.getByText("Kyay-O / Si-Chat")).toBeInTheDocument();
     expect(screen.getByText("Rice")).toBeInTheDocument();
     expect(screen.getByText("Myanmar")).toHaveClass("font-burmese");
@@ -90,11 +91,11 @@ describe("MenuContent", () => {
   it("scrolls to a section when a tab is clicked", () => {
     render(<MenuContent categories={categories} />);
 
-    const targetSection = document.getElementById("sides") as HTMLElement;
+    const targetSection = document.getElementById("category-sides") as HTMLElement;
     targetSection.getBoundingClientRect = () =>
       ({ top: 200, left: 0, right: 0, bottom: 0, width: 0, height: 0 } as DOMRect);
 
-    fireEvent.click(screen.getByRole("button", { name: "Sides" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Sides" }));
 
     expect(window.scrollTo).toHaveBeenCalledWith({
       top: 120,
@@ -105,8 +106,8 @@ describe("MenuContent", () => {
   it("updates the active tab on scroll", () => {
     render(<MenuContent categories={categories} />);
 
-    const breakfastSection = document.getElementById("breakfast") as HTMLElement;
-    const sidesSection = document.getElementById("sides") as HTMLElement;
+    const breakfastSection = document.getElementById("category-breakfast") as HTMLElement;
+    const sidesSection = document.getElementById("category-sides") as HTMLElement;
 
     Object.defineProperty(breakfastSection, "offsetTop", { value: 0 });
     Object.defineProperty(breakfastSection, "offsetHeight", { value: 500 });
@@ -116,8 +117,9 @@ describe("MenuContent", () => {
     Object.defineProperty(window, "scrollY", { value: 520, writable: true });
     fireEvent.scroll(window);
 
-    expect(screen.getByRole("button", { name: "Sides" })).toHaveClass(
-      "bg-brand-red"
+    expect(screen.getByRole("tab", { name: "Sides" })).toHaveAttribute(
+      "aria-selected",
+      "true"
     );
   });
 });

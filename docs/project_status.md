@@ -44,7 +44,7 @@
 ### Sprint 1: Menu Browse (Week 1-2)
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Category tabs component | ⬜ | Codex | Sticky, horizontal scroll |
+| Category tabs component | ✅ | Codex | Sticky, horizontal scroll |
 | Menu search component | ⬜ | Codex | Debounced, fuzzy match |
 | Item card grid | ⬜ | Codex | Responsive, image + price |
 | Item detail modal | ⬜ | Codex | Modifiers, qty, notes |
@@ -54,7 +54,7 @@
 
 **Task Files**: `docs/V1/tasks/V1-S1-*.md`
 
-**Sprint 1 completion**: 2/7 (29%)
+**Sprint 1 completion**: 3/7 (43%)
 
 ### Sprint 2: Cart + Checkout (Week 2-3)
 | Task | Status | Owner | Notes |
