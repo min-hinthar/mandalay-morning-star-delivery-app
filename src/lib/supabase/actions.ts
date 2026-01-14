@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
@@ -9,30 +10,42 @@ interface ActionResult {
   success?: string;
 }
 
+async function getAppUrl(): Promise<string> {
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (envUrl) {
+    return envUrl.replace(/\/$/, "");
+  }
+
+  const headerList = await headers();
+  const origin = headerList.get("origin");
+  if (origin) {
+    return origin;
+  }
+
+  const host = headerList.get("x-forwarded-host") ?? headerList.get("host");
+  if (host) {
+    const proto = headerList.get("x-forwarded-proto") ?? "https";
+    return `${proto}://${host}`;
+  }
+
+  return "http://localhost:3000";
+}
+
 export async function signUp(formData: FormData): Promise<ActionResult> {
   const supabase = await createClient();
 
   const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
 
-  if (!email || !password) {
-    return { error: "Email and password are required" };
+  if (!email) {
+    return { error: "Email is required" };
   }
 
-  if (password !== confirmPassword) {
-    return { error: "Passwords do not match" };
-  }
-
-  if (password.length < 8) {
-    return { error: "Password must be at least 8 characters" };
-  }
-
-  const { error } = await supabase.auth.signUp({
+  const appUrl = await getAppUrl();
+  const { error } = await supabase.auth.signInWithOtp({
     email,
-    password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      emailRedirectTo: `${appUrl}/auth/callback`,
+      shouldCreateUser: true,
     },
   });
 
@@ -40,30 +53,31 @@ export async function signUp(formData: FormData): Promise<ActionResult> {
     return { error: error.message };
   }
 
-  return { success: "Check your email to confirm your account" };
+  return { success: "Check your email for a magic link to finish signup" };
 }
 
 export async function signIn(formData: FormData): Promise<ActionResult | void> {
   const supabase = await createClient();
 
   const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
 
-  if (!email || !password) {
-    return { error: "Email and password are required" };
+  if (!email) {
+    return { error: "Email is required" };
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const appUrl = await getAppUrl();
+  const { error } = await supabase.auth.signInWithOtp({
     email,
-    password,
+    options: {
+      emailRedirectTo: `${appUrl}/auth/callback`,
+    },
   });
 
   if (error) {
     return { error: error.message };
   }
 
-  revalidatePath("/", "layout");
-  redirect("/");
+  return { success: "Check your email for a magic link to sign in" };
 }
 
 export async function signOut(): Promise<void> {
@@ -81,8 +95,9 @@ export async function resetPassword(formData: FormData): Promise<ActionResult> {
     return { error: "Email is required" };
   }
 
+  const appUrl = await getAppUrl();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password`,
+    redirectTo: `${appUrl}/auth/reset-password`,
   });
 
   if (error) {
