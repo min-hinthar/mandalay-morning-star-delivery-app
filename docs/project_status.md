@@ -199,7 +199,7 @@
 | Sprint | Planned | Completed | Notes |
 |--------|---------|-----------|-------|
 | V0 | 15 tasks | 15 tasks | Foundation complete |
-| V1 S1 | 6 tasks | 2 tasks | Menu data layer + category tabs done |
+| V1 S1 | 6 tasks | 3 tasks | Menu data layer + category tabs + item card done |
 | V1 S2 | 7 tasks | 0 tasks | Pending S1 completion |
 | V1 S3 | - | - | - |
 | V1 S4 | - | - | - |
