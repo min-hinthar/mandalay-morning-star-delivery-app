@@ -2,7 +2,7 @@
 
 > **Last Updated**: 2026-01-13
 > **Current Phase**: V0 Skeleton
-> **Current Milestone**: V0 (Skeleton) - 67% Complete
+> **Current Milestone**: V0 (Skeleton) - 83% Complete
 
 ---
 
@@ -24,7 +24,7 @@
 
 ## Milestone Progress
 
-### V0 - Skeleton (67% Complete)
+### V0 - Skeleton (83% Complete)
 
 | Task | Status | Owner | PR |
 |------|--------|-------|-----|
@@ -38,7 +38,7 @@
 | Google Maps API setup | Pending | Manual | - |
 | Coverage check endpoint | Done | Codex | V0-005 |
 | Coverage UI component | Done | Codex | V0-005 |
-| Menu data model + seed import | Pending | Codex | - |
+| Menu data model + seed import | Done | Codex | V0-006 |
 | Menu browse page | Pending | Codex | - |
 | Category tabs + sticky header | Pending | Codex | - |
 | Item cards grid | Pending | Codex | - |
@@ -130,9 +130,8 @@
 
 ## Next Actions
 
-1. **[V0-006]** Menu data model + seed import
-2. **[V0-007]** Menu browse UI
-3. **[External]** Get Google Maps API key (blocking coverage checks)
+1. **[V0-007]** Menu browse UI
+2. **[External]** Get Google Maps API key (blocking coverage checks)
 
 ## Weekly Standup Notes
 
