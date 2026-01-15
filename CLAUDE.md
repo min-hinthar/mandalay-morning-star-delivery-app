@@ -1,7 +1,7 @@
 # CLAUDE.md — Mandalay Morning Star Project Memory (v3.0)
 
 > **Purpose**: Concise project context for Claude Code. Link to docs for details.
-> **Last Updated**: 2026-01-15 | **Phase**: V1 Complete - V2 Planning
+> **Last Updated**: 2026-01-15 | **Phase**: V2 Sprint 1 Complete
 
 ---
 
@@ -21,7 +21,7 @@
 |---------|--------|----------|-------|
 | **V0** | ✅ Done | 100% | Scaffold, Auth, DB schema, Menu seed |
 | **V1** | ✅ Done | 100% | Full ordering flow + Admin basics |
-| **V2** | 📋 Planned | 0% | Driver ops, tracking, polish |
+| **V2** | 🚧 In Progress | 25% | Driver ops, tracking, polish |
 
 ### V1 Sprint Progress
 | Sprint | Status | Tasks |
@@ -30,6 +30,14 @@
 | Sprint 2: Cart + Checkout | ✅ Complete | 7/7 |
 | Sprint 3: Payment + Confirm | ✅ Complete | 7/7 |
 | Sprint 4: Admin Basics | ✅ Complete | 5/5 |
+
+### V2 Sprint Progress
+| Sprint | Status | Tasks |
+|--------|--------|-------|
+| Sprint 1: Admin Route Mgmt | ✅ Complete | 8/8 |
+| Sprint 2: Driver Mobile | 📋 Planned | 0/4 |
+| Sprint 3: Customer Tracking | 📋 Planned | 0/3 |
+| Sprint 4: Polish | 📋 Planned | 0/3 |
 
 → See [docs/project_status.md](docs/project_status.md) for detailed tracking.
 
@@ -255,23 +263,20 @@ vercel deploy --prod  # Deploy to Vercel
 
 ---
 
-## 🔮 Current Focus (V2 Planning)
+## 🔮 Current Focus (V2 In Progress)
 
-**V1 Complete!** All 25 tasks across 4 sprints are done.
+**V2 Sprint 1 Complete!** Admin route management implemented with 137 tests passing.
 
-### V1 Delivered Features
-- ✅ Menu browsing with categories, search, modifiers
-- ✅ Cart management with Zustand
-- ✅ Address management with geocoding + coverage validation
-- ✅ Stripe Checkout with webhook integration
-- ✅ Order confirmation, status, and history pages
-- ✅ Email notifications via Supabase Edge Functions
-- ✅ Admin dashboard with analytics, orders, menu, categories
+### V2 Sprint 1 Delivered Features
+- ✅ Database migration for drivers, routes, route_stops, location_updates, delivery_exceptions
+- ✅ Driver management API (CRUD + activate/deactivate)
+- ✅ Driver management UI with premium table, search, filter, add modal
+- ✅ Route management API (CRUD + stops management)
+- ✅ Route management UI with date filtering, status filters, create modal
+- ✅ Route optimization service (Google Routes API + nearest-neighbor fallback)
+- ✅ Admin nav updated with Drivers + Routes links
 
-### V2 Planning (Driver Ops + Tracking)
-
-**Sprint 1**: Admin Route Management
-- Driver CRUD, route creation, order assignment
+### V2 Remaining Sprints
 
 **Sprint 2**: Driver Mobile Interface
 - PWA with route view, stop management, location tracking

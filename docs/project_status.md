@@ -1,7 +1,7 @@
 # docs/project_status.md — Milestone Tracking (v2.0)
 
 > **Last Updated**: 2026-01-15
-> **Current Phase**: V1 Complete - V2 Planning
+> **Current Phase**: V2 Sprint 1 Complete
 
 ---
 
@@ -11,7 +11,7 @@
 |---------|--------|--------|-------|
 | **V0** | ✅ Complete | - | Scaffold + Foundation |
 | **V1** | ✅ Complete | Week 4 | Full Ordering Flow |
-| **V2** | 📋 Planned | Week 8 | Driver Ops + Tracking |
+| **V2** | 🚧 In Progress | Week 8 | Driver Ops + Tracking |
 | **V3** | 💭 Future | TBD | Scale + Polish |
 
 ---
@@ -126,23 +126,47 @@
 
 ---
 
-## ðŸ“‹ V2: Driver Ops + Tracking (Planned)
+## 🚧 V2: Driver Ops + Tracking (In Progress)
 
-### Features
-| Feature | Priority | Complexity | Notes |
-|---------|----------|------------|-------|
-| Driver mobile interface | P0 | Medium | Route view, status updates |
-| Route optimization | P0 | High | Google Routes API |
-| Real-time location updates | P0 | Medium | Driver GPS â†’ customer map |
-| Customer order tracking | P0 | Medium | Live map + timeline |
-| Admin route management | P1 | Medium | Assign orders to routes |
-| Delivery proof (photo) | P1 | Medium | Driver captures photo |
-| SMS notifications | P1 | Low | Twilio integration |
-| Driver earnings dashboard | P2 | Low | Track deliveries + tips |
+### Sprint 1: Admin Route Management (Complete)
+| Task | Status | Owner | Notes |
+|------|--------|-------|-------|
+| V2 Database migration | ✅ | Claude | drivers, routes, route_stops, location_updates, delivery_exceptions |
+| V2 Type definitions | ✅ | Claude | Driver, Route, RouteStop, LocationUpdate, DeliveryException types |
+| Driver management API | ✅ | Claude | CRUD + activate/deactivate endpoints |
+| Driver management UI | ✅ | Claude | Premium table with search, filter, modal |
+| Route management API | ✅ | Claude | CRUD + stop management endpoints |
+| Route management UI | ✅ | Claude | Route list, create modal, date filtering |
+| Route optimization service | ✅ | Claude | Google Routes API + nearest-neighbor fallback |
+| Sprint 1 tests | ✅ | Claude | 137 tests passing |
+
+**Sprint 1 completion**: 8/8 (100%)
+
+### Sprint 2: Driver Mobile Interface (Planned)
+| Task | Status | Owner | Notes |
+|------|--------|-------|-------|
+| Driver auth + layout | 📋 | - | Driver role, protected routes |
+| Driver mobile API | 📋 | - | Route view, location updates, stop status |
+| Driver mobile UI | 📋 | - | PWA route view, stop cards |
+| GPS tracking service | 📋 | - | Background location tracking |
+
+### Sprint 3: Customer Tracking (Planned)
+| Task | Status | Owner | Notes |
+|------|--------|-------|-------|
+| Tracking API | 📋 | - | Order tracking endpoint |
+| Real-time subscriptions | 📋 | - | Supabase Realtime |
+| Tracking page UI | 📋 | - | Live map, ETA, timeline |
+
+### Sprint 4: Polish (Planned)
+| Task | Status | Owner | Notes |
+|------|--------|-------|-------|
+| Delivery exceptions | 📋 | - | Can't deliver flow |
+| SMS notifications | 📋 | - | Twilio integration |
+| Analytics enhancements | 📋 | - | Driver performance, delivery metrics |
 
 ### V2 Acceptance Criteria
-- [ ] Admin can create delivery routes for Saturday
-- [ ] Admin can assign orders to routes
+- [x] Admin can create delivery routes for Saturday
+- [x] Admin can assign orders to routes
 - [ ] Driver can view assigned route + stops
 - [ ] Driver can update stop status (enroute/arrived/delivered)
 - [ ] Driver location updates every 5 minutes
@@ -150,7 +174,7 @@
 - [ ] Customer sees ETA band on tracking page
 - [ ] Driver can capture delivery photo
 - [ ] Customer receives SMS when order is dispatched
-- [ ] Route optimization suggests stop order
+- [x] Route optimization suggests stop order
 
 ---
 
