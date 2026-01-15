@@ -12,6 +12,8 @@ import {
   ChevronLeft,
   Menu,
   LogOut,
+  Truck,
+  Route,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils/cn";
@@ -33,6 +35,16 @@ const navItems = [
     label: "Orders",
     href: "/admin/orders",
     icon: ClipboardList,
+  },
+  {
+    label: "Drivers",
+    href: "/admin/drivers",
+    icon: Truck,
+  },
+  {
+    label: "Routes",
+    href: "/admin/routes",
+    icon: Route,
   },
   {
     label: "Menu",
