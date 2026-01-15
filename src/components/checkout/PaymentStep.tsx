@@ -1,0 +1,138 @@
+"use client";
+
+import { useState } from "react";
+import { ArrowLeft, CreditCard, Loader2, ShieldCheck } from "lucide-react";
+import { useCart } from "@/lib/hooks/useCart";
+import { useCheckoutStore } from "@/lib/stores/checkout-store";
+import { TimeSlotDisplay } from "./TimeSlotDisplay";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+
+export function PaymentStep() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { items } = useCart();
+  const {
+    address,
+    delivery,
+    customerNotes,
+    setCustomerNotes,
+    prevStep,
+  } = useCheckoutStore();
+
+  const handleCheckout = async () => {
+    if (!address || !delivery) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/checkout/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          addressId: address.id,
+          scheduledDate: delivery.date,
+          timeWindowStart: delivery.windowStart,
+          timeWindowEnd: delivery.windowEnd,
+          items: items.map((item) => ({
+            menuItemId: item.menuItemId,
+            quantity: item.quantity,
+            modifiers: item.modifiers.map((m) => ({ optionId: m.optionId })),
+            notes: item.notes || undefined,
+          })),
+          customerNotes: customerNotes || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message ?? "Checkout failed");
+      }
+
+      window.location.href = data.data.sessionUrl;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">Review & Pay</h2>
+        <p className="text-sm text-muted-foreground">
+          Review your order and proceed to payment
+        </p>
+      </div>
+
+      <div className="space-y-4 rounded-lg bg-muted/50 p-4">
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground">
+            Delivery Address
+          </h3>
+          <p className="mt-1 text-foreground">{address?.formattedAddress}</p>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground">
+            Delivery Time
+          </h3>
+          {delivery && <TimeSlotDisplay selection={delivery} className="mt-1" />}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="customerNotes">Order Notes (optional)</Label>
+        <Textarea
+          id="customerNotes"
+          placeholder="Any special instructions for your order..."
+          value={customerNotes}
+          onChange={(e) => setCustomerNotes(e.target.value)}
+          maxLength={500}
+          rows={3}
+        />
+        <p className="text-xs text-muted-foreground">
+          {customerNotes.length}/500 characters
+        </p>
+      </div>
+
+      {error && (
+        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
+
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <ShieldCheck className="h-4 w-4" />
+        <span>Secure payment powered by Stripe</span>
+      </div>
+
+      <div className="flex justify-between pt-4 border-t border-border">
+        <Button variant="ghost" onClick={prevStep} disabled={isLoading}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+        <Button
+          onClick={handleCheckout}
+          disabled={isLoading}
+          className="bg-brand-red hover:bg-brand-red/90"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            <>
+              <CreditCard className="mr-2 h-4 w-4" />
+              Pay Now
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
