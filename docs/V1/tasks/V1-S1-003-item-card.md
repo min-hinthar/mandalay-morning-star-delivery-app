@@ -1,9 +1,10 @@
-# Task: V1-S1-003 — Item Card Component
+# Task: V1-S1-003 — Item Card Component ✅
 
 > **Sprint**: 1 (Menu Browse)
 > **Priority**: P0
 > **Depends On**: V1-S1-001 (Menu Data Layer)
 > **Branch**: `feat/item-card-v1`
+> **Status**: Complete (2026-01-14)
 
 ---
 

@@ -10,3 +10,6 @@ export { SearchResultsGrid } from "./search-results-grid";
 export { SearchInput } from "./search-input";
 export { ItemCard } from "./ItemCard";
 export { ItemCardSkeleton } from "./ItemCardSkeleton";
+export { ItemDetailModal } from "./item-detail-modal";
+export { ModifierGroup } from "./modifier-group";
+export { QuantitySelector } from "./quantity-selector";

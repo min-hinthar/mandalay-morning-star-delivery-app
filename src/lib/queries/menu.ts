@@ -1,6 +1,37 @@
 import { createClient } from "@/lib/supabase/server";
+import type { MenuCategory, MenuItem, ModifierGroup } from "@/types/menu";
 
-export interface MenuItem {
+type MenuCategoryRow = {
+  id: string;
+  slug: string;
+  name: string;
+  sort_order: number;
+};
+
+type ModifierOptionRow = {
+  id: string;
+  slug: string;
+  name: string;
+  price_delta_cents: number;
+  is_active: boolean;
+  sort_order: number;
+};
+
+type ModifierGroupRow = {
+  id: string;
+  slug: string;
+  name: string;
+  selection_type: "single" | "multiple";
+  min_select: number;
+  max_select: number;
+  modifier_options: ModifierOptionRow[] | null;
+};
+
+type ItemModifierGroupRow = {
+  modifier_groups: ModifierGroupRow | null;
+};
+
+type MenuItemRow = {
   id: string;
   slug: string;
   name_en: string;
@@ -8,23 +39,13 @@ export interface MenuItem {
   description_en: string | null;
   base_price_cents: number;
   image_url: string | null;
+  is_active: boolean;
   is_sold_out: boolean;
-  allergens: string[];
-  tags: string[];
-  category: {
-    id: string;
-    slug: string;
-    name: string;
-  };
-}
-
-export interface MenuCategory {
-  id: string;
-  slug: string;
-  name: string;
-  sort_order: number;
-  items: MenuItem[];
-}
+  allergens: string[] | null;
+  tags: string[] | null;
+  category_id: string;
+  item_modifier_groups: ItemModifierGroupRow[] | null;
+};
 
 export async function getMenuWithCategories(): Promise<MenuCategory[]> {
   const supabase = await createClient();
@@ -33,17 +54,50 @@ export async function getMenuWithCategories(): Promise<MenuCategory[]> {
     .from("menu_categories")
     .select("id, slug, name, sort_order")
     .eq("is_active", true)
-    .order("sort_order");
+    .order("sort_order")
+    .returns<MenuCategoryRow[]>();
 
   if (catError) throw catError;
 
   const { data: items, error: itemError } = await supabase
     .from("menu_items")
     .select(
-      "id, slug, name_en, name_my, description_en, base_price_cents, image_url, is_sold_out, allergens, tags, category_id"
+      `
+      id,
+      slug,
+      name_en,
+      name_my,
+      description_en,
+      image_url,
+      base_price_cents,
+      is_active,
+      is_sold_out,
+      tags,
+      allergens,
+      category_id,
+      item_modifier_groups (
+        modifier_groups (
+          id,
+          slug,
+          name,
+          selection_type,
+          min_select,
+          max_select,
+          modifier_options (
+            id,
+            slug,
+            name,
+            price_delta_cents,
+            is_active,
+            sort_order
+          )
+        )
+      )
+    `
     )
     .eq("is_active", true)
-    .order("name_en");
+    .order("name_en")
+    .returns<MenuItemRow[]>();
 
   if (itemError) throw itemError;
 
@@ -51,27 +105,60 @@ export async function getMenuWithCategories(): Promise<MenuCategory[]> {
 
   for (const cat of categories || []) {
     categoryMap.set(cat.id, {
-      ...cat,
+      id: cat.id,
+      slug: cat.slug,
+      name: cat.name,
+      sortOrder: cat.sort_order,
       items: [],
     });
   }
 
   for (const item of items || []) {
-    const { category_id, ...rest } = item;
-    const category = categoryMap.get(category_id);
-    if (category) {
-      category.items.push({
-        ...rest,
-        category: {
-          id: category.id,
-          slug: category.slug,
-          name: category.name,
-        },
-      });
-    }
+    const category = categoryMap.get(item.category_id);
+    if (!category) continue;
+
+    const modifierGroups: ModifierGroup[] = (item.item_modifier_groups || [])
+      .map((img) => img.modifier_groups)
+      .filter((mg): mg is ModifierGroupRow => Boolean(mg))
+      .map((mg) => ({
+        id: mg.id,
+        slug: mg.slug,
+        name: mg.name,
+        selectionType: mg.selection_type,
+        minSelect: mg.min_select,
+        maxSelect: mg.max_select,
+        options: (mg.modifier_options || [])
+          .filter((opt) => opt.is_active)
+          .sort((a, b) => a.sort_order - b.sort_order)
+          .map((opt) => ({
+            id: opt.id,
+            slug: opt.slug,
+            name: opt.name,
+            priceDeltaCents: opt.price_delta_cents,
+            isActive: opt.is_active,
+            sortOrder: opt.sort_order,
+          })),
+      }));
+
+    const menuItem: MenuItem = {
+      id: item.id,
+      slug: item.slug,
+      nameEn: item.name_en,
+      nameMy: item.name_my,
+      descriptionEn: item.description_en,
+      imageUrl: item.image_url,
+      basePriceCents: item.base_price_cents,
+      isActive: item.is_active,
+      isSoldOut: item.is_sold_out,
+      tags: item.tags || [],
+      allergens: item.allergens || [],
+      modifierGroups,
+    };
+
+    category.items.push(menuItem);
   }
 
   return Array.from(categoryMap.values()).sort(
-    (a, b) => a.sort_order - b.sort_order
+    (a, b) => a.sortOrder - b.sortOrder
   );
 }

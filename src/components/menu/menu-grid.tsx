@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import type { MenuCategory, MenuItem } from "@/lib/queries/menu";
+import type { MenuCategory, MenuItem } from "@/types/menu";
 import { MenuSection } from "./menu-section";
 import { MenuEmptyState } from "./menu-empty-state";
 

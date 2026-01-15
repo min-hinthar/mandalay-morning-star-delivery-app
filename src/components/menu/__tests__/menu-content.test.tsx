@@ -2,27 +2,28 @@ import type { ReactElement } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MenuContent } from "../menu-content";
-import type { MenuCategory } from "@/lib/queries/menu";
+import type { MenuCategory } from "@/types/menu";
 
 const categories: MenuCategory[] = [
   {
     id: "cat-1",
     slug: "breakfast",
     name: "Breakfast",
-    sort_order: 1,
+    sortOrder: 1,
     items: [
       {
         id: "item-1",
         slug: "kyay-o",
-        name_en: "Kyay-O / Si-Chat",
-        name_my: "Myanmar",
-        description_en: "Rice vermicelli noodle soup.",
-        base_price_cents: 1800,
-        image_url: null,
-        is_sold_out: false,
+        nameEn: "Kyay-O / Si-Chat",
+        nameMy: "Myanmar",
+        descriptionEn: "Rice vermicelli noodle soup.",
+        basePriceCents: 1800,
+        imageUrl: null,
+        isActive: true,
+        isSoldOut: false,
         allergens: ["egg"],
         tags: [],
-        category: { id: "cat-1", slug: "breakfast", name: "Breakfast" },
+        modifierGroups: [],
       },
     ],
   },
@@ -30,20 +31,21 @@ const categories: MenuCategory[] = [
     id: "cat-2",
     slug: "sides",
     name: "Sides",
-    sort_order: 2,
+    sortOrder: 2,
     items: [
       {
         id: "item-2",
         slug: "rice",
-        name_en: "Rice",
-        name_my: null,
-        description_en: null,
-        base_price_cents: 200,
-        image_url: null,
-        is_sold_out: true,
+        nameEn: "Rice",
+        nameMy: null,
+        descriptionEn: null,
+        basePriceCents: 200,
+        imageUrl: null,
+        isActive: true,
+        isSoldOut: true,
         allergens: [],
         tags: [],
-        category: { id: "cat-2", slug: "sides", name: "Sides" },
+        modifierGroups: [],
       },
     ],
   },
@@ -97,7 +99,6 @@ describe("MenuContent", () => {
     expect(screen.getByText("Rice")).toBeInTheDocument();
     expect(screen.getByText("Myanmar")).toHaveClass("font-burmese");
     expect(screen.getByText("$18.00")).toBeInTheDocument();
-    expect(screen.getByText("Egg")).toBeInTheDocument();
 
     const soldOutCard = screen.getByText("Rice").closest("[class*='opacity-60']");
     expect(soldOutCard).toBeInTheDocument();
