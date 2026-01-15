@@ -1,0 +1,203 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Play, Loader2, CheckCircle } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+import { StopList } from "./StopList";
+import { LocationTracker } from "./LocationTracker";
+import type { RouteStopStatus } from "@/types/driver";
+
+interface StopData {
+  id: string;
+  stopIndex: number;
+  status: RouteStopStatus;
+  eta: string | null;
+  order: {
+    id: string;
+    deliveryWindowStart: string | null;
+    deliveryWindowEnd: string | null;
+    customer: {
+      fullName: string | null;
+    };
+    address: {
+      line1: string;
+      line2: string | null;
+      city: string;
+      state: string;
+    };
+  };
+}
+
+interface ActiveRouteViewProps {
+  routeId: string;
+  routeStatus: string;
+  stops: StopData[];
+}
+
+export function ActiveRouteView({
+  routeId,
+  routeStatus,
+  stops,
+}: ActiveRouteViewProps) {
+  const router = useRouter();
+  const [isStarting, setIsStarting] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Calculate current stop index (first pending or enroute stop)
+  const currentStopIndex =
+    stops.find((s) => s.status === "enroute")?.stopIndex ??
+    stops.find((s) => s.status === "pending")?.stopIndex ??
+    0;
+
+  // Calculate progress
+  const deliveredCount = stops.filter((s) => s.status === "delivered").length;
+  const skippedCount = stops.filter((s) => s.status === "skipped").length;
+  const completedCount = deliveredCount + skippedCount;
+  const totalCount = stops.length;
+  const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
+  // Check if route can be completed (all stops delivered or skipped)
+  const canComplete = totalCount > 0 && completedCount === totalCount;
+
+  const handleStartRoute = async () => {
+    setIsStarting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/driver/routes/${routeId}/start`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to start route");
+      }
+
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setIsStarting(false);
+    }
+  };
+
+  const handleCompleteRoute = async () => {
+    setIsCompleting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/driver/routes/${routeId}/complete`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to complete route");
+      }
+
+      router.push("/driver?completed=true");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Progress Bar */}
+      <div className="rounded-xl bg-white p-4 shadow-warm-sm">
+        <div className="mb-2 flex justify-between text-sm">
+          <span className="font-medium text-charcoal">Progress</span>
+          <span className="text-charcoal/60">
+            {completedCount}/{totalCount} stops
+          </span>
+        </div>
+        <div className="h-3 overflow-hidden rounded-full bg-charcoal/10">
+          <div
+            className="h-full rounded-full bg-jade-500 transition-all duration-500"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+        {deliveredCount > 0 && skippedCount > 0 && (
+          <div className="mt-2 flex gap-4 text-xs text-charcoal/60">
+            <span>{deliveredCount} delivered</span>
+            <span>{skippedCount} skipped</span>
+          </div>
+        )}
+      </div>
+
+      {/* Location Tracker (when route in progress) */}
+      {routeStatus === "in_progress" && (
+        <LocationTracker
+          routeId={routeId}
+          enabled={true}
+          showDetails={false}
+        />
+      )}
+
+      {/* Start Route Button (for planned routes) */}
+      {routeStatus === "planned" && (
+        <button
+          onClick={handleStartRoute}
+          disabled={isStarting}
+          className={cn(
+            "flex h-14 w-full items-center justify-center gap-3 rounded-xl font-semibold",
+            "bg-jade-500 text-white shadow-warm-md",
+            "transition-all hover:bg-jade-600 hover:shadow-warm-lg",
+            "active:scale-[0.98]",
+            "disabled:cursor-not-allowed disabled:opacity-50"
+          )}
+        >
+          {isStarting ? (
+            <Loader2 className="h-6 w-6 animate-spin" />
+          ) : (
+            <>
+              <Play className="h-6 w-6" />
+              <span>Start Route</span>
+            </>
+          )}
+        </button>
+      )}
+
+      {/* Complete Route Button (when all stops done) */}
+      {routeStatus === "in_progress" && canComplete && (
+        <button
+          onClick={handleCompleteRoute}
+          disabled={isCompleting}
+          className={cn(
+            "flex h-14 w-full items-center justify-center gap-3 rounded-xl font-semibold",
+            "bg-jade-500 text-white shadow-warm-md",
+            "transition-all hover:bg-jade-600 hover:shadow-warm-lg",
+            "active:scale-[0.98]",
+            "disabled:cursor-not-allowed disabled:opacity-50"
+          )}
+        >
+          {isCompleting ? (
+            <Loader2 className="h-6 w-6 animate-spin" />
+          ) : (
+            <>
+              <CheckCircle className="h-6 w-6" />
+              <span>Complete Route</span>
+            </>
+          )}
+        </button>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <p className="text-center text-sm text-red-600" role="alert">
+          {error}
+        </p>
+      )}
+
+      {/* Stop List */}
+      <StopList
+        stops={stops}
+        currentStopIndex={currentStopIndex}
+      />
+    </div>
+  );
+}
