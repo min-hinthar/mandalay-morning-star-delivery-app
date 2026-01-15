@@ -9,7 +9,7 @@ import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "./cart-item";
-import { CartSummary } from "./cart-summary";
+import { CartSummary } from "./CartSummary";
 import { cn } from "@/lib/utils/cn";
 
 export function CartDrawer() {
