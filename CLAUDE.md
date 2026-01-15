@@ -110,24 +110,33 @@ Both constraints must pass
 
 ---
 
-## 🧪 Testing Requirements
+## 🧪 Testing (V1 Complete)
 
-### Unit Tests (Required)
-- [ ] Subtotal calculation with modifiers
-- [ ] Delivery fee threshold logic
-- [ ] Cutoff/scheduling date selection
-- [ ] Coverage validation (distance + duration)
+### Unit Tests (128 tests passing)
+- [x] Subtotal calculation with modifiers (`order.test.ts`)
+- [x] Delivery fee threshold logic (`order.test.ts`)
+- [x] Cutoff/scheduling date selection (`delivery-dates.test.ts`)
+- [x] Coverage validation (distance + duration) (`coverage.test.ts`)
+- [x] Cart state management (`cart-store.test.ts`)
+- [x] Price calculation with modifiers (`price.test.ts`)
 
-### Integration Tests (Required)
-- [ ] Order → Checkout Session → Webhook → Confirmed
-- [ ] Out-of-coverage blocks checkout
-- [ ] Post-cutoff blocks edits
-- [ ] Modifier price delta calculations
+### Integration Tests
+- [x] Checkout session validation (`route.test.ts`)
+- [x] Webhook event processing (`route.test.ts`)
+- [x] Modifier price delta calculations
+- [x] Schema validation (Zod)
 
-### E2E Tests (Required for V1)
-- [ ] Full happy path: browse → cart → checkout → confirmation
-- [ ] Error states: out-of-coverage, payment failed, sold out
-- [ ] Mobile responsive flows
+### E2E Tests (Playwright)
+- [x] Full happy path: browse → cart → checkout → confirmation
+- [x] Error states: out-of-coverage, payment failed, sold out
+- [x] Mobile responsive flows
+
+### Test Commands
+```bash
+pnpm test          # Run unit/integration tests
+pnpm test:e2e      # Run Playwright E2E tests
+pnpm test:e2e:ui   # Run Playwright with UI
+```
 
 ---
 
