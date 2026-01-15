@@ -1,0 +1,1008 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Mandalay Morning Star" [level=1] [ref=e4]
+      - generic [ref=e5]:
+        - link "Sign In" [ref=e6] [cursor=pointer]:
+          - /url: /login
+          - button "Sign In" [ref=e7]
+        - link "Sign Up" [ref=e8] [cursor=pointer]:
+          - /url: /signup
+          - button "Sign Up" [ref=e9]
+  - main [ref=e10]:
+    - generic [ref=e11]:
+      - img [ref=e15]
+      - img [ref=e23]
+      - img [ref=e31]
+      - img [ref=e39]
+      - img [ref=e47]
+      - generic [ref=e54]:
+        - img "Mandalay Morning Star" [ref=e57]
+        - heading "Mandalay Morning Star" [level=1] [ref=e59]
+        - paragraph [ref=e60]: မန္တလေး မနက်ခင်းကြယ်
+        - paragraph [ref=e61]: Authentic Burmese cuisine crafted with love, delivered fresh to your door every Saturday in Southern California.
+        - generic [ref=e62]:
+          - button "View Our Menu" [ref=e63]
+          - button "Check Delivery Area" [ref=e64]
+        - generic [ref=e69]: Fresh deliveries every Saturday, 11am - 7pm
+      - button "Scroll down" [ref=e71]:
+        - generic [ref=e72]: Scroll to explore
+        - img [ref=e73]
+    - generic [ref=e77]:
+      - generic [ref=e78]:
+        - generic [ref=e79]:
+          - img [ref=e80]
+          - generic [ref=e83]: Delivery Coverage
+        - heading "Check If We Deliver To You" [level=2] [ref=e84]
+        - paragraph [ref=e85]: We deliver within 50 miles of our Covina kitchen every Saturday. Enter your address to see if you're in our delivery zone!
+      - generic [ref=e86]:
+        - generic [ref=e88]:
+          - generic [ref=e89]:
+            - generic [ref=e90]:
+              - generic [ref=e91]: Your Delivery Address
+              - generic [ref=e93]:
+                - img [ref=e95]
+                - textbox "Start typing your address..." [ref=e98]
+            - generic [ref=e99]:
+              - button "Check Coverage" [disabled]
+          - paragraph [ref=e101]:
+            - strong [ref=e102]: "Delivery Times:"
+            - text: Every Saturday, 11am - 7pm PT. Order by Friday 3pm to get delivery this Saturday!
+        - generic [ref=e104]:
+          - generic [ref=e106]:
+            - region "Map" [ref=e107]
+            - iframe [ref=e112]:
+              
+          - generic [ref=e114]:
+            - generic [ref=e117]: Our Kitchen
+            - generic [ref=e120]: 50mi Coverage
+    - generic [ref=e122]:
+      - generic [ref=e123]:
+        - generic [ref=e124]:
+          - img [ref=e125]
+          - generic [ref=e128]: How It Works
+        - heading "Order in 4 Simple Steps" [level=2] [ref=e129]
+        - paragraph [ref=e130]: From browsing our menu to receiving your meal at your doorstep, we've made ordering authentic Burmese cuisine as easy as possible.
+      - generic [ref=e134]:
+        - generic [ref=e135]:
+          - generic [ref=e136]:
+            - img [ref=e139]
+            - generic [ref=e142]: "1"
+          - heading "Check Coverage" [level=3] [ref=e143]
+          - paragraph [ref=e144]: Enter your address
+          - paragraph [ref=e145]: We deliver within 50 miles of Covina, CA
+        - generic [ref=e146]:
+          - generic [ref=e147]:
+            - img [ref=e150]
+            - generic [ref=e155]: "2"
+          - heading "Browse & Order" [level=3] [ref=e156]
+          - paragraph [ref=e157]: Pick your favorites
+          - paragraph [ref=e158]: Authentic Burmese dishes made fresh
+        - generic [ref=e159]:
+          - generic [ref=e160]:
+            - img [ref=e163]
+            - generic [ref=e165]: "3"
+          - heading "Checkout" [level=3] [ref=e166]
+          - paragraph [ref=e167]: Secure payment
+          - paragraph [ref=e168]: Order by Friday 3pm for Saturday delivery
+        - generic [ref=e169]:
+          - generic [ref=e170]:
+            - img [ref=e173]
+            - generic [ref=e178]: "4"
+          - heading "Saturday Delivery" [level=3] [ref=e179]
+          - paragraph [ref=e180]: Fresh to your door
+          - paragraph [ref=e181]: "Delivery window: 11am - 7pm"
+      - generic [ref=e183]:
+        - img [ref=e185]
+        - generic [ref=e188]:
+          - paragraph [ref=e189]: "Weekly Cutoff: Friday 3:00 PM PT"
+          - paragraph [ref=e190]: Orders after cutoff will be delivered next Saturday
+    - generic [ref=e192]:
+      - generic [ref=e193]:
+        - generic [ref=e194]:
+          - img [ref=e195]
+          - generic [ref=e200]: Our Menu
+        - heading "Authentic Burmese Cuisine" [level=2] [ref=e201]
+        - paragraph [ref=e202]: Handcrafted dishes from traditional Burmese recipes, prepared fresh for Saturday delivery. Browse our full menu and add your favorites to cart.
+        - generic [ref=e204]:
+          - img [ref=e205]
+          - textbox "Search dishes..." [ref=e208]
+      - navigation "Menu categories" [ref=e210]:
+        - tablist [ref=e211]:
+          - tab "All" [selected] [ref=e212]: All
+          - tab "All-Day Breakfast" [ref=e214]
+          - tab "Rice / Noodles / Soups" [ref=e215]
+          - tab "Sides" [ref=e216]
+          - tab "Curries (A la Carte)" [ref=e217]
+          - tab "Vegetables" [ref=e218]
+          - tab "Seafood Curries" [ref=e219]
+          - tab "Appetizers / Salads" [ref=e220]
+          - tab "Drinks" [ref=e221]
+      - generic [ref=e223]:
+        - button "Kyay-O / Si-Chat" [ref=e226] [cursor=pointer]:
+          - generic [ref=e227]:
+            - generic [ref=e229]: No image
+            - button "Add" [ref=e231]:
+              - img [ref=e232]
+              - generic [ref=e233]: Add
+          - generic [ref=e234]:
+            - generic [ref=e235]:
+              - heading "Kyay-O / Si-Chat" [level=3] [ref=e236]
+              - paragraph [ref=e237]: ကြေးအိုး/ဆီချက်
+            - paragraph [ref=e238]: Rice vermicelli noodle soup (or dry) with pork, meatballs, intestines, eggs, bok choy. Chicken + egg option available.
+            - generic [ref=e239]:
+              - generic [ref=e240]: $18.00
+              - generic [ref=e242]:
+                - img [ref=e244]
+                - generic:
+                  - paragraph: Contains Egg
+        - button "Mee-Shay" [ref=e248] [cursor=pointer]:
+          - generic [ref=e249]:
+            - generic [ref=e251]: No image
+            - button "Add" [ref=e253]:
+              - img [ref=e254]
+              - generic [ref=e255]: Add
+          - generic [ref=e256]:
+            - generic [ref=e257]:
+              - heading "Mee-Shay" [level=3] [ref=e258]
+              - paragraph [ref=e259]: မြှီးရှည်
+            - paragraph [ref=e260]: Mandalay specialty rice noodles in sweet soybean sauce with pork, crunchy rind, pickled mustard.
+            - generic [ref=e261]:
+              - generic [ref=e262]: $14.00
+              - generic [ref=e264]:
+                - img [ref=e266]
+                - generic:
+                  - paragraph: Contains Soy
+        - button "Mohinga" [ref=e277] [cursor=pointer]:
+          - generic [ref=e278]:
+            - generic [ref=e280]: No image
+            - button "Add" [ref=e282]:
+              - img [ref=e283]
+              - generic [ref=e284]: Add
+          - generic [ref=e285]:
+            - generic [ref=e286]:
+              - heading "Mohinga" [level=3] [ref=e287]
+              - paragraph [ref=e288]: မုန့်ဟင်းခါး
+            - paragraph [ref=e289]: Traditional fish broth soup with rice noodles, garnishes, bean fritters, egg slices.
+            - generic [ref=e290]:
+              - generic [ref=e291]: $14.00
+              - generic [ref=e292]:
+                - generic [ref=e293]:
+                  - img [ref=e295]
+                  - generic:
+                    - paragraph: Contains Fish
+                - generic [ref=e301]:
+                  - img [ref=e303]
+                  - generic:
+                    - paragraph: Contains Egg
+        - button "Nan-Gyi Mont Ti" [ref=e307] [cursor=pointer]:
+          - generic [ref=e308]:
+            - generic [ref=e309]:
+              - img [ref=e310]
+              - text: Popular
+            - generic [ref=e313]: No image
+            - button "Add" [ref=e315]:
+              - img [ref=e316]
+              - generic [ref=e317]: Add
+          - generic [ref=e318]:
+            - generic [ref=e319]:
+              - heading "Nan-Gyi Mont Ti" [level=3] [ref=e320]
+              - paragraph [ref=e321]: နန်းကြီးမုန့်တီ
+            - paragraph [ref=e322]: Rice noodles with fish cake, garnishes, and crunch tossed in Mandalay chicken curry sauce.
+            - generic [ref=e324]: $13.00
+        - button "Ohno Khao-Swe" [ref=e327] [cursor=pointer]:
+          - generic [ref=e328]:
+            - generic [ref=e330]: No image
+            - button "Add" [ref=e332]:
+              - img [ref=e333]
+              - generic [ref=e334]: Add
+          - generic [ref=e335]:
+            - generic [ref=e336]:
+              - heading "Ohno Khao-Swe" [level=3] [ref=e337]
+              - paragraph [ref=e338]: အုန်းနို့ခေါက်ဆွဲ
+            - paragraph [ref=e339]: Coconut cream + chickpea curry broth with wheat noodles, chicken drum, egg, garnishes.
+            - generic [ref=e340]:
+              - generic [ref=e341]: $15.00
+              - generic [ref=e342]:
+                - generic [ref=e343]:
+                  - img [ref=e345]
+                  - generic:
+                    - paragraph: Contains Egg
+                - generic [ref=e347]:
+                  - img [ref=e349]
+                  - generic:
+                    - paragraph: Contains Gluten
+        - button "Shan Noodles" [ref=e360] [cursor=pointer]:
+          - generic [ref=e361]:
+            - generic [ref=e363]: No image
+            - button "Add" [ref=e365]:
+              - img [ref=e366]
+              - generic [ref=e367]: Add
+          - generic [ref=e368]:
+            - generic [ref=e369]:
+              - heading "Shan Noodles" [level=3] [ref=e370]
+              - paragraph [ref=e371]: ရှမ်းခေါက်ဆွဲ
+            - paragraph [ref=e372]: Rice noodles with savory tomato-based sauce (pork) + peanuts, fried garlic, pickled mustard, chili paste.
+            - generic [ref=e373]:
+              - generic [ref=e374]: $13.00
+              - generic [ref=e376]:
+                - img [ref=e378]
+                - generic:
+                  - paragraph: Contains Peanuts
+        - button "Burmese Fried Rice" [ref=e383] [cursor=pointer]:
+          - generic [ref=e384]:
+            - generic [ref=e386]: No image
+            - button "Add" [ref=e388]:
+              - img [ref=e389]
+              - generic [ref=e390]: Add
+          - generic [ref=e391]:
+            - generic [ref=e392]:
+              - heading "Burmese Fried Rice" [level=3] [ref=e393]
+              - paragraph [ref=e394]: ပဲပြုတ်ထမင်းကြော်
+            - paragraph [ref=e395]: Stir-fried rice with eggs, onion, garlic, and boiled yellow peas.
+            - generic [ref=e396]:
+              - generic [ref=e397]: $19.00
+              - generic [ref=e399]:
+                - img [ref=e401]
+                - generic:
+                  - paragraph: Contains Egg
+        - button "Coconut Chicken & Rice" [ref=e405] [cursor=pointer]:
+          - generic [ref=e406]:
+            - generic [ref=e408]: No image
+            - button "Add" [ref=e410]:
+              - img [ref=e411]
+              - generic [ref=e412]: Add
+          - generic [ref=e413]:
+            - generic [ref=e414]:
+              - heading "Coconut Chicken & Rice" [level=3] [ref=e415]
+              - paragraph [ref=e416]: ကြက်အုန်းထမင်း
+            - paragraph [ref=e417]: Coconut rice with balachaung + Burmese chicken curry cooked in coconut oil.
+            - generic [ref=e418]:
+              - generic [ref=e419]: $14.00
+              - generic [ref=e421]:
+                - img [ref=e423]
+                - generic:
+                  - paragraph: Contains Shellfish
+        - button "Goat-Marrow Soup" [ref=e427] [cursor=pointer]:
+          - generic [ref=e428]:
+            - generic [ref=e430]: No image
+            - button "Add" [ref=e432]:
+              - img [ref=e433]
+              - generic [ref=e434]: Add
+          - generic [ref=e435]:
+            - generic [ref=e436]:
+              - heading "Goat-Marrow Soup" [level=3] [ref=e437]
+              - paragraph [ref=e438]: ဆိတ်ရိုးစွပ်ပြုတ်
+            - paragraph [ref=e439]: Goat stew + bone marrow infused soup with chickpeas and potatoes. Best paired with Parata.
+            - generic [ref=e441]: $12.00
+        - button "Ngapi-Rice Salad" [ref=e444] [cursor=pointer]:
+          - generic [ref=e445]:
+            - generic [ref=e447]: No image
+            - button "Add" [ref=e449]:
+              - img [ref=e450]
+              - generic [ref=e451]: Add
+          - generic [ref=e452]:
+            - generic [ref=e453]:
+              - heading "Ngapi-Rice Salad" [level=3] [ref=e454]
+              - paragraph [ref=e455]: ငပိထမင်း
+            - paragraph [ref=e456]: Rice tossed in fermented fish paste curry (Nga-Pi), served with sunny-side-up egg.
+            - generic [ref=e457]:
+              - generic [ref=e458]: $13.00
+              - generic [ref=e459]:
+                - generic [ref=e460]:
+                  - img [ref=e462]
+                  - generic:
+                    - paragraph: Contains Fish
+                - generic [ref=e468]:
+                  - img [ref=e470]
+                  - generic:
+                    - paragraph: Contains Egg
+        - button "Rice with Pickled Tea Salad" [ref=e474] [cursor=pointer]:
+          - generic [ref=e475]:
+            - generic [ref=e477]: No image
+            - button "Add" [ref=e479]:
+              - img [ref=e480]
+              - generic [ref=e481]: Add
+          - generic [ref=e482]:
+            - generic [ref=e483]:
+              - heading "Rice with Pickled Tea Salad" [level=3] [ref=e484]
+              - paragraph [ref=e485]: လက်ဖက်ထမင်း
+            - paragraph [ref=e486]: Rice tossed in pickled tea salad + garnishes, served with sunny-side-up egg.
+            - generic [ref=e487]:
+              - generic [ref=e488]: $13.00
+              - generic [ref=e490]:
+                - img [ref=e492]
+                - generic:
+                  - paragraph: Contains Egg
+        - button "Tom-Yum Fried Rice / Noodles" [ref=e496] [cursor=pointer]:
+          - generic [ref=e497]:
+            - generic [ref=e499]: No image
+            - button "Add" [ref=e501]:
+              - img [ref=e502]
+              - generic [ref=e503]: Add
+          - generic [ref=e504]:
+            - generic [ref=e505]:
+              - heading "Tom-Yum Fried Rice / Noodles" [level=3] [ref=e506]
+              - paragraph [ref=e507]: တုန်ရန်းထမင်းကြော်/ခေါက်ဆွဲကြော်
+            - paragraph [ref=e508]: Stir-fry with shrimp + vegetables + tom yum aromatics (lemongrass/galangal/kaffir lime).
+            - generic [ref=e509]:
+              - generic [ref=e510]: $16.00
+              - generic [ref=e512]:
+                - img [ref=e514]
+                - generic:
+                  - paragraph: Contains Shellfish
+        - button "Balachaung" [ref=e518] [cursor=pointer]:
+          - generic [ref=e519]:
+            - generic [ref=e521]: No image
+            - button "Add" [ref=e523]:
+              - img [ref=e524]
+              - generic [ref=e525]: Add
+          - generic [ref=e526]:
+            - generic [ref=e527]:
+              - heading "Balachaung" [level=3] [ref=e528]
+              - paragraph [ref=e529]: ဘာလချောင်ကြော်
+            - paragraph [ref=e530]: Shrimp condiment with fried onions, shrimp, garlic, ginger & red chilies.
+            - generic [ref=e531]:
+              - generic [ref=e532]: $3.00
+              - generic [ref=e534]:
+                - img [ref=e536]
+                - generic:
+                  - paragraph: Contains Shellfish
+        - button "Coconut Rice" [ref=e540] [cursor=pointer]:
+          - generic [ref=e541]:
+            - generic [ref=e543]: No image
+            - button "Add" [ref=e545]:
+              - img [ref=e546]
+              - generic [ref=e547]: Add
+          - generic [ref=e548]:
+            - generic [ref=e549]:
+              - heading "Coconut Rice" [level=3] [ref=e550]
+              - paragraph [ref=e551]: အုန်းထမင်း
+            - paragraph [ref=e552]: Coconut-cream cooked rice.
+            - generic [ref=e554]: $3.00
+        - button "Parata (2 pcs)" [ref=e557] [cursor=pointer]:
+          - generic [ref=e558]:
+            - generic [ref=e560]: No image
+            - button "Add" [ref=e562]:
+              - img [ref=e563]
+              - generic [ref=e564]: Add
+          - generic [ref=e565]:
+            - generic [ref=e566]:
+              - heading "Parata (2 pcs)" [level=3] [ref=e567]
+              - paragraph [ref=e568]: ပလာတာ
+            - paragraph [ref=e569]: Two pieces. Great with goat marrow soup/curries.
+            - generic [ref=e570]:
+              - generic [ref=e571]: $5.00
+              - generic [ref=e573]:
+                - img [ref=e575]
+                - generic:
+                  - paragraph: Contains Gluten
+        - button "Rice" [ref=e586] [cursor=pointer]:
+          - generic [ref=e587]:
+            - generic [ref=e589]: No image
+            - button "Add" [ref=e591]:
+              - img [ref=e592]
+              - generic [ref=e593]: Add
+          - generic [ref=e594]:
+            - generic [ref=e595]:
+              - heading "Rice" [level=3] [ref=e596]
+              - paragraph [ref=e597]: ထမင်းဖြူ
+            - paragraph [ref=e598]: Steamed plain white rice.
+            - generic [ref=e600]: $2.00
+        - button "Bamboo Shoot with Pork Soup" [ref=e603] [cursor=pointer]:
+          - generic [ref=e604]:
+            - generic [ref=e606]: No image
+            - button "Add" [ref=e608]:
+              - img [ref=e609]
+              - generic [ref=e610]: Add
+          - generic [ref=e611]:
+            - generic [ref=e612]:
+              - heading "Bamboo Shoot with Pork Soup" [level=3] [ref=e613]
+              - paragraph [ref=e614]: ဝက်မျှစ်ချဥ်
+            - paragraph [ref=e615]: Pork in mildly spiced tamarind broth infused with bamboo shoots.
+            - generic [ref=e616]:
+              - generic [ref=e617]: $14.00
+              - generic [ref=e619]:
+                - img [ref=e621]
+                - generic:
+                  - paragraph: Contains Fish
+        - button "Beef Curry" [ref=e629] [cursor=pointer]:
+          - generic [ref=e630]:
+            - generic [ref=e632]: No image
+            - button "Add" [ref=e634]:
+              - img [ref=e635]
+              - generic [ref=e636]: Add
+          - generic [ref=e637]:
+            - generic [ref=e638]:
+              - heading "Beef Curry" [level=3] [ref=e639]
+              - paragraph [ref=e640]: အမဲသားဟင်း/အမဲကြော်နှပ်
+            - paragraph [ref=e641]: Slow-cooked Burmese-Indian beef curry; non-spicy braised option available.
+            - generic [ref=e642]:
+              - generic [ref=e643]: $19.00
+              - generic [ref=e645]:
+                - img [ref=e647]
+                - generic:
+                  - paragraph: Contains Soy
+        - button "Beef Pounded Deep Fried" [ref=e658] [cursor=pointer]:
+          - generic [ref=e659]:
+            - generic [ref=e661]: No image
+            - button "Add" [ref=e663]:
+              - img [ref=e664]
+              - generic [ref=e665]: Add
+          - generic [ref=e666]:
+            - generic [ref=e667]:
+              - heading "Beef Pounded Deep Fried" [level=3] [ref=e668]
+              - paragraph [ref=e669]: အမဲထောင်းကြော်
+            - paragraph [ref=e670]: Pulled braised beef cooked in spicy chili oil.
+            - generic [ref=e672]: $19.00
+        - button "Chicken Curry (Original / Masala / Coconut)" [ref=e675] [cursor=pointer]:
+          - generic [ref=e676]:
+            - generic [ref=e678]: No image
+            - button "Add" [ref=e680]:
+              - img [ref=e681]
+              - generic [ref=e682]: Add
+          - generic [ref=e683]:
+            - generic [ref=e684]:
+              - heading "Chicken Curry (Original / Masala / Coconut)" [level=3] [ref=e685]
+              - paragraph [ref=e686]: ကြက်သားဟင်း
+            - paragraph [ref=e687]: Farm-raised chicken curry; masala spicy or sweet coconut option available.
+            - generic [ref=e688]:
+              - generic [ref=e689]: $14.00
+              - generic [ref=e691]:
+                - img [ref=e693]
+                - generic:
+                  - paragraph: Contains Soy
+        - button "Chicken Giblets Curry" [ref=e704] [cursor=pointer]:
+          - generic [ref=e705]:
+            - generic [ref=e707]: No image
+            - button "Add" [ref=e709]:
+              - img [ref=e710]
+              - generic [ref=e711]: Add
+          - generic [ref=e712]:
+            - generic [ref=e713]:
+              - heading "Chicken Giblets Curry" [level=3] [ref=e714]
+              - paragraph [ref=e715]: ကြက်အသဲမြစ်
+            - paragraph [ref=e716]: Chicken gizzards and liver in traditional Burmese curry.
+            - generic [ref=e718]: $14.00
+        - button "Duck Egg" [ref=e721] [cursor=pointer]:
+          - generic [ref=e722]:
+            - generic [ref=e724]: No image
+            - button "Add" [ref=e726]:
+              - img [ref=e727]
+              - generic [ref=e728]: Add
+          - generic [ref=e729]:
+            - generic [ref=e730]:
+              - heading "Duck Egg" [level=3] [ref=e731]
+              - paragraph [ref=e732]: ဘဲဥဟင်း
+            - paragraph [ref=e733]: Boiled duck eggs cooked in tomato-based curry.
+            - generic [ref=e734]:
+              - generic [ref=e735]: $14.00
+              - generic [ref=e737]:
+                - img [ref=e739]
+                - generic:
+                  - paragraph: Contains Egg
+        - button "Goat Curry [Original/Offal]" [ref=e743] [cursor=pointer]:
+          - generic [ref=e744]:
+            - generic [ref=e746]: No image
+            - button "Add" [ref=e748]:
+              - img [ref=e749]
+              - generic [ref=e750]: Add
+          - generic [ref=e751]:
+            - generic [ref=e752]:
+              - heading "Goat Curry [Original/Offal]" [level=3] [ref=e753]
+              - paragraph [ref=e754]: ဆိတ်သားဟင်း/ဆိတ်ကလီစာ
+            - paragraph [ref=e755]: Braised goat in Burmese-Indian masala curry (choice of meat or offal).
+            - generic [ref=e757]: $30.00
+        - button "Pork Curry" [ref=e760] [cursor=pointer]:
+          - generic [ref=e761]:
+            - generic [ref=e763]: No image
+            - button "Add" [ref=e765]:
+              - img [ref=e766]
+              - generic [ref=e767]: Add
+          - generic [ref=e768]:
+            - generic [ref=e769]:
+              - heading "Pork Curry" [level=3] [ref=e770]
+              - paragraph [ref=e771]: ဝက်သနီ
+            - paragraph [ref=e772]: Classic pork curry in sweet, mildly spiced sauce.
+            - generic [ref=e773]:
+              - generic [ref=e774]: $14.00
+              - generic [ref=e776]:
+                - img [ref=e778]
+                - generic:
+                  - paragraph: Contains Soy
+        - button "Pork Horsegram Bean Curry" [ref=e789] [cursor=pointer]:
+          - generic [ref=e790]:
+            - generic [ref=e792]: No image
+            - button "Add" [ref=e794]:
+              - img [ref=e795]
+              - generic [ref=e796]: Add
+          - generic [ref=e797]:
+            - generic [ref=e798]:
+              - heading "Pork Horsegram Bean Curry" [level=3] [ref=e799]
+              - paragraph [ref=e800]: ဝက်ပုန်းရည်ကြီး
+            - paragraph [ref=e801]: Pork curry with horse gram beans; mildly spiced, earthy/nutty.
+            - generic [ref=e802]:
+              - generic [ref=e803]: $14.00
+              - generic [ref=e805]:
+                - img [ref=e807]
+                - generic:
+                  - paragraph: Contains Soy
+        - button "Pork Offals Curry" [ref=e818] [cursor=pointer]:
+          - generic [ref=e819]:
+            - generic [ref=e821]: No image
+            - button "Add" [ref=e823]:
+              - img [ref=e824]
+              - generic [ref=e825]: Add
+          - generic [ref=e826]:
+            - generic [ref=e827]:
+              - heading "Pork Offals Curry" [level=3] [ref=e828]
+              - paragraph [ref=e829]: ဝက်ကလီစာ
+            - paragraph [ref=e830]: Pork offal + intestines + liver in mildly spiced sauce.
+            - generic [ref=e831]:
+              - generic [ref=e832]: $14.00
+              - generic [ref=e834]:
+                - img [ref=e836]
+                - generic:
+                  - paragraph: Contains Soy
+        - button "Pork Skewers" [ref=e847] [cursor=pointer]:
+          - generic [ref=e848]:
+            - generic [ref=e850]: No image
+            - button "Add" [ref=e852]:
+              - img [ref=e853]
+              - generic [ref=e854]: Add
+          - generic [ref=e855]:
+            - generic [ref=e856]:
+              - heading "Pork Skewers" [level=3] [ref=e857]
+              - paragraph [ref=e858]: ဝက်သားဒုတ်ထိုး
+            - paragraph [ref=e859]: Slow-cooked pork + intestines + liver in herbal spices; served with dipping sauce.
+            - generic [ref=e861]: $15.00
+        - button "Acacia with Shrimp Curry" [ref=e864] [cursor=pointer]:
+          - generic [ref=e865]:
+            - generic [ref=e867]: No image
+            - button "Add" [ref=e869]:
+              - img [ref=e870]
+              - generic [ref=e871]: Add
+          - generic [ref=e872]:
+            - generic [ref=e873]:
+              - heading "Acacia with Shrimp Curry" [level=3] [ref=e874]
+              - paragraph [ref=e875]: ကင်ပွန်းချဥ်ကြော်
+            - paragraph [ref=e876]: Acacia sour leaf curry with shrimp.
+            - generic [ref=e877]:
+              - generic [ref=e878]: $14.00
+              - generic [ref=e880]:
+                - img [ref=e882]
+                - generic:
+                  - paragraph: Contains Shellfish
+        - button "Bamboo Shoot Mushroom Soup" [ref=e886] [cursor=pointer]:
+          - generic [ref=e887]:
+            - generic [ref=e889]: No image
+            - button "Add" [ref=e891]:
+              - img [ref=e892]
+              - generic [ref=e893]: Add
+          - generic [ref=e894]:
+            - generic [ref=e895]:
+              - heading "Bamboo Shoot Mushroom Soup" [level=3] [ref=e896]
+              - paragraph [ref=e897]: မျှစ်တောချက်
+            - paragraph [ref=e898]: Young bamboo shoots cooked with mushrooms in savory soup.
+            - generic [ref=e900]: $14.00
+        - button "Mixed Veggie Soup" [ref=e903] [cursor=pointer]:
+          - generic [ref=e904]:
+            - generic [ref=e906]: No image
+            - button "Add" [ref=e908]:
+              - img [ref=e909]
+              - generic [ref=e910]: Add
+          - generic [ref=e911]:
+            - generic [ref=e912]:
+              - heading "Mixed Veggie Soup" [level=3] [ref=e913]
+              - paragraph [ref=e914]: သီးစုံပဲကုလားဟင်း
+            - paragraph [ref=e915]: Burmese Indian-style assorted vegetables in savory, mildly spicy soup.
+            - generic [ref=e917]: $14.00
+        - button "Roselle with Shrimp Curry" [ref=e920] [cursor=pointer]:
+          - generic [ref=e921]:
+            - generic [ref=e923]: No image
+            - button "Add" [ref=e925]:
+              - img [ref=e926]
+              - generic [ref=e927]: Add
+          - generic [ref=e928]:
+            - generic [ref=e929]:
+              - heading "Roselle with Shrimp Curry" [level=3] [ref=e930]
+              - paragraph [ref=e931]: ချဥ်ပေါင်ကြော်
+            - paragraph [ref=e932]: Roselle sour leaf curry with shrimp.
+            - generic [ref=e933]:
+              - generic [ref=e934]: $14.00
+              - generic [ref=e936]:
+                - img [ref=e938]
+                - generic:
+                  - paragraph: Contains Shellfish
+        - button "Boneless Catfish Curry" [ref=e942] [cursor=pointer]:
+          - generic [ref=e943]:
+            - generic [ref=e945]: No image
+            - button "Add" [ref=e947]:
+              - img [ref=e948]
+              - generic [ref=e949]: Add
+          - generic [ref=e950]:
+            - generic [ref=e951]:
+              - heading "Boneless Catfish Curry" [level=3] [ref=e952]
+              - paragraph [ref=e953]: ငါးခူမွှေချက်
+            - paragraph [ref=e954]: Boneless catfish in mildly spiced tamarind sauce.
+            - generic [ref=e955]:
+              - generic [ref=e956]: $14.00
+              - generic [ref=e958]:
+                - img [ref=e960]
+                - generic:
+                  - paragraph: Contains Fish
+        - button "Crab Masala Curry" [ref=e968] [cursor=pointer]:
+          - generic [ref=e969]:
+            - generic [ref=e971]: No image
+            - button "Add" [ref=e973]:
+              - img [ref=e974]
+              - generic [ref=e975]: Add
+          - generic [ref=e976]:
+            - generic [ref=e977]:
+              - heading "Crab Masala Curry" [level=3] [ref=e978]
+              - paragraph [ref=e979]: ဂဏန်းမဆလာ
+            - paragraph [ref=e980]: Whole Dungeness crab simmered in masala chili curry with tamarind.
+            - generic [ref=e981]:
+              - generic [ref=e982]: $30.00
+              - generic [ref=e984]:
+                - img [ref=e986]
+                - generic:
+                  - paragraph: Contains Shellfish
+        - button "Fermented Fish Paste Nga-Pi" [ref=e990] [cursor=pointer]:
+          - generic [ref=e991]:
+            - generic [ref=e993]: No image
+            - button "Add" [ref=e995]:
+              - img [ref=e996]
+              - generic [ref=e997]: Add
+          - generic [ref=e998]:
+            - generic [ref=e999]:
+              - heading "Fermented Fish Paste Nga-Pi" [level=3] [ref=e1000]
+              - paragraph [ref=e1001]: ငပိရည်ကျို
+            - paragraph [ref=e1002]: Platter of vegetables with fermented fish paste dip.
+            - generic [ref=e1003]:
+              - generic [ref=e1004]: $14.00
+              - generic [ref=e1006]:
+                - img [ref=e1008]
+                - generic:
+                  - paragraph: Contains Fish
+        - button "Fish Paste Tomato Curry" [ref=e1016] [cursor=pointer]:
+          - generic [ref=e1017]:
+            - generic [ref=e1019]: No image
+            - button "Add" [ref=e1021]:
+              - img [ref=e1022]
+              - generic [ref=e1023]: Add
+          - generic [ref=e1024]:
+            - generic [ref=e1025]:
+              - heading "Fish Paste Tomato Curry" [level=3] [ref=e1026]
+              - paragraph [ref=e1027]: ခရမ်းချဥ်သီးငါးပိချက်
+            - paragraph [ref=e1028]: Fish paste in tomato curry with ginger/onions/garlic.
+            - generic [ref=e1029]:
+              - generic [ref=e1030]: $14.00
+              - generic [ref=e1032]:
+                - img [ref=e1034]
+                - generic:
+                  - paragraph: Contains Fish
+        - button "Fried Catfish Curry" [ref=e1042] [cursor=pointer]:
+          - generic [ref=e1043]:
+            - generic [ref=e1045]: No image
+            - button "Add" [ref=e1047]:
+              - img [ref=e1048]
+              - generic [ref=e1049]: Add
+          - generic [ref=e1050]:
+            - generic [ref=e1051]:
+              - heading "Fried Catfish Curry" [level=3] [ref=e1052]
+              - paragraph [ref=e1053]: ငါးခူကြော်နှပ်
+            - paragraph [ref=e1054]: Fried catfish curry.
+            - generic [ref=e1055]:
+              - generic [ref=e1056]: $19.00
+              - generic [ref=e1058]:
+                - img [ref=e1060]
+                - generic:
+                  - paragraph: Contains Fish
+        - button "Fried Fish Cake Curry" [ref=e1068] [cursor=pointer]:
+          - generic [ref=e1069]:
+            - generic [ref=e1071]: No image
+            - button "Add" [ref=e1073]:
+              - img [ref=e1074]
+              - generic [ref=e1075]: Add
+          - generic [ref=e1076]:
+            - generic [ref=e1077]:
+              - heading "Fried Fish Cake Curry" [level=3] [ref=e1078]
+              - paragraph [ref=e1079]: ငါးဖယ်ချက်
+            - paragraph [ref=e1080]: Crispy fish cakes simmered in mildly spiced tamarind sauce.
+            - generic [ref=e1081]:
+              - generic [ref=e1082]: $14.00
+              - generic [ref=e1084]:
+                - img [ref=e1086]
+                - generic:
+                  - paragraph: Contains Fish
+        - button "Hilsa Fish" [ref=e1094] [cursor=pointer]:
+          - generic [ref=e1095]:
+            - generic [ref=e1097]: No image
+            - button "Add" [ref=e1099]:
+              - img [ref=e1100]
+              - generic [ref=e1101]: Add
+          - generic [ref=e1102]:
+            - generic [ref=e1103]:
+              - heading "Hilsa Fish" [level=3] [ref=e1104]
+              - paragraph [ref=e1105]: ငါးသလောက်ပေါင်း
+            - paragraph [ref=e1106]: Hilsa fish in tomato-based curry.
+            - generic [ref=e1107]:
+              - generic [ref=e1108]: $24.00
+              - generic [ref=e1110]:
+                - img [ref=e1112]
+                - generic:
+                  - paragraph: Contains Fish
+        - button "River Prawns Curry" [ref=e1120] [cursor=pointer]:
+          - generic [ref=e1121]:
+            - generic [ref=e1123]: No image
+            - button "Add" [ref=e1125]:
+              - img [ref=e1126]
+              - generic [ref=e1127]: Add
+          - generic [ref=e1128]:
+            - generic [ref=e1129]:
+              - heading "River Prawns Curry" [level=3] [ref=e1130]
+              - paragraph [ref=e1131]: ပုဇွန်ထုပ်ဟင်း
+            - paragraph [ref=e1132]: Whole river prawns curry with aromatics + prawn oil.
+            - generic [ref=e1133]:
+              - generic [ref=e1134]: $24.00
+              - generic [ref=e1136]:
+                - img [ref=e1138]
+                - generic:
+                  - paragraph: Contains Shellfish
+        - button "Snakehead Innards Curry" [ref=e1142] [cursor=pointer]:
+          - generic [ref=e1143]:
+            - generic [ref=e1145]: No image
+            - button "Add" [ref=e1147]:
+              - img [ref=e1148]
+              - generic [ref=e1149]: Add
+          - generic [ref=e1150]:
+            - generic [ref=e1151]:
+              - heading "Snakehead Innards Curry" [level=3] [ref=e1152]
+              - paragraph [ref=e1153]: ငါးရံအူဟင်း
+            - paragraph [ref=e1154]: Snakehead intestines curry in spiced sauce.
+            - generic [ref=e1155]:
+              - generic [ref=e1156]: $14.00
+              - generic [ref=e1158]:
+                - img [ref=e1160]
+                - generic:
+                  - paragraph: Contains Fish
+        - button "Swai Fish Curry" [ref=e1168] [cursor=pointer]:
+          - generic [ref=e1169]:
+            - generic [ref=e1171]: No image
+            - button "Add" [ref=e1173]:
+              - img [ref=e1174]
+              - generic [ref=e1175]: Add
+          - generic [ref=e1176]:
+            - generic [ref=e1177]:
+              - heading "Swai Fish Curry" [level=3] [ref=e1178]
+              - paragraph [ref=e1179]: ငါးမြင်းဟင်း
+            - paragraph [ref=e1180]: Swai fish in mildly spiced sauce.
+            - generic [ref=e1181]:
+              - generic [ref=e1182]: $19.00
+              - generic [ref=e1184]:
+                - img [ref=e1186]
+                - generic:
+                  - paragraph: Contains Fish
+        - button "Sweet Shrimps Curry" [ref=e1194] [cursor=pointer]:
+          - generic [ref=e1195]:
+            - generic [ref=e1197]: No image
+            - button "Add" [ref=e1199]:
+              - img [ref=e1200]
+              - generic [ref=e1201]: Add
+          - generic [ref=e1202]:
+            - generic [ref=e1203]:
+              - heading "Sweet Shrimps Curry" [level=3] [ref=e1204]
+              - paragraph [ref=e1205]: ပုဇွန်ကြော်နှပ်
+            - paragraph [ref=e1206]: Shrimp in mildly spiced sauce.
+            - generic [ref=e1207]:
+              - generic [ref=e1208]: $19.00
+              - generic [ref=e1210]:
+                - img [ref=e1212]
+                - generic:
+                  - paragraph: Contains Shellfish
+        - button "Century Egg Salad" [ref=e1216] [cursor=pointer]:
+          - generic [ref=e1217]:
+            - generic [ref=e1219]: No image
+            - button "Add" [ref=e1221]:
+              - img [ref=e1222]
+              - generic [ref=e1223]: Add
+          - generic [ref=e1224]:
+            - generic [ref=e1225]:
+              - heading "Century Egg Salad" [level=3] [ref=e1226]
+              - paragraph [ref=e1227]: ဆေးဘဲဥသုပ်
+            - paragraph [ref=e1228]: Century egg + tomato + shallot + chickpea powder; includes peanuts + dried shrimp powder.
+            - generic [ref=e1229]:
+              - generic [ref=e1230]: $12.00
+              - generic [ref=e1231]:
+                - generic [ref=e1232]:
+                  - img [ref=e1234]
+                  - generic:
+                    - paragraph: Contains Peanuts
+                - generic [ref=e1237]:
+                  - img [ref=e1239]
+                  - generic:
+                    - paragraph: Contains Shellfish
+                - generic [ref=e1241]:
+                  - img [ref=e1243]
+                  - generic:
+                    - paragraph: Contains Egg
+        - button "Everything Salad" [ref=e1247] [cursor=pointer]:
+          - generic [ref=e1248]:
+            - generic [ref=e1250]: No image
+            - button "Add" [ref=e1252]:
+              - img [ref=e1253]
+              - generic [ref=e1254]: Add
+          - generic [ref=e1255]:
+            - generic [ref=e1256]:
+              - heading "Everything Salad" [level=3] [ref=e1257]
+              - paragraph [ref=e1258]: အသုပ်စုံ
+            - paragraph [ref=e1259]: Seaweed, noodles, potato, banana shoots, papaya, lettuce; includes peanuts + dried shrimp powder.
+            - generic [ref=e1260]:
+              - generic [ref=e1261]: $12.00
+              - generic [ref=e1262]:
+                - generic [ref=e1263]:
+                  - img [ref=e1265]
+                  - generic:
+                    - paragraph: Contains Peanuts
+                - generic [ref=e1268]:
+                  - img [ref=e1270]
+                  - generic:
+                    - paragraph: Contains Shellfish
+        - button "Grilled Aubergine Salad" [ref=e1274] [cursor=pointer]:
+          - generic [ref=e1275]:
+            - generic [ref=e1277]: No image
+            - button "Add" [ref=e1279]:
+              - img [ref=e1280]
+              - generic [ref=e1281]: Add
+          - generic [ref=e1282]:
+            - generic [ref=e1283]:
+              - heading "Grilled Aubergine Salad" [level=3] [ref=e1284]
+              - paragraph [ref=e1285]: ခရမ်းသီးမီးဖုတ်သုပ်
+            - paragraph [ref=e1286]: Grilled eggplant with shallot, chili, lime, peanuts; crispy shallots + coriander.
+            - generic [ref=e1287]:
+              - generic [ref=e1288]: $12.00
+              - generic [ref=e1290]:
+                - img [ref=e1292]
+                - generic:
+                  - paragraph: Contains Peanuts
+        - button "Pickled Tea Salad" [ref=e1297] [cursor=pointer]:
+          - generic [ref=e1298]:
+            - generic [ref=e1300]: No image
+            - button "Add" [ref=e1302]:
+              - img [ref=e1303]
+              - generic [ref=e1304]: Add
+          - generic [ref=e1305]:
+            - generic [ref=e1306]:
+              - heading "Pickled Tea Salad" [level=3] [ref=e1307]
+              - paragraph [ref=e1308]: လက်ဖတ်သုပ်
+            - paragraph [ref=e1309]: Pickled tea leaves + lettuce + crispy beans/nuts; includes peanuts + dried shrimp powder.
+            - generic [ref=e1310]:
+              - generic [ref=e1311]: $12.00
+              - generic [ref=e1312]:
+                - generic [ref=e1313]:
+                  - img [ref=e1315]
+                  - generic:
+                    - paragraph: Contains Peanuts
+                - generic [ref=e1318]:
+                  - img [ref=e1320]
+                  - generic:
+                    - paragraph: Contains Shellfish
+        - button "Tomato Salad" [ref=e1324] [cursor=pointer]:
+          - generic [ref=e1325]:
+            - generic [ref=e1327]: No image
+            - button "Add" [ref=e1329]:
+              - img [ref=e1330]
+              - generic [ref=e1331]: Add
+          - generic [ref=e1332]:
+            - generic [ref=e1333]:
+              - heading "Tomato Salad" [level=3] [ref=e1334]
+              - paragraph [ref=e1335]: ခရမ်းချဥ်သီးသုပ်
+            - paragraph [ref=e1336]: Organic tomatoes + shallots + chickpea powder + lettuce + Thai chili.
+            - generic [ref=e1338]: $12.00
+        - button "Burmese Milk Tea" [ref=e1341] [cursor=pointer]:
+          - generic [ref=e1342]:
+            - generic [ref=e1344]: No image
+            - button "Add" [ref=e1346]:
+              - img [ref=e1347]
+              - generic [ref=e1348]: Add
+          - generic [ref=e1349]:
+            - generic [ref=e1350]:
+              - heading "Burmese Milk Tea" [level=3] [ref=e1351]
+              - paragraph [ref=e1352]: လက်ဖတ်ရည်
+            - paragraph [ref=e1353]: Burmese roasted black tea with evaporated + condensed milk.
+            - generic [ref=e1354]:
+              - generic [ref=e1355]: $4.00
+              - generic [ref=e1357]:
+                - img [ref=e1359]
+                - generic:
+                  - paragraph: Contains Dairy
+        - button "Faluda" [ref=e1364] [cursor=pointer]:
+          - generic [ref=e1365]:
+            - generic [ref=e1367]: No image
+            - button "Add" [ref=e1369]:
+              - img [ref=e1370]
+              - generic [ref=e1371]: Add
+          - generic [ref=e1372]:
+            - generic [ref=e1373]:
+              - heading "Faluda" [level=3] [ref=e1374]
+              - paragraph [ref=e1375]: ဖါလူဒါ
+            - paragraph [ref=e1376]: Burmese sundae with pudding, jelly, assorted nuts.
+            - generic [ref=e1377]:
+              - generic [ref=e1378]: $9.00
+              - generic [ref=e1379]:
+                - generic [ref=e1380]:
+                  - img [ref=e1382]
+                  - generic:
+                    - paragraph: Contains Tree Nuts
+                - generic [ref=e1385]:
+                  - img [ref=e1387]
+                  - generic:
+                    - paragraph: Contains Dairy
+      - generic [ref=e1391]:
+        - img [ref=e1392]
+        - generic [ref=e1396]:
+          - strong [ref=e1397]: Free delivery
+          - text: on orders over $100!
+    - generic [ref=e1398]:
+      - generic [ref=e1401]:
+        - generic [ref=e1402]:
+          - img [ref=e1403]
+          - generic [ref=e1405]: Made with Love in Covina
+        - heading "Ready to Taste Authentic Burma?" [level=2] [ref=e1406]
+        - paragraph [ref=e1407]: Order by Friday 3pm and we'll deliver fresh, homemade Burmese dishes straight to your door on Saturday.
+        - generic [ref=e1408]:
+          - link "Order Now" [ref=e1409] [cursor=pointer]:
+            - /url: "#menu"
+          - link "Call Us" [ref=e1410] [cursor=pointer]:
+            - /url: tel:+16261234567
+            - img [ref=e1411]
+            - text: Call Us
+      - generic [ref=e1414]:
+        - generic [ref=e1415]:
+          - generic [ref=e1416]:
+            - heading "Contact Us" [level=3] [ref=e1417]
+            - generic [ref=e1418]:
+              - link "750 Terrado Plaza, Suite 33, Covina, CA 91723" [ref=e1419] [cursor=pointer]:
+                - /url: https://maps.google.com/?q=750%20Terrado%20Plaza%2C%20Suite%2033%2C%20Covina%2C%20CA%2091723
+                - img [ref=e1420]
+                - generic [ref=e1423]: 750 Terrado Plaza, Suite 33, Covina, CA 91723
+              - link "(626) 123-4567" [ref=e1424] [cursor=pointer]:
+                - /url: tel:+16261234567
+                - img [ref=e1425]
+                - generic [ref=e1427]: (626) 123-4567
+              - link "hello@mandalaymorningstar.com" [ref=e1428] [cursor=pointer]:
+                - /url: mailto:hello@mandalaymorningstar.com
+                - img [ref=e1429]
+                - generic [ref=e1432]: hello@mandalaymorningstar.com
+          - generic [ref=e1433]:
+            - heading "Delivery Hours" [level=3] [ref=e1434]
+            - generic [ref=e1435]:
+              - generic [ref=e1436]:
+                - img [ref=e1437]
+                - generic [ref=e1440]:
+                  - paragraph [ref=e1441]: Saturday Delivery
+                  - paragraph [ref=e1442]: 11:00 AM - 7:00 PM PT
+              - paragraph [ref=e1444]:
+                - strong [ref=e1445]: "Order Cutoff:"
+                - text: Friday 3:00 PM PT
+          - generic [ref=e1446]:
+            - heading "Follow Us" [level=3] [ref=e1447]
+            - generic [ref=e1448]:
+              - link [ref=e1449] [cursor=pointer]:
+                - /url: https://instagram.com
+                - img [ref=e1450]
+              - link [ref=e1453] [cursor=pointer]:
+                - /url: https://facebook.com
+                - img [ref=e1454]
+            - paragraph [ref=e1456]: "Share your dishes with #MandalayMorningStar"
+        - generic [ref=e1457]:
+          - paragraph [ref=e1458]: © 2026 Mandalay Morning Star. All rights reserved.
+          - paragraph [ref=e1459]: Authentic Burmese Cuisine • Southern California
+  - button "Open Next.js Dev Tools" [ref=e1465] [cursor=pointer]:
+    - img [ref=e1466]
+  - alert [ref=e1469]
+```
