@@ -30,7 +30,7 @@ export function CartSummary({ className, showEstimate = true }: CartSummaryProps
   );
 
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn("space-y-4", className)}>
       {!hasFreeDelivery && (
         <FreeDeliveryProgress
           amountRemaining={amountToFreeDelivery}
@@ -38,15 +38,15 @@ export function CartSummary({ className, showEstimate = true }: CartSummaryProps
         />
       )}
 
-      <div className="space-y-2 text-sm">
+      <div className="space-y-2.5 text-sm">
         <SummaryLine label="Subtotal" value={formattedSubtotal} />
         <SummaryLine
           label="Delivery"
           value={hasFreeDelivery ? "FREE" : formattedDeliveryFee}
-          valueClassName={hasFreeDelivery ? "text-green-600 font-medium" : ""}
+          valueClassName={hasFreeDelivery ? "text-emerald-600 font-semibold" : ""}
           icon={
             hasFreeDelivery ? (
-              <Check className="h-4 w-4 text-green-600" />
+              <Check className="h-4 w-4 text-emerald-600" />
             ) : (
               <Truck className="h-4 w-4 text-muted-foreground" />
             )
@@ -57,15 +57,15 @@ export function CartSummary({ className, showEstimate = true }: CartSummaryProps
       <div className="border-t border-border" />
 
       <div className="flex items-center justify-between">
-        <span className="font-semibold">
+        <span className="font-bold text-foreground">
           {showEstimate ? "Estimated Total" : "Total"}
         </span>
-        <span className="text-lg font-bold">{formattedTotal}</span>
+        <span className="text-xl font-bold text-primary">{formattedTotal}</span>
       </div>
 
       {showEstimate && (
-        <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
-          <Info className="mt-0.5 h-3 w-3 flex-shrink-0" />
+        <p className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg px-3 py-2">
+          <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
           <span>Final total calculated at checkout. Tax not included.</span>
         </p>
       )}
@@ -102,20 +102,23 @@ function FreeDeliveryProgress({
   progressPercent,
 }: FreeDeliveryProgressProps) {
   return (
-    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/50 dark:bg-amber-950/30">
-      <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-        Add {formatPrice(amountRemaining)} more for{" "}
-        <span className="font-bold">FREE delivery!</span>
-      </p>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-amber-200/60 dark:bg-amber-900/50">
+    <div className="rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-amber-100/50 p-4 dark:border-amber-900/50 dark:bg-amber-950/30">
+      <div className="flex items-center gap-2">
+        <Truck className="h-5 w-5 text-amber-600" />
+        <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+          Add <span className="text-amber-700">{formatPrice(amountRemaining)}</span> more for{" "}
+          <span className="font-bold text-primary">FREE delivery!</span>
+        </p>
+      </div>
+      <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-amber-200/60 dark:bg-amber-900/50">
         <motion.div
-          className="h-full bg-amber-500 dark:bg-amber-400"
+          className="h-full bg-gradient-to-r from-amber-400 to-amber-500 dark:bg-amber-400"
           initial={{ width: 0 }}
           animate={{ width: `${progressPercent}%` }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
         />
       </div>
-      <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
+      <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">
         Free delivery on orders $100+
       </p>
     </div>

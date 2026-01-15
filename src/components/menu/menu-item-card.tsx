@@ -1,6 +1,8 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
 import type { MenuItem } from "@/types/menu";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils/currency";
 import { cn } from "@/lib/utils/cn";
@@ -27,17 +29,22 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
   const isInteractive = Boolean(onSelect) && !item.isSoldOut;
 
   return (
-    <Card
+    <motion.div
+      whileHover={isInteractive ? { y: -4, scale: 1.01 } : undefined}
+      whileTap={isInteractive ? { scale: 0.98 } : undefined}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className={cn(
-        "overflow-hidden transition-shadow",
-        isInteractive && "cursor-pointer hover:shadow-md",
-        item.isSoldOut && "opacity-60"
+        "group relative overflow-hidden rounded-xl bg-card shadow-sm",
+        "border-2 border-transparent",
+        "transition-all duration-300 ease-out",
+        isInteractive && [
+          "cursor-pointer",
+          "hover:shadow-xl hover:border-primary/20",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+        ],
+        item.isSoldOut && "opacity-70"
       )}
-      onClick={() => {
-        if (isInteractive) {
-          onSelect?.(item);
-        }
-      }}
+      onClick={() => isInteractive && onSelect?.(item)}
       onKeyDown={(event) => {
         if (!isInteractive) return;
         if (event.key === "Enter" || event.key === " ") {
@@ -49,73 +56,96 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
       tabIndex={isInteractive ? 0 : -1}
       aria-disabled={!isInteractive}
     >
-      {item.imageUrl ? (
-        <div className="relative h-40 bg-gray-100">
-          <Image
-            src={item.imageUrl}
-            alt={item.nameEn}
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          />
-          {item.isSoldOut && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">Sold Out</span>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="h-32 bg-gradient-to-br from-gold/20 to-brand-red/10 flex items-center justify-center">
-          {item.isSoldOut ? (
-            <span className="text-muted font-medium">Sold Out</span>
-          ) : (
-            <span className="text-sm text-muted">Image coming soon</span>
-          )}
-        </div>
-      )}
+      {/* Image Container */}
+      <div className="relative h-44 overflow-hidden bg-gradient-to-br from-secondary/30 to-primary/5">
+        {item.imageUrl ? (
+          <>
+            <Image
+              src={item.imageUrl}
+              alt={item.nameEn}
+              fill
+              className={cn(
+                "object-cover transition-transform duration-500",
+                isInteractive && "group-hover:scale-110"
+              )}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
+            {/* Gradient overlay for better text contrast */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          </>
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <span className="text-sm text-muted-foreground">No image</span>
+          </div>
+        )}
 
-      <CardContent className="p-4">
+        {/* Sold Out Overlay */}
+        {item.isSoldOut && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <Badge className="bg-white px-4 py-2 text-base font-bold text-foreground shadow-lg">
+              Sold Out
+            </Badge>
+          </div>
+        )}
+
+        {/* Price Badge (floating) */}
+        <div className="absolute bottom-3 right-3">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-full bg-primary px-3 py-1.5 font-bold text-white shadow-lg"
+          >
+            {formatPrice(item.basePriceCents)}
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
         <div className="mb-2">
-          <h3 className="font-medium text-foreground leading-tight">
+          <h3 className="font-semibold text-foreground leading-tight text-base group-hover:text-primary transition-colors">
             {item.nameEn}
           </h3>
           {item.nameMy && (
-            <p className="text-sm text-muted font-burmese">{item.nameMy}</p>
+            <p className="text-sm text-muted-foreground font-burmese mt-0.5">
+              {item.nameMy}
+            </p>
           )}
         </div>
 
         {item.descriptionEn && (
-          <p className="text-sm text-muted line-clamp-2 mb-3">
+          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
             {item.descriptionEn}
           </p>
         )}
 
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-brand-red">
-            {formatPrice(item.basePriceCents)}
-          </span>
-
-          {item.isSoldOut && (
-            <Badge variant="secondary" className="bg-gray-200">
-              Sold Out
-            </Badge>
-          )}
-        </div>
-
         {hasAllergens && (
-          <div className="mt-3 flex flex-wrap gap-1">
-            {item.allergens.map((allergen) => (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {item.allergens.slice(0, 3).map((allergen) => (
               <Badge
                 key={allergen}
                 variant="outline"
-                className="text-xs bg-amber-50 text-amber-700 border-amber-200"
+                className="text-xs bg-amber-50 text-amber-700 border-amber-200 font-medium"
               >
                 {allergenLabels[allergen] || allergen}
               </Badge>
             ))}
+            {item.allergens.length > 3 && (
+              <Badge
+                variant="outline"
+                className="text-xs bg-muted text-muted-foreground border-border"
+              >
+                +{item.allergens.length - 3}
+              </Badge>
+            )}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Hover indicator */}
+      {isInteractive && (
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary scale-x-0 transition-transform duration-300 origin-left group-hover:scale-x-100" />
+      )}
+    </motion.div>
   );
 }

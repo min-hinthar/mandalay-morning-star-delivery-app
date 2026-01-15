@@ -4,7 +4,10 @@ import { useCallback, useMemo, useState } from "react";
 import { useMenuSearch } from "@/lib/hooks/useMenu";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useScrollSpy } from "@/lib/hooks/useScrollSpy";
+import { useCart } from "@/lib/hooks/useCart";
+import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import type { MenuCategory, MenuItem } from "@/types/menu";
+import type { SelectedModifier } from "@/lib/utils/price";
 import { CategoryTabs } from "./category-tabs";
 import { ItemDetailModal } from "./item-detail-modal";
 import { MenuGrid } from "./menu-grid";
@@ -19,6 +22,9 @@ export function MenuContent({ categories }: MenuContentProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { addItem } = useCart();
+  const { open: openCart } = useCartDrawer();
 
   const visibleCategories = useMemo(
     () => categories.filter((category) => category.items.length > 0),
@@ -92,6 +98,30 @@ export function MenuContent({ categories }: MenuContentProps) {
     setSelectedItem(null);
   }, []);
 
+  const handleAddToCart = useCallback(
+    (item: MenuItem, modifiers: SelectedModifier[], quantity: number, notes: string) => {
+      addItem({
+        menuItemId: item.id,
+        menuItemSlug: item.slug,
+        nameEn: item.nameEn,
+        nameMy: item.nameMy,
+        imageUrl: item.imageUrl,
+        basePriceCents: item.basePriceCents,
+        quantity,
+        modifiers: modifiers.map((mod) => ({
+          groupId: mod.groupId,
+          groupName: mod.groupName,
+          optionId: mod.optionId,
+          optionName: mod.optionName,
+          priceDeltaCents: mod.priceDeltaCents,
+        })),
+        notes,
+      });
+      openCart();
+    },
+    [addItem, openCart]
+  );
+
   return (
     <>
       <MenuHeader
@@ -128,6 +158,7 @@ export function MenuContent({ categories }: MenuContentProps) {
         item={selectedItem}
         open={isModalOpen}
         onClose={handleModalClose}
+        onAddToCart={handleAddToCart}
       />
     </>
   );

@@ -57,7 +57,7 @@ export function CategoryTabs({
   return (
     <nav
       aria-label="Menu categories"
-      className="sticky top-16 z-20 bg-background/95 backdrop-blur-sm border-b border-border"
+      className="sticky top-16 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm"
     >
       <div
         ref={containerRef}
@@ -79,20 +79,21 @@ export function CategoryTabs({
               ref={setTabRef(tab.slug)}
               onClick={() => onCategoryClick(tab.slug)}
               className={cn(
-                "relative flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium",
+                "relative flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold",
                 "min-h-[44px] min-w-[44px]",
-                "transition-colors duration-200",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2",
+                "transition-all duration-200 ease-out",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 isActive
                   ? "text-white"
-                  : "text-foreground/70 hover:text-foreground hover:bg-muted"
+                  : "text-foreground/70 hover:text-foreground hover:bg-secondary/60 active:scale-95"
               )}
               whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}
+              whileHover={!isActive && !prefersReducedMotion ? { y: -1 } : undefined}
             >
               {isActive && (
                 <motion.div
                   layoutId="activeTabBackground"
-                  className="absolute inset-0 bg-brand-red rounded-full"
+                  className="absolute inset-0 bg-primary rounded-full shadow-lg"
                   initial={false}
                   transition={
                     prefersReducedMotion

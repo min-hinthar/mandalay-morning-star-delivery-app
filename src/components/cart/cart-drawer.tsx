@@ -108,30 +108,37 @@ export function CartDrawer() {
             aria-modal="true"
             aria-labelledby="cart-drawer-title"
           >
-            <div className="flex items-center justify-between border-b border-border px-4 py-4">
+            <div className="flex items-center justify-between border-b border-border bg-card/50 px-5 py-4">
               <h2
                 id="cart-drawer-title"
-                className="flex items-center gap-2 text-lg font-semibold"
+                className="flex items-center gap-3 text-lg font-bold text-foreground"
               >
-                <ShoppingBag className="h-5 w-5" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                  <ShoppingBag className="h-5 w-5 text-primary" />
+                </div>
                 Your Cart
                 {itemCount > 0 && (
-                  <span className="rounded-full bg-brand-red px-2 py-0.5 text-xs text-white">
+                  <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
                     {itemCount}
                   </span>
                 )}
               </h2>
-              <button
+              <motion.button
                 ref={closeButtonRef}
                 onClick={close}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 className={cn(
-                  "rounded-full p-2 hover:bg-muted/10",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2"
+                  "flex h-10 w-10 items-center justify-center rounded-full",
+                  "bg-muted/20 text-muted-foreground",
+                  "hover:bg-muted hover:text-foreground",
+                  "transition-colors duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                 )}
                 aria-label="Close cart"
               >
                 <X className="h-5 w-5" />
-              </button>
+              </motion.button>
             </div>
 
             {isEmpty ? (
@@ -148,20 +155,20 @@ export function CartDrawer() {
                   </ul>
                 </div>
 
-                <div className="border-t border-border bg-muted/10 px-4 py-4">
+                <div className="border-t border-border bg-gradient-to-t from-muted/20 to-transparent px-5 py-5">
                   <CartSummary />
-                  <div className="mt-4 flex flex-col gap-2">
+                  <div className="mt-5 flex flex-col gap-3">
                     <Button
                       size="lg"
-                      className="w-full bg-brand-red text-white hover:bg-brand-red-dark"
+                      className="w-full bg-primary text-white shadow-lg hover:bg-primary/90 hover:shadow-xl transition-all duration-200"
                       onClick={handleCheckout}
                     >
-                      Checkout
+                      Proceed to Checkout
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="lg"
-                      className="w-full"
+                      className="w-full border-2 hover:bg-secondary/50"
                       onClick={close}
                     >
                       Continue Shopping
@@ -179,19 +186,26 @@ export function CartDrawer() {
 
 function CartEmptyState({ onClose }: { onClose: () => void }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-4 text-center">
-      <ShoppingBag className="h-16 w-16 text-muted-foreground/50" />
-      <h3 className="mt-4 text-lg font-medium">Your cart is empty</h3>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Browse our Burmese dishes and add something delicious!
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-1 flex-col items-center justify-center px-6 text-center"
+    >
+      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
+        <ShoppingBag className="h-12 w-12 text-primary/60" />
+      </div>
+      <h3 className="mt-6 text-xl font-bold text-foreground">Your cart is empty</h3>
+      <p className="mt-2 text-sm text-muted-foreground max-w-[240px]">
+        Browse our authentic Burmese dishes and add something delicious!
       </p>
       <Button
-        className="mt-6 bg-brand-red text-white hover:bg-brand-red-dark"
+        size="lg"
+        className="mt-8 bg-primary text-white shadow-lg hover:bg-primary/90 hover:shadow-xl transition-all duration-200"
         onClick={onClose}
         asChild
       >
         <Link href="/menu">Browse Menu</Link>
       </Button>
-    </div>
+    </motion.div>
   );
 }
