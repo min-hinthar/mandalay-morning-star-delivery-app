@@ -1,7 +1,7 @@
-﻿# docs/project_status.md â€” Milestone Tracking (v1.0)
+# docs/project_status.md — Milestone Tracking (v2.0)
 
-> **Last Updated**: 2026-01-14
-> **Current Phase**: V1 Development
+> **Last Updated**: 2026-01-15
+> **Current Phase**: V1 Sprint 4 (Admin Basics)
 
 ---
 
@@ -70,25 +70,29 @@
 
 **Sprint 2 completion**: 7/7 (100%)
 
-### Sprint 3: Payment + Confirmation (Week 3-4)
+### Sprint 3: Payment + Confirmation (Week 3-4) - COMPLETE
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Stripe integration (V1-S3-001) | ⬜ | Codex | Checkout Sessions |
-| Webhook handler (V1-S3-002) | ⬜ | Codex | Signature verification |
-| Order creation flow (V1-S3-003) | ⬜ | Codex | Server-side totals |
-| Confirmation page (V1-S3-004) | ⬜ | Codex | Order details display |
-| Order status page (V1-S3-005) | ⬜ | Codex | Timeline component |
-| Order history page (V1-S3-006) | ⬜ | Codex | Customer's orders list |
-| Email notifications (V1-S3-007) | ⬜ | Codex | Confirmation email |
+| Stripe integration (V1-S3-001) | ✅ | Claude | Checkout Sessions API + order creation |
+| Webhook handler (V1-S3-002) | ✅ | Claude | Signature verification + status updates |
+| Order creation flow (V1-S3-003) | ✅ | Claude | Server-side totals + DB insertion |
+| Confirmation page (V1-S3-004) | ✅ | Claude | Order details + cart clear |
+| Order status page (V1-S3-005) | ✅ | Claude | Timeline component + order details |
+| Order history page (V1-S3-006) | ✅ | Claude | Customer's orders list with cards |
+| Email notifications (V1-S3-007) | ✅ | Claude | Supabase Edge Function + Resend |
 
-### Sprint 4: Admin Basics (Week 4)
+**Sprint 3 completion**: 7/7 (100%)
+
+### Sprint 4: Admin Basics (Week 4) - IN PROGRESS
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Admin layout + nav (V1-S4-001) | ⬜ | Codex | Role-gated shell |
-| Menu item CRUD (V1-S4-002) | ⬜ | Codex | Add/edit/delete items |
-| Category management (V1-S4-003) | ⬜ | Codex | Reorder, activate |
-| Orders list view (V1-S4-004) | ⬜ | Codex | Filter, status update |
-| Basic analytics (V1-S4-005) | ⬜ | Codex | Order count, revenue |
+| Admin layout + nav (V1-S4-001) | ✅ | Claude | Role-gated shell + collapsible nav |
+| Menu item CRUD (V1-S4-002) | ✅ | Claude | List, toggle active/sold-out, delete |
+| Category management (V1-S4-003) | ⬜ | Claude | Reorder, activate |
+| Orders list view (V1-S4-004) | ✅ | Claude | Filter, sort, status update |
+| Basic analytics (V1-S4-005) | ⬜ | Claude | Order count, revenue |
+
+**Sprint 4 completion**: 3/5 (60%)
 
 ### V1 Acceptance Criteria
 - [x] Customer can browse full menu by category
@@ -100,12 +104,12 @@
 - [x] Coverage validation blocks out-of-range addresses
 - [x] Customer can select Saturday time window
 - [x] Cutoff logic prevents late orders for current Saturday
-- [ ] Stripe Checkout completes payment
-- [ ] Webhook updates order to paid/confirmed
-- [ ] Order confirmation displays correctly
-- [ ] Customer can view order history
-- [ ] Admin can CRUD menu items
-- [ ] Admin can view/manage orders
+- [x] Stripe Checkout completes payment
+- [x] Webhook updates order to paid/confirmed
+- [x] Order confirmation displays correctly
+- [x] Customer can view order history
+- [x] Admin can CRUD menu items
+- [x] Admin can view/manage orders
 - [ ] Mobile-responsive across all flows
 - [ ] E2E test covers happy path
 
@@ -203,6 +207,6 @@
 | V0 | 15 tasks | 15 tasks | Foundation complete |
 | V1 S1 | 6 tasks | 6 tasks | Menu data layer + category tabs + item card + menu grid + menu search + item detail modal |
 | V1 S2 | 7 tasks | 7 tasks | Cart state + drawer + summary + address management + coverage checker + time slot picker + checkout stepper |
-| V1 S3 | - | - | - |
-| V1 S4 | - | - | - |
+| V1 S3 | 7 tasks | 7 tasks | Stripe integration + webhook handler + order creation + confirmation page + order status + order history + email notifications |
+| V1 S4 | 5 tasks | - | Admin basics (pending) |
 

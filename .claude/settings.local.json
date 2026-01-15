@@ -1,28 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(pnpm typecheck:*)",
-      "Bash(pnpm build:*)",
-      "Bash(git checkout:*)",
-      "Bash(git merge:*)",
-      "Bash(git push:*)",
-      "Bash(git branch:*)",
-      "Bash(pnpm lint:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(gh pr create:*)",
-      "Bash(where gh:*)",
-      "Bash(cmd /c \"where gh\")",
-      "Bash(powershell -Command \"Get-Command gh -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\")",
-      "Bash(git -C \"C:\\\\Users\\\\minkk\\\\OneDrive\\\\Documents\\\\GitHub\\\\mandalay-morning-star-delivery-app\" log --oneline -3)",
-      "Bash(git -C \"C:\\\\Users\\\\minkk\\\\OneDrive\\\\Documents\\\\GitHub\\\\mandalay-morning-star-delivery-app\" add docs/V1/tasks/V1-S1-001-menu-data-layer.md docs/V1/tasks/V1-S1-002-category-tabs.md docs/change_log.md docs/project_status.md)",
-      "Bash(git -C \"C:\\\\Users\\\\minkk\\\\OneDrive\\\\Documents\\\\GitHub\\\\mandalay-morning-star-delivery-app\" commit -m \"$\\(cat <<''EOF''\ndocs: mark V1-S1-001 and V1-S1-002 tasks complete\n\n- Update task files with completion status and checked criteria\n- Update project_status.md with accurate Sprint 1 progress \\(2/6\\)\n- Add V1-S1 section to change_log.md documenting completed work\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git -C \"C:\\\\Users\\\\minkk\\\\OneDrive\\\\Documents\\\\GitHub\\\\mandalay-morning-star-delivery-app\" push)",
-      "Bash(git -C \"C:\\\\Users\\\\minkk\\\\OneDrive\\\\Documents\\\\GitHub\\\\mandalay-morning-star-delivery-app\" checkout main)",
-      "Bash(git -C \"C:\\\\Users\\\\minkk\\\\OneDrive\\\\Documents\\\\GitHub\\\\mandalay-morning-star-delivery-app\" pull)",
-      "Bash(git -C \"C:\\\\Users\\\\minkk\\\\OneDrive\\\\Documents\\\\GitHub\\\\mandalay-morning-star-delivery-app\" merge tasks/V1-S1-001-menu-data-layer --no-edit)",
-      "Bash(git -C \"C:\\\\Users\\\\minkk\\\\OneDrive\\\\Documents\\\\GitHub\\\\mandalay-morning-star-delivery-app\" push origin main)",
-      "Bash(git -C \"C:\\\\Users\\\\minkk\\\\OneDrive\\\\Documents\\\\GitHub\\\\mandalay-morning-star-delivery-app\" status)"
+      "Bash(pnpm *)",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(stripe listen*)",
+      "Bash(supabase *)"
     ]
   }
 }

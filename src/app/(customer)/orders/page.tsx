@@ -1,8 +1,96 @@
-export default function OrdersPage() {
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { Package, ShoppingBag } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { Button } from "@/components/ui/button";
+import { OrderCard } from "@/components/orders/OrderCard";
+import type { OrderStatus } from "@/types/order";
+
+interface OrderRow {
+  id: string;
+  status: OrderStatus;
+  total_cents: number;
+  delivery_window_start: string | null;
+  placed_at: string;
+  order_items: Array<{ quantity: number }>;
+}
+
+export default async function OrdersPage() {
+  const supabase = await createClient();
+
+  // Check authentication
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/login");
+  }
+
+  // Fetch user's orders
+  const { data: ordersData, error: ordersError } = await supabase
+    .from("orders")
+    .select(`
+      id,
+      status,
+      total_cents,
+      delivery_window_start,
+      placed_at,
+      order_items (quantity)
+    `)
+    .eq("user_id", user.id)
+    .order("placed_at", { ascending: false })
+    .returns<OrderRow[]>();
+
+  if (ordersError) {
+    console.error("Failed to fetch orders:", ordersError);
+  }
+
+  const orders = (ordersData ?? []).map((order) => ({
+    id: order.id,
+    status: order.status,
+    totalCents: order.total_cents,
+    deliveryWindowStart: order.delivery_window_start,
+    placedAt: order.placed_at,
+    itemCount: order.order_items.reduce((sum, item) => sum + item.quantity, 0),
+  }));
+
   return (
-    <main className="min-h-screen bg-background p-8">
-      <h1 className="text-3xl font-display text-brand-red">Orders</h1>
-      <p className="mt-2 text-muted">Order history will show here.</p>
+    <main className="min-h-screen bg-gradient-to-b from-cream to-lotus/30 py-8 px-4">
+      <div className="mx-auto max-w-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-brand-red/10 p-2">
+              <Package className="h-6 w-6 text-brand-red" />
+            </div>
+            <h1 className="text-2xl font-display text-charcoal">Your Orders</h1>
+          </div>
+          <Button asChild>
+            <Link href="/menu">Order Again</Link>
+          </Button>
+        </div>
+
+        {/* Orders List */}
+        {orders.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="rounded-full bg-muted/50 w-16 h-16 mx-auto flex items-center justify-center mb-4">
+              <ShoppingBag className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h2 className="text-lg font-medium text-charcoal mb-2">No orders yet</h2>
+            <p className="text-muted-foreground mb-6">
+              When you place an order, it will appear here.
+            </p>
+            <Button asChild>
+              <Link href="/menu">Browse Menu</Link>
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {orders.map((order, index) => (
+              <OrderCard key={order.id} order={order} index={index} />
+            ))}
+          </div>
+        )}
+      </div>
     </main>
   );
 }
