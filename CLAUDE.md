@@ -1,7 +1,7 @@
 # CLAUDE.md — Mandalay Morning Star Project Memory (v3.0)
 
 > **Purpose**: Concise project context for Claude Code. Link to docs for details.
-> **Last Updated**: 2026-01-15 | **Phase**: V2 Sprint 3 Complete (Ready for Sprint 4)
+> **Last Updated**: 2026-01-15 | **Phase**: V2 Complete (100%)
 
 ---
 
@@ -21,7 +21,7 @@
 |---------|--------|----------|-------|
 | **V0** | ✅ Done | 100% | Scaffold, Auth, DB schema, Menu seed |
 | **V1** | ✅ Done | 100% | Full ordering flow + Admin basics |
-| **V2** | 🚧 In Progress | 75% | Driver ops, tracking, polish (Sprint 3/4 done) |
+| **V2** | ✅ Done | 100% | Driver ops, tracking, analytics, notifications |
 
 ### V1 Sprint Progress
 | Sprint | Status | Tasks |
@@ -37,7 +37,7 @@
 | Sprint 1: Admin Route Mgmt | ✅ Complete | 8/8 |
 | Sprint 2: Driver Mobile | ✅ Complete | 6/6 |
 | Sprint 3: Customer Tracking | ✅ Complete | 7/7 |
-| Sprint 4: Polish | 📋 Planned | 0/3 |
+| Sprint 4: Analytics & Notifications | ✅ Complete | 12/12 |
 
 → See [docs/project_status.md](docs/project_status.md) for detailed tracking.
 
@@ -118,26 +118,33 @@ Both constraints must pass
 
 ---
 
-## 🧪 Testing (V2 Sprint 3 Complete)
+## 🧪 Testing (V2 Complete)
 
-### Unit Tests (260 tests passing)
+### Unit Tests (346 tests passing)
 - [x] Subtotal calculation with modifiers (`order.test.ts`)
 - [x] Delivery fee threshold logic (`order.test.ts`)
 - [x] Cutoff/scheduling date selection (`delivery-dates.test.ts`)
 - [x] Coverage validation (distance + duration) (`coverage.test.ts`)
 - [x] Cart state management (`cart-store.test.ts`)
 - [x] Price calculation with modifiers (`price.test.ts`)
+- [x] Analytics validation schemas (`analytics.test.ts`)
+- [x] Driver analytics API (`drivers.test.ts`)
+- [x] Delivery metrics API (`delivery.test.ts`)
+- [x] Rating API (`rating.test.ts`)
 
 ### Integration Tests
 - [x] Checkout session validation (`route.test.ts`)
 - [x] Webhook event processing (`route.test.ts`)
 - [x] Modifier price delta calculations
 - [x] Schema validation (Zod)
+- [x] Analytics API endpoints
 
 ### E2E Tests (Playwright)
 - [x] Full happy path: browse → cart → checkout → confirmation
 - [x] Error states: out-of-coverage, payment failed, sold out
 - [x] Mobile responsive flows
+- [x] Admin analytics dashboard
+- [x] Customer feedback submission
 
 ### Test Commands
 ```bash
@@ -263,47 +270,53 @@ vercel deploy --prod  # Deploy to Vercel
 
 ---
 
-## 🔮 Current Focus (V2 In Progress)
+## 🔮 V2 Complete Summary
 
-**V2 Sprint 3 Complete!** Customer Tracking implemented with 260 tests passing.
+**V2 Sprint 4 Complete!** Analytics & Notifications implemented with 346 tests passing.
+
+### V2 Sprint 4 Delivered Features
+- ✅ Database migration for notification_logs, driver_ratings, materialized views
+- ✅ Analytics types (`src/types/analytics.ts`) - DriverStats, DeliveryMetrics
+- ✅ Validation schemas with 15 unit tests (`analytics.test.ts`)
+- ✅ Email notification Edge Function (`supabase/functions/send-delivery-notification/`)
+  - out_for_delivery, arriving_soon, delivered templates
+- ✅ Driver analytics API endpoints + 12 tests
+  - GET `/api/admin/analytics/drivers` - all drivers with stats
+  - GET `/api/admin/analytics/drivers/[driverId]` - detailed stats
+- ✅ Delivery metrics API + 10 tests
+  - GET `/api/admin/analytics/delivery` - KPIs, trends, exceptions
+- ✅ Customer rating API + 9 tests
+  - POST/GET `/api/orders/[orderId]/rating`
+- ✅ Animated UI Components (Framer Motion + Recharts):
+  - AnimatedCounter, MetricCard, DriverLeaderboard
+  - StarRating, PerformanceChart, DeliverySuccessChart
+  - PeakHoursChart, ExceptionBreakdown
+- ✅ Driver analytics dashboard (`/admin/analytics/drivers`)
+- ✅ Delivery metrics dashboard (`/admin/analytics/delivery`)
+- ✅ Customer feedback UI (`/orders/[id]/feedback`)
+- ✅ Admin nav updated with Analytics section
+- ✅ E2E tests for analytics + feedback
 
 ### V2 Sprint 3 Delivered Features
-- ✅ Tracking types and validation schemas (`src/types/tracking.ts`, `src/lib/validations/tracking.ts`)
-- ✅ ETA calculation utility with Haversine distance + stop buffer (29 tests)
-- ✅ Tracking API endpoint GET `/api/tracking/{orderId}` (36 tests)
-- ✅ Supabase Realtime subscription hook with polling fallback (18 tests)
-- ✅ UI Components: StatusTimeline, ETADisplay, DeliveryMap, DriverCard, OrderSummary, SupportActions
-- ✅ Live tracking map with Google Maps (customer + driver markers)
-- ✅ TrackingPageClient with real-time updates and ETA recalculation
+- ✅ Tracking types and validation schemas
+- ✅ ETA calculation utility with Haversine distance
+- ✅ Tracking API endpoint GET `/api/tracking/{orderId}`
+- ✅ Supabase Realtime subscription hook
+- ✅ UI Components: StatusTimeline, ETADisplay, DeliveryMap, DriverCard
 - ✅ Customer tracking page (`/orders/[id]/tracking`)
-- ✅ E2E test suite for customer tracking
 
-### V2 Sprint 2 Delivered Features (Previously)
+### V2 Sprint 2 Delivered Features
 - ✅ Driver auth + protected routes with role check
 - ✅ Driver mobile PWA layout with bottom navigation
-- ✅ Driver API endpoints (active route, stop status, location updates, photo upload, exceptions)
-- ✅ Driver mobile UI components (ActiveRouteView, StopList, StopCard, DeliveryActions)
-- ✅ GPS location tracking with adaptive intervals (2-10 min based on speed)
+- ✅ GPS location tracking with adaptive intervals
 - ✅ Offline support with IndexedDB queue + service worker
 - ✅ Photo capture for delivery confirmation
 - ✅ Exception reporting modal
-- ✅ Route history page
-- ✅ Delivery photos storage bucket migration with RLS policies
 
-### V2 Sprint 1 Delivered Features (Previously)
-- ✅ Database migration for drivers, routes, route_stops, location_updates, delivery_exceptions
-- ✅ Driver management API (CRUD + activate/deactivate)
-- ✅ Driver management UI with premium table, search, filter, add modal
-- ✅ Route management API (CRUD + stops management)
-- ✅ Route management UI with date filtering, status filters, create modal
-- ✅ Route optimization service (Google Routes API + nearest-neighbor fallback)
-- ✅ Admin nav updated with Drivers + Routes links
-
-### V2 Remaining Sprint
-
-**Sprint 4**: Polish (NEXT)
-- SMS notifications (Twilio)
-- Driver performance analytics
-- Delivery metrics dashboard
+### V2 Sprint 1 Delivered Features
+- ✅ Database migration for drivers, routes, route_stops
+- ✅ Driver management API + UI
+- ✅ Route management API + UI
+- ✅ Route optimization service (Google Routes API)
 
 → Detailed specs: [docs/v2-spec.md](docs/v2-spec.md)

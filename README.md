@@ -15,15 +15,15 @@ Mandalay Morning Star is a Progressive Web App for ordering authentic Burmese cu
 - **Menu Seed**: 47 items across 8 categories with bilingual support (English/Burmese)
 - **CI/CD**: GitHub Actions with lint, typecheck, and build checks
 
-### V1 - Ordering (In Progress)
+### V1 - Ordering (Complete)
 
-#### Sprint 1: Menu Browse (Complete)
+#### Sprint 1: Menu Browse
 - Category tabs with horizontal scroll and scroll-spy
 - Item cards with images, prices, and sold-out badges
 - Search with debounced fuzzy matching
 - Item detail modal with modifiers, quantity selector, and notes
 
-#### Sprint 2: Cart + Checkout (Complete)
+#### Sprint 2: Cart + Checkout
 - Cart state with Zustand (localStorage persistence)
 - Cart drawer with item list, quantity controls, and summary
 - Address management (CRUD + geocoding)
@@ -31,17 +31,46 @@ Mandalay Morning Star is a Progressive Web App for ordering authentic Burmese cu
 - Time slot picker (Saturday hourly windows, 11 AM - 7 PM)
 - Checkout stepper (Address → Time → Payment)
 
-#### Sprint 3: Payment (Next)
+#### Sprint 3: Payment + Confirmation
 - Stripe Checkout integration
 - Order creation with server-side price calculation
 - Webhook handling for order confirmation
 - Order confirmation page
+- Email notifications (Resend)
 
-### V2 - Operations (Planned)
+#### Sprint 4: Admin Basics
+- Admin layout with role-based access
+- Menu item CRUD operations
+- Category management
+- Orders list with status updates
+- Basic analytics dashboard
 
-- Admin dashboard
-- Driver mobile interface
-- Real-time delivery tracking
+### V2 - Driver Operations (Complete)
+
+#### Sprint 1: Admin Route Management
+- Driver management (CRUD + activate/deactivate)
+- Route creation and optimization (Google Routes API)
+- Stop management and assignment
+
+#### Sprint 2: Driver Mobile Interface
+- Driver PWA with bottom navigation
+- Active route view with stop list
+- GPS location tracking (adaptive intervals)
+- Delivery photo capture
+- Offline support (IndexedDB + Service Worker)
+
+#### Sprint 3: Customer Tracking
+- Real-time order tracking page
+- Live map with driver location
+- ETA calculation and display
+- Status timeline component
+- Supabase Realtime subscriptions
+
+#### Sprint 4: Analytics & Notifications
+- Email notifications (out for delivery, arriving soon, delivered)
+- Driver performance analytics dashboard
+- Delivery metrics dashboard with charts
+- Customer feedback/rating system (1-5 stars)
 
 ## Tech Stack
 

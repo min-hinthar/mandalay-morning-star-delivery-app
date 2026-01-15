@@ -98,20 +98,54 @@ docs/<short>          → docs/api-contracts
 ✅ Route history page
 ```
 
-#### Sprint 3: Customer Tracking (NEXT)
+#### Sprint 3: Customer Tracking (COMPLETE)
 
 ```
-📋 Tracking API (order tracking endpoint)
-📋 Real-time subscriptions (Supabase Realtime)
-📋 Tracking page UI (live map, ETA, timeline)
+✅ Tracking types + validation schemas
+✅ ETA calculation utility (Haversine + stop buffer)
+✅ Tracking API endpoint (GET /api/tracking/{orderId})
+✅ Realtime subscription hook (Supabase + polling fallback)
+✅ Tracking UI components:
+   ├── StatusTimeline, ETADisplay
+   ├── DeliveryMap, DriverCard
+   ├── OrderSummary, SupportActions
+   └── TrackingPageClient
+✅ Customer tracking page (/orders/[id]/tracking)
+✅ E2E tests for tracking flows
 ```
 
-#### Sprint 4: Polish (PLANNED)
+#### Sprint 4: Analytics & Notifications (COMPLETE)
 
 ```
-📋 SMS notifications (Twilio)
-📋 Driver performance analytics
-📋 Delivery metrics dashboard
+✅ Database migration (notification_logs, driver_ratings, materialized views)
+✅ Analytics type definitions (DriverStats, DeliveryMetrics)
+✅ Validation schemas + unit tests
+✅ Email notification Edge Function:
+   ├── out_for_delivery template
+   ├── arriving_soon template
+   └── delivered template
+✅ Driver analytics API:
+   ├── GET /api/admin/analytics/drivers
+   └── GET /api/admin/analytics/drivers/[driverId]
+✅ Delivery metrics API:
+   └── GET /api/admin/analytics/delivery
+✅ Rating API:
+   ├── POST /api/orders/[orderId]/rating
+   └── GET /api/orders/[orderId]/rating
+✅ Animated UI components:
+   ├── AnimatedCounter (spring physics)
+   ├── MetricCard (trend indicators)
+   ├── DriverLeaderboard (medals)
+   ├── StarRating (interactive)
+   ├── PerformanceChart (Recharts)
+   ├── DeliverySuccessChart
+   ├── PeakHoursChart
+   └── ExceptionBreakdown
+✅ Driver analytics dashboard (/admin/analytics/drivers)
+✅ Delivery metrics dashboard (/admin/analytics/delivery)
+✅ Customer feedback UI (/orders/[id]/feedback)
+✅ Admin nav updates with Analytics section
+✅ E2E tests for dashboards + feedback
 ```
 
 ---
