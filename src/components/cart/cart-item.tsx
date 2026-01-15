@@ -9,6 +9,7 @@ import { formatPrice } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
 import type { CartItem as CartItemType } from "@/types/cart";
 import { MAX_ITEM_QUANTITY } from "@/types/cart";
+import { cn } from "@/lib/utils/cn";
 
 interface CartItemProps {
   item: CartItemType;
@@ -43,41 +44,56 @@ export function CartItem({ item }: CartItemProps) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -40 }}
-      className="rounded-lg border border-border bg-card p-3"
+      className="group rounded-xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
     >
-      <div className="flex gap-3">
-        {item.imageUrl && (
-          <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-muted">
+      <div className="flex gap-4">
+        {/* Image */}
+        <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-secondary/30">
+          {item.imageUrl ? (
             <Image
               src={item.imageUrl}
               alt={item.nameEn}
               fill
               className="object-cover"
-              sizes="64px"
+              sizes="80px"
             />
-          </div>
-        )}
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <span className="text-xs text-muted-foreground">No image</span>
+            </div>
+          )}
+        </div>
 
-        <div className="flex flex-1 flex-col">
+        {/* Content */}
+        <div className="flex flex-1 flex-col min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <div>
-              <h4 className="font-medium text-foreground">{item.nameEn}</h4>
+            <div className="min-w-0">
+              <h4 className="font-semibold text-foreground truncate">
+                {item.nameEn}
+              </h4>
               {item.nameMy && (
-                <p className="text-xs text-muted-foreground font-burmese">
+                <p className="text-xs text-muted-foreground font-burmese truncate">
                   {item.nameMy}
                 </p>
               )}
             </div>
-            <p className="font-medium">{formatPrice(itemTotal)}</p>
+            <p className="font-bold text-primary flex-shrink-0">
+              {formatPrice(itemTotal)}
+            </p>
           </div>
 
+          {/* Modifiers */}
           {item.modifiers.length > 0 && (
-            <ul className="mt-1 text-xs text-muted-foreground">
+            <ul className="mt-1.5 space-y-0.5">
               {item.modifiers.map((mod) => (
-                <li key={`${mod.groupId}-${mod.optionId}`}>
-                  {mod.optionName}
+                <li
+                  key={`${mod.groupId}-${mod.optionId}`}
+                  className="text-xs text-muted-foreground flex items-center gap-1"
+                >
+                  <span className="w-1 h-1 rounded-full bg-muted-foreground/50" />
+                  <span>{mod.optionName}</span>
                   {mod.priceDeltaCents > 0 && (
-                    <span className="ml-1">
+                    <span className="text-primary/70">
                       (+{formatPrice(mod.priceDeltaCents)})
                     </span>
                   )}
@@ -86,42 +102,52 @@ export function CartItem({ item }: CartItemProps) {
             </ul>
           )}
 
+          {/* Notes */}
           {item.notes && (
-            <p className="mt-1 text-xs italic text-muted-foreground">
-              Note: {item.notes}
+            <p className="mt-1.5 text-xs italic text-muted-foreground bg-muted/50 px-2 py-1 rounded">
+              {item.notes}
             </p>
           )}
 
-          <div className="mt-2 flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          {/* Quantity Controls */}
+          <div className="mt-3 flex items-center justify-between">
+            <div className="flex items-center gap-1">
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8"
+                className={cn(
+                  "h-8 w-8 rounded-full",
+                  "hover:bg-primary/10 hover:border-primary/50 hover:text-primary",
+                  "transition-all duration-200"
+                )}
                 onClick={handleDecrement}
                 aria-label="Decrease quantity"
               >
-                <Minus className="h-4 w-4" />
+                <Minus className="h-3.5 w-3.5" />
               </Button>
-              <span className="w-8 text-center font-medium">
+              <span className="w-10 text-center font-semibold text-foreground">
                 {item.quantity}
               </span>
               <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8"
+                className={cn(
+                  "h-8 w-8 rounded-full",
+                  "hover:bg-primary/10 hover:border-primary/50 hover:text-primary",
+                  "transition-all duration-200"
+                )}
                 onClick={handleIncrement}
                 disabled={item.quantity >= MAX_ITEM_QUANTITY}
                 aria-label="Increase quantity"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-3.5 w-3.5" />
               </Button>
             </div>
 
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-destructive hover:text-destructive"
+              className="h-8 w-8 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200"
               onClick={() => setShowConfirmRemove(true)}
               aria-label="Remove item"
             >
@@ -131,21 +157,29 @@ export function CartItem({ item }: CartItemProps) {
         </div>
       </div>
 
+      {/* Remove Confirmation */}
       {showConfirmRemove && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
-          className="mt-3 border-t border-border pt-3"
+          exit={{ opacity: 0, height: 0 }}
+          className="mt-4 border-t border-border pt-4"
         >
-          <p className="text-sm text-muted-foreground">Remove this item?</p>
-          <div className="mt-2 flex gap-2">
-            <Button variant="destructive" size="sm" onClick={handleRemove}>
+          <p className="text-sm text-foreground font-medium">Remove this item?</p>
+          <div className="mt-3 flex gap-2">
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleRemove}
+              className="flex-1"
+            >
               Remove
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowConfirmRemove(false)}
+              className="flex-1"
             >
               Cancel
             </Button>
