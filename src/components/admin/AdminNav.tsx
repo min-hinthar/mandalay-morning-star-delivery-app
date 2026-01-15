@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   UtensilsCrossed,
   ClipboardList,
+  FolderTree,
   BarChart3,
   Settings,
   ChevronLeft,
@@ -37,6 +38,11 @@ const navItems = [
     label: "Menu",
     href: "/admin/menu",
     icon: UtensilsCrossed,
+  },
+  {
+    label: "Categories",
+    href: "/admin/categories",
+    icon: FolderTree,
   },
   {
     label: "Analytics",

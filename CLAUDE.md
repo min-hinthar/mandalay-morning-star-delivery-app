@@ -1,7 +1,7 @@
 # CLAUDE.md — Mandalay Morning Star Project Memory (v3.0)
 
 > **Purpose**: Concise project context for Claude Code. Link to docs for details.
-> **Last Updated**: 2026-01-15 | **Phase**: V1 Sprint 3 (Payment + Confirmation)
+> **Last Updated**: 2026-01-15 | **Phase**: V1 Complete - V2 Planning
 
 ---
 
@@ -20,7 +20,7 @@
 | Version | Status | Progress | Focus |
 |---------|--------|----------|-------|
 | **V0** | ✅ Done | 100% | Scaffold, Auth, DB schema, Menu seed |
-| **V1** | 🔄 Active | 67% | Full ordering flow + Admin basics |
+| **V1** | ✅ Done | 100% | Full ordering flow + Admin basics |
 | **V2** | 📋 Planned | 0% | Driver ops, tracking, polish |
 
 ### V1 Sprint Progress
@@ -28,8 +28,8 @@
 |--------|--------|-------|
 | Sprint 1: Menu Browse | ✅ Complete | 6/6 |
 | Sprint 2: Cart + Checkout | ✅ Complete | 7/7 |
-| **Sprint 3: Payment + Confirm** | 🔄 Active | 0/7 |
-| Sprint 4: Admin Basics | 📋 Pending | 0/5 |
+| Sprint 3: Payment + Confirm | ✅ Complete | 7/7 |
+| Sprint 4: Admin Basics | ✅ Complete | 5/5 |
 
 → See [docs/project_status.md](docs/project_status.md) for detailed tracking.
 
@@ -246,24 +246,31 @@ vercel deploy --prod  # Deploy to Vercel
 
 ---
 
-## 🔮 Current Focus (V1 Sprint 3)
+## 🔮 Current Focus (V2 Planning)
 
-**Active Sprint**: Payment + Confirmation (CRITICAL PATH)
+**V1 Complete!** All 25 tasks across 4 sprints are done.
 
-### Sprint 3 Tasks (0/7)
-1. [ ] V1-S3-001: Stripe Checkout Session integration
-2. [ ] V1-S3-002: Webhook handler with signature verification
-3. [ ] V1-S3-003: Server-side order creation flow
-4. [ ] V1-S3-004: Order confirmation page
-5. [ ] V1-S3-005: Order status page with timeline
-6. [ ] V1-S3-006: Order history page
-7. [ ] V1-S3-007: Email notifications (Supabase Edge Functions)
+### V1 Delivered Features
+- ✅ Menu browsing with categories, search, modifiers
+- ✅ Cart management with Zustand
+- ✅ Address management with geocoding + coverage validation
+- ✅ Stripe Checkout with webhook integration
+- ✅ Order confirmation, status, and history pages
+- ✅ Email notifications via Supabase Edge Functions
+- ✅ Admin dashboard with analytics, orders, menu, categories
 
-### Next Up: Sprint 4 (Admin Basics)
-- Admin layout + navigation
-- Menu item CRUD
-- Orders list view
+### V2 Planning (Driver Ops + Tracking)
 
-**V2 Preview**: Driver ops, real-time tracking, route optimization
+**Sprint 1**: Admin Route Management
+- Driver CRUD, route creation, order assignment
 
-→ Detailed specs: [docs/v1-spec.md](docs/v1-spec.md)
+**Sprint 2**: Driver Mobile Interface
+- PWA with route view, stop management, location tracking
+
+**Sprint 3**: Customer Tracking
+- Real-time status timeline, live driver map, ETA display
+
+**Sprint 4**: Polish
+- Delivery photos, SMS notifications, driver dashboard
+
+→ Detailed specs: [docs/v2-spec.md](docs/v2-spec.md)

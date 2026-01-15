@@ -1,7 +1,7 @@
 # docs/project_status.md — Milestone Tracking (v2.0)
 
 > **Last Updated**: 2026-01-15
-> **Current Phase**: V1 Sprint 4 (Admin Basics)
+> **Current Phase**: V1 Complete - V2 Planning
 
 ---
 
@@ -9,10 +9,10 @@
 
 | Version | Status | Target | Focus |
 |---------|--------|--------|-------|
-| **V0** | âœ… Complete | - | Scaffold + Foundation |
-| **V1** | ðŸ”„ In Progress | Week 4 | Full Ordering Flow |
-| **V2** | ðŸ“‹ Planned | Week 8 | Driver Ops + Tracking |
-| **V3** | ðŸ’­ Future | TBD | Scale + Polish |
+| **V0** | ✅ Complete | - | Scaffold + Foundation |
+| **V1** | ✅ Complete | Week 4 | Full Ordering Flow |
+| **V2** | 📋 Planned | Week 8 | Driver Ops + Tracking |
+| **V3** | 💭 Future | TBD | Scale + Polish |
 
 ---
 
@@ -83,16 +83,16 @@
 
 **Sprint 3 completion**: 7/7 (100%)
 
-### Sprint 4: Admin Basics (Week 4) - IN PROGRESS
+### Sprint 4: Admin Basics (Week 4) - COMPLETE
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
 | Admin layout + nav (V1-S4-001) | ✅ | Claude | Role-gated shell + collapsible nav |
 | Menu item CRUD (V1-S4-002) | ✅ | Claude | List, toggle active/sold-out, delete |
-| Category management (V1-S4-003) | ⬜ | Claude | Reorder, activate |
+| Category management (V1-S4-003) | ✅ | Claude | Reorder, activate, add/delete |
 | Orders list view (V1-S4-004) | ✅ | Claude | Filter, sort, status update |
-| Basic analytics (V1-S4-005) | ⬜ | Claude | Order count, revenue |
+| Basic analytics (V1-S4-005) | ✅ | Claude | Stats cards, revenue chart, popular items |
 
-**Sprint 4 completion**: 3/5 (60%)
+**Sprint 4 completion**: 5/5 (100%)
 
 ### V1 Acceptance Criteria
 - [x] Customer can browse full menu by category
@@ -109,7 +109,9 @@
 - [x] Order confirmation displays correctly
 - [x] Customer can view order history
 - [x] Admin can CRUD menu items
+- [x] Admin can manage categories (reorder, activate)
 - [x] Admin can view/manage orders
+- [x] Admin has analytics dashboard
 - [ ] Mobile-responsive across all flows
 - [ ] E2E test covers happy path
 
@@ -208,5 +210,5 @@
 | V1 S1 | 6 tasks | 6 tasks | Menu data layer + category tabs + item card + menu grid + menu search + item detail modal |
 | V1 S2 | 7 tasks | 7 tasks | Cart state + drawer + summary + address management + coverage checker + time slot picker + checkout stepper |
 | V1 S3 | 7 tasks | 7 tasks | Stripe integration + webhook handler + order creation + confirmation page + order status + order history + email notifications |
-| V1 S4 | 5 tasks | - | Admin basics (pending) |
+| V1 S4 | 5 tasks | 5 tasks | Admin layout + menu CRUD + category management + orders list + analytics dashboard |
 

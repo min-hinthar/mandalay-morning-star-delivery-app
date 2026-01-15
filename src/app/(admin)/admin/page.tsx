@@ -7,15 +7,21 @@ import {
   Clock,
   TrendingUp,
   AlertCircle,
+  CheckCircle2,
+  Truck,
+  Star,
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils/currency";
-import { format, subDays, startOfDay } from "date-fns";
+import { format, subDays, startOfDay, eachDayOfInterval } from "date-fns";
 import Link from "next/link";
 import type { OrderStatus } from "@/types/database";
+import { RevenueChart } from "@/components/admin/RevenueChart";
+import { PopularItems } from "@/components/admin/PopularItems";
 
 interface OrderStatsRow {
   status: OrderStatus;
   total_cents: number;
+  subtotal_cents: number;
   placed_at: string;
 }
 
@@ -27,6 +33,14 @@ interface RecentOrderRow {
   profiles: {
     full_name: string | null;
     email: string;
+  } | null;
+}
+
+interface OrderItemRow {
+  quantity: number;
+  line_total_cents: number;
+  menu_items: {
+    name_en: string;
   } | null;
 }
 
@@ -56,7 +70,7 @@ export default async function AdminDashboardPage() {
   // Fetch recent orders for stats
   const { data: ordersData } = await supabase
     .from("orders")
-    .select("status, total_cents, placed_at")
+    .select("status, total_cents, subtotal_cents, placed_at")
     .gte("placed_at", sevenDaysAgo.toISOString())
     .returns<OrderStatsRow[]>();
 
@@ -67,11 +81,39 @@ export default async function AdminDashboardPage() {
   const confirmedOrders = orders.filter(
     (o) => o.status !== "cancelled" && o.status !== "pending"
   );
+  const deliveredOrders = orders.filter((o) => o.status === "delivered");
   const totalRevenue = confirmedOrders.reduce((sum, o) => sum + o.total_cents, 0);
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
   const avgOrderValue = confirmedOrders.length > 0
     ? Math.round(totalRevenue / confirmedOrders.length)
     : 0;
+
+  // Calculate fulfillment rate
+  const fulfillmentRate = totalOrders > 0
+    ? Math.round((deliveredOrders.length / totalOrders) * 100)
+    : 0;
+
+  // Calculate free delivery orders (subtotal >= $100)
+  const freeDeliveryOrders = confirmedOrders.filter(
+    (o) => o.subtotal_cents >= 10000
+  ).length;
+  const freeDeliveryPercentage = confirmedOrders.length > 0
+    ? Math.round((freeDeliveryOrders / confirmedOrders.length) * 100)
+    : 0;
+
+  // Prepare daily revenue data for chart
+  const days = eachDayOfInterval({ start: sevenDaysAgo, end: today });
+  const dailyRevenue = days.map((day) => {
+    const dayStr = format(day, "yyyy-MM-dd");
+    const dayOrders = confirmedOrders.filter(
+      (o) => format(new Date(o.placed_at), "yyyy-MM-dd") === dayStr
+    );
+    return {
+      date: format(day, "MMM d"),
+      revenue: dayOrders.reduce((sum, o) => sum + o.total_cents, 0),
+      orders: dayOrders.length,
+    };
+  });
 
   // Fetch 5 most recent orders
   const { data: recentOrdersData } = await supabase
@@ -92,6 +134,40 @@ export default async function AdminDashboardPage() {
 
   const recentOrders = recentOrdersData ?? [];
 
+  // Fetch popular items (top 5 by quantity sold in last 7 days)
+  const { data: orderItemsData } = await supabase
+    .from("order_items")
+    .select(`
+      quantity,
+      line_total_cents,
+      menu_items (
+        name_en
+      )
+    `)
+    .gte("created_at", sevenDaysAgo.toISOString())
+    .returns<OrderItemRow[]>();
+
+  const orderItems = orderItemsData ?? [];
+
+  // Aggregate popular items
+  const itemStats = orderItems.reduce(
+    (acc: Record<string, { quantity: number; revenue: number }>, item) => {
+      const name = item.menu_items?.name_en ?? "Unknown";
+      if (!acc[name]) {
+        acc[name] = { quantity: 0, revenue: 0 };
+      }
+      acc[name].quantity += item.quantity;
+      acc[name].revenue += item.line_total_cents;
+      return acc;
+    },
+    {}
+  );
+
+  const popularItems = Object.entries(itemStats)
+    .map(([name, stats]) => ({ name, ...stats }))
+    .sort((a, b) => b.quantity - a.quantity)
+    .slice(0, 5);
+
   return (
     <div className="p-8">
       {/* Header */}
@@ -102,8 +178,8 @@ export default async function AdminDashboardPage() {
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+      {/* Stats Grid - Row 1 */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -165,8 +241,72 @@ export default async function AdminDashboardPage() {
         </Card>
       </div>
 
-      {/* Recent Orders & Alerts */}
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Stats Grid - Row 2 (New Analytics) */}
+      <div className="grid gap-4 md:grid-cols-3 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Fulfillment Rate
+            </CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {fulfillmentRate}%
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {deliveredOrders.length} of {totalOrders} orders delivered
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Free Delivery Orders
+            </CardTitle>
+            <Truck className="h-4 w-4 text-brand-red" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-brand-red">
+              {freeDeliveryOrders}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {freeDeliveryPercentage}% of orders qualify (≥$100)
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Top Items Sold
+            </CardTitle>
+            <Star className="h-4 w-4 text-saffron" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {orderItems.reduce((sum, item) => sum + item.quantity, 0)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Total items sold (7d)
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Revenue Chart */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Revenue Trend (7 Days)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <RevenueChart data={dailyRevenue} />
+        </CardContent>
+      </Card>
+
+      {/* Recent Orders, Popular Items & Alerts */}
+      <div className="grid gap-4 md:grid-cols-3">
         {/* Recent Orders */}
         <Card className="col-span-1">
           <CardHeader className="flex flex-row items-center justify-between">
@@ -215,6 +355,16 @@ export default async function AdminDashboardPage() {
           </CardContent>
         </Card>
 
+        {/* Popular Items */}
+        <Card className="col-span-1">
+          <CardHeader>
+            <CardTitle>Popular Items (7d)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PopularItems items={popularItems} />
+          </CardContent>
+        </Card>
+
         {/* Quick Actions / Alerts */}
         <Card className="col-span-1">
           <CardHeader>
@@ -229,7 +379,7 @@ export default async function AdminDashboardPage() {
                     {pendingOrders} Pending Order{pendingOrders !== 1 ? "s" : ""}
                   </p>
                   <p className="text-sm text-yellow-700">
-                    These orders are awaiting payment confirmation.
+                    Awaiting payment confirmation.
                   </p>
                 </div>
               </div>
@@ -255,7 +405,7 @@ export default async function AdminDashboardPage() {
               className="block p-4 rounded-lg border hover:border-brand-red hover:bg-brand-red/5 transition-colors"
             >
               <div className="flex items-center gap-3">
-                <Package className="h-5 w-5 text-brand-red" />
+                <Star className="h-5 w-5 text-brand-red" />
                 <div>
                   <p className="font-medium">Edit Menu</p>
                   <p className="text-sm text-muted-foreground">
