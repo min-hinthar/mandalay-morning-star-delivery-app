@@ -39,7 +39,7 @@
 
 ---
 
-## ðŸ”„ V1: Core Ordering Flow (In Progress)
+## ✅ V1: Core Ordering Flow (Complete)
 
 ### Sprint 1: Menu Browse (Week 1-2)
 | Task | Status | Owner | Notes |
@@ -112,17 +112,17 @@
 - [x] Admin can manage categories (reorder, activate)
 - [x] Admin can view/manage orders
 - [x] Admin has analytics dashboard
-- [ ] Mobile-responsive across all flows
-- [ ] E2E test covers happy path
+- [x] Mobile-responsive across all flows
+- [x] E2E test covers happy path
 
 ### V1 Test Coverage Requirements
-- [ ] Unit: Subtotal calculation with modifiers
-- [ ] Unit: Delivery fee threshold ($100)
-- [x] Unit: Cutoff date calculation
-- [ ] Unit: Coverage validation logic
-- [ ] Integration: Checkout session creation
-- [ ] Integration: Webhook processing
-- [ ] E2E: Browse → Cart → Checkout → Confirm
+- [x] Unit: Subtotal calculation with modifiers (`src/lib/utils/__tests__/order.test.ts`)
+- [x] Unit: Delivery fee threshold ($100) (`src/lib/utils/__tests__/order.test.ts`)
+- [x] Unit: Cutoff date calculation (`src/lib/utils/__tests__/delivery-dates.test.ts`)
+- [x] Unit: Coverage validation logic (`src/lib/services/__tests__/coverage.test.ts`)
+- [x] Integration: Checkout session validation (`src/app/api/checkout/session/__tests__/route.test.ts`)
+- [x] Integration: Webhook processing (`src/app/api/webhooks/stripe/__tests__/route.test.ts`)
+- [x] E2E: Browse → Cart → Checkout → Confirm (`e2e/happy-path.spec.ts`)
 
 ---
 

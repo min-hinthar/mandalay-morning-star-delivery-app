@@ -11,6 +11,8 @@
     "test": "vitest run",
     "test:ci": "vitest run",
     "test:menu": "vitest run src/components/menu/__tests__/menu-content.test.tsx",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "rls:test": "node scripts/rls-isolation-test.mjs",
     "seed:menu": "npx tsx scripts/seed-menu.ts",
     "verify:menu": "npx tsx scripts/verify-menu.ts"
@@ -69,6 +71,7 @@
     "tailwindcss": "^4",
     "tsx": "^4.19.2",
     "typescript": "^5",
-    "vitest": "^4.0.17"
+    "vitest": "^4.0.17",
+    "@playwright/test": "^1.57.0"
   }
 }
