@@ -42,7 +42,7 @@ export function TimeStep() {
         <Button
           onClick={nextStep}
           disabled={!canProceed()}
-          className="bg-brand-red hover:bg-brand-red/90"
+          className="bg-primary hover:bg-brand-red/90"
         >
           Continue to Payment
         </Button>

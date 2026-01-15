@@ -42,14 +42,14 @@ export function CoverageCheck() {
               disabled={isLoading}
               required
             />
-            <p className="text-xs text-muted">
+            <p className="text-center text-xs text-primary">
               We deliver within 50 miles of Covina, CA every Saturday.
             </p>
           </div>
 
           <Button
             type="submit"
-            className="w-full bg-gold hover:bg-gold-dark text-foreground"
+            className="w-full bg-primary hover:bg-gold-dark text-white cursor-pointer"
             disabled={isLoading || !address.trim()}
           >
             {isLoading ? "Checking..." : "Check Coverage"}
