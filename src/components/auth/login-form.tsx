@@ -14,7 +14,7 @@ function SubmitButton(): ReactElement {
   return (
     <Button
       type="submit"
-      className="w-full bg-brand-red hover:bg-brand-red-dark"
+      className="w-full bg-primary hover:bg-brand-red-dark"
       disabled={pending}
     >
       {pending ? "Sending magic link..." : "Send magic link"}
@@ -52,7 +52,7 @@ export function LoginForm(): ReactElement {
               {success}
             </div>
           )}
-          <p className="text-sm text-muted">
+          <p className="text-sm text-muted text-primary">
             We&apos;ll email you a magic link to sign in.
           </p>
           <div className="space-y-2">
@@ -70,7 +70,7 @@ export function LoginForm(): ReactElement {
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <SubmitButton />
-          <p className="text-sm text-center text-muted">
+          <p className="text-sm text-center text-black">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-brand-red hover:underline">
               Sign up
