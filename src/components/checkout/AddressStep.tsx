@@ -89,11 +89,11 @@ export function AddressStep() {
         </Button>
       )}
 
-      <div className="flex justify-end pt-4 border-t border-border">
+      <div className="flex justify-center pt-4 border-t border-border">
         <Button
           onClick={nextStep}
           disabled={!canProceed()}
-          className="bg-brand-red hover:bg-brand-red/90"
+          className="bg-primary hover:bg-brand-red/90"
         >
           Continue to Time Selection
         </Button>

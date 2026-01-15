@@ -1,55 +1,61 @@
-import Image from "next/image";
 import type { ReactElement } from "react";
-import { CoverageCheck } from "@/components/coverage/coverage-check";
+import { Suspense } from "react";
+import { getMenuWithCategories } from "@/lib/queries/menu";
+import { HomepageHero } from "@/components/homepage/HomepageHero";
+import { CoverageSection } from "@/components/homepage/CoverageSection";
+import { HowItWorksTimeline } from "@/components/homepage/HowItWorksTimeline";
+import { HomepageMenuSection } from "@/components/homepage/HomepageMenuSection";
+import { FooterCTA } from "@/components/homepage/FooterCTA";
+
+// Loading skeleton for menu section
+function MenuSkeleton() {
+  return (
+    <section className="py-16 md:py-24 px-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-12 animate-pulse">
+          <div className="h-8 w-32 bg-muted rounded-full mx-auto mb-4" />
+          <div className="h-12 w-64 bg-muted rounded-lg mx-auto mb-4" />
+          <div className="h-6 w-96 bg-muted rounded-lg mx-auto max-w-full" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div
+              key={i}
+              className="aspect-[4/3] bg-muted rounded-2xl animate-pulse"
+              style={{ animationDelay: `${i * 100}ms` }}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Server component to fetch menu data
+async function MenuLoader() {
+  const categories = await getMenuWithCategories();
+  return <HomepageMenuSection categories={categories} />;
+}
 
 export default function HomePage(): ReactElement {
   return (
     <main className="min-h-screen bg-background">
-      <section className="flex flex-col items-center justify-center px-4 py-12 md:py-20">
-        <Image
-          src="/logo.png"
-          alt="Mandalay Morning Star"
-          width={160}
-          height={160}
-          priority
-          className="mb-6"
-        />
-        <h1 className="text-center text-3xl font-display text-brand-red md:text-4xl">
-          Mandalay Morning Star
-        </h1>
-        <p className="mt-3 max-w-md text-center text-muted">
-          Authentic Burmese cuisine delivered fresh to your door every Saturday.
-        </p>
-      </section>
+      {/* Hero Section with Animated Gradient */}
+      <HomepageHero />
 
-      <section className="flex justify-center px-4 pb-12">
-        <CoverageCheck />
-      </section>
+      {/* Coverage Check with Interactive Map */}
+      <CoverageSection />
 
-      <section className="bg-brand-red/5 px-4 py-12">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="mb-4 text-2xl font-display text-brand-red">
-            How It Works
-          </h2>
-          <div className="grid gap-6 text-sm md:grid-cols-3">
-            <div>
-              <div className="mb-2 text-3xl">1</div>
-              <p className="font-medium">Check Coverage</p>
-              <p className="text-muted">Enter your address above</p>
-            </div>
-            <div>
-              <div className="mb-2 text-3xl">2</div>
-              <p className="font-medium">Order by Friday 3PM</p>
-              <p className="text-muted">Browse our menu and checkout</p>
-            </div>
-            <div>
-              <div className="mb-2 text-3xl">3</div>
-              <p className="font-medium">Saturday Delivery</p>
-              <p className="text-muted">Fresh food, 11am - 7pm</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* How It Works Timeline */}
+      <HowItWorksTimeline />
+
+      {/* Full Menu Section */}
+      <Suspense fallback={<MenuSkeleton />}>
+        <MenuLoader />
+      </Suspense>
+
+      {/* Footer CTA */}
+      <FooterCTA />
     </main>
   );
 }

@@ -73,14 +73,14 @@ export function PaymentStep() {
           <h3 className="text-sm font-medium text-muted-foreground">
             Delivery Address
           </h3>
-          <p className="mt-1 text-foreground">{address?.formattedAddress}</p>
+          <p className="mt-1 text-foreground text-center text-xl">{address?.formattedAddress}</p>
         </div>
 
         <div>
           <h3 className="text-sm font-medium text-muted-foreground">
             Delivery Time
           </h3>
-          {delivery && <TimeSlotDisplay selection={delivery} className="mt-1" />}
+          {delivery && <TimeSlotDisplay selection={delivery} className="mt-1 bg-primary rounded-xl p-2 justify-center" />}
         </div>
       </div>
 
@@ -118,7 +118,7 @@ export function PaymentStep() {
         <Button
           onClick={handleCheckout}
           disabled={isLoading}
-          className="bg-brand-red hover:bg-brand-red/90"
+          className="bg-primary hover:bg-brand-red/90"
         >
           {isLoading ? (
             <>

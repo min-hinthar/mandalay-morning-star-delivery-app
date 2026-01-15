@@ -20,7 +20,7 @@ export function UserMenu({ user }: UserMenuProps): ReactElement {
           </Button>
         </Link>
         <Link href="/signup">
-          <Button size="sm" className="bg-brand-red hover:bg-brand-red-dark">
+          <Button size="sm" className="bg-primary hover:bg-brand-red-dark">
             Sign Up
           </Button>
         </Link>
