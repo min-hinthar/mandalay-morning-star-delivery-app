@@ -1,22 +1,22 @@
-# docs/project_status.md — Milestone Tracking (v1.0)
+﻿# docs/project_status.md â€” Milestone Tracking (v1.0)
 
 > **Last Updated**: 2026-01-14
 > **Current Phase**: V1 Development
 
 ---
 
-## 📊 Milestone Overview
+## ðŸ“Š Milestone Overview
 
 | Version | Status | Target | Focus |
 |---------|--------|--------|-------|
-| **V0** | ✅ Complete | - | Scaffold + Foundation |
-| **V1** | 🔄 In Progress | Week 4 | Full Ordering Flow |
-| **V2** | 📋 Planned | Week 8 | Driver Ops + Tracking |
-| **V3** | 💭 Future | TBD | Scale + Polish |
+| **V0** | âœ… Complete | - | Scaffold + Foundation |
+| **V1** | ðŸ”„ In Progress | Week 4 | Full Ordering Flow |
+| **V2** | ðŸ“‹ Planned | Week 8 | Driver Ops + Tracking |
+| **V3** | ðŸ’­ Future | TBD | Scale + Polish |
 
 ---
 
-## ✅ V0: Foundation (Complete)
+## âœ… V0: Foundation (Complete)
 
 ### Deliverables
 - [x] Project scaffold (Next.js 15 + TypeScript)
@@ -39,17 +39,17 @@
 
 ---
 
-## 🔄 V1: Core Ordering Flow (In Progress)
+## ðŸ”„ V1: Core Ordering Flow (In Progress)
 
 ### Sprint 1: Menu Browse (Week 1-2)
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Menu data layer (V1-S1-001) | ✅ | Codex | Types, API routes, React Query hooks |
-| Category tabs (V1-S1-002) | ✅ | Codex | Sticky, horizontal scroll, scroll-spy |
-| Item card (V1-S1-003) | ✅ | Codex | Responsive card with image + price |
-| Menu grid (V1-S1-004) | ✅ | Codex | Responsive grid layout |
-| Menu search (V1-S1-005) | ✅ | Codex | Debounced, fuzzy match |
-| Item detail modal (V1-S1-006) | ✅ | Codex | Modifiers, qty, notes |
+| Menu data layer (V1-S1-001) | âœ… | Codex | Types, API routes, React Query hooks |
+| Category tabs (V1-S1-002) | âœ… | Codex | Sticky, horizontal scroll, scroll-spy |
+| Item card (V1-S1-003) | âœ… | Codex | Responsive card with image + price |
+| Menu grid (V1-S1-004) | âœ… | Codex | Responsive grid layout |
+| Menu search (V1-S1-005) | âœ… | Codex | Debounced, fuzzy match |
+| Item detail modal (V1-S1-006) | âœ… | Codex | Modifiers, qty, notes |
 
 **Task Files**: `docs/V1/tasks/V1-S1-*.md`
 
@@ -58,35 +58,35 @@
 ### Sprint 2: Cart + Checkout (Week 2-3)
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Cart state (Zustand) | ✅ | Codex | Add/update/remove/clear |
-| Cart drawer component | ✅ | Codex | Slide-over, mobile-first |
-| Cart summary component | ✅ | Codex | Subtotal + fee display |
-| Address management | ⬜ | Codex | CRUD + validation |
-| Coverage checker | ⬜ | Codex | Google Maps integration |
-| Time slot picker | ⬜ | Codex | Saturday hourly windows |
-| Checkout stepper | ⬜ | Codex | Address → Time → Pay |
+| Cart state (Zustand) | âœ… | Codex | Add/update/remove/clear |
+| Cart drawer component | âœ… | Codex | Slide-over, mobile-first |
+| Cart summary component | âœ… | Codex | Subtotal + fee display |
+| Address management | â¬œ | Codex | CRUD + validation |
+| Coverage checker (V1-S2-005) | ✔ | Codex | Google Maps Routes service + UI status |
+| Time slot picker | â¬œ | Codex | Saturday hourly windows |
+| Checkout stepper | â¬œ | Codex | Address â†’ Time â†’ Pay |
 
 **Task Files**: `docs/V1/tasks/V1-S2-*.md`
 
 ### Sprint 3: Payment + Confirmation (Week 3-4)
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Stripe integration | ⬜ | Codex | Checkout Sessions |
-| Webhook handler | ⬜ | Codex | Signature verification |
-| Order creation flow | ⬜ | Codex | Server-side totals |
-| Confirmation page | ⬜ | Codex | Order details display |
-| Order status page | ⬜ | Codex | Timeline component |
-| Order history page | ⬜ | Codex | Customer's orders list |
-| Email notifications | ⬜ | Codex | Confirmation email |
+| Stripe integration | â¬œ | Codex | Checkout Sessions |
+| Webhook handler | â¬œ | Codex | Signature verification |
+| Order creation flow | â¬œ | Codex | Server-side totals |
+| Confirmation page | â¬œ | Codex | Order details display |
+| Order status page | â¬œ | Codex | Timeline component |
+| Order history page | â¬œ | Codex | Customer's orders list |
+| Email notifications | â¬œ | Codex | Confirmation email |
 
 ### Sprint 4: Admin Basics (Week 4)
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Admin layout + nav | ⬜ | Codex | Role-gated shell |
-| Menu item CRUD | ⬜ | Codex | Add/edit/delete items |
-| Category management | ⬜ | Codex | Reorder, activate |
-| Orders list view | ⬜ | Codex | Filter, status update |
-| Basic analytics | ⬜ | Codex | Order count, revenue |
+| Admin layout + nav | â¬œ | Codex | Role-gated shell |
+| Menu item CRUD | â¬œ | Codex | Add/edit/delete items |
+| Category management | â¬œ | Codex | Reorder, activate |
+| Orders list view | â¬œ | Codex | Filter, status update |
+| Basic analytics | â¬œ | Codex | Order count, revenue |
 
 ### V1 Acceptance Criteria
 - [ ] Customer can browse full menu by category
@@ -95,7 +95,7 @@
 - [ ] Customer can add items to cart with modifiers
 - [ ] Customer can manage cart (update qty, remove)
 - [ ] Customer can save/select delivery address
-- [ ] Coverage validation blocks out-of-range addresses
+- [x] Coverage validation blocks out-of-range addresses
 - [ ] Customer can select Saturday time window
 - [ ] Cutoff logic prevents late orders for current Saturday
 - [ ] Stripe Checkout completes payment
@@ -114,18 +114,18 @@
 - [ ] Unit: Coverage validation logic
 - [ ] Integration: Checkout session creation
 - [ ] Integration: Webhook processing
-- [ ] E2E: Browse → Cart → Checkout → Confirm
+- [ ] E2E: Browse â†’ Cart â†’ Checkout â†’ Confirm
 
 ---
 
-## 📋 V2: Driver Ops + Tracking (Planned)
+## ðŸ“‹ V2: Driver Ops + Tracking (Planned)
 
 ### Features
 | Feature | Priority | Complexity | Notes |
 |---------|----------|------------|-------|
 | Driver mobile interface | P0 | Medium | Route view, status updates |
 | Route optimization | P0 | High | Google Routes API |
-| Real-time location updates | P0 | Medium | Driver GPS → customer map |
+| Real-time location updates | P0 | Medium | Driver GPS â†’ customer map |
 | Customer order tracking | P0 | Medium | Live map + timeline |
 | Admin route management | P1 | Medium | Assign orders to routes |
 | Delivery proof (photo) | P1 | Medium | Driver captures photo |
@@ -146,7 +146,7 @@
 
 ---
 
-## 💭 V3: Scale + Polish (Future)
+## ðŸ’­ V3: Scale + Polish (Future)
 
 ### Potential Features
 - Multiple payment methods (saved cards)
@@ -163,7 +163,7 @@
 
 ---
 
-## 🚧 Known Issues / Tech Debt
+## ðŸš§ Known Issues / Tech Debt
 
 | Issue | Severity | Status | Notes |
 |-------|----------|--------|-------|
@@ -171,7 +171,7 @@
 
 ---
 
-## 📝 Decision Log
+## ðŸ“ Decision Log
 
 | Date | Decision | Rationale | Status |
 |------|----------|-----------|--------|
@@ -183,7 +183,7 @@
 
 ---
 
-## 🔮 Open Questions
+## ðŸ”® Open Questions
 
 | Question | Context | Status |
 |----------|---------|--------|
@@ -194,13 +194,13 @@
 
 ---
 
-## 📈 Velocity Tracking
+## ðŸ“ˆ Velocity Tracking
 
 | Sprint | Planned | Completed | Notes |
 |--------|---------|-----------|-------|
 | V0 | 15 tasks | 15 tasks | Foundation complete |
 | V1 S1 | 6 tasks | 6 tasks | Menu data layer + category tabs + item card + menu grid + menu search + item detail modal done |
-| V1 S2 | 7 tasks | 3 tasks | Cart state + cart drawer + cart summary completed |
+| V1 S2 | 7 tasks | 4 tasks | Cart state + cart drawer + cart summary + coverage checker completed |
 | V1 S3 | - | - | - |
 | V1 S4 | - | - | - |
 
