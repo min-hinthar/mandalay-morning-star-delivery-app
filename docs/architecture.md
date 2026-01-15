@@ -1,7 +1,7 @@
 # docs/architecture.md — System Architecture (v2.0)
 
 > **Last Updated**: 2026-01-15
-> **Status**: Active development (V2 - Driver Mobile Complete)
+> **Status**: V2 Complete - Analytics & Email Notifications
 
 ---
 
@@ -34,9 +34,15 @@
 │  ├── /api/checkout/session ────── Create Stripe Checkout Session            │
 │  ├── /api/webhooks/stripe ─────── Stripe webhook handler                    │
 │  ├── /api/orders/** ───────────── Order queries + mutations                 │
+│  │   └── /[orderId]/rating ──── Customer feedback submission                │
+│  ├── /api/tracking/** ─────────── Real-time tracking data                   │
 │  ├── /api/admin/** ────────────── Admin operations (role-gated)             │
 │  │   ├── /drivers/** ────────── Driver CRUD + activation                    │
-│  │   └── /routes/** ─────────── Route management + optimization             │
+│  │   ├── /routes/** ─────────── Route management + optimization             │
+│  │   └── /analytics/** ──────── Performance metrics + dashboards            │
+│  │       ├── /drivers ───────── Driver performance stats                    │
+│  │       ├── /drivers/[id] ──── Individual driver details                   │
+│  │       └── /delivery ──────── Delivery metrics + trends                   │
 │  └── /api/driver/** ───────────── Driver operations (driver-gated)          │
 │      ├── /me ────────────────── Driver profile                              │
 │      ├── /routes/active ─────── Today's assigned route                      │
@@ -73,6 +79,38 @@
 └──────────────────────┘ └──────────────────────┘ └──────────────────────┘
 ```
 
+### Analytics Database Schema
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           ANALYTICS TABLES                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  notification_logs                                                          │
+│  ├── order_id, user_id, notification_type                                   │
+│  ├── channel (email), recipient, subject                                    │
+│  ├── resend_id, status, error_message                                       │
+│  └── Types: order_confirmation, out_for_delivery, arriving_soon, delivered  │
+│                                                                             │
+│  driver_ratings                                                             │
+│  ├── driver_id, order_id, route_stop_id                                    │
+│  ├── rating (1-5), feedback_text, submitted_at                             │
+│  └── Unique constraint: one rating per order                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                        MATERIALIZED VIEWS                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  driver_stats_mv                                                            │
+│  ├── Aggregated driver performance metrics                                  │
+│  ├── Total/weekly/monthly deliveries, on-time rate                         │
+│  ├── Rating count + average, exception counts                               │
+│  └── Refreshed via: refresh_analytics_views()                              │
+│                                                                             │
+│  delivery_metrics_mv                                                        │
+│  ├── Daily delivery KPIs by date                                           │
+│  ├── Total orders, revenue, success rate                                   │
+│  └── ETA accuracy rate, exception counts                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ## 2. Directory Structure
@@ -101,6 +139,7 @@ mandalay-morning-star/
 │   │   ├── cart/
 │   │   ├── checkout/
 │   │   ├── orders/
+│   │   │   └── [id]/feedback/  # Delivery rating page
 │   │   └── profile/
 │   │
 │   ├── (admin)/                # Admin role required
@@ -109,6 +148,10 @@ mandalay-morning-star/
 │   │   ├── menu/
 │   │   ├── orders/
 │   │   ├── drivers/
+│   │   ├── routes/
+│   │   ├── analytics/          # Analytics dashboards
+│   │   │   ├── drivers/        # Driver performance
+│   │   │   └── delivery/       # Delivery metrics
 │   │   └── settings/
 │   │
 │   ├── (driver)/               # Driver role required
@@ -141,6 +184,15 @@ mandalay-morning-star/
 │   ├── checkout/               # CheckoutStepper, AddressForm, TimeSlotPicker
 │   ├── order/                  # OrderTimeline, OrderMap, StatusBadge
 │   ├── admin/                  # AdminTable, MenuEditor, OrderManager
+│   │   └── analytics/          # Dashboard components
+│   │       ├── AnimatedCounter.tsx
+│   │       ├── MetricCard.tsx
+│   │       ├── DriverLeaderboard.tsx
+│   │       ├── StarRating.tsx
+│   │       ├── PerformanceChart.tsx
+│   │       ├── DeliverySuccessChart.tsx
+│   │       ├── PeakHoursChart.tsx
+│   │       └── ExceptionBreakdown.tsx
 │   ├── driver/                 # Driver mobile components
 │   │   ├── DriverShell.tsx     # Driver layout wrapper
 │   │   ├── DriverNav.tsx       # Bottom navigation

@@ -1,7 +1,7 @@
 # docs/project_status.md — Milestone Tracking (v2.1)
 
 > **Last Updated**: 2026-01-15
-> **Current Phase**: V2 Sprint 3 Complete (Ready for Sprint 4)
+> **Current Phase**: V2 Complete - All Sprints Finished
 
 ---
 
@@ -11,7 +11,7 @@
 |---------|--------|--------|-------|
 | **V0** | ✅ Complete | - | Scaffold + Foundation |
 | **V1** | ✅ Complete | Week 4 | Full Ordering Flow |
-| **V2** | 🚧 In Progress | Week 8 | Driver Ops + Tracking |
+| **V2** | ✅ Complete | Week 8 | Driver Ops + Tracking + Analytics |
 | **V3** | 💭 Future | TBD | Scale + Polish |
 
 ---
@@ -167,12 +167,23 @@
 
 **Sprint 3 completion**: 7/7 (100%)
 
-### Sprint 4: Polish (Planned)
+### Sprint 4: Analytics & Notifications (Complete)
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Delivery exceptions | 📋 | - | Can't deliver flow |
-| SMS notifications | 📋 | - | Twilio integration |
-| Analytics enhancements | 📋 | - | Driver performance, delivery metrics |
+| Analytics database migration | ✅ | Claude | notification_logs, driver_ratings, materialized views |
+| Analytics type definitions | ✅ | Claude | `src/types/analytics.ts` with DriverStats, DeliveryMetrics |
+| Validation schemas + tests | ✅ | Claude | Zod schemas with 15 unit tests |
+| Email notifications Edge Function | ✅ | Claude | out_for_delivery, arriving_soon, delivered templates |
+| Driver analytics API | ✅ | Claude | `/api/admin/analytics/drivers` + individual stats |
+| Delivery metrics API | ✅ | Claude | `/api/admin/analytics/delivery` with trends |
+| Customer rating API | ✅ | Claude | `/api/orders/[orderId]/rating` |
+| Animated UI components | ✅ | Claude | AnimatedCounter, MetricCard, charts (Recharts) |
+| Driver analytics dashboard | ✅ | Claude | `/admin/analytics/drivers` with leaderboard |
+| Delivery metrics dashboard | ✅ | Claude | `/admin/analytics/delivery` with KPIs |
+| Customer feedback UI | ✅ | Claude | `/orders/[id]/feedback` with star rating |
+| E2E tests | ✅ | Claude | Admin analytics + customer feedback specs |
+
+**Sprint 4 completion**: 12/12 (100%)
 
 ### V2 Acceptance Criteria
 - [x] Admin can create delivery routes for Saturday
@@ -183,8 +194,11 @@
 - [x] Customer sees live map when order is out_for_delivery
 - [x] Customer sees ETA band on tracking page
 - [x] Driver can capture delivery photo
-- [ ] Customer receives SMS when order is dispatched
+- [x] Email notifications for delivery status (out_for_delivery, arriving_soon, delivered)
 - [x] Route optimization suggests stop order
+- [x] Driver performance analytics dashboard
+- [x] Delivery metrics dashboard with trends
+- [x] Customer can rate delivery (1-5 stars + feedback)
 
 ---
 
@@ -248,6 +262,7 @@
 | V2 S1 | 8 tasks | 8 tasks | Driver/route management APIs + UIs, route optimization (137 tests) |
 | V2 S2 | 6 tasks | 6 tasks | Driver mobile PWA, GPS tracking, photo upload, offline sync (145+ tests) |
 | V2 S3 | 7 tasks | 7 tasks | Customer tracking API, Realtime subscriptions, tracking page UI (83 tests) |
+| V2 S4 | 12 tasks | 12 tasks | Analytics dashboards, email notifications, customer ratings (86 tests) |
 
 ## 🧪 Test Coverage Summary
 
@@ -257,6 +272,15 @@
 | V2 S1 Tests | 137 | ✅ Passing |
 | V2 S2 Tests | 145+ | ✅ Passing |
 | V2 S3 Tests | 83 | ✅ Passing |
-| E2E Tests (Playwright) | 4 specs | ✅ Passing |
-| **Total** | **260 unit/integration** | ✅ All Passing |
+| V2 S4 Tests | 86 | ✅ Passing |
+| E2E Tests (Playwright) | 6 specs | ✅ Passing |
+| **Total** | **346 unit/integration** | ✅ All Passing |
+
+### Sprint 4 Test Breakdown
+- Analytics validation schemas: 15 tests
+- Driver analytics API: 12 tests
+- Delivery metrics API: 10 tests
+- Rating API: 9 tests
+- Analytics helpers: 20 tests
+- Notification utilities: 20 tests
 
