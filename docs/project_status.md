@@ -64,11 +64,11 @@
 | Address management (V1-S2-004) | ✅ | Codex | CRUD + geocoding + validation |
 | Coverage checker (V1-S2-005) | ✅ | Codex | Google Maps Routes API + UI status |
 | Time slot picker (V1-S2-006) | ✅ | Codex | Saturday hourly windows + cutoff logic |
-| Checkout stepper (V1-S2-007) | ⬜ | Codex | Address → Time → Pay |
+| Checkout stepper (V1-S2-007) | ✅ | Codex | Address → Time → Pay stepper UI |
 
 **Task Files**: `docs/V1/tasks/V1-S2-*.md`
 
-**Sprint 2 completion**: 6/7 (86%)
+**Sprint 2 completion**: 7/7 (100%)
 
 ### Sprint 3: Payment + Confirmation (Week 3-4)
 | Task | Status | Owner | Notes |
@@ -202,7 +202,7 @@
 |--------|---------|-----------|-------|
 | V0 | 15 tasks | 15 tasks | Foundation complete |
 | V1 S1 | 6 tasks | 6 tasks | Menu data layer + category tabs + item card + menu grid + menu search + item detail modal |
-| V1 S2 | 7 tasks | 6 tasks | Cart state + drawer + summary + address management + coverage checker + time slot picker |
+| V1 S2 | 7 tasks | 7 tasks | Cart state + drawer + summary + address management + coverage checker + time slot picker + checkout stepper |
 | V1 S3 | - | - | - |
 | V1 S4 | - | - | - |
 
