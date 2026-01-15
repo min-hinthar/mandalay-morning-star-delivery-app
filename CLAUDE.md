@@ -1,7 +1,7 @@
-# CLAUDE.md — Mandalay Morning Star Project Memory (v2.0)
+# CLAUDE.md — Mandalay Morning Star Project Memory (v3.0)
 
-> **Purpose**: Concise project context for Claude CLI. Link to docs for details.
-> **Last Updated**: 2026-01-13 | **Phase**: V1 Development
+> **Purpose**: Concise project context for Claude Code. Link to docs for details.
+> **Last Updated**: 2026-01-15 | **Phase**: V1 Sprint 3 (Payment + Confirmation)
 
 ---
 
@@ -17,11 +17,19 @@
 
 ## 📊 Milestone Status
 
-| Version | Status | Focus |
-|---------|--------|-------|
-| **V0** | ✅ Done | Scaffold, Auth, DB schema, Menu seed |
-| **V1** | 🔄 Active | Full ordering flow + Admin basics |
-| **V2** | 📋 Planned | Driver ops, tracking, polish |
+| Version | Status | Progress | Focus |
+|---------|--------|----------|-------|
+| **V0** | ✅ Done | 100% | Scaffold, Auth, DB schema, Menu seed |
+| **V1** | 🔄 Active | 67% | Full ordering flow + Admin basics |
+| **V2** | 📋 Planned | 0% | Driver ops, tracking, polish |
+
+### V1 Sprint Progress
+| Sprint | Status | Tasks |
+|--------|--------|-------|
+| Sprint 1: Menu Browse | ✅ Complete | 6/6 |
+| Sprint 2: Cart + Checkout | ✅ Complete | 7/7 |
+| **Sprint 3: Payment + Confirm** | 🔄 Active | 0/7 |
+| Sprint 4: Admin Basics | 📋 Pending | 0/5 |
 
 → See [docs/project_status.md](docs/project_status.md) for detailed tracking.
 
@@ -151,16 +159,20 @@ Dramatic: 500ms cubic-bezier(0.4, 0, 0.2, 1)
 
 ---
 
-## 🔄 Workflow: Claude ↔ Codex
+## 🔄 Claude-Led Development
 
-### Roles
-- **Claude (Planning)**: Specs, checklists, reviews, architecture decisions
-- **Codex (Implementation)**: Code, tests, migrations
+### Workflow
+Claude Code handles planning, implementation, testing, and reviews as a unified workflow.
+
+### Available Skills
+- `/commit` - Standardized git commits with co-author attribution
+- `/commit-push-pr` - Full commit, push, and PR creation workflow
+- `stripe:stripe-best-practices` - Stripe integration guidance
 
 ### Branch Naming
 ```
-feat/<area>-<short>   → feat/menu-category-tabs
-fix/<area>-<short>    → fix/cart-modifier-total
+feat/<area>-<short>   → feat/stripe-checkout
+fix/<area>-<short>    → fix/webhook-signature
 ```
 
 ### PR Checklist (Must Pass)
@@ -172,6 +184,8 @@ fix/<area>-<short>    → fix/cart-modifier-total
 - [ ] Webhook signatures verified
 - [ ] Mobile-first responsive
 - [ ] Screenshot/GIF for UI changes
+
+→ See [WORKFLOW.md](WORKFLOW.md) for detailed implementation patterns.
 
 ---
 
@@ -232,17 +246,24 @@ vercel deploy --prod  # Deploy to Vercel
 
 ---
 
-## 🔮 Current Focus (V1)
+## 🔮 Current Focus (V1 Sprint 3)
 
-**Active Sprint**: Core ordering flow
+**Active Sprint**: Payment + Confirmation (CRITICAL PATH)
 
-1. Menu browsing (category tabs + search + item cards)
-2. Item detail modal (modifiers + quantity + notes)
-3. Cart drawer (subtotals + fee display)
-4. Checkout stepper (Address → Time → Payment → Confirm)
-5. Order confirmation page
-6. Basic admin menu CRUD
+### Sprint 3 Tasks (0/7)
+1. [ ] V1-S3-001: Stripe Checkout Session integration
+2. [ ] V1-S3-002: Webhook handler with signature verification
+3. [ ] V1-S3-003: Server-side order creation flow
+4. [ ] V1-S3-004: Order confirmation page
+5. [ ] V1-S3-005: Order status page with timeline
+6. [ ] V1-S3-006: Order history page
+7. [ ] V1-S3-007: Email notifications (Supabase Edge Functions)
 
-**Next Up (V2)**: Driver ops, real-time tracking, admin dashboard
+### Next Up: Sprint 4 (Admin Basics)
+- Admin layout + navigation
+- Menu item CRUD
+- Orders list view
+
+**V2 Preview**: Driver ops, real-time tracking, route optimization
 
 → Detailed specs: [docs/v1-spec.md](docs/v1-spec.md)
