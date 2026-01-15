@@ -1,9 +1,10 @@
-# Task: V1-S1-006 — Item Detail Modal
+# Task: V1-S1-006 — Item Detail Modal ✅
 
 > **Sprint**: 1 (Menu Browse)
 > **Priority**: P0
 > **Depends On**: V1-S1-003 (Item Card)
 > **Branch**: `feat/item-detail-modal`
+> **Status**: Complete (2026-01-14)
 
 ---
 
@@ -15,26 +16,26 @@ Create the item detail modal that displays full item information, modifier selec
 
 ## Acceptance Criteria
 
-- [ ] Modal opens on item card click
-- [ ] Large image displayed (if available)
-- [ ] Full description shown
-- [ ] Modifier groups with selection UI
-  - [ ] Radio buttons for `single` selection
-  - [ ] Checkboxes for `multiple` selection
-  - [ ] Min/max selection enforced
-  - [ ] Required groups marked
-- [ ] Quantity selector (1-50 range)
-- [ ] Optional notes textarea (500 char max)
-- [ ] Live price calculation updates on modifier/qty change
-- [ ] "Add to Cart" button
-  - [ ] Disabled if required modifiers missing
-  - [ ] Shows total price
-- [ ] Allergen warnings prominent
-- [ ] Close on backdrop click or X button
-- [ ] Focus trapped inside modal
-- [ ] Keyboard accessible (Esc to close)
-- [ ] Mobile-responsive layout
-- [ ] `pnpm lint && pnpm typecheck && pnpm build` pass
+- [x] Modal opens on item card click
+- [x] Large image displayed (if available)
+- [x] Full description shown
+- [x] Modifier groups with selection UI
+  - [x] Radio buttons for `single` selection
+  - [x] Checkboxes for `multiple` selection
+  - [x] Min/max selection enforced
+  - [x] Required groups marked
+- [x] Quantity selector (1-50 range)
+- [x] Optional notes textarea (500 char max)
+- [x] Live price calculation updates on modifier/qty change
+- [x] "Add to Cart" button
+  - [x] Disabled if required modifiers missing
+  - [x] Shows total price
+- [x] Allergen warnings prominent
+- [x] Close on backdrop click or X button
+- [x] Focus trapped inside modal
+- [x] Keyboard accessible (Esc to close)
+- [x] Mobile-responsive layout
+- [x] `pnpm lint && pnpm typecheck && pnpm build` pass
 
 ---
 
@@ -728,27 +729,27 @@ pnpm build
 
 ## Definition of Done
 
-1. [ ] Modal opens on item click
-2. [ ] Image displays (or placeholder)
-3. [ ] Full description shown
-4. [ ] Radio buttons for single selection
-5. [ ] Checkboxes for multiple selection
-6. [ ] Min/max selection enforced
-7. [ ] Required groups marked
-8. [ ] Quantity selector (1-50)
-9. [ ] Notes textarea (500 char)
-10. [ ] Live price calculation
-11. [ ] Add to Cart button
-12. [ ] Disabled states correct
-13. [ ] Allergen warnings
-14. [ ] Focus trap
-15. [ ] Esc to close
-16. [ ] Mobile responsive
-17. [ ] Unit tests for price calc
-18. [ ] `pnpm lint` passes
-19. [ ] `pnpm typecheck` passes
-20. [ ] `pnpm build` succeeds
-21. [ ] `docs/project_status.md` updated
+1. [x] Modal opens on item click
+2. [x] Image displays (or placeholder)
+3. [x] Full description shown
+4. [x] Radio buttons for single selection
+5. [x] Checkboxes for multiple selection
+6. [x] Min/max selection enforced
+7. [x] Required groups marked
+8. [x] Quantity selector (1-50)
+9. [x] Notes textarea (500 char)
+10. [x] Live price calculation
+11. [x] Add to Cart button
+12. [x] Disabled states correct
+13. [x] Allergen warnings
+14. [x] Focus trap
+15. [x] Esc to close
+16. [x] Mobile responsive
+17. [x] Unit tests for price calc
+18. [x] `pnpm lint` passes
+19. [x] `pnpm typecheck` passes
+20. [x] `pnpm build` succeeds
+21. [x] `docs/project_status.md` updated
 
 ---
 
