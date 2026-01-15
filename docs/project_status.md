@@ -1,7 +1,7 @@
 # docs/project_status.md — Milestone Tracking (v2.1)
 
 > **Last Updated**: 2026-01-15
-> **Current Phase**: V2 Sprint 2 Complete (Ready for Sprint 3)
+> **Current Phase**: V2 Sprint 3 Complete (Ready for Sprint 4)
 
 ---
 
@@ -154,12 +154,18 @@
 
 **Sprint 2 completion**: 6/6 (100%)
 
-### Sprint 3: Customer Tracking (Planned)
+### Sprint 3: Customer Tracking (Complete)
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Tracking API | 📋 | - | Order tracking endpoint |
-| Real-time subscriptions | 📋 | - | Supabase Realtime |
-| Tracking page UI | 📋 | - | Live map, ETA, timeline |
+| Tracking types + validation | ✅ | Claude | `src/types/tracking.ts`, Zod schemas |
+| ETA calculation utility | ✅ | Claude | Haversine distance + stop buffer (29 tests) |
+| Tracking API | ✅ | Claude | GET `/api/tracking/{orderId}` (36 tests) |
+| Realtime subscription hook | ✅ | Claude | Supabase Realtime + polling fallback (18 tests) |
+| Tracking UI components | ✅ | Claude | StatusTimeline, ETADisplay, DeliveryMap, DriverCard, OrderSummary, SupportActions |
+| Tracking page | ✅ | Claude | `/orders/[id]/tracking` with live updates |
+| E2E tests | ✅ | Claude | Authentication + page structure tests |
+
+**Sprint 3 completion**: 7/7 (100%)
 
 ### Sprint 4: Polish (Planned)
 | Task | Status | Owner | Notes |
@@ -174,8 +180,8 @@
 - [x] Driver can view assigned route + stops
 - [x] Driver can update stop status (enroute/arrived/delivered)
 - [x] Driver location updates (adaptive intervals: 2-10 min)
-- [ ] Customer sees live map when order is out_for_delivery
-- [ ] Customer sees ETA band on tracking page
+- [x] Customer sees live map when order is out_for_delivery
+- [x] Customer sees ETA band on tracking page
 - [x] Driver can capture delivery photo
 - [ ] Customer receives SMS when order is dispatched
 - [x] Route optimization suggests stop order
@@ -241,6 +247,7 @@
 | V1 S4 | 5 tasks | 5 tasks | Admin layout + menu CRUD + category management + orders list + analytics dashboard |
 | V2 S1 | 8 tasks | 8 tasks | Driver/route management APIs + UIs, route optimization (137 tests) |
 | V2 S2 | 6 tasks | 6 tasks | Driver mobile PWA, GPS tracking, photo upload, offline sync (145+ tests) |
+| V2 S3 | 7 tasks | 7 tasks | Customer tracking API, Realtime subscriptions, tracking page UI (83 tests) |
 
 ## 🧪 Test Coverage Summary
 
@@ -249,6 +256,7 @@
 | V1 Unit Tests | 128 | ✅ Passing |
 | V2 S1 Tests | 137 | ✅ Passing |
 | V2 S2 Tests | 145+ | ✅ Passing |
-| E2E Tests (Playwright) | 3+ | ✅ Passing |
-| **Total** | **410+** | ✅ All Passing |
+| V2 S3 Tests | 83 | ✅ Passing |
+| E2E Tests (Playwright) | 4 specs | ✅ Passing |
+| **Total** | **260 unit/integration** | ✅ All Passing |
 
