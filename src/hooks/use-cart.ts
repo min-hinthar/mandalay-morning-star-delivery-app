@@ -1,5 +1,1 @@
-export function useCart() {
-  return {
-    items: [],
-  };
-}
+export { useCart } from "@/lib/hooks/useCart";
