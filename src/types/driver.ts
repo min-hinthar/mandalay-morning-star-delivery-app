@@ -433,6 +433,7 @@ export interface TrackingDriverInfo {
   fullName: string | null;
   profileImageUrl: string | null;
   phone: string | null;
+  vehicleType?: VehicleType | null;
 }
 
 export interface EtaInfo {
