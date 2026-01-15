@@ -1,7 +1,7 @@
 # CLAUDE.md — Mandalay Morning Star Project Memory (v3.0)
 
 > **Purpose**: Concise project context for Claude Code. Link to docs for details.
-> **Last Updated**: 2026-01-15 | **Phase**: V2 Sprint 2 Complete (Ready for Sprint 3)
+> **Last Updated**: 2026-01-15 | **Phase**: V2 Sprint 3 Complete (Ready for Sprint 4)
 
 ---
 
@@ -21,7 +21,7 @@
 |---------|--------|----------|-------|
 | **V0** | ✅ Done | 100% | Scaffold, Auth, DB schema, Menu seed |
 | **V1** | ✅ Done | 100% | Full ordering flow + Admin basics |
-| **V2** | 🚧 In Progress | 50% | Driver ops, tracking, polish (Sprint 2/4 done) |
+| **V2** | 🚧 In Progress | 75% | Driver ops, tracking, polish (Sprint 3/4 done) |
 
 ### V1 Sprint Progress
 | Sprint | Status | Tasks |
@@ -36,7 +36,7 @@
 |--------|--------|-------|
 | Sprint 1: Admin Route Mgmt | ✅ Complete | 8/8 |
 | Sprint 2: Driver Mobile | ✅ Complete | 6/6 |
-| Sprint 3: Customer Tracking | 📋 Planned | 0/3 |
+| Sprint 3: Customer Tracking | ✅ Complete | 7/7 |
 | Sprint 4: Polish | 📋 Planned | 0/3 |
 
 → See [docs/project_status.md](docs/project_status.md) for detailed tracking.
@@ -118,9 +118,9 @@ Both constraints must pass
 
 ---
 
-## 🧪 Testing (V1 Complete)
+## 🧪 Testing (V2 Sprint 3 Complete)
 
-### Unit Tests (128 tests passing)
+### Unit Tests (260 tests passing)
 - [x] Subtotal calculation with modifiers (`order.test.ts`)
 - [x] Delivery fee threshold logic (`order.test.ts`)
 - [x] Cutoff/scheduling date selection (`delivery-dates.test.ts`)
@@ -265,9 +265,20 @@ vercel deploy --prod  # Deploy to Vercel
 
 ## 🔮 Current Focus (V2 In Progress)
 
-**V2 Sprint 2 Complete!** Driver Mobile Interface implemented with 145+ tests passing.
+**V2 Sprint 3 Complete!** Customer Tracking implemented with 260 tests passing.
 
-### V2 Sprint 2 Delivered Features
+### V2 Sprint 3 Delivered Features
+- ✅ Tracking types and validation schemas (`src/types/tracking.ts`, `src/lib/validations/tracking.ts`)
+- ✅ ETA calculation utility with Haversine distance + stop buffer (29 tests)
+- ✅ Tracking API endpoint GET `/api/tracking/{orderId}` (36 tests)
+- ✅ Supabase Realtime subscription hook with polling fallback (18 tests)
+- ✅ UI Components: StatusTimeline, ETADisplay, DeliveryMap, DriverCard, OrderSummary, SupportActions
+- ✅ Live tracking map with Google Maps (customer + driver markers)
+- ✅ TrackingPageClient with real-time updates and ETA recalculation
+- ✅ Customer tracking page (`/orders/[id]/tracking`)
+- ✅ E2E test suite for customer tracking
+
+### V2 Sprint 2 Delivered Features (Previously)
 - ✅ Driver auth + protected routes with role check
 - ✅ Driver mobile PWA layout with bottom navigation
 - ✅ Driver API endpoints (active route, stop status, location updates, photo upload, exceptions)
@@ -288,14 +299,9 @@ vercel deploy --prod  # Deploy to Vercel
 - ✅ Route optimization service (Google Routes API + nearest-neighbor fallback)
 - ✅ Admin nav updated with Drivers + Routes links
 
-### V2 Remaining Sprints
+### V2 Remaining Sprint
 
-**Sprint 3**: Customer Tracking (NEXT)
-- Tracking API (order tracking endpoint)
-- Real-time subscriptions (Supabase Realtime)
-- Tracking page UI (live map, ETA, timeline)
-
-**Sprint 4**: Polish
+**Sprint 4**: Polish (NEXT)
 - SMS notifications (Twilio)
 - Driver performance analytics
 - Delivery metrics dashboard
