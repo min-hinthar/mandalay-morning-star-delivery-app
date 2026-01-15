@@ -1,8 +1,6 @@
 "use client";
 
-import { ShoppingCart } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { CartButton } from "@/components/cart/cart-button";
 import { SearchInput } from "./search-input";
 
 interface MenuHeaderProps {
@@ -10,8 +8,6 @@ interface MenuHeaderProps {
   onSearchChange: (query: string) => void;
   onClearSearch: () => void;
   isSearching?: boolean;
-  cartItemCount?: number;
-  onCartClick?: () => void;
 }
 
 export function MenuHeader({
@@ -19,8 +15,6 @@ export function MenuHeader({
   onSearchChange,
   onClearSearch,
   isSearching = false,
-  cartItemCount = 0,
-  onCartClick,
 }: MenuHeaderProps) {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-sm">
@@ -36,23 +30,7 @@ export function MenuHeader({
             onClear={onClearSearch}
             isLoading={isSearching}
           />
-
-          {onCartClick && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onCartClick}
-              className="relative"
-              aria-label={`Shopping cart with ${cartItemCount} items`}
-            >
-              <ShoppingCart className="h-5 w-5" />
-              {cartItemCount > 0 && (
-                <Badge className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-red p-0 text-xs text-white">
-                  {cartItemCount > 99 ? "99+" : cartItemCount}
-                </Badge>
-              )}
-            </Button>
-          )}
+          <CartButton />
         </div>
       </div>
     </header>
