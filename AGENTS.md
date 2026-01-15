@@ -13,7 +13,7 @@ Implement only what the specs say. If specs are unclear:
 
 ---
 
-## Required Reading (Before Any Work)
+## 📁 Key Documentations
 
 | Priority | Document | Purpose |
 |----------|----------|---------|
