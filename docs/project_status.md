@@ -61,7 +61,7 @@
 | Cart state (Zustand) | âœ… | Codex | Add/update/remove/clear |
 | Cart drawer component | âœ… | Codex | Slide-over, mobile-first |
 | Cart summary component | âœ… | Codex | Subtotal + fee display |
-| Address management | â¬œ | Codex | CRUD + validation |
+| Address management | ƒo. | Codex | CRUD + validation |
 | Coverage checker (V1-S2-005) | ✔ | Codex | Google Maps Routes service + UI status |
 | Time slot picker | â¬œ | Codex | Saturday hourly windows |
 | Checkout stepper | â¬œ | Codex | Address â†’ Time â†’ Pay |
@@ -94,7 +94,7 @@
 - [x] Customer can view item details + modifiers
 - [ ] Customer can add items to cart with modifiers
 - [ ] Customer can manage cart (update qty, remove)
-- [ ] Customer can save/select delivery address
+- [x] Customer can save/select delivery address
 - [x] Coverage validation blocks out-of-range addresses
 - [ ] Customer can select Saturday time window
 - [ ] Cutoff logic prevents late orders for current Saturday
