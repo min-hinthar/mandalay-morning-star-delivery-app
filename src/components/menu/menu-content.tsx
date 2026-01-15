@@ -1,15 +1,15 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { MenuCategory, MenuItem as GridMenuItem } from "@/lib/queries/menu";
 import { useMenuSearch } from "@/lib/hooks/useMenu";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useScrollSpy } from "@/lib/hooks/useScrollSpy";
+import type { MenuCategory, MenuItem } from "@/types/menu";
 import { CategoryTabs } from "./category-tabs";
+import { ItemDetailModal } from "./item-detail-modal";
 import { MenuGrid } from "./menu-grid";
 import { MenuHeader } from "./menu-header";
 import { SearchResultsGrid } from "./search-results-grid";
-import type { MenuItem as SearchMenuItem } from "@/types/menu";
 
 interface MenuContentProps {
   categories: MenuCategory[];
@@ -17,6 +17,8 @@ interface MenuContentProps {
 
 export function MenuContent({ categories }: MenuContentProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const visibleCategories = useMemo(
     () => categories.filter((category) => category.items.length > 0),
@@ -75,12 +77,19 @@ export function MenuContent({ categories }: MenuContentProps) {
     }
   }, []);
 
-  const handleGridItemSelect = useCallback((item: GridMenuItem) => {
-    void item;
+  const handleGridItemSelect = useCallback((item: MenuItem) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
   }, []);
 
-  const handleSearchItemSelect = useCallback((item: SearchMenuItem) => {
-    void item;
+  const handleSearchItemSelect = useCallback((item: MenuItem) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  }, []);
+
+  const handleModalClose = useCallback(() => {
+    setIsModalOpen(false);
+    setSelectedItem(null);
   }, []);
 
   return (
@@ -114,6 +123,12 @@ export function MenuContent({ categories }: MenuContentProps) {
           onItemSelect={handleGridItemSelect}
         />
       )}
+
+      <ItemDetailModal
+        item={selectedItem}
+        open={isModalOpen}
+        onClose={handleModalClose}
+      />
     </>
   );
 }

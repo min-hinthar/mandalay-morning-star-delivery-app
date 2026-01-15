@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useCallback } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { MenuCategory } from "@/lib/queries/menu";
+import type { MenuCategory } from "@/types/menu";
 import { cn } from "@/lib/utils/cn";
 
 interface CategoryTabsProps {
