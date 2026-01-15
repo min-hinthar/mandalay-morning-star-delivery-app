@@ -58,7 +58,7 @@
 ### Sprint 2: Cart + Checkout (Week 2-3)
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Cart state (Zustand) | ⬜ | Codex | Add/update/remove/clear |
+| Cart state (Zustand) | ✅ | Codex | Add/update/remove/clear |
 | Cart drawer component | ⬜ | Codex | Slide-over, mobile-first |
 | Cart summary component | ⬜ | Codex | Subtotal + fee display |
 | Address management | ⬜ | Codex | CRUD + validation |
@@ -200,6 +200,6 @@
 |--------|---------|-----------|-------|
 | V0 | 15 tasks | 15 tasks | Foundation complete |
 | V1 S1 | 6 tasks | 6 tasks | Menu data layer + category tabs + item card + menu grid + menu search + item detail modal done |
-| V1 S2 | 7 tasks | 0 tasks | Pending S1 completion |
+| V1 S2 | 7 tasks | 1 task | Cart state completed |
 | V1 S3 | - | - | - |
 | V1 S4 | - | - | - |
