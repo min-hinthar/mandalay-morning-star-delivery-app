@@ -5,9 +5,10 @@ import { transformAddress, type AddressRow } from "../../transform";
 // POST /api/addresses/[id]/default - Set as default
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const {
       data: { user },
@@ -23,7 +24,7 @@ export async function POST(
     const { data: target, error: fetchError } = await supabase
       .from("addresses")
       .select("id")
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id)
       .returns<Pick<AddressRow, "id">>()
       .single();
@@ -46,7 +47,7 @@ export async function POST(
     const { data: address, error } = await supabase
       .from("addresses")
       .update({ is_default: true, updated_at: now })
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id)
       .select()
       .returns<AddressRow>()

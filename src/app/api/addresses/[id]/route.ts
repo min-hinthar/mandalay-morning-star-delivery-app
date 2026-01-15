@@ -8,9 +8,10 @@ import { transformAddress, type AddressRow } from "../transform";
 // GET /api/addresses/[id]
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const {
       data: { user },
@@ -26,7 +27,7 @@ export async function GET(
     const { data: address, error } = await supabase
       .from("addresses")
       .select("*")
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id)
       .returns<AddressRow>()
       .single();
@@ -51,9 +52,10 @@ export async function GET(
 // PUT /api/addresses/[id]
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const {
       data: { user },
@@ -79,7 +81,7 @@ export async function PUT(
     const { data: existing } = await supabase
       .from("addresses")
       .select("id")
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id)
       .returns<Pick<AddressRow, "id">>()
       .single();
@@ -126,7 +128,7 @@ export async function PUT(
         is_verified: true,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id)
       .select()
       .returns<AddressRow>()
@@ -147,9 +149,10 @@ export async function PUT(
 // DELETE /api/addresses/[id]
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     const {
       data: { user },
@@ -165,7 +168,7 @@ export async function DELETE(
     const { error } = await supabase
       .from("addresses")
       .delete()
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id);
 
     if (error) throw error;
