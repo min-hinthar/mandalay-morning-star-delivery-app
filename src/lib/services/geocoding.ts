@@ -1,4 +1,7 @@
-import { CoverageFailureReason } from "@/types/address";
+import {
+  type CoverageFailureReason,
+  type GeocodingResult,
+} from "@/types/address";
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
@@ -15,14 +18,6 @@ interface GoogleGeocodingResponse {
   }>;
   status: string;
   error_message?: string;
-}
-
-export interface GeocodingResult {
-  formattedAddress: string;
-  lat: number;
-  lng: number;
-  isValid: boolean;
-  reason?: CoverageFailureReason;
 }
 
 export async function geocodeAddress(address: string): Promise<GeocodingResult> {
