@@ -47,90 +47,71 @@ docs/<short>          → docs/api-contracts
 
 ---
 
-## V1 Implementation Order
+## Implementation Status
 
-### Sprint 1: Menu Browse (COMPLETE)
+### V1 (COMPLETE - All 4 Sprints)
 
-```
-✅ Task 1.1: Menu Data Layer
-✅ Task 1.2: Category Tabs Component
-✅ Task 1.3: Item Card Component
-✅ Task 1.4: Menu Grid Layout
-✅ Task 1.5: Search Component
-✅ Task 1.6: Item Detail Modal
-```
+- ✅ Sprint 1: Menu Browse (6/6 tasks)
+- ✅ Sprint 2: Cart + Checkout (7/7 tasks)
+- ✅ Sprint 3: Payment + Confirmation (7/7 tasks)
+- ✅ Sprint 4: Admin Basics (5/5 tasks)
 
-### Sprint 2: Cart + Checkout (COMPLETE)
+### V2 Progress
+
+#### Sprint 1: Admin Route Management (COMPLETE)
 
 ```
-✅ Task 2.1: Cart State (Zustand)
-✅ Task 2.2: Cart Drawer Component
-✅ Task 2.3: Cart Summary
-✅ Task 2.4: Address Management
-✅ Task 2.5: Coverage Validation
-✅ Task 2.6: Time Window Picker
-✅ Task 2.7: Checkout Stepper
+✅ V2 Database migration (drivers, routes, route_stops, etc.)
+✅ V2 Type definitions
+✅ Driver management API (CRUD + activate/deactivate)
+✅ Driver management UI (table, search, filter, modal)
+✅ Route management API (CRUD + stops)
+✅ Route management UI (date filter, status, create modal)
+✅ Route optimization service (Google Routes API)
+✅ Admin nav updates
 ```
 
-### Sprint 3: Payment + Confirmation (ACTIVE)
+#### Sprint 2: Driver Mobile Interface (COMPLETE)
 
 ```
-⬜ Task 3.1: Stripe Integration
-├── Create src/lib/stripe/server.ts
-├── Implement POST /api/checkout/session
-├── Validate cart server-side
-├── Calculate totals server-side
-├── Create order in DB (pending_payment)
-├── Create Stripe Checkout Session
-└── Test: Checkout session created correctly
-
-⬜ Task 3.2: Webhook Handler
-├── Implement POST /api/webhooks/stripe
-├── Verify Stripe signature
-├── Handle checkout.session.completed
-├── Update order status to paid
-├── Handle payment_intent.payment_failed
-└── Test: Webhook updates order correctly
-
-⬜ Task 3.3: Order Creation Flow
-├── Update src/types/order.ts to match DB schema
-├── Create src/lib/services/order.ts
-├── Snapshot prices at order creation
-└── Test: Order created with correct totals
-
-⬜ Task 3.4: Confirmation Page
-├── Create /orders/[id]/confirmation page
-├── Display order details + payment summary
-├── Clear cart on successful payment
-└── Test: Page displays correct data
-
-⬜ Task 3.5: Order Status Page
-├── Create OrderTimeline component
-├── Display status progression
-├── Show timestamps for completed steps
-└── Test: Timeline reflects current status
-
-⬜ Task 3.6: Order History Page
-├── Create /orders page
-├── Create OrderCard component
-├── Implement pagination
-└── Test: User sees their orders
-
-⬜ Task 3.7: Email Notifications
-├── Create Supabase Edge Function
-├── Send order confirmation email
-├── Trigger from webhook handler
-└── Test: Email sent on order confirmation
+✅ Driver auth + protected routes (role check in layout)
+✅ Driver mobile API endpoints:
+   ├── GET /api/driver/me
+   ├── GET /api/driver/routes/active
+   ├── GET /api/driver/routes/history
+   ├── POST /api/driver/routes/[id]/start
+   ├── POST /api/driver/routes/[id]/complete
+   ├── PATCH /api/driver/routes/[id]/stops/[stopId]
+   ├── POST /api/driver/routes/[id]/stops/[stopId]/photo
+   ├── POST /api/driver/routes/[id]/stops/[stopId]/exception
+   └── POST /api/driver/location
+✅ Driver mobile UI components:
+   ├── DriverShell, DriverNav, DriverHeader
+   ├── ActiveRouteView, StopList, StopCard
+   ├── StopDetailView, DeliveryActions
+   ├── PhotoCapture, ExceptionModal
+   ├── LocationTracker, OfflineBanner
+   └── NavigationButton
+✅ GPS tracking with adaptive intervals (2-10 min based on speed)
+✅ Offline support (IndexedDB + Service Worker)
+✅ Delivery photos storage bucket + RLS policies
+✅ Route history page
 ```
 
-### Sprint 4: Admin Basics (PENDING)
+#### Sprint 3: Customer Tracking (NEXT)
 
 ```
-⬜ Task 4.1: Admin Layout
-⬜ Task 4.2: Menu Item CRUD
-⬜ Task 4.3: Category Management
-⬜ Task 4.4: Orders List View
-⬜ Task 4.5: Basic Analytics
+📋 Tracking API (order tracking endpoint)
+📋 Real-time subscriptions (Supabase Realtime)
+📋 Tracking page UI (live map, ETA, timeline)
+```
+
+#### Sprint 4: Polish (PLANNED)
+
+```
+📋 SMS notifications (Twilio)
+📋 Driver performance analytics
+📋 Delivery metrics dashboard
 ```
 
 ---

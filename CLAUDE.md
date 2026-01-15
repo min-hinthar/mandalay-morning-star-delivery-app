@@ -1,7 +1,7 @@
 # CLAUDE.md — Mandalay Morning Star Project Memory (v3.0)
 
 > **Purpose**: Concise project context for Claude Code. Link to docs for details.
-> **Last Updated**: 2026-01-15 | **Phase**: V2 Sprint 1 Complete
+> **Last Updated**: 2026-01-15 | **Phase**: V2 Sprint 2 Complete (Ready for Sprint 3)
 
 ---
 
@@ -21,7 +21,7 @@
 |---------|--------|----------|-------|
 | **V0** | ✅ Done | 100% | Scaffold, Auth, DB schema, Menu seed |
 | **V1** | ✅ Done | 100% | Full ordering flow + Admin basics |
-| **V2** | 🚧 In Progress | 25% | Driver ops, tracking, polish |
+| **V2** | 🚧 In Progress | 50% | Driver ops, tracking, polish (Sprint 2/4 done) |
 
 ### V1 Sprint Progress
 | Sprint | Status | Tasks |
@@ -35,7 +35,7 @@
 | Sprint | Status | Tasks |
 |--------|--------|-------|
 | Sprint 1: Admin Route Mgmt | ✅ Complete | 8/8 |
-| Sprint 2: Driver Mobile | 📋 Planned | 0/4 |
+| Sprint 2: Driver Mobile | ✅ Complete | 6/6 |
 | Sprint 3: Customer Tracking | 📋 Planned | 0/3 |
 | Sprint 4: Polish | 📋 Planned | 0/3 |
 
@@ -265,9 +265,21 @@ vercel deploy --prod  # Deploy to Vercel
 
 ## 🔮 Current Focus (V2 In Progress)
 
-**V2 Sprint 1 Complete!** Admin route management implemented with 137 tests passing.
+**V2 Sprint 2 Complete!** Driver Mobile Interface implemented with 145+ tests passing.
 
-### V2 Sprint 1 Delivered Features
+### V2 Sprint 2 Delivered Features
+- ✅ Driver auth + protected routes with role check
+- ✅ Driver mobile PWA layout with bottom navigation
+- ✅ Driver API endpoints (active route, stop status, location updates, photo upload, exceptions)
+- ✅ Driver mobile UI components (ActiveRouteView, StopList, StopCard, DeliveryActions)
+- ✅ GPS location tracking with adaptive intervals (2-10 min based on speed)
+- ✅ Offline support with IndexedDB queue + service worker
+- ✅ Photo capture for delivery confirmation
+- ✅ Exception reporting modal
+- ✅ Route history page
+- ✅ Delivery photos storage bucket migration with RLS policies
+
+### V2 Sprint 1 Delivered Features (Previously)
 - ✅ Database migration for drivers, routes, route_stops, location_updates, delivery_exceptions
 - ✅ Driver management API (CRUD + activate/deactivate)
 - ✅ Driver management UI with premium table, search, filter, add modal
@@ -278,13 +290,14 @@ vercel deploy --prod  # Deploy to Vercel
 
 ### V2 Remaining Sprints
 
-**Sprint 2**: Driver Mobile Interface
-- PWA with route view, stop management, location tracking
-
-**Sprint 3**: Customer Tracking
-- Real-time status timeline, live driver map, ETA display
+**Sprint 3**: Customer Tracking (NEXT)
+- Tracking API (order tracking endpoint)
+- Real-time subscriptions (Supabase Realtime)
+- Tracking page UI (live map, ETA, timeline)
 
 **Sprint 4**: Polish
-- Delivery photos, SMS notifications, driver dashboard
+- SMS notifications (Twilio)
+- Driver performance analytics
+- Delivery metrics dashboard
 
 → Detailed specs: [docs/v2-spec.md](docs/v2-spec.md)

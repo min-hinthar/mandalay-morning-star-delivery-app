@@ -1,7 +1,7 @@
-# docs/architecture.md — System Architecture (v1.0)
+# docs/architecture.md — System Architecture (v2.0)
 
-> **Last Updated**: 2026-01-13
-> **Status**: Active development (V1)
+> **Last Updated**: 2026-01-15
+> **Status**: Active development (V2 - Driver Mobile Complete)
 
 ---
 
@@ -15,11 +15,12 @@
 │  ├── Public Pages: Menu browse, Coverage check, Order status                │
 │  ├── Auth Pages: Login, Register, Password reset                            │
 │  ├── Customer Pages: Cart, Checkout, Order history, Profile                 │
-│  ├── Admin Pages: Menu CRUD, Orders, Drivers, Analytics                     │
-│  └── Driver Pages: Route view, Status updates, Location ping                │
+│  ├── Admin Pages: Menu CRUD, Orders, Drivers, Routes, Analytics             │
+│  └── Driver Pages: Route view, Stop management, Photo capture, History      │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  UI Layer: Tailwind CSS + shadcn/ui + Framer Motion                         │
-│  State: React Query (server) + Zustand (client cart)                        │
+│  State: React Query (server) + Zustand (client cart + driver state)         │
+│  PWA: Service Worker + IndexedDB (offline support for drivers)              │
 └─────────────────────────────────────────────────────────────────────────────┘
                                      │
                                      ▼
@@ -34,7 +35,18 @@
 │  ├── /api/webhooks/stripe ─────── Stripe webhook handler                    │
 │  ├── /api/orders/** ───────────── Order queries + mutations                 │
 │  ├── /api/admin/** ────────────── Admin operations (role-gated)             │
-│  └── /api/driver/** ───────────── Driver operations (role-gated)            │
+│  │   ├── /drivers/** ────────── Driver CRUD + activation                    │
+│  │   └── /routes/** ─────────── Route management + optimization             │
+│  └── /api/driver/** ───────────── Driver operations (driver-gated)          │
+│      ├── /me ────────────────── Driver profile                              │
+│      ├── /routes/active ─────── Today's assigned route                      │
+│      ├── /routes/history ────── Past completed routes                       │
+│      ├── /routes/[id]/start ─── Start route                                 │
+│      ├── /routes/[id]/complete ─ Complete route                             │
+│      ├── /routes/[id]/stops/[stopId] ─ Update stop status                   │
+│      ├── /routes/[id]/stops/[stopId]/photo ─ Upload delivery photo          │
+│      ├── /routes/[id]/stops/[stopId]/exception ─ Report exception           │
+│      └── /location ──────────── GPS location updates                        │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  Validation: Zod schemas at all boundaries                                  │
 │  Auth: Supabase session verification                                        │
@@ -55,8 +67,9 @@
 │  ├── All core tables │ │  ├── payment.failed  │ │  └── Polyline        │
 │  └── Realtime subs   │ │  └── charge.refunded │ │                      │
 │                      │ │                      │ │  Static Maps         │
-│  Storage (v2)        │ │  Customer portal     │ │  └── Order tracking  │
-│  └── Menu images     │ │  └── Payment methods │ │                      │
+│  Storage             │ │  Customer portal     │ │  └── Order tracking  │
+│  ├── Menu images     │ │  └── Payment methods │ │                      │
+│  └── Delivery photos │ │                      │ │                      │
 └──────────────────────┘ └──────────────────────┘ └──────────────────────┘
 ```
 
@@ -99,8 +112,12 @@ mandalay-morning-star/
 │   │   └── settings/
 │   │
 │   ├── (driver)/               # Driver role required
-│   │   ├── route/
-│   │   └── history/
+│   │   ├── driver/
+│   │   │   ├── layout.tsx      # Driver shell + auth check
+│   │   │   ├── page.tsx        # Driver home (today's route)
+│   │   │   ├── route/
+│   │   │   │   └── [stopId]/   # Stop detail view
+│   │   │   └── history/        # Past routes
 │   │
 │   ├── api/                    # Route handlers
 │   │   ├── menu/
@@ -124,6 +141,17 @@ mandalay-morning-star/
 │   ├── checkout/               # CheckoutStepper, AddressForm, TimeSlotPicker
 │   ├── order/                  # OrderTimeline, OrderMap, StatusBadge
 │   ├── admin/                  # AdminTable, MenuEditor, OrderManager
+│   ├── driver/                 # Driver mobile components
+│   │   ├── DriverShell.tsx     # Driver layout wrapper
+│   │   ├── DriverNav.tsx       # Bottom navigation
+│   │   ├── ActiveRouteView.tsx # Route progress + stop list
+│   │   ├── StopCard.tsx        # Stop preview card
+│   │   ├── StopDetailView.tsx  # Full stop details
+│   │   ├── DeliveryActions.tsx # Status update buttons
+│   │   ├── PhotoCapture.tsx    # Camera capture component
+│   │   ├── ExceptionModal.tsx  # Exception reporting
+│   │   ├── LocationTracker.tsx # GPS status display
+│   │   └── OfflineBanner.tsx   # Offline status indicator
 │   └── shared/                 # Reusable patterns
 │
 ├── lib/
@@ -149,14 +177,25 @@ mandalay-morning-star/
 │   │   ├── validation.ts       # Zod schemas
 │   │   └── constants.ts        # Business rule constants
 │   │
-│   └── hooks/
-│       ├── useMenu.ts          # Menu queries
-│       ├── useCart.ts          # Cart state
-│       ├── useAuth.ts          # Auth state
-│       └── useOrder.ts         # Order queries
+│   ├── hooks/
+│   │   ├── useMenu.ts          # Menu queries
+│   │   ├── useCart.ts          # Cart state
+│   │   ├── useAuth.ts          # Auth state
+│   │   ├── useOrder.ts         # Order queries
+│   │   ├── useLocationTracking.ts # GPS tracking with adaptive intervals
+│   │   ├── useOfflineSync.ts   # Offline queue management
+│   │   └── useServiceWorker.ts # Service worker registration
+│   │
+│   └── services/
+│       ├── offline-store.ts    # IndexedDB operations
+│       └── coverage.ts         # Coverage validation
 │
 ├── stores/
-│   └── cart.ts                 # Zustand cart store
+│   ├── cart-store.ts           # Zustand cart store
+│   └── driver-store.ts         # Zustand driver state store
+│
+├── public/
+│   └── sw.js                   # Service worker for driver PWA
 │
 ├── data/
 │   └── menu.seed.yaml          # Canonical menu data
@@ -278,6 +317,85 @@ Customer                   Server                    Google Maps
    │ (valid/invalid + reason)│                         │
 ```
 
+### 3.3 Driver Delivery Flow
+
+```
+Driver                     Client                    Server                    Storage
+   │                         │                         │                         │
+   │ Open driver app         │                         │                         │
+   │────────────────────────►│                         │                         │
+   │                         │ GET /api/driver/routes/active                     │
+   │                         │────────────────────────►│                         │
+   │                         │                         │ Query today's route     │
+   │                         │◄────────────────────────│ with stops + orders     │
+   │◄────────────────────────│                         │                         │
+   │                         │                         │                         │
+   │ Start route             │                         │                         │
+   │────────────────────────►│                         │                         │
+   │                         │ POST /api/driver/routes/{id}/start                │
+   │                         │────────────────────────►│                         │
+   │                         │                         │ Update route status     │
+   │                         │◄────────────────────────│ to "in_progress"        │
+   │◄────────────────────────│                         │                         │
+   │                         │                         │                         │
+   │                         │ Start GPS tracking      │                         │
+   │                         │ (adaptive intervals)    │                         │
+   │                         │ POST /api/driver/location (every 2-10 min)        │
+   │                         │────────────────────────►│                         │
+   │                         │                         │ Insert location_update  │
+   │                         │                         │                         │
+   │ Arrive at stop          │                         │                         │
+   │────────────────────────►│                         │                         │
+   │                         │ PATCH /api/driver/routes/{id}/stops/{stopId}      │
+   │                         │────────────────────────►│ status = "arrived"      │
+   │                         │◄────────────────────────│                         │
+   │                         │                         │                         │
+   │ Capture delivery photo  │                         │                         │
+   │────────────────────────►│                         │                         │
+   │                         │ POST .../stops/{stopId}/photo                     │
+   │                         │────────────────────────►│                         │
+   │                         │                         │ Upload to Supabase ────►│
+   │                         │                         │ Update stop photo_url   │
+   │                         │◄────────────────────────│◄────────────────────────│
+   │                         │                         │                         │
+   │ Mark delivered          │                         │                         │
+   │────────────────────────►│                         │                         │
+   │                         │ PATCH .../stops/{stopId}│ status = "delivered"    │
+   │                         │────────────────────────►│                         │
+   │                         │◄────────────────────────│                         │
+   │◄────────────────────────│ Move to next stop       │                         │
+```
+
+### 3.4 Offline Sync Flow
+
+```
+Driver (Offline)           IndexedDB                  Server (when online)
+   │                         │                         │
+   │ Update stop status      │                         │
+   │ (while offline)         │                         │
+   │────────────────────────►│                         │
+   │                         │ Queue in pending-status │
+   │◄────────────────────────│                         │
+   │                         │                         │
+   │ Capture photo           │                         │
+   │ (while offline)         │                         │
+   │────────────────────────►│                         │
+   │                         │ Store blob in           │
+   │◄────────────────────────│ pending-photos          │
+   │                         │                         │
+   │   ... connection restored ...                     │
+   │                         │                         │
+   │ Online event detected   │                         │
+   │────────────────────────►│                         │
+   │                         │ syncPendingItems()      │
+   │                         │────────────────────────►│
+   │                         │                         │ Process status updates
+   │                         │                         │ Upload photos
+   │                         │◄────────────────────────│
+   │                         │ Clear synced items      │
+   │◄────────────────────────│                         │
+```
+
 ---
 
 ## 4. State Management Strategy
@@ -312,7 +430,7 @@ const { data: order } = useQuery({
 ### 4.2 Client State (Zustand)
 
 ```typescript
-// stores/cart.ts
+// stores/cart-store.ts
 interface CartItem {
   menuItemId: string;
   menuItemSlug: string;
@@ -329,12 +447,58 @@ interface CartStore {
   updateQuantity: (id: string, qty: number) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
-  
+
   // Computed (client-side for UI only — server recalculates)
   itemsSubtotal: () => number;
   estimatedDeliveryFee: () => number;
   itemCount: () => number;
 }
+```
+
+### 4.3 Driver State (Zustand + Persistence)
+
+```typescript
+// stores/driver-store.ts
+interface DriverState {
+  // Route state
+  currentRouteId: string | null;
+  currentStopIndex: number;
+
+  // Location tracking
+  isTrackingLocation: boolean;
+  lastLocation: LocationState | null;
+
+  // Offline queue
+  pendingActions: PendingAction[];
+
+  // Network status
+  isOnline: boolean;
+
+  // Actions
+  setCurrentRoute: (routeId: string | null) => void;
+  addPendingAction: (action: PendingAction) => void;
+  removePendingAction: (id: string) => void;
+  resetDriverState: () => void;
+}
+
+// Persisted to localStorage, survives app restarts
+// Pending actions synced when back online
+```
+
+### 4.4 Offline Storage (IndexedDB)
+
+```typescript
+// lib/services/offline-store.ts
+// Object stores for offline data
+const STORES = {
+  ROUTE_CACHE: 'route-cache',      // Cached route data
+  PENDING_STATUS: 'pending-status', // Queued status updates
+  PENDING_PHOTOS: 'pending-photos', // Queued photo uploads
+  PENDING_LOCATIONS: 'pending-locations', // Queued GPS updates
+};
+
+// Auto-sync when online
+export async function syncPendingItems(): Promise<SyncResult>;
 ```
 
 ---
@@ -384,9 +548,14 @@ export async function middleware(request: NextRequest) {
 | `/checkout` | 🔒 | ✅ | ✅ | ❌ |
 | `/orders` | 🔒 | ✅ own | ✅ all | ❌ |
 | `/admin/**` | ❌ | ❌ | ✅ | ❌ |
-| `/driver/**` | ❌ | ❌ | ❌ | ✅ |
+| `/admin/drivers/**` | ❌ | ❌ | ✅ | ❌ |
+| `/admin/routes/**` | ❌ | ❌ | ✅ | ❌ |
+| `/driver` | ❌ | ❌ | ❌ | ✅ |
+| `/driver/route` | ❌ | ❌ | ❌ | ✅ |
+| `/driver/history` | ❌ | ❌ | ❌ | ✅ |
 
 🔒 = Redirect to login
+❌ = Redirect to home (or `/driver` for non-drivers trying driver routes)
 
 ---
 
@@ -465,6 +634,9 @@ export async function POST(request: Request) {
 | User profile | None | - | - |
 | Orders | None | - | - |
 | Order status | Realtime | - | Supabase subscription |
+| Driver route | IndexedDB | Session | On route change |
+| Driver location | Memory | - | On new GPS reading |
+| Pending actions | IndexedDB | Until synced | On successful sync |
 
 ### 7.2 Bundle Optimization
 
