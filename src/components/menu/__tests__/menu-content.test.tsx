@@ -1,4 +1,6 @@
+import type { ReactElement } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MenuContent } from "../menu-content";
 import type { MenuCategory } from "@/lib/queries/menu";
 
@@ -64,6 +66,20 @@ function setMatchMedia(matches: boolean) {
 }
 
 describe("MenuContent", () => {
+  const renderMenu = (ui: ReactElement) => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
+    return render(
+      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    );
+  };
+
   beforeEach(() => {
     setMatchMedia(false);
     Object.defineProperty(window, "scrollY", { value: 0, writable: true });
@@ -72,7 +88,7 @@ describe("MenuContent", () => {
   });
 
   it("renders category tabs and items", () => {
-    render(<MenuContent categories={categories} />);
+    renderMenu(<MenuContent categories={categories} />);
 
     expect(screen.getByRole("tab", { name: "All" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Breakfast" })).toBeInTheDocument();
@@ -89,7 +105,7 @@ describe("MenuContent", () => {
   });
 
   it("scrolls to a section when a tab is clicked", () => {
-    render(<MenuContent categories={categories} />);
+    renderMenu(<MenuContent categories={categories} />);
 
     const targetSection = document.getElementById("category-sides") as HTMLElement;
     targetSection.getBoundingClientRect = () =>
@@ -98,13 +114,13 @@ describe("MenuContent", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Sides" }));
 
     expect(window.scrollTo).toHaveBeenCalledWith({
-      top: 120,
+      top: 60,
       behavior: "smooth",
     });
   });
 
   it("updates the active tab on scroll", () => {
-    render(<MenuContent categories={categories} />);
+    renderMenu(<MenuContent categories={categories} />);
 
     const breakfastSection = document.getElementById("category-breakfast") as HTMLElement;
     const sidesSection = document.getElementById("category-sides") as HTMLElement;

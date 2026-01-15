@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { MenuItem } from "@/lib/queries/menu";
-import { MenuItemCard } from "./menu-item-card";
+import { Loader2 } from "lucide-react";
+import type { MenuItem } from "@/types/menu";
+import { ItemCard } from "./ItemCard";
 import { MenuEmptyState } from "./menu-empty-state";
 
 interface SearchResultsGridProps {
@@ -10,6 +11,7 @@ interface SearchResultsGridProps {
   query: string;
   onItemSelect: (item: MenuItem) => void;
   onClearSearch: () => void;
+  isLoading?: boolean;
 }
 
 export function SearchResultsGrid({
@@ -17,7 +19,19 @@ export function SearchResultsGrid({
   query,
   onItemSelect,
   onClearSearch,
+  isLoading = false,
 }: SearchResultsGridProps) {
+  if (isLoading && items.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center px-4 py-20 text-center">
+        <Loader2 className="mb-3 h-8 w-8 animate-spin text-muted-foreground" />
+        <p className="text-sm text-muted">
+          Searching{query ? ` for "${query}"` : ""}...
+        </p>
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <MenuEmptyState
@@ -48,7 +62,7 @@ export function SearchResultsGrid({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.03 }}
           >
-            <MenuItemCard item={item} onSelect={onItemSelect} />
+            <ItemCard item={item} onSelect={onItemSelect} />
           </motion.div>
         ))}
       </div>
