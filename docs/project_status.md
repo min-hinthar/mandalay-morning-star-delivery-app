@@ -63,7 +63,7 @@
 | Cart summary component | âœ… | Codex | Subtotal + fee display |
 | Address management | ƒo. | Codex | CRUD + validation |
 | Coverage checker (V1-S2-005) | ✔ | Codex | Google Maps Routes service + UI status |
-| Time slot picker | â¬œ | Codex | Saturday hourly windows |
+| Time slot picker | ƒo. | Codex | Saturday hourly windows |
 | Checkout stepper | â¬œ | Codex | Address â†’ Time â†’ Pay |
 
 **Task Files**: `docs/V1/tasks/V1-S2-*.md`
@@ -96,7 +96,7 @@
 - [ ] Customer can manage cart (update qty, remove)
 - [x] Customer can save/select delivery address
 - [x] Coverage validation blocks out-of-range addresses
-- [ ] Customer can select Saturday time window
+- [x] Customer can select Saturday time window
 - [ ] Cutoff logic prevents late orders for current Saturday
 - [ ] Stripe Checkout completes payment
 - [ ] Webhook updates order to paid/confirmed
@@ -110,7 +110,7 @@
 ### V1 Test Coverage Requirements
 - [ ] Unit: Subtotal calculation with modifiers
 - [ ] Unit: Delivery fee threshold ($100)
-- [ ] Unit: Cutoff date calculation
+- [x] Unit: Cutoff date calculation
 - [ ] Unit: Coverage validation logic
 - [ ] Integration: Checkout session creation
 - [ ] Integration: Webhook processing
@@ -200,7 +200,7 @@
 |--------|---------|-----------|-------|
 | V0 | 15 tasks | 15 tasks | Foundation complete |
 | V1 S1 | 6 tasks | 6 tasks | Menu data layer + category tabs + item card + menu grid + menu search + item detail modal done |
-| V1 S2 | 7 tasks | 4 tasks | Cart state + cart drawer + cart summary + coverage checker completed |
+| V1 S2 | 7 tasks | 5 tasks | Cart state + cart drawer + cart summary + coverage checker completed |
 | V1 S3 | - | - | - |
 | V1 S4 | - | - | - |
 
