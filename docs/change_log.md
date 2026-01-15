@@ -8,12 +8,7 @@
 ## [Unreleased]
 
 ### Added
-- V1 detailed feature specifications (docs/v1-spec.md)
-- V2 detailed feature specifications (docs/v2-spec.md)
-- Comprehensive architecture documentation (docs/architecture.md)
-- Frontend design system documentation (docs/frontend-design-system.md)
-- Project status tracking (docs/project_status.md)
-- Updated CLAUDE.md with V1/V2 context
+- None yet
 
 ### Changed
 - None yet
@@ -26,7 +21,82 @@
 
 ---
 
-## [V1-S1] — 2026-01-14 (In Progress)
+## [V1] — 2026-01-15 (Complete)
+
+### Added — Sprint 1: Menu Browse
+- [FEATURE] Menu data layer (V1-S1-001) — Types, API routes, React Query hooks
+- [FEATURE] Category tabs (V1-S1-002) — Sticky, horizontal scroll, scroll-spy
+- [FEATURE] Item card (V1-S1-003) — Responsive card with image + price
+- [FEATURE] Menu grid (V1-S1-004) — Responsive grid layout
+- [FEATURE] Menu search (V1-S1-005) — Debounced, fuzzy match
+- [FEATURE] Item detail modal (V1-S1-006) — Modifiers, qty, notes
+
+### Added — Sprint 2: Cart + Checkout
+- [FEATURE] Cart state (V1-S2-001) — Zustand store: add/update/remove/clear
+- [FEATURE] Cart drawer (V1-S2-002) — Slide-over, mobile-first
+- [FEATURE] Cart summary (V1-S2-003) — Subtotal + fee display
+- [FEATURE] Address management (V1-S2-004) — CRUD + geocoding + validation
+- [FEATURE] Coverage checker (V1-S2-005) — Google Maps Routes API + UI status
+- [FEATURE] Time slot picker (V1-S2-006) — Saturday hourly windows + cutoff logic
+- [FEATURE] Checkout stepper (V1-S2-007) — Address → Time → Pay stepper UI
+
+### Added — Sprint 3: Payment + Confirmation
+- [FEATURE] Stripe integration (V1-S3-001) — Checkout Sessions API + order creation
+- [FEATURE] Webhook handler (V1-S3-002) — Signature verification + status updates
+- [FEATURE] Order creation flow (V1-S3-003) — Server-side totals + DB insertion
+- [FEATURE] Confirmation page (V1-S3-004) — Order details + cart clear
+- [FEATURE] Order status page (V1-S3-005) — Timeline component + order details
+- [FEATURE] Order history page (V1-S3-006) — Customer's orders list with cards
+- [FEATURE] Email notifications (V1-S3-007) — Supabase Edge Function + Resend
+
+### Added — Sprint 4: Admin Basics
+- [FEATURE] Admin layout + nav (V1-S4-001) — Role-gated shell + collapsible nav
+- [FEATURE] Menu item CRUD (V1-S4-002) — List, toggle active/sold-out, delete
+- [FEATURE] Category management (V1-S4-003) — Reorder, activate, add/delete
+- [FEATURE] Orders list view (V1-S4-004) — Filter, sort, status update
+- [FEATURE] Basic analytics (V1-S4-005) — Stats cards, revenue chart, popular items
+
+### Added — Test Coverage (V1 Completion)
+- [TEST] Test mock utilities — `src/test/mocks/` (google-routes, stripe, supabase)
+- [TEST] Test factories — `src/test/factories/index.ts` (menu items, modifiers, addresses, orders)
+- [TEST] Order calculation tests — `src/lib/utils/__tests__/order.test.ts` (35 tests)
+- [TEST] Coverage validation tests — `src/lib/services/__tests__/coverage.test.ts` (17 tests)
+- [TEST] Checkout session tests — `src/app/api/checkout/session/__tests__/route.test.ts` (27 tests)
+- [TEST] Webhook handler tests — `src/app/api/webhooks/stripe/__tests__/route.test.ts` (23 tests)
+- [TEST] E2E happy path tests — `e2e/happy-path.spec.ts` (Playwright)
+- [TEST] E2E error state tests — `e2e/error-states.spec.ts` (Playwright)
+- [CONFIG] Playwright setup — `playwright.config.ts` + package.json scripts
+
+### Technical Decisions
+- [DECISION] Vitest for unit/integration tests — Fast, ESM-first, excellent mocking
+- [DECISION] Playwright for E2E tests — Cross-browser, mobile testing, reliable
+- [DECISION] Focus on business logic testing — Validate order calculations, coverage, webhooks
+- [DECISION] Separate E2E from unit tests — vitest.config.ts excludes e2e/ directory
+
+### V1 Acceptance Criteria (All Met)
+- ✅ Customer can browse full menu by category
+- ✅ Customer can search menu items
+- ✅ Customer can view item details + modifiers
+- ✅ Customer can add items to cart with modifiers
+- ✅ Customer can manage cart (update qty, remove)
+- ✅ Customer can save/select delivery address
+- ✅ Coverage validation blocks out-of-range addresses
+- ✅ Customer can select Saturday time window
+- ✅ Cutoff logic prevents late orders for current Saturday
+- ✅ Stripe Checkout completes payment
+- ✅ Webhook updates order to paid/confirmed
+- ✅ Order confirmation displays correctly
+- ✅ Customer can view order history
+- ✅ Admin can CRUD menu items
+- ✅ Admin can manage categories (reorder, activate)
+- ✅ Admin can view/manage orders
+- ✅ Admin has analytics dashboard
+- ✅ Mobile-responsive across all flows
+- ✅ E2E test covers happy path
+
+---
+
+## [V1-S1] — 2026-01-14
 
 ### Added
 - [FEATURE] Menu data layer (V1-S1-001) — @Codex
