@@ -44,12 +44,12 @@
 ### Sprint 1: Menu Browse (Week 1-2)
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Menu data layer (V1-S1-001) | âœ… | Codex | Types, API routes, React Query hooks |
-| Category tabs (V1-S1-002) | âœ… | Codex | Sticky, horizontal scroll, scroll-spy |
-| Item card (V1-S1-003) | âœ… | Codex | Responsive card with image + price |
-| Menu grid (V1-S1-004) | âœ… | Codex | Responsive grid layout |
-| Menu search (V1-S1-005) | âœ… | Codex | Debounced, fuzzy match |
-| Item detail modal (V1-S1-006) | âœ… | Codex | Modifiers, qty, notes |
+| Menu data layer (V1-S1-001) | ✅ | Codex | Types, API routes, React Query hooks |
+| Category tabs (V1-S1-002) | ✅ | Codex | Sticky, horizontal scroll, scroll-spy |
+| Item card (V1-S1-003) | ✅ | Codex | Responsive card with image + price |
+| Menu grid (V1-S1-004) | ✅ | Codex | Responsive grid layout |
+| Menu search (V1-S1-005) | ✅ | Codex | Debounced, fuzzy match |
+| Item detail modal (V1-S1-006) | ✅ | Codex | Modifiers, qty, notes |
 
 **Task Files**: `docs/V1/tasks/V1-S1-*.md`
 
@@ -58,46 +58,48 @@
 ### Sprint 2: Cart + Checkout (Week 2-3)
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Cart state (Zustand) | âœ… | Codex | Add/update/remove/clear |
-| Cart drawer component | âœ… | Codex | Slide-over, mobile-first |
-| Cart summary component | âœ… | Codex | Subtotal + fee display |
-| Address management | ƒo. | Codex | CRUD + validation |
-| Coverage checker (V1-S2-005) | ✔ | Codex | Google Maps Routes service + UI status |
-| Time slot picker | ƒo. | Codex | Saturday hourly windows |
-| Checkout stepper | â¬œ | Codex | Address â†’ Time â†’ Pay |
+| Cart state (V1-S2-001) | ✅ | Codex | Zustand store: add/update/remove/clear |
+| Cart drawer (V1-S2-002) | ✅ | Codex | Slide-over, mobile-first |
+| Cart summary (V1-S2-003) | ✅ | Codex | Subtotal + fee display |
+| Address management (V1-S2-004) | ✅ | Codex | CRUD + geocoding + validation |
+| Coverage checker (V1-S2-005) | ✅ | Codex | Google Maps Routes API + UI status |
+| Time slot picker (V1-S2-006) | ✅ | Codex | Saturday hourly windows + cutoff logic |
+| Checkout stepper (V1-S2-007) | ⬜ | Codex | Address → Time → Pay |
 
 **Task Files**: `docs/V1/tasks/V1-S2-*.md`
+
+**Sprint 2 completion**: 6/7 (86%)
 
 ### Sprint 3: Payment + Confirmation (Week 3-4)
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Stripe integration | â¬œ | Codex | Checkout Sessions |
-| Webhook handler | â¬œ | Codex | Signature verification |
-| Order creation flow | â¬œ | Codex | Server-side totals |
-| Confirmation page | â¬œ | Codex | Order details display |
-| Order status page | â¬œ | Codex | Timeline component |
-| Order history page | â¬œ | Codex | Customer's orders list |
-| Email notifications | â¬œ | Codex | Confirmation email |
+| Stripe integration (V1-S3-001) | ⬜ | Codex | Checkout Sessions |
+| Webhook handler (V1-S3-002) | ⬜ | Codex | Signature verification |
+| Order creation flow (V1-S3-003) | ⬜ | Codex | Server-side totals |
+| Confirmation page (V1-S3-004) | ⬜ | Codex | Order details display |
+| Order status page (V1-S3-005) | ⬜ | Codex | Timeline component |
+| Order history page (V1-S3-006) | ⬜ | Codex | Customer's orders list |
+| Email notifications (V1-S3-007) | ⬜ | Codex | Confirmation email |
 
 ### Sprint 4: Admin Basics (Week 4)
 | Task | Status | Owner | Notes |
 |------|--------|-------|-------|
-| Admin layout + nav | â¬œ | Codex | Role-gated shell |
-| Menu item CRUD | â¬œ | Codex | Add/edit/delete items |
-| Category management | â¬œ | Codex | Reorder, activate |
-| Orders list view | â¬œ | Codex | Filter, status update |
-| Basic analytics | â¬œ | Codex | Order count, revenue |
+| Admin layout + nav (V1-S4-001) | ⬜ | Codex | Role-gated shell |
+| Menu item CRUD (V1-S4-002) | ⬜ | Codex | Add/edit/delete items |
+| Category management (V1-S4-003) | ⬜ | Codex | Reorder, activate |
+| Orders list view (V1-S4-004) | ⬜ | Codex | Filter, status update |
+| Basic analytics (V1-S4-005) | ⬜ | Codex | Order count, revenue |
 
 ### V1 Acceptance Criteria
-- [ ] Customer can browse full menu by category
+- [x] Customer can browse full menu by category
 - [x] Customer can search menu items
 - [x] Customer can view item details + modifiers
-- [ ] Customer can add items to cart with modifiers
-- [ ] Customer can manage cart (update qty, remove)
+- [x] Customer can add items to cart with modifiers
+- [x] Customer can manage cart (update qty, remove)
 - [x] Customer can save/select delivery address
 - [x] Coverage validation blocks out-of-range addresses
 - [x] Customer can select Saturday time window
-- [ ] Cutoff logic prevents late orders for current Saturday
+- [x] Cutoff logic prevents late orders for current Saturday
 - [ ] Stripe Checkout completes payment
 - [ ] Webhook updates order to paid/confirmed
 - [ ] Order confirmation displays correctly
@@ -114,7 +116,7 @@
 - [ ] Unit: Coverage validation logic
 - [ ] Integration: Checkout session creation
 - [ ] Integration: Webhook processing
-- [ ] E2E: Browse â†’ Cart â†’ Checkout â†’ Confirm
+- [ ] E2E: Browse → Cart → Checkout → Confirm
 
 ---
 
@@ -199,8 +201,8 @@
 | Sprint | Planned | Completed | Notes |
 |--------|---------|-----------|-------|
 | V0 | 15 tasks | 15 tasks | Foundation complete |
-| V1 S1 | 6 tasks | 6 tasks | Menu data layer + category tabs + item card + menu grid + menu search + item detail modal done |
-| V1 S2 | 7 tasks | 5 tasks | Cart state + cart drawer + cart summary + coverage checker completed |
+| V1 S1 | 6 tasks | 6 tasks | Menu data layer + category tabs + item card + menu grid + menu search + item detail modal |
+| V1 S2 | 7 tasks | 6 tasks | Cart state + drawer + summary + address management + coverage checker + time slot picker |
 | V1 S3 | - | - | - |
 | V1 S4 | - | - | - |
 
