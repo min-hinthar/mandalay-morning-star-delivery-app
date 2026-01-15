@@ -1,11 +1,11 @@
 import { forwardRef } from "react";
-import { MenuCategory, MenuItem } from "@/lib/queries/menu";
-import { MenuItemCard } from "./menu-item-card";
+import type { MenuCategory, MenuItem } from "@/types/menu";
+import { ItemCard } from "./ItemCard";
 
 interface MenuSectionProps {
   category: MenuCategory;
   id?: string;
-  onItemSelect?: (item: MenuItem) => void;
+  onItemSelect: (item: MenuItem) => void;
 }
 
 export const MenuSection = forwardRef<HTMLElement, MenuSectionProps>(
@@ -28,7 +28,7 @@ export const MenuSection = forwardRef<HTMLElement, MenuSectionProps>(
 
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {category.items.map((item) => (
-            <MenuItemCard key={item.id} item={item} onSelect={onItemSelect} />
+            <ItemCard key={item.id} item={item} onSelect={onItemSelect} />
           ))}
         </div>
       </section>

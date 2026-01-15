@@ -1,9 +1,10 @@
-# Task: V1-S1-005 — Search Component
+# Task: V1-S1-005 — Search Component ✅
 
 > **Sprint**: 1 (Menu Browse)
 > **Priority**: P1
 > **Depends On**: V1-S1-001 (Menu Data Layer), V1-S1-004 (Menu Grid)
 > **Branch**: `feat/menu-search`
+> **Status**: Complete (2026-01-14)
 
 ---
 
@@ -15,16 +16,16 @@ Create the menu search component with debounced input, real-time filtering, expa
 
 ## Acceptance Criteria
 
-- [ ] Search input in header area
-- [ ] Expandable on mobile (icon → full input)
-- [ ] Debounce: 300ms delay before API call
-- [ ] Searches: name_en, name_my, description_en
-- [ ] Results update grid in real-time
-- [ ] "No results" state with suggestions
-- [ ] Clear button (X) resets to category view
-- [ ] Loading indicator during search
-- [ ] Keyboard accessible (Esc to close on mobile)
-- [ ] `pnpm lint && pnpm typecheck && pnpm build` pass
+- [x] Search input in header area
+- [x] Expandable on mobile (icon → full input)
+- [x] Debounce: 300ms delay before API call
+- [x] Searches: name_en, name_my, description_en
+- [x] Results update grid in real-time
+- [x] "No results" state with suggestions
+- [x] Clear button (X) resets to category view
+- [x] Loading indicator during search
+- [x] Keyboard accessible (Esc to close on mobile)
+- [x] `pnpm lint && pnpm typecheck && pnpm build` pass
 
 ---
 
@@ -438,20 +439,20 @@ pnpm build
 
 ## Definition of Done
 
-1. [ ] SearchInput component created
-2. [ ] Debounce hook (300ms) working
-3. [ ] Mobile expandable UI
-4. [ ] Desktop always-visible UI
-5. [ ] Clear button resets search
-6. [ ] Loading indicator shows
-7. [ ] Results grid displays
-8. [ ] "No results" state works
-9. [ ] Keyboard navigation (Esc)
-10. [ ] Category tabs hidden during search
-11. [ ] `pnpm lint` passes
-12. [ ] `pnpm typecheck` passes
-13. [ ] `pnpm build` succeeds
-14. [ ] `docs/project_status.md` updated
+1. [x] SearchInput component created
+2. [x] Debounce hook (300ms) working
+3. [x] Mobile expandable UI
+4. [x] Desktop always-visible UI
+5. [x] Clear button resets search
+6. [x] Loading indicator shows
+7. [x] Results grid displays
+8. [x] "No results" state works
+9. [x] Keyboard navigation (Esc)
+10. [x] Category tabs hidden during search
+11. [x] `pnpm lint` passes
+12. [x] `pnpm typecheck` passes
+13. [x] `pnpm build` succeeds
+14. [x] `docs/project_status.md` updated
 
 ---
 
