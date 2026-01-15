@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Star, Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -26,6 +26,8 @@ interface ItemCardProps {
 export function ItemCard({ item, onSelect }: ItemCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   const tags = item.tags ?? [];
   const isPopular = tags.includes("featured") || tags.includes("popular");
@@ -39,15 +41,19 @@ export function ItemCard({ item, onSelect }: ItemCardProps) {
 
   return (
     <motion.div
-      whileHover={item.isSoldOut ? undefined : { y: -4 }}
-      whileTap={item.isSoldOut ? undefined : { scale: 0.98 }}
+      whileHover={item.isSoldOut || shouldReduceMotion ? undefined : { y: -8, scale: 1.02 }}
+      whileTap={item.isSoldOut || shouldReduceMotion ? undefined : { scale: 0.98 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
     >
       <Card
         className={cn(
-          "overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow",
+          "group overflow-hidden rounded-2xl bg-white transition-all duration-300",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2",
-          item.isSoldOut ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:shadow-md"
+          item.isSoldOut
+            ? "cursor-not-allowed opacity-60 shadow-sm"
+            : "cursor-pointer shadow-sm hover:shadow-premium"
         )}
         onClick={handleClick}
         tabIndex={item.isSoldOut ? -1 : 0}
@@ -61,9 +67,9 @@ export function ItemCard({ item, onSelect }: ItemCardProps) {
         aria-disabled={item.isSoldOut}
         aria-label={`${item.nameEn}${item.isSoldOut ? " - Sold Out" : ""}`}
       >
-        <div className="relative aspect-[4/3] bg-muted">
+        <div className="relative aspect-[4/3] bg-muted overflow-hidden">
           {isPopular && !item.isSoldOut && (
-            <Badge className="absolute left-3 top-3 z-10 border-0 bg-gold text-white shadow-md">
+            <Badge className="absolute left-3 top-3 z-10 border-0 bg-gold text-primary shadow-md">
               <Star className="mr-1 h-3 w-3 fill-current" />
               Popular
             </Badge>
@@ -77,12 +83,21 @@ export function ItemCard({ item, onSelect }: ItemCardProps) {
                 alt={item.nameEn}
                 fill
                 className={cn(
-                  "object-cover transition-opacity duration-300",
-                  imageLoaded ? "opacity-100" : "opacity-0"
+                  "object-cover transition-all duration-500 ease-out",
+                  imageLoaded ? "opacity-100" : "opacity-0",
+                  !item.isSoldOut && "group-hover:scale-110"
                 )}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 onLoadingComplete={() => setImageLoaded(true)}
                 onError={() => setImageError(true)}
+              />
+              {/* Gradient overlay on hover */}
+              <div
+                className={cn(
+                  "absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent",
+                  "opacity-0 transition-opacity duration-300",
+                  !item.isSoldOut && "group-hover:opacity-100"
+                )}
               />
             </>
           ) : (
@@ -91,11 +106,32 @@ export function ItemCard({ item, onSelect }: ItemCardProps) {
             </div>
           )}
 
+          {/* Quick Add Button - Desktop only */}
+          {!item.isSoldOut && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute bottom-3 right-3 z-10 hidden md:block"
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClick();
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 bg-white/95 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-colors"
+              >
+                <Plus className="w-4 h-4 text-brand-red" />
+                <span className="text-sm font-medium text-brand-red">Add</span>
+              </button>
+            </motion.div>
+          )}
+
           {item.isSoldOut && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+            <div className="absolute inset-0 flex items-center justify-center glass bg-black/40">
               <Badge
                 variant="secondary"
-                className="bg-white px-4 py-2 text-base text-foreground"
+                className="bg-white/90 backdrop-blur-sm px-4 py-2 text-base text-foreground shadow-lg"
               >
                 Sold Out
               </Badge>
@@ -122,7 +158,7 @@ export function ItemCard({ item, onSelect }: ItemCardProps) {
           )}
 
           <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-brand-red">
+            <span className="text-lg font-bold text-brand-red group-hover:text-gradient-gold transition-colors">
               {formatPrice(item.basePriceCents)}
             </span>
 
