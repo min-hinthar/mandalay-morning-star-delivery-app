@@ -8,24 +8,39 @@ Mandalay Morning Star is a Progressive Web App for ordering authentic Burmese cu
 
 ## Features
 
-### Completed (V0 - Skeleton)
+### V0 - Foundation (Complete)
 
-- **Authentication**: Email signup/login with Supabase Auth
-- **Coverage Checker**: Address validation with Google Maps (distance + drive time)
-- **Menu Browse**: 47 items across 8 categories with bilingual support (English/Burmese)
-- **Mobile-First UI**: Responsive design with sticky category tabs
-- **Security**: Row Level Security on all database tables
+- **Authentication**: Email signup/login with Supabase Auth (magic links)
+- **Database**: Supabase Postgres with Row Level Security
+- **Menu Seed**: 47 items across 8 categories with bilingual support (English/Burmese)
+- **CI/CD**: GitHub Actions with lint, typecheck, and build checks
 
-### Planned (V1 - Ordering)
+### V1 - Ordering (In Progress)
 
-- Shopping cart with modifiers
+#### Sprint 1: Menu Browse (Complete)
+- Category tabs with horizontal scroll and scroll-spy
+- Item cards with images, prices, and sold-out badges
+- Search with debounced fuzzy matching
+- Item detail modal with modifiers, quantity selector, and notes
+
+#### Sprint 2: Cart + Checkout (Complete)
+- Cart state with Zustand (localStorage persistence)
+- Cart drawer with item list, quantity controls, and summary
+- Address management (CRUD + geocoding)
+- Coverage validation (50 mi / 90 min from kitchen)
+- Time slot picker (Saturday hourly windows, 11 AM - 7 PM)
+- Checkout stepper (Address → Time → Payment)
+
+#### Sprint 3: Payment (Next)
 - Stripe Checkout integration
-- Order confirmation and history
+- Order creation with server-side price calculation
+- Webhook handling for order confirmation
+- Order confirmation page
 
-### Planned (V2 - Operations)
+### V2 - Operations (Planned)
 
 - Admin dashboard
-- Driver mobile app
+- Driver mobile interface
 - Real-time delivery tracking
 
 ## Tech Stack
@@ -36,67 +51,72 @@ Mandalay Morning Star is a Progressive Web App for ordering authentic Burmese cu
 | Language | TypeScript (strict) |
 | Styling | Tailwind CSS + shadcn/ui |
 | Animation | Framer Motion |
+| State | Zustand (cart) + React Query (server) |
 | Auth & DB | Supabase (Auth + Postgres + RLS) |
 | Payments | Stripe Checkout |
-| Maps | Google Maps API |
+| Maps | Google Maps API (Geocoding + Routes) |
 | Hosting | Vercel |
 
 ## Business Rules
 
 | Rule | Value |
 |------|-------|
-| Delivery Day | Saturday only, 11am-7pm PT |
+| Delivery Day | Saturday only, 11 AM - 7 PM PT |
 | Order Cutoff | Friday 3:00 PM PT |
 | Delivery Fee | $15 (free for orders $100+) |
 | Coverage | 50 miles AND 90 minutes drive time |
+| Kitchen | 750 Terrado Plaza, Suite 33, Covina, CA 91723 |
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
-- npm or pnpm
+- pnpm (recommended) or npm
 - Supabase project
-- Google Maps API key
-- Stripe account (test mode)
-
-### Environment Variables
-
-```bash
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-
-# Google Maps
-GOOGLE_MAPS_API_KEY=your_google_maps_key
-
-# Kitchen Location (default: Covina, CA)
-KITCHEN_LAT=34.0900
-KITCHEN_LNG=-117.8903
-
-# Stripe (V1)
-STRIPE_SECRET_KEY=your_stripe_secret
-STRIPE_WEBHOOK_SECRET=your_webhook_secret
-```
+- Google Maps API key (Geocoding + Routes API enabled)
+- Stripe account (test mode for development)
 
 ### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/min-hinthar/mandalay-morning-star-delivery-app.git
+cd mandalay-morning-star-delivery-app
+
 # Install dependencies
-npm install
+pnpm install
 
-# Run development server
-npm run dev
+# Copy environment variables
+cp .env.example .env.local
 
-# Seed menu data (requires Supabase connection)
-npm run seed:menu
-
-# Verify seeded data
-npm run verify:menu
+# Start development server
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the app.
+
+### Environment Variables
+
+Copy `.env.example` to `.env.local` and fill in your values:
+
+```bash
+# Supabase - Required
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Google Maps - Required for coverage checking
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+
+# Stripe - Required for payments (use test keys for development)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+
+# App URL - Optional (defaults to localhost:3000)
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
 
 ## Project Structure
 
@@ -104,51 +124,60 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 src/
 ├── app/                    # Next.js App Router pages
 │   ├── (auth)/            # Auth pages (login, signup)
-│   ├── (public)/          # Public pages (home, menu)
-│   ├── api/               # API routes
-│   └── auth/              # Auth callbacks
+│   ├── (customer)/        # Customer pages (menu, cart, checkout)
+│   ├── (public)/          # Public pages (home)
+│   ├── (admin)/           # Admin pages (menu, orders)
+│   └── api/               # API routes
 ├── components/            # React components
 │   ├── auth/              # Auth forms
-│   ├── coverage/          # Coverage checker
+│   ├── cart/              # Cart drawer, items, summary
+│   ├── checkout/          # Checkout stepper, steps
 │   ├── menu/              # Menu components
 │   └── ui/                # shadcn/ui components
 ├── lib/                   # Utilities
+│   ├── hooks/             # Custom React hooks
+│   ├── stores/            # Zustand stores
 │   ├── supabase/          # Supabase clients
-│   ├── queries/           # Database queries
-│   └── validators/        # Zod schemas
+│   ├── utils/             # Helper functions
+│   └── validations/       # Zod schemas
+├── types/                 # TypeScript types
 └── middleware.ts          # Auth middleware
 
-supabase/
-└── migrations/            # Database migrations
-
-scripts/
-├── seed-menu.ts           # Menu seeding script
-└── verify-menu.ts         # Data verification
-
 docs/
-├── PROJECT_SPEC.md        # Full requirements
-├── architecture.md        # System diagrams
+├── 00-context-pack.md     # Business context
+├── 04-data-model.md       # Database schema
+├── 05-menu.md             # Menu system
+├── 06-stripe.md           # Payment flow
 ├── project_status.md      # Progress tracking
-└── change_log.md          # Version history
+├── v1-spec.md             # V1 specifications
+└── V1/tasks/              # Task specifications
 ```
-
-## Documentation
-
-- [Project Spec](docs/PROJECT_SPEC.md) - Full requirements and engineering design
-- [Architecture](docs/architecture.md) - System diagrams and component architecture
-- [Project Status](docs/project_status.md) - Current progress and milestones
-- [Change Log](docs/change_log.md) - Version history
 
 ## Scripts
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run lint` | Run ESLint |
-| `npm run typecheck` | Run TypeScript compiler |
-| `npm run seed:menu` | Seed menu data to Supabase |
-| `npm run verify:menu` | Verify seeded menu data |
+| `pnpm dev` | Start development server |
+| `pnpm build` | Build for production |
+| `pnpm start` | Start production server |
+| `pnpm lint` | Run ESLint |
+| `pnpm typecheck` | Run TypeScript compiler |
+| `pnpm test` | Run tests |
+
+## Documentation
+
+- [Project Status](docs/project_status.md) - Current progress and milestones
+- [V1 Specification](docs/v1-spec.md) - Feature specifications
+- [Data Model](docs/04-data-model.md) - Database schema and RLS
+- [Frontend Design](docs/frontend-design-system.md) - UI/UX patterns
+
+## Contributing
+
+1. Create a feature branch: `git checkout -b feat/feature-name`
+2. Make your changes
+3. Run checks: `pnpm lint && pnpm typecheck && pnpm build`
+4. Commit with conventional commits: `git commit -m "feat: add feature"`
+5. Push and create a PR
 
 ## License
 
