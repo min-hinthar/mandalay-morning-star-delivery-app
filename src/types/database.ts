@@ -91,45 +91,54 @@ export interface AddressesRow {
   id: string;
   user_id: string;
   label: string;
-  street_address: string;
+  line_1: string;
+  line_2: string | null;
   city: string;
   state: string;
-  zip_code: string;
+  postal_code: string;
+  formatted_address: string | null;
   lat: number | null;
   lng: number | null;
   is_default: boolean;
   is_verified: boolean;
   created_at: string;
+  updated_at: string;
 }
 
 export interface AddressesInsert {
   id?: string;
   user_id: string;
   label?: string;
-  street_address: string;
+  line_1: string;
+  line_2?: string | null;
   city: string;
   state?: string;
-  zip_code: string;
+  postal_code: string;
+  formatted_address?: string | null;
   lat?: number | null;
   lng?: number | null;
   is_default?: boolean;
   is_verified?: boolean;
   created_at?: string;
+  updated_at?: string;
 }
 
 export interface AddressesUpdate {
   id?: string;
   user_id?: string;
   label?: string;
-  street_address?: string;
+  line_1?: string;
+  line_2?: string | null;
   city?: string;
   state?: string;
-  zip_code?: string;
+  postal_code?: string;
+  formatted_address?: string | null;
   lat?: number | null;
   lng?: number | null;
   is_default?: boolean;
   is_verified?: boolean;
   created_at?: string;
+  updated_at?: string;
 }
 
 export interface MenuCategoriesRow {
