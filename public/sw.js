@@ -94,7 +94,7 @@ async function networkFirst(request) {
     }
 
     return networkResponse;
-  } catch (error) {
+  } catch {
     // Network failed, try cache
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
@@ -118,7 +118,7 @@ async function cacheFirst(request) {
     const cache = await caches.open(STATIC_CACHE_NAME);
     cache.put(request, networkResponse.clone());
     return networkResponse;
-  } catch (error) {
+  } catch {
     // Return nothing if both cache and network fail
     return new Response("", { status: 503, statusText: "Service Unavailable" });
   }
