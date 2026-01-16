@@ -10,17 +10,48 @@ This sprint establishes the visual and structural foundation for the entire V3 U
 
 ## Sprint Progress
 
-| Task | Component | Status |
-|------|-----------|--------|
-| 1.1 | Design Tokens - Light Theme | ⬜ Not Started |
-| 1.2 | Design Tokens - Dark Theme | ⬜ Not Started |
-| 1.3 | Animation Tokens & Utilities | ⬜ Not Started |
-| 1.4 | Customer App Shell | ⬜ Not Started |
-| 1.5 | Checkout Flow Shell | ⬜ Not Started |
-| 1.6 | Driver App Shell | ⬜ Not Started |
-| 1.7 | Admin Dashboard Shell | ⬜ Not Started |
+| Task | Component | Status | Reference Asset |
+|------|-----------|--------|-----------------|
+| 1.1 | Design Tokens - Light Theme | 🎨 Prototype Ready | [Light-Theme.html](../../UI-Assets/P1-Foundation/Light-Theme.html) |
+| 1.2 | Design Tokens - Dark Theme | 🎨 Prototype Ready | [Dark-Theme.html](../../UI-Assets/P1-Foundation/Dark-Theme.html) |
+| 1.3 | Animation Tokens & Utilities | ⬜ Not Started | — |
+| 1.4 | Customer App Shell | ⬜ Not Started | — |
+| 1.5 | Checkout Flow Shell | ⬜ Not Started | — |
+| 1.6 | Driver App Shell | ⬜ Not Started | — |
+| 1.7 | Admin Dashboard Shell | ⬜ Not Started | — |
 
-> Update status: ⬜ Not Started → 🔄 In Progress → ✅ Complete
+> Update status: ⬜ Not Started → 🔄 In Progress → 🎨 Prototype Ready → ✅ Complete
+
+---
+
+## P1-Foundation UI Assets
+
+Design prototypes have been finalized for Tasks 1.1 and 1.2. Use these as visual reference when implementing the CSS tokens.
+
+| Asset | Description | Files |
+|-------|-------------|-------|
+| **Light Theme** | Primary brand colors + component showcase | [HTML](../../UI-Assets/P1-Foundation/Light-Theme.html) / [PNG](../../UI-Assets/P1-Foundation/Light-Theme.png) |
+| **Dark Theme** | Dark mode with warm undertones | [HTML](../../UI-Assets/P1-Foundation/Dark-Theme.html) / [PNG](../../UI-Assets/P1-Foundation/Dark-Theme.png) |
+| **Vibrant Heritage** | Alternate warm palette (optional) | [HTML](../../UI-Assets/P1-Foundation/Vibrant-Heritage.html) / [PNG](../../UI-Assets/P1-Foundation/Vibrant-Heritage.png) |
+
+### Finalized Design Tokens (from UI Assets)
+
+```css
+/* Brand Colors (updated from finalized assets) */
+--primary: #9B1B1E;           /* Bold Red from logo */
+--cta: #F4D03F;               /* Bright Gold from logo */
+--curry: #8B4513;             /* Warm brown accent */
+--jade: #2E8B57;              /* Success green */
+--cream: #FFFEF7;             /* Light background */
+--charcoal: #1A1A1A;          /* Primary text */
+--background-dark: #1a0505;   /* Dark mode background */
+
+/* Typography */
+Display: "Manrope" (sans-serif, bold headings)
+Serif: "Playfair Display" (elegant accents)
+Body: "DM Sans" (readable, geometric)
+Burmese: "Padauk" (Myanmar script)
+```
 
 ---
 
@@ -28,13 +59,20 @@ This sprint establishes the visual and structural foundation for the entire V3 U
 
 **Prompt Reference**: Prompt 1 from UX-Prompts.md
 **Output File**: `src/styles/tokens.css`
-**Status**: ⬜ Not Started
+**Status**: 🎨 Prototype Ready
+
+### Reference Asset
+> **Finalized Prototype**: [Light-Theme.html](../../UI-Assets/P1-Foundation/Light-Theme.html) | [PNG Preview](../../UI-Assets/P1-Foundation/Light-Theme.png)
+>
+> Open the HTML file in a browser to see the complete color palette, typography, and component samples. Extract the CSS tokens from the finalized design.
 
 ### Implementation Guide
-1. Run `/frontend-design`
-2. Paste the prompt content below
-3. Review generated CSS custom properties
-4. Integrate into project's global styles
+1. **Review the finalized prototype** — [Light-Theme.html](../../UI-Assets/P1-Foundation/Light-Theme.html)
+2. Run `/frontend-design`
+3. Paste the prompt content below
+4. **Ensure tokens match the finalized colors** (primary: #9B1B1E, CTA: #F4D03F)
+5. Review generated CSS custom properties
+6. Integrate into project's global styles
 
 ### Prompt Content
 
@@ -155,13 +193,20 @@ Foundation CSS variables for Mandalay Morning Star, a premium Burmese food deliv
 
 **Prompt Reference**: Prompt 2 from UX-Prompts.md
 **Output File**: `src/styles/tokens-dark.css`
-**Status**: ⬜ Not Started
+**Status**: 🎨 Prototype Ready
+
+### Reference Asset
+> **Finalized Prototype**: [Dark-Theme.html](../../UI-Assets/P1-Foundation/Dark-Theme.html) | [PNG Preview](../../UI-Assets/P1-Foundation/Dark-Theme.png)
+>
+> Open the HTML file in a browser to see the dark mode color palette with warm undertones. The dark background (#1a0505) maintains the Burmese aesthetic.
 
 ### Implementation Guide
-1. Run `/frontend-design`
-2. Paste the prompt content below
-3. Review dark mode color overrides
-4. Ensure smooth theme transitions
+1. **Review the finalized prototype** — [Dark-Theme.html](../../UI-Assets/P1-Foundation/Dark-Theme.html)
+2. Run `/frontend-design`
+3. Paste the prompt content below
+4. **Ensure dark mode uses the finalized background** (--background-dark: #1a0505)
+5. Review dark mode color overrides
+6. Ensure smooth theme transitions
 
 ### Prompt Content
 
