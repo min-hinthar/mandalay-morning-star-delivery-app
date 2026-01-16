@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireDriver } from "@/lib/auth";
 import type { RouteStats, RouteStatus } from "@/types/driver";
-
-interface DriverQueryResult {
-  id: string;
-  deliveries_count: number;
-  rating_avg: number;
-}
 
 interface RouteQueryResult {
   id: string;
@@ -42,33 +36,24 @@ export async function GET(
   request: NextRequest
 ): Promise<NextResponse<HistoryResponse | { error: string }>> {
   try {
-    const supabase = await createClient();
+    const auth = await requireDriver();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+    const { supabase, driverId } = auth;
 
-    // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    // Get driver stats
+    interface DriverStatsResult {
+      deliveries_count: number;
+      rating_avg: number;
     }
 
-    // Get driver
-    const { data: driver, error: driverError } = await supabase
+    const { data: driverStats } = await supabase
       .from("drivers")
-      .select("id, deliveries_count, rating_avg")
-      .eq("user_id", user.id)
-      .eq("is_active", true)
-      .returns<DriverQueryResult[]>()
+      .select("deliveries_count, rating_avg")
+      .eq("id", driverId)
+      .returns<DriverStatsResult[]>()
       .single();
-
-    if (driverError || !driver) {
-      return NextResponse.json(
-        { error: "Not a driver" },
-        { status: 403 }
-      );
-    }
 
     // Get limit from query params (default 20)
     const url = new URL(request.url);
@@ -78,7 +63,7 @@ export async function GET(
     const { data: routes, error: routesError } = await supabase
       .from("routes")
       .select("id, delivery_date, status, stats_json, started_at, completed_at")
-      .eq("driver_id", driver.id)
+      .eq("driver_id", driverId)
       .eq("status", "completed")
       .order("delivery_date", { ascending: false })
       .limit(limit)
@@ -111,8 +96,8 @@ export async function GET(
 
     return NextResponse.json({
       driver: {
-        deliveriesCount: driver.deliveries_count,
-        ratingAvg: driver.rating_avg,
+        deliveriesCount: driverStats?.deliveries_count ?? 0,
+        ratingAvg: driverStats?.rating_avg ?? 0,
       },
       routes: historyRoutes,
     });

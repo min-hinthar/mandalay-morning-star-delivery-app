@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireDriver } from "@/lib/auth";
 import type { RouteStats, RouteStatus, RouteStopStatus } from "@/types/driver";
 
 interface RouteParams {
   params: Promise<{ routeId: string }>;
-}
-
-interface DriverQueryResult {
-  id: string;
 }
 
 interface AddressData {
@@ -111,33 +107,12 @@ export async function GET(
 ): Promise<NextResponse<RouteDetailResponse | { error: string }>> {
   try {
     const { routeId } = await params;
-    const supabase = await createClient();
 
-    // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    const auth = await requireDriver();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-
-    // Get driver
-    const { data: driver, error: driverError } = await supabase
-      .from("drivers")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("is_active", true)
-      .returns<DriverQueryResult[]>()
-      .single();
-
-    if (driverError || !driver) {
-      return NextResponse.json(
-        { error: "Not a driver" },
-        { status: 403 }
-      );
-    }
+    const { supabase, driverId } = auth;
 
     // Get route with stops
     const { data: route, error: routeError } = await supabase
@@ -198,7 +173,7 @@ export async function GET(
     }
 
     // Verify driver owns this route
-    if (route.driver_id !== driver.id) {
+    if (route.driver_id !== driverId) {
       return NextResponse.json(
         { error: "Not authorized to view this route" },
         { status: 403 }

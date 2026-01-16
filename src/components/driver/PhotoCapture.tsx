@@ -171,6 +171,18 @@ export function PhotoCapture({
     startCamera();
   }, [capturedPhoto, startCamera]);
 
+  // Handle close - defined before confirmPhoto to avoid circular dependency
+  const handleClose = useCallback(() => {
+    stopCamera();
+    if (capturedPhoto) {
+      URL.revokeObjectURL(capturedPhoto);
+    }
+    setCapturedPhoto(null);
+    setCapturedBlob(null);
+    setError(null);
+    onClose();
+  }, [stopCamera, capturedPhoto, onClose]);
+
   // Confirm and upload
   const confirmPhoto = useCallback(async () => {
     if (!capturedBlob) return;
@@ -189,19 +201,7 @@ export function PhotoCapture({
 
     onCapture(capturedBlob);
     handleClose();
-  }, [capturedBlob, onCapture, onUpload]);
-
-  // Handle close
-  const handleClose = useCallback(() => {
-    stopCamera();
-    if (capturedPhoto) {
-      URL.revokeObjectURL(capturedPhoto);
-    }
-    setCapturedPhoto(null);
-    setCapturedBlob(null);
-    setError(null);
-    onClose();
-  }, [stopCamera, capturedPhoto, onClose]);
+  }, [capturedBlob, onCapture, onUpload, handleClose]);
 
   // Start camera when modal opens
   const handleOpen = useCallback(() => {
@@ -263,7 +263,8 @@ export function PhotoCapture({
             )}
           </>
         ) : (
-          // Photo preview
+          // Photo preview - uses blob URL which requires native img element
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={capturedPhoto}
             alt="Captured photo"

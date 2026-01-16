@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { checkRateLimit } from "@/lib/utils/rate-limit";
 
 interface ActionResult {
   error?: string;
@@ -40,6 +41,14 @@ export async function signUp(formData: FormData): Promise<ActionResult> {
     return { error: "Email is required" };
   }
 
+  // Rate limiting
+  const rateCheck = checkRateLimit(email, "signUp");
+  if (!rateCheck.allowed) {
+    return {
+      error: `Too many signup attempts. Please try again in ${rateCheck.retryAfterSeconds} seconds.`,
+    };
+  }
+
   const appUrl = await getAppUrl();
   const { error } = await supabase.auth.signInWithOtp({
     email,
@@ -63,6 +72,14 @@ export async function signIn(formData: FormData): Promise<ActionResult | void> {
 
   if (!email) {
     return { error: "Email is required" };
+  }
+
+  // Rate limiting
+  const rateCheck = checkRateLimit(email, "signIn");
+  if (!rateCheck.allowed) {
+    return {
+      error: `Too many login attempts. Please try again in ${rateCheck.retryAfterSeconds} seconds.`,
+    };
   }
 
   const appUrl = await getAppUrl();
@@ -93,6 +110,14 @@ export async function resetPassword(formData: FormData): Promise<ActionResult> {
 
   if (!email) {
     return { error: "Email is required" };
+  }
+
+  // Rate limiting
+  const rateCheck = checkRateLimit(email, "resetPassword");
+  if (!rateCheck.allowed) {
+    return {
+      error: `Too many reset attempts. Please try again in ${rateCheck.retryAfterSeconds} seconds.`,
+    };
   }
 
   const appUrl = await getAppUrl();

@@ -83,6 +83,7 @@ export function DriverCard({
         {/* Driver Avatar */}
         <div className="relative">
           {driver.profileImageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={driver.profileImageUrl}
               alt={displayName}

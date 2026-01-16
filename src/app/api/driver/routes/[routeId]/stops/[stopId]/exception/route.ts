@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireDriver } from "@/lib/auth";
 import { reportExceptionSchema } from "@/lib/validations/driver-api";
 import type { RouteStopStatus } from "@/types/driver";
 
 interface RouteParams {
   params: Promise<{ routeId: string; stopId: string }>;
-}
-
-interface DriverQueryResult {
-  id: string;
 }
 
 interface RouteQueryResult {
@@ -35,7 +31,6 @@ export async function POST(
 ): Promise<NextResponse<ReportExceptionResponse | { error: string }>> {
   try {
     const { routeId, stopId } = await params;
-    const supabase = await createClient();
 
     // Parse and validate request body
     const body = await request.json();
@@ -50,31 +45,11 @@ export async function POST(
 
     const { type, description } = parseResult.data;
 
-    // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    const auth = await requireDriver();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-
-    // Get driver
-    const { data: driver, error: driverError } = await supabase
-      .from("drivers")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("is_active", true)
-      .returns<DriverQueryResult[]>()
-      .single();
-
-    if (driverError || !driver) {
-      return NextResponse.json(
-        { error: "Not a driver" },
-        { status: 403 }
-      );
-    }
+    const { supabase, driverId } = auth;
 
     // Get route
     const { data: route, error: routeError } = await supabase
@@ -92,7 +67,7 @@ export async function POST(
     }
 
     // Verify driver owns this route
-    if (route.driver_id !== driver.id) {
+    if (route.driver_id !== driverId) {
       return NextResponse.json(
         { error: "Not authorized to report exception for this stop" },
         { status: 403 }

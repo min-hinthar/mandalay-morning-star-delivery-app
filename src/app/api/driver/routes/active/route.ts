@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireDriver } from "@/lib/auth";
 import type { RouteStats, RouteStatus, RouteStopStatus } from "@/types/driver";
 
 const TIMEZONE = "America/Los_Angeles";
@@ -12,10 +12,6 @@ function getTodayInTimezone(): string {
     day: "2-digit",
   });
   return formatter.format(new Date());
-}
-
-interface DriverQueryResult {
-  id: string;
 }
 
 interface AddressData {
@@ -115,33 +111,11 @@ interface ActiveRouteResponse {
 
 export async function GET(): Promise<NextResponse<ActiveRouteResponse | { error: string }>> {
   try {
-    const supabase = await createClient();
-
-    // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    const auth = await requireDriver();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-
-    // Get driver
-    const { data: driver, error: driverError } = await supabase
-      .from("drivers")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("is_active", true)
-      .returns<DriverQueryResult[]>()
-      .single();
-
-    if (driverError || !driver) {
-      return NextResponse.json(
-        { error: "Not a driver" },
-        { status: 403 }
-      );
-    }
+    const { supabase, driverId } = auth;
 
     // Get today's date in LA timezone
     const todayStr = getTodayInTimezone();
@@ -190,7 +164,7 @@ export async function GET(): Promise<NextResponse<ActiveRouteResponse | { error:
           )
         )
       `)
-      .eq("driver_id", driver.id)
+      .eq("driver_id", driverId)
       .eq("delivery_date", todayStr)
       .in("status", ["planned", "in_progress"])
       .order("stop_index", { referencedTable: "route_stops", ascending: true })

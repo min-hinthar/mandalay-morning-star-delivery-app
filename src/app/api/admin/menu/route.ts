@@ -1,11 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
-import type { ProfileRole } from "@/types/database";
-
-interface ProfileRow {
-  role: ProfileRole;
-}
 
 interface MenuItemRow {
   id: string;
@@ -43,37 +38,14 @@ const createMenuItemSchema = z.object({
   tags: z.array(z.string()).optional().default([]),
 });
 
-async function checkAdminAuth() {
-  const supabase = await createClient();
-
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return { error: "Unauthorized", status: 401, supabase: null };
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .returns<ProfileRow[]>()
-    .single();
-
-  if (profileError || !profile || profile.role !== "admin") {
-    return { error: "Forbidden", status: 403, supabase: null };
-  }
-
-  return { error: null, status: 200, supabase };
-}
-
 export async function GET() {
   try {
-    const auth = await checkAdminAuth();
-    if (auth.error) {
+    const auth = await requireAdmin();
+    if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const { data: items, error } = await auth.supabase!
+    const { data: items, error } = await auth.supabase
       .from("menu_items")
       .select(`
         *,
@@ -106,8 +78,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const auth = await checkAdminAuth();
-    if (auth.error) {
+    const auth = await requireAdmin();
+    if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
@@ -121,7 +93,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: item, error } = await auth.supabase!
+    const { data: item, error } = await auth.supabase
       .from("menu_items")
       .insert(parsed.data)
       .select()
