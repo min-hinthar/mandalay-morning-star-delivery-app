@@ -43,7 +43,9 @@ export function CheckoutStepper({
                 whileHover={isClickable ? { scale: 1.05 } : undefined}
                 whileTap={isClickable ? { scale: 0.95 } : undefined}
                 className={cn(
-                  "relative flex h-12 w-12 items-center justify-center rounded-full",
+                  "relative flex items-center justify-center rounded-full",
+                  // Responsive sizing
+                  "h-10 w-10 sm:h-12 sm:w-12",
                   "text-sm font-semibold transition-all duration-200",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                   isCompleted && "cursor-pointer bg-primary text-white shadow-md hover:shadow-lg",
@@ -80,7 +82,7 @@ export function CheckoutStepper({
               </span>
 
               {index < CHECKOUT_STEPS.length - 1 && (
-                <div className="mx-4 h-1 flex-1 overflow-hidden rounded-full bg-border">
+                <div className="mx-2 sm:mx-4 h-0.5 sm:h-1 flex-1 overflow-hidden rounded-full bg-border">
                   <motion.div
                     className="h-full bg-primary"
                     initial={{ width: 0 }}
