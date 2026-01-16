@@ -59,28 +59,32 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      <div className="mx-auto max-w-4xl px-4 py-8">
-        <h1 className="mb-8 text-2xl font-display font-bold text-foreground">
+      <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
+        <h1 className="mb-6 text-xl sm:text-2xl font-display font-bold text-foreground">
           Checkout
         </h1>
 
         <CheckoutStepper
           currentStep={step}
           onStepClick={handleStepClick}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         />
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-6 lg:gap-8 lg:grid-cols-3">
+          {/* Main content - order form */}
           <div className="lg:col-span-2">
-            <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+            <div className="rounded-lg border border-border bg-card p-4 sm:p-6 shadow-sm">
               {step === "address" && <AddressStep />}
               {step === "time" && <TimeStep />}
               {step === "payment" && <PaymentStep />}
             </div>
           </div>
 
+          {/* Order summary - sticky on desktop */}
           <div className="lg:col-span-1">
-            <CheckoutSummary />
+            <div className="lg:sticky lg:top-24">
+              <CheckoutSummary />
+            </div>
           </div>
         </div>
       </div>
