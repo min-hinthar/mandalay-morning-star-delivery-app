@@ -74,6 +74,15 @@ jobs:
       - name: Start Supabase Local
         run: supabase start
 
+      - name: Set Supabase Environment Variables
+        run: |
+          # Capture Supabase status once and extract variables
+          STATUS=$(supabase status --output json)
+          echo "SUPABASE_URL=$(echo $STATUS | jq -r '.api_url // .API_URL')" >> $GITHUB_ENV
+          echo "SUPABASE_ANON_KEY=$(echo $STATUS | jq -r '.anon_key // .ANON_KEY')" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(echo $STATUS | jq -r '.service_role_key // .SERVICE_ROLE_KEY')" >> $GITHUB_ENV
+          echo "SUPABASE_DB_URL=$(echo $STATUS | jq -r '.db_url // .DB_URL')" >> $GITHUB_ENV
+
       - name: Run Migrations
         run: supabase db push
 
