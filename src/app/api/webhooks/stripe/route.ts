@@ -6,7 +6,6 @@ import type Stripe from "stripe";
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export async function POST(request: Request) {
   if (!WEBHOOK_SECRET) {
@@ -137,10 +136,6 @@ async function sendOrderConfirmationEmail(orderId: string): Promise<void> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Use service role key for Edge Function authentication
-        ...(SUPABASE_SERVICE_ROLE_KEY && {
-          Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-        }),
       },
       body: JSON.stringify({ orderId }),
     });

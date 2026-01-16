@@ -290,6 +290,7 @@ export function TrackingPageClient({
             <p className="text-sm font-medium text-charcoal-600 mb-3">
               Delivery Photo
             </p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={routeStop.deliveryPhotoUrl}
               alt="Delivery confirmation"

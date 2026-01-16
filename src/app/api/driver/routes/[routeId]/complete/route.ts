@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireDriver } from "@/lib/auth";
 import { completeRouteSchema } from "@/lib/validations/driver-api";
 import type { RouteStats } from "@/types/driver";
 
 interface RouteParams {
   params: Promise<{ routeId: string }>;
-}
-
-interface DriverQueryResult {
-  id: string;
 }
 
 interface RouteQueryResult {
@@ -30,45 +26,21 @@ export async function POST(
 ): Promise<NextResponse<CompleteRouteResponse | { error: string }>> {
   try {
     const { routeId } = await params;
-    const supabase = await createClient();
 
-    // Parse request body (optional notes)
-    let notes: string | undefined;
+    // Parse request body (optional notes for future use)
     try {
       const body = await request.json();
-      const parsed = completeRouteSchema.safeParse(body);
-      if (parsed.success) {
-        notes = parsed.data.notes;
-      }
+      // Validate schema but don't store notes - for future logging/auditing
+      completeRouteSchema.safeParse(body);
     } catch {
       // Empty body is OK
     }
 
-    // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    const auth = await requireDriver();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-
-    // Get driver
-    const { data: driver, error: driverError } = await supabase
-      .from("drivers")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("is_active", true)
-      .returns<DriverQueryResult[]>()
-      .single();
-
-    if (driverError || !driver) {
-      return NextResponse.json(
-        { error: "Not a driver" },
-        { status: 403 }
-      );
-    }
+    const { supabase, driverId } = auth;
 
     // Get route
     const { data: route, error: routeError } = await supabase
@@ -86,7 +58,7 @@ export async function POST(
     }
 
     // Verify driver owns this route
-    if (route.driver_id !== driver.id) {
+    if (route.driver_id !== driverId) {
       return NextResponse.json(
         { error: "Not authorized to complete this route" },
         { status: 403 }
@@ -102,11 +74,6 @@ export async function POST(
     }
 
     // Calculate final stats
-    interface StopCountResult {
-      status: string;
-      count: number;
-    }
-
     const { data: stopCounts } = await supabase
       .from("route_stops")
       .select("status")
@@ -147,7 +114,7 @@ export async function POST(
     // Update driver's delivery count
     try {
       await supabase.rpc("increment_driver_deliveries", {
-        p_driver_id: driver.id,
+        p_driver_id: driverId,
         p_count: stats.delivered_stops,
       });
     } catch {

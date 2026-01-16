@@ -36,6 +36,7 @@ describe("Checkout Session Validation", () => {
     });
 
     it("rejects missing addressId", () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { addressId: _addressId, ...body } = validBody;
       const result = createCheckoutSessionSchema.safeParse(body);
       expect(result.success).toBe(false);
@@ -106,6 +107,7 @@ describe("Checkout Session Validation", () => {
     });
 
     it("allows optional customerNotes", () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { customerNotes: _customerNotes, ...body } = validBody;
       const result = createCheckoutSessionSchema.safeParse(body);
       expect(result.success).toBe(true);

@@ -1,11 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
-import type { ProfileRole } from "@/types/database";
-
-interface ProfileRow {
-  role: ProfileRole;
-}
 
 const updateMenuItemSchema = z.object({
   category_id: z.string().uuid("Invalid category ID").optional(),
@@ -21,37 +16,14 @@ const updateMenuItemSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
-async function checkAdminAuth() {
-  const supabase = await createClient();
-
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return { error: "Unauthorized", status: 401, supabase: null };
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .returns<ProfileRow[]>()
-    .single();
-
-  if (profileError || !profile || profile.role !== "admin") {
-    return { error: "Forbidden", status: 403, supabase: null };
-  }
-
-  return { error: null, status: 200, supabase };
-}
-
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const auth = await checkAdminAuth();
-    if (auth.error) {
+    const auth = await requireAdmin();
+    if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
@@ -65,7 +37,7 @@ export async function PATCH(
       );
     }
 
-    const { data: item, error } = await auth.supabase!
+    const { data: item, error } = await auth.supabase
       .from("menu_items")
       .update({
         ...parsed.data,
@@ -111,13 +83,13 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const auth = await checkAdminAuth();
-    if (auth.error) {
+    const auth = await requireAdmin();
+    if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     // Check if item has associated orders
-    const { count } = await auth.supabase!
+    const { count } = await auth.supabase
       .from("order_items")
       .select("*", { count: "exact", head: true })
       .eq("menu_item_id", id);
@@ -132,7 +104,7 @@ export async function DELETE(
       );
     }
 
-    const { error } = await auth.supabase!
+    const { error } = await auth.supabase
       .from("menu_items")
       .delete()
       .eq("id", id);

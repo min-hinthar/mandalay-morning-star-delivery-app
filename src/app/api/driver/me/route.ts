@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireDriver } from "@/lib/auth";
 import type { RoutesRow, RouteStats, VehicleType } from "@/types/driver";
 
 const TIMEZONE = "America/Los_Angeles";
@@ -35,17 +35,11 @@ interface DriverMeResponse {
 
 export async function GET(): Promise<NextResponse<DriverMeResponse | { error: string }>> {
   try {
-    const supabase = await createClient();
-
-    // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    const auth = await requireDriver();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+    const { supabase, driverId, userId } = auth;
 
     // Get driver profile with user data
     interface DriverQueryResult {
@@ -55,7 +49,6 @@ export async function GET(): Promise<NextResponse<DriverMeResponse | { error: st
       profile_image_url: string | null;
       deliveries_count: number;
       rating_avg: number;
-      user_id: string;
     }
 
     const { data: driver, error: driverError } = await supabase
@@ -66,18 +59,16 @@ export async function GET(): Promise<NextResponse<DriverMeResponse | { error: st
         phone,
         profile_image_url,
         deliveries_count,
-        rating_avg,
-        user_id
+        rating_avg
       `)
-      .eq("user_id", user.id)
-      .eq("is_active", true)
+      .eq("id", driverId)
       .returns<DriverQueryResult[]>()
       .single();
 
     if (driverError || !driver) {
       return NextResponse.json(
-        { error: "Not a driver" },
-        { status: 403 }
+        { error: "Failed to fetch driver profile" },
+        { status: 500 }
       );
     }
 
@@ -89,7 +80,7 @@ export async function GET(): Promise<NextResponse<DriverMeResponse | { error: st
     const { data: profile } = await supabase
       .from("profiles")
       .select("full_name")
-      .eq("id", user.id)
+      .eq("id", userId)
       .returns<ProfileQueryResult[]>()
       .single();
 
@@ -107,7 +98,7 @@ export async function GET(): Promise<NextResponse<DriverMeResponse | { error: st
     const { data: route } = await supabase
       .from("routes")
       .select("id, status, stats_json, started_at")
-      .eq("driver_id", driver.id)
+      .eq("driver_id", driverId)
       .eq("delivery_date", todayStr)
       .in("status", ["planned", "in_progress"])
       .returns<RouteQueryResult[]>()

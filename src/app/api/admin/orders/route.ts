@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import type { ProfileRole, OrderStatus } from "@/types/database";
-
-interface ProfileRow {
-  role: ProfileRole;
-}
+import { requireAdmin } from "@/lib/auth";
+import type { OrderStatus } from "@/types/database";
 
 interface OrderRow {
   id: string;
@@ -21,26 +17,11 @@ interface OrderRow {
 
 export async function GET() {
   try {
-    const supabase = await createClient();
-
-    // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const auth = await requireAdmin();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-
-    // Check admin role
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .returns<ProfileRow[]>()
-      .single();
-
-    if (profileError || !profile || profile.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const { supabase } = auth;
 
     // Fetch all orders with customer info
     const { data: orders, error: ordersError } = await supabase

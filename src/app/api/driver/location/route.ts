@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireDriver } from "@/lib/auth";
 import { locationUpdateSchema } from "@/lib/validations/driver-api";
-
-interface DriverQueryResult {
-  id: string;
-}
 
 interface LastLocationResult {
   created_at: string;
@@ -22,9 +18,7 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<LocationUpdateResponse | { error: string }>> {
   try {
-    const supabase = await createClient();
-
-    // Parse and validate request body
+    // Parse and validate request body first (before auth to fail fast on bad input)
     const body = await request.json();
     const parseResult = locationUpdateSchema.safeParse(body);
 
@@ -37,37 +31,17 @@ export async function POST(
 
     const { latitude, longitude, accuracy, heading, speed, routeId } = parseResult.data;
 
-    // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    const auth = await requireDriver();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-
-    // Get driver
-    const { data: driver, error: driverError } = await supabase
-      .from("drivers")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("is_active", true)
-      .returns<DriverQueryResult[]>()
-      .single();
-
-    if (driverError || !driver) {
-      return NextResponse.json(
-        { error: "Not a driver" },
-        { status: 403 }
-      );
-    }
+    const { supabase, driverId } = auth;
 
     // Check rate limit - get last location update
     const { data: lastUpdate } = await supabase
       .from("location_updates")
       .select("created_at")
-      .eq("driver_id", driver.id)
+      .eq("driver_id", driverId)
       .order("created_at", { ascending: false })
       .limit(1)
       .returns<LastLocationResult[]>()
@@ -94,7 +68,7 @@ export async function POST(
         .eq("id", routeId)
         .single();
 
-      if (route && route.driver_id !== driver.id) {
+      if (route && route.driver_id !== driverId) {
         return NextResponse.json(
           { error: "Route does not belong to driver" },
           { status: 403 }
@@ -107,7 +81,7 @@ export async function POST(
     const { error: insertError } = await supabase
       .from("location_updates")
       .insert({
-        driver_id: driver.id,
+        driver_id: driverId,
         route_id: routeId || null,
         latitude,
         longitude,

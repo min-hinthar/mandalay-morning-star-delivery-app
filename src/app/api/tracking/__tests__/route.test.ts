@@ -448,6 +448,7 @@ describe("Tracking API Validation Schemas", () => {
     });
 
     it("requires order to be present", () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { order: _order, ...dataWithoutOrder } = validTrackingData;
       const result = trackingDataSchema.safeParse(dataWithoutOrder);
       expect(result.success).toBe(false);
