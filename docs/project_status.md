@@ -297,13 +297,35 @@ Burmese: "Padauk" (Myanmar script)
 
 ## 🛡️ Database Security & Testing
 
+### Migration Structure (Reorganized 2026-01-16)
+
+| File | Purpose |
+|------|---------|
+| `000_initial_schema.sql` | Tables, enums, all FK indexes |
+| `001_functions_triggers.sql` | Helper functions, triggers, role checks |
+| `002_rls_policies.sql` | All RLS policies (optimized) |
+| `003_analytics.sql` | Materialized views, admin wrappers |
+| `004_storage.sql` | Storage buckets, upload policies |
+| `005_testing.sql` | pgTAP, plpgsql_check, lint helpers |
+
+### Supabase Linter Compliance (All Fixed)
+
+| Lint | Issue | Fix | Status |
+|------|-------|-----|--------|
+| 0001 | Unindexed foreign keys | Added 6 missing FK indexes | ✅ |
+| 0003 | Auth RLS initplan | `(select auth.uid())` pattern | ✅ |
+| 0005 | Unused indexes | Audited, none found | ✅ |
+| 0006 | Multiple permissive policies | Consolidated with OR conditions | ✅ |
+
 ### Security Measures (Implemented)
 | Measure | Status | Migration |
 |---------|--------|-----------|
-| RLS enabled on all tables | ✅ | Base migrations |
-| Admin role checks via SECURITY DEFINER | ✅ | `20260122000001_security_fixes.sql` |
-| Immutable search_path on all functions | ✅ | `20260122000001_security_fixes.sql` |
-| Materialized views restricted to admin | ✅ | `20260122000001_security_fixes.sql` |
+| RLS enabled on all tables | ✅ | `002_rls_policies.sql` |
+| Admin role checks via SECURITY DEFINER | ✅ | `001_functions_triggers.sql` |
+| Immutable search_path on all functions | ✅ | `001_functions_triggers.sql` |
+| Materialized views restricted to admin | ✅ | `003_analytics.sql` |
+| FK columns indexed for JOIN performance | ✅ | `000_initial_schema.sql` |
+| Auth initplan optimization in all policies | ✅ | `002_rls_policies.sql` |
 
 ### Database Testing Infrastructure
 | Tool | Purpose | Status |
@@ -311,6 +333,16 @@ Burmese: "Padauk" (Myanmar script)
 | plpgsql_check | Static analysis for PL/pgSQL | ✅ Enabled |
 | pgTAP | Unit testing framework | ✅ Enabled |
 | CI Integration | Automated testing on PR | ✅ Configured |
+
+### Testing Helper Functions (in `testing` schema)
+| Function | Purpose |
+|----------|---------|
+| `testing.lint_all_functions()` | Run plpgsql_check on all functions |
+| `testing.lint_function(name)` | Lint a specific function |
+| `testing.check_function_search_paths()` | Audit SECURITY DEFINER functions |
+| `testing.check_rls_enabled()` | Verify RLS on all tables |
+| `testing.check_unindexed_foreign_keys()` | Find missing FK indexes (lint 0001) |
+| `testing.check_multiple_permissive_policies()` | Find policy conflicts (lint 0006) |
 
 ### pgTAP Test Coverage
 | Test File | Tests | Focus |

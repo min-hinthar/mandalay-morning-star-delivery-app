@@ -170,7 +170,16 @@ src/
 │   ├── utils/             # Helper functions
 │   └── validations/       # Zod schemas
 ├── types/                 # TypeScript types
-└── middleware.ts          # Auth middleware
+└── proxy.ts               # Auth proxy (Next.js 16)
+
+supabase/
+└── migrations/            # Database migrations (ordered)
+    ├── 000_initial_schema.sql      # Tables, enums, indexes
+    ├── 001_functions_triggers.sql  # Helper functions, triggers
+    ├── 002_rls_policies.sql        # Row-level security
+    ├── 003_analytics.sql           # Materialized views
+    ├── 004_storage.sql             # Storage buckets
+    └── 005_testing.sql             # pgTAP + linting
 
 docs/
 ├── 00-context-pack.md     # Business context
@@ -178,9 +187,24 @@ docs/
 ├── 05-menu.md             # Menu system
 ├── 06-stripe.md           # Payment flow
 ├── project_status.md      # Progress tracking
+├── change_log.md          # Change history
 ├── v1-spec.md             # V1 specifications
 └── V1/tasks/              # Task specifications
 ```
+
+## Database Security
+
+The database migrations implement Supabase security best practices:
+
+| Feature | Implementation |
+|---------|----------------|
+| Row-Level Security | Enabled on all tables with consolidated policies |
+| Auth Optimization | `(select auth.uid())` pattern for query performance |
+| Role Checks | `is_admin()`, `is_driver()` SECURITY DEFINER functions |
+| FK Indexes | All foreign key columns indexed for JOIN performance |
+| Function Security | All functions have immutable `search_path` |
+
+Run `SELECT * FROM testing.check_rls_enabled()` to verify RLS status.
 
 ## Scripts
 

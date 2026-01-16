@@ -11,6 +11,41 @@
 - None yet
 
 ### Changed
+- [REFACTOR] Complete database migration reorganization — @Claude
+  - Consolidated 11 migrations into 6 with 3-digit numbering (000-005)
+  - New structure:
+    - `000_initial_schema.sql` — Tables, enums, indexes
+    - `001_functions_triggers.sql` — Helper functions, triggers
+    - `002_rls_policies.sql` — All RLS policies (optimized)
+    - `003_analytics.sql` — Materialized views
+    - `004_storage.sql` — Storage buckets/policies
+    - `005_testing.sql` — pgTAP and linting utilities
+  - **BREAKING**: Existing databases require fresh migration
+
+### Fixed
+- [CI] Fixed Stripe build error — @Claude
+  - `src/lib/stripe/server.ts`: Changed to lazy initialization via Proxy
+  - Env var check now happens at runtime, not build time
+  - CI build no longer requires `STRIPE_SECRET_KEY` during build phase
+
+- [PERF] Fixed Supabase linter issue 0001: Unindexed foreign keys — @Claude
+  - Added indexes for:
+    - `orders.address_id`
+    - `order_items.menu_item_id`
+    - `order_item_modifiers.modifier_option_id`
+    - `delivery_exceptions.resolved_by`
+    - `driver_ratings.route_stop_id`
+    - `item_modifier_groups.group_id`
+
+- [PERF] Fixed Supabase linter issue 0003: Auth RLS initplan — @Claude
+  - Changed all `auth.uid()` → `(select auth.uid())` in RLS policies
+  - Prevents function re-evaluation per row (significant performance boost)
+
+- [SECURITY] Fixed Supabase linter issue 0006: Multiple permissive policies — @Claude
+  - Consolidated overlapping SELECT policies using OR conditions
+  - Prevents unexpected policy interactions
+  - Example: `user_id = (select auth.uid()) OR public.is_admin()`
+
 - [MIGRATION] Migrated `middleware.ts` to `proxy.ts` for Next.js 16 compatibility — @Claude
   - Renamed `src/middleware.ts` → `src/proxy.ts`
   - Changed export function `middleware` → `proxy`
