@@ -60,10 +60,40 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:ci
 
+  db-test:
+    name: Database Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase Local
+        run: supabase start
+
+      - name: Run Migrations
+        run: supabase db push
+
+      - name: Run DB Lint (plpgsql_check)
+        run: |
+          # Check for SECURITY DEFINER functions without search_path
+          supabase db lint
+
+      - name: Run pgTAP Tests
+        run: |
+          supabase test db
+
+      - name: Stop Supabase
+        if: always()
+        run: supabase stop
+
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [lint, typecheck, test]
+    needs: [lint, typecheck, test, db-test]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

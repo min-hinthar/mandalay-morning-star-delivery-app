@@ -11,10 +11,50 @@
 - None yet
 
 ### Changed
-- None yet
+- [MIGRATION] Migrated `middleware.ts` to `proxy.ts` for Next.js 16 compatibility — @Claude
+  - Renamed `src/middleware.ts` → `src/proxy.ts`
+  - Changed export function `middleware` → `proxy`
+  - Resolves deprecation warning: "The middleware file convention is deprecated. Please use proxy instead."
+  - No config changes needed (no middleware-related options in next.config.ts)
 
 ### Fixed
-- None yet
+- [BUILD] Fixed Next.js 16.1.2 deprecation warning for middleware file convention
+
+- [SECURITY] Fixed profiles RLS policy infinite recursion (42P17) — @Claude
+  - Created `public.is_admin()` and `public.is_driver()` SECURITY DEFINER functions
+  - Replaced all admin policy subqueries with secure function calls
+  - Migration: `20260122000001_security_fixes.sql`
+
+- [SECURITY] Fixed function search_path mutable vulnerability — @Claude
+  - Added `SET search_path = public` to all SECURITY DEFINER functions:
+    - `update_updated_at_column()`, `test_rls_isolation()`
+    - `get_driver_latest_location()`, `calculate_route_stats()`
+    - `refresh_analytics_views()`, `get_driver_performance()`
+    - `update_driver_rating_avg()`, `update_driver_deliveries_count()`
+
+- [SECURITY] Fixed materialized views accessible via public API — @Claude
+  - Revoked SELECT on `driver_stats_mv` and `delivery_metrics_mv` from authenticated
+  - Created admin-only wrapper functions: `get_driver_stats_admin()`, `get_delivery_metrics_admin()`
+  - Created `refresh_analytics_views_admin()` with admin check
+
+### Added (Infrastructure)
+- [INFRA] Added Supabase database linting with plpgsql_check — @Claude
+  - Extension enabled in `20260122000002_enable_testing_extensions.sql`
+  - Helper functions: `testing.lint_all_functions()`, `testing.lint_function()`
+  - `testing.check_function_search_paths()` for security audits
+
+- [INFRA] Added pgTAP database unit testing framework — @Claude
+  - Test files in `supabase/tests/`:
+    - `00_rls_policies.test.sql` - RLS enablement tests (20 tests)
+    - `01_function_security.test.sql` - Function security tests (15 tests)
+    - `02_materialized_views.test.sql` - Access control tests (8 tests)
+  - Helper: `testing.check_rls_enabled()` for RLS audit
+
+- [CI] Added database testing job to CI pipeline — @Claude
+  - New `db-test` job in `.github/workflows/ci.yml`
+  - Runs `supabase db lint` for plpgsql_check
+  - Runs `supabase test db` for pgTAP tests
+  - Build now depends on database tests passing
 
 ### Removed
 - None yet
