@@ -14,7 +14,7 @@
 - **Driver**: Mobile PWA for deliveries, route management, status updates
 - **Admin**: Dashboard, analytics, order management, driver coordination
 
-**Quality Bar**: Premium, warm Burmese aesthetic — NOT generic AI slop. Every interaction should feel intentional, delightful, and efficient.
+**Quality Bar**: Premium, warm Burmese aesthetic — NOT generic AI slop. Every interaction should feel responsive, active, animated, intentional, exciting, and efficient.
 
 ---
 
@@ -115,20 +115,86 @@ Burmese: "Padauk" / "Noto Sans Myanmar"
 
 ---
 
+## Build Implementation
+
+After completing the 4-phase UX pipeline, implementation proceeds via sprint-organized build tasks using the `/frontend-design` skill.
+
+### Build Task Files
+
+| Sprint | Focus | Tasks | Status |
+|--------|-------|-------|--------|
+| [Sprint-1-Foundation.md](build-tasks/Sprint-1-Foundation.md) | Design tokens, layouts | 7 | 🔄 In Progress |
+| [Sprint-2-Base-Components.md](build-tasks/Sprint-2-Base-Components.md) | Buttons, inputs, cards | 6 | ⬜ Not Started |
+| [Sprint-3-Cart-Checkout.md](build-tasks/Sprint-3-Cart-Checkout.md) | Cart, checkout flow | 5 | ⬜ Not Started |
+| [Sprint-4-Tracking-Driver.md](build-tasks/Sprint-4-Tracking-Driver.md) | Tracking, driver UI | 3 | ⬜ Not Started |
+| [Sprint-5-Admin-Interactions.md](build-tasks/Sprint-5-Admin-Interactions.md) | Admin, animations | 6 | ⬜ Not Started |
+| [Sprint-6-States-Polish.md](build-tasks/Sprint-6-States-Polish.md) | States, accessibility | 8 | ⬜ Not Started |
+
+**Workflow Guide**: [build-tasks/CLAUDE.md](build-tasks/CLAUDE.md)
+
+---
+
+## Finalized UI Assets
+
+Design prototypes generated from build prompts:
+
+### P1-Foundation (Complete)
+
+| Asset | Description | Files |
+|-------|-------------|-------|
+| Light Theme | Primary brand colors + components | [HTML](../UI-Assets/P1-Foundation/Light-Theme.html) / [PNG](../UI-Assets/P1-Foundation/Light-Theme.png) |
+| Dark Theme | Dark mode with warm undertones | [HTML](../UI-Assets/P1-Foundation/Dark-Theme.html) / [PNG](../UI-Assets/P1-Foundation/Dark-Theme.png) |
+| Vibrant Heritage | Alternate warm palette | [HTML](../UI-Assets/P1-Foundation/Vibrant-Heritage.html) / [PNG](../UI-Assets/P1-Foundation/Vibrant-Heritage.png) |
+
+### Finalized Design Tokens (from UI Assets)
+
+```css
+/* Brand Colors (updated from finalized assets) */
+--primary: #9B1B1E;           /* Bold Red from logo */
+--cta: #F4D03F;               /* Bright Gold from logo */
+--curry: #8B4513;             /* Warm brown accent */
+--jade: #2E8B57;              /* Success green */
+--cream: #FFFEF7;             /* Light background */
+--charcoal: #1A1A1A;          /* Primary text */
+--background-dark: #1a0505;   /* Dark mode background */
+
+/* Typography */
+Display: "Manrope" (sans-serif, bold headings)
+Serif: "Playfair Display" (elegant accents)
+Body: "DM Sans" (readable, geometric)
+Burmese: "Padauk" (Myanmar script)
+```
+
+---
+
 ## Generated Artifacts
 
-All outputs will be saved in this directory:
+All outputs are organized as follows:
 
 ```
-docs/V3/UX-Specs/
-├── CLAUDE.md                          # This file
-├── PRD.md                             # Phase 1 output
-├── PRD-clarification-session.md       # Phase 2 output
-├── UX-Specs.md                        # Phase 3 output
-├── UX-Prompts.md                      # Phase 4 output
-└── tasks/
-    ├── 01-mvp-prd-task.md
-    ├── 02-prd-clarify-task.md
-    ├── 03-prd-ux-task.md
-    └── 04-ux-prompts-task.md
+docs/V3/
+├── UX-Specs/
+│   ├── CLAUDE.md                          # This file
+│   ├── PRD.md                             # Phase 1 output
+│   ├── PRD-clarification-session.md       # Phase 2 output
+│   ├── UX-Specs.md                        # Phase 3 output
+│   ├── UX-Prompts.md                      # Phase 4 output
+│   ├── tasks/
+│   │   ├── 01-mvp-prd-task.md
+│   │   ├── 02-prd-clarify-task.md
+│   │   ├── 03-prd-ux-task.md
+│   │   └── 04-ux-prompts-task.md
+│   └── build-tasks/
+│       ├── CLAUDE.md                      # Build workflow guide
+│       ├── Sprint-1-Foundation.md
+│       ├── Sprint-2-Base-Components.md
+│       ├── Sprint-3-Cart-Checkout.md
+│       ├── Sprint-4-Tracking-Driver.md
+│       ├── Sprint-5-Admin-Interactions.md
+│       └── Sprint-6-States-Polish.md
+└── UI-Assets/
+    └── P1-Foundation/
+        ├── Light-Theme.html/.png
+        ├── Dark-Theme.html/.png
+        └── Vibrant-Heritage.html/.png
 ```
