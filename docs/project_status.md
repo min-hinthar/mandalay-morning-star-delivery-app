@@ -290,7 +290,35 @@ Burmese: "Padauk" (Myanmar script)
 
 | Issue | Severity | Status | Notes |
 |-------|----------|--------|-------|
-| None yet | - | - | V0 just completed |
+| ~~Middleware deprecation warning~~ | Low | ✅ Fixed | Migrated `middleware.ts` → `proxy.ts` for Next.js 16 |
+| ~~Supabase profiles policy recursion~~ | High | ✅ Fixed | Created `public.is_admin()` SECURITY DEFINER function to avoid recursion |
+| ~~Function search_path mutable~~ | High | ✅ Fixed | All SECURITY DEFINER functions now have `SET search_path = public` |
+| ~~Materialized views public access~~ | Medium | ✅ Fixed | Revoked public SELECT, created admin-only wrapper functions |
+
+## 🛡️ Database Security & Testing
+
+### Security Measures (Implemented)
+| Measure | Status | Migration |
+|---------|--------|-----------|
+| RLS enabled on all tables | ✅ | Base migrations |
+| Admin role checks via SECURITY DEFINER | ✅ | `20260122000001_security_fixes.sql` |
+| Immutable search_path on all functions | ✅ | `20260122000001_security_fixes.sql` |
+| Materialized views restricted to admin | ✅ | `20260122000001_security_fixes.sql` |
+
+### Database Testing Infrastructure
+| Tool | Purpose | Status |
+|------|---------|--------|
+| plpgsql_check | Static analysis for PL/pgSQL | ✅ Enabled |
+| pgTAP | Unit testing framework | ✅ Enabled |
+| CI Integration | Automated testing on PR | ✅ Configured |
+
+### pgTAP Test Coverage
+| Test File | Tests | Focus |
+|-----------|-------|-------|
+| `00_rls_policies.test.sql` | 20 | RLS enablement verification |
+| `01_function_security.test.sql` | 15 | Function security & search_path |
+| `02_materialized_views.test.sql` | 8 | Access control verification |
+| **Total** | **43** | Database security |
 
 ---
 
