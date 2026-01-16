@@ -20,11 +20,12 @@ ON CONFLICT (id) DO UPDATE SET
   allowed_mime_types = EXCLUDED.allowed_mime_types;
 
 -- ===========================================
--- 2. STORAGE RLS POLICIES
+-- 2. STORAGE RLS POLICIES (idempotent)
 -- Using consolidated policies with (select auth.uid())
 -- ===========================================
 
 -- Upload: Drivers can upload to their own routes
+DROP POLICY IF EXISTS "delivery_photos_insert" ON storage.objects;
 CREATE POLICY "delivery_photos_insert" ON storage.objects
 FOR INSERT TO authenticated
 WITH CHECK (
@@ -38,6 +39,7 @@ WITH CHECK (
 );
 
 -- Read: Drivers can read their own OR admin can read all
+DROP POLICY IF EXISTS "delivery_photos_select" ON storage.objects;
 CREATE POLICY "delivery_photos_select" ON storage.objects
 FOR SELECT TO authenticated
 USING (
@@ -55,6 +57,7 @@ USING (
 );
 
 -- Delete: Drivers can delete their own photos before route completion
+DROP POLICY IF EXISTS "delivery_photos_delete" ON storage.objects;
 CREATE POLICY "delivery_photos_delete" ON storage.objects
 FOR DELETE TO authenticated
 USING (
