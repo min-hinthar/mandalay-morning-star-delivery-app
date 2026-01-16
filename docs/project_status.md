@@ -1,7 +1,7 @@
 # docs/project_status.md — Milestone Tracking (v2.1)
 
 > **Last Updated**: 2026-01-15
-> **Current Phase**: V2 Complete - All Sprints Finished
+> **Current Phase**: V3 In Progress - UX Redesign (Sprint 1: Foundation)
 
 ---
 
@@ -12,7 +12,7 @@
 | **V0** | ✅ Complete | - | Scaffold + Foundation |
 | **V1** | ✅ Complete | Week 4 | Full Ordering Flow |
 | **V2** | ✅ Complete | Week 8 | Driver Ops + Tracking + Analytics |
-| **V3** | 💭 Future | TBD | Scale + Polish |
+| **V3** | 🔄 In Progress | - | World-Class UX Redesign |
 
 ---
 
@@ -202,7 +202,74 @@
 
 ---
 
-## ðŸ’­ V3: Scale + Polish (Future)
+## 🎨 V3: World-Class UX Redesign (In Progress)
+
+> **Goal**: Transform Mandalay Morning Star into a world-class food ordering experience
+> **Status**: UX Pipeline Complete → Build Tasks Defined → P1-Foundation Assets Finalized
+
+### V3 UX Pipeline (Complete)
+
+| Phase | Skill | Status | Output |
+|-------|-------|--------|--------|
+| 1. PRD Generation | `/mvp-prd` | ✅ Complete | `docs/V3/UX-Specs/PRD.md` |
+| 2. PRD Clarification | `/prd-clarify` | ✅ Complete | `docs/V3/UX-Specs/PRD-clarification-session.md` (35 Q&A) |
+| 3. UX Specification | `/prd-ux` | ✅ Complete | `docs/V3/UX-Specs/UX-Specs.md` (6-pass design) |
+| 4. Build Prompts | `/ux-prompts` | ✅ Complete | `docs/V3/UX-Specs/UX-Prompts.md` (35 prompts) |
+
+### V3 Build Sprints
+
+| Sprint | Focus | Tasks | Status |
+|--------|-------|-------|--------|
+| Sprint 1 | Foundation & Layout | 7 | 🔄 In Progress |
+| Sprint 2 | Base UI Components | 6 | ⬜ Not Started |
+| Sprint 3 | Cart & Checkout | 5 | ⬜ Not Started |
+| Sprint 4 | Tracking & Driver | 3 | ⬜ Not Started |
+| Sprint 5 | Admin & Interactions | 6 | ⬜ Not Started |
+| Sprint 6 | States & Polish | 8 | ⬜ Not Started |
+
+**Build Task Files**: `docs/V3/UX-Specs/build-tasks/Sprint-*.md`
+
+### P1-Foundation UI Assets (Finalized)
+
+| Asset | Description | Location |
+|-------|-------------|----------|
+| Light Theme | Design tokens + component showcase | `docs/V3/UI-Assets/P1-Foundation/Light-Theme.html` |
+| Dark Theme | Dark mode color palette | `docs/V3/UI-Assets/P1-Foundation/Dark-Theme.html` |
+| Vibrant Heritage | Alternate warm palette option | `docs/V3/UI-Assets/P1-Foundation/Vibrant-Heritage.html` |
+
+**Screenshots**: `.png` files alongside each HTML prototype
+
+### V3 Design System (Finalized from UI Assets)
+
+```css
+/* Brand Colors (from finalized assets) */
+--primary: #9B1B1E;           /* Bold Red from logo */
+--cta: #F4D03F;               /* Bright Gold from logo */
+--curry: #8B4513;             /* Warm brown accent */
+--jade: #2E8B57;              /* Success green */
+--cream: #FFFEF7;             /* Light background */
+--charcoal: #1A1A1A;          /* Primary text */
+--background-dark: #1a0505;   /* Dark mode background */
+
+/* Typography */
+Display: "Manrope" (sans-serif, bold headings)
+Serif: "Playfair Display" (elegant accents)
+Body: "DM Sans" (readable, geometric)
+Burmese: "Padauk" (Myanmar script)
+```
+
+### V3 Acceptance Criteria (Pending)
+- [ ] Customer can browse menu in under 90 seconds
+- [ ] Mobile-first responsive design
+- [ ] Warm, premium Burmese aesthetic (not generic AI slop)
+- [ ] Dark mode with warm undertones
+- [ ] WCAG 2.1 AA accessibility
+- [ ] Rich animations with Framer Motion
+- [ ] Driver high-contrast mode for sunlight
+
+---
+
+## 💭 Future Enhancements (Post-V3)
 
 ### Potential Features
 - Multiple payment methods (saved cards)
@@ -219,7 +286,7 @@
 
 ---
 
-## ðŸš§ Known Issues / Tech Debt
+## 🚧 Known Issues / Tech Debt
 
 | Issue | Severity | Status | Notes |
 |-------|----------|--------|-------|
