@@ -9,6 +9,9 @@ export async function GET() {
     extra: { timestamp: new Date().toISOString() },
   });
 
+  // Flush before returning to ensure event is sent in serverless environment
+  await Sentry.flush(2000);
+
   return NextResponse.json(
     { error: "Test error sent to Sentry" },
     { status: 500 }
