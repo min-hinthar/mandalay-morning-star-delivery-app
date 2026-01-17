@@ -34,3 +34,18 @@ export function createPublicClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 }
+
+/**
+ * Service role client for server-side operations that need to bypass RLS.
+ * Use only in trusted server contexts (webhooks, cron jobs, admin APIs).
+ */
+export function createServiceClient() {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
+  }
+  return createPublicSupabaseClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    serviceKey
+  );
+}
