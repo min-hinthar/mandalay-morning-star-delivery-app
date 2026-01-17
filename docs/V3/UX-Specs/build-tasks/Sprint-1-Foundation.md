@@ -12,8 +12,8 @@ This sprint establishes the visual and structural foundation for the entire V3 U
 
 | Task | Component | Status | Reference Asset |
 |------|-----------|--------|-----------------|
-| 1.1 | Design Tokens - Light Theme | 🎨 Prototype Ready | [Light-Theme.html](../../UI-Assets/P1-Foundation/Light-Theme.html) |
-| 1.2 | Design Tokens - Dark Theme | 🎨 Prototype Ready | [Dark-Theme.html](../../UI-Assets/P1-Foundation/Dark-Theme.html) |
+| 1.1 | Design Tokens - Light Theme | 🎨 Prototype Ready | [Light-Theme.md](../../UI-Assets/P1-Foundation/Light-Theme.md) |
+| 1.2 | Design Tokens - Dark Theme | 🎨 Prototype Ready | [Dark-Theme.md](../../UI-Assets/P1-Foundation/Dark-Theme.md) |
 | 1.3 | Animation Tokens & Utilities | ⬜ Not Started | — |
 | 1.4 | Customer App Shell | ⬜ Not Started | — |
 | 1.5 | Checkout Flow Shell | ⬜ Not Started | — |
@@ -30,9 +30,9 @@ Design prototypes have been finalized for Tasks 1.1 and 1.2. Use these as visual
 
 | Asset | Description | Files |
 |-------|-------------|-------|
-| **Light Theme** | Primary brand colors + component showcase | [HTML](../../UI-Assets/P1-Foundation/Light-Theme.html) / [PNG](../../UI-Assets/P1-Foundation/Light-Theme.png) |
-| **Dark Theme** | Dark mode with warm undertones | [HTML](../../UI-Assets/P1-Foundation/Dark-Theme.html) / [PNG](../../UI-Assets/P1-Foundation/Dark-Theme.png) |
-| **Vibrant Heritage** | Alternate warm palette (optional) | [HTML](../../UI-Assets/P1-Foundation/Vibrant-Heritage.html) / [PNG](../../UI-Assets/P1-Foundation/Vibrant-Heritage.png) |
+| **Light Theme** | Primary brand colors + component showcase | [MD](../../UI-Assets/P1-Foundation/Light-Theme.md) / [PNG](../../UI-Assets/P1-Foundation/Light-Theme.png) |
+| **Dark Theme** | Dark mode with warm undertones | [MD](../../UI-Assets/P1-Foundation/Dark-Theme.md) / [PNG](../../UI-Assets/P1-Foundation/Dark-Theme.png) |
+| **Vibrant Heritage** | Alternate warm palette (optional) | [MD](../../UI-Assets/P1-Foundation/Vibrant-Heritage.md) / [PNG](../../UI-Assets/P1-Foundation/Vibrant-Heritage.png) |
 
 ### Finalized Design Tokens (from UI Assets)
 
@@ -62,12 +62,12 @@ Burmese: "Padauk" (Myanmar script)
 **Status**: 🎨 Prototype Ready
 
 ### Reference Asset
-> **Finalized Prototype**: [Light-Theme.html](../../UI-Assets/P1-Foundation/Light-Theme.html) | [PNG Preview](../../UI-Assets/P1-Foundation/Light-Theme.png)
+> **Finalized Prototype**: [Light-Theme.md](../../UI-Assets/P1-Foundation/Light-Theme.md) | [PNG Preview](../../UI-Assets/P1-Foundation/Light-Theme.png)
 >
-> Open the HTML file in a browser to see the complete color palette, typography, and component samples. Extract the CSS tokens from the finalized design.
+> Review the markdown file to see the complete color palette, typography, and component samples. Extract the CSS tokens from the finalized design.
 
 ### Implementation Guide
-1. **Review the finalized prototype** — [Light-Theme.html](../../UI-Assets/P1-Foundation/Light-Theme.html)
+1. **Review the finalized prototype** — [Light-Theme.md](../../UI-Assets/P1-Foundation/Light-Theme.md)
 2. Run `/frontend-design`
 3. Paste the prompt content below
 4. **Ensure tokens match the finalized colors** (primary: #9B1B1E, CTA: #F4D03F)
@@ -196,12 +196,12 @@ Foundation CSS variables for Mandalay Morning Star, a premium Burmese food deliv
 **Status**: 🎨 Prototype Ready
 
 ### Reference Asset
-> **Finalized Prototype**: [Dark-Theme.html](../../UI-Assets/P1-Foundation/Dark-Theme.html) | [PNG Preview](../../UI-Assets/P1-Foundation/Dark-Theme.png)
+> **Finalized Prototype**: [Dark-Theme.md](../../UI-Assets/P1-Foundation/Dark-Theme.md) | [PNG Preview](../../UI-Assets/P1-Foundation/Dark-Theme.png)
 >
-> Open the HTML file in a browser to see the dark mode color palette with warm undertones. The dark background (#1a0505) maintains the Burmese aesthetic.
+> Review the markdown file to see the dark mode color palette with warm undertones. The dark background (#1a0505) maintains the Burmese aesthetic.
 
 ### Implementation Guide
-1. **Review the finalized prototype** — [Dark-Theme.html](../../UI-Assets/P1-Foundation/Dark-Theme.html)
+1. **Review the finalized prototype** — [Dark-Theme.md](../../UI-Assets/P1-Foundation/Dark-Theme.md)
 2. Run `/frontend-design`
 3. Paste the prompt content below
 4. **Ensure dark mode uses the finalized background** (--background-dark: #1a0505)

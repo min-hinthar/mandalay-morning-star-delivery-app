@@ -48,11 +48,11 @@ Design prototypes have been generated for Sprint 1 Tasks 1.1-1.2 (Design Tokens)
 
 | Asset | Description | Location |
 |-------|-------------|----------|
-| **Light Theme** | Primary brand colors + component showcase | [Light-Theme.html](../../UI-Assets/P1-Foundation/Light-Theme.html) / [PNG](../../UI-Assets/P1-Foundation/Light-Theme.png) |
-| **Dark Theme** | Dark mode with warm undertones | [Dark-Theme.html](../../UI-Assets/P1-Foundation/Dark-Theme.html) / [PNG](../../UI-Assets/P1-Foundation/Dark-Theme.png) |
-| **Vibrant Heritage** | Alternate warm palette option | [Vibrant-Heritage.html](../../UI-Assets/P1-Foundation/Vibrant-Heritage.html) / [PNG](../../UI-Assets/P1-Foundation/Vibrant-Heritage.png) |
+| **Light Theme** | Primary brand colors + component showcase | [Light-Theme.md](../../UI-Assets/P1-Foundation/Light-Theme.md) / [PNG](../../UI-Assets/P1-Foundation/Light-Theme.png) |
+| **Dark Theme** | Dark mode with warm undertones | [Dark-Theme.md](../../UI-Assets/P1-Foundation/Dark-Theme.md) / [PNG](../../UI-Assets/P1-Foundation/Dark-Theme.png) |
+| **Vibrant Heritage** | Alternate warm palette option | [Vibrant-Heritage.md](../../UI-Assets/P1-Foundation/Vibrant-Heritage.md) / [PNG](../../UI-Assets/P1-Foundation/Vibrant-Heritage.png) |
 
-**Usage**: These HTML files contain the finalized design tokens and can be opened in a browser to see the complete color palette, typography, and component samples.
+**Usage**: These markdown files contain the finalized design tokens with complete color palette, typography, and component samples.
 
 ---
 

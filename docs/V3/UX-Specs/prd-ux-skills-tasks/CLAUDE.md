@@ -142,9 +142,9 @@ Design prototypes generated from build prompts:
 
 | Asset | Description | Files |
 |-------|-------------|-------|
-| Light Theme | Primary brand colors + components | [HTML](../UI-Assets/P1-Foundation/Light-Theme.html) / [PNG](../UI-Assets/P1-Foundation/Light-Theme.png) |
-| Dark Theme | Dark mode with warm undertones | [HTML](../UI-Assets/P1-Foundation/Dark-Theme.html) / [PNG](../UI-Assets/P1-Foundation/Dark-Theme.png) |
-| Vibrant Heritage | Alternate warm palette | [HTML](../UI-Assets/P1-Foundation/Vibrant-Heritage.html) / [PNG](../UI-Assets/P1-Foundation/Vibrant-Heritage.png) |
+| Light Theme | Primary brand colors + components | [MD](../UI-Assets/P1-Foundation/Light-Theme.md) / [PNG](../UI-Assets/P1-Foundation/Light-Theme.png) |
+| Dark Theme | Dark mode with warm undertones | [MD](../UI-Assets/P1-Foundation/Dark-Theme.md) / [PNG](../UI-Assets/P1-Foundation/Dark-Theme.png) |
+| Vibrant Heritage | Alternate warm palette | [MD](../UI-Assets/P1-Foundation/Vibrant-Heritage.md) / [PNG](../UI-Assets/P1-Foundation/Vibrant-Heritage.png) |
 
 ### Finalized Design Tokens (from UI Assets)
 
@@ -194,7 +194,7 @@ docs/V3/
 │       └── Sprint-6-States-Polish.md
 └── UI-Assets/
     └── P1-Foundation/
-        ├── Light-Theme.html/.png
-        ├── Dark-Theme.html/.png
-        └── Vibrant-Heritage.html/.png
+        ├── Light-Theme.md/.png
+        ├── Dark-Theme.md/.png
+        └── Vibrant-Heritage.md/.png
 ```
