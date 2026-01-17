@@ -1,19 +1,40 @@
-# Project Constellation: 2026 Token-Efficiency Protocol
+# Mandalay Morning Star
 
-## Operational Guardrails
-- **Plan Mode First:** Enter Plan Mode (Shift+Tab x2) for all tasks affecting >2 files.
-- **Zero-Waste Execution:** NEVER spawn sub-agents or write code until a plan is approved.
-- **Compact & Clear:** Manually run `/compact` when context hits 50%. Use `/clear` between unrelated tasks to prevent context pollution.
+## Stack
+Next.js 16 | React 19 | Supabase | Stripe | TailwindCSS | Zustand
 
-## Model Tiering Strategy
-- **Architect (Opus 4.5):** Use `/mod opus-4.5` for initial discovery, complex refactors, and multi-file logic validation.
-- **Worker (Haiku 4.5):** Switch to `/mod haiku-4.5` for boilerplate, unit tests, lint fixes, and documentation.
-- **Logic:** Haiku 4.5 is preferred for execution as it matches Sonnet-level coding (SWE-bench 73.3%) at 1/3 the cost.
+## Commands
+```
+pnpm dev          # dev server
+pnpm build        # production build
+pnpm test         # vitest
+pnpm test:e2e     # playwright
+pnpm typecheck    # tsc --noEmit
+```
 
-## File Management
-- **Strict Read:** Only read files explicitly @-mentioned or required by the current dependency tree. Avoid global codebase scans.
-- **File Limits:** Keep source files <400 lines; use the `/compact` instruction "Focus on code samples and API usage" to prioritize logic over comments during summarization.
+## Plan Mode Rules
+- Enter plan mode (Shift+Tab x2) for tasks affecting >2 files
+- No code/agents until plan approved
+- Use Explore agent for discovery, Plan agent for design
+- Max 3 parallel agents; prefer 1 when scope is clear
 
-## Verification Rules
-- Always provide a numbered checklist of changes before exiting Plan Mode.
-- Use `/test` immediately after changes; if it fails, press **Escape** to stop execution and analyze the trace in Plan Mode.
+## Model Tiers
+| Task | Model |
+|------|-------|
+| Architecture, refactors, multi-file logic | Opus 4.5 |
+| Boilerplate, tests, docs, lint fixes | Haiku 4.5 |
+
+## Context Management
+- `/compact` at 50% context
+- `/clear` between unrelated tasks
+- Read only @-mentioned files or direct dependencies
+- Keep files <400 lines
+
+## Paths
+- `src/app/` - Next.js app router pages
+- `src/components/` - React components
+- `src/lib/` - Utilities, Supabase client
+- `supabase/migrations/` - DB migrations
+
+## Verification
+Run before completing: `pnpm typecheck && pnpm test`
