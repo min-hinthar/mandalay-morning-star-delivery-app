@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 import { z } from "zod";
 import type { MenuCategoriesRow } from "@/types/database";
 
@@ -36,7 +37,7 @@ export async function GET() {
       .returns<MenuCategoriesRow[]>();
 
     if (error) {
-      console.error("Failed to fetch categories:", error);
+      logger.exception(error, { api: "admin/categories", flowId: "fetch" });
       return NextResponse.json(
         { error: "Failed to fetch categories" },
         { status: 500 }
@@ -49,7 +50,7 @@ export async function GET() {
       .select("category_id");
 
     if (countError) {
-      console.error("Failed to fetch item counts:", countError);
+      logger.exception(countError, { api: "admin/categories", flowId: "fetch-counts" });
       return NextResponse.json(
         { error: "Failed to fetch item counts" },
         { status: 500 }
@@ -73,7 +74,7 @@ export async function GET() {
 
     return NextResponse.json(categoriesWithCounts);
   } catch (error) {
-    console.error("Error fetching categories:", error);
+    logger.exception(error, { api: "admin/categories", flowId: "fetch" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -121,7 +122,7 @@ export async function POST(request: Request) {
       .single();
 
     if (error) {
-      console.error("Failed to create category:", error);
+      logger.exception(error, { api: "admin/categories", flowId: "create" });
       if (error.code === "23505") {
         return NextResponse.json(
           { error: "A category with this slug already exists" },
@@ -136,7 +137,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(category, { status: 201 });
   } catch (error) {
-    console.error("Error creating category:", error);
+    logger.exception(error, { api: "admin/categories", flowId: "create" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

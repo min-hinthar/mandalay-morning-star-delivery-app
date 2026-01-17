@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 import type { RouteStats, RouteStatus, RouteStopStatus } from "@/types/driver";
 
 interface RouteParams {
@@ -226,7 +227,7 @@ export async function GET(
       stops,
     });
   } catch (error) {
-    console.error("Error fetching route:", error);
+    logger.exception(error, { api: "driver/routes/[routeId]" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

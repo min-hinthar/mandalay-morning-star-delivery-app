@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createRouteSchema } from "@/lib/validations/route";
+import { logger } from "@/lib/utils/logger";
 import type { ProfileRole, ProfilesRow } from "@/types/database";
 import type { RoutesRow, DriversRow, RouteStats } from "@/types/driver";
 
@@ -82,7 +83,7 @@ export async function GET(request: NextRequest) {
       .returns<RouteWithDriver[]>();
 
     if (routesError) {
-      console.error("Failed to fetch routes:", routesError);
+      logger.exception(routesError, { api: "admin/routes" });
       return NextResponse.json(
         { error: "Failed to fetch routes" },
         { status: 500 }
@@ -115,7 +116,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Error fetching routes:", error);
+    logger.exception(error, { api: "admin/routes" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -170,7 +171,7 @@ export async function POST(request: NextRequest) {
       .in("id", orderIds);
 
     if (ordersError) {
-      console.error("Failed to verify orders:", ordersError);
+      logger.exception(ordersError, { api: "admin/routes", flowId: "create-verify-orders" });
       return NextResponse.json(
         { error: "Failed to verify orders" },
         { status: 500 }
@@ -236,7 +237,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (routeError) {
-      console.error("Failed to create route:", routeError);
+      logger.exception(routeError, { api: "admin/routes", flowId: "create-route" });
       return NextResponse.json(
         { error: "Failed to create route" },
         { status: 500 }
@@ -256,7 +257,7 @@ export async function POST(request: NextRequest) {
       .insert(stops);
 
     if (stopsError) {
-      console.error("Failed to create route stops:", stopsError);
+      logger.exception(stopsError, { api: "admin/routes", flowId: "create-stops" });
       // Rollback route creation
       await supabase.from("routes").delete().eq("id", newRoute.id);
       return NextResponse.json(
@@ -273,7 +274,7 @@ export async function POST(request: NextRequest) {
       message: "Route created successfully",
     }, { status: 201 });
   } catch (error) {
-    console.error("Error creating route:", error);
+    logger.exception(error, { api: "admin/routes" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

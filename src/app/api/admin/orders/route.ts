@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 import type { OrderStatus } from "@/types/database";
 
 interface OrderRow {
@@ -43,7 +44,7 @@ export async function GET() {
       .returns<OrderRow[]>();
 
     if (ordersError) {
-      console.error("Failed to fetch orders:", ordersError);
+      logger.exception(ordersError, { api: "admin/orders", flowId: "fetch" });
       return NextResponse.json(
         { error: "Failed to fetch orders" },
         { status: 500 }
@@ -52,7 +53,7 @@ export async function GET() {
 
     return NextResponse.json(orders);
   } catch (error) {
-    console.error("Error fetching orders:", error);
+    logger.exception(error, { api: "admin/orders", flowId: "fetch" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -13,6 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { toast } from "@/lib/hooks/useToast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -62,7 +63,7 @@ export default function AdminCategoriesPage() {
       const data: Category[] = await response.json();
       setCategories(data);
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      toast({ title: "Error", description: "Failed to fetch categories", variant: "destructive" });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -95,8 +96,7 @@ export default function AdminCategoriesPage() {
         )
       );
     } catch (error) {
-      console.error("Error updating category:", error);
-      alert("Failed to update category");
+      toast({ title: "Error", description: "Failed to update category", variant: "destructive" });
     } finally {
       setUpdatingId(null);
     }
@@ -140,8 +140,7 @@ export default function AdminCategoriesPage() {
         return newCategories.sort((a, b) => a.sort_order - b.sort_order);
       });
     } catch (error) {
-      console.error("Error reordering categories:", error);
-      alert("Failed to reorder categories");
+      toast({ title: "Error", description: "Failed to reorder categories", variant: "destructive" });
     } finally {
       setUpdatingId(null);
     }
@@ -149,9 +148,11 @@ export default function AdminCategoriesPage() {
 
   const handleDelete = async (category: Category) => {
     if (category.item_count > 0) {
-      alert(
-        `Cannot delete "${category.name}" because it has ${category.item_count} menu item(s). Remove or reassign items first.`
-      );
+      toast({
+        title: "Cannot delete",
+        description: `"${category.name}" has ${category.item_count} menu item(s). Remove or reassign items first.`,
+        variant: "destructive",
+      });
       return;
     }
 
@@ -175,11 +176,13 @@ export default function AdminCategoriesPage() {
       }
 
       setCategories((prev) => prev.filter((c) => c.id !== category.id));
+      toast({ title: "Deleted", description: `"${category.name}" has been deleted` });
     } catch (error) {
-      console.error("Error deleting category:", error);
-      alert(
-        error instanceof Error ? error.message : "Failed to delete category"
-      );
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete category",
+        variant: "destructive",
+      });
     } finally {
       setUpdatingId(null);
     }
@@ -187,7 +190,7 @@ export default function AdminCategoriesPage() {
 
   const handleCreateCategory = async () => {
     if (!newCategory.name.trim() || !newCategory.slug.trim()) {
-      alert("Name and slug are required");
+      toast({ title: "Validation error", description: "Name and slug are required", variant: "destructive" });
       return;
     }
 
@@ -215,11 +218,13 @@ export default function AdminCategoriesPage() {
       );
       setNewCategory({ name: "", slug: "" });
       setAddDialogOpen(false);
+      toast({ title: "Created", description: `Category "${newCategory.name}" created successfully` });
     } catch (error) {
-      console.error("Error creating category:", error);
-      alert(
-        error instanceof Error ? error.message : "Failed to create category"
-      );
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create category",
+        variant: "destructive",
+      });
     } finally {
       setCreating(false);
     }

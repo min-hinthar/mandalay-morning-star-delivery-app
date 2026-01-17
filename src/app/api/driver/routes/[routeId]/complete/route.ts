@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 import { completeRouteSchema } from "@/lib/validations/driver-api";
 import type { RouteStats } from "@/types/driver";
 
@@ -104,7 +105,7 @@ export async function POST(
       .eq("id", routeId);
 
     if (updateError) {
-      console.error("Error completing route:", updateError);
+      logger.exception(updateError, { api: "driver/routes/[routeId]/complete" });
       return NextResponse.json(
         { error: "Failed to complete route" },
         { status: 500 }
@@ -119,7 +120,7 @@ export async function POST(
       });
     } catch {
       // RPC might not exist yet, ignore
-      console.log("increment_driver_deliveries RPC not available, skipping");
+      logger.info("increment_driver_deliveries RPC not available, skipping", { api: "driver/routes/[routeId]/complete" });
     }
 
     return NextResponse.json({
@@ -128,7 +129,7 @@ export async function POST(
       stats,
     });
   } catch (error) {
-    console.error("Error completing route:", error);
+    logger.exception(error, { api: "driver/routes/[routeId]/complete" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

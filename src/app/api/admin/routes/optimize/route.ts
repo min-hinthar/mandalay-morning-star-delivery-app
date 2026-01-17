@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { optimizeRouteSchema } from "@/lib/validations/route";
 import { optimizeRouteStops } from "@/lib/services/route-optimization";
+import { logger } from "@/lib/utils/logger";
 import type { ProfileRole } from "@/types/database";
 
 interface ProfileCheck {
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
       .returns<RouteStopWithOrder[]>();
 
     if (stopsError) {
-      console.error("Failed to fetch route stops:", stopsError);
+      logger.exception(stopsError, { api: "admin/routes/optimize", flowId: "fetch-stops" });
       return NextResponse.json(
         { error: "Failed to fetch route stops" },
         { status: 500 }
@@ -167,7 +168,7 @@ export async function POST(request: NextRequest) {
         .eq("id", optimized.orderedStopIds[i]);
 
       if (updateError) {
-        console.error("Failed to update stop index:", updateError);
+        logger.exception(updateError, { api: "admin/routes/optimize", flowId: "update-stop-index" });
       }
     }
 
@@ -180,7 +181,7 @@ export async function POST(request: NextRequest) {
       .eq("id", routeId);
 
     if (routeUpdateError) {
-      console.error("Failed to update route:", routeUpdateError);
+      logger.exception(routeUpdateError, { api: "admin/routes/optimize", flowId: "update-route" });
     }
 
     return NextResponse.json({
@@ -192,7 +193,7 @@ export async function POST(request: NextRequest) {
       message: "Route optimized successfully",
     });
   } catch (error) {
-    console.error("Error optimizing route:", error);
+    logger.exception(error, { api: "admin/routes/optimize" });
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 }

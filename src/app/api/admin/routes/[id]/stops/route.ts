@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { addStopsSchema, updateStopStatusSchema } from "@/lib/validations/route";
+import { logger } from "@/lib/utils/logger";
 import type { ProfileRole } from "@/types/database";
 import type { RouteStopStatus } from "@/types/driver";
 
@@ -92,7 +93,7 @@ export async function POST(
       .in("id", orderIds);
 
     if (ordersError) {
-      console.error("Failed to verify orders:", ordersError);
+      logger.exception(ordersError, { api: "admin/routes/[id]/stops", flowId: "verify-orders" });
       return NextResponse.json(
         { error: "Failed to verify orders" },
         { status: 500 }
@@ -136,7 +137,7 @@ export async function POST(
       .insert(newStops);
 
     if (insertError) {
-      console.error("Failed to add stops:", insertError);
+      logger.exception(insertError, { api: "admin/routes/[id]/stops", flowId: "add-stops" });
       return NextResponse.json(
         { error: "Failed to add stops" },
         { status: 500 }
@@ -173,7 +174,7 @@ export async function POST(
       message: "Stops added successfully",
     }, { status: 201 });
   } catch (error) {
-    console.error("Error adding stops:", error);
+    logger.exception(error, { api: "admin/routes/[id]/stops" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -259,7 +260,7 @@ export async function PATCH(
       .single();
 
     if (updateError) {
-      console.error("Failed to update stop:", updateError);
+      logger.exception(updateError, { api: "admin/routes/[id]/stops", flowId: "update-stop" });
       return NextResponse.json(
         { error: "Failed to update stop" },
         { status: 500 }
@@ -307,7 +308,7 @@ export async function PATCH(
       message: "Stop updated successfully",
     });
   } catch (error) {
-    console.error("Error updating stop:", error);
+    logger.exception(error, { api: "admin/routes/[id]/stops" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -382,7 +383,7 @@ export async function DELETE(
       .eq("route_id", routeId);
 
     if (deleteError) {
-      console.error("Failed to remove stop:", deleteError);
+      logger.exception(deleteError, { api: "admin/routes/[id]/stops", flowId: "remove-stop" });
       return NextResponse.json(
         { error: "Failed to remove stop" },
         { status: 500 }
@@ -434,7 +435,7 @@ export async function DELETE(
       message: "Stop removed successfully",
     });
   } catch (error) {
-    console.error("Error removing stop:", error);
+    logger.exception(error, { api: "admin/routes/[id]/stops" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

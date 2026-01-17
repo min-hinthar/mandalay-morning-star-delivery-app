@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { driverIdParamSchema } from "@/lib/validations/analytics";
+import { logger } from "@/lib/utils/logger";
 import { transformDriverStats } from "@/lib/utils/analytics-helpers";
 import type { ProfileRole } from "@/types/database";
 import type {
@@ -318,7 +319,7 @@ export async function GET(
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Error fetching driver detail analytics:", error);
+    logger.exception(error, { api: "admin/analytics/drivers/[driverId]" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

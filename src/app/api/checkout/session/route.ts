@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
@@ -8,6 +7,7 @@ import {
   calculateOrderTotals,
   createStripeLineItems,
 } from "@/lib/utils/order";
+import { logger } from "@/lib/utils/logger";
 import type { CheckoutError, CheckoutErrorCode } from "@/types/checkout";
 import type {
   AddressesRow,
@@ -135,7 +135,7 @@ export async function POST(request: Request) {
       .single();
 
     if (orderError || !order) {
-      console.error("Failed to create order:", orderError);
+      logger.exception(orderError, { userId: user.id, api: "checkout-session", flowId: "checkout" });
       return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
     }
 
@@ -157,7 +157,7 @@ export async function POST(request: Request) {
       .returns<OrderItemsRow[]>();
 
     if (orderItemsError || !orderItems) {
-      console.error("Failed to create order items:", orderItemsError);
+      logger.exception(orderItemsError, { orderId: order.id, userId: user.id, api: "checkout-session", flowId: "checkout" });
       // Clean up the order
       await supabase.from("orders").delete().eq("id", order.id);
       return errorResponse("INTERNAL_ERROR", "Failed to create order items", 500);
@@ -191,7 +191,7 @@ export async function POST(request: Request) {
         .insert(orderItemModifiersToInsert);
 
       if (modifiersInsertError) {
-        console.error("Failed to create order item modifiers:", modifiersInsertError);
+        logger.exception(modifiersInsertError, { orderId: order.id, userId: user.id, api: "checkout-session", flowId: "checkout" });
         // Clean up
         await supabase.from("order_items").delete().eq("order_id", order.id);
         await supabase.from("orders").delete().eq("id", order.id);
@@ -247,10 +247,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    Sentry.captureException(error, {
-      tags: { api: "checkout-session" },
-    });
-    console.error("Checkout session error:", error);
+    logger.exception(error, { api: "checkout-session", flowId: "checkout" });
 
     if (error instanceof Error && error.message.includes("Stripe")) {
       return errorResponse("STRIPE_ERROR", "Payment service error", 500);

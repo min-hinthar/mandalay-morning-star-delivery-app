@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 import type { RouteStats, RouteStatus, RouteStopStatus } from "@/types/driver";
 
 const TIMEZONE = "America/Los_Angeles";
@@ -225,7 +226,7 @@ export async function GET(): Promise<NextResponse<ActiveRouteResponse | { error:
       },
     });
   } catch (error) {
-    console.error("Error fetching active route:", error);
+    logger.exception(error, { api: "driver/routes/active" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

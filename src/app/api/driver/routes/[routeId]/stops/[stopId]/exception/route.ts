@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 import { reportExceptionSchema } from "@/lib/validations/driver-api";
 import type { RouteStopStatus } from "@/types/driver";
 
@@ -123,7 +124,7 @@ export async function POST(
       .single();
 
     if (insertError || !exception) {
-      console.error("Error creating exception:", insertError);
+      logger.exception(insertError, { api: "driver/routes/[routeId]/stops/[stopId]/exception" });
       return NextResponse.json(
         { error: "Failed to create exception" },
         { status: 500 }
@@ -164,7 +165,7 @@ export async function POST(
       stopStatus: "skipped" as RouteStopStatus,
     });
   } catch (error) {
-    console.error("Error reporting exception:", error);
+    logger.exception(error, { api: "driver/routes/[routeId]/stops/[stopId]/exception" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

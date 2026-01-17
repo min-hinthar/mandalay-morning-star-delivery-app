@@ -4,6 +4,7 @@ import { checkCoverage } from "@/lib/services/coverage";
 import { geocodeAddress } from "@/lib/services/geocoding";
 import { addressFormSchema } from "@/lib/validations/address";
 import { transformAddress, type AddressRow } from "../transform";
+import { logger } from "@/lib/utils/logger";
 
 // GET /api/addresses/[id]
 export async function GET(
@@ -41,7 +42,7 @@ export async function GET(
 
     return NextResponse.json({ data: transformAddress(address) });
   } catch (error) {
-    console.error("Address GET error:", error);
+    logger.exception(error, { api: "addresses/[id]" });
     return NextResponse.json(
       { error: { code: "INTERNAL_ERROR", message: "Failed to fetch address" } },
       { status: 500 }
@@ -138,7 +139,7 @@ export async function PUT(
 
     return NextResponse.json({ data: transformAddress(address) });
   } catch (error) {
-    console.error("Address PUT error:", error);
+    logger.exception(error, { api: "addresses/[id]" });
     return NextResponse.json(
       { error: { code: "INTERNAL_ERROR", message: "Failed to update address" } },
       { status: 500 }
@@ -175,7 +176,7 @@ export async function DELETE(
 
     return NextResponse.json({ data: { success: true } });
   } catch (error) {
-    console.error("Address DELETE error:", error);
+    logger.exception(error, { api: "addresses/[id]" });
     return NextResponse.json(
       { error: { code: "INTERNAL_ERROR", message: "Failed to delete address" } },
       { status: 500 }

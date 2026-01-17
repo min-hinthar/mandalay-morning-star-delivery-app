@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/utils/logger";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { isPastCutoff } from "@/lib/utils/delivery-dates";
 import type { ProfilesRow } from "@/types/database";
@@ -191,7 +192,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       tags: { api: "retry-payment" },
       extra: { orderId: order.id, userId: user.id },
     });
-    console.error("Failed to create retry payment session:", error);
+    logger.exception(error, { api: "orders/[id]/retry-payment" });
     return NextResponse.json(
       { error: { code: "STRIPE_ERROR", message: "Failed to create payment session" } },
       { status: 500 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
+import { logger } from "@/lib/utils/logger";
 import type { OrderStatus } from "@/types/database";
 
 const updateStatusSchema = z.object({
@@ -101,7 +102,7 @@ export async function PATCH(
       .eq("id", orderId);
 
     if (updateError) {
-      console.error("Failed to update order status:", updateError);
+      logger.exception(updateError, { api: "admin/orders/[id]/status" });
       return NextResponse.json(
         { error: "Failed to update order status" },
         { status: 500 }
@@ -115,7 +116,7 @@ export async function PATCH(
       newStatus,
     });
   } catch (error) {
-    console.error("Error updating order status:", error);
+    logger.exception(error, { api: "admin/orders/[id]/status" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

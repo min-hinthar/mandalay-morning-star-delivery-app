@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 import { locationUpdateSchema } from "@/lib/validations/driver-api";
 
 interface LastLocationResult {
@@ -93,7 +94,7 @@ export async function POST(
       });
 
     if (insertError) {
-      console.error("Error inserting location:", insertError);
+      logger.exception(insertError, { api: "driver/location", flowId: "insert-location" });
       return NextResponse.json(
         { error: "Failed to save location" },
         { status: 500 }
@@ -105,7 +106,7 @@ export async function POST(
       recordedAt,
     });
   } catch (error) {
-    console.error("Error saving location:", error);
+    logger.exception(error, { api: "driver/location" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

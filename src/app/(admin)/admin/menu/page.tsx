@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/currency";
+import { toast } from "@/lib/hooks/useToast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -84,7 +85,7 @@ export default function AdminMenuPage() {
       }, []);
       setCategories(uniqueCategories);
     } catch (error) {
-      console.error("Error fetching menu items:", error);
+      toast({ title: "Error", description: "Failed to fetch menu items", variant: "destructive" });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -117,8 +118,7 @@ export default function AdminMenuPage() {
         )
       );
     } catch (error) {
-      console.error("Error updating item:", error);
-      alert("Failed to update item");
+      toast({ title: "Error", description: "Failed to update item", variant: "destructive" });
     } finally {
       setUpdatingId(null);
     }
@@ -141,8 +141,7 @@ export default function AdminMenuPage() {
         )
       );
     } catch (error) {
-      console.error("Error updating item:", error);
-      alert("Failed to update item");
+      toast({ title: "Error", description: "Failed to update item", variant: "destructive" });
     } finally {
       setUpdatingId(null);
     }
@@ -166,8 +165,11 @@ export default function AdminMenuPage() {
 
       setItems((prev) => prev.filter((i) => i.id !== item.id));
     } catch (error) {
-      console.error("Error deleting item:", error);
-      alert(error instanceof Error ? error.message : "Failed to delete item");
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete item",
+        variant: "destructive",
+      });
     } finally {
       setUpdatingId(null);
     }

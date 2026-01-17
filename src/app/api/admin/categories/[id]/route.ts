@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
+import { logger } from "@/lib/utils/logger";
 
 const updateCategorySchema = z.object({
   slug: z
@@ -46,7 +47,7 @@ export async function PATCH(
       .single();
 
     if (error) {
-      console.error("Failed to update category:", error);
+      logger.exception(error, { api: "admin/categories/[id]" });
       if (error.code === "PGRST116") {
         return NextResponse.json(
           { error: "Category not found" },
@@ -67,7 +68,7 @@ export async function PATCH(
 
     return NextResponse.json(category);
   } catch (error) {
-    console.error("Error updating category:", error);
+    logger.exception(error, { api: "admin/categories/[id]" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -109,7 +110,7 @@ export async function DELETE(
       .eq("id", id);
 
     if (error) {
-      console.error("Failed to delete category:", error);
+      logger.exception(error, { api: "admin/categories/[id]", flowId: "delete" });
       return NextResponse.json(
         { error: "Failed to delete category" },
         { status: 500 }
@@ -118,7 +119,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting category:", error);
+    logger.exception(error, { api: "admin/categories/[id]" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 
 interface RouteParams {
   params: Promise<{ routeId: string }>;
@@ -77,7 +78,7 @@ export async function POST(
       .eq("id", routeId);
 
     if (updateError) {
-      console.error("Error starting route:", updateError);
+      logger.exception(updateError, { api: "driver/routes/[routeId]/start" });
       return NextResponse.json(
         { error: "Failed to start route" },
         { status: 500 }
@@ -107,7 +108,7 @@ export async function POST(
       firstStopId: firstStop?.id ?? null,
     });
   } catch (error) {
-    console.error("Error starting route:", error);
+    logger.exception(error, { api: "driver/routes/[routeId]/start" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

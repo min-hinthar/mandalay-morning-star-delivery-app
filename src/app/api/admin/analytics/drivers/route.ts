@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { driverAnalyticsQuerySchema } from "@/lib/validations/analytics";
+import { logger } from "@/lib/utils/logger";
 import {
   transformDriverStats,
   generateLeaderboard,
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
     // Refresh materialized views (in production, this would be scheduled)
     const { error: refreshError } = await supabase.rpc("refresh_analytics_views");
     if (refreshError) {
-      console.warn("Failed to refresh analytics views:", refreshError);
+      logger.warn("Failed to refresh analytics views", { api: "admin/analytics/drivers", flowId: "refresh-views" });
       // Continue anyway - views might still have recent data
     }
 
@@ -78,7 +79,7 @@ export async function GET(request: NextRequest) {
     >();
 
     if (statsError) {
-      console.error("Failed to fetch driver stats:", statsError);
+      logger.exception(statsError, { api: "admin/analytics/drivers" });
       return NextResponse.json(
         { error: "Failed to fetch driver analytics" },
         { status: 500 }
@@ -136,7 +137,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Error fetching driver analytics:", error);
+    logger.exception(error, { api: "admin/analytics/drivers" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
