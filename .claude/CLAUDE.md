@@ -43,3 +43,17 @@ pnpm typecheck    # tsc --noEmit
 
 ## Verification
 Run before completing: `pnpm typecheck && pnpm test`
+
+## MCP Tools
+| Tool | Trigger | Action |
+|------|---------|--------|
+| Sentry | Bug fix, error report | Fetch trace first; `/seer` for AI root-cause |
+| Playwright | UI change, E2E | Visual validation before commit |
+| Supabase | DB issue, migration | Query logs, check schema |
+| GitHub | PR, issue ref | Pull context, link commits |
+
+## Error Protocol
+- **Before bug fix:** Fetch Sentry trace → analyze → then code
+- **Logging:** `Sentry.logger` with `{ userId, flowId }`; no `console.log` in prod
+- **Pre-commit:** `pnpm typecheck && pnpm test`; analyze failures before retry
+- **UI bugs:** Use Playwright MCP for visual diff; avoid mocks on auth flows
