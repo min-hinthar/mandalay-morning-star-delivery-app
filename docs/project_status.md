@@ -233,11 +233,11 @@
 
 | Asset | Description | Location |
 |-------|-------------|----------|
-| Light Theme | Design tokens + component showcase | `docs/V3/UI-Assets/P1-Foundation/Light-Theme.html` |
-| Dark Theme | Dark mode color palette | `docs/V3/UI-Assets/P1-Foundation/Dark-Theme.html` |
-| Vibrant Heritage | Alternate warm palette option | `docs/V3/UI-Assets/P1-Foundation/Vibrant-Heritage.html` |
+| Light Theme | Design tokens + component showcase | `docs/V3/UI-Assets/P1-Foundation/Light-Theme.md` |
+| Dark Theme | Dark mode color palette | `docs/V3/UI-Assets/P1-Foundation/Dark-Theme.md` |
+| Vibrant Heritage | Alternate warm palette option | `docs/V3/UI-Assets/P1-Foundation/Vibrant-Heritage.md` |
 
-**Screenshots**: `.png` files alongside each HTML prototype
+**Screenshots**: `.png` files alongside each design document
 
 ### V3 Design System (Finalized from UI Assets)
 
