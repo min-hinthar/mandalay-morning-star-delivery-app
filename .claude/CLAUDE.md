@@ -53,7 +53,8 @@ Run before completing: `pnpm typecheck && pnpm test`
 | GitHub | PR, issue ref | Pull context, link commits |
 
 ## Error Protocol
-- **Before bug fix:** Fetch Sentry trace → analyze → then code
+- **History:** Check `.claude/ERROR_HISTORY.md` for similar past issues
+- **Before bug fix:** Fetch Sentry trace → check history → analyze → code
 - **Logging:** `Sentry.logger` with `{ userId, flowId }`; no `console.log` in prod
 - **Pre-commit:** `pnpm typecheck && pnpm test`; analyze failures before retry
 - **UI bugs:** Use Playwright MCP for visual diff; avoid mocks on auth flows
