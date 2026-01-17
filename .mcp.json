@@ -9,10 +9,6 @@
         "SENTRY_PROJECT": "${SENTRY_PROJECT}"
       }
     },
-    "playwright": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "@playwright/mcp"]
-    },
     "supabase": {
       "command": "cmd",
       "args": ["/c", "npx", "-y", "@supabase/mcp-server-supabase"],
