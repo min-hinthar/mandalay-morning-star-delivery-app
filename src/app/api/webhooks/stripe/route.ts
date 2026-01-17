@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
+import * as Sentry from "@sentry/nextjs";
 import { stripe } from "@/lib/stripe/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import type Stripe from "stripe";
@@ -76,9 +77,12 @@ export async function POST(request: Request) {
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
+    Sentry.captureException(err, {
+      tags: { api: "stripe-webhook", eventType: event.type },
+      extra: { eventId: event.id },
+    });
     console.error(`Error handling ${event.type}:`, message);
     // Return 200 to acknowledge receipt (Stripe will retry on 4xx/5xx)
-    // Log the error for investigation
   }
 
   return NextResponse.json({ received: true });

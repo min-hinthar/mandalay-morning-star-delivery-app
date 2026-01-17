@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
@@ -246,6 +247,9 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
+    Sentry.captureException(error, {
+      tags: { api: "checkout-session" },
+    });
     console.error("Checkout session error:", error);
 
     if (error instanceof Error && error.message.includes("Stripe")) {
