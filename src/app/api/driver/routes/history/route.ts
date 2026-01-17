@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 import type { RouteStats, RouteStatus } from "@/types/driver";
 
 interface RouteQueryResult {
@@ -70,7 +71,7 @@ export async function GET(
       .returns<RouteQueryResult[]>();
 
     if (routesError) {
-      console.error("Error fetching routes:", routesError);
+      logger.exception(routesError, { api: "driver/routes/history" });
       return NextResponse.json(
         { error: "Failed to fetch routes" },
         { status: 500 }
@@ -102,7 +103,7 @@ export async function GET(
       routes: historyRoutes,
     });
   } catch (error) {
-    console.error("Error fetching history:", error);
+    logger.exception(error, { api: "driver/routes/history" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

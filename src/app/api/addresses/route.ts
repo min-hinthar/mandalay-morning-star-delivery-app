@@ -7,6 +7,7 @@ import {
   type AddressFormValues,
 } from "@/lib/validations/address";
 import { transformAddress, type AddressRow } from "./transform";
+import { logger } from "@/lib/utils/logger";
 
 // GET /api/addresses - List user's addresses
 export async function GET() {
@@ -38,7 +39,7 @@ export async function GET() {
       meta: { count: addresses?.length ?? 0 },
     });
   } catch (error) {
-    console.error("Addresses GET error:", error);
+    logger.exception(error, { api: "addresses" });
     return NextResponse.json(
       { error: { code: "INTERNAL_ERROR", message: "Failed to fetch addresses" } },
       { status: 500 }
@@ -133,7 +134,7 @@ export async function POST(request: NextRequest) {
       meta: { coverage },
     });
   } catch (error) {
-    console.error("Addresses POST error:", error);
+    logger.exception(error, { api: "addresses" });
     return NextResponse.json(
       { error: { code: "INTERNAL_ERROR", message: "Failed to create address" } },
       { status: 500 }

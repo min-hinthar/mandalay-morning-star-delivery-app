@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OrdersTable, type AdminOrder } from "@/components/admin/OrdersTable";
 import { cn } from "@/lib/utils/cn";
+import { toast } from "@/lib/hooks/useToast";
 import type { OrderStatus } from "@/types/database";
 
 const STATUS_FILTERS: { value: OrderStatus | "all"; label: string }[] = [
@@ -62,7 +63,7 @@ export default function AdminOrdersPage() {
 
       setOrders(transformedOrders);
     } catch (error) {
-      console.error("Error fetching orders:", error);
+      toast({ title: "Error", description: "Failed to fetch orders", variant: "destructive" });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -102,8 +103,11 @@ export default function AdminOrdersPage() {
 
       router.refresh();
     } catch (error) {
-      console.error("Error updating order status:", error);
-      alert(error instanceof Error ? error.message : "Failed to update status");
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update status",
+        variant: "destructive",
+      });
     }
   };
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { transformAddress, type AddressRow } from "../../transform";
+import { logger } from "@/lib/utils/logger";
 
 // POST /api/addresses/[id]/default - Set as default
 export async function POST(
@@ -62,7 +63,7 @@ export async function POST(
 
     return NextResponse.json({ data: transformAddress(address) });
   } catch (error) {
-    console.error("Address default POST error:", error);
+    logger.exception(error, { api: "addresses/[id]/default" });
     return NextResponse.json(
       { error: { code: "INTERNAL_ERROR", message: "Failed to set default" } },
       { status: 500 }

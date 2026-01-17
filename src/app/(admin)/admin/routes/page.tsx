@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
+import { toast } from "@/lib/hooks/useToast";
 import {
   RouteListTable,
   type AdminRoute,
@@ -70,7 +71,7 @@ export default function AdminRoutesPage() {
       const data: AdminRoute[] = await response.json();
       setRoutes(data);
     } catch (error) {
-      console.error("Error fetching routes:", error);
+      toast({ title: "Error", description: "Failed to fetch routes", variant: "destructive" });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -107,8 +108,11 @@ export default function AdminRoutesPage() {
       await fetchRoutes();
       router.refresh();
     } catch (error) {
-      console.error("Error updating route status:", error);
-      alert(error instanceof Error ? error.message : "Failed to update route");
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update route",
+        variant: "destructive",
+      });
     }
   };
 
@@ -127,8 +131,11 @@ export default function AdminRoutesPage() {
       setRoutes((prev) => prev.filter((r) => r.id !== routeId));
       router.refresh();
     } catch (error) {
-      console.error("Error deleting route:", error);
-      alert(error instanceof Error ? error.message : "Failed to delete route");
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete route",
+        variant: "destructive",
+      });
     }
   };
 

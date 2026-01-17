@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createPublicClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/utils/logger";
 import type {
   MenuCategory,
   MenuItem,
@@ -186,7 +187,7 @@ export async function GET() {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Menu API error:", error);
+    logger.exception(error, { api: "menu" });
     return NextResponse.json(
       { error: { code: "INTERNAL_ERROR", message: "Failed to fetch menu" } },
       { status: 500 }

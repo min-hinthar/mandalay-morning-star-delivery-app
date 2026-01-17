@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 import type { RoutesRow, RouteStats, VehicleType } from "@/types/driver";
 
 const TIMEZONE = "America/Los_Angeles";
@@ -130,7 +131,7 @@ export async function GET(): Promise<NextResponse<DriverMeResponse | { error: st
       todayRoute,
     });
   } catch (error) {
-    console.error("Error fetching driver profile:", error);
+    logger.exception(error, { api: "driver/me" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

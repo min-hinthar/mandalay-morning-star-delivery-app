@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 import { z } from "zod";
 
 interface MenuItemRow {
@@ -59,7 +60,7 @@ export async function GET() {
       .returns<MenuItemRow[]>();
 
     if (error) {
-      console.error("Failed to fetch menu items:", error);
+      logger.exception(error, { api: "admin/menu", flowId: "fetch" });
       return NextResponse.json(
         { error: "Failed to fetch menu items" },
         { status: 500 }
@@ -68,7 +69,7 @@ export async function GET() {
 
     return NextResponse.json(items);
   } catch (error) {
-    console.error("Error fetching menu items:", error);
+    logger.exception(error, { api: "admin/menu", flowId: "fetch" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -100,7 +101,7 @@ export async function POST(request: Request) {
       .single();
 
     if (error) {
-      console.error("Failed to create menu item:", error);
+      logger.exception(error, { api: "admin/menu", flowId: "create" });
       if (error.code === "23505") {
         return NextResponse.json(
           { error: "A menu item with this slug already exists" },
@@ -115,7 +116,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(item, { status: 201 });
   } catch (error) {
-    console.error("Error creating menu item:", error);
+    logger.exception(error, { api: "admin/menu", flowId: "create" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

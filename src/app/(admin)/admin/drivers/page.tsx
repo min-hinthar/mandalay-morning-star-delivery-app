@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
+import { toast } from "@/lib/hooks/useToast";
 import {
   DriverListTable,
   type AdminDriver,
@@ -59,7 +60,7 @@ export default function AdminDriversPage() {
       const data: AdminDriver[] = await response.json();
       setDrivers(data);
     } catch (error) {
-      console.error("Error fetching drivers:", error);
+      toast({ title: "Error", description: "Failed to fetch drivers", variant: "destructive" });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -97,8 +98,11 @@ export default function AdminDriversPage() {
 
       router.refresh();
     } catch (error) {
-      console.error("Error toggling driver status:", error);
-      alert(error instanceof Error ? error.message : "Failed to update driver");
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update driver",
+        variant: "destructive",
+      });
     }
   };
 

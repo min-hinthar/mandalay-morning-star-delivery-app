@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 
 interface RouteParams {
   params: Promise<{ routeId: string; stopId: string }>;
@@ -117,7 +118,7 @@ export async function POST(
       });
 
     if (uploadError) {
-      console.error("Error uploading photo:", uploadError);
+      logger.exception(uploadError, { api: "driver/routes/[routeId]/stops/[stopId]/photo" });
       return NextResponse.json(
         { error: "Failed to upload photo" },
         { status: 500 }
@@ -142,7 +143,7 @@ export async function POST(
       photoUrl,
     });
   } catch (error) {
-    console.error("Error uploading photo:", error);
+    logger.exception(error, { api: "driver/routes/[routeId]/stops/[stopId]/photo" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

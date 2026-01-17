@@ -4,6 +4,7 @@ import {
   checkAddressCoverage,
   checkCoverage,
 } from "@/lib/services/coverage";
+import { logger } from "@/lib/utils/logger";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ data: coverage });
   } catch (error) {
-    console.error("Coverage check error:", error);
+    logger.exception(error, { api: "coverage/check" });
     return NextResponse.json(
       {
         error: {

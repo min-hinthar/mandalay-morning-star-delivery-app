@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { deliveryMetricsQuerySchema } from "@/lib/validations/analytics";
+import { logger } from "@/lib/utils/logger";
 import {
   transformDeliveryMetrics,
   calculateMetricsSummary,
@@ -108,7 +109,7 @@ export async function GET(request: NextRequest) {
     // Refresh materialized views
     const { error: refreshError } = await supabase.rpc("refresh_analytics_views");
     if (refreshError) {
-      console.warn("Failed to refresh analytics views:", refreshError);
+      logger.warn("Failed to refresh analytics views", { api: "admin/analytics/delivery", flowId: "refresh-views" });
     }
 
     // Fetch daily metrics from materialized view
@@ -121,7 +122,7 @@ export async function GET(request: NextRequest) {
       .returns<DeliveryMetricsMvRow[]>();
 
     if (metricsError) {
-      console.error("Failed to fetch delivery metrics:", metricsError);
+      logger.exception(metricsError, { api: "admin/analytics/delivery" });
       return NextResponse.json(
         { error: "Failed to fetch delivery metrics" },
         { status: 500 }
@@ -244,7 +245,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Error fetching delivery metrics:", error);
+    logger.exception(error, { api: "admin/analytics/delivery" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

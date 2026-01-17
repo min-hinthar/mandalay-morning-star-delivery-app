@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
-import * as Sentry from "@sentry/nextjs";
 import { stripe } from "@/lib/stripe/server";
 import { createServiceClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/utils/logger";
 import type Stripe from "stripe";
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
@@ -10,7 +10,7 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
 export async function POST(request: Request) {
   if (!WEBHOOK_SECRET) {
-    console.error("STRIPE_WEBHOOK_SECRET is not configured");
+    logger.error("STRIPE_WEBHOOK_SECRET is not configured", { api: "stripe-webhook", flowId: "webhook" });
     return NextResponse.json(
       { error: "Webhook secret not configured" },
       { status: 500 }
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   const signature = headersList.get("stripe-signature");
 
   if (!signature) {
-    console.error("Missing Stripe signature header");
+    logger.error("Missing Stripe signature header", { api: "stripe-webhook", flowId: "webhook" });
     return NextResponse.json(
       { error: "Missing signature" },
       { status: 400 }
@@ -35,8 +35,8 @@ export async function POST(request: Request) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, WEBHOOK_SECRET);
   } catch (err) {
+    logger.exception(err, { api: "stripe-webhook", flowId: "webhook" });
     const message = err instanceof Error ? err.message : "Unknown error";
-    console.error("Webhook signature verification failed:", message);
     return NextResponse.json(
       { error: `Webhook Error: ${message}` },
       { status: 400 }
@@ -73,15 +73,15 @@ export async function POST(request: Request) {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        logger.info(`Unhandled event type: ${event.type}`, { api: "stripe-webhook", flowId: "webhook" });
     }
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    Sentry.captureException(err, {
-      tags: { api: "stripe-webhook", eventType: event.type },
-      extra: { eventId: event.id },
+    logger.exception(err, {
+      api: "stripe-webhook",
+      flowId: "webhook",
+      eventType: event.type,
+      eventId: event.id,
     });
-    console.error(`Error handling ${event.type}:`, message);
     // Return 200 to acknowledge receipt (Stripe will retry on 4xx/5xx)
   }
 
@@ -98,7 +98,7 @@ async function handleCheckoutSessionCompleted(
   const orderId = session.metadata?.order_id;
 
   if (!orderId) {
-    console.error("No order_id in session metadata:", session.id);
+    logger.error("No order_id in session metadata", { sessionId: session.id, api: "stripe-webhook", flowId: "checkout" });
     return;
   }
 
@@ -114,11 +114,11 @@ async function handleCheckoutSessionCompleted(
     .eq("status", "pending"); // Only update if still pending (idempotency)
 
   if (error) {
-    console.error("Failed to update order status:", error);
+    logger.exception(error, { orderId, api: "stripe-webhook", flowId: "checkout" });
     throw error;
   }
 
-  console.log(`Order ${orderId} confirmed via webhook`);
+  logger.info(`Order ${orderId} confirmed via webhook`, { orderId, api: "stripe-webhook", flowId: "checkout" });
 
   // Trigger order confirmation email via Supabase Edge Function
   await sendOrderConfirmationEmail(orderId);
@@ -129,7 +129,7 @@ async function handleCheckoutSessionCompleted(
  */
 async function sendOrderConfirmationEmail(orderId: string): Promise<void> {
   if (!SUPABASE_URL) {
-    console.error("SUPABASE_URL is not configured, skipping email");
+    logger.warn("SUPABASE_URL is not configured, skipping email", { orderId, api: "stripe-webhook", flowId: "email" });
     return;
   }
 
@@ -146,15 +146,14 @@ async function sendOrderConfirmationEmail(orderId: string): Promise<void> {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error("Failed to send confirmation email:", errorData);
+      logger.error("Failed to send confirmation email", { orderId, errorData, api: "stripe-webhook", flowId: "email" });
       // Don't throw - email failure shouldn't fail the webhook
     } else {
-      const result = await response.json();
-      console.log(`Order confirmation email sent for order ${orderId}:`, result);
+      logger.info(`Order confirmation email sent for order ${orderId}`, { orderId, api: "stripe-webhook", flowId: "email" });
     }
   } catch (error) {
     // Log but don't throw - email failure shouldn't fail the webhook
-    console.error("Error calling email Edge Function:", error);
+    logger.exception(error, { orderId, api: "stripe-webhook", flowId: "email" });
   }
 }
 
@@ -168,7 +167,7 @@ async function handleCheckoutSessionExpired(
   const orderId = session.metadata?.order_id;
 
   if (!orderId) {
-    console.error("No order_id in session metadata:", session.id);
+    logger.error("No order_id in session metadata", { sessionId: session.id, api: "stripe-webhook", flowId: "checkout" });
     return;
   }
 
@@ -182,11 +181,11 @@ async function handleCheckoutSessionExpired(
     .eq("status", "pending"); // Only update if still pending
 
   if (error) {
-    console.error("Failed to cancel expired order:", error);
+    logger.exception(error, { orderId, api: "stripe-webhook", flowId: "checkout" });
     throw error;
   }
 
-  console.log(`Order ${orderId} cancelled due to expired checkout session`);
+  logger.info(`Order ${orderId} cancelled due to expired checkout session`, { orderId, api: "stripe-webhook", flowId: "checkout" });
 }
 
 /**
@@ -202,13 +201,18 @@ async function handlePaymentFailed(
 
   if (!orderId) {
     // This might be a retry or payment intent not associated with our checkout
-    console.log("No order_id in payment_intent metadata, skipping");
+    logger.info("No order_id in payment_intent metadata, skipping", { api: "stripe-webhook", flowId: "payment" });
     return;
   }
 
   // Log the failure but don't cancel the order yet
   // The customer may retry or the checkout session may expire
-  console.log(`Payment failed for order ${orderId}:`, paymentIntent.last_payment_error?.message);
+  logger.warn(`Payment failed for order ${orderId}`, {
+    orderId,
+    errorMessage: paymentIntent.last_payment_error?.message,
+    api: "stripe-webhook",
+    flowId: "payment",
+  });
 }
 
 /**
@@ -222,7 +226,7 @@ async function handleChargeRefunded(
   const paymentIntentId = charge.payment_intent as string;
 
   if (!paymentIntentId) {
-    console.log("No payment_intent on charge, skipping refund handler");
+    logger.info("No payment_intent on charge, skipping refund handler", { api: "stripe-webhook", flowId: "refund" });
     return;
   }
 
@@ -234,7 +238,7 @@ async function handleChargeRefunded(
     .single();
 
   if (findError || !order) {
-    console.error("Could not find order for refund:", paymentIntentId);
+    logger.error("Could not find order for refund", { paymentIntentId, api: "stripe-webhook", flowId: "refund" });
     return;
   }
 
@@ -250,13 +254,19 @@ async function handleChargeRefunded(
       .eq("id", order.id);
 
     if (updateError) {
-      console.error("Failed to update order status for refund:", updateError);
+      logger.exception(updateError, { orderId: order.id, api: "stripe-webhook", flowId: "refund" });
       throw updateError;
     }
 
-    console.log(`Order ${order.id} cancelled due to full refund`);
+    logger.info(`Order ${order.id} cancelled due to full refund`, { orderId: order.id, api: "stripe-webhook", flowId: "refund" });
   } else {
     // Partial refund - log but don't change status
-    console.log(`Partial refund processed for order ${order.id}: ${charge.amount_refunded}/${charge.amount}`);
+    logger.info(`Partial refund processed for order ${order.id}`, {
+      orderId: order.id,
+      amountRefunded: charge.amount_refunded,
+      totalAmount: charge.amount,
+      api: "stripe-webhook",
+      flowId: "refund",
+    });
   }
 }

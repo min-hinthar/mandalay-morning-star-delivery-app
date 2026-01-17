@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { updateDriverSchema, toggleDriverActiveSchema } from "@/lib/validations/driver";
+import { logger } from "@/lib/utils/logger";
 import type { ProfileRole, ProfilesRow } from "@/types/database";
 import type { DriversRow, VehicleType } from "@/types/driver";
 
@@ -97,7 +98,7 @@ export async function GET(
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Error fetching driver:", error);
+    logger.exception(error, { api: "admin/drivers/[id]" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -150,7 +151,7 @@ export async function PATCH(
         .single();
 
       if (updateError) {
-        console.error("Failed to update driver:", updateError);
+        logger.exception(updateError, { api: "admin/drivers/[id]", flowId: "toggle-active" });
         return NextResponse.json(
           { error: "Failed to update driver" },
           { status: 500 }
@@ -203,7 +204,7 @@ export async function PATCH(
         .eq("id", id);
 
       if (driverUpdateError) {
-        console.error("Failed to update driver:", driverUpdateError);
+        logger.exception(driverUpdateError, { api: "admin/drivers/[id]", flowId: "update-driver" });
         return NextResponse.json(
           { error: "Failed to update driver" },
           { status: 500 }
@@ -223,7 +224,7 @@ export async function PATCH(
         .eq("id", existingDriver.user_id);
 
       if (profileUpdateError) {
-        console.error("Failed to update profile:", profileUpdateError);
+        logger.exception(profileUpdateError, { api: "admin/drivers/[id]", flowId: "update-profile" });
         // Don't fail the whole request, driver update already succeeded
       }
     }
@@ -233,7 +234,7 @@ export async function PATCH(
       message: "Driver updated successfully",
     });
   } catch (error) {
-    console.error("Error updating driver:", error);
+    logger.exception(error, { api: "admin/drivers/[id]" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -294,7 +295,7 @@ export async function DELETE(
       .eq("id", id);
 
     if (deleteError) {
-      console.error("Failed to delete driver:", deleteError);
+      logger.exception(deleteError, { api: "admin/drivers/[id]", flowId: "delete" });
       return NextResponse.json(
         { error: "Failed to delete driver" },
         { status: 500 }
@@ -306,7 +307,7 @@ export async function DELETE(
       message: "Driver deactivated successfully",
     });
   } catch (error) {
-    console.error("Error deleting driver:", error);
+    logger.exception(error, { api: "admin/drivers/[id]" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

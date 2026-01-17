@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createPublicClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/utils/logger";
 import type { MenuItem, MenuSearchResponse, ModifierGroup } from "@/types/menu";
 
 const searchSchema = z.object({
@@ -161,7 +162,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Menu search error:", error);
+    logger.exception(error, { api: "menu/search" });
     return NextResponse.json(
       { error: { code: "INTERNAL_ERROR", message: "Failed to search menu" } },
       { status: 500 }

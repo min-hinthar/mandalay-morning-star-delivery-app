@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { updateRouteSchema, reorderStopsSchema } from "@/lib/validations/route";
+import { logger } from "@/lib/utils/logger";
 import type { ProfileRole, ProfilesRow, AddressesRow, OrdersRow } from "@/types/database";
 import type { RoutesRow, DriversRow, RouteStopsRow, RouteStatus } from "@/types/driver";
 
@@ -217,7 +218,7 @@ export async function GET(
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Error fetching route:", error);
+    logger.exception(error, { api: "admin/routes/[id]" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -272,7 +273,7 @@ export async function PATCH(
           .eq("route_id", id);
 
         if (updateError) {
-          console.error("Failed to reorder stop:", updateError);
+          logger.exception(updateError, { api: "admin/routes/[id]", flowId: "reorder-stops" });
           return NextResponse.json(
             { error: "Failed to reorder stops" },
             { status: 500 }
@@ -326,7 +327,7 @@ export async function PATCH(
       .single();
 
     if (updateError) {
-      console.error("Failed to update route:", updateError);
+      logger.exception(updateError, { api: "admin/routes/[id]", flowId: "update" });
       return NextResponse.json(
         { error: "Failed to update route" },
         { status: 500 }
@@ -340,7 +341,7 @@ export async function PATCH(
       message: "Route updated successfully",
     });
   } catch (error) {
-    console.error("Error updating route:", error);
+    logger.exception(error, { api: "admin/routes/[id]" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -404,7 +405,7 @@ export async function DELETE(
       .eq("id", id);
 
     if (deleteError) {
-      console.error("Failed to delete route:", deleteError);
+      logger.exception(deleteError, { api: "admin/routes/[id]", flowId: "delete" });
       return NextResponse.json(
         { error: "Failed to delete route" },
         { status: 500 }
@@ -416,7 +417,7 @@ export async function DELETE(
       message: "Route deleted successfully",
     });
   } catch (error) {
-    console.error("Error deleting route:", error);
+    logger.exception(error, { api: "admin/routes/[id]" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

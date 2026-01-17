@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/utils/logger";
 import {
   updateStopStatusSchema,
   isValidStatusTransition,
@@ -143,7 +144,7 @@ export async function PATCH(
       .eq("id", stopId);
 
     if (updateError) {
-      console.error("Error updating stop:", updateError);
+      logger.exception(updateError, { api: "driver/routes/[routeId]/stops/[stopId]" });
       return NextResponse.json(
         { error: "Failed to update stop" },
         { status: 500 }
@@ -199,7 +200,7 @@ export async function PATCH(
       nextStop,
     });
   } catch (error) {
-    console.error("Error updating stop:", error);
+    logger.exception(error, { api: "driver/routes/[routeId]/stops/[stopId]" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

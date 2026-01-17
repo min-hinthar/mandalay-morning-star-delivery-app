@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
+import { logger } from "@/lib/utils/logger";
 
 const updateMenuItemSchema = z.object({
   category_id: z.string().uuid("Invalid category ID").optional(),
@@ -48,7 +49,7 @@ export async function PATCH(
       .single();
 
     if (error) {
-      console.error("Failed to update menu item:", error);
+      logger.exception(error, { api: "admin/menu/[id]" });
       if (error.code === "PGRST116") {
         return NextResponse.json(
           { error: "Menu item not found" },
@@ -69,7 +70,7 @@ export async function PATCH(
 
     return NextResponse.json(item);
   } catch (error) {
-    console.error("Error updating menu item:", error);
+    logger.exception(error, { api: "admin/menu/[id]" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -110,7 +111,7 @@ export async function DELETE(
       .eq("id", id);
 
     if (error) {
-      console.error("Failed to delete menu item:", error);
+      logger.exception(error, { api: "admin/menu/[id]", flowId: "delete" });
       return NextResponse.json(
         { error: "Failed to delete menu item" },
         { status: 500 }
@@ -119,7 +120,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting menu item:", error);
+    logger.exception(error, { api: "admin/menu/[id]" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

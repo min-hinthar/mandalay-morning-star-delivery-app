@@ -12,6 +12,7 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/utils/logger";
 import { calculateETA, calculateRemainingStops } from "@/lib/utils/eta";
 import type { OrderStatus } from "@/types/database";
 import type { RouteStatus, RouteStopStatus, VehicleType } from "@/types/driver";
@@ -403,7 +404,7 @@ export async function GET(
 
     return NextResponse.json({ data: trackingData });
   } catch (error) {
-    console.error("Error fetching tracking data:", error);
+    logger.exception(error, { api: "tracking/[orderId]" });
     return NextResponse.json(
       {
         error: {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/utils/logger";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -56,11 +56,12 @@ export async function POST(request: Request, { params }: RouteParams) {
     .eq("status", "pending"); // Idempotency check
 
   if (updateError) {
-    Sentry.captureException(updateError, {
-      tags: { api: "cancel-order" },
-      extra: { orderId, userId: user.id },
+    logger.exception(updateError, {
+      api: "cancel-order",
+      orderId,
+      userId: user.id,
+      flowId: "order",
     });
-    console.error("Failed to cancel order:", updateError);
     return NextResponse.json(
       { error: { code: "INTERNAL_ERROR", message: "Failed to cancel order" } },
       { status: 500 }

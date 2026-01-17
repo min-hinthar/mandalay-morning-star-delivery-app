@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 import { createDriverSchema } from "@/lib/validations/driver";
 import type { ProfilesRow } from "@/types/database";
 import type { DriversRow, VehicleType } from "@/types/driver";
@@ -46,7 +47,7 @@ export async function GET() {
       .returns<DriverWithProfile[]>();
 
     if (driversError) {
-      console.error("Failed to fetch drivers:", driversError);
+      logger.exception(driversError, { api: "admin/drivers", flowId: "fetch" });
       return NextResponse.json(
         { error: "Failed to fetch drivers" },
         { status: 500 }
@@ -72,7 +73,7 @@ export async function GET() {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Error fetching drivers:", error);
+    logger.exception(error, { api: "admin/drivers", flowId: "fetch" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (driverError) {
-        console.error("Failed to create driver:", driverError);
+        logger.exception(driverError, { api: "admin/drivers", flowId: "create" });
         return NextResponse.json(
           { error: "Failed to create driver" },
           { status: 500 }
@@ -174,7 +175,7 @@ export async function POST(request: NextRequest) {
     }, { status: 400 });
 
   } catch (error) {
-    console.error("Error creating driver:", error);
+    logger.exception(error, { api: "admin/drivers", flowId: "create" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
