@@ -58,3 +58,13 @@ Reference for past bugs, root causes, and fixes. Check here before debugging sim
 **Fix:** Updated imports to use correct path `@/lib/utils/cn`
 
 ---
+
+## 2025-01-17: Sentry debug API not sending events
+**Type:** Runtime | **Severity:** Medium
+**Files:** `src/app/api/debug/sentry/route.ts`
+
+**Error:** Test errors from `/api/debug/sentry` not appearing in Sentry dashboard
+**Root Cause:** Sentry events are sent asynchronously; serverless function terminates before flush completes
+**Fix:** Added `await Sentry.flush(2000)` before returning response
+
+---
