@@ -1,5 +1,10 @@
 # Mandalay Morning Star
 
+## Output Style
+- Terse, imperative language; no filler or explanations
+- Bullets over prose; tables over lists when structured
+- State facts, skip justifications
+
 ## Stack
 Next.js 16 | React 19 | Supabase | Stripe | TailwindCSS | Zustand
 
