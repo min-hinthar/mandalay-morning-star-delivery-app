@@ -6,8 +6,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OrderTimeline } from "@/components/orders/OrderTimeline";
+import { PendingOrderActions } from "@/components/orders/PendingOrderActions";
 import { formatPrice } from "@/lib/utils/currency";
 import { format, parseISO } from "date-fns";
+import { isPastCutoff } from "@/lib/utils/delivery-dates";
 import type { Order, OrderItem, OrderItemModifier, OrderAddress, OrderStatus } from "@/types/order";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/types/order";
 
@@ -318,12 +320,25 @@ export default async function OrderDetailPage({ params }: PageProps) {
         </Card>
 
         {/* Actions */}
-        <div className="flex justify-center">
-          <Button asChild variant="outline">
-            <Link href="/menu">
-              Order Again
-            </Link>
-          </Button>
+        <div className="space-y-4">
+          {order.status === "pending" && (
+            <PendingOrderActions
+              orderId={order.id}
+              isPastCutoff={
+                order.deliveryWindowStart
+                  ? isPastCutoff(parseISO(order.deliveryWindowStart))
+                  : false
+              }
+            />
+          )}
+
+          <div className="flex justify-center">
+            <Button asChild variant="outline">
+              <Link href="/menu">
+                Order Again
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </main>

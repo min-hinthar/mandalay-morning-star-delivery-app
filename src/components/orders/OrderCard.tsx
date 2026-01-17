@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, Package } from "lucide-react";
+import { ChevronRight, Package, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -65,6 +65,12 @@ export function OrderCard({ order, index = 0 }: OrderCardProps) {
                   <Badge className={ORDER_STATUS_COLORS[order.status]}>
                     {ORDER_STATUS_LABELS[order.status]}
                   </Badge>
+                  {order.status === "pending" && (
+                    <p className="text-xs text-amber-600 flex items-center justify-end gap-1 mt-1">
+                      <AlertCircle className="h-3 w-3" />
+                      Action required
+                    </p>
+                  )}
                 </div>
                 <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-charcoal transition-colors" />
               </div>
