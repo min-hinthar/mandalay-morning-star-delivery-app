@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe/server";
-import { createPublicClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import type Stripe from "stripe";
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
@@ -42,8 +42,8 @@ export async function POST(request: Request) {
     );
   }
 
-  // Use public client for webhook operations (no user context)
-  const supabase = createPublicClient();
+  // Use service role client to bypass RLS (webhook has no user context)
+  const supabase = createServiceClient();
 
   try {
     switch (event.type) {
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
  * Handle successful checkout session completion
  */
 async function handleCheckoutSessionCompleted(
-  supabase: ReturnType<typeof createPublicClient>,
+  supabase: ReturnType<typeof createServiceClient>,
   session: Stripe.Checkout.Session
 ) {
   const orderId = session.metadata?.order_id;
@@ -158,7 +158,7 @@ async function sendOrderConfirmationEmail(orderId: string): Promise<void> {
  * Handle expired checkout session (customer didn't complete payment in time)
  */
 async function handleCheckoutSessionExpired(
-  supabase: ReturnType<typeof createPublicClient>,
+  supabase: ReturnType<typeof createServiceClient>,
   session: Stripe.Checkout.Session
 ) {
   const orderId = session.metadata?.order_id;
@@ -189,7 +189,7 @@ async function handleCheckoutSessionExpired(
  * Handle failed payment attempt
  */
 async function handlePaymentFailed(
-  supabase: ReturnType<typeof createPublicClient>,
+  supabase: ReturnType<typeof createServiceClient>,
   paymentIntent: Stripe.PaymentIntent
 ) {
   // Payment intents may not have our order_id directly
@@ -211,7 +211,7 @@ async function handlePaymentFailed(
  * Handle refund events
  */
 async function handleChargeRefunded(
-  supabase: ReturnType<typeof createPublicClient>,
+  supabase: ReturnType<typeof createServiceClient>,
   charge: Stripe.Charge
 ) {
   // Find the order by payment intent
