@@ -236,11 +236,8 @@ export async function POST(request: Request) {
       idempotencyKey: `checkout_${order.id}`,
     });
 
-    // Update order with Stripe session ID
-    await supabase
-      .from("orders")
-      .update({ stripe_payment_intent_id: session.id })
-      .eq("id", order.id);
+    // Note: stripe_payment_intent_id is set by webhook on checkout.session.completed
+    // session.payment_intent is null until payment completes
 
     return NextResponse.json({
       data: {
