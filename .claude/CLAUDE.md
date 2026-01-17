@@ -53,12 +53,8 @@ Run before completing: `pnpm typecheck && pnpm test`
 | GitHub | PR, issue ref | Pull context, link commits |
 
 ## Error Protocol
-- **History:** If a bug recurs, consult `.claude/ERROR_HISTORY.md` for known patterns. Do not @-mention the file unless relevant.
-- **Diagnostics:** Use `sentry.get_issue` + `sentry.invoke_seer` to pull AI-analyzed root causes.
-- **Plan Mode:** Propose a fix in Plan Mode before implementation. Use `/mod opus-4.5` for complex logic and `/mod haiku-4.5` for execution.
-- **Logging:** Use `Sentry.logger` with `{ userId, flowId }`. Never use `console.log` in production.
-- **Verification:** 
-  1. Switch to `/mod haiku-4.5` for pre-commit.
-  2. Run `pnpm typecheck && pnpm test`.
-  3. For UI fixes, use Playwright MCP to verify visual diffs and contrast.
-- **Finalize:** Append the fix summary to `ERROR_HISTORY.md`, then run `/clear` to reset context.
+- **History:** Check `.claude/ERROR_HISTORY.md` before debugging; log every fix after.
+- **Diagnostics:** Use `sentry.get_issue` + `sentry.analyze_issue_with_seer` for AI root-cause analysis.
+- **Plan Mode:** Propose fix in Plan Mode. Use Opus for complex logic, Haiku for execution.
+- **Logging:** Use `Sentry.logger` with `{ userId, flowId }`. Never `console.log` in production.
+- **Verification:** Switch to Haiku for pre-commit. Run `pnpm typecheck && pnpm test`. Use Playwright MCP for UI validation.
