@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import * as Sentry from "@sentry/nextjs";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,10 +46,10 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               Try Again
             </Button>
             <Button asChild>
-              <a href="/">
+              <Link href="/">
                 <Home className="h-4 w-4 mr-2" />
                 Go Home
-              </a>
+              </Link>
             </Button>
           </div>
         </CardContent>
