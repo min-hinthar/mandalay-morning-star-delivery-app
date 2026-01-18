@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mandalay Morning Star - Select Delivery Time</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;0,900;1,400&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b31919",
+                        "morning-gold": "#F9D960",
+                        "jade-green": "#00A86B",
+                        "saffron": "#F4C430",
+                        "background-light": "#fbf8f8",
+                        "background-dark": "#211111",
+                        "cream-darker": "#f3e8e8",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "serif"],
+                        "sans": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'luminous': '0 20px 50px -12px rgba(179, 25, 25, 0.12)',
+                        'gold-glow': '0 10px 30px -5px rgba(249, 217, 96, 0.4)',
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: "Noto Sans", sans-serif;
+        }
+        h1, h2, h3, .font-display {
+            font-family: "Noto Serif", serif;
+        }
+        .step-active {
+            @apply border-saffron bg-saffron/10 text-saffron;
+        }
+        .step-complete {
+            @apply border-jade-green bg-jade-green/10 text-jade-green;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-[#1b0e0e] dark:text-[#fbf8f8]">
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-solid border-cream-darker dark:border-white/10 px-6 lg:px-20 py-4">
+<div class="max-w-[1280px] mx-auto flex items-center justify-between">
+<div class="flex items-center gap-12">
+<div class="flex items-center gap-3 cursor-pointer" onclick="window.location.reload()">
+<div class="text-primary">
+<svg class="size-8" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M44 11.2727C44 14.0109 39.8386 16.3957 33.69 17.6364C39.8386 18.877 44 21.2618 44 24C44 26.7382 39.8386 29.123 33.69 30.3636C39.8386 31.6043 44 33.9891 44 36.7273C44 40.7439 35.0457 44 24 44C12.9543 44 4 40.7439 4 36.7273C4 33.9891 8.16144 31.6043 14.31 30.3636C8.16144 29.123 4 26.7382 4 24C4 21.2618 8.16144 18.877 14.31 17.6364C8.16144 16.3957 4 14.0109 4 11.2727C4 7.25611 12.9543 4 24 4C35.0457 4 44 7.25611 44 11.2727Z"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold tracking-tight font-display">Mandalay Morning Star</h2>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-xs uppercase tracking-widest font-bold text-gray-400">Secure Checkout</span>
+<span class="material-symbols-outlined text-gray-400">lock</span>
+</div>
+</div>
+</header>
+<main class="max-w-[1280px] mx-auto px-6 lg:px-20 py-12">
+<div class="flex justify-center mb-16">
+<div class="flex items-center gap-4 w-full max-w-2xl">
+<div class="flex flex-col items-center gap-2 flex-1">
+<div class="size-10 rounded-full border-2 border-jade-green bg-jade-green/10 flex items-center justify-center text-jade-green">
+<span class="material-symbols-outlined text-xl">check</span>
+</div>
+<span class="text-xs font-bold uppercase tracking-wider text-jade-green">Address</span>
+</div>
+<div class="h-[2px] bg-cream-darker dark:bg-white/10 flex-1 -mt-6"></div>
+<div class="flex flex-col items-center gap-2 flex-1">
+<div class="size-10 rounded-full border-2 border-saffron bg-saffron/10 flex items-center justify-center text-saffron">
+<div class="size-2 rounded-full bg-saffron"></div>
+</div>
+<span class="text-xs font-bold uppercase tracking-wider text-saffron">Time Slot</span>
+</div>
+<div class="h-[2px] bg-cream-darker dark:bg-white/10 flex-1 -mt-6"></div>
+<div class="flex flex-col items-center gap-2 flex-1">
+<div class="size-10 rounded-full border-2 border-cream-darker dark:border-white/10 flex items-center justify-center text-gray-300">
+<span class="text-sm font-bold">3</span>
+</div>
+<span class="text-xs font-bold uppercase tracking-wider text-gray-400">Review</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col lg:flex-row gap-16">
+<div class="flex-1">
+<div class="mb-10">
+<h1 class="text-5xl font-black font-display tracking-tight mb-2">Select Delivery Time</h1>
+<p class="text-gray-500 dark:text-gray-400">Choose a window for your Saturday feast delivery.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="relative group cursor-pointer border-2 border-morning-gold bg-white dark:bg-white/5 p-6 rounded-xl shadow-md transition-all hover:shadow-lg">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-bold uppercase tracking-widest text-primary/70">Saturday morning</span>
+<div class="size-6 bg-morning-gold rounded-full flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-white text-sm font-black">check</span>
+</div>
+</div>
+<div class="text-xl font-bold font-display mb-1">10:00 AM - 11:30 AM</div>
+<p class="text-sm text-gray-500">Perfect for a late brunch</p>
+</div>
+<div class="relative group cursor-pointer border-2 border-transparent bg-white dark:bg-white/5 p-6 rounded-xl shadow-sm border-cream-darker dark:border-white/10 transition-all hover:border-morning-gold/50 hover:shadow-md">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-bold uppercase tracking-widest text-gray-400">Saturday Mid-day</span>
+</div>
+<div class="text-xl font-bold font-display mb-1">11:30 AM - 1:00 PM</div>
+<p class="text-sm text-gray-500">Traditional lunch service</p>
+</div>
+<div class="relative group cursor-pointer border-2 border-transparent bg-white dark:bg-white/5 p-6 rounded-xl shadow-sm border-cream-darker dark:border-white/10 transition-all hover:border-morning-gold/50 hover:shadow-md">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-bold uppercase tracking-widest text-gray-400">Saturday Afternoon</span>
+</div>
+<div class="text-xl font-bold font-display mb-1">1:00 PM - 2:30 PM</div>
+<p class="text-sm text-gray-500">Late lunch or early meal prep</p>
+</div>
+<div class="relative opacity-60 grayscale bg-cream-darker/50 dark:bg-white/5 p-6 rounded-xl border border-dashed border-gray-300 dark:border-white/10">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-bold uppercase tracking-widest text-gray-400">Saturday Late</span>
+<span class="text-[10px] font-bold bg-gray-200 dark:bg-white/10 px-2 py-1 rounded text-gray-500">FULLY BOOKED</span>
+</div>
+<div class="text-xl font-bold font-display mb-1">2:30 PM - 4:00 PM</div>
+<p class="text-sm text-gray-500">No longer available</p>
+</div>
+</div>
+<div class="mt-12 p-6 bg-primary/5 rounded-xl border border-primary/10">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-primary">info</span>
+<div>
+<h4 class="font-bold text-primary text-sm mb-1">Preparation Notice</h4>
+<p class="text-xs text-primary/70 leading-relaxed">All meals are cooked fresh on Saturday morning starting at 4:00 AM. Our delivery windows allow our drivers to reach you while the food is at peak freshness.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:w-[400px]">
+<div class="sticky top-32 bg-cream-darker dark:bg-white/5 p-8 rounded-xl shadow-luminous border border-white dark:border-white/5">
+<h2 class="text-2xl font-bold font-display mb-8">Order Summary</h2>
+<div class="space-y-4 mb-8">
+<div class="flex justify-between text-gray-600 dark:text-gray-300">
+<span>Items (3)</span>
+<span class="font-medium">$46.50</span>
+</div>
+<div class="flex justify-between text-gray-600 dark:text-gray-300">
+<span>Delivery Fee</span>
+<span class="font-medium">$5.00</span>
+</div>
+<div class="flex justify-between text-gray-600 dark:text-gray-300">
+<span>Estimated Taxes</span>
+<span class="font-medium">$4.12</span>
+</div>
+<div class="pt-4 border-t border-primary/10 flex justify-between items-end">
+<span class="text-xl font-bold">Total</span>
+<span class="text-3xl font-black text-primary font-display">$55.62</span>
+</div>
+</div>
+<div class="mb-8 border-t border-primary/10 pt-6 space-y-4">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-gray-400 text-sm">location_on</span>
+<div class="text-xs text-gray-500">
+<p class="font-bold text-gray-700 dark:text-gray-300">Delivery Address</p>
+<p>123 Shwedagon Pagoda Rd, Golden Valley</p>
+</div>
+</div>
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-primary text-sm">schedule</span>
+<div class="text-xs text-primary">
+<p class="font-bold">Delivery Time</p>
+<p>Sat, 10:00 AM - 11:30 AM</p>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-5 rounded-xl transition-all shadow-gold-glow flex items-center justify-center gap-3 active:scale-[0.98]">
+<span>Continue to Review</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<div class="mt-6 flex flex-col gap-4">
+<button class="text-sm font-bold text-gray-400 hover:text-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+<span>Back to Address</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="mt-20 py-12 border-t border-cream-darker dark:border-white/5 bg-white dark:bg-black/20">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-20 flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex flex-col items-center md:items-start gap-2">
+<div class="flex items-center gap-2 opacity-60">
+<svg class="size-5" fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M44 11.2727C44 14.0109 39.8386 16.3957 33.69 17.6364C39.8386 18.877 44 21.2618 44 24C44 26.7382 39.8386 29.123 33.69 30.3636C39.8386 31.6043 44 33.9891 44 36.7273C44 40.7439 35.0457 44 24 44C12.9543 44 4 40.7439 4 36.7273C4 33.9891 8.16144 31.6043 14.31 30.3636C8.16144 29.123 4 26.7382 4 24C4 21.2618 8.16144 18.877 14.31 17.6364C8.16144 16.3957 4 14.0109 4 11.2727C4 7.25611 12.9543 4 24 4C35.0457 4 44 7.25611 44 11.2727Z"></path>
+</svg>
+<p class="font-display font-bold">Mandalay Morning Star</p>
+</div>
+<p class="text-xs text-gray-400">© 2024 Premium Burmese Food Delivery. All rights reserved.</p>
+</div>
+<div class="flex gap-8 text-sm font-medium text-gray-500">
+<a class="hover:text-primary" href="#">Privacy Policy</a>
+<a class="hover:text-primary" href="#">Terms of Service</a>
+<a class="hover:text-primary" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+
+</body></html>

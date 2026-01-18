@@ -44,15 +44,30 @@ This directory contains sprint-organized build tasks that map the 35 UX prompts 
 
 ## P1-Foundation UI Assets (Finalized)
 
-Design prototypes have been generated for Sprint 1 Tasks 1.1-1.2 (Design Tokens). These serve as visual references for implementation.
+Design prototypes serve as visual references for implementation. **Note**: `/frontend-design` skill should treat these as templates and make improvements as fitting—enhancing aesthetics, interactions, and polish while preserving core design intent.
 
+### Design Tokens (Sprint 1)
 | Asset | Description | Location |
 |-------|-------------|----------|
-| **Light Theme** | Primary brand colors + component showcase | [Light-Theme.md](../../UI-Assets/P1-Foundation/Light-Theme.md) / [PNG](../../UI-Assets/P1-Foundation/Light-Theme.png) |
+| **Design Tokens 1** | Color palette, typography showcase | [code.html](../../UI-Assets/P1-Foundation/Design-Tokens-1/code.html) / [screen.png](../../UI-Assets/P1-Foundation/Design-Tokens-1/screen.png) |
+| **Design Tokens 2** | Component samples, spacing | [code.html](../../UI-Assets/P1-Foundation/Design-Tokens-2/code.html) / [screen.png](../../UI-Assets/P1-Foundation/Design-Tokens-2/screen.png) |
+| **Design Tokens 3** | Extended tokens, variants | [code.html](../../UI-Assets/P1-Foundation/Design-Tokens-3/code.html) / [screen.png](../../UI-Assets/P1-Foundation/Design-Tokens-3/screen.png) |
+| **Light Theme** | Primary brand colors | [Light-Theme.md](../../UI-Assets/P1-Foundation/Light-Theme.md) / [PNG](../../UI-Assets/P1-Foundation/Light-Theme.png) |
 | **Dark Theme** | Dark mode with warm undertones | [Dark-Theme.md](../../UI-Assets/P1-Foundation/Dark-Theme.md) / [PNG](../../UI-Assets/P1-Foundation/Dark-Theme.png) |
-| **Vibrant Heritage** | Alternate warm palette option | [Vibrant-Heritage.md](../../UI-Assets/P1-Foundation/Vibrant-Heritage.md) / [PNG](../../UI-Assets/P1-Foundation/Vibrant-Heritage.png) |
 
-**Usage**: These markdown files contain the finalized design tokens with complete color palette, typography, and component samples.
+### Cart & Checkout (Sprint 3)
+| Asset | Description | Location |
+|-------|-------------|----------|
+| **Cart Overview 1** | Cart bar, item list layout | [code.html](../../UI-Assets/P1-Foundation/Cart-Overview-1/code.html) / [screen.png](../../UI-Assets/P1-Foundation/Cart-Overview-1/screen.png) |
+| **Cart Overview 2** | Cart summary, totals | [code.html](../../UI-Assets/P1-Foundation/Cart-Overview-2/code.html) / [screen.png](../../UI-Assets/P1-Foundation/Cart-Overview-2/screen.png) |
+| **Cart Overview 3** | Cart states, interactions | [code.html](../../UI-Assets/P1-Foundation/Cart-Overview-3/code.html) / [screen.png](../../UI-Assets/P1-Foundation/Cart-Overview-3/screen.png) |
+
+### Components (Sprint 2)
+| Asset | Description | Location |
+|-------|-------------|----------|
+| **Item Detail Modal** | Full item customization view | [code.html](../../UI-Assets/P1-Foundation/Item-Detail-Modal/code.html) / [screen.png](../../UI-Assets/P1-Foundation/Item-Detail-Modal/screen.png) |
+
+**Usage**: Review screen.png for visual reference, code.html for structure. `/frontend-design` should improve upon these templates.
 
 ---
 
@@ -144,10 +159,14 @@ Before marking any sprint complete:
 
 The `/frontend-design` skill creates distinctive, production-grade UI components. When using it:
 
-1. **Paste the full prompt** — don't summarize
-2. **Specify output files** — mention where components should go
-3. **Request TypeScript** — ensure proper typing
-4. **Include existing tokens** — reference design system
+1. **Reference UI Assets** — point to relevant screen.png and code.html templates
+2. **Improve upon templates** — treat assets as starting points, not rigid specs
+3. **Paste the full prompt** — don't summarize
+4. **Specify output files** — mention where components should go
+5. **Request TypeScript** — ensure proper typing
+6. **Include existing tokens** — reference design system
+
+**Important**: The `/frontend-design` skill should enhance templates with better animations, polish, accessibility, and modern patterns while preserving core design intent.
 
 ### Example Usage
 

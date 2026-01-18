@@ -418,11 +418,17 @@ Card component displaying a menu item on the browse page. Shows food image, Engl
 **Output File**: `src/components/menu/ItemDetailModal.tsx`
 **Status**: ⬜ Not Started
 
+### Reference Asset
+> **Template** (improve upon this):
+> - [Item-Detail-Modal/screen.png](../../UI-Assets/P1-Foundation/Item-Detail-Modal/screen.png) | [code.html](../../UI-Assets/P1-Foundation/Item-Detail-Modal/code.html)
+
 ### Implementation Guide
-1. Run `/frontend-design`
-2. Paste the prompt content below
-3. Create full item customization modal
-4. Handle modifier selection and quantity
+1. **Review template** — screen.png for visuals, code.html for structure
+2. Run `/frontend-design`
+3. Paste the prompt content below
+4. **Improve upon template** with enhanced animations, accessibility
+5. Create full item customization modal
+6. Handle modifier selection and quantity
 
 ### Prompt Content
 

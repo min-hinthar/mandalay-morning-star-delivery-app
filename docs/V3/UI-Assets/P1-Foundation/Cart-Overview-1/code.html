@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout - Mandalay Morning Star</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&amp;family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b31919",
+                        "morning-gold": "#F9D960",
+                        "background-light": "#fbf8f8",
+                        "background-dark": "#1a0f0f",
+                        "cream-darker": "#f3e8e8",
+                        "saffron": "#F4C430",
+                    },
+                    fontFamily: {
+                        "display": ["Playfair Display", "serif"],
+                        "sans": ["DM Sans", "sans-serif"]
+                    },
+                    boxShadow: {
+                        'elevated': '0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02)',
+                        'luminous': '0 20px 50px -12px rgba(179, 25, 25, 0.25)',
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: "DM Sans", sans-serif;
+            @apply bg-background-light text-[#2d1a1a];
+        }
+        h1, h2, h3, .font-display {
+            font-family: "Playfair Display", serif;
+        }
+        .stepper-line {
+            @apply h-[1px] flex-1 bg-gray-200;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+<header class="sticky top-0 z-50 h-[56px] bg-white border-b border-cream-darker px-4 flex items-center justify-center">
+<div class="max-w-[1280px] w-full flex items-center justify-between">
+<button class="p-2 hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-gray-700">arrow_back</span>
+</button>
+<h1 class="text-xl font-bold font-display">Checkout</h1>
+<button class="p-2 hover:bg-gray-100 rounded-full transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-gray-700">close</span>
+</button>
+</div>
+</header>
+<nav class="bg-white border-b border-cream-darker py-6">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-20">
+<div class="flex items-center justify-center max-w-2xl mx-auto">
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-saffron flex items-center justify-center text-white text-sm font-bold">
+                        1
+                    </div>
+<span class="text-xs font-bold uppercase tracking-wider text-gray-900">Address</span>
+</div>
+<div class="stepper-line mx-4"></div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400 text-sm font-bold">
+                        2
+                    </div>
+<span class="text-xs font-bold uppercase tracking-wider text-gray-400">Time</span>
+</div>
+<div class="stepper-line mx-4"></div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400 text-sm font-bold">
+                        3
+                    </div>
+<span class="text-xs font-bold uppercase tracking-wider text-gray-400">Review</span>
+</div>
+<div class="stepper-line mx-4"></div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-400 text-sm font-bold">
+                        4
+                    </div>
+<span class="text-xs font-bold uppercase tracking-wider text-gray-400">Pay</span>
+</div>
+</div>
+</div>
+</nav>
+<main class="max-w-[1280px] mx-auto px-6 lg:px-20 py-12">
+<div class="flex flex-col lg:flex-row gap-12">
+<div class="flex-1">
+<h2 class="text-4xl font-bold font-display mb-8">Delivery Address</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="relative p-6 bg-white rounded-xl shadow-elevated border-2 border-primary cursor-pointer group">
+<div class="absolute top-4 right-4 text-primary">
+<span class="material-symbols-outlined fill-1">check_circle</span>
+</div>
+<div class="flex items-start gap-3 mb-4">
+<span class="material-symbols-outlined text-gray-400">home</span>
+<h3 class="font-bold text-lg">Home</h3>
+</div>
+<p class="text-gray-600 leading-relaxed text-sm">
+                            Aung San Road, Suite 402<br/>
+                            Golden Valley District<br/>
+                            Yangon, 11201
+                        </p>
+<div class="mt-4 flex items-center gap-4">
+<button class="text-xs font-bold text-primary hover:underline">Edit</button>
+</div>
+</div>
+<div class="p-6 bg-white rounded-xl shadow-elevated border border-transparent hover:border-gray-200 cursor-pointer transition-all">
+<div class="flex items-start gap-3 mb-4">
+<span class="material-symbols-outlined text-gray-400">work</span>
+<h3 class="font-bold text-lg">Office</h3>
+</div>
+<p class="text-gray-600 leading-relaxed text-sm">
+                            Merchant Street, Tower B<br/>
+                            Kyauktada Township<br/>
+                            Yangon, 11181
+                        </p>
+<div class="mt-4 flex items-center gap-4">
+<button class="text-xs font-bold text-primary hover:underline">Edit</button>
+</div>
+</div>
+<button class="flex flex-col items-center justify-center p-8 rounded-xl border-2 border-dashed border-gray-300 hover:border-primary/50 hover:bg-primary/5 transition-all text-gray-500 hover:text-primary min-h-[180px]">
+<span class="material-symbols-outlined text-3xl mb-2">add_location_alt</span>
+<span class="font-bold">Add New Address</span>
+</button>
+</div>
+</div>
+<div class="lg:w-[380px]">
+<div class="sticky top-24">
+<div class="bg-white p-6 rounded-xl shadow-elevated border border-cream-darker">
+<h2 class="text-xl font-bold font-display mb-6 pb-4 border-b border-cream-darker">Order Summary</h2>
+<div class="space-y-4 mb-6">
+<div class="flex justify-between text-sm text-gray-600">
+<span>Subtotal (3 items)</span>
+<span class="font-medium">$46.50</span>
+</div>
+<div class="flex justify-between text-sm text-gray-600">
+<span>Delivery Fee</span>
+<span class="font-medium">$5.00</span>
+</div>
+<div class="pt-4 border-t border-cream-darker flex justify-between items-end">
+<span class="font-bold">Total</span>
+<span class="text-2xl font-black text-primary">$51.50</span>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-primary/95 text-white font-bold py-4 rounded-xl transition-all shadow-luminous flex items-center justify-center gap-2 group">
+<span>Continue to Time</span>
+<span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+<p class="mt-4 text-[11px] text-gray-400 text-center leading-relaxed">
+                            By continuing, you agree to our terms of service and delivery windows for this Saturday.
+                        </p>
+</div>
+<div class="mt-6 flex flex-col items-center gap-3">
+<div class="flex items-center gap-2 text-gray-400 text-[10px] uppercase tracking-widest font-bold">
+<span class="material-symbols-outlined text-sm">lock</span>
+                            Secure Transaction
+                        </div>
+<div class="flex gap-3 grayscale opacity-40">
+<img alt="Visa" class="h-4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0jQidz-3x-p1W27LdnfMwnNOPN-0HJ5yM-w9_UOkFLeL0bbXJdUx4RlXoYE32zj2NB4zvxIZ2WebfxUKD3Gz3idktC7o465iDKo0hT2KA7MG2xsaGRWWcjspnFrLBdX1lPmmCKdUusQfktWWKePdTwa3QI_CjqvLMaCeW3jBP1vFcNkQJwSwGwh5f4nlBl4oKHHoHLZtgQ2TlgwloBYARhWLvYjcGr17DNPCieXci0_ekvlzNWMVET6etiYYw09L1NHeOlAxiRoo"/>
+<img alt="Mastercard" class="h-4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC613sLQLdds7YHAWN0FYdcRA4AjLdxXi0mK2OeY0pjb-mcoRo8zA7gaXrs0C78b7wZkUBzeqs6SGi8Ln7Sh410nTSHkBzs8Z7mau9xwHOD7AvNFVsxjP1QiQHUhb6zBLefE0wvG_k1UNE59Kr--gVEs3s-eG0-LT4dtgsWyhDYxWylwDlFjTrtCDhpTi3QSuodfCsvpJx6djohEcEFH4b0GsPt9nGqvrxJAJu3aoP40iKU-9nqy1P0toKbtZx83shC-97DFfnMKsA"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="mt-auto py-8 border-t border-cream-darker bg-white/50">
+<div class="max-w-[1280px] mx-auto px-6 lg:px-20 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-xs text-gray-400 font-medium">© 2024 Mandalay Morning Star. Premium Burmese Delivery.</p>
+<div class="flex gap-6 text-xs font-bold text-gray-400">
+<a class="hover:text-primary transition-colors" href="#">Support</a>
+<a class="hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms</a>
+</div>
+</div>
+</footer>
+
+</body></html>
