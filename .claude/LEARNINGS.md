@@ -441,3 +441,55 @@ const handleAdd = () => {
 ```
 **Apply when:** Adding positive feedback to form submissions, cart actions, saves
 
+---
+
+## 2026-01-18: web-vitals v5 API Changes (FID → INP)
+
+**Context:** Setting up Core Web Vitals monitoring for Sprint 4
+**Learning:** web-vitals v5 removed `onFID` - replaced by `onINP` (Interaction to Next Paint). Google deprecated FID in 2024, INP is now the responsiveness metric. Also update thresholds: INP good < 200ms (vs FID < 100ms). Import `onINP` not `onFID`.
+**Apply when:** Setting up web vitals monitoring, updating from older web-vitals versions
+
+---
+
+## 2026-01-18: JSX.Element Namespace in React 19
+
+**Context:** Dynamic imports utility file using JSX.Element for return types
+**Learning:** React 19 with TypeScript may not expose `JSX` namespace globally. Use `ReactElement` from `react` instead of `JSX.Element` for component return types. Import: `import type { ReactElement } from "react"`.
+**Apply when:** Type errors about "Cannot find namespace 'JSX'", defining component factory utilities
+
+---
+
+## 2026-01-18: PRD Clarification Scope Expansion Patterns
+
+**Context:** Running ultralong (35q) /prd-clarify for V5
+**Learning:** Thorough clarification often reveals scope expansion. Pattern: Original PRD has 6 sprints, clarification adds features (i18n, notifications, payments), solution is add Sprint 7 for new features. Better to expand sprints than cram expanded scope. Track decisions in clarification session summary table for easy reference.
+**Apply when:** PRD clarification reveals significant new requirements
+
+---
+
+## 2026-01-18: V5 Layout Primitive Components Pattern
+
+**Context:** Creating Container, Stack, Cluster, Grid, SafeArea for V5 foundation
+**Learning:** Layout primitives use consistent pattern:
+- Props: `gap?: SpacingToken`, `as?: ElementType`, `className?: string`
+- Type definitions in `src/types/layout.ts` (SpacingToken, FlexAlign, ResponsiveCols)
+- Gap maps: `Record<SpacingToken, string>` mapping tokens to Tailwind classes
+- Use `forwardRef` with `HTMLElement` for polymorphic `as` prop
+- Export from `src/components/layouts/index.ts` barrel
+
+SafeArea specifics: `edges: ('top'|'bottom'|'left'|'right')[]`, uses `env(safe-area-inset-*)` with `max()` for minimum spacing. Requires `viewportFit: "cover"` in Next.js viewport export.
+**Apply when:** Creating layout components, extending layout system
+
+---
+
+## 2026-01-18: V5 Token System Organization
+
+**Context:** Building V5 design tokens in Sprint 1
+**Learning:** Token categories and locations:
+- `src/styles/tokens.css`: Colors (surface, text, interactive, status, border), typography scale, spacing (4px grid), elevation (6 levels), motion (durations, easings), z-index layers
+- `src/lib/motion-tokens.ts`: Framer Motion presets (variants, spring configs, overlay transitions)
+- `tailwind.config.ts`: References CSS vars via `var(--token-name)`
+
+Dark mode: Use `[data-theme="dark"]` selector with warmer shadow colors (less opacity, black base). V4 aliases preserved for gradual migration.
+**Apply when:** Adding new design tokens, extending token system
+

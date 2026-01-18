@@ -47,7 +47,7 @@ export function DriverHomeContent({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[var(--color-cream)] to-[var(--color-lotus)]/30">
+    <div className="min-h-screen bg-gradient-to-b from-[var(--color-surface-primary)] to-[var(--color-surface-tertiary)]/30">
       <div className="px-4 py-6">
         {/* Greeting Section */}
         <div className="mb-6">
@@ -73,8 +73,8 @@ export function DriverHomeContent({
         <div className="mt-6 grid grid-cols-2 gap-4">
           <div className="rounded-xl bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">
             <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-jade-light)]">
-                <TrendingUp className="h-5 w-5 text-[var(--color-jade)]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-status-success-bg)]">
+                <TrendingUp className="h-5 w-5 text-[var(--color-accent-secondary)]" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-[var(--color-text-primary)]">
@@ -87,8 +87,8 @@ export function DriverHomeContent({
 
           <div className="rounded-xl bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">
             <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-saffron-light)]">
-                <Star className="h-5 w-5 text-[var(--color-saffron)]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-interactive-primary-light)]">
+                <Star className="h-5 w-5 text-[var(--color-interactive-primary)]" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-[var(--color-text-primary)]">

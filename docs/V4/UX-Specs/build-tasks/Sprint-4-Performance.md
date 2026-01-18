@@ -10,19 +10,27 @@
 
 | Task | Status | Description |
 |------|--------|-------------|
-| 4.1 | ⬜ | Core Web Vitals optimization |
-| 4.2 | ⬜ | Bundle size audit |
-| 4.3 | ⬜ | TTI improvements |
-| 4.4 | ⬜ | Animation frame rate (60fps) |
-| 4.5 | ⬜ | Storybook stories update |
-| 4.6 | ⬜ | Component guide + JSDoc |
+| 4.1 | ✅ | Core Web Vitals optimization |
+| 4.2 | ✅ | Bundle size audit |
+| 4.3 | ✅ | TTI improvements |
+| 4.4 | ✅ | Animation frame rate (60fps) |
+| 4.5 | ⏸️ | Storybook stories update (deferred to V5) |
+| 4.6 | ✅ | Component guide + JSDoc |
 
 ---
 
 ## Task 4.1: Core Web Vitals Optimization
 
-**Goal**: LCP < 2.5s, FID < 100ms, CLS < 0.1
-**Status**: ⬜ Not Started
+**Goal**: LCP < 2.5s, INP < 200ms, CLS < 0.1
+**Status**: ✅ Complete
+
+**Implemented**:
+- `src/lib/web-vitals.ts` - Web vitals monitoring with Sentry reporting
+- `src/components/WebVitalsReporter.tsx` - Client component for tracking
+- `src/lib/utils/image-optimization.ts` - Image optimization utilities
+- Updated `layout.tsx` with preconnect hints and font optimization
+- Updated `next.config.ts` with bundle analyzer, image config, and caching headers
+- Added `docs/performance/LIGHTHOUSE-METHODOLOGY.md` for audit process
 
 ### Prompt
 

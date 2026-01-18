@@ -2,6 +2,69 @@
 
 > **Purpose**: Detailed implementation patterns for key UI components
 > **Design System**: [docs/frontend-design-system.md](frontend-design-system.md)
+> **V4 Updates**: January 2026 - Performance, tokens, hooks
+
+---
+
+## V4 Addendum (January 2026)
+
+### New V4 Hooks
+
+| Hook | Location | Purpose |
+|------|----------|---------|
+| `useLuminance` | `src/lib/hooks/useLuminance.ts` | WCAG contrast detection for dynamic backgrounds |
+| `useScrollDirection` | `src/lib/hooks/useScrollDirection.ts` | Scroll direction for collapsible headers |
+| `useActiveCategory` | `src/lib/hooks/useActiveCategory.ts` | Intersection Observer for scroll spy |
+| `useAnimationPreference` | `src/lib/hooks/useAnimationPreference.ts` | User animation toggle (localStorage) |
+
+### V4 Performance Utilities
+
+| Utility | Location | Purpose |
+|---------|----------|---------|
+| `web-vitals.ts` | `src/lib/web-vitals.ts` | Core Web Vitals monitoring |
+| `dynamic-imports.tsx` | `src/lib/dynamic-imports.tsx` | Lazy loading heavy components |
+| `image-optimization.ts` | `src/lib/utils/image-optimization.ts` | Image props helpers for LCP/CLS |
+
+### V4 Component Consolidations
+
+| V3 Components | V4 Unified Component |
+|---------------|---------------------|
+| `ItemCard` + `MenuItemCard` | `MenuItemCard` with `variant` prop |
+| Various badges | `Badge` with semantic variants |
+
+### V4 Token Usage
+
+All V4 components use CSS custom properties:
+
+```tsx
+// Color tokens
+className="text-[var(--color-charcoal)]"
+className="bg-[var(--color-surface)]"
+
+// Z-index tokens
+className="z-[var(--z-sticky)]"
+className="z-[var(--z-modal)]"
+
+// Animation tokens
+className="duration-[var(--duration-fast)]"
+```
+
+### V4 Animation Best Practices
+
+```tsx
+// GPU-accelerated (60fps)
+<motion.div animate={{ scale: 1.05, y: -4 }} />
+
+// ❌ Avoid (triggers layout)
+<motion.div animate={{ width: "100%" }} />
+
+// ✅ Use scaleX instead
+<motion.div animate={{ scaleX: 1 }} style={{ transformOrigin: "left" }} />
+```
+
+### Storybook (Deferred to V5)
+
+Storybook setup is planned for V5. Until then, use this guide for component documentation.
 
 ---
 
@@ -82,7 +145,7 @@ const config: Config = {
       },
       fontFamily: {
         display: ['Playfair Display', 'Georgia', 'serif'],
-        body: ['DM Sans', 'Helvetica Neue', 'sans-serif'],
+        body: ['Inter', 'Helvetica Neue', 'sans-serif'],  // V5: Updated from DM Sans
         mono: ['JetBrains Mono', 'SF Mono', 'monospace'],
         burmese: ['Padauk', 'Noto Sans Myanmar', 'sans-serif'],
       },

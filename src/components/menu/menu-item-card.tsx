@@ -142,11 +142,11 @@ export function MenuItemCard({
         isInteractive && [
           "cursor-pointer",
           "hover:shadow-[var(--shadow-lg)]",
-          "hover:border-[var(--color-cta)]/30",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)] focus-visible:ring-offset-2",
+          "hover:border-[var(--color-interactive-primary)]/30",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)] focus-visible:ring-offset-2",
         ],
         item.isSoldOut && "opacity-70",
-        variant === "featured" && "ring-2 ring-[var(--color-cta)]/30"
+        variant === "featured" && "ring-2 ring-[var(--color-interactive-primary)]/30"
       )}
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
@@ -157,7 +157,7 @@ export function MenuItemCard({
     >
       {/* Image Container - 16:9 aspect ratio */}
       <div className={cn(
-        "relative overflow-hidden bg-gradient-to-br from-[var(--color-cream-darker)] to-[var(--color-cta)]/5",
+        "relative overflow-hidden bg-gradient-to-br from-[var(--color-cream-darker)] to-[var(--color-interactive-primary)]/5",
         styles.imageAspect
       )}>
         {/* Popular/Featured Badge */}
@@ -165,9 +165,9 @@ export function MenuItemCard({
           <Badge
             className={cn(
               "absolute left-[var(--space-2)] top-[var(--space-2)] z-10",
-              "border-0 bg-[var(--color-cta)] text-[var(--color-charcoal)]",
+              "border-0 bg-[var(--color-interactive-primary)] text-[var(--color-charcoal)]",
               "shadow-[var(--shadow-md)] font-semibold",
-              variant === "featured" && "bg-[var(--color-primary)] text-white"
+              variant === "featured" && "bg-[var(--color-accent-tertiary)] text-white"
             )}
           >
             <Star className="mr-1 h-3 w-3 fill-current" />
@@ -208,7 +208,7 @@ export function MenuItemCard({
               "shadow-[var(--shadow-md)]",
               "transition-all duration-[var(--duration-fast)]",
               "hover:scale-110 active:scale-95",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)]"
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)]"
             )}
             whileTap={prefersReducedMotion ? undefined : { scale: 0.8 }}
             aria-label={localFavorite ? "Remove from favorites" : "Add to favorites"}
@@ -250,11 +250,11 @@ export function MenuItemCard({
                 "bg-white/95 backdrop-blur-sm rounded-full",
                 "shadow-[var(--shadow-lg)]",
                 "hover:bg-white transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)]"
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)]"
               )}
             >
-              <Plus className="w-4 h-4 text-[var(--color-primary)]" />
-              <span className="text-sm font-medium text-[var(--color-primary)]">Add</span>
+              <Plus className="w-4 h-4 text-[var(--color-accent-tertiary)]" />
+              <span className="text-sm font-medium text-[var(--color-accent-tertiary)]">Add</span>
             </button>
           </motion.div>
         )}
@@ -275,7 +275,7 @@ export function MenuItemCard({
         <div className="mb-2">
           <h3 className={cn(
             "font-semibold text-[var(--color-charcoal)] leading-tight line-clamp-1",
-            "transition-colors group-hover:text-[var(--color-primary)]",
+            "transition-colors group-hover:text-[var(--color-accent-tertiary)]",
             styles.titleSize
           )}>
             {item.nameEn}
@@ -298,8 +298,8 @@ export function MenuItemCard({
         <div className="flex items-center justify-between gap-2">
           {/* Price */}
           <span className={cn(
-            "font-[var(--font-display)] font-bold text-[var(--color-cta)]",
-            "transition-colors group-hover:text-[var(--color-cta-dark)]",
+            "font-[var(--font-display)] font-bold text-[var(--color-interactive-primary)]",
+            "transition-colors group-hover:text-[var(--color-interactive-hover)]",
             styles.priceSize
           )}>
             {formatPrice(item.basePriceCents)}
@@ -360,7 +360,7 @@ export function MenuItemCard({
 
       {/* Hover indicator */}
       {isInteractive && (
-        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--color-cta)] scale-x-0 transition-transform duration-[var(--duration-fast)] origin-left group-hover:scale-x-100" />
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--color-interactive-primary)] scale-x-0 transition-transform duration-[var(--duration-fast)] origin-left group-hover:scale-x-100" />
       )}
     </motion.div>
   );

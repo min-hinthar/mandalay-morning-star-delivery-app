@@ -112,7 +112,7 @@ export function StopDetail({
           <span className="font-semibold text-[var(--color-text-primary)]">
             Stop {stopIndex} of {totalStops}
           </span>
-          <span className="font-medium text-[var(--color-jade)]">
+          <span className="font-medium text-[var(--color-accent-secondary)]">
             {progressPercent}%
           </span>
         </div>
@@ -121,7 +121,7 @@ export function StopDetail({
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="h-full rounded-full bg-[var(--color-jade)]"
+            className="h-full rounded-full bg-[var(--color-accent-secondary)]"
           />
         </div>
       </div>
@@ -149,8 +149,8 @@ export function StopDetail({
           )}
           data-testid="call-button"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-jade-light)]">
-            <Phone className="h-5 w-5 text-[var(--color-jade)]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-status-success-bg)]">
+            <Phone className="h-5 w-5 text-[var(--color-accent-secondary)]" />
           </div>
           <div className="text-left">
             <p className="text-sm text-[var(--color-text-muted)]">Phone</p>
@@ -162,8 +162,8 @@ export function StopDetail({
       {/* Address */}
       <div className="rounded-xl bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-saffron-light)]">
-            <MapPin className="h-5 w-5 text-[var(--color-saffron)]" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-interactive-primary-light)]">
+            <MapPin className="h-5 w-5 text-[var(--color-interactive-primary)]" />
           </div>
           <div className="flex-1">
             <p className="text-sm text-[var(--color-text-muted)]">Delivery Address</p>
@@ -180,7 +180,7 @@ export function StopDetail({
             className={cn(
               "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
               copied
-                ? "bg-[var(--color-jade-light)] text-[var(--color-jade)]"
+                ? "bg-[var(--color-status-success-bg)] text-[var(--color-accent-secondary)]"
                 : "bg-[var(--color-surface-muted)] text-[var(--color-text-muted)] hover:bg-[var(--color-border)]"
             )}
             aria-label="Copy address"
@@ -205,14 +205,14 @@ export function StopDetail({
 
       {/* Delivery Notes - V3 warning style */}
       {deliveryNotes && (
-        <div className="rounded-xl border-l-4 border-[var(--color-warning)] bg-[var(--color-warning-light)] p-4">
+        <div className="rounded-xl border-l-4 border-[var(--color-status-warning)] bg-[var(--color-status-warning-bg)] p-4">
           <div className="flex items-start gap-3">
-            <FileText className="h-5 w-5 shrink-0 text-[var(--color-warning-dark)]" />
+            <FileText className="h-5 w-5 shrink-0 text-[var(--color-status-warning)]" />
             <div>
-              <p className="text-sm font-medium text-[var(--color-warning-dark)]">
+              <p className="text-sm font-medium text-[var(--color-status-warning)]">
                 Delivery Notes
               </p>
-              <p className="mt-1 text-[var(--color-warning-dark)]">{deliveryNotes}</p>
+              <p className="mt-1 text-[var(--color-status-warning)]">{deliveryNotes}</p>
             </div>
           </div>
         </div>

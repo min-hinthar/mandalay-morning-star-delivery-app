@@ -153,15 +153,15 @@ export function CartDrawer() {
               >
                 <div className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full",
-                  "bg-[var(--color-primary-bg)]"
+                  "bg-[var(--color-status-error-bg)]"
                 )}>
-                  <ShoppingBag className="h-5 w-5 text-[var(--color-primary)]" />
+                  <ShoppingBag className="h-5 w-5 text-[var(--color-accent-tertiary)]" />
                 </div>
                 Your Cart
                 {itemCount > 0 && (
                   <span className={cn(
                     "rounded-full px-2.5 py-1 text-xs font-semibold text-white",
-                    "bg-[var(--color-primary)] shadow-[var(--shadow-sm)]"
+                    "bg-[var(--color-accent-tertiary)] shadow-[var(--shadow-sm)]"
                   )}>
                     {itemCount}
                   </span>
@@ -177,7 +177,7 @@ export function CartDrawer() {
                   "bg-[var(--color-surface-muted)] text-[var(--color-charcoal-muted)]",
                   "hover:bg-[var(--color-cream-darker)] hover:text-[var(--color-charcoal)]",
                   "transition-colors duration-[var(--duration-fast)]",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-tertiary)] focus-visible:ring-offset-2"
                 )}
                 aria-label="Close cart"
               >
@@ -212,7 +212,7 @@ export function CartDrawer() {
                       size="lg"
                       className={cn(
                         "w-full",
-                        "bg-[var(--color-primary)] text-white",
+                        "bg-[var(--color-accent-tertiary)] text-white",
                         "shadow-[var(--shadow-lg)]",
                         "hover:brightness-110 transition-all duration-[var(--duration-fast)]"
                       )}
@@ -252,9 +252,9 @@ function CartEmptyState({ onClose }: { onClose: () => void }) {
     >
       <div className={cn(
         "flex h-24 w-24 items-center justify-center rounded-full",
-        "bg-[var(--color-primary-bg)]"
+        "bg-[var(--color-status-error-bg)]"
       )}>
-        <ShoppingBag className="h-12 w-12 text-[var(--color-primary)]/60" />
+        <ShoppingBag className="h-12 w-12 text-[var(--color-accent-tertiary)]/60" />
       </div>
       <h3 className="mt-[var(--space-6)] text-xl font-bold text-[var(--color-charcoal)]">
         Your cart is empty
@@ -266,7 +266,7 @@ function CartEmptyState({ onClose }: { onClose: () => void }) {
         size="lg"
         className={cn(
           "mt-[var(--space-8)]",
-          "bg-[var(--color-primary)] text-white",
+          "bg-[var(--color-accent-tertiary)] text-white",
           "shadow-[var(--shadow-lg)]",
           "hover:brightness-110 transition-all duration-[var(--duration-fast)]"
         )}

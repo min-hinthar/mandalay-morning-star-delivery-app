@@ -47,8 +47,8 @@ export function TimeSlotPicker({
       {/* Delivery Date Card */}
       <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-saffron-light)]">
-            <Calendar className="h-5 w-5 text-[var(--color-saffron)]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-interactive-primary-light)]">
+            <Calendar className="h-5 w-5 text-[var(--color-interactive-primary)]" />
           </div>
           <div>
             <p className="text-sm text-[var(--color-text-muted)]">Delivery Date</p>
@@ -113,14 +113,14 @@ export function TimeSlotPicker({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 rounded-xl border border-[var(--color-jade)]/20 bg-[var(--color-jade-light)] p-4"
+          className="flex items-center gap-3 rounded-xl border border-[var(--color-accent-secondary)]/20 bg-[var(--color-status-success-bg)] p-4"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-jade)]/20">
-            <Check className="h-5 w-5 text-[var(--color-jade)]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-accent-secondary)]/20">
+            <Check className="h-5 w-5 text-[var(--color-accent-secondary)]" />
           </div>
           <div>
-            <p className="text-sm text-[var(--color-jade)]">Confirmed Delivery</p>
-            <p className="font-semibold text-[var(--color-jade-dark)]">
+            <p className="text-sm text-[var(--color-accent-secondary)]">Confirmed Delivery</p>
+            <p className="font-semibold text-[var(--color-accent-secondary-dark)]">
               {deliveryDate.displayDate}, {selectedWindow.label}
             </p>
           </div>
@@ -154,19 +154,19 @@ function TimeSlotButton({
       disabled={isUnavailable}
       className={cn(
         "relative rounded-xl border-2 p-4 text-center transition-all duration-200",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)] focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)] focus-visible:ring-offset-2",
         isUnavailable && [
           "cursor-not-allowed border-[var(--color-border)] bg-[var(--color-surface-muted)]",
           "text-[var(--color-text-muted)]",
         ],
         !isUnavailable && isSelected && [
-          "border-[var(--color-saffron)] bg-[var(--color-saffron-light)]",
-          "text-[var(--color-saffron)] shadow-[var(--shadow-glow-gold)]",
+          "border-[var(--color-interactive-primary)] bg-[var(--color-interactive-primary-light)]",
+          "text-[var(--color-interactive-primary)] shadow-[var(--shadow-glow-gold)]",
         ],
         !isUnavailable && !isSelected && [
           "border-[var(--color-border)] bg-[var(--color-surface)]",
           "text-[var(--color-text-primary)]",
-          "hover:border-[var(--color-saffron)]/50 hover:shadow-sm",
+          "hover:border-[var(--color-interactive-primary)]/50 hover:shadow-sm",
         ]
       )}
     >
@@ -177,7 +177,7 @@ function TimeSlotButton({
           animate={{ scale: 1 }}
           className={cn(
             "absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center",
-            "rounded-full bg-[var(--color-cta)] shadow-sm"
+            "rounded-full bg-[var(--color-interactive-primary)] shadow-sm"
           )}
         >
           <Star className="h-3 w-3 fill-white text-white" />
@@ -202,7 +202,7 @@ function TimeSlotButton({
       {isSelected && !isUnavailable && (
         <motion.div
           layoutId="selectedSlot"
-          className="absolute inset-0 rounded-xl border-2 border-[var(--color-saffron)]"
+          className="absolute inset-0 rounded-xl border-2 border-[var(--color-interactive-primary)]"
           initial={false}
           transition={{ type: "spring", stiffness: 500, damping: 30 }}
         />

@@ -135,13 +135,13 @@
 :root {
   /* Display — Elegant serif for headings and brand */
   --font-display: 'Playfair Display', 'Georgia', serif;
-  
-  /* Body — Clean geometric sans for readability */
-  --font-body: 'DM Sans', 'Helvetica Neue', sans-serif;
-  
+
+  /* Body — Clean variable sans for readability (V5: Updated from DM Sans) */
+  --font-body: 'Inter', 'Helvetica Neue', sans-serif;
+
   /* Mono — For prices, order numbers */
   --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
-  
+
   /* Burmese — Native script support */
   --font-burmese: 'Padauk', 'Noto Sans Myanmar', sans-serif;
 }

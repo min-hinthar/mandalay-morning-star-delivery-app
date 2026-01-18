@@ -4,9 +4,9 @@ import { Star, AlertTriangle, Tag, CheckCircle, AlertCircle, XCircle } from "luc
 import { cn } from "@/lib/utils/cn";
 
 /**
- * V4 Badge Component
+ * V5 Badge Component
  *
- * Semantic variants for different use cases:
+ * Semantic variants using V5 design tokens:
  * - default: Primary brand styling
  * - secondary: Muted background
  * - outline: Border only
@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils/cn";
  * - status-success: Green success state
  * - status-warning: Amber warning state
  * - status-error: Red error state
+ * - status-info: Blue info state
  */
 const badgeVariants = cva(
   "inline-flex items-center gap-1 rounded-[var(--radius-md)] border px-2.5 py-0.5 text-xs font-semibold transition-colors",
@@ -26,56 +27,56 @@ const badgeVariants = cva(
         // Default variants
         default: [
           "border-transparent",
-          "bg-[var(--color-primary)] text-white",
+          "bg-[var(--color-interactive-primary)] text-[var(--color-text-inverse)]",
         ],
         secondary: [
-          "border-[var(--color-border)]",
-          "bg-[var(--color-surface-muted)] text-[var(--color-charcoal)]",
+          "border-[var(--color-border-default)]",
+          "bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)]",
         ],
         outline: [
-          "border-[var(--color-border)]",
-          "bg-transparent text-[var(--color-charcoal)]",
+          "border-[var(--color-border-default)]",
+          "bg-transparent text-[var(--color-text-primary)]",
         ],
 
         // Featured/Popular - Gold
         featured: [
           "border-transparent",
-          "bg-[var(--color-cta)] text-[var(--color-charcoal)]",
-          "shadow-[var(--shadow-sm)]",
+          "bg-[var(--color-interactive-primary)] text-[var(--color-text-primary)]",
+          "shadow-[var(--elevation-1)]",
         ],
 
         // Allergen/Warning - Amber
         allergen: [
-          "border-[var(--color-warning)]/30",
-          "bg-[var(--color-warning-light)] text-[var(--color-warning-dark)]",
+          "border-[var(--color-status-warning)]/30",
+          "bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning)]",
         ],
 
         // Price modifiers
         "price-discount": [
-          "border-[var(--color-jade)]/30",
-          "bg-[var(--color-jade-light)] text-[var(--color-jade-dark)]",
+          "border-[var(--color-status-success)]/30",
+          "bg-[var(--color-status-success-bg)] text-[var(--color-status-success)]",
         ],
         "price-premium": [
-          "border-[var(--color-error)]/30",
-          "bg-[var(--color-error-light)] text-[var(--color-error-dark)]",
+          "border-[var(--color-status-error)]/30",
+          "bg-[var(--color-status-error-bg)] text-[var(--color-status-error)]",
         ],
 
         // Status variants
         "status-success": [
-          "border-[var(--color-jade)]/30",
-          "bg-[var(--color-jade-light)] text-[var(--color-jade)]",
+          "border-[var(--color-status-success)]/30",
+          "bg-[var(--color-status-success-bg)] text-[var(--color-status-success)]",
         ],
         "status-warning": [
-          "border-[var(--color-warning)]/30",
-          "bg-[var(--color-warning-light)] text-[var(--color-warning-dark)]",
+          "border-[var(--color-status-warning)]/30",
+          "bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning)]",
         ],
         "status-error": [
-          "border-[var(--color-error)]/30",
-          "bg-[var(--color-error-light)] text-[var(--color-error)]",
+          "border-[var(--color-status-error)]/30",
+          "bg-[var(--color-status-error-bg)] text-[var(--color-status-error)]",
         ],
         "status-info": [
-          "border-[var(--color-info)]/30",
-          "bg-[var(--color-info-light)] text-[var(--color-info)]",
+          "border-[var(--color-status-info)]/30",
+          "bg-[var(--color-status-info-bg)] text-[var(--color-status-info)]",
         ],
       },
       size: {

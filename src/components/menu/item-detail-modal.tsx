@@ -267,7 +267,7 @@ export function ItemDetailModal({
                   "shadow-[var(--shadow-md)]",
                   "transition-all duration-[var(--duration-fast)]",
                   "hover:scale-110 active:scale-95",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)]"
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)]"
                 )}
                 aria-label="Close"
               >
@@ -290,7 +290,7 @@ export function ItemDetailModal({
                     priority
                   />
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--color-cta)]/20 to-[var(--color-primary)]/10">
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--color-interactive-primary)]/20 to-[var(--color-accent-tertiary)]/10">
                     <span className="text-sm text-[var(--color-charcoal-muted)]">No image</span>
                   </div>
                 )}
@@ -320,7 +320,7 @@ export function ItemDetailModal({
                         {item.nameMy}
                       </p>
                     )}
-                    <p className="font-[var(--font-display)] text-2xl font-bold text-[var(--color-cta)]">
+                    <p className="font-[var(--font-display)] text-2xl font-bold text-[var(--color-interactive-primary)]">
                       {formatPrice(item.basePriceCents)}
                     </p>
                   </div>
@@ -336,12 +336,12 @@ export function ItemDetailModal({
                   {hasAllergens && (
                     <div className={cn(
                       "flex items-start gap-3 rounded-[var(--radius-md)]",
-                      "border border-amber-200 bg-amber-50 p-[var(--space-3)]"
+                      "border border-[var(--color-status-warning)]/30 bg-[var(--color-status-warning-bg)] p-[var(--space-3)]"
                     )}>
-                      <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
+                      <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-status-warning)]" />
                       <div>
-                        <p className="font-medium text-amber-800">Allergen Information</p>
-                        <p className="text-sm text-amber-700">
+                        <p className="font-medium text-[var(--color-text-primary)]">Allergen Information</p>
+                        <p className="text-sm text-[var(--color-text-secondary)]">
                           Contains:{" "}
                           {item.allergens
                             .map((allergen) => ALLERGEN_MAP[allergen]?.label || allergen)
@@ -380,7 +380,7 @@ export function ItemDetailModal({
                       value={notes}
                       onChange={(event) => setNotes(event.target.value.slice(0, 500))}
                       placeholder="Any special requests? Let us know..."
-                      className="resize-none border-[var(--color-border)] focus:border-[var(--color-cta)]"
+                      className="resize-none border-[var(--color-border)] focus:border-[var(--color-interactive-primary)]"
                       rows={3}
                     />
                     <p className="text-xs text-[var(--color-charcoal-muted)] text-right">
@@ -410,10 +410,10 @@ export function ItemDetailModal({
                 {amountForFreeDelivery > 0 && !item.isSoldOut && (
                   <div className={cn(
                     "mb-3 flex items-center gap-2 rounded-[var(--radius-sm)]",
-                    "bg-[var(--color-jade)]/10 px-3 py-2"
+                    "bg-[var(--color-accent-secondary)]/10 px-3 py-2"
                   )}>
-                    <Truck className="h-4 w-4 text-[var(--color-jade)]" />
-                    <p className="text-sm text-[var(--color-jade)]">
+                    <Truck className="h-4 w-4 text-[var(--color-accent-secondary)]" />
+                    <p className="text-sm text-[var(--color-accent-secondary)]">
                       Add {formatPrice(amountForFreeDelivery)} more for free delivery!
                     </p>
                   </div>
@@ -438,7 +438,7 @@ export function ItemDetailModal({
                     disabled={item.isSoldOut || !validation.isValid || isAddingToCart}
                     className={cn(
                       "w-full text-lg transition-all duration-200",
-                      isAddingToCart && "bg-[var(--color-jade)] hover:bg-[var(--color-jade)]"
+                      isAddingToCart && "bg-[var(--color-accent-secondary)] hover:bg-[var(--color-accent-secondary)]"
                     )}
                   >
                     <AnimatePresence mode="wait">

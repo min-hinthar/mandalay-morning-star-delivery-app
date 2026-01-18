@@ -1,4 +1,7 @@
 {
+  "env": {
+    "ENABLE_TOOL_SEARCH": "true"
+  },
   "permissions": {
     "allow": [
       "Bash(pnpm *)",
@@ -8,11 +11,10 @@
       "Bash(supabase *)",
       "WebSearch",
       "mcp__plugin_sentry_sentry__find_organizations",
-      "mcp__plugin_sentry_sentry__search_issues"
+      "mcp__plugin_sentry_sentry__search_issues",
+      "Bash(grep:*)",
+      "Bash(cat:*)"
     ]
-  },
-  "env": {
-    "ENABLE_TOOL_SEARCH": "true"
   },
   "hooks": {
     "SessionEnd": [
