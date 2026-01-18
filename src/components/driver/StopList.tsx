@@ -51,7 +51,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
       {/* Current Stop */}
       {currentStop && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal/50">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-text-secondary/70">
             Current Stop
           </h2>
           <StopCard
@@ -72,7 +72,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
       {/* Upcoming Stops */}
       {upcomingStops.length > 0 && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal/50">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-text-secondary/70">
             Upcoming ({upcomingStops.length})
           </h2>
           <div className="space-y-2">
@@ -97,7 +97,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
       {/* Completed Stops */}
       {completedStops.length > 0 && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-charcoal/50">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-text-secondary/70">
             Completed ({completedStops.length})
           </h2>
           <div className="space-y-2">

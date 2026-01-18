@@ -13,6 +13,12 @@ import { cn } from "@/lib/utils/cn";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { LeaderboardProps, DriverLeaderboardEntry } from "@/types/analytics";
 
+// V5 Chart colors - mapped to semantic tokens
+const V5_CHART_COLORS = {
+  primary: "#D4A017", // --color-interactive-primary
+  secondary: "#2E8B57", // --color-accent-secondary / status-success
+};
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -37,9 +43,9 @@ const itemVariants = {
 };
 
 const medalColors = {
-  1: "text-yellow-500",
-  2: "text-gray-400",
-  3: "text-amber-600",
+  1: "text-interactive-primary",
+  2: "text-text-muted",
+  3: "text-accent-tertiary",
 };
 
 export function DriverLeaderboard({
@@ -50,21 +56,21 @@ export function DriverLeaderboard({
 }: LeaderboardProps) {
   if (loading) {
     return (
-      <div className="rounded-xl bg-white p-6 shadow-warm-sm">
+      <div className="rounded-xl bg-surface-primary p-6 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-saffron" />
-          <h3 className="text-lg font-semibold text-charcoal-900">Top Drivers</h3>
+          <Trophy className="h-5 w-5 text-interactive-primary" />
+          <h3 className="text-lg font-semibold text-text-primary">Top Drivers</h3>
         </div>
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="flex animate-pulse items-center gap-4 rounded-lg bg-charcoal-50 p-4"
+              className="flex animate-pulse items-center gap-4 rounded-lg bg-surface-tertiary p-4"
             >
-              <div className="h-10 w-10 rounded-full bg-charcoal-200" />
+              <div className="h-10 w-10 rounded-full bg-border-v5" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 w-24 rounded bg-charcoal-200" />
-                <div className="h-3 w-16 rounded bg-charcoal-100" />
+                <div className="h-4 w-24 rounded bg-border-v5" />
+                <div className="h-3 w-16 rounded bg-surface-tertiary" />
               </div>
             </div>
           ))}
@@ -77,11 +83,11 @@ export function DriverLeaderboard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl bg-white p-6 shadow-warm-sm"
+      className="rounded-xl bg-surface-primary p-6 shadow-sm"
     >
       <div className="mb-4 flex items-center gap-2">
-        <Trophy className="h-5 w-5 text-saffron" />
-        <h3 className="text-lg font-semibold text-charcoal-900">Top Drivers</h3>
+        <Trophy className="h-5 w-5 text-interactive-primary" />
+        <h3 className="text-lg font-semibold text-text-primary">Top Drivers</h3>
       </div>
 
       <motion.div
@@ -131,7 +137,7 @@ function LeaderboardRow({
       onClick={onClick}
       className={cn(
         "flex cursor-pointer items-center gap-4 rounded-lg p-3 transition-colors",
-        "hover:bg-saffron-50"
+        "hover:bg-interactive-primary-light"
       )}
     >
       {/* Rank */}
@@ -144,7 +150,7 @@ function LeaderboardRow({
             )}
           />
         ) : (
-          <span className="text-lg font-bold text-charcoal-400">
+          <span className="text-lg font-bold text-text-muted">
             {entry.rank}
           </span>
         )}
@@ -153,21 +159,21 @@ function LeaderboardRow({
       {/* Avatar */}
       <Avatar className="h-10 w-10">
         <AvatarImage src={entry.profileImageUrl ?? undefined} />
-        <AvatarFallback className="bg-saffron/10 text-saffron font-medium">
+        <AvatarFallback className="bg-interactive-primary-light text-interactive-primary font-medium">
           {initials}
         </AvatarFallback>
       </Avatar>
 
       {/* Name and stats */}
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-charcoal-900 truncate">
+        <p className="font-medium text-text-primary truncate">
           {entry.fullName ?? "Unknown Driver"}
         </p>
-        <div className="flex items-center gap-3 text-sm text-charcoal-500">
+        <div className="flex items-center gap-3 text-sm text-text-secondary">
           <span>{entry.totalDeliveries} deliveries</span>
           {entry.avgRating && (
             <span className="flex items-center gap-0.5">
-              <Star className="h-3 w-3 fill-saffron text-saffron" />
+              <Star className="h-3 w-3 fill-interactive-primary text-interactive-primary" />
               {entry.avgRating.toFixed(1)}
             </span>
           )}
@@ -176,8 +182,8 @@ function LeaderboardRow({
 
       {/* On-time rate */}
       <div className="text-right">
-        <p className="font-semibold text-jade">{entry.onTimeRate.toFixed(0)}%</p>
-        <p className="text-xs text-charcoal-400">on-time</p>
+        <p className="font-semibold text-status-success">{entry.onTimeRate.toFixed(0)}%</p>
+        <p className="text-xs text-text-muted">on-time</p>
       </div>
 
       {/* Trend indicator */}
@@ -188,7 +194,7 @@ function LeaderboardRow({
             animate={{ scale: 1 }}
             transition={{ delay: 0.3, type: "spring" }}
           >
-            <TrendingUp className="h-5 w-5 text-jade" />
+            <TrendingUp className="h-5 w-5 text-status-success" />
           </motion.div>
         )}
         {entry.trend === "down" && (
@@ -197,11 +203,11 @@ function LeaderboardRow({
             animate={{ scale: 1 }}
             transition={{ delay: 0.3, type: "spring" }}
           >
-            <TrendingDown className="h-5 w-5 text-red-500" />
+            <TrendingDown className="h-5 w-5 text-status-error" />
           </motion.div>
         )}
         {entry.trend === "stable" && (
-          <Minus className="h-5 w-5 text-charcoal-300" />
+          <Minus className="h-5 w-5 text-text-muted" />
         )}
       </div>
     </motion.div>
@@ -226,18 +232,18 @@ export function LeaderboardCompact({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.1 }}
-          className="flex items-center gap-3 rounded-lg bg-charcoal-50 p-2"
+          className="flex items-center gap-3 rounded-lg bg-surface-tertiary p-2"
         >
           <Medal
             className={cn(
               "h-5 w-5",
-              i === 0 ? "text-yellow-500" : i === 1 ? "text-gray-400" : "text-amber-600"
+              i === 0 ? "text-interactive-primary" : i === 1 ? "text-text-muted" : "text-accent-tertiary"
             )}
           />
           <span className="flex-1 truncate text-sm font-medium">
             {entry.fullName ?? "Unknown"}
           </span>
-          <span className="text-sm font-semibold text-jade">
+          <span className="text-sm font-semibold text-status-success">
             {entry.onTimeRate.toFixed(0)}%
           </span>
         </motion.div>

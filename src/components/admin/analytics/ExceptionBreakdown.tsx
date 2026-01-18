@@ -29,38 +29,47 @@ interface ExceptionBreakdownProps {
   height?: number;
 }
 
+// V5 Chart colors - mapped to semantic tokens
+const V5_CHART_COLORS = {
+  warning: "#D97706", // --color-status-warning
+  error: "#DC2626", // --color-status-error
+  tertiary: "#8B4513", // --color-accent-tertiary
+  secondary: "#2E8B57", // --color-accent-secondary
+  muted: "#6B7280", // --color-text-secondary
+};
+
 const exceptionConfig: Record<
   DeliveryExceptionType,
   { label: string; color: string; icon: React.ElementType }
 > = {
   customer_not_home: {
     label: "Customer Not Home",
-    color: "#F59E0B",
+    color: V5_CHART_COLORS.warning,
     icon: Home,
   },
   wrong_address: {
     label: "Wrong Address",
-    color: "#EF4444",
+    color: V5_CHART_COLORS.error,
     icon: MapPin,
   },
   access_issue: {
     label: "Access Issue",
-    color: "#8B5CF6",
+    color: V5_CHART_COLORS.tertiary,
     icon: Lock,
   },
   refused_delivery: {
     label: "Refused Delivery",
-    color: "#EC4899",
+    color: V5_CHART_COLORS.error,
     icon: XCircle,
   },
   damaged_order: {
     label: "Damaged Order",
-    color: "#06B6D4",
+    color: V5_CHART_COLORS.error,
     icon: Package,
   },
   other: {
     label: "Other",
-    color: "#6B7280",
+    color: V5_CHART_COLORS.muted,
     icon: HelpCircle,
   },
 };
@@ -83,19 +92,19 @@ export function ExceptionBreakdown({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col items-center justify-center rounded-xl bg-white p-6 shadow-warm-sm"
+        className="flex flex-col items-center justify-center rounded-xl bg-surface-primary p-6 shadow-sm"
         style={{ minHeight: height }}
       >
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", delay: 0.2 }}
-          className="rounded-full bg-jade/10 p-4"
+          className="rounded-full bg-status-success-bg p-4"
         >
-          <AlertTriangle className="h-8 w-8 text-jade" />
+          <AlertTriangle className="h-8 w-8 text-status-success" />
         </motion.div>
-        <p className="mt-4 font-medium text-charcoal-900">No Exceptions</p>
-        <p className="text-sm text-charcoal-500">All deliveries completed successfully</p>
+        <p className="mt-4 font-medium text-text-primary">No Exceptions</p>
+        <p className="text-sm text-text-secondary">All deliveries completed successfully</p>
       </motion.div>
     );
   }
@@ -104,14 +113,14 @@ export function ExceptionBreakdown({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl bg-white p-6 shadow-warm-sm"
+      className="rounded-xl bg-surface-primary p-6 shadow-sm"
     >
       <div className="mb-4 flex items-center gap-2">
-        <AlertTriangle className="h-5 w-5 text-amber-500" />
-        <h3 className="text-lg font-semibold text-charcoal-900">
+        <AlertTriangle className="h-5 w-5 text-status-warning" />
+        <h3 className="text-lg font-semibold text-text-primary">
           Exception Breakdown
         </h3>
-        <span className="ml-auto rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+        <span className="ml-auto rounded-full bg-status-warning-bg px-2 py-0.5 text-xs font-medium text-status-warning">
           {total} total
         </span>
       </div>
@@ -147,7 +156,7 @@ export function ExceptionBreakdown({
             iconType="circle"
             iconSize={8}
             formatter={(value) => (
-              <span className="text-xs text-charcoal-600">{value}</span>
+              <span className="text-xs text-text-secondary">{value}</span>
             )}
           />
         </PieChart>
@@ -172,17 +181,17 @@ export function RecentExceptionsList({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl bg-white p-6 shadow-warm-sm"
+      className="rounded-xl bg-surface-primary p-6 shadow-sm"
     >
       <div className="mb-4 flex items-center gap-2">
-        <AlertTriangle className="h-5 w-5 text-amber-500" />
-        <h3 className="text-lg font-semibold text-charcoal-900">
+        <AlertTriangle className="h-5 w-5 text-status-warning" />
+        <h3 className="text-lg font-semibold text-text-primary">
           Recent Exceptions
         </h3>
       </div>
 
       {displayExceptions.length === 0 ? (
-        <p className="text-sm text-charcoal-500">No recent exceptions</p>
+        <p className="text-sm text-text-secondary">No recent exceptions</p>
       ) : (
         <motion.div
           initial="hidden"
@@ -215,7 +224,7 @@ function ExceptionRow({ exception }: { exception: RecentException }) {
         hidden: { opacity: 0, x: -20 },
         visible: { opacity: 1, x: 0 },
       }}
-      className="flex items-start gap-3 rounded-lg border border-charcoal-100 p-3"
+      className="flex items-start gap-3 rounded-lg border border-border-v5 p-3"
     >
       <div
         className="rounded-lg p-2"
@@ -226,24 +235,24 @@ function ExceptionRow({ exception }: { exception: RecentException }) {
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="font-medium text-charcoal-900">{config.label}</p>
+          <p className="font-medium text-text-primary">{config.label}</p>
           {exception.resolved && (
-            <span className="rounded-full bg-jade/10 px-1.5 py-0.5 text-xs font-medium text-jade">
+            <span className="rounded-full bg-status-success-bg px-1.5 py-0.5 text-xs font-medium text-status-success">
               Resolved
             </span>
           )}
         </div>
-        <p className="text-sm text-charcoal-500">
+        <p className="text-sm text-text-secondary">
           Order #{exception.orderNumber} • {exception.driverName ?? "Unknown"}
         </p>
         {exception.description && (
-          <p className="mt-1 text-xs text-charcoal-400 line-clamp-2">
+          <p className="mt-1 text-xs text-text-muted line-clamp-2">
             {exception.description}
           </p>
         )}
       </div>
 
-      <p className="shrink-0 text-xs text-charcoal-400">
+      <p className="shrink-0 text-xs text-text-muted">
         {formatDistanceToNow(parseISO(exception.createdAt), { addSuffix: true })}
       </p>
     </motion.div>
@@ -268,13 +277,13 @@ export function ExceptionSummaryCompact({
   return (
     <div className="space-y-2">
       {total === 0 ? (
-        <div className="flex items-center gap-2 text-jade">
+        <div className="flex items-center gap-2 text-status-success">
           <AlertTriangle className="h-4 w-4" />
           <span className="text-sm font-medium">No exceptions</span>
         </div>
       ) : (
         <>
-          <p className="text-sm font-medium text-charcoal-600">
+          <p className="text-sm font-medium text-text-secondary">
             Top Issues ({total} total)
           </p>
           {topExceptions.map(([type, count]) => {
@@ -284,11 +293,11 @@ export function ExceptionSummaryCompact({
                 key={type}
                 className="flex items-center justify-between text-sm"
               >
-                <span className="text-charcoal-600">{config.label}</span>
+                <span className="text-text-secondary">{config.label}</span>
                 <span
                   className={cn(
                     "rounded-full px-2 py-0.5 text-xs font-medium",
-                    "bg-amber-100 text-amber-700"
+                    "bg-status-warning-bg text-status-warning"
                   )}
                 >
                   {count}

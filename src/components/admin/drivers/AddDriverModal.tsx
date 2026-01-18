@@ -153,10 +153,10 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-cream to-lotus/20 border-curry/20">
+      <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-surface-secondary to-surface-tertiary border-border-v5">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 font-display text-2xl text-charcoal">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-saffron to-curry text-white">
+          <DialogTitle className="flex items-center gap-2 font-display text-2xl text-text-primary">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-interactive-primary to-accent-tertiary text-text-inverse">
               <UserPlus className="h-5 w-5" />
             </div>
             Add New Driver
@@ -183,9 +183,9 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
           <div className="space-y-2">
             <label
               htmlFor="email"
-              className="text-sm font-medium text-charcoal"
+              className="text-sm font-medium text-text-primary"
             >
-              Email Address <span className="text-red-500">*</span>
+              Email Address <span className="text-status-error">*</span>
             </label>
             <Input
               id="email"
@@ -194,8 +194,8 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
               value={formData.email}
               onChange={(e) => handleChange("email", e.target.value)}
               className={cn(
-                "bg-white border-curry/20 focus:border-saffron focus:ring-saffron/20",
-                errors.email && "border-red-400 focus:border-red-400 focus:ring-red-200"
+                "bg-surface-primary border-border-v5 focus:border-interactive-primary focus:ring-interactive-primary/20",
+                errors.email && "border-status-error focus:border-status-error focus:ring-status-error/20"
               )}
               disabled={isSubmitting}
             />
@@ -208,9 +208,9 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
           <div className="space-y-2">
             <label
               htmlFor="fullName"
-              className="text-sm font-medium text-charcoal"
+              className="text-sm font-medium text-text-primary"
             >
-              Full Name <span className="text-red-500">*</span>
+              Full Name <span className="text-status-error">*</span>
             </label>
             <Input
               id="fullName"
@@ -219,8 +219,8 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
               value={formData.fullName}
               onChange={(e) => handleChange("fullName", e.target.value)}
               className={cn(
-                "bg-white border-curry/20 focus:border-saffron focus:ring-saffron/20",
-                errors.fullName && "border-red-400 focus:border-red-400 focus:ring-red-200"
+                "bg-surface-primary border-border-v5 focus:border-interactive-primary focus:ring-interactive-primary/20",
+                errors.fullName && "border-status-error focus:border-status-error focus:ring-status-error/20"
               )}
               disabled={isSubmitting}
             />
@@ -233,7 +233,7 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
           <div className="space-y-2">
             <label
               htmlFor="phone"
-              className="text-sm font-medium text-charcoal"
+              className="text-sm font-medium text-text-primary"
             >
               Phone Number
             </label>
@@ -244,8 +244,8 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
               value={formData.phone}
               onChange={(e) => handleChange("phone", e.target.value)}
               className={cn(
-                "bg-white border-curry/20 focus:border-saffron focus:ring-saffron/20",
-                errors.phone && "border-red-400 focus:border-red-400 focus:ring-red-200"
+                "bg-surface-primary border-border-v5 focus:border-interactive-primary focus:ring-interactive-primary/20",
+                errors.phone && "border-status-error focus:border-status-error focus:ring-status-error/20"
               )}
               disabled={isSubmitting}
             />
@@ -256,7 +256,7 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
 
           {/* Vehicle Type */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-charcoal">
+            <label className="text-sm font-medium text-text-primary">
               Vehicle Type
             </label>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
@@ -273,8 +273,8 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
                   className={cn(
                     "flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all",
                     formData.vehicleType === option.value
-                      ? "border-saffron bg-saffron/10 text-saffron"
-                      : "border-curry/10 bg-white hover:border-saffron/50 text-muted-foreground hover:text-charcoal"
+                      ? "border-interactive-primary bg-interactive-primary-light text-interactive-primary"
+                      : "border-border-v5 bg-surface-primary hover:border-interactive-primary/50 text-text-secondary hover:text-text-primary"
                   )}
                   disabled={isSubmitting}
                 >
@@ -295,7 +295,7 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
             >
               <label
                 htmlFor="licensePlate"
-                className="text-sm font-medium text-charcoal"
+                className="text-sm font-medium text-text-primary"
               >
                 License Plate
               </label>
@@ -306,8 +306,8 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
                 value={formData.licensePlate}
                 onChange={(e) => handleChange("licensePlate", e.target.value.toUpperCase())}
                 className={cn(
-                  "bg-white border-curry/20 focus:border-saffron focus:ring-saffron/20 font-mono uppercase",
-                  errors.licensePlate && "border-red-400 focus:border-red-400 focus:ring-red-200"
+                  "bg-surface-primary border-border-v5 focus:border-interactive-primary focus:ring-interactive-primary/20 font-mono uppercase",
+                  errors.licensePlate && "border-status-error focus:border-status-error focus:ring-status-error/20"
                 )}
                 disabled={isSubmitting}
               />
@@ -323,14 +323,14 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
               variant="outline"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="border-curry/20 hover:bg-curry/5"
+              className="border-border-v5 hover:bg-surface-tertiary"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-gradient-to-r from-saffron to-curry hover:from-saffron-dark hover:to-curry-dark text-white shadow-md"
+              className="bg-gradient-to-r from-interactive-primary to-accent-tertiary hover:opacity-90 text-text-inverse shadow-md"
             >
               {isSubmitting ? (
                 <>

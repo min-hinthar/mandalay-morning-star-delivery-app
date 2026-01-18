@@ -63,8 +63,8 @@ export function DeliveryActions({
             disabled={disabled || isLoading}
             className={cn(
               "flex h-14 w-full items-center justify-center gap-3 rounded-xl font-semibold",
-              "bg-accent-secondary text-white shadow-warm-sm",
-              "transition-all hover:bg-accent-secondary/90 hover:shadow-warm-md",
+              "bg-accent-secondary text-text-inverse shadow-md",
+              "transition-all hover:bg-accent-secondary-hover hover:shadow-lg",
               "active:scale-[0.98]",
               "disabled:cursor-not-allowed disabled:opacity-50"
             )}
@@ -88,8 +88,8 @@ export function DeliveryActions({
             disabled={disabled || isLoading}
             className={cn(
               "flex h-14 w-full items-center justify-center gap-3 rounded-xl font-semibold",
-              "bg-accent-secondary text-white shadow-warm-sm",
-              "transition-all hover:bg-accent-secondary/90 hover:shadow-warm-md",
+              "bg-accent-secondary text-text-inverse shadow-md",
+              "transition-all hover:bg-accent-secondary-hover hover:shadow-lg",
               "active:scale-[0.98]",
               "disabled:cursor-not-allowed disabled:opacity-50"
             )}
@@ -116,7 +116,7 @@ export function DeliveryActions({
 
       case "skipped":
         return (
-          <div className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-red-100 font-semibold text-red-700">
+          <div className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-status-error-bg font-semibold text-status-error">
             <AlertTriangle className="h-5 w-5" />
             <span>Skipped</span>
           </div>
@@ -142,8 +142,8 @@ export function DeliveryActions({
           disabled={disabled || isLoading}
           className={cn(
             "flex h-12 w-full items-center justify-center gap-2 rounded-xl font-medium",
-            "border-2 border-red-200 bg-white text-red-600",
-            "transition-all hover:border-red-300 hover:bg-red-50",
+            "border-2 border-status-error/20 bg-surface-primary text-status-error",
+            "transition-all hover:border-status-error/30 hover:bg-status-error-bg",
             "active:scale-[0.98]",
             "disabled:cursor-not-allowed disabled:opacity-50"
           )}
@@ -156,7 +156,7 @@ export function DeliveryActions({
 
       {/* Error Message */}
       {error && (
-        <p className="text-center text-sm text-red-600" role="alert">
+        <p className="text-center text-sm text-status-error" role="alert">
           {error}
         </p>
       )}

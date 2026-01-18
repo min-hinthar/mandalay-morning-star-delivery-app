@@ -29,11 +29,18 @@ export function PeakHoursChart({ data, height = 250 }: PeakHoursChartProps) {
   // Find max for color intensity
   const maxCount = Math.max(...data.map((d) => d.deliveryCount), 1);
 
+  // V5 Chart colors - mapped to semantic tokens
+  const V5_CHART_COLORS = {
+    peak: "#D4A017", // --color-interactive-primary
+    moderate: "#E5B82A", // --color-interactive-primary-light
+    low: "#F5D876", // lighter variant
+  };
+
   const getBarColor = (count: number) => {
     const intensity = count / maxCount;
-    if (intensity >= 0.8) return "#D4A017"; // saffron (peak)
-    if (intensity >= 0.5) return "#E5B82A"; // lighter saffron
-    return "#F5D876"; // lightest saffron
+    if (intensity >= 0.8) return V5_CHART_COLORS.peak;
+    if (intensity >= 0.5) return V5_CHART_COLORS.moderate;
+    return V5_CHART_COLORS.low;
   };
 
   const chartData = data.map((d) => ({
@@ -46,11 +53,11 @@ export function PeakHoursChart({ data, height = 250 }: PeakHoursChartProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl bg-white p-6 shadow-warm-sm"
+      className="rounded-xl bg-surface-primary p-6 shadow-sm"
     >
       <div className="mb-4 flex items-center gap-2">
-        <Clock className="h-5 w-5 text-saffron" />
-        <h3 className="text-lg font-semibold text-charcoal-900">
+        <Clock className="h-5 w-5 text-interactive-primary" />
+        <h3 className="text-lg font-semibold text-text-primary">
           Delivery Volume by Hour
         </h3>
       </div>
@@ -97,13 +104,13 @@ export function PeakHoursChart({ data, height = 250 }: PeakHoursChartProps) {
       </ResponsiveContainer>
 
       {/* Peak hours legend */}
-      <div className="mt-4 flex items-center justify-center gap-4 text-xs text-charcoal-500">
+      <div className="mt-4 flex items-center justify-center gap-4 text-xs text-text-secondary">
         <div className="flex items-center gap-1.5">
-          <div className="h-3 w-3 rounded-sm bg-[#D4A017]" />
+          <div className="h-3 w-3 rounded-sm bg-interactive-primary" />
           <span>Peak hours</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-3 w-3 rounded-sm bg-[#E5B82A]" />
+          <div className="h-3 w-3 rounded-sm bg-interactive-primary-light" />
           <span>Moderate</span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -130,7 +137,7 @@ export function PeakHoursCompact({ data }: { data: PeakHoursData[] }) {
       animate={{ opacity: 1 }}
       className="space-y-2"
     >
-      <p className="text-sm font-medium text-charcoal-600">Busiest Hours</p>
+      <p className="text-sm font-medium text-text-secondary">Busiest Hours</p>
       <div className="flex gap-2">
         {topHours.map((hour, i) => (
           <motion.div
@@ -138,10 +145,10 @@ export function PeakHoursCompact({ data }: { data: PeakHoursData[] }) {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.1 }}
-            className="flex-1 rounded-lg bg-saffron/10 p-2 text-center"
+            className="flex-1 rounded-lg bg-interactive-primary-light p-2 text-center"
           >
-            <p className="text-lg font-bold text-saffron">{hour.label}</p>
-            <p className="text-xs text-charcoal-500">
+            <p className="text-lg font-bold text-interactive-primary">{hour.label}</p>
+            <p className="text-xs text-text-secondary">
               {hour.deliveryCount} deliveries
             </p>
           </motion.div>

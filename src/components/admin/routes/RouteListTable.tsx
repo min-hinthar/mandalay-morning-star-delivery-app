@@ -37,6 +37,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  ExpandableTableRow,
+  RoutePreviewPanel,
+  useExpandedRows,
+} from "@/components/admin/ExpandableTableRow";
 import type { RouteStatus } from "@/types/driver";
 
 export interface AdminRoute {
@@ -66,17 +71,17 @@ type SortDirection = "asc" | "desc";
 const STATUS_CONFIG: Record<RouteStatus, { label: string; className: string; icon: React.ReactNode }> = {
   planned: {
     label: "Planned",
-    className: "bg-blue-100 text-blue-700 border-blue-200",
+    className: "bg-status-info-bg text-status-info border-status-info/30",
     icon: <Clock className="h-3.5 w-3.5" />,
   },
   in_progress: {
     label: "In Progress",
-    className: "bg-saffron/10 text-saffron border-saffron/30",
+    className: "bg-interactive-primary-light text-interactive-primary border-interactive-primary/30",
     icon: <Play className="h-3.5 w-3.5" />,
   },
   completed: {
     label: "Completed",
-    className: "bg-jade/10 text-jade border-jade/30",
+    className: "bg-status-success-bg text-status-success border-status-success/30",
     icon: <CheckCircle2 className="h-3.5 w-3.5" />,
   },
 };
@@ -97,6 +102,7 @@ export function RouteListTable({
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [updatingRouteId, setUpdatingRouteId] = useState<string | null>(null);
   const [deletingRouteId, setDeletingRouteId] = useState<string | null>(null);
+  const { isExpanded, handleExpandChange } = useExpandedRows();
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -153,9 +159,9 @@ export function RouteListTable({
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) return null;
     return sortDirection === "asc" ? (
-      <ChevronUp className="ml-1 h-4 w-4 inline text-saffron" />
+      <ChevronUp className="ml-1 h-4 w-4 inline text-interactive-primary" />
     ) : (
-      <ChevronDown className="ml-1 h-4 w-4 inline text-saffron" />
+      <ChevronDown className="ml-1 h-4 w-4 inline text-interactive-primary" />
     );
   };
 
@@ -164,15 +170,15 @@ export function RouteListTable({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center py-16 bg-gradient-to-br from-cream to-lotus/30 rounded-xl border border-curry/10"
+        className="text-center py-16 bg-gradient-to-br from-surface-secondary to-surface-tertiary rounded-xl border border-border-v5"
       >
-        <div className="rounded-full bg-saffron/10 w-20 h-20 mx-auto flex items-center justify-center mb-4">
-          <Route className="h-10 w-10 text-saffron" />
+        <div className="rounded-full bg-interactive-primary-light w-20 h-20 mx-auto flex items-center justify-center mb-4">
+          <Route className="h-10 w-10 text-interactive-primary" />
         </div>
-        <h2 className="text-xl font-display text-charcoal mb-2">
+        <h2 className="text-xl font-display text-text-primary mb-2">
           No routes found
         </h2>
-        <p className="text-muted-foreground max-w-md mx-auto">
+        <p className="text-text-secondary max-w-md mx-auto">
           Create your first delivery route to start managing deliveries.
         </p>
       </motion.div>
@@ -183,15 +189,15 @@ export function RouteListTable({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl border border-curry/10 bg-white shadow-premium overflow-hidden"
+      className="rounded-xl border border-border-v5 bg-surface-primary shadow-md overflow-hidden"
     >
       {/* Desktop Table View */}
       <div className="hidden md:block">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gradient-to-r from-cream to-lotus/20 hover:bg-cream/80">
+            <TableRow className="bg-gradient-to-r from-surface-secondary to-surface-tertiary hover:bg-surface-secondary/80">
               <TableHead
-                className="cursor-pointer hover:text-saffron transition-colors font-display"
+                className="cursor-pointer hover:text-interactive-primary transition-colors font-display"
                 onClick={() => handleSort("deliveryDate")}
               >
                 Delivery Date
@@ -199,59 +205,71 @@ export function RouteListTable({
               </TableHead>
               <TableHead className="font-display">Driver</TableHead>
               <TableHead
-                className="cursor-pointer hover:text-saffron transition-colors text-center font-display"
+                className="cursor-pointer hover:text-interactive-primary transition-colors text-center font-display"
                 onClick={() => handleSort("stopCount")}
               >
                 Stops
                 <SortIcon field="stopCount" />
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:text-saffron transition-colors font-display"
+                className="cursor-pointer hover:text-interactive-primary transition-colors font-display"
                 onClick={() => handleSort("completionRate")}
               >
                 Progress
                 <SortIcon field="completionRate" />
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:text-saffron transition-colors font-display"
+                className="cursor-pointer hover:text-interactive-primary transition-colors font-display"
                 onClick={() => handleSort("status")}
               >
                 Status
                 <SortIcon field="status" />
               </TableHead>
               <TableHead className="w-[80px] font-display">Actions</TableHead>
+              <TableHead className="w-8" />
             </TableRow>
           </TableHeader>
           <TableBody>
             <AnimatePresence>
-              {sortedRoutes.map((route, index) => {
+              {sortedRoutes.map((route) => {
                 const isUpdating = updatingRouteId === route.id;
                 const isDeleting = deletingRouteId === route.id;
                 const nextStatuses = NEXT_STATUSES[route.status];
                 const statusConfig = STATUS_CONFIG[route.status];
 
+                // Create mock stops for preview (in real app, this would come from route data)
+                const mockStops = Array.from({ length: Math.min(route.stopCount, 5) }, (_, i) => ({
+                  address: `Stop ${i + 1} address`,
+                  customerName: `Customer ${i + 1}`,
+                  status: i < route.deliveredCount ? "delivered" : "pending",
+                }));
+
                 return (
-                  <motion.tr
+                  <ExpandableTableRow
                     key={route.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ delay: index * 0.05 }}
-                    className={cn(
-                      "group border-b border-curry/5 hover:bg-saffron/5 transition-colors",
-                      isDeleting && "opacity-50"
-                    )}
+                    id={route.id}
+                    isExpanded={isExpanded(route.id)}
+                    onExpandChange={handleExpandChange}
+                    colSpan={6}
+                    className={cn(isDeleting && "opacity-50")}
+                    previewContent={
+                      <RoutePreviewPanel
+                        stops={mockStops}
+                        estimatedDuration={`${route.stopCount * 15} min`}
+                        detailsLink={`/admin/routes/${route.id}`}
+                      />
+                    }
                   >
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-gradient-to-br from-saffron/10 to-curry/10">
-                          <MapPin className="h-4 w-4 text-saffron" />
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-interactive-primary-light to-accent-tertiary/10">
+                          <MapPin className="h-4 w-4 text-interactive-primary" />
                         </div>
                         <div>
-                          <p className="font-medium text-charcoal">
+                          <p className="font-medium text-text-primary">
                             {format(parseISO(route.deliveryDate), "EEEE, MMM d")}
                           </p>
-                          <p className="text-xs text-muted-foreground font-mono">
+                          <p className="text-xs text-text-secondary font-mono">
                             #{route.id.slice(0, 8)}
                           </p>
                         </div>
@@ -260,7 +278,7 @@ export function RouteListTable({
                     <TableCell>
                       {route.driver ? (
                         <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-full bg-jade/10 flex items-center justify-center text-jade text-xs font-medium">
+                          <div className="h-8 w-8 rounded-full bg-status-success-bg flex items-center justify-center text-status-success text-xs font-medium">
                             {route.driver.fullName
                               ?.split(" ")
                               .map((n) => n[0])
@@ -273,15 +291,15 @@ export function RouteListTable({
                           </span>
                         </div>
                       ) : (
-                        <span className="text-sm text-muted-foreground italic">
+                        <span className="text-sm text-text-secondary italic">
                           Unassigned
                         </span>
                       )}
                     </TableCell>
                     <TableCell className="text-center">
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-curry/10">
-                        <Package className="h-3.5 w-3.5 text-curry" />
-                        <span className="text-sm font-semibold text-curry">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-tertiary/10">
+                        <Package className="h-3.5 w-3.5 text-accent-tertiary" />
+                        <span className="text-sm font-semibold text-accent-tertiary">
                           {route.deliveredCount}/{route.stopCount}
                         </span>
                       </div>
@@ -292,7 +310,7 @@ export function RouteListTable({
                           value={route.completionRate}
                           className="w-24 h-2"
                         />
-                        <span className="text-sm font-medium text-charcoal w-10">
+                        <span className="text-sm font-medium text-text-primary w-10">
                           {route.completionRate}%
                         </span>
                       </div>
@@ -382,7 +400,7 @@ export function RouteListTable({
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
-                  </motion.tr>
+                  </ExpandableTableRow>
                 );
               })}
             </AnimatePresence>
@@ -391,7 +409,7 @@ export function RouteListTable({
       </div>
 
       {/* Mobile Card View */}
-      <div className="md:hidden divide-y divide-curry/10">
+      <div className="md:hidden divide-y divide-border-v5/50">
         <AnimatePresence>
           {sortedRoutes.map((route, index) => {
             const isUpdating = updatingRouteId === route.id;
@@ -404,18 +422,18 @@ export function RouteListTable({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ delay: index * 0.05 }}
-                className="p-4 hover:bg-saffron/5 transition-colors"
+                className="p-4 hover:bg-interactive-primary-light/50 transition-colors"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-saffron/10 to-curry/10">
-                      <MapPin className="h-5 w-5 text-saffron" />
+                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-interactive-primary-light to-accent-tertiary/10">
+                      <MapPin className="h-5 w-5 text-interactive-primary" />
                     </div>
                     <div>
-                      <p className="font-medium text-charcoal">
+                      <p className="font-medium text-text-primary">
                         {format(parseISO(route.deliveryDate), "EEE, MMM d")}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-text-secondary">
                         {route.stopCount} stops
                       </p>
                     </div>
@@ -433,12 +451,12 @@ export function RouteListTable({
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   <div className="flex items-center gap-2 text-sm">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">
+                    <User className="h-4 w-4 text-text-secondary" />
+                    <span className="text-text-secondary">
                       {route.driver?.fullName || "Unassigned"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-curry">
+                  <div className="flex items-center gap-2 text-sm text-accent-tertiary">
                     <Package className="h-4 w-4" />
                     <span className="font-medium">
                       {route.deliveredCount}/{route.stopCount} delivered
@@ -448,7 +466,7 @@ export function RouteListTable({
 
                 <div className="mt-3 flex items-center gap-3">
                   <Progress value={route.completionRate} className="flex-1 h-2" />
-                  <span className="text-sm font-medium text-charcoal">
+                  <span className="text-sm font-medium text-text-primary">
                     {route.completionRate}%
                   </span>
                 </div>
@@ -457,7 +475,7 @@ export function RouteListTable({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 border-saffron/30 text-saffron hover:bg-saffron/10"
+                    className="flex-1 border-interactive-primary/30 text-interactive-primary hover:bg-interactive-primary-light"
                     onClick={() => onViewRoute(route.id)}
                   >
                     <Eye className="mr-2 h-4 w-4" />

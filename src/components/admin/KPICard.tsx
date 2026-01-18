@@ -86,7 +86,7 @@ export function KPICard({
   };
 
   const getComparisonColor = () => {
-    if (comparison === undefined || comparison === 0) return "text-[var(--color-charcoal-muted)]";
+    if (comparison === undefined || comparison === 0) return "text-[var(--color-text-secondary)]";
     // For exceptions, down is good (jade), up is bad (error)
     if (variant === "exception") {
       return comparison > 0 ? "text-[var(--color-status-error)]" : "text-[var(--color-accent-secondary)]";
@@ -186,7 +186,7 @@ export function KPICard({
             exit={{ opacity: 0 }}
             className="absolute top-2 right-2"
           >
-            <RefreshCw className="h-3.5 w-3.5 animate-spin text-[var(--color-charcoal-muted)]" />
+            <RefreshCw className="h-3.5 w-3.5 animate-spin text-[var(--color-text-secondary)]" />
           </motion.div>
         )}
       </AnimatePresence>
@@ -200,14 +200,14 @@ export function KPICard({
             "font-display text-4xl font-bold leading-none",
             isExceptionHighlighted
               ? "text-[var(--color-status-error)]"
-              : "text-[var(--color-charcoal)]"
+              : "text-[var(--color-text-primary)]"
           )}
         >
           {formatValue(value)}
         </motion.span>
 
         {/* Label */}
-        <span className="text-sm text-[var(--color-charcoal-muted)]">
+        <span className="text-sm text-[var(--color-text-secondary)]">
           {label}
         </span>
 
@@ -219,7 +219,7 @@ export function KPICard({
               {comparison > 0 ? "+" : ""}
               {Math.round(comparison)}%
             </span>
-            <span className="font-normal text-[var(--color-charcoal-muted)]">
+            <span className="font-normal text-[var(--color-text-secondary)]">
               {comparisonLabel}
             </span>
           </div>
@@ -227,7 +227,7 @@ export function KPICard({
 
         {/* No comparison - show neutral indicator or text */}
         {comparison === undefined && variant !== "exception" && (
-          <div className="text-sm text-[var(--color-charcoal-muted)]">
+          <div className="text-sm text-[var(--color-text-secondary)]">
             {comparisonLabel}
           </div>
         )}

@@ -108,21 +108,21 @@ export function ActiveRouteView({
   return (
     <div className="space-y-4">
       {/* Progress Bar */}
-      <div className="rounded-xl bg-white p-4 shadow-warm-sm">
+      <div className="rounded-xl bg-surface-primary p-4 shadow-sm">
         <div className="mb-2 flex justify-between text-sm">
-          <span className="font-medium text-charcoal">Progress</span>
-          <span className="text-charcoal/60">
+          <span className="font-medium text-text-primary">Progress</span>
+          <span className="text-text-secondary">
             {completedCount}/{totalCount} stops
           </span>
         </div>
-        <div className="h-3 overflow-hidden rounded-full bg-charcoal/10">
+        <div className="h-3 overflow-hidden rounded-full bg-surface-tertiary">
           <div
-            className="h-full rounded-full bg-jade-500 transition-all duration-500"
+            className="h-full rounded-full bg-status-success transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
         {deliveredCount > 0 && skippedCount > 0 && (
-          <div className="mt-2 flex gap-4 text-xs text-charcoal/60">
+          <div className="mt-2 flex gap-4 text-xs text-text-secondary">
             <span>{deliveredCount} delivered</span>
             <span>{skippedCount} skipped</span>
           </div>
@@ -145,8 +145,8 @@ export function ActiveRouteView({
           disabled={isStarting}
           className={cn(
             "flex h-14 w-full items-center justify-center gap-3 rounded-xl font-semibold",
-            "bg-jade-500 text-white shadow-warm-md",
-            "transition-all hover:bg-jade-600 hover:shadow-warm-lg",
+            "bg-status-success text-text-inverse shadow-md",
+            "transition-all hover:bg-accent-secondary-hover hover:shadow-lg",
             "active:scale-[0.98]",
             "disabled:cursor-not-allowed disabled:opacity-50"
           )}
@@ -169,8 +169,8 @@ export function ActiveRouteView({
           disabled={isCompleting}
           className={cn(
             "flex h-14 w-full items-center justify-center gap-3 rounded-xl font-semibold",
-            "bg-jade-500 text-white shadow-warm-md",
-            "transition-all hover:bg-jade-600 hover:shadow-warm-lg",
+            "bg-status-success text-text-inverse shadow-md",
+            "transition-all hover:bg-accent-secondary-hover hover:shadow-lg",
             "active:scale-[0.98]",
             "disabled:cursor-not-allowed disabled:opacity-50"
           )}
@@ -188,7 +188,7 @@ export function ActiveRouteView({
 
       {/* Error Message */}
       {error && (
-        <p className="text-center text-sm text-red-600" role="alert">
+        <p className="text-center text-sm text-status-error" role="alert">
           {error}
         </p>
       )}

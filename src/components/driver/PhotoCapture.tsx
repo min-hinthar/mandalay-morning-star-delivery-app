@@ -254,7 +254,7 @@ export function PhotoCapture({
                   <p className="mb-4 text-lg text-white">{error}</p>
                   <button
                     onClick={startCamera}
-                    className="rounded-xl bg-white px-6 py-3 font-medium text-charcoal"
+                    className="rounded-xl bg-surface-primary px-6 py-3 font-medium text-text-primary"
                   >
                     Try Again
                   </button>
@@ -282,12 +282,12 @@ export function PhotoCapture({
             disabled={!stream || !!error}
             className={cn(
               "flex h-20 w-20 items-center justify-center rounded-full",
-              "bg-white transition-transform active:scale-95",
+              "bg-surface-primary transition-transform active:scale-95",
               "disabled:opacity-50"
             )}
             aria-label="Take photo"
           >
-            <div className="h-16 w-16 rounded-full border-4 border-charcoal" />
+            <div className="h-16 w-16 rounded-full border-4 border-text-primary" />
           </button>
         ) : (
           // Confirm/Retake buttons
@@ -306,7 +306,7 @@ export function PhotoCapture({
               disabled={isUploading}
               className={cn(
                 "flex h-20 w-20 items-center justify-center rounded-full",
-                "bg-jade-500 text-white transition-transform active:scale-95"
+                "bg-status-success text-text-inverse transition-transform active:scale-95"
               )}
               aria-label="Confirm photo"
             >

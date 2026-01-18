@@ -211,10 +211,10 @@ export function CreateRouteModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-cream to-lotus/20 border-curry/20">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-surface-secondary to-surface-tertiary border-border-v5">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 font-display text-2xl text-charcoal">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-saffron to-curry text-white">
+          <DialogTitle className="flex items-center gap-2 font-display text-2xl text-text-primary">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-interactive-primary to-accent-tertiary text-text-inverse">
               <Route className="h-5 w-5" />
             </div>
             Create Delivery Route
@@ -242,10 +242,10 @@ export function CreateRouteModal({
           <div className="space-y-2">
             <label
               htmlFor="deliveryDate"
-              className="flex items-center gap-2 text-sm font-medium text-charcoal"
+              className="flex items-center gap-2 text-sm font-medium text-text-primary"
             >
-              <Calendar className="h-4 w-4 text-saffron" />
-              Delivery Date <span className="text-red-500">*</span>
+              <Calendar className="h-4 w-4 text-interactive-primary" />
+              Delivery Date <span className="text-status-error">*</span>
             </label>
             <Input
               id="deliveryDate"
@@ -259,9 +259,9 @@ export function CreateRouteModal({
               }}
               min={format(new Date(), "yyyy-MM-dd")}
               className={cn(
-                "bg-white border-curry/20 focus:border-saffron focus:ring-saffron/20",
+                "bg-surface-primary border-border-v5 focus:border-interactive-primary focus:ring-interactive-primary/20",
                 errors.deliveryDate &&
-                  "border-red-400 focus:border-red-400 focus:ring-red-200"
+                  "border-status-error focus:border-status-error focus:ring-status-error/20"
               )}
               disabled={isSubmitting}
             />
@@ -272,14 +272,14 @@ export function CreateRouteModal({
 
           {/* Driver Selection */}
           <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-medium text-charcoal">
-              <Users className="h-4 w-4 text-saffron" />
+            <label className="flex items-center gap-2 text-sm font-medium text-text-primary">
+              <Users className="h-4 w-4 text-interactive-primary" />
               Assign Driver (Optional)
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {loadingDrivers ? (
                 <div className="col-span-full flex items-center justify-center py-4">
-                  <Loader2 className="h-5 w-5 animate-spin text-saffron" />
+                  <Loader2 className="h-5 w-5 animate-spin text-interactive-primary" />
                 </div>
               ) : drivers.length === 0 ? (
                 <p className="col-span-full text-sm text-muted-foreground py-2">
@@ -293,8 +293,8 @@ export function CreateRouteModal({
                     className={cn(
                       "flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all",
                       selectedDriverId === null
-                        ? "border-saffron bg-saffron/10 text-saffron"
-                        : "border-curry/10 bg-white hover:border-saffron/50 text-muted-foreground"
+                        ? "border-interactive-primary bg-interactive-primary-light text-interactive-primary"
+                        : "border-border-v5 bg-surface-primary hover:border-interactive-primary/50 text-text-secondary"
                     )}
                     disabled={isSubmitting}
                   >
@@ -308,12 +308,12 @@ export function CreateRouteModal({
                       className={cn(
                         "flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all",
                         selectedDriverId === driver.id
-                          ? "border-saffron bg-saffron/10 text-saffron"
-                          : "border-curry/10 bg-white hover:border-saffron/50 text-charcoal"
+                          ? "border-interactive-primary bg-interactive-primary-light text-interactive-primary"
+                          : "border-border-v5 bg-surface-primary hover:border-interactive-primary/50 text-text-primary"
                       )}
                       disabled={isSubmitting}
                     >
-                      <div className="h-8 w-8 rounded-full bg-jade/10 flex items-center justify-center text-jade text-xs font-medium">
+                      <div className="h-8 w-8 rounded-full bg-status-success-bg flex items-center justify-center text-status-success text-xs font-medium">
                         {driver.fullName
                           ?.split(" ")
                           .map((n) => n[0])
@@ -334,9 +334,9 @@ export function CreateRouteModal({
           {/* Order Selection */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm font-medium text-charcoal">
-                <Package className="h-4 w-4 text-saffron" />
-                Select Orders <span className="text-red-500">*</span>
+              <label className="flex items-center gap-2 text-sm font-medium text-text-primary">
+                <Package className="h-4 w-4 text-interactive-primary" />
+                Select Orders <span className="text-status-error">*</span>
               </label>
               <div className="flex gap-2">
                 <Button
@@ -362,17 +362,17 @@ export function CreateRouteModal({
               </div>
             </div>
 
-            <div className="max-h-48 overflow-y-auto rounded-lg border border-curry/20 bg-white">
+            <div className="max-h-48 overflow-y-auto rounded-lg border border-border-v5 bg-surface-primary">
               {loadingOrders ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-5 w-5 animate-spin text-saffron" />
+                  <Loader2 className="h-5 w-5 animate-spin text-interactive-primary" />
                 </div>
               ) : orders.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-8 text-center">
                   No confirmed orders available for routing
                 </p>
               ) : (
-                <div className="divide-y divide-curry/10">
+                <div className="divide-y divide-border-v5/50">
                   {orders.map((order) => {
                     const isSelected = selectedOrderIds.includes(order.id);
 
@@ -384,8 +384,8 @@ export function CreateRouteModal({
                         className={cn(
                           "w-full flex items-center justify-between p-3 text-left transition-colors",
                           isSelected
-                            ? "bg-saffron/10"
-                            : "hover:bg-cream"
+                            ? "bg-interactive-primary-light"
+                            : "hover:bg-surface-secondary"
                         )}
                         disabled={isSubmitting}
                       >
@@ -394,25 +394,25 @@ export function CreateRouteModal({
                             className={cn(
                               "h-5 w-5 rounded border-2 flex items-center justify-center transition-all",
                               isSelected
-                                ? "bg-saffron border-saffron"
-                                : "border-curry/30"
+                                ? "bg-interactive-primary border-interactive-primary"
+                                : "border-border-v5"
                             )}
                           >
                             {isSelected && (
-                              <Check className="h-3 w-3 text-white" />
+                              <Check className="h-3 w-3 text-text-inverse" />
                             )}
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-charcoal">
+                            <p className="text-sm font-medium text-text-primary">
                               #{order.id.slice(0, 8).toUpperCase()}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-text-secondary">
                               {order.customerName || "Guest"} •{" "}
                               {order.itemCount} items
                             </p>
                           </div>
                         </div>
-                        <span className="text-sm font-medium text-curry">
+                        <span className="text-sm font-medium text-accent-tertiary">
                           ${(order.totalCents / 100).toFixed(2)}
                         </span>
                       </button>
@@ -439,14 +439,14 @@ export function CreateRouteModal({
               variant="outline"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="border-curry/20 hover:bg-curry/5"
+              className="border-border-v5 hover:bg-surface-tertiary"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-gradient-to-r from-saffron to-curry hover:from-saffron-dark hover:to-curry-dark text-white shadow-md"
+              className="bg-gradient-to-r from-interactive-primary to-accent-tertiary hover:opacity-90 text-text-inverse shadow-md"
             >
               {isSubmitting ? (
                 <>
