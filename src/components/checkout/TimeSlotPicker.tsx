@@ -51,7 +51,7 @@ export function TimeSlotPicker({
             <Calendar className="h-5 w-5 text-[var(--color-interactive-primary)]" />
           </div>
           <div>
-            <p className="text-sm text-[var(--color-text-muted)]">Delivery Date</p>
+            <p className="text-sm text-[var(--color-text-secondary)]">Delivery Date</p>
             <p className="text-lg font-bold text-[var(--color-text-primary)]">
               {deliveryDate.displayDate}
             </p>
@@ -74,18 +74,18 @@ export function TimeSlotPicker({
       <div>
         <h3 className="mb-4 flex items-center gap-3 font-semibold text-[var(--color-text-primary)]">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-surface-muted)]">
-            <Clock className="h-4 w-4 text-[var(--color-text-muted)]" />
+            <Clock className="h-4 w-4 text-[var(--color-text-secondary)]" />
           </div>
           Select a delivery window
         </h3>
 
         {allUnavailable ? (
           <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-6 text-center">
-            <Clock className="h-8 w-8 text-[var(--color-text-muted)] mx-auto mb-2" />
+            <Clock className="h-8 w-8 text-[var(--color-text-secondary)] mx-auto mb-2" />
             <p className="font-semibold text-[var(--color-text-primary)]">
               All slots are full for this date
             </p>
-            <p className="text-sm text-[var(--color-text-muted)] mt-1">
+            <p className="text-sm text-[var(--color-text-secondary)] mt-1">
               Please try a different delivery date.
             </p>
           </div>
@@ -157,7 +157,7 @@ function TimeSlotButton({
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)] focus-visible:ring-offset-2",
         isUnavailable && [
           "cursor-not-allowed border-[var(--color-border)] bg-[var(--color-surface-muted)]",
-          "text-[var(--color-text-muted)]",
+          "text-[var(--color-text-secondary)]",
         ],
         !isUnavailable && isSelected && [
           "border-[var(--color-interactive-primary)] bg-[var(--color-interactive-primary-light)]",
@@ -187,13 +187,13 @@ function TimeSlotButton({
       {/* Time display */}
       <div className={cn(isUnavailable && "line-through")}>
         <span className="text-sm font-semibold">{formatShortTime(window.start)}</span>
-        <span className="mx-1 text-[var(--color-text-muted)]">–</span>
+        <span className="mx-1 text-[var(--color-text-secondary)]">–</span>
         <span className="text-sm font-semibold">{formatShortTime(window.end)}</span>
       </div>
 
       {/* Unavailable label */}
       {isUnavailable && (
-        <p className="text-[10px] uppercase tracking-wide text-[var(--color-text-muted)] mt-1">
+        <p className="text-[10px] uppercase tracking-wide text-[var(--color-text-secondary)] mt-1">
           Full
         </p>
       )}

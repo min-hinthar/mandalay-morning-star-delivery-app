@@ -493,3 +493,40 @@ SafeArea specifics: `edges: ('top'|'bottom'|'left'|'right')[]`, uses `env(safe-a
 Dark mode: Use `[data-theme="dark"]` selector with warmer shadow colors (less opacity, black base). V4 aliases preserved for gradual migration.
 **Apply when:** Adding new design tokens, extending token system
 
+---
+
+## 2026-01-18: Conform.js API Requires ariaAttributes
+
+**Context:** Implementing FormField component with @conform-to/react
+**Learning:** Conform's `getInputProps`, `getTextareaProps`, `getSelectProps` require `ariaAttributes` option to be explicitly set. TypeScript will error with "Property 'ariaAttributes' is missing in type" if omitted.
+```ts
+// Correct usage:
+getInputProps(field, { type: "text", ariaAttributes: true });
+getTextareaProps(field, { ariaAttributes: true });
+getSelectProps(field, { ariaAttributes: true });
+```
+Also, input type must be cast to Conform's union type (excludes "button", "submit", "reset").
+**Apply when:** Creating Conform form fields, debugging TS2345 errors with getInputProps
+
+---
+
+## 2026-01-18: V5 Token Migration Mapping
+
+**Context:** Refreshing Button/Badge/Input to V5 tokens
+**Learning:** V4 → V5 token mappings:
+| V4 Token | V5 Token |
+|----------|----------|
+| `--color-cta` | `--color-interactive-primary` |
+| `--color-charcoal` | `--color-text-primary` |
+| `--color-charcoal-muted` | `--color-text-secondary` |
+| `--color-surface` | `--color-surface-primary` |
+| `--color-cream-darker` | `--color-surface-tertiary` |
+| `--color-border` | `--color-border-default` |
+| `--color-error` | `--color-status-error` |
+| `--color-jade` | `--color-status-success` |
+| `--color-warning` | `--color-status-warning` |
+| `--shadow-md` | `--elevation-2` |
+
+Status bg colors use opacity: `--color-status-error-bg` = `rgba(196, 92, 74, 0.1)`.
+**Apply when:** Migrating components from V4 to V5 design tokens
+

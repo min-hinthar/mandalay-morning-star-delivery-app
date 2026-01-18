@@ -17,6 +17,10 @@ interface UpsellSectionProps {
   addedItemIds?: Set<string>;
   /** Maximum items to display */
   maxItems?: number;
+  /** Callback when user skips upsells */
+  onSkip?: () => void;
+  /** Show skip button */
+  showSkipButton?: boolean;
   /** Optional class name */
   className?: string;
 }
@@ -34,6 +38,8 @@ export function UpsellSection({
   onAddItem,
   addedItemIds = new Set(),
   maxItems = 4,
+  onSkip,
+  showSkipButton = true,
   className,
 }: UpsellSectionProps) {
   const displayItems = items.slice(0, maxItems);
@@ -45,18 +51,36 @@ export function UpsellSection({
   return (
     <div className={cn("space-y-4", className)}>
       {/* Section Header */}
-      <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-interactive-primary)]/10">
-          <Sparkles className="h-4 w-4 text-[var(--color-interactive-primary)]" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-interactive-primary)]/10">
+            <Sparkles className="h-4 w-4 text-[var(--color-interactive-primary)]" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-[var(--color-text-primary)]">
+              Goes well with
+            </h3>
+            <p className="text-sm text-[var(--color-text-secondary)]">
+              Complete your meal
+            </p>
+          </div>
         </div>
-        <div>
-          <h3 className="font-semibold text-[var(--color-text-primary)]">
-            Goes well with
-          </h3>
-          <p className="text-sm text-[var(--color-text-muted)]">
-            Complete your meal
-          </p>
-        </div>
+
+        {/* Skip Button */}
+        {showSkipButton && onSkip && (
+          <button
+            type="button"
+            onClick={onSkip}
+            className={cn(
+              "text-sm font-medium text-[var(--color-text-secondary)]",
+              "hover:text-[var(--color-text-primary)] underline-offset-2 hover:underline",
+              "transition-colors duration-[var(--duration-fast)]",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)] rounded px-2 py-1 -mr-2"
+            )}
+          >
+            No thanks
+          </button>
+        )}
       </div>
 
       {/* Upsell Items Grid */}
@@ -115,7 +139,7 @@ function UpsellItem({ item, isAdded, onAdd }: UpsellItemProps) {
           />
         ) : (
           <div className="flex h-full items-center justify-center">
-            <span className="text-xs text-[var(--color-text-muted)]">No image</span>
+            <span className="text-xs text-[var(--color-text-secondary)]">No image</span>
           </div>
         )}
 

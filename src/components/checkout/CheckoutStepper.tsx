@@ -66,7 +66,7 @@ export function CheckoutStepper({
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)] focus-visible:ring-offset-2",
                     isCompleted && "cursor-pointer bg-[var(--color-accent-secondary)] text-white shadow-sm",
                     isCurrent && "bg-[var(--color-interactive-primary)] text-white shadow-[var(--shadow-glow-gold)]",
-                    !isCompleted && !isCurrent && "border-2 border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-muted)]"
+                    !isCompleted && !isCurrent && "border-2 border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)]"
                   )}
                   aria-current={isCurrent ? "step" : undefined}
                 >
@@ -102,7 +102,7 @@ export function CheckoutStepper({
                   "mt-2 text-[10px] font-bold uppercase tracking-wider transition-colors duration-200",
                   isCompleted && "text-[var(--color-accent-secondary)]",
                   isCurrent && "text-[var(--color-text-primary)]",
-                  !isCompleted && !isCurrent && "text-[var(--color-text-muted)]"
+                  !isCompleted && !isCurrent && "text-[var(--color-text-secondary)]"
                 )}
               >
                 {config.label}
