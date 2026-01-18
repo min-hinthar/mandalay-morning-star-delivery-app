@@ -3,10 +3,11 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, X } from "lucide-react";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
+import { ShoppingBag, X, GripHorizontal } from "lucide-react";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
+import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "./cart-item";
 import { CartSummary } from "./CartSummary";
@@ -19,6 +20,13 @@ export function CartDrawer() {
   const drawerRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const lastActiveElementRef = useRef<HTMLElement | null>(null);
+  const isMobile = useMediaQuery("(max-width: 640px)");
+
+  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    if (isMobile && info.offset.y > 100) {
+      close();
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -95,20 +103,35 @@ export function CartDrawer() {
 
           <motion.div
             ref={drawerRef}
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
+            initial={isMobile ? { y: "100%" } : { x: "100%" }}
+            animate={isMobile ? { y: 0 } : { x: 0 }}
+            exit={isMobile ? { y: "100%" } : { x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            drag={isMobile ? "y" : false}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            onDragEnd={handleDragEnd}
             className={cn(
-              "fixed right-0 top-0 z-50 h-full w-full max-w-md",
-              "bg-background shadow-xl",
-              "flex flex-col"
+              "fixed z-50 bg-background shadow-xl flex flex-col",
+              isMobile
+                ? "inset-x-0 bottom-0 h-[90vh] rounded-t-[var(--radius-2xl)]"
+                : "right-0 top-0 h-full w-full max-w-md"
             )}
             role="dialog"
             aria-modal="true"
             aria-labelledby="cart-drawer-title"
           >
-            <div className="flex items-center justify-between border-b border-border bg-card/50 px-5 py-4">
+            {/* Mobile drag handle */}
+            {isMobile && (
+              <div className="flex justify-center py-2 cursor-grab active:cursor-grabbing">
+                <GripHorizontal className="h-5 w-5 text-muted-foreground/50" />
+              </div>
+            )}
+
+            <div className={cn(
+              "flex items-center justify-between border-b border-border bg-card/50 px-5",
+              isMobile ? "py-3" : "py-4"
+            )}>
               <h2
                 id="cart-drawer-title"
                 className="flex items-center gap-3 text-lg font-bold text-foreground"

@@ -70,3 +70,27 @@ window.matchMedia = (q) => ({ matches: false, media: q, addEventListener: () => 
 **Learning:** Generic hooks go in `src/lib/hooks/`. Created `useMediaQuery.ts` - returns false during SSR, updates on resize. Use for responsive behavior in components.
 **Apply when:** Need different behavior/animations for mobile vs desktop
 
+---
+
+## 2026-01-17: Framer Motion swipe-to-delete pattern
+
+**Context:** Adding swipe-left-to-delete to CartItem
+**Learning:** Use `useMotionValue(0)` + `useTransform` for reactive UI. Structure: outer container with `overflow-hidden`, hidden delete button behind, draggable content on top with `drag="x"` and `dragConstraints`. Check `info.offset.x` in `onDragEnd` to trigger deletion.
+**Apply when:** Implementing swipe gestures for list items
+
+---
+
+## 2026-01-17: Responsive drawer animations
+
+**Context:** CartDrawer needed slide-up on mobile, slide-right on desktop
+**Learning:** Use `isMobile = useMediaQuery("(max-width: 640px)")` then conditionally set `initial/animate/exit` props: `{ y: "100%" }` for mobile, `{ x: "100%" }` for desktop. Add `drag="y"` on mobile with swipe-down-to-close.
+**Apply when:** Building responsive modals/drawers with different animations per breakpoint
+
+---
+
+## 2026-01-17: CSS variables in Tailwind arbitrary values
+
+**Context:** Using V3 design tokens in components
+**Learning:** Use `className="bg-[var(--color-saffron)]"` for CSS custom properties. For shadows with variables: `shadow-[var(--shadow-glow-gold)]`. This works in Tailwind 3+ and maintains design token consistency.
+**Apply when:** Styling components with V3 tokens instead of hardcoded colors
+

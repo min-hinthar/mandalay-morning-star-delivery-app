@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform, PanInfo } from "framer-motion";
 import { useCart } from "@/lib/hooks/useCart";
 import { formatPrice } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
@@ -15,9 +15,17 @@ interface CartItemProps {
   item: CartItemType;
 }
 
+const DELETE_THRESHOLD = -80;
+const DELETE_BUTTON_WIDTH = 80;
+
 export function CartItem({ item }: CartItemProps) {
   const { updateQuantity, removeItem, getItemTotal } = useCart();
   const [showConfirmRemove, setShowConfirmRemove] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const x = useMotionValue(0);
+  const deleteOpacity = useTransform(x, [-DELETE_BUTTON_WIDTH, 0], [1, 0]);
+  const deleteScale = useTransform(x, [-DELETE_BUTTON_WIDTH, -40, 0], [1, 0.8, 0.5]);
 
   const itemTotal = getItemTotal(item.cartItemId);
 
@@ -38,14 +46,49 @@ export function CartItem({ item }: CartItemProps) {
     setShowConfirmRemove(false);
   };
 
+  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    setIsDragging(false);
+    if (info.offset.x < DELETE_THRESHOLD) {
+      handleRemove();
+    }
+  };
+
   return (
     <motion.li
       layout
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -40 }}
-      className="group rounded-xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
+      exit={{ opacity: 0, x: -100, transition: { duration: 0.2 } }}
+      className="group relative overflow-hidden rounded-xl"
     >
+      {/* Delete button background */}
+      <motion.div
+        className="absolute inset-y-0 right-0 flex items-center justify-center bg-[var(--color-error)] text-white"
+        style={{
+          width: DELETE_BUTTON_WIDTH,
+          opacity: deleteOpacity,
+        }}
+      >
+        <motion.div style={{ scale: deleteScale }} className="flex flex-col items-center gap-1">
+          <Trash2 className="h-5 w-5" />
+          <span className="text-xs font-medium">Delete</span>
+        </motion.div>
+      </motion.div>
+
+      {/* Draggable content */}
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: -DELETE_BUTTON_WIDTH, right: 0 }}
+        dragElastic={{ left: 0.1, right: 0 }}
+        onDragStart={() => setIsDragging(true)}
+        onDragEnd={handleDragEnd}
+        style={{ x }}
+        className={cn(
+          "relative border border-border bg-card p-4 shadow-sm transition-shadow duration-200",
+          "rounded-xl",
+          !isDragging && "hover:shadow-md"
+        )}
+      >
       <div className="flex gap-4">
         {/* Image */}
         <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-secondary/30">
@@ -147,7 +190,7 @@ export function CartItem({ item }: CartItemProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200"
+              className="h-8 w-8 rounded-full text-muted-foreground hover:text-[var(--color-error)] hover:bg-[var(--color-error-light)] transition-all duration-200"
               onClick={() => setShowConfirmRemove(true)}
               aria-label="Remove item"
             >
@@ -186,6 +229,7 @@ export function CartItem({ item }: CartItemProps) {
           </div>
         </motion.div>
       )}
+      </motion.div>
     </motion.li>
   );
 }
