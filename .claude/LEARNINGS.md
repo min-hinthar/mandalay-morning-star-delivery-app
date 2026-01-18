@@ -110,3 +110,19 @@ window.matchMedia = (q) => ({ matches: false, media: q, addEventListener: () => 
 **Learning:** Extract shared JSX into render function `mapContent(inFullscreen: boolean)`. Return fragment with inline container + AnimatePresence fullscreen overlay. Pass boolean to adjust styling (e.g., `gestureHandling: inFullscreen ? "greedy" : "cooperative"`).
 **Apply when:** Building components that can expand to fullscreen (maps, images, modals)
 
+---
+
+## 2026-01-17: Framer Motion variants need `as const`
+
+**Context:** Creating animation variants with spring/ease properties
+**Learning:** TypeScript requires `as const` for string literal types in Framer Motion variants. Use `type: "spring" as const` and `ease: "easeOut" as const` in transition objects. Without this, TS infers `string` which doesn't satisfy `AnimationGeneratorType`.
+**Apply when:** Defining inline Framer Motion variants with spring transitions or custom easing
+
+---
+
+## 2026-01-17: Animation utilities organization
+
+**Context:** Creating reusable animation patterns for cart, tabs, swipe gestures
+**Learning:** Animation utilities go in `src/lib/animations/` subdirectory. Each domain gets its own file (`cart.ts`, `tabs.ts`). Export variants, transition presets, and utility functions. Common patterns exported from `variants.ts`. Main `animations.ts` re-exports from subdirectory.
+**Apply when:** Adding new animation patterns or Framer Motion utilities
+
