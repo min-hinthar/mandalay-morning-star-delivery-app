@@ -26,13 +26,15 @@ This sprint establishes the visual and structural foundation for the entire V3 U
 
 ## P1-Foundation UI Assets
 
-Design prototypes have been finalized for Tasks 1.1 and 1.2. Use these as visual reference when implementing the CSS tokens.
+Design prototypes serve as visual reference. **`/frontend-design` should improve upon these templates** with enhanced aesthetics, animations, and polish.
 
 | Asset | Description | Files |
 |-------|-------------|-------|
+| **Design Tokens 1** | Color palette, typography showcase | [code.html](../../UI-Assets/P1-Foundation/Design-Tokens-1/code.html) / [screen.png](../../UI-Assets/P1-Foundation/Design-Tokens-1/screen.png) |
+| **Design Tokens 2** | Component samples, spacing | [code.html](../../UI-Assets/P1-Foundation/Design-Tokens-2/code.html) / [screen.png](../../UI-Assets/P1-Foundation/Design-Tokens-2/screen.png) |
+| **Design Tokens 3** | Extended tokens, variants | [code.html](../../UI-Assets/P1-Foundation/Design-Tokens-3/code.html) / [screen.png](../../UI-Assets/P1-Foundation/Design-Tokens-3/screen.png) |
 | **Light Theme** | Primary brand colors + component showcase | [MD](../../UI-Assets/P1-Foundation/Light-Theme.md) / [PNG](../../UI-Assets/P1-Foundation/Light-Theme.png) |
 | **Dark Theme** | Dark mode with warm undertones | [MD](../../UI-Assets/P1-Foundation/Dark-Theme.md) / [PNG](../../UI-Assets/P1-Foundation/Dark-Theme.png) |
-| **Vibrant Heritage** | Alternate warm palette (optional) | [MD](../../UI-Assets/P1-Foundation/Vibrant-Heritage.md) / [PNG](../../UI-Assets/P1-Foundation/Vibrant-Heritage.png) |
 
 ### Finalized Design Tokens (from UI Assets)
 
@@ -61,16 +63,18 @@ Burmese: "Padauk" (Myanmar script)
 **Output File**: `src/styles/tokens.css`
 **Status**: 🎨 Prototype Ready
 
-### Reference Asset
-> **Finalized Prototype**: [Light-Theme.md](../../UI-Assets/P1-Foundation/Light-Theme.md) | [PNG Preview](../../UI-Assets/P1-Foundation/Light-Theme.png)
->
-> Review the markdown file to see the complete color palette, typography, and component samples. Extract the CSS tokens from the finalized design.
+### Reference Assets
+> **Templates** (improve upon these):
+> - [Design-Tokens-1/screen.png](../../UI-Assets/P1-Foundation/Design-Tokens-1/screen.png) | [code.html](../../UI-Assets/P1-Foundation/Design-Tokens-1/code.html)
+> - [Design-Tokens-2/screen.png](../../UI-Assets/P1-Foundation/Design-Tokens-2/screen.png) | [code.html](../../UI-Assets/P1-Foundation/Design-Tokens-2/code.html)
+> - [Design-Tokens-3/screen.png](../../UI-Assets/P1-Foundation/Design-Tokens-3/screen.png) | [code.html](../../UI-Assets/P1-Foundation/Design-Tokens-3/code.html)
+> - [Light-Theme.md](../../UI-Assets/P1-Foundation/Light-Theme.md) | [PNG](../../UI-Assets/P1-Foundation/Light-Theme.png)
 
 ### Implementation Guide
-1. **Review the finalized prototype** — [Light-Theme.md](../../UI-Assets/P1-Foundation/Light-Theme.md)
+1. **Review templates** — screen.png for visuals, code.html for structure
 2. Run `/frontend-design`
 3. Paste the prompt content below
-4. **Ensure tokens match the finalized colors** (primary: #9B1B1E, CTA: #F4D03F)
+4. **Improve upon templates** with enhanced polish, animations, accessibility
 5. Review generated CSS custom properties
 6. Integrate into project's global styles
 

@@ -8,6 +8,18 @@
 
 This sprint implements the cart and checkout experience — the critical path to conversion. Sticky cart bar, expandable cart view, and checkout step components.
 
+## P1-Foundation UI Assets
+
+Design templates for cart components. **`/frontend-design` should improve upon these** with enhanced interactions and polish.
+
+| Asset | Description | Files |
+|-------|-------------|-------|
+| **Cart Overview 1** | Cart bar, item list layout | [code.html](../../UI-Assets/P1-Foundation/Cart-Overview-1/code.html) / [screen.png](../../UI-Assets/P1-Foundation/Cart-Overview-1/screen.png) |
+| **Cart Overview 2** | Cart summary, totals | [code.html](../../UI-Assets/P1-Foundation/Cart-Overview-2/code.html) / [screen.png](../../UI-Assets/P1-Foundation/Cart-Overview-2/screen.png) |
+| **Cart Overview 3** | Cart states, interactions | [code.html](../../UI-Assets/P1-Foundation/Cart-Overview-3/code.html) / [screen.png](../../UI-Assets/P1-Foundation/Cart-Overview-3/screen.png) |
+
+---
+
 ## Sprint Progress
 
 | Task | Component | Status |
@@ -28,11 +40,17 @@ This sprint implements the cart and checkout experience — the critical path to
 **Output File**: `src/components/cart/CartBar.tsx`
 **Status**: ⬜ Not Started
 
+### Reference Assets
+> **Templates** (improve upon these):
+> - [Cart-Overview-1/screen.png](../../UI-Assets/P1-Foundation/Cart-Overview-1/screen.png) | [code.html](../../UI-Assets/P1-Foundation/Cart-Overview-1/code.html)
+
 ### Implementation Guide
-1. Run `/frontend-design`
-2. Paste the prompt content below
-3. Create sticky bottom bar component
-4. Handle expand/collapse interaction
+1. **Review template** — screen.png for visuals, code.html for structure
+2. Run `/frontend-design`
+3. Paste the prompt content below
+4. **Improve upon template** with enhanced animations, micro-interactions
+5. Create sticky bottom bar component
+6. Handle expand/collapse interaction
 
 ### Prompt Content
 
@@ -107,11 +125,18 @@ Persistent bottom bar showing cart summary on the menu page. Shows item count, t
 **Output File**: `src/components/cart/CartView.tsx`
 **Status**: ⬜ Not Started
 
+### Reference Assets
+> **Templates** (improve upon these):
+> - [Cart-Overview-2/screen.png](../../UI-Assets/P1-Foundation/Cart-Overview-2/screen.png) | [code.html](../../UI-Assets/P1-Foundation/Cart-Overview-2/code.html)
+> - [Cart-Overview-3/screen.png](../../UI-Assets/P1-Foundation/Cart-Overview-3/screen.png) | [code.html](../../UI-Assets/P1-Foundation/Cart-Overview-3/code.html)
+
 ### Implementation Guide
-1. Run `/frontend-design`
-2. Paste the prompt content below
-3. Create full cart view with item management
-4. Handle quantity changes and removal
+1. **Review templates** — screen.png for visuals, code.html for structure
+2. Run `/frontend-design`
+3. Paste the prompt content below
+4. **Improve upon templates** with enhanced swipe gestures, transitions
+5. Create full cart view with item management
+6. Handle quantity changes and removal
 
 ### Prompt Content
 

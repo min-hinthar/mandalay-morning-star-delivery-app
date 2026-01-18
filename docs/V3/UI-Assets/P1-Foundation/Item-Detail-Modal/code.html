@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mohinga Supreme - Mandalay Morning Star</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100..900;1,100..900&amp;family=Noto+Sans:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#d12c23",
+              "morningstar-gold": "#E2B42C",
+              "background-light": "#fbf6ef",
+              "background-dark": "#2b2b2b",
+              "border-warm": "#D9D0C8",
+            },
+            fontFamily: {
+              "display": ["Noto Serif", "serif"],
+              "sans": ["Noto Sans", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+            boxShadow: {
+              'premium': '0 20px 50px rgba(43, 43, 43, 0.15), 0 10px 20px rgba(209, 44, 35, 0.05)',
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D9D0C8;
+            border-radius: 10px;
+        }
+        .add-to-cart-btn:hover {
+            box-shadow: 0 0 20px rgba(226, 180, 44, 0.4);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-sans text-[#1a0f0e] antialiased">
+<!-- Modal Backdrop Blur Background Simulation -->
+<div class="fixed inset-0 z-0 overflow-hidden opacity-40 grayscale-[0.5]">
+<!-- Reuse TopNavBar to show background context -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f2e8e8] px-40 py-6">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-[#1a0f0e]">
+<div class="size-6 text-primary">
+<span class="material-symbols-outlined text-3xl">restaurant</span>
+</div>
+<h2 class="text-[#1a0f0e] text-xl font-bold font-display tracking-tight">Mandalay Morning Star</h2>
+</div>
+</div>
+</header>
+<main class="px-40 py-10">
+<div class="grid grid-cols-3 gap-6">
+<div class="h-64 bg-white/50 rounded-xl"></div>
+<div class="h-64 bg-white/50 rounded-xl"></div>
+<div class="h-64 bg-white/50 rounded-xl"></div>
+</div>
+</main>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+<!-- Modal Container -->
+<div class="relative w-full max-w-[1000px] h-[720px] bg-background-light dark:bg-background-dark rounded-xl shadow-premium overflow-hidden flex flex-col md:flex-row border border-border-warm/30">
+<!-- Close Button -->
+<button class="absolute top-6 right-6 z-20 size-10 flex items-center justify-center rounded-full bg-white/80 backdrop-blur border border-border-warm text-[#1a0f0e] hover:bg-white transition-all">
+<span class="material-symbols-outlined">close</span>
+</button>
+<!-- Left Column: Hero Image -->
+<div class="w-full md:w-[45%] relative h-64 md:h-auto overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Appetizing Mohinga Supreme in a handcrafted ceramic bowl" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuANRARpDPaOdOG2ndwzMZARaVr93zdpBzV6OYg6v6Ql_StAMnpnTaoxjCrNY5ncMvB-_3QQafzogeg7UxjrynP6719uwmrYIkuIih2sMDps6qoV4g-QB9aCRLTU9xinWIP3vrTiRVi0bd3HjclWvfjKfD_QZ4Ev8GyrZtWypNkruyVxScOSSTuhPapNhoo0j7Q55fYIMgART2MX2CkIk1o_c0n4x9YJvTgrNEgSRjC3j3g0CGrsSiCucP79LbWHDcWXT2Nw42fRqOk');">
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+<!-- Badge -->
+<div class="absolute bottom-8 left-8 bg-morningstar-gold text-white text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full">
+                    Signature Dish
+                </div>
+</div>
+<!-- Right Column: Detail Content -->
+<div class="w-full md:w-[55%] flex flex-col h-full bg-background-light dark:bg-background-dark p-8 md:p-12 overflow-y-auto custom-scrollbar">
+<!-- PageHeading Style Title -->
+<div class="mb-6">
+<h1 class="text-[#1a0f0e] dark:text-white font-display text-4xl font-bold leading-tight tracking-tight mb-3">
+                        Mohinga Supreme
+                    </h1>
+<p class="text-[#5c4a48] dark:text-gray-300 text-lg font-normal leading-relaxed">
+                        Our signature lemongrass catfish broth with thin rice noodles, soft-boiled egg, and crispy split-pea fritters. A timeless Burmese classic.
+                    </p>
+</div>
+<!-- HeadlineText Style Price -->
+<div class="mb-8 flex items-center justify-between border-y border-border-warm/40 py-4">
+<span class="text-primary font-display text-3xl font-bold leading-none">$14.50</span>
+<div class="flex items-center gap-1 text-[#945551]">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-xs font-medium uppercase tracking-wider">Estimated 20-30 mins</span>
+</div>
+</div>
+<!-- SectionHeader: Add-ons -->
+<div class="space-y-6">
+<div>
+<h3 class="text-[#1a0f0e] dark:text-white text-lg font-bold font-display mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">add_circle</span> Add-ons
+                        </h3>
+<div class="space-y-3">
+<!-- Custom Checkbox Item 1 -->
+<label class="group flex items-center justify-between p-4 rounded-lg border border-border-warm/60 bg-white/40 dark:bg-white/5 cursor-pointer hover:border-primary/40 transition-all">
+<div class="flex items-center gap-3">
+<input class="w-5 h-5 rounded text-primary focus:ring-primary border-border-warm" type="checkbox"/>
+<span class="font-medium text-[#1a0f0e] dark:text-white">Extra Crispy Fritters</span>
+</div>
+<span class="text-[#945551] font-semibold">+$1.50</span>
+</label>
+<!-- Custom Checkbox Item 2 -->
+<label class="group flex items-center justify-between p-4 rounded-lg border border-border-warm/60 bg-white/40 dark:bg-white/5 cursor-pointer hover:border-primary/40 transition-all">
+<div class="flex items-center gap-3">
+<input checked="" class="w-5 h-5 rounded text-primary focus:ring-primary border-border-warm" type="checkbox"/>
+<span class="font-medium text-[#1a0f0e] dark:text-white">Extra Fish Cake</span>
+</div>
+<span class="text-[#945551] font-semibold">+$2.00</span>
+</label>
+</div>
+</div>
+<!-- Special Instructions -->
+<div>
+<h3 class="text-[#1a0f0e] dark:text-white text-lg font-bold font-display mb-3">Special Instructions</h3>
+<textarea class="w-full h-24 rounded-lg bg-white/40 dark:bg-white/5 border border-border-warm focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-[#945551]/60 text-sm resize-none p-4" placeholder="e.g. No cilantro, please..."></textarea>
+</div>
+</div>
+<!-- Footer Interaction -->
+<div class="mt-auto pt-10 flex items-center gap-6">
+<!-- Quantity Selector -->
+<div class="flex items-center bg-white/60 dark:bg-white/10 rounded-full border border-border-warm px-2 py-1">
+<button class="size-8 rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-white/20 text-primary transition-colors">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<span class="w-10 text-center font-bold text-lg">1</span>
+<button class="size-8 rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-white/20 text-primary transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+<!-- Action Button -->
+<button class="add-to-cart-btn flex-1 h-14 bg-primary text-white font-bold text-lg rounded-xl flex items-center justify-center gap-3 transition-all duration-300">
+<span>Add to Cart — $16.50</span>
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mandalay Morning Star | Premium Burmese Delivery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=Padauk:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#B91C1C", // Morning Star Red
+                        "cta": "#F4D03F",     // Heritage Gold
+                        "cream": "#FFFEF7",
+                        "cream-darker": "#F9F6ED",
+                        "charcoal": "#1A1A1A",
+                        "border-sep": "#E5E2D9",
+                    },
+                    fontFamily: {
+                        "serif": ["Playfair Display", "serif"],
+                        "sans": ["DM Sans", "sans-serif"],
+                        "burmese": ["Padauk", "serif"],
+                    },
+                    boxShadow: {
+                        'premium': '0 4px 6px -1px rgba(185, 28, 28, 0.05), 0 2px 4px -1px rgba(185, 28, 28, 0.03)',
+                        'deep-red': '0 20px 25px -5px rgba(74, 14, 14, 0.2), 0 8px 10px -6px rgba(74, 14, 14, 0.2)',
+                        'cart-shadow': '0 -10px 30px -5px rgba(74, 14, 14, 0.15)',
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --color-cream: #FFFEF7;
+            --color-cream-darker: #F9F6ED;
+            --morning-star-red: #B91C1C;
+            --heritage-gold: #F4D03F;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--color-cream);
+        }
+        .sticky-header {
+            height: 56px;
+            background-color: var(--color-cream);
+        }
+        .sticky-cart-bar {
+            height: 64px;
+            background-color: var(--color-cream-darker);
+        }
+        .search-bar-container {
+            background-color: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(185, 28, 28, 0.1);
+        }
+    </style>
+</head>
+<body class="text-charcoal min-h-screen flex flex-col">
+<header class="sticky top-0 z-50 sticky-header border-b border-border-sep/50 shadow-sm px-4 lg:px-8">
+<div class="max-w-[1280px] h-full mx-auto flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">star_rate</span>
+</div>
+<h1 class="font-serif text-lg font-black tracking-tight text-primary uppercase">Mandalay Morning Star</h1>
+</div>
+<div class="flex-1 flex justify-end items-center gap-6">
+<div class="relative w-full max-w-md hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary/60 text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-1.5 search-bar-container rounded-full text-sm focus:ring-1 focus:ring-primary focus:border-primary border-transparent transition-all placeholder:text-stone-400" placeholder="Search our signature dishes..." type="text"/>
+</div>
+<button class="flex items-center gap-2 p-1 pl-3 border border-border-sep rounded-full hover:shadow-md transition-all bg-white">
+<span class="material-symbols-outlined text-stone-400 text-[20px]">menu</span>
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-cta text-xs font-bold overflow-hidden">
+<span class="material-symbols-outlined text-[20px]">account_circle</span>
+</div>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-grow w-full max-w-[1280px] mx-auto px-4 lg:px-8 py-12">
+<div class="space-y-12">
+<header>
+<h2 class="font-serif text-5xl text-primary mb-4">Good Morning, Mandalay</h2>
+<p class="text-lg text-stone-600 max-w-2xl font-light">Explore authentic flavors from the heart of Myanmar, prepared with premium local ingredients and delivered with heritage in every bite.</p>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
+<div class="bg-white rounded-2xl overflow-hidden shadow-deep-red border border-border-sep/30 group">
+<div class="aspect-[16/10] bg-stone-100 relative overflow-hidden">
+<img alt="Mohinga Supreme" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOCtx1HNpOn24seNFRNHOoAcNkX4OPHwNGtfEGAWLfo1j5zoieI2-wIBIKNht94IRruU5sTOb2ZfbGzZPoDslADTaSLQYAHqudnHfPbic8G52m9W0oFCnIZC0ROnvk-YqSNLT3D2Z0IkQvU2sArVvF5YJi8bR9CjEuVmfk4TTDWmPa2V3rnaxcmsjDliFfMouN4smpNJLoYUOQxIExdWcsLcrpGr3uTVKVy8z97lXZFAJHmOt4XIhM21veL6fKLWIrYWtp5SOgDfg"/>
+<div class="absolute top-4 right-4 bg-cta text-primary px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">Popular</div>
+</div>
+<div class="p-6">
+<h3 class="font-serif text-2xl mb-2">Mohinga Supreme</h3>
+<p class="text-sm text-stone-500 mb-6 line-clamp-2">The national treasure: Catfish chowder with thin rice noodles, crispy fritters, and farm-fresh herbs.</p>
+<div class="flex justify-between items-center">
+<span class="text-xl font-bold text-primary font-serif">$14.50</span>
+<button class="bg-primary text-cta px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-primary/90 transition-colors">Add</button>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-2xl overflow-hidden shadow-deep-red border border-border-sep/30 opacity-40">
+<div class="aspect-[16/10] bg-stone-200"></div>
+<div class="p-6 space-y-4">
+<div class="h-6 w-2/3 bg-stone-200 rounded"></div>
+<div class="h-10 w-full bg-stone-100 rounded"></div>
+<div class="h-8 w-1/4 bg-stone-200 rounded"></div>
+</div>
+</div>
+<div class="bg-white rounded-2xl overflow-hidden shadow-deep-red border border-border-sep/30 opacity-40">
+<div class="aspect-[16/10] bg-stone-200"></div>
+<div class="p-6 space-y-4">
+<div class="h-6 w-2/3 bg-stone-200 rounded"></div>
+<div class="h-10 w-full bg-stone-100 rounded"></div>
+<div class="h-8 w-1/4 bg-stone-200 rounded"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="fixed bottom-0 left-0 right-0 z-50 sticky-cart-bar border-t border-border-sep shadow-cart-shadow">
+<div class="max-w-[1280px] h-full mx-auto px-4 lg:px-8 flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">shopping_bag</span>
+</div>
+<div>
+<p class="text-sm font-bold text-charcoal">1 Item in Cart</p>
+<p class="text-xs text-stone-500 font-medium">Mohinga Supreme</p>
+</div>
+</div>
+<div class="h-8 w-px bg-border-sep hidden sm:block"></div>
+<div class="hidden sm:block">
+<p class="text-xs uppercase tracking-widest text-stone-400 font-bold">Estimated Total</p>
+<p class="text-lg font-serif font-bold text-primary">$14.50</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="sm:hidden text-lg font-serif font-bold text-primary">$14.50</span>
+<button class="bg-primary text-white hover:bg-cta hover:text-primary px-8 py-3 rounded-xl font-bold text-sm tracking-widest uppercase transition-all shadow-md active:scale-95 flex items-center gap-2 group">
+                    View Cart
+                    <span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+</div>
+</div>
+</footer>
+
+</body></html>

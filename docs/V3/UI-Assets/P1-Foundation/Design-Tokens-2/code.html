@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Your Cart | Mandalay Morning Star</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=Padauk:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#9B1B1E", // Morning Star Red
+                        "cta": "#F4D03F",     // Heritage Gold
+                        "cream": "#FFFEF7",
+                        "charcoal": "#1A1A1A",
+                        "border-sep": "#E5E2D9",
+                        "background-light": "#FFFEF7",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"],
+                        "sans": ["DM Sans", "sans-serif"],
+                        "burmese": ["Padauk", "serif"],
+                    },
+                    boxShadow: {
+                        'elevated': '0 20px 25px -5px rgba(74, 14, 14, 0.18), 0 8px 10px -6px rgba(74, 14, 14, 0.18)',
+                        'xl-red': '0 25px 50px -12px rgba(74, 14, 14, 0.3)',
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --primary-red: #9B1B1E;
+            --shadow-color: rgba(74, 14, 14, 0.2);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48;
+        }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #FFFEF7;
+        }
+        .empty-state-card {
+            background-color: #FFFEF7;
+            border: 1px solid #E5E2D9;
+        }
+    </style>
+</head>
+<body class="bg-background-light text-charcoal min-h-screen flex flex-col">
+<header class="sticky top-0 z-50 bg-background-light/95 backdrop-blur-md border-b border-primary/10 px-6 lg:px-20 py-4">
+<div class="max-w-[1280px] mx-auto flex items-center justify-between">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="text-primary">
+<span class="material-symbols-outlined text-3xl font-bold">star_rate</span>
+</div>
+<h1 class="font-serif text-xl font-bold tracking-tight text-primary">Mandalay Morning Star</h1>
+</div>
+<nav class="hidden md:flex items-center gap-8 ml-4">
+<a class="text-sm font-bold text-charcoal/80 hover:text-primary transition-colors" href="#">Menu</a>
+<a class="text-sm font-bold text-charcoal/80 hover:text-primary transition-colors" href="#">Offers</a>
+<a class="text-sm font-bold text-charcoal/80 hover:text-primary transition-colors" href="#">Our Story</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary/40 text-sm">search</span>
+<input class="pl-10 pr-4 py-2 bg-stone-100 border-none rounded-full text-sm focus:ring-2 focus:ring-primary/20 w-48" placeholder="Search menu..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-primary/60 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">person</span>
+</button>
+<button class="relative p-2 text-primary">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full hidden"></span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 flex flex-col items-center justify-center max-w-[1280px] mx-auto px-6 w-full">
+<div class="w-full max-w-xl text-center py-20">
+<div class="mb-10 relative inline-block">
+<div class="absolute inset-0 bg-primary/5 rounded-full scale-150 blur-2xl"></div>
+<div class="relative w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-elevated border border-primary/5 mx-auto">
+<span class="material-symbols-outlined text-6xl text-primary/30">shopping_basket</span>
+<div class="absolute -bottom-1 -right-1 bg-primary w-10 h-10 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
+<span class="material-symbols-outlined text-white text-lg">close</span>
+</div>
+</div>
+</div>
+<div class="space-y-6">
+<span class="text-primary font-black tracking-[0.3em] text-[10px] uppercase">Your Basket is Empty</span>
+<h2 class="font-serif text-4xl md:text-5xl text-charcoal leading-tight">
+                    Hungry for the flavors of <br/>
+<span class="italic text-primary">Mandalay?</span>
+</h2>
+<p class="text-charcoal/60 max-w-sm mx-auto leading-relaxed">
+                    It looks like you haven't added any items to your cart yet. Explore our menu of authentic Burmese delicacies.
+                </p>
+<div class="pt-8 flex flex-col items-center gap-6">
+<button class="bg-primary text-cta px-12 py-5 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-elevated hover:shadow-xl-red hover:-translate-y-1 transition-all">
+                        Start Ordering
+                    </button>
+<div class="flex items-center gap-8 pt-8 opacity-40 grayscale">
+<div class="flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-xl">ramen_dining</span>
+<span class="text-[9px] uppercase font-bold tracking-widest">Noodles</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-xl">restaurant</span>
+<span class="text-[9px] uppercase font-bold tracking-widest">Curries</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<span class="material-symbols-outlined text-xl">coffee</span>
+<span class="text-[9px] uppercase font-bold tracking-widest">Drinks</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="py-12 border-t border-primary/5">
+<div class="max-w-[1280px] mx-auto px-6 text-center">
+<div class="flex justify-center items-center gap-4 mb-6">
+<div class="h-px w-12 bg-primary/20"></div>
+<span class="material-symbols-outlined text-primary/40 text-xl">star_rate</span>
+<div class="h-px w-12 bg-primary/20"></div>
+</div>
+<p class="text-[10px] text-primary/40 uppercase tracking-[0.3em] font-black">
+                © 2024 Mandalay Morning Star • Fast Casual Heritage
+            </p>
+</div>
+</footer>
+
+</body></html>
