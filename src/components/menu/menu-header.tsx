@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { CartButton } from "@/components/cart/cart-button";
 import { SearchInput } from "./search-input";
 import { useScrollDirection } from "@/lib/hooks/useScrollDirection";
+import { cn } from "@/lib/utils/cn";
 
 interface MenuHeaderProps {
   searchQuery: string;
@@ -28,9 +29,13 @@ export function MenuHeader({
         y: isCollapsed && !isSearchActive ? -64 : 0,
       }}
       transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-      className="sticky top-0 z-[var(--z-fixed)] border-b border-border bg-background/95 backdrop-blur-sm"
+      className={cn(
+        "sticky top-0 z-[var(--z-sticky)] h-14",
+        "bg-[var(--color-cream)]/95 dark:bg-[var(--color-background)]/95",
+        "backdrop-blur-lg border-b border-[var(--color-border)]"
+      )}
     >
-      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-4 px-4">
+      <div className="mx-auto flex h-full max-w-5xl items-center justify-between gap-4 px-4">
         <h1 className="font-display text-lg text-brand-red sm:text-xl">
           Our Menu
         </h1>

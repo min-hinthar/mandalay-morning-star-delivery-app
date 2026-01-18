@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import type { MenuItem } from "@/types/menu";
-import { ItemCard } from "./ItemCard";
+import { MenuItemCard } from "./menu-item-card";
 import { MenuEmptyState } from "./menu-empty-state";
 
 interface SearchResultsGridProps {
@@ -62,7 +62,7 @@ export function SearchResultsGrid({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.03 }}
           >
-            <ItemCard item={item} onSelect={onItemSelect} />
+            <MenuItemCard item={item} onSelect={onItemSelect} />
           </motion.div>
         ))}
       </div>

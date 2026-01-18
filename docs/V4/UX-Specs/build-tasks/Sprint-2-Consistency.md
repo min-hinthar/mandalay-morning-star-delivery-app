@@ -10,14 +10,14 @@
 
 | Task | Status | Description |
 |------|--------|-------------|
-| 2.1 | ⬜ | Port ItemCard to MenuItemCard (16:9) |
-| 2.2 | ⬜ | Full CartItem rewrite with tokens |
-| 2.3 | ⬜ | Badge variants (featured, allergen, price, status) |
-| 2.4 | ⬜ | Header normalization |
-| 2.5 | ⬜ | Unified cart drawer/bar style |
-| 2.6 | ⬜ | Full token audit |
-| 2.7 | ⬜ | Stylelint + ESLint rules |
-| 2.8 | ⬜ | Dark mode parity testing |
+| 2.1 | ✅ | Port ItemCard to MenuItemCard (16:9) |
+| 2.2 | ✅ | Full CartItem rewrite with tokens |
+| 2.3 | ✅ | Badge variants (featured, allergen, price, status) |
+| 2.4 | ✅ | Header normalization |
+| 2.5 | ✅ | Unified cart drawer/bar style |
+| 2.6 | ✅ | Full token audit |
+| 2.7 | ✅ | Stylelint + ESLint rules |
+| 2.8 | ✅ | Dark mode parity testing |
 
 ---
 

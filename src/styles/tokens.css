@@ -261,6 +261,15 @@
   /* Touch targets */
   --touch-target-min: 44px;
   --touch-target-primary: 56px;
+
+  /* ===========================================
+     OPACITY
+     =========================================== */
+
+  --opacity-subtle: 0.5;
+  --opacity-muted: 0.7;
+  --opacity-visible: 0.9;
+  --opacity-solid: 1;
 }
 
 /* ============================================

@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { ItemCardSkeleton } from "./ItemCardSkeleton";
+import { MenuItemCardSkeleton } from "./menu-item-card";
 
 export function MenuSkeleton() {
   return (
@@ -18,7 +18,7 @@ export function MenuSkeleton() {
             <Skeleton className="mb-4 h-7 w-48" />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {[...Array(4)].map((_, cardIdx) => (
-                <ItemCardSkeleton key={cardIdx} />
+                <MenuItemCardSkeleton key={cardIdx} />
               ))}
             </div>
           </div>

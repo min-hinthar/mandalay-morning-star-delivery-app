@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, Search } from "lucide-react";
-import { ItemCard } from "@/components/menu/ItemCard";
+import { MenuItemCard } from "@/components/menu/menu-item-card";
 import { ItemDetailModal } from "@/components/menu/item-detail-modal";
 import { CategoryTabs } from "@/components/menu/category-tabs";
 import { useCart } from "@/lib/hooks/useCart";
@@ -198,7 +198,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: Math.min(index * 0.05, 0.5) }}
                     >
-                      <ItemCard
+                      <MenuItemCard
                         item={item}
                         onSelect={handleItemClick}
                       />
@@ -228,7 +228,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: Math.min(index * 0.05, 0.5) }}
                           >
-                            <ItemCard
+                            <MenuItemCard
                               item={item}
                               onSelect={handleItemClick}
                             />
