@@ -64,7 +64,7 @@ export function StarRating({
             <Star
               className={cn(
                 sizeClasses[size],
-                "text-charcoal-200 transition-colors"
+                "text-border-v5 transition-colors"
               )}
             />
 
@@ -81,7 +81,7 @@ export function StarRating({
                   <Star
                     className={cn(
                       sizeClasses[size],
-                      "fill-saffron text-saffron"
+                      "fill-interactive-primary text-interactive-primary"
                     )}
                   />
                 </motion.div>
@@ -97,7 +97,7 @@ export function StarRating({
                 className="pointer-events-none absolute inset-0"
               >
                 <Star
-                  className={cn(sizeClasses[size], "fill-saffron text-saffron")}
+                  className={cn(sizeClasses[size], "fill-interactive-primary text-interactive-primary")}
                 />
               </motion.div>
             )}
@@ -110,7 +110,7 @@ export function StarRating({
           key={displayValue}
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-sm font-medium text-charcoal-600"
+          className="text-sm font-medium text-text-secondary"
         >
           {getRatingLabel(displayValue)}
         </motion.span>
@@ -150,18 +150,18 @@ export function RatingDisplay({
 }) {
   if (value === null) {
     return (
-      <span className="text-sm text-charcoal-400">No ratings yet</span>
+      <span className="text-sm text-text-muted">No ratings yet</span>
     );
   }
 
   return (
     <div className="flex items-center gap-2">
-      <Star className={cn(sizeClasses[size], "fill-saffron text-saffron")} />
-      <span className="font-semibold text-charcoal-900">
+      <Star className={cn(sizeClasses[size], "fill-interactive-primary text-interactive-primary")} />
+      <span className="font-semibold text-text-primary">
         {value.toFixed(1)}
       </span>
       {count !== undefined && (
-        <span className="text-sm text-charcoal-500">
+        <span className="text-sm text-text-secondary">
           ({count} {count === 1 ? "review" : "reviews"})
         </span>
       )}
@@ -211,22 +211,22 @@ export function RatingDistributionBars({
             className="flex items-center gap-3"
           >
             <div className="flex w-8 items-center gap-0.5">
-              <span className="text-sm font-medium text-charcoal-600">
+              <span className="text-sm font-medium text-text-secondary">
                 {bar.label}
               </span>
-              <Star className="h-3 w-3 fill-saffron text-saffron" />
+              <Star className="h-3 w-3 fill-interactive-primary text-interactive-primary" />
             </div>
 
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-charcoal-100">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-tertiary">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${percentage}%` }}
                 transition={{ delay: 0.3 + i * 0.1, duration: 0.5 }}
-                className="h-full rounded-full bg-saffron"
+                className="h-full rounded-full bg-interactive-primary"
               />
             </div>
 
-            <span className="w-8 text-right text-sm text-charcoal-500">
+            <span className="w-8 text-right text-sm text-text-secondary">
               {bar.value}
             </span>
           </motion.div>

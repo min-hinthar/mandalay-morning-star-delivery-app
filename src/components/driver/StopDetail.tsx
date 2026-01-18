@@ -128,7 +128,7 @@ export function StopDetail({
 
       {/* Header */}
       <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-charcoal)] text-lg font-bold text-white">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-text-primary text-lg font-bold text-text-inverse">
           {stopIndex}
         </span>
         <div>

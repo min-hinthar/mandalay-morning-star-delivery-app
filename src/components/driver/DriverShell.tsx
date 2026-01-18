@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { OfflineBanner } from "./OfflineBanner";
 import { useServiceWorker } from "@/lib/hooks/useServiceWorker";
 import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
+import { DriverContrastProvider } from "@/contexts/DriverContrastContext";
 
 interface DriverShellProps {
   children: React.ReactNode;
@@ -29,9 +30,9 @@ export function DriverShell({ children }: DriverShellProps) {
   }, [syncNow]);
 
   return (
-    <>
+    <DriverContrastProvider>
       <OfflineBanner />
       {children}
-    </>
+    </DriverContrastProvider>
   );
 }

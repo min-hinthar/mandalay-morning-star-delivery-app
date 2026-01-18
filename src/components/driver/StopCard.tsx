@@ -25,23 +25,23 @@ interface StopCardProps {
 const statusConfig: Record<RouteStopStatus, { label: string; className: string }> = {
   pending: {
     label: "Pending",
-    className: "bg-charcoal-100 text-charcoal-600",
+    className: "bg-surface-tertiary text-text-secondary",
   },
   enroute: {
     label: "En Route",
-    className: "bg-saffron-100 text-saffron-700",
+    className: "bg-status-warning-bg text-status-warning",
   },
   arrived: {
     label: "Arrived",
-    className: "bg-jade-100 text-jade-700",
+    className: "bg-status-success-bg text-status-success",
   },
   delivered: {
     label: "Delivered",
-    className: "bg-jade-500 text-white",
+    className: "bg-status-success text-text-inverse",
   },
   skipped: {
     label: "Skipped",
-    className: "bg-red-100 text-red-700",
+    className: "bg-status-error-bg text-status-error",
   },
 };
 
@@ -76,9 +76,9 @@ export function StopCard({
     <button
       onClick={onClick}
       className={cn(
-        "w-full rounded-xl bg-white p-4 text-left shadow-warm-sm transition-all",
-        "hover:shadow-warm-md active:scale-[0.98]",
-        isCurrentStop && "ring-2 ring-jade-500 ring-offset-2"
+        "w-full rounded-xl bg-surface-primary p-4 text-left shadow-sm transition-all",
+        "hover:shadow-md active:scale-[0.98]",
+        isCurrentStop && "ring-2 ring-status-success ring-offset-2"
       )}
       data-testid="stop-card"
     >
@@ -87,16 +87,16 @@ export function StopCard({
         <div className="flex-1 min-w-0">
           {/* Stop number and name */}
           <div className="flex items-center gap-2 mb-1">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-charcoal text-xs font-bold text-white">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-text-primary text-xs font-bold text-text-inverse">
               {stopIndex}
             </span>
-            <span className="font-medium text-charcoal truncate">
+            <span className="font-medium text-text-primary truncate">
               {customerName || "Customer"}
             </span>
           </div>
 
           {/* Address */}
-          <div className="flex items-start gap-1.5 text-sm text-charcoal/70">
+          <div className="flex items-start gap-1.5 text-sm text-text-secondary">
             <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
             <span className="line-clamp-2">
               {address.line1}
@@ -107,7 +107,7 @@ export function StopCard({
 
           {/* Time window */}
           {timeDisplay && (
-            <div className="flex items-center gap-1.5 mt-1.5 text-sm text-charcoal/60">
+            <div className="flex items-center gap-1.5 mt-1.5 text-sm text-text-secondary/80">
               <Clock className="h-3.5 w-3.5" />
               <span>{timeDisplay}</span>
             </div>
@@ -127,7 +127,7 @@ export function StopCard({
           </span>
 
           {/* Chevron */}
-          <ChevronRight className="h-5 w-5 text-charcoal/30" />
+          <ChevronRight className="h-5 w-5 text-text-secondary/50" />
         </div>
       </div>
     </button>

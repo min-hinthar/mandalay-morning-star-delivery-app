@@ -109,31 +109,31 @@ export function ExceptionModal({
     >
       <div
         className={cn(
-          "w-full max-w-md rounded-t-2xl bg-white sm:rounded-2xl",
+          "w-full max-w-md rounded-t-2xl bg-surface-primary sm:rounded-2xl",
           "max-h-[90vh] overflow-hidden"
         )}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-charcoal/10 p-4">
+        <div className="flex items-center justify-between border-b border-border-v5 p-4">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-red-500" />
-            <h2 className="font-display text-lg font-semibold text-charcoal">
+            <AlertTriangle className="h-5 w-5 text-status-error" />
+            <h2 className="font-display text-lg font-semibold text-text-primary">
               Report Exception
             </h2>
           </div>
           <button
             onClick={handleClose}
             disabled={isSubmitting}
-            className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-charcoal-100"
+            className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-surface-tertiary"
           >
-            <X className="h-5 w-5 text-charcoal/60" />
+            <X className="h-5 w-5 text-text-secondary" />
           </button>
         </div>
 
         {/* Content */}
         <div className="overflow-y-auto p-4" style={{ maxHeight: "60vh" }}>
-          <p className="mb-4 text-sm text-charcoal/70">
+          <p className="mb-4 text-sm text-text-secondary">
             Select the reason why this delivery cannot be completed.
           </p>
 
@@ -147,12 +147,12 @@ export function ExceptionModal({
                 className={cn(
                   "w-full rounded-xl border-2 p-3 text-left transition-all",
                   selectedType === type.value
-                    ? "border-red-500 bg-red-50"
-                    : "border-charcoal/10 bg-white hover:border-charcoal/20"
+                    ? "border-status-error bg-status-error-bg"
+                    : "border-border-v5 bg-surface-primary hover:border-border-v5-strong"
                 )}
               >
-                <p className="font-medium text-charcoal">{type.label}</p>
-                <p className="text-sm text-charcoal/60">{type.description}</p>
+                <p className="font-medium text-text-primary">{type.label}</p>
+                <p className="text-sm text-text-secondary">{type.description}</p>
               </button>
             ))}
           </div>
@@ -162,7 +162,7 @@ export function ExceptionModal({
             <div className="mt-4">
               <label
                 htmlFor="exception-description"
-                className="mb-2 block text-sm font-medium text-charcoal"
+                className="mb-2 block text-sm font-medium text-text-primary"
               >
                 Additional Details (optional)
               </label>
@@ -175,10 +175,10 @@ export function ExceptionModal({
                 maxLength={1000}
                 disabled={isSubmitting}
                 className={cn(
-                  "w-full rounded-xl border border-charcoal/20 p-3 text-charcoal",
-                  "placeholder:text-charcoal/40",
-                  "focus:border-jade-500 focus:outline-none focus:ring-2 focus:ring-jade-500/20",
-                  "disabled:bg-charcoal-50"
+                  "w-full rounded-xl border border-border-v5 p-3 text-text-primary",
+                  "placeholder:text-text-secondary/60",
+                  "focus:border-status-success focus:outline-none focus:ring-2 focus:ring-status-success/20",
+                  "disabled:bg-surface-tertiary"
                 )}
               />
             </div>
@@ -186,21 +186,21 @@ export function ExceptionModal({
 
           {/* Error Message */}
           {error && (
-            <p className="mt-3 text-center text-sm text-red-600" role="alert">
+            <p className="mt-3 text-center text-sm text-status-error" role="alert">
               {error}
             </p>
           )}
         </div>
 
         {/* Footer */}
-        <div className="border-t border-charcoal/10 p-4">
+        <div className="border-t border-border-v5 p-4">
           <button
             onClick={handleSubmit}
             disabled={!selectedType || isSubmitting}
             className={cn(
               "flex h-14 w-full items-center justify-center gap-2 rounded-xl font-semibold",
-              "bg-red-500 text-white",
-              "transition-all hover:bg-red-600",
+              "bg-status-error text-text-inverse",
+              "transition-all hover:bg-accent-tertiary-hover",
               "disabled:cursor-not-allowed disabled:opacity-50"
             )}
           >

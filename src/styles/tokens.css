@@ -724,3 +724,81 @@ html.theme-transitioning * {
 .bottom-safe {
   bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/* ============================================
+   DRIVER HIGH-CONTRAST MODE
+   Accessibility: 7:1 contrast ratio minimum
+   Touch targets: 48px minimum
+   Typography: Bolder weights
+   ============================================ */
+
+[data-contrast="high"] {
+  /* Maximum contrast text colors */
+  --color-text-primary: #000000;
+  --color-text-secondary: #1A1A1A;
+  --color-text-inverse: #FFFFFF;
+
+  /* High contrast surfaces */
+  --color-surface-primary: #FFFFFF;
+  --color-surface-secondary: #F5F5F5;
+  --color-surface-tertiary: #EBEBEB;
+
+  /* Stronger borders */
+  --color-border-default: #333333;
+  --color-border-strong: #000000;
+  --color-border-subtle: #666666;
+
+  /* Vivid interactive colors */
+  --color-interactive-primary: #B8860B;
+  --color-interactive-hover: #996600;
+  --color-interactive-active: #805500;
+
+  /* Vivid accent colors */
+  --color-accent-secondary: #006644;
+  --color-accent-secondary-hover: #005533;
+
+  /* High contrast status colors */
+  --color-status-success: #006622;
+  --color-status-success-bg: #D4EDDA;
+  --color-status-warning: #856404;
+  --color-status-warning-bg: #FFF3CD;
+  --color-status-error: #721C24;
+  --color-status-error-bg: #F8D7DA;
+  --color-status-info: #004085;
+  --color-status-info-bg: #CCE5FF;
+
+  /* Increased touch targets for driver mode */
+  --touch-target-min: 48px;
+  --touch-target-primary: 56px;
+  --touch-target-driver: 64px;
+
+  /* Bolder typography */
+  --font-normal: 500;
+  --font-medium: 600;
+  --font-semibold: 700;
+  --font-bold: 800;
+}
+
+/* High contrast with dark mode */
+[data-theme="dark"][data-contrast="high"],
+.dark[data-contrast="high"] {
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #F0F0F0;
+  --color-text-inverse: #000000;
+
+  --color-surface-primary: #000000;
+  --color-surface-secondary: #111111;
+  --color-surface-tertiary: #222222;
+
+  --color-border-default: #CCCCCC;
+  --color-border-strong: #FFFFFF;
+  --color-border-subtle: #999999;
+
+  --color-interactive-primary: #FFD700;
+  --color-interactive-hover: #FFE44D;
+
+  --color-status-success: #4ADE80;
+  --color-status-success-bg: rgba(74, 222, 128, 0.25);
+  --color-status-error: #FF6B6B;
+  --color-status-error-bg: rgba(255, 107, 107, 0.25);
+}

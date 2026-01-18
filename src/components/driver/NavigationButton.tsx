@@ -37,13 +37,13 @@ export function NavigationButton({
         "flex items-center justify-center gap-2 rounded-xl font-semibold transition-all",
         "active:scale-[0.98]",
         variant === "primary" && [
-          "h-14 bg-saffron-500 px-6 text-white",
-          "hover:bg-saffron-600",
-          "shadow-warm-sm hover:shadow-warm-md",
+          "h-14 bg-interactive px-6 text-text-primary",
+          "hover:bg-interactive-hover",
+          "shadow-md hover:shadow-lg",
         ],
         variant === "secondary" && [
-          "h-12 bg-charcoal-100 px-4 text-charcoal",
-          "hover:bg-charcoal-200",
+          "h-12 bg-surface-tertiary px-4 text-text-primary",
+          "hover:bg-surface-secondary",
         ],
         className
       )}

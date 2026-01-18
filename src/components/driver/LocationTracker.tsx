@@ -33,19 +33,19 @@ export function LocationTracker({
     tracking: {
       icon: isUpdating ? Loader2 : MapPin,
       label: "GPS Active",
-      className: "bg-jade-500 text-white",
+      className: "bg-status-success text-text-inverse",
       iconClassName: isUpdating ? "animate-spin" : "",
     },
     error: {
       icon: AlertCircle,
       label: "GPS Error",
-      className: "bg-red-500 text-white",
+      className: "bg-status-error text-text-inverse",
       iconClassName: "",
     },
     inactive: {
       icon: MapPinOff,
       label: "GPS Off",
-      className: "bg-charcoal-200 text-charcoal-600",
+      className: "bg-surface-tertiary text-text-secondary",
       iconClassName: "",
     },
   };
@@ -75,7 +75,7 @@ export function LocationTracker({
   return (
     <div
       className={cn(
-        "rounded-xl bg-white p-4 shadow-warm-sm",
+        "rounded-xl bg-surface-primary p-4 shadow-sm",
         className
       )}
       data-testid="location-tracker-detail"
@@ -85,28 +85,28 @@ export function LocationTracker({
           <div
             className={cn(
               "flex h-10 w-10 items-center justify-center rounded-full",
-              status === "tracking" && "bg-jade-100",
-              status === "error" && "bg-red-100",
-              status === "inactive" && "bg-charcoal-100"
+              status === "tracking" && "bg-status-success-bg",
+              status === "error" && "bg-status-error-bg",
+              status === "inactive" && "bg-surface-tertiary"
             )}
           >
             <Icon
               className={cn(
                 "h-5 w-5",
                 config.iconClassName,
-                status === "tracking" && "text-jade-600",
-                status === "error" && "text-red-600",
-                status === "inactive" && "text-charcoal-400"
+                status === "tracking" && "text-status-success",
+                status === "error" && "text-status-error",
+                status === "inactive" && "text-text-secondary"
               )}
             />
           </div>
           <div>
-            <p className="font-medium text-charcoal">{config.label}</p>
+            <p className="font-medium text-text-primary">{config.label}</p>
             {error && (
-              <p className="text-sm text-red-600">{error.message}</p>
+              <p className="text-sm text-status-error">{error.message}</p>
             )}
             {isTracking && location && (
-              <p className="text-sm text-charcoal/60">
+              <p className="text-sm text-text-secondary">
                 Accuracy: ±{Math.round(location.accuracy)}m
               </p>
             )}
@@ -117,16 +117,16 @@ export function LocationTracker({
         <div
           className={cn(
             "h-3 w-3 rounded-full",
-            status === "tracking" && "bg-jade-500",
-            status === "error" && "bg-red-500",
-            status === "inactive" && "bg-charcoal-300"
+            status === "tracking" && "bg-status-success",
+            status === "error" && "bg-status-error",
+            status === "inactive" && "bg-text-secondary/50"
           )}
         />
       </div>
 
       {/* Debug info (only in development) */}
       {process.env.NODE_ENV === "development" && location && (
-        <div className="mt-3 rounded-lg bg-charcoal-50 p-2 text-xs font-mono text-charcoal/60">
+        <div className="mt-3 rounded-lg bg-surface-tertiary p-2 text-xs font-mono text-text-secondary">
           <p>
             Lat: {location.latitude.toFixed(6)}, Lng: {location.longitude.toFixed(6)}
           </p>

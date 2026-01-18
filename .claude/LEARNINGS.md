@@ -530,3 +530,98 @@ Also, input type must be cast to Conform's union type (excludes "button", "submi
 Status bg colors use opacity: `--color-status-error-bg` = `rgba(196, 92, 74, 0.1)`.
 **Apply when:** Migrating components from V4 to V5 design tokens
 
+---
+
+## 2026-01-18: V5 Token Audit Search Patterns
+
+**Context:** Sprint 3 component token audit across customer-facing components
+**Learning:** Common V4 remnants requiring search:
+```bash
+# Find text-muted variants (multiple naming conventions)
+grep -r "var(--color-text-muted)" src/components/
+grep -r "text-muted" src/components/
+
+# Find hardcoded Tailwind colors
+grep -r "emerald-\|amber-\|destructive\|muted-foreground" src/components/
+```
+
+Token mapping for muted variants:
+| Found | Replace With |
+|-------|--------------|
+| `var(--color-text-muted)` | `var(--color-text-secondary)` |
+| `var(--color-error)` | `var(--color-status-error)` |
+| `var(--color-error-light)` | `var(--color-status-error-bg)` |
+| `emerald-600` | `var(--color-status-success)` |
+| `amber-500` | `var(--color-status-warning)` |
+| `muted-foreground` | `var(--color-text-secondary)` |
+
+**Apply when:** Running V5 token audits, migrating checkout/cart components
+
+---
+
+## 2026-01-18: Accordion Accessibility with useId
+
+**Context:** Creating MenuAccordion for V5 Sprint 3
+**Learning:** Accessible accordion pattern requires unique IDs for aria-controls/aria-labelledby:
+```tsx
+function AccordionItem({ item }) {
+  const contentId = useId();  // React 18+ hook
+  const headerId = useId();
+
+  return (
+    <>
+      <button
+        id={headerId}
+        aria-expanded={isOpen}
+        aria-controls={contentId}
+      >...</button>
+      <div
+        id={contentId}
+        role="region"
+        aria-labelledby={headerId}
+      >...</div>
+    </>
+  );
+}
+```
+Use `useReducedMotion` from Framer Motion to disable animations when user prefers reduced motion.
+**Apply when:** Building accordions, disclosure widgets, or any expand/collapse UI
+
+---
+
+## 2026-01-18: Expandable Table Row Pattern
+
+**Context:** Adding quick preview to admin tables (Orders, Routes, Drivers)
+**Learning:** Reusable expandable row structure:
+1. **Wrapper component:** Takes `children` (row cells) + `previewContent` (expanded panel)
+2. **Click handling:** Use `target.closest()` to exclude interactive elements (buttons, dropdowns, links)
+3. **State management:** Create `useExpandedRows` hook - single expanded row at a time via `Set.clear()` + `Set.add()`
+4. **Animation:** Framer Motion `AnimatePresence` with `height: "auto"` + staggered opacity
+5. **Column span:** Preview row uses `colSpan={columnCount + 1}` (extra for expand indicator)
+
+Key pattern for interactive elements:
+```tsx
+const isInteractive = target.closest("button") || target.closest("a") ||
+  target.closest('[role="menuitem"]') || target.closest('[data-radix-collection-item]');
+if (isInteractive) return; // Don't expand
+```
+**Apply when:** Building data tables with expandable detail views, order/route/driver lists
+
+---
+
+## 2026-01-18: Operations KPI Card Urgency System
+
+**Context:** Creating command-center styled dashboard for admin operations
+**Learning:** 4-level urgency system for operational metrics:
+| Level | Condition | Visual Treatment |
+|-------|-----------|------------------|
+| `ok` | Value = 0 | Green status light, no badge |
+| `moderate` | 1-3 items | Yellow light, "ATTENTION" badge |
+| `urgent` | 4+ items | Red light + pulse, "URGENT" badge |
+| `critical` | 10+ items | Red pulse + corner flag, "CRITICAL" badge |
+
+Configurable thresholds: `{ moderate: 1, urgent: 4, critical: 10 }`. Different metrics use different thresholds (prep time: 20/30/45 min).
+
+Quick action buttons change style based on urgency - urgent/critical uses filled red button, ok/moderate uses outline style.
+**Apply when:** Building operational dashboards, monitoring UIs, status displays
+

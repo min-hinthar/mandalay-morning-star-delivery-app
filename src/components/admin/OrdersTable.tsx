@@ -6,10 +6,12 @@ import { format, parseISO } from "date-fns";
 import {
   ChevronDown,
   ChevronUp,
-  Eye,
   MoreHorizontal,
   Package,
   RefreshCw,
+  User,
+  Calendar,
+  DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/currency";
@@ -31,6 +33,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  ExpandableTableRow,
+  QuickPreviewPanel,
+  useExpandedRows,
+} from "@/components/admin/ExpandableTableRow";
 import type { OrderStatus } from "@/types/database";
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
@@ -84,6 +91,7 @@ export function OrdersTable({ orders, onStatusChange }: OrdersTableProps) {
   const [sortField, setSortField] = useState<SortField>("placedAt");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+  const { isExpanded, handleExpandChange } = useExpandedRows();
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -142,7 +150,7 @@ export function OrdersTable({ orders, onStatusChange }: OrdersTableProps) {
         <div className="rounded-full bg-muted/50 w-16 h-16 mx-auto flex items-center justify-center mb-4">
           <Package className="h-8 w-8 text-muted-foreground" />
         </div>
-        <h2 className="text-lg font-medium text-charcoal mb-2">No orders found</h2>
+        <h2 className="text-lg font-medium text-text-primary mb-2">No orders found</h2>
         <p className="text-muted-foreground">
           Orders will appear here once customers place them.
         </p>
@@ -187,6 +195,7 @@ export function OrdersTable({ orders, onStatusChange }: OrdersTableProps) {
               <SortIcon field="status" />
             </TableHead>
             <TableHead className="w-[80px]">Actions</TableHead>
+            <TableHead className="w-8" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -195,7 +204,16 @@ export function OrdersTable({ orders, onStatusChange }: OrdersTableProps) {
             const nextStatuses = NEXT_STATUSES[order.status];
 
             return (
-              <TableRow key={order.id}>
+              <ExpandableTableRow
+                key={order.id}
+                id={order.id}
+                isExpanded={isExpanded(order.id)}
+                onExpandChange={handleExpandChange}
+                colSpan={8}
+                previewContent={
+                  <OrderQuickPreview order={order} />
+                }
+              >
                 <TableCell className="font-mono text-sm">
                   #{order.id.slice(0, 8).toUpperCase()}
                 </TableCell>
@@ -274,18 +292,76 @@ export function OrdersTable({ orders, onStatusChange }: OrdersTableProps) {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
                         <Link href={`/admin/orders/${order.id}`}>
-                          <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
-              </TableRow>
+              </ExpandableTableRow>
             );
           })}
         </TableBody>
       </Table>
     </div>
+  );
+}
+
+// ============================================
+// ORDER QUICK PREVIEW
+// ============================================
+
+function OrderQuickPreview({ order }: { order: AdminOrder }) {
+  return (
+    <QuickPreviewPanel
+      items={[
+        { name: `${order.itemCount} item(s)`, quantity: 1 },
+      ]}
+      detailsLink={`/admin/orders/${order.id}`}
+    >
+      {/* Order Summary */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 text-text-secondary">
+          <User className="h-4 w-4" />
+          <span className="text-xs font-semibold uppercase tracking-wider">
+            Customer
+          </span>
+        </div>
+        <div className="text-sm">
+          <p className="text-text-primary font-medium">
+            {order.customerName || "Guest"}
+          </p>
+          <p className="text-text-secondary">{order.customerEmail}</p>
+        </div>
+      </div>
+
+      {/* Delivery Info */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 text-text-secondary">
+          <Calendar className="h-4 w-4" />
+          <span className="text-xs font-semibold uppercase tracking-wider">
+            Delivery Window
+          </span>
+        </div>
+        <p className="text-sm text-text-primary">
+          {order.deliveryWindowStart
+            ? format(parseISO(order.deliveryWindowStart), "EEEE, MMMM d, yyyy")
+            : "Not scheduled"}
+        </p>
+      </div>
+
+      {/* Order Total */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 text-text-secondary">
+          <DollarSign className="h-4 w-4" />
+          <span className="text-xs font-semibold uppercase tracking-wider">
+            Order Total
+          </span>
+        </div>
+        <p className="text-lg font-bold text-interactive-primary">
+          {formatPrice(order.totalCents)}
+        </p>
+      </div>
+    </QuickPreviewPanel>
   );
 }

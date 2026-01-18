@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { DriverHeader } from "@/components/driver/DriverHeader";
+import { DriverPageHeader } from "@/components/driver/DriverPageHeader";
 import { ActiveRouteView } from "@/components/driver/ActiveRouteView";
 import type { RouteStats, RouteStopStatus } from "@/types/driver";
 
@@ -152,25 +152,25 @@ async function getActiveRoute() {
 
 function RouteLoading() {
   return (
-    <div className="min-h-screen bg-cream">
-      <DriverHeader title="Route" showBack backHref="/driver" />
+    <div className="min-h-screen bg-surface-secondary">
+      <DriverPageHeader title="Route" showBack backHref="/driver" />
       <div className="p-4">
         <div className="animate-pulse space-y-4">
           {/* Progress bar skeleton */}
-          <div className="h-4 w-full rounded-full bg-charcoal/10" />
+          <div className="h-4 w-full rounded-full bg-text-secondary/10" />
 
           {/* Current stop skeleton */}
-          <div className="rounded-2xl bg-white p-4 shadow-warm-md">
-            <div className="mb-3 h-5 w-32 rounded bg-charcoal/10" />
-            <div className="mb-2 h-4 w-48 rounded bg-charcoal/10" />
-            <div className="h-4 w-64 rounded bg-charcoal/10" />
+          <div className="rounded-2xl bg-surface-primary p-4 shadow-md">
+            <div className="mb-3 h-5 w-32 rounded bg-text-secondary/10" />
+            <div className="mb-2 h-4 w-48 rounded bg-text-secondary/10" />
+            <div className="h-4 w-64 rounded bg-text-secondary/10" />
           </div>
 
           {/* Upcoming stops skeleton */}
           {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-xl bg-white p-3 shadow-warm-sm">
-              <div className="mb-2 h-4 w-24 rounded bg-charcoal/10" />
-              <div className="h-3 w-40 rounded bg-charcoal/10" />
+            <div key={i} className="rounded-xl bg-surface-primary p-3 shadow-sm">
+              <div className="mb-2 h-4 w-24 rounded bg-text-secondary/10" />
+              <div className="h-3 w-40 rounded bg-text-secondary/10" />
             </div>
           ))}
         </div>
@@ -192,14 +192,14 @@ async function DriverRoutePageContent() {
 
   if (!route) {
     return (
-      <div className="min-h-screen bg-cream">
-        <DriverHeader title="Route" showBack backHref="/driver" />
+      <div className="min-h-screen bg-surface-secondary">
+        <DriverPageHeader title="Route" showBack backHref="/driver" />
         <div className="flex flex-col items-center justify-center px-4 py-16">
           <div className="text-center">
-            <h2 className="mb-2 font-display text-xl font-semibold text-charcoal">
+            <h2 className="mb-2 font-display text-xl font-semibold text-text-primary">
               No Active Route
             </h2>
-            <p className="text-charcoal/60">
+            <p className="text-text-secondary">
               You don&apos;t have a route assigned for today.
             </p>
           </div>
@@ -212,8 +212,8 @@ async function DriverRoutePageContent() {
   const totalCount = stops.length;
 
   return (
-    <div className="min-h-screen bg-cream pb-20">
-      <DriverHeader
+    <div className="min-h-screen bg-surface-secondary pb-20">
+      <DriverPageHeader
         title="Route"
         subtitle={`${deliveredCount}/${totalCount} Complete`}
         showBack

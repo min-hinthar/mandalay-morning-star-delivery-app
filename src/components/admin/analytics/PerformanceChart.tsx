@@ -23,17 +23,18 @@ import {
 } from "recharts";
 import type { PerformanceChartProps } from "@/types/analytics";
 
-const chartColors = {
-  saffron: "#D4A017",
-  jade: "#2E8B57",
-  curry: "#8B4513",
-  charcoal: "#1A1A1A",
+// V5 Chart colors - mapped to semantic tokens
+const V5_CHART_COLORS = {
+  primary: "#D4A017", // --color-interactive-primary
+  secondary: "#2E8B57", // --color-accent-secondary
+  tertiary: "#8B4513", // --color-accent-tertiary
+  text: "#1A1A1A", // --color-text-primary
 };
 
 export function PerformanceChart({
   data,
   title,
-  color = chartColors.saffron,
+  color = V5_CHART_COLORS.primary,
   type = "line",
   height = 300,
   showGrid = true,
@@ -148,9 +149,9 @@ export function PerformanceChart({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.2, duration: 0.5 }}
-      className="rounded-xl bg-white p-6 shadow-warm-sm"
+      className="rounded-xl bg-surface-primary p-6 shadow-sm"
     >
-      <h3 className="mb-4 text-lg font-semibold text-charcoal-900">{title}</h3>
+      <h3 className="mb-4 text-lg font-semibold text-text-primary">{title}</h3>
       <ResponsiveContainer width="100%" height={height}>
         {renderChart()}
       </ResponsiveContainer>
@@ -166,8 +167,8 @@ export function DualAxisChart({
   title,
   leftLabel,
   rightLabel,
-  leftColor = chartColors.saffron,
-  rightColor = chartColors.jade,
+  leftColor = V5_CHART_COLORS.primary,
+  rightColor = V5_CHART_COLORS.secondary,
   height = 300,
 }: {
   data: Array<{ name: string; left: number; right: number }>;
@@ -183,9 +184,9 @@ export function DualAxisChart({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.2, duration: 0.5 }}
-      className="rounded-xl bg-white p-6 shadow-warm-sm"
+      className="rounded-xl bg-surface-primary p-6 shadow-sm"
     >
-      <h3 className="mb-4 text-lg font-semibold text-charcoal-900">{title}</h3>
+      <h3 className="mb-4 text-lg font-semibold text-text-primary">{title}</h3>
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />

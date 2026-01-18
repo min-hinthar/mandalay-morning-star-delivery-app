@@ -10,6 +10,11 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+// V5 Chart colors - mapped to semantic tokens
+const V5_CHART_COLORS = {
+  primary: "#D4A017", // --color-interactive-primary
+};
+
 interface DailyRevenue {
   date: string;
   revenue: number;
@@ -69,10 +74,10 @@ export function RevenueChart({ data }: RevenueChartProps) {
         <Line
           type="monotone"
           dataKey="revenue"
-          stroke="#D4A017"
+          stroke={V5_CHART_COLORS.primary}
           strokeWidth={2}
-          dot={{ fill: "#D4A017", strokeWidth: 2 }}
-          activeDot={{ r: 6, fill: "#D4A017" }}
+          dot={{ fill: V5_CHART_COLORS.primary, strokeWidth: 2 }}
+          activeDot={{ r: 6, fill: V5_CHART_COLORS.primary }}
         />
       </LineChart>
     </ResponsiveContainer>
