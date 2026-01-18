@@ -1,7 +1,10 @@
 /**
- * V3 Sprint 6: Enhanced Skeleton Components
+ * V4 Sprint 3: Enhanced Skeleton Components
  *
- * Loading placeholders with shimmer animation.
+ * Loading placeholders with contextual animations:
+ * - Shimmer: gradient translateX animation for initial load (1.5s infinite)
+ * - Pulse: subtle opacity/scale pulse for refetch (0.5s once)
+ *
  * Prevents layout shift, matches actual content dimensions.
  */
 
@@ -15,8 +18,20 @@ import { type HTMLAttributes } from "react";
 // ============================================
 
 export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
-  /** Animation type */
-  animation?: "pulse" | "shimmer" | "none";
+  /**
+   * Loading context - determines default animation
+   * - "initial": First load, uses shimmer (default)
+   * - "refetch": Subsequent loads, uses pulse
+   */
+  context?: "initial" | "refetch";
+  /**
+   * Animation type (overrides context-based default)
+   * - "pulse": Subtle opacity/scale pulse (0.5s)
+   * - "shimmer": Gradient slide animation (1.5s infinite)
+   * - "scale-pulse": Scale-based pulse for refetch (0.5s once)
+   * - "none": No animation
+   */
+  animation?: "pulse" | "shimmer" | "scale-pulse" | "none";
   /** Shape variant */
   variant?: "rect" | "circle" | "line";
   /** Width (CSS value) */
@@ -26,7 +41,8 @@ export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function Skeleton({
-  animation = "shimmer",
+  context = "initial",
+  animation,
   variant = "rect",
   width,
   height,
@@ -34,11 +50,16 @@ export function Skeleton({
   style,
   ...props
 }: SkeletonProps) {
+  // Auto-select animation based on context when not explicitly set
+  const effectiveAnimation =
+    animation ?? (context === "refetch" ? "scale-pulse" : "shimmer");
+
   const baseClasses = "bg-[var(--color-surface-muted)]";
 
   const animationClasses = {
     pulse: "animate-pulse",
     shimmer: "animate-shimmer relative overflow-hidden",
+    "scale-pulse": "animate-scale-pulse",
     none: "",
   };
 
@@ -52,7 +73,7 @@ export function Skeleton({
     <div
       className={cn(
         baseClasses,
-        animationClasses[animation],
+        animationClasses[effectiveAnimation],
         variantClasses[variant],
         className
       )}

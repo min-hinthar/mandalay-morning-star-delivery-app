@@ -8,8 +8,9 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
- * V3 Button System
+ * V4 Button System
  * Premium Burmese aesthetic with saffron CTAs
+ * Features continuous subtle shimmer on primary CTAs
  *
  * Sizes: sm (32px), md (40px), lg (48px), xl (56px - driver)
  * Variants: primary, secondary, ghost, danger, outline, link
@@ -26,12 +27,13 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Primary: Saffron/Gold CTA - main actions
+        // Primary: Saffron/Gold CTA - main actions with shimmer
         primary: [
           "bg-[var(--color-cta)] text-white",
           "shadow-[var(--shadow-md)]",
           "hover:brightness-110 hover:shadow-[var(--shadow-lg)] hover:-translate-y-0.5",
           "active:shadow-[var(--shadow-md)] active:translate-y-0",
+          "animate-cta-shimmer", // V4: Continuous subtle shimmer
         ].join(" "),
 
         // Secondary: White with saffron border
@@ -77,6 +79,7 @@ const buttonVariants = cva(
           "shadow-[var(--shadow-md)]",
           "hover:brightness-110 hover:shadow-[var(--shadow-lg)] hover:-translate-y-0.5",
           "active:shadow-[var(--shadow-md)] active:translate-y-0",
+          "animate-cta-shimmer", // V4: Continuous subtle shimmer
         ].join(" "),
       },
 

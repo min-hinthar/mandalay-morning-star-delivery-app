@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { CartDrawer } from "@/components/cart/cart-drawer";
+import { ThemeProvider } from "@/components/theme-provider";
 
 interface ProvidersProps {
   children: ReactNode;
@@ -10,9 +11,11 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    <QueryProvider>
-      {children}
-      <CartDrawer />
-    </QueryProvider>
+    <ThemeProvider>
+      <QueryProvider>
+        {children}
+        <CartDrawer />
+      </QueryProvider>
+    </ThemeProvider>
   );
 }

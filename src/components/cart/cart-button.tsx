@@ -1,10 +1,12 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import { ShoppingCart } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { cn } from "@/lib/utils/cn";
+import { snappySpring } from "@/lib/micro-interactions";
 
 interface CartButtonProps {
   className?: string;
@@ -13,12 +15,37 @@ interface CartButtonProps {
 export function CartButton({ className }: CartButtonProps) {
   const { itemCount } = useCart();
   const { open } = useCartDrawer();
+  const prefersReducedMotion = useReducedMotion();
+
+  // Track cart changes to trigger pulse animation
+  const [shouldPulse, setShouldPulse] = useState(false);
+  const prevCountRef = useRef(itemCount);
+  const isInitialMount = useRef(true);
+
+  useEffect(() => {
+    // Skip pulse on initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      prevCountRef.current = itemCount;
+      return;
+    }
+
+    // Trigger pulse when count changes (add, remove, or quantity change)
+    if (itemCount !== prevCountRef.current) {
+      setShouldPulse(true);
+      prevCountRef.current = itemCount;
+
+      // Reset pulse after animation completes
+      const timeout = setTimeout(() => setShouldPulse(false), 300);
+      return () => clearTimeout(timeout);
+    }
+  }, [itemCount]);
 
   return (
     <motion.button
       onClick={open}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
+      whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
       className={cn(
         "relative flex h-11 w-11 items-center justify-center rounded-full",
         "bg-secondary/50 text-foreground",
@@ -33,11 +60,23 @@ export function CartButton({ className }: CartButtonProps) {
       <AnimatePresence mode="wait">
         {itemCount > 0 && (
           <motion.span
-            key={itemCount}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 500, damping: 25 }}
+            key={`badge-${itemCount}`}
+            initial={prefersReducedMotion ? false : { scale: 0, opacity: 0 }}
+            animate={
+              prefersReducedMotion
+                ? { scale: 1, opacity: 1 }
+                : shouldPulse
+                  ? { scale: [1, 1.2, 1], opacity: 1 }
+                  : { scale: 1, opacity: 1 }
+            }
+            exit={prefersReducedMotion ? {} : { scale: 0, opacity: 0 }}
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : shouldPulse
+                  ? { duration: 0.3, type: "spring", stiffness: 400, damping: 15 }
+                  : snappySpring
+            }
             className={cn(
               "absolute -right-1 -top-1 flex items-center justify-center",
               "min-w-[22px] h-[22px] px-1.5 rounded-full",

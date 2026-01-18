@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { UserMenu } from "@/components/auth/user-menu";
 import { NavLinks, type UserRole } from "./nav-links";
 import { MobileMenu } from "./mobile-menu";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import type { ReactElement } from "react";
 
 async function getUserRole(userId: string | undefined): Promise<UserRole> {
@@ -42,11 +43,13 @@ export async function Header(): Promise<ReactElement> {
         <div className="hidden md:flex md:items-center md:gap-4">
           <NavLinks role={role} />
           <div className="h-6 w-px bg-border" />
+          <ThemeToggle />
           <UserMenu user={user} />
         </div>
 
         {/* Mobile menu and user menu */}
         <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
           <UserMenu user={user} />
           <MobileMenu role={role} />
         </div>

@@ -48,7 +48,7 @@ export function MobileMenu({ role }: MobileMenuProps): ReactElement {
       {/* Mobile menu panel */}
       <div
         className={cn(
-          "fixed inset-x-0 top-[57px] z-50 border-b border-border bg-background p-4 shadow-lg transition-transform duration-200 md:hidden",
+          "fixed inset-x-0 top-[var(--header-height,57px)] z-50 border-b border-border bg-background p-4 shadow-lg transition-transform duration-200 md:hidden",
           isOpen ? "translate-y-0" : "-translate-y-full"
         )}
       >

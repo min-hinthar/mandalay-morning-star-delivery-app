@@ -96,6 +96,11 @@
     animation: scale-in 300ms ease-out;
   }
 
+  /* Scale pulse for refetch loading states (0.5s once) */
+  .animate-scale-pulse {
+    animation: scale-pulse 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   /* Stagger delays */
   .stagger-1 { animation-delay: 0.1s; }
   .stagger-2 { animation-delay: 0.2s; }
@@ -110,6 +115,26 @@
   .animate-gradient-shift {
     background-size: 400% 400%;
     animation: gradient-shift 15s ease infinite;
+  }
+
+  /* CTA shimmer for primary buttons - subtle gradient sweep */
+  .animate-cta-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .animate-cta-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.15) 50%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    animation: cta-shimmer 3s ease-in-out infinite;
   }
 }
 
@@ -174,9 +199,19 @@
   to { transform: scale(1); opacity: 1; }
 }
 
+@keyframes scale-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.7; }
+}
+
 @keyframes gradient-shift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
+}
+
+@keyframes cta-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 /* ============================================
@@ -195,7 +230,9 @@
   .animate-fade-in,
   .animate-fade-in-up,
   .animate-scale-in,
-  .animate-gradient-shift {
+  .animate-scale-pulse,
+  .animate-gradient-shift,
+  .animate-cta-shimmer::after {
     animation: none !important;
   }
 

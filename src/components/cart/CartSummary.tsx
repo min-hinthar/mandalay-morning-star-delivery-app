@@ -7,6 +7,7 @@ import { useCart } from "@/lib/hooks/useCart";
 import { formatPrice } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { FREE_DELIVERY_THRESHOLD_CENTS } from "@/types/cart";
+import { progressSpring } from "@/lib/micro-interactions";
 
 interface CartSummaryProps {
   className?: string;
@@ -115,7 +116,7 @@ function FreeDeliveryProgress({
           className="h-full bg-gradient-to-r from-amber-400 to-amber-500 dark:bg-amber-400"
           initial={{ width: 0 }}
           animate={{ width: `${progressPercent}%` }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          transition={progressSpring}
         />
       </div>
       <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">
