@@ -126,3 +126,27 @@ window.matchMedia = (q) => ({ matches: false, media: q, addEventListener: () => 
 **Learning:** Animation utilities go in `src/lib/animations/` subdirectory. Each domain gets its own file (`cart.ts`, `tabs.ts`). Export variants, transition presets, and utility functions. Common patterns exported from `variants.ts`. Main `animations.ts` re-exports from subdirectory.
 **Apply when:** Adding new animation patterns or Framer Motion utilities
 
+---
+
+## 2026-01-17: TypeScript file casing on Windows
+
+**Context:** Renamed `skeleton.tsx` to `Skeleton.tsx` but imports used lowercase
+**Learning:** Windows filesystem is case-insensitive but TypeScript respects import casing. If existing imports use lowercase (`@/components/ui/skeleton`), keep file lowercase. Renaming creates "already included" TS1261 errors because both casings resolve to same file.
+**Apply when:** Renaming files on Windows, check existing import casing first
+
+---
+
+## 2026-01-17: V3 CSS utility files location
+
+**Context:** Adding responsive and accessibility CSS for Sprint-6
+**Learning:** CSS utility files go in `src/styles/`: `responsive.css` (breakpoints, grids, safe areas), `high-contrast.css` (driver mode with 7:1 contrast). Import in `globals.css`. Use `[data-high-contrast="true"]` selector for high-contrast mode.
+**Apply when:** Adding breakpoint utilities, accessibility styles, or theme variants
+
+---
+
+## 2026-01-17: Micro-interactions library
+
+**Context:** Creating reusable hover/tap/toggle animations for Sprint-6
+**Learning:** Generic Framer Motion variants go in `src/lib/micro-interactions.ts`. Exports: `buttonVariants`, `cardVariants`, `toggleKnobVariants`, `heartVariants`, `quantityFlipVariants`, timing constants, easing presets. Use with `whileHover`, `whileTap`, or `variants` prop.
+**Apply when:** Adding subtle interaction feedback to buttons, cards, toggles, favorites
+

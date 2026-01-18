@@ -1,0 +1,265 @@
+/**
+ * V3 Sprint 6: High Contrast Mode
+ *
+ * Enhanced visibility for drivers in sunlight and users with visual needs.
+ * Activated via [data-high-contrast="true"] attribute on <html> or <body>.
+ */
+
+/* ============================================
+   HIGH CONTRAST MODE
+   ============================================ */
+
+[data-high-contrast="true"] {
+  /* Override color tokens for maximum contrast */
+  --color-text-primary: #000000;
+  --color-text-secondary: #1A1A1A;
+  --color-text-muted: #333333;
+
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F5F5F5;
+
+  --color-background: #FFFFFF;
+
+  --color-border: #000000;
+  --color-border-muted: #666666;
+
+  /* High-visibility accent colors */
+  --color-cta: #FFD700; /* Bright gold */
+  --color-primary: #CC0000; /* Bold red */
+  --color-jade: #008000; /* Strong green */
+  --color-error: #CC0000;
+  --color-warning: #FF8C00;
+
+  /* Increased text sizes */
+  --text-xs: 0.875rem;   /* 14px (was 12px) */
+  --text-sm: 1rem;       /* 16px (was 14px) */
+  --text-base: 1.125rem; /* 18px (was 16px) */
+  --text-lg: 1.25rem;    /* 20px (was 18px) */
+  --text-xl: 1.5rem;     /* 24px (was 20px) */
+  --text-2xl: 1.875rem;  /* 30px (was 24px) */
+
+  /* Thicker borders */
+  --border-width: 2px;
+  --border-width-thick: 3px;
+
+  /* Enhanced focus ring */
+  --ring-offset: 3px;
+  --ring-width: 3px;
+}
+
+/* ============================================
+   TEXT ENHANCEMENTS
+   ============================================ */
+
+[data-high-contrast="true"] {
+  /* Increase font weight for better visibility */
+  font-weight: 500;
+}
+
+[data-high-contrast="true"] h1,
+[data-high-contrast="true"] h2,
+[data-high-contrast="true"] h3,
+[data-high-contrast="true"] h4,
+[data-high-contrast="true"] h5,
+[data-high-contrast="true"] h6 {
+  font-weight: 700;
+}
+
+[data-high-contrast="true"] p,
+[data-high-contrast="true"] span,
+[data-high-contrast="true"] li {
+  font-weight: 500;
+}
+
+/* ============================================
+   BORDERS & OUTLINES
+   ============================================ */
+
+[data-high-contrast="true"] button,
+[data-high-contrast="true"] input,
+[data-high-contrast="true"] select,
+[data-high-contrast="true"] textarea {
+  border-width: 2px;
+  border-color: #000000;
+}
+
+[data-high-contrast="true"] [class*="rounded"] {
+  border-width: 2px;
+}
+
+/* ============================================
+   FOCUS INDICATORS
+   ============================================ */
+
+[data-high-contrast="true"] :focus-visible {
+  outline: 3px solid #FFD700;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(255, 215, 0, 0.3);
+}
+
+[data-high-contrast="true"] button:focus-visible,
+[data-high-contrast="true"] a:focus-visible {
+  outline: 3px solid #000000;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   BUTTON ENHANCEMENTS
+   ============================================ */
+
+[data-high-contrast="true"] button {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Primary buttons - strong contrast */
+[data-high-contrast="true"] button[data-variant="primary"],
+[data-high-contrast="true"] .btn-primary {
+  background-color: #000000;
+  color: #FFFFFF;
+  border: 2px solid #000000;
+}
+
+[data-high-contrast="true"] button[data-variant="primary"]:hover,
+[data-high-contrast="true"] .btn-primary:hover {
+  background-color: #333333;
+}
+
+/* Secondary buttons */
+[data-high-contrast="true"] button[data-variant="secondary"],
+[data-high-contrast="true"] .btn-secondary {
+  background-color: #FFFFFF;
+  color: #000000;
+  border: 2px solid #000000;
+}
+
+/* Success buttons */
+[data-high-contrast="true"] button[data-variant="success"],
+[data-high-contrast="true"] .btn-success {
+  background-color: #008000;
+  color: #FFFFFF;
+  border: 2px solid #006600;
+}
+
+/* Danger buttons */
+[data-high-contrast="true"] button[data-variant="danger"],
+[data-high-contrast="true"] .btn-danger {
+  background-color: #CC0000;
+  color: #FFFFFF;
+  border: 2px solid #990000;
+}
+
+/* ============================================
+   CARD ENHANCEMENTS
+   ============================================ */
+
+[data-high-contrast="true"] [class*="card"],
+[data-high-contrast="true"] .card {
+  border: 2px solid #000000;
+  box-shadow: 4px 4px 0 #000000;
+}
+
+/* ============================================
+   STATUS INDICATORS
+   ============================================ */
+
+[data-high-contrast="true"] .status-success,
+[data-high-contrast="true"] [data-status="success"] {
+  color: #006600;
+  border-color: #006600;
+}
+
+[data-high-contrast="true"] .status-error,
+[data-high-contrast="true"] [data-status="error"] {
+  color: #CC0000;
+  border-color: #CC0000;
+}
+
+[data-high-contrast="true"] .status-warning,
+[data-high-contrast="true"] [data-status="warning"] {
+  color: #CC6600;
+  border-color: #CC6600;
+}
+
+[data-high-contrast="true"] .status-pending,
+[data-high-contrast="true"] [data-status="pending"] {
+  color: #666666;
+  border-color: #666666;
+}
+
+/* ============================================
+   ICON ENHANCEMENTS
+   ============================================ */
+
+[data-high-contrast="true"] svg {
+  stroke-width: 2.5;
+}
+
+[data-high-contrast="true"] [class*="icon"] svg {
+  stroke-width: 2.5;
+}
+
+/* ============================================
+   LINK UNDERLINES
+   ============================================ */
+
+[data-high-contrast="true"] a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
+}
+
+[data-high-contrast="true"] a:hover {
+  text-decoration-thickness: 3px;
+}
+
+/* ============================================
+   DISABLED STATES
+   ============================================ */
+
+[data-high-contrast="true"] [disabled],
+[data-high-contrast="true"] .disabled {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  [data-high-contrast="true"] {
+    --color-text-primary: #000000;
+    --color-background: #FFFFFF;
+    --color-border: #000000;
+  }
+
+  [data-high-contrast="true"] * {
+    color: #000000 !important;
+    background: #FFFFFF !important;
+    box-shadow: none !important;
+  }
+}
+
+/* ============================================
+   FORCED COLORS MODE (Windows High Contrast)
+   ============================================ */
+
+@media (forced-colors: active) {
+  button,
+  input,
+  select,
+  textarea {
+    border: 2px solid ButtonText;
+  }
+
+  :focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  a {
+    text-decoration: underline;
+  }
+}

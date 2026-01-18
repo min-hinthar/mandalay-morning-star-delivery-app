@@ -23,12 +23,14 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden rounded-md border border-border bg-background p-4 text-foreground shadow-lg transition-all",
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden rounded-md border p-4 shadow-lg transition-all",
   {
     variants: {
       variant: {
-        default: "",
-        destructive: "border-destructive/50 text-destructive",
+        default: "border-border bg-background text-foreground",
+        destructive: "border-destructive/50 bg-destructive text-destructive-foreground",
+        success: "border-[var(--color-jade)]/50 bg-[var(--color-jade)] text-white",
+        warning: "border-[var(--color-warning)]/50 bg-[var(--color-warning)] text-[var(--color-charcoal)]",
       },
     },
     defaultVariants: {
