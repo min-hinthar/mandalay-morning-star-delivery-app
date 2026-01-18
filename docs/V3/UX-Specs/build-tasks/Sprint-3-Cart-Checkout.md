@@ -24,11 +24,11 @@ Design templates for cart components. **`/frontend-design` should improve upon t
 
 | Task | Component | Status |
 |------|-----------|--------|
-| 3.1 | Sticky Cart Bar | ⬜ Not Started |
-| 3.2 | Expanded Cart View | ⬜ Not Started |
-| 3.3 | Checkout Step Indicator | ⬜ Not Started |
-| 3.4 | Address Input | ⬜ Not Started |
-| 3.5 | Time Slot Selector | ⬜ Not Started |
+| 3.1 | Sticky Cart Bar | ✅ Complete |
+| 3.2 | Expanded Cart View | ✅ Complete |
+| 3.3 | Checkout Step Indicator | ✅ Complete |
+| 3.4 | Address Input | ✅ Complete |
+| 3.5 | Time Slot Selector | ✅ Complete |
 
 > Update status: ⬜ Not Started → 🔄 In Progress → ✅ Complete
 
@@ -38,7 +38,7 @@ Design templates for cart components. **`/frontend-design` should improve upon t
 
 **Prompt Reference**: Prompt 14 from UX-Prompts.md
 **Output File**: `src/components/cart/CartBar.tsx`
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 
 ### Reference Assets
 > **Templates** (improve upon these):
@@ -123,7 +123,7 @@ Persistent bottom bar showing cart summary on the menu page. Shows item count, t
 
 **Prompt Reference**: Prompt 15 from UX-Prompts.md
 **Output File**: `src/components/cart/CartView.tsx`
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 
 ### Reference Assets
 > **Templates** (improve upon these):
@@ -227,7 +227,7 @@ Full cart view showing all items, quantities, and order summary. Accessible by t
 
 **Prompt Reference**: Prompt 16 from UX-Prompts.md
 **Output File**: `src/components/checkout/StepIndicator.tsx`
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 
 ### Implementation Guide
 1. Run `/frontend-design`
@@ -308,7 +308,7 @@ Horizontal progress stepper showing checkout steps: Address → Time → Review 
 
 **Prompt Reference**: Prompt 17 from UX-Prompts.md
 **Output File**: `src/components/checkout/AddressInput.tsx`
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 
 ### Implementation Guide
 1. Run `/frontend-design`
@@ -414,7 +414,7 @@ Address entry component with Google Places autocomplete for the checkout flow. M
 
 **Prompt Reference**: Prompt 18 from UX-Prompts.md
 **Output File**: `src/components/checkout/TimeSlotSelector.tsx`
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 
 ### Implementation Guide
 1. Run `/frontend-design`
