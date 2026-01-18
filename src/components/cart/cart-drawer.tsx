@@ -14,12 +14,15 @@ import { CartSummary } from "./CartSummary";
 import { cn } from "@/lib/utils/cn";
 
 /**
- * V4 Cart Drawer
+ * V5 Cart Drawer / Bottom Sheet
  *
- * Unified styling with cart bar using design tokens:
- * - Background: var(--color-surface)
- * - Border: var(--color-border)
- * - Shadow: var(--shadow-lg)
+ * Mobile-first responsive cart:
+ * - Mobile: Bottom sheet with drag handle, swipe-to-dismiss
+ * - Desktop: Right-side drawer
+ *
+ * V5 Design Tokens:
+ * - Surface: var(--color-surface), var(--color-surface-secondary)
+ * - Text: var(--color-text-primary), var(--color-text-secondary)
  * - Spacing: var(--space-*) tokens
  */
 export function CartDrawer() {
@@ -136,7 +139,7 @@ export function CartDrawer() {
             {/* Mobile drag handle */}
             {isMobile && (
               <div className="flex justify-center py-[var(--space-2)] cursor-grab active:cursor-grabbing">
-                <GripHorizontal className="h-5 w-5 text-[var(--color-charcoal-muted)]/50" />
+                <GripHorizontal className="h-5 w-5 text-[var(--color-text-secondary)]/50" />
               </div>
             )}
 
@@ -144,12 +147,12 @@ export function CartDrawer() {
             <div className={cn(
               "flex items-center justify-between",
               "border-b border-[var(--color-border)]",
-              "bg-[var(--color-surface-muted)] px-[var(--space-4)]",
+              "bg-[var(--color-surface-secondary)] px-[var(--space-4)]",
               isMobile ? "py-[var(--space-3)]" : "py-[var(--space-4)]"
             )}>
               <h2
                 id="cart-drawer-title"
-                className="flex items-center gap-[var(--space-3)] text-lg font-bold text-[var(--color-charcoal)]"
+                className="flex items-center gap-[var(--space-3)] text-lg font-bold text-[var(--color-text-primary)]"
               >
                 <div className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full",
@@ -174,8 +177,8 @@ export function CartDrawer() {
                 whileTap={{ scale: 0.95 }}
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full",
-                  "bg-[var(--color-surface-muted)] text-[var(--color-charcoal-muted)]",
-                  "hover:bg-[var(--color-cream-darker)] hover:text-[var(--color-charcoal)]",
+                  "bg-[var(--color-surface-secondary)] text-[var(--color-text-secondary)]",
+                  "hover:bg-[var(--color-surface-tertiary)] hover:text-[var(--color-text-primary)]",
                   "transition-colors duration-[var(--duration-fast)]",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-tertiary)] focus-visible:ring-offset-2"
                 )}
@@ -203,7 +206,7 @@ export function CartDrawer() {
                 {/* Footer */}
                 <div className={cn(
                   "border-t border-[var(--color-border)]",
-                  "bg-[var(--color-surface-muted)]",
+                  "bg-[var(--color-surface-secondary)]",
                   "px-[var(--space-4)] py-[var(--space-4)]"
                 )}>
                   <CartSummary />
@@ -226,7 +229,7 @@ export function CartDrawer() {
                       className={cn(
                         "w-full",
                         "border-2 border-[var(--color-border)]",
-                        "hover:bg-[var(--color-surface-muted)]"
+                        "hover:bg-[var(--color-surface-secondary)]"
                       )}
                       onClick={close}
                     >
@@ -256,10 +259,10 @@ function CartEmptyState({ onClose }: { onClose: () => void }) {
       )}>
         <ShoppingBag className="h-12 w-12 text-[var(--color-accent-tertiary)]/60" />
       </div>
-      <h3 className="mt-[var(--space-6)] text-xl font-bold text-[var(--color-charcoal)]">
+      <h3 className="mt-[var(--space-6)] text-xl font-bold text-[var(--color-text-primary)]">
         Your cart is empty
       </h3>
-      <p className="mt-[var(--space-2)] text-sm text-[var(--color-charcoal-muted)] max-w-[240px]">
+      <p className="mt-[var(--space-2)] text-sm text-[var(--color-text-secondary)] max-w-[240px]">
         Browse our authentic Burmese dishes and add something delicious!
       </p>
       <Button

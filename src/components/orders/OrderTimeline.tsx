@@ -36,14 +36,14 @@ export function OrderTimeline({
   // Handle cancelled status separately
   if (currentStatus === "cancelled") {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+      <div className="rounded-lg border border-[var(--color-status-error)]/20 bg-[var(--color-status-error-bg)] p-4">
         <div className="flex items-center gap-3">
-          <div className="rounded-full bg-red-100 p-2">
-            <Circle className="h-5 w-5 text-red-600" />
+          <div className="rounded-full bg-[var(--color-status-error)]/10 p-2">
+            <Circle className="h-5 w-5 text-[var(--color-status-error)]" />
           </div>
           <div>
-            <p className="font-medium text-red-800">Order Cancelled</p>
-            <p className="text-sm text-red-600">
+            <p className="font-medium text-[var(--color-status-error)]">Order Cancelled</p>
+            <p className="text-sm text-[var(--color-status-error)]/80">
               This order has been cancelled.
             </p>
           </div>
@@ -103,9 +103,9 @@ export function OrderTimeline({
               <div
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors",
-                  isCompleted && "border-accent-secondary bg-accent-secondary text-white",
-                  isCurrent && "border-interactive bg-interactive text-white",
-                  isPending && "border-gray-300 bg-white text-gray-400"
+                  isCompleted && "border-[var(--color-accent-secondary)] bg-[var(--color-accent-secondary)] text-[var(--color-text-inverse)]",
+                  isCurrent && "border-[var(--color-interactive-primary)] bg-[var(--color-interactive-primary)] text-[var(--color-text-inverse)]",
+                  isPending && "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)]"
                 )}
               >
                 {step.icon}
@@ -114,7 +114,7 @@ export function OrderTimeline({
                 <div
                   className={cn(
                     "w-0.5 flex-1 min-h-8",
-                    isCompleted ? "bg-accent-secondary" : "bg-gray-200"
+                    isCompleted ? "bg-[var(--color-accent-secondary)]" : "bg-[var(--color-border)]"
                   )}
                 />
               )}
@@ -125,20 +125,20 @@ export function OrderTimeline({
               <p
                 className={cn(
                   "font-medium",
-                  isCompleted && "text-accent-secondary",
-                  isCurrent && "text-interactive",
-                  isPending && "text-gray-400"
+                  isCompleted && "text-[var(--color-accent-secondary)]",
+                  isCurrent && "text-[var(--color-interactive-primary)]",
+                  isPending && "text-[var(--color-text-secondary)]"
                 )}
               >
                 {step.label}
               </p>
               {step.timestamp && (isCompleted || isCurrent) && (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-[var(--color-text-secondary)]">
                   {format(parseISO(step.timestamp), "MMM d, yyyy 'at' h:mm a")}
                 </p>
               )}
               {isCurrent && !step.timestamp && (
-                <p className="text-sm text-interactive">In progress...</p>
+                <p className="text-sm text-[var(--color-interactive-primary)]">In progress...</p>
               )}
             </div>
           </div>

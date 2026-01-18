@@ -150,7 +150,7 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
               className="mx-auto drop-shadow-2xl"
             />
             {/* Glow effect behind logo */}
-            <div className="absolute inset-0 bg-gold/20 blur-3xl -z-10 rounded-full scale-150" />
+            <div className="absolute inset-0 bg-[var(--color-interactive-primary)]/20 blur-3xl -z-10 rounded-full scale-150" />
           </div>
         </motion.div>
 
@@ -166,7 +166,7 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
         {/* Burmese Subtitle */}
         <motion.p
           variants={heroItem}
-          className="font-burmese text-2xl md:text-3xl text-gold-light mb-6 drop-shadow-md"
+          className="font-burmese text-2xl md:text-3xl text-[var(--color-interactive-primary)] mb-6 drop-shadow-md"
         >
           မန္တလေး မနက်ခင်းကြယ်
         </motion.p>
@@ -189,7 +189,7 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
             onClick={onScrollToMenu}
-            className="px-8 py-4 bg-white text-accent-tertiary font-semibold rounded-xl shadow-premium hover:shadow-card-hover transition-shadow btn-glow"
+            className="px-8 py-4 bg-[var(--color-surface)] text-[var(--color-accent-tertiary)] font-semibold rounded-xl shadow-[var(--elevation-2)] hover:shadow-[var(--elevation-3)] transition-shadow animate-cta-shimmer"
           >
             View Our Menu
           </motion.button>
@@ -198,7 +198,7 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
             onClick={onScrollToCoverage}
-            className="px-8 py-4 bg-black/20 backdrop-blur-sm border-2 border-white/80 text-white font-semibold rounded-xl hover:bg-black/30 transition-colors"
+            className="px-8 py-4 bg-black/20 backdrop-blur-sm border-2 border-[var(--color-text-inverse)]/80 text-[var(--color-text-inverse)] font-semibold rounded-xl hover:bg-black/30 transition-colors"
           >
             Check Delivery Area
           </motion.button>
@@ -207,13 +207,13 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
         {/* Saturday Badge */}
         <motion.div
           variants={heroItem}
-          className="mt-10 inline-flex items-center gap-2 px-6 py-3 bg-accent-tertiary/90 backdrop-blur-sm rounded-full shadow-lg"
+          className="mt-10 inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-accent-tertiary)]/90 backdrop-blur-sm rounded-full shadow-[var(--elevation-3)]"
         >
           <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-secondary opacity-75" />
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-accent-secondary" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-accent-secondary)] opacity-75" />
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--color-accent-secondary)]" />
           </span>
-          <span className="text-white font-medium drop-shadow-sm">
+          <span className="text-[var(--color-text-inverse)] font-medium drop-shadow-sm">
             Fresh deliveries every Saturday, 11am - 7pm
           </span>
         </motion.div>

@@ -60,7 +60,7 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
           {showProgress && (
             <div className="px-4 pt-3">
               <div className="flex items-center justify-between mb-1.5">
-                <div className="flex items-center gap-1.5 text-[var(--text-xs)] text-[var(--color-text-muted)]">
+                <div className="flex items-center gap-1.5 text-[var(--text-xs)] text-[var(--color-text-secondary)]">
                   <Truck className="h-3.5 w-3.5" />
                   <span>
                     {formatPrice(amountToFreeDelivery)} more for free delivery
@@ -118,7 +118,7 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
                   animate={{ scale: 1, opacity: 1 }}
                   className={cn(
                     "absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center",
-                    "rounded-full bg-[var(--color-interactive-primary)] text-[var(--color-charcoal)]",
+                    "rounded-full bg-[var(--color-interactive-primary)] text-[var(--color-text-primary)]",
                     "text-[10px] font-bold shadow-sm"
                   )}
                 >
@@ -128,7 +128,7 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
 
               {/* Center: Total price */}
               <div className="min-w-0">
-                <p className="text-[var(--text-xs)] text-[var(--color-text-muted)] truncate">
+                <p className="text-[var(--text-xs)] text-[var(--color-text-secondary)] truncate">
                   {itemCount} {itemCount === 1 ? "item" : "items"}
                 </p>
                 <p
@@ -156,7 +156,7 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
                 <Button
                   size="sm"
                   onClick={handleCheckout}
-                  className="bg-[var(--color-interactive-primary)] text-[var(--color-charcoal)] hover:bg-[var(--color-interactive-hover)] shadow-sm"
+                  className="bg-[var(--color-interactive-primary)] text-[var(--color-text-primary)] hover:bg-[var(--color-interactive-hover)] shadow-sm"
                 >
                   Checkout
                 </Button>

@@ -44,28 +44,28 @@ export function CartSummary({ className, showEstimate = true }: CartSummaryProps
         <SummaryLine
           label="Delivery"
           value={hasFreeDelivery ? "FREE" : formattedDeliveryFee}
-          valueClassName={hasFreeDelivery ? "text-emerald-600 font-semibold" : ""}
+          valueClassName={hasFreeDelivery ? "text-[var(--color-status-success)] font-semibold" : ""}
           icon={
             hasFreeDelivery ? (
-              <Check className="h-4 w-4 text-emerald-600" />
+              <Check className="h-4 w-4 text-[var(--color-status-success)]" />
             ) : (
-              <Truck className="h-4 w-4 text-muted-foreground" />
+              <Truck className="h-4 w-4 text-[var(--color-text-secondary)]" />
             )
           }
         />
       </div>
 
-      <div className="border-t border-border" />
+      <div className="border-t border-[var(--color-border)]" />
 
       <div className="flex items-center justify-between">
-        <span className="font-bold text-foreground">
+        <span className="font-bold text-[var(--color-text-primary)]">
           {showEstimate ? "Estimated Total" : "Total"}
         </span>
-        <span className="text-xl font-bold text-primary">{formattedTotal}</span>
+        <span className="text-xl font-bold text-[var(--color-interactive-primary)]">{formattedTotal}</span>
       </div>
 
       {showEstimate && (
-        <p className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg px-3 py-2">
+        <p className="flex items-start gap-2 text-xs text-[var(--color-text-secondary)] bg-[var(--color-surface-secondary)] rounded-lg px-3 py-2">
           <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
           <span>Final total calculated at checkout. Tax not included.</span>
         </p>
@@ -84,7 +84,7 @@ interface SummaryLineProps {
 function SummaryLine({ label, value, valueClassName, icon }: SummaryLineProps) {
   return (
     <div className="flex items-center justify-between">
-      <span className="flex items-center gap-1.5 text-muted-foreground">
+      <span className="flex items-center gap-1.5 text-[var(--color-text-secondary)]">
         {icon}
         {label}
       </span>
@@ -103,23 +103,23 @@ function FreeDeliveryProgress({
   progressPercent,
 }: FreeDeliveryProgressProps) {
   return (
-    <div className="rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-amber-100/50 p-4 dark:border-amber-900/50 dark:bg-amber-950/30">
+    <div className="rounded-xl border border-[var(--color-status-warning)]/30 bg-[var(--color-status-warning-bg)] p-4">
       <div className="flex items-center gap-2">
-        <Truck className="h-5 w-5 text-amber-600" />
-        <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-          Add <span className="text-amber-700">{formatPrice(amountRemaining)}</span> more for{" "}
-          <span className="font-bold text-primary">FREE delivery!</span>
+        <Truck className="h-5 w-5 text-[var(--color-status-warning)]" />
+        <p className="text-sm font-semibold text-[var(--color-text-primary)]">
+          Add <span className="text-[var(--color-status-warning)] font-bold">{formatPrice(amountRemaining)}</span> more for{" "}
+          <span className="font-bold text-[var(--color-interactive-primary)]">FREE delivery!</span>
         </p>
       </div>
-      <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-amber-200/60 dark:bg-amber-900/50">
+      <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-[var(--color-status-warning)]/20">
         <motion.div
-          className="h-full bg-gradient-to-r from-amber-400 to-amber-500 dark:bg-amber-400"
+          className="h-full bg-[var(--color-status-warning)]"
           initial={{ width: 0 }}
           animate={{ width: `${progressPercent}%` }}
           transition={progressSpring}
         />
       </div>
-      <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">
+      <p className="mt-2 text-xs text-[var(--color-text-secondary)]">
         Free delivery on orders $100+
       </p>
     </div>

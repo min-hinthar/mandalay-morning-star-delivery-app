@@ -168,7 +168,7 @@ export function AddressInput({
                   {/* Address content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <Icon className="h-4 w-4 text-[var(--color-text-muted)]" />
+                      <Icon className="h-4 w-4 text-[var(--color-text-secondary)]" />
                       <span className="font-semibold text-[var(--color-text-primary)]">
                         {address.label}
                       </span>
@@ -196,7 +196,7 @@ export function AddressInput({
             "w-full p-4 rounded-xl border-2 border-dashed",
             "border-[var(--color-border)] hover:border-[var(--color-interactive-primary)]/50",
             "bg-transparent hover:bg-[var(--color-interactive-primary-light)]/30",
-            "text-[var(--color-text-muted)] hover:text-[var(--color-interactive-primary)]",
+            "text-[var(--color-text-secondary)] hover:text-[var(--color-interactive-primary)]",
             "flex items-center justify-center gap-2 transition-all duration-200"
           )}
         >
@@ -209,7 +209,7 @@ export function AddressInput({
       {isNewAddressMode && (
         <div className="relative">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-text-muted)]" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-text-secondary)]" />
             <input
               ref={inputRef}
               type="text"
@@ -221,7 +221,7 @@ export function AddressInput({
                 "w-full h-12 pl-12 pr-12 rounded-xl",
                 "border-2 border-[var(--color-border)]",
                 "bg-[var(--color-surface)] text-[var(--color-text-primary)]",
-                "placeholder:text-[var(--color-text-muted)]",
+                "placeholder:text-[var(--color-text-secondary)]",
                 "focus:outline-none focus:border-[var(--color-interactive-primary)]",
                 "transition-colors duration-200"
               )}
@@ -232,7 +232,7 @@ export function AddressInput({
                 onClick={handleClearInput}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-[var(--color-surface-muted)] transition-colors"
               >
-                <X className="h-4 w-4 text-[var(--color-text-muted)]" />
+                <X className="h-4 w-4 text-[var(--color-text-secondary)]" />
               </button>
             )}
           </div>
@@ -260,7 +260,7 @@ export function AddressInput({
                       "hover:bg-[var(--color-surface-muted)] transition-colors"
                     )}
                   >
-                    <MapPin className="h-4 w-4 text-[var(--color-text-muted)] flex-shrink-0" />
+                    <MapPin className="h-4 w-4 text-[var(--color-text-secondary)] flex-shrink-0" />
                     <span className="text-sm text-[var(--color-text-primary)]">
                       {suggestion.description}
                     </span>
@@ -323,11 +323,11 @@ export function AddressInput({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="rounded-xl border border-[var(--color-error)]/20 bg-[var(--color-error-light)] overflow-hidden"
+            className="rounded-xl border border-[var(--color-status-error)]/20 bg-[var(--color-status-error-bg)] overflow-hidden"
           >
-            <div className="flex items-center gap-3 p-4 border-b border-[var(--color-error)]/10">
-              <AlertTriangle className="h-5 w-5 text-[var(--color-error)]" />
-              <span className="font-semibold text-[var(--color-error)]">
+            <div className="flex items-center gap-3 p-4 border-b border-[var(--color-status-error)]/10">
+              <AlertTriangle className="h-5 w-5 text-[var(--color-status-error)]" />
+              <span className="font-semibold text-[var(--color-status-error)]">
                 Outside Delivery Area
               </span>
             </div>
@@ -335,8 +335,8 @@ export function AddressInput({
             {/* Coverage Map Placeholder */}
             <div className="h-40 bg-[var(--color-surface-muted)] flex items-center justify-center">
               <div className="text-center">
-                <MapPin className="h-8 w-8 text-[var(--color-text-muted)] mx-auto mb-2" />
-                <p className="text-sm text-[var(--color-text-muted)]">
+                <MapPin className="h-8 w-8 text-[var(--color-text-secondary)] mx-auto mb-2" />
+                <p className="text-sm text-[var(--color-text-secondary)]">
                   Coverage map placeholder
                 </p>
               </div>
@@ -350,7 +350,7 @@ export function AddressInput({
                 variant="outline"
                 size="sm"
                 onClick={handleClearInput}
-                className="w-full border-[var(--color-error)]/30 text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
+                className="w-full border-[var(--color-status-error)]/30 text-[var(--color-status-error)] hover:bg-[var(--color-status-error)]/10"
               >
                 Try a different address
               </Button>

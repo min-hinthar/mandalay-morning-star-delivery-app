@@ -62,25 +62,25 @@ export function PaymentStep() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Review & Pay</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">Review & Pay</h2>
+        <p className="text-sm text-[var(--color-text-secondary)]">
           Review your order and proceed to payment
         </p>
       </div>
 
-      <div className="space-y-4 rounded-lg bg-muted/50 p-4">
+      <div className="space-y-4 rounded-lg bg-[var(--color-surface-secondary)] p-4">
         <div>
-          <h3 className="text-sm font-medium text-muted-foreground">
+          <h3 className="text-sm font-medium text-[var(--color-text-secondary)]">
             Delivery Address
           </h3>
-          <p className="mt-1 text-foreground text-center text-xl">{address?.formattedAddress}</p>
+          <p className="mt-1 text-[var(--color-text-primary)] text-center text-xl">{address?.formattedAddress}</p>
         </div>
 
         <div>
-          <h3 className="text-sm font-medium text-muted-foreground">
+          <h3 className="text-sm font-medium text-[var(--color-text-secondary)]">
             Delivery Time
           </h3>
-          {delivery && <TimeSlotDisplay selection={delivery} className="mt-1 bg-primary rounded-xl p-2 justify-center" />}
+          {delivery && <TimeSlotDisplay selection={delivery} className="mt-1 bg-[var(--color-interactive-primary)] rounded-xl p-2 justify-center" />}
         </div>
       </div>
 
@@ -94,23 +94,23 @@ export function PaymentStep() {
           maxLength={500}
           rows={3}
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-[var(--color-text-secondary)]">
           {customerNotes.length}/500 characters
         </p>
       </div>
 
       {error && (
-        <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+        <div className="rounded-md bg-[var(--color-status-error)]/10 p-3 text-sm text-[var(--color-status-error)]">
           {error}
         </div>
       )}
 
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
         <ShieldCheck className="h-4 w-4" />
         <span>Secure payment powered by Stripe</span>
       </div>
 
-      <div className="flex justify-between pt-4 border-t border-border">
+      <div className="flex justify-between pt-4 border-t border-[var(--color-border)]">
         <Button variant="ghost" onClick={prevStep} disabled={isLoading}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
@@ -118,7 +118,7 @@ export function PaymentStep() {
         <Button
           onClick={handleCheckout}
           disabled={isLoading}
-          className="bg-accent-tertiary text-white hover:bg-accent-tertiary/90"
+          className="bg-[var(--color-accent-tertiary)] text-[var(--color-text-inverse)] hover:bg-[var(--color-accent-tertiary)]/90"
         >
           {isLoading ? (
             <>
