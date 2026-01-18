@@ -3,6 +3,9 @@
 @import "../styles/tokens.css";
 @import "../styles/animations.css";
 
+/* CSS Cascade Layers for proper stacking order control */
+@layer reset, base, tokens, components, utilities;
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

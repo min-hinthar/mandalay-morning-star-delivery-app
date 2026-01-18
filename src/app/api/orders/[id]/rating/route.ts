@@ -5,7 +5,7 @@ import { submitRatingSchema } from "@/lib/validations/analytics";
 import type { SubmitRatingResponse } from "@/types/analytics";
 
 interface RouteParams {
-  params: Promise<{ orderId: string }>;
+  params: Promise<{ id: string }>;
 }
 
 interface OrderCheck {
@@ -31,7 +31,7 @@ interface NewRatingResult {
 }
 
 /**
- * POST /api/orders/[orderId]/rating
+ * POST /api/orders/[id]/rating
  * Submit a rating for a delivered order
  */
 export async function POST(
@@ -40,7 +40,7 @@ export async function POST(
 ) {
   try {
     const resolvedParams = await params;
-    const orderId = resolvedParams.orderId;
+    const orderId = resolvedParams.id;
 
     // Validate UUID format
     const uuidRegex =
@@ -164,7 +164,7 @@ export async function POST(
       .single();
 
     if (insertError) {
-      logger.exception(insertError, { api: "orders/[orderId]/rating", flowId: "submit" });
+      logger.exception(insertError, { api: "orders/[id]/rating", flowId: "submit" });
       return NextResponse.json(
         { error: "Failed to submit rating" },
         { status: 500 }
@@ -178,7 +178,7 @@ export async function POST(
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    logger.exception(error, { api: "orders/[orderId]/rating" });
+    logger.exception(error, { api: "orders/[id]/rating" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -187,7 +187,7 @@ export async function POST(
 }
 
 /**
- * GET /api/orders/[orderId]/rating
+ * GET /api/orders/[id]/rating
  * Get the rating for an order (if exists)
  */
 export async function GET(
@@ -196,7 +196,7 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params;
-    const orderId = resolvedParams.orderId;
+    const orderId = resolvedParams.id;
 
     const supabase = await createClient();
 
@@ -256,7 +256,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    logger.exception(error, { api: "orders/[orderId]/rating" });
+    logger.exception(error, { api: "orders/[id]/rating" });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

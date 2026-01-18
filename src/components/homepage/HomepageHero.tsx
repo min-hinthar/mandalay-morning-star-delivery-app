@@ -1,9 +1,11 @@
 "use client";
 
+import { useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { ChevronDown } from "lucide-react";
 import { heroContainer, heroItem, floatingElement } from "@/lib/animations/variants";
+import { useDynamicLuminance, getContrastTextClasses } from "@/lib/hooks/useLuminance";
 
 interface HomepageHeroProps {
   onScrollToMenu?: () => void;
@@ -78,11 +80,17 @@ function PagodaSilhouette({ className = "" }: { className?: string }) {
 
 export function HomepageHero({ onScrollToMenu }: HomepageHeroProps) {
   const shouldReduceMotion = useReducedMotion();
+  const backgroundRef = useRef<HTMLDivElement>(null);
+
+  // Dynamic text color based on background luminance
+  const { luminance } = useDynamicLuminance(backgroundRef, "dark");
+  const textClasses = getContrastTextClasses(luminance, { withShadow: true, intensity: "strong" });
+  const textClassesMuted = getContrastTextClasses(luminance, { withShadow: true });
 
   return (
     <section className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden">
       {/* Animated Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-animated opacity-90" />
+      <div ref={backgroundRef} className="absolute inset-0 bg-gradient-animated opacity-90" />
 
       {/* Overlay for better text readability */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
@@ -148,10 +156,10 @@ export function HomepageHero({ onScrollToMenu }: HomepageHeroProps) {
         {/* Main Heading */}
         <motion.h1
           variants={heroItem}
-          className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-lg"
+          className={`font-display text-5xl md:text-6xl lg:text-7xl font-bold mb-4 ${textClasses}`}
         >
           <span className="text-gradient-gold">Mandalay</span>{" "}
-          <span className="text-white">Morning Star</span>
+          <span className={textClasses}>Morning Star</span>
         </motion.h1>
 
         {/* Burmese Subtitle */}
@@ -165,7 +173,7 @@ export function HomepageHero({ onScrollToMenu }: HomepageHeroProps) {
         {/* English Tagline */}
         <motion.p
           variants={heroItem}
-          className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed"
+          className={`text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed opacity-90 ${textClassesMuted}`}
         >
           Authentic Burmese cuisine crafted with love, delivered fresh to your
           door every Saturday in Southern California.
@@ -198,13 +206,13 @@ export function HomepageHero({ onScrollToMenu }: HomepageHeroProps) {
         {/* Saturday Badge */}
         <motion.div
           variants={heroItem}
-          className="mt-10 inline-flex items-center gap-2 px-6 py-3 glass rounded-full"
+          className="mt-10 inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)]/90 backdrop-blur-sm rounded-full shadow-lg"
         >
           <span className="relative flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-jade opacity-75" />
             <span className="relative inline-flex rounded-full h-3 w-3 bg-jade" />
           </span>
-          <span className="text-white font-medium">
+          <span className="text-white font-medium drop-shadow-sm">
             Fresh deliveries every Saturday, 11am - 7pm
           </span>
         </motion.div>
@@ -231,7 +239,7 @@ export function HomepageHero({ onScrollToMenu }: HomepageHeroProps) {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="flex flex-col items-center gap-2 text-white/70 hover:text-white transition-colors"
+          className={`flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-opacity ${textClassesMuted}`}
           aria-label="Scroll down"
         >
           <span className="text-sm font-medium">Scroll to explore</span>

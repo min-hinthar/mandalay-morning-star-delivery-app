@@ -1,8 +1,28 @@
 import type { ReactElement } from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, act } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MenuContent } from "../menu-content";
 import type { MenuCategory } from "@/types/menu";
+
+// Mock Intersection Observer
+let intersectionCallback: IntersectionObserverCallback;
+const mockObserve = vi.fn();
+const mockDisconnect = vi.fn();
+
+class MockIntersectionObserver implements IntersectionObserver {
+  readonly root: Element | null = null;
+  readonly rootMargin: string = "";
+  readonly thresholds: ReadonlyArray<number> = [];
+
+  constructor(callback: IntersectionObserverCallback) {
+    intersectionCallback = callback;
+  }
+
+  observe = mockObserve;
+  unobserve = vi.fn();
+  disconnect = mockDisconnect;
+  takeRecords = vi.fn(() => []);
+}
 
 const categories: MenuCategory[] = [
   {
@@ -68,6 +88,8 @@ function setMatchMedia(matches: boolean) {
 }
 
 describe("MenuContent", () => {
+  const originalIntersectionObserver = window.IntersectionObserver;
+
   const renderMenu = (ui: ReactElement) => {
     const queryClient = new QueryClient({
       defaultOptions: {
@@ -82,11 +104,21 @@ describe("MenuContent", () => {
     );
   };
 
+  beforeAll(() => {
+    window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
+  });
+
+  afterAll(() => {
+    window.IntersectionObserver = originalIntersectionObserver;
+  });
+
   beforeEach(() => {
     setMatchMedia(false);
     Object.defineProperty(window, "scrollY", { value: 0, writable: true });
     window.scrollTo = vi.fn();
     HTMLElement.prototype.scrollTo = vi.fn();
+    mockObserve.mockClear();
+    mockDisconnect.mockClear();
   });
 
   it("renders category tabs and items", () => {
@@ -114,8 +146,9 @@ describe("MenuContent", () => {
 
     fireEvent.click(screen.getByRole("tab", { name: "Sides" }));
 
+    // Calculation: elementPosition (200) + scrollY (0) - headerHeight (56) - 8 = 136
     expect(window.scrollTo).toHaveBeenCalledWith({
-      top: 60,
+      top: 136,
       behavior: "smooth",
     });
   });
@@ -123,16 +156,25 @@ describe("MenuContent", () => {
   it("updates the active tab on scroll", () => {
     renderMenu(<MenuContent categories={categories} />);
 
-    const breakfastSection = document.getElementById("category-breakfast") as HTMLElement;
     const sidesSection = document.getElementById("category-sides") as HTMLElement;
 
-    Object.defineProperty(breakfastSection, "offsetTop", { value: 0 });
-    Object.defineProperty(breakfastSection, "offsetHeight", { value: 500 });
-    Object.defineProperty(sidesSection, "offsetTop", { value: 500 });
-    Object.defineProperty(sidesSection, "offsetHeight", { value: 500 });
-
-    Object.defineProperty(window, "scrollY", { value: 520, writable: true });
-    fireEvent.scroll(window);
+    // Simulate Intersection Observer detecting "Sides" section as most visible
+    act(() => {
+      intersectionCallback(
+        [
+          {
+            target: sidesSection,
+            intersectionRatio: 0.5,
+            isIntersecting: true,
+            boundingClientRect: {} as DOMRect,
+            intersectionRect: {} as DOMRect,
+            rootBounds: null,
+            time: Date.now(),
+          } as IntersectionObserverEntry,
+        ],
+        {} as IntersectionObserver
+      );
+    });
 
     expect(screen.getByRole("tab", { name: "Sides" })).toHaveAttribute(
       "aria-selected",
