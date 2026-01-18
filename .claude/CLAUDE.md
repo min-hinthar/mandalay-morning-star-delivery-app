@@ -52,6 +52,11 @@ Run before completing: `pnpm typecheck && pnpm test`
 | Supabase | DB issue, migration | Query logs, check schema |
 | GitHub | PR, issue ref | Pull context, link commits |
 
+## Session Learning
+- **Errors:** `.claude/ERROR_HISTORY.md` - past bugs and fixes
+- **Learnings:** `.claude/LEARNINGS.md` - patterns and conventions
+- **Trigger:** `/retro` manually or auto on clean session exit
+
 ## Error Protocol
 - **History:** Check `.claude/ERROR_HISTORY.md` before debugging
 - **When to Log:**
