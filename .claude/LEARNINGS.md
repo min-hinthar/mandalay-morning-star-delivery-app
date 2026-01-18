@@ -337,3 +337,26 @@ Acceptable exceptions: SVG fills, data visualization colors, confetti/decorative
 Different pages may use different header components. Test observable behavior (sticky positioning, backdrop blur) not specific class names.
 **Apply when:** Writing E2E tests for UI components, fixing flaky tests
 
+---
+
+## 2026-01-18: Theme System Setup with next-themes + Tailwind
+
+**Context:** App had CSS variables for light/dark but users couldn't toggle themes
+**Learning:** CSS variables alone don't enable theming. Full setup requires:
+1. `pnpm add next-themes`
+2. Create `ThemeProvider` wrapper with `attribute="class"` for Tailwind dark mode
+3. Add `suppressHydrationWarning` to `<html>` tag in root layout
+4. Create `ThemeToggle` component using `useTheme()` hook
+5. Fix hard-coded colors: `bg-white` → `bg-background`, `text-charcoal` → `text-foreground`
+
+ThemeProvider config: `defaultTheme="system"`, `enableSystem`, `disableTransitionOnChange` (prevents flash on load).
+**Apply when:** Adding theme toggle to app, debugging "dark mode not working", fixing hard-coded white backgrounds
+
+---
+
+## 2026-01-18: CSS Variable Fallbacks for Dynamic Positioning
+
+**Context:** MobileMenu used hard-coded `top-[57px]` which assumes fixed header height
+**Learning:** Use CSS variable with fallback: `top-[var(--header-height,57px)]`. This allows dynamic header heights while maintaining default. Define `--header-height` in root or header component. Pattern works for any dimension that may vary.
+**Apply when:** Positioning elements relative to dynamic-height components
+

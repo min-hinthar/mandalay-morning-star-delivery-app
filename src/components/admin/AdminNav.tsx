@@ -76,7 +76,7 @@ export function AdminNav() {
     <TooltipProvider>
       <aside
         className={cn(
-          "flex h-screen flex-col border-r bg-white transition-all duration-300",
+          "flex h-screen flex-col border-r bg-background transition-all duration-300",
           isCollapsed ? "w-16" : "w-64"
         )}
       >
@@ -117,7 +117,7 @@ export function AdminNav() {
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                   isActive
                     ? "bg-brand-red/10 text-brand-red"
-                    : "text-charcoal hover:bg-muted hover:text-charcoal",
+                    : "text-foreground/70 hover:bg-muted hover:text-foreground",
                   isCollapsed && "justify-center"
                 )}
               >
@@ -148,7 +148,7 @@ export function AdminNav() {
               <Link
                 href="/"
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-charcoal",
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
                   isCollapsed && "justify-center"
                 )}
               >

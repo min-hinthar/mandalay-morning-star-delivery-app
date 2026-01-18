@@ -75,21 +75,21 @@ export function FooterCTA() {
                   href={`https://maps.google.com/?q=${encodeURIComponent(KITCHEN_LOCATION.address)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-start gap-3 hover:text-gold transition-colors"
+                  className="flex items-start gap-3 hover:text-gold transition-colors hover:underline underline-offset-2"
                 >
                   <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0" />
                   <span className="text-sm">{KITCHEN_LOCATION.address}</span>
                 </a>
                 <a
                   href="tel:+16261234567"
-                  className="flex items-center gap-3 hover:text-gold transition-colors"
+                  className="flex items-center gap-3 hover:text-gold transition-colors hover:underline underline-offset-2"
                 >
                   <Phone className="w-5 h-5" />
                   <span className="text-sm">(626) 123-4567</span>
                 </a>
                 <a
                   href="mailto:hello@mandalaymorningstar.com"
-                  className="flex items-center gap-3 hover:text-gold transition-colors"
+                  className="flex items-center gap-3 hover:text-gold transition-colors hover:underline underline-offset-2"
                 >
                   <Mail className="w-5 h-5" />
                   <span className="text-sm">hello@mandalaymorningstar.com</span>
@@ -110,7 +110,7 @@ export function FooterCTA() {
                   <Clock className="w-5 h-5" />
                   <div>
                     <p className="text-sm font-medium">Saturday Delivery</p>
-                    <p className="text-sm text-white/70">11:00 AM - 7:00 PM PT</p>
+                    <p className="text-sm text-white/80">11:00 AM - 7:00 PM PT</p>
                   </div>
                 </div>
                 <div className="p-3 bg-white/10 rounded-lg">
@@ -151,7 +151,7 @@ export function FooterCTA() {
                   <Facebook className="w-6 h-6" />
                 </motion.a>
               </div>
-              <p className="mt-4 text-sm text-white/70">
+              <p className="mt-4 text-sm text-white/80">
                 Share your dishes with #MandalayMorningStar
               </p>
             </motion.div>
@@ -159,10 +159,10 @@ export function FooterCTA() {
 
           {/* Copyright */}
           <div className="mt-12 pt-8 border-t border-white/10 text-center">
-            <p className="text-sm text-white/50">
+            <p className="text-sm text-white/70">
               © {new Date().getFullYear()} Mandalay Morning Star. All rights reserved.
             </p>
-            <p className="text-xs text-white/30 mt-2">
+            <p className="text-xs text-white/60 mt-2">
               Authentic Burmese Cuisine • Southern California
             </p>
           </div>

@@ -101,7 +101,7 @@ export function HomepageHero({ onScrollToMenu }: HomepageHeroProps) {
         animate={shouldReduceMotion ? {} : "animate"}
         className="absolute top-20 left-10 hidden lg:block"
       >
-        <LotusFlower className="w-24 h-24 opacity-40" />
+        <LotusFlower className="w-24 h-24 opacity-60" />
       </motion.div>
 
       <motion.div
@@ -110,7 +110,7 @@ export function HomepageHero({ onScrollToMenu }: HomepageHeroProps) {
         style={{ animationDelay: "2s" }}
         className="absolute top-40 right-16 hidden lg:block"
       >
-        <LotusFlower className="w-16 h-16 opacity-30" />
+        <LotusFlower className="w-16 h-16 opacity-50" />
       </motion.div>
 
       <motion.div
@@ -119,15 +119,15 @@ export function HomepageHero({ onScrollToMenu }: HomepageHeroProps) {
         style={{ animationDelay: "4s" }}
         className="absolute bottom-40 left-20 hidden lg:block"
       >
-        <LotusFlower className="w-20 h-20 opacity-35" />
+        <LotusFlower className="w-20 h-20 opacity-55" />
       </motion.div>
 
       {/* Pagoda silhouettes */}
       <div className="absolute bottom-0 left-0 hidden xl:block">
-        <PagodaSilhouette className="w-32 h-48 opacity-20" />
+        <PagodaSilhouette className="w-32 h-48 opacity-35" />
       </div>
       <div className="absolute bottom-0 right-10 hidden xl:block">
-        <PagodaSilhouette className="w-24 h-36 opacity-15" />
+        <PagodaSilhouette className="w-24 h-36 opacity-30" />
       </div>
 
       {/* Main Content */}

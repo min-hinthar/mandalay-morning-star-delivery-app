@@ -306,8 +306,104 @@ export const pulseVariants: Variants = {
 };
 
 // ============================================
+// SPRING PRESETS
+// ============================================
+
+/**
+ * Tight spring for progress bars - Apple-like crisp feel
+ * No overshoot due to high damping
+ */
+export const progressSpring: Transition = {
+  type: "spring",
+  stiffness: 400,
+  damping: 25,
+  mass: 1,
+};
+
+/**
+ * Snappy spring for quick feedback
+ */
+export const snappySpring: Transition = {
+  type: "spring",
+  stiffness: 400,
+  damping: 25,
+};
+
+/**
+ * Bouncy spring for celebratory animations
+ */
+export const bouncySpring: Transition = {
+  type: "spring",
+  stiffness: 300,
+  damping: 10,
+};
+
+// ============================================
 // UTILITY FUNCTIONS
 // ============================================
+
+/**
+ * Calculate variable stagger delay for natural-feeling cascade
+ *
+ * Items at the start animate quickly (30ms gaps), later items
+ * slow down (up to 80ms gaps) for a decelerating cascade effect.
+ *
+ * @param index - Item index in the list (0-based)
+ * @param options - Configuration options
+ * @returns Delay in seconds
+ *
+ * @example
+ * // In a list component:
+ * {items.map((item, i) => (
+ *   <motion.div
+ *     key={item.id}
+ *     initial={{ opacity: 0, y: 10 }}
+ *     animate={{ opacity: 1, y: 0 }}
+ *     transition={{ delay: variableStagger(i) }}
+ *   />
+ * ))}
+ */
+export function variableStagger(
+  index: number,
+  options?: {
+    /** Base delay in seconds (default: 0.03 = 30ms) */
+    baseDelay?: number;
+    /** Maximum delay in seconds (default: 0.08 = 80ms) */
+    maxDelay?: number;
+    /** Acceleration factor (default: 0.005) */
+    acceleration?: number;
+  }
+): number {
+  const {
+    baseDelay = 0.03,
+    maxDelay = 0.08,
+    acceleration = 0.005,
+  } = options ?? {};
+
+  // Quadratic deceleration: delay increases with index^2
+  const delay = baseDelay + index * index * acceleration;
+  return Math.min(delay, maxDelay);
+}
+
+/**
+ * Create variable stagger variants for a container
+ */
+export function createVariableStaggerContainer(
+  itemCount: number,
+  options?: Parameters<typeof variableStagger>[1]
+): Variants {
+  return {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        // Calculate total animation time based on item count
+        staggerChildren: variableStagger(Math.floor(itemCount / 2), options),
+        delayChildren: 0.05,
+      },
+    },
+  };
+}
 
 /**
  * Create a stagger transition for list items
