@@ -7,20 +7,18 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/animations";
 
-export type CheckoutStep = "address" | "time" | "review" | "pay";
+import type { CheckoutStep } from "@/types/checkout";
 
 const STEPS: { id: CheckoutStep; label: string }[] = [
   { id: "address", label: "Address" },
   { id: "time", label: "Time" },
-  { id: "review", label: "Review" },
-  { id: "pay", label: "Pay" },
+  { id: "payment", label: "Payment" },
 ];
 
 const BUTTON_TEXT: Record<CheckoutStep, string> = {
   address: "Continue to Time",
-  time: "Continue to Review",
-  review: "Review Order",
-  pay: "Pay",
+  time: "Continue to Payment",
+  payment: "Pay Now",
 };
 
 interface CheckoutLayoutProps {
@@ -45,7 +43,7 @@ interface CheckoutLayoutProps {
 
 /**
  * Checkout Flow Shell
- * 4-step checkout layout: Address -> Time -> Review -> Pay
+ * 3-step checkout layout: Address -> Time -> Payment
  *
  * Structure:
  * - Header with back/close navigation
@@ -93,7 +91,7 @@ export function CheckoutLayout({
   }, [onClose, router]);
 
   const getButtonText = () => {
-    if (currentStep === "pay" && total > 0) {
+    if (currentStep === "payment" && total > 0) {
       return `Pay $${total.toFixed(2)}`;
     }
     return BUTTON_TEXT[currentStep];
@@ -265,7 +263,7 @@ export function CheckoutLayout({
             ) : (
               <>
                 {getButtonText()}
-                {currentStep !== "pay" && (
+                {currentStep !== "payment" && (
                   <span className="ml-2">→</span>
                 )}
               </>

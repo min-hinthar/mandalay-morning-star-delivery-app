@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useMenuSearch } from "@/lib/hooks/useMenu";
 import { useDebounce } from "@/lib/hooks/useDebounce";
-import { useScrollSpy } from "@/lib/hooks/useScrollSpy";
+import { useActiveCategory } from "@/lib/hooks/useActiveCategory";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import type { MenuCategory, MenuItem } from "@/types/menu";
@@ -43,10 +43,13 @@ export function MenuContent({ categories }: MenuContentProps) {
     [visibleCategories]
   );
 
-  const activeSectionId = useScrollSpy(sectionIds, { offset: 160 });
-  const activeCategory = activeSectionId
-    ? activeSectionId.replace("category-", "")
-    : null;
+  const { activeCategory, scrollToCategory: scrollToCategoryBase } = useActiveCategory(
+    sectionIds,
+    {
+      rootMargin: "-56px 0px -80% 0px",
+      headerHeight: 56,
+    }
+  );
 
   const handleSearchChange = useCallback((query: string) => {
     setSearchQuery(query);
@@ -56,32 +59,13 @@ export function MenuContent({ categories }: MenuContentProps) {
     setSearchQuery("");
   }, []);
 
-  const scrollToCategory = useCallback((slug: string | null) => {
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    const headerOffset = 140;
-
-    setSearchQuery("");
-
-    if (slug === null) {
-      window.scrollTo({
-        top: 0,
-        behavior: prefersReducedMotion ? "auto" : "smooth",
-      });
-      return;
-    }
-
-    const element = document.getElementById(`category-${slug}`);
-    if (element) {
-      const y = element.getBoundingClientRect().top + window.scrollY - headerOffset;
-
-      window.scrollTo({
-        top: y,
-        behavior: prefersReducedMotion ? "auto" : "smooth",
-      });
-    }
-  }, []);
+  const scrollToCategory = useCallback(
+    (slug: string | null) => {
+      setSearchQuery("");
+      scrollToCategoryBase(slug);
+    },
+    [scrollToCategoryBase]
+  );
 
   const handleGridItemSelect = useCallback((item: MenuItem) => {
     setSelectedItem(item);

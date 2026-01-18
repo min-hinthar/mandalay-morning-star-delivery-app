@@ -1,25 +1,44 @@
 "use client";
 
+import { useCallback, type ReactElement } from "react";
 import { User } from "@supabase/supabase-js";
 import { LogOut, User as UserIcon } from "lucide-react";
 import { signOut } from "@/lib/supabase/actions";
 import { Button } from "@/components/ui/button";
+import { DropdownAction } from "@/components/ui/DropdownAction";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/lib/hooks/useToast";
 import Link from "next/link";
-import type { ReactElement } from "react";
 
 interface UserMenuProps {
   user: User | null;
 }
 
 export function UserMenu({ user }: UserMenuProps): ReactElement {
+  const { toast } = useToast();
+
+  const handleSignOut = useCallback(async () => {
+    await signOut();
+    // signOut redirects on success, so we only need to handle errors
+  }, []);
+
+  const handleSignOutError = useCallback(
+    (error: Error) => {
+      toast({
+        title: "Sign out failed",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+    },
+    [toast]
+  );
+
   if (!user) {
     return (
       <div className="flex gap-2">
@@ -62,14 +81,14 @@ export function UserMenu({ user }: UserMenuProps): ReactElement {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <form action={signOut}>
-          <DropdownMenuItem asChild>
-            <button type="submit" className="w-full cursor-pointer">
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
-            </button>
-          </DropdownMenuItem>
-        </form>
+        <DropdownAction
+          icon={LogOut}
+          onClick={handleSignOut}
+          onError={handleSignOutError}
+          variant="destructive"
+        >
+          Sign Out
+        </DropdownAction>
       </DropdownMenuContent>
     </DropdownMenu>
   );

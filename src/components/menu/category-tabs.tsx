@@ -92,7 +92,7 @@ export function CategoryTabs({
     <nav
       aria-label="Menu categories"
       className={cn(
-        "sticky top-14 z-20",
+        "sticky top-14 z-[var(--z-sticky)]",
         "bg-[var(--color-cream)]/95 backdrop-blur-md",
         "border-b border-[var(--color-border)]",
         "shadow-[var(--shadow-sm)]"
@@ -102,7 +102,7 @@ export function CategoryTabs({
         {/* Left fade indicator */}
         <div
           className={cn(
-            "absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none",
+            "absolute left-0 top-0 bottom-0 w-8 z-[var(--z-dropdown)] pointer-events-none",
             "bg-gradient-to-r from-[var(--color-cream)] to-transparent",
             "transition-opacity duration-[var(--duration-fast)]",
             showLeftFade ? "opacity-100" : "opacity-0"
@@ -113,7 +113,7 @@ export function CategoryTabs({
         {/* Right fade indicator */}
         <div
           className={cn(
-            "absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none",
+            "absolute right-0 top-0 bottom-0 w-8 z-[var(--z-dropdown)] pointer-events-none",
             "bg-gradient-to-l from-[var(--color-cream)] to-transparent",
             "transition-opacity duration-[var(--duration-fast)]",
             showRightFade ? "opacity-100" : "opacity-0"
@@ -179,7 +179,7 @@ export function CategoryTabs({
                     }
                   />
                 )}
-                <span className="relative z-10">{tab.name}</span>
+                <span className="relative z-[var(--z-dropdown)]">{tab.name}</span>
               </motion.button>
             );
           })}

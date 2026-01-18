@@ -68,3 +68,16 @@ Reference for past bugs, root causes, and fixes. Check here before debugging sim
 **Fix:** Added `await Sentry.flush(2000)` before returning response
 
 ---
+
+## 2026-01-18: Next.js Dynamic Route Slug Conflict
+**Type:** Build | **Severity:** High
+**Files:** `src/app/api/orders/[id]/`, `src/app/api/orders/[orderId]/`
+
+**Error:** `Error: You cannot use different slug names for the same dynamic path ('id' !== 'orderId')`
+**Root Cause:** Two sibling directories under `api/orders/` used different param names (`[id]` for cancel/retry-payment, `[orderId]` for rating). Next.js requires consistent naming.
+**Fix:**
+- Moved `[orderId]/rating/` to `[id]/rating/`
+- Updated route handler: `resolvedParams.orderId` → `resolvedParams.id`
+- Deleted empty `[orderId]/` directory
+
+---

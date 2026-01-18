@@ -1,12 +1,13 @@
 "use client";
 
-import { type ReactNode, useState, useEffect, useCallback } from "react";
+import { type ReactNode, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Search, X } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
+import { useScrollDirection } from "@/lib/hooks/useScrollDirection";
 import { fadeIn, spring } from "@/lib/animations";
 
 interface CustomerLayoutProps {
@@ -36,18 +37,11 @@ export function CustomerLayout({
 }: CustomerLayoutProps) {
   const { itemCount, estimatedTotal } = useCart();
   const { open: openCart } = useCartDrawer();
-  const [isScrolled, setIsScrolled] = useState(false);
+  const { isCollapsed, isAtTop, scrollY } = useScrollDirection({ threshold: 10 });
   const [showSearch, setShowSearch] = useState(false);
 
-  // Track scroll position for header shadow
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // Derive isScrolled from scroll position
+  const isScrolled = scrollY > 10;
 
   const handleSearchToggle = useCallback(() => {
     setShowSearch((prev) => !prev);
@@ -57,8 +51,13 @@ export function CustomerLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-[var(--color-background)]">
-      {/* Header */}
-      <header
+      {/* Header - Collapsible on scroll */}
+      <motion.header
+        initial={false}
+        animate={{
+          y: isCollapsed && !showSearch ? -56 : 0,
+        }}
+        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
         className={cn(
           "sticky top-0 z-[var(--z-sticky)] h-14",
           "bg-[var(--color-cream)]/95 backdrop-blur-md",
@@ -134,7 +133,7 @@ export function CustomerLayout({
             </motion.div>
           )}
         </AnimatePresence>
-      </header>
+      </motion.header>
 
       {/* Main Content */}
       <main
