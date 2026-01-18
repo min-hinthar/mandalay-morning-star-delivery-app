@@ -210,3 +210,57 @@ Before finalizing prompts:
 | Vague measurements ("good spacing") | Use exact values from spec |
 | Wrong build order | Check dependency graph |
 | Duplicated component definitions | Each component defined once, in first prompt that needs it |
+
+---
+
+## Sprint Batching by Risk
+
+Group prompts by risk level for safer releases:
+
+| Risk | Prompt Types | Ship After | Example |
+|------|--------------|------------|---------|
+| Low | Tokens, types, utilities | Immediately | Design token refresh, type definitions |
+| Medium | Component rewrites, animations | Unit tests | Button variants, micro-interactions |
+| High | Checkout, auth, payments | E2E tests | Checkout flow, cart persistence |
+
+**Sprint structure:**
+```
+Sprint 1: Foundation (Low risk)
+Sprint 2: Core Components (Medium risk)
+Sprint 3: Customer Flows (High risk)
+Sprint 4: Admin/Driver (High risk)
+Sprint 5: Polish & Performance (Low-Medium risk)
+```
+
+**Quick wins first:** Start with low-risk prompts for momentum and fast feedback.
+
+## Verification Checklist per Prompt
+
+Each prompt should include a verification section:
+
+| Prompt Type | Verification Steps |
+|-------------|-------------------|
+| Component | `pnpm typecheck`, import in test file |
+| Hook | Unit test with mocked dependencies |
+| Page/Flow | E2E test covering happy path |
+| Theme-aware | Visual check in light AND dark mode |
+| Animation | Test with `prefers-reduced-motion` |
+
+**Prompt footer template:**
+```markdown
+### Verification
+- [ ] `pnpm typecheck` passes
+- [ ] Visual check: light mode
+- [ ] Visual check: dark mode
+- [ ] Interaction test: [specific behavior]
+```
+
+## Output Location
+
+Write prompts to: `docs/V{n}/UX-Specs/UX-Prompts.md`
+- Or: `docs/V{n}/UX-Specs/build-tasks/Sprint-N-*.md` for sprint-specific files
+
+**Sprint file naming:**
+- `Sprint-1-Foundation.md`
+- `Sprint-2-Core-Components.md`
+- `Sprint-3-Customer-Experience.md`

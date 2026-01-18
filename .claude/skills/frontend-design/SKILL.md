@@ -40,3 +40,121 @@ Interpret creatively and make unexpected choices that feel genuinely designed fo
 **IMPORTANT**: Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate code with extensive animations and effects. Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details. Elegance comes from executing the vision well.
 
 Remember: Claude is capable of extraordinary creative work. Don't hold back, show what can truly be created when thinking outside the box and committing fully to a distinctive vision.
+
+---
+
+## Project-Specific Guidance (Mandalay Morning Star)
+
+### Design Token System
+
+Use V5 design tokens from `src/styles/tokens.css`:
+
+| Category | Token Pattern | Usage |
+|----------|---------------|-------|
+| Colors | `var(--color-surface-*)`, `var(--color-text-*)` | Backgrounds, text |
+| Status | `var(--color-status-error)`, `var(--color-status-success)` | Feedback states |
+| Interactive | `var(--color-interactive-primary)` | CTAs, links |
+| Z-index | `var(--z-sticky)`, `var(--z-modal)`, `var(--z-toast)` | Stacking |
+| Elevation | `var(--elevation-1)` through `var(--elevation-6)` | Shadows |
+| Motion | `var(--duration-fast)`, `var(--ease-out)` | Animations |
+
+**V4 → V5 Migration:**
+| Old | New |
+|-----|-----|
+| `--color-cta` | `--color-interactive-primary` |
+| `--color-charcoal` | `--color-text-primary` |
+| `--color-error` | `--color-status-error` |
+| `--shadow-md` | `--elevation-2` |
+
+**Lint enforcement:** ESLint `no-restricted-syntax` catches hardcoded hex/z-index values.
+
+### Framer Motion Patterns
+
+**TypeScript variants:** Use `as const` for type safety:
+```tsx
+const variants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { type: "spring" as const } }
+};
+```
+
+**Swipe-to-delete pattern:**
+```tsx
+const x = useMotionValue(0);
+const opacity = useTransform(x, [-100, 0], [1, 0]);
+// outer: overflow-hidden, hidden delete button behind
+// content: drag="x", dragConstraints={{ left: -100, right: 0 }}
+// onDragEnd: check info.offset.x < -50 to trigger delete
+```
+
+**Responsive drawer animations:**
+```tsx
+const isMobile = useMediaQuery("(max-width: 640px)");
+// Mobile: initial={{ y: "100%" }}, animate={{ y: 0 }}, drag="y"
+// Desktop: initial={{ x: "100%" }}, animate={{ x: 0 }}
+```
+
+**Collapsible header:**
+```tsx
+const { isCollapsed } = useScrollDirection();
+<motion.header animate={{ y: isCollapsed ? -56 : 0 }} />
+```
+
+### Theme System Integration
+
+**Required setup:**
+1. `ThemeProvider` with `attribute="class"` (Tailwind dark mode)
+2. `suppressHydrationWarning` on `<html>` in root layout
+3. `ThemeToggle` using `useTheme()` hook from next-themes
+
+**Avoid hard-coded colors:**
+- `bg-white` → `bg-background`
+- `text-charcoal` → `text-foreground`
+- `border-gray-200` → `border-[var(--color-border-default)]`
+
+**Animated gradient contrast:** Add `bg-black/15` overlay for white text on `bg-gradient-animated`.
+
+**CSS variable fallbacks:** `top-[var(--header-height,57px)]` for dynamic positioning.
+
+### Accessibility Patterns
+
+**Accordion ARIA:**
+```tsx
+const contentId = useId();
+const headerId = useId();
+<button id={headerId} aria-expanded={isOpen} aria-controls={contentId}>
+<div id={contentId} role="region" aria-labelledby={headerId}>
+```
+
+**Motion preferences:**
+```tsx
+const shouldReduceMotion = useReducedMotion();
+// Skip or simplify animations when true
+```
+
+**Mobile nav z-index hierarchy:**
+- Header: `z-50`
+- Overlay: `z-[55]`
+- Panel: `z-[60]`
+
+### Test Resilience
+
+**Avoid brittle assertions:**
+- Don't: `el.classList.contains("h-14")` - breaks on refactors
+- Do: `expect(style.position).toBe("sticky")` - tests behavior
+
+**Use data attributes:**
+```tsx
+<div data-sold-out={isSoldOut} data-testid="menu-item">
+// Test: el.getAttribute("data-sold-out") === "true"
+```
+
+**Playwright exact matching:**
+```ts
+// Don't: `:has-text("All")` - matches "All-Day Breakfast"
+// Do: getByRole("tab", { name: "All", exact: true })
+```
+
+**E2E resilience:**
+- Don't: `expect(height).toBe(56)` - fails with borders
+- Do: `expect(height).toBeGreaterThanOrEqual(56)` or check behavior

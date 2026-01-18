@@ -312,3 +312,71 @@ If you catch yourself doing any of these, STOP and return to the passes:
 ## Visual Specifications
 [Only after passes complete]
 ```
+
+---
+
+## Project-Specific Patterns (Mandalay Morning Star)
+
+### State Design Patterns (Pass 5)
+
+**Success animation before close:**
+```tsx
+// Add-to-cart: show checkmark, hold 400ms, then close modal
+const handleAdd = () => {
+  setIsAdding(true);
+  onAddToCart(...);
+  setTimeout(() => { setIsAdding(false); onClose(); }, 400);
+};
+```
+
+**Empty states with actionable CTAs:**
+| Element | Empty State | CTA |
+|---------|-------------|-----|
+| Cart | "Your cart is empty" | "Browse Menu" button |
+| Search | "No items match" | "Clear filters" link |
+| Orders | "No orders yet" | "Start Ordering" button |
+
+**Loading skeletons:** Export from same file as component for co-location.
+
+### Component Consolidation (Pass 3)
+
+**Identify duplicates during affordance mapping:**
+- Same data shape with different layouts? → `variant` prop
+- Example: ItemCard (4:3) + MenuItemCard (16:9) → ItemCard with `variant="default"|"featured"`
+
+**Consolidation checklist:**
+1. Grep for all usages before deletion
+2. Add `variant` prop with descriptive names
+3. Update consuming files
+4. Export skeleton from same file
+5. Delete old component, update barrel exports
+
+### Affordance Rules
+
+**Mobile nav z-index hierarchy:**
+| Element | Z-Index | Why |
+|---------|---------|-----|
+| Header | `z-50` | Base layer |
+| Overlay | `z-[55]` | Dims content, above header |
+| Panel | `z-[60]` | Menu options, above overlay |
+
+**Global sticky UI:**
+```tsx
+// providers.tsx - route-based conditional rendering
+const HIDE_ROUTES = ["/checkout", "/admin", "/driver"];
+const showCartBar = !HIDE_ROUTES.some(r => pathname.startsWith(r));
+```
+
+**CSS variable fallbacks:** Use `top-[var(--header-height,57px)]` for elements positioned relative to dynamic headers.
+
+### Flow Integrity Patterns (Pass 6)
+
+**Server component scroll handlers:**
+When page.tsx is server component but needs scroll-to-section:
+1. Create `HomePageClient.tsx` with `"use client"`
+2. Define refs and handlers
+3. Pass handlers as props to children
+4. Wrap targets with `<div ref={menuRef}>`
+
+**Form in dropdown menus:**
+Radix dropdown swallows form submit. Create `DropdownAction` component with `onClick` instead of nested form.

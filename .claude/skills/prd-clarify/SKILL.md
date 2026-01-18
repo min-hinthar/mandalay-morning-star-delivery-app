@@ -160,3 +160,47 @@ After all questions are complete:
 The running tracker should be maintained in a code block or separate document section that grows with each Q&A pair. Always show current progress (e.g., "Question 7/20") so the user knows where they are in the process.
 
 Remember: Your goal is not just to ask questions, but to systematically transform an ambiguous PRD into a clear, actionable specification through structured dialogue. Each question should demonstrably improve the document's clarity and completeness.
+
+## Effective Question Examples
+
+Questions that uncovered important decisions in past sessions:
+
+| Category | Example Question | Why It Matters |
+|----------|------------------|----------------|
+| Animation | "Should add-to-cart show success state (checkmark) before closing?" | Prevents dead-feeling interactions |
+| Performance | "Target LCP under 2.5s - acceptable to lazy-load below-fold images?" | Sets concrete optimization boundaries |
+| Edge cases | "When item is sold out mid-cart, remove automatically or show warning?" | Defines error recovery behavior |
+| A/B testing | "Want analytics hooks for future A/B tests on checkout flow?" | Determines infrastructure scope |
+| Accessibility | "Support keyboard-only navigation for menu filtering?" | Clarifies a11y requirements |
+| Mobile | "Swipe gestures for cart item removal on mobile?" | Defines touch interaction scope |
+
+## Scope Expansion Protocol
+
+**When clarification reveals new requirements:**
+
+1. **Flag the expansion** - Note in tracking doc: "NEW SCOPE: [feature]"
+2. **Quantify impact** - Estimate additional prompts/components needed
+3. **Propose resolution:**
+   - Minor (1-2 prompts): Absorb into existing sprint
+   - Medium (3-5 prompts): Add to final sprint
+   - Major (6+ prompts): Recommend new sprint
+
+**Track decisions in summary table:**
+```markdown
+## Decision Summary
+| Question | Decision | Impact |
+|----------|----------|--------|
+| i18n support? | Yes, English + Burmese | +1 sprint |
+| Push notifications? | Deferred to V6 | None |
+```
+
+## Depth Selection Guidance
+
+| Depth | Best For |
+|-------|----------|
+| Quick (5) | Bug fix PRDs, small features |
+| Medium (10) | Single-screen features, component libraries |
+| Long (20) | Multi-screen flows, API integrations |
+| Ultralong (35) | Full app rewrites, complex business logic |
+
+Ultralong captures: animation preferences, performance targets, A/B hooks, notification strategies, payment edge cases, i18n scope.
