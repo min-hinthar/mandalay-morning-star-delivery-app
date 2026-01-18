@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { Phone, MapPin, Clock, Copy, Package, FileText } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils/cn";
@@ -18,6 +19,7 @@ interface StopDetailProps {
   routeId: string;
   stopId: string;
   stopIndex: number;
+  totalStops: number;
   status: RouteStopStatus;
   customer: {
     fullName: string | null;
@@ -46,6 +48,7 @@ export function StopDetail({
   routeId,
   stopId,
   stopIndex,
+  totalStops,
   status,
   customer,
   address,
@@ -56,6 +59,9 @@ export function StopDetail({
   onException,
 }: StopDetailProps) {
   const [copied, setCopied] = useState(false);
+
+  // Calculate progress
+  const progressPercent = Math.round((stopIndex / totalStops) * 100);
 
   // Format time window
   const formatTime = (isoString: string | null): string => {
@@ -100,16 +106,36 @@ export function StopDetail({
 
   return (
     <div className="space-y-6">
+      {/* Progress Bar */}
+      <div className="rounded-xl bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">
+        <div className="flex items-center justify-between text-sm">
+          <span className="font-semibold text-[var(--color-text-primary)]">
+            Stop {stopIndex} of {totalStops}
+          </span>
+          <span className="font-medium text-[var(--color-jade)]">
+            {progressPercent}%
+          </span>
+        </div>
+        <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-[var(--color-border)]">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPercent}%` }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="h-full rounded-full bg-[var(--color-jade)]"
+          />
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-charcoal text-lg font-bold text-white">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-charcoal)] text-lg font-bold text-white">
           {stopIndex}
         </span>
         <div>
-          <h1 className="font-display text-xl font-bold text-charcoal">
+          <h1 className="font-display text-xl font-bold text-[var(--color-text-primary)]">
             {customer.fullName || "Customer"}
           </h1>
-          <p className="text-sm text-charcoal/60">Stop #{stopIndex}</p>
+          <p className="text-sm text-[var(--color-text-muted)]">Stop #{stopIndex}</p>
         </div>
       </div>
 
@@ -118,34 +144,34 @@ export function StopDetail({
         <button
           onClick={handleCall}
           className={cn(
-            "flex w-full items-center gap-3 rounded-xl bg-white p-4 shadow-warm-sm",
-            "transition-all hover:shadow-warm-md active:scale-[0.99]"
+            "flex w-full items-center gap-3 rounded-xl bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]",
+            "transition-all hover:shadow-[var(--shadow-md)] active:scale-[0.99]"
           )}
           data-testid="call-button"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-jade-100">
-            <Phone className="h-5 w-5 text-jade-600" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-jade-light)]">
+            <Phone className="h-5 w-5 text-[var(--color-jade)]" />
           </div>
           <div className="text-left">
-            <p className="text-sm text-charcoal/60">Phone</p>
-            <p className="font-medium text-charcoal">{customer.phone}</p>
+            <p className="text-sm text-[var(--color-text-muted)]">Phone</p>
+            <p className="font-medium text-[var(--color-text-primary)]">{customer.phone}</p>
           </div>
         </button>
       )}
 
       {/* Address */}
-      <div className="rounded-xl bg-white p-4 shadow-warm-sm">
+      <div className="rounded-xl bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-saffron-100">
-            <MapPin className="h-5 w-5 text-saffron-600" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-saffron-light)]">
+            <MapPin className="h-5 w-5 text-[var(--color-saffron)]" />
           </div>
           <div className="flex-1">
-            <p className="text-sm text-charcoal/60">Delivery Address</p>
-            <p className="font-medium text-charcoal">{address.line1}</p>
+            <p className="text-sm text-[var(--color-text-muted)]">Delivery Address</p>
+            <p className="font-medium text-[var(--color-text-primary)]">{address.line1}</p>
             {address.line2 && (
-              <p className="text-charcoal/80">{address.line2}</p>
+              <p className="text-[var(--color-text-secondary)]">{address.line2}</p>
             )}
-            <p className="text-charcoal/80">
+            <p className="text-[var(--color-text-secondary)]">
               {address.city}, {address.state} {address.zipCode}
             </p>
           </div>
@@ -153,7 +179,9 @@ export function StopDetail({
             onClick={copyAddress}
             className={cn(
               "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
-              copied ? "bg-jade-100 text-jade-600" : "bg-charcoal-100 text-charcoal/60 hover:bg-charcoal-200"
+              copied
+                ? "bg-[var(--color-jade-light)] text-[var(--color-jade)]"
+                : "bg-[var(--color-surface-muted)] text-[var(--color-text-muted)] hover:bg-[var(--color-border)]"
             )}
             aria-label="Copy address"
           >
@@ -164,27 +192,27 @@ export function StopDetail({
 
       {/* Time Window */}
       {timeDisplay && (
-        <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-warm-sm">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-charcoal-100">
-            <Clock className="h-5 w-5 text-charcoal/60" />
+        <div className="flex items-center gap-3 rounded-xl bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-surface-muted)]">
+            <Clock className="h-5 w-5 text-[var(--color-text-muted)]" />
           </div>
           <div>
-            <p className="text-sm text-charcoal/60">Delivery Window</p>
-            <p className="font-medium text-charcoal">{timeDisplay}</p>
+            <p className="text-sm text-[var(--color-text-muted)]">Delivery Window</p>
+            <p className="font-medium text-[var(--color-text-primary)]">{timeDisplay}</p>
           </div>
         </div>
       )}
 
-      {/* Delivery Notes */}
+      {/* Delivery Notes - V3 warning style */}
       {deliveryNotes && (
-        <div className="rounded-xl bg-saffron-50 p-4">
+        <div className="rounded-xl border-l-4 border-[var(--color-warning)] bg-[var(--color-warning-light)] p-4">
           <div className="flex items-start gap-3">
-            <FileText className="h-5 w-5 shrink-0 text-saffron-600" />
+            <FileText className="h-5 w-5 shrink-0 text-[var(--color-warning-dark)]" />
             <div>
-              <p className="text-sm font-medium text-saffron-700">
+              <p className="text-sm font-medium text-[var(--color-warning-dark)]">
                 Delivery Notes
               </p>
-              <p className="mt-1 text-saffron-800">{deliveryNotes}</p>
+              <p className="mt-1 text-[var(--color-warning-dark)]">{deliveryNotes}</p>
             </div>
           </div>
         </div>
@@ -192,10 +220,10 @@ export function StopDetail({
 
       {/* Order Items */}
       {orderItems.length > 0 && (
-        <div className="rounded-xl bg-white p-4 shadow-warm-sm">
+        <div className="rounded-xl bg-[var(--color-surface)] p-4 shadow-[var(--shadow-sm)]">
           <div className="mb-3 flex items-center gap-2">
-            <Package className="h-5 w-5 text-charcoal/60" />
-            <h2 className="font-semibold text-charcoal">
+            <Package className="h-5 w-5 text-[var(--color-text-muted)]" />
+            <h2 className="font-semibold text-[var(--color-text-primary)]">
               Order ({orderItems.length} {orderItems.length === 1 ? "item" : "items"})
             </h2>
           </div>
@@ -203,14 +231,14 @@ export function StopDetail({
             {orderItems.map((item) => (
               <li
                 key={item.id}
-                className="flex items-start justify-between border-b border-charcoal/10 pb-2 last:border-0 last:pb-0"
+                className="flex items-start justify-between border-b border-[var(--color-border)] pb-2 last:border-0 last:pb-0"
               >
                 <div>
-                  <p className="font-medium text-charcoal">
+                  <p className="font-medium text-[var(--color-text-primary)]">
                     {item.quantity}x {item.name}
                   </p>
                   {item.modifiers && item.modifiers.length > 0 && (
-                    <p className="text-sm text-charcoal/60">
+                    <p className="text-sm text-[var(--color-text-muted)]">
                       {item.modifiers.join(", ")}
                     </p>
                   )}

@@ -20,6 +20,7 @@ interface StopDetailViewProps {
   routeId: string;
   stopId: string;
   stopIndex: number;
+  totalStops: number;
   status: RouteStopStatus;
   customer: {
     fullName: string | null;
@@ -46,6 +47,7 @@ export function StopDetailView({
   routeId,
   stopId,
   stopIndex,
+  totalStops,
   status,
   customer,
   address,
@@ -108,6 +110,7 @@ export function StopDetailView({
         routeId={routeId}
         stopId={stopId}
         stopIndex={stopIndex}
+        totalStops={totalStops}
         status={currentStatus}
         customer={customer}
         address={address}
@@ -126,8 +129,8 @@ export function StopDetailView({
             "mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl",
             "border-2 font-medium transition-all",
             hasPhoto
-              ? "border-jade-500 bg-jade-50 text-jade-700"
-              : "border-charcoal/20 bg-white text-charcoal hover:border-charcoal/30"
+              ? "border-[var(--color-jade)] bg-[var(--color-jade-light)] text-[var(--color-jade)]"
+              : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] hover:border-[var(--color-text-muted)]"
           )}
         >
           <Camera className="h-5 w-5" />
