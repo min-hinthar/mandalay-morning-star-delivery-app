@@ -6,13 +6,30 @@
       "Bash(gh *)",
       "Bash(stripe listen*)",
       "Bash(supabase *)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: add MCP tools and error protocol sections to CLAUDE.md\n\nEnable proactive error monitoring with Sentry, Playwright, Supabase, and GitHub MCPs.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(npm view:*)",
-      "Bash(npm search:*)",
       "WebSearch",
       "mcp__plugin_sentry_sentry__find_organizations",
-      "mcp__plugin_sentry_sentry__search_issues",
-      "Bash(grep:*)"
+      "mcp__plugin_sentry_sentry__search_issues"
+    ]
+  },
+  "env": {
+    "ENABLE_TOOL_SEARCH": "true"
+  },
+  "hooks": {
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-retrospective.sh",
+            "timeout": 10
+          },
+          {
+            "type": "prompt",
+            "prompt": "Review session for error patterns. If same error type occurred 2+ times or debugging spanned >2 files, suggest a brief ERROR_HISTORY.md entry (Type, Severity, Files, Root Cause, Fix). Skip typos and obvious one-offs.",
+            "timeout": 30
+          }
+        ]
+      }
     ]
   }
 }
