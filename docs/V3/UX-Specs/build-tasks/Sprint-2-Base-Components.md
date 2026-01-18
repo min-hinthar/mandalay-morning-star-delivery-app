@@ -10,16 +10,18 @@ This sprint builds the foundational UI components used throughout the app: butto
 
 ## Sprint Progress
 
-| Task | Component | Status |
-|------|-----------|--------|
-| 2.1 | Button System | ⬜ Not Started |
-| 2.2 | Input System | ⬜ Not Started |
-| 2.3 | Card Base | ⬜ Not Started |
-| 2.4 | Category Tabs | ⬜ Not Started |
-| 2.5 | Menu Item Card | ⬜ Not Started |
-| 2.6 | Item Detail Modal | ⬜ Not Started |
+| Task | Component | Status | Output |
+|------|-----------|--------|--------|
+| 2.1 | Button System | ✅ Complete | `src/components/ui/button.tsx` |
+| 2.2 | Input System | ✅ Complete | `src/components/ui/input.tsx`, `search-input.tsx` |
+| 2.3 | Card Base | ✅ Complete | `src/components/ui/card.tsx` |
+| 2.4 | Category Tabs | ✅ Complete | `src/components/menu/category-tabs.tsx` |
+| 2.5 | Menu Item Card | ✅ Complete | `src/components/menu/menu-item-card.tsx` |
+| 2.6 | Item Detail Modal | ✅ Complete | `src/components/menu/item-detail-modal.tsx` |
 
 > Update status: ⬜ Not Started → 🔄 In Progress → ✅ Complete
+>
+> **Sprint 2 Complete!** All 6 tasks implemented with V3 design tokens.
 
 ---
 

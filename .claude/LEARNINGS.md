@@ -42,3 +42,31 @@ Patterns, conventions, and insights discovered while working on this codebase.
 **Learning:** New layouts go in `src/components/layouts/` (plural), not `src/components/layout/` (singular, legacy). Export from barrel file `index.ts`. Existing `layout/` has header.tsx, nav-links.tsx, mobile-menu.tsx.
 **Apply when:** Adding new layout wrappers or app shells
 
+---
+
+## 2026-01-17: V3 Button variant naming
+
+**Context:** Enhancing Button with V3 design system
+**Learning:** V3 uses `danger` not `destructive` for destructive button variant. Also added `primary` (saffron CTA) as distinct from `default`. Rename usages when migrating to V3.
+**Apply when:** Creating/updating buttons, fixing TS errors about missing variant
+
+---
+
+## 2026-01-17: Test environment mocks (jsdom)
+
+**Context:** CategoryTabs using ResizeObserver broke tests
+**Learning:** jsdom lacks `ResizeObserver` and `matchMedia`. Add mocks in `src/test/setup.ts`:
+```ts
+global.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
+window.matchMedia = (q) => ({ matches: false, media: q, addEventListener: () => {}, ... });
+```
+**Apply when:** Using ResizeObserver, matchMedia, or responsive hooks in components
+
+---
+
+## 2026-01-17: useMediaQuery hook location
+
+**Context:** ItemDetailModal needed viewport detection for mobile animations
+**Learning:** Generic hooks go in `src/lib/hooks/`. Created `useMediaQuery.ts` - returns false during SSR, updates on resize. Use for responsive behavior in components.
+**Apply when:** Need different behavior/animations for mobile vs desktop
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { MenuCategory } from "@/types/menu";
 import { cn } from "@/lib/utils/cn";
@@ -11,6 +11,10 @@ interface CategoryTabsProps {
   onCategoryClick: (slug: string | null) => void;
 }
 
+/**
+ * V3 Category Tabs
+ * Horizontal scrollable category navigation with scroll fade indicators
+ */
 export function CategoryTabs({
   categories,
   activeCategory,
@@ -20,6 +24,36 @@ export function CategoryTabs({
   const containerRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
 
+  // Track scroll position for fade indicators
+  const [showLeftFade, setShowLeftFade] = useState(false);
+  const [showRightFade, setShowRightFade] = useState(false);
+
+  // Update fade indicators on scroll
+  const updateScrollIndicators = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    const threshold = 10;
+
+    setShowLeftFade(scrollLeft > threshold);
+    setShowRightFade(scrollLeft < scrollWidth - clientWidth - threshold);
+  }, []);
+
+  // Initial check and resize observer
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    updateScrollIndicators();
+
+    const resizeObserver = new ResizeObserver(updateScrollIndicators);
+    resizeObserver.observe(container);
+
+    return () => resizeObserver.disconnect();
+  }, [updateScrollIndicators, categories]);
+
+  // Scroll active tab into view
   useEffect(() => {
     const activeTab = tabRefs.current.get(activeCategory);
     const container = containerRef.current;
@@ -57,55 +91,99 @@ export function CategoryTabs({
   return (
     <nav
       aria-label="Menu categories"
-      className="sticky top-16 z-20 bg-background/95 backdrop-blur-md border-b border-border shadow-sm"
+      className={cn(
+        "sticky top-14 z-20",
+        "bg-[var(--color-cream)]/95 backdrop-blur-md",
+        "border-b border-[var(--color-border)]",
+        "shadow-[var(--shadow-sm)]"
+      )}
     >
-      <div
-        ref={containerRef}
-        role="tablist"
-        className="flex overflow-x-auto scrollbar-hide px-4 py-3 gap-2"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        {tabs.map((tab) => {
-          const isActive = activeCategory === tab.slug;
-          const controlsId = tab.slug ? `category-${tab.slug}` : undefined;
+      <div className="relative">
+        {/* Left fade indicator */}
+        <div
+          className={cn(
+            "absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none",
+            "bg-gradient-to-r from-[var(--color-cream)] to-transparent",
+            "transition-opacity duration-[var(--duration-fast)]",
+            showLeftFade ? "opacity-100" : "opacity-0"
+          )}
+          aria-hidden="true"
+        />
 
-          return (
-            <motion.button
-              key={tab.slug ?? "all"}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              aria-controls={controlsId}
-              ref={setTabRef(tab.slug)}
-              onClick={() => onCategoryClick(tab.slug)}
-              className={cn(
-                "relative flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold",
-                "min-h-[44px] min-w-[44px]",
-                "transition-all duration-200 ease-out",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                isActive
-                  ? "text-white"
-                  : "text-foreground/70 hover:text-foreground hover:bg-secondary/60 active:scale-95"
-              )}
-              whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}
-              whileHover={!isActive && !prefersReducedMotion ? { y: -1 } : undefined}
-            >
-              {isActive && (
-                <motion.div
-                  layoutId="activeTabBackground"
-                  className="absolute inset-0 bg-primary rounded-full shadow-lg"
-                  initial={false}
-                  transition={
-                    prefersReducedMotion
-                      ? { duration: 0 }
-                      : { type: "spring", stiffness: 500, damping: 30 }
-                  }
-                />
-              )}
-              <span className="relative z-10">{tab.name}</span>
-            </motion.button>
-          );
-        })}
+        {/* Right fade indicator */}
+        <div
+          className={cn(
+            "absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none",
+            "bg-gradient-to-l from-[var(--color-cream)] to-transparent",
+            "transition-opacity duration-[var(--duration-fast)]",
+            showRightFade ? "opacity-100" : "opacity-0"
+          )}
+          aria-hidden="true"
+        />
+
+        {/* Scrollable container */}
+        <div
+          ref={containerRef}
+          role="tablist"
+          className={cn(
+            "flex overflow-x-auto scrollbar-hide",
+            "px-[var(--space-4)] py-3 gap-[var(--space-2)]"
+          )}
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          onScroll={updateScrollIndicators}
+        >
+          {tabs.map((tab) => {
+            const isActive = activeCategory === tab.slug;
+            const controlsId = tab.slug ? `category-${tab.slug}` : undefined;
+
+            return (
+              <motion.button
+                key={tab.slug ?? "all"}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={controlsId}
+                ref={setTabRef(tab.slug)}
+                onClick={() => onCategoryClick(tab.slug)}
+                className={cn(
+                  "relative flex-shrink-0 px-[var(--space-4)] py-2.5",
+                  "rounded-full text-sm font-semibold",
+                  "min-h-[44px] min-w-[44px]",
+                  "transition-all duration-[var(--duration-fast)] ease-out",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)] focus-visible:ring-offset-2",
+                  isActive
+                    ? "text-white"
+                    : [
+                        "text-[var(--color-charcoal-muted)]",
+                        "hover:text-[var(--color-charcoal)] hover:bg-[var(--color-cream-darker)]",
+                        "active:scale-95",
+                      ]
+                )}
+                whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}
+                whileHover={!isActive && !prefersReducedMotion ? { y: -1 } : undefined}
+              >
+                {/* Active background pill */}
+                {isActive && (
+                  <motion.div
+                    layoutId="activeTabBackground"
+                    className={cn(
+                      "absolute inset-0 rounded-full",
+                      "bg-[var(--color-cta)]",
+                      "shadow-[var(--shadow-glow-primary)]"
+                    )}
+                    initial={false}
+                    transition={
+                      prefersReducedMotion
+                        ? { duration: 0 }
+                        : { type: "spring", stiffness: 500, damping: 30 }
+                    }
+                  />
+                )}
+                <span className="relative z-10">{tab.name}</span>
+              </motion.button>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );

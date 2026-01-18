@@ -27,7 +27,7 @@ export default function SentryTestPage() {
       </p>
 
       <div className="space-y-4">
-        <Button onClick={triggerClientError} variant="destructive" className="w-full">
+        <Button onClick={triggerClientError} variant="danger" className="w-full">
           Trigger Client Error (throws)
         </Button>
 

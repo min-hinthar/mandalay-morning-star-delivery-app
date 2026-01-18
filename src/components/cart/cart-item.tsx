@@ -168,7 +168,7 @@ export function CartItem({ item }: CartItemProps) {
           <p className="text-sm text-foreground font-medium">Remove this item?</p>
           <div className="mt-3 flex gap-2">
             <Button
-              variant="destructive"
+              variant="danger"
               size="sm"
               onClick={handleRemove}
               className="flex-1"

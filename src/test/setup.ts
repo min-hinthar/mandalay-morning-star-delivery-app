@@ -1,5 +1,27 @@
 import "@testing-library/jest-dom";
 
+// Mock ResizeObserver for tests (not available in jsdom)
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
+// Mock matchMedia for tests (not available in jsdom)
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => true,
+  }),
+});
+
 // Mock environment variables for tests
 process.env.GOOGLE_MAPS_API_KEY = "test-google-maps-api-key";
 process.env.STRIPE_SECRET_KEY = "sk_test_mock";
