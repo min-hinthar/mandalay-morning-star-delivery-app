@@ -1,12 +1,27 @@
 {
   "mcpServers": {
-        "supabase": {
-        "command": "cmd",
-        "args": ["/c", "npx", "-y", "@supabase/mcp-server-supabase"],
-        "env": {
+    "sentry": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@sentry/mcp-server"],
+      "env": {
+        "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
+        "SENTRY_ORG": "${SENTRY_ORG}",
+        "SENTRY_PROJECT": "${SENTRY_PROJECT}"
+      }
+    },
+    "supabase": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@supabase/mcp-server-supabase"],
+      "env": {
         "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
+      }
+    },
+    "github": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GH_TOKEN}"
       }
     }
   }
 }
-

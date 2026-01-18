@@ -53,8 +53,12 @@ Run before completing: `pnpm typecheck && pnpm test`
 | GitHub | PR, issue ref | Pull context, link commits |
 
 ## Error Protocol
-- **History:** Check `.claude/ERROR_HISTORY.md` before debugging; log every fix after.
-- **Diagnostics:** Use `sentry.get_issue` + `sentry.analyze_issue_with_seer` for AI root-cause analysis.
-- **Plan Mode:** Propose fix in Plan Mode. Use Opus for complex logic, Haiku for execution.
-- **Logging:** Use `Sentry.logger` with `{ userId, flowId }`. Never `console.log` in production.
-- **Verification:** Switch to Haiku for pre-commit. Run `pnpm typecheck && pnpm test`. Use Playwright MCP for UI validation.
+- **History:** Check `.claude/ERROR_HISTORY.md` before debugging
+- **When to Log:**
+  - Same error type 2+ times in session
+  - Error spans >2 files
+  - Non-obvious root cause
+  - Skip: typos, simple one-offs
+- **Diagnostics:** Use `sentry.get_issue` + `sentry.analyze_issue_with_seer`
+- **Logging:** Use `Sentry.logger` with `{ userId, flowId }`
+- **Verification:** `pnpm typecheck && pnpm test`
