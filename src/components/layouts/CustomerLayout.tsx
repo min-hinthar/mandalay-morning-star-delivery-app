@@ -60,7 +60,8 @@ export function CustomerLayout({
         transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
         className={cn(
           "sticky top-0 z-[var(--z-sticky)] h-14",
-          "bg-[var(--color-cream)]/95 backdrop-blur-md",
+          "bg-[var(--color-cream)]/95 dark:bg-[var(--color-background)]/95",
+          "backdrop-blur-lg border-b border-[var(--color-border)]",
           "transition-shadow duration-[var(--duration-fast)]",
           isScrolled && "shadow-[var(--shadow-md)]"
         )}

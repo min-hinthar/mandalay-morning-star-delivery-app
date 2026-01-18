@@ -132,7 +132,7 @@ describe("MenuContent", () => {
     expect(screen.getByText("Myanmar")).toHaveClass("font-burmese");
     expect(screen.getByText("$18.00")).toBeInTheDocument();
 
-    const soldOutCard = screen.getByText("Rice").closest("[class*='opacity-60']");
+    const soldOutCard = screen.getByText("Rice").closest("[class*='opacity-70']");
     expect(soldOutCard).toBeInTheDocument();
     expect(screen.getAllByText("Sold Out").length).toBeGreaterThan(0);
   });

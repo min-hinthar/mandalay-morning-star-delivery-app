@@ -275,3 +275,65 @@ All hooks in `src/lib/hooks/`. Use CSS vars for dynamic z-index: `z-[var(--z-sti
 **Learning:** Use `getByRole("tab", { name: "All", exact: true })` instead of `:has-text("All")`. The `:has-text()` selector is a substring match. For exact matches, use Playwright's `exact: true` option or `text-is()` CSS selector.
 **Apply when:** Writing E2E selectors for elements with text that could be substrings of other elements
 
+---
+
+## 2026-01-18: V4 Component Consolidation Pattern
+
+**Context:** Merging duplicate ItemCard (4:3) and MenuItemCard (16:9) into single component
+**Learning:** When consolidating similar components: 1) Add `variant` prop to preserve unique features (`default`, `compact`, `featured`), 2) Update all imports in consuming files, 3) Export skeleton from same file for co-location, 4) Delete old component and update barrel exports. Always grep for usages before deletion.
+**Apply when:** Merging duplicate card/item components with different aspect ratios or layouts
+
+---
+
+## 2026-01-18: Tests Coupled to CSS Classes Break on Refactors
+
+**Context:** menu-content.test.tsx failed after changing MenuItemCard's sold-out opacity from 60 to 70
+**Learning:** Tests using `.closest("[class*='opacity-60']")` break when refactoring styles. Either: 1) Use data-testid for state-based selection (`data-sold-out="true"`), 2) Accept test updates as part of refactor, 3) Use more robust selectors like aria attributes. Class-based assertions are brittle.
+**Apply when:** Tests fail after styling changes, evaluating test assertion strategies
+
+---
+
+## 2026-01-18: ESLint Token Enforcement via no-restricted-syntax
+
+**Context:** Adding lint rules to catch hardcoded colors and z-index values
+**Learning:** Use ESLint's `no-restricted-syntax` with regex patterns to catch arbitrary value classes:
+```js
+"no-restricted-syntax": ["warn",
+  { selector: "Literal[value=/bg-\\[#[0-9a-fA-F]{3,8}\\]/]", message: "Use var(--color-*)" },
+  { selector: "Literal[value=/z-\\[\\d+\\]/]", message: "Use var(--z-*)" }
+]
+```
+Pattern catches className strings containing hardcoded hex or numeric values. Warn level allows incremental adoption.
+**Apply when:** Enforcing design token usage across codebase
+
+---
+
+## 2026-01-18: Design Token Migration Checklist
+
+**Context:** Sprint 2 full token audit across components
+**Learning:** Token migration search order:
+1. Colors: `#[0-9a-f]{3,8}`, `rgb(`, `text-white`, `bg-gray-`, `border-border`
+2. Spacing: `p-4`, `m-3`, `gap-2` → `p-[var(--space-3)]`
+3. Z-index: `z-10`, `z-50` → `z-[var(--z-sticky)]`
+4. Shadows: `shadow-md` → `shadow-[var(--shadow-md)]`
+5. Durations: `duration-200` → `duration-[var(--duration-fast)]`
+
+Acceptable exceptions: SVG fills, data visualization colors, confetti/decorative elements.
+**Apply when:** Running token audits, migrating to design system
+
+---
+
+## 2026-01-18: E2E Test Resilience Patterns
+
+**Context:** V4 theme parity tests failing on exact pixel values and disabled button states
+**Learning:** Avoid brittle E2E assertions:
+- **Don't:** `expect(height).toBe(56)` - fails with borders, padding changes
+- **Do:** `expect(height).toBeGreaterThanOrEqual(56)` or check CSS class/computed style
+- **Don't:** `expect(button).toBeEnabled()` - fails for sold out items
+- **Do:** `expect(button).toBeVisible()` then test behavior separately
+- **Don't:** `el.classList.contains("h-14")` - class may not exist on all page variants
+- **Do:** `style.position === "sticky"` - test behavior not implementation
+
+Different pages may use different header components. Test observable behavior (sticky positioning, backdrop blur) not specific class names.
+**Apply when:** Writing E2E tests for UI components, fixing flaky tests
+

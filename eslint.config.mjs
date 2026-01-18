@@ -14,6 +14,28 @@ const config = [
   {
     ignores: [".next/**", "out/**", "build/**", "next-env.d.ts"],
   },
+  {
+    // V4 Design Token Enforcement Rules
+    files: ["src/components/**/*.tsx", "src/app/**/*.tsx"],
+    rules: {
+      // Warn on hardcoded z-index values in className strings
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector: "Literal[value=/z-\\[\\d+\\]/]",
+          message: "Use design token z-index (e.g., z-[var(--z-sticky)]) instead of hardcoded values.",
+        },
+        {
+          selector: "Literal[value=/bg-\\[#[0-9a-fA-F]{3,8}\\]/]",
+          message: "Use design token colors (e.g., bg-[var(--color-*)]) instead of hardcoded hex values.",
+        },
+        {
+          selector: "Literal[value=/text-\\[#[0-9a-fA-F]{3,8}\\]/]",
+          message: "Use design token colors (e.g., text-[var(--color-*)]) instead of hardcoded hex values.",
+        },
+      ],
+    },
+  },
 ];
 
 export default config;

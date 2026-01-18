@@ -13,6 +13,15 @@ import { CartItem } from "./cart-item";
 import { CartSummary } from "./CartSummary";
 import { cn } from "@/lib/utils/cn";
 
+/**
+ * V4 Cart Drawer
+ *
+ * Unified styling with cart bar using design tokens:
+ * - Background: var(--color-surface)
+ * - Border: var(--color-border)
+ * - Shadow: var(--shadow-lg)
+ * - Spacing: var(--space-*) tokens
+ */
 export function CartDrawer() {
   const router = useRouter();
   const { isOpen, close } = useCartDrawer();
@@ -91,16 +100,18 @@ export function CartDrawer() {
     <AnimatePresence>
       {isOpen && (
         <>
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-[var(--z-modal-backdrop)] bg-black/50 backdrop-blur-sm"
             onClick={close}
             aria-hidden="true"
           />
 
+          {/* Drawer */}
           <motion.div
             ref={drawerRef}
             initial={isMobile ? { y: "100%" } : { x: "100%" }}
@@ -112,7 +123,8 @@ export function CartDrawer() {
             dragElastic={{ top: 0, bottom: 0.5 }}
             onDragEnd={handleDragEnd}
             className={cn(
-              "fixed z-50 bg-background shadow-xl flex flex-col",
+              "fixed z-[var(--z-modal)] flex flex-col",
+              "bg-[var(--color-surface)] shadow-[var(--shadow-xl)]",
               isMobile
                 ? "inset-x-0 bottom-0 h-[90vh] rounded-t-[var(--radius-2xl)]"
                 : "right-0 top-0 h-full w-full max-w-md"
@@ -123,25 +135,34 @@ export function CartDrawer() {
           >
             {/* Mobile drag handle */}
             {isMobile && (
-              <div className="flex justify-center py-2 cursor-grab active:cursor-grabbing">
-                <GripHorizontal className="h-5 w-5 text-muted-foreground/50" />
+              <div className="flex justify-center py-[var(--space-2)] cursor-grab active:cursor-grabbing">
+                <GripHorizontal className="h-5 w-5 text-[var(--color-charcoal-muted)]/50" />
               </div>
             )}
 
+            {/* Header */}
             <div className={cn(
-              "flex items-center justify-between border-b border-border bg-card/50 px-5",
-              isMobile ? "py-3" : "py-4"
+              "flex items-center justify-between",
+              "border-b border-[var(--color-border)]",
+              "bg-[var(--color-surface-muted)] px-[var(--space-4)]",
+              isMobile ? "py-[var(--space-3)]" : "py-[var(--space-4)]"
             )}>
               <h2
                 id="cart-drawer-title"
-                className="flex items-center gap-3 text-lg font-bold text-foreground"
+                className="flex items-center gap-[var(--space-3)] text-lg font-bold text-[var(--color-charcoal)]"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <ShoppingBag className="h-5 w-5 text-primary" />
+                <div className={cn(
+                  "flex h-10 w-10 items-center justify-center rounded-full",
+                  "bg-[var(--color-primary-bg)]"
+                )}>
+                  <ShoppingBag className="h-5 w-5 text-[var(--color-primary)]" />
                 </div>
                 Your Cart
                 {itemCount > 0 && (
-                  <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+                  <span className={cn(
+                    "rounded-full px-2.5 py-1 text-xs font-semibold text-white",
+                    "bg-[var(--color-primary)] shadow-[var(--shadow-sm)]"
+                  )}>
                     {itemCount}
                   </span>
                 )}
@@ -153,10 +174,10 @@ export function CartDrawer() {
                 whileTap={{ scale: 0.95 }}
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full",
-                  "bg-muted/20 text-muted-foreground",
-                  "hover:bg-muted hover:text-foreground",
-                  "transition-colors duration-200",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                  "bg-[var(--color-surface-muted)] text-[var(--color-charcoal-muted)]",
+                  "hover:bg-[var(--color-cream-darker)] hover:text-[var(--color-charcoal)]",
+                  "transition-colors duration-[var(--duration-fast)]",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
                 )}
                 aria-label="Close cart"
               >
@@ -168,8 +189,9 @@ export function CartDrawer() {
               <CartEmptyState onClose={close} />
             ) : (
               <>
-                <div className="flex-1 overflow-y-auto px-4 py-4">
-                  <ul className="space-y-4">
+                {/* Items List */}
+                <div className="flex-1 overflow-y-auto px-[var(--space-4)] py-[var(--space-4)]">
+                  <ul className="space-y-[var(--space-4)]">
                     <AnimatePresence mode="popLayout">
                       {items.map((item) => (
                         <CartItem key={item.cartItemId} item={item} />
@@ -178,12 +200,22 @@ export function CartDrawer() {
                   </ul>
                 </div>
 
-                <div className="border-t border-border bg-gradient-to-t from-muted/20 to-transparent px-5 py-5">
+                {/* Footer */}
+                <div className={cn(
+                  "border-t border-[var(--color-border)]",
+                  "bg-[var(--color-surface-muted)]",
+                  "px-[var(--space-4)] py-[var(--space-4)]"
+                )}>
                   <CartSummary />
-                  <div className="mt-5 flex flex-col gap-3">
+                  <div className="mt-[var(--space-4)] flex flex-col gap-[var(--space-3)]">
                     <Button
                       size="lg"
-                      className="w-full bg-primary text-white shadow-lg hover:bg-primary/90 hover:shadow-xl transition-all duration-200"
+                      className={cn(
+                        "w-full",
+                        "bg-[var(--color-primary)] text-white",
+                        "shadow-[var(--shadow-lg)]",
+                        "hover:brightness-110 transition-all duration-[var(--duration-fast)]"
+                      )}
                       onClick={handleCheckout}
                     >
                       Proceed to Checkout
@@ -191,7 +223,11 @@ export function CartDrawer() {
                     <Button
                       variant="outline"
                       size="lg"
-                      className="w-full border-2 hover:bg-secondary/50"
+                      className={cn(
+                        "w-full",
+                        "border-2 border-[var(--color-border)]",
+                        "hover:bg-[var(--color-surface-muted)]"
+                      )}
                       onClick={close}
                     >
                       Continue Shopping
@@ -212,18 +248,28 @@ function CartEmptyState({ onClose }: { onClose: () => void }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-1 flex-col items-center justify-center px-6 text-center"
+      className="flex flex-1 flex-col items-center justify-center px-[var(--space-6)] text-center"
     >
-      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
-        <ShoppingBag className="h-12 w-12 text-primary/60" />
+      <div className={cn(
+        "flex h-24 w-24 items-center justify-center rounded-full",
+        "bg-[var(--color-primary-bg)]"
+      )}>
+        <ShoppingBag className="h-12 w-12 text-[var(--color-primary)]/60" />
       </div>
-      <h3 className="mt-6 text-xl font-bold text-foreground">Your cart is empty</h3>
-      <p className="mt-2 text-sm text-muted-foreground max-w-[240px]">
+      <h3 className="mt-[var(--space-6)] text-xl font-bold text-[var(--color-charcoal)]">
+        Your cart is empty
+      </h3>
+      <p className="mt-[var(--space-2)] text-sm text-[var(--color-charcoal-muted)] max-w-[240px]">
         Browse our authentic Burmese dishes and add something delicious!
       </p>
       <Button
         size="lg"
-        className="mt-8 bg-primary text-white shadow-lg hover:bg-primary/90 hover:shadow-xl transition-all duration-200"
+        className={cn(
+          "mt-[var(--space-8)]",
+          "bg-[var(--color-primary)] text-white",
+          "shadow-[var(--shadow-lg)]",
+          "hover:brightness-110 transition-all duration-[var(--duration-fast)]"
+        )}
         onClick={onClose}
         asChild
       >

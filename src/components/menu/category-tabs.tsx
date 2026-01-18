@@ -93,9 +93,8 @@ export function CategoryTabs({
       aria-label="Menu categories"
       className={cn(
         "sticky top-14 z-[var(--z-sticky)]",
-        "bg-[var(--color-cream)]/95 backdrop-blur-md",
-        "border-b border-[var(--color-border)]",
-        "shadow-[var(--shadow-sm)]"
+        "bg-[var(--color-cream)]/95 dark:bg-[var(--color-background)]/95",
+        "backdrop-blur-lg border-b border-[var(--color-border)]"
       )}
     >
       <div className="relative">
