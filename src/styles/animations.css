@@ -1,0 +1,223 @@
+/**
+ * Mandalay Morning Star CSS Animations
+ * V3 Foundation - Tailwind-compatible animation utilities
+ */
+
+/* ============================================
+   ANIMATION UTILITIES
+   ============================================ */
+
+@layer utilities {
+  /* Duration utilities */
+  .duration-micro { animation-duration: 150ms; }
+  .duration-fast { animation-duration: 200ms; }
+  .duration-standard { animation-duration: 300ms; }
+  .duration-slow { animation-duration: 400ms; }
+  .duration-dramatic { animation-duration: 500ms; }
+
+  /* Delay utilities */
+  .delay-micro { animation-delay: 150ms; }
+  .delay-standard { animation-delay: 300ms; }
+  .delay-dramatic { animation-delay: 500ms; }
+
+  /* Easing utilities */
+  .ease-out-custom { animation-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1); }
+  .ease-in-custom { animation-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+  .ease-in-out-custom { animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+  .ease-bounce-custom { animation-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+  .ease-spring { animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1); }
+
+  /* Shimmer effect for loading */
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+  }
+
+  .dark .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    background-size: 200% 100%;
+  }
+
+  /* Pulse ring for markers/notifications */
+  .animate-pulse-ring {
+    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Float animation for decorative elements */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-float-slow {
+    animation: float 8s ease-in-out infinite;
+  }
+
+  /* Glow animation */
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  /* Confetti celebration */
+  .animate-confetti {
+    animation: confetti 3s ease-out forwards;
+  }
+
+  /* Slide animations */
+  .animate-slide-in-right {
+    animation: slide-in-right 300ms ease-out;
+  }
+
+  .animate-slide-in-up {
+    animation: slide-in-up 300ms ease-out;
+  }
+
+  /* Fade animations */
+  .animate-fade-in {
+    animation: fade-in 300ms ease-out;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 500ms ease-out;
+  }
+
+  /* Scale animations */
+  .animate-scale-in {
+    animation: scale-in 300ms ease-out;
+  }
+
+  /* Stagger delays */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+  .stagger-6 { animation-delay: 0.6s; }
+  .stagger-7 { animation-delay: 0.7s; }
+  .stagger-8 { animation-delay: 0.8s; }
+
+  /* Gradient shift for backgrounds */
+  .animate-gradient-shift {
+    background-size: 400% 400%;
+    animation: gradient-shift 15s ease infinite;
+  }
+}
+
+/* ============================================
+   KEYFRAME DEFINITIONS
+   ============================================ */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
+  100% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.6); }
+}
+
+@keyframes confetti {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slide-in-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-shimmer,
+  .animate-pulse-ring,
+  .animate-float,
+  .animate-float-slow,
+  .animate-glow,
+  .animate-confetti,
+  .animate-slide-in-right,
+  .animate-slide-in-up,
+  .animate-fade-in,
+  .animate-fade-in-up,
+  .animate-scale-in,
+  .animate-gradient-shift {
+    animation: none !important;
+  }
+
+  .stagger-1,
+  .stagger-2,
+  .stagger-3,
+  .stagger-4,
+  .stagger-5,
+  .stagger-6,
+  .stagger-7,
+  .stagger-8 {
+    animation-delay: 0s !important;
+  }
+}
+
+/* ============================================
+   THEME TRANSITIONS
+   ============================================ */
+
+.theme-transition {
+  transition:
+    background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
