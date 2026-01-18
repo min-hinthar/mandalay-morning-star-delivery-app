@@ -94,3 +94,19 @@ window.matchMedia = (q) => ({ matches: false, media: q, addEventListener: () => 
 **Learning:** Use `className="bg-[var(--color-saffron)]"` for CSS custom properties. For shadows with variables: `shadow-[var(--shadow-glow-gold)]`. This works in Tailwind 3+ and maintains design token consistency.
 **Apply when:** Styling components with V3 tokens instead of hardcoded colors
 
+---
+
+## 2026-01-17: Supabase count in nested select
+
+**Context:** StopDetail needed totalStops from parent route
+**Learning:** Add `(count)` to nested select to get row count. Query: `route:routes (id, status, route_stops (count))`. Returns `route.route_stops[0].count`. Must update interface to include `route_stops: { count: number }[]`.
+**Apply when:** Need count of related records in Supabase query without fetching all rows
+
+---
+
+## 2026-01-17: Fullscreen overlay with shared content
+
+**Context:** DeliveryMap needed inline + fullscreen modes with same map content
+**Learning:** Extract shared JSX into render function `mapContent(inFullscreen: boolean)`. Return fragment with inline container + AnimatePresence fullscreen overlay. Pass boolean to adjust styling (e.g., `gestureHandling: inFullscreen ? "greedy" : "cooperative"`).
+**Apply when:** Building components that can expand to fullscreen (maps, images, modals)
+

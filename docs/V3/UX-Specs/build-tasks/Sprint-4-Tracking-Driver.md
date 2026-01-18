@@ -12,9 +12,9 @@ This sprint implements the real-time tracking experience for customers and the d
 
 | Task | Component | Status |
 |------|-----------|--------|
-| 4.1 | Order Tracking View | ⬜ Not Started |
-| 4.2 | Driver Route Card | ⬜ Not Started |
-| 4.3 | Driver Stop Card | ⬜ Not Started |
+| 4.1 | Order Tracking View | ✅ Complete |
+| 4.2 | Driver Route Card | ✅ Complete |
+| 4.3 | Driver Stop Card | ✅ Complete |
 
 > Update status: ⬜ Not Started → 🔄 In Progress → ✅ Complete
 

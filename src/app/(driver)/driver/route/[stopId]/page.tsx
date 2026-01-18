@@ -22,6 +22,7 @@ interface StopQueryResult {
     id: string;
     status: string;
     driver_id: string;
+    route_stops: { count: number }[];
   };
   order: {
     id: string;
@@ -93,7 +94,8 @@ async function getStopDetail(stopId: string) {
       route:routes (
         id,
         status,
-        driver_id
+        driver_id,
+        route_stops (count)
       ),
       order:orders (
         id,
@@ -215,6 +217,7 @@ async function StopDetailPageContent({ params }: PageProps) {
           routeId={stop.route?.id ?? ""}
           stopId={stop.id}
           stopIndex={stop.stop_index}
+          totalStops={stop.route?.route_stops?.[0]?.count ?? stop.stop_index}
           status={stop.status}
           customer={{
             fullName: stop.order?.customer?.full_name ?? null,

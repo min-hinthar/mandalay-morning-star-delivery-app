@@ -1,8 +1,9 @@
 /**
- * V2 Sprint 3: Delivery Map Component
+ * V3 Sprint 4: Delivery Map Component
  *
  * Shows live driver location and customer destination on a map.
  * Updates smoothly as driver position changes.
+ * Supports fullscreen expansion on tap.
  */
 
 "use client";
@@ -14,8 +15,8 @@ import {
   Marker,
   Polyline,
 } from "@react-google-maps/api";
-import { motion } from "framer-motion";
-import { Loader2, MapPin, Navigation } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, MapPin, Navigation, Maximize2, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 // Custom map styles for warm aesthetic (consistent with CoverageMap)
@@ -85,6 +86,7 @@ export function DeliveryMap({
   className,
 }: DeliveryMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const prevDriverLocation = useRef(driverLocation);
 
   const { isLoaded, loadError } = useJsApiLoader({
@@ -164,12 +166,12 @@ export function DeliveryMap({
     return (
       <div
         className={cn(
-          "flex items-center justify-center bg-charcoal-100 rounded-xl",
+          "flex items-center justify-center bg-[var(--color-surface-muted)] rounded-xl",
           className
         )}
         style={{ minHeight: 300 }}
       >
-        <div className="flex flex-col items-center gap-2 text-charcoal-500">
+        <div className="flex flex-col items-center gap-2 text-[var(--color-text-muted)]">
           <Loader2 className="h-8 w-8 animate-spin" />
           <span className="text-sm">Loading map...</span>
         </div>
@@ -182,12 +184,12 @@ export function DeliveryMap({
     return (
       <div
         className={cn(
-          "flex items-center justify-center bg-red-50 rounded-xl",
+          "flex items-center justify-center bg-[var(--color-error-light)] rounded-xl",
           className
         )}
         style={{ minHeight: 300 }}
       >
-        <div className="flex flex-col items-center gap-2 text-red-600">
+        <div className="flex flex-col items-center gap-2 text-[var(--color-error)]">
           <MapPin className="h-8 w-8" />
           <span className="text-sm">Unable to load map</span>
         </div>
@@ -195,24 +197,41 @@ export function DeliveryMap({
     );
   }
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className={cn("relative rounded-xl overflow-hidden shadow-warm-md", className)}
-      style={{ minHeight: 300 }}
-    >
+  const mapContent = (inFullscreen: boolean) => (
+    <>
       {/* Live indicator */}
       {isLive && driverLocation && (
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 shadow-sm backdrop-blur-sm">
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-2 rounded-full bg-[var(--color-surface)]/90 px-3 py-1.5 shadow-sm backdrop-blur-sm">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-jade-500 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-jade-500" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-jade)] opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-jade)]" />
           </span>
-          <span className="text-xs font-medium text-charcoal-600">
+          <span className="text-xs font-medium text-[var(--color-text-primary)]">
             Live tracking
           </span>
         </div>
+      )}
+
+      {/* Expand button (only in inline mode) */}
+      {!inFullscreen && (
+        <button
+          onClick={() => setIsFullscreen(true)}
+          className="absolute top-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-surface)]/90 shadow-sm backdrop-blur-sm transition-colors hover:bg-[var(--color-surface)]"
+          aria-label="Expand map"
+        >
+          <Maximize2 className="h-5 w-5 text-[var(--color-text-primary)]" />
+        </button>
+      )}
+
+      {/* Close button (only in fullscreen mode) */}
+      {inFullscreen && (
+        <button
+          onClick={() => setIsFullscreen(false)}
+          className="absolute top-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-surface)] shadow-lg transition-colors hover:bg-[var(--color-surface-muted)]"
+          aria-label="Close fullscreen"
+        >
+          <X className="h-6 w-6 text-[var(--color-text-primary)]" />
+        </button>
       )}
 
       <GoogleMap
@@ -226,7 +245,7 @@ export function DeliveryMap({
           disableDefaultUI: true,
           zoomControl: true,
           clickableIcons: false,
-          gestureHandling: "cooperative",
+          gestureHandling: inFullscreen ? "greedy" : "cooperative",
         }}
       >
         {/* Route polyline */}
@@ -274,23 +293,60 @@ export function DeliveryMap({
       </GoogleMap>
 
       {/* Legend */}
-      <div className="absolute bottom-3 left-3 right-3 z-10">
-        <div className="flex items-center justify-between rounded-lg bg-white/90 px-3 py-2 shadow-sm backdrop-blur-sm">
+      <div className={cn("absolute left-3 right-3 z-10", inFullscreen ? "bottom-6" : "bottom-3")}>
+        <div className="flex items-center justify-between rounded-lg bg-[var(--color-surface)]/90 px-3 py-2 shadow-sm backdrop-blur-sm">
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-1.5">
-              <div className="h-3 w-3 rounded-full bg-jade-500" />
-              <span className="text-charcoal-600">Your location</span>
+              <div className="h-3 w-3 rounded-full bg-[var(--color-jade)]" />
+              <span className="text-[var(--color-text-primary)]">Your location</span>
             </div>
             {driverLocation && (
               <div className="flex items-center gap-1.5">
-                <Navigation className="h-3 w-3 text-saffron-500" />
-                <span className="text-charcoal-600">Driver</span>
+                <Navigation className="h-3 w-3 text-[var(--color-saffron)]" />
+                <span className="text-[var(--color-text-primary)]">Driver</span>
               </div>
             )}
           </div>
         </div>
       </div>
-    </motion.div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Inline map */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className={cn("relative rounded-xl overflow-hidden shadow-[var(--shadow-md)]", className)}
+        style={{ minHeight: 300 }}
+      >
+        {mapContent(false)}
+      </motion.div>
+
+      {/* Fullscreen overlay */}
+      <AnimatePresence>
+        {isFullscreen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 bg-[var(--color-background)]"
+          >
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="relative h-full w-full"
+            >
+              {mapContent(true)}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -301,13 +357,13 @@ export function DeliveryMapSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "rounded-xl bg-charcoal-100 animate-pulse",
+        "rounded-xl bg-[var(--color-surface-muted)] animate-pulse",
         className
       )}
       style={{ minHeight: 300 }}
     >
       <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col items-center gap-2 text-charcoal-400">
+        <div className="flex flex-col items-center gap-2 text-[var(--color-text-muted)]">
           <MapPin className="h-8 w-8" />
           <span className="text-sm">Loading map...</span>
         </div>
