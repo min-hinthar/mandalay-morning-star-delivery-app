@@ -10,15 +10,15 @@ This sprint establishes the visual and structural foundation for the entire V3 U
 
 ## Sprint Progress
 
-| Task | Component | Status | Reference Asset |
-|------|-----------|--------|-----------------|
-| 1.1 | Design Tokens - Light Theme | 🎨 Prototype Ready | [Light-Theme.md](../../UI-Assets/P1-Foundation/Light-Theme.md) |
-| 1.2 | Design Tokens - Dark Theme | 🎨 Prototype Ready | [Dark-Theme.md](../../UI-Assets/P1-Foundation/Dark-Theme.md) |
-| 1.3 | Animation Tokens & Utilities | ⬜ Not Started | — |
-| 1.4 | Customer App Shell | ⬜ Not Started | — |
-| 1.5 | Checkout Flow Shell | ⬜ Not Started | — |
-| 1.6 | Driver App Shell | ⬜ Not Started | — |
-| 1.7 | Admin Dashboard Shell | ⬜ Not Started | — |
+| Task | Component | Status | Output File |
+|------|-----------|--------|-------------|
+| 1.1 | Design Tokens - Light Theme | ✅ Complete | `src/styles/tokens.css` |
+| 1.2 | Design Tokens - Dark Theme | ✅ Complete | `src/styles/tokens.css` |
+| 1.3 | Animation Tokens & Utilities | ✅ Complete | `src/lib/animations.ts`, `src/styles/animations.css` |
+| 1.4 | Customer App Shell | ✅ Complete | `src/components/layouts/CustomerLayout.tsx` |
+| 1.5 | Checkout Flow Shell | ✅ Complete | `src/components/layouts/CheckoutLayout.tsx` |
+| 1.6 | Driver App Shell | ✅ Complete | `src/components/layouts/DriverLayout.tsx` |
+| 1.7 | Admin Dashboard Shell | ✅ Complete | `src/components/layouts/AdminLayout.tsx` |
 
 > Update status: ⬜ Not Started → 🔄 In Progress → 🎨 Prototype Ready → ✅ Complete
 

@@ -1,0 +1,483 @@
+/**
+ * Mandalay Morning Star Design Tokens
+ * V3 Foundation - Premium Burmese Aesthetic
+ *
+ * Usage: Import in globals.css, reference via CSS custom properties
+ */
+
+/* ============================================
+   LIGHT THEME (Default)
+   ============================================ */
+
+:root {
+  /* ===========================================
+     BRAND COLORS
+     =========================================== */
+
+  /* Primary - Morning Star Red */
+  --color-primary: #9B1B1E;
+  --color-primary-hover: #7A1517;
+  --color-primary-light: #C42427;
+  --color-primary-bg: rgba(155, 27, 30, 0.08);
+
+  /* CTA - Heritage Gold */
+  --color-cta: #F4D03F;
+  --color-cta-hover: #E5C233;
+  --color-cta-dark: #D4AF37;
+  --color-cta-bg: rgba(244, 208, 63, 0.15);
+
+  /* Saffron - Warm accent */
+  --color-saffron: #D4A017;
+  --color-saffron-hover: #B8890F;
+  --color-saffron-light: #FDF6E3;
+
+  /* Curry - Brown accent */
+  --color-curry: #8B4513;
+  --color-curry-light: #A0522D;
+  --color-curry-dark: #5D2E0C;
+
+  /* Lotus - Soft pink */
+  --color-lotus: #FFE4E1;
+  --color-lotus-light: #FFF0EE;
+  --color-lotus-dark: #FFD0CB;
+
+  /* ===========================================
+     SEMANTIC COLORS
+     =========================================== */
+
+  /* Success - Jade */
+  --color-jade: #2E8B57;
+  --color-jade-light: #E8F5E9;
+  --color-jade-dark: #1E5F3C;
+
+  /* Error */
+  --color-error: #DC2626;
+  --color-error-light: #FEF2F2;
+  --color-error-dark: #B91C1C;
+
+  /* Warning */
+  --color-warning: #F59E0B;
+  --color-warning-light: #FFFBEB;
+  --color-warning-dark: #D97706;
+
+  /* Info */
+  --color-info: #3B82F6;
+  --color-info-light: #EFF6FF;
+  --color-info-dark: #2563EB;
+
+  /* ===========================================
+     NEUTRAL COLORS
+     =========================================== */
+
+  --color-charcoal: #1A1A1A;
+  --color-charcoal-muted: #4A4A4A;
+  --color-charcoal-light: #6B7280;
+
+  --color-cream: #FFFEF7;
+  --color-cream-darker: #F5F4EF;
+  --color-cream-dark: #EBE9E0;
+
+  --color-border: #E5E2D9;
+  --color-border-light: #F0EDE6;
+  --color-border-dark: #D5D2C9;
+
+  /* ===========================================
+     BACKGROUND & SURFACE
+     =========================================== */
+
+  --color-background: #FFFEF7;
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #FFFFFF;
+  --color-surface-muted: #F8F5F0;
+
+  /* ===========================================
+     TEXT
+     =========================================== */
+
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #4A4A4A;
+  --color-text-muted: #6B7280;
+  --color-text-inverted: #FFFFFF;
+
+  /* ===========================================
+     TYPOGRAPHY
+     =========================================== */
+
+  /* Font Families */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-heading: "Manrope", system-ui, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-burmese: "Padauk", "Noto Sans Myanmar", sans-serif;
+
+  /* Font Sizes */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+  --text-6xl: 3.75rem;    /* 60px */
+  --text-7xl: 4.5rem;     /* 72px */
+
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-black: 900;
+
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* Letter Spacing */
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+
+  /* ===========================================
+     SPACING
+     =========================================== */
+
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 0.125rem;  /* 2px */
+  --space-1: 0.25rem;     /* 4px */
+  --space-1-5: 0.375rem;  /* 6px */
+  --space-2: 0.5rem;      /* 8px */
+  --space-2-5: 0.625rem;  /* 10px */
+  --space-3: 0.75rem;     /* 12px */
+  --space-3-5: 0.875rem;  /* 14px */
+  --space-4: 1rem;        /* 16px */
+  --space-5: 1.25rem;     /* 20px */
+  --space-6: 1.5rem;      /* 24px */
+  --space-7: 1.75rem;     /* 28px */
+  --space-8: 2rem;        /* 32px */
+  --space-9: 2.25rem;     /* 36px */
+  --space-10: 2.5rem;     /* 40px */
+  --space-11: 2.75rem;    /* 44px */
+  --space-12: 3rem;       /* 48px */
+  --space-14: 3.5rem;     /* 56px */
+  --space-16: 4rem;       /* 64px */
+  --space-20: 5rem;       /* 80px */
+  --space-24: 6rem;       /* 96px */
+  --space-28: 7rem;       /* 112px */
+  --space-32: 8rem;       /* 128px */
+
+  /* ===========================================
+     BORDER RADIUS
+     =========================================== */
+
+  --radius-none: 0;
+  --radius-sm: 0.375rem;   /* 6px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-3xl: 2rem;      /* 32px */
+  --radius-full: 9999px;
+
+  /* ===========================================
+     SHADOWS (Warm - curry-tinted)
+     =========================================== */
+
+  --shadow-sm: 0 1px 2px rgba(139, 69, 19, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(139, 69, 19, 0.1), 0 2px 4px -1px rgba(139, 69, 19, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(139, 69, 19, 0.1), 0 4px 6px -2px rgba(139, 69, 19, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(139, 69, 19, 0.1), 0 10px 10px -5px rgba(139, 69, 19, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(139, 69, 19, 0.25);
+
+  /* Glow shadows */
+  --shadow-glow-gold: 0 0 20px rgba(212, 175, 55, 0.4);
+  --shadow-glow-gold-lg: 0 0 40px rgba(212, 175, 55, 0.5);
+  --shadow-glow-jade: 0 0 20px rgba(46, 139, 87, 0.4);
+  --shadow-glow-primary: 0 0 20px rgba(155, 27, 30, 0.3);
+
+  /* Premium shadows */
+  --shadow-premium: 0 25px 50px -12px rgba(139, 69, 19, 0.25), 0 0 15px rgba(212, 175, 55, 0.1);
+  --shadow-card-hover: 0 20px 25px -5px rgba(139, 69, 19, 0.15), 0 8px 10px -6px rgba(139, 69, 19, 0.1);
+
+  /* Inner shadow */
+  --shadow-inner: inset 0 2px 4px rgba(139, 69, 19, 0.05);
+  --shadow-inner-glow: inset 0 0 20px rgba(212, 175, 55, 0.2);
+
+  /* ===========================================
+     ANIMATION DURATIONS
+     =========================================== */
+
+  --duration-micro: 150ms;
+  --duration-fast: 200ms;
+  --duration-standard: 300ms;
+  --duration-slow: 400ms;
+  --duration-dramatic: 500ms;
+  --duration-very-slow: 700ms;
+
+  /* ===========================================
+     ANIMATION EASINGS
+     =========================================== */
+
+  --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-spring: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* ===========================================
+     Z-INDEX SCALE
+     =========================================== */
+
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-tooltip: 70;
+  --z-toast: 80;
+  --z-max: 100;
+
+  /* ===========================================
+     LAYOUT
+     =========================================== */
+
+  --header-height: 56px;
+  --cart-bar-height: 64px;
+  --driver-header-height: 48px;
+  --driver-action-height: 80px;
+  --admin-nav-height: 64px;
+  --max-content-width: 1280px;
+  --max-admin-width: 1536px;
+
+  /* Touch targets */
+  --touch-target-min: 44px;
+  --touch-target-primary: 56px;
+}
+
+/* ============================================
+   DARK THEME
+   Warm undertones - no cold grays
+   ============================================ */
+
+[data-theme="dark"],
+.dark {
+  /* ===========================================
+     BRAND COLORS (adjusted for dark)
+     =========================================== */
+
+  /* Primary - Brighter for dark backgrounds */
+  --color-primary: #E53E3E;
+  --color-primary-hover: #F56565;
+  --color-primary-light: #FC8181;
+  --color-primary-bg: rgba(229, 62, 62, 0.15);
+
+  /* CTA - Brighter gold */
+  --color-cta: #E5B523;
+  --color-cta-hover: #F5C533;
+  --color-cta-dark: #D4A017;
+  --color-cta-bg: rgba(229, 181, 35, 0.2);
+
+  /* Saffron */
+  --color-saffron: #E5B523;
+  --color-saffron-hover: #F5C533;
+  --color-saffron-light: #2A2418;
+
+  /* Curry - Warmer for dark */
+  --color-curry: #C4875A;
+  --color-curry-light: #D4976A;
+  --color-curry-dark: #A67744;
+
+  /* Lotus */
+  --color-lotus: #3D2A28;
+  --color-lotus-light: #4D3A38;
+  --color-lotus-dark: #2D1A18;
+
+  /* ===========================================
+     SEMANTIC COLORS (brighter for visibility)
+     =========================================== */
+
+  /* Success - Jade */
+  --color-jade: #4ADE80;
+  --color-jade-light: #1A2E1A;
+  --color-jade-dark: #22C55E;
+
+  /* Error */
+  --color-error: #F87171;
+  --color-error-light: #2D1A1A;
+  --color-error-dark: #EF4444;
+
+  /* Warning */
+  --color-warning: #FBBF24;
+  --color-warning-light: #2D2A1A;
+  --color-warning-dark: #F59E0B;
+
+  /* Info */
+  --color-info: #60A5FA;
+  --color-info-light: #1A2A3D;
+  --color-info-dark: #3B82F6;
+
+  /* ===========================================
+     NEUTRAL COLORS (inverted with warm tones)
+     =========================================== */
+
+  --color-charcoal: #F5F5F5;
+  --color-charcoal-muted: #A3A3A3;
+  --color-charcoal-light: #D4D4D4;
+
+  /* Warm dark backgrounds - no cold grays */
+  --color-cream: #1A1918;
+  --color-cream-darker: #252423;
+  --color-cream-dark: #302F2D;
+
+  --color-border: #3D3B38;
+  --color-border-light: #4D4B48;
+  --color-border-dark: #2D2B28;
+
+  /* ===========================================
+     BACKGROUND & SURFACE
+     =========================================== */
+
+  --color-background: #1A1918;
+  --color-surface: #252423;
+  --color-surface-elevated: #302F2D;
+  --color-surface-muted: #1F1E1D;
+
+  /* ===========================================
+     TEXT
+     =========================================== */
+
+  --color-text-primary: #F5F5F5;
+  --color-text-secondary: #D4D4D4;
+  --color-text-muted: #A3A3A3;
+  --color-text-inverted: #1A1A1A;
+
+  /* ===========================================
+     SHADOWS (deeper for dark mode)
+     =========================================== */
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+
+  /* Glow shadows - more prominent on dark */
+  --shadow-glow-gold: 0 0 25px rgba(229, 181, 35, 0.5);
+  --shadow-glow-gold-lg: 0 0 50px rgba(229, 181, 35, 0.6);
+  --shadow-glow-jade: 0 0 25px rgba(74, 222, 128, 0.4);
+  --shadow-glow-primary: 0 0 25px rgba(229, 62, 62, 0.4);
+
+  /* Premium shadows */
+  --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(229, 181, 35, 0.15);
+  --shadow-card-hover: 0 20px 30px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(155, 27, 30, 0.2);
+}
+
+/* ============================================
+   CSS KEYFRAMES
+   ============================================ */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes confetti {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.6); }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slide-in-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================
+   THEME TRANSITION
+   ============================================ */
+
+:root {
+  /* Smooth color transitions when theme changes */
+  --theme-transition:
+    background-color var(--duration-standard) var(--ease-in-out),
+    border-color var(--duration-standard) var(--ease-in-out),
+    color var(--duration-fast) var(--ease-in-out);
+}
+
+html {
+  transition: var(--theme-transition);
+}
+
+html.theme-transitioning * {
+  transition: var(--theme-transition) !important;
+}
