@@ -118,7 +118,7 @@ export function PaymentStep() {
         <Button
           onClick={handleCheckout}
           disabled={isLoading}
-          className="bg-primary hover:bg-brand-red/90"
+          className="bg-accent-tertiary text-white hover:bg-accent-tertiary/90"
         >
           {isLoading ? (
             <>

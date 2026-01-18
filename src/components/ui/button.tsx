@@ -8,18 +8,18 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
- * V4 Button System
- * Premium Burmese aesthetic with saffron CTAs
+ * V5 Button System
+ * High contrast design with bold interactive colors
  * Features continuous subtle shimmer on primary CTAs
  *
  * Sizes: sm (32px), md (40px), lg (48px), xl (56px - driver)
- * Variants: primary, secondary, ghost, danger, outline, link
+ * Variants: primary, secondary, ghost, danger, outline, link, success
  */
 const buttonVariants = cva(
   [
     "inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold",
     "transition-all duration-[var(--duration-fast)] ease-out",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-cta)]",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-interactive-primary)]",
     "disabled:pointer-events-none disabled:opacity-50",
     "active:scale-[0.98]",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0",
@@ -29,57 +29,65 @@ const buttonVariants = cva(
       variant: {
         // Primary: Saffron/Gold CTA - main actions with shimmer
         primary: [
-          "bg-[var(--color-cta)] text-white",
-          "shadow-[var(--shadow-md)]",
-          "hover:brightness-110 hover:shadow-[var(--shadow-lg)] hover:-translate-y-0.5",
-          "active:shadow-[var(--shadow-md)] active:translate-y-0",
-          "animate-cta-shimmer", // V4: Continuous subtle shimmer
+          "bg-[var(--color-interactive-primary)] text-[var(--color-text-inverse)]",
+          "shadow-[var(--elevation-2)]",
+          "hover:bg-[var(--color-interactive-hover)] hover:shadow-[var(--elevation-3)] hover:-translate-y-0.5",
+          "active:bg-[var(--color-interactive-active)] active:shadow-[var(--elevation-2)] active:translate-y-0",
+          "animate-cta-shimmer",
         ].join(" "),
 
-        // Secondary: White with saffron border
+        // Secondary: Surface with interactive border
         secondary: [
-          "bg-white text-[var(--color-charcoal)]",
-          "border border-[var(--color-cta)]",
-          "shadow-[var(--shadow-sm)]",
-          "hover:bg-[var(--color-cta-light)] hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5",
-          "active:shadow-[var(--shadow-sm)] active:translate-y-0",
+          "bg-[var(--color-surface-primary)] text-[var(--color-text-primary)]",
+          "border border-[var(--color-interactive-primary)]",
+          "shadow-[var(--elevation-1)]",
+          "hover:bg-[var(--color-interactive-primary-light)] hover:shadow-[var(--elevation-2)] hover:-translate-y-0.5",
+          "active:shadow-[var(--elevation-1)] active:translate-y-0",
         ].join(" "),
 
         // Ghost: Transparent, subtle
         ghost: [
-          "text-[var(--color-charcoal)]",
-          "hover:bg-[var(--color-cream-darker)] hover:text-[var(--color-primary)]",
-          "active:bg-[var(--color-cream-darker)]/80",
+          "text-[var(--color-text-primary)]",
+          "hover:bg-[var(--color-surface-secondary)] hover:text-[var(--color-interactive-primary)]",
+          "active:bg-[var(--color-surface-tertiary)]",
         ].join(" "),
 
         // Danger: Destructive actions
         danger: [
-          "bg-[var(--color-error)] text-white",
-          "shadow-[var(--shadow-md)]",
-          "hover:brightness-110 hover:shadow-[var(--shadow-lg)] hover:-translate-y-0.5",
-          "active:shadow-[var(--shadow-md)] active:translate-y-0",
+          "bg-[var(--color-status-error)] text-[var(--color-text-inverse)]",
+          "shadow-[var(--elevation-2)]",
+          "hover:brightness-110 hover:shadow-[var(--elevation-3)] hover:-translate-y-0.5",
+          "active:shadow-[var(--elevation-2)] active:translate-y-0",
         ].join(" "),
 
-        // Outline: Border only (legacy compatibility)
+        // Success: Positive confirmation
+        success: [
+          "bg-[var(--color-status-success)] text-[var(--color-text-inverse)]",
+          "shadow-[var(--elevation-2)]",
+          "hover:bg-[var(--color-accent-secondary-hover)] hover:shadow-[var(--elevation-3)] hover:-translate-y-0.5",
+          "active:bg-[var(--color-accent-secondary-active)] active:shadow-[var(--elevation-2)] active:translate-y-0",
+        ].join(" "),
+
+        // Outline: Border only
         outline: [
-          "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-charcoal)]",
-          "hover:border-[var(--color-cta)]/50 hover:bg-[var(--color-cta)]/5 hover:text-[var(--color-primary)]",
-          "active:bg-[var(--color-cta)]/10",
+          "border border-[var(--color-border-default)] bg-[var(--color-surface-primary)] text-[var(--color-text-primary)]",
+          "hover:border-[var(--color-interactive-primary)] hover:bg-[var(--color-interactive-primary)]/5 hover:text-[var(--color-interactive-primary)]",
+          "active:bg-[var(--color-interactive-primary)]/10",
         ].join(" "),
 
         // Link: Text-only with underline
         link: [
-          "text-[var(--color-primary)] underline-offset-4",
-          "hover:underline hover:text-[var(--color-primary)]/80",
+          "text-[var(--color-interactive-primary)] underline-offset-4",
+          "hover:underline hover:text-[var(--color-interactive-hover)]",
         ].join(" "),
 
         // Default: Maps to primary for backwards compatibility
         default: [
-          "bg-[var(--color-cta)] text-white",
-          "shadow-[var(--shadow-md)]",
-          "hover:brightness-110 hover:shadow-[var(--shadow-lg)] hover:-translate-y-0.5",
-          "active:shadow-[var(--shadow-md)] active:translate-y-0",
-          "animate-cta-shimmer", // V4: Continuous subtle shimmer
+          "bg-[var(--color-interactive-primary)] text-[var(--color-text-inverse)]",
+          "shadow-[var(--elevation-2)]",
+          "hover:bg-[var(--color-interactive-hover)] hover:shadow-[var(--elevation-3)] hover:-translate-y-0.5",
+          "active:bg-[var(--color-interactive-active)] active:shadow-[var(--elevation-2)] active:translate-y-0",
+          "animate-cta-shimmer",
         ].join(" "),
       },
 

@@ -41,7 +41,7 @@ export function FooterCTA() {
                 href="#menu"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-8 py-4 bg-white text-brand-red font-semibold rounded-xl shadow-premium hover:shadow-premium-lg transition-shadow btn-glow"
+                className="px-8 py-4 bg-white text-accent-tertiary font-semibold rounded-xl shadow-premium hover:shadow-card-hover transition-shadow btn-glow"
               >
                 Order Now
               </motion.a>
@@ -61,7 +61,7 @@ export function FooterCTA() {
       </section>
 
       {/* Bottom Info Section */}
-      <section className="py-12 px-4 bg-brand-red-dark">
+      <section className="py-12 px-4 bg-accent-tertiary">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-3 gap-8 text-white/90">
             {/* Contact Info */}
@@ -77,21 +77,21 @@ export function FooterCTA() {
                   href={`https://maps.google.com/?q=${encodeURIComponent(KITCHEN_LOCATION.address)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-start gap-3 hover:text-gold transition-colors hover:underline underline-offset-2"
+                  className="flex items-start gap-3 hover:text-interactive transition-colors hover:underline underline-offset-2"
                 >
                   <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0" />
                   <span className="text-sm">{KITCHEN_LOCATION.address}</span>
                 </a>
                 <a
                   href="tel:+16261234567"
-                  className="flex items-center gap-3 hover:text-gold transition-colors hover:underline underline-offset-2"
+                  className="flex items-center gap-3 hover:text-interactive transition-colors hover:underline underline-offset-2"
                 >
                   <Phone className="w-5 h-5" />
                   <span className="text-sm">(626) 123-4567</span>
                 </a>
                 <a
                   href="mailto:hello@mandalaymorningstar.com"
-                  className="flex items-center gap-3 hover:text-gold transition-colors hover:underline underline-offset-2"
+                  className="flex items-center gap-3 hover:text-interactive transition-colors hover:underline underline-offset-2"
                 >
                   <Mail className="w-5 h-5" />
                   <span className="text-sm">hello@mandalaymorningstar.com</span>
@@ -117,7 +117,7 @@ export function FooterCTA() {
                 </div>
                 <div className="p-3 bg-white/10 rounded-lg">
                   <p className="text-sm">
-                    <strong className="text-gold">Order Cutoff:</strong> Friday 3:00 PM PT
+                    <strong className="text-interactive">Order Cutoff:</strong> Friday 3:00 PM PT
                   </p>
                 </div>
               </div>
@@ -138,7 +138,7 @@ export function FooterCTA() {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
-                  className="p-3 bg-white/10 rounded-full hover:bg-gold/20 transition-colors"
+                  className="p-3 bg-white/10 rounded-full hover:bg-interactive/20 transition-colors"
                 >
                   <Instagram className="w-6 h-6" />
                 </motion.a>
@@ -148,7 +148,7 @@ export function FooterCTA() {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
-                  className="p-3 bg-white/10 rounded-full hover:bg-gold/20 transition-colors"
+                  className="p-3 bg-white/10 rounded-full hover:bg-interactive/20 transition-colors"
                 >
                   <Facebook className="w-6 h-6" />
                 </motion.a>

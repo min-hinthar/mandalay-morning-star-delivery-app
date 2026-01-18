@@ -86,15 +86,15 @@ export function RouteCard({
             <Calendar className="h-4 w-4" />
             <span className="text-sm">{dateDisplay}</span>
           </div>
-          <span className="rounded-full bg-[var(--color-jade-light)] px-2.5 py-1 text-xs font-medium text-[var(--color-jade)]">
+          <span className="rounded-full bg-[var(--color-status-success-bg)] px-2.5 py-1 text-xs font-medium text-[var(--color-accent-secondary)]">
             Completed
           </span>
         </div>
 
         {/* Success message */}
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-jade-light)]">
-            <CheckCircle className="h-7 w-7 text-[var(--color-jade)]" />
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-status-success-bg)]">
+            <CheckCircle className="h-7 w-7 text-[var(--color-accent-secondary)]" />
           </div>
           <h2 className="font-display text-xl font-bold text-[var(--color-text-primary)]">
             Route Complete!
@@ -104,7 +104,7 @@ export function RouteCard({
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4">
           <div className="rounded-xl bg-[var(--color-surface-muted)] p-4 text-center">
-            <div className="flex items-center justify-center gap-2 text-[var(--color-jade)]">
+            <div className="flex items-center justify-center gap-2 text-[var(--color-accent-secondary)]">
               <TrendingUp className="h-5 w-5" />
             </div>
             <p className="mt-1 text-2xl font-bold text-[var(--color-text-primary)]">
@@ -113,7 +113,7 @@ export function RouteCard({
             <p className="text-xs text-[var(--color-text-muted)]">Delivered</p>
           </div>
           <div className="rounded-xl bg-[var(--color-surface-muted)] p-4 text-center">
-            <div className="flex items-center justify-center gap-2 text-[var(--color-saffron)]">
+            <div className="flex items-center justify-center gap-2 text-[var(--color-interactive-primary)]">
               <Clock className="h-5 w-5" />
             </div>
             <p className="mt-1 text-2xl font-bold text-[var(--color-text-primary)]">
@@ -179,7 +179,7 @@ export function RouteCard({
         <div className="mb-4">
           <div className="flex items-center justify-between text-sm">
             <span className="text-[var(--color-text-muted)]">Progress</span>
-            <span className="font-medium text-[var(--color-jade)]">
+            <span className="font-medium text-[var(--color-accent-secondary)]">
               {route.deliveredCount}/{route.stopCount} ({completionRate}%)
             </span>
           </div>
@@ -188,7 +188,7 @@ export function RouteCard({
               initial={{ width: 0 }}
               animate={{ width: `${completionRate}%` }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="h-full rounded-full bg-[var(--color-jade)]"
+              className="h-full rounded-full bg-[var(--color-accent-secondary)]"
             />
           </div>
         </div>
@@ -199,7 +199,7 @@ export function RouteCard({
         {route.status === "planned" ? (
           <Button
             onClick={onStartRoute}
-            className="h-14 w-full bg-[var(--color-saffron)] text-lg font-semibold text-white hover:bg-[var(--color-saffron)]/90"
+            className="h-14 w-full bg-[var(--color-interactive-primary)] text-lg font-semibold text-white hover:bg-[var(--color-interactive-primary)]/90"
             size="lg"
           >
             Start Route
@@ -207,7 +207,7 @@ export function RouteCard({
         ) : (
           <Button
             onClick={onContinueRoute}
-            className="h-14 w-full bg-[var(--color-saffron)] text-lg font-semibold text-white hover:bg-[var(--color-saffron)]/90"
+            className="h-14 w-full bg-[var(--color-interactive-primary)] text-lg font-semibold text-white hover:bg-[var(--color-interactive-primary)]/90"
             size="lg"
           >
             Continue Route
@@ -222,11 +222,11 @@ function StatusBadge({ status }: { status: RoutesRow["status"] }) {
   const statusConfig = {
     planned: {
       label: "Ready",
-      className: "bg-[var(--color-saffron-light)] text-[var(--color-saffron)]",
+      className: "bg-[var(--color-interactive-primary-light)] text-[var(--color-interactive-primary)]",
     },
     in_progress: {
       label: "In Progress",
-      className: "bg-[var(--color-jade-light)] text-[var(--color-jade)]",
+      className: "bg-[var(--color-status-success-bg)] text-[var(--color-accent-secondary)]",
     },
     completed: {
       label: "Completed",

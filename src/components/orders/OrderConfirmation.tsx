@@ -41,8 +41,8 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
           transition={{ type: "spring", stiffness: 200, damping: 15 }}
           className="flex justify-center mb-8"
         >
-          <div className="rounded-full bg-jade/10 p-4">
-            <CheckCircle className="h-16 w-16 text-jade" />
+          <div className="rounded-full bg-accent-secondary/10 p-4">
+            <CheckCircle className="h-16 w-16 text-accent-secondary" />
           </div>
         </motion.div>
 
@@ -70,9 +70,9 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="mb-6 border-jade/20 shadow-lg">
-            <CardHeader className="bg-jade/5 border-b border-jade/10">
-              <div className="flex items-center gap-2 text-jade">
+          <Card className="mb-6 border-accent-secondary/20 shadow-lg">
+            <CardHeader className="bg-accent-secondary/5 border-b border-accent-secondary/10">
+              <div className="flex items-center gap-2 text-accent-secondary">
                 <Package className="h-5 w-5" />
                 <span className="font-medium">Order Summary</span>
               </div>
@@ -106,7 +106,7 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
                   <span className="text-muted-foreground">Delivery Fee</span>
                   <span>
                     {order.deliveryFeeCents === 0 ? (
-                      <span className="text-jade">FREE</span>
+                      <span className="text-accent-secondary">FREE</span>
                     ) : (
                       formatPrice(order.deliveryFeeCents)
                     )}
@@ -120,7 +120,7 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
                 )}
                 <div className="flex justify-between font-medium text-lg pt-2 border-t">
                   <span>Total</span>
-                  <span className="text-brand-red">{formatPrice(order.totalCents)}</span>
+                  <span className="text-accent-tertiary">{formatPrice(order.totalCents)}</span>
                 </div>
               </div>
             </CardContent>
@@ -137,8 +137,8 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
           {/* Delivery Time */}
           <Card>
             <CardContent className="p-4 flex items-start gap-3">
-              <div className="rounded-full bg-saffron/10 p-2">
-                <Clock className="h-5 w-5 text-saffron" />
+              <div className="rounded-full bg-interactive/10 p-2">
+                <Clock className="h-5 w-5 text-interactive" />
               </div>
               <div>
                 <p className="font-medium text-charcoal">Delivery Time</p>
@@ -151,8 +151,8 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
           {/* Delivery Address */}
           <Card>
             <CardContent className="p-4 flex items-start gap-3">
-              <div className="rounded-full bg-curry/10 p-2">
-                <MapPin className="h-5 w-5 text-curry" />
+              <div className="rounded-full bg-accent-tertiary/10 p-2">
+                <MapPin className="h-5 w-5 text-accent-tertiary" />
               </div>
               <div>
                 <p className="font-medium text-charcoal">Delivery Address</p>
@@ -198,7 +198,7 @@ export function OrderConfirmation({ order }: OrderConfirmationProps) {
           className="text-center text-sm text-muted-foreground mt-8"
         >
           Questions about your order?{" "}
-          <a href="mailto:support@mandalaymorningstar.com" className="text-brand-red hover:underline">
+          <a href="mailto:support@mandalaymorningstar.com" className="text-accent-tertiary hover:underline">
             Contact us
           </a>
         </motion.p>

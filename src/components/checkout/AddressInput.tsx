@@ -118,7 +118,7 @@ export function AddressInput({
     <div className={cn("space-y-4", className)} ref={containerRef}>
       {/* Section Label */}
       <div className="flex items-center gap-2">
-        <MapPin className="h-5 w-5 text-[var(--color-saffron)]" />
+        <MapPin className="h-5 w-5 text-[var(--color-interactive-primary)]" />
         <h3 className="font-semibold text-[var(--color-text-primary)]">
           Delivery Address
         </h3>
@@ -140,10 +140,10 @@ export function AddressInput({
                 whileTap={{ scale: 0.99 }}
                 className={cn(
                   "w-full p-4 rounded-xl border-2 text-left transition-all duration-200",
-                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)]",
+                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)]",
                   isSelected
-                    ? "border-[var(--color-saffron)] bg-[var(--color-saffron-light)]"
-                    : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-saffron)]/50"
+                    ? "border-[var(--color-interactive-primary)] bg-[var(--color-interactive-primary-light)]"
+                    : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-interactive-primary)]/50"
                 )}
               >
                 <div className="flex items-start gap-3">
@@ -152,7 +152,7 @@ export function AddressInput({
                     className={cn(
                       "mt-0.5 h-5 w-5 rounded-full border-2 flex items-center justify-center flex-shrink-0",
                       isSelected
-                        ? "border-[var(--color-saffron)] bg-[var(--color-saffron)]"
+                        ? "border-[var(--color-interactive-primary)] bg-[var(--color-interactive-primary)]"
                         : "border-[var(--color-border)]"
                     )}
                   >
@@ -194,9 +194,9 @@ export function AddressInput({
           onClick={handleAddNewClick}
           className={cn(
             "w-full p-4 rounded-xl border-2 border-dashed",
-            "border-[var(--color-border)] hover:border-[var(--color-saffron)]/50",
-            "bg-transparent hover:bg-[var(--color-saffron-light)]/30",
-            "text-[var(--color-text-muted)] hover:text-[var(--color-saffron)]",
+            "border-[var(--color-border)] hover:border-[var(--color-interactive-primary)]/50",
+            "bg-transparent hover:bg-[var(--color-interactive-primary-light)]/30",
+            "text-[var(--color-text-muted)] hover:text-[var(--color-interactive-primary)]",
             "flex items-center justify-center gap-2 transition-all duration-200"
           )}
         >
@@ -222,7 +222,7 @@ export function AddressInput({
                 "border-2 border-[var(--color-border)]",
                 "bg-[var(--color-surface)] text-[var(--color-text-primary)]",
                 "placeholder:text-[var(--color-text-muted)]",
-                "focus:outline-none focus:border-[var(--color-saffron)]",
+                "focus:outline-none focus:border-[var(--color-interactive-primary)]",
                 "transition-colors duration-200"
               )}
             />
@@ -275,7 +275,7 @@ export function AddressInput({
             <button
               type="button"
               onClick={() => setIsNewAddressMode(false)}
-              className="mt-3 text-sm text-[var(--color-saffron)] hover:underline"
+              className="mt-3 text-sm text-[var(--color-interactive-primary)] hover:underline"
             >
               ← Use saved address instead
             </button>
@@ -293,7 +293,7 @@ export function AddressInput({
             exit={{ opacity: 0, y: -10 }}
             className="flex items-center gap-3 p-4 rounded-xl bg-[var(--color-surface-muted)]"
           >
-            <Loader2 className="h-5 w-5 text-[var(--color-saffron)] animate-spin" />
+            <Loader2 className="h-5 w-5 text-[var(--color-interactive-primary)] animate-spin" />
             <span className="text-sm text-[var(--color-text-secondary)]">
               Checking delivery coverage...
             </span>
@@ -306,12 +306,12 @@ export function AddressInput({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="flex items-center gap-3 p-4 rounded-xl bg-[var(--color-jade-light)] border border-[var(--color-jade)]/20"
+            className="flex items-center gap-3 p-4 rounded-xl bg-[var(--color-status-success-bg)] border border-[var(--color-accent-secondary)]/20"
           >
-            <div className="h-8 w-8 rounded-full bg-[var(--color-jade)] flex items-center justify-center flex-shrink-0">
+            <div className="h-8 w-8 rounded-full bg-[var(--color-accent-secondary)] flex items-center justify-center flex-shrink-0">
               <Check className="h-5 w-5 text-white" />
             </div>
-            <span className="text-sm font-medium text-[var(--color-jade)]">
+            <span className="text-sm font-medium text-[var(--color-accent-secondary)]">
               Address is in our delivery area
             </span>
           </motion.div>

@@ -44,7 +44,7 @@ export function CheckoutStepper({
                 {index > 0 && (
                   <div className="flex-1 h-0.5 bg-[var(--color-border)]">
                     <motion.div
-                      className="h-full bg-[var(--color-jade)]"
+                      className="h-full bg-[var(--color-accent-secondary)]"
                       initial={{ width: 0 }}
                       animate={{ width: isCompleted || isCurrent ? "100%" : "0%" }}
                       transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
@@ -63,9 +63,9 @@ export function CheckoutStepper({
                     "relative flex items-center justify-center rounded-full",
                     "h-8 w-8",
                     "text-sm font-semibold transition-all duration-200",
-                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)] focus-visible:ring-offset-2",
-                    isCompleted && "cursor-pointer bg-[var(--color-jade)] text-white shadow-sm",
-                    isCurrent && "bg-[var(--color-saffron)] text-white shadow-[var(--shadow-glow-gold)]",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)] focus-visible:ring-offset-2",
+                    isCompleted && "cursor-pointer bg-[var(--color-accent-secondary)] text-white shadow-sm",
+                    isCurrent && "bg-[var(--color-interactive-primary)] text-white shadow-[var(--shadow-glow-gold)]",
                     !isCompleted && !isCurrent && "border-2 border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-muted)]"
                   )}
                   aria-current={isCurrent ? "step" : undefined}
@@ -87,7 +87,7 @@ export function CheckoutStepper({
                 {index < CHECKOUT_STEPS.length - 1 && (
                   <div className="flex-1 h-0.5 bg-[var(--color-border)]">
                     <motion.div
-                      className="h-full bg-[var(--color-jade)]"
+                      className="h-full bg-[var(--color-accent-secondary)]"
                       initial={{ width: 0 }}
                       animate={{ width: isCompleted ? "100%" : "0%" }}
                       transition={{ duration: 0.4, ease: "easeOut" }}
@@ -100,7 +100,7 @@ export function CheckoutStepper({
               <motion.span
                 className={cn(
                   "mt-2 text-[10px] font-bold uppercase tracking-wider transition-colors duration-200",
-                  isCompleted && "text-[var(--color-jade)]",
+                  isCompleted && "text-[var(--color-accent-secondary)]",
                   isCurrent && "text-[var(--color-text-primary)]",
                   !isCompleted && !isCurrent && "text-[var(--color-text-muted)]"
                 )}

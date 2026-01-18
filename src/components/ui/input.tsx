@@ -5,21 +5,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils/cn";
 
 /**
- * V3 Input System
- * Premium Burmese aesthetic with warm tones
+ * V5 Input System
+ * High contrast design with V5 semantic tokens
  *
- * Height: 44px, refined styling with V3 design tokens
+ * Height: 44px, refined styling with V5 design tokens
+ * Variants: default, error, success
  */
 const inputVariants = cva(
   [
     "flex w-full",
-    "bg-[var(--color-surface)] text-[var(--color-charcoal)]",
-    "border border-[var(--color-border)]",
+    "bg-[var(--color-surface-primary)] text-[var(--color-text-primary)]",
+    "border border-[var(--color-border-default)]",
     "font-[var(--font-body)] text-base",
-    "placeholder:text-[var(--color-charcoal-muted)]",
+    "placeholder:text-[var(--color-text-secondary)]",
     "transition-all duration-[var(--duration-fast)]",
-    "focus-visible:outline-none focus-visible:border-[var(--color-cta)] focus-visible:ring-2 focus-visible:ring-[var(--color-cta)]/20",
-    "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--color-cream-darker)]",
+    "focus-visible:outline-none focus-visible:border-[var(--color-interactive-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)]/20",
+    "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--color-surface-tertiary)]",
     "file:border-0 file:bg-transparent file:text-sm file:font-medium",
   ].join(" "),
   {
@@ -32,9 +33,14 @@ const inputVariants = cva(
       variant: {
         default: "",
         error: [
-          "border-[var(--color-error)]",
-          "focus-visible:border-[var(--color-error)] focus-visible:ring-[var(--color-error)]/20",
-          "bg-[var(--color-error-light)]",
+          "border-[var(--color-status-error)]",
+          "focus-visible:border-[var(--color-status-error)] focus-visible:ring-[var(--color-status-error)]/20",
+          "bg-[var(--color-status-error-bg)]",
+        ].join(" "),
+        success: [
+          "border-[var(--color-status-success)]",
+          "focus-visible:border-[var(--color-status-success)] focus-visible:ring-[var(--color-status-success)]/20",
+          "bg-[var(--color-status-success-bg)]",
         ].join(" "),
       },
     },
@@ -72,7 +78,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {error && (
           <p
             id={`${props.id}-error`}
-            className="mt-1.5 text-sm text-[var(--color-error)] flex items-center gap-1"
+            className="mt-1.5 text-sm text-[var(--color-status-error)] flex items-center gap-1"
             role="alert"
           >
             <svg
@@ -93,7 +99,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {!error && helperText && (
           <p
             id={`${props.id}-helper`}
-            className="mt-1.5 text-sm text-[var(--color-charcoal-muted)]"
+            className="mt-1.5 text-sm text-[var(--color-text-secondary)]"
           >
             {helperText}
           </p>

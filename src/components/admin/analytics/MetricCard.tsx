@@ -29,19 +29,19 @@ const cardVariants = {
 
 const colorStyles = {
   saffron: {
-    icon: "bg-saffron/10 text-saffron",
-    trend: "text-saffron",
-    accent: "border-l-saffron",
+    icon: "bg-interactive/10 text-interactive",
+    trend: "text-interactive",
+    accent: "border-l-interactive",
   },
   jade: {
-    icon: "bg-jade/10 text-jade",
-    trend: "text-jade",
-    accent: "border-l-jade",
+    icon: "bg-accent-secondary/10 text-accent-secondary",
+    trend: "text-accent-secondary",
+    accent: "border-l-accent-secondary",
   },
   curry: {
-    icon: "bg-curry/10 text-curry",
-    trend: "text-curry",
-    accent: "border-l-curry",
+    icon: "bg-accent-tertiary/10 text-accent-tertiary",
+    trend: "text-accent-tertiary",
+    accent: "border-l-accent-tertiary",
   },
   charcoal: {
     icon: "bg-charcoal/10 text-charcoal-600",
@@ -123,15 +123,15 @@ export function MetricCard({
           animate={{ opacity: 1 }}
           className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm"
         >
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-saffron border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-interactive border-t-transparent" />
         </motion.div>
       )}
 
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-charcoal-500">{title}</p>
+          <p className="text-sm font-medium text-text-secondary">{title}</p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-charcoal-900">
+            <span className="text-3xl font-bold text-text-primary">
               {formatValue(value)}
             </span>
           </div>
@@ -146,8 +146,8 @@ export function MetricCard({
             >
               {calculatedTrend === "up" && (
                 <>
-                  <TrendingUp className="h-4 w-4 text-jade" />
-                  <span className="text-sm font-medium text-jade">
+                  <TrendingUp className="h-4 w-4 text-accent-secondary" />
+                  <span className="text-sm font-medium text-accent-secondary">
                     +{calculatedTrendValue}%
                   </span>
                 </>
@@ -162,13 +162,13 @@ export function MetricCard({
               )}
               {calculatedTrend === "stable" && (
                 <>
-                  <Minus className="h-4 w-4 text-charcoal-400" />
-                  <span className="text-sm font-medium text-charcoal-400">
+                  <Minus className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-muted-foreground">
                     No change
                   </span>
                 </>
               )}
-              <span className="text-xs text-charcoal-400">vs last period</span>
+              <span className="text-xs text-muted-foreground">vs last period</span>
             </motion.div>
           )}
         </div>
@@ -187,7 +187,7 @@ export function MetricCard({
       </div>
 
       {/* Subtle gradient overlay */}
-      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-saffron/5 to-transparent" />
+      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-interactive/5 to-transparent" />
     </motion.div>
   );
 }

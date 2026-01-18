@@ -189,7 +189,7 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
             onClick={onScrollToMenu}
-            className="px-8 py-4 bg-white text-brand-red font-semibold rounded-xl shadow-premium hover:shadow-premium-lg transition-shadow btn-glow"
+            className="px-8 py-4 bg-white text-accent-tertiary font-semibold rounded-xl shadow-premium hover:shadow-card-hover transition-shadow btn-glow"
           >
             View Our Menu
           </motion.button>
@@ -207,11 +207,11 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
         {/* Saturday Badge */}
         <motion.div
           variants={heroItem}
-          className="mt-10 inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)]/90 backdrop-blur-sm rounded-full shadow-lg"
+          className="mt-10 inline-flex items-center gap-2 px-6 py-3 bg-accent-tertiary/90 backdrop-blur-sm rounded-full shadow-lg"
         >
           <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-jade opacity-75" />
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-jade" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-secondary opacity-75" />
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-accent-secondary" />
           </span>
           <span className="text-white font-medium drop-shadow-sm">
             Fresh deliveries every Saturday, 11am - 7pm

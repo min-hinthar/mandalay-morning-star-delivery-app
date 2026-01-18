@@ -11,6 +11,65 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        /* ===========================================
+           V5 SEMANTIC COLORS (Primary System)
+           =========================================== */
+
+        // V5 Surface Colors
+        surface: {
+          primary: "var(--color-surface-primary)",
+          secondary: "var(--color-surface-secondary)",
+          tertiary: "var(--color-surface-tertiary)",
+        },
+
+        // V5 Text Colors
+        text: {
+          primary: "var(--color-text-primary)",
+          secondary: "var(--color-text-secondary)",
+          inverse: "var(--color-text-inverse)",
+        },
+
+        // V5 Interactive Colors (Saffron Gold)
+        interactive: {
+          DEFAULT: "var(--color-interactive-primary)",
+          hover: "var(--color-interactive-hover)",
+          active: "var(--color-interactive-active)",
+          disabled: "var(--color-interactive-disabled)",
+        },
+
+        // V5 Accent Colors
+        accent: {
+          secondary: "var(--color-accent-secondary)",
+          "secondary-hover": "var(--color-accent-secondary-hover)",
+          "secondary-active": "var(--color-accent-secondary-active)",
+          tertiary: "var(--color-accent-tertiary)",
+          "tertiary-hover": "var(--color-accent-tertiary-hover)",
+          "tertiary-active": "var(--color-accent-tertiary-active)",
+        },
+
+        // V5 Status Colors
+        status: {
+          success: "var(--color-status-success)",
+          "success-bg": "var(--color-status-success-bg)",
+          warning: "var(--color-status-warning)",
+          "warning-bg": "var(--color-status-warning-bg)",
+          error: "var(--color-status-error)",
+          "error-bg": "var(--color-status-error-bg)",
+          info: "var(--color-status-info)",
+          "info-bg": "var(--color-status-info-bg)",
+        },
+
+        // V5 Border Colors
+        "border-v5": {
+          DEFAULT: "var(--color-border-default)",
+          strong: "var(--color-border-strong)",
+          subtle: "var(--color-border-subtle)",
+        },
+
+        /* ===========================================
+           V4 COMPATIBILITY COLORS (Preserved)
+           =========================================== */
+
         // Primary brand colors - Burmese aesthetic
         gold: {
           DEFAULT: "#D4AF37",
@@ -107,6 +166,101 @@ const config: Config = {
         body: ["var(--font-inter)", "sans-serif"],
         burmese: ["Padauk", "sans-serif"],
       },
+      fontSize: {
+        // V5 Typography Scale with recommended line heights
+        xs: ["var(--text-xs)", { lineHeight: "var(--leading-normal)" }],
+        sm: ["var(--text-sm)", { lineHeight: "var(--leading-normal)" }],
+        base: ["var(--text-base)", { lineHeight: "var(--leading-normal)" }],
+        lg: ["var(--text-lg)", { lineHeight: "var(--leading-relaxed)" }],
+        xl: ["var(--text-xl)", { lineHeight: "var(--leading-snug)" }],
+        "2xl": ["var(--text-2xl)", { lineHeight: "var(--leading-tight)" }],
+        "3xl": ["var(--text-3xl)", { lineHeight: "var(--leading-tight)" }],
+        "4xl": ["var(--text-4xl)", { lineHeight: "var(--leading-tight)" }],
+        "5xl": ["var(--text-5xl)", { lineHeight: "var(--leading-tight)" }],
+        "6xl": ["var(--text-6xl)", { lineHeight: "var(--leading-none)" }],
+        "7xl": ["var(--text-7xl)", { lineHeight: "var(--leading-none)" }],
+      },
+      lineHeight: {
+        none: "var(--leading-none)",
+        tight: "var(--leading-tight)",
+        snug: "var(--leading-snug)",
+        normal: "var(--leading-normal)",
+        relaxed: "var(--leading-relaxed)",
+        loose: "var(--leading-loose)",
+      },
+      letterSpacing: {
+        tighter: "var(--tracking-tighter)",
+        tight: "var(--tracking-tight)",
+        normal: "var(--tracking-normal)",
+        wide: "var(--tracking-wide)",
+        wider: "var(--tracking-wider)",
+        widest: "var(--tracking-widest)",
+      },
+      spacing: {
+        // V5 Spacing Scale (4px base grid)
+        "0": "var(--space-0)",
+        "px": "var(--space-px)",
+        "0.5": "var(--space-0-5)",
+        "1": "var(--space-1)",
+        "1.5": "var(--space-1-5)",
+        "2": "var(--space-2)",
+        "2.5": "var(--space-2-5)",
+        "3": "var(--space-3)",
+        "3.5": "var(--space-3-5)",
+        "4": "var(--space-4)",
+        "5": "var(--space-5)",
+        "6": "var(--space-6)",
+        "7": "var(--space-7)",
+        "8": "var(--space-8)",
+        "9": "var(--space-9)",
+        "10": "var(--space-10)",
+        "11": "var(--space-11)",
+        "12": "var(--space-12)",
+        "14": "var(--space-14)",
+        "16": "var(--space-16)",
+        "20": "var(--space-20)",
+        "24": "var(--space-24)",
+        "28": "var(--space-28)",
+        "32": "var(--space-32)",
+      },
+      boxShadow: {
+        // V5 Elevation System
+        "elevation-0": "var(--elevation-0)",
+        "elevation-1": "var(--elevation-1)",
+        "elevation-2": "var(--elevation-2)",
+        "elevation-3": "var(--elevation-3)",
+        "elevation-4": "var(--elevation-4)",
+        "elevation-5": "var(--elevation-5)",
+        // V4 Aliases
+        sm: "var(--shadow-sm)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+        xl: "var(--shadow-xl)",
+        "2xl": "var(--shadow-2xl)",
+        // Glow shadows
+        "glow-gold": "var(--shadow-glow-gold)",
+        "glow-gold-lg": "var(--shadow-glow-gold-lg)",
+        "glow-jade": "var(--shadow-glow-jade)",
+        "glow-chili": "var(--shadow-glow-chili)",
+        // Premium
+        premium: "var(--shadow-premium)",
+        "card-hover": "var(--shadow-card-hover)",
+        inner: "var(--shadow-inner)",
+        "inner-glow": "var(--shadow-inner-glow)",
+      },
+      zIndex: {
+        // V5 Z-Index Layer System
+        base: "var(--z-base)",
+        dropdown: "var(--z-dropdown)",
+        sticky: "var(--z-sticky)",
+        fixed: "var(--z-fixed)",
+        "modal-backdrop": "var(--z-modal-backdrop)",
+        modal: "var(--z-modal)",
+        popover: "var(--z-popover)",
+        tooltip: "var(--z-tooltip)",
+        toast: "var(--z-toast)",
+        max: "var(--z-max)",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -164,24 +318,6 @@ const config: Config = {
           "0%": { boxShadow: "0 0 20px rgba(212, 175, 55, 0.4)" },
           "100%": { boxShadow: "0 0 30px rgba(212, 175, 55, 0.6)" },
         },
-      },
-      // Premium shadows for elevated UI
-      boxShadow: {
-        "glow-gold": "0 0 20px rgba(212, 175, 55, 0.4)",
-        "glow-gold-lg": "0 0 40px rgba(212, 175, 55, 0.5)",
-        "glow-jade": "0 0 20px rgba(46, 139, 87, 0.4)",
-        "glow-red": "0 0 20px rgba(139, 26, 26, 0.3)",
-        premium:
-          "0 25px 50px -12px rgba(139, 69, 19, 0.25), 0 0 15px rgba(212, 175, 55, 0.1)",
-        "premium-lg":
-          "0 35px 60px -15px rgba(139, 69, 19, 0.3), 0 0 25px rgba(212, 175, 55, 0.15)",
-        glass: "0 8px 32px rgba(0, 0, 0, 0.1)",
-        "inner-glow": "inset 0 0 20px rgba(212, 175, 55, 0.2)",
-        // Warm shadows (curry-tinted instead of black)
-        "warm-sm": "0 1px 2px rgba(139, 69, 19, 0.05)",
-        "warm-md": "0 4px 6px -1px rgba(139, 69, 19, 0.1), 0 2px 4px -1px rgba(139, 69, 19, 0.06)",
-        "warm-lg": "0 10px 15px -3px rgba(139, 69, 19, 0.1), 0 4px 6px -2px rgba(139, 69, 19, 0.05)",
-        "warm-xl": "0 20px 25px -5px rgba(139, 69, 19, 0.1), 0 10px 10px -5px rgba(139, 69, 19, 0.04)",
       },
       // Background images for patterns
       backgroundImage: {

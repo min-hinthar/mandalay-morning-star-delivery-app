@@ -149,7 +149,7 @@ export function CategoryTabs({
                   "rounded-full text-sm font-semibold",
                   "min-h-[44px] min-w-[44px]",
                   "transition-all duration-[var(--duration-fast)] ease-out",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)] focus-visible:ring-offset-2",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)] focus-visible:ring-offset-2",
                   isActive
                     ? "text-white"
                     : [
@@ -167,7 +167,7 @@ export function CategoryTabs({
                     layoutId="activeTabBackground"
                     className={cn(
                       "absolute inset-0 rounded-full",
-                      "bg-[var(--color-cta)]",
+                      "bg-[var(--color-interactive-primary)]",
                       "shadow-[var(--shadow-glow-primary)]"
                     )}
                     initial={false}

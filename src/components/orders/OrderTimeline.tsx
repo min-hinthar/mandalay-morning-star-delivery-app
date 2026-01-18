@@ -103,8 +103,8 @@ export function OrderTimeline({
               <div
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors",
-                  isCompleted && "border-jade bg-jade text-white",
-                  isCurrent && "border-saffron bg-saffron text-white",
+                  isCompleted && "border-accent-secondary bg-accent-secondary text-white",
+                  isCurrent && "border-interactive bg-interactive text-white",
                   isPending && "border-gray-300 bg-white text-gray-400"
                 )}
               >
@@ -114,7 +114,7 @@ export function OrderTimeline({
                 <div
                   className={cn(
                     "w-0.5 flex-1 min-h-8",
-                    isCompleted ? "bg-jade" : "bg-gray-200"
+                    isCompleted ? "bg-accent-secondary" : "bg-gray-200"
                   )}
                 />
               )}
@@ -125,8 +125,8 @@ export function OrderTimeline({
               <p
                 className={cn(
                   "font-medium",
-                  isCompleted && "text-jade",
-                  isCurrent && "text-saffron",
+                  isCompleted && "text-accent-secondary",
+                  isCurrent && "text-interactive",
                   isPending && "text-gray-400"
                 )}
               >
@@ -138,7 +138,7 @@ export function OrderTimeline({
                 </p>
               )}
               {isCurrent && !step.timestamp && (
-                <p className="text-sm text-saffron">In progress...</p>
+                <p className="text-sm text-interactive">In progress...</p>
               )}
             </div>
           </div>

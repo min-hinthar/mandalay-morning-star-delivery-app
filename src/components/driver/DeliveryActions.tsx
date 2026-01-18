@@ -63,8 +63,8 @@ export function DeliveryActions({
             disabled={disabled || isLoading}
             className={cn(
               "flex h-14 w-full items-center justify-center gap-3 rounded-xl font-semibold",
-              "bg-jade-500 text-white shadow-warm-sm",
-              "transition-all hover:bg-jade-600 hover:shadow-warm-md",
+              "bg-accent-secondary text-white shadow-warm-sm",
+              "transition-all hover:bg-accent-secondary/90 hover:shadow-warm-md",
               "active:scale-[0.98]",
               "disabled:cursor-not-allowed disabled:opacity-50"
             )}
@@ -88,8 +88,8 @@ export function DeliveryActions({
             disabled={disabled || isLoading}
             className={cn(
               "flex h-14 w-full items-center justify-center gap-3 rounded-xl font-semibold",
-              "bg-jade-500 text-white shadow-warm-sm",
-              "transition-all hover:bg-jade-600 hover:shadow-warm-md",
+              "bg-accent-secondary text-white shadow-warm-sm",
+              "transition-all hover:bg-accent-secondary/90 hover:shadow-warm-md",
               "active:scale-[0.98]",
               "disabled:cursor-not-allowed disabled:opacity-50"
             )}
@@ -108,7 +108,7 @@ export function DeliveryActions({
 
       case "delivered":
         return (
-          <div className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-jade-100 font-semibold text-jade-700">
+          <div className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-status-success-bg font-semibold text-accent-secondary">
             <Check className="h-5 w-5" />
             <span>Delivered</span>
           </div>

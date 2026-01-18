@@ -66,13 +66,13 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
                     {formatPrice(amountToFreeDelivery)} more for free delivery
                   </span>
                 </div>
-                <span className="text-[var(--text-xs)] font-medium text-[var(--color-saffron)]">
+                <span className="text-[var(--text-xs)] font-medium text-[var(--color-interactive-primary)]">
                   {Math.round(progressPercent)}%
                 </span>
               </div>
               <div className="h-1.5 rounded-full bg-[var(--color-border)] overflow-hidden">
                 <motion.div
-                  className="h-full rounded-full bg-[var(--color-saffron)]"
+                  className="h-full rounded-full bg-[var(--color-interactive-primary)]"
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPercent}%` }}
                   transition={{ duration: 0.5, ease: "easeOut" }}
@@ -87,7 +87,7 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="flex items-center justify-center gap-2 py-1.5 rounded-full bg-[var(--color-jade-light)] text-[var(--color-jade)]"
+                className="flex items-center justify-center gap-2 py-1.5 rounded-full bg-[var(--color-status-success-bg)] text-[var(--color-accent-secondary)]"
               >
                 <Truck className="h-4 w-4" />
                 <span className="text-[var(--text-sm)] font-semibold">
@@ -104,13 +104,13 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
               onClick={handleViewCart}
               className={cn(
                 "flex items-center gap-3 min-w-0",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)] rounded-lg p-1 -m-1"
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)] rounded-lg p-1 -m-1"
               )}
               aria-label={`View cart with ${itemCount} items`}
             >
               <div className="relative flex-shrink-0">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-primary-bg)]">
-                  <ShoppingBag className="h-5 w-5 text-[var(--color-primary)]" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-status-error-bg)]">
+                  <ShoppingBag className="h-5 w-5 text-[var(--color-accent-tertiary)]" />
                 </div>
                 <motion.span
                   key={itemCount}
@@ -118,7 +118,7 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
                   animate={{ scale: 1, opacity: 1 }}
                   className={cn(
                     "absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center",
-                    "rounded-full bg-[var(--color-cta)] text-[var(--color-charcoal)]",
+                    "rounded-full bg-[var(--color-interactive-primary)] text-[var(--color-charcoal)]",
                     "text-[10px] font-bold shadow-sm"
                   )}
                 >
@@ -156,7 +156,7 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
                 <Button
                   size="sm"
                   onClick={handleCheckout}
-                  className="bg-[var(--color-cta)] text-[var(--color-charcoal)] hover:bg-[var(--color-cta-hover)] shadow-sm"
+                  className="bg-[var(--color-interactive-primary)] text-[var(--color-charcoal)] hover:bg-[var(--color-interactive-hover)] shadow-sm"
                 >
                   Checkout
                 </Button>

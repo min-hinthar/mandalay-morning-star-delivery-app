@@ -89,10 +89,10 @@ export function KPICard({
     if (comparison === undefined || comparison === 0) return "text-[var(--color-charcoal-muted)]";
     // For exceptions, down is good (jade), up is bad (error)
     if (variant === "exception") {
-      return comparison > 0 ? "text-[var(--color-error)]" : "text-[var(--color-jade)]";
+      return comparison > 0 ? "text-[var(--color-status-error)]" : "text-[var(--color-accent-secondary)]";
     }
     // For default, up is good (jade), down is bad (error)
-    return comparison > 0 ? "text-[var(--color-jade)]" : "text-[var(--color-error)]";
+    return comparison > 0 ? "text-[var(--color-accent-secondary)]" : "text-[var(--color-status-error)]";
   };
 
   const getComparisonIcon = () => {
@@ -134,18 +134,18 @@ export function KPICard({
       <div
         className={cn(
           "h-[100px] rounded-[var(--radius-md)] bg-white",
-          "border border-[var(--color-error-light)]",
+          "border border-[var(--color-status-error-bg)]",
           "p-[var(--space-4)]",
           "flex flex-col items-center justify-center gap-2",
           className
         )}
       >
-        <AlertTriangle className="h-5 w-5 text-[var(--color-error)]" />
-        <span className="text-xs text-[var(--color-error)]">Error loading</span>
+        <AlertTriangle className="h-5 w-5 text-[var(--color-status-error)]" />
+        <span className="text-xs text-[var(--color-status-error)]">Error loading</span>
         {onRetry && (
           <button
             onClick={onRetry}
-            className="text-xs font-medium text-[var(--color-primary)] hover:underline"
+            className="text-xs font-medium text-[var(--color-accent-tertiary)] hover:underline"
           >
             Retry
           </button>
@@ -168,8 +168,8 @@ export function KPICard({
         "transition-shadow duration-[var(--duration-fast)]",
         onClick && "cursor-pointer",
         isExceptionHighlighted && [
-          "border-[var(--color-error)]",
-          "bg-[var(--color-error-light)]",
+          "border-[var(--color-status-error)]",
+          "bg-[var(--color-status-error-bg)]",
         ],
         className
       )}
@@ -199,7 +199,7 @@ export function KPICard({
           className={cn(
             "font-display text-4xl font-bold leading-none",
             isExceptionHighlighted
-              ? "text-[var(--color-error)]"
+              ? "text-[var(--color-status-error)]"
               : "text-[var(--color-charcoal)]"
           )}
         >

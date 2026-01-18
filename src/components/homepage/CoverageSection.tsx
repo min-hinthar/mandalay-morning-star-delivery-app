@@ -90,14 +90,14 @@ export function CoverageSection() {
           viewport={viewportSettings}
           className="text-center mb-12"
         >
-          <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-2 bg-gold/10 rounded-full mb-4">
-            <MapPin className="w-4 h-4 text-gold" />
-            <span className="text-sm font-medium text-gold-dark">Delivery Coverage</span>
+          <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-2 bg-interactive/10 rounded-full mb-4">
+            <MapPin className="w-4 h-4 text-interactive" />
+            <span className="text-sm font-medium text-interactive">Delivery Coverage</span>
           </motion.div>
 
           <motion.h2
             variants={fadeInUp}
-            className="font-display text-3xl md:text-4xl lg:text-5xl text-brand-red mb-4"
+            className="font-display text-3xl md:text-4xl lg:text-5xl text-accent-tertiary mb-4"
           >
             Check If We Deliver To You
           </motion.h2>
@@ -137,7 +137,7 @@ export function CoverageSection() {
                       value={addressInput}
                       onChange={(e) => setAddressInput(e.target.value)}
                       placeholder="Enter your delivery address"
-                      className="w-full px-4 py-4 rounded-xl border-2 border-border bg-white focus:border-gold focus:ring-0 outline-none transition-colors"
+                      className="w-full px-4 py-4 rounded-xl border-2 border-border bg-white focus:border-interactive focus:ring-0 outline-none transition-colors"
                       disabled={isPending}
                     />
                   )}
@@ -147,7 +147,7 @@ export function CoverageSection() {
                   <Button
                     type="submit"
                     disabled={isPending || !addressInput.trim()}
-                    className="flex-1 bg-brand-red hover:bg-brand-red-light text-white py-6 rounded-xl font-semibold btn-glow"
+                    className="flex-1 bg-accent-tertiary hover:bg-accent-tertiary-hover text-white py-6 rounded-xl font-semibold btn-glow"
                   >
                     {isPending ? (
                       <>
@@ -180,13 +180,13 @@ export function CoverageSection() {
                   className="mt-6"
                 >
                   {coverageResult.isValid ? (
-                    <div className="p-6 rounded-xl bg-jade/10 border-2 border-jade/30">
+                    <div className="p-6 rounded-xl bg-accent-secondary/10 border-2 border-accent-secondary/30">
                       <div className="flex items-start gap-4">
-                        <div className="p-2 bg-jade/20 rounded-full">
-                          <CheckCircle className="w-6 h-6 text-jade" />
+                        <div className="p-2 bg-accent-secondary/20 rounded-full">
+                          <CheckCircle className="w-6 h-6 text-accent-secondary" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-display text-xl text-jade font-semibold mb-2">
+                          <h3 className="font-display text-xl text-accent-secondary font-semibold mb-2">
                             Great News! We Deliver Here
                           </h3>
                           <p className="text-muted-foreground text-sm mb-4">
@@ -195,21 +195,21 @@ export function CoverageSection() {
 
                           <div className="flex flex-wrap gap-4">
                             <div className="flex items-center gap-2 text-sm">
-                              <Ruler className="w-4 h-4 text-jade" />
+                              <Ruler className="w-4 h-4 text-accent-secondary" />
                               <span className="font-medium">
                                 {coverageResult.distanceMiles.toFixed(1)} miles
                               </span>
                             </div>
                             <div className="flex items-center gap-2 text-sm">
-                              <Clock className="w-4 h-4 text-jade" />
+                              <Clock className="w-4 h-4 text-accent-secondary" />
                               <span className="font-medium">
                                 ~{coverageResult.durationMinutes} min drive
                               </span>
                             </div>
                           </div>
 
-                          <div className="mt-4 pt-4 border-t border-jade/20">
-                            <div className="flex items-center gap-2 text-jade">
+                          <div className="mt-4 pt-4 border-t border-accent-secondary/20">
+                            <div className="flex items-center gap-2 text-accent-secondary">
                               <Sparkles className="w-4 h-4" />
                               <span className="text-sm font-medium">
                                 Free delivery on orders over $100!
@@ -250,9 +250,9 @@ export function CoverageSection() {
               )}
 
               {/* Info Box */}
-              <div className="mt-6 p-4 rounded-xl bg-gold/5 border border-gold/20">
+              <div className="mt-6 p-4 rounded-xl bg-interactive/5 border border-interactive/20">
                 <p className="text-sm text-muted-foreground">
-                  <strong className="text-gold-dark">Delivery Times:</strong> Every Saturday, 11am - 7pm PT.
+                  <strong className="text-interactive">Delivery Times:</strong> Every Saturday, 11am - 7pm PT.
                   Order by Friday 3pm to get delivery this Saturday!
                 </p>
               </div>
@@ -293,7 +293,7 @@ export function CoverageSection() {
             ) : (
               <div className="w-full h-full min-h-[300px] bg-cream rounded-2xl flex items-center justify-center">
                 <div className="text-center">
-                  <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                  <div className="w-12 h-12 border-4 border-interactive border-t-transparent rounded-full animate-spin mx-auto mb-4" />
                   <p className="text-muted-foreground">Loading map...</p>
                 </div>
               </div>

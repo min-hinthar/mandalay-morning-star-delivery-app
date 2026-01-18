@@ -84,7 +84,7 @@ export function AdminNav() {
         <div className="flex h-16 items-center justify-between border-b px-4">
           {!isCollapsed && (
             <Link href="/admin" className="flex items-center gap-2">
-              <span className="font-display text-lg text-brand-red">
+              <span className="font-display text-lg text-accent-tertiary">
                 Admin
               </span>
             </Link>
@@ -116,7 +116,7 @@ export function AdminNav() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                   isActive
-                    ? "bg-brand-red/10 text-brand-red"
+                    ? "bg-accent-tertiary/10 text-accent-tertiary"
                     : "text-foreground/70 hover:bg-muted hover:text-foreground",
                   isCollapsed && "justify-center"
                 )}
