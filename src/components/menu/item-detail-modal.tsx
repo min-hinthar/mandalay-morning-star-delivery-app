@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, useDragControls, useReducedMotion, type PanInfo } from "framer-motion";
-import { AlertTriangle, X, Truck } from "lucide-react";
+import { AlertTriangle, X, Truck, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -56,6 +56,7 @@ export function ItemDetailModal({
   const [selectedModifiers, setSelectedModifiers] = useState<SelectedModifier[]>([]);
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState("");
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const prefersReducedMotion = useReducedMotion();
   const isMobile = useMediaQuery("(max-width: 639px)");
@@ -68,6 +69,7 @@ export function ItemDetailModal({
     setSelectedModifiers([]);
     setQuantity(1);
     setNotes("");
+    setIsAddingToCart(false);
   }, [item]);
 
   // Lock body scroll when open on mobile
@@ -154,10 +156,18 @@ export function ItemDetailModal({
   }, []);
 
   const handleAddToCart = useCallback(() => {
-    if (!item || !validation.isValid || !onAddToCart) return;
+    if (!item || !validation.isValid || !onAddToCart || isAddingToCart) return;
+
+    // Show success state briefly before closing
+    setIsAddingToCart(true);
     onAddToCart(item, selectedModifiers, quantity, notes.trim());
-    onClose();
-  }, [item, validation.isValid, onAddToCart, selectedModifiers, quantity, notes, onClose]);
+
+    // Close after brief success animation
+    setTimeout(() => {
+      setIsAddingToCart(false);
+      onClose();
+    }, 400);
+  }, [item, validation.isValid, onAddToCart, selectedModifiers, quantity, notes, onClose, isAddingToCart]);
 
   // Handle swipe to close (mobile)
   const handleDragEnd = useCallback((_: unknown, info: PanInfo) => {
@@ -417,17 +427,47 @@ export function ItemDetailModal({
                 )}
 
                 {/* Add to Cart Button */}
-                <Button
-                  variant="primary"
-                  size="lg"
-                  onClick={handleAddToCart}
-                  disabled={item.isSoldOut || !validation.isValid}
-                  className="w-full text-lg"
+                <motion.div
+                  animate={isAddingToCart ? { scale: [1, 1.02, 1] } : {}}
+                  transition={{ duration: 0.2 }}
                 >
-                  {item.isSoldOut
-                    ? "Sold Out"
-                    : `Add to Cart - ${formatPrice(priceCalc?.totalCents ?? 0)}`}
-                </Button>
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    onClick={handleAddToCart}
+                    disabled={item.isSoldOut || !validation.isValid || isAddingToCart}
+                    className={cn(
+                      "w-full text-lg transition-all duration-200",
+                      isAddingToCart && "bg-[var(--color-jade)] hover:bg-[var(--color-jade)]"
+                    )}
+                  >
+                    <AnimatePresence mode="wait">
+                      {isAddingToCart ? (
+                        <motion.span
+                          key="success"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          className="flex items-center gap-2"
+                        >
+                          <Check className="w-5 h-5" />
+                          Added!
+                        </motion.span>
+                      ) : item.isSoldOut ? (
+                        <motion.span key="soldout">Sold Out</motion.span>
+                      ) : (
+                        <motion.span
+                          key="add"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                        >
+                          Add to Cart - {formatPrice(priceCalc?.totalCents ?? 0)}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </Button>
+                </motion.div>
               </div>
             </motion.div>
           </div>

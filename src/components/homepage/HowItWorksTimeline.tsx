@@ -124,11 +124,11 @@ export function HowItWorksTimeline() {
                     <div
                       className={cn(
                         "absolute -top-2 -right-2 w-8 h-8 rounded-full",
-                        "flex items-center justify-center text-white font-bold text-sm shadow-lg",
-                        index === 0 && "bg-brand-red",
-                        index === 1 && "bg-gold-dark",
-                        index === 2 && "bg-jade",
-                        index === 3 && "bg-curry"
+                        "flex items-center justify-center font-bold text-sm shadow-lg",
+                        index === 0 && "bg-brand-red text-white",
+                        index === 1 && "bg-gold-dark text-charcoal",
+                        index === 2 && "bg-jade text-white",
+                        index === 3 && "bg-curry text-white"
                       )}
                     >
                       {index + 1}
@@ -184,11 +184,11 @@ export function HowItWorksTimeline() {
                     <div
                       className={cn(
                         "absolute -top-1 -right-1 w-6 h-6 rounded-full",
-                        "flex items-center justify-center text-white font-bold text-xs shadow-md",
-                        index === 0 && "bg-brand-red",
-                        index === 1 && "bg-gold-dark",
-                        index === 2 && "bg-jade",
-                        index === 3 && "bg-curry"
+                        "flex items-center justify-center font-bold text-xs shadow-md",
+                        index === 0 && "bg-brand-red text-white",
+                        index === 1 && "bg-gold-dark text-charcoal",
+                        index === 2 && "bg-jade text-white",
+                        index === 3 && "bg-curry text-white"
                       )}
                     >
                       {index + 1}

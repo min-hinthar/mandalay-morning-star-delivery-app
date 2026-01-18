@@ -14,6 +14,7 @@ interface NavLink {
 }
 
 const navLinks: NavLink[] = [
+  { href: "/", label: "Home", roles: ["customer", "admin", "driver", null] },
   { href: "/menu", label: "Menu", roles: ["customer", "admin", "driver", null] },
   { href: "/orders", label: "Orders", roles: ["customer", "admin", "driver"] },
   { href: "/admin", label: "Admin", roles: ["admin"] },
@@ -34,7 +35,9 @@ export function NavLinks({ role, className, onLinkClick }: NavLinksProps): React
   return (
     <nav className={cn("flex items-center gap-1", className)}>
       {visibleLinks.map((link) => {
-        const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
+        const isActive = link.href === "/"
+          ? pathname === "/"
+          : pathname === link.href || pathname.startsWith(`${link.href}/`);
         return (
           <Link
             key={link.href}
