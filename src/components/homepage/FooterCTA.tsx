@@ -11,8 +11,10 @@ export function FooterCTA() {
   return (
     <footer className="relative overflow-hidden">
       {/* Top CTA Section */}
-      <section className="py-16 md:py-24 px-4 bg-gradient-animated">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="relative py-16 md:py-24 px-4 bg-gradient-animated">
+        {/* Dark overlay for text contrast on light gradient cycles */}
+        <div className="absolute inset-0 bg-black/15" />
+        <div className="relative max-w-4xl mx-auto text-center">
           <motion.div
             initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

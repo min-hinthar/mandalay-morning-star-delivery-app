@@ -9,6 +9,7 @@ import { useDynamicLuminance, getContrastTextClasses } from "@/lib/hooks/useLumi
 
 interface HomepageHeroProps {
   onScrollToMenu?: () => void;
+  onScrollToCoverage?: () => void;
 }
 
 // Floating lotus SVG component
@@ -78,7 +79,7 @@ function PagodaSilhouette({ className = "" }: { className?: string }) {
   );
 }
 
-export function HomepageHero({ onScrollToMenu }: HomepageHeroProps) {
+export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHeroProps) {
   const shouldReduceMotion = useReducedMotion();
   const backgroundRef = useRef<HTMLDivElement>(null);
 
@@ -196,8 +197,8 @@ export function HomepageHero({ onScrollToMenu }: HomepageHeroProps) {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
-            onClick={onScrollToMenu}
-            className="px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-xl hover:bg-white/10 transition-colors"
+            onClick={onScrollToCoverage}
+            className="px-8 py-4 bg-black/20 backdrop-blur-sm border-2 border-white/80 text-white font-semibold rounded-xl hover:bg-black/30 transition-colors"
           >
             Check Delivery Area
           </motion.button>

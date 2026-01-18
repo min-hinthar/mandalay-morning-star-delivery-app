@@ -136,11 +136,13 @@ export function MenuItemCard({
       className={cn(
         "group relative overflow-hidden",
         "rounded-[var(--radius-lg)] bg-[var(--color-surface)]",
+        "border border-[var(--color-border)]",
         "shadow-[var(--shadow-sm)]",
         "transition-all duration-[var(--duration-fast)] ease-out",
         isInteractive && [
           "cursor-pointer",
-          "hover:shadow-[var(--shadow-md)]",
+          "hover:shadow-[var(--shadow-lg)]",
+          "hover:border-[var(--color-cta)]/30",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)] focus-visible:ring-offset-2",
         ],
         item.isSoldOut && "opacity-70",
@@ -378,7 +380,7 @@ export function MenuItemCardSkeleton({ variant = "default" }: { variant?: CardVa
   return (
     <div className={cn(
       "overflow-hidden rounded-[var(--radius-lg)]",
-      "bg-[var(--color-surface)] shadow-[var(--shadow-sm)]"
+      "bg-[var(--color-surface)] border border-[var(--color-border)] shadow-[var(--shadow-sm)]"
     )}>
       {/* Image skeleton - 16:9 */}
       <div className="relative aspect-video bg-[var(--color-cream-darker)] animate-shimmer" />

@@ -1,11 +1,8 @@
 import type { ReactElement } from "react";
 import { Suspense } from "react";
 import { getMenuWithCategories } from "@/lib/queries/menu";
-import { HomepageHero } from "@/components/homepage/HomepageHero";
-import { CoverageSection } from "@/components/homepage/CoverageSection";
-import { HowItWorksTimeline } from "@/components/homepage/HowItWorksTimeline";
+import { HomePageClient } from "@/components/homepage/HomePageClient";
 import { HomepageMenuSection } from "@/components/homepage/HomepageMenuSection";
-import { FooterCTA } from "@/components/homepage/FooterCTA";
 
 // Loading skeleton for menu section
 function MenuSkeleton() {
@@ -40,22 +37,13 @@ async function MenuLoader() {
 export default function HomePage(): ReactElement {
   return (
     <main className="min-h-screen bg-background">
-      {/* Hero Section with Animated Gradient */}
-      <HomepageHero />
-
-      {/* Coverage Check with Interactive Map */}
-      <CoverageSection />
-
-      {/* How It Works Timeline */}
-      <HowItWorksTimeline />
-
-      {/* Full Menu Section */}
-      <Suspense fallback={<MenuSkeleton />}>
-        <MenuLoader />
-      </Suspense>
-
-      {/* Footer CTA */}
-      <FooterCTA />
+      <HomePageClient
+        menuSection={
+          <Suspense fallback={<MenuSkeleton />}>
+            <MenuLoader />
+          </Suspense>
+        }
+      />
     </main>
   );
 }

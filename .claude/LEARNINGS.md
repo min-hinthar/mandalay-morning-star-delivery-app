@@ -360,3 +360,84 @@ ThemeProvider config: `defaultTheme="system"`, `enableSystem`, `disableTransitio
 **Learning:** Use CSS variable with fallback: `top-[var(--header-height,57px)]`. This allows dynamic header heights while maintaining default. Define `--header-height` in root or header component. Pattern works for any dimension that may vary.
 **Apply when:** Positioning elements relative to dynamic-height components
 
+---
+
+## 2026-01-18: Server Component Scroll Handlers Need Client Wrapper
+
+**Context:** Hero buttons not working - page.tsx is server component, can't have scroll handlers
+**Learning:** When server components need interactive scroll-to-section behavior:
+1. Create client wrapper (`HomePageClient.tsx`) with `"use client"`
+2. Define refs: `const menuRef = useRef<HTMLDivElement>(null)`
+3. Create handlers: `const scrollToMenu = () => menuRef.current?.scrollIntoView({ behavior: "smooth" })`
+4. Pass handlers as props to child components
+5. Wrap target sections with `<div ref={menuRef}>`
+**Apply when:** Homepage with scroll-to-section CTAs, any server component needing scroll handlers
+
+---
+
+## 2026-01-18: Mobile Nav Z-Index Hierarchy
+
+**Context:** Mobile menu panel stacking behind header, only some links visible
+**Learning:** Mobile navigation requires specific z-index hierarchy:
+- Header: `z-50`
+- Mobile menu overlay: `z-[55]` (below panel, above header)
+- Mobile menu panel: `z-[60]` (above everything)
+
+Use `z-[N]` syntax for precise stacking when standard Tailwind z-index values conflict.
+**Apply when:** Debugging mobile menu visibility issues, building slide-down mobile nav panels
+
+---
+
+## 2026-01-18: Global Sticky UI in providers.tsx
+
+**Context:** CartBar missing on public pages - was only in CustomerLayout
+**Learning:** Global sticky UI elements (cart bars, notifications) go in `providers.tsx` with route-based conditional rendering:
+```tsx
+const HIDE_ROUTES = ["/checkout", "/admin", "/driver"];
+const showCartBar = !HIDE_ROUTES.some(r => pathname.startsWith(r));
+return (
+  <QueryProvider>
+    {children}
+    {showCartBar && <CartBar />}
+  </QueryProvider>
+);
+```
+**Apply when:** Adding sticky bottom bars, floating action buttons, or global UI that should appear on most pages
+
+---
+
+## 2026-01-18: White Text on Animated Gradients
+
+**Context:** Light theme had poor contrast on animated gradient sections (FooterCTA, Hero)
+**Learning:** Animated gradients cycle through light and dark colors. White text fails during light phases. Fix with semi-transparent dark overlay:
+- Hero buttons: `bg-black/20 backdrop-blur-sm`
+- CTA sections: Add `<div className="absolute inset-0 bg-black/15" />` overlay
+Overlay should be subtle (15-20%) to maintain gradient visibility while ensuring WCAG contrast.
+**Apply when:** White text on `bg-gradient-animated` or any multi-color gradient
+
+---
+
+## 2026-01-18: Add-to-Cart Success Animation Pattern
+
+**Context:** Adding visual feedback when items added to cart in modal
+**Learning:** Pattern for success state before closing modal:
+```tsx
+const [isAdding, setIsAdding] = useState(false);
+
+const handleAdd = () => {
+  setIsAdding(true);
+  onAddToCart(...);
+  setTimeout(() => {
+    setIsAdding(false);
+    onClose();
+  }, 400); // Brief success display
+};
+
+<Button className={isAdding && "bg-jade"}>
+  <AnimatePresence mode="wait">
+    {isAdding ? <Check /> : "Add to Cart"}
+  </AnimatePresence>
+</Button>
+```
+**Apply when:** Adding positive feedback to form submissions, cart actions, saves
+
