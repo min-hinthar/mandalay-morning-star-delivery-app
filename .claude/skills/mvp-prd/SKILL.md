@@ -170,6 +170,26 @@ A builder could:
 - Build a demo without guessing
 - Explain the product clearly to someone else
 
+## Output Location
+
+Write PRD to: `docs/V{n}/PRD.md`
+- Example: `docs/V5/PRD.md` for version 5
+- Clarification session: `docs/V{n}/PRD-clarification-session.md`
+
+## Sprint Organization by Risk
+
+When planning implementation sprints:
+
+| Risk Level | Task Types | Ship After |
+|------------|------------|------------|
+| Low | Token audit, lint rules, docs, type fixes | Immediately |
+| Medium | Component rewrites, animation changes | Unit tests pass |
+| High | Checkout, auth, payment flows | E2E tests pass |
+
+**Priority order:** Bugs > Consistency > Polish > Performance
+
+**Scope expansion:** If PRD grows significantly during clarification, add new sprint rather than cramming expanded scope.
+
 ## After PRD Generation
 
 Once you have generated the complete PRD (sections 1-7), you MUST invoke the `prd-clarifier` skill using the Skill tool to refine and clarify the PRD through structured questioning.
