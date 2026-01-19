@@ -1,13 +1,11 @@
 ---
-name: ux-spec-to-prompts
-description: Use when translating UX specifications into build-order prompts for UI generation tools. Triggers when user has a UX spec, PRD, or detailed feature doc and needs sequential, self-contained prompts for tools like v0, Bolt, or Claude frontend-design.
+name: ux-prompts
+description: This skill should be used when the user asks to "generate build prompts", "create implementation prompts", "break down the UX spec", "prepare prompts for v0/Bolt/Claude", "sequence the build tasks", or needs to transform UX specifications into sequential, self-contained prompts for UI generation tools.
 ---
 
 # UX Spec to Build-Order Prompts
 
-## Overview
-
-Transform detailed UX specifications into a sequence of self-contained prompts optimized for UI generation tools. Each prompt builds one discrete feature/view with full context included.
+Transform detailed UX specifications into a sequence of self-contained prompts optimized for UI generation tools. Each prompt builds one discrete feature with full context included.
 
 ## When to Use
 
@@ -18,100 +16,50 @@ Transform detailed UX specifications into a sequence of self-contained prompts o
 
 **Not for:** Quick component requests, already-atomic features, specs that fit in one prompt.
 
-## Core Pattern
-
-```
-UX Spec → Extract Atomic Units → Sequence by Dependencies → Generate Self-Contained Prompts
-```
-
 ## Build Order Strategy
 
-Generate prompts in this order:
+Generate prompts in this sequence:
 
-```dot
-digraph build_order {
-    rankdir=TB;
-    "1. Foundation" -> "2. Layout Shell";
-    "2. Layout Shell" -> "3. Core Components";
-    "3. Core Components" -> "4. Interactions";
-    "4. Interactions" -> "5. States & Feedback";
-    "5. States & Feedback" -> "6. Polish";
-}
-```
-
-| Phase | What to Include | Why First |
-|-------|-----------------|-----------|
-| **Foundation** | Design tokens, shared types, base styles | Everything depends on these |
-| **Layout Shell** | Page structure, navigation, panels | Container for all features |
-| **Core Components** | Primary UI elements (nodes, cards, inputs) | Building blocks for features |
-| **Interactions** | Drag-drop, connections, pickers | Depend on components existing |
-| **States & Feedback** | Empty, loading, error, success states | Refinement of existing elements |
-| **Polish** | Animations, responsive, edge cases | Final layer |
-
-## Prompt Structure Template
-
-Each generated prompt follows this structure:
-
-```markdown
-## [Feature Name]
-
-### Context
-[What this feature is and where it fits in the app]
-
-### Requirements
-- [Specific behavior/appearance requirement]
-- [Another requirement]
-- [Include relevant specs: dimensions, colors, states]
-
-### States
-- Default: [description]
-- [Other states from spec]
-
-### Interactions
-- [How user interacts]
-- [Keyboard support if applicable]
-
-### Constraints
-- [Technical or design constraints]
-- [What NOT to include]
-```
+| Phase | Contents | Why First |
+|-------|----------|-----------|
+| **1. Foundation** | Design tokens, shared types, base styles | Everything depends on these |
+| **2. Layout Shell** | Page structure, navigation, panels | Container for all features |
+| **3. Core Components** | Primary UI elements (cards, inputs, buttons) | Building blocks |
+| **4. Interactions** | Drag-drop, selections, pickers | Depend on components |
+| **5. States & Feedback** | Empty, loading, error, success states | Refinement layer |
+| **6. Polish** | Animations, responsive, edge cases | Final layer |
 
 ## Extraction Process
 
 ### Step 1: Identify Atomic Units
-
-Read through the spec and list discrete buildable features:
+List discrete buildable features:
 - Each screen/view
 - Each reusable component
 - Each interaction pattern
 - Each state variation
 
 ### Step 2: Map Dependencies
-
 For each unit, note what it requires:
-- "Node card requires design tokens"
-- "Connection lines require nodes to exist"
-- "Lens picker requires prompt field"
+- "Cart drawer requires Cart Item component"
+- "Checkout flow requires Address form"
 
-### Step 3: Sequence by Dependency Graph
-
-Order units so dependencies come first. Group related items into single prompts when they're tightly coupled.
+### Step 3: Sequence by Dependencies
+Order units so dependencies come first. Group tightly-coupled items into single prompts.
 
 ### Step 4: Write Self-Contained Prompts
-
 For each prompt:
-1. **Re-state relevant context** - Don't assume reader saw previous prompts
-2. **Include specific measurements** - Extract from spec (dimensions, spacing)
-3. **Include all states** - Pull from state design section
-4. **Include interaction details** - Pull from affordances section
-5. **Set boundaries** - What this prompt does NOT include
+1. Re-state relevant context (no references to other prompts)
+2. Include specific measurements from spec
+3. Include all states
+4. Include all interactions
+5. Set explicit boundaries (what's excluded)
 
 ## Self-Containment Rules
 
 Each prompt MUST include:
 - Enough context to understand the feature in isolation
-- All visual specs (colors, spacing, dimensions) relevant to that feature
-- All states that feature can be in
+- All visual specs (colors, spacing, dimensions)
+- All states that feature can have
 - All interactions for that feature
 
 Each prompt MUST NOT:
@@ -119,57 +67,47 @@ Each prompt MUST NOT:
 - Assume knowledge from other prompts
 - Leave specs vague ("appropriate styling")
 
-## Example Transformation
+## Prompt Structure Template
 
-**From UX Spec:**
-```
-#### Node Card (Sidebar)
-- Dimensions: ~200px width, ~48px height
-- Content: Icon (left), Name (center/left), Preview badge (right, if applicable)
-- States: Default, Hover (subtle highlight), Dragging (ghost follows cursor)
-```
-
-**To Prompt:**
 ```markdown
-## Sidebar Node Card Component
+## [Feature Name]
 
 ### Context
-A draggable card in the workflow builder sidebar representing a node type
-users can add to the canvas. Part of a node palette with "Triggers" and
-"Actions" sections.
+[What this is and where it fits in the app]
 
 ### Requirements
-- Width: 200px, Height: 48px
-- Layout: Icon on left, node name center-left, optional "Preview" badge on right
-- Background: Neutral/card background color
-- Border-radius: 8px (standard card radius)
+- [Specific dimensions, colors, spacing]
+- [Layout structure]
+- [Content elements]
 
 ### States
-- Default: Standard card appearance
-- Hover: Subtle background highlight, cursor changes to grab
-- Dragging: Semi-transparent ghost follows cursor, original card shows placeholder
+- Default: [description]
+- Hover: [description]
+- Loading: [description]
+- Error: [description]
+- [Other states]
 
 ### Interactions
-- Click: Could select or auto-place on canvas
-- Drag: Initiates drag-drop to canvas
-- Drag end on canvas: Creates node at drop position
-- Drag end outside canvas: Cancels, no node created
+- [Click behavior]
+- [Hover behavior]
+- [Keyboard support]
 
 ### Constraints
-- Component only - not the full sidebar
-- Do not implement actual drag-drop logic, just visual states
-- Placeholder nodes show muted styling + "Preview" badge
+- This prompt includes: [list]
+- This prompt does NOT include: [list]
+
+### Verification
+- [ ] [Testable criterion]
+- [ ] [Testable criterion]
 ```
 
 ## Output Format
-
-Generate a markdown document with:
 
 ```markdown
 # Build-Order Prompts: [Project Name]
 
 ## Overview
-[1-2 sentence summary of what's being built]
+[1-2 sentence summary]
 
 ## Build Sequence
 1. [Prompt name] - [brief description]
@@ -185,82 +123,66 @@ Generate a markdown document with:
 
 ## Prompt 2: [Feature Name]
 [Full self-contained prompt]
-
-...
-```
-
-## Quality Checklist
-
-Before finalizing prompts:
-
-- [ ] Every measurement from spec is captured in a prompt
-- [ ] Every state from spec is captured in a prompt
-- [ ] Every interaction from spec is captured in a prompt
-- [ ] No prompt references another prompt
-- [ ] Build order respects dependencies
-- [ ] Each prompt could be given to someone with no context
-
-## Common Mistakes
-
-| Mistake | Fix |
-|---------|-----|
-| Prompts too large (whole spec in one) | Break into atomic features |
-| Prompts reference each other | Re-state needed context inline |
-| Missing states | Cross-reference spec's state design section |
-| Vague measurements ("good spacing") | Use exact values from spec |
-| Wrong build order | Check dependency graph |
-| Duplicated component definitions | Each component defined once, in first prompt that needs it |
-
----
-
-## Sprint Batching by Risk
-
-Group prompts by risk level for safer releases:
-
-| Risk | Prompt Types | Ship After | Example |
-|------|--------------|------------|---------|
-| Low | Tokens, types, utilities | Immediately | Design token refresh, type definitions |
-| Medium | Component rewrites, animations | Unit tests | Button variants, micro-interactions |
-| High | Checkout, auth, payments | E2E tests | Checkout flow, cart persistence |
-
-**Sprint structure:**
-```
-Sprint 1: Foundation (Low risk)
-Sprint 2: Core Components (Medium risk)
-Sprint 3: Customer Flows (High risk)
-Sprint 4: Admin/Driver (High risk)
-Sprint 5: Polish & Performance (Low-Medium risk)
-```
-
-**Quick wins first:** Start with low-risk prompts for momentum and fast feedback.
-
-## Verification Checklist per Prompt
-
-Each prompt should include a verification section:
-
-| Prompt Type | Verification Steps |
-|-------------|-------------------|
-| Component | `pnpm typecheck`, import in test file |
-| Hook | Unit test with mocked dependencies |
-| Page/Flow | E2E test covering happy path |
-| Theme-aware | Visual check in light AND dark mode |
-| Animation | Test with `prefers-reduced-motion` |
-
-**Prompt footer template:**
-```markdown
-### Verification
-- [ ] `pnpm typecheck` passes
-- [ ] Visual check: light mode
-- [ ] Visual check: dark mode
-- [ ] Interaction test: [specific behavior]
 ```
 
 ## Output Location
 
-Write prompts to: `docs/V{n}/UX-Specs/UX-Prompts.md`
-- Or: `docs/V{n}/UX-Specs/build-tasks/Sprint-N-*.md` for sprint-specific files
+Write prompts to same directory as source UX spec:
+- UX spec `feature-x-ux-spec.md` → output `feature-x-prompts.md`
+- For sprint-based output: `sprints/sprint-1-foundation.md`, `sprints/sprint-2-components.md`
 
-**Sprint file naming:**
-- `Sprint-1-Foundation.md`
-- `Sprint-2-Core-Components.md`
-- `Sprint-3-Customer-Experience.md`
+---
+
+## Additional Resources
+
+### Reference Files
+
+For prompt quality and verification:
+- **`references/quality-amplifiers.md`** — Specificity ladder, context density, extraction patterns
+- **`references/verification-templates.md`** — Per-type verification checklists
+- **`references/anti-patterns.md`** — Common mistakes and fixes
+
+### Example Files
+
+Working examples in `examples/`:
+- **`component-prompt.md`** — Complete component prompt (Product Card)
+- **`flow-prompt.md`** — Complete page/flow prompt (Checkout Flow)
+
+---
+
+## Quick Reference
+
+### Quality Checklist
+
+- [ ] Every measurement from spec captured
+- [ ] Every state from spec captured
+- [ ] Every interaction from spec captured
+- [ ] No prompt references another prompt
+- [ ] Build order respects dependencies
+- [ ] Each prompt executable with zero context
+
+### Specificity Ladder
+
+| Level | Example |
+|-------|---------|
+| Vague | "Use appropriate spacing" |
+| Better | "Use consistent spacing" |
+| Good | "8px padding, 16px gap" |
+| Excellent | "8px padding (var(--space-2)), 16px gap, matching card pattern" |
+
+### Sprint Batching
+
+| Risk | Prompt Types | Ship After |
+|------|--------------|------------|
+| Low | Tokens, types, utilities | Immediately |
+| Medium | Components, animations | Unit tests |
+| High | Checkout, auth, payments | E2E tests |
+
+### Verification Footer by Type
+
+| Type | Key Checks |
+|------|------------|
+| Component | Types, states, keyboard, dark mode |
+| Page | E2E happy path, error states, responsive |
+| Animation | 60fps, reduced motion, no blocking |
+| Form | Validation, labels, autofill |

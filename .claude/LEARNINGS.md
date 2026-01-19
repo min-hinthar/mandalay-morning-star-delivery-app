@@ -625,3 +625,38 @@ Configurable thresholds: `{ moderate: 1, urgent: 4, critical: 10 }`. Different m
 Quick action buttons change style based on urgency - urgent/critical uses filled red button, ok/moderate uses outline style.
 **Apply when:** Building operational dashboards, monitoring UIs, status displays
 
+---
+
+## 2026-01-18: Skill Development Best Practices
+
+**Context:** Refactoring all skills to universal, project-agnostic format using skill-creator guidelines
+**Learning:** Effective skill structure follows progressive disclosure pattern:
+- **SKILL.md:** Lean body (1,500-2,000 words), core workflows only
+- **references/:** Detailed patterns, advanced techniques (2,000-5,000+ words each)
+- **examples/:** Working code examples users can copy directly
+- **scripts/:** Utility scripts for common operations
+
+Critical conventions:
+- Frontmatter description uses **third-person** with specific trigger phrases: `"This skill should be used when the user asks to 'create X', 'configure Y'..."`
+- Body uses **imperative/infinitive form** (verb-first): "To create a component..." not "You should create..."
+- No project-specific paths, tokens, or conventions in reusable skills
+**Apply when:** Creating or refactoring skills for Claude Code plugins
+
+---
+
+## 2026-01-18: Skill Reference File Organization
+
+**Context:** Restructuring frontend-design skill with references/ subdirectory
+**Learning:** Reference file distribution by domain:
+| Skill | Reference Files |
+|-------|-----------------|
+| frontend-design | design-systems.md, motion-mastery.md, responsive-architecture.md, accessibility-excellence.md, test-resilience.md |
+| mvp-prd | sprint-planning.md, scope-management.md |
+| prd-clarify | question-bank.md, sequencing-strategy.md, scope-expansion.md |
+| prd-ux | pass-enhancements.md, state-choreography.md, affordance-patterns.md, failure-modes.md |
+| ux-prompts | quality-amplifiers.md, verification-templates.md, anti-patterns.md |
+| retro | logging-triggers.md, skill-evolution.md, meta-learning.md |
+
+SKILL.md must reference these files in "Additional Resources" section so Claude knows they exist.
+**Apply when:** Designing skill file structure, deciding what content goes where
+
