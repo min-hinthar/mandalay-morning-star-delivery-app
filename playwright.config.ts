@@ -19,6 +19,20 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
 
+  /* Visual regression configuration */
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixels: 100,
+      threshold: 0.2,
+    },
+    toMatchSnapshot: {
+      maxDiffPixelRatio: 0.05,
+    },
+  },
+
+  /* Snapshot output directory */
+  snapshotDir: "./e2e/__snapshots__",
+
   projects: [
     {
       name: "chromium",
