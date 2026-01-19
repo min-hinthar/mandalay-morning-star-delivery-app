@@ -764,6 +764,56 @@ This ensures cleanup operates on the same values that were used during effect ex
 
 ---
 
+## 2026-01-19: Framer Motion ease Arrays Need `as const`
+
+**Context:** TypeScript errors when using cubic-bezier arrays in animation variants
+**Learning:** `ease: [0.25, 0.46, 0.45, 0.94]` is inferred as `number[]`, not a tuple. Framer Motion's `Easing` type requires `[number, number, number, number]`. Fix with `as const`:
+```ts
+transition: {
+  duration: 0.15,
+  ease: [0.25, 0.46, 0.45, 0.94] as const,  // Typed as tuple
+}
+```
+Same applies to all Framer Motion string literals (`type: "spring" as const`, `ease: "easeOut" as const`).
+**Apply when:** TypeScript errors about `Type 'number[]' is not assignable to type 'Easing'`
+
+---
+
+## 2026-01-19: useSwipeToDelete Hook API
+
+**Context:** Using swipe-gestures.ts hooks for cart item swipe-to-delete
+**Learning:** The `useSwipeToDelete` hook returns:
+```ts
+interface SwipeToDeleteResult {
+  motionProps: Partial<MotionProps>;  // Spread on motion.div
+  isDragging: boolean;
+  dragOffset: number;                  // Current position
+  progress: number;                    // 0-1 toward threshold
+  isRevealed: boolean;                 // Delete button visible
+  deleteButtonProps: { opacity, scale, isImminent };
+  reset: () => void;
+}
+```
+Options: `revealThreshold`, `autoDeleteThreshold`, `velocityThreshold`, `onDelete`, `onRevealChange`.
+**Apply when:** Implementing swipe-to-delete in cart items or list items
+
+---
+
+## 2026-01-19: Framer Motion Handlers Require motion.div
+
+**Context:** Spreading swipe navigation props onto regular div element caused TypeScript errors
+**Learning:** Framer Motion drag handlers (`onDrag`, `onDragEnd`, etc.) have signature `(event, info: PanInfo) => void`, but native HTML `onDrag` expects `DragEventHandler<T>`. Cannot spread motion props onto `<div>`:
+```tsx
+// ❌ TypeScript error - onDrag signature mismatch
+<div {...swipeProps}>
+
+// ✅ Works - motion.div accepts Framer Motion handlers
+<motion.div {...swipeProps}>
+```
+**Apply when:** Using `useSwipeNavigation`, `useSwipeToDelete`, or any Framer Motion drag hooks
+
+---
+
 ## 2026-01-18: Skill Reference File Organization
 
 **Context:** Restructuring frontend-design skill with references/ subdirectory
