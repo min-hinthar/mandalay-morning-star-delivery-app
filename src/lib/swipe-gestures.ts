@@ -1,13 +1,25 @@
 /**
- * V3 Sprint 5: Mobile Swipe Gesture Utilities
+ * V5 Sprint 5: Mobile Swipe Gesture System
  *
- * Reusable swipe gesture hooks for common patterns:
- * - Swipe to delete (cart items)
- * - Swipe to close (modals/drawers)
- * - Swipe navigation (tabs/categories)
+ * Production-grade swipe gesture hooks for Framer Motion.
+ * Supports delete, close, and navigation patterns with haptic feedback.
+ *
+ * @example
+ * // Swipe to delete cart item
+ * const { motionProps, isRevealed, deleteButtonProps } = useSwipeToDelete({
+ *   onDelete: () => removeItem(id),
+ *   onRevealChange: (revealed) => setShowDelete(revealed),
+ * });
+ *
+ * @example
+ * // Swipe to close modal
+ * const { motionProps, dragOffset } = useSwipeToClose({
+ *   onClose: closeModal,
+ *   direction: 'down',
+ * });
  */
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import type { PanInfo, MotionProps } from "framer-motion";
 
 // ============================================
@@ -16,26 +28,49 @@ import type { PanInfo, MotionProps } from "framer-motion";
 
 export const SWIPE_THRESHOLDS = {
   delete: {
+    /** Threshold to reveal delete button */
     reveal: 80,
+    /** Threshold for auto-delete */
     auto: 200,
   },
   close: {
+    /** Default close threshold for modals/drawers */
     default: 100,
+    /** Threshold for bottom sheets */
+    bottomSheet: 150,
   },
   navigation: {
+    /** Default navigation threshold */
     default: 50,
+    /** Threshold for tab switching */
+    tabs: 75,
   },
 } as const;
 
 export const VELOCITY_THRESHOLDS = {
+  /** Velocity for quick delete swipe */
   delete: 500,
+  /** Velocity for quick close swipe */
   close: 500,
+  /** Velocity for quick navigation swipe */
   navigation: 200,
+} as const;
+
+/** Haptic feedback durations in milliseconds */
+const HAPTIC_DURATIONS = {
+  light: 10,
+  medium: 25,
+  heavy: 40,
+  success: [10, 50, 10] as number[],
+  warning: [30, 50, 30] as number[],
+  error: [50, 100, 50] as number[],
 } as const;
 
 // ============================================
 // TYPES
 // ============================================
+
+export type HapticType = "light" | "medium" | "heavy" | "success" | "warning" | "error";
 
 export interface SwipeToDeleteOptions {
   /** Threshold to reveal delete button (default: 80) */
@@ -48,8 +83,12 @@ export interface SwipeToDeleteOptions {
   onDelete: () => void;
   /** Callback when reveal state changes */
   onRevealChange?: (revealed: boolean) => void;
+  /** Callback during drag with progress (0-1) */
+  onProgress?: (progress: number) => void;
   /** Whether the gesture is disabled */
   disabled?: boolean;
+  /** Enable haptic feedback (default: true) */
+  hapticEnabled?: boolean;
 }
 
 export interface SwipeToCloseOptions {
@@ -59,10 +98,14 @@ export interface SwipeToCloseOptions {
   velocityThreshold?: number;
   /** Callback when close is triggered */
   onClose: () => void;
+  /** Callback during drag with offset */
+  onDrag?: (offset: number) => void;
   /** Whether the gesture is disabled */
   disabled?: boolean;
-  /** Direction of swipe: 'down' for modals, 'left' for drawers */
+  /** Direction of swipe: 'down' for modals, 'left'/'right' for drawers */
   direction?: "down" | "left" | "right";
+  /** Enable haptic feedback at threshold (default: true) */
+  hapticEnabled?: boolean;
 }
 
 export interface SwipeNavigationOptions {
@@ -80,6 +123,10 @@ export interface SwipeNavigationOptions {
   isLast?: boolean;
   /** Whether the gesture is disabled */
   disabled?: boolean;
+  /** Enable haptic feedback (default: true) */
+  hapticEnabled?: boolean;
+  /** Callback during drag with direction hint */
+  onDragHint?: (direction: "next" | "prev" | null) => void;
 }
 
 export interface SwipeGestureResult {
@@ -89,6 +136,8 @@ export interface SwipeGestureResult {
   isDragging: boolean;
   /** Current drag offset (for UI feedback) */
   dragOffset: number;
+  /** Progress toward threshold (0-1) */
+  progress: number;
 }
 
 export interface SwipeToDeleteResult extends SwipeGestureResult {
@@ -98,7 +147,18 @@ export interface SwipeToDeleteResult extends SwipeGestureResult {
   deleteButtonProps: {
     opacity: number;
     scale: number;
+    /** Whether delete is imminent (past auto-delete threshold) */
+    isImminent: boolean;
   };
+  /** Reset the revealed state */
+  reset: () => void;
+}
+
+export interface SwipeToCloseResult extends SwipeGestureResult {
+  /** Whether close threshold is reached */
+  willClose: boolean;
+  /** Opacity for backdrop based on drag (1 = fully visible, 0 = hidden) */
+  backdropOpacity: number;
 }
 
 // ============================================
@@ -112,46 +172,75 @@ export function useSwipeToDelete(options: SwipeToDeleteOptions): SwipeToDeleteRe
     velocityThreshold = VELOCITY_THRESHOLDS.delete,
     onDelete,
     onRevealChange,
+    onProgress,
     disabled = false,
+    hapticEnabled = true,
   } = options;
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isRevealed, setIsRevealed] = useState(false);
+  const hapticTriggeredRef = useRef(false);
+
+  const reset = useCallback(() => {
+    setIsRevealed(false);
+    setDragOffset(0);
+    onRevealChange?.(false);
+  }, [onRevealChange]);
 
   const handleDragStart = useCallback(() => {
     setIsDragging(true);
+    hapticTriggeredRef.current = false;
   }, []);
 
   const handleDrag = useCallback(
     (_: unknown, info: PanInfo) => {
-      setDragOffset(info.offset.x);
-      const revealed = info.offset.x < -revealThreshold;
+      const offset = info.offset.x;
+      setDragOffset(offset);
+
+      // Calculate progress for visual feedback
+      const progress = Math.min(Math.abs(offset) / autoDeleteThreshold, 1);
+      onProgress?.(progress);
+
+      // Handle reveal state change
+      const revealed = offset < -revealThreshold;
       if (revealed !== isRevealed) {
         setIsRevealed(revealed);
         onRevealChange?.(revealed);
+
+        // Haptic feedback at reveal threshold
+        if (hapticEnabled && revealed && !hapticTriggeredRef.current) {
+          triggerHaptic("light");
+          hapticTriggeredRef.current = true;
+        }
+      }
+
+      // Haptic feedback approaching delete threshold
+      if (hapticEnabled && offset < -autoDeleteThreshold * 0.9 && !hapticTriggeredRef.current) {
+        triggerHaptic("medium");
       }
     },
-    [revealThreshold, isRevealed, onRevealChange]
+    [revealThreshold, autoDeleteThreshold, isRevealed, onRevealChange, onProgress, hapticEnabled]
   );
 
   const handleDragEnd = useCallback(
     (_: unknown, info: PanInfo) => {
       setIsDragging(false);
-      setDragOffset(0);
 
       const shouldDelete =
         info.offset.x < -autoDeleteThreshold ||
         info.velocity.x < -velocityThreshold;
 
       if (shouldDelete) {
+        if (hapticEnabled) triggerHaptic("success");
         onDelete();
       } else {
+        setDragOffset(0);
         setIsRevealed(false);
         onRevealChange?.(false);
       }
     },
-    [autoDeleteThreshold, velocityThreshold, onDelete, onRevealChange]
+    [autoDeleteThreshold, velocityThreshold, onDelete, onRevealChange, hapticEnabled]
   );
 
   const motionProps: Partial<MotionProps> = useMemo(
@@ -160,29 +249,36 @@ export function useSwipeToDelete(options: SwipeToDeleteOptions): SwipeToDeleteRe
         ? {}
         : {
             drag: "x" as const,
-            dragConstraints: { left: -autoDeleteThreshold, right: 0 },
-            dragElastic: { left: 0.1, right: 0 },
+            dragConstraints: { left: -autoDeleteThreshold - 50, right: 0 },
+            dragElastic: { left: 0.15, right: 0 },
+            dragMomentum: false,
             onDragStart: handleDragStart,
             onDrag: handleDrag,
             onDragEnd: handleDragEnd,
+            style: { touchAction: "pan-y" },
           },
     [disabled, autoDeleteThreshold, handleDragStart, handleDrag, handleDragEnd]
   );
 
+  const progress = Math.min(Math.abs(dragOffset) / autoDeleteThreshold, 1);
+
   const deleteButtonProps = useMemo(() => {
-    const progress = Math.min(Math.abs(dragOffset) / revealThreshold, 1);
+    const revealProgress = Math.min(Math.abs(dragOffset) / revealThreshold, 1);
     return {
-      opacity: progress,
-      scale: 0.5 + progress * 0.5,
+      opacity: revealProgress,
+      scale: 0.6 + revealProgress * 0.4,
+      isImminent: Math.abs(dragOffset) > autoDeleteThreshold * 0.9,
     };
-  }, [dragOffset, revealThreshold]);
+  }, [dragOffset, revealThreshold, autoDeleteThreshold]);
 
   return {
     motionProps,
     isDragging,
     dragOffset,
+    progress,
     isRevealed,
     deleteButtonProps,
+    reset,
   };
 }
 
@@ -190,26 +286,45 @@ export function useSwipeToDelete(options: SwipeToDeleteOptions): SwipeToDeleteRe
 // SWIPE TO CLOSE HOOK
 // ============================================
 
-export function useSwipeToClose(options: SwipeToCloseOptions): SwipeGestureResult {
+export function useSwipeToClose(options: SwipeToCloseOptions): SwipeToCloseResult {
   const {
     threshold = SWIPE_THRESHOLDS.close.default,
     velocityThreshold = VELOCITY_THRESHOLDS.close,
     onClose,
+    onDrag,
     disabled = false,
     direction = "down",
+    hapticEnabled = true,
   } = options;
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
+  const hapticTriggeredRef = useRef(false);
 
   const handleDragStart = useCallback(() => {
     setIsDragging(true);
+    hapticTriggeredRef.current = false;
   }, []);
 
-  const handleDrag = useCallback((_: unknown, info: PanInfo) => {
-    const offset = direction === "down" ? info.offset.y : info.offset.x;
-    setDragOffset(offset);
-  }, [direction]);
+  const handleDrag = useCallback(
+    (_: unknown, info: PanInfo) => {
+      const offset = direction === "down" ? info.offset.y : info.offset.x;
+      setDragOffset(offset);
+      onDrag?.(offset);
+
+      // Haptic at threshold
+      const reachedThreshold =
+        direction === "left"
+          ? offset < -threshold
+          : offset > threshold;
+
+      if (hapticEnabled && reachedThreshold && !hapticTriggeredRef.current) {
+        triggerHaptic("light");
+        hapticTriggeredRef.current = true;
+      }
+    },
+    [direction, threshold, onDrag, hapticEnabled]
+  );
 
   const handleDragEnd = useCallback(
     (_: unknown, info: PanInfo) => {
@@ -227,16 +342,19 @@ export function useSwipeToClose(options: SwipeToCloseOptions): SwipeGestureResul
           : offset > threshold || velocity > velocityThreshold;
 
       if (shouldClose) {
+        if (hapticEnabled) triggerHaptic("light");
         onClose();
       }
     },
-    [direction, threshold, velocityThreshold, onClose]
+    [direction, threshold, velocityThreshold, onClose, hapticEnabled]
   );
 
   const motionProps: Partial<MotionProps> = useMemo(() => {
     if (disabled) return {};
 
     const dragDirection = direction === "down" ? "y" : "x";
+
+    // Configure constraints based on direction
     const constraints =
       direction === "down"
         ? { top: 0, bottom: 0 }
@@ -244,27 +362,45 @@ export function useSwipeToClose(options: SwipeToCloseOptions): SwipeGestureResul
           ? { left: 0, right: 0 }
           : { left: 0, right: 0 };
 
+    // Configure elasticity - more resistance going against intended direction
     const elastic =
       direction === "down"
-        ? { top: 0, bottom: 0.5 }
+        ? { top: 0.1, bottom: 0.6 }
         : direction === "left"
-          ? { left: 0.5, right: 0 }
-          : { left: 0, right: 0.5 };
+          ? { left: 0.6, right: 0.1 }
+          : { left: 0.1, right: 0.6 };
 
     return {
       drag: dragDirection,
       dragConstraints: constraints,
       dragElastic: elastic,
+      dragMomentum: false,
       onDragStart: handleDragStart,
       onDrag: handleDrag,
       onDragEnd: handleDragEnd,
+      style: {
+        touchAction: direction === "down" ? "pan-x" : "pan-y",
+      },
     };
   }, [disabled, direction, handleDragStart, handleDrag, handleDragEnd]);
+
+  const progress = Math.min(Math.abs(dragOffset) / threshold, 1);
+
+  const willClose =
+    direction === "left"
+      ? dragOffset < -threshold
+      : dragOffset > threshold;
+
+  // Calculate backdrop opacity (inverse of progress)
+  const backdropOpacity = Math.max(1 - progress * 0.5, 0.5);
 
   return {
     motionProps,
     isDragging,
     dragOffset,
+    progress,
+    willClose,
+    backdropOpacity,
   };
 }
 
@@ -272,7 +408,10 @@ export function useSwipeToClose(options: SwipeToCloseOptions): SwipeGestureResul
 // SWIPE NAVIGATION HOOK
 // ============================================
 
-export function useSwipeNavigation(options: SwipeNavigationOptions): SwipeGestureResult {
+export function useSwipeNavigation(options: SwipeNavigationOptions): SwipeGestureResult & {
+  /** Current direction hint based on drag */
+  directionHint: "next" | "prev" | null;
+} {
   const {
     threshold = SWIPE_THRESHOLDS.navigation.default,
     velocityThreshold = VELOCITY_THRESHOLDS.navigation,
@@ -281,23 +420,53 @@ export function useSwipeNavigation(options: SwipeNavigationOptions): SwipeGestur
     isFirst = false,
     isLast = false,
     disabled = false,
+    hapticEnabled = true,
+    onDragHint,
   } = options;
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
+  const [directionHint, setDirectionHint] = useState<"next" | "prev" | null>(null);
+  const hapticTriggeredRef = useRef(false);
 
   const handleDragStart = useCallback(() => {
     setIsDragging(true);
+    hapticTriggeredRef.current = false;
+    setDirectionHint(null);
   }, []);
 
-  const handleDrag = useCallback((_: unknown, info: PanInfo) => {
-    setDragOffset(info.offset.x);
-  }, []);
+  const handleDrag = useCallback(
+    (_: unknown, info: PanInfo) => {
+      setDragOffset(info.offset.x);
+
+      // Determine direction hint
+      let hint: "next" | "prev" | null = null;
+      if (info.offset.x < -threshold * 0.5 && !isLast) {
+        hint = "next";
+      } else if (info.offset.x > threshold * 0.5 && !isFirst) {
+        hint = "prev";
+      }
+
+      if (hint !== directionHint) {
+        setDirectionHint(hint);
+        onDragHint?.(hint);
+
+        // Haptic at hint threshold
+        if (hapticEnabled && hint && !hapticTriggeredRef.current) {
+          triggerHaptic("light");
+          hapticTriggeredRef.current = true;
+        }
+      }
+    },
+    [threshold, isFirst, isLast, directionHint, onDragHint, hapticEnabled]
+  );
 
   const handleDragEnd = useCallback(
     (_: unknown, info: PanInfo) => {
       setIsDragging(false);
       setDragOffset(0);
+      setDirectionHint(null);
+      onDragHint?.(null);
 
       const { offset, velocity } = info;
 
@@ -307,8 +476,8 @@ export function useSwipeNavigation(options: SwipeNavigationOptions): SwipeGestur
         !isLast &&
         onNext
       ) {
+        if (hapticEnabled) triggerHaptic("light");
         onNext();
-        triggerHaptic("light");
         return;
       }
 
@@ -318,36 +487,46 @@ export function useSwipeNavigation(options: SwipeNavigationOptions): SwipeGestur
         !isFirst &&
         onPrev
       ) {
+        if (hapticEnabled) triggerHaptic("light");
         onPrev();
-        triggerHaptic("light");
       }
     },
-    [threshold, velocityThreshold, isFirst, isLast, onNext, onPrev]
+    [threshold, velocityThreshold, isFirst, isLast, onNext, onPrev, hapticEnabled, onDragHint]
   );
 
   const motionProps: Partial<MotionProps> = useMemo(() => {
     if (disabled) return {};
 
+    // Reduced drag range at boundaries
+    const leftConstraint = isLast ? -30 : -120;
+    const rightConstraint = isFirst ? 30 : 120;
+
     return {
       drag: "x" as const,
       dragConstraints: {
-        left: isLast ? 0 : -100,
-        right: isFirst ? 0 : 100,
+        left: leftConstraint,
+        right: rightConstraint,
       },
       dragElastic: {
-        left: isLast ? 0.1 : 0.5,
-        right: isFirst ? 0.1 : 0.5,
+        left: isLast ? 0.15 : 0.4,
+        right: isFirst ? 0.15 : 0.4,
       },
+      dragMomentum: false,
       onDragStart: handleDragStart,
       onDrag: handleDrag,
       onDragEnd: handleDragEnd,
+      style: { touchAction: "pan-y" },
     };
   }, [disabled, isFirst, isLast, handleDragStart, handleDrag, handleDragEnd]);
+
+  const progress = Math.min(Math.abs(dragOffset) / threshold, 1);
 
   return {
     motionProps,
     isDragging,
     dragOffset,
+    progress,
+    directionHint,
   };
 }
 
@@ -356,21 +535,28 @@ export function useSwipeNavigation(options: SwipeNavigationOptions): SwipeGestur
 // ============================================
 
 /**
- * Trigger haptic feedback if available
+ * Trigger haptic feedback if available.
+ * Supports simple and pattern-based feedback.
+ *
+ * @example
+ * triggerHaptic('light');   // Quick tap
+ * triggerHaptic('success'); // Pattern: tap-pause-tap
  */
-export function triggerHaptic(type: "light" | "medium" | "heavy" = "light"): void {
-  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-    const durations = {
-      light: 10,
-      medium: 20,
-      heavy: 30,
-    };
-    navigator.vibrate(durations[type]);
+export function triggerHaptic(type: HapticType = "light"): void {
+  if (typeof navigator === "undefined" || !("vibrate" in navigator)) {
+    return;
+  }
+
+  const duration = HAPTIC_DURATIONS[type];
+  try {
+    navigator.vibrate(duration);
+  } catch {
+    // Silently fail if vibration is not supported
   }
 }
 
 /**
- * Check if touch device
+ * Check if the device supports touch input.
  */
 export function isTouchDevice(): boolean {
   if (typeof window === "undefined") return false;
@@ -378,23 +564,65 @@ export function isTouchDevice(): boolean {
 }
 
 /**
- * Prevent native scroll during swipe
+ * Check if user prefers reduced motion.
+ */
+export function prefersReducedMotion(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/**
+ * Prevent native scroll during swipe gestures.
+ * Use in useEffect to manage body scroll lock.
+ *
+ * @example
+ * useEffect(() => {
+ *   preventScrollDuringSwipe(isDragging);
+ * }, [isDragging]);
  */
 export function preventScrollDuringSwipe(isDragging: boolean): void {
   if (typeof document === "undefined") return;
 
   if (isDragging) {
+    const scrollY = window.scrollY;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
     document.body.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
   } else {
+    const scrollY = document.body.style.top;
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
     document.body.style.overflow = "";
-    document.body.style.touchAction = "";
+    if (scrollY) {
+      window.scrollTo(0, parseInt(scrollY, 10) * -1);
+    }
   }
 }
 
 /**
- * Get resistance factor based on boundary
- * Returns a value between 0 (full resistance) and 1 (no resistance)
+ * Hook to manage scroll prevention during swipe.
+ * Automatically cleans up on unmount.
+ */
+export function usePreventScroll(isDragging: boolean): void {
+  useEffect(() => {
+    preventScrollDuringSwipe(isDragging);
+    return () => {
+      preventScrollDuringSwipe(false);
+    };
+  }, [isDragging]);
+}
+
+/**
+ * Calculate resistance factor based on boundary proximity.
+ * Returns a value between 0.2 (max resistance) and 1 (no resistance).
+ *
+ * @param offset - Current drag offset
+ * @param isAtBoundary - Whether at a boundary (first/last item)
+ * @param maxOffset - Maximum offset before full resistance (default: 100)
  */
 export function getResistanceFactor(
   offset: number,
@@ -403,5 +631,34 @@ export function getResistanceFactor(
 ): number {
   if (!isAtBoundary) return 1;
   const progress = Math.min(Math.abs(offset) / maxOffset, 1);
-  return 1 - progress * 0.8; // Max 80% resistance
+  // Quadratic easing for more natural feel
+  return 1 - progress * progress * 0.8;
+}
+
+/**
+ * Calculate spring animation config based on velocity.
+ * Higher velocity = snappier animation.
+ */
+export function getVelocitySpring(velocity: number): {
+  stiffness: number;
+  damping: number;
+} {
+  const absVelocity = Math.abs(velocity);
+  const stiffness = Math.min(400 + absVelocity * 0.5, 600);
+  const damping = Math.max(25 - absVelocity * 0.01, 15);
+  return { stiffness, damping };
+}
+
+/**
+ * Clamp a value between min and max.
+ */
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+/**
+ * Linear interpolation between two values.
+ */
+export function lerp(start: number, end: number, progress: number): number {
+  return start + (end - start) * clamp(progress, 0, 1);
 }
