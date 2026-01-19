@@ -147,34 +147,34 @@ async function getStopDetail(stopId: string) {
 
 function StopLoading() {
   return (
-    <div className="min-h-screen bg-surface-secondary">
+    <div className="min-h-screen bg-v6-surface-secondary">
       <DriverPageHeader title="Stop Details" showBack backHref="/driver/route" />
       <div className="p-4">
         <div className="animate-pulse space-y-4">
           {/* Header skeleton */}
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-text-secondary/10" />
+            <div className="h-10 w-10 rounded-full bg-v6-surface-tertiary" />
             <div>
-              <div className="mb-1 h-5 w-32 rounded bg-text-secondary/10" />
-              <div className="h-4 w-20 rounded bg-text-secondary/10" />
+              <div className="mb-1 h-5 w-32 rounded-v6-input bg-v6-surface-tertiary" />
+              <div className="h-4 w-20 rounded-v6-input bg-v6-surface-tertiary" />
             </div>
           </div>
 
           {/* Contact skeleton */}
-          <div className="h-16 rounded-xl bg-text-secondary/10" />
+          <div className="h-16 rounded-v6-card-sm bg-v6-surface-tertiary" />
 
           {/* Address skeleton */}
-          <div className="h-24 rounded-xl bg-text-secondary/10" />
+          <div className="h-24 rounded-v6-card-sm bg-v6-surface-tertiary" />
 
           {/* Time skeleton */}
-          <div className="h-16 rounded-xl bg-text-secondary/10" />
+          <div className="h-16 rounded-v6-card-sm bg-v6-surface-tertiary" />
 
           {/* Order items skeleton */}
-          <div className="h-32 rounded-xl bg-text-secondary/10" />
+          <div className="h-32 rounded-v6-card-sm bg-v6-surface-tertiary" />
 
           {/* Actions skeleton */}
-          <div className="h-14 rounded-xl bg-text-secondary/10" />
-          <div className="h-12 rounded-xl bg-text-secondary/10" />
+          <div className="h-14 rounded-v6-card-sm bg-v6-surface-tertiary" />
+          <div className="h-12 rounded-v6-card-sm bg-v6-surface-tertiary" />
         </div>
       </div>
     </div>
@@ -206,7 +206,7 @@ async function StopDetailPageContent({ params }: PageProps) {
   }));
 
   return (
-    <div className="min-h-screen bg-surface-secondary pb-20">
+    <div className="min-h-screen bg-v6-surface-secondary pb-20">
       <DriverPageHeader
         title={`Stop #${stop.stop_index}`}
         showBack

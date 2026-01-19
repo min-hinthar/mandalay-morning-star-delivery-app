@@ -1,4 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Manrope:wght@200..800&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Padauk:wght@400;700&display=swap");
+/* V6 Typography: Nunito (rounded, playful) + Padauk (Burmese) */
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Padauk:wght@400;700&display=swap");
+
+/* V5 Legacy (preserved for gradual migration) */
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "../styles/tokens.css";
 @import "../styles/animations.css";

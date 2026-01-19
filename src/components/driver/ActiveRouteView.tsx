@@ -1,7 +1,15 @@
+/**
+ * V6 Active Route View - Pepper Aesthetic
+ *
+ * Active route display with progress, start/complete buttons, and stop list.
+ * V6 colors, typography, and high-contrast support.
+ */
+
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { Play, Loader2, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { StopList } from "./StopList";
@@ -108,26 +116,32 @@ export function ActiveRouteView({
   return (
     <div className="space-y-4">
       {/* Progress Bar */}
-      <div className="rounded-xl bg-surface-primary p-4 shadow-sm">
-        <div className="mb-2 flex justify-between text-sm">
-          <span className="font-medium text-text-primary">Progress</span>
-          <span className="text-text-secondary">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-v6-card-sm bg-v6-surface-primary p-4 shadow-v6-sm border border-v6-border"
+      >
+        <div className="mb-2 flex justify-between font-v6-body text-sm">
+          <span className="font-medium text-v6-text-primary">Progress</span>
+          <span className="text-v6-text-secondary">
             {completedCount}/{totalCount} stops
           </span>
         </div>
-        <div className="h-3 overflow-hidden rounded-full bg-surface-tertiary">
-          <div
-            className="h-full rounded-full bg-status-success transition-all duration-500"
-            style={{ width: `${progressPercent}%` }}
+        <div className="h-3 overflow-hidden rounded-full bg-v6-surface-tertiary">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPercent}%` }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="h-full rounded-full bg-v6-green"
           />
         </div>
         {deliveredCount > 0 && skippedCount > 0 && (
-          <div className="mt-2 flex gap-4 text-xs text-text-secondary">
+          <div className="mt-2 flex gap-4 font-v6-body text-xs text-v6-text-secondary">
             <span>{deliveredCount} delivered</span>
             <span>{skippedCount} skipped</span>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Location Tracker (when route in progress) */}
       {routeStatus === "in_progress" && (
@@ -140,13 +154,16 @@ export function ActiveRouteView({
 
       {/* Start Route Button (for planned routes) */}
       {routeStatus === "planned" && (
-        <button
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
           onClick={handleStartRoute}
           disabled={isStarting}
           className={cn(
-            "flex h-14 w-full items-center justify-center gap-3 rounded-xl font-semibold",
-            "bg-status-success text-text-inverse shadow-md",
-            "transition-all hover:bg-accent-secondary-hover hover:shadow-lg",
+            "flex h-14 w-full items-center justify-center gap-3 rounded-v6-card-sm font-v6-body font-semibold",
+            "bg-v6-green text-white shadow-v6-sm",
+            "transition-all duration-v6-fast hover:bg-v6-green/90 hover:shadow-v6-md",
             "active:scale-[0.98]",
             "disabled:cursor-not-allowed disabled:opacity-50"
           )}
@@ -159,18 +176,20 @@ export function ActiveRouteView({
               <span>Start Route</span>
             </>
           )}
-        </button>
+        </motion.button>
       )}
 
       {/* Complete Route Button (when all stops done) */}
       {routeStatus === "in_progress" && canComplete && (
-        <button
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           onClick={handleCompleteRoute}
           disabled={isCompleting}
           className={cn(
-            "flex h-14 w-full items-center justify-center gap-3 rounded-xl font-semibold",
-            "bg-status-success text-text-inverse shadow-md",
-            "transition-all hover:bg-accent-secondary-hover hover:shadow-lg",
+            "flex h-14 w-full items-center justify-center gap-3 rounded-v6-card-sm font-v6-body font-semibold",
+            "bg-v6-green text-white shadow-v6-sm",
+            "transition-all duration-v6-fast hover:bg-v6-green/90 hover:shadow-v6-md",
             "active:scale-[0.98]",
             "disabled:cursor-not-allowed disabled:opacity-50"
           )}
@@ -183,12 +202,12 @@ export function ActiveRouteView({
               <span>Complete Route</span>
             </>
           )}
-        </button>
+        </motion.button>
       )}
 
       {/* Error Message */}
       {error && (
-        <p className="text-center text-sm text-status-error" role="alert">
+        <p className="text-center font-v6-body text-sm text-v6-status-error" role="alert">
           {error}
         </p>
       )}

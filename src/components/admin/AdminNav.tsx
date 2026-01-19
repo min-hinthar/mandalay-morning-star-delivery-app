@@ -16,6 +16,7 @@ import {
   Route,
 } from "lucide-react";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import {
@@ -68,32 +69,44 @@ const navItems = [
   },
 ];
 
+/**
+ * V6 Admin Navigation - Pepper Aesthetic
+ *
+ * Features:
+ * - V6 colors with primary red accent
+ * - Collapsible sidebar with smooth animation
+ * - Active state with left border accent
+ * - V6 typography and hover states
+ */
 export function AdminNav() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
     <TooltipProvider>
-      <aside
+      <motion.aside
+        initial={false}
+        animate={{ width: isCollapsed ? 64 : 256 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
         className={cn(
-          "flex h-screen flex-col border-r bg-background transition-all duration-300",
-          isCollapsed ? "w-16" : "w-64"
+          "flex h-screen flex-col",
+          "bg-v6-surface-secondary border-r border-v6-border"
         )}
       >
-        {/* Header */}
-        <div className="flex h-16 items-center justify-between border-b px-4">
+        {/* V6 Header */}
+        <div className="flex h-16 items-center justify-between border-b border-v6-border px-4">
           {!isCollapsed && (
             <Link href="/admin" className="flex items-center gap-2">
-              <span className="font-display text-lg text-accent-tertiary">
+              <span className="font-v6-display text-lg font-bold text-v6-primary">
                 Admin
               </span>
             </Link>
           )}
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="h-8 w-8"
+            className="h-8 w-8 p-0"
           >
             {isCollapsed ? (
               <Menu className="h-4 w-4" />
@@ -103,7 +116,7 @@ export function AdminNav() {
           </Button>
         </div>
 
-        {/* Navigation */}
+        {/* V6 Navigation */}
         <nav className="flex-1 space-y-1 p-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href ||
@@ -114,14 +127,26 @@ export function AdminNav() {
               <Link
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "relative flex items-center gap-3 rounded-v6-input px-3 py-2.5",
+                  "font-v6-body text-sm font-medium",
+                  "transition-all duration-v6-fast",
                   isActive
-                    ? "bg-accent-tertiary/10 text-accent-tertiary"
-                    : "text-foreground/70 hover:bg-muted hover:text-foreground",
-                  isCollapsed && "justify-center"
+                    ? [
+                        "bg-v6-primary/10 text-v6-primary",
+                        "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
+                        "before:h-6 before:w-1 before:rounded-r-full before:bg-v6-primary",
+                      ]
+                    : [
+                        "text-v6-text-secondary",
+                        "hover:bg-v6-surface-tertiary hover:text-v6-text-primary",
+                      ],
+                  isCollapsed && "justify-center px-2"
                 )}
               >
-                <Icon className="h-5 w-5 shrink-0" />
+                <Icon className={cn(
+                  "h-5 w-5 shrink-0",
+                  isActive ? "text-v6-primary" : "text-v6-text-muted"
+                )} />
                 {!isCollapsed && <span>{item.label}</span>}
               </Link>
             );
@@ -130,8 +155,8 @@ export function AdminNav() {
               return (
                 <Tooltip key={item.href}>
                   <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-                  <TooltipContent>
-                    <p>{item.label}</p>
+                  <TooltipContent className="bg-v6-surface-primary border border-v6-border ml-2">
+                    <p className="font-v6-body">{item.label}</p>
                   </TooltipContent>
                 </Tooltip>
               );
@@ -141,15 +166,18 @@ export function AdminNav() {
           })}
         </nav>
 
-        {/* Footer */}
-        <div className="border-t p-2">
+        {/* V6 Footer */}
+        <div className="border-t border-v6-border p-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
                 href="/"
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-                  isCollapsed && "justify-center"
+                  "flex items-center gap-3 rounded-v6-input px-3 py-2.5",
+                  "font-v6-body text-sm font-medium text-v6-text-muted",
+                  "transition-colors duration-v6-fast",
+                  "hover:bg-v6-surface-tertiary hover:text-v6-text-primary",
+                  isCollapsed && "justify-center px-2"
                 )}
               >
                 <LogOut className="h-5 w-5 shrink-0" />
@@ -157,13 +185,13 @@ export function AdminNav() {
               </Link>
             </TooltipTrigger>
             {isCollapsed && (
-              <TooltipContent>
-                <p>Exit Admin</p>
+              <TooltipContent className="bg-v6-surface-primary border border-v6-border ml-2">
+                <p className="font-v6-body">Exit Admin</p>
               </TooltipContent>
             )}
           </Tooltip>
         </div>
-      </aside>
+      </motion.aside>
     </TooltipProvider>
   );
 }
