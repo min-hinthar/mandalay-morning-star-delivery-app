@@ -8,103 +8,111 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
- * V5 Button System
- * High contrast design with bold interactive colors
- * Features continuous subtle shimmer on primary CTAs
+ * V6 Button System - Pepper Aesthetic
+ * Playful pill-shaped buttons with spring animations
+ * Deep Rich Red primary, Golden Yellow secondary
  *
- * Sizes: sm (32px), md (40px), lg (48px), xl (56px - driver)
+ * Sizes: sm (36px), md (44px), lg (52px), xl (60px - driver)
  * Variants: primary, secondary, ghost, danger, outline, link, success
  */
 const buttonVariants = cva(
   [
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold",
-    "transition-all duration-[var(--duration-fast)] ease-out",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-interactive-primary)]",
-    "disabled:pointer-events-none disabled:opacity-50",
+    // Base styles
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap",
+    "font-v6-body font-semibold",
+    // V6 Motion: Spring-based transitions
+    "transition-all duration-v6-normal ease-v6-spring",
+    // Focus ring
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-v6-primary",
+    // Disabled state
+    "disabled:pointer-events-none disabled:opacity-40 disabled:cursor-not-allowed",
+    // Active press scale
     "active:scale-[0.98]",
+    // Icon sizing
     "[&_svg]:pointer-events-none [&_svg]:shrink-0",
   ].join(" "),
   {
     variants: {
       variant: {
-        // Primary: Saffron/Gold CTA - main actions with shimmer
+        // V6 Primary: Deep Rich Red - main actions
         primary: [
-          "bg-[var(--color-interactive-primary)] text-[var(--color-text-inverse)]",
-          "shadow-[var(--elevation-2)]",
-          "hover:bg-[var(--color-interactive-hover)] hover:shadow-[var(--elevation-3)] hover:-translate-y-0.5",
-          "active:bg-[var(--color-interactive-active)] active:shadow-[var(--elevation-2)] active:translate-y-0",
-          "animate-cta-shimmer",
+          "bg-v6-primary text-v6-text-inverse",
+          "shadow-v6-md",
+          "hover:bg-v6-primary-hover hover:shadow-v6-button-hover hover:-translate-y-0.5",
+          "active:bg-v6-primary-active active:shadow-v6-sm active:translate-y-0",
         ].join(" "),
 
-        // Secondary: Surface with interactive border
+        // V6 Secondary: Golden Yellow - secondary CTAs
         secondary: [
-          "bg-[var(--color-surface-primary)] text-[var(--color-text-primary)]",
-          "border border-[var(--color-interactive-primary)]",
-          "shadow-[var(--elevation-1)]",
-          "hover:bg-[var(--color-interactive-primary-light)] hover:shadow-[var(--elevation-2)] hover:-translate-y-0.5",
-          "active:shadow-[var(--elevation-1)] active:translate-y-0",
+          "bg-v6-secondary text-v6-text-primary",
+          "shadow-v6-md",
+          "hover:bg-v6-secondary-hover hover:shadow-v6-card hover:-translate-y-0.5",
+          "active:bg-v6-secondary-active active:shadow-v6-sm active:translate-y-0",
         ].join(" "),
 
-        // Ghost: Transparent, subtle
+        // V6 Ghost: Transparent with primary text
         ghost: [
-          "text-[var(--color-text-primary)]",
-          "hover:bg-[var(--color-surface-secondary)] hover:text-[var(--color-interactive-primary)]",
-          "active:bg-[var(--color-surface-tertiary)]",
+          "text-v6-primary bg-transparent",
+          "border border-transparent",
+          "hover:bg-v6-primary-light hover:border-v6-primary/20",
+          "active:bg-v6-primary/10",
         ].join(" "),
 
-        // Danger: Destructive actions
+        // V6 Danger: Error red for destructive actions
         danger: [
-          "bg-[var(--color-status-error)] text-[var(--color-text-inverse)]",
-          "shadow-[var(--elevation-2)]",
-          "hover:brightness-110 hover:shadow-[var(--elevation-3)] hover:-translate-y-0.5",
-          "active:shadow-[var(--elevation-2)] active:translate-y-0",
+          "bg-v6-status-error text-v6-text-inverse",
+          "shadow-v6-md",
+          "hover:brightness-110 hover:shadow-v6-card-hover hover:-translate-y-0.5",
+          "active:shadow-v6-sm active:translate-y-0",
         ].join(" "),
 
-        // Success: Positive confirmation
+        // V6 Success: Green for positive confirmation
         success: [
-          "bg-[var(--color-status-success)] text-[var(--color-text-inverse)]",
-          "shadow-[var(--elevation-2)]",
-          "hover:bg-[var(--color-accent-secondary-hover)] hover:shadow-[var(--elevation-3)] hover:-translate-y-0.5",
-          "active:bg-[var(--color-accent-secondary-active)] active:shadow-[var(--elevation-2)] active:translate-y-0",
+          "bg-v6-green text-v6-text-inverse",
+          "shadow-v6-md",
+          "hover:bg-v6-green-hover hover:shadow-v6-card-hover hover:-translate-y-0.5",
+          "active:shadow-v6-sm active:translate-y-0",
         ].join(" "),
 
-        // Outline: Border only
+        // V6 Outline: Border with primary accent
         outline: [
-          "border border-[var(--color-border-default)] bg-[var(--color-surface-primary)] text-[var(--color-text-primary)]",
-          "hover:border-[var(--color-interactive-primary)] hover:bg-[var(--color-interactive-primary)]/5 hover:text-[var(--color-interactive-primary)]",
-          "active:bg-[var(--color-interactive-primary)]/10",
+          "bg-v6-surface-primary text-v6-primary",
+          "border-2 border-v6-primary",
+          "hover:bg-v6-primary-light hover:-translate-y-0.5",
+          "active:bg-v6-primary/10 active:translate-y-0",
         ].join(" "),
 
-        // Link: Text-only with underline
+        // V6 Link: Text-only with underline
         link: [
-          "text-[var(--color-interactive-primary)] underline-offset-4",
-          "hover:underline hover:text-[var(--color-interactive-hover)]",
+          "text-v6-primary underline-offset-4 p-0 h-auto",
+          "hover:underline hover:text-v6-primary-hover",
+          "active:text-v6-primary-active",
         ].join(" "),
 
-        // Default: Maps to primary for backwards compatibility
+        // V5 Default: Maps to V6 primary for backwards compatibility
         default: [
-          "bg-[var(--color-interactive-primary)] text-[var(--color-text-inverse)]",
-          "shadow-[var(--elevation-2)]",
-          "hover:bg-[var(--color-interactive-hover)] hover:shadow-[var(--elevation-3)] hover:-translate-y-0.5",
-          "active:bg-[var(--color-interactive-active)] active:shadow-[var(--elevation-2)] active:translate-y-0",
-          "animate-cta-shimmer",
+          "bg-v6-primary text-v6-text-inverse",
+          "shadow-v6-md",
+          "hover:bg-v6-primary-hover hover:shadow-v6-button-hover hover:-translate-y-0.5",
+          "active:bg-v6-primary-active active:shadow-v6-sm active:translate-y-0",
         ].join(" "),
       },
 
       size: {
-        // V3 Sizes with exact pixel heights
-        sm: "h-8 px-4 py-1.5 text-sm rounded-[var(--radius-sm)] [&_svg]:h-4 [&_svg]:w-4",
-        md: "h-10 px-5 py-2 text-base rounded-[var(--radius-sm)] [&_svg]:h-4 [&_svg]:w-4",
-        lg: "h-12 px-6 py-3 text-base rounded-[var(--radius-md)] [&_svg]:h-5 [&_svg]:w-5",
-        xl: "h-14 px-8 py-4 text-lg rounded-[var(--radius-md)] [&_svg]:h-5 [&_svg]:w-5", // Driver size
+        // V6 Sizes: Generous padding, pill radius
+        sm: "h-9 px-4 py-2 text-sm rounded-v6-button [&_svg]:h-4 [&_svg]:w-4",
+        md: "h-11 px-6 py-3 text-base rounded-v6-button [&_svg]:h-4 [&_svg]:w-4",
+        lg: "h-[52px] px-8 py-3.5 text-base rounded-v6-button [&_svg]:h-5 [&_svg]:w-5",
+        xl: "h-[60px] px-10 py-4 text-lg rounded-v6-button [&_svg]:h-5 [&_svg]:w-5", // Driver size
 
-        // Icon-only variants
-        icon: "h-10 w-10 rounded-[var(--radius-sm)] [&_svg]:h-5 [&_svg]:w-5",
-        "icon-sm": "h-8 w-8 rounded-[var(--radius-sm)] [&_svg]:h-4 [&_svg]:w-4",
-        "icon-lg": "h-12 w-12 rounded-[var(--radius-md)] [&_svg]:h-5 [&_svg]:w-5",
+        // Icon-only variants (square with pill radius)
+        icon: "h-11 w-11 rounded-v6-button [&_svg]:h-5 [&_svg]:w-5",
+        "icon-sm": "h-9 w-9 rounded-v6-button [&_svg]:h-4 [&_svg]:w-4",
+        "icon-lg": "h-[52px] w-[52px] rounded-v6-button [&_svg]:h-5 [&_svg]:w-5",
+        "icon-xl": "h-[60px] w-[60px] rounded-v6-button [&_svg]:h-6 [&_svg]:w-6", // Driver icon
 
         // Default maps to md
-        default: "h-10 px-5 py-2 text-base rounded-[var(--radius-sm)] [&_svg]:h-4 [&_svg]:w-4",
+        default: "h-11 px-6 py-3 text-base rounded-v6-button [&_svg]:h-4 [&_svg]:w-4",
       },
     },
     defaultVariants: {

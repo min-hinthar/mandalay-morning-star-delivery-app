@@ -1,3 +1,10 @@
+/**
+ * V6 Add Driver Modal - Pepper Aesthetic
+ *
+ * Modal form for adding new drivers with V6 colors, typography, and animations.
+ * Features vehicle type selector and animated form validation.
+ */
+
 "use client";
 
 import { useState } from "react";
@@ -153,15 +160,15 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-surface-secondary to-surface-tertiary border-border-v5">
+      <DialogContent className="sm:max-w-[500px] bg-v6-surface-primary border-v6-border rounded-v6-card">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 font-display text-2xl text-text-primary">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-interactive-primary to-accent-tertiary text-text-inverse">
+          <DialogTitle className="flex items-center gap-2 font-v6-display text-2xl text-v6-text-primary">
+            <div className="p-2 rounded-v6-input bg-v6-primary text-white">
               <UserPlus className="h-5 w-5" />
             </div>
             Add New Driver
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
+          <DialogDescription className="font-v6-body text-v6-text-secondary">
             Add a new driver to your delivery fleet. They&apos;ll receive an email invitation.
           </DialogDescription>
         </DialogHeader>
@@ -172,7 +179,7 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm"
+              className="flex items-center gap-2 p-3 rounded-v6-input bg-v6-status-error/10 border border-v6-status-error/20 text-v6-status-error text-sm font-v6-body"
             >
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{errors.general}</span>
@@ -183,9 +190,9 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
           <div className="space-y-2">
             <label
               htmlFor="email"
-              className="text-sm font-medium text-text-primary"
+              className="text-sm font-v6-body font-medium text-v6-text-primary"
             >
-              Email Address <span className="text-status-error">*</span>
+              Email Address <span className="text-v6-status-error">*</span>
             </label>
             <Input
               id="email"
@@ -194,13 +201,13 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
               value={formData.email}
               onChange={(e) => handleChange("email", e.target.value)}
               className={cn(
-                "bg-surface-primary border-border-v5 focus:border-interactive-primary focus:ring-interactive-primary/20",
-                errors.email && "border-status-error focus:border-status-error focus:ring-status-error/20"
+                "bg-v6-surface-primary border-v6-border focus:border-v6-primary focus:ring-v6-primary/20 rounded-v6-input",
+                errors.email && "border-v6-status-error focus:border-v6-status-error focus:ring-v6-status-error/20"
               )}
               disabled={isSubmitting}
             />
             {errors.email && (
-              <p className="text-xs text-red-500 mt-1">{errors.email}</p>
+              <p className="text-xs font-v6-body text-v6-status-error mt-1">{errors.email}</p>
             )}
           </div>
 
@@ -208,9 +215,9 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
           <div className="space-y-2">
             <label
               htmlFor="fullName"
-              className="text-sm font-medium text-text-primary"
+              className="text-sm font-v6-body font-medium text-v6-text-primary"
             >
-              Full Name <span className="text-status-error">*</span>
+              Full Name <span className="text-v6-status-error">*</span>
             </label>
             <Input
               id="fullName"
@@ -219,13 +226,13 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
               value={formData.fullName}
               onChange={(e) => handleChange("fullName", e.target.value)}
               className={cn(
-                "bg-surface-primary border-border-v5 focus:border-interactive-primary focus:ring-interactive-primary/20",
-                errors.fullName && "border-status-error focus:border-status-error focus:ring-status-error/20"
+                "bg-v6-surface-primary border-v6-border focus:border-v6-primary focus:ring-v6-primary/20 rounded-v6-input",
+                errors.fullName && "border-v6-status-error focus:border-v6-status-error focus:ring-v6-status-error/20"
               )}
               disabled={isSubmitting}
             />
             {errors.fullName && (
-              <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>
+              <p className="text-xs font-v6-body text-v6-status-error mt-1">{errors.fullName}</p>
             )}
           </div>
 
@@ -233,7 +240,7 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
           <div className="space-y-2">
             <label
               htmlFor="phone"
-              className="text-sm font-medium text-text-primary"
+              className="text-sm font-v6-body font-medium text-v6-text-primary"
             >
               Phone Number
             </label>
@@ -244,19 +251,19 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
               value={formData.phone}
               onChange={(e) => handleChange("phone", e.target.value)}
               className={cn(
-                "bg-surface-primary border-border-v5 focus:border-interactive-primary focus:ring-interactive-primary/20",
-                errors.phone && "border-status-error focus:border-status-error focus:ring-status-error/20"
+                "bg-v6-surface-primary border-v6-border focus:border-v6-primary focus:ring-v6-primary/20 rounded-v6-input",
+                errors.phone && "border-v6-status-error focus:border-v6-status-error focus:ring-v6-status-error/20"
               )}
               disabled={isSubmitting}
             />
             {errors.phone && (
-              <p className="text-xs text-red-500 mt-1">{errors.phone}</p>
+              <p className="text-xs font-v6-body text-v6-status-error mt-1">{errors.phone}</p>
             )}
           </div>
 
           {/* Vehicle Type */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-text-primary">
+            <label className="text-sm font-v6-body font-medium text-v6-text-primary">
               Vehicle Type
             </label>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
@@ -271,15 +278,15 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
                     )
                   }
                   className={cn(
-                    "flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all",
+                    "flex flex-col items-center gap-1.5 p-3 rounded-v6-card-sm border-2 transition-all duration-v6-fast",
                     formData.vehicleType === option.value
-                      ? "border-interactive-primary bg-interactive-primary-light text-interactive-primary"
-                      : "border-border-v5 bg-surface-primary hover:border-interactive-primary/50 text-text-secondary hover:text-text-primary"
+                      ? "border-v6-primary bg-v6-primary-light text-v6-primary"
+                      : "border-v6-border bg-v6-surface-primary hover:border-v6-primary/50 text-v6-text-secondary hover:text-v6-text-primary"
                   )}
                   disabled={isSubmitting}
                 >
                   {option.icon}
-                  <span className="text-xs font-medium">{option.label}</span>
+                  <span className="text-xs font-v6-body font-medium">{option.label}</span>
                 </button>
               ))}
             </div>
@@ -295,7 +302,7 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
             >
               <label
                 htmlFor="licensePlate"
-                className="text-sm font-medium text-text-primary"
+                className="text-sm font-v6-body font-medium text-v6-text-primary"
               >
                 License Plate
               </label>
@@ -306,13 +313,13 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
                 value={formData.licensePlate}
                 onChange={(e) => handleChange("licensePlate", e.target.value.toUpperCase())}
                 className={cn(
-                  "bg-surface-primary border-border-v5 focus:border-interactive-primary focus:ring-interactive-primary/20 font-mono uppercase",
-                  errors.licensePlate && "border-status-error focus:border-status-error focus:ring-status-error/20"
+                  "bg-v6-surface-primary border-v6-border focus:border-v6-primary focus:ring-v6-primary/20 rounded-v6-input font-mono uppercase",
+                  errors.licensePlate && "border-v6-status-error focus:border-v6-status-error focus:ring-v6-status-error/20"
                 )}
                 disabled={isSubmitting}
               />
               {errors.licensePlate && (
-                <p className="text-xs text-red-500 mt-1">{errors.licensePlate}</p>
+                <p className="text-xs font-v6-body text-v6-status-error mt-1">{errors.licensePlate}</p>
               )}
             </motion.div>
           )}
@@ -323,14 +330,14 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
               variant="outline"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="border-border-v5 hover:bg-surface-tertiary"
+              className="border-v6-border hover:bg-v6-surface-tertiary"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-gradient-to-r from-interactive-primary to-accent-tertiary hover:opacity-90 text-text-inverse shadow-md"
+              className="bg-v6-primary hover:bg-v6-primary-hover text-white shadow-v6-sm"
             >
               {isSubmitting ? (
                 <>

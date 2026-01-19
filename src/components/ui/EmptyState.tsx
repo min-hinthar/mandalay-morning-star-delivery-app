@@ -1,8 +1,9 @@
 /**
- * V3 Sprint 6: Empty State Components
+ * V6 Empty State Components - Pepper Aesthetic
  *
  * Contextual empty state displays when no data is available.
  * Each variant includes icon, message, and action to resolve.
+ * V6 colors, typography, and spring animations.
  */
 
 "use client";
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
+import { v6Spring } from "@/lib/motion";
 
 // ============================================
 // TYPES
@@ -147,12 +149,13 @@ export function EmptyState({
       ? `No results for "${searchQuery}". ${description}`
       : description;
 
+  // V6 animation variants
   const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 18 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.3, ease: "easeOut" as const },
+      transition: v6Spring,
     },
   };
 
@@ -161,7 +164,7 @@ export function EmptyState({
     visible: {
       opacity: 1,
       scale: 1,
-      transition: { delay: 0.1, duration: 0.3, ease: "easeOut" as const },
+      transition: { ...v6Spring, delay: 0.1 },
     },
   };
 
@@ -175,45 +178,45 @@ export function EmptyState({
         className
       )}
     >
-      {/* Icon */}
+      {/* V6 Icon with colored background */}
       <motion.div
         variants={prefersReducedMotion ? undefined : iconVariants}
         className={cn(
-          "mb-4 flex h-16 w-16 items-center justify-center rounded-full",
+          "mb-6 flex h-20 w-20 items-center justify-center rounded-full",
           isPositive
-            ? "bg-[var(--color-jade)]/10 text-[var(--color-jade)]"
-            : "bg-[var(--color-surface-muted)] text-[var(--color-text-muted)]"
+            ? "bg-v6-green/10 text-v6-green"
+            : "bg-v6-surface-tertiary text-v6-text-muted"
         )}
       >
-        <Icon className="h-8 w-8" strokeWidth={1.5} />
+        <Icon className="h-10 w-10" strokeWidth={1.5} />
       </motion.div>
 
-      {/* Title */}
+      {/* V6 Title */}
       <h2
         className={cn(
-          "mb-2 text-lg font-semibold",
+          "mb-2 font-v6-display text-xl font-bold",
           isPositive
-            ? "text-[var(--color-jade)]"
-            : "text-[var(--color-text-primary)]"
+            ? "text-v6-green"
+            : "text-v6-text-primary"
         )}
       >
         {title}
       </h2>
 
-      {/* Description */}
-      <p className="mb-6 max-w-sm text-[var(--color-text-muted)]">
+      {/* V6 Description */}
+      <p className="mb-8 max-w-sm font-v6-body text-v6-text-secondary">
         {displayDescription}
       </p>
 
-      {/* Action */}
+      {/* V6 Action Button */}
       {actionLabel && (
         <>
           {actionHref ? (
-            <Button asChild variant="secondary">
+            <Button asChild variant="primary" size="lg" className="shadow-v6-elevated">
               <Link href={actionHref}>{actionLabel}</Link>
             </Button>
           ) : onAction ? (
-            <Button variant="secondary" onClick={onAction}>
+            <Button variant="primary" size="lg" onClick={onAction} className="shadow-v6-elevated">
               {actionLabel}
             </Button>
           ) : null}
@@ -249,16 +252,16 @@ export function SearchEmptyState({
 }) {
   return (
     <EmptyState variant="search" searchQuery={query} onAction={onClear}>
-      {/* Popular searches */}
-      <div className="mt-6 text-sm text-[var(--color-text-muted)]">
-        <p className="mb-2 font-medium text-[var(--color-text-primary)]/80">
+      {/* V6 Popular searches */}
+      <div className="mt-6 font-v6-body text-sm text-v6-text-muted">
+        <p className="mb-3 font-medium text-v6-text-secondary">
           Popular searches:
         </p>
         <div className="flex flex-wrap justify-center gap-2">
           {["Mohinga", "Curry", "Noodles", "Seafood"].map((term) => (
             <span
               key={term}
-              className="rounded-full bg-[var(--color-surface-muted)] px-3 py-1"
+              className="rounded-v6-pill bg-v6-surface-tertiary px-4 py-1.5 text-v6-text-primary transition-colors hover:bg-v6-primary-light"
             >
               {term}
             </span>

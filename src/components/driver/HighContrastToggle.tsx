@@ -1,3 +1,10 @@
+/**
+ * V6 High Contrast Toggle - Pepper Aesthetic
+ *
+ * Toggle button for driver high-contrast mode with V6 styling.
+ * 56px touch target for accessibility, persists preference.
+ */
+
 "use client";
 
 import { Sun, Moon } from "lucide-react";
@@ -8,14 +15,6 @@ interface HighContrastToggleProps {
   className?: string;
 }
 
-/**
- * Toggle button for driver high-contrast mode
- *
- * Features:
- * - 48px touch target for accessibility
- * - Visual indicator of current mode
- * - Persists preference in localStorage
- */
 export function HighContrastToggle({ className }: HighContrastToggleProps) {
   const { isHighContrast, toggleContrast } = useDriverContrast();
 
@@ -24,10 +23,10 @@ export function HighContrastToggle({ className }: HighContrastToggleProps) {
       onClick={toggleContrast}
       className={cn(
         "flex h-12 w-12 items-center justify-center rounded-full",
-        "transition-colors",
+        "transition-all duration-v6-fast",
         isHighContrast
-          ? "bg-text-primary text-text-inverse"
-          : "bg-surface-tertiary text-text-secondary hover:bg-surface-secondary",
+          ? "bg-v6-text-primary text-white"
+          : "bg-v6-surface-tertiary text-v6-text-secondary hover:bg-v6-surface-secondary",
         className
       )}
       aria-label={isHighContrast ? "Switch to standard contrast" : "Switch to high contrast"}

@@ -1,3 +1,10 @@
+/**
+ * V6 Stop Detail View - Pepper Aesthetic
+ *
+ * Full stop detail view with customer info, address, order items, and actions.
+ * V6 colors, typography, and high-contrast support.
+ */
+
 "use client";
 
 import { useState, useCallback } from "react";
@@ -126,11 +133,11 @@ export function StopDetailView({
         <button
           onClick={() => setIsPhotoCaptureOpen(true)}
           className={cn(
-            "mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl",
-            "border-2 font-medium transition-all",
+            "mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-v6-card-sm",
+            "border-2 font-v6-body font-medium transition-all duration-v6-fast",
             hasPhoto
-              ? "border-[var(--color-jade)] bg-[var(--color-jade-light)] text-[var(--color-jade)]"
-              : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] hover:border-[var(--color-text-muted)]"
+              ? "border-v6-green bg-v6-green/10 text-v6-green"
+              : "border-v6-border bg-v6-surface-primary text-v6-text-primary hover:border-v6-text-muted"
           )}
         >
           <Camera className="h-5 w-5" />

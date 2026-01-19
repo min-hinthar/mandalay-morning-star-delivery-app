@@ -10,9 +10,18 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// V5 Chart colors - mapped to semantic tokens
-const V5_CHART_COLORS = {
-  primary: "#D4A017", // --color-interactive-primary
+/**
+ * V6 Revenue Chart - Pepper Aesthetic
+ *
+ * Chart colors using V6 primary red palette
+ */
+
+// V6 Chart colors - Pepper aesthetic
+const V6_CHART_COLORS = {
+  primary: "#A41034", // V6 primary red
+  secondary: "#EBCD00", // V6 secondary yellow
+  grid: "#E8E1DC", // V6 border color
+  text: "#6B6560", // V6 text muted
 };
 
 interface DailyRevenue {
@@ -46,16 +55,24 @@ export function RevenueChart({ data }: RevenueChartProps) {
           bottom: 5,
         }}
       >
-        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke={V6_CHART_COLORS.grid}
+          strokeOpacity={0.6}
+        />
         <XAxis
           dataKey="date"
-          className="text-xs"
-          tick={{ fill: "hsl(var(--muted-foreground))" }}
+          className="text-xs font-v6-body"
+          tick={{ fill: V6_CHART_COLORS.text }}
+          tickLine={{ stroke: V6_CHART_COLORS.grid }}
+          axisLine={{ stroke: V6_CHART_COLORS.grid }}
         />
         <YAxis
           tickFormatter={formatCurrency}
-          className="text-xs"
-          tick={{ fill: "hsl(var(--muted-foreground))" }}
+          className="text-xs font-v6-body"
+          tick={{ fill: V6_CHART_COLORS.text }}
+          tickLine={{ stroke: V6_CHART_COLORS.grid }}
+          axisLine={{ stroke: V6_CHART_COLORS.grid }}
         />
         <Tooltip
           formatter={(value, name) => {
@@ -66,18 +83,29 @@ export function RevenueChart({ data }: RevenueChartProps) {
             ];
           }}
           contentStyle={{
-            backgroundColor: "hsl(var(--background))",
-            borderColor: "hsl(var(--border))",
-            borderRadius: "8px",
+            backgroundColor: "#FFFFFF",
+            borderColor: V6_CHART_COLORS.grid,
+            borderRadius: "16px",
+            boxShadow: "0 8px 24px rgba(164, 16, 52, 0.08)",
+            fontFamily: "var(--font-v6-body)",
+          }}
+          labelStyle={{
+            color: "#111111",
+            fontWeight: 600,
           }}
         />
         <Line
           type="monotone"
           dataKey="revenue"
-          stroke={V5_CHART_COLORS.primary}
-          strokeWidth={2}
-          dot={{ fill: V5_CHART_COLORS.primary, strokeWidth: 2 }}
-          activeDot={{ r: 6, fill: V5_CHART_COLORS.primary }}
+          stroke={V6_CHART_COLORS.primary}
+          strokeWidth={3}
+          dot={{ fill: V6_CHART_COLORS.primary, strokeWidth: 2, r: 4 }}
+          activeDot={{
+            r: 7,
+            fill: V6_CHART_COLORS.primary,
+            stroke: "#FFFFFF",
+            strokeWidth: 2,
+          }}
         />
       </LineChart>
     </ResponsiveContainer>
