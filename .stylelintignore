@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Storybook
+storybook-static/
+src/stories/
+
+# Generated files
+*.min.css
+
+# Cache
+.cache/
+.turbo/

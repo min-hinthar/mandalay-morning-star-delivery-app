@@ -830,3 +830,84 @@ Options: `revealThreshold`, `autoDeleteThreshold`, `velocityThreshold`, `onDelet
 SKILL.md must reference these files in "Additional Resources" section so Claude knows they exist.
 **Apply when:** Designing skill file structure, deciding what content goes where
 
+---
+
+## 2026-01-19: ESLint Flat Config Ignores (No .eslintignore)
+
+**Context:** Adding storybook-static/ to lint ignore caused warning about deprecated .eslintignore
+**Learning:** ESLint 9+ flat config (`eslint.config.mjs`) doesn't use `.eslintignore`. Add ignores directly in config:
+```js
+const config = [
+  {
+    ignores: [
+      ".next/**",
+      "storybook-static/**",
+      "src/stories/**",  // Storybook demo files
+    ],
+  },
+  // ... rest of config
+];
+```
+The `.eslintignore` file will show deprecation warning and be ignored.
+**Apply when:** Adding folders to ESLint ignore list, seeing "ESLintIgnoreWarning: The .eslintignore file is no longer supported"
+
+---
+
+## 2026-01-19: Storybook Sample Data Must Match Actual Types
+
+**Context:** MenuAccordion.stories.tsx typecheck failed - sample data had `categorySlug`, `isAvailable`, `sortOrder` but MenuItem type doesn't have these
+**Learning:** When creating Storybook stories with sample data, always verify against the actual type definition. Common mismatches:
+| Incorrect | Correct (MenuItem type) |
+|-----------|------------------------|
+| `categorySlug` | *(not in type - remove)* |
+| `isAvailable` | `isActive` |
+| `sortOrder` | *(not in type - remove)* |
+
+Before writing sample data, read the type file (`src/types/menu.ts`) to ensure all required fields are present and no extra fields are added.
+**Apply when:** Creating stories with sample data, fixing typecheck errors in *.stories.tsx files
+
+---
+
+## 2026-01-19: Playwright Visual Regression Configuration
+
+**Context:** Setting up visual regression tests for Sprint 6
+**Learning:** Playwright visual regression requires explicit config in `playwright.config.ts`:
+```ts
+expect: {
+  toHaveScreenshot: {
+    maxDiffPixels: 100,
+    threshold: 0.2,
+  },
+  toMatchSnapshot: {
+    maxDiffPixelRatio: 0.05,
+  },
+},
+snapshotDir: "./e2e/__snapshots__",
+```
+Capture baselines with: `pnpm exec playwright test --update-snapshots e2e/visual-regression.spec.ts`
+**Apply when:** Setting up visual regression tests, configuring Playwright snapshot comparison
+
+---
+
+## 2026-01-19: axe-core Playwright Accessibility Testing Pattern
+
+**Context:** Creating WCAG 2.1 AA accessibility tests with @axe-core/playwright
+**Learning:** Standard accessibility test pattern:
+```ts
+import AxeBuilder from "@axe-core/playwright";
+
+async function checkA11y(page: Page) {
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+
+  const critical = results.violations.filter(
+    (v) => v.impact === "critical" || v.impact === "serious"
+  );
+
+  if (critical.length > 0) throw new Error(...);
+}
+```
+For specific rule testing: `.withRules(["color-contrast"])`. For high-contrast mode: `.withTags(["wcag2aaa"])`.
+**Apply when:** Adding accessibility tests, auditing pages for WCAG compliance
+

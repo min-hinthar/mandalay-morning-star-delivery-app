@@ -1,3 +1,6 @@
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
+import storybook from "eslint-plugin-storybook";
+
 import { FlatCompat } from "@eslint/eslintrc";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -12,7 +15,14 @@ const compat = new FlatCompat({
 const config = [
   ...compat.extends("next/core-web-vitals", "next/typescript", "prettier"),
   {
-    ignores: [".next/**", "out/**", "build/**", "next-env.d.ts"],
+    ignores: [
+      ".next/**",
+      "out/**",
+      "build/**",
+      "next-env.d.ts",
+      "storybook-static/**",
+      "src/stories/**",
+    ],
   },
   {
     // Allow underscore-prefixed variables to be unused
@@ -49,6 +59,7 @@ const config = [
       ],
     },
   },
+  ...storybook.configs["flat/recommended"]
 ];
 
 export default config;
