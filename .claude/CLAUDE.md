@@ -70,5 +70,4 @@
 | GitHub | PR, issue ref | Pull context, link commits |
 
 ## Verification
-<!-- Fill in your verification command -->
-Run before completing: `pnpm typecheck && pnpm test`
+Run before completing: `pnpm lint && pnpm lint:css && pnpm typecheck && pnpm test && pnpm build`

@@ -51,7 +51,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
 
   const handleIncrement = useCallback(() => {
     updateQuantity(item.cartItemId, item.quantity + 1);
-  }, [item.cartItemId, updateQuantity]);
+  }, [item.cartItemId, item.quantity, updateQuantity]);
 
   const handleRemove = useCallback(() => {
     removeItem(item.cartItemId);

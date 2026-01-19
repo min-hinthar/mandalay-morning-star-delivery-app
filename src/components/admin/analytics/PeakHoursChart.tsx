@@ -114,7 +114,7 @@ export function PeakHoursChart({ data, height = 250 }: PeakHoursChartProps) {
           <span>Moderate</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-3 w-3 rounded-sm bg-[#F5D876]" />
+          <div className="h-3 w-3 rounded-sm bg-[var(--color-saffron-light,#F5D876)]" />
           <span>Low volume</span>
         </div>
       </div>

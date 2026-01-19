@@ -364,15 +364,11 @@
 
   /* Touch target sizes (WCAG 2.1) */
   --touch-target-min: 44px;
-  --touch-target-primary: 48px;
+  --touch-target-primary: 56px;
   --touch-target-driver: 56px;
   --admin-nav-height: 64px;
   --max-content-width: 1280px;
   --max-admin-width: 1536px;
-
-  /* Touch targets */
-  --touch-target-min: 44px;
-  --touch-target-primary: 56px;
 
   /* ===========================================
      OPACITY
@@ -635,18 +631,20 @@
 }
 
 /* ============================================
-   REDUCED MOTION
+   REDUCED MOTION (Opt-in only)
+
+   Animations are ENABLED by default for maximum visual impact.
+   Users can opt-in to reduced motion via data-reduce-motion="true"
+   on the html element (typically via app settings).
    ============================================ */
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+[data-reduce-motion="true"] *,
+[data-reduce-motion="true"] *::before,
+[data-reduce-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 
 /* ============================================

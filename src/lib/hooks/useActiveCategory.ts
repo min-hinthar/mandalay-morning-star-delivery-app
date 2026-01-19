@@ -116,13 +116,17 @@ export function useActiveCategory(
       }
     );
 
+    // Capture ref values for cleanup
+    const observer = observerRef.current;
+    const visMap = visibilityMap.current;
+
     // Observe all section elements
     sectionIds.forEach((id) => {
       const element = document.getElementById(id);
       if (element) {
-        observerRef.current?.observe(element);
+        observer?.observe(element);
         // Initialize with 0 visibility
-        visibilityMap.current.set(id, 0);
+        visMap.set(id, 0);
       }
     });
 
@@ -130,8 +134,8 @@ export function useActiveCategory(
     updateActiveSection();
 
     return () => {
-      observerRef.current?.disconnect();
-      visibilityMap.current.clear();
+      observer?.disconnect();
+      visMap.clear();
     };
   }, [sectionIds, rootMargin, threshold, isSupported, updateActiveSection]);
 

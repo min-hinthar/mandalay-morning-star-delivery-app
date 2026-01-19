@@ -261,6 +261,7 @@ function DefaultItemCard({ item }: { item: MenuItem }) {
     >
       {/* Image placeholder */}
       {item.imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={item.imageUrl}
           alt={item.nameEn}

@@ -16,7 +16,7 @@ export const MenuSection = forwardRef<HTMLElement, MenuSectionProps>(
         id={id ?? category.slug}
         className="scroll-mt-32 pt-6"
       >
-        <div className="sticky top-[120px] z-[5] -mx-4 border-b border-border/50 bg-background/95 py-3 backdrop-blur-sm">
+        <div className="sticky top-[120px] z-[var(--z-dropdown)] -mx-4 border-b border-border/50 bg-background/95 py-3 backdrop-blur-sm">
           <h2 className="px-4 text-xl font-display text-brand-red">
             {category.name}
             <span className="ml-2 text-sm font-normal text-muted">

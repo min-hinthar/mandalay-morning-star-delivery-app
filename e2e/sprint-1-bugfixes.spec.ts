@@ -88,7 +88,7 @@ test.describe("Sprint 1: Bug Fixes", () => {
       await page.waitForLoadState("networkidle");
 
       // Get initial scroll position
-      const initialScrollY = await page.evaluate(() => window.scrollY);
+      const _initialScrollY = await page.evaluate(() => window.scrollY);
 
       // Find a category tab (not "All")
       const categoryTabs = page.locator('button[role="tab"]');
@@ -135,15 +135,15 @@ test.describe("Sprint 1: Bug Fixes", () => {
 
       // Look for step indicators - should find exactly 3
       // The step indicator shows step numbers 1, 2, 3
-      const stepLabels = page.locator("text=Address, text=Time, text=Payment");
+      const _stepLabels = page.locator("text=Address, text=Time, text=Payment");
 
       // Check that "Review" step does NOT exist (was removed)
       const reviewStep = page.locator('span:has-text("Review")').first();
-      const reviewExists = await reviewStep.isVisible().catch(() => false);
+      const _reviewExists = await reviewStep.isVisible().catch(() => false);
 
       // Check that "Pay" step does NOT exist (renamed to Payment)
       const payStep = page.locator('span:has-text("Pay")').first();
-      const payStepVisible = await payStep.isVisible().catch(() => false);
+      const _payStepVisible = await payStep.isVisible().catch(() => false);
 
       // If checkout page loaded, verify step count
       const checkoutTitle = page.locator('h1:has-text("Checkout")');
@@ -172,7 +172,7 @@ test.describe("Sprint 1: Bug Fixes", () => {
 
       // Check for any auth-related UI in the header
       // Either: user avatar/menu button, sign in link, or login link
-      const hasAuthUI = await page.evaluate(() => {
+      const _hasAuthUI = await page.evaluate(() => {
         const header = document.querySelector("header");
         if (!header) return false;
 

@@ -29,8 +29,9 @@ interface DropdownActionProps {
 /**
  * DropdownAction - A dropdown menu item that handles async actions
  *
- * Fixes the form-in-Radix-dropdown issue by using onClick instead of form action.
+ * Fixes the form-in-Radix-dropdown issue by using onSelect instead of form action.
  * Shows loading state during async operations and handles errors gracefully.
+ * Uses event.preventDefault() to keep menu open during async operations.
  *
  * @example
  * ```tsx
@@ -86,11 +87,15 @@ export function DropdownAction({
 
   return (
     <DropdownMenuItem
-      onClick={isDisabled ? undefined : handleClick}
+      onSelect={(event) => {
+        if (isDisabled) return;
+        event.preventDefault(); // Prevent menu from closing during async action
+        handleClick();
+      }}
       className={cn(
         "cursor-pointer",
         variantStyles[variant],
-        isDisabled && "opacity-50 cursor-not-allowed pointer-events-none",
+        isDisabled && "opacity-50 cursor-not-allowed",
         className
       )}
     >

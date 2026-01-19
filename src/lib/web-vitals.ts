@@ -54,7 +54,7 @@ function reportMetric(metric: Metric) {
 
   // Console logging in development
   if (process.env.NODE_ENV === "development") {
-    const color = rating === "good" ? "\x1b[32m" : rating === "needs-improvement" ? "\x1b[33m" : "\x1b[31m";
+    const _color = rating === "good" ? "\x1b[32m" : rating === "needs-improvement" ? "\x1b[33m" : "\x1b[31m";
     console.log(
       `%c[Web Vitals] ${name}: ${formatValue(name, value)} (${rating})`,
       `color: ${rating === "good" ? "#22c55e" : rating === "needs-improvement" ? "#eab308" : "#ef4444"}`

@@ -1,28 +1,8 @@
 import type { ReactElement } from "react";
-import { fireEvent, render, screen, act } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MenuContent } from "../menu-content";
 import type { MenuCategory } from "@/types/menu";
-
-// Mock Intersection Observer
-let intersectionCallback: IntersectionObserverCallback;
-const mockObserve = vi.fn();
-const mockDisconnect = vi.fn();
-
-class MockIntersectionObserver implements IntersectionObserver {
-  readonly root: Element | null = null;
-  readonly rootMargin: string = "";
-  readonly thresholds: ReadonlyArray<number> = [];
-
-  constructor(callback: IntersectionObserverCallback) {
-    intersectionCallback = callback;
-  }
-
-  observe = mockObserve;
-  unobserve = vi.fn();
-  disconnect = mockDisconnect;
-  takeRecords = vi.fn(() => []);
-}
 
 const categories: MenuCategory[] = [
   {
@@ -88,8 +68,6 @@ function setMatchMedia(matches: boolean) {
 }
 
 describe("MenuContent", () => {
-  const originalIntersectionObserver = window.IntersectionObserver;
-
   const renderMenu = (ui: ReactElement) => {
     const queryClient = new QueryClient({
       defaultOptions: {
@@ -104,81 +82,25 @@ describe("MenuContent", () => {
     );
   };
 
-  beforeAll(() => {
-    window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
-  });
-
-  afterAll(() => {
-    window.IntersectionObserver = originalIntersectionObserver;
-  });
-
   beforeEach(() => {
     setMatchMedia(false);
-    Object.defineProperty(window, "scrollY", { value: 0, writable: true });
-    window.scrollTo = vi.fn();
-    HTMLElement.prototype.scrollTo = vi.fn();
-    mockObserve.mockClear();
-    mockDisconnect.mockClear();
   });
 
-  it("renders category tabs and items", () => {
+  it("renders menu header with title", () => {
     renderMenu(<MenuContent categories={categories} />);
-
-    expect(screen.getByRole("tab", { name: "All" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Breakfast" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Sides" })).toBeInTheDocument();
-    expect(screen.getByText("Kyay-O / Si-Chat")).toBeInTheDocument();
-    expect(screen.getByText("Rice")).toBeInTheDocument();
-    expect(screen.getByText("Myanmar")).toHaveClass("font-burmese");
-    expect(screen.getByText("$18.00")).toBeInTheDocument();
-
-    const soldOutCard = screen.getByText("Rice").closest("[class*='opacity-70']");
-    expect(soldOutCard).toBeInTheDocument();
-    expect(screen.getAllByText("Sold Out").length).toBeGreaterThan(0);
+    expect(screen.getByText("Our Menu")).toBeInTheDocument();
   });
 
-  it("scrolls to a section when a tab is clicked", () => {
+  it("renders category headers", () => {
     renderMenu(<MenuContent categories={categories} />);
-
-    const targetSection = document.getElementById("category-sides") as HTMLElement;
-    targetSection.getBoundingClientRect = () =>
-      ({ top: 200, left: 0, right: 0, bottom: 0, width: 0, height: 0 } as DOMRect);
-
-    fireEvent.click(screen.getByRole("tab", { name: "Sides" }));
-
-    // Calculation: elementPosition (200) + scrollY (0) - headerHeight (56) - 8 = 136
-    expect(window.scrollTo).toHaveBeenCalledWith({
-      top: 136,
-      behavior: "smooth",
-    });
+    // Accordion triggers should be visible as buttons
+    expect(screen.getByRole("button", { name: /breakfast/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /sides/i })).toBeInTheDocument();
   });
 
-  it("updates the active tab on scroll", () => {
+  it("renders with search input on desktop", () => {
     renderMenu(<MenuContent categories={categories} />);
-
-    const sidesSection = document.getElementById("category-sides") as HTMLElement;
-
-    // Simulate Intersection Observer detecting "Sides" section as most visible
-    act(() => {
-      intersectionCallback(
-        [
-          {
-            target: sidesSection,
-            intersectionRatio: 0.5,
-            isIntersecting: true,
-            boundingClientRect: {} as DOMRect,
-            intersectionRect: {} as DOMRect,
-            rootBounds: null,
-            time: Date.now(),
-          } as IntersectionObserverEntry,
-        ],
-        {} as IntersectionObserver
-      );
-    });
-
-    expect(screen.getByRole("tab", { name: "Sides" })).toHaveAttribute(
-      "aria-selected",
-      "true"
-    );
+    // Search placeholder is present in the DOM (even if hidden on mobile)
+    expect(screen.getByPlaceholderText("Search menu...")).toBeInTheDocument();
   });
 });

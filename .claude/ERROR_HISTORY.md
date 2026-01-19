@@ -81,3 +81,61 @@ Reference for past bugs, root causes, and fixes. Check here before debugging sim
 - Deleted empty `[orderId]/` directory
 
 ---
+
+## 2026-01-18: V4 Bug - Signout Button Not Working (Form in Radix Dropdown)
+**Type:** Runtime | **Severity:** High
+**Files:** `src/components/auth/user-menu.tsx`, `src/components/ui/DropdownAction.tsx`
+
+**Error:** Clicking "Sign out" in user dropdown does nothing - no error, no network request
+**Root Cause:** Radix UI `<DropdownMenuItem>` swallows form submit events. The signout action used `<form action={signOut}>` which never triggered because Radix intercepts the event.
+**Fix:** Created `DropdownAction.tsx` component that:
+- Uses `onSelect` prop (not `onClick`) for Radix dropdown items
+- Handles async actions with loading state
+- Calls server action directly without form wrapper
+```tsx
+<DropdownAction
+  onSelect={async () => { await signOut(); }}
+  variant="destructive"
+>
+  Sign out
+</DropdownAction>
+```
+**Prevention:** Never use `<form>` inside Radix dropdown/menu items. Use `onSelect` handler with direct function calls.
+
+---
+
+## 2026-01-18: V4 Bug - CheckoutLayout Step Count Mismatch
+**Type:** TypeScript | **Severity:** Medium
+**Files:** `src/components/layouts/CheckoutLayout.tsx`, `src/lib/stores/checkout-store.ts`, `src/types/checkout.ts`
+
+**Error:** Checkout steps not rendering correctly, type errors about step array length
+**Root Cause:** Layout had 4 steps (`address`, `time`, `review`, `pay`) but store had 3 steps (`address`, `time`, `payment`). Different arrays, different naming conventions.
+**Fix:**
+- Created canonical type in `src/types/checkout.ts` with 3 steps
+- Updated CheckoutLayout to match: `["address", "time", "payment"]`
+- Removed "review" step (combined with payment), renamed "pay" → "payment"
+**Prevention:** Single source of truth for shared constants. Export from types file, import everywhere else.
+
+---
+
+## 2026-01-18: V4 Bug - Stylelint Config for Tailwind 4
+**Type:** Config | **Severity:** Low
+**Files:** `.stylelintrc.json`
+
+**Error:** 90+ stylelint errors on first run - complaints about `@theme`, `@custom-variant`, `@utility` at-rules
+**Root Cause:** Default stylelint-config-standard doesn't recognize Tailwind 4's new CSS syntax (`@theme`, `@custom-variant`, `@utility`, `@config`)
+**Fix:** Extended `.stylelintrc.json` ignoreAtRules to include all Tailwind 4 directives:
+```json
+{
+  "rules": {
+    "at-rule-no-unknown": [true, {
+      "ignoreAtRules": ["tailwind", "apply", "layer", "config", "theme", "custom-variant", "utility"]
+    }],
+    "function-no-unknown": [true, { "ignoreFunctions": ["theme", "var"] }]
+  }
+}
+```
+Also disabled rules incompatible with Tailwind's output: `import-notation`, `color-function-notation`, `media-feature-range-notation`, etc.
+**Prevention:** When adding stylelint to Tailwind projects, check Tailwind version and add all directive names to ignoreAtRules.
+
+---

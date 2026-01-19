@@ -62,7 +62,7 @@ export default function AdminOrdersPage() {
       }));
 
       setOrders(transformedOrders);
-    } catch (error) {
+    } catch {
       toast({ title: "Error", description: "Failed to fetch orders", variant: "destructive" });
     } finally {
       setLoading(false);
@@ -102,10 +102,10 @@ export default function AdminOrdersPage() {
       );
 
       router.refresh();
-    } catch (error) {
+    } catch (err) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update status",
+        description: err instanceof Error ? err.message : "Failed to update status",
         variant: "destructive",
       });
     }

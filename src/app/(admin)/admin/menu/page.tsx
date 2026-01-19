@@ -84,7 +84,7 @@ export default function AdminMenuPage() {
         return acc;
       }, []);
       setCategories(uniqueCategories);
-    } catch (error) {
+    } catch {
       toast({ title: "Error", description: "Failed to fetch menu items", variant: "destructive" });
     } finally {
       setLoading(false);
@@ -117,7 +117,7 @@ export default function AdminMenuPage() {
           i.id === item.id ? { ...i, is_active: !i.is_active } : i
         )
       );
-    } catch (error) {
+    } catch {
       toast({ title: "Error", description: "Failed to update item", variant: "destructive" });
     } finally {
       setUpdatingId(null);
@@ -140,7 +140,7 @@ export default function AdminMenuPage() {
           i.id === item.id ? { ...i, is_sold_out: !i.is_sold_out } : i
         )
       );
-    } catch (error) {
+    } catch {
       toast({ title: "Error", description: "Failed to update item", variant: "destructive" });
     } finally {
       setUpdatingId(null);
@@ -164,10 +164,10 @@ export default function AdminMenuPage() {
       }
 
       setItems((prev) => prev.filter((i) => i.id !== item.id));
-    } catch (error) {
+    } catch (err) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete item",
+        description: err instanceof Error ? err.message : "Failed to delete item",
         variant: "destructive",
       });
     } finally {

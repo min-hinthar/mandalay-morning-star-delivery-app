@@ -14,7 +14,6 @@ import {
   AlertTriangle,
   RefreshCw,
   ChevronRight,
-  CheckCircle2,
   AlertCircle,
   Zap,
 } from "lucide-react";

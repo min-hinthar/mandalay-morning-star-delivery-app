@@ -64,8 +64,8 @@ function AccordionItem({
   item,
   isExpanded,
   onToggle,
-  index,
-  totalItems,
+  index: _index,
+  totalItems: _totalItems,
 }: AccordionItemProps) {
   // Generate unique IDs for ARIA relationships
   const headerId = useId();
