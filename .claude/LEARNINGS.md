@@ -644,6 +644,126 @@ Critical conventions:
 
 ---
 
+## 2026-01-18: useLuminance Hook for Dynamic Text Contrast
+
+**Context:** V4 bug fix - white text unreadable on light hero backgrounds
+**Learning:** WCAG luminance detection pattern for dynamic text color:
+```ts
+// src/lib/hooks/useLuminance.ts
+function getRelativeLuminance(r: number, g: number, b: number): number {
+  const [rs, gs, bs] = [r, g, b].map((c) => {
+    c = c / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+}
+
+// Threshold: L > 0.179 means light background → use dark text
+const textClass = luminance > 0.179 ? "text-charcoal" : "text-cream";
+```
+For gradients, either sample dominant color or use solid background overlay (`bg-black/20`) for guaranteed contrast.
+**Apply when:** Text overlays on images, animated gradients, hero sections, any dynamic background
+
+---
+
+## 2026-01-18: Radix DropdownMenuItem Event Handling
+
+**Context:** V4 bug fix - signout button in dropdown not working
+**Learning:** Radix `<DropdownMenuItem>` has specific event behavior:
+- `onClick` - fires but dropdown closes immediately, may interrupt async
+- `onSelect` - proper handler, keeps menu state until action completes
+- Forms inside dropdown - `<form action={...}>` submit events are swallowed
+
+Pattern for async actions in dropdowns:
+```tsx
+<DropdownMenuItem
+  onSelect={(e) => {
+    e.preventDefault(); // Keep menu open during action
+    handleAsyncAction().finally(() => {
+      // Close manually or let redirect handle it
+    });
+  }}
+>
+```
+Or create `DropdownAction` wrapper component with loading state.
+**Apply when:** Server actions in dropdowns, signout buttons, delete confirmations in menus
+
+---
+
+## 2026-01-18: ESLint Underscore Convention for Unused Variables
+
+**Context:** Fixing "defined but never used" warnings for intentionally unused variables
+**Learning:** ESLint's `@typescript-eslint/no-unused-vars` doesn't automatically ignore underscore-prefixed variables. Add explicit config in `eslint.config.mjs`:
+```js
+{
+  rules: {
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+      },
+    ],
+  },
+}
+```
+Variables prefixed with `_` (e.g., `_unused`, `_index`) will be ignored.
+**Apply when:** Using underscore convention for intentionally unused variables, configuring new ESLint flat config
+
+---
+
+## 2026-01-18: Catch Block Error Variable Scoping
+
+**Context:** Simplifying catch blocks that don't use the error - TypeScript 4.0+ allows `catch { }` syntax
+**Learning:** When changing `catch (error) {` to `catch {`, ensure no code inside references `error`. Common pattern in this codebase:
+```ts
+// BEFORE - catches error but also has shadowed variable from response
+try {
+  const error = await response.json();  // This 'error' is different
+  throw new Error(error.error);
+} catch {
+  // ❌ BROKEN - 'error' not defined here
+  description: error instanceof Error ? error.message : "Failed"
+}
+
+// AFTER - capture error with different name
+} catch (err) {
+  description: err instanceof Error ? err.message : "Failed"
+}
+```
+If catch block uses error message, must capture it. Use `err` to avoid confusion with inner `error` variables.
+**Apply when:** Simplifying catch blocks, fixing "Cannot find name 'error'" TypeScript errors
+
+---
+
+## 2026-01-18: React useEffect Ref Cleanup Pattern
+
+**Context:** Fixing "ref value will likely have changed" ESLint warning in useActiveCategory
+**Learning:** When accessing `.current` of a ref in useEffect cleanup, the ref value may change before cleanup runs. Capture ref value at effect start:
+```ts
+useEffect(() => {
+  // ✅ Capture ref values immediately
+  const observer = observerRef.current;
+  const visMap = visibilityMap.current;
+
+  sectionIds.forEach((id) => {
+    const element = document.getElementById(id);
+    if (element) observer?.observe(element);
+  });
+
+  return () => {
+    // ✅ Use captured values in cleanup
+    observer?.disconnect();
+    visMap.clear();
+  };
+}, [deps]);
+```
+This ensures cleanup operates on the same values that were used during effect execution.
+**Apply when:** Using refs in useEffect with cleanup, Intersection Observer patterns, manual subscription management
+
+---
+
 ## 2026-01-18: Skill Reference File Organization
 
 **Context:** Restructuring frontend-design skill with references/ subdirectory

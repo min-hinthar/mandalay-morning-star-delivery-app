@@ -32,7 +32,7 @@ export function CheckoutStepper({
           const isCurrent = index === currentIndex;
           const isClickable = isCompleted && onStepClick;
           const config = STEP_CONFIG[step];
-          const Icon = config.icon;
+          const _Icon = config.icon;
 
           return (
             <li

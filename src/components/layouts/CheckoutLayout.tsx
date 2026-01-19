@@ -148,7 +148,7 @@ export function CheckoutLayout({
             {STEPS.map((step, index) => {
               const isCompleted = index < currentStepIndex;
               const isCurrent = index === currentStepIndex;
-              const isFuture = index > currentStepIndex;
+              const _isFuture = index > currentStepIndex;
 
               return (
                 <div key={step.id} className="flex flex-1 items-center">

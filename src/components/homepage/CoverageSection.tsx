@@ -146,17 +146,14 @@ export function CoverageSection() {
                 <div className="flex gap-3">
                   <Button
                     type="submit"
-                    disabled={isPending || !addressInput.trim()}
-                    className="flex-1 bg-accent-tertiary hover:bg-accent-tertiary-hover text-white py-6 rounded-xl font-semibold btn-glow"
+                    variant="primary"
+                    size="lg"
+                    disabled={!addressInput.trim()}
+                    isLoading={isPending}
+                    loadingText="Checking..."
+                    className="flex-1 h-14"
                   >
-                    {isPending ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        Checking...
-                      </>
-                    ) : (
-                      "Check Coverage"
-                    )}
+                    Check Coverage
                   </Button>
 
                   {(coverageResult || userLocation) && (

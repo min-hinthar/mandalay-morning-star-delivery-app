@@ -8,7 +8,6 @@ import {
   type ComponentPropsWithoutRef,
 } from "react";
 import {
-  useField,
   type FieldMetadata,
   getInputProps,
   getTextareaProps,
@@ -123,8 +122,7 @@ function FormFieldLabel({
 // INPUT
 // ============================================
 
-interface FormFieldInputProps
-  extends Omit<ComponentPropsWithoutRef<"input">, "id" | "name"> {}
+type FormFieldInputProps = Omit<ComponentPropsWithoutRef<"input">, "id" | "name">
 
 function FormFieldInput({ className, type = "text", ...props }: FormFieldInputProps) {
   const { id, field, hasError, errorId, descriptionId } = useFormFieldContext();
@@ -166,8 +164,7 @@ function FormFieldInput({ className, type = "text", ...props }: FormFieldInputPr
 // TEXTAREA
 // ============================================
 
-interface FormFieldTextareaProps
-  extends Omit<ComponentPropsWithoutRef<"textarea">, "id" | "name"> {}
+type FormFieldTextareaProps = Omit<ComponentPropsWithoutRef<"textarea">, "id" | "name">
 
 function FormFieldTextarea({ className, ...props }: FormFieldTextareaProps) {
   const { id, field, hasError, errorId, descriptionId } = useFormFieldContext();
@@ -208,8 +205,7 @@ function FormFieldTextarea({ className, ...props }: FormFieldTextareaProps) {
 // SELECT
 // ============================================
 
-interface FormFieldSelectProps
-  extends Omit<ComponentPropsWithoutRef<"select">, "id" | "name"> {}
+type FormFieldSelectProps = Omit<ComponentPropsWithoutRef<"select">, "id" | "name">
 
 function FormFieldSelect({
   className,
@@ -259,7 +255,7 @@ function FormFieldSelect({
 // ERROR
 // ============================================
 
-interface FormFieldErrorProps extends ComponentPropsWithoutRef<"p"> {}
+type FormFieldErrorProps = ComponentPropsWithoutRef<"p">
 
 function FormFieldError({ className, ...props }: FormFieldErrorProps) {
   const { field, errorId } = useFormFieldContext();
@@ -297,7 +293,7 @@ function FormFieldError({ className, ...props }: FormFieldErrorProps) {
 // DESCRIPTION
 // ============================================
 
-interface FormFieldDescriptionProps extends ComponentPropsWithoutRef<"p"> {}
+type FormFieldDescriptionProps = ComponentPropsWithoutRef<"p">
 
 function FormFieldDescription({
   className,

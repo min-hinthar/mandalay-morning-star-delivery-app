@@ -3,14 +3,13 @@
 import { useCallback, useMemo, useState } from "react";
 import { useMenuSearch } from "@/lib/hooks/useMenu";
 import { useDebounce } from "@/lib/hooks/useDebounce";
-import { useActiveCategory } from "@/lib/hooks/useActiveCategory";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import type { MenuCategory, MenuItem } from "@/types/menu";
 import type { SelectedModifier } from "@/lib/utils/price";
-import { CategoryTabs } from "./category-tabs";
+import { MenuAccordion } from "./MenuAccordion";
+import { MenuItemCard } from "./menu-item-card";
 import { ItemDetailModal } from "./item-detail-modal";
-import { MenuGrid } from "./menu-grid";
 import { MenuHeader } from "./menu-header";
 import { SearchResultsGrid } from "./search-results-grid";
 
@@ -38,19 +37,6 @@ export function MenuContent({ categories }: MenuContentProps) {
   const { data: searchResults, isFetching: isSearching } =
     useMenuSearch(debouncedQuery);
 
-  const sectionIds = useMemo(
-    () => visibleCategories.map((category) => `category-${category.slug}`),
-    [visibleCategories]
-  );
-
-  const { activeCategory, scrollToCategory: scrollToCategoryBase } = useActiveCategory(
-    sectionIds,
-    {
-      rootMargin: "-56px 0px -80% 0px",
-      headerHeight: 56,
-    }
-  );
-
   const handleSearchChange = useCallback((query: string) => {
     setSearchQuery(query);
   }, []);
@@ -59,20 +45,7 @@ export function MenuContent({ categories }: MenuContentProps) {
     setSearchQuery("");
   }, []);
 
-  const scrollToCategory = useCallback(
-    (slug: string | null) => {
-      setSearchQuery("");
-      scrollToCategoryBase(slug);
-    },
-    [scrollToCategoryBase]
-  );
-
-  const handleGridItemSelect = useCallback((item: MenuItem) => {
-    setSelectedItem(item);
-    setIsModalOpen(true);
-  }, []);
-
-  const handleSearchItemSelect = useCallback((item: MenuItem) => {
+  const handleItemSelect = useCallback((item: MenuItem) => {
     setSelectedItem(item);
     setIsModalOpen(true);
   }, []);
@@ -115,27 +88,26 @@ export function MenuContent({ categories }: MenuContentProps) {
         isSearching={isSearching && isSearchMode}
       />
 
-      {!isSearchMode && (
-        <CategoryTabs
-          categories={visibleCategories}
-          activeCategory={activeCategory}
-          onCategoryClick={scrollToCategory}
-        />
-      )}
-
       {isSearchMode ? (
         <SearchResultsGrid
           items={searchResults?.data.items ?? []}
           query={debouncedQuery}
-          onItemSelect={handleSearchItemSelect}
+          onItemSelect={handleItemSelect}
           onClearSearch={handleClearSearch}
           isLoading={isSearching}
         />
       ) : (
-        <MenuGrid
-          categories={visibleCategories}
-          onItemSelect={handleGridItemSelect}
-        />
+        <div className="px-4 py-6">
+          <MenuAccordion
+            categories={visibleCategories}
+            onItemClick={handleItemSelect}
+            renderItem={(item) => (
+              <MenuItemCard item={item} onSelect={() => handleItemSelect(item)} />
+            )}
+            defaultExpanded={visibleCategories[0]?.slug ? [visibleCategories[0].slug] : []}
+            allowMultiple={true}
+          />
+        </div>
       )}
 
       <ItemDetailModal

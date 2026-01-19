@@ -39,7 +39,7 @@ export function MobileMenu({ role }: MobileMenuProps): ReactElement {
       {/* Mobile menu overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-[55] bg-black/20 md:hidden"
+          className="fixed inset-0 z-[var(--z-modal-backdrop)] bg-black/20 md:hidden"
           onClick={closeMenu}
           aria-hidden="true"
         />
@@ -48,7 +48,7 @@ export function MobileMenu({ role }: MobileMenuProps): ReactElement {
       {/* Mobile menu panel */}
       <div
         className={cn(
-          "fixed inset-x-0 top-[var(--header-height,57px)] z-[60] border-b border-border bg-background p-4 shadow-lg transition-transform duration-200 md:hidden",
+          "fixed inset-x-0 top-[var(--header-height,57px)] z-[var(--z-popover)] border-b border-border bg-background p-4 shadow-lg transition-transform duration-200 md:hidden",
           isOpen ? "translate-y-0" : "-translate-y-full"
         )}
       >

@@ -17,7 +17,7 @@ import {
   Star,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { spring, fadeIn } from "@/lib/animations";
+import { spring } from "@/lib/animations";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -148,6 +148,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
                 )}
               >
                 {user?.avatar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={user.avatar}
                     alt={user.name}

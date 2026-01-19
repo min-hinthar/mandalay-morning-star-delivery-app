@@ -59,7 +59,7 @@ export default function AdminDriversPage() {
       }
       const data: AdminDriver[] = await response.json();
       setDrivers(data);
-    } catch (error) {
+    } catch {
       toast({ title: "Error", description: "Failed to fetch drivers", variant: "destructive" });
     } finally {
       setLoading(false);
@@ -97,10 +97,10 @@ export default function AdminDriversPage() {
       );
 
       router.refresh();
-    } catch (error) {
+    } catch (err) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update driver",
+        description: err instanceof Error ? err.message : "Failed to update driver",
         variant: "destructive",
       });
     }

@@ -5,7 +5,6 @@ import {
   useRef,
   useCallback,
   type ReactNode,
-  type KeyboardEvent,
 } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { createPortal } from "react-dom";

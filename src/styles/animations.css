@@ -215,37 +215,39 @@
 }
 
 /* ============================================
-   REDUCED MOTION
+   REDUCED MOTION (Opt-in only)
+
+   Animations are ENABLED by default for maximum visual impact.
+   Users can opt-in to reduced motion via data-reduce-motion="true"
+   on the html element (typically via app settings).
    ============================================ */
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-shimmer,
-  .animate-pulse-ring,
-  .animate-float,
-  .animate-float-slow,
-  .animate-glow,
-  .animate-confetti,
-  .animate-slide-in-right,
-  .animate-slide-in-up,
-  .animate-fade-in,
-  .animate-fade-in-up,
-  .animate-scale-in,
-  .animate-scale-pulse,
-  .animate-gradient-shift,
-  .animate-cta-shimmer::after {
-    animation: none !important;
-  }
+[data-reduce-motion="true"] .animate-shimmer,
+[data-reduce-motion="true"] .animate-pulse-ring,
+[data-reduce-motion="true"] .animate-float,
+[data-reduce-motion="true"] .animate-float-slow,
+[data-reduce-motion="true"] .animate-glow,
+[data-reduce-motion="true"] .animate-confetti,
+[data-reduce-motion="true"] .animate-slide-in-right,
+[data-reduce-motion="true"] .animate-slide-in-up,
+[data-reduce-motion="true"] .animate-fade-in,
+[data-reduce-motion="true"] .animate-fade-in-up,
+[data-reduce-motion="true"] .animate-scale-in,
+[data-reduce-motion="true"] .animate-scale-pulse,
+[data-reduce-motion="true"] .animate-gradient-shift,
+[data-reduce-motion="true"] .animate-cta-shimmer::after {
+  animation: none !important;
+}
 
-  .stagger-1,
-  .stagger-2,
-  .stagger-3,
-  .stagger-4,
-  .stagger-5,
-  .stagger-6,
-  .stagger-7,
-  .stagger-8 {
-    animation-delay: 0s !important;
-  }
+[data-reduce-motion="true"] .stagger-1,
+[data-reduce-motion="true"] .stagger-2,
+[data-reduce-motion="true"] .stagger-3,
+[data-reduce-motion="true"] .stagger-4,
+[data-reduce-motion="true"] .stagger-5,
+[data-reduce-motion="true"] .stagger-6,
+[data-reduce-motion="true"] .stagger-7,
+[data-reduce-motion="true"] .stagger-8 {
+  animation-delay: 0s !important;
 }
 
 /* ============================================

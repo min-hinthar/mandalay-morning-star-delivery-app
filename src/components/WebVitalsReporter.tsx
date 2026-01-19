@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useWebVitals } from "@/lib/web-vitals";
 
 /**
@@ -8,9 +7,6 @@ import { useWebVitals } from "@/lib/web-vitals";
  * Add this to your root layout for automatic CWV tracking.
  */
 export function WebVitalsReporter() {
-  useEffect(() => {
-    useWebVitals();
-  }, []);
-
+  useWebVitals();
   return null;
 }

@@ -233,7 +233,7 @@ export function QuickPreviewPanel({
             </span>
           </div>
           <p className="text-sm text-text-primary leading-relaxed italic bg-surface-tertiary/50 rounded-lg px-3 py-2 border-l-2 border-interactive-primary/30">
-            "{notes}"
+            &ldquo;{notes}&rdquo;
           </p>
         </motion.div>
       )}

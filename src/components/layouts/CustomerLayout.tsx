@@ -37,7 +37,7 @@ export function CustomerLayout({
 }: CustomerLayoutProps) {
   const { itemCount, estimatedTotal } = useCart();
   const { open: openCart } = useCartDrawer();
-  const { isCollapsed, isAtTop, scrollY } = useScrollDirection({ threshold: 10 });
+  const { isCollapsed, scrollY } = useScrollDirection({ threshold: 10 });
   const [showSearch, setShowSearch] = useState(false);
 
   // Derive isScrolled from scroll position
@@ -55,14 +55,15 @@ export function CustomerLayout({
       <motion.header
         initial={false}
         animate={{
-          y: isCollapsed && !showSearch ? -56 : 0,
+          y: isCollapsed && !showSearch ? "calc(-1 * var(--header-height))" : 0,
         }}
         transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
         className={cn(
-          "sticky top-0 z-[var(--z-sticky)] h-14",
+          "sticky top-0 z-[var(--z-sticky)] h-[var(--header-height)]",
           "bg-[var(--color-cream)]/95 dark:bg-[var(--color-background)]/95",
           "backdrop-blur-lg border-b border-[var(--color-border)]",
           "transition-shadow duration-[var(--duration-fast)]",
+          "pt-safe", // iOS safe area
           isScrolled && "shadow-[var(--shadow-md)]"
         )}
       >
@@ -140,12 +141,12 @@ export function CustomerLayout({
       <main
         className={cn(
           "flex-1",
-          "min-h-[calc(100vh-56px-64px)]",
+          "min-h-[calc(100vh-var(--header-height)-var(--cart-bar-height))]",
           contentClassName
         )}
         style={{
           paddingBottom: showCartBar
-            ? "calc(64px + env(safe-area-inset-bottom, 0px))"
+            ? "calc(var(--cart-bar-height) + env(safe-area-inset-bottom, 0px))"
             : undefined,
         }}
       >

@@ -70,7 +70,7 @@ export default function AdminRoutesPage() {
       }
       const data: AdminRoute[] = await response.json();
       setRoutes(data);
-    } catch (error) {
+    } catch {
       toast({ title: "Error", description: "Failed to fetch routes", variant: "destructive" });
     } finally {
       setLoading(false);
@@ -107,10 +107,10 @@ export default function AdminRoutesPage() {
       // Refresh routes
       await fetchRoutes();
       router.refresh();
-    } catch (error) {
+    } catch (err) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update route",
+        description: err instanceof Error ? err.message : "Failed to update route",
         variant: "destructive",
       });
     }
@@ -130,10 +130,10 @@ export default function AdminRoutesPage() {
       // Remove from local state
       setRoutes((prev) => prev.filter((r) => r.id !== routeId));
       router.refresh();
-    } catch (error) {
+    } catch (err) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete route",
+        description: err instanceof Error ? err.message : "Failed to delete route",
         variant: "destructive",
       });
     }

@@ -15,6 +15,19 @@ const config = [
     ignores: [".next/**", "out/**", "build/**", "next-env.d.ts"],
   },
   {
+    // Allow underscore-prefixed variables to be unused
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
+  {
     // V4 Design Token Enforcement Rules
     files: ["src/components/**/*.tsx", "src/app/**/*.tsx"],
     rules: {
