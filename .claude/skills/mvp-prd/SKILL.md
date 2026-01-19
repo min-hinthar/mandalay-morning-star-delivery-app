@@ -1,72 +1,56 @@
 ---
-description: Convert a rough MVP idea into a demo-grade PRD (Steps 1-7)
+name: mvp-prd
+description: This skill should be used when the user asks to "create a PRD", "write requirements", "define an MVP", "spec out a feature", "plan a demo", "document product requirements", or needs to turn a rough idea into a structured product requirements document. Converts vague ideas into demo-grade PRDs with decision clarity.
 ---
 
 # MVP to Demo PRD Generator
 
-## Role
+Transform rough MVP ideas into clear, demo-grade Product Requirements Documents. Optimize for decision clarity, not enterprise ceremony.
 
-You are a senior product thinker helping a builder turn a rough MVP idea into a clear, demo-grade Product Requirements Document (PRD).
+## Input Expectations
 
-Your goal is decision clarity, not enterprise ceremony.
+Accept from user:
+- Rough MVP or demo descriptions
+- Vague, incomplete, or "vibe-level" ideas
+- Feature requests without context
 
-## Input
-
-The user will provide:
-
-- A rough MVP or demo description
-- Possibly vague, incomplete, or "vibe-level" ideas
-
-You must infer missing details, but:
-
-- Clearly label assumptions
+Handling ambiguity:
+- Infer missing details with reasonable assumptions
+- Label all assumptions explicitly
 - Avoid overengineering
-- Optimize for a believable demo, not production scale
+- Optimize for believable demo, not production scale
+- Ask maximum one clarifying question, then proceed
 
-## Output
+## Output Structure (7 Sections)
 
-Generate a Demo Project PRD with ONLY sections 1-7 below.
-Use concise, builder-friendly language.
-
-## Output Structure (Strict)
+Generate a Demo Project PRD with exactly these sections:
 
 ### 1. One-Sentence Problem
 
-Write a sharp problem statement in this format:
-
+Format:
 > [User] struggles to [do X] because [reason], resulting in [impact].
 
-If multiple problems exist, pick the single most demo-worthy one.
+Pick the single most demo-worthy problem if multiple exist.
 
 ### 2. Demo Goal (What Success Looks Like)
 
-Describe:
-
-- What must work for this demo to be considered successful
-- What outcome the demo should clearly communicate
-
-Optionally include:
-
+Include:
+- What must work for demo success
+- What outcome the demo should communicate
 - Non-Goals (what is intentionally out of scope)
 
 ### 3. Target User (Role-Based)
 
-Define one primary user role.
-
-Include:
-
+Define one primary user role:
 - Role / context
 - Skill level
-- Key constraint (time, knowledge, access, etc.)
+- Key constraint (time, knowledge, access)
 
 Avoid personas or demographics.
 
 ### 4. Core Use Case (Happy Path)
 
-Describe the single most important end-to-end flow.
-
-Include:
-
+Describe the single most important end-to-end flow:
 - Start condition
 - Step-by-step flow (numbered)
 - End condition
@@ -75,125 +59,114 @@ If this flow works, the demo works.
 
 ### 5. Functional Decisions (What It Must Do)
 
-List only required functional capabilities.
-
-Use this table:
+Table format:
 
 | ID | Function | Notes |
 |----|----------|-------|
 
 Rules:
-
 - Phrase as capabilities, not implementation
 - No "nice-to-haves"
 - Keep the list tight
 
 ### 6. UX Decisions (What the Experience Is Like)
 
-Explicitly define UX assumptions so nothing is left implicit.
-
 #### 6.1 Entry Point
-
-- How the user starts
-- What they see first
+How the user starts; what they see first.
 
 #### 6.2 Inputs
-
 What the user provides (if anything).
 
 #### 6.3 Outputs
-
 What the user receives and in what form.
 
 #### 6.4 Feedback & States
-
-How the system communicates:
-
-- Loading
-- Success
-- Failure
-- Partial results
+How the system communicates: loading, success, failure, partial results.
 
 #### 6.5 Errors (Minimum Viable Handling)
-
-What happens when:
-
-- Input is invalid
-- The system fails
-- The user does nothing
+What happens when: input is invalid, system fails, user does nothing.
 
 ### 7. Data & Logic (At a Glance)
 
 #### 7.1 Inputs
-
-Where data comes from:
-
-- User
-- API
-- Static / mocked
-- Generated
+Where data comes from: user, API, static/mocked, generated.
 
 #### 7.2 Processing
-
-High-level logic only (no architecture diagrams).
-
-Example formats:
-
-- Input → transform → output
-- Fetch → analyze → summarize
+High-level logic only. Example: Input → transform → output.
 
 #### 7.3 Outputs
+Where results go: UI only, temporarily stored, logged.
 
-Where results go:
+## Content Guidelines
 
-- UI only
-- Temporarily stored
-- Logged
+Include:
+- Sharp, builder-friendly language
+- Explicit assumptions with labels
+- Decision rationale when non-obvious
 
-## Guidelines
-
-- Optimize for speed + clarity
-- Make reasonable assumptions explicit
-- Do NOT include:
-  - Architecture diagrams
-  - Tech stack decisions
-  - Pricing, monetization, or GTM
-  - Long explanations
-
-If the user input is extremely vague, ask one clarifying question max, then proceed with assumptions.
-
-## Done When
-
-A builder could:
-
-- Read this PRD
-- Build a demo without guessing
-- Explain the product clearly to someone else
+Exclude:
+- Architecture diagrams
+- Tech stack decisions
+- Pricing, monetization, GTM
+- Long explanations
+- Implementation details
 
 ## Output Location
 
-Write PRD to: `docs/V{n}/PRD.md`
-- Example: `docs/V5/PRD.md` for version 5
-- Clarification session: `docs/V{n}/PRD-clarification-session.md`
+Write PRD to a location the user specifies or use a sensible default:
+- Example: `docs/prd.md` or `docs/features/feature-name.md`
+- Clarification session: `docs/prd-clarification-session.md`
 
-## Sprint Organization by Risk
+Ask user for preferred location if unclear.
 
-When planning implementation sprints:
+## Completion Criteria
 
-| Risk Level | Task Types | Ship After |
-|------------|------------|------------|
-| Low | Token audit, lint rules, docs, type fixes | Immediately |
-| Medium | Component rewrites, animation changes | Unit tests pass |
-| High | Checkout, auth, payment flows | E2E tests pass |
+PRD is done when a builder could:
+- Read it and build a demo without guessing
+- Explain the product clearly to someone else
+- Identify what's in scope vs out of scope
 
-**Priority order:** Bugs > Consistency > Polish > Performance
+## Post-Generation
 
-**Scope expansion:** If PRD grows significantly during clarification, add new sprint rather than cramming expanded scope.
+After generating sections 1-7, invoke the `prd-clarify` skill to refine requirements through structured questioning.
 
-## After PRD Generation
+---
 
-Once you have generated the complete PRD (sections 1-7), you MUST invoke the `prd-clarifier` skill using the Skill tool to refine and clarify the PRD through structured questioning.
+## Additional Resources
 
-The skill will use the AskUserQuestion tool to interactively gather clarifications from the user.
+### Reference Files
+
+For detailed planning and scope management:
+- **`references/sprint-planning.md`** — Risk-based batching, prioritization, sprint sequencing
+- **`references/scope-management.md`** — Creep prevention, expansion protocols, scope lock
+
+### Example Files
+
+Working examples in `examples/`:
+- **`sample-prd.md`** — Complete PRD following the 7-section structure
+
+---
+
+## Quick Reference
+
+### Risk Classification
+
+| Risk Level | Examples | Ship Gate |
+|------------|----------|-----------|
+| Low | Types, configs, docs | Immediately |
+| Medium | UI, styling, animations | Unit tests pass |
+| High | Auth, payments, mutations | E2E tests pass |
+
+### Priority Order
+
+Bugs > Breaking Changes > Consistency > Polish > Performance
+
+### Scope Expansion Protocol
+
+| Expansion Size | Action |
+|----------------|--------|
+| Minor (<20%) | Add to current sprint |
+| Moderate (20-50%) | Split to follow-up sprint |
+| Major (>50%) | Pause, re-clarify, replan |
 
 $ARGUMENTS

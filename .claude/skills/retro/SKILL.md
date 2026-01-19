@@ -1,30 +1,37 @@
 ---
-description: Capture session learnings manually (use when session may not end cleanly or for mid-session retrospective)
+name: retro
+description: This skill should be used when the user asks to "capture learnings", "run retrospective", "log what we learned", "update error history", or at the end of a session to capture insights. Reviews session and selectively logs insights worth preserving.
 ---
 
 # Session Retrospective
 
-Review this session and capture learnings. Be selective - only log insights worth preserving.
+Review the current session and capture learnings. Be selective—only log insights worth preserving for future sessions.
 
 ## Tasks
 
-1. **Error Patterns** - If errors occurred:
-   - Check `.claude/ERROR_HISTORY.md` for existing entries
-   - Add new entries only if: error spans >2 files, non-obvious root cause, or likely to recur
-   - Use existing format (date, type, severity, files, error, root cause, fix)
+### 1. Error Patterns
+If errors occurred:
+- Check `.claude/ERROR_HISTORY.md` for existing entries
+- Add new entries only if: error spans >2 files, non-obvious root cause, or likely to recur
+- Use format: date, type, severity, files, error, root cause, fix, prevention
 
-2. **Learnings** - Update `.claude/LEARNINGS.md` with:
-   - Patterns that worked well in this codebase
-   - Conventions discovered (naming, structure, data flow)
-   - Gotchas or anti-patterns to avoid
-   - Skip obvious/generic knowledge
+### 2. Learnings
+Update `.claude/LEARNINGS.md` with:
+- Patterns that worked well in this codebase
+- Conventions discovered (naming, structure, data flow)
+- Gotchas or anti-patterns to avoid
+- Skip obvious/generic knowledge
 
-3. **CLAUDE.md Updates** - If session revealed:
-   - New verification commands needed
-   - Additional paths worth documenting
-   - MCP tool usage patterns
+### 3. CLAUDE.md Updates
+If session revealed:
+- New verification commands needed
+- Additional paths worth documenting
+- MCP tool usage patterns
+- Agent strategy improvements
 
-## Format for LEARNINGS.md
+## Entry Formats
+
+### LEARNINGS.md
 
 ```markdown
 ## YYYY-MM-DD: [Brief Topic]
@@ -34,58 +41,96 @@ Review this session and capture learnings. Be selective - only log insights wort
 **Apply when:** [Trigger conditions]
 ```
 
-## Guidelines
+### ERROR_HISTORY.md
 
-- Terse, imperative language
-- Skip if nothing notable happened
-- Don't duplicate existing entries
-- Prefer updating existing sections over adding new ones
+```markdown
+## YYYY-MM-DD: [Error Type]
 
-## What to Log (Specific Examples)
+**Severity:** Low | Medium | High | Critical
+**Files:** [Affected files]
+**Error:** [Error message/symptom]
+**Root Cause:** [What actually caused it]
+**Fix:** [How resolved]
+**Prevention:** [How to avoid]
+```
 
-**LEARNINGS.md - Log these:**
-| Category | Example | Why Worth Logging |
-|----------|---------|-------------------|
-| Hook API | `useCart.estimatedTotal` not `total` | Prevents repeated debugging |
-| Path conventions | `layouts/` (new) vs `layout/` (legacy) | Avoids file placement errors |
-| Token migrations | `--color-cta` → `--color-interactive-primary` | Reference for consistency |
-| Test mocks | IntersectionObserver mock pattern | Saves setup time |
-| TypeScript quirks | `as const` for Framer Motion variants | Prevents type errors |
+## Logging Guidelines
 
-**ERROR_HISTORY.md - Log these:**
-- Dynamic route slug conflicts
-- RLS bypass requirements
-- Serverless function flush patterns
-- Import path mismatches
+**Log if:**
+- Error occurred 2+ times
+- Error spans multiple files
+- Root cause was non-obvious
+- Pattern saved significant time
+- Would help future debugging
 
-## Skill Update Triggers
+**Skip if:**
+- Simple typo or one-off
+- Generic/common knowledge
+- Already documented
+- Temporary workaround
 
-**Add to `/frontend-design`:**
-- New Framer Motion pattern used 2+ times
-- New accessibility pattern discovered
-- New test resilience pattern
+## Quick Checklist
 
-**Add to `/prd-clarify`:**
-- Question that revealed major scope change
-- Question type that should always be asked
+- [ ] Check ERROR_HISTORY.md before logging (avoid duplicates)
+- [ ] Check LEARNINGS.md before logging (avoid duplicates)
+- [ ] Use terse, imperative language
+- [ ] Include when to apply the learning
+- [ ] Consider if pattern warrants skill update
 
-**Add to `/prd-ux`:**
-- New state design pattern
-- New affordance rule
+---
 
-## Common Patterns to Watch
+## Additional Resources
+
+### Reference Files
+
+For detailed guidance:
+- **`references/logging-triggers.md`** — What to log, when, and format details
+- **`references/skill-evolution.md`** — When to update skills vs log learnings
+- **`references/meta-learning.md`** — Reflection questions, retrospective templates
+
+### Scripts
+
+Utility scripts in `scripts/`:
+- **`validate-learnings.sh`** — Check for duplicates and stale entries
+
+---
+
+## Quick Reference
+
+### What to Log
+
+| Category | Example | Destination |
+|----------|---------|-------------|
+| Hook/API quirk | `estimatedTotal` not `total` | LEARNINGS.md |
+| Path convention | `layouts/` vs `layout/` | LEARNINGS.md |
+| Type pattern | `as const` for variants | LEARNINGS.md |
+| Route conflict | Dynamic segment collision | ERROR_HISTORY.md |
+| Auth bypass | RLS exception needed | ERROR_HISTORY.md |
+| Import issue | Path resolution mismatch | ERROR_HISTORY.md |
+
+### Skill Update Triggers
+
+| If pattern... | Then update... |
+|---------------|----------------|
+| Motion/animation | frontend-design |
+| Question revealed scope | prd-clarify |
+| State/affordance | prd-ux |
+| Prompt structure | ux-prompts |
+| Verification command | CLAUDE.md |
+
+### Common Patterns to Watch
 
 **TypeScript/React:**
-- File casing on Windows (case-insensitive FS vs case-sensitive imports)
-- React 19 namespace changes (`JSX.Element` → `ReactElement`)
-- Next.js 16+ instrumentation patterns
-
-**Framer Motion:**
-- `as const` for variant types
-- `useReducedMotion` for accessibility
-- Spring configs for natural feel
+- File casing (case-sensitive imports)
+- Framework namespace changes
+- Instrumentation patterns
 
 **Testing:**
-- jsdom missing APIs (ResizeObserver, matchMedia, IntersectionObserver)
-- Playwright exact matching (`{ exact: true }`)
+- Browser API mocks (ResizeObserver, matchMedia)
+- Exact matching requirements
 - Avoid class-based assertions
+
+**Build/Config:**
+- Version mismatches
+- Path alias resolution
+- Environment-specific behavior
