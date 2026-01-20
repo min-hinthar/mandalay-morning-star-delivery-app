@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import {
   v7Spring,
@@ -445,12 +446,14 @@ export function FooterV7({
               onClick={handleSecretClick}
               whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
             >
-              {/* Logo with lotus */}
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" className="text-v6-secondary">
-                <path d="M16 4C13 10 10 14 10 20c0 3 2.5 6 6 6s6-3 6-6c0-6-3-10-6-16z" fill="currentColor" />
-                <path d="M8 14c-3 3-6 6-6 10 0 3 3 4 6 4 2 0 4.5-1.5 6-4.5-4.5 0-6-4.5-6-9.5z" fill="currentColor" opacity="0.7" />
-                <path d="M24 14c3 3 6 6 6 10 0 3-3 4-6 4-2 0-4.5-1.5-6-4.5 4.5 0 6-4.5 6-9.5z" fill="currentColor" opacity="0.7" />
-              </svg>
+              {/* Logo */}
+              <Image
+                src="/logo.png"
+                alt="Mandalay Morning Star"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
               <span className="text-white font-display font-semibold">{businessInfo.name}</span>
             </motion.div>
 
