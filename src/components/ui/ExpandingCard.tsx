@@ -54,7 +54,7 @@ const DefaultExpandIcon = ({ isExpanded }: { isExpanded: boolean }) => {
       strokeLinejoin="round"
       animate={shouldAnimate ? { rotate: isExpanded ? 180 : 0 } : undefined}
       transition={getSpring(v7Spring.snappy)}
-      className="text-neutral-500 flex-shrink-0"
+      className="text-v6-text-muted flex-shrink-0"
     >
       <path d="M6 9l6 6 6-6" />
     </motion.svg>
@@ -116,10 +116,10 @@ export const ExpandingCard = forwardRef<HTMLDivElement, ExpandingCardProps>(
           layout={shouldAnimate}
           className={cn(
             "relative rounded-2xl overflow-hidden",
-            "bg-white border border-neutral-200/70",
-            "shadow-md shadow-neutral-900/5",
+            "bg-white border border-v6-border-default/70",
+            "shadow-md shadow-v6-text-primary/5",
             "transition-shadow duration-200",
-            isExpanded && "shadow-lg shadow-neutral-900/10",
+            isExpanded && "shadow-lg shadow-v6-text-primary/10",
             disabled && "opacity-60 cursor-not-allowed",
             className
           )}
@@ -133,7 +133,7 @@ export const ExpandingCard = forwardRef<HTMLDivElement, ExpandingCardProps>(
             className={cn(
               "w-full flex items-center justify-between gap-4 p-5",
               "text-left cursor-pointer",
-              "hover:bg-neutral-50/50 transition-colors duration-150",
+              "hover:bg-v6-surface-secondary/50 transition-colors duration-150",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A41034]/30 focus-visible:ring-inset",
               disabled && "cursor-not-allowed hover:bg-transparent",
               headerClassName
@@ -284,7 +284,7 @@ export function MenuExpandingCard({
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold text-neutral-900 truncate">
+              <h3 className="text-lg font-semibold text-v6-text-primary truncate">
                 {title}
               </h3>
               {itemCount !== undefined && (
@@ -294,7 +294,7 @@ export function MenuExpandingCard({
               )}
             </div>
             {description && (
-              <p className="text-sm text-neutral-500 truncate mt-0.5">
+              <p className="text-sm text-v6-text-muted truncate mt-0.5">
                 {description}
               </p>
             )}

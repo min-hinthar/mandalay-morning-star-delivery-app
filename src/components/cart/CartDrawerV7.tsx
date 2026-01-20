@@ -341,7 +341,7 @@ export function CartDrawerV7({ className }: CartDrawerV7Props) {
             style={{ opacity: shouldAnimate ? backdropOpacity : 1 }}
             className={cn(
               "fixed inset-0 z-[var(--z-modal-backdrop)]",
-              "bg-black/60 backdrop-blur-sm"
+              "bg-black/80"
             )}
             onClick={close}
             aria-hidden="true"
