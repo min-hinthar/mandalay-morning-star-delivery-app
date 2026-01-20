@@ -3,9 +3,10 @@
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { QueryProvider } from "@/lib/providers/query-provider";
-import { CartDrawer } from "@/components/cart/cart-drawer";
+import { CartDrawerV7 } from "@/components/cart/v7-index";
 import { CartBar } from "@/components/cart/CartBar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { DynamicThemeProvider } from "@/components/theme/DynamicThemeProvider";
 
 interface ProvidersProps {
   children: ReactNode;
@@ -20,11 +21,13 @@ export function Providers({ children }: ProvidersProps) {
 
   return (
     <ThemeProvider>
-      <QueryProvider>
-        {children}
-        <CartDrawer />
-        {showCartBar && <CartBar />}
-      </QueryProvider>
+      <DynamicThemeProvider>
+        <QueryProvider>
+          {children}
+          <CartDrawerV7 />
+          {showCartBar && <CartBar />}
+        </QueryProvider>
+      </DynamicThemeProvider>
     </ThemeProvider>
   );
 }

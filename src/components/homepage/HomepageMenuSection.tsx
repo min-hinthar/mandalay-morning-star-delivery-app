@@ -1,18 +1,19 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, Search } from "lucide-react";
 import { MenuItemCard } from "@/components/menu/menu-item-card";
 import { ItemDetailModal } from "@/components/menu/item-detail-modal";
 import { CategoryTabs } from "@/components/menu/category-tabs";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
+import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
 import {
-  v6StaggerContainer,
-  v6StaggerItem,
-  v6ViewportOnce,
-} from "@/lib/motion";
+  v7StaggerContainer,
+  v7StaggerItem,
+  v7Spring,
+} from "@/lib/motion-tokens-v7";
 import type { MenuCategory, MenuItem } from "@/types/menu";
 import type { SelectedModifier } from "@/types/cart";
 
@@ -21,7 +22,7 @@ interface HomepageMenuSectionProps {
 }
 
 export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
-  const shouldReduceMotion = useReducedMotion();
+  const { shouldAnimate } = useAnimationPreferenceV7();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,12 +66,12 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
           const elementPosition = element.getBoundingClientRect().top + window.scrollY;
           window.scrollTo({
             top: elementPosition - offset,
-            behavior: shouldReduceMotion ? "auto" : "smooth",
+            behavior: shouldAnimate ? "smooth" : "auto",
           });
         }
       }
     }
-  }, [categories, shouldReduceMotion]);
+  }, [categories, shouldAnimate]);
 
   // Handle item click
   const handleItemClick = useCallback((item: MenuItem) => {
@@ -124,14 +125,14 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
-          variants={v6StaggerContainer}
-          initial={shouldReduceMotion ? undefined : "hidden"}
-          whileInView={shouldReduceMotion ? undefined : "visible"}
-          viewport={v6ViewportOnce.viewport}
+          variants={v7StaggerContainer()}
+          initial={shouldAnimate ? "hidden" : undefined}
+          whileInView={shouldAnimate ? "visible" : undefined}
+          viewport={{ once: true, margin: "-80px" }}
           className="text-center mb-12"
         >
           <motion.div
-            variants={v6StaggerItem}
+            variants={v7StaggerItem}
             className="inline-flex items-center gap-2 px-4 py-2 bg-v6-secondary/10 rounded-v6-pill mb-4"
           >
             <UtensilsCrossed className="w-4 h-4 text-v6-secondary" />
@@ -139,19 +140,19 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
           </motion.div>
 
           <motion.h2
-            variants={v6StaggerItem}
+            variants={v7StaggerItem}
             className="font-v6-display text-3xl md:text-4xl lg:text-5xl font-bold text-v6-primary mb-4"
           >
             Authentic Burmese Cuisine
           </motion.h2>
 
-          <motion.p variants={v6StaggerItem} className="font-v6-body text-v6-text-secondary max-w-2xl mx-auto mb-8">
+          <motion.p variants={v7StaggerItem} className="font-v6-body text-v6-text-secondary max-w-2xl mx-auto mb-8">
             Handcrafted dishes from traditional Burmese recipes, prepared fresh for Saturday delivery.
             Browse our full menu and add your favorites to cart.
           </motion.p>
 
           {/* Search Bar */}
-          <motion.div variants={v6StaggerItem} className="max-w-md mx-auto mb-8">
+          <motion.div variants={v7StaggerItem} className="max-w-md mx-auto mb-8">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-v6-text-muted" />
               <input
@@ -198,7 +199,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                   {displayItems.map((item, index) => (
                     <motion.div
                       key={item.id}
-                      initial={shouldReduceMotion ? undefined : { opacity: 0, y: 18 }}
+                      initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: Math.min(index * 0.08, 0.64), duration: 0.55 }}
                     >
@@ -228,7 +229,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                         {category.items.map((item, index) => (
                           <motion.div
                             key={item.id}
-                            initial={shouldReduceMotion ? undefined : { opacity: 0, y: 18 }}
+                            initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: Math.min(index * 0.08, 0.64), duration: 0.55 }}
                           >
@@ -284,10 +285,10 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
 
         {/* Footer CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={v6ViewportOnce.viewport}
-          transition={{ duration: 0.55 }}
+          initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
+          whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={v7Spring.gentle}
           className="mt-16 text-center"
         >
           <div className="inline-flex items-center gap-3 px-6 py-4 bg-v6-surface-primary rounded-v6-card shadow-v6-card border border-v6-border">

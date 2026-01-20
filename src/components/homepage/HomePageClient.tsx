@@ -1,9 +1,7 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { HomepageHero } from "./HomepageHero";
-import { CoverageSection } from "./CoverageSection";
-import { HowItWorksTimeline } from "./HowItWorksTimeline";
+import { HeroV7, CoverageSectionV7, TimelineV7 } from "./v7-index";
 import { FooterCTA } from "./FooterCTA";
 
 interface HomePageClientProps {
@@ -11,32 +9,24 @@ interface HomePageClientProps {
 }
 
 export function HomePageClient({ menuSection }: HomePageClientProps) {
-  const coverageRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  const scrollToCoverage = () => {
-    coverageRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const scrollToMenu = () => {
-    menuRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
   return (
     <>
-      {/* Hero Section with Animated Gradient */}
-      <HomepageHero
-        onScrollToMenu={scrollToMenu}
-        onScrollToCoverage={scrollToCoverage}
+      {/* V7 Hero - Cinematic parallax with WebGL effects */}
+      <HeroV7
+        ctaHref="/menu"
+        secondaryCtaHref="/menu"
+        showFloatingFood={true}
+        showParticles={true}
+        showMascot={true}
       />
 
-      {/* Coverage Check with Interactive Map */}
-      <div ref={coverageRef}>
-        <CoverageSection />
-      </div>
+      {/* V7 Coverage - Animated map with coverage zones */}
+      <CoverageSectionV7 />
 
-      {/* How It Works Timeline */}
-      <HowItWorksTimeline />
+      {/* V7 Timeline - How It Works */}
+      <TimelineV7 />
 
       {/* Full Menu Section */}
       <div ref={menuRef}>
