@@ -1,6 +1,14 @@
+/**
+ * V6 Photo Capture Component - Pepper Aesthetic
+ *
+ * Camera capture for delivery proof photos.
+ * V6 colors, typography, and 56px touch targets.
+ */
+
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, RotateCcw, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -215,110 +223,147 @@ export function PhotoCapture({
     handleOpen();
   }
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
-      {/* Hidden canvas for capturing */}
-      <canvas ref={canvasRef} className="hidden" />
-
-      {/* Header */}
-      <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between bg-gradient-to-b from-black/70 to-transparent p-4">
-        <h2 className="font-display text-lg font-semibold text-white">{title}</h2>
-        <button
-          onClick={handleClose}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white"
-          disabled={isUploading}
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black"
         >
-          <X className="h-6 w-6" />
-        </button>
-      </div>
+          {/* Hidden canvas for capturing */}
+          <canvas ref={canvasRef} className="hidden" />
 
-      {/* Camera View or Preview */}
-      <div className="relative h-full w-full">
-        {!capturedPhoto ? (
-          // Live camera view
-          <>
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className="h-full w-full object-cover"
-            />
-
-            {/* Error message */}
-            {error && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-                <div className="text-center">
-                  <p className="mb-4 text-lg text-white">{error}</p>
-                  <button
-                    onClick={startCamera}
-                    className="rounded-xl bg-surface-primary px-6 py-3 font-medium text-text-primary"
-                  >
-                    Try Again
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          // Photo preview - uses blob URL which requires native img element
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={capturedPhoto}
-            alt="Captured photo"
-            className="h-full w-full object-contain"
-          />
-        )}
-      </div>
-
-      {/* Controls */}
-      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-8 bg-gradient-to-t from-black/70 to-transparent p-8 pb-12">
-        {!capturedPhoto ? (
-          // Capture button
-          <button
-            onClick={takePhoto}
-            disabled={!stream || !!error}
-            className={cn(
-              "flex h-20 w-20 items-center justify-center rounded-full",
-              "bg-surface-primary transition-transform active:scale-95",
-              "disabled:opacity-50"
-            )}
-            aria-label="Take photo"
-          >
-            <div className="h-16 w-16 rounded-full border-4 border-text-primary" />
-          </button>
-        ) : (
-          // Confirm/Retake buttons
-          <>
+          {/* Header */}
+          <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between bg-gradient-to-b from-black/70 to-transparent p-4">
+            <h2 className="font-v6-display text-lg font-semibold text-white">{title}</h2>
             <button
-              onClick={retakePhoto}
-              disabled={isUploading}
-              className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white"
-              aria-label="Retake photo"
-            >
-              <RotateCcw className="h-7 w-7" />
-            </button>
-
-            <button
-              onClick={confirmPhoto}
-              disabled={isUploading}
+              onClick={handleClose}
               className={cn(
-                "flex h-20 w-20 items-center justify-center rounded-full",
-                "bg-status-success text-text-inverse transition-transform active:scale-95"
+                "flex h-12 w-12 items-center justify-center rounded-full",
+                "bg-white/20 text-white",
+                "transition-colors duration-v6-fast hover:bg-white/30"
               )}
-              aria-label="Confirm photo"
+              disabled={isUploading}
             >
-              {isUploading ? (
-                <Loader2 className="h-10 w-10 animate-spin" />
-              ) : (
-                <Check className="h-10 w-10" />
-              )}
+              <X className="h-6 w-6" />
             </button>
-          </>
-        )}
-      </div>
-    </div>
+          </div>
+
+          {/* Camera View or Preview */}
+          <div className="relative h-full w-full">
+            {!capturedPhoto ? (
+              // Live camera view
+              <>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="h-full w-full object-cover"
+                />
+
+                {/* Error message */}
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 flex items-center justify-center bg-black/80"
+                    >
+                      <div className="text-center">
+                        <p className="mb-4 font-v6-body text-lg text-white">{error}</p>
+                        <button
+                          onClick={startCamera}
+                          className={cn(
+                            "rounded-v6-card-sm bg-v6-surface-primary px-6 py-3",
+                            "font-v6-body font-medium text-v6-text-primary",
+                            "transition-colors duration-v6-fast hover:bg-v6-surface-secondary"
+                          )}
+                        >
+                          Try Again
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
+            ) : (
+              // Photo preview - uses blob URL
+              <motion.img
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                src={capturedPhoto}
+                alt="Captured photo"
+                className="h-full w-full object-contain"
+              />
+            )}
+          </div>
+
+          {/* Controls */}
+          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-8 bg-gradient-to-t from-black/70 to-transparent p-8 pb-12">
+            {!capturedPhoto ? (
+              // Capture button
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={takePhoto}
+                disabled={!stream || !!error}
+                className={cn(
+                  "flex h-20 w-20 items-center justify-center rounded-full",
+                  "bg-v6-surface-primary transition-all duration-v6-fast",
+                  "active:scale-95",
+                  "disabled:opacity-50"
+                )}
+                aria-label="Take photo"
+              >
+                <div className="h-16 w-16 rounded-full border-4 border-v6-primary" />
+              </motion.button>
+            ) : (
+              // Confirm/Retake buttons
+              <>
+                <motion.button
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={retakePhoto}
+                  disabled={isUploading}
+                  className={cn(
+                    "flex h-14 w-14 items-center justify-center rounded-full",
+                    "bg-white/20 text-white",
+                    "transition-colors duration-v6-fast hover:bg-white/30"
+                  )}
+                  aria-label="Retake photo"
+                >
+                  <RotateCcw className="h-7 w-7" />
+                </motion.button>
+
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={confirmPhoto}
+                  disabled={isUploading}
+                  className={cn(
+                    "flex h-20 w-20 items-center justify-center rounded-full",
+                    "bg-v6-green text-white shadow-v6-lg",
+                    "transition-all duration-v6-fast",
+                    "active:scale-95"
+                  )}
+                  aria-label="Confirm photo"
+                >
+                  {isUploading ? (
+                    <Loader2 className="h-10 w-10 animate-spin" />
+                  ) : (
+                    <Check className="h-10 w-10" />
+                  )}
+                </motion.button>
+              </>
+            )}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

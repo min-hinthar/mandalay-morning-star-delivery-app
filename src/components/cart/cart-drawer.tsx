@@ -12,18 +12,19 @@ import { Button } from "@/components/ui/button";
 import { CartItem } from "./cart-item";
 import { CartSummary } from "./CartSummary";
 import { cn } from "@/lib/utils/cn";
+import { v6Spring } from "@/lib/motion";
 
 /**
- * V5 Cart Drawer / Bottom Sheet
+ * V6 Cart Drawer / Bottom Sheet - Pepper Aesthetic
  *
  * Mobile-first responsive cart:
- * - Mobile: Bottom sheet with drag handle, swipe-to-dismiss
- * - Desktop: Right-side drawer
+ * - Mobile: Bottom sheet with drag handle, swipe-to-dismiss, V6 rounded top corners
+ * - Desktop: Right-side drawer with V6 styling
  *
- * V5 Design Tokens:
- * - Surface: var(--color-surface), var(--color-surface-secondary)
- * - Text: var(--color-text-primary), var(--color-text-secondary)
- * - Spacing: var(--space-*) tokens
+ * V6 Features:
+ * - 24px rounded top corners on mobile
+ * - V6 primary color accents
+ * - Spring-based animations
  */
 export function CartDrawer() {
   const router = useRouter();
@@ -103,7 +104,7 @@ export function CartDrawer() {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* V6 Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -114,57 +115,57 @@ export function CartDrawer() {
             aria-hidden="true"
           />
 
-          {/* Drawer */}
+          {/* V6 Drawer */}
           <motion.div
             ref={drawerRef}
             initial={isMobile ? { y: "100%" } : { x: "100%" }}
             animate={isMobile ? { y: 0 } : { x: 0 }}
             exit={isMobile ? { y: "100%" } : { x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            transition={v6Spring}
             drag={isMobile ? "y" : false}
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.5 }}
             onDragEnd={handleDragEnd}
             className={cn(
               "fixed z-[var(--z-modal)] flex flex-col",
-              "bg-[var(--color-surface)] shadow-[var(--shadow-xl)]",
+              "bg-v6-surface-primary shadow-v6-elevated",
               isMobile
-                ? "inset-x-0 bottom-0 h-[90vh] rounded-t-[var(--radius-2xl)]"
+                ? "inset-x-0 bottom-0 h-[90vh] rounded-t-v6-card"
                 : "right-0 top-0 h-full w-full max-w-md"
             )}
             role="dialog"
             aria-modal="true"
             aria-labelledby="cart-drawer-title"
           >
-            {/* Mobile drag handle */}
+            {/* V6 Mobile drag handle */}
             {isMobile && (
-              <div className="flex justify-center py-[var(--space-2)] cursor-grab active:cursor-grabbing">
-                <GripHorizontal className="h-5 w-5 text-[var(--color-text-secondary)]/50" />
+              <div className="flex justify-center py-2 cursor-grab active:cursor-grabbing">
+                <GripHorizontal className="h-5 w-5 text-v6-text-muted/50" />
               </div>
             )}
 
-            {/* Header */}
+            {/* V6 Header */}
             <div className={cn(
               "flex items-center justify-between",
-              "border-b border-[var(--color-border)]",
-              "bg-[var(--color-surface-secondary)] px-[var(--space-4)]",
-              isMobile ? "py-[var(--space-3)]" : "py-[var(--space-4)]"
+              "border-b border-v6-border",
+              "bg-v6-surface-secondary px-4",
+              isMobile ? "py-3" : "py-4"
             )}>
               <h2
                 id="cart-drawer-title"
-                className="flex items-center gap-[var(--space-3)] text-lg font-bold text-[var(--color-text-primary)]"
+                className="flex items-center gap-3 text-lg font-v6-display font-bold text-v6-text-primary"
               >
                 <div className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full",
-                  "bg-[var(--color-status-error-bg)]"
+                  "bg-v6-primary-light"
                 )}>
-                  <ShoppingBag className="h-5 w-5 text-[var(--color-accent-tertiary)]" />
+                  <ShoppingBag className="h-5 w-5 text-v6-primary" />
                 </div>
                 Your Cart
                 {itemCount > 0 && (
                   <span className={cn(
-                    "rounded-full px-2.5 py-1 text-xs font-semibold text-white",
-                    "bg-[var(--color-accent-tertiary)] shadow-[var(--shadow-sm)]"
+                    "rounded-v6-pill px-2.5 py-1 text-xs font-semibold text-v6-text-inverse",
+                    "bg-v6-primary shadow-v6-sm"
                   )}>
                     {itemCount}
                   </span>
@@ -177,10 +178,10 @@ export function CartDrawer() {
                 whileTap={{ scale: 0.95 }}
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full",
-                  "bg-[var(--color-surface-secondary)] text-[var(--color-text-secondary)]",
-                  "hover:bg-[var(--color-surface-tertiary)] hover:text-[var(--color-text-primary)]",
-                  "transition-colors duration-[var(--duration-fast)]",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-tertiary)] focus-visible:ring-offset-2"
+                  "bg-v6-surface-tertiary text-v6-text-muted",
+                  "hover:bg-v6-surface-secondary hover:text-v6-text-primary",
+                  "transition-colors duration-v6-fast",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary focus-visible:ring-offset-2"
                 )}
                 aria-label="Close cart"
               >
@@ -192,9 +193,9 @@ export function CartDrawer() {
               <CartEmptyState onClose={close} />
             ) : (
               <>
-                {/* Items List */}
-                <div className="flex-1 overflow-y-auto px-[var(--space-4)] py-[var(--space-4)]">
-                  <ul className="space-y-[var(--space-4)]">
+                {/* V6 Items List */}
+                <div className="flex-1 overflow-y-auto px-4 py-4">
+                  <ul className="space-y-4">
                     <AnimatePresence mode="popLayout">
                       {items.map((item) => (
                         <CartItem key={item.cartItemId} item={item} />
@@ -203,22 +204,18 @@ export function CartDrawer() {
                   </ul>
                 </div>
 
-                {/* Footer */}
+                {/* V6 Footer */}
                 <div className={cn(
-                  "border-t border-[var(--color-border)]",
-                  "bg-[var(--color-surface-secondary)]",
-                  "px-[var(--space-4)] py-[var(--space-4)]"
+                  "border-t border-v6-border",
+                  "bg-v6-surface-secondary",
+                  "px-4 py-4"
                 )}>
                   <CartSummary />
-                  <div className="mt-[var(--space-4)] flex flex-col gap-[var(--space-3)]">
+                  <div className="mt-4 flex flex-col gap-3">
                     <Button
+                      variant="primary"
                       size="lg"
-                      className={cn(
-                        "w-full",
-                        "bg-[var(--color-accent-tertiary)] text-white",
-                        "shadow-[var(--shadow-lg)]",
-                        "hover:brightness-110 transition-all duration-[var(--duration-fast)]"
-                      )}
+                      className="w-full shadow-v6-elevated"
                       onClick={handleCheckout}
                     >
                       Proceed to Checkout
@@ -226,11 +223,7 @@ export function CartDrawer() {
                     <Button
                       variant="outline"
                       size="lg"
-                      className={cn(
-                        "w-full",
-                        "border-2 border-[var(--color-border)]",
-                        "hover:bg-[var(--color-surface-secondary)]"
-                      )}
+                      className="w-full"
                       onClick={close}
                     >
                       Continue Shopping
@@ -246,33 +239,33 @@ export function CartDrawer() {
   );
 }
 
+/**
+ * V6 Cart Empty State - Pepper Aesthetic
+ */
 function CartEmptyState({ onClose }: { onClose: () => void }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-1 flex-col items-center justify-center px-[var(--space-6)] text-center"
+      transition={v6Spring}
+      className="flex flex-1 flex-col items-center justify-center px-6 text-center"
     >
       <div className={cn(
         "flex h-24 w-24 items-center justify-center rounded-full",
-        "bg-[var(--color-status-error-bg)]"
+        "bg-v6-primary-light"
       )}>
-        <ShoppingBag className="h-12 w-12 text-[var(--color-accent-tertiary)]/60" />
+        <ShoppingBag className="h-12 w-12 text-v6-primary/60" />
       </div>
-      <h3 className="mt-[var(--space-6)] text-xl font-bold text-[var(--color-text-primary)]">
+      <h3 className="mt-6 text-xl font-v6-display font-bold text-v6-text-primary">
         Your cart is empty
       </h3>
-      <p className="mt-[var(--space-2)] text-sm text-[var(--color-text-secondary)] max-w-[240px]">
+      <p className="mt-2 text-sm font-v6-body text-v6-text-secondary max-w-[240px]">
         Browse our authentic Burmese dishes and add something delicious!
       </p>
       <Button
+        variant="primary"
         size="lg"
-        className={cn(
-          "mt-[var(--space-8)]",
-          "bg-[var(--color-accent-tertiary)] text-white",
-          "shadow-[var(--shadow-lg)]",
-          "hover:brightness-110 transition-all duration-[var(--duration-fast)]"
-        )}
+        className="mt-8 shadow-v6-elevated"
         onClick={onClose}
         asChild
       >

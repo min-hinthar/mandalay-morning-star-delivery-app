@@ -4,6 +4,7 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { MenuCategory } from "@/types/menu";
 import { cn } from "@/lib/utils/cn";
+import { v6SpringSnappy } from "@/lib/motion";
 
 interface CategoryTabsProps {
   categories: MenuCategory[];
@@ -12,8 +13,13 @@ interface CategoryTabsProps {
 }
 
 /**
- * V3 Category Tabs
- * Horizontal scrollable category navigation with scroll fade indicators
+ * V6 Category Tabs - Pepper Aesthetic
+ *
+ * Features:
+ * - Pill-shaped tabs with V6 primary color
+ * - Framer Motion layoutId for smooth active indicator animation
+ * - Horizontal scroll with fade edges on mobile
+ * - V6 spring-based transitions
  */
 export function CategoryTabs({
   categories,
@@ -93,40 +99,43 @@ export function CategoryTabs({
       aria-label="Menu categories"
       className={cn(
         "sticky top-14 z-[var(--z-sticky)]",
-        "bg-[var(--color-cream)]/95 dark:bg-[var(--color-background)]/95",
-        "backdrop-blur-lg border-b border-[var(--color-border)]"
+        // V6 Surface with blur
+        "bg-v6-surface-primary/95 backdrop-blur-lg",
+        "border-b border-v6-border-subtle"
       )}
     >
       <div className="relative">
-        {/* Left fade indicator */}
+        {/* V6 Left fade indicator */}
         <div
           className={cn(
-            "absolute left-0 top-0 bottom-0 w-8 z-[var(--z-dropdown)] pointer-events-none",
-            "bg-gradient-to-r from-[var(--color-cream)] to-transparent",
-            "transition-opacity duration-[var(--duration-fast)]",
+            "absolute left-0 top-0 bottom-0 w-12 z-10 pointer-events-none",
+            "bg-gradient-to-r from-v6-surface-primary to-transparent",
+            "transition-opacity duration-v6-fast",
             showLeftFade ? "opacity-100" : "opacity-0"
           )}
           aria-hidden="true"
         />
 
-        {/* Right fade indicator */}
+        {/* V6 Right fade indicator */}
         <div
           className={cn(
-            "absolute right-0 top-0 bottom-0 w-8 z-[var(--z-dropdown)] pointer-events-none",
-            "bg-gradient-to-l from-[var(--color-cream)] to-transparent",
-            "transition-opacity duration-[var(--duration-fast)]",
+            "absolute right-0 top-0 bottom-0 w-12 z-10 pointer-events-none",
+            "bg-gradient-to-l from-v6-surface-primary to-transparent",
+            "transition-opacity duration-v6-fast",
             showRightFade ? "opacity-100" : "opacity-0"
           )}
           aria-hidden="true"
         />
 
-        {/* Scrollable container */}
+        {/* V6 Scrollable container */}
         <div
           ref={containerRef}
           role="tablist"
           className={cn(
             "flex overflow-x-auto scrollbar-hide",
-            "px-[var(--space-4)] py-3 gap-[var(--space-2)]"
+            "px-4 py-3 gap-2",
+            // Center tabs when they fit
+            "md:justify-center"
           )}
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           onScroll={updateScrollIndicators}
@@ -145,40 +154,44 @@ export function CategoryTabs({
                 ref={setTabRef(tab.slug)}
                 onClick={() => onCategoryClick(tab.slug)}
                 className={cn(
-                  "relative flex-shrink-0 px-[var(--space-4)] py-2.5",
-                  "rounded-full text-sm font-semibold",
-                  "min-h-[44px] min-w-[44px]",
-                  "transition-all duration-[var(--duration-fast)] ease-out",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)] focus-visible:ring-offset-2",
+                  // V6 Tab base styles
+                  "relative flex-shrink-0 px-5 py-2.5",
+                  "rounded-v6-pill",
+                  "font-v6-body text-sm font-semibold",
+                  "min-h-[44px]",
+                  // V6 Motion
+                  "transition-all duration-v6-fast ease-v6-default",
+                  // V6 Focus ring
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary focus-visible:ring-offset-2",
                   isActive
-                    ? "text-white"
+                    ? "text-v6-text-inverse"
                     : [
-                        "text-[var(--color-charcoal-muted)]",
-                        "hover:text-[var(--color-charcoal)] hover:bg-[var(--color-cream-darker)]",
+                        "text-v6-text-secondary",
+                        "hover:text-v6-text-primary hover:bg-v6-surface-secondary",
                         "active:scale-95",
                       ]
                 )}
                 whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}
-                whileHover={!isActive && !prefersReducedMotion ? { y: -1 } : undefined}
+                whileHover={!isActive && !prefersReducedMotion ? { y: -2 } : undefined}
               >
-                {/* Active background pill */}
+                {/* V6 Active background pill with layoutId animation */}
                 {isActive && (
                   <motion.div
-                    layoutId="activeTabBackground"
+                    layoutId="v6ActiveTabPill"
                     className={cn(
-                      "absolute inset-0 rounded-full",
-                      "bg-[var(--color-interactive-primary)]",
-                      "shadow-[var(--shadow-glow-primary)]"
+                      "absolute inset-0 rounded-v6-pill",
+                      "bg-v6-primary",
+                      "shadow-v6-sm"
                     )}
                     initial={false}
                     transition={
                       prefersReducedMotion
                         ? { duration: 0 }
-                        : { type: "spring", stiffness: 500, damping: 30 }
+                        : v6SpringSnappy
                     }
                   />
                 )}
-                <span className="relative z-[var(--z-dropdown)]">{tab.name}</span>
+                <span className="relative z-10">{tab.name}</span>
               </motion.button>
             );
           })}

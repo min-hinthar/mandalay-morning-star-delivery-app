@@ -5,42 +5,53 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils/cn";
 
 /**
- * V5 Input System
- * High contrast design with V5 semantic tokens
+ * V6 Input System - Pepper Aesthetic
+ * Rounded corners, clear focus states, V6 color palette
  *
- * Height: 44px, refined styling with V5 design tokens
+ * Height: 44px default, 12px border radius
  * Variants: default, error, success
  */
 const inputVariants = cva(
   [
     "flex w-full",
-    "bg-[var(--color-surface-primary)] text-[var(--color-text-primary)]",
-    "border border-[var(--color-border-default)]",
-    "font-[var(--font-body)] text-base",
-    "placeholder:text-[var(--color-text-secondary)]",
-    "transition-all duration-[var(--duration-fast)]",
-    "focus-visible:outline-none focus-visible:border-[var(--color-interactive-primary)] focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)]/20",
-    "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--color-surface-tertiary)]",
-    "file:border-0 file:bg-transparent file:text-sm file:font-medium",
+    // V6 Surface and text
+    "bg-v6-surface-primary text-v6-text-primary",
+    // V6 Border
+    "border border-v6-border",
+    // V6 Typography
+    "font-v6-body text-base",
+    // V6 Border radius
+    "rounded-v6-input",
+    // Placeholder
+    "placeholder:text-v6-text-muted",
+    // V6 Motion
+    "transition-all duration-v6-normal ease-v6-default",
+    // V6 Focus: Primary red ring
+    "focus-visible:outline-none focus-visible:border-v6-primary focus-visible:ring-2 focus-visible:ring-v6-primary/20",
+    // Disabled state
+    "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-v6-surface-tertiary",
+    // File input styling
+    "file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-v6-primary",
   ].join(" "),
   {
     variants: {
       size: {
-        default: "h-11 px-4 py-3 rounded-[var(--radius-sm)]",
-        sm: "h-9 px-3 py-2 text-sm rounded-[var(--radius-sm)]",
-        lg: "h-12 px-4 py-3 rounded-[var(--radius-md)]",
+        default: "h-11 px-4 py-3",
+        sm: "h-9 px-3 py-2 text-sm",
+        lg: "h-12 px-4 py-3",
+        xl: "h-14 px-5 py-4 text-lg", // Driver size
       },
       variant: {
         default: "",
         error: [
-          "border-[var(--color-status-error)]",
-          "focus-visible:border-[var(--color-status-error)] focus-visible:ring-[var(--color-status-error)]/20",
-          "bg-[var(--color-status-error-bg)]",
+          "border-v6-status-error",
+          "focus-visible:border-v6-status-error focus-visible:ring-v6-status-error/20",
+          "bg-v6-status-error-bg",
         ].join(" "),
         success: [
-          "border-[var(--color-status-success)]",
-          "focus-visible:border-[var(--color-status-success)] focus-visible:ring-[var(--color-status-success)]/20",
-          "bg-[var(--color-status-success-bg)]",
+          "border-v6-green",
+          "focus-visible:border-v6-green focus-visible:ring-v6-green/20",
+          "bg-v6-green-light",
         ].join(" "),
       },
     },
@@ -78,7 +89,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {error && (
           <p
             id={`${props.id}-error`}
-            className="mt-1.5 text-sm text-[var(--color-status-error)] flex items-center gap-1"
+            className="mt-1.5 text-sm text-v6-status-error flex items-center gap-1"
             role="alert"
           >
             <svg
@@ -99,7 +110,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {!error && helperText && (
           <p
             id={`${props.id}-helper`}
-            className="mt-1.5 text-sm text-[var(--color-text-secondary)]"
+            className="mt-1.5 text-sm text-v6-text-secondary"
           >
             {helperText}
           </p>

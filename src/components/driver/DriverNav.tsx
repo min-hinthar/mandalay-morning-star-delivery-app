@@ -1,3 +1,10 @@
+/**
+ * V6 Driver Navigation - Pepper Aesthetic
+ *
+ * Bottom navigation for driver app with V6 colors and high-contrast support.
+ * 56px touch targets for accessibility, sticky positioning.
+ */
+
 "use client";
 
 import Link from "next/link";
@@ -32,7 +39,7 @@ export function DriverNav() {
   return (
     <nav
       data-testid="driver-nav"
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-border-v5 bg-surface-primary/95 backdrop-blur-sm safe-area-pb"
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-v6-border bg-v6-surface-primary/95 backdrop-blur-sm safe-area-pb"
     >
       <div className="flex h-16 items-center justify-around px-4">
         {navItems.map((item) => {
@@ -46,22 +53,22 @@ export function DriverNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex min-h-[48px] min-w-[64px] flex-col items-center justify-center gap-1 rounded-lg px-3 py-2 transition-colors",
+                "flex min-h-[56px] min-w-[64px] flex-col items-center justify-center gap-1 rounded-v6-input px-3 py-2 transition-all duration-v6-fast",
                 isActive
-                  ? "text-status-success"
-                  : "text-text-secondary hover:text-text-primary"
+                  ? "text-v6-primary"
+                  : "text-v6-text-secondary hover:text-v6-text-primary hover:bg-v6-surface-secondary"
               )}
             >
               <Icon
                 className={cn(
-                  "h-6 w-6 transition-transform",
+                  "h-6 w-6 transition-transform duration-v6-fast",
                   isActive && "scale-110"
                 )}
                 strokeWidth={isActive ? 2.5 : 2}
               />
               <span
                 className={cn(
-                  "text-xs font-medium",
+                  "font-v6-body text-xs font-medium",
                   isActive && "font-semibold"
                 )}
               >

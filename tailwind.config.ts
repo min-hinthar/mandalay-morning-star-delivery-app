@@ -12,7 +12,81 @@ const config: Config = {
     extend: {
       colors: {
         /* ===========================================
-           V5 SEMANTIC COLORS (Primary System)
+           V6 PEPPER AESTHETIC (Primary System)
+           =========================================== */
+
+        // V6 Primary Colors (Deep Rich Red + Golden Yellow)
+        "v6-primary": {
+          DEFAULT: "var(--color-v6-primary)",
+          hover: "var(--color-v6-primary-hover)",
+          active: "var(--color-v6-primary-active)",
+          light: "var(--color-v6-primary-light)",
+        },
+        "v6-secondary": {
+          DEFAULT: "var(--color-v6-secondary)",
+          hover: "var(--color-v6-secondary-hover)",
+          active: "var(--color-v6-secondary-active)",
+          light: "var(--color-v6-secondary-light)",
+        },
+
+        // V6 Vibrant Accents
+        "v6-green": {
+          DEFAULT: "var(--color-v6-accent-green)",
+          hover: "var(--color-v6-accent-green-hover)",
+          light: "var(--color-v6-accent-green-light)",
+        },
+        "v6-orange": {
+          DEFAULT: "var(--color-v6-accent-orange)",
+          hover: "var(--color-v6-accent-orange-hover)",
+          light: "var(--color-v6-accent-orange-light)",
+        },
+        "v6-teal": {
+          DEFAULT: "var(--color-v6-accent-teal)",
+          hover: "var(--color-v6-accent-teal-hover)",
+          light: "var(--color-v6-accent-teal-light)",
+        },
+        "v6-magenta": {
+          DEFAULT: "var(--color-v6-accent-magenta)",
+          hover: "var(--color-v6-accent-magenta-hover)",
+          light: "var(--color-v6-accent-magenta-light)",
+        },
+
+        // V6 Surfaces
+        "v6-surface": {
+          primary: "var(--color-v6-surface-primary)",
+          secondary: "var(--color-v6-surface-secondary)",
+          tertiary: "var(--color-v6-surface-tertiary)",
+        },
+
+        // V6 Text
+        "v6-text": {
+          primary: "var(--color-v6-text-primary)",
+          secondary: "var(--color-v6-text-secondary)",
+          muted: "var(--color-v6-text-muted)",
+          inverse: "var(--color-v6-text-inverse)",
+        },
+
+        // V6 Borders
+        "v6-border": {
+          DEFAULT: "var(--color-v6-border-default)",
+          strong: "var(--color-v6-border-strong)",
+          subtle: "var(--color-v6-border-subtle)",
+        },
+
+        // V6 Status
+        "v6-status": {
+          success: "var(--color-v6-status-success)",
+          "success-bg": "var(--color-v6-status-success-bg)",
+          warning: "var(--color-v6-status-warning)",
+          "warning-bg": "var(--color-v6-status-warning-bg)",
+          error: "var(--color-v6-status-error)",
+          "error-bg": "var(--color-v6-status-error-bg)",
+          info: "var(--color-v6-status-info)",
+          "info-bg": "var(--color-v6-status-info-bg)",
+        },
+
+        /* ===========================================
+           V5 SEMANTIC COLORS (Legacy Support)
            =========================================== */
 
         // V5 Surface Colors
@@ -162,8 +236,12 @@ const config: Config = {
         ring: "hsl(var(--ring))",
       },
       fontFamily: {
-        display: ["var(--font-playfair)", "serif"],
-        body: ["var(--font-inter)", "sans-serif"],
+        // V6 Typography (Nunito - rounded, playful)
+        "v6-display": ["var(--font-v6-display)", "Nunito", "ui-rounded", "system-ui", "sans-serif"],
+        "v6-body": ["var(--font-v6-body)", "Nunito", "system-ui", "sans-serif"],
+        // V5 Legacy
+        display: ["var(--font-playfair)", "Playfair Display", "serif"],
+        body: ["var(--font-inter)", "Inter", "sans-serif"],
         burmese: ["Padauk", "sans-serif"],
       },
       fontSize: {
@@ -224,6 +302,14 @@ const config: Config = {
         "32": "var(--space-32)",
       },
       boxShadow: {
+        // V6 Pepper Aesthetic (warm-toned shadows)
+        "v6-sm": "var(--shadow-v6-sm)",
+        "v6-md": "var(--shadow-v6-md)",
+        "v6-card": "var(--shadow-v6-card)",
+        "v6-card-hover": "var(--shadow-v6-card-hover)",
+        "v6-elevated": "var(--shadow-v6-elevated)",
+        "v6-nav": "var(--shadow-v6-nav)",
+        "v6-button-hover": "var(--shadow-v6-button-hover)",
         // V5 Elevation System
         "elevation-0": "var(--elevation-0)",
         "elevation-1": "var(--elevation-1)",
@@ -262,12 +348,42 @@ const config: Config = {
         max: "var(--z-max)",
       },
       borderRadius: {
+        // V6 Pepper Aesthetic (generous, playful radii)
+        "v6-pill": "var(--radius-v6-pill)",
+        "v6-card": "var(--radius-v6-card)",
+        "v6-card-sm": "var(--radius-v6-card-sm)",
+        "v6-input": "var(--radius-v6-input)",
+        "v6-button": "var(--radius-v6-button)",
+        "v6-badge": "var(--radius-v6-badge)",
+        // V5 Legacy
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      // Custom animations for Burmese aesthetic
+      // V6 Motion Tokens
+      transitionDuration: {
+        "v6-instant": "var(--duration-v6-instant)",
+        "v6-fast": "var(--duration-v6-fast)",
+        "v6-normal": "var(--duration-v6-normal)",
+        "v6-slow": "var(--duration-v6-slow)",
+        "v6-slower": "var(--duration-v6-slower)",
+      },
+      transitionTimingFunction: {
+        "v6-default": "var(--ease-v6-default)",
+        "v6-spring": "var(--ease-v6-spring)",
+        "v6-out": "var(--ease-v6-out)",
+        "v6-in": "var(--ease-v6-in)",
+      },
+      // Custom animations
       animation: {
+        // V6 Pepper Aesthetic Animations
+        "v6-fade-in-up": "v6-fade-in-up 0.55s var(--ease-v6-default) forwards",
+        "v6-float": "v6-float 8s ease-in-out infinite",
+        "v6-float-slow": "v6-float 12s ease-in-out infinite",
+        "v6-scale-in": "v6-scale-in 0.3s var(--ease-v6-spring) forwards",
+        "v6-shimmer": "v6-shimmer 2s linear infinite",
+        "v6-pulse-ring": "v6-pulse-ring 2s ease-out infinite",
+        // V5 Legacy Animations
         "gradient-x": "gradient-x 15s ease infinite",
         "gradient-y": "gradient-y 15s ease infinite",
         float: "float 6s ease-in-out infinite",
@@ -282,6 +398,28 @@ const config: Config = {
         glow: "glow 2s ease-in-out infinite alternate",
       },
       keyframes: {
+        // V6 Pepper Aesthetic Keyframes
+        "v6-fade-in-up": {
+          "0%": { opacity: "0", transform: "translateY(18px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "v6-float": {
+          "0%, 100%": { transform: "translateY(0) rotate(0deg)" },
+          "50%": { transform: "translateY(-12px) rotate(3deg)" },
+        },
+        "v6-scale-in": {
+          "0%": { opacity: "0", transform: "scale(0.95)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        "v6-shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        "v6-pulse-ring": {
+          "0%": { transform: "scale(1)", opacity: "1" },
+          "100%": { transform: "scale(1.8)", opacity: "0" },
+        },
+        // V5 Legacy Keyframes
         "gradient-x": {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },

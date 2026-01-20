@@ -1,6 +1,14 @@
+/**
+ * V6 Stop List Component - Pepper Aesthetic
+ *
+ * Grouped list of delivery stops with V6 styling.
+ * Shows current, upcoming, and completed stops.
+ */
+
 "use client";
 
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { StopCard } from "./StopCard";
 import type { RouteStopStatus } from "@/types/driver";
 
@@ -50,8 +58,12 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
     <div className="space-y-6">
       {/* Current Stop */}
       {currentStop && (
-        <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-text-secondary/70">
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <h2 className="mb-3 font-v6-body text-sm font-semibold uppercase tracking-wide text-v6-text-muted">
             Current Stop
           </h2>
           <StopCard
@@ -66,38 +78,52 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
             isCurrentStop
             onClick={() => handleStopClick(currentStop.id)}
           />
-        </section>
+        </motion.section>
       )}
 
       {/* Upcoming Stops */}
       {upcomingStops.length > 0 && (
-        <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-text-secondary/70">
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <h2 className="mb-3 font-v6-body text-sm font-semibold uppercase tracking-wide text-v6-text-muted">
             Upcoming ({upcomingStops.length})
           </h2>
           <div className="space-y-2">
-            {upcomingStops.map((stop) => (
-              <StopCard
+            {upcomingStops.map((stop, index) => (
+              <motion.div
                 key={stop.id}
-                stopIndex={stop.stopIndex}
-                status={stop.status}
-                customerName={stop.order.customer.fullName}
-                address={stop.order.address}
-                timeWindow={{
-                  start: stop.order.deliveryWindowStart,
-                  end: stop.order.deliveryWindowEnd,
-                }}
-                onClick={() => handleStopClick(stop.id)}
-              />
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 + index * 0.05 }}
+              >
+                <StopCard
+                  stopIndex={stop.stopIndex}
+                  status={stop.status}
+                  customerName={stop.order.customer.fullName}
+                  address={stop.order.address}
+                  timeWindow={{
+                    start: stop.order.deliveryWindowStart,
+                    end: stop.order.deliveryWindowEnd,
+                  }}
+                  onClick={() => handleStopClick(stop.id)}
+                />
+              </motion.div>
             ))}
           </div>
-        </section>
+        </motion.section>
       )}
 
       {/* Completed Stops */}
       {completedStops.length > 0 && (
-        <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-text-secondary/70">
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <h2 className="mb-3 font-v6-body text-sm font-semibold uppercase tracking-wide text-v6-text-muted">
             Completed ({completedStops.length})
           </h2>
           <div className="space-y-2">
@@ -116,7 +142,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
               />
             ))}
           </div>
-        </section>
+        </motion.section>
       )}
     </div>
   );

@@ -6,44 +6,49 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils/cn";
 
 /**
- * V3 Card System
- * Premium Burmese aesthetic with warm shadows
+ * V6 Card System - Pepper Aesthetic
+ * Large rounded corners, warm shadows, spring hover effects
  *
  * Variants: flat, elevated, interactive, alert
  */
 const cardVariants = cva(
   [
-    "rounded-[var(--radius-md)] bg-[var(--color-surface)]",
-    "transition-all duration-[var(--duration-fast)]",
+    // V6 Base: Large rounded corners, warm surface
+    "rounded-v6-card bg-v6-surface-primary",
+    // V6 Motion: Spring-based transitions
+    "transition-all duration-v6-normal ease-v6-spring",
   ].join(" "),
   {
     variants: {
       variant: {
-        // Flat: Border only, no shadow (for list items)
-        flat: "border border-[var(--color-border)]",
+        // Flat: Subtle background, no shadow (for list items)
+        flat: [
+          "bg-v6-surface-secondary",
+          "border border-v6-border-subtle",
+        ].join(" "),
 
-        // Elevated: Shadow for standalone cards
-        elevated: "shadow-[var(--shadow-md)]",
+        // Elevated: Warm shadow for standalone cards
+        elevated: "shadow-v6-card",
 
-        // Interactive: Clickable cards with hover effects
+        // Interactive: Clickable cards with hover lift effects
         interactive: [
-          "shadow-[var(--shadow-sm)] cursor-pointer",
-          "hover:shadow-[var(--shadow-md)] hover:scale-[1.01]",
-          "active:shadow-[var(--shadow-sm)] active:scale-[0.99]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)]",
+          "shadow-v6-card cursor-pointer",
+          "hover:shadow-v6-card-hover hover:-translate-y-1 hover:scale-[1.01]",
+          "active:shadow-v6-md active:translate-y-0 active:scale-[0.99]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary focus-visible:ring-offset-2",
         ].join(" "),
 
         // Alert: Left border accent (exception cards)
-        alert: "border-l-4",
+        alert: "border-l-4 shadow-v6-sm",
 
         // Default: Basic card (legacy compatibility)
-        default: "border border-[var(--color-border)] shadow-[var(--shadow-sm)]",
+        default: "border border-v6-border shadow-v6-sm",
       },
       alertAccent: {
-        error: "border-l-[var(--color-error)]",
-        warning: "border-l-[var(--color-warning)]",
-        success: "border-l-[var(--color-jade)]",
-        info: "border-l-[var(--color-cta)]",
+        error: "border-l-v6-status-error bg-v6-status-error-bg",
+        warning: "border-l-v6-status-warning bg-v6-status-warning-bg",
+        success: "border-l-v6-green bg-v6-green-light",
+        info: "border-l-v6-teal bg-v6-teal-light",
       },
     },
     defaultVariants: {
@@ -125,7 +130,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-[var(--space-4)]", className)}
+    className={cn("flex flex-col space-y-1.5 p-6", className)}
     {...props}
   />
 ));
@@ -138,7 +143,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "font-[var(--font-display)] text-xl font-semibold leading-tight text-[var(--color-charcoal)]",
+      "font-v6-display text-xl font-bold leading-tight text-v6-text-primary",
       className
     )}
     {...props}
@@ -152,7 +157,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-[var(--color-charcoal-muted)]", className)}
+    className={cn("text-sm text-v6-text-secondary", className)}
     {...props}
   />
 ));
@@ -164,7 +169,7 @@ const CardContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("p-[var(--space-4)] pt-0", className)}
+    className={cn("p-6 pt-0", className)}
     {...props}
   />
 ));
@@ -176,7 +181,7 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex items-center p-[var(--space-4)] pt-0", className)}
+    className={cn("flex items-center p-6 pt-0", className)}
     {...props}
   />
 ));
