@@ -1,0 +1,434 @@
+"use client";
+
+/**
+ * V7 Auth Modal - Glassmorphism Magic Link Authentication
+ *
+ * Sprint 9: Auth & Onboarding
+ * Features: Glassmorphism design, animated form, loading states,
+ * success/error animations, haptic feedback
+ */
+
+import React, { useState, useCallback, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useFormStatus } from "react-dom";
+import {
+  Mail,
+  Sparkles,
+  X,
+  ArrowRight,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+import {
+  v7Spring,
+  v7Hover,
+} from "@/lib/motion-tokens-v7";
+import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import { signIn } from "@/lib/supabase/actions";
+
+// ============================================
+// TYPES
+// ============================================
+
+export interface AuthModalV7Props {
+  /** Whether modal is open */
+  isOpen: boolean;
+  /** Called when modal should close */
+  onClose: () => void;
+  /** Called on successful auth */
+  onSuccess?: (email: string) => void;
+  /** Additional className */
+  className?: string;
+}
+
+// ============================================
+// ANIMATED INPUT
+// ============================================
+
+interface AnimatedInputV7Props {
+  id: string;
+  name: string;
+  type: string;
+  placeholder: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  disabled?: boolean;
+  error?: string;
+  icon?: React.ReactNode;
+}
+
+function AnimatedInputV7({
+  id,
+  name,
+  type,
+  placeholder,
+  value,
+  onChange,
+  disabled,
+  error,
+  icon,
+}: AnimatedInputV7Props) {
+  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+  const [isFocused, setIsFocused] = useState(false);
+
+  return (
+    <motion.div
+      initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+      animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+      transition={{ delay: 0.2 }}
+      className="relative"
+    >
+      {/* Focus ring */}
+      <AnimatePresence>
+        {isFocused && shouldAnimate && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={getSpring(v7Spring.snappy)}
+            className={cn(
+              "absolute -inset-1 rounded-2xl",
+              error
+                ? "bg-red-500/20 ring-2 ring-red-500/50"
+                : "bg-v6-primary/10 ring-2 ring-v6-primary/30"
+            )}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Input container */}
+      <div className="relative">
+        {/* Icon */}
+        {icon && (
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-v6-text-muted">
+            {icon}
+          </div>
+        )}
+
+        {/* Input */}
+        <input
+          id={id}
+          name={name}
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          className={cn(
+            "w-full py-4 rounded-xl",
+            "bg-white/50 backdrop-blur-sm",
+            "border-2 transition-colors",
+            error
+              ? "border-red-500/50 focus:border-red-500"
+              : "border-white/50 focus:border-v6-primary/50",
+            "text-v6-text-primary placeholder:text-v6-text-muted",
+            "focus:outline-none",
+            icon ? "pl-12 pr-4" : "px-4",
+            disabled && "opacity-50 cursor-not-allowed"
+          )}
+        />
+      </div>
+
+      {/* Error message */}
+      <AnimatePresence>
+        {error && (
+          <motion.p
+            initial={{ opacity: 0, y: -5, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
+            exit={{ opacity: 0, y: -5, height: 0 }}
+            className="mt-2 text-sm text-red-500 flex items-center gap-1"
+          >
+            <AlertCircle className="w-4 h-4" />
+            {error}
+          </motion.p>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// ============================================
+// SUBMIT BUTTON
+// ============================================
+
+interface SubmitButtonV7Props {
+  children: React.ReactNode;
+  disabled?: boolean;
+}
+
+function SubmitButtonV7({ children, disabled }: SubmitButtonV7Props) {
+  const { pending } = useFormStatus();
+  const { shouldAnimate } = useAnimationPreferenceV7();
+
+  const isDisabled = disabled || pending;
+
+  return (
+    <motion.button
+      type="submit"
+      disabled={isDisabled}
+      initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+      animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+      transition={{ delay: 0.3 }}
+      whileHover={shouldAnimate && !isDisabled ? { scale: 1.02 } : undefined}
+      whileTap={shouldAnimate && !isDisabled ? { scale: 0.98 } : undefined}
+      className={cn(
+        "w-full py-4 rounded-xl",
+        "bg-gradient-to-r from-v6-primary to-v6-primary/90",
+        "text-white font-semibold",
+        "flex items-center justify-center gap-2",
+        "shadow-lg shadow-v6-primary/30",
+        "transition-all",
+        isDisabled
+          ? "opacity-50 cursor-not-allowed"
+          : "hover:shadow-xl hover:shadow-v6-primary/40"
+      )}
+    >
+      {pending ? (
+        <>
+          <Loader2 className="w-5 h-5 animate-spin" />
+          Sending...
+        </>
+      ) : (
+        <>
+          {children}
+          <ArrowRight className="w-5 h-5" />
+        </>
+      )}
+    </motion.button>
+  );
+}
+
+// ============================================
+// MAIN COMPONENT
+// ============================================
+
+export function AuthModalV7({
+  isOpen,
+  onClose,
+  onSuccess,
+  className,
+}: AuthModalV7Props) {
+  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus input when opened
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 300);
+    }
+  }, [isOpen]);
+
+  // Handle form submit
+  const handleSubmit = useCallback(
+    async (formData: FormData) => {
+      setError(null);
+
+      // Validate email
+      const emailValue = formData.get("email") as string;
+      if (!emailValue || !emailValue.includes("@")) {
+        setError("Please enter a valid email address");
+        if (typeof navigator !== "undefined" && navigator.vibrate) {
+          navigator.vibrate([50, 30, 50]);
+        }
+        return;
+      }
+
+      try {
+        const result = await signIn(formData);
+
+        if (result?.error) {
+          setError(result.error);
+          if (typeof navigator !== "undefined" && navigator.vibrate) {
+            navigator.vibrate([50, 30, 50]);
+          }
+        } else if (result?.success) {
+          if (typeof navigator !== "undefined" && navigator.vibrate) {
+            navigator.vibrate([50, 30, 100, 30, 50]);
+          }
+          onSuccess?.(emailValue);
+        }
+      } catch {
+        setError("Something went wrong. Please try again.");
+        if (typeof navigator !== "undefined" && navigator.vibrate) {
+          navigator.vibrate([50, 30, 50]);
+        }
+      }
+    },
+    [onSuccess]
+  );
+
+  // Handle close
+  const handleClose = useCallback(() => {
+    setEmail("");
+    setError(null);
+    onClose();
+  }, [onClose]);
+
+  // Handle backdrop click
+  const handleBackdropClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.target === e.currentTarget) {
+        handleClose();
+      }
+    },
+    [handleClose]
+  );
+
+  // Handle escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        handleClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, handleClose]);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={shouldAnimate ? { opacity: 0 } : undefined}
+          animate={shouldAnimate ? { opacity: 1 } : undefined}
+          exit={shouldAnimate ? { opacity: 0 } : undefined}
+          transition={{ duration: 0.2 }}
+          onClick={handleBackdropClick}
+          className={cn(
+            "fixed inset-0 z-50",
+            "flex items-center justify-center",
+            "bg-black/40 backdrop-blur-md",
+            "p-4",
+            className
+          )}
+        >
+          {/* Modal */}
+          <motion.div
+            initial={
+              shouldAnimate ? { opacity: 0, scale: 0.9, y: 20 } : undefined
+            }
+            animate={shouldAnimate ? { opacity: 1, scale: 1, y: 0 } : undefined}
+            exit={shouldAnimate ? { opacity: 0, scale: 0.9, y: 20 } : undefined}
+            transition={getSpring(v7Spring.default)}
+            className={cn(
+              "relative w-full max-w-md",
+              "p-8 rounded-3xl",
+              // Glassmorphism
+              "bg-white/80 backdrop-blur-xl",
+              "border border-white/50",
+              "shadow-2xl shadow-black/10"
+            )}
+          >
+            {/* Close button */}
+            <motion.button
+              {...(shouldAnimate ? v7Hover.scale : {})}
+              onClick={handleClose}
+              className={cn(
+                "absolute top-4 right-4",
+                "p-2 rounded-full",
+                "text-v6-text-muted hover:text-v6-text-primary",
+                "hover:bg-v6-surface-secondary",
+                "transition-colors"
+              )}
+            >
+              <X className="w-5 h-5" />
+            </motion.button>
+
+            {/* Header */}
+            <div className="text-center mb-8">
+              {/* Icon */}
+              <motion.div
+                initial={
+                  shouldAnimate
+                    ? { scale: 0, rotate: -180 }
+                    : undefined
+                }
+                animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
+                transition={getSpring(v7Spring.ultraBouncy)}
+                className={cn(
+                  "inline-flex items-center justify-center",
+                  "w-16 h-16 rounded-2xl mb-4",
+                  "bg-gradient-to-br from-v6-primary to-v6-primary/80",
+                  "shadow-lg shadow-v6-primary/30"
+                )}
+              >
+                <Sparkles className="w-8 h-8 text-white" />
+              </motion.div>
+
+              <motion.h2
+                initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+                animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+                transition={{ delay: 0.1 }}
+                className="text-2xl font-bold text-v6-text-primary mb-2"
+              >
+                Welcome Back
+              </motion.h2>
+
+              <motion.p
+                initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+                animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+                transition={{ delay: 0.15 }}
+                className="text-v6-text-secondary"
+              >
+                Enter your email for a magic link
+              </motion.p>
+            </div>
+
+            {/* Form */}
+            <form action={handleSubmit}>
+              <div className="space-y-6">
+                {/* Email input */}
+                <AnimatedInputV7
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError(null);
+                  }}
+                  error={error || undefined}
+                  icon={<Mail className="w-5 h-5" />}
+                />
+
+                {/* Submit button */}
+                <SubmitButtonV7 disabled={!email}>
+                  Send Magic Link
+                </SubmitButtonV7>
+              </div>
+            </form>
+
+            {/* Footer */}
+            <motion.p
+              initial={shouldAnimate ? { opacity: 0 } : undefined}
+              animate={shouldAnimate ? { opacity: 0.6 } : undefined}
+              transition={{ delay: 0.4 }}
+              className="mt-6 text-center text-xs text-v6-text-muted"
+            >
+              We&apos;ll email you a secure link to sign in.
+              <br />
+              No password needed.
+            </motion.p>
+
+            {/* Decorative gradient */}
+            <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+              <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br from-v6-secondary/20 to-transparent blur-2xl" />
+              <div className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-gradient-to-tr from-v6-primary/10 to-transparent blur-2xl" />
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+export default AuthModalV7;
