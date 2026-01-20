@@ -4,7 +4,8 @@ import { Check, MapPin, Clock, CreditCard } from "lucide-react";
 import { motion } from "framer-motion";
 import { CHECKOUT_STEPS, type CheckoutStep } from "@/types/checkout";
 import { cn } from "@/lib/utils/cn";
-import { v6SpringSnappy } from "@/lib/motion";
+import { v7Spring } from "@/lib/motion-tokens-v7";
+import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
 
 interface CheckoutStepperProps {
   currentStep: CheckoutStep;
@@ -32,6 +33,7 @@ export function CheckoutStepper({
   onStepClick,
   className,
 }: CheckoutStepperProps) {
+  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
   const currentIndex = CHECKOUT_STEPS.indexOf(currentStep);
 
   return (
@@ -67,8 +69,9 @@ export function CheckoutStepper({
                   type="button"
                   onClick={() => isClickable && onStepClick(step)}
                   disabled={!isClickable}
-                  whileHover={isClickable ? { scale: 1.1 } : undefined}
-                  whileTap={isClickable ? { scale: 0.95 } : undefined}
+                  whileHover={shouldAnimate && isClickable ? { scale: 1.1 } : undefined}
+                  whileTap={shouldAnimate && isClickable ? { scale: 0.95 } : undefined}
+                  transition={getSpring(v7Spring.snappy)}
                   className={cn(
                     "relative flex items-center justify-center rounded-full",
                     "h-9 w-9",
@@ -83,9 +86,9 @@ export function CheckoutStepper({
                 >
                   {isCompleted ? (
                     <motion.div
-                      initial={{ scale: 0, rotate: -180 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={v6SpringSnappy}
+                      initial={shouldAnimate ? { scale: 0, rotate: -180 } : undefined}
+                      animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
+                      transition={getSpring(v7Spring.snappy)}
                     >
                       <Check className="h-4 w-4" strokeWidth={3} />
                     </motion.div>
