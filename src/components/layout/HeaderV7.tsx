@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, forwardRef } from "react";
 import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { v7Spring, v7Duration } from "@/lib/motion-tokens-v7";
 import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
@@ -370,21 +371,27 @@ export const HeaderV7 = forwardRef<HTMLElement, HeaderV7Props>(
               >
                 {typeof logo === "string" ? (
                   <span className="flex items-center gap-2">
-                    {/* Mini lotus icon */}
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="text-v6-secondary"
-                    >
-                      <path d="M12 2C10 6 8 8 8 12c0 2 1.5 4 4 4s4-2 4-4c0-4-2-6-4-10z" />
-                      <path d="M6 10c-2 2-4 4-4 7 0 2 2 3 4 3 1.5 0 3-1 4-3-3 0-4-3-4-7z" opacity="0.7" />
-                      <path d="M18 10c2 2 4 4 4 7 0 2-2 3-4 3-1.5 0-3-1-4-3 3 0 4-3 4-7z" opacity="0.7" />
-                    </svg>
+                    <Image
+                      src="/logo.png"
+                      alt="Mandalay Morning Star"
+                      width={32}
+                      height={32}
+                      className="object-contain"
+                    />
                     {logo}
                   </span>
-                ) : logo}
+                ) : logo ? logo : (
+                  <span className="flex items-center gap-2">
+                    <Image
+                      src="/logo.png"
+                      alt="Mandalay Morning Star"
+                      width={32}
+                      height={32}
+                      className="object-contain"
+                    />
+                    <span className="hidden sm:inline">Mandalay Morning Star</span>
+                  </span>
+                )}
               </Link>
             </motion.div>
 

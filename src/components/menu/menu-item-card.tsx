@@ -136,14 +136,16 @@ export function MenuItemCard({
       onHoverEnd={() => setIsHovered(false)}
       className={cn(
         "group relative overflow-hidden",
-        // V6 Card styling
+        // V6 Card styling with visible border
         "rounded-v6-card bg-v6-surface-primary",
+        "border border-v6-border",
         "shadow-v6-card",
         // V6 Motion
         "transition-all duration-v6-normal ease-v6-spring",
         isInteractive && [
           "cursor-pointer",
           "hover:shadow-v6-card-hover",
+          "hover:border-v6-border-strong",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary focus-visible:ring-offset-2",
         ],
         item.isSoldOut && "opacity-60 grayscale",
