@@ -76,7 +76,7 @@ function CartSummaryV7() {
       <div className="space-y-2 text-sm">
         <div className="flex justify-between text-v6-text-secondary">
           <span>Subtotal</span>
-          <PriceTicker value={itemsSubtotal} />
+          <PriceTicker value={itemsSubtotal} inCents={true} />
         </div>
         <div className="flex justify-between text-v6-text-secondary">
           <span>Delivery Fee</span>
@@ -89,13 +89,13 @@ function CartSummaryV7() {
               FREE
             </motion.span>
           ) : (
-            <PriceTicker value={estimatedDeliveryFee} />
+            <PriceTicker value={estimatedDeliveryFee} inCents={true} />
           )}
         </div>
         <div className="h-px bg-v6-border my-2" />
         <div className="flex justify-between font-semibold text-base text-v6-text-primary">
           <span>Estimated Total</span>
-          <PriceTicker value={estimatedTotal} className="text-v6-primary" />
+          <PriceTicker value={estimatedTotal} inCents={true} className="text-v6-primary" />
         </div>
       </div>
     </motion.div>

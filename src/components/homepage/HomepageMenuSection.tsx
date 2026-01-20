@@ -9,6 +9,7 @@ import { CategoryTabs } from "@/components/menu/category-tabs";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import { useToast } from "@/lib/hooks/useToast";
 import {
   v7StaggerContainer,
   v7StaggerItem,
@@ -27,9 +28,11 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const { addItem } = useCart();
   const { open: openCart } = useCartDrawer();
+  const { toast } = useToast();
 
   // Filter items based on search query
   const filteredCategories = categories.map((category) => ({
@@ -78,6 +81,23 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
     setSelectedItem(item);
     setIsModalOpen(true);
   }, []);
+
+  // Handle favorite toggle
+  const handleFavoriteToggle = useCallback((item: MenuItem, isFavorite: boolean) => {
+    setFavorites((prev) => {
+      const next = new Set(prev);
+      if (isFavorite) {
+        next.add(item.id);
+      } else {
+        next.delete(item.id);
+      }
+      return next;
+    });
+    toast({
+      title: isFavorite ? "Added to favorites" : "Removed from favorites",
+      description: item.nameEn,
+    });
+  }, [toast]);
 
   // Handle add to cart
   const handleAddToCart = useCallback(
@@ -206,6 +226,8 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                       <MenuItemCard
                         item={item}
                         onSelect={handleItemClick}
+                        onFavoriteToggle={handleFavoriteToggle}
+                        isFavorite={favorites.has(item.id)}
                       />
                     </motion.div>
                   ))}
@@ -236,6 +258,8 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                             <MenuItemCard
                               item={item}
                               onSelect={handleItemClick}
+                              onFavoriteToggle={handleFavoriteToggle}
+                              isFavorite={favorites.has(item.id)}
                             />
                           </motion.div>
                         ))}
