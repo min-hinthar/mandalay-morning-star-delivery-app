@@ -7,6 +7,20 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
 };
 
+// Mock localStorage for tests (useAnimationPreferenceV7 uses it)
+const localStorageMock = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {},
+  clear: () => {},
+  length: 0,
+  key: () => null,
+};
+Object.defineProperty(window, "localStorage", {
+  value: localStorageMock,
+  writable: true,
+});
+
 // Mock matchMedia for tests (not available in jsdom)
 Object.defineProperty(window, "matchMedia", {
   writable: true,

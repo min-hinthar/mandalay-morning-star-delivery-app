@@ -69,11 +69,15 @@ export function DropdownAction({
       }
       onSuccess?.();
     } catch (error) {
+      // Next.js redirect() throws NEXT_REDIRECT error - must re-throw to work
+      const errorString = String(error);
+      if (errorString.includes("NEXT_REDIRECT") || errorString.includes("redirect")) {
+        throw error; // Re-throw redirect errors
+      }
       console.error("[DropdownAction] Error:", error);
       if (onError) {
         onError(error instanceof Error ? error : new Error(String(error)));
       }
-    } finally {
       setIsLoading(false);
     }
   }, [onClick, disabled, isLoading, onError, onSuccess]);
