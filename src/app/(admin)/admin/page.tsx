@@ -3,12 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Package,
-  DollarSign,
-  Clock,
-  TrendingUp,
   AlertCircle,
-  CheckCircle2,
-  Truck,
   Star,
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils/currency";
@@ -17,6 +12,8 @@ import Link from "next/link";
 import type { OrderStatus } from "@/types/database";
 import { RevenueChart } from "@/components/admin/RevenueChart";
 import { PopularItems } from "@/components/admin/PopularItems";
+import { AdminDashboardV7 } from "@/components/admin/v7-index";
+import type { KPIData } from "@/components/admin/v7-index";
 
 interface OrderStatsRow {
   status: OrderStatus;
@@ -97,9 +94,59 @@ export default async function AdminDashboardPage() {
   const freeDeliveryOrders = confirmedOrders.filter(
     (o) => o.subtotal_cents >= 10000
   ).length;
-  const freeDeliveryPercentage = confirmedOrders.length > 0
-    ? Math.round((freeDeliveryOrders / confirmedOrders.length) * 100)
-    : 0;
+
+  // Create KPI data for V7 dashboard
+  const kpiData: KPIData[] = [
+    {
+      id: "total-orders",
+      label: "Total Orders (7d)",
+      value: totalOrders,
+      format: "number",
+      icon: "orders",
+      variant: "default",
+    },
+    {
+      id: "revenue",
+      label: "Revenue (7d)",
+      value: totalRevenue,
+      format: "currency",
+      icon: "revenue",
+      variant: "success",
+    },
+    {
+      id: "pending",
+      label: "Pending Orders",
+      value: pendingOrders,
+      format: "number",
+      icon: "exceptions",
+      variant: pendingOrders > 5 ? "warning" : "default",
+    },
+    {
+      id: "avg-order",
+      label: "Avg Order Value",
+      value: avgOrderValue,
+      format: "currency",
+      icon: "target",
+      variant: "default",
+    },
+    {
+      id: "fulfillment",
+      label: "Fulfillment Rate",
+      value: fulfillmentRate,
+      format: "percentage",
+      icon: "activity",
+      variant: fulfillmentRate >= 90 ? "success" : "warning",
+      goal: 95,
+    },
+    {
+      id: "free-delivery",
+      label: "Free Delivery Orders",
+      value: freeDeliveryOrders,
+      format: "number",
+      icon: "drivers",
+      variant: "default",
+    },
+  ];
 
   // Prepare daily revenue data for chart
   const days = eachDayOfInterval({ start: sevenDaysAgo, end: today });
@@ -178,122 +225,8 @@ export default async function AdminDashboardPage() {
         </p>
       </div>
 
-      {/* Stats Grid - Row 1 */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Orders (7d)
-            </CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalOrders}</div>
-            <p className="text-xs text-muted-foreground">
-              {confirmedOrders.length} confirmed
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Revenue (7d)
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatPrice(totalRevenue)}</div>
-            <p className="text-xs text-muted-foreground">
-              From confirmed orders
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pending Orders
-            </CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{pendingOrders}</div>
-            <p className="text-xs text-muted-foreground">
-              Awaiting payment
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Avg Order Value
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatPrice(avgOrderValue)}</div>
-            <p className="text-xs text-muted-foreground">
-              Per confirmed order
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Stats Grid - Row 2 (New Analytics) */}
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Fulfillment Rate
-            </CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {fulfillmentRate}%
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {deliveredOrders.length} of {totalOrders} orders delivered
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Free Delivery Orders
-            </CardTitle>
-            <Truck className="h-4 w-4 text-brand-red" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-red">
-              {freeDeliveryOrders}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {freeDeliveryPercentage}% of orders qualify (≥$100)
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Top Items Sold
-            </CardTitle>
-            <Star className="h-4 w-4 text-saffron" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {orderItems.reduce((sum, item) => sum + item.quantity, 0)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Total items sold (7d)
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* V7 KPI Dashboard */}
+      <AdminDashboardV7 kpis={kpiData} className="mb-8" />
 
       {/* Revenue Chart */}
       <Card className="mb-8">

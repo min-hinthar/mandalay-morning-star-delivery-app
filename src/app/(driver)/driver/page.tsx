@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { DriverHomeContent } from "@/components/driver/DriverHomeContent";
+import { DriverDashboardV7 } from "@/components/driver/v7-index";
 import type { RoutesRow, RouteStats, VehicleType } from "@/types/driver";
 
 const TIMEZONE = "America/Los_Angeles";
@@ -175,5 +175,5 @@ export default async function DriverHomePage() {
 async function DriverHomePageContent() {
   const data = await getDriverData();
 
-  return <DriverHomeContent {...data} />;
+  return <DriverDashboardV7 {...data} />;
 }

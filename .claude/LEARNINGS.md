@@ -1083,3 +1083,36 @@ function ConfettiParticle({ color, delay }: Props) {}
 ```
 **Apply when:** TS2322 "Property does not exist" when props type uses Omit, creating confetti/particle systems
 
+---
+
+## 2026-01-20: V7 Server-to-Client Component Data Pattern
+
+**Context:** Integrating V7 client components (AdminDashboardV7, HeaderV7) into server component pages
+**Learning:** V7 components are client-side (use hooks, motion). Server pages need wrapper pattern:
+
+**Option A: Wrapper component pair (for complex data)**
+```ts
+// HeaderV7Server.tsx (server)
+export async function HeaderV7Server() {
+  const user = await getUser();
+  return <HeaderV7Client user={user} />;
+}
+
+// HeaderV7Client.tsx (client)
+"use client";
+export function HeaderV7Client({ user }) { /* uses hooks, motion */ }
+```
+
+**Option B: Transform data in server component (simpler)**
+```ts
+// page.tsx (server)
+const kpiData: KPIData[] = [
+  { id: "orders", label: "Orders", value: totalOrders, format: "number", icon: "orders" },
+  // ... transform server data to V7 component's expected shape
+];
+return <AdminDashboardV7 kpis={kpiData} />;
+```
+
+Use Option A when V7 component needs multiple hooks or complex interactivity. Use Option B when just passing transformed data.
+**Apply when:** Integrating V7 client components into server component pages
+
