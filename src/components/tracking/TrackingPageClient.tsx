@@ -11,8 +11,7 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { StatusTimeline } from "./StatusTimeline";
-import { ETADisplay } from "./ETADisplay";
+import { StatusTimelineV7, ETACountdownV7 } from "./v7-index";
 import { DeliveryMap } from "./DeliveryMap";
 import { DriverCard } from "./DriverCard";
 import { OrderSummary } from "./OrderSummary";
@@ -172,13 +171,13 @@ export function TrackingPageClient({
 
       {/* Main content */}
       <main className="mx-auto max-w-2xl px-4 py-6 space-y-4">
-        {/* Status Timeline */}
+        {/* V7 Status Timeline */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <StatusTimeline
+          <StatusTimelineV7
             currentStatus={orderStatus}
             placedAt={initialData.order.placedAt}
             confirmedAt={initialData.order.confirmedAt}
@@ -187,17 +186,18 @@ export function TrackingPageClient({
           />
         </motion.div>
 
-        {/* ETA Display - Only when out for delivery */}
+        {/* V7 ETA Countdown - Only when out for delivery */}
         {showLiveTracking && eta && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <ETADisplay
+            <ETACountdownV7
               minMinutes={eta.minMinutes}
               maxMinutes={eta.maxMinutes}
               estimatedArrival={eta.estimatedArrival}
+              isNearby={eta.minMinutes <= 5}
             />
           </motion.div>
         )}
