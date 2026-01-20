@@ -1,8 +1,8 @@
 /**
- * V2 Sprint 3: Enhanced Status Timeline for Tracking
+ * V6 Status Timeline - Pepper Aesthetic
  *
  * Shows order progress with live status updates.
- * Based on OrderTimeline but with enhanced styling and live indicator.
+ * Features V6 colors, spring animations, and pulsing current indicator.
  */
 
 "use client";
@@ -12,6 +12,7 @@ import { CheckCircle, Circle, Clock, Package, Truck, Home } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { OrderStatus } from "@/types/database";
 import { format, parseISO } from "date-fns";
+import { v6Spring } from "@/lib/motion";
 
 interface TimelineStep {
   status: OrderStatus;
@@ -43,21 +44,22 @@ export function StatusTimeline({
   deliveredAt,
   isLive = false,
 }: StatusTimelineProps) {
-  // Handle cancelled status separately
+  // Handle cancelled status separately - V6 styling
   if (currentStatus === "cancelled") {
     return (
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-xl border border-red-200 bg-red-50 p-4"
+        transition={v6Spring}
+        className="rounded-v6-card-sm border border-v6-status-error/30 bg-v6-status-error-bg p-4"
       >
         <div className="flex items-center gap-3">
-          <div className="rounded-full bg-red-100 p-2">
-            <Circle className="h-5 w-5 text-red-600" />
+          <div className="rounded-full bg-v6-status-error/10 p-2">
+            <Circle className="h-5 w-5 text-v6-status-error" />
           </div>
           <div>
-            <p className="font-medium text-red-800">Order Cancelled</p>
-            <p className="text-sm text-red-600">
+            <p className="font-v6-display font-semibold text-v6-status-error">Order Cancelled</p>
+            <p className="text-sm font-v6-body text-v6-status-error/80">
               This order has been cancelled.
             </p>
           </div>
@@ -102,7 +104,7 @@ export function StatusTimeline({
   ];
 
   return (
-    <div className="rounded-xl bg-white p-4 shadow-warm-sm">
+    <div className="rounded-v6-card bg-v6-surface-primary p-5 shadow-v6-card">
       <div className="space-y-0">
         {steps.map((step, index) => {
           const stepIndex = STATUS_ORDER.indexOf(step.status);
@@ -116,60 +118,61 @@ export function StatusTimeline({
               key={step.status}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.1, ...v6Spring }}
               className="flex gap-4"
             >
-              {/* Timeline line and dot */}
+              {/* V6 Timeline line and dot */}
               <div className="flex flex-col items-center">
                 <div
                   className={cn(
-                    "relative flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors",
-                    isCompleted && "border-jade bg-jade text-white",
-                    isCurrent && "border-saffron bg-saffron text-white",
-                    isPending && "border-charcoal-300 bg-white text-charcoal-400"
+                    "relative flex h-10 w-10 items-center justify-center rounded-full border-2",
+                    "transition-all duration-v6-normal",
+                    isCompleted && "border-v6-green bg-v6-green text-v6-text-inverse",
+                    isCurrent && "border-v6-primary bg-v6-primary text-v6-text-inverse shadow-v6-sm",
+                    isPending && "border-v6-border bg-v6-surface-primary text-v6-text-muted"
                   )}
                 >
                   {step.icon}
-                  {/* Live pulse indicator */}
+                  {/* V6 Live pulse indicator */}
                   {isCurrent && isLive && (
                     <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-saffron opacity-75" />
-                      <span className="relative inline-flex h-3 w-3 rounded-full bg-saffron" />
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-v6-primary opacity-75" />
+                      <span className="relative inline-flex h-3 w-3 rounded-full bg-v6-primary" />
                     </span>
                   )}
                 </div>
                 {!isLast && (
                   <div
                     className={cn(
-                      "w-0.5 flex-1 min-h-8",
-                      isCompleted ? "bg-jade" : "bg-charcoal-200"
+                      "w-0.5 flex-1 min-h-8 transition-colors duration-v6-normal",
+                      isCompleted ? "bg-v6-green" : "bg-v6-border"
                     )}
                   />
                 )}
               </div>
 
-              {/* Step content */}
+              {/* V6 Step content */}
               <div className="flex-1 pb-6">
                 <p
                   className={cn(
-                    "font-medium",
-                    isCompleted && "text-jade",
-                    isCurrent && "text-saffron",
-                    isPending && "text-charcoal-400"
+                    "font-v6-body font-semibold",
+                    isCompleted && "text-v6-green",
+                    isCurrent && "text-v6-primary",
+                    isPending && "text-v6-text-muted"
                   )}
                 >
                   {step.label}
                 </p>
                 {step.timestamp && (isCompleted || isCurrent) && (
-                  <p className="text-sm text-charcoal-500">
+                  <p className="text-sm font-v6-body text-v6-text-secondary">
                     {format(parseISO(step.timestamp), "MMM d, yyyy 'at' h:mm a")}
                   </p>
                 )}
                 {isCurrent && !step.timestamp && isLive && (
-                  <p className="text-sm text-saffron">In progress...</p>
+                  <p className="text-sm font-v6-body text-v6-primary">In progress...</p>
                 )}
                 {isCurrent && !step.timestamp && !isLive && (
-                  <p className="text-sm text-charcoal-500">Current step</p>
+                  <p className="text-sm font-v6-body text-v6-text-muted">Current step</p>
                 )}
               </div>
             </motion.div>

@@ -1,3 +1,10 @@
+/**
+ * V6 Admin Drivers Page - Pepper Aesthetic
+ *
+ * Driver fleet management page with V6 colors, typography, and animations.
+ * Features stats cards, search/filters, and driver table.
+ */
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -150,14 +157,14 @@ export default function AdminDriversPage() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-6">
-          <div className="h-10 w-48 bg-muted rounded" />
-          <div className="h-4 w-64 bg-muted rounded" />
+          <div className="h-10 w-48 bg-v6-surface-tertiary rounded-v6-input" />
+          <div className="h-4 w-64 bg-v6-surface-tertiary rounded-v6-input" />
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-24 bg-muted rounded-xl" />
+              <div key={i} className="h-24 bg-v6-surface-tertiary rounded-v6-card-sm" />
             ))}
           </div>
-          <div className="h-96 bg-muted rounded-xl" />
+          <div className="h-96 bg-v6-surface-tertiary rounded-v6-card-sm" />
         </div>
       </div>
     );
@@ -172,10 +179,10 @@ export default function AdminDriversPage() {
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl md:text-4xl font-display text-charcoal">
+          <h1 className="text-3xl md:text-4xl font-v6-display font-bold text-v6-text-primary">
             Driver Fleet
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="font-v6-body text-v6-text-secondary mt-1">
             Manage your delivery drivers and track performance
           </p>
         </div>
@@ -184,7 +191,7 @@ export default function AdminDriversPage() {
             variant="outline"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="border-curry/20 hover:bg-curry/5"
+            className="border-v6-border hover:bg-v6-surface-tertiary"
           >
             <RefreshCw
               className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
@@ -193,7 +200,7 @@ export default function AdminDriversPage() {
           </Button>
           <Button
             onClick={() => setIsAddModalOpen(true)}
-            className="bg-gradient-to-r from-saffron to-curry hover:from-saffron-dark hover:to-curry-dark text-white shadow-md"
+            className="bg-v6-primary hover:bg-v6-primary-hover text-white shadow-v6-sm"
           >
             <UserPlus className="mr-2 h-4 w-4" />
             Add Driver
@@ -209,30 +216,30 @@ export default function AdminDriversPage() {
         className="grid grid-cols-2 md:grid-cols-4 gap-4"
       >
         {/* Total Drivers */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-cream to-lotus/30 border border-curry/10 p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-saffron/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-surface-secondary border border-v6-border p-4 shadow-v6-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-v6-primary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
-            <div className="flex items-center gap-2 text-saffron">
+            <div className="flex items-center gap-2 text-v6-primary">
               <Users className="h-5 w-5" />
-              <span className="text-sm font-medium">Total Drivers</span>
+              <span className="text-sm font-v6-body font-medium">Total Drivers</span>
             </div>
-            <p className="text-3xl font-display text-charcoal mt-2">
+            <p className="text-3xl font-v6-display font-bold text-v6-text-primary mt-2">
               {stats.total}
             </p>
           </div>
         </div>
 
         {/* Active Drivers */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-jade/5 to-jade/10 border border-jade/20 p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-jade/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-green/5 border border-v6-green/20 p-4 shadow-v6-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-v6-green/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
-            <div className="flex items-center gap-2 text-jade">
+            <div className="flex items-center gap-2 text-v6-green">
               <Truck className="h-5 w-5" />
-              <span className="text-sm font-medium">Active</span>
+              <span className="text-sm font-v6-body font-medium">Active</span>
             </div>
-            <p className="text-3xl font-display text-charcoal mt-2">
+            <p className="text-3xl font-v6-display font-bold text-v6-text-primary mt-2">
               {stats.active}
-              <span className="text-sm font-normal text-muted-foreground ml-2">
+              <span className="text-sm font-v6-body font-normal text-v6-text-muted ml-2">
                 / {stats.total}
               </span>
             </p>
@@ -240,17 +247,17 @@ export default function AdminDriversPage() {
         </div>
 
         {/* Average Rating */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-saffron/5 to-saffron/10 border border-saffron/20 p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-saffron/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-primary/5 border border-v6-primary/20 p-4 shadow-v6-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-v6-primary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
-            <div className="flex items-center gap-2 text-saffron">
-              <Star className="h-5 w-5 fill-saffron" />
-              <span className="text-sm font-medium">Avg Rating</span>
+            <div className="flex items-center gap-2 text-v6-primary">
+              <Star className="h-5 w-5 fill-v6-primary" />
+              <span className="text-sm font-v6-body font-medium">Avg Rating</span>
             </div>
-            <p className="text-3xl font-display text-charcoal mt-2">
+            <p className="text-3xl font-v6-display font-bold text-v6-text-primary mt-2">
               {stats.avgRating ? stats.avgRating.toFixed(1) : "—"}
               {stats.avgRating && (
-                <span className="text-sm font-normal text-muted-foreground ml-1">
+                <span className="text-sm font-v6-body font-normal text-v6-text-muted ml-1">
                   / 5.0
                 </span>
               )}
@@ -259,14 +266,14 @@ export default function AdminDriversPage() {
         </div>
 
         {/* Total Deliveries */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-curry/5 to-curry/10 border border-curry/20 p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-curry/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-secondary/5 border border-v6-secondary/20 p-4 shadow-v6-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-v6-secondary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
-            <div className="flex items-center gap-2 text-curry">
+            <div className="flex items-center gap-2 text-v6-secondary-hover">
               <TrendingUp className="h-5 w-5" />
-              <span className="text-sm font-medium">Deliveries</span>
+              <span className="text-sm font-v6-body font-medium">Deliveries</span>
             </div>
-            <p className="text-3xl font-display text-charcoal mt-2">
+            <p className="text-3xl font-v6-display font-bold text-v6-text-primary mt-2">
               {stats.totalDeliveries.toLocaleString()}
             </p>
           </div>
@@ -282,21 +289,21 @@ export default function AdminDriversPage() {
       >
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-v6-text-muted" />
           <Input
             type="text"
             placeholder="Search by name, email, or phone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white border-curry/20 focus:border-saffron focus:ring-saffron/20"
+            className="pl-10 bg-v6-surface-primary border-v6-border focus:border-v6-primary focus:ring-v6-primary/20 rounded-v6-input"
           />
         </div>
 
         {/* Status Filters */}
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-2 text-muted-foreground">
+          <div className="flex items-center gap-2 text-v6-text-muted">
             <Filter className="h-4 w-4" />
-            <span className="text-sm hidden sm:inline">Status:</span>
+            <span className="text-sm font-v6-body hidden sm:inline">Status:</span>
           </div>
           {STATUS_FILTERS.map((filter) => {
             const count =
@@ -312,10 +319,10 @@ export default function AdminDriversPage() {
                 key={filter.value}
                 variant={isActive ? "default" : "outline"}
                 className={cn(
-                  "cursor-pointer transition-all",
+                  "cursor-pointer transition-all duration-v6-fast font-v6-body",
                   isActive
-                    ? "bg-saffron hover:bg-saffron/90 text-white border-transparent"
-                    : "bg-white border-curry/20 text-charcoal hover:bg-saffron/10 hover:border-saffron/30"
+                    ? "bg-v6-primary hover:bg-v6-primary-hover text-white border-transparent"
+                    : "bg-v6-surface-primary border-v6-border text-v6-text-primary hover:bg-v6-primary/10 hover:border-v6-primary/30"
                 )}
                 onClick={() => setStatusFilter(filter.value)}
               >

@@ -1,8 +1,8 @@
 /**
- * V2 Sprint 4: Metric Card Component
+ * V6 Metric Card Component - Pepper Aesthetic
  *
  * Premium KPI card with trend indicators and spring animations.
- * iOS-like hover states with haptic feedback visuals.
+ * V6 colors and typography with playful interactions.
  */
 
 "use client";
@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { AnimatedCounter } from "./AnimatedCounter";
+import { v6Spring } from "@/lib/motion";
 import type { MetricCardProps } from "@/types/analytics";
 
 const cardVariants = {
@@ -21,32 +22,33 @@ const cardVariants = {
     scale: 1,
     transition: {
       type: "spring" as const,
-      stiffness: 200,
-      damping: 20,
+      stiffness: 260,
+      damping: 28,
     },
   },
 };
 
+// V6 Color styles - Pepper aesthetic
 const colorStyles = {
   saffron: {
-    icon: "bg-interactive-primary-light text-interactive-primary",
-    trend: "text-interactive-primary",
-    accent: "border-l-interactive-primary",
+    icon: "bg-v6-primary-light text-v6-primary",
+    trend: "text-v6-primary",
+    accent: "border-l-v6-primary",
   },
   jade: {
-    icon: "bg-status-success-bg text-status-success",
-    trend: "text-status-success",
-    accent: "border-l-status-success",
+    icon: "bg-v6-green/10 text-v6-green",
+    trend: "text-v6-green",
+    accent: "border-l-v6-green",
   },
   curry: {
-    icon: "bg-accent-tertiary/10 text-accent-tertiary",
-    trend: "text-accent-tertiary",
-    accent: "border-l-accent-tertiary",
+    icon: "bg-v6-secondary-light text-v6-secondary-hover",
+    trend: "text-v6-secondary-hover",
+    accent: "border-l-v6-secondary",
   },
   charcoal: {
-    icon: "bg-text-primary/10 text-text-secondary",
-    trend: "text-text-secondary",
-    accent: "border-l-text-primary",
+    icon: "bg-v6-surface-tertiary text-v6-text-secondary",
+    trend: "text-v6-text-secondary",
+    accent: "border-l-v6-text-primary",
   },
 };
 
@@ -106,37 +108,37 @@ export function MetricCard({
       animate="visible"
       whileHover={{
         y: -4,
-        boxShadow:
-          "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+        scale: 1.01,
       }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      transition={v6Spring}
       className={cn(
-        "relative overflow-hidden rounded-xl bg-surface-primary p-6 shadow-sm",
-        "border-l-4 transition-shadow",
+        "relative overflow-hidden rounded-v6-card-sm bg-v6-surface-primary p-6 shadow-v6-sm",
+        "border-l-4 transition-shadow duration-v6-fast",
+        "hover:shadow-v6-md",
         styles.accent
       )}
     >
-      {/* Loading overlay */}
+      {/* V6 Loading overlay */}
       {loading && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm"
         >
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-interactive-primary border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-v6-primary border-t-transparent" />
         </motion.div>
       )}
 
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-text-secondary">{title}</p>
+          <p className="text-sm font-v6-body font-medium text-v6-text-secondary">{title}</p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-text-primary">
+            <span className="text-3xl font-v6-display font-bold text-v6-text-primary">
               {formatValue(value)}
             </span>
           </div>
 
-          {/* Trend indicator */}
+          {/* V6 Trend indicator */}
           {calculatedTrend && calculatedTrendValue !== undefined && (
             <motion.div
               initial={{ opacity: 0, x: -10 }}
@@ -146,48 +148,48 @@ export function MetricCard({
             >
               {calculatedTrend === "up" && (
                 <>
-                  <TrendingUp className="h-4 w-4 text-status-success" />
-                  <span className="text-sm font-medium text-status-success">
+                  <TrendingUp className="h-4 w-4 text-v6-green" />
+                  <span className="text-sm font-v6-body font-medium text-v6-green">
                     +{calculatedTrendValue}%
                   </span>
                 </>
               )}
               {calculatedTrend === "down" && (
                 <>
-                  <TrendingDown className="h-4 w-4 text-status-error" />
-                  <span className="text-sm font-medium text-status-error">
+                  <TrendingDown className="h-4 w-4 text-v6-status-error" />
+                  <span className="text-sm font-v6-body font-medium text-v6-status-error">
                     {calculatedTrendValue}%
                   </span>
                 </>
               )}
               {calculatedTrend === "stable" && (
                 <>
-                  <Minus className="h-4 w-4 text-text-muted" />
-                  <span className="text-sm font-medium text-text-muted">
+                  <Minus className="h-4 w-4 text-v6-text-muted" />
+                  <span className="text-sm font-v6-body font-medium text-v6-text-muted">
                     No change
                   </span>
                 </>
               )}
-              <span className="text-xs text-text-muted">vs last period</span>
+              <span className="text-xs font-v6-body text-v6-text-muted">vs last period</span>
             </motion.div>
           )}
         </div>
 
-        {/* Icon */}
+        {/* V6 Icon */}
         {icon && (
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, type: "spring" }}
-            className={cn("rounded-xl p-3", styles.icon)}
+            className={cn("rounded-v6-card-sm p-3", styles.icon)}
           >
             {icon}
           </motion.div>
         )}
       </div>
 
-      {/* Subtle gradient overlay */}
-      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-interactive-primary/5 to-transparent" />
+      {/* V6 Subtle gradient overlay */}
+      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-v6-primary/5 to-transparent" />
     </motion.div>
   );
 }

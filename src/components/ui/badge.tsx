@@ -4,85 +4,91 @@ import { Star, AlertTriangle, Tag, CheckCircle, AlertCircle, XCircle } from "luc
 import { cn } from "@/lib/utils/cn";
 
 /**
- * V5 Badge Component
+ * V6 Badge Component - Pepper Aesthetic
+ * Pill-shaped badges with vibrant accent colors
  *
- * Semantic variants using V5 design tokens:
- * - default: Primary brand styling
- * - secondary: Muted background
- * - outline: Border only
- * - featured: Gold/star for popular items
- * - allergen: Amber/warning for dietary info
+ * Semantic variants:
+ * - default: Primary deep red
+ * - secondary: Golden yellow
+ * - outline: Border only with primary accent
+ * - featured: Golden yellow with star
+ * - allergen: Orange warning
  * - price-discount: Green for discounts
- * - price-premium: Red for surcharges
- * - status-success: Green success state
- * - status-warning: Amber warning state
- * - status-error: Red error state
- * - status-info: Blue info state
+ * - price-premium: Magenta for surcharges
+ * - status-*: Vibrant status colors
  */
 const badgeVariants = cva(
-  "inline-flex items-center gap-1 rounded-[var(--radius-md)] border px-2.5 py-0.5 text-xs font-semibold transition-colors",
+  [
+    "inline-flex items-center gap-1",
+    "rounded-v6-badge",
+    "border px-3 py-0.5",
+    "font-v6-body text-xs font-semibold",
+    "transition-colors duration-v6-fast",
+  ].join(" "),
   {
     variants: {
       variant: {
-        // Default variants
+        // V6 Default: Primary deep red
         default: [
           "border-transparent",
-          "bg-[var(--color-interactive-primary)] text-[var(--color-text-inverse)]",
+          "bg-v6-primary text-v6-text-inverse",
         ],
+        // V6 Secondary: Golden yellow
         secondary: [
-          "border-[var(--color-border-default)]",
-          "bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)]",
+          "border-transparent",
+          "bg-v6-secondary text-v6-text-primary",
         ],
+        // V6 Outline: Border with primary accent
         outline: [
-          "border-[var(--color-border-default)]",
-          "bg-transparent text-[var(--color-text-primary)]",
+          "border-v6-primary",
+          "bg-transparent text-v6-primary",
         ],
 
-        // Featured/Popular - Gold
+        // Featured/Popular - Golden yellow with glow
         featured: [
           "border-transparent",
-          "bg-[var(--color-interactive-primary)] text-[var(--color-text-primary)]",
-          "shadow-[var(--elevation-1)]",
+          "bg-v6-secondary text-v6-text-primary",
+          "shadow-v6-sm",
         ],
 
-        // Allergen/Warning - Amber
+        // Allergen/Warning - Orange
         allergen: [
-          "border-[var(--color-status-warning)]/30",
-          "bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning)]",
+          "border-v6-orange/30",
+          "bg-v6-orange-light text-v6-orange",
         ],
 
         // Price modifiers
         "price-discount": [
-          "border-[var(--color-status-success)]/30",
-          "bg-[var(--color-status-success-bg)] text-[var(--color-status-success)]",
+          "border-v6-green/30",
+          "bg-v6-green-light text-v6-green",
         ],
         "price-premium": [
-          "border-[var(--color-status-error)]/30",
-          "bg-[var(--color-status-error-bg)] text-[var(--color-status-error)]",
+          "border-v6-magenta/30",
+          "bg-v6-magenta-light text-v6-magenta",
         ],
 
-        // Status variants
+        // Status variants - V6 vibrant colors
         "status-success": [
-          "border-[var(--color-status-success)]/30",
-          "bg-[var(--color-status-success-bg)] text-[var(--color-status-success)]",
+          "border-v6-green/30",
+          "bg-v6-green-light text-v6-green",
         ],
         "status-warning": [
-          "border-[var(--color-status-warning)]/30",
-          "bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning)]",
+          "border-v6-orange/30",
+          "bg-v6-orange-light text-v6-orange",
         ],
         "status-error": [
-          "border-[var(--color-status-error)]/30",
-          "bg-[var(--color-status-error-bg)] text-[var(--color-status-error)]",
+          "border-v6-status-error/30",
+          "bg-v6-status-error-bg text-v6-status-error",
         ],
         "status-info": [
-          "border-[var(--color-status-info)]/30",
-          "bg-[var(--color-status-info-bg)] text-[var(--color-status-info)]",
+          "border-v6-teal/30",
+          "bg-v6-teal-light text-v6-teal",
         ],
       },
       size: {
         sm: "px-2 py-0.5 text-[10px]",
-        default: "px-2.5 py-0.5 text-xs",
-        lg: "px-3 py-1 text-sm",
+        default: "px-3 py-0.5 text-xs",
+        lg: "px-4 py-1 text-sm",
       },
     },
     defaultVariants: {

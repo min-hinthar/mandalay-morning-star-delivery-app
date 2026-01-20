@@ -1,6 +1,13 @@
+/**
+ * V6 Time Step - Pepper Aesthetic
+ *
+ * Checkout step for selecting delivery time window.
+ * V6 colors, typography, and micro-interactions.
+ */
+
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Clock } from "lucide-react";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useTimeSlot } from "@/lib/hooks/useTimeSlot";
 import { TimeSlotPicker } from "./TimeSlotPicker";
@@ -22,9 +29,15 @@ export function TimeStep() {
 
   return (
     <div className="space-y-6">
+      {/* V6 Header */}
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Delivery Time</h2>
-        <p className="text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 mb-1">
+          <Clock className="h-5 w-5 text-v6-primary" />
+          <h2 className="font-v6-display text-lg font-semibold text-v6-text-primary">
+            Delivery Time
+          </h2>
+        </div>
+        <p className="font-v6-body text-sm text-v6-text-secondary">
           Choose your preferred delivery window
         </p>
       </div>
@@ -34,15 +47,17 @@ export function TimeStep() {
         onSelect={handleSelectWindow}
       />
 
-      <div className="flex justify-between pt-4 border-t border-border">
+      {/* V6 Navigation */}
+      <div className="flex justify-between pt-4 border-t border-v6-border">
         <Button variant="ghost" onClick={prevStep}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
         <Button
+          variant="primary"
           onClick={nextStep}
           disabled={!canProceed()}
-          className="bg-primary hover:bg-brand-red/90"
+          size="lg"
         >
           Continue to Payment
         </Button>

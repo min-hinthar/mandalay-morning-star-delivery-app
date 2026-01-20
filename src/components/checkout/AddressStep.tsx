@@ -1,12 +1,21 @@
+/**
+ * V6 Address Step - Pepper Aesthetic
+ *
+ * Checkout step for selecting/adding delivery address.
+ * V6 colors, typography, and micro-interactions.
+ */
+
 "use client";
 
 import { useState } from "react";
-import { Loader2, Plus } from "lucide-react";
+import { motion } from "framer-motion";
+import { Loader2, Plus, MapPin } from "lucide-react";
 import { useAddresses, useCreateAddress } from "@/lib/hooks/useAddresses";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { AddressForm } from "./AddressForm";
 import { AddressCard } from "./AddressCard";
 import { Button } from "@/components/ui/button";
+import { v6StaggerContainer, v6StaggerItem } from "@/lib/motion";
 import type { Address } from "@/types/address";
 import type { AddressFormValues } from "@/lib/validations/address";
 
@@ -38,36 +47,56 @@ export function AddressStep() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <Loader2 className="h-6 w-6 animate-spin text-v6-primary" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {/* V6 Header */}
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Delivery Address</h2>
-        <p className="text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 mb-1">
+          <MapPin className="h-5 w-5 text-v6-primary" />
+          <h2 className="font-v6-display text-lg font-semibold text-v6-text-primary">
+            Delivery Address
+          </h2>
+        </div>
+        <p className="font-v6-body text-sm text-v6-text-secondary">
           Select or add a delivery address
         </p>
       </div>
 
+      {/* V6 Address Cards with Stagger Animation */}
       {addresses.length > 0 && !showForm && (
-        <div className="space-y-3">
+        <motion.div
+          variants={v6StaggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="space-y-3"
+        >
           {addresses.map((addr) => (
-            <AddressCard
-              key={addr.id}
-              address={addr}
-              isSelected={address?.id === addr.id}
-              onSelect={() => handleSelectAddress(addr)}
-            />
+            <motion.div key={addr.id} variants={v6StaggerItem}>
+              <AddressCard
+                address={addr}
+                isSelected={address?.id === addr.id}
+                onSelect={() => handleSelectAddress(addr)}
+              />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
 
+      {/* V6 Add Address Form */}
       {showForm ? (
-        <div className="rounded-lg border border-border p-4">
-          <h3 className="mb-4 font-medium text-foreground">Add New Address</h3>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-v6-card border border-v6-border bg-v6-surface-primary p-5 shadow-v6-sm"
+        >
+          <h3 className="mb-4 font-v6-display font-semibold text-v6-text-primary">
+            Add New Address
+          </h3>
           <AddressForm
             onSubmit={handleCreateAddress}
             onCancel={() => {
@@ -77,7 +106,7 @@ export function AddressStep() {
             isLoading={createAddress.isPending}
             error={formError}
           />
-        </div>
+        </motion.div>
       ) : (
         <Button
           variant="outline"
@@ -89,11 +118,13 @@ export function AddressStep() {
         </Button>
       )}
 
-      <div className="flex justify-center pt-4 border-t border-border">
+      {/* V6 Continue Button */}
+      <div className="flex justify-center pt-4 border-t border-v6-border">
         <Button
+          variant="primary"
           onClick={nextStep}
           disabled={!canProceed()}
-          className="bg-primary hover:bg-brand-red/90"
+          size="lg"
         >
           Continue to Time Selection
         </Button>

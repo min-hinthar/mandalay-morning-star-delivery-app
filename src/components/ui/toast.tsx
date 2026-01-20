@@ -1,6 +1,16 @@
+/**
+ * V6 Toast System - Pepper Aesthetic
+ *
+ * Features:
+ * - V6 color palette for variants
+ * - Slide-in animation from edge
+ * - Rounded corners with V6 card radius
+ * - Auto-dismiss: 3s (success), 5s (error), persist (action needed)
+ */
+
 import * as React from "react";
 import * as ToastPrimitives from "@radix-ui/react-toast";
-import { X } from "lucide-react";
+import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils/cn";
@@ -14,7 +24,9 @@ const ToastViewport = React.forwardRef<
   <ToastPrimitives.Viewport
     ref={ref}
     className={cn(
-      "fixed top-0 z-[var(--z-toast)] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
+      // V6 Position: top-center on mobile, bottom-right on desktop
+      "fixed z-[var(--z-toast)] flex max-h-screen w-full flex-col p-4",
+      "top-0 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col-reverse md:max-w-[420px]",
       className
     )}
     {...props}
@@ -22,15 +34,55 @@ const ToastViewport = React.forwardRef<
 ));
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
+/**
+ * V6 Toast Variants
+ * - default: Neutral background
+ * - success: V6 green with checkmark
+ * - error: V6 status-error for destructive
+ * - warning: V6 accent-orange
+ * - info: V6 accent-teal
+ */
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden rounded-md border p-4 shadow-lg transition-all",
+  [
+    "group pointer-events-auto relative flex w-full items-center gap-3",
+    "overflow-hidden p-4",
+    // V6 Card styling
+    "rounded-v6-card-sm border shadow-v6-elevated",
+    // V6 Motion: Slide in animation
+    "data-[state=open]:animate-in data-[state=closed]:animate-out",
+    "data-[state=open]:slide-in-from-top-full sm:data-[state=open]:slide-in-from-bottom-full",
+    "data-[state=closed]:slide-out-to-right-full",
+    "data-[state=closed]:fade-out-80",
+    "transition-all duration-v6-normal",
+  ].join(" "),
   {
     variants: {
       variant: {
-        default: "border-border bg-background text-foreground",
-        destructive: "border-destructive/50 bg-destructive text-destructive-foreground",
-        success: "border-[var(--color-jade)]/50 bg-[var(--color-jade)] text-white",
-        warning: "border-[var(--color-warning)]/50 bg-[var(--color-warning)] text-[var(--color-charcoal)]",
+        // V6 Default: Neutral surface
+        default: [
+          "bg-v6-surface-primary border-v6-border",
+          "text-v6-text-primary",
+        ].join(" "),
+        // V6 Success: Green accent
+        success: [
+          "bg-v6-green/10 border-v6-green/30",
+          "text-v6-text-primary",
+        ].join(" "),
+        // V6 Destructive/Error: Status error
+        destructive: [
+          "bg-v6-status-error/10 border-v6-status-error/30",
+          "text-v6-text-primary",
+        ].join(" "),
+        // V6 Warning: Orange accent
+        warning: [
+          "bg-v6-accent-orange/10 border-v6-accent-orange/30",
+          "text-v6-text-primary",
+        ].join(" "),
+        // V6 Info: Teal accent
+        info: [
+          "bg-v6-accent-teal/10 border-v6-accent-teal/30",
+          "text-v6-text-primary",
+        ].join(" "),
       },
     },
     defaultVariants: {
@@ -39,17 +91,45 @@ const toastVariants = cva(
   }
 );
 
+// V6 Icon mapping for toast variants
+const toastIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  success: CheckCircle,
+  destructive: AlertCircle,
+  warning: AlertTriangle,
+  info: Info,
+};
+
+const toastIconColors: Record<string, string> = {
+  success: "text-v6-green",
+  destructive: "text-v6-status-error",
+  warning: "text-v6-accent-orange",
+  info: "text-v6-accent-teal",
+};
+
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
     VariantProps<typeof toastVariants>
->(({ className, variant, ...props }, ref) => (
-  <ToastPrimitives.Root
-    ref={ref}
-    className={cn(toastVariants({ variant }), className)}
-    {...props}
-  />
-));
+>(({ className, variant, children, ...props }, ref) => {
+  const Icon = variant ? toastIcons[variant] : null;
+  const iconColor = variant ? toastIconColors[variant] : "";
+
+  return (
+    <ToastPrimitives.Root
+      ref={ref}
+      className={cn(toastVariants({ variant }), className)}
+      {...props}
+    >
+      {/* V6 Icon for variant toasts */}
+      {Icon && (
+        <div className="flex-shrink-0">
+          <Icon className={cn("h-5 w-5", iconColor)} />
+        </div>
+      )}
+      <div className="flex-1">{children}</div>
+    </ToastPrimitives.Root>
+  );
+});
 Toast.displayName = ToastPrimitives.Root.displayName;
 
 const ToastAction = React.forwardRef<
@@ -59,7 +139,15 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cn(
-      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+      // V6 Action button styling
+      "inline-flex h-8 shrink-0 items-center justify-center",
+      "rounded-v6-button px-3",
+      "font-v6-body text-sm font-medium",
+      "border border-v6-border bg-v6-surface-primary",
+      "transition-all duration-v6-fast",
+      "hover:bg-v6-surface-secondary hover:border-v6-primary",
+      "active:scale-[0.98]",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary",
       className
     )}
     {...props}
@@ -74,7 +162,13 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      "absolute right-2 top-2 rounded-md p-1 text-foreground/60 opacity-0 transition-opacity group-hover:opacity-100",
+      // V6 Close button styling
+      "absolute right-2 top-2 rounded-v6-button p-1.5",
+      "text-v6-text-muted opacity-0",
+      "transition-all duration-v6-fast",
+      "hover:text-v6-text-primary hover:bg-v6-surface-secondary",
+      "group-hover:opacity-100",
+      "focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary",
       className
     )}
     {...props}
@@ -90,7 +184,11 @@ const ToastTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Title
     ref={ref}
-    className={cn("text-sm font-semibold", className)}
+    className={cn(
+      // V6 Typography
+      "font-v6-body text-sm font-semibold text-v6-text-primary",
+      className
+    )}
     {...props}
   />
 ));
@@ -102,7 +200,11 @@ const ToastDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Description
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn(
+      // V6 Typography
+      "font-v6-body text-sm text-v6-text-secondary",
+      className
+    )}
     {...props}
   />
 ));
@@ -116,4 +218,5 @@ export {
   ToastDescription,
   ToastClose,
   ToastAction,
+  toastVariants,
 };
