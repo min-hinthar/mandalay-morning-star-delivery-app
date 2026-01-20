@@ -122,7 +122,7 @@ function MobileNavItem({ href, label, icon, badge, index, isActive, onClick }: M
             "transition-colors duration-150",
             isActive
               ? "bg-v6-primary/10 text-v6-primary"
-              : "text-neutral-700 hover:bg-neutral-100"
+              : "text-v6-text-primary hover:bg-v6-surface-secondary"
           )}
           whileHover={shouldAnimate ? { x: 8, scale: 1.01 } : undefined}
           whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
@@ -132,7 +132,7 @@ function MobileNavItem({ href, label, icon, badge, index, isActive, onClick }: M
           <motion.span
             className={cn(
               "flex items-center justify-center w-10 h-10 rounded-lg",
-              isActive ? "bg-v6-primary/10" : "bg-neutral-100"
+              isActive ? "bg-v6-primary/10" : "bg-v6-surface-tertiary"
             )}
             animate={shouldAnimate && isActive ? {
               boxShadow: ["0 0 0 0 rgba(164,16,52,0.3)", "0 0 0 8px rgba(164,16,52,0)", "0 0 0 0 rgba(164,16,52,0)"],
@@ -189,13 +189,13 @@ function QuickInfo() {
 
   return (
     <motion.div
-      className="mt-4 p-4 bg-neutral-50 rounded-xl space-y-3"
+      className="mt-4 p-4 bg-v6-surface-secondary rounded-xl space-y-3"
       variants={v7StaggerItem}
     >
       {infoItems.map((item, index) => (
         <motion.div
           key={index}
-          className="flex items-center gap-3 text-sm text-neutral-600"
+          className="flex items-center gap-3 text-sm text-v6-text-secondary"
           whileHover={shouldAnimate ? { x: 4 } : undefined}
           transition={getSpring(v7Spring.snappy)}
         >
@@ -305,7 +305,7 @@ export function MobileNavV7({
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 z-modal-backdrop bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[var(--z-popover)] bg-black/40"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -318,7 +318,7 @@ export function MobileNavV7({
           <motion.nav
             ref={navRef}
             className={cn(
-              "fixed z-modal bg-white shadow-2xl",
+              "fixed z-[var(--z-tooltip)] bg-white shadow-2xl",
               "flex flex-col",
               direction === "left" && "left-0 top-0 bottom-0 w-[85%] max-w-sm rounded-r-2xl",
               direction === "right" && "right-0 top-0 bottom-0 w-[85%] max-w-sm rounded-l-2xl",
@@ -340,7 +340,7 @@ export function MobileNavV7({
             {/* Drag handle indicator */}
             {direction === "top" && (
               <div className="flex justify-center py-3">
-                <div className="w-10 h-1 rounded-full bg-neutral-300" />
+                <div className="w-10 h-1 rounded-full bg-v6-border-strong" />
               </div>
             )}
 
@@ -348,7 +348,7 @@ export function MobileNavV7({
             <BurmeseBorder className={direction === "top" ? "order-last" : ""} />
 
             {/* Header with user info */}
-            <div className="p-4 border-b border-neutral-100">
+            <div className="p-4 border-b border-v6-border-subtle">
               {user ? (
                 <motion.div
                   className="flex items-center gap-3"
@@ -374,11 +374,11 @@ export function MobileNavV7({
                     )}
                   </motion.div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-neutral-900 truncate">
+                    <p className="font-semibold text-v6-text-primary truncate">
                       {user.name || "Guest"}
                     </p>
                     {user.email && (
-                      <p className="text-sm text-neutral-500 truncate">{user.email}</p>
+                      <p className="text-sm text-v6-text-muted truncate">{user.email}</p>
                     )}
                   </div>
                 </motion.div>
@@ -428,7 +428,7 @@ export function MobileNavV7({
 
             {/* Footer links */}
             <motion.div
-              className="p-4 border-t border-neutral-100 bg-neutral-50/50"
+              className="p-4 border-t border-v6-border-subtle bg-v6-surface-secondary/50"
               initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
               animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
               transition={{ delay: 0.3, ...getSpring(v7Spring.gentle) }}
@@ -448,7 +448,7 @@ export function MobileNavV7({
               </div>
 
               {/* Copyright */}
-              <p className="mt-3 text-center text-[10px] text-neutral-400">
+              <p className="mt-3 text-center text-[10px] text-v6-text-muted">
                 Made with love in Seattle
               </p>
             </motion.div>

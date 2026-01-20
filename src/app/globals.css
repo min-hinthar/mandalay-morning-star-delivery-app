@@ -57,7 +57,7 @@
 
 :root {
   --radius: 0.75rem;
-  --background: #fdf8f0;
+  --background: #ffffff;
   --foreground: #1a1a1a;
   --card: #ffffff;
   --card-foreground: #1a1a1a;
@@ -65,28 +65,28 @@
   --popover-foreground: #1a1a1a;
   --primary: #8b1a1a;
   --primary-foreground: #ffffff;
-  --secondary: #f5e6c8;
+  --secondary: #FFF7E6;
   --secondary-foreground: #1a1a1a;
-  --muted: #f8f5f0;
+  --muted: #F9FAFB;
   --muted-foreground: #5a5a5a;
   --accent: #d4af37;
   --accent-foreground: #1a1a1a;
   --destructive: #dc2626;
-  --border: #e5ddd0;
-  --input: #e5ddd0;
+  --border: #E5E7EB;
+  --input: #E5E7EB;
   --ring: #8b1a1a;
   --chart-1: #8b1a1a;
   --chart-2: #34a853;
   --chart-3: #d4af37;
   --chart-4: #a83232;
   --chart-5: #b8960c;
-  --sidebar: #fdf8f0;
+  --sidebar: #ffffff;
   --sidebar-foreground: #1a1a1a;
   --sidebar-primary: #8b1a1a;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f5e6c8;
+  --sidebar-accent: #FFF7E6;
   --sidebar-accent-foreground: #1a1a1a;
-  --sidebar-border: #e5ddd0;
+  --sidebar-border: #E5E7EB;
   --sidebar-ring: #8b1a1a;
 }
 
@@ -147,45 +147,64 @@
     display: none;
   }
 
-  /* Animated gradient background - Burmese theme */
+  /* Animated gradient background - Burmese theme (V7 tokens) */
   .bg-gradient-animated {
-    background: linear-gradient(-45deg, #8b1a1a, #d4af37, #8b4513, #2e8b57);
+    background: linear-gradient(
+      -45deg,
+      var(--color-v6-primary),
+      var(--color-v6-secondary),
+      var(--color-v6-accent-orange),
+      var(--color-v6-accent-green)
+    );
     background-size: 400% 400%;
     animation: gradient-shift 15s ease infinite;
   }
 
-  /* Gold text gradient */
+  /* Gold text gradient (V7 tokens) */
   .text-gradient-gold {
-    background: linear-gradient(135deg, #d4af37 0%, #b8960c 50%, #d4af37 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-v6-secondary) 0%,
+      var(--color-v6-secondary-hover) 50%,
+      var(--color-v6-secondary) 100%
+    );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Saffron text gradient */
+  /* Saffron text gradient (V7 tokens) */
   .text-gradient-saffron {
-    background: linear-gradient(135deg, #d4a017 0%, #e8c547 50%, #d4a017 100%);
+    background: linear-gradient(
+      135deg,
+      var(--color-v6-secondary-hover) 0%,
+      var(--color-v6-secondary) 50%,
+      var(--color-v6-secondary-hover) 100%
+    );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Glassmorphism effect */
+  /* Glassmorphism effect (V7 tokens, dark text for contrast) */
   .glass {
-    background: rgba(255, 255, 255, 0.7);
+    background: color-mix(in srgb, var(--color-v6-surface-primary) 85%, transparent);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid var(--color-v6-border-subtle);
+    color: var(--color-v6-text-primary);
   }
 
+  /* Dark glass (V7 tokens, light text for contrast) */
   .glass-dark {
-    background: rgba(26, 26, 26, 0.7);
+    background: color-mix(in srgb, var(--color-v6-text-primary) 85%, transparent);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--color-v6-border-strong);
+    color: var(--color-v6-text-inverse);
   }
 
-  /* Button glow effect on hover */
+  /* Button glow effect on hover (V7 tokens) */
   .btn-glow {
     position: relative;
     overflow: hidden;
@@ -198,37 +217,35 @@
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.4),
+      var(--color-v6-secondary-light),
       transparent
     );
     transform: translateX(-100%);
-    transition: transform 0.6s ease;
+    transition: transform var(--duration-v6-slow) var(--ease-v6-out);
   }
 
   .btn-glow:hover::before {
     transform: translateX(100%);
   }
 
-  /* Premium card hover effect */
+  /* Premium card hover effect (V7 tokens) */
   .card-hover {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--duration-v6-normal) var(--ease-v6-default);
   }
 
   .card-hover:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow:
-      0 25px 50px -12px rgba(139, 69, 19, 0.25),
-      0 0 15px rgba(212, 175, 55, 0.1);
+    transform: var(--transform-v6-hover-lift) var(--transform-v6-hover-scale);
+    box-shadow: var(--shadow-v6-elevated);
   }
 
-  /* Burmese decorative border */
+  /* Burmese decorative border (V7 tokens) */
   .burmese-border {
     border-image: linear-gradient(
         90deg,
         transparent 0%,
-        #d4af37 20%,
-        #8b1a1a 50%,
-        #d4af37 80%,
+        var(--color-v6-secondary) 20%,
+        var(--color-v6-primary) 50%,
+        var(--color-v6-secondary) 80%,
         transparent 100%
       )
       1;
@@ -244,17 +261,17 @@
     animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
-  /* Image zoom on hover container */
+  /* Image zoom on hover container (V7 tokens) */
   .img-zoom-container {
     overflow: hidden;
   }
 
   .img-zoom-container img {
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--duration-v6-slow) var(--ease-v6-default);
   }
 
   .img-zoom-container:hover img {
-    transform: scale(1.1);
+    transform: var(--transform-v6-image-zoom);
   }
 
   /* Stagger animation delays for lists */

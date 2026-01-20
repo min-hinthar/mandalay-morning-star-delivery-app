@@ -346,10 +346,10 @@ function CarouselArrow({
         "absolute top-1/2 -translate-y-1/2 z-10",
         "w-10 h-10 rounded-full",
         "bg-white/90 backdrop-blur-sm",
-        "border border-neutral-200/60",
-        "shadow-lg shadow-neutral-900/10",
+        "border border-v6-border-default/60",
+        "shadow-lg shadow-v6-text-primary/10",
         "flex items-center justify-center",
-        "text-neutral-700 hover:text-v6-primary",
+        "text-v6-text-primary hover:text-v6-primary",
         "transition-colors duration-150",
         "disabled:opacity-40 disabled:cursor-not-allowed",
         isPrev ? "left-3" : "right-3"
@@ -407,7 +407,7 @@ function CarouselDots({
               "h-2 rounded-full transition-colors duration-150",
               isActive
                 ? "bg-v6-primary"
-                : "bg-neutral-300 hover:bg-neutral-400"
+                : "bg-v6-border-strong hover:bg-v6-text-muted"
             )}
             animate={
               shouldAnimate
@@ -475,7 +475,7 @@ export function CategoryCarousel({
               "transition-colors duration-150",
               isActive
                 ? "bg-v6-primary text-white shadow-lg shadow-v6-primary/30"
-                : "bg-white border border-neutral-200 text-neutral-700 hover:border-v6-primary/30"
+                : "bg-white border border-v6-border-default text-v6-text-primary hover:border-v6-primary/30"
             )}
             whileHover={shouldAnimate ? { y: -2 } : undefined}
             whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
@@ -495,7 +495,7 @@ export function CategoryCarousel({
                   "text-xs px-2 py-0.5 rounded-full",
                   isActive
                     ? "bg-white/20 text-white"
-                    : "bg-neutral-100 text-neutral-500"
+                    : "bg-v6-surface-tertiary text-v6-text-muted"
                 )}
               >
                 {category.count}
