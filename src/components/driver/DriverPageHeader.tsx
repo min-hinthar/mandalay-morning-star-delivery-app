@@ -1,3 +1,10 @@
+/**
+ * V6 Driver Page Header - Pepper Aesthetic
+ *
+ * Composed header with optional high-contrast toggle.
+ * Wraps DriverHeader and adds V6-styled contrast toggle by default.
+ */
+
 "use client";
 
 import { DriverHeader } from "./DriverHeader";
@@ -13,12 +20,6 @@ interface DriverPageHeaderProps {
   className?: string;
 }
 
-/**
- * Driver page header with optional high-contrast toggle
- *
- * Wraps DriverHeader and adds the contrast toggle by default.
- * Set showContrastToggle={false} to hide the toggle.
- */
 export function DriverPageHeader({
   title,
   subtitle,

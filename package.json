@@ -22,7 +22,13 @@
     "analyze:server": "ANALYZE=true BUNDLE_ANALYZE=server next build",
     "analyze:browser": "ANALYZE=true BUNDLE_ANALYZE=browser next build",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "chromatic": "chromatic --project-token=${CHROMATIC_PROJECT_TOKEN}",
+    "lighthouse": "lhci autorun",
+    "lighthouse:ci": "lhci autorun --collect.startServerCommand='pnpm start' --collect.url=http://localhost:3000",
+    "test:animations": "playwright test e2e/animations/",
+    "test:a11y": "playwright test e2e/accessibility.spec.ts e2e/animations/v7-accessibility.spec.ts",
+    "perf:check": "pnpm build && pnpm lighthouse"
   },
   "dependencies": {
     "@conform-to/react": "^1.15.1",

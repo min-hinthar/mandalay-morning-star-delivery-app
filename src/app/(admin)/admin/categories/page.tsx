@@ -1,6 +1,14 @@
+/**
+ * V6 Admin Categories Page - Pepper Aesthetic
+ *
+ * Category management page with V6 colors, typography, and animations.
+ * Features stats cards, reorder controls, and categories table.
+ */
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
 import {
   Plus,
   RefreshCw,
@@ -11,13 +19,15 @@ import {
   Trash2,
   AlertCircle,
   Loader2,
+  FolderTree,
+  CheckCircle,
+  UtensilsCrossed,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -245,22 +255,33 @@ export default function AdminCategoriesPage() {
   if (loading) {
     return (
       <div className="p-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 w-48 bg-muted rounded" />
-          <div className="h-4 w-64 bg-muted rounded" />
-          <div className="h-64 bg-muted rounded" />
+        <div className="animate-pulse space-y-6">
+          <div className="h-10 w-48 bg-v6-surface-tertiary rounded-v6-input" />
+          <div className="h-4 w-64 bg-v6-surface-tertiary rounded-v6-input" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-24 bg-v6-surface-tertiary rounded-v6-card-sm" />
+            ))}
+          </div>
+          <div className="h-96 bg-v6-surface-tertiary rounded-v6-card-sm" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
-          <h1 className="text-3xl font-display text-charcoal">Categories</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl md:text-4xl font-v6-display font-bold text-v6-text-primary">
+            Categories
+          </h1>
+          <p className="font-v6-body text-v6-text-secondary mt-1">
             Manage menu categories, order, and visibility
           </p>
         </div>
@@ -269,6 +290,7 @@ export default function AdminCategoriesPage() {
             variant="outline"
             onClick={handleRefresh}
             disabled={refreshing}
+            className="border-v6-border hover:bg-v6-surface-tertiary"
           >
             <RefreshCw
               className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
@@ -277,22 +299,32 @@ export default function AdminCategoriesPage() {
           </Button>
           <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="bg-v6-primary hover:bg-v6-primary-hover text-white shadow-v6-sm">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Category
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[425px] bg-v6-surface-primary border-v6-border rounded-v6-card">
               <DialogHeader>
-                <DialogTitle>Add New Category</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="flex items-center gap-2 font-v6-display text-2xl text-v6-text-primary">
+                  <div className="p-2 rounded-v6-input bg-v6-primary text-white">
+                    <FolderTree className="h-5 w-5" />
+                  </div>
+                  Add New Category
+                </DialogTitle>
+                <DialogDescription className="font-v6-body text-v6-text-secondary">
                   Create a new menu category. Categories are used to organize
                   menu items.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
+                  <Label
+                    htmlFor="name"
+                    className="text-sm font-v6-body font-medium text-v6-text-primary"
+                  >
+                    Name
+                  </Label>
                   <Input
                     id="name"
                     placeholder="e.g., Appetizers"
@@ -304,10 +336,16 @@ export default function AdminCategoriesPage() {
                         slug: generateSlug(name),
                       });
                     }}
+                    className="bg-v6-surface-primary border-v6-border focus:border-v6-primary focus:ring-v6-primary/20 rounded-v6-input"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="slug">Slug</Label>
+                  <Label
+                    htmlFor="slug"
+                    className="text-sm font-v6-body font-medium text-v6-text-primary"
+                  >
+                    Slug
+                  </Label>
                   <Input
                     id="slug"
                     placeholder="e.g., appetizers"
@@ -318,20 +356,26 @@ export default function AdminCategoriesPage() {
                         slug: e.target.value.toLowerCase(),
                       }))
                     }
+                    className="bg-v6-surface-primary border-v6-border focus:border-v6-primary focus:ring-v6-primary/20 rounded-v6-input font-mono"
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs font-v6-body text-v6-text-muted">
                     URL-friendly identifier. Lowercase, no spaces.
                   </p>
                 </div>
               </div>
-              <DialogFooter>
+              <DialogFooter className="gap-2">
                 <Button
                   variant="outline"
                   onClick={() => setAddDialogOpen(false)}
+                  className="border-v6-border hover:bg-v6-surface-tertiary"
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleCreateCategory} disabled={creating}>
+                <Button
+                  onClick={handleCreateCategory}
+                  disabled={creating}
+                  className="bg-v6-primary hover:bg-v6-primary-hover text-white shadow-v6-sm"
+                >
                   {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Create Category
                 </Button>
@@ -339,153 +383,195 @@ export default function AdminCategoriesPage() {
             </DialogContent>
           </Dialog>
         </div>
-      </div>
+      </motion.div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3 mb-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Categories
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{categories.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {activeCount}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+      >
+        {/* Total Categories */}
+        <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-surface-secondary border border-v6-border p-4 shadow-v6-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-v6-primary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="relative">
+            <div className="flex items-center gap-2 text-v6-primary">
+              <FolderTree className="h-5 w-5" />
+              <span className="text-sm font-v6-body font-medium">Total Categories</span>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Items</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-brand-red">{totalItems}</div>
-          </CardContent>
-        </Card>
-      </div>
+            <p className="text-3xl font-v6-display font-bold text-v6-text-primary mt-2">
+              {categories.length}
+            </p>
+          </div>
+        </div>
+
+        {/* Active Categories */}
+        <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-green/5 border border-v6-green/20 p-4 shadow-v6-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-v6-green/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="relative">
+            <div className="flex items-center gap-2 text-v6-green">
+              <CheckCircle className="h-5 w-5" />
+              <span className="text-sm font-v6-body font-medium">Active</span>
+            </div>
+            <p className="text-3xl font-v6-display font-bold text-v6-text-primary mt-2">
+              {activeCount}
+            </p>
+          </div>
+        </div>
+
+        {/* Total Items */}
+        <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-secondary/5 border border-v6-secondary/20 p-4 shadow-v6-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-v6-secondary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="relative">
+            <div className="flex items-center gap-2 text-v6-primary">
+              <UtensilsCrossed className="h-5 w-5" />
+              <span className="text-sm font-v6-body font-medium">Total Items</span>
+            </div>
+            <p className="text-3xl font-v6-display font-bold text-v6-text-primary mt-2">
+              {totalItems}
+            </p>
+          </div>
+        </div>
+      </motion.div>
 
       {/* Categories Table */}
-      {categories.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-lg border">
-          <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-lg font-medium text-charcoal mb-2">
-            No categories yet
-          </h2>
-          <p className="text-muted-foreground">
-            Add your first category to start organizing menu items
-          </p>
-        </div>
-      ) : (
-        <div className="rounded-md border bg-white">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[80px]">Order</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead className="text-center">Items</TableHead>
-                <TableHead className="text-center">Status</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {categories.map((category, index) => {
-                const isUpdating = updatingId === category.id;
-                const isFirst = index === 0;
-                const isLast = index === categories.length - 1;
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        {categories.length === 0 ? (
+          <div className="text-center py-16 bg-v6-surface-secondary rounded-v6-card-sm border border-v6-border">
+            <AlertCircle className="h-12 w-12 text-v6-text-muted mx-auto mb-4" />
+            <h2 className="text-lg font-v6-display font-medium text-v6-text-primary mb-2">
+              No categories yet
+            </h2>
+            <p className="font-v6-body text-v6-text-secondary">
+              Add your first category to start organizing menu items
+            </p>
+          </div>
+        ) : (
+          <div className="rounded-v6-card-sm border border-v6-border bg-v6-surface-primary overflow-hidden shadow-v6-sm">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-v6-surface-secondary hover:bg-v6-surface-secondary">
+                  <TableHead className="w-[80px] font-v6-body font-medium text-v6-text-secondary">
+                    Order
+                  </TableHead>
+                  <TableHead className="font-v6-body font-medium text-v6-text-secondary">
+                    Name
+                  </TableHead>
+                  <TableHead className="font-v6-body font-medium text-v6-text-secondary">
+                    Slug
+                  </TableHead>
+                  <TableHead className="text-center font-v6-body font-medium text-v6-text-secondary">
+                    Items
+                  </TableHead>
+                  <TableHead className="text-center font-v6-body font-medium text-v6-text-secondary">
+                    Status
+                  </TableHead>
+                  <TableHead className="w-[100px] font-v6-body font-medium text-v6-text-secondary">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {categories.map((category, index) => {
+                  const isUpdating = updatingId === category.id;
+                  const isFirst = index === 0;
+                  const isLast = index === categories.length - 1;
 
-                return (
-                  <TableRow
-                    key={category.id}
-                    className={cn(
-                      !category.is_active && "opacity-50",
-                      isUpdating && "opacity-70"
-                    )}
-                  >
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
+                  return (
+                    <TableRow
+                      key={category.id}
+                      className={cn(
+                        "hover:bg-v6-surface-secondary/50 transition-colors duration-v6-fast",
+                        !category.is_active && "opacity-50",
+                        isUpdating && "opacity-70"
+                      )}
+                    >
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 hover:bg-v6-surface-tertiary"
+                            onClick={() => handleMove(category, "up")}
+                            disabled={isFirst || isUpdating}
+                          >
+                            <ChevronUp className="h-4 w-4 text-v6-text-secondary" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 hover:bg-v6-surface-tertiary"
+                            onClick={() => handleMove(category, "down")}
+                            disabled={isLast || isUpdating}
+                          >
+                            <ChevronDown className="h-4 w-4 text-v6-text-secondary" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-v6-body font-medium text-v6-text-primary">
+                        {category.name}
+                      </TableCell>
+                      <TableCell>
+                        <code className="text-xs bg-v6-surface-tertiary px-2 py-1 rounded-v6-input font-mono text-v6-text-secondary">
+                          {category.slug}
+                        </code>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge
+                          variant="outline"
+                          className="border-v6-border text-v6-text-secondary font-v6-body"
+                        >
+                          {category.item_count}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-6 w-6 p-0"
-                          onClick={() => handleMove(category, "up")}
-                          disabled={isFirst || isUpdating}
+                          onClick={() => handleToggleActive(category)}
+                          disabled={isUpdating}
+                          className="p-1 hover:bg-transparent"
                         >
-                          <ChevronUp className="h-4 w-4" />
+                          {category.is_active ? (
+                            <ToggleRight className="h-6 w-6 text-v6-green" />
+                          ) : (
+                            <ToggleLeft className="h-6 w-6 text-v6-text-muted" />
+                          )}
                         </Button>
+                      </TableCell>
+                      <TableCell>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-6 w-6 p-0"
-                          onClick={() => handleMove(category, "down")}
-                          disabled={isLast || isUpdating}
+                          onClick={() => handleDelete(category)}
+                          disabled={isUpdating || category.item_count > 0}
+                          className={cn(
+                            "p-1 hover:bg-v6-status-error/10",
+                            category.item_count > 0 &&
+                              "opacity-30 cursor-not-allowed"
+                          )}
+                          title={
+                            category.item_count > 0
+                              ? "Cannot delete: has menu items"
+                              : "Delete category"
+                          }
                         >
-                          <ChevronDown className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4 text-v6-status-error" />
                         </Button>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {category.name}
-                    </TableCell>
-                    <TableCell>
-                      <code className="text-xs bg-muted px-2 py-1 rounded">
-                        {category.slug}
-                      </code>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant="outline">{category.item_count}</Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleToggleActive(category)}
-                        disabled={isUpdating}
-                        className="p-1"
-                      >
-                        {category.is_active ? (
-                          <ToggleRight className="h-6 w-6 text-green-600" />
-                        ) : (
-                          <ToggleLeft className="h-6 w-6 text-muted-foreground" />
-                        )}
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(category)}
-                        disabled={isUpdating || category.item_count > 0}
-                        className={cn(
-                          "p-1",
-                          category.item_count > 0 &&
-                            "opacity-30 cursor-not-allowed"
-                        )}
-                        title={
-                          category.item_count > 0
-                            ? "Cannot delete: has menu items"
-                            : "Delete category"
-                        }
-                      >
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 }

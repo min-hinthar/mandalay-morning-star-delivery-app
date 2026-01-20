@@ -868,6 +868,61 @@ Before writing sample data, read the type file (`src/types/menu.ts`) to ensure a
 
 ---
 
+## 2026-01-19: V7 Motion Tokens System
+
+**Context:** Building V7 motion-first UI with 120fps target and maximum playfulness
+**Learning:** V7 motion tokens in `src/lib/motion-tokens-v7.ts` use springs over easings:
+- `v7Spring.ultraBouncy` - Most playful, high bounce (stiffness: 300, damping: 15)
+- `v7Spring.snappy` - Quick response (stiffness: 600, damping: 35)
+- `v7Spring.rubbery` - Natural elasticity (stiffness: 400, damping: 20)
+- `v7Spring.floaty` - Dreamy, slow (stiffness: 50, damping: 10)
+
+All V7 components use `useAnimationPreferenceV7` hook which defaults to FULL animation (ignores OS prefers-reduced-motion). User opts out manually via toggle.
+**Apply when:** Building V7 components, choosing spring configs, integrating animation preferences
+
+---
+
+## 2026-01-19: V7 Component Architecture Pattern
+
+**Context:** Creating V7 component library (FlipCard, ExpandingCard, CarouselV7, etc.)
+**Learning:** V7 component pattern:
+```tsx
+const Component = forwardRef<HTMLElement, ComponentProps>((props, ref) => {
+  const { shouldAnimate, getSpring, isFullMotion } = useAnimationPreferenceV7();
+  const springConfig = getSpring(v7Spring.ultraBouncy);
+
+  // Haptic feedback pattern
+  if (haptic && isFullMotion && "vibrate" in navigator) {
+    navigator.vibrate(10);
+  }
+
+  // Non-animated fallback
+  if (!shouldAnimate) {
+    return <div ref={ref}>{/* static version */}</div>;
+  }
+
+  return <motion.div ref={ref} transition={springConfig}>{/* animated */}</motion.div>;
+});
+Component.displayName = "Component";
+```
+Export from `src/components/ui/v7-index.ts` barrel file.
+**Apply when:** Creating new V7 motion-first components
+
+---
+
+## 2026-01-19: V7 WebGL Integration Pattern
+
+**Context:** Implementing WebGL effects (particles, grain, gradients) for V7
+**Learning:** WebGL utilities in `src/lib/webgl/`:
+- `particles.ts` - Canvas particle system with burst() for celebrations
+- `grain.ts` - Film grain overlay with animate option
+- `gradients.ts` - Animated gradient backgrounds with time-of-day palettes
+
+Hooks pattern: `useParticleSystem()`, `useGrainEffect()`, `useAnimatedGradient()` return refs and control methods. Canvas-based effects use `will-change: transform` for GPU acceleration.
+**Apply when:** Adding WebGL effects, celebration animations, atmospheric backgrounds
+
+---
+
 ## 2026-01-19: Playwright Visual Regression Configuration
 
 **Context:** Setting up visual regression tests for Sprint 6
@@ -910,4 +965,121 @@ async function checkA11y(page: Page) {
 ```
 For specific rule testing: `.withRules(["color-contrast"])`. For high-contrast mode: `.withTags(["wcag2aaa"])`.
 **Apply when:** Adding accessibility tests, auditing pages for WCAG compliance
+
+---
+
+## 2026-01-19: Menu Types Property Mapping
+
+**Context:** Building V7 menu components - properties didn't match assumed names
+**Learning:** Actual `src/types/menu.ts` property names differ from common conventions:
+
+| Type | Property Assumed | Actual Property |
+|------|-----------------|-----------------|
+| MenuItem | `name` | `nameEn` |
+| MenuItem | `description` | `descriptionEn` |
+| MenuItem | `isAvailable` | `!isSoldOut` (inverted) |
+| MenuItem | `categorySlug` | *(not present)* |
+| ModifierGroup | `minSelections` | `minSelect` |
+| ModifierGroup | `maxSelections` | `maxSelect` |
+| ModifierGroup | `isRequired` | `minSelect > 0` |
+| ModifierOption | `isAvailable` | `isActive` |
+| ModifierOption | `description` | *(not present)* |
+| ModifierOption | `imageUrl` | *(not present)* |
+
+**Apply when:** Creating menu-related components, seeing TS2339 "Property does not exist" errors on MenuItem/ModifierGroup/ModifierOption
+
+---
+
+## 2026-01-19: MenuItem Category Tracking Pattern
+
+**Context:** MenuLayoutV7 needed to filter/group items by category, but MenuItem has no categorySlug
+**Learning:** Items are nested in categories (`MenuCategory.items[]`), not self-referential. Create internal tracking:
+```ts
+const allItems = useMemo(() => {
+  const items: Array<MenuItem & { _categorySlug: string }> = [];
+  categories.forEach((cat) => {
+    cat.items.forEach((item) => {
+      items.push({ ...item, _categorySlug: cat.slug });
+    });
+  });
+  return items;
+}, [categories]);
+```
+Use `_categorySlug` prefix to indicate internal/derived property. Filter with `item._categorySlug === activeCategory`.
+**Apply when:** Building menu layouts that need category-based filtering from flat item list
+
+---
+
+## 2026-01-19: Framer Motion MotionValue Typing
+
+**Context:** Passing scrollYProgress to child component caused TS errors
+**Learning:** `useScroll().scrollYProgress` returns `MotionValue<number>`. When typing props that accept this value:
+```ts
+// ❌ Wrong - useTransform returns complex union type
+scrollProgress: ReturnType<typeof useTransform>;
+
+// ✅ Correct - explicit MotionValue<number>
+import { MotionValue } from "framer-motion";
+scrollProgress: MotionValue<number>;
+```
+Also needed: `src?: string | null` for nullable image URLs (MenuItem.imageUrl is `string | null`).
+**Apply when:** Passing scroll progress or other motion values as props, TS2769 "No overload matches" errors with useTransform
+
+---
+
+## 2026-01-20: Unused Imports as Feature Gap Indicators
+
+**Context:** Fixing 213 lint warnings - many were unused imports in V7 components
+**Learning:** Unused imports often indicate incomplete implementations, not just dead code:
+| Unused Import | Likely Intended Use |
+|---------------|---------------------|
+| `Sparkles`, `PartyPopper` | Celebration animations never added |
+| `Share2`, `Download` | Social/export features planned but not wired |
+| `useMemo`, `useCallback` | Performance optimizations deferred |
+
+Before removing unused imports, audit them as a **feature gap checklist** - they're breadcrumbs of intended UX that got lost in sprint velocity.
+**Apply when:** Running lint cleanup, planning future sprints, reviewing incomplete features
+
+---
+
+## 2026-01-20: Sprint-Level Lint Verification
+
+**Context:** 213 warnings accumulated across V7 sprints 1-9, discovered only in sprint 10
+**Learning:** Run `pnpm lint && pnpm lint:css && pnpm typecheck` after completing each sprint, not just at final optimization phase. Hardcoded colors/z-index, unused imports, and type errors compound quickly across multi-sprint projects. Catching 20 warnings per sprint is easier than 200+ at the end.
+**Apply when:** Completing any sprint, before starting next sprint, as sprint completion checklist item
+
+---
+
+## 2026-01-20: Props Renaming for Intentionally Unused Parameters
+
+**Context:** TS error - `_weeklyEarningsCents` doesn't exist on interface (interface has `weeklyEarningsCents`)
+**Learning:** When marking a prop as intentionally unused with underscore prefix, use property renaming syntax to match the interface:
+```ts
+// ❌ Wrong - _weeklyEarningsCents not in interface
+function Component({ _weeklyEarningsCents = 0 }: Props) {}
+
+// ✅ Correct - renames interface prop to underscore-prefixed local variable
+function Component({ weeklyEarningsCents: _weeklyEarningsCents = 0 }: Props) {}
+```
+This satisfies both TypeScript (interface match) and ESLint (unused variable pattern).
+**Apply when:** Destructuring props that are defined but not yet used, TS2339 "Property does not exist" with underscore-prefixed destructuring
+
+---
+
+## 2026-01-20: Omit<Props, "key"> Removes Prop from Component API
+
+**Context:** ConfettiParticle type was `Omit<ConfettiParticleV7Props, "index">` but usage passed `index` prop
+**Learning:** When a component's props type uses `Omit<T, "key">`, that prop is intentionally excluded from the component's API - usually because it's computed internally. Passing it will cause TS error:
+```ts
+// Component definition
+type Props = Omit<FullProps, "index">;  // index handled internally
+function ConfettiParticle({ color, delay }: Props) {}
+
+// ❌ Wrong - index not in Props
+<ConfettiParticle index={i} color="red" delay={0.1} />
+
+// ✅ Correct - only pass props in the Omit'd type
+<ConfettiParticle color="red" delay={0.1} />
+```
+**Apply when:** TS2322 "Property does not exist" when props type uses Omit, creating confetti/particle systems
 

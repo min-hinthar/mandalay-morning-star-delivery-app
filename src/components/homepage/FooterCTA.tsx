@@ -2,7 +2,11 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { Heart, Phone, Mail, MapPin, Clock, Instagram, Facebook } from "lucide-react";
-import { fadeInUp, viewportSettings } from "@/lib/animations/variants";
+import {
+  v6StaggerItem,
+  v6ViewportOnce,
+  v6Spring,
+} from "@/lib/motion";
 import { KITCHEN_LOCATION } from "@/types/address";
 
 export function FooterCTA() {
@@ -11,27 +15,28 @@ export function FooterCTA() {
   return (
     <footer className="relative overflow-hidden">
       {/* Top CTA Section */}
-      <section className="relative py-16 md:py-24 px-4 bg-gradient-animated">
-        {/* Dark overlay for text contrast on light gradient cycles */}
-        <div className="absolute inset-0 bg-black/15" />
+      <section className="relative py-16 md:py-24 px-4 bg-gradient-to-br from-v6-primary via-v6-primary-hover to-v6-primary">
+        {/* Decorative overlay */}
+        <div className="absolute inset-0 bg-black/10" />
         <div className="relative max-w-4xl mx-auto text-center">
           <motion.div
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={viewportSettings}
+            viewport={v6ViewportOnce.viewport}
+            transition={{ duration: 0.55 }}
             className="space-y-6"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--color-surface)]/20 backdrop-blur-sm rounded-full">
-              <Heart className="w-4 h-4 text-[var(--color-text-inverse)]" />
-              <span className="text-sm font-medium text-[var(--color-text-inverse)]">Made with Love in Covina</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-v6-pill">
+              <Heart className="w-4 h-4 text-white" />
+              <span className="text-sm font-v6-body font-medium text-white">Made with Love in Covina</span>
             </div>
 
-            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-[var(--color-text-inverse)] font-bold">
+            <h2 className="font-v6-display text-3xl md:text-4xl lg:text-5xl text-white font-bold">
               Ready to Taste{" "}
-              <span className="text-gradient-gold">Authentic Burma?</span>
+              <span className="text-v6-secondary">Authentic Burma?</span>
             </h2>
 
-            <p className="text-lg text-[var(--color-text-inverse)]/90 max-w-2xl mx-auto">
+            <p className="text-lg font-v6-body text-white/90 max-w-2xl mx-auto">
               Order by Friday 3pm and we&apos;ll deliver fresh, homemade Burmese dishes
               straight to your door on Saturday.
             </p>
@@ -39,18 +44,20 @@ export function FooterCTA() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <motion.a
                 href="#menu"
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-8 py-4 bg-[var(--color-surface)] text-[var(--color-accent-tertiary)] font-semibold rounded-xl shadow-[var(--elevation-2)] hover:shadow-[var(--elevation-3)] transition-shadow animate-cta-shimmer"
+                transition={v6Spring}
+                className="px-8 py-4 bg-v6-surface-primary text-v6-primary font-v6-body font-semibold rounded-v6-pill shadow-v6-md hover:shadow-v6-lg transition-shadow duration-v6-fast"
               >
                 Order Now
               </motion.a>
 
               <motion.a
                 href="tel:+16261234567"
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-8 py-4 bg-transparent border-2 border-[var(--color-text-inverse)] text-[var(--color-text-inverse)] font-semibold rounded-xl hover:bg-[var(--color-surface)]/10 transition-colors flex items-center justify-center gap-2"
+                transition={v6Spring}
+                className="px-8 py-4 bg-transparent border-2 border-white text-white font-v6-body font-semibold rounded-v6-pill hover:bg-white/10 transition-colors duration-v6-fast flex items-center justify-center gap-2"
               >
                 <Phone className="w-5 h-5" />
                 Call Us
@@ -61,63 +68,63 @@ export function FooterCTA() {
       </section>
 
       {/* Bottom Info Section */}
-      <section className="py-12 px-4 bg-[var(--color-accent-tertiary)]">
+      <section className="py-12 px-4 bg-v6-text-primary">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 text-[var(--color-text-inverse)]/90">
+          <div className="grid md:grid-cols-3 gap-8 text-white/90">
             {/* Contact Info */}
             <motion.div
-              variants={fadeInUp}
+              variants={v6StaggerItem}
               initial={shouldReduceMotion ? false : "hidden"}
               whileInView="visible"
-              viewport={viewportSettings}
+              viewport={v6ViewportOnce.viewport}
             >
-              <h3 className="font-display text-xl text-[var(--color-text-inverse)] mb-4">Contact Us</h3>
+              <h3 className="font-v6-display text-xl text-white font-semibold mb-4">Contact Us</h3>
               <div className="space-y-3">
                 <a
                   href={`https://maps.google.com/?q=${encodeURIComponent(KITCHEN_LOCATION.address)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-start gap-3 hover:text-[var(--color-interactive-primary)] transition-colors hover:underline underline-offset-2"
+                  className="flex items-start gap-3 hover:text-v6-secondary transition-colors duration-v6-fast hover:underline underline-offset-2"
                 >
                   <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm">{KITCHEN_LOCATION.address}</span>
+                  <span className="text-sm font-v6-body">{KITCHEN_LOCATION.address}</span>
                 </a>
                 <a
                   href="tel:+16261234567"
-                  className="flex items-center gap-3 hover:text-[var(--color-interactive-primary)] transition-colors hover:underline underline-offset-2"
+                  className="flex items-center gap-3 hover:text-v6-secondary transition-colors duration-v6-fast hover:underline underline-offset-2"
                 >
                   <Phone className="w-5 h-5" />
-                  <span className="text-sm">(626) 123-4567</span>
+                  <span className="text-sm font-v6-body">(626) 123-4567</span>
                 </a>
                 <a
                   href="mailto:hello@mandalaymorningstar.com"
-                  className="flex items-center gap-3 hover:text-[var(--color-interactive-primary)] transition-colors hover:underline underline-offset-2"
+                  className="flex items-center gap-3 hover:text-v6-secondary transition-colors duration-v6-fast hover:underline underline-offset-2"
                 >
                   <Mail className="w-5 h-5" />
-                  <span className="text-sm">hello@mandalaymorningstar.com</span>
+                  <span className="text-sm font-v6-body">hello@mandalaymorningstar.com</span>
                 </a>
               </div>
             </motion.div>
 
             {/* Hours */}
             <motion.div
-              variants={fadeInUp}
+              variants={v6StaggerItem}
               initial={shouldReduceMotion ? false : "hidden"}
               whileInView="visible"
-              viewport={viewportSettings}
+              viewport={v6ViewportOnce.viewport}
             >
-              <h3 className="font-display text-xl text-[var(--color-text-inverse)] mb-4">Delivery Hours</h3>
+              <h3 className="font-v6-display text-xl text-white font-semibold mb-4">Delivery Hours</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <Clock className="w-5 h-5" />
                   <div>
-                    <p className="text-sm font-medium">Saturday Delivery</p>
-                    <p className="text-sm text-[var(--color-text-inverse)]/80">11:00 AM - 7:00 PM PT</p>
+                    <p className="text-sm font-v6-body font-medium">Saturday Delivery</p>
+                    <p className="text-sm font-v6-body text-white/80">11:00 AM - 7:00 PM PT</p>
                   </div>
                 </div>
-                <div className="p-3 bg-[var(--color-surface)]/10 rounded-lg">
-                  <p className="text-sm">
-                    <strong className="text-[var(--color-interactive-primary)]">Order Cutoff:</strong> Friday 3:00 PM PT
+                <div className="p-3 bg-white/10 rounded-v6-input">
+                  <p className="text-sm font-v6-body">
+                    <strong className="text-v6-secondary">Order Cutoff:</strong> Friday 3:00 PM PT
                   </p>
                 </div>
               </div>
@@ -125,12 +132,12 @@ export function FooterCTA() {
 
             {/* Social */}
             <motion.div
-              variants={fadeInUp}
+              variants={v6StaggerItem}
               initial={shouldReduceMotion ? false : "hidden"}
               whileInView="visible"
-              viewport={viewportSettings}
+              viewport={v6ViewportOnce.viewport}
             >
-              <h3 className="font-display text-xl text-[var(--color-text-inverse)] mb-4">Follow Us</h3>
+              <h3 className="font-v6-display text-xl text-white font-semibold mb-4">Follow Us</h3>
               <div className="flex gap-4">
                 <motion.a
                   href="https://instagram.com"
@@ -138,7 +145,8 @@ export function FooterCTA() {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
-                  className="p-3 bg-[var(--color-surface)]/10 rounded-full hover:bg-[var(--color-interactive-primary)]/20 transition-colors"
+                  transition={v6Spring}
+                  className="p-3 bg-white/10 rounded-full hover:bg-v6-secondary/20 transition-colors duration-v6-fast"
                 >
                   <Instagram className="w-6 h-6" />
                 </motion.a>
@@ -148,23 +156,24 @@ export function FooterCTA() {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
-                  className="p-3 bg-[var(--color-surface)]/10 rounded-full hover:bg-[var(--color-interactive-primary)]/20 transition-colors"
+                  transition={v6Spring}
+                  className="p-3 bg-white/10 rounded-full hover:bg-v6-secondary/20 transition-colors duration-v6-fast"
                 >
                   <Facebook className="w-6 h-6" />
                 </motion.a>
               </div>
-              <p className="mt-4 text-sm text-[var(--color-text-inverse)]/80">
+              <p className="mt-4 text-sm font-v6-body text-white/80">
                 Share your dishes with #MandalayMorningStar
               </p>
             </motion.div>
           </div>
 
           {/* Copyright */}
-          <div className="mt-12 pt-8 border-t border-[var(--color-surface)]/10 text-center">
-            <p className="text-sm text-[var(--color-text-inverse)]/70">
+          <div className="mt-12 pt-8 border-t border-white/10 text-center">
+            <p className="text-sm font-v6-body text-white/70">
               © {new Date().getFullYear()} Mandalay Morning Star. All rights reserved.
             </p>
-            <p className="text-xs text-[var(--color-text-inverse)]/60 mt-2">
+            <p className="text-xs font-v6-body text-white/60 mt-2">
               Authentic Burmese Cuisine • Southern California
             </p>
           </div>

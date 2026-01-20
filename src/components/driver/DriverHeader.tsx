@@ -1,3 +1,10 @@
+/**
+ * V6 Driver Header Component - Pepper Aesthetic
+ *
+ * Sticky header for driver app with V6 colors and high-contrast support.
+ * Features back navigation, title, and custom right content.
+ */
+
 "use client";
 
 import { ChevronLeft } from "lucide-react";
@@ -34,7 +41,7 @@ export function DriverHeader({
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 flex min-h-[56px] items-center justify-between border-b border-border-v5 bg-surface-primary/95 px-4 py-3 backdrop-blur-sm",
+        "sticky top-0 z-40 flex min-h-[56px] items-center justify-between border-b border-v6-border bg-v6-surface-primary/95 px-4 py-3 backdrop-blur-sm",
         className
       )}
     >
@@ -43,16 +50,16 @@ export function DriverHeader({
         {showBack && (
           <button
             onClick={handleBack}
-            className="flex h-12 w-12 items-center justify-center rounded-full transition-colors hover:bg-surface-tertiary active:bg-surface-secondary"
+            className="flex h-12 w-12 items-center justify-center rounded-full transition-all duration-v6-fast hover:bg-v6-surface-tertiary active:bg-v6-surface-secondary"
             aria-label="Go back"
           >
-            <ChevronLeft className="h-6 w-6" />
+            <ChevronLeft className="h-6 w-6 text-v6-text-primary" />
           </button>
         )}
         <div className="flex flex-col">
-          <h1 className="text-lg font-semibold text-text-primary">{title}</h1>
+          <h1 className="font-v6-display text-lg font-semibold text-v6-text-primary">{title}</h1>
           {subtitle && (
-            <p className="text-sm text-text-secondary">{subtitle}</p>
+            <p className="font-v6-body text-sm text-v6-text-secondary">{subtitle}</p>
           )}
         </div>
       </div>
