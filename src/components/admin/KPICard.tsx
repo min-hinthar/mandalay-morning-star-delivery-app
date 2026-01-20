@@ -1,8 +1,14 @@
 /**
- * V5 Sprint 5: Admin KPI Cards
+ * V6 Admin KPI Cards - Pepper Aesthetic
  *
  * Key performance indicator cards for admin dashboard header.
  * Shows today's metrics with week-over-week comparison.
+ *
+ * V6 Features:
+ * - 24px rounded corners
+ * - V6 colors for trends (green up, red down)
+ * - Spring animations for value changes
+ * - V6 typography
  */
 
 "use client";
@@ -19,6 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { triggerHaptic } from "@/lib/swipe-gestures";
+import { v6Spring } from "@/lib/motion";
 
 // ============================================
 // TYPES
@@ -117,17 +124,17 @@ function KPICardSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "h-[100px] rounded-[var(--radius-md)]",
-        "bg-[var(--color-surface)]",
-        "border border-[var(--color-border)]",
-        "p-[var(--space-4)]",
+        "h-[110px] rounded-v6-card-sm",
+        "bg-v6-surface-primary",
+        "border border-v6-border",
+        "p-5",
         className
       )}
     >
-      <div className="animate-pulse space-y-3">
-        <div className="h-9 w-20 rounded-[var(--radius-sm)] bg-[var(--color-surface-muted)]" />
-        <div className="h-4 w-24 rounded-[var(--radius-sm)] bg-[var(--color-surface-muted)]" />
-        <div className="h-3 w-16 rounded-[var(--radius-sm)] bg-[var(--color-surface-muted)]" />
+      <div className="animate-v6-shimmer space-y-3">
+        <div className="h-9 w-20 rounded-v6-input bg-v6-surface-tertiary" />
+        <div className="h-4 w-24 rounded-v6-input bg-v6-surface-tertiary" />
+        <div className="h-3 w-16 rounded-v6-input bg-v6-surface-tertiary" />
       </div>
     </div>
   );
@@ -147,17 +154,17 @@ function KPICardError({ onRetry, errorMessage, className }: KPICardErrorProps) {
   return (
     <div
       className={cn(
-        "h-[100px] rounded-[var(--radius-md)]",
-        "bg-[var(--color-status-error-bg)]",
-        "border border-[var(--color-status-error)]/30",
-        "p-[var(--space-4)]",
+        "h-[110px] rounded-v6-card-sm",
+        "bg-v6-status-error-bg",
+        "border border-v6-status-error/30",
+        "p-5",
         "flex flex-col items-center justify-center gap-2",
         className
       )}
       role="alert"
     >
-      <AlertTriangle className="h-5 w-5 text-[var(--color-status-error)]" />
-      <span className="text-xs text-[var(--color-status-error)] text-center">
+      <AlertTriangle className="h-5 w-5 text-v6-status-error" />
+      <span className="text-xs font-v6-body text-v6-status-error text-center">
         {errorMessage || "Error loading data"}
       </span>
       {onRetry && (
@@ -168,12 +175,12 @@ function KPICardError({ onRetry, errorMessage, className }: KPICardErrorProps) {
             onRetry();
           }}
           className={cn(
-            "text-xs font-medium",
-            "text-[var(--color-accent-tertiary)]",
-            "hover:text-[var(--color-accent-tertiary-hover)]",
+            "text-xs font-v6-body font-medium",
+            "text-v6-primary",
+            "hover:text-v6-primary-hover",
             "hover:underline",
             "focus:outline-none focus:underline",
-            "transition-colors"
+            "transition-colors duration-v6-fast"
           )}
         >
           Retry
@@ -234,21 +241,21 @@ export function KPICard({
     }
   };
 
-  // Get comparison styling
+  // Get comparison styling - V6 colors
   const getComparisonColor = () => {
     if (comparison === undefined || comparison === 0) {
-      return "text-[var(--color-text-secondary)]";
+      return "text-v6-text-muted";
     }
-    // For exceptions, down is good (jade), up is bad (error)
+    // For exceptions, down is good (green), up is bad (error)
     if (variant === "exception") {
       return comparison > 0
-        ? "text-[var(--color-status-error)]"
-        : "text-[var(--color-accent-secondary)]";
+        ? "text-v6-status-error"
+        : "text-v6-green";
     }
-    // For default, up is good (jade), down is bad (error)
+    // For default, up is good (green), down is bad (error)
     return comparison > 0
-      ? "text-[var(--color-accent-secondary)]"
-      : "text-[var(--color-status-error)]";
+      ? "text-v6-green"
+      : "text-v6-status-error";
   };
 
   const getComparisonIcon = () => {
@@ -309,32 +316,35 @@ export function KPICard({
       animate="visible"
       whileHover={
         onClick && !prefersReducedMotion
-          ? { y: -2, boxShadow: "var(--shadow-md)" }
+          ? { y: -3, scale: 1.01 }
           : undefined
       }
       whileTap={onClick && !prefersReducedMotion ? { scale: 0.98 } : undefined}
+      transition={v6Spring}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        // Base styles
-        "relative h-[100px] rounded-[var(--radius-md)]",
-        "bg-[var(--color-surface)]",
-        "border border-[var(--color-border)]",
-        "p-[var(--space-4)]",
-        "transition-all duration-[var(--duration-fast)]",
-        // Interactive styles
+        // V6 Base styles
+        "relative h-[110px] rounded-v6-card-sm",
+        "bg-v6-surface-primary",
+        "border border-v6-border",
+        "p-5",
+        "transition-all duration-v6-fast",
+        "shadow-v6-sm",
+        // V6 Interactive styles
         onClick && [
           "cursor-pointer",
-          "hover:border-[var(--color-border-hover)]",
+          "hover:border-v6-primary/30",
+          "hover:shadow-v6-md",
           "focus-visible:outline-none",
           "focus-visible:ring-2",
-          "focus-visible:ring-[var(--color-accent-tertiary)]",
+          "focus-visible:ring-v6-primary/40",
           "focus-visible:ring-offset-2",
         ],
-        // Exception highlight
+        // V6 Exception highlight
         isExceptionHighlighted && [
-          "border-[var(--color-status-error)]",
-          "bg-[var(--color-status-error-bg)]",
+          "border-v6-status-error",
+          "bg-v6-status-error-bg",
         ],
         className
       )}
@@ -342,21 +352,21 @@ export function KPICard({
       tabIndex={onClick ? 0 : undefined}
       data-testid={testId}
     >
-      {/* Refreshing indicator */}
+      {/* V6 Refreshing indicator */}
       <AnimatePresence>
         {refreshing && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute top-2 right-2"
+            className="absolute top-3 right-3"
           >
             <motion.div
               variants={prefersReducedMotion ? undefined : iconSpinVariants}
               animate="spin"
             >
               <RefreshCw
-                className="h-3.5 w-3.5 text-[var(--color-text-secondary)]"
+                className="h-3.5 w-3.5 text-v6-text-muted"
                 aria-label="Refreshing data"
               />
             </motion.div>
@@ -364,13 +374,13 @@ export function KPICard({
         )}
       </AnimatePresence>
 
-      {/* Click indicator (chevron) */}
+      {/* V6 Click indicator (chevron) */}
       {onClick && !refreshing && (
         <ChevronRight
           className={cn(
-            "absolute top-2 right-2 h-4 w-4",
-            "text-[var(--color-text-secondary)]",
-            "opacity-0 transition-opacity",
+            "absolute top-3 right-3 h-4 w-4",
+            "text-v6-text-muted",
+            "opacity-0 transition-opacity duration-v6-fast",
             "group-hover:opacity-100"
           )}
           aria-hidden="true"
@@ -380,21 +390,21 @@ export function KPICard({
       <div className="flex flex-col justify-between h-full">
         {/* Top row: Icon + Value */}
         <div className="flex items-start gap-3">
-          {/* Optional icon */}
+          {/* V6 Optional icon */}
           {icon && (
             <div
               className={cn(
-                "flex-shrink-0 p-2 rounded-[var(--radius-sm)]",
+                "flex-shrink-0 p-2 rounded-v6-input",
                 isExceptionHighlighted
-                  ? "bg-[var(--color-status-error)]/10 text-[var(--color-status-error)]"
-                  : "bg-[var(--color-surface-muted)] text-[var(--color-text-secondary)]"
+                  ? "bg-v6-status-error/10 text-v6-status-error"
+                  : "bg-v6-surface-tertiary text-v6-text-secondary"
               )}
             >
               {icon}
             </div>
           )}
 
-          {/* Value with animation on change */}
+          {/* V6 Value with animation on change */}
           <AnimatePresence mode="wait">
             <motion.span
               key={valueKey}
@@ -409,10 +419,10 @@ export function KPICard({
               }
               exit="exit"
               className={cn(
-                "font-display text-4xl font-bold leading-none tracking-tight",
+                "font-v6-display text-4xl font-bold leading-none tracking-tight",
                 isExceptionHighlighted
-                  ? "text-[var(--color-status-error)]"
-                  : "text-[var(--color-text-primary)]"
+                  ? "text-v6-status-error"
+                  : "text-v6-text-primary"
               )}
             >
               {formatValue(value)}
@@ -420,23 +430,23 @@ export function KPICard({
           </AnimatePresence>
         </div>
 
-        {/* Label */}
+        {/* V6 Label */}
         <span
           className={cn(
-            "text-sm font-medium",
+            "text-sm font-v6-body font-medium",
             isExceptionHighlighted
-              ? "text-[var(--color-status-error)]"
-              : "text-[var(--color-text-secondary)]"
+              ? "text-v6-status-error"
+              : "text-v6-text-secondary"
           )}
         >
           {label}
         </span>
 
-        {/* Comparison row */}
+        {/* V6 Comparison row */}
         {comparison !== undefined ? (
           <div
             className={cn(
-              "flex items-center gap-1.5 text-sm font-semibold",
+              "flex items-center gap-1.5 text-sm font-v6-body font-semibold",
               getComparisonColor()
             )}
           >
@@ -445,14 +455,14 @@ export function KPICard({
               {comparison > 0 ? "+" : ""}
               {Math.round(comparison)}%
             </span>
-            <span className="font-normal text-[var(--color-text-secondary)]">
+            <span className="font-normal text-v6-text-muted">
               {comparisonLabel}
             </span>
           </div>
         ) : (
           // Show neutral comparison label when no comparison data
           variant !== "exception" && (
-            <div className="text-sm text-[var(--color-text-secondary)]">
+            <div className="text-sm font-v6-body text-v6-text-muted">
               {comparisonLabel}
             </div>
           )
@@ -501,7 +511,7 @@ export function KPICardGrid({
       animate="visible"
       variants={prefersReducedMotion ? undefined : gridVariants}
       className={cn(
-        "grid gap-4 grid-cols-2",
+        "grid gap-5 grid-cols-2",
         columnClass,
         className
       )}

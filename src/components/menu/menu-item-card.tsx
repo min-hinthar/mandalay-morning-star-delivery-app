@@ -6,6 +6,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Heart, Star, Plus } from "lucide-react";
 import type { MenuItem } from "@/types/menu";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -15,6 +16,7 @@ import {
 import { formatPrice } from "@/lib/utils/currency";
 import { cn } from "@/lib/utils/cn";
 import { ALLERGEN_MAP } from "@/lib/constants/allergens";
+import { v6Spring, v6SpringBouncy } from "@/lib/motion";
 
 type CardVariant = "default" | "compact" | "featured";
 
@@ -35,16 +37,15 @@ interface MenuItemCardProps {
 }
 
 /**
- * V4 Menu Item Card - Unified Component
+ * V6 Menu Item Card - Pepper Aesthetic
  *
  * Features:
- * - 16:9 aspect ratio (standard)
- * - Variant support: default, compact, featured
- * - Popular/Featured badge
- * - Favorite heart button
- * - Quick add button (optional)
- * - Allergen icons with tooltips
- * - Full design token usage
+ * - 24px rounded corners (V6 card radius)
+ * - Image zoom on hover
+ * - Spring-based hover lift
+ * - Quick add button appears on hover
+ * - Popular badge with V6 secondary color
+ * - V6 typography and colors
  */
 export function MenuItemCard({
   item,
@@ -102,22 +103,22 @@ export function MenuItemCard({
     [isInteractive, item, onSelect]
   );
 
-  // Variant-specific styles
+  // V6 Variant-specific styles
   const variantStyles = {
     default: {
-      padding: "p-[var(--space-3)]",
+      padding: "p-4",
       imageAspect: "aspect-video",
       titleSize: "text-base",
       priceSize: "text-lg",
     },
     compact: {
-      padding: "p-[var(--space-2)]",
+      padding: "p-3",
       imageAspect: "aspect-video",
       titleSize: "text-sm",
       priceSize: "text-base",
     },
     featured: {
-      padding: "p-[var(--space-4)]",
+      padding: "p-5",
       imageAspect: "aspect-video",
       titleSize: "text-lg",
       priceSize: "text-xl",
@@ -128,25 +129,25 @@ export function MenuItemCard({
 
   return (
     <motion.div
-      whileHover={isInteractive && !prefersReducedMotion ? { y: -4, scale: 1.02 } : undefined}
+      whileHover={isInteractive && !prefersReducedMotion ? { y: -4, scale: 1.01 } : undefined}
       whileTap={isInteractive && !prefersReducedMotion ? { scale: 0.98 } : undefined}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      transition={v6Spring}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       className={cn(
         "group relative overflow-hidden",
-        "rounded-[var(--radius-lg)] bg-[var(--color-surface)]",
-        "border border-[var(--color-border)]",
-        "shadow-[var(--shadow-sm)]",
-        "transition-all duration-[var(--duration-fast)] ease-out",
+        // V6 Card styling
+        "rounded-v6-card bg-v6-surface-primary",
+        "shadow-v6-card",
+        // V6 Motion
+        "transition-all duration-v6-normal ease-v6-spring",
         isInteractive && [
           "cursor-pointer",
-          "hover:shadow-[var(--shadow-lg)]",
-          "hover:border-[var(--color-interactive-primary)]/30",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)] focus-visible:ring-offset-2",
+          "hover:shadow-v6-card-hover",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary focus-visible:ring-offset-2",
         ],
-        item.isSoldOut && "opacity-70",
-        variant === "featured" && "ring-2 ring-[var(--color-interactive-primary)]/30"
+        item.isSoldOut && "opacity-60 grayscale",
+        variant === "featured" && "ring-2 ring-v6-secondary/40"
       )}
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
@@ -155,20 +156,17 @@ export function MenuItemCard({
       aria-disabled={!isInteractive}
       aria-label={`${item.nameEn}${item.isSoldOut ? " - Sold Out" : ""}`}
     >
-      {/* Image Container - 16:9 aspect ratio */}
+      {/* Image Container - V6 rounded top corners */}
       <div className={cn(
-        "relative overflow-hidden bg-gradient-to-br from-[var(--color-cream-darker)] to-[var(--color-interactive-primary)]/5",
+        "relative overflow-hidden bg-gradient-to-br from-v6-surface-secondary to-v6-surface-tertiary",
+        "rounded-t-v6-card",
         styles.imageAspect
       )}>
-        {/* Popular/Featured Badge */}
+        {/* V6 Popular Badge - Golden Yellow */}
         {isPopular && !item.isSoldOut && (
           <Badge
-            className={cn(
-              "absolute left-[var(--space-2)] top-[var(--space-2)] z-10",
-              "border-0 bg-[var(--color-interactive-primary)] text-[var(--color-charcoal)]",
-              "shadow-[var(--shadow-md)] font-semibold",
-              variant === "featured" && "bg-[var(--color-accent-tertiary)] text-white"
-            )}
+            variant="featured"
+            className="absolute left-3 top-3 z-10"
           >
             <Star className="mr-1 h-3 w-3 fill-current" />
             Popular
@@ -182,35 +180,37 @@ export function MenuItemCard({
               alt={item.nameEn}
               fill
               className={cn(
-                "object-cover transition-transform duration-[var(--duration-standard)]",
-                isInteractive && "group-hover:scale-105"
+                "object-cover",
+                // V6 Image zoom effect
+                "transition-transform duration-300 ease-v6-default",
+                isInteractive && "group-hover:scale-[1.03]"
               )}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
-            {/* Gradient overlay on hover */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-[var(--duration-fast)] group-hover:opacity-100" />
+            {/* V6 Gradient overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-v6-normal group-hover:opacity-100" />
           </>
         ) : (
           <div className="flex h-full items-center justify-center">
-            <span className="text-sm text-[var(--color-charcoal-muted)]">No image</span>
+            <span className="text-sm text-v6-text-muted">No image</span>
           </div>
         )}
 
-        {/* Favorite Heart Button */}
+        {/* V6 Favorite Heart Button */}
         {showFavorite && (
           <motion.button
             type="button"
             onClick={handleFavoriteClick}
             className={cn(
-              "absolute top-[var(--space-2)] right-[var(--space-2)] z-10",
-              "flex h-9 w-9 items-center justify-center",
-              "rounded-full bg-white/90 backdrop-blur-sm",
-              "shadow-[var(--shadow-md)]",
-              "transition-all duration-[var(--duration-fast)]",
+              "absolute top-3 right-3 z-10",
+              "flex h-10 w-10 items-center justify-center",
+              "rounded-full bg-v6-surface-primary/95 backdrop-blur-sm",
+              "shadow-v6-md",
+              "transition-all duration-v6-fast",
               "hover:scale-110 active:scale-95",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)]"
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary"
             )}
-            whileTap={prefersReducedMotion ? undefined : { scale: 0.8 }}
+            whileTap={prefersReducedMotion ? undefined : { scale: 0.85 }}
             aria-label={localFavorite ? "Remove from favorites" : "Add to favorites"}
             aria-pressed={localFavorite}
           >
@@ -220,14 +220,14 @@ export function MenuItemCard({
                 initial={prefersReducedMotion ? false : { scale: 0 }}
                 animate={{ scale: 1 }}
                 exit={prefersReducedMotion ? undefined : { scale: 0 }}
-                transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                transition={v6SpringBouncy}
               >
                 <Heart
                   className={cn(
                     "h-5 w-5 transition-colors",
                     localFavorite
-                      ? "fill-[var(--color-error)] text-[var(--color-error)]"
-                      : "text-[var(--color-charcoal-muted)]"
+                      ? "fill-v6-primary text-v6-primary"
+                      : "text-v6-text-muted"
                   )}
                 />
               </motion.div>
@@ -235,53 +235,49 @@ export function MenuItemCard({
           </motion.button>
         )}
 
-        {/* Quick Add Button - Desktop only */}
+        {/* V6 Quick Add Button - Desktop only */}
         {showQuickAdd && !item.isSoldOut && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 10 }}
             transition={{ duration: 0.2 }}
-            className="absolute bottom-[var(--space-2)] right-[var(--space-2)] z-10 hidden md:block"
+            className="absolute bottom-3 right-3 z-10 hidden md:block"
           >
-            <button
+            <Button
+              variant="primary"
+              size="sm"
               onClick={handleQuickAdd}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-2",
-                "bg-white/95 backdrop-blur-sm rounded-full",
-                "shadow-[var(--shadow-lg)]",
-                "hover:bg-white transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)]"
-              )}
+              className="shadow-v6-elevated"
             >
-              <Plus className="w-4 h-4 text-[var(--color-accent-tertiary)]" />
-              <span className="text-sm font-medium text-[var(--color-accent-tertiary)]">Add</span>
-            </button>
+              <Plus className="w-4 h-4 mr-1" />
+              Add
+            </Button>
           </motion.div>
         )}
 
-        {/* Sold Out Overlay */}
+        {/* V6 Sold Out Overlay */}
         {item.isSoldOut && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <Badge className="bg-white px-4 py-2 text-base font-bold text-[var(--color-charcoal)] shadow-[var(--shadow-lg)]">
+            <Badge className="bg-v6-surface-primary px-4 py-2 text-base font-bold text-v6-text-primary shadow-v6-elevated">
               Sold Out
             </Badge>
           </div>
         )}
       </div>
 
-      {/* Content */}
+      {/* V6 Content */}
       <div className={styles.padding}>
         {/* Names */}
         <div className="mb-2">
           <h3 className={cn(
-            "font-semibold text-[var(--color-charcoal)] leading-tight line-clamp-1",
-            "transition-colors group-hover:text-[var(--color-accent-tertiary)]",
+            "font-v6-display font-bold text-v6-text-primary leading-tight line-clamp-1",
+            "transition-colors duration-v6-fast group-hover:text-v6-primary",
             styles.titleSize
           )}>
             {item.nameEn}
           </h3>
           {item.nameMy && (
-            <p className="text-sm text-[var(--color-charcoal-muted)] font-burmese mt-0.5 line-clamp-1">
+            <p className="text-sm text-v6-text-muted font-burmese mt-0.5 line-clamp-1">
               {item.nameMy}
             </p>
           )}
@@ -289,23 +285,23 @@ export function MenuItemCard({
 
         {/* Description (featured variant only) */}
         {variant === "featured" && item.descriptionEn && (
-          <p className="mb-3 line-clamp-2 text-sm text-[var(--color-charcoal-muted)]">
+          <p className="mb-3 line-clamp-2 text-sm text-v6-text-secondary">
             {item.descriptionEn}
           </p>
         )}
 
-        {/* Price + Allergens Row */}
+        {/* V6 Price + Allergens Row */}
         <div className="flex items-center justify-between gap-2">
-          {/* Price */}
+          {/* V6 Price - Primary color */}
           <span className={cn(
-            "font-[var(--font-display)] font-bold text-[var(--color-interactive-primary)]",
-            "transition-colors group-hover:text-[var(--color-interactive-hover)]",
+            "font-v6-display font-bold text-v6-primary",
+            "transition-colors duration-v6-fast group-hover:text-v6-primary-hover",
             styles.priceSize
           )}>
             {formatPrice(item.basePriceCents)}
           </span>
 
-          {/* Allergen icons with tooltips */}
+          {/* V6 Allergen icons */}
           {hasAllergens && (
             <TooltipProvider>
               <div className="flex gap-1">
@@ -319,12 +315,12 @@ export function MenuItemCard({
                       <TooltipTrigger asChild>
                         <div className={cn(
                           "flex h-6 w-6 items-center justify-center rounded-full",
-                          "border border-[var(--color-warning)]/30 bg-[var(--color-warning-light)]"
+                          "border border-v6-orange/30 bg-v6-orange-light"
                         )}>
                           <IconComponent className={cn("h-3.5 w-3.5", info.color)} />
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="bg-v6-surface-primary text-v6-text-primary border-v6-border">
                         <p>Contains {info.label}</p>
                       </TooltipContent>
                     </Tooltip>
@@ -335,14 +331,14 @@ export function MenuItemCard({
                     <TooltipTrigger asChild>
                       <div className={cn(
                         "flex h-6 w-6 items-center justify-center rounded-full",
-                        "border border-[var(--color-warning)]/30 bg-[var(--color-warning-light)]"
+                        "border border-v6-orange/30 bg-v6-orange-light"
                       )}>
-                        <span className="text-xs font-medium text-[var(--color-warning-dark)]">
+                        <span className="text-xs font-medium text-v6-orange">
                           +{item.allergens.length - 4}
                         </span>
                       </div>
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent className="bg-v6-surface-primary text-v6-text-primary border-v6-border">
                       <p>
                         {item.allergens
                           .slice(4)
@@ -357,48 +353,43 @@ export function MenuItemCard({
           )}
         </div>
       </div>
-
-      {/* Hover indicator */}
-      {isInteractive && (
-        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--color-interactive-primary)] scale-x-0 transition-transform duration-[var(--duration-fast)] origin-left group-hover:scale-x-100" />
-      )}
     </motion.div>
   );
 }
 
 /**
- * V4 Menu Item Card Skeleton
- * Loading placeholder with shimmer animation
+ * V6 Menu Item Card Skeleton
+ * Loading placeholder with V6 styling
  */
 export function MenuItemCardSkeleton({ variant = "default" }: { variant?: CardVariant }) {
   const styles = {
-    default: { padding: "p-[var(--space-3)]" },
-    compact: { padding: "p-[var(--space-2)]" },
-    featured: { padding: "p-[var(--space-4)]" },
+    default: { padding: "p-4" },
+    compact: { padding: "p-3" },
+    featured: { padding: "p-5" },
   };
 
   return (
     <div className={cn(
-      "overflow-hidden rounded-[var(--radius-lg)]",
-      "bg-[var(--color-surface)] border border-[var(--color-border)] shadow-[var(--shadow-sm)]"
+      "overflow-hidden rounded-v6-card",
+      "bg-v6-surface-primary shadow-v6-card"
     )}>
-      {/* Image skeleton - 16:9 */}
-      <div className="relative aspect-video bg-[var(--color-cream-darker)] animate-shimmer" />
+      {/* Image skeleton - V6 shimmer */}
+      <div className="relative aspect-video bg-v6-surface-tertiary animate-v6-shimmer" />
 
       {/* Content skeleton */}
       <div className={cn(styles[variant].padding, "space-y-2")}>
         {/* Title skeleton */}
-        <div className="h-5 w-3/4 rounded bg-[var(--color-cream-darker)] animate-shimmer" />
+        <div className="h-5 w-3/4 rounded-v6-input bg-v6-surface-tertiary animate-v6-shimmer" />
 
         {/* Burmese name skeleton */}
-        <div className="h-4 w-1/2 rounded bg-[var(--color-cream-darker)] animate-shimmer" />
+        <div className="h-4 w-1/2 rounded-v6-input bg-v6-surface-tertiary animate-v6-shimmer" />
 
         {/* Price + allergens skeleton */}
         <div className="flex items-center justify-between">
-          <div className="h-5 w-1/4 rounded bg-[var(--color-cream-darker)] animate-shimmer" />
+          <div className="h-5 w-1/4 rounded-v6-input bg-v6-surface-tertiary animate-v6-shimmer" />
           <div className="flex gap-1">
-            <div className="h-6 w-6 rounded-full bg-[var(--color-cream-darker)] animate-shimmer" />
-            <div className="h-6 w-6 rounded-full bg-[var(--color-cream-darker)] animate-shimmer" />
+            <div className="h-6 w-6 rounded-full bg-v6-surface-tertiary animate-v6-shimmer" />
+            <div className="h-6 w-6 rounded-full bg-v6-surface-tertiary animate-v6-shimmer" />
           </div>
         </div>
       </div>

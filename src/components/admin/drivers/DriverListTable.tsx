@@ -1,3 +1,10 @@
+/**
+ * V6 Driver List Table - Pepper Aesthetic
+ *
+ * Admin driver management table with V6 colors, typography, and spring animations.
+ * Features desktop table view and mobile card view with expandable rows.
+ */
+
 "use client";
 
 import { useState } from "react";
@@ -155,9 +162,9 @@ export function DriverListTable({
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) return null;
     return sortDirection === "asc" ? (
-      <ChevronUp className="ml-1 h-4 w-4 inline text-interactive-primary" />
+      <ChevronUp className="ml-1 h-4 w-4 inline text-v6-primary" />
     ) : (
-      <ChevronDown className="ml-1 h-4 w-4 inline text-interactive-primary" />
+      <ChevronDown className="ml-1 h-4 w-4 inline text-v6-primary" />
     );
   };
 
@@ -166,15 +173,15 @@ export function DriverListTable({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center py-16 bg-gradient-to-br from-surface-secondary to-surface-tertiary rounded-xl border border-border-v5"
+        className="text-center py-16 bg-v6-surface-secondary rounded-v6-card-sm border border-v6-border"
       >
-        <div className="rounded-full bg-interactive-primary-light w-20 h-20 mx-auto flex items-center justify-center mb-4">
-          <Truck className="h-10 w-10 text-interactive-primary" />
+        <div className="rounded-full bg-v6-primary-light w-20 h-20 mx-auto flex items-center justify-center mb-4">
+          <Truck className="h-10 w-10 text-v6-primary" />
         </div>
-        <h2 className="text-xl font-display text-text-primary mb-2">
+        <h2 className="text-xl font-v6-display font-semibold text-v6-text-primary mb-2">
           {searchQuery ? "No drivers found" : "No drivers yet"}
         </h2>
-        <p className="text-text-secondary max-w-md mx-auto">
+        <p className="text-v6-text-secondary font-v6-body max-w-md mx-auto">
           {searchQuery
             ? `No drivers match "${searchQuery}". Try a different search term.`
             : "Add your first driver to start managing your delivery fleet."}
@@ -187,38 +194,38 @@ export function DriverListTable({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl border border-border-v5 bg-surface-primary shadow-md overflow-hidden"
+      className="rounded-v6-card-sm border border-v6-border bg-v6-surface-primary shadow-v6-sm overflow-hidden"
     >
       {/* Desktop Table View */}
       <div className="hidden md:block">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gradient-to-r from-surface-secondary to-surface-tertiary hover:bg-surface-secondary/80">
+            <TableRow className="bg-v6-surface-secondary hover:bg-v6-surface-tertiary">
               <TableHead
-                className="cursor-pointer hover:text-interactive-primary transition-colors font-display"
+                className="cursor-pointer hover:text-v6-primary transition-colors duration-v6-fast font-v6-display"
                 onClick={() => handleSort("fullName")}
               >
                 Driver
                 <SortIcon field="fullName" />
               </TableHead>
-              <TableHead className="font-display">Contact</TableHead>
-              <TableHead className="font-display">Vehicle</TableHead>
-              <TableHead className="text-center font-display">Status</TableHead>
+              <TableHead className="font-v6-display">Contact</TableHead>
+              <TableHead className="font-v6-display">Vehicle</TableHead>
+              <TableHead className="text-center font-v6-display">Status</TableHead>
               <TableHead
-                className="cursor-pointer hover:text-interactive-primary transition-colors text-center font-display"
+                className="cursor-pointer hover:text-v6-primary transition-colors duration-v6-fast text-center font-v6-display"
                 onClick={() => handleSort("ratingAvg")}
               >
                 Rating
                 <SortIcon field="ratingAvg" />
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:text-interactive-primary transition-colors text-center font-display"
+                className="cursor-pointer hover:text-v6-primary transition-colors duration-v6-fast text-center font-v6-display"
                 onClick={() => handleSort("deliveriesCount")}
               >
                 Deliveries
                 <SortIcon field="deliveriesCount" />
               </TableHead>
-              <TableHead className="w-[80px] font-display">Actions</TableHead>
+              <TableHead className="w-[80px] font-v6-display">Actions</TableHead>
               <TableHead className="w-8" />
             </TableRow>
           </TableHeader>
@@ -234,7 +241,7 @@ export function DriverListTable({
                     isExpanded={isExpanded(driver.id)}
                     onExpandChange={handleExpandChange}
                     colSpan={7}
-                    className={cn(!driver.isActive && "bg-surface-tertiary/50")}
+                    className={cn(!driver.isActive && "bg-v6-surface-tertiary/50")}
                     previewContent={
                       <DriverPreviewPanel
                         email={driver.email}
@@ -249,7 +256,7 @@ export function DriverListTable({
                   >
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-interactive-primary to-accent-tertiary flex items-center justify-center text-text-inverse font-display text-sm shadow-md">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-v6-primary to-v6-secondary flex items-center justify-center text-white font-v6-display text-sm shadow-v6-sm">
                           {driver.fullName
                             ? driver.fullName
                                 .split(" ")
@@ -260,10 +267,10 @@ export function DriverListTable({
                             : "DR"}
                         </div>
                         <div>
-                          <p className="font-medium text-text-primary">
+                          <p className="font-v6-body font-medium text-v6-text-primary">
                             {driver.fullName || "Unnamed Driver"}
                           </p>
-                          <p className="text-xs text-text-secondary font-mono">
+                          <p className="text-xs text-v6-text-secondary font-mono">
                             ID: {driver.id.slice(0, 8)}
                           </p>
                         </div>
@@ -286,22 +293,22 @@ export function DriverListTable({
                     <TableCell>
                       {driver.vehicleType ? (
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded-lg bg-status-success-bg text-status-success">
+                          <div className="p-1.5 rounded-v6-input bg-v6-green/10 text-v6-green">
                             <VehicleIcon type={driver.vehicleType} />
                           </div>
                           <div>
-                            <p className="text-sm font-medium">
+                            <p className="text-sm font-v6-body font-medium text-v6-text-primary">
                               {VEHICLE_LABELS[driver.vehicleType]}
                             </p>
                             {driver.licensePlate && (
-                              <p className="text-xs text-text-secondary font-mono">
+                              <p className="text-xs text-v6-text-secondary font-mono">
                                 {driver.licensePlate}
                               </p>
                             )}
                           </div>
                         </div>
                       ) : (
-                        <span className="text-text-secondary text-sm">
+                        <span className="text-v6-text-muted text-sm font-v6-body">
                           Not set
                         </span>
                       )}
@@ -309,10 +316,10 @@ export function DriverListTable({
                     <TableCell className="text-center">
                       <Badge
                         className={cn(
-                          "transition-all cursor-pointer",
+                          "transition-all duration-v6-fast cursor-pointer",
                           driver.isActive
-                            ? "bg-status-success-bg text-status-success hover:bg-status-success/20 border border-status-success/20"
-                            : "bg-surface-tertiary text-text-secondary hover:bg-surface-secondary border border-border-v5"
+                            ? "bg-v6-green/10 text-v6-green hover:bg-v6-green/20 border border-v6-green/20"
+                            : "bg-v6-surface-tertiary text-v6-text-secondary hover:bg-v6-surface-secondary border border-v6-border"
                         )}
                         onClick={() => handleToggleActive(driver.id, driver.isActive)}
                       >
@@ -327,19 +334,19 @@ export function DriverListTable({
                     </TableCell>
                     <TableCell className="text-center">
                       {driver.ratingAvg !== null ? (
-                        <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-interactive-primary-light">
-                          <Star className="h-3.5 w-3.5 text-interactive-primary fill-interactive-primary" />
-                          <span className="text-sm font-medium text-text-primary">
+                        <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-v6-primary-light">
+                          <Star className="h-3.5 w-3.5 text-v6-primary fill-v6-primary" />
+                          <span className="text-sm font-v6-body font-medium text-v6-text-primary">
                             {driver.ratingAvg.toFixed(1)}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-text-secondary text-sm">—</span>
+                        <span className="text-v6-text-muted text-sm font-v6-body">—</span>
                       )}
                     </TableCell>
                     <TableCell className="text-center">
-                      <div className="inline-flex items-center justify-center min-w-[60px] px-3 py-1 rounded-full bg-accent-tertiary/10">
-                        <span className="text-sm font-semibold text-accent-tertiary">
+                      <div className="inline-flex items-center justify-center min-w-[60px] px-3 py-1 rounded-full bg-v6-secondary/10">
+                        <span className="text-sm font-v6-body font-semibold text-v6-secondary-hover">
                           {driver.deliveriesCount}
                         </span>
                       </div>
@@ -369,8 +376,8 @@ export function DriverListTable({
                             className={cn(
                               "cursor-pointer",
                               driver.isActive
-                                ? "text-status-error focus:text-status-error"
-                                : "text-status-success focus:text-status-success"
+                                ? "text-v6-status-error focus:text-v6-status-error"
+                                : "text-v6-green focus:text-v6-green"
                             )}
                           >
                             {driver.isActive ? (
@@ -397,7 +404,7 @@ export function DriverListTable({
       </div>
 
       {/* Mobile Card View */}
-      <div className="md:hidden divide-y divide-border-v5/50">
+      <div className="md:hidden divide-y divide-v6-border/50">
         <AnimatePresence>
           {sortedDrivers.map((driver, index) => {
             const isToggling = togglingDriverId === driver.id;
@@ -410,13 +417,13 @@ export function DriverListTable({
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ delay: index * 0.05 }}
                 className={cn(
-                  "p-4 hover:bg-interactive-primary-light/50 transition-colors",
-                  !driver.isActive && "bg-surface-tertiary/50"
+                  "p-4 hover:bg-v6-primary-light/50 transition-colors duration-v6-fast",
+                  !driver.isActive && "bg-v6-surface-tertiary/50"
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-interactive-primary to-accent-tertiary flex items-center justify-center text-text-inverse font-display shadow-md">
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-v6-primary to-v6-secondary flex items-center justify-center text-white font-v6-display shadow-v6-sm">
                       {driver.fullName
                         ? driver.fullName
                             .split(" ")
@@ -427,10 +434,10 @@ export function DriverListTable({
                         : "DR"}
                     </div>
                     <div>
-                      <p className="font-medium text-text-primary">
+                      <p className="font-v6-body font-medium text-v6-text-primary">
                         {driver.fullName || "Unnamed Driver"}
                       </p>
-                      <p className="text-xs text-text-secondary">
+                      <p className="text-xs font-v6-body text-v6-text-secondary">
                         {driver.email}
                       </p>
                     </div>
@@ -439,8 +446,8 @@ export function DriverListTable({
                     className={cn(
                       "shrink-0",
                       driver.isActive
-                        ? "bg-status-success-bg text-status-success border border-status-success/20"
-                        : "bg-surface-tertiary text-text-secondary border border-border-v5"
+                        ? "bg-v6-green/10 text-v6-green border border-v6-green/20"
+                        : "bg-v6-surface-tertiary text-v6-text-secondary border border-v6-border"
                     )}
                     onClick={() => handleToggleActive(driver.id, driver.isActive)}
                   >
@@ -450,26 +457,26 @@ export function DriverListTable({
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   {driver.phone && (
-                    <div className="flex items-center gap-2 text-sm text-text-secondary">
+                    <div className="flex items-center gap-2 text-sm font-v6-body text-v6-text-secondary">
                       <Phone className="h-4 w-4" />
                       <span>{driver.phone}</span>
                     </div>
                   )}
                   {driver.vehicleType && (
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-2 text-sm font-v6-body text-v6-text-primary">
                       <VehicleIcon type={driver.vehicleType} />
                       <span>{VEHICLE_LABELS[driver.vehicleType]}</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-sm">
-                    <Star className="h-4 w-4 text-interactive-primary fill-interactive-primary" />
-                    <span>
+                  <div className="flex items-center gap-2 text-sm font-v6-body">
+                    <Star className="h-4 w-4 text-v6-primary fill-v6-primary" />
+                    <span className="text-v6-text-primary">
                       {driver.ratingAvg?.toFixed(1) || "—"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-accent-tertiary">
+                  <div className="flex items-center gap-2 text-sm text-v6-secondary-hover">
                     <Truck className="h-4 w-4" />
-                    <span className="font-medium">{driver.deliveriesCount} deliveries</span>
+                    <span className="font-v6-body font-medium">{driver.deliveriesCount} deliveries</span>
                   </div>
                 </div>
 
@@ -477,7 +484,7 @@ export function DriverListTable({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex-1 border-interactive-primary/30 text-interactive-primary hover:bg-interactive-primary-light"
+                    className="flex-1 border-v6-primary/30 text-v6-primary hover:bg-v6-primary-light"
                     onClick={() => onViewDriver(driver.id)}
                   >
                     <Eye className="mr-2 h-4 w-4" />
@@ -489,8 +496,8 @@ export function DriverListTable({
                     className={cn(
                       "flex-1",
                       driver.isActive
-                        ? "border-status-error/30 text-status-error hover:bg-status-error-bg"
-                        : "border-status-success/30 text-status-success hover:bg-status-success-bg"
+                        ? "border-v6-status-error/30 text-v6-status-error hover:bg-v6-status-error/10"
+                        : "border-v6-green/30 text-v6-green hover:bg-v6-green/10"
                     )}
                     onClick={() => handleToggleActive(driver.id, driver.isActive)}
                   >

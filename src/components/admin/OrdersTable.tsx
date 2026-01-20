@@ -40,13 +40,17 @@ import {
 } from "@/components/admin/ExpandableTableRow";
 import type { OrderStatus } from "@/types/database";
 
+/**
+ * V6 Status Colors - Pepper Aesthetic
+ * Using V6 color palette for consistent branding
+ */
 const STATUS_COLORS: Record<OrderStatus, string> = {
-  pending: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
-  confirmed: "bg-blue-100 text-blue-800 hover:bg-blue-200",
-  preparing: "bg-purple-100 text-purple-800 hover:bg-purple-200",
-  out_for_delivery: "bg-orange-100 text-orange-800 hover:bg-orange-200",
-  delivered: "bg-green-100 text-green-800 hover:bg-green-200",
-  cancelled: "bg-red-100 text-red-800 hover:bg-red-200",
+  pending: "bg-v6-secondary-light text-v6-secondary-hover hover:bg-v6-secondary/20",
+  confirmed: "bg-v6-accent-teal/10 text-v6-accent-teal hover:bg-v6-accent-teal/20",
+  preparing: "bg-v6-accent-magenta/10 text-v6-accent-magenta hover:bg-v6-accent-magenta/20",
+  out_for_delivery: "bg-v6-primary/10 text-v6-primary hover:bg-v6-primary/20",
+  delivered: "bg-v6-green/10 text-v6-green hover:bg-v6-green/20",
+  cancelled: "bg-v6-status-error/10 text-v6-status-error hover:bg-v6-status-error/20",
 };
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -147,11 +151,13 @@ export function OrdersTable({ orders, onStatusChange }: OrdersTableProps) {
   if (orders.length === 0) {
     return (
       <div className="text-center py-16">
-        <div className="rounded-full bg-muted/50 w-16 h-16 mx-auto flex items-center justify-center mb-4">
-          <Package className="h-8 w-8 text-muted-foreground" />
+        <div className="rounded-full bg-v6-surface-tertiary w-16 h-16 mx-auto flex items-center justify-center mb-4">
+          <Package className="h-8 w-8 text-v6-text-muted" />
         </div>
-        <h2 className="text-lg font-medium text-text-primary mb-2">No orders found</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-lg font-v6-display font-semibold text-v6-text-primary mb-2">
+          No orders found
+        </h2>
+        <p className="text-v6-text-muted font-v6-body">
           Orders will appear here once customers place them.
         </p>
       </div>
@@ -159,7 +165,7 @@ export function OrdersTable({ orders, onStatusChange }: OrdersTableProps) {
   }
 
   return (
-    <div className="rounded-md border bg-white">
+    <div className="rounded-v6-card-sm border border-v6-border bg-v6-surface-primary shadow-v6-sm overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
@@ -319,46 +325,46 @@ function OrderQuickPreview({ order }: { order: AdminOrder }) {
       ]}
       detailsLink={`/admin/orders/${order.id}`}
     >
-      {/* Order Summary */}
+      {/* V6 Order Summary */}
       <div className="space-y-2">
-        <div className="flex items-center gap-2 text-text-secondary">
+        <div className="flex items-center gap-2 text-v6-text-muted">
           <User className="h-4 w-4" />
-          <span className="text-xs font-semibold uppercase tracking-wider">
+          <span className="text-xs font-v6-body font-semibold uppercase tracking-wider">
             Customer
           </span>
         </div>
-        <div className="text-sm">
-          <p className="text-text-primary font-medium">
+        <div className="text-sm font-v6-body">
+          <p className="text-v6-text-primary font-medium">
             {order.customerName || "Guest"}
           </p>
-          <p className="text-text-secondary">{order.customerEmail}</p>
+          <p className="text-v6-text-secondary">{order.customerEmail}</p>
         </div>
       </div>
 
-      {/* Delivery Info */}
+      {/* V6 Delivery Info */}
       <div className="space-y-2">
-        <div className="flex items-center gap-2 text-text-secondary">
+        <div className="flex items-center gap-2 text-v6-text-muted">
           <Calendar className="h-4 w-4" />
-          <span className="text-xs font-semibold uppercase tracking-wider">
+          <span className="text-xs font-v6-body font-semibold uppercase tracking-wider">
             Delivery Window
           </span>
         </div>
-        <p className="text-sm text-text-primary">
+        <p className="text-sm font-v6-body text-v6-text-primary">
           {order.deliveryWindowStart
             ? format(parseISO(order.deliveryWindowStart), "EEEE, MMMM d, yyyy")
             : "Not scheduled"}
         </p>
       </div>
 
-      {/* Order Total */}
+      {/* V6 Order Total */}
       <div className="space-y-2">
-        <div className="flex items-center gap-2 text-text-secondary">
+        <div className="flex items-center gap-2 text-v6-text-muted">
           <DollarSign className="h-4 w-4" />
-          <span className="text-xs font-semibold uppercase tracking-wider">
+          <span className="text-xs font-v6-body font-semibold uppercase tracking-wider">
             Order Total
           </span>
         </div>
-        <p className="text-lg font-bold text-interactive-primary">
+        <p className="text-lg font-v6-display font-bold text-v6-primary">
           {formatPrice(order.totalCents)}
         </p>
       </div>

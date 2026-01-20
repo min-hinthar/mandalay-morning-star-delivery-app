@@ -54,32 +54,32 @@ export default async function OrdersPage() {
   }));
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-cream to-lotus/30 py-8 px-4">
+    <main className="min-h-screen bg-gradient-to-b from-v6-surface-secondary to-v6-surface-primary py-8 px-4">
       <div className="mx-auto max-w-2xl">
-        {/* Header */}
+        {/* V6 Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="rounded-full bg-brand-red/10 p-2">
-              <Package className="h-6 w-6 text-brand-red" />
+            <div className="rounded-full bg-v6-primary-light p-2.5">
+              <Package className="h-6 w-6 text-v6-primary" />
             </div>
-            <h1 className="text-2xl font-display text-charcoal">Your Orders</h1>
+            <h1 className="text-2xl font-v6-display font-bold text-v6-text-primary">Your Orders</h1>
           </div>
-          <Button asChild>
+          <Button asChild variant="primary">
             <Link href="/menu">Order Again</Link>
           </Button>
         </div>
 
-        {/* Orders List */}
+        {/* V6 Orders List */}
         {orders.length === 0 ? (
           <div className="text-center py-16">
-            <div className="rounded-full bg-muted/50 w-16 h-16 mx-auto flex items-center justify-center mb-4">
-              <ShoppingBag className="h-8 w-8 text-muted-foreground" />
+            <div className="rounded-full bg-v6-surface-tertiary w-20 h-20 mx-auto flex items-center justify-center mb-6">
+              <ShoppingBag className="h-10 w-10 text-v6-text-muted" />
             </div>
-            <h2 className="text-lg font-medium text-charcoal mb-2">No orders yet</h2>
-            <p className="text-muted-foreground mb-6">
+            <h2 className="text-xl font-v6-display font-bold text-v6-text-primary mb-2">No orders yet</h2>
+            <p className="font-v6-body text-v6-text-secondary mb-8">
               When you place an order, it will appear here.
             </p>
-            <Button asChild>
+            <Button asChild variant="primary" size="lg" className="shadow-v6-elevated">
               <Link href="/menu">Browse Menu</Link>
             </Button>
           </div>

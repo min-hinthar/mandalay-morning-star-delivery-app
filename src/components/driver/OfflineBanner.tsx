@@ -1,3 +1,10 @@
+/**
+ * V6 Offline Banner - Pepper Aesthetic
+ *
+ * Banner showing offline status, pending sync items, and sync results.
+ * V6 colors for status indicators with high visibility.
+ */
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -27,7 +34,7 @@ export function OfflineBanner() {
     <div className="fixed left-0 right-0 top-0 z-40">
       {/* Offline banner */}
       {!isOnline && (
-        <div className="bg-status-error px-4 py-2 text-center text-sm font-medium text-text-inverse">
+        <div className="bg-v6-status-error px-4 py-2 text-center font-v6-body text-sm font-medium text-white">
           <div className="flex items-center justify-center gap-2">
             <WifiOff className="h-4 w-4" />
             <span>You&apos;re offline. Changes will sync when reconnected.</span>
@@ -37,7 +44,7 @@ export function OfflineBanner() {
 
       {/* Pending items banner */}
       {isOnline && pendingCounts.total > 0 && (
-        <div className="bg-status-warning px-4 py-2 text-center text-sm font-medium text-text-primary">
+        <div className="bg-v6-secondary px-4 py-2 text-center font-v6-body text-sm font-medium text-v6-text-primary">
           <div className="flex items-center justify-center gap-2">
             {isSyncing ? (
               <>
@@ -50,7 +57,7 @@ export function OfflineBanner() {
                 <span>{pendingCounts.total} items pending sync</span>
                 <button
                   onClick={syncNow}
-                  className="ml-2 rounded-full bg-white/20 px-2 py-0.5 text-xs hover:bg-white/30"
+                  className="ml-2 rounded-full bg-white/30 px-3 py-0.5 text-xs font-semibold transition-colors hover:bg-white/40"
                 >
                   Sync Now
                 </button>
@@ -67,7 +74,7 @@ export function OfflineBanner() {
         (lastSyncResult.statusSynced > 0 ||
           lastSyncResult.photosSynced > 0 ||
           lastSyncResult.locationsSynced > 0) && (
-          <div className="bg-status-success px-4 py-2 text-center text-sm font-medium text-text-inverse">
+          <div className="bg-v6-green px-4 py-2 text-center font-v6-body text-sm font-medium text-white">
             <div className="flex items-center justify-center gap-2">
               <Check className="h-4 w-4" />
               <span>

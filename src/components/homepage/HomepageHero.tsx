@@ -4,142 +4,111 @@ import { useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { ChevronDown } from "lucide-react";
-import { heroContainer, heroItem, floatingElement } from "@/lib/animations/variants";
-import { useDynamicLuminance, getContrastTextClasses } from "@/lib/hooks/useLuminance";
+import { Button } from "@/components/ui/button";
+import {
+  v6StaggerContainer,
+  v6StaggerItem,
+  v6FloatIngredient,
+} from "@/lib/motion";
 
 interface HomepageHeroProps {
   onScrollToMenu?: () => void;
   onScrollToCoverage?: () => void;
 }
 
-// Floating lotus SVG component
-function LotusFlower({ className = "" }: { className?: string }) {
+/**
+ * V6 Floating Ingredient Placeholder
+ * Colorful shapes that drift and rotate for playful aesthetic
+ */
+function FloatingIngredient({
+  index,
+  color,
+  size,
+  className = "",
+}: {
+  index: number;
+  color: string;
+  size: number;
+  className?: string;
+}) {
+  const shouldReduceMotion = useReducedMotion();
+  const floatVariant = v6FloatIngredient(index);
+
   return (
-    <svg
-      viewBox="0 0 100 100"
-      className={className}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {/* Center petal */}
-      <path
-        d="M50 15 C55 25, 55 40, 50 55 C45 40, 45 25, 50 15"
-        fill="#D4AF37"
-        fillOpacity="0.6"
-      />
-      {/* Left petals */}
-      <path
-        d="M30 30 C40 35, 48 45, 50 55 C38 48, 32 38, 30 30"
-        fill="#D4AF37"
-        fillOpacity="0.5"
-      />
-      <path
-        d="M15 45 C28 45, 42 50, 50 55 C38 55, 22 52, 15 45"
-        fill="#D4AF37"
-        fillOpacity="0.4"
-      />
-      {/* Right petals */}
-      <path
-        d="M70 30 C60 35, 52 45, 50 55 C62 48, 68 38, 70 30"
-        fill="#D4AF37"
-        fillOpacity="0.5"
-      />
-      <path
-        d="M85 45 C72 45, 58 50, 50 55 C62 55, 78 52, 85 45"
-        fill="#D4AF37"
-        fillOpacity="0.4"
-      />
-      {/* Base */}
-      <ellipse cx="50" cy="60" rx="12" ry="5" fill="#8B4513" fillOpacity="0.3" />
-    </svg>
+    <motion.div
+      animate={shouldReduceMotion ? {} : floatVariant.animate}
+      transition={shouldReduceMotion ? {} : floatVariant.transition}
+      className={`absolute rounded-full opacity-60 blur-[1px] ${className}`}
+      style={{
+        width: size,
+        height: size * 0.8, // Slightly oval
+        backgroundColor: color,
+        boxShadow: `0 8px 32px ${color}40`,
+      }}
+    />
   );
 }
 
-// Pagoda silhouette SVG
-function PagodaSilhouette({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 120 200"
-      className={className}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {/* Spire */}
-      <path d="M60 0 L65 20 L55 20 Z" fill="#8B1A1A" fillOpacity="0.2" />
-      {/* Top tier */}
-      <path d="M50 20 L70 20 L75 40 L45 40 Z" fill="#8B1A1A" fillOpacity="0.15" />
-      {/* Second tier */}
-      <path d="M40 40 L80 40 L90 70 L30 70 Z" fill="#8B1A1A" fillOpacity="0.12" />
-      {/* Third tier */}
-      <path d="M25 70 L95 70 L105 110 L15 110 Z" fill="#8B1A1A" fillOpacity="0.1" />
-      {/* Base */}
-      <path d="M10 110 L110 110 L120 160 L0 160 Z" fill="#8B1A1A" fillOpacity="0.08" />
-      <rect x="5" y="160" width="110" height="40" fill="#8B1A1A" fillOpacity="0.06" />
-    </svg>
-  );
-}
-
+/**
+ * V6 Homepage Hero - Pepper Aesthetic
+ * Features floating ingredient animations, bold typography, vibrant CTAs
+ */
 export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHeroProps) {
   const shouldReduceMotion = useReducedMotion();
-  const backgroundRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
 
-  // Dynamic text color based on background luminance
-  const { luminance } = useDynamicLuminance(backgroundRef, "dark");
-  const textClasses = getContrastTextClasses(luminance, { withShadow: true, intensity: "strong" });
-  const textClassesMuted = getContrastTextClasses(luminance, { withShadow: true });
+  // V6 Accent colors for floating ingredients
+  const ingredientColors = [
+    "var(--color-v6-primary)",      // Deep red (pepper)
+    "var(--color-v6-secondary)",    // Golden yellow (turmeric)
+    "var(--color-v6-accent-green)", // Fresh green (herbs)
+    "var(--color-v6-accent-orange)", // Orange (chili)
+    "var(--color-v6-accent-teal)",  // Teal (fresh)
+    "var(--color-v6-primary)",      // More red
+    "var(--color-v6-secondary)",    // More yellow
+    "var(--color-v6-accent-green)", // More green
+  ];
 
   return (
-    <section className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden">
-      {/* Animated Gradient Background */}
-      <div ref={backgroundRef} className="absolute inset-0 bg-gradient-animated opacity-90" />
+    <section
+      ref={heroRef}
+      className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-v6-surface-secondary via-v6-surface-primary to-v6-surface-tertiary"
+    >
+      {/* Warm gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-v6-primary/5 via-transparent to-v6-secondary/10" />
 
-      {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
+      {/* Floating Ingredients - V6 Pepper Aesthetic */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Top left cluster */}
+        <FloatingIngredient index={0} color={ingredientColors[0]} size={80} className="top-[10%] left-[5%]" />
+        <FloatingIngredient index={1} color={ingredientColors[1]} size={60} className="top-[20%] left-[15%]" />
+        <FloatingIngredient index={2} color={ingredientColors[2]} size={40} className="top-[8%] left-[20%]" />
 
-      {/* Decorative Elements - Hidden on mobile */}
-      <motion.div
-        variants={floatingElement}
-        animate={shouldReduceMotion ? {} : "animate"}
-        className="absolute top-20 left-10 hidden lg:block"
-      >
-        <LotusFlower className="w-24 h-24 opacity-60" />
-      </motion.div>
+        {/* Top right cluster */}
+        <FloatingIngredient index={3} color={ingredientColors[3]} size={70} className="top-[12%] right-[8%]" />
+        <FloatingIngredient index={4} color={ingredientColors[4]} size={50} className="top-[25%] right-[15%]" />
+        <FloatingIngredient index={5} color={ingredientColors[5]} size={35} className="top-[5%] right-[20%]" />
 
-      <motion.div
-        variants={floatingElement}
-        animate={shouldReduceMotion ? {} : "animate"}
-        style={{ animationDelay: "2s" }}
-        className="absolute top-40 right-16 hidden lg:block"
-      >
-        <LotusFlower className="w-16 h-16 opacity-50" />
-      </motion.div>
+        {/* Bottom corners */}
+        <FloatingIngredient index={6} color={ingredientColors[6]} size={90} className="bottom-[15%] left-[8%]" />
+        <FloatingIngredient index={7} color={ingredientColors[7]} size={55} className="bottom-[20%] right-[10%]" />
 
-      <motion.div
-        variants={floatingElement}
-        animate={shouldReduceMotion ? {} : "animate"}
-        style={{ animationDelay: "4s" }}
-        className="absolute bottom-40 left-20 hidden lg:block"
-      >
-        <LotusFlower className="w-20 h-20 opacity-55" />
-      </motion.div>
-
-      {/* Pagoda silhouettes */}
-      <div className="absolute bottom-0 left-0 hidden xl:block">
-        <PagodaSilhouette className="w-32 h-48 opacity-35" />
-      </div>
-      <div className="absolute bottom-0 right-10 hidden xl:block">
-        <PagodaSilhouette className="w-24 h-36 opacity-30" />
+        {/* Hidden on mobile, visible on larger screens */}
+        <FloatingIngredient index={8} color={ingredientColors[0]} size={45} className="hidden lg:block top-[40%] left-[3%]" />
+        <FloatingIngredient index={9} color={ingredientColors[2]} size={65} className="hidden lg:block top-[45%] right-[5%]" />
+        <FloatingIngredient index={10} color={ingredientColors[4]} size={50} className="hidden xl:block bottom-[35%] left-[12%]" />
+        <FloatingIngredient index={11} color={ingredientColors[1]} size={75} className="hidden xl:block bottom-[30%] right-[8%]" />
       </div>
 
       {/* Main Content */}
       <motion.div
-        variants={heroContainer}
-        initial={shouldReduceMotion ? false : "hidden"}
-        animate={shouldReduceMotion ? false : "visible"}
+        variants={v6StaggerContainer}
+        initial="hidden"
+        animate="visible"
         className="relative z-10 text-center px-6 max-w-4xl mx-auto"
       >
         {/* Logo */}
-        <motion.div variants={heroItem} className="mb-8">
+        <motion.div variants={v6StaggerItem} className="mb-8">
           <div className="relative inline-block">
             <Image
               src="/logo.png"
@@ -149,77 +118,79 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
               priority
               className="mx-auto drop-shadow-2xl"
             />
-            {/* Glow effect behind logo */}
-            <div className="absolute inset-0 bg-[var(--color-interactive-primary)]/20 blur-3xl -z-10 rounded-full scale-150" />
+            {/* V6 Glow effect - warm primary */}
+            <div className="absolute inset-0 bg-v6-primary/15 blur-3xl -z-10 rounded-full scale-150" />
           </div>
         </motion.div>
 
-        {/* Main Heading */}
+        {/* V6 Main Heading - Bold, Playful */}
         <motion.h1
-          variants={heroItem}
-          className={`font-display text-5xl md:text-6xl lg:text-7xl font-bold mb-4 ${textClasses}`}
+          variants={v6StaggerItem}
+          className="font-v6-display text-5xl md:text-6xl lg:text-7xl font-black mb-4 text-v6-text-primary"
         >
-          <span className="text-gradient-gold">Mandalay</span>{" "}
-          <span className={textClasses}>Morning Star</span>
+          <span className="bg-gradient-to-r from-v6-primary via-v6-primary-hover to-v6-primary bg-clip-text text-transparent">
+            Your Food Adventure
+          </span>{" "}
+          <br className="hidden sm:block" />
+          <span className="text-v6-text-primary">Starts Here!</span>
         </motion.h1>
 
-        {/* Burmese Subtitle */}
+        {/* Burmese Subtitle - V6 Golden */}
         <motion.p
-          variants={heroItem}
-          className="font-burmese text-2xl md:text-3xl text-[var(--color-interactive-primary)] mb-6 drop-shadow-md"
+          variants={v6StaggerItem}
+          className="font-burmese text-2xl md:text-3xl text-v6-secondary mb-6 drop-shadow-sm"
         >
           မန္တလေး မနက်ခင်းကြယ်
         </motion.p>
 
-        {/* English Tagline */}
+        {/* English Tagline - V6 Body */}
         <motion.p
-          variants={heroItem}
-          className={`text-lg md:text-xl mb-8 max-w-2xl mx-auto leading-relaxed opacity-90 ${textClassesMuted}`}
+          variants={v6StaggerItem}
+          className="font-v6-body text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed text-v6-text-secondary"
         >
           Authentic Burmese cuisine crafted with love, delivered fresh to your
           door every Saturday in Southern California.
         </motion.p>
 
-        {/* CTA Buttons */}
+        {/* V6 CTA Buttons - Pill Shape */}
         <motion.div
-          variants={heroItem}
+          variants={v6StaggerItem}
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
+          <Button
+            variant="primary"
+            size="lg"
             onClick={onScrollToMenu}
-            className="px-8 py-4 bg-[var(--color-surface)] text-[var(--color-accent-tertiary)] font-semibold rounded-xl shadow-[var(--elevation-2)] hover:shadow-[var(--elevation-3)] transition-shadow animate-cta-shimmer"
+            className="shadow-v6-elevated hover:shadow-v6-button-hover"
           >
-            View Our Menu
-          </motion.button>
+            Order Now
+          </Button>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
+          <Button
+            variant="outline"
+            size="lg"
             onClick={onScrollToCoverage}
-            className="px-8 py-4 bg-black/20 backdrop-blur-sm border-2 border-[var(--color-text-inverse)]/80 text-[var(--color-text-inverse)] font-semibold rounded-xl hover:bg-black/30 transition-colors"
           >
             Check Delivery Area
-          </motion.button>
+          </Button>
         </motion.div>
 
-        {/* Saturday Badge */}
+        {/* V6 Saturday Badge - Vibrant */}
         <motion.div
-          variants={heroItem}
-          className="mt-10 inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-accent-tertiary)]/90 backdrop-blur-sm rounded-full shadow-[var(--elevation-3)]"
+          variants={v6StaggerItem}
+          className="mt-10 inline-flex items-center gap-3 px-6 py-3 bg-v6-surface-primary rounded-v6-pill shadow-v6-card border border-v6-border-subtle"
         >
           <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--color-accent-secondary)] opacity-75" />
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--color-accent-secondary)]" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-v6-green opacity-75" />
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-v6-green" />
           </span>
-          <span className="text-[var(--color-text-inverse)] font-medium drop-shadow-sm">
+          <span className="text-v6-text-primary font-v6-body font-semibold">
             Fresh deliveries every Saturday, 11am - 7pm
           </span>
         </motion.div>
       </motion.div>
 
-      {/* Scroll Indicator */}
+      {/* V6 Scroll Indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -232,7 +203,7 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
             shouldReduceMotion
               ? {}
               : {
-                  y: [0, 10, 0],
+                  y: [0, 8, 0],
                 }
           }
           transition={{
@@ -240,16 +211,16 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className={`flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-opacity ${textClassesMuted}`}
+          className="flex flex-col items-center gap-2 text-v6-text-muted hover:text-v6-primary transition-colors duration-v6-normal"
           aria-label="Scroll down"
         >
-          <span className="text-sm font-medium">Scroll to explore</span>
+          <span className="text-sm font-v6-body font-medium">Scroll to explore</span>
           <ChevronDown className="w-6 h-6" />
         </motion.button>
       </motion.div>
 
-      {/* Bottom fade gradient */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+      {/* Bottom fade to content */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-v6-surface-primary to-transparent" />
     </section>
   );
 }
