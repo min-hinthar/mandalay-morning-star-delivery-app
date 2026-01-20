@@ -1,0 +1,447 @@
+"use client";
+
+import React, { useState, useCallback, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Calendar, Clock, ChevronLeft, ChevronRight, Sun, Moon, Sunrise, Check } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+import { v7Spring, v7StaggerContainer } from "@/lib/motion-tokens-v7";
+import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import type { TimeWindow, DeliveryDate, DeliverySelection } from "@/types/delivery";
+import { TIME_WINDOWS } from "@/types/delivery";
+
+// ============================================
+// TYPES
+// ============================================
+
+export interface TimeSlotPickerV7Props {
+  /** Available delivery dates */
+  availableDates: DeliveryDate[];
+  /** Selected delivery */
+  selectedDelivery: DeliverySelection | null;
+  /** Callback when selection changes */
+  onSelectionChange: (selection: DeliverySelection) => void;
+  /** Additional className */
+  className?: string;
+}
+
+// ============================================
+// DATE PILL COMPONENT
+// ============================================
+
+interface DatePillV7Props {
+  date: DeliveryDate;
+  isSelected: boolean;
+  onSelect: () => void;
+  index: number;
+}
+
+function DatePillV7({ date, isSelected, onSelect, index }: DatePillV7Props) {
+  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+
+  // Parse date for display
+  const dateObj = new Date(date.dateString);
+  const dayName = dateObj.toLocaleDateString("en-US", { weekday: "short" });
+  const dayNum = dateObj.getDate();
+  const monthName = dateObj.toLocaleDateString("en-US", { month: "short" });
+
+  const isToday = new Date().toDateString() === dateObj.toDateString();
+  const isTomorrow = new Date(Date.now() + 86400000).toDateString() === dateObj.toDateString();
+
+  return (
+    <motion.button
+      type="button"
+      onClick={onSelect}
+      disabled={date.cutoffPassed}
+      initial={shouldAnimate ? { opacity: 0, scale: 0.8, y: 10 } : undefined}
+      animate={shouldAnimate ? { opacity: 1, scale: 1, y: 0 } : undefined}
+      transition={{ ...getSpring(v7Spring.rubbery), delay: index * 0.05 }}
+      whileHover={shouldAnimate && !date.cutoffPassed ? { scale: 1.05, y: -4 } : undefined}
+      whileTap={shouldAnimate && !date.cutoffPassed ? { scale: 0.95 } : undefined}
+      className={cn(
+        "relative flex-shrink-0 w-20 py-4 px-2 rounded-2xl",
+        "flex flex-col items-center gap-1",
+        "border-2 transition-colors duration-200",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary focus-visible:ring-offset-2",
+        isSelected
+          ? "border-v6-primary bg-v6-primary text-white shadow-lg shadow-v6-primary/30"
+          : date.cutoffPassed
+          ? "border-v6-border bg-v6-surface-tertiary text-v6-text-muted cursor-not-allowed opacity-50"
+          : "border-v6-border bg-v6-surface-primary text-v6-text-primary hover:border-v6-primary/50"
+      )}
+    >
+      {/* Day name or Today/Tomorrow */}
+      <span className={cn(
+        "text-xs font-medium uppercase tracking-wider",
+        isSelected ? "text-white/80" : "text-v6-text-secondary"
+      )}>
+        {isToday ? "Today" : isTomorrow ? "Tomorrow" : dayName}
+      </span>
+
+      {/* Day number */}
+      <motion.span
+        className="text-2xl font-bold"
+        animate={isSelected && shouldAnimate ? {
+          scale: [1, 1.1, 1],
+        } : undefined}
+        transition={getSpring(v7Spring.ultraBouncy)}
+      >
+        {dayNum}
+      </motion.span>
+
+      {/* Month */}
+      <span className={cn(
+        "text-xs",
+        isSelected ? "text-white/80" : "text-v6-text-muted"
+      )}>
+        {monthName}
+      </span>
+
+      {/* Selected indicator */}
+      {isSelected && (
+        <motion.div
+          initial={shouldAnimate ? { scale: 0 } : undefined}
+          animate={shouldAnimate ? { scale: 1 } : undefined}
+          transition={getSpring(v7Spring.ultraBouncy)}
+          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-white flex items-center justify-center"
+        >
+          <Check className="w-3 h-3 text-v6-primary" />
+        </motion.div>
+      )}
+
+      {/* Next week badge */}
+      {date.isNextWeek && !isSelected && (
+        <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] px-1.5 py-0.5 rounded-full bg-v6-secondary text-white font-medium whitespace-nowrap">
+          Next Week
+        </span>
+      )}
+    </motion.button>
+  );
+}
+
+// ============================================
+// TIME SLOT PILL COMPONENT
+// ============================================
+
+interface TimeSlotPillV7Props {
+  slot: TimeWindow;
+  isSelected: boolean;
+  isDisabled: boolean;
+  onSelect: () => void;
+  index: number;
+}
+
+function TimeSlotPillV7({
+  slot,
+  isSelected,
+  isDisabled,
+  onSelect,
+  index,
+}: TimeSlotPillV7Props) {
+  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+
+  // Determine time of day icon
+  const hour = parseInt(slot.start.split(":")[0]);
+  const TimeIcon = hour < 12 ? Sunrise : hour < 17 ? Sun : Moon;
+
+  return (
+    <motion.button
+      type="button"
+      onClick={onSelect}
+      disabled={isDisabled}
+      initial={shouldAnimate ? { opacity: 0, x: -20 } : undefined}
+      animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
+      transition={{ ...getSpring(v7Spring.snappy), delay: index * 0.04 }}
+      whileHover={shouldAnimate && !isDisabled ? { scale: 1.02 } : undefined}
+      whileTap={shouldAnimate && !isDisabled ? { scale: 0.98 } : undefined}
+      className={cn(
+        "relative flex items-center gap-3 px-4 py-3 rounded-xl",
+        "border-2 transition-all duration-200",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary focus-visible:ring-offset-2",
+        isSelected
+          ? "border-v6-primary bg-v6-primary-light/50 shadow-md"
+          : isDisabled
+          ? "border-v6-border bg-v6-surface-tertiary text-v6-text-muted cursor-not-allowed opacity-50"
+          : "border-v6-border bg-v6-surface-primary hover:border-v6-primary/50"
+      )}
+    >
+      {/* Time icon */}
+      <motion.div
+        animate={isSelected && shouldAnimate ? {
+          rotate: [0, -10, 10, 0],
+          scale: [1, 1.2, 1],
+        } : undefined}
+        transition={{
+          duration: 0.5,
+          delay: 0.1,
+        }}
+        className={cn(
+          "w-10 h-10 rounded-full flex items-center justify-center",
+          isSelected
+            ? "bg-v6-primary text-white"
+            : "bg-v6-surface-secondary text-v6-text-muted"
+        )}
+      >
+        <TimeIcon className="w-5 h-5" />
+      </motion.div>
+
+      {/* Time label */}
+      <div className="flex-1 text-left">
+        <p className={cn(
+          "font-semibold",
+          isSelected ? "text-v6-primary" : "text-v6-text-primary"
+        )}>
+          {slot.label}
+        </p>
+        <p className="text-xs text-v6-text-muted">
+          1 hour delivery window
+        </p>
+      </div>
+
+      {/* Selection indicator */}
+      <motion.div
+        className={cn(
+          "w-6 h-6 rounded-full border-2 flex items-center justify-center",
+          isSelected
+            ? "border-v6-primary bg-v6-primary"
+            : "border-v6-border bg-transparent"
+        )}
+      >
+        <AnimatePresence>
+          {isSelected && (
+            <motion.div
+              initial={shouldAnimate ? { scale: 0 } : undefined}
+              animate={shouldAnimate ? { scale: 1 } : undefined}
+              exit={shouldAnimate ? { scale: 0 } : undefined}
+              transition={getSpring(v7Spring.ultraBouncy)}
+            >
+              <Check className="w-4 h-4 text-white" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.button>
+  );
+}
+
+// ============================================
+// MAIN COMPONENT
+// ============================================
+
+export function TimeSlotPickerV7({
+  availableDates,
+  selectedDelivery,
+  onSelectionChange,
+  className,
+}: TimeSlotPickerV7Props) {
+  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  // Track selected date
+  const selectedDate = selectedDelivery?.date || null;
+  const selectedTime = selectedDelivery
+    ? { start: selectedDelivery.windowStart, end: selectedDelivery.windowEnd }
+    : null;
+
+  // Check scroll bounds
+  const updateScrollButtons = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    setCanScrollLeft(container.scrollLeft > 0);
+    setCanScrollRight(
+      container.scrollLeft < container.scrollWidth - container.clientWidth - 10
+    );
+  }, []);
+
+  useEffect(() => {
+    updateScrollButtons();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", updateScrollButtons);
+      window.addEventListener("resize", updateScrollButtons);
+    }
+    return () => {
+      container?.removeEventListener("scroll", updateScrollButtons);
+      window.removeEventListener("resize", updateScrollButtons);
+    };
+  }, [updateScrollButtons, availableDates]);
+
+  // Scroll handlers
+  const scrollBy = useCallback((direction: "left" | "right") => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const scrollAmount = 200;
+    container.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  }, []);
+
+  // Handle date selection
+  const handleDateSelect = useCallback((date: DeliveryDate) => {
+    if (date.cutoffPassed) return;
+
+    // If same date, keep time selection; otherwise reset
+    if (selectedDelivery && selectedDelivery.date === date.dateString) {
+      return;
+    }
+
+    // Select date with first available time slot
+    onSelectionChange({
+      date: date.dateString,
+      windowStart: TIME_WINDOWS[0].start,
+      windowEnd: TIME_WINDOWS[0].end,
+    });
+  }, [selectedDelivery, onSelectionChange]);
+
+  // Handle time selection
+  const handleTimeSelect = useCallback((slot: TimeWindow) => {
+    if (!selectedDate) return;
+
+    onSelectionChange({
+      date: selectedDate,
+      windowStart: slot.start,
+      windowEnd: slot.end,
+    });
+  }, [selectedDate, onSelectionChange]);
+
+  return (
+    <div className={cn("space-y-6", className)}>
+      {/* Date selector */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-v6-primary" />
+          <h3 className="font-semibold text-v6-text-primary">Select Date</h3>
+        </div>
+
+        {/* Scrollable date pills */}
+        <div className="relative">
+          {/* Scroll buttons */}
+          <AnimatePresence>
+            {canScrollLeft && (
+              <motion.button
+                type="button"
+                initial={shouldAnimate ? { opacity: 0, x: 10 } : undefined}
+                animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
+                exit={shouldAnimate ? { opacity: 0, x: 10 } : undefined}
+                onClick={() => scrollBy("left")}
+                className={cn(
+                  "absolute left-0 top-1/2 -translate-y-1/2 z-10",
+                  "w-10 h-10 rounded-full",
+                  "bg-v6-surface-primary/90 backdrop-blur-sm",
+                  "border border-v6-border shadow-lg",
+                  "flex items-center justify-center",
+                  "text-v6-text-primary hover:text-v6-primary",
+                  "transition-colors"
+                )}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {canScrollRight && (
+              <motion.button
+                type="button"
+                initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
+                animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
+                exit={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
+                onClick={() => scrollBy("right")}
+                className={cn(
+                  "absolute right-0 top-1/2 -translate-y-1/2 z-10",
+                  "w-10 h-10 rounded-full",
+                  "bg-v6-surface-primary/90 backdrop-blur-sm",
+                  "border border-v6-border shadow-lg",
+                  "flex items-center justify-center",
+                  "text-v6-text-primary hover:text-v6-primary",
+                  "transition-colors"
+                )}
+              >
+                <ChevronRight className="w-5 h-5" />
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          {/* Date pills container */}
+          <div
+            ref={scrollContainerRef}
+            className={cn(
+              "flex gap-3 overflow-x-auto scrollbar-hide",
+              "px-1 py-2 -mx-1",
+              "scroll-smooth snap-x snap-mandatory"
+            )}
+          >
+            {availableDates.map((date, index) => (
+              <DatePillV7
+                key={date.dateString}
+                date={date}
+                isSelected={selectedDate === date.dateString}
+                onSelect={() => handleDateSelect(date)}
+                index={index}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Time slot selector */}
+      <AnimatePresence>
+        {selectedDate && (
+          <motion.div
+            initial={shouldAnimate ? { opacity: 0, height: 0 } : undefined}
+            animate={shouldAnimate ? { opacity: 1, height: "auto" } : undefined}
+            exit={shouldAnimate ? { opacity: 0, height: 0 } : undefined}
+            transition={getSpring(v7Spring.gentle)}
+            className="space-y-3 overflow-hidden"
+          >
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-v6-primary" />
+              <h3 className="font-semibold text-v6-text-primary">Select Time</h3>
+            </div>
+
+            <motion.div
+              variants={shouldAnimate ? v7StaggerContainer(0.04, 0.1) : undefined}
+              initial="hidden"
+              animate="visible"
+              className="grid gap-2"
+            >
+              {TIME_WINDOWS.map((slot, index) => {
+                const isSlotSelected =
+                  selectedTime?.start === slot.start &&
+                  selectedTime?.end === slot.end;
+
+                return (
+                  <TimeSlotPillV7
+                    key={slot.start}
+                    slot={slot}
+                    isSelected={isSlotSelected}
+                    isDisabled={false}
+                    onSelect={() => handleTimeSelect(slot)}
+                    index={index}
+                  />
+                );
+              })}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Empty state */}
+      {!selectedDate && (
+        <motion.p
+          initial={shouldAnimate ? { opacity: 0 } : undefined}
+          animate={shouldAnimate ? { opacity: 1 } : undefined}
+          className="text-center text-v6-text-muted py-4"
+        >
+          Select a delivery date to see available time slots
+        </motion.p>
+      )}
+    </div>
+  );
+}
+
+export default TimeSlotPickerV7;
