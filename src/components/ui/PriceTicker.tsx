@@ -282,12 +282,12 @@ export function PriceChangeBadge({
         currency={currency}
         inCents={inCents}
         size="lg"
-        className="text-neutral-900"
+        className="text-v6-text-primary"
       />
 
       {original && original > current && (
         <>
-          <span className="text-neutral-400 line-through text-sm">
+          <span className="text-v6-text-muted line-through text-sm">
             {currency}
             {original.toFixed(2)}
           </span>

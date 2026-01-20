@@ -77,7 +77,7 @@ function CartBadge({ count, onClick, className }: CartBadgeProps) {
       className={cn(
         "relative p-2 rounded-xl",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A41034]/30",
-        "hover:bg-neutral-100/80 transition-colors duration-150",
+        "hover:bg-v6-surface-secondary/80 transition-colors duration-150",
         className
       )}
       whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
@@ -85,7 +85,7 @@ function CartBadge({ count, onClick, className }: CartBadgeProps) {
       transition={getSpring(v7Spring.snappy)}
       aria-label={`Cart with ${count} items`}
     >
-      <ShoppingBag className="w-5 h-5 text-neutral-700" />
+      <ShoppingBag className="w-5 h-5 text-v6-text-primary" />
 
       {/* Badge */}
       <AnimatePresence mode="wait">
@@ -166,7 +166,7 @@ function ExpandingSearch({ placeholder = "Search menu...", onSearch, className }
           onClick={handleExpand}
           className={cn(
             "w-10 h-10 flex items-center justify-center rounded-xl",
-            "hover:bg-neutral-100/80 transition-colors duration-150",
+            "hover:bg-v6-surface-secondary/80 transition-colors duration-150",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A41034]/30"
           )}
           whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
@@ -174,7 +174,7 @@ function ExpandingSearch({ placeholder = "Search menu...", onSearch, className }
           transition={getSpring(v7Spring.snappy)}
           aria-label="Search"
         >
-          <Search className="w-5 h-5 text-neutral-600" />
+          <Search className="w-5 h-5 text-v6-text-secondary" />
         </motion.button>
       )}
 
@@ -185,15 +185,15 @@ function ExpandingSearch({ placeholder = "Search menu...", onSearch, className }
             onSubmit={handleSubmit}
             className={cn(
               "absolute right-0 flex items-center",
-              "bg-neutral-100 rounded-xl overflow-hidden",
-              "border border-neutral-200"
+              "bg-v6-surface-tertiary rounded-xl overflow-hidden",
+              "border border-v6-border-default"
             )}
             initial={shouldAnimate ? { opacity: 0, width: 40 } : undefined}
             animate={shouldAnimate ? { opacity: 1, width: 240 } : undefined}
             exit={shouldAnimate ? { opacity: 0, width: 40 } : undefined}
             transition={getSpring(v7Spring.snappy)}
           >
-            <Search className="w-4 h-4 ml-3 text-neutral-400 flex-shrink-0" />
+            <Search className="w-4 h-4 ml-3 text-v6-text-muted flex-shrink-0" />
             <input
               ref={inputRef}
               type="text"
@@ -202,15 +202,15 @@ function ExpandingSearch({ placeholder = "Search menu...", onSearch, className }
               placeholder={placeholder}
               className={cn(
                 "flex-1 px-2 py-2 bg-transparent text-sm",
-                "focus:outline-none placeholder:text-neutral-400"
+                "focus:outline-none placeholder:text-v6-text-muted"
               )}
             />
             <button
               type="button"
               onClick={handleCollapse}
-              className="p-2 hover:bg-neutral-200/50 transition-colors"
+              className="p-2 hover:bg-v6-surface-tertiary/50 transition-colors"
             >
-              <X className="w-4 h-4 text-neutral-500" />
+              <X className="w-4 h-4 text-v6-text-muted" />
             </button>
           </motion.form>
         )}
@@ -240,7 +240,7 @@ function NavItemV7({ href, label, isActive }: NavItemV7Props) {
           "transition-colors duration-150",
           isActive
             ? "text-v6-primary"
-            : "text-neutral-700 hover:text-v6-primary"
+            : "text-v6-text-primary hover:text-v6-primary"
         )}
         whileHover={shouldAnimate ? { y: -2 } : undefined}
         whileTap={shouldAnimate ? { y: 0 } : undefined}
@@ -321,7 +321,7 @@ export const HeaderV7 = forwardRef<HTMLElement, HeaderV7Props>(
         ref={ref}
         className={cn(
           "fixed top-0 left-0 right-0 z-50",
-          "border-b border-neutral-200/50",
+          "border-b border-v6-border-default/50",
           className
         )}
         initial={false}

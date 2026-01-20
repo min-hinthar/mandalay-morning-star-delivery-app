@@ -47,12 +47,12 @@
   --color-v6-accent-magenta-light: rgba(201, 0, 107, 0.12);
 
   /* ===========================================
-     V6 SURFACE COLORS (Warm Pepper)
+     V6 SURFACE COLORS (Clean & Vibrant)
      =========================================== */
 
   --color-v6-surface-primary: #FFFFFF;
-  --color-v6-surface-secondary: #FFF9F5;
-  --color-v6-surface-tertiary: #F5F0EB;
+  --color-v6-surface-secondary: #FAFAFA;
+  --color-v6-surface-tertiary: #F5F5F5;
 
   /* ===========================================
      V6 TEXT COLORS
@@ -64,12 +64,12 @@
   --color-v6-text-inverse: #FFFFFF;
 
   /* ===========================================
-     V6 BORDER COLORS
+     V6 BORDER COLORS (Clean Gray)
      =========================================== */
 
-  --color-v6-border-default: #E8E1DC;
-  --color-v6-border-strong: #D0C8C0;
-  --color-v6-border-subtle: #F0EBE6;
+  --color-v6-border-default: #E5E7EB;
+  --color-v6-border-strong: #D1D5DB;
+  --color-v6-border-subtle: #F3F4F6;
 
   /* ===========================================
      V6 STATUS COLORS

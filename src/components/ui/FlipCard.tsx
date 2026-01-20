@@ -133,9 +133,9 @@ export const FlipCard = forwardRef<HTMLDivElement, FlipCardProps>(
         <motion.div
           className={cn(
             "absolute inset-0 rounded-2xl",
-            "bg-gradient-to-br from-white to-neutral-50",
-            "border border-neutral-200/60",
-            "shadow-lg shadow-neutral-900/5",
+            "bg-gradient-to-br from-white to-v6-surface-secondary",
+            "border border-v6-border-default/60",
+            "shadow-lg shadow-v6-text-primary/5",
             "overflow-hidden",
             frontClassName
           )}
@@ -164,7 +164,7 @@ export const FlipCard = forwardRef<HTMLDivElement, FlipCardProps>(
           </div>
 
           {/* Flip indicator */}
-          <div className="absolute bottom-3 right-3 text-neutral-400">
+          <div className="absolute bottom-3 right-3 text-v6-text-muted">
             <motion.svg
               width="20"
               height="20"
@@ -272,10 +272,10 @@ export function FAQFlipCard({ question, answer, className }: FAQFlipCardProps) {
           <span className="text-xs font-semibold uppercase tracking-wider text-v6-primary">
             Question
           </span>
-          <h3 className="text-lg font-semibold text-neutral-900 leading-snug">
+          <h3 className="text-lg font-semibold text-v6-text-primary leading-snug">
             {question}
           </h3>
-          <span className="mt-auto text-sm text-neutral-500">
+          <span className="mt-auto text-sm text-v6-text-muted">
             Tap to reveal answer
           </span>
         </div>

@@ -96,7 +96,7 @@ export const AnimatedLink = forwardRef<HTMLAnchorElement, AnimatedLinkProps>(
         className={cn(
           "relative inline-flex items-center gap-1.5 group",
           "font-medium transition-colors duration-150",
-          isActive ? "text-v6-primary" : "text-neutral-700 hover:text-v6-primary",
+          isActive ? "text-v6-primary" : "text-v6-text-primary hover:text-v6-primary",
           className
         )}
         initial="initial"
@@ -310,7 +310,7 @@ export const FooterLink = forwardRef<HTMLAnchorElement, FooterLinkProps>(
         underlineColor={subtle ? "#D4A017" : "#A41034"}
         className={cn(
           "text-sm",
-          subtle ? "text-neutral-500 hover:text-neutral-700" : "",
+          subtle ? "text-v6-text-muted hover:text-v6-text-primary" : "",
           className
         )}
         {...props}
@@ -335,7 +335,7 @@ export const BreadcrumbLink = forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>
   ({ isCurrent, className, children, ...props }, ref) => {
     if (isCurrent) {
       return (
-        <span className={cn("text-sm text-neutral-900 font-medium", className)}>
+        <span className={cn("text-sm text-v6-text-primary font-medium", className)}>
           {children}
         </span>
       );
@@ -346,7 +346,7 @@ export const BreadcrumbLink = forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>
         ref={ref}
         underlineStyle="none"
         className={cn(
-          "text-sm text-neutral-500 hover:text-v6-primary",
+          "text-sm text-v6-text-muted hover:text-v6-primary",
           className
         )}
         {...props}

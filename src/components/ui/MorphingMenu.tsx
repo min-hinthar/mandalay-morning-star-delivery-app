@@ -154,7 +154,7 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
           "relative flex flex-col items-center justify-center",
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A41034]/30 focus-visible:ring-offset-2",
           "rounded-lg p-2 -m-2",
-          "hover:bg-neutral-100/50 transition-colors duration-150",
+          "hover:bg-v6-surface-secondary/50 transition-colors duration-150",
           className
         )}
         style={{ width: size + 16, height: size + 16 }}

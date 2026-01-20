@@ -59,7 +59,7 @@ function DietaryBadge({ type, level = 1 }: DietaryBadgeProps) {
     vegan: {
       icon: <Leaf className="w-3 h-3" />,
       label: "Vegan",
-      color: "bg-emerald-500/20 text-emerald-600 border-emerald-500/30",
+      color: "bg-v6-accent-green/20 text-v6-accent-green border-v6-accent-green/30",
     },
     spicy: {
       icon: (
@@ -343,6 +343,7 @@ export function MenuItemCardV7({
         "relative group cursor-pointer",
         "bg-v6-surface-primary rounded-v6-card",
         "overflow-hidden",
+        "border border-v6-border",
         "shadow-v6-card hover:shadow-v6-card-hover",
         "transition-shadow duration-300",
         className
@@ -445,6 +446,7 @@ export function MenuItemCardV7({
         <div className="flex items-center justify-between">
           <PriceTicker
             value={item.basePriceCents}
+            inCents={true}
             className="text-lg font-bold text-v6-primary"
           />
 
