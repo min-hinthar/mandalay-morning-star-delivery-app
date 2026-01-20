@@ -224,6 +224,104 @@ Run `SELECT * FROM testing.check_rls_enabled()` to verify RLS status.
 - [Data Model](docs/04-data-model.md) - Database schema and RLS
 - [Frontend Design](docs/frontend-design-system.md) - UI/UX patterns
 
+## Deployment
+
+### Vercel Deployment
+
+1. **Connect Repository**
+   - Go to [Vercel Dashboard](https://vercel.com/new)
+   - Import your GitHub repository
+   - Select the `main` branch for production
+
+2. **Configure Environment Variables**
+   Add these in Vercel Project Settings > Environment Variables:
+
+   ```bash
+   # Required - Supabase
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+   SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+   # Required - App URL (use your Vercel domain)
+   NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+
+   # Required - Google Maps
+   GOOGLE_MAPS_API_KEY=AIza...
+
+   # Required - Stripe (use LIVE keys for production)
+   STRIPE_SECRET_KEY=sk_live_...
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
+
+   # Optional - Error Tracking
+   SENTRY_DSN=https://...@sentry.io/...
+   ```
+
+3. **Configure Supabase**
+   - Go to Supabase Dashboard > Authentication > URL Configuration
+   - Add callback URL: `https://your-app.vercel.app/auth/callback`
+   - Add site URL: `https://your-app.vercel.app`
+
+4. **Configure Stripe Webhooks**
+   - Go to Stripe Dashboard > Developers > Webhooks
+   - Add endpoint: `https://your-app.vercel.app/api/webhooks/stripe`
+   - Select events: `checkout.session.completed`, `payment_intent.succeeded`
+   - Copy webhook secret to `STRIPE_WEBHOOK_SECRET`
+
+5. **Deploy**
+   ```bash
+   git push origin main
+   ```
+   Vercel auto-deploys on push to main branch.
+
+### Production Checklist
+
+Before going live, verify:
+
+- [ ] All environment variables set in Vercel
+- [ ] `NEXT_PUBLIC_APP_URL` matches your production domain
+- [ ] Supabase callback URL configured for production
+- [ ] Stripe using LIVE keys (not test keys)
+- [ ] Stripe webhook endpoint added and verified
+- [ ] Google OAuth credentials (if used) include production domain
+- [ ] Google Maps API key restricted to production domain
+- [ ] Sentry DSN configured for error tracking
+- [ ] Custom domain configured (optional)
+
+## Troubleshooting
+
+### Auth Callback 303 Error
+
+If users see a 303 error during sign-in:
+
+1. **Check `NEXT_PUBLIC_APP_URL`** - Must be set in Vercel environment variables
+2. **Verify Supabase Redirect URLs** - Go to Supabase Dashboard > Authentication > URL Configuration and add your production callback URL
+3. **Check browser console** - Look for CORS or redirect errors
+
+### Build Failures
+
+Run locally to debug:
+```bash
+pnpm lint && pnpm typecheck && pnpm build
+```
+
+Common issues:
+- Missing environment variables (check `.env.local`)
+- TypeScript errors (run `pnpm typecheck`)
+- ESLint errors (run `pnpm lint --fix`)
+
+### Database Connection Issues
+
+1. Verify Supabase URL and keys are correct
+2. Check Supabase Dashboard > Project Settings > API for credentials
+3. Ensure RLS policies allow the operation
+
+### Stripe Webhook Issues
+
+1. Verify webhook secret matches
+2. Check Stripe Dashboard > Developers > Webhooks for delivery logs
+3. Ensure endpoint URL is correct: `/api/webhooks/stripe`
+
 ## Contributing
 
 1. Create a feature branch: `git checkout -b feat/feature-name`
