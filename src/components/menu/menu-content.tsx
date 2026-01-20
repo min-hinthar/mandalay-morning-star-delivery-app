@@ -8,7 +8,7 @@ import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import type { MenuCategory, MenuItem } from "@/types/menu";
 import type { SelectedModifier } from "@/lib/utils/price";
 import { MenuAccordion } from "./MenuAccordion";
-import { MenuItemCard } from "./menu-item-card";
+import { MenuItemCardV7 } from "./v7-index";
 import { ItemDetailModal } from "./item-detail-modal";
 import { MenuHeader } from "./menu-header";
 import { SearchResultsGrid } from "./search-results-grid";
@@ -102,7 +102,7 @@ export function MenuContent({ categories }: MenuContentProps) {
             categories={visibleCategories}
             onItemClick={handleItemSelect}
             renderItem={(item) => (
-              <MenuItemCard item={item} onSelect={() => handleItemSelect(item)} />
+              <MenuItemCardV7 item={item} onSelect={() => handleItemSelect(item)} />
             )}
             defaultExpanded={visibleCategories[0]?.slug ? [visibleCategories[0].slug] : []}
             allowMultiple={true}
