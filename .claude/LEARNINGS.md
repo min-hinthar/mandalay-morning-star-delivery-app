@@ -1116,3 +1116,118 @@ return <AdminDashboardV7 kpis={kpiData} />;
 Use Option A when V7 component needs multiple hooks or complex interactivity. Use Option B when just passing transformed data.
 **Apply when:** Integrating V7 client components into server component pages
 
+---
+
+## 2026-01-20: V7 Token Migration - Color Class Mappings
+
+**Context:** Comprehensive migration from legacy Tailwind colors to V7 design tokens
+**Learning:** Complete mapping of legacy Tailwind color classes to V7 tokens:
+
+| Legacy Tailwind | V7 Token |
+|----------------|----------|
+| `neutral-50` | `v6-surface-secondary` |
+| `neutral-100` | `v6-surface-secondary` or `v6-surface-tertiary` |
+| `neutral-200` | `v6-border-default` |
+| `neutral-300` | `v6-border-strong` |
+| `neutral-400` | `v6-text-muted` |
+| `neutral-500` | `v6-text-muted` |
+| `neutral-600` | `v6-text-secondary` |
+| `neutral-700` | `v6-text-primary` |
+| `neutral-800` | `v6-text-primary` |
+| `gray-*` | Same as `neutral-*` |
+| `emerald-500/600` | `v6-accent-green` / `v6-accent-green-hover` |
+| `amber-500` | `v6-accent-orange` |
+| `yellow-500` | `v6-secondary` |
+
+**Apply when:** Migrating components to V7 design system, fixing ESLint warnings about hardcoded colors
+
+---
+
+## 2026-01-20: V7 Z-Index Token Usage
+
+**Context:** ESLint flagged hardcoded z-index values like `z-[60]`
+**Learning:** V7 z-index tokens must be used via CSS variable syntax in Tailwind arbitrary values:
+```tsx
+// ❌ Wrong - hardcoded numeric z-index
+className="z-[60]"
+
+// ✅ Correct - use V7 z-index tokens
+className="z-[var(--z-popover)]"  // For overlays, dropdowns
+className="z-[var(--z-tooltip)]"  // For tooltips, highest priority UI
+className="z-[var(--z-modal)]"    // For modals
+```
+
+Available tokens in `src/styles/tokens.css`:
+- `--z-base: 0`
+- `--z-dropdown: 10`
+- `--z-sticky: 20`
+- `--z-fixed: 30`
+- `--z-modal-backdrop: 40`
+- `--z-modal: 50`
+- `--z-popover: 60`
+- `--z-tooltip: 70`
+
+**Apply when:** Positioning overlays, modals, dropdowns, fixing ESLint z-index warnings
+
+---
+
+## 2026-01-20: PriceTicker inCents Prop Required for Cent Values
+
+**Context:** Menu prices displayed as $1299.00 instead of $12.99
+**Learning:** `PriceTicker` component defaults `inCents={false}` (assumes dollar values). When passing values in cents (e.g., `basePriceCents`), must explicitly set `inCents={true}`:
+```tsx
+// ❌ Wrong - displays 1299 as $1299.00
+<PriceTicker value={item.basePriceCents} />
+
+// ✅ Correct - displays 1299 as $12.99
+<PriceTicker value={item.basePriceCents} inCents={true} />
+```
+
+**Apply when:** Using PriceTicker with cent-denominated values, debugging incorrect price displays
+
+---
+
+## 2026-01-20: Glass Effect Contrast Requirements
+
+**Context:** Glass effects lacked explicit text color, causing white text on light glass backgrounds
+**Learning:** Glass effects using `color-mix()` or `backdrop-blur` must include explicit text color for contrast:
+```css
+/* ❌ Wrong - text color inherits, may clash with background */
+.glass {
+  background: color-mix(in srgb, var(--color-v6-surface-primary) 85%, transparent);
+}
+
+/* ✅ Correct - explicit text color ensures readability */
+.glass {
+  background: color-mix(in srgb, var(--color-v6-surface-primary) 85%, transparent);
+  color: var(--color-v6-text-primary);  /* Dark text on light glass */
+}
+
+.glass-dark {
+  background: color-mix(in srgb, var(--color-v6-text-primary) 85%, transparent);
+  color: var(--color-v6-text-inverse);  /* Light text on dark glass */
+}
+```
+
+**Apply when:** Creating glass/frosted UI effects, fixing text contrast issues on translucent backgrounds
+
+---
+
+## 2026-01-20: Light Theme Brightening Pattern
+
+**Context:** Light theme was cream/brown toned instead of clean white
+**Learning:** V6 surface tokens were using warm cream colors. Clean light theme requires:
+```css
+/* src/styles/tokens.css */
+--color-v6-surface-primary: #FFFFFF;   /* Pure white, not #FFF9F5 */
+--color-v6-surface-secondary: #FAFAFA; /* Clean gray, not cream */
+--color-v6-surface-tertiary: #F5F5F5;  /* Neutral, not warm */
+
+/* Border colors also need to be clean gray */
+--color-v6-border-default: #E5E7EB;    /* Not #E8E1DC */
+--color-v6-border-strong: #D1D5DB;     /* Not #D0C8C0 */
+--color-v6-border-subtle: #F3F4F6;     /* Not #F0EBE6 */
+```
+
+**Apply when:** Theme looks "muddy" or "brown" in light mode, need cleaner/more vibrant appearance
+

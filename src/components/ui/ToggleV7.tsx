@@ -157,7 +157,7 @@ export const ToggleV7 = forwardRef<HTMLButtonElement, ToggleV7Props>(
           sizes.track,
           isChecked
             ? cn("bg-gradient-to-r", colors.gradient, "shadow-md", colors.activeShadow)
-            : "bg-neutral-200",
+            : "bg-v6-surface-tertiary",
           disabled && "opacity-50 cursor-not-allowed",
           !label && className
         )}
@@ -204,7 +204,7 @@ export const ToggleV7 = forwardRef<HTMLButtonElement, ToggleV7Props>(
 
             {/* X icon */}
             <motion.span
-              className="absolute right-1.5 text-neutral-400"
+              className="absolute right-1.5 text-v6-text-muted"
               initial={false}
               animate={
                 shouldAnimate
@@ -289,7 +289,7 @@ export const ToggleV7 = forwardRef<HTMLButtonElement, ToggleV7Props>(
           id={`${id}-label`}
           className={cn(
             "text-sm font-medium select-none",
-            isChecked ? "text-neutral-900" : "text-neutral-600"
+            isChecked ? "text-v6-text-primary" : "text-v6-text-secondary"
           )}
         >
           {label}
@@ -407,7 +407,7 @@ export const AnimatedCheckbox = forwardRef<HTMLButtonElement, AnimatedCheckboxPr
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary/30 focus-visible:ring-offset-2",
             isChecked
               ? "bg-v6-primary border-v6-primary"
-              : "bg-white border-neutral-300 hover:border-v6-primary/50"
+              : "bg-white border-v6-border-strong hover:border-v6-primary/50"
           )}
           whileHover={shouldAnimate && !disabled ? { scale: 1.1 } : undefined}
           whileTap={shouldAnimate && !disabled ? { scale: 0.9 } : undefined}
@@ -448,7 +448,7 @@ export const AnimatedCheckbox = forwardRef<HTMLButtonElement, AnimatedCheckboxPr
             id={`${id}-label`}
             className={cn(
               "text-sm font-medium",
-              isChecked ? "text-neutral-900" : "text-neutral-600"
+              isChecked ? "text-v6-text-primary" : "text-v6-text-secondary"
             )}
           >
             {label}

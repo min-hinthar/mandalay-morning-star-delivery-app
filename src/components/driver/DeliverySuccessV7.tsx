@@ -154,7 +154,7 @@ function AnimatedCheckmarkV7() {
         transition={{ ...getSpring(v7Spring.ultraBouncy), delay: 0.1 }}
         className={cn(
           "relative w-24 h-24 rounded-full",
-          "bg-gradient-to-br from-v6-green to-emerald-600",
+          "bg-gradient-to-br from-v6-green to-v6-accent-green-hover",
           "flex items-center justify-center",
           "shadow-xl shadow-v6-green/40"
         )}

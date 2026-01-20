@@ -125,7 +125,7 @@ const SingleSkeleton = forwardRef<HTMLDivElement, Omit<SkeletonV7Props, "count" 
 
     const baseClasses = cn(
       "relative overflow-hidden",
-      "bg-neutral-200",
+      "bg-v6-surface-tertiary",
       radiusConfig[radius],
       className
     );
@@ -352,7 +352,7 @@ export function SkeletonCard({
   return (
     <div
       className={cn(
-        "bg-white rounded-xl border border-neutral-200 overflow-hidden",
+        "bg-white rounded-xl border border-v6-border-default overflow-hidden",
         className
       )}
     >
@@ -401,7 +401,7 @@ export function SkeletonMenuItem({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex items-center gap-4 p-4 bg-white rounded-xl border border-neutral-200",
+        "flex items-center gap-4 p-4 bg-white rounded-xl border border-v6-border-default",
         className
       )}
     >
@@ -451,7 +451,7 @@ export function SkeletonTableRow({
   return (
     <div
       className={cn(
-        "flex items-center gap-4 px-4 border-b border-neutral-100",
+        "flex items-center gap-4 px-4 border-b border-v6-border-subtle",
         className
       )}
       style={{ height }}
