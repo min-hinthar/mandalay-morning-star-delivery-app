@@ -1433,3 +1433,32 @@ grep -oE 'from "\./[^"]+' file | sed 's/from "\.\/\(.*\)/\1/'
 ```
 **Apply when:** Chaining grep + sed for text extraction, debugging "sed not replacing" issues
 
+---
+
+## 2026-01-21: Z-Index Token Hierarchy - Layer Semantic Mapping
+
+**Context:** Fixing repo-wide z-index layering issues - header/nav unclickable, modals rendering behind content
+
+**Problem:** Mixed hardcoded `z-50` values across components created collision points. CartBar used `--z-modal-backdrop` (40) which placed it below modals. MobileNav used `--z-popover` (60) for backdrop when it should be lower.
+
+**Correct Layer Hierarchy (Bottom → Top):**
+| Token | Value | Components |
+|-------|-------|------------|
+| `--z-dropdown` | 10 | DropdownMenu content |
+| `--z-sticky` | 20 | CartBar, sticky category tabs |
+| `--z-fixed` | 30 | Fixed header |
+| `--z-modal-backdrop` | 40 | Modal/drawer backdrops, MobileNav backdrop |
+| `--z-modal` | 50 | Dialogs, drawers, mobile nav panels, overlays |
+| `--z-popover` | 60 | Popovers (unused - kept for Radix compat) |
+| `--z-tooltip` | 70 | Tooltips |
+| `--z-max` | 100 | Confetti, decorative overlays (pointer-events-none) |
+
+**Key Fixes Applied:**
+- CartBar: `--z-modal-backdrop` → `--z-sticky` (should be below fixed header)
+- MobileNav backdrop: `--z-popover` → `--z-modal-backdrop` (backdrop below panel)
+- MobileNav panel: `--z-tooltip` → `--z-modal` (modal layer, not tooltip)
+- Confetti/decorative: `z-50` → `--z-max` (highest, but pointer-events-none)
+- All Radix primitives: `z-50` → `--z-modal`
+
+**Apply when:** Adding fixed/sticky positioning, creating modals/overlays, debugging click-through issues
+
