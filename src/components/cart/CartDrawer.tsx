@@ -192,7 +192,7 @@ export function CartPreviewBar() {
       className={cn(
         "fixed bottom-0 inset-x-0 z-[var(--z-sticky)]",
         "p-4 pb-[max(1rem,env(safe-area-inset-bottom))]",
-        "bg-surface-primary/95 backdrop-blur-xl",
+        "bg-surface-primary",
         "border-t border-border",
         "shadow-elevated"
       )}

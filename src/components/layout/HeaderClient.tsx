@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, type ReactElement } from "react";
+import React, { useState, useMemo, useEffect, type ReactElement } from "react";
 import { usePathname } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { Header, HeaderSpacer } from "./v7-index";
@@ -61,6 +61,11 @@ export function HeaderClient({ user, role }: HeaderClientProps): ReactElement {
         icon: item.icon,
       }));
   }, [role]);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
   const handleMobileMenuToggle = (isOpen: boolean) => {
     setIsMobileMenuOpen(isOpen);
