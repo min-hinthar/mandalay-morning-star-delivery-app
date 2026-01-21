@@ -68,8 +68,8 @@ export function QuantitySelector({
             buttonSize,
             "rounded-full border-2",
             canDecrement
-              ? "border-v6-primary text-v6-primary hover:bg-v6-primary-light"
-              : "border-v6-border text-v6-text-muted"
+              ? "border-primary text-primary hover:bg-primary-light"
+              : "border-border text-text-muted"
           )}
         >
           <Minus className="h-5 w-5" />
@@ -93,8 +93,8 @@ export function QuantitySelector({
             exit={prefersReducedMotion ? undefined : { y: -10, opacity: 0, scale: 0.8 }}
             transition={prefersReducedMotion ? { duration: 0 } : v6SpringBouncy}
             className={cn(
-              "block font-v6-display font-bold tabular-nums",
-              disabled ? "text-v6-text-muted" : "text-v6-text-primary"
+              "block font-display font-bold tabular-nums",
+              disabled ? "text-text-muted" : "text-text-primary"
             )}
           >
             {value}
@@ -116,8 +116,8 @@ export function QuantitySelector({
             buttonSize,
             "rounded-full border-2",
             canIncrement
-              ? "border-v6-primary text-v6-primary hover:bg-v6-primary-light"
-              : "border-v6-border text-v6-text-muted"
+              ? "border-primary text-primary hover:bg-primary-light"
+              : "border-border text-text-muted"
           )}
         >
           <Plus className="h-5 w-5" />

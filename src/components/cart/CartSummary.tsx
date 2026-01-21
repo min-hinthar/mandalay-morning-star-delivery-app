@@ -43,34 +43,34 @@ export function CartSummary({ className, showEstimate = true }: CartSummaryProps
         />
       )}
 
-      <div className="space-y-2.5 font-v6-body text-sm">
+      <div className="space-y-2.5 font-body text-sm">
         <SummaryLine label="Subtotal" value={formattedSubtotal} />
         <SummaryLine
           label="Delivery"
           value={hasFreeDelivery ? "FREE" : formattedDeliveryFee}
-          valueClassName={hasFreeDelivery ? "text-v6-green font-semibold" : ""}
+          valueClassName={hasFreeDelivery ? "text-green font-semibold" : ""}
           icon={
             hasFreeDelivery ? (
-              <Check className="h-4 w-4 text-v6-green" />
+              <Check className="h-4 w-4 text-green" />
             ) : (
-              <Truck className="h-4 w-4 text-v6-text-muted" />
+              <Truck className="h-4 w-4 text-text-muted" />
             )
           }
         />
       </div>
 
-      <div className="border-t border-v6-border" />
+      <div className="border-t border-border" />
 
       <div className="flex items-center justify-between">
-        <span className="font-v6-display font-bold text-v6-text-primary">
+        <span className="font-display font-bold text-text-primary">
           {showEstimate ? "Estimated Total" : "Total"}
         </span>
-        <span className="text-xl font-v6-display font-bold text-v6-primary">{formattedTotal}</span>
+        <span className="text-xl font-display font-bold text-primary">{formattedTotal}</span>
       </div>
 
       {showEstimate && (
-        <p className="flex items-start gap-2 text-xs text-v6-text-secondary bg-v6-surface-secondary rounded-v6-input px-3 py-2">
-          <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-v6-teal" />
+        <p className="flex items-start gap-2 text-xs text-text-secondary bg-surface-secondary rounded-input px-3 py-2">
+          <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-teal" />
           <span>Final total calculated at checkout. Tax not included.</span>
         </p>
       )}
@@ -88,11 +88,11 @@ interface SummaryLineProps {
 function SummaryLine({ label, value, valueClassName, icon }: SummaryLineProps) {
   return (
     <div className="flex items-center justify-between">
-      <span className="flex items-center gap-1.5 text-v6-text-secondary">
+      <span className="flex items-center gap-1.5 text-text-secondary">
         {icon}
         {label}
       </span>
-      <span className={cn("text-v6-text-primary", valueClassName)}>{value}</span>
+      <span className={cn("text-text-primary", valueClassName)}>{value}</span>
     </div>
   );
 }
@@ -111,23 +111,23 @@ function FreeDeliveryProgress({
   progressPercent,
 }: FreeDeliveryProgressProps) {
   return (
-    <div className="rounded-v6-card-sm border border-v6-secondary/30 bg-v6-secondary-light p-4">
+    <div className="rounded-card-sm border border-secondary/30 bg-secondary-light p-4">
       <div className="flex items-center gap-2">
-        <Truck className="h-5 w-5 text-v6-secondary" />
-        <p className="text-sm font-v6-body font-semibold text-v6-text-primary">
-          Add <span className="text-v6-orange font-bold">{formatPrice(amountRemaining)}</span> more for{" "}
-          <span className="font-bold text-v6-primary">FREE delivery!</span>
+        <Truck className="h-5 w-5 text-secondary" />
+        <p className="text-sm font-body font-semibold text-text-primary">
+          Add <span className="text-orange font-bold">{formatPrice(amountRemaining)}</span> more for{" "}
+          <span className="font-bold text-primary">FREE delivery!</span>
         </p>
       </div>
-      <div className="mt-3 h-2.5 overflow-hidden rounded-v6-pill bg-v6-secondary/20">
+      <div className="mt-3 h-2.5 overflow-hidden rounded-pill bg-secondary/20">
         <motion.div
-          className="h-full bg-v6-secondary"
+          className="h-full bg-secondary"
           initial={{ width: 0 }}
           animate={{ width: `${progressPercent}%` }}
           transition={v6Spring}
         />
       </div>
-      <p className="mt-2 text-xs text-v6-text-muted">
+      <p className="mt-2 text-xs text-text-muted">
         Free delivery on orders $100+
       </p>
     </div>

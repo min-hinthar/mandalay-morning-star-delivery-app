@@ -48,18 +48,18 @@ export function RouteCard({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className={cn(
-          "rounded-v6-card bg-v6-surface-primary p-6 shadow-v6-md border border-v6-border",
+          "rounded-card bg-surface-primary p-6 shadow-md border border-border",
           className
         )}
       >
         <div className="py-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-v6-surface-tertiary">
-            <Package className="h-8 w-8 text-v6-text-muted" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-tertiary">
+            <Package className="h-8 w-8 text-text-muted" />
           </div>
-          <h2 className="mb-1 font-v6-display text-lg font-semibold text-v6-text-primary">
+          <h2 className="mb-1 font-display text-lg font-semibold text-text-primary">
             No Route Today
           </h2>
-          <p className="font-v6-body text-sm text-v6-text-muted">
+          <p className="font-body text-sm text-text-muted">
             {dayOfWeek === "Saturday"
               ? "Check back later for route assignment"
               : "Routes are only scheduled on Saturdays"}
@@ -83,50 +83,50 @@ export function RouteCard({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className={cn(
-          "rounded-v6-card bg-v6-surface-primary p-6 shadow-v6-md border border-v6-border",
+          "rounded-card bg-surface-primary p-6 shadow-md border border-border",
           className
         )}
       >
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-v6-text-muted">
+          <div className="flex items-center gap-2 text-text-muted">
             <Calendar className="h-4 w-4" />
-            <span className="font-v6-body text-sm">{dateDisplay}</span>
+            <span className="font-body text-sm">{dateDisplay}</span>
           </div>
-          <span className="rounded-full bg-v6-green/10 px-3 py-1 text-xs font-v6-body font-medium text-v6-green">
+          <span className="rounded-full bg-green/10 px-3 py-1 text-xs font-body font-medium text-green">
             Completed
           </span>
         </div>
 
         {/* Success message */}
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-v6-green/10">
-            <CheckCircle className="h-7 w-7 text-v6-green" />
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-green/10">
+            <CheckCircle className="h-7 w-7 text-green" />
           </div>
-          <h2 className="font-v6-display text-xl font-bold text-v6-text-primary">
+          <h2 className="font-display text-xl font-bold text-text-primary">
             Route Complete!
           </h2>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-v6-card-sm bg-v6-surface-secondary p-4 text-center">
-            <div className="flex items-center justify-center gap-2 text-v6-green">
+          <div className="rounded-card-sm bg-surface-secondary p-4 text-center">
+            <div className="flex items-center justify-center gap-2 text-green">
               <TrendingUp className="h-5 w-5" />
             </div>
-            <p className="mt-1 font-v6-display text-2xl font-bold text-v6-text-primary">
+            <p className="mt-1 font-display text-2xl font-bold text-text-primary">
               {route.deliveredCount}
             </p>
-            <p className="font-v6-body text-xs text-v6-text-muted">Delivered</p>
+            <p className="font-body text-xs text-text-muted">Delivered</p>
           </div>
-          <div className="rounded-v6-card-sm bg-v6-surface-secondary p-4 text-center">
-            <div className="flex items-center justify-center gap-2 text-v6-primary">
+          <div className="rounded-card-sm bg-surface-secondary p-4 text-center">
+            <div className="flex items-center justify-center gap-2 text-primary">
               <Clock className="h-5 w-5" />
             </div>
-            <p className="mt-1 font-v6-display text-2xl font-bold text-v6-text-primary">
+            <p className="mt-1 font-display text-2xl font-bold text-text-primary">
               {durationHours}h {durationMinutes}m
             </p>
-            <p className="font-v6-body text-xs text-v6-text-muted">Duration</p>
+            <p className="font-body text-xs text-text-muted">Duration</p>
           </div>
         </div>
       </motion.div>
@@ -147,13 +147,13 @@ export function RouteCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "rounded-v6-card bg-v6-surface-primary p-6 shadow-v6-md border border-v6-border",
+        "rounded-card bg-surface-primary p-6 shadow-md border border-border",
         className
       )}
     >
       {/* Header */}
       <div className="mb-1 flex items-center justify-between">
-        <h2 className="font-v6-display text-lg font-semibold text-v6-text-primary">
+        <h2 className="font-display text-lg font-semibold text-text-primary">
           Today&apos;s Route
         </h2>
         <StatusBadge status={route.status} />
@@ -161,14 +161,14 @@ export function RouteCard({
 
       {/* Large stop count */}
       <div className="my-6 text-center">
-        <p className="font-v6-display text-5xl font-bold text-v6-text-primary">
+        <p className="font-display text-5xl font-bold text-text-primary">
           {route.stopCount}
         </p>
-        <p className="font-v6-body text-lg text-v6-text-muted">stops</p>
+        <p className="font-body text-lg text-text-muted">stops</p>
       </div>
 
       {/* Duration and start info */}
-      <div className="mb-4 flex items-center justify-center gap-4 font-v6-body text-sm text-v6-text-muted">
+      <div className="mb-4 flex items-center justify-center gap-4 font-body text-sm text-text-muted">
         <span className="flex items-center gap-1">
           <MapPin className="h-4 w-4" />
           {route.pendingCount} remaining
@@ -184,18 +184,18 @@ export function RouteCard({
       {/* Progress bar (when in progress) */}
       {isInProgress && (
         <div className="mb-4">
-          <div className="flex items-center justify-between font-v6-body text-sm">
-            <span className="text-v6-text-muted">Progress</span>
-            <span className="font-medium text-v6-green">
+          <div className="flex items-center justify-between font-body text-sm">
+            <span className="text-text-muted">Progress</span>
+            <span className="font-medium text-green">
               {route.deliveredCount}/{route.stopCount} ({completionRate}%)
             </span>
           </div>
-          <div className="mt-1 h-3 w-full overflow-hidden rounded-full bg-v6-surface-tertiary">
+          <div className="mt-1 h-3 w-full overflow-hidden rounded-full bg-surface-tertiary">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${completionRate}%` }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="h-full rounded-full bg-v6-green"
+              className="h-full rounded-full bg-green"
             />
           </div>
         </div>
@@ -206,7 +206,7 @@ export function RouteCard({
         {route.status === "planned" ? (
           <Button
             onClick={onStartRoute}
-            className="h-14 w-full bg-v6-primary hover:bg-v6-primary-hover text-lg font-v6-body font-semibold text-white shadow-v6-sm"
+            className="h-14 w-full bg-primary hover:bg-primary-hover text-lg font-body font-semibold text-white shadow-sm"
             size="lg"
           >
             Start Route
@@ -214,7 +214,7 @@ export function RouteCard({
         ) : (
           <Button
             onClick={onContinueRoute}
-            className="h-14 w-full bg-v6-primary hover:bg-v6-primary-hover text-lg font-v6-body font-semibold text-white shadow-v6-sm"
+            className="h-14 w-full bg-primary hover:bg-primary-hover text-lg font-body font-semibold text-white shadow-sm"
             size="lg"
           >
             Continue Route
@@ -229,15 +229,15 @@ function StatusBadge({ status }: { status: RoutesRow["status"] }) {
   const statusConfig = {
     planned: {
       label: "Ready",
-      className: "bg-v6-primary/10 text-v6-primary",
+      className: "bg-primary/10 text-primary",
     },
     in_progress: {
       label: "In Progress",
-      className: "bg-v6-green/10 text-v6-green",
+      className: "bg-green/10 text-green",
     },
     completed: {
       label: "Completed",
-      className: "bg-v6-surface-tertiary text-v6-text-muted",
+      className: "bg-surface-tertiary text-text-muted",
     },
   };
 
@@ -246,7 +246,7 @@ function StatusBadge({ status }: { status: RoutesRow["status"] }) {
   return (
     <span
       className={cn(
-        "rounded-full px-3 py-1 font-v6-body text-xs font-medium",
+        "rounded-full px-3 py-1 font-body text-xs font-medium",
         config.className
       )}
     >

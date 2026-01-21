@@ -73,11 +73,11 @@ export function DeliveryActions({
             onClick={() => updateStatus("arrived")}
             disabled={disabled || isLoading}
             className={cn(
-              "flex h-14 w-full items-center justify-center gap-3 rounded-v6-card-sm",
-              "font-v6-body font-semibold",
-              "bg-v6-primary text-white shadow-v6-md",
-              "transition-all duration-v6-fast",
-              "hover:bg-v6-primary-hover hover:shadow-v6-lg",
+              "flex h-14 w-full items-center justify-center gap-3 rounded-card-sm",
+              "font-body font-semibold",
+              "bg-primary text-white shadow-md",
+              "transition-all duration-fast",
+              "hover:bg-primary-hover hover:shadow-lg",
               "active:scale-[0.98]",
               "disabled:cursor-not-allowed disabled:opacity-50"
             )}
@@ -103,11 +103,11 @@ export function DeliveryActions({
             onClick={() => updateStatus("delivered")}
             disabled={disabled || isLoading}
             className={cn(
-              "flex h-14 w-full items-center justify-center gap-3 rounded-v6-card-sm",
-              "font-v6-body font-semibold",
-              "bg-v6-green text-white shadow-v6-md",
-              "transition-all duration-v6-fast",
-              "hover:bg-v6-green/90 hover:shadow-v6-lg",
+              "flex h-14 w-full items-center justify-center gap-3 rounded-card-sm",
+              "font-body font-semibold",
+              "bg-green text-white shadow-md",
+              "transition-all duration-fast",
+              "hover:bg-green/90 hover:shadow-lg",
               "active:scale-[0.98]",
               "disabled:cursor-not-allowed disabled:opacity-50"
             )}
@@ -130,8 +130,8 @@ export function DeliveryActions({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className={cn(
-              "flex h-14 w-full items-center justify-center gap-2 rounded-v6-card-sm",
-              "bg-v6-green/10 font-v6-body font-semibold text-v6-green"
+              "flex h-14 w-full items-center justify-center gap-2 rounded-card-sm",
+              "bg-green/10 font-body font-semibold text-green"
             )}
           >
             <Check className="h-5 w-5" />
@@ -145,8 +145,8 @@ export function DeliveryActions({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className={cn(
-              "flex h-14 w-full items-center justify-center gap-2 rounded-v6-card-sm",
-              "bg-v6-status-error/10 font-v6-body font-semibold text-v6-status-error"
+              "flex h-14 w-full items-center justify-center gap-2 rounded-card-sm",
+              "bg-status-error/10 font-body font-semibold text-status-error"
             )}
           >
             <AlertTriangle className="h-5 w-5" />
@@ -177,11 +177,11 @@ export function DeliveryActions({
           onClick={onException}
           disabled={disabled || isLoading}
           className={cn(
-            "flex h-12 w-full items-center justify-center gap-2 rounded-v6-card-sm",
-            "font-v6-body font-medium",
-            "border-2 border-v6-status-error/20 bg-v6-surface-primary text-v6-status-error",
-            "transition-all duration-v6-fast",
-            "hover:border-v6-status-error/40 hover:bg-v6-status-error/5",
+            "flex h-12 w-full items-center justify-center gap-2 rounded-card-sm",
+            "font-body font-medium",
+            "border-2 border-status-error/20 bg-surface-primary text-status-error",
+            "transition-all duration-fast",
+            "hover:border-status-error/40 hover:bg-status-error/5",
             "active:scale-[0.98]",
             "disabled:cursor-not-allowed disabled:opacity-50"
           )}
@@ -197,7 +197,7 @@ export function DeliveryActions({
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-center font-v6-body text-sm text-v6-status-error"
+          className="text-center font-body text-sm text-status-error"
           role="alert"
         >
           {error}

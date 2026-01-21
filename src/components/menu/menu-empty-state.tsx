@@ -43,14 +43,14 @@ export function MenuEmptyState({
       >
         <motion.div
           variants={prefersReducedMotion ? undefined : iconVariants}
-          className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-v6-surface-tertiary"
+          className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-surface-tertiary"
         >
-          <UtensilsCrossed className="h-10 w-10 text-v6-text-muted" />
+          <UtensilsCrossed className="h-10 w-10 text-text-muted" />
         </motion.div>
-        <h2 className="mb-2 font-v6-display text-xl font-bold text-v6-text-primary">
+        <h2 className="mb-2 font-display text-xl font-bold text-text-primary">
           Menu Coming Soon
         </h2>
-        <p className="max-w-md font-v6-body text-v6-text-secondary">
+        <p className="max-w-md font-body text-text-secondary">
           We&apos;re preparing something delicious for you. Check back soon to
           see our full menu of authentic Burmese dishes.
         </p>
@@ -67,31 +67,31 @@ export function MenuEmptyState({
     >
       <motion.div
         variants={prefersReducedMotion ? undefined : iconVariants}
-        className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-v6-surface-tertiary"
+        className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-surface-tertiary"
       >
-        <Search className="h-10 w-10 text-v6-text-muted" />
+        <Search className="h-10 w-10 text-text-muted" />
       </motion.div>
-      <h2 className="mb-2 font-v6-display text-xl font-bold text-v6-text-primary">
+      <h2 className="mb-2 font-display text-xl font-bold text-text-primary">
         No Results Found
       </h2>
-      <p className="mb-8 max-w-md font-v6-body text-v6-text-secondary">
+      <p className="mb-8 max-w-md font-body text-text-secondary">
         We couldn&apos;t find any dishes matching &quot;{queryLabel}&quot;. Try
         a different search term or browse our categories.
       </p>
       {onClearSearch && (
-        <Button onClick={onClearSearch} variant="primary" size="lg" className="shadow-v6-elevated">
+        <Button onClick={onClearSearch} variant="primary" size="lg" className="shadow-elevated">
           Clear Search
         </Button>
       )}
-      <div className="mt-8 font-v6-body text-sm text-v6-text-muted">
-        <p className="mb-3 font-medium text-v6-text-secondary">
+      <div className="mt-8 font-body text-sm text-text-muted">
+        <p className="mb-3 font-medium text-text-secondary">
           Popular searches:
         </p>
         <div className="flex flex-wrap justify-center gap-2">
           {["Mohinga", "Curry", "Noodles", "Seafood"].map((term) => (
             <span
               key={term}
-              className="rounded-v6-pill bg-v6-surface-tertiary px-4 py-1.5 text-v6-text-primary transition-colors hover:bg-v6-primary-light"
+              className="rounded-pill bg-surface-tertiary px-4 py-1.5 text-text-primary transition-colors hover:bg-primary-light"
             >
               {term}
             </span>

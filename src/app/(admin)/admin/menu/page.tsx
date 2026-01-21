@@ -204,14 +204,14 @@ export default function AdminMenuPage() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-6">
-          <div className="h-10 w-48 bg-v6-surface-tertiary rounded-v6-input" />
-          <div className="h-4 w-64 bg-v6-surface-tertiary rounded-v6-input" />
+          <div className="h-10 w-48 bg-surface-tertiary rounded-input" />
+          <div className="h-4 w-64 bg-surface-tertiary rounded-input" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-24 bg-v6-surface-tertiary rounded-v6-card-sm" />
+              <div key={i} className="h-24 bg-surface-tertiary rounded-card-sm" />
             ))}
           </div>
-          <div className="h-96 bg-v6-surface-tertiary rounded-v6-card-sm" />
+          <div className="h-96 bg-surface-tertiary rounded-card-sm" />
         </div>
       </div>
     );
@@ -226,10 +226,10 @@ export default function AdminMenuPage() {
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl md:text-4xl font-v6-display font-bold text-v6-text-primary">
+          <h1 className="text-3xl md:text-4xl font-display font-bold text-text-primary">
             Menu Items
           </h1>
-          <p className="font-v6-body text-v6-text-secondary mt-1">
+          <p className="font-body text-text-secondary mt-1">
             Manage your menu items, prices, and availability
           </p>
         </div>
@@ -238,14 +238,14 @@ export default function AdminMenuPage() {
             variant="outline"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="border-v6-border hover:bg-v6-surface-tertiary"
+            className="border-border hover:bg-surface-tertiary"
           >
             <RefreshCw
               className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
             />
             Refresh
           </Button>
-          <Button className="bg-v6-primary hover:bg-v6-primary-hover text-white shadow-v6-sm">
+          <Button className="bg-primary hover:bg-primary-hover text-white shadow-sm">
             <Plus className="mr-2 h-4 w-4" />
             Add Item
           </Button>
@@ -260,30 +260,30 @@ export default function AdminMenuPage() {
         className="grid grid-cols-1 md:grid-cols-3 gap-4"
       >
         {/* Total Items */}
-        <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-surface-secondary border border-v6-border p-4 shadow-v6-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-v6-primary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative overflow-hidden rounded-card-sm bg-surface-secondary border border-border p-4 shadow-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
-            <div className="flex items-center gap-2 text-v6-primary">
+            <div className="flex items-center gap-2 text-primary">
               <UtensilsCrossed className="h-5 w-5" />
-              <span className="text-sm font-v6-body font-medium">Total Items</span>
+              <span className="text-sm font-body font-medium">Total Items</span>
             </div>
-            <p className="text-3xl font-v6-display font-bold text-v6-text-primary mt-2">
+            <p className="text-3xl font-display font-bold text-text-primary mt-2">
               {items.length}
             </p>
           </div>
         </div>
 
         {/* Active Items */}
-        <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-green/5 border border-v6-green/20 p-4 shadow-v6-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-v6-green/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative overflow-hidden rounded-card-sm bg-green/5 border border-green/20 p-4 shadow-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-green/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
-            <div className="flex items-center gap-2 text-v6-green">
+            <div className="flex items-center gap-2 text-green">
               <CheckCircle className="h-5 w-5" />
-              <span className="text-sm font-v6-body font-medium">Active</span>
+              <span className="text-sm font-body font-medium">Active</span>
             </div>
-            <p className="text-3xl font-v6-display font-bold text-v6-text-primary mt-2">
+            <p className="text-3xl font-display font-bold text-text-primary mt-2">
               {activeCount}
-              <span className="text-sm font-v6-body font-normal text-v6-text-muted ml-2">
+              <span className="text-sm font-body font-normal text-text-muted ml-2">
                 / {items.length}
               </span>
             </p>
@@ -291,14 +291,14 @@ export default function AdminMenuPage() {
         </div>
 
         {/* Sold Out */}
-        <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-secondary/5 border border-v6-secondary/20 p-4 shadow-v6-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-v6-secondary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative overflow-hidden rounded-card-sm bg-secondary/5 border border-secondary/20 p-4 shadow-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-secondary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
-            <div className="flex items-center gap-2 text-v6-secondary-hover">
+            <div className="flex items-center gap-2 text-secondary-hover">
               <Package className="h-5 w-5" />
-              <span className="text-sm font-v6-body font-medium">Sold Out</span>
+              <span className="text-sm font-body font-medium">Sold Out</span>
             </div>
-            <p className="text-3xl font-v6-display font-bold text-v6-text-primary mt-2">
+            <p className="text-3xl font-display font-bold text-text-primary mt-2">
               {soldOutCount}
             </p>
           </div>
@@ -313,22 +313,22 @@ export default function AdminMenuPage() {
         className="flex flex-col sm:flex-row gap-4"
       >
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-v6-text-muted" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
           <Input
             placeholder="Search items..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-v6-surface-primary border-v6-border focus:border-v6-primary focus:ring-v6-primary/20 rounded-v6-input"
+            className="pl-10 bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input"
           />
         </div>
         <div className="flex flex-wrap gap-2">
           <Badge
             variant={selectedCategory === "all" ? "default" : "outline"}
             className={cn(
-              "cursor-pointer transition-all duration-v6-fast font-v6-body",
+              "cursor-pointer transition-all duration-fast font-body",
               selectedCategory === "all"
-                ? "bg-v6-primary hover:bg-v6-primary-hover text-white border-transparent"
-                : "bg-v6-surface-primary border-v6-border text-v6-text-primary hover:bg-v6-primary/10 hover:border-v6-primary/30"
+                ? "bg-primary hover:bg-primary-hover text-white border-transparent"
+                : "bg-surface-primary border-border text-text-primary hover:bg-primary/10 hover:border-primary/30"
             )}
             onClick={() => setSelectedCategory("all")}
           >
@@ -339,10 +339,10 @@ export default function AdminMenuPage() {
               key={category.id}
               variant={selectedCategory === category.id ? "default" : "outline"}
               className={cn(
-                "cursor-pointer transition-all duration-v6-fast font-v6-body",
+                "cursor-pointer transition-all duration-fast font-body",
                 selectedCategory === category.id
-                  ? "bg-v6-primary hover:bg-v6-primary-hover text-white border-transparent"
-                  : "bg-v6-surface-primary border-v6-border text-v6-text-primary hover:bg-v6-primary/10 hover:border-v6-primary/30"
+                  ? "bg-primary hover:bg-primary-hover text-white border-transparent"
+                  : "bg-surface-primary border-border text-text-primary hover:bg-primary/10 hover:border-primary/30"
               )}
               onClick={() => setSelectedCategory(category.id)}
             >
@@ -359,38 +359,38 @@ export default function AdminMenuPage() {
         transition={{ delay: 0.3 }}
       >
         {filteredItems.length === 0 ? (
-          <div className="text-center py-16 bg-v6-surface-secondary rounded-v6-card-sm border border-v6-border">
-            <AlertCircle className="h-12 w-12 text-v6-text-muted mx-auto mb-4" />
-            <h2 className="text-lg font-v6-display font-medium text-v6-text-primary mb-2">
+          <div className="text-center py-16 bg-surface-secondary rounded-card-sm border border-border">
+            <AlertCircle className="h-12 w-12 text-text-muted mx-auto mb-4" />
+            <h2 className="text-lg font-display font-medium text-text-primary mb-2">
               No items found
             </h2>
-            <p className="font-v6-body text-v6-text-secondary">
+            <p className="font-body text-text-secondary">
               {searchQuery || selectedCategory !== "all"
                 ? "Try adjusting your filters"
                 : "Add your first menu item to get started"}
             </p>
           </div>
         ) : (
-          <div className="rounded-v6-card-sm border border-v6-border bg-v6-surface-primary overflow-hidden shadow-v6-sm">
+          <div className="rounded-card-sm border border-border bg-surface-primary overflow-hidden shadow-sm">
             <Table>
               <TableHeader>
-                <TableRow className="bg-v6-surface-secondary hover:bg-v6-surface-secondary">
-                  <TableHead className="w-[250px] font-v6-body font-medium text-v6-text-secondary">
+                <TableRow className="bg-surface-secondary hover:bg-surface-secondary">
+                  <TableHead className="w-[250px] font-body font-medium text-text-secondary">
                     Item
                   </TableHead>
-                  <TableHead className="font-v6-body font-medium text-v6-text-secondary">
+                  <TableHead className="font-body font-medium text-text-secondary">
                     Category
                   </TableHead>
-                  <TableHead className="text-right font-v6-body font-medium text-v6-text-secondary">
+                  <TableHead className="text-right font-body font-medium text-text-secondary">
                     Price
                   </TableHead>
-                  <TableHead className="text-center font-v6-body font-medium text-v6-text-secondary">
+                  <TableHead className="text-center font-body font-medium text-text-secondary">
                     Status
                   </TableHead>
-                  <TableHead className="text-center font-v6-body font-medium text-v6-text-secondary">
+                  <TableHead className="text-center font-body font-medium text-text-secondary">
                     Sold Out
                   </TableHead>
-                  <TableHead className="w-[100px] font-v6-body font-medium text-v6-text-secondary">
+                  <TableHead className="w-[100px] font-body font-medium text-text-secondary">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -403,7 +403,7 @@ export default function AdminMenuPage() {
                     <TableRow
                       key={item.id}
                       className={cn(
-                        "hover:bg-v6-surface-secondary/50 transition-colors duration-v6-fast",
+                        "hover:bg-surface-secondary/50 transition-colors duration-fast",
                         !item.is_active && "opacity-50",
                         isUpdating && "opacity-70"
                       )}
@@ -415,18 +415,18 @@ export default function AdminMenuPage() {
                             <img
                               src={item.image_url}
                               alt={item.name_en}
-                              className="h-10 w-10 rounded-v6-input object-cover"
+                              className="h-10 w-10 rounded-input object-cover"
                             />
                           ) : (
-                            <div className="h-10 w-10 rounded-v6-input bg-v6-surface-tertiary flex items-center justify-center text-v6-text-muted text-xs font-v6-body">
+                            <div className="h-10 w-10 rounded-input bg-surface-tertiary flex items-center justify-center text-text-muted text-xs font-body">
                               No img
                             </div>
                           )}
                           <div>
-                            <p className="font-v6-body font-medium text-v6-text-primary">
+                            <p className="font-body font-medium text-text-primary">
                               {item.name_en}
                             </p>
-                            <p className="text-xs font-v6-body text-v6-text-muted font-mono">
+                            <p className="text-xs font-body text-text-muted font-mono">
                               {item.slug}
                             </p>
                           </div>
@@ -435,12 +435,12 @@ export default function AdminMenuPage() {
                       <TableCell>
                         <Badge
                           variant="outline"
-                          className="border-v6-border text-v6-text-secondary font-v6-body"
+                          className="border-border text-text-secondary font-body"
                         >
                           {item.menu_categories.name}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right font-v6-body font-medium text-v6-primary">
+                      <TableCell className="text-right font-body font-medium text-primary">
                         {formatPrice(item.base_price_cents)}
                       </TableCell>
                       <TableCell className="text-center">
@@ -452,9 +452,9 @@ export default function AdminMenuPage() {
                           className="p-1 hover:bg-transparent"
                         >
                           {item.is_active ? (
-                            <ToggleRight className="h-6 w-6 text-v6-green" />
+                            <ToggleRight className="h-6 w-6 text-green" />
                           ) : (
-                            <ToggleLeft className="h-6 w-6 text-v6-text-muted" />
+                            <ToggleLeft className="h-6 w-6 text-text-muted" />
                           )}
                         </Button>
                       </TableCell>
@@ -467,13 +467,13 @@ export default function AdminMenuPage() {
                           className="p-1 hover:bg-transparent"
                         >
                           {item.is_sold_out ? (
-                            <Badge className="bg-v6-secondary/10 text-v6-secondary-hover hover:bg-v6-secondary/20 border-0">
+                            <Badge className="bg-secondary/10 text-secondary-hover hover:bg-secondary/20 border-0">
                               Sold Out
                             </Badge>
                           ) : (
                             <Badge
                               variant="outline"
-                              className="border-v6-border text-v6-text-secondary hover:bg-v6-surface-tertiary"
+                              className="border-border text-text-secondary hover:bg-surface-tertiary"
                             >
                               In Stock
                             </Badge>
@@ -487,22 +487,22 @@ export default function AdminMenuPage() {
                               variant="ghost"
                               size="sm"
                               disabled={isUpdating}
-                              className="hover:bg-v6-surface-tertiary"
+                              className="hover:bg-surface-tertiary"
                             >
-                              <Edit2 className="h-4 w-4 text-v6-text-secondary" />
+                              <Edit2 className="h-4 w-4 text-text-secondary" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent
                             align="end"
-                            className="bg-v6-surface-primary border-v6-border rounded-v6-input shadow-v6-md"
+                            className="bg-surface-primary border-border rounded-input shadow-md"
                           >
-                            <DropdownMenuItem className="font-v6-body hover:bg-v6-surface-tertiary cursor-pointer">
+                            <DropdownMenuItem className="font-body hover:bg-surface-tertiary cursor-pointer">
                               <Edit2 className="mr-2 h-4 w-4" />
                               Edit Details
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator className="bg-v6-border" />
+                            <DropdownMenuSeparator className="bg-border" />
                             <DropdownMenuItem
-                              className="font-v6-body text-v6-status-error hover:bg-v6-status-error/10 cursor-pointer"
+                              className="font-body text-status-error hover:bg-status-error/10 cursor-pointer"
                               onClick={() => handleDelete(item)}
                             >
                               <Trash2 className="mr-2 h-4 w-4" />

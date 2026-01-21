@@ -59,23 +59,23 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
 
   // V6 Accent colors for floating ingredients
   const ingredientColors = [
-    "var(--color-v6-primary)",      // Deep red (pepper)
-    "var(--color-v6-secondary)",    // Golden yellow (turmeric)
-    "var(--color-v6-accent-green)", // Fresh green (herbs)
-    "var(--color-v6-accent-orange)", // Orange (chili)
-    "var(--color-v6-accent-teal)",  // Teal (fresh)
-    "var(--color-v6-primary)",      // More red
-    "var(--color-v6-secondary)",    // More yellow
-    "var(--color-v6-accent-green)", // More green
+    "var(--color-primary)",      // Deep red (pepper)
+    "var(--color-secondary)",    // Golden yellow (turmeric)
+    "var(--color-accent-green)", // Fresh green (herbs)
+    "var(--color-accent-orange)", // Orange (chili)
+    "var(--color-accent-teal)",  // Teal (fresh)
+    "var(--color-primary)",      // More red
+    "var(--color-secondary)",    // More yellow
+    "var(--color-accent-green)", // More green
   ];
 
   return (
     <section
       ref={heroRef}
-      className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-v6-surface-secondary via-v6-surface-primary to-v6-surface-tertiary"
+      className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-surface-secondary via-surface-primary to-surface-tertiary"
     >
       {/* Warm gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-v6-primary/5 via-transparent to-v6-secondary/10" />
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-secondary/10" />
 
       {/* Floating Ingredients - V6 Pepper Aesthetic */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -119,26 +119,26 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
               className="mx-auto drop-shadow-2xl"
             />
             {/* V6 Glow effect - warm primary */}
-            <div className="absolute inset-0 bg-v6-primary/15 blur-3xl -z-10 rounded-full scale-150" />
+            <div className="absolute inset-0 bg-primary/15 blur-3xl -z-10 rounded-full scale-150" />
           </div>
         </motion.div>
 
         {/* V6 Main Heading - Bold, Playful */}
         <motion.h1
           variants={v6StaggerItem}
-          className="font-v6-display text-5xl md:text-6xl lg:text-7xl font-black mb-4 text-v6-text-primary"
+          className="font-display text-5xl md:text-6xl lg:text-7xl font-black mb-4 text-text-primary"
         >
-          <span className="bg-gradient-to-r from-v6-primary via-v6-primary-hover to-v6-primary bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-primary via-primary-hover to-primary bg-clip-text text-transparent">
             Your Food Adventure
           </span>{" "}
           <br className="hidden sm:block" />
-          <span className="text-v6-text-primary">Starts Here!</span>
+          <span className="text-text-primary">Starts Here!</span>
         </motion.h1>
 
         {/* Burmese Subtitle - V6 Golden */}
         <motion.p
           variants={v6StaggerItem}
-          className="font-burmese text-2xl md:text-3xl text-v6-secondary mb-6 drop-shadow-sm"
+          className="font-burmese text-2xl md:text-3xl text-secondary mb-6 drop-shadow-sm"
         >
           မန္တလေး မနက်ခင်းကြယ်
         </motion.p>
@@ -146,7 +146,7 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
         {/* English Tagline - V6 Body */}
         <motion.p
           variants={v6StaggerItem}
-          className="font-v6-body text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed text-v6-text-secondary"
+          className="font-body text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed text-text-secondary"
         >
           Authentic Burmese cuisine crafted with love, delivered fresh to your
           door every Saturday in Southern California.
@@ -161,7 +161,7 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
             variant="primary"
             size="lg"
             onClick={onScrollToMenu}
-            className="shadow-v6-elevated hover:shadow-v6-button-hover"
+            className="shadow-elevated hover:shadow-button-hover"
           >
             Order Now
           </Button>
@@ -178,13 +178,13 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
         {/* V6 Saturday Badge - Vibrant */}
         <motion.div
           variants={v6StaggerItem}
-          className="mt-10 inline-flex items-center gap-3 px-6 py-3 bg-v6-surface-primary rounded-v6-pill shadow-v6-card border border-v6-border-subtle"
+          className="mt-10 inline-flex items-center gap-3 px-6 py-3 bg-surface-primary rounded-pill shadow-card border border-border-subtle"
         >
           <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-v6-green opacity-75" />
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-v6-green" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green opacity-75" />
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-green" />
           </span>
-          <span className="text-v6-text-primary font-v6-body font-semibold">
+          <span className="text-text-primary font-body font-semibold">
             Fresh deliveries every Saturday, 11am - 7pm
           </span>
         </motion.div>
@@ -211,16 +211,16 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="flex flex-col items-center gap-2 text-v6-text-muted hover:text-v6-primary transition-colors duration-v6-normal"
+          className="flex flex-col items-center gap-2 text-text-muted hover:text-primary transition-colors duration-normal"
           aria-label="Scroll down"
         >
-          <span className="text-sm font-v6-body font-medium">Scroll to explore</span>
+          <span className="text-sm font-body font-medium">Scroll to explore</span>
           <ChevronDown className="w-6 h-6" />
         </motion.button>
       </motion.div>
 
       {/* Bottom fade to content */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-v6-surface-primary to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-surface-primary to-transparent" />
     </section>
   );
 }

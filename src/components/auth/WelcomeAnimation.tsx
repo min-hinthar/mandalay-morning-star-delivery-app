@@ -20,10 +20,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import {
-  v7Spring,
-  v7Hover,
-} from "@/lib/motion-tokens-v7";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+  spring,
+  hover,
+} from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
 // TYPES
@@ -66,7 +66,7 @@ const CONFETTI_COLORS = [
 ];
 
 function WelcomeConfettiV7() {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
 
   const particles: ConfettiParticle[] = React.useMemo(
     () =>
@@ -142,13 +142,13 @@ function WelcomeConfettiV7() {
 // ============================================
 
 function MascotCelebrationV7() {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
 
   return (
     <motion.div
       initial={shouldAnimate ? { scale: 0, rotate: -180 } : undefined}
       animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
-      transition={v7Spring.ultraBouncy}
+      transition={spring.ultraBouncy}
       className="relative"
     >
       {/* Glow background */}
@@ -162,7 +162,7 @@ function MascotCelebrationV7() {
             : undefined
         }
         transition={{ duration: 2, repeat: Infinity }}
-        className="absolute inset-0 rounded-full bg-gradient-to-br from-v6-secondary/40 to-v6-primary/40 blur-2xl"
+        className="absolute inset-0 rounded-full bg-gradient-to-br from-secondary/40 to-primary/40 blur-2xl"
       />
 
       {/* Main mascot container */}
@@ -175,9 +175,9 @@ function MascotCelebrationV7() {
         transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
         className={cn(
           "relative w-32 h-32 rounded-full",
-          "bg-gradient-to-br from-v6-primary to-v6-primary/80",
+          "bg-gradient-to-br from-primary to-primary/80",
           "flex items-center justify-center",
-          "shadow-2xl shadow-v6-primary/40"
+          "shadow-2xl shadow-primary/40"
         )}
       >
         <ChefHat className="w-16 h-16 text-white" />
@@ -186,13 +186,13 @@ function MascotCelebrationV7() {
         <motion.div
           initial={shouldAnimate ? { scale: 0 } : undefined}
           animate={shouldAnimate ? { scale: 1 } : undefined}
-          transition={{ ...v7Spring.ultraBouncy, delay: 0.5 }}
+          transition={{ ...spring.ultraBouncy, delay: 0.5 }}
           className={cn(
             "absolute -top-2 -right-2",
             "w-12 h-12 rounded-full",
-            "bg-v6-secondary",
+            "bg-secondary",
             "flex items-center justify-center",
-            "shadow-lg shadow-v6-secondary/40"
+            "shadow-lg shadow-secondary/40"
           )}
         >
           <PartyPopper className="w-6 h-6 text-white" />
@@ -220,7 +220,7 @@ function MascotCelebrationV7() {
               }}
               className="absolute top-1/2 left-1/2"
             >
-              <Heart className="w-4 h-4 text-v6-primary fill-v6-primary" />
+              <Heart className="w-4 h-4 text-primary fill-primary" />
             </motion.div>
           ))}
         </>
@@ -238,13 +238,13 @@ interface GreetingTextV7Props {
 }
 
 function GreetingTextV7({ userName }: GreetingTextV7Props) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
 
   const greeting = userName ? `Welcome, ${userName}!` : "Welcome!";
   const characters = greeting.split("");
 
   return (
-    <h1 className="text-3xl md:text-4xl font-bold text-v6-text-primary">
+    <h1 className="text-3xl md:text-4xl font-bold text-text-primary">
       {shouldAnimate ? (
         characters.map((char, i) => (
           <motion.span
@@ -252,7 +252,7 @@ function GreetingTextV7({ userName }: GreetingTextV7Props) {
             initial={{ opacity: 0, y: 20, rotate: -10 }}
             animate={{ opacity: 1, y: 0, rotate: 0 }}
             transition={{
-              ...v7Spring.default,
+              ...spring.default,
               delay: 0.3 + i * 0.03,
             }}
             className="inline-block"
@@ -278,7 +278,7 @@ export function WelcomeAnimation({
   autoDismissMs = 4000,
   className,
 }: WelcomeAnimationProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+  const { shouldAnimate, getSpring } = useAnimationPreference();
   const [showContent, setShowContent] = useState(false);
 
   // Haptic celebration
@@ -320,7 +320,7 @@ export function WelcomeAnimation({
       className={cn(
         "fixed inset-0 z-50",
         "flex flex-col items-center justify-center",
-        "bg-gradient-to-br from-v6-surface-primary via-white to-v6-surface-secondary",
+        "bg-gradient-to-br from-surface-primary via-white to-surface-secondary",
         className
       )}
     >
@@ -333,7 +333,7 @@ export function WelcomeAnimation({
           <motion.div
             initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
             animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
-            transition={getSpring(v7Spring.default)}
+            transition={getSpring(spring.default)}
             className="relative z-10 flex flex-col items-center text-center px-6"
           >
             {/* Mascot */}
@@ -351,7 +351,7 @@ export function WelcomeAnimation({
               initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
               animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
               transition={{ delay: 0.8 }}
-              className="text-v6-text-secondary text-lg mb-8 max-w-sm"
+              className="text-text-secondary text-lg mb-8 max-w-sm"
             >
               We&apos;re so glad you&apos;re here. Let&apos;s get you something delicious.
             </motion.p>
@@ -380,7 +380,7 @@ export function WelcomeAnimation({
                     delay: i * 0.2,
                   }}
                 >
-                  <Sparkles className="w-5 h-5 text-v6-secondary" />
+                  <Sparkles className="w-5 h-5 text-secondary" />
                 </motion.div>
               ))}
             </motion.div>
@@ -389,17 +389,17 @@ export function WelcomeAnimation({
             <motion.button
               initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
               animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-              whileHover={shouldAnimate ? v7Hover.bounce.whileHover : undefined}
-              whileTap={shouldAnimate ? v7Hover.bounce.whileTap : undefined}
-              transition={{ delay: 1.2, ...v7Spring.ultraBouncy }}
+              whileHover={shouldAnimate ? hover.bounce.whileHover : undefined}
+              whileTap={shouldAnimate ? hover.bounce.whileTap : undefined}
+              transition={{ delay: 1.2, ...spring.ultraBouncy }}
               onClick={handleContinue}
               className={cn(
                 "inline-flex items-center gap-2",
                 "px-8 py-4 rounded-2xl",
-                "bg-gradient-to-r from-v6-primary to-v6-primary/90",
+                "bg-gradient-to-r from-primary to-primary/90",
                 "text-white font-semibold text-lg",
-                "shadow-xl shadow-v6-primary/30",
-                "hover:shadow-2xl hover:shadow-v6-primary/40",
+                "shadow-xl shadow-primary/30",
+                "hover:shadow-2xl hover:shadow-primary/40",
                 "transition-shadow"
               )}
             >
@@ -423,7 +423,7 @@ export function WelcomeAnimation({
                     ease: "linear",
                   }}
                   style={{ transformOrigin: "left" }}
-                  className="w-32 h-1 rounded-full bg-v6-primary/30"
+                  className="w-32 h-1 rounded-full bg-primary/30"
                 />
               </motion.div>
             )}
@@ -437,15 +437,15 @@ export function WelcomeAnimation({
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-            className="absolute top-1/4 -left-20 w-40 h-40 rounded-full border border-v6-primary/10"
+            className="absolute top-1/4 -left-20 w-40 h-40 rounded-full border border-primary/10"
           />
           <motion.div
             animate={{ rotate: -360 }}
             transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
-            className="absolute bottom-1/4 -right-32 w-64 h-64 rounded-full border border-v6-secondary/10"
+            className="absolute bottom-1/4 -right-32 w-64 h-64 rounded-full border border-secondary/10"
           />
-          <div className="absolute top-20 right-20 w-20 h-20 rounded-full bg-v6-secondary/5" />
-          <div className="absolute bottom-32 left-16 w-16 h-16 rounded-full bg-v6-primary/5" />
+          <div className="absolute top-20 right-20 w-20 h-20 rounded-full bg-secondary/5" />
+          <div className="absolute bottom-32 left-16 w-16 h-16 rounded-full bg-primary/5" />
         </>
       )}
     </motion.div>

@@ -9,7 +9,7 @@
  * - Multiple gradient styles (linear, radial, mesh)
  */
 
-import { getAnimationPreferenceV7 } from "../hooks/useAnimationPreferenceV7";
+import { getAnimationPreference } from "../hooks/useAnimationPreference";
 
 // ============================================
 // TYPES
@@ -141,7 +141,7 @@ export class AnimatedGradient {
       autoStart: config.autoStart ?? true,
     };
 
-    if (this.config.autoStart && getAnimationPreferenceV7() !== "none") {
+    if (this.config.autoStart && getAnimationPreference() !== "none") {
       this.start();
     }
   }
@@ -159,7 +159,7 @@ export class AnimatedGradient {
    */
   start(): void {
     if (this.isRunning) return;
-    if (getAnimationPreferenceV7() === "none") return;
+    if (getAnimationPreference() === "none") return;
 
     this.isRunning = true;
     this.startTime = performance.now();

@@ -1,42 +1,51 @@
 /**
- * V7 Admin Components - Barrel Export
+ * Admin Components - Barrel Export
  *
  * Sprint 8: Admin Dashboard
  * Features: Animated KPIs, Recharts with transitions, drag-drop orders,
  * route optimization map, goal celebrations
  */
 
-export { AdminDashboardV7 } from "./AdminDashboardV7";
-export type { AdminDashboardV7Props, KPIData } from "./AdminDashboardV7";
+export { AdminDashboard, AdminDashboard as AdminDashboardV7 } from "./AdminDashboard";
+export type { AdminDashboardProps, AdminDashboardProps as AdminDashboardV7Props, KPIData } from "./AdminDashboard";
 
-export { ChartsV7, SparklineV7 } from "./analytics/ChartsV7";
+export { Charts, Charts as ChartsV7, Sparkline, Sparkline as SparklineV7 } from "./analytics/Charts";
 export type {
-  ChartsV7Props,
-  SparklineV7Props,
+  ChartsProps,
+  ChartsProps as ChartsV7Props,
+  SparklineProps,
+  SparklineProps as SparklineV7Props,
   ChartDataPoint,
-} from "./analytics/ChartsV7";
+} from "./analytics/Charts";
 
-export { OrderManagementV7 } from "./OrderManagementV7";
+export { OrderManagement, OrderManagement as OrderManagementV7 } from "./OrderManagement";
 export type {
-  OrderManagementV7Props,
-  OrderItemV7,
-} from "./OrderManagementV7";
+  OrderManagementProps,
+  OrderManagementProps as OrderManagementV7Props,
+  OrderItem,
+  OrderItem as OrderItemV7,
+} from "./OrderManagement";
 
-export { RouteOptimizationV7 } from "./RouteOptimizationV7";
+export { RouteOptimization, RouteOptimization as RouteOptimizationV7 } from "./RouteOptimization";
 export type {
-  RouteOptimizationV7Props,
-  RouteV7,
-  RouteStopV7,
-} from "./RouteOptimizationV7";
+  RouteOptimizationProps,
+  RouteOptimizationProps as RouteOptimizationV7Props,
+  Route,
+  Route as RouteV7,
+  RouteStop,
+  RouteStop as RouteStopV7,
+} from "./RouteOptimization";
 
 export {
   StatusCelebration,
   InlineCelebrationV7,
+  InlineCelebrationV7 as InlineCelebration,
   useCelebration,
 } from "./StatusCelebration";
 export type {
   StatusCelebrationProps,
   InlineCelebrationV7Props,
+  InlineCelebrationV7Props as InlineCelebrationProps,
   CelebrationConfig,
   CelebrationType,
 } from "./StatusCelebration";

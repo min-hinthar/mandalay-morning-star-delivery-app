@@ -22,9 +22,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import {
-  v7Spring,
-} from "@/lib/motion-tokens-v7";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+  spring,
+} from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
 // TYPES
@@ -81,7 +81,7 @@ const CONFETTI_COLORS = [
 ];
 
 function ConfettiV7({ count = 50, isActive }: { count?: number; isActive: boolean }) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
 
   const particles: ConfettiParticle[] = React.useMemo(
     () =>
@@ -142,7 +142,7 @@ function ConfettiV7({ count = 50, isActive }: { count?: number; isActive: boolea
 // ============================================
 
 function SparkleBurstV7({ isActive }: { isActive: boolean }) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
 
   if (!isActive || !shouldAnimate) return null;
 
@@ -172,7 +172,7 @@ function SparkleBurstV7({ isActive }: { isActive: boolean }) {
           }}
           className="absolute"
         >
-          <Star className="w-4 h-4 text-v6-secondary fill-v6-secondary" />
+          <Star className="w-4 h-4 text-secondary fill-secondary" />
         </motion.div>
       ))}
     </div>
@@ -198,13 +198,13 @@ const TYPE_CONFIG: Record<
 > = {
   goal_reached: {
     defaultIcon: "target",
-    gradient: "from-v6-green to-emerald-400",
-    ring: "ring-v6-green/30",
+    gradient: "from-green to-emerald-400",
+    ring: "ring-green/30",
   },
   milestone: {
     defaultIcon: "trophy",
-    gradient: "from-v6-secondary to-amber-400",
-    ring: "ring-v6-secondary/30",
+    gradient: "from-secondary to-amber-400",
+    ring: "ring-secondary/30",
   },
   streak: {
     defaultIcon: "flame",
@@ -213,8 +213,8 @@ const TYPE_CONFIG: Record<
   },
   record: {
     defaultIcon: "crown",
-    gradient: "from-v6-primary to-rose-500",
-    ring: "ring-v6-primary/30",
+    gradient: "from-primary to-rose-500",
+    ring: "ring-primary/30",
   },
   achievement: {
     defaultIcon: "award",
@@ -232,7 +232,7 @@ interface CelebrationBadgeV7Props {
 }
 
 function CelebrationBadgeV7({ config }: CelebrationBadgeV7Props) {
-  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+  const { shouldAnimate, getSpring } = useAnimationPreference();
 
   const typeConfig = TYPE_CONFIG[config.type];
   const iconKey = config.icon || typeConfig.defaultIcon;
@@ -243,7 +243,7 @@ function CelebrationBadgeV7({ config }: CelebrationBadgeV7Props) {
       initial={shouldAnimate ? { scale: 0, rotate: -180 } : undefined}
       animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
       exit={shouldAnimate ? { scale: 0, rotate: 180 } : undefined}
-      transition={getSpring(v7Spring.dramatic)}
+      transition={getSpring(spring.dramatic)}
       className="relative"
     >
       {/* Outer ring */}
@@ -294,7 +294,7 @@ export function StatusCelebration({
   onComplete,
   className,
 }: StatusCelebrationProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+  const { shouldAnimate, getSpring } = useAnimationPreference();
   const [isVisible, setIsVisible] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -349,7 +349,7 @@ export function StatusCelebration({
               initial={shouldAnimate ? { opacity: 0, scale: 0.8, y: 50 } : undefined}
               animate={shouldAnimate ? { opacity: 1, scale: 1, y: 0 } : undefined}
               exit={shouldAnimate ? { opacity: 0, scale: 0.8, y: 50 } : undefined}
-              transition={getSpring(v7Spring.ultraBouncy)}
+              transition={getSpring(spring.ultraBouncy)}
               onClick={(e) => e.stopPropagation()}
               className={cn(
                 "relative max-w-sm w-full mx-4",
@@ -368,7 +368,7 @@ export function StatusCelebration({
                 initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
                 animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
                 transition={{ delay: 0.3 }}
-                className="text-2xl font-bold text-v6-text-primary mb-2"
+                className="text-2xl font-bold text-text-primary mb-2"
               >
                 {config.title}
               </motion.h2>
@@ -379,7 +379,7 @@ export function StatusCelebration({
                   initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
                   animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
                   transition={{ delay: 0.4 }}
-                  className="text-v6-text-secondary mb-4"
+                  className="text-text-secondary mb-4"
                 >
                   {config.subtitle}
                 </motion.p>
@@ -390,11 +390,11 @@ export function StatusCelebration({
                 <motion.div
                   initial={shouldAnimate ? { opacity: 0, scale: 0.5 } : undefined}
                   animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
-                  transition={{ ...getSpring(v7Spring.ultraBouncy), delay: 0.5 }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-v6-surface-secondary"
+                  transition={{ ...getSpring(spring.ultraBouncy), delay: 0.5 }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-secondary"
                 >
-                  <Zap className="w-5 h-5 text-v6-secondary" />
-                  <span className="text-xl font-bold text-v6-text-primary">
+                  <Zap className="w-5 h-5 text-secondary" />
+                  <span className="text-xl font-bold text-text-primary">
                     {config.value}
                   </span>
                 </motion.div>
@@ -405,7 +405,7 @@ export function StatusCelebration({
                 initial={shouldAnimate ? { opacity: 0 } : undefined}
                 animate={shouldAnimate ? { opacity: 0.5 } : undefined}
                 transition={{ delay: 1 }}
-                className="mt-6 text-xs text-v6-text-muted"
+                className="mt-6 text-xs text-text-muted"
               >
                 Tap anywhere to dismiss
               </motion.p>
@@ -438,7 +438,7 @@ export function InlineCelebrationV7({
   children,
   className,
 }: InlineCelebrationV7Props) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
   const typeConfig = TYPE_CONFIG[type];
 
   return (
@@ -497,7 +497,7 @@ export function InlineCelebrationV7({
                 }}
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
               >
-                <Sparkles className="w-4 h-4 text-v6-secondary" />
+                <Sparkles className="w-4 h-4 text-secondary" />
               </motion.div>
             ))}
           </>

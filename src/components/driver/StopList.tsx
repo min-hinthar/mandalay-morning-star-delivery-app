@@ -63,7 +63,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <h2 className="mb-3 font-v6-body text-sm font-semibold uppercase tracking-wide text-v6-text-muted">
+          <h2 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-text-muted">
             Current Stop
           </h2>
           <StopCard
@@ -88,7 +88,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h2 className="mb-3 font-v6-body text-sm font-semibold uppercase tracking-wide text-v6-text-muted">
+          <h2 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-text-muted">
             Upcoming ({upcomingStops.length})
           </h2>
           <div className="space-y-2">
@@ -123,7 +123,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <h2 className="mb-3 font-v6-body text-sm font-semibold uppercase tracking-wide text-v6-text-muted">
+          <h2 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-text-muted">
             Completed ({completedStops.length})
           </h2>
           <div className="space-y-2">

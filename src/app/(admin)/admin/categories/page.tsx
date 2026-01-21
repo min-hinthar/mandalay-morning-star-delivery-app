@@ -256,14 +256,14 @@ export default function AdminCategoriesPage() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-6">
-          <div className="h-10 w-48 bg-v6-surface-tertiary rounded-v6-input" />
-          <div className="h-4 w-64 bg-v6-surface-tertiary rounded-v6-input" />
+          <div className="h-10 w-48 bg-surface-tertiary rounded-input" />
+          <div className="h-4 w-64 bg-surface-tertiary rounded-input" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-24 bg-v6-surface-tertiary rounded-v6-card-sm" />
+              <div key={i} className="h-24 bg-surface-tertiary rounded-card-sm" />
             ))}
           </div>
-          <div className="h-96 bg-v6-surface-tertiary rounded-v6-card-sm" />
+          <div className="h-96 bg-surface-tertiary rounded-card-sm" />
         </div>
       </div>
     );
@@ -278,10 +278,10 @@ export default function AdminCategoriesPage() {
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl md:text-4xl font-v6-display font-bold text-v6-text-primary">
+          <h1 className="text-3xl md:text-4xl font-display font-bold text-text-primary">
             Categories
           </h1>
-          <p className="font-v6-body text-v6-text-secondary mt-1">
+          <p className="font-body text-text-secondary mt-1">
             Manage menu categories, order, and visibility
           </p>
         </div>
@@ -290,7 +290,7 @@ export default function AdminCategoriesPage() {
             variant="outline"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="border-v6-border hover:bg-v6-surface-tertiary"
+            className="border-border hover:bg-surface-tertiary"
           >
             <RefreshCw
               className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
@@ -299,20 +299,20 @@ export default function AdminCategoriesPage() {
           </Button>
           <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-v6-primary hover:bg-v6-primary-hover text-white shadow-v6-sm">
+              <Button className="bg-primary hover:bg-primary-hover text-white shadow-sm">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Category
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-v6-surface-primary border-v6-border rounded-v6-card">
+            <DialogContent className="sm:max-w-[425px] bg-surface-primary border-border rounded-card">
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 font-v6-display text-2xl text-v6-text-primary">
-                  <div className="p-2 rounded-v6-input bg-v6-primary text-white">
+                <DialogTitle className="flex items-center gap-2 font-display text-2xl text-text-primary">
+                  <div className="p-2 rounded-input bg-primary text-white">
                     <FolderTree className="h-5 w-5" />
                   </div>
                   Add New Category
                 </DialogTitle>
-                <DialogDescription className="font-v6-body text-v6-text-secondary">
+                <DialogDescription className="font-body text-text-secondary">
                   Create a new menu category. Categories are used to organize
                   menu items.
                 </DialogDescription>
@@ -321,7 +321,7 @@ export default function AdminCategoriesPage() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="name"
-                    className="text-sm font-v6-body font-medium text-v6-text-primary"
+                    className="text-sm font-body font-medium text-text-primary"
                   >
                     Name
                   </Label>
@@ -336,13 +336,13 @@ export default function AdminCategoriesPage() {
                         slug: generateSlug(name),
                       });
                     }}
-                    className="bg-v6-surface-primary border-v6-border focus:border-v6-primary focus:ring-v6-primary/20 rounded-v6-input"
+                    className="bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label
                     htmlFor="slug"
-                    className="text-sm font-v6-body font-medium text-v6-text-primary"
+                    className="text-sm font-body font-medium text-text-primary"
                   >
                     Slug
                   </Label>
@@ -356,9 +356,9 @@ export default function AdminCategoriesPage() {
                         slug: e.target.value.toLowerCase(),
                       }))
                     }
-                    className="bg-v6-surface-primary border-v6-border focus:border-v6-primary focus:ring-v6-primary/20 rounded-v6-input font-mono"
+                    className="bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input font-mono"
                   />
-                  <p className="text-xs font-v6-body text-v6-text-muted">
+                  <p className="text-xs font-body text-text-muted">
                     URL-friendly identifier. Lowercase, no spaces.
                   </p>
                 </div>
@@ -367,14 +367,14 @@ export default function AdminCategoriesPage() {
                 <Button
                   variant="outline"
                   onClick={() => setAddDialogOpen(false)}
-                  className="border-v6-border hover:bg-v6-surface-tertiary"
+                  className="border-border hover:bg-surface-tertiary"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleCreateCategory}
                   disabled={creating}
-                  className="bg-v6-primary hover:bg-v6-primary-hover text-white shadow-v6-sm"
+                  className="bg-primary hover:bg-primary-hover text-white shadow-sm"
                 >
                   {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Create Category
@@ -393,42 +393,42 @@ export default function AdminCategoriesPage() {
         className="grid grid-cols-1 md:grid-cols-3 gap-4"
       >
         {/* Total Categories */}
-        <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-surface-secondary border border-v6-border p-4 shadow-v6-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-v6-primary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative overflow-hidden rounded-card-sm bg-surface-secondary border border-border p-4 shadow-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
-            <div className="flex items-center gap-2 text-v6-primary">
+            <div className="flex items-center gap-2 text-primary">
               <FolderTree className="h-5 w-5" />
-              <span className="text-sm font-v6-body font-medium">Total Categories</span>
+              <span className="text-sm font-body font-medium">Total Categories</span>
             </div>
-            <p className="text-3xl font-v6-display font-bold text-v6-text-primary mt-2">
+            <p className="text-3xl font-display font-bold text-text-primary mt-2">
               {categories.length}
             </p>
           </div>
         </div>
 
         {/* Active Categories */}
-        <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-green/5 border border-v6-green/20 p-4 shadow-v6-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-v6-green/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative overflow-hidden rounded-card-sm bg-green/5 border border-green/20 p-4 shadow-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-green/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
-            <div className="flex items-center gap-2 text-v6-green">
+            <div className="flex items-center gap-2 text-green">
               <CheckCircle className="h-5 w-5" />
-              <span className="text-sm font-v6-body font-medium">Active</span>
+              <span className="text-sm font-body font-medium">Active</span>
             </div>
-            <p className="text-3xl font-v6-display font-bold text-v6-text-primary mt-2">
+            <p className="text-3xl font-display font-bold text-text-primary mt-2">
               {activeCount}
             </p>
           </div>
         </div>
 
         {/* Total Items */}
-        <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-secondary/5 border border-v6-secondary/20 p-4 shadow-v6-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-v6-secondary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="relative overflow-hidden rounded-card-sm bg-secondary/5 border border-secondary/20 p-4 shadow-sm">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-secondary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
-            <div className="flex items-center gap-2 text-v6-primary">
+            <div className="flex items-center gap-2 text-primary">
               <UtensilsCrossed className="h-5 w-5" />
-              <span className="text-sm font-v6-body font-medium">Total Items</span>
+              <span className="text-sm font-body font-medium">Total Items</span>
             </div>
-            <p className="text-3xl font-v6-display font-bold text-v6-text-primary mt-2">
+            <p className="text-3xl font-display font-bold text-text-primary mt-2">
               {totalItems}
             </p>
           </div>
@@ -442,36 +442,36 @@ export default function AdminCategoriesPage() {
         transition={{ delay: 0.2 }}
       >
         {categories.length === 0 ? (
-          <div className="text-center py-16 bg-v6-surface-secondary rounded-v6-card-sm border border-v6-border">
-            <AlertCircle className="h-12 w-12 text-v6-text-muted mx-auto mb-4" />
-            <h2 className="text-lg font-v6-display font-medium text-v6-text-primary mb-2">
+          <div className="text-center py-16 bg-surface-secondary rounded-card-sm border border-border">
+            <AlertCircle className="h-12 w-12 text-text-muted mx-auto mb-4" />
+            <h2 className="text-lg font-display font-medium text-text-primary mb-2">
               No categories yet
             </h2>
-            <p className="font-v6-body text-v6-text-secondary">
+            <p className="font-body text-text-secondary">
               Add your first category to start organizing menu items
             </p>
           </div>
         ) : (
-          <div className="rounded-v6-card-sm border border-v6-border bg-v6-surface-primary overflow-hidden shadow-v6-sm">
+          <div className="rounded-card-sm border border-border bg-surface-primary overflow-hidden shadow-sm">
             <Table>
               <TableHeader>
-                <TableRow className="bg-v6-surface-secondary hover:bg-v6-surface-secondary">
-                  <TableHead className="w-[80px] font-v6-body font-medium text-v6-text-secondary">
+                <TableRow className="bg-surface-secondary hover:bg-surface-secondary">
+                  <TableHead className="w-[80px] font-body font-medium text-text-secondary">
                     Order
                   </TableHead>
-                  <TableHead className="font-v6-body font-medium text-v6-text-secondary">
+                  <TableHead className="font-body font-medium text-text-secondary">
                     Name
                   </TableHead>
-                  <TableHead className="font-v6-body font-medium text-v6-text-secondary">
+                  <TableHead className="font-body font-medium text-text-secondary">
                     Slug
                   </TableHead>
-                  <TableHead className="text-center font-v6-body font-medium text-v6-text-secondary">
+                  <TableHead className="text-center font-body font-medium text-text-secondary">
                     Items
                   </TableHead>
-                  <TableHead className="text-center font-v6-body font-medium text-v6-text-secondary">
+                  <TableHead className="text-center font-body font-medium text-text-secondary">
                     Status
                   </TableHead>
-                  <TableHead className="w-[100px] font-v6-body font-medium text-v6-text-secondary">
+                  <TableHead className="w-[100px] font-body font-medium text-text-secondary">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -486,7 +486,7 @@ export default function AdminCategoriesPage() {
                     <TableRow
                       key={category.id}
                       className={cn(
-                        "hover:bg-v6-surface-secondary/50 transition-colors duration-v6-fast",
+                        "hover:bg-surface-secondary/50 transition-colors duration-fast",
                         !category.is_active && "opacity-50",
                         isUpdating && "opacity-70"
                       )}
@@ -496,35 +496,35 @@ export default function AdminCategoriesPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 w-6 p-0 hover:bg-v6-surface-tertiary"
+                            className="h-6 w-6 p-0 hover:bg-surface-tertiary"
                             onClick={() => handleMove(category, "up")}
                             disabled={isFirst || isUpdating}
                           >
-                            <ChevronUp className="h-4 w-4 text-v6-text-secondary" />
+                            <ChevronUp className="h-4 w-4 text-text-secondary" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 w-6 p-0 hover:bg-v6-surface-tertiary"
+                            className="h-6 w-6 p-0 hover:bg-surface-tertiary"
                             onClick={() => handleMove(category, "down")}
                             disabled={isLast || isUpdating}
                           >
-                            <ChevronDown className="h-4 w-4 text-v6-text-secondary" />
+                            <ChevronDown className="h-4 w-4 text-text-secondary" />
                           </Button>
                         </div>
                       </TableCell>
-                      <TableCell className="font-v6-body font-medium text-v6-text-primary">
+                      <TableCell className="font-body font-medium text-text-primary">
                         {category.name}
                       </TableCell>
                       <TableCell>
-                        <code className="text-xs bg-v6-surface-tertiary px-2 py-1 rounded-v6-input font-mono text-v6-text-secondary">
+                        <code className="text-xs bg-surface-tertiary px-2 py-1 rounded-input font-mono text-text-secondary">
                           {category.slug}
                         </code>
                       </TableCell>
                       <TableCell className="text-center">
                         <Badge
                           variant="outline"
-                          className="border-v6-border text-v6-text-secondary font-v6-body"
+                          className="border-border text-text-secondary font-body"
                         >
                           {category.item_count}
                         </Badge>
@@ -538,9 +538,9 @@ export default function AdminCategoriesPage() {
                           className="p-1 hover:bg-transparent"
                         >
                           {category.is_active ? (
-                            <ToggleRight className="h-6 w-6 text-v6-green" />
+                            <ToggleRight className="h-6 w-6 text-green" />
                           ) : (
-                            <ToggleLeft className="h-6 w-6 text-v6-text-muted" />
+                            <ToggleLeft className="h-6 w-6 text-text-muted" />
                           )}
                         </Button>
                       </TableCell>
@@ -551,7 +551,7 @@ export default function AdminCategoriesPage() {
                           onClick={() => handleDelete(category)}
                           disabled={isUpdating || category.item_count > 0}
                           className={cn(
-                            "p-1 hover:bg-v6-status-error/10",
+                            "p-1 hover:bg-status-error/10",
                             category.item_count > 0 &&
                               "opacity-30 cursor-not-allowed"
                           )}
@@ -561,7 +561,7 @@ export default function AdminCategoriesPage() {
                               : "Delete category"
                           }
                         >
-                          <Trash2 className="h-4 w-4 text-v6-status-error" />
+                          <Trash2 className="h-4 w-4 text-status-error" />
                         </Button>
                       </TableCell>
                     </TableRow>

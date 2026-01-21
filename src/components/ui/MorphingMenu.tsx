@@ -3,8 +3,8 @@
 import React, { forwardRef } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { v7Spring, v7Transition } from "@/lib/motion-tokens-v7";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import { spring, transition } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
 // TYPES
@@ -130,7 +130,7 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
     },
     ref
   ) => {
-    const { shouldAnimate, getSpring, isFullMotion } = useAnimationPreferenceV7();
+    const { shouldAnimate, getSpring, isFullMotion } = useAnimationPreference();
     const variants = createVariants(variant, lineHeight);
 
     const handleClick = () => {
@@ -141,7 +141,7 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
       onToggle();
     };
 
-    const springConfig = getSpring(v7Spring.snappy);
+    const springConfig = getSpring(spring.snappy);
     const currentColor = isOpen ? (openColor ?? color) : color;
     const lineWidth = size;
     const gap = lineHeight * 2.5;
@@ -154,7 +154,7 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
           "relative flex flex-col items-center justify-center",
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A41034]/30 focus-visible:ring-offset-2",
           "rounded-lg p-2 -m-2",
-          "hover:bg-v6-surface-secondary/50 transition-colors duration-150",
+          "hover:bg-surface-secondary/50 transition-colors duration-150",
           className
         )}
         style={{ width: size + 16, height: size + 16 }}
@@ -194,7 +194,7 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
           variants={shouldAnimate ? variants.middle : undefined}
           initial={false}
           animate={isOpen ? "open" : "closed"}
-          transition={shouldAnimate ? v7Transition.fast : undefined}
+          transition={shouldAnimate ? transition.fast : undefined}
         />
 
         {/* Bottom Line */}
@@ -264,7 +264,7 @@ export const MorphingMenuWithLabel = forwardRef<
     },
     ref
   ) => {
-    const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+    const { shouldAnimate, getSpring } = useAnimationPreference();
     const label = isOpen ? openLabel : closedLabel;
 
     return (
@@ -294,7 +294,7 @@ export const MorphingMenuWithLabel = forwardRef<
               : undefined
           }
           key={label}
-          transition={getSpring(v7Spring.snappy)}
+          transition={getSpring(spring.snappy)}
         >
           {label}
         </motion.span>
@@ -337,7 +337,7 @@ export const MorphingCloseButton = forwardRef<
     },
     ref
   ) => {
-    const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+    const { shouldAnimate, getSpring } = useAnimationPreference();
     const strokeWidth = 2;
 
     const variants = {
@@ -372,7 +372,7 @@ export const MorphingCloseButton = forwardRef<
         transition={
           state === "loading"
             ? { duration: 1, repeat: Infinity, ease: "linear" }
-            : getSpring(v7Spring.snappy)
+            : getSpring(spring.snappy)
         }
       >
         <svg
@@ -390,7 +390,7 @@ export const MorphingCloseButton = forwardRef<
               d="M5 12l5 5L19 7"
               initial={{ pathLength: 0 }}
               animate={shouldAnimate ? { pathLength: 1 } : undefined}
-              transition={getSpring(v7Spring.default)}
+              transition={getSpring(spring.default)}
             />
           ) : (
             <>
@@ -401,7 +401,7 @@ export const MorphingCloseButton = forwardRef<
                 y2="18"
                 initial={false}
                 animate={shouldAnimate ? variants[state].line1 : undefined}
-                transition={getSpring(v7Spring.snappy)}
+                transition={getSpring(spring.snappy)}
               />
               <motion.line
                 x1="6"
@@ -410,7 +410,7 @@ export const MorphingCloseButton = forwardRef<
                 y2="6"
                 initial={false}
                 animate={shouldAnimate ? variants[state].line2 : undefined}
-                transition={getSpring(v7Spring.snappy)}
+                transition={getSpring(spring.snappy)}
               />
             </>
           )}
