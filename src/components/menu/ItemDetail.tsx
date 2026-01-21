@@ -324,7 +324,7 @@ export function ItemDetail({
 
   return (
     <motion.div
-      className="fixed inset-0 z-50"
+      className="fixed inset-0 z-[var(--z-modal)]"
       initial={shouldAnimate ? { opacity: 0 } : undefined}
       animate={shouldAnimate ? { opacity: 1 } : undefined}
       exit={shouldAnimate ? { opacity: 0 } : undefined}

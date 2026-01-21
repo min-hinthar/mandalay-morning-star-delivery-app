@@ -303,7 +303,7 @@ export function AuthModal({
           transition={{ duration: 0.2 }}
           onClick={handleBackdropClick}
           className={cn(
-            "fixed inset-0 z-50",
+            "fixed inset-0 z-[var(--z-modal)]",
             "flex items-center justify-center",
             "bg-black/40 backdrop-blur-md",
             "p-4",
