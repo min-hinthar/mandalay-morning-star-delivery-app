@@ -1392,3 +1392,44 @@ pnpm typecheck 2>&1 | grep "has no exported member"
 
 **Apply when:** CI tests hang after completion, "Worker exited unexpectedly" errors, Vitest 4 on GitHub Actions
 
+---
+
+## 2026-01-20: Stop Hook for Migration Validation
+
+**Context:** Recurring import/export casing mismatches after file renames (V7 consolidation)
+**Learning:** Created `.claude/hooks/migration-validator.sh` as a Stop hook to catch migration conflicts before task completion:
+- Import path casing mismatches (Error - blocks)
+- Orphaned V4-V7 exports without alias pattern (Warning)
+- Deprecated v4/v5 token references (Warning)
+- Versioned filenames like `ComponentV7.tsx` (Warning)
+
+**Hook config in settings.local.json:**
+```json
+"Stop": [{
+  "hooks": [
+    { "type": "command", "command": "bash .claude/hooks/migration-validator.sh", "timeout": 30 },
+    { "type": "prompt", "prompt": "Review migration validation results..." }
+  ]
+}]
+```
+
+**Apply when:** Adding proactive validation hooks, catching migration issues early
+
+---
+
+## 2026-01-20: Bash Grep+Sed Pattern Extraction
+
+**Context:** Extracting import paths from TypeScript files in migration-validator.sh
+**Learning:** When grep `-oE` returns partial match, sed pattern must match what grep actually outputs:
+```bash
+# grep returns: from "./AnimatedCounter   (no closing quote!)
+# because pattern is: 'from "\./[^"]+'
+
+# ❌ Wrong - sed expects closing quote that grep didn't capture
+grep -oE 'from "\./[^"]+' file | sed 's/from "\.\/\([^"]*\)"/\1/'
+
+# ✅ Correct - sed matches what grep actually returns
+grep -oE 'from "\./[^"]+' file | sed 's/from "\.\/\(.*\)/\1/'
+```
+**Apply when:** Chaining grep + sed for text extraction, debugging "sed not replacing" issues
+
