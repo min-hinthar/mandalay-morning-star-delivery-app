@@ -85,7 +85,7 @@ function WelcomeConfettiV7() {
   if (!shouldAnimate) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+    <div className="fixed inset-0 pointer-events-none z-[var(--z-max)] overflow-hidden">
       {particles.map((particle) => (
         <motion.div
           key={particle.id}
@@ -318,7 +318,7 @@ export function WelcomeAnimation({
       animate={shouldAnimate ? { opacity: 1 } : undefined}
       exit={shouldAnimate ? { opacity: 0 } : undefined}
       className={cn(
-        "fixed inset-0 z-50",
+        "fixed inset-0 z-[var(--z-modal)]",
         "flex flex-col items-center justify-center",
         "bg-gradient-to-br from-surface-primary via-white to-surface-secondary",
         className

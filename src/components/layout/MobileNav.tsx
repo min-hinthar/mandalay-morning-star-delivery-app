@@ -305,7 +305,7 @@ export function MobileNav({
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 z-[var(--z-popover)] bg-black/40"
+            className="fixed inset-0 z-[var(--z-modal-backdrop)] bg-black/40"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -318,7 +318,7 @@ export function MobileNav({
           <motion.nav
             ref={navRef}
             className={cn(
-              "fixed z-[var(--z-tooltip)] bg-white shadow-2xl",
+              "fixed z-[var(--z-modal)] bg-white shadow-2xl",
               "flex flex-col",
               direction === "left" && "left-0 top-0 bottom-0 w-[85%] max-w-sm rounded-r-2xl",
               direction === "right" && "right-0 top-0 bottom-0 w-[85%] max-w-sm rounded-l-2xl",
