@@ -27,6 +27,10 @@ export default defineConfig({
     setupFiles: ["./src/test/setup.ts"],
     globals: true,
     exclude: ["**/node_modules/**", "**/e2e/**"],
+    // Force exit after tests complete to avoid hanging on Windows
+    teardownTimeout: 1000,
+    testTimeout: 10000,
+    hookTimeout: 10000,
   },
   resolve: {
     alias: {

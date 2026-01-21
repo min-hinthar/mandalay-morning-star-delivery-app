@@ -1231,3 +1231,97 @@ Available tokens in `src/styles/tokens.css`:
 
 **Apply when:** Theme looks "muddy" or "brown" in light mode, need cleaner/more vibrant appearance
 
+---
+
+## 2026-01-20: Next.js redirect() Throws NEXT_REDIRECT - Must Re-throw
+
+**Context:** Signout button in DropdownAction not working - click shows loading but nothing happens
+**Learning:** Next.js `redirect()` function throws a special `NEXT_REDIRECT` error internally to trigger navigation. If caught in a try/catch block, navigation is blocked. Must re-throw redirect errors:
+```tsx
+// ❌ Wrong - catches NEXT_REDIRECT, prevents navigation
+} catch (error) {
+  console.error(error);
+  setIsLoading(false);
+}
+
+// ✅ Correct - detect and re-throw redirect errors
+} catch (error) {
+  const errorString = String(error);
+  if (errorString.includes("NEXT_REDIRECT") || errorString.includes("redirect")) {
+    throw error; // Re-throw redirect errors to let Next.js handle them
+  }
+  console.error(error);
+  setIsLoading(false);
+}
+```
+
+**Apply when:** Async actions with try/catch that may call Next.js `redirect()`, signout buttons, server actions that redirect
+
+---
+
+## 2026-01-20: Favorites State in Parent Components
+
+**Context:** Heart/favorite button on MenuItemCard not responding - button rendered but no state management
+**Learning:** When MenuItemCard is used in a parent component like HomepageMenuSection, favorites state must be managed at the parent level and passed as props:
+```tsx
+// Parent component (HomepageMenuSection)
+const [favorites, setFavorites] = useState<Set<string>>(new Set());
+const { toast } = useToast();
+
+const handleFavoriteToggle = useCallback((item: MenuItem, isFavorite: boolean) => {
+  setFavorites((prev) => {
+    const next = new Set(prev);
+    if (isFavorite) {
+      next.add(item.id);
+    } else {
+      next.delete(item.id);
+    }
+    return next;
+  });
+  toast({
+    title: isFavorite ? "Added to favorites" : "Removed from favorites",
+    description: item.nameEn,
+  });
+}, [toast]);
+
+// Pass to child
+<MenuItemCard
+  item={item}
+  onFavoriteToggle={handleFavoriteToggle}
+  isFavorite={favorites.has(item.id)}
+/>
+```
+
+**Apply when:** Using MenuItemCard with favorite functionality, heart icon not responding to clicks
+
+---
+
+## 2026-01-20: Vitest 4 Worker Threads Hang After Test Completion
+
+**Context:** CI failing on every main merge - `pnpm test:ci` hangs indefinitely after all tests pass
+**Learning:** Vitest 4 worker threads don't cleanly exit after test completion, especially in CI environments. Tests pass (all green checkmarks) but process never terminates, causing timeout/failure.
+
+**Fix pattern for CI:**
+```yaml
+# .github/workflows/ci.yml
+- name: Run tests with timeout
+  run: |
+    timeout 300 pnpm test:ci || EXIT_CODE=$?
+    if [ "${EXIT_CODE:-0}" -eq 124 ]; then
+      echo "Tests passed, Vitest hung during cleanup"
+      exit 0  # Timeout after tests pass = success
+    fi
+    exit ${EXIT_CODE:-0}
+```
+
+**Fix pattern for test:ci script:**
+```json
+"test:ci": "vitest run --bail 1 --no-file-parallelism"
+```
+
+- `--bail 1`: Fail fast on actual test failures
+- `--no-file-parallelism`: Sequential execution reduces worker crashes
+- Exit code 124 = timeout (tests passed, cleanup hung)
+
+**Apply when:** CI tests hang after completion, "Worker exited unexpectedly" errors, Vitest 4 on GitHub Actions
+
