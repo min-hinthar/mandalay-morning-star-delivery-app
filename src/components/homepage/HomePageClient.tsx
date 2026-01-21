@@ -16,7 +16,8 @@ export function HomePageClient({ menuSection }: HomePageClientProps) {
       {/* V7 Hero - Cinematic parallax with WebGL effects */}
       <Hero
         ctaHref="/menu"
-        secondaryCtaHref="/menu"
+        secondaryCtaText="Check Coverage"
+        secondaryCtaHref="#coverage"
         showFloatingFood={true}
         showParticles={true}
         showMascot={true}

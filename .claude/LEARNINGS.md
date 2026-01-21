@@ -1462,3 +1462,171 @@ grep -oE 'from "\./[^"]+' file | sed 's/from "\.\/\(.*\)/\1/'
 
 **Apply when:** Adding fixed/sticky positioning, creating modals/overlays, debugging click-through issues
 
+---
+
+## 2026-01-21: Mobile Menu State Must Reset on Route Change
+
+**Context:** Header/nav/hamburger/signout buttons not clickable on pages other than homepage
+
+**Problem:** `HeaderClient.tsx` manages `isMobileMenuOpen` state locally, but does not reset it when pathname changes. When user navigates between routes (e.g., homepage → /menu), the mobile nav state persists incorrectly, causing the backdrop/panel elements to interfere with click events.
+
+**Fix:**
+```tsx
+// Add useEffect to close menu on route change
+useEffect(() => {
+  setIsMobileMenuOpen(false);
+}, [pathname]);
+```
+
+**Why it worked on homepage:** Homepage Hero component dominates viewport with high-priority CTAs. Other pages have more navigation interactions that expose the state persistence bug.
+
+**Related:** Also check for `backdrop-blur` effects which create stacking contexts that can interfere with pointer events even when z-index is correct.
+
+**Apply when:** Implementing mobile menus, slide-out drawers, or any toggle state that should reset on navigation
+
+---
+
+## 2026-01-21: Zustand Persist for Client-Side Favorites
+
+**Context:** Favorites feature not persisting across page refreshes - both homepage and menu page losing state
+
+**Problem:** HomepageMenuSection used local `useState<Set<string>>` for favorites, menu-content.tsx didn't wire favorites props to MenuItemCard at all.
+
+**Solution:** Create shared zustand store with localStorage persistence:
+```typescript
+// src/lib/hooks/useFavorites.ts
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+
+export const useFavoritesStore = create<FavoritesStore>()(
+  persist(
+    (set, get) => ({
+      favorites: [],
+      toggleFavorite: (itemId) => {
+        const current = get().favorites;
+        const isFav = current.includes(itemId);
+        set({
+          favorites: isFav
+            ? current.filter((id) => id !== itemId)
+            : [...current, itemId],
+        });
+      },
+      isFavorite: (itemId) => get().favorites.includes(itemId),
+    }),
+    {
+      name: "mms-favorites",  // localStorage key
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
+```
+
+**Usage pattern in components:**
+```tsx
+const { isFavorite, toggleFavorite } = useFavorites();
+<MenuItemCard
+  isFavorite={isFavorite(item.id)}
+  onFavoriteToggle={(item, newState) => toggleFavorite(item.id)}
+/>
+```
+
+**Apply when:** Need persistent client-side state across pages (favorites, preferences, recently viewed)
+
+---
+
+## 2026-01-21: DropdownAction event.preventDefault() Blocks Redirects
+
+**Context:** Signout button in dropdown menu showing loading state but not redirecting
+
+**Problem:** `DropdownAction.tsx` called `event.preventDefault()` in `onSelect` handler. When `signOut()` calls Next.js `redirect()`, the prevented default blocks the navigation.
+
+**Root Cause Chain:**
+1. `onSelect={(event) => { event.preventDefault(); handleClick(); }}`
+2. `handleClick()` calls server action with `redirect("/auth/login")`
+3. `redirect()` throws `NEXT_REDIRECT` which gets caught in try/catch
+4. Even if re-thrown, the `preventDefault()` already blocked navigation
+
+**Fix:** Remove `event.preventDefault()` for navigation actions:
+```tsx
+// Before
+onSelect={(event) => {
+  if (isDisabled) return;
+  event.preventDefault();  // ❌ Blocks redirect
+  handleClick();
+}}
+
+// After
+onSelect={() => {
+  if (isDisabled) return;
+  // Let menu close naturally, redirect will happen
+  handleClick();
+}}
+```
+
+**Apply when:** Dropdown menu items that trigger server actions with redirects, debugging "button loads but nothing happens" issues
+
+---
+
+## 2026-01-21: CartDrawer/CartItem PriceTicker inCents Prop
+
+**Context:** Cart drawer showing $1299 instead of $12.99 - prices in cents being displayed as dollars
+
+**Problem:** Multiple PriceTicker usages missing `inCents={true}`:
+- `CartDrawer.tsx` line 233: CartPreviewBar total
+- `CartItem.tsx` line 375: Item total
+
+**Pattern:** Always audit PriceTicker usages when price displays are incorrect:
+```tsx
+// ❌ Wrong - treats 1299 cents as $1299.00
+<PriceTicker value={estimatedTotal} />
+
+// ✅ Correct - treats 1299 as $12.99
+<PriceTicker value={estimatedTotal} inCents={true} />
+```
+
+**Apply when:** Cart/checkout price displays, any component using PriceTicker with cent-denominated values
+
+---
+
+## 2026-01-21: Glass Class Dropdown Transparency Fix
+
+**Context:** PlacesAutocomplete dropdown had blur/transparent background making text hard to read
+
+**Problem:** `className="glass rounded-xl shadow-premium"` applies `backdrop-blur` and transparency via `color-mix()`. Text on light glass can be unreadable.
+
+**Fix:** Replace glass with solid background using explicit CSS variable:
+```tsx
+// Before
+className="glass rounded-xl shadow-premium"
+
+// After
+className="bg-[var(--color-surface-primary)] border border-border rounded-xl shadow-elevated"
+```
+
+**Apply when:** Dropdowns, autocomplete results, or any UI where content readability is critical over aesthetic effects
+
+---
+
+## 2026-01-21: Hero CTA Button Differentiation Pattern
+
+**Context:** Both "Order Now" and "View Menu" buttons navigating to /menu, user expected "Check Coverage" functionality
+
+**Solution:** Homepage hero should have distinct CTAs:
+- Primary CTA: Action-oriented ("Order Now" → /menu)
+- Secondary CTA: Discovery/validation ("Check Coverage" → scroll to address input)
+
+**Implementation:**
+```tsx
+// HomePageClient.tsx
+<Hero
+  ctaHref="/menu"
+  secondaryCtaText="Check Coverage"
+  secondaryCtaHref="#coverage"
+/>
+
+// CoverageSection.tsx - add anchor
+<section id="coverage" ...>
+```
+
+**Apply when:** Hero sections with multiple CTAs, ensuring each button serves distinct user intent
+

@@ -5,6 +5,7 @@ import { useMenuSearch } from "@/lib/hooks/useMenu";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
+import { useFavorites } from "@/lib/hooks/useFavorites";
 import type { MenuCategory, MenuItem } from "@/types/menu";
 import type { SelectedModifier } from "@/lib/utils/price";
 import { MenuAccordion } from "./MenuAccordion";
@@ -24,6 +25,14 @@ export function MenuContent({ categories }: MenuContentProps) {
 
   const { addItem } = useCart();
   const { open: openCart } = useCartDrawer();
+  const { isFavorite, toggleFavorite } = useFavorites();
+
+  const handleFavoriteToggle = useCallback(
+    (item: MenuItem) => {
+      toggleFavorite(item.id);
+    },
+    [toggleFavorite]
+  );
 
   const visibleCategories = useMemo(
     () => categories.filter((category) => category.items.length > 0),
@@ -95,6 +104,8 @@ export function MenuContent({ categories }: MenuContentProps) {
           onItemSelect={handleItemSelect}
           onClearSearch={handleClearSearch}
           isLoading={isSearching}
+          isFavorite={isFavorite}
+          onFavoriteToggle={handleFavoriteToggle}
         />
       ) : (
         <div className="px-4 py-6">
@@ -102,7 +113,12 @@ export function MenuContent({ categories }: MenuContentProps) {
             categories={visibleCategories}
             onItemClick={handleItemSelect}
             renderItem={(item) => (
-              <MenuItemCard item={item} onSelect={() => handleItemSelect(item)} />
+              <MenuItemCard
+                item={item}
+                onSelect={() => handleItemSelect(item)}
+                isFavorite={isFavorite(item.id)}
+                onFavoriteToggle={handleFavoriteToggle}
+              />
             )}
             defaultExpanded={visibleCategories[0]?.slug ? [visibleCategories[0].slug] : []}
             allowMultiple={true}

@@ -10,6 +10,7 @@ import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useToast } from "@/lib/hooks/useToast";
+import { useFavorites } from "@/lib/hooks/useFavorites";
 import {
   staggerContainer,
   staggerItem,
@@ -28,7 +29,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const { isFavorite, toggleFavorite } = useFavorites();
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const { addItem } = useCart();
   const { open: openCart } = useCartDrawer();
@@ -83,21 +84,14 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
   }, []);
 
   // Handle favorite toggle
-  const handleFavoriteToggle = useCallback((item: MenuItem, isFavorite: boolean) => {
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      if (isFavorite) {
-        next.add(item.id);
-      } else {
-        next.delete(item.id);
-      }
-      return next;
-    });
+  const handleFavoriteToggle = useCallback((item: MenuItem) => {
+    const wasAlreadyFavorite = isFavorite(item.id);
+    toggleFavorite(item.id);
     toast({
-      title: isFavorite ? "Added to favorites" : "Removed from favorites",
+      title: wasAlreadyFavorite ? "Removed from favorites" : "Added to favorites",
       description: item.nameEn,
     });
-  }, [toast]);
+  }, [isFavorite, toggleFavorite, toast]);
 
   // Handle add to cart
   const handleAddToCart = useCallback(
@@ -227,7 +221,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                         item={item}
                         onSelect={handleItemClick}
                         onFavoriteToggle={handleFavoriteToggle}
-                        isFavorite={favorites.has(item.id)}
+                        isFavorite={isFavorite(item.id)}
                       />
                     </motion.div>
                   ))}
@@ -259,7 +253,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                               item={item}
                               onSelect={handleItemClick}
                               onFavoriteToggle={handleFavoriteToggle}
-                              isFavorite={favorites.has(item.id)}
+                              isFavorite={isFavorite(item.id)}
                             />
                           </motion.div>
                         ))}

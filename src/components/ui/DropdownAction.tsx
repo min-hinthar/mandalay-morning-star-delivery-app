@@ -91,9 +91,10 @@ export function DropdownAction({
 
   return (
     <DropdownMenuItem
-      onSelect={(event) => {
+      onSelect={() => {
         if (isDisabled) return;
-        event.preventDefault(); // Prevent menu from closing during async action
+        // Don't prevent default - let menu close naturally
+        // The redirect will happen after menu closes
         handleClick();
       }}
       className={cn(

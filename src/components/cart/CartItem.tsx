@@ -374,6 +374,7 @@ export function CartItem({
               >
                 <PriceTicker
                   value={itemTotal}
+                  inCents={true}
                   className={cn(
                     "font-semibold text-primary",
                     compact ? "text-sm" : "text-base"
@@ -389,23 +390,6 @@ export function CartItem({
           </div>
         </div>
 
-        {/* Swipe hint indicator */}
-        {shouldAnimate && (
-          <motion.div
-            className={cn(
-              "absolute right-2 top-1/2 -translate-y-1/2",
-              "text-text-muted/30 pointer-events-none"
-            )}
-            animate={{ x: [0, -4, 0] }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              repeatDelay: 3,
-            }}
-          >
-            <Trash2 className="w-4 h-4" />
-          </motion.div>
-        )}
       </motion.div>
     </div>
   );
