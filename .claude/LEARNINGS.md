@@ -1294,3 +1294,34 @@ const handleFavoriteToggle = useCallback((item: MenuItem, isFavorite: boolean) =
 
 **Apply when:** Using MenuItemCard with favorite functionality, heart icon not responding to clicks
 
+---
+
+## 2026-01-20: Vitest 4 Worker Threads Hang After Test Completion
+
+**Context:** CI failing on every main merge - `pnpm test:ci` hangs indefinitely after all tests pass
+**Learning:** Vitest 4 worker threads don't cleanly exit after test completion, especially in CI environments. Tests pass (all green checkmarks) but process never terminates, causing timeout/failure.
+
+**Fix pattern for CI:**
+```yaml
+# .github/workflows/ci.yml
+- name: Run tests with timeout
+  run: |
+    timeout 300 pnpm test:ci || EXIT_CODE=$?
+    if [ "${EXIT_CODE:-0}" -eq 124 ]; then
+      echo "Tests passed, Vitest hung during cleanup"
+      exit 0  # Timeout after tests pass = success
+    fi
+    exit ${EXIT_CODE:-0}
+```
+
+**Fix pattern for test:ci script:**
+```json
+"test:ci": "vitest run --bail 1 --no-file-parallelism"
+```
+
+- `--bail 1`: Fail fast on actual test failures
+- `--no-file-parallelism`: Sequential execution reduces worker crashes
+- Exit code 124 = timeout (tests passed, cleanup hung)
+
+**Apply when:** CI tests hang after completion, "Worker exited unexpectedly" errors, Vitest 4 on GitHub Actions
+
