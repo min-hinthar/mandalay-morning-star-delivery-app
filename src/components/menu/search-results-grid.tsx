@@ -12,6 +12,8 @@ interface SearchResultsGridProps {
   onItemSelect: (item: MenuItem) => void;
   onClearSearch: () => void;
   isLoading?: boolean;
+  isFavorite?: (itemId: string) => boolean;
+  onFavoriteToggle?: (item: MenuItem) => void;
 }
 
 export function SearchResultsGrid({
@@ -20,6 +22,8 @@ export function SearchResultsGrid({
   onItemSelect,
   onClearSearch,
   isLoading = false,
+  isFavorite,
+  onFavoriteToggle,
 }: SearchResultsGridProps) {
   if (isLoading && items.length === 0) {
     return (
@@ -62,7 +66,12 @@ export function SearchResultsGrid({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.03 }}
           >
-            <MenuItemCard item={item} onSelect={onItemSelect} />
+            <MenuItemCard
+              item={item}
+              onSelect={onItemSelect}
+              isFavorite={isFavorite?.(item.id) ?? false}
+              onFavoriteToggle={onFavoriteToggle}
+            />
           </motion.div>
         ))}
       </div>

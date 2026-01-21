@@ -230,7 +230,7 @@ export function CartPreviewBar() {
         </div>
 
         <div className="flex items-center gap-2">
-          <PriceTicker value={estimatedTotal} className="font-bold" />
+          <PriceTicker value={estimatedTotal} inCents={true} className="font-bold" />
           <ChevronRight className="w-5 h-5" />
         </div>
       </motion.button>
@@ -361,7 +361,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
             style={isMobile ? { y: dragY } : undefined}
             className={cn(
               "fixed z-[var(--z-modal)] flex flex-col",
-              "bg-surface-primary",
+              "bg-[var(--color-surface-primary)]",
               "shadow-elevated",
               isMobile
                 ? "inset-x-0 bottom-0 h-[90vh] rounded-t-3xl"
