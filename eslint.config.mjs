@@ -49,6 +49,10 @@ const config = [
           message: "Use design token z-index (e.g., z-[var(--z-sticky)]) instead of hardcoded values.",
         },
         {
+          selector: "Literal[value=/\\bz-(40|50)\\b/]",
+          message: "Use design token z-index (e.g., z-[var(--z-modal)]) instead of Tailwind z-* classes.",
+        },
+        {
           selector: "Literal[value=/bg-\\[#[0-9a-fA-F]{3,8}\\]/]",
           message: "Use design token colors (e.g., bg-[var(--color-*)]) instead of hardcoded hex values.",
         },

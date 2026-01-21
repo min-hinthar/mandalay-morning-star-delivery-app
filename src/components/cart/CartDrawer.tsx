@@ -190,7 +190,7 @@ export function CartPreviewBar() {
       exit={shouldAnimate ? { y: 100, opacity: 0 } : undefined}
       transition={getSpring(spring.rubbery)}
       className={cn(
-        "fixed bottom-0 inset-x-0 z-40",
+        "fixed bottom-0 inset-x-0 z-[var(--z-sticky)]",
         "p-4 pb-[max(1rem,env(safe-area-inset-bottom))]",
         "bg-surface-primary/95 backdrop-blur-xl",
         "border-t border-border",

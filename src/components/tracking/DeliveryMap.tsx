@@ -332,7 +332,7 @@ export function DeliveryMap({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-[var(--color-background)]"
+            className="fixed inset-0 z-[var(--z-modal)] bg-[var(--color-background)]"
           >
             <motion.div
               initial={{ scale: 0.95 }}

@@ -561,7 +561,7 @@ export function TrackingMap({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background"
+            className="fixed inset-0 z-[var(--z-modal)] bg-background"
           >
             <motion.div
               ref={containerRef}
