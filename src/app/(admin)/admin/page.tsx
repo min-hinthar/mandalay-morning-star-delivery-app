@@ -12,7 +12,7 @@ import Link from "next/link";
 import type { OrderStatus } from "@/types/database";
 import { RevenueChart } from "@/components/admin/RevenueChart";
 import { PopularItems } from "@/components/admin/PopularItems";
-import { AdminDashboardV7 } from "@/components/admin/v7-index";
+import { AdminDashboard } from "@/components/admin/v7-index";
 import type { KPIData } from "@/components/admin/v7-index";
 
 interface OrderStatsRow {
@@ -226,7 +226,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* V7 KPI Dashboard */}
-      <AdminDashboardV7 kpis={kpiData} className="mb-8" />
+      <AdminDashboard kpis={kpiData} className="mb-8" />
 
       {/* Revenue Chart */}
       <Card className="mb-8">

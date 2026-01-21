@@ -20,10 +20,10 @@ import { cn } from "@/lib/utils/cn";
 const badgeVariants = cva(
   [
     "inline-flex items-center gap-1",
-    "rounded-v6-badge",
+    "rounded-badge",
     "border px-3 py-0.5",
-    "font-v6-body text-xs font-semibold",
-    "transition-colors duration-v6-fast",
+    "font-body text-xs font-semibold",
+    "transition-colors duration-fast",
   ].join(" "),
   {
     variants: {
@@ -31,58 +31,58 @@ const badgeVariants = cva(
         // V6 Default: Primary deep red
         default: [
           "border-transparent",
-          "bg-v6-primary text-v6-text-inverse",
+          "bg-primary text-text-inverse",
         ],
         // V6 Secondary: Golden yellow
         secondary: [
           "border-transparent",
-          "bg-v6-secondary text-v6-text-primary",
+          "bg-secondary text-text-primary",
         ],
         // V6 Outline: Border with primary accent
         outline: [
-          "border-v6-primary",
-          "bg-transparent text-v6-primary",
+          "border-primary",
+          "bg-transparent text-primary",
         ],
 
         // Featured/Popular - Golden yellow with glow
         featured: [
           "border-transparent",
-          "bg-v6-secondary text-v6-text-primary",
-          "shadow-v6-sm",
+          "bg-secondary text-text-primary",
+          "shadow-sm",
         ],
 
         // Allergen/Warning - Orange
         allergen: [
-          "border-v6-orange/30",
-          "bg-v6-orange-light text-v6-orange",
+          "border-orange/30",
+          "bg-orange-light text-orange",
         ],
 
         // Price modifiers
         "price-discount": [
-          "border-v6-green/30",
-          "bg-v6-green-light text-v6-green",
+          "border-green/30",
+          "bg-green-light text-green",
         ],
         "price-premium": [
-          "border-v6-magenta/30",
-          "bg-v6-magenta-light text-v6-magenta",
+          "border-magenta/30",
+          "bg-magenta-light text-magenta",
         ],
 
         // Status variants - V6 vibrant colors
         "status-success": [
-          "border-v6-green/30",
-          "bg-v6-green-light text-v6-green",
+          "border-green/30",
+          "bg-green-light text-green",
         ],
         "status-warning": [
-          "border-v6-orange/30",
-          "bg-v6-orange-light text-v6-orange",
+          "border-orange/30",
+          "bg-orange-light text-orange",
         ],
         "status-error": [
-          "border-v6-status-error/30",
-          "bg-v6-status-error-bg text-v6-status-error",
+          "border-status-error/30",
+          "bg-status-error-bg text-status-error",
         ],
         "status-info": [
-          "border-v6-teal/30",
-          "bg-v6-teal-light text-v6-teal",
+          "border-teal/30",
+          "bg-teal-light text-teal",
         ],
       },
       size: {

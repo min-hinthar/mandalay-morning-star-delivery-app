@@ -1,21 +1,13 @@
 /**
- * V7 Homepage Component Library Index
+ * Homepage Component Library Index
  * Maximum playfulness, cinematic parallax, WebGL effects
- *
- * @example
- * import {
- *   HeroV7,
- *   FloatingFood,
- *   TimelineV7,
- *   CoverageSectionV7,
- * } from '@/components/homepage/v7-index';
  */
 
 // ============================================
-// HERO V7
+// HERO
 // Cinematic multi-layer parallax hero
 // ============================================
-export { HeroV7, type HeroV7Props } from "./HeroV7";
+export { Hero, Hero as HeroV7, type HeroProps, type HeroProps as HeroV7Props } from "./Hero";
 
 // ============================================
 // FLOATING FOOD
@@ -29,20 +21,24 @@ export {
 } from "./FloatingFood";
 
 // ============================================
-// TIMELINE V7
+// TIMELINE
 // Animated "How It Works" steps
 // ============================================
 export {
-  TimelineV7,
-  type TimelineV7Props,
+  Timeline,
+  Timeline as TimelineV7,
+  type TimelineProps,
+  type TimelineProps as TimelineV7Props,
   type TimelineStep,
-} from "./TimelineV7";
+} from "./Timeline";
 
 // ============================================
-// COVERAGE SECTION V7
+// COVERAGE SECTION
 // Animated map with coverage zones
 // ============================================
 export {
-  CoverageSectionV7,
-  type CoverageSectionV7Props,
-} from "./CoverageSectionV7";
+  CoverageSection,
+  CoverageSection as CoverageSectionV7,
+  type CoverageSectionProps,
+  type CoverageSectionProps as CoverageSectionV7Props,
+} from "./CoverageSection";

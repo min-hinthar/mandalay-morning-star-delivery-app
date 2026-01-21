@@ -4,8 +4,8 @@ import React, { forwardRef, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import Link, { type LinkProps } from "next/link";
 import { cn } from "@/lib/utils/cn";
-import { v7Spring } from "@/lib/motion-tokens-v7";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import { spring } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
 // TYPES
@@ -84,9 +84,9 @@ export const AnimatedLink = forwardRef<HTMLAnchorElement, AnimatedLinkProps>(
     },
     ref
   ) => {
-    const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+    const { shouldAnimate, getSpring } = useAnimationPreference();
 
-    const springConfig = getSpring(v7Spring.snappy);
+    const springConfig = getSpring(spring.snappy);
     const variant = underlineStyle !== "none"
       ? underlineVariants[underlineStyle as keyof typeof underlineVariants] || underlineVariants.slide
       : null;
@@ -96,7 +96,7 @@ export const AnimatedLink = forwardRef<HTMLAnchorElement, AnimatedLinkProps>(
         className={cn(
           "relative inline-flex items-center gap-1.5 group",
           "font-medium transition-colors duration-150",
-          isActive ? "text-v6-primary" : "text-v6-text-primary hover:text-v6-primary",
+          isActive ? "text-primary" : "text-text-primary hover:text-primary",
           className
         )}
         initial="initial"
@@ -250,7 +250,7 @@ export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
     },
     ref
   ) => {
-    const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+    const { shouldAnimate, getSpring } = useAnimationPreference();
 
     const sizeClasses = {
       sm: "text-sm py-1",
@@ -270,7 +270,7 @@ export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
           {/* Active dot indicator */}
           {showDot && (
             <motion.span
-              className="w-1.5 h-1.5 rounded-full bg-v6-primary"
+              className="w-1.5 h-1.5 rounded-full bg-primary"
               initial={{ scale: 0, opacity: 0 }}
               animate={
                 shouldAnimate
@@ -279,7 +279,7 @@ export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
                     : { scale: 0, opacity: 0 }
                   : undefined
               }
-              transition={getSpring(v7Spring.ultraBouncy)}
+              transition={getSpring(spring.ultraBouncy)}
             />
           )}
           {children}
@@ -310,7 +310,7 @@ export const FooterLink = forwardRef<HTMLAnchorElement, FooterLinkProps>(
         underlineColor={subtle ? "#D4A017" : "#A41034"}
         className={cn(
           "text-sm",
-          subtle ? "text-v6-text-muted hover:text-v6-text-primary" : "",
+          subtle ? "text-text-muted hover:text-text-primary" : "",
           className
         )}
         {...props}
@@ -335,7 +335,7 @@ export const BreadcrumbLink = forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>
   ({ isCurrent, className, children, ...props }, ref) => {
     if (isCurrent) {
       return (
-        <span className={cn("text-sm text-v6-text-primary font-medium", className)}>
+        <span className={cn("text-sm text-text-primary font-medium", className)}>
           {children}
         </span>
       );
@@ -346,7 +346,7 @@ export const BreadcrumbLink = forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>
         ref={ref}
         underlineStyle="none"
         className={cn(
-          "text-sm text-v6-text-muted hover:text-v6-primary",
+          "text-sm text-text-muted hover:text-primary",
           className
         )}
         {...props}

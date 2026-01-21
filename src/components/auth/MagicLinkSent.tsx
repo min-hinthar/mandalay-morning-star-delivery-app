@@ -20,10 +20,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import {
-  v7Spring,
-  v7Hover,
-} from "@/lib/motion-tokens-v7";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+  spring,
+  hover,
+} from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
 // TYPES
@@ -45,7 +45,7 @@ export interface MagicLinkSentProps {
 // ============================================
 
 function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
 
   return (
     <div className="relative w-40 h-40 flex items-center justify-center">
@@ -60,14 +60,14 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
             : undefined
         }
         transition={{ duration: 2, repeat: Infinity }}
-        className="absolute inset-0 rounded-full bg-gradient-to-br from-v6-primary/30 to-v6-secondary/30 blur-xl"
+        className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 blur-xl"
       />
 
       {/* Envelope container */}
       <motion.div
         initial={shouldAnimate ? { scale: 0, rotate: -10 } : undefined}
         animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
-        transition={v7Spring.ultraBouncy}
+        transition={spring.ultraBouncy}
         className="relative"
       >
         {/* Envelope body */}
@@ -80,8 +80,8 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
           transition={{ duration: 0.5 }}
           className={cn(
             "relative w-28 h-20 rounded-xl",
-            "bg-gradient-to-br from-v6-primary to-v6-primary/80",
-            "shadow-xl shadow-v6-primary/30",
+            "bg-gradient-to-br from-primary to-primary/80",
+            "shadow-xl shadow-primary/30",
             "overflow-hidden"
           )}
         >
@@ -92,11 +92,11 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
                 ? { rotateX: -180, y: -5 }
                 : { rotateX: 0, y: 0 }
             }
-            transition={v7Spring.default}
+            transition={spring.default}
             style={{ transformOrigin: "top center", perspective: 1000 }}
             className={cn(
               "absolute inset-x-0 top-0 h-10",
-              "bg-gradient-to-b from-v6-primary to-v6-primary/90",
+              "bg-gradient-to-b from-primary to-primary/90",
               "[clip-path:polygon(0_0,50%_100%,100%_0)]"
             )}
           />
@@ -112,7 +112,7 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: -20, opacity: 1 }}
               exit={{ y: 10, opacity: 0 }}
-              transition={v7Spring.default}
+              transition={spring.default}
               className={cn(
                 "absolute left-1/2 -translate-x-1/2 top-2",
                 "w-20 h-16 rounded-lg",
@@ -120,7 +120,7 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
                 "flex items-center justify-center"
               )}
             >
-              <Sparkles className="w-6 h-6 text-v6-secondary" />
+              <Sparkles className="w-6 h-6 text-secondary" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -131,13 +131,13 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ ...v7Spring.ultraBouncy, delay: 0.3 }}
+              transition={{ ...spring.ultraBouncy, delay: 0.3 }}
               className={cn(
                 "absolute -bottom-2 -right-2",
                 "w-10 h-10 rounded-full",
-                "bg-v6-green",
+                "bg-green",
                 "flex items-center justify-center",
-                "shadow-lg shadow-v6-green/30"
+                "shadow-lg shadow-green/30"
               )}
             >
               <CheckCircle className="w-6 h-6 text-white" />
@@ -164,7 +164,7 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
                 repeat: Infinity,
                 delay: i * 0.3,
               }}
-              className="absolute w-2 h-2 rounded-full bg-v6-secondary"
+              className="absolute w-2 h-2 rounded-full bg-secondary"
             />
           ))}
         </>
@@ -178,7 +178,7 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
 // ============================================
 
 function EmailRevealV7({ email }: { email: string }) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
 
   return (
     <motion.div
@@ -188,11 +188,11 @@ function EmailRevealV7({ email }: { email: string }) {
       className={cn(
         "inline-flex items-center gap-2",
         "px-4 py-2 rounded-full",
-        "bg-v6-surface-secondary",
-        "text-v6-text-primary font-medium"
+        "bg-surface-secondary",
+        "text-text-primary font-medium"
       )}
     >
-      <Mail className="w-4 h-4 text-v6-primary" />
+      <Mail className="w-4 h-4 text-primary" />
       <motion.span
         initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
         animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
@@ -217,7 +217,7 @@ function ResendButtonV7({
   onResend,
   cooldownSeconds = 30,
 }: ResendButtonV7Props) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
   const [countdown, setCountdown] = useState(cooldownSeconds);
   const [isResending, setIsResending] = useState(false);
 
@@ -264,8 +264,8 @@ function ResendButtonV7({
         "flex items-center gap-2",
         "text-sm transition-colors",
         canResend
-          ? "text-v6-primary hover:text-v6-primary/80 cursor-pointer"
-          : "text-v6-text-muted cursor-not-allowed"
+          ? "text-primary hover:text-primary/80 cursor-pointer"
+          : "text-text-muted cursor-not-allowed"
       )}
     >
       <RefreshCw
@@ -290,7 +290,7 @@ export function MagicLinkSent({
   onBack,
   className,
 }: MagicLinkSentProps) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
   const [isOpening, setIsOpening] = useState(false);
 
   // Trigger envelope opening animation
@@ -328,7 +328,7 @@ export function MagicLinkSent({
         initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
         animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
         transition={{ delay: 0.1 }}
-        className="text-2xl font-bold text-v6-text-primary mb-2"
+        className="text-2xl font-bold text-text-primary mb-2"
       >
         Check Your Email
       </motion.h1>
@@ -338,7 +338,7 @@ export function MagicLinkSent({
         initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
         animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
         transition={{ delay: 0.2 }}
-        className="text-v6-text-secondary mb-4"
+        className="text-text-secondary mb-4"
       >
         We sent a magic link to
       </motion.p>
@@ -353,7 +353,7 @@ export function MagicLinkSent({
         initial={shouldAnimate ? { opacity: 0 } : undefined}
         animate={shouldAnimate ? { opacity: 0.7 } : undefined}
         transition={{ delay: 0.4 }}
-        className="text-sm text-v6-text-muted mb-8 max-w-xs"
+        className="text-sm text-text-muted mb-8 max-w-xs"
       >
         Click the link in your email to sign in.
         It&apos;ll expire in 24 hours.
@@ -368,15 +368,15 @@ export function MagicLinkSent({
       >
         {/* Open mail button */}
         <motion.button
-          {...(shouldAnimate ? v7Hover.scale : {})}
+          {...(shouldAnimate ? hover.scale : {})}
           onClick={handleOpenMail}
           className={cn(
             "inline-flex items-center gap-2",
             "px-6 py-3 rounded-xl",
-            "bg-gradient-to-r from-v6-primary to-v6-primary/90",
+            "bg-gradient-to-r from-primary to-primary/90",
             "text-white font-semibold",
-            "shadow-lg shadow-v6-primary/30",
-            "hover:shadow-xl hover:shadow-v6-primary/40",
+            "shadow-lg shadow-primary/30",
+            "hover:shadow-xl hover:shadow-primary/40",
             "transition-shadow"
           )}
         >
@@ -396,7 +396,7 @@ export function MagicLinkSent({
             transition={{ delay: 0.7 }}
             whileHover={shouldAnimate ? { opacity: 1 } : undefined}
             onClick={onBack}
-            className="text-sm text-v6-text-muted hover:text-v6-text-primary transition-colors"
+            className="text-sm text-text-muted hover:text-text-primary transition-colors"
           >
             Try a different email
           </motion.button>
@@ -408,7 +408,7 @@ export function MagicLinkSent({
         initial={shouldAnimate ? { opacity: 0 } : undefined}
         animate={shouldAnimate ? { opacity: 0.4 } : undefined}
         transition={{ delay: 0.8 }}
-        className="mt-8 text-xs text-v6-text-muted"
+        className="mt-8 text-xs text-text-muted"
       >
         Can&apos;t find it? Check your spam folder.
       </motion.p>

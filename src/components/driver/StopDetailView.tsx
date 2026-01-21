@@ -133,11 +133,11 @@ export function StopDetailView({
         <button
           onClick={() => setIsPhotoCaptureOpen(true)}
           className={cn(
-            "mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-v6-card-sm",
-            "border-2 font-v6-body font-medium transition-all duration-v6-fast",
+            "mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-card-sm",
+            "border-2 font-body font-medium transition-all duration-fast",
             hasPhoto
-              ? "border-v6-green bg-v6-green/10 text-v6-green"
-              : "border-v6-border bg-v6-surface-primary text-v6-text-primary hover:border-v6-text-muted"
+              ? "border-green bg-green/10 text-green"
+              : "border-border bg-surface-primary text-text-primary hover:border-text-muted"
           )}
         >
           <Camera className="h-5 w-5" />

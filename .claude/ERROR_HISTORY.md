@@ -82,6 +82,42 @@ Reference for past bugs, root causes, and fixes. Check here before debugging sim
 
 ---
 
+## 2026-01-20: Module Export Chain Failures After Bulk Rename
+
+**Type:** TypeScript | **Severity:** Medium
+**Files:** Multiple v7-index.ts barrel files, component files (38 total)
+
+**Error:** `Module '"./AuthModal"' has no exported member 'AuthModalV7'` (and similar for 10+ components)
+**Root Cause:** After renaming files (AuthModalV7.tsx → AuthModal.tsx), barrel exports still referenced old names like `export { AuthModalV7 }` which no longer existed. The component now exports `AuthModal` but barrel tried to re-export non-existent `AuthModalV7`.
+**Fix:** Update each barrel file to export actual names with aliases for backward compatibility:
+```ts
+// Before (broken)
+export { AuthModalV7 } from "./AuthModal";
+
+// After (working)
+export { AuthModal } from "./AuthModal";
+export { AuthModal as AuthModalV7 } from "./AuthModal";  // Alias for compat
+```
+**Prevention:** When bulk renaming files, also update barrel exports. Run `pnpm typecheck` after each batch of renames, not just at the end.
+
+---
+
+## 2026-01-20: Import Name Collision Causing Circular Reference
+
+**Type:** TypeScript | **Severity:** Medium
+**Files:** `src/components/layouts/PageTransition.tsx`, `src/lib/motion-tokens.ts`
+
+**Error:** TypeScript error about circular reference or "Block-scoped variable 'duration' used before its declaration"
+**Root Cause:** File imported `duration` from motion-tokens, but also declared local constant `duration = motionDuration.normal` - same name collision.
+**Fix:** Rename import using alias:
+```ts
+import { spring, duration as motionDuration, easing } from "@/lib/motion-tokens";
+const fastExit = { duration: motionDuration.fast, ease: easing.in };
+```
+**Prevention:** Use import aliases when imported name might conflict with common variable names (duration, type, value, etc.)
+
+---
+
 ## 2026-01-18: V4 Bug - Signout Button Not Working (Form in Radix Dropdown)
 **Type:** Runtime | **Severity:** High
 **Files:** `src/components/auth/user-menu.tsx`, `src/components/ui/DropdownAction.tsx`

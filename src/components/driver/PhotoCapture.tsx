@@ -237,13 +237,13 @@ export function PhotoCapture({
 
           {/* Header */}
           <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between bg-gradient-to-b from-black/70 to-transparent p-4">
-            <h2 className="font-v6-display text-lg font-semibold text-white">{title}</h2>
+            <h2 className="font-display text-lg font-semibold text-white">{title}</h2>
             <button
               onClick={handleClose}
               className={cn(
                 "flex h-12 w-12 items-center justify-center rounded-full",
                 "bg-white/20 text-white",
-                "transition-colors duration-v6-fast hover:bg-white/30"
+                "transition-colors duration-fast hover:bg-white/30"
               )}
               disabled={isUploading}
             >
@@ -274,13 +274,13 @@ export function PhotoCapture({
                       className="absolute inset-0 flex items-center justify-center bg-black/80"
                     >
                       <div className="text-center">
-                        <p className="mb-4 font-v6-body text-lg text-white">{error}</p>
+                        <p className="mb-4 font-body text-lg text-white">{error}</p>
                         <button
                           onClick={startCamera}
                           className={cn(
-                            "rounded-v6-card-sm bg-v6-surface-primary px-6 py-3",
-                            "font-v6-body font-medium text-v6-text-primary",
-                            "transition-colors duration-v6-fast hover:bg-v6-surface-secondary"
+                            "rounded-card-sm bg-surface-primary px-6 py-3",
+                            "font-body font-medium text-text-primary",
+                            "transition-colors duration-fast hover:bg-surface-secondary"
                           )}
                         >
                           Try Again
@@ -312,13 +312,13 @@ export function PhotoCapture({
                 disabled={!stream || !!error}
                 className={cn(
                   "flex h-20 w-20 items-center justify-center rounded-full",
-                  "bg-v6-surface-primary transition-all duration-v6-fast",
+                  "bg-surface-primary transition-all duration-fast",
                   "active:scale-95",
                   "disabled:opacity-50"
                 )}
                 aria-label="Take photo"
               >
-                <div className="h-16 w-16 rounded-full border-4 border-v6-primary" />
+                <div className="h-16 w-16 rounded-full border-4 border-primary" />
               </motion.button>
             ) : (
               // Confirm/Retake buttons
@@ -332,7 +332,7 @@ export function PhotoCapture({
                   className={cn(
                     "flex h-14 w-14 items-center justify-center rounded-full",
                     "bg-white/20 text-white",
-                    "transition-colors duration-v6-fast hover:bg-white/30"
+                    "transition-colors duration-fast hover:bg-white/30"
                   )}
                   aria-label="Retake photo"
                 >
@@ -347,8 +347,8 @@ export function PhotoCapture({
                   disabled={isUploading}
                   className={cn(
                     "flex h-20 w-20 items-center justify-center rounded-full",
-                    "bg-v6-green text-white shadow-v6-lg",
-                    "transition-all duration-v6-fast",
+                    "bg-green text-white shadow-lg",
+                    "transition-all duration-fast",
                     "active:scale-95"
                   )}
                   aria-label="Confirm photo"

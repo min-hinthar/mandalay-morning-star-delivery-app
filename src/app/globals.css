@@ -147,64 +147,64 @@
     display: none;
   }
 
-  /* Animated gradient background - Burmese theme (V7 tokens) */
+  /* Animated gradient background - Burmese theme */
   .bg-gradient-animated {
     background: linear-gradient(
       -45deg,
-      var(--color-v6-primary),
-      var(--color-v6-secondary),
-      var(--color-v6-accent-orange),
-      var(--color-v6-accent-green)
+      var(--color-primary),
+      var(--color-secondary),
+      var(--color-accent-orange),
+      var(--color-accent-green)
     );
     background-size: 400% 400%;
     animation: gradient-shift 15s ease infinite;
   }
 
-  /* Gold text gradient (V7 tokens) */
+  /* Gold text gradient */
   .text-gradient-gold {
     background: linear-gradient(
       135deg,
-      var(--color-v6-secondary) 0%,
-      var(--color-v6-secondary-hover) 50%,
-      var(--color-v6-secondary) 100%
+      var(--color-secondary) 0%,
+      var(--color-secondary-hover) 50%,
+      var(--color-secondary) 100%
     );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Saffron text gradient (V7 tokens) */
+  /* Saffron text gradient */
   .text-gradient-saffron {
     background: linear-gradient(
       135deg,
-      var(--color-v6-secondary-hover) 0%,
-      var(--color-v6-secondary) 50%,
-      var(--color-v6-secondary-hover) 100%
+      var(--color-secondary-hover) 0%,
+      var(--color-secondary) 50%,
+      var(--color-secondary-hover) 100%
     );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Glassmorphism effect (V7 tokens, dark text for contrast) */
+  /* Glassmorphism effect (dark text for contrast) */
   .glass {
-    background: color-mix(in srgb, var(--color-v6-surface-primary) 85%, transparent);
+    background: color-mix(in srgb, var(--color-surface-primary) 85%, transparent);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--color-v6-border-subtle);
-    color: var(--color-v6-text-primary);
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-text-primary);
   }
 
-  /* Dark glass (V7 tokens, light text for contrast) */
+  /* Dark glass (light text for contrast) */
   .glass-dark {
-    background: color-mix(in srgb, var(--color-v6-text-primary) 85%, transparent);
+    background: color-mix(in srgb, var(--color-text-primary) 85%, transparent);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--color-v6-border-strong);
-    color: var(--color-v6-text-inverse);
+    border: 1px solid var(--color-border-strong);
+    color: var(--color-text-inverse);
   }
 
-  /* Button glow effect on hover (V7 tokens) */
+  /* Button glow effect on hover */
   .btn-glow {
     position: relative;
     overflow: hidden;
@@ -217,35 +217,35 @@
     background: linear-gradient(
       90deg,
       transparent,
-      var(--color-v6-secondary-light),
+      var(--color-secondary-light),
       transparent
     );
     transform: translateX(-100%);
-    transition: transform var(--duration-v6-slow) var(--ease-v6-out);
+    transition: transform var(--duration-slow) var(--ease-out);
   }
 
   .btn-glow:hover::before {
     transform: translateX(100%);
   }
 
-  /* Premium card hover effect (V7 tokens) */
+  /* Premium card hover effect */
   .card-hover {
-    transition: all var(--duration-v6-normal) var(--ease-v6-default);
+    transition: all var(--duration-normal) var(--ease-default);
   }
 
   .card-hover:hover {
-    transform: var(--transform-v6-hover-lift) var(--transform-v6-hover-scale);
-    box-shadow: var(--shadow-v6-elevated);
+    transform: var(--transform-hover-lift) var(--transform-hover-scale);
+    box-shadow: var(--shadow-elevated);
   }
 
-  /* Burmese decorative border (V7 tokens) */
+  /* Burmese decorative border */
   .burmese-border {
     border-image: linear-gradient(
         90deg,
         transparent 0%,
-        var(--color-v6-secondary) 20%,
-        var(--color-v6-primary) 50%,
-        var(--color-v6-secondary) 80%,
+        var(--color-secondary) 20%,
+        var(--color-primary) 50%,
+        var(--color-secondary) 80%,
         transparent 100%
       )
       1;
@@ -261,17 +261,17 @@
     animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
-  /* Image zoom on hover container (V7 tokens) */
+  /* Image zoom on hover container */
   .img-zoom-container {
     overflow: hidden;
   }
 
   .img-zoom-container img {
-    transition: transform var(--duration-v6-slow) var(--ease-v6-default);
+    transition: transform var(--duration-slow) var(--ease-default);
   }
 
   .img-zoom-container:hover img {
-    transform: var(--transform-v6-image-zoom);
+    transform: var(--transform-image-zoom);
   }
 
   /* Stagger animation delays for lists */

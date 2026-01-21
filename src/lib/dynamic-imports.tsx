@@ -101,7 +101,7 @@ export const DynamicItemDetailModal = dynamic(
  * Lazy loaded when cart is first opened
  */
 export const DynamicCartDrawer = dynamic(
-  () => import("@/components/cart/cart-drawer").then(mod => mod.CartDrawer),
+  () => import("@/components/cart/CartDrawer").then(mod => mod.CartDrawer),
   {
     loading: () => null,
     ssr: false,
@@ -155,6 +155,6 @@ export function prefetchComponent(
  */
 export const prefetch = {
   itemDetailModal: () => prefetchComponent(() => import("@/components/menu/item-detail-modal")),
-  cartDrawer: () => prefetchComponent(() => import("@/components/cart/cart-drawer")),
+  cartDrawer: () => prefetchComponent(() => import("@/components/cart/CartDrawer")),
   deliveryMap: () => prefetchComponent(() => import("@/components/tracking/DeliveryMap")),
 };

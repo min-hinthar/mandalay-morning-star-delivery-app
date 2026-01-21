@@ -3,8 +3,8 @@
 import React, { useEffect, useState, useMemo, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { v7Spring } from "@/lib/motion-tokens-v7";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import { spring } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
 // TYPES
@@ -76,8 +76,8 @@ interface DigitProps {
 }
 
 function AnimatedDigit({ digit, prevDigit, direction, shouldAnimate }: DigitProps) {
-  const { getSpring } = useAnimationPreferenceV7();
-  const springConfig = getSpring(v7Spring.snappy);
+  const { getSpring } = useAnimationPreference();
+  const springConfig = getSpring(spring.snappy);
 
   // Don't animate if it's the same digit or first render
   if (!shouldAnimate || prevDigit === null || prevDigit === digit) {
@@ -126,7 +126,7 @@ export const PriceTicker = forwardRef<HTMLSpanElement, PriceTickerProps>(
     },
     ref
   ) => {
-    const { shouldAnimate, isFullMotion } = useAnimationPreferenceV7();
+    const { shouldAnimate, isFullMotion } = useAnimationPreference();
     const [prevValue, setPrevValue] = useState<number | null>(null);
     const [prevDigits, setPrevDigits] = useState<string[] | null>(null);
 
@@ -182,7 +182,7 @@ export const PriceTicker = forwardRef<HTMLSpanElement, PriceTickerProps>(
           initial={{ opacity: 0, scale: 0.5, y: isUp ? 5 : -5 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.5 }}
-          transition={v7Spring.ultraBouncy}
+          transition={spring.ultraBouncy}
         >
           <svg
             width="12"
@@ -262,7 +262,7 @@ export function PriceChangeBadge({
   inCents = false,
   className,
 }: PriceChangeBadgeProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+  const { shouldAnimate, getSpring } = useAnimationPreference();
 
   const current = inCents ? currentPrice / 100 : currentPrice;
   const original = originalPrice
@@ -282,21 +282,21 @@ export function PriceChangeBadge({
         currency={currency}
         inCents={inCents}
         size="lg"
-        className="text-v6-text-primary"
+        className="text-text-primary"
       />
 
       {original && original > current && (
         <>
-          <span className="text-v6-text-muted line-through text-sm">
+          <span className="text-text-muted line-through text-sm">
             {currency}
             {original.toFixed(2)}
           </span>
 
           <motion.span
-            className="px-1.5 py-0.5 rounded-md bg-v6-green/10 text-v6-green text-xs font-semibold"
+            className="px-1.5 py-0.5 rounded-md bg-green/10 text-green text-xs font-semibold"
             initial={shouldAnimate ? { scale: 0, opacity: 0 } : undefined}
             animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
-            transition={getSpring(v7Spring.ultraBouncy)}
+            transition={getSpring(spring.ultraBouncy)}
           >
             -{discount}%
           </motion.span>
@@ -330,7 +330,7 @@ export const CounterTicker = forwardRef<HTMLSpanElement, CounterTickerProps>(
     { value, prefix, suffix, size = "md", padZeros = 0, className },
     ref
   ) => {
-    const { shouldAnimate } = useAnimationPreferenceV7();
+    const { shouldAnimate } = useAnimationPreference();
     const [prevValue, setPrevValue] = useState<number | null>(null);
 
     const sizes = sizeConfig[size];

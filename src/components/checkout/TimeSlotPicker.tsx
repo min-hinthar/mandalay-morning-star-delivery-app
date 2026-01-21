@@ -1,249 +1,447 @@
 "use client";
 
-import { useMemo } from "react";
-import { motion } from "framer-motion";
-import { AlertTriangle, Calendar, Check, Clock, Star } from "lucide-react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Calendar, Clock, ChevronLeft, ChevronRight, Sun, Moon, Sunrise, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { getDeliveryDate, getTimeUntilCutoff } from "@/lib/utils/delivery-dates";
-import { TIME_WINDOWS, type TimeWindow } from "@/types/delivery";
+import { spring, staggerContainer } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import type { TimeWindow, DeliveryDate, DeliverySelection } from "@/types/delivery";
+import { TIME_WINDOWS } from "@/types/delivery";
 
-type SlotStatus = "available" | "popular" | "unavailable";
+// ============================================
+// TYPES
+// ============================================
 
-interface TimeSlotPickerProps {
-  selectedWindow: TimeWindow | null;
-  onSelect: (window: TimeWindow) => void;
-  slotStatus?: Record<string, SlotStatus>;
+export interface TimeSlotPickerProps {
+  /** Available delivery dates */
+  availableDates: DeliveryDate[];
+  /** Selected delivery */
+  selectedDelivery: DeliverySelection | null;
+  /** Callback when selection changes */
+  onSelectionChange: (selection: DeliverySelection) => void;
+  /** Additional className */
   className?: string;
 }
 
-// Default popular slots (typically 2-3 PM is most popular)
-const DEFAULT_POPULAR_SLOTS = ["14:00"];
+// ============================================
+// DATE PILL COMPONENT
+// ============================================
 
-export function TimeSlotPicker({
-  selectedWindow,
-  onSelect,
-  slotStatus = {},
-  className,
-}: TimeSlotPickerProps) {
-  const deliveryDate = useMemo(() => getDeliveryDate(), []);
-  const cutoffInfo = useMemo(() => getTimeUntilCutoff(), []);
-
-  const getSlotStatus = (window: TimeWindow): SlotStatus => {
-    if (slotStatus[window.start]) {
-      return slotStatus[window.start];
-    }
-    if (DEFAULT_POPULAR_SLOTS.includes(window.start)) {
-      return "popular";
-    }
-    return "available";
-  };
-
-  const allUnavailable = TIME_WINDOWS.every(
-    (w) => getSlotStatus(w) === "unavailable"
-  );
-
-  return (
-    <div className={cn("space-y-5", className)}>
-      {/* Delivery Date Card */}
-      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-interactive-primary-light)]">
-            <Calendar className="h-5 w-5 text-[var(--color-interactive-primary)]" />
-          </div>
-          <div>
-            <p className="text-sm text-[var(--color-text-secondary)]">Delivery Date</p>
-            <p className="text-lg font-bold text-[var(--color-text-primary)]">
-              {deliveryDate.displayDate}
-            </p>
-          </div>
-        </div>
-        {deliveryDate.isNextWeek && (
-          <p className="mt-3 rounded-lg bg-[var(--color-warning-light)] p-3 text-sm text-[var(--color-warning-dark)]">
-            Orders for this Saturday have closed. Your order will be delivered
-            next Saturday.
-          </p>
-        )}
-      </div>
-
-      {/* Cutoff Warning */}
-      {!cutoffInfo.isPastCutoff && cutoffInfo.hours < 24 && (
-        <CutoffWarning hours={cutoffInfo.hours} minutes={cutoffInfo.minutes} />
-      )}
-
-      {/* Time Slots Section */}
-      <div>
-        <h3 className="mb-4 flex items-center gap-3 font-semibold text-[var(--color-text-primary)]">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-surface-muted)]">
-            <Clock className="h-4 w-4 text-[var(--color-text-secondary)]" />
-          </div>
-          Select a delivery window
-        </h3>
-
-        {allUnavailable ? (
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-muted)] p-6 text-center">
-            <Clock className="h-8 w-8 text-[var(--color-text-secondary)] mx-auto mb-2" />
-            <p className="font-semibold text-[var(--color-text-primary)]">
-              All slots are full for this date
-            </p>
-            <p className="text-sm text-[var(--color-text-secondary)] mt-1">
-              Please try a different delivery date.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {TIME_WINDOWS.map((window) => {
-              const status = getSlotStatus(window);
-              return (
-                <TimeSlotButton
-                  key={window.start}
-                  window={window}
-                  isSelected={selectedWindow?.start === window.start}
-                  isPopular={status === "popular"}
-                  isUnavailable={status === "unavailable"}
-                  onSelect={() => onSelect(window)}
-                />
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Selected Confirmation */}
-      {selectedWindow && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 rounded-xl border border-[var(--color-accent-secondary)]/20 bg-[var(--color-status-success-bg)] p-4"
-        >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-accent-secondary)]/20">
-            <Check className="h-5 w-5 text-[var(--color-accent-secondary)]" />
-          </div>
-          <div>
-            <p className="text-sm text-[var(--color-accent-secondary)]">Confirmed Delivery</p>
-            <p className="font-semibold text-[var(--color-accent-secondary-dark)]">
-              {deliveryDate.displayDate}, {selectedWindow.label}
-            </p>
-          </div>
-        </motion.div>
-      )}
-    </div>
-  );
-}
-
-interface TimeSlotButtonProps {
-  window: TimeWindow;
+interface DatePillProps {
+  date: DeliveryDate;
   isSelected: boolean;
-  isPopular?: boolean;
-  isUnavailable?: boolean;
   onSelect: () => void;
+  index: number;
 }
 
-function TimeSlotButton({
-  window,
-  isSelected,
-  isPopular = false,
-  isUnavailable = false,
-  onSelect,
-}: TimeSlotButtonProps) {
+function DatePill({ date, isSelected, onSelect, index }: DatePillProps) {
+  const { shouldAnimate, getSpring } = useAnimationPreference();
+
+  // Parse date for display
+  const dateObj = new Date(date.dateString);
+  const dayName = dateObj.toLocaleDateString("en-US", { weekday: "short" });
+  const dayNum = dateObj.getDate();
+  const monthName = dateObj.toLocaleDateString("en-US", { month: "short" });
+
+  const isToday = new Date().toDateString() === dateObj.toDateString();
+  const isTomorrow = new Date(Date.now() + 86400000).toDateString() === dateObj.toDateString();
+
   return (
     <motion.button
       type="button"
-      onClick={isUnavailable ? undefined : onSelect}
-      whileHover={isUnavailable ? undefined : { scale: 1.02 }}
-      whileTap={isUnavailable ? undefined : { scale: 0.98 }}
-      disabled={isUnavailable}
+      onClick={onSelect}
+      disabled={date.cutoffPassed}
+      initial={shouldAnimate ? { opacity: 0, scale: 0.8, y: 10 } : undefined}
+      animate={shouldAnimate ? { opacity: 1, scale: 1, y: 0 } : undefined}
+      transition={{ ...getSpring(spring.rubbery), delay: index * 0.05 }}
+      whileHover={shouldAnimate && !date.cutoffPassed ? { scale: 1.05, y: -4 } : undefined}
+      whileTap={shouldAnimate && !date.cutoffPassed ? { scale: 0.95 } : undefined}
       className={cn(
-        "relative rounded-xl border-2 p-4 text-center transition-all duration-200",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-interactive-primary)] focus-visible:ring-offset-2",
-        isUnavailable && [
-          "cursor-not-allowed border-[var(--color-border)] bg-[var(--color-surface-muted)]",
-          "text-[var(--color-text-secondary)]",
-        ],
-        !isUnavailable && isSelected && [
-          "border-[var(--color-interactive-primary)] bg-[var(--color-interactive-primary-light)]",
-          "text-[var(--color-interactive-primary)] shadow-[var(--shadow-glow-gold)]",
-        ],
-        !isUnavailable && !isSelected && [
-          "border-[var(--color-border)] bg-[var(--color-surface)]",
-          "text-[var(--color-text-primary)]",
-          "hover:border-[var(--color-interactive-primary)]/50 hover:shadow-sm",
-        ]
+        "relative flex-shrink-0 w-20 py-4 px-2 rounded-2xl",
+        "flex flex-col items-center gap-1",
+        "border-2 transition-colors duration-200",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+        isSelected
+          ? "border-primary bg-primary text-white shadow-lg shadow-primary/30"
+          : date.cutoffPassed
+          ? "border-border bg-surface-tertiary text-text-muted cursor-not-allowed opacity-50"
+          : "border-border bg-surface-primary text-text-primary hover:border-primary/50"
       )}
     >
-      {/* Popular badge */}
-      {isPopular && !isUnavailable && (
+      {/* Day name or Today/Tomorrow */}
+      <span className={cn(
+        "text-xs font-medium uppercase tracking-wider",
+        isSelected ? "text-white/80" : "text-text-secondary"
+      )}>
+        {isToday ? "Today" : isTomorrow ? "Tomorrow" : dayName}
+      </span>
+
+      {/* Day number */}
+      <motion.span
+        className="text-2xl font-bold"
+        animate={isSelected && shouldAnimate ? {
+          scale: [1, 1.1, 1],
+        } : undefined}
+        transition={getSpring(spring.ultraBouncy)}
+      >
+        {dayNum}
+      </motion.span>
+
+      {/* Month */}
+      <span className={cn(
+        "text-xs",
+        isSelected ? "text-white/80" : "text-text-muted"
+      )}>
+        {monthName}
+      </span>
+
+      {/* Selected indicator */}
+      {isSelected && (
         <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          className={cn(
-            "absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center",
-            "rounded-full bg-[var(--color-interactive-primary)] shadow-sm"
-          )}
+          initial={shouldAnimate ? { scale: 0 } : undefined}
+          animate={shouldAnimate ? { scale: 1 } : undefined}
+          transition={getSpring(spring.ultraBouncy)}
+          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-white flex items-center justify-center"
         >
-          <Star className="h-3 w-3 fill-white text-white" />
+          <Check className="w-3 h-3 text-primary" />
         </motion.div>
       )}
 
-      {/* Time display */}
-      <div className={cn(isUnavailable && "line-through")}>
-        <span className="text-sm font-semibold">{formatShortTime(window.start)}</span>
-        <span className="mx-1 text-[var(--color-text-secondary)]">–</span>
-        <span className="text-sm font-semibold">{formatShortTime(window.end)}</span>
-      </div>
-
-      {/* Unavailable label */}
-      {isUnavailable && (
-        <p className="text-[10px] uppercase tracking-wide text-[var(--color-text-secondary)] mt-1">
-          Full
-        </p>
-      )}
-
-      {/* Selected indicator */}
-      {isSelected && !isUnavailable && (
-        <motion.div
-          layoutId="selectedSlot"
-          className="absolute inset-0 rounded-xl border-2 border-[var(--color-interactive-primary)]"
-          initial={false}
-          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        />
+      {/* Next week badge */}
+      {date.isNextWeek && !isSelected && (
+        <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-white font-medium whitespace-nowrap">
+          Next Week
+        </span>
       )}
     </motion.button>
   );
 }
 
-function CutoffWarning({ hours, minutes }: { hours: number; minutes: number }) {
+// ============================================
+// TIME SLOT PILL COMPONENT
+// ============================================
+
+interface TimeSlotPillProps {
+  slot: TimeWindow;
+  isSelected: boolean;
+  isDisabled: boolean;
+  onSelect: () => void;
+  index: number;
+}
+
+function TimeSlotPill({
+  slot,
+  isSelected,
+  isDisabled,
+  onSelect,
+  index,
+}: TimeSlotPillProps) {
+  const { shouldAnimate, getSpring } = useAnimationPreference();
+
+  // Determine time of day icon
+  const hour = parseInt(slot.start.split(":")[0]);
+  const TimeIcon = hour < 12 ? Sunrise : hour < 17 ? Sun : Moon;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
+    <motion.button
+      type="button"
+      onClick={onSelect}
+      disabled={isDisabled}
+      initial={shouldAnimate ? { opacity: 0, x: -20 } : undefined}
+      animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
+      transition={{ ...getSpring(spring.snappy), delay: index * 0.04 }}
+      whileHover={shouldAnimate && !isDisabled ? { scale: 1.02 } : undefined}
+      whileTap={shouldAnimate && !isDisabled ? { scale: 0.98 } : undefined}
       className={cn(
-        "flex items-center gap-4 rounded-xl p-4",
-        "border border-[var(--color-warning)]/20",
-        "bg-gradient-to-r from-[var(--color-warning-light)] to-[var(--color-warning-light)]/50"
+        "relative flex items-center gap-3 px-4 py-3 rounded-xl",
+        "border-2 transition-all duration-200",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+        isSelected
+          ? "border-primary bg-primary-light/50 shadow-md"
+          : isDisabled
+          ? "border-border bg-surface-tertiary text-text-muted cursor-not-allowed opacity-50"
+          : "border-border bg-surface-primary hover:border-primary/50"
       )}
     >
-      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-warning)]/20">
-        <AlertTriangle className="h-6 w-6 text-[var(--color-warning-dark)]" />
-      </div>
-      <div>
-        <p className="font-bold text-[var(--color-warning-dark)]">
-          Order soon for this Saturday!
+      {/* Time icon */}
+      <motion.div
+        animate={isSelected && shouldAnimate ? {
+          rotate: [0, -10, 10, 0],
+          scale: [1, 1.2, 1],
+        } : undefined}
+        transition={{
+          duration: 0.5,
+          delay: 0.1,
+        }}
+        className={cn(
+          "w-10 h-10 rounded-full flex items-center justify-center",
+          isSelected
+            ? "bg-primary text-white"
+            : "bg-surface-secondary text-text-muted"
+        )}
+      >
+        <TimeIcon className="w-5 h-5" />
+      </motion.div>
+
+      {/* Time label */}
+      <div className="flex-1 text-left">
+        <p className={cn(
+          "font-semibold",
+          isSelected ? "text-primary" : "text-text-primary"
+        )}>
+          {slot.label}
         </p>
-        <p className="mt-0.5 text-sm text-[var(--color-warning-dark)]/80">
-          Orders close in{" "}
-          <span className="font-semibold">
-            {hours}h {minutes}m
-          </span>{" "}
-          (Friday 3:00 PM)
+        <p className="text-xs text-text-muted">
+          1 hour delivery window
         </p>
       </div>
-    </motion.div>
+
+      {/* Selection indicator */}
+      <motion.div
+        className={cn(
+          "w-6 h-6 rounded-full border-2 flex items-center justify-center",
+          isSelected
+            ? "border-primary bg-primary"
+            : "border-border bg-transparent"
+        )}
+      >
+        <AnimatePresence>
+          {isSelected && (
+            <motion.div
+              initial={shouldAnimate ? { scale: 0 } : undefined}
+              animate={shouldAnimate ? { scale: 1 } : undefined}
+              exit={shouldAnimate ? { scale: 0 } : undefined}
+              transition={getSpring(spring.ultraBouncy)}
+            >
+              <Check className="w-4 h-4 text-white" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.button>
   );
 }
 
-function formatShortTime(time: string): string {
-  const [hours] = time.split(":").map(Number);
-  const period = hours >= 12 ? "PM" : "AM";
-  const displayHour = hours % 12 || 12;
-  return `${displayHour} ${period}`;
+// ============================================
+// MAIN COMPONENT
+// ============================================
+
+export function TimeSlotPicker({
+  availableDates,
+  selectedDelivery,
+  onSelectionChange,
+  className,
+}: TimeSlotPickerProps) {
+  const { shouldAnimate, getSpring } = useAnimationPreference();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  // Track selected date
+  const selectedDate = selectedDelivery?.date || null;
+  const selectedTime = selectedDelivery
+    ? { start: selectedDelivery.windowStart, end: selectedDelivery.windowEnd }
+    : null;
+
+  // Check scroll bounds
+  const updateScrollButtons = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    setCanScrollLeft(container.scrollLeft > 0);
+    setCanScrollRight(
+      container.scrollLeft < container.scrollWidth - container.clientWidth - 10
+    );
+  }, []);
+
+  useEffect(() => {
+    updateScrollButtons();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", updateScrollButtons);
+      window.addEventListener("resize", updateScrollButtons);
+    }
+    return () => {
+      container?.removeEventListener("scroll", updateScrollButtons);
+      window.removeEventListener("resize", updateScrollButtons);
+    };
+  }, [updateScrollButtons, availableDates]);
+
+  // Scroll handlers
+  const scrollBy = useCallback((direction: "left" | "right") => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const scrollAmount = 200;
+    container.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  }, []);
+
+  // Handle date selection
+  const handleDateSelect = useCallback((date: DeliveryDate) => {
+    if (date.cutoffPassed) return;
+
+    // If same date, keep time selection; otherwise reset
+    if (selectedDelivery && selectedDelivery.date === date.dateString) {
+      return;
+    }
+
+    // Select date with first available time slot
+    onSelectionChange({
+      date: date.dateString,
+      windowStart: TIME_WINDOWS[0].start,
+      windowEnd: TIME_WINDOWS[0].end,
+    });
+  }, [selectedDelivery, onSelectionChange]);
+
+  // Handle time selection
+  const handleTimeSelect = useCallback((slot: TimeWindow) => {
+    if (!selectedDate) return;
+
+    onSelectionChange({
+      date: selectedDate,
+      windowStart: slot.start,
+      windowEnd: slot.end,
+    });
+  }, [selectedDate, onSelectionChange]);
+
+  return (
+    <div className={cn("space-y-6", className)}>
+      {/* Date selector */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-primary" />
+          <h3 className="font-semibold text-text-primary">Select Date</h3>
+        </div>
+
+        {/* Scrollable date pills */}
+        <div className="relative">
+          {/* Scroll buttons */}
+          <AnimatePresence>
+            {canScrollLeft && (
+              <motion.button
+                type="button"
+                initial={shouldAnimate ? { opacity: 0, x: 10 } : undefined}
+                animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
+                exit={shouldAnimate ? { opacity: 0, x: 10 } : undefined}
+                onClick={() => scrollBy("left")}
+                className={cn(
+                  "absolute left-0 top-1/2 -translate-y-1/2 z-10",
+                  "w-10 h-10 rounded-full",
+                  "bg-surface-primary/90 backdrop-blur-sm",
+                  "border border-border shadow-lg",
+                  "flex items-center justify-center",
+                  "text-text-primary hover:text-primary",
+                  "transition-colors"
+                )}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {canScrollRight && (
+              <motion.button
+                type="button"
+                initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
+                animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
+                exit={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
+                onClick={() => scrollBy("right")}
+                className={cn(
+                  "absolute right-0 top-1/2 -translate-y-1/2 z-10",
+                  "w-10 h-10 rounded-full",
+                  "bg-surface-primary/90 backdrop-blur-sm",
+                  "border border-border shadow-lg",
+                  "flex items-center justify-center",
+                  "text-text-primary hover:text-primary",
+                  "transition-colors"
+                )}
+              >
+                <ChevronRight className="w-5 h-5" />
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          {/* Date pills container */}
+          <div
+            ref={scrollContainerRef}
+            className={cn(
+              "flex gap-3 overflow-x-auto scrollbar-hide",
+              "px-1 py-2 -mx-1",
+              "scroll-smooth snap-x snap-mandatory"
+            )}
+          >
+            {availableDates.map((date, index) => (
+              <DatePill
+                key={date.dateString}
+                date={date}
+                isSelected={selectedDate === date.dateString}
+                onSelect={() => handleDateSelect(date)}
+                index={index}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Time slot selector */}
+      <AnimatePresence>
+        {selectedDate && (
+          <motion.div
+            initial={shouldAnimate ? { opacity: 0, height: 0 } : undefined}
+            animate={shouldAnimate ? { opacity: 1, height: "auto" } : undefined}
+            exit={shouldAnimate ? { opacity: 0, height: 0 } : undefined}
+            transition={getSpring(spring.gentle)}
+            className="space-y-3 overflow-hidden"
+          >
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-primary" />
+              <h3 className="font-semibold text-text-primary">Select Time</h3>
+            </div>
+
+            <motion.div
+              variants={shouldAnimate ? staggerContainer(0.04, 0.1) : undefined}
+              initial="hidden"
+              animate="visible"
+              className="grid gap-2"
+            >
+              {TIME_WINDOWS.map((slot, index) => {
+                const isSlotSelected =
+                  selectedTime?.start === slot.start &&
+                  selectedTime?.end === slot.end;
+
+                return (
+                  <TimeSlotPill
+                    key={slot.start}
+                    slot={slot}
+                    isSelected={isSlotSelected}
+                    isDisabled={false}
+                    onSelect={() => handleTimeSelect(slot)}
+                    index={index}
+                  />
+                );
+              })}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Empty state */}
+      {!selectedDate && (
+        <motion.p
+          initial={shouldAnimate ? { opacity: 0 } : undefined}
+          animate={shouldAnimate ? { opacity: 1 } : undefined}
+          className="text-center text-text-muted py-4"
+        >
+          Select a delivery date to see available time slots
+        </motion.p>
+      )}
+    </div>
+  );
 }
+
+export default TimeSlotPicker;

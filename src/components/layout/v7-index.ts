@@ -1,41 +1,39 @@
 /**
- * V7 Layout Component Library Index
+ * Layout Component Library Index
  * Maximum playfulness, 120fps animations, navigation polish
- *
- * @example
- * import {
- *   HeaderV7,
- *   HeaderSpacer,
- *   MobileNavV7,
- *   FooterV7,
- * } from '@/components/layout/v7-index';
  */
 
 // ============================================
-// HEADER V7
+// HEADER
 // Morphs on scroll, integrates MorphingMenu
 // ============================================
 export {
-  HeaderV7,
+  Header,
+  Header as HeaderV7,  // Backward compatibility alias
   HeaderSpacer,
-  type HeaderV7Props,
-} from "./HeaderV7";
+  type HeaderProps,
+  type HeaderProps as HeaderV7Props,  // Backward compatibility alias
+} from "./Header";
 
 // ============================================
-// MOBILE NAV V7
+// MOBILE NAV
 // Spring drawer with staggered animations
 // ============================================
 export {
-  MobileNavV7,
-  type MobileNavV7Props,
+  MobileNav,
+  MobileNav as MobileNavV7,  // Backward compatibility alias
+  type MobileNavProps,
+  type MobileNavProps as MobileNavV7Props,  // Backward compatibility alias
   type NavItemConfig,
-} from "./MobileNavV7";
+} from "./MobileNav";
 
 // ============================================
-// FOOTER V7
+// FOOTER
 // Animated reveal, easter eggs, gradient bg
 // ============================================
 export {
-  FooterV7,
-  type FooterV7Props,
-} from "./FooterV7";
+  Footer,
+  Footer as FooterV7,  // Backward compatibility alias
+  type FooterProps,
+  type FooterProps as FooterV7Props,  // Backward compatibility alias
+} from "./Footer";

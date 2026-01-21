@@ -4,6 +4,35 @@ Patterns, conventions, and insights discovered while working on this codebase.
 
 ---
 
+## 2026-01-20: Version Consolidation - V4/V5/V6/V7 → Clean Naming
+
+**Context:** Persistent UI bugs from cascading CSS override conflicts between versioned tokens (V4, V5, V6) and components (V7).
+
+**Problem:**
+- tokens.css had 1054 lines with V4/V5/V6 tokens coexisting
+- Same CSS properties defined multiple times with conflicting values
+- 35+ components with V7 suffix when V7 is the only version
+- Mixed Tailwind classes: `bg-v6-primary`, `text-v6-text-primary`
+
+**Solution:**
+1. **tokens.css**: Rewritten from 1054→530 lines with single namespace (`--color-primary` not `--color-v6-primary`)
+2. **tailwind.config.ts**: Updated to use clean token refs with V6 aliases for backward compatibility
+3. **Components**: Renamed 38 V7 components to default names (HeaderV7→Header, CartDrawerV7→CartDrawer, etc.)
+4. **v7-index.ts**: Updated barrel files to export clean names + V7 aliases for backward compatibility
+5. **Motion tokens**: Merged motion-tokens-v7.ts into motion-tokens.ts with clean exports
+6. **Hooks**: Renamed useAnimationPreferenceV7 → useAnimationPreference
+
+**Token Migration:**
+- `--color-v6-primary` → `--color-primary`
+- `--color-v6-surface-primary` → `--color-surface-primary`
+- `--shadow-v6-card` → `--shadow-card`
+- `v7Spring` → `spring`
+- `v7Duration` → `duration`
+
+**Apply when:** Creating new components or tokens - use clean names only, no version prefixes.
+
+---
+
 ## 2026-01-17: Skill/Hook file interpolation
 
 **Context:** Implementing shared prompt between skill and hook using `{{file:...}}` syntax
@@ -1293,6 +1322,44 @@ const handleFavoriteToggle = useCallback((item: MenuItem, isFavorite: boolean) =
 ```
 
 **Apply when:** Using MenuItemCard with favorite functionality, heart icon not responding to clicks
+
+---
+
+## 2026-01-20: Import Alias Pattern for Naming Conflicts
+
+**Context:** PageTransition.tsx imported `duration` from motion-tokens but also used `duration` as a local prop/variable name
+**Learning:** When an imported name conflicts with a local identifier, use import aliasing:
+```ts
+// ❌ Wrong - circular reference error "duration = duration.normal"
+import { duration } from "@/lib/motion-tokens";
+const fastExit = { duration: duration.fast };
+
+// ✅ Correct - aliased import avoids conflict
+import { duration as motionDuration } from "@/lib/motion-tokens";
+const fastExit = { duration: motionDuration.fast };
+```
+**Apply when:** TypeScript error about variable used before declaration, or ESLint no-shadow warnings with imports
+
+---
+
+## 2026-01-20: Barrel Export Updates After Component Renames
+
+**Context:** Renamed 38 V7 components (HeaderV7→Header) but barrel exports still referenced old names
+**Learning:** When renaming components, update ALL barrel files in the chain:
+1. `v7-index.ts` - Update both export and alias:
+   ```ts
+   // Export clean name with V7 alias for backward compat
+   export { Header } from "./Header";
+   export { Header as HeaderV7 } from "./Header";
+   ```
+2. Parent barrel (`index.ts`) - If it re-exports from v7-index, verify paths
+3. Consumer imports - Search codebase for old name usage
+
+**Verification command:**
+```bash
+pnpm typecheck 2>&1 | grep "has no exported member"
+```
+**Apply when:** Renaming files with exports, consolidating versions, getting "Module has no exported member" errors
 
 ---
 

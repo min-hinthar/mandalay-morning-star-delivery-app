@@ -100,8 +100,8 @@ export function CategoryTabs({
       className={cn(
         "sticky top-14 z-[var(--z-sticky)]",
         // V6 Surface with blur
-        "bg-v6-surface-primary/95 backdrop-blur-lg",
-        "border-b border-v6-border-subtle"
+        "bg-surface-primary/95 backdrop-blur-lg",
+        "border-b border-border-subtle"
       )}
     >
       <div className="relative">
@@ -109,8 +109,8 @@ export function CategoryTabs({
         <div
           className={cn(
             "absolute left-0 top-0 bottom-0 w-12 z-10 pointer-events-none",
-            "bg-gradient-to-r from-v6-surface-primary to-transparent",
-            "transition-opacity duration-v6-fast",
+            "bg-gradient-to-r from-surface-primary to-transparent",
+            "transition-opacity duration-fast",
             showLeftFade ? "opacity-100" : "opacity-0"
           )}
           aria-hidden="true"
@@ -120,8 +120,8 @@ export function CategoryTabs({
         <div
           className={cn(
             "absolute right-0 top-0 bottom-0 w-12 z-10 pointer-events-none",
-            "bg-gradient-to-l from-v6-surface-primary to-transparent",
-            "transition-opacity duration-v6-fast",
+            "bg-gradient-to-l from-surface-primary to-transparent",
+            "transition-opacity duration-fast",
             showRightFade ? "opacity-100" : "opacity-0"
           )}
           aria-hidden="true"
@@ -156,18 +156,18 @@ export function CategoryTabs({
                 className={cn(
                   // V6 Tab base styles
                   "relative flex-shrink-0 px-5 py-2.5",
-                  "rounded-v6-pill",
-                  "font-v6-body text-sm font-semibold",
+                  "rounded-pill",
+                  "font-body text-sm font-semibold",
                   "min-h-[44px]",
                   // V6 Motion
-                  "transition-all duration-v6-fast ease-v6-default",
+                  "transition-all duration-fast ease-default",
                   // V6 Focus ring
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary focus-visible:ring-offset-2",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                   isActive
-                    ? "text-v6-text-inverse"
+                    ? "text-text-inverse"
                     : [
-                        "text-v6-text-secondary",
-                        "hover:text-v6-text-primary hover:bg-v6-surface-secondary",
+                        "text-text-secondary",
+                        "hover:text-text-primary hover:bg-surface-secondary",
                         "active:scale-95",
                       ]
                 )}
@@ -179,9 +179,9 @@ export function CategoryTabs({
                   <motion.div
                     layoutId="v6ActiveTabPill"
                     className={cn(
-                      "absolute inset-0 rounded-v6-pill",
-                      "bg-v6-primary",
-                      "shadow-v6-sm"
+                      "absolute inset-0 rounded-pill",
+                      "bg-primary",
+                      "shadow-sm"
                     )}
                     initial={false}
                     transition={

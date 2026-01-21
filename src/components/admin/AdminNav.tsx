@@ -90,14 +90,14 @@ export function AdminNav() {
         transition={{ duration: 0.2, ease: "easeOut" }}
         className={cn(
           "flex h-screen flex-col",
-          "bg-v6-surface-secondary border-r border-v6-border"
+          "bg-surface-secondary border-r border-border"
         )}
       >
         {/* V6 Header */}
-        <div className="flex h-16 items-center justify-between border-b border-v6-border px-4">
+        <div className="flex h-16 items-center justify-between border-b border-border px-4">
           {!isCollapsed && (
             <Link href="/admin" className="flex items-center gap-2">
-              <span className="font-v6-display text-lg font-bold text-v6-primary">
+              <span className="font-display text-lg font-bold text-primary">
                 Admin
               </span>
             </Link>
@@ -127,25 +127,25 @@ export function AdminNav() {
               <Link
                 href={item.href}
                 className={cn(
-                  "relative flex items-center gap-3 rounded-v6-input px-3 py-2.5",
-                  "font-v6-body text-sm font-medium",
-                  "transition-all duration-v6-fast",
+                  "relative flex items-center gap-3 rounded-input px-3 py-2.5",
+                  "font-body text-sm font-medium",
+                  "transition-all duration-fast",
                   isActive
                     ? [
-                        "bg-v6-primary/10 text-v6-primary",
+                        "bg-primary/10 text-primary",
                         "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-                        "before:h-6 before:w-1 before:rounded-r-full before:bg-v6-primary",
+                        "before:h-6 before:w-1 before:rounded-r-full before:bg-primary",
                       ]
                     : [
-                        "text-v6-text-secondary",
-                        "hover:bg-v6-surface-tertiary hover:text-v6-text-primary",
+                        "text-text-secondary",
+                        "hover:bg-surface-tertiary hover:text-text-primary",
                       ],
                   isCollapsed && "justify-center px-2"
                 )}
               >
                 <Icon className={cn(
                   "h-5 w-5 shrink-0",
-                  isActive ? "text-v6-primary" : "text-v6-text-muted"
+                  isActive ? "text-primary" : "text-text-muted"
                 )} />
                 {!isCollapsed && <span>{item.label}</span>}
               </Link>
@@ -155,8 +155,8 @@ export function AdminNav() {
               return (
                 <Tooltip key={item.href}>
                   <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-                  <TooltipContent className="bg-v6-surface-primary border border-v6-border ml-2">
-                    <p className="font-v6-body">{item.label}</p>
+                  <TooltipContent className="bg-surface-primary border border-border ml-2">
+                    <p className="font-body">{item.label}</p>
                   </TooltipContent>
                 </Tooltip>
               );
@@ -167,16 +167,16 @@ export function AdminNav() {
         </nav>
 
         {/* V6 Footer */}
-        <div className="border-t border-v6-border p-2">
+        <div className="border-t border-border p-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
                 href="/"
                 className={cn(
-                  "flex items-center gap-3 rounded-v6-input px-3 py-2.5",
-                  "font-v6-body text-sm font-medium text-v6-text-muted",
-                  "transition-colors duration-v6-fast",
-                  "hover:bg-v6-surface-tertiary hover:text-v6-text-primary",
+                  "flex items-center gap-3 rounded-input px-3 py-2.5",
+                  "font-body text-sm font-medium text-text-muted",
+                  "transition-colors duration-fast",
+                  "hover:bg-surface-tertiary hover:text-text-primary",
                   isCollapsed && "justify-center px-2"
                 )}
               >
@@ -185,8 +185,8 @@ export function AdminNav() {
               </Link>
             </TooltipTrigger>
             {isCollapsed && (
-              <TooltipContent className="bg-v6-surface-primary border border-v6-border ml-2">
-                <p className="font-v6-body">Exit Admin</p>
+              <TooltipContent className="bg-surface-primary border border-border ml-2">
+                <p className="font-body">Exit Admin</p>
               </TooltipContent>
             )}
           </Tooltip>

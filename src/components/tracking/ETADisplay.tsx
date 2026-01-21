@@ -36,7 +36,7 @@ export function ETADisplay({
     return (
       <div
         className={cn(
-          "rounded-v6-card bg-gradient-to-r from-v6-primary-light to-v6-green-light p-5",
+          "rounded-card bg-gradient-to-r from-primary-light to-green-light p-5",
           className
         )}
       >
@@ -57,19 +57,19 @@ export function ETADisplay({
       animate={{ opacity: 1, scale: 1 }}
       transition={v6Spring}
       className={cn(
-        "rounded-v6-card bg-gradient-to-r from-v6-primary-light to-v6-green-light p-5 shadow-v6-card",
+        "rounded-card bg-gradient-to-r from-primary-light to-green-light p-5 shadow-card",
         className
       )}
     >
       <div className="flex items-center gap-4">
         {/* V6 Icon */}
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-v6-primary/10">
-          <Navigation className="h-7 w-7 text-v6-primary" />
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+          <Navigation className="h-7 w-7 text-primary" />
         </div>
 
         {/* V6 ETA Content */}
         <div className="flex-1">
-          <p className="text-sm font-v6-body font-medium text-v6-text-secondary">
+          <p className="text-sm font-body font-medium text-text-secondary">
             Estimated Arrival
           </p>
           <AnimatePresence mode="wait">
@@ -78,7 +78,7 @@ export function ETADisplay({
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 5 }}
-              className="text-2xl font-v6-display font-bold text-v6-text-primary"
+              className="text-2xl font-display font-bold text-text-primary"
             >
               {formattedRange}
             </motion.p>
@@ -87,14 +87,14 @@ export function ETADisplay({
 
         {/* V6 Arrival Time */}
         <div className="text-right">
-          <p className="text-xs font-v6-body text-v6-text-muted">Arriving by</p>
+          <p className="text-xs font-body text-text-muted">Arriving by</p>
           <AnimatePresence mode="wait">
             <motion.p
               key={formattedTime}
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 5 }}
-              className="text-lg font-v6-display font-bold text-v6-green"
+              className="text-lg font-display font-bold text-green"
             >
               {formattedTime}
             </motion.p>
@@ -103,7 +103,7 @@ export function ETADisplay({
       </div>
 
       {/* V6 Progress indicator */}
-      <div className="mt-3 flex items-center gap-2 text-xs font-v6-body text-v6-text-muted">
+      <div className="mt-3 flex items-center gap-2 text-xs font-body text-text-muted">
         <Clock className="h-3 w-3" />
         <span>Updates as driver progresses</span>
       </div>
@@ -127,8 +127,8 @@ export function ETADisplayCompact({
       animate={{ opacity: 1 }}
       transition={v6Spring}
       className={cn(
-        "inline-flex items-center gap-2 rounded-v6-pill bg-v6-primary-light px-4 py-2",
-        "text-sm font-v6-body font-semibold text-v6-primary",
+        "inline-flex items-center gap-2 rounded-pill bg-primary-light px-4 py-2",
+        "text-sm font-body font-semibold text-primary",
         className
       )}
     >

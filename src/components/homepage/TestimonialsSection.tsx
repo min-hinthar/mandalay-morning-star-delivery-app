@@ -93,7 +93,7 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
     <section
       className={cn(
         "relative py-20 lg:py-28 overflow-hidden",
-        "bg-v6-surface-secondary",
+        "bg-surface-secondary",
         className
       )}
       onMouseEnter={() => setIsPaused(true)}
@@ -101,8 +101,8 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
     >
       {/* V6 Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-v6-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-v6-secondary/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3" />
+        <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3" />
       </div>
 
       <div className="relative max-w-6xl mx-auto px-6">
@@ -114,14 +114,14 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
             whileInView="animate"
             viewport={{ once: true }}
           >
-            <h2 className="font-v6-display text-4xl lg:text-5xl font-black text-v6-text-primary mb-4">
+            <h2 className="font-display text-4xl lg:text-5xl font-black text-text-primary mb-4">
               What Our{" "}
-              <span className="bg-gradient-to-r from-v6-primary to-v6-primary-hover bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
                 Customers
               </span>{" "}
               Say
             </h2>
-            <p className="font-v6-body text-lg text-v6-text-secondary max-w-md">
+            <p className="font-body text-lg text-text-secondary max-w-md">
               Join hundreds of satisfied customers enjoying authentic Burmese
               cuisine delivered fresh to their doors.
             </p>
@@ -133,10 +133,10 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
                   key={index}
                   onClick={() => goToSlide(index)}
                   className={cn(
-                    "w-3 h-3 rounded-full transition-all duration-v6-normal",
+                    "w-3 h-3 rounded-full transition-all duration-normal",
                     index === currentIndex
-                      ? "bg-v6-primary w-8"
-                      : "bg-v6-border hover:bg-v6-text-muted"
+                      ? "bg-primary w-8"
+                      : "bg-border hover:bg-text-muted"
                   )}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
@@ -148,13 +148,13 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
           <div className="relative">
             {/* V6 Quote Icon */}
             <div className="absolute -top-4 -left-4 lg:-top-8 lg:-left-8 z-10">
-              <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-v6-secondary flex items-center justify-center shadow-v6-md">
-                <Quote className="w-6 h-6 lg:w-8 lg:h-8 text-v6-text-primary" />
+              <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-secondary flex items-center justify-center shadow-md">
+                <Quote className="w-6 h-6 lg:w-8 lg:h-8 text-text-primary" />
               </div>
             </div>
 
             {/* Testimonial Card */}
-            <div className="relative bg-v6-surface-primary rounded-v6-card shadow-v6-card p-8 lg:p-10">
+            <div className="relative bg-surface-primary rounded-card shadow-card p-8 lg:p-10">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentTestimonial.id}
@@ -164,14 +164,14 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
                   transition={prefersReducedMotion ? { duration: 0 } : v6Spring}
                 >
                   {/* Quote */}
-                  <blockquote className="font-v6-body text-lg lg:text-xl text-v6-text-primary leading-relaxed mb-8">
+                  <blockquote className="font-body text-lg lg:text-xl text-text-primary leading-relaxed mb-8">
                     &ldquo;{currentTestimonial.quote}&rdquo;
                   </blockquote>
 
                   {/* Author */}
                   <div className="flex items-center gap-4">
                     {/* Avatar */}
-                    <div className="relative w-14 h-14 rounded-full overflow-hidden bg-v6-surface-tertiary flex-shrink-0">
+                    <div className="relative w-14 h-14 rounded-full overflow-hidden bg-surface-tertiary flex-shrink-0">
                       {currentTestimonial.avatarUrl ? (
                         <Image
                           src={currentTestimonial.avatarUrl}
@@ -180,7 +180,7 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
                           className="object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-v6-primary to-v6-primary-hover text-v6-text-inverse font-v6-display font-bold text-lg">
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-primary-hover text-text-inverse font-display font-bold text-lg">
                           {currentTestimonial.name.charAt(0)}
                         </div>
                       )}
@@ -188,10 +188,10 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
 
                     {/* Name & Location */}
                     <div>
-                      <p className="font-v6-display font-bold text-v6-text-primary">
+                      <p className="font-display font-bold text-text-primary">
                         {currentTestimonial.name}
                       </p>
-                      <p className="font-v6-body text-sm text-v6-text-muted">
+                      <p className="font-body text-sm text-text-muted">
                         {currentTestimonial.location}
                       </p>
                     </div>
@@ -207,12 +207,12 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
                   whileTap={{ scale: 0.95 }}
                   className={cn(
                     "w-12 h-12 rounded-full",
-                    "bg-v6-surface-primary border border-v6-border",
-                    "shadow-v6-sm",
+                    "bg-surface-primary border border-border",
+                    "shadow-sm",
                     "flex items-center justify-center",
-                    "text-v6-text-secondary hover:text-v6-primary hover:border-v6-primary",
-                    "transition-colors duration-v6-fast",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary"
+                    "text-text-secondary hover:text-primary hover:border-primary",
+                    "transition-colors duration-fast",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   )}
                   aria-label="Previous testimonial"
                 >
@@ -224,13 +224,13 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
                   whileTap={{ scale: 0.95 }}
                   className={cn(
                     "w-12 h-12 rounded-full",
-                    "bg-v6-primary",
-                    "shadow-v6-md",
+                    "bg-primary",
+                    "shadow-md",
                     "flex items-center justify-center",
-                    "text-v6-text-inverse",
-                    "hover:bg-v6-primary-hover",
-                    "transition-colors duration-v6-fast",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary focus-visible:ring-offset-2"
+                    "text-text-inverse",
+                    "hover:bg-primary-hover",
+                    "transition-colors duration-fast",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   )}
                   aria-label="Next testimonial"
                 >
@@ -246,10 +246,10 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
                   key={index}
                   onClick={() => goToSlide(index)}
                   className={cn(
-                    "w-2.5 h-2.5 rounded-full transition-all duration-v6-normal",
+                    "w-2.5 h-2.5 rounded-full transition-all duration-normal",
                     index === currentIndex
-                      ? "bg-v6-primary w-6"
-                      : "bg-v6-border hover:bg-v6-text-muted"
+                      ? "bg-primary w-6"
+                      : "bg-border hover:bg-text-muted"
                   )}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
