@@ -11,7 +11,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:ci": "vitest run",
+    "test:ci": "vitest run --bail 1 --no-file-parallelism",
     "test:menu": "vitest run src/components/menu/__tests__/menu-content.test.tsx",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
