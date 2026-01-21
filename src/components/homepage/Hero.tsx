@@ -442,7 +442,7 @@ export function Hero({
       </motion.div>
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-surface-primary to-transparent z-[var(--z-modal-backdrop)] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-surface-primary to-transparent z-10 pointer-events-none" />
     </section>
   );
 }
