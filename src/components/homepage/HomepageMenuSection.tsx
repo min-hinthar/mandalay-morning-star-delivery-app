@@ -8,13 +8,13 @@ import { ItemDetailModal } from "@/components/menu/item-detail-modal";
 import { CategoryTabs } from "@/components/menu/category-tabs";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useToast } from "@/lib/hooks/useToast";
 import {
-  v7StaggerContainer,
-  v7StaggerItem,
-  v7Spring,
-} from "@/lib/motion-tokens-v7";
+  staggerContainer,
+  staggerItem,
+  spring,
+} from "@/lib/motion-tokens";
 import type { MenuCategory, MenuItem } from "@/types/menu";
 import type { SelectedModifier } from "@/types/cart";
 
@@ -23,7 +23,7 @@ interface HomepageMenuSectionProps {
 }
 
 export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -141,51 +141,51 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
     : filteredCategories.find((cat) => cat.slug === activeSlug)?.items || [];
 
   return (
-    <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-v6-surface-primary via-v6-surface-secondary/30 to-v6-surface-primary" id="menu">
+    <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-surface-primary via-surface-secondary/30 to-surface-primary" id="menu">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
-          variants={v7StaggerContainer()}
+          variants={staggerContainer()}
           initial={shouldAnimate ? "hidden" : undefined}
           whileInView={shouldAnimate ? "visible" : undefined}
           viewport={{ once: true, margin: "-80px" }}
           className="text-center mb-12"
         >
           <motion.div
-            variants={v7StaggerItem}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-v6-secondary/10 rounded-v6-pill mb-4"
+            variants={staggerItem}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-pill mb-4"
           >
-            <UtensilsCrossed className="w-4 h-4 text-v6-secondary" />
-            <span className="text-sm font-v6-body font-medium text-v6-secondary-hover">Our Menu</span>
+            <UtensilsCrossed className="w-4 h-4 text-secondary" />
+            <span className="text-sm font-body font-medium text-secondary-hover">Our Menu</span>
           </motion.div>
 
           <motion.h2
-            variants={v7StaggerItem}
-            className="font-v6-display text-3xl md:text-4xl lg:text-5xl font-bold text-v6-primary mb-4"
+            variants={staggerItem}
+            className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4"
           >
             Authentic Burmese Cuisine
           </motion.h2>
 
-          <motion.p variants={v7StaggerItem} className="font-v6-body text-v6-text-secondary max-w-2xl mx-auto mb-8">
+          <motion.p variants={staggerItem} className="font-body text-text-secondary max-w-2xl mx-auto mb-8">
             Handcrafted dishes from traditional Burmese recipes, prepared fresh for Saturday delivery.
             Browse our full menu and add your favorites to cart.
           </motion.p>
 
           {/* Search Bar */}
-          <motion.div variants={v7StaggerItem} className="max-w-md mx-auto mb-8">
+          <motion.div variants={staggerItem} className="max-w-md mx-auto mb-8">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-v6-text-muted" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search dishes..."
-                className="w-full pl-12 pr-4 py-3 rounded-v6-input border-2 border-v6-border bg-v6-surface-primary font-v6-body text-v6-text-primary placeholder:text-v6-text-muted focus:border-v6-primary focus:ring-2 focus:ring-v6-primary/20 outline-none transition-colors duration-v6-fast"
+                className="w-full pl-12 pr-4 py-3 rounded-input border-2 border-border bg-surface-primary font-body text-text-primary placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors duration-fast"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-v6-text-muted hover:text-v6-text-primary transition-colors duration-v6-fast"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors duration-fast"
                 >
                   ×
                 </button>
@@ -195,7 +195,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
         </motion.div>
 
         {/* Category Tabs */}
-        <div className="sticky top-16 z-30 bg-v6-surface-primary/80 backdrop-blur-md py-4 -mx-4 px-4 mb-8">
+        <div className="sticky top-16 z-30 bg-surface-primary/80 backdrop-blur-md py-4 -mx-4 px-4 mb-8">
           <CategoryTabs
             categories={categories}
             activeCategory={activeCategory}
@@ -242,8 +242,8 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                       ref={(el) => setSectionRef(category.id, el)}
                     >
                       <div className="mb-6">
-                        <h3 className="font-v6-display text-2xl font-bold text-v6-primary">{category.name}</h3>
-                        <p className="text-sm font-v6-body text-v6-text-muted">
+                        <h3 className="font-display text-2xl font-bold text-primary">{category.name}</h3>
+                        <p className="text-sm font-body text-text-muted">
                           {category.items.length} items
                         </p>
                       </div>
@@ -276,11 +276,11 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
               exit={{ opacity: 0 }}
               className="text-center py-16"
             >
-              <UtensilsCrossed className="w-16 h-16 text-v6-text-muted/30 mx-auto mb-4" />
-              <h3 className="font-v6-display text-xl font-semibold text-v6-text-muted mb-2">
+              <UtensilsCrossed className="w-16 h-16 text-text-muted/30 mx-auto mb-4" />
+              <h3 className="font-display text-xl font-semibold text-text-muted mb-2">
                 No dishes found
               </h3>
-              <p className="text-sm font-v6-body text-v6-text-muted">
+              <p className="text-sm font-body text-text-muted">
                 Try adjusting your search or browse all categories
               </p>
               <button
@@ -288,7 +288,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                   setSearchQuery("");
                   setActiveCategory(null);
                 }}
-                className="mt-4 px-6 py-3 bg-v6-primary text-white rounded-v6-pill font-v6-body font-semibold hover:bg-v6-primary-hover transition-colors duration-v6-fast shadow-v6-sm hover:shadow-v6-md"
+                className="mt-4 px-6 py-3 bg-primary text-white rounded-pill font-body font-semibold hover:bg-primary-hover transition-colors duration-fast shadow-sm hover:shadow-md"
               >
                 View All Dishes
               </button>
@@ -312,13 +312,13 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
           initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
           whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           viewport={{ once: true, margin: "-80px" }}
-          transition={v7Spring.gentle}
+          transition={spring.gentle}
           className="mt-16 text-center"
         >
-          <div className="inline-flex items-center gap-3 px-6 py-4 bg-v6-surface-primary rounded-v6-card shadow-v6-card border border-v6-border">
-            <ShoppingCart className="w-5 h-5 text-v6-green" />
-            <span className="font-v6-body text-v6-text-primary">
-              <strong className="text-v6-green">Free delivery</strong> on orders over $100!
+          <div className="inline-flex items-center gap-3 px-6 py-4 bg-surface-primary rounded-card shadow-card border border-border">
+            <ShoppingCart className="w-5 h-5 text-green" />
+            <span className="font-body text-text-primary">
+              <strong className="text-green">Free delivery</strong> on orders over $100!
             </span>
           </div>
         </motion.div>

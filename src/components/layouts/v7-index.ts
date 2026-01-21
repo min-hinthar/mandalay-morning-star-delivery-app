@@ -1,36 +1,38 @@
 /**
- * V7 Layout Utilities Index
+ * Layout Utilities Index
  * Page transitions, parallax effects, stagger animations
- *
- * @example
- * import {
- *   PageTransitionV7,
- *   ParallaxContainer,
- *   ParallaxLayer,
- *   SimpleParallax,
- * } from '@/components/layouts/v7-index';
  */
 
 // ============================================
-// PAGE TRANSITION V7
+// PAGE TRANSITION
 // Multiple variants: fade, slide, scale, reveal, flip, morphBlur
 // ============================================
 export {
-  PageTransitionV7,
-  FadeTransitionV7,
-  SlideTransitionV7,
-  ScaleTransitionV7,
-  MorphBlurTransitionV7,
+  PageTransition,
+  PageTransition as PageTransitionV7,
+  FadeTransition,
+  FadeTransition as FadeTransitionV7,
+  SlideTransition,
+  SlideTransition as SlideTransitionV7,
+  ScaleTransition,
+  ScaleTransition as ScaleTransitionV7,
+  MorphBlurTransition,
+  MorphBlurTransition as MorphBlurTransitionV7,
   StaggerChild,
-  type PageTransitionV7Props,
+  type PageTransitionProps,
+  type PageTransitionProps as PageTransitionV7Props,
   type PageTransitionVariant,
-  type FadeTransitionV7Props,
-  type SlideTransitionV7Props,
-  type ScaleTransitionV7Props,
-  type MorphBlurTransitionV7Props,
+  type FadeTransitionProps,
+  type FadeTransitionProps as FadeTransitionV7Props,
+  type SlideTransitionProps,
+  type SlideTransitionProps as SlideTransitionV7Props,
+  type ScaleTransitionProps,
+  type ScaleTransitionProps as ScaleTransitionV7Props,
+  type MorphBlurTransitionProps,
+  type MorphBlurTransitionProps as MorphBlurTransitionV7Props,
   type SlideDirection,
   type StaggerChildProps,
-} from "./PageTransitionV7";
+} from "./PageTransition";
 
 // ============================================
 // PARALLAX CONTAINER

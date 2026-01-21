@@ -152,25 +152,25 @@ async function getActiveRoute() {
 
 function RouteLoading() {
   return (
-    <div className="min-h-screen bg-v6-surface-secondary">
+    <div className="min-h-screen bg-surface-secondary">
       <DriverPageHeader title="Route" showBack backHref="/driver" />
       <div className="p-4">
         <div className="animate-pulse space-y-4">
           {/* Progress bar skeleton */}
-          <div className="h-4 w-full rounded-full bg-v6-surface-tertiary" />
+          <div className="h-4 w-full rounded-full bg-surface-tertiary" />
 
           {/* Current stop skeleton */}
-          <div className="rounded-v6-card bg-v6-surface-primary p-4 shadow-v6-md">
-            <div className="mb-3 h-5 w-32 rounded-v6-input bg-v6-surface-tertiary" />
-            <div className="mb-2 h-4 w-48 rounded-v6-input bg-v6-surface-tertiary" />
-            <div className="h-4 w-64 rounded-v6-input bg-v6-surface-tertiary" />
+          <div className="rounded-card bg-surface-primary p-4 shadow-md">
+            <div className="mb-3 h-5 w-32 rounded-input bg-surface-tertiary" />
+            <div className="mb-2 h-4 w-48 rounded-input bg-surface-tertiary" />
+            <div className="h-4 w-64 rounded-input bg-surface-tertiary" />
           </div>
 
           {/* Upcoming stops skeleton */}
           {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-v6-card-sm bg-v6-surface-primary p-3 shadow-v6-sm">
-              <div className="mb-2 h-4 w-24 rounded-v6-input bg-v6-surface-tertiary" />
-              <div className="h-3 w-40 rounded-v6-input bg-v6-surface-tertiary" />
+            <div key={i} className="rounded-card-sm bg-surface-primary p-3 shadow-sm">
+              <div className="mb-2 h-4 w-24 rounded-input bg-surface-tertiary" />
+              <div className="h-3 w-40 rounded-input bg-surface-tertiary" />
             </div>
           ))}
         </div>
@@ -192,14 +192,14 @@ async function DriverRoutePageContent() {
 
   if (!route) {
     return (
-      <div className="min-h-screen bg-v6-surface-secondary">
+      <div className="min-h-screen bg-surface-secondary">
         <DriverPageHeader title="Route" showBack backHref="/driver" />
         <div className="flex flex-col items-center justify-center px-4 py-16">
           <div className="text-center">
-            <h2 className="mb-2 font-v6-display text-xl font-semibold text-v6-text-primary">
+            <h2 className="mb-2 font-display text-xl font-semibold text-text-primary">
               No Active Route
             </h2>
-            <p className="font-v6-body text-v6-text-secondary">
+            <p className="font-body text-text-secondary">
               You don&apos;t have a route assigned for today.
             </p>
           </div>
@@ -212,7 +212,7 @@ async function DriverRoutePageContent() {
   const totalCount = stops.length;
 
   return (
-    <div className="min-h-screen bg-v6-surface-secondary pb-20">
+    <div className="min-h-screen bg-surface-secondary pb-20">
       <DriverPageHeader
         title="Route"
         subtitle={`${deliveredCount}/${totalCount} Complete`}

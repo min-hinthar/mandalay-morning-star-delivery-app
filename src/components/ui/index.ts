@@ -187,18 +187,13 @@ export { Progress } from "./progress";
 // Skeleton
 export {
   Skeleton,
-  MenuItemCardSkeleton,
-  CategoryTabSkeleton,
-  CartItemSkeleton,
-  KPICardSkeleton,
-  DriverCardSkeleton,
-  OrderTrackingSkeleton,
-  FormFieldSkeleton,
-  TableRowSkeleton,
-  TextSkeleton,
-  SkeletonGrid,
+  SkeletonText,
+  SkeletonAvatar,
+  SkeletonCard,
+  SkeletonMenuItem,
+  SkeletonTableRow,
 } from "./skeleton";
-export type { SkeletonProps } from "./skeleton";
+export type { SkeletonProps, SkeletonTextProps, SkeletonAvatarProps, SkeletonCardProps, SkeletonTableRowProps } from "./skeleton";
 
 // Empty State
 export {

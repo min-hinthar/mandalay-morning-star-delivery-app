@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { HeroV7, CoverageSectionV7, TimelineV7 } from "./v7-index";
+import { Hero, CoverageSection, Timeline } from "./v7-index";
 import { FooterCTA } from "./FooterCTA";
 
 interface HomePageClientProps {
@@ -14,7 +14,7 @@ export function HomePageClient({ menuSection }: HomePageClientProps) {
   return (
     <>
       {/* V7 Hero - Cinematic parallax with WebGL effects */}
-      <HeroV7
+      <Hero
         ctaHref="/menu"
         secondaryCtaHref="/menu"
         showFloatingFood={true}
@@ -23,10 +23,10 @@ export function HomePageClient({ menuSection }: HomePageClientProps) {
       />
 
       {/* V7 Coverage - Animated map with coverage zones */}
-      <CoverageSectionV7 />
+      <CoverageSection />
 
       {/* V7 Timeline - How It Works */}
-      <TimelineV7 />
+      <Timeline />
 
       {/* Full Menu Section */}
       <div ref={menuRef}>

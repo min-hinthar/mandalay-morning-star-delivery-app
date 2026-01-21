@@ -1,18 +1,6 @@
 /**
- * V7 Component Library Index
+ * Component Library Index
  * Maximum playfulness, 120fps animations, accordion-free
- *
- * @example
- * import {
- *   FlipCard,
- *   ExpandingCard,
- *   CarouselV7,
- *   MorphingMenu,
- *   AnimatedLink,
- *   ToggleV7,
- *   PriceTicker,
- *   SkeletonV7,
- * } from '@/components/ui/v7-index';
  */
 
 // ============================================
@@ -40,15 +28,17 @@ export {
 } from "./ExpandingCard";
 
 // ============================================
-// CAROUSEL V7
+// CAROUSEL
 // Touch-first swipe with momentum physics
 // ============================================
 export {
-  CarouselV7,
+  Carousel,
+  Carousel as CarouselV7,
   CategoryCarousel,
-  type CarouselV7Props,
+  type CarouselProps,
+  type CarouselProps as CarouselV7Props,
   type CategoryCarouselProps,
-} from "./CarouselV7";
+} from "./Carousel";
 
 // ============================================
 // MORPHING MENU
@@ -79,17 +69,19 @@ export {
 } from "./AnimatedLink";
 
 // ============================================
-// TOGGLE V7
+// TOGGLE
 // Bounce physics toggle with multiple variants
 // ============================================
 export {
-  ToggleV7,
+  Toggle,
+  Toggle as ToggleV7,
   ToggleGroup,
   AnimatedCheckbox,
-  type ToggleV7Props,
+  type ToggleProps,
+  type ToggleProps as ToggleV7Props,
   type ToggleGroupProps,
   type AnimatedCheckboxProps,
-} from "./ToggleV7";
+} from "./Toggle";
 
 // ============================================
 // PRICE TICKER
@@ -105,19 +97,21 @@ export {
 } from "./PriceTicker";
 
 // ============================================
-// SKELETON V7
+// SKELETON
 // Shimmer/pulse/grain loading states
 // ============================================
 export {
-  SkeletonV7,
+  Skeleton,
+  Skeleton as SkeletonV7,
   SkeletonText,
   SkeletonAvatar,
   SkeletonCard,
   SkeletonMenuItem,
   SkeletonTableRow,
-  type SkeletonV7Props,
+  type SkeletonProps,
+  type SkeletonProps as SkeletonV7Props,
   type SkeletonTextProps,
   type SkeletonAvatarProps,
   type SkeletonCardProps,
   type SkeletonTableRowProps,
-} from "./SkeletonV7";
+} from "./skeleton";

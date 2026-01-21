@@ -9,7 +9,7 @@
  * - CSS-based fallback option
  */
 
-import { getAnimationPreferenceV7 } from "../hooks/useAnimationPreferenceV7";
+import { getAnimationPreference } from "../hooks/useAnimationPreference";
 
 // ============================================
 // TYPES
@@ -71,7 +71,7 @@ export class GrainEffect {
     this.generateNoise();
 
     // Auto-start if configured
-    if (this.config.autoStart && getAnimationPreferenceV7() === "full") {
+    if (this.config.autoStart && getAnimationPreference() === "full") {
       this.start();
     } else if (this.config.autoStart) {
       // Show static grain for reduced motion
@@ -138,12 +138,12 @@ export class GrainEffect {
    */
   start(): void {
     if (this.isRunning) return;
-    if (getAnimationPreferenceV7() === "none") return;
+    if (getAnimationPreference() === "none") return;
 
     this.isRunning = true;
     this.lastFrameTime = performance.now();
 
-    if (this.config.animate && getAnimationPreferenceV7() === "full") {
+    if (this.config.animate && getAnimationPreference() === "full") {
       this.animate();
     } else {
       this.drawNoise();

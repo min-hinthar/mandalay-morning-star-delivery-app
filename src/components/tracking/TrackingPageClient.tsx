@@ -11,7 +11,7 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { StatusTimelineV7, ETACountdownV7 } from "./v7-index";
+import { StatusTimeline, ETACountdown } from "./v7-index";
 import { DeliveryMap } from "./DeliveryMap";
 import { DriverCard } from "./DriverCard";
 import { OrderSummary } from "./OrderSummary";
@@ -177,7 +177,7 @@ export function TrackingPageClient({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <StatusTimelineV7
+          <StatusTimeline
             currentStatus={orderStatus}
             placedAt={initialData.order.placedAt}
             confirmedAt={initialData.order.confirmedAt}
@@ -193,7 +193,7 @@ export function TrackingPageClient({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <ETACountdownV7
+            <ETACountdown
               minMinutes={eta.minMinutes}
               maxMinutes={eta.maxMinutes}
               estimatedArrival={eta.estimatedArrival}

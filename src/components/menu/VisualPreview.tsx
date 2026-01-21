@@ -3,8 +3,8 @@
 import React, { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { v7Spring } from "@/lib/motion-tokens-v7";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import { spring } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import type { MenuItem, ModifierOption } from "@/types/menu";
 
 // ============================================
@@ -35,7 +35,7 @@ interface IngredientLayerProps {
 }
 
 function IngredientLayer({ modifier, index, total }: IngredientLayerProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+  const { shouldAnimate, getSpring } = useAnimationPreference();
 
   // Calculate position offset for layering effect
   const offset = (index - (total - 1) / 2) * 4;
@@ -56,7 +56,7 @@ function IngredientLayer({ modifier, index, total }: IngredientLayerProps) {
       }
       exit={shouldAnimate ? { opacity: 0, scale: 0.5, y: -20 } : undefined}
       transition={{
-        ...getSpring(v7Spring.rubbery),
+        ...getSpring(spring.rubbery),
         delay: index * 0.1,
       }}
     >
@@ -64,9 +64,9 @@ function IngredientLayer({ modifier, index, total }: IngredientLayerProps) {
       <motion.div
         className={cn(
           "px-3 py-1.5 rounded-full",
-          "bg-v6-secondary/80 backdrop-blur-sm",
-          "text-xs font-medium text-v6-text-primary",
-          "shadow-lg shadow-v6-secondary/20"
+          "bg-secondary/80 backdrop-blur-sm",
+          "text-xs font-medium text-text-primary",
+          "shadow-lg shadow-secondary/20"
         )}
         whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
       >
@@ -86,21 +86,21 @@ interface ModifierBadgeProps {
 }
 
 function ModifierBadge({ modifier, index }: ModifierBadgeProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+  const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
     <motion.span
       className={cn(
         "inline-flex items-center gap-1 px-2 py-1 rounded-full",
         "bg-white/90 backdrop-blur-sm",
-        "text-xs font-medium text-v6-text-primary",
+        "text-xs font-medium text-text-primary",
         "shadow-md"
       )}
       initial={shouldAnimate ? { opacity: 0, scale: 0.8, x: -10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, scale: 1, x: 0 } : undefined}
       exit={shouldAnimate ? { opacity: 0, scale: 0.8, x: 10 } : undefined}
       transition={{
-        ...getSpring(v7Spring.snappy),
+        ...getSpring(spring.snappy),
         delay: index * 0.05,
       }}
     >
@@ -120,7 +120,7 @@ export function VisualPreview({
   size = "md",
   kenBurns = true,
 }: VisualPreviewProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+  const { shouldAnimate, getSpring } = useAnimationPreference();
 
   // Size configurations
   const sizeConfig = useMemo(
@@ -160,13 +160,13 @@ export function VisualPreview({
       <motion.div
         className={cn(
           "relative rounded-full overflow-hidden",
-          "bg-gradient-to-br from-v6-surface-secondary to-v6-surface-primary",
+          "bg-gradient-to-br from-surface-secondary to-surface-primary",
           "shadow-xl",
           config.container
         )}
         initial={shouldAnimate ? { scale: 0.9, opacity: 0 } : undefined}
         animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
-        transition={getSpring(v7Spring.rubbery)}
+        transition={getSpring(spring.rubbery)}
       >
         {/* Base item image with Ken Burns */}
         <motion.div
@@ -230,7 +230,7 @@ export function VisualPreview({
           {selectedModifiers.length > 0 && shouldAnimate && (
             <motion.div
               key={selectedModifiers.length}
-              className="absolute inset-0 rounded-full border-2 border-v6-secondary"
+              className="absolute inset-0 rounded-full border-2 border-secondary"
               initial={{ scale: 1, opacity: 0.8 }}
               animate={{ scale: 1.3, opacity: 0 }}
               exit={{ opacity: 0 }}
@@ -248,7 +248,7 @@ export function VisualPreview({
             initial={shouldAnimate ? { opacity: 0, y: -10 } : undefined}
             animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
             exit={shouldAnimate ? { opacity: 0, y: -10 } : undefined}
-            transition={getSpring(v7Spring.snappy)}
+            transition={getSpring(spring.snappy)}
           >
             {selectedModifiers.map((modifier, index) => (
               <ModifierBadge key={modifier.id} modifier={modifier} index={index} />
@@ -259,7 +259,7 @@ export function VisualPreview({
 
       {/* Item name */}
       <motion.p
-        className="mt-3 text-center font-v6-display font-semibold text-v6-text-primary"
+        className="mt-3 text-center font-display font-semibold text-text-primary"
         initial={shouldAnimate ? { opacity: 0 } : undefined}
         animate={shouldAnimate ? { opacity: 1 } : undefined}
         transition={{ delay: 0.2 }}
@@ -267,7 +267,7 @@ export function VisualPreview({
         {item.nameEn}
         {selectedModifiers.length > 0 && (
           <motion.span
-            className="text-v6-text-muted font-normal text-sm block"
+            className="text-text-muted font-normal text-sm block"
             initial={shouldAnimate ? { opacity: 0 } : undefined}
             animate={shouldAnimate ? { opacity: 1 } : undefined}
           >

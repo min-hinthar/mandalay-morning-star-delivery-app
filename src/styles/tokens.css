@@ -1,9 +1,9 @@
 /**
  * Mandalay Morning Star Design Tokens
- * V6 Foundation - Pepper Aesthetic (Playful, Vibrant)
+ * Consolidated Design System - Pepper Aesthetic
  *
  * Usage: Import in globals.css, reference via CSS custom properties
- * Migration: V6 is primary; V5 preserved with --v5- prefix for gradual migration
+ * All version prefixes removed - this is the single source of truth
  */
 
 /* ============================================
@@ -12,383 +12,81 @@
 
 :root {
   /* ===========================================
-     V6 PRIMARY PALETTE (Pepper Aesthetic)
+     PRIMARY PALETTE
      Deep Rich Red + Golden Yellow
      =========================================== */
 
-  --color-v6-primary: #A41034;
-  --color-v6-primary-hover: #8A0D2B;
-  --color-v6-primary-active: #6D0A22;
-  --color-v6-primary-light: rgba(164, 16, 52, 0.08);
+  --color-primary: #A41034;
+  --color-primary-hover: #8A0D2B;
+  --color-primary-active: #6D0A22;
+  --color-primary-light: rgba(164, 16, 52, 0.08);
 
-  --color-v6-secondary: #EBCD00;
-  --color-v6-secondary-hover: #D4B800;
-  --color-v6-secondary-active: #BDA300;
-  --color-v6-secondary-light: rgba(235, 205, 0, 0.12);
+  --color-secondary: #EBCD00;
+  --color-secondary-hover: #D4B800;
+  --color-secondary-active: #BDA300;
+  --color-secondary-light: rgba(235, 205, 0, 0.12);
 
   /* ===========================================
-     V6 VIBRANT ACCENT PAIRINGS
+     ACCENT COLORS
+     Vibrant supporting palette
      =========================================== */
 
-  --color-v6-accent-green: #52A52E;
-  --color-v6-accent-green-hover: #469925;
-  --color-v6-accent-green-light: rgba(82, 165, 46, 0.12);
+  --color-accent-green: #52A52E;
+  --color-accent-green-hover: #469925;
+  --color-accent-green-light: rgba(82, 165, 46, 0.12);
 
-  --color-v6-accent-orange: #E87D1E;
-  --color-v6-accent-orange-hover: #D06F18;
-  --color-v6-accent-orange-light: rgba(232, 125, 30, 0.12);
+  --color-accent-orange: #E87D1E;
+  --color-accent-orange-hover: #D06F18;
+  --color-accent-orange-light: rgba(232, 125, 30, 0.12);
 
-  --color-v6-accent-teal: #00979D;
-  --color-v6-accent-teal-hover: #008288;
-  --color-v6-accent-teal-light: rgba(0, 151, 157, 0.12);
+  --color-accent-teal: #00979D;
+  --color-accent-teal-hover: #008288;
+  --color-accent-teal-light: rgba(0, 151, 157, 0.12);
 
-  --color-v6-accent-magenta: #C9006B;
-  --color-v6-accent-magenta-hover: #B0005D;
-  --color-v6-accent-magenta-light: rgba(201, 0, 107, 0.12);
-
-  /* ===========================================
-     V6 SURFACE COLORS (Clean & Vibrant)
-     =========================================== */
-
-  --color-v6-surface-primary: #FFFFFF;
-  --color-v6-surface-secondary: #FAFAFA;
-  --color-v6-surface-tertiary: #F5F5F5;
+  --color-accent-magenta: #C9006B;
+  --color-accent-magenta-hover: #B0005D;
+  --color-accent-magenta-light: rgba(201, 0, 107, 0.12);
 
   /* ===========================================
-     V6 TEXT COLORS
-     =========================================== */
-
-  --color-v6-text-primary: #111111;
-  --color-v6-text-secondary: #3B3B3B;
-  --color-v6-text-muted: #6B6B6B;
-  --color-v6-text-inverse: #FFFFFF;
-
-  /* ===========================================
-     V6 BORDER COLORS (Clean Gray)
-     =========================================== */
-
-  --color-v6-border-default: #E5E7EB;
-  --color-v6-border-strong: #D1D5DB;
-  --color-v6-border-subtle: #F3F4F6;
-
-  /* ===========================================
-     V6 STATUS COLORS
-     =========================================== */
-
-  --color-v6-status-success: #52A52E;
-  --color-v6-status-success-bg: rgba(82, 165, 46, 0.10);
-  --color-v6-status-warning: #E87D1E;
-  --color-v6-status-warning-bg: rgba(232, 125, 30, 0.10);
-  --color-v6-status-error: #C45C4A;
-  --color-v6-status-error-bg: rgba(196, 92, 74, 0.10);
-  --color-v6-status-info: #00979D;
-  --color-v6-status-info-bg: rgba(0, 151, 157, 0.10);
-
-  /* ===========================================
-     V6 BORDER RADIUS (Pepper Aesthetic)
-     =========================================== */
-
-  --radius-v6-pill: 9999px;
-  --radius-v6-card: 24px;
-  --radius-v6-card-sm: 16px;
-  --radius-v6-input: 12px;
-  --radius-v6-button: 9999px;
-  --radius-v6-badge: 9999px;
-
-  /* ===========================================
-     V6 SHADOWS (Warm Tones)
-     Using primary red for warmth
-     =========================================== */
-
-  --shadow-v6-sm: 0 1px 3px rgba(164, 16, 52, 0.04);
-  --shadow-v6-md: 0 4px 12px rgba(164, 16, 52, 0.06);
-  --shadow-v6-card: 0 8px 24px rgba(164, 16, 52, 0.08);
-  --shadow-v6-card-hover: 0 12px 32px rgba(164, 16, 52, 0.12);
-  --shadow-v6-elevated: 0 16px 48px rgba(164, 16, 52, 0.16);
-  --shadow-v6-nav: 0 4px 12px rgba(164, 16, 52, 0.06);
-  --shadow-v6-button-hover: 0 4px 16px rgba(164, 16, 52, 0.20);
-
-  /* ===========================================
-     V6 MOTION TOKENS (Spring-Based)
-     =========================================== */
-
-  --duration-v6-instant: 0ms;
-  --duration-v6-fast: 150ms;
-  --duration-v6-normal: 220ms;
-  --duration-v6-slow: 350ms;
-  --duration-v6-slower: 500ms;
-
-  --ease-v6-default: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ease-v6-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-v6-out: cubic-bezier(0, 0, 0.2, 1);
-  --ease-v6-in: cubic-bezier(0.4, 0, 1, 1);
-
-  /* Transform presets */
-  --transform-v6-hover-lift: translateY(-4px);
-  --transform-v6-hover-scale: scale(1.02);
-  --transform-v6-press-scale: scale(0.98);
-  --transform-v6-image-zoom: scale(1.03);
-
-  /* ===========================================
-     V6 TYPOGRAPHY (Nunito - Rounded, Playful)
-     =========================================== */
-
-  /* Font Families */
-  --font-v6-display: 'Nunito', ui-rounded, system-ui, sans-serif;
-  --font-v6-body: 'Nunito', system-ui, sans-serif;
-  --font-v6-burmese: 'Padauk', sans-serif;
-
-  /* V6 Typography Scale (optimized for playful aesthetic) */
-  --text-v6-hero: 900 3.5rem/1.1 var(--font-v6-display);      /* 56px */
-  --text-v6-display: 800 2.5rem/1.15 var(--font-v6-display);  /* 40px */
-  --text-v6-h1: 700 2rem/1.2 var(--font-v6-display);          /* 32px */
-  --text-v6-h2: 700 1.5rem/1.25 var(--font-v6-display);       /* 24px */
-  --text-v6-h3: 600 1.25rem/1.3 var(--font-v6-display);       /* 20px */
-  --text-v6-body-lg: 400 1.125rem/1.6 var(--font-v6-body);    /* 18px */
-  --text-v6-body: 400 1rem/1.5 var(--font-v6-body);           /* 16px */
-  --text-v6-body-sm: 400 0.875rem/1.5 var(--font-v6-body);    /* 14px */
-  --text-v6-button: 600 1rem/1 var(--font-v6-body);           /* 16px */
-  --text-v6-label: 500 0.875rem/1.4 var(--font-v6-body);      /* 14px */
-  --text-v6-caption: 400 0.75rem/1.4 var(--font-v6-body);     /* 12px */
-
-  /* ===========================================
-     V5 SURFACE COLORS (High Contrast)
+     SURFACE COLORS
+     Clean & vibrant backgrounds
      =========================================== */
 
   --color-surface-primary: #FFFFFF;
-  --color-surface-secondary: #F8F7F6;
-  --color-surface-tertiary: #F0EEEC;
+  --color-surface-secondary: #FAFAFA;
+  --color-surface-tertiary: #F5F5F5;
+  --color-surface-elevated: #FFFFFF;
 
   /* ===========================================
-     V5 TEXT COLORS (High Contrast)
+     TEXT COLORS
      =========================================== */
 
-  --color-text-primary: #1A1918;
-  --color-text-secondary: #4A4845;
+  --color-text-primary: #111111;
+  --color-text-secondary: #3B3B3B;
+  --color-text-muted: #6B6B6B;
   --color-text-inverse: #FFFFFF;
 
   /* ===========================================
-     V5 INTERACTIVE COLORS (Bold)
+     BORDER COLORS
      =========================================== */
 
-  /* Primary - Saffron Gold */
-  --color-interactive-primary: #D4A853;
-  --color-interactive-primary-light: #FDF6E3;
-  --color-interactive-hover: #C49843;
-  --color-interactive-active: #B48833;
-  --color-interactive-disabled: #E8DCC4;
-
-  /* Secondary - Jade Green */
-  --color-accent-secondary: #2D8B6F;
-  --color-accent-secondary-hover: #247259;
-  --color-accent-secondary-active: #1B5944;
-  --color-accent-secondary-dark: #1E5F3C;
-
-  /* Tertiary - Chili Red */
-  --color-accent-tertiary: #C45C4A;
-  --color-accent-tertiary-hover: #A84D3D;
-  --color-accent-tertiary-active: #8C3F31;
+  --color-border-default: #E5E7EB;
+  --color-border-strong: #D1D5DB;
+  --color-border-subtle: #F3F4F6;
 
   /* ===========================================
-     V5 STATUS COLORS
+     STATUS COLORS
+     Success, warning, error, info
      =========================================== */
 
-  --color-status-success: #2D8B6F;
-  --color-status-success-bg: rgba(45, 139, 111, 0.1);
-  --color-status-warning: #D4A853;
-  --color-status-warning-bg: rgba(212, 168, 83, 0.12);
+  --color-status-success: #52A52E;
+  --color-status-success-bg: rgba(82, 165, 46, 0.10);
+  --color-status-warning: #E87D1E;
+  --color-status-warning-bg: rgba(232, 125, 30, 0.10);
   --color-status-error: #C45C4A;
-  --color-status-error-bg: rgba(196, 92, 74, 0.1);
-  --color-status-info: #4A7C9B;
-  --color-status-info-bg: rgba(74, 124, 155, 0.1);
-
-  /* ===========================================
-     V5 BORDER COLORS
-     =========================================== */
-
-  --color-border-default: #E5E3E0;
-  --color-border-strong: #D0CCC7;
-  --color-border-subtle: #F0EEEC;
-
-  /* ===========================================
-     V4 COMPATIBILITY ALIASES
-     (Preserved for gradual migration)
-     =========================================== */
-
-  /* Primary - Morning Star Red */
-  --color-primary: #9B1B1E;
-  --color-primary-hover: #7A1517;
-  --color-primary-light: #C42427;
-  --color-primary-bg: rgba(155, 27, 30, 0.08);
-
-  /* CTA - Heritage Gold */
-  --color-cta: #F4D03F;
-  --color-cta-hover: #E5C233;
-  --color-cta-dark: #D4AF37;
-  --color-cta-bg: rgba(244, 208, 63, 0.15);
-
-  /* Saffron - Warm accent */
-  --color-saffron: #D4A017;
-  --color-saffron-hover: #B8890F;
-  --color-saffron-light: #FDF6E3;
-
-  /* Curry - Brown accent */
-  --color-curry: #8B4513;
-  --color-curry-light: #A0522D;
-  --color-curry-dark: #5D2E0C;
-
-  /* Lotus - Soft pink */
-  --color-lotus: #FFE4E1;
-  --color-lotus-light: #FFF0EE;
-  --color-lotus-dark: #FFD0CB;
-
-  /* ===========================================
-     V4 SEMANTIC COLORS (Aliases)
-     =========================================== */
-
-  /* Success - Jade */
-  --color-jade: #2E8B57;
-  --color-jade-light: #E8F5E9;
-  --color-jade-dark: #1E5F3C;
-
-  /* Error */
-  --color-error: #DC2626;
-  --color-error-light: #FEF2F2;
-  --color-error-dark: #B91C1C;
-
-  /* Warning */
-  --color-warning: #F59E0B;
-  --color-warning-light: #FFFBEB;
-  --color-warning-dark: #D97706;
-
-  /* Info */
-  --color-info: #3B82F6;
-  --color-info-light: #EFF6FF;
-  --color-info-dark: #2563EB;
-
-  /* ===========================================
-     V4 NEUTRAL COLORS (Aliases)
-     =========================================== */
-
-  --color-charcoal: #1A1A1A;
-  --color-charcoal-muted: #4A4A4A;
-  --color-charcoal-light: #6B7280;
-
-  --color-cream: #FFFEF7;
-  --color-cream-darker: #F5F4EF;
-  --color-cream-dark: #EBE9E0;
-
-  --color-border: #E5E2D9;
-  --color-border-light: #F0EDE6;
-  --color-border-dark: #D5D2C9;
-
-  /* ===========================================
-     V4 BACKGROUND & SURFACE (Aliases)
-     =========================================== */
-
-  --color-background: #FFFEF7;
-  --color-surface: #FFFFFF;
-  --color-surface-elevated: #FFFFFF;
-  --color-surface-muted: #F8F5F0;
-
-  /* ===========================================
-     TEXT
-     =========================================== */
-
-  --color-text-primary: #1A1A1A;
-  --color-text-secondary: #4A4A4A;
-  --color-text-muted: #6B7280;
-  --color-text-inverted: #FFFFFF;
-
-  /* ===========================================
-     V5 TYPOGRAPHY SYSTEM
-     Playfair Display (headings) + Inter (body)
-     =========================================== */
-
-  /* Font Families - V5 Primary */
-  --font-display: var(--font-playfair), "Playfair Display", Georgia, serif;
-  --font-body: var(--font-inter), "Inter", system-ui, sans-serif;
-  --font-burmese: "Padauk", "Noto Sans Myanmar", sans-serif;
-
-  /* V4 Aliases (for backward compatibility) */
-  --font-heading: var(--font-display);
-
-  /* Font Sizes - V5 Scale
-     Optimized for readability and hierarchy */
-  --text-xs: 0.75rem;     /* 12px - Labels, captions */
-  --text-sm: 0.875rem;    /* 14px - Secondary text, metadata */
-  --text-base: 1rem;      /* 16px - Body text */
-  --text-lg: 1.125rem;    /* 18px - Emphasized body */
-  --text-xl: 1.25rem;     /* 20px - Subheadings */
-  --text-2xl: 1.5rem;     /* 24px - Section titles */
-  --text-3xl: 2rem;       /* 32px - Page titles */
-  --text-4xl: 2.5rem;     /* 40px - Hero headings */
-  --text-5xl: 3rem;       /* 48px - Display */
-  --text-6xl: 3.75rem;    /* 60px - Large display */
-  --text-7xl: 4.5rem;     /* 72px - Extra large display */
-
-  /* Font Weights */
-  --font-normal: 400;
-  --font-medium: 500;
-  --font-semibold: 600;
-  --font-bold: 700;
-  --font-black: 900;
-
-  /* Line Heights - V5 Optimized */
-  --leading-none: 1;
-  --leading-tight: 1.25;    /* Headings */
-  --leading-snug: 1.375;    /* Compact text */
-  --leading-normal: 1.5;    /* Body text */
-  --leading-relaxed: 1.75;  /* Readable prose */
-  --leading-loose: 2;       /* Spacious text */
-
-  /* Letter Spacing */
-  --tracking-tighter: -0.05em;
-  --tracking-tight: -0.025em;   /* Headings */
-  --tracking-normal: 0em;       /* Body text */
-  --tracking-wide: 0.025em;     /* Labels, buttons */
-  --tracking-wider: 0.05em;     /* All caps */
-  --tracking-widest: 0.1em;     /* Decorative */
-
-  /* V5 Typography Presets (compound values) */
-  --type-display-hero: var(--font-bold) var(--text-4xl)/var(--leading-tight) var(--font-display);
-  --type-display-title: var(--font-semibold) var(--text-3xl)/var(--leading-tight) var(--font-display);
-  --type-heading-section: var(--font-semibold) var(--text-2xl)/var(--leading-tight) var(--font-display);
-  --type-heading-subsection: var(--font-medium) var(--text-xl)/var(--leading-snug) var(--font-body);
-  --type-body-large: var(--font-normal) var(--text-lg)/var(--leading-relaxed) var(--font-body);
-  --type-body-default: var(--font-normal) var(--text-base)/var(--leading-normal) var(--font-body);
-  --type-body-small: var(--font-normal) var(--text-sm)/var(--leading-normal) var(--font-body);
-  --type-label: var(--font-medium) var(--text-sm)/var(--leading-tight) var(--font-body);
-  --type-caption: var(--font-normal) var(--text-xs)/var(--leading-normal) var(--font-body);
-
-  /* ===========================================
-     V5 SPACING SYSTEM (4px base grid)
-     =========================================== */
-
-  --space-0: 0;
-  --space-px: 1px;
-  --space-0-5: 0.125rem;  /* 2px */
-  --space-1: 0.25rem;     /* 4px - Base unit */
-  --space-1-5: 0.375rem;  /* 6px */
-  --space-2: 0.5rem;      /* 8px */
-  --space-2-5: 0.625rem;  /* 10px */
-  --space-3: 0.75rem;     /* 12px */
-  --space-3-5: 0.875rem;  /* 14px */
-  --space-4: 1rem;        /* 16px - Common padding */
-  --space-5: 1.25rem;     /* 20px */
-  --space-6: 1.5rem;      /* 24px - Section spacing */
-  --space-7: 1.75rem;     /* 28px */
-  --space-8: 2rem;        /* 32px - Large spacing */
-  --space-9: 2.25rem;     /* 36px */
-  --space-10: 2.5rem;     /* 40px */
-  --space-11: 2.75rem;    /* 44px */
-  --space-12: 3rem;       /* 48px - Page sections */
-  --space-14: 3.5rem;     /* 56px */
-  --space-16: 4rem;       /* 64px - Major sections */
-  --space-20: 5rem;       /* 80px */
-  --space-24: 6rem;       /* 96px - Hero spacing */
-  --space-28: 7rem;       /* 112px */
-  --space-32: 8rem;       /* 128px */
+  --color-status-error-bg: rgba(196, 92, 74, 0.10);
+  --color-status-info: #00979D;
+  --color-status-info-bg: rgba(0, 151, 157, 0.10);
 
   /* ===========================================
      BORDER RADIUS
@@ -403,71 +101,154 @@
   --radius-3xl: 2rem;      /* 32px */
   --radius-full: 9999px;
 
+  /* Semantic radius */
+  --radius-pill: 9999px;
+  --radius-card: 24px;
+  --radius-card-sm: 16px;
+  --radius-input: 12px;
+  --radius-button: 9999px;
+  --radius-badge: 9999px;
+
   /* ===========================================
-     V5 ELEVATION SYSTEM (6 levels)
-     Warm shadows using brand charcoal (#1A1918)
+     SHADOWS
+     Warm tones using primary color
      =========================================== */
 
-  /* Semantic elevation levels */
-  --elevation-0: none;
-  --elevation-1: 0 1px 2px rgba(26, 25, 24, 0.05);
-  --elevation-2: 0 2px 4px rgba(26, 25, 24, 0.08);
-  --elevation-3: 0 4px 8px rgba(26, 25, 24, 0.10);
-  --elevation-4: 0 8px 16px rgba(26, 25, 24, 0.12);
-  --elevation-5: 0 16px 32px rgba(26, 25, 24, 0.15);
+  --shadow-sm: 0 1px 3px rgba(164, 16, 52, 0.04);
+  --shadow-md: 0 4px 12px rgba(164, 16, 52, 0.06);
+  --shadow-lg: 0 8px 24px rgba(164, 16, 52, 0.08);
+  --shadow-xl: 0 12px 32px rgba(164, 16, 52, 0.12);
+  --shadow-2xl: 0 16px 48px rgba(164, 16, 52, 0.16);
 
-  /* V4 Shadow Aliases (for backward compatibility) */
-  --shadow-sm: var(--elevation-1);
-  --shadow-md: var(--elevation-2);
-  --shadow-lg: var(--elevation-3);
-  --shadow-xl: var(--elevation-4);
-  --shadow-2xl: var(--elevation-5);
+  /* Semantic shadows */
+  --shadow-card: 0 8px 24px rgba(164, 16, 52, 0.08);
+  --shadow-card-hover: 0 12px 32px rgba(164, 16, 52, 0.12);
+  --shadow-elevated: 0 16px 48px rgba(164, 16, 52, 0.16);
+  --shadow-nav: 0 4px 12px rgba(164, 16, 52, 0.06);
+  --shadow-button-hover: 0 4px 16px rgba(164, 16, 52, 0.20);
 
-  /* Glow shadows - accent colors */
-  --shadow-glow-gold: 0 0 20px rgba(212, 168, 83, 0.4);
-  --shadow-glow-gold-lg: 0 0 40px rgba(212, 168, 83, 0.5);
-  --shadow-glow-jade: 0 0 20px rgba(45, 139, 111, 0.4);
-  --shadow-glow-chili: 0 0 20px rgba(196, 92, 74, 0.3);
+  /* Glow effects */
+  --shadow-glow-primary: 0 0 20px rgba(164, 16, 52, 0.4);
+  --shadow-glow-success: 0 0 20px rgba(82, 165, 46, 0.4);
+  --shadow-glow-warning: 0 0 20px rgba(232, 125, 30, 0.3);
 
-  /* Premium shadows */
-  --shadow-premium: var(--elevation-5), 0 0 15px rgba(212, 168, 83, 0.1);
-  --shadow-card-hover: var(--elevation-4), 0 0 10px rgba(212, 168, 83, 0.08);
-
-  /* Inner shadow */
+  /* Inner shadows */
   --shadow-inner: inset 0 2px 4px rgba(26, 25, 24, 0.05);
-  --shadow-inner-glow: inset 0 0 20px rgba(212, 168, 83, 0.15);
+  --shadow-inner-glow: inset 0 0 20px rgba(164, 16, 52, 0.15);
 
   /* ===========================================
-     V5 MOTION TOKEN SYSTEM
-     Standardized durations and easings
+     MOTION TOKENS
+     Durations and easings
      =========================================== */
 
-  /* Duration Tokens */
   --duration-instant: 0ms;
   --duration-fast: 150ms;
-  --duration-normal: 250ms;
-  --duration-slow: 400ms;
-  --duration-slower: 600ms;
+  --duration-normal: 220ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
 
-  /* V4 Duration Aliases */
-  --duration-micro: var(--duration-fast);
-  --duration-standard: var(--duration-normal);
-  --duration-dramatic: var(--duration-slow);
-  --duration-very-slow: var(--duration-slower);
-
-  /* Easing Tokens */
-  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --ease-out: cubic-bezier(0, 0, 0.2, 1);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-default: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* V4 Easing Aliases */
-  --ease-bounce: var(--ease-spring);
+  /* Transform presets */
+  --transform-hover-lift: translateY(-4px);
+  --transform-hover-scale: scale(1.02);
+  --transform-press-scale: scale(0.98);
+  --transform-image-zoom: scale(1.03);
 
   /* ===========================================
-     V5 Z-INDEX LAYER SYSTEM
-     Semantic layers for overlay stacking
+     TYPOGRAPHY
+     Nunito - Rounded, Playful
+     =========================================== */
+
+  /* Font Families */
+  --font-display: 'Nunito', ui-rounded, system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+  --font-burmese: 'Padauk', 'Noto Sans Myanmar', sans-serif;
+
+  /* Font Sizes */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 2rem;       /* 32px */
+  --text-4xl: 2.5rem;     /* 40px */
+  --text-5xl: 3rem;       /* 48px */
+  --text-6xl: 3.75rem;    /* 60px */
+  --text-7xl: 4.5rem;     /* 72px */
+
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-black: 900;
+
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+  --leading-loose: 2;
+
+  /* Letter Spacing */
+  --tracking-tighter: -0.05em;
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+
+  /* Typography Presets */
+  --type-hero: 900 3.5rem/1.1 var(--font-display);
+  --type-display: 800 2.5rem/1.15 var(--font-display);
+  --type-h1: 700 2rem/1.2 var(--font-display);
+  --type-h2: 700 1.5rem/1.25 var(--font-display);
+  --type-h3: 600 1.25rem/1.3 var(--font-display);
+  --type-body-lg: 400 1.125rem/1.6 var(--font-body);
+  --type-body: 400 1rem/1.5 var(--font-body);
+  --type-body-sm: 400 0.875rem/1.5 var(--font-body);
+  --type-button: 600 1rem/1 var(--font-body);
+  --type-label: 500 0.875rem/1.4 var(--font-body);
+  --type-caption: 400 0.75rem/1.4 var(--font-body);
+
+  /* ===========================================
+     SPACING SYSTEM (4px base grid)
+     =========================================== */
+
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 0.125rem;  /* 2px */
+  --space-1: 0.25rem;     /* 4px */
+  --space-1-5: 0.375rem;  /* 6px */
+  --space-2: 0.5rem;      /* 8px */
+  --space-2-5: 0.625rem;  /* 10px */
+  --space-3: 0.75rem;     /* 12px */
+  --space-3-5: 0.875rem;  /* 14px */
+  --space-4: 1rem;        /* 16px */
+  --space-5: 1.25rem;     /* 20px */
+  --space-6: 1.5rem;      /* 24px */
+  --space-7: 1.75rem;     /* 28px */
+  --space-8: 2rem;        /* 32px */
+  --space-9: 2.25rem;     /* 36px */
+  --space-10: 2.5rem;     /* 40px */
+  --space-11: 2.75rem;    /* 44px */
+  --space-12: 3rem;       /* 48px */
+  --space-14: 3.5rem;     /* 56px */
+  --space-16: 4rem;       /* 64px */
+  --space-20: 5rem;       /* 80px */
+  --space-24: 6rem;       /* 96px */
+  --space-28: 7rem;       /* 112px */
+  --space-32: 8rem;       /* 128px */
+
+  /* ===========================================
+     Z-INDEX LAYER SYSTEM
      =========================================== */
 
   --z-base: 0;
@@ -489,11 +270,12 @@
   --cart-bar-height: 64px;
   --driver-header-height: 48px;
   --driver-action-height: 80px;
+  --admin-nav-height: 64px;
+  --max-content-width: 1280px;
+  --max-admin-width: 1536px;
 
   /* ===========================================
-     V5 BREAKPOINT TOKENS
-     Matches Tailwind defaults for consistency
-     Usage: Use with JavaScript hooks for responsive logic
+     BREAKPOINTS
      =========================================== */
 
   --breakpoint-sm: 640px;
@@ -506,9 +288,6 @@
   --touch-target-min: 44px;
   --touch-target-primary: 56px;
   --touch-target-driver: 56px;
-  --admin-nav-height: 64px;
-  --max-content-width: 1280px;
-  --max-admin-width: 1536px;
 
   /* ===========================================
      OPACITY
@@ -522,329 +301,177 @@
 
 /* ============================================
    DARK THEME
-   V5: High contrast with warm undertones
+   High contrast with warm undertones
    ============================================ */
 
 [data-theme="dark"],
 .dark {
   /* ===========================================
-     V6 PEPPER AESTHETIC (Dark Mode)
-     Brighter accents for dark backgrounds
+     PRIMARY PALETTE (Dark Mode)
+     Brighter for dark backgrounds
      =========================================== */
 
-  /* V6 Primary - Brighter red for dark mode */
-  --color-v6-primary: #E84363;
-  --color-v6-primary-hover: #F25477;
-  --color-v6-primary-active: #D33253;
-  --color-v6-primary-light: rgba(232, 67, 99, 0.15);
+  --color-primary: #E84363;
+  --color-primary-hover: #F25477;
+  --color-primary-active: #D33253;
+  --color-primary-light: rgba(232, 67, 99, 0.15);
 
-  /* V6 Secondary - Brighter yellow for dark mode */
-  --color-v6-secondary: #FFDB4D;
-  --color-v6-secondary-hover: #FFE066;
-  --color-v6-secondary-active: #E5C600;
-  --color-v6-secondary-light: rgba(255, 219, 77, 0.15);
-
-  /* V6 Vibrant Accents (Dark Mode) */
-  --color-v6-accent-green: #6BD84B;
-  --color-v6-accent-green-hover: #7DE85D;
-  --color-v6-accent-green-light: rgba(107, 216, 75, 0.15);
-
-  --color-v6-accent-orange: #FF9F4A;
-  --color-v6-accent-orange-hover: #FFB066;
-  --color-v6-accent-orange-light: rgba(255, 159, 74, 0.15);
-
-  --color-v6-accent-teal: #2DD4DB;
-  --color-v6-accent-teal-hover: #4DDDEA;
-  --color-v6-accent-teal-light: rgba(45, 212, 219, 0.15);
-
-  --color-v6-accent-magenta: #F24A9B;
-  --color-v6-accent-magenta-hover: #FF5DAE;
-  --color-v6-accent-magenta-light: rgba(242, 74, 155, 0.15);
-
-  /* V6 Surfaces (Dark Mode - warm undertones) */
-  --color-v6-surface-primary: #1A1918;
-  --color-v6-surface-secondary: #252322;
-  --color-v6-surface-tertiary: #302E2C;
-
-  /* V6 Text (Dark Mode) */
-  --color-v6-text-primary: #F8F7F6;
-  --color-v6-text-secondary: #C5C3C0;
-  --color-v6-text-muted: #8A8784;
-  --color-v6-text-inverse: #1A1918;
-
-  /* V6 Borders (Dark Mode) */
-  --color-v6-border-default: #3D3B38;
-  --color-v6-border-strong: #4D4B48;
-  --color-v6-border-subtle: #2D2B28;
-
-  /* V6 Status (Dark Mode - brighter) */
-  --color-v6-status-success: #6BD84B;
-  --color-v6-status-success-bg: rgba(107, 216, 75, 0.18);
-  --color-v6-status-warning: #FF9F4A;
-  --color-v6-status-warning-bg: rgba(255, 159, 74, 0.18);
-  --color-v6-status-error: #FF6B6B;
-  --color-v6-status-error-bg: rgba(255, 107, 107, 0.18);
-  --color-v6-status-info: #2DD4DB;
-  --color-v6-status-info-bg: rgba(45, 212, 219, 0.18);
-
-  /* V6 Shadows (Dark Mode - deeper) */
-  --shadow-v6-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-v6-md: 0 4px 12px rgba(0, 0, 0, 0.35);
-  --shadow-v6-card: 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-v6-card-hover: 0 12px 32px rgba(0, 0, 0, 0.5);
-  --shadow-v6-elevated: 0 16px 48px rgba(0, 0, 0, 0.55);
-  --shadow-v6-nav: 0 4px 12px rgba(0, 0, 0, 0.35);
-  --shadow-v6-button-hover: 0 4px 16px rgba(232, 67, 99, 0.3);
+  --color-secondary: #FFDB4D;
+  --color-secondary-hover: #FFE066;
+  --color-secondary-active: #E5C600;
+  --color-secondary-light: rgba(255, 219, 77, 0.15);
 
   /* ===========================================
-     V5 SURFACE COLORS (Dark Mode)
+     ACCENT COLORS (Dark Mode)
+     =========================================== */
+
+  --color-accent-green: #6BD84B;
+  --color-accent-green-hover: #7DE85D;
+  --color-accent-green-light: rgba(107, 216, 75, 0.15);
+
+  --color-accent-orange: #FF9F4A;
+  --color-accent-orange-hover: #FFB066;
+  --color-accent-orange-light: rgba(255, 159, 74, 0.15);
+
+  --color-accent-teal: #2DD4DB;
+  --color-accent-teal-hover: #4DDDEA;
+  --color-accent-teal-light: rgba(45, 212, 219, 0.15);
+
+  --color-accent-magenta: #F24A9B;
+  --color-accent-magenta-hover: #FF5DAE;
+  --color-accent-magenta-light: rgba(242, 74, 155, 0.15);
+
+  /* ===========================================
+     SURFACE COLORS (Dark Mode)
+     Warm undertones
      =========================================== */
 
   --color-surface-primary: #1A1918;
-  --color-surface-secondary: #2A2827;
-  --color-surface-tertiary: #3A3837;
+  --color-surface-secondary: #252322;
+  --color-surface-tertiary: #302E2C;
+  --color-surface-elevated: #302E2C;
 
   /* ===========================================
-     V5 TEXT COLORS (Dark Mode - High Contrast)
+     TEXT COLORS (Dark Mode)
      =========================================== */
 
   --color-text-primary: #F8F7F6;
-  --color-text-secondary: #B5B3B0;
+  --color-text-secondary: #C5C3C0;
+  --color-text-muted: #8A8784;
   --color-text-inverse: #1A1918;
 
   /* ===========================================
-     V5 INTERACTIVE COLORS (Dark Mode - Brighter)
+     BORDER COLORS (Dark Mode)
      =========================================== */
 
-  /* Primary - Saffron Gold (brighter for dark) */
-  --color-interactive-primary: #E5B963;
-  --color-interactive-primary-light: #2A2418;
-  --color-interactive-hover: #F5C973;
-  --color-interactive-active: #D4A853;
-  --color-interactive-disabled: #4A4538;
-
-  /* Secondary - Jade Green (brighter for dark) */
-  --color-accent-secondary: #4ADE80;
-  --color-accent-secondary-hover: #5AEE90;
-  --color-accent-secondary-active: #3ACE70;
-  --color-accent-secondary-dark: #22C55E;
-
-  /* Tertiary - Chili Red (brighter for dark) */
-  --color-accent-tertiary: #F87171;
-  --color-accent-tertiary-hover: #FF8181;
-  --color-accent-tertiary-active: #EF6161;
+  --color-border-default: #3D3B38;
+  --color-border-strong: #4D4B48;
+  --color-border-subtle: #2D2B28;
 
   /* ===========================================
-     V5 STATUS COLORS (Dark Mode)
+     STATUS COLORS (Dark Mode)
      =========================================== */
 
-  --color-status-success: #4ADE80;
-  --color-status-success-bg: rgba(74, 222, 128, 0.15);
-  --color-status-warning: #FBBF24;
-  --color-status-warning-bg: rgba(251, 191, 36, 0.15);
-  --color-status-error: #F87171;
-  --color-status-error-bg: rgba(248, 113, 113, 0.15);
-  --color-status-info: #60A5FA;
-  --color-status-info-bg: rgba(96, 165, 250, 0.15);
+  --color-status-success: #6BD84B;
+  --color-status-success-bg: rgba(107, 216, 75, 0.18);
+  --color-status-warning: #FF9F4A;
+  --color-status-warning-bg: rgba(255, 159, 74, 0.18);
+  --color-status-error: #FF6B6B;
+  --color-status-error-bg: rgba(255, 107, 107, 0.18);
+  --color-status-info: #2DD4DB;
+  --color-status-info-bg: rgba(45, 212, 219, 0.18);
 
   /* ===========================================
-     V5 BORDER COLORS (Dark Mode)
+     SHADOWS (Dark Mode)
      =========================================== */
 
-  --color-border-default: #3A3837;
-  --color-border-strong: #4A4847;
-  --color-border-subtle: #2A2827;
-
-  /* ===========================================
-     V4 COMPATIBILITY ALIASES (Dark Mode)
-     =========================================== */
-
-  /* Primary - Brighter for dark backgrounds */
-  --color-primary: #E53E3E;
-  --color-primary-hover: #F56565;
-  --color-primary-light: #FC8181;
-  --color-primary-bg: rgba(229, 62, 62, 0.15);
-
-  /* CTA - Brighter gold */
-  --color-cta: #E5B523;
-  --color-cta-hover: #F5C533;
-  --color-cta-dark: #D4A017;
-  --color-cta-bg: rgba(229, 181, 35, 0.2);
-
-  /* Saffron */
-  --color-saffron: #E5B523;
-  --color-saffron-hover: #F5C533;
-  --color-saffron-light: #2A2418;
-
-  /* Curry - Warmer for dark */
-  --color-curry: #C4875A;
-  --color-curry-light: #D4976A;
-  --color-curry-dark: #A67744;
-
-  /* Lotus */
-  --color-lotus: #3D2A28;
-  --color-lotus-light: #4D3A38;
-  --color-lotus-dark: #2D1A18;
-
-  /* ===========================================
-     V4 SEMANTIC COLORS (Dark Mode Aliases)
-     =========================================== */
-
-  /* Success - Jade */
-  --color-jade: #4ADE80;
-  --color-jade-light: #1A2E1A;
-  --color-jade-dark: #22C55E;
-
-  /* Error */
-  --color-error: #F87171;
-  --color-error-light: #2D1A1A;
-  --color-error-dark: #EF4444;
-
-  /* Warning */
-  --color-warning: #FBBF24;
-  --color-warning-light: #2D2A1A;
-  --color-warning-dark: #F59E0B;
-
-  /* Info */
-  --color-info: #60A5FA;
-  --color-info-light: #1A2A3D;
-  --color-info-dark: #3B82F6;
-
-  /* ===========================================
-     V4 NEUTRAL COLORS (Dark Mode Aliases)
-     =========================================== */
-
-  --color-charcoal: #F5F5F5;
-  --color-charcoal-muted: #A3A3A3;
-  --color-charcoal-light: #D4D4D4;
-
-  /* Warm dark backgrounds - no cold grays */
-  --color-cream: #1A1918;
-  --color-cream-darker: #252423;
-  --color-cream-dark: #302F2D;
-
-  --color-border: #3D3B38;
-  --color-border-light: #4D4B48;
-  --color-border-dark: #2D2B28;
-
-  /* ===========================================
-     V4 BACKGROUND & SURFACE (Dark Mode Aliases)
-     =========================================== */
-
-  --color-background: #1A1918;
-  --color-surface: #252423;
-  --color-surface-elevated: #302F2D;
-  --color-surface-muted: #1F1E1D;
-
-  /* ===========================================
-     V4 TEXT (Dark Mode Aliases)
-     =========================================== */
-
-  --color-text-muted: #A3A3A3;
-  --color-text-inverted: #1A1A1A;
-
-  /* ===========================================
-     V5 ELEVATION SYSTEM (Dark Mode)
-     Deeper shadows for dark backgrounds
-     =========================================== */
-
-  --elevation-0: none;
-  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --elevation-2: 0 2px 4px rgba(0, 0, 0, 0.35);
-  --elevation-3: 0 4px 8px rgba(0, 0, 0, 0.4);
-  --elevation-4: 0 8px 16px rgba(0, 0, 0, 0.45);
-  --elevation-5: 0 16px 32px rgba(0, 0, 0, 0.5);
-
-  /* V4 Shadow Aliases (Dark Mode) */
-  --shadow-sm: var(--elevation-1);
-  --shadow-md: var(--elevation-2);
-  --shadow-lg: var(--elevation-3);
-  --shadow-xl: var(--elevation-4);
-  --shadow-2xl: var(--elevation-5);
-
-  /* Glow shadows - more prominent on dark */
-  --shadow-glow-gold: 0 0 25px rgba(229, 185, 99, 0.5);
-  --shadow-glow-gold-lg: 0 0 50px rgba(229, 185, 99, 0.6);
-  --shadow-glow-jade: 0 0 25px rgba(74, 222, 128, 0.4);
-  --shadow-glow-chili: 0 0 25px rgba(248, 113, 113, 0.4);
-
-  /* Premium shadows (Dark Mode) */
-  --shadow-premium: var(--elevation-5), 0 0 20px rgba(229, 185, 99, 0.15);
-  --shadow-card-hover: var(--elevation-4), 0 0 15px rgba(229, 185, 99, 0.1);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-2xl: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-elevated: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --shadow-nav: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-button-hover: 0 4px 16px rgba(232, 67, 99, 0.3);
+  --shadow-glow-primary: 0 0 25px rgba(232, 67, 99, 0.5);
+  --shadow-glow-success: 0 0 25px rgba(107, 216, 75, 0.4);
+  --shadow-glow-warning: 0 0 25px rgba(255, 159, 74, 0.4);
 }
 
 /* ============================================
-   CSS KEYFRAMES
+   HIGH CONTRAST MODE (Driver/Accessibility)
+   7:1 contrast ratio minimum
    ============================================ */
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+[data-contrast="high"] {
+  --color-primary: #8A0D2B;
+  --color-primary-hover: #6D0A22;
+  --color-primary-active: #50071A;
+  --color-primary-light: rgba(138, 13, 43, 0.12);
+
+  --color-secondary: #C9A800;
+  --color-secondary-hover: #B09200;
+  --color-secondary-active: #977D00;
+
+  --color-surface-primary: #FFFFFF;
+  --color-surface-secondary: #F5F5F5;
+  --color-surface-tertiary: #EBEBEB;
+
+  --color-text-primary: #000000;
+  --color-text-secondary: #1A1A1A;
+  --color-text-muted: #333333;
+  --color-text-inverse: #FFFFFF;
+
+  --color-border-default: #333333;
+  --color-border-strong: #000000;
+  --color-border-subtle: #666666;
+
+  --color-status-success: #006622;
+  --color-status-success-bg: #C8F7D2;
+  --color-status-warning: #8B5A00;
+  --color-status-warning-bg: #FFF3C4;
+  --color-status-error: #8B0000;
+  --color-status-error-bg: #FFD4D4;
+  --color-status-info: #005577;
+  --color-status-info-bg: #CCE5FF;
+
+  /* Larger touch targets for driver mode */
+  --touch-target-min: 48px;
+  --touch-target-primary: 56px;
+  --touch-target-driver: 64px;
+
+  /* Bolder typography */
+  --font-normal: 500;
+  --font-medium: 600;
+  --font-semibold: 700;
+  --font-bold: 800;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
+/* High contrast dark mode */
+[data-theme="dark"][data-contrast="high"],
+.dark[data-contrast="high"] {
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #F0F0F0;
+  --color-text-inverse: #000000;
 
-@keyframes confetti {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-100vh) rotate(720deg);
-    opacity: 0;
-  }
-}
+  --color-surface-primary: #000000;
+  --color-surface-secondary: #111111;
+  --color-surface-tertiary: #222222;
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-}
+  --color-border-default: #CCCCCC;
+  --color-border-strong: #FFFFFF;
+  --color-border-subtle: #999999;
 
-@keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
-  50% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.6); }
-}
-
-@keyframes pulse-ring {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.5); opacity: 0.5; }
-  100% { transform: scale(2); opacity: 0; }
-}
-
-@keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-@keyframes slide-in-right {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
-}
-
-@keyframes slide-in-up {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scale-in {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  --color-status-success: #4ADE80;
+  --color-status-success-bg: rgba(74, 222, 128, 0.25);
+  --color-status-error: #FF6B6B;
+  --color-status-error-bg: rgba(255, 107, 107, 0.25);
 }
 
 /* ============================================
-   REDUCED MOTION (Opt-in only)
-
-   Animations are ENABLED by default for maximum visual impact.
-   Users can opt-in to reduced motion via data-reduce-motion="true"
-   on the html element (typically via app settings).
+   REDUCED MOTION (Opt-in)
    ============================================ */
 
 [data-reduce-motion="true"] *,
@@ -861,10 +488,9 @@
    ============================================ */
 
 :root {
-  /* Smooth color transitions when theme changes */
   --theme-transition:
-    background-color var(--duration-standard) var(--ease-in-out),
-    border-color var(--duration-standard) var(--ease-in-out),
+    background-color var(--duration-normal) var(--ease-in-out),
+    border-color var(--duration-normal) var(--ease-in-out),
     color var(--duration-fast) var(--ease-in-out);
 }
 
@@ -877,12 +503,10 @@ html.theme-transitioning * {
 }
 
 /* ============================================
-   V5 SAFE AREA UTILITIES
-   For iOS notch, Dynamic Island, home indicator
-   Requires: <meta name="viewport" content="viewport-fit=cover">
+   SAFE AREA UTILITIES
+   iOS notch, Dynamic Island, home indicator
    ============================================ */
 
-/* Padding utilities */
 .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
 .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
 .pl-safe { padding-left: env(safe-area-inset-left, 0px); }
@@ -896,158 +520,14 @@ html.theme-transitioning * {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .p-safe {
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  padding-left: env(safe-area-inset-left, 0px);
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
 }
 
-/* Margin utilities */
 .mt-safe { margin-top: env(safe-area-inset-top, 0px); }
 .mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
-.ml-safe { margin-left: env(safe-area-inset-left, 0px); }
-.mr-safe { margin-right: env(safe-area-inset-right, 0px); }
-.mx-safe {
-  margin-left: env(safe-area-inset-left, 0px);
-  margin-right: env(safe-area-inset-right, 0px);
-}
-.my-safe {
-  margin-top: env(safe-area-inset-top, 0px);
-  margin-bottom: env(safe-area-inset-bottom, 0px);
-}
-.m-safe {
-  margin-top: env(safe-area-inset-top, 0px);
-  margin-right: env(safe-area-inset-right, 0px);
-  margin-bottom: env(safe-area-inset-bottom, 0px);
-  margin-left: env(safe-area-inset-left, 0px);
-}
-
-/* Min-height with safe area for fixed bottom elements */
 .min-h-safe-bottom {
   min-height: calc(var(--touch-target-min) + env(safe-area-inset-bottom, 0px));
 }
-
-/* Bottom positioning with safe area offset */
 .bottom-safe {
   bottom: env(safe-area-inset-bottom, 0px);
-}
-
-/* ============================================
-   DRIVER HIGH-CONTRAST MODE
-   Accessibility: 7:1 contrast ratio minimum
-   Touch targets: 48px minimum
-   Typography: Bolder weights
-   ============================================ */
-
-[data-contrast="high"] {
-  /* ===========================================
-     V6 HIGH CONTRAST (Driver Mode)
-     7:1 contrast ratio minimum for accessibility
-     =========================================== */
-
-  /* V6 Primary - Darker for high contrast */
-  --color-v6-primary: #8A0D2B;
-  --color-v6-primary-hover: #6D0A22;
-  --color-v6-primary-active: #50071A;
-  --color-v6-primary-light: rgba(138, 13, 43, 0.12);
-
-  /* V6 Secondary - Higher contrast yellow */
-  --color-v6-secondary: #C9A800;
-  --color-v6-secondary-hover: #B09200;
-  --color-v6-secondary-active: #977D00;
-
-  /* V6 Status (High Contrast) */
-  --color-v6-status-success: #006622;
-  --color-v6-status-success-bg: #C8F7D2;
-  --color-v6-status-warning: #8B5A00;
-  --color-v6-status-warning-bg: #FFF3C4;
-  --color-v6-status-error: #8B0000;
-  --color-v6-status-error-bg: #FFD4D4;
-  --color-v6-status-info: #005577;
-  --color-v6-status-info-bg: #CCE5FF;
-
-  /* V6 Surfaces (High Contrast) */
-  --color-v6-surface-primary: #FFFFFF;
-  --color-v6-surface-secondary: #F5F5F5;
-  --color-v6-surface-tertiary: #EBEBEB;
-
-  /* V6 Text (High Contrast) */
-  --color-v6-text-primary: #000000;
-  --color-v6-text-secondary: #1A1A1A;
-  --color-v6-text-muted: #333333;
-  --color-v6-text-inverse: #FFFFFF;
-
-  /* V6 Borders (High Contrast) */
-  --color-v6-border-default: #333333;
-  --color-v6-border-strong: #000000;
-  --color-v6-border-subtle: #666666;
-
-  /* V5 Maximum contrast text colors */
-  --color-text-primary: #000000;
-  --color-text-secondary: #1A1A1A;
-  --color-text-inverse: #FFFFFF;
-
-  /* High contrast surfaces */
-  --color-surface-primary: #FFFFFF;
-  --color-surface-secondary: #F5F5F5;
-  --color-surface-tertiary: #EBEBEB;
-
-  /* Stronger borders */
-  --color-border-default: #333333;
-  --color-border-strong: #000000;
-  --color-border-subtle: #666666;
-
-  /* Vivid interactive colors */
-  --color-interactive-primary: #B8860B;
-  --color-interactive-hover: #996600;
-  --color-interactive-active: #805500;
-
-  /* Vivid accent colors */
-  --color-accent-secondary: #006644;
-  --color-accent-secondary-hover: #005533;
-
-  /* High contrast status colors */
-  --color-status-success: #006622;
-  --color-status-success-bg: #D4EDDA;
-  --color-status-warning: #856404;
-  --color-status-warning-bg: #FFF3CD;
-  --color-status-error: #721C24;
-  --color-status-error-bg: #F8D7DA;
-  --color-status-info: #004085;
-  --color-status-info-bg: #CCE5FF;
-
-  /* Increased touch targets for driver mode */
-  --touch-target-min: 48px;
-  --touch-target-primary: 56px;
-  --touch-target-driver: 64px;
-
-  /* Bolder typography */
-  --font-normal: 500;
-  --font-medium: 600;
-  --font-semibold: 700;
-  --font-bold: 800;
-}
-
-/* High contrast with dark mode */
-[data-theme="dark"][data-contrast="high"],
-.dark[data-contrast="high"] {
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #F0F0F0;
-  --color-text-inverse: #000000;
-
-  --color-surface-primary: #000000;
-  --color-surface-secondary: #111111;
-  --color-surface-tertiary: #222222;
-
-  --color-border-default: #CCCCCC;
-  --color-border-strong: #FFFFFF;
-  --color-border-subtle: #999999;
-
-  --color-interactive-primary: #FFD700;
-  --color-interactive-hover: #FFE44D;
-
-  --color-status-success: #4ADE80;
-  --color-status-success-bg: rgba(74, 222, 128, 0.25);
-  --color-status-error: #FF6B6B;
-  --color-status-error-bg: rgba(255, 107, 107, 0.25);
 }

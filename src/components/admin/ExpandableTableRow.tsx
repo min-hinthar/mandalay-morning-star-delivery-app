@@ -82,9 +82,9 @@ export function ExpandableTableRow({
       <TableRow
         onClick={handleRowClick}
         className={cn(
-          "cursor-pointer transition-colors duration-v6-fast group",
-          "hover:bg-v6-surface-secondary/50",
-          isExpanded && "bg-v6-surface-secondary border-b-0",
+          "cursor-pointer transition-colors duration-fast group",
+          "hover:bg-surface-secondary/50",
+          isExpanded && "bg-surface-secondary border-b-0",
           className
         )}
       >
@@ -95,7 +95,7 @@ export function ExpandableTableRow({
             initial={false}
             animate={{ rotate: isExpanded ? 90 : 0 }}
             transition={v6Spring}
-            className="text-v6-text-muted group-hover:text-v6-primary"
+            className="text-text-muted group-hover:text-primary"
           >
             <ChevronRight className="h-4 w-4" />
           </motion.div>
@@ -106,7 +106,7 @@ export function ExpandableTableRow({
       <AnimatePresence initial={false}>
         {isExpanded && (
           <tr>
-            <td colSpan={colSpan + 1} className="p-0 border-b border-v6-border">
+            <td colSpan={colSpan + 1} className="p-0 border-b border-border">
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
@@ -119,10 +119,10 @@ export function ExpandableTableRow({
               >
                 <div className="relative">
                   {/* V6 Left accent border */}
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-v6-primary via-v6-primary/60 to-transparent" />
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/60 to-transparent" />
 
                   {/* V6 Content container */}
-                  <div className="pl-6 pr-4 py-4 bg-gradient-to-r from-v6-surface-secondary to-v6-surface-primary">
+                  <div className="pl-6 pr-4 py-4 bg-gradient-to-r from-surface-secondary to-surface-primary">
                     {previewContent}
                   </div>
                 </div>
@@ -169,9 +169,9 @@ export function QuickPreviewPanel({
           transition={{ delay: 0.1 }}
           className="space-y-2"
         >
-          <div className="flex items-center gap-2 text-v6-text-muted">
+          <div className="flex items-center gap-2 text-text-muted">
             <Package className="h-4 w-4" />
-            <span className="text-xs font-v6-body font-semibold uppercase tracking-wider">
+            <span className="text-xs font-body font-semibold uppercase tracking-wider">
               Items ({items.length})
             </span>
           </div>
@@ -182,23 +182,23 @@ export function QuickPreviewPanel({
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.15 + i * 0.05 }}
-                className="flex items-center justify-between text-sm font-v6-body"
+                className="flex items-center justify-between text-sm font-body"
               >
-                <span className="text-v6-text-primary">
-                  <span className="text-v6-primary font-medium">
+                <span className="text-text-primary">
+                  <span className="text-primary font-medium">
                     {item.quantity}×
                   </span>{" "}
                   {item.name}
                 </span>
                 {item.price !== undefined && (
-                  <span className="text-v6-text-muted font-mono text-xs">
+                  <span className="text-text-muted font-mono text-xs">
                     ${(item.price / 100).toFixed(2)}
                   </span>
                 )}
               </motion.li>
             ))}
             {items.length > 4 && (
-              <li className="text-xs font-v6-body text-v6-text-muted italic">
+              <li className="text-xs font-body text-text-muted italic">
                 +{items.length - 4} more items
               </li>
             )}
@@ -214,13 +214,13 @@ export function QuickPreviewPanel({
           transition={{ delay: 0.15 }}
           className="space-y-2"
         >
-          <div className="flex items-center gap-2 text-v6-text-muted">
+          <div className="flex items-center gap-2 text-text-muted">
             <MapPin className="h-4 w-4" />
-            <span className="text-xs font-v6-body font-semibold uppercase tracking-wider">
+            <span className="text-xs font-body font-semibold uppercase tracking-wider">
               Delivery Address
             </span>
           </div>
-          <p className="text-sm font-v6-body text-v6-text-primary leading-relaxed">
+          <p className="text-sm font-body text-text-primary leading-relaxed">
             {address}
           </p>
         </motion.div>
@@ -234,13 +234,13 @@ export function QuickPreviewPanel({
           transition={{ delay: 0.2 }}
           className="space-y-2"
         >
-          <div className="flex items-center gap-2 text-v6-text-muted">
+          <div className="flex items-center gap-2 text-text-muted">
             <MessageSquare className="h-4 w-4" />
-            <span className="text-xs font-v6-body font-semibold uppercase tracking-wider">
+            <span className="text-xs font-body font-semibold uppercase tracking-wider">
               Customer Notes
             </span>
           </div>
-          <p className="text-sm font-v6-body text-v6-text-primary leading-relaxed italic bg-v6-surface-tertiary/50 rounded-v6-input px-3 py-2 border-l-2 border-v6-primary/30">
+          <p className="text-sm font-body text-text-primary leading-relaxed italic bg-surface-tertiary/50 rounded-input px-3 py-2 border-l-2 border-primary/30">
             &ldquo;{notes}&rdquo;
           </p>
         </motion.div>
@@ -259,11 +259,11 @@ export function QuickPreviewPanel({
         <Link
           href={detailsLink}
           className={cn(
-            "inline-flex items-center gap-2 px-4 py-2 rounded-v6-input text-sm font-v6-body font-medium",
-            "bg-v6-surface-tertiary hover:bg-v6-primary-light",
-            "text-v6-text-secondary hover:text-v6-primary",
-            "border border-transparent hover:border-v6-primary/30",
-            "transition-all duration-v6-fast group/link"
+            "inline-flex items-center gap-2 px-4 py-2 rounded-input text-sm font-body font-medium",
+            "bg-surface-tertiary hover:bg-primary-light",
+            "text-text-secondary hover:text-primary",
+            "border border-transparent hover:border-primary/30",
+            "transition-all duration-fast group/link"
           )}
         >
           View Full Details
@@ -340,9 +340,9 @@ export function RoutePreviewPanel({
         transition={{ delay: 0.1 }}
         className="space-y-3"
       >
-        <div className="flex items-center gap-2 text-v6-text-muted">
+        <div className="flex items-center gap-2 text-text-muted">
           <MapPin className="h-4 w-4" />
-          <span className="text-xs font-v6-body font-semibold uppercase tracking-wider">
+          <span className="text-xs font-body font-semibold uppercase tracking-wider">
             Route Stops ({stops.length})
           </span>
         </div>
@@ -353,21 +353,21 @@ export function RoutePreviewPanel({
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15 + i * 0.05 }}
-              className="flex items-start gap-3 text-sm font-v6-body"
+              className="flex items-start gap-3 text-sm font-body"
             >
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-v6-primary-light text-v6-primary text-xs font-bold flex items-center justify-center">
+              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary-light text-primary text-xs font-bold flex items-center justify-center">
                 {i + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-v6-text-primary truncate">{stop.customerName}</p>
-                <p className="text-xs text-v6-text-muted truncate">
+                <p className="text-text-primary truncate">{stop.customerName}</p>
+                <p className="text-xs text-text-muted truncate">
                   {stop.address}
                 </p>
               </div>
             </motion.li>
           ))}
           {stops.length > 3 && (
-            <li className="text-xs font-v6-body text-v6-text-muted italic pl-8">
+            <li className="text-xs font-body text-text-muted italic pl-8">
               +{stops.length - 3} more stops
             </li>
           )}
@@ -381,10 +381,10 @@ export function RoutePreviewPanel({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="text-sm font-v6-body text-v6-text-secondary"
+            className="text-sm font-body text-text-secondary"
           >
             Est. Duration:{" "}
-            <span className="font-medium text-v6-text-primary">
+            <span className="font-medium text-text-primary">
               {estimatedDuration}
             </span>
           </motion.div>
@@ -399,11 +399,11 @@ export function RoutePreviewPanel({
           <Link
             href={detailsLink}
             className={cn(
-              "inline-flex items-center gap-2 px-4 py-2 rounded-v6-input text-sm font-v6-body font-medium",
-              "bg-v6-surface-tertiary hover:bg-v6-primary-light",
-              "text-v6-text-secondary hover:text-v6-primary",
-              "border border-transparent hover:border-v6-primary/30",
-              "transition-all duration-v6-fast group/link"
+              "inline-flex items-center gap-2 px-4 py-2 rounded-input text-sm font-body font-medium",
+              "bg-surface-tertiary hover:bg-primary-light",
+              "text-text-secondary hover:text-primary",
+              "border border-transparent hover:border-primary/30",
+              "transition-all duration-fast group/link"
             )}
           >
             View Route Details
@@ -447,12 +447,12 @@ export function DriverPreviewPanel({
         transition={{ delay: 0.1 }}
         className="space-y-2"
       >
-        <span className="text-xs font-v6-body font-semibold uppercase tracking-wider text-v6-text-muted">
+        <span className="text-xs font-body font-semibold uppercase tracking-wider text-text-muted">
           Contact
         </span>
-        <div className="space-y-1 text-sm font-v6-body">
-          <p className="text-v6-text-primary">{email}</p>
-          {phone && <p className="text-v6-text-secondary">{phone}</p>}
+        <div className="space-y-1 text-sm font-body">
+          <p className="text-text-primary">{email}</p>
+          {phone && <p className="text-text-secondary">{phone}</p>}
         </div>
       </motion.div>
 
@@ -464,13 +464,13 @@ export function DriverPreviewPanel({
           transition={{ delay: 0.15 }}
           className="space-y-2"
         >
-          <span className="text-xs font-v6-body font-semibold uppercase tracking-wider text-v6-text-muted">
+          <span className="text-xs font-body font-semibold uppercase tracking-wider text-text-muted">
             Vehicle
           </span>
-          <div className="space-y-1 text-sm font-v6-body">
-            <p className="text-v6-text-primary">{vehicleInfo}</p>
+          <div className="space-y-1 text-sm font-body">
+            <p className="text-text-primary">{vehicleInfo}</p>
             {licensePlate && (
-              <p className="font-mono text-xs text-v6-text-muted bg-v6-surface-tertiary px-2 py-0.5 rounded-v6-input inline-block">
+              <p className="font-mono text-xs text-text-muted bg-surface-tertiary px-2 py-0.5 rounded-input inline-block">
                 {licensePlate}
               </p>
             )}
@@ -485,22 +485,22 @@ export function DriverPreviewPanel({
         transition={{ delay: 0.2 }}
         className="space-y-2"
       >
-        <span className="text-xs font-v6-body font-semibold uppercase tracking-wider text-v6-text-muted">
+        <span className="text-xs font-body font-semibold uppercase tracking-wider text-text-muted">
           Performance
         </span>
-        <div className="flex items-center gap-4 text-sm font-v6-body">
+        <div className="flex items-center gap-4 text-sm font-body">
           <div>
-            <span className="text-v6-primary font-bold">
+            <span className="text-primary font-bold">
               {recentDeliveries}
             </span>{" "}
-            <span className="text-v6-text-secondary">deliveries</span>
+            <span className="text-text-secondary">deliveries</span>
           </div>
           {rating !== undefined && (
             <div>
-              <span className="text-v6-secondary font-bold">
+              <span className="text-secondary font-bold">
                 {rating.toFixed(1)}
               </span>{" "}
-              <span className="text-v6-secondary">★</span>
+              <span className="text-secondary">★</span>
             </div>
           )}
         </div>
@@ -516,11 +516,11 @@ export function DriverPreviewPanel({
         <Link
           href={detailsLink}
           className={cn(
-            "inline-flex items-center gap-2 px-4 py-2 rounded-v6-input text-sm font-v6-body font-medium",
-            "bg-v6-surface-tertiary hover:bg-v6-primary-light",
-            "text-v6-text-secondary hover:text-v6-primary",
-            "border border-transparent hover:border-v6-primary/30",
-            "transition-all duration-v6-fast group/link"
+            "inline-flex items-center gap-2 px-4 py-2 rounded-input text-sm font-body font-medium",
+            "bg-surface-tertiary hover:bg-primary-light",
+            "text-text-secondary hover:text-primary",
+            "border border-transparent hover:border-primary/30",
+            "transition-all duration-fast group/link"
           )}
         >
           View Driver Profile

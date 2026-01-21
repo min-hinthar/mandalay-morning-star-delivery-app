@@ -1,167 +1,231 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 /**
- * Animation preference levels
- * - full: All animations enabled
- * - reduced: Only essential animations (matches prefers-reduced-motion)
+ * V7 Animation preference levels
+ * - full: Maximum playfulness - all animations enabled (DEFAULT)
+ * - reduced: Essential animations only
  * - none: All animations disabled
+ *
+ * V7 PHILOSOPHY: Animations are ON by default.
+ * We ignore prefers-reduced-motion OS setting.
+ * Users must manually toggle if they want reduced motion.
  */
 export type AnimationPreference = "full" | "reduced" | "none";
 
 const STORAGE_KEY = "animation-preference";
-const DATA_ATTRIBUTE = "data-animation";
+const DATA_ATTRIBUTE = "data-motion";
 
 /**
- * Get the system's reduced motion preference
- */
-function getSystemPreference(): AnimationPreference {
-  if (typeof window === "undefined") return "full";
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ? "reduced"
-    : "full";
-}
-
-/**
- * Get stored preference from localStorage
- */
-function getStoredPreference(): AnimationPreference | null {
-  if (typeof window === "undefined") return null;
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "full" || stored === "reduced" || stored === "none") {
-    return stored;
-  }
-  return null;
-}
-
-/**
- * Hook to manage user animation preferences
+ * V7 Hook to manage animation preferences
  *
- * Priority: localStorage > system preference
+ * Key difference from V5/V6:
+ * - Defaults to "full" regardless of OS setting
+ * - User must explicitly opt-in to reduced motion
+ * - Provides more granular control and callbacks
  *
  * @example
- * const { preference, updatePreference, shouldAnimate, isReduced } = useAnimationPreference();
- *
- * // Check if animations should run
- * if (shouldAnimate) {
- *   // Run animation
- * }
- *
- * // Check if reduced motion
- * const variants = isReduced ? reducedVariants : fullVariants;
+ * const {
+ *   preference,
+ *   setPreference,
+ *   isFullMotion,
+ *   isReduced,
+ *   isDisabled,
+ *   shouldAnimate,
+ *   getSpring,
+ * } = useAnimationPreference();
  */
 export function useAnimationPreference() {
-  const [preference, setPreference] = useState<AnimationPreference>("full");
-  const [systemPreference, setSystemPreference] =
-    useState<AnimationPreference>("full");
+  const [preference, setPreferenceState] = useState<AnimationPreference>("full");
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Initialize on mount
   useEffect(() => {
-    const stored = getStoredPreference();
-    const system = getSystemPreference();
+    const stored = localStorage.getItem(STORAGE_KEY) as AnimationPreference | null;
+    const validStored =
+      stored === "full" || stored === "reduced" || stored === "none" ? stored : null;
 
-    setSystemPreference(system);
-    setPreference(stored ?? system);
+    // V7: Default to "full" - no OS preference check
+    const initialPref = validStored ?? "full";
+
+    setPreferenceState(initialPref);
     setIsHydrated(true);
 
-    // Apply data attribute to document
-    document.documentElement.setAttribute(
-      DATA_ATTRIBUTE,
-      stored ?? system
-    );
-
-    // Listen for system preference changes
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const handleChange = (e: MediaQueryListEvent) => {
-      const newSystemPref = e.matches ? "reduced" : "full";
-      setSystemPreference(newSystemPref);
-
-      // Only update if no user override
-      if (!getStoredPreference()) {
-        setPreference(newSystemPref);
-        document.documentElement.setAttribute(DATA_ATTRIBUTE, newSystemPref);
-      }
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    // Apply data attribute for CSS targeting
+    document.documentElement.setAttribute(DATA_ATTRIBUTE, initialPref);
   }, []);
 
   /**
-   * Update user preference
-   * Pass null to clear override and use system preference
+   * Update animation preference
    */
-  const updatePreference = useCallback(
-    (newPreference: AnimationPreference | null) => {
-      if (newPreference === null) {
-        // Clear override, use system preference
-        localStorage.removeItem(STORAGE_KEY);
-        setPreference(systemPreference);
-        document.documentElement.setAttribute(DATA_ATTRIBUTE, systemPreference);
-      } else {
-        localStorage.setItem(STORAGE_KEY, newPreference);
-        setPreference(newPreference);
-        document.documentElement.setAttribute(DATA_ATTRIBUTE, newPreference);
+  const setPreference = useCallback((newPref: AnimationPreference) => {
+    localStorage.setItem(STORAGE_KEY, newPref);
+    setPreferenceState(newPref);
+    document.documentElement.setAttribute(DATA_ATTRIBUTE, newPref);
+  }, []);
+
+  /**
+   * Reset to default (full animations)
+   */
+  const resetToDefault = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
+    setPreferenceState("full");
+    document.documentElement.setAttribute(DATA_ATTRIBUTE, "full");
+  }, []);
+
+  /**
+   * Toggle between full and reduced
+   */
+  const toggleReduced = useCallback(() => {
+    const newPref = preference === "full" ? "reduced" : "full";
+    setPreference(newPref);
+  }, [preference, setPreference]);
+
+  /**
+   * Cycle through all options: full -> reduced -> none -> full
+   */
+  const cyclePreference = useCallback(() => {
+    const cycle: AnimationPreference[] = ["full", "reduced", "none"];
+    const currentIndex = cycle.indexOf(preference);
+    const nextIndex = (currentIndex + 1) % cycle.length;
+    setPreference(cycle[nextIndex]);
+  }, [preference, setPreference]);
+
+  // Computed values
+  const isFullMotion = preference === "full";
+  const isReduced = preference === "reduced";
+  const isDisabled = preference === "none";
+  const shouldAnimate = preference !== "none";
+  const hasCustomPreference = isHydrated && localStorage.getItem(STORAGE_KEY) !== null;
+
+  /**
+   * Get spring config based on preference
+   * Returns instant spring for reduced/none
+   */
+  const getSpring = useCallback(
+    <T extends object>(fullSpring: T): T | { duration: 0 } => {
+      if (!shouldAnimate) {
+        return { duration: 0 };
       }
+      if (isReduced) {
+        // Reduced: use gentler spring
+        return {
+          ...fullSpring,
+          stiffness: 200,
+          damping: 30,
+        } as T;
+      }
+      return fullSpring;
     },
-    [systemPreference]
+    [shouldAnimate, isReduced]
   );
 
   /**
-   * Clear user override and revert to system preference
+   * Get duration multiplier based on preference
+   * 1 = full, 0.5 = reduced, 0 = none
    */
-  const clearOverride = useCallback(() => {
-    updatePreference(null);
-  }, [updatePreference]);
+  const durationMultiplier = useMemo(() => {
+    if (isDisabled) return 0;
+    if (isReduced) return 0.5;
+    return 1;
+  }, [isDisabled, isReduced]);
+
+  /**
+   * Scale a duration based on preference
+   */
+  const scaleDuration = useCallback(
+    (duration: number): number => {
+      return duration * durationMultiplier;
+    },
+    [durationMultiplier]
+  );
+
+  /**
+   * Get animation props conditionally
+   * Returns empty object if animations disabled
+   */
+  const getAnimationProps = useCallback(
+    <T extends object>(props: T): T | Record<string, never> => {
+      if (!shouldAnimate) {
+        return {};
+      }
+      return props;
+    },
+    [shouldAnimate]
+  );
 
   return {
-    /** Current effective preference */
+    // State
     preference,
-    /** System's native preference (for display) */
-    systemPreference,
-    /** Update or clear user preference */
-    updatePreference,
-    /** Clear user override */
-    clearOverride,
-    /** Whether there's a user override */
-    hasOverride: isHydrated && getStoredPreference() !== null,
-    /** Whether any animations should run (not "none") */
-    shouldAnimate: preference !== "none",
-    /** Whether motion should be reduced (not "full") */
-    isReduced: preference !== "full",
-    /** Whether hook has hydrated (for SSR) */
     isHydrated,
+    hasCustomPreference,
+
+    // Boolean flags
+    isFullMotion,
+    isReduced,
+    isDisabled,
+    shouldAnimate,
+
+    // Actions
+    setPreference,
+    resetToDefault,
+    toggleReduced,
+    cyclePreference,
+
+    // Utilities
+    getSpring,
+    durationMultiplier,
+    scaleDuration,
+    getAnimationProps,
   };
 }
 
-/**
- * CSS custom property for animations
- * Use in CSS: [data-animation="none"] .animate-class { animation: none; }
- */
-export const animationDataAttribute = DATA_ATTRIBUTE;
+// ============================================
+// NON-HOOK UTILITIES
+// ============================================
 
 /**
- * Get animation preference without hook (one-time check)
- * Useful for non-component code
+ * Get current animation preference (one-time, non-reactive)
+ * Use in non-component code
  */
 export function getAnimationPreference(): AnimationPreference {
-  const stored = getStoredPreference();
-  if (stored) return stored;
-  return getSystemPreference();
+  if (typeof window === "undefined") return "full";
+  const stored = localStorage.getItem(STORAGE_KEY) as AnimationPreference | null;
+  return stored === "full" || stored === "reduced" || stored === "none"
+    ? stored
+    : "full";
 }
 
 /**
- * Check if animations should be enabled (one-time check)
+ * Check if animations should run (one-time)
  */
 export function shouldAnimate(): boolean {
   return getAnimationPreference() !== "none";
 }
 
 /**
- * Check if reduced motion is preferred (one-time check)
+ * Check if full motion is enabled (one-time)
  */
-export function prefersReduced(): boolean {
-  return getAnimationPreference() !== "full";
+export function isFullMotion(): boolean {
+  return getAnimationPreference() === "full";
 }
+
+/**
+ * CSS data attribute for targeting in styles
+ *
+ * @example
+ * // In CSS/Tailwind
+ * [data-motion="none"] .animate-class { animation: none; }
+ * [data-motion="reduced"] .animate-class { animation-duration: 0.01s; }
+ */
+export const motionDataAttribute = DATA_ATTRIBUTE;
+
+/**
+ * CSS selector helpers
+ */
+export const motionSelectors = {
+  full: `[${DATA_ATTRIBUTE}="full"]`,
+  reduced: `[${DATA_ATTRIBUTE}="reduced"]`,
+  none: `[${DATA_ATTRIBUTE}="none"]`,
+} as const;

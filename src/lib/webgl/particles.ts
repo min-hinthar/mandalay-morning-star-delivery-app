@@ -9,7 +9,7 @@
  * - Lazy-loadable
  */
 
-import { getAnimationPreferenceV7 } from "../hooks/useAnimationPreferenceV7";
+import { getAnimationPreference } from "../hooks/useAnimationPreference";
 
 // ============================================
 // TYPES
@@ -104,7 +104,7 @@ export class ParticleSystem {
     this.resize();
 
     // Auto-start if configured
-    if (this.config.autoStart && getAnimationPreferenceV7() !== "none") {
+    if (this.config.autoStart && getAnimationPreference() !== "none") {
       this.start();
     }
   }
@@ -127,7 +127,7 @@ export class ParticleSystem {
    */
   start(): void {
     if (this.isRunning) return;
-    if (getAnimationPreferenceV7() === "none") return;
+    if (getAnimationPreference() === "none") return;
 
     this.isRunning = true;
     this.lastSpawnTime = performance.now();

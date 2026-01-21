@@ -10,8 +10,8 @@ import {
   type MotionStyle,
 } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { v7ParallaxPresets } from "@/lib/motion-tokens-v7";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import { parallaxPresets } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 
 // ============================================
@@ -104,7 +104,7 @@ function getSpeedFactor(speed: ParallaxSpeed): number {
   if (typeof speed === "number") {
     return Math.max(0, Math.min(1, speed));
   }
-  return v7ParallaxPresets[speed]?.speedFactor ?? 0.5;
+  return parallaxPresets[speed]?.speedFactor ?? 0.5;
 }
 
 // ============================================
@@ -118,7 +118,7 @@ export function ParallaxContainer({
   className,
   style,
 }: ParallaxContainerProps) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -247,7 +247,7 @@ export function ParallaxImage({
   className,
   ...layerProps
 }: ParallaxImageProps) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
 
   return (
     <ParallaxLayer speed={speed} className={className} {...layerProps}>
@@ -374,7 +374,7 @@ export function SimpleParallax({
   className,
   disableOnMobile = true,
 }: SimpleParallaxProps) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const ref = useRef<HTMLDivElement>(null);
 
@@ -439,7 +439,7 @@ export function ScrollOpacity({
   invert = false,
   className,
 }: ScrollOpacityProps) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
   const ref = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -487,7 +487,7 @@ export function ScrollScale({
   progressRange = [0, 0.5],
   className,
 }: ScrollScaleProps) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
   const ref = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({

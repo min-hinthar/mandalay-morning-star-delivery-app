@@ -4,8 +4,8 @@ import { Check, MapPin, Clock, CreditCard } from "lucide-react";
 import { motion } from "framer-motion";
 import { CHECKOUT_STEPS, type CheckoutStep } from "@/types/checkout";
 import { cn } from "@/lib/utils/cn";
-import { v7Spring } from "@/lib/motion-tokens-v7";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import { spring } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 interface CheckoutStepperProps {
   currentStep: CheckoutStep;
@@ -33,7 +33,7 @@ export function CheckoutStepper({
   onStepClick,
   className,
 }: CheckoutStepperProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+  const { shouldAnimate, getSpring } = useAnimationPreference();
   const currentIndex = CHECKOUT_STEPS.indexOf(currentStep);
 
   return (
@@ -54,9 +54,9 @@ export function CheckoutStepper({
               <div className="flex items-center w-full">
                 {/* V6 Connector line - left side */}
                 {index > 0 && (
-                  <div className="flex-1 h-0.5 bg-v6-border">
+                  <div className="flex-1 h-0.5 bg-border">
                     <motion.div
-                      className="h-full bg-v6-green"
+                      className="h-full bg-green"
                       initial={{ width: 0 }}
                       animate={{ width: isCompleted || isCurrent ? "100%" : "0%" }}
                       transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
@@ -71,16 +71,16 @@ export function CheckoutStepper({
                   disabled={!isClickable}
                   whileHover={shouldAnimate && isClickable ? { scale: 1.1 } : undefined}
                   whileTap={shouldAnimate && isClickable ? { scale: 0.95 } : undefined}
-                  transition={getSpring(v7Spring.snappy)}
+                  transition={getSpring(spring.snappy)}
                   className={cn(
                     "relative flex items-center justify-center rounded-full",
                     "h-9 w-9",
-                    "font-v6-body text-sm font-bold",
-                    "transition-all duration-v6-fast",
-                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary focus-visible:ring-offset-2",
-                    isCompleted && "cursor-pointer bg-v6-green text-v6-text-inverse shadow-v6-sm",
-                    isCurrent && "bg-v6-primary text-v6-text-inverse shadow-v6-md ring-4 ring-v6-primary/20",
-                    !isCompleted && !isCurrent && "border-2 border-v6-border bg-v6-surface-primary text-v6-text-muted"
+                    "font-body text-sm font-bold",
+                    "transition-all duration-fast",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                    isCompleted && "cursor-pointer bg-green text-text-inverse shadow-sm",
+                    isCurrent && "bg-primary text-text-inverse shadow-md ring-4 ring-primary/20",
+                    !isCompleted && !isCurrent && "border-2 border-border bg-surface-primary text-text-muted"
                   )}
                   aria-current={isCurrent ? "step" : undefined}
                 >
@@ -88,7 +88,7 @@ export function CheckoutStepper({
                     <motion.div
                       initial={shouldAnimate ? { scale: 0, rotate: -180 } : undefined}
                       animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
-                      transition={getSpring(v7Spring.snappy)}
+                      transition={getSpring(spring.snappy)}
                     >
                       <Check className="h-4 w-4" strokeWidth={3} />
                     </motion.div>
@@ -99,9 +99,9 @@ export function CheckoutStepper({
 
                 {/* V6 Connector line - right side */}
                 {index < CHECKOUT_STEPS.length - 1 && (
-                  <div className="flex-1 h-0.5 bg-v6-border">
+                  <div className="flex-1 h-0.5 bg-border">
                     <motion.div
-                      className="h-full bg-v6-green"
+                      className="h-full bg-green"
                       initial={{ width: 0 }}
                       animate={{ width: isCompleted ? "100%" : "0%" }}
                       transition={{ duration: 0.4, ease: "easeOut" }}
@@ -113,11 +113,11 @@ export function CheckoutStepper({
               {/* V6 Label below circle */}
               <motion.span
                 className={cn(
-                  "mt-2 font-v6-body text-[10px] font-bold uppercase tracking-wider",
-                  "transition-colors duration-v6-fast",
-                  isCompleted && "text-v6-green",
-                  isCurrent && "text-v6-text-primary",
-                  !isCompleted && !isCurrent && "text-v6-text-muted"
+                  "mt-2 font-body text-[10px] font-bold uppercase tracking-wider",
+                  "transition-colors duration-fast",
+                  isCompleted && "text-green",
+                  isCurrent && "text-text-primary",
+                  !isCompleted && !isCurrent && "text-text-muted"
                 )}
               >
                 {config.label}

@@ -117,22 +117,22 @@ export function StopDetail({
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-v6-card-sm bg-v6-surface-primary p-4 shadow-v6-sm border border-v6-border"
+        className="rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border"
       >
-        <div className="flex items-center justify-between font-v6-body text-sm">
-          <span className="font-semibold text-v6-text-primary">
+        <div className="flex items-center justify-between font-body text-sm">
+          <span className="font-semibold text-text-primary">
             Stop {stopIndex} of {totalStops}
           </span>
-          <span className="font-medium text-v6-green">
+          <span className="font-medium text-green">
             {progressPercent}%
           </span>
         </div>
-        <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-v6-surface-tertiary">
+        <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface-tertiary">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="h-full rounded-full bg-v6-green"
+            className="h-full rounded-full bg-green"
           />
         </div>
       </motion.div>
@@ -144,14 +144,14 @@ export function StopDetail({
         transition={{ delay: 0.05 }}
         className="flex items-center gap-3"
       >
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-v6-text-primary font-v6-body text-lg font-bold text-white">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-text-primary font-body text-lg font-bold text-white">
           {stopIndex}
         </span>
         <div>
-          <h1 className="font-v6-display text-xl font-bold text-v6-text-primary">
+          <h1 className="font-display text-xl font-bold text-text-primary">
             {customer.fullName || "Customer"}
           </h1>
-          <p className="font-v6-body text-sm text-v6-text-muted">Stop #{stopIndex}</p>
+          <p className="font-body text-sm text-text-muted">Stop #{stopIndex}</p>
         </div>
       </motion.div>
 
@@ -163,17 +163,17 @@ export function StopDetail({
           transition={{ delay: 0.1 }}
           onClick={handleCall}
           className={cn(
-            "flex w-full items-center gap-3 rounded-v6-card-sm bg-v6-surface-primary p-4 shadow-v6-sm border border-v6-border",
-            "transition-all duration-v6-fast hover:shadow-v6-md active:scale-[0.99]"
+            "flex w-full items-center gap-3 rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border",
+            "transition-all duration-fast hover:shadow-md active:scale-[0.99]"
           )}
           data-testid="call-button"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-v6-green/10">
-            <Phone className="h-5 w-5 text-v6-green" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green/10">
+            <Phone className="h-5 w-5 text-green" />
           </div>
           <div className="text-left">
-            <p className="font-v6-body text-sm text-v6-text-muted">Phone</p>
-            <p className="font-v6-body font-medium text-v6-text-primary">{customer.phone}</p>
+            <p className="font-body text-sm text-text-muted">Phone</p>
+            <p className="font-body font-medium text-text-primary">{customer.phone}</p>
           </div>
         </motion.button>
       )}
@@ -183,29 +183,29 @@ export function StopDetail({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
-        className="rounded-v6-card-sm bg-v6-surface-primary p-4 shadow-v6-sm border border-v6-border"
+        className="rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border"
       >
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-v6-primary/10">
-            <MapPin className="h-5 w-5 text-v6-primary" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+            <MapPin className="h-5 w-5 text-primary" />
           </div>
           <div className="flex-1">
-            <p className="font-v6-body text-sm text-v6-text-muted">Delivery Address</p>
-            <p className="font-v6-body font-medium text-v6-text-primary">{address.line1}</p>
+            <p className="font-body text-sm text-text-muted">Delivery Address</p>
+            <p className="font-body font-medium text-text-primary">{address.line1}</p>
             {address.line2 && (
-              <p className="font-v6-body text-v6-text-secondary">{address.line2}</p>
+              <p className="font-body text-text-secondary">{address.line2}</p>
             )}
-            <p className="font-v6-body text-v6-text-secondary">
+            <p className="font-body text-text-secondary">
               {address.city}, {address.state} {address.zipCode}
             </p>
           </div>
           <button
             onClick={copyAddress}
             className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-v6-input transition-colors duration-v6-fast",
+              "flex h-10 w-10 items-center justify-center rounded-input transition-colors duration-fast",
               copied
-                ? "bg-v6-green/10 text-v6-green"
-                : "bg-v6-surface-tertiary text-v6-text-muted hover:bg-v6-surface-secondary"
+                ? "bg-green/10 text-green"
+                : "bg-surface-tertiary text-text-muted hover:bg-surface-secondary"
             )}
             aria-label="Copy address"
           >
@@ -220,14 +220,14 @@ export function StopDetail({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="flex items-center gap-3 rounded-v6-card-sm bg-v6-surface-primary p-4 shadow-v6-sm border border-v6-border"
+          className="flex items-center gap-3 rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-v6-surface-tertiary">
-            <Clock className="h-5 w-5 text-v6-text-muted" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-tertiary">
+            <Clock className="h-5 w-5 text-text-muted" />
           </div>
           <div>
-            <p className="font-v6-body text-sm text-v6-text-muted">Delivery Window</p>
-            <p className="font-v6-body font-medium text-v6-text-primary">{timeDisplay}</p>
+            <p className="font-body text-sm text-text-muted">Delivery Window</p>
+            <p className="font-body font-medium text-text-primary">{timeDisplay}</p>
           </div>
         </motion.div>
       )}
@@ -238,15 +238,15 @@ export function StopDetail({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="rounded-v6-card-sm border-l-4 border-v6-secondary bg-v6-secondary/10 p-4"
+          className="rounded-card-sm border-l-4 border-secondary bg-secondary/10 p-4"
         >
           <div className="flex items-start gap-3">
-            <FileText className="h-5 w-5 shrink-0 text-v6-secondary-hover" />
+            <FileText className="h-5 w-5 shrink-0 text-secondary-hover" />
             <div>
-              <p className="font-v6-body text-sm font-medium text-v6-secondary-hover">
+              <p className="font-body text-sm font-medium text-secondary-hover">
                 Delivery Notes
               </p>
-              <p className="mt-1 font-v6-body text-v6-text-primary">{deliveryNotes}</p>
+              <p className="mt-1 font-body text-text-primary">{deliveryNotes}</p>
             </div>
           </div>
         </motion.div>
@@ -258,11 +258,11 @@ export function StopDetail({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="rounded-v6-card-sm bg-v6-surface-primary p-4 shadow-v6-sm border border-v6-border"
+          className="rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border"
         >
           <div className="mb-3 flex items-center gap-2">
-            <Package className="h-5 w-5 text-v6-text-muted" />
-            <h2 className="font-v6-body font-semibold text-v6-text-primary">
+            <Package className="h-5 w-5 text-text-muted" />
+            <h2 className="font-body font-semibold text-text-primary">
               Order ({orderItems.length} {orderItems.length === 1 ? "item" : "items"})
             </h2>
           </div>
@@ -270,14 +270,14 @@ export function StopDetail({
             {orderItems.map((item) => (
               <li
                 key={item.id}
-                className="flex items-start justify-between border-b border-v6-border pb-2 last:border-0 last:pb-0"
+                className="flex items-start justify-between border-b border-border pb-2 last:border-0 last:pb-0"
               >
                 <div>
-                  <p className="font-v6-body font-medium text-v6-text-primary">
+                  <p className="font-body font-medium text-text-primary">
                     {item.quantity}x {item.name}
                   </p>
                   {item.modifiers && item.modifiers.length > 0 && (
-                    <p className="font-v6-body text-sm text-v6-text-muted">
+                    <p className="font-body text-sm text-text-muted">
                       {item.modifiers.join(", ")}
                     </p>
                   )}

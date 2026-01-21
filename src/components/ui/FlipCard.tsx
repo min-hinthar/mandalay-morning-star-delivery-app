@@ -3,8 +3,8 @@
 import React, { useState, forwardRef, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { v7Spring, v7Hover } from "@/lib/motion-tokens-v7";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import { spring, hover } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
 // TYPES
@@ -79,7 +79,7 @@ export const FlipCard = forwardRef<HTMLDivElement, FlipCardProps>(
     ref
   ) => {
     const [internalFlipped, setInternalFlipped] = useState(false);
-    const { shouldAnimate, getSpring, isFullMotion } = useAnimationPreferenceV7();
+    const { shouldAnimate, getSpring, isFullMotion } = useAnimationPreference();
 
     // Controlled or uncontrolled
     const isFlipped = controlledFlipped ?? internalFlipped;
@@ -102,7 +102,7 @@ export const FlipCard = forwardRef<HTMLDivElement, FlipCardProps>(
       onFlip?.(newFlipped);
     };
 
-    const springConfig = getSpring(v7Spring.default);
+    const springConfig = getSpring(spring.default);
 
     // Interaction props based on flipOnHover
     const interactionProps = flipOnHover
@@ -126,16 +126,16 @@ export const FlipCard = forwardRef<HTMLDivElement, FlipCardProps>(
           perspective: 1200,
           height,
         }}
-        {...(shouldAnimate ? v7Hover.scaleGentle : {})}
+        {...(shouldAnimate ? hover.scaleGentle : {})}
         {...interactionProps}
       >
         {/* Front Face */}
         <motion.div
           className={cn(
             "absolute inset-0 rounded-2xl",
-            "bg-gradient-to-br from-white to-v6-surface-secondary",
-            "border border-v6-border-default/60",
-            "shadow-lg shadow-v6-text-primary/5",
+            "bg-gradient-to-br from-white to-surface-secondary",
+            "border border-border-default/60",
+            "shadow-lg shadow-text-primary/5",
             "overflow-hidden",
             frontClassName
           )}
@@ -164,7 +164,7 @@ export const FlipCard = forwardRef<HTMLDivElement, FlipCardProps>(
           </div>
 
           {/* Flip indicator */}
-          <div className="absolute bottom-3 right-3 text-v6-text-muted">
+          <div className="absolute bottom-3 right-3 text-text-muted">
             <motion.svg
               width="20"
               height="20"
@@ -269,20 +269,20 @@ export function FAQFlipCard({ question, answer, className }: FAQFlipCardProps) {
       height={180}
       front={
         <div className="flex flex-col gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-v6-primary">
+          <span className="text-xs font-semibold uppercase tracking-wider text-primary">
             Question
           </span>
-          <h3 className="text-lg font-semibold text-v6-text-primary leading-snug">
+          <h3 className="text-lg font-semibold text-text-primary leading-snug">
             {question}
           </h3>
-          <span className="mt-auto text-sm text-v6-text-muted">
+          <span className="mt-auto text-sm text-text-muted">
             Tap to reveal answer
           </span>
         </div>
       }
       back={
         <div className="flex flex-col gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-v6-secondary">
+          <span className="text-xs font-semibold uppercase tracking-wider text-secondary">
             Answer
           </span>
           <p className="text-sm leading-relaxed text-white/90">

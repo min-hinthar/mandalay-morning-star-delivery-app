@@ -45,17 +45,17 @@ export function NavigationButton({
       whileTap={{ scale: 0.98 }}
       onClick={handleNavigate}
       className={cn(
-        "flex items-center justify-center gap-2 rounded-v6-card-sm font-v6-body font-semibold",
-        "transition-all duration-v6-fast",
+        "flex items-center justify-center gap-2 rounded-card-sm font-body font-semibold",
+        "transition-all duration-fast",
         "active:scale-[0.98]",
         variant === "primary" && [
-          "h-14 bg-v6-secondary px-6 text-v6-text-primary",
-          "hover:bg-v6-secondary-hover",
-          "shadow-v6-md hover:shadow-v6-lg",
+          "h-14 bg-secondary px-6 text-text-primary",
+          "hover:bg-secondary-hover",
+          "shadow-md hover:shadow-lg",
         ],
         variant === "secondary" && [
-          "h-12 bg-v6-surface-tertiary px-4 text-v6-text-primary",
-          "hover:bg-v6-surface-secondary",
+          "h-12 bg-surface-tertiary px-4 text-text-primary",
+          "hover:bg-surface-secondary",
         ],
         className
       )}

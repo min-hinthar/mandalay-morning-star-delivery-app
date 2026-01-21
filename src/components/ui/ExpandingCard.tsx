@@ -3,8 +3,8 @@
 import React, { useState, forwardRef, type ReactNode, useCallback, useId } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { v7Spring } from "@/lib/motion-tokens-v7";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import { spring } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
 // TYPES
@@ -40,7 +40,7 @@ export interface ExpandingCardProps {
 // ============================================
 
 const DefaultExpandIcon = ({ isExpanded }: { isExpanded: boolean }) => {
-  const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+  const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
     <motion.svg
@@ -53,8 +53,8 @@ const DefaultExpandIcon = ({ isExpanded }: { isExpanded: boolean }) => {
       strokeLinecap="round"
       strokeLinejoin="round"
       animate={shouldAnimate ? { rotate: isExpanded ? 180 : 0 } : undefined}
-      transition={getSpring(v7Spring.snappy)}
-      className="text-v6-text-muted flex-shrink-0"
+      transition={getSpring(spring.snappy)}
+      className="text-text-muted flex-shrink-0"
     >
       <path d="M6 9l6 6 6-6" />
     </motion.svg>
@@ -83,7 +83,7 @@ export const ExpandingCard = forwardRef<HTMLDivElement, ExpandingCardProps>(
     ref
   ) => {
     const [internalExpanded, setInternalExpanded] = useState(false);
-    const { shouldAnimate, getSpring, isFullMotion } = useAnimationPreferenceV7();
+    const { shouldAnimate, getSpring, isFullMotion } = useAnimationPreference();
     const autoLayoutId = useId();
     const layoutId = externalLayoutId ?? autoLayoutId;
 
@@ -107,7 +107,7 @@ export const ExpandingCard = forwardRef<HTMLDivElement, ExpandingCardProps>(
       onExpandChange?.(newExpanded);
     }, [disabled, haptic, isFullMotion, isExpanded, controlledExpanded, onExpandChange]);
 
-    const springConfig = getSpring(v7Spring.gentle);
+    const springConfig = getSpring(spring.gentle);
 
     return (
       <LayoutGroup id={layoutId}>
@@ -116,10 +116,10 @@ export const ExpandingCard = forwardRef<HTMLDivElement, ExpandingCardProps>(
           layout={shouldAnimate}
           className={cn(
             "relative rounded-2xl overflow-hidden",
-            "bg-white border border-v6-border-default/70",
-            "shadow-md shadow-v6-text-primary/5",
+            "bg-white border border-border-default/70",
+            "shadow-md shadow-text-primary/5",
             "transition-shadow duration-200",
-            isExpanded && "shadow-lg shadow-v6-text-primary/10",
+            isExpanded && "shadow-lg shadow-text-primary/10",
             disabled && "opacity-60 cursor-not-allowed",
             className
           )}
@@ -133,14 +133,14 @@ export const ExpandingCard = forwardRef<HTMLDivElement, ExpandingCardProps>(
             className={cn(
               "w-full flex items-center justify-between gap-4 p-5",
               "text-left cursor-pointer",
-              "hover:bg-v6-surface-secondary/50 transition-colors duration-150",
+              "hover:bg-surface-secondary/50 transition-colors duration-150",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A41034]/30 focus-visible:ring-inset",
               disabled && "cursor-not-allowed hover:bg-transparent",
               headerClassName
             )}
             whileHover={shouldAnimate && !disabled ? { scale: 1.005 } : undefined}
             whileTap={shouldAnimate && !disabled ? { scale: 0.995 } : undefined}
-            transition={getSpring(v7Spring.snappy)}
+            transition={getSpring(spring.snappy)}
           >
             <motion.div layout={shouldAnimate ? "position" : false} className="flex-1">
               {header}
@@ -278,23 +278,23 @@ export function MenuExpandingCard({
       header={
         <div className="flex items-center gap-4">
           {icon && (
-            <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-v6-primary/10 to-v6-primary/5 flex items-center justify-center text-v6-primary">
+            <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-primary">
               {icon}
             </div>
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold text-v6-text-primary truncate">
+              <h3 className="text-lg font-semibold text-text-primary truncate">
                 {title}
               </h3>
               {itemCount !== undefined && (
-                <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium rounded-full bg-v6-secondary/20 text-v6-secondary-active">
+                <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium rounded-full bg-secondary/20 text-secondary-active">
                   {itemCount}
                 </span>
               )}
             </div>
             {description && (
-              <p className="text-sm text-v6-text-muted truncate mt-0.5">
+              <p className="text-sm text-text-muted truncate mt-0.5">
                 {description}
               </p>
             )}

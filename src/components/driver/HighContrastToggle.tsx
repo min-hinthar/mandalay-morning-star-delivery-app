@@ -23,10 +23,10 @@ export function HighContrastToggle({ className }: HighContrastToggleProps) {
       onClick={toggleContrast}
       className={cn(
         "flex h-12 w-12 items-center justify-center rounded-full",
-        "transition-all duration-v6-fast",
+        "transition-all duration-fast",
         isHighContrast
-          ? "bg-v6-text-primary text-white"
-          : "bg-v6-surface-tertiary text-v6-text-secondary hover:bg-v6-surface-secondary",
+          ? "bg-text-primary text-white"
+          : "bg-surface-tertiary text-text-secondary hover:bg-surface-secondary",
         className
       )}
       aria-label={isHighContrast ? "Switch to standard contrast" : "Switch to high contrast"}

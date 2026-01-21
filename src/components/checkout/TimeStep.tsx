@@ -10,7 +10,7 @@
 import { ArrowLeft, Clock } from "lucide-react";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useTimeSlot } from "@/lib/hooks/useTimeSlot";
-import { TimeSlotPicker } from "./TimeSlotPicker";
+import { TimeSlotPicker } from "./TimeSlotPickerLegacy";
 import { Button } from "@/components/ui/button";
 import type { TimeWindow } from "@/types/delivery";
 
@@ -32,12 +32,12 @@ export function TimeStep() {
       {/* V6 Header */}
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <Clock className="h-5 w-5 text-v6-primary" />
-          <h2 className="font-v6-display text-lg font-semibold text-v6-text-primary">
+          <Clock className="h-5 w-5 text-primary" />
+          <h2 className="font-display text-lg font-semibold text-text-primary">
             Delivery Time
           </h2>
         </div>
-        <p className="font-v6-body text-sm text-v6-text-secondary">
+        <p className="font-body text-sm text-text-secondary">
           Choose your preferred delivery window
         </p>
       </div>
@@ -48,7 +48,7 @@ export function TimeStep() {
       />
 
       {/* V6 Navigation */}
-      <div className="flex justify-between pt-4 border-t border-v6-border">
+      <div className="flex justify-between pt-4 border-t border-border">
         <Button variant="ghost" onClick={prevStep}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back

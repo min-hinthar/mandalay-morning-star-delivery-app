@@ -1,20 +1,19 @@
-// V7 Menu Components
-// Sprint 5: Menu Experience
+// Menu Components - Sprint 5: Menu Experience
 
-export { CategoryCarouselV7 } from "./CategoryCarouselV7";
-export type { CategoryCarouselV7Props } from "./CategoryCarouselV7";
+export { CategoryCarousel, CategoryCarousel as CategoryCarouselV7 } from "./CategoryCarousel";
+export type { CategoryCarouselProps, CategoryCarouselProps as CategoryCarouselV7Props } from "./CategoryCarousel";
 
-export { MenuItemCardV7 } from "./MenuItemCardV7";
-export type { MenuItemCardV7Props } from "./MenuItemCardV7";
+export { MenuItemCard, MenuItemCard as MenuItemCardV7 } from "./MenuItemCard";
+export type { MenuItemCardProps, MenuItemCardProps as MenuItemCardV7Props } from "./MenuItemCard";
 
-export { ModifierToggleV7 } from "./ModifierToggleV7";
-export type { ModifierToggleV7Props, ModifierOptionV7Props } from "./ModifierToggleV7";
+export { ModifierToggle, ModifierToggle as ModifierToggleV7 } from "./ModifierToggle";
+export type { ModifierToggleProps, ModifierToggleProps as ModifierToggleV7Props, ModifierOptionProps, ModifierOptionProps as ModifierOptionV7Props } from "./ModifierToggle";
 
 export { VisualPreview } from "./VisualPreview";
 export type { VisualPreviewProps } from "./VisualPreview";
 
-export { ItemDetailV7 } from "./ItemDetailV7";
-export type { ItemDetailV7Props } from "./ItemDetailV7";
+export { ItemDetail, ItemDetail as ItemDetailV7 } from "./ItemDetail";
+export type { ItemDetailProps, ItemDetailProps as ItemDetailV7Props } from "./ItemDetail";
 
-export { MenuLayoutV7 } from "./MenuLayoutV7";
-export type { MenuLayoutV7Props } from "./MenuLayoutV7";
+export { MenuLayout, MenuLayout as MenuLayoutV7 } from "./MenuLayout";
+export type { MenuLayoutProps, MenuLayoutProps as MenuLayoutV7Props } from "./MenuLayout";

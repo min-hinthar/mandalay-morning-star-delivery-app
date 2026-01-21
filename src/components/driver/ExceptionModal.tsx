@@ -125,18 +125,18 @@ export function ExceptionModal({
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className={cn(
-              "w-full max-w-md rounded-t-v6-card bg-v6-surface-primary sm:rounded-v6-card",
-              "max-h-[90vh] overflow-hidden shadow-v6-lg"
+              "w-full max-w-md rounded-t-card bg-surface-primary sm:rounded-card",
+              "max-h-[90vh] overflow-hidden shadow-lg"
             )}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-v6-border p-4">
+            <div className="flex items-center justify-between border-b border-border p-4">
               <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-v6-status-error/10">
-                  <AlertTriangle className="h-5 w-5 text-v6-status-error" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-status-error/10">
+                  <AlertTriangle className="h-5 w-5 text-status-error" />
                 </div>
-                <h2 className="font-v6-display text-lg font-semibold text-v6-text-primary">
+                <h2 className="font-display text-lg font-semibold text-text-primary">
                   Report Issue
                 </h2>
               </div>
@@ -145,17 +145,17 @@ export function ExceptionModal({
                 disabled={isSubmitting}
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full",
-                  "transition-colors duration-v6-fast",
-                  "hover:bg-v6-surface-tertiary"
+                  "transition-colors duration-fast",
+                  "hover:bg-surface-tertiary"
                 )}
               >
-                <X className="h-5 w-5 text-v6-text-secondary" />
+                <X className="h-5 w-5 text-text-secondary" />
               </button>
             </div>
 
             {/* Content */}
             <div className="overflow-y-auto p-4" style={{ maxHeight: "60vh" }}>
-              <p className="mb-4 font-v6-body text-sm text-v6-text-secondary">
+              <p className="mb-4 font-body text-sm text-text-secondary">
                 Select the reason why this delivery cannot be completed.
               </p>
 
@@ -170,16 +170,16 @@ export function ExceptionModal({
                     onClick={() => setSelectedType(type.value)}
                     disabled={isSubmitting}
                     className={cn(
-                      "w-full rounded-v6-card-sm border-2 p-4 text-left",
-                      "transition-all duration-v6-fast",
+                      "w-full rounded-card-sm border-2 p-4 text-left",
+                      "transition-all duration-fast",
                       "min-h-[56px]", // Driver touch target
                       selectedType === type.value
-                        ? "border-v6-status-error bg-v6-status-error/5"
-                        : "border-v6-border bg-v6-surface-primary hover:border-v6-text-muted"
+                        ? "border-status-error bg-status-error/5"
+                        : "border-border bg-surface-primary hover:border-text-muted"
                     )}
                   >
-                    <p className="font-v6-body font-medium text-v6-text-primary">{type.label}</p>
-                    <p className="font-v6-body text-sm text-v6-text-secondary">{type.description}</p>
+                    <p className="font-body font-medium text-text-primary">{type.label}</p>
+                    <p className="font-body text-sm text-text-secondary">{type.description}</p>
                   </motion.button>
                 ))}
               </div>
@@ -195,7 +195,7 @@ export function ExceptionModal({
                   >
                     <label
                       htmlFor="exception-description"
-                      className="mb-2 block font-v6-body text-sm font-medium text-v6-text-primary"
+                      className="mb-2 block font-body text-sm font-medium text-text-primary"
                     >
                       Additional Details (optional)
                     </label>
@@ -208,12 +208,12 @@ export function ExceptionModal({
                       maxLength={1000}
                       disabled={isSubmitting}
                       className={cn(
-                        "w-full rounded-v6-input border border-v6-border p-3",
-                        "font-v6-body text-v6-text-primary",
-                        "placeholder:text-v6-text-muted",
-                        "focus:border-v6-primary focus:outline-none focus:ring-2 focus:ring-v6-primary/20",
-                        "disabled:bg-v6-surface-tertiary",
-                        "transition-colors duration-v6-fast"
+                        "w-full rounded-input border border-border p-3",
+                        "font-body text-text-primary",
+                        "placeholder:text-text-muted",
+                        "focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20",
+                        "disabled:bg-surface-tertiary",
+                        "transition-colors duration-fast"
                       )}
                     />
                   </motion.div>
@@ -227,7 +227,7 @@ export function ExceptionModal({
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="mt-3 text-center font-v6-body text-sm text-v6-status-error"
+                    className="mt-3 text-center font-body text-sm text-status-error"
                     role="alert"
                   >
                     {error}
@@ -237,16 +237,16 @@ export function ExceptionModal({
             </div>
 
             {/* Footer */}
-            <div className="border-t border-v6-border p-4">
+            <div className="border-t border-border p-4">
               <button
                 onClick={handleSubmit}
                 disabled={!selectedType || isSubmitting}
                 className={cn(
-                  "flex h-14 w-full items-center justify-center gap-2 rounded-v6-card-sm",
-                  "font-v6-body font-semibold",
-                  "bg-v6-status-error text-white shadow-v6-sm",
-                  "transition-all duration-v6-fast",
-                  "hover:bg-v6-status-error/90 hover:shadow-v6-md",
+                  "flex h-14 w-full items-center justify-center gap-2 rounded-card-sm",
+                  "font-body font-semibold",
+                  "bg-status-error text-white shadow-sm",
+                  "transition-all duration-fast",
+                  "hover:bg-status-error/90 hover:shadow-md",
                   "active:scale-[0.98]",
                   "disabled:cursor-not-allowed disabled:opacity-50"
                 )}

@@ -31,24 +31,24 @@ const cardVariants = {
 // V6 Color styles - Pepper aesthetic
 const colorStyles = {
   saffron: {
-    icon: "bg-v6-primary-light text-v6-primary",
-    trend: "text-v6-primary",
-    accent: "border-l-v6-primary",
+    icon: "bg-primary-light text-primary",
+    trend: "text-primary",
+    accent: "border-l-primary",
   },
   jade: {
-    icon: "bg-v6-green/10 text-v6-green",
-    trend: "text-v6-green",
-    accent: "border-l-v6-green",
+    icon: "bg-green/10 text-green",
+    trend: "text-green",
+    accent: "border-l-green",
   },
   curry: {
-    icon: "bg-v6-secondary-light text-v6-secondary-hover",
-    trend: "text-v6-secondary-hover",
-    accent: "border-l-v6-secondary",
+    icon: "bg-secondary-light text-secondary-hover",
+    trend: "text-secondary-hover",
+    accent: "border-l-secondary",
   },
   charcoal: {
-    icon: "bg-v6-surface-tertiary text-v6-text-secondary",
-    trend: "text-v6-text-secondary",
-    accent: "border-l-v6-text-primary",
+    icon: "bg-surface-tertiary text-text-secondary",
+    trend: "text-text-secondary",
+    accent: "border-l-text-primary",
   },
 };
 
@@ -112,9 +112,9 @@ export function MetricCard({
       }}
       transition={v6Spring}
       className={cn(
-        "relative overflow-hidden rounded-v6-card-sm bg-v6-surface-primary p-6 shadow-v6-sm",
-        "border-l-4 transition-shadow duration-v6-fast",
-        "hover:shadow-v6-md",
+        "relative overflow-hidden rounded-card-sm bg-surface-primary p-6 shadow-sm",
+        "border-l-4 transition-shadow duration-fast",
+        "hover:shadow-md",
         styles.accent
       )}
     >
@@ -125,15 +125,15 @@ export function MetricCard({
           animate={{ opacity: 1 }}
           className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm"
         >
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-v6-primary border-t-transparent" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </motion.div>
       )}
 
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-v6-body font-medium text-v6-text-secondary">{title}</p>
+          <p className="text-sm font-body font-medium text-text-secondary">{title}</p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-v6-display font-bold text-v6-text-primary">
+            <span className="text-3xl font-display font-bold text-text-primary">
               {formatValue(value)}
             </span>
           </div>
@@ -148,29 +148,29 @@ export function MetricCard({
             >
               {calculatedTrend === "up" && (
                 <>
-                  <TrendingUp className="h-4 w-4 text-v6-green" />
-                  <span className="text-sm font-v6-body font-medium text-v6-green">
+                  <TrendingUp className="h-4 w-4 text-green" />
+                  <span className="text-sm font-body font-medium text-green">
                     +{calculatedTrendValue}%
                   </span>
                 </>
               )}
               {calculatedTrend === "down" && (
                 <>
-                  <TrendingDown className="h-4 w-4 text-v6-status-error" />
-                  <span className="text-sm font-v6-body font-medium text-v6-status-error">
+                  <TrendingDown className="h-4 w-4 text-status-error" />
+                  <span className="text-sm font-body font-medium text-status-error">
                     {calculatedTrendValue}%
                   </span>
                 </>
               )}
               {calculatedTrend === "stable" && (
                 <>
-                  <Minus className="h-4 w-4 text-v6-text-muted" />
-                  <span className="text-sm font-v6-body font-medium text-v6-text-muted">
+                  <Minus className="h-4 w-4 text-text-muted" />
+                  <span className="text-sm font-body font-medium text-text-muted">
                     No change
                   </span>
                 </>
               )}
-              <span className="text-xs font-v6-body text-v6-text-muted">vs last period</span>
+              <span className="text-xs font-body text-text-muted">vs last period</span>
             </motion.div>
           )}
         </div>
@@ -181,7 +181,7 @@ export function MetricCard({
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, type: "spring" }}
-            className={cn("rounded-v6-card-sm p-3", styles.icon)}
+            className={cn("rounded-card-sm p-3", styles.icon)}
           >
             {icon}
           </motion.div>
@@ -189,7 +189,7 @@ export function MetricCard({
       </div>
 
       {/* V6 Subtle gradient overlay */}
-      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-v6-primary/5 to-transparent" />
+      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-primary/5 to-transparent" />
     </motion.div>
   );
 }

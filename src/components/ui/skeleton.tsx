@@ -1,312 +1,472 @@
-/**
- * V4 Sprint 3: Enhanced Skeleton Components
- *
- * Loading placeholders with contextual animations:
- * - Shimmer: gradient translateX animation for initial load (1.5s infinite)
- * - Pulse: subtle opacity/scale pulse for refetch (0.5s once)
- *
- * Prevents layout shift, matches actual content dimensions.
- */
-
 "use client";
 
+import React, { forwardRef } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { type HTMLAttributes } from "react";
+// duration available for future use
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
-// BASE SKELETON
+// TYPES
 // ============================================
 
-export interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
-  /**
-   * Loading context - determines default animation
-   * - "initial": First load, uses shimmer (default)
-   * - "refetch": Subsequent loads, uses pulse
-   */
-  context?: "initial" | "refetch";
-  /**
-   * Animation type (overrides context-based default)
-   * - "pulse": Subtle opacity/scale pulse (0.5s)
-   * - "shimmer": Gradient slide animation (1.5s infinite)
-   * - "scale-pulse": Scale-based pulse for refetch (0.5s once)
-   * - "none": No animation
-   */
-  animation?: "pulse" | "shimmer" | "scale-pulse" | "none";
-  /** Shape variant */
-  variant?: "rect" | "circle" | "line";
-  /** Width (CSS value) */
+export interface SkeletonProps {
+  /** Width of skeleton */
   width?: string | number;
-  /** Height (CSS value) */
+  /** Height of skeleton */
   height?: string | number;
+  /** Border radius */
+  radius?: "none" | "sm" | "md" | "lg" | "xl" | "full";
+  /** Animation variant */
+  variant?: "shimmer" | "pulse" | "wave" | "grain";
+  /** Show grain overlay texture */
+  withGrain?: boolean;
+  /** Additional class names */
+  className?: string;
+  /** Number of skeleton items (for repeat) */
+  count?: number;
+  /** Gap between items when count > 1 */
+  gap?: number;
 }
 
-export function Skeleton({
-  context = "initial",
-  animation,
-  variant = "rect",
-  width,
-  height,
-  className,
-  style,
-  ...props
-}: SkeletonProps) {
-  // Auto-select animation based on context when not explicitly set
-  const effectiveAnimation =
-    animation ?? (context === "refetch" ? "scale-pulse" : "shimmer");
+// ============================================
+// RADIUS CONFIG
+// ============================================
 
-  const baseClasses = "bg-[var(--color-surface-muted)]";
+const radiusConfig = {
+  none: "rounded-none",
+  sm: "rounded",
+  md: "rounded-lg",
+  lg: "rounded-xl",
+  xl: "rounded-2xl",
+  full: "rounded-full",
+};
 
-  const animationClasses = {
-    pulse: "animate-pulse",
-    shimmer: "animate-shimmer relative overflow-hidden",
-    "scale-pulse": "animate-scale-pulse",
-    none: "",
-  };
+// ============================================
+// SHIMMER ANIMATION
+// ============================================
 
-  const variantClasses = {
-    rect: "rounded-[var(--radius-md)]",
-    circle: "rounded-full",
-    line: "rounded-[var(--radius-sm)] h-4",
-  };
+const shimmerAnimation = {
+  initial: { x: "-100%" },
+  animate: {
+    x: "100%",
+    transition: {
+      duration: 1.5,
+      repeat: Infinity,
+      ease: "linear" as const,
+    },
+  },
+};
 
+// ============================================
+// WAVE ANIMATION
+// ============================================
+
+const waveAnimation = {
+  initial: { backgroundPosition: "200% 0" },
+  animate: {
+    backgroundPosition: "-200% 0",
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      ease: "linear" as const,
+    },
+  },
+};
+
+// ============================================
+// PULSE ANIMATION
+// ============================================
+
+const pulseAnimation = {
+  initial: { opacity: 0.6 },
+  animate: {
+    opacity: [0.6, 0.3, 0.6],
+    transition: {
+      duration: 1.5,
+      repeat: Infinity,
+      ease: "easeInOut" as const,
+    },
+  },
+};
+
+// ============================================
+// GRAIN OVERLAY
+// ============================================
+
+function GrainOverlay() {
   return (
     <div
-      className={cn(
-        baseClasses,
-        animationClasses[effectiveAnimation],
-        variantClasses[variant],
-        className
-      )}
+      className="absolute inset-0 pointer-events-none opacity-[0.08] mix-blend-overlay"
       style={{
-        width: typeof width === "number" ? `${width}px` : width,
-        height: typeof height === "number" ? `${height}px` : height,
-        ...style,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
       }}
-      aria-hidden="true"
-      {...props}
     />
   );
 }
 
 // ============================================
-// COMPOUND SKELETONS
+// SINGLE SKELETON COMPONENT
 // ============================================
 
-/**
- * Menu item card skeleton - matches ItemCard layout
- */
-export function MenuItemCardSkeleton() {
-  return (
-    <div className="overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-surface)] border border-[var(--color-border)]">
-      {/* Image placeholder */}
-      <Skeleton className="h-40 w-full rounded-none" />
+const SingleSkeleton = forwardRef<HTMLDivElement, Omit<SkeletonProps, "count" | "gap">>(
+  (
+    {
+      width = "100%",
+      height = 20,
+      radius = "md",
+      variant = "shimmer",
+      withGrain = false,
+      className,
+    },
+    ref
+  ) => {
+    const { shouldAnimate } = useAnimationPreference();
 
-      {/* Content */}
-      <div className="p-4 space-y-3">
-        {/* Title */}
-        <Skeleton variant="line" width="75%" height={20} />
-        {/* Subtitle */}
-        <Skeleton variant="line" width="50%" height={16} />
-        {/* Description */}
-        <Skeleton variant="line" width="100%" height={16} />
+    const baseClasses = cn(
+      "relative overflow-hidden",
+      "bg-surface-tertiary",
+      radiusConfig[radius],
+      className
+    );
 
-        {/* Price and actions */}
-        <div className="flex items-center justify-between pt-1">
-          <Skeleton width={64} height={24} />
-          <div className="flex gap-2">
-            <Skeleton variant="circle" width={32} height={32} />
-            <Skeleton variant="circle" width={32} height={32} />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * Category tab skeleton
- */
-export function CategoryTabSkeleton({ count = 5 }: { count?: number }) {
-  return (
-    <div className="flex gap-2 overflow-hidden">
-      {Array.from({ length: count }).map((_, i) => (
-        <Skeleton
-          key={i}
-          width={80 + Math.random() * 40}
-          height={36}
-          className="rounded-full flex-shrink-0"
+    // Non-animated fallback
+    if (!shouldAnimate) {
+      return (
+        <div
+          ref={ref}
+          className={baseClasses}
+          style={{ width, height }}
         />
-      ))}
-    </div>
-  );
-}
+      );
+    }
 
-/**
- * Cart item skeleton
- */
-export function CartItemSkeleton() {
-  return (
-    <div className="flex gap-3 p-3">
-      {/* Thumbnail */}
-      <Skeleton width={64} height={64} className="flex-shrink-0" />
-
-      {/* Content */}
-      <div className="flex-1 space-y-2">
-        <Skeleton variant="line" width="70%" height={16} />
-        <Skeleton variant="line" width="40%" height={14} />
-
-        <div className="flex items-center justify-between pt-1">
-          <Skeleton width={48} height={20} />
-          <Skeleton width={80} height={28} />
+    // Shimmer variant
+    if (variant === "shimmer") {
+      return (
+        <div
+          ref={ref}
+          className={baseClasses}
+          style={{ width, height }}
+        >
+          <motion.div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
+            }}
+            {...shimmerAnimation}
+          />
+          {withGrain && <GrainOverlay />}
         </div>
-      </div>
-    </div>
-  );
-}
+      );
+    }
 
-/**
- * KPI card skeleton for admin dashboard
- */
-export function KPICardSkeleton() {
-  return (
-    <div className="p-4 rounded-[var(--radius-md)] bg-[var(--color-surface)] border border-[var(--color-border)]">
-      {/* Value */}
-      <Skeleton width={80} height={36} className="mb-2" />
-      {/* Label */}
-      <Skeleton variant="line" width={60} height={14} className="mb-2" />
-      {/* Comparison */}
-      <Skeleton variant="line" width={48} height={14} />
-    </div>
-  );
-}
+    // Wave variant
+    if (variant === "wave") {
+      return (
+        <motion.div
+          ref={ref}
+          className={cn(baseClasses, "bg-gradient-to-r")}
+          style={{
+            width,
+            height,
+            backgroundImage:
+              "linear-gradient(90deg, #e5e7eb 0%, #d1d5db 25%, #e5e7eb 50%, #d1d5db 75%, #e5e7eb 100%)",
+            backgroundSize: "200% 100%",
+          }}
+          {...waveAnimation}
+        >
+          {withGrain && <GrainOverlay />}
+        </motion.div>
+      );
+    }
 
-/**
- * Driver route card skeleton
- */
-export function DriverCardSkeleton() {
-  return (
-    <div className="p-4 rounded-[var(--radius-lg)] bg-[var(--color-surface)] border border-[var(--color-border)]">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
-        <Skeleton variant="circle" width={48} height={48} />
-        <div className="flex-1 space-y-2">
-          <Skeleton variant="line" width="60%" height={18} />
-          <Skeleton variant="line" width="40%" height={14} />
+    // Grain variant (static with animated grain)
+    if (variant === "grain") {
+      return (
+        <div
+          ref={ref}
+          className={baseClasses}
+          style={{ width, height }}
+        >
+          <motion.div
+            className="absolute inset-0 opacity-30"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            }}
+            animate={{
+              opacity: [0.2, 0.35, 0.2],
+              scale: [1, 1.02, 1],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
         </div>
-      </div>
+      );
+    }
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-2">
-        <Skeleton height={48} />
-        <Skeleton height={48} />
-        <Skeleton height={48} />
-      </div>
-    </div>
-  );
-}
+    // Pulse variant (default fallback)
+    return (
+      <motion.div
+        ref={ref}
+        className={baseClasses}
+        style={{ width, height }}
+        {...pulseAnimation}
+      >
+        {withGrain && <GrainOverlay />}
+      </motion.div>
+    );
+  }
+);
 
-/**
- * Order tracking skeleton
- */
-export function OrderTrackingSkeleton() {
-  return (
-    <div className="space-y-4">
-      {/* Map placeholder */}
-      <Skeleton className="h-48 w-full rounded-[var(--radius-lg)]" />
+SingleSkeleton.displayName = "SingleSkeleton";
 
-      {/* Status steps */}
-      <div className="space-y-3">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="flex items-center gap-3">
-            <Skeleton variant="circle" width={32} height={32} />
-            <div className="flex-1 space-y-1">
-              <Skeleton variant="line" width="50%" height={16} />
-              <Skeleton variant="line" width="30%" height={12} />
-            </div>
-          </div>
+// ============================================
+// MAIN SKELETON COMPONENT
+// ============================================
+
+export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
+  ({ count = 1, gap = 8, ...props }, ref) => {
+    if (count === 1) {
+      return <SingleSkeleton ref={ref} {...props} />;
+    }
+
+    return (
+      <div
+        ref={ref}
+        className="flex flex-col"
+        style={{ gap }}
+      >
+        {Array.from({ length: count }).map((_, index) => (
+          <SingleSkeleton key={index} {...props} />
         ))}
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
 
-/**
- * Form input skeleton
- */
-export function FormFieldSkeleton({ hasLabel = true }: { hasLabel?: boolean }) {
-  return (
-    <div className="space-y-2">
-      {hasLabel && <Skeleton variant="line" width={80} height={14} />}
-      <Skeleton height={44} />
-    </div>
-  );
-}
-
-/**
- * Table row skeleton
- */
-export function TableRowSkeleton({ columns = 4 }: { columns?: number }) {
-  return (
-    <div className="flex gap-4 p-3 border-b border-[var(--color-border)]">
-      {Array.from({ length: columns }).map((_, i) => (
-        <Skeleton
-          key={i}
-          variant="line"
-          className="flex-1"
-          height={16}
-        />
-      ))}
-    </div>
-  );
-}
-
-/**
- * Text paragraph skeleton
- */
-export function TextSkeleton({ lines = 3 }: { lines?: number }) {
-  return (
-    <div className="space-y-2">
-      {Array.from({ length: lines }).map((_, i) => (
-        <Skeleton
-          key={i}
-          variant="line"
-          width={i === lines - 1 ? "60%" : "100%"}
-          height={16}
-        />
-      ))}
-    </div>
-  );
-}
+Skeleton.displayName = "Skeleton";
 
 // ============================================
-// SKELETON GROUP
+// SKELETON TEXT
+// Pre-configured for text blocks
 // ============================================
 
-interface SkeletonGridProps {
-  count: number;
-  skeleton: React.ReactNode;
-  columns?: 1 | 2 | 3 | 4;
+export interface SkeletonTextProps {
+  /** Number of lines */
+  lines?: number;
+  /** Last line width percentage */
+  lastLineWidth?: string;
+  /** Line height */
+  lineHeight?: number;
+  /** Gap between lines */
+  gap?: number;
+  /** Class names */
   className?: string;
 }
 
-export function SkeletonGrid({
-  count,
-  skeleton,
-  columns = 2,
+export function SkeletonText({
+  lines = 3,
+  lastLineWidth = "75%",
+  lineHeight = 16,
+  gap = 8,
   className,
-}: SkeletonGridProps) {
-  const gridClasses = {
-    1: "grid-cols-1",
-    2: "grid-cols-1 sm:grid-cols-2",
-    3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
-    4: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
-  };
-
+}: SkeletonTextProps) {
   return (
-    <div className={cn("grid gap-4", gridClasses[columns], className)}>
-      {Array.from({ length: count }).map((_, i) => (
-        <div key={i}>{skeleton}</div>
+    <div className={cn("flex flex-col", className)} style={{ gap }}>
+      {Array.from({ length: lines }).map((_, index) => (
+        <Skeleton
+          key={index}
+          height={lineHeight}
+          width={index === lines - 1 ? lastLineWidth : "100%"}
+          radius="sm"
+          variant="shimmer"
+        />
       ))}
     </div>
   );
 }
+
+// ============================================
+// SKELETON AVATAR
+// Pre-configured for avatars
+// ============================================
+
+export interface SkeletonAvatarProps {
+  /** Avatar size */
+  size?: number | "sm" | "md" | "lg" | "xl";
+  /** Class names */
+  className?: string;
+}
+
+const avatarSizes = {
+  sm: 32,
+  md: 40,
+  lg: 48,
+  xl: 64,
+};
+
+export function SkeletonAvatar({ size = "md", className }: SkeletonAvatarProps) {
+  const actualSize = typeof size === "number" ? size : avatarSizes[size];
+
+  return (
+    <Skeleton
+      width={actualSize}
+      height={actualSize}
+      radius="full"
+      variant="shimmer"
+      className={className}
+    />
+  );
+}
+
+// ============================================
+// SKELETON CARD
+// Pre-configured card layout
+// ============================================
+
+export interface SkeletonCardProps {
+  /** Show image placeholder */
+  withImage?: boolean;
+  /** Image height */
+  imageHeight?: number;
+  /** Show avatar */
+  withAvatar?: boolean;
+  /** Number of text lines */
+  textLines?: number;
+  /** Class names */
+  className?: string;
+}
+
+export function SkeletonCard({
+  withImage = true,
+  imageHeight = 160,
+  withAvatar = false,
+  textLines = 2,
+  className,
+}: SkeletonCardProps) {
+  return (
+    <div
+      className={cn(
+        "bg-white rounded-xl border border-border-default overflow-hidden",
+        className
+      )}
+    >
+      {/* Image */}
+      {withImage && (
+        <Skeleton
+          height={imageHeight}
+          radius="none"
+          variant="shimmer"
+          withGrain
+        />
+      )}
+
+      {/* Content */}
+      <div className="p-4 space-y-3">
+        {/* Header with optional avatar */}
+        <div className="flex items-center gap-3">
+          {withAvatar && <SkeletonAvatar size="md" />}
+          <div className="flex-1 space-y-2">
+            <Skeleton height={18} width="70%" radius="sm" />
+            {withAvatar && <Skeleton height={14} width="40%" radius="sm" />}
+          </div>
+        </div>
+
+        {/* Text lines */}
+        {textLines > 0 && (
+          <SkeletonText lines={textLines} lineHeight={14} gap={6} />
+        )}
+
+        {/* Action area */}
+        <div className="flex justify-between items-center pt-2">
+          <Skeleton height={14} width="30%" radius="sm" />
+          <Skeleton height={32} width={80} radius="lg" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// SKELETON MENU ITEM
+// Pre-configured for menu items
+// ============================================
+
+export function SkeletonMenuItem({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-4 p-4 bg-white rounded-xl border border-border-default",
+        className
+      )}
+    >
+      {/* Image */}
+      <Skeleton
+        width={80}
+        height={80}
+        radius="lg"
+        variant="shimmer"
+        withGrain
+      />
+
+      {/* Content */}
+      <div className="flex-1 space-y-2">
+        <Skeleton height={18} width="60%" radius="sm" />
+        <Skeleton height={14} width="80%" radius="sm" />
+        <div className="flex justify-between items-center pt-1">
+          <Skeleton height={20} width={60} radius="sm" />
+          <Skeleton height={32} width={32} radius="full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// SKELETON TABLE ROW
+// Pre-configured for table rows
+// ============================================
+
+export interface SkeletonTableRowProps {
+  /** Number of columns */
+  columns?: number;
+  /** Row height */
+  height?: number;
+  /** Class names */
+  className?: string;
+}
+
+export function SkeletonTableRow({
+  columns = 4,
+  height = 48,
+  className,
+}: SkeletonTableRowProps) {
+  const columnWidths = ["30%", "25%", "20%", "15%", "10%"];
+
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-4 px-4 border-b border-border-subtle",
+        className
+      )}
+      style={{ height }}
+    >
+      {Array.from({ length: columns }).map((_, index) => (
+        <Skeleton
+          key={index}
+          height={14}
+          width={columnWidths[index % columnWidths.length]}
+          radius="sm"
+          variant="pulse"
+        />
+      ))}
+    </div>
+  );
+}
+
+export default Skeleton;

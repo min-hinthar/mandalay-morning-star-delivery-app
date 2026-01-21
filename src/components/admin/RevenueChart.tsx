@@ -62,14 +62,14 @@ export function RevenueChart({ data }: RevenueChartProps) {
         />
         <XAxis
           dataKey="date"
-          className="text-xs font-v6-body"
+          className="text-xs font-body"
           tick={{ fill: V6_CHART_COLORS.text }}
           tickLine={{ stroke: V6_CHART_COLORS.grid }}
           axisLine={{ stroke: V6_CHART_COLORS.grid }}
         />
         <YAxis
           tickFormatter={formatCurrency}
-          className="text-xs font-v6-body"
+          className="text-xs font-body"
           tick={{ fill: V6_CHART_COLORS.text }}
           tickLine={{ stroke: V6_CHART_COLORS.grid }}
           axisLine={{ stroke: V6_CHART_COLORS.grid }}
@@ -87,7 +87,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
             borderColor: V6_CHART_COLORS.grid,
             borderRadius: "16px",
             boxShadow: "0 8px 24px rgba(164, 16, 52, 0.08)",
-            fontFamily: "var(--font-v6-body)",
+            fontFamily: "var(--font-body)",
           }}
           labelStyle={{
             color: "#111111",

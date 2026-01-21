@@ -47,7 +47,7 @@ export function AddressStep() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
-        <Loader2 className="h-6 w-6 animate-spin text-v6-primary" />
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
@@ -57,12 +57,12 @@ export function AddressStep() {
       {/* V6 Header */}
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <MapPin className="h-5 w-5 text-v6-primary" />
-          <h2 className="font-v6-display text-lg font-semibold text-v6-text-primary">
+          <MapPin className="h-5 w-5 text-primary" />
+          <h2 className="font-display text-lg font-semibold text-text-primary">
             Delivery Address
           </h2>
         </div>
-        <p className="font-v6-body text-sm text-v6-text-secondary">
+        <p className="font-body text-sm text-text-secondary">
           Select or add a delivery address
         </p>
       </div>
@@ -92,9 +92,9 @@ export function AddressStep() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-v6-card border border-v6-border bg-v6-surface-primary p-5 shadow-v6-sm"
+          className="rounded-card border border-border bg-surface-primary p-5 shadow-sm"
         >
-          <h3 className="mb-4 font-v6-display font-semibold text-v6-text-primary">
+          <h3 className="mb-4 font-display font-semibold text-text-primary">
             Add New Address
           </h3>
           <AddressForm
@@ -119,7 +119,7 @@ export function AddressStep() {
       )}
 
       {/* V6 Continue Button */}
-      <div className="flex justify-center pt-4 border-t border-v6-border">
+      <div className="flex justify-center pt-4 border-t border-border">
         <Button
           variant="primary"
           onClick={nextStep}
