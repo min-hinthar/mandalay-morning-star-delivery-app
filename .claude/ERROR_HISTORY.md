@@ -82,6 +82,27 @@ Reference for past bugs, root causes, and fixes. Check here before debugging sim
 
 ---
 
+## 2026-01-20: Barrel Import Path Casing Mismatch After File Rename
+
+**Type:** TypeScript | **Severity:** Medium
+**Files:** `src/components/layout/v7-index.ts`, `header.tsx`, `footer.tsx`
+
+**Error:** `TS1261: Already included file name 'Header.tsx' differs from file name 'header.tsx' only in casing`
+**Root Cause:** Files renamed from PascalCase to lowercase (`Header.tsx` → `header.tsx`) but barrel import paths not updated. Windows filesystem case-insensitive, so it worked locally until typecheck ran.
+**Fix:** Update barrel import paths to match actual file casing:
+```ts
+// Before (broken)
+} from "./Header";
+} from "./Footer";
+
+// After (working)
+} from "./header";
+} from "./footer";
+```
+**Prevention:** After renaming files, update ALL import paths (not just export names). Run `pnpm typecheck` immediately after renames.
+
+---
+
 ## 2026-01-20: Module Export Chain Failures After Bulk Rename
 
 **Type:** TypeScript | **Severity:** Medium

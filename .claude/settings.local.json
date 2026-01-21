@@ -17,6 +17,21 @@
     ]
   },
   "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/migration-validator.sh",
+            "timeout": 30
+          },
+          {
+            "type": "prompt",
+            "prompt": "Review migration validation results above. If ERRORS found: list them clearly, suggest fixes, and DO NOT complete the task until fixed. If only warnings: note them but allow completion."
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
         "hooks": [

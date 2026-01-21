@@ -13,7 +13,7 @@ export {
   HeaderSpacer,
   type HeaderProps,
   type HeaderProps as HeaderV7Props,  // Backward compatibility alias
-} from "./Header";
+} from "./header";
 
 // ============================================
 // MOBILE NAV
@@ -36,4 +36,4 @@ export {
   Footer as FooterV7,  // Backward compatibility alias
   type FooterProps,
   type FooterProps as FooterV7Props,  // Backward compatibility alias
-} from "./Footer";
+} from "./footer";
