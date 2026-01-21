@@ -55,7 +55,7 @@ export function DriverHomeContent({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-v6-surface-primary to-v6-surface-tertiary/30">
+    <div className="min-h-screen bg-gradient-to-b from-surface-primary to-surface-tertiary/30">
       <div className="px-4 py-6">
         {/* Greeting Section */}
         <motion.div
@@ -63,10 +63,10 @@ export function DriverHomeContent({
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h1 className="font-v6-display text-2xl font-bold text-v6-text-primary">
+          <h1 className="font-display text-2xl font-bold text-text-primary">
             {greeting}, {firstName}
           </h1>
-          <p className="flex items-center gap-1.5 font-v6-body text-v6-text-muted">
+          <p className="flex items-center gap-1.5 font-body text-text-muted">
             <Calendar className="h-4 w-4" />
             {dayOfWeek}, {dateDisplay}
           </p>
@@ -95,33 +95,33 @@ export function DriverHomeContent({
           className="mt-6 grid grid-cols-2 gap-4"
         >
           {/* Deliveries Card */}
-          <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-surface-primary p-4 shadow-v6-sm">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-v6-green/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="relative overflow-hidden rounded-card-sm bg-surface-primary p-4 shadow-sm">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-green/10 rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="relative flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-v6-green/10">
-                <TrendingUp className="h-5 w-5 text-v6-green" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green/10">
+                <TrendingUp className="h-5 w-5 text-green" />
               </div>
               <div>
-                <p className="font-v6-display text-2xl font-bold text-v6-text-primary">
+                <p className="font-display text-2xl font-bold text-text-primary">
                   {driver.deliveriesCount}
                 </p>
-                <p className="font-v6-body text-sm text-v6-text-muted">Deliveries</p>
+                <p className="font-body text-sm text-text-muted">Deliveries</p>
               </div>
             </div>
           </div>
 
           {/* Rating Card */}
-          <div className="relative overflow-hidden rounded-v6-card-sm bg-v6-surface-primary p-4 shadow-v6-sm">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-v6-primary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="relative overflow-hidden rounded-card-sm bg-surface-primary p-4 shadow-sm">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="relative flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-v6-primary/10">
-                <Star className="h-5 w-5 text-v6-primary fill-v6-primary" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                <Star className="h-5 w-5 text-primary fill-primary" />
               </div>
               <div>
-                <p className="font-v6-display text-2xl font-bold text-v6-text-primary">
+                <p className="font-display text-2xl font-bold text-text-primary">
                   {driver.ratingAvg.toFixed(1)}
                 </p>
-                <p className="font-v6-body text-sm text-v6-text-muted">Rating</p>
+                <p className="font-body text-sm text-text-muted">Rating</p>
               </div>
             </div>
           </div>

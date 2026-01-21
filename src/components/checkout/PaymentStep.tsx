@@ -72,12 +72,12 @@ export function PaymentStep() {
       {/* V6 Header */}
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <CreditCard className="h-5 w-5 text-v6-primary" />
-          <h2 className="font-v6-display text-lg font-semibold text-v6-text-primary">
+          <CreditCard className="h-5 w-5 text-primary" />
+          <h2 className="font-display text-lg font-semibold text-text-primary">
             Review & Pay
           </h2>
         </div>
-        <p className="font-v6-body text-sm text-v6-text-secondary">
+        <p className="font-body text-sm text-text-secondary">
           Review your order and proceed to payment
         </p>
       </div>
@@ -86,17 +86,17 @@ export function PaymentStep() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-4 rounded-v6-card bg-v6-surface-secondary p-5 border border-v6-border"
+        className="space-y-4 rounded-card bg-surface-secondary p-5 border border-border"
       >
         {/* Address */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <MapPin className="h-4 w-4 text-v6-primary" />
-            <h3 className="font-v6-body text-sm font-medium text-v6-text-secondary">
+            <MapPin className="h-4 w-4 text-primary" />
+            <h3 className="font-body text-sm font-medium text-text-secondary">
               Delivery Address
             </h3>
           </div>
-          <p className="font-v6-body text-v6-text-primary text-center">
+          <p className="font-body text-text-primary text-center">
             {address?.formattedAddress}
           </p>
         </div>
@@ -104,15 +104,15 @@ export function PaymentStep() {
         {/* Time */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Clock className="h-4 w-4 text-v6-primary" />
-            <h3 className="font-v6-body text-sm font-medium text-v6-text-secondary">
+            <Clock className="h-4 w-4 text-primary" />
+            <h3 className="font-body text-sm font-medium text-text-secondary">
               Delivery Time
             </h3>
           </div>
           {delivery && (
             <TimeSlotDisplay
               selection={delivery}
-              className="mt-1 bg-v6-primary/10 rounded-v6-card-sm p-3 justify-center"
+              className="mt-1 bg-primary/10 rounded-card-sm p-3 justify-center"
             />
           )}
         </div>
@@ -120,7 +120,7 @@ export function PaymentStep() {
 
       {/* V6 Notes Input */}
       <div className="space-y-2">
-        <Label htmlFor="customerNotes" className="font-v6-body text-sm font-medium text-v6-text-primary">
+        <Label htmlFor="customerNotes" className="font-body text-sm font-medium text-text-primary">
           Order Notes (optional)
         </Label>
         <Textarea
@@ -130,9 +130,9 @@ export function PaymentStep() {
           onChange={(e) => setCustomerNotes(e.target.value)}
           maxLength={500}
           rows={3}
-          className="font-v6-body"
+          className="font-body"
         />
-        <p className="font-v6-body text-xs text-v6-text-muted">
+        <p className="font-body text-xs text-text-muted">
           {customerNotes.length}/500 characters
         </p>
       </div>
@@ -142,20 +142,20 @@ export function PaymentStep() {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="rounded-v6-card-sm bg-v6-status-error/10 border border-v6-status-error/30 p-4"
+          className="rounded-card-sm bg-status-error/10 border border-status-error/30 p-4"
         >
-          <p className="font-v6-body text-sm text-v6-status-error">{error}</p>
+          <p className="font-body text-sm text-status-error">{error}</p>
         </motion.div>
       )}
 
       {/* V6 Security Badge */}
-      <div className="flex items-center gap-2 font-v6-body text-sm text-v6-text-muted">
-        <ShieldCheck className="h-4 w-4 text-v6-green" />
+      <div className="flex items-center gap-2 font-body text-sm text-text-muted">
+        <ShieldCheck className="h-4 w-4 text-green" />
         <span>Secure payment powered by Stripe</span>
       </div>
 
       {/* V6 Navigation */}
-      <div className="flex justify-between pt-4 border-t border-v6-border">
+      <div className="flex justify-between pt-4 border-t border-border">
         <Button variant="ghost" onClick={prevStep} disabled={isLoading}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back

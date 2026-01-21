@@ -15,23 +15,23 @@ const inputVariants = cva(
   [
     "flex w-full",
     // V6 Surface and text
-    "bg-v6-surface-primary text-v6-text-primary",
+    "bg-surface-primary text-text-primary",
     // V6 Border
-    "border border-v6-border",
+    "border border-border",
     // V6 Typography
-    "font-v6-body text-base",
+    "font-body text-base",
     // V6 Border radius
-    "rounded-v6-input",
+    "rounded-input",
     // Placeholder
-    "placeholder:text-v6-text-muted",
+    "placeholder:text-text-muted",
     // V6 Motion
-    "transition-all duration-v6-normal ease-v6-default",
+    "transition-all duration-normal ease-default",
     // V6 Focus: Primary red ring
-    "focus-visible:outline-none focus-visible:border-v6-primary focus-visible:ring-2 focus-visible:ring-v6-primary/20",
+    "focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20",
     // Disabled state
-    "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-v6-surface-tertiary",
+    "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-surface-tertiary",
     // File input styling
-    "file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-v6-primary",
+    "file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-primary",
   ].join(" "),
   {
     variants: {
@@ -44,14 +44,14 @@ const inputVariants = cva(
       variant: {
         default: "",
         error: [
-          "border-v6-status-error",
-          "focus-visible:border-v6-status-error focus-visible:ring-v6-status-error/20",
-          "bg-v6-status-error-bg",
+          "border-status-error",
+          "focus-visible:border-status-error focus-visible:ring-status-error/20",
+          "bg-status-error-bg",
         ].join(" "),
         success: [
-          "border-v6-green",
-          "focus-visible:border-v6-green focus-visible:ring-v6-green/20",
-          "bg-v6-green-light",
+          "border-green",
+          "focus-visible:border-green focus-visible:ring-green/20",
+          "bg-green-light",
         ].join(" "),
       },
     },
@@ -89,7 +89,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {error && (
           <p
             id={`${props.id}-error`}
-            className="mt-1.5 text-sm text-v6-status-error flex items-center gap-1"
+            className="mt-1.5 text-sm text-status-error flex items-center gap-1"
             role="alert"
           >
             <svg
@@ -110,7 +110,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {!error && helperText && (
           <p
             id={`${props.id}-helper`}
-            className="mt-1.5 text-sm text-v6-text-secondary"
+            className="mt-1.5 text-sm text-text-secondary"
           >
             {helperText}
           </p>

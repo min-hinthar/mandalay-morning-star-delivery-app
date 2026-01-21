@@ -1,30 +1,39 @@
 /**
- * V7 Checkout Components - Barrel Export
+ * Checkout Components - Barrel Export
  *
  * Sprint 6: Cart & Checkout
  * Features: Animated wizard, map preview, time slot pills, payment celebration
  */
 
 export {
-  CheckoutWizardV7,
-  CheckoutStepCardV7,
-  CheckoutSummaryV7,
-} from "./CheckoutWizardV7";
+  CheckoutWizard,
+  CheckoutWizard as CheckoutWizardV7,
+  CheckoutStepCard,
+  CheckoutStepCard as CheckoutStepCardV7,
+  CheckoutSummary,
+  CheckoutSummary as CheckoutSummaryV7,
+} from "./CheckoutWizard";
 export type {
-  CheckoutWizardV7Props,
-  CheckoutStepCardV7Props,
-  CheckoutSummaryV7Props,
-} from "./CheckoutWizardV7";
+  CheckoutWizardProps,
+  CheckoutWizardProps as CheckoutWizardV7Props,
+  CheckoutStepCardProps,
+  CheckoutStepCardProps as CheckoutStepCardV7Props,
+  CheckoutSummaryProps,
+  CheckoutSummaryProps as CheckoutSummaryV7Props,
+} from "./CheckoutWizard";
 
 export {
-  AddressInputV7,
-  MapPreviewV7,
-  AddressAutocompleteV7,
-} from "./AddressInputV7";
-export type { AddressInputV7Props } from "./AddressInputV7";
+  AddressInput,
+  AddressInput as AddressInputV7,
+  MapPreview,
+  MapPreview as MapPreviewV7,
+  AddressAutocomplete,
+  AddressAutocomplete as AddressAutocompleteV7,
+} from "./AddressInput";
+export type { AddressInputProps, AddressInputProps as AddressInputV7Props } from "./AddressInput";
 
-export { TimeSlotPickerV7 } from "./TimeSlotPickerV7";
-export type { TimeSlotPickerV7Props } from "./TimeSlotPickerV7";
+export { TimeSlotPicker, TimeSlotPicker as TimeSlotPickerV7 } from "./TimeSlotPicker";
+export type { TimeSlotPickerProps, TimeSlotPickerProps as TimeSlotPickerV7Props } from "./TimeSlotPicker";
 
-export { PaymentSuccessV7 } from "./PaymentSuccessV7";
-export type { PaymentSuccessV7Props } from "./PaymentSuccessV7";
+export { PaymentSuccess, PaymentSuccess as PaymentSuccessV7 } from "./PaymentSuccess";
+export type { PaymentSuccessProps, PaymentSuccessProps as PaymentSuccessV7Props } from "./PaymentSuccess";

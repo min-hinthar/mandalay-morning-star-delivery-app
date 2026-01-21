@@ -99,7 +99,7 @@ export function SuccessCheckmark({
     return variant === "default" ? (
       <div
         className={cn(
-          "flex items-center justify-center rounded-full bg-v6-green",
+          "flex items-center justify-center rounded-full bg-green",
           className
         )}
         style={{ width: size, height: size }}
@@ -121,7 +121,7 @@ export function SuccessCheckmark({
         fill="none"
         stroke="currentColor"
         strokeWidth={3}
-        className={cn("text-v6-green", className)}
+        className={cn("text-green", className)}
         style={{ width: size, height: size }}
       >
         <path d={checkmarkPath} />
@@ -138,7 +138,7 @@ export function SuccessCheckmark({
         if (show) onAnimationComplete?.();
       }}
       className={cn(
-        "flex items-center justify-center rounded-full bg-v6-green shadow-v6-md",
+        "flex items-center justify-center rounded-full bg-green shadow-md",
         className
       )}
       style={{ width: size, height: size }}
@@ -169,7 +169,7 @@ export function SuccessCheckmark({
       strokeWidth={3}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={cn("text-v6-green", className)}
+      className={cn("text-green", className)}
       style={{ width: size, height: size }}
     >
       <motion.path
@@ -243,7 +243,7 @@ export function SuccessOverlay({
       onAnimationComplete={onAnimationComplete}
       className={cn(
         "fixed inset-0 z-50 flex flex-col items-center justify-center",
-        "bg-v6-surface-primary/95 backdrop-blur-sm",
+        "bg-surface-primary/95 backdrop-blur-sm",
         className
       )}
     >
@@ -255,11 +255,11 @@ export function SuccessOverlay({
         animate="visible"
         className="mt-6 text-center"
       >
-        <h2 className="font-v6-display text-2xl font-bold text-v6-text-primary">
+        <h2 className="font-display text-2xl font-bold text-text-primary">
           {message}
         </h2>
         {subMessage && (
-          <p className="mt-2 font-v6-body text-v6-text-secondary">
+          <p className="mt-2 font-body text-text-secondary">
             {subMessage}
           </p>
         )}

@@ -28,7 +28,7 @@ export function PopularItems({ items }: PopularItemsProps) {
 
   if (items.length === 0) {
     return (
-      <p className="text-sm font-v6-body text-v6-text-muted">
+      <p className="text-sm font-body text-text-muted">
         No order data available
       </p>
     );
@@ -41,10 +41,10 @@ export function PopularItems({ items }: PopularItemsProps) {
           key={item.name}
           className={cn(
             "flex items-center justify-between",
-            "p-3 rounded-v6-input",
-            "bg-v6-surface-secondary",
-            "transition-colors duration-v6-fast",
-            "hover:bg-v6-surface-tertiary"
+            "p-3 rounded-input",
+            "bg-surface-secondary",
+            "transition-colors duration-fast",
+            "hover:bg-surface-tertiary"
           )}
         >
           <div className="flex items-center gap-3">
@@ -52,24 +52,24 @@ export function PopularItems({ items }: PopularItemsProps) {
             <div
               className={cn(
                 "w-7 h-7 flex items-center justify-center rounded-full",
-                "text-xs font-v6-display font-bold",
-                index === 0 && "bg-v6-secondary text-v6-text-primary",
-                index === 1 && "bg-v6-primary/10 text-v6-primary",
-                index === 2 && "bg-v6-accent-orange/10 text-v6-accent-orange",
-                index > 2 && "bg-v6-surface-tertiary text-v6-text-muted"
+                "text-xs font-display font-bold",
+                index === 0 && "bg-secondary text-text-primary",
+                index === 1 && "bg-primary/10 text-primary",
+                index === 2 && "bg-accent-orange/10 text-accent-orange",
+                index > 2 && "bg-surface-tertiary text-text-muted"
               )}
             >
               {index + 1}
             </div>
-            <span className="text-sm font-v6-body font-medium text-v6-text-primary">
+            <span className="text-sm font-body font-medium text-text-primary">
               {item.name}
             </span>
           </div>
           <div className="text-right">
-            <p className="text-sm font-v6-body font-semibold text-v6-text-primary">
+            <p className="text-sm font-body font-semibold text-text-primary">
               {item.quantity} sold
             </p>
-            <p className="text-xs font-v6-body text-v6-text-muted">
+            <p className="text-xs font-body text-text-muted">
               {formatCurrency(item.revenue)}
             </p>
           </div>

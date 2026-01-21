@@ -34,7 +34,7 @@ export function OfflineBanner() {
     <div className="fixed left-0 right-0 top-0 z-40">
       {/* Offline banner */}
       {!isOnline && (
-        <div className="bg-v6-status-error px-4 py-2 text-center font-v6-body text-sm font-medium text-white">
+        <div className="bg-status-error px-4 py-2 text-center font-body text-sm font-medium text-white">
           <div className="flex items-center justify-center gap-2">
             <WifiOff className="h-4 w-4" />
             <span>You&apos;re offline. Changes will sync when reconnected.</span>
@@ -44,7 +44,7 @@ export function OfflineBanner() {
 
       {/* Pending items banner */}
       {isOnline && pendingCounts.total > 0 && (
-        <div className="bg-v6-secondary px-4 py-2 text-center font-v6-body text-sm font-medium text-v6-text-primary">
+        <div className="bg-secondary px-4 py-2 text-center font-body text-sm font-medium text-text-primary">
           <div className="flex items-center justify-center gap-2">
             {isSyncing ? (
               <>
@@ -74,7 +74,7 @@ export function OfflineBanner() {
         (lastSyncResult.statusSynced > 0 ||
           lastSyncResult.photosSynced > 0 ||
           lastSyncResult.locationsSynced > 0) && (
-          <div className="bg-v6-green px-4 py-2 text-center font-v6-body text-sm font-medium text-white">
+          <div className="bg-green px-4 py-2 text-center font-body text-sm font-medium text-white">
             <div className="flex items-center justify-center gap-2">
               <Check className="h-4 w-4" />
               <span>

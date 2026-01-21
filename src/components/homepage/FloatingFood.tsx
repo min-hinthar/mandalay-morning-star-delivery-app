@@ -3,8 +3,8 @@
 import React, { useRef, useEffect, useState, useMemo } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { v7Spring } from "@/lib/motion-tokens-v7";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import { spring } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 
 // ============================================
@@ -227,7 +227,7 @@ function FloatingFoodItem({
       }}
       transition={{
         opacity: { duration: 0.6, delay: Math.random() * 0.5 },
-        scale: { ...v7Spring.rubbery, delay: Math.random() * 0.5 },
+        scale: { ...spring.rubbery, delay: Math.random() * 0.5 },
       }}
     >
       {src ? (
@@ -266,7 +266,7 @@ export function FloatingFood({
   parallaxIntensity = 0.5,
   disableOnMobile = true,
 }: FloatingFoodProps) {
-  const { shouldAnimate } = useAnimationPreferenceV7();
+  const { shouldAnimate } = useAnimationPreference();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const containerRef = useRef<HTMLDivElement>(null);
 

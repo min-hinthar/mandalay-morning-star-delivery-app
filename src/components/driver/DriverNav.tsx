@@ -39,7 +39,7 @@ export function DriverNav() {
   return (
     <nav
       data-testid="driver-nav"
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-v6-border bg-v6-surface-primary/95 backdrop-blur-sm safe-area-pb"
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-surface-primary/95 backdrop-blur-sm safe-area-pb"
     >
       <div className="flex h-16 items-center justify-around px-4">
         {navItems.map((item) => {
@@ -53,22 +53,22 @@ export function DriverNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex min-h-[56px] min-w-[64px] flex-col items-center justify-center gap-1 rounded-v6-input px-3 py-2 transition-all duration-v6-fast",
+                "flex min-h-[56px] min-w-[64px] flex-col items-center justify-center gap-1 rounded-input px-3 py-2 transition-all duration-fast",
                 isActive
-                  ? "text-v6-primary"
-                  : "text-v6-text-secondary hover:text-v6-text-primary hover:bg-v6-surface-secondary"
+                  ? "text-primary"
+                  : "text-text-secondary hover:text-text-primary hover:bg-surface-secondary"
               )}
             >
               <Icon
                 className={cn(
-                  "h-6 w-6 transition-transform duration-v6-fast",
+                  "h-6 w-6 transition-transform duration-fast",
                   isActive && "scale-110"
                 )}
                 strokeWidth={isActive ? 2.5 : 2}
               />
               <span
                 className={cn(
-                  "font-v6-body text-xs font-medium",
+                  "font-body text-xs font-medium",
                   isActive && "font-semibold"
                 )}
               >

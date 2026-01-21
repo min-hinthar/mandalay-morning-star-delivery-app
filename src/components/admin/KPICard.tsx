@@ -124,17 +124,17 @@ function KPICardSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "h-[110px] rounded-v6-card-sm",
-        "bg-v6-surface-primary",
-        "border border-v6-border",
+        "h-[110px] rounded-card-sm",
+        "bg-surface-primary",
+        "border border-border",
         "p-5",
         className
       )}
     >
-      <div className="animate-v6-shimmer space-y-3">
-        <div className="h-9 w-20 rounded-v6-input bg-v6-surface-tertiary" />
-        <div className="h-4 w-24 rounded-v6-input bg-v6-surface-tertiary" />
-        <div className="h-3 w-16 rounded-v6-input bg-v6-surface-tertiary" />
+      <div className="animate-shimmer space-y-3">
+        <div className="h-9 w-20 rounded-input bg-surface-tertiary" />
+        <div className="h-4 w-24 rounded-input bg-surface-tertiary" />
+        <div className="h-3 w-16 rounded-input bg-surface-tertiary" />
       </div>
     </div>
   );
@@ -154,17 +154,17 @@ function KPICardError({ onRetry, errorMessage, className }: KPICardErrorProps) {
   return (
     <div
       className={cn(
-        "h-[110px] rounded-v6-card-sm",
-        "bg-v6-status-error-bg",
-        "border border-v6-status-error/30",
+        "h-[110px] rounded-card-sm",
+        "bg-status-error-bg",
+        "border border-status-error/30",
         "p-5",
         "flex flex-col items-center justify-center gap-2",
         className
       )}
       role="alert"
     >
-      <AlertTriangle className="h-5 w-5 text-v6-status-error" />
-      <span className="text-xs font-v6-body text-v6-status-error text-center">
+      <AlertTriangle className="h-5 w-5 text-status-error" />
+      <span className="text-xs font-body text-status-error text-center">
         {errorMessage || "Error loading data"}
       </span>
       {onRetry && (
@@ -175,12 +175,12 @@ function KPICardError({ onRetry, errorMessage, className }: KPICardErrorProps) {
             onRetry();
           }}
           className={cn(
-            "text-xs font-v6-body font-medium",
-            "text-v6-primary",
-            "hover:text-v6-primary-hover",
+            "text-xs font-body font-medium",
+            "text-primary",
+            "hover:text-primary-hover",
             "hover:underline",
             "focus:outline-none focus:underline",
-            "transition-colors duration-v6-fast"
+            "transition-colors duration-fast"
           )}
         >
           Retry
@@ -244,18 +244,18 @@ export function KPICard({
   // Get comparison styling - V6 colors
   const getComparisonColor = () => {
     if (comparison === undefined || comparison === 0) {
-      return "text-v6-text-muted";
+      return "text-text-muted";
     }
     // For exceptions, down is good (green), up is bad (error)
     if (variant === "exception") {
       return comparison > 0
-        ? "text-v6-status-error"
-        : "text-v6-green";
+        ? "text-status-error"
+        : "text-green";
     }
     // For default, up is good (green), down is bad (error)
     return comparison > 0
-      ? "text-v6-green"
-      : "text-v6-status-error";
+      ? "text-green"
+      : "text-status-error";
   };
 
   const getComparisonIcon = () => {
@@ -325,26 +325,26 @@ export function KPICard({
       onKeyDown={handleKeyDown}
       className={cn(
         // V6 Base styles
-        "relative h-[110px] rounded-v6-card-sm",
-        "bg-v6-surface-primary",
-        "border border-v6-border",
+        "relative h-[110px] rounded-card-sm",
+        "bg-surface-primary",
+        "border border-border",
         "p-5",
-        "transition-all duration-v6-fast",
-        "shadow-v6-sm",
+        "transition-all duration-fast",
+        "shadow-sm",
         // V6 Interactive styles
         onClick && [
           "cursor-pointer",
-          "hover:border-v6-primary/30",
-          "hover:shadow-v6-md",
+          "hover:border-primary/30",
+          "hover:shadow-md",
           "focus-visible:outline-none",
           "focus-visible:ring-2",
-          "focus-visible:ring-v6-primary/40",
+          "focus-visible:ring-primary/40",
           "focus-visible:ring-offset-2",
         ],
         // V6 Exception highlight
         isExceptionHighlighted && [
-          "border-v6-status-error",
-          "bg-v6-status-error-bg",
+          "border-status-error",
+          "bg-status-error-bg",
         ],
         className
       )}
@@ -366,7 +366,7 @@ export function KPICard({
               animate="spin"
             >
               <RefreshCw
-                className="h-3.5 w-3.5 text-v6-text-muted"
+                className="h-3.5 w-3.5 text-text-muted"
                 aria-label="Refreshing data"
               />
             </motion.div>
@@ -379,8 +379,8 @@ export function KPICard({
         <ChevronRight
           className={cn(
             "absolute top-3 right-3 h-4 w-4",
-            "text-v6-text-muted",
-            "opacity-0 transition-opacity duration-v6-fast",
+            "text-text-muted",
+            "opacity-0 transition-opacity duration-fast",
             "group-hover:opacity-100"
           )}
           aria-hidden="true"
@@ -394,10 +394,10 @@ export function KPICard({
           {icon && (
             <div
               className={cn(
-                "flex-shrink-0 p-2 rounded-v6-input",
+                "flex-shrink-0 p-2 rounded-input",
                 isExceptionHighlighted
-                  ? "bg-v6-status-error/10 text-v6-status-error"
-                  : "bg-v6-surface-tertiary text-v6-text-secondary"
+                  ? "bg-status-error/10 text-status-error"
+                  : "bg-surface-tertiary text-text-secondary"
               )}
             >
               {icon}
@@ -419,10 +419,10 @@ export function KPICard({
               }
               exit="exit"
               className={cn(
-                "font-v6-display text-4xl font-bold leading-none tracking-tight",
+                "font-display text-4xl font-bold leading-none tracking-tight",
                 isExceptionHighlighted
-                  ? "text-v6-status-error"
-                  : "text-v6-text-primary"
+                  ? "text-status-error"
+                  : "text-text-primary"
               )}
             >
               {formatValue(value)}
@@ -433,10 +433,10 @@ export function KPICard({
         {/* V6 Label */}
         <span
           className={cn(
-            "text-sm font-v6-body font-medium",
+            "text-sm font-body font-medium",
             isExceptionHighlighted
-              ? "text-v6-status-error"
-              : "text-v6-text-secondary"
+              ? "text-status-error"
+              : "text-text-secondary"
           )}
         >
           {label}
@@ -446,7 +446,7 @@ export function KPICard({
         {comparison !== undefined ? (
           <div
             className={cn(
-              "flex items-center gap-1.5 text-sm font-v6-body font-semibold",
+              "flex items-center gap-1.5 text-sm font-body font-semibold",
               getComparisonColor()
             )}
           >
@@ -455,14 +455,14 @@ export function KPICard({
               {comparison > 0 ? "+" : ""}
               {Math.round(comparison)}%
             </span>
-            <span className="font-normal text-v6-text-muted">
+            <span className="font-normal text-text-muted">
               {comparisonLabel}
             </span>
           </div>
         ) : (
           // Show neutral comparison label when no comparison data
           variant !== "exception" && (
-            <div className="text-sm font-v6-body text-v6-text-muted">
+            <div className="text-sm font-body text-text-muted">
               {comparisonLabel}
             </div>
           )

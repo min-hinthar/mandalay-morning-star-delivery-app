@@ -47,41 +47,41 @@ const toastVariants = cva(
     "group pointer-events-auto relative flex w-full items-center gap-3",
     "overflow-hidden p-4",
     // V6 Card styling
-    "rounded-v6-card-sm border shadow-v6-elevated",
+    "rounded-card-sm border shadow-elevated",
     // V6 Motion: Slide in animation
     "data-[state=open]:animate-in data-[state=closed]:animate-out",
     "data-[state=open]:slide-in-from-top-full sm:data-[state=open]:slide-in-from-bottom-full",
     "data-[state=closed]:slide-out-to-right-full",
     "data-[state=closed]:fade-out-80",
-    "transition-all duration-v6-normal",
+    "transition-all duration-normal",
   ].join(" "),
   {
     variants: {
       variant: {
         // V6 Default: Neutral surface
         default: [
-          "bg-v6-surface-primary border-v6-border",
-          "text-v6-text-primary",
+          "bg-surface-primary border-border",
+          "text-text-primary",
         ].join(" "),
         // V6 Success: Green accent
         success: [
-          "bg-v6-green/10 border-v6-green/30",
-          "text-v6-text-primary",
+          "bg-green/10 border-green/30",
+          "text-text-primary",
         ].join(" "),
         // V6 Destructive/Error: Status error
         destructive: [
-          "bg-v6-status-error/10 border-v6-status-error/30",
-          "text-v6-text-primary",
+          "bg-status-error/10 border-status-error/30",
+          "text-text-primary",
         ].join(" "),
         // V6 Warning: Orange accent
         warning: [
-          "bg-v6-accent-orange/10 border-v6-accent-orange/30",
-          "text-v6-text-primary",
+          "bg-accent-orange/10 border-accent-orange/30",
+          "text-text-primary",
         ].join(" "),
         // V6 Info: Teal accent
         info: [
-          "bg-v6-accent-teal/10 border-v6-accent-teal/30",
-          "text-v6-text-primary",
+          "bg-accent-teal/10 border-accent-teal/30",
+          "text-text-primary",
         ].join(" "),
       },
     },
@@ -100,10 +100,10 @@ const toastIcons: Record<string, React.ComponentType<{ className?: string }>> = 
 };
 
 const toastIconColors: Record<string, string> = {
-  success: "text-v6-green",
-  destructive: "text-v6-status-error",
-  warning: "text-v6-accent-orange",
-  info: "text-v6-accent-teal",
+  success: "text-green",
+  destructive: "text-status-error",
+  warning: "text-accent-orange",
+  info: "text-accent-teal",
 };
 
 const Toast = React.forwardRef<
@@ -141,13 +141,13 @@ const ToastAction = React.forwardRef<
     className={cn(
       // V6 Action button styling
       "inline-flex h-8 shrink-0 items-center justify-center",
-      "rounded-v6-button px-3",
-      "font-v6-body text-sm font-medium",
-      "border border-v6-border bg-v6-surface-primary",
-      "transition-all duration-v6-fast",
-      "hover:bg-v6-surface-secondary hover:border-v6-primary",
+      "rounded-button px-3",
+      "font-body text-sm font-medium",
+      "border border-border bg-surface-primary",
+      "transition-all duration-fast",
+      "hover:bg-surface-secondary hover:border-primary",
       "active:scale-[0.98]",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
       className
     )}
     {...props}
@@ -163,12 +163,12 @@ const ToastClose = React.forwardRef<
     ref={ref}
     className={cn(
       // V6 Close button styling
-      "absolute right-2 top-2 rounded-v6-button p-1.5",
-      "text-v6-text-muted opacity-0",
-      "transition-all duration-v6-fast",
-      "hover:text-v6-text-primary hover:bg-v6-surface-secondary",
+      "absolute right-2 top-2 rounded-button p-1.5",
+      "text-text-muted opacity-0",
+      "transition-all duration-fast",
+      "hover:text-text-primary hover:bg-surface-secondary",
       "group-hover:opacity-100",
-      "focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary",
+      "focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
       className
     )}
     {...props}
@@ -186,7 +186,7 @@ const ToastTitle = React.forwardRef<
     ref={ref}
     className={cn(
       // V6 Typography
-      "font-v6-body text-sm font-semibold text-v6-text-primary",
+      "font-body text-sm font-semibold text-text-primary",
       className
     )}
     {...props}
@@ -202,7 +202,7 @@ const ToastDescription = React.forwardRef<
     ref={ref}
     className={cn(
       // V6 Typography
-      "font-v6-body text-sm text-v6-text-secondary",
+      "font-body text-sm text-text-secondary",
       className
     )}
     {...props}

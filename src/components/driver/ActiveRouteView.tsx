@@ -119,24 +119,24 @@ export function ActiveRouteView({
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-v6-card-sm bg-v6-surface-primary p-4 shadow-v6-sm border border-v6-border"
+        className="rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border"
       >
-        <div className="mb-2 flex justify-between font-v6-body text-sm">
-          <span className="font-medium text-v6-text-primary">Progress</span>
-          <span className="text-v6-text-secondary">
+        <div className="mb-2 flex justify-between font-body text-sm">
+          <span className="font-medium text-text-primary">Progress</span>
+          <span className="text-text-secondary">
             {completedCount}/{totalCount} stops
           </span>
         </div>
-        <div className="h-3 overflow-hidden rounded-full bg-v6-surface-tertiary">
+        <div className="h-3 overflow-hidden rounded-full bg-surface-tertiary">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="h-full rounded-full bg-v6-green"
+            className="h-full rounded-full bg-green"
           />
         </div>
         {deliveredCount > 0 && skippedCount > 0 && (
-          <div className="mt-2 flex gap-4 font-v6-body text-xs text-v6-text-secondary">
+          <div className="mt-2 flex gap-4 font-body text-xs text-text-secondary">
             <span>{deliveredCount} delivered</span>
             <span>{skippedCount} skipped</span>
           </div>
@@ -161,9 +161,9 @@ export function ActiveRouteView({
           onClick={handleStartRoute}
           disabled={isStarting}
           className={cn(
-            "flex h-14 w-full items-center justify-center gap-3 rounded-v6-card-sm font-v6-body font-semibold",
-            "bg-v6-green text-white shadow-v6-sm",
-            "transition-all duration-v6-fast hover:bg-v6-green/90 hover:shadow-v6-md",
+            "flex h-14 w-full items-center justify-center gap-3 rounded-card-sm font-body font-semibold",
+            "bg-green text-white shadow-sm",
+            "transition-all duration-fast hover:bg-green/90 hover:shadow-md",
             "active:scale-[0.98]",
             "disabled:cursor-not-allowed disabled:opacity-50"
           )}
@@ -187,9 +187,9 @@ export function ActiveRouteView({
           onClick={handleCompleteRoute}
           disabled={isCompleting}
           className={cn(
-            "flex h-14 w-full items-center justify-center gap-3 rounded-v6-card-sm font-v6-body font-semibold",
-            "bg-v6-green text-white shadow-v6-sm",
-            "transition-all duration-v6-fast hover:bg-v6-green/90 hover:shadow-v6-md",
+            "flex h-14 w-full items-center justify-center gap-3 rounded-card-sm font-body font-semibold",
+            "bg-green text-white shadow-sm",
+            "transition-all duration-fast hover:bg-green/90 hover:shadow-md",
             "active:scale-[0.98]",
             "disabled:cursor-not-allowed disabled:opacity-50"
           )}
@@ -207,7 +207,7 @@ export function ActiveRouteView({
 
       {/* Error Message */}
       {error && (
-        <p className="text-center font-v6-body text-sm text-v6-status-error" role="alert">
+        <p className="text-center font-body text-sm text-status-error" role="alert">
           {error}
         </p>
       )}

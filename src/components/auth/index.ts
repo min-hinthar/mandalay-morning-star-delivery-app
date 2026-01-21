@@ -4,9 +4,9 @@ export { ForgotPasswordForm } from "./forgot-password-form";
 export { ResetPasswordForm } from "./reset-password-form";
 export { UserMenu } from "./user-menu";
 
-// V7 Components
-export { AuthModalV7 } from "./AuthModalV7";
-export type { AuthModalV7Props } from "./AuthModalV7";
+// Auth Modal
+export { AuthModal, AuthModal as AuthModalV7 } from "./AuthModal";
+export type { AuthModalProps, AuthModalProps as AuthModalV7Props } from "./AuthModal";
 
 export { MagicLinkSent } from "./MagicLinkSent";
 export type { MagicLinkSentProps } from "./MagicLinkSent";

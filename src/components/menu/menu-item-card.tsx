@@ -137,19 +137,19 @@ export function MenuItemCard({
       className={cn(
         "group relative overflow-hidden",
         // V6 Card styling with visible border
-        "rounded-v6-card bg-v6-surface-primary",
-        "border border-v6-border",
-        "shadow-v6-card",
+        "rounded-card bg-surface-primary",
+        "border border-border",
+        "shadow-card",
         // V6 Motion
-        "transition-all duration-v6-normal ease-v6-spring",
+        "transition-all duration-normal ease-spring",
         isInteractive && [
           "cursor-pointer",
-          "hover:shadow-v6-card-hover",
-          "hover:border-v6-border-strong",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary focus-visible:ring-offset-2",
+          "hover:shadow-card-hover",
+          "hover:border-border-strong",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         ],
         item.isSoldOut && "opacity-60 grayscale",
-        variant === "featured" && "ring-2 ring-v6-secondary/40"
+        variant === "featured" && "ring-2 ring-secondary/40"
       )}
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
@@ -160,8 +160,8 @@ export function MenuItemCard({
     >
       {/* Image Container - V6 rounded top corners */}
       <div className={cn(
-        "relative overflow-hidden bg-gradient-to-br from-v6-surface-secondary to-v6-surface-tertiary",
-        "rounded-t-v6-card",
+        "relative overflow-hidden bg-gradient-to-br from-surface-secondary to-surface-tertiary",
+        "rounded-t-card",
         styles.imageAspect
       )}>
         {/* V6 Popular Badge - Golden Yellow */}
@@ -184,17 +184,17 @@ export function MenuItemCard({
               className={cn(
                 "object-cover",
                 // V6 Image zoom effect
-                "transition-transform duration-300 ease-v6-default",
+                "transition-transform duration-300 ease-default",
                 isInteractive && "group-hover:scale-[1.03]"
               )}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
             {/* V6 Gradient overlay on hover */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-v6-normal group-hover:opacity-100" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-normal group-hover:opacity-100" />
           </>
         ) : (
           <div className="flex h-full items-center justify-center">
-            <span className="text-sm text-v6-text-muted">No image</span>
+            <span className="text-sm text-text-muted">No image</span>
           </div>
         )}
 
@@ -206,11 +206,11 @@ export function MenuItemCard({
             className={cn(
               "absolute top-3 right-3 z-10",
               "flex h-10 w-10 items-center justify-center",
-              "rounded-full bg-v6-surface-primary/95 backdrop-blur-sm",
-              "shadow-v6-md",
-              "transition-all duration-v6-fast",
+              "rounded-full bg-surface-primary/95 backdrop-blur-sm",
+              "shadow-md",
+              "transition-all duration-fast",
               "hover:scale-110 active:scale-95",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary"
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             )}
             whileTap={prefersReducedMotion ? undefined : { scale: 0.85 }}
             aria-label={localFavorite ? "Remove from favorites" : "Add to favorites"}
@@ -228,8 +228,8 @@ export function MenuItemCard({
                   className={cn(
                     "h-5 w-5 transition-colors",
                     localFavorite
-                      ? "fill-v6-primary text-v6-primary"
-                      : "text-v6-text-muted"
+                      ? "fill-primary text-primary"
+                      : "text-text-muted"
                   )}
                 />
               </motion.div>
@@ -249,7 +249,7 @@ export function MenuItemCard({
               variant="primary"
               size="sm"
               onClick={handleQuickAdd}
-              className="shadow-v6-elevated"
+              className="shadow-elevated"
             >
               <Plus className="w-4 h-4 mr-1" />
               Add
@@ -260,7 +260,7 @@ export function MenuItemCard({
         {/* V6 Sold Out Overlay */}
         {item.isSoldOut && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <Badge className="bg-v6-surface-primary px-4 py-2 text-base font-bold text-v6-text-primary shadow-v6-elevated">
+            <Badge className="bg-surface-primary px-4 py-2 text-base font-bold text-text-primary shadow-elevated">
               Sold Out
             </Badge>
           </div>
@@ -272,14 +272,14 @@ export function MenuItemCard({
         {/* Names */}
         <div className="mb-2">
           <h3 className={cn(
-            "font-v6-display font-bold text-v6-text-primary leading-tight line-clamp-1",
-            "transition-colors duration-v6-fast group-hover:text-v6-primary",
+            "font-display font-bold text-text-primary leading-tight line-clamp-1",
+            "transition-colors duration-fast group-hover:text-primary",
             styles.titleSize
           )}>
             {item.nameEn}
           </h3>
           {item.nameMy && (
-            <p className="text-sm text-v6-text-muted font-burmese mt-0.5 line-clamp-1">
+            <p className="text-sm text-text-muted font-burmese mt-0.5 line-clamp-1">
               {item.nameMy}
             </p>
           )}
@@ -287,7 +287,7 @@ export function MenuItemCard({
 
         {/* Description (featured variant only) */}
         {variant === "featured" && item.descriptionEn && (
-          <p className="mb-3 line-clamp-2 text-sm text-v6-text-secondary">
+          <p className="mb-3 line-clamp-2 text-sm text-text-secondary">
             {item.descriptionEn}
           </p>
         )}
@@ -296,8 +296,8 @@ export function MenuItemCard({
         <div className="flex items-center justify-between gap-2">
           {/* V6 Price - Primary color */}
           <span className={cn(
-            "font-v6-display font-bold text-v6-primary",
-            "transition-colors duration-v6-fast group-hover:text-v6-primary-hover",
+            "font-display font-bold text-primary",
+            "transition-colors duration-fast group-hover:text-primary-hover",
             styles.priceSize
           )}>
             {formatPrice(item.basePriceCents)}
@@ -317,12 +317,12 @@ export function MenuItemCard({
                       <TooltipTrigger asChild>
                         <div className={cn(
                           "flex h-6 w-6 items-center justify-center rounded-full",
-                          "border border-v6-orange/30 bg-v6-orange-light"
+                          "border border-orange/30 bg-orange-light"
                         )}>
                           <IconComponent className={cn("h-3.5 w-3.5", info.color)} />
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent className="bg-v6-surface-primary text-v6-text-primary border-v6-border">
+                      <TooltipContent className="bg-surface-primary text-text-primary border-border">
                         <p>Contains {info.label}</p>
                       </TooltipContent>
                     </Tooltip>
@@ -333,14 +333,14 @@ export function MenuItemCard({
                     <TooltipTrigger asChild>
                       <div className={cn(
                         "flex h-6 w-6 items-center justify-center rounded-full",
-                        "border border-v6-orange/30 bg-v6-orange-light"
+                        "border border-orange/30 bg-orange-light"
                       )}>
-                        <span className="text-xs font-medium text-v6-orange">
+                        <span className="text-xs font-medium text-orange">
                           +{item.allergens.length - 4}
                         </span>
                       </div>
                     </TooltipTrigger>
-                    <TooltipContent className="bg-v6-surface-primary text-v6-text-primary border-v6-border">
+                    <TooltipContent className="bg-surface-primary text-text-primary border-border">
                       <p>
                         {item.allergens
                           .slice(4)
@@ -372,26 +372,26 @@ export function MenuItemCardSkeleton({ variant = "default" }: { variant?: CardVa
 
   return (
     <div className={cn(
-      "overflow-hidden rounded-v6-card",
-      "bg-v6-surface-primary shadow-v6-card"
+      "overflow-hidden rounded-card",
+      "bg-surface-primary shadow-card"
     )}>
       {/* Image skeleton - V6 shimmer */}
-      <div className="relative aspect-video bg-v6-surface-tertiary animate-v6-shimmer" />
+      <div className="relative aspect-video bg-surface-tertiary animate-shimmer" />
 
       {/* Content skeleton */}
       <div className={cn(styles[variant].padding, "space-y-2")}>
         {/* Title skeleton */}
-        <div className="h-5 w-3/4 rounded-v6-input bg-v6-surface-tertiary animate-v6-shimmer" />
+        <div className="h-5 w-3/4 rounded-input bg-surface-tertiary animate-shimmer" />
 
         {/* Burmese name skeleton */}
-        <div className="h-4 w-1/2 rounded-v6-input bg-v6-surface-tertiary animate-v6-shimmer" />
+        <div className="h-4 w-1/2 rounded-input bg-surface-tertiary animate-shimmer" />
 
         {/* Price + allergens skeleton */}
         <div className="flex items-center justify-between">
-          <div className="h-5 w-1/4 rounded-v6-input bg-v6-surface-tertiary animate-v6-shimmer" />
+          <div className="h-5 w-1/4 rounded-input bg-surface-tertiary animate-shimmer" />
           <div className="flex gap-1">
-            <div className="h-6 w-6 rounded-full bg-v6-surface-tertiary animate-v6-shimmer" />
-            <div className="h-6 w-6 rounded-full bg-v6-surface-tertiary animate-v6-shimmer" />
+            <div className="h-6 w-6 rounded-full bg-surface-tertiary animate-shimmer" />
+            <div className="h-6 w-6 rounded-full bg-surface-tertiary animate-shimmer" />
           </div>
         </div>
       </div>

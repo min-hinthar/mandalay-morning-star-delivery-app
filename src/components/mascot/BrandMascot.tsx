@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useCallback, forwardRef } from "react";
 import { motion, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { v7Spring } from "@/lib/motion-tokens-v7";
-import { useAnimationPreferenceV7 } from "@/lib/hooks/useAnimationPreferenceV7";
+import { spring } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
 // TYPES
@@ -160,16 +160,16 @@ function Eyes({ expression, size, isBlinking }: EyesProps) {
   return (
     <div className="flex gap-1" style={{ gap: eyeSpacing }}>
       <motion.div
-        className="bg-v6-primary rounded-full"
+        className="bg-primary rounded-full"
         style={{ width: eyeSize, height: eyeSize }}
         animate={eyeStyle}
-        transition={v7Spring.snappy}
+        transition={spring.snappy}
       />
       <motion.div
-        className="bg-v6-primary rounded-full"
+        className="bg-primary rounded-full"
         style={{ width: eyeSize, height: eyeSize }}
         animate={eyeStyle}
-        transition={v7Spring.snappy}
+        transition={spring.snappy}
       />
     </div>
   );
@@ -221,7 +221,7 @@ function Mouth({ expression, size }: MouthProps) {
             fill="currentColor"
             initial={{ ry: 0 }}
             animate={{ ry: mouthHeight * 0.5 }}
-            transition={v7Spring.rubbery}
+            transition={spring.rubbery}
           />
         );
       case "thinking":
@@ -281,7 +281,7 @@ function Mouth({ expression, size }: MouthProps) {
       width={mouthWidth}
       height={mouthHeight}
       viewBox={`0 0 ${mouthWidth} ${mouthHeight}`}
-      className="text-v6-primary"
+      className="text-primary"
     >
       {getMouthPath()}
     </svg>
@@ -308,17 +308,17 @@ function Accessories({ expression, size }: AccessoriesProps) {
           animate={{ opacity: 1 }}
         >
           <motion.div
-            className="w-2 h-2 rounded-full bg-v6-secondary/60"
+            className="w-2 h-2 rounded-full bg-secondary/60"
             animate={{ y: [0, -3, 0], opacity: [0.6, 1, 0.6] }}
             transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
           />
           <motion.div
-            className="w-3 h-3 rounded-full bg-v6-secondary/60"
+            className="w-3 h-3 rounded-full bg-secondary/60"
             animate={{ y: [0, -2, 0], opacity: [0.6, 1, 0.6] }}
             transition={{ duration: 1.5, repeat: Infinity, delay: 0.1 }}
           />
           <motion.div
-            className="w-4 h-4 rounded-full bg-v6-secondary/60"
+            className="w-4 h-4 rounded-full bg-secondary/60"
             animate={{ y: [0, -2, 0], opacity: [0.6, 1, 0.6] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           />
@@ -332,7 +332,7 @@ function Accessories({ expression, size }: AccessoriesProps) {
     return (
       <div className="absolute -top-4 -right-4">
         <motion.div
-          className="text-v6-primary/60 font-bold"
+          className="text-primary/60 font-bold"
           style={{ fontSize: size * 0.4 }}
           animate={{
             y: [0, -10, 0],
@@ -354,7 +354,7 @@ function Accessories({ expression, size }: AccessoriesProps) {
         {[...Array(4)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute text-v6-secondary"
+            className="absolute text-secondary"
             style={{
               top: `${-10 + Math.random() * 20}%`,
               left: `${80 + Math.random() * 30}%`,
@@ -415,7 +415,7 @@ export const BrandMascot = forwardRef<HTMLDivElement, BrandMascotProps>(
     },
     ref
   ) {
-    const { shouldAnimate, getSpring } = useAnimationPreferenceV7();
+    const { shouldAnimate, getSpring } = useAnimationPreference();
     const [currentExpression, setCurrentExpression] = useState<MascotExpression>(expression);
     const [isBlinking, setIsBlinking] = useState(false);
 
@@ -504,23 +504,23 @@ export const BrandMascot = forwardRef<HTMLDivElement, BrandMascotProps>(
         >
           {/* Face */}
           <div
-            className="rounded-full bg-v6-secondary/20 border-4 border-v6-secondary flex flex-col items-center justify-center gap-2"
+            className="rounded-full bg-secondary/20 border-4 border-secondary flex flex-col items-center justify-center gap-2"
             style={{ width: face, height: face }}
           >
             {/* Eyes */}
             <div className="flex gap-2">
               <div
-                className="bg-v6-primary rounded-full"
+                className="bg-primary rounded-full"
                 style={{ width: eyes, height: eyes }}
               />
               <div
-                className="bg-v6-primary rounded-full"
+                className="bg-primary rounded-full"
                 style={{ width: eyes, height: eyes }}
               />
             </div>
             {/* Simple mouth */}
             <div
-              className="bg-v6-primary rounded-full"
+              className="bg-primary rounded-full"
               style={{ width: mouth, height: mouth * 0.3 }}
             />
           </div>
@@ -543,13 +543,13 @@ export const BrandMascot = forwardRef<HTMLDivElement, BrandMascotProps>(
         animate="animate"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        transition={getSpring(v7Spring.rubbery)}
+        transition={getSpring(spring.rubbery)}
         role="img"
         aria-label={ariaLabel}
       >
         {/* Glow effect */}
         <motion.div
-          className="absolute inset-0 rounded-full bg-v6-secondary/30 blur-xl"
+          className="absolute inset-0 rounded-full bg-secondary/30 blur-xl"
           animate={{
             scale: [1, 1.1, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -559,14 +559,14 @@ export const BrandMascot = forwardRef<HTMLDivElement, BrandMascotProps>(
 
         {/* Face */}
         <motion.div
-          className="relative rounded-full bg-gradient-to-br from-v6-secondary/30 to-v6-secondary/10 border-4 border-v6-secondary flex flex-col items-center justify-center shadow-lg"
+          className="relative rounded-full bg-gradient-to-br from-secondary/30 to-secondary/10 border-4 border-secondary flex flex-col items-center justify-center shadow-lg"
           style={{ width: face, height: face, gap: face * 0.08 }}
         >
           {/* Blush */}
           {(currentExpression === "excited" || currentExpression === "celebrating") && (
             <>
               <motion.div
-                className="absolute rounded-full bg-v6-primary/20"
+                className="absolute rounded-full bg-primary/20"
                 style={{
                   width: face * 0.15,
                   height: face * 0.08,
@@ -577,7 +577,7 @@ export const BrandMascot = forwardRef<HTMLDivElement, BrandMascotProps>(
                 animate={{ opacity: 0.6 }}
               />
               <motion.div
-                className="absolute rounded-full bg-v6-primary/20"
+                className="absolute rounded-full bg-primary/20"
                 style={{
                   width: face * 0.15,
                   height: face * 0.08,

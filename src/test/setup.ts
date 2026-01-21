@@ -7,7 +7,7 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
 };
 
-// Mock localStorage for tests (useAnimationPreferenceV7 uses it)
+// Mock localStorage for tests (useAnimationPreference uses it)
 const localStorageMock = {
   getItem: () => null,
   setItem: () => {},

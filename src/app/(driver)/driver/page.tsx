@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { DriverDashboardV7 } from "@/components/driver/v7-index";
+import { DriverDashboard } from "@/components/driver/v7-index";
 import type { RoutesRow, RouteStats, VehicleType } from "@/types/driver";
 
 const TIMEZONE = "America/Los_Angeles";
@@ -132,31 +132,31 @@ async function getDriverData() {
 
 function DriverHomeLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-v6-surface-secondary to-v6-surface-tertiary/30">
+    <div className="min-h-screen bg-gradient-to-b from-surface-secondary to-surface-tertiary/30">
       <div className="px-4 py-6">
         {/* Greeting skeleton */}
         <div className="mb-6 animate-pulse">
-          <div className="mb-1 h-8 w-48 rounded-v6-input bg-v6-surface-tertiary" />
-          <div className="h-5 w-32 rounded-v6-input bg-v6-surface-tertiary" />
+          <div className="mb-1 h-8 w-48 rounded-input bg-surface-tertiary" />
+          <div className="h-5 w-32 rounded-input bg-surface-tertiary" />
         </div>
 
         {/* Route card skeleton */}
-        <div className="animate-pulse rounded-v6-card bg-v6-surface-primary p-6 shadow-v6-md">
-          <div className="mb-4 h-6 w-32 rounded-v6-input bg-v6-surface-tertiary" />
-          <div className="mb-4 h-4 w-48 rounded-v6-input bg-v6-surface-tertiary" />
-          <div className="mb-6 h-3 w-full rounded-full bg-v6-surface-tertiary" />
-          <div className="h-14 w-full rounded-v6-card-sm bg-v6-surface-tertiary" />
+        <div className="animate-pulse rounded-card bg-surface-primary p-6 shadow-md">
+          <div className="mb-4 h-6 w-32 rounded-input bg-surface-tertiary" />
+          <div className="mb-4 h-4 w-48 rounded-input bg-surface-tertiary" />
+          <div className="mb-6 h-3 w-full rounded-full bg-surface-tertiary" />
+          <div className="h-14 w-full rounded-card-sm bg-surface-tertiary" />
         </div>
 
         {/* Stats skeleton */}
         <div className="mt-6 grid grid-cols-2 gap-4">
-          <div className="animate-pulse rounded-v6-card-sm bg-v6-surface-primary p-4 shadow-v6-sm">
-            <div className="mb-2 h-8 w-12 rounded-v6-input bg-v6-surface-tertiary" />
-            <div className="h-4 w-20 rounded-v6-input bg-v6-surface-tertiary" />
+          <div className="animate-pulse rounded-card-sm bg-surface-primary p-4 shadow-sm">
+            <div className="mb-2 h-8 w-12 rounded-input bg-surface-tertiary" />
+            <div className="h-4 w-20 rounded-input bg-surface-tertiary" />
           </div>
-          <div className="animate-pulse rounded-v6-card-sm bg-v6-surface-primary p-4 shadow-v6-sm">
-            <div className="mb-2 h-8 w-12 rounded-v6-input bg-v6-surface-tertiary" />
-            <div className="h-4 w-20 rounded-v6-input bg-v6-surface-tertiary" />
+          <div className="animate-pulse rounded-card-sm bg-surface-primary p-4 shadow-sm">
+            <div className="mb-2 h-8 w-12 rounded-input bg-surface-tertiary" />
+            <div className="h-4 w-20 rounded-input bg-surface-tertiary" />
           </div>
         </div>
       </div>
@@ -175,5 +175,5 @@ export default async function DriverHomePage() {
 async function DriverHomePageContent() {
   const data = await getDriverData();
 
-  return <DriverDashboardV7 {...data} />;
+  return <DriverDashboard {...data} />;
 }

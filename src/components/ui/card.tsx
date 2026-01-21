@@ -14,41 +14,41 @@ import { cn } from "@/lib/utils/cn";
 const cardVariants = cva(
   [
     // V6 Base: Large rounded corners, warm surface
-    "rounded-v6-card bg-v6-surface-primary",
+    "rounded-card bg-surface-primary",
     // V6 Motion: Spring-based transitions
-    "transition-all duration-v6-normal ease-v6-spring",
+    "transition-all duration-normal ease-spring",
   ].join(" "),
   {
     variants: {
       variant: {
         // Flat: Subtle background, no shadow (for list items)
         flat: [
-          "bg-v6-surface-secondary",
-          "border border-v6-border-subtle",
+          "bg-surface-secondary",
+          "border border-border-subtle",
         ].join(" "),
 
         // Elevated: Warm shadow for standalone cards
-        elevated: "shadow-v6-card",
+        elevated: "shadow-card",
 
         // Interactive: Clickable cards with hover lift effects
         interactive: [
-          "shadow-v6-card cursor-pointer",
-          "hover:shadow-v6-card-hover hover:-translate-y-1 hover:scale-[1.01]",
-          "active:shadow-v6-md active:translate-y-0 active:scale-[0.99]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-v6-primary focus-visible:ring-offset-2",
+          "shadow-card cursor-pointer",
+          "hover:shadow-card-hover hover:-translate-y-1 hover:scale-[1.01]",
+          "active:shadow-md active:translate-y-0 active:scale-[0.99]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         ].join(" "),
 
         // Alert: Left border accent (exception cards)
-        alert: "border-l-4 shadow-v6-sm",
+        alert: "border-l-4 shadow-sm",
 
         // Default: Basic card (legacy compatibility)
-        default: "border border-v6-border shadow-v6-sm",
+        default: "border border-border shadow-sm",
       },
       alertAccent: {
-        error: "border-l-v6-status-error bg-v6-status-error-bg",
-        warning: "border-l-v6-status-warning bg-v6-status-warning-bg",
-        success: "border-l-v6-green bg-v6-green-light",
-        info: "border-l-v6-teal bg-v6-teal-light",
+        error: "border-l-status-error bg-status-error-bg",
+        warning: "border-l-status-warning bg-status-warning-bg",
+        success: "border-l-green bg-green-light",
+        info: "border-l-teal bg-teal-light",
       },
     },
     defaultVariants: {
@@ -143,7 +143,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "font-v6-display text-xl font-bold leading-tight text-v6-text-primary",
+      "font-display text-xl font-bold leading-tight text-text-primary",
       className
     )}
     {...props}
@@ -157,7 +157,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-v6-text-secondary", className)}
+    className={cn("text-sm text-text-secondary", className)}
     {...props}
   />
 ));

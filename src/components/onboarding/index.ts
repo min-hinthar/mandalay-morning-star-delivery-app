@@ -4,8 +4,9 @@
  * Sprint 9: Auth & Onboarding
  */
 
-export { OnboardingTourV7 } from "./OnboardingTourV7";
+export { OnboardingTour, OnboardingTour as OnboardingTourV7 } from "./OnboardingTour";
 export type {
-  OnboardingTourV7Props,
+  OnboardingTourProps,
+  OnboardingTourProps as OnboardingTourV7Props,
   OnboardingStep,
-} from "./OnboardingTourV7";
+} from "./OnboardingTour";
