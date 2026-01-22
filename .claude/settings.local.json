@@ -3,35 +3,64 @@
     "ENABLE_TOOL_SEARCH": "true"
   },
   "permissions": {
+    "defaultMode": "acceptEdits",
+    "additionalDirectories": [],
     "allow": [
-      "Bash(pnpm *)",
-      "Bash(git *)",
-      "Bash(gh *)",
-      "Bash(stripe listen*)",
-      "Bash(supabase *)",
-      "WebSearch",
-      "mcp__plugin_sentry_sentry__find_organizations",
-      "mcp__plugin_sentry_sentry__search_issues",
+      "Edit",
+      "Write",
+
+      "Bash(pwd)",
+      "Bash(cd:*)",
+      "Bash(ls:*)",
+      "Bash(tree:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "Bash(rg:*)",
       "Bash(grep:*)",
-      "Bash(cat:*)"
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(touch:*)",
+      "Bash(chmod:*)",
+
+      "Bash(* --version)",
+      "Bash(node -v)",
+      "Bash(pnpm -v)",
+
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git switch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git restore:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git stash:*)",
+
+      "Bash(pnpm install:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm test*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(pnpm exec:*)"
+    ],
+    "ask": [
+      "WebFetch",
+      "WebSearch",
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "Bash(git rebase:*)",
+      "Bash(git merge:*)",
+      "Bash(rm:*)"
     ]
   },
   "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/migration-validator.sh",
-            "timeout": 30
-          },
-          {
-            "type": "prompt",
-            "prompt": "Review migration validation results above. If ERRORS found: list them clearly, suggest fixes, and DO NOT complete the task until fixed. If only warnings: note them but allow completion."
-          }
-        ]
-      }
-    ],
     "SessionEnd": [
       {
         "hooks": [

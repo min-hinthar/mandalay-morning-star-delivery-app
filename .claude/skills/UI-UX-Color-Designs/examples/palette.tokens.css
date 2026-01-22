@@ -1,0 +1,46 @@
+:root {
+  /* Neutral ramp (example) */
+  --n-0: #ffffff;
+  --n-50: #f7f7f8;
+  --n-100: #efeff1;
+  --n-200: #dedee3;
+  --n-300: #c7c7cf;
+  --n-400: #a9a9b4;
+  --n-500: #8a8a97;
+  --n-600: #6b6b78;
+  --n-700: #4f4f5b;
+  --n-800: #35353f;
+  --n-900: #1f1f26;
+  --n-1000: #0f0f14;
+
+  /* Accent ramp (example) */
+  --a-50: #fff1f0;
+  --a-200: #ffb5ae;
+  --a-400: #ff6b5e;
+  --a-600: #f03222;
+  --a-800: #b31207;
+
+  /* Semantic roles */
+  --bg: var(--n-0);
+  --surface: var(--n-50);
+  --surface-elevated: var(--n-0);
+  --text: var(--n-1000);
+  --text-muted: var(--n-700);
+  --border: var(--n-200);
+
+  --accent: var(--a-600);
+  --accent-strong: var(--a-800);
+  --on-accent: var(--n-0);
+
+  --hero-gradient: radial-gradient(1200px circle at 20% 0%, var(--a-200), transparent 55%),
+                   radial-gradient(1200px circle at 80% 20%, var(--a-400), transparent 55%);
+}
+
+.dark {
+  --bg: var(--n-1000);
+  --surface: var(--n-900);
+  --surface-elevated: var(--n-800);
+  --text: var(--n-0);
+  --text-muted: var(--n-300);
+  --border: color-mix(in srgb, var(--n-700) 40%, transparent);
+}

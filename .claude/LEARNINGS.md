@@ -1534,6 +1534,31 @@ const { isFavorite, toggleFavorite } = useFavorites();
 
 ---
 
+## 2026-01-21: Windows Terminal Unicode Encoding in PowerShell Scripts
+
+**Context:** Claude Code statusline script displaying garbled characters instead of progress bars
+
+**Problem:** PowerShell scripts using Unicode characters (block elements █░, checkmarks ✓✗, box-drawing │, emojis 💀⬆) display as mojibake (`â–ˆ`, `â–'`, etc.) in Windows terminals due to encoding mismatches between script file encoding, console code page, and font support.
+
+**Solution:** Replace all Unicode with ASCII equivalents:
+
+| Unicode | ASCII Replacement |
+|---------|-------------------|
+| `█░` (progress blocks) | `=` and `-` with brackets: `[=====-----]` |
+| `✓ / ✗` (checkmark/X) | `"clean"` / `"dirty"` text |
+| `│` (box-drawing pipe) | `|` (ASCII pipe) |
+| `💀` (emoji) | `!` (exclamation) |
+| `⬆` (arrow) | `^` (caret) |
+
+**Why this works:**
+- ASCII characters render identically in all Windows console code pages
+- No BOM/encoding issues with script files
+- Font-agnostic - works in CMD, PowerShell, Windows Terminal, Git Bash
+
+**Apply when:** Creating CLI tools, status lines, or progress indicators for Windows environments
+
+---
+
 ## 2026-01-21: DropdownAction event.preventDefault() Blocks Redirects
 
 **Context:** Signout button in dropdown menu showing loading state but not redirecting
