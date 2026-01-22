@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-21)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 4 planning (Customer Flows)
+**Current focus:** Phase 4 execution (Cart Experience)
 
 ## Current Position
 
-Phase: 3 of 7 (Navigation & Layout) — COMPLETE
-Plan: 5 of 5 complete
-Status: Phase 3 Complete
-Last activity: 2026-01-22 — Completed 03-05-PLAN.md (Layout Integration)
+Phase: 4 of 7 (Cart Experience) — COMPLETE
+Plan: 4 of 4 complete
+Status: Phase complete
+Last activity: 2026-01-22 — Completed 04-04-PLAN.md (Celebration Animations)
 
-Progress: [████████░░] 55% (17/31 plans estimated)
+Progress: [███████░░░░░] 58% (18/31 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
+- Total plans completed: 18
 - Average duration: 5 min
-- Total execution time: 1.18 hours
+- Total execution time: 1.68 hours
 
 **By Phase:**
 
@@ -30,9 +30,10 @@ Progress: [████████░░] 55% (17/31 plans estimated)
 | 01-foundation-token-system | 5 | 34 min | 7 min |
 | 02-overlay-infrastructure | 4 | 14 min | 4 min |
 | 03-navigation-layout | 5 | 23 min | 5 min |
+| 04-cart-experience | 4 | 30 min | 8 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (5 min), 03-04 (7 min), 03-02 (4 min), 03-03 (4 min), 03-05 (3 min)
+- Last 5 plans: 03-05 (3 min), 04-01 (6 min), 04-02 (8 min), 04-03 (8 min), 04-04 (8 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -71,6 +72,17 @@ Recent decisions affecting current work:
 - Header uses useScrollDirection with threshold 50 for collapse detection
 - AppShell composes Header, BottomNav, MobileMenu with state lifted to parent
 - navItems prop with defaults allows customization while providing sensible defaults
+- Cart animation store uses simple RefObject<HTMLSpanElement> for badge targeting
+- Hydration handled via mounted state to avoid localStorage mismatch
+- V8 colors use amber-500 for primary accent (cart badge, hover states)
+- Fixed vitest/globals TypeScript by removing from types array, adding triple-slash reference
+- QuantitySelector min defaults to 1, but CartItemV8 passes min=0 for decrement-to-remove
+- Swipe threshold at -100px offset OR -500 velocity for responsive delete action
+- CartDrawerV8 uses responsive overlay pattern: BottomSheet (<640px), Drawer (desktop)
+- Free delivery progress uses spring.rubbery for satisfying fill animation
+- GSAP keyframes over motionPath plugin (not registered in project)
+- Flying element created imperatively via document.createElement for lifecycle control
+- Badge pulse triggered from store after fly animation completes
 
 ### Pending Todos
 
@@ -84,7 +96,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-22
-Stopped at: Completed 03-05-PLAN.md (Layout Integration)
+Stopped at: Completed 04-04-PLAN.md (Celebration Animations)
 Resume file: None
 
 ## Phases Complete
@@ -131,6 +143,30 @@ Phase 3 (Navigation & Layout) COMPLETE with all 5 plans:
 - RevealOnScroll (directional scroll reveals)
 - ParallaxLayer (scroll-linked parallax effects)
 - PageTransitionV8 (enhanced route transitions with morph variant)
+
+**Verification:** All success criteria passed
+**Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
+
+### Phase 4 (Cart Experience) COMPLETE
+
+Phase 4 (Cart Experience) COMPLETE with all 4 plans:
+
+1. **04-01:** Cart Button V8 - Cart button with animated badge, animation store for badge ref
+2. **04-02:** Cart Item V8 - Cart item with swipe-to-delete, animated quantity selector
+3. **04-03:** Cart Drawer V8 - Responsive cart drawer, CartSummary, CartEmptyState
+4. **04-04:** Celebration Animations - FlyToCart, AddToCartButton, ClearCartConfirmation
+
+**Delivered Components:**
+- CartButtonV8 (cart button with animated badge)
+- useCartAnimationStore (Zustand store for badge ref + fly animation coordination)
+- CartItemV8 (cart item with swipe-to-delete gesture)
+- QuantitySelector (animated quantity controls with haptic feedback)
+- CartDrawerV8 (responsive cart drawer using BottomSheet/Drawer)
+- CartSummary (order summary with animated free delivery progress)
+- CartEmptyState (friendly empty cart state with animation)
+- FlyToCart + useFlyToCart (GSAP arc animation to badge)
+- AddToCartButton (celebration trigger with success states)
+- ClearCartConfirmation + useClearCartConfirmation (destructive action modal)
 
 **Verification:** All success criteria passed
 **Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
