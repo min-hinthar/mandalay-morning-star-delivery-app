@@ -196,3 +196,29 @@ Also disabled rules incompatible with Tailwind's output: `import-notation`, `col
 **Prevention:** When adding stylelint to Tailwind projects, check Tailwind version and add all directive names to ignoreAtRules.
 
 ---
+
+## 2026-01-22: TailwindCSS @theme Token Name Mismatch in TypeScript Constants
+**Type:** Runtime | **Severity:** High
+**Files:** `src/design-system/tokens/z-index.ts`, `src/app/globals.css`
+
+**Error:** Inline styles using `zIndexVar.modal` silently fail - elements don't receive z-index
+**Root Cause:** CSS defines `--z-index-modal` (with category prefix for TailwindCSS 4 utility generation), but TypeScript zIndexVar references `var(--z-modal)` (without prefix). CSS variable doesn't exist, so style is ignored.
+
+**Detection:** Verifier caught this during phase goal validation - checked actual CSS against TypeScript exports.
+
+**Fix:** Update zIndexVar to use full CSS variable names:
+```typescript
+// Before (broken - references non-existent variable)
+export const zIndexVar = {
+  modal: "var(--z-modal)",
+};
+
+// After (working - matches actual CSS variable)
+export const zIndexVar = {
+  modal: "var(--z-index-modal)",
+};
+```
+
+**Prevention:** When creating TypeScript token constants that mirror CSS custom properties, verify the exact CSS variable names in the source file. TailwindCSS 4 @theme strips prefixes for utility generation (`--z-index-modal` → `z-modal`), but the CSS variable keeps the full name.
+
+---

@@ -1655,3 +1655,28 @@ className="bg-[var(--color-surface-primary)] border border-border rounded-xl sha
 
 **Apply when:** Hero sections with multiple CTAs, ensuring each button serves distinct user intent
 
+---
+
+## 2026-01-22: TailwindCSS 4 @theme Z-Index Token Naming Convention
+
+**Context:** Phase 1 z-index token integration - TypeScript zIndexVar failed silently because CSS variable names didn't match
+
+**Problem:** Plan specified zIndexVar to reference `var(--z-modal)` but TailwindCSS 4 @theme requires `--z-index-*` prefix (it strips the prefix to generate utilities like `z-modal`).
+
+| What was created | What should be referenced |
+|-----------------|---------------------------|
+| `--z-index-modal` in @theme | `var(--z-index-modal)` not `var(--z-modal)` |
+
+**Key insight:** TailwindCSS 4 @theme variables generate utilities by stripping the category prefix (`--z-index-modal` → `z-modal`). The CSS variable name includes the full prefix, the utility class name does not.
+
+**Correct zIndexVar pattern:**
+```typescript
+export const zIndexVar = {
+  modal: "var(--z-index-modal)",      // References full CSS var name
+  dropdown: "var(--z-index-dropdown)",
+  // ... etc
+} as const;
+```
+
+**Apply when:** Creating design token TypeScript constants that reference TailwindCSS @theme CSS variables, especially when tokens follow the category-prefix pattern
+
