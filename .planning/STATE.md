@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-21)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 2 overlay infrastructure COMPLETE
+**Current focus:** Phase 3 planning (Navigation & Layout)
 
 ## Current Position
 
-Phase: 2 of 7 (Overlay Infrastructure)
-Plan: 4 of 4 complete
-Status: Phase complete
-Last activity: 2026-01-22 — Completed 02-04-PLAN.md (Tooltip and Toast Components)
+Phase: 3 of 7 (Navigation & Layout) — NOT STARTED
+Plan: 0 of 4 (TBD)
+Status: Ready to plan
+Last activity: 2026-01-22 — Completed Phase 2 (Overlay Infrastructure)
 
-Progress: [████░░░░░░] 32% (9/28 plans estimated)
+Progress: [████████░░] 43% (13/30 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 9
-- Average duration: 6 min
-- Total execution time: 0.80 hours
+- Average duration: 5 min
+- Total execution time: 0.85 hours
 
 **By Phase:**
 
@@ -31,7 +31,7 @@ Progress: [████░░░░░░] 32% (9/28 plans estimated)
 | 02-overlay-infrastructure | 4 | 14 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-05 (7 min), 02-01 (6 min), 02-02 (est), 02-03 (5 min), 02-04 (3 min)
+- Last 5 plans: 02-01 (6 min), 02-02 (3 min), 02-03 (5 min), 02-04 (3 min)
 - Trend: Stable, accelerating
 
 *Updated after each plan completion*
@@ -73,10 +73,16 @@ None - build pipeline fully passing.
 ## Session Continuity
 
 Last session: 2026-01-22
-Stopped at: Completed 02-04-PLAN.md (Tooltip and Toast Components)
+Stopped at: Completed Phase 2 (Overlay Infrastructure)
 Resume file: None
 
-## Phase 2 Complete
+## Phases Complete
+
+### Phase 1 (Foundation & Token System) COMPLETE
+
+5 plans completed establishing z-index tokens, GSAP setup, lint enforcement.
+
+### Phase 2 (Overlay Infrastructure) COMPLETE
 
 Phase 2 (Overlay Infrastructure) COMPLETE with all 4 plans:
 
@@ -89,8 +95,9 @@ Phase 2 (Overlay Infrastructure) COMPLETE with all 4 plans:
 - Portal, Backdrop (primitives)
 - Modal, BottomSheet, Drawer, Dropdown, Tooltip, Toast (overlay components)
 - ToastProvider (app wrapper)
-- useRouteChangeClose, useBodyScrollLock, useToastV8 (hooks)
+- useRouteChangeClose, useBodyScrollLock, useSwipeToClose, useToastV8 (hooks)
 
+**Verification:** 7/7 success criteria passed
 **Build status:** All passing (`pnpm lint && pnpm lint:css && pnpm typecheck && pnpm build`)
 
 Ready to proceed to Phase 3.

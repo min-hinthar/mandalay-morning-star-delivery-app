@@ -13,7 +13,7 @@ A complete frontend rewrite transforming the Morning Star delivery app from a z-
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Token System** - Z-index tokens, GSAP setup, stacking rules, lint enforcement
-- [ ] **Phase 2: Overlay Infrastructure** - Portal-based modals, sheets, drawers, dropdowns, tooltips, toasts with route-aware cleanup
+- [x] **Phase 2: Overlay Infrastructure** - Portal-based modals, sheets, drawers, dropdowns, tooltips, toasts with route-aware cleanup
 - [ ] **Phase 3: Navigation & Layout** - Sticky header, bottom nav, page containers, mobile menu, scroll effects, page transitions
 - [ ] **Phase 4: Cart Experience** - Cart drawer/sheet, item controls, quantity animations, add-to-cart celebrations
 - [ ] **Phase 5: Menu Browsing** - Category tabs, item cards, search, item detail modal, loading states, list animations
@@ -56,10 +56,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Portal, Backdrop primitives, motion tokens, color tokens, useRouteChangeClose and useBodyScrollLock hooks
-- [ ] 02-02-PLAN.md — Modal dialog (responsive desktop/mobile) and BottomSheet with swipe-to-dismiss
-- [ ] 02-03-PLAN.md — Side drawer with focus trap and Dropdown without event swallowing
-- [ ] 02-04-PLAN.md — Tooltip with hover delay and Toast notification system with stacking
+- [x] 02-01-PLAN.md — Portal, Backdrop primitives, motion tokens, color tokens, useRouteChangeClose and useBodyScrollLock hooks
+- [x] 02-02-PLAN.md — Modal dialog (responsive desktop/mobile) and BottomSheet with swipe-to-dismiss
+- [x] 02-03-PLAN.md — Side drawer with focus trap and Dropdown without event swallowing
+- [x] 02-04-PLAN.md — Tooltip with hover delay and Toast notification system with stacking
 
 ### Phase 3: Navigation & Layout
 **Goal**: Create the app shell with sticky header, bottom nav, and page containers that are always clickable
@@ -162,7 +162,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Token System | 5/5 | ✓ Complete | 2026-01-22 |
-| 2. Overlay Infrastructure | 0/4 | Planned | - |
+| 2. Overlay Infrastructure | 4/4 | ✓ Complete | 2026-01-22 |
 | 3. Navigation & Layout | 0/4 | Not started | - |
 | 4. Cart Experience | 0/4 | Not started | - |
 | 5. Menu Browsing | 0/5 | Not started | - |
@@ -175,5 +175,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 1 revised: 2026-01-22 (scope reduced - deferred FOUND-03,04,06,08 to later phases)*
 *Phase 1 gap closure: 2026-01-22 (added 01-04, 01-05 to fix verification gaps)*
 *Phase 2 planned: 2026-01-22*
+*Phase 2 complete: 2026-01-22*
 *Depth: comprehensive (8-12 phases, 5-10 plans each)*
 *Total requirements: 55 | Mapped: 55 | Coverage: 100%*
