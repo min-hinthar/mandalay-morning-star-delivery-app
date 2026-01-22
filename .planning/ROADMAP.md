@@ -73,13 +73,13 @@ Plans:
   5. Page transitions animate smoothly between routes without layout shift
   6. GSAP scroll choreography patterns are available for scroll-triggered animations
   7. Creative page layouts with reveal effects are implemented
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 03-01: App shell layout and page containers
-- [ ] 03-02: Sticky header with scroll effects
-- [ ] 03-03: Bottom navigation and mobile menu
-- [ ] 03-04: Page transition animations
+- [ ] 03-01-PLAN.md — AppShell layout wrapper and PageContainer spacing component
+- [ ] 03-02-PLAN.md — Sticky header with scroll-aware shrink/blur effects
+- [ ] 03-03-PLAN.md — Bottom navigation and mobile menu with auto-close
+- [ ] 03-04-PLAN.md — GSAP scroll choreography and enhanced page transitions
 
 ### Phase 4: Cart Experience
 **Goal**: Deliver a delightful cart drawer with smooth animations and intuitive item management
@@ -163,7 +163,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 |-------|----------------|--------|-----------|
 | 1. Foundation & Token System | 5/5 | ✓ Complete | 2026-01-22 |
 | 2. Overlay Infrastructure | 4/4 | ✓ Complete | 2026-01-22 |
-| 3. Navigation & Layout | 0/4 | Not started | - |
+| 3. Navigation & Layout | 0/4 | Planned | - |
 | 4. Cart Experience | 0/4 | Not started | - |
 | 5. Menu Browsing | 0/5 | Not started | - |
 | 6. Checkout Flow | 0/5 | Not started | - |
@@ -176,5 +176,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 1 gap closure: 2026-01-22 (added 01-04, 01-05 to fix verification gaps)*
 *Phase 2 planned: 2026-01-22*
 *Phase 2 complete: 2026-01-22*
+*Phase 3 planned: 2026-01-22*
 *Depth: comprehensive (8-12 phases, 5-10 plans each)*
 *Total requirements: 55 | Mapped: 55 | Coverage: 100%*
