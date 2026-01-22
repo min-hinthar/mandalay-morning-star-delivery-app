@@ -91,3 +91,10 @@ export { useToast, toast } from "./useToast";
 // ============================================
 
 export { useABTest } from "./useABTest";
+
+// ============================================
+// OVERLAY HOOKS
+// ============================================
+
+export { useRouteChangeClose } from "./useRouteChangeClose";
+export { useBodyScrollLock } from "./useBodyScrollLock";
