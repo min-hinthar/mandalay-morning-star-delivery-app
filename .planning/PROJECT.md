@@ -79,7 +79,7 @@ V7 is functionally blocked by UI layering/interaction defects:
 - **Tech stack**: Next.js App Router, TailwindCSS, Supabase, Stripe — keep existing
 - **Backend contracts**: API routes and Supabase schema stay stable
 - **Approach**: Fresh components in new directories, parallel development, swap when ready
-- **Skill usage**: Use `@.claude/skills/UI-UX-Color-Designs` for design system work
+- **Skill usage**: Use `@.claude/skills/UI-UX-Color-Designs` for design system work and `@.claude/skills/frontend-design` for implementation
 
 ## Key Decisions
 
