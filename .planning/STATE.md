@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-21)
 ## Current Position
 
 Phase: 3 of 7 (Navigation & Layout) — IN PROGRESS
-Plan: 1 of 4 complete
+Plan: 2 of 5 complete
 Status: Executing Phase 3
-Last activity: 2026-01-22 — Completed 03-01-PLAN.md (App Shell Layout)
+Last activity: 2026-01-22 — Completed 03-04-PLAN.md (Scroll Effects & Page Transitions)
 
-Progress: [████████░░] 47% (14/30 plans estimated)
+Progress: [████████░░] 48% (15/31 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: 5 min
-- Total execution time: 0.93 hours
+- Total execution time: 1.05 hours
 
 **By Phase:**
 
@@ -29,10 +29,10 @@ Progress: [████████░░] 47% (14/30 plans estimated)
 |-------|-------|-------|----------|
 | 01-foundation-token-system | 5 | 34 min | 7 min |
 | 02-overlay-infrastructure | 4 | 14 min | 4 min |
-| 03-navigation-layout | 1 | 5 min | 5 min |
+| 03-navigation-layout | 2 | 12 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-02 (3 min), 02-03 (5 min), 02-04 (3 min), 03-01 (5 min)
+- Last 5 plans: 02-03 (5 min), 02-04 (3 min), 03-01 (5 min), 03-04 (7 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -64,6 +64,8 @@ Recent decisions affecting current work:
 - Toast uses z-toast (80) — Highest z-index for notifications above modals
 - AppShell uses flex column layout with fixed header (72px) and bottom nav (64px mobile)
 - PageContainer uses polymorphic pattern for semantic HTML elements
+- useGSAP scope pattern for all scroll components ensures automatic cleanup
+- PageTransitionV8 uses pathname as AnimatePresence key for route detection
 
 ### Pending Todos
 
@@ -76,7 +78,7 @@ None - build pipeline fully passing.
 ## Session Continuity
 
 Last session: 2026-01-22
-Stopped at: Completed 03-01-PLAN.md (App Shell Layout)
+Stopped at: Completed 03-04-PLAN.md (Scroll Effects & Page Transitions)
 Resume file: None
 
 ## Phases Complete
@@ -106,12 +108,17 @@ Phase 2 (Overlay Infrastructure) COMPLETE with all 4 plans:
 ### Phase 3 (Navigation & Layout) IN PROGRESS
 
 1. **03-01:** App Shell Layout - AppShell wrapper, PageContainer spacing component
+2. **03-04:** Scroll Effects & Page Transitions - GSAP scroll choreography, page transitions
 
 **Delivered Components:**
 - AppShell (main layout wrapper with header/nav slots)
 - PageContainer (consistent page spacing with responsive padding)
+- ScrollChoreographer (orchestrated scroll animations)
+- RevealOnScroll (directional scroll reveals)
+- ParallaxLayer (scroll-linked parallax effects)
+- PageTransitionV8 (enhanced route transitions with morph variant)
 
 **Remaining:**
 - 03-02: Header component
 - 03-03: BottomNav component
-- 03-04: MobileMenu component
+- 03-05: Layout integration
