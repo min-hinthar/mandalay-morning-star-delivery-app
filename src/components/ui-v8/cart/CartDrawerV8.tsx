@@ -16,7 +16,7 @@
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, X } from "lucide-react";
+import { ShoppingBag, X, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { CartItemV8 } from "./CartItemV8";
 import { CartSummary } from "./CartSummary";
 import { CartEmptyState } from "./CartEmptyState";
+import { ClearCartConfirmation, useClearCartConfirmation } from "./ClearCartConfirmation";
 
 // ============================================
 // TYPES
@@ -46,9 +47,11 @@ export interface CartDrawerV8Props {
 interface CartHeaderProps {
   itemCount: number;
   onClose: () => void;
+  onClearClick: () => void;
+  showClear: boolean;
 }
 
-function CartHeader({ itemCount, onClose }: CartHeaderProps) {
+function CartHeader({ itemCount, onClose, onClearClick, showClear }: CartHeaderProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
@@ -102,24 +105,47 @@ function CartHeader({ itemCount, onClose }: CartHeaderProps) {
         )}
       </h2>
 
-      {/* Close button */}
-      <motion.button
-        type="button"
-        onClick={onClose}
-        whileHover={shouldAnimate ? { scale: 1.05, rotate: 90 } : undefined}
-        whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
-        transition={getSpring(spring.snappy)}
-        className={cn(
-          "flex h-10 w-10 items-center justify-center rounded-full",
-          "bg-surface-tertiary text-text-muted",
-          "hover:bg-surface-secondary hover:text-text-primary",
-          "transition-colors duration-150",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      <div className="flex items-center gap-2">
+        {/* Clear cart button */}
+        {showClear && (
+          <motion.button
+            type="button"
+            onClick={onClearClick}
+            whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
+            whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+            transition={getSpring(spring.snappy)}
+            className={cn(
+              "flex h-10 w-10 items-center justify-center rounded-full",
+              "bg-red-100 dark:bg-red-900/30 text-red-500 dark:text-red-400",
+              "hover:bg-red-200 dark:hover:bg-red-900/50",
+              "transition-colors duration-150",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+            )}
+            aria-label="Clear cart"
+          >
+            <Trash2 className="h-5 w-5" />
+          </motion.button>
         )}
-        aria-label="Close cart"
-      >
-        <X className="h-5 w-5" />
-      </motion.button>
+
+        {/* Close button */}
+        <motion.button
+          type="button"
+          onClick={onClose}
+          whileHover={shouldAnimate ? { scale: 1.05, rotate: 90 } : undefined}
+          whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+          transition={getSpring(spring.snappy)}
+          className={cn(
+            "flex h-10 w-10 items-center justify-center rounded-full",
+            "bg-surface-tertiary text-text-muted",
+            "hover:bg-surface-secondary hover:text-text-primary",
+            "transition-colors duration-150",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          )}
+          aria-label="Close cart"
+        >
+          <X className="h-5 w-5" />
+        </motion.button>
+      </div>
     </div>
   );
 }
@@ -231,6 +257,12 @@ interface CartContentProps {
 function CartContent({ onClose }: CartContentProps) {
   const router = useRouter();
   const { isEmpty, itemCount } = useCart();
+  const {
+    isOpen: isClearOpen,
+    openConfirmation,
+    handleConfirm: handleClearConfirm,
+    close: closeClear,
+  } = useClearCartConfirmation();
 
   const handleCheckout = useCallback(() => {
     onClose();
@@ -239,7 +271,12 @@ function CartContent({ onClose }: CartContentProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <CartHeader itemCount={itemCount} onClose={onClose} />
+      <CartHeader
+        itemCount={itemCount}
+        onClose={onClose}
+        onClearClick={openConfirmation}
+        showClear={!isEmpty}
+      />
 
       {isEmpty ? (
         <CartEmptyState onClose={onClose} />
@@ -249,6 +286,14 @@ function CartContent({ onClose }: CartContentProps) {
           <CartFooter onClose={onClose} onCheckout={handleCheckout} />
         </>
       )}
+
+      {/* Clear cart confirmation modal */}
+      <ClearCartConfirmation
+        isOpen={isClearOpen}
+        onClose={closeClear}
+        onConfirm={handleClearConfirm}
+        itemCount={itemCount}
+      />
     </div>
   );
 }

@@ -148,14 +148,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NAV-05 | Phase 3 | Complete |
 | NAV-06 | Phase 3 | Complete |
 | NAV-07 | Phase 3 | Complete |
-| CART-01 | Phase 4 | Pending |
-| CART-02 | Phase 4 | Pending |
-| CART-03 | Phase 4 | Pending |
-| CART-04 | Phase 4 | Pending |
-| CART-05 | Phase 4 | Pending |
-| CART-06 | Phase 4 | Pending |
-| CART-07 | Phase 4 | Pending |
-| CART-08 | Phase 4 | Pending |
+| CART-01 | Phase 4 | Complete |
+| CART-02 | Phase 4 | Complete |
+| CART-03 | Phase 4 | Complete |
+| CART-04 | Phase 4 | Complete |
+| CART-05 | Phase 4 | Complete |
+| CART-06 | Phase 4 | Complete |
+| CART-07 | Phase 4 | Complete |
+| CART-08 | Phase 4 | Complete |
 | MENU-01 | Phase 5 | Pending |
 | MENU-02 | Phase 5 | Pending |
 | MENU-03 | Phase 5 | Pending |
@@ -187,4 +187,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-21*
-*Last updated: 2026-01-22 after Phase 3 completion*
+*Last updated: 2026-01-22 after Phase 4 completion*

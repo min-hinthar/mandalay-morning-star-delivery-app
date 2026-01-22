@@ -7,8 +7,7 @@ import { Header, HeaderSpacer } from "./v7-index";
 import { MobileNav } from "./MobileNav";
 import { UserMenu } from "@/components/auth/user-menu";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { useCart } from "@/lib/hooks/useCart";
-import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
+import { CartButtonV8 } from "@/components/ui-v8/cart";
 import type { UserRole } from "./nav-links";
 import { Home, UtensilsCrossed, Package, ShieldCheck, Truck } from "lucide-react";
 
@@ -35,8 +34,6 @@ const navConfig: NavConfigItem[] = [
 export function HeaderClient({ user, role }: HeaderClientProps): ReactElement {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { itemCount } = useCart();
-  const { open: openCart } = useCartDrawer();
 
   // Filter nav items based on role
   const navItems = useMemo(() => {
@@ -75,13 +72,12 @@ export function HeaderClient({ user, role }: HeaderClientProps): ReactElement {
     <>
       <Header
         navItems={navItems}
-        cartCount={itemCount}
-        onCartClick={openCart}
         isMobileMenuOpen={isMobileMenuOpen}
         onMobileMenuToggle={handleMobileMenuToggle}
         showSearch={false}
         rightContent={
           <div className="flex items-center gap-2">
+            <CartButtonV8 />
             <ThemeToggle />
             <UserMenu user={user} />
           </div>

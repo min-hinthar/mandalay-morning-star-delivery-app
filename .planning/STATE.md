@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-21)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 4 execution (Cart Experience)
+**Current focus:** Phase 5 planning (Menu Browsing)
 
 ## Current Position
 
-Phase: 4 of 7 (Cart Experience) — COMPLETE
-Plan: 4 of 4 complete
-Status: Phase complete
-Last activity: 2026-01-22 — Completed 04-04-PLAN.md (Celebration Animations)
+Phase: 4 of 7 (Cart Experience) — VERIFIED
+Plan: 5 of 5 complete (including 04-05 gap closure)
+Status: Phase verified (9/9 must-haves)
+Last activity: 2026-01-22 — Completed 04-05-PLAN.md (V8 Cart Integration Gap Closure)
 
-Progress: [███████░░░░░] 58% (18/31 plans estimated)
+Progress: [███████░░░░░] 61% (19/31 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
-- Average duration: 5 min
-- Total execution time: 1.68 hours
+- Total plans completed: 19
+- Average duration: 6 min
+- Total execution time: 1.8 hours
 
 **By Phase:**
 
@@ -30,10 +30,10 @@ Progress: [███████░░░░░] 58% (18/31 plans estimated)
 | 01-foundation-token-system | 5 | 34 min | 7 min |
 | 02-overlay-infrastructure | 4 | 14 min | 4 min |
 | 03-navigation-layout | 5 | 23 min | 5 min |
-| 04-cart-experience | 4 | 30 min | 8 min |
+| 04-cart-experience | 5 | 37 min | 7 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-05 (3 min), 04-01 (6 min), 04-02 (8 min), 04-03 (8 min), 04-04 (8 min)
+- Last 5 plans: 04-01 (6 min), 04-02 (8 min), 04-03 (8 min), 04-04 (8 min), 04-05 (7 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -83,6 +83,8 @@ Recent decisions affecting current work:
 - GSAP keyframes over motionPath plugin (not registered in project)
 - Flying element created imperatively via document.createElement for lifecycle control
 - Badge pulse triggered from store after fly animation completes
+- V8 integration pattern: replace V7 import, component just works (same hooks)
+- Clear button visibility via showClear prop based on isEmpty state
 
 ### Pending Todos
 
@@ -96,7 +98,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-22
-Stopped at: Completed 04-04-PLAN.md (Celebration Animations)
+Stopped at: Completed 04-05-PLAN.md (V8 Cart Integration Gap Closure)
 Resume file: None
 
 ## Phases Complete
@@ -149,12 +151,13 @@ Phase 3 (Navigation & Layout) COMPLETE with all 5 plans:
 
 ### Phase 4 (Cart Experience) COMPLETE
 
-Phase 4 (Cart Experience) COMPLETE with all 4 plans:
+Phase 4 (Cart Experience) COMPLETE with all 5 plans:
 
 1. **04-01:** Cart Button V8 - Cart button with animated badge, animation store for badge ref
 2. **04-02:** Cart Item V8 - Cart item with swipe-to-delete, animated quantity selector
 3. **04-03:** Cart Drawer V8 - Responsive cart drawer, CartSummary, CartEmptyState
 4. **04-04:** Celebration Animations - FlyToCart, AddToCartButton, ClearCartConfirmation
+5. **04-05:** V8 Cart Integration - Gap closure integrating V8 components into live app
 
 **Delivered Components:**
 - CartButtonV8 (cart button with animated badge)
@@ -167,6 +170,11 @@ Phase 4 (Cart Experience) COMPLETE with all 4 plans:
 - FlyToCart + useFlyToCart (GSAP arc animation to badge)
 - AddToCartButton (celebration trigger with success states)
 - ClearCartConfirmation + useClearCartConfirmation (destructive action modal)
+
+**Integration (04-05):**
+- CartDrawerV8 replaces V7 CartDrawer in providers.tsx
+- CartButtonV8 integrated in HeaderClient.tsx
+- ClearCartConfirmation wired to trash button in cart drawer
 
 **Verification:** All success criteria passed
 **Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
