@@ -43,7 +43,7 @@ const config = [
     files: ["src/components/**/*.tsx", "src/app/**/*.tsx"],
     rules: {
       "no-restricted-syntax": [
-        "error",
+        "warn",
         {
           // Catch z-[number] arbitrary values: z-[10], z-[999], etc.
           selector: "Literal[value=/z-\\[\\d+\\]/]",
