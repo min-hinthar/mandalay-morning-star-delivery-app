@@ -30,3 +30,16 @@ export type {
   DropdownItemProps,
   DropdownSeparatorProps,
 } from "./Dropdown";
+
+// Tooltip
+export {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "./Tooltip";
+
+// Toast
+export { Toast, ToastContainer } from "./Toast";
+export { ToastProvider } from "./ToastProvider";
+export type { Toast as ToastType } from "@/lib/hooks/useToastV8";
