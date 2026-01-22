@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-21)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 4 planning (Customer Flows)
+**Current focus:** Phase 4 execution (Cart Experience)
 
 ## Current Position
 
-Phase: 3 of 7 (Navigation & Layout) — COMPLETE
-Plan: 5 of 5 complete
-Status: Phase 3 Complete
-Last activity: 2026-01-22 — Completed 03-05-PLAN.md (Layout Integration)
+Phase: 4 of 7 (Cart Experience) — IN PROGRESS
+Plan: 1 of 4 complete
+Status: In progress
+Last activity: 2026-01-22 — Completed 04-01-PLAN.md (Cart Button V8)
 
-Progress: [████████░░] 55% (17/31 plans estimated)
+Progress: [████████░░] 58% (18/31 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
+- Total plans completed: 15
 - Average duration: 5 min
-- Total execution time: 1.18 hours
+- Total execution time: 1.28 hours
 
 **By Phase:**
 
@@ -30,9 +30,10 @@ Progress: [████████░░] 55% (17/31 plans estimated)
 | 01-foundation-token-system | 5 | 34 min | 7 min |
 | 02-overlay-infrastructure | 4 | 14 min | 4 min |
 | 03-navigation-layout | 5 | 23 min | 5 min |
+| 04-cart-experience | 1 | 6 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (5 min), 03-04 (7 min), 03-02 (4 min), 03-03 (4 min), 03-05 (3 min)
+- Last 5 plans: 03-04 (7 min), 03-02 (4 min), 03-03 (4 min), 03-05 (3 min), 04-01 (6 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -71,6 +72,9 @@ Recent decisions affecting current work:
 - Header uses useScrollDirection with threshold 50 for collapse detection
 - AppShell composes Header, BottomNav, MobileMenu with state lifted to parent
 - navItems prop with defaults allows customization while providing sensible defaults
+- Cart animation store uses simple RefObject<HTMLSpanElement> for badge targeting
+- Hydration handled via mounted state to avoid localStorage mismatch
+- V8 colors use amber-500 for primary accent (cart badge, hover states)
 
 ### Pending Todos
 
@@ -84,7 +88,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-22
-Stopped at: Completed 03-05-PLAN.md (Layout Integration)
+Stopped at: Completed 04-01-PLAN.md (Cart Button V8)
 Resume file: None
 
 ## Phases Complete
@@ -131,6 +135,19 @@ Phase 3 (Navigation & Layout) COMPLETE with all 5 plans:
 - RevealOnScroll (directional scroll reveals)
 - ParallaxLayer (scroll-linked parallax effects)
 - PageTransitionV8 (enhanced route transitions with morph variant)
+
+**Verification:** All success criteria passed
+**Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
+
+### Phase 4 (Cart Experience) IN PROGRESS
+
+Phase 4 (Cart Experience) IN PROGRESS with 1/4 plans:
+
+1. **04-01:** Cart Button V8 - Cart button with animated badge, animation store for badge ref
+
+**Delivered Components:**
+- CartButtonV8 (cart button with animated badge)
+- useCartAnimationStore (Zustand store for badge ref coordination)
 
 **Verification:** All success criteria passed
 **Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
