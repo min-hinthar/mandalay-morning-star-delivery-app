@@ -1657,6 +1657,97 @@ className="bg-[var(--color-surface-primary)] border border-border rounded-xl sha
 
 ---
 
+## 2026-01-22: Parallel Wave Execution for Multi-Plan Phases
+
+**Context:** Phase 2 had 4 plans with Wave 1 (foundation) and Wave 2 (3 parallel plans)
+
+**Pattern:** GSD executor groups plans into waves based on dependencies:
+- Wave 1: 02-01 (overlay primitives - has no dependencies within phase)
+- Wave 2: 02-02, 02-03, 02-04 (all depend only on 02-01, can run in parallel)
+
+**Execution:**
+```
+Task(subagent_type="gsd-executor", prompt="Execute 02-02...")
+Task(subagent_type="gsd-executor", prompt="Execute 02-03...")
+Task(subagent_type="gsd-executor", prompt="Execute 02-04...")
+// All 3 in single message = parallel execution
+```
+
+**Results:**
+- 3 agents completed independently (~3-5 min each)
+- Each created atomic commits for its tasks
+- No conflicts despite touching shared barrel export file (sequential commits)
+
+**Apply when:** Executing phases with independent plans, maximizing throughput on multi-plan phases
+
+---
+
+## 2026-01-22: Dropdown Event Handling - mousedown vs click for Outside Detection
+
+**Context:** Dropdown.tsx needed to close on outside click without swallowing form events
+
+**Problem:** V7 dropdown used `stopPropagation()` on content which blocked form submissions. Click events fire after mousedown, so forms were already blocked.
+
+**Solution:**
+1. Use `mousedown` for outside click detection (fires before click, catches event earlier)
+2. Do NOT use `stopPropagation()` on dropdown content - let events bubble
+3. Only close dropdown in item `onClick`, don't prevent default
+
+**Pattern:**
+```tsx
+// Dropdown content - NO stopPropagation
+useEffect(() => {
+  const handleMouseDown = (e: MouseEvent) => {
+    if (!dropdownRef.current?.contains(e.target as Node) &&
+        !triggerRef.current?.contains(e.target as Node)) {
+      setIsOpen(false);
+    }
+  };
+  document.addEventListener("mousedown", handleMouseDown);
+  return () => document.removeEventListener("mousedown", handleMouseDown);
+}, []);
+```
+
+**Apply when:** Building dropdowns that may contain forms or need event bubbling
+
+---
+
+## 2026-01-22: Focus Trap Implementation Pattern
+
+**Context:** Drawer.tsx needed keyboard focus trap for accessibility
+
+**Implementation:**
+```tsx
+const handleKeyDown = (e: React.KeyboardEvent) => {
+  if (e.key !== "Tab") return;
+
+  const focusables = drawerRef.current?.querySelectorAll<HTMLElement>(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  if (!focusables?.length) return;
+
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+};
+```
+
+**Key points:**
+- Store `lastActiveElement` on open, restore on close
+- Focus first focusable element with `setTimeout(50)` for animation
+- Tab wraps from last to first, Shift+Tab from first to last
+
+**Apply when:** Building modals, drawers, dialogs that need WCAG-compliant focus management
+
+---
+
 ## 2026-01-22: TailwindCSS 4 @theme Z-Index Token Naming Convention
 
 **Context:** Phase 1 z-index token integration - TypeScript zIndexVar failed silently because CSS variable names didn't match

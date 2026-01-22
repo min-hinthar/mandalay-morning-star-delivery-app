@@ -10,6 +10,9 @@ triggers:
   - "3D / canvas / WebGL"
   - "color palettes / design tokens"
   - "z-index / overlays / click blocked"
+
+implement together with:
+  - `@.claude/skills/frontend-design`
 ---
 
 # UI-UX-Color-Designs Skill
@@ -69,4 +72,4 @@ Ask the user to pick 1 direction or a hybrid BEFORE building.
 - Gate E: Confirm overlay clickability proof (header/tooltips/cart).
 - Gate F: Confirm performance sanity (no jank on mid devices).
 
-See references/ for deep guidance and examples/ for copy-paste patterns.
+See references/ for deep guidance and examples/ for copy-paste patterns and @.`claude/skills/frontend-design` for implementation.
