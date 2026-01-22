@@ -28,16 +28,16 @@ export type ZIndexValue = (typeof zIndex)[ZIndexToken];
  * @example style={{ zIndex: zIndexVar.modal }}
  */
 export const zIndexVar = {
-  base: "var(--z-base)",
-  dropdown: "var(--z-dropdown)",
-  sticky: "var(--z-sticky)",
-  fixed: "var(--z-fixed)",
-  modalBackdrop: "var(--z-modal-backdrop)",
-  modal: "var(--z-modal)",
-  popover: "var(--z-popover)",
-  tooltip: "var(--z-tooltip)",
-  toast: "var(--z-toast)",
-  max: "var(--z-max)",
+  base: "var(--z-index-base)",
+  dropdown: "var(--z-index-dropdown)",
+  sticky: "var(--z-index-sticky)",
+  fixed: "var(--z-index-fixed)",
+  modalBackdrop: "var(--z-index-modal-backdrop)",
+  modal: "var(--z-index-modal)",
+  popover: "var(--z-index-popover)",
+  tooltip: "var(--z-index-tooltip)",
+  toast: "var(--z-index-toast)",
+  max: "var(--z-index-max)",
 } as const;
 
 /**
