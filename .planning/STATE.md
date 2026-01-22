@@ -68,6 +68,7 @@ Recent decisions affecting current work:
 - PageTransitionV8 uses pathname as AnimatePresence key for route detection
 - BottomNav uses layoutId="bottomNavIndicator" for smooth active state transitions
 - MobileMenu uses double-close strategy (useRouteChangeClose + onClick) for reliability
+- Header uses useScrollDirection with threshold 50 for collapse detection
 
 ### Pending Todos
 
