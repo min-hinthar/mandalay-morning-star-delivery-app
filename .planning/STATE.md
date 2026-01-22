@@ -5,32 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-01-21)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 1 verified complete, ready for Phase 2
+**Current focus:** Phase 2 overlay infrastructure in progress
 
 ## Current Position
 
-Phase: 1 of 7 (Foundation & Token System) ✓ VERIFIED
-Plan: 5 of 5 complete
-Status: Phase verified and complete
-Last activity: 2026-01-22 — Phase 1 verification passed (4/4 must-haves)
+Phase: 2 of 7 (Overlay Infrastructure)
+Plan: 1 of 4 complete
+Status: In progress
+Last activity: 2026-01-22 — Completed 02-01-PLAN.md (Overlay Infrastructure Primitives)
 
-Progress: [█░░░░░░░░░] 14% (1/7 phases)
+Progress: [██░░░░░░░░] 21% (6/28 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: 7 min
-- Total execution time: 0.57 hours
+- Total execution time: 0.67 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation-token-system | 5 | 34 min | 7 min |
+| 02-overlay-infrastructure | 1 | 6 min | 6 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (8 min), 01-02 (8 min), 01-03 (8 min), 01-04 (3 min), 01-05 (7 min)
+- Last 5 plans: 01-02 (8 min), 01-03 (8 min), 01-04 (3 min), 01-05 (7 min), 02-01 (6 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -52,6 +53,9 @@ Recent decisions affecting current work:
 - ESLint z-index rules at warn severity — Legacy code awareness without blocking build
 - Use built-in Stylelint rules — Plugin incompatible with Stylelint 17
 - Phased z-index migration — Violations tracked, fixed during component rebuilds in Phases 2-5
+- overlayMotion uses spring for open, duration for close — Natural entrance, snappy exit
+- Color tokens include CSS variable fallbacks — Graceful degradation for theming
+- Backdrop uses AnimatePresence — Fully removes from DOM when closed (click-blocking fix)
 
 ### Pending Todos
 
@@ -64,19 +68,20 @@ None - build pipeline fully passing.
 ## Session Continuity
 
 Last session: 2026-01-22
-Stopped at: Completed 01-05-PLAN.md (Z-Index Rule Severity Gap Closure)
+Stopped at: Completed 02-01-PLAN.md (Overlay Infrastructure Primitives)
 Resume file: None
 
-## Phase 1 Completion Summary
+## Phase 2 Progress
 
-Phase 1 (Foundation & Token System) is now complete with all 5 plans executed:
+Phase 2 (Overlay Infrastructure) started with plan 01 complete:
 
-1. **01-01:** Z-Index Tokens - TailwindCSS utilities and TypeScript constants
-2. **01-02:** GSAP Integration - Plugin registration and animation presets
-3. **01-03:** Z-Index Linting - ESLint/Stylelint enforcement and documentation
-4. **01-04:** Z-Index CSS Variable Fix - Corrected zIndexVar references (gap closure)
-5. **01-05:** Z-Index Rule Severity - Downgraded to warn, migration tracker created (gap closure)
+1. **02-01:** Overlay Primitives - Motion tokens, color tokens, Portal, Backdrop, hooks
+
+**Remaining plans:**
+- 02-02: Modal component
+- 02-03: Bottom sheet and drawer components
+- 02-04: Dropdown, tooltip, and toast components
 
 **Build status:** All passing (`pnpm lint && pnpm lint:css && pnpm typecheck && pnpm build`)
 
-Ready to proceed to Phase 2.
+Ready to proceed to 02-02.
