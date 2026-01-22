@@ -53,13 +53,13 @@ Plans:
   5. All overlays automatically close when user navigates to a different route
   6. Color tokens with light/dark mode support are available for overlay theming
   7. Motion tokens (springs, durations) are available as CSS variables and JS constants
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 02-01: OverlayProvider and portal infrastructure
-- [ ] 02-02: Modal dialog and bottom sheet components
-- [ ] 02-03: Side drawer and dropdown components
-- [ ] 02-04: Tooltip and toast notification system
+- [ ] 02-01-PLAN.md — Portal, Backdrop primitives, motion tokens, color tokens, useRouteChangeClose and useBodyScrollLock hooks
+- [ ] 02-02-PLAN.md — Modal dialog (responsive desktop/mobile) and BottomSheet with swipe-to-dismiss
+- [ ] 02-03-PLAN.md — Side drawer with focus trap and Dropdown without event swallowing
+- [ ] 02-04-PLAN.md — Tooltip with hover delay and Toast notification system with stacking
 
 ### Phase 3: Navigation & Layout
 **Goal**: Create the app shell with sticky header, bottom nav, and page containers that are always clickable
@@ -162,7 +162,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Token System | 5/5 | ✓ Complete | 2026-01-22 |
-| 2. Overlay Infrastructure | 0/4 | Not started | - |
+| 2. Overlay Infrastructure | 0/4 | Planned | - |
 | 3. Navigation & Layout | 0/4 | Not started | - |
 | 4. Cart Experience | 0/4 | Not started | - |
 | 5. Menu Browsing | 0/5 | Not started | - |
@@ -174,5 +174,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 1 planned: 2026-01-22*
 *Phase 1 revised: 2026-01-22 (scope reduced - deferred FOUND-03,04,06,08 to later phases)*
 *Phase 1 gap closure: 2026-01-22 (added 01-04, 01-05 to fix verification gaps)*
+*Phase 2 planned: 2026-01-22*
 *Depth: comprehensive (8-12 phases, 5-10 plans each)*
 *Total requirements: 55 | Mapped: 55 | Coverage: 100%*
