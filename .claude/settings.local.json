@@ -3,12 +3,9 @@
     "ENABLE_TOOL_SEARCH": "true"
   },
   "permissions": {
-    "defaultMode": "acceptEdits",
-    "additionalDirectories": [],
     "allow": [
       "Edit",
       "Write",
-
       "Bash(pwd)",
       "Bash(cd:*)",
       "Bash(ls:*)",
@@ -25,11 +22,9 @@
       "Bash(mv:*)",
       "Bash(touch:*)",
       "Bash(chmod:*)",
-
       "Bash(* --version)",
       "Bash(node -v)",
       "Bash(pnpm -v)",
-
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
@@ -41,14 +36,19 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git stash:*)",
-
       "Bash(pnpm install:*)",
       "Bash(pnpm lint:*)",
       "Bash(pnpm typecheck:*)",
       "Bash(pnpm test*)",
       "Bash(pnpm build:*)",
       "Bash(pnpm dev:*)",
-      "Bash(pnpm exec:*)"
+      "Bash(pnpm exec:*)",
+      "WebSearch",
+      "WebFetch(domain:gsap.com)",
+      "WebFetch(domain:tailwindcss.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(pnpm lint:css:*)",
+      "Bash(npm run lint)"
     ],
     "ask": [
       "WebFetch",
@@ -58,7 +58,9 @@
       "Bash(git rebase:*)",
       "Bash(git merge:*)",
       "Bash(rm:*)"
-    ]
+    ],
+    "defaultMode": "acceptEdits",
+    "additionalDirectories": []
   },
   "hooks": {
     "SessionEnd": [

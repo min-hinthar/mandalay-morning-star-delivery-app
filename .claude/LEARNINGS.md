@@ -1680,3 +1680,38 @@ export const zIndexVar = {
 
 **Apply when:** Creating design token TypeScript constants that reference TailwindCSS @theme CSS variables, especially when tokens follow the category-prefix pattern
 
+---
+
+## 2026-01-22: ESLint Rule Severity Strategy for Legacy Codebases
+
+**Context:** Phase 1 z-index enforcement rules blocked build due to 64 violations in legacy code
+
+**Problem:** New lint rules at "error" severity block builds immediately, preventing iterative adoption. Legacy code may have hundreds of violations that can't be fixed atomically.
+
+**Solution:** Phased migration approach:
+1. Add rules at "warn" severity - flags violations without blocking
+2. Create migration tracker document with violation inventory
+3. Map violations to future phases where components will be rebuilt
+4. Upgrade to "error" after migration complete
+
+**Pattern:**
+```javascript
+// eslint.config.mjs
+"no-restricted-syntax": [
+  "warn",  // Start with warn, upgrade to error after migration
+  { selector: "...", message: "Use z-index tokens. See Z-INDEX-MIGRATION.md" }
+]
+```
+
+**Migration tracker structure:**
+```markdown
+# Z-INDEX-MIGRATION.md
+**Status:** Rules at warn | **Target:** Error after Phase 4
+
+## Files Requiring Migration
+| File | Count | Migration Phase |
+| FloatingFood.tsx | 6 | Phase 3 (Menu) |
+```
+
+**Apply when:** Adding lint rules to existing codebases, need gradual adoption path
+
