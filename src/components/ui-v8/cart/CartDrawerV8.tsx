@@ -1,0 +1,294 @@
+"use client";
+
+/**
+ * CartDrawerV8 Component
+ * Responsive cart drawer using V8 overlay primitives
+ *
+ * Features:
+ * - BottomSheet on mobile (< 640px) with swipe-to-dismiss
+ * - Drawer on desktop (>= 640px) sliding from right
+ * - Animated cart items list with AnimatePresence
+ * - CartSummary with animated free delivery progress
+ * - CartEmptyState for zero-item cart
+ * - Focus trap, escape to close, route change close
+ */
+
+import { useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { ShoppingBag, X } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useCart } from "@/lib/hooks/useCart";
+import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
+import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
+import { BottomSheet } from "@/components/ui-v8/BottomSheet";
+import { Drawer } from "@/components/ui-v8/Drawer";
+import { Button } from "@/components/ui/button";
+import { CartItemV8 } from "./CartItemV8";
+import { CartSummary } from "./CartSummary";
+import { CartEmptyState } from "./CartEmptyState";
+
+// ============================================
+// TYPES
+// ============================================
+
+export interface CartDrawerV8Props {
+  /** Additional className */
+  className?: string;
+}
+
+// ============================================
+// CART HEADER
+// ============================================
+
+interface CartHeaderProps {
+  itemCount: number;
+  onClose: () => void;
+}
+
+function CartHeader({ itemCount, onClose }: CartHeaderProps) {
+  const { shouldAnimate, getSpring } = useAnimationPreference();
+
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-between",
+        "border-b border-border",
+        "bg-surface-secondary px-4 py-4"
+      )}
+    >
+      <h2
+        id="cart-drawer-title"
+        className="flex items-center gap-3 text-lg font-display font-bold text-text-primary"
+      >
+        {/* Animated bag icon */}
+        <motion.div
+          animate={
+            shouldAnimate
+              ? {
+                  rotate: [0, -5, 5, 0],
+                }
+              : undefined
+          }
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            repeatDelay: 3,
+          }}
+          className={cn(
+            "flex h-10 w-10 items-center justify-center rounded-full",
+            "bg-amber-100 dark:bg-amber-900/30"
+          )}
+        >
+          <ShoppingBag className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+        </motion.div>
+        Your Cart
+        {/* Item count badge */}
+        {itemCount > 0 && (
+          <motion.span
+            key={itemCount}
+            initial={shouldAnimate ? { scale: 0 } : undefined}
+            animate={shouldAnimate ? { scale: 1 } : undefined}
+            transition={getSpring(spring.ultraBouncy)}
+            className={cn(
+              "rounded-full px-2.5 py-1 text-xs font-semibold",
+              "bg-amber-500 text-white shadow-sm"
+            )}
+          >
+            {itemCount}
+          </motion.span>
+        )}
+      </h2>
+
+      {/* Close button */}
+      <motion.button
+        type="button"
+        onClick={onClose}
+        whileHover={shouldAnimate ? { scale: 1.05, rotate: 90 } : undefined}
+        whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+        transition={getSpring(spring.snappy)}
+        className={cn(
+          "flex h-10 w-10 items-center justify-center rounded-full",
+          "bg-surface-tertiary text-text-muted",
+          "hover:bg-surface-secondary hover:text-text-primary",
+          "transition-colors duration-150",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        )}
+        aria-label="Close cart"
+      >
+        <X className="h-5 w-5" />
+      </motion.button>
+    </div>
+  );
+}
+
+// ============================================
+// CART ITEMS LIST
+// ============================================
+
+interface CartItemsListProps {
+  onClose: () => void;
+}
+
+function CartItemsList({ onClose }: CartItemsListProps) {
+  const { shouldAnimate } = useAnimationPreference();
+  const { items, isEmpty } = useCart();
+
+  if (isEmpty) {
+    return <CartEmptyState onClose={onClose} />;
+  }
+
+  return (
+    <motion.div
+      variants={shouldAnimate ? staggerContainer(0.08, 0.1) : undefined}
+      initial={shouldAnimate ? "hidden" : undefined}
+      animate={shouldAnimate ? "visible" : undefined}
+      className="flex-1 overflow-y-auto px-4 py-4"
+    >
+      <ul className="space-y-3">
+        <AnimatePresence mode="popLayout">
+          {items.map((item) => (
+            <motion.li
+              key={item.cartItemId}
+              variants={shouldAnimate ? staggerItem : undefined}
+              layout={shouldAnimate}
+              exit={
+                shouldAnimate
+                  ? {
+                      opacity: 0,
+                      x: -100,
+                      scale: 0.8,
+                      transition: { duration: 0.2 },
+                    }
+                  : undefined
+              }
+            >
+              <CartItemV8 item={item} />
+            </motion.li>
+          ))}
+        </AnimatePresence>
+      </ul>
+    </motion.div>
+  );
+}
+
+// ============================================
+// CART FOOTER
+// ============================================
+
+interface CartFooterProps {
+  onClose: () => void;
+  onCheckout: () => void;
+}
+
+function CartFooter({ onClose, onCheckout }: CartFooterProps) {
+  const { shouldAnimate } = useAnimationPreference();
+
+  return (
+    <motion.div
+      initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
+      animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+      transition={{ delay: 0.2 }}
+      className={cn("border-t border-border", "bg-surface-secondary", "px-4 py-4")}
+    >
+      <CartSummary />
+
+      <div className="mt-4 flex flex-col gap-3">
+        {/* Primary CTA - Checkout */}
+        <motion.div
+          whileHover={shouldAnimate ? { scale: 1.01 } : undefined}
+          whileTap={shouldAnimate ? { scale: 0.99 } : undefined}
+        >
+          <Button
+            variant="primary"
+            size="lg"
+            className="w-full shadow-elevated"
+            onClick={onCheckout}
+          >
+            Proceed to Checkout
+          </Button>
+        </motion.div>
+
+        {/* Secondary CTA - Continue Shopping */}
+        <Button variant="outline" size="lg" className="w-full" onClick={onClose}>
+          Continue Shopping
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================
+// CART CONTENT (shared between mobile/desktop)
+// ============================================
+
+interface CartContentProps {
+  onClose: () => void;
+}
+
+function CartContent({ onClose }: CartContentProps) {
+  const router = useRouter();
+  const { isEmpty, itemCount } = useCart();
+
+  const handleCheckout = useCallback(() => {
+    onClose();
+    router.push("/checkout");
+  }, [onClose, router]);
+
+  return (
+    <div className="flex flex-col h-full">
+      <CartHeader itemCount={itemCount} onClose={onClose} />
+
+      {isEmpty ? (
+        <CartEmptyState onClose={onClose} />
+      ) : (
+        <>
+          <CartItemsList onClose={onClose} />
+          <CartFooter onClose={onClose} onCheckout={handleCheckout} />
+        </>
+      )}
+    </div>
+  );
+}
+
+// ============================================
+// MAIN COMPONENT
+// ============================================
+
+export function CartDrawerV8({ className }: CartDrawerV8Props) {
+  const isMobile = useMediaQuery("(max-width: 640px)");
+  const { isOpen, close } = useCartDrawer();
+
+  // Render mobile BottomSheet
+  if (isMobile) {
+    return (
+      <BottomSheet
+        isOpen={isOpen}
+        onClose={close}
+        height="full"
+        showDragHandle={true}
+        className={cn("flex flex-col", className)}
+      >
+        <CartContent onClose={close} />
+      </BottomSheet>
+    );
+  }
+
+  // Render desktop Drawer
+  return (
+    <Drawer
+      isOpen={isOpen}
+      onClose={close}
+      side="right"
+      width="lg"
+      title="Your Cart"
+      className={cn("flex flex-col", className)}
+    >
+      <CartContent onClose={close} />
+    </Drawer>
+  );
+}
+
+export default CartDrawerV8;
