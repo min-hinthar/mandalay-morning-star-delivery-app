@@ -9,16 +9,25 @@
  * - Header slot (72px) with safe area for iOS
  * - Main content area fills available space (flex-1)
  * - Bottom nav slot (64px) on mobile only
+ * - MobileMenu controlled by hamburger in Header
  * - Uses z-index design tokens for fixed positioning
  */
 
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { cn } from "@/lib/utils/cn";
-import { zClass } from "@/design-system/tokens/z-index";
+import { Header } from "./Header";
+import { BottomNav } from "./BottomNav";
+import { MobileMenu, type MobileMenuNavItem } from "./MobileMenu";
 
 // ============================================
 // TYPES
 // ============================================
+
+export interface AppShellNavItem {
+  href: string;
+  label: string;
+  icon?: ReactNode;
+}
 
 export interface AppShellProps {
   /** Main page content */
@@ -29,9 +38,24 @@ export interface AppShellProps {
   showHeader?: boolean;
   /** Whether to show bottom nav on mobile (default: true) */
   showBottomNav?: boolean;
+  /** Navigation items for MobileMenu and Header */
+  navItems?: AppShellNavItem[];
+  /** Optional user name for mobile menu greeting */
+  userName?: string;
   /** Additional container classes */
   className?: string;
 }
+
+// ============================================
+// DEFAULT NAV ITEMS
+// ============================================
+
+const defaultNavItems: AppShellNavItem[] = [
+  { href: "/", label: "Home" },
+  { href: "/menu", label: "Menu" },
+  { href: "/orders", label: "Orders" },
+  { href: "/account", label: "Account" },
+];
 
 // ============================================
 // APPSHELL COMPONENT
@@ -42,35 +66,22 @@ export function AppShell({
   headerSlot,
   showHeader = true,
   showBottomNav = true,
+  navItems = defaultNavItems,
+  userName,
   className,
 }: AppShellProps) {
+  // Mobile menu state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <div className={cn("flex min-h-screen flex-col bg-white dark:bg-zinc-950", className)}>
-      {/* Header placeholder - will be replaced by Header component in Plan 02 */}
+      {/* Header component */}
       {showHeader && (
-        <header
-          className={cn(
-            "fixed inset-x-0 top-0",
-            "h-[72px]",
-            "bg-white/80 dark:bg-zinc-900/80",
-            "backdrop-blur-md",
-            "border-b border-zinc-200/50 dark:border-zinc-800/50",
-            "pt-safe", // iOS safe area
-            zClass.fixed
-          )}
-        >
-          {/* Header content placeholder - Plan 02 will implement full Header */}
-          <div className="flex h-full items-center justify-between px-4">
-            <div className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {/* Logo placeholder */}
-            </div>
-            {headerSlot && (
-              <div className="flex items-center gap-2">
-                {headerSlot}
-              </div>
-            )}
-          </div>
-        </header>
+        <Header
+          navItems={navItems}
+          rightContent={headerSlot}
+          onMenuClick={() => setIsMobileMenuOpen(true)}
+        />
       )}
 
       {/* Main content area - fills space between header and bottom nav */}
@@ -84,26 +95,16 @@ export function AppShell({
         {children}
       </main>
 
-      {/* Bottom nav placeholder - will be replaced by BottomNav component in Plan 03 */}
-      {showBottomNav && (
-        <nav
-          className={cn(
-            "fixed inset-x-0 bottom-0",
-            "h-16",
-            "bg-white/90 dark:bg-zinc-900/90",
-            "backdrop-blur-md",
-            "border-t border-zinc-200/50 dark:border-zinc-800/50",
-            "pb-safe", // iOS safe area
-            "md:hidden", // Hidden on desktop
-            zClass.fixed
-          )}
-        >
-          {/* Bottom nav content placeholder - Plan 03 will implement full BottomNav */}
-          <div className="flex h-full items-center justify-around px-4">
-            {/* Navigation items will go here */}
-          </div>
-        </nav>
-      )}
+      {/* Bottom nav component (mobile only) */}
+      {showBottomNav && <BottomNav />}
+
+      {/* Mobile menu controlled by hamburger in Header */}
+      <MobileMenu
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        navItems={navItems as MobileMenuNavItem[]}
+        userName={userName}
+      />
     </div>
   );
 }
