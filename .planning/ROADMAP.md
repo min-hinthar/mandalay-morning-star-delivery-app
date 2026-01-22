@@ -99,7 +99,7 @@ Plans:
 - [x] 04-02-PLAN.md — Cart item V8 with swipe-to-delete and quantity animations
 - [x] 04-03-PLAN.md — Cart drawer V8 composing BottomSheet/Drawer with order summary
 - [x] 04-04-PLAN.md — Fly-to-cart celebration and clear cart confirmation
-- [ ] 04-05-PLAN.md — Integrate V8 cart components into app (gap closure)
+- [x] 04-05-PLAN.md — Integrate V8 cart components into app (gap closure)
 
 ### Phase 5: Menu Browsing
 **Goal**: Enable users to discover, search, and select menu items with engaging animations
@@ -166,7 +166,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 1. Foundation & Token System | 5/5 | ✓ Complete | 2026-01-22 |
 | 2. Overlay Infrastructure | 4/4 | ✓ Complete | 2026-01-22 |
 | 3. Navigation & Layout | 5/5 | ✓ Complete | 2026-01-22 |
-| 4. Cart Experience | 4/5 | In Progress | - |
+| 4. Cart Experience | 5/5 | ✓ Complete | 2026-01-22 |
 | 5. Menu Browsing | 0/5 | Not started | - |
 | 6. Checkout Flow | 0/5 | Not started | - |
 | 7. Quality & Testing | 0/3 | Not started | - |
