@@ -55,8 +55,11 @@ Key style constraints:
 
 * Menu management (items, categories, sold-out states)
 * Order monitoring & operational dashboards
+* UI-UX flows improvements
 
-(Driver flows optional / can be deferred unless already core.)
+**Driver / Ops**
+
+* Driver UI-UX flows improvements
 
 ---
 
@@ -151,6 +154,7 @@ Rules:
 * Rebuilt component library + layout primitives
 * Rebuilt customer flows (menu → cart → checkout → confirmation)
 * Rebuilt nav + overlay infrastructure (Radix + custom)
+* Rebuilt admin + driver flows
 * Test suite updates (E2E + visual regression where feasible)
 
 ---
