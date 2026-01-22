@@ -12,7 +12,7 @@ A complete frontend rewrite transforming the Morning Star delivery app from a z-
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Token System** - Z-index tokens, GSAP setup, stacking rules, lint enforcement
+- [x] **Phase 1: Foundation & Token System** - Z-index tokens, GSAP setup, stacking rules, lint enforcement
 - [ ] **Phase 2: Overlay Infrastructure** - Portal-based modals, sheets, drawers, dropdowns, tooltips, toasts with route-aware cleanup
 - [ ] **Phase 3: Navigation & Layout** - Sticky header, bottom nav, page containers, mobile menu, scroll effects, page transitions
 - [ ] **Phase 4: Cart Experience** - Cart drawer/sheet, item controls, quantity animations, add-to-cart celebrations
@@ -38,8 +38,8 @@ Plans:
 - [x] 01-01-PLAN.md — Z-index token system with TailwindCSS @theme integration and TypeScript constants
 - [x] 01-02-PLAN.md — GSAP plugin registration (gsap, @gsap/react) and animation presets
 - [x] 01-03-PLAN.md — ESLint/Stylelint z-index enforcement and stacking context documentation
-- [ ] 01-04-PLAN.md — Fix zIndexVar CSS variable names (gap closure)
-- [ ] 01-05-PLAN.md — Legacy z-index migration plan and build fix (gap closure)
+- [x] 01-04-PLAN.md — Fix zIndexVar CSS variable names (gap closure)
+- [x] 01-05-PLAN.md — Legacy z-index migration plan and build fix (gap closure)
 
 ### Phase 2: Overlay Infrastructure
 **Goal**: Build portal-based overlay components that never block clicks and reset on route changes
@@ -161,7 +161,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Token System | 3/5 | Gap closure | - |
+| 1. Foundation & Token System | 5/5 | ✓ Complete | 2026-01-22 |
 | 2. Overlay Infrastructure | 0/4 | Not started | - |
 | 3. Navigation & Layout | 0/4 | Not started | - |
 | 4. Cart Experience | 0/4 | Not started | - |

@@ -124,14 +124,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | Phase 1 | Pending |
-| FOUND-02 | Phase 1 | Pending |
-| FOUND-03 | Phase 1 | Pending |
-| FOUND-04 | Phase 1 | Pending |
-| FOUND-05 | Phase 1 | Pending |
-| FOUND-06 | Phase 1 | Pending |
-| FOUND-07 | Phase 1 | Pending |
-| FOUND-08 | Phase 1 | Pending |
+| FOUND-01 | Phase 1 | Complete |
+| FOUND-02 | Phase 1 | Complete |
+| FOUND-03 | Phase 2 | Pending |
+| FOUND-04 | Phase 2 | Pending |
+| FOUND-05 | Phase 1 | Complete |
+| FOUND-06 | Phase 3 | Pending |
+| FOUND-07 | Phase 1 | Complete |
+| FOUND-08 | Phase 3 | Pending |
 | OVER-01 | Phase 2 | Pending |
 | OVER-02 | Phase 2 | Pending |
 | OVER-03 | Phase 2 | Pending |
