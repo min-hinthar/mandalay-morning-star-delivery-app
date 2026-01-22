@@ -22,6 +22,7 @@ const config = [
       "next-env.d.ts",
       "storybook-static/**",
       "src/stories/**",
+      ".claude/hooks/**",
     ],
   },
   {
@@ -38,25 +39,33 @@ const config = [
     },
   },
   {
-    // V4 Design Token Enforcement Rules
+    // Design Token Enforcement Rules
     files: ["src/components/**/*.tsx", "src/app/**/*.tsx"],
     rules: {
-      // Warn on hardcoded z-index values in className strings
       "no-restricted-syntax": [
-        "warn",
+        "error",
         {
+          // Catch z-[number] arbitrary values: z-[10], z-[999], etc.
           selector: "Literal[value=/z-\\[\\d+\\]/]",
-          message: "Use design token z-index (e.g., z-[var(--z-sticky)]) instead of hardcoded values.",
+          message: "Use z-index token (z-modal, z-dropdown, z-sticky, etc.) instead of z-[number]. See docs/STACKING-CONTEXT.md",
         },
         {
-          selector: "Literal[value=/\\bz-(40|50)\\b/]",
-          message: "Use design token z-index (e.g., z-[var(--z-modal)]) instead of Tailwind z-* classes.",
+          // Catch ALL Tailwind z-* numeric classes: z-0, z-10, z-20, z-30, z-40, z-50, z-auto
+          selector: "Literal[value=/\\bz-(?:0|10|20|30|40|50|60|70|80|90|100|auto)\\b/]",
+          message: "Use z-index token (z-modal, z-dropdown, z-sticky, etc.) instead of z-* classes. See docs/STACKING-CONTEXT.md",
         },
         {
+          // Catch inline zIndex in style objects: style={{ zIndex: 50 }}
+          selector: "Property[key.name='zIndex'][value.type='Literal'][value.raw=/^\\d+$/]",
+          message: "Use zIndex token from @/design-system/tokens/z-index (e.g., zIndex.modal) instead of hardcoded number.",
+        },
+        {
+          // Catch hardcoded hex colors in bg-[]
           selector: "Literal[value=/bg-\\[#[0-9a-fA-F]{3,8}\\]/]",
           message: "Use design token colors (e.g., bg-[var(--color-*)]) instead of hardcoded hex values.",
         },
         {
+          // Catch hardcoded hex colors in text-[]
           selector: "Literal[value=/text-\\[#[0-9a-fA-F]{3,8}\\]/]",
           message: "Use design token colors (e.g., text-[var(--color-*)]) instead of hardcoded hex values.",
         },
