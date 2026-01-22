@@ -92,13 +92,13 @@ Plans:
   3. User can swipe an item to reveal delete action on mobile
   4. Add-to-cart triggers a celebration animation (item flies to cart badge, badge pulses)
   5. Cart shows subtotal and "$ more for free delivery" indicator with animated progress
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 04-01: Cart drawer/sheet responsive layout
-- [ ] 04-02: Cart item rows with quantity controls
-- [ ] 04-03: Add-to-cart celebration and swipe-to-delete
-- [ ] 04-04: Order summary with animated indicators
+- [ ] 04-01-PLAN.md — Cart button V8 with animated badge and header integration
+- [ ] 04-02-PLAN.md — Cart item V8 with swipe-to-delete and quantity animations
+- [ ] 04-03-PLAN.md — Cart drawer V8 composing BottomSheet/Drawer with order summary
+- [ ] 04-04-PLAN.md — Fly-to-cart celebration and clear cart confirmation
 
 ### Phase 5: Menu Browsing
 **Goal**: Enable users to discover, search, and select menu items with engaging animations
@@ -165,7 +165,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 1. Foundation & Token System | 5/5 | ✓ Complete | 2026-01-22 |
 | 2. Overlay Infrastructure | 4/4 | ✓ Complete | 2026-01-22 |
 | 3. Navigation & Layout | 5/5 | ✓ Complete | 2026-01-22 |
-| 4. Cart Experience | 0/4 | Not started | - |
+| 4. Cart Experience | 0/4 | Planned | - |
 | 5. Menu Browsing | 0/5 | Not started | - |
 | 6. Checkout Flow | 0/5 | Not started | - |
 | 7. Quality & Testing | 0/3 | Not started | - |
@@ -180,5 +180,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 3 planned: 2026-01-22*
 *Phase 3 revised: 2026-01-22 (added 03-05 integration plan, clarified success criteria #7)*
 *Phase 3 complete: 2026-01-22*
+*Phase 4 planned: 2026-01-22*
 *Depth: comprehensive (8-12 phases, 5-10 plans each)*
 *Total requirements: 55 | Mapped: 55 | Coverage: 100%*
