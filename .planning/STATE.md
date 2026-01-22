@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-21)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 3 planning (Navigation & Layout)
+**Current focus:** Phase 3 execution (Navigation & Layout)
 
 ## Current Position
 
-Phase: 3 of 7 (Navigation & Layout) — NOT STARTED
-Plan: 0 of 4 (TBD)
-Status: Ready to plan
-Last activity: 2026-01-22 — Completed Phase 2 (Overlay Infrastructure)
+Phase: 3 of 7 (Navigation & Layout) — IN PROGRESS
+Plan: 1 of 4 complete
+Status: Executing Phase 3
+Last activity: 2026-01-22 — Completed 03-01-PLAN.md (App Shell Layout)
 
-Progress: [████████░░] 43% (13/30 plans estimated)
+Progress: [████████░░] 47% (14/30 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
+- Total plans completed: 10
 - Average duration: 5 min
-- Total execution time: 0.85 hours
+- Total execution time: 0.93 hours
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [████████░░] 43% (13/30 plans estimated)
 |-------|-------|-------|----------|
 | 01-foundation-token-system | 5 | 34 min | 7 min |
 | 02-overlay-infrastructure | 4 | 14 min | 4 min |
+| 03-navigation-layout | 1 | 5 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (6 min), 02-02 (3 min), 02-03 (5 min), 02-04 (3 min)
-- Trend: Stable, accelerating
+- Last 5 plans: 02-02 (3 min), 02-03 (5 min), 02-04 (3 min), 03-01 (5 min)
+- Trend: Stable
 
 *Updated after each plan completion*
 
@@ -61,6 +62,8 @@ Recent decisions affecting current work:
 - No stopPropagation on dropdown content — Events bubble for form compatibility (V7 fix)
 - Tooltip uses z-tooltip (70) and pointer-events-none — Non-blocking info display
 - Toast uses z-toast (80) — Highest z-index for notifications above modals
+- AppShell uses flex column layout with fixed header (72px) and bottom nav (64px mobile)
+- PageContainer uses polymorphic pattern for semantic HTML elements
 
 ### Pending Todos
 
@@ -73,7 +76,7 @@ None - build pipeline fully passing.
 ## Session Continuity
 
 Last session: 2026-01-22
-Stopped at: Completed Phase 2 (Overlay Infrastructure)
+Stopped at: Completed 03-01-PLAN.md (App Shell Layout)
 Resume file: None
 
 ## Phases Complete
@@ -100,4 +103,15 @@ Phase 2 (Overlay Infrastructure) COMPLETE with all 4 plans:
 **Verification:** 7/7 success criteria passed
 **Build status:** All passing (`pnpm lint && pnpm lint:css && pnpm typecheck && pnpm build`)
 
-Ready to proceed to Phase 3.
+### Phase 3 (Navigation & Layout) IN PROGRESS
+
+1. **03-01:** App Shell Layout - AppShell wrapper, PageContainer spacing component
+
+**Delivered Components:**
+- AppShell (main layout wrapper with header/nav slots)
+- PageContainer (consistent page spacing with responsive padding)
+
+**Remaining:**
+- 03-02: Header component
+- 03-03: BottomNav component
+- 03-04: MobileMenu component
