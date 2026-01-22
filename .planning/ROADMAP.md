@@ -32,12 +32,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. GSAP plugins (ScrollTrigger, SplitText) can be used in components with proper cleanup via useGSAP
   4. Motion tokens (springs, durations) are available as CSS variables and JS constants
   5. Stacking context rules are documented and isolation boundaries are established
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Z-index token system and TailwindCSS integration
-- [ ] 01-02: Motion token system and GSAP plugin registration
-- [ ] 01-03: ESLint/Stylelint rules and stacking context documentation
+- [ ] 01-01-PLAN.md — Z-index token system with TailwindCSS @theme integration and TypeScript constants
+- [ ] 01-02-PLAN.md — GSAP plugin registration (gsap, @gsap/react) and animation presets
+- [ ] 01-03-PLAN.md — ESLint/Stylelint z-index enforcement and stacking context documentation
 
 ### Phase 2: Overlay Infrastructure
 **Goal**: Build portal-based overlay components that never block clicks and reset on route changes
@@ -155,7 +155,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Token System | 0/3 | Not started | - |
+| 1. Foundation & Token System | 0/3 | Planned | - |
 | 2. Overlay Infrastructure | 0/4 | Not started | - |
 | 3. Navigation & Layout | 0/4 | Not started | - |
 | 4. Cart Experience | 0/4 | Not started | - |
@@ -165,5 +165,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 ---
 *Roadmap created: 2026-01-21*
+*Phase 1 planned: 2026-01-22*
 *Depth: comprehensive (8-12 phases, 5-10 plans each)*
 *Total requirements: 55 | Mapped: 55 | Coverage: 100%*
