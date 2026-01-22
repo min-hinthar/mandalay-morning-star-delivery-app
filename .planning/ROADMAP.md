@@ -32,12 +32,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. ESLint/Stylelint fails the build when hardcoded z-index values are detected
   3. GSAP plugins (ScrollTrigger, SplitText) can be used in components with proper cleanup via useGSAP
   4. Stacking context rules are documented and isolation boundaries are established
-**Plans**: 3 plans
+**Plans**: 5 plans (3 original + 2 gap closure)
 
 Plans:
-- [ ] 01-01-PLAN.md — Z-index token system with TailwindCSS @theme integration and TypeScript constants
-- [ ] 01-02-PLAN.md — GSAP plugin registration (gsap, @gsap/react) and animation presets
-- [ ] 01-03-PLAN.md — ESLint/Stylelint z-index enforcement and stacking context documentation
+- [x] 01-01-PLAN.md — Z-index token system with TailwindCSS @theme integration and TypeScript constants
+- [x] 01-02-PLAN.md — GSAP plugin registration (gsap, @gsap/react) and animation presets
+- [x] 01-03-PLAN.md — ESLint/Stylelint z-index enforcement and stacking context documentation
+- [ ] 01-04-PLAN.md — Fix zIndexVar CSS variable names (gap closure)
+- [ ] 01-05-PLAN.md — Legacy z-index migration plan and build fix (gap closure)
 
 ### Phase 2: Overlay Infrastructure
 **Goal**: Build portal-based overlay components that never block clicks and reset on route changes
@@ -159,7 +161,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Token System | 0/3 | Planned | - |
+| 1. Foundation & Token System | 3/5 | Gap closure | - |
 | 2. Overlay Infrastructure | 0/4 | Not started | - |
 | 3. Navigation & Layout | 0/4 | Not started | - |
 | 4. Cart Experience | 0/4 | Not started | - |
@@ -171,5 +173,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Roadmap created: 2026-01-21*
 *Phase 1 planned: 2026-01-22*
 *Phase 1 revised: 2026-01-22 (scope reduced - deferred FOUND-03,04,06,08 to later phases)*
+*Phase 1 gap closure: 2026-01-22 (added 01-04, 01-05 to fix verification gaps)*
 *Depth: comprehensive (8-12 phases, 5-10 plans each)*
 *Total requirements: 55 | Mapped: 55 | Coverage: 100%*
