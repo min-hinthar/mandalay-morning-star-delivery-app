@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Token System** - Z-index tokens, GSAP setup, stacking rules, lint enforcement
 - [x] **Phase 2: Overlay Infrastructure** - Portal-based modals, sheets, drawers, dropdowns, tooltips, toasts with route-aware cleanup
-- [ ] **Phase 3: Navigation & Layout** - Sticky header, bottom nav, page containers, mobile menu, scroll effects, page transitions
+- [x] **Phase 3: Navigation & Layout** - Sticky header, bottom nav, page containers, mobile menu, scroll effects, page transitions
 - [ ] **Phase 4: Cart Experience** - Cart drawer/sheet, item controls, quantity animations, add-to-cart celebrations
 - [ ] **Phase 5: Menu Browsing** - Category tabs, item cards, search, item detail modal, loading states, list animations
 - [ ] **Phase 6: Checkout Flow** - Multi-step form, address management, Stripe UI, order confirmation, progress animations
@@ -76,11 +76,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — AppShell layout wrapper and PageContainer spacing component
-- [ ] 03-02-PLAN.md — Sticky header with scroll-aware shrink/blur effects
-- [ ] 03-03-PLAN.md — Bottom navigation and mobile menu with auto-close
-- [ ] 03-04-PLAN.md — GSAP scroll choreography and enhanced page transitions
-- [ ] 03-05-PLAN.md — Wire Header, BottomNav, and MobileMenu into AppShell
+- [x] 03-01-PLAN.md — AppShell layout wrapper and PageContainer spacing component
+- [x] 03-02-PLAN.md — Sticky header with scroll-aware shrink/blur effects
+- [x] 03-03-PLAN.md — Bottom navigation and mobile menu with auto-close
+- [x] 03-04-PLAN.md — GSAP scroll choreography and enhanced page transitions
+- [x] 03-05-PLAN.md — Wire Header, BottomNav, and MobileMenu into AppShell
 
 ### Phase 4: Cart Experience
 **Goal**: Deliver a delightful cart drawer with smooth animations and intuitive item management
@@ -164,7 +164,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 |-------|----------------|--------|-----------|
 | 1. Foundation & Token System | 5/5 | ✓ Complete | 2026-01-22 |
 | 2. Overlay Infrastructure | 4/4 | ✓ Complete | 2026-01-22 |
-| 3. Navigation & Layout | 0/5 | Planned | - |
+| 3. Navigation & Layout | 5/5 | ✓ Complete | 2026-01-22 |
 | 4. Cart Experience | 0/4 | Not started | - |
 | 5. Menu Browsing | 0/5 | Not started | - |
 | 6. Checkout Flow | 0/5 | Not started | - |
@@ -179,5 +179,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 2 complete: 2026-01-22*
 *Phase 3 planned: 2026-01-22*
 *Phase 3 revised: 2026-01-22 (added 03-05 integration plan, clarified success criteria #7)*
+*Phase 3 complete: 2026-01-22*
 *Depth: comprehensive (8-12 phases, 5-10 plans each)*
 *Total requirements: 55 | Mapped: 55 | Coverage: 100%*
