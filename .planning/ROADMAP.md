@@ -12,7 +12,7 @@ A complete frontend rewrite transforming the Morning Star delivery app from a z-
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Token System** - Z-index tokens, motion tokens, GSAP setup, stacking rules, lint enforcement
+- [ ] **Phase 1: Foundation & Token System** - Z-index tokens, GSAP setup, stacking rules, lint enforcement
 - [ ] **Phase 2: Overlay Infrastructure** - Portal-based modals, sheets, drawers, dropdowns, tooltips, toasts with route-aware cleanup
 - [ ] **Phase 3: Navigation & Layout** - Sticky header, bottom nav, page containers, mobile menu, scroll effects, page transitions
 - [ ] **Phase 4: Cart Experience** - Cart drawer/sheet, item controls, quantity animations, add-to-cart celebrations
@@ -25,13 +25,13 @@ Decimal phases appear between their surrounding integers in numeric order.
 ### Phase 1: Foundation & Token System
 **Goal**: Establish the infrastructure that prevents z-index chaos and enables consistent animation timing
 **Depends on**: Nothing (first phase)
-**Requirements**: FOUND-01, FOUND-02, FOUND-03, FOUND-04, FOUND-05, FOUND-06, FOUND-07, FOUND-08
+**Requirements**: FOUND-01, FOUND-02, FOUND-05, FOUND-07
+**Deferred to later phases**: FOUND-03 (color tokens), FOUND-04 (motion tokens), FOUND-06 (scroll choreography), FOUND-08 (creative layouts)
 **Success Criteria** (what must be TRUE):
   1. Z-index values are defined as CSS custom properties and consumed via TailwindCSS utilities (no hardcoded z-50, z-100, etc.)
   2. ESLint/Stylelint fails the build when hardcoded z-index values are detected
   3. GSAP plugins (ScrollTrigger, SplitText) can be used in components with proper cleanup via useGSAP
-  4. Motion tokens (springs, durations) are available as CSS variables and JS constants
-  5. Stacking context rules are documented and isolation boundaries are established
+  4. Stacking context rules are documented and isolation boundaries are established
 **Plans**: 3 plans
 
 Plans:
@@ -42,13 +42,15 @@ Plans:
 ### Phase 2: Overlay Infrastructure
 **Goal**: Build portal-based overlay components that never block clicks and reset on route changes
 **Depends on**: Phase 1 (tokens, isolation boundaries)
-**Requirements**: OVER-01, OVER-02, OVER-03, OVER-04, OVER-05, OVER-06, OVER-07, OVER-08, OVER-09
+**Requirements**: OVER-01, OVER-02, OVER-03, OVER-04, OVER-05, OVER-06, OVER-07, OVER-08, OVER-09, FOUND-03, FOUND-04
 **Success Criteria** (what must be TRUE):
   1. Modal dialog opens centered with backdrop, closes on escape/outside click, does not block content behind when closed
   2. Bottom sheet slides up on mobile with swipe-to-dismiss gesture and spring physics
   3. Side drawer slides in from edge with smooth animation and proper focus trapping
   4. Dropdown menu opens below trigger without swallowing click events or preventing form submissions
   5. All overlays automatically close when user navigates to a different route
+  6. Color tokens with light/dark mode support are available for overlay theming
+  7. Motion tokens (springs, durations) are available as CSS variables and JS constants
 **Plans**: TBD
 
 Plans:
@@ -60,13 +62,15 @@ Plans:
 ### Phase 3: Navigation & Layout
 **Goal**: Create the app shell with sticky header, bottom nav, and page containers that are always clickable
 **Depends on**: Phase 2 (overlays for header dropdowns, mobile menu)
-**Requirements**: NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, NAV-06, NAV-07
+**Requirements**: NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, NAV-06, NAV-07, FOUND-06, FOUND-08
 **Success Criteria** (what must be TRUE):
   1. Header is sticky at top of viewport and all buttons (cart, profile, menu) are clickable on every page
   2. Mobile bottom navigation shows on small screens with active state indicators
   3. Mobile menu closes automatically when user taps a navigation link
   4. Header shrinks and blurs subtly when user scrolls down
   5. Page transitions animate smoothly between routes without layout shift
+  6. GSAP scroll choreography patterns are available for scroll-triggered animations
+  7. Creative page layouts with reveal effects are implemented
 **Plans**: TBD
 
 Plans:
@@ -166,5 +170,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 ---
 *Roadmap created: 2026-01-21*
 *Phase 1 planned: 2026-01-22*
+*Phase 1 revised: 2026-01-22 (scope reduced - deferred FOUND-03,04,06,08 to later phases)*
 *Depth: comprehensive (8-12 phases, 5-10 plans each)*
 *Total requirements: 55 | Mapped: 55 | Coverage: 100%*
