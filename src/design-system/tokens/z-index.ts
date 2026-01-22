@@ -25,7 +25,9 @@ export type ZIndexValue = (typeof zIndex)[ZIndexToken];
 
 /**
  * CSS variable references for style objects
- * @example style={{ zIndex: zIndexVar.modal }}
+ * These reference the --z-index-* custom properties defined in globals.css @theme
+ * TailwindCSS 4 generates z-* utilities from these (stripping the prefix)
+ * @example style={{ zIndex: zIndexVar.modal }} // outputs var(--z-index-modal)
  */
 export const zIndexVar = {
   base: "var(--z-index-base)",
