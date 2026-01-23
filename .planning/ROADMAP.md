@@ -102,11 +102,15 @@ Plans:
   3. ESLint z-index rule set to error (build fails on hardcoded z-index)
   4. TypeScript strict flags enabled (noUnusedLocals, noUnusedParameters)
   5. Build passes with all new strictness
-**Plans**: 2 plans
+**Plans**: 6 plans
 
 Plans:
-- [ ] 13-01-PLAN.md — TypeScript strictness (fix 67 unused vars, enable noUnusedLocals/noUnusedParameters)
-- [ ] 13-02-PLAN.md — ESLint z-index upgrade to error and v7-index.ts deletion (10 files)
+- [ ] 13-01-PLAN.md — Fix TypeScript violations in API routes and E2E test (15 files)
+- [ ] 13-02-PLAN.md — Fix TypeScript violations in admin, auth, checkout, driver components (11 files)
+- [ ] 13-03-PLAN.md — Fix TypeScript violations in homepage, layouts, mascot, menu, theme components (10 files)
+- [ ] 13-04-PLAN.md — Fix TypeScript violations in tracking, ui-v8, ui, lib files (15 files)
+- [ ] 13-05-PLAN.md — Enable TypeScript strict flags (tsconfig.json)
+- [ ] 13-06-PLAN.md — ESLint z-index upgrade to error and v7-index.ts deletion (14 files)
 
 ### Phase 14: Testing & Documentation
 **Goal**: Complete visual regression coverage and accurate documentation
@@ -134,9 +138,9 @@ Plans:
 | 10. Token Migration | v1.1 | 4/4 | Complete | 2026-01-23 |
 | 11. V8 Component Migration | v1.1 | 4/4 | Complete | 2026-01-23 |
 | 12. Dead Code & Export Cleanup | v1.1 | 3/3 | Complete | 2026-01-23 |
-| 13. Legacy Removal & Stricter Rules | v1.1 | 0/2 | Not started | - |
+| 13. Legacy Removal & Stricter Rules | v1.1 | 0/6 | Not started | - |
 | 14. Testing & Documentation | v1.1 | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-23 - Phase 13 planned*
+*Last updated: 2026-01-23 - Phase 13 plans split for scope compliance*
