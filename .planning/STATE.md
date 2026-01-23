@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-21)
 ## Current Position
 
 Phase: 6 of 7 (Checkout Flow)
-Plan: 2 of 5 complete (06-01, 06-05)
+Plan: 3 of 5 complete (06-01, 06-02, 06-05)
 Status: In progress
-Last activity: 2026-01-23 — Completed 06-05-PLAN.md (Order Confirmation Celebration)
+Last activity: 2026-01-23 — Completed 06-02-PLAN.md (Form Field Micro-interactions)
 
-Progress: [██████████░░] 87% (27/31 plans estimated)
+Progress: [██████████░░] 90% (28/31 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 27
+- Total plans completed: 28
 - Average duration: 6 min
-- Total execution time: 2.55 hours
+- Total execution time: 2.6 hours
 
 **By Phase:**
 
@@ -32,10 +32,10 @@ Progress: [██████████░░] 87% (27/31 plans estimated)
 | 03-navigation-layout | 5 | 23 min | 5 min |
 | 04-cart-experience | 5 | 37 min | 7 min |
 | 05-menu-browsing | 5 | 38 min | 8 min |
-| 06-checkout-flow | 2 | 9 min | 5 min |
+| 06-checkout-flow | 3 | 14 min | 5 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-04 (6 min), 05-05 (6 min), 06-01 (3 min), 06-05 (6 min)
+- Last 5 plans: 05-05 (6 min), 06-01 (3 min), 06-05 (6 min), 06-02 (5 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -102,6 +102,8 @@ Recent decisions affecting current work:
 - V8 checkout barrel exports both V8 name and default name for migration flexibility
 - OrderConfirmationV8 triggers confetti via useConfetti hook on mount for celebration
 - Stagger delay 0.1s with 0.4s initial delay allows checkmark animation to complete before content appears
+- Controller over register for ValidatedInput — custom onChange signature requires react-hook-form Controller pattern
+- AnimatedFormField uses onFocusCapture/onBlurCapture to detect focus on any child input
 
 ### Pending Todos
 
@@ -115,9 +117,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: Completed 06-05-PLAN.md (Order Confirmation Celebration)
+Stopped at: Completed 06-02-PLAN.md (Form Field Micro-interactions)
 Resume file: None
-Next: 06-02-PLAN.md, 06-03-PLAN.md, or 06-04-PLAN.md (Wave 2)
+Next: 06-03-PLAN.md or 06-04-PLAN.md (Wave 2)
 
 ## Phases Complete
 
