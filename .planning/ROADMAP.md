@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Menu Browsing** - Category tabs, item cards, search, item detail modal, loading states, list animations
 - [x] **Phase 6: Checkout Flow** - Multi-step form, address management, Stripe UI, order confirmation, progress animations
 - [x] **Phase 7: Quality & Testing** - E2E tests for clickability, overlay behavior, visual regression snapshots
-- [ ] **Phase 8: V8 Integration Gap Closure** - Wire orphaned Phase 5 menu components and FlyToCart into live app
+- [x] **Phase 8: V8 Integration Gap Closure** - Wire orphaned Phase 5 menu components and FlyToCart into live app
 
 ## Phase Details
 
@@ -170,7 +170,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 08-01-PLAN.md — Wire MenuContentV8 into menu page and mount FlyToCart globally
+- [x] 08-01-PLAN.md — Wire MenuContentV8 into menu page and mount FlyToCart globally
 
 ## Progress
 
@@ -186,7 +186,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 5. Menu Browsing | 5/5 | ✓ Complete | 2026-01-23 |
 | 6. Checkout Flow | 5/5 | ✓ Complete | 2026-01-23 |
 | 7. Quality & Testing | 2/2 | ✓ Complete | 2026-01-23 |
-| 8. V8 Integration Gap Closure | 0/1 | Planned | — |
+| 8. V8 Integration Gap Closure | 1/1 | ✓ Complete | 2026-01-23 |
 
 ---
 *Roadmap created: 2026-01-21*
@@ -211,3 +211,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 *Total requirements: 55 | Mapped: 55 | Coverage: 100%*
 *Phase 8 added: 2026-01-23 (gap closure from v1-MILESTONE-AUDIT.md)*
 *Gap closure: 10 requirements (9 MENU-* + CART-05), 4 integration gaps, 1 flow*
+*Phase 8 complete: 2026-01-23*
+*MILESTONE COMPLETE: 2026-01-23 — All 8 phases executed, 33 plans total*
