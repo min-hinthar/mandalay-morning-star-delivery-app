@@ -46,8 +46,8 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
           exit={{ y: "100%", opacity: 0 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
           className={cn(
-            "fixed bottom-0 left-0 right-0 z-sticky",
-            "bg-[var(--color-surface)] border-t border-[var(--color-border)]",
+            "fixed bottom-0 left-0 right-0 z-fixed",
+            "bg-surface-primary/95 backdrop-blur-lg border-t border-border",
             "shadow-[0_-10px_30px_-5px_rgba(139,69,19,0.1)]",
             "rounded-t-[var(--radius-xl)]",
             "pb-[env(safe-area-inset-bottom)]",
@@ -59,24 +59,61 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
           {/* Free delivery progress */}
           {showProgress && (
             <div className="px-4 pt-3">
-              <div className="flex items-center justify-between mb-1.5">
-                <div className="flex items-center gap-1.5 text-[var(--text-xs)] text-[var(--color-text-secondary)]">
-                  <Truck className="h-3.5 w-3.5" />
-                  <span>
-                    {formatPrice(amountToFreeDelivery)} more for free delivery
-                  </span>
-                </div>
-                <span className="text-[var(--text-xs)] font-medium text-[var(--color-interactive-primary)]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[var(--text-xs)] font-semibold text-amber-700 dark:text-amber-300">
+                  {formatPrice(amountToFreeDelivery)} to free delivery!
+                </span>
+                <span className="text-[var(--text-xs)] font-medium text-amber-600 dark:text-amber-400">
                   {Math.round(progressPercent)}%
                 </span>
               </div>
-              <div className="h-1.5 rounded-full bg-[var(--color-border)] overflow-hidden">
+              {/* Enhanced progress bar with truck */}
+              <div className="relative h-3">
+                {/* Track */}
+                <div className="absolute inset-0 rounded-full bg-amber-100 dark:bg-amber-900/40 overflow-hidden">
+                  {/* Road dashes */}
+                  <div className="absolute inset-y-0 inset-x-2 flex items-center justify-evenly">
+                    {[...Array(6)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="w-1.5 h-0.5 bg-amber-200 dark:bg-amber-800 rounded-full"
+                      />
+                    ))}
+                  </div>
+                  {/* Filled portion */}
+                  <motion.div
+                    className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-[0_2px_6px_rgba(245,158,11,0.3)]"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progressPercent}%` }}
+                    transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                  />
+                </div>
+                {/* Animated truck */}
                 <motion.div
-                  className="h-full rounded-full bg-[var(--color-interactive-primary)]"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progressPercent}%` }}
-                  transition={{ duration: 0.5, ease: "easeOut" }}
-                />
+                  className="absolute top-1/2 -translate-y-1/2 z-10"
+                  initial={{ left: "0%" }}
+                  animate={{ left: `calc(${progressPercent}% - 10px)` }}
+                  transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                >
+                  <motion.div
+                    animate={{
+                      y: [0, -1, 0],
+                      rotate: [0, -2, 2, 0],
+                    }}
+                    transition={{
+                      duration: 0.3,
+                      repeat: Infinity,
+                      repeatDelay: 0.1,
+                    }}
+                    className="w-5 h-5 rounded-full bg-white dark:bg-zinc-800 border-2 border-amber-500 shadow-md flex items-center justify-center"
+                  >
+                    <Truck className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" />
+                  </motion.div>
+                </motion.div>
+                {/* Goal */}
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 text-xs">
+                  🏁
+                </div>
               </div>
             </div>
           )}
@@ -87,11 +124,23 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="flex items-center justify-center gap-2 py-1.5 rounded-full bg-[var(--color-status-success-bg)] text-[var(--color-accent-secondary)]"
+                className="flex items-center justify-center gap-2 py-2 px-4 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/30 border border-green-200 dark:border-green-800"
               >
-                <Truck className="h-4 w-4" />
-                <span className="text-[var(--text-sm)] font-semibold">
-                  Free Delivery!
+                <motion.div
+                  animate={{
+                    rotate: [0, -5, 5, 0],
+                    scale: [1, 1.1, 1],
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    repeat: Infinity,
+                    repeatDelay: 2,
+                  }}
+                >
+                  <Truck className="h-4 w-4 text-green-600 dark:text-green-400" />
+                </motion.div>
+                <span className="text-[var(--text-sm)] font-bold text-green-700 dark:text-green-300">
+                  Free Delivery Unlocked! 🎉
                 </span>
               </motion.div>
             </div>

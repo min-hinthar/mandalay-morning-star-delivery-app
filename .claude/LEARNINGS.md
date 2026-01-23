@@ -2102,3 +2102,70 @@ grep -r "MenuContentV8" src/app --include="*.tsx"
 
 **Apply when:** Adding lint rules to existing codebases, need gradual adoption path
 
+
+---
+
+## 2026-01-23: Z-Index Stacking Context Isolation Insufficient for Mixed Legacy/V8 Codebases
+
+**Context:** Phase 8 V8 integration revealed persistent z-index layering issues despite adding `isolate` CSS property to homepage sections.
+
+**Problem:** Content components (Hero, HomepageHero, CoverageSection, FooterCTA, menu cards) layered above headers, navs, and category tabs despite:
+1. Header using `z-fixed` (30) token
+2. Content sections receiving `isolate` class for stacking context isolation
+3. Internal z-index values changed from Tailwind classes to inline styles
+
+**Root cause hypothesis:**
+- Legacy UI components still mixed with V8 components
+- Multiple stacking contexts created by legacy code with their own z-index rules
+- Backdrop-blur, transforms, and opacity creating implicit stacking contexts
+- CSS cascade order between legacy and V8 stylesheets
+
+**Attempted fixes (partial success):**
+```tsx
+// Added isolate to section containers
+<section className="... isolate">
+
+// Changed hardcoded z-* classes to inline styles
+style={{ zIndex: 1 }} // instead of className="z-10"
+```
+
+**Why isolation alone doesn't work:**
+1. `isolate` only prevents z-index competition within that element's subtree
+2. If multiple isolated sections exist, they still compete with each other at document level
+3. Legacy components may not have isolation, creating z-index leakage
+4. Transform/filter/opacity properties auto-create stacking contexts without isolation
+
+**Recommended next steps:**
+1. Remove all legacy UI components (not just imports, but actual files)
+2. Run comprehensive V8-only live app build
+3. Establish single z-index hierarchy from app root
+4. Audit all `relative`, `transform`, `filter`, `opacity` usage
+
+**Apply when:** Debugging z-index issues in mixed legacy/modern codebases, planning UI migration milestones
+
+---
+
+## 2026-01-23: V8 Integration Gap Closure Requires Full Legacy Removal
+
+**Context:** Phase 8 attempted to wire V8 components into live app while legacy components remained
+
+**Pattern observed:**
+1. V8 components created and functional
+2. Entry points updated to import V8 components
+3. Z-index stacking, styling conflicts persist
+4. Legacy CSS/component fragments interfere with V8 rendering
+
+**Root issue:** Incremental V8 adoption creates "frankenstein" UI state where:
+- V8 tokens may conflict with legacy token values
+- V8 z-index tokens compete with hardcoded legacy values
+- V8 component styles cascade with legacy styles unexpectedly
+- Import paths may resolve to legacy components in some code paths
+
+**Recommended approach:**
+1. **Inventory legacy components** - grep for non-V8 imports in app pages
+2. **Map dependencies** - identify which legacy components have V8 replacements
+3. **Atomic swap** - replace ALL usages of a legacy component with V8 in single commit
+4. **Delete legacy files** - remove legacy component files after swap
+5. **Run visual regression** - verify each swap doesn't break UI
+
+**Apply when:** Planning UI migration phases, debugging unexplained style conflicts

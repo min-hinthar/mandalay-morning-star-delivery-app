@@ -1,7 +1,4 @@
-import { Suspense } from "react";
-import { getMenuWithCategories } from "@/lib/queries/menu";
-import { MenuContent } from "@/components/menu/menu-content";
-import { MenuSkeleton } from "@/components/menu/menu-skeleton";
+import { MenuContentV8 } from "@/components/ui-v8/menu";
 
 export const metadata = {
   title: "Menu | Mandalay Morning Star",
@@ -11,14 +8,7 @@ export const metadata = {
 export default function MenuPage() {
   return (
     <main className="min-h-screen bg-background">
-      <Suspense fallback={<MenuSkeleton />}>
-        <MenuLoader />
-      </Suspense>
+      <MenuContentV8 />
     </main>
   );
-}
-
-async function MenuLoader() {
-  const categories = await getMenuWithCategories();
-  return <MenuContent categories={categories} />;
 }

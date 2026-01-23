@@ -72,7 +72,7 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
   return (
     <section
       ref={heroRef}
-      className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-surface-secondary via-surface-primary to-surface-tertiary"
+      className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden isolate bg-gradient-to-br from-surface-secondary via-surface-primary to-surface-tertiary"
     >
       {/* Warm gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-secondary/10" />

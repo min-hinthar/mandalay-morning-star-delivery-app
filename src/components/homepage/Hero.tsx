@@ -197,23 +197,23 @@ export function Hero({
     <section
       ref={containerRef}
       className={cn(
-        "relative min-h-[100svh] overflow-hidden",
+        "relative min-h-[100svh] overflow-hidden isolate",
         className
       )}
     >
-      {/* WebGL Canvas Layers */}
+      {/* WebGL Canvas Layers - local stacking only, no global z-index competition */}
       {showParticles && shouldAnimate && (
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 pointer-events-none z-10"
-          style={{ width: "100%", height: "100%" }}
+          className="absolute inset-0 pointer-events-none"
+          style={{ width: "100%", height: "100%", zIndex: 1 }}
         />
       )}
       {shouldAnimate && (
         <canvas
           ref={grainRef}
-          className="absolute inset-0 pointer-events-none z-20 mix-blend-overlay"
-          style={{ width: "100%", height: "100%" }}
+          className="absolute inset-0 pointer-events-none mix-blend-overlay"
+          style={{ width: "100%", height: "100%", zIndex: 2 }}
         />
       )}
 
@@ -261,10 +261,10 @@ export function Hero({
         )}
       </ParallaxContainer>
 
-      {/* Main Content */}
+      {/* Main Content - relative positioning for internal stacking, no global z-index */}
       <motion.div
-        className="relative z-30 flex flex-col items-center justify-center min-h-[100svh] px-4 py-24"
-        style={shouldAnimate ? { y: smoothContentY, opacity: smoothOpacity } : {}}
+        className="relative flex flex-col items-center justify-center min-h-[100svh] px-4 py-24"
+        style={shouldAnimate ? { y: smoothContentY, opacity: smoothOpacity, zIndex: 3 } : { zIndex: 3 }}
       >
         <div className="max-w-4xl mx-auto text-center">
           {/* Brand Mascot */}
@@ -442,7 +442,7 @@ export function Hero({
       </motion.div>
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-surface-primary to-transparent z-10 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-surface-primary to-transparent pointer-events-none" style={{ zIndex: 4 }} />
     </section>
   );
 }
