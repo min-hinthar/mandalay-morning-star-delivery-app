@@ -693,7 +693,7 @@ export function CartDrawer({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[var(--z-modal-backdrop)] bg-black/60"
+            className="fixed inset-0 z-modal-backdrop bg-black/60"
           />
 
           {/* Drawer */}
@@ -709,7 +709,7 @@ export function CartDrawer({
             onDragEnd={handleDragEnd}
             style={{ y: isDragging ? dragY : 0 }}
             className={cn(
-              "fixed bottom-0 left-0 right-0 z-[var(--z-modal)]",
+              "fixed bottom-0 left-0 right-0 z-modal",
               "max-h-[85vh]",
               "rounded-t-[var(--radius-xl)]",
               "bg-[var(--color-surface)]",

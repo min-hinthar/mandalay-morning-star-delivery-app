@@ -113,7 +113,7 @@ export function DriverLayout({
       {/* Header */}
       <header
         className={cn(
-          "sticky top-0 z-[var(--z-sticky)] h-12",
+          "sticky top-0 z-sticky h-12",
           highContrast
             ? "bg-black border-b border-white"
             : "bg-[var(--color-cream)] border-b border-[var(--color-border)]"
@@ -218,7 +218,7 @@ export function DriverLayout({
             exit="exit"
             variants={fadeIn}
             className={cn(
-              "fixed bottom-0 left-0 right-0 z-[var(--z-fixed)]",
+              "fixed bottom-0 left-0 right-0 z-fixed",
               highContrast
                 ? "bg-black border-t border-white"
                 : "bg-[var(--color-cream-darker)] border-t border-[var(--color-border)]"

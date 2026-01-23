@@ -91,11 +91,18 @@ export function DropdownAction({
 
   return (
     <DropdownMenuItem
-      onSelect={() => {
+      onSelect={(event) => {
         if (isDisabled) return;
-        // Don't prevent default - let menu close naturally
-        // The redirect will happen after menu closes
-        handleClick();
+        // Prevent menu from closing until action completes
+        event.preventDefault();
+        // Execute the async action
+        handleClick().catch((error) => {
+          // Re-throw redirect errors to let Next.js handle them
+          const errorString = String(error);
+          if (errorString.includes("NEXT_REDIRECT") || errorString.includes("redirect")) {
+            throw error;
+          }
+        });
       }}
       className={cn(
         "cursor-pointer",

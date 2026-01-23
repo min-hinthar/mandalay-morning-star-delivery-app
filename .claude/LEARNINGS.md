@@ -1534,6 +1534,31 @@ const { isFavorite, toggleFavorite } = useFavorites();
 
 ---
 
+## 2026-01-21: Windows Terminal Unicode Encoding in PowerShell Scripts
+
+**Context:** Claude Code statusline script displaying garbled characters instead of progress bars
+
+**Problem:** PowerShell scripts using Unicode characters (block elements █░, checkmarks ✓✗, box-drawing │, emojis 💀⬆) display as mojibake (`â–ˆ`, `â–'`, etc.) in Windows terminals due to encoding mismatches between script file encoding, console code page, and font support.
+
+**Solution:** Replace all Unicode with ASCII equivalents:
+
+| Unicode | ASCII Replacement |
+|---------|-------------------|
+| `█░` (progress blocks) | `=` and `-` with brackets: `[=====-----]` |
+| `✓ / ✗` (checkmark/X) | `"clean"` / `"dirty"` text |
+| `│` (box-drawing pipe) | `|` (ASCII pipe) |
+| `💀` (emoji) | `!` (exclamation) |
+| `⬆` (arrow) | `^` (caret) |
+
+**Why this works:**
+- ASCII characters render identically in all Windows console code pages
+- No BOM/encoding issues with script files
+- Font-agnostic - works in CMD, PowerShell, Windows Terminal, Git Bash
+
+**Apply when:** Creating CLI tools, status lines, or progress indicators for Windows environments
+
+---
+
 ## 2026-01-21: DropdownAction event.preventDefault() Blocks Redirects
 
 **Context:** Signout button in dropdown menu showing loading state but not redirecting
@@ -1630,3 +1655,517 @@ className="bg-[var(--color-surface-primary)] border border-border rounded-xl sha
 
 **Apply when:** Hero sections with multiple CTAs, ensuring each button serves distinct user intent
 
+---
+
+## 2026-01-22: Parallel Wave Execution for Multi-Plan Phases
+
+**Context:** Phase 2 had 4 plans with Wave 1 (foundation) and Wave 2 (3 parallel plans)
+
+**Pattern:** GSD executor groups plans into waves based on dependencies:
+- Wave 1: 02-01 (overlay primitives - has no dependencies within phase)
+- Wave 2: 02-02, 02-03, 02-04 (all depend only on 02-01, can run in parallel)
+
+**Execution:**
+```
+Task(subagent_type="gsd-executor", prompt="Execute 02-02...")
+Task(subagent_type="gsd-executor", prompt="Execute 02-03...")
+Task(subagent_type="gsd-executor", prompt="Execute 02-04...")
+// All 3 in single message = parallel execution
+```
+
+**Results:**
+- 3 agents completed independently (~3-5 min each)
+- Each created atomic commits for its tasks
+- No conflicts despite touching shared barrel export file (sequential commits)
+
+**Apply when:** Executing phases with independent plans, maximizing throughput on multi-plan phases
+
+---
+
+## 2026-01-22: Dropdown Event Handling - mousedown vs click for Outside Detection
+
+**Context:** Dropdown.tsx needed to close on outside click without swallowing form events
+
+**Problem:** V7 dropdown used `stopPropagation()` on content which blocked form submissions. Click events fire after mousedown, so forms were already blocked.
+
+**Solution:**
+1. Use `mousedown` for outside click detection (fires before click, catches event earlier)
+2. Do NOT use `stopPropagation()` on dropdown content - let events bubble
+3. Only close dropdown in item `onClick`, don't prevent default
+
+**Pattern:**
+```tsx
+// Dropdown content - NO stopPropagation
+useEffect(() => {
+  const handleMouseDown = (e: MouseEvent) => {
+    if (!dropdownRef.current?.contains(e.target as Node) &&
+        !triggerRef.current?.contains(e.target as Node)) {
+      setIsOpen(false);
+    }
+  };
+  document.addEventListener("mousedown", handleMouseDown);
+  return () => document.removeEventListener("mousedown", handleMouseDown);
+}, []);
+```
+
+**Apply when:** Building dropdowns that may contain forms or need event bubbling
+
+---
+
+## 2026-01-22: Focus Trap Implementation Pattern
+
+**Context:** Drawer.tsx needed keyboard focus trap for accessibility
+
+**Implementation:**
+```tsx
+const handleKeyDown = (e: React.KeyboardEvent) => {
+  if (e.key !== "Tab") return;
+
+  const focusables = drawerRef.current?.querySelectorAll<HTMLElement>(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  if (!focusables?.length) return;
+
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+};
+```
+
+**Key points:**
+- Store `lastActiveElement` on open, restore on close
+- Focus first focusable element with `setTimeout(50)` for animation
+- Tab wraps from last to first, Shift+Tab from first to last
+
+**Apply when:** Building modals, drawers, dialogs that need WCAG-compliant focus management
+
+---
+
+## 2026-01-22: TailwindCSS 4 @theme Z-Index Token Naming Convention
+
+**Context:** Phase 1 z-index token integration - TypeScript zIndexVar failed silently because CSS variable names didn't match
+
+**Problem:** Plan specified zIndexVar to reference `var(--z-modal)` but TailwindCSS 4 @theme requires `--z-index-*` prefix (it strips the prefix to generate utilities like `z-modal`).
+
+| What was created | What should be referenced |
+|-----------------|---------------------------|
+| `--z-index-modal` in @theme | `var(--z-index-modal)` not `var(--z-modal)` |
+
+**Key insight:** TailwindCSS 4 @theme variables generate utilities by stripping the category prefix (`--z-index-modal` → `z-modal`). The CSS variable name includes the full prefix, the utility class name does not.
+
+**Correct zIndexVar pattern:**
+```typescript
+export const zIndexVar = {
+  modal: "var(--z-index-modal)",      // References full CSS var name
+  dropdown: "var(--z-index-dropdown)",
+  // ... etc
+} as const;
+```
+
+**Apply when:** Creating design token TypeScript constants that reference TailwindCSS @theme CSS variables, especially when tokens follow the category-prefix pattern
+
+---
+
+## 2026-01-23: GSD Full Milestone Execution - Phases 1-5 Patterns
+
+**Context:** Completed 5 phases (25 plans) of Morning Star V8 UI Rewrite milestone
+
+**Execution metrics:**
+| Phase | Plans | Duration | Avg/Plan | Pattern |
+|-------|-------|----------|----------|---------|
+| 1. Foundation | 5 | 34 min | 7 min | Sequential (dependencies) |
+| 2. Overlay | 4 | 14 min | 4 min | 1 + 3 parallel |
+| 3. Navigation | 5 | 23 min | 5 min | Sequential (integration) |
+| 4. Cart | 5 | 37 min | 7 min | Sequential + gap closure |
+| 5. Menu | 5 | 38 min | 8 min | 4 parallel + 1 final |
+
+**Key patterns that emerged:**
+1. **Gap closure plans:** Phases 1, 4 needed extra plans after verification found integration gaps
+2. **Verification catches real issues:** Not just checklist validation - verifier found zIndexVar naming mismatch in Phase 1
+3. **Parallel execution safe at wave boundaries:** No conflicts despite shared files (barrel exports, STATE.md)
+4. **Component reuse across phases:** Phase 5 used Phase 2 overlays (Modal, BottomSheet) and Phase 4 cart (AddToCartButton)
+5. **STATE.md as decision accumulator:** 96 decisions logged across phases, each executor adds to context
+
+**Velocity observations:**
+- Simple component plans: ~4-6 min
+- Integration/composition plans: ~7-8 min
+- Gap closure plans: ~7 min (targeted scope)
+- Total execution: 2.4 hours for 25 plans (6 min average)
+
+**Apply when:** Planning phase execution strategy, estimating phase duration, understanding GSD workflow patterns
+
+---
+
+## 2026-01-23: GSD Phase Execution - Wave-Based Parallel Efficiency
+
+**Context:** Executed Phase 5 (Menu Browsing) with 5 plans across 2 waves
+
+**Pattern:** Wave dependency analysis enables safe parallelization:
+- **Wave 1:** 4 independent plans (05-01 through 05-04) - no dependencies within wave
+- **Wave 2:** 1 plan (05-05) - depends on all Wave 1 plans
+
+**Execution stats:**
+- 4 parallel agents completed in ~8 min (vs ~28 min sequential)
+- Each agent: independent commits, no conflicts
+- Shared barrel export (index.ts) resolved via sequential commit times
+
+**Key insight:** Plans without intra-wave dependencies can run in parallel even if they touch related files. Git serializes commits naturally.
+
+**Apply when:** Executing multi-plan phases, identifying parallelization opportunities in wave assignments
+
+---
+
+## 2026-01-23: useMediaQuery Breakpoint Precision for Mobile/Desktop Overlays
+
+**Context:** ItemDetailSheetV8 needed exact 640px breakpoint (BottomSheet mobile, Modal desktop)
+
+**Problem:** `useMediaQuery("(max-width: 640px)")` returns true at exactly 640px, meaning Modal never shows at 640px viewport.
+
+**Solution:** Use 639px for exclusive mobile breakpoint:
+```tsx
+const isMobile = useMediaQuery("(max-width: 639px)");
+const Overlay = isMobile ? BottomSheet : Modal;
+// < 640px = BottomSheet
+// >= 640px = Modal
+```
+
+**Why this matters:** Tailwind's `sm:` breakpoint is `@media (min-width: 640px)`, so components using CSS `sm:` show desktop styles at 640px. useMediaQuery must match this behavior.
+
+**Apply when:** Building responsive overlays, matching useMediaQuery breakpoints to Tailwind breakpoints
+
+---
+
+## 2026-01-23: GSAP ScrollTrigger Play-Once Pattern for List Reveals
+
+**Context:** MenuGridV8 needed staggered card reveal that plays once on scroll, doesn't replay
+
+**Pattern:**
+```tsx
+gsap.from(cards, {
+  y: 40,
+  opacity: 0,
+  stagger: 0.06,  // 60ms between items
+  scrollTrigger: {
+    trigger: containerRef.current,
+    start: "top 85%",
+    toggleActions: "play none none none",  // Key: play once
+  },
+});
+```
+
+**toggleActions values:** `onEnter onLeave onEnterBack onLeaveBack`
+- `"play none none none"` = play on first enter, never replay
+- `"play reverse play reverse"` = replay each time (not for list reveals)
+
+**Cleanup:** Always use `useGSAP` hook with scope to auto-cleanup ScrollTrigger instances.
+
+**Apply when:** Staggered list/grid reveals, scroll-triggered animations that should only play once
+
+---
+
+## 2026-01-23: Skeleton Loading State Structure Matching
+
+**Context:** MenuSkeletonV8 needed to match MenuContentV8 layout exactly
+
+**Pattern:** Skeletons should replicate the exact DOM structure of the loaded state:
+```tsx
+// MenuSkeletonV8 mirrors MenuContentV8:
+// 1. Sticky tabs bar (same position, height)
+// 2. Sections with heading + grid (same spacing)
+// 3. Cards with image + content (same aspect ratio, padding)
+
+<div className="sticky top-[72px] z-sticky">  // Matches CategoryTabsV8
+  <div className="flex gap-2 overflow-hidden px-4 py-3">
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div className="h-10 w-24 rounded-pill animate-shimmer" />
+    ))}
+  </div>
+</div>
+```
+
+**Why:** Matching structure prevents layout shift when content loads. Users perceive faster load because nothing "jumps".
+
+**Apply when:** Creating skeleton loading states for complex layouts
+
+---
+
+## 2026-01-23: onMouseDown for Dropdown Click Prevention
+
+**Context:** SearchAutocomplete suggestions need to be clickable, but input blur fires before onClick
+
+**Problem:** When user clicks a suggestion:
+1. Input loses focus → triggers blur event
+2. Blur handler closes dropdown
+3. onClick on suggestion never fires (element already removed)
+
+**Solution:** Use `onMouseDown` instead of `onClick`:
+```tsx
+<button
+  onMouseDown={(e) => {
+    e.preventDefault();  // Prevent blur
+    onSelect(item);
+  }}
+>
+  {item.name}
+</button>
+```
+
+**Why `onMouseDown` works:** It fires before blur event, so we can prevent default and handle selection before dropdown closes.
+
+**Apply when:** Autocomplete dropdowns, comboboxes, any clickable elements inside focus-triggered popups
+
+---
+
+## 2026-01-23: V8 Component Barrel Export Organization
+
+**Context:** Phase 5 created 12 menu components needing organized exports
+
+**Pattern:** Group exports by feature domain with comments:
+```tsx
+// src/components/ui-v8/menu/index.ts
+
+// Category navigation
+export { CategoryTabsV8 } from "./CategoryTabsV8";
+export { MenuSectionV8 } from "./MenuSectionV8";
+
+// Item display
+export { MenuItemCardV8 } from "./MenuItemCardV8";
+export { MenuGridV8 } from "./MenuGridV8";
+export { BlurImage } from "./BlurImage";
+export { FavoriteButton } from "./FavoriteButton";
+export { EmojiPlaceholder } from "./EmojiPlaceholder";
+
+// Search
+export { SearchInputV8 } from "./SearchInputV8";
+export { SearchAutocomplete } from "./SearchAutocomplete";
+
+// ... etc
+```
+
+**Benefits:**
+- Consumers import from `@/components/ui-v8/menu` not individual files
+- Comments help navigate large export lists
+- Easy to see what a feature module provides
+
+**Apply when:** Creating feature modules with 5+ components, organizing component libraries
+
+---
+
+## 2026-01-23: E2E DOM Removal Verification Pattern for AnimatePresence
+
+**Context:** Phase 7 E2E tests for overlay click-blocking verification
+
+**Problem:** Using `expect(element).not.toBeVisible()` doesn't verify that AnimatePresence actually removed the element from DOM. The overlay might be invisible but still blocking clicks.
+
+**Solution:** Use `.count()` to verify complete DOM removal:
+```typescript
+// ❌ Weak - element could be invisible but still in DOM blocking clicks
+await expect(page.locator('[data-testid="overlay-backdrop"]')).not.toBeVisible();
+
+// ✅ Strong - confirms element completely removed from DOM
+const backdropCount = await page.locator('[data-testid="overlay-backdrop"]').count();
+expect(backdropCount).toBe(0);
+```
+
+**AnimatePresence exit animation wait pattern:**
+```typescript
+await page.keyboard.press("Escape");
+await page.waitForTimeout(400);  // Wait for exit animation
+const count = await page.locator('[data-testid="cart-drawer"]').count();
+expect(count).toBe(0);
+```
+
+**Why this matters:** V7 had a bug where closed overlays still blocked background clicks because the element remained in DOM. Using `.count() === 0` catches this bug.
+
+**Apply when:** Testing modal/drawer/sheet close behavior, verifying overlays don't block after dismissal
+
+---
+
+## 2026-01-23: Named Z-Index Utilities Over Arbitrary CSS Variable Values
+
+**Context:** TailwindCSS 4 CSS parsing error during Phase 7 execution
+
+**Problem:** Using `z-[var(--zindex-modal)]` arbitrary value syntax across 42 components caused TailwindCSS 4 to generate a wildcard fallback pattern `.z-\[var\(--z-*\)\]` which is invalid CSS.
+
+**Solution:** Use named TailwindCSS utilities instead of arbitrary values:
+```tsx
+// ❌ Wrong - causes CSS parsing error in TailwindCSS 4
+className="z-[var(--zindex-modal)]"
+className="z-[var(--zindex-modal-backdrop)]"
+className="z-[var(--zindex-fixed)]"
+
+// ✅ Correct - named utilities work reliably
+className="z-modal"
+className="z-modal-backdrop"
+className="z-fixed"
+```
+
+**Setup in tailwind.config.ts:**
+```ts
+zIndex: {
+  base: "0",
+  dropdown: "10",
+  sticky: "20",
+  fixed: "30",
+  "modal-backdrop": "40",
+  modal: "50",
+  popover: "60",
+  tooltip: "70",
+  toast: "80",
+  max: "100",
+},
+```
+
+**Benefits:**
+- No CSS parsing errors from wildcard patterns
+- Shorter class names
+- Easier to read and maintain
+- IDE autocomplete support
+
+**Apply when:** Defining z-index layer system, creating new overlay components, migrating from CSS variable arbitrary values
+
+---
+
+## 2026-01-23: Phase Verification vs Integration Verification Gap
+
+**Context:** Milestone audit found Phase 5 (Menu Browsing) passed verification (5/5 truths) but had 0% integration
+
+**Problem:** Phase-level gsd-verifier confirms:
+- Components EXIST (files present with expected line counts)
+- Components are SUBSTANTIVE (real implementations, not stubs)
+- Components are WIRED TOGETHER (internal imports between V8 components correct)
+
+But verifier does NOT check:
+- Whether V8 components are imported into the LIVE APP
+- Whether old/legacy components are still being used instead
+
+**Symptoms:**
+- Phase 5 MenuContentV8 created (240 lines, fully implemented)
+- Menu page still imports `MenuContent` from legacy path
+- 9 MENU-* requirements marked "Complete" but users see no V8 features
+
+**Root cause:** Plan execution creates new components but doesn't always modify app entry points to USE them. Verification checks what was built, not what's deployed.
+
+**Solution:** Integration checker (`gsd-integration-checker`) must run during milestone audit to verify:
+1. V8 components actually imported in app pages/layouts
+2. Legacy components no longer used for covered features
+3. E2E user flows connect through V8 components
+
+**Detection pattern:**
+```bash
+# Check if V8 component is used anywhere in app
+grep -r "MenuContentV8" src/app --include="*.tsx"
+# Empty result = orphaned component
+```
+
+**Apply when:** Running milestone audits, verifying phase completion, debugging "features built but not visible" issues
+
+---
+
+## 2026-01-22: ESLint Rule Severity Strategy for Legacy Codebases
+
+**Context:** Phase 1 z-index enforcement rules blocked build due to 64 violations in legacy code
+
+**Problem:** New lint rules at "error" severity block builds immediately, preventing iterative adoption. Legacy code may have hundreds of violations that can't be fixed atomically.
+
+**Solution:** Phased migration approach:
+1. Add rules at "warn" severity - flags violations without blocking
+2. Create migration tracker document with violation inventory
+3. Map violations to future phases where components will be rebuilt
+4. Upgrade to "error" after migration complete
+
+**Pattern:**
+```javascript
+// eslint.config.mjs
+"no-restricted-syntax": [
+  "warn",  // Start with warn, upgrade to error after migration
+  { selector: "...", message: "Use z-index tokens. See Z-INDEX-MIGRATION.md" }
+]
+```
+
+**Migration tracker structure:**
+```markdown
+# Z-INDEX-MIGRATION.md
+**Status:** Rules at warn | **Target:** Error after Phase 4
+
+## Files Requiring Migration
+| File | Count | Migration Phase |
+| FloatingFood.tsx | 6 | Phase 3 (Menu) |
+```
+
+**Apply when:** Adding lint rules to existing codebases, need gradual adoption path
+
+
+---
+
+## 2026-01-23: Z-Index Stacking Context Isolation Insufficient for Mixed Legacy/V8 Codebases
+
+**Context:** Phase 8 V8 integration revealed persistent z-index layering issues despite adding `isolate` CSS property to homepage sections.
+
+**Problem:** Content components (Hero, HomepageHero, CoverageSection, FooterCTA, menu cards) layered above headers, navs, and category tabs despite:
+1. Header using `z-fixed` (30) token
+2. Content sections receiving `isolate` class for stacking context isolation
+3. Internal z-index values changed from Tailwind classes to inline styles
+
+**Root cause hypothesis:**
+- Legacy UI components still mixed with V8 components
+- Multiple stacking contexts created by legacy code with their own z-index rules
+- Backdrop-blur, transforms, and opacity creating implicit stacking contexts
+- CSS cascade order between legacy and V8 stylesheets
+
+**Attempted fixes (partial success):**
+```tsx
+// Added isolate to section containers
+<section className="... isolate">
+
+// Changed hardcoded z-* classes to inline styles
+style={{ zIndex: 1 }} // instead of className="z-10"
+```
+
+**Why isolation alone doesn't work:**
+1. `isolate` only prevents z-index competition within that element's subtree
+2. If multiple isolated sections exist, they still compete with each other at document level
+3. Legacy components may not have isolation, creating z-index leakage
+4. Transform/filter/opacity properties auto-create stacking contexts without isolation
+
+**Recommended next steps:**
+1. Remove all legacy UI components (not just imports, but actual files)
+2. Run comprehensive V8-only live app build
+3. Establish single z-index hierarchy from app root
+4. Audit all `relative`, `transform`, `filter`, `opacity` usage
+
+**Apply when:** Debugging z-index issues in mixed legacy/modern codebases, planning UI migration milestones
+
+---
+
+## 2026-01-23: V8 Integration Gap Closure Requires Full Legacy Removal
+
+**Context:** Phase 8 attempted to wire V8 components into live app while legacy components remained
+
+**Pattern observed:**
+1. V8 components created and functional
+2. Entry points updated to import V8 components
+3. Z-index stacking, styling conflicts persist
+4. Legacy CSS/component fragments interfere with V8 rendering
+
+**Root issue:** Incremental V8 adoption creates "frankenstein" UI state where:
+- V8 tokens may conflict with legacy token values
+- V8 z-index tokens compete with hardcoded legacy values
+- V8 component styles cascade with legacy styles unexpectedly
+- Import paths may resolve to legacy components in some code paths
+
+**Recommended approach:**
+1. **Inventory legacy components** - grep for non-V8 imports in app pages
+2. **Map dependencies** - identify which legacy components have V8 replacements
+3. **Atomic swap** - replace ALL usages of a legacy component with V8 in single commit
+4. **Delete legacy files** - remove legacy component files after swap
+5. **Run visual regression** - verify each swap doesn't break UI
+
+**Apply when:** Planning UI migration phases, debugging unexplained style conflicts
