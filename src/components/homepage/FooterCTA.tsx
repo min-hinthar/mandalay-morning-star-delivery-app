@@ -13,7 +13,7 @@ export function FooterCTA() {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <footer className="relative overflow-hidden">
+    <footer className="relative overflow-hidden isolate">
       {/* Top CTA Section */}
       <section className="relative py-16 md:py-24 px-4 bg-gradient-to-br from-primary via-primary-hover to-primary">
         {/* Decorative overlay */}
