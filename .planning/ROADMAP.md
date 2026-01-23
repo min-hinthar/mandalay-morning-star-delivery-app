@@ -149,12 +149,11 @@ Plans:
   3. E2E test verifies dropdowns appear above page content and dismiss on outside click
   4. E2E test verifies closed overlays do not intercept clicks on background content
   5. Visual regression snapshots exist for header, overlays, and cart drawer
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 07-01: E2E tests for header and navigation clickability
-- [ ] 07-02: E2E tests for overlay behavior
-- [ ] 07-03: Visual regression snapshots
+- [ ] 07-01-PLAN.md — E2E overlay behavior tests (TEST-01, TEST-02, TEST-03, TEST-04): header clickability, cart drawer behavior, dropdown dismissal, no-blocking verification
+- [ ] 07-02-PLAN.md — V8 visual regression snapshots (TEST-05): header, overlays, cart drawer (desktop + mobile)
 
 ## Progress
 
@@ -169,7 +168,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 4. Cart Experience | 5/5 | ✓ Complete | 2026-01-22 |
 | 5. Menu Browsing | 5/5 | ✓ Complete | 2026-01-23 |
 | 6. Checkout Flow | 5/5 | ✓ Complete | 2026-01-23 |
-| 7. Quality & Testing | 0/3 | Not started | - |
+| 7. Quality & Testing | 0/2 | Planned | - |
 
 ---
 *Roadmap created: 2026-01-21*
@@ -188,5 +187,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 5 complete: 2026-01-23*
 *Phase 6 planned: 2026-01-23*
 *Phase 6 complete: 2026-01-23*
+*Phase 7 planned: 2026-01-23*
 *Depth: comprehensive (8-12 phases, 5-10 plans each)*
 *Total requirements: 55 | Mapped: 55 | Coverage: 100%*
