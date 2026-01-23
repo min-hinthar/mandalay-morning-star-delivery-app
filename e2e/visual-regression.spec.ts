@@ -334,14 +334,40 @@ test.describe("Driver Interface Visual Regression", () => {
   });
 });
 
-test.describe("Admin Dashboard Visual Regression", () => {
-  test("admin dashboard", async ({ page }) => {
+test.describe("Admin Dashboard Visual Regression (TEST-02)", () => {
+  test.beforeEach(async ({ page }) => {
+    await mockFonts(page);
+  });
+
+  test("admin dashboard - desktop", async ({ page }) => {
     await page.goto("/admin");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(500);
+    // Redirects to login - captures login state
+    await expect(page).toHaveScreenshot("admin-dashboard-desktop.png", {
+      fullPage: true,
+      maxDiffPixels: 150,
+    });
+  });
 
-    // May redirect to login, capture that state
-    await expect(page).toHaveScreenshot("admin-dashboard.png", {
+  test("admin dashboard - mobile", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/admin");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(500);
+    await expect(page).toHaveScreenshot("admin-dashboard-mobile.png", {
+      fullPage: true,
+      maxDiffPixels: 150,
+    });
+  });
+
+  test("admin login redirect state", async ({ page }) => {
+    await page.goto("/admin");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(300);
+    // Verify we're on login page (auth redirect)
+    await expect(page).toHaveURL(/login/);
+    await expect(page).toHaveScreenshot("admin-login-redirect.png", {
       fullPage: true,
       maxDiffPixels: 150,
     });
