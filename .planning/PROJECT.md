@@ -77,12 +77,19 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 
 ### Active
 
-(Next milestone requirements go here)
+**Current Milestone: v1.1 Tech Debt Cleanup**
+
+**Goal:** Eliminate all legacy code patterns and migrate admin/driver flows to V8 components.
+
+**Target outcomes:**
+- [ ] Zero z-index ESLint warnings (64 violations → 0)
+- [ ] No V7 component imports anywhere in codebase
+- [ ] All colors/spacing using token system
+- [ ] Dead exports removed
+- [ ] Admin flow migrated to V8 components
+- [ ] Driver flow migrated to V8 components
 
 ### Out of Scope
-
-- Admin flow rewrite — V7 admin works, defer to future milestone
-- Driver flow rewrite — V7 driver works, defer to future milestone
 - Backend/schema changes — Supabase + Stripe contracts stay stable
 - Multi-restaurant marketplace — not part of Morning Star scope
 - Reduced motion automatic detection — motion-first by design; manual toggle later
@@ -135,4 +142,4 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 | No stopPropagation on dropdown | Events bubble for form compatibility | ✓ Good — V7 bug fixed |
 
 ---
-*Last updated: 2026-01-23 after v1 milestone*
+*Last updated: 2026-01-23 after v1.1 milestone started*
