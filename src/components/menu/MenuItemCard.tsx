@@ -115,7 +115,7 @@ function QuickAddButton({ onClick, disabled }: QuickAddButtonProps) {
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "absolute bottom-3 right-3 z-20",
+        "absolute bottom-3 right-3 z-sticky",
         "w-10 h-10 rounded-full",
         "bg-primary text-white",
         "flex items-center justify-center",
@@ -171,7 +171,7 @@ function FavoriteButton({ isFavorite, onClick }: FavoriteButtonProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        "absolute top-3 right-3 z-20",
+        "absolute top-3 right-3 z-sticky",
         "w-8 h-8 rounded-full",
         "bg-white/90 backdrop-blur-sm",
         "flex items-center justify-center",
@@ -412,7 +412,7 @@ export function MenuItemCard({
 
         {/* Dietary badges */}
         {badges.length > 0 && (
-          <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-1">
+          <div className="absolute top-3 left-3 z-dropdown flex flex-wrap gap-1">
             {badges.map((badge, i) => (
               <DietaryBadge key={i} {...badge} />
             ))}
@@ -424,7 +424,7 @@ export function MenuItemCard({
 
         {/* Out of stock overlay */}
         {item.isSoldOut && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-dropdown">
             <span className="px-4 py-2 bg-surface-primary rounded-full text-sm font-semibold text-text-primary">
               Out of Stock
             </span>
