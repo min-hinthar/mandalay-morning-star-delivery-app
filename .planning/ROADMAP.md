@@ -85,12 +85,12 @@ Plans:
   3. Legacy checkout exports (15 items) removed
   4. admin/index.ts consolidated with v7-index functionality
   5. Skeleton variant dead exports removed
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 12-01: Zero-reference export removal
-- [ ] 12-02: UI and checkout export cleanup
-- [ ] 12-03: Admin consolidation and skeleton cleanup
+- [ ] 12-01-PLAN.md — Delete unused utility/infrastructure files (20 files in contexts/, hooks/, stores/, lib/)
+- [ ] 12-02-PLAN.md — Clean UI and checkout barrel exports (remove LegacyModal, DropdownAction, Confetti, Legacy* aliases)
+- [ ] 12-03-PLAN.md — Delete unused component files and verify admin barrel (24 component files)
 
 ### Phase 13: Legacy Removal & Stricter Rules
 **Goal**: Prevent regression with enforced rules and removed legacy files
@@ -133,10 +133,10 @@ Plans:
 | 9. Analysis & Component Creation | v1.1 | 2/2 | Complete | 2026-01-23 |
 | 10. Token Migration | v1.1 | 4/4 | Complete | 2026-01-23 |
 | 11. V8 Component Migration | v1.1 | 4/4 | Complete | 2026-01-23 |
-| 12. Dead Code & Export Cleanup | v1.1 | 0/3 | Not started | - |
+| 12. Dead Code & Export Cleanup | v1.1 | 0/3 | Planned | - |
 | 13. Legacy Removal & Stricter Rules | v1.1 | 0/2 | Not started | - |
 | 14. Testing & Documentation | v1.1 | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-23 - Phase 11 complete*
+*Last updated: 2026-01-23 - Phase 12 planned*
