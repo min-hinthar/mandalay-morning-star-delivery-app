@@ -1,9 +1,8 @@
 "use client";
 
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-// duration available for future use
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo, forwardRef } from "react";
+import { useEffect, useState, useMemo, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
