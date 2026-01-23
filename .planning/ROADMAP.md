@@ -67,13 +67,13 @@ Plans:
   3. Homepage Hero uses V8 layout components
   4. Tracking page uses V8 components
   5. All TimeStep usages replaced with TimeStepV8
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 11-01: Admin dashboard V8 migration
-- [ ] 11-02: Driver dashboard V8 migration
-- [ ] 11-03: Hero and tracking V8 migration
-- [ ] 11-04: TimeStep replacement sweep
+- [ ] 11-01-PLAN.md — Admin dashboard V8 migration (1 file)
+- [ ] 11-02-PLAN.md — Driver dashboard V8 migration (1 file)
+- [ ] 11-03-PLAN.md — Homepage, tracking, and layout V8 migration (5 files)
+- [ ] 11-04-PLAN.md — TimeStep verification and final sweep
 
 ### Phase 12: Dead Code & Export Cleanup
 **Goal**: No dead code remains in exports
@@ -132,11 +132,11 @@ Plans:
 | 1-8 | v1.0 | 32/32 | Complete | 2026-01-23 |
 | 9. Analysis & Component Creation | v1.1 | 2/2 | Complete | 2026-01-23 |
 | 10. Token Migration | v1.1 | 4/4 | Complete | 2026-01-23 |
-| 11. V8 Component Migration | v1.1 | 0/4 | Not started | - |
+| 11. V8 Component Migration | v1.1 | 0/4 | Planned | - |
 | 12. Dead Code & Export Cleanup | v1.1 | 0/3 | Not started | - |
 | 13. Legacy Removal & Stricter Rules | v1.1 | 0/2 | Not started | - |
 | 14. Testing & Documentation | v1.1 | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-23 - Phase 10 complete*
+*Last updated: 2026-01-23 - Phase 11 planned*
