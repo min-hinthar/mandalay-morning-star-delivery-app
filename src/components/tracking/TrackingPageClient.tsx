@@ -125,7 +125,7 @@ export function TrackingPageClient({
   return (
     <div className="min-h-screen bg-cream pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-cream/95 backdrop-blur-sm border-b border-charcoal-100">
+      <header className="sticky top-0 z-sticky bg-cream/95 backdrop-blur-sm border-b border-charcoal-100">
         <div className="mx-auto max-w-2xl px-4">
           <div className="flex items-center justify-between h-14">
             <Link
