@@ -1,4 +1,17 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
+
+/**
+ * Mock Google Fonts to prevent network-dependent test failures
+ * in sandboxed environments without network access.
+ */
+async function mockFonts(page: Page) {
+  await page.route("**/fonts.googleapis.com/**", (route) =>
+    route.fulfill({ status: 200, contentType: "text/css", body: "" })
+  );
+  await page.route("**/fonts.gstatic.com/**", (route) =>
+    route.fulfill({ status: 200, contentType: "font/woff2", body: "" })
+  );
+}
 
 /**
  * Visual Regression Tests
