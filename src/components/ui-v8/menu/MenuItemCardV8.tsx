@@ -187,7 +187,7 @@ export function MenuItemCardV8({
 
         {/* Favorite button */}
         {!hideFavorite && (
-          <div className="absolute top-2 right-2 z-10">
+          <div className="absolute top-2 right-2 z-dropdown">
             <FavoriteButton
               isFavorite={itemIsFavorite}
               onToggle={handleFavoriteToggle}

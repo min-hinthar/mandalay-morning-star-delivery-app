@@ -153,7 +153,7 @@ export const FlipCard = forwardRef<HTMLDivElement, FlipCardProps>(
             <div
               className="absolute -top-8 -right-8 w-16 h-16 rotate-45"
               style={{
-                background: "linear-gradient(135deg, #EBCD00 0%, #D4A017 100%)",
+                background: "linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-hover) 100%)",
                 opacity: 0.15,
               }}
             />
@@ -194,9 +194,9 @@ export const FlipCard = forwardRef<HTMLDivElement, FlipCardProps>(
         <motion.div
           className={cn(
             "absolute inset-0 rounded-2xl",
-            "bg-gradient-to-br from-[#A41034] to-[#7a0c27]",
-            "border border-[#A41034]/20",
-            "shadow-xl shadow-[#A41034]/20",
+            "bg-gradient-to-br from-primary to-primary-active",
+            "border border-primary/20",
+            "shadow-xl shadow-primary/20",
             "overflow-hidden text-white",
             backClassName
           )}

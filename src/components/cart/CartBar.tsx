@@ -90,7 +90,7 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
                 </div>
                 {/* Animated truck */}
                 <motion.div
-                  className="absolute top-1/2 -translate-y-1/2 z-10"
+                  className="absolute top-1/2 -translate-y-1/2 z-dropdown"
                   initial={{ left: "0%" }}
                   animate={{ left: `calc(${progressPercent}% - 10px)` }}
                   transition={{ type: "spring", stiffness: 100, damping: 20 }}

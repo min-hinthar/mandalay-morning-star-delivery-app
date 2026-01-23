@@ -236,7 +236,7 @@ export function PhotoCapture({
           <canvas ref={canvasRef} className="hidden" />
 
           {/* Header */}
-          <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between bg-gradient-to-b from-black/70 to-transparent p-4">
+          <div className="absolute left-0 right-0 top-0 z-dropdown flex items-center justify-between bg-gradient-to-b from-black/70 to-transparent p-4">
             <h2 className="font-display text-lg font-semibold text-white">{title}</h2>
             <button
               onClick={handleClose}

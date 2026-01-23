@@ -73,30 +73,30 @@ export interface ChartsProps {
 //  CHART COLORS
 // ============================================
 
-const V7_COLORS = {
+const CHART_COLORS = {
   primary: {
-    main: "#A41034",
-    light: "rgba(164, 16, 52, 0.1)",
+    main: "var(--color-primary)",
+    light: "rgba(164, 16, 52, 0.1)", // Keep rgba for opacity
     gradient: ["rgba(164, 16, 52, 0.4)", "rgba(164, 16, 52, 0.05)"],
   },
   secondary: {
-    main: "#EBCD00",
+    main: "var(--color-secondary)",
     light: "rgba(235, 205, 0, 0.1)",
     gradient: ["rgba(235, 205, 0, 0.4)", "rgba(235, 205, 0, 0.05)"],
   },
   green: {
-    main: "#52A52E",
+    main: "var(--color-accent-green)",
     light: "rgba(82, 165, 46, 0.1)",
     gradient: ["rgba(82, 165, 46, 0.4)", "rgba(82, 165, 46, 0.05)"],
   },
   error: {
-    main: "#DC2626",
+    main: "var(--color-status-error)",
     light: "rgba(220, 38, 38, 0.1)",
     gradient: ["rgba(220, 38, 38, 0.4)", "rgba(220, 38, 38, 0.05)"],
   },
-  grid: "#E8E1DC",
-  text: "#6B6560",
-  textMuted: "#9B9590",
+  grid: "var(--color-border-default)",
+  text: "var(--color-text-secondary)",
+  textMuted: "var(--color-text-muted)",
 };
 
 // ============================================
@@ -332,7 +332,7 @@ export function Charts({
     return data.reduce((sum, d) => sum + d.value, 0) / data.length;
   }, [data]);
 
-  const colorConfig = V7_COLORS[color];
+  const colorConfig = CHART_COLORS[color];
 
   if (loading) {
     return (
@@ -382,19 +382,19 @@ export function Charts({
             <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke={V7_COLORS.grid}
+                stroke={CHART_COLORS.grid}
                 strokeOpacity={0.6}
                 vertical={false}
               />
               <XAxis
                 dataKey="date"
-                tick={{ fill: V7_COLORS.text, fontSize: 12 }}
+                tick={{ fill: CHART_COLORS.text, fontSize: 12 }}
                 tickLine={false}
-                axisLine={{ stroke: V7_COLORS.grid }}
+                axisLine={{ stroke: CHART_COLORS.grid }}
               />
               <YAxis
                 tickFormatter={formatAxisValue}
-                tick={{ fill: V7_COLORS.text, fontSize: 12 }}
+                tick={{ fill: CHART_COLORS.text, fontSize: 12 }}
                 tickLine={false}
                 axisLine={false}
                 width={60}
@@ -405,7 +405,7 @@ export function Charts({
               />
               <ReferenceLine
                 y={avgValue}
-                stroke={V7_COLORS.textMuted}
+                stroke={CHART_COLORS.textMuted}
                 strokeDasharray="4 4"
                 strokeWidth={1}
               />
@@ -428,19 +428,19 @@ export function Charts({
               </defs>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke={V7_COLORS.grid}
+                stroke={CHART_COLORS.grid}
                 strokeOpacity={0.6}
                 vertical={false}
               />
               <XAxis
                 dataKey="date"
-                tick={{ fill: V7_COLORS.text, fontSize: 12 }}
+                tick={{ fill: CHART_COLORS.text, fontSize: 12 }}
                 tickLine={false}
-                axisLine={{ stroke: V7_COLORS.grid }}
+                axisLine={{ stroke: CHART_COLORS.grid }}
               />
               <YAxis
                 tickFormatter={formatAxisValue}
-                tick={{ fill: V7_COLORS.text, fontSize: 12 }}
+                tick={{ fill: CHART_COLORS.text, fontSize: 12 }}
                 tickLine={false}
                 axisLine={false}
                 width={60}
@@ -448,7 +448,7 @@ export function Charts({
               <Tooltip content={<CustomTooltip format={format} />} />
               <ReferenceLine
                 y={avgValue}
-                stroke={V7_COLORS.textMuted}
+                stroke={CHART_COLORS.textMuted}
                 strokeDasharray="4 4"
                 strokeWidth={1}
               />
@@ -468,19 +468,19 @@ export function Charts({
             <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke={V7_COLORS.grid}
+                stroke={CHART_COLORS.grid}
                 strokeOpacity={0.6}
                 vertical={false}
               />
               <XAxis
                 dataKey="date"
-                tick={{ fill: V7_COLORS.text, fontSize: 12 }}
+                tick={{ fill: CHART_COLORS.text, fontSize: 12 }}
                 tickLine={false}
-                axisLine={{ stroke: V7_COLORS.grid }}
+                axisLine={{ stroke: CHART_COLORS.grid }}
               />
               <YAxis
                 tickFormatter={formatAxisValue}
-                tick={{ fill: V7_COLORS.text, fontSize: 12 }}
+                tick={{ fill: CHART_COLORS.text, fontSize: 12 }}
                 tickLine={false}
                 axisLine={false}
                 width={60}
@@ -488,7 +488,7 @@ export function Charts({
               <Tooltip content={<CustomTooltip format={format} />} />
               <ReferenceLine
                 y={avgValue}
-                stroke={V7_COLORS.textMuted}
+                stroke={CHART_COLORS.textMuted}
                 strokeDasharray="4 4"
                 strokeWidth={1}
               />
@@ -507,7 +507,7 @@ export function Charts({
                 <Line
                   type="monotone"
                   dataKey="secondaryValue"
-                  stroke={V7_COLORS.secondary.main}
+                  stroke={CHART_COLORS.secondary.main}
                   strokeWidth={2}
                   strokeDasharray="5 5"
                   dot={false}
@@ -545,7 +545,7 @@ export function Sparkline({
   className,
 }: SparklineProps) {
   const { shouldAnimate } = useAnimationPreference();
-  const colorConfig = V7_COLORS[color];
+  const colorConfig = CHART_COLORS[color];
 
   // Normalize data to chart
   const chartData = data.map((value, index) => ({ index, value }));

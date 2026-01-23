@@ -11,6 +11,10 @@ import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 // TYPES
 // ============================================
 
+// Local stacking context - intentionally using small numbers (1-4)
+// for relative layering within this component. Do NOT migrate to
+// global z-index tokens as these are not global layers.
+
 export interface FoodItem {
   /** Unique identifier */
   id: string;
@@ -24,7 +28,7 @@ export interface FoodItem {
   size?: number;
   /** Initial position (percentage 0-100) */
   position: { x: number; y: number };
-  /** Z-index for layering */
+  /** Z-index for layering (local stacking context, 1-4 range) */
   zIndex?: number;
   /** Float amplitude (how much it moves) */
   amplitude?: number;

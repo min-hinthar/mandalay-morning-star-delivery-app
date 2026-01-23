@@ -168,7 +168,7 @@ export function MenuItemCard({
         {isPopular && !item.isSoldOut && (
           <Badge
             variant="featured"
-            className="absolute left-3 top-3 z-10"
+            className="absolute left-3 top-3 z-dropdown"
           >
             <Star className="mr-1 h-3 w-3 fill-current" />
             Popular
@@ -204,7 +204,7 @@ export function MenuItemCard({
             type="button"
             onClick={handleFavoriteClick}
             className={cn(
-              "absolute top-3 right-3 z-10",
+              "absolute top-3 right-3 z-dropdown",
               "flex h-10 w-10 items-center justify-center",
               "rounded-full bg-surface-primary/95 backdrop-blur-sm",
               "shadow-md",
@@ -243,7 +243,7 @@ export function MenuItemCard({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 10 }}
             transition={{ duration: 0.2 }}
-            className="absolute bottom-3 right-3 z-10 hidden md:block"
+            className="absolute bottom-3 right-3 z-dropdown hidden md:block"
           >
             <Button
               variant="primary"

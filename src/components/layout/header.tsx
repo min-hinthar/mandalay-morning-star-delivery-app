@@ -77,7 +77,7 @@ function CartBadge({ count, onClick, className }: CartBadgeProps) {
       onClick={onClick}
       className={cn(
         "relative p-2 rounded-xl",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A41034]/30",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
         "hover:bg-surface-secondary/80 transition-colors duration-150",
         className
       )}
@@ -168,7 +168,7 @@ function ExpandingSearch({ placeholder = "Search menu...", onSearch, className }
           className={cn(
             "w-10 h-10 flex items-center justify-center rounded-xl",
             "hover:bg-surface-secondary/80 transition-colors duration-150",
-            "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A41034]/30"
+            "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
           )}
           whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
           whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
@@ -340,16 +340,16 @@ export const Header = forwardRef<HTMLElement, HeaderProps>(
       >
         {/* Burmese ornate top border */}
         <div
-          className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#D4A017] via-[#A41034] to-[#D4A017]"
+          className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-secondary via-primary to-secondary"
           style={{
             backgroundImage: `repeating-linear-gradient(
               90deg,
-              #D4A017 0px,
-              #D4A017 4px,
-              #A41034 4px,
-              #A41034 8px,
-              #D4A017 8px,
-              #D4A017 12px
+              var(--color-secondary) 0px,
+              var(--color-secondary) 4px,
+              var(--color-primary) 4px,
+              var(--color-primary) 8px,
+              var(--color-secondary) 8px,
+              var(--color-secondary) 12px
             )`,
           }}
         />
@@ -445,7 +445,7 @@ export const Header = forwardRef<HTMLElement, HeaderProps>(
         {/* Scroll progress indicator */}
         {shouldAnimate && (
           <motion.div
-            className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-[#A41034] to-[#D4A017]"
+            className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-primary to-secondary"
             style={{
               width: `${Math.min(scrollY / 500, 1) * 100}%`,
               opacity: isAtTop ? 0 : 0.6,

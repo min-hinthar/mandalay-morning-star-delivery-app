@@ -364,7 +364,7 @@ export function OverlayBase({
                   type="button"
                   onClick={onClose}
                   className={cn(
-                    "absolute top-3 right-3 z-10",
+                    "absolute top-3 right-3 z-dropdown",
                     "flex h-8 w-8 items-center justify-center",
                     "rounded-full bg-[var(--color-surface-secondary)]",
                     "text-[var(--color-text-secondary)]",
