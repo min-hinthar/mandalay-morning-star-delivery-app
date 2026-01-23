@@ -329,7 +329,7 @@ export function TimeSlotPicker({
                 exit={shouldAnimate ? { opacity: 0, x: 10 } : undefined}
                 onClick={() => scrollBy("left")}
                 className={cn(
-                  "absolute left-0 top-1/2 -translate-y-1/2 z-10",
+                  "absolute left-0 top-1/2 -translate-y-1/2 z-dropdown",
                   "w-10 h-10 rounded-full",
                   "bg-surface-primary/90 backdrop-blur-sm",
                   "border border-border shadow-lg",
@@ -352,7 +352,7 @@ export function TimeSlotPicker({
                 exit={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
                 onClick={() => scrollBy("right")}
                 className={cn(
-                  "absolute right-0 top-1/2 -translate-y-1/2 z-10",
+                  "absolute right-0 top-1/2 -translate-y-1/2 z-dropdown",
                   "w-10 h-10 rounded-full",
                   "bg-surface-primary/90 backdrop-blur-sm",
                   "border border-border shadow-lg",
