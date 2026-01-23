@@ -1,5 +1,39 @@
 # Project Milestones: Morning Star V8 UI Rewrite
 
+## v1.1 Tech Debt Cleanup (Shipped: 2026-01-23)
+
+**Delivered:** Complete V8 adoption with zero legacy patterns, strict TypeScript, and enforced design tokens.
+
+**Phases completed:** 9-14 (21 plans total)
+
+**Key accomplishments:**
+
+- Z-index token migration across 36 files (64 violations → 0) with ESLint rule upgraded to error severity
+- TimeStepV8 component created with V8 animation patterns (motion tokens, useAnimationPreference)
+- Dead code analysis and cleanup: 44 files deleted, 480 exports analyzed via knip
+- Legacy v7-index.ts barrel files removed (10 files, 366 lines deleted)
+- TypeScript strict flags enabled (noUnusedLocals, noUnusedParameters)
+- Visual regression test infrastructure: 78 tests for Admin/Driver flows with mockFonts helper
+
+**Stats:**
+
+- 6 phases, 21 plans
+- 28/29 requirements satisfied (1 blocked by infrastructure)
+- 44 dead files deleted, 10 barrel files removed
+- 101,118 total TypeScript LOC
+- 1 day from planning to completion (2026-01-23)
+
+**Git range:** `docs(09): research phase domain` → `audit(v1.1): complete milestone audit with integration verification`
+
+**Tech debt resolved from v1:**
+- ✓ 64 legacy z-index violations (now 0)
+- ✓ TimeStepV8 created (checkout now uses V8 component)
+- ~ Visual regression baselines deferred (78 tests ready, baselines need network-enabled environment)
+
+**What's next:** v1.2 with reduced motion detection, dark mode refinement, performance budgets
+
+---
+
 ## v1 V8 UI Rewrite (Shipped: 2026-01-23)
 
 **Delivered:** Complete frontend rewrite with animation-first design, portal-based overlays, and reliable clickability.
