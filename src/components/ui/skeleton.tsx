@@ -468,5 +468,3 @@ export function SkeletonTableRow({
     </div>
   );
 }
-
-export default Skeleton;
