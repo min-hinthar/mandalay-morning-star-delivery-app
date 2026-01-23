@@ -13,12 +13,6 @@ import { cn } from "@/lib/utils/cn";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { LeaderboardProps, DriverLeaderboardEntry } from "@/types/analytics";
 
-// V5 Chart colors - mapped to semantic tokens
-const _V5_CHART_COLORS = {
-  primary: "#D4A017", // --color-interactive-primary
-  secondary: "#2E8B57", // --color-accent-secondary / status-success
-};
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
