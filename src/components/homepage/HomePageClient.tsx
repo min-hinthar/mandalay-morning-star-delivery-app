@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { Hero, CoverageSection, Timeline } from "./v7-index";
+import { Hero } from "./Hero";
+import { CoverageSection } from "./CoverageSection";
+import { Timeline } from "./Timeline";
 import { FooterCTA } from "./FooterCTA";
 
 interface HomePageClientProps {
