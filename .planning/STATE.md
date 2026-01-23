@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-01-21)
 ## Current Position
 
 Phase: 7 of 7 (Quality & Testing)
-Plan: 2 of 4 complete (07-01, 07-02)
+Plan: 1 of 4 complete (07-01)
 Status: In progress
-Last activity: 2026-01-23 — Completed 07-02-PLAN.md (V8 Visual Regression Snapshots)
+Last activity: 2026-01-23 — Completed 07-01-PLAN.md (V8 Overlay Behavior Tests)
 
-Progress: [████████████] 100% (32/32 plans estimated)
+Progress: [████████████] 97% (31/32 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 32
+- Total plans completed: 31
 - Average duration: 6 min
 - Total execution time: 2.9 hours
 
@@ -33,10 +33,10 @@ Progress: [████████████] 100% (32/32 plans estimated)
 | 04-cart-experience | 5 | 37 min | 7 min |
 | 05-menu-browsing | 5 | 38 min | 8 min |
 | 06-checkout-flow | 5 | 23 min | 5 min |
-| 07-quality-testing | 2 | 4 min | 2 min |
+| 07-quality-testing | 1 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-02 (2 min), 07-01 (2 min), 06-05 (6 min), 06-02 (5 min), 06-04 (4 min)
+- Last 5 plans: 07-01 (3 min), 06-05 (6 min), 06-02 (5 min), 06-04 (4 min), 06-03 (5 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -111,6 +111,9 @@ Recent decisions affecting current work:
 - maxDiffPixels: 100 for full components, 30-50 for small components in visual tests
 - 500ms wait for animations/fonts to settle before visual snapshot capture
 - TEST-05 tag in describe blocks for visual regression traceability
+- Use .count() for DOM removal verification, not just visibility checks
+- Wait 400ms for AnimatePresence exit animations in E2E tests
+- Conditional tests with isVisible() for optional elements
 
 ### Pending Todos
 
@@ -124,9 +127,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: Completed 07-02-PLAN.md (V8 Visual Regression Snapshots)
+Stopped at: Completed 07-01-PLAN.md (V8 Overlay Behavior Tests)
 Resume file: None
-Next: Plan 07-03 (unit tests) or 07-04 (integration tests)
+Next: Plan 07-02 (visual regression) or remaining Phase 7 plans
 
 ## Phases Complete
 
@@ -256,15 +259,17 @@ Phase 6 (Checkout Flow) COMPLETE with all 5 plans:
 
 ### Phase 7 (Quality & Testing) IN PROGRESS
 
-Phase 7 (Quality & Testing) in progress with 2/4 plans complete:
+Phase 7 (Quality & Testing) in progress with 1/4 plans complete:
 
-1. **07-01:** Visual Regression Infrastructure - Playwright snapshot setup
-2. **07-02:** V8 Visual Regression Snapshots - Header, overlay, cart drawer baselines
+1. **07-01:** V8 Overlay Behavior Tests - E2E tests for clickability and DOM removal
 
 **Delivered:**
-- V8 header visual regression tests (desktop, mobile, scrolled, bottom nav)
-- V8 overlay visual regression tests (modal, bottom sheet, dropdown)
-- V8 cart drawer visual regression tests (with items, empty, badge)
+- TEST-01: Header clickability tests on /, /menu, /checkout routes
+- TEST-02: Cart drawer open/close with DOM removal verification
+- TEST-03: Dropdown visibility and dismissal
+- TEST-04: Closed overlays don't block background clicks
+
+**Test file:** `e2e/v8-overlay-behavior.spec.ts` (263 lines)
 
 **Verification:** All success criteria passed
 **Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
