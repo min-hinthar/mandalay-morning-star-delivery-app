@@ -178,7 +178,7 @@ export function QuickPreviewPanel({
           <ul className="space-y-1.5">
             {items.slice(0, 4).map((item, i) => (
               <motion.li
-                key={i}
+                key={`${item.name}-${i}`}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.15 + i * 0.05 }}
@@ -349,7 +349,7 @@ export function RoutePreviewPanel({
         <ul className="space-y-2">
           {stops.slice(0, 3).map((stop, i) => (
             <motion.li
-              key={i}
+              key={`${stop.address}-${i}`}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15 + i * 0.05 }}

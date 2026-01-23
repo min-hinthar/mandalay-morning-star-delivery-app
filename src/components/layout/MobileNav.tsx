@@ -192,9 +192,9 @@ function QuickInfo() {
       className="mt-4 p-4 bg-surface-secondary rounded-xl space-y-3"
       variants={staggerItem}
     >
-      {infoItems.map((item, index) => (
+      {infoItems.map((item) => (
         <motion.div
-          key={index}
+          key={item.text}
           className="flex items-center gap-3 text-sm text-text-secondary"
           whileHover={shouldAnimate ? { x: 4 } : undefined}
           transition={getSpring(spring.snappy)}
@@ -368,10 +368,16 @@ export function MobileNav({
                   >
                     {user.avatar ? (
                       /* eslint-disable-next-line @next/next/no-img-element -- User avatar with dynamic URL */
-                      <img src={user.avatar} alt={user.name || "User"} className="w-full h-full object-cover" />
-                    ) : (
-                      user.name?.charAt(0).toUpperCase() || "U"
-                    )}
+                      <img
+                        src={user.avatar}
+                        alt={user.name || "User"}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }}
+                      />
+                    ) : null}
+                    <span className={cn("text-lg font-bold", user.avatar && "hidden")}>
+                      {user.name?.charAt(0).toUpperCase() || "U"}
+                    </span>
                   </motion.div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-text-primary truncate">
