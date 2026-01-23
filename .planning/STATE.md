@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-21)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 5 planning (Menu Browsing)
+**Current focus:** Phase 5 execution (Menu Browsing)
 
 ## Current Position
 
-Phase: 4 of 7 (Cart Experience) — VERIFIED
-Plan: 5 of 5 complete (including 04-05 gap closure)
-Status: Phase verified (9/9 must-haves)
-Last activity: 2026-01-22 — Completed 04-05-PLAN.md (V8 Cart Integration Gap Closure)
+Phase: 5 of 7 (Menu Browsing) — VERIFIED
+Plan: 5 of 5 complete (all Wave 1 + Wave 2)
+Status: Phase verified (5/5 must-haves)
+Last activity: 2026-01-23 — Completed 05-05-PLAN.md (Menu Integration)
 
-Progress: [███████░░░░░] 61% (19/31 plans estimated)
+Progress: [█████████░░░] 81% (25/31 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 25
 - Average duration: 6 min
-- Total execution time: 1.8 hours
+- Total execution time: 2.4 hours
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: [███████░░░░░] 61% (19/31 plans estimated)
 | 02-overlay-infrastructure | 4 | 14 min | 4 min |
 | 03-navigation-layout | 5 | 23 min | 5 min |
 | 04-cart-experience | 5 | 37 min | 7 min |
+| 05-menu-browsing | 5 | 38 min | 8 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (6 min), 04-02 (8 min), 04-03 (8 min), 04-04 (8 min), 04-05 (7 min)
+- Last 5 plans: 05-02 (8 min), 05-03 (6 min), 05-04 (6 min), 05-05 (6 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -85,6 +86,16 @@ Recent decisions affecting current work:
 - Badge pulse triggered from store after fly animation completes
 - V8 integration pattern: replace V7 import, component just works (same hooks)
 - Clear button visibility via showClear prop based on isEmpty state
+- Search autocomplete uses onMouseDown to prevent blur-before-click issue
+- 300ms debounce for search API calls balances responsiveness with efficiency
+- Mobile search expands from icon to full input for space efficiency
+- ItemDetailSheetV8 uses 639px breakpoint for exact 640px desktop threshold (BottomSheet < 640px, Modal >= 640px)
+- CATEGORY_EMOJI_MAP covers 40+ Myanmar cuisine categories for placeholder images
+- FavoriteButton uses spring.ultraBouncy with burst ring + particles for celebration
+- MenuItemCardV8 uses whileHover y:-6 scale:1.02 matching hover.lift pattern
+- MenuGridV8 uses GSAP ScrollTrigger with toggleActions "play none none none" for play-once animation
+- Skeleton structure matches exact real component layout for smooth loading transition
+- MenuContentV8 handles loading/error/empty states internally
 
 ### Pending Todos
 
@@ -97,9 +108,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-22
-Stopped at: Completed 04-05-PLAN.md (V8 Cart Integration Gap Closure)
+Last session: 2026-01-23
+Stopped at: Completed Phase 5 (Menu Browsing) - all 5 plans
 Resume file: None
+Next: Phase 6 (Checkout Flow)
 
 ## Phases Complete
 
@@ -175,6 +187,31 @@ Phase 4 (Cart Experience) COMPLETE with all 5 plans:
 - CartDrawerV8 replaces V7 CartDrawer in providers.tsx
 - CartButtonV8 integrated in HeaderClient.tsx
 - ClearCartConfirmation wired to trash button in cart drawer
+
+**Verification:** All success criteria passed
+**Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
+
+### Phase 5 (Menu Browsing) COMPLETE
+
+Phase 5 (Menu Browsing) COMPLETE with all 5 plans:
+
+1. **05-01:** Category Tabs V8 - Scrollspy tabs with animated indicator
+2. **05-02:** Menu Item Cards V8 - Item cards with blur image, favorites, emoji placeholders
+3. **05-03:** Item Detail Sheet V8 - Responsive modal/sheet with modifiers and add to cart
+4. **05-04:** Search V8 - Debounced search with autocomplete
+5. **05-05:** Menu Integration - GSAP stagger animation, skeletons, full page composition
+
+**Delivered Components:**
+- CategoryTabsV8 (scrollspy category navigation with animated pill)
+- MenuSectionV8 (category section wrapper for scrollspy targeting)
+- MenuItemCardV8 (animated card with blur image, favorites, tags)
+- BlurImage, EmojiPlaceholder, FavoriteButton (item card primitives)
+- SearchInputV8, SearchAutocomplete (debounced search with results)
+- ItemDetailSheetV8 (responsive item detail overlay)
+- MenuGridV8 (GSAP staggered reveal animation)
+- MenuSkeletonV8, MenuItemCardV8Skeleton (loading states)
+- MenuContentV8 (complete page composition)
+- index.ts barrel exports for all V8 menu components
 
 **Verification:** All success criteria passed
 **Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
