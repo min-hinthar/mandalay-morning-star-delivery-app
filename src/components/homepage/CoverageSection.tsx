@@ -402,7 +402,7 @@ export function CoverageSection({
       ref={sectionRef}
       id="coverage"
       className={cn(
-        "py-16 md:py-24 px-4 bg-gradient-to-b from-surface-primary to-surface-secondary/50 overflow-hidden",
+        "py-16 md:py-24 px-4 bg-gradient-to-b from-surface-primary to-surface-secondary/50 overflow-hidden isolate",
         className
       )}
     >

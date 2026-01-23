@@ -1,23 +1,63 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
-import { CheckoutStepper } from "@/components/checkout/CheckoutStepper";
-import { AddressStep } from "@/components/checkout/AddressStep";
-import { TimeStep } from "@/components/checkout/TimeStep";
-import { PaymentStep } from "@/components/checkout/PaymentStep";
-import { CheckoutSummary } from "@/components/checkout/CheckoutSummary";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { spring } from "@/lib/motion-tokens";
+import {
+  CheckoutStepperV8,
+  AddressStep,
+  TimeStep,
+  PaymentStep,
+  CheckoutSummary,
+} from "@/components/checkout";
 import type { CheckoutStep } from "@/types/checkout";
+
+/**
+ * Direction-aware step transition variants
+ * - Forward (1): current slides left, new slides from right
+ * - Backward (-1): current slides right, new slides from left
+ */
+const stepVariants = {
+  initial: (direction: number) => ({
+    opacity: 0,
+    x: direction > 0 ? 100 : -100,
+  }),
+  animate: {
+    opacity: 1,
+    x: 0,
+  },
+  exit: (direction: number) => ({
+    opacity: 0,
+    x: direction > 0 ? -100 : 100,
+  }),
+};
+
+const STEPS: CheckoutStep[] = ["address", "time", "payment"];
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const { isEmpty } = useCart();
   const { step, setStep, reset } = useCheckoutStore();
+  const { shouldAnimate, getSpring } = useAnimationPreference();
+
+  // Track direction for step transitions
+  const [direction, setDirection] = useState(1);
+  const prevStepRef = useRef(step);
+
+  // Update direction when step changes
+  useEffect(() => {
+    const prevIndex = STEPS.indexOf(prevStepRef.current);
+    const currentIndex = STEPS.indexOf(step);
+    setDirection(currentIndex >= prevIndex ? 1 : -1);
+    prevStepRef.current = step;
+  }, [step]);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -47,12 +87,12 @@ export default function CheckoutPage() {
   }
 
   const handleStepClick = (clickedStep: CheckoutStep) => {
-    const steps: CheckoutStep[] = ["address", "time", "payment"];
-    const currentIndex = steps.indexOf(step);
-    const clickedIndex = steps.indexOf(clickedStep);
+    const currentIndex = STEPS.indexOf(step);
+    const clickedIndex = STEPS.indexOf(clickedStep);
 
     // Only allow going back
     if (clickedIndex < currentIndex) {
+      setDirection(-1);
       setStep(clickedStep);
     }
   };
@@ -64,19 +104,57 @@ export default function CheckoutPage() {
           Checkout
         </h1>
 
-        <CheckoutStepper
+        <CheckoutStepperV8
           currentStep={step}
           onStepClick={handleStepClick}
           className="mb-6 sm:mb-8"
         />
 
         <div className="grid gap-6 lg:gap-8 lg:grid-cols-3">
-          {/* Main content - order form */}
+          {/* Main content - order form with animated transitions */}
           <div className="lg:col-span-2">
-            <div className="rounded-lg border border-border bg-card p-4 sm:p-6 shadow-sm">
-              {step === "address" && <AddressStep />}
-              {step === "time" && <TimeStep />}
-              {step === "payment" && <PaymentStep />}
+            <div className="rounded-lg border border-border bg-card p-4 sm:p-6 shadow-sm overflow-hidden">
+              <AnimatePresence mode="wait" custom={direction}>
+                {step === "address" && (
+                  <motion.div
+                    key="address"
+                    custom={direction}
+                    variants={stepVariants}
+                    initial={shouldAnimate ? "initial" : false}
+                    animate="animate"
+                    exit={shouldAnimate ? "exit" : undefined}
+                    transition={getSpring(spring.default)}
+                  >
+                    <AddressStep />
+                  </motion.div>
+                )}
+                {step === "time" && (
+                  <motion.div
+                    key="time"
+                    custom={direction}
+                    variants={stepVariants}
+                    initial={shouldAnimate ? "initial" : false}
+                    animate="animate"
+                    exit={shouldAnimate ? "exit" : undefined}
+                    transition={getSpring(spring.default)}
+                  >
+                    <TimeStep />
+                  </motion.div>
+                )}
+                {step === "payment" && (
+                  <motion.div
+                    key="payment"
+                    custom={direction}
+                    variants={stepVariants}
+                    initial={shouldAnimate ? "initial" : false}
+                    animate="animate"
+                    exit={shouldAnimate ? "exit" : undefined}
+                    transition={getSpring(spring.default)}
+                  >
+                    <PaymentStep />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 

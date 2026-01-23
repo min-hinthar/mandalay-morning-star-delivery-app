@@ -190,7 +190,7 @@ export function CartPreviewBar() {
       exit={shouldAnimate ? { y: 100, opacity: 0 } : undefined}
       transition={getSpring(spring.rubbery)}
       className={cn(
-        "fixed bottom-0 inset-x-0 z-[var(--z-sticky)]",
+        "fixed bottom-0 inset-x-0 z-sticky",
         "p-4 pb-[max(1rem,env(safe-area-inset-bottom))]",
         "bg-surface-primary",
         "border-t border-border",
@@ -340,7 +340,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
             transition={{ duration: 0.2 }}
             style={{ opacity: shouldAnimate ? backdropOpacity : 1 }}
             className={cn(
-              "fixed inset-0 z-[var(--z-modal-backdrop)]",
+              "fixed inset-0 z-modal-backdrop",
               "bg-black/80"
             )}
             onClick={close}
@@ -360,7 +360,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
             onDragEnd={handleDragEnd}
             style={isMobile ? { y: dragY } : undefined}
             className={cn(
-              "fixed z-[var(--z-modal)] flex flex-col",
+              "fixed z-modal flex flex-col",
               "bg-[var(--color-surface-primary)]",
               "shadow-elevated",
               isMobile
