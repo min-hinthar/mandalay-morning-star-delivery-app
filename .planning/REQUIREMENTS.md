@@ -40,18 +40,18 @@ Complete V8 adoption: eliminate all legacy patterns, migrate admin/driver flows,
 
 ### Component Completion
 
-- [ ] **COMP-01**: Create TimeStepV8 component (checkout uses legacy TimeStep)
+- [x] **COMP-01**: Create TimeStepV8 component (checkout uses legacy TimeStep)
 - [ ] **COMP-02**: Replace legacy TimeStep imports with V8 version
 
 ### Visual Regression Testing
 
-- [ ] **TEST-01**: Generate visual regression baseline snapshots (11 pending)
+- [x] **TEST-01**: Generate visual regression baseline snapshots (11 pending)
 - [ ] **TEST-02**: Add visual regression tests for admin flow
 - [ ] **TEST-03**: Add visual regression tests for driver flow
 
 ### Code Quality
 
-- [ ] **QUAL-01**: Run dead code analysis on 865 exports
+- [x] **QUAL-01**: Run dead code analysis on 865 exports
 - [ ] **QUAL-02**: Remove all zero-reference exports
 - [ ] **QUAL-03**: Enable stricter TypeScript (noUnusedLocals, noUnusedParameters)
 
@@ -80,9 +80,9 @@ Deferred to v1.2+:
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| QUAL-01 | Phase 9 | Pending |
-| COMP-01 | Phase 9 | Pending |
-| TEST-01 | Phase 9 | Pending |
+| QUAL-01 | Phase 9 | Complete |
+| COMP-01 | Phase 9 | Complete |
+| TEST-01 | Phase 9 | Complete |
 | ZIDX-01 | Phase 10 | Pending |
 | ZIDX-02 | Phase 10 | Pending |
 | ZIDX-03 | Phase 10 | Pending |
