@@ -3,7 +3,7 @@
 ## Milestones
 
 - [x] **v1.0 MVP** - Phases 1-8 (shipped 2026-01-23)
-- [ ] **v1.1 Tech Debt Cleanup** - Phases 9-14 (in progress)
+- [x] **v1.1 Tech Debt Cleanup** - Phases 9-14 (completed 2026-01-23)
 
 ## Phases
 
@@ -23,7 +23,7 @@ Phases 1-8 completed customer-facing V8 rewrite. See git history for details.
 - [x] **Phase 11: V8 Component Migration** - Migrate admin/driver/hero/tracking to V8
 - [x] **Phase 12: Dead Code & Export Cleanup** - Remove all dead exports
 - [x] **Phase 13: Legacy Removal & Stricter Rules** - Remove v7 files, enforce rules
-- [ ] **Phase 14: Testing & Documentation** - Complete visual regression coverage, update docs
+- [x] **Phase 14: Testing & Documentation** - Complete visual regression coverage, update docs
 
 ## Phase Details
 
@@ -124,8 +124,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 14-01-PLAN.md — Admin and driver visual regression tests (TEST-02, TEST-03)
-- [ ] 14-02-PLAN.md — Z-INDEX-MIGRATION.md completion update and v7-index verification (DOCS-01, DOCS-02)
+- [x] 14-01-PLAN.md — Admin and driver visual regression tests (TEST-02, TEST-03)
+- [x] 14-02-PLAN.md — Z-INDEX-MIGRATION.md completion update and v7-index verification (DOCS-01, DOCS-02)
 
 ## Progress
 
@@ -139,8 +139,8 @@ Plans:
 | 11. V8 Component Migration | v1.1 | 4/4 | Complete | 2026-01-23 |
 | 12. Dead Code & Export Cleanup | v1.1 | 3/3 | Complete | 2026-01-23 |
 | 13. Legacy Removal & Stricter Rules | v1.1 | 6/6 | Complete | 2026-01-23 |
-| 14. Testing & Documentation | v1.1 | 0/2 | Not started | - |
+| 14. Testing & Documentation | v1.1 | 2/2 | Complete | 2026-01-23 |
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-23 - Phase 14 planned*
+*Last updated: 2026-01-23 - v1.1 milestone complete*

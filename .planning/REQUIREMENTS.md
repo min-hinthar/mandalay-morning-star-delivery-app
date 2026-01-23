@@ -46,8 +46,8 @@ Complete V8 adoption: eliminate all legacy patterns, migrate admin/driver flows,
 ### Visual Regression Testing
 
 - [x] **TEST-01**: Generate visual regression baseline snapshots (11 pending)
-- [ ] **TEST-02**: Add visual regression tests for admin flow
-- [ ] **TEST-03**: Add visual regression tests for driver flow
+- [x] **TEST-02**: Add visual regression tests for admin flow
+- [x] **TEST-03**: Add visual regression tests for driver flow
 
 ### Code Quality
 
@@ -57,8 +57,8 @@ Complete V8 adoption: eliminate all legacy patterns, migrate admin/driver flows,
 
 ### Documentation
 
-- [ ] **DOCS-01**: Update Z-INDEX-MIGRATION.md to reflect completion
-- [ ] **DOCS-02**: Remove v7-index references from component docs
+- [x] **DOCS-01**: Update Z-INDEX-MIGRATION.md to reflect completion
+- [x] **DOCS-02**: Remove v7-index references from component docs
 
 ## Future Requirements
 
@@ -105,10 +105,10 @@ Deferred to v1.2+:
 | V7MG-05 | Phase 13 | Complete |
 | ZIDX-06 | Phase 13 | Complete |
 | QUAL-03 | Phase 13 | Complete |
-| TEST-02 | Phase 14 | Pending |
-| TEST-03 | Phase 14 | Pending |
-| DOCS-01 | Phase 14 | Pending |
-| DOCS-02 | Phase 14 | Pending |
+| TEST-02 | Phase 14 | Complete |
+| TEST-03 | Phase 14 | Complete |
+| DOCS-01 | Phase 14 | Complete |
+| DOCS-02 | Phase 14 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 29 total
@@ -117,4 +117,4 @@ Deferred to v1.2+:
 
 ---
 *Requirements defined: 2026-01-23*
-*Last updated: 2026-01-23 - Phase 12-13 requirements complete*
+*Last updated: 2026-01-23 - All v1.1 requirements complete*
