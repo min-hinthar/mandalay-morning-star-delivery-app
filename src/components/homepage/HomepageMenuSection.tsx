@@ -3,14 +3,11 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, Search } from "lucide-react";
-import { MenuItemCard } from "@/components/menu/menu-item-card";
-import { ItemDetailModal } from "@/components/menu/item-detail-modal";
+import { MenuItemCardV8, ItemDetailSheetV8 } from "@/components/ui-v8/menu";
 import { CategoryTabs } from "@/components/menu/category-tabs";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { useToast } from "@/lib/hooks/useToast";
-import { useFavorites } from "@/lib/hooks/useFavorites";
 import {
   staggerContainer,
   staggerItem,
@@ -18,6 +15,11 @@ import {
 } from "@/lib/motion-tokens";
 import type { MenuCategory, MenuItem } from "@/types/menu";
 import type { SelectedModifier } from "@/types/cart";
+
+// Extended MenuItem type with category slug for "All" tab
+interface MenuItemWithCategory extends MenuItem {
+  categorySlug: string;
+}
 
 interface HomepageMenuSectionProps {
   categories: MenuCategory[];
@@ -29,11 +31,9 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { isFavorite, toggleFavorite } = useFavorites();
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const { addItem } = useCart();
   const { open: openCart } = useCartDrawer();
-  const { toast } = useToast();
 
   // Filter items based on search query
   const filteredCategories = categories.map((category) => ({
@@ -47,9 +47,11 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
     ),
   })).filter((category) => category.items.length > 0);
 
-  // Get all items for "All" tab
-  const allItems = categories.flatMap((cat) => cat.items);
-  const filteredAllItems = allItems.filter(
+  // Get all items for "All" tab with category slug preserved
+  const allItemsWithCategory: MenuItemWithCategory[] = categories.flatMap((cat) =>
+    cat.items.map(item => ({ ...item, categorySlug: cat.slug }))
+  );
+  const filteredAllItems = allItemsWithCategory.filter(
     (item) =>
       !searchQuery ||
       item.nameEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -82,16 +84,6 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
     setSelectedItem(item);
     setIsModalOpen(true);
   }, []);
-
-  // Handle favorite toggle
-  const handleFavoriteToggle = useCallback((item: MenuItem) => {
-    const wasAlreadyFavorite = isFavorite(item.id);
-    toggleFavorite(item.id);
-    toast({
-      title: wasAlreadyFavorite ? "Removed from favorites" : "Added to favorites",
-      description: item.nameEn,
-    });
-  }, [isFavorite, toggleFavorite, toast]);
 
   // Handle add to cart
   const handleAddToCart = useCallback(
@@ -135,7 +127,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
     : filteredCategories.find((cat) => cat.slug === activeSlug)?.items || [];
 
   return (
-    <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-surface-primary via-surface-secondary/30 to-surface-primary" id="menu">
+    <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-surface-primary via-surface-secondary/30 to-surface-primary isolate" id="menu">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -189,7 +181,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
         </motion.div>
 
         {/* Category Tabs */}
-        <div className="sticky top-16 z-30 bg-surface-primary/80 backdrop-blur-md py-4 -mx-4 px-4 mb-8">
+        <div className="-mx-4 mb-8">
           <CategoryTabs
             categories={categories}
             activeCategory={activeCategory}
@@ -210,18 +202,17 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
               {activeCategory === null ? (
                 // Show all items in a single grid
                 <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                  {displayItems.map((item, index) => (
+                  {filteredAllItems.map((item, index) => (
                     <motion.div
                       key={item.id}
                       initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: Math.min(index * 0.08, 0.64), duration: 0.55 }}
                     >
-                      <MenuItemCard
+                      <MenuItemCardV8
                         item={item}
-                        onSelect={handleItemClick}
-                        onFavoriteToggle={handleFavoriteToggle}
-                        isFavorite={isFavorite(item.id)}
+                        categorySlug={item.categorySlug}
+                        onClick={handleItemClick}
                       />
                     </motion.div>
                   ))}
@@ -249,11 +240,10 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: Math.min(index * 0.08, 0.64), duration: 0.55 }}
                           >
-                            <MenuItemCard
+                            <MenuItemCardV8
                               item={item}
-                              onSelect={handleItemClick}
-                              onFavoriteToggle={handleFavoriteToggle}
-                              isFavorite={isFavorite(item.id)}
+                              categorySlug={category.slug}
+                              onClick={handleItemClick}
                             />
                           </motion.div>
                         ))}
@@ -290,10 +280,10 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
           )}
         </AnimatePresence>
 
-        {/* Item Detail Modal */}
-        <ItemDetailModal
+        {/* Item Detail Sheet V8 */}
+        <ItemDetailSheetV8
           item={selectedItem}
-          open={isModalOpen}
+          isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
             setSelectedItem(null);

@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { QueryProvider } from "@/lib/providers/query-provider";
-import { CartDrawerV8 } from "@/components/ui-v8/cart";
+import { CartDrawerV8, FlyToCart } from "@/components/ui-v8/cart";
 import { CartBar } from "@/components/cart/CartBar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { DynamicThemeProvider } from "@/components/theme/DynamicThemeProvider";
@@ -25,6 +25,7 @@ export function Providers({ children }: ProvidersProps) {
         <QueryProvider>
           {children}
           <CartDrawerV8 />
+          <FlyToCart />
           {showCartBar && <CartBar />}
         </QueryProvider>
       </DynamicThemeProvider>

@@ -10,6 +10,10 @@ interface CategoryTabsProps {
   categories: MenuCategory[];
   activeCategory: string | null;
   onCategoryClick: (slug: string | null) => void;
+  /** Additional class names for the nav container */
+  className?: string;
+  /** Whether to apply sticky positioning (default: true) */
+  sticky?: boolean;
 }
 
 /**
@@ -25,6 +29,8 @@ export function CategoryTabs({
   categories,
   activeCategory,
   onCategoryClick,
+  className,
+  sticky = true,
 }: CategoryTabsProps) {
   const tabRefs = useRef<Map<string | null, HTMLButtonElement>>(new Map());
   const containerRef = useRef<HTMLDivElement>(null);
@@ -98,10 +104,11 @@ export function CategoryTabs({
     <nav
       aria-label="Menu categories"
       className={cn(
-        "sticky top-14 z-sticky",
+        sticky && "sticky top-[72px] z-sticky",
         // V6 Surface with blur
         "bg-surface-primary/95 backdrop-blur-lg",
-        "border-b border-border-subtle"
+        "border-b border-border-subtle",
+        className
       )}
     >
       <div className="relative">
