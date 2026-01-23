@@ -44,3 +44,72 @@ test.describe("Header Clickability (TEST-01)", () => {
     });
   });
 });
+
+test.describe("Cart Drawer Behavior (TEST-02)", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Add item to cart to enable drawer content
+    const menuItem = page.locator('[data-testid="menu-item"]').first();
+    if (await menuItem.isVisible()) {
+      await menuItem.click();
+      await page.getByRole("button", { name: /add to cart/i }).click();
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(400);
+    }
+  });
+
+  test("cart drawer opens with visible content", async ({ page }) => {
+    const cartButton = page.locator('[data-testid="cart-button"]');
+    await cartButton.click();
+
+    const drawer = page.getByRole("dialog");
+    await expect(drawer).toBeVisible();
+
+    // Content should be visible
+    await expect(page.getByText(/your cart|cart/i)).toBeVisible();
+    await expect(page.getByText(/subtotal/i)).toBeVisible();
+  });
+
+  test("cart drawer closes completely on Escape", async ({ page }) => {
+    const cartButton = page.locator('[data-testid="cart-button"]');
+    await cartButton.click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(400); // Exit animation
+
+    // Verify DOM removal, not just visibility
+    await expect(page.getByRole("dialog")).not.toBeVisible();
+    const backdropCount = await page
+      .locator('[data-testid="overlay-backdrop"]')
+      .count();
+    expect(backdropCount).toBe(0);
+  });
+
+  test("cart drawer closes on backdrop click", async ({ page }) => {
+    const cartButton = page.locator('[data-testid="cart-button"]');
+    await cartButton.click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+
+    // Click backdrop
+    await page.locator('[data-testid="overlay-backdrop"]').click();
+    await page.waitForTimeout(400);
+
+    await expect(page.getByRole("dialog")).not.toBeVisible();
+  });
+
+  test.describe("Mobile", () => {
+    test.use({ viewport: { width: 375, height: 667 } });
+
+    test("cart renders as bottom sheet on mobile", async ({ page }) => {
+      const cartButton = page.locator('[data-testid="cart-button"]');
+      await cartButton.click();
+
+      // On mobile, CartDrawerV8 uses BottomSheet
+      const sheet = page.locator('[data-testid="bottom-sheet-content"]');
+      await expect(sheet).toBeVisible();
+    });
+  });
+});
