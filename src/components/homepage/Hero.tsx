@@ -353,7 +353,7 @@ export function Hero({
                   size="lg"
                   className="relative overflow-hidden group px-8 py-6 text-lg bg-secondary hover:bg-secondary-hover shadow-lg shadow-secondary/30"
                 >
-                  <span className="relative z-dropdown flex items-center gap-2">
+                  <span className="relative z-10 flex items-center gap-2">
                     {ctaText}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>

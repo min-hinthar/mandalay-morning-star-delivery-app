@@ -44,18 +44,15 @@ const config = [
     rules: {
       "no-restricted-syntax": [
         "error",
-        {
-          // Catch z-[number] arbitrary values: z-[10], z-[999], etc.
-          selector: "Literal[value=/z-\\[\\d+\\]/]",
-          message: "Use z-index token (z-modal, z-dropdown, z-sticky, etc.) instead of z-[number]. See docs/STACKING-CONTEXT.md",
-        },
-        {
-          // Catch ALL Tailwind z-* numeric classes: z-0, z-10, z-20, z-30, z-40, z-50, z-auto
-          selector: "Literal[value=/\\bz-(?:0|10|20|30|40|50|60|70|80|90|100|auto)\\b/]",
-          message: "Use z-index token (z-modal, z-dropdown, z-sticky, etc.) instead of z-* classes. See docs/STACKING-CONTEXT.md",
-        },
+        // NOTE: z-index token rules disabled because Tailwind CSS 4 doesn't generate
+        // custom z-index utility classes (z-modal, z-sticky, etc.) from tailwind.config.ts.
+        // Use standard Tailwind numeric classes instead:
+        // - z-0 (base), z-10 (dropdown), z-20 (sticky), z-30 (fixed)
+        // - z-40 (modal-backdrop), z-50 (modal)
+        // - z-[60] (popover), z-[70] (tooltip), z-[80] (toast), z-[100] (max)
         {
           // Catch inline zIndex in style objects: style={{ zIndex: 50 }}
+          // Exception: allow zIndex from design-system/tokens/z-index
           selector: "Property[key.name='zIndex'][value.type='Literal'][value.raw=/^\\d+$/]",
           message: "Use zIndex token from @/design-system/tokens/z-index (e.g., zIndex.modal) instead of hardcoded number.",
         },

@@ -59,7 +59,7 @@ export function CustomerLayout({
         }}
         transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
         className={cn(
-          "sticky top-0 z-sticky h-[var(--header-height)]",
+          "sticky top-0 z-20 h-[var(--header-height)]",
           "bg-[var(--color-cream)]/95 dark:bg-[var(--color-background)]/95",
           "backdrop-blur-lg border-b border-[var(--color-border)]",
           "transition-shadow duration-[var(--duration-fast)]",
@@ -163,7 +163,7 @@ export function CustomerLayout({
             variants={fadeIn}
             transition={spring.smooth}
             className={cn(
-              "fixed bottom-0 left-0 right-0 z-fixed",
+              "fixed bottom-0 left-0 right-0 z-30",
               "bg-[var(--color-cream-darker)]",
               "shadow-[0_-4px_20px_rgba(139,69,19,0.1)]"
             )}

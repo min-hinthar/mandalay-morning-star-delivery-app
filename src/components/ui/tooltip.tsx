@@ -57,7 +57,7 @@ export function TooltipContent({
   return (
     <span
       className={cn(
-        "pointer-events-none absolute left-1/2 top-full z-tooltip w-max -translate-x-1/2 rounded-md bg-foreground px-2 py-1 text-xs text-background opacity-0 shadow-md",
+        "pointer-events-none absolute left-1/2 top-full z-[70] w-max -translate-x-1/2 rounded-md bg-foreground px-2 py-1 text-xs text-background opacity-0 shadow-md",
         "transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100",
         className
       )}

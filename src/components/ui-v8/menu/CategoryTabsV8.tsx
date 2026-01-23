@@ -139,7 +139,7 @@ export function CategoryTabsV8({
   return (
     <div
       className={cn(
-        "sticky top-[72px] z-sticky",
+        "sticky top-[72px] z-20",
         "bg-surface-primary/95 backdrop-blur-lg",
         "border-b border-border-subtle",
         className
@@ -149,7 +149,7 @@ export function CategoryTabsV8({
       {showLeftFade && (
         <div
           className={cn(
-            "absolute left-0 top-0 bottom-0 w-8 z-base",
+            "absolute left-0 top-0 bottom-0 w-8 z-0",
             "bg-gradient-to-r from-surface-primary/95 to-transparent",
             "pointer-events-none"
           )}
@@ -201,7 +201,7 @@ export function CategoryTabsV8({
               )}
 
               {/* Tab label */}
-              <span className="relative z-base">
+              <span className="relative z-0">
                 {tab.nameEn || tab.name}
               </span>
             </button>
@@ -213,7 +213,7 @@ export function CategoryTabsV8({
       {showRightFade && (
         <div
           className={cn(
-            "absolute right-0 top-0 bottom-0 w-8 z-base",
+            "absolute right-0 top-0 bottom-0 w-8 z-0",
             "bg-gradient-to-l from-surface-primary/95 to-transparent",
             "pointer-events-none"
           )}
