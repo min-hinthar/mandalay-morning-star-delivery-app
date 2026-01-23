@@ -35,11 +35,11 @@ Phases 1-8 completed customer-facing V8 rewrite. See git history for details.
   1. Dead code analysis report exists with reference counts for all 865 exports
   2. TimeStepV8 component exists and matches V8 patterns (motion, tokens, types)
   3. Visual regression baseline snapshots exist for all 11 pending pages
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 09-01: Dead code analysis and TimeStepV8 creation
-- [ ] 09-02: Visual regression baseline generation
+- [ ] 09-01-PLAN.md — Dead code analysis with knip and TimeStepV8 component creation
+- [ ] 09-02-PLAN.md — Visual regression baseline snapshot generation for 11 pages
 
 ### Phase 10: Token Migration
 **Goal**: All hardcoded z-index and color values use design tokens
@@ -130,7 +130,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1-8 | v1.0 | 32/32 | Complete | 2026-01-23 |
-| 9. Analysis & Component Creation | v1.1 | 0/2 | Not started | - |
+| 9. Analysis & Component Creation | v1.1 | 0/2 | Ready to execute | - |
 | 10. Token Migration | v1.1 | 0/4 | Not started | - |
 | 11. V8 Component Migration | v1.1 | 0/4 | Not started | - |
 | 12. Dead Code & Export Cleanup | v1.1 | 0/3 | Not started | - |
