@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-21)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 5 execution (Menu Browsing)
+**Current focus:** Phase 6 execution (Checkout Flow)
 
 ## Current Position
 
-Phase: 5 of 7 (Menu Browsing) — VERIFIED
-Plan: 5 of 5 complete (all Wave 1 + Wave 2)
-Status: Phase verified (5/5 must-haves)
-Last activity: 2026-01-23 — Completed 05-05-PLAN.md (Menu Integration)
+Phase: 6 of 7 (Checkout Flow)
+Plan: 1 of 4 complete
+Status: In progress
+Last activity: 2026-01-23 — Completed 06-01-PLAN.md (Checkout Step Transitions)
 
-Progress: [█████████░░░] 81% (25/31 plans estimated)
+Progress: [██████████░░] 84% (26/31 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 25
+- Total plans completed: 26
 - Average duration: 6 min
-- Total execution time: 2.4 hours
+- Total execution time: 2.45 hours
 
 **By Phase:**
 
@@ -32,9 +32,10 @@ Progress: [█████████░░░] 81% (25/31 plans estimated)
 | 03-navigation-layout | 5 | 23 min | 5 min |
 | 04-cart-experience | 5 | 37 min | 7 min |
 | 05-menu-browsing | 5 | 38 min | 8 min |
+| 06-checkout-flow | 1 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-02 (8 min), 05-03 (6 min), 05-04 (6 min), 05-05 (6 min)
+- Last 5 plans: 05-03 (6 min), 05-04 (6 min), 05-05 (6 min), 06-01 (3 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -96,6 +97,9 @@ Recent decisions affecting current work:
 - MenuGridV8 uses GSAP ScrollTrigger with toggleActions "play none none none" for play-once animation
 - Skeleton structure matches exact real component layout for smooth loading transition
 - MenuContentV8 handles loading/error/empty states internally
+- CheckoutStepperV8 pulsing ring uses infinite keyframe with scale [1, 1.4, 1] for current step
+- Step direction tracked via useRef to calculate animation direction for AnimatePresence
+- V8 checkout barrel exports both V8 name and default name for migration flexibility
 
 ### Pending Todos
 
@@ -109,9 +113,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: Completed Phase 5 (Menu Browsing) - all 5 plans
+Stopped at: Completed 06-01-PLAN.md (Checkout Step Transitions)
 Resume file: None
-Next: Phase 6 (Checkout Flow)
+Next: 06-02-PLAN.md (Form Field Micro-interactions)
 
 ## Phases Complete
 
