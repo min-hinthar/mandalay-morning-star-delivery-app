@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, forwardRef } from "react";
+import { useState, useEffect, useCallback, forwardRef } from "react";
 import { motion, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
