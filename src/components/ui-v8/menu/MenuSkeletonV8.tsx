@@ -74,7 +74,7 @@ export function MenuSkeletonV8({
   return (
     <div className={className}>
       {/* Category tabs skeleton */}
-      <div className="sticky top-[72px] z-sticky border-b border-border bg-surface-primary/95 backdrop-blur-lg">
+      <div className="sticky top-[72px] z-20 border-b border-border bg-surface-primary/95 backdrop-blur-lg">
         <div className="flex gap-2 overflow-hidden px-4 py-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div

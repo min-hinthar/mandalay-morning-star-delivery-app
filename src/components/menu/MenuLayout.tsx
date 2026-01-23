@@ -454,7 +454,7 @@ export function MenuLayout({
       <div className={cn("min-h-screen bg-surface-primary", className)}>
         {/* Search and filter bar */}
         <motion.div
-          className="sticky top-0 z-sticky bg-surface-primary/95 backdrop-blur-lg border-b border-border"
+          className="sticky top-0 z-20 bg-surface-primary/95 backdrop-blur-lg border-b border-border"
           initial={shouldAnimate ? { y: -20, opacity: 0 } : undefined}
           animate={shouldAnimate ? { y: 0, opacity: 1 } : undefined}
           transition={getSpring(spring.default)}

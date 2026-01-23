@@ -5,7 +5,7 @@
  * Sticky header with scroll-aware shrink and blur effects
  *
  * Features:
- * - Fixed at top with z-fixed token
+ * - Fixed at top with z-30 token
  * - Shrinks from 72px to 56px on scroll
  * - Hides on scroll down, shows on scroll up
  * - Backdrop blur increases when scrolled (8px -> 16px)

@@ -46,7 +46,7 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
           exit={{ y: "100%", opacity: 0 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
           className={cn(
-            "fixed bottom-0 left-0 right-0 z-fixed",
+            "fixed bottom-0 left-0 right-0 z-30",
             "bg-surface-primary/95 backdrop-blur-lg border-t border-border",
             "shadow-[0_-10px_30px_-5px_rgba(139,69,19,0.1)]",
             "rounded-t-[var(--radius-xl)]",
@@ -90,7 +90,7 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
                 </div>
                 {/* Animated truck */}
                 <motion.div
-                  className="absolute top-1/2 -translate-y-1/2 z-dropdown"
+                  className="absolute top-1/2 -translate-y-1/2 z-10"
                   initial={{ left: "0%" }}
                   animate={{ left: `calc(${progressPercent}% - 10px)` }}
                   transition={{ type: "spring", stiffness: 100, damping: 20 }}

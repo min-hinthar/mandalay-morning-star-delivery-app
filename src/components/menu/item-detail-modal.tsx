@@ -248,7 +248,7 @@ export function ItemDetailModal({
               {/* Drag Handle (mobile) */}
               {isMobile && (
                 <div
-                  className="sticky top-0 z-dropdown flex justify-center py-2 bg-[var(--color-surface)] cursor-grab active:cursor-grabbing"
+                  className="sticky top-0 z-10 flex justify-center py-2 bg-[var(--color-surface)] cursor-grab active:cursor-grabbing"
                   onPointerDown={(e) => dragControls.start(e)}
                 >
                   <div className="h-1.5 w-12 rounded-full bg-[var(--color-border)]" />
@@ -260,7 +260,7 @@ export function ItemDetailModal({
                 type="button"
                 onClick={onClose}
                 className={cn(
-                  "absolute right-3 z-sticky",
+                  "absolute right-3 z-20",
                   isMobile ? "top-5" : "top-3",
                   "flex h-9 w-9 items-center justify-center",
                   "rounded-full bg-white/90 backdrop-blur-sm",

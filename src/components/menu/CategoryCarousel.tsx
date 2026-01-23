@@ -88,7 +88,7 @@ function CategoryChip({ slug: _slug, name, isActive, onClick, index }: CategoryC
       )}
 
       {/* Text */}
-      <span className="relative z-dropdown">{name}</span>
+      <span className="relative z-10">{name}</span>
 
       {/* Active glow pulse */}
       {isActive && shouldAnimate && (
@@ -221,7 +221,7 @@ export function CategoryCarousel({
     <nav
       aria-label="Menu categories"
       className={cn(
-        sticky && "sticky top-14 z-sticky",
+        sticky && "sticky top-14 z-20",
         "bg-surface-primary/95 backdrop-blur-lg",
         "border-b border-border-subtle",
         className
@@ -231,7 +231,7 @@ export function CategoryCarousel({
         {/* Left fade */}
         <motion.div
           className={cn(
-            "absolute left-0 top-0 bottom-0 w-16 z-dropdown pointer-events-none",
+            "absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none",
             "bg-gradient-to-r from-surface-primary to-transparent"
           )}
           initial={{ opacity: 0 }}
@@ -242,7 +242,7 @@ export function CategoryCarousel({
         {/* Right fade */}
         <motion.div
           className={cn(
-            "absolute right-0 top-0 bottom-0 w-16 z-dropdown pointer-events-none",
+            "absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none",
             "bg-gradient-to-l from-surface-primary to-transparent"
           )}
           initial={{ opacity: 0 }}

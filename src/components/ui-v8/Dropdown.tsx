@@ -10,7 +10,7 @@
  * Features:
  * - Spring animation with scale+fade
  * - Closes on outside click and Escape
- * - Proper z-index layering with z-popover
+ * - Proper z-index layering with z-[60]
  * - Form submissions and parent click handlers work correctly
  *
  * @example

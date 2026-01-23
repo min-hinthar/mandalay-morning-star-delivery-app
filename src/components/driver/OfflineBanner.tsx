@@ -31,7 +31,7 @@ export function OfflineBanner() {
   }
 
   return (
-    <div className="fixed left-0 right-0 top-0 z-toast">
+    <div className="fixed left-0 right-0 top-0 z-[80]">
       {/* Offline banner */}
       {!isOnline && (
         <div className="bg-status-error px-4 py-2 text-center font-body text-sm font-medium text-white">
