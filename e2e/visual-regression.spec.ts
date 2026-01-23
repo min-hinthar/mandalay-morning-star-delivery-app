@@ -414,3 +414,114 @@ test.describe("V8 Header Visual Regression (TEST-05)", () => {
     });
   });
 });
+
+test.describe("V8 Overlay Visual Regression (TEST-05)", () => {
+  test("v8 modal open - desktop", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Open item detail modal
+    await page.locator('[data-testid="menu-item"]').first().click();
+    await page.waitForTimeout(400);
+
+    const modal = page.getByRole("dialog");
+    await expect(modal).toHaveScreenshot("v8-modal-desktop.png", {
+      maxDiffPixels: 100,
+    });
+  });
+
+  test("v8 bottom sheet - mobile", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Open item detail (renders as bottom sheet on mobile)
+    await page.locator('[data-testid="menu-item"]').first().click();
+    await page.waitForTimeout(400);
+
+    const sheet = page.getByRole("dialog");
+    await expect(sheet).toHaveScreenshot("v8-bottom-sheet-mobile.png", {
+      maxDiffPixels: 100,
+    });
+  });
+
+  test("v8 dropdown open", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    const dropdownTrigger = page.locator('[data-testid="profile-button"]');
+
+    if (await dropdownTrigger.isVisible()) {
+      await dropdownTrigger.click();
+      await page.waitForTimeout(300);
+
+      const dropdown = page.locator('[data-testid="dropdown-content"]');
+      await expect(dropdown).toHaveScreenshot("v8-dropdown-open.png", {
+        maxDiffPixels: 50,
+      });
+    }
+  });
+});
+
+test.describe("V8 Cart Drawer Visual Regression (TEST-05)", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Add item to cart
+    const menuItem = page.locator('[data-testid="menu-item"]').first();
+    if (await menuItem.isVisible()) {
+      await menuItem.click();
+      await page.getByRole("button", { name: /add to cart/i }).click();
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(400);
+    }
+  });
+
+  test("v8 cart drawer with items - desktop", async ({ page }) => {
+    await page.locator('[data-testid="cart-button"]').click();
+    await page.waitForTimeout(400);
+
+    const drawer = page.getByRole("dialog");
+    await expect(drawer).toHaveScreenshot("v8-cart-drawer-items-desktop.png", {
+      maxDiffPixels: 100,
+    });
+  });
+
+  test("v8 cart drawer with items - mobile", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+
+    await page.locator('[data-testid="cart-button"]').click();
+    await page.waitForTimeout(400);
+
+    const drawer = page.getByRole("dialog");
+    await expect(drawer).toHaveScreenshot("v8-cart-drawer-items-mobile.png", {
+      maxDiffPixels: 100,
+    });
+  });
+
+  test("v8 cart button with badge", async ({ page }) => {
+    const cartButton = page.locator('[data-testid="cart-button"]');
+    await expect(cartButton).toHaveScreenshot("v8-cart-button-badge.png", {
+      maxDiffPixels: 30,
+    });
+  });
+});
+
+test.describe("V8 Empty Cart Visual Regression (TEST-05)", () => {
+  test("v8 empty cart drawer", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    const cartButton = page.locator('[data-testid="cart-button"]');
+    if (await cartButton.isVisible()) {
+      await cartButton.click();
+      await page.waitForTimeout(400);
+
+      const drawer = page.getByRole("dialog");
+      await expect(drawer).toHaveScreenshot("v8-cart-empty.png", {
+        maxDiffPixels: 100,
+      });
+    }
+  });
+});
