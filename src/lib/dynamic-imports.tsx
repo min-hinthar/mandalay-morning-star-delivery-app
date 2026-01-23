@@ -97,11 +97,11 @@ export const DynamicItemDetailModal = dynamic(
 );
 
 /**
- * Cart Drawer - heavy with animations
+ * Cart Drawer V8 - heavy with animations
  * Lazy loaded when cart is first opened
  */
 export const DynamicCartDrawer = dynamic(
-  () => import("@/components/cart/CartDrawer").then(mod => mod.CartDrawer),
+  () => import("@/components/ui-v8/cart/CartDrawerV8").then(mod => mod.CartDrawerV8),
   {
     loading: () => null,
     ssr: false,
@@ -155,6 +155,6 @@ export function prefetchComponent(
  */
 export const prefetch = {
   itemDetailModal: () => prefetchComponent(() => import("@/components/menu/item-detail-modal")),
-  cartDrawer: () => prefetchComponent(() => import("@/components/cart/CartDrawer")),
+  cartDrawer: () => prefetchComponent(() => import("@/components/ui-v8/cart/CartDrawerV8")),
   deliveryMap: () => prefetchComponent(() => import("@/components/tracking/DeliveryMap")),
 };
