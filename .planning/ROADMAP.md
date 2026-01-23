@@ -121,11 +121,11 @@ Plans:
   2. Visual regression tests exist and pass for driver flow
   3. Z-INDEX-MIGRATION.md reflects completed migration status
   4. All component docs reference V8 patterns (no v7-index mentions)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 14-01: Admin and driver visual regression tests
-- [ ] 14-02: Documentation updates
+- [ ] 14-01-PLAN.md — Admin and driver visual regression tests (TEST-02, TEST-03)
+- [ ] 14-02-PLAN.md — Z-INDEX-MIGRATION.md completion update and v7-index verification (DOCS-01, DOCS-02)
 
 ## Progress
 
@@ -143,4 +143,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-23 - Phase 13 complete*
+*Last updated: 2026-01-23 - Phase 14 planned*
