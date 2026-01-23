@@ -13,7 +13,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useDynamicTheme } from "@/components/theme/DynamicThemeProvider";
 import { useParticleSystem } from "@/lib/webgl/particles";
 import { useGrainEffect } from "@/lib/webgl/grain";
-import { ParallaxContainer, ParallaxLayer, ParallaxGradient } from "@/components/layouts/v7-index";
+import { ParallaxContainer, ParallaxLayer, ParallaxGradient } from "@/components/layouts/ParallaxContainer";
 import { FloatingFood, defaultFoodItems } from "./FloatingFood";
 import { BrandMascot } from "@/components/mascot/BrandMascot";
 import { Button } from "@/components/ui/button";
