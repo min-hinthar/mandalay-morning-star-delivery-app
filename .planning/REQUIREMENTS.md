@@ -14,7 +14,7 @@ Complete V8 adoption: eliminate all legacy patterns, migrate admin/driver flows,
 - [x] **ZIDX-03**: Migrate all tracking components to z-index tokens (3 files)
 - [x] **ZIDX-04**: Migrate all UI components to z-index tokens (6 files)
 - [x] **ZIDX-05**: Migrate remaining components to z-index tokens (6 files)
-- [ ] **ZIDX-06**: Upgrade ESLint z-index rule from warn to error
+- [x] **ZIDX-06**: Upgrade ESLint z-index rule from warn to error
 
 ### V7 Component Migration
 
@@ -22,7 +22,7 @@ Complete V8 adoption: eliminate all legacy patterns, migrate admin/driver flows,
 - [x] **V7MG-02**: Migrate driver dashboard to V8 components
 - [x] **V7MG-03**: Migrate homepage Hero to V8 layout components
 - [x] **V7MG-04**: Migrate tracking page to V8 components
-- [ ] **V7MG-05**: Remove all v7-index.ts barrel files (10 files)
+- [x] **V7MG-05**: Remove all v7-index.ts barrel files (10 files)
 
 ### Color Token Cleanup
 
@@ -33,10 +33,10 @@ Complete V8 adoption: eliminate all legacy patterns, migrate admin/driver flows,
 
 ### Export Cleanup
 
-- [ ] **EXPT-01**: Remove dead exports from ui/index.ts
-- [ ] **EXPT-02**: Remove legacy checkout exports (15 items)
-- [ ] **EXPT-03**: Consolidate admin/index.ts with v7-index functionality
-- [ ] **EXPT-04**: Remove skeleton variant dead exports
+- [x] **EXPT-01**: Remove dead exports from ui/index.ts
+- [x] **EXPT-02**: Remove legacy checkout exports (15 items)
+- [x] **EXPT-03**: Consolidate admin/index.ts with v7-index functionality
+- [x] **EXPT-04**: Remove skeleton variant dead exports
 
 ### Component Completion
 
@@ -52,8 +52,8 @@ Complete V8 adoption: eliminate all legacy patterns, migrate admin/driver flows,
 ### Code Quality
 
 - [x] **QUAL-01**: Run dead code analysis on 865 exports
-- [ ] **QUAL-02**: Remove all zero-reference exports
-- [ ] **QUAL-03**: Enable stricter TypeScript (noUnusedLocals, noUnusedParameters)
+- [x] **QUAL-02**: Remove all zero-reference exports
+- [x] **QUAL-03**: Enable stricter TypeScript (noUnusedLocals, noUnusedParameters)
 
 ### Documentation
 
@@ -97,14 +97,14 @@ Deferred to v1.2+:
 | V7MG-03 | Phase 11 | Complete |
 | V7MG-04 | Phase 11 | Complete |
 | COMP-02 | Phase 11 | Complete |
-| QUAL-02 | Phase 12 | Pending |
-| EXPT-01 | Phase 12 | Pending |
-| EXPT-02 | Phase 12 | Pending |
-| EXPT-03 | Phase 12 | Pending |
-| EXPT-04 | Phase 12 | Pending |
-| V7MG-05 | Phase 13 | Pending |
-| ZIDX-06 | Phase 13 | Pending |
-| QUAL-03 | Phase 13 | Pending |
+| QUAL-02 | Phase 12 | Complete |
+| EXPT-01 | Phase 12 | Complete |
+| EXPT-02 | Phase 12 | Complete |
+| EXPT-03 | Phase 12 | Complete |
+| EXPT-04 | Phase 12 | Complete |
+| V7MG-05 | Phase 13 | Complete |
+| ZIDX-06 | Phase 13 | Complete |
+| QUAL-03 | Phase 13 | Complete |
 | TEST-02 | Phase 14 | Pending |
 | TEST-03 | Phase 14 | Pending |
 | DOCS-01 | Phase 14 | Pending |
@@ -117,4 +117,4 @@ Deferred to v1.2+:
 
 ---
 *Requirements defined: 2026-01-23*
-*Last updated: 2026-01-23 - Phase 11 requirements complete*
+*Last updated: 2026-01-23 - Phase 12-13 requirements complete*
