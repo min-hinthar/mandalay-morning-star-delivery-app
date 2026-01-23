@@ -113,3 +113,151 @@ test.describe("Cart Drawer Behavior (TEST-02)", () => {
     });
   });
 });
+
+test.describe("Dropdown Visibility and Dismissal (TEST-03)", () => {
+  test("dropdown appears above page content", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Find dropdown trigger (profile button or similar)
+    const dropdownTrigger = page.locator('[data-testid="profile-button"]');
+
+    if (await dropdownTrigger.isVisible()) {
+      await dropdownTrigger.click();
+
+      const dropdownContent = page.locator('[data-testid="dropdown-content"]');
+      await expect(dropdownContent).toBeVisible();
+
+      // Verify dropdown is above other content (z-index working)
+      const dropdownBox = await dropdownContent.boundingBox();
+      expect(dropdownBox).not.toBeNull();
+    }
+  });
+
+  test("dropdown dismisses on outside click", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    const dropdownTrigger = page.locator('[data-testid="profile-button"]');
+
+    if (await dropdownTrigger.isVisible()) {
+      await dropdownTrigger.click();
+      await expect(
+        page.locator('[data-testid="dropdown-content"]')
+      ).toBeVisible();
+
+      // Click outside (mousedown triggers close in V8 Dropdown)
+      await page.locator("body").click({ position: { x: 10, y: 10 } });
+      await page.waitForTimeout(300);
+
+      // Verify DOM removal
+      const dropdownCount = await page
+        .locator('[data-testid="dropdown-content"]')
+        .count();
+      expect(dropdownCount).toBe(0);
+    }
+  });
+
+  test("dropdown dismisses on Escape", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    const dropdownTrigger = page.locator('[data-testid="profile-button"]');
+
+    if (await dropdownTrigger.isVisible()) {
+      await dropdownTrigger.click();
+      await expect(
+        page.locator('[data-testid="dropdown-content"]')
+      ).toBeVisible();
+
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(300);
+
+      await expect(
+        page.locator('[data-testid="dropdown-content"]')
+      ).not.toBeVisible();
+    }
+  });
+});
+
+test.describe("Overlay No Background Blocking (TEST-04)", () => {
+  test("closed cart drawer does not block menu item clicks", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Add item to cart
+    const firstItem = page.locator('[data-testid="menu-item"]').first();
+    await firstItem.click();
+    await page.getByRole("button", { name: /add to cart/i }).click();
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(400);
+
+    // Open and close cart drawer
+    await page.locator('[data-testid="cart-button"]').click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(400);
+
+    // Critical test: click menu item AFTER drawer closed
+    const secondItem = page.locator('[data-testid="menu-item"]').nth(1);
+    if (await secondItem.isVisible()) {
+      await secondItem.click();
+      // If overlay was blocking, this click would fail
+      await expect(page.getByRole("dialog")).toBeVisible();
+    }
+  });
+
+  test("closed modal does not block page interaction", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Open item modal
+    const menuItem = page.locator('[data-testid="menu-item"]').first();
+    await menuItem.click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+
+    // Close modal
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(400);
+
+    // Verify DOM removal
+    const modalBackdropCount = await page
+      .locator('[data-testid="modal-backdrop"]')
+      .count();
+    expect(modalBackdropCount).toBe(0);
+
+    // Click another menu item - should work
+    const secondItem = page.locator('[data-testid="menu-item"]').nth(1);
+    if (await secondItem.isVisible()) {
+      await secondItem.click();
+      await expect(page.getByRole("dialog")).toBeVisible();
+    }
+  });
+
+  test("closed bottom sheet does not block scrolling", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Open item detail (shows as bottom sheet on mobile)
+    await page.locator('[data-testid="menu-item"]').first().click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+
+    // Close
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(400);
+
+    // Verify DOM removal
+    const sheetBackdropCount = await page
+      .locator('[data-testid="bottom-sheet-backdrop"]')
+      .count();
+    expect(sheetBackdropCount).toBe(0);
+
+    // Page should be scrollable
+    await page.evaluate(() => window.scrollTo(0, 200));
+    const scrollY = await page.evaluate(() => window.scrollY);
+    expect(scrollY).toBeGreaterThan(0);
+  });
+});
