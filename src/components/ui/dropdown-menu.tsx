@@ -87,7 +87,7 @@ const DropdownMenuContent = ({
   return (
     <div
       className={cn(
-        "absolute z-[var(--z-dropdown)] min-w-[8rem] overflow-hidden rounded-md border bg-white p-1 shadow-md",
+        "absolute z-dropdown min-w-[8rem] overflow-hidden rounded-md border bg-white p-1 shadow-md",
         "animate-in fade-in-0 zoom-in-95",
         align === "end" && "right-0",
         align === "start" && "left-0",

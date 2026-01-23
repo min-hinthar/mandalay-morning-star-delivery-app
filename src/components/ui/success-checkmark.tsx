@@ -242,7 +242,7 @@ export function SuccessOverlay({
       exit="exit"
       onAnimationComplete={onAnimationComplete}
       className={cn(
-        "fixed inset-0 z-[var(--z-modal)] flex flex-col items-center justify-center",
+        "fixed inset-0 z-modal flex flex-col items-center justify-center",
         "bg-surface-primary/95 backdrop-blur-sm",
         className
       )}

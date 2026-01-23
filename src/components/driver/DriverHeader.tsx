@@ -41,7 +41,7 @@ export function DriverHeader({
   return (
     <header
       className={cn(
-        "sticky top-0 z-[var(--z-fixed)] flex min-h-[56px] items-center justify-between border-b border-border bg-surface-primary/95 px-4 py-3 backdrop-blur-sm",
+        "sticky top-0 z-fixed flex min-h-[56px] items-center justify-between border-b border-border bg-surface-primary/95 px-4 py-3 backdrop-blur-sm",
         className
       )}
     >

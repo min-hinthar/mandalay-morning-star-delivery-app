@@ -480,7 +480,7 @@ export function AddressAutocomplete({
             exit={shouldAnimate ? { opacity: 0, y: -10 } : undefined}
             transition={getSpring(spring.snappy)}
             className={cn(
-              "absolute top-full left-0 right-0 mt-2 z-[var(--z-dropdown)]",
+              "absolute top-full left-0 right-0 mt-2 z-dropdown",
               "bg-surface-primary rounded-xl",
               "border border-border shadow-elevated",
               "overflow-hidden"

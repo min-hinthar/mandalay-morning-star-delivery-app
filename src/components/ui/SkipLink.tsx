@@ -74,7 +74,7 @@ export function SkipLink({
       onKeyDown={handleKeyDown}
       className={cn(
         // Visually hidden by default
-        "fixed left-4 top-4 z-[var(--z-max)]",
+        "fixed left-4 top-4 z-max",
         "px-4 py-3 rounded-[var(--radius-md)]",
         "bg-[var(--color-cta)] text-[var(--color-charcoal)]",
         "font-semibold text-sm",

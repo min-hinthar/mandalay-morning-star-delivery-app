@@ -98,7 +98,7 @@ export function CategoryTabs({
     <nav
       aria-label="Menu categories"
       className={cn(
-        "sticky top-14 z-[var(--z-sticky)]",
+        "sticky top-14 z-sticky",
         // V6 Surface with blur
         "bg-surface-primary/95 backdrop-blur-lg",
         "border-b border-border-subtle"
