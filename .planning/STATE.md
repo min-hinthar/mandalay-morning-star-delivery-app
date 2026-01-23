@@ -10,25 +10,25 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 10 of 14 (Token Migration)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-01-23 - Completed 10-02-PLAN.md (Menu z-index tokens)
+Last activity: 2026-01-23 - Completed 10-01-PLAN.md (Homepage z-index tokens)
 
-Progress: [##########........] 59% (35/49 plans - v1.0 complete, Phase 9 complete, Phase 10 plan 2)
+Progress: [##########........] 61% (36/49 plans - v1.0 complete, Phase 9 complete, Phase 10 plans 1-2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 35 (32 v1.0 + 3 v1.1)
-- v1.1 plans: 17 total (3 complete)
+- Total plans completed: 36 (32 v1.0 + 4 v1.1)
+- v1.1 plans: 17 total (4 complete)
 - Phases remaining: 5
 
 **By Phase (v1.1):**
 
 | Phase | Plans | Status |
 |-------|-------|--------|
-| 9. Analysis & Component Creation | 2 | Complete ✓ |
-| 10. Token Migration | 4 | In progress (1/4) |
+| 9. Analysis & Component Creation | 2 | Complete |
+| 10. Token Migration | 4 | In progress (2/4) |
 | 11. V8 Component Migration | 4 | Not started |
 | 12. Dead Code & Export Cleanup | 3 | Not started |
 | 13. Legacy Removal & Stricter Rules | 2 | Not started |
@@ -67,6 +67,7 @@ v1.1 decisions (Phase 9-10):
 
 ### Phase 10 Deliverables (partial)
 
+- 10-01: 7 homepage files migrated to z-index tokens + local stacking docs
 - 10-02: 10 menu files migrated to z-index tokens (28 token usages)
 
 ### Pending Todos
@@ -79,10 +80,10 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-23T09:34:44Z
-Stopped at: Completed 10-02-PLAN.md
+Last session: 2026-01-23T09:35:23Z
+Stopped at: Completed 10-01-PLAN.md
 Resume file: None
 
 ---
 
-*Updated: 2026-01-23 - Phase 10 plan 2 complete*
+*Updated: 2026-01-23 - Phase 10 plans 1-2 complete*
