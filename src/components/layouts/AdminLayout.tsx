@@ -76,7 +76,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
   return (
     <div className="flex min-h-screen flex-col bg-[var(--color-background)]">
       {/* Top Navigation */}
-      <header className="sticky top-0 z-[var(--z-sticky)] h-16 border-b border-[var(--color-border)] bg-[var(--color-cream)]">
+      <header className="sticky top-0 z-sticky h-16 border-b border-[var(--color-border)] bg-[var(--color-cream)]">
         <div className="mx-auto flex h-full max-w-[var(--max-admin-width)] items-center justify-between px-6">
           {/* Logo */}
           <Link
@@ -179,7 +179,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
                 <>
                   {/* Backdrop */}
                   <div
-                    className="fixed inset-0 z-[var(--z-dropdown)]"
+                    className="fixed inset-0 z-dropdown"
                     onClick={closeUserMenu}
                   />
 
@@ -190,7 +190,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                     transition={spring.snappy}
                     className={cn(
-                      "absolute right-0 top-full mt-2 z-[var(--z-dropdown)]",
+                      "absolute right-0 top-full mt-2 z-dropdown",
                       "w-56 rounded-lg border border-[var(--color-border)]",
                       "bg-[var(--color-surface)] shadow-[var(--shadow-lg)]",
                       "overflow-hidden"
