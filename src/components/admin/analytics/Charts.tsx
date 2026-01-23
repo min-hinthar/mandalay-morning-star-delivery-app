@@ -8,7 +8,7 @@
  * interactive tooltips, gradient fills, responsive design
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   LineChart,

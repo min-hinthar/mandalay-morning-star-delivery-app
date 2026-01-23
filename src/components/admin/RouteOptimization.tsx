@@ -8,7 +8,7 @@
  * optimization suggestions, driver assignment
  */
 
-import React, { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import {
