@@ -1,73 +1,63 @@
 # Z-Index Migration Tracking
 
-## Status
+## Status: COMPLETE
 
-**Total violations:** 64
-**Files affected:** 28
-**Rule severity:** warn (downgraded from error in 01-05-PLAN.md)
-**Target:** Upgrade back to error after Phase 4 component rebuilds
+**Migration completed:** Phase 10 (2026-01-23)
+**ESLint rule upgraded to error:** Phase 13 (2026-01-23)
+**Current violations:** 0
+**Files migrated:** 28 files (original count)
 
-## Migration Strategy
+## Summary
 
-1. **Phase 1 (Complete):** Token system, linting rules at warn
-2. **Phase 2-4:** Components rebuilt with proper z-index tokens
-3. **Post-Phase 4:** Upgrade rules to error, clean up any remaining violations
+The z-index token migration is complete. All hardcoded z-index values have been replaced with semantic design tokens.
 
-## Files with Violations
+### Key Outcomes
 
-| File | Violations | Migration Phase |
-|------|------------|-----------------|
-| src/components/auth/WelcomeAnimation.tsx | 1 | Phase 3 (Auth) |
-| src/components/cart/CartAnimations.tsx | 1 | Phase 4 (Cart) |
-| src/components/checkout/TimeSlotPicker.tsx | 2 | Phase 4 (Checkout) |
-| src/components/driver/PhotoCapture.tsx | 1 | Post-V1 (Driver) |
-| src/components/homepage/CoverageSection.tsx | 2 | Phase 2 (Homepage) |
-| src/components/homepage/FloatingFood.tsx | 6 | Phase 2 (Homepage) |
-| src/components/homepage/Hero.tsx | 5 | Phase 2 (Homepage) |
-| src/components/homepage/HomepageHero.tsx | 2 | Phase 2 (Homepage) |
-| src/components/homepage/HomepageMenuSection.tsx | 1 | Phase 2 (Homepage) |
-| src/components/homepage/HowItWorksTimeline.tsx | 2 | Phase 2 (Homepage) |
-| src/components/homepage/TestimonialsSection.tsx | 1 | Phase 2 (Homepage) |
-| src/components/homepage/Timeline.tsx | 1 | Phase 2 (Homepage) |
-| src/components/layout/footer.tsx | 2 | Phase 2 (Layout) |
-| src/components/menu/CategoryCarousel.tsx | 4 | Phase 3 (Menu) |
-| src/components/menu/ItemDetail.tsx | 1 | Phase 3 (Menu) |
-| src/components/menu/MenuItemCard.tsx | 4 | Phase 3 (Menu) |
-| src/components/menu/MenuLayout.tsx | 1 | Phase 3 (Menu) |
-| src/components/menu/category-tabs.tsx | 3 | Phase 3 (Menu) |
-| src/components/menu/item-detail-modal.tsx | 2 | Phase 3 (Menu) |
-| src/components/menu/menu-item-card.tsx | 3 | Phase 3 (Menu) |
-| src/components/menu/menu-skeleton.tsx | 1 | Phase 3 (Menu) |
-| src/components/tracking/DeliveryMap.tsx | 4 | Phase 5 (Tracking) |
-| src/components/tracking/TrackingMap.tsx | 3 | Phase 5 (Tracking) |
-| src/components/tracking/TrackingPageClient.tsx | 1 | Phase 5 (Tracking) |
-| src/components/ui/Carousel.tsx | 1 | Phase 2 (UI) |
-| src/components/ui/Modal.tsx | 1 | Phase 2 (UI) |
-| src/components/ui/TabSwitcher.tsx | 7 | Phase 2 (UI) |
-| src/components/ui/overlay-base.tsx | 1 | Phase 2 (UI) |
+| Metric | Before | After |
+|--------|--------|-------|
+| Violations | 64 | 0 |
+| ESLint severity | warn | error |
+| Token coverage | 0% | 100% |
 
-## Violation Types
+### Token Mapping Used
 
-| Type | Count | Pattern |
-|------|-------|---------|
-| Tailwind z-* classes (z-10, z-20, etc.) | 57 | Use z-modal, z-dropdown, etc. |
-| Inline zIndex in style objects | 7 | Use zIndex.modal from tokens |
-| Total | 64 | |
+| Old Pattern | New Token | Use Case |
+|-------------|-----------|----------|
+| z-10 | z-dropdown | Dropdowns, popovers |
+| z-20 | z-sticky | Sticky headers, nav |
+| z-30 | z-fixed | Fixed position elements |
+| z-40 | z-modal | Modals, dialogs |
+| z-50 | z-toast | Toast notifications |
+| zIndex: N | zIndex.modal, zIndex.max | Inline style tokens |
 
-## Phase Breakdown
+### Local Stacking Contexts
 
-| Phase | Files | Violations |
-|-------|-------|------------|
-| Phase 2 (Homepage/UI) | 12 | 31 |
-| Phase 3 (Menu/Auth) | 8 | 20 |
-| Phase 4 (Cart/Checkout) | 2 | 3 |
-| Phase 5 (Tracking) | 3 | 8 |
-| Post-V1 (Driver) | 1 | 1 |
-| **Total** | **28** | **64** |
+Components using `isolate` class are exempt from token rules. They use inline `zIndex: 1-4` for internal layering:
 
-## Notes
+- FloatingFood.tsx - food item layers
+- Timeline components - step ordering
+- Animation containers - sequencing
 
-- FloatingFood.tsx has 6 violations (all inline zIndex) - high priority
-- TabSwitcher.tsx has 7 violations - complex component, may need careful refactor
-- Driver components excluded from V1 scope
-- Reference: docs/STACKING-CONTEXT.md for token mapping
+Reference: `docs/STACKING-CONTEXT.md`
+
+## Migration History
+
+| Phase | Work Done |
+|-------|-----------|
+| Phase 1 | Token system created, ESLint rule at warn |
+| Phase 10 | All 28 files migrated to tokens |
+| Phase 13 | ESLint rule upgraded to error |
+
+## Verification
+
+```bash
+# Check for violations (should return 0)
+pnpm lint 2>&1 | grep -c "z-index" || echo "0 violations"
+
+# ESLint config shows error severity
+grep -B5 "Catch z-" eslint.config.mjs | grep -E '"error"|"warn"'
+```
+
+---
+*Migration completed: 2026-01-23*
+*Last updated: 2026-01-23*
