@@ -1,6 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { OrderConfirmation } from "@/components/orders/OrderConfirmation";
+import { OrderConfirmationV8 } from "@/components/orders/OrderConfirmationV8";
 import type { Order, OrderItem, OrderItemModifier, OrderAddress, OrderStatus } from "@/types/order";
 
 // Define the expected shape of the query result
@@ -160,5 +160,5 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
     redirect("/checkout");
   }
 
-  return <OrderConfirmation order={order} />;
+  return <OrderConfirmationV8 order={order} />;
 }
