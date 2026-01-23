@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.1 Tech Debt Cleanup - Phase 13 (next)
+**Current focus:** v1.1 Tech Debt Cleanup - Phase 13 (in progress)
 
 ## Current Position
 
-Phase: 12 of 14 (Dead Code & Export Cleanup) - COMPLETE
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-01-23 - Gap closure: deleted 22 dead files
+Phase: 13 of 14 (Legacy Removal & Stricter Rules)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-23 - Completed 13-01-PLAN.md (unused variables)
 
-Progress: [#################.] 92% (45/49 plans - v1.0 complete, Phase 9-12 complete)
+Progress: [##################] 94% (46/49 plans - v1.0 complete, Phase 9-12 complete, 13-01 complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 45 (32 v1.0 + 13 v1.1)
-- v1.1 plans: 17 total (13 complete)
+- Total plans completed: 46 (32 v1.0 + 14 v1.1)
+- v1.1 plans: 17 total (14 complete)
 - Phases remaining: 2
 
 **By Phase (v1.1):**
@@ -31,7 +31,7 @@ Progress: [#################.] 92% (45/49 plans - v1.0 complete, Phase 9-12 comp
 | 10. Token Migration | 4 | Complete |
 | 11. V8 Component Migration | 4 | Complete |
 | 12. Dead Code & Export Cleanup | 3 | Complete |
-| 13. Legacy Removal & Stricter Rules | 2 | Not started |
+| 13. Legacy Removal & Stricter Rules | 2 | 1/2 complete |
 | 14. Testing & Documentation | 2 | Not started |
 
 ## Accumulated Context
@@ -93,9 +93,14 @@ v1.1 decisions (Phase 9-11):
 - Cleaned v7-index.ts: Removed exports for deleted components
 - **Result:** 22 dead files deleted, all 5 success criteria verified
 
+### Phase 13 Deliverables
+
+- 13-01: Fixed unused variables in 14 API routes + 1 E2E test file
+- **Result:** Zero TS6133 errors for API routes and E2E test with --noUnusedLocals --noUnusedParameters
+
 ### Pending Todos
 
-None - ready for Phase 13.
+None - ready for Phase 13-02.
 
 ### Blockers/Concerns
 
@@ -104,9 +109,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: Phase 12 gap closure complete - deleted 22 dead files
+Stopped at: Completed 13-01-PLAN.md
 Resume file: None
 
 ---
 
-*Updated: 2026-01-23 - Phase 12 complete*
+*Updated: 2026-01-23 - Phase 13 Plan 01 complete*
