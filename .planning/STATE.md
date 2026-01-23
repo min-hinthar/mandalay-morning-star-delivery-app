@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-21)
 ## Current Position
 
 Phase: 5 of 7 (Menu Browsing) — EXECUTING
-Plan: 4 of 5 complete
+Plan: 4 of 5 complete (05-01, 05-02, 05-03, 05-04)
 Status: Wave 1 in progress
-Last activity: 2026-01-23 — Completed 05-04-PLAN.md (Search Input V8)
+Last activity: 2026-01-23 — Completed 05-02-PLAN.md (Menu Item Cards V8)
 
-Progress: [████████░░░░] 74% (23/31 plans estimated)
+Progress: [████████░░░░] 77% (24/31 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 23
+- Total plans completed: 24
 - Average duration: 6 min
-- Total execution time: 2.1 hours
+- Total execution time: 2.2 hours
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: [████████░░░░] 74% (23/31 plans estimated)
 | 02-overlay-infrastructure | 4 | 14 min | 4 min |
 | 03-navigation-layout | 5 | 23 min | 5 min |
 | 04-cart-experience | 5 | 37 min | 7 min |
-| 05-menu-browsing | 4/5 | ~24 min | ~6 min |
+| 05-menu-browsing | 4/5 | ~32 min | ~8 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-05 (7 min), 05-01 (6 min), 05-02 (6 min), 05-03 (6 min), 05-04 (6 min)
+- Last 5 plans: 05-01 (6 min), 05-02 (8 min), 05-03 (6 min), 05-04 (6 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -90,6 +90,9 @@ Recent decisions affecting current work:
 - 300ms debounce for search API calls balances responsiveness with efficiency
 - Mobile search expands from icon to full input for space efficiency
 - ItemDetailSheetV8 uses 639px breakpoint for exact 640px desktop threshold (BottomSheet < 640px, Modal >= 640px)
+- CATEGORY_EMOJI_MAP covers 40+ Myanmar cuisine categories for placeholder images
+- FavoriteButton uses spring.ultraBouncy with burst ring + particles for celebration
+- MenuItemCardV8 uses whileHover y:-6 scale:1.02 matching hover.lift pattern
 
 ### Pending Todos
 
@@ -103,7 +106,7 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: Completed 05-04-PLAN.md (Search Input V8)
+Stopped at: Completed 05-02-PLAN.md (Menu Item Cards V8)
 Resume file: None
 
 ## Phases Complete
