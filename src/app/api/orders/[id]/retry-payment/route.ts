@@ -33,7 +33,7 @@ interface OrderWithItems {
   }>;
 }
 
-export async function POST(request: Request, { params }: RouteParams) {
+export async function POST(_request: Request, { params }: RouteParams) {
   const { id: orderId } = await params;
 
   const supabase = await createClient();

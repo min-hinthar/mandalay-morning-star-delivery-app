@@ -8,7 +8,7 @@ import { logger } from "@/lib/utils/logger";
 
 // GET /api/addresses/[id]
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -149,7 +149,7 @@ export async function PUT(
 
 // DELETE /api/addresses/[id]
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

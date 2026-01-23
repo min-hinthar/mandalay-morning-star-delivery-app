@@ -22,7 +22,7 @@ interface RouteParams {
  * Get driver details by ID
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: RouteParams
 ) {
   try {
@@ -247,7 +247,7 @@ export async function PATCH(
  * Soft delete driver (deactivate instead of hard delete)
  */
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: RouteParams
 ) {
   try {

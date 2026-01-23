@@ -103,7 +103,7 @@ interface RouteDetailResponse {
 }
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: RouteParams
 ): Promise<NextResponse<RouteDetailResponse | { error: string }>> {
   try {

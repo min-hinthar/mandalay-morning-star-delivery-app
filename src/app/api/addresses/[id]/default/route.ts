@@ -5,7 +5,7 @@ import { logger } from "@/lib/utils/logger";
 
 // POST /api/addresses/[id]/default - Set as default
 export async function POST(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
