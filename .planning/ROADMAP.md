@@ -19,6 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Menu Browsing** - Category tabs, item cards, search, item detail modal, loading states, list animations
 - [x] **Phase 6: Checkout Flow** - Multi-step form, address management, Stripe UI, order confirmation, progress animations
 - [x] **Phase 7: Quality & Testing** - E2E tests for clickability, overlay behavior, visual regression snapshots
+- [ ] **Phase 8: V8 Integration Gap Closure** - Wire orphaned Phase 5 menu components and FlyToCart into live app
 
 ## Phase Details
 
@@ -155,10 +156,26 @@ Plans:
 - [x] 07-01-PLAN.md — E2E overlay behavior tests (TEST-01, TEST-02, TEST-03, TEST-04): header clickability, cart drawer behavior, dropdown dismissal, no-blocking verification
 - [x] 07-02-PLAN.md — V8 visual regression snapshots (TEST-05): header, overlays, cart drawer (desktop + mobile)
 
+### Phase 8: V8 Integration Gap Closure
+**Goal**: Wire orphaned V8 components into live application to close audit gaps
+**Depends on**: Phase 5 (menu components), Phase 4 (cart celebrations)
+**Requirements**: MENU-01, MENU-02, MENU-03, MENU-04, MENU-05, MENU-06, MENU-07, MENU-08, MENU-09, CART-05
+**Gap Closure**: Closes integration gaps from v1-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. Menu page renders MenuContentV8 instead of legacy MenuContent
+  2. FlyToCart component is mounted globally and triggers on add-to-cart
+  3. AddToCartButton in menu items triggers fly animation to cart badge
+  4. Menu → Cart user flow works end-to-end with V8 components
+  5. All 9 MENU-* requirements satisfied (scrollspy, cards, search, skeletons, stagger, etc.)
+**Plans**: 1 plan
+
+Plans:
+- [ ] 08-01-PLAN.md — Wire MenuContentV8 into menu page and mount FlyToCart globally
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -169,6 +186,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 5. Menu Browsing | 5/5 | ✓ Complete | 2026-01-23 |
 | 6. Checkout Flow | 5/5 | ✓ Complete | 2026-01-23 |
 | 7. Quality & Testing | 2/2 | ✓ Complete | 2026-01-23 |
+| 8. V8 Integration Gap Closure | 0/1 | Planned | — |
 
 ---
 *Roadmap created: 2026-01-21*
@@ -191,4 +209,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 7 complete: 2026-01-23*
 *Depth: comprehensive (8-12 phases, 5-10 plans each)*
 *Total requirements: 55 | Mapped: 55 | Coverage: 100%*
-*MILESTONE COMPLETE: All 7 phases executed*
+*Phase 8 added: 2026-01-23 (gap closure from v1-MILESTONE-AUDIT.md)*
+*Gap closure: 10 requirements (9 MENU-* + CART-05), 4 integration gaps, 1 flow*
