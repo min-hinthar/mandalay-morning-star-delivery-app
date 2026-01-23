@@ -214,7 +214,7 @@ function GradientBackground() {
 
   return (
     <>
-      {/* Base gradient */}
+      {/* Dark footer gradient - intentional custom colors for dark theme (not migrated to tokens) */}
       <div
         className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f23]"
       />
