@@ -357,7 +357,7 @@ function estimateDrivingTime(distanceKm: number): number {
  * Returns the ordered stop IDs to update in the database
  */
 export async function optimizeRouteStops(
-  routeId: string,
+  _routeId: string,
   stops: Array<{
     id: string;
     order_id: string;
