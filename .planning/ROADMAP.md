@@ -130,14 +130,14 @@ Plans:
   3. Stripe payment form renders correctly and processes payment (using existing integration)
   4. Order confirmation page displays success celebration animation
   5. Form fields show micro-interactions on focus, validation feedback, and animated error states
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 06-01: Multi-step checkout structure
-- [ ] 06-02: Address selection and management
-- [ ] 06-03: Stripe payment UI integration
-- [ ] 06-04: Order confirmation and success celebration
-- [ ] 06-05: Form field micro-interactions
+- [ ] 06-01-PLAN.md — Checkout page step transitions with AnimatePresence and CheckoutStepperV8
+- [ ] 06-02-PLAN.md — Form field micro-interactions with AnimatedFormField and AddressFormV8
+- [ ] 06-03-PLAN.md — Address step V8 with animated cards and responsive overlays (Modal/BottomSheet)
+- [ ] 06-04-PLAN.md — Checkout summary V8 with animated free delivery progress and PaymentStepV8
+- [ ] 06-05-PLAN.md — Order confirmation V8 with confetti burst and animated success celebration
 
 ### Phase 7: Quality & Testing
 **Goal**: Ensure clickability and overlay behavior are verified through automated tests
@@ -168,7 +168,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 3. Navigation & Layout | 5/5 | ✓ Complete | 2026-01-22 |
 | 4. Cart Experience | 5/5 | ✓ Complete | 2026-01-22 |
 | 5. Menu Browsing | 5/5 | ✓ Complete | 2026-01-23 |
-| 6. Checkout Flow | 0/5 | Not started | - |
+| 6. Checkout Flow | 0/5 | Planned | - |
 | 7. Quality & Testing | 0/3 | Not started | - |
 
 ---
@@ -186,5 +186,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 4 complete: 2026-01-22*
 *Phase 5 planned: 2026-01-22*
 *Phase 5 complete: 2026-01-23*
+*Phase 6 planned: 2026-01-23*
 *Depth: comprehensive (8-12 phases, 5-10 plans each)*
 *Total requirements: 55 | Mapped: 55 | Coverage: 100%*
