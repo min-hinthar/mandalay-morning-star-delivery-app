@@ -3,14 +3,11 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, Search } from "lucide-react";
-import { MenuItemCard } from "@/components/menu/menu-item-card";
-import { ItemDetailModal } from "@/components/menu/item-detail-modal";
+import { MenuItemCardV8, ItemDetailSheetV8 } from "@/components/ui-v8/menu";
 import { CategoryTabs } from "@/components/menu/category-tabs";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { useToast } from "@/lib/hooks/useToast";
-import { useFavorites } from "@/lib/hooks/useFavorites";
 import {
   staggerContainer,
   staggerItem,
@@ -29,11 +26,9 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { isFavorite, toggleFavorite } = useFavorites();
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const { addItem } = useCart();
   const { open: openCart } = useCartDrawer();
-  const { toast } = useToast();
 
   // Filter items based on search query
   const filteredCategories = categories.map((category) => ({
@@ -82,16 +77,6 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
     setSelectedItem(item);
     setIsModalOpen(true);
   }, []);
-
-  // Handle favorite toggle
-  const handleFavoriteToggle = useCallback((item: MenuItem) => {
-    const wasAlreadyFavorite = isFavorite(item.id);
-    toggleFavorite(item.id);
-    toast({
-      title: wasAlreadyFavorite ? "Removed from favorites" : "Added to favorites",
-      description: item.nameEn,
-    });
-  }, [isFavorite, toggleFavorite, toast]);
 
   // Handle add to cart
   const handleAddToCart = useCallback(
@@ -217,11 +202,9 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: Math.min(index * 0.08, 0.64), duration: 0.55 }}
                     >
-                      <MenuItemCard
+                      <MenuItemCardV8
                         item={item}
-                        onSelect={handleItemClick}
-                        onFavoriteToggle={handleFavoriteToggle}
-                        isFavorite={isFavorite(item.id)}
+                        onClick={handleItemClick}
                       />
                     </motion.div>
                   ))}
@@ -249,11 +232,10 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: Math.min(index * 0.08, 0.64), duration: 0.55 }}
                           >
-                            <MenuItemCard
+                            <MenuItemCardV8
                               item={item}
-                              onSelect={handleItemClick}
-                              onFavoriteToggle={handleFavoriteToggle}
-                              isFavorite={isFavorite(item.id)}
+                              categorySlug={category.slug}
+                              onClick={handleItemClick}
                             />
                           </motion.div>
                         ))}
@@ -290,10 +272,10 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
           )}
         </AnimatePresence>
 
-        {/* Item Detail Modal */}
-        <ItemDetailModal
+        {/* Item Detail Sheet V8 */}
+        <ItemDetailSheetV8
           item={selectedItem}
-          open={isModalOpen}
+          isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
             setSelectedItem(null);
