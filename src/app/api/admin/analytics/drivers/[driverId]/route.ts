@@ -76,7 +76,7 @@ interface RouteIdRow {
  * Get detailed analytics for a specific driver
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: RouteParams
 ) {
   try {

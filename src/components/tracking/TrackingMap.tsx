@@ -7,7 +7,7 @@
  * Features: Live driver marker with pulse, animated route polyline, smooth marker transitions
  */
 
-import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useSpring } from "framer-motion";
 import {
   Navigation,

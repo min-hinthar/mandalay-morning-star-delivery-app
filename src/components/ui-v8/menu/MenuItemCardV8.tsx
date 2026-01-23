@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { spring, hover } from "@/lib/motion-tokens";
+import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { BlurImage } from "./BlurImage";
-import { EmojiPlaceholder, getCategoryEmoji } from "./EmojiPlaceholder";
+import { EmojiPlaceholder } from "./EmojiPlaceholder";
 import { FavoriteButton } from "./FavoriteButton";
 import type { MenuItem } from "@/types/menu";
 
@@ -119,7 +119,7 @@ export function MenuItemCardV8({
   }, [item, onClick]);
 
   const handleFavoriteToggle = useCallback(
-    (newState: boolean) => {
+    (_newState: boolean) => {
       toggleFavorite(item.id);
     },
     [item.id, toggleFavorite]
