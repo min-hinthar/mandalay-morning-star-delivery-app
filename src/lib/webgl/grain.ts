@@ -261,7 +261,7 @@ export const cssGrainStyles = {
     width: "100%",
     height: "100%",
     pointerEvents: "none" as const,
-    zIndex: 9999,
+    zIndex: 100, // zIndex.max - Use design token value for consistency
     opacity: 0.05,
     mixBlendMode: "overlay" as const,
   },
