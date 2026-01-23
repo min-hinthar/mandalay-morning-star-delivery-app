@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.1 Tech Debt Cleanup - Phase 12 (next)
+**Current focus:** v1.1 Tech Debt Cleanup - Phase 13 (next)
 
 ## Current Position
 
-Phase: 11 of 14 (V8 Component Migration) - COMPLETE
-Plan: 4 of 4 in current phase
+Phase: 12 of 14 (Dead Code & Export Cleanup) - COMPLETE
+Plan: 3 of 3 in current phase
 Status: Phase complete
-Last activity: 2026-01-23 - Completed 11-04-PLAN.md (Final verification)
+Last activity: 2026-01-23 - Gap closure: deleted 22 dead files
 
-Progress: [################..] 86% (42/49 plans - v1.0 complete, Phase 9-11 complete)
+Progress: [#################.] 92% (45/49 plans - v1.0 complete, Phase 9-12 complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 42 (32 v1.0 + 10 v1.1)
-- v1.1 plans: 17 total (10 complete)
-- Phases remaining: 3
+- Total plans completed: 45 (32 v1.0 + 13 v1.1)
+- v1.1 plans: 17 total (13 complete)
+- Phases remaining: 2
 
 **By Phase (v1.1):**
 
@@ -30,7 +30,7 @@ Progress: [################..] 86% (42/49 plans - v1.0 complete, Phase 9-11 comp
 | 9. Analysis & Component Creation | 2 | Complete |
 | 10. Token Migration | 4 | Complete |
 | 11. V8 Component Migration | 4 | Complete |
-| 12. Dead Code & Export Cleanup | 3 | Not started |
+| 12. Dead Code & Export Cleanup | 3 | Complete |
 | 13. Legacy Removal & Stricter Rules | 2 | Not started |
 | 14. Testing & Documentation | 2 | Not started |
 
@@ -84,9 +84,18 @@ v1.1 decisions (Phase 9-11):
 - 11-04: Final verification - all V8 migrations confirmed, zero v7-index imports
 - **Result:** All active code paths use direct V8 imports (7 files migrated total)
 
+### Phase 12 Deliverables
+
+- 12-01: Deleted 16 unused lib/utility files (contexts, hooks, stores, lib)
+- 12-02: Cleaned UI and checkout barrel exports (removed Legacy* aliases)
+- 12-03: Deleted 6 unused component files (Carousel, ExpandingCard, FlipCard, Toggle, form-field, scroll-reveal)
+- Gap closure: Verified Confetti and DropdownAction are actively used (restored)
+- Cleaned v7-index.ts: Removed exports for deleted components
+- **Result:** 22 dead files deleted, all 5 success criteria verified
+
 ### Pending Todos
 
-None - ready for Phase 12.
+None - ready for Phase 13.
 
 ### Blockers/Concerns
 
@@ -94,10 +103,10 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-23T11:10:00Z
-Stopped at: Completed 11-04-PLAN.md (Final verification)
+Last session: 2026-01-23
+Stopped at: Phase 12 gap closure complete - deleted 22 dead files
 Resume file: None
 
 ---
 
-*Updated: 2026-01-23 - Phase 11 complete*
+*Updated: 2026-01-23 - Phase 12 complete*
