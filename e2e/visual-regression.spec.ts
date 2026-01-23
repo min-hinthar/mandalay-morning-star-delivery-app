@@ -363,3 +363,54 @@ test.describe("Component States Visual Regression", () => {
     });
   });
 });
+
+test.describe("V8 Header Visual Regression (TEST-05)", () => {
+  test("v8 header - desktop", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(500);
+
+    const header = page.locator("header").first();
+    await expect(header).toHaveScreenshot("v8-header-desktop.png", {
+      maxDiffPixels: 100,
+    });
+  });
+
+  test("v8 header - mobile", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(500);
+
+    const header = page.locator("header").first();
+    await expect(header).toHaveScreenshot("v8-header-mobile.png", {
+      maxDiffPixels: 100,
+    });
+  });
+
+  test("v8 header with scroll - desktop", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Scroll down to trigger header shrink effect
+    await page.evaluate(() => window.scrollTo(0, 200));
+    await page.waitForTimeout(500);
+
+    const header = page.locator("header").first();
+    await expect(header).toHaveScreenshot("v8-header-scrolled-desktop.png", {
+      maxDiffPixels: 100,
+    });
+  });
+
+  test("v8 bottom nav - mobile", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(500);
+
+    const bottomNav = page.locator("nav").last();
+    await expect(bottomNav).toHaveScreenshot("v8-bottom-nav-mobile.png", {
+      maxDiffPixels: 100,
+    });
+  });
+});
