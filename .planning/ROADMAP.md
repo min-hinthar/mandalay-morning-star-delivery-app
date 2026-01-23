@@ -19,7 +19,7 @@ Phases 1-8 completed customer-facing V8 rewrite. See git history for details.
 **Milestone Goal:** Eliminate all legacy code patterns and migrate admin/driver flows to V8 components.
 
 - [x] **Phase 9: Analysis & Component Creation** - Establish baseline, create missing components
-- [ ] **Phase 10: Token Migration** - Migrate all z-index and color hardcodes to design tokens
+- [x] **Phase 10: Token Migration** - Migrate all z-index and color hardcodes to design tokens
 - [ ] **Phase 11: V8 Component Migration** - Migrate admin/driver/hero/tracking to V8
 - [ ] **Phase 12: Dead Code & Export Cleanup** - Remove all dead exports
 - [ ] **Phase 13: Legacy Removal & Stricter Rules** - Remove v7 files, enforce rules
@@ -52,10 +52,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 10-01-PLAN.md — Homepage z-index token migration (7 files)
-- [ ] 10-02-PLAN.md — Menu z-index token migration (10 files)
-- [ ] 10-03-PLAN.md — Tracking and UI z-index token migration (9 files)
-- [ ] 10-04-PLAN.md — Remaining z-index and color token migration (10 files)
+- [x] 10-01-PLAN.md — Homepage z-index token migration (7 files)
+- [x] 10-02-PLAN.md — Menu z-index token migration (10 files)
+- [x] 10-03-PLAN.md — Tracking and UI z-index token migration (9 files)
+- [x] 10-04-PLAN.md — Remaining z-index and color token migration (10 files)
 
 ### Phase 11: V8 Component Migration
 **Goal**: Admin, driver, hero, and tracking use V8 component patterns
@@ -131,7 +131,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1-8 | v1.0 | 32/32 | Complete | 2026-01-23 |
 | 9. Analysis & Component Creation | v1.1 | 2/2 | Complete | 2026-01-23 |
-| 10. Token Migration | v1.1 | 0/4 | Planned | - |
+| 10. Token Migration | v1.1 | 4/4 | Complete | 2026-01-23 |
 | 11. V8 Component Migration | v1.1 | 0/4 | Not started | - |
 | 12. Dead Code & Export Cleanup | v1.1 | 0/3 | Not started | - |
 | 13. Legacy Removal & Stricter Rules | v1.1 | 0/2 | Not started | - |
@@ -139,4 +139,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-23 - Phase 10 planned*
+*Last updated: 2026-01-23 - Phase 10 complete*

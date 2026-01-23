@@ -9,11 +9,11 @@ Complete V8 adoption: eliminate all legacy patterns, migrate admin/driver flows,
 
 ### Z-Index Cleanup
 
-- [ ] **ZIDX-01**: Migrate all homepage components to z-index tokens (6 files)
-- [ ] **ZIDX-02**: Migrate all menu components to z-index tokens (9 files)
-- [ ] **ZIDX-03**: Migrate all tracking components to z-index tokens (3 files)
-- [ ] **ZIDX-04**: Migrate all UI components to z-index tokens (6 files)
-- [ ] **ZIDX-05**: Migrate remaining components to z-index tokens (6 files)
+- [x] **ZIDX-01**: Migrate all homepage components to z-index tokens (6 files)
+- [x] **ZIDX-02**: Migrate all menu components to z-index tokens (9 files)
+- [x] **ZIDX-03**: Migrate all tracking components to z-index tokens (3 files)
+- [x] **ZIDX-04**: Migrate all UI components to z-index tokens (6 files)
+- [x] **ZIDX-05**: Migrate remaining components to z-index tokens (6 files)
 - [ ] **ZIDX-06**: Upgrade ESLint z-index rule from warn to error
 
 ### V7 Component Migration
@@ -26,10 +26,10 @@ Complete V8 adoption: eliminate all legacy patterns, migrate admin/driver flows,
 
 ### Color Token Cleanup
 
-- [ ] **COLR-01**: Tokenize footer gradient colors
-- [ ] **COLR-02**: Tokenize header gradient colors
-- [ ] **COLR-03**: Tokenize FlipCard gradient colors
-- [ ] **COLR-04**: Tokenize analytics dashboard chart colors
+- [x] **COLR-01**: Tokenize footer gradient colors
+- [x] **COLR-02**: Tokenize header gradient colors
+- [x] **COLR-03**: Tokenize FlipCard gradient colors
+- [x] **COLR-04**: Tokenize analytics dashboard chart colors
 
 ### Export Cleanup
 
@@ -83,15 +83,15 @@ Deferred to v1.2+:
 | QUAL-01 | Phase 9 | Complete |
 | COMP-01 | Phase 9 | Complete |
 | TEST-01 | Phase 9 | Complete |
-| ZIDX-01 | Phase 10 | Pending |
-| ZIDX-02 | Phase 10 | Pending |
-| ZIDX-03 | Phase 10 | Pending |
-| ZIDX-04 | Phase 10 | Pending |
-| ZIDX-05 | Phase 10 | Pending |
-| COLR-01 | Phase 10 | Pending |
-| COLR-02 | Phase 10 | Pending |
-| COLR-03 | Phase 10 | Pending |
-| COLR-04 | Phase 10 | Pending |
+| ZIDX-01 | Phase 10 | Complete |
+| ZIDX-02 | Phase 10 | Complete |
+| ZIDX-03 | Phase 10 | Complete |
+| ZIDX-04 | Phase 10 | Complete |
+| ZIDX-05 | Phase 10 | Complete |
+| COLR-01 | Phase 10 | Complete |
+| COLR-02 | Phase 10 | Complete |
+| COLR-03 | Phase 10 | Complete |
+| COLR-04 | Phase 10 | Complete |
 | V7MG-01 | Phase 11 | Pending |
 | V7MG-02 | Phase 11 | Pending |
 | V7MG-03 | Phase 11 | Pending |
@@ -117,4 +117,4 @@ Deferred to v1.2+:
 
 ---
 *Requirements defined: 2026-01-23*
-*Last updated: 2026-01-23 - Phase assignments added*
+*Last updated: 2026-01-23 - Phase 10 requirements complete*
