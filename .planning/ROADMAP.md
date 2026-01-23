@@ -102,11 +102,11 @@ Plans:
   3. ESLint z-index rule set to error (build fails on hardcoded z-index)
   4. TypeScript strict flags enabled (noUnusedLocals, noUnusedParameters)
   5. Build passes with all new strictness
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 13-01: V7 barrel file removal
-- [ ] 13-02: ESLint and TypeScript strictness upgrade
+- [ ] 13-01-PLAN.md — TypeScript strictness (fix 67 unused vars, enable noUnusedLocals/noUnusedParameters)
+- [ ] 13-02-PLAN.md — ESLint z-index upgrade to error and v7-index.ts deletion (10 files)
 
 ### Phase 14: Testing & Documentation
 **Goal**: Complete visual regression coverage and accurate documentation
@@ -139,4 +139,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-23 - Phase 12 complete*
+*Last updated: 2026-01-23 - Phase 13 planned*
