@@ -1,4 +1,4 @@
-# Requirements: Morning Star V8 — v1.1 Tech Debt Cleanup
+# Requirements: Morning Star V8 - v1.1 Tech Debt Cleanup
 
 **Defined:** 2026-01-23
 **Core Value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
@@ -80,41 +80,41 @@ Deferred to v1.2+:
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ZIDX-01 | TBD | Pending |
-| ZIDX-02 | TBD | Pending |
-| ZIDX-03 | TBD | Pending |
-| ZIDX-04 | TBD | Pending |
-| ZIDX-05 | TBD | Pending |
-| ZIDX-06 | TBD | Pending |
-| V7MG-01 | TBD | Pending |
-| V7MG-02 | TBD | Pending |
-| V7MG-03 | TBD | Pending |
-| V7MG-04 | TBD | Pending |
-| V7MG-05 | TBD | Pending |
-| COLR-01 | TBD | Pending |
-| COLR-02 | TBD | Pending |
-| COLR-03 | TBD | Pending |
-| COLR-04 | TBD | Pending |
-| EXPT-01 | TBD | Pending |
-| EXPT-02 | TBD | Pending |
-| EXPT-03 | TBD | Pending |
-| EXPT-04 | TBD | Pending |
-| COMP-01 | TBD | Pending |
-| COMP-02 | TBD | Pending |
-| TEST-01 | TBD | Pending |
-| TEST-02 | TBD | Pending |
-| TEST-03 | TBD | Pending |
-| QUAL-01 | TBD | Pending |
-| QUAL-02 | TBD | Pending |
-| QUAL-03 | TBD | Pending |
-| DOCS-01 | TBD | Pending |
-| DOCS-02 | TBD | Pending |
+| QUAL-01 | Phase 9 | Pending |
+| COMP-01 | Phase 9 | Pending |
+| TEST-01 | Phase 9 | Pending |
+| ZIDX-01 | Phase 10 | Pending |
+| ZIDX-02 | Phase 10 | Pending |
+| ZIDX-03 | Phase 10 | Pending |
+| ZIDX-04 | Phase 10 | Pending |
+| ZIDX-05 | Phase 10 | Pending |
+| COLR-01 | Phase 10 | Pending |
+| COLR-02 | Phase 10 | Pending |
+| COLR-03 | Phase 10 | Pending |
+| COLR-04 | Phase 10 | Pending |
+| V7MG-01 | Phase 11 | Pending |
+| V7MG-02 | Phase 11 | Pending |
+| V7MG-03 | Phase 11 | Pending |
+| V7MG-04 | Phase 11 | Pending |
+| COMP-02 | Phase 11 | Pending |
+| QUAL-02 | Phase 12 | Pending |
+| EXPT-01 | Phase 12 | Pending |
+| EXPT-02 | Phase 12 | Pending |
+| EXPT-03 | Phase 12 | Pending |
+| EXPT-04 | Phase 12 | Pending |
+| V7MG-05 | Phase 13 | Pending |
+| ZIDX-06 | Phase 13 | Pending |
+| QUAL-03 | Phase 13 | Pending |
+| TEST-02 | Phase 14 | Pending |
+| TEST-03 | Phase 14 | Pending |
+| DOCS-01 | Phase 14 | Pending |
+| DOCS-02 | Phase 14 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 29 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 29
+- Mapped to phases: 29
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-23*
-*Last updated: 2026-01-23 after initial definition*
+*Last updated: 2026-01-23 - Phase assignments added*
