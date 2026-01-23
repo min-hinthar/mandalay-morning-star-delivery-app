@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-21)
 
 ## Current Position
 
-Phase: 7 of 7 (Quality & Testing)
-Plan: 2 of 2 complete (07-01, 07-02)
-Status: Phase 7 VERIFIED (5/5 must-haves)
-Last activity: 2026-01-23 — Completed Phase 7 (Quality & Testing)
+Phase: 8 of 8 (V8 Integration Gap Closure)
+Plan: 1 of 1 complete (08-01)
+Status: Phase 8 COMPLETE
+Last activity: 2026-01-23 — Completed 08-01-PLAN.md (Wire V8 Menu & FlyToCart)
 
-Progress: [████████████] 100% (32/32 plans complete)
+Progress: [█████████████] 100% (33/33 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 32
+- Total plans completed: 33
 - Average duration: 6 min
-- Total execution time: 3.0 hours
+- Total execution time: 3.75 hours
 
 **By Phase:**
 
@@ -34,10 +34,11 @@ Progress: [████████████] 100% (32/32 plans complete)
 | 05-menu-browsing | 5 | 38 min | 8 min |
 | 06-checkout-flow | 5 | 23 min | 5 min |
 | 07-quality-testing | 2 | 5 min | 3 min |
+| 08-v8-integration-gap-closure | 1 | 45 min | 45 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-02 (2 min), 07-01 (3 min), 06-05 (6 min), 06-02 (5 min), 06-04 (4 min)
-- Trend: Fast (testing phase)
+- Last 5 plans: 08-01 (45 min), 07-02 (2 min), 07-01 (3 min), 06-05 (6 min), 06-02 (5 min)
+- Trend: Extended (integration + additional z-index fixes)
 
 *Updated after each plan completion*
 
@@ -114,6 +115,8 @@ Recent decisions affecting current work:
 - Use .count() for DOM removal verification, not just visibility checks
 - Wait 400ms for AnimatePresence exit animations in E2E tests
 - Conditional tests with isVisible() for optional elements
+- CSS isolate property creates z-index stacking context boundaries in homepage sections
+- Enhanced free delivery animation with animated truck icon using GSAP keyframes
 
 ### Pending Todos
 
@@ -127,9 +130,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: MILESTONE COMPLETE — All 7 phases executed
+Stopped at: Phase 8 COMPLETE — V8 integration gap closure finished
 Resume file: None
-Next: `/gsd:audit-milestone` — verify requirements, cross-phase integration, E2E flows
+Next: All phases complete - V8 rewrite milestone achieved
 
 ## Phases Complete
 
@@ -279,3 +282,26 @@ Phase 7 (Quality & Testing) COMPLETE with all 2 plans:
 
 **Verification:** 5/5 success criteria passed
 **Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
+
+### Phase 8 (V8 Integration Gap Closure) COMPLETE
+
+Phase 8 (V8 Integration Gap Closure) COMPLETE with 1 plan:
+
+1. **08-01:** Wire V8 Menu & FlyToCart - Global mount + menu page integration
+
+**Integration Completed:**
+- FlyToCart mounted globally in providers.tsx
+- MenuContentV8 replaces legacy MenuContent on menu page
+- End-to-end menu-to-cart flow with flying animation
+
+**Additional Fixes:**
+- Z-index stacking context isolation in homepage sections using CSS `isolate`
+- Enhanced free delivery progress animation with animated truck icon
+- Fixed category tabs and menu card z-index layering
+- Fixed homepage V8 cards and signout button styling
+
+**Verification:** 13/13 success criteria passed
+- Menu renders V8 components (scrollspy, animated cards, search)
+- Flying animation + badge pulse on add-to-cart
+- All MENU-01 through MENU-09 requirements working
+- CART-05 requirement verified
