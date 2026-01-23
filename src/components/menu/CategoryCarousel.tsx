@@ -221,7 +221,7 @@ export function CategoryCarousel({
     <nav
       aria-label="Menu categories"
       className={cn(
-        sticky && "sticky top-14 z-fixed",
+        sticky && "sticky top-14 z-sticky",
         "bg-surface-primary/95 backdrop-blur-lg",
         "border-b border-border-subtle",
         className
