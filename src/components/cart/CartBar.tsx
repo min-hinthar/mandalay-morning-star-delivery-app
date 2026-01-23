@@ -46,8 +46,8 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
           exit={{ y: "100%", opacity: 0 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
           className={cn(
-            "fixed bottom-0 left-0 right-0 z-sticky",
-            "bg-[var(--color-surface)] border-t border-[var(--color-border)]",
+            "fixed bottom-0 left-0 right-0 z-fixed",
+            "bg-surface-primary/95 backdrop-blur-lg border-t border-border",
             "shadow-[0_-10px_30px_-5px_rgba(139,69,19,0.1)]",
             "rounded-t-[var(--radius-xl)]",
             "pb-[env(safe-area-inset-bottom)]",

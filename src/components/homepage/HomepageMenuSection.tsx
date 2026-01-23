@@ -16,6 +16,11 @@ import {
 import type { MenuCategory, MenuItem } from "@/types/menu";
 import type { SelectedModifier } from "@/types/cart";
 
+// Extended MenuItem type with category slug for "All" tab
+interface MenuItemWithCategory extends MenuItem {
+  categorySlug: string;
+}
+
 interface HomepageMenuSectionProps {
   categories: MenuCategory[];
 }
@@ -42,9 +47,11 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
     ),
   })).filter((category) => category.items.length > 0);
 
-  // Get all items for "All" tab
-  const allItems = categories.flatMap((cat) => cat.items);
-  const filteredAllItems = allItems.filter(
+  // Get all items for "All" tab with category slug preserved
+  const allItemsWithCategory: MenuItemWithCategory[] = categories.flatMap((cat) =>
+    cat.items.map(item => ({ ...item, categorySlug: cat.slug }))
+  );
+  const filteredAllItems = allItemsWithCategory.filter(
     (item) =>
       !searchQuery ||
       item.nameEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -174,7 +181,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
         </motion.div>
 
         {/* Category Tabs */}
-        <div className="sticky top-16 z-30 bg-surface-primary/80 backdrop-blur-md py-4 -mx-4 px-4 mb-8">
+        <div className="-mx-4 mb-8">
           <CategoryTabs
             categories={categories}
             activeCategory={activeCategory}
@@ -195,7 +202,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
               {activeCategory === null ? (
                 // Show all items in a single grid
                 <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                  {displayItems.map((item, index) => (
+                  {filteredAllItems.map((item, index) => (
                     <motion.div
                       key={item.id}
                       initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
@@ -204,6 +211,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                     >
                       <MenuItemCardV8
                         item={item}
+                        categorySlug={item.categorySlug}
                         onClick={handleItemClick}
                       />
                     </motion.div>
