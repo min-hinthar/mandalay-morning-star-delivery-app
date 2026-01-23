@@ -16,7 +16,7 @@
 
 import { useCallback, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap } from "@/lib/gsap";
 import { useCartAnimationStore } from "@/lib/stores/cart-animation-store";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { zIndex } from "@/design-system/tokens/z-index";
@@ -65,7 +65,6 @@ export function useFlyToCart() {
   const { shouldAnimate } = useAnimationPreference();
 
   const flyingRef = useRef<FlyingElement | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -195,7 +194,7 @@ export interface FlyToCartProps {
  * <FlyToCart />
  */
 export function FlyToCart({ className }: FlyToCartProps) {
-  const { flyingElement } = useCartAnimationStore();
+  // flyingElement is managed imperatively via the hook
 
   // This component is primarily a placeholder for potential future enhancements
   // The actual flying animation is handled imperatively via the hook
