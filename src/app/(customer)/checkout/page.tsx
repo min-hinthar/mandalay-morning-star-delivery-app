@@ -9,11 +9,13 @@ import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { spring } from "@/lib/motion-tokens";
-import { CheckoutStepperV8 } from "@/components/checkout/CheckoutStepperV8";
-import { AddressStep } from "@/components/checkout/AddressStep";
-import { TimeStep } from "@/components/checkout/TimeStep";
-import { PaymentStep } from "@/components/checkout/PaymentStep";
-import { CheckoutSummary } from "@/components/checkout/CheckoutSummary";
+import {
+  CheckoutStepperV8,
+  AddressStep,
+  TimeStep,
+  PaymentStep,
+  CheckoutSummary,
+} from "@/components/checkout";
 import type { CheckoutStep } from "@/types/checkout";
 
 /**
