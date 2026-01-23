@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -363,13 +363,8 @@ export function MenuLayout({
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Extract slug for scroll spy - can be used to highlight in carousel
-            const _slug = entry.target.id.replace("category-", "");
-            // Only update if not filtering by category
-            if (!activeCategory) {
-              // Optionally highlight in carousel using _slug
-            }
+          if (entry.isIntersecting && !activeCategory) {
+            // Future: Extract slug from entry.target.id for scroll spy highlighting
           }
         });
       },

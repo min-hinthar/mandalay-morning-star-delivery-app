@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useRef, useCallback, useEffect, useState, useMemo } from "react";
+import { useRef, useCallback, useEffect, useState, useMemo } from "react";
 import {
   motion,
   PanInfo,
-  useMotionValue,
 } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -129,9 +128,6 @@ export function CategoryCarousel({
   // Scroll state
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(false);
-
-  // Drag state for momentum (prepared for swipe implementation)
-  const _x = useMotionValue(0);
 
   // Build tabs array - memoized to avoid useEffect deps warning
   const tabs = useMemo(() => [
