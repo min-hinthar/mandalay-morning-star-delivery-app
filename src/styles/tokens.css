@@ -251,16 +251,16 @@
      Z-INDEX LAYER SYSTEM
      =========================================== */
 
-  --z-base: 0;
-  --z-dropdown: 10;
-  --z-sticky: 20;
-  --z-fixed: 30;
-  --z-modal-backdrop: 40;
-  --z-modal: 50;
-  --z-popover: 60;
-  --z-tooltip: 70;
-  --z-toast: 80;
-  --z-max: 100;
+  --zindex-base: 0;
+  --zindex-dropdown: 10;
+  --zindex-sticky: 20;
+  --zindex-fixed: 30;
+  --zindex-modal-backdrop: 40;
+  --zindex-modal: 50;
+  --zindex-popover: 60;
+  --zindex-tooltip: 70;
+  --zindex-toast: 80;
+  --zindex-max: 100;
 
   /* ===========================================
      LAYOUT

@@ -263,7 +263,7 @@ export function PlacesAutocomplete({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 right-0 z-[var(--z-dropdown)] mt-2 bg-[var(--color-surface-primary)] border border-border rounded-xl shadow-elevated overflow-hidden"
+            className="absolute top-full left-0 right-0 z-dropdown mt-2 bg-[var(--color-surface-primary)] border border-border rounded-xl shadow-elevated overflow-hidden"
           >
             <ul className="py-2">
               {suggestions.map((suggestion, index) => (

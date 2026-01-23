@@ -25,21 +25,20 @@ export type ZIndexValue = (typeof zIndex)[ZIndexToken];
 
 /**
  * CSS variable references for style objects
- * These reference the --z-index-* custom properties defined in globals.css @theme
- * TailwindCSS 4 generates z-* utilities from these (stripping the prefix)
- * @example style={{ zIndex: zIndexVar.modal }} // outputs var(--z-index-modal)
+ * These reference the --zindex-* custom properties defined in tokens.css
+ * @example style={{ zIndex: zIndexVar.modal }} // outputs var(--zindex-modal)
  */
 export const zIndexVar = {
-  base: "var(--z-index-base)",
-  dropdown: "var(--z-index-dropdown)",
-  sticky: "var(--z-index-sticky)",
-  fixed: "var(--z-index-fixed)",
-  modalBackdrop: "var(--z-index-modal-backdrop)",
-  modal: "var(--z-index-modal)",
-  popover: "var(--z-index-popover)",
-  tooltip: "var(--z-index-tooltip)",
-  toast: "var(--z-index-toast)",
-  max: "var(--z-index-max)",
+  base: "var(--zindex-base)",
+  dropdown: "var(--zindex-dropdown)",
+  sticky: "var(--zindex-sticky)",
+  fixed: "var(--zindex-fixed)",
+  modalBackdrop: "var(--zindex-modal-backdrop)",
+  modal: "var(--zindex-modal)",
+  popover: "var(--zindex-popover)",
+  tooltip: "var(--zindex-tooltip)",
+  toast: "var(--zindex-toast)",
+  max: "var(--zindex-max)",
 } as const;
 
 /**

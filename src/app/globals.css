@@ -54,17 +54,8 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  /* Z-Index Layer System - generates z-base, z-dropdown, z-modal, etc. */
-  --z-index-base: 0;
-  --z-index-dropdown: 10;
-  --z-index-sticky: 20;
-  --z-index-fixed: 30;
-  --z-index-modal-backdrop: 40;
-  --z-index-modal: 50;
-  --z-index-popover: 60;
-  --z-index-tooltip: 70;
-  --z-index-toast: 80;
-  --z-index-max: 100;
+  /* Z-Index: Defined in tailwind.config.ts using CSS variables from tokens.css */
+  /* Do NOT add --z-index-* here - causes TailwindCSS 4 to generate invalid CSS */
 }
 
 :root {

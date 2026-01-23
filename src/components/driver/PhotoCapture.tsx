@@ -230,7 +230,7 @@ export function PhotoCapture({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black"
+          className="fixed inset-0 z-modal flex items-center justify-center bg-black"
         >
           {/* Hidden canvas for capturing */}
           <canvas ref={canvasRef} className="hidden" />

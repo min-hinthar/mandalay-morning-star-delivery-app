@@ -201,7 +201,7 @@ export function ItemDetailModal({
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[var(--z-modal)]">
+        <div className="fixed inset-0 z-modal">
           {/* Backdrop */}
           <motion.div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
