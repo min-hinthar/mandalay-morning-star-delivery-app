@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-21)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 5 planning (Menu Browsing)
+**Current focus:** Phase 5 execution (Menu Browsing)
 
 ## Current Position
 
-Phase: 4 of 7 (Cart Experience) — VERIFIED
-Plan: 5 of 5 complete (including 04-05 gap closure)
-Status: Phase verified (9/9 must-haves)
-Last activity: 2026-01-22 — Completed 04-05-PLAN.md (V8 Cart Integration Gap Closure)
+Phase: 5 of 7 (Menu Browsing) — EXECUTING
+Plan: 4 of 5 complete
+Status: Wave 1 in progress
+Last activity: 2026-01-23 — Completed 05-04-PLAN.md (Search Input V8)
 
-Progress: [███████░░░░░] 61% (19/31 plans estimated)
+Progress: [████████░░░░] 74% (23/31 plans estimated)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 23
 - Average duration: 6 min
-- Total execution time: 1.8 hours
+- Total execution time: 2.1 hours
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: [███████░░░░░] 61% (19/31 plans estimated)
 | 02-overlay-infrastructure | 4 | 14 min | 4 min |
 | 03-navigation-layout | 5 | 23 min | 5 min |
 | 04-cart-experience | 5 | 37 min | 7 min |
+| 05-menu-browsing | 4/5 | ~24 min | ~6 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-01 (6 min), 04-02 (8 min), 04-03 (8 min), 04-04 (8 min), 04-05 (7 min)
+- Last 5 plans: 04-05 (7 min), 05-01 (6 min), 05-02 (6 min), 05-03 (6 min), 05-04 (6 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -85,6 +86,9 @@ Recent decisions affecting current work:
 - Badge pulse triggered from store after fly animation completes
 - V8 integration pattern: replace V7 import, component just works (same hooks)
 - Clear button visibility via showClear prop based on isEmpty state
+- Search autocomplete uses onMouseDown to prevent blur-before-click issue
+- 300ms debounce for search API calls balances responsiveness with efficiency
+- Mobile search expands from icon to full input for space efficiency
 
 ### Pending Todos
 
@@ -97,8 +101,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-22
-Stopped at: Completed 04-05-PLAN.md (V8 Cart Integration Gap Closure)
+Last session: 2026-01-23
+Stopped at: Completed 05-04-PLAN.md (Search Input V8)
 Resume file: None
 
 ## Phases Complete
