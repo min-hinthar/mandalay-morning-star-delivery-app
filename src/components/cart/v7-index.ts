@@ -1,21 +1,9 @@
 /**
- * Cart Components - Barrel Export
+ * Cart Components - Barrel Export (Legacy V7)
  *
- * Sprint 6: Cart & Checkout
- * Features: Flying item animation, confetti, swipe delete, quantity flip
+ * NOTE: This file will be deleted in Phase 13.
+ * Active cart components are in @/components/ui-v8/cart/
  */
 
-export { AddToCart, MiniAddToCart, CartBadge } from "./AddToCart";
-export { AddToCart as AddToCartV7, MiniAddToCart as MiniAddToCartV7, CartBadge as CartBadgeV7 } from "./AddToCart";
-export type { AddToCartProps, MiniAddToCartProps } from "./AddToCart";
-export type { AddToCartProps as AddToCartV7Props, MiniAddToCartProps as MiniAddToCartV7Props } from "./AddToCart";
-
-export { CartDrawer, CartPreviewBar } from "./CartDrawer";
-export { CartDrawer as CartDrawerV7 } from "./CartDrawer";
-export type { CartDrawerProps } from "./CartDrawer";
-export type { CartDrawerProps as CartDrawerV7Props } from "./CartDrawer";
-
-export { CartItem, CartItemCompact } from "./CartItem";
-export { CartItem as CartItemV7, CartItemCompact as CartItemCompactV7 } from "./CartItem";
-export type { CartItemProps, CartItemCompactProps } from "./CartItem";
-export type { CartItemProps as CartItemV7Props, CartItemCompactProps as CartItemCompactV7Props } from "./CartItem";
+// Legacy exports removed - files deleted in Phase 12-03
+// Active V8 components: @/components/ui-v8/cart/
