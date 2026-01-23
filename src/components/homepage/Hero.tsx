@@ -209,6 +209,7 @@ export function Hero({
         <canvas
           ref={canvasRef}
           className="absolute inset-0 pointer-events-none"
+          // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate), not global z-index
           style={{ width: "100%", height: "100%", zIndex: 1 }}
         />
       )}
@@ -216,6 +217,7 @@ export function Hero({
         <canvas
           ref={grainRef}
           className="absolute inset-0 pointer-events-none mix-blend-overlay"
+          // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate), not global z-index
           style={{ width: "100%", height: "100%", zIndex: 2 }}
         />
       )}
@@ -265,10 +267,12 @@ export function Hero({
       </ParallaxContainer>
 
       {/* Main Content - relative positioning for internal stacking, no global z-index */}
+      {/* eslint-disable no-restricted-syntax -- Local stacking context (isolate), not global z-index */}
       <motion.div
         className="relative flex flex-col items-center justify-center min-h-[100svh] px-4 py-24"
         style={shouldAnimate ? { y: smoothContentY, opacity: smoothOpacity, zIndex: 3 } : { zIndex: 3 }}
       >
+      {/* eslint-enable no-restricted-syntax */}
         <div className="max-w-4xl mx-auto text-center">
           {/* Brand Mascot */}
           {showMascot && isMounted && (
@@ -445,6 +449,7 @@ export function Hero({
       </motion.div>
 
       {/* Bottom gradient fade */}
+      {/* eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate), not global z-index */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-surface-primary to-transparent pointer-events-none" style={{ zIndex: 4 }} />
     </section>
   );
