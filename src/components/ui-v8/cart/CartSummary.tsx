@@ -12,7 +12,7 @@
  */
 
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Truck, Sparkles, PartyPopper } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -77,45 +77,111 @@ export function CartSummary({ className }: CartSummaryProps) {
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={getSpring(spring.gentle)}
           className={cn(
-            "p-3 rounded-lg",
-            "bg-amber-50 dark:bg-amber-950/30",
-            "border border-amber-200/50 dark:border-amber-800/30"
+            "p-4 rounded-xl",
+            "bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/30",
+            "border border-amber-200/60 dark:border-amber-800/40",
+            "shadow-sm"
           )}
         >
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-3">
             <motion.div
               animate={
                 shouldAnimate
                   ? {
-                      rotate: [0, 15, -15, 0],
-                      scale: [1, 1.1, 1.1, 1],
+                      rotate: [0, 5, -5, 0],
+                      y: [0, -2, 0],
                     }
                   : undefined
               }
               transition={{
-                duration: 0.6,
+                duration: 0.5,
                 repeat: Infinity,
-                repeatDelay: 2,
+                repeatDelay: 1.5,
               }}
             >
               <Sparkles className="w-4 h-4 text-amber-500" />
             </motion.div>
-            <span className="text-sm font-medium text-text-primary">
+            <span className="text-sm font-semibold text-amber-800 dark:text-amber-300">
               ${(amountToFreeDelivery / 100).toFixed(2)} away from free delivery!
             </span>
           </div>
 
-          {/* Progress bar */}
-          <div className="h-2 bg-surface-tertiary rounded-full overflow-hidden">
+          {/* Enhanced progress bar with truck */}
+          <div className="relative">
+            {/* Track background with gradient */}
+            <div className="h-3 bg-gradient-to-r from-amber-100 to-amber-200 dark:from-amber-900/50 dark:to-amber-800/50 rounded-full overflow-visible relative">
+              {/* Dashed road effect */}
+              <div className="absolute inset-y-0 inset-x-2 flex items-center justify-evenly">
+                {[...Array(8)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-2 h-0.5 bg-amber-300/50 dark:bg-amber-700/50 rounded-full"
+                  />
+                ))}
+              </div>
+
+              {/* Filled progress */}
+              <motion.div
+                className={cn(
+                  "h-full rounded-full relative",
+                  "bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500",
+                  "shadow-[0_2px_8px_rgba(245,158,11,0.4)]"
+                )}
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercent}%` }}
+                transition={getSpring(spring.rubbery)}
+              />
+            </div>
+
+            {/* Animated truck on progress */}
             <motion.div
-              className={cn(
-                "h-full rounded-full",
-                "bg-gradient-to-r from-amber-400 to-amber-500"
-              )}
-              initial={{ width: 0 }}
-              animate={{ width: `${progressPercent}%` }}
+              className="absolute top-1/2 -translate-y-1/2"
+              initial={{ left: "0%" }}
+              animate={{ left: `calc(${progressPercent}% - 12px)` }}
               transition={getSpring(spring.rubbery)}
-            />
+            >
+              <motion.div
+                animate={
+                  shouldAnimate
+                    ? {
+                        y: [0, -2, 0],
+                        rotate: [0, -3, 3, 0],
+                      }
+                    : undefined
+                }
+                transition={{
+                  duration: 0.4,
+                  repeat: Infinity,
+                  repeatDelay: 0.1,
+                }}
+                className={cn(
+                  "flex items-center justify-center",
+                  "w-6 h-6 rounded-full",
+                  "bg-white dark:bg-zinc-800",
+                  "border-2 border-amber-500",
+                  "shadow-lg"
+                )}
+              >
+                <Truck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              </motion.div>
+            </motion.div>
+
+            {/* Goal flag at end */}
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2">
+              <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/50 border border-green-300 dark:border-green-700 flex items-center justify-center">
+                <span className="text-xs">🏁</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Progress percentage */}
+          <div className="flex justify-between items-center mt-2 text-xs">
+            <span className="text-amber-600 dark:text-amber-400 font-medium">
+              {Math.round(progressPercent)}% there
+            </span>
+            <span className="text-text-muted">
+              Free at $100
+            </span>
           </div>
         </motion.div>
       )}
@@ -127,31 +193,78 @@ export function CartSummary({ className }: CartSummaryProps) {
           animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
           transition={getSpring(spring.ultraBouncy)}
           className={cn(
-            "p-3 rounded-lg",
-            "bg-green-50 dark:bg-green-950/30",
-            "border border-green-200/50 dark:border-green-800/30"
+            "p-4 rounded-xl relative overflow-hidden",
+            "bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/40 dark:to-emerald-950/30",
+            "border border-green-200/60 dark:border-green-800/40",
+            "shadow-sm"
           )}
         >
-          <div className="flex items-center gap-2">
+          {/* Celebration sparkles background */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {shouldAnimate && [...Array(5)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 rounded-full bg-green-400/60"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{
+                  opacity: [0, 1, 0],
+                  scale: [0, 1, 0],
+                  y: [0, -20],
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  delay: i * 0.3,
+                  repeatDelay: 1,
+                }}
+                style={{
+                  left: `${20 + i * 15}%`,
+                  top: "80%",
+                }}
+              />
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3 relative">
             <motion.div
               animate={
                 shouldAnimate
                   ? {
-                      scale: [1, 1.2, 1],
+                      rotate: [0, -10, 10, 0],
+                      scale: [1, 1.15, 1],
                     }
                   : undefined
               }
               transition={{
-                duration: 0.5,
+                duration: 0.6,
                 repeat: Infinity,
-                repeatDelay: 3,
+                repeatDelay: 2,
               }}
+              className={cn(
+                "flex items-center justify-center",
+                "w-10 h-10 rounded-full",
+                "bg-green-100 dark:bg-green-900/50",
+                "border border-green-300 dark:border-green-700"
+              )}
             >
-              <Sparkles className="w-4 h-4 text-green-500" />
+              <Truck className="w-5 h-5 text-green-600 dark:text-green-400" />
             </motion.div>
-            <span className="text-sm font-medium text-green-700 dark:text-green-400">
-              You qualify for free delivery!
-            </span>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm font-bold text-green-700 dark:text-green-300">
+                  Free Delivery Unlocked!
+                </span>
+                <motion.div
+                  animate={shouldAnimate ? { rotate: [0, 15, -15, 0] } : undefined}
+                  transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+                >
+                  <PartyPopper className="w-4 h-4 text-green-500" />
+                </motion.div>
+              </div>
+              <span className="text-xs text-green-600/80 dark:text-green-400/80">
+                You&apos;ve hit the $100 threshold
+              </span>
+            </div>
           </div>
         </motion.div>
       )}
