@@ -4,6 +4,35 @@ Patterns, conventions, and insights discovered while working on this codebase.
 
 ---
 
+## 2026-01-23: Dead Code Analysis False Positives - Always Verify With Typecheck
+
+**Context:** Phase 12 gap closure deleted 24 files flagged as dead code. Two files (`Confetti.tsx`, `DropdownAction.tsx`) were actually in use.
+
+**Problem:** Dead code analysis tools (knip) can miss imports when:
+- File is imported directly (not via barrel export)
+- Import uses uncommon patterns (dynamic imports, re-exports)
+- Barrel exports obscure actual usage from analysis
+
+**Pattern:**
+```bash
+# 1. Delete files flagged as dead
+rm src/components/ui/Confetti.tsx
+
+# 2. IMMEDIATELY run typecheck
+pnpm typecheck
+
+# 3. If errors found, restore from git
+git checkout HEAD -- src/components/ui/Confetti.tsx
+
+# 4. Update verification report with false positive
+```
+
+**Key insight:** Dead code reports are starting points, not truth. TypeScript is the authority on actual usage.
+
+**Apply when:** Bulk deleting files from dead code reports, Phase 12-style cleanup tasks
+
+---
+
 ## 2026-01-23: v7-index Barrel to Direct Import Migration Pattern
 
 **Context:** Phase 11 migrated 7 files from v7-index barrel imports to direct V8 component imports.
