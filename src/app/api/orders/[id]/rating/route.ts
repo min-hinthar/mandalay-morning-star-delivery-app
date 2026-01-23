@@ -191,7 +191,7 @@ export async function POST(
  * Get the rating for an order (if exists)
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: RouteParams
 ) {
   try {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -55,6 +55,7 @@ export interface FloatingFoodProps {
 // DEFAULT FOOD ITEMS (Burmese dishes)
 // ============================================
 
+/* eslint-disable no-restricted-syntax -- Local stacking context uses small zIndex values (1-4) for relative layering within this component */
 export const defaultFoodItems: FoodItem[] = [
   {
     id: "mohinga",
@@ -123,6 +124,7 @@ export const defaultFoodItems: FoodItem[] = [
     rotationRange: 18,
   },
 ];
+/* eslint-enable no-restricted-syntax */
 
 // ============================================
 // FLOATING FOOD ITEM COMPONENT

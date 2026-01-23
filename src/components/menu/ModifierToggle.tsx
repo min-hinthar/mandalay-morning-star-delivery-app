@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Circle, Square, CheckSquare } from "lucide-react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -31,8 +31,6 @@ export interface ModifierOptionProps {
   option: ModifierOption;
   /** Whether this option is selected */
   isSelected: boolean;
-  /** Selection type (single or multiple) */
-  selectionType: "single" | "multiple";
   /** Callback when toggled */
   onToggle: () => void;
   /** Index for stagger animation */
@@ -46,7 +44,6 @@ export interface ModifierOptionProps {
 function ModifierOptionItem({
   option,
   isSelected,
-  selectionType,
   onToggle,
   index,
 }: ModifierOptionProps) {
@@ -59,14 +56,6 @@ function ModifierOptionItem({
     }
     onToggle();
   }, [onToggle]);
-
-  // Icon based on selection type
-  const _Icon = useMemo(() => {
-    if (selectionType === "single") {
-      return isSelected ? Check : Circle;
-    }
-    return isSelected ? CheckSquare : Square;
-  }, [selectionType, isSelected]);
 
   return (
     <motion.button
@@ -339,7 +328,6 @@ export function ModifierToggle({
             key={option.id}
             option={option}
             isSelected={selectedIds.includes(option.id)}
-            selectionType={group.selectionType}
             onToggle={() => handleToggle(option.id)}
             index={index}
           />

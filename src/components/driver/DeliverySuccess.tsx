@@ -7,7 +7,7 @@
  * Features: Confetti burst, animated checkmark, stats reveal, badge unlock
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Star,

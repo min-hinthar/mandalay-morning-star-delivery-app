@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, ChevronLeft, ChevronRight, Sun, Moon, Sunrise, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";

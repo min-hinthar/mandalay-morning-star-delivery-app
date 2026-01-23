@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, type ReactNode } from "react";
+import { useRef, useEffect, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils/cn";

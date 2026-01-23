@@ -45,7 +45,6 @@ export function CheckoutStepperV8({
           const isCurrent = index === currentIndex;
           const isClickable = isCompleted && onStepClick;
           const config = STEP_CONFIG[step];
-          const _Icon = config.icon;
 
           return (
             <li

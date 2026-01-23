@@ -192,7 +192,7 @@ async function handleCheckoutSessionExpired(
  * Handle failed payment attempt
  */
 async function handlePaymentFailed(
-  supabase: ReturnType<typeof createServiceClient>,
+  _supabase: ReturnType<typeof createServiceClient>,
   paymentIntent: Stripe.PaymentIntent
 ) {
   // Payment intents may not have our order_id directly

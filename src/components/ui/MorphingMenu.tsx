@@ -1,6 +1,6 @@
 "use client";
 
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring, transition } from "@/lib/motion-tokens";

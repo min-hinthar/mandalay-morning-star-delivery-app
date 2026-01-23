@@ -1,6 +1,6 @@
 "use client";
 
-import React, { forwardRef, type ReactNode } from "react";
+import { forwardRef, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import Link, { type LinkProps } from "next/link";
 import { cn } from "@/lib/utils/cn";

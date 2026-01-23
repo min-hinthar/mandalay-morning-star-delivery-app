@@ -20,7 +20,7 @@
  */
 
 import { useRef } from "react";
-import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
+import { gsap, useGSAP } from "@/lib/gsap";
 import { gsapDuration, gsapEase, gsapPresets } from "@/lib/gsap/presets";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
@@ -54,8 +54,8 @@ export function MenuGridV8({
   items,
   categorySlug,
   onSelectItem,
-  onFavoriteToggle,
-  favorites = new Set(),
+  onFavoriteToggle: _onFavoriteToggle,
+  favorites: _favorites = new Set(),
   className,
 }: MenuGridV8Props) {
   const containerRef = useRef<HTMLDivElement>(null);

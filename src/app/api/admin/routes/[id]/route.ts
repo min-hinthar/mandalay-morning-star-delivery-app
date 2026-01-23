@@ -38,7 +38,7 @@ interface RouteParams {
  * Get route details with all stops and order info
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: RouteParams
 ) {
   try {
@@ -354,7 +354,7 @@ export async function PATCH(
  * Delete route (only if planned)
  */
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: RouteParams
 ) {
   try {
