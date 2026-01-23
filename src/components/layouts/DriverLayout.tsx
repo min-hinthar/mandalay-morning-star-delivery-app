@@ -268,9 +268,9 @@ export function DriverLayout({
               {/* Secondary Actions */}
               {secondaryActions.length > 0 && (
                 <div className="flex gap-2">
-                  {secondaryActions.slice(0, 2).map((action, index) => (
+                  {secondaryActions.slice(0, 2).map((action) => (
                     <motion.button
-                      key={index}
+                      key={action.label}
                       onClick={action.onClick}
                       disabled={action.disabled}
                       whileHover={!action.disabled ? { scale: 1.02 } : undefined}
