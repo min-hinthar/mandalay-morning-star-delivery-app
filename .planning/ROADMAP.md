@@ -21,7 +21,7 @@ Phases 1-8 completed customer-facing V8 rewrite. See git history for details.
 - [x] **Phase 9: Analysis & Component Creation** - Establish baseline, create missing components
 - [x] **Phase 10: Token Migration** - Migrate all z-index and color hardcodes to design tokens
 - [x] **Phase 11: V8 Component Migration** - Migrate admin/driver/hero/tracking to V8
-- [ ] **Phase 12: Dead Code & Export Cleanup** - Remove all dead exports
+- [x] **Phase 12: Dead Code & Export Cleanup** - Remove all dead exports
 - [ ] **Phase 13: Legacy Removal & Stricter Rules** - Remove v7 files, enforce rules
 - [ ] **Phase 14: Testing & Documentation** - Complete visual regression coverage, update docs
 
@@ -88,9 +88,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 12-01-PLAN.md — Delete unused utility/infrastructure files (20 files in contexts/, hooks/, stores/, lib/)
-- [ ] 12-02-PLAN.md — Clean UI and checkout barrel exports (remove LegacyModal, DropdownAction, Confetti, Legacy* aliases)
-- [ ] 12-03-PLAN.md — Delete unused component files and verify admin barrel (24 component files)
+- [x] 12-01-PLAN.md — Delete unused utility/infrastructure files (16 files deleted)
+- [x] 12-02-PLAN.md — Clean UI and checkout barrel exports (removed Legacy* aliases)
+- [x] 12-03-PLAN.md — Delete unused component files (6 deleted, 2 restored as actively used)
 
 ### Phase 13: Legacy Removal & Stricter Rules
 **Goal**: Prevent regression with enforced rules and removed legacy files
@@ -133,10 +133,10 @@ Plans:
 | 9. Analysis & Component Creation | v1.1 | 2/2 | Complete | 2026-01-23 |
 | 10. Token Migration | v1.1 | 4/4 | Complete | 2026-01-23 |
 | 11. V8 Component Migration | v1.1 | 4/4 | Complete | 2026-01-23 |
-| 12. Dead Code & Export Cleanup | v1.1 | 0/3 | Planned | - |
+| 12. Dead Code & Export Cleanup | v1.1 | 3/3 | Complete | 2026-01-23 |
 | 13. Legacy Removal & Stricter Rules | v1.1 | 0/2 | Not started | - |
 | 14. Testing & Documentation | v1.1 | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-23 - Phase 12 planned*
+*Last updated: 2026-01-23 - Phase 12 complete*
