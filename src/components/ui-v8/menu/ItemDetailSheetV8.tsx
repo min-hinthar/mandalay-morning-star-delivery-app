@@ -98,7 +98,7 @@ export function ItemDetailSheetV8({
   const [notes, setNotes] = useState("");
 
   // Responsive overlay selection
-  const isMobile = useMediaQuery("(max-width: 640px)");
+  const isMobile = useMediaQuery("(max-width: 639px)");
 
   // Reset state when item changes
   useEffect(() => {
