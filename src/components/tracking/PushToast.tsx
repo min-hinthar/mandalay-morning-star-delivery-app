@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
+import { zIndex } from "@/design-system/tokens/z-index";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
@@ -169,7 +170,7 @@ function ToastItem({ toast, index, onRemove }: ToastItemProps) {
       }
       exit={shouldAnimate ? { opacity: 0, x: 100, scale: 0.9 } : undefined}
       transition={getSpring(spring.snappy)}
-      style={{ zIndex: 100 - index }}
+      style={{ zIndex: zIndex.max - index }}
       className={cn(
         "relative w-80 rounded-xl border shadow-lg overflow-hidden",
         "backdrop-blur-sm",

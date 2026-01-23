@@ -334,7 +334,7 @@ export function WelcomeAnimation({
             initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
             animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
             transition={getSpring(spring.default)}
-            className="relative z-10 flex flex-col items-center text-center px-6"
+            className="relative z-dropdown flex flex-col items-center text-center px-6"
           >
             {/* Mascot */}
             <div className="mb-8">

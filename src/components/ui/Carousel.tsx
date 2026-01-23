@@ -343,7 +343,7 @@ function CarouselArrow({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "absolute top-1/2 -translate-y-1/2 z-10",
+        "absolute top-1/2 -translate-y-1/2 z-dropdown",
         "w-10 h-10 rounded-full",
         "bg-white/90 backdrop-blur-sm",
         "border border-border-default/60",

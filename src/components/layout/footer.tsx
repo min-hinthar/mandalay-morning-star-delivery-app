@@ -214,7 +214,7 @@ function GradientBackground() {
 
   return (
     <>
-      {/* Base gradient */}
+      {/* Dark footer gradient - intentional custom colors for dark theme (not migrated to tokens) */}
       <div
         className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f23]"
       />
@@ -416,11 +416,11 @@ export function Footer({
       <GradientBackground />
 
       {/* Lotus pattern border at top */}
-      <LotusPattern className="relative z-10" />
+      <LotusPattern className="relative z-dropdown" />
 
       {/* Main content */}
       <motion.div
-        className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 pt-12 pb-8"
+        className="relative z-dropdown mx-auto max-w-7xl px-4 sm:px-6 pt-12 pb-8"
         initial={shouldAnimate ? { opacity: 0, y: 40 } : undefined}
         animate={shouldAnimate && isInView ? { opacity: 1, y: 0 } : undefined}
         transition={getSpring(spring.gentle)}

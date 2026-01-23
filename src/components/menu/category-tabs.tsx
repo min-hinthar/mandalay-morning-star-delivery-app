@@ -115,7 +115,7 @@ export function CategoryTabs({
         {/* V6 Left fade indicator */}
         <div
           className={cn(
-            "absolute left-0 top-0 bottom-0 w-12 z-10 pointer-events-none",
+            "absolute left-0 top-0 bottom-0 w-12 z-dropdown pointer-events-none",
             "bg-gradient-to-r from-surface-primary to-transparent",
             "transition-opacity duration-fast",
             showLeftFade ? "opacity-100" : "opacity-0"
@@ -126,7 +126,7 @@ export function CategoryTabs({
         {/* V6 Right fade indicator */}
         <div
           className={cn(
-            "absolute right-0 top-0 bottom-0 w-12 z-10 pointer-events-none",
+            "absolute right-0 top-0 bottom-0 w-12 z-dropdown pointer-events-none",
             "bg-gradient-to-l from-surface-primary to-transparent",
             "transition-opacity duration-fast",
             showRightFade ? "opacity-100" : "opacity-0"
@@ -198,7 +198,7 @@ export function CategoryTabs({
                     }
                   />
                 )}
-                <span className="relative z-10">{tab.name}</span>
+                <span className="relative z-dropdown">{tab.name}</span>
               </motion.button>
             );
           })}

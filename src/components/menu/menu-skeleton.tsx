@@ -4,7 +4,7 @@ import { MenuItemCardSkeleton } from "./menu-item-card";
 export function MenuSkeleton() {
   return (
     <div>
-      <div className="sticky top-0 z-10 border-b border-border bg-background px-4 py-3">
+      <div className="sticky top-0 z-dropdown border-b border-border bg-background px-4 py-3">
         <div className="flex gap-2 overflow-hidden">
           {[...Array(6)].map((_, i) => (
             <Skeleton key={i} className="h-10 w-24 rounded-full flex-shrink-0" />
