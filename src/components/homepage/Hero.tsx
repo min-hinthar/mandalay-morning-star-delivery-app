@@ -201,6 +201,9 @@ export function Hero({
         className
       )}
     >
+      {/* Local stacking context - intentionally using small numbers (1-4)
+          for relative layering within this component. Do NOT migrate to
+          global z-index tokens as these are not global layers. */}
       {/* WebGL Canvas Layers - local stacking only, no global z-index competition */}
       {showParticles && shouldAnimate && (
         <canvas
