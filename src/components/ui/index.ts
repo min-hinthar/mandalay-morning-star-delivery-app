@@ -103,9 +103,6 @@ export {
   AlertDialogCancel,
 } from "./alert-dialog";
 
-// Modal (legacy)
-export { Modal as LegacyModal } from "./Modal";
-
 // OverlayBase (V5)
 export {
   OverlayBase,
@@ -144,9 +141,6 @@ export {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "./dropdown-menu";
-
-// Dropdown Action
-export { DropdownAction } from "./DropdownAction";
 
 // Tooltip
 export {
@@ -253,6 +247,3 @@ export { ThemeToggle } from "./theme-toggle";
 
 // Skip Link (a11y)
 export { SkipLink } from "./SkipLink";
-
-// Confetti
-export { Confetti } from "./Confetti";
