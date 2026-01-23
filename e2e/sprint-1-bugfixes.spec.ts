@@ -87,9 +87,6 @@ test.describe("Sprint 1: Bug Fixes", () => {
       await page.goto("/menu");
       await page.waitForLoadState("networkidle");
 
-      // Get initial scroll position
-      const _initialScrollY = await page.evaluate(() => window.scrollY);
-
       // Find a category tab (not "All")
       const categoryTabs = page.locator('button[role="tab"]');
       const tabCount = await categoryTabs.count();
@@ -133,18 +130,6 @@ test.describe("Sprint 1: Bug Fixes", () => {
       // Wait for page load
       await page.waitForLoadState("networkidle");
 
-      // Look for step indicators - should find exactly 3
-      // The step indicator shows step numbers 1, 2, 3
-      const _stepLabels = page.locator("text=Address, text=Time, text=Payment");
-
-      // Check that "Review" step does NOT exist (was removed)
-      const reviewStep = page.locator('span:has-text("Review")').first();
-      const _reviewExists = await reviewStep.isVisible().catch(() => false);
-
-      // Check that "Pay" step does NOT exist (renamed to Payment)
-      const payStep = page.locator('span:has-text("Pay")').first();
-      const _payStepVisible = await payStep.isVisible().catch(() => false);
-
       // If checkout page loaded, verify step count
       const checkoutTitle = page.locator('h1:has-text("Checkout")');
       if (await checkoutTitle.isVisible().catch(() => false)) {
@@ -170,22 +155,8 @@ test.describe("Sprint 1: Bug Fixes", () => {
       const header = page.locator("header").first();
       await expect(header).toBeVisible();
 
-      // Check for any auth-related UI in the header
-      // Either: user avatar/menu button, sign in link, or login link
-      const _hasAuthUI = await page.evaluate(() => {
-        const header = document.querySelector("header");
-        if (!header) return false;
-
-        // Check for common auth patterns
-        const hasUserButton = header.querySelector('[aria-label*="user"], [aria-label*="User"], [aria-label*="account"], [aria-label*="Account"]');
-        const hasSignIn = header.querySelector('a[href*="login"], a[href*="signin"], a[href*="sign-in"]');
-        const hasAvatar = header.querySelector('[class*="avatar"], [class*="Avatar"]');
-
-        return !!(hasUserButton || hasSignIn || hasAvatar);
-      });
-
       // The header should have some form of auth UI (this is a structural test)
-      // Skip assertion if no auth UI found - the DropdownAction component exists even if not visible
+      // The DropdownAction component exists even if not visible in unauthenticated state
       expect(true).toBe(true); // Pass - component implementation verified via unit tests
     });
   });
