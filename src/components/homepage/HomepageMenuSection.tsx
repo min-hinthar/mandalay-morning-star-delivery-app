@@ -127,7 +127,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
     : filteredCategories.find((cat) => cat.slug === activeSlug)?.items || [];
 
   return (
-    <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-surface-primary via-surface-secondary/30 to-surface-primary" id="menu">
+    <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-surface-primary via-surface-secondary/30 to-surface-primary isolate" id="menu">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
