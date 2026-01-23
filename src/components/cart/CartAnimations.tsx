@@ -22,6 +22,7 @@ import {
 import { Check, Loader2, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { triggerHaptic, useSwipeToDelete } from "@/lib/swipe-gestures";
+import { zIndex } from "@/design-system/tokens/z-index";
 
 // ============================================
 // TYPES
@@ -806,7 +807,7 @@ export function useFlyToCart(options: FlyToCartOptions = {}): FlyToCartReturn {
         y: "-50%",
         scale: 1,
         opacity: 1,
-        zIndex: 9999,
+        zIndex: zIndex.max,
       }}
       animate={{
         left: flyState.end.x,
