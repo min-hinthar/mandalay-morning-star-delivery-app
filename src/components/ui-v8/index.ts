@@ -43,3 +43,9 @@ export {
 export { Toast, ToastContainer } from "./Toast";
 export { ToastProvider } from "./ToastProvider";
 export type { Toast as ToastType } from "@/lib/hooks/useToastV8";
+
+// Menu components
+export { CategoryTabsV8 } from "./menu/CategoryTabsV8";
+export type { CategoryTabsV8Props, Category } from "./menu/CategoryTabsV8";
+export { MenuSectionV8 } from "./menu/MenuSectionV8";
+export type { MenuSectionV8Props, MenuSectionCategory } from "./menu/MenuSectionV8";
