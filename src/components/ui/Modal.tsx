@@ -33,6 +33,7 @@ import { X } from "lucide-react";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import { useSwipeToClose, triggerHaptic } from "@/lib/swipe-gestures";
 import { cn } from "@/lib/utils/cn";
+import { zIndex as zIndexTokens } from "@/design-system/tokens/z-index";
 
 // ============================================
 // CONTEXT FOR NESTED MODALS
@@ -332,7 +333,7 @@ export function Modal({
   // Don't render on server
   if (typeof window === "undefined") return null;
 
-  const zIndex = 50 + stackLevel * 10;
+  const modalZIndex = zIndexTokens.modal + stackLevel * 10;
   const config = sizeConfig[size];
 
   const variants = prefersReducedMotion
@@ -358,7 +359,7 @@ export function Modal({
               exit="exit"
               transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
               style={{
-                zIndex,
+                zIndex: modalZIndex,
                 opacity: computedBackdropOpacity,
               }}
               onClick={handleBackdropClick}
@@ -377,7 +378,7 @@ export function Modal({
                 "fixed inset-0 flex overflow-hidden",
                 isMobile ? "items-end" : "items-center justify-center p-4"
               )}
-              style={{ zIndex: zIndex + 1 }}
+              style={{ zIndex: modalZIndex + 1 }}
               onClick={handleBackdropClick}
             >
               {/* Modal Content */}
@@ -446,7 +447,7 @@ export function Modal({
                     type="button"
                     onClick={onClose}
                     className={cn(
-                      "absolute z-10",
+                      "absolute z-dropdown",
                       isMobile ? "top-4 right-4" : "top-3 right-3",
                       "flex h-10 w-10 items-center justify-center rounded-full",
                       "bg-[var(--color-surface-secondary,#f8f7f6)] dark:bg-[var(--color-surface-secondary-dark,#2a2827)]",

@@ -298,11 +298,11 @@ export function TabSwitcher({
   return (
     <div className={cn("w-full", className)}>
       {/* Tab List */}
-      <div className={cn("relative", sticky && "sticky top-0 z-10 bg-inherit")}>
+      <div className={cn("relative", sticky && "sticky top-0 z-dropdownbg-inherit")}>
         {/* Left fade indicator */}
         <div
           className={cn(
-            "absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none",
+            "absolute left-0 top-0 bottom-0 w-8 z-dropdownpointer-events-none",
             "bg-gradient-to-r from-[var(--color-surface,#fff)] to-transparent",
             "dark:from-[var(--color-surface-primary-dark,#1a1918)]",
             "transition-opacity duration-150",
@@ -314,7 +314,7 @@ export function TabSwitcher({
         {/* Right fade indicator */}
         <div
           className={cn(
-            "absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none",
+            "absolute right-0 top-0 bottom-0 w-8 z-dropdownpointer-events-none",
             "bg-gradient-to-l from-[var(--color-surface,#fff)] to-transparent",
             "dark:from-[var(--color-surface-primary-dark,#1a1918)]",
             "transition-opacity duration-150",
@@ -403,7 +403,7 @@ export function TabSwitcher({
                 )}
 
                 {/* Tab content */}
-                <span className={cn("relative z-10 flex items-center", config.gap)}>
+                <span className={cn("relative z-dropdownflex items-center", config.gap)}>
                   {tab.icon && (
                     <span className={cn(config.icon, "flex-shrink-0")}>
                       {tab.icon}
@@ -674,7 +674,7 @@ export function TabList({
       {/* Left fade */}
       <div
         className={cn(
-          "absolute left-0 top-0 bottom-0 w-6 z-10 pointer-events-none",
+          "absolute left-0 top-0 bottom-0 w-6 z-dropdownpointer-events-none",
           "bg-gradient-to-r from-[var(--color-surface,#fff)] to-transparent",
           "dark:from-[var(--color-surface-primary-dark,#1a1918)]",
           "transition-opacity duration-150",
@@ -686,7 +686,7 @@ export function TabList({
       {/* Right fade */}
       <div
         className={cn(
-          "absolute right-0 top-0 bottom-0 w-6 z-10 pointer-events-none",
+          "absolute right-0 top-0 bottom-0 w-6 z-dropdownpointer-events-none",
           "bg-gradient-to-l from-[var(--color-surface,#fff)] to-transparent",
           "dark:from-[var(--color-surface-primary-dark,#1a1918)]",
           "transition-opacity duration-150",
@@ -760,7 +760,7 @@ export function TabList({
                 />
               )}
 
-              <span className={cn("relative z-10 flex items-center", config.gap)}>
+              <span className={cn("relative z-dropdownflex items-center", config.gap)}>
                 {tab.icon && <span className={cn(config.icon, "flex-shrink-0")}>{tab.icon}</span>}
                 {tab.label}
               </span>
