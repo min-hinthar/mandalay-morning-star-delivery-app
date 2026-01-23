@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect, type ReactElement } from "react";
 import { usePathname } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
-import { Header, HeaderSpacer } from "./v7-index";
+import { Header, HeaderSpacer } from "./header";
 import { MobileNav } from "./MobileNav";
 import { UserMenu } from "@/components/auth/user-menu";
 import { ThemeToggle } from "@/components/ui/theme-toggle";

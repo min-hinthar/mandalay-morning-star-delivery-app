@@ -9,7 +9,7 @@ import { useFavorites } from "@/lib/hooks/useFavorites";
 import type { MenuCategory, MenuItem } from "@/types/menu";
 import type { SelectedModifier } from "@/lib/utils/price";
 import { MenuAccordion } from "./MenuAccordion";
-import { MenuItemCard } from "./v7-index";
+import { MenuItemCard } from "./MenuItemCard";
 import { ItemDetailModal } from "./item-detail-modal";
 import { MenuHeader } from "./menu-header";
 import { SearchResultsGrid } from "./search-results-grid";
