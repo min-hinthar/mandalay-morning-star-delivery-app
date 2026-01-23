@@ -97,7 +97,7 @@ const burstVariants = {
     opacity: [0.8, 0.4, 0],
     transition: {
       duration: 0.4,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
@@ -118,7 +118,7 @@ const getParticleVariants = (index: number) => ({
     opacity: [1, 0.8, 0],
     transition: {
       duration: 0.4,
-      ease: "easeOut",
+      ease: "easeOut" as const,
       delay: 0.05,
     },
   },
