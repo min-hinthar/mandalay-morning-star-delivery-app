@@ -209,3 +209,33 @@ export function canEditOrder(scheduledDate: string): boolean {
   const saturday = parseDateString(scheduledDate);
   return !isPastCutoff(saturday);
 }
+
+/**
+ * Get array of available delivery dates (next 3 Saturdays).
+ * Used by TimeStepV8 component for date selection.
+ */
+export function getAvailableDeliveryDates(
+  now: Date = new Date(),
+  count: number = 3
+): DeliveryDate[] {
+  const dates: DeliveryDate[] = [];
+  let saturday = getNextSaturday(now);
+
+  for (let i = 0; i < count; i++) {
+    const pastCutoff = isPastCutoff(saturday, now);
+    const isNextWeek = i > 0 || pastCutoff;
+
+    dates.push({
+      date: saturday,
+      dateString: formatDateString(saturday),
+      displayDate: formatDisplayDate(saturday),
+      isNextWeek,
+      cutoffPassed: pastCutoff,
+    });
+
+    // Move to next Saturday
+    saturday = addZonedDays(saturday, 7);
+  }
+
+  return dates;
+}

@@ -13,6 +13,7 @@ export { AddressCardV8 } from "./AddressCardV8";
 export { AddressStepV8 } from "./AddressStepV8";
 export { CheckoutSummaryV8 } from "./CheckoutSummaryV8";
 export { PaymentStepV8 } from "./PaymentStepV8";
+export { TimeStepV8 } from "./TimeStepV8";
 
 // Re-export V8 as default names for easy migration
 export { CheckoutStepperV8 as CheckoutStepper } from "./CheckoutStepperV8";
@@ -21,10 +22,11 @@ export { AddressCardV8 as AddressCard } from "./AddressCardV8";
 export { AddressStepV8 as AddressStep } from "./AddressStepV8";
 export { CheckoutSummaryV8 as CheckoutSummary } from "./CheckoutSummaryV8";
 export { PaymentStepV8 as PaymentStep } from "./PaymentStepV8";
+export { TimeStepV8 as TimeStep } from "./TimeStepV8";
 
 // Legacy step components
 export { AddressStep as AddressStepLegacy } from "./AddressStep";
-export { TimeStep } from "./TimeStep";
+export { TimeStep as TimeStepLegacy } from "./TimeStep";
 
 // Legacy exports (kept for backwards compatibility)
 export { PaymentStep as PaymentStepLegacy } from "./PaymentStep";
