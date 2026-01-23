@@ -2033,6 +2033,42 @@ zIndex: {
 
 ---
 
+## 2026-01-23: Phase Verification vs Integration Verification Gap
+
+**Context:** Milestone audit found Phase 5 (Menu Browsing) passed verification (5/5 truths) but had 0% integration
+
+**Problem:** Phase-level gsd-verifier confirms:
+- Components EXIST (files present with expected line counts)
+- Components are SUBSTANTIVE (real implementations, not stubs)
+- Components are WIRED TOGETHER (internal imports between V8 components correct)
+
+But verifier does NOT check:
+- Whether V8 components are imported into the LIVE APP
+- Whether old/legacy components are still being used instead
+
+**Symptoms:**
+- Phase 5 MenuContentV8 created (240 lines, fully implemented)
+- Menu page still imports `MenuContent` from legacy path
+- 9 MENU-* requirements marked "Complete" but users see no V8 features
+
+**Root cause:** Plan execution creates new components but doesn't always modify app entry points to USE them. Verification checks what was built, not what's deployed.
+
+**Solution:** Integration checker (`gsd-integration-checker`) must run during milestone audit to verify:
+1. V8 components actually imported in app pages/layouts
+2. Legacy components no longer used for covered features
+3. E2E user flows connect through V8 components
+
+**Detection pattern:**
+```bash
+# Check if V8 component is used anywhere in app
+grep -r "MenuContentV8" src/app --include="*.tsx"
+# Empty result = orphaned component
+```
+
+**Apply when:** Running milestone audits, verifying phase completion, debugging "features built but not visible" issues
+
+---
+
 ## 2026-01-22: ESLint Rule Severity Strategy for Legacy Codebases
 
 **Context:** Phase 1 z-index enforcement rules blocked build due to 64 violations in legacy code
