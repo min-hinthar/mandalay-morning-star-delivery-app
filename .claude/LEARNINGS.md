@@ -1958,6 +1958,81 @@ export { SearchAutocomplete } from "./SearchAutocomplete";
 
 ---
 
+## 2026-01-23: E2E DOM Removal Verification Pattern for AnimatePresence
+
+**Context:** Phase 7 E2E tests for overlay click-blocking verification
+
+**Problem:** Using `expect(element).not.toBeVisible()` doesn't verify that AnimatePresence actually removed the element from DOM. The overlay might be invisible but still blocking clicks.
+
+**Solution:** Use `.count()` to verify complete DOM removal:
+```typescript
+// ❌ Weak - element could be invisible but still in DOM blocking clicks
+await expect(page.locator('[data-testid="overlay-backdrop"]')).not.toBeVisible();
+
+// ✅ Strong - confirms element completely removed from DOM
+const backdropCount = await page.locator('[data-testid="overlay-backdrop"]').count();
+expect(backdropCount).toBe(0);
+```
+
+**AnimatePresence exit animation wait pattern:**
+```typescript
+await page.keyboard.press("Escape");
+await page.waitForTimeout(400);  // Wait for exit animation
+const count = await page.locator('[data-testid="cart-drawer"]').count();
+expect(count).toBe(0);
+```
+
+**Why this matters:** V7 had a bug where closed overlays still blocked background clicks because the element remained in DOM. Using `.count() === 0` catches this bug.
+
+**Apply when:** Testing modal/drawer/sheet close behavior, verifying overlays don't block after dismissal
+
+---
+
+## 2026-01-23: Named Z-Index Utilities Over Arbitrary CSS Variable Values
+
+**Context:** TailwindCSS 4 CSS parsing error during Phase 7 execution
+
+**Problem:** Using `z-[var(--zindex-modal)]` arbitrary value syntax across 42 components caused TailwindCSS 4 to generate a wildcard fallback pattern `.z-\[var\(--z-*\)\]` which is invalid CSS.
+
+**Solution:** Use named TailwindCSS utilities instead of arbitrary values:
+```tsx
+// ❌ Wrong - causes CSS parsing error in TailwindCSS 4
+className="z-[var(--zindex-modal)]"
+className="z-[var(--zindex-modal-backdrop)]"
+className="z-[var(--zindex-fixed)]"
+
+// ✅ Correct - named utilities work reliably
+className="z-modal"
+className="z-modal-backdrop"
+className="z-fixed"
+```
+
+**Setup in tailwind.config.ts:**
+```ts
+zIndex: {
+  base: "0",
+  dropdown: "10",
+  sticky: "20",
+  fixed: "30",
+  "modal-backdrop": "40",
+  modal: "50",
+  popover: "60",
+  tooltip: "70",
+  toast: "80",
+  max: "100",
+},
+```
+
+**Benefits:**
+- No CSS parsing errors from wildcard patterns
+- Shorter class names
+- Easier to read and maintain
+- IDE autocomplete support
+
+**Apply when:** Defining z-index layer system, creating new overlay components, migrating from CSS variable arbitrary values
+
+---
+
 ## 2026-01-22: ESLint Rule Severity Strategy for Legacy Codebases
 
 **Context:** Phase 1 z-index enforcement rules blocked build due to 64 violations in legacy code
