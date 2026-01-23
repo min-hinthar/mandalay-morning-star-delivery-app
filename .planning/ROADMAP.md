@@ -49,13 +49,13 @@ Plans:
   1. All 30 files use z-index tokens (no hardcoded z-index values remain)
   2. Footer, header, FlipCard, and analytics chart gradients use color tokens
   3. ESLint z-index rule at warn severity passes with zero warnings
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 10-01: Homepage z-index token migration (6 files)
-- [ ] 10-02: Menu z-index token migration (9 files)
-- [ ] 10-03: Tracking and UI z-index token migration (9 files)
-- [ ] 10-04: Remaining z-index and color token migration (6 + 4 files)
+- [ ] 10-01-PLAN.md — Homepage z-index token migration (7 files)
+- [ ] 10-02-PLAN.md — Menu z-index token migration (10 files)
+- [ ] 10-03-PLAN.md — Tracking and UI z-index token migration (9 files)
+- [ ] 10-04-PLAN.md — Remaining z-index and color token migration (10 files)
 
 ### Phase 11: V8 Component Migration
 **Goal**: Admin, driver, hero, and tracking use V8 component patterns
@@ -131,7 +131,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1-8 | v1.0 | 32/32 | Complete | 2026-01-23 |
 | 9. Analysis & Component Creation | v1.1 | 2/2 | Complete | 2026-01-23 |
-| 10. Token Migration | v1.1 | 0/4 | Not started | - |
+| 10. Token Migration | v1.1 | 0/4 | Planned | - |
 | 11. V8 Component Migration | v1.1 | 0/4 | Not started | - |
 | 12. Dead Code & Export Cleanup | v1.1 | 0/3 | Not started | - |
 | 13. Legacy Removal & Stricter Rules | v1.1 | 0/2 | Not started | - |
@@ -139,4 +139,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-23 - Phase 9 complete*
+*Last updated: 2026-01-23 - Phase 10 planned*
