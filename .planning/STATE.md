@@ -2,306 +2,76 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-21)
+See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** MILESTONE COMPLETE — All 7 phases executed
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 8 of 8 (V8 Integration Gap Closure)
-Plan: 1 of 1 complete (08-01)
-Status: Phase 8 COMPLETE
-Last activity: 2026-01-23 — Completed 08-01-PLAN.md (Wire V8 Menu & FlyToCart)
+Phase: Milestone v1 COMPLETE
+Plan: N/A (between milestones)
+Status: Ready for next milestone
+Last activity: 2026-01-23 — Completed v1 milestone, archived planning docs
 
-Progress: [█████████████] 100% (33/33 plans complete)
+Progress: v1 SHIPPED
 
-## Performance Metrics
+## v1 Milestone Summary
 
-**Velocity:**
-- Total plans completed: 33
-- Average duration: 6 min
-- Total execution time: 3.75 hours
+**Shipped:** 2026-01-23
+**Phases:** 8 phases, 32 plans
+**Requirements:** 55/55 satisfied (100%)
+**Execution time:** 2 days (2026-01-22 → 2026-01-23)
 
-**By Phase:**
+**Key accomplishments:**
+- Z-index token system with ESLint enforcement
+- Portal-based overlays (Modal, BottomSheet, Drawer, Dropdown, Tooltip, Toast)
+- App shell with sticky header, bottom nav, GSAP scroll choreography
+- Cart with fly-to-cart celebration, swipe-to-delete, animated quantities
+- Menu with scrollspy tabs, animated cards, search autocomplete
+- Checkout with multi-step stepper, form micro-interactions, confetti
+- E2E tests for clickability and overlay behavior
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 01-foundation-token-system | 5 | 34 min | 7 min |
-| 02-overlay-infrastructure | 4 | 14 min | 4 min |
-| 03-navigation-layout | 5 | 23 min | 5 min |
-| 04-cart-experience | 5 | 37 min | 7 min |
-| 05-menu-browsing | 5 | 38 min | 8 min |
-| 06-checkout-flow | 5 | 23 min | 5 min |
-| 07-quality-testing | 2 | 5 min | 3 min |
-| 08-v8-integration-gap-closure | 1 | 45 min | 45 min |
+**Tech debt accepted:**
+- 64 legacy z-index violations (tracked in migration doc)
+- TimeStepV8 missing (legacy functional)
+- Visual regression baselines need generation
 
-**Recent Trend:**
-- Last 5 plans: 08-01 (45 min), 07-02 (2 min), 07-01 (3 min), 06-05 (6 min), 06-02 (5 min)
-- Trend: Extended (integration + additional z-index fixes)
+**Archives:**
+- `.planning/milestones/v1-ROADMAP.md`
+- `.planning/milestones/v1-REQUIREMENTS.md`
+- `.planning/milestones/v1-MILESTONE-AUDIT.md`
 
-*Updated after each plan completion*
+## Session Continuity
+
+Last session: 2026-01-23
+Stopped at: v1 milestone archived
+Resume file: None
+Next: `/gsd:new-milestone` to start v1.1 or v2.0
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
+Key decisions from v1 (details in PROJECT.md):
 
-- Full frontend rewrite (not incremental fixes) — V7 has systemic layering issues
-- Fresh components in parallel development — Build new system without breaking existing
-- Customer flows only for V1 — Admin/Driver work; focus on broken customer experience
-- Animation everywhere — User wants "over-the-top animated" experience
-- Import GSAP from @/lib/gsap, never directly from gsap — Ensures plugins registered
-- Use --z-index-* naming for TailwindCSS 4 utility generation — Strips prefix to create z-* utilities
-- Triple export pattern for design tokens — zIndex (numbers), zIndexVar (CSS vars), zClass (class names)
-- ESLint z-index rules at warn severity — Legacy code awareness without blocking build
-- Use built-in Stylelint rules — Plugin incompatible with Stylelint 17
-- Phased z-index migration — Violations tracked, fixed during component rebuilds in Phases 2-5
-- overlayMotion uses spring for open, duration for close — Natural entrance, snappy exit
-- Color tokens include CSS variable fallbacks — Graceful degradation for theming
-- Backdrop uses AnimatePresence — Fully removes from DOM when closed (click-blocking fix)
-- Focus trap uses querySelectorAll for focusable elements, Tab key interception
-- Dropdown uses mousedown for outside click detection (catches before propagation)
-- No stopPropagation on dropdown content — Events bubble for form compatibility (V7 fix)
-- Tooltip uses z-tooltip (70) and pointer-events-none — Non-blocking info display
-- Toast uses z-toast (80) — Highest z-index for notifications above modals
-- AppShell uses flex column layout with fixed header (72px) and bottom nav (64px mobile)
-- PageContainer uses polymorphic pattern for semantic HTML elements
-- useGSAP scope pattern for all scroll components ensures automatic cleanup
-- PageTransitionV8 uses pathname as AnimatePresence key for route detection
-- BottomNav uses layoutId="bottomNavIndicator" for smooth active state transitions
-- MobileMenu uses double-close strategy (useRouteChangeClose + onClick) for reliability
-- Header uses useScrollDirection with threshold 50 for collapse detection
-- AppShell composes Header, BottomNav, MobileMenu with state lifted to parent
-- navItems prop with defaults allows customization while providing sensible defaults
-- Cart animation store uses simple RefObject<HTMLSpanElement> for badge targeting
-- Hydration handled via mounted state to avoid localStorage mismatch
-- V8 colors use amber-500 for primary accent (cart badge, hover states)
-- Fixed vitest/globals TypeScript by removing from types array, adding triple-slash reference
-- QuantitySelector min defaults to 1, but CartItemV8 passes min=0 for decrement-to-remove
-- Swipe threshold at -100px offset OR -500 velocity for responsive delete action
-- CartDrawerV8 uses responsive overlay pattern: BottomSheet (<640px), Drawer (desktop)
-- Free delivery progress uses spring.rubbery for satisfying fill animation
-- GSAP keyframes over motionPath plugin (not registered in project)
-- Flying element created imperatively via document.createElement for lifecycle control
-- Badge pulse triggered from store after fly animation completes
-- V8 integration pattern: replace V7 import, component just works (same hooks)
-- Clear button visibility via showClear prop based on isEmpty state
-- Search autocomplete uses onMouseDown to prevent blur-before-click issue
-- 300ms debounce for search API calls balances responsiveness with efficiency
-- Mobile search expands from icon to full input for space efficiency
-- ItemDetailSheetV8 uses 639px breakpoint for exact 640px desktop threshold (BottomSheet < 640px, Modal >= 640px)
-- CATEGORY_EMOJI_MAP covers 40+ Myanmar cuisine categories for placeholder images
-- FavoriteButton uses spring.ultraBouncy with burst ring + particles for celebration
-- MenuItemCardV8 uses whileHover y:-6 scale:1.02 matching hover.lift pattern
-- MenuGridV8 uses GSAP ScrollTrigger with toggleActions "play none none none" for play-once animation
-- Skeleton structure matches exact real component layout for smooth loading transition
-- MenuContentV8 handles loading/error/empty states internally
-- CheckoutStepperV8 pulsing ring uses infinite keyframe with scale [1, 1.4, 1] for current step
-- Step direction tracked via useRef to calculate animation direction for AnimatePresence
-- V8 checkout barrel exports both V8 name and default name for migration flexibility
-- OrderConfirmationV8 triggers confetti via useConfetti hook on mount for celebration
-- Stagger delay 0.1s with 0.4s initial delay allows checkmark animation to complete before content appears
-- Controller over register for ValidatedInput — custom onChange signature requires react-hook-form Controller pattern
-- AnimatedFormField uses onFocusCapture/onBlurCapture to detect focus on any child input
-- AddressCardV8 uses hover scale 1.02, y -2 matching hover.lift pattern
-- AddressStepV8 uses 639px breakpoint for responsive overlay (Modal desktop, BottomSheet mobile)
-- v8- prefix for all V8 visual regression snapshot filenames for easy identification
-- maxDiffPixels: 100 for full components, 30-50 for small components in visual tests
-- 500ms wait for animations/fonts to settle before visual snapshot capture
-- TEST-05 tag in describe blocks for visual regression traceability
-- Use .count() for DOM removal verification, not just visibility checks
-- Wait 400ms for AnimatePresence exit animations in E2E tests
-- Conditional tests with isVisible() for optional elements
-- CSS isolate property creates z-index stacking context boundaries in homepage sections
-- Enhanced free delivery animation with animated truck icon using GSAP keyframes
+| Decision | Outcome |
+|----------|---------|
+| Full frontend rewrite | ✓ Good — clean codebase |
+| Fresh components in parallel | ✓ Good — swapped seamlessly |
+| Customer flows only | ✓ Good — focused scope |
+| Animation everywhere | ✓ Good — distinctive feel |
+| ESLint at warn severity | ✓ Good — phased migration |
+| Backdrop AnimatePresence | ✓ Good — click-blocking fixed |
 
 ### Pending Todos
 
-None yet.
+None — milestone complete.
 
 ### Blockers/Concerns
 
-- Build environment has Google Fonts API blocked (403) - infrastructure issue, not code related
-- Typecheck passes confirming code correctness
+None — milestone shipped successfully.
 
-## Session Continuity
+---
 
-Last session: 2026-01-23
-Stopped at: Phase 8 COMPLETE — V8 integration gap closure finished
-Resume file: None
-Next: All phases complete - V8 rewrite milestone achieved
-
-## Phases Complete
-
-### Phase 1 (Foundation & Token System) COMPLETE
-
-5 plans completed establishing z-index tokens, GSAP setup, lint enforcement.
-
-### Phase 2 (Overlay Infrastructure) COMPLETE
-
-Phase 2 (Overlay Infrastructure) COMPLETE with all 4 plans:
-
-1. **02-01:** Overlay Primitives - Motion tokens, color tokens, Portal, Backdrop, hooks
-2. **02-02:** Modal and BottomSheet - Responsive modal, swipe-to-dismiss bottom sheet
-3. **02-03:** Drawer and Dropdown - Focus-trap drawer, event-safe dropdown
-4. **02-04:** Tooltip and Toast - Hover tooltip, notification toast system
-
-**Delivered Components:**
-- Portal, Backdrop (primitives)
-- Modal, BottomSheet, Drawer, Dropdown, Tooltip, Toast (overlay components)
-- ToastProvider (app wrapper)
-- useRouteChangeClose, useBodyScrollLock, useSwipeToClose, useToastV8 (hooks)
-
-**Verification:** 7/7 success criteria passed
-**Build status:** All passing (`pnpm lint && pnpm lint:css && pnpm typecheck && pnpm build`)
-
-### Phase 3 (Navigation & Layout) COMPLETE
-
-Phase 3 (Navigation & Layout) COMPLETE with all 5 plans:
-
-1. **03-01:** App Shell Layout - AppShell wrapper, PageContainer spacing component
-2. **03-02:** Header - Responsive header with scroll-aware effects
-3. **03-03:** Mobile Navigation - BottomNav and MobileMenu components
-4. **03-04:** Scroll Effects & Page Transitions - GSAP scroll choreography, page transitions
-5. **03-05:** Layout Integration - Wired Header, BottomNav, MobileMenu into AppShell
-
-**Delivered Components:**
-- AppShell (main layout wrapper with integrated navigation)
-- PageContainer (consistent page spacing with responsive padding)
-- Header (responsive header with scroll effects, hamburger button)
-- BottomNav (mobile bottom navigation with animated indicator)
-- MobileMenu (slide-out menu using Drawer)
-- ScrollChoreographer (orchestrated scroll animations)
-- RevealOnScroll (directional scroll reveals)
-- ParallaxLayer (scroll-linked parallax effects)
-- PageTransitionV8 (enhanced route transitions with morph variant)
-
-**Verification:** All success criteria passed
-**Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
-
-### Phase 4 (Cart Experience) COMPLETE
-
-Phase 4 (Cart Experience) COMPLETE with all 5 plans:
-
-1. **04-01:** Cart Button V8 - Cart button with animated badge, animation store for badge ref
-2. **04-02:** Cart Item V8 - Cart item with swipe-to-delete, animated quantity selector
-3. **04-03:** Cart Drawer V8 - Responsive cart drawer, CartSummary, CartEmptyState
-4. **04-04:** Celebration Animations - FlyToCart, AddToCartButton, ClearCartConfirmation
-5. **04-05:** V8 Cart Integration - Gap closure integrating V8 components into live app
-
-**Delivered Components:**
-- CartButtonV8 (cart button with animated badge)
-- useCartAnimationStore (Zustand store for badge ref + fly animation coordination)
-- CartItemV8 (cart item with swipe-to-delete gesture)
-- QuantitySelector (animated quantity controls with haptic feedback)
-- CartDrawerV8 (responsive cart drawer using BottomSheet/Drawer)
-- CartSummary (order summary with animated free delivery progress)
-- CartEmptyState (friendly empty cart state with animation)
-- FlyToCart + useFlyToCart (GSAP arc animation to badge)
-- AddToCartButton (celebration trigger with success states)
-- ClearCartConfirmation + useClearCartConfirmation (destructive action modal)
-
-**Integration (04-05):**
-- CartDrawerV8 replaces V7 CartDrawer in providers.tsx
-- CartButtonV8 integrated in HeaderClient.tsx
-- ClearCartConfirmation wired to trash button in cart drawer
-
-**Verification:** All success criteria passed
-**Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
-
-### Phase 5 (Menu Browsing) COMPLETE
-
-Phase 5 (Menu Browsing) COMPLETE with all 5 plans:
-
-1. **05-01:** Category Tabs V8 - Scrollspy tabs with animated indicator
-2. **05-02:** Menu Item Cards V8 - Item cards with blur image, favorites, emoji placeholders
-3. **05-03:** Item Detail Sheet V8 - Responsive modal/sheet with modifiers and add to cart
-4. **05-04:** Search V8 - Debounced search with autocomplete
-5. **05-05:** Menu Integration - GSAP stagger animation, skeletons, full page composition
-
-**Delivered Components:**
-- CategoryTabsV8 (scrollspy category navigation with animated pill)
-- MenuSectionV8 (category section wrapper for scrollspy targeting)
-- MenuItemCardV8 (animated card with blur image, favorites, tags)
-- BlurImage, EmojiPlaceholder, FavoriteButton (item card primitives)
-- SearchInputV8, SearchAutocomplete (debounced search with results)
-- ItemDetailSheetV8 (responsive item detail overlay)
-- MenuGridV8 (GSAP staggered reveal animation)
-- MenuSkeletonV8, MenuItemCardV8Skeleton (loading states)
-- MenuContentV8 (complete page composition)
-- index.ts barrel exports for all V8 menu components
-
-**Verification:** All success criteria passed
-**Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
-
-### Phase 6 (Checkout Flow) COMPLETE
-
-Phase 6 (Checkout Flow) COMPLETE with all 5 plans:
-
-1. **06-01:** Checkout Stepper V8 - Animated step indicator with pulsing ring
-2. **06-02:** Form Field Micro-interactions - AnimatedFormField focus wrapper, AddressFormV8
-3. **06-03:** Address Step V8 - AddressCardV8 selection, responsive overlays, skeleton loading
-4. **06-04:** Checkout Summary & Payment Step V8 - Animated summary, payment loading states
-5. **06-05:** Order Confirmation V8 - Success animation with confetti celebration
-
-**Delivered Components:**
-- CheckoutStepperV8 (animated step indicator with pulsing current step)
-- AnimatedFormField (focus scale wrapper)
-- AddressFormV8 (form with micro-interactions)
-- AddressCardV8 (selection card with bouncy checkmark)
-- AddressStepV8 (responsive Modal/BottomSheet overlays)
-- CheckoutSummaryV8 (animated free delivery progress)
-- PaymentStepV8 (payment with loading states)
-- OrderConfirmationV8 (confetti celebration on success)
-
-**Verification:** All success criteria passed
-**Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
-
-### Phase 7 (Quality & Testing) COMPLETE
-
-Phase 7 (Quality & Testing) COMPLETE with all 2 plans:
-
-1. **07-01:** V8 Overlay Behavior Tests - E2E tests for clickability and DOM removal
-2. **07-02:** V8 Visual Regression Snapshots - Header, overlays, cart drawer (desktop + mobile)
-
-**Delivered Test Files:**
-- `e2e/v8-overlay-behavior.spec.ts` (263 lines, 12 tests)
-  - TEST-01: Header clickability on /, /menu, /checkout routes
-  - TEST-02: Cart drawer open/close with DOM removal verification
-  - TEST-03: Dropdown visibility and dismissal
-  - TEST-04: Closed overlays don't block background clicks
-- `e2e/visual-regression.spec.ts` (extended with 162 lines, 11 V8-specific snapshots)
-  - TEST-05: Visual regression for header, overlays, cart drawer
-
-**CSS Fix Applied:**
-- Migrated all z-index from arbitrary values `z-[var(--zindex-*)]` to named utilities `z-modal`, `z-fixed`, etc.
-- Fixed TailwindCSS 4 CSS parsing error with wildcard patterns
-
-**Verification:** 5/5 success criteria passed
-**Build status:** Typecheck passing (build blocked by Google Fonts infrastructure issue)
-
-### Phase 8 (V8 Integration Gap Closure) COMPLETE
-
-Phase 8 (V8 Integration Gap Closure) COMPLETE with 1 plan:
-
-1. **08-01:** Wire V8 Menu & FlyToCart - Global mount + menu page integration
-
-**Integration Completed:**
-- FlyToCart mounted globally in providers.tsx
-- MenuContentV8 replaces legacy MenuContent on menu page
-- End-to-end menu-to-cart flow with flying animation
-
-**Additional Fixes:**
-- Z-index stacking context isolation in homepage sections using CSS `isolate`
-- Enhanced free delivery progress animation with animated truck icon
-- Fixed category tabs and menu card z-index layering
-- Fixed homepage V8 cards and signout button styling
-
-**Verification:** 13/13 success criteria passed
-- Menu renders V8 components (scrollspy, animated cards, search)
-- Flying animation + badge pulse on add-to-cart
-- All MENU-01 through MENU-09 requirements working
-- CART-05 requirement verified
+*Updated: 2026-01-23 — v1 milestone complete*
