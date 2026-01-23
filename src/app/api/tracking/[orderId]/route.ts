@@ -112,7 +112,7 @@ interface CurrentStopData {
 // ===========================================
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ orderId: string }> }
 ): Promise<NextResponse<{ data: TrackingData } | { error: TrackingApiError }>> {
   try {

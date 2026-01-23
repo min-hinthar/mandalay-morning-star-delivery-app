@@ -24,7 +24,7 @@ interface StartRouteResponse {
 }
 
 export async function POST(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: RouteParams
 ): Promise<NextResponse<StartRouteResponse | { error: string }>> {
   try {
