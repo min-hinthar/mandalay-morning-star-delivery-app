@@ -43,7 +43,7 @@ export interface ParallaxLayerProps {
  *   <ParallaxLayer speed={0.3} className="absolute inset-0">
  *     <BackgroundImage />
  *   </ParallaxLayer>
- *   <div className="relative z-10">
+ *   <div className="relative z-dropdown">
  *     <MainContent />
  *   </div>
  * </div>
