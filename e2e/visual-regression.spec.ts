@@ -302,35 +302,63 @@ test.describe("Dark Mode Visual Regression", () => {
   });
 });
 
-test.describe("Driver Interface Visual Regression", () => {
-  test("driver dashboard", async ({ page }) => {
+test.describe("Driver Dashboard Visual Regression (TEST-03)", () => {
+  test.beforeEach(async ({ page }) => {
+    await mockFonts(page);
+  });
+
+  test("driver dashboard - desktop", async ({ page }) => {
     await page.goto("/driver");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(500);
-
-    // May redirect to login, capture that state
-    await expect(page).toHaveScreenshot("driver-dashboard.png", {
+    // Redirects to login
+    await expect(page).toHaveScreenshot("driver-dashboard-desktop.png", {
       fullPage: true,
       maxDiffPixels: 150,
     });
   });
 
-  test("driver high contrast mode", async ({ page }) => {
-    // Enable high contrast for driver interface
+  test("driver dashboard - mobile", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/driver");
     await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(500);
+    await expect(page).toHaveScreenshot("driver-dashboard-mobile.png", {
+      fullPage: true,
+      maxDiffPixels: 150,
+    });
+  });
 
-    // Toggle high contrast if available
-    const highContrastToggle = page.locator('[data-testid="high-contrast-toggle"]');
-    if (await highContrastToggle.isVisible()) {
-      await highContrastToggle.click();
-      await page.waitForTimeout(300);
+  test("driver route page - login redirect", async ({ page }) => {
+    await page.goto("/driver/route");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(300);
+    await expect(page).toHaveScreenshot("driver-route-login.png", {
+      fullPage: true,
+      maxDiffPixels: 150,
+    });
+  });
 
-      await expect(page).toHaveScreenshot("driver-high-contrast.png", {
-        fullPage: true,
-        maxDiffPixels: 150,
-      });
-    }
+  test("driver history page - login redirect", async ({ page }) => {
+    await page.goto("/driver/history");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(300);
+    await expect(page).toHaveScreenshot("driver-history-login.png", {
+      fullPage: true,
+      maxDiffPixels: 150,
+    });
+  });
+
+  test("driver login redirect state", async ({ page }) => {
+    await page.goto("/driver");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(300);
+    // Verify redirect to login with next param
+    await expect(page).toHaveURL(/login.*next.*driver/);
+    await expect(page).toHaveScreenshot("driver-login-redirect.png", {
+      fullPage: true,
+      maxDiffPixels: 150,
+    });
   });
 });
 
