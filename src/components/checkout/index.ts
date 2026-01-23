@@ -9,19 +9,27 @@
 export { CheckoutStepperV8 } from "./CheckoutStepperV8";
 export { AnimatedFormField } from "./AnimatedFormField";
 export { AddressFormV8 } from "./AddressFormV8";
+export { AddressCardV8 } from "./AddressCardV8";
+export { AddressStepV8 } from "./AddressStepV8";
+export { CheckoutSummaryV8 } from "./CheckoutSummaryV8";
+export { PaymentStepV8 } from "./PaymentStepV8";
 
 // Re-export V8 as default names for easy migration
 export { CheckoutStepperV8 as CheckoutStepper } from "./CheckoutStepperV8";
 export { AddressFormV8 as AddressForm } from "./AddressFormV8";
+export { AddressCardV8 as AddressCard } from "./AddressCardV8";
+export { AddressStepV8 as AddressStep } from "./AddressStepV8";
+export { CheckoutSummaryV8 as CheckoutSummary } from "./CheckoutSummaryV8";
+export { PaymentStepV8 as PaymentStep } from "./PaymentStepV8";
 
-// Step components
-export { AddressStep } from "./AddressStep";
+// Legacy step components
+export { AddressStep as AddressStepLegacy } from "./AddressStep";
 export { TimeStep } from "./TimeStep";
-export { PaymentStep } from "./PaymentStep";
 
-// Supporting components
-export { CheckoutSummary } from "./CheckoutSummary";
-export { AddressCard } from "./AddressCard";
+// Legacy exports (kept for backwards compatibility)
+export { PaymentStep as PaymentStepLegacy } from "./PaymentStep";
+export { CheckoutSummary as CheckoutSummaryLegacy } from "./CheckoutSummary";
+export { AddressCard as AddressCardLegacy } from "./AddressCard";
 
 // Wizard components
 export {
