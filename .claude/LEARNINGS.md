@@ -4,6 +4,33 @@ Patterns, conventions, and insights discovered while working on this codebase.
 
 ---
 
+## 2026-01-23: Check Fallback/Polyfill Code for Design Token Violations
+
+**Context:** Debugging z-index layering issues. WebGL grain overlay fallback in `src/lib/webgl/grain.ts` had hardcoded `zIndex: 9999`.
+
+**Problem:** Fallback CSS (non-WebGL path, polyfills, error handlers) often contains hardcoded values that bypass design token systems. These rarely get reviewed since they're "backup code."
+
+**Detection pattern:**
+```bash
+# Search for hardcoded z-index in non-CSS files
+grep -r "zIndex.*[0-9][0-9][0-9]" src/lib src/components --include="*.ts" --include="*.tsx"
+```
+
+**Fix:**
+```typescript
+// Before (violates token system)
+style: { zIndex: 9999 }
+
+// After (uses token max)
+style: { zIndex: 100 }  // Matches zIndex.max design token
+```
+
+**Key insight:** ESLint rules catch className z-index violations but miss inline style objects. Fallback/polyfill code paths need manual audits.
+
+**Apply when:** Debugging layering issues, auditing design token compliance, reviewing WebGL/canvas fallbacks
+
+---
+
 ## 2026-01-23: Dead Code Analysis False Positives - Always Verify With Typecheck
 
 **Context:** Phase 12 gap closure deleted 24 files flagged as dead code. Two files (`Confetti.tsx`, `DropdownAction.tsx`) were actually in use.
