@@ -7,7 +7,7 @@
  * Features: Animated rankings, position change animations, podium display
  */
 
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   Trophy,
