@@ -147,7 +147,7 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
           {/* Right: Carousel */}
           <div className="relative">
             {/* V6 Quote Icon */}
-            <div className="absolute -top-4 -left-4 lg:-top-8 lg:-left-8 z-10">
+            <div className="absolute -top-4 -left-4 lg:-top-8 lg:-left-8 z-dropdown">
               <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-secondary flex items-center justify-center shadow-md">
                 <Quote className="w-6 h-6 lg:w-8 lg:h-8 text-text-primary" />
               </div>

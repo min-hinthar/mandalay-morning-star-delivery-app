@@ -154,7 +154,7 @@ function SuccessResult({ result }: SuccessResultProps) {
         )}
       </AnimatePresence>
 
-      <div className="flex items-start gap-4 relative z-10">
+      <div className="flex items-start gap-4 relative z-dropdown">
         <motion.div
           className="p-2 bg-green/20 rounded-full"
           animate={shouldAnimate ? {
@@ -503,7 +503,7 @@ export function CoverageSection({
                       loadingText="Checking..."
                       className="w-full h-14 relative overflow-hidden group"
                     >
-                      <span className="relative z-10 flex items-center justify-center gap-2">
+                      <span className="relative z-dropdown flex items-center justify-center gap-2">
                         <Zap className="w-4 h-4" />
                         Check Coverage
                       </span>

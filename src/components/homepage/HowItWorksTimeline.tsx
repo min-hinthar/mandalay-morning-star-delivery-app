@@ -109,7 +109,7 @@ export function HowItWorksTimeline() {
                   className="relative text-center"
                 >
                   {/* Step Number & Icon */}
-                  <div className="relative z-10 mb-6">
+                  <div className="relative z-dropdown mb-6">
                     <motion.div
                       whileHover={{ scale: 1.1 }}
                       transition={{ type: "spring", stiffness: 260, damping: 28 }}
@@ -172,7 +172,7 @@ export function HowItWorksTimeline() {
                   className="relative flex gap-6 pl-4"
                 >
                   {/* Icon Circle */}
-                  <div className="relative z-10 flex-shrink-0">
+                  <div className="relative z-dropdown flex-shrink-0">
                     <div
                       className={cn(
                         "w-16 h-16 rounded-full flex items-center justify-center",

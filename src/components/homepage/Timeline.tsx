@@ -158,7 +158,7 @@ function StepIcon({ step, index, isActive, isMobile }: StepIconProps) {
 
   return (
     <motion.div
-      className="relative z-10"
+      className="relative z-dropdown"
       initial={shouldAnimate ? { scale: 0, rotate: -180 } : undefined}
       whileInView={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
       viewport={{ once: true, margin: "-50px" }}

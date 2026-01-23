@@ -105,7 +105,7 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
         variants={v6StaggerContainer}
         initial="hidden"
         animate="visible"
-        className="relative z-10 text-center px-6 max-w-4xl mx-auto"
+        className="relative z-dropdown text-center px-6 max-w-4xl mx-auto"
       >
         {/* Logo */}
         <motion.div variants={v6StaggerItem} className="mb-8">
@@ -119,7 +119,8 @@ export function HomepageHero({ onScrollToMenu, onScrollToCoverage }: HomepageHer
               className="mx-auto drop-shadow-2xl"
             />
             {/* V6 Glow effect - warm primary */}
-            <div className="absolute inset-0 bg-primary/15 blur-3xl -z-10 rounded-full scale-150" />
+            {/* Negative z-index for background layer */}
+            <div className="absolute inset-0 bg-primary/15 blur-3xl rounded-full scale-150" style={{ zIndex: -10 }} />
           </div>
         </motion.div>
 
