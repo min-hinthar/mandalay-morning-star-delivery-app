@@ -89,6 +89,7 @@ Recent decisions affecting current work:
 - Search autocomplete uses onMouseDown to prevent blur-before-click issue
 - 300ms debounce for search API calls balances responsiveness with efficiency
 - Mobile search expands from icon to full input for space efficiency
+- ItemDetailSheetV8 uses 639px breakpoint for exact 640px desktop threshold (BottomSheet < 640px, Modal >= 640px)
 
 ### Pending Todos
 
