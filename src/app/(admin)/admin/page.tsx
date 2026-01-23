@@ -12,8 +12,8 @@ import Link from "next/link";
 import type { OrderStatus } from "@/types/database";
 import { RevenueChart } from "@/components/admin/RevenueChart";
 import { PopularItems } from "@/components/admin/PopularItems";
-import { AdminDashboard } from "@/components/admin/v7-index";
-import type { KPIData } from "@/components/admin/v7-index";
+import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import type { KPIData } from "@/components/admin/AdminDashboard";
 
 interface OrderStatsRow {
   status: OrderStatus;

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { DriverDashboard } from "@/components/driver/v7-index";
+import { DriverDashboard } from "@/components/driver/DriverDashboard";
 import type { RoutesRow, RouteStats, VehicleType } from "@/types/driver";
 
 const TIMEZONE = "America/Los_Angeles";

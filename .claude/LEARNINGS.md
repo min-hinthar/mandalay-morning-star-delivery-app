@@ -4,6 +4,79 @@ Patterns, conventions, and insights discovered while working on this codebase.
 
 ---
 
+## 2026-01-23: v7-index Barrel to Direct Import Migration Pattern
+
+**Context:** Phase 11 migrated 7 files from v7-index barrel imports to direct V8 component imports.
+
+**Problem:** Barrel files (v7-index.ts) create tight coupling and prevent tree-shaking. When migrating to V8 patterns, barrel imports must be replaced with direct imports to enable future barrel file removal.
+
+**Migration pattern:**
+```typescript
+// Before (barrel import)
+import { AdminDashboard, KPIData } from "@/components/admin/v7-index";
+
+// After (direct import)
+import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import type { KPIData } from "@/components/admin/AdminDashboard";
+```
+
+**Execution order:**
+1. **Pages first** (`src/app/`) - migrate consumer imports
+2. **Components second** (`src/components/`) - migrate internal component imports
+3. **Verify no imports** - `grep -r "from.*v7-index" src/app/` should return empty
+4. **Keep barrels** - v7-index.ts files stay until Phase 13 (deletion phase)
+
+**Key insight:** Components can still be exported from barrels for backward compatibility, but consumers should import directly. This allows gradual migration.
+
+**Apply when:** Migrating barrel imports to direct imports, planning V8 adoption phases
+
+---
+
+## 2026-01-23: Wave-Based Parallel Execution for Independent Plans
+
+**Context:** Phase 11 executed 4 plans across 2 waves using parallel agent spawning.
+
+**Pattern:** Group plans by wave number (pre-computed during planning), spawn all autonomous plans in a wave simultaneously.
+
+**Benefits:**
+- Wave 1 (3 plans) completed in parallel - ~5 min vs ~15 min sequential
+- No polling or background agents needed - Task tool blocks until completion
+- Each agent gets fresh context, avoiding orchestrator bloat
+
+**Wave structure:**
+```
+Wave 1: Plans with no dependencies (can run in parallel)
+Wave 2: Plans that depend on Wave 1 (run after Wave 1 complete)
+```
+
+**When to use:** Phase execution with multiple independent plans. Requires plans to have correct `wave` and `depends_on` frontmatter.
+
+**Apply when:** Executing multi-plan phases, designing plan dependencies
+
+---
+
+## 2026-01-23: Build Network Errors Are Infrastructure, Not Code
+
+**Context:** Phase 11 builds failed intermittently with Google Fonts 403 errors.
+
+**Symptom:**
+```
+FetchError: request to https://fonts.googleapis.com/css2?... failed
+reason: Client network socket disconnected before secure TLS connection
+```
+
+**Root cause:** Sandboxed environments may have network restrictions or TLS issues affecting external resources (Google Fonts, npm registries).
+
+**How to handle:**
+1. Don't block phase verification on network errors
+2. Verify code correctness with typecheck, lint, tests
+3. Build success is bonus validation, not primary gate
+4. Document as infrastructure issue, not code issue
+
+**Apply when:** Debugging build failures in CI/sandbox environments, differentiating code vs infra issues
+
+---
+
 ## 2026-01-20: Version Consolidation - V4/V5/V6/V7 → Clean Naming
 
 **Context:** Persistent UI bugs from cascading CSS override conflicts between versioned tokens (V4, V5, V6) and components (V7).
