@@ -23,18 +23,18 @@ import {
 } from "recharts";
 import type { PerformanceChartProps } from "@/types/analytics";
 
-// V5 Chart colors - mapped to semantic tokens
-const V5_CHART_COLORS = {
-  primary: "#D4A017", // --color-interactive-primary
-  secondary: "#2E8B57", // --color-accent-secondary
-  tertiary: "#8B4513", // --color-accent-tertiary
-  text: "#1A1A1A", // --color-text-primary
+// Chart colors - using CSS custom properties
+const CHART_COLORS = {
+  primary: "var(--color-secondary)", // Was #D4A017
+  secondary: "var(--color-accent-green)", // Was #2E8B57
+  tertiary: "var(--color-accent-orange)", // Was #8B4513 (closest match)
+  text: "var(--color-text-primary)", // Was #1A1A1A
 };
 
 export function PerformanceChart({
   data,
   title,
-  color = V5_CHART_COLORS.primary,
+  color = CHART_COLORS.primary,
   type = "line",
   height = 300,
   showGrid = true,
@@ -167,8 +167,8 @@ export function DualAxisChart({
   title,
   leftLabel,
   rightLabel,
-  leftColor = V5_CHART_COLORS.primary,
-  rightColor = V5_CHART_COLORS.secondary,
+  leftColor = CHART_COLORS.primary,
+  rightColor = CHART_COLORS.secondary,
   height = 300,
 }: {
   data: Array<{ name: string; left: number; right: number }>;
