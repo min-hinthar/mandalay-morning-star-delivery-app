@@ -92,7 +92,7 @@ export function BlurImage({
         {showShimmer && !isLoaded && shouldAnimate && (
           <motion.div
             className={cn(
-              "absolute inset-0 z-10",
+              "absolute inset-0 z-dropdown",
               "bg-gradient-to-r from-transparent via-white/20 to-transparent",
               "bg-[length:200%_100%]"
             )}
@@ -108,7 +108,7 @@ export function BlurImage({
       {/* Static placeholder for non-shimmer */}
       {!showShimmer && !isLoaded && (
         <div
-          className="absolute inset-0 z-10"
+          className="absolute inset-0 z-dropdown"
           style={{ backgroundColor: placeholderColor }}
         />
       )}
