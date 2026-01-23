@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 10 of 14 (Token Migration)
-Plan: 0 of 4 in current phase
-Status: Ready to plan
-Last activity: 2026-01-23 - Completed Phase 9
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-01-23 - Completed 10-02-PLAN.md (Menu z-index tokens)
 
-Progress: [#########.........] 57% (34/49 plans - v1.0 complete, Phase 9 complete)
+Progress: [##########........] 59% (35/49 plans - v1.0 complete, Phase 9 complete, Phase 10 plan 2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 34 (32 v1.0 + 2 v1.1)
-- v1.1 plans: 17 total (2 complete)
+- Total plans completed: 35 (32 v1.0 + 3 v1.1)
+- v1.1 plans: 17 total (3 complete)
 - Phases remaining: 5
 
 **By Phase (v1.1):**
@@ -28,7 +28,7 @@ Progress: [#########.........] 57% (34/49 plans - v1.0 complete, Phase 9 complet
 | Phase | Plans | Status |
 |-------|-------|--------|
 | 9. Analysis & Component Creation | 2 | Complete ✓ |
-| 10. Token Migration | 4 | Ready to plan |
+| 10. Token Migration | 4 | In progress (1/4) |
 | 11. V8 Component Migration | 4 | Not started |
 | 12. Dead Code & Export Cleanup | 3 | Not started |
 | 13. Legacy Removal & Stricter Rules | 2 | Not started |
@@ -49,7 +49,7 @@ Key decisions from v1 (details in PROJECT.md):
 | ESLint at warn severity | Good - phased migration |
 | Backdrop AnimatePresence | Good - click-blocking fixed |
 
-v1.1 decisions (Phase 9):
+v1.1 decisions (Phase 9-10):
 
 | Decision | Rationale |
 |----------|-----------|
@@ -57,12 +57,17 @@ v1.1 decisions (Phase 9):
 | TimeStepV8 uses enhanced TimeSlotPicker | Consistent V8 patterns |
 | Visual regression baselines deferred | Network access needed; infrastructure ready |
 | Webpack mode for Playwright | Turbopack CSS parsing issues |
+| z-10 -> z-dropdown, z-20 -> z-sticky, z-30 -> z-fixed | Semantic z-index token mapping |
 
 ### Phase 9 Deliverables
 
 - Dead code report: 47 unused files, 480 exports, 284 types
 - TimeStepV8 component: 109 lines, V8 patterns
 - Visual regression tests: 36 tests ready (baselines to generate locally)
+
+### Phase 10 Deliverables (partial)
+
+- 10-02: 10 menu files migrated to z-index tokens (28 token usages)
 
 ### Pending Todos
 
@@ -72,6 +77,12 @@ None - phase planning pending.
 
 None.
 
+## Session Continuity
+
+Last session: 2026-01-23T09:34:44Z
+Stopped at: Completed 10-02-PLAN.md
+Resume file: None
+
 ---
 
-*Updated: 2026-01-23 - Phase 9 complete*
+*Updated: 2026-01-23 - Phase 10 plan 2 complete*
