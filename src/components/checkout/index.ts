@@ -24,15 +24,6 @@ export { CheckoutSummaryV8 as CheckoutSummary } from "./CheckoutSummaryV8";
 export { PaymentStepV8 as PaymentStep } from "./PaymentStepV8";
 export { TimeStepV8 as TimeStep } from "./TimeStepV8";
 
-// Legacy step components
-export { AddressStep as AddressStepLegacy } from "./AddressStep";
-export { TimeStep as TimeStepLegacy } from "./TimeStep";
-
-// Legacy exports (kept for backwards compatibility)
-export { PaymentStep as PaymentStepLegacy } from "./PaymentStep";
-export { CheckoutSummary as CheckoutSummaryLegacy } from "./CheckoutSummary";
-export { AddressCard as AddressCardLegacy } from "./AddressCard";
-
 // Wizard components
 export {
   CheckoutWizard,
