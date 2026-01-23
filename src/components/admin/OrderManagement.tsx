@@ -8,7 +8,7 @@
  * quick actions, order preview cards
  */
 
-import React, { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence, Reorder, useDragControls } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import {

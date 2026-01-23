@@ -93,7 +93,7 @@ export function PeakHoursChart({ data, height = 250 }: PeakHoursChartProps) {
             animationDuration={1500}
             animationEasing="ease-out"
           >
-            {chartData.map((entry, index) => (
+            {chartData.map((_entry, index) => (
               <Cell
                 key={`cell-${index}`}
                 fill={getBarColor(data[index].deliveryCount)}
