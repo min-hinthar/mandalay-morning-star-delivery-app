@@ -1773,6 +1773,191 @@ export const zIndexVar = {
 
 ---
 
+## 2026-01-23: GSD Full Milestone Execution - Phases 1-5 Patterns
+
+**Context:** Completed 5 phases (25 plans) of Morning Star V8 UI Rewrite milestone
+
+**Execution metrics:**
+| Phase | Plans | Duration | Avg/Plan | Pattern |
+|-------|-------|----------|----------|---------|
+| 1. Foundation | 5 | 34 min | 7 min | Sequential (dependencies) |
+| 2. Overlay | 4 | 14 min | 4 min | 1 + 3 parallel |
+| 3. Navigation | 5 | 23 min | 5 min | Sequential (integration) |
+| 4. Cart | 5 | 37 min | 7 min | Sequential + gap closure |
+| 5. Menu | 5 | 38 min | 8 min | 4 parallel + 1 final |
+
+**Key patterns that emerged:**
+1. **Gap closure plans:** Phases 1, 4 needed extra plans after verification found integration gaps
+2. **Verification catches real issues:** Not just checklist validation - verifier found zIndexVar naming mismatch in Phase 1
+3. **Parallel execution safe at wave boundaries:** No conflicts despite shared files (barrel exports, STATE.md)
+4. **Component reuse across phases:** Phase 5 used Phase 2 overlays (Modal, BottomSheet) and Phase 4 cart (AddToCartButton)
+5. **STATE.md as decision accumulator:** 96 decisions logged across phases, each executor adds to context
+
+**Velocity observations:**
+- Simple component plans: ~4-6 min
+- Integration/composition plans: ~7-8 min
+- Gap closure plans: ~7 min (targeted scope)
+- Total execution: 2.4 hours for 25 plans (6 min average)
+
+**Apply when:** Planning phase execution strategy, estimating phase duration, understanding GSD workflow patterns
+
+---
+
+## 2026-01-23: GSD Phase Execution - Wave-Based Parallel Efficiency
+
+**Context:** Executed Phase 5 (Menu Browsing) with 5 plans across 2 waves
+
+**Pattern:** Wave dependency analysis enables safe parallelization:
+- **Wave 1:** 4 independent plans (05-01 through 05-04) - no dependencies within wave
+- **Wave 2:** 1 plan (05-05) - depends on all Wave 1 plans
+
+**Execution stats:**
+- 4 parallel agents completed in ~8 min (vs ~28 min sequential)
+- Each agent: independent commits, no conflicts
+- Shared barrel export (index.ts) resolved via sequential commit times
+
+**Key insight:** Plans without intra-wave dependencies can run in parallel even if they touch related files. Git serializes commits naturally.
+
+**Apply when:** Executing multi-plan phases, identifying parallelization opportunities in wave assignments
+
+---
+
+## 2026-01-23: useMediaQuery Breakpoint Precision for Mobile/Desktop Overlays
+
+**Context:** ItemDetailSheetV8 needed exact 640px breakpoint (BottomSheet mobile, Modal desktop)
+
+**Problem:** `useMediaQuery("(max-width: 640px)")` returns true at exactly 640px, meaning Modal never shows at 640px viewport.
+
+**Solution:** Use 639px for exclusive mobile breakpoint:
+```tsx
+const isMobile = useMediaQuery("(max-width: 639px)");
+const Overlay = isMobile ? BottomSheet : Modal;
+// < 640px = BottomSheet
+// >= 640px = Modal
+```
+
+**Why this matters:** Tailwind's `sm:` breakpoint is `@media (min-width: 640px)`, so components using CSS `sm:` show desktop styles at 640px. useMediaQuery must match this behavior.
+
+**Apply when:** Building responsive overlays, matching useMediaQuery breakpoints to Tailwind breakpoints
+
+---
+
+## 2026-01-23: GSAP ScrollTrigger Play-Once Pattern for List Reveals
+
+**Context:** MenuGridV8 needed staggered card reveal that plays once on scroll, doesn't replay
+
+**Pattern:**
+```tsx
+gsap.from(cards, {
+  y: 40,
+  opacity: 0,
+  stagger: 0.06,  // 60ms between items
+  scrollTrigger: {
+    trigger: containerRef.current,
+    start: "top 85%",
+    toggleActions: "play none none none",  // Key: play once
+  },
+});
+```
+
+**toggleActions values:** `onEnter onLeave onEnterBack onLeaveBack`
+- `"play none none none"` = play on first enter, never replay
+- `"play reverse play reverse"` = replay each time (not for list reveals)
+
+**Cleanup:** Always use `useGSAP` hook with scope to auto-cleanup ScrollTrigger instances.
+
+**Apply when:** Staggered list/grid reveals, scroll-triggered animations that should only play once
+
+---
+
+## 2026-01-23: Skeleton Loading State Structure Matching
+
+**Context:** MenuSkeletonV8 needed to match MenuContentV8 layout exactly
+
+**Pattern:** Skeletons should replicate the exact DOM structure of the loaded state:
+```tsx
+// MenuSkeletonV8 mirrors MenuContentV8:
+// 1. Sticky tabs bar (same position, height)
+// 2. Sections with heading + grid (same spacing)
+// 3. Cards with image + content (same aspect ratio, padding)
+
+<div className="sticky top-[72px] z-sticky">  // Matches CategoryTabsV8
+  <div className="flex gap-2 overflow-hidden px-4 py-3">
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div className="h-10 w-24 rounded-pill animate-shimmer" />
+    ))}
+  </div>
+</div>
+```
+
+**Why:** Matching structure prevents layout shift when content loads. Users perceive faster load because nothing "jumps".
+
+**Apply when:** Creating skeleton loading states for complex layouts
+
+---
+
+## 2026-01-23: onMouseDown for Dropdown Click Prevention
+
+**Context:** SearchAutocomplete suggestions need to be clickable, but input blur fires before onClick
+
+**Problem:** When user clicks a suggestion:
+1. Input loses focus → triggers blur event
+2. Blur handler closes dropdown
+3. onClick on suggestion never fires (element already removed)
+
+**Solution:** Use `onMouseDown` instead of `onClick`:
+```tsx
+<button
+  onMouseDown={(e) => {
+    e.preventDefault();  // Prevent blur
+    onSelect(item);
+  }}
+>
+  {item.name}
+</button>
+```
+
+**Why `onMouseDown` works:** It fires before blur event, so we can prevent default and handle selection before dropdown closes.
+
+**Apply when:** Autocomplete dropdowns, comboboxes, any clickable elements inside focus-triggered popups
+
+---
+
+## 2026-01-23: V8 Component Barrel Export Organization
+
+**Context:** Phase 5 created 12 menu components needing organized exports
+
+**Pattern:** Group exports by feature domain with comments:
+```tsx
+// src/components/ui-v8/menu/index.ts
+
+// Category navigation
+export { CategoryTabsV8 } from "./CategoryTabsV8";
+export { MenuSectionV8 } from "./MenuSectionV8";
+
+// Item display
+export { MenuItemCardV8 } from "./MenuItemCardV8";
+export { MenuGridV8 } from "./MenuGridV8";
+export { BlurImage } from "./BlurImage";
+export { FavoriteButton } from "./FavoriteButton";
+export { EmojiPlaceholder } from "./EmojiPlaceholder";
+
+// Search
+export { SearchInputV8 } from "./SearchInputV8";
+export { SearchAutocomplete } from "./SearchAutocomplete";
+
+// ... etc
+```
+
+**Benefits:**
+- Consumers import from `@/components/ui-v8/menu` not individual files
+- Comments help navigate large export lists
+- Easy to see what a feature module provides
+
+**Apply when:** Creating feature modules with 5+ components, organizing component libraries
+
+---
+
 ## 2026-01-22: ESLint Rule Severity Strategy for Legacy Codebases
 
 **Context:** Phase 1 z-index enforcement rules blocked build due to 64 violations in legacy code

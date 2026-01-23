@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Overlay Infrastructure** - Portal-based modals, sheets, drawers, dropdowns, tooltips, toasts with route-aware cleanup
 - [x] **Phase 3: Navigation & Layout** - Sticky header, bottom nav, page containers, mobile menu, scroll effects, page transitions
 - [x] **Phase 4: Cart Experience** - Cart drawer/sheet, item controls, quantity animations, add-to-cart celebrations
-- [ ] **Phase 5: Menu Browsing** - Category tabs, item cards, search, item detail modal, loading states, list animations
+- [x] **Phase 5: Menu Browsing** - Category tabs, item cards, search, item detail modal, loading states, list animations
 - [ ] **Phase 6: Checkout Flow** - Multi-step form, address management, Stripe UI, order confirmation, progress animations
 - [ ] **Phase 7: Quality & Testing** - E2E tests for clickability, overlay behavior, visual regression snapshots
 
@@ -114,11 +114,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Category tabs V8 with scrollspy using useActiveCategory hook
-- [ ] 05-02-PLAN.md — Menu item card V8 with hover/tap effects, blur image, favorites, emoji placeholder
-- [ ] 05-03-PLAN.md — Item detail sheet V8 using Phase 2 Modal/BottomSheet overlays
-- [ ] 05-04-PLAN.md — Search input V8 with debounced autocomplete suggestions
-- [ ] 05-05-PLAN.md — Menu integration with GSAP stagger, skeletons, and full composition
+- [x] 05-01-PLAN.md — Category tabs V8 with scrollspy using useActiveCategory hook
+- [x] 05-02-PLAN.md — Menu item card V8 with hover/tap effects, blur image, favorites, emoji placeholder
+- [x] 05-03-PLAN.md — Item detail sheet V8 using Phase 2 Modal/BottomSheet overlays
+- [x] 05-04-PLAN.md — Search input V8 with debounced autocomplete suggestions
+- [x] 05-05-PLAN.md — Menu integration with GSAP stagger, skeletons, and full composition
 
 ### Phase 6: Checkout Flow
 **Goal**: Guide users through a polished multi-step checkout with clear progress and celebration on completion
@@ -167,7 +167,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 2. Overlay Infrastructure | 4/4 | ✓ Complete | 2026-01-22 |
 | 3. Navigation & Layout | 5/5 | ✓ Complete | 2026-01-22 |
 | 4. Cart Experience | 5/5 | ✓ Complete | 2026-01-22 |
-| 5. Menu Browsing | 0/5 | Planned | - |
+| 5. Menu Browsing | 5/5 | ✓ Complete | 2026-01-23 |
 | 6. Checkout Flow | 0/5 | Not started | - |
 | 7. Quality & Testing | 0/3 | Not started | - |
 
@@ -185,5 +185,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 *Phase 4 gap closure: 2026-01-22 (added 04-05 to integrate V8 components)*
 *Phase 4 complete: 2026-01-22*
 *Phase 5 planned: 2026-01-22*
+*Phase 5 complete: 2026-01-23*
 *Depth: comprehensive (8-12 phases, 5-10 plans each)*
 *Total requirements: 55 | Mapped: 55 | Coverage: 100%*
