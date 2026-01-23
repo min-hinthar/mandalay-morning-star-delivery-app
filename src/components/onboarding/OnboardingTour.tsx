@@ -311,7 +311,7 @@ export function OnboardingTour({
       animate={shouldAnimate ? { opacity: isExiting ? 0 : 1 } : undefined}
       transition={{ duration: 0.3 }}
       className={cn(
-        "fixed inset-0 z-[var(--z-modal)]",
+        "fixed inset-0 z-modal",
         "flex items-center justify-center",
         "bg-gradient-to-br from-surface-primary via-white to-surface-secondary",
         className
