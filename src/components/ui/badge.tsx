@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Star, AlertTriangle, Tag, CheckCircle, AlertCircle, XCircle } from "lucide-react";
+import { Star, AlertTriangle, Tag, CheckCircle, AlertCircle, XCircle, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -99,7 +99,7 @@ const badgeVariants = cva(
 );
 
 // Icons for each variant
-const variantIcons: Partial<Record<NonNullable<BadgeProps["variant"]>, React.ElementType>> = {
+const variantIcons: Partial<Record<NonNullable<BadgeProps["variant"]>, LucideIcon>> = {
   featured: Star,
   allergen: AlertTriangle,
   "price-discount": Tag,
@@ -116,7 +116,7 @@ export interface BadgeProps
   /** Show variant-specific icon */
   showIcon?: boolean;
   /** Custom icon component */
-  icon?: React.ElementType;
+  icon?: LucideIcon;
 }
 
 function Badge({

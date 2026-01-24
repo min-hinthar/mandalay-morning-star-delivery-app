@@ -193,13 +193,14 @@ export const Grid = forwardRef<HTMLElement, GridProps>(function Grid(
     colGap,
     autoFit = false,
     minChildWidth = "250px",
-    as: Component = "div",
+    as = "div",
     className,
     children,
     ...props
   },
   ref
 ) {
+  const Component = as as "div";
   // Determine gap classes
   const gapClasses = useMemo(() => {
     if (rowGap || colGap) {
@@ -232,7 +233,7 @@ export const Grid = forwardRef<HTMLElement, GridProps>(function Grid(
 
   return (
     <Component
-      ref={ref}
+      ref={ref as React.Ref<HTMLDivElement>}
       className={cn(
         // Base styles
         "grid",

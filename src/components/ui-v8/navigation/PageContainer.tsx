@@ -60,7 +60,7 @@ export function PageContainer<T extends ElementType = "div">({
   as,
   ...restProps
 }: PolymorphicProps<T>) {
-  const Component = as || "div";
+  const Component = (as || "div") as "div";
 
   return (
     <Component
@@ -76,7 +76,7 @@ export function PageContainer<T extends ElementType = "div">({
         padBottom && "pb-20 sm:pb-8", // Extra mobile padding for bottom nav
         className
       )}
-      {...restProps}
+      {...(restProps as React.ComponentPropsWithoutRef<"div">)}
     >
       {children}
     </Component>

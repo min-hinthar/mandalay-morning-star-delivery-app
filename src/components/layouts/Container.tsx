@@ -75,16 +75,17 @@ export const Container = forwardRef<HTMLElement, ContainerProps>(
       center = true,
       query = true,
       name,
-      as: Component = "div",
+      as = "div",
       className,
       children,
       ...props
     },
     ref
   ) {
+    const Component = as as "div";
     return (
       <Component
-        ref={ref}
+        ref={ref as React.Ref<HTMLDivElement>}
         className={cn(
           // Base styles
           "w-full",
