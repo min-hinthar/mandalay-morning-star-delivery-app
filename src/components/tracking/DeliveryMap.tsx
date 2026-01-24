@@ -201,7 +201,7 @@ export function DeliveryMap({
     <>
       {/* Live indicator */}
       {isLive && driverLocation && (
-        <div className="absolute top-3 left-3 z-dropdown flex items-center gap-2 rounded-full bg-[var(--color-surface)]/90 px-3 py-1.5 shadow-sm backdrop-blur-sm">
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-2 rounded-full bg-[var(--color-surface)]/90 px-3 py-1.5 shadow-sm backdrop-blur-sm">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-jade)] opacity-75" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-jade)]" />
@@ -216,7 +216,7 @@ export function DeliveryMap({
       {!inFullscreen && (
         <button
           onClick={() => setIsFullscreen(true)}
-          className="absolute top-3 right-3 z-dropdown flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-surface)]/90 shadow-sm backdrop-blur-sm transition-colors hover:bg-[var(--color-surface)]"
+          className="absolute top-3 right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-surface)]/90 shadow-sm backdrop-blur-sm transition-colors hover:bg-[var(--color-surface)]"
           aria-label="Expand map"
         >
           <Maximize2 className="h-5 w-5 text-[var(--color-text-primary)]" />
@@ -227,7 +227,7 @@ export function DeliveryMap({
       {inFullscreen && (
         <button
           onClick={() => setIsFullscreen(false)}
-          className="absolute top-4 right-4 z-dropdown flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-surface)] shadow-lg transition-colors hover:bg-[var(--color-surface-muted)]"
+          className="absolute top-4 right-4 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-surface)] shadow-lg transition-colors hover:bg-[var(--color-surface-muted)]"
           aria-label="Close fullscreen"
         >
           <X className="h-6 w-6 text-[var(--color-text-primary)]" />
@@ -293,7 +293,7 @@ export function DeliveryMap({
       </GoogleMap>
 
       {/* Legend */}
-      <div className={cn("absolute left-3 right-3 z-dropdown", inFullscreen ? "bottom-6" : "bottom-3")}>
+      <div className={cn("absolute left-3 right-3 z-10", inFullscreen ? "bottom-6" : "bottom-3")}>
         <div className="flex items-center justify-between rounded-lg bg-[var(--color-surface)]/90 px-3 py-2 shadow-sm backdrop-blur-sm">
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-1.5">
@@ -332,7 +332,7 @@ export function DeliveryMap({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-modal bg-[var(--color-background)]"
+            className="fixed inset-0 z-50 bg-[var(--color-background)]"
           >
             <motion.div
               initial={{ scale: 0.95 }}

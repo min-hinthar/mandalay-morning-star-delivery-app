@@ -113,7 +113,7 @@ export function DriverLayout({
       {/* Header */}
       <header
         className={cn(
-          "sticky top-0 z-sticky h-12",
+          "sticky top-0 z-20 h-12",
           highContrast
             ? "bg-black border-b border-white"
             : "bg-[var(--color-cream)] border-b border-[var(--color-border)]"
@@ -218,7 +218,7 @@ export function DriverLayout({
             exit="exit"
             variants={fadeIn}
             className={cn(
-              "fixed bottom-0 left-0 right-0 z-fixed",
+              "fixed bottom-0 left-0 right-0 z-30",
               highContrast
                 ? "bg-black border-t border-white"
                 : "bg-[var(--color-cream-darker)] border-t border-[var(--color-border)]"
@@ -268,9 +268,9 @@ export function DriverLayout({
               {/* Secondary Actions */}
               {secondaryActions.length > 0 && (
                 <div className="flex gap-2">
-                  {secondaryActions.slice(0, 2).map((action, index) => (
+                  {secondaryActions.slice(0, 2).map((action) => (
                     <motion.button
-                      key={index}
+                      key={action.label}
                       onClick={action.onClick}
                       disabled={action.disabled}
                       whileHover={!action.disabled ? { scale: 1.02 } : undefined}

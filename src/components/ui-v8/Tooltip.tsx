@@ -4,7 +4,7 @@
  * Tooltip Component
  * Hover info tooltips with delay and fade animation
  *
- * Uses z-tooltip layer (70) - highest for info overlays
+ * Uses z-[70] layer (70) - highest for info overlays
  * pointer-events-none prevents click interference
  *
  * @example
@@ -222,7 +222,7 @@ export function TooltipTrigger({ children, asChild = false }: TooltipTriggerProp
 
 /**
  * TooltipContent - The tooltip popup
- * Uses z-tooltip (70) and pointer-events-none
+ * Uses z-[70] (70) and pointer-events-none
  */
 export function TooltipContent({
   children,

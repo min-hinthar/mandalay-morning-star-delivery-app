@@ -61,7 +61,7 @@ export function BottomNav({ items = defaultItems, className }: BottomNavProps) {
   return (
     <nav
       className={cn(
-        "fixed bottom-0 left-0 right-0 z-fixed",
+        "fixed bottom-0 left-0 right-0 z-30",
         "bg-background/95 backdrop-blur-lg",
         "border-t border-border/50",
         "md:hidden",

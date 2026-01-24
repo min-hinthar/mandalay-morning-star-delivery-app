@@ -192,9 +192,9 @@ function QuickInfo() {
       className="mt-4 p-4 bg-surface-secondary rounded-xl space-y-3"
       variants={staggerItem}
     >
-      {infoItems.map((item, index) => (
+      {infoItems.map((item) => (
         <motion.div
-          key={index}
+          key={item.text}
           className="flex items-center gap-3 text-sm text-text-secondary"
           whileHover={shouldAnimate ? { x: 4 } : undefined}
           transition={getSpring(spring.snappy)}
@@ -305,7 +305,7 @@ export function MobileNav({
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 z-modal-backdrop bg-black/40"
+            className="fixed inset-0 z-40 bg-black/40"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -318,7 +318,7 @@ export function MobileNav({
           <motion.nav
             ref={navRef}
             className={cn(
-              "fixed z-modal bg-white shadow-2xl",
+              "fixed z-50 bg-white shadow-2xl",
               "flex flex-col",
               direction === "left" && "left-0 top-0 bottom-0 w-[85%] max-w-sm rounded-r-2xl",
               direction === "right" && "right-0 top-0 bottom-0 w-[85%] max-w-sm rounded-l-2xl",
@@ -368,10 +368,16 @@ export function MobileNav({
                   >
                     {user.avatar ? (
                       /* eslint-disable-next-line @next/next/no-img-element -- User avatar with dynamic URL */
-                      <img src={user.avatar} alt={user.name || "User"} className="w-full h-full object-cover" />
-                    ) : (
-                      user.name?.charAt(0).toUpperCase() || "U"
-                    )}
+                      <img
+                        src={user.avatar}
+                        alt={user.name || "User"}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }}
+                      />
+                    ) : null}
+                    <span className={cn("text-lg font-bold", user.avatar && "hidden")}>
+                      {user.name?.charAt(0).toUpperCase() || "U"}
+                    </span>
                   </motion.div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-text-primary truncate">

@@ -321,7 +321,7 @@ export const Header = forwardRef<HTMLElement, HeaderProps>(
       <motion.header
         ref={ref}
         className={cn(
-          "fixed top-0 left-0 right-0 z-fixed",
+          "fixed top-0 left-0 right-0 z-30",
           "border-b border-border-default/50",
           className
         )}

@@ -320,7 +320,7 @@ export function DeliverySuccess({
       {/* Confetti */}
       <AnimatePresence>
         {showConfetti && shouldAnimate && (
-          <div className="fixed inset-0 pointer-events-none z-max">
+          <div className="fixed inset-0 pointer-events-none z-[100]">
             {confettiParticles.map((particle) => (
               <ConfettiParticle
                 key={particle.id}

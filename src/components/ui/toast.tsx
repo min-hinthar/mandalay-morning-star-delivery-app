@@ -25,7 +25,7 @@ const ToastViewport = React.forwardRef<
     ref={ref}
     className={cn(
       // V6 Position: top-center on mobile, bottom-right on desktop
-      "fixed z-toast flex max-h-screen w-full flex-col p-4",
+      "fixed z-[80] flex max-h-screen w-full flex-col p-4",
       "top-0 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col-reverse md:max-w-[420px]",
       className
     )}

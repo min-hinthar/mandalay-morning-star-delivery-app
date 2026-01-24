@@ -448,7 +448,7 @@ export function TrackingMap({
           initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
           animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
           className={cn(
-            "absolute top-3 left-3 z-dropdown",
+            "absolute top-3 left-3 z-10",
             "flex items-center gap-2 rounded-full",
             "bg-surface-primary/95 backdrop-blur-sm",
             "px-3 py-1.5 shadow-lg border border-border"
@@ -475,7 +475,7 @@ export function TrackingMap({
         whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
         whileTap={shouldAnimate ? { scale: 0.9 } : undefined}
         className={cn(
-          "absolute top-3 right-3 z-dropdown",
+          "absolute top-3 right-3 z-10",
           "w-10 h-10 rounded-full",
           "bg-surface-primary/95 backdrop-blur-sm",
           "flex items-center justify-center",
@@ -506,7 +506,7 @@ export function TrackingMap({
         initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
         animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
         transition={{ delay: 0.5 }}
-        className="absolute bottom-3 left-3 right-3 z-dropdown"
+        className="absolute bottom-3 left-3 right-3 z-10"
       >
         <div
           className={cn(
@@ -561,7 +561,7 @@ export function TrackingMap({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-modal bg-background"
+            className="fixed inset-0 z-50 bg-background"
           >
             <motion.div
               ref={containerRef}

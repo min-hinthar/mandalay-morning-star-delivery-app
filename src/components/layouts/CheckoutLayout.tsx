@@ -100,7 +100,7 @@ export function CheckoutLayout({
   return (
     <div className="flex min-h-screen flex-col bg-[var(--color-background)]">
       {/* Header */}
-      <header className="sticky top-0 z-sticky h-14 border-b border-[var(--color-border)] bg-[var(--color-cream)]">
+      <header className="sticky top-0 z-20 h-14 border-b border-[var(--color-border)] bg-[var(--color-cream)]">
         <div className="mx-auto flex h-full max-w-[var(--max-content-width)] items-center justify-between px-4">
           {/* Back Button */}
           <motion.button
@@ -230,7 +230,7 @@ export function CheckoutLayout({
       {/* Action Button */}
       <div
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-fixed",
+          "fixed bottom-0 left-0 right-0 z-30",
           "border-t border-[var(--color-border)] bg-[var(--color-cream)]"
         )}
         style={{

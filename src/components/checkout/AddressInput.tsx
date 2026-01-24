@@ -480,7 +480,7 @@ export function AddressAutocomplete({
             exit={shouldAnimate ? { opacity: 0, y: -10 } : undefined}
             transition={getSpring(spring.snappy)}
             className={cn(
-              "absolute top-full left-0 right-0 mt-2 z-dropdown",
+              "absolute top-full left-0 right-0 mt-2 z-10",
               "bg-surface-primary rounded-xl",
               "border border-border shadow-elevated",
               "overflow-hidden"
@@ -535,6 +535,7 @@ export function AddressInput({
   const { shouldAnimate } = useAnimationPreference();
   const [isAddingNew, setIsAddingNew] = useState(showAddForm);
   const [coverageResults, setCoverageResults] = useState<Map<string, CoverageResult>>(new Map());
+  const checkedIdsRef = useRef<Set<string>>(new Set());
 
   // Simulate coverage check
   const checkCoverage = useCallback(async (address: Address): Promise<CoverageResult> => {
@@ -558,13 +559,32 @@ export function AddressInput({
 
   // Check coverage for all saved addresses
   useEffect(() => {
-    savedAddresses.forEach(async (address) => {
-      if (!coverageResults.has(address.id)) {
-        const result = await checkCoverage(address);
-        setCoverageResults((prev) => new Map(prev).set(address.id, result));
-      }
-    });
-  }, [savedAddresses, checkCoverage, coverageResults]);
+    const checkAll = async () => {
+      const unchecked = savedAddresses.filter(
+        (addr) => !checkedIdsRef.current.has(addr.id)
+      );
+
+      if (unchecked.length === 0) return;
+
+      // Mark as checking to prevent duplicate calls
+      unchecked.forEach((addr) => checkedIdsRef.current.add(addr.id));
+
+      const results = await Promise.all(
+        unchecked.map(async (address) => ({
+          id: address.id,
+          result: await checkCoverage(address),
+        }))
+      );
+
+      setCoverageResults((prev) => {
+        const next = new Map(prev);
+        results.forEach(({ id, result }) => next.set(id, result));
+        return next;
+      });
+    };
+
+    checkAll();
+  }, [savedAddresses, checkCoverage]);
 
   const selectedCoverage = selectedAddress
     ? coverageResults.get(selectedAddress.id)

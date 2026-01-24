@@ -46,7 +46,6 @@ export function calculateDeliveryFee(subtotalCents: number): number {
  * Calculate tax (placeholder for V1 - can be enhanced with Stripe Tax later)
  * @param subtotalCents - Subtotal in cents (will be used when tax calculation is implemented)
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function calculateTax(_subtotalCents: number): number {
   // V1: No tax calculation, defer to V1.1
   // When implementing, use California sales tax rate or Stripe Tax
