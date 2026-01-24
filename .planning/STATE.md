@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Planning next milestone (v1.2)
+**Current focus:** v1.2 Playful UI Overhaul - Phase 15 Foundation & R3F Setup
 
 ## Current Position
 
-Phase: None active - between milestones
-Plan: None
-Status: v1.1 shipped, ready for v1.2 planning
-Last activity: 2026-01-23 - v1.1 milestone archived
+Phase: 15 of 22 (Foundation & R3F Setup)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-23 - Roadmap created for v1.2
 
-Progress: [####################] 100% (v1.0 + v1.1 complete)
+Progress: [####################] v1.0-v1.1 complete | [░░░░░░░░░░░░░░░░░░░░] v1.2 0%
 
 ## Milestones Completed
 
@@ -23,32 +23,56 @@ Progress: [####################] 100% (v1.0 + v1.1 complete)
 | v1.0 MVP | 1-8 | 32 | 2026-01-23 |
 | v1.1 Tech Debt | 9-14 | 21 | 2026-01-23 |
 
-**Total:** 14 phases, 53 plans
+**Total completed:** 14 phases, 53 plans
+**v1.2 scope:** 8 phases (15-22), ~18 plans, 48 requirements
 
-## Archived Files
+## Performance Metrics
 
-- `.planning/milestones/v1-ROADMAP.md`
-- `.planning/milestones/v1-REQUIREMENTS.md`
-- `.planning/milestones/v1.1-ROADMAP.md`
-- `.planning/milestones/v1.1-REQUIREMENTS.md`
-- `.planning/milestones/v1.1-MILESTONE-AUDIT.md`
-- `.planning/milestones/v1.1-INTEGRATION.md`
+**Velocity:**
+- Total plans completed: 53 (v1.0 + v1.1)
+- v1.2 plans completed: 0
+- Average duration: TBD
 
-## Next Steps
+**By Phase (v1.2):**
 
-Run `/gsd:new-milestone` to start v1.2 planning.
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 15 | 0/2 | - | - |
 
-Potential focus areas (from PROJECT.md):
-- Reduced motion automatic detection (prefers-reduced-motion)
-- Dark mode palette refinement
-- Performance budget enforcement
+*Updated after each plan completion*
+
+## Accumulated Context
+
+### Key Issues to Address
+
+- TailwindCSS 4 custom zIndex theme extensions not generating utility classes (INFRA-01)
+- Signout button click not registering (z-index/stacking context) (INFRA-02)
+
+### Design Decisions
+
+- 3D hero: Interactive food showcase with Three.js/React Three Fiber
+- Menu items: New unified design across homepage, menu page, cart
+- Theme: Light/dark refinement (footer text visibility, contrast)
+
+### Research Findings
+
+From `.planning/research/SUMMARY.md`:
+- React Three Fiber 9.5.0 required for React 19 compatibility (v8.x fails)
+- TailwindCSS 4 z-index fix: use `@theme { --z-index-* }` with unquoted numbers
+- SSR-safe pattern: `dynamic(() => import(), { ssr: false })` + mounted check
+- Single Canvas pattern to avoid WebGL context exhaustion
+
+### Blockers/Concerns
+
+None yet.
 
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: v1.1 milestone archived
+Stopped at: Roadmap created for v1.2 milestone
 Resume file: None
+Next action: `/gsd:plan-phase 15`
 
 ---
 
-*Updated: 2026-01-23 - v1.1 milestone SHIPPED and ARCHIVED*
+*Updated: 2026-01-23 - v1.2 ROADMAP CREATED*

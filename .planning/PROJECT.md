@@ -90,17 +90,23 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 
 ### Active
 
-**Next Milestone: v1.2** (not yet defined)
+**Current Milestone: v1.2 Playful UI Overhaul**
 
-Potential focus areas:
-- Reduced motion automatic detection (prefers-reduced-motion)
-- Dark mode palette refinement
-- Performance budget enforcement
+**Goal:** Transform customer pages with maximum playfulness — 3D interactive hero, unified menu design, theme refinement, and fix remaining z-index issues from TailwindCSS 4 quirks.
+
+**Target features:**
+- [ ] 3D Hero: Interactive food showcase (Three.js/React Three Fiber) with rotation/exploration
+- [ ] Homepage redesign: Coverage section, How It Works, Menu section with enhanced animations
+- [ ] Menu item unification: New consistent card design across homepage, menu page, and cart
+- [ ] Theme refinement: Light/dark mode polish (fix footer text, contrast issues)
+- [ ] Z-index root cause: TailwindCSS 4 custom theme utilities not generating classes
+- [ ] Signout bug: Click not registering (z-index/stacking context investigation)
+- [ ] Maximum playfulness: Enhanced animations, 3D accents, interactions across all customer pages
 
 ### Out of Scope
 - Backend/schema changes — Supabase + Stripe contracts stay stable
 - Multi-restaurant marketplace — not part of Morning Star scope
-- Reduced motion automatic detection — motion-first by design; manual toggle later
+- Admin/Driver dashboard changes — v1.2 focuses on customer pages only
 
 ## Context
 
@@ -159,4 +165,4 @@ Potential focus areas:
 | Visual regression baselines deferred | Network access needed; infrastructure ready | — Pending |
 
 ---
-*Last updated: 2026-01-23 after v1.1 milestone complete*
+*Last updated: 2026-01-23 after v1.2 milestone started*
