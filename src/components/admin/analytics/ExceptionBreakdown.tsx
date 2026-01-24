@@ -17,6 +17,7 @@ import {
   XCircle,
   Package,
   HelpCircle,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { DeliveryExceptionType } from "@/types/driver";
@@ -40,7 +41,7 @@ const V5_CHART_COLORS = {
 
 const exceptionConfig: Record<
   DeliveryExceptionType,
-  { label: string; color: string; icon: React.ElementType }
+  { label: string; color: string; icon: LucideIcon }
 > = {
   customer_not_home: {
     label: "Customer Not Home",
