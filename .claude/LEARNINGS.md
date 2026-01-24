@@ -382,7 +382,7 @@ Priority order: Bugs > Consistency > Polish > Performance
 - `useLuminance.ts` - WCAG luminance detection, parses hex/rgb/hsl, returns "light"|"dark", has gradient support
 - `useActiveCategory.ts` - Intersection Observer for scroll spy, replaces hardcoded headerOffset
 - `useScrollDirection.ts` - Tracks scroll up/down for collapsible headers, returns `{ isCollapsed, scrollY, isAtTop }`
-All hooks in `src/lib/hooks/`. Use CSS vars for dynamic z-index: `z-[var(--z-sticky)]`.
+All hooks in `src/lib/hooks/`. Use TailwindCSS 4 z-index utilities: `z-sticky`, `z-modal`, etc.
 **Apply when:** Building scroll-aware, contrast-aware, or responsive UI components
 
 ---
@@ -472,7 +472,7 @@ Pattern catches className strings containing hardcoded hex or numeric values. Wa
 **Learning:** Token migration search order:
 1. Colors: `#[0-9a-f]{3,8}`, `rgb(`, `text-white`, `bg-gray-`, `border-border`
 2. Spacing: `p-4`, `m-3`, `gap-2` → `p-[var(--space-3)]`
-3. Z-index: `z-10`, `z-50` → `z-[var(--z-sticky)]`
+3. Z-index: `z-10`, `z-50` → `z-sticky`, `z-modal` (use Tailwind utilities, not CSS var syntax)
 4. Shadows: `shadow-md` → `shadow-[var(--shadow-md)]`
 5. Durations: `duration-200` → `duration-[var(--duration-fast)]`
 
@@ -1304,26 +1304,27 @@ Use Option A when V7 component needs multiple hooks or complex interactivity. Us
 ## 2026-01-20: V7 Z-Index Token Usage
 
 **Context:** ESLint flagged hardcoded z-index values like `z-[60]`
-**Learning:** V7 z-index tokens must be used via CSS variable syntax in Tailwind arbitrary values:
+**Learning:** TailwindCSS 4 generates first-class z-index utilities from design tokens. Use utility classes directly:
 ```tsx
 // ❌ Wrong - hardcoded numeric z-index
 className="z-[60]"
 
-// ✅ Correct - use V7 z-index tokens
-className="z-[var(--z-popover)]"  // For overlays, dropdowns
-className="z-[var(--z-tooltip)]"  // For tooltips, highest priority UI
-className="z-[var(--z-modal)]"    // For modals
+// ✅ Correct - use TailwindCSS 4 z-index utilities
+className="z-popover"  // For overlays, dropdowns (z-index: 60)
+className="z-tooltip"  // For tooltips, highest priority UI (z-index: 70)
+className="z-modal"    // For modals (z-index: 50)
+className="z-sticky"   // For sticky headers (z-index: 20)
 ```
 
-Available tokens in `src/styles/tokens.css`:
-- `--z-base: 0`
-- `--z-dropdown: 10`
-- `--z-sticky: 20`
-- `--z-fixed: 30`
-- `--z-modal-backdrop: 40`
-- `--z-modal: 50`
-- `--z-popover: 60`
-- `--z-tooltip: 70`
+Available z-index utilities (defined in tokens.css, exposed via @theme):
+- `z-base` (0)
+- `z-dropdown` (10)
+- `z-sticky` (20)
+- `z-fixed` (30)
+- `z-modal-backdrop` (40)
+- `z-modal` (50)
+- `z-popover` (60)
+- `z-tooltip` (70)
 
 **Apply when:** Positioning overlays, modals, dropdowns, fixing ESLint z-index warnings
 
@@ -2121,20 +2122,11 @@ expect(count).toBe(0);
 
 **Context:** TailwindCSS 4 CSS parsing error during Phase 7 execution
 
-**Problem:** Using `z-[var(--zindex-modal)]` arbitrary value syntax across 42 components caused TailwindCSS 4 to generate a wildcard fallback pattern `.z-\[var\(--z-*\)\]` which is invalid CSS.
+**Problem:** Using arbitrary z-index CSS variable syntax (like `z-[var(--zindex-modal)]`) across 42 components caused TailwindCSS 4 to generate a wildcard fallback pattern which is invalid CSS.
 
 **Solution:** Use named TailwindCSS utilities instead of arbitrary values:
-```tsx
-// ❌ Wrong - causes CSS parsing error in TailwindCSS 4
-className="z-[var(--zindex-modal)]"
-className="z-[var(--zindex-modal-backdrop)]"
-className="z-[var(--zindex-fixed)]"
-
-// ✅ Correct - named utilities work reliably
-className="z-modal"
-className="z-modal-backdrop"
-className="z-fixed"
-```
+- Wrong: arbitrary CSS variable syntax for z-index (causes parsing error)
+- Correct: `z-modal`, `z-modal-backdrop`, `z-fixed` (named utilities)
 
 **Setup in tailwind.config.ts:**
 ```ts

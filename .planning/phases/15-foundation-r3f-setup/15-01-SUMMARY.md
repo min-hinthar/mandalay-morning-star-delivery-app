@@ -125,7 +125,7 @@ Each task was committed atomically:
 
 ## Issues Encountered
 
-- CSS optimization warnings about invalid CSS syntax in z-index variables (z-[var(--z-...)]). These are harmless warnings from unused/malformed class references in the codebase, not related to this plan's changes.
+- CSS optimization warnings about invalid CSS syntax from deprecated z-index patterns in documentation files. These were harmless warnings from code examples in markdown files, now fixed.
 - Initial Turbopack junction point error on Windows - resolved by clearing .next folder
 
 ## User Setup Required

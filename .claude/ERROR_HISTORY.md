@@ -199,43 +199,26 @@ Also disabled rules incompatible with Tailwind's output: `import-notation`, `col
 
 ## 2026-01-23: TailwindCSS 4 CSS Parsing Error with Arbitrary Z-Index Values
 **Type:** Build | **Severity:** High
-**Files:** `src/app/globals.css`, 42 component files with `z-[var(--zindex-*)]`
+**Files:** `src/app/globals.css`, 42 component files using arbitrary z-index syntax
 
 **Error:**
 ```
 ./src/app/globals.css:805:22
 Parsing CSS source code failed
-.z-\[var\(--z-*\)\] {
-  z-index: var(--z-*);
-}
 Unexpected token Delim('*')
 ```
 
-**Root Cause:** TailwindCSS 4 generates fallback patterns for arbitrary value classes. When multiple `z-[var(--zindex-*)]` classes exist (modal, fixed, sticky, etc.), TailwindCSS creates a wildcard pattern `.z-\[var\(--z-*\)\]` as a fallback. The `*` wildcard in the CSS output is invalid CSS syntax.
+**Root Cause:** TailwindCSS 4 generates fallback patterns for arbitrary value classes. When multiple arbitrary z-index classes exist, TailwindCSS creates a wildcard fallback pattern which contains invalid CSS syntax.
 
 **Fix:** Migrate from arbitrary values to named TailwindCSS utilities:
-```tsx
-// Before (causes parsing error)
-className="z-[var(--zindex-modal)]"
-className="z-[var(--zindex-modal-backdrop)]"
-
-// After (works correctly)
-className="z-modal"
-className="z-modal-backdrop"
-```
+- Before: arbitrary CSS variable syntax for z-index (causes parsing error)
+- After: `z-modal`, `z-modal-backdrop` (named utilities work correctly)
 
 Required changes:
-1. Define numeric values in `tailwind.config.ts`:
-   ```ts
-   zIndex: {
-     modal: "50",
-     "modal-backdrop": "40",
-     // ...
-   }
-   ```
-2. Migrate all 57 occurrences across 42 files via sed replacement
+1. Define numeric values in `tailwind.config.ts` zIndex extension
+2. Migrate all occurrences to named utility classes
 
-**Prevention:** Use named Tailwind utilities (`z-modal`) instead of arbitrary CSS variable syntax (`z-[var(--zindex-modal)]`) for z-index. Named utilities are safer and more maintainable.
+**Prevention:** Use named Tailwind utilities (`z-modal`) instead of arbitrary CSS variable syntax for z-index. Named utilities are safer and more maintainable.
 
 ---
 

@@ -221,7 +221,7 @@ export { CheckoutStepperV8 as CheckoutStepper } from "./CheckoutStepperV8";
 ### Pitfall 6: Confetti Z-Index Issues
 **What goes wrong:** Confetti appears behind header or modals
 **Why it happens:** Not using z-index tokens
-**How to avoid:** Confetti uses `z-[var(--z-max)]`, verify order confirmation z-index
+**How to avoid:** Confetti uses `z-max` utility, verify order confirmation z-index
 **Warning signs:** Confetti partially hidden
 
 ## Animation Mapping
