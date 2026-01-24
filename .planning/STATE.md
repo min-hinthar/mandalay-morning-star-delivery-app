@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Planning next milestone (v1.2)
+**Current focus:** v1.2 Playful UI Overhaul
 
 ## Current Position
 
-Phase: None active - between milestones
-Plan: None
-Status: v1.1 shipped, ready for v1.2 planning
-Last activity: 2026-01-23 - v1.1 milestone archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-01-23 — Milestone v1.2 started
 
-Progress: [####################] 100% (v1.0 + v1.1 complete)
+Progress: [░░░░░░░░░░░░░░░░░░░░] 0%
 
 ## Milestones Completed
 
@@ -34,21 +34,23 @@ Progress: [####################] 100% (v1.0 + v1.1 complete)
 - `.planning/milestones/v1.1-MILESTONE-AUDIT.md`
 - `.planning/milestones/v1.1-INTEGRATION.md`
 
-## Next Steps
+## Accumulated Context
 
-Run `/gsd:new-milestone` to start v1.2 planning.
+**Key issues to investigate:**
+- TailwindCSS 4 custom zIndex theme extensions not generating utility classes
+- Signout button click not registering (z-index/stacking context)
 
-Potential focus areas (from PROJECT.md):
-- Reduced motion automatic detection (prefers-reduced-motion)
-- Dark mode palette refinement
-- Performance budget enforcement
+**Design decisions:**
+- 3D hero: Interactive food showcase with Three.js/React Three Fiber
+- Menu items: New unified design across homepage, menu page, cart
+- Theme: Light/dark refinement (footer text visibility, contrast)
 
 ## Session Continuity
 
 Last session: 2026-01-23
-Stopped at: v1.1 milestone archived
+Stopped at: Defining milestone v1.2
 Resume file: None
 
 ---
 
-*Updated: 2026-01-23 - v1.1 milestone SHIPPED and ARCHIVED*
+*Updated: 2026-01-23 — v1.2 milestone STARTED*
