@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { zClass } from "@/design-system/tokens/z-index";
 import type { MenuItem } from "@/types/menu";
 
 // ============================================
@@ -219,7 +220,7 @@ export function SearchAutocomplete({
             "border border-border",
             "shadow-lg",
             "overflow-hidden",
-            "z-10",
+            zClass.popover,
             "max-h-80 overflow-y-auto",
             className
           )}
