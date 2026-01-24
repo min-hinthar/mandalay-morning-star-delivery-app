@@ -52,7 +52,9 @@
       "WebFetch(domain:www.npmjs.com)",
       "WebFetch(domain:r3f.docs.pmnd.rs)",
       "WebFetch(domain:drei.docs.pmnd.rs)",
-      "WebFetch(domain:www.joshwcomeau.com)"
+      "WebFetch(domain:www.joshwcomeau.com)",
+      "WebFetch(domain:threejs.org)",
+      "WebFetch(domain:use-gesture.netlify.app)"
     ],
     "ask": [
       "WebFetch",

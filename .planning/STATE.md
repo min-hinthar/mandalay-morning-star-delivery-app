@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 18 of 22 (Menu Unification)
-Plan: 1 of 3 complete
-Status: In progress
-Last activity: 2026-01-24 - Completed 18-01-PLAN.md (UnifiedMenuItemCard)
+Plan: 3 of 3 complete
+Status: Phase complete
+Last activity: 2026-01-24 - Completed 18-02-PLAN.md (Homepage Carousel)
 
-Progress: [####################] v1.0-v1.1 complete | [███████░░░░░░░░░░░░░] v1.2 35%
+Progress: [####################] v1.0-v1.1 complete | [█████████░░░░░░░░░░░] v1.2 45%
 
 ## Milestones Completed
 
@@ -23,15 +23,15 @@ Progress: [####################] v1.0-v1.1 complete | [███████░�
 | v1.0 MVP | 1-8 | 32 | 2026-01-23 |
 | v1.1 Tech Debt | 9-14 | 21 | 2026-01-23 |
 
-**Total completed:** 14 phases, 53 plans
+**Total completed:** 15 phases, 54 plans
 **v1.2 scope:** 8 phases (15-22), ~18 plans, 48 requirements
-**v1.2 progress:** 2 phases complete, 7 plans done
+**v1.2 progress:** 3 phases complete, 9 plans done
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 60 (v1.0 + v1.1 + v1.2)
-- v1.2 plans completed: 7
+- Total plans completed: 62 (v1.0 + v1.1 + v1.2)
+- v1.2 plans completed: 9
 - Average duration: 10min (Phase 15-18)
 
 **By Phase (v1.2):**
@@ -40,7 +40,7 @@ Progress: [####################] v1.0-v1.1 complete | [███████░�
 |-------|-------|-------|----------|
 | 15 | 2/2 | 24min | 12min |
 | 16 | 4/4 | 29min | 7.3min |
-| 18 | 1/3 | 12min | 12min |
+| 18 | 3/3 | 53min | 18min |
 
 *Updated after each plan completion*
 
@@ -96,6 +96,9 @@ From `.planning/research/SUMMARY.md`:
 - **3D tilt pattern (18-01):** useMotionValue + useSpring + useTransform for physics-based mouse-tracking rotation
 - **State machine button (18-01):** Type union for states, AnimatePresence for transitions, setTimeout for state progression
 - **Web Audio sound effects (18-01):** Lazy-load AudioContext, track user interaction, try/catch for autoplay safety
+- **Staggered scroll-reveal (18-03):** Framer Motion whileInView with 80ms delay per card, capped at 640ms
+- **Cart glassmorphism (18-03):** glass-menu-card + rounded-2xl, NO 3D tilt (checkout focus)
+- **FeaturedCarousel (18-02):** scroll-snap-type: x mandatory, IntersectionObserver for index, auto-scroll with permanent disable on user scroll
 
 ### Blockers/Concerns
 
@@ -104,10 +107,10 @@ None - all blocking issues from Phase 15 resolved.
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 18-01-PLAN.md (UnifiedMenuItemCard)
+Stopped at: Phase 18 verified complete
 Resume file: None
-Next action: Execute 18-02-PLAN.md (Homepage Carousel) or 18-03 (Menu Page Integration)
+Next action: Plan Phase 19 (Homepage Redesign) - depends on Phase 16 + 18 (both complete)
 
 ---
 
-*Updated: 2026-01-24 - Completed 18-01*
+*Updated: 2026-01-24 - Completed Phase 18 (all 3 plans)*

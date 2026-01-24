@@ -191,7 +191,7 @@ export function CartItemV8({
         {isDragging && <SwipeDeleteIndicator progress={swipeValue} />}
       </AnimatePresence>
 
-      {/* Main card */}
+      {/* Main card - glassmorphism style matching unified card (no 3D tilt per CONTEXT.md) */}
       <motion.div
         drag={shouldAnimate ? "x" : false}
         dragConstraints={{ left: -150, right: 0 }}
@@ -200,10 +200,11 @@ export function CartItemV8({
         onDragEnd={handleDragEnd}
         style={{ x: dragX }}
         className={cn(
-          "relative bg-surface-primary rounded-xl",
-          "border border-border",
-          "shadow-sm",
-          "touch-pan-y",
+          // Glassmorphism styling matching unified card
+          "relative glass-menu-card rounded-2xl",
+          "border border-white/20 dark:border-white/10",
+          "shadow-lg shadow-black/5",
+          "touch-pan-y backdrop-blur-xl",
           compact ? "p-3" : "p-4"
         )}
         whileHover={
@@ -212,10 +213,10 @@ export function CartItemV8({
         transition={springConfig}
       >
         <div className="flex gap-3">
-          {/* Image */}
+          {/* Image - rounded corners matching card style */}
           <motion.div
             className={cn(
-              "flex-shrink-0 rounded-lg overflow-hidden bg-surface-secondary",
+              "flex-shrink-0 rounded-xl overflow-hidden bg-surface-secondary/50",
               compact ? "w-16 h-16" : "w-20 h-20"
             )}
             whileHover={shouldAnimate ? { scale: 1.05 } : undefined}

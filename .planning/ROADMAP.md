@@ -31,7 +31,7 @@ See `.planning/milestones/v1.1-ROADMAP.md` for archived phase details.
 - [x] **Phase 15: Foundation & R3F Setup** - Fix z-index bug, install React Three Fiber ✓
 - [x] **Phase 16: 3D Hero Core** - Basic 3D food model with controls ✓
 - [ ] **Phase 17: 3D Hero Advanced** - Auto-rotate, physics, carousel, particles
-- [ ] **Phase 18: Menu Unification** - Unified MenuItemCard across all surfaces
+- [x] **Phase 18: Menu Unification** - Unified MenuItemCard across all surfaces ✓
 - [ ] **Phase 19: Homepage Redesign** - Integrate 3D hero, enhanced sections
 - [ ] **Phase 20: Micro-interactions** - Consistent animations across all components
 - [ ] **Phase 21: Theme Refinements** - Light/dark polish, animated toggle
@@ -106,9 +106,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 18-01-PLAN.md — UnifiedMenuItemCard component with glassmorphism, 3D tilt, shine effect
-- [ ] 18-02-PLAN.md — FeaturedCarousel and homepage integration
-- [ ] 18-03-PLAN.md — Menu page and cart integration
+- [x] 18-01-PLAN.md — UnifiedMenuItemCard component with glassmorphism, 3D tilt, shine effect ✓
+- [x] 18-02-PLAN.md — FeaturedCarousel and homepage integration ✓
+- [x] 18-03-PLAN.md — Menu page and cart integration ✓
 
 ---
 
@@ -199,7 +199,7 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 | 15. Foundation & R3F Setup | v1.2 | 2/2 | Complete | 2026-01-23 |
 | 16. 3D Hero Core | v1.2 | 4/4 | Complete | 2026-01-24 |
 | 17. 3D Hero Advanced | v1.2 | 0/2 | Not started | - |
-| 18. Menu Unification | v1.2 | 0/3 | Planned | - |
+| 18. Menu Unification | v1.2 | 3/3 | Complete | 2026-01-24 |
 | 19. Homepage Redesign | v1.2 | 0/2 | Not started | - |
 | 20. Micro-interactions | v1.2 | 0/3 | Not started | - |
 | 21. Theme Refinements | v1.2 | 0/2 | Not started | - |
@@ -209,4 +209,4 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-24 - Phase 16 complete*
+*Last updated: 2026-01-24 - Phase 18 complete*
