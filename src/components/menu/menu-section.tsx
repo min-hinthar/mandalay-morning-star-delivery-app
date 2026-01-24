@@ -1,6 +1,10 @@
+"use client";
+
 import { forwardRef } from "react";
+import { motion } from "framer-motion";
 import type { MenuCategory, MenuItem } from "@/types/menu";
-import { MenuItemCard } from "./menu-item-card";
+import { UnifiedMenuItemCard } from "./UnifiedMenuItemCard";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 interface MenuSectionProps {
   category: MenuCategory;
@@ -10,6 +14,8 @@ interface MenuSectionProps {
 
 export const MenuSection = forwardRef<HTMLElement, MenuSectionProps>(
   function MenuSection({ category, id, onItemSelect }, ref) {
+    const { shouldAnimate } = useAnimationPreference();
+
     return (
       <section
         ref={ref}
@@ -26,9 +32,27 @@ export const MenuSection = forwardRef<HTMLElement, MenuSectionProps>(
           </h2>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {category.items.map((item) => (
-            <MenuItemCard key={item.id} item={item} onSelect={onItemSelect} />
+        {/* Responsive grid: 1 col mobile, 2 cols tablet, 3 cols desktop */}
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {category.items.map((item, index) => (
+            <motion.div
+              key={item.id}
+              initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
+              whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{
+                delay: Math.min(index * 0.08, 0.64),
+                duration: 0.55,
+              }}
+            >
+              <UnifiedMenuItemCard
+                item={item}
+                variant="menu"
+                categorySlug={category.slug}
+                onSelect={onItemSelect}
+                priority={index < 4}
+              />
+            </motion.div>
           ))}
         </div>
       </section>

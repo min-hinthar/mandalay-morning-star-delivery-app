@@ -2,12 +2,12 @@
 
 /**
  * MenuGridV8 Component
- * Responsive grid container with GSAP ScrollTrigger staggered reveal
+ * Responsive grid container using UnifiedMenuItemCard with 3D tilt
  *
  * Features:
- * - GSAP staggered animation on scroll into view
- * - Respects user animation preference
- * - Responsive grid: 1 col mobile, 2 xs, 3 md, 4 lg
+ * - Uses UnifiedMenuItemCard with glassmorphism and 3D tilt
+ * - Framer Motion staggered scroll-reveal animation
+ * - Responsive grid: 1 col mobile, 2 sm, 3 lg (per CONTEXT.md)
  * - Plays once (no reverse on scroll back)
  *
  * @example
@@ -20,11 +20,10 @@
  */
 
 import { useRef } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
-import { gsapDuration, gsapEase, gsapPresets } from "@/lib/gsap/presets";
+import { motion } from "framer-motion";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
-import { MenuItemCardV8 } from "./MenuItemCardV8";
+import { UnifiedMenuItemCard } from "@/components/menu/UnifiedMenuItemCard";
 import type { MenuItem } from "@/types/menu";
 
 // ============================================
@@ -54,59 +53,50 @@ export function MenuGridV8({
   items,
   categorySlug,
   onSelectItem,
-  onFavoriteToggle: _onFavoriteToggle,
-  favorites: _favorites = new Set(),
+  onFavoriteToggle,
+  favorites = new Set(),
   className,
 }: MenuGridV8Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { shouldAnimate } = useAnimationPreference();
-
-  useGSAP(
-    () => {
-      if (!shouldAnimate || !containerRef.current) return;
-
-      // Target all cards with data-menu-card attribute
-      const cards = containerRef.current.querySelectorAll("[data-menu-card]");
-
-      if (cards.length === 0) return;
-
-      // Staggered reveal animation
-      gsap.from(cards, {
-        y: 40,
-        opacity: 0,
-        duration: gsapDuration.slow,
-        ease: gsapEase.default,
-        stagger: gsapPresets.stagger.normal, // 0.06s between items
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top 85%",
-          // Play once, don't reverse or replay
-          toggleActions: "play none none none",
-        },
-      });
-    },
-    { scope: containerRef, dependencies: [shouldAnimate, items.length] }
-  );
 
   return (
     <div
       ref={containerRef}
       className={cn(
         "grid gap-4",
-        "grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+        // Responsive: 1 col mobile, 2 cols tablet, 3 cols desktop (per CONTEXT.md)
+        "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
         className
       )}
     >
       {items.map((item, index) => (
-        <MenuItemCardV8
+        <motion.div
           key={item.id}
-          item={item}
-          categorySlug={categorySlug}
-          onClick={onSelectItem}
-          // Priority load first 4 items (above fold)
-          priority={index < 4}
           data-menu-card={item.id}
-        />
+          initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
+          whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{
+            delay: Math.min(index * 0.08, 0.64),
+            duration: 0.55,
+          }}
+        >
+          <UnifiedMenuItemCard
+            item={item}
+            variant="menu"
+            categorySlug={categorySlug}
+            onSelect={onSelectItem}
+            isFavorite={favorites.has(item.id)}
+            onFavoriteToggle={
+              onFavoriteToggle
+                ? (menuItem, isFav) => onFavoriteToggle(menuItem.id, isFav)
+                : undefined
+            }
+            // Priority load first 4 items (above fold)
+            priority={index < 4}
+          />
+        </motion.div>
       ))}
     </div>
   );

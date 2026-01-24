@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UtensilsCrossed, ShoppingCart, Search } from "lucide-react";
-import { MenuItemCardV8, ItemDetailSheetV8 } from "@/components/ui-v8/menu";
+import { UtensilsCrossed, ShoppingCart, Search, Star } from "lucide-react";
+import { ItemDetailSheetV8 } from "@/components/ui-v8/menu";
+import { UnifiedMenuItemCard } from "@/components/menu/UnifiedMenuItemCard";
+// NOTE: FeaturedCarousel planned for 18-02, using grid fallback until then
 import { CategoryTabs } from "@/components/menu/category-tabs";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
@@ -16,6 +18,10 @@ import {
 import type { MenuCategory, MenuItem } from "@/types/menu";
 import type { SelectedModifier } from "@/types/cart";
 
+// ============================================
+// TYPES
+// ============================================
+
 // Extended MenuItem type with category slug for "All" tab
 interface MenuItemWithCategory extends MenuItem {
   categorySlug: string;
@@ -24,6 +30,48 @@ interface MenuItemWithCategory extends MenuItem {
 interface HomepageMenuSectionProps {
   categories: MenuCategory[];
 }
+
+// ============================================
+// FEATURED ITEMS LOGIC
+// ============================================
+
+const FEATURED_COUNT = 10;
+const FEATURED_TAGS = ["featured", "popular", "best-seller", "chef-special"];
+
+function getFeaturedItems(categories: MenuCategory[]): MenuItem[] {
+  // Flatten all items
+  const allItems = categories.flatMap((cat) => cat.items);
+
+  // Filter items with featured/popular tags
+  const featuredItems = allItems.filter((item) =>
+    item.tags.some((tag) =>
+      FEATURED_TAGS.includes(tag.toLowerCase())
+    )
+  );
+
+  // If we have enough featured items, return them
+  if (featuredItems.length >= FEATURED_COUNT) {
+    return featuredItems.slice(0, FEATURED_COUNT);
+  }
+
+  // Pad with random non-featured items to reach target count
+  const nonFeaturedItems = allItems.filter(
+    (item) =>
+      !item.tags.some((tag) =>
+        FEATURED_TAGS.includes(tag.toLowerCase())
+      ) && !item.isSoldOut
+  );
+
+  // Shuffle non-featured items for variety
+  const shuffled = [...nonFeaturedItems].sort(() => Math.random() - 0.5);
+  const paddingItems = shuffled.slice(0, FEATURED_COUNT - featuredItems.length);
+
+  return [...featuredItems, ...paddingItems];
+}
+
+// ============================================
+// MAIN COMPONENT
+// ============================================
 
 export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
   const { shouldAnimate } = useAnimationPreference();
@@ -34,6 +82,12 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const { addItem } = useCart();
   const { open: openCart } = useCartDrawer();
+
+  // Memoize featured items (only recalculate if categories change)
+  const featuredItems = useMemo(
+    () => getFeaturedItems(categories),
+    [categories]
+  );
 
   // Filter items based on search query
   const filteredCategories = categories.map((category) => ({
@@ -79,7 +133,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
     }
   }, [categories, shouldAnimate]);
 
-  // Handle item click
+  // Handle item click (from both carousel and grid)
   const handleItemClick = useCallback((item: MenuItem) => {
     setSelectedItem(item);
     setIsModalOpen(true);
@@ -125,6 +179,9 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
   const displayItems = activeSlug === null
     ? filteredAllItems
     : filteredCategories.find((cat) => cat.slug === activeSlug)?.items || [];
+
+  // Hide featured carousel when searching
+  const showFeaturedCarousel = !searchQuery && featuredItems.length >= 5;
 
   return (
     <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-surface-primary via-surface-secondary/30 to-surface-primary isolate" id="menu">
@@ -180,6 +237,65 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
           </motion.div>
         </motion.div>
 
+        {/* Featured Dishes Carousel */}
+        {showFeaturedCarousel && (
+          <motion.div
+            initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
+            whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={spring.gentle}
+            className="mb-16"
+          >
+            {/* Section Header */}
+            <div className="flex items-center gap-3 mb-6 px-4 md:px-6">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/10 rounded-full">
+                <Star className="w-4 h-4 text-secondary fill-secondary" />
+                <span className="text-sm font-body font-semibold text-secondary">Featured</span>
+              </div>
+              <h3 className="font-display text-xl md:text-2xl font-bold text-primary">
+                Featured Dishes
+              </h3>
+            </div>
+
+            {/* Featured Grid (carousel planned for 18-02) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 md:px-6">
+              {featuredItems.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(index * 0.08, 0.64), duration: 0.55 }}
+                >
+                  <UnifiedMenuItemCard
+                    item={item}
+                    variant="homepage"
+                    onSelect={handleItemClick}
+                    priority={index < 5}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Browse All Section Header */}
+        <motion.div
+          initial={shouldAnimate ? { opacity: 0, y: 12 } : undefined}
+          whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={spring.gentle}
+          className="mb-6"
+        >
+          <h3 className="font-display text-xl md:text-2xl font-bold text-primary">
+            {searchQuery ? "Search Results" : "Browse All Dishes"}
+          </h3>
+          <p className="text-sm font-body text-text-muted mt-1">
+            {searchQuery
+              ? `${displayItems.length} items found`
+              : `${allItemsWithCategory.length} items across ${categories.length} categories`}
+          </p>
+        </motion.div>
+
         {/* Category Tabs */}
         <div className="-mx-4 mb-8">
           <CategoryTabs
@@ -209,10 +325,11 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: Math.min(index * 0.08, 0.64), duration: 0.55 }}
                     >
-                      <MenuItemCardV8
+                      <UnifiedMenuItemCard
                         item={item}
+                        variant="menu"
                         categorySlug={item.categorySlug}
-                        onClick={handleItemClick}
+                        onSelect={handleItemClick}
                       />
                     </motion.div>
                   ))}
@@ -240,10 +357,11 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: Math.min(index * 0.08, 0.64), duration: 0.55 }}
                           >
-                            <MenuItemCardV8
+                            <UnifiedMenuItemCard
                               item={item}
+                              variant="menu"
                               categorySlug={category.slug}
-                              onClick={handleItemClick}
+                              onSelect={handleItemClick}
                             />
                           </motion.div>
                         ))}
