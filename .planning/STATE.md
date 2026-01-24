@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 16 of 22 (3D Hero Core)
-Plan: 2 of 3 complete
-Status: In progress
-Last activity: 2026-01-24 - Completed 16-02-PLAN.md (Food Model & OrbitControls)
+Plan: 3 of 3 complete
+Status: Phase complete
+Last activity: 2026-01-24 - Completed 16-03-PLAN.md (Hero Integration)
 
-Progress: [####################] v1.0-v1.1 complete | [████░░░░░░░░░░░░░░░░] v1.2 20%
+Progress: [####################] v1.0-v1.1 complete | [█████░░░░░░░░░░░░░░░] v1.2 25%
 
 ## Milestones Completed
 
@@ -25,13 +25,13 @@ Progress: [####################] v1.0-v1.1 complete | [████░░░░�
 
 **Total completed:** 14 phases, 53 plans
 **v1.2 scope:** 8 phases (15-22), ~18 plans, 48 requirements
-**v1.2 progress:** 1 phase complete + 2 plans, 4 plans done
+**v1.2 progress:** 2 phases complete, 5 plans done
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 57 (v1.0 + v1.1 + v1.2)
-- v1.2 plans completed: 4
+- Total plans completed: 58 (v1.0 + v1.1 + v1.2)
+- v1.2 plans completed: 5
 - Average duration: 9min (Phase 15-16)
 
 **By Phase (v1.2):**
@@ -39,7 +39,7 @@ Progress: [####################] v1.0-v1.1 complete | [████░░░░�
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 15 | 2/2 | 24min | 12min |
-| 16 | 2/3 | 9min | 4.5min |
+| 16 | 3/3 | 14min | 4.7min |
 
 *Updated after each plan completion*
 
@@ -62,6 +62,8 @@ Progress: [####################] v1.0-v1.1 complete | [████░░░░�
 - GPU tier 2+ threshold for 3D rendering (30+ fps capable)
 - Optimistic default to 3D while GPU detection loads
 - Indeterminate spinner for 3D loading (percentage unreliable for single GLB)
+- 2D fallback is designed experience for low-end devices, not failure state
+- show3D prop defaults to true, allows conditional disabling for A/B testing
 
 ### Research Findings
 
@@ -84,6 +86,9 @@ From `.planning/research/SUMMARY.md`:
 - **FoodModel pattern:** GLTF + spring entrance + shouldAnimate prop
 - **Hero3DCanvas pattern:** Canvas with touchAction: none, OrbitControls constraints, Environment + ContactShadows
 - **OrbitControls constraints:** polar 45-82deg, azimuth +-60deg keeps food viewable from appetizing angles
+- **Hero3DSection pattern:** Conditional wrapper with GPU detection and loading state
+- **2D fallback pattern:** Subtle motion (float + rotate) with gradient and glow
+- **3D layer integration:** ParallaxLayer speed=mid for depth effect
 
 ### Blockers/Concerns
 
@@ -92,10 +97,10 @@ None - all blocking issues from Phase 15 resolved.
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 16-02-PLAN.md (Food Model & OrbitControls)
+Stopped at: Completed 16-03-PLAN.md (Hero Integration) - Phase 16 complete
 Resume file: None
-Next action: `/gsd:execute-phase 16-03`
+Next action: Move to Phase 17 (3D Hero Polish) or continue v1.2 roadmap
 
 ---
 
-*Updated: 2026-01-24 - Completed 16-02*
+*Updated: 2026-01-24 - Completed 16-03*
