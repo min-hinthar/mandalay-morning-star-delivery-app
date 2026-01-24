@@ -1,3 +1,4 @@
+// @deprecated Use UnifiedMenuItemCard instead - will be removed in future cleanup
 "use client";
 
 import React, { useRef, useState, useCallback, useMemo } from "react";
