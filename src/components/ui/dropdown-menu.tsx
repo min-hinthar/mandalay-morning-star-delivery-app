@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils/cn";
+import { zClass } from "@/design-system/tokens/z-index";
 
 interface DropdownMenuContextType {
   open: boolean;
@@ -87,11 +88,12 @@ const DropdownMenuContent = ({
   return (
     <div
       className={cn(
-        "absolute z-10 min-w-[8rem] overflow-hidden rounded-md border bg-white p-1 shadow-md",
+        "absolute min-w-[8rem] overflow-hidden rounded-md border bg-white p-1 shadow-md",
         "animate-in fade-in-0 zoom-in-95",
         align === "end" && "right-0",
         align === "start" && "left-0",
         align === "center" && "left-1/2 -translate-x-1/2",
+        zClass.popover,
         className
       )}
     >
