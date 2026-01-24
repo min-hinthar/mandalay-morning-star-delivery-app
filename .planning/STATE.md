@@ -48,7 +48,7 @@ Progress: [####################] v1.0-v1.1 complete | [██░░░░░░�
 
 - ~~TailwindCSS 4 custom zIndex theme extensions not generating utility classes (INFRA-01)~~ RESOLVED in 15-01
 - ~~Signout button click not registering (z-index/stacking context) (INFRA-02)~~ RESOLVED in 15-01
-- Pre-existing TypeScript errors in layout components (polymorphic types)
+- ~~Pre-existing TypeScript errors in layout components (polymorphic types)~~ RESOLVED in 15-01
 
 ### Design Decisions
 
@@ -69,14 +69,16 @@ From `.planning/research/SUMMARY.md`:
 
 ### Patterns Established (Phase 15)
 
-- **zClass token system:** Use `zClass.dropdown`, `zClass.modal`, etc. from `@/lib/z-index`
+- **zClass token system:** Use `zClass.popover` for dropdowns escaping parent stacking context, `zClass.modalBackdrop` for backdrop layers
+- **Intra-component z-index:** Keep z-10 for elements that layer within their container (close buttons in modals)
 - **Scene wrapper:** Always use `src/components/3d/Scene.tsx` for Canvas
 - **Dynamic import 3D:** `dynamic(() => import('@/components/3d'), { ssr: false })`
 - **useFrame animation:** delta-based rotation for frame-rate independence
+- **Polymorphic component types:** Use `as = "div"` with `const Component = as as "div"` pattern for TypeScript compatibility
 
 ### Blockers/Concerns
 
-- Pre-existing TypeScript errors in PageContainer.tsx, layout components need fixing before production
+None - all blocking issues from Phase 15 resolved.
 
 ## Session Continuity
 
