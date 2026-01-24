@@ -1,560 +1,803 @@
-# Domain Pitfalls: UI/UX Frontend Rewrite
+# Domain Pitfalls: v1.2 Playful UI Overhaul
 
-**Project:** Morning Star Delivery App UI Rewrite
-**Domain:** Next.js 16 + React 19 + TailwindCSS 4 + Framer Motion + Radix UI
-**Researched:** 2026-01-21
-**Confidence:** HIGH (verified against existing codebase issues and official documentation)
+**Project:** Morning Star Delivery App - 3D & Enhanced Playfulness
+**Domain:** Next.js 15+ | React 19 | TailwindCSS 4 | Three.js/R3F | Framer Motion
+**Researched:** 2026-01-23
+**Confidence:** HIGH (verified against codebase ERROR_HISTORY.md and official sources)
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause rewrites or major clickability/usability failures.
+Mistakes that cause rewrites, broken interactions, or build failures.
 
 ---
 
-### Pitfall 1: Stacking Context Traps from CSS Properties
+### Pitfall 1: TailwindCSS 4 Does NOT Generate Custom zIndex Utility Classes
 
-**What goes wrong:** Elements become unclickable or visually misplaced because CSS properties silently create new stacking contexts, trapping z-index values within their local hierarchy.
+**What goes wrong:** Custom `zIndex` values in `tailwind.config.ts` theme extensions do NOT produce utility classes in TailwindCSS 4. Classes like `z-modal`, `z-dropdown`, `z-fixed` silently fail - elements receive no z-index styling.
 
-**Why it happens:** The following CSS properties create new stacking contexts:
-- `transform` (including `translateZ(0)`, `scale()`, `rotate()`)
-- `backdrop-filter` / `backdrop-blur`
-- `filter`
-- `opacity` < 1
-- `will-change: transform`
-- `position: fixed/sticky` with z-index
-- `isolation: isolate`
-
-When a header uses `backdrop-blur` for frosted glass effect, it creates a new stacking context. Any z-index inside that context only competes with siblings in that same context, not globally.
+**Why it happens:** TailwindCSS 4 changed how custom theme values work. Unlike TailwindCSS 3, extending `theme.zIndex` in the config file no longer generates corresponding utility classes.
 
 **Consequences:**
-- Header nav items unclickable when overlays have higher global z-index
-- Dropdowns appear behind parent containers despite high z-index values
-- Modal backdrops fail to cover certain page sections
+- Headers scroll under content
+- Modals appear behind page elements
+- Buttons unclickable (covered by invisible elements)
+- Signout button in dropdown not registering clicks
+- Silent failure - no CSS errors, no console warnings
 
-**Prevention:**
-1. **Audit every fixed/sticky element** for stacking-context-creating properties
-2. **Use a single portal root** for all overlays (Radix does this by default)
-3. **Test z-index hierarchy** by temporarily setting all fixed elements to `pointer-events-none` - if underlying content becomes clickable, you have a stacking context trap
-4. **Document which components create stacking contexts** in a LAYER_MAP.md
-
-**Detection (warning signs):**
-- "Works on homepage but not on /menu page" reports
-- Intermittent click failures that vary by scroll position
-- Overlays working in isolation but failing when composed
-
-**Phase mapping:** Address in Phase 1 (Foundation) - establish layer architecture before building components
-
-**Evidence from codebase:**
-```tsx
-// header.tsx line 337-338 - creates stacking context
-backdropFilter: `blur(${isAtTop ? 8 : 16}px)`,
-WebkitBackdropFilter: `blur(${isAtTop ? 8 : 16}px)`,
+**Root cause verified in codebase (ERROR_HISTORY.md 2026-01-24):**
+```ts
+// tailwind.config.ts - THIS DOES NOT WORK IN TAILWIND 4
+theme: {
+  extend: {
+    zIndex: {
+      fixed: '30',
+      modal: '50',
+    }
+  }
+}
+// z-fixed, z-modal classes do NOT exist
 ```
 
----
-
-### Pitfall 2: Z-Index Token Collision and Hardcoding
-
-**What goes wrong:** Multiple components use the same or conflicting z-index values, causing unpredictable layer ordering across different page compositions.
-
-**Why it happens:**
-- Developers hardcode `z-50` or `z-[60]` without checking existing usage
-- No single source of truth for layer hierarchy
-- Copy-paste from examples without understanding layer intent
-
-**Consequences:**
-- Cart drawer appears behind mobile nav
-- Tooltips hidden by sticky headers
-- Modal backdrops fail to dim certain sections
-
 **Prevention:**
-1. **Establish tokenized z-index system:**
+
+1. **Use numeric Tailwind classes only:**
+   ```ts
+   // z-index.ts - Use Tailwind's default numeric scale
+   export const zClass = {
+     base: "z-0",
+     dropdown: "z-10",
+     sticky: "z-20",
+     fixed: "z-30",
+     modalBackdrop: "z-40",
+     modal: "z-50",
+     popover: "z-[60]",    // Arbitrary for values beyond scale
+     tooltip: "z-[70]",
+     toast: "z-[80]",
+     max: "z-[100]",
+   };
+   ```
+
+2. **For @theme directive, use unquoted numeric values:**
    ```css
-   --z-dropdown: 10;
-   --z-sticky: 20;
-   --z-fixed: 30;
-   --z-modal-backdrop: 40;
-   --z-modal: 50;
-   --z-popover: 60;
-   --z-tooltip: 70;
-   --z-max: 100;
-   ```
-2. **ESLint rule to catch hardcoded z-index:**
-   ```js
-   "no-restricted-syntax": ["error", {
-     selector: "Literal[value=/z-\\[\\d+\\]/]",
-     message: "Use z-[var(--z-*)] tokens"
-   }]
-   ```
-3. **Component layer assignment table** mapping each overlay type to its token
+   /* globals.css - WRONG */
+   @theme {
+     --z-index-modal: '50';  /* Quoted = broken */
+   }
 
-**Detection:**
-- `grep -r "z-\[" src/` returns numeric values instead of CSS vars
-- Multiple components using `z-50` for different semantic purposes
-
-**Phase mapping:** Address in Phase 1 (Foundation) - token system must exist before any component work
-
-**Evidence from codebase (50+ instances found):**
-```tsx
-// Various files using tokenized approach (correct):
-"z-[var(--z-modal)]"
-"z-[var(--z-sticky)]"
-
-// grain.ts line 264 - hardcoded (incorrect):
-zIndex: 9999,
-```
-
----
-
-### Pitfall 3: Overlay State Persisting Across Route Changes
-
-**What goes wrong:** Mobile menu, modal, or drawer state remains open when user navigates to a new route via Link or router.push(), causing the overlay backdrop to intercept clicks on the new page.
-
-**Why it happens:**
-- State managed in useState() without listening to pathname changes
-- AnimatePresence exit animation running while new page renders
-- No cleanup in useEffect tied to route changes
-
-**Consequences:**
-- Header/nav completely unclickable after navigation
-- Invisible backdrop blocking entire page
-- User thinks app is frozen
-
-**Prevention:**
-```tsx
-// In any component managing overlay state
-const pathname = usePathname();
-
-useEffect(() => {
-  // Close all overlays on route change
-  setIsOpen(false);
-  setIsMobileMenuOpen(false);
-}, [pathname]);
-```
-
-**Detection:**
-- "Works on first page load but breaks after navigation"
-- `isMobileMenuOpen` state true when inspecting on non-home pages
-- Backdrop element present in DOM after navigation
-
-**Phase mapping:** Address in Phase 2 (Navigation/Overlays) - must be part of overlay infrastructure
-
-**Evidence from codebase (fix applied 2026-01-21):**
-```tsx
-// HeaderClient.tsx - this pattern was missing
-useEffect(() => {
-  setIsMobileMenuOpen(false);
-}, [pathname]);
-```
-
----
-
-### Pitfall 4: Radix Dropdown Event Swallowing
-
-**What goes wrong:** Actions inside Radix dropdown menus (like signout) fail silently because:
-1. Form submissions inside DropdownMenuItem are swallowed
-2. `event.preventDefault()` in onSelect blocks Next.js redirect()
-3. Server actions throwing NEXT_REDIRECT get caught in try/catch
-
-**Why it happens:**
-- Radix closes dropdown immediately on item click, interrupting async actions
-- Next.js redirect() works by throwing a special error
-- Developer try/catch blocks capture the redirect error
-
-**Consequences:**
-- Signout button shows loading spinner forever
-- Delete actions appear to succeed but nothing happens
-- Navigation actions fail silently
-
-**Prevention:**
-1. **Never use `<form action={...}>` inside dropdown items**
-2. **Create DropdownAction component** that handles async with loading state:
-   ```tsx
-   onSelect={() => {
-     // NO event.preventDefault() for navigation actions
-     handleAsyncAction();
-   }}
-   ```
-3. **Re-throw redirect errors:**
-   ```tsx
-   } catch (error) {
-     if (String(error).includes("NEXT_REDIRECT")) {
-       throw error; // Let Next.js handle redirect
-     }
-     // Handle actual errors
+   /* globals.css - CORRECT */
+   @theme {
+     --z-index-modal: 50;    /* Unquoted = works */
    }
    ```
 
-**Detection:**
-- Button shows loading state but action never completes
-- No network request visible in DevTools
-- Works when called outside dropdown context
+3. **Verify helper objects return valid classes:**
+   ```bash
+   # Check that zClass values are valid Tailwind classes
+   grep -r "zClass\." src/components --include="*.tsx" | head -5
+   # Then verify those classes exist in Tailwind output
+   ```
 
-**Phase mapping:** Address in Phase 2 (Navigation/Overlays) - dropdown infrastructure
+**Detection (warning signs):**
+- Inspect element shows no `z-index` computed style
+- Works in dev but breaks after build
+- Header/modal layer ordering wrong despite "correct" class names
 
-**Evidence from codebase:**
-```tsx
-// DropdownAction.tsx - had event.preventDefault() blocking redirect
-// user-menu.tsx - uses DropdownAction for signout
-```
+**Phase mapping:** Address in Phase 1 (Foundation) - z-index token audit before any component work
+
+**Sources:**
+- [TailwindCSS 4 @theme discussion](https://github.com/tailwindlabs/tailwindcss/discussions/18031)
+- Codebase ERROR_HISTORY.md (2026-01-23, 2026-01-24)
 
 ---
 
-### Pitfall 5: AnimatePresence Mounting/Unmounting Race Conditions
+### Pitfall 2: React Three Fiber + Next.js 15/React 19 Compatibility
 
-**What goes wrong:** Exit animations don't play, or components appear to "flash" because AnimatePresence is unmounted before exit animation completes.
+**What goes wrong:** TypeError: `Cannot read properties of undefined (reading 'ReactCurrentOwner')` when using React Three Fiber with Next.js 15.
 
-**Why it happens:**
-- AnimatePresence placed inside conditional rendering instead of wrapping it
-- Parent component unmounts during child exit animation
-- Key changes cause immediate remount instead of animate transition
+**Why it happens:** React 19 renamed internal APIs from `SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED` to `__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE`. R3F accesses these internals for reconciliation.
 
 **Consequences:**
-- Jarring UI with no exit transitions
-- Memory leaks from interrupted animations
-- Components briefly visible then disappear
+- 3D canvas fails to render
+- App crashes on pages with R3F components
+- White screen on 3D scenes
 
 **Prevention:**
-```tsx
-// WRONG - AnimatePresence unmounts with content
-{isOpen && (
-  <AnimatePresence>
-    <Modal />
-  </AnimatePresence>
-)}
 
-// CORRECT - AnimatePresence always mounted
-<AnimatePresence>
-  {isOpen && <Modal key="modal" />}
-</AnimatePresence>
-```
+1. **Use compatible R3F version:**
+   ```bash
+   # R3F 9.x is designed for React 19
+   npm install @react-three/fiber@9.0.0 three@latest
+   # NOT @react-three/fiber@8.x (designed for React 18)
+   ```
+
+2. **Version pairing rule:**
+   | React Version | R3F Version |
+   |---------------|-------------|
+   | React 18      | @react-three/fiber@8.x |
+   | React 19      | @react-three/fiber@9.x |
+
+3. **Check package.json before starting 3D work:**
+   ```bash
+   npm ls react @react-three/fiber
+   ```
 
 **Detection:**
-- Exit animations never play
-- React DevTools shows AnimatePresence mounting/unmounting with content
-- Memory profiler shows retained motion values
+- Console error mentioning `ReactCurrentOwner` or `SECRET_INTERNALS`
+- Canvas element present but empty/white
+- Works locally with React 18, breaks in prod with React 19
 
-**Phase mapping:** Address in Phase 3 (Animation System) - establish patterns before component animations
+**Phase mapping:** Address before any 3D implementation - version compatibility check
+
+**Sources:**
+- [Next.js 15 + R3F compatibility issue](https://github.com/vercel/next.js/issues/71836)
+- [R3F Installation docs](https://r3f.docs.pmnd.rs/getting-started/installation)
+
+---
+
+### Pitfall 3: R3F/Three.js "window is not defined" and Hydration Errors
+
+**What goes wrong:** Server-side rendering crashes with `ReferenceError: window is not defined` or hydration mismatch errors because Three.js requires browser APIs.
+
+**Why it happens:** Three.js and R3F depend on `window`, `document`, `WebGLRenderingContext` which don't exist during SSR. Next.js App Router pre-renders all components on server by default.
+
+**Consequences:**
+- Build fails during SSR pass
+- Hydration mismatch errors in console
+- 3D content flashes or doesn't appear
+- SEO impact if error causes full page failure
+
+**Prevention:**
+
+1. **Dynamic import with ssr: false:**
+   ```tsx
+   // app/page.tsx
+   import dynamic from 'next/dynamic';
+
+   const Scene3D = dynamic(
+     () => import('@/components/three/Scene3D'),
+     { ssr: false }
+   );
+
+   export default function Page() {
+     return <Scene3D />;
+   }
+   ```
+
+2. **Client Component with mounted check:**
+   ```tsx
+   // components/three/Scene3D.tsx
+   'use client';
+
+   import { Canvas } from '@react-three/fiber';
+   import { useEffect, useState } from 'react';
+
+   export default function Scene3D() {
+     const [mounted, setMounted] = useState(false);
+
+     useEffect(() => {
+       setMounted(true);
+     }, []);
+
+     if (!mounted) return <div className="h-64 bg-muted" />; // Placeholder
+
+     return <Canvas>...</Canvas>;
+   }
+   ```
+
+3. **Never import Three.js at module level in Server Components:**
+   ```tsx
+   // WRONG - crashes SSR
+   import * as THREE from 'three';
+
+   // CORRECT - only in Client Components with 'use client'
+   'use client';
+   import * as THREE from 'three';
+   ```
+
+**Detection:**
+- Build error: `ReferenceError: window is not defined`
+- Console: `Hydration failed because the initial UI does not match`
+- 3D canvas appears then disappears on load
+
+**Phase mapping:** Address in Phase 1 (3D Infrastructure) - establish SSR-safe patterns
+
+**Sources:**
+- [Window is not defined in Next.js (2025)](https://dev.to/devin-rosario/stop-window-is-not-defined-in-nextjs-2025-394j)
+- [Next.js Hydration Error docs](https://nextjs.org/docs/messages/react-hydration-error)
+
+---
+
+### Pitfall 4: WebGL Context Lost and Memory Leaks
+
+**What goes wrong:** After navigating between pages with 3D content, browser shows "WebGL context lost" or app becomes sluggish with increasing memory usage.
+
+**Why it happens:**
+- WebGLRenderer not disposed on component unmount
+- Geometries, materials, textures not explicitly disposed
+- Multiple Canvas components create multiple WebGL contexts
+- Browser limit: ~8-16 concurrent WebGL contexts
+
+**Consequences:**
+- "WARNING: Too many active WebGL contexts. Oldest context will be lost"
+- 3D content stops rendering after navigation
+- App freezes or crashes on mobile
+- Battery drain from retained GPU resources
+
+**Prevention:**
+
+1. **Proper cleanup on unmount:**
+   ```tsx
+   useEffect(() => {
+     return () => {
+       // Dispose scene resources
+       scene.traverse((object) => {
+         if (object instanceof THREE.Mesh) {
+           object.geometry.dispose();
+           if (Array.isArray(object.material)) {
+             object.material.forEach(m => m.dispose());
+           } else {
+             object.material.dispose();
+           }
+         }
+       });
+       // Force context loss
+       renderer.forceContextLoss();
+       renderer.dispose();
+     };
+   }, []);
+   ```
+
+2. **Single Canvas pattern:**
+   ```tsx
+   // Use ONE Canvas at app level, swap scenes
+   // NOT multiple Canvas components per page
+   <Canvas>
+     {pathname === '/menu' && <MenuScene />}
+     {pathname === '/checkout' && <CheckoutScene />}
+   </Canvas>
+   ```
+
+3. **Reuse renderer and context:**
+   ```tsx
+   // R3F handles this if using single Canvas
+   // For custom Three.js, use shared renderer instance
+   ```
+
+4. **Debug with Chrome:**
+   ```js
+   console.log(renderer.info.memory);  // Active geometries/textures
+   console.log(renderer.info.render);  // Draw call count
+   ```
+
+**Detection:**
+- Console: "WebGL context lost" after navigation
+- Chrome DevTools > Memory shows increasing heap
+- Performance degrades after 3-4 page navigations
+- Mobile Safari crashes
+
+**Phase mapping:** Address in Phase 2 (3D Components) - cleanup utilities before building scenes
+
+**Sources:**
+- [Three.js Context Lost discussion](https://discourse.threejs.org/t/three-webglrenderer-context-lost-performance-ram/44213)
+- [R3F WebGL contexts discussion](https://github.com/pmndrs/react-three-fiber/discussions/2457)
+
+---
+
+### Pitfall 5: CSS 3D Transforms Break Z-Index and Stacking
+
+**What goes wrong:** Adding `transform-style: preserve-3d` or `perspective` for 3D CSS effects causes dropdowns, modals, and tooltips to layer incorrectly.
+
+**Why it happens:**
+- `preserve-3d` creates a 3D rendering context separate from normal z-index stacking
+- `opacity < 1` forces `transform-style: flat` even when `preserve-3d` is set
+- `overflow: hidden/auto/scroll` also forces `transform-style: flat`
+- 3D-transformed elements can't be ordered with non-3D elements via z-index
+
+**Consequences:**
+- Dropdown appears behind 3D card even with z-50
+- Modal backdrop doesn't cover 3D elements
+- Tooltips clip or disappear
+- Signout button (in dropdown) unclickable over 3D content
+
+**Prevention:**
+
+1. **Use translateZ for 3D stacking, not z-index:**
+   ```css
+   /* For elements within 3D context */
+   .modal {
+     transform: translateZ(100px);  /* 3D stacking */
+   }
+   ```
+
+2. **Isolate 3D contexts:**
+   ```css
+   /* Create boundary so 3D doesn't leak */
+   .page-content {
+     isolation: isolate;
+     transform-style: flat;  /* Explicit */
+   }
+   ```
+
+3. **Avoid opacity < 1 on 3D containers:**
+   ```css
+   /* WRONG - breaks preserve-3d */
+   .card-3d {
+     transform-style: preserve-3d;
+     opacity: 0.95;  /* Forces flat! */
+   }
+
+   /* CORRECT - use rgba backgrounds instead */
+   .card-3d {
+     transform-style: preserve-3d;
+     background: rgba(255,255,255,0.95);
+   }
+   ```
+
+4. **Keep overlays in separate stacking context:**
+   ```tsx
+   // Radix portals render to body, escaping 3D contexts
+   // Use Radix Dialog/Dropdown for overlays near 3D content
+   ```
+
+**Detection:**
+- Overlay works on non-3D pages but fails on 3D pages
+- Computed style shows `transform-style: flat` when `preserve-3d` expected
+- DevTools 3D view shows elements in wrong plane
+
+**Phase mapping:** Address in Phase 1 (Foundation) - document stacking architecture before adding 3D
+
+**Sources:**
+- [CSS 3D gotchas](https://css-tricks.com/things-watch-working-css-3d/)
+- [MDN Stacking Context](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Positioned_layout/Stacking_context)
+
+---
+
+### Pitfall 6: Radix Dropdown Event Swallowing (Known Issue)
+
+**What goes wrong:** Actions in Radix dropdown menus (signout, delete, navigation) fail silently. Click registers but nothing happens.
+
+**Why it happens (multiple causes):**
+1. `<form action={...}>` inside DropdownMenuItem - form submit swallowed
+2. `event.preventDefault()` in onSelect blocks navigation
+3. try/catch captures Next.js redirect() error (NEXT_REDIRECT)
+4. `pointer-events: none` stuck on body after dialog opened from dropdown
+
+**Consequences:**
+- Signout button appears to do nothing
+- Delete actions fail silently
+- Navigation from dropdown doesn't work
+- UI becomes unresponsive after opening dialog from dropdown
+
+**This is a known issue documented in ERROR_HISTORY.md (2026-01-18).**
+
+**Prevention:**
+
+1. **Never use forms in dropdown items:**
+   ```tsx
+   // WRONG
+   <DropdownMenuItem>
+     <form action={signOut}><button>Sign out</button></form>
+   </DropdownMenuItem>
+
+   // CORRECT
+   <DropdownMenuItem onSelect={() => signOut()}>
+     Sign out
+   </DropdownMenuItem>
+   ```
+
+2. **Re-throw redirect errors:**
+   ```tsx
+   try {
+     await serverAction();
+   } catch (error) {
+     if (String(error).includes("NEXT_REDIRECT")) {
+       throw error;  // Let Next.js handle it
+     }
+     // Handle real errors
+   }
+   ```
+
+3. **Check for stuck pointer-events:**
+   ```tsx
+   // After dialog closes
+   document.body.style.pointerEvents = '';
+   ```
+
+4. **Use existing DropdownAction component:**
+   ```tsx
+   // Already solved in codebase
+   import { DropdownAction } from '@/components/ui/DropdownAction';
+
+   <DropdownAction onSelect={async () => await signOut()}>
+     Sign out
+   </DropdownAction>
+   ```
+
+**Detection:**
+- Click fires (console.log in handler runs) but action doesn't complete
+- Network tab shows no request
+- Works when same action triggered outside dropdown
+
+**Phase mapping:** Already addressed - use existing DropdownAction pattern
+
+**Sources:**
+- [Radix click propagation issue](https://github.com/radix-ui/primitives/issues/1242)
+- [Radix pointer-events issue](https://github.com/radix-ui/primitives/issues/837)
+- Codebase ERROR_HISTORY.md (2026-01-18)
 
 ---
 
 ## Moderate Pitfalls
 
-Mistakes that cause delays, visual bugs, or technical debt.
+Mistakes that cause delays, visual bugs, or performance issues.
 
 ---
 
-### Pitfall 6: Portal Container Z-Index Inheritance
+### Pitfall 7: R3F Performance - Object Creation in Render Loop
 
-**What goes wrong:** Radix portals render to document.body by default, but inherit stacking context from where the trigger is placed, not from the portal target.
+**What goes wrong:** Frame rate drops, stuttering, and increased garbage collection pauses because Three.js objects are created every frame.
 
 **Why it happens:**
-- Developer assumes portal escapes all stacking contexts
-- Some Radix components (Dialog, Dropdown) handle this; custom portals may not
-- Mixed use of Radix portals and custom createPortal()
+- Creating geometries/materials inside component body (recreated on every render)
+- Setting state inside useFrame (triggers React re-render every frame)
+- Not using instancing for repeated objects
+- Not using GLTF/JSX for models
 
 **Consequences:**
-- Dropdown content appears behind header
-- Dialog backdrop doesn't cover sticky elements
-- Inconsistent z-index behavior across components
+- 15-30 FPS instead of 60 FPS
+- Visible stuttering during animations
+- Memory grows continuously
+- Mobile devices overheat
 
 **Prevention:**
-1. **Use Radix primitives consistently** - they handle portal z-index
-2. **Custom portals need explicit z-index** on portal content, not container
-3. **Create single OverlayRoot** component for non-Radix overlays
+
+1. **Never set state in useFrame:**
+   ```tsx
+   // WRONG - causes re-render every frame
+   useFrame(() => {
+     setRotation(r => r + 0.01);
+   });
+
+   // CORRECT - mutate ref directly
+   const meshRef = useRef<THREE.Mesh>(null);
+   useFrame((_, delta) => {
+     if (meshRef.current) {
+       meshRef.current.rotation.y += delta;
+     }
+   });
+   ```
+
+2. **Use delta time for consistent speed:**
+   ```tsx
+   // WRONG - speed varies by device FPS
+   position.x += 0.1;
+
+   // CORRECT - consistent across devices
+   position.x += delta * speed;
+   ```
+
+3. **Memoize expensive objects:**
+   ```tsx
+   // Create once, reuse
+   const geometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
+   const material = useMemo(() => new THREE.MeshStandardMaterial({ color: 'red' }), []);
+   ```
+
+4. **Use instancing for many similar objects:**
+   ```tsx
+   // 1000 boxes as single draw call
+   <instancedMesh args={[geometry, material, 1000]}>
+     {matrices.map((matrix, i) => (
+       <group key={i} matrix={matrix} />
+     ))}
+   </instancedMesh>
+   ```
 
 **Detection:**
-- Overlay appears behind some elements but not others
-- Works in isolation, fails in page context
-- Inspect shows portal in body but visually behind fixed elements
+- Chrome DevTools Performance shows long "Scripting" blocks in frame
+- `renderer.info.render.calls` high for simple scene
+- React DevTools shows many re-renders
 
-**Phase mapping:** Address in Phase 2 (Navigation/Overlays)
+**Phase mapping:** Address in Phase 2 (3D Components) - establish performance patterns
+
+**Sources:**
+- [R3F Performance Pitfalls](https://r3f.docs.pmnd.rs/advanced/pitfalls)
 
 ---
 
-### Pitfall 7: Body Scroll Lock Conflicts
+### Pitfall 8: Light Mode Footer/Text Visibility
 
-**What goes wrong:** Multiple overlays try to lock body scroll, and cleanup restores scroll when one closes even if another is still open.
-
-**Why it happens:**
-```tsx
-// Each overlay does this independently
-useEffect(() => {
-  if (isOpen) document.body.style.overflow = "hidden";
-  return () => { document.body.style.overflow = ""; };
-}, [isOpen]);
-```
-
-**Consequences:**
-- Body becomes scrollable while modal still open
-- Scroll position jumps when overlay closes
-- iOS Safari exhibits scroll-through on overlays
-
-**Prevention:**
-1. **Use scroll-lock library** like `body-scroll-lock` or `react-remove-scroll`
-2. **Centralized scroll lock manager** that counts active locks:
-   ```tsx
-   const scrollLockCount = useRef(0);
-   const lockScroll = () => { scrollLockCount.current++; lock(); };
-   const unlockScroll = () => {
-     scrollLockCount.current--;
-     if (scrollLockCount.current === 0) unlock();
-   };
-   ```
-3. **Radix Dialog handles this** - prefer Radix for modals
-
-**Detection:**
-- Open modal A, open modal B, close B - page scrollable with A still open
-- iOS: can scroll page through modal backdrop
-
-**Phase mapping:** Address in Phase 2 (Navigation/Overlays)
-
----
-
-### Pitfall 8: Framer Motion Performance on Low-End Devices
-
-**What goes wrong:** Animations cause jank, dropped frames, or battery drain on mobile devices.
+**What goes wrong:** Text becomes invisible or hard to read in light mode because contrast assumptions made for dark mode don't hold.
 
 **Why it happens:**
-- Animating layout properties (width, height, top, left) instead of transforms
-- Too many simultaneous animated components
-- Complex spring physics with high stiffness/low damping
-- useTransform creating unnecessary subscriptions
+- Footer designed for dark background, inherits light background
+- Text color tokens not accounting for both themes
+- Glass/blur effects reducing contrast differently per theme
 
 **Consequences:**
-- 15-30fps on mid-tier Android devices
-- Battery complaints from users
-- iOS Safari janky scrolling
-
-**Prevention:**
-1. **Only animate transform and opacity** - GPU-accelerated
-2. **Use `layout` prop sparingly** - triggers layout recalculation
-3. **Reduce spring stiffness** for mobile: stiffness: 300 -> 200
-4. **LazyMotion for code splitting:**
-   ```tsx
-   import { LazyMotion, domAnimation } from "framer-motion";
-   <LazyMotion features={domAnimation}>
-   ```
-5. **useReducedMotion** hook for accessibility and performance
-
-**Detection:**
-- Chrome DevTools Performance tab shows long "Recalculate Style" blocks
-- FPS drops below 30 during animations
-- `layout` prop usage on frequently rerendering components
-
-**Phase mapping:** Address in Phase 3 (Animation System) - establish performance patterns
-
----
-
-### Pitfall 9: Inconsistent Animation Timing
-
-**What goes wrong:** Enter and exit animations have mismatched durations, springs have inconsistent feel, different components animate at different speeds for same interaction type.
-
-**Why it happens:**
-- Inline animation configs instead of shared tokens
-- Different developers using different duration values
-- No design system for motion
-
-**Consequences:**
-- UI feels "janky" and unpolished
-- Exit animations feel too slow or too fast
-- Brand motion identity inconsistent
-
-**Prevention:**
-1. **Motion token system:**
-   ```tsx
-   export const spring = {
-     snappy: { stiffness: 600, damping: 35 },
-     rubbery: { stiffness: 400, damping: 20 },
-     floaty: { stiffness: 50, damping: 10 },
-   };
-   export const duration = {
-     instant: 0.1,
-     fast: 0.15,
-     normal: 0.25,
-     slow: 0.4,
-   };
-   ```
-2. **Shared variants for common patterns:**
-   ```tsx
-   export const fadeSlideUp = {
-     initial: { opacity: 0, y: 20 },
-     animate: { opacity: 1, y: 0 },
-     exit: { opacity: 0, y: -10 },
-   };
-   ```
-3. **ESLint rule for inline duration/stiffness values**
-
-**Detection:**
-- Animation durations vary: 0.15, 0.2, 0.25, 0.3 across codebase
-- Spring configs defined inline instead of using tokens
-- No `motion-tokens.ts` import in animation-heavy components
-
-**Phase mapping:** Address in Phase 1 (Foundation) - motion tokens
-
-**Evidence from codebase (good pattern exists):**
-```tsx
-// lib/motion-tokens.ts - already has spring tokens
-export const spring = {
-  ultraBouncy: { type: "spring", stiffness: 300, damping: 15 },
-  snappy: { type: "spring", stiffness: 600, damping: 35 },
-  // ...
-};
-```
-
----
-
-### Pitfall 10: Glass/Blur Effects Breaking Text Contrast
-
-**What goes wrong:** Text becomes unreadable on glassmorphism backgrounds because blur + transparency reduces contrast below WCAG thresholds.
-
-**Why it happens:**
-- Glass effect looks good on solid background in design
-- Real page has varied content behind glass element
-- Dynamic content (images, gradients) creates unpredictable contrast
-
-**Consequences:**
-- WCAG 2.1 AA violations
+- Footer text invisible in light mode
+- WCAG contrast failures
 - User complaints about readability
-- Accessibility audit failures
 
 **Prevention:**
-1. **Always include explicit text color** with glass effects:
+
+1. **Explicit color for each theme:**
    ```css
-   .glass {
-     background: rgba(255, 255, 255, 0.8);
-     backdrop-filter: blur(12px);
-     color: var(--color-text-primary); /* Explicit, don't inherit */
+   .footer-text {
+     color: var(--color-text-primary);  /* Adapts to theme */
    }
+
+   /* Or explicit per theme */
+   :root { --footer-text: #1a1a1a; }
+   .dark { --footer-text: #f5f5f5; }
    ```
-2. **Use semi-opaque backgrounds** (0.85+) for text containers
-3. **Add subtle border** to improve perceived separation
-4. **Test on varied page content** - images, gradients, videos
+
+2. **Test both themes during development:**
+   ```tsx
+   // Add theme toggle to Storybook/dev
+   const ThemeToggle = () => {
+     const toggle = () => document.documentElement.classList.toggle('dark');
+     return <button onClick={toggle}>Toggle Theme</button>;
+   };
+   ```
+
+3. **Avoid absolute colors on themed backgrounds:**
+   ```css
+   /* WRONG */
+   .footer { color: white; }  /* Invisible on light bg */
+
+   /* CORRECT */
+   .footer { color: var(--color-text-inverse); }
+   ```
 
 **Detection:**
-- axe-core contrast violations
-- Text hard to read on certain page sections
-- Works on homepage hero but fails on menu page with food images
+- Visual test in light mode
+- axe-core contrast audit
+- User reports "can't read footer"
 
-**Phase mapping:** Address in Phase 1 (Foundation) - design tokens for glass effects
+**Phase mapping:** Address in Phase 3 (Polish) - theme audit
 
-**Evidence from codebase:**
-```tsx
-// PlacesAutocomplete had glass class causing readability issues
-// Fix: replaced with solid bg-[var(--color-surface-primary)]
-```
+---
+
+### Pitfall 9: 3D Assets Blocking Initial Page Load
+
+**What goes wrong:** Large GLTF/GLB models or textures delay Largest Contentful Paint (LCP) and First Contentful Paint (FCP).
+
+**Why it happens:**
+- Models loaded eagerly in component tree
+- Large textures not compressed
+- No loading states showing progress
+- Assets bundled instead of lazy-loaded
+
+**Consequences:**
+- 3+ second LCP on mobile
+- Users see blank space where 3D should be
+- Core Web Vitals fail
+- SEO penalty
+
+**Prevention:**
+
+1. **Lazy load 3D content:**
+   ```tsx
+   const Scene = dynamic(() => import('./Scene'), {
+     ssr: false,
+     loading: () => <Skeleton className="h-64" />
+   });
+   ```
+
+2. **Use Suspense with loading state:**
+   ```tsx
+   <Canvas>
+     <Suspense fallback={<LoadingSpinner />}>
+       <Model url="/model.glb" />
+     </Suspense>
+   </Canvas>
+   ```
+
+3. **Compress assets:**
+   ```bash
+   # Use gltf-transform for optimization
+   npx @gltf-transform/cli optimize input.glb output.glb
+
+   # Compress textures to WebP/AVIF
+   # Use KTX2 for GPU-compressed textures
+   ```
+
+4. **Progressive loading:**
+   ```tsx
+   // Load low-poly first, swap to high-poly
+   const lowPoly = useGLTF('/model-low.glb');
+   const highPoly = useGLTF('/model-high.glb', true); // preload
+   ```
+
+**Detection:**
+- Lighthouse LCP > 2.5s
+- Network tab shows large .glb downloads blocking
+- Users complain about slow page loads
+
+**Phase mapping:** Address in Phase 2 (3D Components) - asset pipeline
+
+---
+
+### Pitfall 10: Framer Motion + R3F Animation Conflicts
+
+**What goes wrong:** Using both Framer Motion and Three.js/R3F animations causes race conditions, janky transitions, or unexpected behavior.
+
+**Why it happens:**
+- Both systems try to control transforms
+- Different frame timing (React vs requestAnimationFrame)
+- Framer Motion's AnimatePresence conflicts with R3F unmounting
+- Spring physics calculated differently
+
+**Consequences:**
+- Elements jump or snap during transitions
+- Exit animations don't play for 3D content
+- Performance worse than either system alone
+
+**Prevention:**
+
+1. **Separate concerns - Framer for UI, R3F for 3D:**
+   ```tsx
+   // Framer for page transitions
+   <AnimatePresence>
+     {showPage && (
+       <motion.div exit={{ opacity: 0 }}>
+         {/* R3F handles its own animations */}
+         <Canvas>
+           <AnimatedMesh />  {/* useFrame, not motion */}
+         </Canvas>
+       </motion.div>
+     )}
+   </AnimatePresence>
+   ```
+
+2. **Don't animate Canvas container with Framer layout:**
+   ```tsx
+   // WRONG - Framer layout animates Canvas size
+   <motion.div layout>
+     <Canvas />
+   </motion.div>
+
+   // CORRECT - Fixed container, animate content
+   <div className="fixed-size">
+     <Canvas>
+       <AnimatedContent />
+     </Canvas>
+   </div>
+   ```
+
+3. **Use Framer's motion values with R3F:**
+   ```tsx
+   import { useMotionValue, useSpring } from 'framer-motion';
+
+   const x = useMotionValue(0);
+   const smoothX = useSpring(x, { stiffness: 100 });
+
+   useFrame(() => {
+     mesh.current.position.x = smoothX.get();
+   });
+   ```
+
+**Detection:**
+- Animations stutter when Framer and R3F both active
+- Exit animations for 3D content skip
+- Console warnings about concurrent updates
+
+**Phase mapping:** Address in Phase 2 (Animation Integration)
 
 ---
 
 ## Minor Pitfalls
 
-Annoyances that are fixable but waste time.
+Annoyances that waste time but are easily fixed.
 
 ---
 
-### Pitfall 11: PriceTicker inCents Prop Omission
+### Pitfall 11: drei/R3F Utility Import Errors
 
-**What goes wrong:** Prices display as $1299.00 instead of $12.99 because values are in cents but component defaults to dollars.
+**What goes wrong:** Import errors when using @react-three/drei utilities because of version mismatches or tree-shaking issues.
 
-**Why it happens:** PriceTicker defaults `inCents={false}` and developers forget to pass it when using cent-denominated values.
+**Prevention:**
+```bash
+# Ensure compatible versions
+npm ls @react-three/fiber @react-three/drei three
+
+# Import specific utilities, not entire package
+import { OrbitControls, useGLTF } from '@react-three/drei';
+// NOT: import * as drei from '@react-three/drei';
+```
+
+---
+
+### Pitfall 12: Environment Map/Lighting Setup Missing
+
+**What goes wrong:** 3D models appear black or flat because no lights or environment configured.
 
 **Prevention:**
 ```tsx
-// Always be explicit
-<PriceTicker value={item.basePriceCents} inCents={true} />
+<Canvas>
+  <ambientLight intensity={0.5} />
+  <directionalLight position={[10, 10, 5]} />
+  {/* Or use environment preset */}
+  <Environment preset="city" />
+  <Model />
+</Canvas>
 ```
-
-**Detection:** Prices off by factor of 100
-
-**Phase mapping:** N/A - code review catch
 
 ---
 
-### Pitfall 12: Missing Key Prop on AnimatePresence Children
+### Pitfall 13: Canvas Size Not Filling Container
 
-**What goes wrong:** Exit animations don't work because React can't track which child to animate out.
-
-**Prevention:** Always provide unique key to AnimatePresence direct children:
-```tsx
-<AnimatePresence>
-  {items.map((item) => (
-    <motion.div key={item.id} exit={{ opacity: 0 }}>
-```
-
-**Phase mapping:** N/A - code review catch
-
----
-
-### Pitfall 13: useMediaQuery SSR Mismatch
-
-**What goes wrong:** Hydration errors because useMediaQuery returns false on server but different value on client.
+**What goes wrong:** Canvas has 0 height or doesn't resize with container.
 
 **Prevention:**
 ```tsx
-const [mounted, setMounted] = useState(false);
-useEffect(() => setMounted(true), []);
-const isMobile = useMediaQuery("(max-width: 640px)");
-// Use mounted && isMobile for conditional rendering
+// Parent MUST have explicit height
+<div className="h-64 w-full">
+  <Canvas style={{ height: '100%', width: '100%' }}>
+    ...
+  </Canvas>
+</div>
 ```
-
-**Phase mapping:** Address in Phase 1 (Foundation) - hook utilities
 
 ---
 
 ## Phase-Specific Warnings
 
-| Phase | Likely Pitfall | Mitigation |
-|-------|---------------|------------|
-| Phase 1: Foundation | Z-index tokens not comprehensive | Audit all existing z-index usage before defining tokens |
-| Phase 2: Navigation/Overlays | Route change state persistence | Add pathname effect to ALL overlay components |
-| Phase 2: Navigation/Overlays | Portal z-index conflicts | Use Radix primitives consistently; avoid mixing portal strategies |
-| Phase 3: Animation System | Performance on mobile | Profile on real Android device before shipping |
-| Phase 3: Animation System | AnimatePresence placement | Create standard overlay wrapper with correct AnimatePresence placement |
-| Phase 4: Component Library | Glass effect contrast | Include automated contrast testing in component tests |
-| Phase 5: Integration | Multiple scroll locks | Use centralized scroll lock manager |
+| Phase | Topic | Likely Pitfall | Mitigation |
+|-------|-------|---------------|------------|
+| Phase 1 | Foundation | TailwindCSS 4 z-index classes | Audit zClass helper, use numeric classes only |
+| Phase 1 | Foundation | R3F version mismatch | Verify @react-three/fiber@9 for React 19 |
+| Phase 2 | 3D Components | SSR crashes | Use dynamic import with ssr: false |
+| Phase 2 | 3D Components | Memory leaks | Implement cleanup utilities from start |
+| Phase 2 | 3D Components | Performance | Establish useFrame patterns before building |
+| Phase 3 | Polish | Light mode contrast | Test both themes on every component |
+| Phase 3 | Polish | Asset loading | Compress GLTF, lazy load, show skeletons |
 
 ---
 
-## Prevention Checklist for UI Rewrite
+## Prevention Checklist for v1.2 Overhaul
 
-Before any component work:
-- [ ] Z-index token system defined with semantic names
-- [ ] Layer map document created
-- [ ] ESLint rule for hardcoded z-index enabled
-- [ ] Motion token system established
-- [ ] Overlay base component with pathname effect
-- [ ] Scroll lock strategy decided
+Before starting 3D implementation:
+- [ ] Verify @react-three/fiber@9.x installed for React 19
+- [ ] TailwindCSS 4 zClass helper returns numeric classes (z-30, z-50)
+- [ ] SSR-safe pattern established (dynamic import + mounted check)
+- [ ] Canvas cleanup utility created
 
-Before shipping any overlay component:
-- [ ] Tested after route navigation (not just initial render)
-- [ ] Tested with other overlays open simultaneously
-- [ ] Z-index uses tokens, not hardcoded values
-- [ ] Exit animation verified working
-- [ ] Body scroll locked properly
+Before shipping 3D components:
+- [ ] Tested after multiple page navigations (no context lost)
+- [ ] Performance profiled on mobile/low-end device
+- [ ] No state updates in useFrame
+- [ ] Assets compressed and lazy-loaded
 
-Before shipping any animated component:
-- [ ] Uses motion tokens, not inline values
-- [ ] Tested on low-end device (or throttled CPU)
-- [ ] AnimatePresence correctly placed (always mounted)
-- [ ] No layout animations on frequently updating elements
+Before shipping UI with 3D:
+- [ ] Tested in both light and dark modes
+- [ ] Z-index verified with 3D content visible
+- [ ] Dropdowns/modals work over 3D scenes
+- [ ] Exit animations work when navigating away
 
 ---
 
 ## Sources
 
-**Codebase Analysis:**
-- Existing LEARNINGS.md entries (2026-01-18 through 2026-01-21)
-- Current z-index usage: 50+ tokenized references found
-- Known issues documented in PRD_V8.md
+**Codebase Documentation:**
+- `.claude/ERROR_HISTORY.md` (2026-01-18, 2026-01-23, 2026-01-24)
+- `.claude/LEARNINGS.md` (2026-01-23)
 
-**External Research:**
-- [Stacking Context Pitfalls](https://css3shapes.com/what-is-a-stacking-context-understanding-z-index/)
-- [Backdrop-Filter Positioning Issues](https://medium.com/@aqib-2/why-backdrop-filter-fails-with-positioned-child-elements-0b82b504f440)
-- [Transform Z-Index Trap in React](https://dev.to/minoosh/today-i-learned-layouts-and-the-z-index-trap-in-react-366f)
-- [Radix UI Accessibility](https://www.radix-ui.com/primitives/docs/overview/accessibility)
-- [Radix Dialog Documentation](https://www.radix-ui.com/primitives/docs/components/dialog)
-- [AnimatePresence Memory Leak Issues](https://github.com/framer/motion/issues/625)
-- [Framer Motion Performance Tips](https://tillitsdone.com/blogs/framer-motion-performance-tips/)
-- [Managing Z-Index for Component Libraries](https://medium.com/@honmavmahesh/managing-stacking-context-and-z-index-for-component-library-1baabaeda7c6)
+**Official Documentation:**
+- [R3F Installation](https://r3f.docs.pmnd.rs/getting-started/installation)
+- [R3F Performance Pitfalls](https://r3f.docs.pmnd.rs/advanced/pitfalls)
+- [TailwindCSS 4 Theme Variables](https://tailwindcss.com/docs/theme)
+
+**Issue Trackers:**
+- [Next.js 15 + R3F Compatibility](https://github.com/vercel/next.js/issues/71836)
+- [TailwindCSS 4 Custom Z-Index](https://github.com/tailwindlabs/tailwindcss/discussions/18031)
+- [Radix Dropdown Click Issues](https://github.com/radix-ui/primitives/issues/1242)
+- [R3F WebGL Context Issues](https://github.com/pmndrs/react-three-fiber/discussions/2457)
+
+**Community Resources:**
+- [Window is not defined in Next.js 2025](https://dev.to/devin-rosario/stop-window-is-not-defined-in-nextjs-2025-394j)
+- [CSS 3D Transform Gotchas](https://css-tricks.com/things-watch-working-css-3d/)
+- [MDN Stacking Context](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Positioned_layout/Stacking_context)
