@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, Search, Star } from "lucide-react";
 import { ItemDetailSheetV8 } from "@/components/ui-v8/menu";
 import { UnifiedMenuItemCard } from "@/components/menu/UnifiedMenuItemCard";
-// NOTE: FeaturedCarousel planned for 18-02, using grid fallback until then
+import { FeaturedCarousel } from "@/components/menu/FeaturedCarousel";
 import { CategoryTabs } from "@/components/menu/category-tabs";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
@@ -257,24 +257,11 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
               </h3>
             </div>
 
-            {/* Featured Grid (carousel planned for 18-02) */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 md:px-6">
-              {featuredItems.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: Math.min(index * 0.08, 0.64), duration: 0.55 }}
-                >
-                  <UnifiedMenuItemCard
-                    item={item}
-                    variant="homepage"
-                    onSelect={handleItemClick}
-                    priority={index < 5}
-                  />
-                </motion.div>
-              ))}
-            </div>
+            {/* Carousel */}
+            <FeaturedCarousel
+              items={featuredItems}
+              onItemSelect={handleItemClick}
+            />
           </motion.div>
         )}
 
