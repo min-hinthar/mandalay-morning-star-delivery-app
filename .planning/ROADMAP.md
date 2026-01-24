@@ -66,12 +66,12 @@ Plans:
   3. User can zoom model with pinch/scroll (within limits)
   4. Loading spinner shows while 3D assets load
   5. Low-end mobile devices show 2D fallback image instead of 3D
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 16-01: TBD (3D model rendering and lighting)
-- [ ] 16-02: TBD (OrbitControls and interaction)
-- [ ] 16-03: TBD (Loading states and mobile fallback)
+- [ ] 16-01-PLAN.md — Infrastructure: GPU detection hook, branded loader, dependencies
+- [ ] 16-02-PLAN.md — 3D Scene: Hero3DCanvas with FoodModel, OrbitControls, lighting
+- [ ] 16-03-PLAN.md — Integration: Hero3DSection (3D/2D switch), Hero.tsx integration
 
 ---
 
@@ -195,7 +195,7 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 15. Foundation & R3F Setup | v1.2 | 2/2 | Complete | 2026-01-23 |
-| 16. 3D Hero Core | v1.2 | 0/3 | Not started | - |
+| 16. 3D Hero Core | v1.2 | 0/3 | Planned | - |
 | 17. 3D Hero Advanced | v1.2 | 0/2 | Not started | - |
 | 18. Menu Unification | v1.2 | 0/2 | Not started | - |
 | 19. Homepage Redesign | v1.2 | 0/2 | Not started | - |
@@ -207,4 +207,4 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-23 - Phase 15 complete*
+*Last updated: 2026-01-24 - Phase 16 planned*
