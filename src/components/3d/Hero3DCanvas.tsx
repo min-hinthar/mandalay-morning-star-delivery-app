@@ -5,8 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows } from "@react-three/drei";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { Hero3DLoader } from "./loaders/Hero3DLoader";
-import { FoodModelPlaceholder } from "./models/FoodModel";
-// import { FoodModel } from "./models/FoodModel"; // Uncomment when real model exists
+import { FoodModel } from "./models/FoodModel";
 
 /**
  * Hero 3D Canvas - Interactive food model showcase.
@@ -39,20 +38,13 @@ export function Hero3DCanvas() {
     >
       {/* Loading state - shown while model loads */}
       <Suspense fallback={<Hero3DLoader />}>
-        {/* Food Model - using placeholder until real GLB sourced */}
-        <FoodModelPlaceholder
-          shouldAnimate={shouldAnimate}
-          position={[0, 0, 0]}
-          scale={1}
-        />
-        {/* Real model (uncomment when /public/models/rice-bowl.glb exists):
+        {/* Food Model - real GLB from /public/models/ */}
         <FoodModel
           url="/models/rice-bowl.glb"
           shouldAnimate={shouldAnimate}
           position={[0, 0, 0]}
           scale={1}
         />
-        */}
 
         {/* OrbitControls - constrained rotation, zoom with limits */}
         <OrbitControls
