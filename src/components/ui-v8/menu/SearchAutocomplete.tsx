@@ -219,7 +219,7 @@ export function SearchAutocomplete({
             "border border-border",
             "shadow-lg",
             "overflow-hidden",
-            "z-dropdown",
+            "z-10",
             "max-h-80 overflow-y-auto",
             className
           )}

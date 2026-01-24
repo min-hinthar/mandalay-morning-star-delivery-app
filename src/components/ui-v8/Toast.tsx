@@ -4,7 +4,7 @@
  * Toast Component
  * Notification toasts with stacking and animations
  *
- * Uses z-toast layer (80) - highest z-index for notifications
+ * Uses z-[80] layer (80) - highest z-index for notifications
  * Appears above all other overlays including modals
  *
  * @example
@@ -83,7 +83,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
 
 /**
  * ToastContainer - Fixed container for toast stack
- * Renders via Portal, uses z-toast (80) for highest stacking
+ * Renders via Portal, uses z-[80] (80) for highest stacking
  */
 export function ToastContainer() {
   const { toasts, dismiss } = useToast();

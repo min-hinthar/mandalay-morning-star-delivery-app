@@ -39,7 +39,7 @@ export function DriverNav() {
   return (
     <nav
       data-testid="driver-nav"
-      className="fixed bottom-0 left-0 right-0 z-fixed border-t border-border bg-surface-primary/95 backdrop-blur-sm safe-area-pb"
+      className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-surface-primary/95 backdrop-blur-sm safe-area-pb"
     >
       <div className="flex h-16 items-center justify-around px-4">
         {navItems.map((item) => {

@@ -268,7 +268,7 @@ function ToastContainer({
   };
 
   return (
-    <div className={cn("fixed z-toast", positionClasses[position])}>
+    <div className={cn("fixed z-[80]", positionClasses[position])}>
       <AnimatePresence mode="popLayout">
         {toasts.slice(0, 5).map((toast, index) => (
           <ToastItem

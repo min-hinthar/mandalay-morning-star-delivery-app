@@ -68,9 +68,10 @@ export function useFlyToCart() {
 
   // Cleanup on unmount
   useEffect(() => {
+    const currentFlying = flyingRef.current;
     return () => {
-      if (flyingRef.current?.element) {
-        flyingRef.current.element.remove();
+      if (currentFlying?.element) {
+        currentFlying.element.remove();
       }
     };
   }, []);

@@ -447,7 +447,7 @@ export function Modal({
                     type="button"
                     onClick={onClose}
                     className={cn(
-                      "absolute z-dropdown",
+                      "absolute z-10",
                       isMobile ? "top-4 right-4" : "top-3 right-3",
                       "flex h-10 w-10 items-center justify-center rounded-full",
                       "bg-[var(--color-surface-secondary,#f8f7f6)] dark:bg-[var(--color-surface-secondary-dark,#2a2827)]",

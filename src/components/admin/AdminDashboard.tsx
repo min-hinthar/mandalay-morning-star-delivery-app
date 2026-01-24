@@ -511,7 +511,7 @@ export function AdminDashboard({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 pointer-events-none z-max flex items-center justify-center"
+            className="fixed inset-0 pointer-events-none z-[100] flex items-center justify-center"
           >
             <motion.div
               variants={celebration.badge}

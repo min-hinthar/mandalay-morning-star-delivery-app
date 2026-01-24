@@ -694,7 +694,7 @@ export function CartDrawer({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-modal-backdrop bg-black/60"
+            className="fixed inset-0 z-40 bg-black/60"
           />
 
           {/* Drawer */}

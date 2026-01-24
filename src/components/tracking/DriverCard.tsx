@@ -88,14 +88,14 @@ export function DriverCard({
               src={driver.profileImageUrl}
               alt={displayName}
               className="h-14 w-14 rounded-full object-cover ring-2 ring-jade-100"
+              onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }}
             />
-          ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-jade-100 ring-2 ring-jade-200">
-              <span className="text-lg font-semibold text-jade-700">
-                {initials}
-              </span>
-            </div>
-          )}
+          ) : null}
+          <div className={cn("flex h-14 w-14 items-center justify-center rounded-full bg-jade-100 ring-2 ring-jade-200", driver.profileImageUrl && "hidden")}>
+            <span className="text-lg font-semibold text-jade-700">
+              {initials}
+            </span>
+          </div>
           {/* Online indicator */}
           <span className="absolute bottom-0 right-0 flex h-4 w-4">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-jade-400 opacity-75" />

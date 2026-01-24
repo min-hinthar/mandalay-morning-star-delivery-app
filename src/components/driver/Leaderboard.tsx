@@ -126,14 +126,14 @@ function PodiumPosition({ entry, position }: PodiumPositionProps) {
               src={entry.profileImageUrl}
               alt={entry.name}
               className="w-full h-full rounded-full object-cover bg-surface-primary"
+              onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }}
             />
-          ) : (
-            <div className="w-full h-full rounded-full bg-surface-primary flex items-center justify-center">
-              <span className="text-xl font-bold text-text-muted">
-                {entry.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
-          )}
+          ) : null}
+          <div className={cn("w-full h-full rounded-full bg-surface-primary flex items-center justify-center", entry.profileImageUrl && "hidden")}>
+            <span className="text-xl font-bold text-text-muted">
+              {entry.name.charAt(0).toUpperCase()}
+            </span>
+          </div>
         </div>
 
         {/* Position badge */}
@@ -268,14 +268,14 @@ function LeaderboardRow({ entry, index }: LeaderboardRowProps) {
               src={entry.profileImageUrl}
               alt={entry.name}
               className="w-full h-full object-cover"
+              onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }}
             />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-sm font-bold text-text-muted">
-                {entry.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
-          )}
+          ) : null}
+          <div className={cn("w-full h-full flex items-center justify-center", entry.profileImageUrl && "hidden")}>
+            <span className="text-sm font-bold text-text-muted">
+              {entry.name.charAt(0).toUpperCase()}
+            </span>
+          </div>
         </div>
 
         {/* Streak badge */}

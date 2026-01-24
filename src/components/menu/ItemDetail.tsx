@@ -354,7 +354,7 @@ export function ItemDetail({
         transition={getSpring(spring.snappy)}
       >
         {/* Header actions */}
-        <div className="absolute top-4 left-4 right-4 z-sticky flex items-center justify-between">
+        <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
           <motion.button
             type="button"
             onClick={onClose}

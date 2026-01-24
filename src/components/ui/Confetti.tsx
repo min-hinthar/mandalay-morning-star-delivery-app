@@ -107,7 +107,7 @@ export function Confetti({
   return (
     <div
       className={cn(
-        "pointer-events-none fixed inset-0 z-max overflow-hidden",
+        "pointer-events-none fixed inset-0 z-[100] overflow-hidden",
         className
       )}
       aria-hidden="true"

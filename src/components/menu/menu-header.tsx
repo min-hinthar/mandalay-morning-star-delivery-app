@@ -30,7 +30,7 @@ export function MenuHeader({
       }}
       transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
       className={cn(
-        "sticky top-0 z-sticky h-14",
+        "sticky top-0 z-20 h-14",
         "bg-[var(--color-cream)]/95 dark:bg-[var(--color-background)]/95",
         "backdrop-blur-lg border-b border-[var(--color-border)]"
       )}
