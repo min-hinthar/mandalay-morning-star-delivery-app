@@ -16,13 +16,13 @@ Requirements for v1.2 milestone. Each maps to roadmap phases.
 
 ### 3D Interactive Hero
 
-- [ ] **HERO3D-01**: 3D food model renders in hero section
-- [ ] **HERO3D-02**: User can rotate 3D model with drag/touch (OrbitControls)
-- [ ] **HERO3D-03**: User can zoom 3D model with pinch/scroll (constrained limits)
-- [ ] **HERO3D-04**: 3-point lighting setup makes food look appetizing
-- [ ] **HERO3D-05**: Loading state shows during 3D asset load
-- [ ] **HERO3D-06**: Low-end mobile devices show 2D fallback instead of 3D
-- [ ] **HERO3D-07**: Reduced motion preference disables auto-rotation
+- [x] **HERO3D-01**: 3D food model renders in hero section ✓
+- [x] **HERO3D-02**: User can rotate 3D model with drag/touch (OrbitControls) ✓
+- [x] **HERO3D-03**: User can zoom 3D model with pinch/scroll (constrained limits) ✓
+- [x] **HERO3D-04**: 3-point lighting setup makes food look appetizing ✓
+- [x] **HERO3D-05**: Loading state shows during 3D asset load ✓
+- [x] **HERO3D-06**: Low-end mobile devices show 2D fallback instead of 3D ✓
+- [x] **HERO3D-07**: Reduced motion preference disables auto-rotation ✓
 - [ ] **HERO3D-08**: 3D model auto-rotates when idle
 - [ ] **HERO3D-09**: Drag interaction has momentum and springs back (physics-based)
 - [ ] **HERO3D-10**: Multiple food models available in carousel (swipe between dishes)
@@ -122,13 +122,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-02 | Phase 15 | Complete |
 | INFRA-03 | Phase 15 | Complete |
 | INFRA-04 | Phase 15 | Complete |
-| HERO3D-01 | Phase 16 | Pending |
-| HERO3D-02 | Phase 16 | Pending |
-| HERO3D-03 | Phase 16 | Pending |
-| HERO3D-04 | Phase 16 | Pending |
-| HERO3D-05 | Phase 16 | Pending |
-| HERO3D-06 | Phase 16 | Pending |
-| HERO3D-07 | Phase 16 | Pending |
+| HERO3D-01 | Phase 16 | Complete |
+| HERO3D-02 | Phase 16 | Complete |
+| HERO3D-03 | Phase 16 | Complete |
+| HERO3D-04 | Phase 16 | Complete |
+| HERO3D-05 | Phase 16 | Complete |
+| HERO3D-06 | Phase 16 | Complete |
+| HERO3D-07 | Phase 16 | Complete |
 | HERO3D-08 | Phase 17 | Pending |
 | HERO3D-09 | Phase 17 | Pending |
 | HERO3D-10 | Phase 17 | Pending |
@@ -175,4 +175,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-23*
-*Last updated: 2026-01-23 - Phase 15 requirements complete*
+*Last updated: 2026-01-24 - Phase 16 requirements complete*
