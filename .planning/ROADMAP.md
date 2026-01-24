@@ -29,7 +29,7 @@ See `.planning/milestones/v1.1-ROADMAP.md` for archived phase details.
 **Overview:** Eight phases delivering the playful UI overhaul. Foundation phase fixes TailwindCSS 4 z-index blocking bug and establishes React Three Fiber. Then 3D hero in two phases (core + advanced). Menu unification creates consistent card design. Homepage redesign integrates everything. Micro-interactions add delight across all components. Theme refinements polish light/dark modes. Customer page polish ensures consistent playfulness everywhere.
 
 - [x] **Phase 15: Foundation & R3F Setup** - Fix z-index bug, install React Three Fiber ✓
-- [ ] **Phase 16: 3D Hero Core** - Basic 3D food model with controls
+- [x] **Phase 16: 3D Hero Core** - Basic 3D food model with controls ✓
 - [ ] **Phase 17: 3D Hero Advanced** - Auto-rotate, physics, carousel, particles
 - [ ] **Phase 18: Menu Unification** - Unified MenuItemCard across all surfaces
 - [ ] **Phase 19: Homepage Redesign** - Integrate 3D hero, enhanced sections
@@ -72,7 +72,7 @@ Plans:
 - [x] 16-01-PLAN.md — Infrastructure: GPU detection hook, branded loader, dependencies ✓
 - [x] 16-02-PLAN.md — 3D Scene: Hero3DCanvas with FoodModel, OrbitControls, lighting ✓
 - [x] 16-03-PLAN.md — Integration: Hero3DSection (3D/2D switch), Hero.tsx integration ✓
-- [ ] 16-04-PLAN.md — Gap closure: Source real GLB model and 2D fallback image
+- [x] 16-04-PLAN.md — Gap closure: Source real GLB model and 2D fallback image ✓
 
 ---
 
@@ -197,7 +197,7 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 15. Foundation & R3F Setup | v1.2 | 2/2 | Complete | 2026-01-23 |
-| 16. 3D Hero Core | v1.2 | 3/4 | Gap closure | - |
+| 16. 3D Hero Core | v1.2 | 4/4 | Complete | 2026-01-24 |
 | 17. 3D Hero Advanced | v1.2 | 0/2 | Not started | - |
 | 18. Menu Unification | v1.2 | 0/3 | Planned | - |
 | 19. Homepage Redesign | v1.2 | 0/2 | Not started | - |
@@ -209,4 +209,4 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-24 - Phase 16 gap closure plan added*
+*Last updated: 2026-01-24 - Phase 16 complete*
