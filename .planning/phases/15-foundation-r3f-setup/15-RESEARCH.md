@@ -339,7 +339,7 @@ export function useGPUTier() {
 **Deprecated/outdated:**
 - `@react-three/fiber@8.x`: Incompatible with React 19
 - `theme.extend.zIndex` in tailwind.config: Does not generate utilities in v4
-- Arbitrary `z-[var(--zindex-*)]` syntax: Can cause CSS parsing errors
+- Arbitrary z-index CSS variable syntax: Can cause CSS parsing errors (use named utilities instead)
 
 ## Open Questions
 

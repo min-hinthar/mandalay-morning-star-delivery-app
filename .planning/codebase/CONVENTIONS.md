@@ -283,7 +283,7 @@ import { useState } from "react";
 **Class Names:**
 - Use `cn()` utility for conditional classes: `cn("base-class", condition && "active-class")`
 - Import from: `import { cn } from "@/lib/utils/cn"`
-- Design tokens via CSS variables: `z-[var(--z-modal)]` not `z-50`
+- Design tokens via Tailwind utilities: `z-modal` not `z-50`
 - Color tokens: `bg-[var(--color-primary)]` not `bg-red-600`
 
 ---
