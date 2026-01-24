@@ -48,7 +48,9 @@
       "WebFetch(domain:tailwindcss.com)",
       "WebFetch(domain:github.com)",
       "Bash(pnpm lint:css:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:r3f.docs.pmnd.rs)"
     ],
     "ask": [
       "WebFetch",

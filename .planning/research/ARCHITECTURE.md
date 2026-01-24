@@ -1,7 +1,7 @@
 # Architecture Patterns
 
 **Domain:** UI component library with strict layering and motion-first design
-**Researched:** 2026-01-21
+**Researched:** 2026-01-21 (Updated 2026-01-23 with 3D integration)
 **Confidence:** HIGH (verified against existing codebase + authoritative sources)
 
 ---
@@ -16,6 +16,8 @@ This architecture document addresses the core problems identified in the PRD:
 - Mobile menu blocking clicks after navigation
 
 The recommended architecture uses a **portal-first overlay system**, **strict z-index token enforcement**, and **component isolation boundaries** to prevent these issues.
+
+**v1.2 Update:** Added Three.js/React Three Fiber integration patterns for 3D hero section, ensuring 3D canvas coexists with existing GSAP/Framer Motion animation infrastructure.
 
 ---
 
@@ -69,6 +71,20 @@ src/
 │       └── ThemeProvider/           # Theme context
 │
 ├── components/                       # EXISTING: Keep during migration
+│   └── three/                        # NEW: 3D component namespace (v1.2)
+│       ├── Scene.tsx                 # Root R3F Canvas wrapper
+│       ├── Hero3DCanvas.tsx          # Hero-specific 3D scene
+│       ├── Mascot3D.tsx              # 3D mascot model
+│       ├── FloatingFood3D.tsx        # 3D food items
+│       ├── Environment3D.tsx         # Lighting, environment
+│       ├── hooks/
+│       │   ├── useScrollAnimation.ts # GSAP ScrollTrigger → 3D sync
+│       │   ├── useMouseParallax.ts   # Mouse → camera/object movement
+│       │   └── useLoadingProgress.ts # Asset loading state
+│       └── models/                   # GLTF model components
+│           ├── MascotModel.tsx
+│           └── FoodModels.tsx
+│
 └── lib/                             # EXISTING: Utilities and hooks
 ```
 
@@ -83,6 +99,7 @@ src/
 | Organisms | Tokens, Primitives, Atoms, Molecules | Other Organisms (except composition) |
 | Layouts | Tokens, Organisms | Business logic |
 | Providers | Tokens, Primitives | Components |
+| **Three (NEW)** | Tokens, Primitives (hooks only) | Organisms (use shared state instead) |
 
 ---
 
@@ -519,6 +536,253 @@ export function HeroSection() {
 
 ---
 
+## Three.js/React Three Fiber Integration (v1.2)
+
+### Overview
+
+React Three Fiber (R3F) integrates with the existing architecture through client-only rendering. The key pattern: wrap 3D components in dynamic imports with `ssr: false`, coordinate animations via shared Zustand state, and use `framer-motion-3d` for cross-context animations.
+
+### Target 3D Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     Hero3D Component                            │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────────────────────────┐          │
+│  │ DOM Layer   │  │     R3F Canvas Layer             │          │
+│  │ (z-index:2) │  │     (z-index:-1, fixed)          │          │
+│  ├─────────────┤  ├─────────────────────────────────┤          │
+│  │ Headlines   │  │ ┌─────────────────────────────┐ │          │
+│  │ CTAs        │  │ │  3D Mascot Model            │ │          │
+│  │ Stats       │  │ │  - GLTF loaded via drei     │ │          │
+│  │ Nav Links   │  │ │  - Morph targets for        │ │          │
+│  │             │  │ │    expressions              │ │          │
+│  │ (Framer     │  │ │  - Idle animations         │ │          │
+│  │  Motion)    │  │ └─────────────────────────────┘ │          │
+│  │             │  │ ┌─────────────────────────────┐ │          │
+│  │             │  │ │  Floating Food Items        │ │          │
+│  │             │  │ │  - 3D models with physics   │ │          │
+│  │             │  │ │  - Mouse interaction        │ │          │
+│  │             │  │ └─────────────────────────────┘ │          │
+│  └─────────────┘  └─────────────────────────────────┘          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### SSR/Hydration Strategy
+
+R3F uses WebGL which requires browser APIs. Disable SSR for all 3D components.
+
+```tsx
+// src/components/three/Scene.tsx
+"use client";
+
+import dynamic from "next/dynamic";
+
+const Hero3DCanvas = dynamic(
+  () => import("./Hero3DCanvas").then((mod) => mod.Hero3DCanvas),
+  { ssr: false }
+);
+
+export function Scene() {
+  return <Hero3DCanvas />;
+}
+```
+
+### Hydration Safety Pattern (Matches Existing Portal)
+
+```tsx
+// Pattern from src/components/ui-v8/overlay/Portal.tsx - reuse for 3D
+const [mounted, setMounted] = useState(false);
+
+useEffect(() => {
+  setMounted(true);
+}, []);
+
+if (!mounted) return null; // SSR safety
+```
+
+### Canvas Placement Strategy
+
+**Recommended: Fixed Background Canvas**
+
+```tsx
+<div className="relative">
+  {/* 3D Background - fixed, behind content */}
+  <div className="fixed inset-0 -z-10">
+    <Hero3DCanvas />
+  </div>
+
+  {/* DOM Content - scrollable, above 3D */}
+  <div className="relative z-0">
+    <Hero3DOverlay /> {/* Headlines, CTAs */}
+    <CoverageSection />
+    <Timeline />
+  </div>
+</div>
+```
+
+### GSAP ScrollTrigger + R3F Coordination
+
+Existing `ScrollChoreographer.tsx` pattern adapts for 3D:
+
+```tsx
+// src/components/three/hooks/useScrollAnimation.ts
+import { useGSAP, gsap, ScrollTrigger } from "@/lib/gsap";
+import { useThree, useFrame } from "@react-three/fiber";
+
+export function useScrollAnimation() {
+  const { camera } = useThree();
+  const progressRef = useRef(0);
+
+  useGSAP(() => {
+    ScrollTrigger.create({
+      trigger: "#hero-section",
+      start: "top top",
+      end: "bottom top",
+      scrub: 1,
+      onUpdate: (self) => {
+        progressRef.current = self.progress;
+      },
+    });
+  }, []);
+
+  useFrame(() => {
+    // Animate camera based on scroll progress
+    camera.position.z = 5 + progressRef.current * 2;
+    camera.rotation.x = progressRef.current * 0.2;
+  });
+}
+```
+
+### Framer Motion + R3F Bridge
+
+Use `framer-motion-3d` for synchronized DOM ↔ 3D animations:
+
+```tsx
+// src/components/three/Mascot3D.tsx
+import { motion } from "framer-motion-3d";
+import { useGLTF } from "@react-three/drei";
+
+export function Mascot3D({ expression }: { expression: string }) {
+  const { nodes, materials } = useGLTF("/models/mascot.glb");
+
+  return (
+    <motion.group
+      initial={{ scale: 0, rotateY: -Math.PI }}
+      animate={{ scale: 1, rotateY: 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    >
+      <mesh geometry={nodes.mascot.geometry} material={materials.body} />
+    </motion.group>
+  );
+}
+```
+
+### Shared State Coordination (Zustand)
+
+Use existing Zustand pattern for cross-context state:
+
+```tsx
+// src/lib/stores/hero-store.ts
+import { create } from "zustand";
+
+interface HeroStore {
+  scrollProgress: number;
+  mascotExpression: string;
+  isHovering: boolean;
+  setScrollProgress: (progress: number) => void;
+  setMascotExpression: (expression: string) => void;
+  setHovering: (hovering: boolean) => void;
+}
+
+export const useHeroStore = create<HeroStore>((set) => ({
+  scrollProgress: 0,
+  mascotExpression: "happy",
+  isHovering: false,
+  setScrollProgress: (progress) => set({ scrollProgress: progress }),
+  setMascotExpression: (expression) => set({ mascotExpression: expression }),
+  setHovering: (hovering) => set({ isHovering: hovering }),
+}));
+```
+
+### 3D Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `three` | ^0.170.0 | Core 3D library |
+| `@react-three/fiber` | ^9.x (RC for React 19) | React renderer for Three.js |
+| `@react-three/drei` | ^10.x | Helper components (loaders, controls) |
+| `framer-motion-3d` | ^12.x | Bridge FM animations to R3F |
+| `@types/three` | ^0.170.0 | TypeScript definitions |
+
+### 3D Performance Strategy
+
+| Technique | Implementation |
+|-----------|---------------|
+| **GPU Tier Detection** | `useDetectGPU` from drei - show fallback for low-end |
+| **Adaptive Quality** | `AdaptiveDpr` component - reduce resolution on regress |
+| **Model Preloading** | `useGLTF.preload()` in layout or during idle |
+| **Suspense Boundaries** | Wrap 3D with loading skeletons |
+| **Fallback for Mobile** | Render 2D hero when GPU tier is 0 |
+
+```tsx
+// src/components/three/Hero3DCanvas.tsx
+import { useDetectGPU } from "@react-three/drei";
+
+export function Hero3DCanvas() {
+  const GPUTier = useDetectGPU();
+
+  // Fallback to 2D for mobile/low-end
+  if (GPUTier.tier === 0 || GPUTier.isMobile) {
+    return <Hero2DFallback />;
+  }
+
+  return (
+    <Canvas>
+      {/* Full 3D scene */}
+    </Canvas>
+  );
+}
+```
+
+### Z-Index for 3D Canvas
+
+3D canvas sits below base content layer:
+
+```
+z-100 (max)      - Skip links, absolute overlays
+z-80  (toast)    - Toast notifications
+z-70  (tooltip)  - Tooltips
+z-60  (popover)  - Popovers
+z-50  (modal)    - Modals
+z-40  (backdrop) - Modal backdrops
+z-30  (fixed)    - Fixed nav, cart bar
+z-20  (sticky)   - Sticky elements
+z-10  (dropdown) - Dropdowns
+z-0   (base)     - Base content
+-z-10 (3D)       - 3D canvas behind base
+```
+
+Implementation:
+```tsx
+<div className="fixed inset-0 -z-10"> {/* Behind everything */}
+  <Hero3DCanvas />
+</div>
+```
+
+### 3D Anti-Patterns to Avoid
+
+| Anti-Pattern | Why Bad | Correct Approach |
+|--------------|---------|------------------|
+| SSR with Canvas | Hydration mismatch | `dynamic({ ssr: false })` |
+| Recreating geometries in render | Memory leak | `useMemo` for geometry/materials |
+| useFrame without ref | Creates subscription every frame | Store values in ref, update in frame |
+| Missing Suspense | Flash of no content | Wrap Canvas in Suspense with fallback |
+| Ignoring GPU tier | Poor mobile experience | `useDetectGPU` + fallback |
+| Direct DOM manipulation in 3D | Breaks React model | Use R3F primitives only |
+
+---
+
 ## Suggested Build Order
 
 Dependencies flow from foundational to composed. Build in this order:
@@ -593,6 +857,44 @@ Dependencies flow from foundational to composed. Build in this order:
 
 **Why last:** Layouts compose everything. Header + BottomNav + overlays.
 
+### Phase 6: 3D Integration (v1.2 - Depends on Phase 1)
+
+```
+8. 3D Foundation
+   ├── Install R3F dependencies
+   ├── Create src/components/three/ directory
+   ├── ThreeProvider with SSR safety
+   └── Basic Scene.tsx wrapper
+
+9. Hero 3D Canvas
+   ├── Hero3DCanvas.tsx with empty scene
+   ├── Modify Hero.tsx to include canvas
+   ├── Verify no hydration errors
+   └── Add basic floating object test
+
+10. 3D Mascot
+    ├── Create/source mascot 3D model
+    ├── Mascot3D.tsx with drei loader
+    ├── Morph targets for expressions
+    └── Integrate with existing expression system
+
+11. Scroll Integration
+    ├── useScrollAnimation hook
+    ├── Coordinate GSAP ScrollTrigger with camera
+    └── Test with existing sections
+
+12. Enhanced Interactions
+    ├── Migrate FloatingFood to 3D
+    ├── Mouse parallax for 3D elements
+    └── Particle effects via drei Sparkles
+
+13. Performance & Polish
+    ├── GPU tier detection + fallbacks
+    ├── Adaptive DPR
+    ├── Loading states with Suspense
+    └── Device testing
+```
+
 ---
 
 ## Patterns to Follow
@@ -645,6 +947,27 @@ useEffect(() => {
 // Tooltip checks if it's inside a modal and adjusts z-index
 const { currentMaxZIndex } = useOverlayContext();
 const tooltipZIndex = Math.max(zIndex.tooltip, currentMaxZIndex + 10);
+```
+
+### Pattern 4: 3D + DOM Shared State (v1.2)
+
+**What:** Zustand store coordinates 3D and DOM animations
+**When:** Scroll progress, hover states, mascot expressions
+
+```typescript
+// In DOM component
+const setScrollProgress = useHeroStore((s) => s.setScrollProgress);
+useGSAP(() => {
+  ScrollTrigger.create({
+    onUpdate: (self) => setScrollProgress(self.progress),
+  });
+});
+
+// In 3D component
+const scrollProgress = useHeroStore((s) => s.scrollProgress);
+useFrame(() => {
+  camera.position.z = 5 + scrollProgress * 2;
+});
 ```
 
 ---
@@ -736,6 +1059,7 @@ function MobileMenu({ open, onOpenChange }: ControlledProps) {
 | Stacking context traps | Scattered backdropfilter | Explicit isolation boundaries |
 | Animation consistency | Mixed patterns | Shared motion tokens |
 | Bundle size | N/A | Tree-shakeable primitives |
+| **3D integration (v1.2)** | None | Dynamic import, GPU-tiered fallbacks |
 
 ---
 
@@ -793,7 +1117,17 @@ import { Dialog } from '@/components/ui/dialog';
 - [Motion.dev (Framer Motion)](https://motion.dev/)
 - [GSAP Forums - Framer Motion comparison](https://gsap.com/community/forums/topic/38826-why-gsap-but-not-framer-motion/)
 
+**Three.js/React Three Fiber (v1.2):**
+- [React Three Fiber Installation](https://r3f.docs.pmnd.rs/getting-started/installation)
+- [Drei Documentation](https://drei.docs.pmnd.rs/)
+- [Motion for React Three Fiber](https://motion.dev/docs/react-three-fiber)
+- [pmndrs/react-three-next Starter](https://github.com/pmndrs/react-three-next)
+- [Codrops: Cinematic 3D Scroll Experiences with GSAP](https://tympanus.net/codrops/2025/11/19/how-to-build-cinematic-3d-scroll-experiences-with-gsap/)
+- [Drei Performance Components](https://github.com/pmndrs/drei)
+
 **Existing Codebase:**
 - `src/styles/tokens.css` - Current z-index tokens (verified)
 - `src/lib/motion-tokens.ts` - Current motion system (verified)
 - `src/components/ui/overlay-base.tsx` - Current overlay pattern (verified)
+- `src/components/homepage/Hero.tsx` - Current hero with parallax (verified)
+- `src/lib/gsap/index.ts` - GSAP plugin registration (verified)

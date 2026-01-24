@@ -1,230 +1,176 @@
-# Feature Landscape: Premium Food Delivery UI/UX
+# Feature Landscape: v1.2 Playful UI Overhaul
 
-**Domain:** Food Delivery App Frontend Rewrite
-**Researched:** 2026-01-21
-**Confidence:** HIGH (verified via Baymard, NN/g, official platform docs, multiple design sources)
+**Domain:** 3D Interactive Hero & Enhanced Micro-interactions
+**Researched:** 2026-01-23
+**Confidence:** HIGH (verified via Motion.dev, React Three Fiber docs, WebSearch with multiple sources)
+
+**Milestone Context:** Subsequent milestone adding to existing food delivery app with Framer Motion (v12.26.1), GSAP, and established motion token system. Focus on NEW features only.
 
 ---
 
-## Table Stakes
+## Existing Features (Already Built - Do Not Duplicate)
 
-Features users expect. Missing = product feels incomplete or amateurish.
+Per milestone context, these features exist and are working:
 
-### Navigation & Layout
+| Feature | Implementation | Location |
+|---------|---------------|----------|
+| Menu item cards with effects | Framer Motion hover/tap | `MenuItemCardV8.tsx` |
+| Add-to-cart celebration | Confetti, haptics | `CartAnimations.tsx`, `Confetti.tsx` |
+| Staggered list reveal | `staggerContainer`, variants | `motion-tokens.ts` |
+| Page transitions | AnimatePresence | `PageTransitionV8.tsx` |
+| Header scroll effects | shrink/blur on scroll | `Header.tsx` |
+| Parallax container | Multiple speed layers | `ParallaxContainer.tsx` |
+| 2D floating food | Mouse parallax, float animation | `FloatingFood.tsx` |
+| Motion token system | Springs, variants, hover effects | `motion-tokens.ts` |
 
-| Feature | Why Expected | Complexity | Pattern Details |
-|---------|--------------|------------|-----------------|
-| Bottom navigation bar (mobile) | iOS/Android standard; thumb-friendly | Low | 4-5 items max, icons + labels, active state indicator |
-| Sticky header with cart icon | Users need persistent access to cart, search | Low | Header height 56-64px, cart badge with item count |
-| Category tabs with scrollspy | Fast menu browsing; DoorDash/Uber Eats standard | Medium | Horizontal scroll, sticky below header, active tab follows scroll position |
-| Pull-to-refresh | Mobile muscle memory | Low | Subtle animation, haptic feedback on trigger |
-| Back gesture support | iOS swipe-from-left, Android back button | Low | Platform-native, consistent navigation stack |
+---
 
-### Menu Browsing
+## Table Stakes for v1.2
 
-| Feature | Why Expected | Complexity | Pattern Details |
-|---------|--------------|------------|-----------------|
-| High-quality food photography | 70% of purchase decision is visual | Low | 16:9 or 1:1 aspect ratio, optimized lazy loading |
-| Item cards with name, price, description | Basic product info | Low | Price prominently displayed, description truncated to 2 lines |
-| Search with autocomplete | Users know what they want | Medium | Debounced input, recent searches, popular suggestions, 300ms delay |
-| Dietary/allergen filters | Health-conscious users expect this | Medium | Pills/chips UI, multi-select, results update instantly |
-| Category organization | Mental model from physical menus | Low | Logical groupings, collapsible or tabbed |
+Features required for the "maximum playfulness" and 3D hero goals. Missing = v1.2 feels incomplete.
 
-### Item Detail & Customization
+### 3D Interactive Hero Section
 
-| Feature | Why Expected | Complexity | Pattern Details |
-|---------|--------------|------------|-----------------|
-| Full-screen item modal/sheet | Focus attention on selection | Medium | Bottom sheet (mobile), centered modal (desktop), swipe-to-dismiss |
-| Required/optional customization groups | Pizza toppings, protein choice, etc. | Medium | Radio buttons for required, checkboxes for optional, price modifiers shown |
-| Quantity selector | Multiple of same item | Low | +/- buttons, direct input for larger quantities |
-| Add to cart with confirmation | Immediate feedback required | Low | Button state change, badge update, micro-animation |
-| "Special instructions" text field | Dietary needs, preferences | Low | Optional, character limit, placeholder examples |
+| Feature | Why Expected | Complexity | Dependencies | Notes |
+|---------|--------------|------------|--------------|-------|
+| 3D food model rendering | Core of "3D interactive hero" goal | High | React Three Fiber, Three.js | GLB/GLTF models of signature dishes |
+| Rotate on drag/touch | "Explore food items" - user expects interaction | Medium | R3F OrbitControls | Constrain to Y-axis rotation for food appeal |
+| Zoom on pinch/scroll | Standard 3D viewer behavior | Low | OrbitControls built-in | Min/max zoom limits critical for UX |
+| Lighting setup | 3D models look flat without proper lighting | Medium | R3F lights | 3-point lighting for appetizing food look |
+| Loading state for 3D | 3D assets are large, need feedback | Medium | Suspense, useProgress | Skeleton or progress indicator during model load |
+| Mobile performance fallback | 3D too heavy for low-end devices | Medium | Device detection | Fall back to optimized 2D or static image |
+| Reduced motion support | Accessibility requirement | Low | useAnimationPreference (exists) | Disable auto-rotation, simplify interactions |
 
-### Cart Interactions
+### Enhanced Micro-interactions
 
-| Feature | Why Expected | Complexity | Pattern Details |
-|---------|--------------|------------|-----------------|
-| Persistent cart access | Users check cart frequently | Low | Cart icon with badge count, sticky or in bottom nav |
-| Cart drawer/sheet | View without leaving page | Medium | Bottom sheet (mobile), side drawer (desktop), overlay with backdrop |
-| Edit quantity inline | Quick adjustments | Low | +/- stepper in cart row, swipe-to-delete on mobile |
-| Clear item/cart actions | Mistake recovery | Low | Swipe-to-delete, "Clear all" with confirmation |
-| Subtotal display | Know cost before checkout | Low | Running total, updates on any change |
+| Feature | Why Expected | Complexity | Dependencies | Notes |
+|---------|--------------|------------|--------------|-------|
+| Button press compression | "Maximum playfulness" needs consistent tactile feel | Low | Framer Motion (exists) | Extend `tap.button` to all interactive elements |
+| Input focus glow/pulse | Form interactions feel alive | Low | CSS + motion tokens | Ring animation on focus |
+| Toggle switch bounce | Playful UI standard | Low | `spring.ultraBouncy` | Exaggerated bounce on state change |
+| Loading spinner with personality | Not generic spinner | Medium | Custom animation | Branded loader (bowl, chopsticks, star) |
+| Success/error state animations | Feedback beyond color change | Medium | `celebration.success` variant | Checkmark draw, error shake |
+| Skeleton shimmer upgrade | Premium loading feel | Low | CSS keyframes | Faster shimmer, gradient polish |
 
-### Checkout Flow
+### Light/Dark Theme Refinements
 
-| Feature | Why Expected | Complexity | Pattern Details |
-|---------|--------------|------------|-----------------|
-| Guest checkout option | 24% abandon due to forced account creation (Baymard) | Medium | Email-only, create account post-purchase optional |
-| Multiple payment methods | Cards, Apple Pay, Google Pay | Medium | Saved methods, one-tap payment via Stripe |
-| Delivery address management | Save/select addresses | Medium | Address autocomplete, map confirmation, default address |
-| Order summary before payment | Transparency | Low | Itemized list, taxes, fees, total |
-| Progress indicator | Reduce anxiety | Low | Steps: Cart > Delivery > Payment > Confirm |
-
-### Loading & Feedback States
-
-| Feature | Why Expected | Complexity | Pattern Details |
-|---------|--------------|------------|-----------------|
-| Skeleton loading screens | DoorDash/Uber Eats standard; 20-30% faster perceived load | Medium | Match final layout, shimmer animation at 1.5-2s cycle |
-| Button loading states | Prevent double-submission | Low | Spinner replaces text, disabled state |
-| Toast notifications | Action confirmation | Low | 3-4s duration, slide-in animation, dismissable |
-| Error states with recovery | Graceful failure | Medium | Clear error message, retry action, help link |
-
-### Accessibility Baseline
-
-| Feature | Why Expected | Complexity | Pattern Details |
-|---------|--------------|------------|-----------------|
-| Touch targets 44x44px minimum | iOS/Android guidelines | Low | Buttons, links, interactive elements |
-| Focus management in modals | Screen reader users | Medium | Trap focus, return focus on close |
-| Color contrast 4.5:1 | WCAG AA | Low | Text on backgrounds, especially on images |
-| Reduced motion support | Vestibular disorders | Low | `prefers-reduced-motion` media query, manual toggle |
+| Feature | Why Expected | Complexity | Dependencies | Notes |
+|---------|--------------|------------|--------------|-------|
+| Animated theme toggle | Current toggle is basic icon swap | Medium | View Transitions API or Framer | Smooth morph between sun/moon icons |
+| Theme transition effect | Jarring instant swap is poor UX | Medium | CSS transitions or circular reveal | Fade or radial wipe between themes |
+| Dark mode color polish | Not just inverted - designed dark palette | Medium | Tailwind tokens | Custom dark surface colors, proper contrast |
+| Dynamic theme colors | Time-of-day awareness (exists but enhance) | Low | DynamicThemeProvider (exists) | Extend to more UI elements |
 
 ---
 
 ## Differentiators
 
-Features that set the product apart. Not expected, but valued and memorable.
+Features that create competitive advantage and memorable experience. Not expected, but valued.
 
-### Animation & Motion (Project Goal: "Over-the-top animated + playful")
+### 3D Hero Enhancements
 
-| Feature | Value Proposition | Complexity | Pattern Details |
-|---------|-------------------|------------|-----------------|
-| Page transitions | Seamless, app-like navigation feel | Medium | AnimatePresence + shared layout animations, 200-300ms duration |
-| Scroll choreography | Parallax headers, staggered reveals, scroll-linked animations | High | GSAP ScrollTrigger or Framer Motion useScroll, subtle depth (background slower than foreground) |
-| Add-to-cart celebration | Emotional reward, memorable moment | Medium | Item "flies" to cart, cart bounces, confetti burst (optional), haptic feedback |
-| Menu item hover/tap states | Responsive, premium feel | Low | Scale 1.02-1.05, shadow elevation, color shift |
-| Staggered list animations | Content feels alive, less static | Medium | Stagger delay 50-100ms per item, fade + slide from bottom |
-| Micro-interactions everywhere | Polish, attention to detail | High | Button press compression, toggle bounces, input focus glow |
-| Loading skeleton shimmer | Modern, premium feel | Low | Left-to-right shimmer gradient, 1.5-2s duration |
+| Feature | Value Proposition | Complexity | Dependencies | Notes |
+|---------|-------------------|------------|--------------|-------|
+| Auto-rotate idle animation | Food showcased even without interaction | Low | R3F useFrame | Slow rotation (0.5 deg/frame) |
+| Physics-based interaction | Drag has momentum, springs back | Medium | R3F + spring physics | Satisfying "weight" to rotation |
+| Multiple food models carousel | Showcase menu variety | High | Model switching, preload | 3-4 signature dishes, swipe between |
+| Particles on interaction | Celebration when touching 3D model | Medium | Existing particle system | Reuse WebGL particles from Hero |
+| Depth of field blur | Cinematic quality | Medium | R3F postprocessing | Focus on food, blur background |
+| Environment reflections | Premium look for metallic/wet surfaces | Medium | Environment map | Soup sheen, plate reflections |
+| Touch ripple on 3D canvas | Feedback that touch registered | Low | Shader or DOM overlay | Subtle ripple at touch point |
 
-### Cart & Checkout Enhancement
+### Advanced Micro-interactions
 
-| Feature | Value Proposition | Complexity | Pattern Details |
-|---------|-------------------|------------|-----------------|
-| Swipe gestures in cart | Native mobile feel | Medium | Swipe-left to delete (iOS), with undo toast |
-| Quantity change animation | Satisfying feedback | Low | Number counter animates up/down, price updates with fade |
-| Live cart preview on add | No interruption, quick confirmation | Medium | Mini-toast with item image, "View Cart" CTA |
-| One-tap reorder | Speed for returning users | Medium | Favorites/past orders section, instant cart population |
-| Real-time delivery estimate | Reduces anxiety, builds trust | High | Based on kitchen load, distance; updates dynamically |
+| Feature | Value Proposition | Complexity | High | Notes |
+|---------|-------------------|------------|------|-------|
+| Quantity selector spring | +/- has rubbery overshoot | Low | `spring.rubbery` | Already in tokens, apply consistently |
+| Card 3D tilt on hover | Mouse-tracked perspective shift | Medium | CSS perspective + JS | Subtle tilt (5-10 degrees max) |
+| Image reveal on load | Progressive blur-to-sharp | Low | BlurImage (exists, enhance) | Faster transition, slight scale |
+| Swipe velocity awareness | Fast swipe = bigger gesture response | Medium | Framer Motion drag | Velocity-based animation intensity |
+| Price counter animation | Price changes animate digit-by-digit | Medium | `priceTicker.digit` variant | Already in tokens, implement component |
+| Favorite heart burst | Heart fills with particle burst | Medium | Existing particle + FavoriteButton | Connect particle system to toggle |
 
-### Menu Browsing Enhancement
+### Theme Experience
 
-| Feature | Value Proposition | Complexity | Pattern Details |
-|---------|-------------------|------------|-----------------|
-| Hero category images | Visual appeal, appetizing | Low | Full-width, parallax on scroll, gradient overlay for text |
-| "Popular" badges | Social proof, decision aid | Low | Badge/tag on items, based on order data |
-| Favorites/heart animation | Emotional engagement | Medium | Heart fills with pop animation, confetti micro-burst |
-| Quick-add from list | Reduce taps for familiar users | Medium | + button on card, no modal for items without required customizations |
-| Category scroll snap | Smooth horizontal scrolling | Low | CSS scroll-snap, momentum scrolling |
-
-### Haptic Feedback (Mobile)
-
-| Feature | Value Proposition | Complexity | Pattern Details |
-|---------|-------------------|------------|-----------------|
-| Add-to-cart haptic | Satisfying tactile confirmation | Low | Light impact (iOS), short vibration (Android) |
-| Quantity change haptic | Subtle feedback | Low | Selection haptic per tap |
-| Pull-to-refresh haptic | Reinforces trigger point | Low | Medium impact when threshold reached |
-| Error state haptic | Attention without alarm | Low | Warning/error pattern, 2-3 pulses |
-| Success haptic | Order confirmed satisfaction | Low | Success pattern, single strong tap |
-
-### Premium Polish
-
-| Feature | Value Proposition | Complexity | Pattern Details |
-|---------|-------------------|------------|-----------------|
-| Blur/frosted glass effects | Modern, premium aesthetics | Low | backdrop-blur on overlays, headers |
-| Gradient accent usage | Brand differentiation | Low | Subtle gradients on CTAs, highlights |
-| Custom animated icons | Unique brand identity | Medium | Lottie icons for cart, favorites, loading |
-| Smooth bottom sheet physics | Native feel | Medium | Spring animations, velocity-based gestures |
-| Dark mode with full polish | User preference, modern | Medium | Not just inverted colors; custom dark palette |
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Circular reveal transition | Telegram-style expanding circle from toggle | High | View Transitions API, clip-path | Impressive but complex |
+| Theme-aware 3D lighting | 3D scene adapts to light/dark | Medium | R3F light props | Warmer light in dark mode |
+| Animated background patterns | Subtle pattern shift with theme | Low | CSS or Framer | Lotus pattern opacity/position |
+| Color scheme persistence | Remember user preference across sessions | Low | localStorage (next-themes handles) | Already working, verify |
 
 ---
 
 ## Anti-Features
 
-Features to explicitly NOT build. Common mistakes in this domain.
+Features to explicitly NOT build. Waste of time or actively harmful.
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| Aggressive "Install App" prompts | 25% of users abandon due to interruption (Baymard) | Subtle banner, respect dismissal, PWA option |
-| Mandatory account creation | 24% cart abandonment (Baymard) | Guest checkout, optional post-purchase signup |
-| Hidden fees until checkout | Destroys trust, increases abandonment | Show delivery fee, taxes upfront in cart |
-| Disappearing cart feedback | Users miss confirmation, re-add items | Persistent feedback (2-3s minimum), undo option |
-| Over-the-top loading spinners | Feel slow, anxiety-inducing | Skeleton screens instead, progressive loading |
-| Complex gesture-only navigation | Hidden from users, accessibility issue | Gesture + button alternatives, onboarding hints |
-| Auto-playing video backgrounds | Performance hit, distracting, accessibility | Static images, user-initiated video |
-| Parallax on mobile (heavy) | Performance issues, motion sickness | Disable or simplify for mobile, respect reduced motion |
-| Hamburger menu as primary nav (mobile) | Hidden = forgotten; increases task time 150% | Bottom navigation bar instead |
-| Sticky bottom ads/banners | Overlaps checkout button, blocks CTAs | If needed, dismiss after view or make collapsible |
-| Infinite scroll without position save | "Back" button loses place | Load more button, or save scroll position |
-| Required customization on every item | Slows down repeat users | Quick-add for items without required options |
-| Slow checkout (>3 steps) | Each step loses users | 1-2 step checkout, address + payment on one screen |
-| Non-responsive item modals | Content cut off on mobile | Full-screen bottom sheet on mobile, scroll within |
-| Fixed position elements stacking | Z-index chaos, click blocking | Tokenized z-index, single portal for overlays |
+| Full 3D scene/environment | Overkill for food showcase, performance killer | Single hero model with clean background |
+| 3D menu browsing | Gimmicky, slower than 2D grid | Keep menu as optimized cards, 3D only in hero |
+| VR/AR integration | Scope creep, minimal user value for meal subscription | Focus on standard web experience |
+| Complex 3D animations on every page | Performance death, user fatigue | 3D only in hero; 2D micro-interactions elsewhere |
+| Auto-playing 3D on mobile by default | Battery drain, data usage, performance | Require tap to start, or show optimized 2D |
+| Excessive particle effects | Distracting, performance impact | Particles only on key moments (add-to-cart, hero CTA) |
+| Heavy post-processing (bloom, SSAO) | Overkill, GPU intensive | Basic lighting + environment map sufficient |
+| Infinite model variants | Asset management nightmare | 3-5 signature dish models maximum |
+| Theme transition blocking interaction | User stuck waiting for animation | Theme transition must not block clicks |
+| Parallax everywhere | Motion sickness, performance | Parallax only in hero, respect reduced motion |
 
 ---
 
 ## Feature Dependencies
 
 ```
-Menu Browsing
+3D Hero System
     |
-    v
-Item Detail/Customization --> Add to Cart
-    |                              |
-    v                              v
-[Optional: Favorites] -----> Cart Drawer/Sheet
-                                   |
-                                   v
-                            Checkout Flow
-                                   |
-                                   v
-                         Order Confirmation
+    +-- React Three Fiber setup (new)
+    |       |
+    |       +-- Model loading (GLTF/GLB)
+    |       +-- OrbitControls
+    |       +-- Lighting rig
+    |       +-- Mobile fallback logic
+    |
+    +-- Existing systems (leverage)
+            |
+            +-- useAnimationPreference (reduced motion)
+            +-- useParticleSystem (celebration effects)
+            +-- DynamicThemeProvider (time-based colors)
 
-Animation System (underlies all)
+Enhanced Micro-interactions
     |
-    +-- Motion tokens (springs, durations, easings)
-    +-- Gesture handlers (swipe, drag, tap)
-    +-- Transition components (AnimatePresence, layout)
-    +-- Loading states (skeleton, shimmer)
+    +-- motion-tokens.ts extensions
+    |       |
+    |       +-- New variants (if needed)
+    |       +-- Component application
+    |
+    +-- Existing components (enhance)
+            |
+            +-- Button, Input, Toggle
+            +-- MenuItemCardV8
+            +-- CartAnimations
+
+Theme Refinements
+    |
+    +-- Theme toggle animation (new)
+    |       |
+    |       +-- Icon morph animation
+    |       +-- View Transitions API (optional)
+    |
+    +-- Color token review
+            |
+            +-- Dark mode surface colors
+            +-- Semantic color adjustments
 ```
 
-**Core dependency order:**
-1. Design tokens + z-index system (foundation for everything)
-2. Motion tokens + animation primitives (GSAP + Framer Motion setup)
-3. Base components (Button, Input, Card, Modal/Sheet)
-4. Layout shell (Header, BottomNav, Page containers)
-5. Cart system (drawer, item management, persistence)
-6. Menu browsing (categories, items, search)
-7. Item detail + customization modals
-8. Checkout flow
-
----
-
-## MVP Recommendation
-
-For MVP, prioritize:
-
-### Must-Have (Table Stakes)
-1. **Bottom navigation** - Mobile-first foundation
-2. **Sticky header with cart badge** - Persistent access
-3. **Category tabs with scrollspy** - Core menu browsing
-4. **Item detail bottom sheet** - Selection flow
-5. **Cart drawer** - View/edit before checkout
-6. **Skeleton loading** - Premium feel from day one
-7. **Add-to-cart feedback** - Animated badge update, toast
-
-### Should-Have (Core Differentiators)
-1. **Page transitions** - App-like navigation
-2. **Staggered list animations** - Menu feels alive
-3. **Swipe-to-delete in cart** - Native mobile feel
-4. **Haptic feedback** - iOS/Android tactile polish
-5. **Quick-add from list** - Reduce taps for power users
-
-### Defer to Post-MVP
-- Scroll choreography/parallax - Complex, fine-tune later
-- One-tap reorder from favorites - Needs order history integration
-- Real-time delivery estimates - Backend dependency
-- Custom animated icons (Lottie) - Nice polish, not critical
-- Dark mode - Full implementation is time-intensive
+**Dependency Order for v1.2:**
+1. React Three Fiber integration + first 3D model
+2. OrbitControls + mobile fallback
+3. 3D hero integration with existing parallax
+4. Micro-interaction audit + consistent application
+5. Theme toggle animation
+6. Theme transition polish
 
 ---
 
@@ -232,40 +178,95 @@ For MVP, prioritize:
 
 | Complexity | Features |
 |------------|----------|
-| **Low** | Bottom nav, sticky header, skeleton loading, haptics, toast notifications, basic hover/tap states |
-| **Medium** | Category scrollspy, item detail modal, cart drawer, page transitions, staggered animations, swipe gestures |
-| **High** | Scroll choreography, micro-interactions system, full motion token library, real-time estimates |
+| **Low** | Auto-rotate, zoom controls, skeleton shimmer, input focus glow, toggle bounce, reduced motion support |
+| **Medium** | 3D model loading, lighting setup, drag physics, theme toggle animation, theme transition, 3D tilt cards, loading spinner |
+| **High** | Multiple model carousel, depth of field, circular reveal transition, React Three Fiber initial setup |
+
+---
+
+## MVP Recommendation for v1.2
+
+### Must-Have (Table Stakes)
+
+1. **React Three Fiber setup** - Foundation for 3D hero
+2. **Single rotating food model** - Core "3D interactive" deliverable
+3. **OrbitControls with constraints** - User can rotate/zoom
+4. **Mobile fallback** - Don't break on low-end devices
+5. **Theme toggle animation** - Upgrade from basic icon swap
+6. **Micro-interaction consistency audit** - Apply existing tokens everywhere
+
+### Should-Have (Core Differentiators)
+
+1. **Auto-rotate idle** - Food showcased without interaction
+2. **Physics-based drag** - Satisfying interaction weight
+3. **Theme transition effect** - Smooth rather than jarring
+4. **3D tilt on menu cards** - Playful hover without full 3D
+5. **Branded loading spinner** - Polish detail
+
+### Defer to Post-v1.2
+
+- Multiple model carousel - Can iterate after single model works
+- Circular reveal transition - Nice but complex, fade works
+- Depth of field / postprocessing - Performance risk
+- Environment reflections - Polish if time permits
+- Favorite heart particle burst - Nice detail, not critical
+
+---
+
+## Technical Considerations
+
+### React Three Fiber Integration
+
+Based on [official R3F documentation](https://r3f.docs.pmnd.rs/getting-started/examples):
+
+```typescript
+// Recommended packages
+"@react-three/fiber": "^8.x",
+"@react-three/drei": "^9.x",  // OrbitControls, useGLTF, etc.
+"three": "^0.160.x"
+
+// Next.js dynamic import for SSR safety
+const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false })
+```
+
+### Performance Targets
+
+| Metric | Target | Fallback Trigger |
+|--------|--------|------------------|
+| 3D scene FPS | 60fps | Disable 3D below 30fps |
+| Model load time | <2s on 4G | Progressive loading, placeholder |
+| Bundle size impact | <200KB gzipped | Code split, lazy load |
+| Mobile GPU tier | Tier 2+ | Tier 1 gets 2D fallback |
+
+### Model Asset Requirements
+
+| Requirement | Specification |
+|-------------|---------------|
+| Format | GLB (binary GLTF) |
+| Polygon count | <50K tris per model |
+| Texture size | 1024x1024 max, compressed |
+| File size | <2MB per model |
+| Compression | Draco mesh compression |
 
 ---
 
 ## Sources
 
-### Primary Research
-- [Baymard Institute - Food Delivery & Takeout UX Research](https://baymard.com/research/online-food-delivery) - HIGH confidence
-- [NN/g - Cart Feedback Guidelines](https://www.nngroup.com/articles/cart-feedback/) - HIGH confidence
-- [NN/g - Bottom Sheet Guidelines](https://www.nngroup.com/articles/bottom-sheet/) - HIGH confidence
-- [NN/g - Skeleton Screens 101](https://www.nngroup.com/articles/skeleton-screens/) - HIGH confidence
+### Authoritative (HIGH Confidence)
 
-### Design Patterns
-- [Smashing Magazine - Sticky Menu UX Guidelines](https://www.smashingmagazine.com/2023/05/sticky-menus-ux-guidelines/) - HIGH confidence
-- [Smashing Magazine - Mobile Navigation Patterns](https://www.smashingmagazine.com/2017/05/basic-patterns-mobile-navigation/) - HIGH confidence
-- [Mobbin - Bottom Sheet UI Patterns](https://mobbin.com/glossary/bottom-sheet) - MEDIUM confidence
+- [Motion.dev - React Three Fiber](https://motion.dev/docs/react-three-fiber) - Framer Motion 3D integration
+- [React Three Fiber Documentation](https://r3f.docs.pmnd.rs/getting-started/examples) - Official examples and patterns
+- [Three.js Performance Tips](https://tympanus.net/codrops/2025/02/11/building-efficient-three-js-scenes-optimize-performance-while-maintaining-quality/) - Optimization strategies
 
-### Animation & Motion
-- [Motion.dev - React Scroll Animations](https://motion.dev/docs/react-scroll-animations) - HIGH confidence
-- [Motion.dev - Page Transitions](https://motion.dev/docs/react-transitions) - HIGH confidence
-- [BrixLabs - Micro Animation Examples 2025](https://bricxlabs.com/blogs/micro-interactions-2025-examples) - MEDIUM confidence
-- [Chrome Developers - Performant Parallaxing](https://developer.chrome.com/blog/performant-parallaxing) - HIGH confidence
+### Design Patterns (MEDIUM Confidence)
 
-### Platform Guidelines
-- [Android Developers - Haptics Design Principles](https://developer.android.com/develop/ui/views/haptics/haptics-principles) - HIGH confidence
-- [Sidekick Interactive - Gesture Navigation Best Practices](https://www.sidekickinteractive.com/designing-your-app/gesture-navigation-in-mobile-apps-best-practices/) - MEDIUM confidence
+- [View Transitions API Theme Toggle](https://akashhamirwasia.com/blog/full-page-theme-toggle-animation-with-view-transitions-api/) - Circular reveal implementation
+- [Web Design Trends 2026](https://www.index.dev/blog/web-design-trends) - 3D in hero sections trend validation
+- [Food Delivery UX 2025](https://medium.com/@prajapatisuketu/food-delivery-app-ui-ux-design-in-2025-trends-principles-best-practices-4eddc91ebaee) - Micro-interaction best practices
 
-### Anti-Patterns & Mistakes
-- [Cieden - Fixing 9 Common UX Mistakes in Food Delivery Apps](https://cieden.com/fixing-9-common-ux-mistakes-in-food-delivery-app-ux-upgrade) - MEDIUM confidence
-- [UIStudioz - 7 UX Mistakes in Grocery Delivery Apps](https://uistudioz.com/ux-mistakes-in-grocery-delivery-apps/) - MEDIUM confidence
-- [GroupBWT - Top 10 UX Mistakes in Foodtech Interfaces](https://groupbwt.com/blog/top-10-ux-mistakes-foodtech/) - MEDIUM confidence
+### Existing Codebase (HIGH Confidence)
 
-### Industry Examples
-- [Medium - Food Delivery App UI UX Design 2025](https://medium.com/@prajapatisuketu/food-delivery-app-ui-ux-design-in-2025-trends-principles-best-practices-4eddc91ebaee) - MEDIUM confidence
-- [Netguru - Top 10 Food App Design Tips 2025](https://www.netguru.com/blog/food-app-design-tips) - MEDIUM confidence
+- `src/lib/motion-tokens.ts` - Established spring presets, variants
+- `src/components/homepage/Hero.tsx` - Current 2D parallax implementation
+- `src/components/homepage/FloatingFood.tsx` - 2D float animation patterns
+- `src/lib/hooks/useAnimationPreference.ts` - Reduced motion handling
