@@ -28,7 +28,7 @@ See `.planning/milestones/v1.1-ROADMAP.md` for archived phase details.
 
 **Overview:** Eight phases delivering the playful UI overhaul. Foundation phase fixes TailwindCSS 4 z-index blocking bug and establishes React Three Fiber. Then 3D hero in two phases (core + advanced). Menu unification creates consistent card design. Homepage redesign integrates everything. Micro-interactions add delight across all components. Theme refinements polish light/dark modes. Customer page polish ensures consistent playfulness everywhere.
 
-- [ ] **Phase 15: Foundation & R3F Setup** - Fix z-index bug, install React Three Fiber
+- [x] **Phase 15: Foundation & R3F Setup** - Fix z-index bug, install React Three Fiber ✓
 - [ ] **Phase 16: 3D Hero Core** - Basic 3D food model with controls
 - [ ] **Phase 17: 3D Hero Advanced** - Auto-rotate, physics, carousel, particles
 - [ ] **Phase 18: Menu Unification** - Unified MenuItemCard across all surfaces
@@ -51,8 +51,8 @@ See `.planning/milestones/v1.1-ROADMAP.md` for archived phase details.
 **Plans**: 2 plans
 
 Plans:
-- [ ] 15-01-PLAN.md — Z-index token migration (fix dropdown, migrate overlays)
-- [ ] 15-02-PLAN.md — R3F installation and SSR-safe Scene wrapper
+- [x] 15-01-PLAN.md — Z-index token migration (fix dropdown, migrate overlays) ✓
+- [x] 15-02-PLAN.md — R3F installation and SSR-safe Scene wrapper ✓
 
 ---
 
@@ -194,7 +194,7 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 15. Foundation & R3F Setup | v1.2 | 0/2 | Planned | - |
+| 15. Foundation & R3F Setup | v1.2 | 2/2 | Complete | 2026-01-23 |
 | 16. 3D Hero Core | v1.2 | 0/3 | Not started | - |
 | 17. 3D Hero Advanced | v1.2 | 0/2 | Not started | - |
 | 18. Menu Unification | v1.2 | 0/2 | Not started | - |
@@ -207,4 +207,4 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-23*
+*Last updated: 2026-01-23 - Phase 15 complete*

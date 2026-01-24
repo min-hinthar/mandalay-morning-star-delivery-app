@@ -9,10 +9,10 @@ Requirements for v1.2 milestone. Each maps to roadmap phases.
 
 ### Bug Fixes & Infrastructure
 
-- [ ] **INFRA-01**: TailwindCSS 4 z-index tokens generate utility classes correctly
-- [ ] **INFRA-02**: Signout button click registers properly (z-index/stacking context fix)
-- [ ] **INFRA-03**: React Three Fiber 9.5.0 installed and SSR-safe
-- [ ] **INFRA-04**: Three.js + drei packages configured with proper imports
+- [x] **INFRA-01**: TailwindCSS 4 z-index tokens generate utility classes correctly ✓
+- [x] **INFRA-02**: Signout button click registers properly (z-index/stacking context fix) ✓
+- [x] **INFRA-03**: React Three Fiber 9.5.0 installed and SSR-safe ✓
+- [x] **INFRA-04**: Three.js + drei packages configured with proper imports ✓
 
 ### 3D Interactive Hero
 
@@ -118,10 +118,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 15 | Pending |
-| INFRA-02 | Phase 15 | Pending |
-| INFRA-03 | Phase 15 | Pending |
-| INFRA-04 | Phase 15 | Pending |
+| INFRA-01 | Phase 15 | Complete |
+| INFRA-02 | Phase 15 | Complete |
+| INFRA-03 | Phase 15 | Complete |
+| INFRA-04 | Phase 15 | Complete |
 | HERO3D-01 | Phase 16 | Pending |
 | HERO3D-02 | Phase 16 | Pending |
 | HERO3D-03 | Phase 16 | Pending |
@@ -175,4 +175,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-23*
-*Last updated: 2026-01-23 after roadmap creation*
+*Last updated: 2026-01-23 - Phase 15 requirements complete*
