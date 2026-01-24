@@ -264,3 +264,57 @@ export const zIndexVar = {
 **Prevention:** When creating TypeScript token constants that mirror CSS custom properties, verify the exact CSS variable names in the source file. TailwindCSS 4 @theme strips prefixes for utility generation (`--z-index-modal` → `z-modal`), but the CSS variable keeps the full name.
 
 ---
+
+## 2026-01-24: TailwindCSS 4 Does NOT Generate Custom zIndex Utility Classes
+**Type:** Build/Runtime | **Severity:** Critical
+**Files:** `tailwind.config.ts`, `src/design-system/tokens/z-index.ts`, 66+ component files
+
+**Error:** Header, nav, modals layered incorrectly - content scrolled over fixed elements. Sign-out button unclickable. No CSS errors, no console errors - silent failure.
+
+**Root Cause:** TailwindCSS 4 does NOT generate utility classes from custom `zIndex` theme extensions.
+
+Defined in `tailwind.config.ts`:
+```ts
+theme: {
+  extend: {
+    zIndex: {
+      fixed: '30',
+      modal: '50',
+      // etc.
+    }
+  }
+}
+```
+
+Expected: `z-fixed`, `z-modal` classes generated → **WRONG**
+Actual: These classes do NOT exist. Elements receive no z-index.
+
+**Compounding issue:** `zClass` helper in `z-index.ts` returned broken class names:
+```ts
+export const zClass = {
+  fixed: "z-fixed",  // ← This class doesn't exist in Tailwind 4!
+  modal: "z-modal",
+};
+```
+
+**Fix:** Update `zClass` to return numeric Tailwind classes that ARE generated:
+```ts
+export const zClass = {
+  fixed: "z-30",
+  modal: "z-50",
+  popover: "z-[60]",  // Arbitrary for values not in default scale
+};
+```
+
+**Detection:** Issue persisted through 3 fix attempts because:
+1. First fix changed component classes to numeric values
+2. But components using `zClass.fixed` still got broken class names
+3. Root was the helper object itself, not direct class usage
+
+**Prevention:**
+1. In Tailwind CSS 4, only use default numeric z-index classes (z-0, z-10, z-20, z-30, z-40, z-50) or arbitrary values (z-[60])
+2. Custom named classes from theme extensions are NOT generated
+3. Test z-index changes by inspecting computed styles in browser DevTools
+4. If using helper objects for class names, verify the output strings are valid Tailwind classes
+
+---
