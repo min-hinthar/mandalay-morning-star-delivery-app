@@ -4,7 +4,7 @@
 
 - v1.0 MVP - Phases 1-8 (shipped 2026-01-23)
 - v1.1 Tech Debt - Phases 9-14 (shipped 2026-01-23)
-- **v1.2 Playful UI Overhaul** - Phases 15-22 (in progress)
+- **v1.2 Playful UI Overhaul** - Phases 15-23 (in progress)
 
 ## Phases
 
@@ -26,7 +26,7 @@ See `.planning/milestones/v1.1-ROADMAP.md` for archived phase details.
 
 **Milestone Goal:** Transform customer pages with maximum playfulness - 3D interactive hero, unified menu design, theme refinement, and delightful micro-interactions throughout.
 
-**Overview:** Eight phases delivering the playful UI overhaul. Foundation phase fixes TailwindCSS 4 z-index blocking bug and establishes React Three Fiber. Then 3D hero in two phases (core + advanced). Menu unification creates consistent card design. Homepage redesign integrates everything. Micro-interactions add delight across all components. Theme refinements polish light/dark modes. Customer page polish ensures consistent playfulness everywhere.
+**Overview:** Nine phases delivering the playful UI overhaul. Foundation phase fixes TailwindCSS 4 z-index blocking bug and establishes React Three Fiber. Then 3D hero in two phases (core + advanced). Menu unification creates consistent card design. Homepage redesign integrates everything. Micro-interactions add delight across all components. Theme refinements polish light/dark modes. Customer page polish ensures consistent playfulness everywhere. Header & nav rebuild completes the overhaul with modern navigation.
 
 - [x] **Phase 15: Foundation & R3F Setup** - Fix z-index bug, install React Three Fiber ✓
 - [x] **Phase 16: 3D Hero Core** - Basic 3D food model with controls ✓
@@ -36,6 +36,7 @@ See `.planning/milestones/v1.1-ROADMAP.md` for archived phase details.
 - [ ] **Phase 20: Micro-interactions** - Consistent animations across all components
 - [ ] **Phase 21: Theme Refinements** - Light/dark polish, animated toggle
 - [ ] **Phase 22: Customer Page Polish** - Enhanced animations on all customer pages
+- [ ] **Phase 23: Header & Nav Rebuild** - Complete rebuild of header and navigation
 
 ## Phase Details
 
@@ -85,11 +86,11 @@ Plans:
   2. Drag interaction has momentum and springs back naturally
   3. User can swipe between multiple food models in carousel
   4. Particles emit when user interacts with 3D model
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 17-01: TBD (auto-rotate and physics)
-- [ ] 17-02: TBD (carousel and particles)
+- [ ] 17-01-PLAN.md — Auto-rotation and physics-based momentum
+- [ ] 17-02-PLAN.md — Food carousel with particles
 
 ---
 
@@ -188,10 +189,27 @@ Plans:
 
 ---
 
+### Phase 23: Header & Nav Rebuild
+**Goal**: Complete rebuild of header and navigation with modern design and interactions
+**Depends on**: Phase 20 (micro-interactions), Phase 21 (theme refinements)
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+  1. Header has new modern design matching playful UI aesthetic
+  2. Navigation is rebuilt with improved UX
+  3. Mobile nav drawer has smooth animations
+  4. All nav interactions feel consistent with micro-interaction patterns
+  5. Theme toggle integrated seamlessly
+**Plans**: TBD
+
+Plans:
+- [ ] 23-01: TBD (run /gsd:plan-phase 23 to break down)
+
+---
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 15 -> 16 -> 17 -> 18 -> 19 -> 20 -> 21 -> 22
+Phases execute in numeric order: 15 -> 16 -> 17 -> 18 -> 19 -> 20 -> 21 -> 22 -> 23
 Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -204,9 +222,10 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 | 20. Micro-interactions | v1.2 | 0/3 | Not started | - |
 | 21. Theme Refinements | v1.2 | 0/2 | Not started | - |
 | 22. Customer Page Polish | v1.2 | 0/2 | Not started | - |
+| 23. Header & Nav Rebuild | v1.2 | 0/1 | Not started | - |
 
-**v1.2 Totals:** 8 phases, ~20 plans, 48 requirements
+**v1.2 Totals:** 9 phases, ~21 plans, 48+ requirements
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-24 - Phase 18 complete*
+*Last updated: 2026-01-24 - Phase 23 added*
