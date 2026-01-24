@@ -82,13 +82,14 @@ export const SafeArea = forwardRef<HTMLElement, SafeAreaProps>(
       edges = ["top", "bottom", "left", "right"],
       mode = "padding",
       min,
-      as: Component = "div",
+      as = "div",
       className,
       children,
       ...props
     },
     ref
   ) {
+    const Component = as as "div";
     // Build style object for safe area insets
     const safeAreaStyle = useMemo(() => {
       const style: Record<string, string> = {};
@@ -113,7 +114,7 @@ export const SafeArea = forwardRef<HTMLElement, SafeAreaProps>(
 
     return (
       <Component
-        ref={ref}
+        ref={ref as React.Ref<HTMLDivElement>}
         className={cn(className)}
         style={safeAreaStyle}
         {...props}

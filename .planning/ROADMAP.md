@@ -28,8 +28,8 @@ See `.planning/milestones/v1.1-ROADMAP.md` for archived phase details.
 
 **Overview:** Eight phases delivering the playful UI overhaul. Foundation phase fixes TailwindCSS 4 z-index blocking bug and establishes React Three Fiber. Then 3D hero in two phases (core + advanced). Menu unification creates consistent card design. Homepage redesign integrates everything. Micro-interactions add delight across all components. Theme refinements polish light/dark modes. Customer page polish ensures consistent playfulness everywhere.
 
-- [ ] **Phase 15: Foundation & R3F Setup** - Fix z-index bug, install React Three Fiber
-- [ ] **Phase 16: 3D Hero Core** - Basic 3D food model with controls
+- [x] **Phase 15: Foundation & R3F Setup** - Fix z-index bug, install React Three Fiber ✓
+- [x] **Phase 16: 3D Hero Core** - Basic 3D food model with controls ✓
 - [ ] **Phase 17: 3D Hero Advanced** - Auto-rotate, physics, carousel, particles
 - [ ] **Phase 18: Menu Unification** - Unified MenuItemCard across all surfaces
 - [ ] **Phase 19: Homepage Redesign** - Integrate 3D hero, enhanced sections
@@ -51,8 +51,8 @@ See `.planning/milestones/v1.1-ROADMAP.md` for archived phase details.
 **Plans**: 2 plans
 
 Plans:
-- [ ] 15-01-PLAN.md — Z-index token migration (fix dropdown, migrate overlays)
-- [ ] 15-02-PLAN.md — R3F installation and SSR-safe Scene wrapper
+- [x] 15-01-PLAN.md — Z-index token migration (fix dropdown, migrate overlays) ✓
+- [x] 15-02-PLAN.md — R3F installation and SSR-safe Scene wrapper ✓
 
 ---
 
@@ -66,12 +66,13 @@ Plans:
   3. User can zoom model with pinch/scroll (within limits)
   4. Loading spinner shows while 3D assets load
   5. Low-end mobile devices show 2D fallback image instead of 3D
-**Plans**: TBD
+**Plans**: 4 plans (3 core + 1 gap closure)
 
 Plans:
-- [ ] 16-01: TBD (3D model rendering and lighting)
-- [ ] 16-02: TBD (OrbitControls and interaction)
-- [ ] 16-03: TBD (Loading states and mobile fallback)
+- [x] 16-01-PLAN.md — Infrastructure: GPU detection hook, branded loader, dependencies ✓
+- [x] 16-02-PLAN.md — 3D Scene: Hero3DCanvas with FoodModel, OrbitControls, lighting ✓
+- [x] 16-03-PLAN.md — Integration: Hero3DSection (3D/2D switch), Hero.tsx integration ✓
+- [x] 16-04-PLAN.md — Gap closure: Source real GLB model and 2D fallback image ✓
 
 ---
 
@@ -102,11 +103,12 @@ Plans:
   3. Menu page uses unified card
   4. Cart items use unified card style
   5. Menu cards have 3D tilt effect on hover
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 18-01: TBD (unified MenuItemCard component)
-- [ ] 18-02: TBD (integration across surfaces)
+- [ ] 18-01-PLAN.md — UnifiedMenuItemCard component with glassmorphism, 3D tilt, shine effect
+- [ ] 18-02-PLAN.md — FeaturedCarousel and homepage integration
+- [ ] 18-03-PLAN.md — Menu page and cart integration
 
 ---
 
@@ -194,17 +196,17 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 15. Foundation & R3F Setup | v1.2 | 0/2 | Planned | - |
-| 16. 3D Hero Core | v1.2 | 0/3 | Not started | - |
+| 15. Foundation & R3F Setup | v1.2 | 2/2 | Complete | 2026-01-23 |
+| 16. 3D Hero Core | v1.2 | 4/4 | Complete | 2026-01-24 |
 | 17. 3D Hero Advanced | v1.2 | 0/2 | Not started | - |
-| 18. Menu Unification | v1.2 | 0/2 | Not started | - |
+| 18. Menu Unification | v1.2 | 0/3 | Planned | - |
 | 19. Homepage Redesign | v1.2 | 0/2 | Not started | - |
 | 20. Micro-interactions | v1.2 | 0/3 | Not started | - |
 | 21. Theme Refinements | v1.2 | 0/2 | Not started | - |
 | 22. Customer Page Polish | v1.2 | 0/2 | Not started | - |
 
-**v1.2 Totals:** 8 phases, ~18 plans, 48 requirements
+**v1.2 Totals:** 8 phases, ~20 plans, 48 requirements
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-23*
+*Last updated: 2026-01-24 - Phase 16 complete*

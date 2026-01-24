@@ -193,8 +193,8 @@ test.describe("Sprint 1: Bug Fixes", () => {
 
       if (await categoryNav.isVisible()) {
         const classes = await categoryNav.getAttribute("class");
-        // Should use z-[var(--z-sticky)] not hardcoded z-20
-        expect(classes).toContain("z-[var(--z-");
+        // Should use z-20 (zClass.sticky) for sticky elements
+        expect(classes).toContain("z-20");
       }
     });
 

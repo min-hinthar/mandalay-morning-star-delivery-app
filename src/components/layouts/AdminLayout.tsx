@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/animations";
+import { zClass } from "@/design-system/tokens/z-index";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -179,7 +180,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
                 <>
                   {/* Backdrop */}
                   <div
-                    className="fixed inset-0 z-10"
+                    className={cn("fixed inset-0", zClass.modalBackdrop)}
                     onClick={closeUserMenu}
                   />
 
@@ -190,10 +191,11 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                     transition={spring.snappy}
                     className={cn(
-                      "absolute right-0 top-full mt-2 z-10",
+                      "absolute right-0 top-full mt-2",
                       "w-56 rounded-lg border border-[var(--color-border)]",
                       "bg-[var(--color-surface)] shadow-[var(--shadow-lg)]",
-                      "overflow-hidden"
+                      "overflow-hidden",
+                      zClass.popover
                     )}
                   >
                     {/* User Info */}

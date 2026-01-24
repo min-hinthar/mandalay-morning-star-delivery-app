@@ -266,6 +266,19 @@
     animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
+  /* Enhanced glassmorphism for menu cards (16-24px blur per CONTEXT.md) */
+  .glass-menu-card {
+    background: color-mix(in srgb, var(--color-surface-primary) 75%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--color-border-subtle);
+  }
+
+  .glass-menu-card:hover {
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+
   /* Image zoom on hover container */
   .img-zoom-container {
     overflow: hidden;

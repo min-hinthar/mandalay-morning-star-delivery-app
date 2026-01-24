@@ -95,13 +95,14 @@ export const Stack = forwardRef<HTMLElement, StackProps>(function Stack(
     gap = "space-4",
     align = "stretch",
     divider,
-    as: Component = "div",
+    as = "div",
     className,
     children,
     ...props
   },
   ref
 ) {
+  const Component = as as "div";
   // If divider is provided, we need to interleave dividers between children
   const renderChildren = () => {
     if (!divider) return children;
@@ -124,7 +125,7 @@ export const Stack = forwardRef<HTMLElement, StackProps>(function Stack(
 
   return (
     <Component
-      ref={ref}
+      ref={ref as React.Ref<HTMLDivElement>}
       className={cn(
         // Base styles
         "flex flex-col",

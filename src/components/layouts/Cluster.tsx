@@ -98,16 +98,17 @@ export const Cluster = forwardRef<HTMLElement, ClusterProps>(function Cluster(
     align = "center",
     justify = "start",
     wrap = true,
-    as: Component = "div",
+    as = "div",
     className,
     children,
     ...props
   },
   ref
 ) {
+  const Component = as as "div";
   return (
     <Component
-      ref={ref}
+      ref={ref as React.Ref<HTMLDivElement>}
       className={cn(
         // Base styles
         "flex",
