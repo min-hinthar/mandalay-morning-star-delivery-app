@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 16 of 22 (3D Hero Core)
-Plan: 1 of ? complete
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-01-24 - Completed 16-01-PLAN.md (3D Animation Dependencies & Infrastructure)
+Last activity: 2026-01-24 - Completed 16-02-PLAN.md (Food Model & OrbitControls)
 
-Progress: [####################] v1.0-v1.1 complete | [███░░░░░░░░░░░░░░░░░] v1.2 16%
+Progress: [####################] v1.0-v1.1 complete | [████░░░░░░░░░░░░░░░░] v1.2 20%
 
 ## Milestones Completed
 
@@ -25,21 +25,21 @@ Progress: [####################] v1.0-v1.1 complete | [███░░░░░�
 
 **Total completed:** 14 phases, 53 plans
 **v1.2 scope:** 8 phases (15-22), ~18 plans, 48 requirements
-**v1.2 progress:** 1 phase complete + 1 plan, 3 plans done
+**v1.2 progress:** 1 phase complete + 2 plans, 4 plans done
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 56 (v1.0 + v1.1 + v1.2)
-- v1.2 plans completed: 3
-- Average duration: 10min (Phase 15-16)
+- Total plans completed: 57 (v1.0 + v1.1 + v1.2)
+- v1.2 plans completed: 4
+- Average duration: 9min (Phase 15-16)
 
 **By Phase (v1.2):**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 15 | 2/2 | 24min | 12min |
-| 16 | 1/? | 4min | 4min |
+| 16 | 2/3 | 9min | 4.5min |
 
 *Updated after each plan completion*
 
@@ -81,6 +81,9 @@ From `.planning/research/SUMMARY.md`:
 - **Polymorphic component types:** Use `as = "div"` with `const Component = as as "div"` pattern for TypeScript compatibility
 - **GPU tier detection:** useGPUTier hook returns shouldRender3D boolean (tier >= 2)
 - **3D loader:** drei Html for DOM inside Canvas with branded spinner
+- **FoodModel pattern:** GLTF + spring entrance + shouldAnimate prop
+- **Hero3DCanvas pattern:** Canvas with touchAction: none, OrbitControls constraints, Environment + ContactShadows
+- **OrbitControls constraints:** polar 45-82deg, azimuth +-60deg keeps food viewable from appetizing angles
 
 ### Blockers/Concerns
 
@@ -89,10 +92,10 @@ None - all blocking issues from Phase 15 resolved.
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 16-01-PLAN.md (3D Animation Dependencies & Infrastructure)
+Stopped at: Completed 16-02-PLAN.md (Food Model & OrbitControls)
 Resume file: None
-Next action: `/gsd:execute-phase 16-02`
+Next action: `/gsd:execute-phase 16-03`
 
 ---
 
-*Updated: 2026-01-24 - Completed 16-01*
+*Updated: 2026-01-24 - Completed 16-02*
