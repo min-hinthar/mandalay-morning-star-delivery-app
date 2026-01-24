@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.2 Playful UI Overhaul - Phase 15 Foundation & R3F Setup
+**Current focus:** v1.2 Playful UI Overhaul - Phase 16 3D Hero Core
 
 ## Current Position
 
-Phase: 15 of 22 (Foundation & R3F Setup)
-Plan: 2 of 2 complete
-Status: Phase 15 complete
-Last activity: 2026-01-23 - Completed 15-02-PLAN.md (R3F Setup)
+Phase: 16 of 22 (3D Hero Core)
+Plan: 1 of ? complete
+Status: In progress
+Last activity: 2026-01-24 - Completed 16-01-PLAN.md (3D Animation Dependencies & Infrastructure)
 
-Progress: [####################] v1.0-v1.1 complete | [██░░░░░░░░░░░░░░░░░░] v1.2 11%
+Progress: [####################] v1.0-v1.1 complete | [███░░░░░░░░░░░░░░░░░] v1.2 16%
 
 ## Milestones Completed
 
@@ -25,20 +25,21 @@ Progress: [####################] v1.0-v1.1 complete | [██░░░░░░�
 
 **Total completed:** 14 phases, 53 plans
 **v1.2 scope:** 8 phases (15-22), ~18 plans, 48 requirements
-**v1.2 progress:** 1 phase complete, 2 plans done
+**v1.2 progress:** 1 phase complete + 1 plan, 3 plans done
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 55 (v1.0 + v1.1 + v1.2)
-- v1.2 plans completed: 2
-- Average duration: 12min (Phase 15)
+- Total plans completed: 56 (v1.0 + v1.1 + v1.2)
+- v1.2 plans completed: 3
+- Average duration: 10min (Phase 15-16)
 
 **By Phase (v1.2):**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 15 | 2/2 | 24min | 12min |
+| 16 | 1/? | 4min | 4min |
 
 *Updated after each plan completion*
 
@@ -58,6 +59,9 @@ Progress: [####################] v1.0-v1.1 complete | [██░░░░░░�
 - R3F 9.5.0 required for React 19 compatibility (v8.x fails)
 - SSR-safe pattern: useState(false) + useEffect mounted check
 - Dynamic imports with ssr: false for all R3F components
+- GPU tier 2+ threshold for 3D rendering (30+ fps capable)
+- Optimistic default to 3D while GPU detection loads
+- Indeterminate spinner for 3D loading (percentage unreliable for single GLB)
 
 ### Research Findings
 
@@ -67,7 +71,7 @@ From `.planning/research/SUMMARY.md`:
 - SSR-safe pattern: `dynamic(() => import(), { ssr: false })` + mounted check
 - Single Canvas pattern to avoid WebGL context exhaustion
 
-### Patterns Established (Phase 15)
+### Patterns Established (Phase 15-16)
 
 - **zClass token system:** Use `zClass.popover` for dropdowns escaping parent stacking context, `zClass.modalBackdrop` for backdrop layers
 - **Intra-component z-index:** Keep z-10 for elements that layer within their container (close buttons in modals)
@@ -75,6 +79,8 @@ From `.planning/research/SUMMARY.md`:
 - **Dynamic import 3D:** `dynamic(() => import('@/components/3d'), { ssr: false })`
 - **useFrame animation:** delta-based rotation for frame-rate independence
 - **Polymorphic component types:** Use `as = "div"` with `const Component = as as "div"` pattern for TypeScript compatibility
+- **GPU tier detection:** useGPUTier hook returns shouldRender3D boolean (tier >= 2)
+- **3D loader:** drei Html for DOM inside Canvas with branded spinner
 
 ### Blockers/Concerns
 
@@ -82,11 +88,11 @@ None - all blocking issues from Phase 15 resolved.
 
 ## Session Continuity
 
-Last session: 2026-01-23
-Stopped at: Completed 15-02-PLAN.md (R3F Setup)
+Last session: 2026-01-24
+Stopped at: Completed 16-01-PLAN.md (3D Animation Dependencies & Infrastructure)
 Resume file: None
-Next action: `/gsd:plan-phase 16`
+Next action: `/gsd:execute-phase 16-02`
 
 ---
 
-*Updated: 2026-01-23 - PHASE 15 COMPLETE*
+*Updated: 2026-01-24 - Completed 16-01*
