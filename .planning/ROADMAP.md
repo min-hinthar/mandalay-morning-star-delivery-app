@@ -102,11 +102,12 @@ Plans:
   3. Menu page uses unified card
   4. Cart items use unified card style
   5. Menu cards have 3D tilt effect on hover
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 18-01: TBD (unified MenuItemCard component)
-- [ ] 18-02: TBD (integration across surfaces)
+- [ ] 18-01-PLAN.md — UnifiedMenuItemCard component with glassmorphism, 3D tilt, shine effect
+- [ ] 18-02-PLAN.md — FeaturedCarousel and homepage integration
+- [ ] 18-03-PLAN.md — Menu page and cart integration
 
 ---
 
@@ -197,14 +198,14 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 | 15. Foundation & R3F Setup | v1.2 | 2/2 | Complete | 2026-01-23 |
 | 16. 3D Hero Core | v1.2 | 0/3 | Planned | - |
 | 17. 3D Hero Advanced | v1.2 | 0/2 | Not started | - |
-| 18. Menu Unification | v1.2 | 0/2 | Not started | - |
+| 18. Menu Unification | v1.2 | 0/3 | Planned | - |
 | 19. Homepage Redesign | v1.2 | 0/2 | Not started | - |
 | 20. Micro-interactions | v1.2 | 0/3 | Not started | - |
 | 21. Theme Refinements | v1.2 | 0/2 | Not started | - |
 | 22. Customer Page Polish | v1.2 | 0/2 | Not started | - |
 
-**v1.2 Totals:** 8 phases, ~18 plans, 48 requirements
+**v1.2 Totals:** 8 phases, ~19 plans, 48 requirements
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-24 - Phase 16 planned*
+*Last updated: 2026-01-24 - Phase 18 planned*
