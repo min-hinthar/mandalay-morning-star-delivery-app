@@ -48,11 +48,11 @@ See `.planning/milestones/v1.1-ROADMAP.md` for archived phase details.
   2. Signout button click registers and logs user out successfully
   3. `import { Canvas } from '@react-three/fiber'` works without SSR errors
   4. Basic 3D scene renders in browser (test page with rotating cube)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 15-01: TBD (z-index token fix)
-- [ ] 15-02: TBD (R3F installation and SSR-safe setup)
+- [ ] 15-01-PLAN.md — Z-index token migration (fix dropdown, migrate overlays)
+- [ ] 15-02-PLAN.md — R3F installation and SSR-safe Scene wrapper
 
 ---
 
@@ -194,7 +194,7 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 15. Foundation & R3F Setup | v1.2 | 0/2 | Not started | - |
+| 15. Foundation & R3F Setup | v1.2 | 0/2 | Planned | - |
 | 16. 3D Hero Core | v1.2 | 0/3 | Not started | - |
 | 17. 3D Hero Advanced | v1.2 | 0/2 | Not started | - |
 | 18. Menu Unification | v1.2 | 0/2 | Not started | - |
