@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.2 Playful UI Overhaul - Phase 16 3D Hero Core
+**Current focus:** v1.2 Playful UI Overhaul - Phase 18 Menu Unification
 
 ## Current Position
 
-Phase: 16 of 22 (3D Hero Core)
-Plan: 4 of 4 complete (includes gap closure plan)
-Status: Phase complete
-Last activity: 2026-01-24 - Completed 16-04-PLAN.md (Gap Closure - Assets)
+Phase: 18 of 22 (Menu Unification)
+Plan: 1 of 3 complete
+Status: In progress
+Last activity: 2026-01-24 - Completed 18-01-PLAN.md (UnifiedMenuItemCard)
 
-Progress: [####################] v1.0-v1.1 complete | [██████░░░░░░░░░░░░░░] v1.2 30%
+Progress: [####################] v1.0-v1.1 complete | [███████░░░░░░░░░░░░░] v1.2 35%
 
 ## Milestones Completed
 
@@ -25,14 +25,14 @@ Progress: [####################] v1.0-v1.1 complete | [██████░░�
 
 **Total completed:** 14 phases, 53 plans
 **v1.2 scope:** 8 phases (15-22), ~18 plans, 48 requirements
-**v1.2 progress:** 2 phases complete, 6 plans done
+**v1.2 progress:** 2 phases complete, 7 plans done
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 59 (v1.0 + v1.1 + v1.2)
-- v1.2 plans completed: 6
-- Average duration: 10min (Phase 15-16)
+- Total plans completed: 60 (v1.0 + v1.1 + v1.2)
+- v1.2 plans completed: 7
+- Average duration: 10min (Phase 15-18)
 
 **By Phase (v1.2):**
 
@@ -40,6 +40,7 @@ Progress: [####################] v1.0-v1.1 complete | [██████░░�
 |-------|-------|-------|----------|
 | 15 | 2/2 | 24min | 12min |
 | 16 | 4/4 | 29min | 7.3min |
+| 18 | 1/3 | 12min | 12min |
 
 *Updated after each plan completion*
 
@@ -64,6 +65,9 @@ Progress: [####################] v1.0-v1.1 complete | [██████░░�
 - Indeterminate spinner for 3D loading (percentage unreliable for single GLB)
 - 2D fallback is designed experience for low-end devices, not failure state
 - show3D prop defaults to true, allows conditional disabling for A/B testing
+- **UnifiedMenuItemCard 3D tilt:** 18-degree max angle, spring-smoothed (stiffness: 150, damping: 15)
+- **Glassmorphism:** 75% opacity, 20px blur (24px on hover) via .glass-menu-card
+- **AddButton state machine:** idle -> adding (300ms) -> quantity for cart flow
 
 ### Research Findings
 
@@ -73,7 +77,7 @@ From `.planning/research/SUMMARY.md`:
 - SSR-safe pattern: `dynamic(() => import(), { ssr: false })` + mounted check
 - Single Canvas pattern to avoid WebGL context exhaustion
 
-### Patterns Established (Phase 15-16)
+### Patterns Established (Phase 15-18)
 
 - **zClass token system:** Use `zClass.popover` for dropdowns escaping parent stacking context, `zClass.modalBackdrop` for backdrop layers
 - **Intra-component z-index:** Keep z-10 for elements that layer within their container (close buttons in modals)
@@ -89,6 +93,9 @@ From `.planning/research/SUMMARY.md`:
 - **Hero3DSection pattern:** Conditional wrapper with GPU detection and loading state
 - **2D fallback pattern:** Subtle motion (float + rotate) with gradient and glow
 - **3D layer integration:** ParallaxLayer speed=mid for depth effect
+- **3D tilt pattern (18-01):** useMotionValue + useSpring + useTransform for physics-based mouse-tracking rotation
+- **State machine button (18-01):** Type union for states, AnimatePresence for transitions, setTimeout for state progression
+- **Web Audio sound effects (18-01):** Lazy-load AudioContext, track user interaction, try/catch for autoplay safety
 
 ### Blockers/Concerns
 
@@ -97,10 +104,10 @@ None - all blocking issues from Phase 15 resolved.
 ## Session Continuity
 
 Last session: 2026-01-24
-Stopped at: Completed 16-04-PLAN.md (Gap Closure) - Phase 16 fully complete with assets
+Stopped at: Completed 18-01-PLAN.md (UnifiedMenuItemCard)
 Resume file: None
-Next action: Move to Phase 17 (3D Hero Polish) or Phase 18 (Menu Unification)
+Next action: Execute 18-02-PLAN.md (Homepage Carousel) or 18-03 (Menu Page Integration)
 
 ---
 
-*Updated: 2026-01-24 - Completed 16-04*
+*Updated: 2026-01-24 - Completed 18-01*
