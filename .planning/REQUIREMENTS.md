@@ -107,7 +107,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | Full 3D environment/scene | Overkill for food showcase, performance killer |
 | 3D menu browsing | Gimmicky, slower than optimized 2D grid |
 | VR/AR integration | Scope creep, minimal user value for meal subscription |
-| 3D on every page | Performance death, user fatigue — 3D only in hero |
+| 3D on every page | Performance death, user fatigue - 3D only in hero |
 | Admin/Driver dashboard changes | v1.2 focuses on customer pages only |
 | Backend/schema changes | Supabase + Stripe contracts stay stable |
 | Heavy post-processing (bloom, SSAO) | GPU intensive, overkill for food delivery |
@@ -118,61 +118,61 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | TBD | Pending |
-| INFRA-02 | TBD | Pending |
-| INFRA-03 | TBD | Pending |
-| INFRA-04 | TBD | Pending |
-| HERO3D-01 | TBD | Pending |
-| HERO3D-02 | TBD | Pending |
-| HERO3D-03 | TBD | Pending |
-| HERO3D-04 | TBD | Pending |
-| HERO3D-05 | TBD | Pending |
-| HERO3D-06 | TBD | Pending |
-| HERO3D-07 | TBD | Pending |
-| HERO3D-08 | TBD | Pending |
-| HERO3D-09 | TBD | Pending |
-| HERO3D-10 | TBD | Pending |
-| HERO3D-11 | TBD | Pending |
-| HOME-01 | TBD | Pending |
-| HOME-02 | TBD | Pending |
-| HOME-03 | TBD | Pending |
-| HOME-04 | TBD | Pending |
-| HOME-05 | TBD | Pending |
-| HOME-06 | TBD | Pending |
-| MENU-01 | TBD | Pending |
-| MENU-02 | TBD | Pending |
-| MENU-03 | TBD | Pending |
-| MENU-04 | TBD | Pending |
-| MENU-05 | TBD | Pending |
-| MICRO-01 | TBD | Pending |
-| MICRO-02 | TBD | Pending |
-| MICRO-03 | TBD | Pending |
-| MICRO-04 | TBD | Pending |
-| MICRO-05 | TBD | Pending |
-| MICRO-06 | TBD | Pending |
-| MICRO-07 | TBD | Pending |
-| MICRO-08 | TBD | Pending |
-| MICRO-09 | TBD | Pending |
-| MICRO-10 | TBD | Pending |
-| MICRO-11 | TBD | Pending |
-| MICRO-12 | TBD | Pending |
-| THEME-01 | TBD | Pending |
-| THEME-02 | TBD | Pending |
-| THEME-03 | TBD | Pending |
-| THEME-04 | TBD | Pending |
-| THEME-05 | TBD | Pending |
-| THEME-06 | TBD | Pending |
-| PAGE-01 | TBD | Pending |
-| PAGE-02 | TBD | Pending |
-| PAGE-03 | TBD | Pending |
-| PAGE-04 | TBD | Pending |
-| PAGE-05 | TBD | Pending |
+| INFRA-01 | Phase 15 | Pending |
+| INFRA-02 | Phase 15 | Pending |
+| INFRA-03 | Phase 15 | Pending |
+| INFRA-04 | Phase 15 | Pending |
+| HERO3D-01 | Phase 16 | Pending |
+| HERO3D-02 | Phase 16 | Pending |
+| HERO3D-03 | Phase 16 | Pending |
+| HERO3D-04 | Phase 16 | Pending |
+| HERO3D-05 | Phase 16 | Pending |
+| HERO3D-06 | Phase 16 | Pending |
+| HERO3D-07 | Phase 16 | Pending |
+| HERO3D-08 | Phase 17 | Pending |
+| HERO3D-09 | Phase 17 | Pending |
+| HERO3D-10 | Phase 17 | Pending |
+| HERO3D-11 | Phase 17 | Pending |
+| HOME-01 | Phase 19 | Pending |
+| HOME-02 | Phase 19 | Pending |
+| HOME-03 | Phase 19 | Pending |
+| HOME-04 | Phase 19 | Pending |
+| HOME-05 | Phase 19 | Pending |
+| HOME-06 | Phase 19 | Pending |
+| MENU-01 | Phase 18 | Pending |
+| MENU-02 | Phase 18 | Pending |
+| MENU-03 | Phase 18 | Pending |
+| MENU-04 | Phase 18 | Pending |
+| MENU-05 | Phase 18 | Pending |
+| MICRO-01 | Phase 20 | Pending |
+| MICRO-02 | Phase 20 | Pending |
+| MICRO-03 | Phase 20 | Pending |
+| MICRO-04 | Phase 20 | Pending |
+| MICRO-05 | Phase 20 | Pending |
+| MICRO-06 | Phase 20 | Pending |
+| MICRO-07 | Phase 20 | Pending |
+| MICRO-08 | Phase 20 | Pending |
+| MICRO-09 | Phase 20 | Pending |
+| MICRO-10 | Phase 20 | Pending |
+| MICRO-11 | Phase 20 | Pending |
+| MICRO-12 | Phase 20 | Pending |
+| THEME-01 | Phase 21 | Pending |
+| THEME-02 | Phase 21 | Pending |
+| THEME-03 | Phase 21 | Pending |
+| THEME-04 | Phase 21 | Pending |
+| THEME-05 | Phase 21 | Pending |
+| THEME-06 | Phase 21 | Pending |
+| PAGE-01 | Phase 22 | Pending |
+| PAGE-02 | Phase 22 | Pending |
+| PAGE-03 | Phase 22 | Pending |
+| PAGE-04 | Phase 22 | Pending |
+| PAGE-05 | Phase 22 | Pending |
 
 **Coverage:**
 - v1.2 requirements: 48 total
-- Mapped to phases: 0
-- Unmapped: 48 (pending roadmap creation)
+- Mapped to phases: 48
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-23*
-*Last updated: 2026-01-23 after initial definition*
+*Last updated: 2026-01-23 after roadmap creation*
