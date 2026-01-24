@@ -24,7 +24,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | v1.1 Tech Debt | 9-14 | 21 | 2026-01-23 |
 
 **Total completed:** 15 phases, 54 plans
-**v1.2 scope:** 8 phases (15-22), ~18 plans, 48 requirements
+**v1.2 scope:** 9 phases (15-23), ~21 plans, 48+ requirements
 **v1.2 progress:** 3 phases complete, 9 plans done
 
 ## Performance Metrics
@@ -99,6 +99,10 @@ From `.planning/research/SUMMARY.md`:
 - **Staggered scroll-reveal (18-03):** Framer Motion whileInView with 80ms delay per card, capped at 640ms
 - **Cart glassmorphism (18-03):** glass-menu-card + rounded-2xl, NO 3D tilt (checkout focus)
 - **FeaturedCarousel (18-02):** scroll-snap-type: x mandatory, IntersectionObserver for index, auto-scroll with permanent disable on user scroll
+
+### Roadmap Evolution
+
+- Phase 23 added: Header & Nav Rebuild (2026-01-24)
 
 ### Blockers/Concerns
 
