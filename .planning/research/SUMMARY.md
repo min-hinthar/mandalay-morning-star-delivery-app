@@ -1,403 +1,265 @@
 # Project Research Summary
 
-**Project:** Morning Star Delivery App - Full UI Rewrite
-**Domain:** Premium Food Delivery UI/UX (Next.js + React + TailwindCSS)
-**Researched:** 2026-01-21
+**Project:** Morning Star Delivery App - v1.2 Playful UI Overhaul
+**Domain:** Food Delivery App with 3D Hero + Enhanced Micro-interactions
+**Researched:** 2026-01-23
 **Confidence:** HIGH
 
 ## Executive Summary
 
-This is a comprehensive UI/UX rewrite for a food delivery application with an explicit goal of "over-the-top animated + playful" design. Research reveals that success hinges on solving the existing overlay/z-index chaos (50+ hardcoded values, stacking context traps, route-persisting overlays) while building a dual-animation system (GSAP for scroll choreography + Motion for component interactions). The recommended approach establishes a strict token-based z-index hierarchy and centralized portal system before touching any visual components.
+The v1.2 milestone adds 3D interactive hero with Three.js/React Three Fiber to an existing Next.js 15/React 19/TailwindCSS 4 food delivery app with mature animation infrastructure (GSAP 3.14.2, Framer Motion 12.26.1). Research identifies three technical additions: React Three Fiber 9.5.0 for WebGL rendering, TailwindCSS 4 CSS-first z-index configuration fix, and architectural patterns for 3D/2D animation coexistence.
 
-**Critical insight:** GSAP is now 100% free (Webflow acquisition eliminated licensing fees), making premium scroll animations and text-splitting effects accessible without Club GreenSock membership. Combined with Motion's component-level declarative API, this dual-library approach delivers the "playful" requirement while avoiding performance pitfalls on mobile devices.
+The recommended approach uses a fixed background Canvas with scrollable DOM content overlaid, coordinated through shared Zustand state. GSAP ScrollTrigger drives 3D camera movement via useFrame sync pattern, while Framer Motion handles 2D component interactions. Critical to success: SSR-safe dynamic imports with mounted checks, WebGL context cleanup on unmount, and numeric-only TailwindCSS z-index classes.
 
-**Primary risk:** The existing codebase has fundamental overlay infrastructure issues (overlays persisting across routes, stacking context traps from backdrop-filter, Radix dropdown event swallowing). These must be resolved in Phase 1 foundation work, not deferred. Building visual components before fixing the layer architecture will result in rework and continued clickability issues.
+Key risks center on TailwindCSS 4's breaking change (custom zIndex config no longer generates utilities) and React 19/R3F compatibility (requires @react-three/fiber@9.x, not 8.x). Both are documented, preventable with verification steps before implementation. Performance mitigation uses GPU tier detection, lazy loading, and single Canvas pattern to avoid context exhaustion.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The stack builds on existing Next.js 16 + React 19 + TailwindCSS 4 foundation with strategic additions for animation and layering. Core additions: GSAP + @gsap/react for timeline choreography (now free), CSS custom properties for z-index tokens consumed via TailwindCSS 4 `@theme` directive, and explicit `isolation: isolate` boundaries for stacking context management.
+Three.js ecosystem integrates cleanly with existing stack. No conflicts with GSAP/Framer Motion — libraries serve complementary roles (3D vs 2D, timeline vs springs).
 
 **Core technologies:**
-- **GSAP ^3.14 + @gsap/react ^2.1**: Timeline choreography, ScrollTrigger, SplitText, Flip animations — Bypasses React rendering for 60fps, free plugins including formerly premium features
-- **Motion ^12.27** (Framer Motion): Component-level interactions, layout animations, gesture support — Declarative API, AnimatePresence for exit animations, already in codebase
-- **CSS Custom Properties + isolation: isolate**: Z-index token system with explicit stacking contexts — TailwindCSS 4 native support, cleanest context management without transform side effects
-- **TailwindCSS 4 @theme**: Token consumption as first-class utilities — Generates `z-modal`, `z-toast` from CSS variables
-- **Radix UI Primitives**: Accessible overlay primitives (Dialog, Dropdown, Tooltip) — Already in codebase, handles a11y and focus management when used correctly
+- **React Three Fiber 9.5.0**: React renderer for Three.js with React 19 compatibility (v8.x incompatible)
+- **@react-three/drei 10.7.7**: Helper components (Stage, Environment, useGLTF, OrbitControls) reducing boilerplate
+- **three 0.182.0**: Core WebGL library (~600KB gzipped, lazy-loaded to avoid LCP impact)
+- **TailwindCSS 4 @theme z-index**: CSS-first `--z-index-*` namespace required for custom z-index utilities
 
-**Critical versions:**
-- TailwindCSS 4 required for `@theme` directive native CSS variable support
-- GSAP 3.13+ includes free SplitText with accessibility features post-Webflow acquisition
-
-**Anti-patterns identified:**
-- GSAP inside useEffect (memory leaks) → Use useGSAP hook with automatic cleanup
-- Animating width/height (layout thrash) → Animate scale/clipPath
-- Hardcoded z-index numbers → Tokenized var(--z-*) pattern
-- Transform on overlay containers → Breaks fixed positioning, use isolation instead
-- ScrollSmoother plugin → Heavy, SEO concerns, not needed for this project
+**Version compatibility verified:**
+- React 19.2.3 within R3F peer dependency range `>=19 <19.3`
+- GSAP integration pattern established (timeline + useFrame seek, not react-spring)
+- No new theme dependencies (existing next-themes + CSS tokens sufficient)
 
 ### Expected Features
 
-Research identified clear table stakes vs. differentiators for premium food delivery UX.
+Research identifies table stakes (3D rendering, user interaction, mobile fallback), competitive differentiators (physics-based drag, auto-rotate), and explicit anti-features (full 3D environments, VR/AR, 3D menu browsing).
 
 **Must have (table stakes):**
-- Bottom navigation bar (mobile-first, 4-5 items, thumb-friendly) — iOS/Android standard
-- Sticky header with cart badge — Persistent cart access expected
-- Category tabs with scrollspy — Fast menu browsing, DoorDash/Uber Eats standard
-- Skeleton loading screens — 20-30% faster perceived load vs. spinners
-- Item detail bottom sheet — Full-screen mobile, swipe-to-dismiss
-- Cart drawer with swipe-to-delete — Native mobile feel
-- Guest checkout — 24% abandon due to forced account creation (Baymard)
-- Touch targets 44x44px minimum — iOS/Android accessibility guidelines
-- Color contrast 4.5:1 — WCAG AA baseline
+- 3D food model rendering with GLTF/GLB loader
+- Rotate on drag/touch with OrbitControls (Y-axis constrained)
+- Lighting setup (3-point or Stage component for appetizing food appearance)
+- Loading state for 3D assets (Suspense + skeleton)
+- Mobile performance fallback (GPU tier detection, 2D alternative for Tier 0/1 devices)
+- Reduced motion support (disable auto-rotate, simplify interactions)
+- Button press compression, input focus glow, toggle switch bounce (apply existing motion tokens consistently)
+- Animated theme toggle (upgrade from basic icon swap)
 
-**Should have (competitive differentiators):**
-- Page transitions — App-like navigation feel, AnimatePresence + shared layout
-- Scroll choreography — Parallax headers, staggered reveals (GSAP ScrollTrigger)
-- Add-to-cart celebration — Item "flies" to cart, confetti burst, haptic feedback
-- Staggered list animations — 50-100ms delay per item, content feels alive
-- Haptic feedback patterns — Add-to-cart, pull-to-refresh, success states (iOS/Android native)
-- Quick-add from list — Bypass modal for items without required customizations
-- Menu item hover/tap states — Scale 1.02-1.05, shadow elevation
+**Should have (competitive):**
+- Auto-rotate idle animation (slow 0.5 deg/frame showcase)
+- Physics-based interaction (drag with momentum, spring back)
+- Theme transition effect (smooth fade vs jarring snap)
+- 3D tilt on menu cards (CSS perspective + mouse track)
+- Branded loading spinner (bowl/chopsticks/star, not generic)
 
 **Defer (v2+):**
-- One-tap reorder from favorites — Requires order history backend integration
-- Real-time delivery estimates — Backend dependency, complex kitchen load calculation
-- Custom animated icons (Lottie) — Polish, not critical path
-- Full dark mode — Time-intensive, needs custom dark palette not just color inversion
-- Advanced scroll effects (ScrollSmoother) — Performance/SEO concerns
+- Multiple food model carousel (3-4 dishes swipeable)
+- Depth of field / postprocessing (performance risk, GPU intensive)
+- Circular reveal theme transition (Telegram-style, complex)
+- Environment reflections (polish if time permits)
+- Particle effects on 3D interaction (celebration burst)
 
-**Anti-features (explicitly avoid):**
-- Aggressive "Install App" prompts → 25% abandonment (Baymard)
-- Hidden fees until checkout → Destroys trust, show delivery fees in cart
-- Hamburger menu as primary mobile nav → 150% longer task time, use bottom nav
-- Auto-playing video backgrounds → Performance hit, accessibility issue
-- Parallax on mobile (heavy) → Motion sickness, respect prefers-reduced-motion
-- Required customization on every item → Slows repeat users, allow quick-add
+**Anti-features (do NOT build):**
+- Full 3D scene/environment (performance killer)
+- 3D menu browsing (gimmicky, slower than 2D grid)
+- VR/AR integration (scope creep, minimal user value)
+- Heavy post-processing (bloom, SSAO — GPU intensive)
+- Auto-playing 3D on mobile (battery drain, data usage)
 
 ### Architecture Approach
 
-The recommended architecture uses portal-first overlay system with strict z-index token enforcement and component isolation boundaries. Addresses core PRD problems: 50+ hardcoded z-index values, overlay state persisting across routes, stacking context traps from backdrop-filter, no centralized portal strategy.
+Portal-first overlay system with strict z-index token enforcement prevents the 50+ hardcoded z-index conflicts documented in ERROR_HISTORY.md. 3D integrates via fixed background Canvas with DOM content layered above using `z-0` base vs `-z-10` 3D positioning.
 
 **Major components:**
+1. **OverlayProvider** — Centralized portal root, auto-closes overlays on route change, sorts by z-index
+2. **Token System** — Single source z-index scale (base:0, dropdown:10, sticky:20, fixed:30, modal:50, tooltip:70, toast:80, max:100), motion presets (Framer springs + GSAP timelines), theme variables
+3. **3D Canvas Layer** — Fixed background (-z-10), dynamic import with ssr:false, GPU tier detection + 2D fallback, single Canvas to avoid WebGL context exhaustion
+4. **Animation Coordination** — GSAP ScrollTrigger drives 3D via Zustand store → useFrame sync, Framer Motion for 2D UI interactions, separation of concerns (no Framer layout on Canvas container)
 
-1. **Token System (foundation)** — Single source of truth for z-index (base:0 → dropdown:10 → sticky:20 → fixed:30 → modalBackdrop:40 → modal:50 → popover:60 → tooltip:70 → toast:80 → max:100), motion tokens (spring presets, duration scale), GSAP presets for timeline choreography
-2. **OverlayProvider (centralized state)** — Single portal root at document.body level, auto-closes overlays on route change via pathname effect, proper stacking order management, focus trap coordination
-3. **Portal/Overlay Infrastructure** — OverlayPortalRoot renders in z-index order, no transform/filter on portal container (escapes stacking contexts), all overlay components register with provider instead of managing own state
-4. **Isolation Boundaries** — Explicit `isolation: isolate` on headers/fixed elements, backdrop-blur elements portal overlays OUT instead of containing them, GPU promotion (`will-change: transform`) used sparingly and removed after animation
-5. **Dual Animation System** — GSAP for timeline choreography/scroll-driven animations (hero reveals, parallax), Motion for component interactions/presence (hover, modal enter/exit, layout shifts), shared duration values for consistency
-
-**Component boundaries:**
-- Tokens → import nothing
-- Primitives (Portal, FocusTrap, ScrollLock) → import tokens only
-- Atoms (Button, Input, Badge) → import tokens + primitives
-- Organisms (Dialog, Drawer, Header) → import atoms + primitives, use OverlayProvider
-- Layouts (AppShell, CustomerLayout) → compose organisms
-
-**Build order rationale:**
-1. Tokens + Primitives + Providers (no dependencies)
-2. Atoms (depend on tokens)
-3. Overlay Organisms (depend on Phase 1 + Phase 2, solve critical issues first)
-4. Non-Overlay Organisms (Header, BottomNav — depend on atoms)
-5. Layouts (compose everything)
+**Dependency boundaries:**
+- Tokens import nothing
+- Primitives import tokens only
+- 3D components use tokens + shared state (Zustand), avoid direct Organism imports
+- SSR-safe pattern: dynamic import + mounted state check (matches existing Portal.tsx)
 
 ### Critical Pitfalls
 
-Research identified 5 critical pitfalls that cause rewrites or major failures if not addressed.
+1. **TailwindCSS 4 z-index Config Ignored** — Custom `zIndex` values in `tailwind.config.ts` do NOT generate utility classes. Classes like `z-modal`, `z-fixed` silently fail (no CSS, no warnings). Use numeric classes (`z-30`, `z-50`) or `@theme { --z-index-modal: 50 }` with unquoted numbers. Verified in ERROR_HISTORY.md 2026-01-23/24.
 
-1. **Stacking Context Traps from CSS Properties** — `backdrop-filter`, `transform`, `opacity < 1`, `will-change: transform` create new stacking contexts that trap z-index. Prevention: Audit all fixed/sticky elements, use single portal root, test z-index by setting fixed elements to pointer-events-none. Phase 1 (Foundation).
+2. **React 19 + R3F Version Mismatch** — @react-three/fiber@8.x throws `Cannot read properties of undefined (reading 'ReactCurrentOwner')` with React 19. Requires @react-three/fiber@9.x for React 19 internals (`__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE`). Verify before starting 3D work.
 
-2. **Z-Index Token Collision and Hardcoding** — 50+ instances found in codebase, unpredictable layer ordering. Prevention: Tokenized system with ESLint enforcement, no `z-50` allowed, use `z-[var(--z-modal)]`. Component layer assignment table. Phase 1 (Foundation).
+3. **SSR/Hydration Errors** — Three.js requires browser APIs (window, WebGL). Next.js SSR crashes with `ReferenceError: window is not defined` unless using `dynamic(() => import(), { ssr: false })` + mounted state check. No module-level Three.js imports in Server Components.
 
-3. **Overlay State Persisting Across Route Changes** — Mobile menu/drawer state not cleaned up on navigation, invisible backdrop blocks entire page. Prevention: `usePathname()` effect in all overlay components or centralized in OverlayProvider. Phase 2 (Navigation/Overlays).
+4. **WebGL Context Exhaustion** — Browser limit of ~8-16 concurrent WebGL contexts. Multiple Canvas components or missing cleanup causes "WebGL context lost" after navigation. Use single Canvas pattern, dispose geometry/materials on unmount, force context loss on cleanup.
 
-4. **Radix Dropdown Event Swallowing** — Form submissions inside DropdownMenuItem fail, Next.js redirect() thrown errors caught in try/catch blocks. Prevention: Never use `<form action={...}>` inside dropdown items, create DropdownAction component, re-throw NEXT_REDIRECT errors. Phase 2 (Navigation/Overlays).
+5. **CSS 3D Transforms Break Z-Index** — `transform-style: preserve-3d` or `perspective` creates separate stacking context where z-index doesn't work across 3D/2D boundaries. Dropdowns/modals trapped behind 3D elements. Solution: portal overlays to body level (escape 3D context), use `translateZ()` for 3D stacking instead of z-index.
 
-5. **AnimatePresence Mounting/Unmounting Race Conditions** — Exit animations don't play when AnimatePresence placed inside conditional rendering. Prevention: AnimatePresence always mounted, wraps conditional content with keys. Phase 3 (Animation System).
-
-**Moderate pitfalls:**
-- Portal z-index inheritance (use Radix consistently)
-- Body scroll lock conflicts (centralized manager counting active locks)
-- Motion performance on low-end devices (animate transform/opacity only, reduce spring stiffness)
-- Inconsistent animation timing (motion token system already exists in codebase)
-- Glass/blur effects breaking text contrast (explicit text color, 0.85+ opacity for text containers)
+6. **Radix Dropdown Event Swallowing** — Forms inside DropdownMenuItem, `event.preventDefault()` in onSelect, or caught NEXT_REDIRECT errors cause signout/delete actions to fail silently. Use existing DropdownAction component pattern (documented in ERROR_HISTORY.md 2026-01-18).
 
 ## Implications for Roadmap
 
-Based on research, strict dependency order required. Foundation must solve overlay/z-index chaos before visual components.
+Based on research, suggested 3-phase structure prioritizing foundation (z-index fix, R3F setup) before features (3D hero, micro-interactions) before polish (theme, performance).
 
-### Phase 1: Foundation & Token System
-**Rationale:** All subsequent work depends on token infrastructure and overlay architecture. Existing codebase has 50+ z-index issues and overlay state persistence problems. Must establish correct patterns before building on broken foundation.
-
-**Delivers:**
-- Z-index token system (CSS custom properties + TailwindCSS 4 @theme)
-- Motion token system (spring presets, durations, GSAP presets)
-- OverlayProvider with route-aware cleanup
-- Portal infrastructure (OverlayPortalRoot)
-- Primitives (Portal, FocusTrap, ScrollLock, DismissableLayer)
-- IsolationBoundary component
-- GSAP plugin registration and setup
-- ESLint rules for z-index enforcement
-
-**Addresses features:**
-- Foundation for all overlay components (modals, drawers, tooltips, toasts)
-- Motion tokens enable consistent animation timing
-
-**Avoids pitfalls:**
-- Pitfall 1 (stacking context traps) via explicit isolation boundaries
-- Pitfall 2 (z-index collision) via token system + lint enforcement
-- Pitfall 9 (inconsistent animation) via motion token system
-
-**Research needs:** None — well-documented patterns, existing motion-tokens.ts to build on
-
-### Phase 2: Core Overlay Components
-**Rationale:** These are the problem components causing current clickability issues. Build with correct portal/z-index behavior from start using Phase 1 infrastructure. Required for all other UI work (every page needs dialogs, tooltips, dropdowns).
+### Phase 1: Foundation & Z-Index Fix
+**Rationale:** TailwindCSS 4 z-index bug blocks all overlay work. R3F setup required before any 3D components. Both are prerequisites with no feature dependencies.
 
 **Delivers:**
-- Dialog component (uses OverlayProvider, tokenized z-index)
-- Drawer component (mobile cart, filters)
-- BottomSheet component (item customization, mobile-first)
-- Dropdown component (fixes Radix event swallowing)
-- Tooltip component (proper z-index stacking)
-- Toast system (notifications)
+- TailwindCSS 4 z-index tokens via CSS `@theme` directive
+- zClass helper returning numeric Tailwind classes
+- React Three Fiber 9.5.0 + drei installed, verified compatible with React 19
+- SSR-safe dynamic import pattern established
+- Basic Scene.tsx wrapper with mounted check
 
-**Uses stack:**
-- Radix UI primitives (Dialog, Dropdown, Tooltip)
-- Motion for enter/exit animations
-- OverlayProvider from Phase 1
-- Z-index tokens from Phase 1
+**Addresses:**
+- Pitfall 1 (z-index config ignored)
+- Pitfall 2 (R3F version mismatch)
+- Pitfall 3 (SSR crashes)
+- Existing signout button bug (z-index conflict)
 
-**Implements architecture:**
-- Centralized portal strategy
-- Controlled overlay state pattern
-- Route-aware cleanup
+**Critical actions:**
+- Add `@theme { --z-index-* }` to globals.css with unquoted numbers
+- Audit all z-index usage, replace custom tokens with numeric classes
+- Run `pnpm build && grep "z-modal" .next/static/css/*.css` to verify utilities exist
+- Install `pnpm add three @react-three/fiber @react-three/drei`
+- Verify versions: `pnpm ls react @react-three/fiber` (expect React 19.2.3, R3F 9.5.0)
 
-**Avoids pitfalls:**
-- Pitfall 3 (overlay persistence) via pathname effect in OverlayProvider
-- Pitfall 4 (Radix dropdown events) via DropdownAction component pattern
-- Pitfall 6 (portal z-index) via consistent Radix usage + token application
+**Research flag:** Standard patterns, skip research-phase (TailwindCSS docs + codebase ERROR_HISTORY sufficient)
 
-**Research needs:** Minimal — Radix patterns well-documented, existing codebase has examples to improve upon
+---
 
-### Phase 3: Animation System Integration
-**Rationale:** With overlay infrastructure solid, implement "over-the-top animated" requirement. GSAP setup needs testing on real components before widespread use. Motion component patterns established.
+### Phase 2: 3D Hero + Micro-interactions
+**Rationale:** 3D hero is milestone centerpiece, enables testing of stack integration. Micro-interaction audit applies existing motion tokens consistently. Both use Phase 1 foundation.
 
 **Delivers:**
-- GSAP integration (ScrollTrigger, SplitText, Flip, Observer)
-- Scroll choreography patterns (parallax, staggered reveals)
-- Page transition system (AnimatePresence wrappers)
-- Add-to-cart celebration animation (item flies to cart, confetti)
-- Staggered list animations (menu items, cart items)
-- Haptic feedback integration (iOS/Android)
-- useReducedMotion hook and accessibility
+- Hero3DCanvas component with fixed background positioning
+- Single 3D food model (GLTF) with OrbitControls
+- Auto-rotate idle animation
+- GPU tier detection + 2D fallback for low-end devices
+- GSAP ScrollTrigger → 3D camera sync via Zustand
+- Consistent button/input/toggle animations using existing motion tokens
+- Branded loading spinner (bowl/chopsticks/star)
 
-**Uses stack:**
-- GSAP + @gsap/react for timeline choreography
-- Motion for component-level interactions
-- Motion tokens from Phase 1
+**Addresses:**
+- 3D interactive hero requirement (table stakes)
+- Maximum playfulness goal (micro-interaction consistency)
+- Mobile performance (GPU tier fallback)
 
-**Implements architecture:**
-- Dual-library strategy (GSAP for scroll, Motion for components)
-- Shared duration values for consistency
+**Uses:**
+- React Three Fiber Scene wrapper (Phase 1)
+- zClass tokens for Canvas positioning (Phase 1)
+- Existing motion-tokens.ts springs
+- Existing useAnimationPreference for reduced motion
 
-**Avoids pitfalls:**
-- Pitfall 5 (AnimatePresence placement) via standard overlay wrapper
-- Pitfall 8 (Motion performance) via transform/opacity only, reduced spring stiffness
-- Pitfall 9 (timing inconsistency) via motion tokens
+**Avoids:**
+- Pitfall 4 (WebGL context exhaustion) — single Canvas pattern
+- Pitfall 7 (performance) — no state in useFrame, useMemo geometries
+- Pitfall 9 (asset blocking) — lazy load, Suspense, compress GLTF
 
-**Research needs:** Medium — Performance profiling on real Android device needed, ScrollTrigger patterns need testing with Next.js App Router
+**Research flag:** May need research-phase for GLTF model sourcing/creation if no existing assets
 
-### Phase 4: Atoms & Molecules
-**Rationale:** Basic building blocks depend on tokens (Phase 1) and may trigger overlays (Phase 2). With animation system proven (Phase 3), can add micro-interactions.
+---
 
-**Delivers:**
-- Button component (variants, loading states, micro-interactions)
-- Input component (focus animations, validation states)
-- Badge component (cart count, category pills)
-- Icon component (Lucide integration)
-- MenuItem component (food card with image, price, quick-add)
-- CartItemRow component (quantity stepper, swipe-to-delete)
-
-**Addresses features:**
-- Touch targets 44x44px minimum
-- Button loading states
-- Menu item hover/tap states (scale, shadow)
-- Quick-add from list (bypass modal)
-
-**Avoids pitfalls:**
-- Pitfall 10 (glass effects) via explicit text color, high opacity backgrounds
-- Pitfall 11 (PriceTicker inCents) via code review
-
-**Research needs:** None — standard component patterns
-
-### Phase 5: Layout & Navigation
-**Rationale:** Composes organisms (Phase 2) and atoms (Phase 4) into page structure. Header/BottomNav need explicit isolation boundaries.
+### Phase 3: Theme Polish + Performance
+**Rationale:** Theme refinement and performance optimization depend on 3D/2D integration from Phase 2. Final polish after core features working.
 
 **Delivers:**
-- AppShell layout (header + main + bottomNav)
-- Header component (sticky, cart badge, search, isolation boundary)
-- BottomNav component (mobile-first, 4-5 items, active state)
-- Category tabs with scrollspy (GSAP ScrollTrigger)
-- PageContainer component (safe area, scroll container)
+- Animated theme toggle (icon morph with Framer Motion)
+- Smooth theme transition (fade, not jarring snap)
+- Dark mode color token review (light mode footer text visibility)
+- 3D scene lighting adapts to theme (warmer in dark mode)
+- Asset compression (gltf-transform optimization)
+- Loading state polish (progress indicator, skeleton shimmer)
+- Performance profiling and mobile testing
 
-**Addresses features:**
-- Bottom navigation bar (table stakes)
-- Sticky header with cart icon (table stakes)
-- Category tabs with scrollspy (table stakes)
-- Back gesture support (platform native)
+**Addresses:**
+- Theme refinement requirement
+- Light/dark mode polish
+- Performance targets (60fps, <2s model load)
 
-**Implements architecture:**
-- Explicit isolation boundaries on header/sticky elements
-- Portal strategy for header dropdowns
+**Avoids:**
+- Pitfall 8 (light mode text visibility) — explicit theme-aware color tokens
+- Pitfall 10 (Framer/R3F conflicts) — clear separation (Framer for UI, R3F for 3D)
 
-**Avoids pitfalls:**
-- Pitfall 1 (stacking context traps) via isolation on header
+**Research flag:** Standard patterns, skip research-phase (existing next-themes + CSS tokens sufficient)
 
-**Research needs:** None — standard layout patterns
-
-### Phase 6: Menu Browsing & Cart
-**Rationale:** Core user flow composes all previous phases. Requires scroll choreography (Phase 3), overlays (Phase 2), components (Phase 4), layout (Phase 5).
-
-**Delivers:**
-- Menu grid/list view (skeleton loading, staggered animations)
-- Item detail bottom sheet (customization, add-to-cart)
-- Cart drawer (swipe-to-delete, quantity animations)
-- Search with autocomplete (debounced, recent searches)
-- Dietary filters (multi-select pills)
-- Pull-to-refresh (haptic feedback)
-
-**Addresses features:**
-- High-quality food photography (16:9, lazy loading)
-- Item cards with name/price/description (table stakes)
-- Full-screen item modal/sheet (table stakes)
-- Cart drawer with inline editing (table stakes)
-- Skeleton loading screens (table stakes)
-- Add-to-cart celebration (differentiator)
-
-**Avoids pitfalls:**
-- Pitfall 7 (scroll lock conflicts) via centralized manager
-- Pitfall 8 (Motion performance) via transform-only animations
-
-**Research needs:** Low — May need food photography optimization research (WebP, AVIF)
-
-### Phase 7: Checkout & Polish
-**Rationale:** Final user flow, least dependency-heavy, can be refined post-MVP.
-
-**Delivers:**
-- Checkout flow (delivery address, payment, order summary)
-- Guest checkout option (email-only)
-- Order confirmation (success animation, haptic)
-- Favorites/heart animation (confetti micro-burst)
-- Dark mode (full custom palette)
-- Accessibility audit (contrast, focus, reduced motion)
-
-**Addresses features:**
-- Guest checkout option (table stakes)
-- Multiple payment methods (table stakes)
-- Progress indicator (table stakes)
-- Error states with recovery (table stakes)
-
-**Avoids pitfalls:**
-- Pitfall 13 (useMediaQuery SSR) via mounted state check
-
-**Research needs:** None for MVP — Dark mode may need color palette research
+---
 
 ### Phase Ordering Rationale
 
-- **Foundation first (Phase 1):** Token system and overlay infrastructure prevent all 5 critical pitfalls. Building visual components before fixing layer architecture = rework.
-- **Overlays before atoms (Phase 2 → Phase 4):** Dialog/Drawer/Toast are infrastructure that atoms use (Button triggers Dialog, MenuItem uses Tooltip). Solving clickability issues unblocks all other work.
-- **Animation after overlays (Phase 3):** GSAP ScrollTrigger needs stable layout, AnimatePresence needs overlay patterns established. Testing scroll choreography on real components before widespread use.
-- **Layout after components (Phase 5):** Header composes atoms, uses overlays. Bottom navigation composes atoms. AppShell requires Header + BottomNav finished.
-- **Features after infrastructure (Phases 6-7):** Menu/Cart/Checkout compose everything. Clean deferred to post-infrastructure.
+- **Phase 1 first:** TailwindCSS 4 bug affects all components (modals, dropdowns, header). R3F version mismatch crashes app. Both are showstoppers requiring immediate resolution.
+- **Phase 2 second:** 3D hero is milestone deliverable. Micro-interactions use Phase 1 tokens. Testing phase verifies stack integration, uncovers edge cases before polish phase.
+- **Phase 3 last:** Theme polish and performance optimization require working 3D/2D integration. Asset compression depends on final model selection. Performance profiling needs real usage patterns.
+
+**Dependency flow:**
+```
+Phase 1 (Foundation)
+    |
+    +-- z-index tokens → Phase 2 (Canvas positioning) → Phase 3 (Modal/overlay layering)
+    +-- R3F setup → Phase 2 (Hero3D) → Phase 3 (Performance tuning)
+    +-- SSR pattern → Phase 2 (Scene.tsx) → Phase 3 (Asset loading)
+
+Phase 2 (Features)
+    |
+    +-- 3D hero → Phase 3 (Theme-aware lighting, compression)
+    +-- Motion tokens → Phase 3 (Theme toggle animation)
+```
 
 ### Research Flags
 
-**Phases needing deeper research during planning:**
-- **Phase 3 (Animation):** Performance profiling on real Android device needed, ScrollTrigger + Next.js App Router interaction patterns sparse in documentation
-- **Phase 6 (Menu Browsing):** Food photography optimization (WebP vs AVIF, lazy loading strategies, LCP impact)
+**Needs research:**
+- **Phase 2 (conditional):** If no GLTF food models exist, need `/gsd:research-phase` for 3D asset sourcing (marketplace vs custom modeling, Blender pipeline, optimization)
 
-**Phases with standard patterns (skip research-phase):**
-- **Phase 1 (Foundation):** Z-index token patterns well-documented (Microsoft Atlas, USWDS), existing motion-tokens.ts to build on
-- **Phase 2 (Overlays):** Radix documentation comprehensive, existing codebase has examples to improve
-- **Phase 4 (Atoms):** Standard component patterns, CVA for variants already in use
-- **Phase 5 (Layout):** Standard sticky header, bottom nav patterns
-- **Phase 7 (Checkout):** Standard form flow, Stripe integration documented
+**Standard patterns (skip research):**
+- **Phase 1:** TailwindCSS 4 z-index solution documented in STACK.md + ERROR_HISTORY.md
+- **Phase 2:** R3F integration patterns documented in ARCHITECTURE.md, existing GSAP/Framer patterns reusable
+- **Phase 3:** Theme system (next-themes + CSS tokens) already established, performance profiling standard tools (Chrome DevTools, Lighthouse)
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | GSAP pricing verified via official blog/npm, Motion/Framer rename verified via changelog, TailwindCSS 4 @theme verified via official docs, isolation property verified via MDN |
-| Features | HIGH | Table stakes verified via Baymard Institute research (24% abandon forced signup, 25% abandon install prompts), NN/g guidelines for skeleton screens/bottom sheets/cart feedback, platform guidelines for touch targets/haptics |
-| Architecture | HIGH | Portal-first approach verified via Radix documentation, stacking context behavior verified via Josh Comeau/MDN/web.dev, existing codebase provides evidence of current issues (50+ z-index instances, backdrop-filter on header) |
-| Pitfalls | HIGH | All 5 critical pitfalls verified in existing codebase (LEARNINGS.md entries, PRD_V8.md issues), AnimatePresence patterns verified via Framer Motion docs, Radix event handling verified via official docs |
+| Stack | HIGH | npm info confirms React 19.2.3 compatibility with R3F 9.5.0. TailwindCSS 4 z-index fix verified in GitHub discussion #18031 + codebase ERROR_HISTORY.md. |
+| Features | HIGH | Feature expectations derived from authoritative sources (Motion.dev, R3F docs, Codrops). Table stakes vs differentiators validated against food delivery UX patterns. |
+| Architecture | HIGH | Portal/overlay pattern verified against codebase (Portal.tsx exists). 3D integration pattern sourced from pmndrs/react-three-next starter + Motion.dev R3F docs. |
+| Pitfalls | HIGH | Critical pitfalls 1, 4, 6 documented in codebase ERROR_HISTORY.md. Pitfalls 2, 3, 5 verified in official issue trackers (Next.js #71836, TailwindCSS #18031, MDN stacking context). |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-**GSAP + Next.js App Router performance:**
-- ScrollTrigger behavior with Next.js prefetching not fully documented
-- Need to test scroll position restoration on browser back
-- Handle during Phase 3 via real device testing, implement scroll position save if needed
+**3D asset pipeline:** Research does not specify GLTF model source (marketplace vs custom). Address during Phase 2 planning:
+- Check if design team provides models
+- If not, evaluate marketplace (Sketchfab, TurboSquid) vs Blender custom modeling
+- Establish optimization workflow (gltf-transform, Draco compression)
 
-**Mobile device performance baseline:**
-- No specific performance budget established for animations
-- Need to profile on representative Android device (mid-tier, not flagship)
-- Handle during Phase 3 via Chrome DevTools throttling + real device testing, establish FPS baseline
+**Performance targets:** Research suggests targets (60fps, <2s load) but lacks device-specific benchmarks. Validate during Phase 3:
+- Profile on target devices (iPhone 12, Galaxy A series, low-end Android)
+- Establish fallback trigger thresholds (GPU tier, FPS regression)
 
-**Food photography optimization:**
-- WebP vs AVIF adoption, image CDN requirements unclear
-- Handle during Phase 6 via image optimization research if LCP suffers
-
-**Dark mode palette:**
-- Research deferred dark mode to Phase 7, full palette design needed
-- Not just inverted colors, requires custom color tokens
-- Handle during Phase 7 via design token research if prioritized
+**Theme transition complexity:** Circular reveal (Telegram-style) deferred to post-v1.2 but fade transition not fully specified. Clarify during Phase 3:
+- View Transitions API browser support check
+- Fallback strategy for unsupported browsers
+- Animation duration and easing preferences
 
 ## Sources
 
 ### Primary (HIGH confidence)
-
-**Stack:**
-- [GSAP 3.13 Release Blog](https://gsap.com/blog/3-13/) — Plugin availability, pricing post-Webflow acquisition
-- [GSAP React Documentation](https://gsap.com/resources/React/) — useGSAP hook patterns
-- [Motion Upgrade Guide](https://motion.dev/docs/react-upgrade-guide) — Package rename details
-- [TailwindCSS v4.0 Blog](https://tailwindcss.com/blog/tailwindcss-v4) — @theme directive, CSS-first config
-- [MDN - CSS isolation property](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/isolation) — Official documentation
-
-**Features:**
-- [Baymard Institute - Food Delivery & Takeout UX Research](https://baymard.com/research/online-food-delivery) — Table stakes, abandonment rates
-- [NN/g - Cart Feedback Guidelines](https://www.nngroup.com/articles/cart-feedback/) — Confirmation patterns
-- [NN/g - Bottom Sheet Guidelines](https://www.nngroup.com/articles/bottom-sheet/) — Mobile overlay patterns
-- [NN/g - Skeleton Screens 101](https://www.nngroup.com/articles/skeleton-screens/) — Loading state best practices
-- [Android Developers - Haptics Design Principles](https://developer.android.com/develop/ui/views/haptics/haptics-principles) — Platform guidelines
-
-**Architecture:**
-- [Josh Comeau - Stacking Contexts](https://www.joshwcomeau.com/css/stacking-contexts/) — Stacking context fundamentals
-- [Radix UI - Portal Documentation](https://www.radix-ui.com/primitives/docs/utilities/portal) — Portal z-index handling
-- [Microsoft Atlas - Z-Index Tokens](https://design.learn.microsoft.com/tokens/z-index.html) — Enterprise token pattern
-
-**Pitfalls:**
-- Existing codebase LEARNINGS.md (2026-01-18 through 2026-01-21) — Verified issues
-- [Radix Dialog Documentation](https://www.radix-ui.com/primitives/docs/components/dialog) — Accessibility patterns
-- [Backdrop-Filter Positioning Issues](https://medium.com/@aqib-2/why-backdrop-filter-fails-with-positioned-child-elements-0b82b504f440) — Stacking context traps
-- [Transform Z-Index Trap in React](https://dev.to/minoosh/today-i-learned-layouts-and-the-z-index-trap-in-react-366f) — React-specific issues
+- [React Three Fiber Installation](https://r3f.docs.pmnd.rs/getting-started/installation) — React 19 compatibility, peer dependencies
+- [TailwindCSS 4 z-index Discussion](https://github.com/tailwindlabs/tailwindcss/discussions/18031) — `--z-index-*` namespace requirement
+- [Motion.dev React Three Fiber Docs](https://motion.dev/docs/react-three-fiber) — Framer Motion 3D integration
+- Codebase ERROR_HISTORY.md (2026-01-18, 2026-01-23, 2026-01-24) — z-index bug, Radix dropdown issue, verification
+- Codebase LEARNINGS.md (2026-01-23) — TailwindCSS 4 patterns
 
 ### Secondary (MEDIUM confidence)
-
-- [Smashing Magazine - Sticky Menu UX Guidelines](https://www.smashingmagazine.com/2023/05/sticky-menus-ux-guidelines/) — Layout patterns
-- [Mobbin - Bottom Sheet UI Patterns](https://mobbin.com/glossary/bottom-sheet) — Design examples
-- [BrixLabs - Micro Animation Examples 2025](https://bricxlabs.com/blogs/micro-interactions-2025-examples) — Animation inspiration
-- [Cieden - Fixing 9 Common UX Mistakes in Food Delivery Apps](https://cieden.com/fixing-9-common-ux-mistakes-in-food-delivery-app-ux-upgrade) — Anti-patterns
+- [R3F Performance Pitfalls](https://r3f.docs.pmnd.rs/advanced/pitfalls) — useFrame state updates, object creation
+- [Next.js 15 + R3F Issue #71836](https://github.com/vercel/next.js/issues/71836) — React 19 internals compatibility
+- [Codrops: Cinematic 3D Scroll with GSAP](https://tympanus.net/codrops/2025/11/19/how-to-build-cinematic-3d-scroll-experiences-with-gsap/) — ScrollTrigger + Three.js patterns
+- [drei GitHub Releases](https://github.com/pmndrs/drei/releases) — React 19 compatibility timeline
+- [pmndrs/react-three-next Starter](https://github.com/pmndrs/react-three-next) — Next.js SSR patterns
 
 ### Tertiary (LOW confidence)
-
-- [Medium - Food Delivery App UI UX Design 2025](https://medium.com/@prajapatisuketu/food-delivery-app-ui-ux-design-in-2025-trends-principles-best-practices-4eddc91ebaee) — General trends
-- [Netguru - Top 10 Food App Design Tips 2025](https://www.netguru.com/blog/food-app-design-tips) — Design recommendations
+- [Web Design Trends 2026](https://www.index.dev/blog/web-design-trends) — 3D hero trend validation (directional, not prescriptive)
+- [Food Delivery UX 2025](https://medium.com/@prajapatisuketu/food-delivery-app-ui-ux-design-in-2025-trends-principles-best-practices-4eddc91ebaee) — Micro-interaction patterns (community opinion)
 
 ---
-
-*Research completed: 2026-01-21*
+*Research completed: 2026-01-23*
 *Ready for roadmap: yes*
