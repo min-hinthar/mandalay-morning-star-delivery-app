@@ -15,6 +15,7 @@ import { useParticleSystem } from "@/lib/webgl/particles";
 import { useGrainEffect } from "@/lib/webgl/grain";
 import { ParallaxContainer, ParallaxLayer, ParallaxGradient } from "@/components/layouts/ParallaxContainer";
 import { FloatingFood, defaultFoodItems } from "./FloatingFood";
+import { Hero3DSection } from "./Hero3DSection";
 import { BrandMascot } from "@/components/mascot/BrandMascot";
 import { Button } from "@/components/ui/button";
 
@@ -41,6 +42,8 @@ export interface HeroProps {
   showParticles?: boolean;
   /** Show brand mascot */
   showMascot?: boolean;
+  /** Show 3D hero section */
+  show3D?: boolean;
   /** Additional className */
   className?: string;
 }
@@ -142,6 +145,7 @@ export function Hero({
   showFloatingFood = true,
   showParticles = true,
   showMascot = true,
+  show3D = true,
   className,
 }: HeroProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
@@ -253,6 +257,13 @@ export function Hero({
         <ParallaxLayer speed="mid" zIndex={2}>
           <div className="absolute inset-0 bg-gradient-radial from-secondary/20 via-transparent to-transparent" />
         </ParallaxLayer>
+
+        {/* 3D Hero Section - interactive food model */}
+        {show3D && (
+          <ParallaxLayer speed="mid" zIndex={2}>
+            <Hero3DSection className="absolute inset-0" />
+          </ParallaxLayer>
+        )}
 
         {/* Floating food elements */}
         {showFloatingFood && (
