@@ -41,9 +41,9 @@ All V4 components use CSS custom properties:
 className="text-[var(--color-charcoal)]"
 className="bg-[var(--color-surface)]"
 
-// Z-index tokens
-className="z-[var(--z-sticky)]"
-className="z-[var(--z-modal)]"
+// Z-index tokens (use Tailwind utilities, not CSS variables)
+className="z-sticky"  // z-index: 20
+className="z-modal"   // z-index: 50
 
 // Animation tokens
 className="duration-[var(--duration-fast)]"

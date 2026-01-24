@@ -50,7 +50,9 @@
       "Bash(pnpm lint:css:*)",
       "Bash(npm run lint)",
       "WebFetch(domain:www.npmjs.com)",
-      "WebFetch(domain:r3f.docs.pmnd.rs)"
+      "WebFetch(domain:r3f.docs.pmnd.rs)",
+      "WebFetch(domain:drei.docs.pmnd.rs)",
+      "WebFetch(domain:www.joshwcomeau.com)"
     ],
     "ask": [
       "WebFetch",

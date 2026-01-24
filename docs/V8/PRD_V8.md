@@ -118,7 +118,7 @@ Rules:
 #### B) Token + styling system
 
 * Keep the consolidated token approach: single namespace tokens (no V4/V5/V6 prefixes in new code) with legacy aliases only where required. 
-* Tailwind should consume tokens via `bg-[var(--...)]`, `shadow-[var(--...)]`, `z-[var(--z-...)]`. 
+* Tailwind should consume tokens via `bg-[var(--...)]`, `shadow-[var(--...)]`, and named z-index utilities (`z-modal`, `z-sticky`, etc.). 
 * Add lint-style enforcement to catch hardcoded hex colors and z-index values (warn-level OK). 
 
 #### C) Motion system
