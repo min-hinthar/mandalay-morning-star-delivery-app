@@ -3,8 +3,9 @@
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import type { MenuItem } from "@/types/menu";
-import { MenuItemCard } from "./menu-item-card";
+import { UnifiedMenuItemCard } from "./UnifiedMenuItemCard";
 import { MenuEmptyState } from "./menu-empty-state";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 interface SearchResultsGridProps {
   items: MenuItem[];
@@ -25,6 +26,8 @@ export function SearchResultsGrid({
   isFavorite,
   onFavoriteToggle,
 }: SearchResultsGridProps) {
+  const { shouldAnimate } = useAnimationPreference();
+
   if (isLoading && items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center px-4 py-20 text-center">
@@ -58,19 +61,36 @@ export function SearchResultsGrid({
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {/* Responsive grid: 1 col mobile, 2 cols tablet, 3 cols desktop */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item, index) => (
           <motion.div
             key={item.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.03 }}
+            initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
+            whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{
+              delay: Math.min(index * 0.08, 0.64),
+              duration: 0.55,
+            }}
           >
-            <MenuItemCard
+            <UnifiedMenuItemCard
               item={item}
+              variant="menu"
               onSelect={onItemSelect}
-              isFavorite={isFavorite?.(item.id) ?? false}
-              onFavoriteToggle={onFavoriteToggle}
+              isFavorite={isFavorite?.(item.id)}
+              onFavoriteToggle={
+                onFavoriteToggle
+                  ? (menuItem, isFav) => {
+                      if (isFav) {
+                        onFavoriteToggle(menuItem);
+                      } else {
+                        onFavoriteToggle(menuItem);
+                      }
+                    }
+                  : undefined
+              }
+              priority={index < 4}
             />
           </motion.div>
         ))}
