@@ -85,11 +85,11 @@ Plans:
   2. Drag interaction has momentum and springs back naturally
   3. User can swipe between multiple food models in carousel
   4. Particles emit when user interacts with 3D model
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 17-01: TBD (auto-rotate and physics)
-- [ ] 17-02: TBD (carousel and particles)
+- [ ] 17-01-PLAN.md — Auto-rotation and physics-based momentum
+- [ ] 17-02-PLAN.md — Food carousel with particles
 
 ---
 
@@ -209,4 +209,4 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-24 - Phase 18 complete*
+*Last updated: 2026-01-24 - Phase 17 planned*
