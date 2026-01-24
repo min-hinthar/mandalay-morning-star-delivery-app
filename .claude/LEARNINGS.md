@@ -2298,3 +2298,47 @@ style={{ zIndex: 1 }} // instead of className="z-10"
 5. **Run visual regression** - verify each swap doesn't break UI
 
 **Apply when:** Planning UI migration phases, debugging unexplained style conflicts
+
+---
+
+## 2026-01-24: TailwindCSS 4 Custom zIndex Theme Extensions Don't Generate Utility Classes
+
+**Context:** Debugging persistent z-index layering issues after multiple fix attempts
+
+**Problem:** Defined custom z-index values in `tailwind.config.ts` but expected classes like `z-fixed`, `z-modal` never worked:
+```ts
+// tailwind.config.ts
+zIndex: {
+  fixed: '30',
+  modal: '50',
+}
+```
+
+**Key insight:** TailwindCSS 4 does NOT generate utility classes from custom `zIndex` theme extensions. Unlike colors or spacing, z-index custom names are NOT turned into classes.
+
+**What works in Tailwind 4:**
+- Default scale: `z-0`, `z-10`, `z-20`, `z-30`, `z-40`, `z-50`, `z-auto`
+- Arbitrary values: `z-[60]`, `z-[100]`
+
+**What does NOT work:**
+- Custom names: `z-fixed`, `z-modal`, `z-sticky` (even if defined in config)
+
+**Helper object pattern:**
+```ts
+// ❌ Wrong - returns non-existent classes
+export const zClass = {
+  fixed: "z-fixed",
+  modal: "z-modal",
+};
+
+// ✅ Correct - returns actual Tailwind classes
+export const zClass = {
+  fixed: "z-30",
+  modal: "z-50",
+  popover: "z-[60]",
+};
+```
+
+**Debugging tip:** If z-index isn't working and there are no errors, check browser DevTools computed styles. If `z-index: auto` instead of expected value, the class doesn't exist.
+
+**Apply when:** Setting up z-index token system in Tailwind 4, debugging layering issues with no visible errors
