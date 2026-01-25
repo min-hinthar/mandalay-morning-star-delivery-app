@@ -49,24 +49,54 @@ export const zClass = {
 
 ---
 
-## 2026-01-24: NEXT_REDIRECT Swallowed by Promise .catch()
+## 2026-01-25: NEXT_REDIRECT Swallowed by Async/Await + Try/Catch (Updated)
 **Type:** Runtime | **Severity:** High
 
-**Error:** Server action with `redirect()` silently fails - no redirect, no error
+**Files:** `src/components/ui/DropdownAction.tsx`
 
-**Root Cause:** Re-throwing NEXT_REDIRECT inside `.catch()` on fire-and-forget promise doesn't propagate:
-```javascript
-// BROKEN
-handleClick().catch((e) => { throw e; }); // Creates unhandled rejection, not propagation
+**Error:** Server action with `redirect()` silently fails - no redirect, no error. Signout button and other redirect actions appear broken.
+
+**Root Cause:** Using async/await with try/catch for server actions that call redirect():
+
+```typescript
+// BROKEN - async/await intercepts redirect errors
+const handleClick = useCallback(async () => {
+  try {
+    await serverAction(); // Server action calls redirect()
+  } catch (error) {
+    if (error includes "NEXT_REDIRECT") {
+      throw error; // Re-throw doesn't propagate from async context
+    }
+  }
+});
+// Called with void: void handleClick();
 ```
 
-**Fix:** Don't wrap redirect-capable calls in `.catch()`:
-```javascript
-// WORKING
-handleClick(); // Let errors bubble naturally
+When NEXT_REDIRECT is caught and re-thrown in async context:
+1. The re-throw becomes an unhandled promise rejection
+2. Next.js's redirect handler never receives it
+3. No redirect occurs
+
+**Fix:** Don't use async/await or rejection handlers for redirect-capable actions:
+
+```typescript
+// WORKING - only attach success handler, let rejections propagate
+const handleClick = useCallback(() => {
+  const result = onClick();
+  if (result instanceof Promise) {
+    result.then(() => {
+      onSuccess?.();
+    });
+    // NO .catch() - let NEXT_REDIRECT propagate to Next.js
+  }
+});
 ```
 
-**Prevention:** Server actions using `redirect()` must not be wrapped in error handlers.
+**Prevention:**
+1. Server actions with `redirect()` must NOT be wrapped in try/catch
+2. Don't use async/await for calling redirect-capable actions
+3. Only attach `.then()` handlers, never `.catch()` that touches redirects
+4. Let unhandled rejections propagate to Next.js's global handler
 
 ---
 
