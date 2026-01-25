@@ -24,7 +24,7 @@ CSS defines `--z-index-modal`, but utility is `z-modal` (prefix stripped).
 TypeScript helpers referencing `var(--z-modal)` fail silently.
 
 ### Issue 3: Arbitrary Values Generate Invalid Wildcard CSS
-Multiple `z-[var(--z-*)]` patterns cause Tailwind to generate `.z-[var(--z-...)]` with literal `...`.
+Multiple z-index patterns with CSS variable wildcards cause Tailwind to generate invalid utility classes.
 
 ### Issue 4: Auto-Content Detection Scans All Files
 Tailwind 4 scans markdown in `docs/`, `.planning/`, `.claude/` even without explicit config.

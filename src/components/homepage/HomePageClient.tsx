@@ -36,44 +36,32 @@ export function HomePageClient({ menuSection }: HomePageClientProps) {
   return (
     <>
       {/* Section Navigation Dots - Desktop only */}
-      <SectionNavDots sections={sections} className="z-50" />
+      <SectionNavDots sections={sections} />
 
-      {/* Main Content Container with Scroll Snap (desktop only) */}
-      <main className="md:snap-y md:snap-mandatory md:h-screen md:overflow-y-auto">
-        {/* Hero Section - Video hero with gradient fallback */}
-        <section className="md:snap-start">
-          <Hero
-            ctaHref="/menu"
-            secondaryCtaText="How It Works"
-            secondaryCtaHref="#how-it-works"
-            showMascot={true}
-          />
-        </section>
+      {/* Main Content */}
+      <main>
+        {/* Hero Section */}
+        <Hero
+          ctaHref="/menu"
+          secondaryCtaText="How It Works"
+          secondaryCtaHref="#how-it-works"
+          showMascot={true}
+        />
 
-        {/* How It Works Section - Replaces Timeline + Coverage */}
-        <section className="md:snap-start">
-          <HowItWorksSection id="how-it-works" />
-        </section>
+        {/* How It Works Section */}
+        <HowItWorksSection id="how-it-works" />
 
-        {/* Full Menu Section */}
-        <section className="md:snap-start" id="menu">
-          {menuSection}
-        </section>
+        {/* Menu Section */}
+        {menuSection}
 
         {/* Testimonials Section */}
-        <section className="md:snap-start">
-          <TestimonialsCarousel id="testimonials" />
-        </section>
+        <TestimonialsCarousel id="testimonials" />
 
         {/* CTA Banner Section */}
-        <section className="md:snap-start" id="cta">
-          <CTABanner />
-        </section>
+        <CTABanner id="cta" />
 
-        {/* Footer CTA */}
-        <footer className="md:snap-start">
-          <FooterCTA />
-        </footer>
+        {/* Footer */}
+        <FooterCTA />
       </main>
     </>
   );
