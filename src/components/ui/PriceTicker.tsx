@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, forwardRef } from "react";
+import { useEffect, useRef, useMemo, forwardRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -127,8 +127,10 @@ export const PriceTicker = forwardRef<HTMLSpanElement, PriceTickerProps>(
     ref
   ) => {
     const { shouldAnimate, isFullMotion } = useAnimationPreference();
-    const [prevValue, setPrevValue] = useState<number | null>(null);
-    const [prevDigits, setPrevDigits] = useState<string[] | null>(null);
+
+    // Use refs for previous values to avoid re-render loops
+    const prevValueRef = useRef<number | null>(null);
+    const prevDigitsRef = useRef<string[] | null>(null);
 
     const sizes = sizeConfig[size];
 
@@ -138,44 +140,47 @@ export const PriceTicker = forwardRef<HTMLSpanElement, PriceTickerProps>(
     // Memoize digits to prevent infinite re-render loop
     const digits = useMemo(() => formattedPrice.split(""), [formattedPrice]);
 
-    // Determine direction
+    // Determine direction based on ref (doesn't cause re-render)
     const direction = useMemo(() => {
       if (animationDirection !== "auto") return animationDirection;
-      if (prevValue === null) return "up";
-      return actualValue >= prevValue ? "up" : "down";
-    }, [animationDirection, prevValue, actualValue]);
+      if (prevValueRef.current === null) return "up";
+      return actualValue >= prevValueRef.current ? "up" : "down";
+    }, [animationDirection, actualValue]);
 
     // Determine color based on change
     const changeColor = useMemo(() => {
-      if (prevValue === null) return undefined;
-      if (actualValue > prevValue) return increaseColor;
-      if (actualValue < prevValue) return decreaseColor;
+      if (prevValueRef.current === null) return undefined;
+      if (actualValue > prevValueRef.current) return increaseColor;
+      if (actualValue < prevValueRef.current) return decreaseColor;
       return undefined;
-    }, [prevValue, actualValue, increaseColor, decreaseColor]);
+    }, [actualValue, increaseColor, decreaseColor]);
 
-    // Update previous value
+    // Get previous digits for animation comparison (read before update)
+    const prevDigits = prevDigitsRef.current;
+
+    // Update refs after render - no dependency on refs themselves
     useEffect(() => {
       // Play sound on change
       if (
         playSound &&
         isFullMotion &&
-        prevValue !== null &&
-        prevValue !== actualValue
+        prevValueRef.current !== null &&
+        prevValueRef.current !== actualValue
       ) {
         // Could integrate with audio-manager here
       }
 
-      setPrevValue(actualValue);
-      setPrevDigits(digits);
-    }, [actualValue, digits, playSound, isFullMotion, prevValue]);
+      prevValueRef.current = actualValue;
+      prevDigitsRef.current = digits;
+    }, [actualValue, digits, playSound, isFullMotion]);
 
     // Direction indicator
     const DirectionIndicator = () => {
-      if (!showDirection || prevValue === null || prevValue === actualValue) {
+      if (!showDirection || prevValueRef.current === null || prevValueRef.current === actualValue) {
         return null;
       }
 
-      const isUp = actualValue > prevValue;
+      const isUp = actualValue > prevValueRef.current;
 
       return (
         <motion.span

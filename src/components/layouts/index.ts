@@ -20,7 +20,6 @@ export { SafeArea, getSafeAreaInsets, safeAreaClasses } from "./SafeArea";
 export type { SafeAreaProps, SafeAreaEdge } from "./SafeArea";
 
 // App Shells
-export { CustomerLayout } from "./CustomerLayout";
 export { CheckoutLayout } from "./CheckoutLayout";
 export type { CheckoutStep } from "@/types/checkout";
 export { DriverLayout } from "./DriverLayout";
