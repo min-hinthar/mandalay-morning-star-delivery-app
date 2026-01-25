@@ -89,6 +89,7 @@ export function HeroVideo({
       >
         {/* Static poster image */}
         {poster && (
+          /* eslint-disable-next-line @next/next/no-img-element -- Poster fallback for reduced motion; external URL from props */
           <img
             src={poster}
             alt=""

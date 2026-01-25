@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useCallback,
+  useState,
   type ReactNode,
 } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
@@ -262,6 +263,13 @@ export function OverlayBase({
   portalTarget,
   zIndex = 50,
 }: OverlayBaseProps) {
+  // State-based mounting for SSR safety - prevents hydration mismatch
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
 
@@ -303,10 +311,11 @@ export function OverlayBase({
     ? { duration: 0 }
     : { duration: 0.2, ease: "easeOut" as const };
 
-  // Portal target
-  const target = portalTarget ?? (typeof document !== "undefined" ? document.body : null);
+  // SSR safety: don't render portal until mounted on client
+  if (!isMounted) return null;
 
-  if (!target) return null;
+  // Portal target (safe to access document.body after mount)
+  const target = portalTarget ?? document.body;
 
   return createPortal(
     <AnimatePresence>

@@ -51,6 +51,7 @@ function Hero2DFallback({ isLoading = false }: Hero2DFallbackProps) {
         <div className="absolute inset-0 blur-3xl bg-secondary/20 rounded-full scale-75" />
 
         {/* The food image */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- Dynamic blur filter requires native img for CSS filter transitions */}
         <img
           src="/images/hero-dish-2d.jpg"
           alt="Authentic Burmese rice bowl"

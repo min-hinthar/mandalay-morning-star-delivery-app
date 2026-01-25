@@ -20,26 +20,12 @@ interface DropdownMenuProps {
 
 const DropdownMenu = ({ children }: DropdownMenuProps) => {
   const [open, setOpen] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
-  return (
-    <DropdownMenuContext.Provider value={{ open, setOpen }}>
-      <div className="relative inline-block text-left">{children}</div>
-    </DropdownMenuContext.Provider>
-  );
-};
-
-interface DropdownMenuTriggerProps {
-  children: React.ReactNode;
-  asChild?: boolean;
-}
-
-const DropdownMenuTrigger = ({ children, asChild }: DropdownMenuTriggerProps) => {
-  const { open, setOpen } = React.useContext(DropdownMenuContext);
-  const ref = React.useRef<HTMLDivElement>(null);
-
+  // Click-outside handler at the menu level (includes both trigger and content)
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     };
@@ -51,11 +37,26 @@ const DropdownMenuTrigger = ({ children, asChild }: DropdownMenuTriggerProps) =>
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [open, setOpen]);
+  }, [open]);
+
+  return (
+    <DropdownMenuContext.Provider value={{ open, setOpen }}>
+      <div ref={containerRef} className="relative inline-block text-left">{children}</div>
+    </DropdownMenuContext.Provider>
+  );
+};
+
+interface DropdownMenuTriggerProps {
+  children: React.ReactNode;
+  asChild?: boolean;
+}
+
+const DropdownMenuTrigger = ({ children, asChild }: DropdownMenuTriggerProps) => {
+  const { open, setOpen } = React.useContext(DropdownMenuContext);
 
   if (asChild && React.isValidElement(children)) {
     return (
-      <div ref={ref}>
+      <div>
         {React.cloneElement(children as React.ReactElement<{ onClick?: () => void }>, {
           onClick: () => setOpen(!open),
         })}
@@ -64,7 +65,7 @@ const DropdownMenuTrigger = ({ children, asChild }: DropdownMenuTriggerProps) =>
   }
 
   return (
-    <div ref={ref}>
+    <div>
       <button onClick={() => setOpen(!open)}>{children}</button>
     </div>
   );
@@ -102,17 +103,42 @@ const DropdownMenuContent = ({
   );
 };
 
-interface DropdownMenuItemProps extends React.HTMLAttributes<HTMLDivElement> {
+interface DropdownMenuItemProps {
   asChild?: boolean;
+  /** Radix-compatible onSelect handler */
+  onSelect?: (event: Event) => void;
+  className?: string;
+  children?: React.ReactNode;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 const DropdownMenuItem = React.forwardRef<HTMLDivElement, DropdownMenuItemProps>(
-  ({ className, children, asChild, onClick, ...props }, ref) => {
+  ({ className, children, asChild, onClick, onSelect }, ref) => {
     const { setOpen } = React.useContext(DropdownMenuContext);
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      // Create a synthetic event for onSelect compatibility
+      const syntheticEvent = new Event("select", { bubbles: true, cancelable: true });
+      let defaultPrevented = false;
+
+      // Call onSelect if provided (Radix-compatible)
+      if (onSelect) {
+        // Override preventDefault to track if it was called
+        const originalPreventDefault = syntheticEvent.preventDefault.bind(syntheticEvent);
+        syntheticEvent.preventDefault = () => {
+          defaultPrevented = true;
+          originalPreventDefault();
+        };
+        onSelect(syntheticEvent);
+      }
+
+      // Call onClick if provided
       onClick?.(e);
-      setOpen(false);
+
+      // Only close menu if preventDefault wasn't called
+      if (!defaultPrevented) {
+        setOpen(false);
+      }
     };
 
     if (asChild && React.isValidElement(children)) {
@@ -124,7 +150,6 @@ const DropdownMenuItem = React.forwardRef<HTMLDivElement, DropdownMenuItemProps>
             className
           )}
           onClick={handleClick}
-          {...props}
         >
           {children}
         </div>
@@ -139,7 +164,6 @@ const DropdownMenuItem = React.forwardRef<HTMLDivElement, DropdownMenuItemProps>
           className
         )}
         onClick={handleClick}
-        {...props}
       >
         {children}
       </div>
