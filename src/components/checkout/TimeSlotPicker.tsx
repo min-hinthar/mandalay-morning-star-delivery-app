@@ -69,6 +69,7 @@ function DatePill({ date, isSelected, onSelect, index }: DatePillProps) {
         "flex flex-col items-center gap-1",
         "border-2 transition-colors duration-200",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+        "transform-gpu will-change-transform",
         isSelected
           ? "border-primary bg-primary text-white shadow-lg shadow-primary/30"
           : date.cutoffPassed
@@ -161,9 +162,10 @@ function TimeSlotPill({
       whileHover={shouldAnimate && !isDisabled ? { scale: 1.02 } : undefined}
       whileTap={shouldAnimate && !isDisabled ? { scale: 0.98 } : undefined}
       className={cn(
-        "relative flex items-center gap-3 px-4 py-3 rounded-xl",
+        "relative flex items-center gap-3 px-4 py-3 rounded-xl w-full",
         "border-2 transition-all duration-200",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+        "transform-gpu will-change-transform",
         isSelected
           ? "border-primary bg-primary-light/50 shadow-md"
           : isDisabled
@@ -171,25 +173,27 @@ function TimeSlotPill({
           : "border-border bg-surface-primary hover:border-primary/50"
       )}
     >
-      {/* Time icon */}
-      <motion.div
-        animate={isSelected && shouldAnimate ? {
-          rotate: [0, -10, 10, 0],
-          scale: [1, 1.2, 1],
-        } : undefined}
-        transition={{
-          duration: 0.5,
-          delay: 0.1,
-        }}
-        className={cn(
-          "w-10 h-10 rounded-full flex items-center justify-center",
-          isSelected
-            ? "bg-primary text-white"
-            : "bg-surface-secondary text-text-muted"
-        )}
-      >
-        <TimeIcon className="w-5 h-5" />
-      </motion.div>
+      {/* Time icon - overflow-hidden prevents scale animation from overflowing */}
+      <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+        <motion.div
+          animate={isSelected && shouldAnimate ? {
+            rotate: [0, -10, 10, 0],
+            scale: [1, 1.15, 1],
+          } : undefined}
+          transition={{
+            duration: 0.5,
+            delay: 0.1,
+          }}
+          className={cn(
+            "w-10 h-10 rounded-full flex items-center justify-center",
+            isSelected
+              ? "bg-primary text-white"
+              : "bg-surface-secondary text-text-muted"
+          )}
+        >
+          <TimeIcon className="w-5 h-5" />
+        </motion.div>
+      </div>
 
       {/* Time label */}
       <div className="flex-1 text-left">
@@ -316,7 +320,7 @@ export function TimeSlotPicker({
   }, [selectedDate, onSelectionChange]);
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-6 w-full", className)}>
       {/* Date selector */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
@@ -324,8 +328,8 @@ export function TimeSlotPicker({
           <h3 className="font-semibold text-text-primary">Select Date</h3>
         </div>
 
-        {/* Scrollable date pills */}
-        <div className="relative">
+        {/* Scrollable date pills - overflow-visible on y-axis for scale animations */}
+        <div className="relative overflow-y-visible">
           {/* Scroll buttons */}
           <AnimatePresence>
             {canScrollLeft && (
@@ -378,7 +382,7 @@ export function TimeSlotPicker({
             ref={scrollContainerRef}
             className={cn(
               "flex gap-3 overflow-x-auto scrollbar-hide",
-              "px-3 py-4 -mx-3",
+              "px-6 py-6 -mx-6",
               "scroll-smooth snap-x snap-mandatory"
             )}
           >
@@ -403,7 +407,7 @@ export function TimeSlotPicker({
             animate={shouldAnimate ? { opacity: 1, height: "auto" } : undefined}
             exit={shouldAnimate ? { opacity: 0, height: 0 } : undefined}
             transition={getSpring(spring.gentle)}
-            className="space-y-3 overflow-hidden"
+            className="space-y-3 overflow-hidden w-full"
           >
             <div className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-primary" />
@@ -414,7 +418,7 @@ export function TimeSlotPicker({
               variants={shouldAnimate ? staggerContainer(0.04, 0.1) : undefined}
               initial="hidden"
               animate="visible"
-              className="grid gap-2"
+              className="grid grid-cols-1 gap-3 px-1 w-full"
             >
               {TIME_WINDOWS.map((slot, index) => {
                 const isSlotSelected =

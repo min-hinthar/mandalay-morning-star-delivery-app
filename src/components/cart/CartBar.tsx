@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { Button } from "@/components/ui/button";
+import { PriceTicker } from "@/components/ui/PriceTicker";
 import { formatPrice } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { FREE_DELIVERY_THRESHOLD_CENTS } from "@/types/cart";
@@ -80,18 +81,20 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
                       />
                     ))}
                   </div>
-                  {/* Filled portion */}
+                  {/* Filled portion - key ensures animation triggers on value change */}
                   <motion.div
+                    key={`progress-${Math.round(progressPercent)}`}
                     className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-[0_2px_6px_rgba(245,158,11,0.3)]"
-                    initial={{ width: 0 }}
+                    initial={{ width: `${Math.max(0, progressPercent - 10)}%` }}
                     animate={{ width: `${progressPercent}%` }}
                     transition={{ type: "spring", stiffness: 100, damping: 20 }}
                   />
                 </div>
-                {/* Animated truck */}
+                {/* Animated truck - key ensures position updates on value change */}
                 <motion.div
+                  key={`truck-${Math.round(progressPercent)}`}
                   className="absolute top-1/2 -translate-y-1/2 z-10"
-                  initial={{ left: "0%" }}
+                  initial={{ left: `calc(${Math.max(0, progressPercent - 10)}% - 10px)` }}
                   animate={{ left: `calc(${progressPercent}% - 10px)` }}
                   transition={{ type: "spring", stiffness: 100, damping: 20 }}
                 >
@@ -118,10 +121,11 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
             </div>
           )}
 
-          {/* Free delivery achieved */}
+          {/* Free delivery achieved - key triggers animation when threshold crossed */}
           {hasFreeDelivery && (
             <div className="px-4 pt-3">
               <motion.div
+                key="free-delivery-unlocked"
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 className="flex items-center justify-center gap-2 py-2 px-4 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/30 border border-green-200 dark:border-green-800"
@@ -180,12 +184,12 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
                 <p className="text-[var(--text-xs)] text-[var(--color-text-secondary)] truncate">
                   {itemCount} {itemCount === 1 ? "item" : "items"}
                 </p>
-                <p
+                <div
                   className="font-display text-[var(--text-xl)] font-bold text-[var(--color-text-primary)] truncate"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  {formatPrice(estimatedTotal)}
-                </p>
+                  <PriceTicker value={estimatedTotal} inCents size="lg" />
+                </div>
               </div>
             </button>
 
