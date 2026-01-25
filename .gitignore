@@ -43,3 +43,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .envrc
+
+# playwright MCP screenshots
+.playwright-mcp/
+
+# crash dumps
+*.stackdump
+
+# claude local settings
+.claude/settings.local.json
