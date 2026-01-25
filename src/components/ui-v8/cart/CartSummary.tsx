@@ -63,7 +63,7 @@ export function CartSummary({ className }: CartSummaryProps) {
       100
   );
 
-  const hasFreeDelivery = amountToFreeDelivery <= 0;
+  const hasFreeDelivery = amountToFreeDelivery === 0;
 
   return (
     <motion.div
@@ -120,25 +120,21 @@ export function CartSummary({ className }: CartSummaryProps) {
                 ))}
               </div>
 
-              {/* Filled progress - key ensures animation triggers on value change */}
+              {/* Filled progress - animate prop handles smooth transitions */}
               <motion.div
-                key={`summary-progress-${Math.round(progressPercent)}`}
                 className={cn(
                   "h-full rounded-full relative",
                   "bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500",
                   "shadow-[0_2px_8px_rgba(245,158,11,0.4)]"
                 )}
-                initial={{ width: `${Math.max(0, progressPercent - 10)}%` }}
                 animate={{ width: `${progressPercent}%` }}
                 transition={getSpring(spring.rubbery)}
               />
             </div>
 
-            {/* Animated truck on progress - key ensures position updates on value change */}
+            {/* Animated truck on progress - animate prop handles smooth position updates */}
             <motion.div
-              key={`summary-truck-${Math.round(progressPercent)}`}
               className="absolute top-1/2 -translate-y-1/2"
-              initial={{ left: `calc(${Math.max(0, progressPercent - 10)}% - 12px)` }}
               animate={{ left: `calc(${progressPercent}% - 12px)` }}
               transition={getSpring(spring.rubbery)}
             >
@@ -188,10 +184,9 @@ export function CartSummary({ className }: CartSummaryProps) {
         </motion.div>
       )}
 
-      {/* Free delivery achieved message - key triggers animation when threshold crossed */}
+      {/* Free delivery achieved message */}
       {hasFreeDelivery && (
         <motion.div
-          key="summary-free-delivery-unlocked"
           initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
           animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
           transition={getSpring(spring.ultraBouncy)}

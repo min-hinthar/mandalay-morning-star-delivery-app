@@ -17,13 +17,6 @@ export type { MenuSectionV8Props, MenuSectionCategory } from "./MenuSectionV8";
 // ITEM DISPLAY
 // ============================================
 
-export { MenuItemCardV8, MenuItemGrid } from "./MenuItemCardV8";
-export type {
-  MenuItemCardV8Props,
-  MenuItemCardV8SkeletonProps,
-  MenuItemGridProps,
-} from "./MenuItemCardV8";
-
 export { MenuGridV8 } from "./MenuGridV8";
 export type { MenuGridV8Props } from "./MenuGridV8";
 
