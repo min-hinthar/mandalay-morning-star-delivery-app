@@ -1,16 +1,50 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { Heart, Phone, Mail, MapPin, Clock, Instagram, Facebook } from "lucide-react";
-import {
-  v6StaggerItem,
-  v6ViewportOnce,
-  v6Spring,
-} from "@/lib/motion";
+import { spring, easing, staggerContainer, staggerItem } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { KITCHEN_LOCATION } from "@/types/address";
 
+/**
+ * Column variants for staggered footer reveals.
+ * Each column animates with increasing delay.
+ */
+const columnVariants: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.1,
+      duration: 0.4,
+      ease: easing.default,
+    },
+  }),
+};
+
+/**
+ * Copyright fade-in variant - appears after columns.
+ */
+const copyrightVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      delay: 0.4, // After 3 columns
+      duration: 0.5,
+      ease: easing.default,
+    },
+  },
+};
+
+/**
+ * Top CTA section content variants for staggered reveal.
+ */
+const ctaContainerVariants: Variants = staggerContainer(0.08, 0.1);
+
 export function FooterCTA() {
-  const shouldReduceMotion = useReducedMotion();
+  const { shouldAnimate } = useAnimationPreference();
 
   return (
     <footer className="relative overflow-hidden isolate">
@@ -20,33 +54,49 @@ export function FooterCTA() {
         <div className="absolute inset-0 bg-black/10" />
         <div className="relative max-w-4xl mx-auto text-center">
           <motion.div
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={v6ViewportOnce.viewport}
-            transition={{ duration: 0.55 }}
+            variants={ctaContainerVariants}
+            initial={shouldAnimate ? "hidden" : false}
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.3 }}
             className="space-y-6"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-pill">
+            {/* Badge */}
+            <motion.div
+              variants={staggerItem}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-pill"
+            >
               <Heart className="w-4 h-4 text-white" />
               <span className="text-sm font-body font-medium text-white">Made with Love in Covina</span>
-            </div>
+            </motion.div>
 
-            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-white font-bold">
+            {/* Headline */}
+            <motion.h2
+              variants={staggerItem}
+              className="font-display text-3xl md:text-4xl lg:text-5xl text-white font-bold"
+            >
               Ready to Taste{" "}
               <span className="text-secondary">Authentic Burma?</span>
-            </h2>
+            </motion.h2>
 
-            <p className="text-lg font-body text-white/90 max-w-2xl mx-auto">
+            {/* Subtext */}
+            <motion.p
+              variants={staggerItem}
+              className="text-lg font-body text-white/90 max-w-2xl mx-auto"
+            >
               Order by Friday 3pm and we&apos;ll deliver fresh, homemade Burmese dishes
               straight to your door on Saturday.
-            </p>
+            </motion.p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            {/* Buttons */}
+            <motion.div
+              variants={staggerItem}
+              className="flex flex-col sm:flex-row gap-4 justify-center pt-4"
+            >
               <motion.a
                 href="#menu"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={v6Spring}
+                whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
+                whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
+                transition={spring.snappy}
                 className="px-8 py-4 bg-surface-primary text-primary font-body font-semibold rounded-pill shadow-md hover:shadow-lg transition-shadow duration-fast"
               >
                 Order Now
@@ -54,15 +104,15 @@ export function FooterCTA() {
 
               <motion.a
                 href="tel:+16261234567"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={v6Spring}
+                whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
+                whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
+                transition={spring.snappy}
                 className="px-8 py-4 bg-transparent border-2 border-white text-white font-body font-semibold rounded-pill hover:bg-white/10 transition-colors duration-fast flex items-center justify-center gap-2"
               >
                 <Phone className="w-5 h-5" />
                 Call Us
               </motion.a>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -71,12 +121,13 @@ export function FooterCTA() {
       <section className="py-12 px-4 bg-text-primary">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-3 gap-8 text-white/90">
-            {/* Contact Info */}
+            {/* Contact Info - Column 0 */}
             <motion.div
-              variants={v6StaggerItem}
-              initial={shouldReduceMotion ? false : "hidden"}
+              custom={0}
+              variants={columnVariants}
+              initial={shouldAnimate ? "hidden" : false}
               whileInView="visible"
-              viewport={v6ViewportOnce.viewport}
+              viewport={{ once: false, amount: 0.3 }}
             >
               <h3 className="font-display text-xl text-white font-semibold mb-4">Contact Us</h3>
               <div className="space-y-3">
@@ -106,12 +157,13 @@ export function FooterCTA() {
               </div>
             </motion.div>
 
-            {/* Hours */}
+            {/* Hours - Column 1 */}
             <motion.div
-              variants={v6StaggerItem}
-              initial={shouldReduceMotion ? false : "hidden"}
+              custom={1}
+              variants={columnVariants}
+              initial={shouldAnimate ? "hidden" : false}
               whileInView="visible"
-              viewport={v6ViewportOnce.viewport}
+              viewport={{ once: false, amount: 0.3 }}
             >
               <h3 className="font-display text-xl text-white font-semibold mb-4">Delivery Hours</h3>
               <div className="space-y-3">
@@ -130,12 +182,13 @@ export function FooterCTA() {
               </div>
             </motion.div>
 
-            {/* Social */}
+            {/* Social - Column 2 */}
             <motion.div
-              variants={v6StaggerItem}
-              initial={shouldReduceMotion ? false : "hidden"}
+              custom={2}
+              variants={columnVariants}
+              initial={shouldAnimate ? "hidden" : false}
               whileInView="visible"
-              viewport={v6ViewportOnce.viewport}
+              viewport={{ once: false, amount: 0.3 }}
             >
               <h3 className="font-display text-xl text-white font-semibold mb-4">Follow Us</h3>
               <div className="flex gap-4">
@@ -143,9 +196,9 @@ export function FooterCTA() {
                   href="https://instagram.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={v6Spring}
+                  whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
+                  whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+                  transition={spring.snappy}
                   className="p-3 bg-white/10 rounded-full hover:bg-secondary/20 transition-colors duration-fast"
                 >
                   <Instagram className="w-6 h-6" />
@@ -154,9 +207,9 @@ export function FooterCTA() {
                   href="https://facebook.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={v6Spring}
+                  whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
+                  whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+                  transition={spring.snappy}
                   className="p-3 bg-white/10 rounded-full hover:bg-secondary/20 transition-colors duration-fast"
                 >
                   <Facebook className="w-6 h-6" />
@@ -168,15 +221,21 @@ export function FooterCTA() {
             </motion.div>
           </div>
 
-          {/* Copyright */}
-          <div className="mt-12 pt-8 border-t border-white/10 text-center">
+          {/* Copyright - fades in last */}
+          <motion.div
+            variants={copyrightVariants}
+            initial={shouldAnimate ? "hidden" : false}
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.3 }}
+            className="mt-12 pt-8 border-t border-white/10 text-center"
+          >
             <p className="text-sm font-body text-white/70">
               © {new Date().getFullYear()} Mandalay Morning Star. All rights reserved.
             </p>
             <p className="text-xs font-body text-white/60 mt-2">
               Authentic Burmese Cuisine • Southern California
             </p>
-          </div>
+          </motion.div>
         </div>
       </section>
     </footer>
