@@ -124,34 +124,30 @@ function SuccessResult({ result }: SuccessResultProps) {
       animate={shouldAnimate ? { opacity: 1, scale: 1, y: 0 } : undefined}
       transition={getSpring(spring.rubbery)}
     >
-      {/* Confetti burst */}
+      {/* Confetti burst - each item rendered separately to avoid Fragment inside AnimatePresence */}
       <AnimatePresence>
-        {showConfetti && shouldAnimate && (
-          <>
-            {[...Array(12)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute text-lg"
-                style={{
-                  left: "50%",
-                  top: "50%",
-                }}
-                initial={{ scale: 0, x: 0, y: 0 }}
-                animate={{
-                  scale: [0, 1, 0],
-                  x: Math.cos((i / 12) * Math.PI * 2) * 100,
-                  y: Math.sin((i / 12) * Math.PI * 2) * 100,
-                  opacity: [0, 1, 0],
-                }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8, delay: i * 0.05 }}
-                onAnimationComplete={() => i === 11 && setShowConfetti(false)}
-              >
-                {["🎉", "✨", "🎊", "⭐"][i % 4]}
-              </motion.div>
-            ))}
-          </>
-        )}
+        {showConfetti && shouldAnimate && [...Array(12)].map((_, i) => (
+          <motion.div
+            key={`confetti-${i}`}
+            className="absolute text-lg"
+            style={{
+              left: "50%",
+              top: "50%",
+            }}
+            initial={{ scale: 0, x: 0, y: 0 }}
+            animate={{
+              scale: [0, 1, 0],
+              x: Math.cos((i / 12) * Math.PI * 2) * 100,
+              y: Math.sin((i / 12) * Math.PI * 2) * 100,
+              opacity: [0, 1, 0],
+            }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, delay: i * 0.05 }}
+            onAnimationComplete={() => i === 11 && setShowConfetti(false)}
+          >
+            {["🎉", "✨", "🎊", "⭐"][i % 4]}
+          </motion.div>
+        ))}
       </AnimatePresence>
 
       <div className="flex items-start gap-4 relative z-10">

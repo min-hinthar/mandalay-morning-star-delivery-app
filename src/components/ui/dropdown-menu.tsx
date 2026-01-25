@@ -39,8 +39,11 @@ const DropdownMenu = ({ children }: DropdownMenuProps) => {
     };
   }, [open]);
 
+  // Memoize context value to prevent infinite re-renders
+  const contextValue = React.useMemo(() => ({ open, setOpen }), [open]);
+
   return (
-    <DropdownMenuContext.Provider value={{ open, setOpen }}>
+    <DropdownMenuContext.Provider value={contextValue}>
       <div ref={containerRef} className="relative inline-block text-left">{children}</div>
     </DropdownMenuContext.Provider>
   );
@@ -55,6 +58,17 @@ const DropdownMenuTrigger = ({ children, asChild }: DropdownMenuTriggerProps) =>
   const { open, setOpen } = React.useContext(DropdownMenuContext);
 
   if (asChild && React.isValidElement(children)) {
+    const childType = (children as React.ReactElement).type;
+
+    // Fragment can't accept props - wrap in button
+    if (childType === React.Fragment) {
+      return (
+        <div>
+          <button onClick={() => setOpen(!open)}>{children}</button>
+        </div>
+      );
+    }
+
     return (
       <div>
         {React.cloneElement(children as React.ReactElement<{ onClick?: () => void }>, {

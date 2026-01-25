@@ -354,169 +354,173 @@ export function Modal({
 
   return createPortal(
     <ModalStackContext.Provider value={stackLevel + 1}>
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
+        {/* Backdrop - rendered separately to avoid Fragment inside AnimatePresence */}
         {isOpen && (
-          <>
-            {/* Backdrop */}
+          <motion.div
+            key="modal-backdrop"
+            variants={backdropVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+            style={{
+              zIndex: modalZIndex,
+              opacity: computedBackdropOpacity,
+            }}
+            onClick={handleBackdropClick}
+            className={cn(
+              "fixed inset-0",
+              "bg-[rgba(26,26,26,0.5)] backdrop-blur-sm",
+              backdropClassName
+            )}
+            aria-hidden="true"
+            data-testid="modal-backdrop"
+          />
+        )}
+
+        {/* Modal Container - rendered separately to avoid Fragment inside AnimatePresence */}
+        {isOpen && (
+          <motion.div
+            key="modal-container"
+            className={cn(
+              "fixed inset-0 flex overflow-hidden",
+              isMobile ? "items-end" : "items-center justify-center p-4"
+            )}
+            style={{ zIndex: modalZIndex + 1 }}
+            onClick={handleBackdropClick}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            {/* Modal Content */}
             <motion.div
-              key="modal-backdrop"
-              variants={backdropVariants}
+              ref={modalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={titleId}
+              variants={variants}
               initial="hidden"
               animate="visible"
               exit="exit"
-              transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+              onKeyDown={handleKeyDown}
+              onClick={(e) => e.stopPropagation()}
+              {...(isMobile && closeOnSwipeDown && !prefersReducedMotion ? swipeProps : {})}
               style={{
-                zIndex: modalZIndex,
-                opacity: computedBackdropOpacity,
+                y: isDragging ? dragOffset : 0,
               }}
-              onClick={handleBackdropClick}
               className={cn(
-                "fixed inset-0",
-                "bg-[rgba(26,26,26,0.5)] backdrop-blur-sm",
-                backdropClassName
+                // Base styles
+                "relative w-full",
+                "bg-[var(--color-surface,#fff)] dark:bg-[var(--color-surface-primary-dark,#1A1918)]",
+                "shadow-[var(--shadow-xl,0_25px_50px_-12px_rgba(0,0,0,0.25))]",
+                "focus:outline-none",
+                // Mobile styles
+                isMobile && [
+                  "rounded-t-[1.5rem]",
+                  "max-h-[90vh]",
+                  "pb-safe",
+                ],
+                // Desktop styles
+                !isMobile && [
+                  "rounded-[var(--radius-lg,0.75rem)]",
+                  config.maxWidth,
+                  "max-h-[85vh]",
+                ],
+                className
               )}
-              aria-hidden="true"
-              data-testid="modal-backdrop"
-            />
-
-            {/* Modal Container */}
-            <div
-              className={cn(
-                "fixed inset-0 flex overflow-hidden",
-                isMobile ? "items-end" : "items-center justify-center p-4"
-              )}
-              style={{ zIndex: modalZIndex + 1 }}
-              onClick={handleBackdropClick}
+              data-testid="modal-content"
             >
-              {/* Modal Content */}
-              <motion.div
-                ref={modalRef}
-                key="modal-content"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby={titleId}
-                variants={variants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                onKeyDown={handleKeyDown}
-                onClick={(e) => e.stopPropagation()}
-                {...(isMobile && closeOnSwipeDown && !prefersReducedMotion ? swipeProps : {})}
-                style={{
-                  y: isDragging ? dragOffset : 0,
-                }}
-                className={cn(
-                  // Base styles
-                  "relative w-full",
-                  "bg-[var(--color-surface,#fff)] dark:bg-[var(--color-surface-primary-dark,#1A1918)]",
-                  "shadow-[var(--shadow-xl,0_25px_50px_-12px_rgba(0,0,0,0.25))]",
-                  "focus:outline-none",
-                  // Mobile styles
-                  isMobile && [
-                    "rounded-t-[1.5rem]",
-                    "max-h-[90vh]",
-                    "pb-safe",
-                  ],
-                  // Desktop styles
-                  !isMobile && [
-                    "rounded-[var(--radius-lg,0.75rem)]",
-                    config.maxWidth,
-                    "max-h-[85vh]",
-                  ],
-                  className
-                )}
-                data-testid="modal-content"
-              >
-                {/* Mobile Drag Handle */}
-                {isMobile && closeOnSwipeDown && (
-                  <div
-                    className={cn(
-                      "flex justify-center pt-3 pb-2",
-                      "cursor-grab active:cursor-grabbing",
-                      "select-none touch-none"
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "w-12 h-1.5 rounded-full",
-                        "bg-[var(--color-border,#e5e5e5)] dark:bg-[var(--color-border-dark,#3a3837)]",
-                        "transition-colors duration-150",
-                        isDragging && "bg-[var(--color-text-muted,#9ca3af)]"
-                      )}
-                    />
-                  </div>
-                )}
-
-                {/* Close Button */}
-                {showCloseButton && (
-                  <button
-                    ref={closeButtonRef}
-                    type="button"
-                    onClick={onClose}
-                    className={cn(
-                      "absolute z-10",
-                      isMobile ? "top-4 right-4" : "top-3 right-3",
-                      "flex h-10 w-10 items-center justify-center rounded-full",
-                      "bg-[var(--color-surface-secondary,#f8f7f6)] dark:bg-[var(--color-surface-secondary-dark,#2a2827)]",
-                      "text-[var(--color-text-secondary,#4a4845)] dark:text-[var(--color-text-secondary-dark,#b5b3b0)]",
-                      "hover:bg-[var(--color-surface-tertiary,#f0eeec)] dark:hover:bg-[var(--color-surface-tertiary-dark,#3a3837)]",
-                      "hover:text-[var(--color-text-primary,#1a1918)] dark:hover:text-[var(--color-text-primary-dark,#f8f7f6)]",
-                      "transition-colors duration-150",
-                      "focus-visible:outline-none focus-visible:ring-2",
-                      "focus-visible:ring-[var(--color-interactive-primary,#D4A853)] focus-visible:ring-offset-2"
-                    )}
-                    aria-label="Close modal"
-                    data-testid="modal-close-button"
-                  >
-                    <X className="h-5 w-5" strokeWidth={2.5} />
-                  </button>
-                )}
-
-                {/* Hidden Title for Accessibility */}
-                <h2 id={titleId} className="sr-only">
-                  {title}
-                </h2>
-
-                {/* Custom Header */}
-                {header && (
-                  <div className={cn(
-                    "border-b border-[var(--color-border,#e5e5e5)] dark:border-[var(--color-border-dark,#3a3837)]",
-                    config.padding,
-                    showCloseButton && "pr-14"
-                  )}>
-                    {header}
-                  </div>
-                )}
-
-                {/* Content */}
+              {/* Mobile Drag Handle */}
+              {isMobile && closeOnSwipeDown && (
                 <div
                   className={cn(
-                    "overflow-y-auto overscroll-contain",
-                    config.padding,
-                    showCloseButton && !header && "pt-14",
-                    isMobile
-                      ? "max-h-[calc(90vh-3rem)]"
-                      : "max-h-[calc(85vh-2rem)]",
-                    footer && "pb-0"
+                    "flex justify-center pt-3 pb-2",
+                    "cursor-grab active:cursor-grabbing",
+                    "select-none touch-none"
                   )}
                 >
-                  {children}
+                  <div
+                    className={cn(
+                      "w-12 h-1.5 rounded-full",
+                      "bg-[var(--color-border,#e5e5e5)] dark:bg-[var(--color-border-dark,#3a3837)]",
+                      "transition-colors duration-150",
+                      isDragging && "bg-[var(--color-text-muted,#9ca3af)]"
+                    )}
+                  />
                 </div>
+              )}
 
-                {/* Footer */}
-                {footer && (
-                  <div className={cn(
-                    "border-t border-[var(--color-border,#e5e5e5)] dark:border-[var(--color-border-dark,#3a3837)]",
-                    config.padding,
+              {/* Close Button */}
+              {showCloseButton && (
+                <button
+                  ref={closeButtonRef}
+                  type="button"
+                  onClick={onClose}
+                  className={cn(
+                    "absolute z-10",
+                    isMobile ? "top-4 right-4" : "top-3 right-3",
+                    "flex h-10 w-10 items-center justify-center rounded-full",
                     "bg-[var(--color-surface-secondary,#f8f7f6)] dark:bg-[var(--color-surface-secondary-dark,#2a2827)]",
-                    isMobile && "rounded-b-none"
-                  )}>
-                    {footer}
-                  </div>
+                    "text-[var(--color-text-secondary,#4a4845)] dark:text-[var(--color-text-secondary-dark,#b5b3b0)]",
+                    "hover:bg-[var(--color-surface-tertiary,#f0eeec)] dark:hover:bg-[var(--color-surface-tertiary-dark,#3a3837)]",
+                    "hover:text-[var(--color-text-primary,#1a1918)] dark:hover:text-[var(--color-text-primary-dark,#f8f7f6)]",
+                    "transition-colors duration-150",
+                    "focus-visible:outline-none focus-visible:ring-2",
+                    "focus-visible:ring-[var(--color-interactive-primary,#D4A853)] focus-visible:ring-offset-2"
+                  )}
+                  aria-label="Close modal"
+                  data-testid="modal-close-button"
+                >
+                  <X className="h-5 w-5" strokeWidth={2.5} />
+                </button>
+              )}
+
+              {/* Hidden Title for Accessibility */}
+              <h2 id={titleId} className="sr-only">
+                {title}
+              </h2>
+
+              {/* Custom Header */}
+              {header && (
+                <div className={cn(
+                  "border-b border-[var(--color-border,#e5e5e5)] dark:border-[var(--color-border-dark,#3a3837)]",
+                  config.padding,
+                  showCloseButton && "pr-14"
+                )}>
+                  {header}
+                </div>
+              )}
+
+              {/* Content */}
+              <div
+                className={cn(
+                  "overflow-y-auto overscroll-contain",
+                  config.padding,
+                  showCloseButton && !header && "pt-14",
+                  isMobile
+                    ? "max-h-[calc(90vh-3rem)]"
+                    : "max-h-[calc(85vh-2rem)]",
+                  footer && "pb-0"
                 )}
-              </motion.div>
-            </div>
-          </>
+              >
+                {children}
+              </div>
+
+              {/* Footer */}
+              {footer && (
+                <div className={cn(
+                  "border-t border-[var(--color-border,#e5e5e5)] dark:border-[var(--color-border-dark,#3a3837)]",
+                  config.padding,
+                  "bg-[var(--color-surface-secondary,#f8f7f6)] dark:bg-[var(--color-surface-secondary-dark,#2a2827)]",
+                  isMobile && "rounded-b-none"
+                )}>
+                  {footer}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </ModalStackContext.Provider>,

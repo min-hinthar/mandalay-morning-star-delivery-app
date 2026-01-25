@@ -176,83 +176,88 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
 
             {/* Dropdown Menu */}
             <AnimatePresence>
+              {/* Backdrop - rendered separately to avoid Fragment inside AnimatePresence */}
               {showUserMenu && (
-                <>
-                  {/* Backdrop */}
-                  <div
-                    className={cn("fixed inset-0", zClass.modalBackdrop)}
-                    onClick={closeUserMenu}
-                  />
+                <motion.div
+                  key="admin-dropdown-backdrop"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className={cn("fixed inset-0", zClass.modalBackdrop)}
+                  onClick={closeUserMenu}
+                />
+              )}
 
-                  {/* Menu */}
-                  <motion.div
-                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    transition={spring.snappy}
-                    className={cn(
-                      "absolute right-0 top-full mt-2",
-                      "w-56 rounded-lg border border-[var(--color-border)]",
-                      "bg-[var(--color-surface)] shadow-[var(--shadow-lg)]",
-                      "overflow-hidden",
-                      zClass.popover
-                    )}
-                  >
-                    {/* User Info */}
-                    <div className="border-b border-[var(--color-border)] px-4 py-3">
-                      <p className="font-medium text-[var(--color-charcoal)]">
-                        {user?.name || "Admin User"}
-                      </p>
-                      <p className="text-sm text-[var(--color-charcoal-muted)]">
-                        {user?.email || "admin@example.com"}
-                      </p>
-                    </div>
+              {/* Menu - rendered separately to avoid Fragment inside AnimatePresence */}
+              {showUserMenu && (
+                <motion.div
+                  key="admin-dropdown-menu"
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={spring.snappy}
+                  className={cn(
+                    "absolute right-0 top-full mt-2",
+                    "w-56 rounded-lg border border-[var(--color-border)]",
+                    "bg-[var(--color-surface)] shadow-[var(--shadow-lg)]",
+                    "overflow-hidden",
+                    zClass.popover
+                  )}
+                >
+                  {/* User Info */}
+                  <div className="border-b border-[var(--color-border)] px-4 py-3">
+                    <p className="font-medium text-[var(--color-charcoal)]">
+                      {user?.name || "Admin User"}
+                    </p>
+                    <p className="text-sm text-[var(--color-charcoal-muted)]">
+                      {user?.email || "admin@example.com"}
+                    </p>
+                  </div>
 
-                    {/* Menu Items */}
-                    <div className="py-1">
-                      <Link
-                        href="/admin/settings"
-                        onClick={closeUserMenu}
-                        className={cn(
-                          "flex items-center gap-3 px-4 py-2",
-                          "text-sm text-[var(--color-charcoal)]",
-                          "transition-colors hover:bg-[var(--color-cream-darker)]"
-                        )}
-                      >
-                        <Settings className="h-4 w-4" />
-                        Settings
-                      </Link>
-                      <Link
-                        href="/admin/profile"
-                        onClick={closeUserMenu}
-                        className={cn(
-                          "flex items-center gap-3 px-4 py-2",
-                          "text-sm text-[var(--color-charcoal)]",
-                          "transition-colors hover:bg-[var(--color-cream-darker)]"
-                        )}
-                      >
-                        <User className="h-4 w-4" />
-                        Profile
-                      </Link>
-                    </div>
+                  {/* Menu Items */}
+                  <div className="py-1">
+                    <Link
+                      href="/admin/settings"
+                      onClick={closeUserMenu}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-2",
+                        "text-sm text-[var(--color-charcoal)]",
+                        "transition-colors hover:bg-[var(--color-cream-darker)]"
+                      )}
+                    >
+                      <Settings className="h-4 w-4" />
+                      Settings
+                    </Link>
+                    <Link
+                      href="/admin/profile"
+                      onClick={closeUserMenu}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-2",
+                        "text-sm text-[var(--color-charcoal)]",
+                        "transition-colors hover:bg-[var(--color-cream-darker)]"
+                      )}
+                    >
+                      <User className="h-4 w-4" />
+                      Profile
+                    </Link>
+                  </div>
 
-                    {/* Logout */}
-                    <div className="border-t border-[var(--color-border)] py-1">
-                      <Link
-                        href="/"
-                        onClick={closeUserMenu}
-                        className={cn(
-                          "flex items-center gap-3 px-4 py-2",
-                          "text-sm text-[var(--color-error)]",
-                          "transition-colors hover:bg-[var(--color-error-light)]"
-                        )}
-                      >
-                        <LogOut className="h-4 w-4" />
-                        Exit Admin
-                      </Link>
-                    </div>
-                  </motion.div>
-                </>
+                  {/* Logout */}
+                  <div className="border-t border-[var(--color-border)] py-1">
+                    <Link
+                      href="/"
+                      onClick={closeUserMenu}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-2",
+                        "text-sm text-[var(--color-error)]",
+                        "transition-colors hover:bg-[var(--color-error-light)]"
+                      )}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Exit Admin
+                    </Link>
+                  </div>
+                </motion.div>
               )}
             </AnimatePresence>
           </div>

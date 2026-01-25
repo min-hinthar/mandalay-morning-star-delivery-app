@@ -230,7 +230,7 @@ export function DriverListTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            <AnimatePresence>
+            {/* Note: Removed AnimatePresence - ExpandableTableRow returns Fragment which can't accept animation props */}
               {sortedDrivers.map((driver) => {
                 const isToggling = togglingDriverId === driver.id;
 
@@ -398,7 +398,6 @@ export function DriverListTable({
                   </ExpandableTableRow>
                 );
               })}
-            </AnimatePresence>
           </TableBody>
         </Table>
       </div>

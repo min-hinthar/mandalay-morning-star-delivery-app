@@ -118,90 +118,90 @@ export function BottomSheet({
 
   return (
     <Portal>
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
+        {/* Backdrop - rendered separately to avoid Fragment inside AnimatePresence */}
         {isOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              key="sheet-backdrop"
-              variants={backdropVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              transition={overlayMotion.backdrop}
-              style={{
-                zIndex: zIndex.modalBackdrop,
-                opacity: computedBackdropOpacity,
-              }}
-              onClick={onClose}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-              aria-hidden="true"
-              data-testid="bottom-sheet-backdrop"
-            />
+          <motion.div
+            key="sheet-backdrop"
+            variants={backdropVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={overlayMotion.backdrop}
+            style={{
+              zIndex: zIndex.modalBackdrop,
+              opacity: computedBackdropOpacity,
+            }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            aria-hidden="true"
+            data-testid="bottom-sheet-backdrop"
+          />
+        )}
 
-            {/* Sheet */}
-            <motion.div
-              key="sheet-content"
-              role="dialog"
-              aria-modal="true"
-              variants={variants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              transition={
-                prefersReducedMotion ? { duration: 0 } : overlayMotion.sheetOpen
-              }
-              onClick={(e) => e.stopPropagation()}
-              {...(!prefersReducedMotion ? swipeProps : {})}
-              style={{
-                zIndex: zIndex.modal,
-                y: isDragging ? dragOffset : 0,
-                height: height === "full" ? "90vh" : "auto",
-              }}
-              className={cn(
-                "fixed inset-x-0 bottom-0",
-                "bg-white dark:bg-zinc-900",
-                "rounded-t-3xl shadow-xl",
-                "focus:outline-none",
-                className
-              )}
-              data-testid="bottom-sheet-content"
-            >
-              {/* Drag Handle */}
-              {showDragHandle && (
-                <div
-                  className={cn(
-                    "flex justify-center pt-3 pb-2",
-                    "cursor-grab active:cursor-grabbing",
-                    "select-none touch-none"
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "w-12 h-1.5 rounded-full",
-                      "bg-zinc-300 dark:bg-zinc-600",
-                      "transition-all duration-150",
-                      isDragging && [
-                        "bg-zinc-400 dark:bg-zinc-500",
-                        "scale-x-110",
-                      ]
-                    )}
-                  />
-                </div>
-              )}
-
-              {/* Content */}
+        {/* Sheet - rendered separately to avoid Fragment inside AnimatePresence */}
+        {isOpen && (
+          <motion.div
+            key="sheet-content"
+            role="dialog"
+            aria-modal="true"
+            variants={variants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={
+              prefersReducedMotion ? { duration: 0 } : overlayMotion.sheetOpen
+            }
+            onClick={(e) => e.stopPropagation()}
+            {...(!prefersReducedMotion ? swipeProps : {})}
+            style={{
+              zIndex: zIndex.modal,
+              y: isDragging ? dragOffset : 0,
+              height: height === "full" ? "90vh" : "auto",
+            }}
+            className={cn(
+              "fixed inset-x-0 bottom-0",
+              "bg-white dark:bg-zinc-900",
+              "rounded-t-3xl shadow-xl",
+              "focus:outline-none",
+              className
+            )}
+            data-testid="bottom-sheet-content"
+          >
+            {/* Drag Handle */}
+            {showDragHandle && (
               <div
                 className={cn(
-                  "overflow-y-auto overscroll-contain",
-                  "max-h-[calc(90vh-3rem)]",
-                  "pb-safe"
+                  "flex justify-center pt-3 pb-2",
+                  "cursor-grab active:cursor-grabbing",
+                  "select-none touch-none"
                 )}
               >
-                {children}
+                <div
+                  className={cn(
+                    "w-12 h-1.5 rounded-full",
+                    "bg-zinc-300 dark:bg-zinc-600",
+                    "transition-all duration-150",
+                    isDragging && [
+                      "bg-zinc-400 dark:bg-zinc-500",
+                      "scale-x-110",
+                    ]
+                  )}
+                />
               </div>
-            </motion.div>
-          </>
+            )}
+
+            {/* Content */}
+            <div
+              className={cn(
+                "overflow-y-auto overscroll-contain",
+                "max-h-[calc(90vh-3rem)]",
+                "pb-safe"
+              )}
+            >
+              {children}
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </Portal>

@@ -230,7 +230,7 @@ export function RouteListTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            <AnimatePresence>
+            {/* Note: Removed AnimatePresence - ExpandableTableRow returns Fragment which can't accept animation props */}
               {sortedRoutes.map((route) => {
                 const isUpdating = updatingRouteId === route.id;
                 const isDeleting = deletingRouteId === route.id;
@@ -403,7 +403,6 @@ export function RouteListTable({
                   </ExpandableTableRow>
                 );
               })}
-            </AnimatePresence>
           </TableBody>
         </Table>
       </div>

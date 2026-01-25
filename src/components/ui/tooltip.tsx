@@ -29,6 +29,21 @@ export function TooltipTrigger({
   ...props
 }: TooltipTriggerProps) {
   if (asChild && React.isValidElement<React.HTMLAttributes<HTMLElement>>(children)) {
+    const childType = (children as React.ReactElement).type;
+
+    // Fragment can't accept any props - wrap in span or pass through
+    if (childType === React.Fragment) {
+      const hasPropsToSpread = className || Object.keys(props).length > 0;
+      if (hasPropsToSpread) {
+        return (
+          <span className={className} {...props}>
+            {children}
+          </span>
+        );
+      }
+      return <>{children}</>;
+    }
+
     const childProps = children.props;
     return React.cloneElement(children, {
       ...props,

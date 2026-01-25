@@ -187,34 +187,33 @@ export function FavoriteButton({
       aria-label={ariaLabel ?? (isFavorite ? "Remove from favorites" : "Add to favorites")}
       aria-pressed={isFavorite}
     >
-      {/* Burst effect on favorite */}
+      {/* Burst effect on favorite - each element rendered separately to avoid Fragment inside AnimatePresence */}
       <AnimatePresence>
+        {/* Ring burst */}
         {showBurst && shouldAnimate && (
-          <>
-            {/* Ring burst */}
-            <motion.div
-              className={cn(
-                sizes.burst,
-                "absolute rounded-full border-2 border-red-400"
-              )}
-              variants={burstVariants}
-              initial="initial"
-              animate="animate"
-              exit="initial"
-            />
-            {/* Particle bursts */}
-            {Array.from({ length: particleCount }).map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-1.5 h-1.5 rounded-full bg-red-400"
-                variants={getParticleVariants(i)}
-                initial="initial"
-                animate="animate"
-                exit="initial"
-              />
-            ))}
-          </>
+          <motion.div
+            key="ring-burst"
+            className={cn(
+              sizes.burst,
+              "absolute rounded-full border-2 border-red-400"
+            )}
+            variants={burstVariants}
+            initial="initial"
+            animate="animate"
+            exit="initial"
+          />
         )}
+        {/* Particle bursts */}
+        {showBurst && shouldAnimate && Array.from({ length: particleCount }).map((_, i) => (
+          <motion.div
+            key={`particle-${i}`}
+            className="absolute w-1.5 h-1.5 rounded-full bg-red-400"
+            variants={getParticleVariants(i)}
+            initial="initial"
+            animate="animate"
+            exit="initial"
+          />
+        ))}
       </AnimatePresence>
 
       {/* Heart icon with fill animation */}

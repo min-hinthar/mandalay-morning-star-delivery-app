@@ -18,7 +18,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Portal, Backdrop } from "./overlay";
+import { Portal } from "./overlay";
 import { useRouteChangeClose } from "@/lib/hooks/useRouteChangeClose";
 import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
 import { zIndex } from "@/design-system/tokens/z-index";
@@ -143,11 +143,31 @@ export function Drawer({
   const slideFrom = side === "left" ? "-100%" : "100%";
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <Portal>
-          <Backdrop isVisible={isOpen} onClick={onClose} />
+    <Portal>
+      <AnimatePresence>
+        {/* Backdrop - rendered separately to avoid Fragment inside AnimatePresence */}
+        {isOpen && (
           <motion.div
+            key="drawer-backdrop"
+            className={cn(
+              "fixed inset-0",
+              "bg-black/50 backdrop-blur-sm"
+            )}
+            style={{ zIndex: zIndex.modalBackdrop }}
+            onClick={onClose}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={overlayMotion.backdrop}
+            aria-hidden="true"
+            data-testid="drawer-backdrop"
+          />
+        )}
+
+        {/* Drawer - rendered separately to avoid Fragment inside AnimatePresence */}
+        {isOpen && (
+          <motion.div
+            key="drawer-content"
             ref={drawerRef}
             role="dialog"
             aria-modal="true"
@@ -174,8 +194,8 @@ export function Drawer({
           >
             {children}
           </motion.div>
-        </Portal>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </Portal>
   );
 }

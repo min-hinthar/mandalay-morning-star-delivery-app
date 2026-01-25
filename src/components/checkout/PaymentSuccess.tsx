@@ -271,7 +271,13 @@ export function PaymentSuccess({
       {/* Confetti */}
       <AnimatePresence>
         {showConfetti && shouldAnimate && (
-          <div className="fixed inset-0 pointer-events-none z-[100]">
+          <motion.div
+            key="confetti-container"
+            className="fixed inset-0 pointer-events-none z-[100]"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
             {confettiParticles.map((particle) => (
               <ConfettiParticle
                 key={particle.id}
@@ -279,7 +285,7 @@ export function PaymentSuccess({
                 delay={particle.delay}
               />
             ))}
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 

@@ -84,12 +84,18 @@ export function AddButton({
   const { fly } = useFlyToCart();
   const { playAddSound, playRemoveSound, markUserInteraction } = useCardSound();
 
-  // Sync state with external quantity
+  // Track previous quantity to avoid unnecessary state updates
+  const prevQuantityRef = useRef(quantity);
+
+  // Sync state with external quantity - only when quantity actually changes
   useEffect(() => {
-    if (quantity > 0 && state === "idle") {
-      setState("quantity");
-    } else if (quantity === 0 && state === "quantity") {
-      setState("idle");
+    if (prevQuantityRef.current !== quantity) {
+      prevQuantityRef.current = quantity;
+      if (quantity > 0 && state === "idle") {
+        setState("quantity");
+      } else if (quantity === 0 && state === "quantity") {
+        setState("idle");
+      }
     }
   }, [quantity, state]);
 

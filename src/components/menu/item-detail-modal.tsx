@@ -200,52 +200,61 @@ export function ItemDetailModal({
 
   return (
     <AnimatePresence>
+      {/* Backdrop - rendered separately to avoid Fragment inside AnimatePresence */}
       {open && (
-        <div className="fixed inset-0 z-modal">
-          {/* Backdrop */}
+        <motion.div
+          key="item-detail-backdrop"
+          className="fixed inset-0 z-modal bg-black/60 backdrop-blur-sm"
+          variants={backdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Modal Container - rendered separately to avoid Fragment inside AnimatePresence */}
+      {open && (
+        <motion.div
+          key="item-detail-container"
+          className="fixed inset-0 z-modal flex items-end sm:items-center sm:justify-center sm:p-4 pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: prefersReducedMotion ? 0 : 0.1 }}
+        >
           <motion.div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            variants={backdropVariants}
+            ref={contentRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+            variants={isMobile ? mobileModalVariants : desktopModalVariants}
             initial="hidden"
             animate="visible"
-            exit="hidden"
-            transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
-            onClick={onClose}
-            aria-hidden="true"
-          />
-
-          {/* Modal Container */}
-          <div className="absolute inset-0 flex items-end sm:items-center sm:justify-center sm:p-4">
-            <motion.div
-              ref={contentRef}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="modal-title"
-              variants={isMobile ? mobileModalVariants : desktopModalVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              transition={
-                prefersReducedMotion
-                  ? { duration: 0 }
-                  : { type: "spring", damping: 25, stiffness: 300 }
-              }
-              drag={isMobile ? "y" : false}
-              dragControls={dragControls}
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={{ top: 0, bottom: 0.5 }}
-              onDragEnd={handleDragEnd}
-              className={cn(
-                "relative flex flex-col overflow-hidden",
-                "bg-[var(--color-surface)]",
-                // Mobile: full width, rounded top, max height
-                "w-full max-h-[95vh] rounded-t-[var(--radius-xl)]",
-                // Desktop: centered, max width, rounded all
-                "sm:max-w-xl sm:max-h-[90vh] sm:rounded-[var(--radius-lg)]",
-                "shadow-[var(--shadow-xl)]"
-              )}
-            >
-              {/* Drag Handle (mobile) */}
+            exit="exit"
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : { type: "spring", damping: 25, stiffness: 300 }
+            }
+            drag={isMobile ? "y" : false}
+            dragControls={dragControls}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            onDragEnd={handleDragEnd}
+            className={cn(
+              "relative flex flex-col overflow-hidden pointer-events-auto",
+              "bg-[var(--color-surface)]",
+              // Mobile: full width, rounded top, max height
+              "w-full max-h-[95vh] rounded-t-[var(--radius-xl)]",
+              // Desktop: centered, max width, rounded all
+              "sm:max-w-xl sm:max-h-[90vh] sm:rounded-[var(--radius-lg)]",
+              "shadow-[var(--shadow-xl)]"
+            )}
+          >
+            {/* Drag Handle (mobile) */}
               {isMobile && (
                 <div
                   className="sticky top-0 z-10 flex justify-center py-2 bg-[var(--color-surface)] cursor-grab active:cursor-grabbing"
@@ -469,9 +478,8 @@ export function ItemDetailModal({
                   </Button>
                 </motion.div>
               </div>
-            </motion.div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
     </AnimatePresence>
   );

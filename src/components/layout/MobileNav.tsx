@@ -301,21 +301,24 @@ export function MobileNav({
 
   return (
     <AnimatePresence>
+      {/* Backdrop - rendered separately to avoid Fragment inside AnimatePresence */}
       {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            className="fixed inset-0 z-40 bg-black/40"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: duration.fast }}
-            onClick={onClose}
-            aria-hidden="true"
-          />
+        <motion.div
+          key="mobile-nav-backdrop"
+          className="fixed inset-0 z-40 bg-black/40"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: duration.fast }}
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
 
-          {/* Navigation panel */}
-          <motion.nav
+      {/* Navigation panel - rendered separately to avoid Fragment inside AnimatePresence */}
+      {isOpen && (
+        <motion.nav
+            key="mobile-nav-panel"
             ref={navRef}
             className={cn(
               "fixed z-50 bg-white shadow-2xl",
@@ -472,7 +475,6 @@ export function MobileNav({
               <path d="M32 72 L32 96" stroke="#52A52E" strokeWidth="2" />
             </svg>
           </motion.nav>
-        </>
       )}
     </AnimatePresence>
   );

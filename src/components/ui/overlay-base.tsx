@@ -320,7 +320,8 @@ export function OverlayBase({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div
+        <motion.div
+          key="overlay-base-container"
           ref={containerRef}
           role="dialog"
           aria-modal="true"
@@ -328,6 +329,10 @@ export function OverlayBase({
           aria-describedby={ariaDescribedBy}
           className={cn("fixed inset-0", className)}
           style={{ zIndex }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={transition}
         >
           {/* Backdrop */}
           <motion.div
@@ -389,7 +394,7 @@ export function OverlayBase({
               {children}
             </motion.div>
           </div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>,
     target

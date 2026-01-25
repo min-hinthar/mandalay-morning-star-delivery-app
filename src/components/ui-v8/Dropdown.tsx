@@ -26,12 +26,14 @@
  * </Dropdown>
  */
 
-import {
+import React, {
   createContext,
   useContext,
   useState,
   useRef,
   useEffect,
+  useMemo,
+  useCallback,
   type ReactNode,
   type ReactElement,
   cloneElement,
@@ -83,13 +85,20 @@ export function Dropdown({
   const [isOpen, setIsOpenInternal] = useState(defaultOpen);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
-  const setIsOpen = (open: boolean) => {
+  const setIsOpen = useCallback((open: boolean) => {
     setIsOpenInternal(open);
     onOpenChange?.(open);
-  };
+  }, [onOpenChange]);
+
+  // Memoize context value to prevent infinite re-renders
+  const contextValue = useMemo(() => ({
+    isOpen,
+    setIsOpen,
+    triggerRef,
+  }), [isOpen, setIsOpen]);
 
   return (
-    <DropdownContext.Provider value={{ isOpen, setIsOpen, triggerRef }}>
+    <DropdownContext.Provider value={contextValue}>
       <div className="relative inline-block">{children}</div>
     </DropdownContext.Provider>
   );
@@ -114,6 +123,23 @@ export function DropdownTrigger({ children, asChild }: DropdownTriggerProps) {
   };
 
   if (asChild && isValidElement(children)) {
+    const childType = (children as ReactElement).type;
+
+    // Fragment can't accept props - wrap in button
+    if (childType === React.Fragment) {
+      return (
+        <button
+          ref={triggerRef}
+          type="button"
+          onClick={handleClick}
+          aria-expanded={isOpen}
+          aria-haspopup="true"
+        >
+          {children}
+        </button>
+      );
+    }
+
     return cloneElement(
       children as ReactElement<{
         onClick?: () => void;

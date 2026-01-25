@@ -35,13 +35,12 @@ export function GlassOverlay({
   const { shouldAnimate } = useAnimationPreference();
 
   return (
-    <>
+    <div className={cn("absolute inset-0 pointer-events-none", rounded, className)}>
       {/* Base glass surface */}
       <div
         className={cn(
           "absolute inset-0 glass-menu-card",
-          rounded,
-          className
+          rounded
         )}
       />
 
@@ -64,7 +63,7 @@ export function GlassOverlay({
           transition={{ duration: 0.3 }}
         />
       )}
-    </>
+    </div>
   );
 }
 
