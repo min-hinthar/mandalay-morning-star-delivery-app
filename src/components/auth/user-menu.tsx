@@ -86,6 +86,7 @@ export function UserMenu({ user }: UserMenuProps): ReactElement {
           onClick={handleSignOut}
           onError={handleSignOutError}
           variant="destructive"
+          allowMenuClose
         >
           Sign Out
         </DropdownAction>
