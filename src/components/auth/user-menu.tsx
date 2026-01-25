@@ -42,19 +42,20 @@ export function UserMenu({ user }: UserMenuProps): ReactElement {
   if (!user) {
     return (
       <div className="flex gap-2">
-        <Link href="/login">
-          <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
-            Sign In
-          </Button>
-          <Button variant="ghost" size="icon" className="sm:hidden">
+        {/* Desktop Sign In */}
+        <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
+          <Link href="/login">Sign In</Link>
+        </Button>
+        {/* Mobile Sign In */}
+        <Button variant="ghost" size="icon" asChild className="sm:hidden" aria-label="Sign in">
+          <Link href="/login">
             <UserIcon className="h-5 w-5" />
-          </Button>
-        </Link>
-        <Link href="/signup" className="hidden sm:block">
-          <Button size="sm" className="bg-primary hover:bg-brand-red-dark">
-            Sign Up
-          </Button>
-        </Link>
+          </Link>
+        </Button>
+        {/* Sign Up */}
+        <Button size="sm" asChild className="hidden sm:block bg-primary hover:bg-brand-red-dark">
+          <Link href="/signup">Sign Up</Link>
+        </Button>
       </div>
     );
   }

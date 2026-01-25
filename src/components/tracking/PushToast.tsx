@@ -7,7 +7,7 @@
  * Features: Stacked toasts, slide + spring animations, auto-dismiss with progress
  */
 
-import React, { useState, useEffect, useCallback, createContext, useContext } from "react";
+import React, { useState, useEffect, useCallback, useMemo, createContext, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle,
@@ -324,8 +324,16 @@ export function ToastProvider({
     setToasts([]);
   }, []);
 
+  // Memoize context value to prevent re-renders
+  const contextValue = useMemo(() => ({
+    toasts,
+    addToast,
+    removeToast,
+    clearAll,
+  }), [toasts, addToast, removeToast, clearAll]);
+
   return (
-    <ToastContext.Provider value={{ toasts, addToast, removeToast, clearAll }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
       <ToastContainer toasts={toasts} onRemove={removeToast} position={position} />
     </ToastContext.Provider>

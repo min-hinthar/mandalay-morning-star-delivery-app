@@ -260,16 +260,17 @@ function HeroContent({
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={shouldAnimate ? { ...getSpring(spring.default), delay: 0.8 } : undefined}
         >
-          <Link href={ctaHref}>
-            <motion.div
-              whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
-              whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+          <motion.div
+            whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
+            whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+          >
+            <Button
+              variant="primary"
+              size="lg"
+              asChild
+              className="relative overflow-hidden group px-8 py-6 text-lg bg-secondary hover:bg-secondary-hover shadow-lg shadow-secondary/30"
             >
-              <Button
-                variant="primary"
-                size="lg"
-                className="relative overflow-hidden group px-8 py-6 text-lg bg-secondary hover:bg-secondary-hover shadow-lg shadow-secondary/30"
-              >
+              <Link href={ctaHref}>
                 <span className="relative z-10 flex items-center gap-2">
                   {ctaText}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -286,24 +287,23 @@ function HeroContent({
                     repeatDelay: 3,
                   }}
                 />
-              </Button>
-            </motion.div>
-          </Link>
+              </Link>
+            </Button>
+          </motion.div>
 
-          <Link href={secondaryCtaHref}>
-            <motion.div
-              whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
-              whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+          <motion.div
+            whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
+            whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+          >
+            <Button
+              variant="outline"
+              size="lg"
+              asChild
+              className="px-8 py-6 text-lg border-white/30 text-white hover:bg-white/10 backdrop-blur-sm"
             >
-              <Button
-                variant="outline"
-                size="lg"
-                className="px-8 py-6 text-lg border-white/30 text-white hover:bg-white/10 backdrop-blur-sm"
-              >
-                {secondaryCtaText}
-              </Button>
-            </motion.div>
-          </Link>
+              <Link href={secondaryCtaHref}>{secondaryCtaText}</Link>
+            </Button>
+          </motion.div>
         </motion.div>
 
         {/* Stats Bar */}

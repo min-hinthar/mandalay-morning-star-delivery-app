@@ -95,16 +95,14 @@ export function CTABanner({ id }: CTABannerProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false, amount: 0.5 }}
             transition={{ delay: 0.25, duration: 0.4, ease: easing.default }}
+            whileHover={shouldAnimate ? { scale: 1.03 } : undefined}
+            whileTap={shouldAnimate ? { scale: 0.97 } : undefined}
           >
-            <Link href="/menu" passHref legacyBehavior>
-              <motion.a
-                whileHover={shouldAnimate ? { scale: 1.03 } : undefined}
-                whileTap={shouldAnimate ? { scale: 0.97 } : undefined}
-                transition={spring.snappy}
-                className="inline-flex items-center justify-center px-10 py-4 bg-primary text-white font-body font-semibold text-lg rounded-pill shadow-lg hover:bg-primary-hover transition-colors duration-fast cursor-pointer"
-              >
-                Order Now
-              </motion.a>
+            <Link
+              href="/menu"
+              className="inline-flex items-center justify-center px-10 py-4 bg-primary text-white font-body font-semibold text-lg rounded-pill shadow-lg hover:bg-primary-hover transition-colors duration-fast"
+            >
+              Order Now
             </Link>
           </motion.div>
         </motion.div>

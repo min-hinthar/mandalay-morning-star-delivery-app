@@ -16,13 +16,14 @@
  * </TooltipProvider>
  */
 
-import {
+import React, {
   createContext,
   useContext,
   useState,
   useRef,
   useCallback,
   useEffect,
+  useMemo,
   type ReactNode,
   type ReactElement,
   cloneElement,
@@ -128,12 +129,13 @@ export function Tooltip({
     [open, onOpenChange]
   );
 
-  const contextValue: TooltipContextValue = {
+  // Memoize context value to prevent infinite re-renders
+  const contextValue = useMemo<TooltipContextValue>(() => ({
     isOpen,
     setIsOpen,
     triggerRef,
     delayDuration,
-  };
+  }), [isOpen, setIsOpen, delayDuration]);
 
   return (
     <TooltipContext.Provider value={contextValue}>
@@ -197,6 +199,17 @@ export function TooltipTrigger({ children, asChild = false }: TooltipTriggerProp
 
   // asChild mode: clone child with handlers
   if (asChild && isValidElement(children)) {
+    const childType = (children as ReactElement).type;
+
+    // Fragment can't accept props - wrap in span
+    if (childType === React.Fragment) {
+      return (
+        <span ref={triggerRef} {...eventHandlers} tabIndex={0} className="cursor-default">
+          {children}
+        </span>
+      );
+    }
+
     return cloneElement(children as ReactElement<Record<string, unknown>>, {
       ...eventHandlers,
       ref: triggerRef,

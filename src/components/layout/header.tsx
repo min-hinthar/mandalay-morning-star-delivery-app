@@ -210,6 +210,7 @@ function ExpandingSearch({ placeholder = "Search menu...", onSearch, className }
               type="button"
               onClick={handleCollapse}
               className="p-2 hover:bg-surface-tertiary/50 transition-colors"
+              aria-label="Close search"
             >
               <X className="w-4 h-4 text-text-muted" />
             </button>

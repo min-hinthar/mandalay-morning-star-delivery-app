@@ -103,11 +103,12 @@ export function ExpandableTableRow({
       </TableRow>
 
       {/* V6 Preview Panel Row */}
-      <AnimatePresence initial={false}>
-        {isExpanded && (
-          <tr>
-            <td colSpan={colSpan + 1} className="p-0 border-b border-border">
+      {isExpanded && (
+        <tr>
+          <td colSpan={colSpan + 1} className="p-0 border-b border-border">
+            <AnimatePresence initial={false}>
               <motion.div
+                key="expanded-content"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
@@ -127,10 +128,10 @@ export function ExpandableTableRow({
                   </div>
                 </div>
               </motion.div>
-            </td>
-          </tr>
-        )}
-      </AnimatePresence>
+            </AnimatePresence>
+          </td>
+        </tr>
+      )}
     </>
   );
 }

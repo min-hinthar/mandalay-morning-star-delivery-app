@@ -248,148 +248,152 @@ export function Modal({
 
   return (
     <Portal>
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
+        {/* Backdrop - rendered separately to avoid Fragment inside AnimatePresence */}
         {isOpen && (
-          <>
-            {/* Backdrop */}
+          <motion.div
+            key="modal-backdrop"
+            variants={backdropVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={overlayMotion.backdrop}
+            style={{
+              zIndex: zIndex.modalBackdrop,
+              opacity: computedBackdropOpacity,
+            }}
+            onClick={closeOnBackdropClick ? onClose : undefined}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            aria-hidden="true"
+            data-testid="modal-backdrop"
+          />
+        )}
+
+        {/* Modal Container - rendered separately to avoid Fragment inside AnimatePresence */}
+        {isOpen && (
+          <motion.div
+            key="modal-container"
+            className={cn(
+              "fixed inset-0 flex overflow-hidden",
+              isMobile ? "items-end" : "items-center justify-center p-4"
+            )}
+            style={{ zIndex: zIndex.modal }}
+            onClick={closeOnBackdropClick ? onClose : undefined}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            {/* Modal Content */}
             <motion.div
-              key="modal-backdrop"
-              variants={backdropVariants}
+              ref={modalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label={title}
+              variants={variants}
               initial="hidden"
               animate="visible"
               exit="exit"
-              transition={overlayMotion.backdrop}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : variants === mobileVariants || variants === desktopVariants
+                    ? overlayMotion.modalOpen
+                    : undefined
+              }
+              onKeyDown={handleKeyDown}
+              onClick={(e) => e.stopPropagation()}
+              {...(isMobile && !prefersReducedMotion ? swipeProps : {})}
               style={{
-                zIndex: zIndex.modalBackdrop,
-                opacity: computedBackdropOpacity,
+                y: isDragging ? dragOffset : 0,
               }}
-              onClick={closeOnBackdropClick ? onClose : undefined}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-              aria-hidden="true"
-              data-testid="modal-backdrop"
-            />
-
-            {/* Modal Container */}
-            <div
               className={cn(
-                "fixed inset-0 flex overflow-hidden",
-                isMobile ? "items-end" : "items-center justify-center p-4"
+                // Base styles
+                "relative w-full",
+                "bg-white dark:bg-zinc-900",
+                "shadow-xl",
+                "focus:outline-none",
+                // Mobile styles
+                isMobile && [
+                  "rounded-t-2xl",
+                  "max-h-[90vh]",
+                  "pb-safe",
+                ],
+                // Desktop styles
+                !isMobile && [
+                  "rounded-lg",
+                  sizeConfig[size],
+                  "max-h-[85vh]",
+                ],
+                className
               )}
-              style={{ zIndex: zIndex.modal }}
-              onClick={closeOnBackdropClick ? onClose : undefined}
+              data-testid="modal-content"
             >
-              {/* Modal Content */}
-              <motion.div
-                ref={modalRef}
-                key="modal-content"
-                role="dialog"
-                aria-modal="true"
-                aria-label={title}
-                variants={variants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                transition={
-                  prefersReducedMotion
-                    ? { duration: 0 }
-                    : variants === mobileVariants || variants === desktopVariants
-                      ? overlayMotion.modalOpen
-                      : undefined
-                }
-                onKeyDown={handleKeyDown}
-                onClick={(e) => e.stopPropagation()}
-                {...(isMobile && !prefersReducedMotion ? swipeProps : {})}
-                style={{
-                  y: isDragging ? dragOffset : 0,
-                }}
-                className={cn(
-                  // Base styles
-                  "relative w-full",
-                  "bg-white dark:bg-zinc-900",
-                  "shadow-xl",
-                  "focus:outline-none",
-                  // Mobile styles
-                  isMobile && [
-                    "rounded-t-2xl",
-                    "max-h-[90vh]",
-                    "pb-safe",
-                  ],
-                  // Desktop styles
-                  !isMobile && [
-                    "rounded-lg",
-                    sizeConfig[size],
-                    "max-h-[85vh]",
-                  ],
-                  className
-                )}
-                data-testid="modal-content"
-              >
-                {/* Mobile Drag Handle */}
-                {isMobile && (
-                  <div
-                    className={cn(
-                      "flex justify-center pt-3 pb-2",
-                      "cursor-grab active:cursor-grabbing",
-                      "select-none touch-none"
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "w-12 h-1.5 rounded-full",
-                        "bg-zinc-300 dark:bg-zinc-600",
-                        "transition-colors duration-150",
-                        isDragging && "bg-zinc-400 dark:bg-zinc-500"
-                      )}
-                    />
-                  </div>
-                )}
-
-                {/* Close Button */}
-                {showCloseButton && (
-                  <button
-                    ref={closeButtonRef}
-                    type="button"
-                    onClick={onClose}
-                    className={cn(
-                      "absolute z-10",
-                      isMobile ? "top-4 right-4" : "top-3 right-3",
-                      "flex h-10 w-10 items-center justify-center rounded-full",
-                      "bg-zinc-100 dark:bg-zinc-800",
-                      "text-zinc-600 dark:text-zinc-400",
-                      "hover:bg-zinc-200 dark:hover:bg-zinc-700",
-                      "hover:text-zinc-900 dark:hover:text-zinc-100",
-                      "transition-colors duration-150",
-                      "focus-visible:outline-none focus-visible:ring-2",
-                      "focus-visible:ring-amber-500 focus-visible:ring-offset-2"
-                    )}
-                    aria-label="Close modal"
-                    data-testid="modal-close-button"
-                  >
-                    <X className="h-5 w-5" strokeWidth={2.5} />
-                  </button>
-                )}
-
-                {/* Hidden Title for Accessibility */}
-                <h2 id={titleId} className="sr-only">
-                  {title}
-                </h2>
-
-                {/* Content */}
+              {/* Mobile Drag Handle */}
+              {isMobile && (
                 <div
                   className={cn(
-                    "overflow-y-auto overscroll-contain p-5",
-                    showCloseButton && "pt-14",
-                    isMobile && showCloseButton && "pt-4",
-                    isMobile
-                      ? "max-h-[calc(90vh-3rem)]"
-                      : "max-h-[calc(85vh-2rem)]"
+                    "flex justify-center pt-3 pb-2",
+                    "cursor-grab active:cursor-grabbing",
+                    "select-none touch-none"
                   )}
                 >
-                  {children}
+                  <div
+                    className={cn(
+                      "w-12 h-1.5 rounded-full",
+                      "bg-zinc-300 dark:bg-zinc-600",
+                      "transition-colors duration-150",
+                      isDragging && "bg-zinc-400 dark:bg-zinc-500"
+                    )}
+                  />
                 </div>
-              </motion.div>
-            </div>
-          </>
+              )}
+
+              {/* Close Button */}
+              {showCloseButton && (
+                <button
+                  ref={closeButtonRef}
+                  type="button"
+                  onClick={onClose}
+                  className={cn(
+                    "absolute z-10",
+                    isMobile ? "top-4 right-4" : "top-3 right-3",
+                    "flex h-10 w-10 items-center justify-center rounded-full",
+                    "bg-zinc-100 dark:bg-zinc-800",
+                    "text-zinc-600 dark:text-zinc-400",
+                    "hover:bg-zinc-200 dark:hover:bg-zinc-700",
+                    "hover:text-zinc-900 dark:hover:text-zinc-100",
+                    "transition-colors duration-150",
+                    "focus-visible:outline-none focus-visible:ring-2",
+                    "focus-visible:ring-amber-500 focus-visible:ring-offset-2"
+                  )}
+                  aria-label="Close modal"
+                  data-testid="modal-close-button"
+                >
+                  <X className="h-5 w-5" strokeWidth={2.5} />
+                </button>
+              )}
+
+              {/* Hidden Title for Accessibility */}
+              <h2 id={titleId} className="sr-only">
+                {title}
+              </h2>
+
+              {/* Content */}
+              <div
+                className={cn(
+                  "overflow-y-auto overscroll-contain p-5",
+                  showCloseButton && "pt-14",
+                  isMobile && showCloseButton && "pt-4",
+                  isMobile
+                    ? "max-h-[calc(90vh-3rem)]"
+                    : "max-h-[calc(85vh-2rem)]"
+                )}
+              >
+                {children}
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </Portal>

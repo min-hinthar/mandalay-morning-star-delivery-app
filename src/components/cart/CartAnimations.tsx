@@ -686,50 +686,52 @@ export function CartDrawer({
 
   return (
     <AnimatePresence>
+      {/* Backdrop - rendered separately to avoid Fragment inside AnimatePresence */}
       {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 z-40 bg-black/60"
-          />
+        <motion.div
+          key="cart-drawer-backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="fixed inset-0 z-40 bg-black/60"
+        />
+      )}
 
-          {/* Drawer */}
-          <motion.div
-            variants={prefersReducedMotion ? undefined : cartDrawerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0, bottom: 0.5 }}
-            onDragStart={() => setIsDragging(true)}
-            onDragEnd={handleDragEnd}
-            style={{ y: isDragging ? dragY : 0 }}
-            className={cn(
-              "fixed bottom-0 left-0 right-0 z-modal",
-              "max-h-[85vh]",
-              "rounded-t-[var(--radius-xl)]",
-              "bg-[var(--color-surface)]",
-              "shadow-[var(--shadow-xl)]",
-              "overflow-hidden",
-              className
-            )}
-          >
-            {/* Drag handle */}
-            <div className="flex justify-center py-3 cursor-grab active:cursor-grabbing">
-              <div className="w-10 h-1 rounded-full bg-[var(--color-border)]" />
-            </div>
+      {/* Drawer - rendered separately to avoid Fragment inside AnimatePresence */}
+      {isOpen && (
+        <motion.div
+          key="cart-drawer-content"
+          variants={prefersReducedMotion ? undefined : cartDrawerVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          drag="y"
+          dragConstraints={{ top: 0, bottom: 0 }}
+          dragElastic={{ top: 0, bottom: 0.5 }}
+          onDragStart={() => setIsDragging(true)}
+          onDragEnd={handleDragEnd}
+          style={{ y: isDragging ? dragY : 0 }}
+          className={cn(
+            "fixed bottom-0 left-0 right-0 z-modal",
+            "max-h-[85vh]",
+            "rounded-t-[var(--radius-xl)]",
+            "bg-[var(--color-surface)]",
+            "shadow-[var(--shadow-xl)]",
+            "overflow-hidden",
+            className
+          )}
+        >
+          {/* Drag handle */}
+          <div className="flex justify-center py-3 cursor-grab active:cursor-grabbing">
+            <div className="w-10 h-1 rounded-full bg-[var(--color-border)]" />
+          </div>
 
-            {/* Content */}
-            <div className="overflow-y-auto max-h-[calc(85vh-48px)]">
-              {children}
-            </div>
-          </motion.div>
-        </>
+          {/* Content */}
+          <div className="overflow-y-auto max-h-[calc(85vh-48px)]">
+            {children}
+          </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );

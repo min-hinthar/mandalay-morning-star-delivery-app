@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, type ReactNode, type CSSProperties } from "react";
+import React, { useRef, useMemo, type ReactNode, type CSSProperties } from "react";
 import {
   motion,
   useScroll,
@@ -130,8 +130,14 @@ export function ParallaxContainer({
   // Reduce or disable parallax on mobile for performance
   const isEnabled = shouldAnimate && !isMobile;
 
+  // Memoize context value to prevent re-renders
+  const contextValue = useMemo(() => ({
+    scrollYProgress,
+    isEnabled,
+  }), [scrollYProgress, isEnabled]);
+
   return (
-    <ParallaxContext.Provider value={{ scrollYProgress, isEnabled }}>
+    <ParallaxContext.Provider value={contextValue}>
       <div
         ref={containerRef}
         className={cn(

@@ -472,36 +472,36 @@ export function InlineCelebrationV7({
         )}
       </AnimatePresence>
 
-      {/* Sparkles */}
+      {/* Sparkles - each rendered separately to avoid Fragment inside AnimatePresence */}
       <AnimatePresence>
-        {isActive && shouldAnimate && (
-          <>
-            {[...Array(4)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{
-                  opacity: 0,
-                  scale: 0,
-                  x: 0,
-                  y: 0,
-                }}
-                animate={{
-                  opacity: [0, 1, 0],
-                  scale: [0, 1, 0],
-                  x: (Math.random() - 0.5) * 60,
-                  y: (Math.random() - 0.5) * 60,
-                }}
-                transition={{
-                  duration: 0.6,
-                  delay: i * 0.1,
-                }}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-              >
-                <Sparkles className="w-4 h-4 text-secondary" />
-              </motion.div>
-            ))}
-          </>
-        )}
+        {isActive && shouldAnimate && [0, 1, 2, 3].map((i) => (
+          <motion.div
+            key={`sparkle-${i}`}
+            initial={{
+              opacity: 0,
+              scale: 0,
+              x: 0,
+              y: 0,
+            }}
+            animate={{
+              opacity: [0, 1, 0],
+              scale: [0, 1, 0],
+              x: (Math.random() - 0.5) * 60,
+              y: (Math.random() - 0.5) * 60,
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0,
+            }}
+            transition={{
+              duration: 0.6,
+              delay: i * 0.1,
+            }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          >
+            <Sparkles className="w-4 h-4 text-secondary" />
+          </motion.div>
+        ))}
       </AnimatePresence>
     </motion.div>
   );
