@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import type { TimeWindow, DeliveryDate, DeliverySelection } from "@/types/delivery";
-import { TIME_WINDOWS } from "@/types/delivery";
+import { TIME_WINDOWS, TIMEZONE } from "@/types/delivery";
 
 // ============================================
 // TYPES
@@ -38,14 +38,21 @@ interface DatePillProps {
 function DatePill({ date, isSelected, onSelect, index }: DatePillProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
-  // Parse date for display
-  const dateObj = new Date(date.dateString);
-  const dayName = dateObj.toLocaleDateString("en-US", { weekday: "short" });
-  const dayNum = dateObj.getDate();
-  const monthName = dateObj.toLocaleDateString("en-US", { month: "short" });
+  // Parse date for display with proper timezone handling
+  // Use the actual Date object from DeliveryDate which is already timezone-aware
+  const dateObj = date.date;
+  const dayName = dateObj.toLocaleDateString("en-US", { weekday: "short", timeZone: TIMEZONE });
+  const dayNum = parseInt(dateObj.toLocaleDateString("en-US", { day: "numeric", timeZone: TIMEZONE }));
+  const monthName = dateObj.toLocaleDateString("en-US", { month: "short", timeZone: TIMEZONE });
 
-  const isToday = new Date().toDateString() === dateObj.toDateString();
-  const isTomorrow = new Date(Date.now() + 86400000).toDateString() === dateObj.toDateString();
+  // Compare dates in the same timezone
+  const todayStr = new Date().toLocaleDateString("en-US", { timeZone: TIMEZONE });
+  const tomorrowDate = new Date(Date.now() + 86400000);
+  const tomorrowStr = tomorrowDate.toLocaleDateString("en-US", { timeZone: TIMEZONE });
+  const dateStr = dateObj.toLocaleDateString("en-US", { timeZone: TIMEZONE });
+
+  const isToday = todayStr === dateStr;
+  const isTomorrow = tomorrowStr === dateStr;
 
   return (
     <motion.button
@@ -366,12 +373,12 @@ export function TimeSlotPicker({
             )}
           </AnimatePresence>
 
-          {/* Date pills container */}
+          {/* Date pills container - extra padding for scale animations */}
           <div
             ref={scrollContainerRef}
             className={cn(
               "flex gap-3 overflow-x-auto scrollbar-hide",
-              "px-1 py-2 -mx-1",
+              "px-3 py-4 -mx-3",
               "scroll-smooth snap-x snap-mandatory"
             )}
           >

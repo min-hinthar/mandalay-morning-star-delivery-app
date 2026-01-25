@@ -35,7 +35,11 @@ import type { AddressFormValues } from "@/lib/validations/address";
 
 type FormMode = "add" | "edit";
 
-export function AddressStepV8() {
+interface AddressStepV8Props {
+  onNext?: () => void;
+}
+
+export function AddressStepV8({ onNext }: AddressStepV8Props) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<FormMode>("add");
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
@@ -46,7 +50,8 @@ export function AddressStepV8() {
   const updateAddress = useUpdateAddress();
   const deleteAddress = useDeleteAddress();
 
-  const { address, setAddress, nextStep, canProceed } = useCheckoutStore();
+  const { address, setAddress, nextStep: storeNextStep, canProceed } = useCheckoutStore();
+  const handleNext = onNext || storeNextStep;
   const { shouldAnimate } = useAnimationPreference();
 
   // 639px breakpoint for exact 640px desktop threshold (per project decision)
@@ -218,7 +223,7 @@ export function AddressStepV8() {
       <div className="flex justify-center pt-4 border-t border-border">
         <Button
           variant="default"
-          onClick={nextStep}
+          onClick={handleNext}
           disabled={!canProceed()}
           size="lg"
         >

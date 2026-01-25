@@ -42,13 +42,15 @@ import { Label } from "@/components/ui/label";
 export interface PaymentStepV8Props {
   /** Additional className */
   className?: string;
+  /** Custom back step handler */
+  onBack?: () => void;
 }
 
 // ============================================
 // MAIN COMPONENT
 // ============================================
 
-export function PaymentStepV8({ className }: PaymentStepV8Props) {
+export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,8 +61,10 @@ export function PaymentStepV8({ className }: PaymentStepV8Props) {
     delivery,
     customerNotes,
     setCustomerNotes,
-    prevStep,
+    prevStep: storePrevStep,
   } = useCheckoutStore();
+
+  const handleBack = onBack || storePrevStep;
 
   const handleCheckout = async () => {
     if (!address || !delivery) return;
@@ -294,7 +298,7 @@ export function PaymentStepV8({ className }: PaymentStepV8Props) {
           transition={{ delay: 0.2 }}
           className="flex justify-between pt-4 border-t border-border"
         >
-          <Button variant="ghost" onClick={prevStep} disabled={isCreatingSession}>
+          <Button variant="ghost" onClick={handleBack} disabled={isCreatingSession}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
