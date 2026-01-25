@@ -194,18 +194,23 @@ export function DynamicThemeProvider({
   defaultDynamicEnabled = true,
   weatherApiUrl,
 }: DynamicThemeProviderProps) {
-  // Load saved settings
-  const savedSettings = useMemo(() => loadSettings(), []);
+  // State - use consistent defaults for SSR hydration
+  // We use "afternoon" as default time and defaultMode for theme
+  // to ensure server and client render the same initially
+  const [mode, setModeState] = useState<ThemeMode>(defaultMode);
+  const [userAccent, setUserAccentState] = useState<string | null>(null);
+  const [isDynamicEnabled, setIsDynamicEnabled] = useState(defaultDynamicEnabled);
+  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("afternoon");
 
-  // State
-  const [mode, setModeState] = useState<ThemeMode>(savedSettings.mode ?? defaultMode);
-  const [userAccent, setUserAccentState] = useState<string | null>(
-    savedSettings.userAccent ?? null
-  );
-  const [isDynamicEnabled, setIsDynamicEnabled] = useState(
-    savedSettings.isDynamicEnabled ?? defaultDynamicEnabled
-  );
-  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>(getTimeOfDay);
+  // Load saved settings AFTER mount to avoid hydration mismatch
+  useEffect(() => {
+    const savedSettings = loadSettings();
+    if (savedSettings.mode) setModeState(savedSettings.mode);
+    if (savedSettings.userAccent !== undefined) setUserAccentState(savedSettings.userAccent);
+    if (savedSettings.isDynamicEnabled !== undefined) setIsDynamicEnabled(savedSettings.isDynamicEnabled);
+    // Set actual time of day after hydration
+    setTimeOfDay(getTimeOfDay());
+  }, []);
   const [weather, setWeatherState] = useState<WeatherCondition | null>(null);
 
   // Resolved mode (never "auto")

@@ -277,7 +277,8 @@ export function FeaturedCarousel({
           "flex overflow-x-auto scrollbar-hide",
           "gap-4 md:gap-6",
           "px-4 md:px-6",
-          "pb-2", // Space for shadows
+          "pt-4 pb-4", // Space for 3D tilt effect and shadows
+          "-mt-2", // Compensate for visual alignment
           "touch-pan-x"
         )}
         style={{

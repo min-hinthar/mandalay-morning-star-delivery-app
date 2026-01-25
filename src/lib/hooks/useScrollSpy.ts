@@ -59,15 +59,17 @@ export function useScrollSpy(sectionIds: string[]): number {
     if (elements.length > 0) {
       // Check which section is initially visible
       const viewportCenter = window.innerHeight / 2;
+      let foundActive = false;
       for (let i = 0; i < elements.length; i++) {
         const rect = elements[i].getBoundingClientRect();
         if (rect.top <= viewportCenter && rect.bottom >= viewportCenter) {
           setActiveIndex(i);
+          foundActive = true;
           break;
         }
       }
-      // If no section at center, default to first
-      if (activeIndex === -1 && window.scrollY < 100) {
+      // If no section at center and we're at top of page, default to first
+      if (!foundActive && window.scrollY < 100) {
         setActiveIndex(0);
       }
     }
@@ -76,7 +78,7 @@ export function useScrollSpy(sectionIds: string[]): number {
     return () => {
       observer.disconnect();
     };
-  }, [sectionIds, activeIndex]);
+  }, [sectionIds]);
 
   return activeIndex;
 }

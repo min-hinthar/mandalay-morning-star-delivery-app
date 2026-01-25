@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
-import { MapPin, UtensilsCrossed, Truck, Sparkles } from "lucide-react";
+import { useRef, useState, useCallback } from "react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { MapPin, UtensilsCrossed, Truck, Sparkles, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { AnimatedSection, itemVariants } from "@/components/scroll/AnimatedSection";
 import { spring } from "@/lib/motion-tokens";
+import { useCoverageCheck } from "@/lib/hooks/useCoverageCheck";
 
 // ============================================
 // TYPES
@@ -165,15 +166,138 @@ function Connector({ index, orientation }: ConnectorProps) {
 }
 
 // ============================================
+// INLINE COVERAGE CHECKER
+// ============================================
+
+interface InlineCoverageCheckerProps {
+  className?: string;
+}
+
+function InlineCoverageChecker({ className }: InlineCoverageCheckerProps) {
+  const { shouldAnimate, getSpring } = useAnimationPreference();
+  const [address, setAddress] = useState("");
+  const { mutate, data, isPending, reset } = useCoverageCheck();
+
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!address.trim() || isPending) return;
+      reset();
+      mutate({ address: address.trim() });
+    },
+    [address, isPending, mutate, reset]
+  );
+
+  const handleClear = useCallback(() => {
+    setAddress("");
+    reset();
+  }, [reset]);
+
+  return (
+    <motion.div
+      className={cn("w-full max-w-xs mt-4", className)}
+      initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+      whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+      viewport={{ once: true }}
+      transition={getSpring(spring.gentle)}
+    >
+      <form onSubmit={handleSubmit} className="relative">
+        <input
+          type="text"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder="Enter your address..."
+          disabled={isPending}
+          className={cn(
+            "w-full px-4 py-3 pr-12 rounded-full",
+            "border-2 border-primary/30 bg-surface-primary",
+            "font-body text-sm text-text-primary placeholder:text-text-muted",
+            "focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none",
+            "transition-all duration-200",
+            isPending && "opacity-70"
+          )}
+        />
+        <button
+          type="submit"
+          disabled={!address.trim() || isPending}
+          className={cn(
+            "absolute right-2 top-1/2 -translate-y-1/2",
+            "w-8 h-8 rounded-full flex items-center justify-center",
+            "bg-primary text-white",
+            "hover:bg-primary-hover transition-colors",
+            "disabled:opacity-50 disabled:cursor-not-allowed"
+          )}
+        >
+          {isPending ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <MapPin className="w-4 h-4" />
+          )}
+        </button>
+      </form>
+
+      {/* Result */}
+      <AnimatePresence mode="wait">
+        {data && (
+          <motion.div
+            key={data.isValid ? "success" : "error"}
+            initial={shouldAnimate ? { opacity: 0, scale: 0.95, y: -5 } : undefined}
+            animate={shouldAnimate ? { opacity: 1, scale: 1, y: 0 } : undefined}
+            exit={shouldAnimate ? { opacity: 0, scale: 0.95, y: -5 } : undefined}
+            transition={getSpring(spring.snappy)}
+            className={cn(
+              "mt-3 p-3 rounded-xl flex items-center gap-2",
+              data.isValid
+                ? "bg-green/10 border border-green/30"
+                : "bg-status-error/10 border border-status-error/30"
+            )}
+          >
+            {data.isValid ? (
+              <>
+                <CheckCircle className="w-5 h-5 text-green flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-green">We deliver here!</p>
+                  <p className="text-xs text-text-muted truncate">
+                    {data.distanceMiles?.toFixed(1)} miles • ~{data.durationMinutes} min
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <XCircle className="w-5 h-5 text-status-error flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-status-error">Outside delivery area</p>
+                  <p className="text-xs text-text-muted">
+                    {data.distanceMiles ? `${data.distanceMiles.toFixed(1)} miles away` : "Try another address"}
+                  </p>
+                </div>
+              </>
+            )}
+            <button
+              type="button"
+              onClick={handleClear}
+              className="text-xs text-text-muted hover:text-text-primary transition-colors"
+            >
+              Clear
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// ============================================
 // STEP CARD
 // ============================================
 
 interface StepCardProps {
   step: Step;
   index: number;
+  showCoverageChecker?: boolean;
 }
 
-function StepCard({ step, index }: StepCardProps) {
+function StepCard({ step, index, showCoverageChecker = false }: StepCardProps) {
   return (
     <motion.div variants={itemVariants} className="flex flex-col items-center text-center">
       <StepIcon step={step} index={index} />
@@ -183,6 +307,7 @@ function StepCard({ step, index }: StepCardProps) {
       <p className="font-body text-text-secondary text-sm md:text-base max-w-[200px]">
         {step.description}
       </p>
+      {showCoverageChecker && <InlineCoverageChecker />}
     </motion.div>
   );
 }
@@ -229,10 +354,10 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
 
         {/* Desktop Layout - Horizontal */}
         <div className="hidden md:block">
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between">
             {steps.map((step, index) => (
-              <div key={step.title} className="flex items-center flex-1 last:flex-none">
-                <StepCard step={step} index={index} />
+              <div key={step.title} className="flex items-start flex-1 last:flex-none">
+                <StepCard step={step} index={index} showCoverageChecker={index === 0} />
                 {index < steps.length - 1 && <Connector index={index} orientation="horizontal" />}
               </div>
             ))}
@@ -244,7 +369,7 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
           <div className="flex flex-col">
             {steps.map((step, index) => (
               <div key={step.title}>
-                <StepCard step={step} index={index} />
+                <StepCard step={step} index={index} showCoverageChecker={index === 0} />
                 {index < steps.length - 1 && <Connector index={index} orientation="vertical" />}
               </div>
             ))}

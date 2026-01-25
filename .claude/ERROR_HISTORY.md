@@ -69,3 +69,38 @@ handleClick(); // Let errors bubble naturally
 **Prevention:** Server actions using `redirect()` must not be wrapped in error handlers.
 
 ---
+
+## 2026-01-25: Dropdown Menu Items Not Clickable
+**Type:** Runtime | **Severity:** High
+
+**Files:** `src/components/ui/dropdown-menu.tsx`
+
+**Error:** Clicking dropdown menu items (e.g., signout button) doesn't trigger action - menu closes immediately
+
+**Root Cause:** Click-outside handler ref only wrapped the trigger button, not the menu content.
+Event sequence: mousedown → outside detection → menu closes → click never fires on menu item.
+
+```tsx
+// BROKEN - ref only on trigger
+const DropdownMenuTrigger = () => {
+  const triggerRef = useRef(null);
+  // handleClickOutside uses triggerRef
+  return <div ref={triggerRef}><button>...</button></div>;
+};
+// Menu content is rendered elsewhere, not inside triggerRef
+```
+
+**Fix:** Move click-outside handler to root DropdownMenu component with ref wrapping both trigger AND content:
+
+```tsx
+// WORKING - ref wraps entire dropdown
+const DropdownMenu = ({ children }) => {
+  const containerRef = useRef(null);
+  // handleClickOutside uses containerRef
+  return <div ref={containerRef}>{children}</div>; // Contains trigger + content
+};
+```
+
+**Prevention:** Click-outside refs must contain ALL interactive elements of the component.
+
+---
