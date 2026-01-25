@@ -14,7 +14,7 @@
  * - Portal-rendered to avoid z-index issues
  */
 
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { gsap } from "@/lib/gsap";
 import { useCartAnimationStore } from "@/lib/stores/cart-animation-store";
@@ -195,13 +195,22 @@ export interface FlyToCartProps {
  * <FlyToCart />
  */
 export function FlyToCart({ className }: FlyToCartProps) {
-  // flyingElement is managed imperatively via the hook
+  // Use state-based mounting to prevent hydration mismatch
+  // Server returns null, client initial render also returns null
+  // Only render portal after hydration is complete
+  const [isMounted, setIsMounted] = useState(false);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // flyingElement is managed imperatively via the hook
   // This component is primarily a placeholder for potential future enhancements
   // The actual flying animation is handled imperatively via the hook
   // to ensure proper GSAP timeline control
 
-  if (typeof window === "undefined") {
+  // Return null on server AND during initial client render to prevent hydration mismatch
+  if (!isMounted) {
     return null;
   }
 

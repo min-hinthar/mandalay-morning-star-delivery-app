@@ -32,7 +32,7 @@ See `.planning/milestones/v1.1-ROADMAP.md` for archived phase details.
 - [x] **Phase 16: 3D Hero Core** - Basic 3D food model with controls ✓
 - [ ] **Phase 17: 3D Hero Advanced** - Auto-rotate, physics, carousel, particles
 - [x] **Phase 18: Menu Unification** - Unified MenuItemCard across all surfaces ✓
-- [ ] **Phase 19: Homepage Redesign** - Integrate 3D hero, enhanced sections
+- [ ] **Phase 19: Homepage Redesign** - Video hero, scroll choreography, section redesign
 - [ ] **Phase 20: Micro-interactions** - Consistent animations across all components
 - [ ] **Phase 21: Theme Refinements** - Light/dark polish, animated toggle
 - [ ] **Phase 22: Customer Page Polish** - Enhanced animations on all customer pages
@@ -114,20 +114,23 @@ Plans:
 ---
 
 ### Phase 19: Homepage Redesign
-**Goal**: Homepage showcases 3D hero and has enhanced animations in all sections
+**Goal**: Homepage showcases video hero and has enhanced scroll animations in all sections
 **Depends on**: Phase 16 (3D Hero Core), Phase 18 (Menu Unification)
 **Requirements**: HOME-01, HOME-02, HOME-03, HOME-04, HOME-05, HOME-06
 **Success Criteria** (what must be TRUE):
-  1. Hero section displays integrated 3D canvas with proper layering
-  2. Coverage section has smooth scroll-triggered animations
-  3. How It Works section has engaging step animations
-  4. Menu section uses unified MenuItemCard design
-  5. All sections have consistent motion patterns and scroll choreography
-**Plans**: TBD
+  1. Hero section displays video hero with dark cinematic mood
+  2. How It Works section integrates Coverage as step 1, has step animations
+  3. Menu section uses unified MenuItemCard design
+  4. Testimonials section has auto-rotating carousel
+  5. All sections have consistent scroll choreography (parallax + stagger)
+  6. Section navigation dots show on desktop with click-to-jump
+**Plans**: 4 plans
 
 Plans:
-- [ ] 19-01: TBD (hero integration)
-- [ ] 19-02: TBD (section animations)
+- [ ] 19-01-PLAN.md — Video hero component + scroll choreography infrastructure
+- [ ] 19-02-PLAN.md — How It Works section (merged Coverage) + Testimonials carousel
+- [ ] 19-03-PLAN.md — CTA Banner + Footer animations
+- [ ] 19-04-PLAN.md — Homepage integration + section nav dots + scroll snap
 
 ---
 
@@ -218,14 +221,14 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 | 16. 3D Hero Core | v1.2 | 4/4 | Complete | 2026-01-24 |
 | 17. 3D Hero Advanced | v1.2 | 0/2 | Not started | - |
 | 18. Menu Unification | v1.2 | 3/3 | Complete | 2026-01-24 |
-| 19. Homepage Redesign | v1.2 | 0/2 | Not started | - |
+| 19. Homepage Redesign | v1.2 | 0/4 | Not started | - |
 | 20. Micro-interactions | v1.2 | 0/3 | Not started | - |
 | 21. Theme Refinements | v1.2 | 0/2 | Not started | - |
 | 22. Customer Page Polish | v1.2 | 0/2 | Not started | - |
 | 23. Header & Nav Rebuild | v1.2 | 0/1 | Not started | - |
 
-**v1.2 Totals:** 9 phases, ~21 plans, 48+ requirements
+**v1.2 Totals:** 9 phases, ~23 plans, 48+ requirements
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-24 - Phase 23 added*
+*Last updated: 2026-01-24 - Phase 19 planned (4 plans)*

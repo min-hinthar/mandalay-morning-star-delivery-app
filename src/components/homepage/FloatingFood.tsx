@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -139,6 +139,17 @@ interface FloatingFoodItemProps {
   shouldAnimate: boolean;
 }
 
+// Simple deterministic hash function to get consistent values between server and client
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
+}
+
 function FloatingFoodItem({
   item,
   mouseX,
@@ -148,6 +159,7 @@ function FloatingFoodItem({
   shouldAnimate,
 }: FloatingFoodItemProps) {
   const {
+    id,
     src,
     emoji,
     alt,
@@ -159,14 +171,15 @@ function FloatingFoodItem({
     rotationRange = 15,
   } = item;
 
-  // Random phase offset for each item
-  const phaseOffset = useMemo(() => Math.random() * Math.PI * 2, []);
-  const phaseOffsetY = useMemo(() => Math.random() * Math.PI * 2, []);
+  // Deterministic phase offset based on item ID to ensure consistent values between server and client
+  // This prevents hydration mismatch caused by Math.random()
+  const phaseOffset = useMemo(() => (hashString(id) % 1000) / 1000 * Math.PI * 2, [id]);
+  const phaseOffsetY = useMemo(() => (hashString(id + "-y") % 1000) / 1000 * Math.PI * 2, [id]);
 
-  // Animation state
-  const [floatY, setFloatY] = useState(0);
-  const [floatX, setFloatX] = useState(0);
-  const [rotation, setRotation] = useState(0);
+  // Use motion values instead of useState to avoid re-renders on every frame
+  const floatY = useMotionValue(0);
+  const floatX = useMotionValue(0);
+  const rotation = useMotionValue(0);
 
   // Mouse parallax transforms
   const parallaxX = useTransform(
@@ -183,7 +196,7 @@ function FloatingFoodItem({
   const springX = useSpring(parallaxX, { stiffness: 50, damping: 20 });
   const springY = useSpring(parallaxY, { stiffness: 50, damping: 20 });
 
-  // Physics-based floating animation
+  // Physics-based floating animation using motion values (no re-renders)
   useEffect(() => {
     if (!shouldAnimate) return;
 
@@ -194,14 +207,10 @@ function FloatingFoodItem({
       const elapsed = (Date.now() - startTime) / 1000;
       const baseSpeed = 0.5 * speed;
 
-      // Smooth sine wave floating
-      const newFloatY = Math.sin(elapsed * baseSpeed + phaseOffset) * amplitude;
-      const newFloatX = Math.cos(elapsed * baseSpeed * 0.7 + phaseOffsetY) * (amplitude * 0.3);
-      const newRotation = Math.sin(elapsed * baseSpeed * 0.5 + phaseOffset) * rotationRange;
-
-      setFloatY(newFloatY);
-      setFloatX(newFloatX);
-      setRotation(newRotation);
+      // Smooth sine wave floating - update motion values directly (no setState)
+      floatY.set(Math.sin(elapsed * baseSpeed + phaseOffset) * amplitude);
+      floatX.set(Math.cos(elapsed * baseSpeed * 0.7 + phaseOffsetY) * (amplitude * 0.3));
+      rotation.set(Math.sin(elapsed * baseSpeed * 0.5 + phaseOffset) * rotationRange);
 
       animationId = requestAnimationFrame(animate);
     };
@@ -211,7 +220,7 @@ function FloatingFoodItem({
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, [shouldAnimate, amplitude, speed, rotationRange, phaseOffset, phaseOffsetY]);
+  }, [shouldAnimate, amplitude, speed, rotationRange, phaseOffset, phaseOffsetY, floatY, floatX, rotation]);
 
   return (
     <motion.div
@@ -222,18 +231,15 @@ function FloatingFoodItem({
         zIndex,
         x: mouseParallax ? springX : 0,
         y: mouseParallax ? springY : 0,
-      }}
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{
-        opacity: 1,
-        scale: 1,
         translateY: floatY,
         translateX: floatX,
         rotate: rotation,
       }}
+      initial={{ opacity: 0, scale: 0 }}
+      animate={{ opacity: 1, scale: 1 }}
       transition={{
-        opacity: { duration: 0.6, delay: Math.random() * 0.5 },
-        scale: { ...spring.rubbery, delay: Math.random() * 0.5 },
+        opacity: { duration: 0.6, delay: (hashString(id) % 500) / 1000 },
+        scale: { ...spring.rubbery, delay: (hashString(id) % 500) / 1000 },
       }}
     >
       {src ? (
