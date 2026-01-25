@@ -6,6 +6,10 @@ import { Truck } from "lucide-react";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { spring, easing } from "@/lib/motion-tokens";
 
+interface CTABannerProps {
+  id?: string;
+}
+
 /**
  * Promotional CTA banner with floating entrance and pulsing glow border.
  *
@@ -15,11 +19,11 @@ import { spring, easing } from "@/lib/motion-tokens";
  * - Respects reduced motion preference (disables glow)
  * - Always replays animations on scroll re-entry
  */
-export function CTABanner() {
+export function CTABanner({ id }: CTABannerProps) {
   const { shouldAnimate, isFullMotion } = useAnimationPreference();
 
   return (
-    <section className="relative py-16 md:py-20 px-4 bg-gradient-to-br from-primary via-primary-hover to-primary overflow-hidden">
+    <section id={id} className="relative py-16 md:py-20 px-4 bg-gradient-to-br from-primary via-primary-hover to-primary overflow-hidden">
       {/* Decorative background overlay */}
       <div className="absolute inset-0 bg-black/5" />
 
