@@ -80,16 +80,26 @@ grep -r "MenuContentV8" src/app --include="*.tsx"
 Use `mousedown` for outside click detection (fires before `click`, catches event earlier).
 Do NOT use `stopPropagation()` on dropdown content - let events bubble.
 
+**Critical:** The ref must wrap BOTH trigger AND content (entire dropdown), not just trigger.
+If ref only contains trigger, clicking menu items registers as "outside" click → menu closes before click completes.
+
 ```tsx
-useEffect(() => {
-  const handleMouseDown = (e: MouseEvent) => {
-    if (!dropdownRef.current?.contains(e.target as Node)) {
-      setIsOpen(false);
-    }
-  };
-  document.addEventListener("mousedown", handleMouseDown);
-  return () => document.removeEventListener("mousedown", handleMouseDown);
-}, []);
+// ✅ Correct: ref wraps entire dropdown
+const DropdownMenu = ({ children }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleMouseDown = (e: MouseEvent) => {
+      if (!containerRef.current?.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    return () => document.removeEventListener("mousedown", handleMouseDown);
+  }, []);
+
+  return <div ref={containerRef}>{children}</div>; // Contains trigger + content
+};
 ```
 
 ### onMouseDown for Autocomplete

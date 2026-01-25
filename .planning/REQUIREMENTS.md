@@ -30,7 +30,7 @@ Requirements for v1.2 milestone. Each maps to roadmap phases.
 
 ### Homepage Redesign
 
-- [ ] **HOME-01**: Hero section redesigned with 3D canvas integration
+- [ ] **HOME-01**: Hero section redesigned with video hero integration
 - [ ] **HOME-02**: Coverage section has enhanced animations
 - [ ] **HOME-03**: How It Works section has enhanced animations
 - [ ] **HOME-04**: Menu section uses unified MenuItemCard design
@@ -175,4 +175,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-23*
-*Last updated: 2026-01-24 - Phase 16 requirements complete*
+*Last updated: 2026-01-24 - HOME-01 updated to reflect video hero implementation*

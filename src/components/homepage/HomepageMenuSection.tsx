@@ -54,7 +54,7 @@ function getFeaturedItems(categories: MenuCategory[]): MenuItem[] {
     return featuredItems.slice(0, FEATURED_COUNT);
   }
 
-  // Pad with random non-featured items to reach target count
+  // Pad with non-featured items to reach target count
   const nonFeaturedItems = allItems.filter(
     (item) =>
       !item.tags.some((tag) =>
@@ -62,9 +62,10 @@ function getFeaturedItems(categories: MenuCategory[]): MenuItem[] {
       ) && !item.isSoldOut
   );
 
-  // Shuffle non-featured items for variety
-  const shuffled = [...nonFeaturedItems].sort(() => Math.random() - 0.5);
-  const paddingItems = shuffled.slice(0, FEATURED_COUNT - featuredItems.length);
+  // Sort deterministically by item ID to ensure consistent order between server and client
+  // This prevents hydration mismatch caused by Math.random()
+  const sorted = [...nonFeaturedItems].sort((a, b) => a.id.localeCompare(b.id));
+  const paddingItems = sorted.slice(0, FEATURED_COUNT - featuredItems.length);
 
   return [...featuredItems, ...paddingItems];
 }

@@ -1,43 +1,68 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { Hero } from "./Hero";
-import { CoverageSection } from "./CoverageSection";
-import { Timeline } from "./Timeline";
+import { HowItWorksSection } from "./HowItWorksSection";
+import { TestimonialsCarousel } from "./TestimonialsCarousel";
+import { CTABanner } from "./CTABanner";
 import { FooterCTA } from "./FooterCTA";
+import { SectionNavDots } from "@/components/scroll/SectionNavDots";
+
+// ============================================
+// SECTION NAVIGATION CONFIG
+// ============================================
+
+const sections = [
+  { id: "hero", label: "Home" },
+  { id: "how-it-works", label: "How It Works" },
+  { id: "menu", label: "Menu" },
+  { id: "testimonials", label: "Reviews" },
+  { id: "cta", label: "Order" },
+];
+
+// ============================================
+// TYPES
+// ============================================
 
 interface HomePageClientProps {
   menuSection: ReactNode;
 }
 
-export function HomePageClient({ menuSection }: HomePageClientProps) {
-  const menuRef = useRef<HTMLDivElement>(null);
+// ============================================
+// MAIN COMPONENT
+// ============================================
 
+export function HomePageClient({ menuSection }: HomePageClientProps) {
   return (
     <>
-      {/* V7 Hero - Cinematic parallax with WebGL effects */}
-      <Hero
-        ctaHref="/menu"
-        secondaryCtaText="Check Coverage"
-        secondaryCtaHref="#coverage"
-        showFloatingFood={true}
-        showParticles={true}
-        showMascot={true}
-      />
+      {/* Section Navigation Dots - Desktop only */}
+      <SectionNavDots sections={sections} />
 
-      {/* V7 Coverage - Animated map with coverage zones */}
-      <CoverageSection />
+      {/* Main Content */}
+      <main>
+        {/* Hero Section */}
+        <Hero
+          ctaHref="/menu"
+          secondaryCtaText="How It Works"
+          secondaryCtaHref="#how-it-works"
+          showMascot={true}
+        />
 
-      {/* V7 Timeline - How It Works */}
-      <Timeline />
+        {/* How It Works Section */}
+        <HowItWorksSection id="how-it-works" />
 
-      {/* Full Menu Section */}
-      <div ref={menuRef}>
+        {/* Menu Section */}
         {menuSection}
-      </div>
 
-      {/* Footer CTA */}
-      <FooterCTA />
+        {/* Testimonials Section */}
+        <TestimonialsCarousel id="testimonials" />
+
+        {/* CTA Banner Section */}
+        <CTABanner id="cta" />
+
+        {/* Footer */}
+        <FooterCTA />
+      </main>
     </>
   );
 }

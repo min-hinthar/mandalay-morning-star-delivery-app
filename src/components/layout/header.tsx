@@ -234,45 +234,48 @@ function NavItem({ href, label, isActive }: NavItemProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <Link href={href}>
+    <Link
+      href={href}
+      className={cn(
+        "relative px-3 py-2 rounded-lg text-sm font-medium inline-block",
+        "transition-colors duration-150",
+        isActive
+          ? "text-primary"
+          : "text-text-primary hover:text-primary"
+      )}
+    >
       <motion.span
-        className={cn(
-          "relative px-3 py-2 rounded-lg text-sm font-medium",
-          "transition-colors duration-150",
-          isActive
-            ? "text-primary"
-            : "text-text-primary hover:text-primary"
-        )}
+        className="relative inline-block"
         whileHover={shouldAnimate ? { y: -2 } : undefined}
         whileTap={shouldAnimate ? { y: 0 } : undefined}
         transition={getSpring(spring.snappy)}
       >
         {label}
-
-        {/* Active indicator - animated underline */}
-        <motion.span
-          className="absolute bottom-0 left-1/2 h-0.5 bg-primary rounded-full"
-          initial={{ width: 0, x: "-50%" }}
-          animate={shouldAnimate ? {
-            width: isActive ? "60%" : 0,
-            x: "-50%"
-          } : {
-            width: isActive ? "60%" : 0,
-            x: "-50%"
-          }}
-          transition={getSpring(spring.ultraBouncy)}
-        />
-
-        {/* Hover glow */}
-        {shouldAnimate && (
-          <motion.span
-            className="absolute inset-0 rounded-lg bg-primary/5"
-            initial={{ opacity: 0 }}
-            whileHover={{ opacity: 1 }}
-            transition={{ duration: duration.fast }}
-          />
-        )}
       </motion.span>
+
+      {/* Active indicator - animated underline */}
+      <motion.span
+        className="absolute bottom-0 left-1/2 h-0.5 bg-primary rounded-full"
+        initial={{ width: 0, x: "-50%" }}
+        animate={shouldAnimate ? {
+          width: isActive ? "60%" : 0,
+          x: "-50%"
+        } : {
+          width: isActive ? "60%" : 0,
+          x: "-50%"
+        }}
+        transition={getSpring(spring.ultraBouncy)}
+      />
+
+      {/* Hover glow */}
+      {shouldAnimate && (
+        <motion.span
+          className="absolute inset-0 rounded-lg bg-primary/5 pointer-events-none"
+          initial={{ opacity: 0 }}
+          whileHover={{ opacity: 1 }}
+          transition={{ duration: duration.fast }}
+        />
+      )}
     </Link>
   );
 }

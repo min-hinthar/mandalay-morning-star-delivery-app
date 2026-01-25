@@ -1,46 +1,84 @@
+"use client";
+
 import { useEffect, useState } from "react";
 
-interface UseScrollSpyOptions {
-  offset?: number;
-}
-
-export function useScrollSpy(
-  sectionIds: string[],
-  options: UseScrollSpyOptions = {}
-) {
-  const { offset = 100 } = options;
-  const [activeId, setActiveId] = useState<string | null>(null);
+/**
+ * Enhanced scroll spy hook using IntersectionObserver.
+ *
+ * Tracks which section is currently in the viewport center.
+ * Uses rootMargin: "-50% 0px -50% 0px" to trigger at viewport middle.
+ *
+ * @param sectionIds - Array of section element IDs to observe
+ * @returns activeIndex - Index of the currently active section (-1 if none)
+ *
+ * @example
+ * const sections = ["hero", "how-it-works", "menu", "testimonials"];
+ * const activeIndex = useScrollSpy(sections);
+ * // activeIndex = 0 when hero is in viewport center
+ */
+export function useScrollSpy(sectionIds: string[]): number {
+  const [activeIndex, setActiveIndex] = useState(-1);
 
   useEffect(() => {
     if (sectionIds.length === 0) {
-      setActiveId(null);
+      setActiveIndex(-1);
       return;
     }
 
-    const handleScroll = () => {
-      if (window.scrollY < offset) {
-        setActiveId(null);
-        return;
+    // Create IntersectionObserver with rootMargin to trigger at viewport middle
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = sectionIds.indexOf(entry.target.id);
+            if (index !== -1) {
+              setActiveIndex(index);
+            }
+          }
+        });
+      },
+      {
+        // Trigger when element reaches viewport middle
+        // -50% from top and -50% from bottom = center line
+        rootMargin: "-50% 0px -50% 0px",
+        threshold: 0,
       }
+    );
 
-      const scrollPosition = window.scrollY + offset;
+    // Observe all sections
+    const elements: Element[] = [];
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        observer.observe(el);
+        elements.push(el);
+      }
+    });
 
-      for (const id of sectionIds) {
-        const element = document.getElementById(id);
-        if (!element) continue;
-        const { offsetTop, offsetHeight } = element;
-        if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-          setActiveId(id);
-          return;
+    // Set initial active section (first visible)
+    if (elements.length > 0) {
+      // Check which section is initially visible
+      const viewportCenter = window.innerHeight / 2;
+      let foundActive = false;
+      for (let i = 0; i < elements.length; i++) {
+        const rect = elements[i].getBoundingClientRect();
+        if (rect.top <= viewportCenter && rect.bottom >= viewportCenter) {
+          setActiveIndex(i);
+          foundActive = true;
+          break;
         }
       }
+      // If no section at center and we're at top of page, default to first
+      if (!foundActive && window.scrollY < 100) {
+        setActiveIndex(0);
+      }
+    }
+
+    // Cleanup: disconnect observer
+    return () => {
+      observer.disconnect();
     };
+  }, [sectionIds]);
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [sectionIds, offset]);
-
-  return activeId;
+  return activeIndex;
 }

@@ -179,6 +179,13 @@ export function Modal({
   footer,
   initialFocusRef,
 }: ModalProps) {
+  // State-based mounting for SSR safety - prevents hydration mismatch
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const modalRef = useRef<HTMLDivElement>(null);
   const lastActiveElementRef = useRef<HTMLElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -330,8 +337,8 @@ export function Modal({
   // RENDER
   // ============================================
 
-  // Don't render on server
-  if (typeof window === "undefined") return null;
+  // SSR safety: don't render portal until mounted on client
+  if (!isMounted) return null;
 
   const modalZIndex = zIndexTokens.modal + stackLevel * 10;
   const config = sizeConfig[size];
