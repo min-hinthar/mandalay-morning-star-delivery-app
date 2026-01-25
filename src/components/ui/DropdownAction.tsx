@@ -59,27 +59,36 @@ export function DropdownAction({
 }: DropdownActionProps) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleClick = useCallback(async () => {
+  const handleClick = useCallback(() => {
     if (disabled || isLoading) return;
 
     setIsLoading(true);
 
     try {
+      // Execute onClick - can be sync or async
       const result = onClick();
-      // Handle both sync and async onClick
+
+      // Handle async actions
       if (result instanceof Promise) {
-        await result;
+        // Only attach success handler
+        // For error handling: we intentionally DON'T attach a rejection handler
+        // This allows Next.js server action errors (including redirects) to propagate
+        // through the framework's own error boundary handling
+        result.then(() => {
+          onSuccess?.();
+          setIsLoading(false);
+        });
+        // NOTE: Unhandled rejections from redirects are expected - Next.js handles them
+      } else {
+        // Sync action completed
+        onSuccess?.();
+        setIsLoading(false);
       }
-      onSuccess?.();
-    } catch (error) {
-      // Next.js redirect() throws NEXT_REDIRECT error - must re-throw to work
-      const errorString = String(error);
-      if (errorString.includes("NEXT_REDIRECT") || errorString.includes("redirect")) {
-        throw error; // Re-throw redirect errors
-      }
-      console.error("[DropdownAction] Error:", error);
+    } catch (syncError) {
+      // Handle synchronous errors (rare for actions)
+      console.error("[DropdownAction] Sync error:", syncError);
       if (onError) {
-        onError(error instanceof Error ? error : new Error(String(error)));
+        onError(syncError instanceof Error ? syncError : new Error(String(syncError)));
       }
       setIsLoading(false);
     }
@@ -100,8 +109,9 @@ export function DropdownAction({
         if (!allowMenuClose) {
           event.preventDefault();
         }
-        // Execute the async action - don't catch redirect errors, let them bubble
-        void handleClick();
+        // Execute the action - let redirect errors propagate to Next.js handler
+        // Do NOT use void or .catch() that swallows errors - Next.js needs to see redirects
+        handleClick();
       }}
       className={cn(
         "cursor-pointer",
