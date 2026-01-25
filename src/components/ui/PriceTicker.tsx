@@ -135,7 +135,8 @@ export const PriceTicker = forwardRef<HTMLSpanElement, PriceTickerProps>(
     // Format the price
     const actualValue = inCents ? value / 100 : value;
     const formattedPrice = actualValue.toFixed(decimals);
-    const digits = formattedPrice.split("");
+    // Memoize digits to prevent infinite re-render loop
+    const digits = useMemo(() => formattedPrice.split(""), [formattedPrice]);
 
     // Determine direction
     const direction = useMemo(() => {
@@ -286,7 +287,7 @@ export function PriceChangeBadge({
       />
 
       {original && original > current && (
-        <>
+        <span className="contents">
           <span className="text-text-muted line-through text-sm">
             {currency}
             {original.toFixed(2)}
@@ -300,7 +301,7 @@ export function PriceChangeBadge({
           >
             -{discount}%
           </motion.span>
-        </>
+        </span>
       )}
     </span>
   );

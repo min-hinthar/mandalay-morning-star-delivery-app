@@ -172,20 +172,20 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {isLoading ? (
-          <>
+          <span className="contents">
             <Loader2 className="animate-spin" aria-hidden="true" />
             <span className={loadingText ? undefined : "sr-only"}>
               {loadingText || "Loading..."}
             </span>
             {/* Keep original content in DOM but hidden to maintain width */}
             {!loadingText && <span className="invisible">{children}</span>}
-          </>
+          </span>
         ) : (
-          <>
+          <span className="contents">
             {leftIcon && <span className="shrink-0">{leftIcon}</span>}
             {children}
             {rightIcon && <span className="shrink-0">{rightIcon}</span>}
-          </>
+          </span>
         )}
       </Comp>
     );
