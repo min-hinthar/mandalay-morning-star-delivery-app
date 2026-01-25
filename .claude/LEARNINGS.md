@@ -6,6 +6,100 @@ Patterns, conventions, and insights discovered while working on this codebase.
 
 ---
 
+## 2026-01-25: Framer Motion Step Animation Direction
+
+**Context:** Multi-step checkout with AnimatePresence slide animations
+**Learning:** When direction is calculated in useEffect after step change, animation starts with stale direction value. AnimatePresence reads `custom={direction}` on render, before useEffect runs.
+
+**Fix:** Use ref for direction, set synchronously BEFORE step change:
+```tsx
+// ❌ Broken - useEffect runs after render
+const [direction, setDirection] = useState(1);
+useEffect(() => {
+  setDirection(currentIndex >= prevIndex ? 1 : -1);
+}, [step]);
+
+// ✅ Working - ref updates synchronously
+const directionRef = useRef(1);
+const goToPrevStep = () => {
+  directionRef.current = -1;  // Set BEFORE step change
+  forceUpdate({});
+  setStep(STEPS[currentIndex - 1]);
+};
+```
+
+**Apply when:** Step navigation with direction-aware animations (slide left/right, enter/exit variants with `custom` prop).
+
+---
+
+## 2026-01-25: Date String Parsing Creates Timezone Bugs
+
+**Context:** Delivery date picker showing Fridays instead of Saturdays
+**Learning:** `new Date("YYYY-MM-DD")` parses as UTC midnight. For Pacific Time (UTC-8), "2025-01-25T00:00:00Z" displays as Jan 24 at 4pm local = Friday.
+
+**Fix:** Always use `timeZone` option when formatting dates:
+```tsx
+// ❌ Shows wrong day for west coast users
+const dateObj = new Date(dateString);
+const dayName = dateObj.toLocaleDateString("en-US", { weekday: "short" });
+
+// ✅ Consistent display across timezones
+const dayName = dateObj.toLocaleDateString("en-US", {
+  weekday: "short",
+  timeZone: TIMEZONE  // "America/Los_Angeles"
+});
+```
+
+**Apply when:** Displaying dates from YYYY-MM-DD strings, especially for business logic tied to specific days (delivery schedules, cutoff times).
+
+---
+
+## 2026-01-25: Fragment Cannot Receive className (Radix Slot)
+
+**Context:** Button component using Radix Slot's `asChild` prop throws React warning about className on Fragment
+**Learning:** When Radix Slot passes props to children, Fragments can't receive className. React warns: "Invalid prop `className` supplied to `React.Fragment`."
+
+**Fix:** Replace Fragment with `<span className="contents">` - preserves layout while accepting props:
+```tsx
+// ❌ Fragment can't receive className from Radix Slot
+<>
+  <Loader2 />
+  <span>Loading...</span>
+</>
+
+// ✅ span with contents display preserves Fragment-like layout
+<span className="contents">
+  <Loader2 />
+  <span>Loading...</span>
+</span>
+```
+
+**Apply when:** Any component using Radix's `asChild` prop where children wrap content in Fragments.
+
+---
+
+## 2026-01-25: Context Provider Re-render Loops
+
+**Context:** Multiple components (Tooltip, Dropdown, Modal, PushToast) causing infinite re-renders
+**Learning:** Context providers with inline object values or unstable setters trigger re-renders on every parent render. All consumers re-render when context value identity changes.
+
+**Fix:** Memoize context value object and wrap setters in useCallback:
+```tsx
+// ❌ New object every render → all consumers re-render
+<Context.Provider value={{ isOpen, setIsOpen }}>
+
+// ✅ Stable references prevent cascading re-renders
+const contextValue = useMemo(() => ({
+  isOpen,
+  setIsOpen: useCallback((v) => setIsOpen(v), []),
+}), [isOpen]);
+<Context.Provider value={contextValue}>
+```
+
+**Apply when:** Creating context providers, especially for UI state (modals, dropdowns, tooltips).
+
+---
+
 ## TailwindCSS 4 Patterns (Consolidated)
 
 ### Auto-Content Detection

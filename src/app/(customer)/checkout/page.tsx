@@ -47,17 +47,31 @@ export default function CheckoutPage() {
   const { step, setStep, reset } = useCheckoutStore();
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
-  // Track direction for step transitions
-  const [direction, setDirection] = useState(1);
-  const prevStepRef = useRef(step);
+  // Track direction for step transitions using ref for synchronous access
+  const directionRef = useRef(1);
+  const [, forceUpdate] = useState({});
 
-  // Update direction when step changes
-  useEffect(() => {
-    const prevIndex = STEPS.indexOf(prevStepRef.current);
+  // Get current direction value
+  const direction = directionRef.current;
+
+  // Navigation handlers that set direction synchronously before step change
+  const goToNextStep = () => {
+    directionRef.current = 1;
+    forceUpdate({});
     const currentIndex = STEPS.indexOf(step);
-    setDirection(currentIndex >= prevIndex ? 1 : -1);
-    prevStepRef.current = step;
-  }, [step]);
+    if (currentIndex < STEPS.length - 1) {
+      setStep(STEPS[currentIndex + 1]);
+    }
+  };
+
+  const goToPrevStep = () => {
+    directionRef.current = -1;
+    forceUpdate({});
+    const currentIndex = STEPS.indexOf(step);
+    if (currentIndex > 0) {
+      setStep(STEPS[currentIndex - 1]);
+    }
+  };
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -92,7 +106,8 @@ export default function CheckoutPage() {
 
     // Only allow going back
     if (clickedIndex < currentIndex) {
-      setDirection(-1);
+      directionRef.current = -1;
+      forceUpdate({});
       setStep(clickedStep);
     }
   };
@@ -125,7 +140,7 @@ export default function CheckoutPage() {
                     exit={shouldAnimate ? "exit" : undefined}
                     transition={getSpring(spring.default)}
                   >
-                    <AddressStep />
+                    <AddressStep onNext={goToNextStep} />
                   </motion.div>
                 )}
                 {step === "time" && (
@@ -138,7 +153,7 @@ export default function CheckoutPage() {
                     exit={shouldAnimate ? "exit" : undefined}
                     transition={getSpring(spring.default)}
                   >
-                    <TimeStep />
+                    <TimeStep onNext={goToNextStep} onBack={goToPrevStep} />
                   </motion.div>
                 )}
                 {step === "payment" && (
@@ -151,7 +166,7 @@ export default function CheckoutPage() {
                     exit={shouldAnimate ? "exit" : undefined}
                     transition={getSpring(spring.default)}
                   >
-                    <PaymentStep />
+                    <PaymentStep onBack={goToPrevStep} />
                   </motion.div>
                 )}
               </AnimatePresence>

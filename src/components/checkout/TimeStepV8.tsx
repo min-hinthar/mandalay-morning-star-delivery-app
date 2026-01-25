@@ -32,16 +32,23 @@ import type { DeliverySelection } from "@/types/delivery";
 export interface TimeStepV8Props {
   /** Additional className */
   className?: string;
+  /** Custom next step handler */
+  onNext?: () => void;
+  /** Custom back step handler */
+  onBack?: () => void;
 }
 
 // ============================================
 // MAIN COMPONENT
 // ============================================
 
-export function TimeStepV8({ className }: TimeStepV8Props) {
+export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
   const { shouldAnimate } = useAnimationPreference();
-  const { delivery, setDelivery, nextStep, prevStep, canProceed } =
+  const { delivery, setDelivery, nextStep: storeNextStep, prevStep: storePrevStep, canProceed } =
     useCheckoutStore();
+
+  const handleNext = onNext || storeNextStep;
+  const handleBack = onBack || storePrevStep;
 
   // Memoize available dates to prevent recalculation on every render
   const availableDates = useMemo(() => getAvailableDeliveryDates(), []);
@@ -94,11 +101,11 @@ export function TimeStepV8({ className }: TimeStepV8Props) {
         transition={{ delay: 0.2 }}
         className="flex justify-between pt-4 border-t border-border"
       >
-        <Button variant="ghost" onClick={prevStep}>
+        <Button variant="ghost" onClick={handleBack}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        <Button onClick={nextStep} disabled={!canProceed()} size="lg">
+        <Button onClick={handleNext} disabled={!canProceed()} size="lg">
           Continue to Payment
         </Button>
       </motion.div>
