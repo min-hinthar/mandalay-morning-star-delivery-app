@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 19 of 23 (Homepage Redesign)
-Plan: 2 of 4 complete
+Plan: 3 of 4 complete
 Status: In progress
-Last activity: 2026-01-25 - Completed 19-03-PLAN.md (CTA Banner & Footer Animation)
+Last activity: 2026-01-25 - Completed 19-02-PLAN.md (How It Works & Testimonials)
 
-Progress: [####################] v1.0-v1.1 complete | [███████████░░░░░░░░░] v1.2 55%
+Progress: [####################] v1.0-v1.1 complete | [████████████░░░░░░░░] v1.2 60%
 
 ## Milestones Completed
 
@@ -41,7 +41,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | 15 | 2/2 | 24min | 12min |
 | 16 | 4/4 | 29min | 7.3min |
 | 18 | 3/3 | 53min | 18min |
-| 19 | 2/4 | 11min | 5.5min |
+| 19 | 3/4 | 19min | 6.3min |
 
 *Updated after each plan completion*
 
@@ -107,6 +107,9 @@ From `.planning/research/SUMMARY.md`:
 - **IntersectionObserver scroll spy (19-01):** rootMargin -50% 0px -50% 0px for viewport center detection
 - **Scroll section wrapper (19-01):** AnimatedSection with itemVariants export for children
 - **Video pause-on-exit (19-01):** useInView(ref, { amount: 0.3 }) + play()/pause() in useEffect
+- **Continuous icon float (19-02):** animate={{ y: [0, -8, 0], rotate: [0, 2, 0] }} with 4+ second duration
+- **Drawing connector (19-02):** scaleX: 0 -> 1 with transformOrigin: left on whileInView
+- **Carousel auto-rotation (19-02):** setInterval with isPaused state toggle on mouseEnter/Leave and focus/blur
 
 ### Roadmap Evolution
 
@@ -119,10 +122,10 @@ None - all blocking issues from Phase 15 resolved.
 ## Session Continuity
 
 Last session: 2026-01-25
-Stopped at: Completed 19-03-PLAN.md
+Stopped at: Completed 19-02-PLAN.md (19-03 also complete)
 Resume file: None
 Next action: Execute 19-04-PLAN.md (Homepage Integration)
 
 ---
 
-*Updated: 2026-01-25 - Completed 19-03-PLAN.md*
+*Updated: 2026-01-25 - Completed 19-02-PLAN.md*
