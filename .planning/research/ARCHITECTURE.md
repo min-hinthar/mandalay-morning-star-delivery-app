@@ -165,7 +165,7 @@ export const zIndexCSS = `
 **Enforcement rules:**
 - ESLint rule flags any `z-index:` or `z-[` not using `var(--z-*)` pattern
 - Components using `--z-max` MUST include `pointer-events: none`
-- No raw numbers in Tailwind classes: `z-50` is forbidden, use `z-[var(--z-modal)]`
+- No raw numbers in Tailwind classes: `z-50` is forbidden, use `z-modal` utility
 
 ### Motion Token System
 
@@ -985,7 +985,7 @@ useFrame(() => {
 <div style={{ zIndex: 9999 }}>Toast</div>
 
 // GOOD
-<div className="z-[var(--z-modal)]">Modal</div>
+<div className="z-modal">Modal</div>
 <div style={{ zIndex: zIndex.toast }}>Toast</div>
 ```
 

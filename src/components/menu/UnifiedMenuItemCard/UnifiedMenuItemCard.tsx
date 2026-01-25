@@ -260,8 +260,22 @@ export function UnifiedMenuItemCard({
     [item, controlledFavoriteToggle, favoritesHook]
   );
 
+  // Check if item has required modifiers
+  const hasRequiredModifiers = useMemo(() => {
+    return (
+      item.modifierGroups &&
+      item.modifierGroups.some((group) => group.minSelect > 0)
+    );
+  }, [item.modifierGroups]);
+
   // Cart handlers
   const handleAdd = useCallback(() => {
+    // If item has required modifiers, open detail modal instead of quick add
+    if (hasRequiredModifiers) {
+      onSelect?.(item);
+      return;
+    }
+
     if (onQuickAdd) {
       onQuickAdd(item);
     } else {
@@ -278,7 +292,7 @@ export function UnifiedMenuItemCard({
         notes: "",
       });
     }
-  }, [item, onQuickAdd, cart]);
+  }, [item, onQuickAdd, cart, hasRequiredModifiers, onSelect]);
 
   const handleIncrement = useCallback(() => {
     if (cartItem) {

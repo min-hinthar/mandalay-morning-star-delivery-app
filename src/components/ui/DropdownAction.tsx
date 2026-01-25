@@ -24,6 +24,8 @@ interface DropdownActionProps {
   onError?: (error: Error) => void;
   /** Called on successful completion of async onClick */
   onSuccess?: () => void;
+  /** If true, don't prevent menu close (use for actions that redirect) */
+  allowMenuClose?: boolean;
 }
 
 /**
@@ -53,6 +55,7 @@ export function DropdownAction({
   className,
   onError,
   onSuccess,
+  allowMenuClose = false,
 }: DropdownActionProps) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -93,16 +96,12 @@ export function DropdownAction({
     <DropdownMenuItem
       onSelect={(event) => {
         if (isDisabled) return;
-        // Prevent menu from closing until action completes
-        event.preventDefault();
-        // Execute the async action
-        handleClick().catch((error) => {
-          // Re-throw redirect errors to let Next.js handle them
-          const errorString = String(error);
-          if (errorString.includes("NEXT_REDIRECT") || errorString.includes("redirect")) {
-            throw error;
-          }
-        });
+        // Prevent menu from closing until action completes (unless allowMenuClose is true)
+        if (!allowMenuClose) {
+          event.preventDefault();
+        }
+        // Execute the async action - don't catch redirect errors, let them bubble
+        void handleClick();
       }}
       className={cn(
         "cursor-pointer",

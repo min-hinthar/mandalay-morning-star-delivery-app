@@ -178,7 +178,7 @@ After fix, these classes work:
 1. Add `--z-index-*` variables to `@theme inline` block
 2. Keep `tailwind.config.ts` zIndex temporarily (no harm, just ignored)
 3. Remove `tailwind.config.ts` zIndex after verifying utility classes work
-4. Remove CSS variable workarounds (`z-[var(--zindex-modal)]`) and use `z-modal`
+4. Remove CSS variable workarounds (arbitrary z-index syntax) and use `z-modal`
 
 ### Verification
 

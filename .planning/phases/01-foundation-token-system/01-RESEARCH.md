@@ -190,7 +190,7 @@ export function InteractiveCard() {
 ### Pattern 4: TailwindCSS 4 @theme Z-Index Utilities
 
 **What:** Define z-index as theme variables that generate first-class utilities
-**When to use:** Replace `z-[var(--z-modal)]` with `z-modal`
+**When to use:** Replace arbitrary z-index syntax with `z-modal` utility
 
 ```css
 /* src/styles/theme.css */
@@ -431,7 +431,7 @@ export const zIndexVar = {
 | `tailwind.config.js` | TailwindCSS 4 `@theme` | 2024 | CSS-first configuration |
 | `framer-motion` package | `motion` package | 2024 | Same API, rebranded |
 | Manual useEffect cleanup | `useGSAP` hook | 2023 | Automatic gsap.context cleanup |
-| `z-[var(--z-modal)]` | `z-modal` via @theme | TailwindCSS 4 | First-class utility generation |
+| arbitrary z-index syntax | `z-modal` via @theme | TailwindCSS 4 | First-class utility generation |
 
 **Deprecated/outdated:**
 - `gsap/all` import pattern - Use individual plugin imports
