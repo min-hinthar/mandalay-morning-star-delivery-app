@@ -120,7 +120,7 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30 pb-24">
+    <div className="min-h-screen bg-muted/30 pb-32">
       <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
         <h1 className="mb-6 text-xl sm:text-2xl font-display font-bold text-foreground">
           Checkout

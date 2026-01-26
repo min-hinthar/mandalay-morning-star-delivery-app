@@ -266,17 +266,81 @@
     animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
-  /* Enhanced glassmorphism for menu cards (16-24px blur per CONTEXT.md) */
+  /* Enhanced glassmorphism for menu cards (30px+ blur per Phase 22 CONTEXT.md) */
   .glass-menu-card {
-    background: color-mix(in srgb, var(--color-surface-primary) 75%, transparent);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    --glass-tint: transparent;
+    background: color-mix(
+      in srgb,
+      color-mix(in srgb, var(--color-surface-primary) 75%, var(--glass-tint)),
+      transparent 25%
+    );
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     border: 1px solid var(--color-border-subtle);
+    transition:
+      backdrop-filter 0.3s ease,
+      background 0.3s ease;
   }
 
-  .glass-menu-card:hover {
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+  .glass-menu-card:hover,
+  .glass-menu-card:focus-within {
+    background: color-mix(
+      in srgb,
+      color-mix(in srgb, var(--color-surface-primary) 80%, var(--glass-tint)),
+      transparent 20%
+    );
+    backdrop-filter: blur(36px);
+    -webkit-backdrop-filter: blur(36px);
+  }
+
+  /* Gradient glow on hover - for cards/buttons */
+  .glow-gradient {
+    position: relative;
+  }
+
+  .glow-gradient::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(164, 16, 52, 0.3),
+      rgba(213, 175, 55, 0.3),
+      rgba(164, 16, 52, 0.3)
+    );
+    opacity: 0;
+    filter: blur(8px);
+    transition: opacity 0.3s ease;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .glow-gradient:hover::before {
+    opacity: 1;
+  }
+
+  /* Dark mode gradient glow */
+  .dark .glow-gradient::before {
+    background: linear-gradient(
+      135deg,
+      rgba(229, 62, 62, 0.4),
+      rgba(229, 181, 35, 0.4),
+      rgba(229, 62, 62, 0.4)
+    );
+  }
+
+  /* Colorful shadow utility */
+  .shadow-colorful {
+    box-shadow:
+      0 4px 14px -3px rgba(164, 16, 52, 0.15),
+      0 8px 26px -5px rgba(213, 175, 55, 0.1);
+  }
+
+  .dark .shadow-colorful {
+    box-shadow:
+      0 4px 14px -3px rgba(229, 62, 62, 0.2),
+      0 8px 26px -5px rgba(229, 181, 35, 0.15);
   }
 
   /* Image zoom on hover container */

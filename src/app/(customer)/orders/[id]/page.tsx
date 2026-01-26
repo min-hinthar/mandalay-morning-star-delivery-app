@@ -170,7 +170,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
     : "Time slot selected";
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-cream to-lotus/30 pt-8 pb-24 px-4">
+    <main className="min-h-screen bg-gradient-to-b from-cream to-lotus/30 pt-8 pb-32 px-4">
       <div className="mx-auto max-w-2xl">
         {/* Back Button */}
         <Button variant="ghost" asChild className="mb-6">
