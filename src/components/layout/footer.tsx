@@ -184,8 +184,8 @@ function WobblingIcon({ icon, href, label }: WobblingIconProps) {
       aria-label={label}
       className={cn(
         "w-10 h-10 flex items-center justify-center rounded-xl",
-        "bg-white/10 hover:bg-white/20 transition-colors",
-        "text-white/80 hover:text-white"
+        "bg-surface-tertiary hover:bg-surface-secondary dark:bg-white/10 dark:hover:bg-white/20 transition-colors",
+        "text-text-secondary hover:text-text-primary dark:text-white/80 dark:hover:text-white"
       )}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
@@ -214,9 +214,9 @@ function GradientBackground() {
 
   return (
     <>
-      {/* Dark footer gradient - intentional custom colors for dark theme (not migrated to tokens) */}
+      {/* Theme-aware footer gradient */}
       <div
-        className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f23]"
+        className="absolute inset-0 bg-gradient-to-br from-surface-tertiary via-surface-secondary to-surface-primary dark:from-[#0a0a0a] dark:via-[#050505] dark:to-black"
       />
 
       {/* Animated color overlay */}
@@ -278,7 +278,7 @@ function NewsletterSignup() {
   return (
     <div className="max-w-md mx-auto">
       <motion.h4
-        className="text-white text-lg font-semibold mb-2"
+        className="text-text-primary dark:text-white text-lg font-semibold mb-2"
         initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
         whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
         viewport={{ once: true }}
@@ -286,7 +286,7 @@ function NewsletterSignup() {
       >
         Stay Updated
       </motion.h4>
-      <p className="text-white/60 text-sm mb-4">
+      <p className="text-text-muted dark:text-white/60 text-sm mb-4">
         Get notified about new menu items and special offers.
       </p>
 
@@ -324,9 +324,9 @@ function NewsletterSignup() {
               placeholder="Enter your email"
               className={cn(
                 "flex-1 px-4 py-2 rounded-xl",
-                "bg-white/10 border border-white/20",
-                "text-white placeholder:text-white/40",
-                "focus:outline-none focus:ring-2 focus:ring-[#D4A017]/50"
+                "bg-surface-secondary border border-border-default dark:bg-white/10 dark:border-white/20",
+                "text-text-primary placeholder:text-text-muted dark:text-white dark:placeholder:text-white/40",
+                "focus:outline-none focus:ring-2 focus:ring-secondary/50"
               )}
               required
             />
@@ -427,7 +427,7 @@ export function Footer({
       >
         {/* Newsletter section */}
         {showNewsletter && (
-          <div className="mb-12 pb-12 border-b border-white/10">
+          <div className="mb-12 pb-12 border-b border-border-default dark:border-white/10">
             <NewsletterSignup />
           </div>
         )}
@@ -454,10 +454,10 @@ export function Footer({
                 height={40}
                 className="object-contain"
               />
-              <span className="text-white font-display font-semibold">{businessInfo.name}</span>
+              <span className="text-text-primary dark:text-white font-display font-semibold">{businessInfo.name}</span>
             </motion.div>
 
-            <div className="space-y-2 text-white/60 text-sm">
+            <div className="space-y-2 text-text-muted dark:text-white/60 text-sm">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-secondary" />
                 <span>{businessInfo.address}</span>
@@ -486,14 +486,14 @@ export function Footer({
               animate={isInView ? "visible" : "hidden"}
               custom={sectionIndex}
             >
-              <h4 className="text-white font-semibold mb-4">{section.title}</h4>
+              <h4 className="text-text-primary dark:text-white font-semibold mb-4">{section.title}</h4>
               <ul className="space-y-2">
                 {section.links.map((link) => (
                   <li key={link.href}>
                     <FooterLink
                       href={link.href}
                       external={link.external}
-                      className="text-white/60 hover:text-white"
+                      className="text-text-muted hover:text-text-primary dark:text-white/60 dark:hover:text-white"
                       underlineColor="#D4A017"
                     >
                       {link.label}
@@ -507,7 +507,7 @@ export function Footer({
 
         {/* Bottom bar */}
         <motion.div
-          className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-white/10"
+          className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border-default dark:border-white/10"
           initial={shouldAnimate ? { opacity: 0 } : undefined}
           animate={shouldAnimate && isInView ? { opacity: 1 } : undefined}
           transition={{ delay: 0.4 }}
@@ -525,12 +525,12 @@ export function Footer({
           </div>
 
           {/* Copyright */}
-          <p className="text-white/40 text-sm flex items-center gap-1">
+          <p className="text-text-muted/60 dark:text-white/40 text-sm flex items-center gap-1">
             {copyright}
             <motion.span
               whileHover={shouldAnimate ? {
                 scale: [1, 1.2, 1],
-                color: ["#fff", "#A41034", "#fff"],
+                color: ["currentColor", "#A41034", "currentColor"],
               } : undefined}
               transition={{ duration: 0.3 }}
             >
