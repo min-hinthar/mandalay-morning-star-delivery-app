@@ -34,7 +34,7 @@ See `.planning/milestones/v1.1-ROADMAP.md` for archived phase details.
 - [x] **Phase 18: Menu Unification** - Unified MenuItemCard across all surfaces ✓
 - [x] **Phase 19: Homepage Redesign** - Video hero, scroll choreography, section redesign ✓
 - [x] **Phase 20: Micro-interactions** - Consistent animations across all components ✓
-- [ ] **Phase 21: Theme Refinements** - Light/dark polish, animated toggle
+- [x] **Phase 21: Theme Refinements** - Light/dark polish, animated toggle ✓
 - [ ] **Phase 22: Customer Page Polish** - Enhanced animations on all customer pages
 - [ ] **Phase 23: Header & Nav Rebuild** - Complete rebuild of header and navigation
 
@@ -170,9 +170,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 21-01-PLAN.md — Color token refinements and footer theme-awareness
-- [ ] 21-02-PLAN.md — Animated theme toggle with circular reveal transition
-- [ ] 21-03-PLAN.md — 3D scene theme-aware lighting adaptation
+- [x] 21-01-PLAN.md — Color token refinements and footer theme-awareness ✓
+- [x] 21-02-PLAN.md — Animated theme toggle with circular reveal transition ✓
+- [x] 21-03-PLAN.md — 3D scene theme-aware lighting adaptation ✓
 
 ---
 
@@ -225,7 +225,7 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 | 18. Menu Unification | v1.2 | 3/3 | Complete | 2026-01-24 |
 | 19. Homepage Redesign | v1.2 | 4/4 | Complete | 2026-01-25 |
 | 20. Micro-interactions | v1.2 | 4/4 | Complete | 2026-01-26 |
-| 21. Theme Refinements | v1.2 | 0/3 | Not started | - |
+| 21. Theme Refinements | v1.2 | 3/3 | Complete | 2026-01-26 |
 | 22. Customer Page Polish | v1.2 | 0/2 | Not started | - |
 | 23. Header & Nav Rebuild | v1.2 | 0/1 | Not started | - |
 
@@ -233,4 +233,4 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-26 - Phase 21 planned (3 plans in 2 waves)*
+*Last updated: 2026-01-26 - Phase 21 complete (3 plans in 2 waves)*
