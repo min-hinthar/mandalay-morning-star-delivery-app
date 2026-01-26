@@ -186,11 +186,12 @@ Plans:
   3. Order history page has list reveal animations
   4. Account page has section animations
   5. All customer pages feel cohesively playful (consistent timing, easing)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 22-01: TBD (menu and checkout animations)
-- [ ] 22-02: TBD (account and order history animations)
+- [ ] 22-01-PLAN.md — Animation foundation updates (80ms stagger, 25% viewport) + Menu page polish
+- [ ] 22-02-PLAN.md — Checkout enhancements (step transitions, stepper glow, form stagger, ErrorShake)
+- [ ] 22-03-PLAN.md — Order History + Cart polish + Enhanced empty states
 
 ---
 
@@ -226,11 +227,11 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 | 19. Homepage Redesign | v1.2 | 4/4 | Complete | 2026-01-25 |
 | 20. Micro-interactions | v1.2 | 4/4 | Complete | 2026-01-26 |
 | 21. Theme Refinements | v1.2 | 3/3 | Complete | 2026-01-26 |
-| 22. Customer Page Polish | v1.2 | 0/2 | Not started | - |
+| 22. Customer Page Polish | v1.2 | 0/3 | Not started | - |
 | 23. Header & Nav Rebuild | v1.2 | 0/1 | Not started | - |
 
-**v1.2 Totals:** 9 phases, ~25 plans, 48+ requirements
+**v1.2 Totals:** 9 phases, ~26 plans, 48+ requirements
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-26 - Phase 21 complete (3 plans in 2 waves)*
+*Last updated: 2026-01-26 - Phase 22 planned (3 plans in 2 waves)*
