@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 20 of 23 (Micro-interactions)
-Plan: 3 of 4 complete
-Status: In progress
-Last activity: 2026-01-26 - Completed 20-03-PLAN.md (Specialized Controls)
+Plan: 4 of 4 complete
+Status: Phase complete
+Last activity: 2026-01-26 - Completed 20-04-PLAN.md (Gap Closure)
 
-Progress: [####################] v1.0-v1.1 complete | [█████████████████░░░] v1.2 74%
+Progress: [####################] v1.0-v1.1 complete | [██████████████████░░] v1.2 79%
 
 ## Milestones Completed
 
@@ -23,15 +23,15 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | v1.0 MVP | 1-8 | 32 | 2026-01-23 |
 | v1.1 Tech Debt | 9-14 | 21 | 2026-01-23 |
 
-**Total completed:** 15 phases, 54 plans
+**Total completed:** 15 phases, 55 plans
 **v1.2 scope:** 9 phases (15-23), ~21 plans, 48+ requirements
-**v1.2 progress:** 4 phases complete, 14 plans done
+**v1.2 progress:** 5 phases complete, 15 plans done
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 67 (v1.0 + v1.1 + v1.2)
-- v1.2 plans completed: 14
+- Total plans completed: 68 (v1.0 + v1.1 + v1.2)
+- v1.2 plans completed: 15
 - Average duration: 10min (Phase 15-20)
 
 **By Phase (v1.2):**
@@ -42,7 +42,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | 16 | 4/4 | 29min | 7.3min |
 | 18 | 3/3 | 53min | 18min |
 | 19 | 4/4 | 27min | 6.8min |
-| 20 | 3/4 | ~23min | 7.7min |
+| 20 | 4/4 | ~35min | 8.8min |
 
 *Updated after each plan completion*
 
@@ -86,6 +86,9 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 - **Rubbery spring for quantity selector (20-03):** spring.rubbery (damping: 8) for satisfying overshoot
 - **AnimatedImage blur-scale (20-03):** blur 20px + scale 1.1 -> clear + scale 1 on load
 - **Web Audio synthesis (20-03):** OscillatorType + GainNode for programmatic sounds
+- **BrandedSpinner size mapping (20-04):** sm for sm/md buttons, md for lg/xl buttons
+- **Button loading integration (20-04):** Use isLoading prop, BrandedSpinner is automatic
+- **ErrorShake form integration (20-04):** Wrap error with ErrorShake, trigger on validation fail
 
 ### Research Findings
 
@@ -137,6 +140,8 @@ From `.planning/research/SUMMARY.md`:
 - **LazyAnimatedImage (20-03):** next/image placeholder + animated reveal combo
 - **Web Audio init pattern (20-03):** lazy AudioContext on first click/touch/keydown
 - **useSoundEffect hook (20-03):** play, toggle, enable, disable with localStorage persistence
+- **AnimatedImage in CardImage (20-04):** Replace next/image for blur-scale reveal on menu cards
+- **AnimatedToggle replaces button (20-04):** Proper switch UX with spring physics
 
 ### Roadmap Evolution
 
@@ -149,10 +154,10 @@ None - all blocking issues from Phase 15 resolved.
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 20-03-PLAN.md (Specialized Controls)
+Stopped at: Completed 20-04-PLAN.md (Gap Closure) - Phase 20 complete
 Resume file: None
-Next action: Continue to 20-04-PLAN.md (Navigation Animations)
+Next action: Continue to Phase 21 (State Transitions) or Phase 23 (Header & Nav Rebuild)
 
 ---
 
-*Updated: 2026-01-26 - Completed 20-03-PLAN.md*
+*Updated: 2026-01-26 - Completed 20-04-PLAN.md - Phase 20 complete*
