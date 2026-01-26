@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 20 of 23 (Micro-interactions)
-Plan: 2 of 4 complete
+Plan: 3 of 4 complete
 Status: In progress
-Last activity: 2026-01-26 - Completed 20-02-PLAN.md (Feedback Components)
+Last activity: 2026-01-26 - Completed 20-03-PLAN.md (Specialized Controls)
 
-Progress: [####################] v1.0-v1.1 complete | [████████████████░░░░] v1.2 70%
+Progress: [####################] v1.0-v1.1 complete | [█████████████████░░░] v1.2 74%
 
 ## Milestones Completed
 
@@ -25,13 +25,13 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 
 **Total completed:** 15 phases, 54 plans
 **v1.2 scope:** 9 phases (15-23), ~21 plans, 48+ requirements
-**v1.2 progress:** 4 phases complete, 13 plans done
+**v1.2 progress:** 4 phases complete, 14 plans done
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 66 (v1.0 + v1.1 + v1.2)
-- v1.2 plans completed: 13
+- Total plans completed: 67 (v1.0 + v1.1 + v1.2)
+- v1.2 plans completed: 14
 - Average duration: 10min (Phase 15-20)
 
 **By Phase (v1.2):**
@@ -42,7 +42,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | 16 | 4/4 | 29min | 7.3min |
 | 18 | 3/3 | 53min | 18min |
 | 19 | 4/4 | 27min | 6.8min |
-| 20 | 2/4 | ~16min | 8min |
+| 20 | 3/4 | ~23min | 7.7min |
 
 *Updated after each plan completion*
 
@@ -83,6 +83,9 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 - **ErrorShake local variants (20-02):** Define shakeVariants and pulseVariants locally for encapsulation
 - **Rubbery spring for checkbox (20-02):** spring.rubbery gives satisfying bounce on check
 - **8-pointed star spinner (20-02):** Morning Star brand as stylized star
+- **Rubbery spring for quantity selector (20-03):** spring.rubbery (damping: 8) for satisfying overshoot
+- **AnimatedImage blur-scale (20-03):** blur 20px + scale 1.1 -> clear + scale 1 on load
+- **Web Audio synthesis (20-03):** OscillatorType + GainNode for programmatic sounds
 
 ### Research Findings
 
@@ -129,6 +132,11 @@ From `.planning/research/SUMMARY.md`:
 - **SVG pathLength animation (20-02):** animate pathLength 0->1 for drawing effect
 - **Error feedback wrapper (20-02):** component wraps children, applies shake + pulse overlay
 - **useErrorShake hook (20-02):** auto-reset state pattern with setTimeout
+- **QuantitySelector dual-spring (20-03):** snappy for buttons, rubbery for number display
+- **AnimatedImage variants (20-03):** blur, fade, scale, blur-scale with configurable blur amount
+- **LazyAnimatedImage (20-03):** next/image placeholder + animated reveal combo
+- **Web Audio init pattern (20-03):** lazy AudioContext on first click/touch/keydown
+- **useSoundEffect hook (20-03):** play, toggle, enable, disable with localStorage persistence
 
 ### Roadmap Evolution
 
@@ -141,10 +149,10 @@ None - all blocking issues from Phase 15 resolved.
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 20-02-PLAN.md (Feedback Components)
+Stopped at: Completed 20-03-PLAN.md (Specialized Controls)
 Resume file: None
-Next action: Continue to 20-03-PLAN.md (Specialized Controls)
+Next action: Continue to 20-04-PLAN.md (Navigation Animations)
 
 ---
 
-*Updated: 2026-01-26 - Completed 20-02-PLAN.md*
+*Updated: 2026-01-26 - Completed 20-03-PLAN.md*
