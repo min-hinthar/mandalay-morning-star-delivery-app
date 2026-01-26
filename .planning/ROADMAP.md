@@ -127,10 +127,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 19-01-PLAN.md — Video hero component + scroll choreography infrastructure
-- [ ] 19-02-PLAN.md — How It Works section (merged Coverage) + Testimonials carousel
-- [ ] 19-03-PLAN.md — CTA Banner + Footer animations
-- [ ] 19-04-PLAN.md — Homepage integration + section nav dots + scroll snap
+- [x] 19-01-PLAN.md — Video hero component + scroll choreography infrastructure ✓
+- [x] 19-02-PLAN.md — How It Works section (merged Coverage) + Testimonials carousel ✓
+- [x] 19-03-PLAN.md — CTA Banner + Footer animations ✓
+- [x] 19-04-PLAN.md — Homepage integration + section nav dots + scroll snap ✓
 
 ---
 
@@ -147,12 +147,12 @@ Plans:
   6. Skeleton loading has premium shimmer effect
   7. Quantity selectors have rubbery spring overshoot
   8. Favorite heart toggle has particle burst effect
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 20-01: TBD (button and input animations)
-- [ ] 20-02: TBD (feedback animations - success, error, loading)
-- [ ] 20-03: TBD (specialized interactions - quantity, favorites, swipe)
+- [ ] 20-01-PLAN.md — Button/input/toggle animations with motion token extensions
+- [ ] 20-02-PLAN.md — Branded spinner, error shake, checkbox animations
+- [ ] 20-03-PLAN.md — Quantity selector rubbery spring, animated image, sound effects
 
 ---
 
@@ -221,8 +221,8 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 | 16. 3D Hero Core | v1.2 | 4/4 | Complete | 2026-01-24 |
 | 17. 3D Hero Advanced | v1.2 | 0/2 | Not started | - |
 | 18. Menu Unification | v1.2 | 3/3 | Complete | 2026-01-24 |
-| 19. Homepage Redesign | v1.2 | 0/4 | Not started | - |
-| 20. Micro-interactions | v1.2 | 0/3 | Not started | - |
+| 19. Homepage Redesign | v1.2 | 4/4 | Complete | 2026-01-25 |
+| 20. Micro-interactions | v1.2 | 0/3 | Planned | - |
 | 21. Theme Refinements | v1.2 | 0/2 | Not started | - |
 | 22. Customer Page Polish | v1.2 | 0/2 | Not started | - |
 | 23. Header & Nav Rebuild | v1.2 | 0/1 | Not started | - |
@@ -231,4 +231,4 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-24 - Phase 19 planned (4 plans)*
+*Last updated: 2026-01-25 - Phase 20 planned (3 plans)*
