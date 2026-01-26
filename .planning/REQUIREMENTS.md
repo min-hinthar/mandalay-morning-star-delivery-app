@@ -47,18 +47,18 @@ Requirements for v1.2 milestone. Each maps to roadmap phases.
 
 ### Micro-interactions
 
-- [ ] **MICRO-01**: All buttons have consistent press compression animation
-- [ ] **MICRO-02**: All inputs have focus glow/pulse animation
-- [ ] **MICRO-03**: Toggle switches have bouncy animation
-- [ ] **MICRO-04**: Branded loading spinner (bowl, chopsticks, or star themed)
-- [ ] **MICRO-05**: Success states have checkmark draw animation
-- [ ] **MICRO-06**: Error states have shake animation
-- [ ] **MICRO-07**: Skeleton loading has premium shimmer effect
-- [ ] **MICRO-08**: Quantity selector has rubbery spring overshoot
-- [ ] **MICRO-09**: Image reveals have blur-to-sharp + scale effect
-- [ ] **MICRO-10**: Swipe gestures respond to velocity
-- [ ] **MICRO-11**: Price changes animate digit-by-digit
-- [ ] **MICRO-12**: Favorite heart toggle has particle burst
+- [x] **MICRO-01**: All buttons have consistent press compression animation ✓
+- [x] **MICRO-02**: All inputs have focus glow/pulse animation ✓
+- [x] **MICRO-03**: Toggle switches have bouncy animation ✓
+- [x] **MICRO-04**: Branded loading spinner (bowl, chopsticks, or star themed) ✓
+- [x] **MICRO-05**: Success states have checkmark draw animation ✓
+- [x] **MICRO-06**: Error states have shake animation ✓
+- [x] **MICRO-07**: Skeleton loading has premium shimmer effect ✓
+- [x] **MICRO-08**: Quantity selector has rubbery spring overshoot ✓
+- [x] **MICRO-09**: Image reveals have blur-to-sharp + scale effect ✓
+- [x] **MICRO-10**: Swipe gestures respond to velocity ✓
+- [x] **MICRO-11**: Price changes animate digit-by-digit ✓
+- [x] **MICRO-12**: Favorite heart toggle has particle burst ✓
 
 ### Theme Refinements
 
