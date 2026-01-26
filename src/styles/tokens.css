@@ -315,14 +315,22 @@
    ============================================ */
 
 /* CONTRAST VERIFICATION (WCAG AA = 4.5:1 min)
+ *
  * Light mode:
  *   text-primary (#111) on surface-primary (#FFF): ~21:1 OK
  *   text-secondary (#3B3B3B) on surface-secondary (#FAFAFA): ~8.5:1 OK
  *   text-muted (#6B6B6B) on surface-tertiary (#F5F5F5): ~4.6:1 OK
+ *
  * Dark mode:
  *   text-primary (#F8F7F6) on surface-primary (#000): ~20:1 OK
  *   text-secondary (#C5C3C0) on surface-secondary (#0a0a0a): ~12:1 OK
  *   text-muted (#9A9794) on surface-tertiary (#141414): ~6.2:1 OK
+ *
+ * Footer-specific (dark mode):
+ *   footer-text (#e0e0e0) on footer-bg (#0a0a0a): ~15:1 OK
+ *   footer-text-muted (#a0a0a0) on footer-bg (#0a0a0a): ~9.5:1 OK
+ *
+ * All combinations meet WCAG AA (4.5:1) for normal text.
  */
 
 [data-theme="dark"],
