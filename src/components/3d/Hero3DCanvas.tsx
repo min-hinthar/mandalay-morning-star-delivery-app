@@ -2,7 +2,8 @@
 
 import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Environment, ContactShadows } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
+import { ThemeAwareLighting } from "./ThemeAwareLighting";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { Hero3DLoader } from "./loaders/Hero3DLoader";
 import { FoodModel } from "./models/FoodModel";
@@ -66,19 +67,8 @@ export function Hero3DCanvas() {
           autoRotate={false}
         />
 
-        {/* Studio lighting - Environment handles ambient + reflections */}
-        <Environment preset="studio" />
-
-        {/* Contact shadow for grounding */}
-        <ContactShadows
-          opacity={0.4}
-          scale={10}
-          blur={2}
-          position={[0, -1, 0]}
-        />
-
-        {/* Ambient fill light */}
-        <ambientLight intensity={0.3} />
+        {/* Theme-aware lighting - adapts to light/dark mode */}
+        <ThemeAwareLighting />
       </Suspense>
     </Canvas>
   );
