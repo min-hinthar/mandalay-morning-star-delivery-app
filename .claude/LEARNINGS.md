@@ -336,6 +336,54 @@ Google Fonts 403 errors in sandboxed environments are infrastructure issues, not
 
 ---
 
+## State Mutation Patterns
+
+### Single Mutation Owner Principle
+Action buttons that accept callbacks should NOT also perform the same action directly. Exactly one component should own state mutation for any user action.
+
+```tsx
+// ❌ Double mutation - component AND parent both mutate
+const AddButton = ({ onAdd }) => {
+  const handleClick = () => {
+    addToStore(item);  // Component mutates
+    onAdd?.();         // Callback may ALSO mutate
+  };
+};
+
+// ✅ Single owner - parent owns mutation
+const AddButton = ({ onAdd }) => {
+  const handleClick = () => {
+    playAnimation();   // UI only
+    onAdd?.();         // Parent decides what to do
+  };
+};
+```
+
+**Apply when:** Creating action buttons with callbacks, especially for mutations (cart, favorites, forms).
+
+### Cart Item Deduplication by Signature
+Create unique signature from (menuItemId + modifiers + notes) for cart deduplication:
+
+```tsx
+function createItemSignature(item: {
+  menuItemId: string;
+  modifiers: SelectedModifier[];
+  notes: string;
+}): string {
+  const sortedModifiers = [...item.modifiers]
+    .sort((a, b) => a.optionId.localeCompare(b.optionId))
+    .map((m) => m.optionId)
+    .join("|");
+  return `${item.menuItemId}::${sortedModifiers}::${item.notes.trim()}`;
+}
+```
+
+Merge quantities for matching signatures instead of creating duplicate entries.
+
+**Apply when:** Cart stores, wishlists, or any collection where duplicates should merge.
+
+---
+
 ## Component Organization
 
 ### V8 Barrel Export Pattern

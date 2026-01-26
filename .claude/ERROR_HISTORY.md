@@ -134,3 +134,37 @@ const DropdownMenu = ({ children }) => {
 **Prevention:** Click-outside refs must contain ALL interactive elements of the component.
 
 ---
+
+## 2026-01-26: Double-Add Cart Items (Button + Callback Both Mutate)
+**Type:** Logic | **Severity:** High
+
+**Files:** `src/components/ui-v8/cart/AddToCartButton.tsx`, `src/components/ui-v8/menu/MenuContentV8.tsx`, `src/components/homepage/HomepageMenuSection.tsx`
+
+**Error:** Menu items with required modifiers added to cart with quantity 2 instead of 1. User selects one item, cart shows two.
+
+**Root Cause:** `AddToCartButton.handleClick()` called `addItem()` directly, THEN called `onAdd()` callback. Parent's callback chain also called `addItem()` → double mutation.
+
+```tsx
+// BROKEN - component mutates AND triggers callback that also mutates
+const handleClick = async () => {
+  addItem({ ...item });  // First add
+  onAdd?.();             // Parent's onAdd also calls addItem() → Second add
+};
+```
+
+**Fix:** UI components should ONLY handle presentation; delegate mutations to parent via callback:
+
+```tsx
+// WORKING - component only triggers callback, parent handles mutation
+const handleClick = async () => {
+  // Animation, haptic, etc.
+  onAdd?.();  // Parent is SOLE owner of cart mutation
+};
+```
+
+**Prevention:**
+1. Button components that accept mutation callbacks should NOT also perform the mutation
+2. One owner principle: exactly ONE place should call `addItem()` for any user action
+3. When adding callbacks to existing components, audit whether component already performs the action
+
+---
