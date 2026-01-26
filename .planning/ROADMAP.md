@@ -167,11 +167,12 @@ Plans:
   3. Theme toggle animates sun/moon icon morph
   4. Theme switch has smooth circular reveal transition
   5. 3D scene lighting adapts to light/dark theme
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 21-01: TBD (color token fixes)
-- [ ] 21-02: TBD (animated theme toggle and transition)
+- [ ] 21-01-PLAN.md — Color token refinements and footer theme-awareness
+- [ ] 21-02-PLAN.md — Animated theme toggle with circular reveal transition
+- [ ] 21-03-PLAN.md — 3D scene theme-aware lighting adaptation
 
 ---
 
@@ -224,12 +225,12 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 | 18. Menu Unification | v1.2 | 3/3 | Complete | 2026-01-24 |
 | 19. Homepage Redesign | v1.2 | 4/4 | Complete | 2026-01-25 |
 | 20. Micro-interactions | v1.2 | 4/4 | Complete | 2026-01-26 |
-| 21. Theme Refinements | v1.2 | 0/2 | Not started | - |
+| 21. Theme Refinements | v1.2 | 0/3 | Not started | - |
 | 22. Customer Page Polish | v1.2 | 0/2 | Not started | - |
 | 23. Header & Nav Rebuild | v1.2 | 0/1 | Not started | - |
 
-**v1.2 Totals:** 9 phases, ~24 plans, 48+ requirements
+**v1.2 Totals:** 9 phases, ~25 plans, 48+ requirements
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-26 - Phase 20 complete (all micro-interactions verified)*
+*Last updated: 2026-01-26 - Phase 21 planned (3 plans in 2 waves)*
