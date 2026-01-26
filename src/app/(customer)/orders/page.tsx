@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
+import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
-import { Package, ShoppingBag } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
-import { OrderCard } from "@/components/orders/OrderCard";
+import { OrdersHeader } from "@/components/orders/OrdersHeader";
+import { OrderListAnimated } from "@/components/orders/OrderListAnimated";
 import type { OrderStatus } from "@/types/order";
 
 interface OrderRow {
@@ -54,22 +55,15 @@ export default async function OrdersPage() {
   }));
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-surface-secondary to-surface-primary pt-8 pb-32 px-4">
+    <main
+      className="min-h-screen bg-gradient-to-b from-surface-secondary to-surface-primary pt-8 pb-32 px-4"
+      style={{ viewTransitionName: "orders-page" }}
+    >
       <div className="mx-auto max-w-2xl">
-        {/* V6 Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="rounded-full bg-primary-light p-2.5">
-              <Package className="h-6 w-6 text-primary" />
-            </div>
-            <h1 className="text-2xl font-display font-bold text-text-primary">Your Orders</h1>
-          </div>
-          <Button asChild variant="primary">
-            <Link href="/menu">Order Again</Link>
-          </Button>
-        </div>
+        {/* Animated Header (client component) */}
+        <OrdersHeader />
 
-        {/* V6 Orders List */}
+        {/* Orders List with scroll reveal or empty state */}
         {orders.length === 0 ? (
           <div className="text-center py-16">
             <div className="rounded-full bg-surface-tertiary w-20 h-20 mx-auto flex items-center justify-center mb-6">
@@ -84,11 +78,7 @@ export default async function OrdersPage() {
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
-            {orders.map((order, index) => (
-              <OrderCard key={order.id} order={order} index={index} />
-            ))}
-          </div>
+          <OrderListAnimated orders={orders} />
         )}
       </div>
     </main>
