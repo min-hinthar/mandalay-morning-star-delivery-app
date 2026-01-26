@@ -174,13 +174,16 @@ export function CategoryTabsV8({
               : activeCategory === tab.slug;
 
           return (
-            <button
+            <motion.button
               key={tab.slug ?? "all"}
               ref={isActive ? activeTabRef : null}
               role="tab"
               aria-selected={isActive}
               aria-controls={tab.slug ? `category-${tab.slug}` : undefined}
               onClick={() => handleTabClick(tab.slug)}
+              whileHover={shouldAnimate && !isActive ? { scale: 1.05 } : undefined}
+              whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+              transition={shouldAnimate ? spring.snappy : { duration: 0 }}
               className={cn(
                 "relative flex-shrink-0",
                 "rounded-pill px-5 py-2.5 min-h-[44px]",
@@ -204,7 +207,7 @@ export function CategoryTabsV8({
               <span className="relative z-0">
                 {tab.nameEn || tab.name}
               </span>
-            </button>
+            </motion.button>
           );
         })}
       </div>

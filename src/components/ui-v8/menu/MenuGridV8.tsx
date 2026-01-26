@@ -6,9 +6,10 @@
  *
  * Features:
  * - Uses UnifiedMenuItemCard with glassmorphism and 3D tilt
- * - Framer Motion staggered scroll-reveal animation
+ * - Framer Motion staggered scroll-reveal animation (80ms per Phase 22)
  * - Responsive grid: 1 col mobile, 2 sm, 3 lg (per CONTEXT.md)
- * - Plays once (no reverse on scroll back)
+ * - Animations replay on scroll re-enter (viewport.once: false)
+ * - Individual item stagger with gradient glow on hover
  *
  * @example
  * <MenuGridV8
@@ -23,6 +24,7 @@ import { useRef } from "react";
 import { motion } from "framer-motion";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
+import { staggerDelay, VIEWPORT_AMOUNT } from "@/lib/motion-tokens";
 import { UnifiedMenuItemCard } from "@/components/menu/UnifiedMenuItemCard";
 import type { MenuItem } from "@/types/menu";
 
@@ -74,11 +76,15 @@ export function MenuGridV8({
         <motion.div
           key={item.id}
           data-menu-card={item.id}
+          className="glow-gradient rounded-2xl"
           initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
           whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-          viewport={{ once: true, margin: "-50px" }}
+          viewport={{
+            once: false, // Replay on scroll re-enter per Phase 22 CONTEXT
+            amount: VIEWPORT_AMOUNT, // 25% visible to trigger
+          }}
           transition={{
-            delay: Math.min(index * 0.08, 0.64),
+            delay: staggerDelay(index), // 80ms per item, capped at 500ms
             duration: 0.55,
           }}
         >
