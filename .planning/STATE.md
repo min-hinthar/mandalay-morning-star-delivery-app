@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 21 of 23 (Theme Refinements)
-Plan: 2 of 3 complete
-Status: In progress
-Last activity: 2026-01-26 - Completed 21-02-PLAN.md (Animated Theme Toggle)
+Plan: 3 of 3 complete
+Status: Phase complete
+Last activity: 2026-01-26 - Completed 21-03-PLAN.md (Theme-Aware 3D Lighting)
 
-Progress: [####################] v1.0-v1.1 complete | [███████████████████░] v1.2 84%
+Progress: [####################] v1.0-v1.1 complete | [████████████████████░] v1.2 88%
 
 ## Milestones Completed
 
@@ -25,7 +25,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 
 **Total completed:** 15 phases, 55 plans
 **v1.2 scope:** 9 phases (15-23), ~21 plans, 48+ requirements
-**v1.2 progress:** 5 phases complete, 17 plans done
+**v1.2 progress:** 6 phases complete, 18 plans done
 
 ## Performance Metrics
 
@@ -43,7 +43,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | 18 | 3/3 | 53min | 18min |
 | 19 | 4/4 | 27min | 6.8min |
 | 20 | 4/4 | ~35min | 8.8min |
-| 21 | 2/3 | ~20min | 10min |
+| 21 | 3/3 | ~25min | 8.3min |
 
 *Updated after each plan completion*
 
@@ -93,6 +93,8 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 - **Binary theme toggle (21-02):** Light/dark only; system mode via OS settings
 - **View Transitions circular reveal (21-02):** cubic-bezier(0.34, 1.56, 0.64, 1) spring easing
 - **Theme sounds (21-02):** Web Audio synthesis - A5/E6 chime (light), A3 tone (dark)
+- **3D lighting lerp factor (21-03):** delta * 4 for ~500ms smooth transitions
+- **3D theme colors (21-03):** Warm yellow (#fef3c7) light mode, cool blue-gray (#4a5568) dark mode
 
 ### Research Findings
 
@@ -149,6 +151,8 @@ From `.planning/research/SUMMARY.md`:
 - **useThemeTransition hook (21-02):** View Transitions API with 300ms debounce, reduced motion fallback
 - **SVG icon morph (21-02):** AnimatePresence mode="wait" with spring transition (stiffness 500, damping 25)
 - **Theme toggle styling (21-02):** Border in light mode, primary glow shadow in dark mode
+- **ThemeAwareLighting (21-03):** useFrame lerping for smooth 3D theme transitions
+- **ContactShadows adaptive (21-03):** opacity/blur/color based on theme
 
 ### Roadmap Evolution
 
@@ -161,10 +165,10 @@ None - all blocking issues from Phase 15 resolved.
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 21-02-PLAN.md (Animated Theme Toggle)
+Stopped at: Completed 21-03-PLAN.md (Theme-Aware 3D Lighting)
 Resume file: None
-Next action: Continue to Phase 21-03 (Page Transitions) or Phase 22 (State Transitions)
+Next action: Continue to Phase 22 (State Transitions)
 
 ---
 
-*Updated: 2026-01-26 - Completed 21-02-PLAN.md - Phase 21 in progress*
+*Updated: 2026-01-26 - Completed 21-03-PLAN.md - Phase 21 complete*
