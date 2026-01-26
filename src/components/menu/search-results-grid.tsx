@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import type { MenuItem } from "@/types/menu";
 import { UnifiedMenuItemCard } from "./UnifiedMenuItemCard";
-import { MenuEmptyState } from "./menu-empty-state";
+import { MenuEmptyState } from "./MenuEmptyState";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 interface SearchResultsGridProps {

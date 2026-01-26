@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { HeaderClient } from "./HeaderClient";
-import type { UserRole } from "./nav-links";
+import type { UserRole } from "./NavLinks";
 import type { ReactElement } from "react";
 
 async function getUserRole(userId: string | undefined): Promise<UserRole> {

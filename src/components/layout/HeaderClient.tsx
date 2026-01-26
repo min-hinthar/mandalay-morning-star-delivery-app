@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { Header, HeaderSpacer } from "./header";
 import { MobileNav } from "./MobileNav";
-import { UserMenu } from "@/components/auth/user-menu";
+import { UserMenu } from "@/components/auth/UserMenu";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { CartButtonV8 } from "@/components/ui-v8/cart";
-import type { UserRole } from "./nav-links";
+import type { UserRole } from "./NavLinks";
 import { Home, UtensilsCrossed, Package, ShieldCheck, Truck } from "lucide-react";
 
 interface HeaderClientProps {

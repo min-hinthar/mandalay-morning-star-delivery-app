@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { SignupForm } from "@/components/auth/signup-form";
+import { SignupForm } from "@/components/auth/SignupForm";
 import type { ReactElement } from "react";
 
 export default async function SignupPage(): Promise<ReactElement> {

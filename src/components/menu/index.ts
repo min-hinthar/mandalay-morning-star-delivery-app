@@ -1,10 +1,10 @@
 export { CategoryTabs } from "./category-tabs";
-export { MenuGrid } from "./menu-grid";
+export { MenuGrid } from "./MenuGrid";
 export { MenuHeader } from "./menu-header";
 export { MenuSection } from "./menu-section";
 export { MenuSkeleton } from "./menu-skeleton";
-export { MenuEmptyState } from "./menu-empty-state";
+export { MenuEmptyState } from "./MenuEmptyState";
 export { SearchResultsGrid } from "./search-results-grid";
-export { SearchInput } from "./search-input";
-export { ModifierGroup } from "./modifier-group";
-export { QuantitySelector } from "./quantity-selector";
+export { SearchInput } from "./SearchInput";
+export { ModifierGroup } from "./ModifierGroup";
+export { QuantitySelector } from "./QuantitySelector";

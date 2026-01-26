@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
+import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
 import type { ReactElement } from "react";
 
 export default async function ForgotPasswordPage(): Promise<ReactElement> {
