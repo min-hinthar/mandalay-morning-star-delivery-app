@@ -1,10 +1,10 @@
 "use client";
 
 import { motion, MotionValue, useTransform } from "framer-motion";
-import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { getCategoryEmoji } from "@/components/ui-v8/menu/EmojiPlaceholder";
+import { AnimatedImage } from "@/components/ui/animated-image";
 
 // ============================================
 // TYPES
@@ -86,12 +86,13 @@ export function CardImage({
         transition={{ duration: 0.3 }}
       >
         {imageUrl ? (
-          <Image
+          <AnimatedImage
             src={imageUrl}
             alt={alt}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             priority={priority}
+            variant="blur-scale"
             className="object-cover"
           />
         ) : (
