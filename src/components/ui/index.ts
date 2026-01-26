@@ -202,19 +202,6 @@ export {
 } from "./EmptyState";
 export type { EmptyStateProps, EmptyStateVariant } from "./EmptyState";
 
-// Error State
-export {
-  ErrorState,
-  NotFoundError,
-  PaymentError,
-  NetworkError,
-  ServerError,
-} from "./ErrorState";
-export type { ErrorStateProps, ErrorStateVariant } from "./ErrorState";
-
-// Error Banner
-export { ErrorBanner } from "./ErrorBanner";
-export type { ErrorBannerProps } from "./ErrorBanner";
 
 // ============================================
 // DISPLAY COMPONENTS
@@ -245,5 +232,3 @@ export { ScrollArea } from "./scroll-area";
 // Theme Toggle
 export { ThemeToggle } from "./theme-toggle";
 
-// Skip Link (a11y)
-export { SkipLink } from "./SkipLink";

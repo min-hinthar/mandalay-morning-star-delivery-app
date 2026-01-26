@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import type { MenuCategory, MenuItem } from "@/types/menu";
 import { MenuSection } from "./menu-section";
-import { MenuEmptyState } from "./menu-empty-state";
+import { MenuEmptyState } from "./MenuEmptyState";
 
 interface MenuGridProps {
   categories: MenuCategory[];

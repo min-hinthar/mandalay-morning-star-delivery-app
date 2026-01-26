@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CartButtonV8 } from "@/components/ui-v8/cart";
-import { SearchInput } from "./search-input";
+import { SearchInput } from "./SearchInput";
 import { useScrollDirection } from "@/lib/hooks/useScrollDirection";
 import { cn } from "@/lib/utils/cn";
 

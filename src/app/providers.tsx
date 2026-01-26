@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { CartDrawerV8, FlyToCart } from "@/components/ui-v8/cart";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { DynamicThemeProvider } from "@/components/theme/DynamicThemeProvider";
 
 interface ProvidersProps {

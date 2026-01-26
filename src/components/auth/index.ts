@@ -1,8 +1,8 @@
-export { LoginForm } from "./login-form";
-export { SignupForm } from "./signup-form";
-export { ForgotPasswordForm } from "./forgot-password-form";
-export { ResetPasswordForm } from "./reset-password-form";
-export { UserMenu } from "./user-menu";
+export { LoginForm } from "./LoginForm";
+export { SignupForm } from "./SignupForm";
+export { ForgotPasswordForm } from "./ForgotPasswordForm";
+export { ResetPasswordForm } from "./ResetPasswordForm";
+export { UserMenu } from "./UserMenu";
 
 // Auth Modal
 export { AuthModal, AuthModal as AuthModalV7 } from "./AuthModal";

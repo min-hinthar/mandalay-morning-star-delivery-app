@@ -100,6 +100,46 @@ const contextValue = useMemo(() => ({
 
 ---
 
+## 2026-01-25: Windows Git Case-Sensitive Rename
+
+**Context:** Renaming component files from kebab-case to PascalCase (e.g., `login-form.tsx` → `LoginForm.tsx`)
+**Learning:** Windows filesystem is case-insensitive, but Git is case-sensitive. Direct rename (`git mv file.tsx File.tsx`) fails silently or causes tracking issues.
+
+**Fix:** Two-step rename through intermediate name:
+```bash
+git mv login-form.tsx login-form.tsx.tmp && git mv login-form.tsx.tmp LoginForm.tsx
+```
+
+**Apply when:** Renaming files with only casing changes on Windows.
+
+---
+
+## 2026-01-25: Component Deletion Requires Barrel Cleanup
+
+**Context:** Deleting unused components left their barrel file exports dangling
+**Learning:** When deleting component files, also:
+1. Remove exports from `index.ts` barrel files
+2. Check for any imports across codebase (`grep "from.*ComponentName"`)
+3. Verify deletion didn't break type exports
+
+**Gotcha:** Exploration tools may report components as "unused" when only imported via barrel file re-exports. Always verify actual usage before deletion.
+
+**Deletion Checklist:**
+```bash
+# 1. Find all imports
+grep -r "from.*ComponentName" src --include="*.tsx" --include="*.ts"
+# 2. Delete file
+rm src/components/path/ComponentName.tsx
+# 3. Remove from barrel
+# Edit index.ts to remove export
+# 4. Typecheck
+pnpm typecheck
+```
+
+**Apply when:** Deleting any exported component or utility.
+
+---
+
 ## TailwindCSS 4 Patterns (Consolidated)
 
 ### Auto-Content Detection

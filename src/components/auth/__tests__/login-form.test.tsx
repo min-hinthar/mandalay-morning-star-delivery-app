@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { Mock } from "vitest";
-import { LoginForm } from "../login-form";
+import { LoginForm } from "../LoginForm";
 import { signIn } from "@/lib/supabase/actions";
 
 vi.mock("@/lib/supabase/actions", () => ({
