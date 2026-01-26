@@ -128,13 +128,22 @@ export function AddToCartButton({
   disabled = false,
 }: AddToCartButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const lastAddTimeRef = useRef<number>(0);
   const { fly, isAnimating } = useFlyToCart();
   const { addItem } = useCart();
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   const [state, setState] = useState<"idle" | "loading" | "success">("idle");
 
+  // Debounce interval to prevent duplicate additions from rapid clicks
+  const DEBOUNCE_MS = 500;
+
   const handleClick = useCallback(async () => {
+    // Debounce guard for rapid clicks
+    const now = Date.now();
+    if (now - lastAddTimeRef.current < DEBOUNCE_MS) return;
+    lastAddTimeRef.current = now;
+
     if (state !== "idle" || disabled) return;
 
     // Start animation
