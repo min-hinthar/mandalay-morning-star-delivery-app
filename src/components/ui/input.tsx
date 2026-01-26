@@ -2,14 +2,20 @@
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { motion } from "framer-motion";
+
 import { cn } from "@/lib/utils/cn";
+import { spring, inputFocus } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 /**
- * V6 Input System - Pepper Aesthetic
- * Rounded corners, clear focus states, V6 color palette
+ * V7 Input System - Pepper Aesthetic with Framer Motion
+ * Rounded corners, animated focus glow, V6 color palette
  *
  * Height: 44px default, 12px border radius
  * Variants: default, error, success
+ *
+ * Motion: Focus animates contextual glow (amber/red/green)
  */
 const inputVariants = cva(
   [
@@ -24,10 +30,10 @@ const inputVariants = cva(
     "rounded-input",
     // Placeholder
     "placeholder:text-text-muted",
-    // V6 Motion
-    "transition-all duration-normal ease-default",
-    // V6 Focus: Primary red ring
-    "focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20",
+    // V6 Motion (CSS fallback for color transitions)
+    "transition-colors duration-normal ease-default",
+    // V6 Focus: Primary red ring (CSS fallback)
+    "focus-visible:outline-none focus-visible:border-primary",
     // Disabled state
     "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-surface-tertiary",
     // File input styling
@@ -45,12 +51,12 @@ const inputVariants = cva(
         default: "",
         error: [
           "border-status-error",
-          "focus-visible:border-status-error focus-visible:ring-status-error/20",
+          "focus-visible:border-status-error",
           "bg-status-error-bg",
         ].join(" "),
         success: [
           "border-green",
-          "focus-visible:border-green focus-visible:ring-green/20",
+          "focus-visible:border-green",
           "bg-green-light",
         ].join(" "),
       },
@@ -62,8 +68,14 @@ const inputVariants = cva(
   }
 );
 
+// Omit conflicting event handlers from React's InputHTMLAttributes
+type InputHTMLProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "size" | "onDrag" | "onDragEnd" | "onDragStart" | "onAnimationStart"
+>;
+
 export interface InputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">,
+  extends InputHTMLProps,
     VariantProps<typeof inputVariants> {
   /** Error message to display below input */
   error?: string;
@@ -72,18 +84,43 @@ export interface InputProps
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, size, variant, error, helperText, ...props }, ref) => {
+  ({ className, type, size, variant, error, helperText, onFocus, onBlur, ...props }, ref) => {
+    const { shouldAnimate } = useAnimationPreference();
+    const [isFocused, setIsFocused] = React.useState(false);
+
     const hasError = Boolean(error);
     const effectiveVariant = hasError ? "error" : variant;
 
+    // Determine the appropriate glow color based on variant
+    const getGlowStyle = () => {
+      if (!isFocused) return inputFocus.initial;
+      if (effectiveVariant === "error") return inputFocus.error;
+      if (effectiveVariant === "success") return inputFocus.success;
+      return inputFocus.focus;
+    };
+
+    const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+      setIsFocused(true);
+      onFocus?.(e);
+    };
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      setIsFocused(false);
+      onBlur?.(e);
+    };
+
     return (
       <div className="w-full">
-        <input
+        <motion.input
           type={type}
           className={cn(inputVariants({ size, variant: effectiveVariant, className }))}
           ref={ref}
           aria-invalid={hasError}
           aria-describedby={hasError ? `${props.id}-error` : helperText ? `${props.id}-helper` : undefined}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          animate={shouldAnimate ? getGlowStyle() : undefined}
+          transition={shouldAnimate ? spring.snappyButton : undefined}
           {...props}
         />
         {error && (
