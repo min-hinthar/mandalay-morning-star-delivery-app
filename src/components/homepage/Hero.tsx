@@ -200,7 +200,7 @@ function HeroContent({
   }, []);
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[100svh] px-4 py-24">
+    <div className="relative flex flex-col items-center justify-center min-h-[100svh] px-4 pt-28 pb-24 md:pt-24">
       <div className="max-w-4xl mx-auto text-center">
         {/* Brand Mascot */}
         {showMascot && isMounted && (

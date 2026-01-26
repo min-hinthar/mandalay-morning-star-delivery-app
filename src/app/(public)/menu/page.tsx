@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function MenuPage() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background pb-24">
       <MenuContentV8 />
     </main>
   );

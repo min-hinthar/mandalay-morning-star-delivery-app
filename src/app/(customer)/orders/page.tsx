@@ -54,7 +54,7 @@ export default async function OrdersPage() {
   }));
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-surface-secondary to-surface-primary py-8 px-4">
+    <main className="min-h-screen bg-gradient-to-b from-surface-secondary to-surface-primary pt-8 pb-24 px-4">
       <div className="mx-auto max-w-2xl">
         {/* V6 Header */}
         <div className="flex items-center justify-between mb-8">
