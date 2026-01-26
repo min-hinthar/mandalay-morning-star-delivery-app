@@ -29,9 +29,19 @@ import { BottomSheet } from "@/components/ui-v8/BottomSheet";
 import { AddressCardV8 } from "./AddressCardV8";
 import { AddressFormV8 } from "./AddressFormV8";
 import { Button } from "@/components/ui/button";
-import { staggerContainer, staggerItem } from "@/lib/motion-tokens";
+import { staggerContainer, staggerItem, spring } from "@/lib/motion-tokens";
 import type { Address } from "@/types/address";
 import type { AddressFormValues } from "@/lib/validations/address";
+
+/** Button entry animation variant */
+const buttonEntry = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 },
+  },
+};
 
 type FormMode = "add" | "edit";
 
@@ -52,7 +62,7 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
 
   const { address, setAddress, nextStep: storeNextStep, canProceed } = useCheckoutStore();
   const handleNext = onNext || storeNextStep;
-  const { shouldAnimate } = useAnimationPreference();
+  const { shouldAnimate, getSpring } = useAnimationPreference();
 
   // 639px breakpoint for exact 640px desktop threshold (per project decision)
   const isMobile = useMediaQuery("(max-width: 639px)");
@@ -143,9 +153,14 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
+    <motion.div
+      className="space-y-6"
+      variants={shouldAnimate ? staggerContainer(0.08, 0.1) : undefined}
+      initial={shouldAnimate ? "hidden" : undefined}
+      animate={shouldAnimate ? "visible" : undefined}
+    >
+      {/* Header with stagger */}
+      <motion.div variants={shouldAnimate ? staggerItem : undefined}>
         <div className="flex items-center gap-2 mb-1">
           <MapPin className="h-5 w-5 text-primary" />
           <h2 className="font-display text-lg font-semibold text-foreground">
@@ -155,11 +170,11 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
         <p className="font-body text-sm text-muted-foreground">
           Select or add a delivery address
         </p>
-      </div>
+      </motion.div>
 
       {/* Skeleton loading state */}
       {isLoading && (
-        <div className="space-y-3">
+        <motion.div variants={shouldAnimate ? staggerItem : undefined} className="space-y-3">
           {[1, 2].map((i) => (
             <div
               key={i}
@@ -175,21 +190,21 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
               </div>
             </div>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* Address cards with stagger animation */}
       {!isLoading && addresses.length > 0 && (
         <motion.div
-          variants={shouldAnimate ? staggerContainer(0.08) : undefined}
-          initial={shouldAnimate ? "hidden" : undefined}
-          animate={shouldAnimate ? "visible" : undefined}
+          variants={shouldAnimate ? staggerItem : undefined}
           className="space-y-3"
         >
-          {addresses.map((addr) => (
+          {addresses.map((addr, idx) => (
             <motion.div
               key={addr.id}
-              variants={shouldAnimate ? staggerItem : undefined}
+              initial={shouldAnimate ? { opacity: 0, y: 16 } : undefined}
+              animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+              transition={{ delay: idx * 0.08, ...getSpring(spring.default) }}
             >
               <AddressCardV8
                 address={addr}
@@ -205,22 +220,30 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
 
       {/* Empty state */}
       {!isLoading && addresses.length === 0 && (
-        <div className="text-center py-8 px-4 rounded-xl border border-dashed border-border">
+        <motion.div
+          variants={shouldAnimate ? staggerItem : undefined}
+          className="text-center py-8 px-4 rounded-xl border border-dashed border-border"
+        >
           <MapPin className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
           <p className="text-sm text-muted-foreground">
             No saved addresses yet
           </p>
-        </div>
+        </motion.div>
       )}
 
-      {/* Add new address button */}
-      <Button variant="outline" onClick={openAddModal} className="w-full">
-        <Plus className="mr-2 h-4 w-4" />
-        Add New Address
-      </Button>
+      {/* Add new address button with scale entry */}
+      <motion.div variants={shouldAnimate ? buttonEntry : undefined}>
+        <Button variant="outline" onClick={openAddModal} className="w-full">
+          <Plus className="mr-2 h-4 w-4" />
+          Add New Address
+        </Button>
+      </motion.div>
 
-      {/* Continue button */}
-      <div className="flex justify-center pt-4 border-t border-border">
+      {/* Continue button with scale entry */}
+      <motion.div
+        variants={shouldAnimate ? buttonEntry : undefined}
+        className="flex justify-center pt-4 border-t border-border"
+      >
         <Button
           variant="default"
           onClick={handleNext}
@@ -229,7 +252,7 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
         >
           Continue to Time Selection
         </Button>
-      </div>
+      </motion.div>
 
       {/* Responsive overlay for add/edit */}
       {isMobile ? (
@@ -244,6 +267,6 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
           {FormContent}
         </Modal>
       )}
-    </div>
+    </motion.div>
   );
 }

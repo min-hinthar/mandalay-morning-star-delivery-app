@@ -17,13 +17,23 @@ import { useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Clock, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { variants } from "@/lib/motion-tokens";
+import { staggerContainer, staggerItem, spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { getAvailableDeliveryDates } from "@/lib/utils/delivery-dates";
 import { TimeSlotPicker } from "./TimeSlotPicker";
 import { Button } from "@/components/ui/button";
 import type { DeliverySelection } from "@/types/delivery";
+
+/** Button entry animation variant */
+const buttonEntry = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 },
+  },
+};
 
 // ============================================
 // TYPES
@@ -61,13 +71,14 @@ export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
   );
 
   return (
-    <div className={cn("space-y-6", className)}>
-      {/* Header - V8 colors */}
-      <motion.div
-        variants={shouldAnimate ? variants.slideUp : undefined}
-        initial={shouldAnimate ? "initial" : undefined}
-        animate={shouldAnimate ? "animate" : undefined}
-      >
+    <motion.div
+      className={cn("space-y-6", className)}
+      variants={shouldAnimate ? staggerContainer(0.08, 0.1) : undefined}
+      initial={shouldAnimate ? "hidden" : undefined}
+      animate={shouldAnimate ? "visible" : undefined}
+    >
+      {/* Header with stagger */}
+      <motion.div variants={shouldAnimate ? staggerItem : undefined}>
         <div className="flex items-center gap-2 mb-1">
           <Clock className="h-5 w-5 text-primary" />
           <h2 className="font-display text-lg font-semibold text-foreground">
@@ -79,13 +90,8 @@ export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
         </p>
       </motion.div>
 
-      {/* Time slot picker */}
-      <motion.div
-        variants={shouldAnimate ? variants.slideUp : undefined}
-        initial={shouldAnimate ? "initial" : undefined}
-        animate={shouldAnimate ? "animate" : undefined}
-        transition={{ delay: 0.1 }}
-      >
+      {/* Time slot picker with stagger */}
+      <motion.div variants={shouldAnimate ? staggerItem : undefined}>
         <TimeSlotPicker
           availableDates={availableDates}
           selectedDelivery={delivery}
@@ -93,12 +99,9 @@ export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
         />
       </motion.div>
 
-      {/* Navigation - matches PaymentStepV8 pattern */}
+      {/* Navigation with button entry animation */}
       <motion.div
-        variants={shouldAnimate ? variants.slideUp : undefined}
-        initial={shouldAnimate ? "initial" : undefined}
-        animate={shouldAnimate ? "animate" : undefined}
-        transition={{ delay: 0.2 }}
+        variants={shouldAnimate ? buttonEntry : undefined}
         className="flex justify-between pt-4 border-t border-border"
       >
         <Button variant="ghost" onClick={handleBack}>
@@ -109,7 +112,7 @@ export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
           Continue to Payment
         </Button>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
 
