@@ -5,8 +5,11 @@ import { ChevronRight, Package, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/currency";
 import { format, parseISO } from "date-fns";
+import { spring, staggerDelay } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import type { OrderStatus } from "@/types/order";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/types/order";
 
@@ -23,18 +26,34 @@ interface OrderCardProps {
 }
 
 export function OrderCard({ order, index = 0 }: OrderCardProps) {
+  const { shouldAnimate, getSpring } = useAnimationPreference();
   const deliveryDate = order.deliveryWindowStart
     ? format(parseISO(order.deliveryWindowStart), "EEEE, MMM d")
     : null;
 
+  // 80ms stagger with 500ms cap per Phase 22 standard
+  const delay = staggerDelay(index);
+  const springConfig = getSpring(spring.default);
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
+      initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
+      animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+      transition={{ ...springConfig, delay }}
+      whileHover={shouldAnimate ? { scale: 1.02, y: -4 } : undefined}
+      whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
     >
       <Link href={`/orders/${order.id}`}>
-        <Card className="hover:shadow-md transition-shadow cursor-pointer group">
+        <Card
+          className={cn(
+            // Glassmorphism styling
+            "glass-menu-card glow-gradient shadow-colorful",
+            // Base styles
+            "cursor-pointer group",
+            // Smooth transitions
+            "transition-shadow duration-200"
+          )}
+        >
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
