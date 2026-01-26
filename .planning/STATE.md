@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.2 Playful UI Overhaul - Phase 19 Homepage Redesign (awaiting verification)
+**Current focus:** v1.2 Playful UI Overhaul - Phase 20 Micro-interactions
 
 ## Current Position
 
-Phase: 19 of 23 (Homepage Redesign)
-Plan: 4 of 4 complete (pending verification checkpoint)
-Status: Awaiting human verification
-Last activity: 2026-01-25 - Completed 19-04-PLAN.md (Homepage Integration)
+Phase: 20 of 23 (Micro-interactions)
+Plan: 2 of 4 complete
+Status: In progress
+Last activity: 2026-01-26 - Completed 20-02-PLAN.md (Feedback Components)
 
-Progress: [####################] v1.0-v1.1 complete | [██████████████░░░░░░] v1.2 65%
+Progress: [####################] v1.0-v1.1 complete | [████████████████░░░░] v1.2 70%
 
 ## Milestones Completed
 
@@ -25,14 +25,14 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 
 **Total completed:** 15 phases, 54 plans
 **v1.2 scope:** 9 phases (15-23), ~21 plans, 48+ requirements
-**v1.2 progress:** 3 phases complete, 11 plans done
+**v1.2 progress:** 4 phases complete, 13 plans done
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 64 (v1.0 + v1.1 + v1.2)
-- v1.2 plans completed: 11
-- Average duration: 10min (Phase 15-19)
+- Total plans completed: 66 (v1.0 + v1.1 + v1.2)
+- v1.2 plans completed: 13
+- Average duration: 10min (Phase 15-20)
 
 **By Phase (v1.2):**
 
@@ -42,6 +42,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | 16 | 4/4 | 29min | 7.3min |
 | 18 | 3/3 | 53min | 18min |
 | 19 | 4/4 | 27min | 6.8min |
+| 20 | 2/4 | ~16min | 8min |
 
 *Updated after each plan completion*
 
@@ -75,6 +76,9 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 - **Video 30% visibility threshold:** Balance between responsiveness and avoiding flicker
 - **Video fallback strategy (19-04):** fetch HEAD to check video existence, gradient fallback if missing
 - **Scroll snap desktop-only (19-04):** md:snap-y md:snap-mandatory on container, mobile uses natural scroll
+- **ErrorShake local variants (20-02):** Define shakeVariants and pulseVariants locally for encapsulation
+- **Rubbery spring for checkbox (20-02):** spring.rubbery gives satisfying bounce on check
+- **8-pointed star spinner (20-02):** Morning Star brand as stylized star
 
 ### Research Findings
 
@@ -84,7 +88,7 @@ From `.planning/research/SUMMARY.md`:
 - SSR-safe pattern: `dynamic(() => import(), { ssr: false })` + mounted check
 - Single Canvas pattern to avoid WebGL context exhaustion
 
-### Patterns Established (Phase 15-19)
+### Patterns Established (Phase 15-20)
 
 - **zClass token system:** Use `zClass.popover` for dropdowns escaping parent stacking context, `zClass.modalBackdrop` for backdrop layers
 - **Intra-component z-index:** Keep z-10 for elements that layer within their container (close buttons in modals)
@@ -114,6 +118,9 @@ From `.planning/research/SUMMARY.md`:
 - **Carousel auto-rotation (19-02):** setInterval with isPaused state toggle on mouseEnter/Leave and focus/blur
 - **Video existence check (19-04):** fetch HEAD request in useEffect, fallback to gradient if 404
 - **Homepage section composition (19-04):** Hero + HowItWorks + Menu + Testimonials + CTA + Footer with scroll snap
+- **SVG pathLength animation (20-02):** animate pathLength 0->1 for drawing effect
+- **Error feedback wrapper (20-02):** component wraps children, applies shake + pulse overlay
+- **useErrorShake hook (20-02):** auto-reset state pattern with setTimeout
 
 ### Roadmap Evolution
 
@@ -125,11 +132,11 @@ None - all blocking issues from Phase 15 resolved.
 
 ## Session Continuity
 
-Last session: 2026-01-25
-Stopped at: Completed 19-04-PLAN.md (awaiting verification checkpoint)
+Last session: 2026-01-26
+Stopped at: Completed 20-02-PLAN.md (Feedback Components)
 Resume file: None
-Next action: User verifies homepage redesign, then proceed to Phase 20
+Next action: Continue to 20-03-PLAN.md (Specialized Controls)
 
 ---
 
-*Updated: 2026-01-25 - Completed 19-04-PLAN.md*
+*Updated: 2026-01-26 - Completed 20-02-PLAN.md*
