@@ -16,13 +16,17 @@
  */
 
 import { useState, useCallback, useMemo } from "react";
+import { motion } from "framer-motion";
 import { useMenu } from "@/lib/hooks/useMenu";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useCart } from "@/lib/hooks/useCart";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
+import { spring } from "@/lib/motion-tokens";
 import type { MenuItem, MenuCategory } from "@/types/menu";
 import type { SelectedModifier } from "@/lib/utils/price";
 
+import { AnimatedSection, itemVariants } from "@/components/scroll/AnimatedSection";
 import { CategoryTabsV8 } from "./CategoryTabsV8";
 import { MenuSectionV8 } from "./MenuSectionV8";
 import { MenuGridV8 } from "./MenuGridV8";
@@ -44,6 +48,12 @@ export interface MenuContentV8Props {
 // ============================================
 
 export function MenuContentV8({ className }: MenuContentV8Props) {
+  // ============================================
+  // ANIMATION
+  // ============================================
+
+  const { shouldAnimate, getSpring } = useAnimationPreference();
+
   // ============================================
   // DATA FETCHING
   // ============================================
@@ -196,13 +206,18 @@ export function MenuContentV8({ className }: MenuContentV8Props) {
 
   return (
     <div className={cn("relative", className)}>
-      {/* Search Input */}
-      <div className="px-4 py-3 border-b border-border-subtle">
+      {/* Search Input with entrance animation */}
+      <motion.div
+        className="px-4 py-3 border-b border-border-subtle"
+        initial={shouldAnimate ? { opacity: 0, y: -16 } : undefined}
+        animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+        transition={getSpring(spring.default)}
+      >
         <SearchInputV8
           onSelectItem={handleSelectItem}
           placeholder="Search dishes..."
         />
-      </div>
+      </motion.div>
 
       {/* Category Tabs */}
       <CategoryTabsV8
@@ -213,25 +228,33 @@ export function MenuContentV8({ className }: MenuContentV8Props) {
         }))}
       />
 
-      {/* Menu Sections */}
+      {/* Menu Sections with scroll-triggered animations */}
       <div className="space-y-8 px-4 pb-8 pt-6">
         {categories.map((category: MenuCategory) => (
-          <MenuSectionV8
+          <AnimatedSection
             key={category.slug}
-            category={{
-              slug: category.slug,
-              name: category.name,
-              nameEn: category.name,
-            }}
+            id={`category-${category.slug}`}
+            as="div"
+            className="scroll-mt-36"
           >
-            <MenuGridV8
-              items={category.items ?? []}
-              categorySlug={category.slug}
-              onSelectItem={handleSelectItem}
-              onFavoriteToggle={handleFavoriteToggle}
-              favorites={favoritesSet}
-            />
-          </MenuSectionV8>
+            <motion.div variants={itemVariants}>
+              <MenuSectionV8
+                category={{
+                  slug: category.slug,
+                  name: category.name,
+                  nameEn: category.name,
+                }}
+              >
+                <MenuGridV8
+                  items={category.items ?? []}
+                  categorySlug={category.slug}
+                  onSelectItem={handleSelectItem}
+                  onFavoriteToggle={handleFavoriteToggle}
+                  favorites={favoritesSet}
+                />
+              </MenuSectionV8>
+            </motion.div>
+          </AnimatedSection>
         ))}
       </div>
 
