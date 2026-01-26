@@ -114,6 +114,20 @@ export const spring = {
     damping: 15,
     mass: 1.2,
   },
+  /** Snappy button - quick press feedback */
+  snappyButton: {
+    type: "spring" as const,
+    stiffness: 500,
+    damping: 30,
+    mass: 0.8,
+  },
+  /** Bouncy toggle - playful toggle bounces */
+  bouncyToggle: {
+    type: "spring" as const,
+    stiffness: 400,
+    damping: 12,
+    mass: 0.9,
+  },
 } as const;
 
 // ============================================
@@ -286,6 +300,32 @@ export const hover = {
     whileHover: { scale: 1.08 },
     transition: { duration: duration.slow, ease: easing.out },
   },
+
+  /** Button press - depth effect with shadow reduction */
+  buttonPress: {
+    whileHover: { scale: 1.02, y: -1 },
+    whileTap: {
+      scale: 0.97,
+      y: 1,
+      boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+    },
+    transition: spring.snappyButton,
+  },
+} as const;
+
+// ============================================
+// V7 INPUT FOCUS ANIMATIONS
+// ============================================
+
+export const inputFocus = {
+  /** Initial state - no glow */
+  initial: { boxShadow: "0 0 0 0 rgba(245, 158, 11, 0)" },
+  /** Default focus - amber glow */
+  focus: { boxShadow: "0 0 0 3px rgba(245, 158, 11, 0.3)" },
+  /** Error focus - red glow */
+  error: { boxShadow: "0 0 0 3px rgba(239, 68, 68, 0.3)" },
+  /** Success focus - green glow */
+  success: { boxShadow: "0 0 0 3px rgba(34, 197, 94, 0.3)" },
 } as const;
 
 // ============================================
