@@ -76,6 +76,10 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 - **Video 30% visibility threshold:** Balance between responsiveness and avoiding flicker
 - **Video fallback strategy (19-04):** fetch HEAD to check video existence, gradient fallback if missing
 - **Scroll snap desktop-only (19-04):** md:snap-y md:snap-mandatory on container, mobile uses natural scroll
+- **snappyButton spring (20-01):** stiffness 500, damping 30, mass 0.8 - quick press feedback
+- **bouncyToggle spring (20-01):** stiffness 400, damping 12, mass 0.9 - playful overshoot
+- **Button depth effect (20-01):** hover y:-1/scale 1.02, tap y:+1/scale 0.97 with shadow reduction
+- **Input focus glow (20-01):** amber default, red error, green success (3px spread)
 - **ErrorShake local variants (20-02):** Define shakeVariants and pulseVariants locally for encapsulation
 - **Rubbery spring for checkbox (20-02):** spring.rubbery gives satisfying bounce on check
 - **8-pointed star spinner (20-02):** Morning Star brand as stylized star
@@ -118,6 +122,10 @@ From `.planning/research/SUMMARY.md`:
 - **Carousel auto-rotation (19-02):** setInterval with isPaused state toggle on mouseEnter/Leave and focus/blur
 - **Video existence check (19-04):** fetch HEAD request in useEffect, fallback to gradient if 404
 - **Homepage section composition (19-04):** Hero + HowItWorks + Menu + Testimonials + CTA + Footer with scroll snap
+- **motion.button pattern (20-01):** whileHover/whileTap with snappyButton spring
+- **motion.input pattern (20-01):** animate boxShadow based on focus + variant state
+- **AnimatedToggle pattern (20-01):** spring.bouncyToggle for knob translation
+- **Framer Motion type fix (20-01):** Omit onDrag/onDragEnd/onDragStart/onAnimationStart from HTML props
 - **SVG pathLength animation (20-02):** animate pathLength 0->1 for drawing effect
 - **Error feedback wrapper (20-02):** component wraps children, applies shake + pulse overlay
 - **useErrorShake hook (20-02):** auto-reset state pattern with setTimeout
