@@ -2,11 +2,11 @@
 
 import { type Resolver, type SubmitHandler, useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ValidatedInput, type ValidationState } from "@/components/ui/FormValidation";
+import { ErrorShake, useErrorShake } from "@/components/ui/error-shake";
 import { AnimatedFormField } from "./AnimatedFormField";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -44,6 +44,7 @@ export function AddressFormV8({
   error,
 }: AddressFormV8Props) {
   const { getSpring } = useAnimationPreference();
+  const { shake: errorShake, triggerShake } = useErrorShake();
 
   const {
     register,
@@ -66,7 +67,10 @@ export function AddressFormV8({
     await onSubmit(values);
   };
 
-  const handleFormSubmit = handleSubmit(submitHandler);
+  // Trigger shake on validation errors
+  const handleFormSubmit = handleSubmit(submitHandler, () => {
+    triggerShake();
+  });
 
   /**
    * Get validation state for a field based on react-hook-form state
@@ -79,22 +83,24 @@ export function AddressFormV8({
 
   return (
     <form onSubmit={handleFormSubmit} className="space-y-4">
-      {/* Form-level error message with animation */}
-      <AnimatePresence mode="wait">
-        {error && (
-          <motion.div
-            key="form-error"
-            initial={{ opacity: 0, y: -10, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: "auto" }}
-            exit={{ opacity: 0, y: -10, height: 0 }}
-            transition={getSpring(spring.default)}
-            className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
-            role="alert"
-          >
-            {error}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Form-level error message with animation and shake */}
+      <ErrorShake shake={errorShake && !!error}>
+        <AnimatePresence mode="wait">
+          {error && (
+            <motion.div
+              key="form-error"
+              initial={{ opacity: 0, y: -10, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -10, height: 0 }}
+              transition={getSpring(spring.default)}
+              className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+              role="alert"
+            >
+              {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </ErrorShake>
 
       {/* Label (select) */}
       <AnimatedFormField>

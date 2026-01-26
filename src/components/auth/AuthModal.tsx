@@ -25,6 +25,7 @@ import {
   hover,
 } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { ErrorShake, useErrorShake } from "@/components/ui/error-shake";
 import { signIn } from "@/lib/supabase/actions";
 
 // ============================================
@@ -215,6 +216,7 @@ export function AuthModal({
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { shake: errorShake, triggerShake } = useErrorShake();
 
   // Focus input when opened
   useEffect(() => {
@@ -234,6 +236,7 @@ export function AuthModal({
       const emailValue = formData.get("email") as string;
       if (!emailValue || !emailValue.includes("@")) {
         setError("Please enter a valid email address");
+        triggerShake();
         if (typeof navigator !== "undefined" && navigator.vibrate) {
           navigator.vibrate([50, 30, 50]);
         }
@@ -245,6 +248,7 @@ export function AuthModal({
 
         if (result?.error) {
           setError(result.error);
+          triggerShake();
           if (typeof navigator !== "undefined" && navigator.vibrate) {
             navigator.vibrate([50, 30, 50]);
           }
@@ -256,12 +260,13 @@ export function AuthModal({
         }
       } catch {
         setError("Something went wrong. Please try again.");
+        triggerShake();
         if (typeof navigator !== "undefined" && navigator.vibrate) {
           navigator.vibrate([50, 30, 50]);
         }
       }
     },
-    [onSuccess]
+    [onSuccess, triggerShake]
   );
 
   // Handle close
@@ -385,20 +390,22 @@ export function AuthModal({
             {/* Form */}
             <form action={handleSubmit}>
               <div className="space-y-6">
-                {/* Email input */}
-                <AnimatedInput
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setError(null);
-                  }}
-                  error={error || undefined}
-                  icon={<Mail className="w-5 h-5" />}
-                />
+                {/* Email input with shake on error */}
+                <ErrorShake shake={errorShake && !!error}>
+                  <AnimatedInput
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError(null);
+                    }}
+                    error={error || undefined}
+                    icon={<Mail className="w-5 h-5" />}
+                  />
+                </ErrorShake>
 
                 {/* Submit button */}
                 <SubmitButton disabled={!email}>
