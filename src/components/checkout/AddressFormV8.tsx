@@ -263,8 +263,7 @@ export function AddressFormV8({
 
       {/* Actions */}
       <div className="flex gap-2 pt-2">
-        <Button type="submit" disabled={isLoading} className="flex-1">
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <Button type="submit" isLoading={isLoading} className="flex-1">
           {defaultValues ? "Update Address" : "Add Address"}
         </Button>
         {onCancel && (
