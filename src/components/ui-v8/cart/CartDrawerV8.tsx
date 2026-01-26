@@ -88,13 +88,13 @@ function CartHeader({ itemCount, onClose, onClearClick, showClear }: CartHeaderP
           <ShoppingBag className="h-5 w-5 text-amber-600 dark:text-amber-400" />
         </motion.div>
         Your Cart
-        {/* Item count badge */}
+        {/* Item count badge - rubbery bounce on change */}
         {itemCount > 0 && (
           <motion.span
             key={itemCount}
-            initial={shouldAnimate ? { scale: 0 } : undefined}
-            animate={shouldAnimate ? { scale: 1 } : undefined}
-            transition={getSpring(spring.ultraBouncy)}
+            initial={shouldAnimate ? { scale: 0, rotate: -10 } : undefined}
+            animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
+            transition={getSpring(spring.rubbery)}
             className={cn(
               "rounded-full px-2.5 py-1 text-xs font-semibold",
               "bg-amber-500 text-white shadow-sm"
@@ -186,6 +186,7 @@ function CartItemsList({ onClose }: CartItemsListProps) {
                       opacity: 0,
                       x: -100,
                       scale: 0.8,
+                      rotate: -3,
                       transition: { duration: 0.2 },
                     }
                   : undefined
@@ -210,7 +211,7 @@ interface CartFooterProps {
 }
 
 function CartFooter({ onClose, onCheckout }: CartFooterProps) {
-  const { shouldAnimate } = useAnimationPreference();
+  const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
     <motion.div
@@ -222,15 +223,32 @@ function CartFooter({ onClose, onCheckout }: CartFooterProps) {
       <CartSummary />
 
       <div className="mt-4 flex flex-col gap-3">
-        {/* Primary CTA - Checkout */}
+        {/* Primary CTA - Checkout with pulsing glow */}
         <motion.div
           whileHover={shouldAnimate ? { scale: 1.01 } : undefined}
           whileTap={shouldAnimate ? { scale: 0.99 } : undefined}
+          transition={getSpring(spring.snappyButton)}
+          className="relative"
         >
+          {/* Pulsing glow behind button */}
+          {shouldAnimate && (
+            <motion.div
+              className="absolute inset-0 rounded-xl bg-primary/30 blur-lg"
+              animate={{
+                opacity: [0.4, 0.7, 0.4],
+                scale: [1, 1.02, 1],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          )}
           <Button
             variant="primary"
             size="lg"
-            className="w-full shadow-elevated"
+            className="relative w-full shadow-elevated"
             onClick={onCheckout}
           >
             Proceed to Checkout
