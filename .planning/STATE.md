@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.2 Playful UI Overhaul - Phase 21 Theme Refinements
+**Current focus:** v1.2 Playful UI Overhaul - Phase 22 Customer Page Polish
 
 ## Current Position
 
-Phase: 21 of 23 (Theme Refinements)
+Phase: 22 of 23 (Customer Page Polish)
 Plan: 3 of 3 complete
 Status: Phase complete
-Last activity: 2026-01-26 - Completed 21-03-PLAN.md (Theme-Aware 3D Lighting)
+Last activity: 2026-01-26 - Completed 22-03-PLAN.md (Orders, Cart & Empty State Polish)
 
-Progress: [####################] v1.0-v1.1 complete | [████████████████████░] v1.2 88%
+Progress: [####################] v1.0-v1.1 complete | [█████████████████████░] v1.2 ~95%
 
 ## Milestones Completed
 
@@ -23,16 +23,16 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | v1.0 MVP | 1-8 | 32 | 2026-01-23 |
 | v1.1 Tech Debt | 9-14 | 21 | 2026-01-23 |
 
-**Total completed:** 15 phases, 55 plans
+**Total completed:** 22 phases, 73 plans
 **v1.2 scope:** 9 phases (15-23), ~21 plans, 48+ requirements
-**v1.2 progress:** 6 phases complete, 18 plans done
+**v1.2 progress:** 8 phases complete, 21 plans done
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 70 (v1.0 + v1.1 + v1.2)
-- v1.2 plans completed: 17
-- Average duration: 10min (Phase 15-21)
+- Total plans completed: 73 (v1.0 + v1.1 + v1.2)
+- v1.2 plans completed: 21
+- Average duration: 10min (Phase 15-22)
 
 **By Phase (v1.2):**
 
@@ -44,6 +44,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | 19 | 4/4 | 27min | 6.8min |
 | 20 | 4/4 | ~35min | 8.8min |
 | 21 | 3/3 | ~25min | 8.3min |
+| 22 | 3/3 | ~22min | 7.3min |
 
 *Updated after each plan completion*
 
@@ -69,7 +70,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 - 2D fallback is designed experience for low-end devices, not failure state
 - show3D prop defaults to true, allows conditional disabling for A/B testing
 - **UnifiedMenuItemCard 3D tilt:** 18-degree max angle, spring-smoothed (stiffness: 150, damping: 15)
-- **Glassmorphism:** 75% opacity, 20px blur (24px on hover) via .glass-menu-card
+- **Glassmorphism:** 75% opacity, 30px blur via .glass-menu-card (upgraded from 20px in 22-01)
 - **AddButton state machine:** idle -> adding (300ms) -> quantity for cart flow
 - **useScrollSpy returns index:** Simpler for SectionNavDots integration than returning id string
 - **AnimatedSection always replays:** viewport.once: false for engaging scroll experience
@@ -95,6 +96,12 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 - **Theme sounds (21-02):** Web Audio synthesis - A5/E6 chime (light), A3 tone (dark)
 - **3D lighting lerp factor (21-03):** delta * 4 for ~500ms smooth transitions
 - **3D theme colors (21-03):** Warm yellow (#fef3c7) light mode, cool blue-gray (#4a5568) dark mode
+- **80ms stagger standard (22-01):** STAGGER_GAP = 0.08, capped at 500ms max delay
+- **25% viewport trigger (22-01):** VIEWPORT_AMOUNT = 0.25 for scroll animations
+- **glow-gradient utility (22-01):** Primary/gold gradient glow on hover
+- **Order card stagger (22-03):** 80ms with 500ms cap using staggerDelay function
+- **Empty state animations (22-03):** Variant-specific icon patterns (cart floats, heart beats)
+- **Cart checkout glow (22-03):** Pulsing opacity + scale for premium CTA
 
 ### Research Findings
 
@@ -104,7 +111,7 @@ From `.planning/research/SUMMARY.md`:
 - SSR-safe pattern: `dynamic(() => import(), { ssr: false })` + mounted check
 - Single Canvas pattern to avoid WebGL context exhaustion
 
-### Patterns Established (Phase 15-20)
+### Patterns Established (Phase 15-22)
 
 - **zClass token system:** Use `zClass.popover` for dropdowns escaping parent stacking context, `zClass.modalBackdrop` for backdrop layers
 - **Intra-component z-index:** Keep z-10 for elements that layer within their container (close buttons in modals)
@@ -153,6 +160,10 @@ From `.planning/research/SUMMARY.md`:
 - **Theme toggle styling (21-02):** Border in light mode, primary glow shadow in dark mode
 - **ThemeAwareLighting (21-03):** useFrame lerping for smooth 3D theme transitions
 - **ContactShadows adaptive (21-03):** opacity/blur/color based on theme
+- **staggerDelay function (22-01):** Uses Math.min(index * 0.08, 0.5) for consistent capping
+- **OrderListAnimated (22-03):** Client wrapper for scroll-reveal on Server Component pages
+- **Empty state gradient blobs (22-03):** blur-xl gradient behind icon for visual interest
+- **Pulsing CTA glow (22-03):** opacity [0.4, 0.7, 0.4] + scale [1, 1.02, 1] for premium effect
 
 ### Roadmap Evolution
 
@@ -165,10 +176,10 @@ None - all blocking issues from Phase 15 resolved.
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 21-03-PLAN.md (Theme-Aware 3D Lighting)
+Stopped at: Completed 22-03-PLAN.md (Orders, Cart & Empty State Polish)
 Resume file: None
-Next action: Continue to Phase 22 (State Transitions)
+Next action: Continue to Phase 23 (Header & Nav Rebuild)
 
 ---
 
-*Updated: 2026-01-26 - Completed 21-03-PLAN.md - Phase 21 complete*
+*Updated: 2026-01-26 - Completed 22-03-PLAN.md - Phase 22 complete*
