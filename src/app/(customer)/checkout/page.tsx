@@ -19,22 +19,29 @@ import {
 import type { CheckoutStep } from "@/types/checkout";
 
 /**
- * Direction-aware step transition variants
+ * Direction-aware step transition variants with scale morph and glow
  * - Forward (1): current slides left, new slides from right
  * - Backward (-1): current slides right, new slides from left
+ * - Scale morph gives premium feel to transitions
+ * - Subtle glow enhances visual interest
  */
 const stepVariants = {
   initial: (direction: number) => ({
     opacity: 0,
     x: direction > 0 ? 100 : -100,
+    scale: 0.95,
   }),
   animate: {
     opacity: 1,
     x: 0,
+    scale: 1,
+    boxShadow: "0 0 30px rgba(164, 16, 52, 0.08)",
   },
   exit: (direction: number) => ({
     opacity: 0,
     x: direction > 0 ? -100 : 100,
+    scale: 0.95,
+    boxShadow: "0 0 0px rgba(164, 16, 52, 0)",
   }),
 };
 
@@ -128,7 +135,7 @@ export default function CheckoutPage() {
         <div className="grid gap-6 lg:gap-8 lg:grid-cols-3">
           {/* Main content - order form with animated transitions */}
           <div className="lg:col-span-2">
-            <div className="rounded-lg border border-border bg-card p-4 sm:p-6 shadow-sm overflow-hidden">
+            <div className="rounded-lg border border-border bg-card p-4 sm:p-6 shadow-colorful overflow-hidden">
               <AnimatePresence mode="wait" custom={direction}>
                 {step === "address" && (
                   <motion.div
@@ -138,7 +145,12 @@ export default function CheckoutPage() {
                     initial={shouldAnimate ? "initial" : false}
                     animate="animate"
                     exit={shouldAnimate ? "exit" : undefined}
-                    transition={getSpring(spring.default)}
+                    transition={{
+                      x: getSpring(spring.default),
+                      scale: getSpring(spring.gentle),
+                      opacity: { duration: 0.2 },
+                      boxShadow: { duration: 0.3 },
+                    }}
                   >
                     <AddressStep onNext={goToNextStep} />
                   </motion.div>
@@ -151,7 +163,12 @@ export default function CheckoutPage() {
                     initial={shouldAnimate ? "initial" : false}
                     animate="animate"
                     exit={shouldAnimate ? "exit" : undefined}
-                    transition={getSpring(spring.default)}
+                    transition={{
+                      x: getSpring(spring.default),
+                      scale: getSpring(spring.gentle),
+                      opacity: { duration: 0.2 },
+                      boxShadow: { duration: 0.3 },
+                    }}
                   >
                     <TimeStep onNext={goToNextStep} onBack={goToPrevStep} />
                   </motion.div>
@@ -164,7 +181,12 @@ export default function CheckoutPage() {
                     initial={shouldAnimate ? "initial" : false}
                     animate="animate"
                     exit={shouldAnimate ? "exit" : undefined}
-                    transition={getSpring(spring.default)}
+                    transition={{
+                      x: getSpring(spring.default),
+                      scale: getSpring(spring.gentle),
+                      opacity: { duration: 0.2 },
+                      boxShadow: { duration: 0.3 },
+                    }}
                   >
                     <PaymentStep onBack={goToPrevStep} />
                   </motion.div>
