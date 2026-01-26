@@ -482,6 +482,22 @@ export const expandingCard = {
 // ============================================
 
 /**
+ * Standard stagger gap for Phase 22+ (80ms between items)
+ */
+export const STAGGER_GAP = 0.08;
+
+/**
+ * Standard viewport trigger amount for Phase 22+ (25% visible)
+ */
+export const VIEWPORT_AMOUNT = 0.25;
+
+/**
+ * Maximum stagger delay cap (500ms) - items beyond index 6 get same delay
+ * Prevents excessively long stagger animations on large lists
+ */
+export const MAX_STAGGER_DELAY = 0.5;
+
+/**
  * Create staggered container variants
  */
 export function staggerContainer(
@@ -508,6 +524,32 @@ export function staggerContainer(
 }
 
 /**
+ * Create Phase 22 standard stagger container (80ms gap, capped at 500ms)
+ * Use for menu items, order history, and other scrolling lists
+ */
+export function staggerContainer80(
+  delayChildren = 0.08
+): Variants {
+  return {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: STAGGER_GAP,
+        delayChildren,
+      },
+    },
+    exit: {
+      opacity: 0,
+      transition: {
+        staggerChildren: STAGGER_GAP / 2,
+        staggerDirection: -1,
+      },
+    },
+  };
+}
+
+/**
  * Stagger item variants
  */
 export const staggerItem: Variants = {
@@ -526,12 +568,13 @@ export const staggerItemRotate: Variants = {
 };
 
 /**
- * Calculate stagger delay
+ * Calculate stagger delay with cap
+ * Items beyond index 6 get same delay (500ms max) per RESEARCH pitfall
  */
 export function staggerDelay(
   index: number,
-  baseDelay = 0.06,
-  maxDelay = 0.5
+  baseDelay = STAGGER_GAP,
+  maxDelay = MAX_STAGGER_DELAY
 ): number {
   return Math.min(index * baseDelay, maxDelay);
 }
