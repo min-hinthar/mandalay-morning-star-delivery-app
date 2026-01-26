@@ -18,6 +18,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { useMenu } from "@/lib/hooks/useMenu";
 import { useFavorites } from "@/lib/hooks/useFavorites";
+import { useCart } from "@/lib/hooks/useCart";
 import { cn } from "@/lib/utils/cn";
 import type { MenuItem, MenuCategory } from "@/types/menu";
 import type { SelectedModifier } from "@/lib/utils/price";
@@ -55,6 +56,7 @@ export function MenuContentV8({ className }: MenuContentV8Props) {
   // ============================================
 
   const { favorites, toggleFavorite } = useFavorites();
+  const { addItem } = useCart();
 
   // Create favorites Set for quick lookup
   const favoritesSet = useMemo(() => new Set(favorites), [favorites]);
@@ -95,18 +97,25 @@ export function MenuContentV8({ className }: MenuContentV8Props) {
       quantity: number,
       notes: string
     ) => {
-      // AddToCartButton in ItemDetailSheetV8 handles the actual cart addition
-      // via useFlyToCart and cart store
-      // This callback is for any additional handling after add
-      console.debug("Item added to cart:", {
-        itemId: item.id,
-        name: item.nameEn,
+      addItem({
+        menuItemId: item.id,
+        menuItemSlug: item.slug,
+        nameEn: item.nameEn,
+        nameMy: item.nameMy,
+        basePriceCents: item.basePriceCents,
+        imageUrl: item.imageUrl,
         quantity,
-        modifiersCount: modifiers.length,
-        hasNotes: notes.length > 0,
+        modifiers: modifiers.map((m) => ({
+          groupId: m.groupId,
+          groupName: m.groupName,
+          optionId: m.optionId,
+          optionName: m.optionName,
+          priceDeltaCents: m.priceDeltaCents,
+        })),
+        notes,
       });
     },
-    []
+    [addItem]
   );
 
   const handleRetry = useCallback(() => {

@@ -18,7 +18,6 @@ import { useRef, useState, useCallback, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ShoppingCart, Check, Loader2 } from "lucide-react";
 import { useFlyToCart } from "./FlyToCart";
-import { useCart } from "@/lib/hooks/useCart";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -118,19 +117,23 @@ const sizeConfig = {
 
 export function AddToCartButton({
   item,
-  quantity = 1,
-  modifiers = [],
-  notes = "",
+  quantity: _quantity = 1,
+  modifiers: _modifiers = [],
+  notes: _notes = "",
   onAdd,
   className,
   children,
   size = "md",
   disabled = false,
 }: AddToCartButtonProps) {
+  // Note: quantity, modifiers, notes props are passed to parent via onAdd callback
+  // The parent (ItemDetailSheetV8) maintains these values in its own state
+  void _quantity;
+  void _modifiers;
+  void _notes;
   const buttonRef = useRef<HTMLButtonElement>(null);
   const lastAddTimeRef = useRef<number>(0);
   const { fly, isAnimating } = useFlyToCart();
-  const { addItem } = useCart();
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   const [state, setState] = useState<"idle" | "loading" | "success">("idle");
@@ -159,18 +162,9 @@ export function AddToCartButton({
       });
     }
 
-    // Add item to cart
-    addItem({
-      menuItemId: item.menuItemId,
-      menuItemSlug: item.menuItemSlug,
-      nameEn: item.nameEn,
-      nameMy: item.nameMy ?? null,
-      imageUrl: item.imageUrl ?? null,
-      basePriceCents: item.basePriceCents,
-      quantity,
-      modifiers,
-      notes,
-    });
+    // Call parent callback to handle cart addition
+    // Parent is responsible for calling addItem() - this prevents double-add
+    onAdd?.();
 
     // Show success state
     if (shouldAnimate) {
@@ -180,10 +174,7 @@ export function AddToCartButton({
 
     // Reset to idle
     setState("idle");
-
-    // Callback
-    onAdd?.();
-  }, [state, disabled, shouldAnimate, fly, item, quantity, modifiers, notes, addItem, onAdd]);
+  }, [state, disabled, shouldAnimate, fly, item, onAdd]);
 
   const config = sizeConfig[size];
   const isDisabled = disabled || state === "loading" || isAnimating;
