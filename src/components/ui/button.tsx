@@ -3,8 +3,9 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Loader2 } from "lucide-react";
 import { motion, type HTMLMotionProps } from "framer-motion";
+
+import { BrandedSpinner } from "@/components/ui/branded-spinner";
 
 import { cn } from "@/lib/utils/cn";
 import { spring, hover } from "@/lib/motion-tokens";
@@ -172,9 +173,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       console.warn("Button: Icon-only buttons should have an aria-label for accessibility");
     }
 
+    // Determine spinner size based on button size
+    const spinnerSize = size === "lg" || size === "xl" || size === "icon-lg" || size === "icon-xl"
+      ? "md"
+      : "sm";
+
     const buttonContent = isLoading ? (
       <span className="contents">
-        <Loader2 className="animate-spin" aria-hidden="true" />
+        <BrandedSpinner size={spinnerSize} className="text-current" />
         <span className={loadingText ? undefined : "sr-only"}>
           {loadingText || "Loading..."}
         </span>
