@@ -17,8 +17,8 @@
  */
 
 import { useEffect, useMemo, useState, useCallback } from "react";
-import Image from "next/image";
 import { AlertTriangle } from "lucide-react";
+import { AnimatedImage } from "@/components/ui/animated-image";
 import { Modal } from "@/components/ui-v8/Modal";
 import { BottomSheet } from "@/components/ui-v8/BottomSheet";
 import { AddToCartButton } from "@/components/ui-v8/cart/AddToCartButton";
@@ -193,13 +193,14 @@ export function ItemDetailSheetV8({
         {/* Hero Image */}
         <div className="relative aspect-video shrink-0 bg-zinc-100 dark:bg-zinc-800">
           {item.imageUrl ? (
-            <Image
+            <AnimatedImage
               src={item.imageUrl}
               alt={item.nameEn}
               fill
               className="object-cover"
               priority
               sizes="(max-width: 640px) 100vw, 480px"
+              variant="blur-scale"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
