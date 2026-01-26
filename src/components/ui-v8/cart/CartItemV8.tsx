@@ -99,12 +99,14 @@ const cartItemVariants = {
     opacity: 0,
     x: -100,
     scale: 0.9,
+    rotate: -3, // Subtle rotation on exit for natural feel
     height: 0,
     marginBottom: 0,
     transition: {
       opacity: { duration: 0.15 },
       x: { duration: 0.2 },
       scale: { duration: 0.15 },
+      rotate: { duration: 0.15 },
       height: { delay: 0.15, duration: 0.2 },
       marginBottom: { delay: 0.15, duration: 0.2 },
     },
@@ -203,12 +205,13 @@ export function CartItemV8({
           // Glassmorphism styling matching unified card
           "relative glass-menu-card rounded-2xl",
           "border border-white/20 dark:border-white/10",
-          "shadow-lg shadow-black/5",
+          // Premium shadow with colorful tint
+          "shadow-colorful shadow-lg",
           "touch-pan-y backdrop-blur-xl",
           compact ? "p-3" : "p-4"
         )}
         whileHover={
-          shouldAnimate && !isDragging ? { scale: 1.01 } : undefined
+          shouldAnimate && !isDragging ? { scale: 1.02, y: -2 } : undefined
         }
         transition={springConfig}
       >
