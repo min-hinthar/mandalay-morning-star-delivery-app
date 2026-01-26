@@ -10,7 +10,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useScrollDirection } from "@/lib/hooks/useScrollDirection";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import { MorphingMenu } from "@/components/ui/MorphingMenu";
-import { ShoppingBag, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 // ============================================
 // TYPES
@@ -25,10 +25,6 @@ export interface HeaderProps {
     label: string;
     isActive?: boolean;
   }>;
-  /** Cart item count */
-  cartCount?: number;
-  /** On cart click */
-  onCartClick?: () => void;
   /** On mobile menu toggle */
   onMobileMenuToggle?: (isOpen: boolean) => void;
   /** Show search bar */
@@ -43,83 +39,6 @@ export interface HeaderProps {
   className?: string;
   /** Whether menu is open (controlled) */
   isMobileMenuOpen?: boolean;
-}
-
-// ============================================
-// CART BADGE COMPONENT
-// ============================================
-
-interface CartBadgeProps {
-  count: number;
-  onClick?: () => void;
-  className?: string;
-}
-
-function CartBadge({ count, onClick, className }: CartBadgeProps) {
-  const { shouldAnimate, getSpring, isFullMotion } = useAnimationPreference();
-  const [prevCount, setPrevCount] = useState(count);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    if (count !== prevCount && count > prevCount) {
-      setIsAnimating(true);
-      if (isFullMotion && "vibrate" in navigator) {
-        navigator.vibrate([5, 50, 10]);
-      }
-      const timeout = setTimeout(() => setIsAnimating(false), 600);
-      return () => clearTimeout(timeout);
-    }
-    setPrevCount(count);
-  }, [count, prevCount, isFullMotion]);
-
-  return (
-    <motion.button
-      onClick={onClick}
-      className={cn(
-        "relative p-2 rounded-xl",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
-        "hover:bg-surface-secondary/80 transition-colors duration-150",
-        className
-      )}
-      whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
-      whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
-      transition={getSpring(spring.snappy)}
-      aria-label={`Cart with ${count} items`}
-    >
-      <ShoppingBag className="w-5 h-5 text-text-primary" />
-
-      {/* Badge */}
-      <AnimatePresence mode="wait">
-        {count > 0 && (
-          <motion.span
-            key={count}
-            className={cn(
-              "absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1",
-              "flex items-center justify-center",
-              "bg-primary text-white text-[10px] font-bold rounded-full",
-              "shadow-sm"
-            )}
-            initial={shouldAnimate ? { scale: 0, y: 5 } : undefined}
-            animate={shouldAnimate ? { scale: 1, y: 0 } : undefined}
-            exit={shouldAnimate ? { scale: 0, y: -5 } : undefined}
-            transition={getSpring(spring.ultraBouncy)}
-          >
-            {count > 99 ? "99+" : count}
-          </motion.span>
-        )}
-      </AnimatePresence>
-
-      {/* Bounce animation on add */}
-      {shouldAnimate && isAnimating && (
-        <motion.span
-          className="absolute inset-0 rounded-xl bg-primary/20"
-          initial={{ scale: 1, opacity: 0.5 }}
-          animate={{ scale: 1.5, opacity: 0 }}
-          transition={{ duration: 0.4 }}
-        />
-      )}
-    </motion.button>
-  );
 }
 
 // ============================================
@@ -290,8 +209,6 @@ export const Header = forwardRef<HTMLElement, HeaderProps>(
     {
       logo = "Mandalay Morning Star",
       navItems = [],
-      cartCount = 0,
-      onCartClick,
       onMobileMenuToggle,
       showSearch = true,
       onSearch,
@@ -342,20 +259,9 @@ export const Header = forwardRef<HTMLElement, HeaderProps>(
           WebkitBackdropFilter: `blur(${isAtTop ? 8 : 16}px)`,
         }}
       >
-        {/* Burmese ornate top border */}
+        {/* Top accent border with glow */}
         <div
-          className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-secondary via-primary to-secondary"
-          style={{
-            backgroundImage: `repeating-linear-gradient(
-              90deg,
-              var(--color-secondary) 0px,
-              var(--color-secondary) 4px,
-              var(--color-primary) 4px,
-              var(--color-primary) 8px,
-              var(--color-secondary) 8px,
-              var(--color-secondary) 12px
-            )`,
-          }}
+          className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-secondary via-primary to-secondary shadow-[0_2px_8px_rgba(164,16,52,0.4)]"
         />
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -423,12 +329,6 @@ export const Header = forwardRef<HTMLElement, HeaderProps>(
 
               {/* Custom right content */}
               {rightContent}
-
-              {/* Cart */}
-              <CartBadge
-                count={cartCount}
-                onClick={onCartClick}
-              />
 
               {/* Mobile menu toggle */}
               <div className="md:hidden">
