@@ -90,6 +90,20 @@ Enhance all customer-facing pages (Menu, Checkout, Order History, Account, Cart)
 
 </deferred>
 
+<out_of_scope>
+## Out of Scope for Phase 22
+
+### Account Page Animations (PAGE-04)
+**Issue:** The CONTEXT decisions reference "Account page" animations, but no `/account` page exists in the codebase.
+
+**Resolution:** Account page creation is out of scope for this animation polish phase. Account page animations can be added when:
+1. A dedicated "Account Page" phase creates the page structure
+2. Or as a gap closure plan after account page exists
+
+This phase focuses on animating **existing** customer pages: Menu, Checkout, Orders, Cart.
+
+</out_of_scope>
+
 ---
 
 *Phase: 22-customer-page-polish*
