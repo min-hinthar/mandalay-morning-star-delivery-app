@@ -1,13 +1,29 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { v4 as uuidv4 } from "uuid";
-import type { CartItem, CartStore } from "@/types/cart";
+import type { CartItem, CartStore, SelectedModifier } from "@/types/cart";
 import {
   DELIVERY_FEE_CENTS,
   FREE_DELIVERY_THRESHOLD_CENTS,
   MAX_CART_ITEMS,
   MAX_ITEM_QUANTITY,
 } from "@/types/cart";
+
+/**
+ * Create a unique signature for cart item deduplication.
+ * Items with same menuItemId + modifiers + notes should merge.
+ */
+function createItemSignature(item: {
+  menuItemId: string;
+  modifiers: SelectedModifier[];
+  notes: string;
+}): string {
+  const sortedModifiers = [...item.modifiers]
+    .sort((a, b) => a.optionId.localeCompare(b.optionId))
+    .map((m) => m.optionId)
+    .join("|");
+  return `${item.menuItemId}::${sortedModifiers}::${item.notes.trim()}`
+}
 
 const createMemoryStorage = (): Storage => {
   const store = new Map<string, string>();
@@ -54,7 +70,32 @@ export const useCartStore = create<CartStore>()(
 
       addItem: (item) => {
         const { items } = get();
+        const signature = createItemSignature(item);
 
+        // Find existing item with same signature for deduplication
+        const existingIndex = items.findIndex(
+          (existing) => createItemSignature(existing) === signature
+        );
+
+        if (existingIndex !== -1) {
+          // Merge: increment quantity of existing item
+          const existing = items[existingIndex];
+          const newQuantity = Math.min(
+            existing.quantity + item.quantity,
+            MAX_ITEM_QUANTITY
+          );
+
+          set({
+            items: items.map((cartItem, idx) =>
+              idx === existingIndex
+                ? { ...cartItem, quantity: newQuantity }
+                : cartItem
+            ),
+          });
+          return;
+        }
+
+        // No match: add as new item
         if (items.length >= MAX_CART_ITEMS) {
           console.warn("Cart limit reached");
           return;
