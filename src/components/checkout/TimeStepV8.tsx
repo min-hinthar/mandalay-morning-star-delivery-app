@@ -17,7 +17,7 @@ import { useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Clock, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { staggerContainer, staggerItem, spring } from "@/lib/motion-tokens";
+import { staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { getAvailableDeliveryDates } from "@/lib/utils/delivery-dates";

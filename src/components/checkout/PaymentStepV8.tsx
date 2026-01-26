@@ -19,14 +19,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   CreditCard,
-  Loader2,
   ShieldCheck,
   Lock,
   MapPin,
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { spring, variants } from "@/lib/motion-tokens";
+import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
@@ -34,6 +33,18 @@ import { TimeSlotDisplay } from "./TimeSlotDisplay";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { BrandedSpinner } from "@/components/ui/branded-spinner";
+import { ErrorShake } from "@/components/ui/error-shake";
+
+/** Button entry animation variant */
+const buttonEntry = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 },
+  },
+};
 
 // ============================================
 // TYPES
@@ -106,13 +117,14 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
   };
 
   return (
-    <div className={cn("space-y-6", className)}>
-      {/* Header */}
-      <motion.div
-        variants={shouldAnimate ? variants.slideUp : undefined}
-        initial={shouldAnimate ? "initial" : undefined}
-        animate={shouldAnimate ? "animate" : undefined}
-      >
+    <motion.div
+      className={cn("space-y-6", className)}
+      variants={shouldAnimate ? staggerContainer(0.08, 0.1) : undefined}
+      initial={shouldAnimate ? "hidden" : undefined}
+      animate={shouldAnimate ? "visible" : undefined}
+    >
+      {/* Header with stagger */}
+      <motion.div variants={shouldAnimate ? staggerItem : undefined}>
         <div className="flex items-center gap-2 mb-1">
           <CreditCard className="h-5 w-5 text-primary" />
           <h2 className="font-display text-lg font-semibold text-foreground">
@@ -124,7 +136,7 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
         </p>
       </motion.div>
 
-      {/* Creating Session Loading State */}
+      {/* Creating Session Loading State - uses BrandedSpinner */}
       <AnimatePresence mode="wait">
         {isCreatingSession ? (
           <motion.div
@@ -135,12 +147,7 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
             transition={getSpring(spring.default)}
             className="flex flex-col items-center justify-center py-12 space-y-4"
           >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            >
-              <Loader2 className="w-10 h-10 text-primary" />
-            </motion.div>
+            <BrandedSpinner size="lg" label="Preparing checkout" />
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -162,16 +169,15 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
         ) : (
           <motion.div
             key="content"
-            initial={shouldAnimate ? { opacity: 0 } : undefined}
-            animate={shouldAnimate ? { opacity: 1 } : undefined}
+            variants={shouldAnimate ? staggerContainer(0.08, 0) : undefined}
+            initial={shouldAnimate ? "hidden" : undefined}
+            animate={shouldAnimate ? "visible" : undefined}
             exit={shouldAnimate ? { opacity: 0 } : undefined}
             className="space-y-6"
           >
-            {/* Order Summary Card */}
+            {/* Order Summary Card with stagger */}
             <motion.div
-              variants={shouldAnimate ? variants.slideUp : undefined}
-              initial={shouldAnimate ? "initial" : undefined}
-              animate={shouldAnimate ? "animate" : undefined}
+              variants={shouldAnimate ? staggerItem : undefined}
               className="space-y-4 rounded-lg bg-muted/50 p-5 border border-border"
             >
               {/* Address */}
@@ -204,12 +210,9 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
               </div>
             </motion.div>
 
-            {/* Notes Input */}
+            {/* Notes Input with stagger */}
             <motion.div
-              variants={shouldAnimate ? variants.slideUp : undefined}
-              initial={shouldAnimate ? "initial" : undefined}
-              animate={shouldAnimate ? "animate" : undefined}
-              transition={{ delay: 0.1 }}
+              variants={shouldAnimate ? staggerItem : undefined}
               className="space-y-2"
             >
               <Label
@@ -232,12 +235,9 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
               </p>
             </motion.div>
 
-            {/* Security Badge */}
+            {/* Security Badge with stagger */}
             <motion.div
-              variants={shouldAnimate ? variants.slideUp : undefined}
-              initial={shouldAnimate ? "initial" : undefined}
-              animate={shouldAnimate ? "animate" : undefined}
-              transition={{ delay: 0.15 }}
+              variants={shouldAnimate ? staggerItem : undefined}
               className="p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200/50 dark:border-green-800/30"
             >
               <div className="flex items-center gap-3">
@@ -269,33 +269,32 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
               </div>
             </motion.div>
 
-            {/* Error State */}
+            {/* Error State with ErrorShake */}
             <AnimatePresence>
               {error && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  transition={getSpring(spring.default)}
-                  className="rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200/50 dark:border-red-800/30 p-4"
-                >
-                  <p className="text-sm text-red-700 dark:text-red-300">
-                    {error}
-                  </p>
-                </motion.div>
+                <ErrorShake shake={!!error}>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                    transition={getSpring(spring.default)}
+                    className="rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200/50 dark:border-red-800/30 p-4"
+                  >
+                    <p className="text-sm text-red-700 dark:text-red-300">
+                      {error}
+                    </p>
+                  </motion.div>
+                </ErrorShake>
               )}
             </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Navigation */}
+      {/* Navigation with button entry animation */}
       {!isCreatingSession && (
         <motion.div
-          variants={shouldAnimate ? variants.slideUp : undefined}
-          initial={shouldAnimate ? "initial" : undefined}
-          animate={shouldAnimate ? "animate" : undefined}
-          transition={{ delay: 0.2 }}
+          variants={shouldAnimate ? buttonEntry : undefined}
           className="flex justify-between pt-4 border-t border-border"
         >
           <Button variant="ghost" onClick={handleBack} disabled={isCreatingSession}>
@@ -323,12 +322,7 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
           >
             {isCreatingSession ? (
               <>
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                >
-                  <Loader2 className="w-5 h-5" />
-                </motion.div>
+                <BrandedSpinner size="sm" label="Processing" className="text-white" />
                 Processing...
               </>
             ) : (
@@ -340,7 +334,7 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
           </motion.button>
         </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
