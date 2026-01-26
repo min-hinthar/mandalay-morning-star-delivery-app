@@ -51,9 +51,9 @@ const sizeConfig = {
 // HAPTIC FEEDBACK
 // ============================================
 
-function triggerHaptic(type: "light" | "medium" = "light") {
+function triggerHaptic(type: "light" | "medium" | "pop" = "light") {
   if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-    const durations = { light: 5, medium: 15 };
+    const durations = { light: 5, medium: 15, pop: 10 };
     navigator.vibrate(durations[type]);
   }
 }
@@ -75,11 +75,14 @@ export function QuantitySelector({
   const [direction, setDirection] = useState<"up" | "down" | null>(null);
 
   const sizes = sizeConfig[size];
-  const springConfig = getSpring(spring.snappy);
+  // Buttons use snappy spring (quick response)
+  const buttonSpring = getSpring(spring.snappy);
+  // Number display uses rubbery spring (visible overshoot)
+  const rubberySpring = getSpring(spring.rubbery);
 
   const handleDecrement = useCallback(() => {
     if (quantity > min) {
-      triggerHaptic("light");
+      triggerHaptic("pop"); // Pop haptic for satisfying feedback
       setDirection("down");
       onDecrement();
     }
@@ -87,7 +90,7 @@ export function QuantitySelector({
 
   const handleIncrement = useCallback(() => {
     if (quantity < max) {
-      triggerHaptic("light");
+      triggerHaptic("pop"); // Pop haptic for satisfying feedback
       setDirection("up");
       onIncrement();
     }
@@ -111,13 +114,13 @@ export function QuantitySelector({
         )}
         whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
         whileTap={shouldAnimate ? { scale: 0.9 } : undefined}
-        transition={springConfig}
+        transition={buttonSpring}
         aria-label="Decrease quantity"
       >
         <Minus className={sizes.icon} />
       </motion.button>
 
-      {/* Quantity display with flip animation */}
+      {/* Quantity display with rubbery flip animation */}
       <div
         className={cn(
           sizes.display,
@@ -130,9 +133,10 @@ export function QuantitySelector({
             initial={
               shouldAnimate
                 ? {
-                    y: direction === "up" ? 20 : -20,
+                    y: direction === "up" ? 28 : -28, // More dramatic flip offset
                     opacity: 0,
-                    scale: 0.8,
+                    scale: 0.7, // Start smaller for scale overshoot
+                    rotate: -5, // Slight rotation for natural feel
                   }
                 : undefined
             }
@@ -141,20 +145,22 @@ export function QuantitySelector({
                 ? {
                     y: 0,
                     opacity: 1,
-                    scale: 1,
+                    scale: 1, // Rubbery spring will overshoot to ~1.1 then settle
+                    rotate: 0,
                   }
                 : undefined
             }
             exit={
               shouldAnimate
                 ? {
-                    y: direction === "up" ? -20 : 20,
+                    y: direction === "up" ? -28 : 28,
                     opacity: 0,
-                    scale: 0.8,
+                    scale: 0.7,
+                    rotate: 5,
                   }
                 : undefined
             }
-            transition={springConfig}
+            transition={rubberySpring}
             className={cn(
               "absolute font-semibold text-text-primary tabular-nums",
               sizes.text
@@ -181,7 +187,7 @@ export function QuantitySelector({
         )}
         whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
         whileTap={shouldAnimate ? { scale: 0.9 } : undefined}
-        transition={springConfig}
+        transition={buttonSpring}
         aria-label="Increase quantity"
       >
         <Plus className={sizes.icon} />
