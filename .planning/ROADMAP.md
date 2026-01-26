@@ -32,7 +32,7 @@ See `.planning/milestones/v1.1-ROADMAP.md` for archived phase details.
 - [x] **Phase 16: 3D Hero Core** - Basic 3D food model with controls ✓
 - [ ] **Phase 17: 3D Hero Advanced** - Auto-rotate, physics, carousel, particles
 - [x] **Phase 18: Menu Unification** - Unified MenuItemCard across all surfaces ✓
-- [ ] **Phase 19: Homepage Redesign** - Video hero, scroll choreography, section redesign
+- [x] **Phase 19: Homepage Redesign** - Video hero, scroll choreography, section redesign ✓
 - [ ] **Phase 20: Micro-interactions** - Consistent animations across all components
 - [ ] **Phase 21: Theme Refinements** - Light/dark polish, animated toggle
 - [ ] **Phase 22: Customer Page Polish** - Enhanced animations on all customer pages
@@ -147,12 +147,13 @@ Plans:
   6. Skeleton loading has premium shimmer effect
   7. Quantity selectors have rubbery spring overshoot
   8. Favorite heart toggle has particle burst effect
-**Plans**: 3 plans
+**Plans**: 4 plans (3 core + 1 gap closure)
 
 Plans:
-- [ ] 20-01-PLAN.md — Button/input/toggle animations with motion token extensions
-- [ ] 20-02-PLAN.md — Branded spinner, error shake, checkbox animations
-- [ ] 20-03-PLAN.md — Quantity selector rubbery spring, animated image, sound effects
+- [x] 20-01-PLAN.md — Button/input/toggle animations with motion token extensions ✓
+- [x] 20-02-PLAN.md — Branded spinner, error shake, checkbox animations ✓
+- [x] 20-03-PLAN.md — Quantity selector rubbery spring, animated image, sound effects ✓
+- [ ] 20-04-PLAN.md — Gap closure: Wire orphaned components (BrandedSpinner, AnimatedToggle, ErrorShake, AnimatedImage)
 
 ---
 
@@ -222,13 +223,13 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 | 17. 3D Hero Advanced | v1.2 | 0/2 | Not started | - |
 | 18. Menu Unification | v1.2 | 3/3 | Complete | 2026-01-24 |
 | 19. Homepage Redesign | v1.2 | 4/4 | Complete | 2026-01-25 |
-| 20. Micro-interactions | v1.2 | 0/3 | Planned | - |
+| 20. Micro-interactions | v1.2 | 3/4 | In progress | - |
 | 21. Theme Refinements | v1.2 | 0/2 | Not started | - |
 | 22. Customer Page Polish | v1.2 | 0/2 | Not started | - |
 | 23. Header & Nav Rebuild | v1.2 | 0/1 | Not started | - |
 
-**v1.2 Totals:** 9 phases, ~23 plans, 48+ requirements
+**v1.2 Totals:** 9 phases, ~24 plans, 48+ requirements
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-25 - Phase 20 planned (3 plans)*
+*Last updated: 2026-01-26 - Phase 20 gap closure plan added (20-04)*
