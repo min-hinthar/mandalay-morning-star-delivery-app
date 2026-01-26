@@ -297,29 +297,50 @@
   --opacity-muted: 0.7;
   --opacity-visible: 0.9;
   --opacity-solid: 1;
+
+  /* ===========================================
+     FOOTER COLORS (Light Mode)
+     Theme-aware footer palette
+     =========================================== */
+
+  --color-footer-bg: var(--color-surface-tertiary);
+  --color-footer-text: var(--color-text-secondary);
+  --color-footer-text-muted: var(--color-text-muted);
+  --color-footer-border: var(--color-border-default);
 }
 
 /* ============================================
    DARK THEME
-   High contrast with warm undertones
+   OLED-friendly pure blacks with high contrast
    ============================================ */
+
+/* CONTRAST VERIFICATION (WCAG AA = 4.5:1 min)
+ * Light mode:
+ *   text-primary (#111) on surface-primary (#FFF): ~21:1 OK
+ *   text-secondary (#3B3B3B) on surface-secondary (#FAFAFA): ~8.5:1 OK
+ *   text-muted (#6B6B6B) on surface-tertiary (#F5F5F5): ~4.6:1 OK
+ * Dark mode:
+ *   text-primary (#F8F7F6) on surface-primary (#000): ~20:1 OK
+ *   text-secondary (#C5C3C0) on surface-secondary (#0a0a0a): ~12:1 OK
+ *   text-muted (#9A9794) on surface-tertiary (#141414): ~6.2:1 OK
+ */
 
 [data-theme="dark"],
 .dark {
   /* ===========================================
      PRIMARY PALETTE (Dark Mode)
-     Brighter for dark backgrounds
+     More vibrant for dark backgrounds
      =========================================== */
 
-  --color-primary: #E84363;
-  --color-primary-hover: #F25477;
-  --color-primary-active: #D33253;
-  --color-primary-light: rgba(232, 67, 99, 0.15);
+  --color-primary: #FF4D6D;
+  --color-primary-hover: #FF6B8A;
+  --color-primary-active: #E8435F;
+  --color-primary-light: rgba(255, 77, 109, 0.15);
 
-  --color-secondary: #FFDB4D;
-  --color-secondary-hover: #FFE066;
+  --color-secondary: #FFE066;
+  --color-secondary-hover: #FFE580;
   --color-secondary-active: #E5C600;
-  --color-secondary-light: rgba(255, 219, 77, 0.15);
+  --color-secondary-light: rgba(255, 224, 102, 0.15);
 
   /* ===========================================
      ACCENT COLORS (Dark Mode)
@@ -343,13 +364,13 @@
 
   /* ===========================================
      SURFACE COLORS (Dark Mode)
-     Warm undertones
+     OLED-friendly pure blacks
      =========================================== */
 
-  --color-surface-primary: #1A1918;
-  --color-surface-secondary: #252322;
-  --color-surface-tertiary: #302E2C;
-  --color-surface-elevated: #302E2C;
+  --color-surface-primary: #000000;
+  --color-surface-secondary: #0a0a0a;
+  --color-surface-tertiary: #141414;
+  --color-surface-elevated: #1a1a1a;
 
   /* ===========================================
      TEXT COLORS (Dark Mode)
@@ -357,8 +378,8 @@
 
   --color-text-primary: #F8F7F6;
   --color-text-secondary: #C5C3C0;
-  --color-text-muted: #8A8784;
-  --color-text-inverse: #1A1918;
+  --color-text-muted: #9A9794;
+  --color-text-inverse: #000000;
 
   /* ===========================================
      BORDER COLORS (Dark Mode)
@@ -394,10 +415,21 @@
   --shadow-card-hover: 0 12px 32px rgba(0, 0, 0, 0.5);
   --shadow-elevated: 0 16px 48px rgba(0, 0, 0, 0.55);
   --shadow-nav: 0 4px 12px rgba(0, 0, 0, 0.35);
-  --shadow-button-hover: 0 4px 16px rgba(232, 67, 99, 0.3);
-  --shadow-glow-primary: 0 0 25px rgba(232, 67, 99, 0.5);
+  --shadow-button-hover: 0 4px 16px rgba(255, 77, 109, 0.3);
+  --shadow-glow-primary: 0 0 25px rgba(255, 77, 109, 0.5);
   --shadow-glow-success: 0 0 25px rgba(107, 216, 75, 0.4);
   --shadow-glow-warning: 0 0 25px rgba(255, 159, 74, 0.4);
+  --shadow-glow-surface: 0 0 40px rgba(255, 77, 109, 0.15);
+
+  /* ===========================================
+     FOOTER COLORS (Dark Mode)
+     OLED-optimized footer palette
+     =========================================== */
+
+  --color-footer-bg: #0a0a0a;
+  --color-footer-text: #e0e0e0;
+  --color-footer-text-muted: #a0a0a0;
+  --color-footer-border: rgba(255, 255, 255, 0.1);
 }
 
 /* ============================================
