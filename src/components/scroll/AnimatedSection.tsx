@@ -5,20 +5,26 @@ import { motion, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
+// Default animation constants per Phase 22 CONTEXT
+const DEFAULT_STAGGER_GAP = 0.08; // 80ms stagger between children
+const DEFAULT_VIEWPORT_AMOUNT = 0.25; // 25% visible to trigger
+
 /**
- * Container variants for staggered children animation.
- * Per CONTEXT: 50ms stagger, always replay on scroll.
+ * Create container variants for staggered children animation.
+ * Per CONTEXT Phase 22: 80ms stagger, 25% viewport, always replay on scroll.
  */
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.05, // 50ms per CONTEXT
-      delayChildren: 0.1,
+function createContainerVariants(staggerGap: number): Variants {
+  return {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: staggerGap,
+        delayChildren: 0.1,
+      },
     },
-  },
-};
+  };
+}
 
 /**
  * Item variants for child elements within AnimatedSection.
@@ -47,17 +53,22 @@ interface AnimatedSectionProps {
   id?: string;
   /** HTML element to render (default: section) */
   as?: ElementType;
+  /** Custom stagger gap in seconds (default: 0.08 = 80ms) */
+  staggerGap?: number;
+  /** Viewport amount to trigger animation (default: 0.25 = 25%) */
+  viewportAmount?: number;
 }
 
 /**
  * Reusable scroll-triggered animation wrapper.
  *
  * Features:
- * - Trigger at 50% visible (viewport.amount: 0.5)
+ * - Trigger at 25% visible (viewport.amount: 0.25) - per Phase 22 CONTEXT
  * - Animation speed: 200-300ms (duration: 0.25)
- * - Stagger delay: 50ms between children
+ * - Stagger delay: 80ms between children - per Phase 22 CONTEXT
  * - Always replay: viewport.once: false
  * - Respects useAnimationPreference for reduced motion
+ * - Configurable stagger and viewport via props
  *
  * Usage:
  * ```tsx
@@ -73,7 +84,11 @@ export function AnimatedSection({
   className,
   id,
   as = "section",
+  staggerGap: customStaggerGap,
+  viewportAmount: customViewportAmount,
 }: AnimatedSectionProps) {
+  const staggerGap = customStaggerGap ?? DEFAULT_STAGGER_GAP;
+  const viewportAmount = customViewportAmount ?? DEFAULT_VIEWPORT_AMOUNT;
   const { shouldAnimate } = useAnimationPreference();
 
   // For reduced motion: render plain element without animation
@@ -88,6 +103,7 @@ export function AnimatedSection({
 
   // Cast for TypeScript - motion[as] is valid but TS needs help
   const MotionComponent = motion[as as keyof typeof motion] as typeof motion.section;
+  const containerVariants = createContainerVariants(staggerGap);
 
   return (
     <MotionComponent
@@ -98,7 +114,7 @@ export function AnimatedSection({
       whileInView="visible"
       viewport={{
         once: false, // Always replay per CONTEXT decision
-        amount: 0.5, // Trigger at 50% visible per CONTEXT
+        amount: viewportAmount, // Trigger at 25% visible per Phase 22 CONTEXT
       }}
     >
       {children}
