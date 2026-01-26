@@ -4,30 +4,33 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
+import { motion, type HTMLMotionProps } from "framer-motion";
 
 import { cn } from "@/lib/utils/cn";
+import { spring, hover } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 /**
- * V6 Button System - Pepper Aesthetic
+ * V7 Button System - Pepper Aesthetic with Framer Motion
  * Playful pill-shaped buttons with spring animations
  * Deep Rich Red primary, Golden Yellow secondary
  *
  * Sizes: sm (36px), md (44px), lg (52px), xl (60px - driver)
  * Variants: primary, secondary, ghost, danger, outline, link, success
+ *
+ * Motion: Press compresses with depth effect, hover lifts with spring physics
  */
 const buttonVariants = cva(
   [
     // Base styles
     "inline-flex items-center justify-center gap-2 whitespace-nowrap",
     "font-body font-semibold",
-    // V6 Motion: Spring-based transitions
-    "transition-all duration-normal ease-spring",
+    // V6 Motion: Spring-based transitions (CSS fallback)
+    "transition-colors duration-normal ease-spring",
     // Focus ring
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary",
     // Disabled state
     "disabled:pointer-events-none disabled:opacity-40 disabled:cursor-not-allowed",
-    // Active press scale
-    "active:scale-[0.98]",
     // Icon sizing
     "[&_svg]:pointer-events-none [&_svg]:shrink-0",
   ].join(" "),
@@ -38,16 +41,16 @@ const buttonVariants = cva(
         primary: [
           "bg-primary text-text-inverse",
           "shadow-md",
-          "hover:bg-primary-hover hover:shadow-button-hover hover:-translate-y-0.5",
-          "active:bg-primary-active active:shadow-sm active:translate-y-0",
+          "hover:bg-primary-hover hover:shadow-button-hover",
+          "active:bg-primary-active active:shadow-sm",
         ].join(" "),
 
         // V6 Secondary: Golden Yellow - secondary CTAs
         secondary: [
           "bg-secondary text-text-primary",
           "shadow-md",
-          "hover:bg-secondary-hover hover:shadow-card hover:-translate-y-0.5",
-          "active:bg-secondary-active active:shadow-sm active:translate-y-0",
+          "hover:bg-secondary-hover hover:shadow-card",
+          "active:bg-secondary-active active:shadow-sm",
         ].join(" "),
 
         // V6 Ghost: Transparent with primary text
@@ -62,24 +65,24 @@ const buttonVariants = cva(
         danger: [
           "bg-status-error text-text-inverse",
           "shadow-md",
-          "hover:brightness-110 hover:shadow-card-hover hover:-translate-y-0.5",
-          "active:shadow-sm active:translate-y-0",
+          "hover:brightness-110 hover:shadow-card-hover",
+          "active:shadow-sm",
         ].join(" "),
 
         // V6 Success: Green for positive confirmation
         success: [
           "bg-green text-text-inverse",
           "shadow-md",
-          "hover:bg-green-hover hover:shadow-card-hover hover:-translate-y-0.5",
-          "active:shadow-sm active:translate-y-0",
+          "hover:bg-green-hover hover:shadow-card-hover",
+          "active:shadow-sm",
         ].join(" "),
 
         // V6 Outline: Border with primary accent
         outline: [
           "bg-surface-primary text-primary",
           "border-2 border-primary",
-          "hover:bg-primary-light hover:-translate-y-0.5",
-          "active:bg-primary/10 active:translate-y-0",
+          "hover:bg-primary-light",
+          "active:bg-primary/10",
         ].join(" "),
 
         // V6 Link: Text-only with underline
@@ -93,8 +96,8 @@ const buttonVariants = cva(
         default: [
           "bg-primary text-text-inverse",
           "shadow-md",
-          "hover:bg-primary-hover hover:shadow-button-hover hover:-translate-y-0.5",
-          "active:bg-primary-active active:shadow-sm active:translate-y-0",
+          "hover:bg-primary-hover hover:shadow-button-hover",
+          "active:bg-primary-active active:shadow-sm",
         ].join(" "),
       },
 
@@ -122,8 +125,14 @@ const buttonVariants = cva(
   }
 );
 
+// Omit conflicting event handlers from React's ButtonHTMLAttributes
+type ButtonHTMLProps = Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "onDrag" | "onDragEnd" | "onDragStart" | "onAnimationStart"
+>;
+
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends ButtonHTMLProps,
     VariantProps<typeof buttonVariants> {
   /** Render as a different element using Radix Slot */
   asChild?: boolean;
@@ -154,7 +163,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const Comp = asChild ? Slot : "button";
+    const { shouldAnimate } = useAnimationPreference();
     const isDisabled = disabled || isLoading;
 
     // For icon-only buttons, ensure we have an aria-label
@@ -163,31 +172,57 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       console.warn("Button: Icon-only buttons should have an aria-label for accessibility");
     }
 
+    const buttonContent = isLoading ? (
+      <span className="contents">
+        <Loader2 className="animate-spin" aria-hidden="true" />
+        <span className={loadingText ? undefined : "sr-only"}>
+          {loadingText || "Loading..."}
+        </span>
+        {/* Keep original content in DOM but hidden to maintain width */}
+        {!loadingText && <span className="invisible">{children}</span>}
+      </span>
+    ) : (
+      <span className="contents">
+        {leftIcon && <span className="shrink-0">{leftIcon}</span>}
+        {children}
+        {rightIcon && <span className="shrink-0">{rightIcon}</span>}
+      </span>
+    );
+
+    // For asChild, use Slot without motion (consumers control their own animation)
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref as React.Ref<HTMLElement>}
+          aria-busy={isLoading}
+          {...props}
+        >
+          {children}
+        </Slot>
+      );
+    }
+
+    // Motion props for animated button
+    const motionProps: HTMLMotionProps<"button"> = shouldAnimate
+      ? {
+          whileHover: isDisabled ? undefined : hover.buttonPress.whileHover,
+          whileTap: isDisabled ? undefined : hover.buttonPress.whileTap,
+          transition: spring.snappyButton,
+        }
+      : {};
+
     return (
-      <Comp
+      <motion.button
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         disabled={isDisabled}
         aria-busy={isLoading}
-        {...props}
+        {...motionProps}
+        {...(props as Omit<HTMLMotionProps<"button">, "ref">)}
       >
-        {isLoading ? (
-          <span className="contents">
-            <Loader2 className="animate-spin" aria-hidden="true" />
-            <span className={loadingText ? undefined : "sr-only"}>
-              {loadingText || "Loading..."}
-            </span>
-            {/* Keep original content in DOM but hidden to maintain width */}
-            {!loadingText && <span className="invisible">{children}</span>}
-          </span>
-        ) : (
-          <span className="contents">
-            {leftIcon && <span className="shrink-0">{leftIcon}</span>}
-            {children}
-            {rightIcon && <span className="shrink-0">{rightIcon}</span>}
-          </span>
-        )}
-      </Comp>
+        {buttonContent}
+      </motion.button>
     );
   }
 );
