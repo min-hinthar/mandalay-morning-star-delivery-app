@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.2 Playful UI Overhaul - Phase 20 Micro-interactions
+**Current focus:** v1.2 Playful UI Overhaul - Phase 21 Theme Refinements
 
 ## Current Position
 
-Phase: 20 of 23 (Micro-interactions)
-Plan: 4 of 4 complete
-Status: Phase complete
-Last activity: 2026-01-26 - Completed 20-04-PLAN.md (Gap Closure)
+Phase: 21 of 23 (Theme Refinements)
+Plan: 2 of 3 complete
+Status: In progress
+Last activity: 2026-01-26 - Completed 21-02-PLAN.md (Animated Theme Toggle)
 
-Progress: [####################] v1.0-v1.1 complete | [██████████████████░░] v1.2 79%
+Progress: [####################] v1.0-v1.1 complete | [███████████████████░] v1.2 84%
 
 ## Milestones Completed
 
@@ -25,14 +25,14 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 
 **Total completed:** 15 phases, 55 plans
 **v1.2 scope:** 9 phases (15-23), ~21 plans, 48+ requirements
-**v1.2 progress:** 5 phases complete, 15 plans done
+**v1.2 progress:** 5 phases complete, 17 plans done
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 68 (v1.0 + v1.1 + v1.2)
-- v1.2 plans completed: 15
-- Average duration: 10min (Phase 15-20)
+- Total plans completed: 70 (v1.0 + v1.1 + v1.2)
+- v1.2 plans completed: 17
+- Average duration: 10min (Phase 15-21)
 
 **By Phase (v1.2):**
 
@@ -43,6 +43,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | 18 | 3/3 | 53min | 18min |
 | 19 | 4/4 | 27min | 6.8min |
 | 20 | 4/4 | ~35min | 8.8min |
+| 21 | 2/3 | ~20min | 10min |
 
 *Updated after each plan completion*
 
@@ -89,6 +90,9 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 - **BrandedSpinner size mapping (20-04):** sm for sm/md buttons, md for lg/xl buttons
 - **Button loading integration (20-04):** Use isLoading prop, BrandedSpinner is automatic
 - **ErrorShake form integration (20-04):** Wrap error with ErrorShake, trigger on validation fail
+- **Binary theme toggle (21-02):** Light/dark only; system mode via OS settings
+- **View Transitions circular reveal (21-02):** cubic-bezier(0.34, 1.56, 0.64, 1) spring easing
+- **Theme sounds (21-02):** Web Audio synthesis - A5/E6 chime (light), A3 tone (dark)
 
 ### Research Findings
 
@@ -142,6 +146,9 @@ From `.planning/research/SUMMARY.md`:
 - **useSoundEffect hook (20-03):** play, toggle, enable, disable with localStorage persistence
 - **AnimatedImage in CardImage (20-04):** Replace next/image for blur-scale reveal on menu cards
 - **AnimatedToggle replaces button (20-04):** Proper switch UX with spring physics
+- **useThemeTransition hook (21-02):** View Transitions API with 300ms debounce, reduced motion fallback
+- **SVG icon morph (21-02):** AnimatePresence mode="wait" with spring transition (stiffness 500, damping 25)
+- **Theme toggle styling (21-02):** Border in light mode, primary glow shadow in dark mode
 
 ### Roadmap Evolution
 
@@ -154,10 +161,10 @@ None - all blocking issues from Phase 15 resolved.
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 20-04-PLAN.md (Gap Closure) - Phase 20 complete
+Stopped at: Completed 21-02-PLAN.md (Animated Theme Toggle)
 Resume file: None
-Next action: Continue to Phase 21 (State Transitions) or Phase 23 (Header & Nav Rebuild)
+Next action: Continue to Phase 21-03 (Page Transitions) or Phase 22 (State Transitions)
 
 ---
 
-*Updated: 2026-01-26 - Completed 20-04-PLAN.md - Phase 20 complete*
+*Updated: 2026-01-26 - Completed 21-02-PLAN.md - Phase 21 in progress*
