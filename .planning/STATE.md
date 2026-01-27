@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 26 of 32 (Component Consolidation)
-Plan: 6 of 8 in current phase
+Plan: 7 of 8 in current phase
 Status: In progress
-Last activity: 2026-01-27 - Completed 26-06-PLAN.md
+Last activity: 2026-01-27 - Completed 26-07-PLAN.md
 
-Progress: [██████████████████████████░░░░░░░░░░░░░░░] v1.3 Full Codebase Consolidation | 6/22 plans
+Progress: [███████████████████████████░░░░░░░░░░░░░░] v1.3 Full Codebase Consolidation | 7/22 plans
 
 ## Milestones Completed
 
@@ -26,21 +26,21 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 8 phases (25-32), 22 plans estimated
-**v1.3 progress:** 3 plans complete
+**v1.3 progress:** 7 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 88 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 89 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 6
+- v1.3 plans completed: 7
 
 **By Phase (v1.3):**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 25 | 1/1 | 8min | 8min |
-| 26 | 6/8 | 120min | 20min |
+| 26 | 7/8 | 128min | 18min |
 
 ## Accumulated Context
 
@@ -53,7 +53,7 @@ From `.planning/research/SUMMARY.md`:
 - Hero parallax can use existing parallaxPresets from motion-tokens.ts
 - Token system is comprehensive (62 tokens) but not being used
 
-### Component Consolidation Progress (26-06)
+### Component Consolidation Progress (26-07)
 
 **Completed migrations:**
 - Portal.tsx -> ui/
@@ -64,23 +64,18 @@ From `.planning/research/SUMMARY.md`:
 - ToastProvider.tsx -> ui/
 - Tooltip.tsx -> ui/ (V8 with delayDuration)
 - Dropdown.tsx -> ui/ (V8 simpler version)
-- Cart components -> ui/cart/ (AddToCartButton, CartBar, CartButton, CartDrawer, CartEmptyState, CartItem, CartSummary, ClearCartConfirmation, FlyToCart, QuantitySelector) [26-04]
-- Menu components -> ui/menu/ (CategoryTabs, ItemDetailSheet, MenuContent, MenuGrid, MenuSection, MenuSkeleton, SearchInput, BlurImage, EmojiPlaceholder, FavoriteButton, SearchAutocomplete) [26-05]
-- Navigation components -> ui/navigation/ (AppShell, BottomNav, Header, MobileMenu, PageContainer) [26-06]
-- Scroll components -> ui/scroll/ (ParallaxLayer, RevealOnScroll, ScrollChoreographer) [26-06]
-- PageTransition -> ui/transitions/ (renamed from PageTransitionV8) [26-06]
+- Cart components -> ui/cart/ [26-04]
+- Menu components -> ui/menu/ [26-05]
+- Navigation components -> ui/navigation/ [26-06]
+- Scroll components -> ui/scroll/ [26-06]
+- PageTransition -> ui/transitions/ [26-06]
+- **Main barrel export updated with subdirectory re-exports [26-07]**
+- **All consumer imports migrated from ui-v8/ to ui/ [26-07]**
 
-**Deleted:**
-- overlay-base.tsx (functionality in Modal.tsx)
-- ui-v8/BottomSheet.tsx (merged into Drawer)
-- toast.tsx (old Radix-based)
-- toaster.tsx (old Radix-based)
-- tooltip.tsx (old CSS-only)
-- ui-v8/navigation/* (moved to ui/navigation/)
-- ui-v8/scroll/* (moved to ui/scroll/)
-- ui-v8/transitions/PageTransitionV8.tsx (moved to ui/transitions/PageTransition.tsx)
-- ui-v8/cart/* (moved to ui/cart/) [26-04]
-- ui-v8/menu/* (moved to ui/menu/) [26-05]
+**Import consolidation status:**
+- NO ui-v8 imports remain outside ui-v8/ directory
+- Main barrel (ui/index.ts) re-exports: cart, menu, navigation, scroll, transitions
+- Duplicate exports removed: SearchInput, CartEmptyState (canonical versions in subdirs)
 
 ### Design Decisions
 
@@ -100,6 +95,8 @@ From `.planning/research/SUMMARY.md`:
 | Cart components V8 suffix removed | 26-04 | CartBarV8 -> CartBar, etc. |
 | CartDrawer uses Drawer position="bottom" | 26-04 | BottomSheet replaced per 26-02 |
 | Menu components V8 suffix removed | 26-05 | CategoryTabsV8 -> CategoryTabs, etc. |
+| SearchInput canonical in ui/menu | 26-07 | Menu version has autocomplete |
+| CartEmptyState canonical in ui/cart | 26-07 | Cart version has animations |
 
 ### Blockers/Concerns
 
@@ -107,11 +104,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27 14:22
-Stopped at: Completed 26-04-PLAN.md
+Last session: 2026-01-27 14:49
+Stopped at: Completed 26-07-PLAN.md
 Resume file: None
-Next action: `/gsd:execute-phase` for 26-07-PLAN.md
+Next action: `/gsd:execute-phase` for 26-08-PLAN.md (cleanup)
 
 ---
 
-*Updated: 2026-01-27 - Plan 26-04 complete, cart components migrated to ui/cart/*
+*Updated: 2026-01-27 - Plan 26-07 complete, all consumer imports consolidated to ui/*
