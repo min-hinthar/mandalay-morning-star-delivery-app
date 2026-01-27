@@ -255,29 +255,8 @@ export type { SafeAreaProps, SafeAreaEdge } from "./SafeArea";
 // SUBDIRECTORY RE-EXPORTS
 // ============================================
 
-// Cart components
-export * from "./cart";
-
-// Menu components
-export * from "./menu";
-
-// Navigation components
-export * from "./navigation";
-
-// Scroll components
-export * from "./scroll";
-
-// Transitions
-export * from "./transitions";
-
-// Layout (app shells, headers, drawers)
-export * from "./layout";
-
-// Search (command palette)
-export * from "./search";
-
-// Orders (tracking, delivery)
-export * from "./orders";
+// Admin (dashboard, analytics, drivers, routes)
+export * from "./admin";
 
 // Auth (login, signup, onboarding)
 export * from "./auth";
@@ -285,5 +264,38 @@ export * from "./auth";
 // Brand (mascot, identity)
 export * from "./brand";
 
+// Cart components
+export * from "./cart";
+
+// Checkout (wizard, address, payment)
+export * from "./checkout";
+
+// Driver (navigation, stops, delivery)
+export * from "./driver";
+
+// Homepage (hero, CTA, sections)
+export * from "./homepage";
+
+// Layout (app shells, headers, drawers)
+export * from "./layout";
+
+// Menu components
+export * from "./menu";
+
+// Navigation components
+export * from "./navigation";
+
+// Orders (tracking, delivery)
+export * from "./orders";
+
+// Scroll components
+export * from "./scroll";
+
+// Search (command palette)
+export * from "./search";
+
 // Theme (providers, dynamic themes)
 export * from "./theme";
+
+// Transitions
+export * from "./transitions";
