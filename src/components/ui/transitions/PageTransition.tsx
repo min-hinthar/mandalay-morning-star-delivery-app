@@ -13,7 +13,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 export type PageTransitionVariant = "fade" | "slide" | "morph" | "reveal" | "scale";
 
-export interface PageTransitionV8Props {
+export interface PageTransitionProps {
   /** Page content */
   children: ReactNode;
   /** Transition variant type */
@@ -143,7 +143,7 @@ function getVariants(variant: PageTransitionVariant): Variants {
 // ============================================
 
 /**
- * PageTransitionV8
+ * PageTransition
  *
  * Enhanced page transitions using V8 motion tokens.
  * Uses pathname as AnimatePresence key for route change detection.
@@ -156,18 +156,18 @@ function getVariants(variant: PageTransitionVariant): Variants {
  *
  * @example
  * // In layout.tsx
- * <PageTransitionV8 variant="morph">
+ * <PageTransition variant="morph">
  *   {children}
- * </PageTransitionV8>
+ * </PageTransition>
  */
-export function PageTransitionV8({
+export function PageTransition({
   children,
   variant = "slide",
   className,
   preserveScroll = false,
   onTransitionStart,
   onTransitionComplete,
-}: PageTransitionV8Props) {
+}: PageTransitionProps) {
   const pathname = usePathname();
   const { shouldAnimate } = useAnimationPreference();
 
@@ -206,4 +206,4 @@ export function PageTransitionV8({
   );
 }
 
-export default PageTransitionV8;
+export default PageTransition;
