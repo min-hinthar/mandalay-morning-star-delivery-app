@@ -20,8 +20,7 @@ import { ShoppingCart, Check, Loader2 } from "lucide-react";
 import { useFlyToCart } from "./FlyToCart";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
-import { spring } from "@/lib/motion-tokens";
-import { triggerHaptic } from "@/lib/animations/cart";
+import { spring, triggerHaptic } from "@/lib/motion-tokens";
 import type { SelectedModifier } from "@/types/cart";
 
 // ============================================

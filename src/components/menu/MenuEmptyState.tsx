@@ -7,7 +7,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Search, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { v6Spring } from "@/lib/motion";
+import { spring } from "@/lib/motion-tokens";
 
 interface MenuEmptyStateProps {
   type: "no-menu" | "no-results";
@@ -25,12 +25,12 @@ export function MenuEmptyState({
 
   const containerVariants = {
     hidden: { opacity: 0, y: 18 },
-    visible: { opacity: 1, y: 0, transition: v6Spring },
+    visible: { opacity: 1, y: 0, transition: spring.default },
   };
 
   const iconVariants = {
     hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1, transition: { ...v6Spring, delay: 0.1 } },
+    visible: { opacity: 1, scale: 1, transition: { ...spring.default, delay: 0.1 } },
   };
 
   if (type === "no-menu") {

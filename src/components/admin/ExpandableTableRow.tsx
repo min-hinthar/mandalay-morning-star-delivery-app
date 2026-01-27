@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { TableRow, TableCell } from "@/components/ui/table";
-import { v6Spring } from "@/lib/motion";
+import { spring } from "@/lib/motion-tokens";
 
 // ============================================
 // EXPANDABLE TABLE ROW
@@ -94,7 +94,7 @@ export function ExpandableTableRow({
           <motion.div
             initial={false}
             animate={{ rotate: isExpanded ? 90 : 0 }}
-            transition={v6Spring}
+            transition={spring.default}
             className="text-text-muted group-hover:text-primary"
           >
             <ChevronRight className="h-4 w-4" />

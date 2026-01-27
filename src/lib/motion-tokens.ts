@@ -128,6 +128,13 @@ export const spring = {
     damping: 12,
     mass: 0.9,
   },
+  /** Smooth - balanced modals, drawers */
+  smooth: {
+    type: "spring" as const,
+    stiffness: 200,
+    damping: 20,
+    mass: 1,
+  },
 } as const;
 
 // ============================================
@@ -818,3 +825,80 @@ export const viewport = {
   /** Amount visible before trigger */
   half: { once: true, amount: 0.5 as const },
 } as const;
+
+// ============================================
+// CART ANIMATIONS (from @/lib/animations/cart)
+// ============================================
+
+/**
+ * Cart bar bounce when item is added
+ */
+export const cartBarBounce: TargetAndTransition = {
+  y: [0, -8, 0],
+  transition: {
+    duration: 0.3,
+    times: [0, 0.5, 1],
+    ease: "easeOut",
+  },
+};
+
+/**
+ * Cart bar slide up animation (initial appearance)
+ */
+export const cartBarSlideUp: Variants = {
+  hidden: {
+    y: "100%",
+    opacity: 0,
+  },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: spring.default,
+  },
+  exit: {
+    y: "100%",
+    opacity: 0,
+    transition: { duration: 0.2 },
+  },
+};
+
+/**
+ * Badge variants for AnimatePresence
+ */
+export const badgeVariants: Variants = {
+  initial: {
+    scale: 0,
+    opacity: 0,
+  },
+  animate: {
+    scale: 1,
+    opacity: 1,
+    transition: spring.ultraBouncy,
+  },
+  exit: {
+    scale: 0,
+    opacity: 0,
+    transition: { duration: 0.15 },
+  },
+  pop: {
+    scale: [1, 1.3, 1],
+    transition: {
+      duration: 0.25,
+      times: [0, 0.5, 1],
+    },
+  },
+};
+
+/**
+ * Trigger haptic feedback if available
+ */
+export function triggerHaptic(type: "light" | "medium" | "heavy" = "light") {
+  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+    const durations = {
+      light: 10,
+      medium: 20,
+      heavy: 30,
+    };
+    navigator.vibrate(durations[type]);
+  }
+}

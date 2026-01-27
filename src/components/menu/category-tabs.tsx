@@ -4,7 +4,7 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { MenuCategory } from "@/types/menu";
 import { cn } from "@/lib/utils/cn";
-import { v6SpringSnappy } from "@/lib/motion";
+import { spring } from "@/lib/motion-tokens";
 
 interface CategoryTabsProps {
   categories: MenuCategory[];
@@ -194,7 +194,7 @@ export function CategoryTabs({
                     transition={
                       prefersReducedMotion
                         ? { duration: 0 }
-                        : v6SpringSnappy
+                        : spring.snappy
                     }
                   />
                 )}

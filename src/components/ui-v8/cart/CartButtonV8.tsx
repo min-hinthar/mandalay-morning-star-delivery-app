@@ -20,8 +20,7 @@ import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useCartAnimationStore } from "@/lib/stores/cart-animation-store";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
-import { badgeVariants } from "@/lib/animations/cart";
-import { spring } from "@/lib/motion-tokens";
+import { spring, badgeVariants } from "@/lib/motion-tokens";
 
 // ============================================
 // TYPES
