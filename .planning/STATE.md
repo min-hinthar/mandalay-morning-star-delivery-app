@@ -67,6 +67,7 @@ From `.planning/research/SUMMARY.md`:
 - Navigation components -> ui/navigation/ (AppShell, BottomNav, Header, MobileMenu, PageContainer)
 - Scroll components -> ui/scroll/ (ParallaxLayer, RevealOnScroll, ScrollChoreographer)
 - PageTransition -> ui/transitions/ (renamed from PageTransitionV8)
+- Menu components -> ui/menu/ (CategoryTabs, ItemDetailSheet, MenuContent, MenuGrid, MenuSection, MenuSkeleton, SearchInput, BlurImage, EmojiPlaceholder, FavoriteButton, SearchAutocomplete) [26-05]
 
 **Deleted:**
 - overlay-base.tsx (functionality in Modal.tsx)
@@ -77,6 +78,7 @@ From `.planning/research/SUMMARY.md`:
 - ui-v8/navigation/* (moved to ui/navigation/)
 - ui-v8/scroll/* (moved to ui/scroll/)
 - ui-v8/transitions/PageTransitionV8.tsx (moved to ui/transitions/PageTransition.tsx)
+- ui-v8/menu/* (moved to ui/menu/) [26-05]
 
 ### Design Decisions
 
@@ -93,6 +95,7 @@ From `.planning/research/SUMMARY.md`:
 | Dropdown and DropdownMenu coexist | 26-03 | Different use cases (simpler vs feature-rich) |
 | Drawer uses position prop | 26-06 | position="left|right|bottom" instead of side |
 | PageTransition renamed | 26-06 | V8 suffix removed in ui/transitions |
+| Menu components V8 suffix removed | 26-05 | CategoryTabsV8 -> CategoryTabs, etc. |
 
 ### Blockers/Concerns
 
@@ -100,11 +103,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27 06:34
-Stopped at: Completed 26-06-PLAN.md
+Last session: 2026-01-27 14:36
+Stopped at: Completed 26-05-PLAN.md
 Resume file: None
-Next action: `/gsd:execute-phase` for 26-07-PLAN.md
+Next action: `/gsd:execute-phase` for 26-06-PLAN.md or 26-07-PLAN.md
 
 ---
 
-*Updated: 2026-01-27 - Plan 26-06 complete, navigation/scroll/transitions migrated to ui/*
+*Updated: 2026-01-27 - Plan 26-05 complete, menu components migrated to ui/menu/*
