@@ -370,10 +370,12 @@ export function UnifiedMenuItemCard({
       onTouchMove={handleTouchMove}
       onClick={handleCardClick}
       whileHover={
-        shouldAnimate && !item.isSoldOut ? { scale: 1.03 } : undefined
+        // Disable scale when tilt is enabled - 3D tilt IS the hover feedback
+        shouldAnimate && !item.isSoldOut && !shouldEnableTilt ? { scale: 1.03 } : undefined
       }
       whileTap={
-        shouldAnimate && !item.isSoldOut ? { scale: 0.98 } : undefined
+        // Disable scale when tilt is enabled - prevents transform conflicts during long-press
+        shouldAnimate && !item.isSoldOut && !shouldEnableTilt ? { scale: 0.98 } : undefined
       }
       transition={springConfig}
       role="button"
