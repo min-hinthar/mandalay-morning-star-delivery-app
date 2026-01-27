@@ -5,7 +5,7 @@ import "./globals.css";
 import { HeaderWrapper } from "@/components/ui/layout/HeaderWrapper";
 import { Providers } from "@/app/providers";
 import { ToastProvider } from "@/components/ui/ToastProvider";
-import { WebVitalsReporter } from "@/components/WebVitalsReporter";
+import { WebVitalsReporter } from "@/lib/web-vitals";
 
 /**
  * Font Optimization:
