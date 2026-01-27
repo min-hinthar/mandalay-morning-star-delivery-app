@@ -229,7 +229,7 @@ export function MenuContentV8({ className }: MenuContentV8Props) {
       />
 
       {/* Menu Sections with scroll-triggered animations */}
-      <div className="space-y-8 px-4 pb-8 pt-6">
+      <div className="space-y-8 px-4 pb-8 pt-2">
         {categories.map((category: MenuCategory) => (
           <AnimatedSection
             key={category.slug}
