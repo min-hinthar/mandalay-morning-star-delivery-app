@@ -295,6 +295,34 @@ expect(count).toBe(0);
 
 ## Design Token Patterns
 
+### Semantic Token Naming vs Usage Intent
+**Context:** Footer section using `bg-text-primary` with `text-white` caused white-on-white in dark mode
+**Learning:** `bg-text-primary` uses the text color as a background - in light mode it's dark (#111111), in dark mode it's light (#F8F7F6). This creates inverted behavior that breaks hardcoded `text-white`.
+
+**Token usage patterns:**
+```tsx
+// ❌ bg-text-primary inverts, text-white doesn't
+<section className="bg-text-primary">
+  <h3 className="text-white">...</h3>  // Dark mode: light bg + white text = invisible
+</section>
+
+// ✅ Use semantic inverse token for contrast
+<section className="bg-primary">
+  <h3 className="text-text-inverse">...</h3>  // Auto-contrasts: white on dark, black on light
+</section>
+
+// ✅ Or use dedicated section tokens (footer, hero, etc.)
+<section className="bg-footer-bg">
+  <h3 className="text-footer-text">...</h3>  // Both switch together
+</section>
+```
+
+**Key tokens:**
+- `text-text-inverse`: White in light mode, black in dark mode - use on colored backgrounds
+- `bg-footer-bg` / `text-footer-text`: Theme-aware footer pair defined in tokens.css
+
+**Apply when:** Creating sections with solid backgrounds that need contrasting text in both themes.
+
 ### Check Fallback Code for Token Violations
 Fallback CSS (non-WebGL path, polyfills, error handlers) often has hardcoded values.
 ESLint catches className violations but misses inline style objects.
