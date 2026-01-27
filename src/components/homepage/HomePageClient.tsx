@@ -6,7 +6,7 @@ import { HowItWorksSection } from "./HowItWorksSection";
 import { TestimonialsCarousel } from "./TestimonialsCarousel";
 import { CTABanner } from "./CTABanner";
 import { FooterCTA } from "./FooterCTA";
-import { SectionNavDots } from "@/components/scroll/SectionNavDots";
+import { SectionNavDots } from "@/components/ui/scroll";
 
 // ============================================
 // SECTION NAVIGATION CONFIG

@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils/cn";
 import type { MenuItem, MenuCategory } from "@/types/menu";
 import type { SelectedModifier } from "@/lib/utils/price";
 
-import { AnimatedSection, itemVariants } from "@/components/scroll/AnimatedSection";
+import { AnimatedSection, itemVariants } from "@/components/ui/scroll";
 import { CategoryTabs } from "./CategoryTabs";
 import { MenuSection } from "./MenuSection";
 import { MenuGrid } from "./MenuGrid";

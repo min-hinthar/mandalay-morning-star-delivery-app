@@ -1,13 +1,15 @@
 /**
  * Scroll Components
  *
- * GSAP-powered scroll animation components using ScrollTrigger.
- * Import from @/lib/gsap is enforced for proper plugin registration.
+ * Scroll animation and navigation components.
+ * - GSAP-powered: ScrollChoreographer, RevealOnScroll, ParallaxLayer
+ * - Framer Motion: AnimatedSection, SectionNavDots
  *
  * @example
- * import { ScrollChoreographer, RevealOnScroll, ParallaxLayer } from "@/components/ui/scroll";
+ * import { ScrollChoreographer, AnimatedSection, itemVariants } from "@/components/ui/scroll";
  */
 
+// GSAP-powered components
 export {
   ScrollChoreographer,
   type ScrollChoreographerProps,
@@ -24,3 +26,7 @@ export {
   type ParallaxLayerProps,
   type ParallaxDirection,
 } from "./ParallaxLayer";
+
+// Framer Motion components
+export { AnimatedSection, itemVariants } from "./AnimatedSection";
+export { SectionNavDots } from "./SectionNavDots";

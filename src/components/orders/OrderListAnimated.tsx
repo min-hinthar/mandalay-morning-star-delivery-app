@@ -7,7 +7,7 @@
  */
 
 import { motion } from "framer-motion";
-import { AnimatedSection, itemVariants } from "@/components/scroll/AnimatedSection";
+import { AnimatedSection, itemVariants } from "@/components/ui/scroll";
 import { OrderCard } from "./OrderCard";
 import type { OrderStatus } from "@/types/order";
 
