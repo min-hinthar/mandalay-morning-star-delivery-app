@@ -36,7 +36,7 @@ export interface UnifiedMenuItemCardProps {
   categorySlug?: string;
   /** Callback when card is clicked (for detail view) */
   onSelect?: (item: MenuItem) => void;
-  /** Callback for quick add to cart (skips detail view) */
+  /** Callback for quick add to cart (skips detail view) - parent handles cart mutation */
   onQuickAdd?: (item: MenuItem) => void;
   /** Whether item is favorited (controlled) */
   isFavorite?: boolean;
@@ -88,7 +88,7 @@ const variantConfig = {
 // TILT CONFIGURATION
 // ============================================
 
-const TILT_MAX_ANGLE = 18; // 15-20 degree range
+const TILT_MAX_ANGLE = 18;
 const SPRING_CONFIG = { stiffness: 150, damping: 15 };
 
 // ============================================
@@ -98,18 +98,13 @@ const SPRING_CONFIG = { stiffness: 150, damping: 15 };
 /**
  * UnifiedMenuItemCard - Consolidated menu card with glassmorphism and 3D tilt
  *
- * Variants:
- * - menu: Full details with description, tilt enabled
- * - homepage: Compact for carousel, tilt enabled
- * - cart: Minimal for cart list, no tilt
+ * Add-to-cart flow:
+ * - Items WITHOUT required modifiers: Quick-add directly via card's Add button
+ * - Items WITH required modifiers: Opens detail modal for modifier selection
  *
- * Features:
- * - Glassmorphism background with 20px blur
- * - 3D tilt effect (15-20 degree max) with moving shine
- * - Scale on hover (1.03x)
- * - Add button state machine (idle -> adding -> quantity)
- * - Dietary badges with icons AND text
- * - Respects reduced motion preference
+ * Quantity display:
+ * - Shows aggregate quantity of this item in cart (all modifier variants combined)
+ * - This provides visual feedback that item is in cart
  */
 export function UnifiedMenuItemCard({
   item,
@@ -138,8 +133,16 @@ export function UnifiedMenuItemCard({
 
   // Cart integration
   const cart = useCart();
-  const cartItem = cart.items.find((ci) => ci.menuItemId === item.id);
-  const quantity = cartItem?.quantity ?? 0;
+
+  /**
+   * Get total quantity of this item in cart (all modifier variants combined).
+   * This shows user that they have this item, regardless of which modifiers.
+   */
+  const totalQuantityInCart = useMemo(() => {
+    return cart.items
+      .filter((ci) => ci.menuItemId === item.id)
+      .reduce((sum, ci) => sum + ci.quantity, 0);
+  }, [cart.items, item.id]);
 
   // Get variant config
   const config = variantConfig[variant];
@@ -165,6 +168,14 @@ export function UnifiedMenuItemCard({
     () => getSpring(spring.snappy),
     [getSpring]
   );
+
+  // Check if item has required modifiers (must go through detail modal)
+  const hasRequiredModifiers = useMemo(() => {
+    return (
+      item.modifierGroups &&
+      item.modifierGroups.some((group) => group.minSelect > 0)
+    );
+  }, [item.modifierGroups]);
 
   // ==========================================
   // EVENT HANDLERS
@@ -193,7 +204,6 @@ export function UnifiedMenuItemCard({
   const handleMouseLeave = useCallback(() => {
     setIsHovered(false);
     setIsMobileTiltActive(false);
-    // Reset to center
     mouseX.set(0.5);
     mouseY.set(0.5);
   }, [mouseX, mouseY]);
@@ -204,7 +214,6 @@ export function UnifiedMenuItemCard({
 
     longPressTimer.current = setTimeout(() => {
       setIsMobileTiltActive(true);
-      // Trigger haptic to indicate tilt mode
       if (typeof navigator !== "undefined" && "vibrate" in navigator) {
         navigator.vibrate(20);
       }
@@ -260,26 +269,30 @@ export function UnifiedMenuItemCard({
     [item, controlledFavoriteToggle, favoritesHook]
   );
 
-  // Check if item has required modifiers
-  const hasRequiredModifiers = useMemo(() => {
-    return (
-      item.modifierGroups &&
-      item.modifierGroups.some((group) => group.minSelect > 0)
-    );
-  }, [item.modifierGroups]);
-
-  // Cart handlers
+  /**
+   * Handle Add button click.
+   *
+   * SINGLE ADD PATH:
+   * 1. Items with required modifiers → open detail modal (user must select modifiers)
+   * 2. Items without required modifiers → quick-add to cart
+   *
+   * Cart mutation happens in ONE place only:
+   * - If onQuickAdd provided: parent handles mutation
+   * - Otherwise: this component handles mutation directly
+   */
   const handleAdd = useCallback(() => {
-    // If item has required modifiers, open detail modal instead of quick add
+    // Items with required modifiers must go through detail modal
     if (hasRequiredModifiers) {
       onSelect?.(item);
       return;
     }
 
+    // Quick-add path for items without required modifiers
     if (onQuickAdd) {
+      // Parent handles cart mutation
       onQuickAdd(item);
     } else {
-      // Convert MenuItem to CartItem format
+      // Direct cart mutation (single source)
       cart.addItem({
         menuItemId: item.id,
         menuItemSlug: item.slug,
@@ -294,13 +307,29 @@ export function UnifiedMenuItemCard({
     }
   }, [item, onQuickAdd, cart, hasRequiredModifiers, onSelect]);
 
+  /**
+   * Handle quantity increment.
+   * Finds the first cart item for this menu item and increments it.
+   * For items with modifiers, user should use detail modal to add new variants.
+   */
   const handleIncrement = useCallback(() => {
+    // Find first cart item for this menu item
+    const cartItem = cart.items.find((ci) => ci.menuItemId === item.id);
     if (cartItem) {
       cart.updateQuantity(cartItem.cartItemId, cartItem.quantity + 1);
+    } else {
+      // No item in cart, do a fresh add
+      handleAdd();
     }
-  }, [cartItem, cart]);
+  }, [cart, item.id, handleAdd]);
 
+  /**
+   * Handle quantity decrement.
+   * Finds the first cart item for this menu item and decrements/removes it.
+   */
   const handleDecrement = useCallback(() => {
+    // Find first cart item for this menu item
+    const cartItem = cart.items.find((ci) => ci.menuItemId === item.id);
     if (cartItem) {
       if (cartItem.quantity <= 1) {
         cart.removeItem(cartItem.cartItemId);
@@ -308,7 +337,7 @@ export function UnifiedMenuItemCard({
         cart.updateQuantity(cartItem.cartItemId, cartItem.quantity - 1);
       }
     }
-  }, [cartItem, cart]);
+  }, [cart, item.id]);
 
   // ==========================================
   // RENDER
@@ -329,7 +358,7 @@ export function UnifiedMenuItemCard({
       className={cn(
         "relative group cursor-pointer",
         config.rounded,
-        "overflow-visible", // Allow 3D tilt overflow
+        "overflow-visible",
         item.isSoldOut && "opacity-60 cursor-not-allowed",
         className
       )}
@@ -412,7 +441,7 @@ export function UnifiedMenuItemCard({
           <div className="absolute bottom-3 right-3 z-10">
             <AddButton
               item={item}
-              quantity={quantity}
+              quantity={totalQuantityInCart}
               onAdd={handleAdd}
               onIncrement={handleIncrement}
               onDecrement={handleDecrement}

@@ -9,21 +9,75 @@ import {
   MAX_ITEM_QUANTITY,
 } from "@/types/cart";
 
+// ============================================
+// DEDUPLICATION SIGNATURE
+// ============================================
+
 /**
- * Create a unique signature for cart item deduplication.
+ * Create a deterministic, unique signature for cart item deduplication.
  * Items with same menuItemId + modifiers + notes should merge.
+ *
+ * Signature format: menuItemId::sortedModifierIds::normalizedNotes
  */
 function createItemSignature(item: {
   menuItemId: string;
   modifiers: SelectedModifier[];
   notes: string;
 }): string {
-  const sortedModifiers = [...item.modifiers]
+  // Sort modifiers by optionId for deterministic signature
+  const sortedModifiers = [...(item.modifiers || [])]
     .sort((a, b) => a.optionId.localeCompare(b.optionId))
     .map((m) => m.optionId)
     .join("|");
-  return `${item.menuItemId}::${sortedModifiers}::${item.notes.trim()}`
+
+  // Normalize notes: trim and lowercase for consistent comparison
+  const normalizedNotes = (item.notes || "").trim().toLowerCase();
+
+  return `${item.menuItemId}::${sortedModifiers}::${normalizedNotes}`;
 }
+
+// ============================================
+// DEBOUNCE TRACKING
+// ============================================
+
+/**
+ * Track recent additions to prevent duplicate rapid-fire adds.
+ * Map of signature -> timestamp of last add
+ */
+const recentAdditions = new Map<string, number>();
+const DEBOUNCE_MS = 300;
+
+/**
+ * Check if an add operation should be debounced.
+ * Returns true if this is a duplicate rapid-fire add.
+ */
+function shouldDebounce(signature: string): boolean {
+  const now = Date.now();
+  const lastAdd = recentAdditions.get(signature);
+
+  if (lastAdd && now - lastAdd < DEBOUNCE_MS) {
+    return true;
+  }
+
+  // Update timestamp
+  recentAdditions.set(signature, now);
+
+  // Clean old entries periodically (keep map small)
+  if (recentAdditions.size > 100) {
+    const cutoff = now - DEBOUNCE_MS * 2;
+    for (const [key, time] of recentAdditions.entries()) {
+      if (time < cutoff) {
+        recentAdditions.delete(key);
+      }
+    }
+  }
+
+  return false;
+}
+
+// ============================================
+// STORAGE UTILS
+// ============================================
 
 const createMemoryStorage = (): Storage => {
   const store = new Map<string, string>();
@@ -63,14 +117,32 @@ const getStorage = (): Storage => {
   return storage;
 };
 
+// ============================================
+// CART STORE
+// ============================================
+
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
 
+      /**
+       * Add item to cart with deduplication and debounce protection.
+       *
+       * - Same signature (menuItemId + modifiers + notes) → merge by incrementing quantity
+       * - Different signature → add as new item
+       * - Rapid-fire adds (< 300ms) → ignored
+       */
       addItem: (item) => {
-        const { items } = get();
         const signature = createItemSignature(item);
+
+        // Debounce protection: ignore rapid-fire duplicate adds
+        if (shouldDebounce(signature)) {
+          console.debug("[cart] Debounced duplicate add:", signature);
+          return;
+        }
+
+        const { items } = get();
 
         // Find existing item with same signature for deduplication
         const existingIndex = items.findIndex(
@@ -81,7 +153,7 @@ export const useCartStore = create<CartStore>()(
           // Merge: increment quantity of existing item
           const existing = items[existingIndex];
           const newQuantity = Math.min(
-            existing.quantity + item.quantity,
+            existing.quantity + (item.quantity || 1),
             MAX_ITEM_QUANTITY
           );
 
@@ -97,15 +169,22 @@ export const useCartStore = create<CartStore>()(
 
         // No match: add as new item
         if (items.length >= MAX_CART_ITEMS) {
-          console.warn("Cart limit reached");
+          console.warn("[cart] Cart limit reached:", MAX_CART_ITEMS);
           return;
         }
 
         const newItem: CartItem = {
-          ...item,
+          menuItemId: item.menuItemId,
+          menuItemSlug: item.menuItemSlug,
+          nameEn: item.nameEn,
+          nameMy: item.nameMy ?? null,
+          imageUrl: item.imageUrl ?? null,
+          basePriceCents: item.basePriceCents,
+          modifiers: item.modifiers || [],
+          notes: (item.notes || "").trim(),
           cartItemId: uuidv4(),
           addedAt: new Date().toISOString(),
-          quantity: Math.min(Math.max(1, item.quantity), MAX_ITEM_QUANTITY),
+          quantity: Math.min(Math.max(1, item.quantity || 1), MAX_ITEM_QUANTITY),
         };
 
         set({ items: [...items, newItem] });
@@ -139,7 +218,7 @@ export const useCartStore = create<CartStore>()(
       getItemsSubtotal: () => {
         const { items } = get();
         return items.reduce((total, item) => {
-          const modifierTotal = item.modifiers.reduce(
+          const modifierTotal = (item.modifiers || []).reduce(
             (sum, mod) => sum + mod.priceDeltaCents,
             0
           );
@@ -164,7 +243,7 @@ export const useCartStore = create<CartStore>()(
         const item = get().items.find((entry) => entry.cartItemId === cartItemId);
         if (!item) return 0;
 
-        const modifierTotal = item.modifiers.reduce(
+        const modifierTotal = (item.modifiers || []).reduce(
           (sum, mod) => sum + mod.priceDeltaCents,
           0
         );
@@ -179,3 +258,17 @@ export const useCartStore = create<CartStore>()(
     }
   )
 );
+
+// ============================================
+// EXPORTS FOR TESTING
+// ============================================
+
+export { createItemSignature };
+
+/**
+ * Clear debounce state - for testing only.
+ * Call this in beforeEach to reset debounce tracking between tests.
+ */
+export function __clearDebounceState(): void {
+  recentAdditions.clear();
+}

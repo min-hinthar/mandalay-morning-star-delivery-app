@@ -1,11 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import type { MenuItem } from "@/types/menu";
 import { UnifiedMenuItemCard } from "./UnifiedMenuItemCard";
+import { MenuCardWrapper } from "./MenuCardWrapper";
 import { MenuEmptyState } from "./MenuEmptyState";
-import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 interface SearchResultsGridProps {
   items: MenuItem[];
@@ -26,7 +25,6 @@ export function SearchResultsGrid({
   isFavorite,
   onFavoriteToggle,
 }: SearchResultsGridProps) {
-  const { shouldAnimate } = useAnimationPreference();
 
   if (isLoading && items.length === 0) {
     return (
@@ -64,15 +62,11 @@ export function SearchResultsGrid({
       {/* Responsive grid: 1 col mobile, 2 cols tablet, 3 cols desktop */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item, index) => (
-          <motion.div
+          <MenuCardWrapper
             key={item.id}
-            initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
-            whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{
-              delay: Math.min(index * 0.08, 0.64),
-              duration: 0.55,
-            }}
+            itemId={item.id}
+            index={index}
+            replayOnScroll={true}
           >
             <UnifiedMenuItemCard
               item={item}
@@ -81,18 +75,12 @@ export function SearchResultsGrid({
               isFavorite={isFavorite?.(item.id)}
               onFavoriteToggle={
                 onFavoriteToggle
-                  ? (menuItem, isFav) => {
-                      if (isFav) {
-                        onFavoriteToggle(menuItem);
-                      } else {
-                        onFavoriteToggle(menuItem);
-                      }
-                    }
+                  ? (menuItem) => onFavoriteToggle(menuItem)
                   : undefined
               }
               priority={index < 4}
             />
-          </motion.div>
+          </MenuCardWrapper>
         ))}
       </div>
     </div>

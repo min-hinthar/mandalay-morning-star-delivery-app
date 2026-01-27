@@ -22,7 +22,7 @@ export interface AddButtonProps {
   item: MenuItem;
   /** Current quantity in cart (0 if not in cart) */
   quantity: number;
-  /** Callback when item is added */
+  /** Callback when item is added - parent handles cart mutation */
   onAdd: () => void;
   /** Callback when quantity is incremented */
   onIncrement: () => void;
@@ -55,15 +55,14 @@ function triggerHaptic(type: "light" | "medium" = "light") {
  * AddButton - State machine button with 3 states
  *
  * States:
- * - idle: Pill-shaped "Add" button with Plus icon
- * - adding: Brief checkmark animation (~300ms)
- * - quantity: +/- quantity controls
+ * - idle: Pill-shaped "Add" button with Plus icon (quantity === 0)
+ * - adding: Brief checkmark animation (~300ms) after clicking Add
+ * - quantity: +/- quantity controls (quantity > 0)
  *
- * Features:
- * - Press animation (scale 0.95)
- * - Fly-to-cart arc animation
- * - Click sound via useCardSound
- * - Haptic feedback
+ * Key principle:
+ * - This component ONLY handles UI/animation
+ * - Cart mutations happen via callbacks (onAdd, onIncrement, onDecrement)
+ * - External quantity prop drives the state machine
  */
 export function AddButton({
   item,
@@ -77,44 +76,52 @@ export function AddButton({
 }: AddButtonProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const [state, setState] = useState<ButtonState>(
-    quantity > 0 ? "quantity" : "idle"
-  );
+
+  // Internal state for animation timing
+  const [isAddingAnimation, setIsAddingAnimation] = useState(false);
+
+  // Track if we're in the middle of an add operation
+  const isProcessingRef = useRef(false);
 
   const { fly } = useFlyToCart();
   const { playAddSound, playRemoveSound, markUserInteraction } = useCardSound();
 
-  // Track previous quantity to avoid unnecessary state updates
-  const prevQuantityRef = useRef(quantity);
+  /**
+   * Derive display state from quantity prop and animation state.
+   * - quantity === 0 && not animating → "idle"
+   * - isAddingAnimation → "adding" (brief checkmark)
+   * - quantity > 0 → "quantity"
+   */
+  const displayState: ButtonState = isAddingAnimation
+    ? "adding"
+    : quantity > 0
+      ? "quantity"
+      : "idle";
 
-  // Sync state with external quantity - only when quantity actually changes
-  useEffect(() => {
-    if (prevQuantityRef.current !== quantity) {
-      prevQuantityRef.current = quantity;
-      if (quantity > 0 && state === "idle") {
-        setState("quantity");
-      } else if (quantity === 0 && state === "quantity") {
-        setState("idle");
-      }
-    }
-  }, [quantity, state]);
-
+  /**
+   * Handle add button click.
+   * - Shows animation feedback
+   * - Calls onAdd callback (parent handles cart mutation)
+   * - Cart store has debounce protection, so rapid clicks are safe
+   */
   const handleAdd = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      if (disabled || state !== "idle") return;
 
-      // Mark interaction for sound
+      // Prevent double-processing
+      if (disabled || isProcessingRef.current || isAddingAnimation) {
+        return;
+      }
+
+      isProcessingRef.current = true;
+
+      // UI feedback
       markUserInteraction();
-
-      // Trigger haptic
       triggerHaptic("medium");
-
-      // Start adding animation
-      setState("adding");
-
-      // Play sound
       playAddSound();
+
+      // Start animation
+      setIsAddingAnimation(true);
 
       // Fly animation
       const source = sourceRef?.current ?? buttonRef.current;
@@ -126,17 +133,18 @@ export function AddButton({
         });
       }
 
-      // Callback
+      // Call parent callback to add to cart
       onAdd();
 
-      // Transition to quantity after animation
+      // End animation after delay
       setTimeout(() => {
-        setState("quantity");
-      }, 300);
+        setIsAddingAnimation(false);
+        isProcessingRef.current = false;
+      }, 350);
     },
     [
       disabled,
-      state,
+      isAddingAnimation,
       markUserInteraction,
       playAddSound,
       fly,
@@ -146,27 +154,45 @@ export function AddButton({
     ]
   );
 
-  const handleIncrement = useCallback(() => {
-    markUserInteraction();
-    triggerHaptic("light");
-    playAddSound();
-    onIncrement();
-  }, [markUserInteraction, playAddSound, onIncrement]);
+  const handleIncrement = useCallback(
+    (e?: React.MouseEvent) => {
+      e?.stopPropagation();
+      markUserInteraction();
+      triggerHaptic("light");
+      playAddSound();
+      onIncrement();
+    },
+    [markUserInteraction, playAddSound, onIncrement]
+  );
 
-  const handleDecrement = useCallback(() => {
-    markUserInteraction();
-    triggerHaptic("light");
-    playRemoveSound();
-    onDecrement();
-  }, [markUserInteraction, playRemoveSound, onDecrement]);
+  const handleDecrement = useCallback(
+    (e?: React.MouseEvent) => {
+      e?.stopPropagation();
+      markUserInteraction();
+      triggerHaptic("light");
+      playRemoveSound();
+      onDecrement();
+    },
+    [markUserInteraction, playRemoveSound, onDecrement]
+  );
+
+  // Reset animation state if quantity drops to 0 externally
+  useEffect(() => {
+    if (quantity === 0 && !isAddingAnimation) {
+      isProcessingRef.current = false;
+    }
+  }, [quantity, isAddingAnimation]);
 
   const springConfig = getSpring(spring.snappy);
 
   return (
-    <div className={cn("relative", className)}>
+    <div
+      className={cn("relative", className)}
+      onClick={(e) => e.stopPropagation()}
+    >
       <AnimatePresence mode="wait" initial={false}>
         {/* Idle state - Add button */}
-        {state === "idle" && (
+        {displayState === "idle" && (
           <motion.button
             key="add"
             ref={buttonRef}
@@ -195,7 +221,7 @@ export function AddButton({
         )}
 
         {/* Adding state - Checkmark animation */}
-        {state === "adding" && (
+        {displayState === "adding" && (
           <motion.div
             key="adding"
             className={cn(
@@ -219,7 +245,7 @@ export function AddButton({
         )}
 
         {/* Quantity state - +/- controls */}
-        {state === "quantity" && (
+        {displayState === "quantity" && (
           <motion.div
             key="quantity"
             initial={shouldAnimate ? { scale: 0.8, opacity: 0 } : undefined}
