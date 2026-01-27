@@ -10,7 +10,7 @@ import {
   staggerContainer,
 } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { useDynamicTheme } from "@/components/theme/DynamicThemeProvider";
+import { useDynamicTheme } from "@/components/ui/theme";
 import { BrandMascot } from "@/components/mascot/BrandMascot";
 import { Button } from "@/components/ui/button";
 
