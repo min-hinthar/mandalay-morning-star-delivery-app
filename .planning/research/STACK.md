@@ -1,293 +1,432 @@
-# Technology Stack: v1.2 Playful UI Overhaul
+# Technology Stack: Theme Consistency & Hero Redesign
 
 **Project:** Mandalay Morning Star Delivery App
-**Researched:** 2026-01-23
-**Focus:** 3D Hero, TailwindCSS 4 z-index fix, Theme refinement
+**Researched:** 2026-01-27
+**Focus:** Theme token consistency, parallax hero with floating emojis, mobile 3D tilt fix
 
 ---
 
 ## Executive Summary
 
-Three stack additions/changes are needed:
-1. **React Three Fiber 9.5.0** + **@react-three/drei 10.7.7** + **three 0.182.0** for 3D interactive hero
-2. **TailwindCSS 4 @theme z-index fix** via CSS `@theme` directive with `--z-index-*` namespace
-3. **No new dependencies** for theme refinement (existing next-themes + CSS tokens sufficient)
+Three focus areas, no new dependencies required:
+
+1. **Theme Token Consistency:** Enforce via ESLint rules + Stylelint + CSS-first patterns (existing tooling)
+2. **Parallax Hero with Floating Emojis:** Use existing Framer Motion scroll hooks + CSS keyframes
+3. **Mobile 3D Tilt Fix:** CSS `@media (hover: hover) and (pointer: fine)` media query
 
 ---
 
-## 1. 3D Interactive Hero: React Three Fiber Stack
+## 1. Theme Token Consistency Patterns
 
-### Required Additions
+### Problem Statement
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| `three` | ^0.182.0 | Core Three.js library |
-| `@react-three/fiber` | ^9.5.0 | React renderer for Three.js |
-| `@react-three/drei` | ^10.7.7 | Helper components (Stage, Environment, useGLTF) |
+84 files contain hardcoded `text-white`, `bg-white`, or `text-black` instead of theme tokens. This breaks light/dark mode consistency.
 
-### Peer Dependency Compatibility
+### Existing Enforcement Infrastructure
 
-| Existing | Required | Status |
-|----------|----------|--------|
-| React 19.2.3 | `>=19 <19.3` | COMPATIBLE |
-| React DOM 19.2.3 | `>=19 <19.3` | COMPATIBLE |
+The project already has linting infrastructure:
 
-### Installation
+| Tool | Config File | Current State |
+|------|-------------|---------------|
+| ESLint | `eslint.config.mjs` | Has `no-restricted-syntax` rules for hex colors in `bg-[]` and `text-[]` |
+| Stylelint | `.stylelintrc.json` | Has `declaration-property-value-disallowed-list` for z-index |
+| Tailwind IntelliSense | VS Code extension | Detects conflicting classes |
 
-```bash
-pnpm add three @react-three/fiber @react-three/drei
+### Recommended ESLint Rules to Add
+
+Extend existing `no-restricted-syntax` in `eslint.config.mjs`:
+
+```javascript
+{
+  // Catch hardcoded color utilities that break theming
+  selector: "Literal[value=/(?:^|\\s)(text-white|text-black|bg-white|bg-black)(?:\\s|$)/]",
+  message: "Use theme-aware tokens (text-text-primary, text-text-inverse, bg-surface-primary) instead of hardcoded text-white/black/bg-white/black."
+},
 ```
 
-### Why This Stack
+### Why ESLint Over Stylelint for This
 
-**React Three Fiber (R3F) over vanilla Three.js:**
-- Declarative JSX syntax integrates naturally with existing React component architecture
-- Automatic disposal/cleanup prevents memory leaks
-- `useFrame` hook for per-frame updates without manual render loops
-- React 19 officially supported in v9.x (compatibility release)
+| Approach | Pros | Cons |
+|----------|------|------|
+| ESLint (recommended) | Catches Tailwind classes in JSX/TSX | More complex selector syntax |
+| Stylelint | CSS-only; already configured | Doesn't catch utility classes in React components |
+| eslint-plugin-tailwindcss | Dedicated Tailwind rules | v4 support still in beta |
 
-**@react-three/drei inclusion:**
-- `<Stage>` component provides lighting, shadows, environment maps out-of-box
-- `useGLTF` hook for loading GLB/GLTF food models with automatic caching
-- `<Environment>` for HDR lighting without manual setup
-- `<Float>` for subtle idle animations
-- `<OrbitControls>` or `<PresentationControls>` for user interaction
+**Recommendation:** Extend existing ESLint `no-restricted-syntax` since 84/84 violations are in TSX files.
 
-**three@0.182.0 (latest):**
-- No breaking changes from 0.159+ (drei minimum)
-- WebGPU renderer available (future-proofing)
-- Performance improvements in instanced rendering
+### Semantic Token Mapping
 
-### GSAP Integration Pattern
+Map hardcoded colors to theme-aware alternatives:
 
-Existing GSAP 3.14.2 + @gsap/react 2.1.2 integrates with R3F:
+| Hardcoded | Theme-Aware Replacement | Usage |
+|-----------|-------------------------|-------|
+| `text-white` | `text-hero-text` | Hero/dark sections |
+| `text-white` | `text-text-inverse` | On primary backgrounds |
+| `text-black` | `text-text-primary` | Standard text |
+| `bg-white` | `bg-surface-primary` | Card/page backgrounds |
+| `bg-black` | `bg-surface-primary` (dark mode handles) | Rarely needed |
 
-```typescript
-// Recommended pattern: GSAP timeline with useFrame seek
-import { useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
-import gsap from 'gsap';
+### TailwindCSS 4 @theme Pattern (Context7 verified)
 
-function AnimatedFood({ timeline }: { timeline: gsap.core.Timeline }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useFrame(() => {
-    // GSAP controls the timeline, useFrame syncs mesh state
-    if (meshRef.current && timeline) {
-      // Direct property mutation from GSAP-animated values
-    }
-  });
-}
-```
-
-**Why GSAP + R3F works:**
-- GSAP excels at complex timeline orchestration (scroll-triggered sequences)
-- R3F's `useFrame` runs on the render loop, GSAP animates values externally
-- Existing GSAP ScrollTrigger can coordinate 3D and 2D animations together
-
-**What NOT to do:**
-- Don't use react-spring for 3D in this project (GSAP is already the animation standard)
-- Don't animate via React state (causes re-renders; mutate refs directly)
-
-### Performance Considerations
-
-| Concern | Mitigation |
-|---------|------------|
-| Bundle size | three.js adds ~600KB gzipped; use dynamic import for hero |
-| Mobile GPU | Use `<PerformanceMonitor>` from drei to auto-adjust quality |
-| LCP impact | Render placeholder, lazy-load Canvas after initial paint |
-
-**Recommended lazy loading pattern:**
-```typescript
-import dynamic from 'next/dynamic';
-
-const Hero3D = dynamic(() => import('@/components/hero/Hero3D'), {
-  ssr: false,
-  loading: () => <HeroPlaceholder />
-});
-```
-
----
-
-## 2. TailwindCSS 4 Z-Index Fix
-
-### The Problem
-
-The project's `tailwind.config.ts` defines custom z-index values:
-
-```typescript
-zIndex: {
-  base: "0",
-  dropdown: "10",
-  sticky: "20",
-  fixed: "30",
-  "modal-backdrop": "40",
-  modal: "50",
-  popover: "60",
-  tooltip: "70",
-  toast: "80",
-  max: "100",
-}
-```
-
-**These do NOT generate utility classes in TailwindCSS 4.** Classes like `z-modal`, `z-fixed` do not exist in the compiled CSS.
-
-### Root Cause
-
-TailwindCSS 4 changed how custom theme values work. The JavaScript config approach (`tailwind.config.ts`) is deprecated for CSS-first configuration. Custom z-index values require the `@theme` CSS directive with the `--z-index-*` namespace prefix.
-
-### The Solution
-
-Add to `globals.css` inside the existing `@theme inline` block:
+The project already uses `@theme inline` correctly in `globals.css`. Key pattern:
 
 ```css
 @theme inline {
-  /* Existing theme variables... */
-
-  /* Z-Index Layer System - generates z-* utilities */
-  --z-index-base: 0;
-  --z-index-dropdown: 10;
-  --z-index-sticky: 20;
-  --z-index-fixed: 30;
-  --z-index-modal-backdrop: 40;
-  --z-index-modal: 50;
-  --z-index-popover: 60;
-  --z-index-tooltip: 70;
-  --z-index-toast: 80;
-  --z-index-max: 100;
+  /* Theme variables instruct Tailwind to create utility classes */
+  --color-text-primary: var(--color-text-primary);
+  --color-surface-primary: var(--color-surface-primary);
 }
 ```
 
-### Critical Details
+**Critical:** Use `@theme` when you want tokens to map to utility classes. Use `:root` for internal CSS variables.
 
-| Mistake | Correct |
-|---------|---------|
-| `--z-modal: 50` | `--z-index-modal: 50` (need `--z-index-` prefix) |
-| `--z-index-modal: '50'` | `--z-index-modal: 50` (no quotes, raw numbers) |
-| `tailwind.config.ts zIndex` | `@theme { --z-index-* }` in CSS |
+### Confidence: HIGH
 
-### Generated Utilities
-
-After fix, these classes work:
-- `z-base`, `z-dropdown`, `z-sticky`, `z-fixed`
-- `z-modal-backdrop`, `z-modal`, `z-popover`
-- `z-tooltip`, `z-toast`, `z-max`
-
-### Migration Path
-
-1. Add `--z-index-*` variables to `@theme inline` block
-2. Keep `tailwind.config.ts` zIndex temporarily (no harm, just ignored)
-3. Remove `tailwind.config.ts` zIndex after verifying utility classes work
-4. Remove CSS variable workarounds (arbitrary z-index syntax) and use `z-modal`
-
-### Verification
-
-```bash
-# Build and check if z-modal class exists in output
-pnpm build
-grep "z-modal" .next/static/css/*.css
-```
+- Existing ESLint infrastructure validated
+- TailwindCSS 4 @theme pattern already in use
+- Token system in `tokens.css` is comprehensive
 
 ---
 
-## 3. Theme Refinement
+## 2. Parallax Hero with Floating Emojis
 
-### No New Dependencies Needed
+### Approach Comparison
 
-Existing stack is sufficient:
+| Approach | Bundle Size | Performance | Complexity | Recommendation |
+|----------|-------------|-------------|------------|----------------|
+| **Framer Motion scroll hooks** | Already included (32KB) | Excellent (Intersection Observer) | Low | **RECOMMENDED** |
+| GSAP ScrollTrigger | Already included (23KB) | Excellent (frame throttling) | Medium | Good alternative |
+| CSS-only scroll-timeline | 0KB | Good | Low | Future option (limited support) |
 
-| Tool | Version | Already Installed | Purpose |
-|------|---------|-------------------|---------|
-| next-themes | 0.4.6 | Yes | Theme switching (light/dark) |
-| CSS custom properties | N/A | Yes | Token-based theming |
-| TailwindCSS 4 | ^4 | Yes | Utility class generation |
+### Why Framer Motion for This Project
 
-### Current Token Structure
+The project already uses Framer Motion 12.26.1. Relevant existing utilities in `motion-tokens.ts`:
 
-`src/styles/tokens.css` already defines:
-- Light theme (`:root`)
-- Dark theme (`[data-theme="dark"], .dark`)
-- High contrast mode (`[data-contrast="high"]`)
+```typescript
+// Already defined - use these
+export const parallaxPresets = {
+  background: { speedFactor: 0.1 },
+  far: { speedFactor: 0.25 },
+  mid: { speedFactor: 0.4 },
+  near: { speedFactor: 0.6 },
+  foreground: { speedFactor: 0.8 },
+};
 
-### Theme Refinement Approach
+export function parallaxLayer(speed: number) {
+  return {
+    style: { willChange: "transform" },
+    speedFactor: speed,
+  };
+}
+```
 
-No stack changes. Refinements are CSS-only:
+### Implementation Pattern
 
-1. **Adjust dark mode colors** in `tokens.css` `[data-theme="dark"]` section
-2. **Tune shadow intensity** for dark mode (currently uses `rgba(0,0,0,0.3-0.55)`)
-3. **Refine warm undertones** (currently `#1A1918` base - warm off-black)
+```typescript
+import { useScroll, useTransform, motion } from 'framer-motion';
 
-### What NOT to Add
+function ParallaxHero() {
+  const { scrollYProgress } = useScroll();
 
-| Library | Why Not |
-|---------|---------|
-| Theme libraries (CSS-in-JS) | Already using CSS variables + next-themes |
-| Color manipulation libs | Static tokens are sufficient; no runtime color math needed |
-| Additional theme providers | next-themes handles SSR, hydration, system preference |
+  // Different layers move at different speeds
+  const y1 = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);  // far
+  const y2 = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);  // mid
+  const y3 = useTransform(scrollYProgress, [0, 1], ['0%', '70%']);  // near
+
+  return (
+    <div className="relative h-screen overflow-hidden">
+      <motion.div style={{ y: y1 }}>/* Background layer */</motion.div>
+      <motion.div style={{ y: y2 }}>/* Floating emojis */</motion.div>
+      <motion.div style={{ y: y3 }}>/* Foreground content */</motion.div>
+    </div>
+  );
+}
+```
+
+### Floating Emoji Animation: CSS Keyframes Recommended
+
+**Why CSS over JavaScript for floating:**
+
+| Approach | Performance | Browser Optimization |
+|----------|-------------|---------------------|
+| **CSS keyframes** | GPU-accelerated | Browser can skip frames under load |
+| JS (requestAnimationFrame) | Similar | More control, more overhead |
+| Framer Motion infinite | Good | Runs through React reconciliation |
+
+**Recommendation:** Use CSS `@keyframes` for idle floating (already defined in project), use Framer Motion for scroll-linked parallax.
+
+Existing animation in `globals.css`:
+```css
+.float-element {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+```
+
+Also in `tailwind.config.ts`:
+```typescript
+animation: {
+  float: "float 8s ease-in-out infinite",
+  "float-slow": "float 12s ease-in-out infinite",
+}
+```
+
+### Floating Emoji Component Pattern
+
+```typescript
+// Combine CSS float animation with Framer Motion parallax
+function FloatingEmoji({
+  emoji,
+  delay = 0,
+  parallaxSpeed = 0.3
+}: FloatingEmojiProps) {
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', `${parallaxSpeed * 100}%`]);
+
+  return (
+    <motion.span
+      style={{ y }}
+      className="animate-float text-4xl"
+      // Stagger float animation start
+      aria-hidden="true"
+      style={{ animationDelay: `${delay}s` }}
+    >
+      {emoji}
+    </motion.span>
+  );
+}
+```
+
+### Performance Best Practices
+
+| Practice | Reason |
+|----------|--------|
+| Use `transform` and `opacity` only | GPU-accelerated, no layout recalculation |
+| Add `will-change: transform` | Hints browser to GPU-composite |
+| Limit floating elements to 6-8 | More elements = more paint operations |
+| Use `prefers-reduced-motion` | Respect user accessibility settings |
+
+Existing reduced motion support in `globals.css`:
+```css
+@media (prefers-reduced-motion: reduce) {
+  .float-element {
+    animation: none;
+  }
+}
+```
+
+### Confidence: HIGH
+
+- Framer Motion already installed and configured
+- Parallax utilities already exist in `motion-tokens.ts`
+- Float animation already defined in CSS
 
 ---
 
-## Stack Summary
+## 3. Mobile 3D Tilt Fix: Disable on Touch Devices
 
-### Additions Required
+### Problem Statement
 
-```bash
-pnpm add three @react-three/fiber @react-three/drei
+3D tilt effects (presumably from hover interactions) cause issues on touch devices. Need to disable tilt on mobile/touch while keeping it on desktop.
+
+### Recommended: CSS Media Query Approach
+
+```css
+/* Only apply tilt on hover-capable devices with fine pointer (mouse/trackpad) */
+@media (hover: hover) and (pointer: fine) {
+  .tilt-enabled {
+    /* 3D tilt styles */
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+
+  .tilt-enabled:hover {
+    transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  }
+}
+
+/* Touch devices: flat, no tilt */
+@media (hover: none) or (pointer: coarse) {
+  .tilt-enabled {
+    transform: none !important;
+  }
+}
 ```
 
-| Package | Version | Bundle Impact |
-|---------|---------|---------------|
-| three | 0.182.0 | ~600KB gzipped |
-| @react-three/fiber | 9.5.0 | ~50KB gzipped |
-| @react-three/drei | 10.7.7 | ~100KB (tree-shakeable) |
+### Why CSS Over JavaScript Detection
 
-### Configuration Changes Required
+| Approach | Pros | Cons |
+|----------|------|------|
+| **CSS `@media (hover: hover) and (pointer: fine)`** | No JS, instant, no FOUC | Samsung browser quirk (see below) |
+| `window.matchMedia()` in JS | Programmatic control | Requires hydration, adds complexity |
+| User-Agent sniffing | Works for known devices | Unreliable, breaks on new devices |
+| Touch event detection | Catches touch capability | Hybrid devices have both touch AND hover |
+
+**Recommendation:** CSS media queries. They are:
+- Zero JavaScript
+- SSR-compatible (no hydration mismatch)
+- Supported in all modern browsers
+- Recommended by MDN and web standards
+
+### Samsung Browser Quirk Mitigation
+
+Samsung browsers sometimes report touchscreen as having hover capability. Mitigation:
+
+```css
+/* More specific: require BOTH hover capability AND fine pointer */
+@media (hover: hover) and (pointer: fine) {
+  /* Desktop styles */
+}
+
+/* NOT just @media (hover: hover) - catches Samsung false positives */
+```
+
+### Implementation in Existing Component Pattern
+
+Looking at `motion-tokens.ts`, there's a `hover.tilt` preset:
+
+```typescript
+export const hover = {
+  tilt: {
+    whileHover: { rotate: 2, scale: 1.02 },
+    whileTap: { rotate: -1, scale: 0.98 },
+    transition: spring.snappy,
+  },
+};
+```
+
+**For Framer Motion tilt with device detection:**
+
+```typescript
+// Option A: CSS variable controlled (recommended)
+function TiltCard({ children }) {
+  return (
+    <motion.div
+      className="tilt-card" // CSS handles media query
+      whileHover={{
+        rotateX: 'var(--tilt-x, 0)',
+        rotateY: 'var(--tilt-y, 0)'
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+```
+
+```css
+/* CSS sets variables only on hover-capable devices */
+@media (hover: hover) and (pointer: fine) {
+  .tilt-card {
+    --tilt-x: 5deg;
+    --tilt-y: 5deg;
+  }
+}
+
+@media (hover: none) or (pointer: coarse) {
+  .tilt-card {
+    --tilt-x: 0;
+    --tilt-y: 0;
+  }
+}
+```
+
+**Option B: JavaScript matchMedia (if dynamic control needed):**
+
+```typescript
+function useTouchDevice() {
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(hover: none) or (pointer: coarse)');
+    setIsTouch(mq.matches);
+
+    const handler = (e: MediaQueryListEvent) => setIsTouch(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  return isTouch;
+}
+```
+
+### Confidence: MEDIUM-HIGH
+
+- CSS media queries widely supported
+- Samsung quirk documented but rare
+- May need testing on actual devices
+
+---
+
+## Stack Summary: No New Dependencies
+
+### What to Use
+
+| Need | Solution | Already Installed |
+|------|----------|-------------------|
+| Theme token enforcement | ESLint `no-restricted-syntax` | Yes (eslint 9) |
+| Parallax scrolling | Framer Motion `useScroll`, `useTransform` | Yes (12.26.1) |
+| Floating animation | CSS `@keyframes float` | Yes (globals.css) |
+| Touch device detection | CSS `@media (hover: hover) and (pointer: fine)` | Native CSS |
+
+### Configuration Changes Needed
 
 | File | Change |
 |------|--------|
-| `src/app/globals.css` | Add `--z-index-*` variables in `@theme inline` |
-| `tailwind.config.ts` | Can remove `zIndex` after CSS fix (optional cleanup) |
+| `eslint.config.mjs` | Add `no-restricted-syntax` rule for `text-white/black`, `bg-white/black` |
+| `src/app/globals.css` | Add `@media (hover: hover)` styles for tilt |
+| Component files | Replace hardcoded colors with theme tokens |
 
-### No Changes Needed
+### Files to Audit for Theme Consistency
 
-| Area | Reason |
-|------|--------|
-| GSAP | Already installed, integrates with R3F |
-| Framer Motion | Keep for component animations, not for 3D |
-| next-themes | Already handles theme switching |
-| Animation system | GSAP + Framer Motion coexistence already validated |
+Based on grep results, 84 files contain hardcoded colors. Priority order:
+
+1. **Homepage/Hero** - Most visible
+2. **Layout components** - AppHeader, MobileDrawer, Footer
+3. **UI primitives** - Modal, Drawer, Toast
+4. **Feature components** - Cart, Menu, Checkout
 
 ---
 
-## Integration Architecture
+## Implementation Patterns Cheatsheet
 
+### Hardcoded Color Replacement
+
+```diff
+- <span className="text-white">Welcome</span>
++ <span className="text-hero-text">Welcome</span>
+
+- <div className="bg-white rounded-lg">
++ <div className="bg-surface-primary rounded-lg">
+
+- <p className="text-black">Description</p>
++ <p className="text-text-primary">Description</p>
 ```
-                    +---------------------------------+
-                    |         Hero Section            |
-                    +---------------------------------+
-                    |  +---------------------------+  |
-                    |  |   R3F Canvas (lazy)       |  |
-                    |  |   - <Stage> environment   |  |
-                    |  |   - Food GLTF models      |  |
-                    |  |   - useFrame animations   |  |
-                    |  +---------------------------+  |
-                    |              |                   |
-                    |  +---------------------------+  |
-                    |  |   GSAP ScrollTrigger      |  |
-                    |  |   - Timeline coordination |  |
-                    |  |   - Scroll-linked tweens  |  |
-                    |  +---------------------------+  |
-                    +---------------------------------+
-                                   |
-+------------------------------------------------------------------+
-|                    Z-Index Layer System                           |
-|  @theme { --z-index-* } -> z-modal, z-fixed, z-tooltip, etc.     |
-+------------------------------------------------------------------+
-                                   |
-+------------------------------------------------------------------+
-|                    Theme System                                   |
-|  next-themes + CSS tokens (no changes needed)                    |
-+------------------------------------------------------------------+
+
+### Floating Emoji with Parallax
+
+```tsx
+<motion.span
+  style={{ y: useTransform(scrollY, [0, 1], ['0%', '40%']) }}
+  className="animate-float absolute text-4xl"
+  aria-hidden="true"
+>
+  {/* Food emoji */}
+</motion.span>
+```
+
+### Touch-Safe Tilt
+
+```css
+@media (hover: hover) and (pointer: fine) {
+  .card-3d:hover {
+    transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
+  }
+}
 ```
 
 ---
@@ -296,21 +435,24 @@ pnpm add three @react-three/fiber @react-three/drei
 
 | Area | Confidence | Rationale |
 |------|------------|-----------|
-| R3F version compatibility | HIGH | npm info confirms React 19.2.3 within `>=19 <19.3` range |
-| TailwindCSS 4 z-index fix | HIGH | GitHub discussion #18031 confirms `--z-index-*` namespace requirement |
-| GSAP + R3F integration | MEDIUM | Multiple community examples; pattern validated but project-specific testing needed |
-| Bundle size estimates | MEDIUM | Based on bundlephobia/npm; actual tree-shaking may differ |
-| Theme refinement | HIGH | Existing token system fully supports needed changes |
+| Theme token enforcement via ESLint | HIGH | Existing infrastructure, just needs rule extension |
+| Framer Motion parallax | HIGH | Already used in Hero.tsx with `useScroll` |
+| CSS float animations | HIGH | Already defined and used in project |
+| Touch device detection | MEDIUM-HIGH | CSS approach is standard; Samsung quirk documented |
+| No new dependencies needed | HIGH | All tools already installed |
 
 ---
 
 ## Sources
 
-- [React Three Fiber Installation](https://r3f.docs.pmnd.rs/getting-started/installation) - React 19 compatibility confirmed
-- [R3F v9 Migration Guide](https://r3f.docs.pmnd.rs/tutorials/v9-migration-guide) - Breaking changes for React 19
-- [TailwindCSS 4 z-index Theming Discussion](https://github.com/tailwindlabs/tailwindcss/discussions/18031) - `--z-index-*` namespace solution
-- [GSAP + R3F Integration](https://gsap.com/community/forums/topic/35688-how-to-use-gsap-with-react-three-fiber/) - Integration patterns
-- [Three.js E-Commerce 3D Showcase](https://medium.com/@makoitlab/three-js-revolution-in-e-commerce-interactive-3d-product-showcase-fa7674bbb86f) - Food/product visualization patterns
-- [Cinematic 3D Scroll with GSAP](https://tympanus.net/codrops/2025/11/19/how-to-build-cinematic-3d-scroll-experiences-with-gsap/) - GSAP ScrollTrigger + Three.js
-- [pmndrs/drei GitHub Releases](https://github.com/pmndrs/drei/releases) - drei 10.x React 19 compatibility
-- [TailwindCSS z-index Documentation](https://tailwindcss.com/docs/z-index) - Official z-index utilities
+- [TailwindCSS v4.0 @theme Directive](https://tailwindcss.com/blog/tailwindcss-v4) - CSS-first configuration
+- [Theme Variables - Tailwind CSS Docs](https://tailwindcss.com/docs/theme) - @theme vs :root guidance
+- [eslint-plugin-tailwindcss](https://www.npmjs.com/package/eslint-plugin-tailwindcss) - v4 beta support
+- [Tailwind CSS IntelliSense Linting](https://tailwindcss.com/blog/introducing-linting-for-tailwindcss-intellisense) - Built-in linting
+- [CSS and JavaScript Animation Performance - MDN](https://developer.mozilla.org/en-US/docs/Web/Performance/Guides/CSS_JavaScript_animation_performance) - CSS vs JS animations
+- [Framer vs GSAP Comparison](https://pentaclay.com/blog/framer-vs-gsap-which-animation-library-should-you-choose) - When to use each
+- [Migrate from GSAP to Motion](https://motion.dev/docs/migrate-from-gsap-to-motion) - Motion's scroll approach
+- [A Guide to Hover and Pointer Media Queries - Smashing Magazine](https://www.smashingmagazine.com/2022/03/guide-hover-pointer-media-queries/) - Touch detection best practices
+- [Detecting Hover-Capable Devices - CSS-IRL](https://css-irl.info/detecting-hover-capable-devices/) - CSS-first approach
+- [Samsung CSS Hover Bug - Ctrl Blog](https://www.ctrl.blog/entry/css-media-hover-samsung.html) - Samsung quirk documentation
+- [How to Detect Touch Devices - DEV Community](https://dev.to/morewings/how-to-detect-touch-devices-using-browser-media-queries-1kbm) - matchMedia approach

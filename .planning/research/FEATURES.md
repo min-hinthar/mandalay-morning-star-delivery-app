@@ -1,272 +1,319 @@
-# Feature Landscape: v1.2 Playful UI Overhaul
+# Feature Landscape: Theme Consistency & Hero Redesign
 
-**Domain:** 3D Interactive Hero & Enhanced Micro-interactions
-**Researched:** 2026-01-23
-**Confidence:** HIGH (verified via Motion.dev, React Three Fiber docs, WebSearch with multiple sources)
-
-**Milestone Context:** Subsequent milestone adding to existing food delivery app with Framer Motion (v12.26.1), GSAP, and established motion token system. Focus on NEW features only.
-
----
-
-## Existing Features (Already Built - Do Not Duplicate)
-
-Per milestone context, these features exist and are working:
-
-| Feature | Implementation | Location |
-|---------|---------------|----------|
-| Menu item cards with effects | Framer Motion hover/tap | `MenuItemCardV8.tsx` |
-| Add-to-cart celebration | Confetti, haptics | `CartAnimations.tsx`, `Confetti.tsx` |
-| Staggered list reveal | `staggerContainer`, variants | `motion-tokens.ts` |
-| Page transitions | AnimatePresence | `PageTransitionV8.tsx` |
-| Header scroll effects | shrink/blur on scroll | `Header.tsx` |
-| Parallax container | Multiple speed layers | `ParallaxContainer.tsx` |
-| 2D floating food | Mouse parallax, float animation | `FloatingFood.tsx` |
-| Motion token system | Springs, variants, hover effects | `motion-tokens.ts` |
+**Domain:** Food delivery app - theme system hardening + hero enhancement
+**Researched:** 2026-01-27
+**Mode:** Feature research for existing codebase fixes
+**Confidence:** HIGH (codebase analysis + verified web research)
 
 ---
 
-## Table Stakes for v1.2
+## Context: What This Milestone Addresses
 
-Features required for the "maximum playfulness" and 3D hero goals. Missing = v1.2 feels incomplete.
+This research supersedes v1.2 Playful UI Overhaul research, focusing specifically on:
+1. **Fixing theme inconsistencies** across home, menu, checkout pages
+2. **Fixing mobile 3D tilt bug** where content disappears on UnifiedMenuItemCard
+3. **Enhancing existing hero** with floating food emojis and parallax (NOT 3D React Three Fiber)
 
-### 3D Interactive Hero Section
-
-| Feature | Why Expected | Complexity | Dependencies | Notes |
-|---------|--------------|------------|--------------|-------|
-| 3D food model rendering | Core of "3D interactive hero" goal | High | React Three Fiber, Three.js | GLB/GLTF models of signature dishes |
-| Rotate on drag/touch | "Explore food items" - user expects interaction | Medium | R3F OrbitControls | Constrain to Y-axis rotation for food appeal |
-| Zoom on pinch/scroll | Standard 3D viewer behavior | Low | OrbitControls built-in | Min/max zoom limits critical for UX |
-| Lighting setup | 3D models look flat without proper lighting | Medium | R3F lights | 3-point lighting for appetizing food look |
-| Loading state for 3D | 3D assets are large, need feedback | Medium | Suspense, useProgress | Skeleton or progress indicator during model load |
-| Mobile performance fallback | 3D too heavy for low-end devices | Medium | Device detection | Fall back to optimized 2D or static image |
-| Reduced motion support | Accessibility requirement | Low | useAnimationPreference (exists) | Disable auto-rotation, simplify interactions |
-
-### Enhanced Micro-interactions
-
-| Feature | Why Expected | Complexity | Dependencies | Notes |
-|---------|--------------|------------|--------------|-------|
-| Button press compression | "Maximum playfulness" needs consistent tactile feel | Low | Framer Motion (exists) | Extend `tap.button` to all interactive elements |
-| Input focus glow/pulse | Form interactions feel alive | Low | CSS + motion tokens | Ring animation on focus |
-| Toggle switch bounce | Playful UI standard | Low | `spring.ultraBouncy` | Exaggerated bounce on state change |
-| Loading spinner with personality | Not generic spinner | Medium | Custom animation | Branded loader (bowl, chopsticks, star) |
-| Success/error state animations | Feedback beyond color change | Medium | `celebration.success` variant | Checkmark draw, error shake |
-| Skeleton shimmer upgrade | Premium loading feel | Low | CSS keyframes | Faster shimmer, gradient polish |
-
-### Light/Dark Theme Refinements
-
-| Feature | Why Expected | Complexity | Dependencies | Notes |
-|---------|--------------|------------|--------------|-------|
-| Animated theme toggle | Current toggle is basic icon swap | Medium | View Transitions API or Framer | Smooth morph between sun/moon icons |
-| Theme transition effect | Jarring instant swap is poor UX | Medium | CSS transitions or circular reveal | Fade or radial wipe between themes |
-| Dark mode color polish | Not just inverted - designed dark palette | Medium | Tailwind tokens | Custom dark surface colors, proper contrast |
-| Dynamic theme colors | Time-of-day awareness (exists but enhance) | Low | DynamicThemeProvider (exists) | Extend to more UI elements |
+**Key Clarification:** The hero redesign is 2D enhancement, not 3D. The existing hero uses CSS/Framer Motion patterns. We enhance with floating emojis and parallax, not React Three Fiber.
 
 ---
 
-## Differentiators
+## Existing Features (Already Built - Reference Only)
 
-Features that create competitive advantage and memorable experience. Not expected, but valued.
-
-### 3D Hero Enhancements
-
-| Feature | Value Proposition | Complexity | Dependencies | Notes |
-|---------|-------------------|------------|--------------|-------|
-| Auto-rotate idle animation | Food showcased even without interaction | Low | R3F useFrame | Slow rotation (0.5 deg/frame) |
-| Physics-based interaction | Drag has momentum, springs back | Medium | R3F + spring physics | Satisfying "weight" to rotation |
-| Multiple food models carousel | Showcase menu variety | High | Model switching, preload | 3-4 signature dishes, swipe between |
-| Particles on interaction | Celebration when touching 3D model | Medium | Existing particle system | Reuse WebGL particles from Hero |
-| Depth of field blur | Cinematic quality | Medium | R3F postprocessing | Focus on food, blur background |
-| Environment reflections | Premium look for metallic/wet surfaces | Medium | Environment map | Soup sheen, plate reflections |
-| Touch ripple on 3D canvas | Feedback that touch registered | Low | Shader or DOM overlay | Subtle ripple at touch point |
-
-### Advanced Micro-interactions
-
-| Feature | Value Proposition | Complexity | High | Notes |
-|---------|-------------------|------------|------|-------|
-| Quantity selector spring | +/- has rubbery overshoot | Low | `spring.rubbery` | Already in tokens, apply consistently |
-| Card 3D tilt on hover | Mouse-tracked perspective shift | Medium | CSS perspective + JS | Subtle tilt (5-10 degrees max) |
-| Image reveal on load | Progressive blur-to-sharp | Low | BlurImage (exists, enhance) | Faster transition, slight scale |
-| Swipe velocity awareness | Fast swipe = bigger gesture response | Medium | Framer Motion drag | Velocity-based animation intensity |
-| Price counter animation | Price changes animate digit-by-digit | Medium | `priceTicker.digit` variant | Already in tokens, implement component |
-| Favorite heart burst | Heart fills with particle burst | Medium | Existing particle + FavoriteButton | Connect particle system to toggle |
-
-### Theme Experience
-
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Circular reveal transition | Telegram-style expanding circle from toggle | High | View Transitions API, clip-path | Impressive but complex |
-| Theme-aware 3D lighting | 3D scene adapts to light/dark | Medium | R3F light props | Warmer light in dark mode |
-| Animated background patterns | Subtle pattern shift with theme | Low | CSS or Framer | Lotus pattern opacity/position |
-| Color scheme persistence | Remember user preference across sessions | Low | localStorage (next-themes handles) | Already working, verify |
+| Feature | Implementation | Location | Status |
+|---------|---------------|----------|--------|
+| OLED-friendly dark mode | CSS tokens, `.dark` class | `tokens.css` | Working |
+| Circular reveal transition | View Transitions API | `globals.css` | Working |
+| Animated theme toggle | Sun/moon morph | `theme-toggle.tsx` | Working |
+| Color token system | CSS custom properties | `tokens.css`, `tailwind.config.ts` | Defined but bypassed |
+| 2D hero with gradient | Linear gradient + animations | `Hero.tsx` | Working, needs polish |
+| UnifiedMenuItemCard 3D tilt | Framer Motion + perspective | `UnifiedMenuItemCard.tsx` | Has mobile bug |
+| Float animation keyframes | CSS `@keyframes float` | `globals.css` | Available for reuse |
 
 ---
 
-## Anti-Features
+## Table Stakes: Theme Consistency (Must Fix)
 
-Features to explicitly NOT build. Waste of time or actively harmful.
+Features users expect. Missing = broken user experience.
+
+| Feature | Why Expected | Complexity | Current State | Priority |
+|---------|--------------|------------|---------------|----------|
+| **No hardcoded `text-white`** | Dark mode users see invisible text on dark backgrounds | Medium | 200+ violations | P0 |
+| **No hardcoded `bg-white`** | Light-only backgrounds break dark mode | Medium | 80+ violations | P0 |
+| **No hardcoded `text-black`** | Light mode users see invisible text on light backgrounds | Low | 15+ violations | P1 |
+| **Semantic color tokens throughout** | `text-text-inverse` not `text-white` | Medium | Token system exists, not enforced | P0 |
+| **Consistent overlay colors** | Modals, backdrops need theme-aware opacity | Low | `bg-black/50` hardcoded in 15+ places | P1 |
+| **Status colors via tokens** | Success/error/warning must theme correctly | Low | Tokens defined, usage inconsistent | P1 |
+| **Focus ring consistency** | Accessibility + visual polish | Low | Needs audit | P2 |
+
+### Critical Finding: Hardcoded Color Hotspots
+
+From grep analysis of codebase:
+
+| Area | Violations | Examples | Severity |
+|------|------------|----------|----------|
+| **Driver components** | 40+ | `StopCard`, `PhotoCapture`, `DeliveryActions`, `OfflineBanner` | High - accessibility critical |
+| **Admin components** | 30+ | `OrderManagement`, `RouteOptimization`, analytics dashboards | Medium |
+| **Auth components** | 20+ | `AuthModal`, `MagicLinkSent`, `WelcomeAnimation` | Medium |
+| **Checkout** | 15+ | `TimeSlotPicker`, `AddressInput`, `PaymentSuccess` | Medium |
+| **UI-v8 components** | 25+ | `Toast`, `Tooltip`, `Modal`, `Drawer`, `BottomSheet` | High - shared |
+| **Layout components** | 10+ | `MobileDrawer`, `CommandPalette`, `AppShell` | Medium |
+| **Homepage** | 8+ | `CTABanner`, `FooterCTA`, `TestimonialsCarousel` | Medium |
+
+### Recommended Semantic Token Mapping
+
+| Hardcoded | Replace With | Use Case |
+|-----------|--------------|----------|
+| `text-white` | `text-text-inverse` | Text on colored backgrounds |
+| `bg-white` | `bg-surface-primary` | Card/container backgrounds |
+| `text-black` | `text-text-primary` | Primary body text |
+| `bg-black/50` | `bg-surface-primary/50` or custom `--overlay-bg` token | Modal overlays |
+| `bg-white/20` | `bg-surface-primary/20` | Glassmorphism effects |
+| `dark:bg-zinc-900` | `bg-surface-secondary` or `bg-surface-elevated` | Dark mode surfaces |
+
+---
+
+## Table Stakes: Mobile 3D Tilt Fix (Must Fix)
+
+| Feature | Why Expected | Complexity | Current State | Priority |
+|---------|--------------|------------|---------------|----------|
+| **Content visible during tilt** | Core functionality broken | Medium | Content clips/disappears on iOS | P0 |
+| **Smooth tilt animation** | No flickering or jank | Low | Works on desktop, issues on mobile | P0 |
+| **Touch interaction stable** | No accidental triggers | Low | Long-press implemented | P1 |
+
+### Root Cause Analysis
+
+Based on code review of `UnifiedMenuItemCard.tsx`:
+
+| Issue | Code Location | Root Cause |
+|-------|---------------|------------|
+| Content clipping | `overflow-visible` set but child has `overflow: hidden` | Safari compositing layer conflict |
+| Flickering on iOS | Missing `-webkit-backface-visibility` | Hardware acceleration not consistent |
+| Z-index stacking | `preserve-3d` without proper z-index handling | WebKit preserve-3d z-index bug |
+
+### Verified Fix Pattern (From MDN + Apple Forums)
+
+```css
+/* Container with perspective */
+.card-3d-container {
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+}
+
+/* Card element with 3D transforms */
+.card-3d {
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+
+  /* Critical for iOS Safari */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+
+  /* Force GPU compositing layer */
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+
+/* Child elements need explicit z-translation */
+.card-3d-content {
+  transform: translateZ(1px);
+  -webkit-transform: translateZ(1px);
+}
+```
+
+---
+
+## Table Stakes: Hero Section
+
+| Feature | Why Expected | Complexity | Current State | Priority |
+|---------|--------------|------------|---------------|----------|
+| **No layout shift** | Core Web Vital | Low | Good - min-h-[100svh] | N/A |
+| **Theme-aware gradient** | Consistent dark mode | Low | Good - uses `--hero-*` tokens | N/A |
+| **Accessible CTAs** | Primary conversion | Low | Good | N/A |
+| **Mobile responsive** | Majority of traffic | Low | Good | N/A |
+
+---
+
+## Differentiators: Hero Enhancement
+
+Features that elevate experience. Not expected, but valued.
+
+| Feature | Value Proposition | Complexity | Dependencies | Priority |
+|---------|-------------------|------------|--------------|----------|
+| **Floating food emojis** | Playful brand identity, memorable | Medium | CSS `@keyframes float` (exists) | P1 |
+| **Enhanced parallax scroll** | Depth, premium feel, +22% CTA engagement | Low | `useScroll` (exists) | P2 |
+| **Gradient animation** | Dynamic, living design | Low | `@keyframes gradient-x` (exists) | P3 |
+| **Staggered emoji entrance** | Polished reveal animation | Low | `stagger` variants (exist) | P2 |
+
+### Floating Food Emojis Implementation
+
+**Pattern:** Multiple absolutely-positioned emoji elements with varied animation delays and positions.
+
+```tsx
+// Conceptual structure
+const floatingEmojis = [
+  { emoji: "🍜", position: "top-[10%] left-[5%]", delay: 0, duration: 6 },
+  { emoji: "🥢", position: "top-[20%] right-[10%]", delay: 1.2, duration: 8 },
+  { emoji: "🍲", position: "bottom-[30%] left-[15%]", delay: 0.5, duration: 7 },
+  // ... more emojis with varied positions
+];
+```
+
+**Performance considerations:**
+- Use `will-change: transform` sparingly
+- Limit to 6-8 floating elements
+- Reduce/disable on `prefers-reduced-motion`
+- Use CSS animations over JS for float (already implemented)
+
+### Parallax Optimization
+
+Current implementation uses Framer Motion `useScroll`. Recommended enhancements:
+
+| Current | Enhancement | Rationale |
+|---------|-------------|-----------|
+| Single parallax layer | Multiple layers at different speeds | Depth |
+| Speed: varies | Standardize: 0.2 (slow) to 0.5 (fast) | Avoid motion sickness |
+| No mobile differentiation | Reduce speeds on mobile | Performance, battery |
+| `useTransform` raw | Add `useSpring` smoothing | Buttery feel |
+
+---
+
+## Mobile-Specific Considerations
+
+| Feature | Complexity | Current State | Recommendation |
+|---------|------------|---------------|----------------|
+| **Disable 3D tilt on touch** | Low | Long-press activates | Consider full disable |
+| **Reduce parallax speed** | Low | Same as desktop | Add `matchMedia` check |
+| **Touch-safe floating emojis** | Low | N/A | Keep emojis out of touch target zones |
+| **iOS safe areas** | Low | Implemented | `.pb-safe` utilities working |
+
+---
+
+## Anti-Features (Do NOT Build)
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| Full 3D scene/environment | Overkill for food showcase, performance killer | Single hero model with clean background |
-| 3D menu browsing | Gimmicky, slower than 2D grid | Keep menu as optimized cards, 3D only in hero |
-| VR/AR integration | Scope creep, minimal user value for meal subscription | Focus on standard web experience |
-| Complex 3D animations on every page | Performance death, user fatigue | 3D only in hero; 2D micro-interactions elsewhere |
-| Auto-playing 3D on mobile by default | Battery drain, data usage, performance | Require tap to start, or show optimized 2D |
-| Excessive particle effects | Distracting, performance impact | Particles only on key moments (add-to-cart, hero CTA) |
-| Heavy post-processing (bloom, SSAO) | Overkill, GPU intensive | Basic lighting + environment map sufficient |
-| Infinite model variants | Asset management nightmare | 3-5 signature dish models maximum |
-| Theme transition blocking interaction | User stuck waiting for animation | Theme transition must not block clicks |
-| Parallax everywhere | Motion sickness, performance | Parallax only in hero, respect reduced motion |
+| **Heavy parallax (speed > 0.7)** | Motion sickness, poor LCP | Keep speeds 0.2-0.5 |
+| **Parallax on all sections** | Overwhelming, performance | Hero only |
+| **React Three Fiber for this milestone** | Scope creep, out of scope | Stick to 2D CSS/Framer |
+| **Particle.js or similar libraries** | 100KB+ bundle, overkill | CSS `@keyframes` animations |
+| **Glassmorphism without fallback** | Invisible content on older browsers | Test `backdrop-filter` support |
+| **3D tilt on ALL cards** | Performance on list views | Featured cards only or disable |
+| **Different color mappings per component** | Maintenance nightmare | Single token system |
+| **`!important` for theme fixes** | Specificity wars | Fix at source |
+| **Animations without reduced-motion** | Accessibility violation | Always respect preference |
+| **Floating elements that block CTAs** | Conversion killer | Position emojis in margins |
 
 ---
 
 ## Feature Dependencies
 
 ```
-3D Hero System
-    |
-    +-- React Three Fiber setup (new)
-    |       |
-    |       +-- Model loading (GLTF/GLB)
-    |       +-- OrbitControls
-    |       +-- Lighting rig
-    |       +-- Mobile fallback logic
-    |
-    +-- Existing systems (leverage)
-            |
-            +-- useAnimationPreference (reduced motion)
-            +-- useParticleSystem (celebration effects)
-            +-- DynamicThemeProvider (time-based colors)
+Theme Consistency Fix:
+  tokens.css (source of truth)
+    -> tailwind.config.ts (maps tokens to utilities)
+      -> Component audit
+        -> Systematic replacement of hardcoded colors
+          -> Verification pass (dark mode QA)
 
-Enhanced Micro-interactions
-    |
-    +-- motion-tokens.ts extensions
-    |       |
-    |       +-- New variants (if needed)
-    |       +-- Component application
-    |
-    +-- Existing components (enhance)
-            |
-            +-- Button, Input, Toggle
-            +-- MenuItemCardV8
-            +-- CartAnimations
+Mobile 3D Tilt Fix:
+  UnifiedMenuItemCard.tsx
+    -> Add backface-visibility: hidden
+    -> Add translate3d(0,0,0) to content
+    -> Test on iOS Safari 17+
+      -> Consider disabling tilt on touch devices if issues persist
 
-Theme Refinements
-    |
-    +-- Theme toggle animation (new)
-    |       |
-    |       +-- Icon morph animation
-    |       +-- View Transitions API (optional)
-    |
-    +-- Color token review
-            |
-            +-- Dark mode surface colors
-            +-- Semantic color adjustments
+Hero Enhancement:
+  Existing float keyframes (globals.css)
+    -> FloatingEmoji component (new)
+      -> Integration with Hero.tsx
+        -> Parallax enhancement (useScroll optimization)
 ```
 
-**Dependency Order for v1.2:**
-1. React Three Fiber integration + first 3D model
-2. OrbitControls + mobile fallback
-3. 3D hero integration with existing parallax
-4. Micro-interaction audit + consistent application
-5. Theme toggle animation
-6. Theme transition polish
-
 ---
 
-## Complexity Assessment Summary
+## MVP Recommendation (Phased)
 
-| Complexity | Features |
-|------------|----------|
-| **Low** | Auto-rotate, zoom controls, skeleton shimmer, input focus glow, toggle bounce, reduced motion support |
-| **Medium** | 3D model loading, lighting setup, drag physics, theme toggle animation, theme transition, 3D tilt cards, loading spinner |
-| **High** | Multiple model carousel, depth of field, circular reveal transition, React Three Fiber initial setup |
+### Phase 1: Theme Consistency (P0)
 
----
+**Goal:** No visible theme bugs in dark mode.
 
-## MVP Recommendation for v1.2
+1. Create find-replace script for common patterns:
+   - `text-white` -> `text-text-inverse` (where appropriate)
+   - `bg-white` -> `bg-surface-primary`
+   - `bg-black/50` -> custom overlay token
 
-### Must-Have (Table Stakes)
+2. Manual review for context-dependent replacements
 
-1. **React Three Fiber setup** - Foundation for 3D hero
-2. **Single rotating food model** - Core "3D interactive" deliverable
-3. **OrbitControls with constraints** - User can rotate/zoom
-4. **Mobile fallback** - Don't break on low-end devices
-5. **Theme toggle animation** - Upgrade from basic icon swap
-6. **Micro-interaction consistency audit** - Apply existing tokens everywhere
+3. Dark mode QA pass on all pages
 
-### Should-Have (Core Differentiators)
+**Complexity:** Medium (200+ files to touch)
+**Risk:** Low (non-breaking changes)
 
-1. **Auto-rotate idle** - Food showcased without interaction
-2. **Physics-based drag** - Satisfying interaction weight
-3. **Theme transition effect** - Smooth rather than jarring
-4. **3D tilt on menu cards** - Playful hover without full 3D
-5. **Branded loading spinner** - Polish detail
+### Phase 2: Mobile 3D Tilt Fix (P0)
 
-### Defer to Post-v1.2
+**Goal:** Menu cards work on iOS Safari.
 
-- Multiple model carousel - Can iterate after single model works
-- Circular reveal transition - Nice but complex, fade works
-- Depth of field / postprocessing - Performance risk
-- Environment reflections - Polish if time permits
-- Favorite heart particle burst - Nice detail, not critical
+1. Add CSS fixes to UnifiedMenuItemCard:
+   ```css
+   -webkit-backface-visibility: hidden;
+   transform: translate3d(0, 0, 0);
+   ```
 
----
+2. Add `translateZ(1px)` to child content elements
 
-## Technical Considerations
+3. Test on iOS Safari 17 (iPhone 15)
 
-### React Three Fiber Integration
+4. If issues persist: disable tilt on touch devices
 
-Based on [official R3F documentation](https://r3f.docs.pmnd.rs/getting-started/examples):
+**Complexity:** Low-Medium
+**Risk:** Low (isolated to one component)
 
-```typescript
-// Recommended packages
-"@react-three/fiber": "^8.x",
-"@react-three/drei": "^9.x",  // OrbitControls, useGLTF, etc.
-"three": "^0.160.x"
+### Phase 3: Hero Enhancement (P1-P2)
 
-// Next.js dynamic import for SSR safety
-const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false })
-```
+**Goal:** Floating emojis + improved parallax.
 
-### Performance Targets
+1. Create `FloatingEmoji` component using existing float keyframes
 
-| Metric | Target | Fallback Trigger |
-|--------|--------|------------------|
-| 3D scene FPS | 60fps | Disable 3D below 30fps |
-| Model load time | <2s on 4G | Progressive loading, placeholder |
-| Bundle size impact | <200KB gzipped | Code split, lazy load |
-| Mobile GPU tier | Tier 2+ | Tier 1 gets 2D fallback |
+2. Add 6-8 positioned emojis to hero
 
-### Model Asset Requirements
+3. Enhance parallax with multi-layer speeds
 
-| Requirement | Specification |
-|-------------|---------------|
-| Format | GLB (binary GLTF) |
-| Polygon count | <50K tris per model |
-| Texture size | 1024x1024 max, compressed |
-| File size | <2MB per model |
-| Compression | Draco mesh compression |
+4. Enable gradient animation (already defined)
+
+5. Respect `prefers-reduced-motion`
+
+**Complexity:** Medium
+**Risk:** Low (additive feature)
 
 ---
 
 ## Sources
 
-### Authoritative (HIGH Confidence)
+### Theme Consistency
+- [Tailwind CSS Best Practices 2025-2026](https://www.frontendtools.tech/blog/tailwind-css-best-practices-design-system-patterns)
+- [Design Tokens Explained - Contentful](https://www.contentful.com/blog/design-token-system/)
+- [Design Tokens and CSS Variables - Penpot](https://penpot.app/blog/the-developers-guide-to-design-tokens-and-css-variables/)
+- [Tailwind Dark Mode Semantic Colors - GitHub Discussion](https://github.com/tailwindlabs/tailwindcss/discussions/10274)
+- [Advanced Theming with Design Tokens - David Supik](https://david-supik.medium.com/advanced-theming-techniques-with-design-tokens-bd147fe7236e)
 
-- [Motion.dev - React Three Fiber](https://motion.dev/docs/react-three-fiber) - Framer Motion 3D integration
-- [React Three Fiber Documentation](https://r3f.docs.pmnd.rs/getting-started/examples) - Official examples and patterns
-- [Three.js Performance Tips](https://tympanus.net/codrops/2025/02/11/building-efficient-three-js-scenes-optimize-performance-while-maintaining-quality/) - Optimization strategies
+### Hero & Parallax
+- [Hero Section Design Best Practices 2026 - Perfect Afternoon](https://www.perfectafternoon.com/2025/hero-section-design/)
+- [Best Parallax Scrolling Effect 2026 - Builder.io](https://www.builder.io/blog/parallax-scrolling-effect)
+- [Parallax Scrolling with CSS - LogRocket](https://blog.logrocket.com/create-parallax-scrolling-css/)
+- [Web Design Trends 2026 - Really Good Designs](https://reallygooddesigns.com/web-design-trends-2026/)
+- [Top Hero Sections 2026 - PaperStreet](https://www.paperstreet.com/blog/top-10-hero-sections/)
 
-### Design Patterns (MEDIUM Confidence)
+### 3D Transform Mobile Fixes
+- [CSS Perspective - MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/perspective)
+- [3D Tilt Effect Tutorial - Francesco Saviano](https://medium.com/@francesco.saviano87/how-to-create-a-3d-tilt-effect-on-a-card-with-html-css-and-javascript-1d0b0ab5a9d7)
+- [CSS 3D Perspective Animations - Frontend.fyi](https://www.frontend.fyi/tutorials/css-3d-perspective-animations)
+- [Force Hardware Acceleration - David Walsh](https://davidwalsh.name/translate3d)
+- [iOS Safari Elements Disappearing - Apple Developer Forums](https://developer.apple.com/forums/thread/129318)
 
-- [View Transitions API Theme Toggle](https://akashhamirwasia.com/blog/full-page-theme-toggle-animation-with-view-transitions-api/) - Circular reveal implementation
-- [Web Design Trends 2026](https://www.index.dev/blog/web-design-trends) - 3D in hero sections trend validation
-- [Food Delivery UX 2025](https://medium.com/@prajapatisuketu/food-delivery-app-ui-ux-design-in-2025-trends-principles-best-practices-4eddc91ebaee) - Micro-interaction best practices
-
-### Existing Codebase (HIGH Confidence)
-
-- `src/lib/motion-tokens.ts` - Established spring presets, variants
-- `src/components/homepage/Hero.tsx` - Current 2D parallax implementation
-- `src/components/homepage/FloatingFood.tsx` - 2D float animation patterns
-- `src/lib/hooks/useAnimationPreference.ts` - Reduced motion handling
+### Codebase Analysis (HIGH Confidence)
+- `src/styles/tokens.css` - Token definitions verified
+- `src/tailwind.config.ts` - Token mapping verified
+- `src/components/menu/UnifiedMenuItemCard/UnifiedMenuItemCard.tsx` - 3D tilt implementation reviewed
+- `src/components/homepage/Hero.tsx` - Current hero implementation reviewed
+- `src/app/globals.css` - Animation keyframes available

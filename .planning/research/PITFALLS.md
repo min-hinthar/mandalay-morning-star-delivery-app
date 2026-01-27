@@ -1,691 +1,596 @@
-# Domain Pitfalls: v1.2 Playful UI Overhaul
+# Domain Pitfalls: Theme Consistency & Hero Redesign
 
-**Project:** Morning Star Delivery App - 3D & Enhanced Playfulness
-**Domain:** Next.js 15+ | React 19 | TailwindCSS 4 | Three.js/R3F | Framer Motion
-**Researched:** 2026-01-23
-**Confidence:** HIGH (verified against codebase ERROR_HISTORY.md and official sources)
+**Project:** Morning Star Delivery App - v1.3 Theme Fixes & Hero Overhaul
+**Domain:** TailwindCSS 4 | Next.js 16 | CSS 3D Transforms | Parallax | Mobile Touch
+**Researched:** 2026-01-27
+**Confidence:** HIGH (verified against codebase ERROR_HISTORY.md, LEARNINGS.md, and official sources)
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause rewrites, broken interactions, or build failures.
+Mistakes that cause visual regressions, broken themes, or content disappearing.
 
 ---
 
-### Pitfall 1: TailwindCSS 4 Does NOT Generate Custom zIndex Utility Classes
+### Pitfall 1: Incomplete Theme Token Audit (Partial Fix Syndrome)
 
-**What goes wrong:** Custom `zIndex` values in `tailwind.config.ts` theme extensions do NOT produce utility classes in TailwindCSS 4. Classes like `z-modal`, `z-dropdown`, `z-fixed` silently fail - elements receive no z-index styling.
+**What goes wrong:** Fixing hardcoded colors in visible areas while missing them in fallback code, error states, inline styles, or dynamically generated content. Users in specific themes see broken UI.
 
-**Why it happens:** TailwindCSS 4 changed how custom theme values work. Unlike TailwindCSS 3, extending `theme.zIndex` in the config file no longer generates corresponding utility classes.
+**Why it happens:**
+- ESLint/grep catches className violations but misses inline `style={{}}` objects
+- Fallback/polyfill code paths rarely tested in both themes
+- Dynamic style generation (gradients, shadows) often uses hardcoded values
+- SVG fills/strokes frequently hardcoded
 
 **Consequences:**
-- Headers scroll under content
-- Modals appear behind page elements
-- Buttons unclickable (covered by invisible elements)
-- Signout button in dropdown not registering clicks
-- Silent failure - no CSS errors, no console warnings
+- Light mode footer text invisible (white on white) - documented in LEARNINGS.md
+- Error states unreadable in dark mode
+- Animations/confetti use hardcoded colors that clash with theme
+- PDF/email templates don't respect theme
 
-**Root cause verified in codebase (ERROR_HISTORY.md 2026-01-24):**
-```ts
-// tailwind.config.ts - THIS DOES NOT WORK IN TAILWIND 4
-theme: {
-  extend: {
-    zIndex: {
-      fixed: '30',
-      modal: '50',
-    }
-  }
-}
-// z-fixed, z-modal classes do NOT exist
+**Evidence from codebase (LEARNINGS.md 2026-01-26):**
+```tsx
+// BROKEN - bg-text-primary inverts, text-white doesn't
+<section className="bg-text-primary">
+  <h3 className="text-white">...</h3>  // Dark mode: light bg + white text = invisible
+</section>
+```
+
+**Current scope (from grep analysis):**
+- 221 occurrences of `text-white/text-black/bg-white/bg-black` across 89 files
+- 133 occurrences of hardcoded hex colors in component files
+- Key files: Modal.tsx (23 hex colors), AddToCartButton.tsx (4), DeliveryMap.tsx (8)
+
+**Prevention:**
+
+1. **Comprehensive audit approach:**
+   ```bash
+   # Find ALL hardcoded colors (not just obvious ones)
+   grep -rn "text-white\|text-black\|bg-white\|bg-black" src/components --include="*.tsx"
+   grep -rn "#[0-9A-Fa-f]\{3,6\}" src/components --include="*.tsx"
+   grep -rn "style={{" src/components --include="*.tsx" | grep -i "color\|background"
+   grep -rn "fill=\|stroke=" src/components --include="*.tsx"
+   ```
+
+2. **Create audit checklist by code path:**
+   - [ ] Primary UI (visible on load)
+   - [ ] Error states (`catch`, error boundaries)
+   - [ ] Loading states (skeletons, spinners)
+   - [ ] Empty states (no data messages)
+   - [ ] Success states (confetti, checkmarks)
+   - [ ] Modal/overlay backdrops
+   - [ ] SVG icons and illustrations
+   - [ ] Inline style objects
+
+3. **Fix in waves, verify each:**
+   ```tsx
+   // Wave 1: High-traffic pages (home, menu, checkout)
+   // Wave 2: Auth flows (login, signup, error)
+   // Wave 3: Admin/driver dashboards
+   // Wave 4: Edge cases (empty states, errors)
+   ```
+
+4. **ESLint rule for enforcement (after migration):**
+   ```js
+   // .eslintrc - Add after migration complete
+   "no-restricted-syntax": ["error", {
+     "selector": "JSXAttribute[name.name='style'] ObjectExpression Property[key.name=/color|background/i]",
+     "message": "Use CSS variables or Tailwind classes for theme-aware colors"
+   }]
+   ```
+
+**Detection (warning signs):**
+- Works in light mode, broken in dark mode (or vice versa)
+- Specific pages/components look wrong while others are fine
+- Colors "pop" harshly against themed backgrounds
+- User reports of "can't see X in dark mode"
+
+**Phase mapping:** Phase 1 - Complete audit before any fixes to establish baseline
+
+---
+
+### Pitfall 2: CSS 3D Transforms + Stacking Context = Content Disappearing
+
+**What goes wrong:** Adding `preserve-3d`, `perspective`, or CSS 3D rotation causes content to flicker, disappear during hover, or render behind other elements.
+
+**Why it happens:**
+- `transform-style: preserve-3d` creates new stacking context separate from z-index
+- `overflow: hidden/auto/scroll` forces `preserve-3d` to `flat`
+- `opacity < 1` forces `preserve-3d` to `flat`
+- Scale transforms combined with 3D rotation create conflicting contexts
+- zIndex changes in Framer Motion `whileHover` break 3D context
+
+**Consequences:**
+- Menu cards disappear during 3D tilt interaction
+- Content flickers when hovering 3D elements
+- Modal/dropdown appears behind 3D transformed elements
+- Mobile long-press tilt causes content to vanish
+
+**Evidence from codebase (LEARNINGS.md 2026-01-26):**
+```tsx
+// BROKEN - zIndex and scale create stacking context conflicts
+<motion.div
+  style={{ transformStyle: "preserve-3d", rotateX, rotateY }}
+  whileHover={{ scale: 1.03, zIndex: 50 }}  // Breaks 3D context
+  whileTap={{ scale: 0.98 }}                 // Also conflicts
+>
+
+// WORKING - disable scale when using 3D tilt
+<motion.div
+  style={{ transformStyle: "preserve-3d", rotateX, rotateY }}
+  whileHover={!shouldEnableTilt ? { scale: 1.03 } : undefined}
+  whileTap={!shouldEnableTilt ? { scale: 0.98 } : undefined}
+>
 ```
 
 **Prevention:**
 
-1. **Use numeric Tailwind classes only:**
-   ```ts
-   // z-index.ts - Use Tailwind's default numeric scale
-   export const zClass = {
-     base: "z-0",
-     dropdown: "z-10",
-     sticky: "z-20",
-     fixed: "z-30",
-     modalBackdrop: "z-40",
-     modal: "z-50",
-     popover: "z-[60]",    // Arbitrary for values beyond scale
-     tooltip: "z-[70]",
-     toast: "z-[80]",
-     max: "z-[100]",
-   };
-   ```
-
-2. **For @theme directive, use unquoted numeric values:**
+1. **Never combine these with preserve-3d:**
    ```css
-   /* globals.css - WRONG */
-   @theme {
-     --z-index-modal: '50';  /* Quoted = broken */
+   /* These force flat, breaking 3D */
+   overflow: hidden;
+   overflow: auto;
+   opacity: 0.99;  /* Any value < 1 */
+   filter: blur(1px);
+   contain: paint;
+   ```
+
+2. **Use translateZ instead of z-index in 3D contexts:**
+   ```css
+   /* Inside 3D context, use 3D stacking */
+   .front-element {
+     transform: translateZ(50px);
    }
-
-   /* globals.css - CORRECT */
-   @theme {
-     --z-index-modal: 50;    /* Unquoted = works */
+   .back-element {
+     transform: translateZ(0);
    }
    ```
 
-3. **Verify helper objects return valid classes:**
-   ```bash
-   # Check that zClass values are valid Tailwind classes
-   grep -r "zClass\." src/components --include="*.tsx" | head -5
-   # Then verify those classes exist in Tailwind output
+3. **Disable competing animations on 3D elements:**
+   ```tsx
+   // 3D tilt IS the hover feedback - don't add scale
+   const shouldEnableTilt = variant === 'menu' && !disableTilt;
+
+   <motion.div
+     style={shouldEnableTilt ? { transformStyle: "preserve-3d", rotateX, rotateY } : undefined}
+     whileHover={shouldEnableTilt ? undefined : { scale: 1.03 }}
+   >
    ```
 
-**Detection (warning signs):**
-- Inspect element shows no `z-index` computed style
-- Works in dev but breaks after build
-- Header/modal layer ordering wrong despite "correct" class names
-
-**Phase mapping:** Address in Phase 1 (Foundation) - z-index token audit before any component work
-
-**Sources:**
-- [TailwindCSS 4 @theme discussion](https://github.com/tailwindlabs/tailwindcss/discussions/18031)
-- Codebase ERROR_HISTORY.md (2026-01-23, 2026-01-24)
-
----
-
-### Pitfall 2: React Three Fiber + Next.js 15/React 19 Compatibility
-
-**What goes wrong:** TypeError: `Cannot read properties of undefined (reading 'ReactCurrentOwner')` when using React Three Fiber with Next.js 15.
-
-**Why it happens:** React 19 renamed internal APIs from `SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED` to `__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE`. R3F accesses these internals for reconciliation.
-
-**Consequences:**
-- 3D canvas fails to render
-- App crashes on pages with R3F components
-- White screen on 3D scenes
-
-**Prevention:**
-
-1. **Use compatible R3F version:**
-   ```bash
-   # R3F 9.x is designed for React 19
-   npm install @react-three/fiber@9.0.0 three@latest
-   # NOT @react-three/fiber@8.x (designed for React 18)
-   ```
-
-2. **Version pairing rule:**
-   | React Version | R3F Version |
-   |---------------|-------------|
-   | React 18      | @react-three/fiber@8.x |
-   | React 19      | @react-three/fiber@9.x |
-
-3. **Check package.json before starting 3D work:**
-   ```bash
-   npm ls react @react-three/fiber
+4. **Isolate 3D contexts:**
+   ```css
+   /* Prevent 3D leaking to siblings */
+   .page-content {
+     isolation: isolate;
+     transform-style: flat;
+   }
    ```
 
 **Detection:**
-- Console error mentioning `ReactCurrentOwner` or `SECRET_INTERNALS`
-- Canvas element present but empty/white
-- Works locally with React 18, breaks in prod with React 19
+- Content disappears on hover but returns on mouse leave
+- Works without animation, breaks with animation enabled
+- Computed style shows `transform-style: flat` when `preserve-3d` expected
+- DevTools 3D view shows unexpected flattening
 
-**Phase mapping:** Address before any 3D implementation - version compatibility check
-
-**Sources:**
-- [Next.js 15 + R3F compatibility issue](https://github.com/vercel/next.js/issues/71836)
-- [R3F Installation docs](https://r3f.docs.pmnd.rs/getting-started/installation)
+**Phase mapping:** Phase 2 (Hero Implementation) - establish 3D architecture before adding effects
 
 ---
 
-### Pitfall 3: R3F/Three.js "window is not defined" and Hydration Errors
+### Pitfall 3: Semantic Token Misuse (Inverse Tokens)
 
-**What goes wrong:** Server-side rendering crashes with `ReferenceError: window is not defined` or hydration mismatch errors because Three.js requires browser APIs.
-
-**Why it happens:** Three.js and R3F depend on `window`, `document`, `WebGLRenderingContext` which don't exist during SSR. Next.js App Router pre-renders all components on server by default.
-
-**Consequences:**
-- Build fails during SSR pass
-- Hydration mismatch errors in console
-- 3D content flashes or doesn't appear
-- SEO impact if error causes full page failure
-
-**Prevention:**
-
-1. **Dynamic import with ssr: false:**
-   ```tsx
-   // app/page.tsx
-   import dynamic from 'next/dynamic';
-
-   const Scene3D = dynamic(
-     () => import('@/components/three/Scene3D'),
-     { ssr: false }
-   );
-
-   export default function Page() {
-     return <Scene3D />;
-   }
-   ```
-
-2. **Client Component with mounted check:**
-   ```tsx
-   // components/three/Scene3D.tsx
-   'use client';
-
-   import { Canvas } from '@react-three/fiber';
-   import { useEffect, useState } from 'react';
-
-   export default function Scene3D() {
-     const [mounted, setMounted] = useState(false);
-
-     useEffect(() => {
-       setMounted(true);
-     }, []);
-
-     if (!mounted) return <div className="h-64 bg-muted" />; // Placeholder
-
-     return <Canvas>...</Canvas>;
-   }
-   ```
-
-3. **Never import Three.js at module level in Server Components:**
-   ```tsx
-   // WRONG - crashes SSR
-   import * as THREE from 'three';
-
-   // CORRECT - only in Client Components with 'use client'
-   'use client';
-   import * as THREE from 'three';
-   ```
-
-**Detection:**
-- Build error: `ReferenceError: window is not defined`
-- Console: `Hydration failed because the initial UI does not match`
-- 3D canvas appears then disappears on load
-
-**Phase mapping:** Address in Phase 1 (3D Infrastructure) - establish SSR-safe patterns
-
-**Sources:**
-- [Window is not defined in Next.js (2025)](https://dev.to/devin-rosario/stop-window-is-not-defined-in-nextjs-2025-394j)
-- [Next.js Hydration Error docs](https://nextjs.org/docs/messages/react-hydration-error)
-
----
-
-### Pitfall 4: WebGL Context Lost and Memory Leaks
-
-**What goes wrong:** After navigating between pages with 3D content, browser shows "WebGL context lost" or app becomes sluggish with increasing memory usage.
+**What goes wrong:** Using `bg-text-*` tokens for backgrounds or `text-surface-*` for text creates inverted contrast that breaks in one theme.
 
 **Why it happens:**
-- WebGLRenderer not disposed on component unmount
-- Geometries, materials, textures not explicitly disposed
-- Multiple Canvas components create multiple WebGL contexts
-- Browser limit: ~8-16 concurrent WebGL contexts
+- Token names don't clearly indicate intended usage
+- Developers assume "primary" means "main" not "role"
+- Copy-paste from components designed for opposite context
+- Dark sections on light pages (and vice versa) need special handling
 
 **Consequences:**
-- "WARNING: Too many active WebGL contexts. Oldest context will be lost"
-- 3D content stops rendering after navigation
-- App freezes or crashes on mobile
-- Battery drain from retained GPU resources
+- Footer/hero text invisible in one theme
+- Contrast ratio fails WCAG in specific combinations
+- "Inverted" sections (dark on light page) break completely
+
+**Evidence from codebase:**
+```tsx
+// tokens.css defines paired tokens that switch together:
+--color-text-primary: #111111;  // Light: dark text
+--color-text-inverse: #FFFFFF;  // Light: light text (for dark bgs)
+
+// In dark mode, these flip:
+--color-text-primary: #F8F7F6;  // Dark: light text
+--color-text-inverse: #000000;  // Dark: dark text (for light bgs)
+```
 
 **Prevention:**
 
-1. **Proper cleanup on unmount:**
+1. **Use section-specific token pairs:**
    ```tsx
+   // CORRECT - footer tokens switch together
+   <footer className="bg-footer-bg text-footer-text">
+
+   // CORRECT - hero tokens switch together
+   <section className="bg-hero-gradient text-hero-text">
+   ```
+
+2. **Never mix "opposite" tokens:**
+   ```tsx
+   // WRONG - bg uses text token, text is hardcoded
+   <div className="bg-text-primary text-white">
+
+   // CORRECT - use inverse token for contrast
+   <div className="bg-surface-primary text-text-primary">
+   ```
+
+3. **Create explicit paired tokens for special sections:**
+   ```css
+   /* tokens.css - always define pairs */
+   :root {
+     --cta-section-bg: var(--color-primary);
+     --cta-section-text: var(--color-text-inverse);
+   }
+   .dark {
+     --cta-section-bg: var(--color-primary);
+     --cta-section-text: var(--color-text-inverse);
+   }
+   ```
+
+**Detection:**
+- Text readable in light mode, invisible in dark mode (or vice versa)
+- Section "inverts" incorrectly on theme switch
+- WCAG contrast checker fails for specific theme
+
+**Phase mapping:** Phase 1 (Audit) - identify all misused tokens before fixing
+
+---
+
+### Pitfall 4: Touch Device Detection for 3D Effects
+
+**What goes wrong:** 3D tilt effects enabled on touch devices cause content to disappear, become unclickable, or trigger unintended scrolling.
+
+**Why it happens:**
+- `pointer: coarse` media query doesn't catch all touch devices
+- Hybrid devices (Surface, iPad with keyboard) detected incorrectly
+- Touch and mouse events fire differently (touchstart/mouseenter race)
+- Long-press for tilt conflicts with native context menu
+
+**Consequences:**
+- Menu card content disappears on mobile long-press
+- Tilt effect blocks scroll/swipe gestures
+- Users can't tap cards because touchmove triggers tilt
+- iOS context menu appears during tilt interaction
+
+**Current implementation (UnifiedMenuItemCard.tsx):**
+```tsx
+// Long-press to enable tilt
+const handleTouchStart = useCallback(() => {
+  if (!shouldEnableTilt) return;
+  longPressTimer.current = setTimeout(() => {
+    setIsMobileTiltActive(true);
+    navigator.vibrate?.(20);
+  }, 300);
+}, [shouldEnableTilt]);
+
+// Prevent scroll during tilt
+touchAction: isMobileTiltActive ? "none" : "auto"
+```
+
+**Prevention:**
+
+1. **Proper device detection hierarchy:**
+   ```tsx
+   // Check capabilities, not device type
+   const supportsHover = window.matchMedia('(hover: hover)').matches;
+   const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+   const prefersTilt = supportsHover && !hasCoarsePointer;
+
+   // Or disable for all touch-capable devices
+   const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+   ```
+
+2. **SSR-safe detection with mounted state:**
+   ```tsx
+   const [deviceCapabilities, setDeviceCapabilities] = useState({
+     hasTouch: false,
+     supportsHover: true, // Safe default for SSR
+     mounted: false
+   });
+
    useEffect(() => {
-     return () => {
-       // Dispose scene resources
-       scene.traverse((object) => {
-         if (object instanceof THREE.Mesh) {
-           object.geometry.dispose();
-           if (Array.isArray(object.material)) {
-             object.material.forEach(m => m.dispose());
-           } else {
-             object.material.dispose();
-           }
-         }
-       });
-       // Force context loss
-       renderer.forceContextLoss();
-       renderer.dispose();
-     };
+     setDeviceCapabilities({
+       hasTouch: 'ontouchstart' in window,
+       supportsHover: window.matchMedia('(hover: hover)').matches,
+       mounted: true
+     });
    }, []);
    ```
 
-2. **Single Canvas pattern:**
+3. **Graceful degradation for touch:**
    ```tsx
-   // Use ONE Canvas at app level, swap scenes
-   // NOT multiple Canvas components per page
-   <Canvas>
-     {pathname === '/menu' && <MenuScene />}
-     {pathname === '/checkout' && <CheckoutScene />}
-   </Canvas>
+   // Mobile: tap to select, no tilt
+   // Desktop: hover for tilt, click to select
+   const enableTilt = deviceCapabilities.mounted && !deviceCapabilities.hasTouch;
    ```
 
-3. **Reuse renderer and context:**
+4. **Prevent scroll conflicts:**
    ```tsx
-   // R3F handles this if using single Canvas
-   // For custom Three.js, use shared renderer instance
-   ```
-
-4. **Debug with Chrome:**
-   ```js
-   console.log(renderer.info.memory);  // Active geometries/textures
-   console.log(renderer.info.render);  // Draw call count
+   // Only prevent scroll when actively tilting
+   <motion.div
+     style={{ touchAction: isTilting ? 'none' : 'manipulation' }}
+     onTouchStart={handleTouchStart}
+     onTouchEnd={handleTouchEnd}
+   >
    ```
 
 **Detection:**
-- Console: "WebGL context lost" after navigation
-- Chrome DevTools > Memory shows increasing heap
-- Performance degrades after 3-4 page navigations
-- Mobile Safari crashes
+- Works on desktop, broken on mobile
+- Content disappears when long-pressing on mobile
+- Scroll doesn't work near 3D elements on touch devices
+- Hydration mismatch warnings related to touch detection
 
-**Phase mapping:** Address in Phase 2 (3D Components) - cleanup utilities before building scenes
-
-**Sources:**
-- [Three.js Context Lost discussion](https://discourse.threejs.org/t/three-webglrenderer-context-lost-performance-ram/44213)
-- [R3F WebGL contexts discussion](https://github.com/pmndrs/react-three-fiber/discussions/2457)
+**Phase mapping:** Phase 2 (Hero) - implement detection before adding parallax/3D effects
 
 ---
 
-### Pitfall 5: CSS 3D Transforms Break Z-Index and Stacking
+### Pitfall 5: Parallax Performance on Mobile Safari
 
-**What goes wrong:** Adding `transform-style: preserve-3d` or `perspective` for 3D CSS effects causes dropdowns, modals, and tooltips to layer incorrectly.
+**What goes wrong:** Parallax scroll effects cause janky animation, battery drain, or complete failure on iOS Safari.
 
 **Why it happens:**
-- `preserve-3d` creates a 3D rendering context separate from normal z-index stacking
-- `opacity < 1` forces `transform-style: flat` even when `preserve-3d` is set
-- `overflow: hidden/auto/scroll` also forces `transform-style: flat`
-- 3D-transformed elements can't be ordered with non-3D elements via z-index
+- `background-attachment: fixed` NOT supported on iOS Safari
+- Scroll-linked animations trigger expensive repaints
+- Safari compositor behaves differently than Chrome
+- High DPI screens require more GPU memory
 
 **Consequences:**
-- Dropdown appears behind 3D card even with z-50
-- Modal backdrop doesn't cover 3D elements
-- Tooltips clip or disappear
-- Signout button (in dropdown) unclickable over 3D content
+- Parallax background doesn't move on iPhone/iPad
+- Page scrolls at 15fps instead of 60fps
+- Device overheats during scroll
+- Visible "snap" as parallax catches up
+
+**Current hero implementation uses Framer Motion scroll:**
+```tsx
+// Hero.tsx - uses useScroll + useTransform
+const { scrollYProgress } = useScroll({
+  target: containerRef,
+  offset: ["start start", "end start"],
+});
+const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
+```
 
 **Prevention:**
 
-1. **Use translateZ for 3D stacking, not z-index:**
+1. **Use CSS scroll-driven animations (modern approach):**
    ```css
-   /* For elements within 3D context */
-   .modal {
-     transform: translateZ(100px);  /* 3D stacking */
+   /* GPU-accelerated, no JavaScript */
+   @supports (animation-timeline: scroll()) {
+     .parallax-layer {
+       animation: parallax linear;
+       animation-timeline: scroll();
+     }
+     @keyframes parallax {
+       from { transform: translateY(0); }
+       to { transform: translateY(-20%); }
+     }
    }
    ```
 
-2. **Isolate 3D contexts:**
-   ```css
-   /* Create boundary so 3D doesn't leak */
-   .page-content {
-     isolation: isolate;
-     transform-style: flat;  /* Explicit */
-   }
-   ```
-
-3. **Avoid opacity < 1 on 3D containers:**
-   ```css
-   /* WRONG - breaks preserve-3d */
-   .card-3d {
-     transform-style: preserve-3d;
-     opacity: 0.95;  /* Forces flat! */
-   }
-
-   /* CORRECT - use rgba backgrounds instead */
-   .card-3d {
-     transform-style: preserve-3d;
-     background: rgba(255,255,255,0.95);
-   }
-   ```
-
-4. **Keep overlays in separate stacking context:**
+2. **Fallback for Safari < 17.6:**
    ```tsx
-   // Radix portals render to body, escaping 3D contexts
-   // Use Radix Dialog/Dropdown for overlays near 3D content
+   // Detect support
+   const supportsScrollTimeline = CSS.supports('animation-timeline', 'scroll()');
+
+   // Use simpler effect on unsupported browsers
+   if (!supportsScrollTimeline) {
+     // Static or reduced-motion version
+   }
+   ```
+
+3. **Limit parallax layers:**
+   ```tsx
+   // Maximum 3 parallax layers for mobile
+   // Each layer = GPU memory + compositing cost
+   <ParallaxLayer speed={0.1}>Background</ParallaxLayer>
+   <ParallaxLayer speed={0.3}>Midground</ParallaxLayer>
+   <div>Content (no parallax)</div>
+   ```
+
+4. **Disable on reduced motion:**
+   ```tsx
+   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+   const enableParallax = !prefersReducedMotion && !isMobile;
+   ```
+
+5. **Use will-change sparingly:**
+   ```css
+   /* Only on elements that actually animate */
+   .parallax-layer {
+     will-change: transform;
+   }
+   /* Remove after animation completes */
    ```
 
 **Detection:**
-- Overlay works on non-3D pages but fails on 3D pages
-- Computed style shows `transform-style: flat` when `preserve-3d` expected
-- DevTools 3D view shows elements in wrong plane
+- Lighthouse Performance score drops on mobile
+- Safari-specific visual bugs (test in Safari, not just Chrome)
+- Battery usage high during scroll
+- `prefers-reduced-motion` users report motion anyway
 
-**Phase mapping:** Address in Phase 1 (Foundation) - document stacking architecture before adding 3D
-
-**Sources:**
-- [CSS 3D gotchas](https://css-tricks.com/things-watch-working-css-3d/)
-- [MDN Stacking Context](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Positioned_layout/Stacking_context)
+**Phase mapping:** Phase 2 (Hero) - test on real iOS device, not just simulator
 
 ---
 
-### Pitfall 6: Radix Dropdown Event Swallowing (Known Issue)
+### Pitfall 6: Hydration Mismatch from Theme/Device Detection
 
-**What goes wrong:** Actions in Radix dropdown menus (signout, delete, navigation) fail silently. Click registers but nothing happens.
+**What goes wrong:** Server renders with default theme/device assumptions, client renders with actual values, React throws hydration errors.
 
-**Why it happens (multiple causes):**
-1. `<form action={...}>` inside DropdownMenuItem - form submit swallowed
-2. `event.preventDefault()` in onSelect blocks navigation
-3. try/catch captures Next.js redirect() error (NEXT_REDIRECT)
-4. `pointer-events: none` stuck on body after dialog opened from dropdown
+**Why it happens:**
+- `localStorage` (theme preference) not available on server
+- `navigator.userAgent` / `window.matchMedia` not available on server
+- `useMediaQuery` returns `false` on server, real value on client
+- Theme detection runs during render, not in useEffect
 
 **Consequences:**
-- Signout button appears to do nothing
-- Delete actions fail silently
-- Navigation from dropdown doesn't work
-- UI becomes unresponsive after opening dialog from dropdown
+- Console: "Hydration failed because the initial UI does not match"
+- Flash of wrong theme on load (FOUC)
+- Layout shift as device detection kicks in
+- Errors in strict mode
 
-**This is a known issue documented in ERROR_HISTORY.md (2026-01-18).**
+**Evidence from codebase (useMediaQuery.ts):**
+```tsx
+// Returns false during SSR to avoid hydration mismatch
+const [matches, setMatches] = useState(false);
+
+useEffect(() => {
+  const mediaQuery = window.matchMedia(query);
+  setMatches(mediaQuery.matches);  // Real value set client-side
+}, [query]);
+```
 
 **Prevention:**
 
-1. **Never use forms in dropdown items:**
+1. **Use mounted state for device-dependent UI:**
    ```tsx
-   // WRONG
-   <DropdownMenuItem>
-     <form action={signOut}><button>Sign out</button></form>
-   </DropdownMenuItem>
+   const [mounted, setMounted] = useState(false);
+   const isMobile = useMediaQuery("(max-width: 639px)");
 
-   // CORRECT
-   <DropdownMenuItem onSelect={() => signOut()}>
-     Sign out
-   </DropdownMenuItem>
+   useEffect(() => setMounted(true), []);
+
+   // Render neutral content until mounted
+   if (!mounted) return <Skeleton />;
+   return isMobile ? <MobileUI /> : <DesktopUI />;
    ```
 
-2. **Re-throw redirect errors:**
+2. **CSS-first for theme switching:**
+   ```css
+   /* CSS handles theme, no hydration issue */
+   :root { --bg: white; }
+   .dark { --bg: black; }
+
+   .container { background: var(--bg); }
+   ```
+
+3. **Suppress warning only for unavoidable cases:**
    ```tsx
-   try {
-     await serverAction();
-   } catch (error) {
-     if (String(error).includes("NEXT_REDIRECT")) {
-       throw error;  // Let Next.js handle it
+   // Only for elements that MUST differ (like platform-specific shortcuts)
+   <span suppressHydrationWarning>{mounted ? (isMac ? "Cmd" : "Ctrl") : ""}</span>
+   ```
+
+4. **Theme script in head (flash prevention):**
+   ```tsx
+   // layout.tsx - set theme before hydration
+   <script dangerouslySetInnerHTML={{ __html: `
+     const theme = localStorage.getItem('theme') || 'system';
+     if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+       document.documentElement.classList.add('dark');
      }
-     // Handle real errors
-   }
-   ```
-
-3. **Check for stuck pointer-events:**
-   ```tsx
-   // After dialog closes
-   document.body.style.pointerEvents = '';
-   ```
-
-4. **Use existing DropdownAction component:**
-   ```tsx
-   // Already solved in codebase
-   import { DropdownAction } from '@/components/ui/DropdownAction';
-
-   <DropdownAction onSelect={async () => await signOut()}>
-     Sign out
-   </DropdownAction>
+   `}} />
    ```
 
 **Detection:**
-- Click fires (console.log in handler runs) but action doesn't complete
-- Network tab shows no request
-- Works when same action triggered outside dropdown
+- Console errors mentioning "hydration"
+- Content flickers on page load
+- Theme switches after page appears
+- React Strict Mode shows double renders with different values
 
-**Phase mapping:** Already addressed - use existing DropdownAction pattern
-
-**Sources:**
-- [Radix click propagation issue](https://github.com/radix-ui/primitives/issues/1242)
-- [Radix pointer-events issue](https://github.com/radix-ui/primitives/issues/837)
-- Codebase ERROR_HISTORY.md (2026-01-18)
+**Phase mapping:** Phase 1 (Foundation) - establish SSR-safe patterns before adding device-specific features
 
 ---
 
 ## Moderate Pitfalls
 
-Mistakes that cause delays, visual bugs, or performance issues.
+Mistakes that cause visual bugs, performance issues, or maintenance burden.
 
 ---
 
-### Pitfall 7: R3F Performance - Object Creation in Render Loop
+### Pitfall 7: TailwindCSS 4 Auto-Content Scanning Documentation
 
-**What goes wrong:** Frame rate drops, stuttering, and increased garbage collection pauses because Three.js objects are created every frame.
+**What goes wrong:** Deprecated Tailwind classes in markdown documentation get compiled into CSS, causing build warnings or unexpected styles.
 
-**Why it happens:**
-- Creating geometries/materials inside component body (recreated on every render)
-- Setting state inside useFrame (triggers React re-render every frame)
-- Not using instancing for repeated objects
-- Not using GLTF/JSX for models
+**Why it happens:** TailwindCSS 4 with `@tailwindcss/postcss` scans ALL files in repository including `.planning/`, `.claude/`, `docs/` - even without explicit config.
 
-**Consequences:**
-- 15-30 FPS instead of 60 FPS
-- Visible stuttering during animations
-- Memory grows continuously
-- Mobile devices overheat
+**Evidence from codebase (LEARNINGS.md):**
+```markdown
+TailwindCSS 4 with `@tailwindcss/postcss` scans ALL files in repository -
+including `docs/`, `.planning/`, `.claude/` - even when not in configured
+content paths. Code examples in markdown get compiled into CSS.
+```
 
 **Prevention:**
+- Use valid, current Tailwind classes in ALL documentation
+- Or add to `.gitignore` for Tailwind scanning
 
-1. **Never set state in useFrame:**
-   ```tsx
-   // WRONG - causes re-render every frame
-   useFrame(() => {
-     setRotation(r => r + 0.01);
-   });
-
-   // CORRECT - mutate ref directly
-   const meshRef = useRef<THREE.Mesh>(null);
-   useFrame((_, delta) => {
-     if (meshRef.current) {
-       meshRef.current.rotation.y += delta;
-     }
-   });
-   ```
-
-2. **Use delta time for consistent speed:**
-   ```tsx
-   // WRONG - speed varies by device FPS
-   position.x += 0.1;
-
-   // CORRECT - consistent across devices
-   position.x += delta * speed;
-   ```
-
-3. **Memoize expensive objects:**
-   ```tsx
-   // Create once, reuse
-   const geometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
-   const material = useMemo(() => new THREE.MeshStandardMaterial({ color: 'red' }), []);
-   ```
-
-4. **Use instancing for many similar objects:**
-   ```tsx
-   // 1000 boxes as single draw call
-   <instancedMesh args={[geometry, material, 1000]}>
-     {matrices.map((matrix, i) => (
-       <group key={i} matrix={matrix} />
-     ))}
-   </instancedMesh>
-   ```
-
-**Detection:**
-- Chrome DevTools Performance shows long "Scripting" blocks in frame
-- `renderer.info.render.calls` high for simple scene
-- React DevTools shows many re-renders
-
-**Phase mapping:** Address in Phase 2 (3D Components) - establish performance patterns
-
-**Sources:**
-- [R3F Performance Pitfalls](https://r3f.docs.pmnd.rs/advanced/pitfalls)
+**Phase mapping:** Phase 1 - clean up any deprecated class references in planning docs
 
 ---
 
-### Pitfall 8: Light Mode Footer/Text Visibility
+### Pitfall 8: Gradient Fallback Code Using Hardcoded Colors
 
-**What goes wrong:** Text becomes invisible or hard to read in light mode because contrast assumptions made for dark mode don't hold.
+**What goes wrong:** Non-WebGL fallback paths in Hero (gradient backgrounds, canvas fallbacks) use hardcoded colors that don't respect theme.
 
-**Why it happens:**
-- Footer designed for dark background, inherits light background
-- Text color tokens not accounting for both themes
-- Glass/blur effects reducing contrast differently per theme
-
-**Consequences:**
-- Footer text invisible in light mode
-- WCAG contrast failures
-- User complaints about readability
+**Current Hero implementation:**
+```tsx
+// Hero.tsx - GradientFallback component
+style={useCustomGradient ? {
+  background: `linear-gradient(180deg, ${gradientPalette[0]} 0%, ${gradientPalette[1]} 50%, ${gradientPalette[2]} 100%)`,
+} : {
+  background: `linear-gradient(180deg, var(--hero-gradient-start) 0%, var(--hero-gradient-mid) 50%, var(--hero-gradient-end) 100%)`,
+}}
+```
 
 **Prevention:**
+1. Always use CSS variables for gradients
+2. Test gradient fallback in both themes
+3. Verify `--hero-gradient-*` variables exist in both `:root` and `.dark`
 
-1. **Explicit color for each theme:**
-   ```css
-   .footer-text {
-     color: var(--color-text-primary);  /* Adapts to theme */
-   }
-
-   /* Or explicit per theme */
-   :root { --footer-text: #1a1a1a; }
-   .dark { --footer-text: #f5f5f5; }
-   ```
-
-2. **Test both themes during development:**
-   ```tsx
-   // Add theme toggle to Storybook/dev
-   const ThemeToggle = () => {
-     const toggle = () => document.documentElement.classList.toggle('dark');
-     return <button onClick={toggle}>Toggle Theme</button>;
-   };
-   ```
-
-3. **Avoid absolute colors on themed backgrounds:**
-   ```css
-   /* WRONG */
-   .footer { color: white; }  /* Invisible on light bg */
-
-   /* CORRECT */
-   .footer { color: var(--color-text-inverse); }
-   ```
-
-**Detection:**
-- Visual test in light mode
-- axe-core contrast audit
-- User reports "can't read footer"
-
-**Phase mapping:** Address in Phase 3 (Polish) - theme audit
+**Phase mapping:** Phase 2 (Hero) - verify all gradient paths use variables
 
 ---
 
-### Pitfall 9: 3D Assets Blocking Initial Page Load
+### Pitfall 9: Isolation Insufficient for Mixed Legacy/New Components
 
-**What goes wrong:** Large GLTF/GLB models or textures delay Largest Contentful Paint (LCP) and First Contentful Paint (FCP).
+**What goes wrong:** Using `isolation: isolate` to contain z-index doesn't work when legacy components without isolation exist elsewhere.
 
-**Why it happens:**
-- Models loaded eagerly in component tree
-- Large textures not compressed
-- No loading states showing progress
-- Assets bundled instead of lazy-loaded
+**Evidence from codebase (LEARNINGS.md):**
+```markdown
+`isolate` only prevents z-index competition within subtree. Multiple isolated
+sections still compete at document level. Legacy components without isolation
+create z-index leakage.
 
-**Consequences:**
-- 3+ second LCP on mobile
-- Users see blank space where 3D should be
-- Core Web Vitals fail
-- SEO penalty
+**Solution:** Remove all legacy components, establish single z-index hierarchy
+from app root.
+```
 
 **Prevention:**
+- Audit ALL z-index usage across codebase
+- Either isolate everything or nothing
+- Prefer portal-based overlays (Radix) that escape stacking contexts
 
-1. **Lazy load 3D content:**
-   ```tsx
-   const Scene = dynamic(() => import('./Scene'), {
-     ssr: false,
-     loading: () => <Skeleton className="h-64" />
-   });
-   ```
-
-2. **Use Suspense with loading state:**
-   ```tsx
-   <Canvas>
-     <Suspense fallback={<LoadingSpinner />}>
-       <Model url="/model.glb" />
-     </Suspense>
-   </Canvas>
-   ```
-
-3. **Compress assets:**
-   ```bash
-   # Use gltf-transform for optimization
-   npx @gltf-transform/cli optimize input.glb output.glb
-
-   # Compress textures to WebP/AVIF
-   # Use KTX2 for GPU-compressed textures
-   ```
-
-4. **Progressive loading:**
-   ```tsx
-   // Load low-poly first, swap to high-poly
-   const lowPoly = useGLTF('/model-low.glb');
-   const highPoly = useGLTF('/model-high.glb', true); // preload
-   ```
-
-**Detection:**
-- Lighthouse LCP > 2.5s
-- Network tab shows large .glb downloads blocking
-- Users complain about slow page loads
-
-**Phase mapping:** Address in Phase 2 (3D Components) - asset pipeline
+**Phase mapping:** Phase 1 (Foundation) - z-index audit before adding new layers
 
 ---
 
-### Pitfall 10: Framer Motion + R3F Animation Conflicts
+### Pitfall 10: Animation Spring Constants Creating Inconsistent Motion
 
-**What goes wrong:** Using both Framer Motion and Three.js/R3F animations causes race conditions, janky transitions, or unexpected behavior.
+**What goes wrong:** Different spring configurations across components (Framer Motion vs CSS springs) create jarring inconsistent motion.
 
-**Why it happens:**
-- Both systems try to control transforms
-- Different frame timing (React vs requestAnimationFrame)
-- Framer Motion's AnimatePresence conflicts with R3F unmounting
-- Spring physics calculated differently
-
-**Consequences:**
-- Elements jump or snap during transitions
-- Exit animations don't play for 3D content
-- Performance worse than either system alone
+**Current issue:** Hero uses custom spring config, cards use motion-tokens.ts springs, CSS uses different timing.
 
 **Prevention:**
+```tsx
+// Centralize ALL spring configs in motion-tokens.ts
+export const spring = {
+  default: { stiffness: 200, damping: 20 },
+  rubbery: { stiffness: 150, damping: 15 },
+  snappy: { stiffness: 400, damping: 30 },
+};
 
-1. **Separate concerns - Framer for UI, R3F for 3D:**
-   ```tsx
-   // Framer for page transitions
-   <AnimatePresence>
-     {showPage && (
-       <motion.div exit={{ opacity: 0 }}>
-         {/* R3F handles its own animations */}
-         <Canvas>
-           <AnimatedMesh />  {/* useFrame, not motion */}
-         </Canvas>
-       </motion.div>
-     )}
-   </AnimatePresence>
-   ```
+// Use everywhere - no inline spring values
+<motion.div transition={getSpring(spring.default)} />
+```
 
-2. **Don't animate Canvas container with Framer layout:**
-   ```tsx
-   // WRONG - Framer layout animates Canvas size
-   <motion.div layout>
-     <Canvas />
-   </motion.div>
-
-   // CORRECT - Fixed container, animate content
-   <div className="fixed-size">
-     <Canvas>
-       <AnimatedContent />
-     </Canvas>
-   </div>
-   ```
-
-3. **Use Framer's motion values with R3F:**
-   ```tsx
-   import { useMotionValue, useSpring } from 'framer-motion';
-
-   const x = useMotionValue(0);
-   const smoothX = useSpring(x, { stiffness: 100 });
-
-   useFrame(() => {
-     mesh.current.position.x = smoothX.get();
-   });
-   ```
-
-**Detection:**
-- Animations stutter when Framer and R3F both active
-- Exit animations for 3D content skip
-- Console warnings about concurrent updates
-
-**Phase mapping:** Address in Phase 2 (Animation Integration)
+**Phase mapping:** Phase 2 (Hero) - use existing motion-tokens, don't add new springs
 
 ---
 
@@ -695,52 +600,50 @@ Annoyances that waste time but are easily fixed.
 
 ---
 
-### Pitfall 11: drei/R3F Utility Import Errors
+### Pitfall 11: Focus Ring Color Not Respecting Theme
 
-**What goes wrong:** Import errors when using @react-three/drei utilities because of version mismatches or tree-shaking issues.
+**What goes wrong:** Focus rings use hardcoded colors or default browser blue, looking out of place.
 
 **Prevention:**
-```bash
-# Ensure compatible versions
-npm ls @react-three/fiber @react-three/drei three
-
-# Import specific utilities, not entire package
-import { OrbitControls, useGLTF } from '@react-three/drei';
-// NOT: import * as drei from '@react-three/drei';
+```css
+/* Use theme-aware focus ring */
+:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
 ```
 
 ---
 
-### Pitfall 12: Environment Map/Lighting Setup Missing
+### Pitfall 12: SVG Icons Using currentColor Inconsistently
 
-**What goes wrong:** 3D models appear black or flat because no lights or environment configured.
+**What goes wrong:** Some SVG icons use `currentColor` (theme-aware), others use hardcoded fills.
 
 **Prevention:**
 ```tsx
-<Canvas>
-  <ambientLight intensity={0.5} />
-  <directionalLight position={[10, 10, 5]} />
-  {/* Or use environment preset */}
-  <Environment preset="city" />
-  <Model />
-</Canvas>
+// Always use currentColor for icons
+<svg fill="currentColor" stroke="currentColor">
+// Set color via parent
+<div className="text-primary"><Icon /></div>
 ```
 
 ---
 
-### Pitfall 13: Canvas Size Not Filling Container
+### Pitfall 13: Button Shadows Using Hardcoded Colors
 
-**What goes wrong:** Canvas has 0 height or doesn't resize with container.
+**What goes wrong:** Box shadows with hardcoded rgba values don't adapt to theme.
 
-**Prevention:**
+**Current Hero has:**
 ```tsx
-// Parent MUST have explicit height
-<div className="h-64 w-full">
-  <Canvas style={{ height: '100%', width: '100%' }}>
-    ...
-  </Canvas>
-</div>
+className="shadow-lg shadow-secondary/30"  // OK - uses Tailwind opacity
 ```
+
+But some components use:
+```tsx
+style={{ boxShadow: "0 4px 14px rgba(164, 16, 52, 0.15)" }}  // Hardcoded!
+```
+
+**Prevention:** Use CSS variable shadows from tokens.css
 
 ---
 
@@ -748,56 +651,60 @@ import { OrbitControls, useGLTF } from '@react-three/drei';
 
 | Phase | Topic | Likely Pitfall | Mitigation |
 |-------|-------|---------------|------------|
-| Phase 1 | Foundation | TailwindCSS 4 z-index classes | Audit zClass helper, use numeric classes only |
-| Phase 1 | Foundation | R3F version mismatch | Verify @react-three/fiber@9 for React 19 |
-| Phase 2 | 3D Components | SSR crashes | Use dynamic import with ssr: false |
-| Phase 2 | 3D Components | Memory leaks | Implement cleanup utilities from start |
-| Phase 2 | 3D Components | Performance | Establish useFrame patterns before building |
-| Phase 3 | Polish | Light mode contrast | Test both themes on every component |
-| Phase 3 | Polish | Asset loading | Compress GLTF, lazy load, show skeletons |
+| Phase 1 | Audit | Missing inline styles | grep for `style={{` with color/background |
+| Phase 1 | Audit | Missing SVG colors | grep for `fill=` and `stroke=` |
+| Phase 1 | Foundation | Z-index conflicts | Complete audit before any fixes |
+| Phase 2 | Hero 3D | preserve-3d + scale conflict | Disable scale when tilt enabled |
+| Phase 2 | Hero | Mobile Safari parallax | Use CSS scroll-timeline, fallback gracefully |
+| Phase 2 | Hero | Touch detection | SSR-safe detection, disable tilt on touch |
+| Phase 3 | Fix pages | Partial fixes | Fix ALL occurrences per file, not just visible ones |
+| Phase 3 | Testing | One theme only | Always test BOTH themes before marking complete |
 
 ---
 
-## Prevention Checklist for v1.2 Overhaul
+## Prevention Checklist for Theme/Hero Work
 
-Before starting 3D implementation:
-- [ ] Verify @react-three/fiber@9.x installed for React 19
-- [ ] TailwindCSS 4 zClass helper returns numeric classes (z-30, z-50)
-- [ ] SSR-safe pattern established (dynamic import + mounted check)
-- [ ] Canvas cleanup utility created
+Before starting theme audit:
+- [ ] Run grep commands to establish complete violation inventory
+- [ ] Document all files with hardcoded colors
+- [ ] Check inline styles, not just classNames
+- [ ] Verify CSS variable coverage for both themes
 
-Before shipping 3D components:
-- [ ] Tested after multiple page navigations (no context lost)
-- [ ] Performance profiled on mobile/low-end device
-- [ ] No state updates in useFrame
-- [ ] Assets compressed and lazy-loaded
+Before implementing hero parallax:
+- [ ] Test on real iOS Safari device
+- [ ] Implement touch detection with mounted state
+- [ ] Verify `prefers-reduced-motion` disables parallax
+- [ ] Check CSS scroll-timeline browser support
 
-Before shipping UI with 3D:
-- [ ] Tested in both light and dark modes
-- [ ] Z-index verified with 3D content visible
-- [ ] Dropdowns/modals work over 3D scenes
-- [ ] Exit animations work when navigating away
+Before shipping any fix:
+- [ ] Tested in light mode
+- [ ] Tested in dark mode
+- [ ] Tested with `prefers-reduced-motion: reduce`
+- [ ] No hydration warnings in console
+- [ ] Lighthouse performance not degraded
 
 ---
 
 ## Sources
 
 **Codebase Documentation:**
-- `.claude/ERROR_HISTORY.md` (2026-01-18, 2026-01-23, 2026-01-24)
-- `.claude/LEARNINGS.md` (2026-01-23)
+- `.claude/ERROR_HISTORY.md` (2026-01-22 to 2026-01-26)
+- `.claude/LEARNINGS.md` (2026-01-25, 2026-01-26)
 
 **Official Documentation:**
-- [R3F Installation](https://r3f.docs.pmnd.rs/getting-started/installation)
-- [R3F Performance Pitfalls](https://r3f.docs.pmnd.rs/advanced/pitfalls)
-- [TailwindCSS 4 Theme Variables](https://tailwindcss.com/docs/theme)
-
-**Issue Trackers:**
-- [Next.js 15 + R3F Compatibility](https://github.com/vercel/next.js/issues/71836)
-- [TailwindCSS 4 Custom Z-Index](https://github.com/tailwindlabs/tailwindcss/discussions/18031)
-- [Radix Dropdown Click Issues](https://github.com/radix-ui/primitives/issues/1242)
-- [R3F WebGL Context Issues](https://github.com/pmndrs/react-three-fiber/discussions/2457)
+- [TailwindCSS 4 Dark Mode](https://tailwindcss.com/docs/dark-mode)
+- [TailwindCSS 4 Theme Configuration](https://tailwindcss.com/docs/theme)
+- [Next.js Hydration Errors](https://nextjs.org/docs/messages/react-hydration-error)
+- [MDN transform-style](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/transform-style)
+- [MDN CSS Scroll-Driven Animations](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scroll-driven_animations)
 
 **Community Resources:**
-- [Window is not defined in Next.js 2025](https://dev.to/devin-rosario/stop-window-is-not-defined-in-nextjs-2025-394j)
 - [CSS 3D Transform Gotchas](https://css-tricks.com/things-watch-working-css-3d/)
-- [MDN Stacking Context](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Positioned_layout/Stacking_context)
+- [Performant Parallaxing](https://developer.chrome.com/blog/performant-parallaxing)
+- [Fixing Hydration Mismatch in Next.js](https://medium.com/@pavan1419/fixing-hydration-mismatch-in-next-js-next-themes-issue-8017c43dfef9)
+- [Understanding FOUC in Next.js 2025](https://dev.to/amritapadhy/understanding-fixing-fouc-in-nextjs-app-router-2025-guide-ojk)
+
+**GitHub Issues:**
+- [TailwindCSS 4 Dark Mode Migration](https://github.com/tailwindlabs/tailwindcss/discussions/16517)
+- [W3C CSS preserve-3d Stacking Context](https://github.com/w3c/csswg-drafts/issues/6430)
+- [shadcn/ui Theme Provider Hydration Error](https://github.com/shadcn-ui/ui/issues/5552)
