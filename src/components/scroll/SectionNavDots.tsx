@@ -72,12 +72,12 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
   return (
     <nav
       className={cn(
-        // Fixed positioning, vertically centered on right
-        "fixed right-2 md:right-4 lg:right-8 top-1/2 -translate-y-1/2",
-        // Show on all screens, smaller gap on mobile
-        "flex flex-col gap-2 md:gap-3",
-        // Pill container styling - smaller on mobile
-        "px-1.5 md:px-2 py-2 md:py-3 rounded-full",
+        // Fixed positioning, vertically centered on right - more breathing room on mobile
+        "fixed right-3 md:right-4 lg:right-8 top-1/2 -translate-y-1/2",
+        // Show on all screens, comfortable gap
+        "flex flex-col gap-2.5 md:gap-3",
+        // Pill container styling - comfortable padding
+        "px-2 py-2.5 md:py-3 rounded-full",
         "bg-surface-primary/80 backdrop-blur-md",
         "border border-border-subtle shadow-lg",
         // Z-index above content but below modals
@@ -90,8 +90,9 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
         <motion.button
           key={section.id}
           onClick={() => handleClick(index)}
-          className="group relative flex items-center justify-end"
-          whileHover={shouldAnimate ? { scale: 1.2 } : undefined}
+          // Larger touch target with padding, negative margin to keep visual alignment
+          className="group relative flex items-center justify-center p-2 -m-1"
+          whileHover={shouldAnimate ? { scale: 1.15 } : undefined}
           whileTap={shouldAnimate ? { scale: 0.9 } : undefined}
           aria-label={`Go to ${section.label}`}
           aria-current={index === activeIndex ? "true" : undefined}
@@ -99,8 +100,8 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
           {/* Label on hover - dark tooltip with arrow */}
           <span
             className={cn(
-              "absolute right-full mr-2 px-2 py-1 rounded z-10",
-              "text-[10px] md:text-xs font-medium whitespace-nowrap",
+              "absolute right-full mr-3 px-2 py-1 rounded z-10",
+              "text-xs font-medium whitespace-nowrap",
               // Dark tooltip style
               "bg-text-primary/90 text-surface-primary",
               "shadow-sm",
@@ -118,10 +119,10 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
             <span className="absolute top-1/2 -right-1 -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-4 border-transparent border-l-text-primary/90" />
           </span>
 
-          {/* Dot indicator - responsive size */}
+          {/* Dot indicator - uniform size */}
           <span
             className={cn(
-              "w-2 h-2 md:w-3 md:h-3 rounded-full",
+              "w-3 h-3 rounded-full",
               shouldAnimate
                 ? "transition-colors duration-200"
                 : "transition-none",

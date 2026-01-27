@@ -4,6 +4,7 @@ import { Command } from "cmdk";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
+import { X } from "lucide-react";
 import { useRecentSearches } from "@/lib/hooks";
 import { cn } from "@/lib/utils/cn";
 import { zClass } from "@/design-system/tokens/z-index";
@@ -147,6 +148,22 @@ export function CommandPalette({
               "w-[calc(100%-2rem)] max-w-sm sm:max-w-lg"
             )}
           >
+            {/* Mobile close button */}
+            <button
+              onClick={() => handleOpenChange(false)}
+              className={cn(
+                "absolute -top-12 right-0 sm:hidden",
+                "h-10 w-10 flex items-center justify-center rounded-full",
+                "bg-white/90 dark:bg-zinc-800/90 backdrop-blur-sm",
+                "text-zinc-600 dark:text-zinc-300",
+                "shadow-lg border border-white/20 dark:border-white/10",
+                "active:scale-95 transition-transform"
+              )}
+              aria-label="Close search"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
             <Command
               label="Search menu items"
               className={cn(

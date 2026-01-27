@@ -153,11 +153,11 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
         className={cn(
           "relative flex flex-col items-center justify-center",
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A41034]/30 focus-visible:ring-offset-2",
-          "rounded-lg p-2 -m-2",
+          "rounded-lg p-3 -m-3",
           "hover:bg-surface-secondary/50 transition-colors duration-150",
           className
         )}
-        style={{ width: size + 16, height: size + 16 }}
+        style={{ width: Math.max(size + 24, 44), height: Math.max(size + 24, 44) }}
         aria-label={ariaLabel}
         aria-expanded={isOpen}
         whileHover={shouldAnimate ? { scale: 1.05 } : undefined}

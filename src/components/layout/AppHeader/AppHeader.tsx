@@ -138,18 +138,18 @@ export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
 
     // Mobile left content: Avatar and Theme toggle
     const mobileLeftContent = (
-      <div className="flex items-center gap-1">
+      <>
         <AccountIndicator className="h-9 w-9" />
-        <ThemeToggle className="h-8 w-8" />
-      </div>
+        <ThemeToggle className="h-9 w-9" />
+      </>
     );
 
     // Mobile right content: Search and Cart only (hamburger is inside MobileHeader)
     const mobileRightContent = (
-      <div className="flex items-center gap-1">
-        <SearchTrigger onClick={openPalette} className="h-9 w-9 p-2" />
-        <CartIndicator className="h-9 w-9" />
-      </div>
+      <>
+        <SearchTrigger onClick={openPalette} className="h-10 w-10" />
+        <CartIndicator className="h-10 w-10" />
+      </>
     );
 
     return (
