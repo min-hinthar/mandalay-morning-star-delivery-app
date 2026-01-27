@@ -37,10 +37,10 @@ Systematic consolidation of the codebase: merge overlapping component systems, e
   2. ESLint rules catch `text-white`, `text-black`, `bg-white`, `bg-black` violations
   3. Baseline violation count documented (target: reduce from 221 to 0)
   4. Script detects regression if new violations introduced
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 25-01: ESLint rule extension and audit script
+- [ ] 25-01-PLAN.md — Comprehensive audit script + ESLint rules + baseline report
 
 ### Phase 26: Component Consolidation
 **Goal**: Single unified component library with clean public API
@@ -162,7 +162,7 @@ Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 25. Audit Infrastructure | v1.3 | 0/1 | Not started | - |
+| 25. Audit Infrastructure | v1.3 | 0/1 | Planned | - |
 | 26. Component Consolidation | v1.3 | 0/4 | Not started | - |
 | 27. Token Enforcement - Colors | v1.3 | 0/4 | Not started | - |
 | 28. Token Enforcement - Layout | v1.3 | 0/2 | Not started | - |
