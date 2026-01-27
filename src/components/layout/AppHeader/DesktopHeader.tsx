@@ -57,7 +57,7 @@ export interface DesktopHeaderProps {
 /**
  * DesktopHeader - Desktop-specific header layout
  *
- * Layout: Logo left, nav center (using HeaderNavLink), rightContent right
+ * Layout: Nav left, Logo center (absolute), rightContent right
  *
  * @example
  * <DesktopHeader
@@ -77,15 +77,29 @@ export function DesktopHeader({
   return (
     <div
       className={cn(
-        "hidden md:flex items-center justify-between w-full",
+        "hidden md:flex items-center justify-between w-full relative",
         className
       )}
     >
-      {/* Left: Logo */}
+      {/* Left: Navigation */}
+      <nav className="flex items-center gap-1">
+        {navItems.map((item) => (
+          <HeaderNavLink
+            key={item.href}
+            href={item.href}
+            label={item.label}
+            icon={item.icon}
+            isActive={currentPath === item.href || currentPath.startsWith(`${item.href}/`)}
+          />
+        ))}
+      </nav>
+
+      {/* Center: Logo (absolutely positioned for true centering) */}
       <motion.div
         whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
         whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
         transition={getSpring(spring.snappy)}
+        className="absolute left-1/2 -translate-x-1/2"
       >
         <Link
           href="/"
@@ -105,19 +119,6 @@ export function DesktopHeader({
           <span className="hidden lg:inline">Mandalay Morning Star</span>
         </Link>
       </motion.div>
-
-      {/* Center: Navigation */}
-      <nav className="flex items-center gap-1">
-        {navItems.map((item) => (
-          <HeaderNavLink
-            key={item.href}
-            href={item.href}
-            label={item.label}
-            icon={item.icon}
-            isActive={currentPath === item.href || currentPath.startsWith(`${item.href}/`)}
-          />
-        ))}
-      </nav>
 
       {/* Right: Custom content (cart, search, theme, account indicators) */}
       <div className="flex items-center gap-2">

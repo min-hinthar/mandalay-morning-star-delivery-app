@@ -7,22 +7,22 @@
  * Features:
  * - Uses useMenu hook for data fetching
  * - Uses useFavorites hook for favorite state
- * - Composes: SearchInputV8, CategoryTabsV8, MenuSectionV8, MenuGridV8, ItemDetailSheetV8
+ * - Composes: CategoryTabsV8, MenuSectionV8, MenuGridV8, ItemDetailSheetV8
  * - Shows MenuSkeletonV8 while loading
  * - Error state with retry button
+ * - Opens item modal from URL param (?item=slug) for command palette integration
  *
  * @example
  * <MenuContentV8 className="min-h-screen" />
  */
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useMenu } from "@/lib/hooks/useMenu";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useCart } from "@/lib/hooks/useCart";
-import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
-import { spring } from "@/lib/motion-tokens";
 import type { MenuItem, MenuCategory } from "@/types/menu";
 import type { SelectedModifier } from "@/lib/utils/price";
 
@@ -30,7 +30,6 @@ import { AnimatedSection, itemVariants } from "@/components/scroll/AnimatedSecti
 import { CategoryTabsV8 } from "./CategoryTabsV8";
 import { MenuSectionV8 } from "./MenuSectionV8";
 import { MenuGridV8 } from "./MenuGridV8";
-import { SearchInputV8 } from "./SearchInputV8";
 import { ItemDetailSheetV8 } from "./ItemDetailSheetV8";
 import { MenuSkeletonV8 } from "./MenuSkeletonV8";
 
@@ -49,17 +48,17 @@ export interface MenuContentV8Props {
 
 export function MenuContentV8({ className }: MenuContentV8Props) {
   // ============================================
-  // ANIMATION
+  // ROUTING
   // ============================================
-
-  const { shouldAnimate, getSpring } = useAnimationPreference();
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   // ============================================
   // DATA FETCHING
   // ============================================
 
   const { data, isLoading, error, refetch } = useMenu();
-  const categories = data?.data?.categories ?? [];
+  const categories = useMemo(() => data?.data?.categories ?? [], [data?.data?.categories]);
 
   // ============================================
   // FAVORITES
@@ -92,6 +91,28 @@ export function MenuContentV8({ className }: MenuContentV8Props) {
     // Delay clearing item to allow close animation to complete
     setTimeout(() => setSelectedItem(null), 300);
   }, []);
+
+  // Handle URL param to open item modal (from command palette search)
+  // Uses useSearchParams to react to client-side navigation
+  useEffect(() => {
+    if (categories.length === 0) return;
+
+    const itemSlug = searchParams.get("item");
+
+    if (itemSlug) {
+      // Find the item across all categories
+      const item = categories
+        .flatMap((c: MenuCategory) => c.items ?? [])
+        .find((i: MenuItem) => i.slug === itemSlug);
+
+      if (item) {
+        setSelectedItem(item);
+        setIsDetailOpen(true);
+        // Clear the URL param to avoid reopening on refresh
+        router.replace("/menu", { scroll: false });
+      }
+    }
+  }, [categories, searchParams, router]);
 
   const handleFavoriteToggle = useCallback(
     (itemId: string) => {
@@ -206,19 +227,6 @@ export function MenuContentV8({ className }: MenuContentV8Props) {
 
   return (
     <div className={cn("relative", className)}>
-      {/* Search Input with entrance animation */}
-      <motion.div
-        className="px-4 py-3 border-b border-border-subtle"
-        initial={shouldAnimate ? { opacity: 0, y: -16 } : undefined}
-        animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-        transition={getSpring(spring.default)}
-      >
-        <SearchInputV8
-          onSelectItem={handleSelectItem}
-          placeholder="Search dishes..."
-        />
-      </motion.div>
-
       {/* Category Tabs */}
       <CategoryTabsV8
         categories={categories.map((cat: MenuCategory) => ({

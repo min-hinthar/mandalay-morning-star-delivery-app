@@ -16,7 +16,9 @@ export interface MobileHeaderProps {
   onMenuToggle: () => void;
   /** Whether mobile menu is currently open */
   isMobileMenuOpen: boolean;
-  /** Content for right side (cart icon, etc.) */
+  /** Content for left side (avatar, theme toggle) */
+  leftContent?: React.ReactNode;
+  /** Content for right side (search, cart, hamburger) */
   rightContent?: React.ReactNode;
   /** Additional class names */
   className?: string;
@@ -25,7 +27,7 @@ export interface MobileHeaderProps {
 /**
  * MobileHeader - Mobile-specific header layout
  *
- * Layout: Hamburger left, Logo center, Cart/Account right
+ * Layout: Avatar/Theme left, Logo center, Search/Cart/Hamburger right
  * Uses MorphingMenu for hamburger button.
  * Compact logo variant (just image, no text on mobile).
  *
@@ -33,12 +35,14 @@ export interface MobileHeaderProps {
  * <MobileHeader
  *   onMenuToggle={() => setIsMenuOpen(!isMenuOpen)}
  *   isMobileMenuOpen={isMenuOpen}
- *   rightContent={<CartButton />}
+ *   leftContent={<ThemeToggle />}
+ *   rightContent={<CartIndicator />}
  * />
  */
 export function MobileHeader({
   onMenuToggle,
   isMobileMenuOpen,
+  leftContent,
   rightContent,
   className,
 }: MobileHeaderProps) {
@@ -51,18 +55,9 @@ export function MobileHeader({
         className
       )}
     >
-      {/* Left: Hamburger menu button */}
-      <div className="flex-shrink-0">
-        <MorphingMenu
-          isOpen={isMobileMenuOpen}
-          onToggle={onMenuToggle}
-          size={20}
-          color="#374151"
-          openColor="#A41034"
-          variant="rounded"
-          haptic={isFullMotion}
-          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-        />
+      {/* Left: Avatar and Theme toggle */}
+      <div className="flex items-center gap-1 flex-shrink-0">
+        {leftContent}
       </div>
 
       {/* Center: Compact logo (image only on mobile) */}
@@ -90,9 +85,19 @@ export function MobileHeader({
         </Link>
       </motion.div>
 
-      {/* Right: Cart/Account (passed as rightContent) */}
-      <div className="flex items-center gap-2 flex-shrink-0">
+      {/* Right: Search, Cart, and Hamburger */}
+      <div className="flex items-center gap-1 flex-shrink-0">
         {rightContent}
+        <MorphingMenu
+          isOpen={isMobileMenuOpen}
+          onToggle={onMenuToggle}
+          size={20}
+          color="#374151"
+          openColor="#A41034"
+          variant="rounded"
+          haptic={isFullMotion}
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+        />
       </div>
     </div>
   );

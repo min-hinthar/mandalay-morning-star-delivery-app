@@ -136,8 +136,21 @@ export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
       </>
     );
 
-    // Mobile right content: Cart only (search is in drawer, account is in drawer)
-    const mobileRightContent = <CartIndicator />;
+    // Mobile left content: Avatar and Theme toggle
+    const mobileLeftContent = (
+      <div className="flex items-center gap-1">
+        <AccountIndicator className="h-9 w-9" />
+        <ThemeToggle className="h-8 w-8" />
+      </div>
+    );
+
+    // Mobile right content: Search and Cart only (hamburger is inside MobileHeader)
+    const mobileRightContent = (
+      <div className="flex items-center gap-1">
+        <SearchTrigger onClick={openPalette} className="h-9 w-9 p-2" />
+        <CartIndicator className="h-9 w-9" />
+      </div>
+    );
 
     return (
       <>
@@ -180,6 +193,7 @@ export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
               <MobileHeader
                 onMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 isMobileMenuOpen={isMobileMenuOpen}
+                leftContent={mobileLeftContent}
                 rightContent={mobileRightContent}
               />
             </div>

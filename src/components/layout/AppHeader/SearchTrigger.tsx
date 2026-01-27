@@ -22,19 +22,23 @@ export interface SearchTriggerProps {
 }
 
 /**
- * Detect if user is on Mac platform
+ * Detect if user is on Mac platform (hydration-safe)
+ * Returns { isMac, mounted } to handle SSR properly
  */
 function useIsMac() {
-  const [isMac, setIsMac] = useState(false);
+  const [state, setState] = useState({ isMac: false, mounted: false });
 
   useEffect(() => {
     // Check navigator.platform or userAgentData
     const platform = navigator.platform?.toLowerCase() || "";
     const userAgent = navigator.userAgent?.toLowerCase() || "";
-    setIsMac(platform.includes("mac") || userAgent.includes("mac"));
+    setState({
+      isMac: platform.includes("mac") || userAgent.includes("mac"),
+      mounted: true,
+    });
   }, []);
 
-  return isMac;
+  return state;
 }
 
 /**
@@ -58,10 +62,11 @@ const hintVariants = {
 
 export function SearchTrigger({ onClick, className }: SearchTriggerProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const isMac = useIsMac();
+  const { isMac, mounted } = useIsMac();
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
-  const shortcutText = isMac ? "Cmd K" : "Ctrl K";
+  // Use generic text until mounted to avoid hydration mismatch
+  const shortcutText = mounted ? (isMac ? "Cmd K" : "Ctrl K") : "K";
 
   return (
     <motion.button

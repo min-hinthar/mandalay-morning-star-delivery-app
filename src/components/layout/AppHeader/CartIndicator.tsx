@@ -11,7 +11,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
@@ -102,7 +102,7 @@ export function CartIndicator({ className }: CartIndicatorProps) {
         )}
         aria-hidden="true"
       >
-        <ShoppingBag className="h-5 w-5 text-zinc-400" />
+        <ShoppingCart className="h-5 w-5 text-zinc-400" />
       </div>
     );
   }
@@ -126,7 +126,7 @@ export function CartIndicator({ className }: CartIndicatorProps) {
       )}
       aria-label={`Open cart${itemCount > 0 ? `, ${itemCount} item${itemCount === 1 ? "" : "s"}` : ""}`}
     >
-      <ShoppingBag className="h-5 w-5" />
+      <ShoppingCart className="h-5 w-5" />
 
       <AnimatePresence mode="wait">
         {itemCount > 0 && (

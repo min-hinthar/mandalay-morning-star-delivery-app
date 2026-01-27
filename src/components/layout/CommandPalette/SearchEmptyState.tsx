@@ -61,7 +61,7 @@ export function SearchEmptyState({
     >
       {/* Recent Searches */}
       {recentSearches.length > 0 && (
-        <Command.Group heading={null}>
+        <Command.Group heading="">
           <div className="flex items-center justify-between px-3 py-1.5 text-xs text-text-muted">
             <span className="flex items-center gap-1.5 font-medium uppercase tracking-wide">
               <Clock className="h-3 w-3" />
@@ -81,7 +81,7 @@ export function SearchEmptyState({
               key={`recent-${term}`}
               value={`recent:${term}`}
               onSelect={() => onSelectRecent(term)}
-              className="relative flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm outline-none transition-colors data-[selected=true]:bg-primary/5"
+              className="relative flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm outline-none transition-colors data-[selected=true]:bg-primary/10 dark:data-[selected=true]:bg-primary/20"
             >
               <motion.div
                 variants={staggerItem}
@@ -99,7 +99,7 @@ export function SearchEmptyState({
 
       {/* Popular Items */}
       {displayItems.length > 0 && (
-        <Command.Group heading={null}>
+        <Command.Group heading="">
           <div className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium uppercase tracking-wide text-text-muted">
             <TrendingUp className="h-3 w-3" />
             Popular Items
@@ -109,7 +109,7 @@ export function SearchEmptyState({
               key={item.id}
               value={`popular:${item.nameEn}`}
               onSelect={() => onSelectItem(item)}
-              className="relative flex cursor-pointer items-center gap-3 px-3 py-2.5 outline-none transition-colors data-[selected=true]:bg-primary/5"
+              className="relative flex cursor-pointer items-center gap-3 px-3 py-2.5 outline-none transition-colors data-[selected=true]:bg-primary/10 dark:data-[selected=true]:bg-primary/20"
             >
               <motion.div
                 variants={staggerItem}

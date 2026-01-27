@@ -75,7 +75,7 @@ export function useCommandPalette(): UseCommandPaletteReturn {
     window.addEventListener("keydown", handleKeyDown, { capture: true });
 
     return () => {
-      window.addEventListener("keydown", handleKeyDown, { capture: true });
+      window.removeEventListener("keydown", handleKeyDown, { capture: true });
     };
   }, [toggle]);
 

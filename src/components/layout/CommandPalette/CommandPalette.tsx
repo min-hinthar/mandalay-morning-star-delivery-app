@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { useRecentSearches } from "@/lib/hooks";
 import { cn } from "@/lib/utils/cn";
+import { zClass } from "@/design-system/tokens/z-index";
 import type { MenuItem } from "@/types/menu";
 import { SearchInput } from "./SearchInput";
 import { SearchResults } from "./SearchResults";
@@ -72,22 +73,22 @@ export function CommandPalette({
 
   // Filter items based on query (cmdk handles this, but we need the filtered list for display)
   const filteredItems = useMemo(() => {
-    if (!query.trim()) return [];
+    if (!query.trim() || !menuItems?.length) return [];
     const lowerQuery = query.toLowerCase();
     return menuItems.filter(
       (item) =>
-        item.nameEn.toLowerCase().includes(lowerQuery) ||
-        item.descriptionEn?.toLowerCase().includes(lowerQuery)
+        item.nameEn?.toLowerCase().includes(lowerQuery) ||
+        (item.descriptionEn && item.descriptionEn.toLowerCase().includes(lowerQuery))
     );
   }, [menuItems, query]);
 
-  // Handle item selection
+  // Handle item selection - navigate to menu with item query param to open modal
   const handleSelectItem = useCallback(
     (item: MenuItem) => {
       addSearch(item.nameEn);
       onOpenChange(false);
       setQuery("");
-      router.push(`/menu/${item.slug}`);
+      router.push(`/menu?item=${item.slug}`);
     },
     [addSearch, onOpenChange, router]
   );
@@ -124,7 +125,8 @@ export function CommandPalette({
             exit="exit"
             onClick={() => handleOpenChange(false)}
             className={cn(
-              "fixed inset-0 z-modal-backdrop",
+              "fixed inset-0",
+              zClass.modalBackdrop,
               "bg-black/50 backdrop-blur-sm"
             )}
             aria-hidden="true"
@@ -138,7 +140,8 @@ export function CommandPalette({
             animate="animate"
             exit="exit"
             className={cn(
-              "fixed z-modal",
+              "fixed",
+              zClass.modal,
               "top-[15%] sm:top-[20%]",
               "left-1/2 -translate-x-1/2",
               "w-[calc(100%-2rem)] max-w-sm sm:max-w-lg"
@@ -147,13 +150,31 @@ export function CommandPalette({
             <Command
               label="Search menu items"
               className={cn(
-                "rounded-xl border border-border bg-background shadow-2xl",
-                "overflow-hidden"
+                "rounded-xl overflow-hidden",
+                "border border-white/20 dark:border-white/10",
+                "shadow-2xl"
               )}
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.85)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+              }}
               shouldFilter={false}
             >
               {/* Search Input */}
-              <SearchInput placeholder="Search menu items..." />
+              <SearchInput
+                placeholder="Search menu items..."
+                value={query}
+                onValueChange={setQuery}
+              />
+
+              {/* Dark mode glassmorphism override */}
+              <style jsx global>{`
+                .dark [data-cmdk-root] {
+                  background-color: rgba(24, 24, 27, 0.9) !important;
+                  border-color: rgba(255, 255, 255, 0.1) !important;
+                }
+              `}</style>
 
               {/* Results List */}
               <Command.List className="max-h-[60vh] overflow-y-auto">

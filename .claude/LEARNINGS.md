@@ -382,6 +382,89 @@ Merge quantities for matching signatures instead of creating duplicate entries.
 
 **Apply when:** Cart stores, wishlists, or any collection where duplicates should merge.
 
+### Store-Level Debounce for Rapid Mutations
+Even with single mutation owner, rapid double-clicks or animation callbacks can trigger multiple adds. Add debounce at store level as final safeguard:
+
+```tsx
+const recentAdditions = new Map<string, number>();
+const DEBOUNCE_MS = 300;
+
+function shouldDebounce(signature: string): boolean {
+  const now = Date.now();
+  const lastAdd = recentAdditions.get(signature);
+  if (lastAdd && now - lastAdd < DEBOUNCE_MS) {
+    return true;  // Skip this add
+  }
+  recentAdditions.set(signature, now);
+  return false;
+}
+
+// Export for test cleanup
+export function __clearDebounceState(): void {
+  recentAdditions.clear();
+}
+```
+
+**Apply when:** Mutation stores where UI animations or callbacks may fire multiple times. Always export clear function for test isolation.
+
+---
+
+## Hydration Patterns
+
+### Platform Detection Causes Hydration Mismatch
+**Context:** SearchTrigger showing "Cmd K" vs "Ctrl K" based on platform
+**Learning:** Hooks that access `navigator.platform` or `navigator.userAgent` return different values server (undefined/false) vs client (actual value). If used in render output (aria-label, text), causes hydration mismatch.
+
+**Fix:** Return `mounted` state alongside detected value, render neutral content until mounted:
+```tsx
+function useIsMac() {
+  const [state, setState] = useState({ isMac: false, mounted: false });
+
+  useEffect(() => {
+    const platform = navigator.platform?.toLowerCase() || "";
+    setState({
+      isMac: platform.includes("mac"),
+      mounted: true,
+    });
+  }, []);
+
+  return state;
+}
+
+// Usage: render neutral text until mounted
+const shortcutText = mounted ? (isMac ? "Cmd K" : "Ctrl K") : "K";
+```
+
+**Apply when:** Any hook accessing browser-only APIs (navigator, window properties) that affect render output.
+
+---
+
+## cmdk Library Patterns
+
+### Command.Input Requires Explicit State Binding
+**Context:** Command palette search input not responding to typing
+**Learning:** When using `shouldFilter={false}` on cmdk's `<Command>`, the `<Command.Input>` does NOT automatically manage state. Must explicitly pass `value` and `onValueChange` props.
+
+```tsx
+// ❌ Input appears to work but query state never updates
+<Command shouldFilter={false}>
+  <Command.Input placeholder="Search..." />
+  {/* query is always "" */}
+</Command>
+
+// ✅ Explicit state binding
+const [query, setQuery] = useState("");
+<Command shouldFilter={false}>
+  <Command.Input
+    value={query}
+    onValueChange={setQuery}
+    placeholder="Search..."
+  />
+</Command>
+```
+
+**Apply when:** Using cmdk with custom filtering logic (`shouldFilter={false}`).
+
 ---
 
 ## Component Organization
