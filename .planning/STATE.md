@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 33 of 33 (Full Components Consolidation)
-Plan: 6 of 11 in current phase
+Plan: 7 of 11 in current phase
 Status: In progress
-Last activity: 2026-01-27 - Completed 33-06-PLAN.md
+Last activity: 2026-01-27 - Completed 33-07-PLAN.md
 
-Progress: [███████████████████████████████████░░░░░░] v1.3 Full Codebase Consolidation | 14/24 plans
+Progress: [████████████████████████████████████░░░░░] v1.3 Full Codebase Consolidation | 15/24 plans
 
 ## Milestones Completed
 
@@ -41,7 +41,7 @@ Progress: [███████████████████████
 |-------|-------|-------|----------|
 | 25 | 1/1 | 8min | 8min |
 | 26 | 8/8 | 136min | 17min |
-| 33 | 6/11 | 58min | 9.7min |
+| 33 | 7/11 | 83min | 11.9min |
 
 ## Accumulated Context
 
@@ -124,6 +124,12 @@ From `.planning/research/SUMMARY.md`:
 - WebVitalsReporter merged into lib/web-vitals.tsx
 - No loose .tsx files at components root
 
+**33-07 outcomes:**
+- admin/, checkout/, driver/, homepage/, orders/ moved to ui/
+- All consumer imports updated to @/components/ui/{feature}
+- Complete barrel exports for all moved directories
+- components/ root now only has ui/ and legacy (auth/, mascot/, onboarding/)
+
 ### Roadmap Evolution
 
 - Phase 33 added: Full Components Consolidation (merge all component subdirectories, eliminate duplicates)
@@ -134,11 +140,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27 22:58
-Stopped at: Completed 33-06-PLAN.md
+Last session: 2026-01-27 23:20
+Stopped at: Completed 33-07-PLAN.md
 Resume file: None
-Next action: Execute 33-07-PLAN.md (if exists)
+Next action: Execute 33-08-PLAN.md (if exists)
 
 ---
 
-*Updated: 2026-01-27 - Phase 33 Plan 06 complete (components root cleaned)*
+*Updated: 2026-01-27 - Phase 33 Plan 07 complete (page-specific folders moved to ui/)*
