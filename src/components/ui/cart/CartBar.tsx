@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * CartBarV8 Component
+ * CartBar Component
  * Fixed bottom bar showing cart summary with slide-up animation
  *
  * Features:
@@ -42,7 +42,7 @@ import { FREE_DELIVERY_THRESHOLD_CENTS } from "@/types/cart";
 // TYPES
 // ============================================
 
-export interface CartBarV8Props {
+export interface CartBarProps {
   /** Additional className */
   className?: string;
   /** Show checkout button (default: true) */
@@ -165,10 +165,10 @@ function FreeDeliveryBanner({ shouldAnimate }: FreeDeliveryBannerProps) {
 // MAIN COMPONENT
 // ============================================
 
-export function CartBarV8({
+export function CartBar({
   className,
   showCheckoutButton = true,
-}: CartBarV8Props) {
+}: CartBarProps) {
   const router = useRouter();
   const { isEmpty, itemCount, estimatedTotal, amountToFreeDelivery } = useCart();
   const { open } = useCartDrawer();
@@ -344,4 +344,4 @@ export function CartBarV8({
   );
 }
 
-export default CartBarV8;
+export default CartBar;

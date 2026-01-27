@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * V8 Cart Button Component
+ * CartButton Component
  * Cart button with animated badge for header integration
  *
  * Features:
@@ -26,7 +26,7 @@ import { spring, badgeVariants } from "@/lib/motion-tokens";
 // TYPES
 // ============================================
 
-export interface CartButtonV8Props {
+export interface CartButtonProps {
   /** Additional container classes */
   className?: string;
 }
@@ -35,7 +35,7 @@ export interface CartButtonV8Props {
 // COMPONENT
 // ============================================
 
-export function CartButtonV8({ className }: CartButtonV8Props) {
+export function CartButton({ className }: CartButtonProps) {
   const { itemCount } = useCart();
   const { open } = useCartDrawer();
   const setBadgeRef = useCartAnimationStore((s) => s.setBadgeRef);
@@ -151,4 +151,4 @@ export function CartButtonV8({ className }: CartButtonV8Props) {
   );
 }
 
-export default CartButtonV8;
+export default CartButton;

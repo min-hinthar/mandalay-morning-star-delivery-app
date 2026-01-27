@@ -21,7 +21,7 @@ import type { CartItem } from "@/types/cart";
 // TYPES
 // ============================================
 
-export interface CartItemV8Props {
+export interface CartItemProps {
   /** Cart item data */
   item: CartItem;
   /** Callback when edit is requested */
@@ -117,12 +117,12 @@ const cartItemVariants = {
 // MAIN COMPONENT
 // ============================================
 
-export function CartItemV8({
+export function CartItem({
   item,
   onEdit,
   compact = false,
   className,
-}: CartItemV8Props) {
+}: CartItemProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { updateQuantity, removeItem, getItemTotal } = useCart();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -407,4 +407,4 @@ function getFallbackEmoji(name: string): string {
   return "\u{1F35C}"; // Default noodle bowl for Myanmar cuisine
 }
 
-export default CartItemV8;
+export default CartItem;

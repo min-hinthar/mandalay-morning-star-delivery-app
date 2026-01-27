@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * CartDrawerV8 Component
- * Responsive cart drawer using V8 overlay primitives
+ * CartDrawer Component
+ * Responsive cart drawer using overlay primitives
  *
  * Features:
  * - BottomSheet on mobile (< 640px) with swipe-to-dismiss
@@ -23,10 +23,9 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
-import { BottomSheet } from "@/components/ui-v8";
-import { Drawer } from "@/components/ui-v8/Drawer";
+import { Drawer } from "@/components/ui";
 import { Button } from "@/components/ui/button";
-import { CartItemV8 } from "./CartItemV8";
+import { CartItem } from "./CartItem";
 import { CartSummary } from "./CartSummary";
 import { CartEmptyState } from "./CartEmptyState";
 import { ClearCartConfirmation, useClearCartConfirmation } from "./ClearCartConfirmation";
@@ -35,7 +34,7 @@ import { ClearCartConfirmation, useClearCartConfirmation } from "./ClearCartConf
 // TYPES
 // ============================================
 
-export interface CartDrawerV8Props {
+export interface CartDrawerProps {
   /** Additional className */
   className?: string;
 }
@@ -192,7 +191,7 @@ function CartItemsList({ onClose }: CartItemsListProps) {
                   : undefined
               }
             >
-              <CartItemV8 item={item} />
+              <CartItem item={item} />
             </motion.li>
           ))}
         </AnimatePresence>
@@ -320,22 +319,23 @@ function CartContent({ onClose }: CartContentProps) {
 // MAIN COMPONENT
 // ============================================
 
-export function CartDrawerV8({ className }: CartDrawerV8Props) {
+export function CartDrawer({ className }: CartDrawerProps) {
   const isMobile = useMediaQuery("(max-width: 640px)");
   const { isOpen, close } = useCartDrawer();
 
-  // Render mobile BottomSheet
+  // Render mobile bottom sheet
   if (isMobile) {
     return (
-      <BottomSheet
+      <Drawer
         isOpen={isOpen}
         onClose={close}
+        position="bottom"
         height="full"
         showDragHandle={true}
         className={cn("flex flex-col", className)}
       >
         <CartContent onClose={close} />
-      </BottomSheet>
+      </Drawer>
     );
   }
 
@@ -344,7 +344,7 @@ export function CartDrawerV8({ className }: CartDrawerV8Props) {
     <Drawer
       isOpen={isOpen}
       onClose={close}
-      side="right"
+      position="right"
       width="lg"
       title="Your Cart"
       className={cn("flex flex-col", className)}
@@ -354,4 +354,4 @@ export function CartDrawerV8({ className }: CartDrawerV8Props) {
   );
 }
 
-export default CartDrawerV8;
+export default CartDrawer;

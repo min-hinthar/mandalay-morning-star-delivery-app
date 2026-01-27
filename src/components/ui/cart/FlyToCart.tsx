@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * V8 Fly To Cart Animation
+ * Fly To Cart Animation
  *
  * GSAP-powered celebration animation when items are added to cart.
  * Creates a thumbnail element that flies from the source button to the cart badge.
