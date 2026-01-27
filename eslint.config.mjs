@@ -36,6 +36,18 @@ const config = [
           caughtErrorsIgnorePattern: "^_",
         },
       ],
+      // Prevent ui-v8 imports - consolidated into ui/
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/components/ui-v8/*", "@/components/ui-v8", "**/ui-v8/*", "**/ui-v8"],
+              message: "ui-v8 has been consolidated into ui/. Import from @/components/ui instead."
+            }
+          ]
+        }
+      ],
     },
   },
   {
