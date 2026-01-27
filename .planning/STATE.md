@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.2 Playful UI Overhaul - Phase 23 Header & Nav Rebuild
+**Current focus:** v1.2 Playful UI Overhaul - Phase 24 Codebase Cleanup
 
 ## Current Position
 
-Phase: 23 of 23 (Header & Nav Rebuild)
-Plan: 5 of 5 complete (All waves complete - awaiting checkpoint verification)
-Status: Checkpoint verification
-Last activity: 2026-01-27 - Completed 23-05-PLAN.md (Header Integration)
+Phase: 24 of 24 (Codebase Cleanup)
+Plan: 2 of ? (24-02 complete)
+Status: In progress
+Last activity: 2026-01-27 - Completed 24-02-PLAN.md (Remove Legacy Files)
 
-Progress: [####################] v1.0-v1.1 complete | [██████████████████████████] v1.2 100%
+Progress: [####################] v1.0-v1.1 complete | [##########################] v1.2 100%
 
 ## Milestones Completed
 
@@ -23,16 +23,17 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | v1.0 MVP | 1-8 | 32 | 2026-01-23 |
 | v1.1 Tech Debt | 9-14 | 21 | 2026-01-23 |
 
-**Total completed:** 23 phases, 82 plans
+**Total completed:** 24 phases, 84 plans
 **v1.2 scope:** 9 phases (15-23), 26 plans, 48+ requirements
-**v1.2 progress:** 9 phases complete, 26 plans done (awaiting final checkpoint)
+**v1.2 progress:** 9 phases complete, 26 plans done
+**Phase 24:** 2 plans complete (cleanup in progress)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 82 (v1.0 + v1.1 + v1.2)
+- Total plans completed: 84 (v1.0 + v1.1 + v1.2 + cleanup)
 - v1.2 plans completed: 26
-- Average duration: 10min (Phase 15-23)
+- Average duration: 10min (Phase 15-24)
 
 **By Phase (v1.2):**
 
@@ -46,6 +47,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | 21 | 3/3 | ~25min | 8.3min |
 | 22 | 3/3 | ~22min | 7.3min |
 | 23 | 5/5 | 40min | 8min |
+| 24 | 2/? | ~12min | 6min |
 
 *Updated after each plan completion*
 
@@ -109,6 +111,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 - **MobileDrawer swipe threshold (23-03):** 100px threshold for left swipe to close
 - **Drawer nav stagger (23-03):** staggerContainer80(0.15) for 80ms gap with 150ms initial delay
 - **ThemeToggle in drawer header (23-03):** Placed next to close button per iOS Settings pattern
+- **Keep gradients.ts (24-02):** webgl/gradients.ts still used by DynamicThemeProvider
 
 ### Research Findings
 
@@ -118,7 +121,7 @@ From `.planning/research/SUMMARY.md`:
 - SSR-safe pattern: `dynamic(() => import(), { ssr: false })` + mounted check
 - Single Canvas pattern to avoid WebGL context exhaustion
 
-### Patterns Established (Phase 15-22)
+### Patterns Established (Phase 15-24)
 
 - **zClass token system:** Use `zClass.popover` for dropdowns escaping parent stacking context, `zClass.modalBackdrop` for backdrop layers
 - **Intra-component z-index:** Keep z-10 for elements that layer within their container (close buttons in modals)
@@ -182,10 +185,14 @@ From `.planning/research/SUMMARY.md`:
 - **Desktop icon order (23-05):** Theme, Search, Cart, Account (left to right)
 - **Integrated header state (23-05):** All overlays (mobile menu, command palette, cart drawer) managed centrally in AppHeader
 - **Avatar initials gradient (23-05):** Hash user email to pick from gradient palette for consistent avatar background
+- **AppHeader/ replaces legacy header (24-02):** header.tsx, HeaderClient.tsx, HeaderServer.tsx removed
+- **MobileDrawer/ replaces MobileNav (24-02):** MobileNav.tsx, NavLinks.tsx removed
 
 ### Roadmap Evolution
 
 - Phase 23 added: Header & Nav Rebuild (2026-01-24)
+- Phase 17 cancelled: 3D Hero Advanced - decision to remove 3D hero entirely (2026-01-27)
+- Phase 24 added: Codebase Cleanup - remove 3D, consolidate imports, remove legacy (2026-01-27)
 
 ### Blockers/Concerns
 
@@ -194,10 +201,10 @@ None - all blocking issues from Phase 15 resolved.
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 23-05-PLAN.md (Header Integration) - awaiting checkpoint verification
+Stopped at: Completed 24-02-PLAN.md (Remove Legacy Files)
 Resume file: None
-Next action: User verification of header rebuild
+Next action: Continue Phase 24 cleanup (if more plans) or finalize v1.2
 
 ---
 
-*Updated: 2026-01-27 - Completed 23-05-PLAN.md (checkpoint pending)*
+*Updated: 2026-01-27 - Completed 24-02-PLAN.md*
