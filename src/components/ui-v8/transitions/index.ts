@@ -1,23 +1,20 @@
 /**
- * V8 Transition Components
+ * V8 Transition Components (Re-exports)
  *
- * Page and route transition components using Framer Motion.
- * Compatible with existing PageTransition API.
- *
- * @example
- * import { PageTransitionV8 } from "@/components/ui-v8/transitions";
+ * @deprecated Import from "@/components/ui/transitions" instead.
  */
 
-export {
-  PageTransitionV8,
-  type PageTransitionV8Props,
-  type PageTransitionVariant,
-} from "./PageTransitionV8";
-
-// Re-export existing PageTransition for compatibility
+// Re-export from new location for backwards compatibility
 export {
   PageTransition,
+  PageTransition as PageTransitionV8,
   type PageTransitionProps,
+  type PageTransitionProps as PageTransitionV8Props,
+  type PageTransitionVariant,
+} from "@/components/ui/transitions";
+
+// Re-export existing PageTransition variants for compatibility
+export {
   FadeTransition,
   type FadeTransitionProps,
   SlideTransition,
