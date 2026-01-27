@@ -22,7 +22,7 @@
 import { type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Drawer } from "@/components/ui-v8/Drawer";
+import { Drawer } from "@/components/ui";
 import { useRouteChangeClose } from "@/lib/hooks/useRouteChangeClose";
 import { cn } from "@/lib/utils/cn";
 
