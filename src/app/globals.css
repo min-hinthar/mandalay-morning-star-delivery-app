@@ -280,6 +280,8 @@
     transition:
       backdrop-filter 0.3s ease,
       background 0.3s ease;
+    /* GPU acceleration hint for mobile performance */
+    will-change: backdrop-filter, background;
   }
 
   .glass-menu-card:hover,

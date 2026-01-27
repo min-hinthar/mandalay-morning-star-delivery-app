@@ -203,6 +203,7 @@ export function UnifiedMenuItemCard({
   const handleMouseLeave = useCallback(() => {
     setIsHovered(false);
     setIsMobileTiltActive(false);
+    // Springs on rotateX/rotateY handle smooth animation
     mouseX.set(0.5);
     mouseY.set(0.5);
   }, [mouseX, mouseY]);
@@ -224,9 +225,13 @@ export function UnifiedMenuItemCard({
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
     }
-    setIsMobileTiltActive(false);
-    mouseX.set(0.5);
-    mouseY.set(0.5);
+    // Debounce state reset to prevent flicker on rapid touch events
+    requestAnimationFrame(() => {
+      setIsMobileTiltActive(false);
+      // Springs on rotateX/rotateY handle smooth animation
+      mouseX.set(0.5);
+      mouseY.set(0.5);
+    });
   }, [mouseX, mouseY]);
 
   const handleTouchMove = useCallback(
@@ -348,6 +353,10 @@ export function UnifiedMenuItemCard({
         rotateY,
         transformStyle: "preserve-3d" as const,
         transformPerspective: 1000,
+        willChange: "transform" as const,
+        backfaceVisibility: "hidden" as const,
+        // Prevent scroll conflicts during tilt interaction on mobile
+        touchAction: isMobileTiltActive ? ("none" as const) : ("auto" as const),
       }
     : {};
 
