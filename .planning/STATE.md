@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 33 of 33 (Full Components Consolidation)
-Plan: 9 of 11 in current phase
+Plan: 10 of 11 in current phase
 Status: In progress
-Last activity: 2026-01-27 - Completed 33-09-PLAN.md
+Last activity: 2026-01-27 - Completed 33-10-PLAN.md
 
-Progress: [██████████████████████████████████████░░░] v1.3 Full Codebase Consolidation | 17/24 plans
+Progress: [███████████████████████████████████████░░] v1.3 Full Codebase Consolidation | 18/24 plans
 
 ## Milestones Completed
 
@@ -25,7 +25,7 @@ Progress: [███████████████████████
 | v1.2 Playful UI Overhaul | 15-24 | 29 | 2026-01-27 |
 
 **Total completed:** 24 phases, 82 plans
-**v1.3 scope:** 9 phases (25-33), 23+ plans estimated
+**v1.3 scope:** 10 phases (25-34), 25+ plans estimated
 **v1.3 progress:** 12 plans complete
 
 ## Performance Metrics
@@ -33,7 +33,7 @@ Progress: [███████████████████████
 **Velocity:**
 - Total plans completed: 94 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 17
+- v1.3 plans completed: 18
 
 **By Phase (v1.3):**
 
@@ -41,7 +41,7 @@ Progress: [███████████████████████
 |-------|-------|-------|----------|
 | 25 | 1/1 | 8min | 8min |
 | 26 | 8/8 | 136min | 17min |
-| 33 | 9/11 | 113min | 12.6min |
+| 33 | 10/11 | 115min | 11.5min |
 
 ## Accumulated Context
 
@@ -98,6 +98,7 @@ From `.planning/research/SUMMARY.md`:
 | OnboardingTour in ui/auth/ | 33-08 | Part of auth flow per CONTEXT.md |
 | BrandMascot in ui/brand/ | 33-08 | Room for future brand components |
 | Theme re-exported from ui/ barrel | 33-09 | Consistency with other subdirectories |
+| ESLint guards for all removed directories | 33-10 | 14 no-restricted-imports rules prevent recreation |
 
 ### Phase 33 Progress
 
@@ -146,9 +147,15 @@ From `.planning/research/SUMMARY.md`:
 - Added theme re-export to ui/index.ts barrel
 - All theme imports use @/components/ui/theme
 
+**33-10 outcomes:**
+- ESLint guards for all 14 removed directories
+- Each guard includes migration message with correct import path
+- Future imports to old paths blocked at lint time
+
 ### Roadmap Evolution
 
 - Phase 33 added: Full Components Consolidation (merge all component subdirectories, eliminate duplicates)
+- Phase 34 added: Full src/ Consolidation (consolidate contexts, design-system, lib, styles, types directories)
 
 ### Blockers/Concerns
 
@@ -156,11 +163,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27 23:30
-Stopped at: Completed 33-09-PLAN.md
+Last session: 2026-01-27 23:35
+Stopped at: Completed 33-10-PLAN.md
 Resume file: None
-Next action: Execute 33-10-PLAN.md (if exists)
+Next action: Execute 33-11-PLAN.md (if exists)
 
 ---
 
-*Updated: 2026-01-27 - Phase 33 Plan 09 complete (theme consolidation verified)*
+*Updated: 2026-01-27 - Phase 33 Plan 10 complete (ESLint guards for all removed directories)*
