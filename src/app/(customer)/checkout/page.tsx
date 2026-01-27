@@ -15,7 +15,7 @@ import {
   TimeStep,
   PaymentStep,
   CheckoutSummary,
-} from "@/components/checkout";
+} from "@/components/ui/checkout";
 import type { CheckoutStep } from "@/types/checkout";
 
 /**

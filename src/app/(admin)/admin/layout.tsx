@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { AdminNav } from "@/components/admin/AdminNav";
+import { AdminNav } from "@/components/ui/admin/AdminNav";
 import type { ProfileRole } from "@/types/database";
 
 interface ProfileRow {

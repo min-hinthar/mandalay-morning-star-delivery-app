@@ -37,7 +37,7 @@ import {
   ExpandableTableRow,
   QuickPreviewPanel,
   useExpandedRows,
-} from "@/components/admin/ExpandableTableRow";
+} from "@/components/ui/admin/ExpandableTableRow";
 import type { OrderStatus } from "@/types/database";
 
 /**

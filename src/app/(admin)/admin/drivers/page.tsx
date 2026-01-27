@@ -28,11 +28,11 @@ import { toast } from "@/lib/hooks/useToast";
 import {
   DriverListTable,
   type AdminDriver,
-} from "@/components/admin/drivers/DriverListTable";
+} from "@/components/ui/admin/drivers/DriverListTable";
 import {
   AddDriverModal,
   type CreateDriverData,
-} from "@/components/admin/drivers/AddDriverModal";
+} from "@/components/ui/admin/drivers/AddDriverModal";
 
 type StatusFilter = "all" | "active" | "inactive";
 

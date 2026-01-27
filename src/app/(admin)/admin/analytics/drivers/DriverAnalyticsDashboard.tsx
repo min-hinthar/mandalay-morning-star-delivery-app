@@ -25,7 +25,7 @@ import {
   DriverLeaderboard,
   PerformanceChart,
   RatingDistributionBars,
-} from "@/components/admin/analytics";
+} from "@/components/ui/admin/analytics";
 import type {
   DriverAnalyticsListResponse,
   DriverStats,

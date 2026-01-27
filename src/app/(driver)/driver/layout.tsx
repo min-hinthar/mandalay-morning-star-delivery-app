@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { DriverNav } from "@/components/driver/DriverNav";
-import { DriverShell } from "@/components/driver/DriverShell";
+import { DriverNav } from "@/components/ui/driver/DriverNav";
+import { DriverShell } from "@/components/ui/driver/DriverShell";
 import type { DriversRow } from "@/types/driver";
 
 export default async function DriverLayout({

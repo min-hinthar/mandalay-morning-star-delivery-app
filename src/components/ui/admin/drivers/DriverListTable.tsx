@@ -45,7 +45,7 @@ import {
   ExpandableTableRow,
   DriverPreviewPanel,
   useExpandedRows,
-} from "@/components/admin/ExpandableTableRow";
+} from "@/components/ui/admin/ExpandableTableRow";
 import type { VehicleType } from "@/types/driver";
 
 export interface AdminDriver {
