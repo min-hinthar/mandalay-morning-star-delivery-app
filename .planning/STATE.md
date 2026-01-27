@@ -25,7 +25,7 @@ Progress: [███████████████████████
 | v1.2 Playful UI Overhaul | 15-24 | 29 | 2026-01-27 |
 
 **Total completed:** 24 phases, 82 plans
-**v1.3 scope:** 8 phases (25-32), 22 plans estimated
+**v1.3 scope:** 9 phases (25-33), 23+ plans estimated
 **v1.3 progress:** 8 plans complete
 
 ## Performance Metrics
@@ -88,6 +88,10 @@ From `.planning/research/SUMMARY.md`:
 | SearchInput canonical in ui/menu | 26-07 | Menu version has autocomplete |
 | CartEmptyState canonical in ui/cart | 26-07 | Cart version has animations |
 | ESLint guard for ui-v8 imports | 26-08 | no-restricted-imports prevents recreation |
+
+### Roadmap Evolution
+
+- Phase 33 added: Full Components Consolidation (merge all component subdirectories, eliminate duplicates)
 
 ### Blockers/Concerns
 
