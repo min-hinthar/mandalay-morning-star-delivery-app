@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 26 of 32 (Component Consolidation)
-Plan: 3 of 8 in current phase
+Plan: 6 of 8 in current phase
 Status: In progress
-Last activity: 2026-01-27 - Completed 26-03-PLAN.md
+Last activity: 2026-01-27 - Completed 26-06-PLAN.md
 
-Progress: [██████████████████████░░░░░░░░░░░░░░░░░░░] v1.3 Full Codebase Consolidation | 3/22 plans
+Progress: [██████████████████████████░░░░░░░░░░░░░░░] v1.3 Full Codebase Consolidation | 6/22 plans
 
 ## Milestones Completed
 
@@ -31,16 +31,16 @@ Progress: [██████████████████████░
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 85 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 88 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 3
+- v1.3 plans completed: 6
 
 **By Phase (v1.3):**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 25 | 1/1 | 8min | 8min |
-| 26 | 3/8 | 60min | 20min |
+| 26 | 6/8 | 120min | 20min |
 
 ## Accumulated Context
 
@@ -53,7 +53,7 @@ From `.planning/research/SUMMARY.md`:
 - Hero parallax can use existing parallaxPresets from motion-tokens.ts
 - Token system is comprehensive (62 tokens) but not being used
 
-### Component Consolidation Progress (26-03)
+### Component Consolidation Progress (26-06)
 
 **Completed migrations:**
 - Portal.tsx -> ui/
@@ -64,6 +64,9 @@ From `.planning/research/SUMMARY.md`:
 - ToastProvider.tsx -> ui/
 - Tooltip.tsx -> ui/ (V8 with delayDuration)
 - Dropdown.tsx -> ui/ (V8 simpler version)
+- Navigation components -> ui/navigation/ (AppShell, BottomNav, Header, MobileMenu, PageContainer)
+- Scroll components -> ui/scroll/ (ParallaxLayer, RevealOnScroll, ScrollChoreographer)
+- PageTransition -> ui/transitions/ (renamed from PageTransitionV8)
 
 **Deleted:**
 - overlay-base.tsx (functionality in Modal.tsx)
@@ -71,6 +74,9 @@ From `.planning/research/SUMMARY.md`:
 - toast.tsx (old Radix-based)
 - toaster.tsx (old Radix-based)
 - tooltip.tsx (old CSS-only)
+- ui-v8/navigation/* (moved to ui/navigation/)
+- ui-v8/scroll/* (moved to ui/scroll/)
+- ui-v8/transitions/PageTransitionV8.tsx (moved to ui/transitions/PageTransition.tsx)
 
 ### Design Decisions
 
@@ -85,6 +91,8 @@ From `.planning/research/SUMMARY.md`:
 | Keep V5 Modal (more feature-complete) | 26-02 | has useModal, ConfirmModal, subcomponents |
 | Toast declarative only | 26-03 | No imperative toast() function |
 | Dropdown and DropdownMenu coexist | 26-03 | Different use cases (simpler vs feature-rich) |
+| Drawer uses position prop | 26-06 | position="left|right|bottom" instead of side |
+| PageTransition renamed | 26-06 | V8 suffix removed in ui/transitions |
 
 ### Blockers/Concerns
 
@@ -92,11 +100,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27 06:15
-Stopped at: Completed 26-03-PLAN.md
+Last session: 2026-01-27 06:34
+Stopped at: Completed 26-06-PLAN.md
 Resume file: None
-Next action: `/gsd:execute-phase` for 26-04-PLAN.md
+Next action: `/gsd:execute-phase` for 26-07-PLAN.md
 
 ---
 
-*Updated: 2026-01-27 - Plan 26-03 complete, Toast/Tooltip/Dropdown migrated*
+*Updated: 2026-01-27 - Plan 26-06 complete, navigation/scroll/transitions migrated to ui/*
