@@ -5,7 +5,7 @@
 - ✅ **v1.0 MVP** - Phases 1-8 (shipped 2026-01-23)
 - ✅ **v1.1 Tech Debt** - Phases 9-14 (shipped 2026-01-23)
 - ✅ **v1.2 Playful UI Overhaul** - Phases 15-24 (shipped 2026-01-27)
-- 🚧 **v1.3 Full Codebase Consolidation** - Phases 25-33 (in progress)
+- 🚧 **v1.3 Full Codebase Consolidation** - Phases 25-34 (in progress)
 
 ## Overview
 
@@ -25,7 +25,8 @@ Systematic consolidation of the codebase: merge overlapping component systems, e
 - [ ] **Phase 30: Mobile Stability** - Fix 3D tilt on touch devices
 - [ ] **Phase 31: Hero Redesign** - Floating emojis, parallax, theme-aware gradients
 - [ ] **Phase 32: Quality Assurance** - Documentation, testing, regression prevention
-- [ ] **Phase 33: Full Components Consolidation** - Merge all component subdirectories, eliminate duplicates
+- [x] **Phase 33: Full Components Consolidation** - Merge all component subdirectories, eliminate duplicates
+- [ ] **Phase 34: Full src/ Consolidation** - Consolidate contexts, design-system, lib, styles, types directories
 
 ## Phase Details
 
@@ -174,22 +175,39 @@ Plans:
 **Plans**: 11 plans in 6 waves
 
 Plans:
-- [ ] 33-01-PLAN.md — Delete knip-detected unused files (6 files)
-- [ ] 33-02-PLAN.md — Merge scroll/ into ui/scroll/
-- [ ] 33-03-PLAN.md — Merge menu/ into ui/menu/ (resolve duplicates)
-- [ ] 33-04-PLAN.md — Merge layout/ + layouts/ into ui/layout/, create ui/search/
-- [ ] 33-05-PLAN.md — Update layout consumer imports, delete old directories
-- [ ] 33-06-PLAN.md — Move loose files (ThemeProvider, WebVitalsReporter)
-- [ ] 33-07-PLAN.md — Move page folders (admin, checkout, driver, homepage, orders)
-- [ ] 33-08-PLAN.md — Merge tracking into orders, onboarding into auth, create brand
-- [ ] 33-09-PLAN.md — Merge theme/ into ui/theme/
-- [ ] 33-10-PLAN.md — Add ESLint guards for all removed directories
-- [ ] 33-11-PLAN.md — Update knip config, finalize barrel exports
+- [x] 33-01-PLAN.md — Delete knip-detected unused files (6 files)
+- [x] 33-02-PLAN.md — Merge scroll/ into ui/scroll/
+- [x] 33-03-PLAN.md — Merge menu/ into ui/menu/ (resolve duplicates)
+- [x] 33-04-PLAN.md — Merge layout/ + layouts/ into ui/layout/, create ui/search/
+- [x] 33-05-PLAN.md — Update layout consumer imports, delete old directories
+- [x] 33-06-PLAN.md — Move loose files (ThemeProvider, WebVitalsReporter)
+- [x] 33-07-PLAN.md — Move page folders (admin, checkout, driver, homepage, orders)
+- [x] 33-08-PLAN.md — Merge tracking into orders, onboarding into auth, create brand
+- [x] 33-09-PLAN.md — Merge theme/ into ui/theme/
+- [x] 33-10-PLAN.md — Add ESLint guards for all removed directories
+- [x] 33-11-PLAN.md — Update knip config, finalize barrel exports
+
+### Phase 34: Full src/ Consolidation
+**Goal**: Single organized src/ structure with no duplicate exports, conflicting code, or unused files
+**Depends on**: Phase 33
+**Requirements**: SRC-01
+**Success Criteria** (what must be TRUE):
+  1. No duplicate exports between contexts/, lib/, design-system/
+  2. styles/ consolidated (no conflicting CSS/Tailwind configs)
+  3. types/ has single source of truth for each type definition
+  4. All old/unused code deleted (only latest versions remain)
+  5. Clean barrel exports for all src/ subdirectories
+  6. No broken imports after consolidation
+  7. ESLint guards prevent recreation of removed patterns
+**Plans**: TBD
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 34 to break down)
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 -> 33
+Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 -> 33 -> 34
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -201,12 +219,13 @@ Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 ->
 | 30. Mobile Stability | v1.3 | 0/2 | Not started | - |
 | 31. Hero Redesign | v1.3 | 0/4 | Not started | - |
 | 32. Quality Assurance | v1.3 | 0/3 | Not started | - |
-| 33. Full Components Consolidation | v1.3 | 0/11 | Not started | - |
+| 33. Full Components Consolidation | v1.3 | 11/11 | Complete | 2026-01-27 |
+| 34. Full src/ Consolidation | v1.3 | 0/? | Not started | - |
 
 **v1.3 Summary:**
-- Total phases: 9
-- Total plans: 23+ (estimated)
-- Requirements coverage: 38/38
+- Total phases: 10
+- Total plans: 25+ (estimated)
+- Requirements coverage: 39/39
 
 ---
 
