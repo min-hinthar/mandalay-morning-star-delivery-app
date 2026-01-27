@@ -18,7 +18,6 @@ import { CardContent } from "./CardContent";
 import { AddButton } from "./AddButton";
 import { DietaryBadges } from "./DietaryBadges";
 import { FavoriteButton } from "@/components/ui-v8/menu/FavoriteButton";
-import { zIndex } from "@/design-system/tokens/z-index";
 import type { MenuItem } from "@/types/menu";
 
 // ============================================
@@ -371,7 +370,7 @@ export function UnifiedMenuItemCard({
       onTouchMove={handleTouchMove}
       onClick={handleCardClick}
       whileHover={
-        shouldAnimate && !item.isSoldOut ? { scale: 1.03, zIndex: zIndex.dropdown } : undefined
+        shouldAnimate && !item.isSoldOut ? { scale: 1.03 } : undefined
       }
       whileTap={
         shouldAnimate && !item.isSoldOut ? { scale: 0.98 } : undefined
