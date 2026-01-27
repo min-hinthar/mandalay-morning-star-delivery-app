@@ -4,7 +4,7 @@
  * AccountIndicator - User avatar/initials with dropdown menu
  *
  * Features:
- * - When not logged in: User icon button linking to /auth/login
+ * - When not logged in: User icon button linking to /login
  * - When logged in: Avatar image or initials fallback with status dot
  * - Dropdown menu: Profile, Orders, Sign Out
  * - Animated dropdown with spring physics
@@ -150,7 +150,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
   // Not logged in - show login link
   if (!user) {
     return (
-      <Link href="/auth/login">
+      <Link href="/login">
         <motion.span
           whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
           whileTap={shouldAnimate ? { scale: 0.95 } : undefined}

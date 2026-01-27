@@ -362,7 +362,7 @@ export function MobileNav({
                   transition={{ delay: 0.1 }}
                 >
                   <Link
-                    href="/auth/login"
+                    href="/login"
                     onClick={onClose}
                     className={cn(
                       "inline-flex items-center gap-2 px-4 py-2 rounded-xl",
