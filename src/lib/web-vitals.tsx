@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Web Vitals Instrumentation
  *
@@ -144,6 +146,15 @@ export function useWebVitals() {
       initWebVitals();
     }
   }
+}
+
+/**
+ * Client component to initialize web vitals monitoring.
+ * Add this to your root layout for automatic CWV tracking.
+ */
+export function WebVitalsReporter() {
+  useWebVitals();
+  return null;
 }
 
 /**
