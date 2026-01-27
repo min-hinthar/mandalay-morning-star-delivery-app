@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 33 of 33 (Full Components Consolidation)
-Plan: 7 of 11 in current phase
+Plan: 8 of 11 in current phase
 Status: In progress
-Last activity: 2026-01-27 - Completed 33-07-PLAN.md
+Last activity: 2026-01-27 - Completed 33-08-PLAN.md
 
-Progress: [████████████████████████████████████░░░░░] v1.3 Full Codebase Consolidation | 15/24 plans
+Progress: [█████████████████████████████████████░░░░] v1.3 Full Codebase Consolidation | 16/24 plans
 
 ## Milestones Completed
 
@@ -33,7 +33,7 @@ Progress: [███████████████████████
 **Velocity:**
 - Total plans completed: 94 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 14
+- v1.3 plans completed: 16
 
 **By Phase (v1.3):**
 
@@ -41,7 +41,7 @@ Progress: [███████████████████████
 |-------|-------|-------|----------|
 | 25 | 1/1 | 8min | 8min |
 | 26 | 8/8 | 136min | 17min |
-| 33 | 7/11 | 83min | 11.9min |
+| 33 | 8/11 | 108min | 13.5min |
 
 ## Accumulated Context
 
@@ -94,6 +94,9 @@ From `.planning/research/SUMMARY.md`:
 | QuantitySelector excluded from menu barrel | 33-03 | Avoids conflict with cart/QuantitySelector |
 | Theme providers in ui/theme/ | 33-06 | Consolidated all theme components |
 | WebVitalsReporter in lib/ | 33-06 | Non-UI concern moved to lib/web-vitals.tsx |
+| Tracking in orders/tracking/ subdirectory | 33-08 | Keeps order components organized |
+| OnboardingTour in ui/auth/ | 33-08 | Part of auth flow per CONTEXT.md |
+| BrandMascot in ui/brand/ | 33-08 | Room for future brand components |
 
 ### Phase 33 Progress
 
@@ -130,6 +133,13 @@ From `.planning/research/SUMMARY.md`:
 - Complete barrel exports for all moved directories
 - components/ root now only has ui/ and legacy (auth/, mascot/, onboarding/)
 
+**33-08 outcomes:**
+- tracking/ merged into ui/orders/tracking/
+- auth/ moved to ui/auth/
+- onboarding/ merged into ui/auth/ (OnboardingTour)
+- mascot/ moved to ui/brand/
+- All old directories removed from components root
+
 ### Roadmap Evolution
 
 - Phase 33 added: Full Components Consolidation (merge all component subdirectories, eliminate duplicates)
@@ -140,11 +150,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27 23:20
-Stopped at: Completed 33-07-PLAN.md
+Last session: 2026-01-27 23:45
+Stopped at: Completed 33-08-PLAN.md
 Resume file: None
-Next action: Execute 33-08-PLAN.md (if exists)
+Next action: Execute 33-09-PLAN.md (if exists)
 
 ---
 
-*Updated: 2026-01-27 - Phase 33 Plan 07 complete (page-specific folders moved to ui/)*
+*Updated: 2026-01-27 - Phase 33 Plan 08 complete (related components merged)*
