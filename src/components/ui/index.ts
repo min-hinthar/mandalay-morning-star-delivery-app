@@ -278,3 +278,6 @@ export * from "./search";
 
 // Orders (tracking, delivery)
 export * from "./orders";
+
+// Auth (login, signup, onboarding)
+export * from "./auth";

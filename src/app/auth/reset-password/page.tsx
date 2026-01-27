@@ -1,4 +1,4 @@
-import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
+import { ResetPasswordForm } from "@/components/ui/auth/ResetPasswordForm";
 import type { ReactElement } from "react";
 
 export default function ResetPasswordPage(): ReactElement {
