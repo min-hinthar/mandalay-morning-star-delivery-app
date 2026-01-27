@@ -127,7 +127,16 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 
 ### Active
 
-*No active milestone. Ready for v1.3 planning.*
+**Current Milestone: v1.3 Theme Stability & Hero Redesign**
+
+**Goal:** Bulletproof theme consistency across all components + reimagined hero with floating food emojis and parallax.
+
+**Target features:**
+- Full codebase audit of color tokens — fix light/dark inconsistencies
+- Disable 3D tilt on mobile (content disappearing bug fix)
+- Hero section redesign — layout, background, mascot, parallax with floating food emojis
+- Remove legacy gradient code and conflicting theme fallbacks
+- Establish reusable, consistent theme token patterns
 
 ### Out of Scope
 - Backend/schema changes — Supabase + Stripe contracts stay stable
@@ -205,4 +214,4 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 | 3D hero removed in cleanup | ~650KB reduction, simplified codebase | ✓ Good — faster loads |
 
 ---
-*Last updated: 2026-01-27 after v1.2 milestone shipped*
+*Last updated: 2026-01-27 after v1.3 milestone started*
