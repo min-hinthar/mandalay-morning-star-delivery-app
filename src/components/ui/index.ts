@@ -165,19 +165,9 @@ export {
 // FEEDBACK COMPONENTS
 // ============================================
 
-// Toast
-export {
-  ToastProvider,
-  ToastViewport,
-  Toast,
-  ToastTitle,
-  ToastDescription,
-  ToastClose,
-  ToastAction,
-} from "./toast";
-
-// Toaster
-export { Toaster } from "./toaster";
+// Toast (V8 - declarative)
+export { Toast, ToastContainer } from "./Toast";
+export { ToastProvider } from "./ToastProvider";
 
 // Alert
 export { Alert, AlertTitle, AlertDescription } from "./alert";
