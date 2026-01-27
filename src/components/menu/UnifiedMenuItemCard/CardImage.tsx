@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { getCategoryEmoji } from "@/components/ui-v8/menu/EmojiPlaceholder";
 import { AnimatedImage } from "@/components/ui/animated-image";
+import { zClass } from "@/design-system/tokens/z-index";
 
 // ============================================
 // TYPES
@@ -107,7 +108,7 @@ export function CardImage({
       {/* Shine overlay - follows mouse during hover */}
       {shouldAnimate && isHovered && (
         <motion.div
-          className="absolute inset-0 pointer-events-none"
+          className={cn("absolute inset-0 pointer-events-none", zClass.cardShine)}
           style={{
             background: `linear-gradient(
               135deg,

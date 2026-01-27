@@ -9,6 +9,7 @@ import {
 } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
+import { zClass } from "@/design-system/tokens/z-index";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useCart } from "@/lib/hooks/useCart";
@@ -421,7 +422,7 @@ export function UnifiedMenuItemCard({
         )}
 
         {/* Favorite button */}
-        <div className="absolute top-3 right-3 z-10">
+        <div className={cn("absolute top-3 right-3", zClass.dropdown)}>
           <FavoriteButton
             isFavorite={isItemFavorite}
             onToggle={handleFavoriteToggle}
@@ -431,7 +432,7 @@ export function UnifiedMenuItemCard({
 
         {/* Sold out overlay */}
         {item.isSoldOut && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
+          <div className={cn("absolute inset-0 bg-black/50 flex items-center justify-center", zClass.sticky)}>
             <span className="px-4 py-2 bg-surface-primary rounded-full text-sm font-semibold text-text-primary shadow-lg">
               Sold Out
             </span>
@@ -448,7 +449,7 @@ export function UnifiedMenuItemCard({
 
         {/* Add button - bottom right */}
         {!item.isSoldOut && (
-          <div className="absolute bottom-3 right-3 z-10">
+          <div className={cn("absolute bottom-3 right-3", zClass.dropdown)}>
             <AddButton
               item={item}
               quantity={totalQuantityInCart}

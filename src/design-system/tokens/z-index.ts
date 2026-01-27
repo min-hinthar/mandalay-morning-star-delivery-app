@@ -48,6 +48,7 @@ export const zIndexVar = {
  */
 export const zClass = {
   base: "z-0",
+  cardShine: "z-[5]",
   dropdown: "z-10",
   sticky: "z-20",
   fixed: "z-30",
