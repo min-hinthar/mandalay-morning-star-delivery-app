@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { AnimatedSection, itemVariants } from "@/components/scroll/AnimatedSection";
+import { AnimatedSection, itemVariants } from "@/components/ui/scroll";
 import { NavDots } from "@/components/ui/NavDots";
 
 // ============================================

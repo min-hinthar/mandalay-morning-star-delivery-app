@@ -5,7 +5,7 @@ import { motion, useInView, AnimatePresence } from "framer-motion";
 import { MapPin, UtensilsCrossed, Truck, Sparkles, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { AnimatedSection, itemVariants } from "@/components/scroll/AnimatedSection";
+import { AnimatedSection, itemVariants } from "@/components/ui/scroll";
 import { spring } from "@/lib/motion-tokens";
 import { useCoverageCheck } from "@/lib/hooks/useCoverageCheck";
 
