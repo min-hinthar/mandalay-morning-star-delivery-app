@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 24 of 24 (Codebase Cleanup)
-Plan: 2 of ? (24-02 complete)
+Plan: 2 of 3 (24-01, 24-02 complete)
 Status: In progress
-Last activity: 2026-01-27 - Completed 24-02-PLAN.md (Remove Legacy Files)
+Last activity: 2026-01-27 - Completed 24-01-PLAN.md (Remove 3D Hero Code)
 
 Progress: [####################] v1.0-v1.1 complete | [##########################] v1.2 100%
 
@@ -23,16 +23,17 @@ Progress: [####################] v1.0-v1.1 complete | [#########################
 | v1.0 MVP | 1-8 | 32 | 2026-01-23 |
 | v1.1 Tech Debt | 9-14 | 21 | 2026-01-23 |
 
-**Total completed:** 24 phases, 84 plans
+**Total completed:** 24 phases, 85 plans
 **v1.2 scope:** 9 phases (15-23), 26 plans, 48+ requirements
 **v1.2 progress:** 9 phases complete, 26 plans done
-**Phase 24:** 2 plans complete (cleanup in progress)
+**Phase 24:** 2 of 3 plans complete (24-01 3D removal, 24-02 legacy cleanup done)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 84 (v1.0 + v1.1 + v1.2 + cleanup)
+- Total plans completed: 85 (v1.0 + v1.1 + v1.2 + cleanup)
 - v1.2 plans completed: 26
+- Phase 24 plans completed: 2
 - Average duration: 10min (Phase 15-24)
 
 **By Phase (v1.2):**
@@ -47,7 +48,7 @@ Progress: [####################] v1.0-v1.1 complete | [#########################
 | 21 | 3/3 | ~25min | 8.3min |
 | 22 | 3/3 | ~22min | 7.3min |
 | 23 | 5/5 | 40min | 8min |
-| 24 | 2/? | ~12min | 6min |
+| 24 | 2/3 | ~20min | 10min |
 
 *Updated after each plan completion*
 
@@ -61,17 +62,17 @@ Progress: [####################] v1.0-v1.1 complete | [#########################
 
 ### Design Decisions
 
-- 3D hero: Interactive food showcase with Three.js/React Three Fiber
+- ~~3D hero: Interactive food showcase with Three.js/React Three Fiber~~ REMOVED in 24-01
 - Menu items: New unified design across homepage, menu page, cart
 - Theme: Light/dark refinement (footer text visibility, contrast)
-- R3F 9.5.0 required for React 19 compatibility (v8.x fails)
+- ~~R3F 9.5.0 required for React 19 compatibility (v8.x fails)~~ REMOVED in 24-01
 - SSR-safe pattern: useState(false) + useEffect mounted check
-- Dynamic imports with ssr: false for all R3F components
-- GPU tier 2+ threshold for 3D rendering (30+ fps capable)
-- Optimistic default to 3D while GPU detection loads
-- Indeterminate spinner for 3D loading (percentage unreliable for single GLB)
-- 2D fallback is designed experience for low-end devices, not failure state
-- show3D prop defaults to true, allows conditional disabling for A/B testing
+- ~~Dynamic imports with ssr: false for all R3F components~~ REMOVED in 24-01
+- ~~GPU tier 2+ threshold for 3D rendering (30+ fps capable)~~ REMOVED in 24-01
+- ~~Optimistic default to 3D while GPU detection loads~~ REMOVED in 24-01
+- ~~Indeterminate spinner for 3D loading (percentage unreliable for single GLB)~~ REMOVED in 24-01
+- **2D hero is permanent standard (24-01):** gradient + floating animation, not a fallback
+- ~~show3D prop defaults to true, allows conditional disabling for A/B testing~~ REMOVED in 24-01
 - **UnifiedMenuItemCard 3D tilt:** 18-degree max angle, spring-smoothed (stiffness: 150, damping: 15)
 - **Glassmorphism:** 75% opacity, 30px blur via .glass-menu-card (upgraded from 20px in 22-01)
 - **AddButton state machine:** idle -> adding (300ms) -> quantity for cart flow
@@ -97,8 +98,8 @@ Progress: [####################] v1.0-v1.1 complete | [#########################
 - **Binary theme toggle (21-02):** Light/dark only; system mode via OS settings
 - **View Transitions circular reveal (21-02):** cubic-bezier(0.34, 1.56, 0.64, 1) spring easing
 - **Theme sounds (21-02):** Web Audio synthesis - A5/E6 chime (light), A3 tone (dark)
-- **3D lighting lerp factor (21-03):** delta * 4 for ~500ms smooth transitions
-- **3D theme colors (21-03):** Warm yellow (#fef3c7) light mode, cool blue-gray (#4a5568) dark mode
+- ~~**3D lighting lerp factor (21-03):** delta * 4 for ~500ms smooth transitions~~ REMOVED in 24-01
+- ~~**3D theme colors (21-03):** Warm yellow (#fef3c7) light mode, cool blue-gray (#4a5568) dark mode~~ REMOVED in 24-01
 - **80ms stagger standard (22-01):** STAGGER_GAP = 0.08, capped at 500ms max delay
 - **25% viewport trigger (22-01):** VIEWPORT_AMOUNT = 0.25 for scroll animations
 - **glow-gradient utility (22-01):** Primary/gold gradient glow on hover
@@ -125,18 +126,18 @@ From `.planning/research/SUMMARY.md`:
 
 - **zClass token system:** Use `zClass.popover` for dropdowns escaping parent stacking context, `zClass.modalBackdrop` for backdrop layers
 - **Intra-component z-index:** Keep z-10 for elements that layer within their container (close buttons in modals)
-- **Scene wrapper:** Always use `src/components/3d/Scene.tsx` for Canvas
-- **Dynamic import 3D:** `dynamic(() => import('@/components/3d'), { ssr: false })`
-- **useFrame animation:** delta-based rotation for frame-rate independence
+- ~~**Scene wrapper:** Always use `src/components/3d/Scene.tsx` for Canvas~~ REMOVED in 24-01
+- ~~**Dynamic import 3D:** `dynamic(() => import('@/components/3d'), { ssr: false })`~~ REMOVED in 24-01
+- ~~**useFrame animation:** delta-based rotation for frame-rate independence~~ REMOVED in 24-01
 - **Polymorphic component types:** Use `as = "div"` with `const Component = as as "div"` pattern for TypeScript compatibility
-- **GPU tier detection:** useGPUTier hook returns shouldRender3D boolean (tier >= 2)
-- **3D loader:** drei Html for DOM inside Canvas with branded spinner
-- **FoodModel pattern:** GLTF + spring entrance + shouldAnimate prop
-- **Hero3DCanvas pattern:** Canvas with touchAction: none, OrbitControls constraints, Environment + ContactShadows
-- **OrbitControls constraints:** polar 45-82deg, azimuth +-60deg keeps food viewable from appetizing angles
-- **Hero3DSection pattern:** Conditional wrapper with GPU detection and loading state
-- **2D fallback pattern:** Subtle motion (float + rotate) with gradient and glow
-- **3D layer integration:** ParallaxLayer speed=mid for depth effect
+- ~~**GPU tier detection:** useGPUTier hook returns shouldRender3D boolean (tier >= 2)~~ REMOVED in 24-01
+- ~~**3D loader:** drei Html for DOM inside Canvas with branded spinner~~ REMOVED in 24-01
+- ~~**FoodModel pattern:** GLTF + spring entrance + shouldAnimate prop~~ REMOVED in 24-01
+- ~~**Hero3DCanvas pattern:** Canvas with touchAction: none, OrbitControls constraints, Environment + ContactShadows~~ REMOVED in 24-01
+- ~~**OrbitControls constraints:** polar 45-82deg, azimuth +-60deg keeps food viewable from appetizing angles~~ REMOVED in 24-01
+- ~~**Hero3DSection pattern:** Conditional wrapper with GPU detection and loading state~~ REMOVED in 24-01
+- **2D hero pattern (24-01):** Gradient background + floating animation as permanent hero (not fallback)
+- ~~**3D layer integration:** ParallaxLayer speed=mid for depth effect~~ REMOVED in 24-01
 - **3D tilt pattern (18-01):** useMotionValue + useSpring + useTransform for physics-based mouse-tracking rotation
 - **State machine button (18-01):** Type union for states, AnimatePresence for transitions, setTimeout for state progression
 - **Web Audio sound effects (18-01):** Lazy-load AudioContext, track user interaction, try/catch for autoplay safety
@@ -168,8 +169,8 @@ From `.planning/research/SUMMARY.md`:
 - **useThemeTransition hook (21-02):** View Transitions API with 300ms debounce, reduced motion fallback
 - **SVG icon morph (21-02):** AnimatePresence mode="wait" with spring transition (stiffness 500, damping 25)
 - **Theme toggle styling (21-02):** Border in light mode, primary glow shadow in dark mode
-- **ThemeAwareLighting (21-03):** useFrame lerping for smooth 3D theme transitions
-- **ContactShadows adaptive (21-03):** opacity/blur/color based on theme
+- ~~**ThemeAwareLighting (21-03):** useFrame lerping for smooth 3D theme transitions~~ REMOVED in 24-01
+- ~~**ContactShadows adaptive (21-03):** opacity/blur/color based on theme~~ REMOVED in 24-01
 - **staggerDelay function (22-01):** Uses Math.min(index * 0.08, 0.5) for consistent capping
 - **OrderListAnimated (22-03):** Client wrapper for scroll-reveal on Server Component pages
 - **Empty state gradient blobs (22-03):** blur-xl gradient behind icon for visual interest
@@ -201,10 +202,10 @@ None - all blocking issues from Phase 15 resolved.
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 24-02-PLAN.md (Remove Legacy Files)
+Stopped at: Completed 24-01-PLAN.md (Remove 3D Hero Code)
 Resume file: None
-Next action: Continue Phase 24 cleanup (if more plans) or finalize v1.2
+Next action: Execute 24-03-PLAN.md (Animation Consolidation + Verification)
 
 ---
 
-*Updated: 2026-01-27 - Completed 24-02-PLAN.md*
+*Updated: 2026-01-27 - Completed 24-01-PLAN.md (3D removal, 6 packages uninstalled)*
