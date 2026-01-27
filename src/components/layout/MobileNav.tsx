@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { motion, AnimatePresence, useDragControls, PanInfo } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
@@ -62,40 +63,6 @@ const defaultFooterLinks = [
   { href: "/contact", label: "Contact" },
   { href: "/faq", label: "FAQ" },
 ];
-
-// ============================================
-// BURMESE BORDER PATTERN SVG
-// ============================================
-
-function BurmeseBorder({ className }: { className?: string }) {
-  return (
-    <svg
-      className={cn("w-full h-4", className)}
-      viewBox="0 0 400 16"
-      preserveAspectRatio="none"
-      fill="none"
-    >
-      {/* Lotus petal pattern */}
-      <defs>
-        <pattern id="lotusBorder" x="0" y="0" width="32" height="16" patternUnits="userSpaceOnUse">
-          <path
-            d="M16 0 C12 4, 8 8, 8 12 C8 14, 10 16, 16 16 C22 16, 24 14, 24 12 C24 8, 20 4, 16 0Z"
-            fill="#D4A017"
-            opacity="0.6"
-          />
-          <circle cx="16" cy="10" r="2" fill="#A41034" />
-          <path
-            d="M0 8 L8 8 M24 8 L32 8"
-            stroke="#D4A017"
-            strokeWidth="1"
-            opacity="0.4"
-          />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#lotusBorder)" />
-    </svg>
-  );
-}
 
 // ============================================
 // NAV ITEM COMPONENT
@@ -347,9 +314,6 @@ export function MobileNav({
               </div>
             )}
 
-            {/* Burmese border pattern */}
-            <BurmeseBorder className={direction === "top" ? "order-last" : ""} />
-
             {/* Header with user info */}
             <div className="p-4 border-b border-border-subtle">
               {user ? (
@@ -462,18 +426,15 @@ export function MobileNav({
               </p>
             </motion.div>
 
-            {/* Decorative peacock feather accent */}
-            <svg
-              className="absolute bottom-20 right-4 w-16 h-24 opacity-10 pointer-events-none"
-              viewBox="0 0 64 96"
-              fill="none"
-            >
-              <ellipse cx="32" cy="40" rx="24" ry="32" fill="#52A52E" />
-              <ellipse cx="32" cy="38" rx="16" ry="24" fill="#D4A017" />
-              <ellipse cx="32" cy="36" rx="10" ry="16" fill="#A41034" />
-              <circle cx="32" cy="32" r="6" fill="#1a1a1a" />
-              <path d="M32 72 L32 96" stroke="#52A52E" strokeWidth="2" />
-            </svg>
+            {/* Decorative logo accent */}
+            <Image
+              src="/logo.png"
+              alt=""
+              width={48}
+              height={48}
+              className="absolute bottom-20 right-4 opacity-10 pointer-events-none"
+              aria-hidden="true"
+            />
           </motion.nav>
       )}
     </AnimatePresence>
