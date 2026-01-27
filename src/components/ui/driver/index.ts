@@ -1,6 +1,9 @@
 // Driver UI Components
 export { DriverNav } from "./DriverNav";
 export { DriverHeader } from "./DriverHeader";
+export { DriverPageHeader } from "./DriverPageHeader";
+export { DriverDashboard } from "./DriverDashboard";
+export { DriverShell } from "./DriverShell";
 export { StopCard } from "./StopCard";
 export { StopList } from "./StopList";
 export { StopDetail } from "./StopDetail";
@@ -12,4 +15,4 @@ export { ActiveRouteView } from "./ActiveRouteView";
 export { LocationTracker } from "./LocationTracker";
 export { PhotoCapture } from "./PhotoCapture";
 export { OfflineBanner } from "./OfflineBanner";
-export { DriverShell } from "./DriverShell";
+export { HighContrastToggle } from "./HighContrastToggle";
