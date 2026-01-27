@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { DriverPageHeader } from "@/components/driver/DriverPageHeader";
-import { ActiveRouteView } from "@/components/driver/ActiveRouteView";
+import { DriverPageHeader } from "@/components/ui/driver/DriverPageHeader";
+import { ActiveRouteView } from "@/components/ui/driver/ActiveRouteView";
 import type { RouteStats, RouteStopStatus } from "@/types/driver";
 
 const TIMEZONE = "America/Los_Angeles";

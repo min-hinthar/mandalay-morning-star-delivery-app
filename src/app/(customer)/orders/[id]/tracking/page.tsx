@@ -8,7 +8,7 @@
 import { redirect, notFound } from "next/navigation";
 import { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { TrackingPageClient } from "@/components/tracking/TrackingPageClient";
+import { TrackingPageClient } from "@/components/ui/orders/tracking/TrackingPageClient";
 import type { TrackingData } from "@/types/tracking";
 
 // Type for fallback query result

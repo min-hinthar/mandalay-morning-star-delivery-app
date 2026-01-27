@@ -27,7 +27,7 @@ import {
   ExceptionBreakdown,
   RecentExceptionsList,
   LeaderboardCompact,
-} from "@/components/admin/analytics";
+} from "@/components/ui/admin/analytics";
 import type {
   DeliveryDashboardResponse,
   MetricsPeriod,

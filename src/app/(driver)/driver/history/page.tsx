@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { DriverPageHeader } from "@/components/driver/DriverPageHeader";
+import { DriverPageHeader } from "@/components/ui/driver/DriverPageHeader";
 import type { RouteStats } from "@/types/driver";
 import { CheckCircle, Clock, MapPin, TrendingUp, Star } from "lucide-react";
 

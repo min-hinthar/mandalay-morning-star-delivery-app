@@ -10,10 +10,10 @@ import { formatPrice } from "@/lib/utils/currency";
 import { format, subDays, startOfDay, eachDayOfInterval } from "date-fns";
 import Link from "next/link";
 import type { OrderStatus } from "@/types/database";
-import { RevenueChart } from "@/components/admin/RevenueChart";
-import { PopularItems } from "@/components/admin/PopularItems";
-import { AdminDashboard } from "@/components/admin/AdminDashboard";
-import type { KPIData } from "@/components/admin/AdminDashboard";
+import { RevenueChart } from "@/components/ui/admin/RevenueChart";
+import { PopularItems } from "@/components/ui/admin/PopularItems";
+import { AdminDashboard } from "@/components/ui/admin/AdminDashboard";
+import type { KPIData } from "@/components/ui/admin/AdminDashboard";
 
 interface OrderStatsRow {
   status: OrderStatus;

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { RefreshCw, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { OrdersTable, type AdminOrder } from "@/components/admin/OrdersTable";
+import { OrdersTable, type AdminOrder } from "@/components/ui/admin/OrdersTable";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToast";
 import type { OrderStatus } from "@/types/database";

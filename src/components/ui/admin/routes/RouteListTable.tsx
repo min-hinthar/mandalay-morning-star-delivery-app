@@ -41,7 +41,7 @@ import {
   ExpandableTableRow,
   RoutePreviewPanel,
   useExpandedRows,
-} from "@/components/admin/ExpandableTableRow";
+} from "@/components/ui/admin/ExpandableTableRow";
 import type { RouteStatus } from "@/types/driver";
 
 export interface AdminRoute {

@@ -24,11 +24,11 @@ import { toast } from "@/lib/hooks/useToast";
 import {
   RouteListTable,
   type AdminRoute,
-} from "@/components/admin/routes/RouteListTable";
+} from "@/components/ui/admin/routes/RouteListTable";
 import {
   CreateRouteModal,
   type CreateRouteData,
-} from "@/components/admin/routes/CreateRouteModal";
+} from "@/components/ui/admin/routes/CreateRouteModal";
 import type { RouteStatus } from "@/types/driver";
 
 type StatusFilter = "all" | RouteStatus;

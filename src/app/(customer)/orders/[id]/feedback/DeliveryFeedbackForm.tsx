@@ -13,7 +13,7 @@ import Link from "next/link";
 import { ArrowLeft, Send, CheckCircle, Star, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { StarRating } from "@/components/admin/analytics";
+import { StarRating } from "@/components/ui/admin/analytics";
 
 interface ExistingRating {
   id: string;

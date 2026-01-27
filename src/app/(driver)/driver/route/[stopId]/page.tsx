@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { DriverPageHeader } from "@/components/driver/DriverPageHeader";
-import { StopDetailView } from "@/components/driver/StopDetailView";
+import { DriverPageHeader } from "@/components/ui/driver/DriverPageHeader";
+import { StopDetailView } from "@/components/ui/driver/StopDetailView";
 import type { RouteStopStatus } from "@/types/driver";
 
 interface PageProps {
