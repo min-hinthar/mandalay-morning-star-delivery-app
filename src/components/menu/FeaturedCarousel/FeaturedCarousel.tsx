@@ -335,6 +335,7 @@ export function FeaturedCarousel({
         onPrev={handlePrev}
         onNext={handleNext}
         onDotClick={handleDotClick}
+        dotLabels={items.map((item) => item.nameEn)}
       />
     </div>
   );

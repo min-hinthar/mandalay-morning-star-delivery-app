@@ -226,6 +226,14 @@ export {
 export { ScrollArea } from "./scroll-area";
 
 // ============================================
+// NAVIGATION COMPONENTS
+// ============================================
+
+// NavDots
+export { NavDots } from "./NavDots";
+export type { NavDotsProps } from "./NavDots";
+
+// ============================================
 // SPECIAL COMPONENTS
 // ============================================
 

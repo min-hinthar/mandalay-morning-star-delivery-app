@@ -75,6 +75,10 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
         "fixed right-4 md:right-8 top-1/2 -translate-y-1/2",
         // Hide on mobile, show as flex column on desktop
         "hidden md:flex flex-col gap-3",
+        // Pill container styling
+        "px-2 py-3 rounded-full",
+        "bg-surface-primary/80 backdrop-blur-md",
+        "border border-border-subtle shadow-lg",
         // Z-index above content but below modals
         zClass.fixed,
         className

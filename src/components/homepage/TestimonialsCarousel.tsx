@@ -6,6 +6,7 @@ import { Star, Quote } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { AnimatedSection, itemVariants } from "@/components/scroll/AnimatedSection";
+import { NavDots } from "@/components/ui/NavDots";
 
 // ============================================
 // TYPES
@@ -128,36 +129,6 @@ function Avatar({ name }: AvatarProps) {
       )}
     >
       {initials}
-    </div>
-  );
-}
-
-// ============================================
-// DOT NAVIGATION
-// ============================================
-
-interface DotNavigationProps {
-  total: number;
-  current: number;
-  onSelect: (index: number) => void;
-}
-
-function DotNavigation({ total, current, onSelect }: DotNavigationProps) {
-  return (
-    <div className="flex gap-2 justify-center mt-6">
-      {[...Array(total)].map((_, index) => (
-        <button
-          key={index}
-          onClick={() => onSelect(index)}
-          className={cn(
-            "w-2.5 h-2.5 rounded-full transition-all duration-300",
-            index === current
-              ? "bg-primary w-6"
-              : "bg-border hover:bg-primary/50"
-          )}
-          aria-label={`Go to testimonial ${index + 1}`}
-        />
-      ))}
     </div>
   );
 }
@@ -288,11 +259,15 @@ export function TestimonialsCarousel({
           </AnimatePresence>
 
           {/* Dot navigation */}
-          <DotNavigation
-            total={testimonials.length}
-            current={currentIndex}
-            onSelect={handleDotSelect}
-          />
+          <div className="flex justify-center mt-6">
+            <NavDots
+              total={testimonials.length}
+              current={currentIndex}
+              onSelect={handleDotSelect}
+              labels={testimonials.map((t) => t.name)}
+              layoutId="testimonialDot"
+            />
+          </div>
 
           {/* Pause indicator (subtle) */}
           {isPaused && shouldAnimate && !isReduced && (
