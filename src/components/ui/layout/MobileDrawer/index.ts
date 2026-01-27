@@ -4,7 +4,7 @@
  * Left-slide drawer with swipe-to-close gesture and staggered nav reveal.
  *
  * @example
- * import { MobileDrawer } from "@/components/layout/MobileDrawer";
+ * import { MobileDrawer } from "@/components/ui/layout";
  *
  * <MobileDrawer isOpen={isOpen} onClose={close} user={user} />
  */

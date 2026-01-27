@@ -20,7 +20,7 @@ import { SearchTrigger } from "./SearchTrigger";
 import { AccountIndicator } from "./AccountIndicator";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { MobileDrawer } from "@/components/ui/layout/MobileDrawer";
-import { CommandPalette } from "@/components/layout/CommandPalette";
+import { CommandPalette } from "@/components/ui/search";
 
 /**
  * Header height constant
