@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * V8 Add To Cart Button
+ * Add To Cart Button
  *
  * Animated button that triggers fly-to-cart celebration and adds item to cart.
  *
@@ -126,7 +126,7 @@ export function AddToCartButton({
   disabled = false,
 }: AddToCartButtonProps) {
   // Note: quantity, modifiers, notes props are passed to parent via onAdd callback
-  // The parent (ItemDetailSheetV8) maintains these values in its own state
+  // The parent (ItemDetailSheet) maintains these values in its own state
   void _quantity;
   void _modifiers;
   void _notes;

@@ -74,7 +74,7 @@ export function MobileMenu({
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      side="left"
+      position="left"
       width="sm"
       title="Menu"
     >

@@ -1,14 +1,14 @@
 "use client";
 
 /**
- * V8 Clear Cart Confirmation Modal
+ * Clear Cart Confirmation Modal
  *
  * Confirmation dialog for clearing the cart to prevent accidental data loss.
  *
  * Features:
  * - Warning icon and clear messaging
  * - Cancel and destructive confirm actions
- * - Animated entrance/exit via V8 Modal
+ * - Animated entrance/exit via Modal
  * - useClearCartConfirmation hook for integration
  * - Accessible with proper focus management
  */
@@ -16,7 +16,7 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, Trash2 } from "lucide-react";
-import { Modal } from "@/components/ui-v8/Modal";
+import { Modal } from "@/components/ui";
 import { useCart } from "@/lib/hooks/useCart";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
