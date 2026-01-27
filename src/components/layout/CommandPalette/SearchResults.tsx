@@ -30,7 +30,7 @@ export function SearchResults({ items, onSelect }: SearchResultsProps) {
   }
 
   return (
-    <Command.Group heading={null}>
+    <Command.Group heading="">
       <div className="max-h-80 overflow-y-auto py-2">
         {items.map((item, index) => (
           <Command.Item
@@ -40,7 +40,7 @@ export function SearchResults({ items, onSelect }: SearchResultsProps) {
             className={cn(
               "relative flex cursor-pointer items-center gap-3 px-3 py-2.5 outline-none",
               "transition-all duration-150",
-              "data-[selected=true]:bg-primary/10",
+              "data-[selected=true]:bg-primary/10 dark:data-[selected=true]:bg-primary/20",
               "data-[selected=true]:scale-[1.01]"
             )}
           >

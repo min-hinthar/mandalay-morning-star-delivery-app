@@ -39,6 +39,7 @@ const DATA_ATTRIBUTE = "data-motion";
 export function useAnimationPreference() {
   const [preference, setPreferenceState] = useState<AnimationPreference>("full");
   const [isHydrated, setIsHydrated] = useState(false);
+  const [hasCustomPreference, setHasCustomPreference] = useState(false);
 
   // Initialize on mount
   useEffect(() => {
@@ -51,6 +52,7 @@ export function useAnimationPreference() {
 
     setPreferenceState(initialPref);
     setIsHydrated(true);
+    setHasCustomPreference(stored !== null);
 
     // Apply data attribute for CSS targeting
     document.documentElement.setAttribute(DATA_ATTRIBUTE, initialPref);
@@ -97,7 +99,6 @@ export function useAnimationPreference() {
   const isReduced = preference === "reduced";
   const isDisabled = preference === "none";
   const shouldAnimate = preference !== "none";
-  const hasCustomPreference = isHydrated && localStorage.getItem(STORAGE_KEY) !== null;
 
   /**
    * Get spring config based on preference
