@@ -4,7 +4,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { HeaderWrapper } from "@/components/layout/HeaderWrapper";
 import { Providers } from "@/app/providers";
-import { Toaster } from "@/components/ui/toaster";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 import { WebVitalsReporter } from "@/components/WebVitalsReporter";
 
 /**
@@ -75,9 +75,10 @@ export default function RootLayout({
         className={`${inter.variable} ${playfair.variable} font-body bg-background text-foreground antialiased`}
       >
         <Providers>
-          <HeaderWrapper />
-          {children}
-          <Toaster />
+          <ToastProvider>
+            <HeaderWrapper />
+            {children}
+          </ToastProvider>
         </Providers>
         {/* Web Vitals monitoring - loads async, no render blocking */}
         <WebVitalsReporter />
