@@ -1,11 +1,11 @@
 /**
- * V8 Scroll Components
+ * Scroll Components
  *
  * GSAP-powered scroll animation components using ScrollTrigger.
  * Import from @/lib/gsap is enforced for proper plugin registration.
  *
  * @example
- * import { ScrollChoreographer, RevealOnScroll, ParallaxLayer } from "@/components/ui-v8/scroll";
+ * import { ScrollChoreographer, RevealOnScroll, ParallaxLayer } from "@/components/ui/scroll";
  */
 
 export {
