@@ -21,8 +21,6 @@ export interface NavDotsProps {
   labels?: string[];
   /** Layout ID for shared animation (optional) */
   layoutId?: string;
-  /** Maximum dots to display (default: 10) */
-  maxDots?: number;
   /** Additional className for container */
   className?: string;
 }
@@ -75,26 +73,25 @@ function Dot({ index, isActive, label, layoutId, onClick }: DotProps) {
         />
       )}
 
-      {/* Label tooltip on hover */}
+      {/* Label tooltip on hover - below dot */}
       <AnimatePresence>
         {isHovered && label && (
           <motion.span
             className={cn(
-              "absolute -top-9 left-1/2 -translate-x-1/2",
-              "px-2.5 py-1.5 text-xs font-medium whitespace-nowrap",
-              "bg-surface-primary/95 backdrop-blur-sm",
-              "border border-border rounded-lg shadow-lg",
-              "text-text-primary",
+              "absolute top-full mt-2 left-1/2 -translate-x-1/2",
+              "px-2 py-1 text-[10px] font-medium whitespace-nowrap",
+              "bg-text-primary/90 text-surface-primary",
+              "rounded shadow-sm",
               "pointer-events-none z-10"
             )}
-            initial={{ opacity: 0, y: 4, scale: 0.95 }}
+            initial={{ opacity: 0, y: -4, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.95 }}
+            exit={{ opacity: 0, y: -4, scale: 0.95 }}
             transition={{ duration: 0.15 }}
           >
+            {/* Arrow pointing up */}
+            <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-text-primary/90" />
             {label}
-            {/* Arrow pointer */}
-            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-surface-primary border-r border-b border-border rotate-45" />
           </motion.span>
         )}
       </AnimatePresence>
@@ -111,10 +108,9 @@ function Dot({ index, isActive, label, layoutId, onClick }: DotProps) {
  *
  * Features:
  * - Shadowed pill container with glassmorphism
- * - Hover labels appear above dots
+ * - Hover labels appear below dots (subtle dark tooltip)
  * - Smooth dot transition via layoutId
  * - Animation-preference aware
- * - Max dots with step calculation
  *
  * @example
  * <NavDots
@@ -131,21 +127,15 @@ export function NavDots({
   onSelect,
   labels,
   layoutId,
-  maxDots = 10,
   className,
 }: NavDotsProps) {
   const { shouldAnimate } = useAnimationPreference();
 
-  // Limit dots if too many items
-  const displayedDots = Math.min(total, maxDots);
-  const step = total > maxDots ? Math.floor(total / maxDots) : 1;
-  const currentDotIndex = Math.floor(current / step);
-
   const handleDotClick = useCallback(
     (index: number) => {
-      onSelect(index * step);
+      onSelect(index);
     },
-    [onSelect, step]
+    [onSelect]
   );
 
   if (total <= 1) return null;
@@ -164,22 +154,16 @@ export function NavDots({
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={{ duration: 0.3, delay: 0.1 }}
     >
-      {Array.from({ length: displayedDots }).map((_, i) => {
-        const actualIndex = i * step;
-        const isActive = currentDotIndex === i;
-        const label = labels?.[actualIndex];
-
-        return (
-          <Dot
-            key={i}
-            index={actualIndex}
-            isActive={isActive}
-            label={label}
-            layoutId={layoutId}
-            onClick={() => handleDotClick(i)}
-          />
-        );
-      })}
+      {Array.from({ length: total }).map((_, i) => (
+        <Dot
+          key={i}
+          index={i}
+          isActive={current === i}
+          label={labels?.[i]}
+          layoutId={layoutId}
+          onClick={() => handleDotClick(i)}
+        />
+      ))}
     </motion.div>
   );
 }
