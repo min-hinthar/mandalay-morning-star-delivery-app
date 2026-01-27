@@ -25,7 +25,7 @@ import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useMediaQuery } from "@/lib/hooks";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { Modal } from "@/components/ui-v8/Modal";
-import { BottomSheet } from "@/components/ui-v8/BottomSheet";
+import { BottomSheet } from "@/components/ui-v8";
 import { AddressCardV8 } from "./AddressCardV8";
 import { AddressFormV8 } from "./AddressFormV8";
 import { Button } from "@/components/ui/button";

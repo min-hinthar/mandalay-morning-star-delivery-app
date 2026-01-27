@@ -20,7 +20,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { AlertTriangle } from "lucide-react";
 import { AnimatedImage } from "@/components/ui/animated-image";
 import { Modal } from "@/components/ui-v8/Modal";
-import { BottomSheet } from "@/components/ui-v8/BottomSheet";
+import { BottomSheet } from "@/components/ui-v8";
 import { AddToCartButton } from "@/components/ui-v8/cart/AddToCartButton";
 import { ModifierGroup } from "@/components/menu/ModifierGroup";
 import { QuantitySelector } from "@/components/menu/QuantitySelector";
