@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "lint:css": "stylelint \"src/**/*.css\"",
+    "audit:tokens": "node scripts/audit-tokens.js",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

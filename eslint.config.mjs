@@ -66,6 +66,24 @@ const config = [
           selector: "Literal[value=/text-\\[#[0-9a-fA-F]{3,8}\\]/]",
           message: "Use design token colors (e.g., text-[var(--color-*)]) instead of hardcoded hex values.",
         },
+        // Hardcoded color classes - use semantic tokens instead
+        // NOTE: These are warnings during migration; audit script handles enforcement
+        {
+          selector: "Literal[value=/\\btext-white\\b/]",
+          message: "Use semantic token: text-text-inverse or text-hero-text instead of text-white",
+        },
+        {
+          selector: "Literal[value=/\\btext-black\\b/]",
+          message: "Use semantic token: text-text-primary instead of text-black",
+        },
+        {
+          selector: "Literal[value=/\\bbg-white\\b/]",
+          message: "Use semantic token: bg-surface-primary instead of bg-white",
+        },
+        {
+          selector: "Literal[value=/\\bbg-black\\b/]",
+          message: "Use semantic token: bg-surface-inverse instead of bg-black",
+        },
       ],
     },
   },
