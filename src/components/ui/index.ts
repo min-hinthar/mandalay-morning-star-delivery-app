@@ -132,7 +132,7 @@ export {
   DrawerDescription,
 } from "./drawer";
 
-// Dropdown Menu
+// Dropdown Menu (Radix)
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -141,6 +141,22 @@ export {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "./dropdown-menu";
+
+// Dropdown (V8 - simpler)
+export {
+  Dropdown,
+  DropdownTrigger,
+  DropdownContent,
+  DropdownItem,
+  DropdownSeparator,
+} from "./Dropdown";
+export type {
+  DropdownProps,
+  DropdownTriggerProps,
+  DropdownContentProps,
+  DropdownItemProps,
+  DropdownSeparatorProps,
+} from "./Dropdown";
 
 // Tooltip (V8)
 export {
