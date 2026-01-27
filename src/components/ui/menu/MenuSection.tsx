@@ -1,19 +1,19 @@
 "use client";
 
 /**
- * MenuSectionV8 Component
+ * MenuSection Component
  * Category section wrapper with proper ID for scrollspy targeting
  *
  * Features:
- * - Generates category-{slug} ID for CategoryTabsV8 scrollspy
+ * - Generates category-{slug} ID for CategoryTabs scrollspy
  * - Category heading with bilingual support (English + Burmese)
  * - Scroll margin for sticky header offset
  * - Accessible via aria-labelledby
  *
  * @example
- * <MenuSectionV8 category={{ slug: "appetizers", name: "Appetizers" }}>
+ * <MenuSection category={{ slug: "appetizers", name: "Appetizers" }}>
  *   {menuItems.map((item) => <MenuItem key={item.id} {...item} />)}
- * </MenuSectionV8>
+ * </MenuSection>
  */
 
 import { type ReactNode } from "react";
@@ -30,7 +30,7 @@ export interface MenuSectionCategory {
   nameMy?: string;
 }
 
-export interface MenuSectionV8Props {
+export interface MenuSectionProps {
   /** Category object with slug and names */
   category: MenuSectionCategory;
   /** Section content (menu items) */
@@ -39,11 +39,11 @@ export interface MenuSectionV8Props {
   className?: string;
 }
 
-export function MenuSectionV8({
+export function MenuSection({
   category,
   children,
   className,
-}: MenuSectionV8Props) {
+}: MenuSectionProps) {
   const sectionId = `category-${category.slug}`;
   const headingId = `category-heading-${category.slug}`;
 
@@ -73,4 +73,4 @@ export function MenuSectionV8({
   );
 }
 
-export default MenuSectionV8;
+export default MenuSection;

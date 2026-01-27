@@ -6,8 +6,7 @@ import { Plus, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { QuantitySelector } from "@/components/ui-v8/cart/QuantitySelector";
-import { useFlyToCart } from "@/components/ui-v8/cart/FlyToCart";
+import { QuantitySelector, useFlyToCart } from "@/components/ui/cart";
 import { useCardSound } from "./use-card-sound";
 import type { MenuItem } from "@/types/menu";
 

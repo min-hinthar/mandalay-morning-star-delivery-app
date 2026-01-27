@@ -3,7 +3,7 @@
 import { motion, MotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { getCategoryEmoji } from "@/components/ui-v8/menu/EmojiPlaceholder";
+import { getCategoryEmoji } from "@/components/ui/menu";
 import { AnimatedImage } from "@/components/ui/animated-image";
 import { zClass } from "@/design-system/tokens/z-index";
 

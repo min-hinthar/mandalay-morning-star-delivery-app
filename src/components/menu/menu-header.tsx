@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CartButtonV8 } from "@/components/ui-v8/cart";
+import { CartButton } from "@/components/ui/cart";
 import { SearchInput } from "./SearchInput";
 import { useScrollDirection } from "@/lib/hooks/useScrollDirection";
 import { cn } from "@/lib/utils/cn";
@@ -47,7 +47,7 @@ export function MenuHeader({
             onClear={onClearSearch}
             isLoading={isSearching}
           />
-          <CartButtonV8 />
+          <CartButton />
         </div>
       </div>
     </motion.header>

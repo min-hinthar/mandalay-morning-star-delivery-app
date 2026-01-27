@@ -1,19 +1,19 @@
 "use client";
 
 /**
- * MenuContentV8 Component
- * Complete menu page composition integrating all V8 menu components
+ * MenuContent Component
+ * Complete menu page composition integrating all menu components
  *
  * Features:
  * - Uses useMenu hook for data fetching
  * - Uses useFavorites hook for favorite state
- * - Composes: CategoryTabsV8, MenuSectionV8, MenuGridV8, ItemDetailSheetV8
- * - Shows MenuSkeletonV8 while loading
+ * - Composes: CategoryTabs, MenuSection, MenuGrid, ItemDetailSheet
+ * - Shows MenuSkeleton while loading
  * - Error state with retry button
  * - Opens item modal from URL param (?item=slug) for command palette integration
  *
  * @example
- * <MenuContentV8 className="min-h-screen" />
+ * <MenuContent className="min-h-screen" />
  */
 
 import { useState, useCallback, useMemo, useEffect } from "react";
@@ -27,17 +27,17 @@ import type { MenuItem, MenuCategory } from "@/types/menu";
 import type { SelectedModifier } from "@/lib/utils/price";
 
 import { AnimatedSection, itemVariants } from "@/components/scroll/AnimatedSection";
-import { CategoryTabsV8 } from "./CategoryTabsV8";
-import { MenuSectionV8 } from "./MenuSectionV8";
-import { MenuGridV8 } from "./MenuGridV8";
-import { ItemDetailSheetV8 } from "./ItemDetailSheetV8";
-import { MenuSkeletonV8 } from "./MenuSkeletonV8";
+import { CategoryTabs } from "./CategoryTabs";
+import { MenuSection } from "./MenuSection";
+import { MenuGrid } from "./MenuGrid";
+import { ItemDetailSheet } from "./ItemDetailSheet";
+import { MenuSkeleton } from "./MenuSkeleton";
 
 // ============================================
 // TYPES
 // ============================================
 
-export interface MenuContentV8Props {
+export interface MenuContentProps {
   /** Additional className */
   className?: string;
 }
@@ -46,7 +46,7 @@ export interface MenuContentV8Props {
 // MAIN COMPONENT
 // ============================================
 
-export function MenuContentV8({ className }: MenuContentV8Props) {
+export function MenuContent({ className }: MenuContentProps) {
   // ============================================
   // ROUTING
   // ============================================
@@ -158,7 +158,7 @@ export function MenuContentV8({ className }: MenuContentV8Props) {
   // ============================================
 
   if (isLoading) {
-    return <MenuSkeletonV8 className={className} />;
+    return <MenuSkeleton className={className} />;
   }
 
   // ============================================
@@ -228,7 +228,7 @@ export function MenuContentV8({ className }: MenuContentV8Props) {
   return (
     <div className={cn("relative", className)}>
       {/* Category Tabs */}
-      <CategoryTabsV8
+      <CategoryTabs
         categories={categories.map((cat: MenuCategory) => ({
           slug: cat.slug,
           name: cat.name,
@@ -246,28 +246,28 @@ export function MenuContentV8({ className }: MenuContentV8Props) {
             className="scroll-mt-36"
           >
             <motion.div variants={itemVariants}>
-              <MenuSectionV8
+              <MenuSection
                 category={{
                   slug: category.slug,
                   name: category.name,
                   nameEn: category.name,
                 }}
               >
-                <MenuGridV8
+                <MenuGrid
                   items={category.items ?? []}
                   categorySlug={category.slug}
                   onSelectItem={handleSelectItem}
                   onFavoriteToggle={handleFavoriteToggle}
                   favorites={favoritesSet}
                 />
-              </MenuSectionV8>
+              </MenuSection>
             </motion.div>
           </AnimatedSection>
         ))}
       </div>
 
       {/* Item Detail Sheet */}
-      <ItemDetailSheetV8
+      <ItemDetailSheet
         item={selectedItem}
         isOpen={isDetailOpen}
         onClose={handleCloseDetail}
@@ -277,4 +277,4 @@ export function MenuContentV8({ className }: MenuContentV8Props) {
   );
 }
 
-export default MenuContentV8;
+export default MenuContent;

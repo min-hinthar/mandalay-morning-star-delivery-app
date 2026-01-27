@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * CategoryTabsV8 Component
+ * CategoryTabs Component
  * Horizontal scrolling category tabs with scrollspy behavior
  *
  * Features:
@@ -12,7 +12,7 @@
  * - Accessibility: proper tablist/tab roles
  *
  * @example
- * <CategoryTabsV8
+ * <CategoryTabs
  *   categories={[{ slug: "appetizers", name: "Appetizers" }]}
  *   onCategoryClick={(slug) => console.log(slug)}
  * />
@@ -36,7 +36,7 @@ export interface Category {
   nameMy?: string;
 }
 
-export interface CategoryTabsV8Props {
+export interface CategoryTabsProps {
   /** Array of category objects */
   categories: Category[];
   /** Optional callback when a category is clicked */
@@ -45,11 +45,11 @@ export interface CategoryTabsV8Props {
   className?: string;
 }
 
-export function CategoryTabsV8({
+export function CategoryTabs({
   categories,
   onCategoryClick,
   className,
-}: CategoryTabsV8Props) {
+}: CategoryTabsProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeTabRef = useRef<HTMLButtonElement>(null);
   const { shouldAnimate } = useAnimationPreference();
@@ -197,7 +197,7 @@ export function CategoryTabsV8({
               {/* Animated pill background for active state */}
               {isActive && (
                 <motion.span
-                  layoutId="v8ActiveTabPill"
+                  layoutId="activeTabPill"
                   className="absolute inset-0 rounded-pill bg-primary shadow-sm"
                   transition={shouldAnimate ? spring.snappy : { duration: 0 }}
                 />
@@ -227,4 +227,4 @@ export function CategoryTabsV8({
   );
 }
 
-export default CategoryTabsV8;
+export default CategoryTabs;

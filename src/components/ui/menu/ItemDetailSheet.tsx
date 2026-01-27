@@ -1,13 +1,13 @@
 "use client";
 
 /**
- * V8 Item Detail Sheet
+ * ItemDetailSheet Component
  *
  * Responsive item detail overlay that displays full item information
  * with modifiers and add-to-cart functionality.
  *
  * Features:
- * - BottomSheet on mobile (<640px), Modal on desktop (>=640px)
+ * - Drawer (bottom sheet) on mobile (<640px), Modal on desktop (>=640px)
  * - Modifier group selection
  * - Quantity selection
  * - Special instructions
@@ -19,9 +19,9 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { AlertTriangle } from "lucide-react";
 import { AnimatedImage } from "@/components/ui/animated-image";
-import { Modal } from "@/components/ui-v8/Modal";
-import { BottomSheet } from "@/components/ui-v8";
-import { AddToCartButton } from "@/components/ui-v8/cart/AddToCartButton";
+import { Modal } from "@/components/ui/Modal";
+import { Drawer } from "@/components/ui/Drawer";
+import { AddToCartButton } from "@/components/ui/cart";
 import { ModifierGroup } from "@/components/menu/ModifierGroup";
 import { QuantitySelector } from "@/components/menu/QuantitySelector";
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +42,7 @@ import type { MenuItem, ModifierOption } from "@/types/menu";
 // TYPES
 // ============================================
 
-export interface ItemDetailSheetV8Props {
+export interface ItemDetailSheetProps {
   /** Menu item to display */
   item: MenuItem | null;
   /** Whether the sheet is open */
@@ -86,12 +86,12 @@ function AllergenWarning({ allergens }: { allergens: string[] }) {
 // MAIN COMPONENT
 // ============================================
 
-export function ItemDetailSheetV8({
+export function ItemDetailSheet({
   item,
   isOpen,
   onClose,
   onAddToCart,
-}: ItemDetailSheetV8Props) {
+}: ItemDetailSheetProps) {
   // State
   const [selectedModifiers, setSelectedModifiers] = useState<SelectedModifier[]>([]);
   const [quantity, setQuantity] = useState(1);
@@ -326,15 +326,16 @@ export function ItemDetailSheetV8({
 
   if (isMobile) {
     return (
-      <BottomSheet
+      <Drawer
         isOpen={isOpen && item !== null}
         onClose={onClose}
+        position="bottom"
         height="full"
         showDragHandle={true}
         className="flex flex-col"
       >
         {renderContent()}
-      </BottomSheet>
+      </Drawer>
     );
   }
 
@@ -377,4 +378,4 @@ function getCategoryEmoji(category?: string): string {
   return emojiMap[category?.toLowerCase() ?? ""] ?? "🍽️";
 }
 
-export default ItemDetailSheetV8;
+export default ItemDetailSheet;

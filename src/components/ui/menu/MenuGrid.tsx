@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * MenuGridV8 Component
+ * MenuGrid Component
  * Responsive grid container using UnifiedMenuItemCard with 3D tilt
  *
  * Features:
@@ -11,7 +11,7 @@
  * - Animations replay on scroll re-enter
  *
  * @example
- * <MenuGridV8
+ * <MenuGrid
  *   items={menuItems}
  *   categorySlug="appetizers"
  *   onSelectItem={(item) => openDetail(item)}
@@ -28,7 +28,7 @@ import type { MenuItem } from "@/types/menu";
 // TYPES
 // ============================================
 
-export interface MenuGridV8Props {
+export interface MenuGridProps {
   /** Menu items to display */
   items: MenuItem[];
   /** Category slug for emoji placeholder fallback */
@@ -47,14 +47,14 @@ export interface MenuGridV8Props {
 // MAIN COMPONENT
 // ============================================
 
-export function MenuGridV8({
+export function MenuGrid({
   items,
   categorySlug,
   onSelectItem,
   onFavoriteToggle,
   favorites = new Set(),
   className,
-}: MenuGridV8Props) {
+}: MenuGridProps) {
   return (
     <div
       className={cn(
@@ -90,4 +90,4 @@ export function MenuGridV8({
   );
 }
 
-export default MenuGridV8;
+export default MenuGrid;
