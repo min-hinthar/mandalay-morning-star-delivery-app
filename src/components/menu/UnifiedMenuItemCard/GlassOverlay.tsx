@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { zClass } from "@/design-system/tokens/z-index";
 
 // ============================================
 // TYPES
@@ -35,7 +36,7 @@ export function GlassOverlay({
   const { shouldAnimate } = useAnimationPreference();
 
   return (
-    <div className={cn("absolute inset-0 pointer-events-none", rounded, className)}>
+    <div className={cn("absolute inset-0 pointer-events-none", zClass.base, rounded, className)}>
       {/* Base glass surface */}
       <div
         className={cn(

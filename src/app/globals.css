@@ -269,6 +269,7 @@
   /* Enhanced glassmorphism for menu cards (30px+ blur per Phase 22 CONTEXT.md) */
   .glass-menu-card {
     --glass-tint: transparent;
+
     background: color-mix(
       in srgb,
       color-mix(in srgb, var(--color-surface-primary) 75%, var(--glass-tint)),
@@ -280,6 +281,7 @@
     transition:
       backdrop-filter 0.3s ease,
       background 0.3s ease;
+
     /* GPU acceleration hint for mobile performance */
     will-change: backdrop-filter, background;
   }
@@ -442,7 +444,7 @@
 }
 
 ::view-transition-new(root) {
-  z-index: 9999;
+  z-index: var(--zindex-max);
 }
 
 /* Disable view transition for reduced motion */

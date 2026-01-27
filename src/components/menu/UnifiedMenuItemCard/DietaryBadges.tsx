@@ -5,6 +5,7 @@ import { Leaf, Flame, Star, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { zClass } from "@/design-system/tokens/z-index";
 
 // ============================================
 // TYPES
@@ -162,7 +163,8 @@ export function DietaryBadges({ tags, className }: DietaryBadgesProps) {
   return (
     <div
       className={cn(
-        "absolute top-3 left-3 z-10",
+        "absolute top-3 left-3",
+        zClass.dropdown,
         "flex flex-wrap gap-1",
         className
       )}
