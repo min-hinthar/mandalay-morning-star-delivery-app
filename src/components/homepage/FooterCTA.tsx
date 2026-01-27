@@ -65,14 +65,14 @@ export function FooterCTA() {
               variants={staggerItem}
               className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-pill"
             >
-              <Heart className="w-4 h-4 text-white" />
-              <span className="text-sm font-body font-medium text-white">Made with Love in Covina</span>
+              <Heart className="w-4 h-4 text-text-inverse" />
+              <span className="text-sm font-body font-medium text-text-inverse">Made with Love in Covina</span>
             </motion.div>
 
             {/* Headline */}
             <motion.h2
               variants={staggerItem}
-              className="font-display text-3xl md:text-4xl lg:text-5xl text-white font-bold"
+              className="font-display text-3xl md:text-4xl lg:text-5xl text-text-inverse font-bold"
             >
               Ready to Taste{" "}
               <span className="text-secondary">Authentic Burma?</span>
@@ -81,7 +81,7 @@ export function FooterCTA() {
             {/* Subtext */}
             <motion.p
               variants={staggerItem}
-              className="text-lg font-body text-white/90 max-w-2xl mx-auto"
+              className="text-lg font-body text-text-inverse/90 max-w-2xl mx-auto"
             >
               Order by Friday 3pm and we&apos;ll deliver fresh, homemade Burmese dishes
               straight to your door on Saturday.
@@ -107,7 +107,7 @@ export function FooterCTA() {
                 whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
                 whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
                 transition={spring.snappy}
-                className="px-8 py-4 bg-transparent border-2 border-white text-white font-body font-semibold rounded-pill hover:bg-white/10 transition-colors duration-fast flex items-center justify-center gap-2"
+                className="px-8 py-4 bg-transparent border-2 border-text-inverse text-text-inverse font-body font-semibold rounded-pill hover:bg-text-inverse/10 transition-colors duration-fast flex items-center justify-center gap-2"
               >
                 <Phone className="w-5 h-5" />
                 Call Us
@@ -118,9 +118,9 @@ export function FooterCTA() {
       </section>
 
       {/* Bottom Info Section */}
-      <section className="py-12 px-4 bg-text-primary">
+      <section className="py-12 px-4 bg-footer-bg">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 text-white/90">
+          <div className="grid md:grid-cols-3 gap-8 text-footer-text">
             {/* Contact Info - Column 0 */}
             <motion.div
               custom={0}
@@ -129,7 +129,7 @@ export function FooterCTA() {
               whileInView="visible"
               viewport={{ once: false, amount: 0.3 }}
             >
-              <h3 className="font-display text-xl text-white font-semibold mb-4">Contact Us</h3>
+              <h3 className="font-display text-xl text-footer-text font-semibold mb-4">Contact Us</h3>
               <div className="space-y-3">
                 <a
                   href={`https://maps.google.com/?q=${encodeURIComponent(KITCHEN_LOCATION.address)}`}
@@ -165,16 +165,16 @@ export function FooterCTA() {
               whileInView="visible"
               viewport={{ once: false, amount: 0.3 }}
             >
-              <h3 className="font-display text-xl text-white font-semibold mb-4">Delivery Hours</h3>
+              <h3 className="font-display text-xl text-footer-text font-semibold mb-4">Delivery Hours</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <Clock className="w-5 h-5" />
                   <div>
                     <p className="text-sm font-body font-medium">Saturday Delivery</p>
-                    <p className="text-sm font-body text-white/80">11:00 AM - 7:00 PM PT</p>
+                    <p className="text-sm font-body text-footer-text-muted">11:00 AM - 7:00 PM PT</p>
                   </div>
                 </div>
-                <div className="p-3 bg-white/10 rounded-input">
+                <div className="p-3 bg-footer-text/10 rounded-input">
                   <p className="text-sm font-body">
                     <strong className="text-secondary">Order Cutoff:</strong> Friday 3:00 PM PT
                   </p>
@@ -190,7 +190,7 @@ export function FooterCTA() {
               whileInView="visible"
               viewport={{ once: false, amount: 0.3 }}
             >
-              <h3 className="font-display text-xl text-white font-semibold mb-4">Follow Us</h3>
+              <h3 className="font-display text-xl text-footer-text font-semibold mb-4">Follow Us</h3>
               <div className="flex gap-4">
                 <motion.a
                   href="https://instagram.com"
@@ -199,7 +199,7 @@ export function FooterCTA() {
                   whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
                   whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
                   transition={spring.snappy}
-                  className="p-3 bg-white/10 rounded-full hover:bg-secondary/20 transition-colors duration-fast"
+                  className="p-3 bg-footer-text/10 rounded-full hover:bg-secondary/20 transition-colors duration-fast"
                 >
                   <Instagram className="w-6 h-6" />
                 </motion.a>
@@ -210,12 +210,12 @@ export function FooterCTA() {
                   whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
                   whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
                   transition={spring.snappy}
-                  className="p-3 bg-white/10 rounded-full hover:bg-secondary/20 transition-colors duration-fast"
+                  className="p-3 bg-footer-text/10 rounded-full hover:bg-secondary/20 transition-colors duration-fast"
                 >
                   <Facebook className="w-6 h-6" />
                 </motion.a>
               </div>
-              <p className="mt-4 text-sm font-body text-white/80">
+              <p className="mt-4 text-sm font-body text-footer-text-muted">
                 Share your dishes with #MandalayMorningStar
               </p>
             </motion.div>
@@ -227,12 +227,12 @@ export function FooterCTA() {
             initial={shouldAnimate ? "hidden" : false}
             whileInView="visible"
             viewport={{ once: false, amount: 0.3 }}
-            className="mt-12 pt-8 border-t border-white/10 text-center"
+            className="mt-12 pt-8 border-t border-footer-border text-center"
           >
-            <p className="text-sm font-body text-white/70">
+            <p className="text-sm font-body text-footer-text-muted">
               © {new Date().getFullYear()} Mandalay Morning Star. All rights reserved.
             </p>
-            <p className="text-xs font-body text-white/60 mt-2">
+            <p className="text-xs font-body text-footer-text-muted mt-2">
               Authentic Burmese Cuisine • Southern California
             </p>
           </motion.div>

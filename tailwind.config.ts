@@ -86,6 +86,14 @@ const config: Config = {
           "info-bg": "var(--color-status-info-bg)",
         },
 
+        // Footer Colors (theme-aware)
+        footer: {
+          bg: "var(--color-footer-bg)",
+          text: "var(--color-footer-text)",
+          "text-muted": "var(--color-footer-text-muted)",
+          border: "var(--color-footer-border)",
+        },
+
         /* ===========================================
            SHADCN/RADIX COMPATIBILITY
            =========================================== */
