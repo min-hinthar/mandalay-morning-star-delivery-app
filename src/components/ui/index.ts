@@ -113,19 +113,9 @@ export type { BackdropProps } from "./Backdrop";
 export { Modal, useModal, ModalHeader, ModalFooter, ConfirmModal } from "./Modal";
 export type { ModalProps, UseModalReturn, ModalHeaderProps, ModalFooterProps, ConfirmModalProps } from "./Modal";
 
-// Drawer
-export {
-  Drawer,
-  DrawerPortal,
-  DrawerOverlay,
-  DrawerTrigger,
-  DrawerClose,
-  DrawerContent,
-  DrawerHeader,
-  DrawerFooter,
-  DrawerTitle,
-  DrawerDescription,
-} from "./drawer";
+// Drawer (V8 Unified - includes BottomSheet)
+export { Drawer, BottomSheet } from "./Drawer";
+export type { DrawerProps, BottomSheetProps } from "./Drawer";
 
 // Dropdown Menu (Radix)
 export {

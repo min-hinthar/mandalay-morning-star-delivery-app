@@ -1,95 +1,351 @@
-import * as React from "react";
-import { Drawer as DrawerPrimitive } from "vaul";
+"use client";
 
+/**
+ * V8 Drawer Component (Unified)
+ *
+ * Combines side drawer and bottom sheet functionality into one component.
+ * Position prop controls the slide direction and behavior.
+ *
+ * Features:
+ * - position="left"|"right": Side drawer with horizontal slide
+ * - position="bottom": Bottom sheet with swipe-to-dismiss gesture
+ * - Spring animation with proper physics
+ * - Focus trap keeping Tab within drawer
+ * - Closes on Escape, backdrop click, route change
+ * - Proper DOM removal when closed
+ *
+ * @example
+ * // Side drawer
+ * <Drawer isOpen={isOpen} onClose={onClose} position="right">
+ *   <DrawerContent />
+ * </Drawer>
+ *
+ * // Bottom sheet
+ * <Drawer isOpen={isOpen} onClose={onClose} position="bottom">
+ *   <SheetContent />
+ * </Drawer>
+ */
+
+import { useEffect, useRef, type ReactNode } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { Portal } from "./Portal";
+import { useRouteChangeClose, useBodyScrollLock } from "@/lib/hooks";
+import { useSwipeToClose, triggerHaptic } from "@/lib/swipe-gestures";
+import { zIndex } from "@/design-system/tokens/z-index";
+import { overlayMotion } from "@/design-system/tokens/motion";
 import { cn } from "@/lib/utils/cn";
 
-const Drawer = DrawerPrimitive.Root;
-const DrawerTrigger = DrawerPrimitive.Trigger;
-const DrawerPortal = DrawerPrimitive.Portal;
-const DrawerClose = DrawerPrimitive.Close;
+// ============================================
+// TYPES
+// ============================================
 
-const DrawerOverlay = React.forwardRef<
-  React.ElementRef<typeof DrawerPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <DrawerPrimitive.Overlay
-    ref={ref}
-    className={cn("fixed inset-0 z-50 bg-black/50", className)}
-    {...props}
-  />
-));
-DrawerOverlay.displayName = "DrawerOverlay";
+export interface DrawerProps {
+  /** Whether drawer is open */
+  isOpen: boolean;
+  /** Callback to close drawer */
+  onClose: () => void;
+  /** Drawer content */
+  children: ReactNode;
+  /** Position: side drawer or bottom sheet */
+  position?: "left" | "right" | "bottom";
+  /** Width for side drawers (ignored for bottom) */
+  width?: "sm" | "md" | "lg";
+  /** Height mode for bottom sheet: "auto" or "full" (90vh) */
+  height?: "auto" | "full";
+  /** Whether to show drag handle for bottom sheet (default: true) */
+  showDragHandle?: boolean;
+  /** Accessible label for drawer */
+  title?: string;
+  /** Additional CSS classes */
+  className?: string;
+}
 
-const DrawerContent = React.forwardRef<
-  React.ElementRef<typeof DrawerPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <DrawerPortal>
-    <DrawerOverlay />
-    <DrawerPrimitive.Content
-      ref={ref}
-      className={cn(
-        "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-lg border border-border bg-background",
-        className
-      )}
-      {...props}
-    >
-      <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
-      {children}
-    </DrawerPrimitive.Content>
-  </DrawerPortal>
-));
-DrawerContent.displayName = "DrawerContent";
+// ============================================
+// CONSTANTS
+// ============================================
 
-const DrawerHeader = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("grid gap-1.5 p-4 text-center sm:text-left", className)} {...props} />
-);
-DrawerHeader.displayName = "DrawerHeader";
+const widthClasses = {
+  sm: "w-64",
+  md: "w-80",
+  lg: "w-96",
+} as const;
 
-const DrawerFooter = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("mt-auto flex flex-col gap-2 p-4", className)} {...props} />
-);
-DrawerFooter.displayName = "DrawerFooter";
+const FOCUSABLE_SELECTOR =
+  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
-const DrawerTitle = React.forwardRef<
-  React.ElementRef<typeof DrawerPrimitive.Title>,
-  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Title>
->(({ className, ...props }, ref) => (
-  <DrawerPrimitive.Title
-    ref={ref}
-    className={cn("text-lg font-semibold", className)}
-    {...props}
-  />
-));
-DrawerTitle.displayName = "DrawerTitle";
+// ============================================
+// ANIMATION VARIANTS
+// ============================================
 
-const DrawerDescription = React.forwardRef<
-  React.ElementRef<typeof DrawerPrimitive.Description>,
-  React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Description>
->(({ className, ...props }, ref) => (
-  <DrawerPrimitive.Description
-    ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props}
-  />
-));
-DrawerDescription.displayName = "DrawerDescription";
-
-export {
-  Drawer,
-  DrawerTrigger,
-  DrawerPortal,
-  DrawerClose,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerHeader,
-  DrawerFooter,
-  DrawerTitle,
-  DrawerDescription,
+const backdropVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+  exit: { opacity: 0 },
 };
+
+const bottomVariants = {
+  hidden: { y: "100%", opacity: 0.8 },
+  visible: { y: 0, opacity: 1 },
+  exit: { y: "100%", opacity: 0.8 },
+};
+
+const reducedMotionVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+  exit: { opacity: 0 },
+};
+
+// ============================================
+// DRAWER COMPONENT
+// ============================================
+
+export function Drawer({
+  isOpen,
+  onClose,
+  children,
+  position = "right",
+  width = "md",
+  height = "auto",
+  showDragHandle = true,
+  title,
+  className,
+}: DrawerProps) {
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const lastActiveElementRef = useRef<HTMLElement | null>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const isBottom = position === "bottom";
+
+  // Route change closes drawer
+  useRouteChangeClose(isOpen, onClose);
+
+  // Lock body scroll when open
+  useBodyScrollLock(isOpen);
+
+  // Swipe to close for bottom sheet
+  const {
+    motionProps: swipeProps,
+    isDragging,
+    dragOffset,
+    backdropOpacity,
+  } = useSwipeToClose({
+    onClose: () => {
+      triggerHaptic("light");
+      onClose();
+    },
+    direction: "down",
+    threshold: 150,
+    disabled: !isBottom || prefersReducedMotion === true,
+  });
+
+  // Store last active element and focus first focusable on open
+  useEffect(() => {
+    if (isOpen) {
+      // Store currently focused element
+      lastActiveElementRef.current = document.activeElement as HTMLElement;
+
+      // Focus first focusable element after animation starts
+      const timeoutId = setTimeout(() => {
+        if (drawerRef.current) {
+          const focusables =
+            drawerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+          if (focusables.length > 0) {
+            focusables[0].focus();
+          } else {
+            // If no focusables, focus the drawer itself
+            drawerRef.current.focus();
+          }
+        }
+      }, 50);
+
+      return () => clearTimeout(timeoutId);
+    } else {
+      // Restore focus on close
+      if (lastActiveElementRef.current) {
+        lastActiveElementRef.current.focus();
+        lastActiveElementRef.current = null;
+      }
+    }
+  }, [isOpen]);
+
+  // Escape key handler
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Focus trap handler
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key !== "Tab" || !drawerRef.current) return;
+
+    const focusables =
+      drawerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+    if (focusables.length === 0) return;
+
+    const firstFocusable = focusables[0];
+    const lastFocusable = focusables[focusables.length - 1];
+
+    if (event.shiftKey) {
+      if (document.activeElement === firstFocusable) {
+        event.preventDefault();
+        lastFocusable.focus();
+      }
+    } else {
+      if (document.activeElement === lastFocusable) {
+        event.preventDefault();
+        firstFocusable.focus();
+      }
+    }
+  };
+
+  // Calculate slide direction based on position
+  const slideFrom = position === "left" ? "-100%" : position === "right" ? "100%" : "100%";
+
+  // Calculate backdrop opacity for bottom sheet swipe
+  const computedBackdropOpacity = isBottom && isDragging ? backdropOpacity : 1;
+
+  // Use appropriate variants
+  const variants = prefersReducedMotion ? reducedMotionVariants : bottomVariants;
+
+  return (
+    <Portal>
+      <AnimatePresence>
+        {/* Backdrop */}
+        {isOpen && (
+          <motion.div
+            key="drawer-backdrop"
+            variants={backdropVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={overlayMotion.backdrop}
+            style={{
+              zIndex: zIndex.modalBackdrop,
+              opacity: computedBackdropOpacity,
+            }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            aria-hidden="true"
+            data-testid="drawer-backdrop"
+          />
+        )}
+
+        {/* Drawer Content */}
+        {isOpen && (
+          <motion.div
+            key="drawer-content"
+            ref={drawerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={title}
+            tabIndex={-1}
+            className={cn(
+              "fixed",
+              "bg-white dark:bg-zinc-900",
+              "shadow-xl",
+              "outline-none",
+              // Side drawer styles
+              !isBottom && [
+                "inset-y-0",
+                position === "left" ? "left-0" : "right-0",
+                widthClasses[width],
+                "flex flex-col",
+              ],
+              // Bottom sheet styles
+              isBottom && [
+                "inset-x-0 bottom-0",
+                "rounded-t-3xl",
+              ],
+              className
+            )}
+            style={{
+              zIndex: zIndex.modal,
+              ...(isBottom && {
+                y: isDragging ? dragOffset : 0,
+                height: height === "full" ? "90vh" : "auto",
+              }),
+            }}
+            initial={isBottom ? "hidden" : { x: slideFrom }}
+            animate={isBottom ? "visible" : { x: 0 }}
+            exit={isBottom ? "exit" : { x: slideFrom }}
+            variants={isBottom ? variants : undefined}
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : isBottom
+                  ? overlayMotion.sheetOpen
+                  : overlayMotion.drawerOpen
+            }
+            onKeyDown={handleKeyDown}
+            onClick={(e) => e.stopPropagation()}
+            {...(isBottom && !prefersReducedMotion ? swipeProps : {})}
+            data-testid="drawer"
+          >
+            {/* Drag Handle for bottom sheet */}
+            {isBottom && showDragHandle && (
+              <div
+                className={cn(
+                  "flex justify-center pt-3 pb-2",
+                  "cursor-grab active:cursor-grabbing",
+                  "select-none touch-none"
+                )}
+              >
+                <div
+                  className={cn(
+                    "w-12 h-1.5 rounded-full",
+                    "bg-zinc-300 dark:bg-zinc-600",
+                    "transition-all duration-150",
+                    isDragging && [
+                      "bg-zinc-400 dark:bg-zinc-500",
+                      "scale-x-110",
+                    ]
+                  )}
+                />
+              </div>
+            )}
+
+            {/* Content wrapper for bottom sheet scroll behavior */}
+            {isBottom ? (
+              <div
+                className={cn(
+                  "overflow-y-auto overscroll-contain",
+                  "max-h-[calc(90vh-3rem)]",
+                  "pb-safe"
+                )}
+              >
+                {children}
+              </div>
+            ) : (
+              children
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Portal>
+  );
+}
+
+// ============================================
+// BACKWARDS COMPATIBILITY ALIAS
+// ============================================
+
+/**
+ * BottomSheet alias for backwards compatibility.
+ * Use Drawer with position="bottom" instead.
+ *
+ * @deprecated Use Drawer with position="bottom" instead
+ */
+export function BottomSheet(props: Omit<DrawerProps, "position">) {
+  return <Drawer {...props} position="bottom" />;
+}
+
+// Re-export DrawerProps as BottomSheetProps for backwards compatibility
+export type BottomSheetProps = Omit<DrawerProps, "position">;
