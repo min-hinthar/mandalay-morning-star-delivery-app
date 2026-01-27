@@ -13,3 +13,11 @@ export type { MagicLinkSentProps } from "./MagicLinkSent";
 
 export { WelcomeAnimation } from "./WelcomeAnimation";
 export type { WelcomeAnimationProps } from "./WelcomeAnimation";
+
+// Onboarding
+export { OnboardingTour, OnboardingTour as OnboardingTourV7 } from "./OnboardingTour";
+export type {
+  OnboardingTourProps,
+  OnboardingTourProps as OnboardingTourV7Props,
+  OnboardingStep,
+} from "./OnboardingTour";
