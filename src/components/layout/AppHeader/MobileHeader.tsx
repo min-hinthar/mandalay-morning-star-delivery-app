@@ -56,7 +56,7 @@ export function MobileHeader({
       )}
     >
       {/* Left: Avatar and Theme toggle */}
-      <div className="flex items-center gap-1 flex-shrink-0">
+      <div className="flex items-center gap-2 flex-shrink-0">
         {leftContent}
       </div>
 
@@ -86,7 +86,7 @@ export function MobileHeader({
       </motion.div>
 
       {/* Right: Search, Cart, and Hamburger */}
-      <div className="flex items-center gap-1 flex-shrink-0">
+      <div className="flex items-center gap-2 flex-shrink-0">
         {rightContent}
         <MorphingMenu
           isOpen={isMobileMenuOpen}
