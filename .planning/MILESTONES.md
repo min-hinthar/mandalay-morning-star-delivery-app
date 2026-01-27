@@ -1,5 +1,40 @@
 # Project Milestones: Morning Star V8 UI Rewrite
 
+## v1.2 Playful UI Overhaul (Shipped: 2026-01-27)
+
+**Delivered:** Maximum playfulness with unified menu cards, rebuilt header/nav, 12 micro-interactions, OLED dark mode, and codebase cleanup.
+
+**Phases completed:** 15-24 (29 plans total, 1 phase cancelled)
+
+**Key accomplishments:**
+
+- UnifiedMenuItemCard with glassmorphism, 3D tilt, shine effects across all menu surfaces
+- Complete header & nav rebuild: AppHeader, MobileDrawer, CommandPalette (Cmd/Ctrl+K)
+- 12 micro-interactions: button press, input glow, error shake, toggle bounce, image reveal
+- OLED-friendly dark mode with animated theme toggle and sound effects
+- Customer page polish: menu, checkout, orders, cart with 80ms stagger animations
+- Codebase cleanup: 33 files deleted, 6 packages removed, ~650KB bundle reduction
+
+**Stats:**
+
+- 33+ files created, 33 deleted (cleanup)
+- 92,952 lines TypeScript total
+- 9 phases, 29 plans (Phase 17 cancelled)
+- 4 days from v1.1 to v1.2 (2026-01-23 → 2026-01-27)
+
+**Git range:** `docs(15-02)` → `docs(24)`
+
+**Requirements:** 44/48 satisfied (4 cancelled with Phase 17 - 3D hero removed)
+
+**Tech debt resolved:**
+- ✓ 3D code removed (Phase 24 cleanup)
+- ✓ Animation tokens consolidated to single source
+- ✓ Legacy header/nav files removed
+
+**What's next:** v1.3 milestone planning
+
+---
+
 ## v1.1 Tech Debt Cleanup (Shipped: 2026-01-23)
 
 **Delivered:** Complete V8 adoption with zero legacy patterns, strict TypeScript, and enforced design tokens.
