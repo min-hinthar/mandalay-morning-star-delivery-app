@@ -272,3 +272,6 @@ export * from "./transitions";
 
 // Layout (app shells, headers, drawers)
 export * from "./layout";
+
+// Search (command palette)
+export * from "./search";
