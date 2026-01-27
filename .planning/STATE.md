@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 26 - Component Consolidation (In Progress)
+**Current focus:** Phase 26 - Component Consolidation (Complete)
 
 ## Current Position
 
 Phase: 26 of 32 (Component Consolidation)
-Plan: 7 of 8 in current phase
-Status: In progress
-Last activity: 2026-01-27 - Completed 26-07-PLAN.md
+Plan: 8 of 8 in current phase
+Status: Phase complete
+Last activity: 2026-01-27 - Completed 26-08-PLAN.md
 
-Progress: [███████████████████████████░░░░░░░░░░░░░░] v1.3 Full Codebase Consolidation | 7/22 plans
+Progress: [████████████████████████████░░░░░░░░░░░░░] v1.3 Full Codebase Consolidation | 8/22 plans
 
 ## Milestones Completed
 
@@ -26,21 +26,21 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 8 phases (25-32), 22 plans estimated
-**v1.3 progress:** 7 plans complete
+**v1.3 progress:** 8 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 89 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 90 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 7
+- v1.3 plans completed: 8
 
 **By Phase (v1.3):**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 25 | 1/1 | 8min | 8min |
-| 26 | 7/8 | 128min | 18min |
+| 26 | 8/8 | 136min | 17min |
 
 ## Accumulated Context
 
@@ -53,29 +53,19 @@ From `.planning/research/SUMMARY.md`:
 - Hero parallax can use existing parallaxPresets from motion-tokens.ts
 - Token system is comprehensive (62 tokens) but not being used
 
-### Component Consolidation Progress (26-07)
+### Component Consolidation Complete (26-08)
 
-**Completed migrations:**
-- Portal.tsx -> ui/
-- Backdrop.tsx -> ui/
-- Modal.tsx (updated to use Portal)
-- Drawer.tsx (unified with BottomSheet via position='bottom')
-- Toast.tsx -> ui/ (V8 declarative)
-- ToastProvider.tsx -> ui/
-- Tooltip.tsx -> ui/ (V8 with delayDuration)
-- Dropdown.tsx -> ui/ (V8 simpler version)
-- Cart components -> ui/cart/ [26-04]
-- Menu components -> ui/menu/ [26-05]
-- Navigation components -> ui/navigation/ [26-06]
-- Scroll components -> ui/scroll/ [26-06]
-- PageTransition -> ui/transitions/ [26-06]
-- **Main barrel export updated with subdirectory re-exports [26-07]**
-- **All consumer imports migrated from ui-v8/ to ui/ [26-07]**
+**Phase 26 outcomes:**
+- ui-v8/ directory completely removed (11 files)
+- All components consolidated into @/components/ui/
+- Subdirectory organization: cart/, menu/, navigation/, scroll/, transitions/
+- ESLint guard prevents ui-v8 import recreation
+- Dead code cleaned (PageTransition.tsx, search-input.tsx)
 
-**Import consolidation status:**
-- NO ui-v8 imports remain outside ui-v8/ directory
-- Main barrel (ui/index.ts) re-exports: cart, menu, navigation, scroll, transitions
-- Duplicate exports removed: SearchInput, CartEmptyState (canonical versions in subdirs)
+**Final structure:**
+- Main barrel (ui/index.ts) re-exports all subdirectories
+- No V7/V8 suffixes in public APIs
+- Single implementations: Modal, Drawer (with BottomSheet alias), Tooltip, Toast
 
 ### Design Decisions
 
@@ -97,6 +87,7 @@ From `.planning/research/SUMMARY.md`:
 | Menu components V8 suffix removed | 26-05 | CategoryTabsV8 -> CategoryTabs, etc. |
 | SearchInput canonical in ui/menu | 26-07 | Menu version has autocomplete |
 | CartEmptyState canonical in ui/cart | 26-07 | Cart version has animations |
+| ESLint guard for ui-v8 imports | 26-08 | no-restricted-imports prevents recreation |
 
 ### Blockers/Concerns
 
@@ -104,11 +95,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27 14:49
-Stopped at: Completed 26-07-PLAN.md
+Last session: 2026-01-27 20:44
+Stopped at: Completed 26-08-PLAN.md (Phase 26 complete)
 Resume file: None
-Next action: `/gsd:execute-phase` for 26-08-PLAN.md (cleanup)
+Next action: Phase 27 planning
 
 ---
 
-*Updated: 2026-01-27 - Plan 26-07 complete, all consumer imports consolidated to ui/*
+*Updated: 2026-01-27 - Phase 26 Component Consolidation complete*
