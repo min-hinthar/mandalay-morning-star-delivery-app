@@ -3,11 +3,13 @@
 import { useState, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, Search, Star } from "lucide-react";
-import { ItemDetailSheet } from "@/components/ui/menu";
-import { UnifiedMenuItemCard } from "@/components/menu/UnifiedMenuItemCard";
-import { MenuCardWrapper } from "@/components/menu/MenuCardWrapper";
-import { FeaturedCarousel } from "@/components/menu/FeaturedCarousel";
-import { CategoryTabs } from "@/components/menu/category-tabs";
+import {
+  ItemDetailSheet,
+  UnifiedMenuItemCard,
+  MenuCardWrapper,
+  FeaturedCarousel,
+  CategoryTabs,
+} from "@/components/ui/menu";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useFavorites } from "@/lib/hooks/useFavorites";
