@@ -104,7 +104,7 @@ function StepIcon({ step, index }: StepIconProps) {
       <span
         className={cn(
           "absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center",
-          "font-display font-bold text-sm text-white shadow-md",
+          "font-display font-bold text-sm text-text-inverse shadow-md",
           index === 0 && "bg-primary",
           index === 1 && "bg-secondary text-text-primary",
           index === 2 && "bg-green",
@@ -223,7 +223,7 @@ function InlineCoverageChecker({ className }: InlineCoverageCheckerProps) {
           className={cn(
             "absolute right-2 top-1/2 -translate-y-1/2",
             "w-8 h-8 rounded-full flex items-center justify-center",
-            "bg-primary text-white",
+            "bg-primary text-text-inverse",
             "hover:bg-primary-hover transition-colors",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
