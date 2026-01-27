@@ -64,10 +64,11 @@ From `.planning/research/SUMMARY.md`:
 - ToastProvider.tsx -> ui/
 - Tooltip.tsx -> ui/ (V8 with delayDuration)
 - Dropdown.tsx -> ui/ (V8 simpler version)
-- Navigation components -> ui/navigation/ (AppShell, BottomNav, Header, MobileMenu, PageContainer)
-- Scroll components -> ui/scroll/ (ParallaxLayer, RevealOnScroll, ScrollChoreographer)
-- PageTransition -> ui/transitions/ (renamed from PageTransitionV8)
+- Cart components -> ui/cart/ (AddToCartButton, CartBar, CartButton, CartDrawer, CartEmptyState, CartItem, CartSummary, ClearCartConfirmation, FlyToCart, QuantitySelector) [26-04]
 - Menu components -> ui/menu/ (CategoryTabs, ItemDetailSheet, MenuContent, MenuGrid, MenuSection, MenuSkeleton, SearchInput, BlurImage, EmojiPlaceholder, FavoriteButton, SearchAutocomplete) [26-05]
+- Navigation components -> ui/navigation/ (AppShell, BottomNav, Header, MobileMenu, PageContainer) [26-06]
+- Scroll components -> ui/scroll/ (ParallaxLayer, RevealOnScroll, ScrollChoreographer) [26-06]
+- PageTransition -> ui/transitions/ (renamed from PageTransitionV8) [26-06]
 
 **Deleted:**
 - overlay-base.tsx (functionality in Modal.tsx)
@@ -78,6 +79,7 @@ From `.planning/research/SUMMARY.md`:
 - ui-v8/navigation/* (moved to ui/navigation/)
 - ui-v8/scroll/* (moved to ui/scroll/)
 - ui-v8/transitions/PageTransitionV8.tsx (moved to ui/transitions/PageTransition.tsx)
+- ui-v8/cart/* (moved to ui/cart/) [26-04]
 - ui-v8/menu/* (moved to ui/menu/) [26-05]
 
 ### Design Decisions
@@ -95,6 +97,8 @@ From `.planning/research/SUMMARY.md`:
 | Dropdown and DropdownMenu coexist | 26-03 | Different use cases (simpler vs feature-rich) |
 | Drawer uses position prop | 26-06 | position="left|right|bottom" instead of side |
 | PageTransition renamed | 26-06 | V8 suffix removed in ui/transitions |
+| Cart components V8 suffix removed | 26-04 | CartBarV8 -> CartBar, etc. |
+| CartDrawer uses Drawer position="bottom" | 26-04 | BottomSheet replaced per 26-02 |
 | Menu components V8 suffix removed | 26-05 | CategoryTabsV8 -> CategoryTabs, etc. |
 
 ### Blockers/Concerns
@@ -103,11 +107,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27 14:36
-Stopped at: Completed 26-05-PLAN.md
+Last session: 2026-01-27 14:22
+Stopped at: Completed 26-04-PLAN.md
 Resume file: None
-Next action: `/gsd:execute-phase` for 26-06-PLAN.md or 26-07-PLAN.md
+Next action: `/gsd:execute-phase` for 26-07-PLAN.md
 
 ---
 
-*Updated: 2026-01-27 - Plan 26-05 complete, menu components migrated to ui/menu/*
+*Updated: 2026-01-27 - Plan 26-04 complete, cart components migrated to ui/cart/*
