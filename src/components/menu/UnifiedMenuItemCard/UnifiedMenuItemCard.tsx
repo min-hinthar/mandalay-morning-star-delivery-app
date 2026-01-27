@@ -390,8 +390,8 @@ export function UnifiedMenuItemCard({
       {/* Glassmorphism background */}
       <GlassOverlay isHovered={isHovered} rounded={config.rounded} />
 
-      {/* Card content container */}
-      <div className={cn("relative", config.rounded, "overflow-hidden")}>
+      {/* Card content container - no overflow-hidden to prevent 3D tilt clipping */}
+      <div className={cn("relative", config.rounded)}>
         {/* Image with parallax and shine */}
         <CardImage
           imageUrl={item.imageUrl}
