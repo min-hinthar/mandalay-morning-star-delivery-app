@@ -117,8 +117,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TOKN-13 | Phase 29 | Pending |
 | TOKN-14 | Phase 29 | Pending |
 | TOKN-15 | Phase 29 | Pending |
-| TOKN-16 | Phase 25 | Pending |
-| TOKN-17 | Phase 25 | Pending |
+| TOKN-16 | Phase 25 | Complete |
+| TOKN-17 | Phase 25 | Complete |
 | TOKN-18 | Phase 32 | Pending |
 | COMP-01 | Phase 26 | Pending |
 | COMP-02 | Phase 26 | Pending |
