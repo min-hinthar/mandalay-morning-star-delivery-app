@@ -19,7 +19,7 @@ import { CartIndicator } from "./CartIndicator";
 import { SearchTrigger } from "./SearchTrigger";
 import { AccountIndicator } from "./AccountIndicator";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { MobileDrawer } from "@/components/layout/MobileDrawer";
+import { MobileDrawer } from "@/components/ui/layout/MobileDrawer";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 
 /**
