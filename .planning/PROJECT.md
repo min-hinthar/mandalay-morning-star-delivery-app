@@ -127,16 +127,17 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 
 ### Active
 
-**Current Milestone: v1.3 Theme Stability & Hero Redesign**
+**Current Milestone: v1.3 Full Codebase Consolidation**
 
-**Goal:** Bulletproof theme consistency across all components + reimagined hero with floating food emojis and parallax.
+**Goal:** Systematic consolidation of component systems, providers, and token enforcement — then hero redesign.
 
 **Target features:**
-- Full codebase audit of color tokens — fix light/dark inconsistencies
-- Disable 3D tilt on mobile (content disappearing bug fix)
+- V7 component removal — single V8 component system
+- Provider hierarchy cleanup — eliminate duplicate theme/state providers
+- Token enforcement — all colors and z-index through semantic tokens (zero hardcoded)
+- Full codebase audit — fix light/dark inconsistencies across ALL components
+- Mobile 3D tilt fix — disable on touch devices
 - Hero section redesign — layout, background, mascot, parallax with floating food emojis
-- Remove legacy gradient code and conflicting theme fallbacks
-- Establish reusable, consistent theme token patterns
 
 ### Out of Scope
 - Backend/schema changes — Supabase + Stripe contracts stay stable
