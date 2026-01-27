@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 33 of 33 (Full Components Consolidation)
-Plan: 4 of 5 in current phase
+Plan: 5 of 11 in current phase
 Status: In progress
-Last activity: 2026-01-27 - Completed 33-03-PLAN.md, 33-04-PLAN.md
+Last activity: 2026-01-27 - Completed 33-05-PLAN.md
 
-Progress: [██████████████████████████████████░░░░░░░] v1.3 Full Codebase Consolidation | 12/24 plans
+Progress: [██████████████████████████████████░░░░░░░] v1.3 Full Codebase Consolidation | 13/24 plans
 
 ## Milestones Completed
 
@@ -33,7 +33,7 @@ Progress: [███████████████████████
 **Velocity:**
 - Total plans completed: 94 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 12
+- v1.3 plans completed: 13
 
 **By Phase (v1.3):**
 
@@ -41,7 +41,7 @@ Progress: [███████████████████████
 |-------|-------|-------|----------|
 | 25 | 1/1 | 8min | 8min |
 | 26 | 8/8 | 136min | 17min |
-| 33 | 4/5 | 46min | 11.5min |
+| 33 | 5/11 | 50min | 10min |
 
 ## Accumulated Context
 
@@ -112,6 +112,11 @@ From `.planning/research/SUMMARY.md`:
 - CommandPalette moved to ui/search/
 - AppHeader components in ui/layout/
 
+**33-05 outcomes:**
+- layout/ directory deleted (CommandPalette was duplicated in ui/search/)
+- layouts/ directory deleted (only had re-exports)
+- All layout imports now use canonical @/components/ui paths
+
 ### Roadmap Evolution
 
 - Phase 33 added: Full Components Consolidation (merge all component subdirectories, eliminate duplicates)
@@ -122,11 +127,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27 22:32
-Stopped at: Completed 33-03-PLAN.md
+Last session: 2026-01-27 22:54
+Stopped at: Completed 33-05-PLAN.md
 Resume file: None
-Next action: Execute 33-05-PLAN.md (final verification)
+Next action: Execute 33-06-PLAN.md (cart consolidation)
 
 ---
 
-*Updated: 2026-01-27 - Phase 33 Plan 03 complete (menu/ merged into ui/menu/)*
+*Updated: 2026-01-27 - Phase 33 Plan 05 complete (layout/ and layouts/ directories deleted)*
