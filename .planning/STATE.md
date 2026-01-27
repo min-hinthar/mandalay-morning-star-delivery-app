@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 26 - Component Consolidation (Complete)
+**Current focus:** Phase 33 - Full Components Consolidation
 
 ## Current Position
 
-Phase: 26 of 32 (Component Consolidation)
-Plan: 8 of 8 in current phase
-Status: Phase complete
-Last activity: 2026-01-27 - Completed 26-08-PLAN.md
+Phase: 33 of 33 (Full Components Consolidation)
+Plan: 2 of 5 in current phase
+Status: In progress
+Last activity: 2026-01-27 - Completed 33-02-PLAN.md
 
-Progress: [████████████████████████████░░░░░░░░░░░░░] v1.3 Full Codebase Consolidation | 8/22 plans
+Progress: [████████████████████████████░░░░░░░░░░░░░] v1.3 Full Codebase Consolidation | 10/24 plans
 
 ## Milestones Completed
 
@@ -26,14 +26,14 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 9 phases (25-33), 23+ plans estimated
-**v1.3 progress:** 8 plans complete
+**v1.3 progress:** 10 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 90 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 92 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 8
+- v1.3 plans completed: 10
 
 **By Phase (v1.3):**
 
@@ -41,6 +41,7 @@ Progress: [███████████████████████
 |-------|-------|-------|----------|
 | 25 | 1/1 | 8min | 8min |
 | 26 | 8/8 | 136min | 17min |
+| 33 | 2/5 | 10min | 5min |
 
 ## Accumulated Context
 
@@ -88,6 +89,14 @@ From `.planning/research/SUMMARY.md`:
 | SearchInput canonical in ui/menu | 26-07 | Menu version has autocomplete |
 | CartEmptyState canonical in ui/cart | 26-07 | Cart version has animations |
 | ESLint guard for ui-v8 imports | 26-08 | no-restricted-imports prevents recreation |
+| Framer Motion + GSAP scroll coexist | 33-02 | Both animation approaches in ui/scroll/ |
+
+### Phase 33 Progress
+
+**33-02 outcomes:**
+- scroll/ directory merged into ui/scroll/
+- AnimatedSection and SectionNavDots now in ui/scroll/
+- All scroll imports consolidated to @/components/ui/scroll
 
 ### Roadmap Evolution
 
@@ -99,11 +108,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27 20:44
-Stopped at: Completed 26-08-PLAN.md (Phase 26 complete)
+Last session: 2026-01-27 22:00
+Stopped at: Completed 33-02-PLAN.md
 Resume file: None
-Next action: Phase 27 planning
+Next action: Execute 33-03-PLAN.md
 
 ---
 
-*Updated: 2026-01-27 - Phase 26 Component Consolidation complete*
+*Updated: 2026-01-27 - Phase 33 Plan 02 complete (scroll/ merged into ui/scroll/)*
