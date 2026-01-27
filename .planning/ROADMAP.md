@@ -196,19 +196,26 @@ Plans:
 ---
 
 ### Phase 23: Header & Nav Rebuild
-**Goal**: Complete rebuild of header and navigation with modern design and interactions
+**Goal**: Complete rebuild of header and navigation with modern design, velocity-aware hide/show, command palette search, and mobile drawer
 **Depends on**: Phase 20 (micro-interactions), Phase 21 (theme refinements)
-**Requirements**: TBD
+**Requirements**: NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, NAV-06, NAV-07, NAV-08
 **Success Criteria** (what must be TRUE):
-  1. Header has new modern design matching playful UI aesthetic
-  2. Navigation is rebuilt with improved UX
-  3. Mobile nav drawer has smooth animations
-  4. All nav interactions feel consistent with micro-interaction patterns
-  5. Theme toggle integrated seamlessly
-**Plans**: TBD
+  1. Header hides on scroll down, reappears on scroll up with velocity-aware animation
+  2. Desktop header has glassmorphism, multi-layer hover nav links
+  3. Mobile drawer slides from left with swipe-to-close gesture
+  4. Command palette search (Cmd/Ctrl+K) filters menu items with keyboard nav
+  5. Cart badge bounces and icon shakes when item added
+  6. Account indicator shows avatar/initials with dropdown menu
+  7. Theme toggle integrated in header and mobile drawer
+  8. All nav interactions feel consistent with micro-interaction patterns
+**Plans**: 5 plans
 
 Plans:
-- [ ] 23-01: TBD (run /gsd:plan-phase 23 to break down)
+- [ ] 23-01-PLAN.md — Infrastructure hooks: velocity scroll, header visibility, command palette
+- [ ] 23-02-PLAN.md — AppHeader foundation: desktop/mobile layouts, glassmorphism, nav links
+- [ ] 23-03-PLAN.md — MobileDrawer: left-slide, swipe-to-close, staggered nav, user section
+- [ ] 23-04-PLAN.md — CommandPalette: cmdk integration, search results, recent searches
+- [ ] 23-05-PLAN.md — Integration: Cart/Account indicators, layout wiring, old header replacement
 
 ---
 
@@ -228,10 +235,10 @@ Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 | 20. Micro-interactions | v1.2 | 4/4 | Complete | 2026-01-26 |
 | 21. Theme Refinements | v1.2 | 3/3 | Complete | 2026-01-26 |
 | 22. Customer Page Polish | v1.2 | 3/3 | Complete | 2026-01-26 |
-| 23. Header & Nav Rebuild | v1.2 | 0/1 | Not started | - |
+| 23. Header & Nav Rebuild | v1.2 | 0/5 | Not started | - |
 
-**v1.2 Totals:** 9 phases, ~26 plans, 48+ requirements
+**v1.2 Totals:** 9 phases, ~28 plans, 48+ requirements
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-26 - Phase 22 complete (3 plans)*
+*Last updated: 2026-01-26 - Phase 23 planned (5 plans)*
