@@ -29,6 +29,29 @@ export type { FavoriteButtonProps } from "./FavoriteButton";
 export { EmojiPlaceholder, getCategoryEmoji, CATEGORY_EMOJI_MAP } from "./EmojiPlaceholder";
 export type { EmojiPlaceholderProps } from "./EmojiPlaceholder";
 
+export { UnifiedMenuItemCard } from "./UnifiedMenuItemCard";
+export type { UnifiedMenuItemCardProps } from "./UnifiedMenuItemCard";
+
+export { MenuCardWrapper } from "./MenuCardWrapper";
+export type { MenuCardWrapperProps } from "./MenuCardWrapper";
+
+export { FeaturedCarousel, CarouselControls } from "./FeaturedCarousel";
+export type { FeaturedCarouselProps, CarouselControlsProps } from "./FeaturedCarousel";
+
+export { MenuEmptyState } from "./MenuEmptyState";
+
+export { SearchResultsGrid } from "./SearchResultsGrid";
+
+export { MenuHeader } from "./MenuHeader";
+
+export { MenuAccordion } from "./MenuAccordion";
+export type { MenuAccordionProps } from "./MenuAccordion";
+
+export { ModifierGroup } from "./ModifierGroup";
+
+// Note: QuantitySelector not exported to avoid conflict with cart/QuantitySelector
+// Import directly from "./QuantitySelector" if needed for menu item detail use case
+
 // ============================================
 // SEARCH
 // ============================================
