@@ -228,6 +228,30 @@ export type { NavDotsProps } from "./NavDots";
 export { ThemeToggle } from "./theme-toggle";
 
 // ============================================
+// LAYOUT PRIMITIVES
+// ============================================
+
+// Stack
+export { Stack } from "./Stack";
+export type { StackProps } from "./Stack";
+
+// Grid
+export { Grid } from "./Grid";
+export type { GridProps } from "./Grid";
+
+// Container
+export { Container, containerBreakpoints } from "./Container";
+export type { ContainerProps, ContainerSize } from "./Container";
+
+// Cluster
+export { Cluster } from "./Cluster";
+export type { ClusterProps } from "./Cluster";
+
+// SafeArea
+export { SafeArea, getSafeAreaInsets, safeAreaClasses } from "./SafeArea";
+export type { SafeAreaProps, SafeAreaEdge } from "./SafeArea";
+
+// ============================================
 // SUBDIRECTORY RE-EXPORTS
 // ============================================
 

@@ -1,5 +1,5 @@
 /**
- * V5 Grid Component
+ * Grid Component
  *
  * CSS Grid layout with responsive column support and auto-fit capability.
  *

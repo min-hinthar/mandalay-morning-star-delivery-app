@@ -1,23 +1,31 @@
 /**
  * Layout Components
  * V5 Foundation - Layout primitives and app shells
+ *
+ * NOTE: Layout primitives have moved to @/components/ui/
+ * This file re-exports them for backwards compatibility.
  */
 
-// V5 Layout Primitives
-export { Container, containerBreakpoints } from "./Container";
-export type { ContainerProps, ContainerSize } from "./Container";
-
-export { Stack } from "./Stack";
-export type { StackProps } from "./Stack";
-
-export { Cluster } from "./Cluster";
-export type { ClusterProps } from "./Cluster";
-
-export { Grid } from "./Grid";
-export type { GridProps } from "./Grid";
-
-export { SafeArea, getSafeAreaInsets, safeAreaClasses } from "./SafeArea";
-export type { SafeAreaProps, SafeAreaEdge } from "./SafeArea";
+// V5 Layout Primitives (re-exported from ui/)
+export {
+  Container,
+  containerBreakpoints,
+  Stack,
+  Cluster,
+  Grid,
+  SafeArea,
+  getSafeAreaInsets,
+  safeAreaClasses,
+} from "@/components/ui";
+export type {
+  ContainerProps,
+  ContainerSize,
+  StackProps,
+  ClusterProps,
+  GridProps,
+  SafeAreaProps,
+  SafeAreaEdge,
+} from "@/components/ui";
 
 // App Shells
 export { CheckoutLayout } from "./CheckoutLayout";

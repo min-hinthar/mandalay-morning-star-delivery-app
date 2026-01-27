@@ -2,13 +2,13 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Grid } from "./Grid";
 
 /**
- * V5 Grid Component
+ * Grid Component
  *
  * CSS Grid layout with responsive column support and auto-fit capability.
  * Supports fixed columns, responsive breakpoints, and fluid auto-fit layouts.
  */
 const meta: Meta<typeof Grid> = {
-  title: "Layouts/Grid",
+  title: "UI/Grid",
   component: Grid,
   parameters: {
     layout: "padded",

@@ -1,5 +1,5 @@
 /**
- * V5 SafeArea Component
+ * SafeArea Component
  *
  * Handles safe area insets for modern mobile devices:
  * - iOS notch and Dynamic Island
