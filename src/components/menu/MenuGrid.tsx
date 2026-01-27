@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * @deprecated Use MenuContentV8 from @/components/ui-v8/menu instead.
+ * This component is kept for backwards compatibility.
+ */
+
 import { AnimatePresence, motion } from "framer-motion";
 import type { MenuCategory, MenuItem } from "@/types/menu";
 import { MenuSection } from "./menu-section";

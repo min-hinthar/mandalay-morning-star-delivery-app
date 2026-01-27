@@ -8,3 +8,5 @@ export { SearchResultsGrid } from "./search-results-grid";
 export { SearchInput } from "./SearchInput";
 export { ModifierGroup } from "./ModifierGroup";
 export { QuantitySelector } from "./QuantitySelector";
+export { MenuCardWrapper } from "./MenuCardWrapper";
+export type { MenuCardWrapperProps } from "./MenuCardWrapper";

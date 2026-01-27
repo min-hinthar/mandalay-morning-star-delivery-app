@@ -6,10 +6,9 @@
  *
  * Features:
  * - Uses UnifiedMenuItemCard with glassmorphism and 3D tilt
- * - Framer Motion staggered scroll-reveal animation (80ms per Phase 22)
- * - Responsive grid: 1 col mobile, 2 sm, 3 lg (per CONTEXT.md)
- * - Animations replay on scroll re-enter (viewport.once: false)
- * - Individual item stagger with gradient glow on hover
+ * - MenuCardWrapper for consistent glow and animation
+ * - Responsive grid: 1 col mobile, 2 sm, 3 lg
+ * - Animations replay on scroll re-enter
  *
  * @example
  * <MenuGridV8
@@ -20,12 +19,9 @@
  * />
  */
 
-import { useRef } from "react";
-import { motion } from "framer-motion";
-import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
-import { staggerDelay, VIEWPORT_AMOUNT } from "@/lib/motion-tokens";
 import { UnifiedMenuItemCard } from "@/components/menu/UnifiedMenuItemCard";
+import { MenuCardWrapper } from "@/components/menu/MenuCardWrapper";
 import type { MenuItem } from "@/types/menu";
 
 // ============================================
@@ -59,34 +55,21 @@ export function MenuGridV8({
   favorites = new Set(),
   className,
 }: MenuGridV8Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { shouldAnimate } = useAnimationPreference();
-
   return (
     <div
-      ref={containerRef}
       className={cn(
         "grid gap-4",
-        // Responsive: 1 col mobile, 2 cols tablet, 3 cols desktop (per CONTEXT.md)
+        // Responsive: 1 col mobile, 2 cols tablet, 3 cols desktop
         "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
         className
       )}
     >
       {items.map((item, index) => (
-        <motion.div
+        <MenuCardWrapper
           key={item.id}
-          data-menu-card={item.id}
-          className="glow-gradient rounded-2xl"
-          initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
-          whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-          viewport={{
-            once: false, // Replay on scroll re-enter per Phase 22 CONTEXT
-            amount: VIEWPORT_AMOUNT, // 25% visible to trigger
-          }}
-          transition={{
-            delay: staggerDelay(index), // 80ms per item, capped at 500ms
-            duration: 0.55,
-          }}
+          itemId={item.id}
+          index={index}
+          replayOnScroll={true}
         >
           <UnifiedMenuItemCard
             item={item}
@@ -99,10 +82,9 @@ export function MenuGridV8({
                 ? (menuItem, isFav) => onFavoriteToggle(menuItem.id, isFav)
                 : undefined
             }
-            // Priority load first 4 items (above fold)
             priority={index < 4}
           />
-        </motion.div>
+        </MenuCardWrapper>
       ))}
     </div>
   );

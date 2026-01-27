@@ -1,11 +1,10 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { UnifiedMenuItemCard } from "@/components/menu/UnifiedMenuItemCard";
+import { MenuCardWrapper } from "@/components/menu/MenuCardWrapper";
 import { CarouselControls } from "./CarouselControls";
 import type { MenuItem } from "@/types/menu";
 
@@ -20,6 +19,10 @@ export interface FeaturedCarouselProps {
   autoScrollInterval?: number;
   /** Callback when item is selected */
   onItemSelect?: (item: MenuItem) => void;
+  /** Set of favorite item IDs for quick lookup */
+  favorites?: Set<string>;
+  /** Callback for favorite toggle */
+  onFavoriteToggle?: (item: MenuItem, isFavorite: boolean) => void;
   /** Additional className */
   className?: string;
 }
@@ -62,9 +65,11 @@ export function FeaturedCarousel({
   items,
   autoScrollInterval = DEFAULT_AUTO_SCROLL_INTERVAL,
   onItemSelect,
+  favorites = new Set(),
+  onFavoriteToggle,
   className,
 }: FeaturedCarouselProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreference();
+  const { shouldAnimate } = useAnimationPreference();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // State
@@ -292,9 +297,9 @@ export function FeaturedCarousel({
         onWheel={handleUserScroll}
       >
         {items.map((item, index) => (
-          <motion.div
+          <div
             key={item.id}
-            ref={(el) => setCardRef(index, el)}
+            ref={(el) => setCardRef(index, el as HTMLDivElement)}
             data-carousel-card
             data-index={index}
             className={cn(
@@ -303,25 +308,23 @@ export function FeaturedCarousel({
               "snap-start"
             )}
             style={{ scrollSnapAlign: "start" }}
-            initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
-            whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={
-              shouldAnimate
-                ? {
-                    ...getSpring(spring.gentle),
-                    delay: Math.min(index * 0.08, 0.64),
-                  }
-                : undefined
-            }
           >
-            <UnifiedMenuItemCard
-              item={item}
-              variant="homepage"
-              onSelect={onItemSelect}
-              priority={index < 3} // Priority load first 3 images
-            />
-          </motion.div>
+            <MenuCardWrapper
+              itemId={item.id}
+              index={index}
+              replayOnScroll={false}
+              animateMode="viewport"
+            >
+              <UnifiedMenuItemCard
+                item={item}
+                variant="homepage"
+                onSelect={onItemSelect}
+                isFavorite={favorites.has(item.id)}
+                onFavoriteToggle={onFavoriteToggle}
+                priority={index < 3}
+              />
+            </MenuCardWrapper>
+          </div>
         ))}
       </div>
 

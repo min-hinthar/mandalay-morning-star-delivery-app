@@ -5,10 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, Search, Star } from "lucide-react";
 import { ItemDetailSheetV8 } from "@/components/ui-v8/menu";
 import { UnifiedMenuItemCard } from "@/components/menu/UnifiedMenuItemCard";
+import { MenuCardWrapper } from "@/components/menu/MenuCardWrapper";
 import { FeaturedCarousel } from "@/components/menu/FeaturedCarousel";
 import { CategoryTabs } from "@/components/menu/category-tabs";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
+import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import {
   staggerContainer,
@@ -83,6 +85,10 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const { addItem } = useCart();
   const { open: openCart } = useCartDrawer();
+  const { favorites, toggleFavorite } = useFavorites();
+
+  // Create favorites Set for quick lookup
+  const favoritesSet = useMemo(() => new Set(favorites), [favorites]);
 
   // Memoize featured items (only recalculate if categories change)
   const featuredItems = useMemo(
@@ -139,6 +145,14 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
     setSelectedItem(item);
     setIsModalOpen(true);
   }, []);
+
+  // Handle favorite toggle
+  const handleFavoriteToggle = useCallback(
+    (item: MenuItem, _isFavorite: boolean) => {
+      toggleFavorite(item.id);
+    },
+    [toggleFavorite]
+  );
 
   // Handle add to cart
   const handleAddToCart = useCallback(
@@ -262,6 +276,8 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
             <FeaturedCarousel
               items={featuredItems}
               onItemSelect={handleItemClick}
+              favorites={favoritesSet}
+              onFavoriteToggle={handleFavoriteToggle}
             />
           </motion.div>
         )}
@@ -304,22 +320,25 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
               transition={{ duration: 0.3 }}
             >
               {activeCategory === null ? (
-                // Show all items in a single grid
-                <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                // Show all items in a single grid - standardized to 3 cols on lg
+                <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                   {filteredAllItems.map((item, index) => (
-                    <motion.div
+                    <MenuCardWrapper
                       key={item.id}
-                      initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: Math.min(index * 0.08, 0.64), duration: 0.55 }}
+                      itemId={item.id}
+                      index={index}
+                      animateMode="immediate"
                     >
                       <UnifiedMenuItemCard
                         item={item}
                         variant="menu"
                         categorySlug={item.categorySlug}
                         onSelect={handleItemClick}
+                        isFavorite={favoritesSet.has(item.id)}
+                        onFavoriteToggle={handleFavoriteToggle}
+                        priority={index < 6}
                       />
-                    </motion.div>
+                    </MenuCardWrapper>
                   ))}
                 </div>
               ) : (
@@ -337,21 +356,24 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                           {category.items.length} items
                         </p>
                       </div>
-                      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                         {category.items.map((item, index) => (
-                          <motion.div
+                          <MenuCardWrapper
                             key={item.id}
-                            initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: Math.min(index * 0.08, 0.64), duration: 0.55 }}
+                            itemId={item.id}
+                            index={index}
+                            animateMode="immediate"
                           >
                             <UnifiedMenuItemCard
                               item={item}
                               variant="menu"
                               categorySlug={category.slug}
                               onSelect={handleItemClick}
+                              isFavorite={favoritesSet.has(item.id)}
+                              onFavoriteToggle={handleFavoriteToggle}
+                              priority={index < 6}
                             />
-                          </motion.div>
+                          </MenuCardWrapper>
                         ))}
                       </div>
                     </div>

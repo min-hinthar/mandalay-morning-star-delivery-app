@@ -1,4 +1,4 @@
-import { useCartStore } from "@/lib/stores/cart-store";
+import { useCartStore, __clearDebounceState } from "@/lib/stores/cart-store";
 import {
   DELIVERY_FEE_CENTS,
   FREE_DELIVERY_THRESHOLD_CENTS,
@@ -21,6 +21,7 @@ describe("CartStore", () => {
   beforeEach(() => {
     useCartStore.getState().clearCart();
     useCartStore.persist.clearStorage?.();
+    __clearDebounceState(); // Reset debounce tracking between tests
   });
 
   describe("addItem", () => {

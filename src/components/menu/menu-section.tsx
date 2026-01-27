@@ -1,10 +1,14 @@
 "use client";
 
+/**
+ * @deprecated Use MenuSectionV8 + MenuGridV8 from @/components/ui-v8/menu instead.
+ * This component is kept for backwards compatibility.
+ */
+
 import { forwardRef } from "react";
-import { motion } from "framer-motion";
 import type { MenuCategory, MenuItem } from "@/types/menu";
 import { UnifiedMenuItemCard } from "./UnifiedMenuItemCard";
-import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { MenuCardWrapper } from "./MenuCardWrapper";
 
 interface MenuSectionProps {
   category: MenuCategory;
@@ -14,8 +18,6 @@ interface MenuSectionProps {
 
 export const MenuSection = forwardRef<HTMLElement, MenuSectionProps>(
   function MenuSection({ category, id, onItemSelect }, ref) {
-    const { shouldAnimate } = useAnimationPreference();
-
     return (
       <section
         ref={ref}
@@ -35,15 +37,11 @@ export const MenuSection = forwardRef<HTMLElement, MenuSectionProps>(
         {/* Responsive grid: 1 col mobile, 2 cols tablet, 3 cols desktop */}
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {category.items.map((item, index) => (
-            <motion.div
+            <MenuCardWrapper
               key={item.id}
-              initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
-              whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{
-                delay: Math.min(index * 0.08, 0.64),
-                duration: 0.55,
-              }}
+              itemId={item.id}
+              index={index}
+              replayOnScroll={true}
             >
               <UnifiedMenuItemCard
                 item={item}
@@ -52,7 +50,7 @@ export const MenuSection = forwardRef<HTMLElement, MenuSectionProps>(
                 onSelect={onItemSelect}
                 priority={index < 4}
               />
-            </motion.div>
+            </MenuCardWrapper>
           ))}
         </div>
       </section>
