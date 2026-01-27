@@ -52,13 +52,17 @@ Plans:
   3. Single Modal, BottomSheet, Drawer implementation (no duplicates)
   4. Single Tooltip and Toast implementation
   5. No broken imports after consolidation
-**Plans**: TBD
+**Plans**: 8 plans in 4 waves
 
 Plans:
-- [ ] 26-01: V7 naming cleanup
-- [ ] 26-02: UI-V8 component merge
-- [ ] 26-03: Overlay component unification
-- [ ] 26-04: Import path updates
+- [ ] 26-01-PLAN.md — V7 naming cleanup (palettes rename)
+- [ ] 26-02-PLAN.md — Migrate overlay components (Portal, Backdrop, Modal, Drawer)
+- [ ] 26-03-PLAN.md — Migrate Toast, Tooltip, Dropdown
+- [ ] 26-04-PLAN.md — Migrate cart components
+- [ ] 26-05-PLAN.md — Migrate menu components
+- [ ] 26-06-PLAN.md — Migrate navigation, scroll, transitions
+- [ ] 26-07-PLAN.md — Update consumer imports and barrel export
+- [ ] 26-08-PLAN.md — Delete ui-v8, add ESLint guard, final verification
 
 ### Phase 27: Token Enforcement - Colors
 **Goal**: All color values use semantic design tokens
@@ -163,7 +167,7 @@ Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 25. Audit Infrastructure | v1.3 | 1/1 | Complete | 2026-01-27 |
-| 26. Component Consolidation | v1.3 | 0/4 | Not started | - |
+| 26. Component Consolidation | v1.3 | 0/8 | Planned | - |
 | 27. Token Enforcement - Colors | v1.3 | 0/4 | Not started | - |
 | 28. Token Enforcement - Layout | v1.3 | 0/2 | Not started | - |
 | 29. Token Enforcement - Effects | v1.3 | 0/2 | Not started | - |
