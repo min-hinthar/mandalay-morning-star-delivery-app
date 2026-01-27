@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-01-23)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.2 Playful UI Overhaul - Phase 24 Codebase Cleanup
+**Current focus:** v1.2 Playful UI Overhaul - Complete
 
 ## Current Position
 
 Phase: 24 of 24 (Codebase Cleanup)
-Plan: 2 of 3 (24-01, 24-02 complete)
-Status: In progress
-Last activity: 2026-01-27 - Completed 24-01-PLAN.md (Remove 3D Hero Code)
+Plan: 3 of 3 (Complete)
+Status: Phase 24 Complete - v1.2 milestone finished
+Last activity: 2026-01-27 - Completed 24-03-PLAN.md (Animation Consolidation + Verification)
 
 Progress: [####################] v1.0-v1.1 complete | [##########################] v1.2 100%
 
@@ -22,18 +22,18 @@ Progress: [####################] v1.0-v1.1 complete | [#########################
 |-----------|--------|-------|---------|
 | v1.0 MVP | 1-8 | 32 | 2026-01-23 |
 | v1.1 Tech Debt | 9-14 | 21 | 2026-01-23 |
+| v1.2 Playful UI Overhaul | 15-24 | 29 | 2026-01-27 |
 
-**Total completed:** 24 phases, 85 plans
-**v1.2 scope:** 9 phases (15-23), 26 plans, 48+ requirements
-**v1.2 progress:** 9 phases complete, 26 plans done
-**Phase 24:** 2 of 3 plans complete (24-01 3D removal, 24-02 legacy cleanup done)
+**Total completed:** 24 phases, 88 plans
+**v1.2 scope:** 10 phases (15-24), 29 plans
+**v1.2 final status:** All phases complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 85 (v1.0 + v1.1 + v1.2 + cleanup)
-- v1.2 plans completed: 26
-- Phase 24 plans completed: 2
+- Total plans completed: 88 (v1.0 + v1.1 + v1.2)
+- v1.2 plans completed: 29
+- Phase 24 plans completed: 3
 - Average duration: 10min (Phase 15-24)
 
 **By Phase (v1.2):**
@@ -48,31 +48,32 @@ Progress: [####################] v1.0-v1.1 complete | [#########################
 | 21 | 3/3 | ~25min | 8.3min |
 | 22 | 3/3 | ~22min | 7.3min |
 | 23 | 5/5 | 40min | 8min |
-| 24 | 2/3 | ~20min | 10min |
+| 24 | 3/3 | ~28min | 9.3min |
 
-*Updated after each plan completion*
+*v1.2 complete*
+
+## Phase 24 Cleanup Results
+
+| Metric | Count |
+|--------|-------|
+| Files deleted | 33 |
+| Lines removed | 7,113+ |
+| Packages removed | 6 |
+| Bundle reduction | ~650KB gzipped |
+| Animation files consolidated | 4 -> 1 |
 
 ## Accumulated Context
 
 ### Key Issues to Address
 
-- ~~TailwindCSS 4 custom zIndex theme extensions not generating utility classes (INFRA-01)~~ RESOLVED in 15-01
-- ~~Signout button click not registering (z-index/stacking context) (INFRA-02)~~ RESOLVED in 15-01
-- ~~Pre-existing TypeScript errors in layout components (polymorphic types)~~ RESOLVED in 15-01
+All resolved.
 
 ### Design Decisions
 
-- ~~3D hero: Interactive food showcase with Three.js/React Three Fiber~~ REMOVED in 24-01
 - Menu items: New unified design across homepage, menu page, cart
 - Theme: Light/dark refinement (footer text visibility, contrast)
-- ~~R3F 9.5.0 required for React 19 compatibility (v8.x fails)~~ REMOVED in 24-01
 - SSR-safe pattern: useState(false) + useEffect mounted check
-- ~~Dynamic imports with ssr: false for all R3F components~~ REMOVED in 24-01
-- ~~GPU tier 2+ threshold for 3D rendering (30+ fps capable)~~ REMOVED in 24-01
-- ~~Optimistic default to 3D while GPU detection loads~~ REMOVED in 24-01
-- ~~Indeterminate spinner for 3D loading (percentage unreliable for single GLB)~~ REMOVED in 24-01
 - **2D hero is permanent standard (24-01):** gradient + floating animation, not a fallback
-- ~~show3D prop defaults to true, allows conditional disabling for A/B testing~~ REMOVED in 24-01
 - **UnifiedMenuItemCard 3D tilt:** 18-degree max angle, spring-smoothed (stiffness: 150, damping: 15)
 - **Glassmorphism:** 75% opacity, 30px blur via .glass-menu-card (upgraded from 20px in 22-01)
 - **AddButton state machine:** idle -> adding (300ms) -> quantity for cart flow
@@ -98,8 +99,6 @@ Progress: [####################] v1.0-v1.1 complete | [#########################
 - **Binary theme toggle (21-02):** Light/dark only; system mode via OS settings
 - **View Transitions circular reveal (21-02):** cubic-bezier(0.34, 1.56, 0.64, 1) spring easing
 - **Theme sounds (21-02):** Web Audio synthesis - A5/E6 chime (light), A3 tone (dark)
-- ~~**3D lighting lerp factor (21-03):** delta * 4 for ~500ms smooth transitions~~ REMOVED in 24-01
-- ~~**3D theme colors (21-03):** Warm yellow (#fef3c7) light mode, cool blue-gray (#4a5568) dark mode~~ REMOVED in 24-01
 - **80ms stagger standard (22-01):** STAGGER_GAP = 0.08, capped at 500ms max delay
 - **25% viewport trigger (22-01):** VIEWPORT_AMOUNT = 0.25 for scroll animations
 - **glow-gradient utility (22-01):** Primary/gold gradient glow on hover
@@ -113,31 +112,20 @@ Progress: [####################] v1.0-v1.1 complete | [#########################
 - **Drawer nav stagger (23-03):** staggerContainer80(0.15) for 80ms gap with 150ms initial delay
 - **ThemeToggle in drawer header (23-03):** Placed next to close button per iOS Settings pattern
 - **Keep gradients.ts (24-02):** webgl/gradients.ts still used by DynamicThemeProvider
+- **Animation tokens single source (24-03):** All imports from @/lib/motion-tokens exclusively
 
 ### Research Findings
 
 From `.planning/research/SUMMARY.md`:
-- React Three Fiber 9.5.0 required for React 19 compatibility (v8.x fails)
 - TailwindCSS 4 z-index fix: use `@theme { --z-index-* }` with unquoted numbers
 - SSR-safe pattern: `dynamic(() => import(), { ssr: false })` + mounted check
-- Single Canvas pattern to avoid WebGL context exhaustion
 
 ### Patterns Established (Phase 15-24)
 
 - **zClass token system:** Use `zClass.popover` for dropdowns escaping parent stacking context, `zClass.modalBackdrop` for backdrop layers
 - **Intra-component z-index:** Keep z-10 for elements that layer within their container (close buttons in modals)
-- ~~**Scene wrapper:** Always use `src/components/3d/Scene.tsx` for Canvas~~ REMOVED in 24-01
-- ~~**Dynamic import 3D:** `dynamic(() => import('@/components/3d'), { ssr: false })`~~ REMOVED in 24-01
-- ~~**useFrame animation:** delta-based rotation for frame-rate independence~~ REMOVED in 24-01
 - **Polymorphic component types:** Use `as = "div"` with `const Component = as as "div"` pattern for TypeScript compatibility
-- ~~**GPU tier detection:** useGPUTier hook returns shouldRender3D boolean (tier >= 2)~~ REMOVED in 24-01
-- ~~**3D loader:** drei Html for DOM inside Canvas with branded spinner~~ REMOVED in 24-01
-- ~~**FoodModel pattern:** GLTF + spring entrance + shouldAnimate prop~~ REMOVED in 24-01
-- ~~**Hero3DCanvas pattern:** Canvas with touchAction: none, OrbitControls constraints, Environment + ContactShadows~~ REMOVED in 24-01
-- ~~**OrbitControls constraints:** polar 45-82deg, azimuth +-60deg keeps food viewable from appetizing angles~~ REMOVED in 24-01
-- ~~**Hero3DSection pattern:** Conditional wrapper with GPU detection and loading state~~ REMOVED in 24-01
 - **2D hero pattern (24-01):** Gradient background + floating animation as permanent hero (not fallback)
-- ~~**3D layer integration:** ParallaxLayer speed=mid for depth effect~~ REMOVED in 24-01
 - **3D tilt pattern (18-01):** useMotionValue + useSpring + useTransform for physics-based mouse-tracking rotation
 - **State machine button (18-01):** Type union for states, AnimatePresence for transitions, setTimeout for state progression
 - **Web Audio sound effects (18-01):** Lazy-load AudioContext, track user interaction, try/catch for autoplay safety
@@ -169,8 +157,6 @@ From `.planning/research/SUMMARY.md`:
 - **useThemeTransition hook (21-02):** View Transitions API with 300ms debounce, reduced motion fallback
 - **SVG icon morph (21-02):** AnimatePresence mode="wait" with spring transition (stiffness 500, damping 25)
 - **Theme toggle styling (21-02):** Border in light mode, primary glow shadow in dark mode
-- ~~**ThemeAwareLighting (21-03):** useFrame lerping for smooth 3D theme transitions~~ REMOVED in 24-01
-- ~~**ContactShadows adaptive (21-03):** opacity/blur/color based on theme~~ REMOVED in 24-01
 - **staggerDelay function (22-01):** Uses Math.min(index * 0.08, 0.5) for consistent capping
 - **OrderListAnimated (22-03):** Client wrapper for scroll-reveal on Server Component pages
 - **Empty state gradient blobs (22-03):** blur-xl gradient behind icon for visual interest
@@ -188,24 +174,26 @@ From `.planning/research/SUMMARY.md`:
 - **Avatar initials gradient (23-05):** Hash user email to pick from gradient palette for consistent avatar background
 - **AppHeader/ replaces legacy header (24-02):** header.tsx, HeaderClient.tsx, HeaderServer.tsx removed
 - **MobileDrawer/ replaces MobileNav (24-02):** MobileNav.tsx, NavLinks.tsx removed
+- **Animation tokens single source (24-03):** All imports from @/lib/motion-tokens
 
 ### Roadmap Evolution
 
 - Phase 23 added: Header & Nav Rebuild (2026-01-24)
 - Phase 17 cancelled: 3D Hero Advanced - decision to remove 3D hero entirely (2026-01-27)
 - Phase 24 added: Codebase Cleanup - remove 3D, consolidate imports, remove legacy (2026-01-27)
+- **v1.2 complete:** 2026-01-27
 
 ### Blockers/Concerns
 
-None - all blocking issues from Phase 15 resolved.
+None - v1.2 milestone complete.
 
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 24-01-PLAN.md (Remove 3D Hero Code)
+Stopped at: Completed 24-03-PLAN.md (Animation Consolidation + Verification)
 Resume file: None
-Next action: Execute 24-03-PLAN.md (Animation Consolidation + Verification)
+Next action: v1.2 milestone complete - await next milestone planning
 
 ---
 
-*Updated: 2026-01-27 - Completed 24-01-PLAN.md (3D removal, 6 packages uninstalled)*
+*Updated: 2026-01-27 - Completed Phase 24, v1.2 Playful UI Overhaul milestone complete*
