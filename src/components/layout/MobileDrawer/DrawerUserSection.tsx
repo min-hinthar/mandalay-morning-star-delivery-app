@@ -83,7 +83,7 @@ export function DrawerUserSection({ user, onClose }: DrawerUserSectionProps) {
         </div>
       ) : (
         <Link
-          href="/auth/login"
+          href="/login"
           onClick={onClose}
           className={cn(
             "inline-flex items-center gap-2 px-4 py-3 rounded-xl",
