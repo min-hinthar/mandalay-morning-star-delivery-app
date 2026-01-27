@@ -111,7 +111,8 @@ export function AnimatedSection({
       className={cn("overflow-hidden", className)}
       variants={containerVariants}
       initial="hidden"
-      whileInView="visible"
+      animate="visible" // Animate on mount for elements already in viewport
+      whileInView="visible" // Re-animate when scrolled back into view
       viewport={{
         once: false, // Always replay per CONTEXT decision
         amount: viewportAmount, // Trigger at 25% visible per Phase 22 CONTEXT
