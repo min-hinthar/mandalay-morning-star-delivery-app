@@ -3,8 +3,8 @@ import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
-import { OrdersHeader } from "@/components/orders/OrdersHeader";
-import { OrderListAnimated } from "@/components/orders/OrderListAnimated";
+import { OrdersHeader } from "@/components/ui/orders/OrdersHeader";
+import { OrderListAnimated } from "@/components/ui/orders/OrderListAnimated";
 import type { OrderStatus } from "@/types/order";
 
 interface OrderRow {

@@ -1,8 +1,8 @@
 import type { ReactElement } from "react";
 import { Suspense } from "react";
 import { getMenuWithCategories } from "@/lib/queries/menu";
-import { HomePageClient } from "@/components/homepage/HomePageClient";
-import { HomepageMenuSection } from "@/components/homepage/HomepageMenuSection";
+import { HomePageClient } from "@/components/ui/homepage/HomePageClient";
+import { HomepageMenuSection } from "@/components/ui/homepage/HomepageMenuSection";
 
 // Loading skeleton for menu section
 function MenuSkeleton() {

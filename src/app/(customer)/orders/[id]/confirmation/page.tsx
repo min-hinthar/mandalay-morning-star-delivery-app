@@ -1,6 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { OrderConfirmationV8 } from "@/components/orders/OrderConfirmationV8";
+import { OrderConfirmationV8 } from "@/components/ui/orders/OrderConfirmationV8";
 import type { Order, OrderItem, OrderItemModifier, OrderAddress, OrderStatus } from "@/types/order";
 
 // Define the expected shape of the query result
