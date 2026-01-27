@@ -109,12 +109,12 @@ function StatItem({ icon, label, value, delay = 0 }: StatItemProps) {
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={shouldAnimate ? { ...getSpring(spring.default), delay } : undefined}
     >
-      <div className="p-2 rounded-full bg-white/10 backdrop-blur-sm">
+      <div className="p-2 rounded-full bg-hero-stat-bg backdrop-blur-sm">
         {icon}
       </div>
       <div className="text-left">
-        <div className="text-xs text-white/70 uppercase tracking-wide">{label}</div>
-        <div className="text-sm font-semibold text-white">{value}</div>
+        <div className="text-xs text-hero-text-muted uppercase tracking-wide">{label}</div>
+        <div className="text-sm font-semibold text-hero-text">{value}</div>
       </div>
     </motion.div>
   );
@@ -131,15 +131,20 @@ interface GradientFallbackProps {
 
 function GradientFallback({ children, className }: GradientFallbackProps) {
   const { gradientPalette } = useDynamicTheme();
-  const gradientColors = gradientPalette || ["#A41034", "#5C0A1E", "#1a0a0f"];
+
+  // Use CSS custom properties for theme-aware gradient (dark gradient in both themes)
+  // Falls back to dynamic palette if provided by DynamicThemeProvider
+  const useCustomGradient = gradientPalette && gradientPalette.length >= 3;
 
   return (
     <div className={cn("relative w-full min-h-[100svh] min-h-[100dvh] overflow-hidden", className)}>
-      {/* Dark dramatic gradient background */}
+      {/* Dark dramatic gradient background - theme-aware via CSS vars */}
       <div
         className="absolute inset-0"
-        style={{
-          background: `linear-gradient(180deg, ${gradientColors[0]} 0%, ${gradientColors[1]} 50%, ${gradientColors[2]} 100%)`,
+        style={useCustomGradient ? {
+          background: `linear-gradient(180deg, ${gradientPalette[0]} 0%, ${gradientPalette[1]} 50%, ${gradientPalette[2]} 100%)`,
+        } : {
+          background: `linear-gradient(180deg, var(--hero-gradient-start) 0%, var(--hero-gradient-mid) 50%, var(--hero-gradient-end) 100%)`,
         }}
       />
 
@@ -155,8 +160,11 @@ function GradientFallback({ children, className }: GradientFallbackProps) {
       {/* Radial glow effect */}
       <div className="absolute inset-0 bg-gradient-radial from-secondary/20 via-transparent to-transparent" />
 
-      {/* Gradient overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      {/* Gradient overlay for text readability - uses theme-aware hero overlay */}
+      <div
+        className="absolute inset-0 bg-gradient-to-t via-transparent to-transparent"
+        style={{ ['--tw-gradient-from' as string]: 'var(--hero-overlay)' }}
+      />
 
       {/* Overlay content */}
       <div className="absolute inset-0 flex flex-col justify-end">
@@ -213,7 +221,7 @@ function HeroContent({
 
         {/* Time-based greeting badge */}
         <motion.div
-          className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-white/10 backdrop-blur-md border border-white/20"
+          className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg backdrop-blur-md border border-hero-text/20"
           initial={shouldAnimate ? { opacity: 0, y: -20 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={shouldAnimate ? { ...getSpring(spring.default), delay: 0.3 } : undefined}
@@ -225,7 +233,7 @@ function HeroContent({
             {timeOfDay === "night" && "Late night cravings?"}
             {timeOfDay === "dawn" && "Early bird?"}
           </span>
-          <span className="text-sm text-white/90 font-medium">
+          <span className="text-sm text-hero-text/90 font-medium">
             Fresh Burmese cuisine awaits
           </span>
         </motion.div>
@@ -233,12 +241,12 @@ function HeroContent({
         {/* Animated Headline */}
         <AnimatedHeadline
           text={headline}
-          className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 leading-tight"
+          className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-6 leading-tight"
         />
 
         {/* Subheadline */}
         <motion.p
-          className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-10 font-body"
+          className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-10 font-body"
           initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={shouldAnimate ? { ...getSpring(spring.default), delay: 0.6 } : undefined}
@@ -292,7 +300,7 @@ function HeroContent({
               variant="outline"
               size="lg"
               asChild
-              className="px-8 py-6 text-lg border-white/30 text-white hover:bg-white/10 backdrop-blur-sm"
+              className="px-8 py-6 text-lg border-hero-text/30 text-hero-text hover:bg-hero-stat-bg backdrop-blur-sm"
             >
               <Link href={secondaryCtaHref}>{secondaryCtaText}</Link>
             </Button>
@@ -301,7 +309,7 @@ function HeroContent({
 
         {/* Stats Bar */}
         <motion.div
-          className="flex flex-wrap justify-center items-center gap-2 md:gap-4 p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10"
+          className="flex flex-wrap justify-center items-center gap-2 md:gap-4 p-4 rounded-2xl bg-hero-stat-bg/50 backdrop-blur-md border border-hero-text/10"
           initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={shouldAnimate ? { ...getSpring(spring.default), delay: 1 } : undefined}
@@ -312,14 +320,14 @@ function HeroContent({
             value="Burmese Recipes"
             delay={1.1}
           />
-          <div className="hidden md:block w-px h-10 bg-white/20" />
+          <div className="hidden md:block w-px h-10 bg-hero-text/20" />
           <StatItem
             icon={<Clock className="w-4 h-4 text-secondary" />}
             label="Delivery"
             value="Every Saturday"
             delay={1.2}
           />
-          <div className="hidden md:block w-px h-10 bg-white/20" />
+          <div className="hidden md:block w-px h-10 bg-hero-text/20" />
           <StatItem
             icon={<MapPin className="w-4 h-4 text-secondary" />}
             label="Coverage"
@@ -337,7 +345,7 @@ function HeroContent({
         transition={{ delay: 1.5 }}
       >
         <motion.div
-          className="flex flex-col items-center gap-2 text-white/60"
+          className="flex flex-col items-center gap-2 text-hero-text-muted"
           animate={shouldAnimate ? { y: [0, 8, 0] } : undefined}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >

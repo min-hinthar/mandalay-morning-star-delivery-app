@@ -152,7 +152,7 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
         onClick={handleClick}
         className={cn(
           "relative flex flex-col items-center justify-center",
-          "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A41034]/30 focus-visible:ring-offset-2",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2",
           "rounded-lg p-3 -m-3",
           "hover:bg-surface-secondary/50 transition-colors duration-150",
           className
@@ -361,7 +361,7 @@ export const MorphingCloseButton = forwardRef<
         onClick={onClick}
         className={cn(
           "flex items-center justify-center",
-          "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A41034]/30",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
           "rounded-full p-1",
           className
         )}

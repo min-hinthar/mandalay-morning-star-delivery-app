@@ -85,7 +85,7 @@ export function SearchTrigger({ onClick, className }: SearchTriggerProps) {
         "text-zinc-700 dark:text-zinc-300",
         "transition-colors duration-150",
         "hover:bg-amber-500 hover:text-white",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2",
         className
       )}
       aria-label={`Search menu (${shortcutText})`}
