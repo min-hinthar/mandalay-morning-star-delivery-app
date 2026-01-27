@@ -491,6 +491,30 @@ const [query, setQuery] = useState("");
 
 ---
 
+## Next.js Route Groups Not Part of URL Path
+
+**Context:** Account icon and mobile nav sign-in links returning 404
+**Learning:** Next.js route groups like `(auth)` are **not part of the URL path**. The parentheses are stripped from the URL.
+
+```
+File:  src/app/(auth)/login/page.tsx
+URL:   /login           ✅ Correct
+NOT:   /auth/login      ❌ 404
+```
+
+When linking to pages inside route groups, use the actual URL path without the group name:
+```tsx
+// ❌ Wrong - includes route group name
+<Link href="/auth/login">Sign In</Link>
+
+// ✅ Correct - route group stripped from URL
+<Link href="/login">Sign In</Link>
+```
+
+**Apply when:** Linking to pages that use Next.js route groups `(groupName)` for organization.
+
+---
+
 ## Component Organization
 
 ### V8 Barrel Export Pattern
