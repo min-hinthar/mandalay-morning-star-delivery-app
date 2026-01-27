@@ -284,3 +284,6 @@ export * from "./auth";
 
 // Brand (mascot, identity)
 export * from "./brand";
+
+// Theme (providers, dynamic themes)
+export * from "./theme";
