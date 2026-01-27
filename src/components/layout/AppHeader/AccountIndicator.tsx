@@ -198,18 +198,18 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        {/* Avatar image or initials fallback */}
+        {/* Avatar image or initials fallback - use full size to respect className override */}
         {avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={avatarUrl}
             alt=""
-            className="h-10 w-10 rounded-full object-cover"
+            className="w-full h-full rounded-full object-cover"
           />
         ) : (
           <span
             className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-full",
+              "flex w-full h-full items-center justify-center rounded-full",
               "text-sm font-bold text-white",
               gradientClass
             )}
@@ -240,7 +240,8 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
             animate={shouldAnimate ? "animate" : { opacity: 1 }}
             exit={shouldAnimate ? "exit" : { opacity: 0 }}
             className={cn(
-              "absolute right-0 top-full mt-2",
+              // Position: left-aligned on mobile (avatar is on left), right-aligned on desktop
+              "absolute left-0 sm:left-auto sm:right-0 top-full mt-2",
               "w-48 py-1 rounded-xl",
               "bg-white dark:bg-zinc-900",
               "border border-border",
