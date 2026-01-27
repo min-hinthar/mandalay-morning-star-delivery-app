@@ -9,11 +9,12 @@ export type { PortalProps } from "./overlay";
 export { Backdrop } from "./overlay";
 export type { BackdropProps } from "./overlay";
 
-// Overlay components
+// Overlay components (deprecated - use @/components/ui instead)
 export { Modal } from "./Modal";
 export type { ModalProps } from "./Modal";
-export { BottomSheet } from "./BottomSheet";
-export type { BottomSheetProps } from "./BottomSheet";
+// BottomSheet merged into Drawer in ui/ with position="bottom"
+export { BottomSheet } from "@/components/ui/Drawer";
+export type { BottomSheetProps } from "@/components/ui/Drawer";
 export { Drawer } from "./Drawer";
 export type { DrawerProps } from "./Drawer";
 export {
