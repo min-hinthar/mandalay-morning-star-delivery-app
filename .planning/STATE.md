@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 23 of 23 (Header & Nav Rebuild)
-Plan: 1 of 4 complete
+Plan: 2 of 4 complete (Wave 2 in progress)
 Status: In progress
-Last activity: 2026-01-26 - Completed 23-01-PLAN.md (Infrastructure Hooks)
+Last activity: 2026-01-26 - Completed 23-03-PLAN.md (MobileDrawer)
 
-Progress: [####################] v1.0-v1.1 complete | [██████████████████████░] v1.2 ~97%
+Progress: [####################] v1.0-v1.1 complete | [███████████████████████░] v1.2 ~98%
 
 ## Milestones Completed
 
@@ -23,15 +23,15 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | v1.0 MVP | 1-8 | 32 | 2026-01-23 |
 | v1.1 Tech Debt | 9-14 | 21 | 2026-01-23 |
 
-**Total completed:** 22 phases, 74 plans
+**Total completed:** 22 phases, 75 plans
 **v1.2 scope:** 9 phases (15-23), ~25 plans, 48+ requirements
-**v1.2 progress:** 8 phases complete, 22 plans done
+**v1.2 progress:** 8 phases complete, 23 plans done
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 74 (v1.0 + v1.1 + v1.2)
-- v1.2 plans completed: 22
+- Total plans completed: 75 (v1.0 + v1.1 + v1.2)
+- v1.2 plans completed: 23
 - Average duration: 10min (Phase 15-23)
 
 **By Phase (v1.2):**
@@ -45,7 +45,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | 20 | 4/4 | ~35min | 8.8min |
 | 21 | 3/3 | ~25min | 8.3min |
 | 22 | 3/3 | ~22min | 7.3min |
-| 23 | 1/4 | 8min | 8min |
+| 23 | 2/4 | 16min | 8min |
 
 *Updated after each plan completion*
 
@@ -106,6 +106,9 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 - **Velocity threshold 300px/s (23-01):** Distinguishes fast vs slow scroll for animation timing
 - **Overlay pinning (23-01):** Header stays visible and isCollapsed=false when overlay open
 - **Cmd/Ctrl+K capture phase (23-01):** Keyboard shortcut uses { capture: true } to fire before browser
+- **MobileDrawer swipe threshold (23-03):** 100px threshold for left swipe to close
+- **Drawer nav stagger (23-03):** staggerContainer80(0.15) for 80ms gap with 150ms initial delay
+- **ThemeToggle in drawer header (23-03):** Placed next to close button per iOS Settings pattern
 
 ### Research Findings
 
@@ -170,6 +173,7 @@ From `.planning/research/SUMMARY.md`:
 - **Pulsing CTA glow (22-03):** opacity [0.4, 0.7, 0.4] + scale [1, 1.02, 1] for premium effect
 - **Velocity-aware scroll (23-01):** useVelocity(scrollY) from framer-motion for physics-based velocity detection
 - **getHeaderTransition helper (23-01):** isFastScroll ? { duration: 0.1 } : spring.snappy for velocity-based timing
+- **MobileDrawer pattern (23-03):** useSwipeToClose with direction: "left", body scroll lock, escape key, safe area
 
 ### Roadmap Evolution
 
@@ -182,10 +186,10 @@ None - all blocking issues from Phase 15 resolved.
 ## Session Continuity
 
 Last session: 2026-01-26
-Stopped at: Completed 23-01-PLAN.md (Infrastructure Hooks)
+Stopped at: Completed 23-03-PLAN.md (MobileDrawer)
 Resume file: None
-Next action: Continue to 23-02 (Header Components)
+Next action: Complete Wave 2 (23-02, 23-04) then 23-05 (Integration)
 
 ---
 
-*Updated: 2026-01-26 - Completed 23-01-PLAN.md*
+*Updated: 2026-01-26 - Completed 23-03-PLAN.md*
