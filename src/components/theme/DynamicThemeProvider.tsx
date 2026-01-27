@@ -191,7 +191,7 @@ export interface DynamicThemeProviderProps {
 export function DynamicThemeProvider({
   children,
   defaultMode = "light",
-  defaultDynamicEnabled = true,
+  defaultDynamicEnabled = false,
   weatherApiUrl,
 }: DynamicThemeProviderProps) {
   // State - use consistent defaults for SSR hydration
