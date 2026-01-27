@@ -99,7 +99,7 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
           {/* Label on hover - dark tooltip with arrow */}
           <span
             className={cn(
-              "absolute right-full mr-2 px-2 py-1 rounded",
+              "absolute right-full mr-2 px-2 py-1 rounded z-10",
               "text-[10px] md:text-xs font-medium whitespace-nowrap",
               // Dark tooltip style
               "bg-text-primary/90 text-surface-primary",
