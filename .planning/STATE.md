@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 33 of 33 (Full Components Consolidation)
-Plan: 8 of 11 in current phase
+Plan: 9 of 11 in current phase
 Status: In progress
-Last activity: 2026-01-27 - Completed 33-08-PLAN.md
+Last activity: 2026-01-27 - Completed 33-09-PLAN.md
 
-Progress: [█████████████████████████████████████░░░░] v1.3 Full Codebase Consolidation | 16/24 plans
+Progress: [██████████████████████████████████████░░░] v1.3 Full Codebase Consolidation | 17/24 plans
 
 ## Milestones Completed
 
@@ -33,7 +33,7 @@ Progress: [███████████████████████
 **Velocity:**
 - Total plans completed: 94 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 16
+- v1.3 plans completed: 17
 
 **By Phase (v1.3):**
 
@@ -41,7 +41,7 @@ Progress: [███████████████████████
 |-------|-------|-------|----------|
 | 25 | 1/1 | 8min | 8min |
 | 26 | 8/8 | 136min | 17min |
-| 33 | 8/11 | 108min | 13.5min |
+| 33 | 9/11 | 113min | 12.6min |
 
 ## Accumulated Context
 
@@ -97,6 +97,7 @@ From `.planning/research/SUMMARY.md`:
 | Tracking in orders/tracking/ subdirectory | 33-08 | Keeps order components organized |
 | OnboardingTour in ui/auth/ | 33-08 | Part of auth flow per CONTEXT.md |
 | BrandMascot in ui/brand/ | 33-08 | Room for future brand components |
+| Theme re-exported from ui/ barrel | 33-09 | Consistency with other subdirectories |
 
 ### Phase 33 Progress
 
@@ -140,6 +141,11 @@ From `.planning/research/SUMMARY.md`:
 - mascot/ moved to ui/brand/
 - All old directories removed from components root
 
+**33-09 outcomes:**
+- Verified theme/ already merged to ui/theme/ (done in 33-06)
+- Added theme re-export to ui/index.ts barrel
+- All theme imports use @/components/ui/theme
+
 ### Roadmap Evolution
 
 - Phase 33 added: Full Components Consolidation (merge all component subdirectories, eliminate duplicates)
@@ -150,11 +156,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27 23:45
-Stopped at: Completed 33-08-PLAN.md
+Last session: 2026-01-27 23:30
+Stopped at: Completed 33-09-PLAN.md
 Resume file: None
-Next action: Execute 33-09-PLAN.md (if exists)
+Next action: Execute 33-10-PLAN.md (if exists)
 
 ---
 
-*Updated: 2026-01-27 - Phase 33 Plan 08 complete (related components merged)*
+*Updated: 2026-01-27 - Phase 33 Plan 09 complete (theme consolidation verified)*
