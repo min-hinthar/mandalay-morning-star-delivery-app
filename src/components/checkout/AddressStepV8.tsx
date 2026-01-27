@@ -24,8 +24,7 @@ import {
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useMediaQuery } from "@/lib/hooks";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { Modal } from "@/components/ui-v8/Modal";
-import { BottomSheet } from "@/components/ui-v8";
+import { Modal, Drawer } from "@/components/ui";
 import { AddressCardV8 } from "./AddressCardV8";
 import { AddressFormV8 } from "./AddressFormV8";
 import { Button } from "@/components/ui/button";
@@ -256,12 +255,12 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
 
       {/* Responsive overlay for add/edit */}
       {isMobile ? (
-        <BottomSheet isOpen={isFormOpen} onClose={closeForm}>
+        <Drawer isOpen={isFormOpen} onClose={closeForm} position="bottom">
           <div className="px-4 pb-4">
             <h3 className="font-semibold text-lg mb-4">{formTitle}</h3>
             {FormContent}
           </div>
-        </BottomSheet>
+        </Drawer>
       ) : (
         <Modal isOpen={isFormOpen} onClose={closeForm} title={formTitle}>
           {FormContent}

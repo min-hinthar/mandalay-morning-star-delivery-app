@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * @deprecated Use MenuContentV8 from @/components/ui-v8/menu instead.
+ * @deprecated Use MenuContent from @/components/ui/menu instead.
  * This component is kept for backwards compatibility.
  */
 
