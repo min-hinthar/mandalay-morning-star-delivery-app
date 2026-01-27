@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * @deprecated Use MenuSectionV8 + MenuGridV8 from @/components/ui-v8/menu instead.
+ * @deprecated Use MenuSection + MenuGrid from @/components/ui/menu instead.
  * This component is kept for backwards compatibility.
  */
 

@@ -8,7 +8,7 @@
  *
  * @example
  * // In app/layout.tsx
- * import { ToastProvider } from "@/components/ui-v8";
+ * import { ToastProvider } from "@/components/ui";
  *
  * export default function RootLayout({ children }) {
  *   return (
