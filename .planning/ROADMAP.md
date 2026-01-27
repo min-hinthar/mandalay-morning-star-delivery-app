@@ -75,13 +75,13 @@ Plans:
   3. Zero hardcoded hex colors in TSX files
   4. All gradients use theme-aware CSS variables
   5. Both light and dark themes render correctly on all pages
-**Plans**: TBD
+**Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 27-01: High-traffic page color fixes (homepage, menu, checkout)
-- [ ] 27-02: Component library color fixes
-- [ ] 27-03: Admin and driver page color fixes
-- [ ] 27-04: Gradient theme-awareness
+- [ ] 27-01-PLAN.md — Token prerequisites + homepage/checkout migration
+- [ ] 27-02-PLAN.md — UI component library color fixes
+- [ ] 27-03-PLAN.md — Admin, driver, layout, tracking, auth color fixes
+- [ ] 27-04-PLAN.md — Gradient theme-awareness
 
 ### Phase 28: Token Enforcement - Layout
 **Goal**: Consistent spacing, typography, and border-radius via design tokens
@@ -195,7 +195,7 @@ Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 ->
 |-------|-----------|----------------|--------|-----------|
 | 25. Audit Infrastructure | v1.3 | 1/1 | Complete | 2026-01-27 |
 | 26. Component Consolidation | v1.3 | 8/8 | Complete | 2026-01-27 |
-| 27. Token Enforcement - Colors | v1.3 | 0/4 | Not started | - |
+| 27. Token Enforcement - Colors | v1.3 | 0/4 | Planned | - |
 | 28. Token Enforcement - Layout | v1.3 | 0/2 | Not started | - |
 | 29. Token Enforcement - Effects | v1.3 | 0/2 | Not started | - |
 | 30. Mobile Stability | v1.3 | 0/2 | Not started | - |
