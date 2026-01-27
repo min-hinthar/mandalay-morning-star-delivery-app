@@ -7,7 +7,7 @@
 
 Requirements for this milestone. Each maps to roadmap phases.
 
-### Token Enforcement — Colors
+### Token Enforcement - Colors
 
 - [ ] **TOKN-01**: All `text-white` replaced with semantic tokens (`text-text-inverse`, `text-hero-text`, etc.)
 - [ ] **TOKN-02**: All `text-black` replaced with semantic tokens (`text-text-primary`, etc.)
@@ -16,25 +16,25 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [ ] **TOKN-05**: All hardcoded hex colors use token equivalents
 - [ ] **TOKN-06**: All gradient definitions use theme-aware CSS variables
 
-### Token Enforcement — Spacing & Layout
+### Token Enforcement - Spacing & Layout
 
 - [ ] **TOKN-07**: All hardcoded pixel values for spacing use Tailwind spacing scale
 - [ ] **TOKN-08**: All hardcoded margin/padding use design system spacing tokens
 - [ ] **TOKN-09**: Consistent border-radius using design system tokens
 
-### Token Enforcement — Typography
+### Token Enforcement - Typography
 
 - [ ] **TOKN-10**: All font-size uses Tailwind typography scale (no hardcoded px)
 - [ ] **TOKN-11**: All font-weight uses semantic tokens (font-normal, font-medium, font-bold)
 - [ ] **TOKN-12**: All line-height uses design system tokens
 
-### Token Enforcement — Effects & Shadows
+### Token Enforcement - Effects & Shadows
 
 - [ ] **TOKN-13**: All box-shadow uses design system shadow tokens
 - [ ] **TOKN-14**: All backdrop-blur uses consistent values via tokens
 - [ ] **TOKN-15**: All transition/animation durations use motion tokens
 
-### Token Enforcement — Infrastructure
+### Token Enforcement - Infrastructure
 
 - [ ] **TOKN-16**: ESLint rules extended to catch all hardcoded style violations
 - [ ] **TOKN-17**: Automated audit script detects design token regressions
@@ -102,49 +102,49 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TOKN-01 | TBD | Pending |
-| TOKN-02 | TBD | Pending |
-| TOKN-03 | TBD | Pending |
-| TOKN-04 | TBD | Pending |
-| TOKN-05 | TBD | Pending |
-| TOKN-06 | TBD | Pending |
-| TOKN-07 | TBD | Pending |
-| TOKN-08 | TBD | Pending |
-| TOKN-09 | TBD | Pending |
-| TOKN-10 | TBD | Pending |
-| TOKN-11 | TBD | Pending |
-| TOKN-12 | TBD | Pending |
-| TOKN-13 | TBD | Pending |
-| TOKN-14 | TBD | Pending |
-| TOKN-15 | TBD | Pending |
-| TOKN-16 | TBD | Pending |
-| TOKN-17 | TBD | Pending |
-| TOKN-18 | TBD | Pending |
-| COMP-01 | TBD | Pending |
-| COMP-02 | TBD | Pending |
-| COMP-03 | TBD | Pending |
-| COMP-04 | TBD | Pending |
-| COMP-05 | TBD | Pending |
-| COMP-06 | TBD | Pending |
-| MOBL-01 | TBD | Pending |
-| MOBL-02 | TBD | Pending |
-| MOBL-03 | TBD | Pending |
-| HERO-01 | TBD | Pending |
-| HERO-02 | TBD | Pending |
-| HERO-03 | TBD | Pending |
-| HERO-04 | TBD | Pending |
-| HERO-05 | TBD | Pending |
-| HERO-06 | TBD | Pending |
-| HERO-07 | TBD | Pending |
-| QUAL-01 | TBD | Pending |
-| QUAL-02 | TBD | Pending |
-| QUAL-03 | TBD | Pending |
+| TOKN-01 | Phase 27 | Pending |
+| TOKN-02 | Phase 27 | Pending |
+| TOKN-03 | Phase 27 | Pending |
+| TOKN-04 | Phase 27 | Pending |
+| TOKN-05 | Phase 27 | Pending |
+| TOKN-06 | Phase 27 | Pending |
+| TOKN-07 | Phase 28 | Pending |
+| TOKN-08 | Phase 28 | Pending |
+| TOKN-09 | Phase 28 | Pending |
+| TOKN-10 | Phase 28 | Pending |
+| TOKN-11 | Phase 28 | Pending |
+| TOKN-12 | Phase 28 | Pending |
+| TOKN-13 | Phase 29 | Pending |
+| TOKN-14 | Phase 29 | Pending |
+| TOKN-15 | Phase 29 | Pending |
+| TOKN-16 | Phase 25 | Pending |
+| TOKN-17 | Phase 25 | Pending |
+| TOKN-18 | Phase 32 | Pending |
+| COMP-01 | Phase 26 | Pending |
+| COMP-02 | Phase 26 | Pending |
+| COMP-03 | Phase 26 | Pending |
+| COMP-04 | Phase 26 | Pending |
+| COMP-05 | Phase 26 | Pending |
+| COMP-06 | Phase 26 | Pending |
+| MOBL-01 | Phase 30 | Pending |
+| MOBL-02 | Phase 30 | Pending |
+| MOBL-03 | Phase 30 | Pending |
+| HERO-01 | Phase 31 | Pending |
+| HERO-02 | Phase 31 | Pending |
+| HERO-03 | Phase 31 | Pending |
+| HERO-04 | Phase 31 | Pending |
+| HERO-05 | Phase 31 | Pending |
+| HERO-06 | Phase 31 | Pending |
+| HERO-07 | Phase 31 | Pending |
+| QUAL-01 | Phase 32 | Pending |
+| QUAL-02 | Phase 32 | Pending |
+| QUAL-03 | Phase 32 | Pending |
 
 **Coverage:**
 - v1.3 requirements: 37 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 37
+- Mapped to phases: 37
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-27*
-*Last updated: 2026-01-27 after initial definition*
+*Last updated: 2026-01-27 after roadmap creation*
