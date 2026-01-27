@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { AnimatedCounter } from "./AnimatedCounter";
-import { v6Spring } from "@/lib/motion";
+import { spring } from "@/lib/motion-tokens";
 import type { MetricCardProps } from "@/types/analytics";
 
 const cardVariants = {
@@ -110,7 +110,7 @@ export function MetricCard({
         y: -4,
         scale: 1.01,
       }}
-      transition={v6Spring}
+      transition={spring.default}
       className={cn(
         "relative overflow-hidden rounded-card-sm bg-surface-primary p-6 shadow-sm",
         "border-l-4 transition-shadow duration-fast",

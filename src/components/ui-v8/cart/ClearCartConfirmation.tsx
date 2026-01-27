@@ -20,8 +20,7 @@ import { Modal } from "@/components/ui-v8/Modal";
 import { useCart } from "@/lib/hooks/useCart";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
-import { spring } from "@/lib/motion-tokens";
-import { triggerHaptic } from "@/lib/animations/cart";
+import { spring, triggerHaptic } from "@/lib/motion-tokens";
 
 // ============================================
 // TYPES

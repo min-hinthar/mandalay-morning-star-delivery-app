@@ -17,7 +17,7 @@ import {
   Star,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { spring } from "@/lib/animations";
+import { spring } from "@/lib/motion-tokens";
 import { zClass } from "@/design-system/tokens/z-index";
 
 const NAV_ITEMS = [

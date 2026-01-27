@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, X, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
-import { spring } from "@/lib/animations";
+import { spring } from "@/lib/motion-tokens";
 
 import type { CheckoutStep } from "@/types/checkout";
 

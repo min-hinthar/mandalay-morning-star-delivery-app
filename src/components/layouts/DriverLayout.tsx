@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon, Settings, WifiOff, Star } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
-import { spring, fadeIn } from "@/lib/animations";
+import { spring, variants } from "@/lib/motion-tokens";
 import { useServiceWorker } from "@/lib/hooks/useServiceWorker";
 import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
 
@@ -216,7 +216,7 @@ export function DriverLayout({
             initial="initial"
             animate="animate"
             exit="exit"
-            variants={fadeIn}
+            variants={variants.fadeIn}
             className={cn(
               "fixed bottom-0 left-0 right-0 z-30",
               highContrast

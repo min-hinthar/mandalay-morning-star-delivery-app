@@ -12,7 +12,7 @@ import { Clock, Navigation } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatETARange, formatArrivalTime } from "@/lib/utils/eta";
 import { Skeleton } from "@/components/ui/skeleton";
-import { v6Spring } from "@/lib/motion";
+import { spring } from "@/lib/motion-tokens";
 
 interface ETADisplayProps {
   minMinutes: number;
@@ -55,7 +55,7 @@ export function ETADisplay({
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={v6Spring}
+      transition={spring.default}
       className={cn(
         "rounded-card bg-gradient-to-r from-primary-light to-green-light p-5 shadow-card",
         className
@@ -125,7 +125,7 @@ export function ETADisplayCompact({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={v6Spring}
+      transition={spring.default}
       className={cn(
         "inline-flex items-center gap-2 rounded-pill bg-primary-light px-4 py-2",
         "text-sm font-body font-semibold text-primary",

@@ -30,12 +30,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { zIndex } from "@/design-system/tokens/z-index";
 import {
+  spring,
   cartBarSlideUp,
   cartBarBounce,
   badgeVariants,
   triggerHaptic,
-} from "@/lib/animations/cart";
-import { spring } from "@/lib/motion-tokens";
+} from "@/lib/motion-tokens";
 import { FREE_DELIVERY_THRESHOLD_CENTS } from "@/types/cart";
 
 // ============================================

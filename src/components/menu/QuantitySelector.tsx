@@ -15,7 +15,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
-import { v6SpringBouncy } from "@/lib/motion";
+import { spring } from "@/lib/motion-tokens";
 
 interface QuantitySelectorProps {
   value: number;
@@ -91,7 +91,7 @@ export function QuantitySelector({
             initial={prefersReducedMotion ? false : { y: 10, opacity: 0, scale: 0.8 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={prefersReducedMotion ? undefined : { y: -10, opacity: 0, scale: 0.8 }}
-            transition={prefersReducedMotion ? { duration: 0 } : v6SpringBouncy}
+            transition={prefersReducedMotion ? { duration: 0 } : spring.ultraBouncy}
             className={cn(
               "block font-display font-bold tabular-nums",
               disabled ? "text-text-muted" : "text-text-primary"
