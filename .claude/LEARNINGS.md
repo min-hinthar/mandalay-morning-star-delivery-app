@@ -311,6 +311,30 @@ Create migration tracker with violation inventory mapped to future phases.
 
 ## Stacking Context Patterns
 
+### 3D Transforms + Scale/Z-Index = Flickering
+**Context:** Menu cards with `preserve-3d` tilt effect flickered when combined with Framer Motion's `whileHover`/`whileTap`
+**Learning:** `zIndex` changes and `scale` transforms in `whileHover`/`whileTap` create new stacking contexts that break `preserve-3d` inheritance. The browser recalculates layer compositing, causing content to flicker or disappear during 3D rotations.
+
+```tsx
+// ❌ Flickering - zIndex and scale create stacking context conflicts
+<motion.div
+  style={{ transformStyle: "preserve-3d", rotateX, rotateY }}
+  whileHover={{ scale: 1.03, zIndex: 50 }}  // Breaks 3D context
+  whileTap={{ scale: 0.98 }}                 // Also conflicts
+>
+
+// ✅ No flickering - disable scale when using 3D tilt
+<motion.div
+  style={{ transformStyle: "preserve-3d", rotateX, rotateY }}
+  whileHover={!shouldEnableTilt ? { scale: 1.03 } : undefined}
+  whileTap={!shouldEnableTilt ? { scale: 0.98 } : undefined}
+>
+```
+
+**Apply when:** Combining Framer Motion's `whileHover`/`whileTap` with CSS 3D transforms (`preserve-3d`, `perspective`, `rotateX/Y/Z`). The 3D effect itself provides hover feedback, so scale transforms are redundant and harmful.
+
+---
+
 ### Isolation Insufficient for Mixed Codebases
 `isolate` only prevents z-index competition within subtree. Multiple isolated sections still compete at document level. Legacy components without isolation create z-index leakage.
 
