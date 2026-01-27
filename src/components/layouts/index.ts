@@ -2,7 +2,7 @@
  * Layout Components
  * V5 Foundation - Layout primitives and app shells
  *
- * NOTE: Layout primitives have moved to @/components/ui/
+ * NOTE: All components have moved to @/components/ui/layout
  * This file re-exports them for backwards compatibility.
  */
 
@@ -27,10 +27,7 @@ export type {
   SafeAreaEdge,
 } from "@/components/ui";
 
-// App Shells
-export { CheckoutLayout } from "./CheckoutLayout";
-export type { CheckoutStep } from "@/types/checkout";
-export { DriverLayout } from "./DriverLayout";
+// App Shells (re-exported from ui/layout)
 export {
   AdminLayout,
   DashboardGrid,
@@ -38,4 +35,7 @@ export {
   MainArea,
   SideArea,
   FullWidthArea,
-} from "./AdminLayout";
+  CheckoutLayout,
+  DriverLayout,
+} from "@/components/ui/layout";
+export type { CheckoutStep } from "@/types/checkout";

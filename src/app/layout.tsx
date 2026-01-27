@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactElement, ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { HeaderWrapper } from "@/components/layout/HeaderWrapper";
+import { HeaderWrapper } from "@/components/ui/layout/HeaderWrapper";
 import { Providers } from "@/app/providers";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { WebVitalsReporter } from "@/components/WebVitalsReporter";
