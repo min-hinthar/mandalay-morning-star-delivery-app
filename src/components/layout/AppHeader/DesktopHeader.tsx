@@ -1,0 +1,130 @@
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { UtensilsCrossed, Package, User } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+import { spring } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { HeaderNavLink } from "./HeaderNavLink";
+
+/**
+ * Navigation item configuration
+ */
+export interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+  isActive?: boolean;
+}
+
+/**
+ * Default navigation items for the desktop header
+ */
+export const defaultNavItems: NavItem[] = [
+  {
+    href: "/menu",
+    label: "Menu",
+    icon: <UtensilsCrossed className="w-5 h-5" />,
+  },
+  {
+    href: "/orders",
+    label: "Orders",
+    icon: <Package className="w-5 h-5" />,
+  },
+  {
+    href: "/account",
+    label: "Account",
+    icon: <User className="w-5 h-5" />,
+  },
+];
+
+/**
+ * Props for DesktopHeader component
+ */
+export interface DesktopHeaderProps {
+  /** Navigation items to display */
+  navItems?: NavItem[];
+  /** Content for the right side (cart, search, theme toggle, etc.) */
+  rightContent?: React.ReactNode;
+  /** Current pathname for active state detection */
+  currentPath?: string;
+  /** Additional class names */
+  className?: string;
+}
+
+/**
+ * DesktopHeader - Desktop-specific header layout
+ *
+ * Layout: Logo left, nav center (using HeaderNavLink), rightContent right
+ *
+ * @example
+ * <DesktopHeader
+ *   navItems={defaultNavItems}
+ *   rightContent={<CartButton />}
+ *   currentPath="/menu"
+ * />
+ */
+export function DesktopHeader({
+  navItems = defaultNavItems,
+  rightContent,
+  currentPath = "",
+  className,
+}: DesktopHeaderProps) {
+  const { shouldAnimate, getSpring } = useAnimationPreference();
+
+  return (
+    <div
+      className={cn(
+        "hidden md:flex items-center justify-between w-full",
+        className
+      )}
+    >
+      {/* Left: Logo */}
+      <motion.div
+        whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
+        whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
+        transition={getSpring(spring.snappy)}
+      >
+        <Link
+          href="/"
+          className={cn(
+            "font-display text-lg font-semibold",
+            "text-primary hover:text-primary-hover transition-colors",
+            "flex items-center gap-2"
+          )}
+        >
+          <Image
+            src="/logo.png"
+            alt="Mandalay Morning Star"
+            width={32}
+            height={32}
+            className="object-contain"
+          />
+          <span className="hidden lg:inline">Mandalay Morning Star</span>
+        </Link>
+      </motion.div>
+
+      {/* Center: Navigation */}
+      <nav className="flex items-center gap-1">
+        {navItems.map((item) => (
+          <HeaderNavLink
+            key={item.href}
+            href={item.href}
+            label={item.label}
+            icon={item.icon}
+            isActive={currentPath === item.href || currentPath.startsWith(`${item.href}/`)}
+          />
+        ))}
+      </nav>
+
+      {/* Right: Custom content (cart, search, theme, account indicators) */}
+      <div className="flex items-center gap-2">
+        {rightContent}
+      </div>
+    </div>
+  );
+}
+
+export default DesktopHeader;
