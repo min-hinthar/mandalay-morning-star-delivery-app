@@ -171,10 +171,20 @@ Plans:
   4. All consumer imports updated to canonical locations
   5. ESLint guards prevent recreation of removed directories
   6. No broken imports after consolidation
-**Plans**: TBD (run /gsd:plan-phase 33 to break down)
+**Plans**: 11 plans in 6 waves
 
 Plans:
-- [ ] 33-01: TBD
+- [ ] 33-01-PLAN.md — Delete knip-detected unused files (6 files)
+- [ ] 33-02-PLAN.md — Merge scroll/ into ui/scroll/
+- [ ] 33-03-PLAN.md — Merge menu/ into ui/menu/ (resolve duplicates)
+- [ ] 33-04-PLAN.md — Merge layout/ + layouts/ into ui/layout/, create ui/search/
+- [ ] 33-05-PLAN.md — Update layout consumer imports, delete old directories
+- [ ] 33-06-PLAN.md — Move loose files (ThemeProvider, WebVitalsReporter)
+- [ ] 33-07-PLAN.md — Move page folders (admin, checkout, driver, homepage, orders)
+- [ ] 33-08-PLAN.md — Merge tracking into orders, onboarding into auth, create brand
+- [ ] 33-09-PLAN.md — Merge theme/ into ui/theme/
+- [ ] 33-10-PLAN.md — Add ESLint guards for all removed directories
+- [ ] 33-11-PLAN.md — Update knip config, finalize barrel exports
 
 ## Progress
 
@@ -191,7 +201,7 @@ Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 ->
 | 30. Mobile Stability | v1.3 | 0/2 | Not started | - |
 | 31. Hero Redesign | v1.3 | 0/4 | Not started | - |
 | 32. Quality Assurance | v1.3 | 0/3 | Not started | - |
-| 33. Full Components Consolidation | v1.3 | 0/? | Not started | - |
+| 33. Full Components Consolidation | v1.3 | 0/11 | Not started | - |
 
 **v1.3 Summary:**
 - Total phases: 9
