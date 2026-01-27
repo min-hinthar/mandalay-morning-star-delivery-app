@@ -30,13 +30,14 @@ See `.planning/milestones/v1.1-ROADMAP.md` for archived phase details.
 
 - [x] **Phase 15: Foundation & R3F Setup** - Fix z-index bug, install React Three Fiber ✓
 - [x] **Phase 16: 3D Hero Core** - Basic 3D food model with controls ✓
-- [ ] **Phase 17: 3D Hero Advanced** - Auto-rotate, physics, carousel, particles
+- [x] ~~**Phase 17: 3D Hero Advanced**~~ - CANCELLED (3D hero removed)
 - [x] **Phase 18: Menu Unification** - Unified MenuItemCard across all surfaces ✓
 - [x] **Phase 19: Homepage Redesign** - Video hero, scroll choreography, section redesign ✓
 - [x] **Phase 20: Micro-interactions** - Consistent animations across all components ✓
 - [x] **Phase 21: Theme Refinements** - Light/dark polish, animated toggle ✓
 - [x] **Phase 22: Customer Page Polish** - Enhanced animations on all customer pages ✓
-- [ ] **Phase 23: Header & Nav Rebuild** - Complete rebuild of header and navigation
+- [x] **Phase 23: Header & Nav Rebuild** - Complete rebuild of header and navigation ✓
+- [ ] **Phase 24: Codebase Cleanup** - Remove 3D hero, consolidate imports, remove legacy code
 
 ## Phase Details
 
@@ -211,34 +212,55 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 23-01-PLAN.md — Infrastructure hooks: velocity scroll, header visibility, command palette
-- [ ] 23-02-PLAN.md — AppHeader foundation: desktop/mobile layouts, glassmorphism, nav links
-- [ ] 23-03-PLAN.md — MobileDrawer: left-slide, swipe-to-close, staggered nav, user section
-- [ ] 23-04-PLAN.md — CommandPalette: cmdk integration, search results, recent searches
-- [ ] 23-05-PLAN.md — Integration: Cart/Account indicators, layout wiring, old header replacement
+- [x] 23-01-PLAN.md — Infrastructure hooks: velocity scroll, header visibility, command palette ✓
+- [x] 23-02-PLAN.md — AppHeader foundation: desktop/mobile layouts, glassmorphism, nav links ✓
+- [x] 23-03-PLAN.md — MobileDrawer: left-slide, swipe-to-close, staggered nav, user section ✓
+- [x] 23-04-PLAN.md — CommandPalette: cmdk integration, search results, recent searches ✓
+- [x] 23-05-PLAN.md — Integration: Cart/Account indicators, layout wiring, old header replacement ✓
+
+---
+
+### Phase 24: Codebase Cleanup
+**Goal**: Remove 3D hero code, consolidate to latest implementations only, eliminate legacy migrations and overlapping imports/exports
+**Depends on**: Phase 23 (Header & Nav Rebuild)
+**Requirements**: CLEANUP-01 (remove 3D), CLEANUP-02 (consolidate imports), CLEANUP-03 (remove legacy)
+**Success Criteria** (what must be TRUE):
+  1. All React Three Fiber / 3D hero code removed (Phase 15-16 3D components)
+  2. Only latest implementations remain: Menu unification, Micro-interactions, Theme refinements, Page polishes, Header & Nav
+  3. No old V7 migrations or legacy version code remaining
+  4. No overlapping imports or duplicate exports across codebase
+  5. Build passes with reduced bundle size
+  6. All tests pass after cleanup
+**Plans**: 3 plans
+
+Plans:
+- [ ] 24-01-PLAN.md — Remove all 3D code and uninstall R3F packages
+- [ ] 24-02-PLAN.md — Remove legacy layout files and unused components
+- [ ] 24-03-PLAN.md — Consolidate animation tokens and final verification
 
 ---
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 15 -> 16 -> 17 -> 18 -> 19 -> 20 -> 21 -> 22 -> 23
+Phases execute in numeric order: 15 -> 16 -> 17 -> 18 -> 19 -> 20 -> 21 -> 22 -> 23 -> 24
 Note: Phase 18 can run parallel with Phases 16-17 (no dependencies)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 15. Foundation & R3F Setup | v1.2 | 2/2 | Complete | 2026-01-23 |
 | 16. 3D Hero Core | v1.2 | 4/4 | Complete | 2026-01-24 |
-| 17. 3D Hero Advanced | v1.2 | 0/2 | Not started | - |
+| 17. 3D Hero Advanced | v1.2 | - | CANCELLED | - |
 | 18. Menu Unification | v1.2 | 3/3 | Complete | 2026-01-24 |
 | 19. Homepage Redesign | v1.2 | 4/4 | Complete | 2026-01-25 |
 | 20. Micro-interactions | v1.2 | 4/4 | Complete | 2026-01-26 |
 | 21. Theme Refinements | v1.2 | 3/3 | Complete | 2026-01-26 |
 | 22. Customer Page Polish | v1.2 | 3/3 | Complete | 2026-01-26 |
-| 23. Header & Nav Rebuild | v1.2 | 0/5 | Not started | - |
+| 23. Header & Nav Rebuild | v1.2 | 5/5 | Complete | 2026-01-27 |
+| 24. Codebase Cleanup | v1.2 | 0/3 | Not started | - |
 
-**v1.2 Totals:** 9 phases, ~28 plans, 48+ requirements
+**v1.2 Totals:** 10 phases (1 cancelled), ~32 plans
 
 ---
 *Roadmap created: 2026-01-23*
-*Last updated: 2026-01-26 - Phase 23 planned (5 plans)*
+*Last updated: 2026-01-27 - Phase 24 planned with 3 plans*
