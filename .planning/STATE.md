@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-23)
 ## Current Position
 
 Phase: 23 of 23 (Header & Nav Rebuild)
-Plan: 2 of 4 complete (Wave 2 in progress)
+Plan: 3 of 4 complete (Wave 2 complete)
 Status: In progress
-Last activity: 2026-01-26 - Completed 23-03-PLAN.md (MobileDrawer)
+Last activity: 2026-01-27 - Completed 23-02-PLAN.md (Header Components)
 
-Progress: [####################] v1.0-v1.1 complete | [███████████████████████░] v1.2 ~98%
+Progress: [####################] v1.0-v1.1 complete | [████████████████████████░] v1.2 ~99%
 
 ## Milestones Completed
 
@@ -23,15 +23,15 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | v1.0 MVP | 1-8 | 32 | 2026-01-23 |
 | v1.1 Tech Debt | 9-14 | 21 | 2026-01-23 |
 
-**Total completed:** 22 phases, 75 plans
+**Total completed:** 22 phases, 76 plans
 **v1.2 scope:** 9 phases (15-23), ~25 plans, 48+ requirements
-**v1.2 progress:** 8 phases complete, 23 plans done
+**v1.2 progress:** 8 phases complete, 24 plans done
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 75 (v1.0 + v1.1 + v1.2)
-- v1.2 plans completed: 23
+- Total plans completed: 76 (v1.0 + v1.1 + v1.2)
+- v1.2 plans completed: 24
 - Average duration: 10min (Phase 15-23)
 
 **By Phase (v1.2):**
@@ -45,7 +45,7 @@ Progress: [####################] v1.0-v1.1 complete | [████████�
 | 20 | 4/4 | ~35min | 8.8min |
 | 21 | 3/3 | ~25min | 8.3min |
 | 22 | 3/3 | ~22min | 7.3min |
-| 23 | 2/4 | 16min | 8min |
+| 23 | 3/4 | 22min | 7.3min |
 
 *Updated after each plan completion*
 
@@ -174,6 +174,9 @@ From `.planning/research/SUMMARY.md`:
 - **Velocity-aware scroll (23-01):** useVelocity(scrollY) from framer-motion for physics-based velocity detection
 - **getHeaderTransition helper (23-01):** isFastScroll ? { duration: 0.1 } : spring.snappy for velocity-based timing
 - **MobileDrawer pattern (23-03):** useSwipeToClose with direction: "left", body scroll lock, escape key, safe area
+- **HeaderNavLink multi-layer hover (23-02):** bg highlight + y:-2 lift + icon wiggle + 60% underline
+- **AppHeader overlay pinning (23-02):** overlayOpen prop passed to useHeaderVisibility for menu/cart/modal states
+- **Glassmorphism header (23-02):** rgba(255,255,255,0.75), blur(30px), gradient shadow with dark mode CSS override
 
 ### Roadmap Evolution
 
@@ -185,11 +188,11 @@ None - all blocking issues from Phase 15 resolved.
 
 ## Session Continuity
 
-Last session: 2026-01-26
-Stopped at: Completed 23-03-PLAN.md (MobileDrawer)
+Last session: 2026-01-27
+Stopped at: Completed 23-02-PLAN.md (Header Components)
 Resume file: None
-Next action: Complete Wave 2 (23-02, 23-04) then 23-05 (Integration)
+Next action: Complete 23-05 Integration (final plan)
 
 ---
 
-*Updated: 2026-01-26 - Completed 23-03-PLAN.md*
+*Updated: 2026-01-27 - Completed 23-02-PLAN.md*
