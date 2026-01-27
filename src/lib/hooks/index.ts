@@ -40,6 +40,21 @@ export {
 
 export { useLuminance } from "./useLuminance";
 export { useScrollDirection } from "./useScrollDirection";
+export {
+  useScrollDirectionWithVelocity,
+  type UseScrollDirectionWithVelocityOptions,
+  type UseScrollDirectionWithVelocityReturn,
+} from "./useScrollDirectionWithVelocity";
+export {
+  useHeaderVisibility,
+  getHeaderTransition,
+  type UseHeaderVisibilityOptions,
+  type UseHeaderVisibilityReturn,
+} from "./useHeaderVisibility";
+export {
+  useCommandPalette,
+  type UseCommandPaletteReturn,
+} from "./useCommandPalette";
 export { useActiveCategory } from "./useActiveCategory";
 export { useScrollSpy } from "./useScrollSpy";
 export { useDebounce } from "./useDebounce";
