@@ -281,3 +281,6 @@ export * from "./orders";
 
 // Auth (login, signup, onboarding)
 export * from "./auth";
+
+// Brand (mascot, identity)
+export * from "./brand";
