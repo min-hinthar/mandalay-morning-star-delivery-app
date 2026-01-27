@@ -20,8 +20,8 @@
  */
 
 import { cn } from "@/lib/utils/cn";
-import { UnifiedMenuItemCard } from "@/components/menu/UnifiedMenuItemCard";
-import { MenuCardWrapper } from "@/components/menu/MenuCardWrapper";
+import { UnifiedMenuItemCard } from "./UnifiedMenuItemCard";
+import { MenuCardWrapper } from "./MenuCardWrapper";
 import type { MenuItem } from "@/types/menu";
 
 // ============================================

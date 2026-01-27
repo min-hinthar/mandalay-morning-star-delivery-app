@@ -3,8 +3,8 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { UnifiedMenuItemCard } from "@/components/menu/UnifiedMenuItemCard";
-import { MenuCardWrapper } from "@/components/menu/MenuCardWrapper";
+import { UnifiedMenuItemCard } from "../UnifiedMenuItemCard";
+import { MenuCardWrapper } from "../MenuCardWrapper";
 import { CarouselControls } from "./CarouselControls";
 import type { MenuItem } from "@/types/menu";
 

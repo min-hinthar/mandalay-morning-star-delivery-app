@@ -39,6 +39,11 @@ export interface Category {
 export interface CategoryTabsProps {
   /** Array of category objects */
   categories: Category[];
+  /**
+   * Controlled active category (optional).
+   * When provided, disables scrollspy and uses this value instead.
+   */
+  activeCategory?: string | null;
   /** Optional callback when a category is clicked */
   onCategoryClick?: (slug: string | null) => void;
   /** Additional CSS classes */
@@ -47,6 +52,7 @@ export interface CategoryTabsProps {
 
 export function CategoryTabs({
   categories,
+  activeCategory: controlledActiveCategory,
   onCategoryClick,
   className,
 }: CategoryTabsProps) {
@@ -54,21 +60,30 @@ export function CategoryTabs({
   const activeTabRef = useRef<HTMLButtonElement>(null);
   const { shouldAnimate } = useAnimationPreference();
 
+  // Determine if we're in controlled mode
+  const isControlled = controlledActiveCategory !== undefined;
+
   // Fade indicator states
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(false);
 
-  // Generate section IDs for scrollspy
+  // Generate section IDs for scrollspy (only used in uncontrolled mode)
   const sectionIds = useMemo(
     () => categories.map((cat) => `category-${cat.slug}`),
     [categories]
   );
 
-  // Use scrollspy hook
-  const { activeCategory, scrollToCategory } = useActiveCategory(sectionIds, {
-    rootMargin: "-72px 0px -80% 0px", // Account for sticky header
-    headerHeight: 72,
-  });
+  // Use scrollspy hook (only active in uncontrolled mode)
+  const { activeCategory: scrollspyCategory, scrollToCategory } = useActiveCategory(
+    isControlled ? [] : sectionIds, // Pass empty array when controlled to disable scrollspy
+    {
+      rootMargin: "-72px 0px -80% 0px", // Account for sticky header
+      headerHeight: 72,
+    }
+  );
+
+  // Resolve active category (controlled takes precedence)
+  const activeCategory = isControlled ? controlledActiveCategory : scrollspyCategory;
 
   // Handle scroll position for fade indicators
   const updateFadeIndicators = useCallback(() => {
@@ -121,10 +136,13 @@ export function CategoryTabs({
   // Handle tab click
   const handleTabClick = useCallback(
     (slug: string | null) => {
-      scrollToCategory(slug);
+      // Only scroll to category section in uncontrolled (scrollspy) mode
+      if (!isControlled) {
+        scrollToCategory(slug);
+      }
       onCategoryClick?.(slug);
     },
-    [scrollToCategory, onCategoryClick]
+    [isControlled, scrollToCategory, onCategoryClick]
   );
 
   // All tabs including "All" at the start

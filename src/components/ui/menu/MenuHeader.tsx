@@ -5,22 +5,23 @@ import { CartButton } from "@/components/ui/cart";
 import { SearchInput } from "./SearchInput";
 import { useScrollDirection } from "@/lib/hooks/useScrollDirection";
 import { cn } from "@/lib/utils/cn";
+import type { MenuItem } from "@/types/menu";
 
 interface MenuHeaderProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  onClearSearch: () => void;
-  isSearching?: boolean;
+  /** Callback when search query changes */
+  onQueryChange?: (query: string) => void;
+  /** Callback when menu item is selected from autocomplete */
+  onSelectItem?: (item: MenuItem) => void;
+  /** Whether search is currently active (for header visibility) */
+  isSearchActive?: boolean;
 }
 
 export function MenuHeader({
-  searchQuery,
-  onSearchChange,
-  onClearSearch,
-  isSearching = false,
+  onQueryChange,
+  onSelectItem,
+  isSearchActive = false,
 }: MenuHeaderProps) {
   const { isCollapsed } = useScrollDirection({ threshold: 10 });
-  const isSearchActive = searchQuery.length > 0;
 
   return (
     <motion.header
@@ -42,10 +43,9 @@ export function MenuHeader({
 
         <div className="flex items-center gap-2">
           <SearchInput
-            value={searchQuery}
-            onChange={onSearchChange}
-            onClear={onClearSearch}
-            isLoading={isSearching}
+            onQueryChange={onQueryChange}
+            onSelectItem={onSelectItem}
+            mobileCollapsible
           />
           <CartButton />
         </div>
