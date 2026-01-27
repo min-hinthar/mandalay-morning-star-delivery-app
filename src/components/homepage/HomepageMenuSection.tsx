@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, Search, Star } from "lucide-react";
-import { ItemDetailSheetV8 } from "@/components/ui-v8/menu";
+import { ItemDetailSheet } from "@/components/ui/menu";
 import { UnifiedMenuItemCard } from "@/components/menu/UnifiedMenuItemCard";
 import { MenuCardWrapper } from "@/components/menu/MenuCardWrapper";
 import { FeaturedCarousel } from "@/components/menu/FeaturedCarousel";
@@ -408,8 +408,8 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
           )}
         </AnimatePresence>
 
-        {/* Item Detail Sheet V8 */}
-        <ItemDetailSheetV8
+        {/* Item Detail Sheet */}
+        <ItemDetailSheet
           item={selectedItem}
           isOpen={isModalOpen}
           onClose={() => {

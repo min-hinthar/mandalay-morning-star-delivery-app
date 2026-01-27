@@ -1,24 +1,24 @@
 /**
- * V8 Menu Components
- * Complete menu system with GSAP animations, skeleton states, and responsive overlays
+ * Menu Components
+ * Complete menu system with animations, skeleton states, and responsive overlays
  */
 
 // ============================================
 // CATEGORY NAVIGATION
 // ============================================
 
-export { CategoryTabsV8 } from "./CategoryTabsV8";
-export type { CategoryTabsV8Props, Category } from "./CategoryTabsV8";
+export { CategoryTabs } from "./CategoryTabs";
+export type { CategoryTabsProps, Category } from "./CategoryTabs";
 
-export { MenuSectionV8 } from "./MenuSectionV8";
-export type { MenuSectionV8Props, MenuSectionCategory } from "./MenuSectionV8";
+export { MenuSection } from "./MenuSection";
+export type { MenuSectionProps, MenuSectionCategory } from "./MenuSection";
 
 // ============================================
 // ITEM DISPLAY
 // ============================================
 
-export { MenuGridV8 } from "./MenuGridV8";
-export type { MenuGridV8Props } from "./MenuGridV8";
+export { MenuGrid } from "./MenuGrid";
+export type { MenuGridProps } from "./MenuGrid";
 
 export { BlurImage, BlurImageMenuCard, BlurImageCartItem } from "./BlurImage";
 export type { BlurImageProps } from "./BlurImage";
@@ -33,8 +33,8 @@ export type { EmojiPlaceholderProps } from "./EmojiPlaceholder";
 // SEARCH
 // ============================================
 
-export { SearchInputV8 } from "./SearchInputV8";
-export type { SearchInputV8Props } from "./SearchInputV8";
+export { SearchInput } from "./SearchInput";
+export type { SearchInputProps } from "./SearchInput";
 
 export { SearchAutocomplete } from "./SearchAutocomplete";
 export type { SearchAutocompleteProps } from "./SearchAutocomplete";
@@ -43,26 +43,26 @@ export type { SearchAutocompleteProps } from "./SearchAutocomplete";
 // ITEM DETAIL
 // ============================================
 
-export { ItemDetailSheetV8 } from "./ItemDetailSheetV8";
-export type { ItemDetailSheetV8Props } from "./ItemDetailSheetV8";
+export { ItemDetailSheet } from "./ItemDetailSheet";
+export type { ItemDetailSheetProps } from "./ItemDetailSheet";
 
 // ============================================
 // LOADING STATES
 // ============================================
 
 export {
-  MenuSkeletonV8,
-  MenuItemCardV8Skeleton,
-  SearchSkeletonV8,
-} from "./MenuSkeletonV8";
+  MenuSkeleton,
+  MenuItemCardSkeleton,
+  SearchSkeleton,
+} from "./MenuSkeleton";
 export type {
-  MenuSkeletonV8Props,
-  MenuItemCardV8SkeletonProps as MenuSkeletonCardProps,
-} from "./MenuSkeletonV8";
+  MenuSkeletonProps,
+  MenuItemCardSkeletonProps,
+} from "./MenuSkeleton";
 
 // ============================================
 // FULL COMPOSITION
 // ============================================
 
-export { MenuContentV8 } from "./MenuContentV8";
-export type { MenuContentV8Props } from "./MenuContentV8";
+export { MenuContent } from "./MenuContent";
+export type { MenuContentProps } from "./MenuContent";

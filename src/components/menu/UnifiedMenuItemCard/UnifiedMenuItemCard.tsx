@@ -18,7 +18,7 @@ import { CardImage } from "./CardImage";
 import { CardContent } from "./CardContent";
 import { AddButton } from "./AddButton";
 import { DietaryBadges } from "./DietaryBadges";
-import { FavoriteButton } from "@/components/ui-v8/menu/FavoriteButton";
+import { FavoriteButton } from "@/components/ui/menu";
 import type { MenuItem } from "@/types/menu";
 
 // ============================================

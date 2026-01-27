@@ -15,7 +15,7 @@ import type { MenuItem } from "@/types/menu";
 // TYPES
 // ============================================
 
-export interface SearchInputV8Props {
+export interface SearchInputProps {
   /** Callback when item is selected from autocomplete */
   onSelectItem?: (item: MenuItem) => void;
   /** Callback when search query changes */
@@ -61,13 +61,13 @@ const inputVariants = {
 // MAIN COMPONENT
 // ============================================
 
-export function SearchInputV8({
+export function SearchInput({
   onSelectItem,
   onQueryChange,
   placeholder = "Search menu...",
   mobileCollapsible = true,
   className,
-}: SearchInputV8Props) {
+}: SearchInputProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -293,4 +293,4 @@ export function SearchInputV8({
   );
 }
 
-export default SearchInputV8;
+export default SearchInput;

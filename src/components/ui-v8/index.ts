@@ -45,8 +45,19 @@ export { Toast, ToastContainer } from "./Toast";
 export { ToastProvider } from "./ToastProvider";
 export type { Toast as ToastType } from "@/lib/hooks/useToastV8";
 
-// Menu components
-export { CategoryTabsV8 } from "./menu/CategoryTabsV8";
-export type { CategoryTabsV8Props, Category } from "./menu/CategoryTabsV8";
-export { MenuSectionV8 } from "./menu/MenuSectionV8";
-export type { MenuSectionV8Props, MenuSectionCategory } from "./menu/MenuSectionV8";
+// Menu components - migrated to @/components/ui/menu
+// Re-export for backwards compatibility
+export {
+  CategoryTabs,
+  CategoryTabs as CategoryTabsV8,
+  MenuSection,
+  MenuSection as MenuSectionV8,
+} from "@/components/ui/menu";
+export type {
+  CategoryTabsProps,
+  CategoryTabsProps as CategoryTabsV8Props,
+  Category,
+  MenuSectionProps,
+  MenuSectionProps as MenuSectionV8Props,
+  MenuSectionCategory,
+} from "@/components/ui/menu";

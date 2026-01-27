@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * MenuSkeletonV8 Component
+ * MenuSkeleton Component
  * Loading skeleton states for menu content
  *
  * Features:
@@ -12,10 +12,10 @@
  *
  * @example
  * // Full menu loading state
- * <MenuSkeletonV8 sectionsCount={3} itemsPerSection={4} />
+ * <MenuSkeleton sectionsCount={3} itemsPerSection={4} />
  *
  * // Single card skeleton
- * <MenuItemCardV8Skeleton variant="default" />
+ * <MenuItemCardSkeleton variant="default" />
  */
 
 import { cn } from "@/lib/utils/cn";
@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils/cn";
 // TYPES
 // ============================================
 
-export interface MenuSkeletonV8Props {
+export interface MenuSkeletonProps {
   /** Number of sections to show */
   sectionsCount?: number;
   /** Number of items per section */
@@ -33,7 +33,7 @@ export interface MenuSkeletonV8Props {
   className?: string;
 }
 
-export interface MenuItemCardV8SkeletonProps {
+export interface MenuItemCardSkeletonProps {
   /** Card variant matching MenuItemCardV8 */
   variant?: "default" | "compact" | "featured";
   /** Additional className */
@@ -66,11 +66,11 @@ const variantConfig = {
 // MENU SKELETON (Full Page)
 // ============================================
 
-export function MenuSkeletonV8({
+export function MenuSkeleton({
   sectionsCount = 3,
   itemsPerSection = 4,
   className,
-}: MenuSkeletonV8Props) {
+}: MenuSkeletonProps) {
   return (
     <div className={className}>
       {/* Category tabs skeleton */}
@@ -106,7 +106,7 @@ export function MenuSkeletonV8({
             {/* Grid of card skeletons */}
             <div className="grid gap-4 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: itemsPerSection }).map((_, cardIdx) => (
-                <MenuItemCardV8Skeleton
+                <MenuItemCardSkeleton
                   key={cardIdx}
                   // Stagger animation delay for cascade effect
                   className={`stagger-${Math.min(cardIdx + 1, 8)}`}
@@ -124,10 +124,10 @@ export function MenuSkeletonV8({
 // CARD SKELETON (Individual)
 // ============================================
 
-export function MenuItemCardV8Skeleton({
+export function MenuItemCardSkeleton({
   variant = "default",
   className,
-}: MenuItemCardV8SkeletonProps) {
+}: MenuItemCardSkeletonProps) {
   const config = variantConfig[variant];
 
   return (
@@ -177,7 +177,7 @@ export function MenuItemCardV8Skeleton({
 // SEARCH SKELETON
 // ============================================
 
-export function SearchSkeletonV8({ className }: { className?: string }) {
+export function SearchSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
@@ -190,4 +190,4 @@ export function SearchSkeletonV8({ className }: { className?: string }) {
   );
 }
 
-export default MenuSkeletonV8;
+export default MenuSkeleton;
