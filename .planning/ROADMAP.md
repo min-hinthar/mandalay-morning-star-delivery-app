@@ -5,7 +5,7 @@
 - ✅ **v1.0 MVP** - Phases 1-8 (shipped 2026-01-23)
 - ✅ **v1.1 Tech Debt** - Phases 9-14 (shipped 2026-01-23)
 - ✅ **v1.2 Playful UI Overhaul** - Phases 15-24 (shipped 2026-01-27)
-- 🚧 **v1.3 Full Codebase Consolidation** - Phases 25-32 (in progress)
+- 🚧 **v1.3 Full Codebase Consolidation** - Phases 25-33 (in progress)
 
 ## Overview
 
@@ -25,6 +25,7 @@ Systematic consolidation of the codebase: merge overlapping component systems, e
 - [ ] **Phase 30: Mobile Stability** - Fix 3D tilt on touch devices
 - [ ] **Phase 31: Hero Redesign** - Floating emojis, parallax, theme-aware gradients
 - [ ] **Phase 32: Quality Assurance** - Documentation, testing, regression prevention
+- [ ] **Phase 33: Full Components Consolidation** - Merge all component subdirectories, eliminate duplicates
 
 ## Phase Details
 
@@ -159,10 +160,26 @@ Plans:
 - [ ] 32-02: Theme mode testing
 - [ ] 32-03: Visual regression test updates
 
+### Phase 33: Full Components Consolidation
+**Goal**: Single organized component structure with no duplicates across all subdirectories
+**Depends on**: Phase 32
+**Requirements**: COMP-07
+**Success Criteria** (what must be TRUE):
+  1. No duplicate components between directories (menu/ vs ui/menu/, scroll/ vs ui/scroll/)
+  2. layout/ and layouts/ merged into single coherent structure
+  3. All loose files at components root moved to appropriate directories
+  4. All consumer imports updated to canonical locations
+  5. ESLint guards prevent recreation of removed directories
+  6. No broken imports after consolidation
+**Plans**: TBD (run /gsd:plan-phase 33 to break down)
+
+Plans:
+- [ ] 33-01: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32
+Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 -> 33
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -174,11 +191,12 @@ Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32
 | 30. Mobile Stability | v1.3 | 0/2 | Not started | - |
 | 31. Hero Redesign | v1.3 | 0/4 | Not started | - |
 | 32. Quality Assurance | v1.3 | 0/3 | Not started | - |
+| 33. Full Components Consolidation | v1.3 | 0/? | Not started | - |
 
 **v1.3 Summary:**
-- Total phases: 8
-- Total plans: 22 (estimated)
-- Requirements coverage: 37/37
+- Total phases: 9
+- Total plans: 23+ (estimated)
+- Requirements coverage: 38/38
 
 ---
 
