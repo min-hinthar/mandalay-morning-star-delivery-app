@@ -1,5 +1,5 @@
 /**
- * V5 Container Component
+ * Container Component
  *
  * A responsive container with CSS Container Queries support.
  * Children can use @container queries to respond to container width.

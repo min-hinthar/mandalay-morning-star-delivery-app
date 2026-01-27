@@ -2,13 +2,13 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Stack } from "./Stack";
 
 /**
- * V5 Stack Component
+ * Stack Component
  *
  * Vertical flex layout with consistent gap between children.
  * Uses CSS gap property (not margins) for reliable spacing.
  */
 const meta: Meta<typeof Stack> = {
-  title: "Layouts/Stack",
+  title: "UI/Stack",
   component: Stack,
   parameters: {
     layout: "centered",

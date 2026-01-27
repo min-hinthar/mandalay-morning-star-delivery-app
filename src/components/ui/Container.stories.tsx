@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Container } from "./Container";
 
 /**
- * V5 Container Component
+ * Container Component
  *
  * Responsive container with CSS Container Queries support.
  * Children can use @container queries to respond to container width.
@@ -10,7 +10,7 @@ import { Container } from "./Container";
  * Sizes: sm (640px), md (768px), lg (1024px), xl (1280px), full
  */
 const meta: Meta<typeof Container> = {
-  title: "Layouts/Container",
+  title: "UI/Container",
   component: Container,
   parameters: {
     layout: "fullscreen",

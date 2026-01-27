@@ -1,5 +1,5 @@
 /**
- * V5 Stack Component
+ * Stack Component
  *
  * Vertical flex layout with consistent gap between children.
  * Uses CSS gap property (not margins) for reliable spacing.

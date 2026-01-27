@@ -1,5 +1,5 @@
 /**
- * V5 Cluster Component
+ * Cluster Component
  *
  * Horizontal flex layout with wrap support and consistent gap.
  * Perfect for tags, buttons, chips, and inline elements.
