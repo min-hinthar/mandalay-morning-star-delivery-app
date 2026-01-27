@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactElement, ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import { HeaderServer } from "@/components/layout/HeaderServer";
+import { HeaderWrapper } from "@/components/layout/HeaderWrapper";
 import { Providers } from "@/app/providers";
 import { Toaster } from "@/components/ui/toaster";
 import { WebVitalsReporter } from "@/components/WebVitalsReporter";
@@ -75,7 +75,7 @@ export default function RootLayout({
         className={`${inter.variable} ${playfair.variable} font-body bg-background text-foreground antialiased`}
       >
         <Providers>
-          <HeaderServer />
+          <HeaderWrapper />
           {children}
           <Toaster />
         </Providers>

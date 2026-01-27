@@ -1,12 +1,26 @@
 "use client";
 
-import { forwardRef } from "react";
+import { forwardRef, useState, useEffect, useMemo } from "react";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { useHeaderVisibility, getHeaderTransition } from "@/lib/hooks/useHeaderVisibility";
+import {
+  useHeaderVisibility,
+  getHeaderTransition,
+  useCommandPalette,
+  useCartDrawer,
+  useMenu,
+  useAuth,
+} from "@/lib/hooks";
 import { zClass } from "@/design-system/tokens/z-index";
 import { DesktopHeader, type NavItem, defaultNavItems } from "./DesktopHeader";
 import { MobileHeader } from "./MobileHeader";
+import { CartIndicator } from "./CartIndicator";
+import { SearchTrigger } from "./SearchTrigger";
+import { AccountIndicator } from "./AccountIndicator";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { MobileDrawer } from "@/components/layout/MobileDrawer";
+import { CommandPalette } from "@/components/layout/CommandPalette";
 
 /**
  * Header height constant
@@ -45,26 +59,14 @@ const glassStylesDark = {
  * Props for AppHeader component
  */
 export interface AppHeaderProps {
-  /** Handler for mobile menu toggle */
-  onMobileMenuToggle?: () => void;
-  /** Whether mobile menu is open */
-  isMobileMenuOpen?: boolean;
-  /** Handler for search open */
-  onSearchOpen?: () => void;
-  /** Whether an overlay (drawer, modal, command palette) is open */
-  overlayOpen?: boolean;
   /** Navigation items for desktop */
   navItems?: NavItem[];
-  /** Current pathname for active nav detection */
-  currentPath?: string;
-  /** Content for right side of header */
-  rightContent?: React.ReactNode;
   /** Additional class names */
   className?: string;
 }
 
 /**
- * AppHeader - Main header orchestrator with velocity-aware hide/show
+ * AppHeader - Complete header with integrated cart, account, search, and mobile drawer
  *
  * Features:
  * - Hide on scroll down, reappear on scroll up (iOS Safari pattern)
@@ -72,94 +74,132 @@ export interface AppHeaderProps {
  * - Glassmorphism blur background (consistent treatment)
  * - Responsive: DesktopHeader (md+) vs MobileHeader (< md)
  * - Pins header when overlay is open
+ * - Integrated cart indicator with bounce animation
+ * - Account indicator with avatar/dropdown
+ * - Search trigger with Cmd/Ctrl+K shortcut
+ * - Mobile drawer with swipe-to-close
+ * - Command palette for menu search
  *
  * @example
  * ```tsx
- * const [isMenuOpen, setIsMenuOpen] = useState(false);
- * const { isOpen: isCartOpen } = useCartDrawer();
- *
- * <AppHeader
- *   onMobileMenuToggle={() => setIsMenuOpen(!isMenuOpen)}
- *   isMobileMenuOpen={isMenuOpen}
- *   overlayOpen={isCartOpen || isMenuOpen}
- *   rightContent={<CartButton />}
- * />
+ * <AppHeader />
+ * <HeaderSpacer />
+ * {children}
  * ```
  */
 export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
-  (
-    {
-      onMobileMenuToggle,
-      isMobileMenuOpen = false,
-      onSearchOpen: _onSearchOpen,
-      overlayOpen = false,
-      navItems = defaultNavItems,
-      currentPath = "",
-      rightContent,
-      className,
-    },
-    ref
-  ) => {
-    // Combined overlay state: menu open OR external overlay
-    const isOverlayOpen = overlayOpen || isMobileMenuOpen;
+  ({ navItems = defaultNavItems, className }, ref) => {
+    const pathname = usePathname();
+    const { user } = useAuth();
+    const { isOpen: isCartOpen } = useCartDrawer();
+    const { isOpen: isPaletteOpen, open: openPalette, close: closePalette } = useCommandPalette();
+    const { data: menuData } = useMenu();
+
+    // Mobile drawer state
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    // Flatten menu items for command palette
+    const menuItems = useMemo(() => {
+      if (!menuData?.data?.categories) return [];
+      return menuData.data.categories.flatMap((c) => c.items);
+    }, [menuData]);
+
+    // User data for mobile drawer
+    const drawerUser = useMemo(() => {
+      if (!user) return null;
+      return {
+        name: user.user_metadata?.full_name as string | undefined,
+        email: user.email || undefined,
+        avatar: user.user_metadata?.avatar_url as string | undefined,
+      };
+    }, [user]);
+
+    // Close mobile menu on route change
+    useEffect(() => {
+      setIsMobileMenuOpen(false);
+    }, [pathname]);
+
+    // Combined overlay state for header pinning
+    const isOverlayOpen = isMobileMenuOpen || isCartOpen || isPaletteOpen;
 
     const { isVisible, isFastScroll } = useHeaderVisibility({
       overlayOpen: isOverlayOpen,
     });
 
-    const handleMobileMenuToggle = () => {
-      onMobileMenuToggle?.();
-    };
+    // Desktop right content: Theme, Search, Cart, Account (per CONTEXT.md order)
+    const desktopRightContent = (
+      <>
+        <ThemeToggle />
+        <SearchTrigger onClick={openPalette} />
+        <CartIndicator />
+        <AccountIndicator />
+      </>
+    );
+
+    // Mobile right content: Cart only (search is in drawer, account is in drawer)
+    const mobileRightContent = <CartIndicator />;
 
     return (
-      <motion.header
-        ref={ref}
-        className={cn(
-          "fixed top-0 left-0 right-0",
-          zClass.fixed,
-          className
-        )}
-        initial={false}
-        animate={{
-          y: isVisible ? 0 : -HEADER_HEIGHT,
-        }}
-        transition={getHeaderTransition(isFastScroll)}
-        style={glassStylesLight}
-      >
-        {/* Dark mode glassmorphism - apply via CSS class override */}
-        <style jsx global>{`
-          .dark header[class*="fixed"] {
-            background-color: ${glassStylesDark.backgroundColor} !important;
-            border-bottom: ${glassStylesDark.borderBottom} !important;
-            box-shadow: ${glassStylesDark.boxShadow} !important;
-          }
-        `}</style>
+      <>
+        <motion.header
+          ref={ref}
+          className={cn("fixed top-0 left-0 right-0", zClass.fixed, className)}
+          initial={false}
+          animate={{
+            y: isVisible ? 0 : -HEADER_HEIGHT,
+          }}
+          transition={getHeaderTransition(isFastScroll)}
+          style={glassStylesLight}
+        >
+          {/* Dark mode glassmorphism - apply via CSS class override */}
+          <style jsx global>{`
+            .dark header[class*="fixed"] {
+              background-color: ${glassStylesDark.backgroundColor} !important;
+              border-bottom: ${glassStylesDark.borderBottom} !important;
+              box-shadow: ${glassStylesDark.boxShadow} !important;
+            }
+          `}</style>
 
-        {/* Top accent border with primary gradient glow */}
-        <div
-          className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-secondary via-primary to-secondary opacity-60"
-          aria-hidden="true"
+          {/* Top accent border with primary gradient glow */}
+          <div
+            className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-secondary via-primary to-secondary opacity-60"
+            aria-hidden="true"
+          />
+
+          {/* Main header content */}
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 relative">
+            <div className="flex items-center justify-between h-16">
+              {/* Desktop Header (hidden on mobile) */}
+              <DesktopHeader
+                navItems={navItems}
+                currentPath={pathname}
+                rightContent={desktopRightContent}
+              />
+
+              {/* Mobile Header (hidden on desktop) */}
+              <MobileHeader
+                onMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                isMobileMenuOpen={isMobileMenuOpen}
+                rightContent={mobileRightContent}
+              />
+            </div>
+          </div>
+        </motion.header>
+
+        {/* Mobile Drawer */}
+        <MobileDrawer
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+          user={drawerUser}
         />
 
-        {/* Main header content */}
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 relative">
-          <div className="flex items-center justify-between h-16">
-            {/* Desktop Header (hidden on mobile) */}
-            <DesktopHeader
-              navItems={navItems}
-              currentPath={currentPath}
-              rightContent={rightContent}
-            />
-
-            {/* Mobile Header (hidden on desktop) */}
-            <MobileHeader
-              onMenuToggle={handleMobileMenuToggle}
-              isMobileMenuOpen={isMobileMenuOpen}
-              rightContent={rightContent}
-            />
-          </div>
-        </div>
-      </motion.header>
+        {/* Command Palette */}
+        <CommandPalette
+          open={isPaletteOpen}
+          onOpenChange={(open) => !open && closePalette()}
+          menuItems={menuItems}
+        />
+      </>
     );
   }
 );
