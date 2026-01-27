@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 33 of 33 (Full Components Consolidation)
-Plan: 5 of 11 in current phase
+Plan: 6 of 11 in current phase
 Status: In progress
-Last activity: 2026-01-27 - Completed 33-05-PLAN.md
+Last activity: 2026-01-27 - Completed 33-06-PLAN.md
 
-Progress: [██████████████████████████████████░░░░░░░] v1.3 Full Codebase Consolidation | 13/24 plans
+Progress: [███████████████████████████████████░░░░░░] v1.3 Full Codebase Consolidation | 14/24 plans
 
 ## Milestones Completed
 
@@ -33,7 +33,7 @@ Progress: [███████████████████████
 **Velocity:**
 - Total plans completed: 94 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 13
+- v1.3 plans completed: 14
 
 **By Phase (v1.3):**
 
@@ -41,7 +41,7 @@ Progress: [███████████████████████
 |-------|-------|-------|----------|
 | 25 | 1/1 | 8min | 8min |
 | 26 | 8/8 | 136min | 17min |
-| 33 | 5/11 | 50min | 10min |
+| 33 | 6/11 | 58min | 9.7min |
 
 ## Accumulated Context
 
@@ -92,6 +92,8 @@ From `.planning/research/SUMMARY.md`:
 | Framer Motion + GSAP scroll coexist | 33-02 | Both animation approaches in ui/scroll/ |
 | CategoryTabs supports controlled mode | 33-03 | activeCategory prop disables scrollspy |
 | QuantitySelector excluded from menu barrel | 33-03 | Avoids conflict with cart/QuantitySelector |
+| Theme providers in ui/theme/ | 33-06 | Consolidated all theme components |
+| WebVitalsReporter in lib/ | 33-06 | Non-UI concern moved to lib/web-vitals.tsx |
 
 ### Phase 33 Progress
 
@@ -117,6 +119,11 @@ From `.planning/research/SUMMARY.md`:
 - layouts/ directory deleted (only had re-exports)
 - All layout imports now use canonical @/components/ui paths
 
+**33-06 outcomes:**
+- ThemeProvider and DynamicThemeProvider moved to ui/theme/
+- WebVitalsReporter merged into lib/web-vitals.tsx
+- No loose .tsx files at components root
+
 ### Roadmap Evolution
 
 - Phase 33 added: Full Components Consolidation (merge all component subdirectories, eliminate duplicates)
@@ -127,11 +134,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27 22:54
-Stopped at: Completed 33-05-PLAN.md
+Last session: 2026-01-27 22:58
+Stopped at: Completed 33-06-PLAN.md
 Resume file: None
-Next action: Execute 33-06-PLAN.md (cart consolidation)
+Next action: Execute 33-07-PLAN.md (if exists)
 
 ---
 
-*Updated: 2026-01-27 - Phase 33 Plan 05 complete (layout/ and layouts/ directories deleted)*
+*Updated: 2026-01-27 - Phase 33 Plan 06 complete (components root cleaned)*
