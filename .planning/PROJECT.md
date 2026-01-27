@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A full frontend rewrite of the Morning Star Weekly Delivery meal subscription app. Fresh V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. V1 delivered customer flows (menu → cart → checkout) with reliable clickability. V1.1 completed tech debt cleanup with zero legacy patterns, strict TypeScript, and enforced design tokens across the entire codebase.
+A full frontend rewrite of the Morning Star Weekly Delivery meal subscription app. Fresh V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. V1 delivered customer flows (menu → cart → checkout) with reliable clickability. V1.1 completed tech debt cleanup with zero legacy patterns, strict TypeScript, and enforced design tokens. V1.2 delivered maximum playfulness with unified menu cards, rebuilt header/navigation, 12 micro-interactions, OLED dark mode, and comprehensive codebase cleanup.
 
 ## Core Value
 
@@ -87,21 +87,47 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - ✓ Visual regression tests for Admin flow (3 tests) — v1.1
 - ✓ Visual regression tests for Driver flow (5 tests) — v1.1
 - ✓ Color token migration (header, FlipCard, charts use semantic tokens) — v1.1
+- ✓ TailwindCSS 4 z-index tokens generate utility classes correctly — v1.2
+- ✓ Signout button click registers properly (z-index/stacking fix) — v1.2
+- ✓ UnifiedMenuItemCard with glassmorphism, 3D tilt, shine effect — v1.2
+- ✓ Menu page uses unified card design — v1.2
+- ✓ Homepage menu section uses unified card design — v1.2
+- ✓ Cart items use unified card style — v1.2
+- ✓ Video hero component with gradient fallback — v1.2
+- ✓ How It Works section with enhanced animations — v1.2
+- ✓ Testimonials carousel with auto-rotation — v1.2
+- ✓ CTA Banner with scroll animations — v1.2
+- ✓ All buttons have consistent press compression animation — v1.2
+- ✓ All inputs have focus glow/pulse animation — v1.2
+- ✓ Toggle switches have bouncy animation — v1.2
+- ✓ Branded loading spinner (8-pointed star themed) — v1.2
+- ✓ Success states have checkmark draw animation — v1.2
+- ✓ Error states have shake animation — v1.2
+- ✓ Skeleton loading has premium shimmer effect — v1.2
+- ✓ Quantity selector has rubbery spring overshoot — v1.2
+- ✓ Image reveals have blur-to-sharp + scale effect — v1.2
+- ✓ Swipe gestures respond to velocity — v1.2
+- ✓ Price changes animate digit-by-digit — v1.2
+- ✓ Favorite heart toggle has particle burst — v1.2
+- ✓ OLED-friendly dark mode (pure black surfaces) — v1.2
+- ✓ Theme toggle has animated sun/moon morph — v1.2
+- ✓ Theme switch has circular reveal transition — v1.2
+- ✓ All color tokens reviewed for proper contrast — v1.2
+- ✓ Menu page has enhanced entry animations — v1.2
+- ✓ Checkout pages have enhanced animations — v1.2
+- ✓ Order history page has enhanced animations — v1.2
+- ✓ AppHeader with velocity-aware hide/show — v1.2
+- ✓ MobileDrawer with swipe-to-close gesture — v1.2
+- ✓ CommandPalette with Cmd/Ctrl+K shortcut — v1.2
+- ✓ CartIndicator with badge bounce animation — v1.2
+- ✓ AccountIndicator with avatar dropdown — v1.2
+- ✓ Animation tokens consolidated to single source — v1.2
+- ✓ 33 files deleted in codebase cleanup — v1.2
+- ✓ 6 packages removed (~650KB bundle reduction) — v1.2
 
 ### Active
 
-**Current Milestone: v1.2 Playful UI Overhaul**
-
-**Goal:** Transform customer pages with maximum playfulness — 3D interactive hero, unified menu design, theme refinement, and fix remaining z-index issues from TailwindCSS 4 quirks.
-
-**Target features:**
-- [ ] 3D Hero: Interactive food showcase (Three.js/React Three Fiber) with rotation/exploration
-- [ ] Homepage redesign: Coverage section, How It Works, Menu section with enhanced animations
-- [ ] Menu item unification: New consistent card design across homepage, menu page, and cart
-- [ ] Theme refinement: Light/dark mode polish (fix footer text, contrast issues)
-- [ ] Z-index root cause: TailwindCSS 4 custom theme utilities not generating classes
-- [ ] Signout bug: Click not registering (z-index/stacking context investigation)
-- [ ] Maximum playfulness: Enhanced animations, 3D accents, interactions across all customer pages
+*No active milestone. Ready for v1.3 planning.*
 
 ### Out of Scope
 - Backend/schema changes — Supabase + Stripe contracts stay stable
@@ -110,21 +136,24 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 
 ## Context
 
-**Current state (v1.1 shipped):**
-- V8 component library complete with full codebase adoption
-- 69 requirements validated across 14 phases (v1.0 + v1.1)
+**Current state (v1.2 shipped):**
+- V8 component library complete with maximum playfulness
+- 127 requirements validated across 24 phases (v1.0 + v1.1 + v1.2)
 - All flows using V8 components: customer, admin, driver
 - Zero z-index violations with ESLint enforcement at error severity
-- Zero v7-index.ts legacy barrels remaining
+- Animation tokens consolidated to single source (motion-tokens.ts)
 - TypeScript strict mode with unused variable checks
-- 78 visual regression tests (baselines to generate in network-enabled environment)
+- 12 micro-interactions implemented across all interactive elements
+- OLED-friendly dark mode with circular reveal transition
+- Complete header/nav rebuild: AppHeader, MobileDrawer, CommandPalette
+- 33 files deleted, 6 packages removed (~650KB bundle reduction)
 
 **Tech stack:**
 - Next.js 16.1.2 + React 19.2.3 + TailwindCSS 4
 - Framer Motion 12.26.1 + GSAP 3.14.2
 - Zustand for state management
 - Supabase auth + Stripe checkout
-- 101,118 total TypeScript LOC
+- 92,952 total TypeScript LOC
 
 **Remaining tech debt:**
 - Visual regression baselines need generation (78 tests ready, run in network-enabled environment)
@@ -163,6 +192,17 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 | Local stacking uses inline zIndex 1-4 | Components with isolate class exempt from token rule | ✓ Good — clean pattern |
 | mockFonts helper for visual tests | Prevents Google Fonts TLS failures in sandboxed CI | ✓ Good — network independence |
 | Visual regression baselines deferred | Network access needed; infrastructure ready | — Pending |
+| UnifiedMenuItemCard 3D tilt | 18-degree max, spring physics (stiffness 150, damping 15) | ✓ Good — premium feel |
+| Glassmorphism 30px blur | Upgraded from 20px for stronger glass effect | ✓ Good — distinctive cards |
+| 80ms stagger standard | STAGGER_GAP = 0.08, capped at 500ms max delay | ✓ Good — consistent reveals |
+| 25% viewport trigger | VIEWPORT_AMOUNT = 0.25 for scroll animations | ✓ Good — timely reveals |
+| OLED dark mode (pure black) | #000000 surfaces for OLED displays | ✓ Good — battery friendly |
+| View Transitions API circular reveal | Spring easing (0.34, 1.56, 0.64, 1) for theme switch | ✓ Good — delightful |
+| Velocity-aware scroll hide | 300px/s threshold for header show/hide | ✓ Good — natural feel |
+| MobileDrawer swipe 100px threshold | Left swipe to close, body scroll lock | ✓ Good — intuitive gesture |
+| Animation tokens single source | All imports from @/lib/motion-tokens exclusively | ✓ Good — maintainable |
+| 2D hero permanent (not fallback) | Gradient + floating animation, removed 3D | ✓ Good — performance |
+| 3D hero removed in cleanup | ~650KB reduction, simplified codebase | ✓ Good — faster loads |
 
 ---
-*Last updated: 2026-01-23 after v1.2 milestone started*
+*Last updated: 2026-01-27 after v1.2 milestone shipped*
