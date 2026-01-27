@@ -94,6 +94,27 @@ const config: Config = {
           border: "var(--color-footer-border)",
         },
 
+        // Hero Section (dark gradient, theme-aware)
+        hero: {
+          "gradient-start": "var(--hero-gradient-start)",
+          "gradient-mid": "var(--hero-gradient-mid)",
+          "gradient-end": "var(--hero-gradient-end)",
+          text: "var(--hero-text)",
+          "text-muted": "var(--hero-text-muted)",
+          overlay: "var(--hero-overlay)",
+          "stat-bg": "var(--hero-stat-bg)",
+        },
+
+        // Interactive Colors (semantic aliases)
+        interactive: {
+          primary: "var(--color-interactive-primary)",
+          hover: "var(--color-interactive-hover)",
+        },
+
+        // Accent Aliases
+        "accent-secondary": "var(--color-accent-secondary)",
+        "accent-tertiary": "var(--color-accent-tertiary)",
+
         /* ===========================================
            SHADCN/RADIX COMPATIBILITY
            =========================================== */

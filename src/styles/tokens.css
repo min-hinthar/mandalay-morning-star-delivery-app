@@ -89,6 +89,29 @@
   --color-status-info-bg: rgba(0, 151, 157, 0.10);
 
   /* ===========================================
+     HERO SECTION
+     Dark gradient hero (consistent across themes)
+     =========================================== */
+
+  --hero-gradient-start: #A41034;
+  --hero-gradient-mid: #5C0A1E;
+  --hero-gradient-end: #1a0a0f;
+  --hero-text: #FFFFFF;
+  --hero-text-muted: rgba(255, 255, 255, 0.7);
+  --hero-overlay: rgba(0, 0, 0, 0.6);
+  --hero-stat-bg: rgba(255, 255, 255, 0.1);
+
+  /* ===========================================
+     INTERACTIVE ALIASES
+     Semantic interactive color tokens
+     =========================================== */
+
+  --color-interactive-primary: var(--color-primary);
+  --color-interactive-hover: var(--color-primary-hover);
+  --color-accent-secondary: var(--color-accent-orange);
+  --color-accent-tertiary: var(--color-accent-teal);
+
+  /* ===========================================
      BORDER RADIUS
      =========================================== */
 
@@ -438,6 +461,28 @@
   --color-footer-text: #e0e0e0;
   --color-footer-text-muted: #a0a0a0;
   --color-footer-border: rgba(255, 255, 255, 0.1);
+
+  /* ===========================================
+     HERO SECTION (Dark Mode)
+     Slightly more vibrant for dark theme
+     =========================================== */
+
+  --hero-gradient-start: #C41844;
+  --hero-gradient-mid: #6B0C24;
+  --hero-gradient-end: #1a0a0f;
+  --hero-text: #FFFFFF;
+  --hero-text-muted: rgba(255, 255, 255, 0.75);
+  --hero-overlay: rgba(0, 0, 0, 0.5);
+  --hero-stat-bg: rgba(255, 255, 255, 0.12);
+
+  /* ===========================================
+     INTERACTIVE ALIASES (Dark Mode)
+     =========================================== */
+
+  --color-interactive-primary: var(--color-primary);
+  --color-interactive-hover: var(--color-primary-hover);
+  --color-accent-secondary: var(--color-accent-orange);
+  --color-accent-tertiary: var(--color-accent-teal);
 }
 
 /* ============================================

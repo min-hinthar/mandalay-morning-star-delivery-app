@@ -365,7 +365,7 @@ export function Modal({
                     "hover:text-zinc-900 dark:hover:text-zinc-100",
                     "transition-colors duration-150",
                     "focus-visible:outline-none focus-visible:ring-2",
-                    "focus-visible:ring-amber-500 focus-visible:ring-offset-2"
+                    "focus-visible:ring-primary/30 focus-visible:ring-offset-2"
                   )}
                   aria-label="Close modal"
                   data-testid="modal-close-button"

@@ -208,7 +208,7 @@ export function AddToCartButton({
         "bg-amber-500 text-white",
         "transition-colors duration-150",
         // Focus
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2",
         // Hover
         !isDisabled && "hover:bg-amber-600",
         // Disabled

@@ -161,7 +161,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
             "text-zinc-700 dark:text-zinc-300",
             "transition-colors duration-150",
             "hover:bg-amber-500 hover:text-white",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2",
             className
           )}
           aria-label="Sign in"
@@ -190,8 +190,8 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
         className={cn(
           "relative flex h-10 w-10 items-center justify-center rounded-full",
           "transition-shadow duration-150",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2",
-          isOpen && "ring-2 ring-amber-500 ring-offset-2",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2",
+          isOpen && "ring-2 ring-primary/30 ring-offset-2",
           className
         )}
         aria-label="Account menu"

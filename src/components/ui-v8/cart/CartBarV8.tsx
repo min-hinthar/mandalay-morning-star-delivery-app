@@ -270,7 +270,7 @@ export function CartBarV8({
               transition={getSpring(spring.snappy)}
               className={cn(
                 "flex items-center gap-3 min-w-0",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2",
                 "rounded-lg p-1 -m-1",
                 "transition-colors hover:bg-amber-50/50 dark:hover:bg-amber-900/20"
               )}
