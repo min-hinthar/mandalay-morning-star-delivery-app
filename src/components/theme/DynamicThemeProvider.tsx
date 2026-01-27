@@ -9,7 +9,7 @@ import {
   useMemo,
   type ReactNode,
 } from "react";
-import { v7Palettes, getTimeOfDayPalette } from "@/lib/webgl/gradients";
+import { palettes, getTimeOfDayPalette } from "@/lib/webgl/gradients";
 
 // ============================================
 // TYPES
@@ -235,7 +235,7 @@ export function DynamicThemeProvider({
 
   // Gradient palette - timeOfDay triggers re-computation when period changes
   const gradientPalette = useMemo((): string[] => {
-    if (!isDynamicEnabled) return [...v7Palettes.brand];
+    if (!isDynamicEnabled) return [...palettes.brand];
     return getTimeOfDayPalette();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- timeOfDay used as trigger
   }, [isDynamicEnabled, timeOfDay]);
