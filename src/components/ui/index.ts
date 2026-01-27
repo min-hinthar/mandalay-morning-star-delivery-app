@@ -142,13 +142,13 @@ export {
   DropdownMenuSeparator,
 } from "./dropdown-menu";
 
-// Tooltip
+// Tooltip (V8)
 export {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
   TooltipProvider,
-} from "./tooltip";
+} from "./Tooltip";
 
 // ============================================
 // FEEDBACK COMPONENTS
