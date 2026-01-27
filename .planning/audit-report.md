@@ -1,6 +1,6 @@
 # Token Audit Report
 
-Generated: 2026-01-27 12:24:57
+Generated: 2026-01-27 12:25:57
 Total files scanned: 107
 Total violations: 334
 
@@ -520,9 +520,11 @@ Severity breakdown: 4 critical, 0 warning, 0 info
 ### Historical Trend
 | Run | Date | Critical | Warning | Info | Total |
 |-----|------|----------|---------|------|-------|
+| 5 | 2026-01-27 | 283 | 51 | 0 | 334 |
 | 3 | 2026-01-27 | 283 | 51 | 0 | 334 |
 | 1 | 2026-01-27 | 283 | 51 | 0 | 334 |
 | 2 | 2026-01-27 | 283 | 51 | 0 | 334 |
+| 4 | 2026-01-27 | 283 | 51 | 0 | 334 |
 
 ### Category Baselines
 - colors: 280
