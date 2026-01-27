@@ -1,7 +1,7 @@
 # Architecture Patterns
 
 **Domain:** UI component library with strict layering and motion-first design
-**Researched:** 2026-01-21 (Updated 2026-01-23 with 3D integration)
+**Researched:** 2026-01-21 (Updated 2026-01-23 with 3D integration, 2026-01-27 with theme audit)
 **Confidence:** HIGH (verified against existing codebase + authoritative sources)
 
 ---
@@ -18,6 +18,384 @@ This architecture document addresses the core problems identified in the PRD:
 The recommended architecture uses a **portal-first overlay system**, **strict z-index token enforcement**, and **component isolation boundaries** to prevent these issues.
 
 **v1.2 Update:** Added Three.js/React Three Fiber integration patterns for 3D hero section, ensuring 3D canvas coexists with existing GSAP/Framer Motion animation infrastructure.
+
+**v1.3 Update (2026-01-27):** Added theme token audit architecture and hero redesign integration patterns for consistency fixes.
+
+---
+
+## v1.3: Theme Audit & Hero Redesign Architecture
+
+### Problem Statement
+
+Despite a well-structured token system, the codebase has **inconsistent token adoption**:
+- **62 files** using `text-white` instead of semantic tokens
+- **145 hardcoded hex colors** in component TSX files
+- **111 uses** of static Tailwind grays (`bg-black`, `bg-white`, `bg-gray-*`)
+
+The hero section works but uses 2D gradient + basic parallax. Enhancement to 3D layers is possible with existing motion-tokens.
+
+### Current Token Architecture (WELL-STRUCTURED)
+
+```
+src/styles/tokens.css          # Single source of truth for CSS variables
+    |                            - :root (light mode values)
+    |                            - .dark (dark mode values)
+    v
+src/app/globals.css            # Imports tokens, defines @theme inline bridge
+    |
+    v
+tailwind.config.ts             # Maps CSS vars to Tailwind utilities
+    |
+    v
+Components                     # Should use Tailwind classes (e.g., text-text-primary)
+```
+
+**Token Categories Already Defined:**
+| Category | Example Token | Tailwind Class |
+|----------|---------------|----------------|
+| Surface | `--color-surface-primary` | `bg-surface-primary` |
+| Text | `--color-text-primary` | `text-text-primary` |
+| Border | `--color-border-default` | `border-border-color` |
+| Hero | `--hero-gradient-start` | `bg-hero-gradient-start` |
+| Footer | `--color-footer-bg` | `bg-footer-bg` |
+| Status | `--color-status-success` | `text-status-success` |
+
+### Theme Provider Stack (EXISTING)
+
+```typescript
+// Provider hierarchy
+<ThemeProvider>           // next-themes (class-based dark mode)
+  <DynamicThemeProvider>  // Time-of-day + weather-aware colors
+    <App />
+  </DynamicThemeProvider>
+</ThemeProvider>
+```
+
+**Two theme systems coexist:**
+1. **next-themes ThemeProvider** - Toggles `.dark` class on `<html>`
+2. **DynamicThemeProvider** - Adds `--theme-*` variables for time-of-day effects
+
+Both systems work correctly. The issue is **component adoption**, not infrastructure.
+
+---
+
+### Theme Audit Architecture
+
+#### Approach: Systematic Pattern-Based Fixes
+
+**Do NOT use file-by-file manual review.** Use grep patterns to systematically identify and batch-fix violations.
+
+#### Violation Categories & Fix Patterns
+
+| Category | Pattern to Find | Correct Token | Priority |
+|----------|-----------------|---------------|----------|
+| **Hardcoded white text** | `text-white` | `text-text-inverse` or `text-hero-text` | HIGH |
+| **Hardcoded black/gray bg** | `bg-black`, `bg-white`, `bg-gray-*` | `bg-surface-*` | HIGH |
+| **Hex colors in components** | `#[0-9a-fA-F]{6}` in .tsx | CSS variable or token class | MEDIUM |
+| **Static Tailwind colors** | `text-gray-*`, `border-gray-*` | `text-text-*`, `border-border-*` | MEDIUM |
+| **rgba() without variable** | `rgba(0,0,0,*)` | `color-mix()` with token | LOW |
+
+#### Audit Workflow
+
+```
+Phase 1: Discovery (automated)
+    |
+    +-- grep patterns identify all violations
+    +-- Generate violation report with file:line locations
+    |
+    v
+Phase 2: Categorization
+    |
+    +-- Sort by context (hero, critical paths, admin)
+    +-- Group by fix pattern (text-white -> text-inverse, etc.)
+    |
+    v
+Phase 3: Batch Fixes
+    |
+    +-- Fix by pattern, not by file
+    +-- Test in both light and dark modes
+    +-- Visual regression testing
+```
+
+#### Specific Fix Patterns
+
+```typescript
+// Pattern 1: text-white in dark backgrounds
+// Context: Hero, overlays, badges on images
+// Before
+className="text-white"
+// After (in hero context)
+className="text-hero-text"
+// After (in contrast background)
+className="text-text-inverse"
+
+// Pattern 2: Hardcoded backgrounds
+// Before
+className="bg-black/50"
+// After
+className="bg-surface-primary/50"  // Or glass-* utility
+
+// Pattern 3: Hex colors in style props (charts are exceptions)
+// Before
+style={{ backgroundColor: "#A41034" }}
+// After
+className="bg-primary"
+
+// Pattern 4: Static rgba for overlays
+// Before (in CSS)
+background: rgba(0, 0, 0, 0.6)
+// After
+background: color-mix(in srgb, var(--color-text-primary) 60%, transparent)
+```
+
+#### Files Requiring Attention (from grep analysis)
+
+**High Priority (user-facing):**
+- `src/components/homepage/*.tsx` - Hero, CTABanner, TestimonialsCarousel
+- `src/components/checkout/*.tsx` - PaymentSuccess, AddressInput
+- `src/components/ui-v8/cart/*.tsx` - CartBarV8, CartDrawerV8
+
+**Lower Priority (admin/driver):**
+- `src/components/admin/*.tsx` - Can use more static colors
+- `src/components/driver/*.tsx` - High-contrast mode handles a11y
+
+---
+
+### Hero Redesign Architecture
+
+#### Current Hero Structure (FUNCTIONAL)
+
+```
+src/components/homepage/Hero.tsx
+    |
+    +-- GradientFallback (background layer)
+    |       +-- Linear gradient via CSS vars (--hero-gradient-*)
+    |       +-- Decorative SVG pattern overlay
+    |       +-- Radial glow effect
+    |
+    +-- HeroContent (content layer)
+            +-- BrandMascot (optional)
+            +-- Time-based greeting badge
+            +-- AnimatedHeadline (staggered word reveal)
+            +-- Subheadline + CTA buttons
+            +-- Stats bar + Scroll indicator
+```
+
+**Current animation techniques:**
+- Scroll parallax (`useScroll`, `useTransform`, `useSpring`)
+- Spring-smoothed opacity and Y position
+- Word-by-word headline animation
+- CTA button glow sweep
+
+#### Enhancement Strategy: Add Parallax Layers
+
+**Recommended: Enhance Existing Component**
+
+```typescript
+// Modified structure
+Hero.tsx (enhance)
+    |
+    +-- HeroBackground.tsx (extract/new)
+    |       +-- Multiple parallax layers
+    |       +-- Different scroll speeds per layer
+    |       +-- Decorative floating elements
+    |
+    +-- HeroContent (keep mostly unchanged)
+            +-- Enhanced entrance animations
+            +-- Refined spring configurations
+```
+
+#### Parallax Layer Architecture
+
+Based on existing `parallaxPresets` in motion-tokens.ts:
+
+```typescript
+// Layer configuration matching existing token pattern
+const LAYER_CONFIG = {
+  background: {
+    scrollSpeed: parallaxPresets.background.speedFactor, // 0.1
+    scale: 1.2,
+    elements: ['gradient', 'pattern']
+  },
+  midground: {
+    scrollSpeed: parallaxPresets.mid.speedFactor,  // 0.4
+    scale: 1.1,
+    elements: ['decorativeShapes']
+  },
+  content: {
+    scrollSpeed: parallaxPresets.content.speedFactor,  // 1.0
+    scale: 1.0,
+    elements: ['headline', 'cta', 'stats']
+  },
+  foreground: {
+    scrollSpeed: parallaxPresets.foreground.speedFactor,  // 0.8
+    scale: 1.0,
+    elements: ['floatingDecorations']
+  },
+};
+```
+
+#### Implementation Pattern (Using Existing Tokens)
+
+```typescript
+import { useScroll, useTransform, motion } from "framer-motion";
+import { parallaxPresets, spring } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+
+function HeroBackground() {
+  const { shouldAnimate } = useAnimationPreference();
+  const { scrollYProgress } = useScroll();
+
+  // Transform scroll position to layer movement
+  const bgY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ["0%", `${parallaxPresets.background.speedFactor * 100}%`]
+  );
+  const midY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ["0%", `${parallaxPresets.mid.speedFactor * 50}%`]
+  );
+
+  if (!shouldAnimate) {
+    // Static fallback for reduced motion
+    return <StaticHeroBackground />;
+  }
+
+  return (
+    <div style={{ perspective: 1000 }}>
+      <motion.div
+        style={{ y: bgY }}
+        className="absolute inset-0"
+      >
+        {/* Background layer - gradient + pattern */}
+      </motion.div>
+      <motion.div
+        style={{ y: midY }}
+        className="absolute inset-0"
+      >
+        {/* Midground decorative elements */}
+      </motion.div>
+    </div>
+  );
+}
+```
+
+#### Animation Token Usage (Hero)
+
+| Animation | Existing Token | Usage |
+|-----------|----------------|-------|
+| Headline entrance | `spring.rubbery` | Word-by-word reveal (already used) |
+| Content fade | `spring.default` | Staggered sections |
+| Button hover | `hover.buttonPress` | CTA buttons |
+| Scroll parallax | `parallaxPresets.*` | Layer speeds |
+| Float decoration | `float()` / `floatGentle()` | Floating elements |
+| Scroll reveal | `scrollReveal.fadeUp` | On-viewport animations |
+
+#### Hero Token Dependencies (Already Defined)
+
+```css
+/* From tokens.css - no changes needed */
+--hero-gradient-start: #A41034;  /* Light: deep red */
+--hero-gradient-mid: #5C0A1E;
+--hero-gradient-end: #1a0a0f;
+--hero-text: #FFFFFF;
+--hero-text-muted: rgba(255, 255, 255, 0.7);
+--hero-overlay: rgba(0, 0, 0, 0.6);
+--hero-stat-bg: rgba(255, 255, 255, 0.1);
+
+/* Dark mode variants also exist */
+.dark {
+  --hero-gradient-start: #C41844;
+  --hero-gradient-mid: #6B0C24;
+  /* ... */
+}
+```
+
+---
+
+### Integration Considerations
+
+#### Patterns to Preserve
+
+1. **useAnimationPreference hook** - All animations must respect reduced motion
+2. **motion-tokens.ts presets** - Use existing springs, not custom values
+3. **zClass helper** - Use for z-index layering
+4. **CSS cascade layers** - Respect `@layer reset, base, tokens, components, utilities`
+
+#### Potential Conflicts
+
+| Area | Risk | Mitigation |
+|------|------|------------|
+| DynamicThemeProvider gradients | Hero uses `gradientPalette` | Ensure tokens.css fallback works |
+| View Transition API | Hero scroll may conflict | Test with theme toggle |
+| Reduced motion | Parallax must degrade | Check `shouldAnimate` everywhere |
+
+#### Performance Considerations
+
+```typescript
+// Good: Use willChange sparingly, remove after animation
+style={{ willChange: "transform" }}
+
+// Good: GPU-accelerated properties only
+transform: translateY(${y}px)  // Accelerated
+top: ${y}px                    // NOT accelerated - avoid
+
+// Good: Limit parallax layers (3-4 max)
+// Each layer = additional paint/composite
+
+// Good: Test on 60fps and 120fps displays
+```
+
+---
+
+### Build Order for v1.3 Milestone
+
+#### Phase 1: Audit Infrastructure (1-2 tasks)
+1. Create grep patterns for violation detection
+2. Generate baseline violation report with counts
+
+#### Phase 2: High-Impact Token Fixes (3-5 tasks)
+3. Fix `text-white` in hero/homepage components
+4. Fix `text-white` in cart/checkout components
+5. Fix hardcoded backgrounds in overlays
+6. Fix hex colors in user-facing components
+
+#### Phase 3: Hero Enhancement (3-4 tasks)
+7. Extract HeroBackground as subcomponent
+8. Implement parallax layer system
+9. Enhance entrance animations
+10. Performance testing and polish
+
+#### Phase 4: Remaining Fixes (2-3 tasks)
+11. Fix admin/driver components (lower priority)
+12. Document token usage patterns for team
+13. Consider ESLint rule to prevent regression
+
+#### Rationale for Order
+
+1. **Audit first** - Know full scope before fixing
+2. **User-facing fixes first** - Homepage, cart, checkout visible to all
+3. **Hero after tokens** - Hero needs consistent tokens to work correctly
+4. **Admin last** - Lower visibility, high-contrast mode handles a11y
+
+---
+
+### Success Criteria (v1.3)
+
+#### Theme Audit Complete When:
+- [ ] Zero `text-white` outside intentional inverse contexts
+- [ ] Zero hardcoded hex colors in component TSX (except charts)
+- [ ] All user-facing components pass light/dark visual review
+- [ ] Documentation updated with token usage guidelines
+
+#### Hero Redesign Complete When:
+- [ ] Parallax layers implemented (3 layers minimum)
+- [ ] Scroll performance < 16ms per frame
+- [ ] Reduced motion fallback works correctly
+- [ ] Visual design approved
+- [ ] Mobile performance acceptable
 
 ---
 
@@ -656,7 +1034,7 @@ export function useScrollAnimation() {
 
 ### Framer Motion + R3F Bridge
 
-Use `framer-motion-3d` for synchronized DOM ↔ 3D animations:
+Use `framer-motion-3d` for synchronized DOM <-> 3D animations:
 
 ```tsx
 // src/components/three/Mascot3D.tsx
@@ -1060,6 +1438,7 @@ function MobileMenu({ open, onOpenChange }: ControlledProps) {
 | Animation consistency | Mixed patterns | Shared motion tokens |
 | Bundle size | N/A | Tree-shakeable primitives |
 | **3D integration (v1.2)** | None | Dynamic import, GPU-tiered fallbacks |
+| **Theme consistency (v1.3)** | 62 files with hardcoded colors | Token enforcement + audit |
 
 ---
 
@@ -1124,6 +1503,11 @@ import { Dialog } from '@/components/ui/dialog';
 - [pmndrs/react-three-next Starter](https://github.com/pmndrs/react-three-next)
 - [Codrops: Cinematic 3D Scroll Experiences with GSAP](https://tympanus.net/codrops/2025/11/19/how-to-build-cinematic-3d-scroll-experiences-with-gsap/)
 - [Drei Performance Components](https://github.com/pmndrs/drei)
+
+**Framer Motion Parallax (v1.3):**
+- [Framer Motion Parallax Implementation](https://medium.com/@rob.bettison94/framer-motion-parallax-implementation-in-react-b4c0c652c407)
+- [Create 3D Animations with Framer Motion](https://tillitsdone.com/blogs/3d-animations-with-framer-motion/)
+- [Framer Parallax Examples](https://www.framer.com/blog/parallax-scrolling-examples/)
 
 **Existing Codebase:**
 - `src/styles/tokens.css` - Current z-index tokens (verified)
