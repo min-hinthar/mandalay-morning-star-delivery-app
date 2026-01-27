@@ -36,14 +36,72 @@ const config = [
           caughtErrorsIgnorePattern: "^_",
         },
       ],
-      // Prevent ui-v8 imports - consolidated into ui/
+      // Prevent imports from consolidated directories
       "no-restricted-imports": [
         "error",
         {
           patterns: [
+            // Phase 26: ui-v8 consolidation guard
             {
               group: ["@/components/ui-v8/*", "@/components/ui-v8", "**/ui-v8/*", "**/ui-v8"],
               message: "ui-v8 has been consolidated into ui/. Import from @/components/ui instead."
+            },
+            // Phase 33: Full Components Consolidation guards
+            {
+              group: ["@/components/menu/*", "@/components/menu", "**/components/menu/*"],
+              message: "menu/ consolidated into ui/menu/. Import from @/components/ui/menu."
+            },
+            {
+              group: ["@/components/scroll/*", "@/components/scroll", "**/components/scroll/*"],
+              message: "scroll/ consolidated into ui/scroll/. Import from @/components/ui/scroll."
+            },
+            {
+              group: ["@/components/layout/*", "@/components/layout", "**/components/layout/*"],
+              message: "layout/ consolidated into ui/layout/. Import from @/components/ui/layout."
+            },
+            {
+              group: ["@/components/layouts/*", "@/components/layouts", "**/components/layouts/*"],
+              message: "layouts/ consolidated into ui/layout/. Import from @/components/ui/layout or @/components/ui for primitives."
+            },
+            {
+              group: ["@/components/tracking/*", "@/components/tracking", "**/components/tracking/*"],
+              message: "tracking/ consolidated into ui/orders/tracking/. Import from @/components/ui/orders."
+            },
+            {
+              group: ["@/components/onboarding/*", "@/components/onboarding", "**/components/onboarding/*"],
+              message: "onboarding/ consolidated into ui/auth/. Import from @/components/ui/auth."
+            },
+            {
+              group: ["@/components/mascot/*", "@/components/mascot", "**/components/mascot/*"],
+              message: "mascot/ consolidated into ui/brand/. Import from @/components/ui/brand."
+            },
+            {
+              group: ["@/components/admin/*", "@/components/admin", "**/components/admin/*"],
+              message: "admin/ consolidated into ui/admin/. Import from @/components/ui/admin."
+            },
+            {
+              group: ["@/components/checkout/*", "@/components/checkout", "**/components/checkout/*"],
+              message: "checkout/ consolidated into ui/checkout/. Import from @/components/ui/checkout."
+            },
+            {
+              group: ["@/components/driver/*", "@/components/driver", "**/components/driver/*"],
+              message: "driver/ consolidated into ui/driver/. Import from @/components/ui/driver."
+            },
+            {
+              group: ["@/components/homepage/*", "@/components/homepage", "**/components/homepage/*"],
+              message: "homepage/ consolidated into ui/homepage/. Import from @/components/ui/homepage."
+            },
+            {
+              group: ["@/components/orders/*", "@/components/orders", "**/components/orders/*"],
+              message: "orders/ consolidated into ui/orders/. Import from @/components/ui/orders."
+            },
+            {
+              group: ["@/components/auth/*", "@/components/auth", "**/components/auth/*"],
+              message: "auth/ consolidated into ui/auth/. Import from @/components/ui/auth."
+            },
+            {
+              group: ["@/components/theme/*", "@/components/theme", "**/components/theme/*"],
+              message: "theme/ consolidated into ui/theme/. Import from @/components/ui/theme."
             }
           ]
         }
