@@ -27,8 +27,8 @@ import {
   type ReactNode,
   type KeyboardEvent,
 } from "react";
-import { createPortal } from "react-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { Portal } from "./Portal";
 import { X } from "lucide-react";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import { useSwipeToClose, triggerHaptic } from "@/lib/swipe-gestures";

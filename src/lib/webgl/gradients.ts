@@ -45,7 +45,7 @@ export interface AnimatedGradientConfig {
 // V7 COLOR PALETTES
 // ============================================
 
-export const v7Palettes = {
+export const palettes = {
   /** Pepper brand colors */
   brand: [
     "#A41034", // Deep Red
@@ -104,19 +104,19 @@ export function getTimeOfDayPalette(): string[] {
 
   if (hour >= 5 && hour < 8) {
     // Dawn (5-8am)
-    return [...v7Palettes.dawn];
+    return [...palettes.dawn];
   } else if (hour >= 8 && hour < 12) {
     // Morning (8am-12pm)
     return ["#FFF9F5", "#FFE8D6", "#EBCD00", "#FFD93D"];
   } else if (hour >= 12 && hour < 17) {
     // Afternoon (12-5pm)
-    return [...v7Palettes.brand];
+    return [...palettes.brand];
   } else if (hour >= 17 && hour < 20) {
     // Evening (5-8pm)
-    return [...v7Palettes.sunset];
+    return [...palettes.sunset];
   } else {
     // Night (8pm-5am)
-    return [...v7Palettes.night];
+    return [...palettes.night];
   }
 }
 
@@ -295,7 +295,7 @@ export function useAnimatedGradient(
   useEffect(() => {
     gradientRef.current = new AnimatedGradient({
       ...config,
-      colors: config.colors ?? [...v7Palettes.brand],
+      colors: config.colors ?? [...palettes.brand],
       autoStart: true,
     });
 

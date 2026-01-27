@@ -103,20 +103,15 @@ export {
   AlertDialogCancel,
 } from "./alert-dialog";
 
-// OverlayBase (V5)
-export {
-  OverlayBase,
-  Modal,
-  BottomSheet,
-  SideDrawer,
-} from "./overlay-base";
-export type {
-  OverlayBaseProps,
-  OverlayPosition,
-  ModalProps,
-  BottomSheetProps,
-  SideDrawerProps,
-} from "./overlay-base";
+// Portal & Backdrop (V8)
+export { Portal } from "./Portal";
+export type { PortalProps } from "./Portal";
+export { Backdrop } from "./Backdrop";
+export type { BackdropProps } from "./Backdrop";
+
+// Modal (V8 Consolidated)
+export { Modal, useModal, ModalHeader, ModalFooter, ConfirmModal } from "./Modal";
+export type { ModalProps, UseModalReturn, ModalHeaderProps, ModalFooterProps, ConfirmModalProps } from "./Modal";
 
 // Drawer
 export {
