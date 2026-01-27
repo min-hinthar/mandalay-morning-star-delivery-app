@@ -55,6 +55,10 @@ export {
   useCommandPalette,
   type UseCommandPaletteReturn,
 } from "./useCommandPalette";
+export {
+  useRecentSearches,
+  type UseRecentSearchesReturn,
+} from "./useRecentSearches";
 export { useActiveCategory } from "./useActiveCategory";
 export { useScrollSpy } from "./useScrollSpy";
 export { useDebounce } from "./useDebounce";
