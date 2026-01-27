@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 33 of 33 (Full Components Consolidation)
-Plan: 2 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-01-27 - Completed 33-02-PLAN.md
+Last activity: 2026-01-27 - Completed 33-03-PLAN.md, 33-04-PLAN.md
 
-Progress: [████████████████████████████░░░░░░░░░░░░░] v1.3 Full Codebase Consolidation | 10/24 plans
+Progress: [██████████████████████████████████░░░░░░░] v1.3 Full Codebase Consolidation | 12/24 plans
 
 ## Milestones Completed
 
@@ -26,14 +26,14 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 9 phases (25-33), 23+ plans estimated
-**v1.3 progress:** 10 plans complete
+**v1.3 progress:** 12 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 92 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 94 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 10
+- v1.3 plans completed: 12
 
 **By Phase (v1.3):**
 
@@ -41,7 +41,7 @@ Progress: [███████████████████████
 |-------|-------|-------|----------|
 | 25 | 1/1 | 8min | 8min |
 | 26 | 8/8 | 136min | 17min |
-| 33 | 2/5 | 10min | 5min |
+| 33 | 4/5 | 46min | 11.5min |
 
 ## Accumulated Context
 
@@ -90,6 +90,8 @@ From `.planning/research/SUMMARY.md`:
 | CartEmptyState canonical in ui/cart | 26-07 | Cart version has animations |
 | ESLint guard for ui-v8 imports | 26-08 | no-restricted-imports prevents recreation |
 | Framer Motion + GSAP scroll coexist | 33-02 | Both animation approaches in ui/scroll/ |
+| CategoryTabs supports controlled mode | 33-03 | activeCategory prop disables scrollspy |
+| QuantitySelector excluded from menu barrel | 33-03 | Avoids conflict with cart/QuantitySelector |
 
 ### Phase 33 Progress
 
@@ -97,6 +99,18 @@ From `.planning/research/SUMMARY.md`:
 - scroll/ directory merged into ui/scroll/
 - AnimatedSection and SectionNavDots now in ui/scroll/
 - All scroll imports consolidated to @/components/ui/scroll
+
+**33-03 outcomes:**
+- menu/ directory merged into ui/menu/
+- 5 duplicates deleted (SearchInput, MenuGrid, category-tabs, menu-section, menu-skeleton)
+- 12 unique components moved (FeaturedCarousel, UnifiedMenuItemCard, etc.)
+- All menu imports consolidated to @/components/ui/menu
+- CategoryTabs supports both scrollspy and controlled modes
+
+**33-04 outcomes:**
+- layout/ primitives merged into ui/
+- CommandPalette moved to ui/search/
+- AppHeader components in ui/layout/
 
 ### Roadmap Evolution
 
@@ -108,11 +122,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27 22:00
-Stopped at: Completed 33-02-PLAN.md
+Last session: 2026-01-27 22:32
+Stopped at: Completed 33-03-PLAN.md
 Resume file: None
-Next action: Execute 33-03-PLAN.md
+Next action: Execute 33-05-PLAN.md (final verification)
 
 ---
 
-*Updated: 2026-01-27 - Phase 33 Plan 02 complete (scroll/ merged into ui/scroll/)*
+*Updated: 2026-01-27 - Phase 33 Plan 03 complete (menu/ merged into ui/menu/)*
