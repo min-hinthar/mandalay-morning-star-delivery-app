@@ -37,9 +37,6 @@ export type { CardProps, AnimatedCardProps } from "./card";
 // Input
 export { Input } from "./input";
 
-// Search Input
-export { SearchInput } from "./search-input";
-
 // Textarea
 export { Textarea } from "./textarea";
 
@@ -180,10 +177,9 @@ export {
 } from "./skeleton";
 export type { SkeletonProps, SkeletonTextProps, SkeletonAvatarProps, SkeletonCardProps, SkeletonTableRowProps } from "./skeleton";
 
-// Empty State
+// Empty State (CartEmptyState exported from ./cart subdirectory)
 export {
   EmptyState,
-  CartEmptyState,
   SearchEmptyState,
   OrdersEmptyState,
   FavoritesEmptyState,
@@ -231,3 +227,21 @@ export type { NavDotsProps } from "./NavDots";
 // Theme Toggle
 export { ThemeToggle } from "./theme-toggle";
 
+// ============================================
+// SUBDIRECTORY RE-EXPORTS
+// ============================================
+
+// Cart components
+export * from "./cart";
+
+// Menu components
+export * from "./menu";
+
+// Navigation components
+export * from "./navigation";
+
+// Scroll components
+export * from "./scroll";
+
+// Transitions
+export * from "./transitions";
