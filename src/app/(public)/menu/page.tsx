@@ -1,4 +1,5 @@
-import { MenuContentV8 } from "@/components/ui-v8/menu";
+import { Suspense } from "react";
+import { MenuContentV8, MenuSkeletonV8 } from "@/components/ui-v8/menu";
 
 export const metadata = {
   title: "Menu | Mandalay Morning Star",
@@ -8,7 +9,9 @@ export const metadata = {
 export default function MenuPage() {
   return (
     <main className="min-h-screen bg-background pb-32">
-      <MenuContentV8 />
+      <Suspense fallback={<MenuSkeletonV8 />}>
+        <MenuContentV8 />
+      </Suspense>
     </main>
   );
 }
