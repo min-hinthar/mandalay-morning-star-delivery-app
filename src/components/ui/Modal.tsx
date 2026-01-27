@@ -352,9 +352,10 @@ export function Modal({
   // Calculate backdrop opacity based on swipe
   const computedBackdropOpacity = isDragging ? backdropOpacity : 1;
 
-  return createPortal(
-    <ModalStackContext.Provider value={stackLevel + 1}>
-      <AnimatePresence>
+  return (
+    <Portal>
+      <ModalStackContext.Provider value={stackLevel + 1}>
+        <AnimatePresence>
         {/* Backdrop - rendered separately to avoid Fragment inside AnimatePresence */}
         {isOpen && (
           <motion.div
@@ -522,9 +523,9 @@ export function Modal({
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
-    </ModalStackContext.Provider>,
-    document.body
+        </AnimatePresence>
+      </ModalStackContext.Provider>
+    </Portal>
   );
 }
 
