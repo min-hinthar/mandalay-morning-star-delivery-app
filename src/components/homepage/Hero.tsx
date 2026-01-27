@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { ArrowRight, ChefHat, Clock, MapPin } from "lucide-react";
@@ -11,7 +11,6 @@ import {
 } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useDynamicTheme } from "@/components/theme/DynamicThemeProvider";
-import { HeroVideo } from "./HeroVideo";
 import { BrandMascot } from "@/components/mascot/BrandMascot";
 import { Button } from "@/components/ui/button";
 
@@ -135,7 +134,7 @@ function GradientFallback({ children, className }: GradientFallbackProps) {
   const gradientColors = gradientPalette || ["#A41034", "#5C0A1E", "#1a0a0f"];
 
   return (
-    <div className={cn("relative w-full h-[100svh] overflow-hidden", className)}>
+    <div className={cn("relative w-full min-h-[100svh] min-h-[100dvh] overflow-hidden", className)}>
       {/* Dark dramatic gradient background */}
       <div
         className="absolute inset-0"
@@ -192,18 +191,12 @@ function HeroContent({
 }: HeroContentProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { timeOfDay } = useDynamicTheme();
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Hydration fix
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[100svh] px-4 pt-20 pb-24 md:pt-16">
+    <div className="relative flex flex-col items-center justify-center min-h-[100svh] min-h-[100dvh] px-4 pt-16 pb-20 pb-safe md:pt-20 md:pb-24">
       <div className="max-w-4xl mx-auto text-center">
         {/* Brand Mascot */}
-        {showMascot && isMounted && (
+        {showMascot && (
           <motion.div
             className="mb-8"
             initial={shouldAnimate ? { opacity: 0, scale: 0 } : undefined}
@@ -383,21 +376,6 @@ export function Hero({
 }: HeroProps) {
   const { shouldAnimate } = useAnimationPreference();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [hasVideoFiles, setHasVideoFiles] = useState(false);
-
-  // Check if video files exist (client-side check)
-  useEffect(() => {
-    // Try to fetch the video file to check if it exists
-    fetch("/videos/hero-desktop.webm", { method: "HEAD" })
-      .then((res) => {
-        if (res.ok) {
-          setHasVideoFiles(true);
-        }
-      })
-      .catch(() => {
-        // Video files don't exist, use fallback
-      });
-  }, []);
 
   // Scroll-based parallax for content
   const { scrollYProgress } = useScroll({
@@ -429,32 +407,18 @@ export function Hero({
       ref={containerRef}
       id="hero"
       className={cn(
-        "relative min-h-[100svh] overflow-hidden isolate",
+        "relative min-h-[100svh] min-h-[100dvh] overflow-hidden isolate",
         className
       )}
     >
-      {/* Render HeroVideo if video files exist, otherwise use gradient fallback */}
-      {hasVideoFiles ? (
-        <HeroVideo
-          desktopSrc="/videos/hero-desktop.webm"
-          mobileSrc="/videos/hero-mobile.webm"
-          poster="/videos/hero-poster.jpg"
+      {/* Gradient background - consistent SSR/CSR rendering (no hydration flicker) */}
+      <GradientFallback>
+        <motion.div
+          style={shouldAnimate ? { y: smoothContentY, opacity: smoothOpacity } : undefined}
         >
-          <motion.div
-            style={shouldAnimate ? { y: smoothContentY, opacity: smoothOpacity } : undefined}
-          >
-            {heroContent}
-          </motion.div>
-        </HeroVideo>
-      ) : (
-        <GradientFallback>
-          <motion.div
-            style={shouldAnimate ? { y: smoothContentY, opacity: smoothOpacity } : undefined}
-          >
-            {heroContent}
-          </motion.div>
-        </GradientFallback>
-      )}
+          {heroContent}
+        </motion.div>
+      </GradientFallback>
 
       {/* Bottom gradient fade */}
       <div
