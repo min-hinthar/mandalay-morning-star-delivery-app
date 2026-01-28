@@ -10,7 +10,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { zIndex } from "@/lib/design-system/tokens/z-index";
-import { overlayMotion } from "@/design-system/tokens/motion";
+import { overlayMotion } from "@/lib/design-system/tokens/motion";
 import { cn } from "@/lib/utils/cn";
 import { Portal } from "./Portal";
 import { useToast, type Toast as ToastType } from "@/lib/hooks/useToastV8";
