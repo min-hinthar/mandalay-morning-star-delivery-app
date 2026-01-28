@@ -523,12 +523,65 @@
     );
   }
 
+  /* ============================================
+     TOUCH DEVICE FALLBACK UTILITIES
+     Mobile-first: base styles for touch, enhanced for hover-capable
+     ============================================ */
+
+  /* Show only on touch devices (hidden on hover-capable) */
+  .touch-only {
+    display: block;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .touch-only {
+      display: none;
+    }
+  }
+
+  /* Safari GPU compositing fixes for 3D tilt elements */
+  .tilt-safari-fix {
+    /* Force GPU layer creation */
+    will-change: transform;
+
+    /* Prevent backface flicker */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+
+    /* Ensure proper compositing */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* Parent container for tilt cards - isolate stacking context */
+  .tilt-container {
+    isolation: isolate;
+  }
+
+  /* Backdrop-filter element fix - keep separate from transform element */
+  .glass-safari-fix {
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  /* Animated shine sweep utility */
+  .animate-shine-sweep {
+    animation: shine-sweep 4.5s ease-in-out infinite;
+  }
+
+  /* Pause animation during interaction */
+  .animate-shine-sweep:active,
+  .animate-shine-sweep:focus-within {
+    animation-play-state: paused;
+  }
+
   /* Reduce motion preference */
   @media (prefers-reduced-motion: reduce) {
     .bg-gradient-animated,
     .float-element,
     .pulse-ring,
-    .btn-glow::before {
+    .btn-glow::before,
+    .animate-shine-sweep {
       animation: none;
     }
 
@@ -574,6 +627,27 @@
   }
   100% {
     transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Animated shine sweep for touch devices (4.5 second cycle per CONTEXT.md) */
+@keyframes shine-sweep {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(200%) rotate(45deg);
     opacity: 0;
   }
 }
