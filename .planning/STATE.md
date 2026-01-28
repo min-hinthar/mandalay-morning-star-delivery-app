@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 30 Mobile Stability in progress
+**Current focus:** Phase 30 complete - ready for Phase 31 Hero Redesign
 
 ## Current Position
 
-Phase: 30 (Mobile Stability)
-Plan: 2 of ? in current phase
-Status: In progress
-Last activity: 2026-01-28 - Completed 30-02 (Safari fixes + touch shine + 500ms long-press)
+Phase: 30 (Mobile Stability) - COMPLETE
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-01-28 - Completed Phase 30 (touch device detection, Safari fixes)
 
-Progress: [█████████████████████████████████████████░] v1.3 + Mobile Stability | 45/46+ plans
+Progress: [████████████████████████████████████████████] v1.3 Mobile Stability | 45/45+ plans
 
 ## Milestones Completed
 
@@ -27,7 +27,7 @@ Progress: [███████████████████████
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
 **v1.3 progress:** 40 plans complete
-**Phase 30 progress:** 2 plans complete
+**Phase 30 progress:** 2 plans complete (PHASE COMPLETE)
 
 ## Performance Metrics
 
@@ -47,7 +47,7 @@ Progress: [███████████████████████
 | 27 | 6/6+ | 73min | 12.2min |
 | 28 | 3/3 | 18min | 6min |
 | 29 | 6/6 | 48min | 8min |
-| 30 | 2/? | 43min | 21.5min |
+| 30 | 2/2 | 43min | 21.5min |
 
 ## Accumulated Context
 
@@ -397,7 +397,7 @@ None.
 - ROADMAP.md updated: Phase 29 marked complete (6/6 plans)
 - Phase 29 complete: All shadows, blur, and motion timing use design system tokens
 
-### Phase 30 Progress (Mobile Stability)
+### Phase 30 Progress (Complete)
 
 **30-01 outcomes:**
 - Updated useCanHover to use `(hover: hover) and (pointer: fine)` media query
@@ -415,13 +415,18 @@ None.
 - Added touchStartPos ref and 10px scroll threshold to cancel long-press
 - All changes pass typecheck and build
 
+**Phase 30 verification (PASSED):**
+- 3/3 success criteria verified
+- All must-haves validated against codebase
+- MOBL-01, MOBL-02, MOBL-03 requirements complete
+
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Completed 30-02 (Safari fixes + touch shine + 500ms long-press)
+Stopped at: Completed Phase 30 (Mobile Stability)
 Resume file: None
-Next action: Execute Phase 30-03+ when ready
+Next action: Execute Phase 31 (Hero Redesign) when ready
 
 ---
 
-*Updated: 2026-01-28 - Completed 30-02 (Safari compositing fixes + touch shine + long-press)*
+*Updated: 2026-01-28 - Completed Phase 30 (Mobile Stability)*
