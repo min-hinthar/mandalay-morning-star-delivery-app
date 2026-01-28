@@ -194,7 +194,7 @@ export function CheckoutStepperV8({
                 animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
                 transition={{ delay: index * 0.1, ...getSpring(spring.gentle) }}
                 className={cn(
-                  "mt-2 font-body text-[10px] font-bold uppercase tracking-wider",
+                  "mt-2 font-body text-2xs font-bold uppercase tracking-wider",
                   "transition-colors duration-fast",
                   isCompleted && "text-green",
                   isCurrent && "text-text-primary",
