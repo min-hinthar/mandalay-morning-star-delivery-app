@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 28 in progress - Token enforcement for layout (typography/spacing)
+**Current focus:** Phase 28 complete - Token enforcement for layout (typography/spacing)
 
 ## Current Position
 
 Phase: 28 (Token Enforcement - Layout)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-01-28 - Completed 28-02-PLAN.md
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-01-28 - Completed 28-03-PLAN.md
 
-Progress: [████████████████████████████████████████░] v1.3 + Token Enforcement | 34/38+ plans
+Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 35/38+ plans
 
 ## Milestones Completed
 
@@ -26,15 +26,15 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 29 plans complete
-**Phase 28 progress:** 2 plans complete
+**v1.3 progress:** 30 plans complete
+**Phase 28 progress:** 3 plans complete (Phase complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 98 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 99 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 29
+- v1.3 plans completed: 30
 
 **By Phase (v1.3):**
 
@@ -45,7 +45,7 @@ Progress: [███████████████████████
 | 33 | 11/11 | 123min | 11.2min |
 | 34 | 8/8 | 40min | 5min |
 | 27 | 4/4 | 64min | 16min |
-| 28 | 2/3 | 10min | 5min |
+| 28 | 3/3 | 18min | 6min |
 
 ## Accumulated Context
 
@@ -117,6 +117,9 @@ From `.planning/research/SUMMARY.md`:
 | text-2xs token for 10px font size | 28-01 | Semantic alternative to text-[10px] |
 | ESLint rules for arbitrary px values | 28-01 | Enforce semantic tokens over hardcoded pixels |
 | 11px font sizes round to text-xs | 28-02 | 1px difference imperceptible for badges |
+| --tabs-offset for sticky positioning | 28-03 | Single source of truth for header + tabs offset |
+| var(--radius-*) for chart borderRadius | 28-03 | Consistent design tokens in Recharts components |
+| MorphingMenu numeric borderRadius preserved | 28-03 | Framer Motion animation interpolation requirement |
 
 ### Phase 27 Progress (Complete)
 
@@ -171,6 +174,13 @@ From `.planning/research/SUMMARY.md`:
 - 7 component files migrated to text-2xs or text-xs
 - Badge, NavDots, DietaryBadges, TimeSlotPicker, CheckoutStepperV8, CheckoutLayout, DrawerFooter updated
 - 11px font sizes rounded to text-xs (12px) for badges - visually imperceptible
+
+**28-03 outcomes:**
+- Added --tabs-offset: 72px token to tokens.css LAYOUT section
+- Migrated CategoryTabs and MenuSkeleton from top-[72px] to top-[var(--tabs-offset)]
+- Chart components use var(--radius-md) and var(--radius-xl) for borderRadius
+- MorphingMenu numeric borderRadius values preserved for animation interpolation
+- Phase 28 complete: Layout token enforcement finished
 
 ### Phase 33 Progress (Complete)
 
@@ -288,10 +298,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Phase 28 Plan 02 complete - typography token migration
+Stopped at: Phase 28 complete - layout token enforcement finished
 Resume file: None
-Next action: Continue Phase 28 (Plan 03 - spacing token migration)
+Next action: Plan next phase (remaining color violations or new feature work)
 
 ---
 
-*Updated: 2026-01-28 - Phase 28 Plan 02 complete (typography token migration)*
+*Updated: 2026-01-28 - Phase 28 complete (3 plans - token foundation, typography, layout)*
