@@ -139,8 +139,8 @@ function TimelineStep({
           className={cn(
             "relative flex h-12 w-12 items-center justify-center rounded-full border-3",
             "transition-all duration-300",
-            isCompleted && "border-green bg-green text-white",
-            isCurrent && "border-primary bg-primary text-white shadow-lg shadow-primary/30",
+            isCompleted && "border-green bg-green text-text-inverse",
+            isCurrent && "border-primary bg-primary text-text-inverse shadow-lg shadow-primary/30",
             isPending && "border-border bg-surface-secondary text-text-muted"
           )}
         >
@@ -173,7 +173,7 @@ function TimelineStep({
               />
               <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-75" />
-                <span className="relative inline-flex h-4 w-4 rounded-full bg-green border-2 border-white" />
+                <span className="relative inline-flex h-4 w-4 rounded-full bg-green border-2 border-surface-primary" />
               </span>
             </>
           )}
@@ -184,7 +184,7 @@ function TimelineStep({
               initial={shouldAnimate ? { scale: 0, rotate: -180 } : undefined}
               animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
               transition={getSpring(spring.ultraBouncy)}
-              className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white flex items-center justify-center shadow-sm"
+              className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-surface-primary flex items-center justify-center shadow-sm"
             >
               <CheckCircle className="w-4 h-4 text-green" />
             </motion.div>
