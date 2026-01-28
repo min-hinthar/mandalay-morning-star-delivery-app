@@ -163,8 +163,12 @@ function GradientFallback({ children, className }: GradientFallbackProps) {
         style={{ ['--tw-gradient-from' as string]: 'var(--hero-overlay)' }}
       />
 
-      {/* Overlay content */}
-      <div className="absolute inset-0 flex flex-col justify-end">
+      {/* Layer 5: Text + CTA content - z-index 4 to stay above orbs and emojis */}
+      <div
+        className="absolute inset-0 flex flex-col items-center justify-center"
+        // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
+        style={{ zIndex: 4 }}
+      >
         {children}
       </div>
     </div>
@@ -404,6 +408,33 @@ export function Hero({
           {heroContent}
         </motion.div>
       </GradientFallback>
+
+      {/* Layer 2: Background orbs (far) - populated in 31-03 */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
+        style={{ zIndex: 1 }}
+        aria-hidden="true"
+        id="hero-layer-orbs-far"
+      />
+
+      {/* Layer 3: Mid-distance orbs - populated in 31-03 */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
+        style={{ zIndex: 2 }}
+        aria-hidden="true"
+        id="hero-layer-orbs-mid"
+      />
+
+      {/* Layer 4: Floating emojis - populated in 31-03 */}
+      <div
+        className="absolute inset-0 pointer-events-none overflow-hidden"
+        // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
+        style={{ zIndex: 3 }}
+        aria-hidden="true"
+        id="hero-layer-emojis"
+      />
 
       {/* Bottom gradient fade */}
       <div
