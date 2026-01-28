@@ -31,7 +31,6 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Portal } from "./Portal";
 import { useRouteChangeClose, useBodyScrollLock } from "@/lib/hooks";
 import { useSwipeToClose, triggerHaptic } from "@/lib/swipe-gestures";
-import { zIndex } from "@/lib/design-system/tokens/z-index";
 import { overlayMotion } from "@/lib/design-system/tokens/motion";
 import { cn } from "@/lib/utils/cn";
 
@@ -227,12 +226,9 @@ export function Drawer({
             animate="visible"
             exit="exit"
             transition={overlayMotion.backdrop}
-            style={{
-              zIndex: zIndex.modalBackdrop,
-              opacity: computedBackdropOpacity,
-            }}
+            style={{ opacity: computedBackdropOpacity }}
             onClick={onClose}
-            className="fixed inset-0 bg-overlay-heavy sm:backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-overlay-heavy sm:backdrop-blur-sm"
             aria-hidden="true"
             data-testid="drawer-backdrop"
           />
@@ -248,8 +244,9 @@ export function Drawer({
             aria-label={title}
             tabIndex={-1}
             className={cn(
-              "fixed",
-              "bg-surface-primary dark:bg-surface-primary",
+              "fixed z-50",
+              // Glassmorphism matching CartBar
+              "bg-surface-primary/95 dark:bg-gray-900/95 backdrop-blur-lg",
               "shadow-xl",
               "outline-none",
               // Side drawer styles
@@ -266,13 +263,10 @@ export function Drawer({
               ],
               className
             )}
-            style={{
-              zIndex: zIndex.modal,
-              ...(isBottom && {
-                y: isDragging ? dragOffset : 0,
-                height: height === "full" ? "90vh" : "auto",
-              }),
-            }}
+            style={isBottom ? {
+              y: isDragging ? dragOffset : 0,
+              height: height === "full" ? "90vh" : "auto",
+            } : undefined}
             initial={isBottom ? "hidden" : { x: slideFrom }}
             animate={isBottom ? "visible" : { x: 0 }}
             exit={isBottom ? "exit" : { x: slideFrom }}
