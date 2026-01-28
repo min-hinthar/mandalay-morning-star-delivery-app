@@ -267,30 +267,47 @@ function HeroContent({
           transition={shouldAnimate ? { ...getSpring(spring.default), delay: 0.8 } : undefined}
         >
           <motion.div
-            whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
-            whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+            whileHover={shouldAnimate ? {
+              scale: 1.05,
+              y: -2,  // Lift effect per CONTEXT.md
+            } : undefined}
+            whileTap={shouldAnimate ? { scale: 0.97 } : undefined}
+            transition={spring.snappy}
           >
             <Button
               variant="primary"
               size="lg"
               asChild
-              className="relative overflow-hidden group px-8 py-6 text-lg bg-secondary hover:bg-secondary-hover shadow-lg shadow-secondary/30"
+              className={cn(
+                "relative overflow-hidden group px-8 py-6 text-lg",
+                // Gradient background with shift on hover
+                "bg-gradient-to-r from-secondary via-secondary-hover to-secondary",
+                "hover:from-secondary-hover hover:via-secondary hover:to-secondary-hover",
+                // Shadow lift
+                "shadow-lg shadow-secondary/30",
+                "hover:shadow-xl hover:shadow-secondary/40",
+                // Subtle glow ring on hover
+                "hover:ring-2 hover:ring-secondary/30",
+                // Smooth transitions
+                "transition-all duration-300"
+              )}
             >
               <Link href={ctaHref}>
-                <span className="relative z-10 flex items-center gap-2">
+                <span className="relative z-10 flex items-center gap-2 text-text-primary font-semibold">
                   {ctaText}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </span>
-                {/* Glow effect */}
+                {/* Glow sweep effect inside button */}
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0"
+                  className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0"
                   animate={shouldAnimate ? {
-                    x: ["-100%", "100%"],
+                    x: ["-100%", "200%"],
                   } : undefined}
                   transition={{
-                    duration: 2,
+                    duration: 2.5,
                     repeat: Infinity,
-                    repeatDelay: 3,
+                    repeatDelay: 4,
+                    ease: "easeInOut",
                   }}
                 />
               </Link>
