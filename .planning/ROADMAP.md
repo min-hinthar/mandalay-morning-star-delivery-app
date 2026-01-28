@@ -149,13 +149,14 @@ Plans:
   3. Multi-layer parallax responds to scroll (using parallaxPresets)
   4. Hero looks correct in both light and dark themes
   5. Gradient background animates on scroll
-**Plans**: TBD
+**Plans**: 5 plans in 4 waves
 
 Plans:
-- [ ] 31-01: Hero layout and visibility fixes
-- [ ] 31-02: Floating emoji system
-- [ ] 31-03: Parallax scroll implementation
-- [ ] 31-04: Theme-aware gradient animation
+- [ ] 31-01-PLAN.md — Hero gradient and orb token infrastructure
+- [ ] 31-02-PLAN.md — Hero layout refactor (remove mascot, add layer containers)
+- [ ] 31-03-PLAN.md — Floating emoji system and gradient orbs
+- [ ] 31-04-PLAN.md — Theme transitions, shimmer, and CTA polish
+- [ ] 31-05-PLAN.md — Final polish (tagline, scroll indicator, legacy cleanup)
 
 ### Phase 32: Quality Assurance
 **Goal**: Documentation complete and regression tests prevent future violations
@@ -236,7 +237,7 @@ Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 ->
 | 28. Token Enforcement - Layout | v1.3 | 3/3 | Complete | 2026-01-28 |
 | 29. Token Enforcement - Effects | v1.3 | 6/6 | Complete | 2026-01-28 |
 | 30. Mobile Stability | v1.3 | 2/2 | Complete | 2026-01-28 |
-| 31. Hero Redesign | v1.3 | 0/4 | Not started | - |
+| 31. Hero Redesign | v1.3 | 0/5 | Not started | - |
 | 32. Quality Assurance | v1.3 | 0/3 | Not started | - |
 | 33. Full Components Consolidation | v1.3 | 11/11 | Complete | 2026-01-27 |
 | 34. Full src/ Consolidation | v1.3 | 8/8 | Complete | 2026-01-28 |
