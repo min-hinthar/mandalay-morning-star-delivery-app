@@ -19,8 +19,8 @@ Systematic consolidation of the codebase: merge overlapping component systems, e
 
 - [x] **Phase 25: Audit Infrastructure** - Establish baseline metrics and automated detection
 - [x] **Phase 26: Component Consolidation** - Merge ui-v8 into ui, clean V7 remnants
-- [ ] **Phase 27: Token Enforcement - Colors** - Replace all hardcoded colors with semantic tokens
-- [ ] **Phase 28: Token Enforcement - Layout** - Standardize spacing, typography, border-radius
+- [x] **Phase 27: Token Enforcement - Colors** - Replace all hardcoded colors with semantic tokens
+- [x] **Phase 28: Token Enforcement - Layout** - Standardize spacing, typography, border-radius
 - [ ] **Phase 29: Token Enforcement - Effects** - Standardize shadows, blur, motion durations
 - [ ] **Phase 30: Mobile Stability** - Fix 3D tilt on touch devices
 - [ ] **Phase 31: Hero Redesign** - Floating emojis, parallax, theme-aware gradients
@@ -79,10 +79,10 @@ Plans:
 **Plans**: 4 plans in 3 waves
 
 Plans:
-- [ ] 27-01-PLAN.md — Token prerequisites + homepage/checkout migration
-- [ ] 27-02-PLAN.md — UI component library color fixes
-- [ ] 27-03-PLAN.md — Admin, driver, layout, tracking, auth color fixes
-- [ ] 27-04-PLAN.md — Gradient theme-awareness
+- [x] 27-01-PLAN.md — Token prerequisites + homepage/checkout migration
+- [x] 27-02-PLAN.md — UI component library color fixes
+- [x] 27-03-PLAN.md — Admin, driver, layout, tracking, auth color fixes
+- [x] 27-04-PLAN.md — Gradient theme-awareness
 
 ### Phase 28: Token Enforcement - Layout
 **Goal**: Consistent spacing, typography, and border-radius via design tokens
@@ -96,9 +96,9 @@ Plans:
 **Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 28-01-PLAN.md — Add text-2xs token + ESLint rules for layout enforcement
-- [ ] 28-02-PLAN.md — Migrate typography violations (text-[10px], text-[11px])
-- [ ] 28-03-PLAN.md — Migrate position violations + chart inline styles
+- [x] 28-01-PLAN.md — Add text-2xs token + ESLint rules for layout enforcement
+- [x] 28-02-PLAN.md — Migrate typography violations (text-[10px], text-[11px])
+- [x] 28-03-PLAN.md — Migrate position violations + chart inline styles
 
 ### Phase 29: Token Enforcement - Effects
 **Goal**: Standardized shadows, blur effects, and animation timings
@@ -221,8 +221,8 @@ Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 ->
 |-------|-----------|----------------|--------|-----------|
 | 25. Audit Infrastructure | v1.3 | 1/1 | Complete | 2026-01-27 |
 | 26. Component Consolidation | v1.3 | 8/8 | Complete | 2026-01-27 |
-| 27. Token Enforcement - Colors | v1.3 | 0/4 | Planned | - |
-| 28. Token Enforcement - Layout | v1.3 | 0/3 | Planned | - |
+| 27. Token Enforcement - Colors | v1.3 | 4/4 | Complete | 2026-01-28 |
+| 28. Token Enforcement - Layout | v1.3 | 3/3 | Complete | 2026-01-28 |
 | 29. Token Enforcement - Effects | v1.3 | 0/2 | Not started | - |
 | 30. Mobile Stability | v1.3 | 0/2 | Not started | - |
 | 31. Hero Redesign | v1.3 | 0/4 | Not started | - |
