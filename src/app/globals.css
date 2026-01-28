@@ -581,7 +581,8 @@
     .float-element,
     .pulse-ring,
     .btn-glow::before,
-    .animate-shine-sweep {
+    .animate-shine-sweep,
+    .animate-hero-shimmer {
       animation: none;
     }
 
@@ -650,6 +651,25 @@
     transform: translateX(200%) rotate(45deg);
     opacity: 0;
   }
+}
+
+/* Hero shimmer - subtle traveling light effect (Phase 31) */
+@keyframes hero-shimmer {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(200%) rotate(45deg);
+  }
+}
+
+.animate-hero-shimmer {
+  animation: hero-shimmer 8s ease-in-out infinite;
+}
+
+/* Hero gradient smooth theme transition (Phase 31) */
+.hero-gradient-transition {
+  transition: background 300ms var(--ease-in-out);
 }
 
 /* View Transition API - Theme circular reveal */
