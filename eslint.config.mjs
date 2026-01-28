@@ -228,6 +228,26 @@ const config = [
           selector: "Property[key.name='filter'][value.type='Literal'][value.value=/blur\\(\\d+px\\)/]",
           message: "Use CSS variable (var(--blur-*)) instead of hardcoded blur value.",
         },
+        // Motion timing enforcement: catch inline transitionDuration with hardcoded values
+        {
+          selector: "Property[key.name='transitionDuration'][value.type='Literal'][value.value=/^\\d+m?s$/]",
+          message: "Use CSS variable (var(--duration-*)) or Tailwind duration-* utility instead of hardcoded transitionDuration. Options: duration-instant(0ms), duration-fast(150ms), duration-normal(220ms), duration-slow(350ms), duration-slower(500ms).",
+        },
+        // Catch inline transition with hardcoded duration
+        {
+          selector: "Property[key.name='transition'][value.type='Literal'][value.value=/\\d+m?s/]",
+          message: "Use CSS variable (var(--duration-*)) for transition durations. Framer Motion spring transitions may use numeric values for physics calculations.",
+        },
+        // Catch Tailwind arbitrary duration in class strings
+        {
+          selector: "Literal[value=/duration-\\[\\d+m?s\\]/]",
+          message: "Use Tailwind duration token (duration-fast, duration-normal, duration-slow, duration-slower) instead of duration-[Nms].",
+        },
+        // Catch Tailwind arbitrary delay in class strings
+        {
+          selector: "Literal[value=/delay-\\[\\d+m?s\\]/]",
+          message: "Use Tailwind delay scale or CSS variable instead of delay-[Nms].",
+        },
       ],
     },
   },
