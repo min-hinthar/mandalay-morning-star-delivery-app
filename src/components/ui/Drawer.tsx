@@ -314,6 +314,7 @@ export function Drawer({
                   "max-h-[calc(90vh-3rem)]",
                   "pb-safe"
                 )}
+                style={{ touchAction: "pan-y" }}
               >
                 {children}
               </div>
