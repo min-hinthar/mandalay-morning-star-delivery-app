@@ -110,9 +110,21 @@ const PATTERNS = {
   },
   effects: {
     hardcoded: [
+      // Tailwind arbitrary shadows
       { regex: /\bshadow-\[[^\]]+\]/g, name: 'shadow-[...]', severity: 'warning' },
-      { regex: /\bblur-\[\d+px\]/g, name: 'blur-[Npx]', severity: 'info' },
+      // Tailwind arbitrary blur
+      { regex: /\bblur-\[\d+px\]/g, name: 'blur-[Npx]', severity: 'warning' },
+      { regex: /\bbackdrop-blur-\[\d+px\]/g, name: 'backdrop-blur-[Npx]', severity: 'warning' },
+      // Tailwind arbitrary durations (info level - large scope)
       { regex: /\bduration-\[\d+ms\]/g, name: 'duration-[Nms]', severity: 'info' },
+    ],
+    inline: [
+      // Inline boxShadow with hardcoded values (not CSS variables)
+      { regex: /boxShadow:\s*['"](?!var\()0\s+\d/g, name: 'inline boxShadow', severity: 'warning' },
+      { regex: /boxShadow:\s*['"]inset\s/g, name: 'inline boxShadow inset', severity: 'warning' },
+      // Inline backdropFilter with hardcoded blur
+      { regex: /backdropFilter:\s*['"]blur\(\d+px\)/g, name: 'inline backdropFilter', severity: 'warning' },
+      { regex: /filter:\s*['"]blur\(\d+px\)/g, name: 'inline filter blur', severity: 'warning' },
     ],
   },
   deprecated: {
@@ -193,9 +205,14 @@ const FIX_SUGGESTIONS = {
   'mx-[Npx]': 'Use Tailwind spacing scale',
   'my-[Npx]': 'Use Tailwind spacing scale',
   'gap-[Npx]': 'Use Tailwind spacing scale',
-  'shadow-[...]': 'Use semantic shadow tokens (shadow-card, shadow-md, etc.)',
-  'blur-[Npx]': 'Use Tailwind blur scale (blur-sm, blur-md, etc.)',
-  'duration-[Nms]': 'Use motion tokens (duration-fast, duration-normal, etc.)',
+  'shadow-[...]': 'Use semantic shadow tokens (shadow-xs, shadow-sm, shadow-card, shadow-primary, etc.)',
+  'blur-[Npx]': 'Use Tailwind blur scale (blur-sm=4px, blur-md=8px, blur-lg=12px, etc.)',
+  'backdrop-blur-[Npx]': 'Use Tailwind backdrop-blur scale (backdrop-blur-sm, backdrop-blur-md, etc.)',
+  'duration-[Nms]': 'Consider using motion tokens (duration-fast=150ms, duration-normal=220ms, etc.)',
+  'inline boxShadow': 'Use CSS variable: boxShadow: var(--shadow-*)',
+  'inline boxShadow inset': 'Use CSS variable: boxShadow: var(--shadow-inner-*)',
+  'inline backdropFilter': 'Use CSS variable: backdropFilter: blur(var(--blur-*))',
+  'inline filter blur': 'Use CSS variable: filter: blur(var(--blur-*))',
 };
 
 // ============================================
