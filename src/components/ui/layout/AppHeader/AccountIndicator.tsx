@@ -64,19 +64,25 @@ function getInitials(email?: string | null, name?: string | null): string {
 }
 
 /**
- * Get a gradient color based on user email for consistent avatar background
+ * Get a gradient style based on user email for consistent avatar background
+ * Uses CSS variables for theme-awareness
  */
-function getGradientFromEmail(email?: string | null): string {
-  if (!email) return "bg-gradient-to-br from-amber-500 to-primary";
+function getGradientStyleFromEmail(email?: string | null): React.CSSProperties {
+  // Default gradient uses primary theme colors
+  const defaultGradient: React.CSSProperties = {
+    background: "linear-gradient(to bottom right, var(--color-secondary), var(--color-primary))",
+  };
+
+  if (!email) return defaultGradient;
 
   // Simple hash to pick from color options
   const hash = email.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const gradients = [
-    "bg-gradient-to-br from-amber-500 to-primary",
-    "bg-gradient-to-br from-rose-500 to-pink-600",
-    "bg-gradient-to-br from-violet-500 to-purple-600",
-    "bg-gradient-to-br from-blue-500 to-indigo-600",
-    "bg-gradient-to-br from-emerald-500 to-teal-600",
+  const gradients: React.CSSProperties[] = [
+    { background: "linear-gradient(to bottom right, var(--color-secondary), var(--color-primary))" },
+    { background: "linear-gradient(to bottom right, var(--color-accent-magenta), var(--color-primary))" },
+    { background: "linear-gradient(to bottom right, var(--color-accent-teal), var(--color-accent-magenta))" },
+    { background: "linear-gradient(to bottom right, var(--color-accent-teal), var(--color-primary))" },
+    { background: "linear-gradient(to bottom right, var(--color-accent-green), var(--color-accent-teal))" },
   ];
   return gradients[hash % gradients.length];
 }
@@ -176,7 +182,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
   const avatarUrl = user.user_metadata?.avatar_url as string | undefined;
   const name = user.user_metadata?.full_name as string | undefined;
   const initials = getInitials(user.email, name);
-  const gradientClass = getGradientFromEmail(user.email);
+  const gradientStyle = getGradientStyleFromEmail(user.email);
 
   return (
     <div className="relative">
@@ -208,11 +214,8 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
           />
         ) : (
           <span
-            className={cn(
-              "flex w-full h-full items-center justify-center rounded-full",
-              "text-sm font-bold text-text-inverse",
-              gradientClass
-            )}
+            className="flex w-full h-full items-center justify-center rounded-full text-sm font-bold text-text-inverse"
+            style={gradientStyle}
           >
             {initials}
           </span>

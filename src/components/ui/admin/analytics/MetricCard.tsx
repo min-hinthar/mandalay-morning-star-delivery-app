@@ -189,7 +189,10 @@ export function MetricCard({
       </div>
 
       {/* V6 Subtle gradient overlay */}
-      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-primary/5 to-transparent" />
+      <div
+        className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full"
+        style={{ background: "linear-gradient(to bottom right, var(--color-primary-light), transparent)" }}
+      />
     </motion.div>
   );
 }
