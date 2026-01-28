@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { zClass } from "@/lib/design-system/tokens/z-index";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useCanHover } from "@/lib/hooks/useResponsive";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useCart } from "@/lib/hooks/useCart";
 import { GlassOverlay } from "./GlassOverlay";
@@ -91,6 +92,22 @@ const variantConfig = {
 const TILT_MAX_ANGLE = 18;
 const SPRING_CONFIG = { stiffness: 150, damping: 15 };
 
+// Long-press duration for opening detail sheet (iOS standard per CONTEXT.md)
+const LONG_PRESS_DURATION = 500;
+
+// Touch device tap feedback (shadow elevation + lift per CONTEXT.md)
+const TOUCH_TAP_VARIANTS = {
+  idle: {
+    y: 0,
+    boxShadow: "var(--shadow-sm)",
+  },
+  pressed: {
+    y: -4,
+    boxShadow: "var(--shadow-xl)",
+    transition: { duration: 0.15, ease: "easeOut" as const },
+  },
+};
+
 // ============================================
 // MAIN COMPONENT
 // ============================================
@@ -119,10 +136,12 @@ export function UnifiedMenuItemCard({
   className,
 }: UnifiedMenuItemCardProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
+  const canHover = useCanHover();
   const cardRef = useRef<HTMLElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isMobileTiltActive, setIsMobileTiltActive] = useState(false);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
 
   // Favorites - use controlled state if provided, else use hook
   const favoritesHook = useFavorites();
@@ -146,8 +165,9 @@ export function UnifiedMenuItemCard({
 
   // Get variant config
   const config = variantConfig[variant];
+  // Disable tilt on touch-only devices (complete disable per CONTEXT.md)
   const shouldEnableTilt =
-    config.enableTilt && !disableTilt && shouldAnimate && !item.isSoldOut;
+    config.enableTilt && !disableTilt && shouldAnimate && !item.isSoldOut && canHover;
 
   // Mouse position for 3D tilt (0-1 normalized)
   const mouseX = useMotionValue(0.5);
@@ -209,34 +229,65 @@ export function UnifiedMenuItemCard({
     mouseY.set(0.5);
   }, [mouseX, mouseY]);
 
-  // Mobile long-press to enable tilt play
-  const handleTouchStart = useCallback(() => {
-    if (!shouldEnableTilt) return;
+  // Mobile long-press to open detail sheet (500ms iOS standard)
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      // On touch devices without hover, long-press opens detail sheet
+      // On hybrid devices with hover, this won't fire (tilt handled by mouse)
+      if (item.isSoldOut) return;
 
-    longPressTimer.current = setTimeout(() => {
-      setIsMobileTiltActive(true);
-      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-        navigator.vibrate(20);
+      const touch = e.touches[0];
+      if (touch) {
+        touchStartPos.current = { x: touch.clientX, y: touch.clientY };
       }
-    }, 300);
-  }, [shouldEnableTilt]);
+
+      longPressTimer.current = setTimeout(() => {
+        // Haptic feedback
+        if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+          navigator.vibrate(20);
+        }
+        // Open detail sheet (same as card click)
+        onSelect?.(item);
+      }, LONG_PRESS_DURATION);
+    },
+    [item, onSelect]
+  );
 
   const handleTouchEnd = useCallback(() => {
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
     }
-    // Debounce state reset to prevent flicker on rapid touch events
-    requestAnimationFrame(() => {
-      setIsMobileTiltActive(false);
-      // Springs on rotateX/rotateY handle smooth animation
-      mouseX.set(0.5);
-      mouseY.set(0.5);
-    });
-  }, [mouseX, mouseY]);
+    touchStartPos.current = null;
+
+    // Reset tilt on hybrid devices (if tilt was enabled)
+    if (shouldEnableTilt) {
+      requestAnimationFrame(() => {
+        setIsMobileTiltActive(false);
+        mouseX.set(0.5);
+        mouseY.set(0.5);
+      });
+    }
+  }, [shouldEnableTilt, mouseX, mouseY]);
 
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
+      // Cancel long-press if user scrolls (10px threshold)
+      if (touchStartPos.current && longPressTimer.current) {
+        const touch = e.touches[0];
+        if (touch) {
+          const dx = Math.abs(touch.clientX - touchStartPos.current.x);
+          const dy = Math.abs(touch.clientY - touchStartPos.current.y);
+
+          if (dx > 10 || dy > 10) {
+            clearTimeout(longPressTimer.current);
+            longPressTimer.current = null;
+            touchStartPos.current = null;
+          }
+        }
+      }
+
+      // Handle tilt play on hybrid devices
       if (!isMobileTiltActive) return;
 
       const touch = e.touches[0];
@@ -368,6 +419,8 @@ export function UnifiedMenuItemCard({
         "relative group cursor-pointer",
         config.rounded,
         "overflow-visible",
+        // Add tilt-container for Safari stacking context isolation
+        shouldEnableTilt && "tilt-container",
         item.isSoldOut && "opacity-60 cursor-not-allowed",
         className
       )}
@@ -379,13 +432,19 @@ export function UnifiedMenuItemCard({
       onTouchEnd={handleTouchEnd}
       onTouchMove={handleTouchMove}
       onClick={handleCardClick}
+      // Touch tap feedback when tilt disabled, scale when no animation
+      variants={!shouldEnableTilt && shouldAnimate ? TOUCH_TAP_VARIANTS : undefined}
+      initial={!shouldEnableTilt && shouldAnimate ? "idle" : undefined}
       whileHover={
         // Disable scale when tilt is enabled - 3D tilt IS the hover feedback
         shouldAnimate && !item.isSoldOut && !shouldEnableTilt ? { scale: 1.03 } : undefined
       }
       whileTap={
-        // Disable scale when tilt is enabled - prevents transform conflicts during long-press
-        shouldAnimate && !item.isSoldOut && !shouldEnableTilt ? { scale: 0.98 } : undefined
+        shouldAnimate && !item.isSoldOut
+          ? shouldEnableTilt
+            ? undefined // 3D tilt IS the feedback
+            : "pressed" // Touch tap feedback
+          : undefined
       }
       transition={springConfig}
       role="button"
