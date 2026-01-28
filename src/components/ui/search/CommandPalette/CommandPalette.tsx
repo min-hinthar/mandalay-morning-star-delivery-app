@@ -173,8 +173,8 @@ export function CommandPalette({
               )}
               style={{
                 backgroundColor: "var(--color-surface-primary-85)",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
+                backdropFilter: "blur(var(--blur-xl))",
+                WebkitBackdropFilter: "blur(var(--blur-xl))",
               }}
               shouldFilter={false}
             >
