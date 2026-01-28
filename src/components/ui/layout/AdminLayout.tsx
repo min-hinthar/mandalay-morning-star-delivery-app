@@ -199,7 +199,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
                   className={cn(
                     "absolute right-0 top-full mt-2",
                     "w-56 rounded-lg border border-[var(--color-border)]",
-                    "bg-[var(--color-surface)] shadow-[var(--shadow-lg)]",
+                    "bg-[var(--color-surface)] shadow-lg",
                     "overflow-hidden",
                     zClass.popover
                   )}

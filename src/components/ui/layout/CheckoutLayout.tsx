@@ -248,7 +248,7 @@ export function CheckoutLayout({
               "font-semibold text-base",
               "transition-all duration-[var(--duration-fast)]",
               canContinue && !isLoading
-                ? "bg-[var(--color-primary)] text-text-inverse shadow-[var(--shadow-glow-primary)] hover:brightness-110"
+                ? "bg-[var(--color-primary)] text-text-inverse shadow-glow-primary hover:brightness-110"
                 : "cursor-not-allowed bg-[var(--color-border)] text-[var(--color-charcoal-muted)]",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)]"
             )}

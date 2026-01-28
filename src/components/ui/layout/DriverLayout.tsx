@@ -253,12 +253,12 @@ export function DriverLayout({
                         ? "bg-gray-800 text-gray-500 cursor-not-allowed"
                         : "bg-[var(--color-border)] text-[var(--color-charcoal-muted)] cursor-not-allowed"
                       : primaryAction.variant === "success"
-                        ? "bg-[var(--color-jade)] text-white shadow-[var(--shadow-glow-success)] hover:brightness-110"
+                        ? "bg-[var(--color-jade)] text-white shadow-glow-success hover:brightness-110"
                         : primaryAction.variant === "warning"
                           ? "bg-[var(--color-warning)] text-white hover:brightness-110"
                           : highContrast
                             ? "bg-white text-black hover:bg-gray-200"
-                            : "bg-[var(--color-primary)] text-white shadow-[var(--shadow-glow-primary)] hover:brightness-110"
+                            : "bg-[var(--color-primary)] text-white shadow-glow-primary hover:brightness-110"
                   )}
                 >
                   {primaryAction.loading ? (
