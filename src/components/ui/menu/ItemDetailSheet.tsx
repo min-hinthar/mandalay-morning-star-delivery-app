@@ -210,7 +210,7 @@ export function ItemDetailSheet({
             </div>
           )}
           {item.isSoldOut && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+            <div className="absolute inset-0 flex items-center justify-center bg-overlay-heavy">
               <Badge variant="default" size="lg">
                 Sold Out
               </Badge>
@@ -288,7 +288,7 @@ export function ItemDetailSheet({
         </div>
 
         {/* Footer with Add to Cart */}
-        <div className="shrink-0 border-t border-border p-4 bg-white dark:bg-zinc-900 safe-area-inset-bottom">
+        <div className="shrink-0 border-t border-border p-4 bg-surface-primary dark:bg-surface-primary safe-area-inset-bottom">
           {/* Validation Error */}
           {!validation.isValid && validation.errors[0] && (
             <p className="mb-2 text-sm text-status-error">{validation.errors[0]}</p>

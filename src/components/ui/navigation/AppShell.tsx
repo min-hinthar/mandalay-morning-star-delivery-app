@@ -74,7 +74,7 @@ export function AppShell({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className={cn("flex min-h-screen flex-col bg-white dark:bg-zinc-950", className)}>
+    <div className={cn("flex min-h-screen flex-col bg-surface-primary dark:bg-surface-primary", className)}>
       {/* Header component */}
       {showHeader && (
         <Header
