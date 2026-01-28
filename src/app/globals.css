@@ -279,8 +279,8 @@
     -webkit-backdrop-filter: blur(var(--blur-2xl));
     border: 1px solid var(--color-border-subtle);
     transition:
-      backdrop-filter 0.3s ease,
-      background 0.3s ease;
+      backdrop-filter var(--duration-slow) var(--ease-out),
+      background var(--duration-slow) var(--ease-out);
 
     /* GPU acceleration hint for mobile performance */
     will-change: backdrop-filter, background;
@@ -315,7 +315,7 @@
     );
     opacity: 0;
     filter: blur(var(--blur-md));
-    transition: opacity 0.3s ease;
+    transition: opacity var(--duration-slow) var(--ease-out);
     z-index: -1;
     pointer-events: none;
   }
