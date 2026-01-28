@@ -213,6 +213,21 @@ const config = [
           selector: "Property[key.name='fontWeight'][value.type='Literal'][value.raw=/^\\d+$/]",
           message: "Use Tailwind font-weight class (font-normal=400, font-medium=500, font-semibold=600, font-bold=700) instead of inline fontWeight number.",
         },
+        // Shadow enforcement: catch inline boxShadow with hardcoded values
+        {
+          selector: "Property[key.name='boxShadow'][value.type='Literal'][value.value=/^0\\s|^inset\\s|^none$/]",
+          message: "Use CSS variable (var(--shadow-*)) or Tailwind shadow-* utility instead of hardcoded boxShadow. Exception: Framer Motion animated shadows need numeric values for interpolation.",
+        },
+        // Blur enforcement: catch inline backdropFilter with hardcoded blur
+        {
+          selector: "Property[key.name='backdropFilter'][value.type='Literal'][value.value=/blur\\(\\d+px\\)/]",
+          message: "Use CSS variable (var(--blur-*)) or Tailwind backdrop-blur-* utility instead of hardcoded blur value.",
+        },
+        // Also catch filter with hardcoded blur
+        {
+          selector: "Property[key.name='filter'][value.type='Literal'][value.value=/blur\\(\\d+px\\)/]",
+          message: "Use CSS variable (var(--blur-*)) instead of hardcoded blur value.",
+        },
       ],
     },
   },
