@@ -374,11 +374,43 @@ export function Hero({
     offset: ["start start", "end start"],
   });
 
-  const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
+  // Layer transforms using parallaxPresets from motion-tokens
+  // Each layer moves at different speeds for depth perception
+  const orbsFarY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ["0%", `${parallaxPresets.far.speedFactor * 100}%`]
+  );
+  const orbsMidY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ["0%", `${parallaxPresets.mid.speedFactor * 100}%`]
+  );
+  const emojisY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ["0%", `${parallaxPresets.near.speedFactor * 100}%`]
+  );
+  // Content layer uses parallaxPresets.content for consistency (15% max travel)
+  const contentY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ["0%", `${parallaxPresets.content.speedFactor * 15}%`]
+  );
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
+  // Smooth springs for all parallax values
+  const smoothOrbsFarY = useSpring(orbsFarY, { stiffness: 100, damping: 30 });
+  const smoothOrbsMidY = useSpring(orbsMidY, { stiffness: 100, damping: 30 });
+  const smoothEmojisY = useSpring(emojisY, { stiffness: 100, damping: 30 });
   const smoothContentY = useSpring(contentY, { stiffness: 100, damping: 30 });
   const smoothOpacity = useSpring(opacity, { stiffness: 100, damping: 30 });
+
+  // Export parallax values for layer components (used in 31-03)
+  // These are accessible via data attributes on layer elements
+  void smoothOrbsFarY;
+  void smoothOrbsMidY;
+  void smoothEmojisY;
 
   // Common hero content
   const heroContent = (
