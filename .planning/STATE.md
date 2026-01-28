@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 27 gap closure - tracking, auth, progress token migration
+**Current focus:** Phase 27 complete - all color tokens migrated
 
 ## Current Position
 
 Phase: 27 (Token Enforcement - Colors)
-Plan: 6 of 6+ in current phase (gap closure)
-Status: Gap closure in progress
-Last activity: 2026-01-28 - Completed 27-06-PLAN.md
+Plan: 6 of 6 in current phase
+Status: Phase complete
+Last activity: 2026-01-27 - Gap closure complete (27-05, 27-06 + CommandPalette fix)
 
 Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 37/38+ plans
 
@@ -175,6 +175,14 @@ From `.planning/research/SUMMARY.md`:
 - progress.tsx migrated: bg-gradient-progress CSS utility
 - Zero hardcoded white/black colors in all four components
 
+**CommandPalette fix (orchestrator):**
+- Mobile close button: bg-white/90 dark:bg-zinc-800/90 → bg-surface-primary/90
+- Text color: text-zinc-600 dark:text-zinc-300 → text-text-secondary
+- Border: border-white/20 dark:border-white/10 → border-border/20
+- Command wrapper: inline rgba(255,255,255,0.85) → var(--color-surface-primary-85)
+- Added --color-surface-primary-85 token to tokens.css (light: rgba(255,255,255,0.85), dark: rgba(0,0,0,0.85))
+- Phase 27 gap closure complete - all color tokens migrated
+
 ### Phase 28 Progress
 
 **28-01 outcomes:**
@@ -314,11 +322,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-28
-Stopped at: Completed 27-06-PLAN.md (gap closure - tracking, auth, progress)
+Last session: 2026-01-27
+Stopped at: Phase 27 complete - all color token gaps closed
 Resume file: None
-Next action: Continue with remaining gap closure plans or new feature work
+Next action: Execute Phase 29 (Token Enforcement - Effects)
 
 ---
 
-*Updated: 2026-01-28 - Plan 101 complete (27-06 gap closure)*
+*Updated: 2026-01-27 - Phase 27 complete (6 plans - 4 original + 2 gap closure + CommandPalette fix)*
