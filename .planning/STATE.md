@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 27 complete - all color tokens migrated
+**Current focus:** Phase 29 started - shadow and blur token infrastructure complete
 
 ## Current Position
 
-Phase: 27 (Token Enforcement - Colors)
-Plan: 6 of 6 in current phase
-Status: Phase complete
-Last activity: 2026-01-27 - Gap closure complete (27-05, 27-06 + CommandPalette fix)
+Phase: 29 (Token Enforcement - Effects)
+Plan: 1 of N in current phase
+Status: In progress
+Last activity: 2026-01-27 - Completed 29-01 (shadow/blur tokens infrastructure)
 
-Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 37/38+ plans
+Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 38/39+ plans
 
 ## Milestones Completed
 
@@ -26,15 +26,15 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 32 plans complete
-**Phase 27 progress:** 6 plans complete (including gap closure)
+**v1.3 progress:** 33 plans complete
+**Phase 29 progress:** 1 plan complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 101 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 102 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 32
+- v1.3 plans completed: 33
 
 **By Phase (v1.3):**
 
@@ -46,6 +46,7 @@ Progress: [███████████████████████
 | 34 | 8/8 | 40min | 5min |
 | 27 | 6/6+ | 73min | 12.2min |
 | 28 | 3/3 | 18min | 6min |
+| 29 | 1/N | 8min | 8min |
 
 ## Accumulated Context
 
@@ -123,6 +124,9 @@ From `.planning/research/SUMMARY.md`:
 | --tabs-offset for sticky positioning | 28-03 | Single source of truth for header + tabs offset |
 | var(--radius-*) for chart borderRadius | 28-03 | Consistent design tokens in Recharts components |
 | MorphingMenu numeric borderRadius preserved | 28-03 | Framer Motion animation interpolation requirement |
+| shadow-xs uses subtle primary tint | 29-01 | Brand consistency with existing shadow tokens |
+| blur tokens same values in light/dark | 29-01 | Blur not theme-dependent |
+| ESLint boxShadow notes Framer exception | 29-01 | Animation interpolation requires numeric values |
 
 ### Phase 27 Progress (Complete)
 
@@ -320,13 +324,23 @@ None.
 - ESLint guards verified for @/design-system and @/contexts
 - Build and typecheck pass (lint has pre-existing color violations)
 
+### Phase 29 Progress
+
+**29-01 outcomes:**
+- Added 16 shadow tokens (xs, none, inner-sm/md, primary/success/warning/error, nav-top, focus/focus-success/focus-error, text-shadow-sm/md)
+- Added 7 blur tokens (none, sm, md, lg, xl, 2xl, 3xl)
+- Mapped all new tokens to Tailwind utilities (shadow-xs, backdrop-blur-lg, etc.)
+- Added ESLint rules for boxShadow, backdropFilter, filter enforcement
+- Enhanced audit-tokens.js with inline shadow/blur detection (40+ shadow-[...] patterns detected)
+- Infrastructure ready for shadow/blur migration in 29-02
+
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Phase 27 complete - all color token gaps closed
+Stopped at: Completed 29-01 (shadow/blur tokens infrastructure)
 Resume file: None
-Next action: Execute Phase 29 (Token Enforcement - Effects)
+Next action: Execute 29-02 (shadow/blur migration)
 
 ---
 
-*Updated: 2026-01-27 - Phase 27 complete (6 plans - 4 original + 2 gap closure + CommandPalette fix)*
+*Updated: 2026-01-27 - Phase 29 started (1 plan complete - shadow/blur infrastructure)*
