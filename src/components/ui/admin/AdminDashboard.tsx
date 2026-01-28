@@ -314,7 +314,7 @@ function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps) {
             className="absolute -top-2 -right-2"
           >
             <div className="p-1.5 rounded-full bg-secondary shadow-lg">
-              <Sparkles className="w-4 h-4 text-white" />
+              <Sparkles className="w-4 h-4 text-text-inverse" />
             </div>
           </motion.div>
         )}
@@ -517,7 +517,7 @@ export function AdminDashboard({
               variants={celebration.badge}
               initial="initial"
               animate="animate"
-              className="flex items-center gap-3 px-6 py-3 rounded-full bg-green text-white shadow-2xl"
+              className="flex items-center gap-3 px-6 py-3 rounded-full bg-green text-text-inverse shadow-2xl"
             >
               <Sparkles className="w-5 h-5" />
               <span className="font-bold">Goal Reached!</span>
