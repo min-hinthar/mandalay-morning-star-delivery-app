@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 31 (Hero Redesign) - IN PROGRESS
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-01-28 - Completed 31-03-PLAN.md (floating emojis & gradient orbs)
+Last activity: 2026-01-28 - Completed 31-04-PLAN.md (theme transitions & polish)
 
-Progress: [███████████████████████████████████████████████░░] v1.3 | 48/50 plans
+Progress: [████████████████████████████████████████████████░] v1.3 | 49/50 plans
 
 ## Milestones Completed
 
@@ -26,15 +26,15 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 50 plans estimated
-**v1.3 progress:** 43 plans complete
-**Phase 31 progress:** 3 of 5 plans complete
+**v1.3 progress:** 44 plans complete
+**Phase 31 progress:** 4 of 5 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 112 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 43
+- v1.3 plans completed: 44
 
 **By Phase (v1.3):**
 
@@ -48,7 +48,7 @@ Progress: [███████████████████████
 | 28 | 3/3 | 18min | 6min |
 | 29 | 6/6 | 48min | 8min |
 | 30 | 2/2 | 43min | 21.5min |
-| 31 | 3/5 | 26min | 8.7min |
+| 31 | 4/5 | 35min | 8.75min |
 
 ## Accumulated Context
 
@@ -152,6 +152,10 @@ From `.planning/research/SUMMARY.md`:
 | EMOJI_CONFIG deterministic positions | 31-03 | No Math.random for SSR/CSR hydration consistency |
 | Three emoji animation types | 31-03 | drift, spiral, bob for organic mixed movement |
 | Mouse repel max 20px desktop-only | 31-03 | useCanHover prevents touch device activation |
+| 8s shimmer animation cycle | 31-04 | Subtle effect, not distracting |
+| 300ms theme transition | 31-04 | Matches motion tokens, fast but visible |
+| CTA gradient shift on hover | 31-04 | from-secondary to from-secondary-hover pattern |
+| Ring-2 glow on CTA hover | 31-04 | Secondary/30 provides soft highlight |
 
 ### Phase 27 Progress (Complete)
 
@@ -438,13 +442,22 @@ None.
 - Added emoji depth tokens (--hero-emoji-shadow-*/blur-*/opacity-*)
 - Dark mode shadows darker (0.3/0.4/0.5 vs 0.1/0.15/0.2)
 
+**31-04 outcomes:**
+- Added hero-shimmer keyframes (8s diagonal light sweep)
+- Added animate-hero-shimmer utility class with reduced motion support
+- Added hero-gradient-transition class for 300ms theme crossfade
+- Hero GradientFallback now uses shimmer overlay and transition class
+- Removed decorative SVG pattern (replaced by shimmer)
+- CTA button enhanced: scale(1.05) + y(-2) lift + shadow-xl + ring glow on hover
+- CTA sweep animation extended to 2.5s duration with 200% travel
+
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Completed 31-03-PLAN.md (floating emojis & gradient orbs)
+Stopped at: Completed 31-04-PLAN.md (theme transitions & polish)
 Resume file: None
-Next action: Execute 31-04-PLAN.md (shimmer effects and polish)
+Next action: Execute 31-05-PLAN.md (final verification)
 
 ---
 
-*Updated: 2026-01-28 - Completed 31-03-PLAN.md*
+*Updated: 2026-01-28 - Completed 31-04-PLAN.md*
