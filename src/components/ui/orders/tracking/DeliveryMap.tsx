@@ -318,7 +318,7 @@ export function DeliveryMap({
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className={cn("relative rounded-xl overflow-hidden shadow-[var(--shadow-md)]", className)}
+        className={cn("relative rounded-xl overflow-hidden shadow-md", className)}
         style={{ minHeight: 300 }}
       >
         {mapContent(false)}
