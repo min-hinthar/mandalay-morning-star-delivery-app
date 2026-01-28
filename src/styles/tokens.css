@@ -53,6 +53,7 @@
      =========================================== */
 
   --color-surface-primary: #FFFFFF;
+  --color-surface-primary-85: rgba(255, 255, 255, 0.85);
   --color-surface-secondary: #FAFAFA;
   --color-surface-tertiary: #F5F5F5;
   --color-surface-elevated: #FFFFFF;
@@ -432,6 +433,7 @@
      =========================================== */
 
   --color-surface-primary: #000000;
+  --color-surface-primary-85: rgba(0, 0, 0, 0.85);
   --color-surface-secondary: #0a0a0a;
   --color-surface-tertiary: #141414;
   --color-surface-elevated: #1a1a1a;

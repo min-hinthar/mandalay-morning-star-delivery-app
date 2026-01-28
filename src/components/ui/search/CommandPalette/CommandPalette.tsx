@@ -154,9 +154,9 @@ export function CommandPalette({
               className={cn(
                 "absolute -top-12 right-0 sm:hidden",
                 "h-10 w-10 flex items-center justify-center rounded-full",
-                "bg-white/90 dark:bg-zinc-800/90 backdrop-blur-sm",
-                "text-zinc-600 dark:text-zinc-300",
-                "shadow-lg border border-white/20 dark:border-white/10",
+                "bg-surface-primary/90 backdrop-blur-sm",
+                "text-text-secondary",
+                "shadow-lg border border-border/20",
                 "active:scale-95 transition-transform"
               )}
               aria-label="Close search"
@@ -168,11 +168,11 @@ export function CommandPalette({
               label="Search menu items"
               className={cn(
                 "rounded-xl overflow-hidden",
-                "border border-white/20 dark:border-white/10",
+                "border border-border/20",
                 "shadow-2xl"
               )}
               style={{
-                backgroundColor: "rgba(255, 255, 255, 0.85)",
+                backgroundColor: "var(--color-surface-primary-85)",
                 backdropFilter: "blur(20px)",
                 WebkitBackdropFilter: "blur(20px)",
               }}
