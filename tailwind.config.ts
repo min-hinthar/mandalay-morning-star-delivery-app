@@ -312,6 +312,7 @@ const config: Config = {
         "glow-primary": "var(--shadow-glow-primary)",
         "glow-success": "var(--shadow-glow-success)",
         "glow-warning": "var(--shadow-glow-warning)",
+        "glow-amber": "var(--shadow-glow-amber)",
         // Additional shadow scale
         xs: "var(--shadow-xs)",
         none: "none",
