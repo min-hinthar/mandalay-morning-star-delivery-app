@@ -64,9 +64,21 @@
   --radius-4xl: calc(var(--radius) + 16px);
 
   /*
-   * Z-Index: Defined in tailwind.config.ts using CSS variables from tokens.css
-   * Do NOT add --z-index-* here - causes TailwindCSS 4 to generate invalid CSS
+   * Z-Index Layer System
+   * Tailwind v4 uses --z-* prefix to generate z-* utility classes
+   * Values must be literal numbers (not var() references)
+   * Mirrors tokens.css --zindex-* values for consistency
    */
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-tooltip: 70;
+  --z-toast: 80;
+  --z-max: 100;
 }
 
 :root {
