@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 29 complete - shadow and blur token enforcement done
+**Current focus:** Phase 29 gap closure - motion timing token enforcement
 
 ## Current Position
 
 Phase: 29 (Token Enforcement - Effects)
-Plan: 4 of 4 in current phase
-Status: Phase complete
-Last activity: 2026-01-28 - Completed 29-04 (shadow migration completion)
+Plan: 5 of 6 in current phase
+Status: In progress
+Last activity: 2026-01-28 - Completed 29-05 (motion timing gap closure)
 
-Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 41/41+ plans
+Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 42/43+ plans
 
 ## Milestones Completed
 
@@ -26,15 +26,15 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 36 plans complete
-**Phase 29 progress:** 4 plans complete (phase complete)
+**v1.3 progress:** 37 plans complete
+**Phase 29 progress:** 5 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 105 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 106 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 36
+- v1.3 plans completed: 37
 
 **By Phase (v1.3):**
 
@@ -46,7 +46,7 @@ Progress: [███████████████████████
 | 34 | 8/8 | 40min | 5min |
 | 27 | 6/6+ | 73min | 12.2min |
 | 28 | 3/3 | 18min | 6min |
-| 29 | 4/4 | 32min | 8min |
+| 29 | 5/6 | 40min | 8min |
 
 ## Accumulated Context
 
@@ -133,6 +133,9 @@ From `.planning/research/SUMMARY.md`:
 | shadow-hint-sm/md for compound shadows | 29-02 | Brand-tinted gradient shadows for hints/dropdowns |
 | Framer Motion boxShadow kept numeric | 29-02 | Animation interpolation requires numeric values |
 | inputFocus uses CSS variable tokens | 29-02 | Discrete state changes work with CSS vars |
+| duration-[Nms] severity upgraded to warning | 29-05 | Enforce motion tokens during Phase 29 |
+| Framer Motion spring physics allowed | 29-05 | Numeric durations needed for spring calculations |
+| AppHeader uses blur(var(--blur-2xl)) | 29-05 | Consistent with CommandPalette glass pattern |
 
 ### Phase 27 Progress (Complete)
 
@@ -369,15 +372,21 @@ None.
 - AddressInput: use var(--shadow-focus) for focus state (discrete, not interpolated)
 - RevenueChart/PerformanceChart: use var(--shadow-card) and var(--shadow-md) for tooltips
 - Layout files converted from shadow-[var(...)] to proper Tailwind utilities
-- Phase 29 complete: shadow and blur token enforcement done
+
+**29-05 outcomes:**
+- Fixed AppHeader blur inconsistency: blur(30px) -> blur(var(--blur-2xl))
+- Added 4 ESLint rules for motion timing enforcement (transitionDuration, transition, duration-[Nms], delay-[Nms])
+- Enhanced audit-tokens.js with 6 new motion timing patterns
+- duration-[Nms] upgraded from info to warning severity
+- Framer Motion spring physics explicitly allowed in ESLint messages
 
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Completed 29-04 (shadow migration completion)
+Stopped at: Completed 29-05 (motion timing gap closure)
 Resume file: None
-Next action: Phase 29 complete, proceed to next phase
+Next action: Execute 29-06 for remaining motion timing migration
 
 ---
 
-*Updated: 2026-01-28 - Phase 29 complete (4 plans - shadow and blur token enforcement)*
+*Updated: 2026-01-28 - Completed 29-05 (motion timing gap closure)*

@@ -1,24 +1,24 @@
 # Token Audit Report
 
-Generated: 2026-01-28 05:46:56
-Total files scanned: 46
-Total violations: 156
+Generated: 2026-01-28 06:57:03
+Total files scanned: 32
+Total violations: 126
 
 ## Summary
 
 | Severity | Count |
 |----------|-------|
-| Critical | 115 |
-| Warning | 41 |
+| Critical | 89 |
+| Warning | 37 |
 | Info | 0 |
-| **Total** | **156** |
+| **Total** | **126** |
 
 ## By Category
 
 | Category | Critical | Warning | Info | Total |
 |----------|----------|---------|------|-------|
-| effects | 35 | 17 | 0 | 52 |
-| colors | 71 | 24 | 0 | 95 |
+| effects | 11 | 13 | 0 | 24 |
+| colors | 69 | 24 | 0 | 93 |
 | spacing | 2 | 0 | 0 | 2 |
 | deprecated | 7 | 0 | 0 | 7 |
 
@@ -40,11 +40,10 @@ Total violations: 156
 - `src/components/ui/layout/DriverLayout.tsx:155` - `text-white`
 - ... and 19 more
 
-### inline color:#hex (25) - **CRITICAL**
+### inline color:#hex (24) - WARNING
 
 **Suggested fix:** Use CSS variable: color: var(--color-text-primary)
 
-- `src/components/ui/admin/RevenueChart.tsx:93` - `color: "#111111`
 - `src/stories/button.css:11` - `color: #555ab9`
 - `src/stories/button.css:17` - `color: #333`
 - `src/stories/header.css:30` - `color: #333`
@@ -54,40 +53,24 @@ Total violations: 156
 - `src/styles/high-contrast.css:119` - `color: #000000`
 - `src/styles/high-contrast.css:120` - `color: #FFFFFF`
 - `src/styles/high-contrast.css:126` - `color: #333333`
-- ... and 15 more
+- `src/styles/high-contrast.css:132` - `color: #FFFFFF`
+- ... and 14 more
 
-### inline boxShadow (20) - **CRITICAL**
+### inline boxShadow (11) - **CRITICAL**
 
 **Suggested fix:** Use CSS variable: boxShadow: var(--shadow-*)
 
-- `src/app/(customer)/checkout/page.tsx:38` - `boxShadow: "0 0`
-- `src/app/(customer)/checkout/page.tsx:44` - `boxShadow: "0 0`
-- `src/components/ui/admin/analytics/PerformanceChart.tsx:67` - `boxShadow:
-                  "0 4`
-- `src/components/ui/admin/RevenueChart.tsx:89` - `boxShadow: "0 8`
-- `src/components/ui/checkout/AddressInput.tsx:421` - `boxShadow: "0 0`
-- `src/components/ui/checkout/AddressInput.tsx:424` - `boxShadow: "0 0`
-- `src/components/ui/checkout/CheckoutStepperV8.tsx:123` - `boxShadow: "0 0`
-- `src/components/ui/homepage/CTABanner.tsx:32` - `boxShadow: "0 0`
-- `src/components/ui/homepage/CTABanner.tsx:36` - `boxShadow: "0 2`
-- `src/components/ui/NavDots.tsx:71` - `boxShadow: "0 2`
-- ... and 10 more
-
-### shadow-[...] (20) - **CRITICAL**
-
-**Suggested fix:** Use semantic shadow tokens (shadow-xs, shadow-sm, shadow-card, shadow-primary, etc.)
-
-- `src/components/ui/cart/CartBar.tsx:239` - `shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)]`
-- `src/components/ui/cart/CartBar.tsx:239` - `shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.3)]`
-- `src/components/ui/cart/CartSummary.tsx:128` - `shadow-[0_2px_8px_rgba(245,158,11,0.4)]`
-- `src/components/ui/layout/AdminLayout.tsx:202` - `shadow-[var(--shadow-lg)]`
-- `src/components/ui/layout/AppHeader/AccountIndicator.tsx:252` - `shadow-[0_4px_20px_-4px_rgba(164,16,52,0.15),0_2px_8px_rgba(0,0,0,0.08)]`
-- `src/components/ui/layout/AppHeader/AccountIndicator.tsx:253` - `shadow-[0_4px_20px_-4px_rgba(245,158,11,0.15),0_2px_8px_rgba(0,0,0,0.3)]`
-- `src/components/ui/layout/AppHeader/SearchTrigger.tsx:111` - `shadow-[0_2px_8px_rgba(164,16,52,0.15),0_1px_4px_rgba(0,0,0,0.1)]`
-- `src/components/ui/layout/AppHeader/SearchTrigger.tsx:112` - `shadow-[0_2px_8px_rgba(245,158,11,0.2),0_1px_4px_rgba(0,0,0,0.2)]`
-- `src/components/ui/layout/CheckoutLayout.tsx:251` - `shadow-[var(--shadow-glow-primary)]`
-- `src/components/ui/layout/DriverLayout.tsx:256` - `shadow-[var(--shadow-glow-jade)]`
-- ... and 10 more
+- `src/app/(customer)/checkout/page.tsx:41` - `boxShadow: "0 0`
+- `src/app/(customer)/checkout/page.tsx:47` - `boxShadow: "0 0`
+- `src/components/ui/checkout/CheckoutStepperV8.tsx:124` - `boxShadow: "0 0`
+- `src/components/ui/homepage/CTABanner.tsx:33` - `boxShadow: "0 0`
+- `src/components/ui/homepage/CTABanner.tsx:37` - `boxShadow: "0 2`
+- `src/lib/micro-interactions.ts:63` - `boxShadow: "0 2`
+- `src/lib/micro-interactions.ts:67` - `boxShadow: "0 4`
+- `src/lib/micro-interactions.ts:72` - `boxShadow: "0 1`
+- `src/lib/micro-interactions.ts:84` - `boxShadow: "0 8`
+- `src/lib/micro-interactions.ts:102` - `boxShadow: "0 2`
+- ... and 1 more
 
 ### bg-white (9) - **CRITICAL**
 
@@ -138,17 +121,6 @@ Total violations: 156
 - `src/components/ui/transitions/PageTransition.tsx:81` - `filter: "blur(0px)`
 - `src/components/ui/transitions/PageTransition.tsx:91` - `filter: "blur(8px)`
 
-### inline backdropFilter (6) - **CRITICAL**
-
-**Suggested fix:** Use CSS variable: backdropFilter: blur(var(--blur-*))
-
-- `src/components/ui/layout/AppHeader/AppHeader.tsx:35` - `backdropFilter: "blur(30px)`
-- `src/components/ui/layout/AppHeader/AppHeader.tsx:49` - `backdropFilter: "blur(30px)`
-- `src/components/ui/search/CommandPalette/CommandPalette.tsx:176` - `backdropFilter: "blur(20px)`
-- `src/lib/motion-tokens.ts:389` - `backdropFilter: "blur(0px)`
-- `src/lib/motion-tokens.ts:393` - `backdropFilter: "blur(20px)`
-- `src/lib/motion-tokens.ts:399` - `backdropFilter: "blur(0px)`
-
 ### v6-* prefix (6) - **CRITICAL**
 
 **Suggested fix:** Remove v6- prefix, use semantic tokens
@@ -168,7 +140,7 @@ Total violations: 156
 - `src/components/ui/auth/AuthModal.tsx:331` - `border-white/50`
 - `src/components/ui/cart/CartItem.tsx:207` - `border-white/20`
 - `src/components/ui/cart/CartItem.tsx:207` - `border-white/10`
-- `src/components/ui/checkout/CheckoutWizard.tsx:475` - `border-white/30`
+- `src/components/ui/checkout/CheckoutWizard.tsx:476` - `border-white/30`
 
 ### bg-black (4) - **CRITICAL**
 
@@ -178,6 +150,15 @@ Total violations: 156
 - `src/components/ui/layout/DriverLayout.tsx:110` - `bg-black`
 - `src/components/ui/layout/DriverLayout.tsx:120` - `bg-black`
 - `src/components/ui/layout/DriverLayout.tsx:230` - `bg-black`
+
+### shadow-[...] (4) - WARNING
+
+**Suggested fix:** Use semantic shadow tokens (shadow-xs, shadow-sm, shadow-card, shadow-primary, etc.)
+
+- `src/lib/hooks/useLuminance.ts:281` - `shadow-[0_1px_2px_rgba(255,255,255,0.8)]`
+- `src/lib/hooks/useLuminance.ts:282` - `shadow-[0_1px_1px_rgba(255,255,255,0.5)]`
+- `src/lib/hooks/useLuminance.ts:284` - `shadow-[0_2px_4px_rgba(0,0,0,0.5)]`
+- `src/lib/hooks/useLuminance.ts:285` - `shadow-[0_1px_2px_rgba(0,0,0,0.3)]`
 
 ### inline bg:rgb() (3) - **CRITICAL**
 
@@ -195,18 +176,20 @@ Total violations: 156
 - `src/components/ui/layout/DriverLayout.tsx:174` - `text-black`
 - `src/components/ui/layout/DriverLayout.tsx:260` - `text-black`
 
+### inline backdropFilter (3) - WARNING
+
+**Suggested fix:** Use CSS variable: backdropFilter: blur(var(--blur-*))
+
+- `src/lib/motion-tokens.ts:394` - `backdropFilter: "blur(0px)`
+- `src/lib/motion-tokens.ts:398` - `backdropFilter: "blur(20px)`
+- `src/lib/motion-tokens.ts:404` - `backdropFilter: "blur(0px)`
+
 ### inline color:rgb() (2) - **CRITICAL**
 
 **Suggested fix:** Use CSS variable: color: var(--color-text-primary)
 
 - `src/components/ui/search/CommandPalette/CommandPalette.tsx:191` - `color: rgba(`
 - `src/components/ui/search/CommandPalette/CommandPalette.tsx:192` - `color: rgba(`
-
-### inline bg:#hex (1) - **CRITICAL**
-
-**Suggested fix:** Use CSS variable: backgroundColor: var(--color-surface-primary)
-
-- `src/components/ui/admin/RevenueChart.tsx:86` - `backgroundColor: "#FFFFFF`
 
 ### mt-[Npx] (1) - **CRITICAL**
 
@@ -230,9 +213,9 @@ Total violations: 156
 
 ### Top 20 Files with Most Violations
 
-### src/components/ui/layout/DriverLayout.tsx (25 violations)
+### src/components/ui/layout/DriverLayout.tsx (23 violations)
 
-Severity breakdown: 25 critical, 0 warning, 0 info
+Severity breakdown: 23 critical, 0 warning, 0 info
 
 - Line 110: `text-white` -> text-text-inverse (or text-hero-text in hero sections)
 - Line 132: `text-white` -> text-text-inverse (or text-hero-text in hero sections)
@@ -249,7 +232,7 @@ Severity breakdown: 25 critical, 0 warning, 0 info
 - Line 260: `bg-white` -> bg-surface-primary
 - Line 110: `bg-black` -> bg-surface-inverse or bg-[var(--color-text-primary)]
 - Line 120: `bg-black` -> bg-surface-inverse or bg-[var(--color-text-primary)]
-- ... and 10 more in this file
+- ... and 8 more in this file
 
 ### src/components/ui/Stack.stories.tsx (17 violations)
 
@@ -307,31 +290,6 @@ Severity breakdown: 5 critical, 0 warning, 0 info
 - Line 205: `bg-white` -> bg-surface-primary
 - Line 293: `border-white` -> border-border-default or border-text-inverse
 
-### src/components/ui/layout/AppHeader/AppHeader.tsx (4 violations)
-
-Severity breakdown: 4 critical, 0 warning, 0 info
-
-- Line 34: `backgroundColor: "rgba(` -> Use CSS variable: backgroundColor: var(--color-surface-primary)
-- Line 48: `backgroundColor: "rgba(` -> Use CSS variable: backgroundColor: var(--color-surface-primary)
-- Line 35: `backdropFilter: "blur(30px)` -> Use CSS variable: backdropFilter: blur(var(--blur-*))
-- Line 49: `backdropFilter: "blur(30px)` -> Use CSS variable: backdropFilter: blur(var(--blur-*))
-
-### src/components/ui/admin/RevenueChart.tsx (3 violations)
-
-Severity breakdown: 3 critical, 0 warning, 0 info
-
-- Line 93: `color: "#111111` -> Use CSS variable: color: var(--color-text-primary)
-- Line 86: `backgroundColor: "#FFFFFF` -> Use CSS variable: backgroundColor: var(--color-surface-primary)
-- Line 89: `boxShadow: "0 8` -> Use CSS variable: boxShadow: var(--shadow-*)
-
-### src/components/ui/search/CommandPalette/CommandPalette.tsx (3 violations)
-
-Severity breakdown: 3 critical, 0 warning, 0 info
-
-- Line 191: `color: rgba(` -> Use CSS variable: color: var(--color-text-primary)
-- Line 192: `color: rgba(` -> Use CSS variable: color: var(--color-text-primary)
-- Line 176: `backdropFilter: "blur(20px)` -> Use CSS variable: backdropFilter: blur(var(--blur-*))
-
 ### src/components/ui/transitions/PageTransition.tsx (3 violations)
 
 Severity breakdown: 3 critical, 0 warning, 0 info
@@ -344,8 +302,8 @@ Severity breakdown: 3 critical, 0 warning, 0 info
 
 Severity breakdown: 2 critical, 0 warning, 0 info
 
-- Line 38: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-*)
-- Line 44: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-*)
+- Line 41: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-*)
+- Line 47: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-*)
 
 ### src/components/ui/auth/AuthModal.tsx (2 violations)
 
@@ -354,13 +312,6 @@ Severity breakdown: 2 critical, 0 warning, 0 info
 - Line 127: `border-white/50` -> border-text-inverse/N
 - Line 331: `border-white/50` -> border-text-inverse/N
 
-### src/components/ui/cart/CartBar.tsx (2 violations)
-
-Severity breakdown: 2 critical, 0 warning, 0 info
-
-- Line 239: `shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)]` -> Use semantic shadow tokens (shadow-xs, shadow-sm, shadow-card, shadow-primary, etc.)
-- Line 239: `shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.3)]` -> Use semantic shadow tokens (shadow-xs, shadow-sm, shadow-card, shadow-primary, etc.)
-
 ### src/components/ui/cart/CartItem.tsx (2 violations)
 
 Severity breakdown: 2 critical, 0 warning, 0 info
@@ -368,19 +319,12 @@ Severity breakdown: 2 critical, 0 warning, 0 info
 - Line 207: `border-white/20` -> border-text-inverse/N
 - Line 207: `border-white/10` -> border-text-inverse/N
 
-### src/components/ui/checkout/AddressInput.tsx (2 violations)
-
-Severity breakdown: 2 critical, 0 warning, 0 info
-
-- Line 421: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-*)
-- Line 424: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-*)
-
 ### src/components/ui/homepage/CTABanner.tsx (2 violations)
 
 Severity breakdown: 2 critical, 0 warning, 0 info
 
-- Line 32: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-*)
-- Line 36: `boxShadow: "0 2` -> Use CSS variable: boxShadow: var(--shadow-*)
+- Line 33: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-*)
+- Line 37: `boxShadow: "0 2` -> Use CSS variable: boxShadow: var(--shadow-*)
 
 ### src/components/ui/homepage/Hero.tsx (2 violations)
 
@@ -389,26 +333,19 @@ Severity breakdown: 2 critical, 0 warning, 0 info
 - Line 73: `filter: "blur(10px)` -> Use CSS variable: filter: blur(var(--blur-*))
 - Line 79: `filter: "blur(0px)` -> Use CSS variable: filter: blur(var(--blur-*))
 
-### src/components/ui/layout/AppHeader/AccountIndicator.tsx (2 violations)
+### src/components/ui/layout/AppHeader/AppHeader.tsx (2 violations)
 
 Severity breakdown: 2 critical, 0 warning, 0 info
 
-- Line 252: `shadow-[0_4px_20px_-4px_rgba(164,16,52,0.15),0_2px_8px_rgba(0,0,0,0.08)]` -> Use semantic shadow tokens (shadow-xs, shadow-sm, shadow-card, shadow-primary, etc.)
-- Line 253: `shadow-[0_4px_20px_-4px_rgba(245,158,11,0.15),0_2px_8px_rgba(0,0,0,0.3)]` -> Use semantic shadow tokens (shadow-xs, shadow-sm, shadow-card, shadow-primary, etc.)
+- Line 34: `backgroundColor: "rgba(` -> Use CSS variable: backgroundColor: var(--color-surface-primary)
+- Line 48: `backgroundColor: "rgba(` -> Use CSS variable: backgroundColor: var(--color-surface-primary)
 
-### src/components/ui/layout/AppHeader/SearchTrigger.tsx (2 violations)
-
-Severity breakdown: 2 critical, 0 warning, 0 info
-
-- Line 111: `shadow-[0_2px_8px_rgba(164,16,52,0.15),0_1px_4px_rgba(0,0,0,0.1)]` -> Use semantic shadow tokens (shadow-xs, shadow-sm, shadow-card, shadow-primary, etc.)
-- Line 112: `shadow-[0_2px_8px_rgba(245,158,11,0.2),0_1px_4px_rgba(0,0,0,0.2)]` -> Use semantic shadow tokens (shadow-xs, shadow-sm, shadow-card, shadow-primary, etc.)
-
-### src/components/ui/layout/CheckoutLayout.tsx (2 violations)
+### src/components/ui/search/CommandPalette/CommandPalette.tsx (2 violations)
 
 Severity breakdown: 2 critical, 0 warning, 0 info
 
-- Line 260: `border-white` -> border-border-default or border-text-inverse
-- Line 251: `shadow-[var(--shadow-glow-primary)]` -> Use semantic shadow tokens (shadow-xs, shadow-sm, shadow-card, shadow-primary, etc.)
+- Line 191: `color: rgba(` -> Use CSS variable: color: var(--color-text-primary)
+- Line 192: `color: rgba(` -> Use CSS variable: color: var(--color-text-primary)
 
 ### src/components/ui/admin/analytics/DriverLeaderboard.tsx (1 violations)
 
@@ -416,39 +353,75 @@ Severity breakdown: 1 critical, 0 warning, 0 info
 
 - Line 128: `backgroundColor: "rgba(` -> Use CSS variable: backgroundColor: var(--color-surface-primary)
 
+### src/components/ui/animated-image.tsx (1 violations)
 
-*... and 26 more files with violations*
+Severity breakdown: 1 critical, 0 warning, 0 info
+
+- Line 89: `filter: "blur(0px)` -> Use CSS variable: filter: blur(var(--blur-*))
+
+### src/components/ui/checkout/CheckoutStepperV8.tsx (1 violations)
+
+Severity breakdown: 1 critical, 0 warning, 0 info
+
+- Line 124: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-*)
+
+### src/components/ui/checkout/CheckoutWizard.tsx (1 violations)
+
+Severity breakdown: 1 critical, 0 warning, 0 info
+
+- Line 476: `border-white/30` -> border-text-inverse/N
+
+### src/components/ui/Container.stories.tsx (1 violations)
+
+Severity breakdown: 1 critical, 0 warning, 0 info
+
+- Line 129: `text-white` -> text-text-inverse (or text-hero-text in hero sections)
+
+### src/components/ui/Grid.stories.tsx (1 violations)
+
+Severity breakdown: 1 critical, 0 warning, 0 info
+
+- Line 243: `text-white` -> text-text-inverse (or text-hero-text in hero sections)
+
+### src/components/ui/layout/CheckoutLayout.tsx (1 violations)
+
+Severity breakdown: 1 critical, 0 warning, 0 info
+
+- Line 260: `border-white` -> border-border-default or border-text-inverse
+
+
+*... and 12 more files with violations*
 
 ## Baseline
 
 ### Current Run
 | Category | Critical | Warning | Info | Total |
 |----------|----------|---------|------|-------|
-| effects | 35 | 17 | 0 | 52 |
-| colors | 71 | 24 | 0 | 95 |
+| effects | 11 | 13 | 0 | 24 |
+| colors | 69 | 24 | 0 | 93 |
 | spacing | 2 | 0 | 0 | 2 |
 | deprecated | 7 | 0 | 0 | 7 |
 
 ### Historical Trend
 | Run | Date | Critical | Warning | Info | Total |
 |-----|------|----------|---------|------|-------|
-| 6 | 2026-01-28 | 115 | 41 | 0 | 156 |
-| 4 | 2026-01-27 | 283 | 51 | 0 | 334 |
-| 2 | 2026-01-27 | 283 | 51 | 0 | 334 |
-| 1 | 2026-01-27 | 283 | 51 | 0 | 334 |
+| 6 | 2026-01-28 | 89 | 37 | 0 | 126 |
 | 3 | 2026-01-27 | 283 | 51 | 0 | 334 |
+| 1 | 2026-01-27 | 283 | 51 | 0 | 334 |
+| 2 | 2026-01-27 | 283 | 51 | 0 | 334 |
+| 4 | 2026-01-27 | 283 | 51 | 0 | 334 |
 
 ### Category Baselines
-- colors: 95
+- colors: 93
 - spacing: 2
-- effects: 52
+- effects: 24
 - deprecated: 7
 - imports: 0
 
 ### Delta from Previous Run
-- colors: 0
+- colors: -2 (improved)
 - spacing: 0
-- effects: 0
+- effects: -28 (improved)
 - deprecated: 0
 - imports: 0
 
