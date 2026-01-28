@@ -30,9 +30,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Token Enforcement - Effects & Shadows
 
-- [ ] **TOKN-13**: All box-shadow uses design system shadow tokens
-- [ ] **TOKN-14**: All backdrop-blur uses consistent values via tokens
-- [ ] **TOKN-15**: All transition/animation durations use motion tokens
+- [x] **TOKN-13**: All box-shadow uses design system shadow tokens
+- [x] **TOKN-14**: All backdrop-blur uses consistent values via tokens
+- [x] **TOKN-15**: All transition/animation durations use motion tokens
 
 ### Token Enforcement - Infrastructure
 
@@ -51,9 +51,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Mobile Stability
 
-- [ ] **MOBL-01**: 3D tilt disabled on touch devices via CSS media query `(hover: hover) and (pointer: fine)`
-- [ ] **MOBL-02**: CSS backface-visibility fixes applied for Safari (`-webkit-backface-visibility: hidden`)
-- [ ] **MOBL-03**: `translate3d(0,0,0)` applied to tilt elements for proper compositing
+- [x] **MOBL-01**: 3D tilt disabled on touch devices via CSS media query `(hover: hover) and (pointer: fine)`
+- [x] **MOBL-02**: CSS backface-visibility fixes applied for Safari (`-webkit-backface-visibility: hidden`)
+- [x] **MOBL-03**: `translate3d(0,0,0)` applied to tilt elements for proper compositing
 
 ### Hero Redesign
 
@@ -114,9 +114,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TOKN-10 | Phase 28 | Complete |
 | TOKN-11 | Phase 28 | Complete |
 | TOKN-12 | Phase 28 | Complete |
-| TOKN-13 | Phase 29 | Pending |
-| TOKN-14 | Phase 29 | Pending |
-| TOKN-15 | Phase 29 | Pending |
+| TOKN-13 | Phase 29 | Complete |
+| TOKN-14 | Phase 29 | Complete |
+| TOKN-15 | Phase 29 | Complete |
 | TOKN-16 | Phase 25 | Complete |
 | TOKN-17 | Phase 25 | Complete |
 | TOKN-18 | Phase 32 | Pending |
@@ -126,9 +126,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COMP-04 | Phase 26 | Complete |
 | COMP-05 | Phase 26 | Complete |
 | COMP-06 | Phase 26 | Complete |
-| MOBL-01 | Phase 30 | Pending |
-| MOBL-02 | Phase 30 | Pending |
-| MOBL-03 | Phase 30 | Pending |
+| MOBL-01 | Phase 30 | Complete |
+| MOBL-02 | Phase 30 | Complete |
+| MOBL-03 | Phase 30 | Complete |
 | HERO-01 | Phase 31 | Pending |
 | HERO-02 | Phase 31 | Pending |
 | HERO-03 | Phase 31 | Pending |
