@@ -93,7 +93,7 @@ function BadgeItem({ config, index }: BadgeItemProps) {
     <motion.span
       className={cn(
         "inline-flex items-center gap-1 px-2 py-0.5",
-        "rounded-full text-[10px] font-semibold uppercase tracking-wide",
+        "rounded-full text-2xs font-semibold uppercase tracking-wide",
         config.bgColor,
         config.textColor,
         "backdrop-blur-sm shadow-sm"
