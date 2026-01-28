@@ -51,7 +51,7 @@ export function DrawerNavLink({
             className={cn(
               "flex items-center justify-center w-10 h-10 rounded-lg",
               isActive
-                ? "bg-primary/10 shadow-[0_0_12px_rgba(164,16,52,0.25)]"
+                ? "bg-primary/10 shadow-glow-primary"
                 : "bg-surface-tertiary"
             )}
           >

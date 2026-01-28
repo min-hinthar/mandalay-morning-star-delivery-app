@@ -86,7 +86,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
         "relative flex h-10 w-10 items-center justify-center rounded-full",
         "bg-secondary/50 dark:bg-overlay-light",
         "border border-border dark:border-transparent",
-        "dark:shadow-[0_0_12px_rgba(229,62,62,0.3)]", // Primary glow in dark mode
+        "dark:shadow-glow-primary", // Primary glow in dark mode
         "transition-colors duration-200",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         className

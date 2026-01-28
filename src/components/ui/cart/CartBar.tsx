@@ -236,7 +236,7 @@ export function CartBar({
             "fixed bottom-0 left-0 right-0",
             "bg-surface-primary/95 dark:bg-gray-900/95 backdrop-blur-lg",
             "border-t border-border dark:border-gray-800",
-            "shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)] dark:shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.3)]",
+            "shadow-nav-top",
             "rounded-t-2xl",
             // iOS safe area
             "pb-[env(safe-area-inset-bottom)]",

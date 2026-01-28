@@ -125,7 +125,7 @@ export function CartSummary({ className }: CartSummaryProps) {
                 className={cn(
                   "h-full rounded-full relative",
                   "bg-gradient-progress",
-                  "shadow-[0_2px_8px_rgba(245,158,11,0.4)]"
+                  "shadow-glow-amber"
                 )}
                 animate={{ width: `${progressPercent}%` }}
                 transition={getSpring(spring.rubbery)}

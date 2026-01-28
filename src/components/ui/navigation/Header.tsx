@@ -159,6 +159,9 @@ export function Header({
   // Calculate dynamic values based on scroll position
   const headerHeight = isAtTop ? HEADER_HEIGHT_FULL : HEADER_HEIGHT_COLLAPSED;
   const bgOpacity = isAtTop ? 0.6 : 0.95;
+  // Dynamic blur based on scroll position
+  // Range: 8px (--blur-md at top) to 16px (--blur-lg + 4px when scrolled)
+  // Kept dynamic for smooth scroll-linked animation; cannot use single CSS token
   const blurAmount = isAtTop ? 8 : 16;
 
   // Animation spring config
