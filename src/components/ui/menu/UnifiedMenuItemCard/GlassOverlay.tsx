@@ -36,13 +36,22 @@ export function GlassOverlay({
   const { shouldAnimate } = useAnimationPreference();
 
   return (
-    <div className={cn("absolute inset-0 pointer-events-none", zClass.base, rounded, className)}>
+    <div
+      className={cn("absolute inset-0 pointer-events-none", zClass.base, rounded, className)}
+      style={{ isolation: "isolate" }}
+    >
       {/* Base glass surface */}
       <div
         className={cn(
           "absolute inset-0 glass-menu-card",
           rounded
         )}
+        style={{
+          overflow: "hidden",
+          // Safari backface fix
+          WebkitBackfaceVisibility: "hidden",
+          backfaceVisibility: "hidden",
+        }}
       />
 
       {/* Hover border glow - brand color, ~--shadow-glow-primary equivalent */}
