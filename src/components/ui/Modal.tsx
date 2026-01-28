@@ -372,7 +372,7 @@ export function Modal({
             onClick={handleBackdropClick}
             className={cn(
               "fixed inset-0",
-              "bg-overlay backdrop-blur-sm",
+              "bg-overlay backdrop-blur-md",
               backdropClassName
             )}
             aria-hidden="true"
@@ -414,7 +414,7 @@ export function Modal({
               className={cn(
                 // Base styles
                 "relative w-full",
-                "bg-[var(--color-surface,#fff)] dark:bg-[var(--color-surface-primary-dark,#1A1918)]",
+                "bg-surface-primary/80 dark:bg-gray-900/75 backdrop-blur-3xl border border-white/20 dark:border-white/10",
                 "shadow-xl",
                 "focus:outline-none",
                 // Mobile styles
