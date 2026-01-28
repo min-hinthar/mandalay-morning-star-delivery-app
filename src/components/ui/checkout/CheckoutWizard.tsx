@@ -97,7 +97,7 @@ function StepIndicator({
                   "relative w-12 h-12 rounded-full flex items-center justify-center",
                   "border-2 transition-colors duration-200",
                   isCompleted
-                    ? "bg-primary border-primary text-white"
+                    ? "bg-primary border-primary text-text-inverse"
                     : isCurrent
                     ? "bg-primary-light border-primary text-primary"
                     : "bg-surface-secondary border-border text-text-muted"

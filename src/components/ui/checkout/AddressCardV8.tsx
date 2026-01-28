@@ -69,7 +69,7 @@ export function AddressCardV8({
         transition={getSpring(spring.ultraBouncy)}
         className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary flex items-center justify-center"
       >
-        <Check className="w-4 h-4 text-white" strokeWidth={3} />
+        <Check className="w-4 h-4 text-text-inverse" strokeWidth={3} />
       </motion.div>
 
       {/* Address content */}

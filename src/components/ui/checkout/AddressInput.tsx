@@ -99,7 +99,7 @@ function AddressCard({
           className={cn(
             "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5",
             isSelected
-              ? "bg-primary text-white"
+              ? "bg-primary text-text-inverse"
               : "bg-surface-tertiary text-text-muted"
           )}
           animate={isSelected && shouldAnimate ? {
@@ -237,7 +237,7 @@ export function MapPreview({ address, coverageResult, className }: MapPreviewPro
               }}
               className="absolute -inset-3 bg-primary rounded-full"
             />
-            <div className="relative w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-lg">
+            <div className="relative w-8 h-8 rounded-full bg-primary text-text-inverse flex items-center justify-center shadow-lg">
               <Home className="w-4 h-4" />
             </div>
           </div>
@@ -267,12 +267,12 @@ export function MapPreview({ address, coverageResult, className }: MapPreviewPro
                 }}
                 className={cn(
                   "absolute -inset-3 rounded-full",
-                  coverageResult?.isValid ? "bg-green" : "bg-red-500"
+                  coverageResult?.isValid ? "bg-green" : "bg-status-error"
                 )}
               />
               <div className={cn(
-                "relative w-8 h-8 rounded-full text-white flex items-center justify-center shadow-lg",
-                coverageResult?.isValid ? "bg-green" : "bg-red-500"
+                "relative w-8 h-8 rounded-full text-text-inverse flex items-center justify-center shadow-lg",
+                coverageResult?.isValid ? "bg-green" : "bg-status-error"
               )}>
                 <MapPin className="w-4 h-4" />
               </div>
@@ -327,7 +327,7 @@ export function MapPreview({ address, coverageResult, className }: MapPreviewPro
           className={cn(
             "absolute bottom-3 left-3 right-3",
             "p-2 rounded-lg",
-            "bg-white/90 backdrop-blur-sm",
+            "bg-surface-primary/90 backdrop-blur-sm",
             "flex items-center justify-between text-sm"
           )}
         >
