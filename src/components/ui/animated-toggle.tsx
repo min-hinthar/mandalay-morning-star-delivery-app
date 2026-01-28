@@ -73,7 +73,7 @@ export function AnimatedToggle({
       <motion.span
         className={cn(
           knob,
-          "absolute left-0.5 rounded-full bg-white shadow-md"
+          "absolute left-0.5 rounded-full bg-surface-primary shadow-md"
         )}
         animate={shouldAnimate ? { x: checked ? travel : 0 } : { x: checked ? travel : 0 }}
         initial={false}
