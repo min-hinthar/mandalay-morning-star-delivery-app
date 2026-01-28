@@ -234,10 +234,9 @@ export function ItemDetailSheet({
           )}
         </div>
 
-        {/* Scrollable Content */}
+        {/* Scrollable Content - touchAction inherited from Drawer content wrapper */}
         <div
           className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4"
-          style={{ touchAction: "pan-y" }}
         >
           {/* Header */}
           <div>
