@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 30 complete - ready for Phase 31 Hero Redesign
+**Current focus:** Phase 31 Hero Redesign in progress
 
 ## Current Position
 
-Phase: 30 (Mobile Stability) - COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-01-28 - Completed Phase 30 (touch device detection, Safari fixes)
+Phase: 31 (Hero Redesign) - IN PROGRESS
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-01-28 - Completed 31-01-PLAN.md (hero gradient tokens)
 
-Progress: [████████████████████████████████████████████] v1.3 Mobile Stability | 45/45+ plans
+Progress: [█████████████████████████████████████████████░░░░] v1.3 | 46/50 plans
 
 ## Milestones Completed
 
@@ -25,16 +25,16 @@ Progress: [███████████████████████
 | v1.2 Playful UI Overhaul | 15-24 | 29 | 2026-01-27 |
 
 **Total completed:** 24 phases, 82 plans
-**v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 40 plans complete
-**Phase 30 progress:** 2 plans complete (PHASE COMPLETE)
+**v1.3 scope:** 10 phases (25-34), 50 plans estimated
+**v1.3 progress:** 41 plans complete
+**Phase 31 progress:** 1 of 5 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 109 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 110 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 40
+- v1.3 plans completed: 41
 
 **By Phase (v1.3):**
 
@@ -48,6 +48,7 @@ Progress: [███████████████████████
 | 28 | 3/3 | 18min | 6min |
 | 29 | 6/6 | 48min | 8min |
 | 30 | 2/2 | 43min | 21.5min |
+| 31 | 1/5 | 5min | 5min |
 
 ## Accumulated Context
 
@@ -420,13 +421,24 @@ None.
 - All must-haves validated against codebase
 - MOBL-01, MOBL-02, MOBL-03 requirements complete
 
+### Phase 31 Progress
+
+**31-01 outcomes:**
+- Added hero gradient tokens (--hero-bg-start/mid/end, --hero-shimmer)
+- Light: saffron-to-cream gradient (#EBCD00 -> #FFFBF5)
+- Dark: black-to-saffron-glow (#0a0a0a -> rgba(235, 205, 0, 0.08))
+- Added orb tokens (--hero-orb-saffron/jade/ruby/blur)
+- Dark mode orbs brighter (0.35 vs 0.25) with larger blur (80px vs 60px)
+- Added emoji depth tokens (--hero-emoji-shadow-*/blur-*/opacity-*)
+- Dark mode shadows darker (0.3/0.4/0.5 vs 0.1/0.15/0.2)
+
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Completed Phase 30 (Mobile Stability)
+Stopped at: Completed 31-01-PLAN.md (hero gradient tokens)
 Resume file: None
-Next action: Execute Phase 31 (Hero Redesign) when ready
+Next action: Execute 31-02-PLAN.md (Hero.tsx gradient background)
 
 ---
 
-*Updated: 2026-01-28 - Completed Phase 30 (Mobile Stability)*
+*Updated: 2026-01-28 - Completed 31-01-PLAN.md*
