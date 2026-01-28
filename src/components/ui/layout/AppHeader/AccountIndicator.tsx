@@ -243,7 +243,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
               // Position: left-aligned on mobile (avatar is on left), right-aligned on desktop
               "absolute left-0 sm:left-auto sm:right-0 top-full mt-2",
               "w-48 py-1 rounded-xl",
-              "bg-white dark:bg-zinc-900",
+              "bg-surface-primary",
               "border border-border",
               // Gradient shadow per CONTEXT.md
               "shadow-[0_4px_20px_-4px_rgba(164,16,52,0.15),0_2px_8px_rgba(0,0,0,0.08)]",
