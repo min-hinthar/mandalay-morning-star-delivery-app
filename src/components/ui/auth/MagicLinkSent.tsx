@@ -103,7 +103,7 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
           />
 
           {/* Inner */}
-          <div className="absolute inset-2 top-6 bg-white/10 rounded-lg" />
+          <div className="absolute inset-2 top-6 bg-surface-primary/10 rounded-lg" />
         </motion.div>
 
         {/* Letter coming out */}
@@ -117,7 +117,7 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
               className={cn(
                 "absolute left-1/2 -translate-x-1/2 top-2",
                 "w-20 h-16 rounded-lg",
-                "bg-white shadow-lg",
+                "bg-surface-primary shadow-lg",
                 "flex items-center justify-center"
               )}
             >
