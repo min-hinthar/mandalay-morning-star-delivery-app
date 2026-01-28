@@ -326,6 +326,8 @@ const config: Config = {
         focus: "var(--shadow-focus)",
         "focus-success": "var(--shadow-focus-success)",
         "focus-error": "var(--shadow-focus-error)",
+        "hint-sm": "var(--shadow-hint-sm)",
+        "hint-md": "var(--shadow-hint-md)",
         // Legacy V6 aliases
         "v6-sm": "var(--shadow-sm)",
         "v6-md": "var(--shadow-md)",

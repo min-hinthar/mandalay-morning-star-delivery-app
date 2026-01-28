@@ -107,9 +107,8 @@ export function SearchTrigger({ onClick, className }: SearchTriggerProps) {
               "text-zinc-100 dark:text-zinc-800",
               "text-xs font-medium whitespace-nowrap",
               "pointer-events-none",
-              // Gradient shadow effect
-              "shadow-[0_2px_8px_rgba(164,16,52,0.15),0_1px_4px_rgba(0,0,0,0.1)]",
-              "dark:shadow-[0_2px_8px_rgba(245,158,11,0.2),0_1px_4px_rgba(0,0,0,0.2)]"
+              // Gradient shadow effect (brand-tinted with depth)
+              "shadow-hint-sm"
             )}
           >
             {shortcutText}
