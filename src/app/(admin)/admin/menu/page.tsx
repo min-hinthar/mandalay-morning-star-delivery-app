@@ -245,7 +245,7 @@ export default function AdminMenuPage() {
             />
             Refresh
           </Button>
-          <Button className="bg-primary hover:bg-primary-hover text-white shadow-sm">
+          <Button className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm">
             <Plus className="mr-2 h-4 w-4" />
             Add Item
           </Button>
@@ -327,7 +327,7 @@ export default function AdminMenuPage() {
             className={cn(
               "cursor-pointer transition-all duration-fast font-body",
               selectedCategory === "all"
-                ? "bg-primary hover:bg-primary-hover text-white border-transparent"
+                ? "bg-primary hover:bg-primary-hover text-text-inverse border-transparent"
                 : "bg-surface-primary border-border text-text-primary hover:bg-primary/10 hover:border-primary/30"
             )}
             onClick={() => setSelectedCategory("all")}
@@ -341,7 +341,7 @@ export default function AdminMenuPage() {
               className={cn(
                 "cursor-pointer transition-all duration-fast font-body",
                 selectedCategory === category.id
-                  ? "bg-primary hover:bg-primary-hover text-white border-transparent"
+                  ? "bg-primary hover:bg-primary-hover text-text-inverse border-transparent"
                   : "bg-surface-primary border-border text-text-primary hover:bg-primary/10 hover:border-primary/30"
               )}
               onClick={() => setSelectedCategory(category.id)}

@@ -145,7 +145,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
               <div
                 className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-full",
-                  "bg-[var(--color-primary)] text-white text-sm font-semibold"
+                  "bg-[var(--color-primary)] text-text-inverse text-sm font-semibold"
                 )}
               >
                 {user?.avatar ? (

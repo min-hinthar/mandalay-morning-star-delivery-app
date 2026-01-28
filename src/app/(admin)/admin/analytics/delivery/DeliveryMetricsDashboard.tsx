@@ -118,14 +118,14 @@ export function DeliveryMetricsDashboard() {
 
         <div className="flex items-center gap-2">
           {/* Period selector */}
-          <div className="flex rounded-lg border bg-white p-1">
+          <div className="flex rounded-lg border bg-surface-primary p-1">
             {(["week", "month", "quarter"] as MetricsPeriod[]).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                   period === p
-                    ? "bg-saffron text-white"
+                    ? "bg-saffron text-text-inverse"
                     : "text-charcoal-500 hover:text-charcoal-900"
                 }`}
               >
@@ -257,7 +257,7 @@ export function DeliveryMetricsDashboard() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl bg-white p-6 shadow-warm-sm"
+          className="rounded-xl bg-surface-primary p-6 shadow-warm-sm"
         >
           <h3 className="mb-4 text-lg font-semibold text-charcoal-900">
             Top Performers

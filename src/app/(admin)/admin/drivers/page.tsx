@@ -200,7 +200,7 @@ export default function AdminDriversPage() {
           </Button>
           <Button
             onClick={() => setIsAddModalOpen(true)}
-            className="bg-primary hover:bg-primary-hover text-white shadow-sm"
+            className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm"
           >
             <UserPlus className="mr-2 h-4 w-4" />
             Add Driver
@@ -321,7 +321,7 @@ export default function AdminDriversPage() {
                 className={cn(
                   "cursor-pointer transition-all duration-fast font-body",
                   isActive
-                    ? "bg-primary hover:bg-primary-hover text-white border-transparent"
+                    ? "bg-primary hover:bg-primary-hover text-text-inverse border-transparent"
                     : "bg-surface-primary border-border text-text-primary hover:bg-primary/10 hover:border-primary/30"
                 )}
                 onClick={() => setStatusFilter(filter.value)}
