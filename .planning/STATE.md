@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 28 complete - Token enforcement for layout (typography/spacing)
+**Current focus:** Phase 27 gap closure - menu/drawer token migration
 
 ## Current Position
 
-Phase: 28 (Token Enforcement - Layout)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-01-28 - Completed 28-03-PLAN.md
+Phase: 27 (Token Enforcement - Colors)
+Plan: 5 of 5 in current phase (gap closure)
+Status: Gap closure complete
+Last activity: 2026-01-28 - Completed 27-05-PLAN.md
 
-Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 35/38+ plans
+Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 36/38+ plans
 
 ## Milestones Completed
 
@@ -26,15 +26,15 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 30 plans complete
-**Phase 28 progress:** 3 plans complete (Phase complete)
+**v1.3 progress:** 31 plans complete
+**Phase 27 progress:** 5 plans complete (including gap closure)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 99 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 100 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 30
+- v1.3 plans completed: 31
 
 **By Phase (v1.3):**
 
@@ -44,7 +44,7 @@ Progress: [███████████████████████
 | 26 | 8/8 | 136min | 17min |
 | 33 | 11/11 | 123min | 11.2min |
 | 34 | 8/8 | 40min | 5min |
-| 27 | 4/4 | 64min | 16min |
+| 27 | 5/5 | 68min | 13.6min |
 | 28 | 3/3 | 18min | 6min |
 
 ## Accumulated Context
@@ -157,6 +157,13 @@ From `.planning/research/SUMMARY.md`:
 - Admin components migrated: MetricCard, DriverListTable
 - Zero hardcoded Tailwind gradient colors remaining in migrated files
 - All gradients use CSS variables for automatic light/dark theme adaptation
+
+**27-05 outcomes (gap closure):**
+- AddButton migrated: text-white to text-text-inverse on both Add and success checkmark states
+- AddButton migrated: bg-green-500 to bg-green semantic token
+- UnifiedMenuItemCard sold-out overlay migrated: bg-black/50 to bg-overlay
+- DrawerUserSection migrated: text-white to text-text-inverse on avatar and Sign In button
+- Zero text-white/bg-black violations in AddButton, UnifiedMenuItemCard, DrawerUserSection
 
 ### Phase 28 Progress
 
@@ -298,10 +305,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Phase 28 complete - layout token enforcement finished
+Stopped at: Completed 27-05-PLAN.md (gap closure)
 Resume file: None
-Next action: Plan next phase (remaining color violations or new feature work)
+Next action: Continue with remaining gap closure plans or new feature work
 
 ---
 
-*Updated: 2026-01-28 - Phase 28 complete (3 plans - token foundation, typography, layout)*
+*Updated: 2026-01-28 - Plan 100 complete (27-05 gap closure)*
