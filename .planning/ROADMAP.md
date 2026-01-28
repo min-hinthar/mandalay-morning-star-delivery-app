@@ -76,13 +76,15 @@ Plans:
   3. Zero hardcoded hex colors in TSX files
   4. All gradients use theme-aware CSS variables
   5. Both light and dark themes render correctly on all pages
-**Plans**: 4 plans in 3 waves
+**Plans**: 6 plans in 3 waves (4 original + 2 gap closure)
 
 Plans:
 - [x] 27-01-PLAN.md — Token prerequisites + homepage/checkout migration
 - [x] 27-02-PLAN.md — UI component library color fixes
 - [x] 27-03-PLAN.md — Admin, driver, layout, tracking, auth color fixes
 - [x] 27-04-PLAN.md — Gradient theme-awareness
+- [ ] 27-05-PLAN.md — Gap closure: Menu + Drawer color token fixes
+- [ ] 27-06-PLAN.md — Gap closure: Tracking + Auth + Progress color token fixes
 
 ### Phase 28: Token Enforcement - Layout
 **Goal**: Consistent spacing, typography, and border-radius via design tokens
