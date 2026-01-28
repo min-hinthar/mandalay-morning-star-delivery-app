@@ -201,8 +201,8 @@ export function TooltipContent({
           className={cn(
             positionClasses,
             "pointer-events-none",
-            "bg-zinc-900 dark:bg-zinc-100",
-            "text-white dark:text-zinc-900",
+            "bg-surface-tertiary dark:bg-surface-elevated",
+            "text-text-primary dark:text-text-primary",
             "text-xs px-2 py-1 rounded-md shadow-md",
             "w-max max-w-xs",
             className

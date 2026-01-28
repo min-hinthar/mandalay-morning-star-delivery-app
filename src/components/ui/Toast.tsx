@@ -22,10 +22,10 @@ interface ToastProps {
 
 export function Toast({ toast, onDismiss }: ToastProps) {
   const typeStyles: Record<ToastType["type"], string> = {
-    success: "bg-green-500 text-white",
-    error: "bg-red-500 text-white",
-    warning: "bg-amber-500 text-white",
-    info: "bg-blue-500 text-white",
+    success: "bg-status-success text-text-inverse",
+    error: "bg-status-error text-text-inverse",
+    warning: "bg-status-warning text-text-inverse",
+    info: "bg-status-info text-text-inverse",
   };
 
   return (
@@ -50,8 +50,8 @@ export function Toast({ toast, onDismiss }: ToastProps) {
         onClick={() => onDismiss(toast.id)}
         className={cn(
           "flex-shrink-0 p-1 rounded-full",
-          "hover:bg-white/20 transition-colors",
-          "focus:outline-none focus:ring-2 focus:ring-white/50"
+          "hover:bg-overlay-light transition-colors",
+          "focus:outline-none focus:ring-2 focus:ring-overlay-light"
         )}
         aria-label="Dismiss notification"
       >

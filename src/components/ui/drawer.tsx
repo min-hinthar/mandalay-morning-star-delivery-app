@@ -232,7 +232,7 @@ export function Drawer({
               opacity: computedBackdropOpacity,
             }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 bg-overlay backdrop-blur-sm"
             aria-hidden="true"
             data-testid="drawer-backdrop"
           />
@@ -249,7 +249,7 @@ export function Drawer({
             tabIndex={-1}
             className={cn(
               "fixed",
-              "bg-white dark:bg-zinc-900",
+              "bg-surface-primary dark:bg-surface-primary",
               "shadow-xl",
               "outline-none",
               // Side drawer styles
@@ -301,10 +301,10 @@ export function Drawer({
                 <div
                   className={cn(
                     "w-12 h-1.5 rounded-full",
-                    "bg-zinc-300 dark:bg-zinc-600",
+                    "bg-border-default dark:bg-border-default",
                     "transition-all duration-150",
                     isDragging && [
-                      "bg-zinc-400 dark:bg-zinc-500",
+                      "bg-border-strong dark:bg-border-strong",
                       "scale-x-110",
                     ]
                   )}

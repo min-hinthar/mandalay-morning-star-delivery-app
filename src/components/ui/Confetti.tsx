@@ -323,7 +323,7 @@ export function SuccessAnimation({
               className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-jade)]"
             >
               <svg
-                className="h-10 w-10 text-white"
+                className="h-10 w-10 text-text-inverse"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"

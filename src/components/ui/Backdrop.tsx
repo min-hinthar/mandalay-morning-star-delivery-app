@@ -40,7 +40,7 @@ export function Backdrop({
           key="backdrop"
           className={cn(
             "fixed inset-0",
-            "bg-black/50 backdrop-blur-sm",
+            "bg-overlay backdrop-blur-sm",
             className
           )}
           style={{ zIndex: zIndexValue ?? zIndex.modalBackdrop }}
