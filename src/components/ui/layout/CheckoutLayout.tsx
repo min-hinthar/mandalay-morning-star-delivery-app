@@ -171,7 +171,7 @@ export function CheckoutLayout({
                       transition={spring.snappy}
                       className={cn(
                         "flex h-8 w-8 items-center justify-center rounded-full border-2",
-                        isCompleted || isCurrent ? "text-white" : "text-[var(--color-charcoal-muted)]"
+                        isCompleted || isCurrent ? "text-text-inverse" : "text-[var(--color-charcoal-muted)]"
                       )}
                     >
                       {isCompleted ? (
@@ -248,7 +248,7 @@ export function CheckoutLayout({
               "font-semibold text-base",
               "transition-all duration-[var(--duration-fast)]",
               canContinue && !isLoading
-                ? "bg-[var(--color-primary)] text-white shadow-[var(--shadow-glow-primary)] hover:brightness-110"
+                ? "bg-[var(--color-primary)] text-text-inverse shadow-[var(--shadow-glow-primary)] hover:brightness-110"
                 : "cursor-not-allowed bg-[var(--color-border)] text-[var(--color-charcoal-muted)]",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-cta)]"
             )}
