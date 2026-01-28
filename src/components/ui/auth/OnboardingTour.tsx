@@ -165,7 +165,7 @@ function StepIllustration({ icon, isActive }: StepIllustrationProps) {
           }
           transition={{ duration: 2, repeat: Infinity, delay: 1 }}
         >
-          <Icon className="w-12 h-12 text-white" />
+          <Icon className="w-12 h-12 text-text-inverse" />
         </motion.div>
       </motion.div>
 
@@ -388,7 +388,7 @@ export function OnboardingTour({
             "inline-flex items-center gap-2",
             "px-8 py-4 rounded-2xl",
             "bg-gradient-to-r from-primary to-primary/90",
-            "text-white font-semibold text-lg",
+            "text-text-inverse font-semibold text-lg",
             "shadow-lg shadow-primary/30",
             "hover:shadow-xl hover:shadow-primary/40",
             "transition-shadow"

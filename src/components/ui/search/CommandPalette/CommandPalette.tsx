@@ -128,7 +128,7 @@ export function CommandPalette({
             className={cn(
               "fixed inset-0",
               zClass.modalBackdrop,
-              "bg-black/50 backdrop-blur-sm"
+              "bg-overlay backdrop-blur-sm"
             )}
             aria-hidden="true"
           />

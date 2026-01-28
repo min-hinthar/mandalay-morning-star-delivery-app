@@ -286,7 +286,7 @@ export function TrackingPageClient({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
-            className="rounded-xl bg-white p-4 shadow-warm-sm"
+            className="rounded-xl bg-surface-primary p-4 shadow-warm-sm"
           >
             <p className="text-sm font-medium text-charcoal-600 mb-3">
               Delivery Photo

@@ -50,7 +50,7 @@ export function SupportActions({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
       className={cn(
-        "rounded-xl bg-white p-4 shadow-warm-sm",
+        "rounded-xl bg-surface-primary p-4 shadow-warm-sm",
         className
       )}
     >
@@ -126,7 +126,7 @@ export function SupportFAB({
         "fixed bottom-20 right-4 z-30",
         "flex h-14 w-14 items-center justify-center",
         "rounded-full bg-saffron shadow-lg",
-        "text-white hover:bg-saffron-600",
+        "text-text-inverse hover:bg-saffron-600",
         "transition-colors",
         className
       )}

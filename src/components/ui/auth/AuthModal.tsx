@@ -178,7 +178,7 @@ function SubmitButton({ children, disabled }: SubmitButtonProps) {
       className={cn(
         "w-full py-4 rounded-xl",
         "bg-gradient-to-r from-primary to-primary/90",
-        "text-white font-semibold",
+        "text-text-inverse font-semibold",
         "flex items-center justify-center gap-2",
         "shadow-lg shadow-primary/30",
         "transition-all",
@@ -310,7 +310,7 @@ export function AuthModal({
           className={cn(
             "fixed inset-0 z-modal",
             "flex items-center justify-center",
-            "bg-black/40 backdrop-blur-md",
+            "bg-overlay backdrop-blur-md",
             "p-4",
             className
           )}
@@ -365,7 +365,7 @@ export function AuthModal({
                   "shadow-lg shadow-primary/30"
                 )}
               >
-                <Sparkles className="w-8 h-8 text-white" />
+                <Sparkles className="w-8 h-8 text-text-inverse" />
               </motion.div>
 
               <motion.h2

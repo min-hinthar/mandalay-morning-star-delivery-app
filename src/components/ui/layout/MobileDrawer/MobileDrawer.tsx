@@ -87,7 +87,7 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
           <motion.div
             key="drawer-backdrop"
             className={cn(
-              "fixed inset-0 bg-black/40 backdrop-blur-sm",
+              "fixed inset-0 bg-overlay backdrop-blur-sm",
               zClass.modalBackdrop
             )}
             initial={{ opacity: 0 }}
@@ -103,7 +103,7 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
             key="drawer-panel"
             className={cn(
               "fixed left-0 top-0 bottom-0 w-[85%] max-w-sm",
-              "bg-white dark:bg-zinc-900",
+              "bg-surface-primary",
               "rounded-r-2xl shadow-2xl",
               "flex flex-col",
               zClass.modal

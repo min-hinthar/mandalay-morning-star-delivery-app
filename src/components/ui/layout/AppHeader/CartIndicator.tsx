@@ -120,7 +120,7 @@ export function CartIndicator({ className }: CartIndicatorProps) {
         "bg-zinc-100/80 dark:bg-zinc-800/80",
         "text-zinc-700 dark:text-zinc-300",
         "transition-colors duration-150",
-        "hover:bg-amber-500 hover:text-white",
+        "hover:bg-amber-500 hover:text-text-inverse",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2",
         className
       )}
@@ -146,7 +146,7 @@ export function CartIndicator({ className }: CartIndicatorProps) {
             className={cn(
               "absolute -right-1 -top-1 flex items-center justify-center",
               "min-w-[20px] h-[20px] px-1 rounded-full",
-              "bg-amber-500 text-[11px] font-bold text-white",
+              "bg-amber-500 text-[11px] font-bold text-text-inverse",
               "shadow-lg ring-2 ring-white dark:ring-zinc-950"
             )}
           >
