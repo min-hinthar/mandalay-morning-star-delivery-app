@@ -120,7 +120,7 @@ function AnimatedInput({
           onBlur={() => setIsFocused(false)}
           className={cn(
             "w-full py-4 rounded-xl",
-            "bg-white/50 backdrop-blur-sm",
+            "bg-overlay-light backdrop-blur-sm",
             "border-2 transition-colors",
             error
               ? "border-red-500/50 focus:border-red-500"
@@ -327,7 +327,7 @@ export function AuthModal({
               "relative w-full max-w-md",
               "p-8 rounded-3xl",
               // Glassmorphism
-              "bg-white/80 backdrop-blur-xl",
+              "bg-surface-primary/80 backdrop-blur-xl",
               "border border-white/50",
               "shadow-2xl shadow-black/10"
             )}
