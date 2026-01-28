@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 27 gap closure - menu/drawer token migration
+**Current focus:** Phase 27 gap closure - tracking, auth, progress token migration
 
 ## Current Position
 
 Phase: 27 (Token Enforcement - Colors)
-Plan: 5 of 5 in current phase (gap closure)
-Status: Gap closure complete
-Last activity: 2026-01-28 - Completed 27-05-PLAN.md
+Plan: 6 of 6+ in current phase (gap closure)
+Status: Gap closure in progress
+Last activity: 2026-01-28 - Completed 27-06-PLAN.md
 
-Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 36/38+ plans
+Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 37/38+ plans
 
 ## Milestones Completed
 
@@ -26,15 +26,15 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 31 plans complete
-**Phase 27 progress:** 5 plans complete (including gap closure)
+**v1.3 progress:** 32 plans complete
+**Phase 27 progress:** 6 plans complete (including gap closure)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 100 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 101 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 31
+- v1.3 plans completed: 32
 
 **By Phase (v1.3):**
 
@@ -44,7 +44,7 @@ Progress: [███████████████████████
 | 26 | 8/8 | 136min | 17min |
 | 33 | 11/11 | 123min | 11.2min |
 | 34 | 8/8 | 40min | 5min |
-| 27 | 5/5 | 68min | 13.6min |
+| 27 | 6/6+ | 73min | 12.2min |
 | 28 | 3/3 | 18min | 6min |
 
 ## Accumulated Context
@@ -114,6 +114,9 @@ From `.planning/research/SUMMARY.md`:
 | Gradient utility classes in globals.css | 27-04 | Reusable theme-aware gradient patterns |
 | CSS variable inline styles for unique gradients | 27-04 | Theme-awareness without utility proliferation |
 | bg-gradient-avatar for user avatars | 27-04 | Unified avatar fallback look across components |
+| bg-surface-primary/N for opacity surfaces | 27-06 | Theme-aware semi-transparent surfaces |
+| bg-overlay-light for input backgrounds | 27-06 | Light overlay for glassmorphism inputs |
+| bg-gradient-progress for progress bars | 27-06 | CSS utility instead of from-saffron to-jade |
 | text-2xs token for 10px font size | 28-01 | Semantic alternative to text-[10px] |
 | ESLint rules for arbitrary px values | 28-01 | Enforce semantic tokens over hardcoded pixels |
 | 11px font sizes round to text-xs | 28-02 | 1px difference imperceptible for badges |
@@ -164,6 +167,13 @@ From `.planning/research/SUMMARY.md`:
 - UnifiedMenuItemCard sold-out overlay migrated: bg-black/50 to bg-overlay
 - DrawerUserSection migrated: text-white to text-text-inverse on avatar and Sign In button
 - Zero text-white/bg-black violations in AddButton, UnifiedMenuItemCard, DrawerUserSection
+
+**27-06 outcomes (gap closure):**
+- StatusTimeline migrated: text-text-inverse, border-surface-primary, bg-surface-primary
+- AuthModal migrated: bg-overlay-light, bg-surface-primary/80 for glassmorphism
+- MagicLinkSent migrated: bg-surface-primary for envelope animation
+- progress.tsx migrated: bg-gradient-progress CSS utility
+- Zero hardcoded white/black colors in all four components
 
 ### Phase 28 Progress
 
@@ -305,10 +315,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Completed 27-05-PLAN.md (gap closure)
+Stopped at: Completed 27-06-PLAN.md (gap closure - tracking, auth, progress)
 Resume file: None
 Next action: Continue with remaining gap closure plans or new feature work
 
 ---
 
-*Updated: 2026-01-28 - Plan 100 complete (27-05 gap closure)*
+*Updated: 2026-01-28 - Plan 101 complete (27-06 gap closure)*
