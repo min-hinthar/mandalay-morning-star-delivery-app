@@ -4,6 +4,12 @@
 /* V5 Legacy (preserved for gradual migration) */
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
+
+/* Exclude directories with documentation patterns like --shadow-* that break Tailwind v4 scanning */
+@source not "../../docs";
+@source not "../../scripts";
+@source not "../../.planning";
+
 @import "../styles/tokens.css";
 @import "../styles/animations.css";
 
@@ -46,6 +52,9 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-overlay: var(--color-overlay);
+  --color-overlay-heavy: var(--color-overlay-heavy);
+  --color-overlay-light: var(--color-overlay-light);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
