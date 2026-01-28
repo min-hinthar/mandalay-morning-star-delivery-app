@@ -38,7 +38,7 @@ export function DrawerUserSection({ user, onClose }: DrawerUserSectionProps) {
               className={cn(
                 "w-12 h-12 rounded-xl overflow-hidden",
                 "bg-gradient-avatar",
-                "flex items-center justify-center text-white font-bold text-lg"
+                "flex items-center justify-center text-text-inverse font-bold text-lg"
               )}
               whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
               transition={getSpring(spring.snappy)}
@@ -87,7 +87,7 @@ export function DrawerUserSection({ user, onClose }: DrawerUserSectionProps) {
           onClick={onClose}
           className={cn(
             "inline-flex items-center gap-2 px-4 py-3 rounded-xl",
-            "bg-primary text-white font-medium",
+            "bg-primary text-text-inverse font-medium",
             "hover:bg-primary-hover transition-colors",
             "min-h-[48px]"
           )}
