@@ -79,7 +79,7 @@ function Dot({ index, isActive, label, layoutId, onClick }: DotProps) {
           <motion.span
             className={cn(
               "absolute top-full mt-2 left-1/2 -translate-x-1/2",
-              "px-2 py-1 text-[10px] font-medium whitespace-nowrap",
+              "px-2 py-1 text-2xs font-medium whitespace-nowrap",
               "bg-text-primary/90 text-surface-primary",
               "rounded shadow-sm",
               "pointer-events-none z-10"
