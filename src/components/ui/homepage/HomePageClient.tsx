@@ -45,7 +45,6 @@ export function HomePageClient({ menuSection }: HomePageClientProps) {
           ctaHref="/menu"
           secondaryCtaText="How It Works"
           secondaryCtaHref="#how-it-works"
-          showMascot={true}
         />
 
         {/* How It Works Section */}
