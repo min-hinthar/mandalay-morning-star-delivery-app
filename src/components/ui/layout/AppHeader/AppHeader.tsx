@@ -32,8 +32,8 @@ const HEADER_HEIGHT = 64; // h-16 = 4rem = 64px
  */
 const glassStylesLight = {
   backgroundColor: "rgba(255, 255, 255, 0.75)",
-  backdropFilter: "blur(30px)",
-  WebkitBackdropFilter: "blur(30px)",
+  backdropFilter: "blur(var(--blur-2xl))",
+  WebkitBackdropFilter: "blur(var(--blur-2xl))",
   borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
   boxShadow: `
     0 1px 0 rgba(164, 16, 52, 0.1),
@@ -46,8 +46,8 @@ const glassStylesLight = {
  */
 const glassStylesDark = {
   backgroundColor: "rgba(24, 24, 27, 0.75)",
-  backdropFilter: "blur(30px)",
-  WebkitBackdropFilter: "blur(30px)",
+  backdropFilter: "blur(var(--blur-2xl))",
+  WebkitBackdropFilter: "blur(var(--blur-2xl))",
   borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
   boxShadow: `
     0 1px 0 rgba(164, 16, 52, 0.2),
