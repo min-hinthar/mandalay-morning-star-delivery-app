@@ -28,6 +28,7 @@ export function CTABanner({ id }: CTABannerProps) {
       <div className="absolute inset-0 bg-overlay/10" />
 
       <div className="relative max-w-4xl mx-auto">
+        {/* Floating entrance with shadow animation - ~--shadow-xl equivalent, kept numeric for FM interpolation */}
         <motion.div
           initial={shouldAnimate ? { opacity: 0, y: 40, boxShadow: "0 0 0 rgba(0,0,0,0)" } : false}
           whileInView={{
@@ -39,11 +40,12 @@ export function CTABanner({ id }: CTABannerProps) {
           transition={{ duration: 0.5, ease: easing.default }}
           className="relative rounded-2xl bg-surface-primary p-8 md:p-12 text-center shadow-xl"
         >
-          {/* Pulsing glow border - only on full motion */}
+          {/* Pulsing glow border - secondary/gold color, ~--shadow-glow-warning equivalent */}
           {isFullMotion && (
             <motion.div
               className="absolute inset-0 rounded-2xl pointer-events-none"
               animate={{
+                // Kept numeric for FM keyframe interpolation
                 boxShadow: [
                   "0 0 0 0 rgba(235, 205, 0, 0)",
                   "0 0 20px 4px rgba(235, 205, 0, 0.3)",

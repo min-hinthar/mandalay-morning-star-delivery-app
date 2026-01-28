@@ -83,14 +83,14 @@ export function RevenueChart({ data }: RevenueChartProps) {
             ];
           }}
           contentStyle={{
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "var(--color-surface-primary)",
             borderColor: V6_CHART_COLORS.grid,
             borderRadius: "var(--radius-xl)",
-            boxShadow: "0 8px 24px rgba(164, 16, 52, 0.08)",
+            boxShadow: "var(--shadow-card)",
             fontFamily: "var(--font-body)",
           }}
           labelStyle={{
-            color: "#111111",
+            color: "var(--color-text-primary)",
           }}
           labelClassName="font-semibold"
         />
