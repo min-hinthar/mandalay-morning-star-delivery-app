@@ -100,6 +100,7 @@ From `.planning/research/SUMMARY.md`:
 | Theme re-exported from ui/ barrel | 33-09 | Consistency with other subdirectories |
 | ESLint guards for all removed directories | 33-10 | 14 no-restricted-imports rules prevent recreation |
 | Alphabetical subdirectory exports | 33-11 | Organized barrel exports A-Z |
+| ESLint guard for @/design-system imports | 34-03 | Prevents re-use of deprecated path |
 
 ### Phase 33 Progress
 
@@ -180,6 +181,12 @@ None.
 - Migrated 5 files from @/design-system/tokens/motion to @/lib/design-system/tokens/motion
 - Zero remaining @/design-system/tokens/ imports
 - Build and typecheck verified passing
+
+**34-03 outcomes:**
+- Deleted src/design-system/ directory (z-index.ts and motion.ts)
+- Added ESLint guard blocking @/design-system/* imports
+- Updated zIndex error message to reference @/lib/design-system/
+- Design-system migration complete with guard preventing re-creation
 
 **34-04 outcomes:**
 - Created src/app/contexts/ directory for context co-location
