@@ -706,3 +706,69 @@ className="fixed inset-0 bg-overlay-heavy sm:backdrop-blur-sm"
 **Apply when:** Drawer/modal overlays with backdrop-blur, especially on mobile-first apps.
 
 ---
+
+## 2026-01-28: touchAction Conflicts in Nested Mobile Elements
+
+**Context:** Bottom sheet with swipe-to-close (needs `pan-x`) containing scrollable content (needs `pan-y`)
+**Learning:** Parent's `touchAction: "pan-x"` (for swipe gesture) blocks vertical scroll in children. Adding `touchAction: "pan-y"` on child content restores scroll but may conflict with parent gesture detection.
+
+**Hierarchy matters:**
+```tsx
+// Parent: swipe-to-close gesture handler
+<motion.div style={{ touchAction: "pan-x" }} drag="y">
+  {/* Child: scrollable content wrapper */}
+  <div style={{ touchAction: "pan-y" }}>
+    {/* Scrollable content - vertical scroll works */}
+  </div>
+</motion.div>
+```
+
+**Key insight:** The drag handle should have `touch-none` (let Framer handle all gestures), while content areas use `pan-y` to allow native scroll.
+
+**Apply when:** Building swipeable overlays (drawers, sheets) with scrollable content on mobile.
+
+---
+
+## 2026-01-28: Defensive Checks for Framer Motion Drag Handlers
+
+**Context:** Swipe-to-close causing app crash/reload on mobile
+**Learning:** Framer Motion's `PanInfo` object in drag handlers (`onDrag`, `onDragEnd`) may have undefined `offset` or `velocity` properties in edge cases (rapid gestures, interrupted drags).
+
+**Fix:** Add defensive checks before accessing properties:
+```tsx
+const handleDragEnd = (_: unknown, info: PanInfo) => {
+  setIsDragging(false);
+  setDragOffset(0);
+
+  // Defensive check for malformed event info
+  if (!info?.offset || !info?.velocity) return;
+
+  const offset = info.offset.y;
+  const velocity = info.velocity.y;
+  // ... rest of logic
+};
+```
+
+**Apply when:** Any Framer Motion drag gesture implementation, especially on mobile where gesture interruption is common.
+
+---
+
+## 2026-01-28: Bottom Sheet UX Fallbacks for Unreliable Gestures
+
+**Context:** Swipe-to-close gesture unreliable on mobile due to touchAction conflicts
+**Learning:** Always provide multiple dismiss methods for bottom sheets:
+
+1. **Close button (X)** - Explicit action, accessible, always works
+2. **Reduced height (80vh not 90vh)** - Exposes backdrop for tap-to-close
+3. **Swipe gesture** - Nice-to-have, not required
+
+```tsx
+<Drawer height="full">  {/* 80vh, not 90vh */}
+  <CloseButton onClick={onClose} />  {/* Explicit close */}
+  {content}
+</Drawer>
+```
+
+**Apply when:** Designing mobile bottom sheets, especially with scrollable content.
+
+---
