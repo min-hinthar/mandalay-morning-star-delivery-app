@@ -219,7 +219,10 @@ export function ItemDetailSheet({
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4">
+        <div
+          className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4"
+          style={{ touchAction: "pan-y" }}
+        >
           {/* Header */}
           <div>
             <h2 className="font-display text-2xl font-bold text-text-primary">
