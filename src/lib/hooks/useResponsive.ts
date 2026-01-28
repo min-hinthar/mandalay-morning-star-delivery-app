@@ -109,9 +109,20 @@ export function useIsTouchDevice(): boolean {
 }
 
 /**
- * Check if device has hover capability
- * Use for hover-dependent interactions
+ * Check if device has hover capability AND fine pointer (mouse/trackpad).
+ * Use for hover-dependent interactions like 3D tilt effects.
+ *
+ * Returns false on:
+ * - Pure touch devices (phones, tablets)
+ * - SSR (safe default for touch)
+ *
+ * Returns true on:
+ * - Desktop with mouse
+ * - Laptops with trackpad
+ * - Hybrid devices with mouse connected
+ *
+ * Note: Static detection at mount - no runtime switching per CONTEXT.md decision.
  */
 export function useCanHover(): boolean {
-  return useMediaQuery("(hover: hover)");
+  return useMediaQuery("(hover: hover) and (pointer: fine)");
 }
