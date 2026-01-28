@@ -113,7 +113,7 @@ export function CartButton({ className }: CartButtonProps) {
         "bg-zinc-100/80 dark:bg-zinc-800/80",
         "text-zinc-700 dark:text-zinc-300",
         "transition-colors duration-150",
-        "hover:bg-amber-500 hover:text-white",
+        "hover:bg-amber-500 hover:text-text-inverse",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2",
         className
       )}
@@ -139,8 +139,8 @@ export function CartButton({ className }: CartButtonProps) {
             className={cn(
               "absolute -right-1 -top-1 flex items-center justify-center",
               "min-w-[22px] h-[22px] px-1.5 rounded-full",
-              "bg-amber-500 text-[11px] font-bold text-white",
-              "shadow-lg ring-2 ring-white dark:ring-zinc-950"
+              "bg-amber-500 text-[11px] font-bold text-text-inverse",
+              "shadow-lg ring-2 ring-surface-primary dark:ring-surface-primary"
             )}
           >
             {itemCount > 99 ? "99+" : itemCount}

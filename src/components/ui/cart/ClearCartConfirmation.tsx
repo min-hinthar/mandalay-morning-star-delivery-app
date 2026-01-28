@@ -165,7 +165,7 @@ export function ClearCartConfirmation({
             className={cn(
               "flex-1 flex items-center justify-center gap-2",
               "h-12 px-4 rounded-xl",
-              "bg-red-500 text-white font-semibold",
+              "bg-red-500 text-text-inverse font-semibold",
               "transition-colors duration-150",
               "hover:bg-red-600",
               "focus-visible:outline-none focus-visible:ring-2",

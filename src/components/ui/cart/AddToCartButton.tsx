@@ -205,7 +205,7 @@ export function AddToCartButton({
       className={cn(
         // Base styles
         "inline-flex items-center justify-center font-semibold rounded-full",
-        "bg-amber-500 text-white",
+        "bg-amber-500 text-text-inverse",
         "transition-colors duration-150",
         // Focus
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2",

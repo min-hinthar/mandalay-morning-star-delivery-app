@@ -155,7 +155,7 @@ export function CartSummary({ className }: CartSummaryProps) {
                 className={cn(
                   "flex items-center justify-center",
                   "w-6 h-6 rounded-full",
-                  "bg-white dark:bg-zinc-800",
+                  "bg-surface-primary dark:bg-surface-tertiary",
                   "border-2 border-amber-500",
                   "shadow-lg"
                 )}
