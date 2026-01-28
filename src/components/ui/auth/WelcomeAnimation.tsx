@@ -180,7 +180,7 @@ function MascotCelebrationV7() {
           "shadow-2xl shadow-primary/40"
         )}
       >
-        <ChefHat className="w-16 h-16 text-white" />
+        <ChefHat className="w-16 h-16 text-text-inverse" />
 
         {/* Celebration emoji */}
         <motion.div
@@ -195,7 +195,7 @@ function MascotCelebrationV7() {
             "shadow-lg shadow-secondary/40"
           )}
         >
-          <PartyPopper className="w-6 h-6 text-white" />
+          <PartyPopper className="w-6 h-6 text-text-inverse" />
         </motion.div>
       </motion.div>
 
@@ -397,7 +397,7 @@ export function WelcomeAnimation({
                 "inline-flex items-center gap-2",
                 "px-8 py-4 rounded-2xl",
                 "bg-gradient-to-r from-primary to-primary/90",
-                "text-white font-semibold text-lg",
+                "text-text-inverse font-semibold text-lg",
                 "shadow-xl shadow-primary/30",
                 "hover:shadow-2xl hover:shadow-primary/40",
                 "transition-shadow"

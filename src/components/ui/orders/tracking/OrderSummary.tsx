@@ -61,7 +61,7 @@ export function OrderSummary({
   return (
     <div
       className={cn(
-        "rounded-xl bg-white shadow-warm-sm overflow-hidden",
+        "rounded-xl bg-surface-primary shadow-warm-sm overflow-hidden",
         className
       )}
     >

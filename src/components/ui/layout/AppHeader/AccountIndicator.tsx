@@ -160,7 +160,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
             "bg-zinc-100/80 dark:bg-zinc-800/80",
             "text-zinc-700 dark:text-zinc-300",
             "transition-colors duration-150",
-            "hover:bg-amber-500 hover:text-white",
+            "hover:bg-amber-500 hover:text-text-inverse",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2",
             className
           )}
@@ -210,7 +210,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
           <span
             className={cn(
               "flex w-full h-full items-center justify-center rounded-full",
-              "text-sm font-bold text-white",
+              "text-sm font-bold text-text-inverse",
               gradientClass
             )}
           >

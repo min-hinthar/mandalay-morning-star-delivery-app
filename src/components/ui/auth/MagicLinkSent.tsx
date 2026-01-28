@@ -140,7 +140,7 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
                 "shadow-lg shadow-green/30"
               )}
             >
-              <CheckCircle className="w-6 h-6 text-white" />
+              <CheckCircle className="w-6 h-6 text-text-inverse" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -374,7 +374,7 @@ export function MagicLinkSent({
             "inline-flex items-center gap-2",
             "px-6 py-3 rounded-xl",
             "bg-gradient-to-r from-primary to-primary/90",
-            "text-white font-semibold",
+            "text-text-inverse font-semibold",
             "shadow-lg shadow-primary/30",
             "hover:shadow-xl hover:shadow-primary/40",
             "transition-shadow"

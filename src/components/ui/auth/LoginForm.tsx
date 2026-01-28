@@ -70,7 +70,7 @@ export function LoginForm(): ReactElement {
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <SubmitButton />
-          <p className="text-sm text-center text-black">
+          <p className="text-sm text-center text-text-primary">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-brand-red hover:underline">
               Sign up

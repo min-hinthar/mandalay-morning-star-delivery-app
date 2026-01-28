@@ -75,7 +75,7 @@ export function DriverCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "rounded-xl bg-white p-4 shadow-warm-sm",
+        "rounded-xl bg-surface-primary p-4 shadow-warm-sm",
         className
       )}
     >
@@ -158,7 +158,7 @@ export function DriverCard({
  */
 export function DriverCardSkeleton() {
   return (
-    <div className="rounded-xl bg-white p-4 shadow-warm-sm animate-pulse">
+    <div className="rounded-xl bg-surface-primary p-4 shadow-warm-sm animate-pulse">
       <div className="flex items-start gap-4">
         <div className="h-14 w-14 rounded-full bg-charcoal-200" />
         <div className="flex-1 space-y-2">
