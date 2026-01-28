@@ -127,39 +127,54 @@ export function CategoryTabs({
 
     if (!container || !activeTab) return;
 
-    // Calculate the scroll position to center the active tab
-    const containerRect = container.getBoundingClientRect();
-    const tabRect = activeTab.getBoundingClientRect();
+    // Use requestAnimationFrame to wait for layout to settle after touch events
+    // and Framer Motion animations (whileTap scale) on mobile devices.
+    // Without this delay, getBoundingClientRect() may return stale values.
+    const rafId = requestAnimationFrame(() => {
+      // Re-check refs inside rAF in case component unmounted
+      const currentContainer = scrollContainerRef.current;
+      const currentTab = activeTabRef.current;
 
-    // Tab's position relative to the scroll container's content
-    const tabOffsetLeft = activeTab.offsetLeft;
-    const tabWidth = tabRect.width;
-    const containerWidth = containerRect.width;
+      if (!currentContainer || !currentTab) return;
 
-    // Calculate target scroll position to center the tab
-    const targetScrollLeft = tabOffsetLeft - (containerWidth / 2) + (tabWidth / 2);
+      // Calculate the scroll position to center the active tab
+      const containerRect = currentContainer.getBoundingClientRect();
+      const containerWidth = containerRect.width;
 
-    // Clamp to valid scroll range
-    const maxScroll = container.scrollWidth - containerWidth;
-    const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScroll));
+      // Use offsetLeft and offsetWidth for more reliable measurements
+      // These are not affected by CSS transforms (like whileTap scale)
+      const tabOffsetLeft = currentTab.offsetLeft;
+      const tabWidth = currentTab.offsetWidth;
 
-    // Check if tab is already visible (with some padding)
-    const tabLeftInContainer = tabRect.left - containerRect.left;
-    const tabRightInContainer = tabRect.right - containerRect.left;
-    const padding = 20; // pixels of padding to consider "visible"
-    const isVisible = tabLeftInContainer >= padding && tabRightInContainer <= containerWidth - padding;
+      // Calculate target scroll position to center the tab
+      const targetScrollLeft = tabOffsetLeft - (containerWidth / 2) + (tabWidth / 2);
 
-    // Only scroll if tab is not visible
-    if (!isVisible) {
-      const prefersReducedMotion =
-        typeof window !== "undefined" &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      // Clamp to valid scroll range
+      const maxScroll = currentContainer.scrollWidth - containerWidth;
+      const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScroll));
 
-      container.scrollTo({
-        left: clampedScrollLeft,
-        behavior: prefersReducedMotion || !shouldAnimate ? "auto" : "smooth",
-      });
-    }
+      // Check if tab is already visible using scroll position (not getBoundingClientRect)
+      // This is more reliable on mobile as it doesn't depend on viewport coordinates
+      const currentScrollLeft = currentContainer.scrollLeft;
+      const tabLeftRelativeToScroll = tabOffsetLeft - currentScrollLeft;
+      const tabRightRelativeToScroll = tabLeftRelativeToScroll + tabWidth;
+      const padding = 20; // pixels of padding to consider "visible"
+      const isVisible = tabLeftRelativeToScroll >= padding && tabRightRelativeToScroll <= containerWidth - padding;
+
+      // Only scroll if tab is not visible
+      if (!isVisible) {
+        const prefersReducedMotion =
+          typeof window !== "undefined" &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        currentContainer.scrollTo({
+          left: clampedScrollLeft,
+          behavior: prefersReducedMotion || !shouldAnimate ? "auto" : "smooth",
+        });
+      }
+    });
+
+    return () => cancelAnimationFrame(rafId);
   }, [activeCategory, shouldAnimate]);
 
   // Handle tab click
