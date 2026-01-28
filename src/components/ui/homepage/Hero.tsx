@@ -3,7 +3,7 @@
 import React, { useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { ArrowRight, ChefHat, Clock, MapPin } from "lucide-react";
+import { ArrowRight, ChefHat, Clock, MapPin, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, parallaxPresets } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -20,6 +20,8 @@ import { GradientOrb, ORB_CONFIG_FAR, ORB_CONFIG_MID } from "./GradientOrb";
 export interface HeroProps {
   /** Hero headline */
   headline?: string;
+  /** Short tagline below headline */
+  tagline?: string;
   /** Hero subheadline */
   subheadline?: string;
   /** Primary CTA text */
@@ -135,9 +137,9 @@ function GradientFallback({ children, className }: GradientFallbackProps) {
 
   return (
     <div className={cn("relative w-full min-h-[100svh] min-h-[100dvh] overflow-hidden", className)}>
-      {/* Dark dramatic gradient background - theme-aware via CSS vars */}
+      {/* Dark dramatic gradient background - theme-aware via CSS vars with smooth 300ms transition */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 hero-gradient-transition"
         style={useCustomGradient ? {
           background: `linear-gradient(180deg, ${gradientPalette[0]} 0%, ${gradientPalette[1]} 50%, ${gradientPalette[2]} 100%)`,
         } : {
@@ -145,17 +147,25 @@ function GradientFallback({ children, className }: GradientFallbackProps) {
         }}
       />
 
-      {/* Decorative pattern overlay */}
+      {/* Shimmer overlay - traveling light effect per CONTEXT.md */}
       <div
-        className="absolute inset-0 opacity-10"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 Q35 15 30 25 Q25 15 30 5' fill='%23EBCD00' opacity='0.3'/%3E%3Cpath d='M30 35 Q35 45 30 55 Q25 45 30 35' fill='%23EBCD00' opacity='0.3'/%3E%3Cpath d='M5 30 Q15 35 25 30 Q15 25 5 30' fill='%23EBCD00' opacity='0.3'/%3E%3Cpath d='M35 30 Q45 35 55 30 Q45 25 35 30' fill='%23EBCD00' opacity='0.3'/%3E%3C/svg%3E")`,
-          backgroundSize: "60px 60px",
-        }}
-      />
+        className="absolute inset-0 overflow-hidden pointer-events-none"
+        aria-hidden="true"
+      >
+        <div
+          className="absolute inset-0 animate-hero-shimmer"
+          style={{
+            background: `linear-gradient(45deg, transparent 40%, var(--hero-shimmer) 50%, transparent 60%)`,
+            width: "200%",
+            height: "200%",
+            top: "-50%",
+            left: "-50%",
+          }}
+        />
+      </div>
 
-      {/* Radial glow effect */}
-      <div className="absolute inset-0 bg-gradient-radial from-secondary/20 via-transparent to-transparent" />
+      {/* Radial glow effect - uses secondary color for brand accent */}
+      <div className="absolute inset-0 bg-gradient-radial from-secondary/15 via-transparent to-transparent" />
 
       {/* Gradient overlay for text readability - uses theme-aware hero overlay */}
       <div
@@ -181,6 +191,7 @@ function GradientFallback({ children, className }: GradientFallbackProps) {
 
 interface HeroContentProps {
   headline: string;
+  tagline: string;
   subheadline: string;
   ctaText: string;
   ctaHref: string;
@@ -190,6 +201,7 @@ interface HeroContentProps {
 
 function HeroContent({
   headline,
+  tagline,
   subheadline,
   ctaText,
   ctaHref,
@@ -224,8 +236,18 @@ function HeroContent({
         {/* Animated Headline */}
         <AnimatedHeadline
           text={headline}
-          className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-6 leading-tight"
+          className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-4 leading-tight"
         />
+
+        {/* Tagline per CONTEXT.md */}
+        <motion.p
+          className="text-lg md:text-xl text-hero-text/70 font-medium mb-6"
+          initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+          animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+          transition={shouldAnimate ? { ...getSpring(spring.default), delay: 0.5 } : undefined}
+        >
+          {tagline}
+        </motion.p>
 
         {/* Subheadline */}
         <motion.p
@@ -328,23 +350,17 @@ function HeroContent({
         transition={{ delay: 1.5 }}
       >
         <motion.div
-          className="flex flex-col items-center gap-2 text-hero-text-muted"
+          className="flex flex-col items-center gap-1 text-hero-text-muted cursor-pointer"
           animate={shouldAnimate ? { y: [0, 8, 0] } : undefined}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          onClick={() => {
+            document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+          }}
+          role="button"
+          aria-label="Scroll to learn more"
         >
           <span className="text-xs uppercase tracking-widest">Scroll</span>
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 5v14M19 12l-7 7-7-7" />
-          </svg>
+          <ChevronDown className="w-6 h-6" />
         </motion.div>
       </motion.div>
     </div>
@@ -357,6 +373,7 @@ function HeroContent({
 
 export function Hero({
   headline = "Authentic Burmese Cuisine Delivered to Your Door",
+  tagline = "Authentic Burmese delivered",
   subheadline = "Experience the rich flavors of Myanmar with our weekly Saturday deliveries. Fresh, homemade dishes prepared with love and tradition.",
   ctaText = "Order Now",
   ctaHref = "/menu",
@@ -430,6 +447,7 @@ export function Hero({
   const heroContent = (
     <HeroContent
       headline={headline}
+      tagline={tagline}
       subheadline={subheadline}
       ctaText={ctaText}
       ctaHref={ctaHref}
