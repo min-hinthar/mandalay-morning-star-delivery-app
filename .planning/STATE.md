@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 29 gap closure - motion timing token enforcement
+**Current focus:** Phase 29 complete - ready for Phase 30 Mobile Stability
 
 ## Current Position
 
-Phase: 29 (Token Enforcement - Effects)
-Plan: 5 of 6 in current phase
-Status: In progress
-Last activity: 2026-01-28 - Completed 29-05 (motion timing gap closure)
+Phase: 29 (Token Enforcement - Effects) - COMPLETE
+Plan: 6 of 6 in current phase
+Status: Phase complete
+Last activity: 2026-01-28 - Completed 29-06 (CSS transition tokenization + FM documentation)
 
-Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 42/43+ plans
+Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 43/43+ plans
 
 ## Milestones Completed
 
@@ -26,15 +26,15 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 37 plans complete
-**Phase 29 progress:** 5 plans complete
+**v1.3 progress:** 38 plans complete
+**Phase 29 progress:** 6 plans complete (PHASE COMPLETE)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 106 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 107 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 37
+- v1.3 plans completed: 38
 
 **By Phase (v1.3):**
 
@@ -46,7 +46,7 @@ Progress: [███████████████████████
 | 34 | 8/8 | 40min | 5min |
 | 27 | 6/6+ | 73min | 12.2min |
 | 28 | 3/3 | 18min | 6min |
-| 29 | 5/6 | 40min | 8min |
+| 29 | 6/6 | 48min | 8min |
 
 ## Accumulated Context
 
@@ -136,6 +136,8 @@ From `.planning/research/SUMMARY.md`:
 | duration-[Nms] severity upgraded to warning | 29-05 | Enforce motion tokens during Phase 29 |
 | Framer Motion spring physics allowed | 29-05 | Numeric durations needed for spring calculations |
 | AppHeader uses blur(var(--blur-2xl)) | 29-05 | Consistent with CommandPalette glass pattern |
+| CSS transitions use --duration-slow --ease-out | 29-06 | 0.3s mapped to closest token (350ms) |
+| FM durations documented not changed | 29-06 | Spring physics requires numeric values |
 
 ### Phase 27 Progress (Complete)
 
@@ -380,13 +382,21 @@ None.
 - duration-[Nms] upgraded from info to warning severity
 - Framer Motion spring physics explicitly allowed in ESLint messages
 
+**29-06 outcomes:**
+- CSS transitions tokenized: glass-menu-card and glow-gradient use var(--duration-slow) var(--ease-out)
+- Zero hardcoded transition durations remaining in globals.css
+- motion-tokens.ts has comprehensive header documenting FM-to-CSS token mapping
+- All 6 duration constants have inline CSS equivalent comments
+- ROADMAP.md updated: Phase 29 marked complete (6/6 plans)
+- Phase 29 complete: All shadows, blur, and motion timing use design system tokens
+
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Completed 29-05 (motion timing gap closure)
+Stopped at: Completed 29-06 (Phase 29 complete)
 Resume file: None
-Next action: Execute 29-06 for remaining motion timing migration
+Next action: Execute Phase 30 (Mobile Stability) when ready
 
 ---
 
-*Updated: 2026-01-28 - Completed 29-05 (motion timing gap closure)*
+*Updated: 2026-01-28 - Completed Phase 29 (Token Enforcement - Effects)*
