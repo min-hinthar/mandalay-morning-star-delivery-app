@@ -237,7 +237,7 @@ export default function AdminRoutesPage() {
           </Button>
           <Button
             onClick={() => setIsCreateModalOpen(true)}
-            className="bg-gradient-to-r from-saffron to-curry hover:from-saffron-dark hover:to-curry-dark text-white shadow-md"
+            className="bg-gradient-to-r from-saffron to-curry hover:from-saffron-dark hover:to-curry-dark text-text-inverse shadow-md"
           >
             <Plus className="mr-2 h-4 w-4" />
             Create Route
@@ -322,7 +322,7 @@ export default function AdminRoutesPage() {
         className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
       >
         {/* Date Navigation */}
-        <div className="flex items-center gap-2 bg-white rounded-xl border border-curry/10 p-1">
+        <div className="flex items-center gap-2 bg-surface-primary rounded-xl border border-curry/10 p-1">
           <Button
             variant="ghost"
             size="icon"
@@ -379,8 +379,8 @@ export default function AdminRoutesPage() {
                 className={cn(
                   "cursor-pointer transition-all",
                   isActive
-                    ? "bg-saffron hover:bg-saffron/90 text-white border-transparent"
-                    : "bg-white border-curry/20 text-charcoal hover:bg-saffron/10 hover:border-saffron/30"
+                    ? "bg-saffron hover:bg-saffron/90 text-text-inverse border-transparent"
+                    : "bg-surface-primary border-curry/20 text-charcoal hover:bg-saffron/10 hover:border-saffron/30"
                 )}
                 onClick={() => setStatusFilter(filter.value)}
               >

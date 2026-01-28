@@ -163,7 +163,7 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
       <DialogContent className="sm:max-w-[500px] bg-surface-primary border-border rounded-card">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-display text-2xl text-text-primary">
-            <div className="p-2 rounded-input bg-primary text-white">
+            <div className="p-2 rounded-input bg-primary text-text-inverse">
               <UserPlus className="h-5 w-5" />
             </div>
             Add New Driver
@@ -337,7 +337,7 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-primary hover:bg-primary-hover text-white shadow-sm"
+              className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm"
             >
               {isSubmitting ? (
                 <>

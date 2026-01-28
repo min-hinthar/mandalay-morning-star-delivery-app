@@ -299,7 +299,7 @@ export default function AdminCategoriesPage() {
           </Button>
           <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-primary hover:bg-primary-hover text-white shadow-sm">
+              <Button className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Category
               </Button>
@@ -307,7 +307,7 @@ export default function AdminCategoriesPage() {
             <DialogContent className="sm:max-w-[425px] bg-surface-primary border-border rounded-card">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2 font-display text-2xl text-text-primary">
-                  <div className="p-2 rounded-input bg-primary text-white">
+                  <div className="p-2 rounded-input bg-primary text-text-inverse">
                     <FolderTree className="h-5 w-5" />
                   </div>
                   Add New Category
@@ -374,7 +374,7 @@ export default function AdminCategoriesPage() {
                 <Button
                   onClick={handleCreateCategory}
                   disabled={creating}
-                  className="bg-primary hover:bg-primary-hover text-white shadow-sm"
+                  className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm"
                 >
                   {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Create Category

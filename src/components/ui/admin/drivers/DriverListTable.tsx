@@ -256,7 +256,7 @@ export function DriverListTable({
                   >
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-display text-sm shadow-sm">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-text-inverse font-display text-sm shadow-sm">
                           {driver.fullName
                             ? driver.fullName
                                 .split(" ")
@@ -422,7 +422,7 @@ export function DriverListTable({
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-display shadow-sm">
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-text-inverse font-display shadow-sm">
                       {driver.fullName
                         ? driver.fullName
                             .split(" ")
