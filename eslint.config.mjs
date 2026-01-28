@@ -163,6 +163,56 @@ const config = [
           selector: "Literal[value=/\\bbg-black\\b/]",
           message: "Use semantic token: bg-surface-inverse instead of bg-black",
         },
+        // Typography: Catch arbitrary font sizes in Tailwind classes
+        {
+          selector: "Literal[value=/text-\\[\\d+px\\]/]",
+          message: "Use Tailwind typography scale (text-2xs, text-xs, text-sm, etc.) instead of text-[Npx]. For 10px use text-2xs.",
+        },
+        // Spacing: Catch arbitrary margin values
+        {
+          selector: "Literal[value=/\\bm-\\[\\d+px\\]/]",
+          message: "Use Tailwind spacing scale (m-1, m-2, m-4, etc.) or CSS variable instead of m-[Npx].",
+        },
+        {
+          selector: "Literal[value=/\\bm[xy]-\\[\\d+px\\]/]",
+          message: "Use Tailwind spacing scale (mx-1, my-2, etc.) or CSS variable instead of mx/my-[Npx].",
+        },
+        {
+          selector: "Literal[value=/\\bm[trbl]-\\[\\d+px\\]/]",
+          message: "Use Tailwind spacing scale (mt-1, mr-2, etc.) or CSS variable instead of mt/mr/mb/ml-[Npx].",
+        },
+        // Spacing: Catch arbitrary padding values
+        {
+          selector: "Literal[value=/\\bp-\\[\\d+px\\]/]",
+          message: "Use Tailwind spacing scale (p-1, p-2, p-4, etc.) or CSS variable instead of p-[Npx].",
+        },
+        {
+          selector: "Literal[value=/\\bp[xy]-\\[\\d+px\\]/]",
+          message: "Use Tailwind spacing scale (px-1, py-2, etc.) or CSS variable instead of px/py-[Npx].",
+        },
+        {
+          selector: "Literal[value=/\\bp[trbl]-\\[\\d+px\\]/]",
+          message: "Use Tailwind spacing scale (pt-1, pr-2, etc.) or CSS variable instead of pt/pr/pb/pl-[Npx].",
+        },
+        // Spacing: Catch arbitrary gap values
+        {
+          selector: "Literal[value=/\\bgap-\\[\\d+px\\]/]",
+          message: "Use Tailwind spacing scale (gap-1, gap-2, gap-4, etc.) or CSS variable instead of gap-[Npx].",
+        },
+        {
+          selector: "Literal[value=/\\bgap-[xy]-\\[\\d+px\\]/]",
+          message: "Use Tailwind spacing scale (gap-x-1, gap-y-2, etc.) or CSS variable instead of gap-x/y-[Npx].",
+        },
+        // Typography: Catch inline fontSize pixel values in style objects
+        {
+          selector: "Property[key.name='fontSize'][value.value=/^\\d+px$/]",
+          message: "Use Tailwind typography class or CSS variable instead of inline fontSize pixel value.",
+        },
+        // Typography: Catch inline fontWeight numeric values in style objects
+        {
+          selector: "Property[key.name='fontWeight'][value.type='Literal'][value.raw=/^\\d+$/]",
+          message: "Use Tailwind font-weight class (font-normal=400, font-medium=500, font-semibold=600, font-bold=700) instead of inline fontWeight number.",
+        },
       ],
     },
   },
