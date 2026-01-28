@@ -241,7 +241,7 @@ export function DropdownContent({
             "absolute top-full mt-1",
             alignmentClasses[align],
             "min-w-[8rem]",
-            "bg-white dark:bg-zinc-900",
+            "bg-surface-primary dark:bg-surface-primary",
             "rounded-md border border-border",
             "shadow-lg",
             "p-1",

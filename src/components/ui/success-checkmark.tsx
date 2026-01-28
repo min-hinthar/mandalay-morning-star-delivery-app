@@ -109,7 +109,7 @@ export function SuccessCheckmark({
           fill="none"
           stroke="currentColor"
           strokeWidth={3}
-          className="text-white"
+          className="text-text-inverse"
           style={{ width: size * 0.5, height: size * 0.5 }}
         >
           <path d={checkmarkPath} />
@@ -150,7 +150,7 @@ export function SuccessCheckmark({
         strokeWidth={3}
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="text-white"
+        className="text-text-inverse"
         style={{ width: size * 0.5, height: size * 0.5 }}
       >
         <motion.path

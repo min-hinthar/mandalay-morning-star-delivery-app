@@ -84,7 +84,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       onClick={handleToggle}
       className={cn(
         "relative flex h-10 w-10 items-center justify-center rounded-full",
-        "bg-secondary/50 dark:bg-white/10",
+        "bg-secondary/50 dark:bg-overlay-light",
         "border border-border dark:border-transparent",
         "dark:shadow-[0_0_12px_rgba(229,62,62,0.3)]", // Primary glow in dark mode
         "transition-colors duration-200",
