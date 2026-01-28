@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 30 (Mobile Stability)
-Plan: 1 of ? in current phase
+Plan: 2 of ? in current phase
 Status: In progress
-Last activity: 2026-01-28 - Completed 30-01 (Touch device detection + tilt fallbacks)
+Last activity: 2026-01-28 - Completed 30-02 (Safari fixes + touch shine + 500ms long-press)
 
-Progress: [█████████████████████████████████████████░] v1.3 + Mobile Stability | 44/45+ plans
+Progress: [█████████████████████████████████████████░] v1.3 + Mobile Stability | 45/46+ plans
 
 ## Milestones Completed
 
@@ -26,15 +26,15 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 39 plans complete
-**Phase 30 progress:** 1 plan complete
+**v1.3 progress:** 40 plans complete
+**Phase 30 progress:** 2 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 108 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 109 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 39
+- v1.3 plans completed: 40
 
 **By Phase (v1.3):**
 
@@ -47,7 +47,7 @@ Progress: [███████████████████████
 | 27 | 6/6+ | 73min | 12.2min |
 | 28 | 3/3 | 18min | 6min |
 | 29 | 6/6 | 48min | 8min |
-| 30 | 1/? | 17min | 17min |
+| 30 | 2/? | 43min | 21.5min |
 
 ## Accumulated Context
 
@@ -142,6 +142,9 @@ From `.planning/research/SUMMARY.md`:
 | (hover: hover) and (pointer: fine) for touch detection | 30-01 | Matches CSS media query for JS/CSS consistency |
 | Static touch detection at mount | 30-01 | No runtime switching per CONTEXT.md |
 | Shadow elevation + lift for touch tap feedback | 30-01 | Preserves delight without 3D tilt complexity |
+| Safari compositing via inline styles | 30-02 | Component encapsulation, not new CSS classes |
+| Long-press opens detail sheet (not tilt) | 30-02 | Better UX than mobile tilt play mode |
+| 10px scroll threshold cancels long-press | 30-02 | Avoid accidental triggers during scroll |
 
 ### Phase 27 Progress (Complete)
 
@@ -404,13 +407,21 @@ None.
 - CardImage already had shine-sweep for touch devices (from prior 30-02 work)
 - All changes pass typecheck and build
 
+**30-02 outcomes:**
+- Applied Safari compositing fixes to GlassOverlay (isolation, overflow, backface-visibility)
+- CardImage now shows animated shine sweep on touch devices (canHover detection)
+- UnifiedMenuItemCard long-press updated to 500ms iOS standard
+- Long-press opens detail sheet (onSelect) instead of enabling mobile tilt play
+- Added touchStartPos ref and 10px scroll threshold to cancel long-press
+- All changes pass typecheck and build
+
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Completed 30-01 (Touch device detection + tilt fallbacks)
+Stopped at: Completed 30-02 (Safari fixes + touch shine + 500ms long-press)
 Resume file: None
-Next action: Execute Phase 30-02+ when ready
+Next action: Execute Phase 30-03+ when ready
 
 ---
 
-*Updated: 2026-01-28 - Completed 30-01 (Touch device detection)*
+*Updated: 2026-01-28 - Completed 30-02 (Safari compositing fixes + touch shine + long-press)*
