@@ -133,7 +133,7 @@ function AccordionCategory({
       className={cn(
         "rounded-xl border overflow-hidden transition-all duration-[var(--duration-normal)]",
         isExpanded
-          ? "border-[var(--color-interactive-primary)]/30 shadow-[var(--elevation-2)]"
+          ? "border-[var(--color-interactive-primary)]/30 shadow-sm"
           : "border-[var(--color-border)] hover:border-[var(--color-interactive-primary)]/20"
       )}
     >

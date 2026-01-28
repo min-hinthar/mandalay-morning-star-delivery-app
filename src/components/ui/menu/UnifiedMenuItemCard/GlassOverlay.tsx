@@ -45,7 +45,7 @@ export function GlassOverlay({
         )}
       />
 
-      {/* Hover border glow - brand color */}
+      {/* Hover border glow - brand color, ~--shadow-glow-primary equivalent */}
       {shouldAnimate && (
         <motion.div
           className={cn(
@@ -53,6 +53,7 @@ export function GlassOverlay({
             rounded,
             "border-2 border-primary/0"
           )}
+          // Kept numeric for FM interpolation between hovered/unhovered states
           animate={{
             borderColor: isHovered
               ? "rgba(var(--color-primary-rgb, 164 16 52) / 0.5)"

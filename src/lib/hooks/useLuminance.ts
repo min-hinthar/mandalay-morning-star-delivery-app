@@ -246,6 +246,15 @@ export function useDynamicLuminance(
 
 /**
  * Get CSS classes for text based on background luminance
+ *
+ * Note: drop-shadow values are dynamic based on background luminance.
+ * Values range from ~--text-shadow-sm (normal) to ~--text-shadow-md (strong).
+ * Kept as arbitrary values since shadow intensity adapts to image/background content,
+ * and the light vs dark text shadows require different base colors (white vs black).
+ *
+ * @example
+ * // For light backgrounds: dark text with light drop-shadow for legibility
+ * // For dark backgrounds: light text with dark drop-shadow for legibility
  */
 export function getContrastTextClasses(
   luminance: LuminanceResult,
@@ -263,14 +272,17 @@ export function getContrastTextClasses(
 
   if (!withShadow) return textColor;
 
+  // Dynamic drop-shadow based on luminance - cannot use single token as
+  // light backgrounds need white-tinted shadows and dark need black-tinted
+  // eslint-disable-next-line @mandalay/no-hardcoded-effects -- Dynamic luminance-based shadow
   const shadow =
     luminance === "light"
       ? intensity === "strong"
-        ? "drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]"
-        : "drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]"
+        ? "drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]" // ~--text-shadow-md for light bg
+        : "drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)]" // ~--text-shadow-sm for light bg
       : intensity === "strong"
-        ? "drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
-        : "drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]";
+        ? "drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" // ~--text-shadow-md for dark bg
+        : "drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]"; // ~--text-shadow-sm for dark bg
 
   return `${textColor} ${shadow}`;
 }

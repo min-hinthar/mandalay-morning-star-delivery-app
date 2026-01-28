@@ -68,7 +68,7 @@ function Dot({ index, isActive, label, layoutId, onClick }: DotProps) {
           initial={false}
           transition={shouldAnimate ? getSpring(spring.snappy) : { duration: 0 }}
           style={{
-            boxShadow: "0 2px 8px rgba(164, 16, 52, 0.4)",
+            boxShadow: "var(--shadow-glow-primary)",
           }}
         />
       )}
