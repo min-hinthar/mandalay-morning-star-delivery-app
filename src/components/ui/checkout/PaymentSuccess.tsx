@@ -148,7 +148,7 @@ function AnimatedCheckmark() {
       >
         {/* Checkmark SVG */}
         <svg
-          className="w-12 h-12 text-white"
+          className="w-12 h-12 text-text-inverse"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -202,7 +202,7 @@ function TimelineStep({ icon, title, description, isActive, index }: TimelineSte
         className={cn(
           "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
           isActive
-            ? "bg-primary text-white"
+            ? "bg-primary text-text-inverse"
             : "bg-surface-tertiary text-text-muted"
         )}
       >

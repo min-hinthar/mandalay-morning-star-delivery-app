@@ -71,7 +71,7 @@ function DatePill({ date, isSelected, onSelect, index }: DatePillProps) {
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         "transform-gpu will-change-transform",
         isSelected
-          ? "border-primary bg-primary text-white shadow-lg shadow-primary/30"
+          ? "border-primary bg-primary text-text-inverse shadow-lg shadow-primary/30"
           : date.cutoffPassed
           ? "border-border bg-surface-tertiary text-text-muted cursor-not-allowed opacity-50"
           : "border-border bg-surface-primary text-text-primary hover:border-primary/50"
@@ -80,7 +80,7 @@ function DatePill({ date, isSelected, onSelect, index }: DatePillProps) {
       {/* Day name or Today/Tomorrow */}
       <span className={cn(
         "text-xs font-medium uppercase tracking-wider",
-        isSelected ? "text-white/80" : "text-text-secondary"
+        isSelected ? "text-text-inverse/80" : "text-text-secondary"
       )}>
         {isToday ? "Today" : isTomorrow ? "Tomorrow" : dayName}
       </span>
@@ -99,7 +99,7 @@ function DatePill({ date, isSelected, onSelect, index }: DatePillProps) {
       {/* Month */}
       <span className={cn(
         "text-xs",
-        isSelected ? "text-white/80" : "text-text-muted"
+        isSelected ? "text-text-inverse/80" : "text-text-muted"
       )}>
         {monthName}
       </span>
@@ -110,7 +110,7 @@ function DatePill({ date, isSelected, onSelect, index }: DatePillProps) {
           initial={shouldAnimate ? { scale: 0 } : undefined}
           animate={shouldAnimate ? { scale: 1 } : undefined}
           transition={getSpring(spring.ultraBouncy)}
-          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-white flex items-center justify-center"
+          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-surface-primary flex items-center justify-center"
         >
           <Check className="w-3 h-3 text-primary" />
         </motion.div>
@@ -118,7 +118,7 @@ function DatePill({ date, isSelected, onSelect, index }: DatePillProps) {
 
       {/* Next week badge */}
       {date.isNextWeek && !isSelected && (
-        <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-white font-medium whitespace-nowrap">
+        <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] px-1.5 py-0.5 rounded-full bg-secondary text-text-primary font-medium whitespace-nowrap">
           Next Week
         </span>
       )}
@@ -187,7 +187,7 @@ function TimeSlotPill({
           className={cn(
             "w-10 h-10 rounded-full flex items-center justify-center",
             isSelected
-              ? "bg-primary text-white"
+              ? "bg-primary text-text-inverse"
               : "bg-surface-secondary text-text-muted"
           )}
         >
@@ -225,7 +225,7 @@ function TimeSlotPill({
               exit={shouldAnimate ? { scale: 0 } : undefined}
               transition={getSpring(spring.ultraBouncy)}
             >
-              <Check className="w-4 h-4 text-white" />
+              <Check className="w-4 h-4 text-text-inverse" />
             </motion.div>
           )}
         </AnimatePresence>

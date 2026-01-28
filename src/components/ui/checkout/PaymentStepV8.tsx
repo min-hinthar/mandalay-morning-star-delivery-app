@@ -314,7 +314,7 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
             className={cn(
               "inline-flex items-center justify-center gap-2",
               "px-6 py-3 rounded-lg font-semibold",
-              "bg-green-600 hover:bg-green-700 text-white",
+              "bg-status-success hover:bg-green-hover text-text-inverse",
               "shadow-lg shadow-green-600/25",
               "transition-colors duration-200",
               "disabled:opacity-70 disabled:cursor-not-allowed"
@@ -322,7 +322,7 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
           >
             {isCreatingSession ? (
               <>
-                <BrandedSpinner size="sm" label="Processing" className="text-white" />
+                <BrandedSpinner size="sm" label="Processing" className="text-text-inverse" />
                 Processing...
               </>
             ) : (
