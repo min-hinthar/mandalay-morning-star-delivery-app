@@ -23,7 +23,7 @@ Systematic consolidation of the codebase: merge overlapping component systems, e
 - [x] **Phase 28: Token Enforcement - Layout** - Standardize spacing, typography, border-radius
 - [x] **Phase 29: Token Enforcement - Effects** - Standardize shadows, blur, motion durations
 - [x] **Phase 30: Mobile Stability** - Fix 3D tilt on touch devices
-- [ ] **Phase 31: Hero Redesign** - Floating emojis, parallax, theme-aware gradients
+- [x] **Phase 31: Hero Redesign** - Floating emojis, parallax, theme-aware gradients
 - [ ] **Phase 32: Quality Assurance** - Documentation, testing, regression prevention
 - [x] **Phase 33: Full Components Consolidation** - Merge all component subdirectories, eliminate duplicates
 - [x] **Phase 34: Full src/ Consolidation** - Consolidate contexts, design-system, lib, styles, types directories
@@ -152,11 +152,11 @@ Plans:
 **Plans**: 5 plans in 4 waves
 
 Plans:
-- [ ] 31-01-PLAN.md — Hero gradient and orb token infrastructure
-- [ ] 31-02-PLAN.md — Hero layout refactor (remove mascot, add layer containers)
-- [ ] 31-03-PLAN.md — Floating emoji system and gradient orbs
-- [ ] 31-04-PLAN.md — Theme transitions, shimmer, and CTA polish
-- [ ] 31-05-PLAN.md — Final polish (tagline, scroll indicator, legacy cleanup)
+- [x] 31-01-PLAN.md — Hero gradient and orb token infrastructure
+- [x] 31-02-PLAN.md — Hero layout refactor (remove mascot, add layer containers)
+- [x] 31-03-PLAN.md — Floating emoji system and gradient orbs
+- [x] 31-04-PLAN.md — Theme transitions, shimmer, and CTA polish
+- [x] 31-05-PLAN.md — Final polish (tagline, scroll indicator, legacy cleanup)
 
 ### Phase 32: Quality Assurance
 **Goal**: Documentation complete and regression tests prevent future violations
@@ -237,7 +237,7 @@ Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 ->
 | 28. Token Enforcement - Layout | v1.3 | 3/3 | Complete | 2026-01-28 |
 | 29. Token Enforcement - Effects | v1.3 | 6/6 | Complete | 2026-01-28 |
 | 30. Mobile Stability | v1.3 | 2/2 | Complete | 2026-01-28 |
-| 31. Hero Redesign | v1.3 | 0/5 | Not started | - |
+| 31. Hero Redesign | v1.3 | 5/5 | Complete | 2026-01-28 |
 | 32. Quality Assurance | v1.3 | 0/3 | Not started | - |
 | 33. Full Components Consolidation | v1.3 | 11/11 | Complete | 2026-01-27 |
 | 34. Full src/ Consolidation | v1.3 | 8/8 | Complete | 2026-01-28 |
