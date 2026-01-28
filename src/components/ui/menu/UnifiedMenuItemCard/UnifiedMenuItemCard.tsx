@@ -432,7 +432,7 @@ export function UnifiedMenuItemCard({
 
         {/* Sold out overlay */}
         {item.isSoldOut && (
-          <div className={cn("absolute inset-0 bg-black/50 flex items-center justify-center", zClass.sticky)}>
+          <div className={cn("absolute inset-0 bg-overlay flex items-center justify-center", zClass.sticky)}>
             <span className="px-4 py-2 bg-surface-primary rounded-full text-sm font-semibold text-text-primary shadow-lg">
               Sold Out
             </span>
