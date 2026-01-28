@@ -11,7 +11,6 @@ import {
 } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useDynamicTheme } from "@/components/ui/theme";
-import { BrandMascot } from "@/components/ui/brand/BrandMascot";
 import { Button } from "@/components/ui/button";
 
 // ============================================
@@ -31,8 +30,6 @@ export interface HeroProps {
   secondaryCtaText?: string;
   /** Secondary CTA href */
   secondaryCtaHref?: string;
-  /** Show brand mascot */
-  showMascot?: boolean;
   /** Additional className */
   className?: string;
 }
@@ -144,7 +141,7 @@ function GradientFallback({ children, className }: GradientFallbackProps) {
         style={useCustomGradient ? {
           background: `linear-gradient(180deg, ${gradientPalette[0]} 0%, ${gradientPalette[1]} 50%, ${gradientPalette[2]} 100%)`,
         } : {
-          background: `linear-gradient(180deg, var(--hero-gradient-start) 0%, var(--hero-gradient-mid) 50%, var(--hero-gradient-end) 100%)`,
+          background: `linear-gradient(180deg, var(--hero-bg-start) 0%, var(--hero-bg-mid) 50%, var(--hero-bg-end) 100%)`,
         }}
       />
 
@@ -185,7 +182,6 @@ interface HeroContentProps {
   ctaHref: string;
   secondaryCtaText: string;
   secondaryCtaHref: string;
-  showMascot: boolean;
 }
 
 function HeroContent({
@@ -195,7 +191,6 @@ function HeroContent({
   ctaHref,
   secondaryCtaText,
   secondaryCtaHref,
-  showMascot,
 }: HeroContentProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { timeOfDay } = useDynamicTheme();
@@ -203,22 +198,6 @@ function HeroContent({
   return (
     <div className="relative flex flex-col items-center justify-center min-h-[100svh] min-h-[100dvh] px-4 pt-16 pb-20 pb-safe md:pt-20 md:pb-24">
       <div className="max-w-4xl mx-auto text-center">
-        {/* Brand Mascot */}
-        {showMascot && (
-          <motion.div
-            className="mb-8"
-            initial={shouldAnimate ? { opacity: 0, scale: 0 } : undefined}
-            animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
-            transition={shouldAnimate ? { ...getSpring(spring.rubbery), delay: 0.2 } : undefined}
-          >
-            <BrandMascot
-              size="lg"
-              expression="waving"
-              idleAnimations={true}
-            />
-          </motion.div>
-        )}
-
         {/* Time-based greeting badge */}
         <motion.div
           className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg backdrop-blur-md border border-hero-text/20"
@@ -379,7 +358,6 @@ export function Hero({
   ctaHref = "/menu",
   secondaryCtaText = "How It Works",
   secondaryCtaHref = "#how-it-works",
-  showMascot = true,
   className,
 }: HeroProps) {
   const { shouldAnimate } = useAnimationPreference();
@@ -406,7 +384,6 @@ export function Hero({
       ctaHref={ctaHref}
       secondaryCtaText={secondaryCtaText}
       secondaryCtaHref={secondaryCtaHref}
-      showMascot={showMascot}
     />
   );
 
