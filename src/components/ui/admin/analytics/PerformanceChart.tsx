@@ -63,7 +63,7 @@ export function PerformanceChart({
               contentStyle={{
                 backgroundColor: "hsl(var(--background))",
                 borderColor: "hsl(var(--border))",
-                borderRadius: "8px",
+                borderRadius: "var(--radius-md)",
                 boxShadow:
                   "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
               }}
@@ -211,7 +211,7 @@ export function DualAxisChart({
             contentStyle={{
               backgroundColor: "hsl(var(--background))",
               borderColor: "hsl(var(--border))",
-              borderRadius: "8px",
+              borderRadius: "var(--radius-md)",
             }}
           />
           <Line

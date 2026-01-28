@@ -85,14 +85,14 @@ export function RevenueChart({ data }: RevenueChartProps) {
           contentStyle={{
             backgroundColor: "#FFFFFF",
             borderColor: V6_CHART_COLORS.grid,
-            borderRadius: "16px",
+            borderRadius: "var(--radius-xl)",
             boxShadow: "0 8px 24px rgba(164, 16, 52, 0.08)",
             fontFamily: "var(--font-body)",
           }}
           labelStyle={{
             color: "#111111",
-            fontWeight: 600,
           }}
+          labelClassName="font-semibold"
         />
         <Line
           type="monotone"

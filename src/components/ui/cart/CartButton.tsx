@@ -139,7 +139,7 @@ export function CartButton({ className }: CartButtonProps) {
             className={cn(
               "absolute -right-1 -top-1 flex items-center justify-center",
               "min-w-[22px] h-[22px] px-1.5 rounded-full",
-              "bg-amber-500 text-[11px] font-bold text-text-inverse",
+              "bg-amber-500 text-xs font-bold text-text-inverse",
               "shadow-lg ring-2 ring-surface-primary dark:ring-surface-primary"
             )}
           >
