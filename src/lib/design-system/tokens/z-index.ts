@@ -43,19 +43,19 @@ export const zIndexVar = {
 
 /**
  * Tailwind class names for z-index utilities
- * Uses numeric values that Tailwind CSS 4 generates
+ * Now uses semantic z-* classes generated from @theme inline in globals.css
  * @example className={zClass.modal}
  */
 export const zClass = {
-  base: "z-0",
+  base: "z-base",
   cardShine: "z-[5]",
-  dropdown: "z-10",
-  sticky: "z-20",
-  fixed: "z-30",
-  modalBackdrop: "z-40",
-  modal: "z-50",
-  popover: "z-[60]",
-  tooltip: "z-[70]",
-  toast: "z-[80]",
-  max: "z-[100]",
+  dropdown: "z-dropdown",
+  sticky: "z-sticky",
+  fixed: "z-fixed",
+  modalBackdrop: "z-modal-backdrop",
+  modal: "z-modal",
+  popover: "z-popover",
+  tooltip: "z-tooltip",
+  toast: "z-toast",
+  max: "z-max",
 } as const;

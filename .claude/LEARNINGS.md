@@ -147,29 +147,40 @@ TailwindCSS 4 with `@tailwindcss/postcss` scans ALL files in repository - includ
 
 **Prevention:** Use valid, current Tailwind classes in ALL documentation code examples.
 
-### Z-Index Utilities
-Custom `zIndex` theme extensions do NOT generate utility classes in v4.
+### Z-Index Utilities (FIXED 2026-01-27)
+Custom `zIndex` theme extensions in tailwind.config.ts do NOT generate utility classes in v4.
+However, `@theme inline` with correct naming DOES work.
 
-```ts
-// ❌ This does NOT create z-modal class
-theme: { extend: { zIndex: { modal: '50' } } }
+**Key insight:** Use `--z-*` prefix (NOT `--z-index-*` or `--zIndex-*`):
+```css
+/* ✅ WORKS - generates z-popover, z-tooltip, z-toast classes */
+@theme inline {
+  --z-popover: 60;
+  --z-tooltip: 70;
+  --z-toast: 80;
+  --z-max: 100;
+}
 
-// ✅ Use default scale or arbitrary values
-z-50       // Default scale
-z-[60]     // Arbitrary value
+/* ❌ FAILS - "invalid CSS" error */
+@theme inline {
+  --z-index-popover: 60;  /* Wrong prefix */
+  --zIndex-popover: 60;   /* Wrong prefix */
+}
 ```
 
-### @theme Variable Naming
-CSS variables use full prefix (`--z-index-modal`), utilities strip it (`z-modal`).
-TypeScript helpers must reference full CSS variable name: `var(--z-index-modal)`.
-
-**Helper pattern:**
+**Current setup (globals.css + z-index.ts):**
 ```ts
 export const zClass = {
-  sticky: "z-30",
-  fixed: "z-40",
-  modal: "z-50",
-  popover: "z-[60]",
+  base: "z-base",
+  dropdown: "z-dropdown",
+  sticky: "z-sticky",
+  fixed: "z-fixed",
+  modalBackdrop: "z-modal-backdrop",
+  modal: "z-modal",
+  popover: "z-popover",
+  tooltip: "z-tooltip",
+  toast: "z-toast",
+  max: "z-max",
 };
 ```
 
