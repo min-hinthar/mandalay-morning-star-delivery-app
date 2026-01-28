@@ -636,3 +636,73 @@ message: "Use bg-primary, bg-surface-primary instead"
 **Apply when:** Writing ESLint rules, audit scripts, or documentation that includes Tailwind class examples. Always use real, valid class names.
 
 ---
+
+## 2026-01-27: Tailwind v4 @source not Directive
+
+**Context:** CSS parsing error `Unexpected token Delim('*')` from `--shadow-*` patterns in docs/scripts
+**Learning:** Tailwind v4 auto-scans ALL directories for utility class patterns. Documentation files with wildcard examples like `var(--shadow-*)` generate invalid CSS.
+
+**Fix:** Use `@source not` directive to exclude non-source directories:
+```css
+@import "tailwindcss";
+
+/* Exclude directories that contain documentation patterns */
+@source not "../../docs";
+@source not "../../scripts";
+@source not "../../.planning";
+
+@import "../styles/tokens.css";
+```
+
+**Apply when:**
+- CSS parsing errors with `Unexpected token` in generated Tailwind output
+- Documentation/scripts contain CSS variable patterns with wildcards
+- Build errors from files outside `src/`
+
+---
+
+## 2026-01-27: Tailwind v4 @theme inline for Custom Token Utilities
+
+**Context:** `bg-overlay-heavy` class not applying despite token being defined in tokens.css
+**Learning:** Tailwind v4 only generates utility classes for CSS variables explicitly mapped in `@theme inline`. Having `--color-overlay-heavy` in tokens.css is NOT sufficient - it must be declared in the theme block.
+
+```css
+/* ❌ Token exists but no utility generated */
+/* tokens.css has: --color-overlay-heavy: rgba(0,0,0,0.8); */
+/* But bg-overlay-heavy doesn't work */
+
+/* ✅ Add to @theme inline in globals.css */
+@theme inline {
+  --color-overlay: var(--color-overlay);
+  --color-overlay-heavy: var(--color-overlay-heavy);
+  --color-overlay-light: var(--color-overlay-light);
+}
+/* Now bg-overlay-heavy works */
+```
+
+**Apply when:** Adding new color tokens that need Tailwind utility class generation (bg-*, text-*, border-*, etc.).
+
+---
+
+## 2026-01-27: Mobile-Only Drawer Backdrop Blur Issues
+
+**Context:** CartDrawer backdrop blur causing visual artifacts on mobile devices
+**Learning:** `backdrop-blur-sm` on mobile can cause:
+- Performance issues on lower-end devices
+- Visual artifacts with fixed/sticky elements
+- Janky animations during drawer open/close
+
+**Fix:** Apply blur only on larger screens using responsive modifier:
+```tsx
+// ❌ Blur on all devices - causes mobile issues
+className="fixed inset-0 bg-overlay backdrop-blur-sm"
+
+// ✅ Blur only on tablet+ (sm: = 640px+)
+className="fixed inset-0 bg-overlay-heavy sm:backdrop-blur-sm"
+```
+
+**Token consideration:** Also increased opacity from `bg-overlay` (50%) to `bg-overlay-heavy` (80-90%) to compensate for missing blur on mobile.
+
+**Apply when:** Drawer/modal overlays with backdrop-blur, especially on mobile-first apps.
+
+---
