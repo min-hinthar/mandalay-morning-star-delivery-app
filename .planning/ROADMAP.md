@@ -93,11 +93,12 @@ Plans:
   2. All font-size uses Tailwind typography scale (no px values)
   3. All font-weight uses semantic tokens (font-normal, font-medium, font-bold)
   4. Consistent border-radius using design system tokens (rounded-*)
-**Plans**: TBD
+**Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 28-01: Spacing token enforcement
-- [ ] 28-02: Typography token enforcement
+- [ ] 28-01-PLAN.md — Add text-2xs token + ESLint rules for layout enforcement
+- [ ] 28-02-PLAN.md — Migrate typography violations (text-[10px], text-[11px])
+- [ ] 28-03-PLAN.md — Migrate position violations + chart inline styles
 
 ### Phase 29: Token Enforcement - Effects
 **Goal**: Standardized shadows, blur effects, and animation timings
@@ -221,7 +222,7 @@ Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 ->
 | 25. Audit Infrastructure | v1.3 | 1/1 | Complete | 2026-01-27 |
 | 26. Component Consolidation | v1.3 | 8/8 | Complete | 2026-01-27 |
 | 27. Token Enforcement - Colors | v1.3 | 0/4 | Planned | - |
-| 28. Token Enforcement - Layout | v1.3 | 0/2 | Not started | - |
+| 28. Token Enforcement - Layout | v1.3 | 0/3 | Planned | - |
 | 29. Token Enforcement - Effects | v1.3 | 0/2 | Not started | - |
 | 30. Mobile Stability | v1.3 | 0/2 | Not started | - |
 | 31. Hero Redesign | v1.3 | 0/4 | Not started | - |
