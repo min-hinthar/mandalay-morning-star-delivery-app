@@ -149,11 +149,7 @@ const SingleSkeleton = forwardRef<HTMLDivElement, Omit<SkeletonProps, "count" | 
           style={{ width, height }}
         >
           <motion.div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
-            }}
+            className="absolute inset-0 bg-gradient-shimmer"
             {...shimmerAnimation}
           />
           {withGrain && <GrainOverlay />}
@@ -171,7 +167,7 @@ const SingleSkeleton = forwardRef<HTMLDivElement, Omit<SkeletonProps, "count" | 
             width,
             height,
             backgroundImage:
-              "linear-gradient(90deg, #e5e7eb 0%, #d1d5db 25%, #e5e7eb 50%, #d1d5db 75%, #e5e7eb 100%)",
+              "linear-gradient(90deg, var(--color-skeleton) 0%, var(--color-border-default) 25%, var(--color-skeleton) 50%, var(--color-border-default) 75%, var(--color-skeleton) 100%)",
             backgroundSize: "200% 100%",
           }}
           {...waveAnimation}
@@ -351,7 +347,7 @@ export function SkeletonCard({
   return (
     <div
       className={cn(
-        "bg-white rounded-xl border border-border-default overflow-hidden",
+        "bg-surface-primary rounded-xl border border-border-default overflow-hidden",
         className
       )}
     >
@@ -400,7 +396,7 @@ export function SkeletonMenuItem({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex items-center gap-4 p-4 bg-white rounded-xl border border-border-default",
+        "flex items-center gap-4 p-4 bg-surface-primary rounded-xl border border-border-default",
         className
       )}
     >

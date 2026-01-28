@@ -176,10 +176,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
             {/* Animated progress bar */}
             <div className="h-2 bg-surface-tertiary rounded-full overflow-hidden">
               <motion.div
-                className={cn(
-                  "h-full rounded-full",
-                  "bg-gradient-to-r from-amber-400 to-amber-500"
-                )}
+                className="h-full rounded-full bg-gradient-progress"
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPercent}%` }}
                 transition={getSpring(spring.rubbery)}

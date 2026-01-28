@@ -46,9 +46,8 @@ interface EmptyStateConfig {
   actionLabel?: string;
   actionHref?: string;
   isPositive?: boolean;
-  /** Gradient background colors for icon area */
-  gradientFrom?: string;
-  gradientTo?: string;
+  /** CSS variable-based gradient style for icon area */
+  gradientStyle: React.CSSProperties;
 }
 
 const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
@@ -58,16 +57,18 @@ const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     description: "Add some delicious items from our menu to fill it up!",
     actionLabel: "Browse Menu",
     actionHref: "/menu",
-    gradientFrom: "from-amber-400/20",
-    gradientTo: "to-orange-400/20",
+    gradientStyle: {
+      background: "linear-gradient(to bottom right, var(--color-secondary-light), var(--color-accent-orange-light))",
+    },
   },
   search: {
     icon: Search,
     title: "No results found",
     description: "Try different keywords or browse our categories",
     actionLabel: "Clear Search",
-    gradientFrom: "from-blue-400/20",
-    gradientTo: "to-purple-400/20",
+    gradientStyle: {
+      background: "linear-gradient(to bottom right, var(--color-accent-teal-light), var(--color-accent-magenta-light))",
+    },
   },
   orders: {
     icon: Receipt,
@@ -75,8 +76,9 @@ const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     description: "Your culinary journey awaits! Place your first order to begin.",
     actionLabel: "Start Your Journey",
     actionHref: "/menu",
-    gradientFrom: "from-emerald-400/20",
-    gradientTo: "to-teal-400/20",
+    gradientStyle: {
+      background: "linear-gradient(to bottom right, var(--color-accent-green-light), var(--color-accent-teal-light))",
+    },
   },
   favorites: {
     icon: Heart,
@@ -84,31 +86,35 @@ const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     description: "Tap the heart on items you love to save them here",
     actionLabel: "Discover favorites",
     actionHref: "/menu",
-    gradientFrom: "from-pink-400/20",
-    gradientTo: "to-rose-400/20",
+    gradientStyle: {
+      background: "linear-gradient(to bottom right, var(--color-accent-magenta-light), var(--color-primary-light))",
+    },
   },
   "driver-route": {
     icon: Calendar,
     title: "No route assigned today",
     description: "Check back later for your delivery assignments",
-    gradientFrom: "from-slate-400/20",
-    gradientTo: "to-zinc-400/20",
+    gradientStyle: {
+      background: "linear-gradient(to bottom right, var(--color-surface-tertiary), var(--color-surface-secondary))",
+    },
   },
   "admin-orders": {
     icon: Inbox,
     title: "No orders for this period",
     description: "Try adjusting your date filter to see more results",
     actionLabel: "Adjust filter",
-    gradientFrom: "from-violet-400/20",
-    gradientTo: "to-indigo-400/20",
+    gradientStyle: {
+      background: "linear-gradient(to bottom right, var(--color-accent-magenta-light), var(--color-primary-light))",
+    },
   },
   exceptions: {
     icon: CheckCircle,
     title: "No exceptions - all good!",
     description: "All deliveries are running smoothly",
     isPositive: true,
-    gradientFrom: "from-green-400/20",
-    gradientTo: "to-emerald-400/20",
+    gradientStyle: {
+      background: "linear-gradient(to bottom right, var(--color-accent-green-light), var(--color-status-success-bg))",
+    },
   },
 };
 
@@ -120,8 +126,7 @@ interface AnimatedIconProps {
   variant: EmptyStateVariant;
   Icon: LucideIcon;
   isPositive?: boolean;
-  gradientFrom?: string;
-  gradientTo?: string;
+  gradientStyle: React.CSSProperties;
   shouldAnimate: boolean;
 }
 
@@ -129,8 +134,7 @@ function AnimatedIcon({
   variant,
   Icon,
   isPositive,
-  gradientFrom,
-  gradientTo,
+  gradientStyle,
   shouldAnimate,
 }: AnimatedIconProps) {
   // Different animation patterns per variant
@@ -177,12 +181,8 @@ function AnimatedIcon({
     >
       {/* Gradient blob background */}
       <motion.div
-        className={cn(
-          "absolute inset-0 rounded-full blur-xl",
-          "bg-gradient-to-br",
-          gradientFrom,
-          gradientTo
-        )}
+        className="absolute inset-0 rounded-full blur-xl"
+        style={gradientStyle}
         animate={
           shouldAnimate
             ? {
@@ -321,8 +321,7 @@ export function EmptyState({
         variant={variant}
         Icon={Icon}
         isPositive={isPositive}
-        gradientFrom={config.gradientFrom}
-        gradientTo={config.gradientTo}
+        gradientStyle={config.gradientStyle}
         shouldAnimate={shouldAnimate}
       />
 

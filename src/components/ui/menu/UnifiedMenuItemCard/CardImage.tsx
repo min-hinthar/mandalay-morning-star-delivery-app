@@ -97,7 +97,7 @@ export function CardImage({
             className="object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-surface-secondary to-surface-tertiary">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-surface">
             <span className="text-5xl" role="img" aria-label={alt}>
               {getCategoryEmoji(categorySlug)}
             </span>
@@ -108,14 +108,8 @@ export function CardImage({
       {/* Shine overlay - follows mouse during hover */}
       {shouldAnimate && isHovered && (
         <motion.div
-          className={cn("absolute inset-0 pointer-events-none", zClass.cardShine)}
+          className={cn("absolute inset-0 pointer-events-none bg-gradient-card-shine", zClass.cardShine)}
           style={{
-            background: `linear-gradient(
-              135deg,
-              transparent 0%,
-              rgba(255, 255, 255, 0.15) 50%,
-              transparent 100%
-            )`,
             left: shineX,
             top: shineY,
           }}
@@ -127,7 +121,7 @@ export function CardImage({
       )}
 
       {/* Gradient overlay for better text contrast if needed */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
     </div>
   );
 }

@@ -110,7 +110,7 @@ export function useFlyToCart() {
         flyingEl.style.backgroundPosition = "center";
       } else {
         // Amber circle fallback
-        flyingEl.style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
+        flyingEl.style.background = "linear-gradient(135deg, var(--color-secondary), var(--color-accent-orange))";
       }
 
       document.body.appendChild(flyingEl);
