@@ -248,9 +248,8 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
               "w-48 py-1 rounded-xl",
               "bg-surface-primary",
               "border border-border",
-              // Gradient shadow per CONTEXT.md
-              "shadow-[0_4px_20px_-4px_rgba(164,16,52,0.15),0_2px_8px_rgba(0,0,0,0.08)]",
-              "dark:shadow-[0_4px_20px_-4px_rgba(245,158,11,0.15),0_2px_8px_rgba(0,0,0,0.3)]",
+              // Gradient shadow per CONTEXT.md (brand-tinted with depth)
+              "shadow-hint-md",
               zClass.popover
             )}
             role="menu"
