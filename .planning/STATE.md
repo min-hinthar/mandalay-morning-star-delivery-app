@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 27 in progress - Token enforcement for colors
+**Current focus:** Phase 28 in progress - Token enforcement for layout (typography/spacing)
 
 ## Current Position
 
-Phase: 27 (Token Enforcement - Colors)
-Plan: 4 of N in current phase
+Phase: 28 (Token Enforcement - Layout)
+Plan: 1 of 3 in current phase
 Status: In progress
-Last activity: 2026-01-28 - Completed 27-04-PLAN.md
+Last activity: 2026-01-28 - Completed 28-01-PLAN.md
 
-Progress: [████████████████████████████████████████░] v1.3 + Token Enforcement | 32/38+ plans
+Progress: [████████████████████████████████████████░] v1.3 + Token Enforcement | 33/38+ plans
 
 ## Milestones Completed
 
@@ -26,15 +26,15 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 27 plans complete
-**Phase 27 progress:** 4 plans complete
+**v1.3 progress:** 28 plans complete
+**Phase 28 progress:** 1 plan complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 96 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 97 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 26
+- v1.3 plans completed: 28
 
 **By Phase (v1.3):**
 
@@ -44,7 +44,8 @@ Progress: [███████████████████████
 | 26 | 8/8 | 136min | 17min |
 | 33 | 11/11 | 123min | 11.2min |
 | 34 | 8/8 | 40min | 5min |
-| 27 | 4/? | 64min | 16min |
+| 27 | 4/4 | 64min | 16min |
+| 28 | 1/3 | 5min | 5min |
 
 ## Accumulated Context
 
@@ -113,8 +114,10 @@ From `.planning/research/SUMMARY.md`:
 | Gradient utility classes in globals.css | 27-04 | Reusable theme-aware gradient patterns |
 | CSS variable inline styles for unique gradients | 27-04 | Theme-awareness without utility proliferation |
 | bg-gradient-avatar for user avatars | 27-04 | Unified avatar fallback look across components |
+| text-2xs token for 10px font size | 28-01 | Semantic alternative to text-[10px] |
+| ESLint rules for arbitrary px values | 28-01 | Enforce semantic tokens over hardcoded pixels |
 
-### Phase 27 Progress
+### Phase 27 Progress (Complete)
 
 **27-01 outcomes:**
 - Added overlay, skeleton, disabled, selection tokens to tokens.css
@@ -151,7 +154,17 @@ From `.planning/research/SUMMARY.md`:
 - Zero hardcoded Tailwind gradient colors remaining in migrated files
 - All gradients use CSS variables for automatic light/dark theme adaptation
 
-### Phase 33 Progress
+### Phase 28 Progress
+
+**28-01 outcomes:**
+- Added text-2xs token to tokens.css (0.625rem / 10px with line-height 1.4)
+- Mapped text-2xs utility in tailwind.config.ts with CSS variable references
+- Added ESLint rules catching arbitrary font sizes (text-[Npx])
+- Added ESLint rules catching arbitrary margin/padding/gap values (m-[Npx], p-[Npx], gap-[Npx])
+- Added ESLint rules for inline fontSize and fontWeight in style objects
+- Infrastructure ready for typography/spacing migration in 28-02 and 28-03
+
+### Phase 33 Progress (Complete)
 
 **33-02 outcomes:**
 - scroll/ directory merged into ui/scroll/
@@ -218,7 +231,7 @@ From `.planning/research/SUMMARY.md`:
 
 None.
 
-### Phase 34 Progress
+### Phase 34 Progress (Complete)
 
 **34-01 outcomes:**
 - Created src/lib/design-system/tokens/ directory structure
@@ -267,10 +280,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Phase 27 Plan 04 complete - gradients migrated to CSS variables
+Stopped at: Phase 28 Plan 01 complete - token foundation and ESLint rules added
 Resume file: None
-Next action: Continue Phase 27 (Plan 05 if needed for remaining color migrations)
+Next action: Continue Phase 28 (Plan 02 - typography token migration)
 
 ---
 
-*Updated: 2026-01-28 - Phase 27 Plan 04 complete (gradient token migration)*
+*Updated: 2026-01-28 - Phase 28 Plan 01 complete (token foundation and layout enforcement)*
