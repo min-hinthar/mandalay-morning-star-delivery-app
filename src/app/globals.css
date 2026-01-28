@@ -377,6 +377,143 @@
     animation-delay: 0.5s;
   }
 
+  /* ============================================
+     GRADIENT UTILITIES
+     Theme-aware gradients using CSS variables
+     ============================================ */
+
+  /* Hero gradient - uses hero tokens from tokens.css */
+  .bg-gradient-hero {
+    background: linear-gradient(
+      180deg,
+      var(--hero-gradient-start) 0%,
+      var(--hero-gradient-mid) 50%,
+      var(--hero-gradient-end) 100%
+    );
+  }
+
+  /* Surface gradient - subtle depth for cards */
+  .bg-gradient-surface {
+    background: linear-gradient(
+      to bottom,
+      var(--color-surface-primary) 0%,
+      var(--color-surface-secondary) 100%
+    );
+  }
+
+  /* Primary gradient - for CTAs and highlights */
+  .bg-gradient-primary {
+    background: linear-gradient(
+      135deg,
+      var(--color-primary) 0%,
+      var(--color-primary-hover) 100%
+    );
+  }
+
+  /* Shimmer gradient - for loading states */
+  .bg-gradient-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-skeleton-shimmer),
+      transparent
+    );
+  }
+
+  /* Overlay gradient - for image overlays */
+  .bg-gradient-overlay {
+    background: linear-gradient(
+      to top,
+      var(--color-overlay-heavy) 0%,
+      transparent 100%
+    );
+  }
+
+  /* Card shine gradient - subtle highlight effect */
+  .bg-gradient-card-shine {
+    background: linear-gradient(
+      135deg,
+      transparent 0%,
+      var(--color-surface-elevated) 50%,
+      transparent 100%
+    );
+  }
+
+  /* Status gradients */
+  .bg-gradient-success {
+    background: linear-gradient(
+      135deg,
+      var(--color-status-success) 0%,
+      var(--color-accent-green-hover) 100%
+    );
+  }
+
+  /* Progress bar gradient - amber to orange */
+  .bg-gradient-progress {
+    background: linear-gradient(
+      to right,
+      var(--color-secondary) 0%,
+      var(--color-accent-orange) 100%
+    );
+  }
+
+  /* Free delivery progress track gradient */
+  .bg-gradient-delivery-track {
+    background: linear-gradient(
+      to right,
+      var(--color-secondary-light) 0%,
+      var(--color-accent-orange-light) 100%
+    );
+  }
+
+  /* Free delivery achieved banner gradient */
+  .bg-gradient-delivery-success {
+    background: linear-gradient(
+      to bottom right,
+      var(--color-accent-green-light) 0%,
+      var(--color-status-success-bg) 100%
+    );
+  }
+
+  /* Cart summary card gradient */
+  .bg-gradient-cart-summary {
+    background: linear-gradient(
+      to bottom right,
+      var(--color-secondary-light) 0%,
+      var(--color-accent-orange-light) 100%
+    );
+  }
+
+  /* Swipe delete indicator gradient */
+  .bg-gradient-delete {
+    background: linear-gradient(
+      to left,
+      var(--color-status-error-bg) 0%,
+      transparent 100%
+    );
+  }
+
+  /* Text gradient for special headings */
+  .text-gradient-primary {
+    background: linear-gradient(
+      90deg,
+      var(--color-primary) 0%,
+      var(--color-secondary) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Avatar gradient - theme-aware fallback */
+  .bg-gradient-avatar {
+    background: linear-gradient(
+      to bottom right,
+      var(--color-secondary) 0%,
+      var(--color-primary) 100%
+    );
+  }
+
   /* Reduce motion preference */
   @media (prefers-reduced-motion: reduce) {
     .bg-gradient-animated,
