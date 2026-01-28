@@ -5,11 +5,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { ArrowRight, ChefHat, Clock, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import {
-  spring,
-  staggerContainer,
-  parallaxPresets,
-} from "@/lib/motion-tokens";
+import { spring, staggerContainer, parallaxPresets } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useDynamicTheme } from "@/components/ui/theme";
 import { Button } from "@/components/ui/button";
