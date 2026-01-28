@@ -45,7 +45,7 @@ const Checkbox = React.forwardRef<
     >
       <CheckboxPrimitive.Indicator asChild>
         <motion.span
-          className="flex items-center justify-center text-white"
+          className="flex items-center justify-center text-text-inverse"
           initial={shouldAnimate ? { scale: 0.5 } : undefined}
           animate={shouldAnimate ? { scale: 1 } : undefined}
           transition={

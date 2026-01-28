@@ -372,7 +372,7 @@ export function Modal({
             onClick={handleBackdropClick}
             className={cn(
               "fixed inset-0",
-              "bg-[rgba(26,26,26,0.5)] backdrop-blur-sm",
+              "bg-overlay backdrop-blur-sm",
               backdropClassName
             )}
             aria-hidden="true"
@@ -703,13 +703,13 @@ export function ConfirmModal({
               variant === "danger"
                 ? [
                     "bg-[var(--color-status-error,#C45C4A)]",
-                    "text-white",
+                    "text-text-inverse",
                     "hover:bg-[var(--color-accent-tertiary,#b54a3a)]",
                     "focus-visible:ring-[var(--color-status-error,#C45C4A)]",
                   ]
                 : [
                     "bg-[var(--color-interactive-primary,#D4A853)]",
-                    "text-white",
+                    "text-text-inverse",
                     "hover:bg-[var(--color-interactive-hover,#C49843)]",
                     "focus-visible:ring-[var(--color-interactive-primary,#D4A853)]",
                   ]
