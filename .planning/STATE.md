@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 31 Hero Redesign in progress
+**Current focus:** Phase 31 Hero Redesign complete
 
 ## Current Position
 
-Phase: 31 (Hero Redesign) - IN PROGRESS
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-01-28 - Completed 31-04-PLAN.md (theme transitions & polish)
+Phase: 31 (Hero Redesign) - COMPLETE
+Plan: 5 of 5 in current phase
+Status: Phase complete
+Last activity: 2026-01-28 - Completed 31-05-PLAN.md (final polish)
 
-Progress: [████████████████████████████████████████████████░] v1.3 | 49/50 plans
+Progress: [██████████████████████████████████████████████████] v1.3 | 50/50 plans
 
 ## Milestones Completed
 
@@ -26,15 +26,15 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 50 plans estimated
-**v1.3 progress:** 44 plans complete
-**Phase 31 progress:** 4 of 5 plans complete
+**v1.3 progress:** 50 plans complete (v1.3 COMPLETE)
+**Phase 31 progress:** 5 of 5 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 112 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 118 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 44
+- v1.3 plans completed: 50
 
 **By Phase (v1.3):**
 
@@ -48,7 +48,7 @@ Progress: [███████████████████████
 | 28 | 3/3 | 18min | 6min |
 | 29 | 6/6 | 48min | 8min |
 | 30 | 2/2 | 43min | 21.5min |
-| 31 | 4/5 | 35min | 8.75min |
+| 31 | 5/5 | 40min | 8min |
 
 ## Accumulated Context
 
@@ -156,6 +156,9 @@ From `.planning/research/SUMMARY.md`:
 | 300ms theme transition | 31-04 | Matches motion tokens, fast but visible |
 | CTA gradient shift on hover | 31-04 | from-secondary to from-secondary-hover pattern |
 | Ring-2 glow on CTA hover | 31-04 | Secondary/30 provides soft highlight |
+| Tagline default "Authentic Burmese delivered" | 31-05 | Concise brand tagline below headline |
+| ChevronDown for scroll indicator | 31-05 | Consistency with lucide-react icons |
+| Scroll indicator gap-1 (not gap-2) | 31-05 | Tighter vertical spacing for polish |
 
 ### Phase 27 Progress (Complete)
 
@@ -431,7 +434,7 @@ None.
 - All must-haves validated against codebase
 - MOBL-01, MOBL-02, MOBL-03 requirements complete
 
-### Phase 31 Progress
+### Phase 31 Progress (Complete)
 
 **31-01 outcomes:**
 - Added hero gradient tokens (--hero-bg-start/mid/end, --hero-shimmer)
@@ -451,13 +454,22 @@ None.
 - CTA button enhanced: scale(1.05) + y(-2) lift + shadow-xl + ring glow on hover
 - CTA sweep animation extended to 2.5s duration with 200% travel
 
+**31-05 outcomes:**
+- Tagline "Authentic Burmese delivered" renders below headline with 0.5s fade
+- Scroll indicator uses ChevronDown with bounce animation
+- Scroll indicator has onClick for smooth scroll to how-it-works
+- Accessibility: role="button" and aria-label on scroll indicator
+- Zero legacy --hero-gradient-* tokens (verified via grep)
+- All hero gradients use --hero-bg-* semantic tokens
+- All HERO-01 through HERO-07 requirements complete
+
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Completed 31-04-PLAN.md (theme transitions & polish)
+Stopped at: Completed 31-05-PLAN.md (final polish) - Phase 31 COMPLETE
 Resume file: None
-Next action: Execute 31-05-PLAN.md (final verification)
+Next action: v1.3 milestone complete - all 50 plans executed
 
 ---
 
-*Updated: 2026-01-28 - Completed 31-04-PLAN.md*
+*Updated: 2026-01-28 - Completed 31-05-PLAN.md, Phase 31 complete, v1.3 milestone complete*
