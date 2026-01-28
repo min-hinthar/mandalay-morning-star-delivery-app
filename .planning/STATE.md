@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 31 (Hero Redesign) - IN PROGRESS
-Plan: 2 of 5 in current phase
+Plan: 3 of 5 in current phase
 Status: In progress
-Last activity: 2026-01-28 - Completed 31-02-PLAN.md (hero layout restructure)
+Last activity: 2026-01-28 - Completed 31-03-PLAN.md (floating emojis & gradient orbs)
 
-Progress: [██████████████████████████████████████████████░░░] v1.3 | 47/50 plans
+Progress: [███████████████████████████████████████████████░░] v1.3 | 48/50 plans
 
 ## Milestones Completed
 
@@ -26,15 +26,15 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 50 plans estimated
-**v1.3 progress:** 42 plans complete
-**Phase 31 progress:** 2 of 5 plans complete
+**v1.3 progress:** 43 plans complete
+**Phase 31 progress:** 3 of 5 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 111 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 112 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 42
+- v1.3 plans completed: 43
 
 **By Phase (v1.3):**
 
@@ -48,7 +48,7 @@ Progress: [███████████████████████
 | 28 | 3/3 | 18min | 6min |
 | 29 | 6/6 | 48min | 8min |
 | 30 | 2/2 | 43min | 21.5min |
-| 31 | 2/5 | 13min | 6.5min |
+| 31 | 3/5 | 26min | 8.7min |
 
 ## Accumulated Context
 
@@ -149,6 +149,9 @@ From `.planning/research/SUMMARY.md`:
 | BrandMascot removed from Hero | 31-02 | Floating emojis replace it per CONTEXT.md |
 | Hero uses 4-layer parallax structure | 31-02 | orbs-far(z1), orbs-mid(z2), emojis(z3), content(z4) |
 | Parallax speeds from motion-tokens | 31-02 | far(25%), mid(40%), near(60%), content(15%) |
+| EMOJI_CONFIG deterministic positions | 31-03 | No Math.random for SSR/CSR hydration consistency |
+| Three emoji animation types | 31-03 | drift, spiral, bob for organic mixed movement |
+| Mouse repel max 20px desktop-only | 31-03 | useCanHover prevents touch device activation |
 
 ### Phase 27 Progress (Complete)
 
@@ -438,10 +441,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Completed 31-02-PLAN.md (hero layout restructure)
+Stopped at: Completed 31-03-PLAN.md (floating emojis & gradient orbs)
 Resume file: None
-Next action: Execute 31-03-PLAN.md (orbs and emojis components)
+Next action: Execute 31-04-PLAN.md (shimmer effects and polish)
 
 ---
 
-*Updated: 2026-01-28 - Completed 31-02-PLAN.md*
+*Updated: 2026-01-28 - Completed 31-03-PLAN.md*
