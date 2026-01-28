@@ -157,7 +157,7 @@ export function CategoryTabs({
   return (
     <div
       className={cn(
-        "sticky top-[72px] z-20",
+        "sticky top-[var(--tabs-offset)] z-20",
         "bg-surface-primary/95 backdrop-blur-lg",
         "border-b border-border-subtle",
         className
