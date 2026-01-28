@@ -291,7 +291,7 @@ export function CartBar({
                   className={cn(
                     "absolute -top-1 -right-1",
                     "flex h-5 min-w-5 items-center justify-center px-1",
-                    "rounded-full bg-amber-500 text-[10px] font-bold text-text-inverse",
+                    "rounded-full bg-amber-500 text-2xs font-bold text-text-inverse",
                     "shadow-sm"
                   )}
                 >
