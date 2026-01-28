@@ -158,7 +158,7 @@ export function CategoryTabs({
     <div
       className={cn(
         "sticky top-[var(--tabs-offset)] z-20",
-        "bg-surface-primary/95 backdrop-blur-lg",
+        "bg-surface-primary/80 dark:bg-gray-900/75 backdrop-blur-3xl",
         "border-b border-border-subtle",
         className
       )}
@@ -168,7 +168,7 @@ export function CategoryTabs({
         <div
           className={cn(
             "absolute left-0 top-0 bottom-0 w-8 z-0",
-            "bg-gradient-to-r from-surface-primary/95 to-transparent",
+            "bg-gradient-to-r from-surface-primary/80 to-transparent",
             "pointer-events-none"
           )}
           aria-hidden="true"
@@ -235,7 +235,7 @@ export function CategoryTabs({
         <div
           className={cn(
             "absolute right-0 top-0 bottom-0 w-8 z-0",
-            "bg-gradient-to-l from-surface-primary/95 to-transparent",
+            "bg-gradient-to-l from-surface-primary/80 to-transparent",
             "pointer-events-none"
           )}
           aria-hidden="true"

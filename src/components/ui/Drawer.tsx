@@ -246,7 +246,7 @@ export function Drawer({
             className={cn(
               "fixed z-50",
               // Glassmorphism matching CartBar
-              "bg-surface-primary/95 dark:bg-gray-900/95 backdrop-blur-lg",
+              "bg-surface-primary/80 dark:bg-gray-900/75 backdrop-blur-3xl border border-white/20 dark:border-white/10",
               "shadow-xl",
               "outline-none",
               // Side drawer styles

@@ -234,8 +234,7 @@ export function CartBar({
           style={{ zIndex: zIndex.fixed }}
           className={cn(
             "fixed bottom-0 left-0 right-0",
-            "bg-surface-primary/95 dark:bg-gray-900/95 backdrop-blur-lg",
-            "border-t border-border dark:border-gray-800",
+            "bg-surface-primary/80 dark:bg-gray-900/75 backdrop-blur-3xl border-t border-white/20 dark:border-white/10",
             "shadow-nav-top",
             "rounded-t-2xl",
             // iOS safe area
