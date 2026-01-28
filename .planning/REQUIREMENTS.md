@@ -9,24 +9,24 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Token Enforcement - Colors
 
-- [ ] **TOKN-01**: All `text-white` replaced with semantic tokens (`text-text-inverse`, `text-hero-text`, etc.)
-- [ ] **TOKN-02**: All `text-black` replaced with semantic tokens (`text-text-primary`, etc.)
-- [ ] **TOKN-03**: All `bg-white` replaced with semantic tokens (`bg-surface-primary`, etc.)
-- [ ] **TOKN-04**: All `bg-black` replaced with semantic tokens (`bg-surface-inverse`, etc.)
-- [ ] **TOKN-05**: All hardcoded hex colors use token equivalents
-- [ ] **TOKN-06**: All gradient definitions use theme-aware CSS variables
+- [x] **TOKN-01**: All `text-white` replaced with semantic tokens (`text-text-inverse`, `text-hero-text`, etc.)
+- [x] **TOKN-02**: All `text-black` replaced with semantic tokens (`text-text-primary`, etc.)
+- [x] **TOKN-03**: All `bg-white` replaced with semantic tokens (`bg-surface-primary`, etc.)
+- [x] **TOKN-04**: All `bg-black` replaced with semantic tokens (`bg-surface-inverse`, etc.)
+- [x] **TOKN-05**: All hardcoded hex colors use token equivalents
+- [x] **TOKN-06**: All gradient definitions use theme-aware CSS variables
 
 ### Token Enforcement - Spacing & Layout
 
-- [ ] **TOKN-07**: All hardcoded pixel values for spacing use Tailwind spacing scale
-- [ ] **TOKN-08**: All hardcoded margin/padding use design system spacing tokens
-- [ ] **TOKN-09**: Consistent border-radius using design system tokens
+- [x] **TOKN-07**: All hardcoded pixel values for spacing use Tailwind spacing scale
+- [x] **TOKN-08**: All hardcoded margin/padding use design system spacing tokens
+- [x] **TOKN-09**: Consistent border-radius using design system tokens
 
 ### Token Enforcement - Typography
 
-- [ ] **TOKN-10**: All font-size uses Tailwind typography scale (no hardcoded px)
-- [ ] **TOKN-11**: All font-weight uses semantic tokens (font-normal, font-medium, font-bold)
-- [ ] **TOKN-12**: All line-height uses design system tokens
+- [x] **TOKN-10**: All font-size uses Tailwind typography scale (no hardcoded px)
+- [x] **TOKN-11**: All font-weight uses semantic tokens (font-normal, font-medium, font-bold)
+- [x] **TOKN-12**: All line-height uses design system tokens
 
 ### Token Enforcement - Effects & Shadows
 
@@ -36,18 +36,18 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Token Enforcement - Infrastructure
 
-- [ ] **TOKN-16**: ESLint rules extended to catch all hardcoded style violations
-- [ ] **TOKN-17**: Automated audit script detects design token regressions
+- [x] **TOKN-16**: ESLint rules extended to catch all hardcoded style violations
+- [x] **TOKN-17**: Automated audit script detects design token regressions
 - [ ] **TOKN-18**: Token documentation with visual examples for each category
 
 ### Component Consolidation
 
-- [ ] **COMP-01**: V7 naming remnants cleaned up (v7Palettes renamed to palettes, etc.)
-- [ ] **COMP-02**: `ui-v8/` components merged into `ui/` directory
-- [ ] **COMP-03**: All imports updated to use unified `ui/` path
-- [ ] **COMP-04**: Duplicate overlay components removed (single Modal, BottomSheet, Drawer)
-- [ ] **COMP-05**: Tooltip component unified (single implementation)
-- [ ] **COMP-06**: Toast component unified (single implementation)
+- [x] **COMP-01**: V7 naming remnants cleaned up (v7Palettes renamed to palettes, etc.)
+- [x] **COMP-02**: `ui-v8/` components merged into `ui/` directory
+- [x] **COMP-03**: All imports updated to use unified `ui/` path
+- [x] **COMP-04**: Duplicate overlay components removed (single Modal, BottomSheet, Drawer)
+- [x] **COMP-05**: Tooltip component unified (single implementation)
+- [x] **COMP-06**: Toast component unified (single implementation)
 
 ### Mobile Stability
 
@@ -102,30 +102,30 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TOKN-01 | Phase 27 | Pending |
-| TOKN-02 | Phase 27 | Pending |
-| TOKN-03 | Phase 27 | Pending |
-| TOKN-04 | Phase 27 | Pending |
-| TOKN-05 | Phase 27 | Pending |
-| TOKN-06 | Phase 27 | Pending |
-| TOKN-07 | Phase 28 | Pending |
-| TOKN-08 | Phase 28 | Pending |
-| TOKN-09 | Phase 28 | Pending |
-| TOKN-10 | Phase 28 | Pending |
-| TOKN-11 | Phase 28 | Pending |
-| TOKN-12 | Phase 28 | Pending |
+| TOKN-01 | Phase 27 | Complete |
+| TOKN-02 | Phase 27 | Complete |
+| TOKN-03 | Phase 27 | Complete |
+| TOKN-04 | Phase 27 | Complete |
+| TOKN-05 | Phase 27 | Complete |
+| TOKN-06 | Phase 27 | Complete |
+| TOKN-07 | Phase 28 | Complete |
+| TOKN-08 | Phase 28 | Complete |
+| TOKN-09 | Phase 28 | Complete |
+| TOKN-10 | Phase 28 | Complete |
+| TOKN-11 | Phase 28 | Complete |
+| TOKN-12 | Phase 28 | Complete |
 | TOKN-13 | Phase 29 | Pending |
 | TOKN-14 | Phase 29 | Pending |
 | TOKN-15 | Phase 29 | Pending |
 | TOKN-16 | Phase 25 | Complete |
 | TOKN-17 | Phase 25 | Complete |
 | TOKN-18 | Phase 32 | Pending |
-| COMP-01 | Phase 26 | Pending |
-| COMP-02 | Phase 26 | Pending |
-| COMP-03 | Phase 26 | Pending |
-| COMP-04 | Phase 26 | Pending |
-| COMP-05 | Phase 26 | Pending |
-| COMP-06 | Phase 26 | Pending |
+| COMP-01 | Phase 26 | Complete |
+| COMP-02 | Phase 26 | Complete |
+| COMP-03 | Phase 26 | Complete |
+| COMP-04 | Phase 26 | Complete |
+| COMP-05 | Phase 26 | Complete |
+| COMP-06 | Phase 26 | Complete |
 | MOBL-01 | Phase 30 | Pending |
 | MOBL-02 | Phase 30 | Pending |
 | MOBL-03 | Phase 30 | Pending |
