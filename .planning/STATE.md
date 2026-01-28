@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 29 complete - ready for Phase 30 Mobile Stability
+**Current focus:** Phase 30 Mobile Stability in progress
 
 ## Current Position
 
-Phase: 29 (Token Enforcement - Effects) - COMPLETE
-Plan: 6 of 6 in current phase
-Status: Phase complete
-Last activity: 2026-01-28 - Completed 29-06 (CSS transition tokenization + FM documentation)
+Phase: 30 (Mobile Stability)
+Plan: 1 of ? in current phase
+Status: In progress
+Last activity: 2026-01-28 - Completed 30-01 (Touch device detection + tilt fallbacks)
 
-Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 43/43+ plans
+Progress: [█████████████████████████████████████████░] v1.3 + Mobile Stability | 44/45+ plans
 
 ## Milestones Completed
 
@@ -26,15 +26,15 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 38 plans complete
-**Phase 29 progress:** 6 plans complete (PHASE COMPLETE)
+**v1.3 progress:** 39 plans complete
+**Phase 30 progress:** 1 plan complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 107 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 108 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 38
+- v1.3 plans completed: 39
 
 **By Phase (v1.3):**
 
@@ -47,6 +47,7 @@ Progress: [███████████████████████
 | 27 | 6/6+ | 73min | 12.2min |
 | 28 | 3/3 | 18min | 6min |
 | 29 | 6/6 | 48min | 8min |
+| 30 | 1/? | 17min | 17min |
 
 ## Accumulated Context
 
@@ -138,6 +139,9 @@ From `.planning/research/SUMMARY.md`:
 | AppHeader uses blur(var(--blur-2xl)) | 29-05 | Consistent with CommandPalette glass pattern |
 | CSS transitions use --duration-slow --ease-out | 29-06 | 0.3s mapped to closest token (350ms) |
 | FM durations documented not changed | 29-06 | Spring physics requires numeric values |
+| (hover: hover) and (pointer: fine) for touch detection | 30-01 | Matches CSS media query for JS/CSS consistency |
+| Static touch detection at mount | 30-01 | No runtime switching per CONTEXT.md |
+| Shadow elevation + lift for touch tap feedback | 30-01 | Preserves delight without 3D tilt complexity |
 
 ### Phase 27 Progress (Complete)
 
@@ -390,13 +394,23 @@ None.
 - ROADMAP.md updated: Phase 29 marked complete (6/6 plans)
 - Phase 29 complete: All shadows, blur, and motion timing use design system tokens
 
+### Phase 30 Progress (Mobile Stability)
+
+**30-01 outcomes:**
+- Updated useCanHover to use `(hover: hover) and (pointer: fine)` media query
+- Added touch fallback CSS utilities: shine-sweep, touch-only, tilt-safari-fix, tilt-container, glass-safari-fix
+- UnifiedMenuItemCard now uses canHover to disable tilt on touch-only devices
+- Added TOUCH_TAP_VARIANTS with shadow elevation + lift feedback for touch devices
+- CardImage already had shine-sweep for touch devices (from prior 30-02 work)
+- All changes pass typecheck and build
+
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Completed 29-06 (Phase 29 complete)
+Stopped at: Completed 30-01 (Touch device detection + tilt fallbacks)
 Resume file: None
-Next action: Execute Phase 30 (Mobile Stability) when ready
+Next action: Execute Phase 30-02+ when ready
 
 ---
 
-*Updated: 2026-01-28 - Completed Phase 29 (Token Enforcement - Effects)*
+*Updated: 2026-01-28 - Completed 30-01 (Touch device detection)*
