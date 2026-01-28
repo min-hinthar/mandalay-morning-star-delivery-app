@@ -31,8 +31,8 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Portal } from "./Portal";
 import { useRouteChangeClose, useBodyScrollLock } from "@/lib/hooks";
 import { useSwipeToClose, triggerHaptic } from "@/lib/swipe-gestures";
-import { zIndex } from "@/design-system/tokens/z-index";
-import { overlayMotion } from "@/design-system/tokens/motion";
+import { zIndex } from "@/lib/design-system/tokens/z-index";
+import { overlayMotion } from "@/lib/design-system/tokens/motion";
 import { cn } from "@/lib/utils/cn";
 
 // ============================================
