@@ -8,6 +8,24 @@
  * - Faster durations for 120fps smoothness
  * - Bounce and overshoot encouraged
  *
+ * DESIGN SYSTEM INTEGRATION:
+ * Framer Motion requires NUMERIC durations for spring physics interpolation.
+ * CSS variables (var(--duration-*)) cannot be used directly in FM transitions.
+ *
+ * Token Mapping (FM numeric -> CSS variable equivalent):
+ * - micro (0.08s = 80ms)    -> ~instant (0ms) / fast (150ms)
+ * - fast (0.12s = 120ms)    -> duration-fast (150ms)
+ * - normal (0.18s = 180ms)  -> ~duration-normal (220ms)
+ * - slow (0.28s = 280ms)    -> ~duration-slow (350ms)
+ * - dramatic (0.4s = 400ms) -> ~duration-slower (500ms)
+ * - epic (0.6s = 600ms)     -> beyond tokens (custom)
+ *
+ * Note: FM durations are intentionally faster than CSS tokens for
+ * the playful, snappy feel of the v7 design language. Spring physics
+ * with proper stiffness/damping provides natural deceleration.
+ *
+ * For CSS-only animations, use the tokens.css variables directly.
+ *
  * @example
  * import { spring, variants, hover } from '@/lib/motion-tokens-v7';
  * <motion.div {...hover.lift} variants={variants.popIn} />
@@ -20,17 +38,17 @@ import type { Variants, Transition, TargetAndTransition } from "framer-motion";
 // ============================================
 
 export const duration = {
-  /** Micro-interactions: toggles, taps */
+  /** Micro-interactions: toggles, taps. CSS equivalent: var(--duration-instant) at 0ms, this is ~80ms */
   micro: 0.08,
-  /** Fast interactions: buttons, links */
+  /** Fast interactions: buttons, links. CSS equivalent: var(--duration-fast) at 150ms, this is ~120ms */
   fast: 0.12,
-  /** Normal transitions: most animations */
+  /** Normal transitions: most animations. CSS equivalent: var(--duration-normal) at 220ms, this is ~180ms */
   normal: 0.18,
-  /** Slow transitions: emphasis, reveals */
+  /** Slow transitions: emphasis, reveals. CSS equivalent: var(--duration-slow) at 350ms, this is ~280ms */
   slow: 0.28,
-  /** Dramatic moments: celebrations, hero */
+  /** Dramatic moments: celebrations, hero. CSS equivalent: var(--duration-slower) at 500ms, this is ~400ms */
   dramatic: 0.4,
-  /** Extra slow: special effects */
+  /** Extra slow: special effects. CSS equivalent: beyond standard tokens (~600ms) */
   epic: 0.6,
 } as const;
 
