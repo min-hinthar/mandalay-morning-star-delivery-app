@@ -102,6 +102,12 @@
   --hero-overlay: rgba(0, 0, 0, 0.6);
   --hero-stat-bg: rgba(255, 255, 255, 0.1);
 
+  /* Hero redesign - warm saffron-to-cream gradient (Phase 31) */
+  --hero-bg-start: #EBCD00;                     /* Saffron yellow */
+  --hero-bg-mid: #F5E6A3;                       /* Soft golden transition */
+  --hero-bg-end: #FFFBF5;                       /* Warm cream */
+  --hero-shimmer: rgba(255, 255, 255, 0.4);     /* Light shimmer */
+
   /* ===========================================
      INTERACTIVE ALIASES
      Semantic interactive color tokens
@@ -581,6 +587,12 @@
   --hero-text-muted: rgba(255, 255, 255, 0.75);
   --hero-overlay: rgba(0, 0, 0, 0.5);
   --hero-stat-bg: rgba(255, 255, 255, 0.12);
+
+  /* Hero redesign - black-to-saffron-glow gradient (Phase 31) */
+  --hero-bg-start: #0a0a0a;                     /* Rich black */
+  --hero-bg-mid: #1a1205;                       /* Deep warm black */
+  --hero-bg-end: rgba(235, 205, 0, 0.08);       /* Subtle saffron glow */
+  --hero-shimmer: rgba(255, 224, 102, 0.15);    /* Golden shimmer */
 
   /* ===========================================
      INTERACTIVE ALIASES (Dark Mode)
