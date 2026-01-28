@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 27 (Token Enforcement - Colors)
-Plan: 3 of N in current phase
+Plan: 4 of N in current phase
 Status: In progress
-Last activity: 2026-01-28 - Completed 27-03-PLAN.md
+Last activity: 2026-01-28 - Completed 27-04-PLAN.md
 
-Progress: [████████████████████████████████████████░] v1.3 + Token Enforcement | 31/38+ plans
+Progress: [████████████████████████████████████████░] v1.3 + Token Enforcement | 32/38+ plans
 
 ## Milestones Completed
 
@@ -26,8 +26,8 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 26 plans complete
-**Phase 27 progress:** 3 plans complete
+**v1.3 progress:** 27 plans complete
+**Phase 27 progress:** 4 plans complete
 
 ## Performance Metrics
 
@@ -44,7 +44,7 @@ Progress: [███████████████████████
 | 26 | 8/8 | 136min | 17min |
 | 33 | 11/11 | 123min | 11.2min |
 | 34 | 8/8 | 40min | 5min |
-| 27 | 3/? | 48min | 16min |
+| 27 | 4/? | 64min | 16min |
 
 ## Accumulated Context
 
@@ -110,6 +110,9 @@ From `.planning/research/SUMMARY.md`:
 | bg-overlay-heavy for sold-out overlays | 27-02 | Theme-aware overlay for sold-out states |
 | ESLint disable for PhotoCapture camera UI | 27-03 | Intentionally dark for camera viewfinder |
 | ESLint disable for DriverLayout high-contrast | 27-03 | WCAG accessibility for drivers in sunlight |
+| Gradient utility classes in globals.css | 27-04 | Reusable theme-aware gradient patterns |
+| CSS variable inline styles for unique gradients | 27-04 | Theme-awareness without utility proliferation |
+| bg-gradient-avatar for user avatars | 27-04 | Unified avatar fallback look across components |
 
 ### Phase 27 Progress
 
@@ -137,6 +140,16 @@ From `.planning/research/SUMMARY.md`:
 - Tracking migrated: DriverCard, SupportActions, TrackingPageClient, OrderSummary
 - Auth migrated: AuthModal, WelcomeAnimation, MagicLinkSent, LoginForm, OnboardingTour
 - Zero text-white/text-black/bg-white/bg-black violations in admin, driver, layout, tracking, auth components (except documented exemptions)
+
+**27-04 outcomes:**
+- Created 14 gradient utility classes in globals.css (bg-gradient-hero, bg-gradient-primary, bg-gradient-progress, etc.)
+- Cart components migrated: CartBar, CartItem, CartSummary, FlyToCart, CartEmptyState
+- Menu/skeleton components migrated: skeleton.tsx, EmptyState.tsx, CardImage.tsx, CheckoutSummaryV8
+- Auth components migrated: AuthModal, MagicLinkSent, OnboardingTour, WelcomeAnimation
+- Layout components migrated: AccountIndicator, AppHeader, DrawerUserSection
+- Admin components migrated: MetricCard, DriverListTable
+- Zero hardcoded Tailwind gradient colors remaining in migrated files
+- All gradients use CSS variables for automatic light/dark theme adaptation
 
 ### Phase 33 Progress
 
@@ -254,10 +267,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Phase 27 Plan 03 complete - admin, driver, layout, tracking, auth migrated
+Stopped at: Phase 27 Plan 04 complete - gradients migrated to CSS variables
 Resume file: None
-Next action: Continue Phase 27 (Plan 04 if needed for remaining component migrations)
+Next action: Continue Phase 27 (Plan 05 if needed for remaining color migrations)
 
 ---
 
-*Updated: 2026-01-28 - Phase 27 Plan 03 complete (admin, driver, layout, tracking, auth migrated)*
+*Updated: 2026-01-28 - Phase 27 Plan 04 complete (gradient token migration)*
