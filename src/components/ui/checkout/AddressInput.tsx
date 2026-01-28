@@ -418,10 +418,10 @@ export function AddressAutocomplete({
       <motion.div
         animate={isFocused && shouldAnimate ? {
           scale: 1.01,
-          boxShadow: "0 0 0 3px rgba(164, 16, 52, 0.1)",
+          boxShadow: "var(--shadow-focus)",
         } : {
           scale: 1,
-          boxShadow: "0 0 0 0px rgba(164, 16, 52, 0)",
+          boxShadow: "var(--shadow-none)",
         }}
         transition={getSpring(spring.snappy)}
         className="relative"

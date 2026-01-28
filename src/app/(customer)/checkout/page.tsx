@@ -24,6 +24,9 @@ import type { CheckoutStep } from "@/types/checkout";
  * - Backward (-1): current slides right, new slides from left
  * - Scale morph gives premium feel to transitions
  * - Subtle glow enhances visual interest
+ *
+ * Note: boxShadow values are ~--shadow-glow-primary equivalent,
+ * kept numeric for Framer Motion interpolation between states.
  */
 const stepVariants = {
   initial: (direction: number) => ({
@@ -35,7 +38,7 @@ const stepVariants = {
     opacity: 1,
     x: 0,
     scale: 1,
-    boxShadow: "0 0 30px rgba(164, 16, 52, 0.08)",
+    boxShadow: "0 0 30px rgba(164, 16, 52, 0.08)", // ~--shadow-glow-primary light
   },
   exit: (direction: number) => ({
     opacity: 0,

@@ -102,6 +102,7 @@ function StepIndicator({
                     ? "bg-primary-light border-primary text-primary"
                     : "bg-surface-secondary border-border text-text-muted"
                 )}
+                // Pulsing ring animation - --shadow-focus equivalent, kept numeric for FM interpolation
                 animate={
                   isCurrent && shouldAnimate
                     ? {
