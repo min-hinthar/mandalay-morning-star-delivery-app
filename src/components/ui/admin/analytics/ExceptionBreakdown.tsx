@@ -147,7 +147,7 @@ export function ExceptionBreakdown({
             contentStyle={{
               backgroundColor: "hsl(var(--background))",
               borderColor: "hsl(var(--border))",
-              borderRadius: "8px",
+              borderRadius: "var(--radius-md)",
             }}
           />
           <Legend
