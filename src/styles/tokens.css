@@ -293,6 +293,7 @@
      =========================================== */
 
   --header-height: 56px;
+  --tabs-offset: 72px;      /* Header height + nav tabs */
   --cart-bar-height: 64px;
   --driver-header-height: 48px;
   --driver-action-height: 80px;
