@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 34 complete - v1.3 consolidation phases done
+**Current focus:** Phase 27 in progress - Token enforcement for colors
 
 ## Current Position
 
-Phase: 34 of 34 (Full src/ Consolidation)
-Plan: 8 of 8 in current phase
-Status: Phase complete
-Last activity: 2026-01-28 - Completed Phase 34
+Phase: 27 (Token Enforcement - Colors)
+Plan: 1 of N in current phase
+Status: In progress
+Last activity: 2026-01-28 - Completed 27-01-PLAN.md
 
-Progress: [████████████████████████████████████████░] v1.3 Full Codebase Consolidation | 28/37 plans
+Progress: [████████████████████████████████████████░] v1.3 + Token Enforcement | 29/38+ plans
 
 ## Milestones Completed
 
@@ -26,7 +26,8 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 12 plans complete
+**v1.3 progress:** 24 plans complete
+**Phase 27 progress:** 1 plan complete
 
 ## Performance Metrics
 
@@ -43,6 +44,7 @@ Progress: [███████████████████████
 | 26 | 8/8 | 136min | 17min |
 | 33 | 11/11 | 123min | 11.2min |
 | 34 | 8/8 | 40min | 5min |
+| 27 | 1/? | 8min | 8min |
 
 ## Accumulated Context
 
@@ -102,6 +104,18 @@ From `.planning/research/SUMMARY.md`:
 | ESLint guards for all removed directories | 33-10 | 14 no-restricted-imports rules prevent recreation |
 | Alphabetical subdirectory exports | 33-11 | Organized barrel exports A-Z |
 | ESLint guard for @/design-system imports | 34-03 | Prevents re-use of deprecated path |
+| text-text-inverse for button text | 27-01 | Theme-aware inverse text on colored backgrounds |
+| bg-overlay tokens for overlays | 27-01 | Replaced bg-black/N and bg-white/N with semantic tokens |
+
+### Phase 27 Progress
+
+**27-01 outcomes:**
+- Added overlay, skeleton, disabled, selection tokens to tokens.css
+- Both light and dark theme values configured
+- Tailwind utilities mapped: overlay, skeleton, disabled, selection
+- Homepage components migrated: CTABanner, FooterCTA, HomepageMenuSection, TestimonialsCarousel
+- Checkout components migrated: AddressInput, TimeSlotPicker, PaymentSuccess, PaymentStepV8, AddressCardV8, CheckoutWizard
+- Zero text-white/text-black/bg-white/bg-black violations in homepage and checkout
 
 ### Phase 33 Progress
 
@@ -218,11 +232,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-28 01:15
-Stopped at: Phase 34 complete - all 8 plans executed, verification passed
+Last session: 2026-01-28
+Stopped at: Phase 27 Plan 01 complete - token foundation and high-traffic pages migrated
 Resume file: None
-Next action: Phase 27 (Token Enforcement - Colors) or continue to next milestone
+Next action: Continue Phase 27 (Plans 02-04 for remaining component migrations)
 
 ---
 
-*Updated: 2026-01-28 - Phase 34 complete (8 plans, full src/ consolidation)*
+*Updated: 2026-01-28 - Phase 27 Plan 01 complete (token foundation + homepage/checkout)*
