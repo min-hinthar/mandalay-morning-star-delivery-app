@@ -1,14 +1,17 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { ArrowRight, ChefHat, Clock, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, parallaxPresets } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useCanHover } from "@/lib/hooks/useResponsive";
 import { useDynamicTheme } from "@/components/ui/theme";
 import { Button } from "@/components/ui/button";
+import { FloatingEmoji, EMOJI_CONFIG } from "./FloatingEmoji";
+import { GradientOrb, ORB_CONFIG_FAR, ORB_CONFIG_MID } from "./GradientOrb";
 
 // ============================================
 // TYPES
@@ -362,7 +365,28 @@ export function Hero({
   className,
 }: HeroProps) {
   const { shouldAnimate } = useAnimationPreference();
+  const canHover = useCanHover();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Mouse tracking for emoji repel effect (desktop only)
+  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    if (!canHover) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    // Calculate offset from center, max 20px repel
+    const offsetX = Math.max(-20, Math.min(20, (mouseX - centerX) / centerX * 20));
+    const offsetY = Math.max(-20, Math.min(20, (mouseY - centerY) / centerY * 20));
+    setMouseOffset({ x: offsetX, y: offsetY });
+  }, [canHover]);
+
+  const handleMouseLeave = useCallback(() => {
+    setMouseOffset({ x: 0, y: 0 });
+  }, []);
 
   // Scroll-based parallax for content
   const { scrollYProgress } = useScroll({
@@ -402,12 +426,6 @@ export function Hero({
   const smoothContentY = useSpring(contentY, { stiffness: 100, damping: 30 });
   const smoothOpacity = useSpring(opacity, { stiffness: 100, damping: 30 });
 
-  // Export parallax values for layer components (used in 31-03)
-  // These are accessible via data attributes on layer elements
-  void smoothOrbsFarY;
-  void smoothOrbsMidY;
-  void smoothEmojisY;
-
   // Common hero content
   const heroContent = (
     <HeroContent
@@ -428,6 +446,8 @@ export function Hero({
         "relative min-h-[100svh] min-h-[100dvh] overflow-hidden isolate",
         className
       )}
+      onMouseMove={canHover ? handleMouseMove : undefined}
+      onMouseLeave={canHover ? handleMouseLeave : undefined}
     >
       {/* Gradient background - consistent SSR/CSR rendering (no hydration flicker) */}
       <GradientFallback>
@@ -438,32 +458,51 @@ export function Hero({
         </motion.div>
       </GradientFallback>
 
-      {/* Layer 2: Background orbs (far) - populated in 31-03 */}
-      <div
+      {/* Layer 2: Background orbs (far) */}
+      <motion.div
         className="absolute inset-0 pointer-events-none"
         // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
-        style={{ zIndex: 1 }}
+        style={{ y: smoothOrbsFarY, zIndex: 1 }}
         aria-hidden="true"
-        id="hero-layer-orbs-far"
-      />
+      >
+        {ORB_CONFIG_FAR.map((orb, i) => (
+          <GradientOrb key={`orb-far-${i}`} {...orb} />
+        ))}
+      </motion.div>
 
-      {/* Layer 3: Mid-distance orbs - populated in 31-03 */}
-      <div
+      {/* Layer 3: Mid-distance orbs */}
+      <motion.div
         className="absolute inset-0 pointer-events-none"
         // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
-        style={{ zIndex: 2 }}
+        style={{ y: smoothOrbsMidY, zIndex: 2 }}
         aria-hidden="true"
-        id="hero-layer-orbs-mid"
-      />
+      >
+        {ORB_CONFIG_MID.map((orb, i) => (
+          <GradientOrb key={`orb-mid-${i}`} {...orb} />
+        ))}
+      </motion.div>
 
-      {/* Layer 4: Floating emojis - populated in 31-03 */}
-      <div
+      {/* Layer 4: Floating emojis */}
+      <motion.div
         className="absolute inset-0 pointer-events-none overflow-hidden"
-        // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
-        style={{ zIndex: 3 }}
+        style={{
+          y: smoothEmojisY,
+          // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
+          zIndex: 3,
+          maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
+        }}
         aria-hidden="true"
-        id="hero-layer-emojis"
-      />
+      >
+        {EMOJI_CONFIG.map((emoji, i) => (
+          <FloatingEmoji
+            key={`emoji-${i}`}
+            {...emoji}
+            index={i}
+            mouseOffset={mouseOffset}
+          />
+        ))}
+      </motion.div>
 
       {/* Bottom gradient fade */}
       <div
