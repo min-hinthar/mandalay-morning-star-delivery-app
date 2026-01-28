@@ -182,7 +182,7 @@ export function CheckoutLayout({
                     </motion.div>
                     <span
                       className={cn(
-                        "text-[10px] font-medium uppercase tracking-wide",
+                        "text-2xs font-medium uppercase tracking-wide",
                         isCurrent
                           ? "text-[var(--color-primary)]"
                           : isCompleted

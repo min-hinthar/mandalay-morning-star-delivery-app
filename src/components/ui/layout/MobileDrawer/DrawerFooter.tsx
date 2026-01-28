@@ -56,7 +56,7 @@ export function DrawerFooter({ className }: DrawerFooterProps) {
       </div>
 
       {/* Copyright */}
-      <p className="mt-3 text-center text-[10px] text-text-muted">
+      <p className="mt-3 text-center text-2xs text-text-muted">
         Made with love in Seattle
       </p>
     </motion.div>
