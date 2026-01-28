@@ -199,10 +199,17 @@ Plans:
   5. Clean barrel exports for all src/ subdirectories
   6. No broken imports after consolidation
   7. ESLint guards prevent recreation of removed patterns
-**Plans**: TBD
+**Plans**: 8 plans in 5 waves
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 34 to break down)
+- [ ] 34-01-PLAN.md — Create lib/design-system/tokens/ directory structure
+- [ ] 34-02-PLAN.md — Update design-system token imports (27+ files)
+- [ ] 34-03-PLAN.md — Delete old design-system/, add ESLint guard
+- [ ] 34-04-PLAN.md — Create app/contexts/ directory structure
+- [ ] 34-05-PLAN.md — Update context imports (2 files)
+- [ ] 34-06-PLAN.md — Delete old contexts/, add ESLint guard
+- [ ] 34-07-PLAN.md — Create barrel exports, update knip config
+- [ ] 34-08-PLAN.md — Final audit and phase completion verification
 
 ## Progress
 
@@ -220,7 +227,7 @@ Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 ->
 | 31. Hero Redesign | v1.3 | 0/4 | Not started | - |
 | 32. Quality Assurance | v1.3 | 0/3 | Not started | - |
 | 33. Full Components Consolidation | v1.3 | 11/11 | Complete | 2026-01-27 |
-| 34. Full src/ Consolidation | v1.3 | 0/? | Not started | - |
+| 34. Full src/ Consolidation | v1.3 | 0/8 | Planned | - |
 
 **v1.3 Summary:**
 - Total phases: 10
