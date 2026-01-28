@@ -162,7 +162,7 @@ export function ActiveRouteView({
           disabled={isStarting}
           className={cn(
             "flex h-14 w-full items-center justify-center gap-3 rounded-card-sm font-body font-semibold",
-            "bg-green text-white shadow-sm",
+            "bg-green text-text-inverse shadow-sm",
             "transition-all duration-fast hover:bg-green/90 hover:shadow-md",
             "active:scale-[0.98]",
             "disabled:cursor-not-allowed disabled:opacity-50"
@@ -188,7 +188,7 @@ export function ActiveRouteView({
           disabled={isCompleting}
           className={cn(
             "flex h-14 w-full items-center justify-center gap-3 rounded-card-sm font-body font-semibold",
-            "bg-green text-white shadow-sm",
+            "bg-green text-text-inverse shadow-sm",
             "transition-all duration-fast hover:bg-green/90 hover:shadow-md",
             "active:scale-[0.98]",
             "disabled:cursor-not-allowed disabled:opacity-50"

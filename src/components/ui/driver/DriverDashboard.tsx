@@ -352,7 +352,7 @@ function RouteCard({
           {/* Animated progress indicator */}
           {route.status === "in_progress" && shouldAnimate && (
             <motion.div
-              className="absolute top-0 h-full w-8 bg-white/30"
+              className="absolute top-0 h-full w-8 bg-overlay-light"
               animate={{ x: ["-100%", "400%"] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
             />

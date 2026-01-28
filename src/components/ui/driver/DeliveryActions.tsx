@@ -75,7 +75,7 @@ export function DeliveryActions({
             className={cn(
               "flex h-14 w-full items-center justify-center gap-3 rounded-card-sm",
               "font-body font-semibold",
-              "bg-primary text-white shadow-md",
+              "bg-primary text-text-inverse shadow-md",
               "transition-all duration-fast",
               "hover:bg-primary-hover hover:shadow-lg",
               "active:scale-[0.98]",
@@ -105,7 +105,7 @@ export function DeliveryActions({
             className={cn(
               "flex h-14 w-full items-center justify-center gap-3 rounded-card-sm",
               "font-body font-semibold",
-              "bg-green text-white shadow-md",
+              "bg-green text-text-inverse shadow-md",
               "transition-all duration-fast",
               "hover:bg-green/90 hover:shadow-lg",
               "active:scale-[0.98]",

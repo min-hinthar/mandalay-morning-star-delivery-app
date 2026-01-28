@@ -44,7 +44,7 @@ const statusConfig: Record<RouteStopStatus, { label: string; className: string }
   },
   delivered: {
     label: "Delivered",
-    className: "bg-green text-white",
+    className: "bg-green text-text-inverse",
   },
   skipped: {
     label: "Skipped",
@@ -95,7 +95,7 @@ export function StopCard({
         <div className="flex-1 min-w-0">
           {/* Stop number and name */}
           <div className="flex items-center gap-2 mb-1">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-text-primary font-body text-xs font-bold text-white">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-text-primary font-body text-xs font-bold text-text-inverse">
               {stopIndex}
             </span>
             <span className="font-body font-medium text-text-primary truncate">
