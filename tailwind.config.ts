@@ -115,6 +115,28 @@ const config: Config = {
         "accent-secondary": "var(--color-accent-secondary)",
         "accent-tertiary": "var(--color-accent-tertiary)",
 
+        // Overlay Colors
+        overlay: {
+          DEFAULT: "var(--color-overlay)",
+          heavy: "var(--color-overlay-heavy)",
+          light: "var(--color-overlay-light)",
+        },
+
+        // Skeleton/Loading State
+        skeleton: {
+          DEFAULT: "var(--color-skeleton)",
+          shimmer: "var(--color-skeleton-shimmer)",
+        },
+
+        // Disabled States
+        disabled: {
+          bg: "var(--color-disabled-bg)",
+          text: "var(--color-disabled-text)",
+        },
+
+        // Selection/Highlight
+        selection: "var(--color-selection)",
+
         /* ===========================================
            SHADCN/RADIX COMPATIBILITY
            =========================================== */

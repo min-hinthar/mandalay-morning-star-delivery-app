@@ -330,6 +330,35 @@
   --color-footer-text: var(--color-text-secondary);
   --color-footer-text-muted: var(--color-text-muted);
   --color-footer-border: var(--color-border-default);
+
+  /* ===========================================
+     OVERLAY TOKENS
+     Modals, drawers, backdrops
+     =========================================== */
+
+  --color-overlay: rgba(0, 0, 0, 0.5);
+  --color-overlay-heavy: rgba(0, 0, 0, 0.8);
+  --color-overlay-light: rgba(255, 255, 255, 0.5);
+
+  /* ===========================================
+     SKELETON/LOADING STATE
+     =========================================== */
+
+  --color-skeleton: #e5e7eb;
+  --color-skeleton-shimmer: rgba(255, 255, 255, 0.4);
+
+  /* ===========================================
+     DISABLED STATES
+     =========================================== */
+
+  --color-disabled-bg: #f3f4f6;
+  --color-disabled-text: #9ca3af;
+
+  /* ===========================================
+     SELECTION/HIGHLIGHT
+     =========================================== */
+
+  --color-selection: rgba(164, 16, 52, 0.15);
 }
 
 /* ============================================
@@ -483,6 +512,34 @@
   --color-interactive-hover: var(--color-primary-hover);
   --color-accent-secondary: var(--color-accent-orange);
   --color-accent-tertiary: var(--color-accent-teal);
+
+  /* ===========================================
+     OVERLAY TOKENS (Dark Mode)
+     =========================================== */
+
+  --color-overlay: rgba(0, 0, 0, 0.7);
+  --color-overlay-heavy: rgba(0, 0, 0, 0.9);
+  --color-overlay-light: rgba(255, 255, 255, 0.3);
+
+  /* ===========================================
+     SKELETON/LOADING STATE (Dark Mode)
+     =========================================== */
+
+  --color-skeleton: #374151;
+  --color-skeleton-shimmer: rgba(255, 255, 255, 0.1);
+
+  /* ===========================================
+     DISABLED STATES (Dark Mode)
+     =========================================== */
+
+  --color-disabled-bg: #1f2937;
+  --color-disabled-text: #6b7280;
+
+  /* ===========================================
+     SELECTION/HIGHLIGHT (Dark Mode)
+     =========================================== */
+
+  --color-selection: rgba(255, 77, 109, 0.2);
 }
 
 /* ============================================
