@@ -129,6 +129,10 @@ From `.planning/research/SUMMARY.md`:
 | ESLint boxShadow notes Framer exception | 29-01 | Animation interpolation requires numeric values |
 | Header dynamic blur uses numeric values | 29-03 | Scroll-linked animation requires interpolation |
 | Modal uses Tailwind backdrop-blur-sm | 29-03 | Already tokenized via Tailwind utility |
+| shadow-glow-amber distinct from warning | 29-02 | Amber-500 specific for cart progress bar |
+| shadow-hint-sm/md for compound shadows | 29-02 | Brand-tinted gradient shadows for hints/dropdowns |
+| Framer Motion boxShadow kept numeric | 29-02 | Animation interpolation requires numeric values |
+| inputFocus uses CSS variable tokens | 29-02 | Discrete state changes work with CSS vars |
 
 ### Phase 27 Progress (Complete)
 
@@ -336,6 +340,18 @@ None.
 - Enhanced audit-tokens.js with inline shadow/blur detection (40+ shadow-[...] patterns detected)
 - Infrastructure ready for shadow/blur migration in 29-02
 
+**29-02 outcomes:**
+- Migrated all arbitrary Tailwind shadow values to semantic tokens
+- CartSummary: shadow-[amber glow] -> shadow-glow-amber
+- CartBar: shadow-[nav-top] -> shadow-nav-top (theme-aware)
+- theme-toggle: dark:shadow-[primary glow] -> dark:shadow-glow-primary
+- DrawerNavLink: shadow-[primary glow] -> shadow-glow-primary
+- SearchTrigger hint: compound gradient -> shadow-hint-sm
+- AccountIndicator dropdown: compound gradient -> shadow-hint-md
+- Added shadow-glow-amber, shadow-hint-sm, shadow-hint-md tokens (light + dark)
+- inputFocus now uses CSS variable tokens (var(--shadow-focus), etc.)
+- Animated boxShadow values documented with token equivalents
+
 **29-03 outcomes:**
 - Migrated 9 hardcoded blur values in globals.css to CSS variable tokens
 - CommandPalette backdrop blur now uses var(--blur-xl)
@@ -346,11 +362,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-27
-Stopped at: Completed 29-03 (blur token migration)
+Last session: 2026-01-28
+Stopped at: Completed 29-02 (shadow token migration)
 Resume file: None
-Next action: Continue Phase 29 or start next phase
+Next action: Continue Phase 29 with next plan
 
 ---
 
-*Updated: 2026-01-27 - Phase 29 (3 plans complete - blur token migration finished)*
+*Updated: 2026-01-28 - Phase 29 (plans 01-03 complete - shadow and blur migrations)*
