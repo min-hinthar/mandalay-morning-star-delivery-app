@@ -51,7 +51,7 @@ export function FooterCTA() {
       {/* Top CTA Section */}
       <section className="relative py-16 md:py-24 px-4 bg-gradient-to-br from-primary via-primary-hover to-primary">
         {/* Decorative overlay */}
-        <div className="absolute inset-0 bg-black/10" />
+        <div className="absolute inset-0 bg-overlay/20" />
         <div className="relative max-w-4xl mx-auto text-center">
           <motion.div
             variants={ctaContainerVariants}
@@ -63,7 +63,7 @@ export function FooterCTA() {
             {/* Badge */}
             <motion.div
               variants={staggerItem}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-pill"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-overlay-light backdrop-blur-sm rounded-pill"
             >
               <Heart className="w-4 h-4 text-text-inverse" />
               <span className="text-sm font-body font-medium text-text-inverse">Made with Love in Covina</span>

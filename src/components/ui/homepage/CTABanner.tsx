@@ -25,7 +25,7 @@ export function CTABanner({ id }: CTABannerProps) {
   return (
     <section id={id} className="relative py-16 md:py-20 px-4 bg-gradient-to-br from-primary via-primary-hover to-primary overflow-hidden">
       {/* Decorative background overlay */}
-      <div className="absolute inset-0 bg-black/5" />
+      <div className="absolute inset-0 bg-overlay/10" />
 
       <div className="relative max-w-4xl mx-auto">
         <motion.div
@@ -100,7 +100,7 @@ export function CTABanner({ id }: CTABannerProps) {
           >
             <Link
               href="/menu"
-              className="inline-flex items-center justify-center px-10 py-4 bg-primary text-white font-body font-semibold text-lg rounded-pill shadow-lg hover:bg-primary-hover transition-colors duration-fast"
+              className="inline-flex items-center justify-center px-10 py-4 bg-primary text-text-inverse font-body font-semibold text-lg rounded-pill shadow-lg hover:bg-primary-hover transition-colors duration-fast"
             >
               Order Now
             </Link>
