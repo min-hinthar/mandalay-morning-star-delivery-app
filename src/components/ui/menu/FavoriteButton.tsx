@@ -171,7 +171,7 @@ export function FavoriteButton({
         "relative flex items-center justify-center",
         "rounded-full",
         showBackground && [
-          "bg-white/90 dark:bg-gray-900/90",
+          "bg-surface-primary/90 dark:bg-surface-primary/90",
           "backdrop-blur-sm",
           "shadow-sm",
           isFavorite && "bg-red-50 dark:bg-red-950/30",

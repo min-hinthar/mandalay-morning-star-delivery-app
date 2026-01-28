@@ -185,7 +185,7 @@ export function MenuContent({ className }: MenuContentProps) {
           onClick={handleRetry}
           className={cn(
             "px-6 py-2.5 rounded-full",
-            "bg-primary text-white font-medium",
+            "bg-primary text-text-inverse font-medium",
             "hover:bg-primary/90 active:scale-95",
             "transition-all duration-150",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
