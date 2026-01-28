@@ -124,7 +124,6 @@ export function Drawer({
   const {
     motionProps: swipeProps,
     isDragging,
-    dragOffset,
     backdropOpacity,
   } = useSwipeToClose({
     onClose: () => {
@@ -263,9 +262,11 @@ export function Drawer({
               ],
               className
             )}
+            {...(isBottom && !prefersReducedMotion ? swipeProps : {})}
             style={isBottom ? {
-              y: isDragging ? dragOffset : 0,
-              height: height === "full" ? "90vh" : "auto",
+              // Merge swipeProps style (touchAction) with our height
+              ...(swipeProps?.style || {}),
+              height: height === "full" ? "80vh" : "auto",
             } : undefined}
             initial={isBottom ? "hidden" : { x: slideFrom }}
             animate={isBottom ? "visible" : { x: 0 }}
@@ -280,7 +281,6 @@ export function Drawer({
             }
             onKeyDown={handleKeyDown}
             onClick={(e) => e.stopPropagation()}
-            {...(isBottom && !prefersReducedMotion ? swipeProps : {})}
             data-testid="drawer"
           >
             {/* Drag Handle for bottom sheet */}
@@ -311,7 +311,7 @@ export function Drawer({
               <div
                 className={cn(
                   "overflow-y-auto overscroll-contain",
-                  "max-h-[calc(90vh-3rem)]",
+                  "max-h-[calc(80vh-3rem)]",
                   "pb-safe"
                 )}
                 style={{ touchAction: "pan-y" }}

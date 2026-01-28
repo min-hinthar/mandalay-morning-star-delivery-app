@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, X } from "lucide-react";
 import { AnimatedImage } from "@/components/ui/animated-image";
 import { Modal } from "@/components/ui/Modal";
 import { Drawer } from "@/components/ui/Drawer";
@@ -192,6 +192,22 @@ export function ItemDetailSheet({
       <div className="flex flex-col h-full">
         {/* Hero Image */}
         <div className="relative aspect-video shrink-0 bg-zinc-100 dark:bg-zinc-800">
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className={cn(
+              "absolute top-3 right-3 z-10",
+              "w-8 h-8 rounded-full",
+              "bg-black/50 hover:bg-black/70",
+              "flex items-center justify-center",
+              "text-white",
+              "transition-colors duration-150",
+              "focus:outline-none focus:ring-2 focus:ring-white/50"
+            )}
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
           {item.imageUrl ? (
             <AnimatedImage
               src={item.imageUrl}
