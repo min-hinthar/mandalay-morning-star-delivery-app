@@ -102,6 +102,15 @@ const config = [
             {
               group: ["@/components/theme/*", "@/components/theme", "**/components/theme/*"],
               message: "theme/ consolidated into ui/theme/. Import from @/components/ui/theme."
+            },
+            // Phase 34: src/ consolidation guards
+            {
+              group: ["@/contexts/*", "@/contexts", "**/contexts/*"],
+              message: "contexts/ moved to app/contexts/. Import from @/app/contexts."
+            },
+            {
+              group: ["@/design-system/*", "@/design-system", "**/design-system/*"],
+              message: "design-system/ consolidated into lib/design-system/. Import from @/lib/design-system."
             }
           ]
         }
@@ -124,7 +133,7 @@ const config = [
           // Catch inline zIndex in style objects: style={{ zIndex: 50 }}
           // Exception: allow zIndex from design-system/tokens/z-index
           selector: "Property[key.name='zIndex'][value.type='Literal'][value.raw=/^\\d+$/]",
-          message: "Use zIndex token from @/design-system/tokens/z-index (e.g., zIndex.modal) instead of hardcoded number.",
+          message: "Use zIndex token from @/lib/design-system/tokens/z-index (e.g., zIndex.modal) instead of hardcoded number.",
         },
         {
           // Catch hardcoded hex colors in bg-[]
