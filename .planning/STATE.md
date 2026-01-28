@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 29 started - shadow and blur token infrastructure complete
+**Current focus:** Phase 29 in progress - blur token migration complete
 
 ## Current Position
 
 Phase: 29 (Token Enforcement - Effects)
-Plan: 1 of N in current phase
+Plan: 3 of N in current phase
 Status: In progress
-Last activity: 2026-01-27 - Completed 29-01 (shadow/blur tokens infrastructure)
+Last activity: 2026-01-27 - Completed 29-03 (blur token migration)
 
-Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 38/39+ plans
+Progress: [█████████████████████████████████████████] v1.3 + Token Enforcement | 40/41+ plans
 
 ## Milestones Completed
 
@@ -26,15 +26,15 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 33 plans complete
-**Phase 29 progress:** 1 plan complete
+**v1.3 progress:** 35 plans complete
+**Phase 29 progress:** 3 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 102 (v1.0 + v1.1 + v1.2 + v1.3)
+- Total plans completed: 104 (v1.0 + v1.1 + v1.2 + v1.3)
 - Average duration: 10min (Phase 15-24)
-- v1.3 plans completed: 33
+- v1.3 plans completed: 35
 
 **By Phase (v1.3):**
 
@@ -46,7 +46,7 @@ Progress: [███████████████████████
 | 34 | 8/8 | 40min | 5min |
 | 27 | 6/6+ | 73min | 12.2min |
 | 28 | 3/3 | 18min | 6min |
-| 29 | 1/N | 8min | 8min |
+| 29 | 3/N | 22min | 7.3min |
 
 ## Accumulated Context
 
@@ -127,6 +127,8 @@ From `.planning/research/SUMMARY.md`:
 | shadow-xs uses subtle primary tint | 29-01 | Brand consistency with existing shadow tokens |
 | blur tokens same values in light/dark | 29-01 | Blur not theme-dependent |
 | ESLint boxShadow notes Framer exception | 29-01 | Animation interpolation requires numeric values |
+| Header dynamic blur uses numeric values | 29-03 | Scroll-linked animation requires interpolation |
+| Modal uses Tailwind backdrop-blur-sm | 29-03 | Already tokenized via Tailwind utility |
 
 ### Phase 27 Progress (Complete)
 
@@ -334,13 +336,21 @@ None.
 - Enhanced audit-tokens.js with inline shadow/blur detection (40+ shadow-[...] patterns detected)
 - Infrastructure ready for shadow/blur migration in 29-02
 
+**29-03 outcomes:**
+- Migrated 9 hardcoded blur values in globals.css to CSS variable tokens
+- CommandPalette backdrop blur now uses var(--blur-xl)
+- Header.tsx dynamic blur documented with token equivalents (8px = --blur-md, 16px = --blur-lg + 4px)
+- Modal.tsx verified - already uses Tailwind backdrop-blur-sm utility
+- Zero hardcoded blur(Npx) values in globals.css
+- All glassmorphism effects use blur tokens
+
 ## Session Continuity
 
 Last session: 2026-01-27
-Stopped at: Completed 29-01 (shadow/blur tokens infrastructure)
+Stopped at: Completed 29-03 (blur token migration)
 Resume file: None
-Next action: Execute 29-02 (shadow/blur migration)
+Next action: Continue Phase 29 or start next phase
 
 ---
 
-*Updated: 2026-01-27 - Phase 29 started (1 plan complete - shadow/blur infrastructure)*
+*Updated: 2026-01-27 - Phase 29 (3 plans complete - blur token migration finished)*
