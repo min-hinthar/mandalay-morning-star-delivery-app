@@ -195,6 +195,9 @@ export function useSwipeToDelete(options: SwipeToDeleteOptions): SwipeToDeleteRe
 
   const handleDrag = useCallback(
     (_: unknown, info: PanInfo) => {
+      // Defensive check for malformed event info
+      if (!info?.offset) return;
+
       const offset = info.offset.x;
       setDragOffset(offset);
 
@@ -226,6 +229,14 @@ export function useSwipeToDelete(options: SwipeToDeleteOptions): SwipeToDeleteRe
   const handleDragEnd = useCallback(
     (_: unknown, info: PanInfo) => {
       setIsDragging(false);
+
+      // Defensive check for malformed event info
+      if (!info?.offset || !info?.velocity) {
+        setDragOffset(0);
+        setIsRevealed(false);
+        onRevealChange?.(false);
+        return;
+      }
 
       const shouldDelete =
         info.offset.x < -autoDeleteThreshold ||
@@ -308,6 +319,9 @@ export function useSwipeToClose(options: SwipeToCloseOptions): SwipeToCloseResul
 
   const handleDrag = useCallback(
     (_: unknown, info: PanInfo) => {
+      // Defensive check for malformed event info
+      if (!info?.offset) return;
+
       const offset = direction === "down" ? info.offset.y : info.offset.x;
       setDragOffset(offset);
       onDrag?.(offset);
@@ -330,6 +344,9 @@ export function useSwipeToClose(options: SwipeToCloseOptions): SwipeToCloseResul
     (_: unknown, info: PanInfo) => {
       setIsDragging(false);
       setDragOffset(0);
+
+      // Defensive check for malformed event info
+      if (!info?.offset || !info?.velocity) return;
 
       const offset = direction === "down" ? info.offset.y : info.offset.x;
       const velocity = direction === "down" ? info.velocity.y : info.velocity.x;
@@ -437,6 +454,9 @@ export function useSwipeNavigation(options: SwipeNavigationOptions): SwipeGestur
 
   const handleDrag = useCallback(
     (_: unknown, info: PanInfo) => {
+      // Defensive check for malformed event info
+      if (!info?.offset) return;
+
       setDragOffset(info.offset.x);
 
       // Determine direction hint
@@ -467,6 +487,9 @@ export function useSwipeNavigation(options: SwipeNavigationOptions): SwipeGestur
       setDragOffset(0);
       setDirectionHint(null);
       onDragHint?.(null);
+
+      // Defensive check for malformed event info
+      if (!info?.offset || !info?.velocity) return;
 
       const { offset, velocity } = info;
 
