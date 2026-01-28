@@ -109,7 +109,7 @@ const config = [
               message: "contexts/ moved to app/contexts/. Import from @/app/contexts."
             },
             {
-              group: ["@/design-system/*", "@/design-system", "**/design-system/*"],
+              group: ["@/design-system/*", "@/design-system"],
               message: "design-system/ consolidated into lib/design-system/. Import from @/lib/design-system."
             }
           ]
