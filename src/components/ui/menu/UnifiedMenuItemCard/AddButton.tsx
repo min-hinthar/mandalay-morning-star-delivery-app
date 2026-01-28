@@ -200,7 +200,7 @@ export function AddButton({
             disabled={disabled}
             className={cn(
               "flex items-center gap-1.5 px-4 py-2",
-              "bg-primary text-white font-semibold",
+              "bg-primary text-text-inverse font-semibold",
               "rounded-full shadow-lg shadow-primary/30",
               "disabled:opacity-50 disabled:cursor-not-allowed",
               "focus-visible:outline-none focus-visible:ring-2",
@@ -225,7 +225,7 @@ export function AddButton({
             key="adding"
             className={cn(
               "flex items-center justify-center w-10 h-10",
-              "bg-green-500 text-white rounded-full",
+              "bg-green text-text-inverse rounded-full",
               "shadow-lg"
             )}
             initial={shouldAnimate ? { scale: 0, rotate: -45 } : undefined}
