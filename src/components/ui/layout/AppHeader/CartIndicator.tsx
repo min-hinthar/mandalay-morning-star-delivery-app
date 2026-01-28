@@ -146,7 +146,7 @@ export function CartIndicator({ className }: CartIndicatorProps) {
             className={cn(
               "absolute -right-1 -top-1 flex items-center justify-center",
               "min-w-[20px] h-[20px] px-1 rounded-full",
-              "bg-amber-500 text-[11px] font-bold text-text-inverse",
+              "bg-amber-500 text-xs font-bold text-text-inverse",
               "shadow-lg ring-2 ring-white dark:ring-zinc-950"
             )}
           >

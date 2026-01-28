@@ -79,7 +79,7 @@ export function PeakHoursChart({ data, height = 250 }: PeakHoursChartProps) {
             contentStyle={{
               backgroundColor: "hsl(var(--background))",
               borderColor: "hsl(var(--border))",
-              borderRadius: "8px",
+              borderRadius: "var(--radius-md)",
             }}
             formatter={(value, name) => {
               if (name === "deliveries") return [value, "Deliveries"];

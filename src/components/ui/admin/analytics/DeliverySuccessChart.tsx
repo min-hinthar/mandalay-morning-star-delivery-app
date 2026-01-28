@@ -79,7 +79,7 @@ export function DeliverySuccessChart({
               contentStyle={{
                 backgroundColor: "hsl(var(--background))",
                 borderColor: "hsl(var(--border))",
-                borderRadius: "8px",
+                borderRadius: "var(--radius-md)",
               }}
             />
             <Legend
@@ -146,7 +146,7 @@ export function DeliverySuccessChart({
             contentStyle={{
               backgroundColor: "hsl(var(--background))",
               borderColor: "hsl(var(--border))",
-              borderRadius: "8px",
+              borderRadius: "var(--radius-md)",
             }}
             formatter={(value) => [`${Number(value).toFixed(1)}%`, "Success Rate"]}
           />
