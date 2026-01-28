@@ -626,10 +626,10 @@ Any string matching Tailwind class syntax gets compiled, including examples in e
 
 **Fix:** Replace wildcards with concrete examples in documentation/messages:
 ```javascript
-// ❌ Generates invalid CSS class
-message: "Use bg-[var(--color-*)] instead"
+// BAD: Generates invalid CSS class
+// Pattern like: bg-[ var(--color-WILDCARD) ]  <-- Don't use wildcards in examples!
 
-// ✅ Uses valid existing class
+// GOOD: Uses valid existing class
 message: "Use bg-primary, bg-surface-primary instead"
 ```
 
