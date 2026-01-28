@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 27 (Token Enforcement - Colors)
-Plan: 1 of N in current phase
+Plan: 2 of N in current phase
 Status: In progress
-Last activity: 2026-01-28 - Completed 27-01-PLAN.md
+Last activity: 2026-01-28 - Completed 27-02-PLAN.md
 
-Progress: [████████████████████████████████████████░] v1.3 + Token Enforcement | 29/38+ plans
+Progress: [████████████████████████████████████████░] v1.3 + Token Enforcement | 30/38+ plans
 
 ## Milestones Completed
 
@@ -26,8 +26,8 @@ Progress: [███████████████████████
 
 **Total completed:** 24 phases, 82 plans
 **v1.3 scope:** 10 phases (25-34), 25+ plans estimated
-**v1.3 progress:** 24 plans complete
-**Phase 27 progress:** 1 plan complete
+**v1.3 progress:** 25 plans complete
+**Phase 27 progress:** 2 plans complete
 
 ## Performance Metrics
 
@@ -44,7 +44,7 @@ Progress: [███████████████████████
 | 26 | 8/8 | 136min | 17min |
 | 33 | 11/11 | 123min | 11.2min |
 | 34 | 8/8 | 40min | 5min |
-| 27 | 1/? | 8min | 8min |
+| 27 | 2/? | 33min | 16.5min |
 
 ## Accumulated Context
 
@@ -106,6 +106,8 @@ From `.planning/research/SUMMARY.md`:
 | ESLint guard for @/design-system imports | 34-03 | Prevents re-use of deprecated path |
 | text-text-inverse for button text | 27-01 | Theme-aware inverse text on colored backgrounds |
 | bg-overlay tokens for overlays | 27-01 | Replaced bg-black/N and bg-white/N with semantic tokens |
+| ring-surface-primary for badge rings | 27-02 | Theme-aware badge rings instead of ring-white |
+| bg-overlay-heavy for sold-out overlays | 27-02 | Theme-aware overlay for sold-out states |
 
 ### Phase 27 Progress
 
@@ -116,6 +118,12 @@ From `.planning/research/SUMMARY.md`:
 - Homepage components migrated: CTABanner, FooterCTA, HomepageMenuSection, TestimonialsCarousel
 - Checkout components migrated: AddressInput, TimeSlotPicker, PaymentSuccess, PaymentStepV8, AddressCardV8, CheckoutWizard
 - Zero text-white/text-black/bg-white/bg-black violations in homepage and checkout
+
+**27-02 outcomes:**
+- Core UI components migrated: dialog, Dropdown, success-checkmark, toggles
+- Cart components migrated: CartBar, CartButton, CartItem, AddToCartButton, ClearCartConfirmation, CartDrawer, CartSummary
+- Menu and navigation migrated: MenuContent, ItemDetailSheet, FavoriteButton, AppShell
+- Zero text-white/text-black/bg-white/bg-black violations in migrated ui/ components
 
 ### Phase 33 Progress
 
@@ -233,10 +241,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Phase 27 Plan 01 complete - token foundation and high-traffic pages migrated
+Stopped at: Phase 27 Plan 02 complete - UI component library migrated
 Resume file: None
-Next action: Continue Phase 27 (Plans 02-04 for remaining component migrations)
+Next action: Continue Phase 27 (Plans 03+ for remaining component migrations)
 
 ---
 
-*Updated: 2026-01-28 - Phase 27 Plan 01 complete (token foundation + homepage/checkout)*
+*Updated: 2026-01-28 - Phase 27 Plan 02 complete (ui/, cart/, menu/, navigation/ migrated)*
