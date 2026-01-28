@@ -415,7 +415,7 @@ export function Modal({
                 // Base styles
                 "relative w-full",
                 "bg-[var(--color-surface,#fff)] dark:bg-[var(--color-surface-primary-dark,#1A1918)]",
-                "shadow-[var(--shadow-xl,0_25px_50px_-12px_rgba(0,0,0,0.25))]",
+                "shadow-xl",
                 "focus:outline-none",
                 // Mobile styles
                 isMobile && [
