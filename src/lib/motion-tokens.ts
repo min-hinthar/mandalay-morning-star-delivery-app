@@ -314,7 +314,7 @@ export const hover = {
     whileTap: {
       scale: 0.97,
       y: 1,
-      boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+      boxShadow: "0 1px 2px rgba(0,0,0,0.1)", // ~--shadow-xs equivalent, kept numeric for FM interpolation
     },
     transition: spring.snappyButton,
   },
@@ -324,15 +324,20 @@ export const hover = {
 // V7 INPUT FOCUS ANIMATIONS
 // ============================================
 
+/**
+ * Input focus states using CSS variable shadow tokens.
+ * These are discrete state changes (not animated between values),
+ * so CSS variables work properly for theme-awareness.
+ */
 export const inputFocus = {
   /** Initial state - no glow */
-  initial: { boxShadow: "0 0 0 0 rgba(245, 158, 11, 0)" },
-  /** Default focus - amber glow */
-  focus: { boxShadow: "0 0 0 3px rgba(245, 158, 11, 0.3)" },
+  initial: { boxShadow: "var(--shadow-none)" },
+  /** Default focus - primary glow */
+  focus: { boxShadow: "var(--shadow-focus)" },
   /** Error focus - red glow */
-  error: { boxShadow: "0 0 0 3px rgba(239, 68, 68, 0.3)" },
+  error: { boxShadow: "var(--shadow-focus-error)" },
   /** Success focus - green glow */
-  success: { boxShadow: "0 0 0 3px rgba(34, 197, 94, 0.3)" },
+  success: { boxShadow: "var(--shadow-focus-success)" },
 } as const;
 
 // ============================================

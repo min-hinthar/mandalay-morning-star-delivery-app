@@ -52,19 +52,24 @@ export const buttonVariants: Variants = {
   tap: buttonTap,
 };
 
+/**
+ * Primary button variants with animated shadows.
+ * Note: boxShadow values kept numeric for Framer Motion interpolation.
+ * Token equivalents documented for reference.
+ */
 export const primaryButtonVariants: Variants = {
   initial: {
     scale: 1,
-    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)", // ~--shadow-xs equivalent
   },
   hover: {
     scale: 1.02,
-    boxShadow: "0 4px 12px rgba(212, 160, 23, 0.3)",
+    boxShadow: "0 4px 12px rgba(212, 160, 23, 0.3)", // ~--shadow-button-hover equivalent (gold-tinted)
     transition: { duration: timing.fast, ease: easing.easeOut },
   },
   tap: {
     scale: 0.98,
-    boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.1)", // ~--shadow-xs equivalent
     transition: { duration: timing.micro },
   },
 };
@@ -76,7 +81,7 @@ export const primaryButtonVariants: Variants = {
 export const cardHover: TargetAndTransition = {
   scale: 1.01,
   y: -2,
-  boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+  boxShadow: "0 8px 24px rgba(0,0,0,0.1)", // ~--shadow-lg equivalent, kept numeric for FM interpolation
   transition: { duration: timing.fast, ease: easing.easeOut },
 };
 
@@ -86,11 +91,15 @@ export const cardTap: TargetAndTransition = {
   transition: { duration: timing.micro },
 };
 
+/**
+ * Card variants with animated shadows.
+ * Note: boxShadow values kept numeric for Framer Motion interpolation.
+ */
 export const cardVariants: Variants = {
   initial: {
     scale: 1,
     y: 0,
-    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.05)", // ~--shadow-sm equivalent
   },
   hover: cardHover,
   tap: cardTap,
