@@ -233,6 +233,13 @@ const config: Config = {
         "v6-body": ["var(--font-body)", "Nunito", "system-ui", "sans-serif"],
       },
       fontSize: {
+        "2xs": [
+          "var(--text-2xs)",
+          {
+            lineHeight: "var(--text-2xs--line-height)",
+            letterSpacing: "var(--text-2xs--letter-spacing)",
+          },
+        ],
         xs: ["var(--text-xs)", { lineHeight: "var(--leading-normal)" }],
         sm: ["var(--text-sm)", { lineHeight: "var(--leading-normal)" }],
         base: ["var(--text-base)", { lineHeight: "var(--leading-normal)" }],
