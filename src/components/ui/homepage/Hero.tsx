@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils/cn";
 import {
   spring,
   staggerContainer,
+  parallaxPresets,
 } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useDynamicTheme } from "@/components/ui/theme";

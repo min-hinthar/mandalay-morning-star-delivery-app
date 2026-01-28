@@ -119,18 +119,47 @@ export function CategoryTabs({
   }, [updateFadeIndicators]);
 
   // Scroll active tab into view when it changes
+  // Using manual scroll calculation instead of scrollIntoView to avoid
+  // interaction issues with sticky positioning and simultaneous page scroll
   useEffect(() => {
-    if (!activeTabRef.current || !shouldAnimate) return;
+    const container = scrollContainerRef.current;
+    const activeTab = activeTabRef.current;
 
-    const prefersReducedMotion =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!container || !activeTab) return;
 
-    activeTabRef.current.scrollIntoView({
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-      block: "nearest",
-      inline: "center",
-    });
+    // Calculate the scroll position to center the active tab
+    const containerRect = container.getBoundingClientRect();
+    const tabRect = activeTab.getBoundingClientRect();
+
+    // Tab's position relative to the scroll container's content
+    const tabOffsetLeft = activeTab.offsetLeft;
+    const tabWidth = tabRect.width;
+    const containerWidth = containerRect.width;
+
+    // Calculate target scroll position to center the tab
+    const targetScrollLeft = tabOffsetLeft - (containerWidth / 2) + (tabWidth / 2);
+
+    // Clamp to valid scroll range
+    const maxScroll = container.scrollWidth - containerWidth;
+    const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScroll));
+
+    // Check if tab is already visible (with some padding)
+    const tabLeftInContainer = tabRect.left - containerRect.left;
+    const tabRightInContainer = tabRect.right - containerRect.left;
+    const padding = 20; // pixels of padding to consider "visible"
+    const isVisible = tabLeftInContainer >= padding && tabRightInContainer <= containerWidth - padding;
+
+    // Only scroll if tab is not visible
+    if (!isVisible) {
+      const prefersReducedMotion =
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      container.scrollTo({
+        left: clampedScrollLeft,
+        behavior: prefersReducedMotion || !shouldAnimate ? "auto" : "smooth",
+      });
+    }
   }, [activeCategory, shouldAnimate]);
 
   // Handle tab click
