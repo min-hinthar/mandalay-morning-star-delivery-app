@@ -133,11 +133,11 @@ Plans:
   1. 3D tilt disabled on touch devices (via CSS `hover: hover` and `pointer: fine`)
   2. No content clipping or disappearing on iOS Safari
   3. Card content remains visible during and after tilt interactions
-**Plans**: TBD
+**Plans**: 2 plans in 1 wave
 
 Plans:
-- [ ] 30-01: Touch device detection and tilt disable
-- [ ] 30-02: Safari compositing fixes
+- [ ] 30-01-PLAN.md — Touch device detection and tilt disable
+- [ ] 30-02-PLAN.md — Safari compositing fixes and animated shine fallback
 
 ### Phase 31: Hero Redesign
 **Goal**: Memorable hero with floating emojis, parallax depth, and theme consistency
@@ -235,7 +235,7 @@ Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 ->
 | 27. Token Enforcement - Colors | v1.3 | 6/6 | Complete | 2026-01-27 |
 | 28. Token Enforcement - Layout | v1.3 | 3/3 | Complete | 2026-01-28 |
 | 29. Token Enforcement - Effects | v1.3 | 6/6 | Complete | 2026-01-28 |
-| 30. Mobile Stability | v1.3 | 0/2 | Not started | - |
+| 30. Mobile Stability | v1.3 | 0/2 | Planned | - |
 | 31. Hero Redesign | v1.3 | 0/4 | Not started | - |
 | 32. Quality Assurance | v1.3 | 0/3 | Not started | - |
 | 33. Full Components Consolidation | v1.3 | 11/11 | Complete | 2026-01-27 |
