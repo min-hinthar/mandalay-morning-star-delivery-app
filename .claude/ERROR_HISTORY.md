@@ -135,6 +135,39 @@ const DropdownMenu = ({ children }) => {
 
 ---
 
+## 2026-01-27: Module Not Found on Vercel (File Casing)
+**Type:** Build | **Severity:** High
+
+**Files:** `src/components/ui/index.ts`, `src/components/ui/Drawer.tsx`
+
+**Error:** Build passes locally (Windows), fails on Vercel (Linux):
+```
+Module not found: Can't resolve './Drawer'
+```
+
+**Root Cause:** Git tracked file as `drawer.tsx` (lowercase), but `index.ts` imported `"./Drawer"` (uppercase). Windows filesystem is case-insensitive → works locally. Linux is case-sensitive → fails on Vercel.
+
+**Detection:**
+```bash
+git ls-files | grep -i drawer
+# Shows: src/components/ui/drawer.tsx  ← lowercase in git
+# But import is: from "./Drawer"       ← uppercase
+```
+
+**Fix:**
+```bash
+git mv src/components/ui/drawer.tsx src/components/ui/Drawer.tsx
+git commit -m "fix: correct Drawer.tsx casing for Linux builds"
+```
+
+**Prevention:**
+1. Match import casing exactly to filename
+2. Use PascalCase for all component files consistently
+3. Test with `git ls-files | grep -i <name>` before pushing
+4. Consider CI that runs on Linux to catch early
+
+---
+
 ## 2026-01-26: Double-Add Cart Items (Button + Callback Both Mutate)
 **Type:** Logic | **Severity:** High
 
