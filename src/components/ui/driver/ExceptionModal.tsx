@@ -116,7 +116,7 @@ export function ExceptionModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-overlay p-4 sm:items-center"
           onClick={handleClose}
         >
           <motion.div
@@ -244,7 +244,7 @@ export function ExceptionModal({
                 className={cn(
                   "flex h-14 w-full items-center justify-center gap-2 rounded-card-sm",
                   "font-body font-semibold",
-                  "bg-status-error text-white shadow-sm",
+                  "bg-status-error text-text-inverse shadow-sm",
                   "transition-all duration-fast",
                   "hover:bg-status-error/90 hover:shadow-md",
                   "active:scale-[0.98]",

@@ -226,6 +226,8 @@ export function PhotoCapture({
   return (
     <AnimatePresence>
       {isOpen && (
+        // Camera full-screen overlay - intentionally dark for camera UI
+        // eslint-disable-next-line @mandalay/no-hardcoded-colors -- Camera UI requires solid dark background
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -237,7 +239,9 @@ export function PhotoCapture({
 
           {/* Header */}
           <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between bg-gradient-to-b from-black/70 to-transparent p-4">
+            {/* eslint-disable-next-line @mandalay/no-hardcoded-colors -- Camera UI overlay text */}
             <h2 className="font-display text-lg font-semibold text-white">{title}</h2>
+            {/* eslint-disable-next-line @mandalay/no-hardcoded-colors -- Camera UI close button */}
             <button
               onClick={handleClose}
               className={cn(
@@ -271,9 +275,10 @@ export function PhotoCapture({
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="absolute inset-0 flex items-center justify-center bg-black/80"
+                      className="absolute inset-0 flex items-center justify-center bg-overlay-heavy"
                     >
                       <div className="text-center">
+                        {/* eslint-disable-next-line @mandalay/no-hardcoded-colors -- Camera UI error text */}
                         <p className="mb-4 font-body text-lg text-white">{error}</p>
                         <button
                           onClick={startCamera}
@@ -329,6 +334,7 @@ export function PhotoCapture({
                   whileTap={{ scale: 0.95 }}
                   onClick={retakePhoto}
                   disabled={isUploading}
+                  // eslint-disable-next-line @mandalay/no-hardcoded-colors -- Camera UI retake button
                   className={cn(
                     "flex h-14 w-14 items-center justify-center rounded-full",
                     "bg-white/20 text-white",
@@ -347,7 +353,7 @@ export function PhotoCapture({
                   disabled={isUploading}
                   className={cn(
                     "flex h-20 w-20 items-center justify-center rounded-full",
-                    "bg-green text-white shadow-lg",
+                    "bg-green text-text-inverse shadow-lg",
                     "transition-all duration-fast",
                     "active:scale-95"
                   )}
