@@ -194,8 +194,8 @@
   /* Glassmorphism effect (dark text for contrast) */
   .glass {
     background: color-mix(in srgb, var(--color-surface-primary) 85%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(var(--blur-lg));
+    -webkit-backdrop-filter: blur(var(--blur-lg));
     border: 1px solid var(--color-border-subtle);
     color: var(--color-text-primary);
   }
@@ -203,8 +203,8 @@
   /* Dark glass (light text for contrast) */
   .glass-dark {
     background: color-mix(in srgb, var(--color-text-primary) 85%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(var(--blur-lg));
+    -webkit-backdrop-filter: blur(var(--blur-lg));
     border: 1px solid var(--color-border-strong);
     color: var(--color-text-inverse);
   }
@@ -275,8 +275,8 @@
       color-mix(in srgb, var(--color-surface-primary) 75%, var(--glass-tint)),
       transparent 25%
     );
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
+    backdrop-filter: blur(var(--blur-2xl));
+    -webkit-backdrop-filter: blur(var(--blur-2xl));
     border: 1px solid var(--color-border-subtle);
     transition:
       backdrop-filter 0.3s ease,
@@ -293,8 +293,8 @@
       color-mix(in srgb, var(--color-surface-primary) 80%, var(--glass-tint)),
       transparent 20%
     );
-    backdrop-filter: blur(36px);
-    -webkit-backdrop-filter: blur(36px);
+    backdrop-filter: blur(var(--blur-3xl));
+    -webkit-backdrop-filter: blur(var(--blur-3xl));
   }
 
   /* Gradient glow on hover - for cards/buttons */
@@ -314,7 +314,7 @@
       rgba(164, 16, 52, 0.3)
     );
     opacity: 0;
-    filter: blur(8px);
+    filter: blur(var(--blur-md));
     transition: opacity 0.3s ease;
     z-index: -1;
     pointer-events: none;
