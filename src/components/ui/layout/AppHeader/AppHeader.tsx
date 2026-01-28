@@ -175,7 +175,8 @@ export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
 
           {/* Top accent border with primary gradient glow */}
           <div
-            className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-secondary via-primary to-secondary opacity-60"
+            className="absolute top-0 left-0 right-0 h-0.5 opacity-60"
+            style={{ background: "linear-gradient(to right, var(--color-secondary), var(--color-primary), var(--color-secondary))" }}
             aria-hidden="true"
           />
 

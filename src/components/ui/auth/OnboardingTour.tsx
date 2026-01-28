@@ -130,7 +130,8 @@ function StepIllustration({ icon, isActive }: StepIllustrationProps) {
             : undefined
         }
         transition={{ duration: 3, repeat: Infinity }}
-        className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20"
+        className="absolute inset-0 rounded-full"
+        style={{ background: "linear-gradient(to bottom right, var(--color-primary-light), var(--color-secondary-light))" }}
       />
       <motion.div
         animate={
@@ -142,7 +143,8 @@ function StepIllustration({ icon, isActive }: StepIllustrationProps) {
             : undefined
         }
         transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
-        className="absolute inset-4 rounded-full bg-gradient-to-br from-secondary/20 to-green/20"
+        className="absolute inset-4 rounded-full"
+        style={{ background: "linear-gradient(to bottom right, var(--color-secondary-light), var(--color-accent-green-light))" }}
       />
 
       {/* Icon */}
@@ -152,7 +154,7 @@ function StepIllustration({ icon, isActive }: StepIllustrationProps) {
         transition={spring.ultraBouncy}
         className={cn(
           "relative w-24 h-24 rounded-2xl",
-          "bg-gradient-to-br from-primary to-primary/80",
+          "bg-gradient-primary",
           "flex items-center justify-center",
           "shadow-xl shadow-primary/30"
         )}
@@ -313,7 +315,7 @@ export function OnboardingTour({
       className={cn(
         "fixed inset-0 z-modal",
         "flex items-center justify-center",
-        "bg-gradient-to-br from-surface-primary via-white to-surface-secondary",
+        "bg-gradient-surface",
         className
       )}
     >
@@ -387,7 +389,7 @@ export function OnboardingTour({
           className={cn(
             "inline-flex items-center gap-2",
             "px-8 py-4 rounded-2xl",
-            "bg-gradient-to-r from-primary to-primary/90",
+            "bg-gradient-primary",
             "text-text-inverse font-semibold text-lg",
             "shadow-lg shadow-primary/30",
             "hover:shadow-xl hover:shadow-primary/40",

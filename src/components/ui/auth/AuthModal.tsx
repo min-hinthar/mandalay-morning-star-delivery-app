@@ -177,7 +177,7 @@ function SubmitButton({ children, disabled }: SubmitButtonProps) {
       whileTap={shouldAnimate && !isDisabled ? { scale: 0.98 } : undefined}
       className={cn(
         "w-full py-4 rounded-xl",
-        "bg-gradient-to-r from-primary to-primary/90",
+        "bg-gradient-primary",
         "text-text-inverse font-semibold",
         "flex items-center justify-center gap-2",
         "shadow-lg shadow-primary/30",
@@ -361,7 +361,7 @@ export function AuthModal({
                 className={cn(
                   "inline-flex items-center justify-center",
                   "w-16 h-16 rounded-2xl mb-4",
-                  "bg-gradient-to-br from-primary to-primary/80",
+                  "bg-gradient-primary",
                   "shadow-lg shadow-primary/30"
                 )}
               >
@@ -428,8 +428,14 @@ export function AuthModal({
 
             {/* Decorative gradient */}
             <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
-              <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br from-secondary/20 to-transparent blur-2xl" />
-              <div className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-gradient-to-tr from-primary/10 to-transparent blur-2xl" />
+              <div
+                className="absolute -top-20 -right-20 w-40 h-40 rounded-full blur-2xl"
+                style={{ background: "linear-gradient(to bottom right, var(--color-secondary-light), transparent)" }}
+              />
+              <div
+                className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full blur-2xl"
+                style={{ background: "linear-gradient(to top right, var(--color-primary-light), transparent)" }}
+              />
             </div>
           </motion.div>
         </motion.div>

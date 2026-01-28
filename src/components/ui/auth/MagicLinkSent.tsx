@@ -60,7 +60,8 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
             : undefined
         }
         transition={{ duration: 2, repeat: Infinity }}
-        className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 blur-xl"
+        className="absolute inset-0 rounded-full blur-xl"
+        style={{ background: "linear-gradient(to bottom right, var(--color-primary-light), var(--color-secondary-light))" }}
       />
 
       {/* Envelope container */}
@@ -80,7 +81,7 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
           transition={{ duration: 0.5 }}
           className={cn(
             "relative w-28 h-20 rounded-xl",
-            "bg-gradient-to-br from-primary to-primary/80",
+            "bg-gradient-primary",
             "shadow-xl shadow-primary/30",
             "overflow-hidden"
           )}
@@ -96,7 +97,7 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
             style={{ transformOrigin: "top center", perspective: 1000 }}
             className={cn(
               "absolute inset-x-0 top-0 h-10",
-              "bg-gradient-to-b from-primary to-primary/90",
+              "bg-gradient-primary",
               "[clip-path:polygon(0_0,50%_100%,100%_0)]"
             )}
           />
@@ -373,7 +374,7 @@ export function MagicLinkSent({
           className={cn(
             "inline-flex items-center gap-2",
             "px-6 py-3 rounded-xl",
-            "bg-gradient-to-r from-primary to-primary/90",
+            "bg-gradient-primary",
             "text-text-inverse font-semibold",
             "shadow-lg shadow-primary/30",
             "hover:shadow-xl hover:shadow-primary/40",

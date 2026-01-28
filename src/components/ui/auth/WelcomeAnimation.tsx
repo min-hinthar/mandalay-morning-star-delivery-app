@@ -162,7 +162,8 @@ function MascotCelebrationV7() {
             : undefined
         }
         transition={{ duration: 2, repeat: Infinity }}
-        className="absolute inset-0 rounded-full bg-gradient-to-br from-secondary/40 to-primary/40 blur-2xl"
+        className="absolute inset-0 rounded-full blur-2xl"
+        style={{ background: "linear-gradient(to bottom right, var(--color-secondary-light), var(--color-primary-light))" }}
       />
 
       {/* Main mascot container */}
@@ -175,7 +176,7 @@ function MascotCelebrationV7() {
         transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
         className={cn(
           "relative w-32 h-32 rounded-full",
-          "bg-gradient-to-br from-primary to-primary/80",
+          "bg-gradient-primary",
           "flex items-center justify-center",
           "shadow-2xl shadow-primary/40"
         )}
@@ -320,7 +321,7 @@ export function WelcomeAnimation({
       className={cn(
         "fixed inset-0 z-modal",
         "flex flex-col items-center justify-center",
-        "bg-gradient-to-br from-surface-primary via-white to-surface-secondary",
+        "bg-gradient-surface",
         className
       )}
     >
@@ -396,7 +397,7 @@ export function WelcomeAnimation({
               className={cn(
                 "inline-flex items-center gap-2",
                 "px-8 py-4 rounded-2xl",
-                "bg-gradient-to-r from-primary to-primary/90",
+                "bg-gradient-primary",
                 "text-text-inverse font-semibold text-lg",
                 "shadow-xl shadow-primary/30",
                 "hover:shadow-2xl hover:shadow-primary/40",

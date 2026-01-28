@@ -37,7 +37,7 @@ export function DrawerUserSection({ user, onClose }: DrawerUserSectionProps) {
             <motion.div
               className={cn(
                 "w-12 h-12 rounded-xl overflow-hidden",
-                "bg-gradient-to-br from-primary to-secondary",
+                "bg-gradient-avatar",
                 "flex items-center justify-center text-white font-bold text-lg"
               )}
               whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
