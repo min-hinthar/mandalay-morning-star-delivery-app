@@ -115,8 +115,12 @@ const PATTERNS = {
       // Tailwind arbitrary blur
       { regex: /\bblur-\[\d+px\]/g, name: 'blur-[Npx]', severity: 'warning' },
       { regex: /\bbackdrop-blur-\[\d+px\]/g, name: 'backdrop-blur-[Npx]', severity: 'warning' },
-      // Tailwind arbitrary durations (info level - large scope)
-      { regex: /\bduration-\[\d+ms\]/g, name: 'duration-[Nms]', severity: 'info' },
+      // Tailwind arbitrary durations - upgraded from info to warning for enforcement
+      { regex: /\bduration-\[\d+m?s\]/g, name: 'duration-[Nms]', severity: 'warning' },
+      // Tailwind arbitrary delays
+      { regex: /\bdelay-\[\d+m?s\]/g, name: 'delay-[Nms]', severity: 'warning' },
+      // Tailwind arbitrary transition timing functions
+      { regex: /\bease-\[[^\]]+\]/g, name: 'ease-[...]', severity: 'info' },
     ],
     inline: [
       // Inline boxShadow with hardcoded values (not CSS variables)
@@ -125,6 +129,12 @@ const PATTERNS = {
       // Inline backdropFilter with hardcoded blur
       { regex: /backdropFilter:\s*['"]blur\(\d+px\)/g, name: 'inline backdropFilter', severity: 'warning' },
       { regex: /filter:\s*['"]blur\(\d+px\)/g, name: 'inline filter blur', severity: 'warning' },
+      // Inline transition with hardcoded duration (not CSS variable)
+      { regex: /transition:\s*['"][^'"]*\d+m?s/g, name: 'inline transition duration', severity: 'warning' },
+      // Inline transitionDuration with hardcoded value
+      { regex: /transitionDuration:\s*['"]?\d+m?s/g, name: 'inline transitionDuration', severity: 'warning' },
+      // Inline animationDuration with hardcoded value
+      { regex: /animationDuration:\s*['"]?\d+m?s/g, name: 'inline animationDuration', severity: 'warning' },
     ],
   },
   deprecated: {
@@ -208,7 +218,12 @@ const FIX_SUGGESTIONS = {
   'shadow-[...]': 'Use semantic shadow tokens (shadow-xs, shadow-sm, shadow-card, shadow-primary, etc.)',
   'blur-[Npx]': 'Use Tailwind blur scale (blur-sm=4px, blur-md=8px, blur-lg=12px, etc.)',
   'backdrop-blur-[Npx]': 'Use Tailwind backdrop-blur scale (backdrop-blur-sm, backdrop-blur-md, etc.)',
-  'duration-[Nms]': 'Consider using motion tokens (duration-fast=150ms, duration-normal=220ms, etc.)',
+  'duration-[Nms]': 'Use motion tokens: duration-instant(0ms), duration-fast(150ms), duration-normal(220ms), duration-slow(350ms), duration-slower(500ms)',
+  'delay-[Nms]': 'Use CSS variable: delay: var(--duration-*) or Tailwind delay scale',
+  'ease-[...]': 'Use easing tokens: ease-default, ease-spring, ease-out, ease-in, ease-in-out',
+  'inline transition duration': 'Use CSS variable: transition: all var(--duration-normal) var(--ease-default)',
+  'inline transitionDuration': 'Use CSS variable: transitionDuration: var(--duration-normal)',
+  'inline animationDuration': 'Use CSS variable: animationDuration: var(--duration-slow)',
   'inline boxShadow': 'Use CSS variable: boxShadow: var(--shadow-*)',
   'inline boxShadow inset': 'Use CSS variable: boxShadow: var(--shadow-inner-*)',
   'inline backdropFilter': 'Use CSS variable: backdropFilter: blur(var(--blur-*))',
