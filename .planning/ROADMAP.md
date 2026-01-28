@@ -21,7 +21,7 @@ Systematic consolidation of the codebase: merge overlapping component systems, e
 - [x] **Phase 26: Component Consolidation** - Merge ui-v8 into ui, clean V7 remnants
 - [x] **Phase 27: Token Enforcement - Colors** - Replace all hardcoded colors with semantic tokens
 - [x] **Phase 28: Token Enforcement - Layout** - Standardize spacing, typography, border-radius
-- [ ] **Phase 29: Token Enforcement - Effects** - Standardize shadows, blur, motion durations
+- [x] **Phase 29: Token Enforcement - Effects** - Standardize shadows, blur, motion durations
 - [ ] **Phase 30: Mobile Stability** - Fix 3D tilt on touch devices
 - [ ] **Phase 31: Hero Redesign** - Floating emojis, parallax, theme-aware gradients
 - [ ] **Phase 32: Quality Assurance** - Documentation, testing, regression prevention
@@ -110,13 +110,20 @@ Plans:
   1. All box-shadow uses design system shadow tokens
   2. All backdrop-blur uses consistent values via tokens
   3. All transition/animation durations reference motion tokens
-**Plans**: 4 plans in 3 waves
+
+**Note on Motion Timing:** Framer Motion animations use numeric durations for spring physics (required).
+CSS transitions use var(--duration-*) tokens. Both approaches are valid - FM for interactive animations,
+CSS tokens for non-spring transitions.
+
+**Plans**: 6 plans in 4 waves
 
 Plans:
-- [ ] 29-01-PLAN.md — Shadow/blur token infrastructure + ESLint rules
-- [ ] 29-02-PLAN.md — Migrate component shadow values (cart, theme, drawer)
-- [ ] 29-03-PLAN.md — Migrate blur values (globals.css, CommandPalette, Header)
-- [ ] 29-04-PLAN.md — Complete shadow/blur migration (checkout, admin, menu, utilities)
+- [x] 29-01-PLAN.md — Shadow/blur token infrastructure + ESLint rules
+- [x] 29-02-PLAN.md — Migrate component shadow values (cart, theme, drawer)
+- [x] 29-03-PLAN.md — Migrate blur values (globals.css, CommandPalette, Header)
+- [x] 29-04-PLAN.md — Complete shadow/blur migration (checkout, admin, menu, utilities)
+- [x] 29-05-PLAN.md — Gap closure: AppHeader blur fix + motion timing ESLint rules
+- [x] 29-06-PLAN.md — Gap closure: CSS transition tokenization + FM documentation
 
 ### Phase 30: Mobile Stability
 **Goal**: 3D tilt effects work reliably on touch devices
@@ -227,7 +234,7 @@ Phases execute in numeric order: 25 -> 26 -> 27 -> 28 -> 29 -> 30 -> 31 -> 32 ->
 | 26. Component Consolidation | v1.3 | 8/8 | Complete | 2026-01-27 |
 | 27. Token Enforcement - Colors | v1.3 | 6/6 | Complete | 2026-01-27 |
 | 28. Token Enforcement - Layout | v1.3 | 3/3 | Complete | 2026-01-28 |
-| 29. Token Enforcement - Effects | v1.3 | 0/4 | Not started | - |
+| 29. Token Enforcement - Effects | v1.3 | 6/6 | Complete | 2026-01-28 |
 | 30. Mobile Stability | v1.3 | 0/2 | Not started | - |
 | 31. Hero Redesign | v1.3 | 0/4 | Not started | - |
 | 32. Quality Assurance | v1.3 | 0/3 | Not started | - |
