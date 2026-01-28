@@ -559,3 +559,80 @@ export { SearchInputV8 } from "./SearchInputV8";
 ```
 
 ---
+
+## 2026-01-27: ESLint Guards for Consolidated Directories
+
+**Context:** Phase 33 consolidated 8 directories into ui/ subdirectories. Needed to prevent accidental recreation.
+**Learning:** Use ESLint's `no-restricted-imports` with multiple path patterns per directory to block both direct and aliased imports:
+
+```javascript
+// eslint.config.mjs
+{
+  rules: {
+    "no-restricted-imports": ["error", {
+      patterns: [
+        {
+          group: ["@/components/menu/*", "@/components/menu", "**/components/menu/*"],
+          message: "menu/ consolidated into ui/menu/. Import from @/components/ui/menu."
+        },
+        // Repeat for each consolidated directory
+      ]
+    }]
+  }
+}
+```
+
+**Pattern elements:**
+- `@/components/dir/*` - Catches aliased deep imports
+- `@/components/dir` - Catches aliased barrel imports
+- `**/components/dir/*` - Catches relative path imports
+
+**Apply when:** Consolidating directories, removing deprecated paths, enforcing canonical import locations.
+
+---
+
+## 2026-01-27: CSS Variables for Theme-Aware Inline Styles
+
+**Context:** CommandPalette had `backgroundColor: "rgba(255,255,255,0.85)"` inline style that wasn't theme-aware
+**Learning:** When Tailwind classes don't support exact opacity values (e.g., `bg-surface-primary/85` not available), define CSS variable in tokens.css and reference in inline style:
+
+```css
+/* tokens.css - light theme */
+--color-surface-primary-85: rgba(255, 255, 255, 0.85);
+
+/* tokens.css - dark theme */
+--color-surface-primary-85: rgba(0, 0, 0, 0.85);
+```
+
+```tsx
+// Component
+style={{ backgroundColor: "var(--color-surface-primary-85)" }}
+```
+
+**Apply when:** Glassmorphism effects, custom opacity backgrounds, or any inline style that needs to respect theme. Prefer tokens.css over component-level CSS variables for discoverability.
+
+---
+
+## 2026-01-27: Tailwind v4 Scans ALL Files for Class Patterns
+
+**Context:** Build warnings about `var(--color-*)` wildcard patterns in generated CSS
+**Learning:** Tailwind v4's auto-content detection scans ALL project files including:
+- `eslint.config.mjs` — ESLint rule messages
+- `scripts/*.js` — Build/audit scripts
+- `.planning/**/*.md` — Planning documentation
+- `docs/**/*.md` — User documentation
+
+Any string matching Tailwind class syntax gets compiled, including examples in error messages.
+
+**Fix:** Replace wildcards with concrete examples in documentation/messages:
+```javascript
+// ❌ Generates invalid CSS class
+message: "Use bg-[var(--color-*)] instead"
+
+// ✅ Uses valid existing class
+message: "Use bg-primary, bg-surface-primary instead"
+```
+
+**Apply when:** Writing ESLint rules, audit scripts, or documentation that includes Tailwind class examples. Always use real, valid class names.
+
+---
