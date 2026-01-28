@@ -66,7 +66,7 @@ function SwipeDeleteIndicator({ progress }: SwipeDeleteIndicatorProps) {
     >
       <motion.div
         className={cn(
-          "w-10 h-10 rounded-full bg-red-500 text-white",
+          "w-10 h-10 rounded-full bg-red-500 text-text-inverse",
           "flex items-center justify-center"
         )}
         style={{

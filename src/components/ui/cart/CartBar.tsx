@@ -117,7 +117,7 @@ function DeliveryProgress({
               shouldAnimate ? { y: [0, -1, 0], rotate: [0, -2, 2, 0] } : undefined
             }
             transition={{ duration: 0.3, repeat: Infinity, repeatDelay: 0.5 }}
-            className="w-4 h-4 rounded-full bg-white dark:bg-gray-800 border border-amber-400 shadow-sm flex items-center justify-center"
+            className="w-4 h-4 rounded-full bg-surface-primary dark:bg-surface-tertiary border border-amber-400 shadow-sm flex items-center justify-center"
           >
             <Truck className="w-2.5 h-2.5 text-amber-600" />
           </motion.div>
@@ -291,7 +291,7 @@ export function CartBar({
                   className={cn(
                     "absolute -top-1 -right-1",
                     "flex h-5 min-w-5 items-center justify-center px-1",
-                    "rounded-full bg-amber-500 text-[10px] font-bold text-white",
+                    "rounded-full bg-amber-500 text-[10px] font-bold text-text-inverse",
                     "shadow-sm"
                   )}
                 >
@@ -308,7 +308,7 @@ export function CartBar({
                   value={estimatedTotal}
                   inCents
                   size="lg"
-                  className="text-text-primary dark:text-white font-bold"
+                  className="text-text-primary dark:text-text-primary font-bold"
                 />
               </div>
             </motion.button>
@@ -331,7 +331,7 @@ export function CartBar({
                 <Button
                   size="sm"
                   onClick={handleCheckout}
-                  className="bg-amber-500 text-white hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 font-semibold shadow-sm"
+                  className="bg-amber-500 text-text-inverse hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 font-semibold shadow-sm"
                 >
                   Checkout
                 </Button>

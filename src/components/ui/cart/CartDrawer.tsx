@@ -96,7 +96,7 @@ function CartHeader({ itemCount, onClose, onClearClick, showClear }: CartHeaderP
             transition={getSpring(spring.rubbery)}
             className={cn(
               "rounded-full px-2.5 py-1 text-xs font-semibold",
-              "bg-amber-500 text-white shadow-sm"
+              "bg-amber-500 text-text-inverse shadow-sm"
             )}
           >
             {itemCount}
