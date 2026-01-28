@@ -31,7 +31,7 @@ const Progress = React.forwardRef<
       {useSpring ? (
         // GPU-accelerated: using scaleX instead of width for 60fps
         <motion.div
-          className="h-full w-full bg-gradient-to-r from-saffron to-jade"
+          className="h-full w-full bg-gradient-progress"
           style={{ transformOrigin: "left" }}
           initial={{ scaleX: 0 }}
           animate={{ scaleX: percentage / 100 }}
@@ -39,7 +39,7 @@ const Progress = React.forwardRef<
         />
       ) : (
         <ProgressPrimitive.Indicator
-          className="h-full w-full flex-1 bg-gradient-to-r from-saffron to-jade transition-transform duration-300 ease-out"
+          className="h-full w-full flex-1 bg-gradient-progress transition-transform duration-300 ease-out"
           style={{ transform: `translateX(-${100 - percentage}%)` }}
         />
       )}
