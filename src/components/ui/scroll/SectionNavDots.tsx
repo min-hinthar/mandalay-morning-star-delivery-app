@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useScrollSpy } from "@/lib/hooks/useScrollSpy";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { zClass } from "@/design-system/tokens/z-index";
+import { zClass } from "@/lib/design-system/tokens/z-index";
 
 interface Section {
   /** Section element ID (must match the id attribute of the section) */

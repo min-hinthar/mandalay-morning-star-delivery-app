@@ -9,7 +9,7 @@ import {
 } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
-import { zClass } from "@/design-system/tokens/z-index";
+import { zClass } from "@/lib/design-system/tokens/z-index";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useCart } from "@/lib/hooks/useCart";

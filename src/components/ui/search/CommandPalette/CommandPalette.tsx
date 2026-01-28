@@ -7,7 +7,7 @@ import { useCallback, useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { useRecentSearches } from "@/lib/hooks";
 import { cn } from "@/lib/utils/cn";
-import { zClass } from "@/design-system/tokens/z-index";
+import { zClass } from "@/lib/design-system/tokens/z-index";
 import type { MenuItem } from "@/types/menu";
 import { SearchInput } from "./SearchInput";
 import { SearchResults } from "./SearchResults";

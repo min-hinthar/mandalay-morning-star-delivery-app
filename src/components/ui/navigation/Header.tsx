@@ -18,7 +18,7 @@ import { motion, type Variants } from "framer-motion";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
-import { zClass } from "@/design-system/tokens/z-index";
+import { zClass } from "@/lib/design-system/tokens/z-index";
 import { useScrollDirection } from "@/lib/hooks/useScrollDirection";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { spring } from "@/lib/motion-tokens";

@@ -19,7 +19,7 @@ import { createPortal } from "react-dom";
 import { gsap } from "@/lib/gsap";
 import { useCartAnimationStore } from "@/lib/stores/cart-animation-store";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { zIndex } from "@/design-system/tokens/z-index";
+import { zIndex } from "@/lib/design-system/tokens/z-index";
 
 // ============================================
 // TYPES

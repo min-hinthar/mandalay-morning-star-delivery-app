@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer80, duration } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useSwipeToClose } from "@/lib/swipe-gestures";
-import { zClass } from "@/design-system/tokens/z-index";
+import { zClass } from "@/lib/design-system/tokens/z-index";
 import { Home, UtensilsCrossed, Package, User, X } from "lucide-react";
 
 import { DrawerNavLink } from "./DrawerNavLink";
