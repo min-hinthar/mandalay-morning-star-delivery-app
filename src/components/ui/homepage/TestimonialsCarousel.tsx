@@ -113,11 +113,11 @@ function Avatar({ name }: AvatarProps) {
 
   // Generate consistent color based on name
   const colors = [
-    "bg-primary text-white",
+    "bg-primary text-text-inverse",
     "bg-secondary text-text-primary",
-    "bg-green text-white",
-    "bg-accent-orange text-white",
-    "bg-accent-teal text-white",
+    "bg-green text-text-inverse",
+    "bg-accent-orange text-text-inverse",
+    "bg-accent-teal text-text-inverse",
   ];
   const colorIndex = name.charCodeAt(0) % colors.length;
 

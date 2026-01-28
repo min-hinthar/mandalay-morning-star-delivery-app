@@ -402,7 +402,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
                   setSearchQuery("");
                   setActiveCategory(null);
                 }}
-                className="mt-4 px-6 py-3 bg-primary text-white rounded-pill font-body font-semibold hover:bg-primary-hover transition-colors duration-fast shadow-sm hover:shadow-md"
+                className="mt-4 px-6 py-3 bg-primary text-text-inverse rounded-pill font-body font-semibold hover:bg-primary-hover transition-colors duration-fast shadow-sm hover:shadow-md"
               >
                 View All Dishes
               </button>
