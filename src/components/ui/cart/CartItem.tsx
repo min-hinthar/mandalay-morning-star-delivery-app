@@ -59,7 +59,7 @@ function SwipeDeleteIndicator({ progress }: SwipeDeleteIndicatorProps) {
     <motion.div
       className={cn(
         "absolute right-0 inset-y-0 flex items-center justify-end pr-4",
-        "bg-gradient-to-l from-red-500/20 to-transparent",
+        "bg-gradient-delete",
         "rounded-r-xl pointer-events-none"
       )}
       style={{ width: `${Math.min(100, progress * 150)}%` }}

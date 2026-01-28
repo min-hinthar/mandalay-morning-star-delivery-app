@@ -78,7 +78,7 @@ export function CartSummary({ className }: CartSummaryProps) {
           transition={getSpring(spring.gentle)}
           className={cn(
             "p-4 rounded-xl",
-            "bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/30",
+            "bg-gradient-cart-summary",
             "border border-amber-200/60 dark:border-amber-800/40",
             "shadow-sm"
           )}
@@ -109,7 +109,7 @@ export function CartSummary({ className }: CartSummaryProps) {
           {/* Enhanced progress bar with truck */}
           <div className="relative">
             {/* Track background with gradient */}
-            <div className="h-3 bg-gradient-to-r from-amber-100 to-amber-200 dark:from-amber-900/50 dark:to-amber-800/50 rounded-full overflow-visible relative">
+            <div className="h-3 bg-gradient-delivery-track rounded-full overflow-visible relative">
               {/* Dashed road effect */}
               <div className="absolute inset-y-0 inset-x-2 flex items-center justify-evenly">
                 {[...Array(8)].map((_, i) => (
@@ -124,7 +124,7 @@ export function CartSummary({ className }: CartSummaryProps) {
               <motion.div
                 className={cn(
                   "h-full rounded-full relative",
-                  "bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500",
+                  "bg-gradient-progress",
                   "shadow-[0_2px_8px_rgba(245,158,11,0.4)]"
                 )}
                 animate={{ width: `${progressPercent}%` }}
@@ -192,7 +192,7 @@ export function CartSummary({ className }: CartSummaryProps) {
           transition={getSpring(spring.ultraBouncy)}
           className={cn(
             "p-4 rounded-xl relative overflow-hidden",
-            "bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/40 dark:to-emerald-950/30",
+            "bg-gradient-delivery-success",
             "border border-green-200/60 dark:border-green-800/40",
             "shadow-sm"
           )}

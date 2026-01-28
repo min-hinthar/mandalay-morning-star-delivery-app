@@ -100,7 +100,7 @@ function DeliveryProgress({
 
           {/* Filled progress */}
           <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 shadow-sm"
+            className="h-full rounded-full bg-gradient-progress shadow-sm"
             animate={{ width: `${progressPercent}%` }}
             transition={getSpring(spring.rubbery)}
           />
@@ -141,7 +141,7 @@ function FreeDeliveryBanner({ shouldAnimate }: FreeDeliveryBannerProps) {
       <motion.div
         initial={shouldAnimate ? { scale: 0.9, opacity: 0 } : false}
         animate={{ scale: 1, opacity: 1 }}
-        className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30"
+        className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full bg-gradient-delivery-success"
       >
         <motion.div
           animate={

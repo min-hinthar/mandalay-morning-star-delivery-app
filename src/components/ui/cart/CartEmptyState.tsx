@@ -96,8 +96,7 @@ export function CartEmptyState({ onClose, className }: CartEmptyStateProps) {
         }}
         className={cn(
           "flex h-28 w-28 items-center justify-center rounded-full",
-          "bg-gradient-to-br from-amber-100 to-amber-50",
-          "dark:from-amber-900/30 dark:to-amber-950/20",
+          "bg-gradient-cart-summary",
           "shadow-lg shadow-amber-500/10"
         )}
       >
