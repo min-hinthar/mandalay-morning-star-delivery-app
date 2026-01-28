@@ -103,7 +103,7 @@ className={highContrast ? "bg-black text-white" : "bg-background text-foreground
 
 ### Anti-Patterns to Avoid
 - **Opacity-based text colors:** Use `text-muted-foreground` not `text-white/70`
-- **Hardcoded hex in arbitrary values:** Use `bg-[var(--color-*)]` not `bg-[#fff]`
+- **Hardcoded hex in arbitrary values:** Use semantic tokens (bg-primary) not `bg-[#fff]`
 - **Theme-unaware gradients:** Always use CSS variables in gradient definitions
 - **Inline style hex colors:** Move to tokens or Tailwind utilities
 

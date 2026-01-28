@@ -138,12 +138,12 @@ const config = [
         {
           // Catch hardcoded hex colors in bg-[]
           selector: "Literal[value=/bg-\\[#[0-9a-fA-F]{3,8}\\]/]",
-          message: "Use design token colors (e.g., bg-[var(--color-*)]) instead of hardcoded hex values.",
+          message: "Use design token colors (e.g., bg-primary, bg-surface-primary) instead of hardcoded hex values.",
         },
         {
           // Catch hardcoded hex colors in text-[]
           selector: "Literal[value=/text-\\[#[0-9a-fA-F]{3,8}\\]/]",
-          message: "Use design token colors (e.g., text-[var(--color-*)]) instead of hardcoded hex values.",
+          message: "Use design token colors (e.g., text-primary, text-text-inverse) instead of hardcoded hex values.",
         },
         // Hardcoded color classes - use semantic tokens instead
         // NOTE: These are warnings during migration; audit script handles enforcement
