@@ -3,6 +3,7 @@
 import { motion, MotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useCanHover } from "@/lib/hooks/useResponsive";
 import { getCategoryEmoji } from "@/components/ui/menu";
 import { AnimatedImage } from "@/components/ui/animated-image";
 import { zClass } from "@/lib/design-system/tokens/z-index";
@@ -57,6 +58,7 @@ export function CardImage({
   className,
 }: CardImageProps) {
   const { shouldAnimate } = useAnimationPreference();
+  const canHover = useCanHover();
 
   // Parallax transforms (+-10px)
   const imageX = useTransform(mouseX, [0, 1], [-10, 10]);
@@ -105,7 +107,7 @@ export function CardImage({
         )}
       </motion.div>
 
-      {/* Shine overlay - follows mouse during hover */}
+      {/* Shine overlay - follows mouse during hover (desktop) */}
       {shouldAnimate && isHovered && (
         <motion.div
           className={cn("absolute inset-0 pointer-events-none bg-gradient-card-shine", zClass.cardShine)}
@@ -118,6 +120,25 @@ export function CardImage({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         />
+      )}
+
+      {/* Animated shine sweep for touch devices (no cursor tracking) */}
+      {shouldAnimate && !canHover && (
+        <div
+          className={cn(
+            "absolute inset-0 pointer-events-none touch-only",
+            zClass.cardShine
+          )}
+        >
+          <div
+            className="absolute inset-0 animate-shine-sweep bg-gradient-card-shine"
+            style={{
+              width: "50%",
+              height: "200%",
+              top: "-50%",
+            }}
+          />
+        </div>
       )}
 
       {/* Gradient overlay for better text contrast if needed */}
