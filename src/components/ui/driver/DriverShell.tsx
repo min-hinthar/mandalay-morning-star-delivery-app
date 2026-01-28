@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { OfflineBanner } from "./OfflineBanner";
 import { useServiceWorker } from "@/lib/hooks/useServiceWorker";
 import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
-import { DriverContrastProvider } from "@/contexts/DriverContrastContext";
+import { DriverContrastProvider } from "@/app/contexts/DriverContrastContext";
 
 interface DriverShellProps {
   children: React.ReactNode;

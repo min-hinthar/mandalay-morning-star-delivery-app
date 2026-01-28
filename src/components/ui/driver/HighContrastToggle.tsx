@@ -9,7 +9,7 @@
 
 import { Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { useDriverContrast } from "@/contexts/DriverContrastContext";
+import { useDriverContrast } from "@/app/contexts/DriverContrastContext";
 import { AnimatedToggle } from "@/components/ui/animated-toggle";
 
 interface HighContrastToggleProps {
