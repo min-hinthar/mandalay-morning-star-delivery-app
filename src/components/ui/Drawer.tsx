@@ -232,7 +232,7 @@ export function Drawer({
               opacity: computedBackdropOpacity,
             }}
             onClick={onClose}
-            className="fixed inset-0 bg-overlay backdrop-blur-sm"
+            className="fixed inset-0 bg-overlay-heavy sm:backdrop-blur-sm"
             aria-hidden="true"
             data-testid="drawer-backdrop"
           />
