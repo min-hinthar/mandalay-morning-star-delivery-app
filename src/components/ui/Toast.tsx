@@ -9,7 +9,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { zIndex } from "@/design-system/tokens/z-index";
+import { zIndex } from "@/lib/design-system/tokens/z-index";
 import { overlayMotion } from "@/design-system/tokens/motion";
 import { cn } from "@/lib/utils/cn";
 import { Portal } from "./Portal";

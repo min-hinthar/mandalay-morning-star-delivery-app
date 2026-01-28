@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { zClass } from "@/design-system/tokens/z-index";
+import { zClass } from "@/lib/design-system/tokens/z-index";
 import type { MenuItem } from "@/types/menu";
 
 // ============================================

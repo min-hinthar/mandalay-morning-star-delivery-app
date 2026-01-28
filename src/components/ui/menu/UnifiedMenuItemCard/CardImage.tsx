@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { getCategoryEmoji } from "@/components/ui/menu";
 import { AnimatedImage } from "@/components/ui/animated-image";
-import { zClass } from "@/design-system/tokens/z-index";
+import { zClass } from "@/lib/design-system/tokens/z-index";
 
 // ============================================
 // TYPES

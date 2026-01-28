@@ -28,7 +28,7 @@ import { usePlaySound } from "@/lib/hooks/useSoundEffect";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
-import { zIndex } from "@/design-system/tokens/z-index";
+import { zIndex } from "@/lib/design-system/tokens/z-index";
 import {
   spring,
   cartBarSlideUp,

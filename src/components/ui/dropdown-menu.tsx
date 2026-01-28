@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils/cn";
-import { zClass } from "@/design-system/tokens/z-index";
+import { zClass } from "@/lib/design-system/tokens/z-index";
 
 interface DropdownMenuContextType {
   open: boolean;

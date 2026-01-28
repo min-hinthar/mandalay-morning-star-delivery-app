@@ -12,7 +12,7 @@ import {
   useMenu,
   useAuth,
 } from "@/lib/hooks";
-import { zClass } from "@/design-system/tokens/z-index";
+import { zClass } from "@/lib/design-system/tokens/z-index";
 import { DesktopHeader, type NavItem, defaultNavItems } from "./DesktopHeader";
 import { MobileHeader } from "./MobileHeader";
 import { CartIndicator } from "./CartIndicator";

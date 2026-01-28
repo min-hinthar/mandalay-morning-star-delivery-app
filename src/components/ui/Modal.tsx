@@ -33,7 +33,7 @@ import { X } from "lucide-react";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import { useSwipeToClose, triggerHaptic } from "@/lib/swipe-gestures";
 import { cn } from "@/lib/utils/cn";
-import { zIndex as zIndexTokens } from "@/design-system/tokens/z-index";
+import { zIndex as zIndexTokens } from "@/lib/design-system/tokens/z-index";
 
 // ============================================
 // CONTEXT FOR NESTED MODALS
