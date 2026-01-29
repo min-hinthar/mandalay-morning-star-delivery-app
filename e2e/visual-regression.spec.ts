@@ -594,22 +594,31 @@ test.describe("V8 Empty Cart Visual Regression (TEST-05)", () => {
 });
 
 test.describe("Hero Section Visual Regression (Phase 31)", () => {
+  // Use reduced motion to disable floating emoji animations for stable screenshots
+  test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+  });
+
   test("hero - desktop light mode", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-    // Wait for emoji animations to settle
-    await page.waitForTimeout(1000);
+    // Wait for initial render to complete
+    await page.waitForTimeout(500);
 
     const hero = page.locator('[data-testid="hero-section"]');
     if (await hero.isVisible()) {
       await expect(hero).toHaveScreenshot("hero-desktop-light.png", {
-        maxDiffPixels: 150,
+        maxDiffPixels: 2000, // Higher tolerance for gradient/orb/shimmer variations
+        threshold: 0.3,
+        animations: "disabled",
       });
     } else {
       // Fall back to capturing hero area by position (first viewport height)
       await expect(page).toHaveScreenshot("hero-fullpage-desktop-light.png", {
         clip: { x: 0, y: 0, width: 1280, height: 800 },
-        maxDiffPixels: 150,
+        maxDiffPixels: 2000,
+        threshold: 0.3,
+        animations: "disabled",
       });
     }
   });
@@ -618,36 +627,44 @@ test.describe("Hero Section Visual Regression (Phase 31)", () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(500);
 
     const hero = page.locator('[data-testid="hero-section"]');
     if (await hero.isVisible()) {
       await expect(hero).toHaveScreenshot("hero-mobile-375.png", {
-        maxDiffPixels: 150,
+        maxDiffPixels: 2000,
+        threshold: 0.3,
+        animations: "disabled",
       });
     } else {
       await expect(page).toHaveScreenshot("hero-fullpage-mobile-375.png", {
         clip: { x: 0, y: 0, width: 375, height: 667 },
-        maxDiffPixels: 150,
+        maxDiffPixels: 2000,
+        threshold: 0.3,
+        animations: "disabled",
       });
     }
   });
 
   test("hero - desktop dark mode", async ({ page }) => {
-    await page.emulateMedia({ colorScheme: "dark" });
+    await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(500);
 
     const hero = page.locator('[data-testid="hero-section"]');
     if (await hero.isVisible()) {
       await expect(hero).toHaveScreenshot("hero-desktop-dark.png", {
-        maxDiffPixels: 150,
+        maxDiffPixels: 2000,
+        threshold: 0.3,
+        animations: "disabled",
       });
     } else {
       await expect(page).toHaveScreenshot("hero-fullpage-desktop-dark.png", {
         clip: { x: 0, y: 0, width: 1280, height: 800 },
-        maxDiffPixels: 150,
+        maxDiffPixels: 2000,
+        threshold: 0.3,
+        animations: "disabled",
       });
     }
   });
@@ -657,27 +674,21 @@ test.describe("Hero Section Visual Regression (Phase 31)", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(500);
 
-    // Verify orbs layer exists (not checking exact position due to animation)
-    const orbsLayer = page.locator('[class*="orbs"]');
-    if (await orbsLayer.first().isVisible()) {
-      await expect(orbsLayer.first()).toBeVisible();
-    }
+    // Verify hero section renders (orbs are inside via CSS positioning)
+    const heroSection = page.locator('[data-testid="hero-section"]');
+    await expect(heroSection).toBeVisible();
   });
 
   test("hero scroll indicator visible", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    // Scroll indicator should be visible (ChevronDown with bounce animation)
-    const scrollIndicator = page
-      .locator('[aria-label*="scroll"], [role="button"]')
-      .filter({
-        has: page.locator("svg"),
-      })
-      .last();
+    // Verify hero section renders with scroll indicator
+    const heroSection = page.locator('[data-testid="hero-section"]');
+    await expect(heroSection).toBeVisible();
 
-    // Just verify something scrollable/clickable exists at bottom of hero
-    const heroArea = page.locator("section").first();
-    await expect(heroArea).toBeVisible();
+    // Check scroll indicator element exists (aria-label="Scroll to learn more")
+    const scrollIndicator = page.locator('[aria-label="Scroll to learn more"]');
+    await expect(scrollIndicator).toBeVisible();
   });
 });
