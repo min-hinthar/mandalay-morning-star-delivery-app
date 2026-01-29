@@ -1,0 +1,223 @@
+{/* Spacing.mdx - Design System Token Documentation */}
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Design System/Spacing" />
+
+# Spacing Tokens
+
+The spacing system is based on a 4px grid, providing consistent rhythm throughout the UI. All spacing values are available as CSS custom properties and Tailwind utilities.
+
+## Spacing Scale
+
+Visual reference for the complete spacing scale.
+
+<div style={{ marginTop: '24px' }}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-0</div>
+    <div style={{ width: '0px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>0</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-px</div>
+    <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>1px</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-0.5</div>
+    <div style={{ width: '2px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>2px (0.125rem)</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-1</div>
+    <div style={{ width: '4px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>4px (0.25rem)</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-2</div>
+    <div style={{ width: '8px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>8px (0.5rem)</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-3</div>
+    <div style={{ width: '12px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>12px (0.75rem)</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-4</div>
+    <div style={{ width: '16px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>16px (1rem)</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-5</div>
+    <div style={{ width: '20px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>20px (1.25rem)</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-6</div>
+    <div style={{ width: '24px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>24px (1.5rem)</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-8</div>
+    <div style={{ width: '32px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>32px (2rem)</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-10</div>
+    <div style={{ width: '40px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>40px (2.5rem)</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-12</div>
+    <div style={{ width: '48px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>48px (3rem)</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-16</div>
+    <div style={{ width: '64px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>64px (4rem)</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-20</div>
+    <div style={{ width: '80px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>80px (5rem)</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-24</div>
+    <div style={{ width: '96px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>96px (6rem)</code>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px 0' }}>
+    <div style={{ width: '100px', fontSize: '14px', fontWeight: 'bold' }}>space-32</div>
+    <div style={{ width: '128px', height: '24px', backgroundColor: 'var(--color-primary)' }} />
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>128px (8rem)</code>
+  </div>
+</div>
+
+## Layout Tokens
+
+Semantic spacing for common layout patterns.
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginTop: '24px' }}>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>--header-height</strong>
+    <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-primary)', margin: '8px 0' }}>56px</p>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0 }}>Main app header</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>--tabs-offset</strong>
+    <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-primary)', margin: '8px 0' }}>72px</p>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0 }}>Header + nav tabs</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>--cart-bar-height</strong>
+    <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-primary)', margin: '8px 0' }}>64px</p>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0 }}>Bottom cart bar</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>--max-content-width</strong>
+    <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-primary)', margin: '8px 0' }}>1280px</p>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0 }}>Content max width</p>
+  </div>
+</div>
+
+## Touch Targets
+
+Minimum sizes for interactive elements (WCAG 2.1 compliance).
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '16px', marginTop: '24px' }}>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)', textAlign: 'center' }}>
+    <div style={{
+      width: '44px',
+      height: '44px',
+      backgroundColor: 'var(--color-primary-light)',
+      borderRadius: '8px',
+      margin: '0 auto 12px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '12px',
+      color: 'var(--color-primary)'
+    }}>44px</div>
+    <strong>touch-target-min</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '4px 0 0' }}>Minimum touch target</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)', textAlign: 'center' }}>
+    <div style={{
+      width: '56px',
+      height: '56px',
+      backgroundColor: 'var(--color-primary-light)',
+      borderRadius: '8px',
+      margin: '0 auto 12px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '12px',
+      color: 'var(--color-primary)'
+    }}>56px</div>
+    <strong>touch-target-primary</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '4px 0 0' }}>Primary actions</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)', textAlign: 'center' }}>
+    <div style={{
+      width: '56px',
+      height: '56px',
+      backgroundColor: 'var(--color-secondary-light)',
+      borderRadius: '8px',
+      margin: '0 auto 12px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '12px',
+      color: 'var(--color-secondary)'
+    }}>56px</div>
+    <strong>touch-target-driver</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '4px 0 0' }}>Driver mode targets</p>
+  </div>
+</div>
+
+---
+
+## Token Reference
+
+| Token | Value | Pixels | Use Case |
+|-------|-------|--------|----------|
+| `--space-0` | 0 | 0px | No spacing |
+| `--space-px` | 1px | 1px | Borders, hairlines |
+| `--space-0-5` | 0.125rem | 2px | Micro spacing |
+| `--space-1` | 0.25rem | 4px | Tight spacing |
+| `--space-2` | 0.5rem | 8px | Small gaps |
+| `--space-3` | 0.75rem | 12px | Medium-small |
+| `--space-4` | 1rem | 16px | Standard spacing |
+| `--space-6` | 1.5rem | 24px | Section gaps |
+| `--space-8` | 2rem | 32px | Large spacing |
+| `--space-12` | 3rem | 48px | Component separation |
+| `--space-16` | 4rem | 64px | Section separation |
+| `--space-24` | 6rem | 96px | Page sections |
+| `--space-32` | 8rem | 128px | Major sections |
+
+## Usage
+
+```css
+/* CSS custom property */
+.card {
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.section {
+  padding-top: var(--space-16);
+  padding-bottom: var(--space-16);
+}
+```
+
+```tsx
+/* Tailwind utility */
+<div className="p-4 mb-6">
+  Card content
+</div>
+
+<section className="py-16">
+  Section content
+</section>
+```
