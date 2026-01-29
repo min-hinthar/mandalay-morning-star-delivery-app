@@ -1,5 +1,44 @@
 # Project Milestones: Morning Star V8 UI Rewrite
 
+## v1.3 Full Codebase Consolidation (Shipped: 2026-01-28)
+
+**Delivered:** Systematic consolidation of component systems, full design token enforcement across 70+ files, mobile stability fixes, hero redesign with floating emojis and parallax, and quality infrastructure.
+
+**Phases completed:** 25-34 (53 plans total)
+
+**Key accomplishments:**
+
+- Token enforcement complete: 221 hardcoded colors → 62+ semantic tokens with ESLint enforcement
+- Component consolidation: ui-v8/ merged into ui/, 6 duplicate components eliminated, ESLint guards prevent recreation
+- Hero redesign: 13 floating food emojis, 4-layer parallax, theme-aware gradients, scroll indicators
+- Mobile stability: Touch-only devices use fallback animations, Safari compositing fixes applied
+- Full src/ consolidation: design-system/ and contexts/ directories deleted, all imports consolidated
+- Quality infrastructure: 7 Storybook token docs, WCAG AAA contrast tests (38 tests), Husky pre-commit hooks
+
+**Stats:**
+
+- 10 phases, 53 plans
+- 37/37 requirements satisfied (100%)
+- 284 commits in milestone
+- 34,917 lines TypeScript total
+- 2 days from v1.2 to v1.3 (2026-01-27 → 2026-01-28)
+
+**Git range:** `docs(25): capture phase context` → `docs(32): mark Phase 32 complete in roadmap`
+
+**Tech debt resolved from v1.2:**
+- ✓ 221 hardcoded color violations (now 0)
+- ✓ 6 duplicate components eliminated
+- ✓ Mobile 3D tilt fixed (touch devices use fallback)
+- ✓ Hero section redesigned (mascot replaced with emojis)
+
+**Tech debt remaining:**
+- 137 token violations in Storybook stories and driver components (intentional exemptions)
+- Visual regression baselines need network-enabled generation environment
+
+**What's next:** v1.4 milestone planning
+
+---
+
 ## v1.2 Playful UI Overhaul (Shipped: 2026-01-27)
 
 **Delivered:** Maximum playfulness with unified menu cards, rebuilt header/nav, 12 micro-interactions, OLED dark mode, and codebase cleanup.
