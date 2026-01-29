@@ -21,6 +21,7 @@
 
 import { type ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Drawer } from "@/components/ui";
 import { useRouteChangeClose } from "@/lib/hooks/useRouteChangeClose";
@@ -79,6 +80,24 @@ export function MobileMenu({
       title="Menu"
     >
       <div className={cn("flex flex-col h-full", className)}>
+        {/* Logo */}
+        <Link
+          href="/"
+          onClick={onClose}
+          className="flex items-center gap-3 px-4 py-4 border-b border-border/50"
+        >
+          <Image
+            src="/logo.png"
+            alt="Mandalay Morning Star"
+            width={64}
+            height={64}
+            className="w-16 h-16"
+          />
+          <span className="font-display font-bold text-lg text-primary">
+            Morning Star
+          </span>
+        </Link>
+
         {/* User greeting */}
         {userName && (
           <div className="px-4 py-4 border-b border-border/50">

@@ -175,8 +175,15 @@ export function DynamicThemeProvider({
     const savedSettings = loadSettings();
     if (savedSettings.mode) setModeState(savedSettings.mode);
     if (savedSettings.userAccent !== undefined) setUserAccentState(savedSettings.userAccent);
-    // Set actual time of day once on mount (no interval — read once for greeting)
+    // Set actual time of day on mount
     setTimeOfDay(getTimeOfDay());
+
+    // Update time of day every minute to catch hour changes
+    const interval = setInterval(() => {
+      setTimeOfDay(getTimeOfDay());
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Resolved mode (never "auto")
@@ -197,10 +204,23 @@ export function DynamicThemeProvider({
     };
   }, [resolvedMode, userAccent]);
 
-  // Static gradient palette (brand colors only, no time-based switching)
+  // Dynamic gradient palette based on time of day
   const gradientPalette = useMemo((): string[] => {
-    return [...palettes.brand];
-  }, []);
+    switch (timeOfDay) {
+      case "dawn":
+        return [...palettes.dawn];
+      case "morning":
+        return ["#FFF9F5", "#FFE8D6", "#EBCD00", "#FFD93D"];
+      case "afternoon":
+        return [...palettes.brand];
+      case "evening":
+        return [...palettes.sunset];
+      case "night":
+        return [...palettes.night];
+      default:
+        return [...palettes.brand];
+    }
+  }, [timeOfDay]);
 
   // Actions
   const setMode = useCallback((newMode: ThemeMode) => {
@@ -271,7 +291,7 @@ export function DynamicThemeProvider({
       userAccent,
       colors,
       gradientPalette,
-      isDynamicEnabled: false,
+      isDynamicEnabled: true,
       setMode,
       setUserAccent,
       toggleDynamic,

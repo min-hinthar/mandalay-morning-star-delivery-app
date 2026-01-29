@@ -41,11 +41,7 @@ export function HomePageClient({ menuSection }: HomePageClientProps) {
       {/* Main Content */}
       <main className="relative">
         {/* Hero Section */}
-        <Hero
-          ctaHref="/menu"
-          secondaryCtaText="How It Works"
-          secondaryCtaHref="#how-it-works"
-        />
+        <Hero ctaHref="/menu" />
 
         {/* How It Works Section */}
         <HowItWorksSection id="how-it-works" />

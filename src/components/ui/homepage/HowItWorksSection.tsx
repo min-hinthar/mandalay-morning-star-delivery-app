@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback } from "react";
+import Image from "next/image";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { MapPin, UtensilsCrossed, Truck, Sparkles, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -31,9 +32,9 @@ const steps: Step[] = [
     icon: MapPin,
     title: "Check Coverage",
     description: "Enter your address to see if we deliver",
-    color: "text-primary",
-    bgColor: "bg-primary/10",
-    borderColor: "border-primary/30",
+    color: "text-primary-hover",
+    bgColor: "bg-primary/15",
+    borderColor: "border-primary/40",
   },
   {
     icon: UtensilsCrossed,
@@ -78,7 +79,7 @@ function StepIcon({ step, index }: StepIconProps) {
     <motion.div
       className={cn(
         "relative w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center",
-        "border-2",
+        "border-2 backdrop-blur-md",
         step.bgColor,
         step.borderColor
       )}
@@ -301,10 +302,10 @@ function StepCard({ step, index, showCoverageChecker = false }: StepCardProps) {
   return (
     <motion.div variants={itemVariants} className="flex flex-col items-center text-center">
       <StepIcon step={step} index={index} />
-      <h3 className={cn("font-display font-bold text-xl mt-4 mb-2", step.color)}>
+      <h3 className={cn("font-display font-bold text-2xl md:text-3xl mt-4 mb-2", step.color)}>
         {step.title}
       </h3>
-      <p className="font-body text-text-secondary text-sm md:text-base max-w-[200px]">
+      <p className="font-body text-hero-text/80 text-base md:text-lg font-medium max-w-[220px]">
         {step.description}
       </p>
       {showCoverageChecker && <InlineCoverageChecker />}
@@ -328,26 +329,59 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
     <AnimatedSection
       id={id}
       className={cn(
-        "py-16 md:py-24 px-4 bg-gradient-to-b from-surface-secondary/50 to-surface-primary",
+        "relative py-16 md:py-24 px-4 overflow-hidden",
         className
       )}
     >
-      <div className="max-w-6xl mx-auto">
+      {/* Background Image */}
+      <Image
+        src="/images/sunset_ubein.png"
+        alt="U Bein Bridge sunset"
+        fill
+        sizes="100vw"
+        className="object-cover object-center"
+        priority
+      />
+      {/* Light overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30" />
+      {/* Top gradient for seamless blend with hero */}
+      <div
+        className="absolute -top-1 left-0 right-0 h-40 pointer-events-none"
+        style={{
+          background: "linear-gradient(to bottom, rgb(251, 146, 60) 0%, rgb(251, 146, 60) 10%, transparent 100%)",
+        }}
+      />
+      <div className="relative z-10 max-w-6xl mx-auto">
         {/* Header */}
         <motion.div variants={itemVariants} className="text-center mb-12 md:mb-16">
           <motion.span
-            className="inline-block px-4 py-2 bg-primary/10 rounded-pill text-sm font-body font-medium text-primary mb-4"
+            className={cn(
+              "relative inline-block overflow-hidden px-6 py-3 rounded-full text-base font-body font-bold mb-6",
+              "bg-gradient-to-r from-primary via-primary-hover to-primary",
+              "text-text-inverse shadow-lg shadow-primary/30"
+            )}
             initial={shouldAnimate ? { scale: 0.9, opacity: 0 } : undefined}
             whileInView={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
             viewport={{ once: false }}
             transition={getSpring(spring.default)}
           >
-            How It Works
+            <span className="relative z-10">How It Works</span>
+            {/* Reverse shimmer effect */}
+            <motion.span
+              className="absolute inset-0 bg-gradient-to-l from-white/0 via-white/25 to-white/0"
+              animate={shouldAnimate ? { x: ["100%", "-100%"] } : undefined}
+              transition={{
+                duration: 2.5,
+                repeat: Infinity,
+                repeatDelay: 4,
+                ease: "easeInOut",
+              }}
+            />
           </motion.span>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4">
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-hero-text mb-6 leading-tight">
             Order in 4 Simple Steps
           </h2>
-          <p className="font-body text-text-secondary max-w-2xl mx-auto">
+          <p className="font-body text-hero-text/80 max-w-2xl mx-auto text-lg md:text-xl font-medium">
             From checking delivery coverage to enjoying fresh Burmese cuisine at your door
           </p>
         </motion.div>
