@@ -8,40 +8,54 @@ import {
   Polyline,
   Circle,
 } from "@react-google-maps/api";
-import { motion } from "framer-motion";
-import { Loader2, MapPin, Clock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, MapPin, Clock, Navigation2 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { KITCHEN_LOCATION, COVERAGE_LIMITS } from "@/types/address";
 
-// 40 miles in meters for coverage radius
+// Coverage radius in meters (40 miles)
 const COVERAGE_RADIUS_METERS = COVERAGE_LIMITS.maxDistanceMiles * 1609.34;
 
+// Local view radius (~15 miles) for default zoomed-in view
+const LOCAL_VIEW_RADIUS_METERS = 24000;
+
+// Warm, inviting map style that matches brand
 const mapStyles: google.maps.MapTypeStyle[] = [
   {
     featureType: "all",
     elementType: "geometry",
-    stylers: [{ saturation: -30 }, { lightness: 10 }],
+    stylers: [{ saturation: -20 }, { lightness: 5 }],
   },
   {
     featureType: "water",
     elementType: "geometry",
-    stylers: [{ color: "#d4e4ed" }],
+    stylers: [{ color: "#c9dde8" }],
+  },
+  {
+    featureType: "landscape",
+    elementType: "geometry",
+    stylers: [{ color: "#f5f0e8" }],
   },
   {
     featureType: "road",
     elementType: "geometry",
-    stylers: [{ lightness: 50 }],
+    stylers: [{ lightness: 40 }, { saturation: -50 }],
   },
   {
     featureType: "road.highway",
-    elementType: "geometry",
-    stylers: [{ color: "#f5e6c8" }],
+    elementType: "geometry.fill",
+    stylers: [{ color: "#fde8d0" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#e8d4b8" }],
   },
   {
     featureType: "poi.park",
     elementType: "geometry",
-    stylers: [{ color: "#c8e6c9" }],
+    stylers: [{ color: "#d4e8d4" }],
   },
   {
     featureType: "poi",
@@ -51,6 +65,11 @@ const mapStyles: google.maps.MapTypeStyle[] = [
   {
     featureType: "transit",
     stylers: [{ visibility: "off" }],
+  },
+  {
+    featureType: "administrative",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#6b5b4d" }],
   },
 ];
 
@@ -95,36 +114,26 @@ export function CoverageRouteMap({
   const hasDestination =
     destinationLat !== undefined && destinationLng !== undefined;
 
-  // Calculate bounds to fit both points (or just kitchen if no destination)
-  const bounds = useMemo(() => {
+  // Calculate appropriate zoom based on destination distance
+  const { zoom, shouldFitBounds } = useMemo(() => {
     if (!hasDestination) {
-      // Default view: show coverage area around kitchen
-      const radiusDegrees = 0.6; // Roughly 40 miles in degrees
-      return {
-        north: KITCHEN_LOCATION.lat + radiusDegrees,
-        south: KITCHEN_LOCATION.lat - radiusDegrees,
-        east: KITCHEN_LOCATION.lng + radiusDegrees,
-        west: KITCHEN_LOCATION.lng - radiusDegrees,
-      };
+      // Default: zoom in to show local area around kitchen (zoom 11 ≈ 15 mile view)
+      return { zoom: 11, shouldFitBounds: false };
     }
-    return {
-      north: Math.max(KITCHEN_LOCATION.lat, destinationLat) + 0.02,
-      south: Math.min(KITCHEN_LOCATION.lat, destinationLat) - 0.02,
-      east: Math.max(KITCHEN_LOCATION.lng, destinationLng) + 0.02,
-      west: Math.min(KITCHEN_LOCATION.lng, destinationLng) - 0.02,
-    };
-  }, [hasDestination, destinationLat, destinationLng]);
+    // When destination is set, fit bounds to show both points
+    return { zoom: 10, shouldFitBounds: true };
+  }, [hasDestination]);
 
-  // Fit bounds when map loads
+  // Fit bounds when destination is set
   useEffect(() => {
-    if (map && bounds) {
-      const googleBounds = new google.maps.LatLngBounds(
-        { lat: bounds.south, lng: bounds.west },
-        { lat: bounds.north, lng: bounds.east }
-      );
-      map.fitBounds(googleBounds, { top: 50, bottom: 80, left: 50, right: 50 });
+    if (map && hasDestination && shouldFitBounds && destinationLat && destinationLng) {
+      const bounds = new google.maps.LatLngBounds();
+      bounds.extend({ lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng });
+      bounds.extend({ lat: destinationLat, lng: destinationLng });
+      // Fit with padding for overlays
+      map.fitBounds(bounds, { top: 60, bottom: 70, left: 40, right: 40 });
     }
-  }, [map, bounds]);
+  }, [map, hasDestination, shouldFitBounds, destinationLat, destinationLng]);
 
   // Decode polyline to path
   const routePath = useMemo(() => {
@@ -176,55 +185,70 @@ export function CoverageRouteMap({
     );
   }
 
-  const center = hasDestination
-    ? {
-        lat: (KITCHEN_LOCATION.lat + destinationLat) / 2,
-        lng: (KITCHEN_LOCATION.lng + destinationLng) / 2,
-      }
-    : { lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng };
+  // Center on kitchen for default view
+  const center = { lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng };
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
+      initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={cn("relative rounded-xl overflow-hidden shadow-md", className)}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className={cn(
+        "relative rounded-2xl overflow-hidden",
+        "ring-1 ring-border/50 shadow-lg",
+        className
+      )}
       style={{ minHeight: 200 }}
     >
       <GoogleMap
         mapContainerStyle={{ width: "100%", height: "100%" }}
         center={center}
-        zoom={10}
+        zoom={zoom}
         onLoad={onLoad}
         onUnmount={onUnmount}
         options={{
           styles: mapStyles,
           disableDefaultUI: true,
-          zoomControl: true,
+          zoomControl: false,
           clickableIcons: false,
-          gestureHandling: "cooperative",
+          gestureHandling: "greedy",
         }}
       >
-        {/* Animated coverage circle */}
+        {/* Animated local coverage circle - smaller, more visible */}
         <Circle
           center={{ lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng }}
-          radius={COVERAGE_RADIUS_METERS}
+          radius={LOCAL_VIEW_RADIUS_METERS}
           options={{
             fillColor: "#A41034",
-            fillOpacity: circleOpacity,
+            fillOpacity: circleOpacity * 0.6,
             strokeColor: "#A41034",
-            strokeOpacity: 0.4,
+            strokeOpacity: 0.5,
             strokeWeight: 2,
           }}
         />
 
-        {/* Route polyline */}
+        {/* Full coverage boundary - subtle outer ring */}
+        <Circle
+          center={{ lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng }}
+          radius={COVERAGE_RADIUS_METERS}
+          options={{
+            fillColor: "transparent",
+            fillOpacity: 0,
+            strokeColor: "#A41034",
+            strokeOpacity: 0.2,
+            strokeWeight: 1,
+            strokePosition: google.maps.StrokePosition.OUTSIDE,
+          }}
+        />
+
+        {/* Route polyline with gradient effect */}
         {routePath.length > 0 && (
           <Polyline
             path={routePath}
             options={{
-              strokeColor: isValid ? "#52A52E" : "#A41034",
-              strokeOpacity: 0.8,
-              strokeWeight: 4,
+              strokeColor: isValid ? "#52A52E" : "#DC2626",
+              strokeOpacity: 0.9,
+              strokeWeight: 5,
             }}
           />
         )}
@@ -234,125 +258,174 @@ export function CoverageRouteMap({
           position={{ lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng }}
           icon={{
             url: "/logo.png",
-            scaledSize: new google.maps.Size(40, 40),
-            anchor: new google.maps.Point(20, 20),
+            scaledSize: new google.maps.Size(48, 48),
+            anchor: new google.maps.Point(24, 24),
           }}
           title="Mandalay Morning Star Kitchen"
         />
 
-        {/* Destination marker - only show when destination is set */}
+        {/* Destination marker with animation */}
         {hasDestination && (
           <Marker
             position={{ lat: destinationLat, lng: destinationLng }}
             icon={{
               path: google.maps.SymbolPath.CIRCLE,
-              scale: 10,
+              scale: 12,
               fillColor: isValid ? "#52A52E" : "#DC2626",
               fillOpacity: 1,
               strokeColor: "#ffffff",
-              strokeWeight: 2,
+              strokeWeight: 3,
             }}
-            title="Delivery Address"
+            title="Your Delivery Address"
           />
         )}
       </GoogleMap>
 
-      {/* Coverage limit badge - top left */}
-      <div className="absolute top-3 left-3">
+      {/* Gradient overlay for depth */}
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+
+      {/* Coverage limit badge - top left with animation */}
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+        className="absolute top-3 left-3"
+      >
         <div
           className={cn(
-            "px-3 py-1.5 rounded-full bg-surface-primary/90 backdrop-blur-sm",
-            "flex items-center gap-2 text-xs font-medium shadow-sm"
+            "px-3 py-2 rounded-xl bg-surface-primary/95 backdrop-blur-md",
+            "flex items-center gap-2 text-xs font-medium",
+            "shadow-md ring-1 ring-border/30"
           )}
         >
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-text-secondary">
-            Max {COVERAGE_LIMITS.maxDistanceMiles} mi
+          <motion.div
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="w-2.5 h-2.5 rounded-full bg-primary"
+          />
+          <span className="text-text-primary font-semibold">
+            {COVERAGE_LIMITS.maxDistanceMiles} mi
           </span>
-          <span className="text-text-muted">|</span>
-          <Clock className="w-3 h-3 text-text-muted" />
+          <span className="text-text-muted/60">•</span>
+          <Clock className="w-3.5 h-3.5 text-text-muted" />
           <span className="text-text-secondary">
             {COVERAGE_LIMITS.maxDurationMinutes} min
           </span>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Kitchen logo badge - top right */}
-      <div className="absolute top-3 right-3">
+      {/* Kitchen badge - top right */}
+      <motion.div
+        initial={{ opacity: 0, x: 10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.3 }}
+        className="absolute top-3 right-3"
+      >
         <div
           className={cn(
-            "p-1.5 rounded-lg bg-surface-primary/90 backdrop-blur-sm shadow-sm",
-            "flex items-center gap-2"
+            "px-2 py-1.5 rounded-xl bg-surface-primary/95 backdrop-blur-md",
+            "flex items-center gap-2",
+            "shadow-md ring-1 ring-border/30"
           )}
         >
           <Image
             src="/logo.png"
             alt="Mandalay Morning Star"
-            width={24}
-            height={24}
-            className="rounded-sm"
+            width={28}
+            height={28}
+            className="rounded-lg"
           />
-          <span className="text-xs font-medium text-text-primary pr-1">
-            Kitchen
-          </span>
+          <div className="pr-1">
+            <p className="text-xs font-bold text-text-primary leading-tight">Kitchen</p>
+            <p className="text-2xs text-text-muted leading-tight">Covina, CA</p>
+          </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Route info overlay - bottom */}
-      <div className="absolute bottom-3 left-3 right-3">
-        <div
-          className={cn(
-            "p-3 rounded-lg bg-surface-primary/90 backdrop-blur-sm",
-            "flex items-center justify-between text-sm"
-          )}
+      {/* Bottom info bar */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={hasDestination ? "route" : "default"}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="absolute bottom-3 left-3 right-3"
         >
-          {hasDestination ? (
-            <>
-              <div className="flex items-center gap-3">
-                <div
-                  className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center",
-                    isValid ? "bg-green/20" : "bg-status-error/20"
-                  )}
-                >
-                  <MapPin
+          <div
+            className={cn(
+              "px-4 py-3 rounded-xl backdrop-blur-md",
+              "shadow-lg ring-1",
+              hasDestination
+                ? isValid
+                  ? "bg-green/10 ring-green/30"
+                  : "bg-status-error/10 ring-status-error/30"
+                : "bg-surface-primary/95 ring-border/30"
+            )}
+          >
+            {hasDestination ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     className={cn(
-                      "w-4 h-4",
-                      isValid ? "text-green" : "text-status-error"
+                      "w-10 h-10 rounded-full flex items-center justify-center",
+                      isValid ? "bg-green/20" : "bg-status-error/20"
                     )}
-                  />
+                  >
+                    <Navigation2
+                      className={cn(
+                        "w-5 h-5",
+                        isValid ? "text-green" : "text-status-error"
+                      )}
+                    />
+                  </motion.div>
+                  <div>
+                    <p className={cn(
+                      "font-display font-bold text-lg leading-tight",
+                      isValid ? "text-green" : "text-status-error"
+                    )}>
+                      {distanceMiles?.toFixed(1) ?? "0"} miles
+                    </p>
+                    <p className="text-xs text-text-muted">
+                      ~{durationMinutes ?? 0} min drive time
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold text-text-primary">
-                    {distanceMiles?.toFixed(1) ?? "0"} miles
-                  </p>
-                  <p className="text-xs text-text-muted">
-                    ~{durationMinutes ?? 0} min drive
-                  </p>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  {isValid ? (
+                    <span className="px-3 py-1.5 rounded-full bg-green/20 text-green text-sm font-bold">
+                      ✓ In Range
+                    </span>
+                  ) : (
+                    <span className="px-3 py-1.5 rounded-full bg-status-error/20 text-status-error text-sm font-bold">
+                      ✗ Too Far
+                    </span>
+                  )}
+                </motion.div>
               </div>
-              <div className="flex items-center gap-2">
-                {isValid ? (
-                  <span className="px-2 py-1 rounded-full bg-green/20 text-green text-xs font-medium">
-                    In Range
-                  </span>
-                ) : (
-                  <span className="px-2 py-1 rounded-full bg-status-error/20 text-status-error text-xs font-medium">
-                    Out of Range
-                  </span>
-                )}
+            ) : (
+              <div className="flex items-center gap-3 justify-center py-1">
+                <motion.div
+                  animate={{ y: [0, -3, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  <MapPin className="w-5 h-5 text-primary" />
+                </motion.div>
+                <p className="text-sm text-text-secondary font-medium">
+                  Enter your address to check if we deliver to you
+                </p>
               </div>
-            </>
-          ) : (
-            <div className="flex items-center gap-3 w-full justify-center">
-              <MapPin className="w-4 h-4 text-text-muted" />
-              <p className="text-text-secondary">
-                Enter an address to check delivery coverage
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+            )}
+          </div>
+        </motion.div>
+      </AnimatePresence>
     </motion.div>
   );
 }
