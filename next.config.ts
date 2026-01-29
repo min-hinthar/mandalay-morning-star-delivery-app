@@ -62,6 +62,8 @@ const nextConfig: NextConfig = {
       "recharts",
       // Date utilities
       "date-fns",
+      // Maps - optimize tree-shaking
+      "@react-google-maps/api",
     ],
 
     // Turbo for faster builds
