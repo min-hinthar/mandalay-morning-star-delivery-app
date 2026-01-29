@@ -129,20 +129,13 @@ interface GradientFallbackProps {
 }
 
 function GradientFallback({ children, className }: GradientFallbackProps) {
-  const { gradientPalette } = useDynamicTheme();
-
-  // Use CSS custom properties for theme-aware gradient (dark gradient in both themes)
-  // Falls back to dynamic palette if provided by DynamicThemeProvider
-  const useCustomGradient = gradientPalette && gradientPalette.length >= 3;
-
+  // Always use CSS variable tokens for consistent hero gradient (no dynamic override)
   return (
     <div className={cn("relative w-full min-h-[100svh] min-h-[100dvh] overflow-hidden", className)}>
-      {/* Dark dramatic gradient background - theme-aware via CSS vars with smooth 300ms transition */}
+      {/* Muted warm gradient background - theme-aware via CSS vars with smooth 300ms transition */}
       <div
         className="absolute inset-0 hero-gradient-transition"
-        style={useCustomGradient ? {
-          background: `linear-gradient(180deg, ${gradientPalette[0]} 0%, ${gradientPalette[1]} 50%, ${gradientPalette[2]} 100%)`,
-        } : {
+        style={{
           background: `linear-gradient(180deg, var(--hero-bg-start) 0%, var(--hero-bg-mid) 50%, var(--hero-bg-end) 100%)`,
         }}
       />
