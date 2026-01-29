@@ -65,6 +65,7 @@ const config: Config = {
           secondary: "var(--color-text-secondary)",
           muted: "var(--color-text-muted)",
           inverse: "var(--color-text-inverse)",
+          money: "var(--color-text-money)",
         },
 
         // Border Colors
@@ -206,6 +207,7 @@ const config: Config = {
           secondary: "var(--color-text-secondary)",
           muted: "var(--color-text-muted)",
           inverse: "var(--color-text-inverse)",
+          money: "var(--color-text-money)",
         },
         "v6-border": {
           DEFAULT: "var(--color-border-default)",

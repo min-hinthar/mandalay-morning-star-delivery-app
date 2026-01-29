@@ -168,7 +168,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
               >
                 <Sparkles className="w-4 h-4 text-amber-500" />
               </motion.div>
-              <span className="text-sm font-medium text-amber-800 dark:text-amber-200">
+              <span className="text-sm font-medium text-text-money">
                 {formatPrice(amountToFreeDelivery)} more for free delivery!
               </span>
             </div>
@@ -229,7 +229,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           className="flex justify-between text-sm text-muted-foreground"
         >
           <span>Subtotal</span>
-          <PriceTicker value={itemsSubtotal} inCents={true} size="sm" />
+          <PriceTicker value={itemsSubtotal} inCents={true} size="sm" className="text-text-money" />
         </motion.div>
 
         {/* Delivery Fee */}
@@ -249,13 +249,13 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
               initial={shouldAnimate ? { scale: 0.8, opacity: 0 } : undefined}
               animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
               transition={getSpring(spring.ultraBouncy)}
-              className="text-green-600 dark:text-green-400 font-semibold flex items-center gap-1"
+              className="text-text-money font-semibold flex items-center gap-1"
             >
               <Sparkles className="h-3 w-3" />
               FREE
             </motion.span>
           ) : (
-            <PriceTicker value={estimatedDeliveryFee} inCents={true} size="sm" />
+            <PriceTicker value={estimatedDeliveryFee} inCents={true} size="sm" className="text-text-money" />
           )}
         </motion.div>
 
@@ -277,7 +277,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
             value={estimatedTotal}
             inCents={true}
             size="lg"
-            className="text-primary font-bold"
+            className="text-text-money font-bold"
           />
         </motion.div>
 

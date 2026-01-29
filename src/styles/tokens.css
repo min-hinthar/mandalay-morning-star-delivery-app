@@ -66,6 +66,7 @@
   --color-text-secondary: #3B3B3B;
   --color-text-muted: #6B6B6B;
   --color-text-inverse: #FFFFFF;
+  --color-text-money: #16A34A;              /* Green-600 - money/price emphasis */
 
   /* ===========================================
      BORDER COLORS
@@ -511,6 +512,7 @@
   --color-text-secondary: #C5C3C0;
   --color-text-muted: #9A9794;
   --color-text-inverse: #000000;
+  --color-text-money: #4ADE80;              /* Green-400 - money/price emphasis */
 
   /* ===========================================
      BORDER COLORS (Dark Mode)
