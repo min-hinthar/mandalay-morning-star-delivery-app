@@ -101,7 +101,7 @@ export function CartSummary({ className }: CartSummaryProps) {
             >
               <Sparkles className="w-4 h-4 text-amber-500" />
             </motion.div>
-            <span className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+            <span className="text-sm font-semibold text-text-money">
               ${(amountToFreeDelivery / 100).toFixed(2)} away from free delivery!
             </span>
           </div>
@@ -177,7 +177,7 @@ export function CartSummary({ className }: CartSummaryProps) {
             <span className="text-amber-600 dark:text-amber-400 font-medium">
               {Math.round(progressPercent)}% there
             </span>
-            <span className="text-text-muted">
+            <span className="text-text-money font-medium">
               Free at $100
             </span>
           </div>
@@ -277,7 +277,7 @@ export function CartSummary({ className }: CartSummaryProps) {
           className="flex justify-between text-text-secondary"
         >
           <span>Subtotal</span>
-          <PriceTicker value={itemsSubtotal} inCents={true} />
+          <PriceTicker value={itemsSubtotal} inCents={true} className="text-text-money" />
         </motion.div>
 
         {/* Delivery Fee */}
@@ -294,12 +294,12 @@ export function CartSummary({ className }: CartSummaryProps) {
               initial={shouldAnimate ? { scale: 0.8, opacity: 0 } : undefined}
               animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
               transition={getSpring(spring.ultraBouncy)}
-              className="text-green-600 dark:text-green-400 font-semibold"
+              className="text-text-money font-semibold"
             >
               FREE
             </motion.span>
           ) : (
-            <PriceTicker value={estimatedDeliveryFee} inCents={true} />
+            <PriceTicker value={estimatedDeliveryFee} inCents={true} className="text-text-money" />
           )}
         </motion.div>
 
@@ -319,7 +319,7 @@ export function CartSummary({ className }: CartSummaryProps) {
             value={estimatedTotal}
             inCents={true}
             size="lg"
-            className="text-primary"
+            className="text-text-money font-bold"
           />
         </motion.div>
       </div>

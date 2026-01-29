@@ -79,7 +79,7 @@ function DeliveryProgress({
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-500" />
         </motion.div>
-        <span className="text-xs font-medium text-amber-700 dark:text-amber-400">
+        <span className="text-xs font-medium text-text-money">
           ${(amountToFreeDelivery / 100).toFixed(2)} to free delivery
         </span>
       </div>
@@ -153,7 +153,7 @@ function FreeDeliveryBanner({ shouldAnimate }: FreeDeliveryBannerProps) {
         >
           <Truck className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
         </motion.div>
-        <span className="text-xs font-semibold text-green-700 dark:text-green-400">
+        <span className="text-xs font-semibold text-text-money">
           Free Delivery!
         </span>
       </motion.div>
@@ -307,7 +307,7 @@ export function CartBar({
                   value={estimatedTotal}
                   inCents
                   size="lg"
-                  className="text-text-primary dark:text-text-primary font-bold"
+                  className="text-text-money font-bold"
                 />
               </div>
             </motion.button>
