@@ -167,12 +167,12 @@ Plans:
   2. All consolidated components tested in both light and dark modes
   3. ESLint z-index rule enforced at error level (no hardcoded values)
   4. Visual regression tests pass for hero and consolidated components
-**Plans**: TBD
+**Plans**: 3 plans in 2 waves
 
 Plans:
-- [ ] 32-01: Token documentation with examples
-- [ ] 32-02: Theme mode testing
-- [ ] 32-03: Visual regression test updates
+- [ ] 32-01-PLAN.md — Storybook token documentation (colors, shadows, blur, motion, typography, spacing, z-index)
+- [ ] 32-02-PLAN.md — WCAG AAA contrast audit and theme mode testing
+- [ ] 32-03-PLAN.md — Husky pre-commit hooks and Hero visual regression tests
 
 ### Phase 33: Full Components Consolidation
 **Goal**: Single organized component structure with no duplicates across all subdirectories
