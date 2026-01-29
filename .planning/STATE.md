@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-27)
 ## Current Position
 
 Phase: 32 (Quality Assurance)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-01-29 - Completed 32-02-PLAN.md (WCAG AAA contrast audit)
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-01-29 - Completed 32-03-PLAN.md (testing infrastructure)
 
-Progress: [████████████████████████████████████████████████████░] v1.4 | 52/53 plans
+Progress: [█████████████████████████████████████████████████████] v1.4 | 53/53 plans
 
 ## Milestones Completed
 
@@ -164,6 +164,9 @@ From `.planning/research/SUMMARY.md`:
 | Dark mode --primary #FF6B6B | 32-02 | 6.33:1 contrast for WCAG AAA large text compliance |
 | font-bold for brand text headings | 32-02 | Qualifies as "large text" (14pt+ bold) requiring only 4.5:1 |
 | text-text-secondary for helper text | 32-02 | Semantic tokens for small body text, not brand colors |
+| Pre-commit blocks via ESLint errors | 32-03 | --max-warnings=0 ensures all ESLint errors block commits |
+| reducedMotion for Hero visual tests | 32-03 | Disables floating emoji animations for stable screenshots |
+| maxDiffPixels: 2000 for Hero tests | 32-03 | Gradient/orb variations tolerated within threshold |
 
 ### Phase 27 Progress (Complete)
 
@@ -491,13 +494,24 @@ None.
 - All 38 contrast tests pass (10 pages x 2 themes x 2 viewports)
 - QUAL-01 requirement satisfied
 
+**32-03 outcomes:**
+- Husky pre-commit hook initialized with lint-staged
+- lint-staged config targets src/**/*.{ts,tsx,css} with ESLint and Stylelint
+- Pre-commit blocks commits with ESLint errors (--max-warnings=0)
+- Hero section has data-testid="hero-section" for test targeting
+- 5 Hero visual regression tests added (desktop/mobile, light/dark, orbs, scroll indicator)
+- 6 baseline images created (chromium + Mobile Chrome for 3 screenshot tests)
+- reducedMotion emulation stabilizes animation-heavy screenshots
+- QUAL-02 and QUAL-03 requirements satisfied
+- Phase 32 complete: All 3 plans complete
+
 ## Session Continuity
 
 Last session: 2026-01-29
-Stopped at: Completed 32-02-PLAN.md (WCAG AAA contrast audit)
+Stopped at: Completed 32-03-PLAN.md (testing infrastructure)
 Resume file: None
-Next action: Execute 32-03-PLAN.md (testing infrastructure)
+Next action: Phase 32 complete - v1.4 milestone reached
 
 ---
 
-*Updated: 2026-01-29 - Completed 32-02-PLAN.md, Phase 32 plan 2/3 complete*
+*Updated: 2026-01-29 - Completed 32-03-PLAN.md, Phase 32 complete (3/3 plans)*
