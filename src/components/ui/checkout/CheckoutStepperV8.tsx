@@ -119,6 +119,7 @@ export function CheckoutStepperV8({
                         }}
                       />
                       {/* Inner glow halo - --shadow-glow-primary equivalent, kept numeric for FM interpolation */}
+                      {/* eslint-disable no-restricted-syntax -- FM animation needs numeric boxShadow for interpolation */}
                       <motion.div
                         className="absolute inset-0 rounded-full"
                         initial={{ boxShadow: "0 0 0px rgba(164, 16, 52, 0)" }}
@@ -135,6 +136,7 @@ export function CheckoutStepperV8({
                           ease: "easeInOut",
                         }}
                       />
+                      {/* eslint-enable no-restricted-syntax */}
                     </>
                   )}
 

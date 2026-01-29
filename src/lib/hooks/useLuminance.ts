@@ -274,7 +274,6 @@ export function getContrastTextClasses(
 
   // Dynamic drop-shadow based on luminance - cannot use single token as
   // light backgrounds need white-tinted shadows and dark need black-tinted
-  // eslint-disable-next-line @mandalay/no-hardcoded-effects -- Dynamic luminance-based shadow
   const shadow =
     luminance === "light"
       ? intensity === "strong"

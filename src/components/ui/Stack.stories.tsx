@@ -127,9 +127,9 @@ export const WithDividers: Story = {
 export const AlignStart: Story = {
   render: () => (
     <Stack gap="space-4" align="start">
-      <div className="px-4 py-2 bg-[var(--color-interactive-primary)] text-white rounded">Short</div>
-      <div className="px-8 py-2 bg-[var(--color-interactive-primary)] text-white rounded">Medium content</div>
-      <div className="px-16 py-2 bg-[var(--color-interactive-primary)] text-white rounded">Much longer content here</div>
+      <div className="px-4 py-2 bg-[var(--color-interactive-primary)] text-text-inverse rounded">Short</div>
+      <div className="px-8 py-2 bg-[var(--color-interactive-primary)] text-text-inverse rounded">Medium content</div>
+      <div className="px-16 py-2 bg-[var(--color-interactive-primary)] text-text-inverse rounded">Much longer content here</div>
     </Stack>
   ),
 };
@@ -137,9 +137,9 @@ export const AlignStart: Story = {
 export const AlignCenter: Story = {
   render: () => (
     <Stack gap="space-4" align="center">
-      <div className="px-4 py-2 bg-[var(--color-interactive-primary)] text-white rounded">Short</div>
-      <div className="px-8 py-2 bg-[var(--color-interactive-primary)] text-white rounded">Medium content</div>
-      <div className="px-16 py-2 bg-[var(--color-interactive-primary)] text-white rounded">Much longer content here</div>
+      <div className="px-4 py-2 bg-[var(--color-interactive-primary)] text-text-inverse rounded">Short</div>
+      <div className="px-8 py-2 bg-[var(--color-interactive-primary)] text-text-inverse rounded">Medium content</div>
+      <div className="px-16 py-2 bg-[var(--color-interactive-primary)] text-text-inverse rounded">Much longer content here</div>
     </Stack>
   ),
 };
@@ -147,9 +147,9 @@ export const AlignCenter: Story = {
 export const AlignEnd: Story = {
   render: () => (
     <Stack gap="space-4" align="end">
-      <div className="px-4 py-2 bg-[var(--color-interactive-primary)] text-white rounded">Short</div>
-      <div className="px-8 py-2 bg-[var(--color-interactive-primary)] text-white rounded">Medium content</div>
-      <div className="px-16 py-2 bg-[var(--color-interactive-primary)] text-white rounded">Much longer content here</div>
+      <div className="px-4 py-2 bg-[var(--color-interactive-primary)] text-text-inverse rounded">Short</div>
+      <div className="px-8 py-2 bg-[var(--color-interactive-primary)] text-text-inverse rounded">Medium content</div>
+      <div className="px-16 py-2 bg-[var(--color-interactive-primary)] text-text-inverse rounded">Much longer content here</div>
     </Stack>
   ),
 };
@@ -157,13 +157,13 @@ export const AlignEnd: Story = {
 export const AlignStretch: Story = {
   render: () => (
     <Stack gap="space-4" align="stretch">
-      <div className="p-4 bg-[var(--color-interactive-primary)] text-white rounded text-center">
+      <div className="p-4 bg-[var(--color-interactive-primary)] text-text-inverse rounded text-center">
         Full width (stretch)
       </div>
-      <div className="p-4 bg-[var(--color-interactive-primary)] text-white rounded text-center">
+      <div className="p-4 bg-[var(--color-interactive-primary)] text-text-inverse rounded text-center">
         All items same width
       </div>
-      <div className="p-4 bg-[var(--color-interactive-primary)] text-white rounded text-center">
+      <div className="p-4 bg-[var(--color-interactive-primary)] text-text-inverse rounded text-center">
         Default behavior
       </div>
     </Stack>
@@ -204,7 +204,7 @@ export const FormLayout: Story = {
           className="w-full px-3 py-2 border border-[var(--color-border)] rounded-lg resize-none"
         />
       </div>
-      <button className="w-full py-2.5 bg-[var(--color-interactive-primary)] text-white font-medium rounded-lg">
+      <button className="w-full py-2.5 bg-[var(--color-interactive-primary)] text-text-inverse font-medium rounded-lg">
         Submit
       </button>
     </Stack>
@@ -247,15 +247,15 @@ export const NestedStacks: Story = {
       <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg">
         <h3 className="font-semibold mb-4 text-[var(--color-text-primary)]">Section 1</h3>
         <Stack gap="space-2">
-          <div className="p-2 bg-white rounded border border-[var(--color-border)]">Nested item A</div>
-          <div className="p-2 bg-white rounded border border-[var(--color-border)]">Nested item B</div>
+          <div className="p-2 bg-surface-primary rounded border border-[var(--color-border)]">Nested item A</div>
+          <div className="p-2 bg-surface-primary rounded border border-[var(--color-border)]">Nested item B</div>
         </Stack>
       </div>
       <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg">
         <h3 className="font-semibold mb-4 text-[var(--color-text-primary)]">Section 2</h3>
         <Stack gap="space-2">
-          <div className="p-2 bg-white rounded border border-[var(--color-border)]">Nested item C</div>
-          <div className="p-2 bg-white rounded border border-[var(--color-border)]">Nested item D</div>
+          <div className="p-2 bg-surface-primary rounded border border-[var(--color-border)]">Nested item C</div>
+          <div className="p-2 bg-surface-primary rounded border border-[var(--color-border)]">Nested item D</div>
         </Stack>
       </div>
     </Stack>

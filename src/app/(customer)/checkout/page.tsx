@@ -28,6 +28,7 @@ import type { CheckoutStep } from "@/types/checkout";
  * Note: boxShadow values are ~--shadow-glow-primary equivalent,
  * kept numeric for Framer Motion interpolation between states.
  */
+/* eslint-disable no-restricted-syntax -- FM animation needs numeric boxShadow for interpolation */
 const stepVariants = {
   initial: (direction: number) => ({
     opacity: 0,
@@ -47,6 +48,7 @@ const stepVariants = {
     boxShadow: "0 0 0px rgba(164, 16, 52, 0)",
   }),
 };
+/* eslint-enable no-restricted-syntax */
 
 const STEPS: CheckoutStep[] = ["address", "time", "payment"];
 

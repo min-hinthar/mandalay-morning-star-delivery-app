@@ -88,8 +88,10 @@ export function AppShell({
       <main
         className={cn(
           "flex-1",
-          showHeader && "pt-[72px]", // Offset for fixed header
-          showBottomNav && "pb-16 md:pb-0" // Bottom padding for mobile nav
+          // pt-[72px] is calculated offset for fixed header height
+          // eslint-disable-next-line no-restricted-syntax
+          showHeader && "pt-[72px]",
+          showBottomNav && "pb-16 md:pb-0"
         )}
       >
         {children}

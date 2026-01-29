@@ -31,7 +31,7 @@ const REPORT_PATH = '.planning/audit-report.md';
 
 // TTY detection for colors and progress
 const isTTY = process.stdout.isTTY;
-const isVerbose = process.argv.includes('--verbose');
+const _isVerbose = process.argv.includes('--verbose');
 const isJSON = process.argv.includes('--json');
 
 // ANSI color codes
@@ -259,7 +259,7 @@ async function glob(dir, extensions) {
           }
         }
       }
-    } catch (err) {
+    } catch (_err) {
       // Skip directories we can't read
     }
   }
@@ -401,7 +401,7 @@ async function scanFile(filePath) {
       });
     }
 
-  } catch (err) {
+  } catch (_err) {
     // Skip files we can't read
   }
 
@@ -568,7 +568,7 @@ Total violations: ${violations.length}
     const warnCount = fileViolations.filter(v => v.severity === 'warning').length;
     const infoCount = fileViolations.filter(v => v.severity === 'info').length;
 
-    const severityLabel = critCount > 0 ? `${colors.red}CRITICAL${colors.reset}` :
+    const _severityLabel = critCount > 0 ? `${colors.red}CRITICAL${colors.reset}` :
                           warnCount > 0 ? 'WARNING' : 'info';
 
     report += `### ${file} (${fileViolations.length} violations)\n\n`;

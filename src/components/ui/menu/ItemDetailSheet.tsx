@@ -192,17 +192,17 @@ export function ItemDetailSheet({
       <div className="flex flex-col h-full">
         {/* Hero Image */}
         <div className="relative aspect-video shrink-0 bg-zinc-100 dark:bg-zinc-800">
-          {/* Close Button */}
+          {/* Close Button - uses semi-transparent overlay on image */}
           <button
             onClick={onClose}
             className={cn(
               "absolute top-3 right-3 z-10",
               "w-8 h-8 rounded-full",
-              "bg-black/50 hover:bg-black/70",
+              "bg-surface-inverse/50 hover:bg-surface-inverse/70",
               "flex items-center justify-center",
-              "text-white",
+              "text-text-inverse",
               "transition-colors duration-150",
-              "focus:outline-none focus:ring-2 focus:ring-white/50"
+              "focus:outline-none focus:ring-2 focus:ring-surface-primary/50"
             )}
             aria-label="Close"
           >

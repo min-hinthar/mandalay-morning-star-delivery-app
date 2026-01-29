@@ -52,7 +52,8 @@ export function MenuSection({
       id={sectionId}
       aria-labelledby={headingId}
       className={cn(
-        // Scroll margin accounts for: header (72px) + tabs (~60px) + gap (8px) = 140px
+        // Calculated scroll margin: header (72px) + tabs (~60px) + gap (8px) = 140px
+        // eslint-disable-next-line no-restricted-syntax
         "scroll-mt-[140px]",
         className
       )}

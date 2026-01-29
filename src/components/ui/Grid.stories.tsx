@@ -240,7 +240,7 @@ export const Gallery: Story = {
           key={i}
           className="aspect-square bg-gradient-to-br from-[var(--color-interactive-primary)] to-[var(--color-interactive-hover)] rounded-lg flex items-center justify-center"
         >
-          <span className="text-white font-bold text-xl">{i + 1}</span>
+          <span className="text-text-inverse font-bold text-xl">{i + 1}</span>
         </div>
       ))}
     </Grid>
