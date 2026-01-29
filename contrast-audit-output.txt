@@ -1,0 +1,133 @@
+
+Running 19 tests using 1 worker
+
+[1A[2K[1/19] [chromium] › e2e\contrast-audit.spec.ts:123:7 › Homepage Contrast (WCAG AAA) › homepage - light mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:123:7 › Homepage Contrast (WCAG AAA) › homepage - light mode
+Homepage (light): PASSED
+
+[1A[2K[2/19] [chromium] › e2e\contrast-audit.spec.ts:143:7 › Homepage Contrast (WCAG AAA) › homepage - dark mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:143:7 › Homepage Contrast (WCAG AAA) › homepage - dark mode
+
+[DARK MODE] Homepage
+
+[1A[2K  Impact: serious
+
+[1A[2K  Element: <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4">Order in 4 Simple Steps</h2>...
+
+[1A[2K  Issue: Fix any of the following:
+  Element has insufficient color contrast of 4.25 (foreground color: #e53e3e, background color: #1a1918, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 4.5:1
+
+[1A[2K
+[DARK MODE] Homepage
+
+[1A[2K  Impact: serious
+
+[1A[2K  Element: <h2 class="font-display text-3xl md:text-4xl font-bold text-primary mb-4">What Our Customers Say</h2>...
+
+[1A[2K  Issue: Fix any of the following:
+  Element has insufficient color contrast of 4.25 (foreground color: #e53e3e, background color: #1a1918, font size: 30.0pt (40px), font weight: bold). Expected contrast ratio of 4.5:1
+
+[1A[2KHomepage (dark): FAILED - 2 violations
+
+[1A[2K[3/19] [chromium] › e2e\contrast-audit.spec.ts:166:7 › Menu Page Contrast (WCAG AAA) › menu page - light mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:166:7 › Menu Page Contrast (WCAG AAA) › menu page - light mode
+Menu Page (light): PASSED
+
+[1A[2K[4/19] [chromium] › e2e\contrast-audit.spec.ts:187:7 › Menu Page Contrast (WCAG AAA) › menu page - dark mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:187:7 › Menu Page Contrast (WCAG AAA) › menu page - dark mode
+
+[DARK MODE] Menu Page
+
+[1A[2K  Impact: serious
+
+[1A[2K  Element: <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4">Order in 4 Simple Steps</h2>...
+
+[1A[2K  Issue: Fix any of the following:
+  Element has insufficient color contrast of 4.25 (foreground color: #e53e3e, background color: #1a1918, font size: 36.0pt (48px), font weight: bold). Expected contrast ratio of 4.5:1
+
+[1A[2K
+[DARK MODE] Menu Page
+
+[1A[2K  Impact: serious
+
+[1A[2K  Element: <h2 class="font-display text-3xl md:text-4xl font-bold text-primary mb-4">What Our Customers Say</h2>...
+
+[1A[2K  Issue: Fix any of the following:
+  Element has insufficient color contrast of 4.25 (foreground color: #e53e3e, background color: #1a1918, font size: 30.0pt (40px), font weight: bold). Expected contrast ratio of 4.5:1
+
+[1A[2KMenu Page (dark): FAILED - 2 violations
+
+[1A[2K[5/19] [chromium] › e2e\contrast-audit.spec.ts:228:7 › Cart Drawer Contrast (WCAG AAA) › cart drawer - light mode
+[1A[2K[6/19] [chromium] › e2e\contrast-audit.spec.ts:252:7 › Cart Drawer Contrast (WCAG AAA) › cart drawer - dark mode
+[1A[2K[7/19] [chromium] › e2e\contrast-audit.spec.ts:281:7 › Login Page Contrast (WCAG AAA) › login page - light mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:281:7 › Login Page Contrast (WCAG AAA) › login page - light mode
+Login Page (light): PASSED
+
+[1A[2K[8/19] [chromium] › e2e\contrast-audit.spec.ts:298:7 › Login Page Contrast (WCAG AAA) › login page - dark mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:298:7 › Login Page Contrast (WCAG AAA) › login page - dark mode
+Login Page (dark): PASSED
+
+[1A[2K[9/19] [chromium] › e2e\contrast-audit.spec.ts:335:7 › Checkout Page Contrast (WCAG AAA) › checkout page - light mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:335:7 › Checkout Page Contrast (WCAG AAA) › checkout page - light mode
+Login (from checkout) (light): PASSED
+
+[1A[2K[10/19] [chromium] › e2e\contrast-audit.spec.ts:358:7 › Checkout Page Contrast (WCAG AAA) › checkout page - dark mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:358:7 › Checkout Page Contrast (WCAG AAA) › checkout page - dark mode
+Login (from checkout) (dark): PASSED
+
+[1A[2K[11/19] [chromium] › e2e\contrast-audit.spec.ts:386:7 › Tracking Page Contrast (WCAG AAA) › tracking page - light mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:386:7 › Tracking Page Contrast (WCAG AAA) › tracking page - light mode
+Tracking Page (light): PASSED
+
+[1A[2K[12/19] [chromium] › e2e\contrast-audit.spec.ts:404:7 › Tracking Page Contrast (WCAG AAA) › tracking page - dark mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:404:7 › Tracking Page Contrast (WCAG AAA) › tracking page - dark mode
+Tracking Page (dark): PASSED
+
+[1A[2K[13/19] [chromium] › e2e\contrast-audit.spec.ts:427:7 › Driver Interface Contrast (WCAG AAA) › driver dashboard - light mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:427:7 › Driver Interface Contrast (WCAG AAA) › driver dashboard - light mode
+Driver Dashboard (light): PASSED
+
+[1A[2K[14/19] [chromium] › e2e\contrast-audit.spec.ts:444:7 › Driver Interface Contrast (WCAG AAA) › driver dashboard - dark mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:444:7 › Driver Interface Contrast (WCAG AAA) › driver dashboard - dark mode
+Driver Dashboard (dark): PASSED
+
+[1A[2K[15/19] [chromium] › e2e\contrast-audit.spec.ts:467:7 › Admin Interface Contrast (WCAG AAA) › admin dashboard - light mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:467:7 › Admin Interface Contrast (WCAG AAA) › admin dashboard - light mode
+Admin Login (light): PASSED
+
+[1A[2K[16/19] [chromium] › e2e\contrast-audit.spec.ts:490:7 › Admin Interface Contrast (WCAG AAA) › admin dashboard - dark mode
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:490:7 › Admin Interface Contrast (WCAG AAA) › admin dashboard - dark mode
+Admin Login (dark): PASSED
+
+[1A[2K[17/19] [chromium] › e2e\contrast-audit.spec.ts:518:7 › Item Detail Modal Contrast (WCAG AAA) › item modal - light mode
+[1A[2K[18/19] [chromium] › e2e\contrast-audit.spec.ts:542:7 › Item Detail Modal Contrast (WCAG AAA) › item modal - dark mode
+[1A[2K[19/19] [chromium] › e2e\contrast-audit.spec.ts:575:7 › Audit Summary › generate audit summary
+[1A[2K[chromium] › e2e\contrast-audit.spec.ts:575:7 › Audit Summary › generate audit summary
+
+=== Contrast Audit Complete ===
+
+
+[1A[2KTotal violations collected: 4
+
+[1A[2K
+=== WCAG AAA Contrast Audit: VIOLATIONS FOUND ===
+
+
+[1A[2KTotal violations: 4
+
+
+[1A[2K
+--- Homepage (dark): 2 violations ---
+
+[1A[2K  1. [serious] <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-primary 
+
+[1A[2K  2. [serious] <h2 class="font-display text-3xl md:text-4xl font-bold text-primary mb-4">What O
+
+[1A[2K
+--- Menu Page (dark): 2 violations ---
+
+[1A[2K  1. [serious] <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-primary 
+
+[1A[2K  2. [serious] <h2 class="font-display text-3xl md:text-4xl font-bold text-primary mb-4">What O
+
+[1A[2K  19 passed (2.4m)
