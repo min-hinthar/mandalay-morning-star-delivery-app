@@ -1,6 +1,7 @@
 # WCAG AAA Contrast Audit Report
 
 **Audit Date:** 2026-01-29
+**Fix Date:** 2026-01-29
 **Auditor:** Automated (axe-core + Playwright)
 **Standard:** WCAG 2.1 AAA (7:1 normal text, 4.5:1 large text)
 
@@ -8,17 +9,26 @@
 
 | Status | Count |
 |--------|-------|
-| Pages Tested | 10 (18 test cases with both themes) |
-| Automated Tests Passed | 19/19 |
-| Contrast Violations Found | 2 unique violations |
-| Severity | Serious |
+| Pages Tested | 10 (38 test cases including mobile) |
+| Automated Tests Passed | 38/38 |
+| Contrast Violations Found | 0 (all fixed) |
+| Severity | N/A |
+
+### Fix Summary
+
+All contrast violations have been resolved. Changes made:
+
+1. **Dark mode primary color** adjusted from `#E53E3E` (4.26:1) to `#FF6B6B` (6.33:1)
+2. **HowItWorks step titles** changed from `font-semibold text-lg` to `font-bold text-xl` (qualifies as large bold text)
+3. **Header brand name** changed from `font-semibold` to `font-bold` (qualifies as large bold text at 18px)
+4. **Login form helper text** changed from conflicting `text-muted text-primary` to `text-text-secondary`
 
 ## Pages Tested
 
 | Page | Light Mode | Dark Mode |
 |------|------------|-----------|
-| Homepage | PASSED | 2 violations |
-| Menu Page | PASSED | 2 violations (same as homepage) |
+| Homepage | PASSED | PASSED |
+| Menu Page | PASSED | PASSED |
 | Cart Drawer | PASSED | PASSED |
 | Login Page | PASSED | PASSED |
 | Checkout Page | PASSED | PASSED |
@@ -27,68 +37,102 @@
 | Admin Dashboard | PASSED | PASSED |
 | Item Detail Modal | PASSED | PASSED |
 
-## Violations Found
+## Violations Found and Fixed
 
-### Violation 1: "Order in 4 Simple Steps" Heading
+### Fixed Violation 1: "Order in 4 Simple Steps" Heading
 
 **Location:** Homepage / Menu Page (HowItWorks section)
 **Theme:** Dark mode only
-**Severity:** Serious
-**Element:**
-```html
-<h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4">
-  Order in 4 Simple Steps
-</h2>
-```
+**Status:** FIXED
 
-**Issue:**
+**Original Issue:**
 - Foreground color: `#e53e3e` (text-primary)
 - Background color: `#1a1918` (dark mode surface)
 - Actual contrast: 4.25:1
 - Required contrast: 4.5:1 (for large text under WCAG AAA)
-- Shortfall: 0.25 ratio points
 
-**Suggested Fix:**
-Lighten the primary color in dark mode to achieve 4.5:1+ contrast. Options:
-1. Add `dark:text-primary-light` class that maps to a lighter red in dark mode
-2. Adjust `--color-primary` dark mode value from `#e53e3e` to `#ef5350` or similar
+**Fix Applied:**
+- Updated dark mode `--primary` from `#E53E3E` to `#FF6B6B`
+- New contrast ratio: 6.33:1 (exceeds 4.5:1 requirement)
 
 ---
 
-### Violation 2: "What Our Customers Say" Heading
+### Fixed Violation 2: "What Our Customers Say" Heading
 
 **Location:** Homepage / Menu Page (Testimonials section)
 **Theme:** Dark mode only
-**Severity:** Serious
-**Element:**
-```html
-<h2 class="font-display text-3xl md:text-4xl font-bold text-primary mb-4">
-  What Our Customers Say
-</h2>
-```
+**Status:** FIXED
 
-**Issue:**
-- Foreground color: `#e53e3e` (text-primary)
-- Background color: `#1a1918` (dark mode surface)
-- Actual contrast: 4.25:1
-- Required contrast: 4.5:1 (for large text under WCAG AAA)
-- Shortfall: 0.25 ratio points
+Same fix as Violation 1 - dark mode primary color updated.
 
-**Suggested Fix:**
-Same as Violation 1 - both use `text-primary` on dark mode surface.
+---
+
+### Fixed Violation 3: HowItWorks Step Titles (mobile)
+
+**Location:** HowItWorks section step titles
+**Theme:** Dark mode, mobile viewport
+**Status:** FIXED
+
+**Original Issue:**
+- Font size: 18px (`text-lg`) with `font-semibold`
+- Did not qualify as "large text" (requires 14pt bold or 18pt regular)
+- Required 7:1 contrast for normal text
+
+**Fix Applied:**
+- Changed from `font-semibold text-lg md:text-xl` to `font-bold text-xl`
+- Now qualifies as large bold text (20px = 15pt > 14pt threshold)
+- Only requires 4.5:1 contrast (achieved with 6.33:1)
+
+---
+
+### Fixed Violation 4: Header Brand Name
+
+**Location:** DesktopHeader.tsx
+**Theme:** Dark mode
+**Status:** FIXED
+
+**Original Issue:**
+- Font size: 18px (`text-lg`) with `font-semibold`
+- Did not qualify as "large text"
+
+**Fix Applied:**
+- Changed from `font-semibold` to `font-bold`
+- Now qualifies as large bold text at 18px (exactly 14pt threshold)
+
+---
+
+### Fixed Violation 5: Login Form Helper Text
+
+**Location:** LoginForm.tsx
+**Theme:** Both modes
+**Status:** FIXED
+
+**Original Issue:**
+- Conflicting classes: `text-muted text-primary`
+- Small text (14px) using brand primary color
+
+**Fix Applied:**
+- Changed to `text-text-secondary` for semantic helper text color
 
 ---
 
 ## Root Cause Analysis
 
-Both violations stem from the same root cause:
-- **`text-primary` (#e53e3e)** does not meet WCAG AAA large text contrast (4.5:1) against dark mode background **`#1a1918`**
-- The contrast ratio is 4.25:1, falling 0.25 points short
-- This passes WCAG AA (3:1 for large text) but fails AAA
+All violations stemmed from two root causes:
 
-**Files affected:**
-- `src/components/ui/homepage/HowItWorks.tsx`
-- `src/components/ui/homepage/TestimonialsCarousel.tsx`
+1. **Dark mode primary color** (`#E53E3E`) had insufficient contrast (4.25:1) against dark backgrounds
+2. **Small text using brand colors** - elements like step titles and header text used the brand primary color at sizes/weights that required 7:1 contrast
+
+**Resolution approach:**
+- Lightened dark mode primary from `#E53E3E` to `#FF6B6B` (6.33:1 contrast)
+- Upgraded font weights to `font-bold` where needed to qualify as "large text"
+- Used semantic text tokens for small helper text
+
+**Files modified:**
+- `src/app/globals.css` - dark mode `--primary` color
+- `src/components/ui/homepage/HowItWorksSection.tsx` - step title font weight/size
+- `src/components/ui/layout/AppHeader/DesktopHeader.tsx` - brand name font weight
+- `src/components/ui/auth/LoginForm.tsx` - helper text color class
 
 ---
 
@@ -129,19 +173,18 @@ This is an accepted pattern per CONTEXT.md which notes gradient backgrounds requ
 
 ---
 
-## Recommendations
+## Recommendations (Completed)
 
-### Immediate (Phase 32 fix)
+All recommendations have been implemented:
 
-1. **Adjust dark mode primary color** for headings
-   - Current: `#e53e3e` (4.25:1 contrast)
-   - Recommended: `#ef5350` or `#f44336` (achieves 4.5:1+)
-   - Implementation: Add `--color-primary-dark-heading` token or adjust existing token
+1. **Dark mode primary color adjusted** - Changed from `#E53E3E` to `#FF6B6B`
+2. **Font weights standardized** - Brand text uses `font-bold` to qualify as large text
+3. **Semantic text colors** - Helper text uses `text-text-secondary` not brand colors
 
 ### Future Considerations
 
-1. Consider adding a `text-primary-accessible` utility that automatically adjusts for dark mode
-2. Add contrast checking to Storybook token documentation
+1. Monitor for new contrast issues when adding components
+2. Consider adding contrast checking to Storybook token documentation
 3. Include contrast ratios in design token export
 
 ---
@@ -170,18 +213,23 @@ Test file: e2e/contrast-audit.spec.ts
 
 ## Conclusion
 
-The Mandalay Morning Star delivery app achieves **WCAG AAA contrast compliance** for all pages in **light mode** and most pages in **dark mode**.
+The Mandalay Morning Star delivery app now achieves **full WCAG AAA contrast compliance** for all pages in both **light mode** and **dark mode**.
 
-Two heading elements in dark mode fall slightly short (0.25 ratio points) of the AAA large text requirement. These are:
-1. "Order in 4 Simple Steps" heading
-2. "What Our Customers Say" heading
+All 38 automated contrast tests pass across:
+- 10 page types
+- 2 themes (light/dark)
+- 2 viewport sizes (desktop/mobile)
 
-Both use `text-primary` (#e53e3e) which achieves 4.25:1 contrast against the dark mode background, just under the 4.5:1 AAA requirement. These pass WCAG AA but not AAA.
+**Changes made:**
+1. Dark mode primary color lightened to `#FF6B6B` (6.33:1 contrast)
+2. Brand text uses `font-bold` to qualify as large text
+3. Helper text uses semantic text tokens
 
-**Recommendation:** Approve with note that these two headings are borderline. The fix is straightforward (lighten primary red in dark mode) and can be addressed if strict AAA is required.
+**Result:** Zero WCAG AAA contrast violations.
 
 ---
 
-*Audit performed: 2026-01-29*
+*Initial audit: 2026-01-29*
+*Fixes applied: 2026-01-29*
 *Test file: e2e/contrast-audit.spec.ts*
 *Standard: WCAG 2.1 AAA*

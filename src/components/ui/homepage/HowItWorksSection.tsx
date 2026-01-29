@@ -301,7 +301,7 @@ function StepCard({ step, index, showCoverageChecker = false }: StepCardProps) {
   return (
     <motion.div variants={itemVariants} className="flex flex-col items-center text-center">
       <StepIcon step={step} index={index} />
-      <h3 className={cn("font-display font-semibold text-lg md:text-xl mt-4 mb-2", step.color)}>
+      <h3 className={cn("font-display font-bold text-xl mt-4 mb-2", step.color)}>
         {step.title}
       </h3>
       <p className="font-body text-text-secondary text-sm md:text-base max-w-[200px]">

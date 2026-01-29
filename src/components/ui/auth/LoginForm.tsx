@@ -52,7 +52,7 @@ export function LoginForm(): ReactElement {
               {success}
             </div>
           )}
-          <p className="text-sm text-muted text-primary">
+          <p className="text-sm text-text-secondary">
             We&apos;ll email you a magic link to sign in.
           </p>
           <div className="space-y-2">
