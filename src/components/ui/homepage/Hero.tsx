@@ -69,12 +69,14 @@ function AnimatedHeadline({ text, className }: AnimatedHeadlineProps) {
               opacity: 0,
               y: 40,
               rotateX: -90,
+              // eslint-disable-next-line no-restricted-syntax -- FM animation interpolation requires numeric blur (~--blur-md)
               filter: "blur(10px)",
             },
             visible: {
               opacity: 1,
               y: 0,
               rotateX: 0,
+              // eslint-disable-next-line no-restricted-syntax -- FM animation interpolation requires numeric blur
               filter: "blur(0px)",
             },
           }}
@@ -466,6 +468,7 @@ export function Hero({
     <section
       ref={containerRef}
       id="hero"
+      data-testid="hero-section"
       className={cn(
         "relative min-h-[100svh] min-h-[100dvh] overflow-hidden isolate",
         className
