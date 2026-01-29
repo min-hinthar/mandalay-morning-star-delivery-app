@@ -473,6 +473,7 @@ export function Hero({
         "relative min-h-[100svh] min-h-[100dvh] overflow-hidden isolate",
         className
       )}
+      style={{ position: "relative" }}
       onMouseMove={canHover ? handleMouseMove : undefined}
       onMouseLeave={canHover ? handleMouseLeave : undefined}
     >

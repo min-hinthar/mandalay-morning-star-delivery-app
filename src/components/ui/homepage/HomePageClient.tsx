@@ -39,7 +39,7 @@ export function HomePageClient({ menuSection }: HomePageClientProps) {
       <SectionNavDots sections={sections} />
 
       {/* Main Content */}
-      <main>
+      <main className="relative">
         {/* Hero Section */}
         <Hero
           ctaHref="/menu"

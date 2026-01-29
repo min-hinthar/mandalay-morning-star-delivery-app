@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactElement, ReactNode } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { HeaderWrapper } from "@/components/ui/layout/HeaderWrapper";
 import { Providers } from "@/app/providers";
@@ -82,6 +83,7 @@ export default function RootLayout({
         </Providers>
         {/* Web Vitals monitoring - loads async, no render blocking */}
         <WebVitalsReporter />
+        <Analytics />
       </body>
     </html>
   );
