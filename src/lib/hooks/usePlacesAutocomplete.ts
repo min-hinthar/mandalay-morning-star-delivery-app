@@ -23,7 +23,8 @@ interface UsePlacesAutocompleteOptions {
   componentRestrictions?: { country: string | string[] };
 }
 
-const LIBRARIES: ("places")[] = ["places"];
+// Must match libraries in CoverageRouteMap to avoid loader conflicts
+const LIBRARIES: ("places" | "geometry")[] = ["places", "geometry"];
 
 export function usePlacesAutocomplete(
   options: UsePlacesAutocompleteOptions = {}
