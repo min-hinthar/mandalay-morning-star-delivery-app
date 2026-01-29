@@ -753,6 +753,93 @@ const handleDragEnd = (_: unknown, info: PanInfo) => {
 
 ---
 
+## 2026-01-29: Performance Optimization Patterns
+
+### Lazy Load Below-Fold Heavy Components
+**Context:** Google Maps loading synchronously on page load despite being below the fold
+**Learning:** Heavy third-party libraries (Google Maps, charts, video players) should be lazy loaded when not immediately visible. Use React.lazy() + Suspense with skeleton fallback.
+
+```tsx
+// ❌ Loads 369KB Google Maps chunk on initial page load
+import { HowItWorksSection } from "./HowItWorksSection";
+
+// ✅ Lazy load - reduces initial bundle by 58%
+const HowItWorksSection = React.lazy(() =>
+  import("./HowItWorksSection").then((m) => ({ default: m.HowItWorksSection }))
+);
+
+<Suspense fallback={<HowItWorksSkeleton />}>
+  <HowItWorksSection />
+</Suspense>
+```
+
+**Apply when:** Components with heavy dependencies that aren't visible on initial viewport (below fold, in tabs, in modals).
+
+### IntersectionObserver for Animation Pause
+**Context:** Map pulsing animation running every 1500ms even when off-screen
+**Learning:** setInterval animations waste CPU/battery when element isn't visible. Use IntersectionObserver to pause when off-screen.
+
+```tsx
+const [isVisible, setIsVisible] = useState(false);
+const containerRef = useRef<HTMLDivElement>(null);
+
+useEffect(() => {
+  const observer = new IntersectionObserver(
+    ([entry]) => setIsVisible(entry.isIntersecting),
+    { threshold: 0.1 }
+  );
+  if (containerRef.current) observer.observe(containerRef.current);
+  return () => observer.disconnect();
+}, []);
+
+useEffect(() => {
+  if (!isVisible) return;  // Skip when off-screen
+  const interval = setInterval(animatePulse, 1500);
+  return () => clearInterval(interval);
+}, [isVisible]);
+```
+
+**Apply when:** Any repeating animation (setInterval, requestAnimationFrame loops) in scrollable content.
+
+### willChange Only on Interaction
+**Context:** `willChange: "transform"` on all menu cards causing GPU memory pressure
+**Learning:** `willChange` creates compositor layers. Too many layers = janky animations. Apply only during interaction.
+
+```tsx
+// ❌ Always creates GPU layer - memory pressure with many cards
+<div style={{ willChange: "transform" }} />
+
+// ✅ Layer only when needed
+const [isHovered, setIsHovered] = useState(false);
+<div
+  style={{ willChange: isHovered ? "transform" : "auto" }}
+  onMouseEnter={() => setIsHovered(true)}
+  onMouseLeave={() => setIsHovered(false)}
+/>
+```
+
+**Apply when:** Components with hover/tap animations that appear in lists (cards, menu items, list rows).
+
+### optimizePackageImports for Tree-Shaking
+**Context:** @react-google-maps/api not tree-shaken, full library bundled
+**Learning:** Some packages don't tree-shake automatically. Add to Next.js config.
+
+```ts
+// next.config.ts
+experimental: {
+  optimizePackageImports: [
+    "@react-google-maps/api",
+    "lucide-react",
+    "date-fns",
+    // Add packages that don't tree-shake well
+  ],
+}
+```
+
+**Apply when:** Bundle analyzer shows large chunks from specific packages that should be smaller based on imports.
+
+---
+
 ## 2026-01-28: Bottom Sheet UX Fallbacks for Unreliable Gestures
 
 **Context:** Swipe-to-close gesture unreliable on mobile due to touchAction conflicts
