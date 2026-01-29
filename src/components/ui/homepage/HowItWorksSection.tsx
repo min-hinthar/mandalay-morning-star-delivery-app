@@ -12,7 +12,6 @@ import {
   XCircle,
   Loader2,
   Search,
-  Navigation,
   Clock,
   X,
 } from "lucide-react";
@@ -26,6 +25,21 @@ import {
   type PlacePrediction,
 } from "@/lib/hooks/usePlacesAutocomplete";
 import { CoverageRouteMap } from "@/components/ui/coverage/CoverageRouteMap";
+
+// Dropdown item animation variants
+const dropdownItemVariants = {
+  hidden: { opacity: 0, x: -10 },
+  visible: (i: number) => ({
+    opacity: 1,
+    x: 0,
+    transition: {
+      delay: i * 0.05,
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 24,
+    },
+  }),
+};
 
 // ============================================
 // TYPES
@@ -223,7 +237,6 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
       clearPredictions();
       setIsFocused(false);
 
-      // Get lat/lng from place details
       const details = await getPlaceDetails(prediction.placeId);
       if (details) {
         setSelectedAddress({
@@ -231,7 +244,6 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
           lat: details.lat,
           lng: details.lng,
         });
-        // Trigger coverage check with lat/lng for accuracy
         mutate({ lat: details.lat, lng: details.lng });
       }
     },
@@ -246,53 +258,21 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
     inputRef.current?.focus();
   }, [clearInput, reset]);
 
-  // Playful bounce animation for the map container
-  const mapContainerVariants = {
-    hidden: { opacity: 0, scale: 0.9, y: 20 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: {
-        type: "spring" as const,
-        stiffness: 200,
-        damping: 20,
-        delay: 0.2,
-      },
-    },
-  };
-
-  // Stagger animation for dropdown items
-  const dropdownItemVariants = {
-    hidden: { opacity: 0, x: -20, scale: 0.95 },
-    visible: (i: number) => ({
-      opacity: 1,
-      x: 0,
-      scale: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 24,
-        delay: i * 0.05,
-      },
-    }),
-  };
-
   return (
     <motion.div
-      className={cn("w-full max-w-md mt-6", className)}
-      initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
+      className={cn("w-full max-w-lg mt-8", className)}
+      initial={shouldAnimate ? { opacity: 0, y: 30 } : undefined}
       whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-      viewport={{ once: true }}
+      viewport={{ once: true, margin: "-50px" }}
       transition={getSpring(spring.gentle)}
     >
-      {/* Interactive Map - Always visible */}
+      {/* Map Container */}
       <motion.div
-        variants={shouldAnimate ? mapContainerVariants : undefined}
-        initial="hidden"
-        whileInView="visible"
+        initial={shouldAnimate ? { opacity: 0, scale: 0.95 } : undefined}
+        whileInView={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
         viewport={{ once: true }}
-        className="relative rounded-2xl overflow-hidden shadow-xl mb-4"
+        transition={{ delay: 0.1, duration: 0.5 }}
+        className="mb-4"
       >
         <CoverageRouteMap
           {...(selectedAddress && coverageData && {
@@ -303,43 +283,27 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
             distanceMiles: coverageData.distanceMiles,
             isValid: coverageData.isValid,
           })}
-          className="h-48 md:h-56"
+          className="h-52 md:h-64"
         />
-
-        {/* Playful floating prompt when no address */}
-        <AnimatePresence>
-          {!selectedAddress && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="absolute top-3 left-1/2 -translate-x-1/2"
-            >
-              <motion.div
-                animate={shouldAnimate ? { y: [0, -5, 0] } : undefined}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className={cn(
-                  "px-4 py-2 rounded-full",
-                  "bg-surface-primary/95 backdrop-blur-sm shadow-lg",
-                  "flex items-center gap-2 text-sm font-medium"
-                )}
-              >
-                <Navigation className="w-4 h-4 text-primary animate-pulse" />
-                <span className="text-text-primary">Try your address below!</span>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </motion.div>
 
-      {/* Search Input with Autocomplete */}
-      <div className="relative">
+      {/* Search Input */}
+      <motion.div
+        initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+        whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+        viewport={{ once: true }}
+        transition={{ delay: 0.2 }}
+        className="relative"
+      >
         <motion.div
-          animate={isFocused && shouldAnimate ? { scale: 1.02 } : { scale: 1 }}
+          animate={isFocused && shouldAnimate ? { scale: 1.01 } : { scale: 1 }}
           transition={getSpring(spring.snappy)}
           className={cn(
-            "relative transition-shadow duration-300",
-            isFocused ? "shadow-xl" : "shadow-md"
+            "relative rounded-2xl transition-shadow duration-300",
+            "ring-2",
+            isFocused
+              ? "ring-primary shadow-lg shadow-primary/20"
+              : "ring-border/50 shadow-md"
           )}
         >
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
@@ -350,19 +314,19 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
             onChange={(e) => setInput(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-            placeholder={isReady ? "Enter your delivery address..." : "Loading..."}
+            placeholder={isReady ? "Type your address to check coverage..." : "Loading..."}
             disabled={!isReady || isCheckingCoverage}
             className={cn(
               "w-full pl-12 pr-12 py-4 rounded-2xl",
-              "border-2 border-primary/20 bg-surface-primary",
+              "bg-surface-primary",
               "font-body text-base text-text-primary placeholder:text-text-muted",
-              "focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none",
-              "transition-all duration-300",
-              (!isReady || isCheckingCoverage) && "opacity-70 cursor-not-allowed"
+              "focus:outline-none",
+              "transition-all duration-200",
+              (!isReady || isCheckingCoverage) && "opacity-60 cursor-not-allowed"
             )}
           />
 
-          {/* Clear / Loading indicator */}
+          {/* Clear / Loading */}
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
             {isLoadingPlaces || isCheckingCoverage ? (
               <motion.div
@@ -379,7 +343,7 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={handleClear}
-                className="text-text-muted hover:text-text-primary transition-colors"
+                className="p-1 rounded-full text-text-muted hover:text-text-primary hover:bg-surface-secondary transition-all"
               >
                 <X className="w-5 h-5" />
               </motion.button>
@@ -438,7 +402,7 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </motion.div>
 
       {/* Coverage Result - Animated card */}
       <AnimatePresence mode="wait">
