@@ -40,7 +40,7 @@ describe("checkCoverage", () => {
     expect(result.reason).toBeUndefined();
   });
 
-  it("returns DISTANCE_EXCEEDED when over 50 miles", async () => {
+  it("returns DISTANCE_EXCEEDED when over 40 miles", async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve(exceedsDistanceResponse),
@@ -66,7 +66,7 @@ describe("checkCoverage", () => {
     expect(result.reason).toBe("DURATION_EXCEEDED");
   });
 
-  it("returns valid at exact threshold (50 miles, 90 minutes)", async () => {
+  it("returns valid at exact threshold (40 miles, 90 minutes)", async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve(atThresholdResponse),
@@ -75,7 +75,7 @@ describe("checkCoverage", () => {
     const result = await checkCoverage(34.1, -118.1);
 
     expect(result.isValid).toBe(true);
-    expect(result.distanceMiles).toBeCloseTo(50, 0);
+    expect(result.distanceMiles).toBeCloseTo(40, 0);
     expect(result.durationMinutes).toBe(90);
     expect(result.reason).toBeUndefined();
   });
@@ -241,8 +241,8 @@ describe("checkCoverage", () => {
 });
 
 describe("coverage limits validation", () => {
-  it("confirms max distance is 50 miles", () => {
-    expect(COVERAGE_LIMITS.maxDistanceMiles).toBe(50);
+  it("confirms max distance is 40 miles", () => {
+    expect(COVERAGE_LIMITS.maxDistanceMiles).toBe(40);
   });
 
   it("confirms max duration is 90 minutes", () => {

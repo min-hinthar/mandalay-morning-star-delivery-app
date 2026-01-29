@@ -78,6 +78,11 @@ export { useMenu } from "./useMenu";
 export { useAddresses } from "./useAddresses";
 export { useTimeSlot } from "./useTimeSlot";
 export { useCoverageCheck } from "./useCoverageCheck";
+export {
+  usePlacesAutocomplete,
+  type PlacePrediction,
+  type PlaceDetails,
+} from "./usePlacesAutocomplete";
 
 // ============================================
 // AUTH

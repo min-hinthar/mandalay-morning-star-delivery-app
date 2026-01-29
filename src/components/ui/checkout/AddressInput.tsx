@@ -10,15 +10,19 @@ import {
   AlertCircle,
   Home,
   Briefcase,
-  Navigation,
   Loader2,
   Plus,
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { spring, staggerContainer, staggerItem, routeDraw } from "@/lib/motion-tokens";
+import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import {
+  usePlacesAutocomplete,
+  type PlacePrediction,
+} from "@/lib/hooks/usePlacesAutocomplete";
 import { Button } from "@/components/ui/button";
+import { CoverageRouteMap } from "@/components/ui/coverage/CoverageRouteMap";
 import type { Address, CoverageResult } from "@/types/address";
 import { KITCHEN_LOCATION, COVERAGE_LIMITS } from "@/types/address";
 
@@ -46,6 +50,8 @@ export interface AddressAutocompleteResult {
   description: string;
   mainText: string;
   secondaryText: string;
+  lat?: number;
+  lng?: number;
 }
 
 // ============================================
@@ -180,166 +186,22 @@ interface MapPreviewProps {
 }
 
 export function MapPreview({ address, coverageResult, className }: MapPreviewProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreference();
-  const [showRoute, setShowRoute] = useState(false);
-
-  useEffect(() => {
-    if (address && coverageResult?.isValid) {
-      const timer = setTimeout(() => setShowRoute(true), 500);
-      return () => clearTimeout(timer);
-    }
-    setShowRoute(false);
-  }, [address, coverageResult]);
+  // Always render interactive Google Map by default
+  // Pass destination props only when address and coverage are available
+  const hasDestination = address && coverageResult && address.lat && address.lng;
 
   return (
-    <motion.div
-      initial={shouldAnimate ? { opacity: 0, scale: 0.95 } : undefined}
-      animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
-      transition={getSpring(spring.default)}
-      className={cn(
-        "relative rounded-2xl overflow-hidden",
-        "bg-gradient-to-br from-surface-secondary to-surface-tertiary",
-        "border border-border",
-        "h-48",
-        className
-      )}
-    >
-      {/* Placeholder map with styled markers */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <svg className="w-full h-full">
-            <defs>
-              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="0.5" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-        </div>
-
-        {/* Kitchen marker */}
-        <motion.div
-          className="absolute top-1/3 left-1/3"
-          initial={shouldAnimate ? { scale: 0, y: -20 } : undefined}
-          animate={shouldAnimate ? { scale: 1, y: 0 } : undefined}
-          transition={{ ...getSpring(spring.ultraBouncy), delay: 0.2 }}
-        >
-          <div className="relative">
-            <motion.div
-              animate={shouldAnimate ? {
-                scale: [1, 1.5, 1],
-                opacity: [0.5, 0.2, 0.5],
-              } : undefined}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-              }}
-              className="absolute -inset-3 bg-primary rounded-full"
-            />
-            <div className="relative w-8 h-8 rounded-full bg-primary text-text-inverse flex items-center justify-center shadow-lg">
-              <Home className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-xs text-text-muted mt-1 text-center whitespace-nowrap">
-            Kitchen
-          </p>
-        </motion.div>
-
-        {/* Delivery marker */}
-        {address && (
-          <motion.div
-            className="absolute bottom-1/3 right-1/3"
-            initial={shouldAnimate ? { scale: 0, y: -20 } : undefined}
-            animate={shouldAnimate ? { scale: 1, y: 0 } : undefined}
-            transition={{ ...getSpring(spring.ultraBouncy), delay: 0.4 }}
-          >
-            <div className="relative">
-              <motion.div
-                animate={shouldAnimate && coverageResult?.isValid ? {
-                  scale: [1, 1.3, 1],
-                  opacity: [0.5, 0.2, 0.5],
-                } : undefined}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  delay: 0.5,
-                }}
-                className={cn(
-                  "absolute -inset-3 rounded-full",
-                  coverageResult?.isValid ? "bg-green" : "bg-status-error"
-                )}
-              />
-              <div className={cn(
-                "relative w-8 h-8 rounded-full text-text-inverse flex items-center justify-center shadow-lg",
-                coverageResult?.isValid ? "bg-green" : "bg-status-error"
-              )}>
-                <MapPin className="w-4 h-4" />
-              </div>
-            </div>
-            <p className="text-xs text-text-muted mt-1 text-center whitespace-nowrap">
-              {address.label}
-            </p>
-          </motion.div>
-        )}
-
-        {/* Animated route line */}
-        {showRoute && coverageResult?.isValid && (
-          <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            <motion.path
-              d="M 33% 33% Q 50% 20% 67% 67%"
-              fill="none"
-              stroke="url(#routeGradient)"
-              strokeWidth="3"
-              strokeDasharray="8 4"
-              variants={routeDraw.path}
-              initial="initial"
-              animate="animate"
-            />
-            <defs>
-              <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#A41034" />
-                <stop offset="100%" stopColor="#52A52E" />
-              </linearGradient>
-            </defs>
-          </svg>
-        )}
-
-        {/* Empty state */}
-        {!address && (
-          <motion.div
-            initial={shouldAnimate ? { opacity: 0 } : undefined}
-            animate={shouldAnimate ? { opacity: 1 } : undefined}
-            className="text-center text-text-muted"
-          >
-            <Navigation className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Select an address to see delivery route</p>
-          </motion.div>
-        )}
-      </div>
-
-      {/* Distance indicator */}
-      {coverageResult && address && (
-        <motion.div
-          initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
-          animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-          transition={{ delay: 0.6 }}
-          className={cn(
-            "absolute bottom-3 left-3 right-3",
-            "p-2 rounded-lg",
-            "bg-surface-primary/90 backdrop-blur-sm",
-            "flex items-center justify-between text-sm"
-          )}
-        >
-          <span className="font-medium text-text-primary">
-            {coverageResult.distanceMiles.toFixed(1)} miles
-          </span>
-          <span className="text-text-secondary">
-            ~{coverageResult.durationMinutes} min delivery
-          </span>
-        </motion.div>
-      )}
-    </motion.div>
+    <CoverageRouteMap
+      {...(hasDestination && {
+        destinationLat: address.lat,
+        destinationLng: address.lng,
+        encodedPolyline: coverageResult.encodedPolyline,
+        durationMinutes: coverageResult.durationMinutes,
+        distanceMiles: coverageResult.distanceMiles,
+        isValid: coverageResult.isValid,
+      })}
+      className={cn("h-48", className)}
+    />
   );
 }
 
@@ -359,58 +221,44 @@ export function AddressAutocomplete({
   className,
 }: AddressAutocompleteProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<AddressAutocompleteResult[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Simulated autocomplete - in real app, use Google Places API
-  const handleSearch = useCallback(async (searchQuery: string) => {
-    if (searchQuery.length < 3) {
-      setResults([]);
-      return;
-    }
+  // Real Google Places autocomplete with 300ms debounce
+  const {
+    input,
+    setInput,
+    predictions,
+    isLoading,
+    isReady,
+    getPlaceDetails,
+    clearPredictions,
+    clearInput,
+  } = usePlacesAutocomplete({ debounceMs: 300 });
 
-    setIsLoading(true);
+  const handleSelect = useCallback(
+    async (prediction: PlacePrediction) => {
+      setInput(prediction.description);
+      clearPredictions();
 
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 300));
+      // Get lat/lng from place details
+      const details = await getPlaceDetails(prediction.placeId);
 
-    // Mock results
-    const mockResults: AddressAutocompleteResult[] = [
-      {
-        placeId: "1",
-        description: `${searchQuery}, Covina, CA, USA`,
-        mainText: searchQuery,
-        secondaryText: "Covina, CA, USA",
-      },
-      {
-        placeId: "2",
-        description: `${searchQuery}, West Covina, CA, USA`,
-        mainText: searchQuery,
-        secondaryText: "West Covina, CA, USA",
-      },
-    ];
+      onSelect({
+        placeId: prediction.placeId,
+        description: prediction.description,
+        mainText: prediction.mainText,
+        secondaryText: prediction.secondaryText,
+        ...(details && { lat: details.lat, lng: details.lng }),
+      });
+    },
+    [setInput, clearPredictions, getPlaceDetails, onSelect]
+  );
 
-    setResults(mockResults);
-    setIsLoading(false);
-  }, []);
-
-  // Debounced search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      handleSearch(query);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [query, handleSearch]);
-
-  const handleSelect = useCallback((result: AddressAutocompleteResult) => {
-    setQuery(result.description);
-    setResults([]);
-    onSelect(result);
-  }, [onSelect]);
+  const handleClear = useCallback(() => {
+    clearInput();
+    inputRef.current?.focus();
+  }, [clearInput]);
 
   return (
     <div className={cn("relative", className)}>
@@ -430,31 +278,29 @@ export function AddressAutocomplete({
         <input
           ref={inputRef}
           type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-          placeholder={placeholder}
+          placeholder={isReady ? placeholder : "Loading..."}
+          disabled={!isReady}
           className={cn(
             "w-full pl-12 pr-10 py-3",
             "rounded-xl border border-border",
             "bg-surface-primary text-text-primary",
             "placeholder:text-text-muted",
             "focus:outline-none focus:border-primary",
-            "transition-colors duration-200"
+            "transition-colors duration-200",
+            !isReady && "opacity-50 cursor-not-allowed"
           )}
         />
-        {query && (
+        {input && (
           <motion.button
             type="button"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            onClick={() => {
-              setQuery("");
-              setResults([]);
-              inputRef.current?.focus();
-            }}
+            onClick={handleClear}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary"
           >
             <X className="w-4 h-4" />
@@ -473,7 +319,7 @@ export function AddressAutocomplete({
 
       {/* Results dropdown */}
       <AnimatePresence>
-        {results.length > 0 && isFocused && (
+        {predictions.length > 0 && isFocused && (
           <motion.div
             initial={shouldAnimate ? { opacity: 0, y: -10 } : undefined}
             animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
@@ -486,11 +332,11 @@ export function AddressAutocomplete({
               "overflow-hidden"
             )}
           >
-            {results.map((result, index) => (
+            {predictions.map((prediction, index) => (
               <motion.button
-                key={result.placeId}
+                key={prediction.placeId}
                 type="button"
-                onClick={() => handleSelect(result)}
+                onClick={() => handleSelect(prediction)}
                 initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
                 animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
                 transition={{ delay: index * 0.05 }}
@@ -499,16 +345,16 @@ export function AddressAutocomplete({
                   "hover:bg-surface-secondary",
                   "transition-colors duration-150",
                   "flex items-start gap-3",
-                  index !== results.length - 1 && "border-b border-border"
+                  index !== predictions.length - 1 && "border-b border-border"
                 )}
               >
                 <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-text-primary">
-                    {result.mainText}
+                    {prediction.mainText}
                   </p>
                   <p className="text-sm text-text-secondary">
-                    {result.secondaryText}
+                    {prediction.secondaryText}
                   </p>
                 </div>
               </motion.button>
