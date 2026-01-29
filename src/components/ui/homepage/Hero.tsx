@@ -440,11 +440,8 @@ export function Hero({
     [0, 1],
     ["0%", `${parallaxPresets.mid.speedFactor * 100}%`]
   );
-  const emojisY = useTransform(
-    scrollYProgress,
-    [0, 1],
-    ["0%", `${parallaxPresets.near.speedFactor * 100}%`]
-  );
+  // Emojis: no scroll parallax - they stay fixed and only use their own floating animation
+  // (parallax removed per design: emojis should not shift with scroll)
   // Content layer uses parallaxPresets.content for consistency (15% max travel)
   const contentY = useTransform(
     scrollYProgress,
@@ -456,7 +453,6 @@ export function Hero({
   // Smooth springs for all parallax values
   const smoothOrbsFarY = useSpring(orbsFarY, { stiffness: 100, damping: 30 });
   const smoothOrbsMidY = useSpring(orbsMidY, { stiffness: 100, damping: 30 });
-  const smoothEmojisY = useSpring(emojisY, { stiffness: 100, damping: 30 });
   const smoothContentY = useSpring(contentY, { stiffness: 100, damping: 30 });
   const smoothOpacity = useSpring(opacity, { stiffness: 100, damping: 30 });
 
@@ -517,11 +513,10 @@ export function Hero({
         ))}
       </motion.div>
 
-      {/* Layer 4: Floating emojis */}
-      <motion.div
+      {/* Layer 4: Floating emojis - no scroll parallax, emojis animate independently */}
+      <div
         className="absolute inset-0 pointer-events-none overflow-hidden"
         style={{
-          y: smoothEmojisY,
           // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
           zIndex: 3,
           maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
@@ -537,7 +532,7 @@ export function Hero({
             mouseOffset={mouseOffset}
           />
         ))}
-      </motion.div>
+      </div>
 
       {/* Bottom gradient fade */}
       <div

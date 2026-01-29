@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion, MotionValue } from "framer-motion";
+import { motion } from "framer-motion";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
@@ -25,8 +25,6 @@ export interface FloatingEmojiProps {
   initialX: number;
   /** Initial Y position (0-100 percentage) */
   initialY: number;
-  /** Parallax Y transform from scroll */
-  parallaxY?: MotionValue<string>;
   /** Mouse offset for repel effect */
   mouseOffset?: { x: number; y: number };
   /** Index for animation delay staggering */
@@ -56,51 +54,73 @@ const SIZE_CLASSES: Record<EmojiSize, string> = {
 // ANIMATION VARIANTS
 // ============================================
 
+// Animation keyframes - each plays once with organic movement
 const DRIFT_ANIMATION = {
   x: [0, 15, -10, 5, 0],
   y: [0, -20, 10, -5, 0],
+  opacity: [0, 1, 1, 1, 0.7],
 };
 
 const SPIRAL_ANIMATION = {
   x: [0, 20, 0, -20, 0],
   y: [0, -15, -30, -15, 0],
   rotate: [0, 10, 0, -10, 0],
+  opacity: [0, 1, 1, 1, 0.7],
 };
 
 const BOB_ANIMATION = {
   y: [0, -25, 0, -12, 0],
   scale: [1, 1.05, 1, 1.02, 1],
+  opacity: [0, 1, 1, 1, 0.7],
 };
 
-const getAnimationVariant = (type: AnimationType) => {
+const getAnimationVariant = (type: AnimationType, index: number) => {
+  // Add per-emoji variation based on index for more organic feel
+  const variation = (index % 5) * 3;
   switch (type) {
     case "drift":
-      return DRIFT_ANIMATION;
+      return {
+        ...DRIFT_ANIMATION,
+        x: DRIFT_ANIMATION.x.map((v) => v + (index % 2 === 0 ? variation : -variation)),
+      };
     case "spiral":
-      return SPIRAL_ANIMATION;
+      return {
+        ...SPIRAL_ANIMATION,
+        rotate: SPIRAL_ANIMATION.rotate.map((v) => v + (index % 3 === 0 ? 5 : -5)),
+      };
     case "bob":
-      return BOB_ANIMATION;
+      return {
+        ...BOB_ANIMATION,
+        y: BOB_ANIMATION.y.map((v) => v - variation),
+      };
     default:
       return DRIFT_ANIMATION;
   }
 };
 
-// Base duration varies by animation type for organic feel
+// Animation durations - longer since they play a limited number of times
 const getAnimationDuration = (type: AnimationType, index: number): number => {
   const baseDurations: Record<AnimationType, number> = {
-    drift: 12,
-    spiral: 15,
-    bob: 8,
+    drift: 14,
+    spiral: 18,
+    bob: 10,
   };
   // Stagger duration based on index for variety
   return baseDurations[type] + (index % 4) * 2;
+};
+
+// Finite repeat count varies per emoji for non-uniform endings
+const getRepeatCount = (index: number): number => {
+  // 1 to 3 repeats depending on index, so emojis don't all stop at the same time
+  return 1 + (index % 3);
 };
 
 // ============================================
 // EMOJI CONFIGURATION (DETERMINISTIC)
 // ============================================
 
-// 13 emojis with deterministic positions to avoid hydration mismatch
+// 13 unique emojis with deterministic positions to avoid hydration mismatch
+// Each emoji appears exactly once across all layers
 // Distribution: 4 far, 5 mid, 4 near
 export const EMOJI_CONFIG: EmojiConfig[] = [
   // Far layer (4 emojis) - small, blurred, lower opacity
@@ -110,17 +130,17 @@ export const EMOJI_CONFIG: EmojiConfig[] = [
   { emoji: "🌶️", size: "sm", depth: "far", animationType: "drift", initialX: 75, initialY: 80 },
 
   // Mid layer (5 emojis) - medium size, slight blur
-  { emoji: "🥟", size: "md", depth: "mid", animationType: "spiral", initialX: 12, initialY: 45 },
-  { emoji: "🍜", size: "md", depth: "mid", animationType: "bob", initialX: 92, initialY: 55 },
-  { emoji: "🌶️", size: "md", depth: "mid", animationType: "drift", initialX: 35, initialY: 20 },
-  { emoji: "🍲", size: "md", depth: "mid", animationType: "spiral", initialX: 65, initialY: 70 },
-  { emoji: "🍜", size: "md", depth: "mid", animationType: "bob", initialX: 50, initialY: 85 },
+  { emoji: "🍛", size: "md", depth: "mid", animationType: "spiral", initialX: 12, initialY: 45 },
+  { emoji: "🥢", size: "md", depth: "mid", animationType: "bob", initialX: 92, initialY: 55 },
+  { emoji: "🫕", size: "md", depth: "mid", animationType: "drift", initialX: 35, initialY: 20 },
+  { emoji: "🥘", size: "md", depth: "mid", animationType: "spiral", initialX: 65, initialY: 70 },
+  { emoji: "🍚", size: "md", depth: "mid", animationType: "bob", initialX: 50, initialY: 85 },
 
   // Near layer (4 emojis) - large, crisp, full opacity
-  { emoji: "🍲", size: "lg", depth: "near", animationType: "bob", initialX: 5, initialY: 60 },
-  { emoji: "🥟", size: "lg", depth: "near", animationType: "drift", initialX: 88, initialY: 40 },
-  { emoji: "🌶️", size: "lg", depth: "near", animationType: "spiral", initialX: 25, initialY: 35 },
-  { emoji: "🍜", size: "lg", depth: "near", animationType: "drift", initialX: 70, initialY: 15 },
+  { emoji: "🥗", size: "lg", depth: "near", animationType: "bob", initialX: 5, initialY: 60 },
+  { emoji: "🍵", size: "lg", depth: "near", animationType: "drift", initialX: 88, initialY: 40 },
+  { emoji: "🧄", size: "lg", depth: "near", animationType: "spiral", initialX: 25, initialY: 35 },
+  { emoji: "🫚", size: "lg", depth: "near", animationType: "drift", initialX: 70, initialY: 15 },
 ];
 
 // ============================================
@@ -134,7 +154,6 @@ export function FloatingEmoji({
   animationType,
   initialX,
   initialY,
-  parallaxY,
   mouseOffset,
   index,
 }: FloatingEmojiProps) {
@@ -145,6 +164,8 @@ export function FloatingEmoji({
   const repelY = mouseOffset ? mouseOffset.y * 0.3 : 0;
 
   // Depth-based styles using CSS variables from tokens.css
+  // NOTE: No boxShadow - it creates rectangular backgrounds behind emoji glyphs.
+  // Use CSS filter: drop-shadow() if glyph-following shadows are needed.
   const depthStyles: React.CSSProperties = {
     // Position
     left: `${initialX}%`,
@@ -153,13 +174,15 @@ export function FloatingEmoji({
     willChange: "transform",
     transform: `translate3d(${repelX}px, ${repelY}px, 0)`,
     // Depth effects via CSS variables
-    filter: depth === "near" ? "none" : `blur(var(--hero-emoji-blur-${depth}))`,
+    filter: depth === "near"
+      ? `drop-shadow(var(--hero-emoji-shadow-${depth}))`
+      : `blur(var(--hero-emoji-blur-${depth})) drop-shadow(var(--hero-emoji-shadow-${depth}))`,
     opacity: depth === "near" ? 1 : `var(--hero-emoji-opacity-${depth})`,
-    boxShadow: `var(--hero-emoji-shadow-${depth})`,
   };
 
-  const animationVariant = getAnimationVariant(animationType);
+  const animationVariant = getAnimationVariant(animationType, index);
   const animationDuration = getAnimationDuration(animationType, index);
+  const repeatCount = getRepeatCount(index);
 
   // Static render for reduced motion preference
   if (!shouldAnimate) {
@@ -177,14 +200,11 @@ export function FloatingEmoji({
   return (
     <motion.span
       className={`absolute ${SIZE_CLASSES[size]} select-none`}
-      style={{
-        ...depthStyles,
-        y: parallaxY,
-      }}
+      style={depthStyles}
       animate={animationVariant}
       transition={{
         duration: animationDuration,
-        repeat: Infinity,
+        repeat: repeatCount,
         ease: "easeInOut",
         delay: index * 0.5, // Stagger start times
       }}
