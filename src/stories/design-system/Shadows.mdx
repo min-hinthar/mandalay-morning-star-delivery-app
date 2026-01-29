@@ -1,0 +1,189 @@
+{/* Shadows.mdx - Design System Token Documentation */}
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Design System/Shadows" />
+
+# Shadow Tokens
+
+The shadow system provides depth and elevation to UI elements. All shadows are theme-aware, using primary brand colors in light mode and pure blacks in dark mode for OLED optimization.
+
+## Base Shadows
+
+Standard elevation levels from subtle to dramatic.
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '24px', marginTop: '24px' }}>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-xs)' }}>
+    <strong>shadow-xs</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Subtle depth for small elements</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-sm)' }}>
+    <strong>shadow-sm</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Light elevation for cards</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-md)' }}>
+    <strong>shadow-md</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Default card shadow</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-lg)' }}>
+    <strong>shadow-lg</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Elevated components</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-xl)' }}>
+    <strong>shadow-xl</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Modals and popovers</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-2xl)' }}>
+    <strong>shadow-2xl</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Maximum elevation</p>
+  </div>
+</div>
+
+## Inner Shadows
+
+For pressed states and inset effects.
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '24px', marginTop: '24px' }}>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-secondary)', boxShadow: 'var(--shadow-inner-sm)' }}>
+    <strong>shadow-inner-sm</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Subtle pressed state</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-secondary)', boxShadow: 'var(--shadow-inner-md)' }}>
+    <strong>shadow-inner-md</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Active button state</p>
+  </div>
+</div>
+
+## Glow Shadows
+
+Brand-colored glows for emphasis and focus states.
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '24px', marginTop: '24px' }}>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-glow-primary)' }}>
+    <strong>shadow-glow-primary</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Primary brand glow</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-glow-success)' }}>
+    <strong>shadow-glow-success</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Success state glow</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-glow-amber)' }}>
+    <strong>shadow-glow-amber</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Progress bar glow</p>
+  </div>
+</div>
+
+## Focus Shadows
+
+Ring-style shadows for keyboard focus states (accessibility).
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '24px', marginTop: '24px' }}>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-focus)' }}>
+    <strong>shadow-focus</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Default focus ring</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-focus-success)' }}>
+    <strong>shadow-focus-success</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Success input focus</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-focus-error)' }}>
+    <strong>shadow-focus-error</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Error input focus</p>
+  </div>
+</div>
+
+## Specialty Shadows
+
+Purpose-built shadows for specific UI patterns.
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '24px', marginTop: '24px' }}>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-nav-top)' }}>
+    <strong>shadow-nav-top</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Cart bar shadow (upward)</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-card)' }}>
+    <strong>shadow-card</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Standard card shadow</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-hint-sm)' }}>
+    <strong>shadow-hint-sm</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Search hint dropdown</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-surface-primary)', boxShadow: 'var(--shadow-hint-md)' }}>
+    <strong>shadow-hint-md</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Account dropdown</p>
+  </div>
+</div>
+
+## Colored Shadows
+
+Shadows with brand colors for buttons and actions.
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '24px', marginTop: '24px' }}>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-primary)', color: 'var(--color-text-inverse)', boxShadow: 'var(--shadow-primary)' }}>
+    <strong>shadow-primary</strong>
+    <p style={{ fontSize: '12px', opacity: 0.8, margin: '8px 0 0' }}>Primary button hover</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-status-success)', color: 'var(--color-text-inverse)', boxShadow: 'var(--shadow-success)' }}>
+    <strong>shadow-success</strong>
+    <p style={{ fontSize: '12px', opacity: 0.8, margin: '8px 0 0' }}>Success button</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-status-warning)', color: 'var(--color-text-inverse)', boxShadow: 'var(--shadow-warning)' }}>
+    <strong>shadow-warning</strong>
+    <p style={{ fontSize: '12px', opacity: 0.8, margin: '8px 0 0' }}>Warning button</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', backgroundColor: 'var(--color-status-error)', color: 'var(--color-text-inverse)', boxShadow: 'var(--shadow-error)' }}>
+    <strong>shadow-error</strong>
+    <p style={{ fontSize: '12px', opacity: 0.8, margin: '8px 0 0' }}>Error/destructive button</p>
+  </div>
+</div>
+
+---
+
+## Token Reference
+
+| Token | Tailwind Class | Use Case |
+|-------|----------------|----------|
+| `--shadow-xs` | `shadow-xs` | Small elements, badges |
+| `--shadow-sm` | `shadow-sm` | Light card elevation |
+| `--shadow-md` | `shadow-md` | Default cards |
+| `--shadow-lg` | `shadow-lg` | Elevated components |
+| `--shadow-xl` | `shadow-xl` | Modals, popovers |
+| `--shadow-2xl` | `shadow-2xl` | Maximum elevation |
+| `--shadow-inner-sm` | `shadow-inner-sm` | Subtle pressed state |
+| `--shadow-inner-md` | `shadow-inner-md` | Active buttons |
+| `--shadow-glow-primary` | `shadow-glow-primary` | Primary emphasis |
+| `--shadow-glow-success` | `shadow-glow-success` | Success states |
+| `--shadow-glow-amber` | `shadow-glow-amber` | Progress bars |
+| `--shadow-focus` | `shadow-focus` | Keyboard focus |
+| `--shadow-focus-success` | `shadow-focus-success` | Valid input focus |
+| `--shadow-focus-error` | `shadow-focus-error` | Invalid input focus |
+| `--shadow-nav-top` | `shadow-nav-top` | Cart bar (upward shadow) |
+| `--shadow-card` | `shadow-card` | Card components |
+| `--shadow-hint-sm` | `shadow-hint-sm` | Small dropdowns |
+| `--shadow-hint-md` | `shadow-hint-md` | Larger dropdowns |
+| `--shadow-primary` | `shadow-primary` | Primary buttons |
+| `--shadow-success` | `shadow-success` | Success buttons |
+| `--shadow-warning` | `shadow-warning` | Warning buttons |
+| `--shadow-error` | `shadow-error` | Error buttons |
+
+## Usage
+
+```css
+/* CSS custom property */
+.card {
+  box-shadow: var(--shadow-card);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+```
+
+```tsx
+/* Tailwind utility */
+<div className="shadow-card hover:shadow-card-hover">
+  Card content
+</div>
+```
+
+Toggle the theme using the toolbar above to see how shadows adapt between light and dark modes.

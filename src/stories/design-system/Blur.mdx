@@ -1,0 +1,229 @@
+{/* Blur.mdx - Design System Token Documentation */}
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Design System/Blur" />
+
+# Blur Tokens
+
+The blur system provides consistent backdrop blur values for glassmorphism effects, modals, and overlay UIs. Blur values are the same in both light and dark modes.
+
+## Blur Scale
+
+From no blur to maximum glass effect.
+
+<div style={{ position: 'relative', marginTop: '24px', marginBottom: '48px' }}>
+  {/* Background pattern */}
+  <div style={{
+    position: 'absolute',
+    inset: 0,
+    background: 'linear-gradient(45deg, var(--color-primary) 25%, var(--color-secondary) 50%, var(--color-accent-teal) 75%, var(--color-accent-magenta) 100%)',
+    borderRadius: '16px'
+  }} />
+
+  <div style={{
+    position: 'relative',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+    gap: '16px',
+    padding: '24px'
+  }}>
+    <div style={{
+      padding: '20px',
+      borderRadius: '12px',
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      backdropFilter: 'blur(var(--blur-none))',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      color: 'white',
+      textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+    }}>
+      <strong>blur-none</strong>
+      <p style={{ fontSize: '12px', margin: '8px 0 0', opacity: 0.9 }}>0px</p>
+    </div>
+
+    <div style={{
+      padding: '20px',
+      borderRadius: '12px',
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      backdropFilter: 'blur(var(--blur-sm))',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      color: 'white',
+      textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+    }}>
+      <strong>blur-sm</strong>
+      <p style={{ fontSize: '12px', margin: '8px 0 0', opacity: 0.9 }}>4px</p>
+    </div>
+
+    <div style={{
+      padding: '20px',
+      borderRadius: '12px',
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      backdropFilter: 'blur(var(--blur-md))',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      color: 'white',
+      textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+    }}>
+      <strong>blur-md</strong>
+      <p style={{ fontSize: '12px', margin: '8px 0 0', opacity: 0.9 }}>8px</p>
+    </div>
+
+    <div style={{
+      padding: '20px',
+      borderRadius: '12px',
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      backdropFilter: 'blur(var(--blur-lg))',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      color: 'white',
+      textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+    }}>
+      <strong>blur-lg</strong>
+      <p style={{ fontSize: '12px', margin: '8px 0 0', opacity: 0.9 }}>12px</p>
+    </div>
+
+    <div style={{
+      padding: '20px',
+      borderRadius: '12px',
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      backdropFilter: 'blur(var(--blur-xl))',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      color: 'white',
+      textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+    }}>
+      <strong>blur-xl</strong>
+      <p style={{ fontSize: '12px', margin: '8px 0 0', opacity: 0.9 }}>20px</p>
+    </div>
+
+    <div style={{
+      padding: '20px',
+      borderRadius: '12px',
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      backdropFilter: 'blur(var(--blur-2xl))',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      color: 'white',
+      textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+    }}>
+      <strong>blur-2xl</strong>
+      <p style={{ fontSize: '12px', margin: '8px 0 0', opacity: 0.9 }}>30px</p>
+    </div>
+
+    <div style={{
+      padding: '20px',
+      borderRadius: '12px',
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      backdropFilter: 'blur(var(--blur-3xl))',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      color: 'white',
+      textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+    }}>
+      <strong>blur-3xl</strong>
+      <p style={{ fontSize: '12px', margin: '8px 0 0', opacity: 0.9 }}>36px</p>
+    </div>
+  </div>
+</div>
+
+## Common Use Cases
+
+### Modal Backdrop
+
+<div style={{
+  position: 'relative',
+  height: '200px',
+  borderRadius: '16px',
+  overflow: 'hidden',
+  marginTop: '24px'
+}}>
+  <div style={{
+    position: 'absolute',
+    inset: 0,
+    background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontSize: '24px',
+    fontWeight: 'bold'
+  }}>
+    Page Content
+  </div>
+  <div style={{
+    position: 'absolute',
+    inset: 0,
+    backgroundColor: 'var(--color-overlay)',
+    backdropFilter: 'blur(var(--blur-sm))'
+  }} />
+  <div style={{
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: 'var(--color-surface-primary)',
+    padding: '24px',
+    borderRadius: '16px',
+    boxShadow: 'var(--shadow-xl)',
+    minWidth: '200px',
+    textAlign: 'center'
+  }}>
+    <strong>Modal Content</strong>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '8px 0 0' }}>Uses blur-sm backdrop</p>
+  </div>
+</div>
+
+### Header Glass Effect
+
+<div style={{
+  marginTop: '24px',
+  position: 'relative',
+  height: '120px',
+  borderRadius: '16px',
+  overflow: 'hidden'
+}}>
+  <div style={{
+    position: 'absolute',
+    inset: 0,
+    background: 'repeating-linear-gradient(45deg, var(--color-primary-light), var(--color-primary-light) 10px, var(--color-secondary-light) 10px, var(--color-secondary-light) 20px)'
+  }} />
+  <div style={{
+    position: 'relative',
+    backgroundColor: 'var(--color-surface-primary-85)',
+    backdropFilter: 'blur(var(--blur-2xl))',
+    padding: '16px 24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  }}>
+    <strong>App Header</strong>
+    <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>blur-2xl + 85% opacity</span>
+  </div>
+</div>
+
+---
+
+## Token Reference
+
+| Token | CSS Value | Tailwind Class | Use Case |
+|-------|-----------|----------------|----------|
+| `--blur-none` | `0px` | `backdrop-blur-none` | No blur |
+| `--blur-sm` | `4px` | `backdrop-blur-sm` | Modal backdrop |
+| `--blur-md` | `8px` | `backdrop-blur-md` | Light glass |
+| `--blur-lg` | `12px` | `backdrop-blur-lg` | Standard glass |
+| `--blur-xl` | `20px` | `backdrop-blur-xl` | Heavy glass |
+| `--blur-2xl` | `30px` | `backdrop-blur-2xl` | Header glass |
+| `--blur-3xl` | `36px` | `backdrop-blur-3xl` | Maximum blur |
+
+## Usage
+
+```css
+/* CSS custom property */
+.glass-panel {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(var(--blur-xl));
+}
+```
+
+```tsx
+/* Tailwind utility */
+<div className="bg-surface-primary/80 backdrop-blur-xl">
+  Glass content
+</div>
+```
+
+**Note:** Blur tokens have the same values in light and dark modes since blur intensity is not theme-dependent.
