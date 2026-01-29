@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-27)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 31 Hero Redesign complete
+**Current focus:** Phase 32 Quality Assurance
 
 ## Current Position
 
-Phase: 31 (Hero Redesign) - COMPLETE
-Plan: 5 of 5 in current phase
-Status: Phase complete
-Last activity: 2026-01-28 - Completed 31-05-PLAN.md (final polish)
+Phase: 32 (Quality Assurance)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-01-28 - Completed 32-01-PLAN.md (Storybook token documentation)
 
-Progress: [██████████████████████████████████████████████████] v1.3 | 50/50 plans
+Progress: [██████████████████████████████████████████████████░░] v1.4 | 51/53 plans
 
 ## Milestones Completed
 
@@ -159,6 +159,8 @@ From `.planning/research/SUMMARY.md`:
 | Tagline default "Authentic Burmese delivered" | 31-05 | Concise brand tagline below headline |
 | ChevronDown for scroll indicator | 31-05 | Consistency with lucide-react icons |
 | Scroll indicator gap-1 (not gap-2) | 31-05 | Tighter vertical spacing for polish |
+| @storybook/addon-docs/blocks import | 32-01 | Storybook 10 module resolution compatibility |
+| Inline CSS var() for token docs | 32-01 | Live theme switching in visual examples |
 
 ### Phase 27 Progress (Complete)
 
@@ -463,13 +465,27 @@ None.
 - All hero gradients use --hero-bg-* semantic tokens
 - All HERO-01 through HERO-07 requirements complete
 
+### Phase 32 Progress
+
+**32-01 outcomes:**
+- Created 7 MDX documentation files in src/stories/design-system/
+- Colors.mdx: All color token categories with ColorPalette blocks (514 lines)
+- Shadows.mdx: Visual shadow examples with semantic groupings (189 lines)
+- Blur.mdx: Glassmorphism examples over gradient backgrounds (229 lines)
+- Motion.mdx: Duration/easing tokens with interactive hover demo (223 lines)
+- Typography.mdx: Font scale, weights, line heights, presets (217 lines)
+- Spacing.mdx: 4px-grid scale with visual bars and layout tokens (223 lines)
+- ZIndex.mdx: 3D layer hierarchy visualization (267 lines)
+- Storybook build verified passing
+- TOKN-18 requirement satisfied
+
 ## Session Continuity
 
 Last session: 2026-01-28
-Stopped at: Completed 31-05-PLAN.md (final polish) - Phase 31 COMPLETE
+Stopped at: Completed 32-01-PLAN.md (Storybook token documentation)
 Resume file: None
-Next action: v1.3 milestone complete - all 50 plans executed
+Next action: Execute 32-02-PLAN.md (Chromatic visual testing) or 32-03-PLAN.md (testing infrastructure)
 
 ---
 
-*Updated: 2026-01-28 - Completed 31-05-PLAN.md, Phase 31 complete, v1.3 milestone complete*
+*Updated: 2026-01-28 - Completed 32-01-PLAN.md, Phase 32 plan 1/3 complete*
