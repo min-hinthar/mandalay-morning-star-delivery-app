@@ -399,13 +399,16 @@ export function UnifiedMenuItemCard({
   // RENDER
   // ==========================================
 
+  // Only apply willChange when hovered to reduce compositor layer count
+  // willChange creates GPU layers - having it on all cards causes memory pressure
   const tiltStyle = shouldEnableTilt
     ? {
         rotateX,
         rotateY,
         transformStyle: "preserve-3d" as const,
         transformPerspective: 1000,
-        willChange: "transform" as const,
+        // Conditionally apply willChange only when interacting (hover/active)
+        willChange: isHovered ? ("transform" as const) : ("auto" as const),
         backfaceVisibility: "hidden" as const,
         // Prevent scroll conflicts during tilt interaction on mobile
         touchAction: isMobileTiltActive ? ("none" as const) : ("auto" as const),

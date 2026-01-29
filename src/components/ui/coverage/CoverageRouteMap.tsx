@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useCallback, useState, useEffect } from "react";
+import { useMemo, useCallback, useState, useEffect, useRef } from "react";
 import {
   GoogleMap,
   useJsApiLoader,
@@ -96,19 +96,39 @@ export function CoverageRouteMap({
 }: CoverageRouteMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [circleOpacity, setCircleOpacity] = useState(0.15);
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
     libraries: LIBRARIES,
   });
 
-  // Animate coverage circle opacity for pulsing effect
+  // Track visibility with IntersectionObserver to avoid unnecessary animations
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  // Animate coverage circle opacity for pulsing effect - ONLY when visible
+  useEffect(() => {
+    if (!isVisible) return;
+
     const interval = setInterval(() => {
       setCircleOpacity((prev) => (prev === 0.15 ? 0.25 : 0.15));
     }, 1500);
     return () => clearInterval(interval);
-  }, []);
+  }, [isVisible]);
 
   // Check if we have a destination
   const hasDestination =
@@ -190,6 +210,7 @@ export function CoverageRouteMap({
 
   return (
     <motion.div
+      ref={containerRef}
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
