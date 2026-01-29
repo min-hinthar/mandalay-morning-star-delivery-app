@@ -29,7 +29,8 @@
     "lighthouse:ci": "lhci autorun --collect.startServerCommand='pnpm start' --collect.url=http://localhost:3000",
     "test:animations": "playwright test e2e/animations/",
     "test:a11y": "playwright test e2e/accessibility.spec.ts e2e/animations/v7-accessibility.spec.ts",
-    "perf:check": "pnpm build && pnpm lighthouse"
+    "perf:check": "pnpm build && pnpm lighthouse",
+    "prepare": "husky"
   },
   "dependencies": {
     "@conform-to/react": "^1.15.1",
@@ -73,6 +74,14 @@
     "yaml": "^2.8.2",
     "zod": "^4.3.5",
     "zustand": "^5.0.10"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --max-warnings=0 --no-warn-ignored"
+    ],
+    "src/**/*.css": [
+      "stylelint"
+    ]
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
