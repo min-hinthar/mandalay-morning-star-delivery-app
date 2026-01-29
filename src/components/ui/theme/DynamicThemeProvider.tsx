@@ -9,7 +9,7 @@ import {
   useMemo,
   type ReactNode,
 } from "react";
-import { palettes, getTimeOfDayPalette } from "@/lib/webgl/gradients";
+import { palettes } from "@/lib/webgl/gradients";
 
 // ============================================
 // TYPES
@@ -54,7 +54,7 @@ export interface DynamicThemeContextValue extends DynamicThemeState {
   setMode: (mode: ThemeMode) => void;
   /** Set user accent color */
   setUserAccent: (color: string | null) => void;
-  /** Toggle dynamic theming */
+  /** Toggle dynamic theming (no-op — dynamic theming disabled for performance) */
   toggleDynamic: () => void;
   /** Force refresh time-based colors */
   refreshTimeColors: () => void;
@@ -87,37 +87,12 @@ const BASE_COLORS = {
   },
 } as const;
 
-const TIME_COLORS: Record<TimeOfDay, Partial<ThemeColors>> = {
-  dawn: {
-    primary: "#FFB5A7",
-    secondary: "#F4ACB7",
-    accent1: "#FFCAD4",
-    accent2: "#FFE5D9",
-  },
-  morning: {
-    primary: "#EBCD00",
-    secondary: "#FFD93D",
-    accent1: "#FFE8D6",
-    accent2: "#FFF9F5",
-  },
-  afternoon: {
-    primary: "#A41034",
-    secondary: "#EBCD00",
-    accent1: "#52A52E",
-    accent2: "#E87D1E",
-  },
-  evening: {
-    primary: "#FF6B6B",
-    secondary: "#FFA07A",
-    accent1: "#FFD93D",
-    accent2: "#FF8C00",
-  },
-  night: {
-    primary: "#4ECDC4",
-    secondary: "#45B7D1",
-    accent1: "#00979D",
-    accent2: "#96CEB4",
-  },
+// Static brand colors (no time-of-day switching)
+const BRAND_COLORS: Partial<ThemeColors> = {
+  primary: "#A41034",
+  secondary: "#EBCD00",
+  accent1: "#52A52E",
+  accent2: "#E87D1E",
 };
 
 // ============================================
@@ -148,7 +123,6 @@ function getSystemTheme(): "light" | "dark" {
 function loadSettings(): Partial<{
   mode: ThemeMode;
   userAccent: string | null;
-  isDynamicEnabled: boolean;
 }> {
   if (typeof window === "undefined") return {};
 
@@ -163,12 +137,11 @@ function loadSettings(): Partial<{
 function saveSettings(settings: {
   mode: ThemeMode;
   userAccent: string | null;
-  isDynamicEnabled: boolean;
 }): void {
   if (typeof window === "undefined") return;
 
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...settings, isDynamicEnabled: false }));
   } catch {
     // Ignore storage errors
   }
@@ -182,24 +155,19 @@ export interface DynamicThemeProviderProps {
   children: ReactNode;
   /** Default theme mode */
   defaultMode?: ThemeMode;
-  /** Whether to enable dynamic theming by default */
+  /** @deprecated Dynamic theming disabled for performance */
   defaultDynamicEnabled?: boolean;
-  /** Weather API endpoint (optional) */
+  /** @deprecated Weather API disabled for performance */
   weatherApiUrl?: string;
 }
 
 export function DynamicThemeProvider({
   children,
   defaultMode = "light",
-  defaultDynamicEnabled = false,
-  weatherApiUrl,
 }: DynamicThemeProviderProps) {
   // State - use consistent defaults for SSR hydration
-  // We use "afternoon" as default time and defaultMode for theme
-  // to ensure server and client render the same initially
   const [mode, setModeState] = useState<ThemeMode>(defaultMode);
   const [userAccent, setUserAccentState] = useState<string | null>(null);
-  const [isDynamicEnabled, setIsDynamicEnabled] = useState(defaultDynamicEnabled);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("afternoon");
 
   // Load saved settings AFTER mount to avoid hydration mismatch
@@ -207,11 +175,9 @@ export function DynamicThemeProvider({
     const savedSettings = loadSettings();
     if (savedSettings.mode) setModeState(savedSettings.mode);
     if (savedSettings.userAccent !== undefined) setUserAccentState(savedSettings.userAccent);
-    if (savedSettings.isDynamicEnabled !== undefined) setIsDynamicEnabled(savedSettings.isDynamicEnabled);
-    // Set actual time of day after hydration
+    // Set actual time of day once on mount (no interval — read once for greeting)
     setTimeOfDay(getTimeOfDay());
   }, []);
-  const [weather, setWeatherState] = useState<WeatherCondition | null>(null);
 
   // Resolved mode (never "auto")
   const resolvedMode = useMemo((): "light" | "dark" => {
@@ -219,26 +185,22 @@ export function DynamicThemeProvider({
     return mode;
   }, [mode]);
 
-  // Current colors
+  // Static brand colors (no time-based switching)
   const colors = useMemo((): ThemeColors => {
     const baseColors = BASE_COLORS[resolvedMode];
-    const timeColors = isDynamicEnabled ? TIME_COLORS[timeOfDay] : TIME_COLORS.afternoon;
-
     return {
       ...baseColors,
-      primary: userAccent ?? timeColors.primary ?? "#A41034",
-      secondary: timeColors.secondary ?? "#EBCD00",
-      accent1: timeColors.accent1 ?? "#52A52E",
-      accent2: timeColors.accent2 ?? "#E87D1E",
+      primary: userAccent ?? BRAND_COLORS.primary ?? "#A41034",
+      secondary: BRAND_COLORS.secondary ?? "#EBCD00",
+      accent1: BRAND_COLORS.accent1 ?? "#52A52E",
+      accent2: BRAND_COLORS.accent2 ?? "#E87D1E",
     };
-  }, [resolvedMode, timeOfDay, userAccent, isDynamicEnabled]);
+  }, [resolvedMode, userAccent]);
 
-  // Gradient palette - timeOfDay triggers re-computation when period changes
+  // Static gradient palette (brand colors only, no time-based switching)
   const gradientPalette = useMemo((): string[] => {
-    if (!isDynamicEnabled) return [...palettes.brand];
-    return getTimeOfDayPalette();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- timeOfDay used as trigger
-  }, [isDynamicEnabled, timeOfDay]);
+    return [...palettes.brand];
+  }, []);
 
   // Actions
   const setMode = useCallback((newMode: ThemeMode) => {
@@ -249,36 +211,20 @@ export function DynamicThemeProvider({
     setUserAccentState(color);
   }, []);
 
-  const toggleDynamic = useCallback(() => {
-    setIsDynamicEnabled((prev) => !prev);
-  }, []);
+  // No-op: dynamic theming disabled for performance and consistency
+  const toggleDynamic = useCallback(() => {}, []);
 
   const refreshTimeColors = useCallback(() => {
     setTimeOfDay(getTimeOfDay());
   }, []);
 
-  const setWeather = useCallback((newWeather: WeatherCondition | null) => {
-    setWeatherState(newWeather);
-  }, []);
+  // No-op: weather disabled for performance
+  const setWeather = useCallback((_weather: WeatherCondition | null) => {}, []);
 
   // Save settings when they change
   useEffect(() => {
-    saveSettings({ mode, userAccent, isDynamicEnabled });
-  }, [mode, userAccent, isDynamicEnabled]);
-
-  // Update time of day periodically
-  useEffect(() => {
-    if (!isDynamicEnabled) return;
-
-    const interval = setInterval(() => {
-      const newTimeOfDay = getTimeOfDay();
-      if (newTimeOfDay !== timeOfDay) {
-        setTimeOfDay(newTimeOfDay);
-      }
-    }, 60000); // Check every minute
-
-    return () => clearInterval(interval);
-  }, [isDynamicEnabled, timeOfDay]);
+    saveSettings({ mode, userAccent });
+  }, [mode, userAccent]);
 
   // Listen for system theme changes
   useEffect(() => {
@@ -294,7 +240,7 @@ export function DynamicThemeProvider({
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, [mode]);
 
-  // Apply CSS variables
+  // Apply CSS variables (static — no dynamic color updates)
   useEffect(() => {
     const root = document.documentElement;
 
@@ -302,7 +248,7 @@ export function DynamicThemeProvider({
     root.setAttribute("data-theme", resolvedMode);
     root.setAttribute("data-time", timeOfDay);
 
-    // Set CSS custom properties
+    // Set CSS custom properties (static brand colors)
     root.style.setProperty("--theme-primary", colors.primary);
     root.style.setProperty("--theme-secondary", colors.secondary);
     root.style.setProperty("--theme-accent1", colors.accent1);
@@ -311,36 +257,9 @@ export function DynamicThemeProvider({
     root.style.setProperty("--theme-surface", colors.surface);
     root.style.setProperty("--theme-text", colors.text);
     root.style.setProperty("--theme-text-muted", colors.textMuted);
+  }, [colors, resolvedMode, timeOfDay]);
 
-    // Set gradient palette
-    gradientPalette.forEach((color, index) => {
-      root.style.setProperty(`--gradient-color-${index + 1}`, color);
-    });
-  }, [colors, gradientPalette, resolvedMode, timeOfDay]);
-
-  // Fetch weather if API provided
-  useEffect(() => {
-    if (!weatherApiUrl || !isDynamicEnabled) return;
-
-    const fetchWeather = async () => {
-      try {
-        const response = await fetch(weatherApiUrl);
-        const data = await response.json();
-        // Map API response to our weather conditions
-        // This is a placeholder - actual mapping depends on API
-        if (data.condition) {
-          setWeatherState(data.condition as WeatherCondition);
-        }
-      } catch {
-        // Ignore weather fetch errors
-      }
-    };
-
-    fetchWeather();
-    const interval = setInterval(fetchWeather, 30 * 60 * 1000); // Refresh every 30 min
-
-    return () => clearInterval(interval);
-  }, [weatherApiUrl, isDynamicEnabled]);
+  // No intervals, no weather polling — performance optimized
 
   // Context value
   const value = useMemo(
@@ -348,11 +267,11 @@ export function DynamicThemeProvider({
       mode,
       resolvedMode,
       timeOfDay,
-      weather,
+      weather: null,
       userAccent,
       colors,
       gradientPalette,
-      isDynamicEnabled,
+      isDynamicEnabled: false,
       setMode,
       setUserAccent,
       toggleDynamic,
@@ -363,11 +282,9 @@ export function DynamicThemeProvider({
       mode,
       resolvedMode,
       timeOfDay,
-      weather,
       userAccent,
       colors,
       gradientPalette,
-      isDynamicEnabled,
       setMode,
       setUserAccent,
       toggleDynamic,
@@ -404,19 +321,21 @@ export function useDynamicTheme(): DynamicThemeContextValue {
 /**
  * CSS variables set by DynamicThemeProvider:
  *
- * --theme-primary: Primary brand color (changes with time/user)
- * --theme-secondary: Secondary brand color
- * --theme-accent1: First accent color
- * --theme-accent2: Second accent color
+ * --theme-primary: Primary brand color (static)
+ * --theme-secondary: Secondary brand color (static)
+ * --theme-accent1: First accent color (static)
+ * --theme-accent2: Second accent color (static)
  * --theme-background: Page background
  * --theme-surface: Card/surface background
  * --theme-text: Primary text color
  * --theme-text-muted: Secondary text color
- * --gradient-color-1 through --gradient-color-4: Gradient palette colors
  *
  * Data attributes:
  * data-theme="light" | "dark"
  * data-time="dawn" | "morning" | "afternoon" | "evening" | "night"
+ *
+ * Note: Dynamic theming (time-based colors, weather, gradient palettes) is disabled
+ * for performance and consistency. Colors use static brand values.
  */
 export const themeVariables = {
   primary: "var(--theme-primary)",
