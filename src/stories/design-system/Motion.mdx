@@ -1,0 +1,223 @@
+{/* Motion.mdx - Design System Token Documentation */}
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Design System/Motion" />
+
+# Motion Tokens
+
+The motion system provides consistent timing and easing for all animations. Use CSS tokens for simple transitions and Framer Motion presets for complex animations.
+
+## Duration Tokens
+
+Standard timing values from instant to slow.
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px', marginTop: '24px' }}>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>duration-instant</strong>
+    <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-primary)', margin: '8px 0' }}>0ms</p>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0 }}>Immediate state changes</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>duration-fast</strong>
+    <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-primary)', margin: '8px 0' }}>150ms</p>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0 }}>Micro-interactions, tooltips</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>duration-normal</strong>
+    <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-primary)', margin: '8px 0' }}>220ms</p>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0 }}>Default transitions</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>duration-slow</strong>
+    <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-primary)', margin: '8px 0' }}>350ms</p>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0 }}>Page transitions, modals</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>duration-slower</strong>
+    <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--color-primary)', margin: '8px 0' }}>500ms</p>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0 }}>Complex animations</p>
+  </div>
+</div>
+
+## Easing Tokens
+
+Curves that define how animations accelerate and decelerate.
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginTop: '24px' }}>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>ease-default</strong>
+    <code style={{ fontSize: '11px', display: 'block', marginTop: '8px', color: 'var(--color-text-muted)' }}>cubic-bezier(0.2, 0.8, 0.2, 1)</code>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '8px 0 0' }}>Standard UI transitions</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>ease-spring</strong>
+    <code style={{ fontSize: '11px', display: 'block', marginTop: '8px', color: 'var(--color-text-muted)' }}>cubic-bezier(0.34, 1.56, 0.64, 1)</code>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '8px 0 0' }}>Bouncy, playful animations</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>ease-out</strong>
+    <code style={{ fontSize: '11px', display: 'block', marginTop: '8px', color: 'var(--color-text-muted)' }}>cubic-bezier(0, 0, 0.2, 1)</code>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '8px 0 0' }}>Elements entering view</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>ease-in</strong>
+    <code style={{ fontSize: '11px', display: 'block', marginTop: '8px', color: 'var(--color-text-muted)' }}>cubic-bezier(0.4, 0, 1, 1)</code>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '8px 0 0' }}>Elements leaving view</p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <strong>ease-in-out</strong>
+    <code style={{ fontSize: '11px', display: 'block', marginTop: '8px', color: 'var(--color-text-muted)' }}>cubic-bezier(0.4, 0, 0.2, 1)</code>
+    <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '8px 0 0' }}>Symmetric transitions</p>
+  </div>
+</div>
+
+## Live Animation Demo
+
+Hover over the boxes to see durations in action (using ease-out).
+
+<div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '24px' }}>
+  <div
+    style={{
+      width: '100px',
+      height: '100px',
+      borderRadius: '12px',
+      backgroundColor: 'var(--color-primary)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: 'var(--color-text-inverse)',
+      fontSize: '12px',
+      fontWeight: 'bold',
+      cursor: 'pointer',
+      transition: 'transform var(--duration-fast) var(--ease-out)'
+    }}
+    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+  >
+    Fast
+  </div>
+  <div
+    style={{
+      width: '100px',
+      height: '100px',
+      borderRadius: '12px',
+      backgroundColor: 'var(--color-secondary)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: 'var(--color-text-primary)',
+      fontSize: '12px',
+      fontWeight: 'bold',
+      cursor: 'pointer',
+      transition: 'transform var(--duration-normal) var(--ease-out)'
+    }}
+    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+  >
+    Normal
+  </div>
+  <div
+    style={{
+      width: '100px',
+      height: '100px',
+      borderRadius: '12px',
+      backgroundColor: 'var(--color-accent-green)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: 'var(--color-text-inverse)',
+      fontSize: '12px',
+      fontWeight: 'bold',
+      cursor: 'pointer',
+      transition: 'transform var(--duration-slow) var(--ease-out)'
+    }}
+    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+  >
+    Slow
+  </div>
+  <div
+    style={{
+      width: '100px',
+      height: '100px',
+      borderRadius: '12px',
+      backgroundColor: 'var(--color-accent-teal)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: 'var(--color-text-inverse)',
+      fontSize: '12px',
+      fontWeight: 'bold',
+      cursor: 'pointer',
+      transition: 'transform var(--duration-slower) var(--ease-out)'
+    }}
+    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+  >
+    Slower
+  </div>
+</div>
+
+## Framer Motion Presets
+
+For complex animations, use presets from `@/lib/design-system/tokens/motion.ts`.
+
+| Preset | Type | Config | Use Case |
+|--------|------|--------|----------|
+| `overlayMotion.modalOpen` | Spring | damping: 25, stiffness: 300 | Modal entrance |
+| `overlayMotion.modalClose` | Tween | duration: 0.2, ease: easeIn | Modal exit |
+| `overlayMotion.sheetOpen` | Spring | damping: 30, stiffness: 300 | Bottom sheet |
+| `overlayMotion.drawerOpen` | Spring | damping: 25, stiffness: 300 | Drawer entrance |
+| `overlayMotion.backdrop` | Tween | duration: 0.2, ease: easeOut | Backdrop fade |
+| `overlayMotion.dropdown` | Spring | damping: 20, stiffness: 400 | Dropdown menu |
+| `overlayMotion.tooltip` | Tween | duration: 0.15, ease: easeOut | Tooltip appear |
+| `overlayMotion.toast` | Spring | damping: 20, stiffness: 300 | Toast notification |
+
+**Spring physics note:** Framer Motion spring animations calculate duration dynamically based on damping and stiffness. Do not mix duration tokens with spring configs.
+
+---
+
+## Token Reference
+
+### CSS Variables
+
+| Token | Value | Use Case |
+|-------|-------|----------|
+| `--duration-instant` | 0ms | Immediate changes |
+| `--duration-fast` | 150ms | Micro-interactions |
+| `--duration-normal` | 220ms | Default transitions |
+| `--duration-slow` | 350ms | Modals, pages |
+| `--duration-slower` | 500ms | Complex animations |
+| `--ease-default` | cubic-bezier(0.2, 0.8, 0.2, 1) | Standard UI |
+| `--ease-spring` | cubic-bezier(0.34, 1.56, 0.64, 1) | Bouncy/playful |
+| `--ease-out` | cubic-bezier(0, 0, 0.2, 1) | Enter animations |
+| `--ease-in` | cubic-bezier(0.4, 0, 1, 1) | Exit animations |
+| `--ease-in-out` | cubic-bezier(0.4, 0, 0.2, 1) | Symmetric |
+
+## Usage
+
+```css
+/* CSS transition */
+.button {
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.modal {
+  transition: opacity var(--duration-slow) var(--ease-in-out);
+}
+```
+
+```tsx
+/* Framer Motion */
+import { overlayMotion } from '@/lib/design-system/tokens/motion';
+
+<motion.div
+  initial={{ opacity: 0, scale: 0.95 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={overlayMotion.modalOpen}
+>
+  Modal content
+</motion.div>
+```
+
+**Reduced motion:** The system respects `prefers-reduced-motion` via `[data-reduce-motion="true"]` which sets all durations to 0.01ms.

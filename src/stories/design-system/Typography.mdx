@@ -1,0 +1,217 @@
+{/* Typography.mdx - Design System Token Documentation */}
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Design System/Typography" />
+
+# Typography Tokens
+
+The typography system uses Nunito as the primary font family, providing a rounded, playful feel. Padauk is used for Burmese text.
+
+## Font Families
+
+<div style={{ display: 'grid', gap: '24px', marginTop: '24px' }}>
+  <div style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <p style={{ fontSize: '32px', fontFamily: 'var(--font-display)', margin: 0 }}>Nunito Display</p>
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>--font-display: 'Nunito', ui-rounded, system-ui, sans-serif</code>
+    <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', marginTop: '8px' }}>Used for headings and display text</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <p style={{ fontSize: '32px', fontFamily: 'var(--font-body)', margin: 0 }}>Nunito Body</p>
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>--font-body: 'Nunito', system-ui, sans-serif</code>
+    <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', marginTop: '8px' }}>Used for body text and UI elements</p>
+  </div>
+  <div style={{ padding: '24px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <p style={{ fontSize: '32px', fontFamily: 'var(--font-burmese)', margin: 0 }}>Burmese Text</p>
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>--font-burmese: 'Padauk', 'Noto Sans Myanmar', sans-serif</code>
+    <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', marginTop: '8px' }}>Used for Burmese language content</p>
+  </div>
+</div>
+
+## Font Size Scale
+
+From tiny labels to hero headlines.
+
+<div style={{ marginTop: '24px' }}>
+  <div style={{ padding: '12px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <span style={{ fontSize: 'var(--text-2xs)', lineHeight: 'var(--text-2xs--line-height)' }}>text-2xs (10px)</span>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginLeft: '16px' }}>--text-2xs: 0.625rem</code>
+  </div>
+  <div style={{ padding: '12px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <span style={{ fontSize: 'var(--text-xs)' }}>text-xs (12px)</span>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginLeft: '16px' }}>--text-xs: 0.75rem</code>
+  </div>
+  <div style={{ padding: '12px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <span style={{ fontSize: 'var(--text-sm)' }}>text-sm (14px)</span>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginLeft: '16px' }}>--text-sm: 0.875rem</code>
+  </div>
+  <div style={{ padding: '12px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <span style={{ fontSize: 'var(--text-base)' }}>text-base (16px)</span>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginLeft: '16px' }}>--text-base: 1rem</code>
+  </div>
+  <div style={{ padding: '12px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <span style={{ fontSize: 'var(--text-lg)' }}>text-lg (18px)</span>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginLeft: '16px' }}>--text-lg: 1.125rem</code>
+  </div>
+  <div style={{ padding: '12px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <span style={{ fontSize: 'var(--text-xl)' }}>text-xl (20px)</span>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginLeft: '16px' }}>--text-xl: 1.25rem</code>
+  </div>
+  <div style={{ padding: '12px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <span style={{ fontSize: 'var(--text-2xl)' }}>text-2xl (24px)</span>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginLeft: '16px' }}>--text-2xl: 1.5rem</code>
+  </div>
+  <div style={{ padding: '12px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <span style={{ fontSize: 'var(--text-3xl)' }}>text-3xl (32px)</span>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginLeft: '16px' }}>--text-3xl: 2rem</code>
+  </div>
+  <div style={{ padding: '12px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <span style={{ fontSize: 'var(--text-4xl)' }}>text-4xl (40px)</span>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginLeft: '16px' }}>--text-4xl: 2.5rem</code>
+  </div>
+  <div style={{ padding: '12px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <span style={{ fontSize: 'var(--text-5xl)' }}>text-5xl (48px)</span>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginLeft: '16px' }}>--text-5xl: 3rem</code>
+  </div>
+  <div style={{ padding: '12px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <span style={{ fontSize: 'var(--text-6xl)' }}>text-6xl (60px)</span>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginLeft: '16px' }}>--text-6xl: 3.75rem</code>
+  </div>
+  <div style={{ padding: '12px 0' }}>
+    <span style={{ fontSize: 'var(--text-7xl)' }}>text-7xl (72px)</span>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginLeft: '16px' }}>--text-7xl: 4.5rem</code>
+  </div>
+</div>
+
+## Font Weights
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '16px', marginTop: '24px' }}>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)', textAlign: 'center' }}>
+    <p style={{ fontSize: '24px', fontWeight: 'var(--font-normal)', margin: 0 }}>Aa</p>
+    <p style={{ fontSize: '14px', fontWeight: 'bold', margin: '8px 0 4px' }}>Normal</p>
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>400</code>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)', textAlign: 'center' }}>
+    <p style={{ fontSize: '24px', fontWeight: 'var(--font-medium)', margin: 0 }}>Aa</p>
+    <p style={{ fontSize: '14px', fontWeight: 'bold', margin: '8px 0 4px' }}>Medium</p>
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>500</code>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)', textAlign: 'center' }}>
+    <p style={{ fontSize: '24px', fontWeight: 'var(--font-semibold)', margin: 0 }}>Aa</p>
+    <p style={{ fontSize: '14px', fontWeight: 'bold', margin: '8px 0 4px' }}>Semibold</p>
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>600</code>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)', textAlign: 'center' }}>
+    <p style={{ fontSize: '24px', fontWeight: 'var(--font-bold)', margin: 0 }}>Aa</p>
+    <p style={{ fontSize: '14px', fontWeight: 'bold', margin: '8px 0 4px' }}>Bold</p>
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>700</code>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)', textAlign: 'center' }}>
+    <p style={{ fontSize: '24px', fontWeight: 'var(--font-black)', margin: 0 }}>Aa</p>
+    <p style={{ fontSize: '14px', fontWeight: 'bold', margin: '8px 0 4px' }}>Black</p>
+    <code style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>900</code>
+  </div>
+</div>
+
+## Line Heights
+
+<div style={{ display: 'grid', gap: '16px', marginTop: '24px' }}>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <p style={{ lineHeight: 'var(--leading-none)', margin: 0, backgroundColor: 'var(--color-primary-light)', padding: '8px' }}>
+      leading-none (1) - Used for single-line headings and display text where no extra line spacing is needed.
+    </p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <p style={{ lineHeight: 'var(--leading-tight)', margin: 0, backgroundColor: 'var(--color-primary-light)', padding: '8px' }}>
+      leading-tight (1.25) - Compact headings and short text blocks where space is limited but readability is important.
+    </p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <p style={{ lineHeight: 'var(--leading-normal)', margin: 0, backgroundColor: 'var(--color-primary-light)', padding: '8px' }}>
+      leading-normal (1.5) - Default body text line height. Provides comfortable reading experience for paragraphs and longer content blocks.
+    </p>
+  </div>
+  <div style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--color-border-default)' }}>
+    <p style={{ lineHeight: 'var(--leading-relaxed)', margin: 0, backgroundColor: 'var(--color-primary-light)', padding: '8px' }}>
+      leading-relaxed (1.75) - More spacious text for improved readability in long-form content, articles, and documentation.
+    </p>
+  </div>
+</div>
+
+## Typography Presets
+
+Pre-configured combinations for common use cases.
+
+<div style={{ marginTop: '24px' }}>
+  <div style={{ padding: '16px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <p style={{ font: 'var(--type-hero)', margin: 0 }}>Hero Text</p>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>--type-hero: 900 3.5rem/1.1 var(--font-display)</code>
+  </div>
+  <div style={{ padding: '16px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <p style={{ font: 'var(--type-display)', margin: 0 }}>Display Text</p>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>--type-display: 800 2.5rem/1.15 var(--font-display)</code>
+  </div>
+  <div style={{ padding: '16px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <p style={{ font: 'var(--type-h1)', margin: 0 }}>Heading 1</p>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>--type-h1: 700 2rem/1.2 var(--font-display)</code>
+  </div>
+  <div style={{ padding: '16px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <p style={{ font: 'var(--type-h2)', margin: 0 }}>Heading 2</p>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>--type-h2: 700 1.5rem/1.25 var(--font-display)</code>
+  </div>
+  <div style={{ padding: '16px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <p style={{ font: 'var(--type-h3)', margin: 0 }}>Heading 3</p>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>--type-h3: 600 1.25rem/1.3 var(--font-display)</code>
+  </div>
+  <div style={{ padding: '16px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <p style={{ font: 'var(--type-body-lg)', margin: 0 }}>Body Large - For introductory paragraphs</p>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>--type-body-lg: 400 1.125rem/1.6 var(--font-body)</code>
+  </div>
+  <div style={{ padding: '16px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <p style={{ font: 'var(--type-body)', margin: 0 }}>Body - Standard paragraph text for content</p>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>--type-body: 400 1rem/1.5 var(--font-body)</code>
+  </div>
+  <div style={{ padding: '16px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <p style={{ font: 'var(--type-body-sm)', margin: 0 }}>Body Small - For secondary content and descriptions</p>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>--type-body-sm: 400 0.875rem/1.5 var(--font-body)</code>
+  </div>
+  <div style={{ padding: '16px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <p style={{ font: 'var(--type-button)', margin: 0 }}>Button Text</p>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>--type-button: 600 1rem/1 var(--font-body)</code>
+  </div>
+  <div style={{ padding: '16px 0', borderBottom: '1px solid var(--color-border-subtle)' }}>
+    <p style={{ font: 'var(--type-label)', margin: 0 }}>Label Text</p>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>--type-label: 500 0.875rem/1.4 var(--font-body)</code>
+  </div>
+  <div style={{ padding: '16px 0' }}>
+    <p style={{ font: 'var(--type-caption)', margin: 0 }}>Caption Text</p>
+    <code style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>--type-caption: 400 0.75rem/1.4 var(--font-body)</code>
+  </div>
+</div>
+
+---
+
+## Usage
+
+```css
+/* CSS custom property */
+.heading {
+  font: var(--type-h1);
+}
+
+.body {
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  font-weight: var(--font-normal);
+}
+```
+
+```tsx
+/* Tailwind utility */
+<h1 className="text-3xl font-bold leading-tight">
+  Heading
+</h1>
+
+<p className="text-base leading-normal">
+  Body text
+</p>
+```

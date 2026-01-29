@@ -1,0 +1,267 @@
+{/* ZIndex.mdx - Design System Token Documentation */}
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Design System/ZIndex" />
+
+# Z-Index Tokens
+
+The z-index layer system ensures consistent stacking across the application. Each layer has a specific purpose, preventing z-index conflicts and making overlay management predictable.
+
+## Layer Hierarchy
+
+Visual representation of the stacking order.
+
+<div style={{ position: 'relative', height: '400px', marginTop: '24px', perspective: '1000px' }}>
+  {/* Base */}
+  <div style={{
+    position: 'absolute',
+    bottom: '0',
+    left: '0',
+    right: '0',
+    height: '50px',
+    backgroundColor: 'var(--color-surface-tertiary)',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0 16px',
+    border: '1px solid var(--color-border-default)'
+  }}>
+    <strong>base (z-0)</strong>
+    <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Page content</span>
+  </div>
+
+  {/* Dropdown */}
+  <div style={{
+    position: 'absolute',
+    bottom: '60px',
+    left: '20px',
+    right: '20px',
+    height: '50px',
+    backgroundColor: 'var(--color-surface-primary)',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0 16px',
+    boxShadow: 'var(--shadow-md)',
+    border: '1px solid var(--color-border-default)'
+  }}>
+    <strong>dropdown (z-10)</strong>
+    <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Dropdown menus</span>
+  </div>
+
+  {/* Sticky */}
+  <div style={{
+    position: 'absolute',
+    bottom: '120px',
+    left: '40px',
+    right: '40px',
+    height: '50px',
+    backgroundColor: 'var(--color-secondary-light)',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0 16px',
+    boxShadow: 'var(--shadow-md)',
+    border: '1px solid var(--color-secondary)'
+  }}>
+    <strong>sticky (z-20)</strong>
+    <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Sticky headers, tabs</span>
+  </div>
+
+  {/* Fixed */}
+  <div style={{
+    position: 'absolute',
+    bottom: '180px',
+    left: '60px',
+    right: '60px',
+    height: '50px',
+    backgroundColor: 'var(--color-accent-green-light)',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0 16px',
+    boxShadow: 'var(--shadow-md)',
+    border: '1px solid var(--color-accent-green)'
+  }}>
+    <strong>fixed (z-30)</strong>
+    <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Fixed nav, cart bar</span>
+  </div>
+
+  {/* Modal Backdrop */}
+  <div style={{
+    position: 'absolute',
+    bottom: '240px',
+    left: '80px',
+    right: '80px',
+    height: '50px',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0 16px',
+    color: 'white'
+  }}>
+    <strong>modal-backdrop (z-40)</strong>
+    <span style={{ fontSize: '12px', opacity: 0.8 }}>Overlay dimming</span>
+  </div>
+
+  {/* Modal */}
+  <div style={{
+    position: 'absolute',
+    bottom: '300px',
+    left: '100px',
+    right: '100px',
+    height: '50px',
+    backgroundColor: 'var(--color-surface-primary)',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '0 16px',
+    boxShadow: 'var(--shadow-xl)',
+    border: '1px solid var(--color-border-default)'
+  }}>
+    <strong>modal (z-50)</strong>
+    <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>Modals, dialogs</span>
+  </div>
+
+  {/* Popover */}
+  <div style={{
+    position: 'absolute',
+    bottom: '350px',
+    left: '120px',
+    width: '200px',
+    height: '40px',
+    backgroundColor: 'var(--color-primary)',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0 16px',
+    boxShadow: 'var(--shadow-lg)',
+    color: 'var(--color-text-inverse)'
+  }}>
+    <strong>popover (z-60)</strong>
+  </div>
+
+  {/* Tooltip */}
+  <div style={{
+    position: 'absolute',
+    top: '10px',
+    right: '80px',
+    width: '150px',
+    height: '35px',
+    backgroundColor: 'var(--color-surface-elevated)',
+    borderRadius: '6px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0 12px',
+    boxShadow: 'var(--shadow-lg)',
+    fontSize: '12px',
+    border: '1px solid var(--color-border-default)'
+  }}>
+    <strong>tooltip (z-70)</strong>
+  </div>
+
+  {/* Toast */}
+  <div style={{
+    position: 'absolute',
+    top: '10px',
+    left: '80px',
+    width: '180px',
+    height: '35px',
+    backgroundColor: 'var(--color-status-success)',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0 16px',
+    boxShadow: 'var(--shadow-lg)',
+    color: 'var(--color-text-inverse)',
+    fontSize: '12px'
+  }}>
+    <strong>toast (z-80)</strong>
+  </div>
+</div>
+
+## Layer Reference
+
+| Layer | Value | CSS Variable | Tailwind | Use Case |
+|-------|-------|--------------|----------|----------|
+| base | 0 | `--zindex-base` | `z-0` | Page content, cards |
+| dropdown | 10 | `--zindex-dropdown` | `z-10` | Dropdown menus, selects |
+| sticky | 20 | `--zindex-sticky` | `z-20` | Sticky headers, category tabs |
+| fixed | 30 | `--zindex-fixed` | `z-30` | Fixed nav, cart bar |
+| modal-backdrop | 40 | `--zindex-modal-backdrop` | `z-40` | Overlay dimming |
+| modal | 50 | `--zindex-modal` | `z-50` | Modals, dialogs, sheets |
+| popover | 60 | `--zindex-popover` | `z-[60]` | Popovers inside modals |
+| tooltip | 70 | `--zindex-tooltip` | `z-[70]` | Tooltips |
+| toast | 80 | `--zindex-toast` | `z-[80]` | Toast notifications |
+| max | 100 | `--zindex-max` | `z-[100]` | Emergency override |
+
+## TypeScript Constants
+
+Import from `@/lib/design-system/tokens/z-index.ts`:
+
+```typescript
+import { zIndex, zIndexVar, zClass } from '@/lib/design-system/tokens/z-index';
+
+// Numeric value for inline styles
+style={{ zIndex: zIndex.modal }} // 50
+
+// CSS variable reference
+style={{ zIndex: zIndexVar.modal }} // "var(--zindex-modal)"
+
+// Tailwind class
+className={zClass.modal} // "z-50"
+```
+
+## Usage Guidelines
+
+**Do:**
+- Use semantic layer names (modal, tooltip, toast)
+- Keep overlays within their designated layers
+- Use modal-backdrop below modal content
+
+**Don't:**
+- Use arbitrary z-index values (z-[999])
+- Stack multiple modals without proper management
+- Override z-index without considering the layer system
+
+---
+
+## Usage
+
+```css
+/* CSS custom property */
+.modal-backdrop {
+  z-index: var(--zindex-modal-backdrop);
+}
+
+.modal {
+  z-index: var(--zindex-modal);
+}
+```
+
+```tsx
+/* Tailwind utility */
+<div className="fixed inset-0 z-40 bg-overlay" />
+<div className="fixed z-50 bg-surface-primary rounded-lg">
+  Modal content
+</div>
+```
+
+```tsx
+/* TypeScript import */
+import { zIndex } from '@/lib/design-system/tokens/z-index';
+
+<motion.div style={{ zIndex: zIndex.toast }}>
+  Toast notification
+</motion.div>
+```
