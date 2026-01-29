@@ -1,0 +1,514 @@
+{/* Colors.mdx - Design System Token Documentation */}
+import { Meta, ColorPalette, ColorItem } from '@storybook/blocks';
+
+<Meta title="Design System/Colors" />
+
+# Color Tokens
+
+The Mandalay Morning Star design system uses semantic color tokens for consistent theming across light and dark modes. All colors are defined as CSS custom properties in `tokens.css` and mapped to Tailwind utilities.
+
+## Primary Palette
+
+The core brand colors: Deep Rich Red and Golden Yellow.
+
+<ColorPalette>
+  <ColorItem
+    title="--color-primary"
+    subtitle="bg-primary, text-primary"
+    colors={{
+      'Light': '#A41034',
+      'Dark': '#FF4D6D'
+    }}
+  />
+  <ColorItem
+    title="--color-primary-hover"
+    subtitle="bg-primary-hover"
+    colors={{
+      'Light': '#8A0D2B',
+      'Dark': '#FF6B8A'
+    }}
+  />
+  <ColorItem
+    title="--color-primary-active"
+    subtitle="bg-primary-active"
+    colors={{
+      'Light': '#6D0A22',
+      'Dark': '#E8435F'
+    }}
+  />
+  <ColorItem
+    title="--color-primary-light"
+    subtitle="bg-primary-light"
+    colors={{
+      'Light': 'rgba(164, 16, 52, 0.08)',
+      'Dark': 'rgba(255, 77, 109, 0.15)'
+    }}
+  />
+  <ColorItem
+    title="--color-secondary"
+    subtitle="bg-secondary, text-secondary"
+    colors={{
+      'Light': '#EBCD00',
+      'Dark': '#FFE066'
+    }}
+  />
+  <ColorItem
+    title="--color-secondary-hover"
+    subtitle="bg-secondary-hover"
+    colors={{
+      'Light': '#D4B800',
+      'Dark': '#FFE580'
+    }}
+  />
+  <ColorItem
+    title="--color-secondary-active"
+    subtitle="bg-secondary-active"
+    colors={{
+      'Light': '#BDA300',
+      'Dark': '#E5C600'
+    }}
+  />
+  <ColorItem
+    title="--color-secondary-light"
+    subtitle="bg-secondary-light"
+    colors={{
+      'Light': 'rgba(235, 205, 0, 0.12)',
+      'Dark': 'rgba(255, 224, 102, 0.15)'
+    }}
+  />
+</ColorPalette>
+
+## Accent Colors
+
+Vibrant supporting palette for highlights and actions.
+
+<ColorPalette>
+  <ColorItem
+    title="--color-accent-green"
+    subtitle="bg-green, text-green"
+    colors={{
+      'Light': '#52A52E',
+      'Dark': '#6BD84B'
+    }}
+  />
+  <ColorItem
+    title="--color-accent-green-hover"
+    subtitle="bg-green-hover"
+    colors={{
+      'Light': '#469925',
+      'Dark': '#7DE85D'
+    }}
+  />
+  <ColorItem
+    title="--color-accent-orange"
+    subtitle="bg-orange, text-orange"
+    colors={{
+      'Light': '#E87D1E',
+      'Dark': '#FF9F4A'
+    }}
+  />
+  <ColorItem
+    title="--color-accent-orange-hover"
+    subtitle="bg-orange-hover"
+    colors={{
+      'Light': '#D06F18',
+      'Dark': '#FFB066'
+    }}
+  />
+  <ColorItem
+    title="--color-accent-teal"
+    subtitle="bg-teal, text-teal"
+    colors={{
+      'Light': '#00979D',
+      'Dark': '#2DD4DB'
+    }}
+  />
+  <ColorItem
+    title="--color-accent-teal-hover"
+    subtitle="bg-teal-hover"
+    colors={{
+      'Light': '#008288',
+      'Dark': '#4DDDEA'
+    }}
+  />
+  <ColorItem
+    title="--color-accent-magenta"
+    subtitle="bg-magenta, text-magenta"
+    colors={{
+      'Light': '#C9006B',
+      'Dark': '#F24A9B'
+    }}
+  />
+  <ColorItem
+    title="--color-accent-magenta-hover"
+    subtitle="bg-magenta-hover"
+    colors={{
+      'Light': '#B0005D',
+      'Dark': '#FF5DAE'
+    }}
+  />
+</ColorPalette>
+
+## Surface Colors
+
+Clean backgrounds for cards, pages, and elevated elements.
+
+<ColorPalette>
+  <ColorItem
+    title="--color-surface-primary"
+    subtitle="bg-surface-primary"
+    colors={{
+      'Light': '#FFFFFF',
+      'Dark': '#000000'
+    }}
+  />
+  <ColorItem
+    title="--color-surface-secondary"
+    subtitle="bg-surface-secondary"
+    colors={{
+      'Light': '#FAFAFA',
+      'Dark': '#0a0a0a'
+    }}
+  />
+  <ColorItem
+    title="--color-surface-tertiary"
+    subtitle="bg-surface-tertiary"
+    colors={{
+      'Light': '#F5F5F5',
+      'Dark': '#141414'
+    }}
+  />
+  <ColorItem
+    title="--color-surface-elevated"
+    subtitle="bg-surface-elevated"
+    colors={{
+      'Light': '#FFFFFF',
+      'Dark': '#1a1a1a'
+    }}
+  />
+</ColorPalette>
+
+## Text Colors
+
+Semantic text colors with proper contrast ratios.
+
+<ColorPalette>
+  <ColorItem
+    title="--color-text-primary"
+    subtitle="text-text-primary"
+    colors={{
+      'Light': '#111111',
+      'Dark': '#F8F7F6'
+    }}
+  />
+  <ColorItem
+    title="--color-text-secondary"
+    subtitle="text-text-secondary"
+    colors={{
+      'Light': '#3B3B3B',
+      'Dark': '#C5C3C0'
+    }}
+  />
+  <ColorItem
+    title="--color-text-muted"
+    subtitle="text-text-muted"
+    colors={{
+      'Light': '#6B6B6B',
+      'Dark': '#9A9794'
+    }}
+  />
+  <ColorItem
+    title="--color-text-inverse"
+    subtitle="text-text-inverse"
+    colors={{
+      'Light': '#FFFFFF',
+      'Dark': '#000000'
+    }}
+  />
+  <ColorItem
+    title="--color-text-money"
+    subtitle="text-text-money"
+    colors={{
+      'Light': '#16A34A',
+      'Dark': '#4ADE80'
+    }}
+  />
+</ColorPalette>
+
+## Border Colors
+
+Theme-aware borders for cards, inputs, and dividers.
+
+<ColorPalette>
+  <ColorItem
+    title="--color-border-default"
+    subtitle="border-border"
+    colors={{
+      'Light': '#E5E7EB',
+      'Dark': '#3D3B38'
+    }}
+  />
+  <ColorItem
+    title="--color-border-strong"
+    subtitle="border-border-strong"
+    colors={{
+      'Light': '#D1D5DB',
+      'Dark': '#4D4B48'
+    }}
+  />
+  <ColorItem
+    title="--color-border-subtle"
+    subtitle="border-border-subtle"
+    colors={{
+      'Light': '#F3F4F6',
+      'Dark': '#2D2B28'
+    }}
+  />
+</ColorPalette>
+
+## Status Colors
+
+Semantic colors for success, warning, error, and info states.
+
+<ColorPalette>
+  <ColorItem
+    title="--color-status-success"
+    subtitle="bg-status-success, text-status-success"
+    colors={{
+      'Light': '#52A52E',
+      'Dark': '#6BD84B'
+    }}
+  />
+  <ColorItem
+    title="--color-status-success-bg"
+    subtitle="bg-status-success-bg"
+    colors={{
+      'Light': 'rgba(82, 165, 46, 0.10)',
+      'Dark': 'rgba(107, 216, 75, 0.18)'
+    }}
+  />
+  <ColorItem
+    title="--color-status-warning"
+    subtitle="bg-status-warning, text-status-warning"
+    colors={{
+      'Light': '#E87D1E',
+      'Dark': '#FF9F4A'
+    }}
+  />
+  <ColorItem
+    title="--color-status-warning-bg"
+    subtitle="bg-status-warning-bg"
+    colors={{
+      'Light': 'rgba(232, 125, 30, 0.10)',
+      'Dark': 'rgba(255, 159, 74, 0.18)'
+    }}
+  />
+  <ColorItem
+    title="--color-status-error"
+    subtitle="bg-status-error, text-status-error"
+    colors={{
+      'Light': '#C45C4A',
+      'Dark': '#FF6B6B'
+    }}
+  />
+  <ColorItem
+    title="--color-status-error-bg"
+    subtitle="bg-status-error-bg"
+    colors={{
+      'Light': 'rgba(196, 92, 74, 0.10)',
+      'Dark': 'rgba(255, 107, 107, 0.18)'
+    }}
+  />
+  <ColorItem
+    title="--color-status-info"
+    subtitle="bg-status-info, text-status-info"
+    colors={{
+      'Light': '#00979D',
+      'Dark': '#2DD4DB'
+    }}
+  />
+  <ColorItem
+    title="--color-status-info-bg"
+    subtitle="bg-status-info-bg"
+    colors={{
+      'Light': 'rgba(0, 151, 157, 0.10)',
+      'Dark': 'rgba(45, 212, 219, 0.18)'
+    }}
+  />
+</ColorPalette>
+
+## Overlay Tokens
+
+Backdrop and overlay colors for modals, drawers, and sheets.
+
+<ColorPalette>
+  <ColorItem
+    title="--color-overlay"
+    subtitle="bg-overlay"
+    colors={{
+      'Light': 'rgba(0, 0, 0, 0.5)',
+      'Dark': 'rgba(0, 0, 0, 0.7)'
+    }}
+  />
+  <ColorItem
+    title="--color-overlay-heavy"
+    subtitle="bg-overlay-heavy"
+    colors={{
+      'Light': 'rgba(0, 0, 0, 0.8)',
+      'Dark': 'rgba(0, 0, 0, 0.9)'
+    }}
+  />
+  <ColorItem
+    title="--color-overlay-light"
+    subtitle="bg-overlay-light"
+    colors={{
+      'Light': 'rgba(255, 255, 255, 0.5)',
+      'Dark': 'rgba(255, 255, 255, 0.3)'
+    }}
+  />
+</ColorPalette>
+
+## Hero Colors
+
+Premium sunset gradient colors for the hero section.
+
+<ColorPalette>
+  <ColorItem
+    title="--hero-bg-start"
+    subtitle="Gradient start (orange)"
+    colors={{
+      'Light/Dark': '#FB923C'
+    }}
+  />
+  <ColorItem
+    title="--hero-bg-mid"
+    subtitle="Gradient mid (rose)"
+    colors={{
+      'Light/Dark': '#EC4899'
+    }}
+  />
+  <ColorItem
+    title="--hero-bg-end"
+    subtitle="Gradient end (violet)"
+    colors={{
+      'Light/Dark': '#7C3AED'
+    }}
+  />
+  <ColorItem
+    title="--hero-shimmer"
+    subtitle="Shimmer overlay"
+    colors={{
+      'Light/Dark': 'rgba(251, 191, 36, 0.18)'
+    }}
+  />
+</ColorPalette>
+
+### Hero Orbs
+
+Floating orb colors for parallax effect.
+
+<ColorPalette>
+  <ColorItem
+    title="--hero-orb-saffron"
+    subtitle="Golden sun glow"
+    colors={{
+      'Light/Dark': 'rgba(251, 191, 36, 0.4)'
+    }}
+  />
+  <ColorItem
+    title="--hero-orb-jade"
+    subtitle="Rose pink glow"
+    colors={{
+      'Light/Dark': 'rgba(244, 114, 182, 0.35)'
+    }}
+  />
+  <ColorItem
+    title="--hero-orb-ruby"
+    subtitle="Violet twilight glow"
+    colors={{
+      'Light/Dark': 'rgba(139, 92, 246, 0.3)'
+    }}
+  />
+</ColorPalette>
+
+## Skeleton & Loading
+
+Colors for loading states and skeleton screens.
+
+<ColorPalette>
+  <ColorItem
+    title="--color-skeleton"
+    subtitle="bg-skeleton"
+    colors={{
+      'Light': '#e5e7eb',
+      'Dark': '#374151'
+    }}
+  />
+  <ColorItem
+    title="--color-skeleton-shimmer"
+    subtitle="Shimmer highlight"
+    colors={{
+      'Light': 'rgba(255, 255, 255, 0.4)',
+      'Dark': 'rgba(255, 255, 255, 0.1)'
+    }}
+  />
+</ColorPalette>
+
+## Disabled States
+
+Colors for disabled interactive elements.
+
+<ColorPalette>
+  <ColorItem
+    title="--color-disabled-bg"
+    subtitle="bg-disabled"
+    colors={{
+      'Light': '#f3f4f6',
+      'Dark': '#1f2937'
+    }}
+  />
+  <ColorItem
+    title="--color-disabled-text"
+    subtitle="text-disabled"
+    colors={{
+      'Light': '#9ca3af',
+      'Dark': '#6b7280'
+    }}
+  />
+</ColorPalette>
+
+## Selection
+
+Text selection highlight color.
+
+<ColorPalette>
+  <ColorItem
+    title="--color-selection"
+    subtitle="selection::background"
+    colors={{
+      'Light': 'rgba(164, 16, 52, 0.15)',
+      'Dark': 'rgba(255, 77, 109, 0.2)'
+    }}
+  />
+</ColorPalette>
+
+---
+
+## Usage
+
+```css
+/* CSS custom property */
+.my-element {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+```
+
+```tsx
+/* Tailwind utility */
+<button className="bg-primary text-text-inverse hover:bg-primary-hover">
+  Click me
+</button>
+```
+
+Toggle the theme using the toolbar above to see how colors adapt between light and dark modes.
