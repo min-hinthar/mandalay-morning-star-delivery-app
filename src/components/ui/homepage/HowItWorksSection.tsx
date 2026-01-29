@@ -3,12 +3,29 @@
 import { useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { MapPin, UtensilsCrossed, Truck, Sparkles, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import {
+  MapPin,
+  UtensilsCrossed,
+  Truck,
+  Sparkles,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  Search,
+  Navigation,
+  Clock,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { AnimatedSection, itemVariants } from "@/components/ui/scroll";
 import { spring } from "@/lib/motion-tokens";
 import { useCoverageCheck } from "@/lib/hooks/useCoverageCheck";
+import {
+  usePlacesAutocomplete,
+  type PlacePrediction,
+} from "@/lib/hooks/usePlacesAutocomplete";
+import { CoverageRouteMap } from "@/components/ui/coverage/CoverageRouteMap";
 
 // ============================================
 // TYPES
@@ -167,120 +184,343 @@ function Connector({ index, orientation }: ConnectorProps) {
 }
 
 // ============================================
-// INLINE COVERAGE CHECKER
+// INTERACTIVE COVERAGE CHECKER WITH MAP
 // ============================================
 
-interface InlineCoverageCheckerProps {
+interface InteractiveCoverageCheckerProps {
   className?: string;
 }
 
-function InlineCoverageChecker({ className }: InlineCoverageCheckerProps) {
+function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
-  const [address, setAddress] = useState("");
-  const { mutate, data, isPending, reset } = useCoverageCheck();
+  const [isFocused, setIsFocused] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState<{
+    description: string;
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!address.trim() || isPending) return;
-      reset();
-      mutate({ address: address.trim() });
+  // Places autocomplete with 300ms debounce
+  const {
+    input,
+    setInput,
+    predictions,
+    isLoading: isLoadingPlaces,
+    isReady,
+    getPlaceDetails,
+    clearPredictions,
+    clearInput,
+  } = usePlacesAutocomplete({ debounceMs: 300 });
+
+  // Coverage check mutation
+  const { mutate, data: coverageData, isPending: isCheckingCoverage, reset } = useCoverageCheck();
+
+  // Handle address selection from autocomplete
+  const handleSelectAddress = useCallback(
+    async (prediction: PlacePrediction) => {
+      setInput(prediction.description);
+      clearPredictions();
+      setIsFocused(false);
+
+      // Get lat/lng from place details
+      const details = await getPlaceDetails(prediction.placeId);
+      if (details) {
+        setSelectedAddress({
+          description: prediction.description,
+          lat: details.lat,
+          lng: details.lng,
+        });
+        // Trigger coverage check with lat/lng for accuracy
+        mutate({ lat: details.lat, lng: details.lng });
+      }
     },
-    [address, isPending, mutate, reset]
+    [setInput, clearPredictions, getPlaceDetails, mutate]
   );
 
+  // Handle clear
   const handleClear = useCallback(() => {
-    setAddress("");
+    clearInput();
+    setSelectedAddress(null);
     reset();
-  }, [reset]);
+    inputRef.current?.focus();
+  }, [clearInput, reset]);
+
+  // Playful bounce animation for the map container
+  const mapContainerVariants = {
+    hidden: { opacity: 0, scale: 0.9, y: 20 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        type: "spring" as const,
+        stiffness: 200,
+        damping: 20,
+        delay: 0.2,
+      },
+    },
+  };
+
+  // Stagger animation for dropdown items
+  const dropdownItemVariants = {
+    hidden: { opacity: 0, x: -20, scale: 0.95 },
+    visible: (i: number) => ({
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 24,
+        delay: i * 0.05,
+      },
+    }),
+  };
 
   return (
     <motion.div
-      className={cn("w-full max-w-xs mt-4", className)}
-      initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+      className={cn("w-full max-w-md mt-6", className)}
+      initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
       whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       viewport={{ once: true }}
       transition={getSpring(spring.gentle)}
     >
-      <form onSubmit={handleSubmit} className="relative">
-        <input
-          type="text"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="Enter your address..."
-          disabled={isPending}
-          className={cn(
-            "w-full px-4 py-3 pr-12 rounded-full",
-            "border-2 border-primary/30 bg-surface-primary",
-            "font-body text-sm text-text-primary placeholder:text-text-muted",
-            "focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none",
-            "transition-all duration-200",
-            isPending && "opacity-70"
-          )}
+      {/* Interactive Map - Always visible */}
+      <motion.div
+        variants={shouldAnimate ? mapContainerVariants : undefined}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        className="relative rounded-2xl overflow-hidden shadow-xl mb-4"
+      >
+        <CoverageRouteMap
+          {...(selectedAddress && coverageData && {
+            destinationLat: selectedAddress.lat,
+            destinationLng: selectedAddress.lng,
+            encodedPolyline: coverageData.encodedPolyline,
+            durationMinutes: coverageData.durationMinutes,
+            distanceMiles: coverageData.distanceMiles,
+            isValid: coverageData.isValid,
+          })}
+          className="h-48 md:h-56"
         />
-        <button
-          type="submit"
-          disabled={!address.trim() || isPending}
+
+        {/* Playful floating prompt when no address */}
+        <AnimatePresence>
+          {!selectedAddress && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute top-3 left-1/2 -translate-x-1/2"
+            >
+              <motion.div
+                animate={shouldAnimate ? { y: [0, -5, 0] } : undefined}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className={cn(
+                  "px-4 py-2 rounded-full",
+                  "bg-surface-primary/95 backdrop-blur-sm shadow-lg",
+                  "flex items-center gap-2 text-sm font-medium"
+                )}
+              >
+                <Navigation className="w-4 h-4 text-primary animate-pulse" />
+                <span className="text-text-primary">Try your address below!</span>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Search Input with Autocomplete */}
+      <div className="relative">
+        <motion.div
+          animate={isFocused && shouldAnimate ? { scale: 1.02 } : { scale: 1 }}
+          transition={getSpring(spring.snappy)}
           className={cn(
-            "absolute right-2 top-1/2 -translate-y-1/2",
-            "w-8 h-8 rounded-full flex items-center justify-center",
-            "bg-primary text-text-inverse",
-            "hover:bg-primary-hover transition-colors",
-            "disabled:opacity-50 disabled:cursor-not-allowed"
+            "relative transition-shadow duration-300",
+            isFocused ? "shadow-xl" : "shadow-md"
           )}
         >
-          {isPending ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <MapPin className="w-4 h-4" />
-          )}
-        </button>
-      </form>
-
-      {/* Result */}
-      <AnimatePresence mode="wait">
-        {data && (
-          <motion.div
-            key={data.isValid ? "success" : "error"}
-            initial={shouldAnimate ? { opacity: 0, scale: 0.95, y: -5 } : undefined}
-            animate={shouldAnimate ? { opacity: 1, scale: 1, y: 0 } : undefined}
-            exit={shouldAnimate ? { opacity: 0, scale: 0.95, y: -5 } : undefined}
-            transition={getSpring(spring.snappy)}
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+          <input
+            ref={inputRef}
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+            placeholder={isReady ? "Enter your delivery address..." : "Loading..."}
+            disabled={!isReady || isCheckingCoverage}
             className={cn(
-              "mt-3 p-3 rounded-xl flex items-center gap-2",
-              data.isValid
-                ? "bg-green/10 border border-green/30"
-                : "bg-status-error/10 border border-status-error/30"
+              "w-full pl-12 pr-12 py-4 rounded-2xl",
+              "border-2 border-primary/20 bg-surface-primary",
+              "font-body text-base text-text-primary placeholder:text-text-muted",
+              "focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none",
+              "transition-all duration-300",
+              (!isReady || isCheckingCoverage) && "opacity-70 cursor-not-allowed"
+            )}
+          />
+
+          {/* Clear / Loading indicator */}
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            {isLoadingPlaces || isCheckingCoverage ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              >
+                <Loader2 className="w-5 h-5 text-primary" />
+              </motion.div>
+            ) : input ? (
+              <motion.button
+                type="button"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={handleClear}
+                className="text-text-muted hover:text-text-primary transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </motion.button>
+            ) : null}
+          </div>
+        </motion.div>
+
+        {/* Autocomplete Dropdown */}
+        <AnimatePresence>
+          {predictions.length > 0 && isFocused && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              transition={getSpring(spring.snappy)}
+              className={cn(
+                "absolute top-full left-0 right-0 mt-2 z-20",
+                "bg-surface-primary rounded-2xl",
+                "border-2 border-primary/20 shadow-xl",
+                "overflow-hidden backdrop-blur-sm"
+              )}
+            >
+              {predictions.map((prediction, index) => (
+                <motion.button
+                  key={prediction.placeId}
+                  type="button"
+                  custom={index}
+                  variants={shouldAnimate ? dropdownItemVariants : undefined}
+                  initial="hidden"
+                  animate="visible"
+                  onClick={() => handleSelectAddress(prediction)}
+                  whileHover={shouldAnimate ? { backgroundColor: "rgba(164, 16, 52, 0.08)", x: 4 } : undefined}
+                  className={cn(
+                    "w-full text-left px-4 py-3",
+                    "transition-colors duration-150",
+                    "flex items-start gap-3",
+                    index !== predictions.length - 1 && "border-b border-border/50"
+                  )}
+                >
+                  <motion.div
+                    animate={shouldAnimate ? { scale: [1, 1.2, 1] } : undefined}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                  >
+                    <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  </motion.div>
+                  <div className="min-w-0">
+                    <p className="font-medium text-text-primary truncate">
+                      {prediction.mainText}
+                    </p>
+                    <p className="text-sm text-text-muted truncate">
+                      {prediction.secondaryText}
+                    </p>
+                  </div>
+                </motion.button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Coverage Result - Animated card */}
+      <AnimatePresence mode="wait">
+        {coverageData && selectedAddress && (
+          <motion.div
+            key={coverageData.isValid ? "success" : "error"}
+            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: -10 }}
+            transition={getSpring(spring.ultraBouncy)}
+            className={cn(
+              "mt-4 p-4 rounded-2xl",
+              "flex items-center gap-3",
+              "shadow-lg",
+              coverageData.isValid
+                ? "bg-gradient-to-r from-green/20 to-green/10 border-2 border-green/40"
+                : "bg-gradient-to-r from-status-error/20 to-status-error/10 border-2 border-status-error/40"
             )}
           >
-            {data.isValid ? (
-              <>
-                <CheckCircle className="w-5 h-5 text-green flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-green">We deliver here!</p>
-                  <p className="text-xs text-text-muted truncate">
-                    {data.distanceMiles?.toFixed(1)} miles • ~{data.durationMinutes} min
-                  </p>
-                </div>
-              </>
-            ) : (
-              <>
-                <XCircle className="w-5 h-5 text-status-error flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-status-error">Outside delivery area</p>
-                  <p className="text-xs text-text-muted">
-                    {data.distanceMiles ? `${data.distanceMiles.toFixed(1)} miles away` : "Try another address"}
-                  </p>
-                </div>
-              </>
-            )}
-            <button
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.1 }}
+              className={cn(
+                "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0",
+                coverageData.isValid ? "bg-green/30" : "bg-status-error/30"
+              )}
+            >
+              {coverageData.isValid ? (
+                <CheckCircle className="w-6 h-6 text-green" />
+              ) : (
+                <XCircle className="w-6 h-6 text-status-error" />
+              )}
+            </motion.div>
+
+            <div className="flex-1 min-w-0">
+              <motion.p
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.15 }}
+                className={cn(
+                  "font-display font-bold text-lg",
+                  coverageData.isValid ? "text-green" : "text-status-error"
+                )}
+              >
+                {coverageData.isValid ? "We deliver here! 🎉" : "Outside our area"}
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.25 }}
+                className="flex items-center gap-3 text-sm text-text-secondary mt-1"
+              >
+                {coverageData.distanceMiles !== undefined && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {coverageData.distanceMiles.toFixed(1)} mi
+                  </span>
+                )}
+                {coverageData.durationMinutes !== undefined && (
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5" />
+                    ~{coverageData.durationMinutes} min
+                  </span>
+                )}
+              </motion.div>
+            </div>
+
+            <motion.button
               type="button"
               onClick={handleClear}
-              className="text-xs text-text-muted hover:text-text-primary transition-colors"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-sm font-medium",
+                "bg-surface-primary/80 text-text-secondary",
+                "hover:bg-surface-primary hover:text-text-primary",
+                "transition-colors"
+              )}
             >
-              Clear
-            </button>
+              Try another
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -308,7 +548,7 @@ function StepCard({ step, index, showCoverageChecker = false }: StepCardProps) {
       <p className="font-body text-hero-text/80 text-base md:text-lg font-medium max-w-[220px]">
         {step.description}
       </p>
-      {showCoverageChecker && <InlineCoverageChecker />}
+      {showCoverageChecker && <InteractiveCoverageChecker />}
     </motion.div>
   );
 }
