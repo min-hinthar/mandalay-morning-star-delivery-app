@@ -104,7 +104,7 @@ export function DesktopHeader({
         <Link
           href="/"
           className={cn(
-            "font-display text-lg font-semibold",
+            "font-display text-lg font-bold",
             "text-primary hover:text-primary-hover transition-colors",
             "flex items-center gap-2"
           )}
