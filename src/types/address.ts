@@ -37,6 +37,7 @@ export interface CoverageResult {
   distanceMiles: number;
   durationMinutes: number;
   reason?: CoverageFailureReason;
+  encodedPolyline?: string;
 }
 
 export type CoverageFailureReason =
@@ -60,6 +61,7 @@ export interface CoverageCheckResult {
   lat?: number;
   lng?: number;
   reason?: CoverageFailureReason;
+  encodedPolyline?: string;
 }
 
 export const ADDRESS_LABELS = ["Home", "Work", "Other"] as const;
@@ -72,6 +74,6 @@ export const KITCHEN_LOCATION = {
 } as const;
 
 export const COVERAGE_LIMITS = {
-  maxDistanceMiles: 50,
+  maxDistanceMiles: 40,
   maxDurationMinutes: 90,
 } as const;

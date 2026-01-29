@@ -72,7 +72,8 @@ export async function checkCoverage(
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
-        "X-Goog-FieldMask": "routes.duration,routes.distanceMeters",
+        "X-Goog-FieldMask":
+          "routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline",
       },
       body: JSON.stringify(body),
     });
@@ -115,6 +116,7 @@ export async function checkCoverage(
       reason,
       lat: destLat,
       lng: destLng,
+      encodedPolyline: route.polyline?.encodedPolyline,
     };
   } catch (error) {
     console.error("Coverage check error:", error);

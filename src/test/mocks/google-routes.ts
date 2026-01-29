@@ -32,7 +32,7 @@ export const withinCoverageResponse: MockRoutesResponse = {
 export const exceedsDistanceResponse: MockRoutesResponse = {
   routes: [
     {
-      distanceMeters: 90000, // ~55.9 miles (exceeds 50 mile limit)
+      distanceMeters: 90000, // ~55.9 miles (exceeds 40 mile limit)
       duration: "3600s", // 60 minutes
     },
   ],
@@ -51,12 +51,12 @@ export const exceedsDurationResponse: MockRoutesResponse = {
 };
 
 /**
- * At exact threshold (50 miles, 90 minutes)
+ * At exact threshold (40 miles, 90 minutes)
  */
 export const atThresholdResponse: MockRoutesResponse = {
   routes: [
     {
-      distanceMeters: 80467, // Exactly 50 miles
+      distanceMeters: 64373, // ~40 miles (40 * 1609.34 = 64373.6)
       duration: "5400s", // Exactly 90 minutes
     },
   ],
