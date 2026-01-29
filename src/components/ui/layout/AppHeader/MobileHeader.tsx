@@ -80,7 +80,8 @@ export function MobileHeader({
             alt="Mandalay Morning Star"
             width={32}
             height={32}
-            className="object-contain"
+            priority
+            style={{ width: 32, height: 32 }}
           />
         </Link>
       </motion.div>

@@ -114,7 +114,8 @@ export function DesktopHeader({
             alt="Mandalay Morning Star"
             width={32}
             height={32}
-            className="object-contain"
+            priority
+            style={{ width: 32, height: 32 }}
           />
           <span className="hidden lg:inline">Mandalay Morning Star</span>
         </Link>
