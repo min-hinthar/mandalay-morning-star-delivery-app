@@ -1,30 +1,30 @@
 # Token Audit Report
 
-Generated: 2026-01-28 06:57:03
-Total files scanned: 32
-Total violations: 126
+Generated: 2026-01-29 04:53:54
+Total files scanned: 37
+Total violations: 137
 
 ## Summary
 
 | Severity | Count |
 |----------|-------|
-| Critical | 89 |
+| Critical | 100 |
 | Warning | 37 |
 | Info | 0 |
-| **Total** | **126** |
+| **Total** | **137** |
 
 ## By Category
 
 | Category | Critical | Warning | Info | Total |
 |----------|----------|---------|------|-------|
 | effects | 11 | 13 | 0 | 24 |
-| colors | 69 | 24 | 0 | 93 |
+| colors | 80 | 24 | 0 | 104 |
 | spacing | 2 | 0 | 0 | 2 |
 | deprecated | 7 | 0 | 0 | 7 |
 
 ## By Type
 
-### text-white (29) - **CRITICAL**
+### text-white (30) - **CRITICAL**
 
 **Suggested fix:** text-text-inverse (or text-hero-text in hero sections)
 
@@ -38,7 +38,7 @@ Total violations: 126
 - `src/components/ui/layout/DriverLayout.tsx:110` - `text-white`
 - `src/components/ui/layout/DriverLayout.tsx:132` - `text-white`
 - `src/components/ui/layout/DriverLayout.tsx:155` - `text-white`
-- ... and 19 more
+- ... and 20 more
 
 ### inline color:#hex (24) - WARNING
 
@@ -55,6 +55,22 @@ Total violations: 126
 - `src/styles/high-contrast.css:126` - `color: #333333`
 - `src/styles/high-contrast.css:132` - `color: #FFFFFF`
 - ... and 14 more
+
+### border-white/N (13) - **CRITICAL**
+
+**Suggested fix:** border-text-inverse/N
+
+- `src/components/ui/auth/AuthModal.tsx:127` - `border-white/50`
+- `src/components/ui/auth/AuthModal.tsx:331` - `border-white/50`
+- `src/components/ui/cart/CartBar.tsx:237` - `border-white/20`
+- `src/components/ui/cart/CartBar.tsx:237` - `border-white/10`
+- `src/components/ui/cart/CartItem.tsx:207` - `border-white/20`
+- `src/components/ui/cart/CartItem.tsx:207` - `border-white/10`
+- `src/components/ui/checkout/CheckoutWizard.tsx:476` - `border-white/30`
+- `src/components/ui/Drawer.tsx:248` - `border-white/20`
+- `src/components/ui/Drawer.tsx:248` - `border-white/10`
+- `src/components/ui/dropdown-menu.tsx:106` - `border-white/20`
+- ... and 3 more
 
 ### inline boxShadow (11) - **CRITICAL**
 
@@ -116,7 +132,7 @@ Total violations: 126
 
 - `src/components/ui/animated-image.tsx:89` - `filter: "blur(0px)`
 - `src/components/ui/homepage/Hero.tsx:73` - `filter: "blur(10px)`
-- `src/components/ui/homepage/Hero.tsx:79` - `filter: "blur(0px)`
+- `src/components/ui/homepage/Hero.tsx:80` - `filter: "blur(0px)`
 - `src/components/ui/transitions/PageTransition.tsx:76` - `filter: "blur(12px)`
 - `src/components/ui/transitions/PageTransition.tsx:81` - `filter: "blur(0px)`
 - `src/components/ui/transitions/PageTransition.tsx:91` - `filter: "blur(8px)`
@@ -131,16 +147,6 @@ Total violations: 126
 - `src/components/ui/orders/tracking/StatusTimeline.tsx:80` - `v6-secondary`
 - `src/components/ui/orders/tracking/StatusTimeline.tsx:85` - `v6-green`
 - `src/components/ui/orders/tracking/StatusTimeline.tsx:90` - `v6-status-error`
-
-### border-white/N (5) - **CRITICAL**
-
-**Suggested fix:** border-text-inverse/N
-
-- `src/components/ui/auth/AuthModal.tsx:127` - `border-white/50`
-- `src/components/ui/auth/AuthModal.tsx:331` - `border-white/50`
-- `src/components/ui/cart/CartItem.tsx:207` - `border-white/20`
-- `src/components/ui/cart/CartItem.tsx:207` - `border-white/10`
-- `src/components/ui/checkout/CheckoutWizard.tsx:476` - `border-white/30`
 
 ### bg-black (4) - **CRITICAL**
 
@@ -180,9 +186,16 @@ Total violations: 126
 
 **Suggested fix:** Use CSS variable: backdropFilter: blur(var(--blur-*))
 
-- `src/lib/motion-tokens.ts:394` - `backdropFilter: "blur(0px)`
-- `src/lib/motion-tokens.ts:398` - `backdropFilter: "blur(20px)`
-- `src/lib/motion-tokens.ts:404` - `backdropFilter: "blur(0px)`
+- `src/lib/motion-tokens.ts:412` - `backdropFilter: "blur(0px)`
+- `src/lib/motion-tokens.ts:416` - `backdropFilter: "blur(20px)`
+- `src/lib/motion-tokens.ts:422` - `backdropFilter: "blur(0px)`
+
+### bg-black/N (2) - **CRITICAL**
+
+**Suggested fix:** bg-[var(--color-text-primary)]/N
+
+- `src/components/ui/menu/ItemDetailSheet.tsx:201` - `bg-black/50`
+- `src/components/ui/menu/ItemDetailSheet.tsx:201` - `bg-black/70`
 
 ### inline color:rgb() (2) - **CRITICAL**
 
@@ -290,6 +303,14 @@ Severity breakdown: 5 critical, 0 warning, 0 info
 - Line 205: `bg-white` -> bg-surface-primary
 - Line 293: `border-white` -> border-border-default or border-text-inverse
 
+### src/components/ui/menu/ItemDetailSheet.tsx (3 violations)
+
+Severity breakdown: 3 critical, 0 warning, 0 info
+
+- Line 203: `text-white` -> text-text-inverse (or text-hero-text in hero sections)
+- Line 201: `bg-black/50` -> bg-[var(--color-text-primary)]/N
+- Line 201: `bg-black/70` -> bg-[var(--color-text-primary)]/N
+
 ### src/components/ui/transitions/PageTransition.tsx (3 violations)
 
 Severity breakdown: 3 critical, 0 warning, 0 info
@@ -312,12 +333,33 @@ Severity breakdown: 2 critical, 0 warning, 0 info
 - Line 127: `border-white/50` -> border-text-inverse/N
 - Line 331: `border-white/50` -> border-text-inverse/N
 
+### src/components/ui/cart/CartBar.tsx (2 violations)
+
+Severity breakdown: 2 critical, 0 warning, 0 info
+
+- Line 237: `border-white/20` -> border-text-inverse/N
+- Line 237: `border-white/10` -> border-text-inverse/N
+
 ### src/components/ui/cart/CartItem.tsx (2 violations)
 
 Severity breakdown: 2 critical, 0 warning, 0 info
 
 - Line 207: `border-white/20` -> border-text-inverse/N
 - Line 207: `border-white/10` -> border-text-inverse/N
+
+### src/components/ui/Drawer.tsx (2 violations)
+
+Severity breakdown: 2 critical, 0 warning, 0 info
+
+- Line 248: `border-white/20` -> border-text-inverse/N
+- Line 248: `border-white/10` -> border-text-inverse/N
+
+### src/components/ui/dropdown-menu.tsx (2 violations)
+
+Severity breakdown: 2 critical, 0 warning, 0 info
+
+- Line 106: `border-white/20` -> border-text-inverse/N
+- Line 106: `border-white/10` -> border-text-inverse/N
 
 ### src/components/ui/homepage/CTABanner.tsx (2 violations)
 
@@ -331,7 +373,7 @@ Severity breakdown: 2 critical, 0 warning, 0 info
 Severity breakdown: 2 critical, 0 warning, 0 info
 
 - Line 73: `filter: "blur(10px)` -> Use CSS variable: filter: blur(var(--blur-*))
-- Line 79: `filter: "blur(0px)` -> Use CSS variable: filter: blur(var(--blur-*))
+- Line 80: `filter: "blur(0px)` -> Use CSS variable: filter: blur(var(--blur-*))
 
 ### src/components/ui/layout/AppHeader/AppHeader.tsx (2 violations)
 
@@ -339,6 +381,13 @@ Severity breakdown: 2 critical, 0 warning, 0 info
 
 - Line 34: `backgroundColor: "rgba(` -> Use CSS variable: backgroundColor: var(--color-surface-primary)
 - Line 48: `backgroundColor: "rgba(` -> Use CSS variable: backgroundColor: var(--color-surface-primary)
+
+### src/components/ui/Modal.tsx (2 violations)
+
+Severity breakdown: 2 critical, 0 warning, 0 info
+
+- Line 417: `border-white/20` -> border-text-inverse/N
+- Line 417: `border-white/10` -> border-text-inverse/N
 
 ### src/components/ui/search/CommandPalette/CommandPalette.tsx (2 violations)
 
@@ -359,38 +408,8 @@ Severity breakdown: 1 critical, 0 warning, 0 info
 
 - Line 89: `filter: "blur(0px)` -> Use CSS variable: filter: blur(var(--blur-*))
 
-### src/components/ui/checkout/CheckoutStepperV8.tsx (1 violations)
 
-Severity breakdown: 1 critical, 0 warning, 0 info
-
-- Line 124: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-*)
-
-### src/components/ui/checkout/CheckoutWizard.tsx (1 violations)
-
-Severity breakdown: 1 critical, 0 warning, 0 info
-
-- Line 476: `border-white/30` -> border-text-inverse/N
-
-### src/components/ui/Container.stories.tsx (1 violations)
-
-Severity breakdown: 1 critical, 0 warning, 0 info
-
-- Line 129: `text-white` -> text-text-inverse (or text-hero-text in hero sections)
-
-### src/components/ui/Grid.stories.tsx (1 violations)
-
-Severity breakdown: 1 critical, 0 warning, 0 info
-
-- Line 243: `text-white` -> text-text-inverse (or text-hero-text in hero sections)
-
-### src/components/ui/layout/CheckoutLayout.tsx (1 violations)
-
-Severity breakdown: 1 critical, 0 warning, 0 info
-
-- Line 260: `border-white` -> border-border-default or border-text-inverse
-
-
-*... and 12 more files with violations*
+*... and 17 more files with violations*
 
 ## Baseline
 
@@ -398,32 +417,34 @@ Severity breakdown: 1 critical, 0 warning, 0 info
 | Category | Critical | Warning | Info | Total |
 |----------|----------|---------|------|-------|
 | effects | 11 | 13 | 0 | 24 |
-| colors | 69 | 24 | 0 | 93 |
+| colors | 80 | 24 | 0 | 104 |
 | spacing | 2 | 0 | 0 | 2 |
 | deprecated | 7 | 0 | 0 | 7 |
 
 ### Historical Trend
 | Run | Date | Critical | Warning | Info | Total |
 |-----|------|----------|---------|------|-------|
-| 6 | 2026-01-28 | 89 | 37 | 0 | 126 |
-| 3 | 2026-01-27 | 283 | 51 | 0 | 334 |
-| 1 | 2026-01-27 | 283 | 51 | 0 | 334 |
-| 2 | 2026-01-27 | 283 | 51 | 0 | 334 |
+| 6 | 2026-01-29 | 100 | 37 | 0 | 137 |
 | 4 | 2026-01-27 | 283 | 51 | 0 | 334 |
+| 2 | 2026-01-27 | 283 | 51 | 0 | 334 |
+| 1 | 2026-01-27 | 283 | 51 | 0 | 334 |
+| 3 | 2026-01-27 | 283 | 51 | 0 | 334 |
 
 ### Category Baselines
-- colors: 93
+- colors: 104
 - spacing: 2
 - effects: 24
 - deprecated: 7
 - imports: 0
 
 ### Delta from Previous Run
-- colors: -2 (improved)
+- colors: +11 **REGRESSION**
 - spacing: 0
-- effects: -28 (improved)
+- effects: 0
 - deprecated: 0
 - imports: 0
+
+**WARNING: Regression detected! Violations have increased.**
 
 ---
 *Generated by scripts/audit-tokens.js*

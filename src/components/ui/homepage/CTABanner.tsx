@@ -29,6 +29,7 @@ export function CTABanner({ id }: CTABannerProps) {
 
       <div className="relative max-w-4xl mx-auto">
         {/* Floating entrance with shadow animation - ~--shadow-xl equivalent, kept numeric for FM interpolation */}
+        {/* eslint-disable no-restricted-syntax -- FM animation needs numeric boxShadow for interpolation */}
         <motion.div
           initial={shouldAnimate ? { opacity: 0, y: 40, boxShadow: "0 0 0 rgba(0,0,0,0)" } : false}
           whileInView={{
@@ -55,6 +56,7 @@ export function CTABanner({ id }: CTABannerProps) {
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             />
           )}
+          {/* eslint-enable no-restricted-syntax */}
 
           {/* Promo badge */}
           <motion.div

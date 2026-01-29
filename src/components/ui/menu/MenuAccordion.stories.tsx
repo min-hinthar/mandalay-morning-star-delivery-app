@@ -312,7 +312,7 @@ export const CustomItemRenderer: Story = {
                 ${(item.basePriceCents / 100).toFixed(2)}
               </p>
             </div>
-            <button className="px-4 py-2 bg-[var(--color-interactive-primary)] text-white rounded-full text-sm font-medium">
+            <button className="px-4 py-2 bg-[var(--color-interactive-primary)] text-text-inverse rounded-full text-sm font-medium">
               Add
             </button>
           </div>

@@ -227,27 +227,24 @@ export function PhotoCapture({
     <AnimatePresence>
       {isOpen && (
         // Camera full-screen overlay - intentionally dark for camera UI
-        // eslint-disable-next-line @mandalay/no-hardcoded-colors -- Camera UI requires solid dark background
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-surface-inverse"
         >
           {/* Hidden canvas for capturing */}
           <canvas ref={canvasRef} className="hidden" />
 
           {/* Header */}
-          <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between bg-gradient-to-b from-black/70 to-transparent p-4">
-            {/* eslint-disable-next-line @mandalay/no-hardcoded-colors -- Camera UI overlay text */}
-            <h2 className="font-display text-lg font-semibold text-white">{title}</h2>
-            {/* eslint-disable-next-line @mandalay/no-hardcoded-colors -- Camera UI close button */}
+          <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between bg-gradient-to-b from-surface-inverse/70 to-transparent p-4">
+            <h2 className="font-display text-lg font-semibold text-text-inverse">{title}</h2>
             <button
               onClick={handleClose}
               className={cn(
                 "flex h-12 w-12 items-center justify-center rounded-full",
-                "bg-white/20 text-white",
-                "transition-colors duration-fast hover:bg-white/30"
+                "bg-surface-primary/20 text-text-inverse",
+                "transition-colors duration-fast hover:bg-surface-primary/30"
               )}
               disabled={isUploading}
             >
@@ -278,8 +275,7 @@ export function PhotoCapture({
                       className="absolute inset-0 flex items-center justify-center bg-overlay-heavy"
                     >
                       <div className="text-center">
-                        {/* eslint-disable-next-line @mandalay/no-hardcoded-colors -- Camera UI error text */}
-                        <p className="mb-4 font-body text-lg text-white">{error}</p>
+                        <p className="mb-4 font-body text-lg text-text-inverse">{error}</p>
                         <button
                           onClick={startCamera}
                           className={cn(
@@ -308,7 +304,7 @@ export function PhotoCapture({
           </div>
 
           {/* Controls */}
-          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-8 bg-gradient-to-t from-black/70 to-transparent p-8 pb-12">
+          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-8 bg-gradient-to-t from-surface-inverse/70 to-transparent p-8 pb-12">
             {!capturedPhoto ? (
               // Capture button
               <motion.button
@@ -334,11 +330,10 @@ export function PhotoCapture({
                   whileTap={{ scale: 0.95 }}
                   onClick={retakePhoto}
                   disabled={isUploading}
-                  // eslint-disable-next-line @mandalay/no-hardcoded-colors -- Camera UI retake button
                   className={cn(
                     "flex h-14 w-14 items-center justify-center rounded-full",
-                    "bg-white/20 text-white",
-                    "transition-colors duration-fast hover:bg-white/30"
+                    "bg-surface-primary/20 text-text-inverse",
+                    "transition-colors duration-fast hover:bg-surface-primary/30"
                   )}
                   aria-label="Retake photo"
                 >

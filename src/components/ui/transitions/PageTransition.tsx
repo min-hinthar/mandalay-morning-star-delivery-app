@@ -69,6 +69,7 @@ function getVariants(variant: PageTransitionVariant): Variants {
 
     case "morph":
       // Premium morph variant with blur + scale
+      /* eslint-disable no-restricted-syntax -- FM animation needs numeric blur for interpolation */
       return {
         initial: {
           opacity: 0,
@@ -92,6 +93,7 @@ function getVariants(variant: PageTransitionVariant): Variants {
           transition: fastExit,
         },
       };
+    /* eslint-enable no-restricted-syntax */
 
     case "reveal":
       return {

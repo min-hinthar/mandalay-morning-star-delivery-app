@@ -79,6 +79,8 @@ export function AnimatedImage({
   const includesBlur = variant.includes("blur");
   const includesScale = variant.includes("scale");
 
+  // Framer Motion requires numeric blur values for interpolation between states
+  /* eslint-disable no-restricted-syntax -- FM animation needs numeric blur for interpolation */
   const customVariants = {
     hidden: {
       ...(includesBlur && { filter: `blur(${blurAmount}px)` }),
@@ -91,6 +93,7 @@ export function AnimatedImage({
       opacity: 1,
     },
   };
+  /* eslint-enable no-restricted-syntax */
 
   return (
     <motion.div

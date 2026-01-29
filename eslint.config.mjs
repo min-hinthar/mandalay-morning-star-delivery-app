@@ -104,8 +104,9 @@ const config = [
               message: "theme/ consolidated into ui/theme/. Import from @/components/ui/theme."
             },
             // Phase 34: src/ consolidation guards
+            // Note: @/app/contexts/* is the CORRECT location, only block old @/contexts/* imports
             {
-              group: ["@/contexts/*", "@/contexts", "**/contexts/*"],
+              group: ["@/contexts/*", "@/contexts"],
               message: "contexts/ moved to app/contexts/. Import from @/app/contexts."
             },
             {

@@ -90,7 +90,7 @@ export function DeliveryFeedbackForm({
         </Button>
 
         {/* Already Rated Card */}
-        <div className="rounded-2xl bg-white p-8 shadow-warm-lg text-center">
+        <div className="rounded-2xl bg-surface-primary p-8 shadow-warm-lg text-center">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -139,7 +139,7 @@ export function DeliveryFeedbackForm({
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="rounded-2xl bg-white p-8 shadow-warm-lg text-center"
+        className="rounded-2xl bg-surface-primary p-8 shadow-warm-lg text-center"
       >
         <motion.div
           initial={{ scale: 0 }}
@@ -147,7 +147,7 @@ export function DeliveryFeedbackForm({
           transition={{ type: "spring", stiffness: 200, damping: 15 }}
           className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-jade to-jade/80"
         >
-          <CheckCircle className="h-10 w-10 text-white" />
+          <CheckCircle className="h-10 w-10 text-text-inverse" />
         </motion.div>
 
         <motion.h1
@@ -202,7 +202,7 @@ export function DeliveryFeedbackForm({
 
       {/* Rating Card */}
       <form onSubmit={handleSubmit}>
-        <div className="rounded-2xl bg-white p-8 shadow-warm-lg">
+        <div className="rounded-2xl bg-surface-primary p-8 shadow-warm-lg">
           {/* Header */}
           <div className="mb-8 text-center">
             <motion.div

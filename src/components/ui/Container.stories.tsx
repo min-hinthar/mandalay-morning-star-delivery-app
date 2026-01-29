@@ -126,7 +126,7 @@ export const Flush: Story = {
   render: () => (
     <div className="bg-[var(--color-surface)] min-h-screen py-8">
       <Container size="lg" flush>
-        <div className="p-6 bg-[var(--color-interactive-primary)] text-white rounded-lg">
+        <div className="p-6 bg-[var(--color-interactive-primary)] text-text-inverse rounded-lg">
           <h3 className="font-semibold text-lg mb-2">Flush Container</h3>
           <p>No horizontal padding - useful for hero sections or edge-to-edge content</p>
         </div>
