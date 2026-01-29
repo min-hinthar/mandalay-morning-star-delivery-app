@@ -28,10 +28,6 @@ export interface HeroProps {
   ctaText?: string;
   /** Primary CTA href */
   ctaHref?: string;
-  /** Secondary CTA text */
-  secondaryCtaText?: string;
-  /** Secondary CTA href */
-  secondaryCtaHref?: string;
   /** Additional className */
   className?: string;
 }
@@ -138,7 +134,7 @@ function GradientFallback({ children, className }: GradientFallbackProps) {
       <div
         className="absolute inset-0 hero-gradient-transition"
         style={{
-          background: `linear-gradient(180deg, var(--hero-bg-start) 0%, var(--hero-bg-mid) 50%, var(--hero-bg-end) 100%)`,
+          background: `linear-gradient(180deg, var(--hero-bg-end) 0%, var(--hero-bg-mid) 50%, var(--hero-bg-start) 100%)`,
         }}
       />
 
@@ -190,8 +186,6 @@ interface HeroContentProps {
   subheadline: string;
   ctaText: string;
   ctaHref: string;
-  secondaryCtaText: string;
-  secondaryCtaHref: string;
 }
 
 function HeroContent({
@@ -200,14 +194,12 @@ function HeroContent({
   subheadline,
   ctaText,
   ctaHref,
-  secondaryCtaText,
-  secondaryCtaHref,
 }: HeroContentProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { timeOfDay } = useDynamicTheme();
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[100svh] min-h-[100dvh] px-4 pt-16 pb-20 pb-safe md:pt-20 md:pb-24">
+    <div className="relative flex flex-col items-center justify-start min-h-[100svh] min-h-[100dvh] px-4 pt-24 pb-20 pb-safe md:pt-28 md:pb-24">
       <div className="max-w-4xl mx-auto text-center">
         {/* Time-based greeting badge */}
         <motion.div
@@ -274,7 +266,7 @@ function HeroContent({
               size="lg"
               asChild
               className={cn(
-                "relative overflow-hidden group px-8 py-6 text-lg",
+                "relative overflow-hidden group px-8 py-6 text-lg rounded-full",
                 // Gradient background with shift on hover
                 "bg-gradient-to-r from-secondary via-secondary-hover to-secondary",
                 "hover:from-secondary-hover hover:via-secondary hover:to-secondary-hover",
@@ -306,20 +298,6 @@ function HeroContent({
                   }}
                 />
               </Link>
-            </Button>
-          </motion.div>
-
-          <motion.div
-            whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
-            whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
-          >
-            <Button
-              variant="outline"
-              size="lg"
-              asChild
-              className="px-8 py-6 text-lg border-hero-text/30 text-hero-text hover:bg-hero-stat-bg backdrop-blur-sm"
-            >
-              <Link href={secondaryCtaHref}>{secondaryCtaText}</Link>
             </Button>
           </motion.div>
         </motion.div>
@@ -389,8 +367,6 @@ export function Hero({
   subheadline = "Experience the rich flavors of Myanmar with our weekly Saturday deliveries. Fresh, homemade dishes prepared with love and tradition.",
   ctaText = "Order Now",
   ctaHref = "/menu",
-  secondaryCtaText = "How It Works",
-  secondaryCtaHref = "#how-it-works",
   className,
 }: HeroProps) {
   const { shouldAnimate } = useAnimationPreference();
@@ -459,8 +435,6 @@ export function Hero({
       subheadline={subheadline}
       ctaText={ctaText}
       ctaHref={ctaHref}
-      secondaryCtaText={secondaryCtaText}
-      secondaryCtaHref={secondaryCtaHref}
     />
   );
 
@@ -531,11 +505,14 @@ export function Hero({
         ))}
       </div>
 
-      {/* Bottom gradient fade */}
+      {/* Bottom gradient fade - warm orange to blend into How It Works section */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-surface-primary to-transparent pointer-events-none"
-        // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate), not global z-index
-        style={{ zIndex: 4 }}
+        className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none"
+        style={{
+          // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate), not global z-index
+          zIndex: 4,
+          background: `linear-gradient(to top, var(--hero-bg-start), transparent)`,
+        }}
       />
     </section>
   );

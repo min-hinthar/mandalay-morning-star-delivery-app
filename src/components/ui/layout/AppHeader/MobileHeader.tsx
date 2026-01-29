@@ -78,10 +78,10 @@ export function MobileHeader({
           <Image
             src="/logo.png"
             alt="Mandalay Morning Star"
-            width={32}
-            height={32}
+            width={48}
+            height={48}
             priority
-            style={{ width: 32, height: 32 }}
+            className="w-12 h-12"
           />
         </Link>
       </motion.div>
