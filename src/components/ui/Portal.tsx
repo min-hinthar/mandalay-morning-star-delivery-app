@@ -7,6 +7,10 @@
  * Renders children into document.body by default.
  * Uses mounted state pattern for SSR compatibility.
  *
+ * NOTE: The cleanup does NOT set mounted to false because this can cause
+ * race conditions with AnimatePresence exit animations. The portal will
+ * unmount naturally when the parent unmounts.
+ *
  * @example
  * <Portal>
  *   <div className="fixed inset-0">Overlay content</div>
@@ -28,7 +32,10 @@ export function Portal({ children, container }: PortalProps) {
 
   useEffect(() => {
     setMounted(true);
-    return () => setMounted(false);
+    // NOTE: We intentionally do NOT set mounted to false in cleanup.
+    // Setting it to false can cause children to disappear before
+    // AnimatePresence exit animations complete. The Portal will
+    // unmount naturally when the parent component unmounts.
   }, []);
 
   // SSR safety: don't render until mounted on client

@@ -172,10 +172,16 @@ export function useToast() {
   const [state, setState] = useState<ToastState>(memoryState);
 
   useEffect(() => {
-    listeners.push(setState);
+    // Capture setState in a stable reference for cleanup comparison
+    const listener = setState;
+    listeners.push(listener);
     return () => {
-      const index = listeners.indexOf(setState);
-      if (index > -1) listeners.splice(index, 1);
+      // Use filter instead of splice for thread-safety during concurrent unmounts
+      const index = listeners.indexOf(listener);
+      if (index > -1) {
+        // Create new array to avoid mutation issues during iteration
+        listeners.splice(index, 1);
+      }
     };
   }, []);
 

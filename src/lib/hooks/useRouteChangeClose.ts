@@ -7,6 +7,9 @@
  * Stores the pathname when overlay opens and closes if it changes.
  * This prevents overlays from persisting across navigation.
  *
+ * Uses queueMicrotask to defer the close call, preventing React state
+ * update cascades during render cycles.
+ *
  * @example
  * function Modal({ isOpen, onClose, children }) {
  *   useRouteChangeClose(isOpen, onClose);
@@ -29,6 +32,15 @@ export function useRouteChangeClose(
 ): void {
   const pathname = usePathname();
   const openedPathnameRef = useRef<string | null>(null);
+  const isMountedRef = useRef(true);
+
+  // Track mounted state
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Store pathname when overlay opens
   useEffect(() => {
@@ -47,8 +59,13 @@ export function useRouteChangeClose(
       openedPathnameRef.current !== null &&
       pathname !== openedPathnameRef.current
     ) {
-      onClose();
-      openedPathnameRef.current = null;
+      // Defer close to next microtask to avoid React state update cascades
+      queueMicrotask(() => {
+        if (isMountedRef.current) {
+          onClose();
+          openedPathnameRef.current = null;
+        }
+      });
     }
   }, [isOpen, pathname, onClose]);
 }

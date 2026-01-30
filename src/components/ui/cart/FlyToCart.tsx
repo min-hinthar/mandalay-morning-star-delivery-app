@@ -61,13 +61,14 @@ export function useFlyToCart() {
     setIsAnimating,
     setFlyingElement,
     triggerBadgePulse,
+    cancelPendingPulse,
   } = useCartAnimationStore();
   const { shouldAnimate } = useAnimationPreference();
 
   const flyingRef = useRef<FlyingElement | null>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
-  // Cleanup on unmount - kill GSAP timeline and remove flying element
+  // Cleanup on unmount - kill GSAP timeline, remove flying element, and cancel pending pulse
   useEffect(() => {
     // Capture refs at effect setup time for cleanup
     const timeline = timelineRef;
@@ -82,8 +83,10 @@ export function useFlyToCart() {
       if (flying.current?.element) {
         flying.current.element.remove();
       }
+      // Cancel any pending pulse timeout to prevent state update after unmount
+      cancelPendingPulse();
     };
-  }, []);
+  }, [cancelPendingPulse]);
 
   const fly = useCallback(
     ({ sourceElement, imageUrl, size = 48 }: FlyToCartOptions) => {
