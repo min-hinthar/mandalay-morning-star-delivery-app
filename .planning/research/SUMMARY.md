@@ -1,432 +1,304 @@
-# Project Research Summary: v1.3 Full Codebase Consolidation
+# Project Research Summary
 
-**Project:** Mandalay Morning Star Delivery App
-**Domain:** Food delivery SPA - theme consistency + hero enhancement + codebase cleanup
-**Researched:** 2026-01-27
-**Confidence:** HIGH (verified against existing codebase + authoritative sources)
-
----
+**Project:** Mandalay Morning Star Delivery App - Mobile Optimization & Offline Support
+**Domain:** Food delivery web app (Next.js 16, React 19, GSAP + Framer Motion, Zustand)
+**Researched:** 2026-01-30
+**Confidence:** HIGH
 
 ## Executive Summary
 
-This milestone addresses technical debt accumulated during v1.0-v1.2 rapid development: **221 hardcoded color values** breaking theme consistency, **mobile 3D tilt bugs** causing content to disappear, and **V7 naming remnants** confusing the component API. The research reveals this is fundamentally a **consolidation milestone**, not a feature milestone. The architecture exists, the patterns are defined, and the token system is comprehensive. The work is systematic replacement and cleanup.
+This mobile optimization milestone addresses systematic crash patterns on iOS Safari while enhancing performance and adding customer-facing offline support. The codebase already has comprehensive homepage components (Hero, HowItWorks, TestimonialsCarousel, CTABanner, FooterCTA) fully wired in HomePageClient.tsx - these are **not dead code**, they just need mobile optimization and crash prevention fixes.
 
-The recommended approach is **pattern-based batch fixes** rather than file-by-file manual review. Grep patterns identify all violations, fixes are applied in waves by priority (user-facing first, admin last), and verification happens in both light and dark modes. The existing token system in `tokens.css` is well-designed; adoption is the issue. ESLint enforcement prevents regression after migration.
+The recommended approach prioritizes stability first: audit and fix all mobile crash patterns (setTimeout cleanup, event listener accumulation, scroll lock issues) before adding new features. Only two new packages are needed (Serwist for service worker), avoiding the complexity of virtualization libraries (menu size doesn't justify them) or client-side image optimization (Next.js Image handles this server-side).
 
-Key risks: **incomplete audits** leaving edge cases broken, **3D transform stacking context conflicts** when combining `preserve-3d` with scale animations, and **hydration mismatches** from device detection. Mitigation: comprehensive grep audits before fixes, disable competing animations when 3D tilt is active, and use mounted state for SSR-safe device detection.
-
----
+Critical risks center on memory management: missing cleanup in useEffect hooks causes unmounted state updates that crash iOS Safari, GSAP timelines leak if not killed on unmount, and AnimatePresence with Fragments breaks key tracking. The codebase has already addressed many of these patterns (commits 1486c38, deabb17, a08d2ff, 9ced763) - the milestone must prevent regression while extending fixes to uncovered areas.
 
 ## Key Findings
 
 ### Recommended Stack
 
-**No new dependencies required.** All tooling already installed:
+**Minimal additions strategy** - existing infrastructure handles most needs.
 
-| Tool | Purpose | Status |
-|------|---------|--------|
-| ESLint 9 + `no-restricted-syntax` | Enforce theme token usage | Extend existing rule |
-| TailwindCSS 4 + `@theme inline` | Token-to-utility mapping | Already configured |
-| Framer Motion 12.26.1 | Parallax scroll + entrance animations | Already used in Hero |
-| CSS `@keyframes float` | Floating emoji animations | Already defined in `globals.css` |
-| CSS `@media (hover: hover) and (pointer: fine)` | Touch device detection | Native CSS |
+**Core technologies (already installed):**
+- Next.js 16 Image - Already configured for AVIF/WebP, just needs `sizes` tuning and priority loading audit
+- Framer Motion 12.26.1 - Parallax presets exist in motion-tokens.ts, covers all animation needs
+- Zustand with persist - Cart persistence works offline, pattern extends to customer offline store
+- TanStack Query - 5min staleTime provides basic caching foundation
 
-**Configuration changes needed:**
+**New additions (only 2 packages):**
+- @serwist/next (^9.5.0) - Service worker integration with Workbox-based caching strategies
+- serwist (^9.5.0) - Core utilities (dev dependency), official Next.js recommendation over abandoned next-pwa
 
-| File | Change |
-|------|--------|
-| `eslint.config.mjs` | Add rule: ban `text-white`, `text-black`, `bg-white`, `bg-black` |
-| `src/lib/webgl/gradients.ts` | Rename `v7Palettes` to `palettes` (public API cleanup) |
-| Component files | Systematic color token replacement |
-
-**Existing patterns to leverage:**
-
-| Pattern | Location | Usage |
-|---------|----------|-------|
-| Parallax presets | `motion-tokens.ts` | `parallaxPresets.background`, `.mid`, `.foreground` |
-| Spring configs | `motion-tokens.ts` | `spring.default`, `.rubbery`, `.snappy` |
-| Float animations | `globals.css` + `tailwind.config.ts` | `animate-float`, `animate-float-slow` |
-| Z-index tokens | `design-system/tokens/z-index.ts` | `zIndex.modal`, `.toast`, `.tooltip` |
-| Theme tokens | `tokens.css` | `--color-text-primary`, `--hero-gradient-start` |
+**DO NOT add:**
+- Virtualization libraries (@tanstack/react-virtual, react-window) - Menu ~50 items, not justified
+- Client-side image optimization (sharp manual, blurhash) - Next.js Image handles server-side, existing placeholders sufficient
+- Manual SW configuration - Serwist abstracts Workbox, handles cache versioning automatically
 
 ### Expected Features
 
-**Table Stakes (Must Fix):**
+**Must have (mobile stability - P0):**
+- Zero crashes on mobile devices - setTimeout cleanup, isMounted pattern for async operations
+- Sub-2.5s LCP on mobile - Priority loading for above-fold images, HowItWorks lazy loading
+- Smooth 60fps scrolling - Animation scaling based on device capability, reduce/disable on low-power
+- Memory management - GSAP timeline cleanup, AudioContext closure, RAF cancellation
 
-| Feature | Why Expected | Current State | Priority |
-|---------|--------------|---------------|----------|
-| No hardcoded `text-white` | Dark mode users see invisible text | 137 violations in 62 files | P0 |
-| No hardcoded `bg-white` | Light-only backgrounds break dark mode | 22 violations in 15 files | P0 |
-| Semantic color tokens throughout | `text-text-inverse` not `text-white` | Token system exists, not enforced | P0 |
-| Mobile 3D tilt works | Core functionality broken | Content clips/disappears on iOS | P0 |
-| Theme-aware hero gradient | Consistent dark mode | Uses `--hero-*` tokens correctly | Working |
+**Must have (loading states - P1):**
+- Menu skeleton - Complete (MenuSkeleton.tsx exists)
+- Homepage skeletons - Complete (HowItWorksSkeleton inline)
+- Customer offline support - Cache menu data in IndexedDB, connection status banner, graceful degradation
 
-**Differentiators (Hero Enhancement):**
+**Should have (performance - P2):**
+- Device-based animation scaling - Reduce animations on low-memory/slow-connection devices
+- Optimistic cart UI - Instant feedback on add-to-cart
+- Native app-like transitions - View Transitions API (already used for theme toggle)
 
-| Feature | Value Proposition | Complexity | Dependencies |
-|---------|-------------------|------------|--------------|
-| Floating food emojis | Playful brand identity, memorable | Medium | CSS float keyframes (exists) |
-| Enhanced parallax scroll | Depth, premium feel | Low | `useScroll` hook (exists) |
-| Staggered emoji entrance | Polished reveal animation | Low | Stagger variants (exist) |
-
-**Anti-Features (Do NOT Build):**
-
-| What to Avoid | Why | What to Do Instead |
-|---------------|-----|-------------------|
-| React Three Fiber for this milestone | Scope creep, out of scope | Stick to 2D CSS/Framer Motion |
-| Heavy parallax (speed > 0.7) | Motion sickness, poor LCP | Keep speeds 0.2-0.5 |
-| 3D tilt on ALL cards | Performance on list views | Featured cards only or disable on touch |
-| Different color mappings per component | Maintenance nightmare | Single token system |
-| `!important` for theme fixes | Specificity wars | Fix at source |
+**Defer (v2+ - P3):**
+- Pull-to-refresh - Not standard for web apps
+- Haptic feedback - Limited browser support
+- Offline order submission - Payment requires network, inventory sync complexity
 
 ### Architecture Approach
 
-**Theme Audit Architecture: Pattern-Based Systematic Fixes**
+Mobile optimization integrates with existing Next.js 16 + React 19 architecture without fundamental changes. Homepage components orchestrate via HomePageClient.tsx (server component passes data, client handles hydration and animations). Image optimization uses established hierarchy: next/image → BlurImage (blur placeholders) → AnimatedImage (entrance animations) → CardImage (parallax overlays).
 
-Current token system is well-structured (`tokens.css` → `globals.css` → `tailwind.config.ts` → components), but **component adoption is inconsistent**. Approach is automated discovery, categorized fixes, batch replacement.
+**Major components:**
 
-**Violation categories:**
+1. **Service Worker Layer (NEW)** - Serwist-managed SW with runtime caching strategies: CacheFirst for images (30-day expiration), NetworkFirst for menu API (5min stale), no HTML caching (prevents App Router conflicts)
 
-| Pattern | Count | Files | Fix Priority |
-|---------|-------|-------|--------------|
-| `text-white` | 137 | 62 | HIGH |
-| `bg-white/[opacity]` | 22 | 15 | MEDIUM |
-| `bg-black/[opacity]` | 18 | 18 | MEDIUM |
-| Hex colors in TSX | 133 | 40+ | MEDIUM |
+2. **Memory Management Patterns (EXTEND)** - Systematic cleanup across all components: setTimeout refs with clearTimeout in cleanup, event listeners defined inside useEffect (not useCallback), useBodyScrollLock with deferRestore for all modals, GSAP context.revert() on unmount
 
-**Audit workflow:**
+3. **Image Optimization (TUNE)** - Existing infrastructure solid, needs configuration tuning: `sizes` attributes for responsive loading, priority prop for first 4-6 visible items, quality reduction for non-hero images (85 → 70)
 
-```
-Phase 1: Discovery (automated grep patterns)
-  ├── Identify all hardcoded colors
-  ├── Generate violation report with file:line locations
-  └── Categorize by context (hero, checkout, admin)
+4. **Offline Support (EXTEND)** - Driver app pattern (offline-store.ts, useOfflineSync.ts) extends to customer app: customer-offline-store.ts for menu caching, OfflineIndicator component reuses driver pattern, graceful fallback when data unavailable
 
-Phase 2: Batch Fixes (by pattern, not by file)
-  ├── Fix high-traffic pages first (homepage, menu, checkout)
-  ├── Test in both light and dark modes
-  └── Visual regression testing
-
-Phase 3: ESLint Enforcement
-  └── Add rule to prevent new violations
-```
-
-**Hero Redesign Architecture: Enhance Existing Component**
-
-Current hero structure is functional (2D gradient + parallax). Enhancement adds depth without architectural changes:
-
-```
-Hero.tsx (enhance existing)
-  ├── HeroBackground.tsx (extract/new)
-  │     ├── Multiple parallax layers at different speeds
-  │     ├── Floating food emojis with CSS animations
-  │     └── Decorative elements
-  └── HeroContent (keep mostly unchanged)
-        └── Enhanced entrance animations
-```
-
-**Parallax layer configuration (using existing tokens):**
-
-| Layer | Existing Token | Speed | Elements |
-|-------|---------------|-------|----------|
-| Background | `parallaxPresets.background` (0.1) | Slow | Gradient, pattern |
-| Midground | `parallaxPresets.mid` (0.4) | Medium | Decorative shapes |
-| Content | Base (1.0) | Normal | Headlines, CTAs |
-| Foreground | `parallaxPresets.foreground` (0.8) | Fast | Floating emojis |
-
-**V7 Consolidation: Minimal Scope**
-
-V7 remnants are **naming only**, not functional conflicts:
-
-| Issue | Files | Action |
-|-------|-------|--------|
-| Public API uses `v7Palettes` | `gradients.ts`, `DynamicThemeProvider.tsx` | Rename to `palettes` |
-| Export aliases (`AuthModalV7`) | `auth/index.ts`, `onboarding/index.ts` | Remove aliases |
-| Legacy comments | 2 files | Update or remove |
-
-**UI Library Unification: Defer to Later Milestone**
-
-Two UI directories (`ui/` and `ui-v8/`) have overlapping exports (Modal, Drawer, Toast, Tooltip). This is intentional during migration. Full unification is out of scope for v1.3. Focus on theme consistency only.
+5. **Animation Ownership (CLARIFY)** - GSAP for scroll-triggered animations (ScrollTrigger), Framer Motion for enter/exit transitions (AnimatePresence), hover/tap gestures, layout animations. Never animate same element with both libraries.
 
 ### Critical Pitfalls
 
-**1. Incomplete Theme Token Audit (Partial Fix Syndrome)**
+1. **setTimeout/setInterval not cleaned up on unmount** - Mobile crashes (especially iOS Safari) from setState on unmounted components. Pattern: store timeout ref, clearTimeout in cleanup, use isMountedRef for async operations. Already fixed in 8+ components (useBodyScrollLock.ts, SearchInput.tsx, AddToCartButton.tsx) - prevent regression.
 
-Works in light mode, broken in dark mode. Root cause: fixing visible violations while missing fallback code, error states, inline styles, or SVG fills.
+2. **Event listener accumulation from useCallback dependencies** - First modal close works, second crashes. useCallback with isOpen in deps creates new function reference, addEventListener uses ref v1, removeEventListener tries ref v2 (fails). Fix: define handler INSIDE useEffect with isOpen guard.
 
-**Prevention:**
-- Comprehensive grep patterns: `style={{`, `fill=`, `stroke=`
-- Fix by code path (primary UI, error states, loading states, empty states)
-- ESLint rule after migration to prevent regression
-- Always test BOTH themes before marking complete
+3. **Body scroll lock crashes iOS Safari** - window.scrollTo() during AnimatePresence exit animation causes layout thrashing. Requires useBodyScrollLock with deferRestore: true, call restoreScrollPosition in onExitComplete after animation completes.
 
-**2. CSS 3D Transforms + Stacking Context = Content Disappearing**
+4. **GSAP + Framer Motion conflicts** - Both libraries animating same element causes stutter. Establish ownership: GSAP for ScrollTrigger scroll animations, Framer Motion for state-driven transitions. Always use gsap.context().revert() in cleanup.
 
-Content flickers or disappears when hovering 3D-transformed elements. Root cause: `preserve-3d` creates stacking context conflicts when combined with `scale`, `zIndex`, or `opacity`.
+5. **AnimatePresence Fragment memory leaks** - Fragment as direct child breaks key tracking, exit animations don't fire, memory grows. Fix: use direct keyed children (not Fragments), stable keys (not index), Motion 12.23.28+ required.
 
-**Prevention:**
-- Never combine `preserve-3d` with `overflow: hidden`, `opacity < 1`, or `filter`
-- Use `translateZ` instead of `z-index` inside 3D contexts
-- Disable competing animations: no scale when 3D tilt is active
-- Isolate 3D contexts with `isolation: isolate` on parent
-
-**Evidence from codebase (LEARNINGS.md):**
-```tsx
-// BROKEN - zIndex and scale conflict with preserve-3d
-<motion.div
-  style={{ transformStyle: "preserve-3d", rotateX, rotateY }}
-  whileHover={{ scale: 1.03, zIndex: 50 }}  // Breaks 3D context
->
-
-// WORKING - disable scale when using 3D tilt
-<motion.div
-  style={{ transformStyle: "preserve-3d", rotateX, rotateY }}
-  whileHover={!shouldEnableTilt ? { scale: 1.03 } : undefined}
->
-```
-
-**3. Semantic Token Misuse (Inverse Tokens)**
-
-Using `bg-text-*` tokens for backgrounds or `text-surface-*` for text creates inverted contrast that breaks in one theme.
-
-**Prevention:**
-- Use section-specific token pairs (`bg-footer-bg` + `text-footer-text`)
-- Never mix "opposite" tokens
-- Create explicit paired tokens for special sections
-
-**4. Touch Device Detection for 3D Effects**
-
-3D tilt effects on touch devices cause content to disappear or block scrolling. Root cause: `pointer: coarse` doesn't catch all touch devices, touch/mouse events fire differently.
-
-**Prevention:**
-- SSR-safe detection with mounted state
-- Check capabilities, not device type: `window.matchMedia('(hover: hover)').matches`
-- Graceful degradation: disable tilt on touch devices
-- Only prevent scroll when actively tilting (`touchAction: 'none'` during interaction only)
-
-**5. Parallax Performance on Mobile Safari**
-
-Parallax scroll causes janky animation or battery drain on iOS. Root cause: `background-attachment: fixed` not supported on iOS Safari, scroll-linked animations trigger expensive repaints.
-
-**Prevention:**
-- Use CSS scroll-driven animations (`animation-timeline: scroll()`) where supported
-- Limit parallax layers to 3 maximum on mobile
-- Disable on `prefers-reduced-motion`
-- Test on real iOS device, not just simulator
-
----
+6. **Service Worker + Next.js App Router conflicts** - Caching HTML pages serves stale content, navigation breaks. Use Serwist (not abandoned next-pwa), never cache HTML/RSC payloads, implement update prompt, build with --webpack flag (Turbopack incompatible).
 
 ## Implications for Roadmap
 
-Suggested phase structure based on research:
+Based on research, suggested 4-phase structure prioritizing stability over features:
 
-### Phase 1: Foundation Audit (1-2 tasks)
+### Phase 1: Mobile Crash Prevention (P0)
 
-**Rationale:** Must know full scope before fixing anything. Grep patterns establish baseline, prevent partial fixes.
+**Rationale:** Zero crashes is prerequisite for all features. Existing codebase shows systematic crash patterns already partially addressed - must complete fixes and prevent regression.
 
-**Delivers:**
-- Complete violation inventory (files + line numbers)
-- Baseline report with counts
-- Categorized by priority (user-facing vs admin)
+**Delivers:** Stable mobile experience, no unmounted state updates, no iOS Safari crashes
 
-**Addresses:** Prevents Pitfall #1 (incomplete audits)
+**Addresses (from FEATURES.md):**
+- No crashes on mobile (P0)
+- Memory management (P0)
+- Smooth scrolling (P0)
 
-**Pattern:** Automated discovery → categorization → prioritization
+**Avoids (from PITFALLS.md):**
+- Pitfall 1: setTimeout/setInterval cleanup (audit ALL remaining components)
+- Pitfall 2: Event listener accumulation (review useCallback + addEventListener patterns)
+- Pitfall 3: iOS scroll lock (verify deferRestore in all modals)
+- Pitfall 4: GSAP cleanup (kill timelines on unmount)
+- Pitfall 15: AudioContext closure (browser limits 6 per page)
+- Pitfall 16: IntersectionObserver disconnect
 
-### Phase 2: High-Impact Token Fixes (3-5 tasks)
+**Tasks:**
+- Audit all useEffect hooks for missing cleanup (timers, listeners, subscriptions)
+- Add isMounted pattern to async operations (data fetching, delayed state updates)
+- GSAP timeline cleanup audit (kill timelines, clear ScrollTrigger instances)
+- Test on low-power devices (iPhone SE, Android mid-range)
 
-**Rationale:** User-facing pages first (homepage, checkout, cart). Highest visibility, most users affected.
+**Research flag:** Standard cleanup patterns - skip research, use ERROR_HISTORY.md as reference
 
-**Delivers:**
-- Theme-consistent homepage
-- Theme-consistent checkout flow
-- Theme-consistent cart/navigation
-- Fixed hardcoded hex colors in critical paths
+---
 
-**Addresses:**
-- Table stakes: no hardcoded `text-white`, `bg-white`
-- FEATURES.md: semantic tokens throughout
-- Files: `Hero.tsx`, `TestimonialsCarousel.tsx`, `CartBarV8.tsx`, `TimeSlotPicker.tsx`
+### Phase 2: Image Optimization & LCP (P0)
 
-**Avoids:** Pitfall #3 (semantic token misuse) by using paired tokens
+**Rationale:** Core Web Vitals directly impact SEO and user perception. Existing infrastructure solid (Next.js Image, size presets, blur placeholders) - needs configuration tuning, not architectural changes.
 
-**Pattern:** Batch fixes by page/feature, test both themes per batch
+**Delivers:** Sub-2.5s LCP on mobile, CLS < 0.1, optimized image loading
 
-### Phase 3: Hero Enhancement (3-4 tasks)
+**Uses (from STACK.md):**
+- Next.js Image with AVIF/WebP formats (already configured)
+- IMAGE_SIZES presets from image-optimization.ts
+- BlurImage component with shimmer animation
+- Priority loading utility shouldPriorityLoad()
 
-**Rationale:** Hero needs consistent tokens to work correctly. After token fixes, enhance with parallax layers and floating emojis.
+**Implements (from ARCHITECTURE.md):**
+- Image component hierarchy: BlurImage → AnimatedImage → CardImage
+- Priority loading for first 4-6 visible items
+- Responsive sizes attributes based on viewport breakpoints
+- Quality reduction for non-hero images (85 → 70)
 
-**Delivers:**
-- Floating food emojis with CSS animations
-- Multi-layer parallax (3 layers)
-- Staggered entrance animations
-- Theme-aware gradient enhancements
+**Avoids (from PITFALLS.md):**
+- Pitfall 7: Image CLS - explicit width/height, placeholder for lazy images
+- Pitfall 11: willChange GPU pressure - only apply during interaction, remove after animation
 
-**Uses:**
-- STACK: Framer Motion `useScroll`, CSS float keyframes
-- ARCHITECTURE: `parallaxPresets` from motion-tokens.ts
-- Existing: `animate-float`, `spring.rubbery`
+**Tasks:**
+- Tune `sizes` attributes in CardImage, AnimatedImage (menuCard: 50vw mobile, 33vw tablet, 25vw desktop)
+- Audit priority loading (Hero images priority: true, first 6 menu cards)
+- Reduce quality for non-hero images in image-optimization.ts
+- Verify font-display: swap, minimize main thread work
 
-**Addresses:**
-- Differentiators: floating emojis, enhanced parallax
-- Mobile 3D detection patterns
+**Research flag:** Standard Next.js Image patterns - skip research
 
-**Avoids:**
-- Pitfall #2 (3D stacking conflicts) by isolating 3D contexts
-- Pitfall #4 (touch device issues) with SSR-safe detection
-- Pitfall #5 (parallax performance) by limiting layers to 3 max
+---
 
-**Pattern:** Extract background component → add parallax → add emojis → polish
+### Phase 3: Customer Offline Support (P1)
 
-### Phase 4: Mobile 3D Tilt Fix (1-2 tasks)
+**Rationale:** Driver app has established offline patterns (offline-store.ts, useOfflineSync.ts). Extend proven architecture to customer-facing features for parity and resilience.
 
-**Rationale:** Isolated to `UnifiedMenuItemCard.tsx`. Critical bug but contained scope.
+**Delivers:** Menu browsable offline, connection status visible, cart persists across sessions
 
-**Delivers:**
-- Working 3D tilt on iOS Safari
-- No content clipping or disappearing
-- Touch-safe interaction patterns
+**Uses (from STACK.md):**
+- @serwist/next for service worker integration
+- Existing Zustand persist pattern (cart already works offline)
+- TanStack Query with staleTime for API caching
 
-**Implements:**
-- CSS fixes: `-webkit-backface-visibility: hidden`, `translate3d(0,0,0)`
-- Disable scale animations when tilt active
-- Touch device detection with mounted state
+**Implements (from ARCHITECTURE.md):**
+- Service Worker Layer: CacheFirst for images, NetworkFirst for menu API, StaleWhileRevalidate for static assets
+- customer-offline-store.ts based on driver pattern: menu-cache, pending-orders stores
+- useCustomerOfflineSync hook: navigator.onLine detection, auto-sync on reconnect
+- OfflineIndicator banner component (reuse driver pattern)
 
-**Avoids:** Pitfall #2 (stacking context conflicts) explicitly
+**Avoids (from PITFALLS.md):**
+- Pitfall 6: SW + App Router conflicts - use Serwist, never cache HTML/RSC, implement update prompt
+- Pitfall 10: Stale cache - version + timestamp cached data, revalidate on 'online' event, show stale indicator
 
-**Pattern:** CSS fixes → test on real iOS device → fallback if issues persist
+**Tasks:**
+- Install @serwist/next, configure next.config.ts with withSerwistInit
+- Create customer-offline-store.ts (menu-cache store, expiration logic)
+- Add OfflineIndicator component (banner when navigator.onLine false)
+- Graceful fallback in components when data unavailable
+- Update prompt for new SW versions
 
-### Phase 5: Remaining Fixes + V7 Cleanup (2-3 tasks)
+**Research flag:** Needs light research - Serwist configuration for Next.js App Router specifics
 
-**Rationale:** Lower priority areas (admin/driver) after user-facing fixes complete.
+---
 
-**Delivers:**
-- Theme-consistent admin components
-- Theme-consistent driver layouts
-- V7 naming removed from public APIs
-- Documentation updated
+### Phase 4: Animation Optimization & Polish (P2)
 
-**Addresses:**
-- CONSOLIDATION.md: V7 naming cleanup (4 files)
-- Admin/driver components with hardcoded colors
-- Token usage pattern documentation
+**Rationale:** Stability and performance established, safe to enhance visual experience. Existing animation tokens (motion-tokens.ts) provide foundation - implement device-based scaling and optimize heavy animations.
 
-**Pattern:** Low-priority batch fixes → API cleanup → documentation
+**Delivers:** Adaptive animations based on device capability, no animation conflicts, optimistic UI feedback
+
+**Uses (from STACK.md):**
+- Framer Motion parallax presets (already in motion-tokens.ts)
+- GSAP ScrollTrigger for scroll animations (already installed)
+- useAnimationPreference hook (respects reduced motion)
+
+**Implements (from ARCHITECTURE.md):**
+- Device capability detection: navigator.deviceMemory, hardwareConcurrency, connection.effectiveType
+- Animation scaling: high capability (full animations), medium (reduced duration), low (disable non-essential)
+- Animation ownership: GSAP for scroll, Framer Motion for interactions
+- Optimistic cart UI: immediate feedback, rollback on error
+
+**Avoids (from PITFALLS.md):**
+- Pitfall 4: GSAP + Framer Motion conflicts - clear ownership per element, separate concerns
+- Pitfall 5: AnimatePresence memory leaks - no Fragments as direct children, stable keys
+- Pitfall 11: willChange GPU pressure - only 2-3 animated elements at a time on mobile
+- Pitfall 9: CSS 3D + stacking context - disable Framer scale when using preserve-3d
+
+**Tasks:**
+- Create useDeviceCapability hook (memory, cores, connection type detection)
+- Reduce animation complexity on low-power devices (disable parallax, reduce stagger)
+- Optimistic cart button states (loading → success → idle with rollback)
+- Verify no GSAP/Framer conflicts in homepage sections
+
+**Research flag:** Standard animation patterns - skip research, use motion-tokens.ts as reference
+
+---
 
 ### Phase Ordering Rationale
 
-**Dependencies:**
-- Audit first → establishes baseline, prevents partial fixes
-- User-facing tokens before hero → hero needs consistent tokens
-- Hero before admin fixes → parallels frontend/backend work
-- Mobile tilt can parallel with hero → different components
-
-**Architecture-based grouping:**
-- Phase 2 groups by visibility tier (homepage > checkout > admin)
-- Phase 3 isolates hero work (single component, high polish)
-- Phase 4 isolates mobile tilt (different skillset, needs real device)
-
-**Pitfall avoidance:**
-- Audit prevents incomplete fixes (Pitfall #1)
-- Hero phase addresses 3D, touch, parallax pitfalls together (Pitfalls #2, #4, #5)
-- Token fixes before enhancement work prevents rework
+- **Crashes before features** - Phase 1 addresses P0 stability. No point adding features if app crashes on modal close.
+- **LCP before offline** - Phase 2 fixes Core Web Vitals (SEO impact, user perception). Offline is nice-to-have, performance is must-have.
+- **Offline before animations** - Phase 3 adds functional resilience (browse menu offline). Phase 4 is polish (device-adaptive animations).
+- **Dependencies respected** - Phases 1-2 have no new dependencies (tune existing). Phase 3 adds Serwist (independent). Phase 4 builds on stable foundation.
+- **Risk mitigation** - Early phases address documented crash patterns (ERROR_HISTORY.md). Later phases enhance after stability proven.
 
 ### Research Flags
 
-**Needs deeper research during planning:**
-- None. Patterns are well-established, tokens exist, architecture is defined.
+**Needs research during planning:**
+- Phase 3: Serwist configuration for Next.js App Router - official docs exist but need App Router-specific integration patterns
 
-**Standard patterns (skip research-phase):**
-- All phases use existing patterns from codebase
-- Theme tokens: documented in LEARNINGS.md
-- 3D fixes: documented in ERROR_HISTORY.md
-- Parallax: existing implementation in Hero.tsx
-
-**Validation needed:**
-- Real iOS device testing for mobile 3D tilt (Phase 4)
-- Visual regression testing in both themes (all phases)
-- Performance testing for parallax on low-end devices (Phase 3)
-
----
+**Standard patterns (skip research):**
+- Phase 1: Cleanup patterns documented in ERROR_HISTORY.md, LEARNINGS.md
+- Phase 2: Next.js Image optimization well-documented, existing presets provide template
+- Phase 4: Animation tokens already defined in motion-tokens.ts, ownership rules clear
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All dependencies already installed, patterns already used |
-| Features | HIGH | Table stakes are clear (theme consistency), differentiators are optional polish |
-| Architecture | HIGH | Token system exists and is well-designed, adoption is the issue |
-| Pitfalls | HIGH | Documented in ERROR_HISTORY.md and LEARNINGS.md from actual bugs |
-| Theme Audit | HIGH | Grep counts verified, violation patterns clear |
-| Hero Enhancement | HIGH | Existing Hero uses same patterns, just adding layers |
-| Mobile 3D Fix | MEDIUM-HIGH | CSS fixes documented, may need device-specific testing |
+| Stack | HIGH | Minimal additions (only Serwist), existing infrastructure verified via codebase analysis. DO NOT add virtualization libraries confirmed via menu size analysis (~50 items). |
+| Features | HIGH | Homepage components already built and wired in HomePageClient.tsx (not dead code). Mobile crash patterns documented in ERROR_HISTORY.md with fixes in recent commits. |
+| Architecture | HIGH | Service Worker integration patterns verified via Next.js docs + Serwist guides. Image optimization hierarchy exists (BlurImage → AnimatedImage → CardImage). Memory management patterns documented in LEARNINGS.md. |
+| Pitfalls | HIGH | All critical pitfalls sourced from codebase ERROR_HISTORY.md (real crashes already debugged) + official docs (iOS Safari scroll lock, AnimatePresence memory leaks, SW + App Router conflicts). |
 
 **Overall confidence:** HIGH
 
-Research is comprehensive and verified against actual codebase. Patterns exist, tools are installed, and past bugs are documented. This is systematic cleanup work, not exploratory development.
-
 ### Gaps to Address
 
-**During planning:**
-- **Exact token mappings:** Some contexts need manual review (e.g., is this `text-text-inverse` or `text-hero-text`?)
-- **Hero gradient behavior:** Verify dynamic theme gradients work with parallax layers
-- **Safari version support:** Confirm CSS scroll-timeline fallback strategy for Safari < 17.6
+- **Device capability detection accuracy** - navigator.deviceMemory Chrome-only, hardwareConcurrency unreliable on some devices. Mitigation: conservative defaults (treat unknown as low-capability), test on real devices, use prefers-reduced-motion as primary signal.
 
-**During implementation:**
-- **Real device testing:** iOS Safari 3D tilt must be tested on physical iPhone, not simulator
-- **Visual regression baseline:** Establish screenshot baseline in both themes before fixes
-- **Performance budget:** Define acceptable FPS for parallax on low-end devices
+- **Service worker cache invalidation strategy** - Need to define when to bump cache version (code deploys vs content updates). Mitigation: version cached data with timestamps, revalidate on 'online' event, show stale indicator when serving cached content.
 
-**After implementation:**
-- **ESLint rule calibration:** Add enforcement rules only after migration complete to avoid noise
-- **Documentation:** Update LEARNINGS.md with final token usage patterns
+- **Animation ownership conflicts** - GSAP and Framer Motion both used, potential for same-element conflicts in homepage sections. Mitigation: establish clear ownership rules in Phase 1 (GSAP for scroll, Framer for state transitions), audit during Phase 4 before adding new animations.
 
----
+- **iOS Safari scroll lock edge cases** - useBodyScrollLock with deferRestore covers most cases, but iOS 18 window.innerHeight bug may affect scroll restoration. Mitigation: test on iOS 18 devices, use requestAnimationFrame for scroll restoration timing, consider touch-action: none for full lock.
 
 ## Sources
 
 ### Primary (HIGH confidence)
 
-**Codebase Documentation:**
-- `src/styles/tokens.css` - Token definitions verified (62 tokens across 8 categories)
-- `src/lib/motion-tokens.ts` - Motion system verified (parallax presets, spring configs)
-- `src/components/homepage/Hero.tsx` - Current hero implementation reviewed
-- `src/app/globals.css` - Animation keyframes available
-- `.claude/ERROR_HISTORY.md` (2026-01-22 to 2026-01-26) - Actual bugs documented
-- `.claude/LEARNINGS.md` (2026-01-25, 2026-01-26) - Theme patterns documented
+**Codebase analysis:**
+- src/components/ui/homepage/*.tsx - All homepage components reviewed, wired in HomePageClient.tsx
+- src/lib/services/offline-store.ts - Driver offline architecture analyzed
+- src/lib/utils/image-optimization.ts - Image presets, size configuration
+- src/components/ui/menu/MenuSkeleton.tsx - Skeleton pattern reference
+- src/lib/motion-tokens.ts - Animation presets, parallax configuration
+- .claude/ERROR_HISTORY.md - Mobile crash patterns (2026-01-25 to 2026-01-30)
+- .claude/LEARNINGS.md - Fix patterns, animation ownership rules
+- Git commits: 1486c38 (setTimeout cleanup), deabb17 (race conditions), a08d2ff (dead code), 9ced763 (cleanup patterns)
 
-**Official Documentation:**
-- [TailwindCSS v4.0 @theme Directive](https://tailwindcss.com/blog/tailwindcss-v4) - CSS-first configuration
-- [Theme Variables - Tailwind CSS Docs](https://tailwindcss.com/docs/theme) - @theme vs :root guidance
-- [Next.js Hydration Errors](https://nextjs.org/docs/messages/react-hydration-error) - SSR safety patterns
-- [MDN transform-style](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/transform-style) - 3D stacking context rules
-- [MDN CSS Scroll-Driven Animations](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scroll-driven_animations) - Parallax performance
+**Official documentation:**
+- [Next.js Image Component](https://nextjs.org/docs/app/api-reference/components/image) - Priority loading, sizes attribute
+- [Next.js PWA Guide](https://nextjs.org/docs/app/guides/progressive-web-apps) - App Router SW integration
+- [Serwist Getting Started](https://serwist.pages.dev/docs/next/getting-started) - Workbox wrapper, cache strategies
+- [Framer Motion AnimatePresence](https://www.framer.com/motion/animate-presence/) - Exit animations, Fragment pitfalls
+- [GSAP React Best Practices](https://gsap.com/resources/React/) - Context cleanup, ScrollTrigger patterns
 
 ### Secondary (MEDIUM confidence)
 
-**Design Systems & Patterns:**
-- [Tailwind CSS Best Practices 2025-2026](https://www.frontendtools.tech/blog/tailwind-css-best-practices-design-system-patterns)
-- [Design Tokens Explained - Contentful](https://www.contentful.com/blog/design-token-system/)
-- [Advanced Theming with Design Tokens - David Supik](https://david-supik.medium.com/advanced-theming-techniques-with-design-tokens-bd147fe7236e)
+**Community resources:**
+- [iOS Safari scroll lock fix](https://stripearmy.medium.com/i-fixed-a-decade-long-ios-safari-problem-0d85f76caec0) - touch-action: none, position: fixed patterns
+- [Serwist migration guide](https://javascript.plainenglish.io/building-a-progressive-web-app-pwa-in-next-js-with-serwist-next-pwa-successor-94e05cb418d7) - next-pwa successor, Webpack requirement
+- [Next.js 16 PWA with offline support](https://blog.logrocket.com/nextjs-16-pwa-offline-support) - Runtime caching strategies
+- [Fix LCP by Optimizing Image Loading](https://developer.mozilla.org/en-US/blog/fix-image-lcp/) - Priority loading, preload patterns
+- [GSAP vs Motion comparison](https://motion.dev/docs/gsap-vs-motion) - When to use each library
 
-**Animation & Performance:**
-- [CSS and JavaScript Animation Performance - MDN](https://developer.mozilla.org/en-US/docs/Web/Performance/Guides/CSS_JavaScript_animation_performance)
-- [Framer Motion Parallax Implementation](https://medium.com/@rob.bettison94/framer-motion-parallax-implementation-in-react-b4c0c652c407)
-- [Performant Parallaxing - Chrome Developers](https://developer.chrome.com/blog/performant-parallaxing)
+**GitHub issues (verified fixes):**
+- [AnimatePresence memory leak](https://github.com/framer/motion/issues/625) - Fixed in 12.23.28+
+- [AnimatePresence stuck bug](https://github.com/framer/motion/issues/2554) - Fragment as child issue
+- [Zustand memory discussion](https://github.com/pmndrs/zustand/discussions/2540) - Small stores over monolithic
 
-**Mobile & Touch:**
-- [A Guide to Hover and Pointer Media Queries - Smashing Magazine](https://www.smashingmagazine.com/2022/03/guide-hover-pointer-media-queries/)
-- [Detecting Hover-Capable Devices - CSS-IRL](https://css-irl.info/detecting-hover-capable-devices/)
+### Tertiary (LOW confidence)
 
-### Tertiary (Community findings, needs validation)
-
-- [Samsung CSS Hover Bug - Ctrl Blog](https://www.ctrl.blog/entry/css-media-hover-samsung.html) - Samsung quirk with pointer detection
-- [Fixing Hydration Mismatch in Next.js](https://medium.com/@pavan1419/fixing-hydration-mismatch-in-next-js-next-themes-issue-8017c43dfef9) - Theme flash fixes
-- [CSS 3D Transform Gotchas](https://css-tricks.com/things-watch-working-css-3d/) - Community 3D pitfalls
-- [W3C CSS preserve-3d Stacking Context](https://github.com/w3c/csswg-drafts/issues/6430) - Spec discussions on 3D stacking
+- Device capability detection heuristics - navigator.deviceMemory not universal, hardwareConcurrency unreliable
+- iOS 18 window.innerHeight bug - reported but not officially documented
+- Samsung browser hover quirk - documented in community but rare occurrence
 
 ---
 
-*Research completed: 2026-01-27*
+*Research completed: 2026-01-30*
 *Ready for roadmap: yes*
-*Synthesized from: STACK.md, FEATURES.md, ARCHITECTURE.md, PITFALLS.md, CONSOLIDATION.md*
+*Commit strategy: All research files committed together by synthesizer*
