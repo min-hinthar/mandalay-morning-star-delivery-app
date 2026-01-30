@@ -31,6 +31,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Portal } from "./Portal";
 import { X } from "lucide-react";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
+import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
 import { useSwipeToClose, triggerHaptic } from "@/lib/swipe-gestures";
 import { cn } from "@/lib/utils/cn";
 import { zIndex as zIndexTokens } from "@/lib/design-system/tokens/z-index";
@@ -214,35 +215,9 @@ export function Modal({
   // SCROLL LOCK
   // ============================================
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    // Store scroll position and lock
-    const scrollY = window.scrollY;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.overflow = "hidden";
-
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-    }
-
-    return () => {
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
-
-      // Restore scroll position
-      window.scrollTo(0, scrollY);
-    };
-  }, [isOpen]);
+  // Lock body scroll when open - defer scroll restoration until exit animation completes
+  // This prevents iOS Safari crashes from scroll restoration during DOM transition
+  const { restoreScroll } = useBodyScrollLock(isOpen, { deferScrollRestore: true });
 
   // ============================================
   // FOCUS MANAGEMENT
@@ -355,7 +330,7 @@ export function Modal({
   return (
     <Portal>
       <ModalStackContext.Provider value={stackLevel + 1}>
-        <AnimatePresence>
+        <AnimatePresence onExitComplete={restoreScroll}>
         {/* Backdrop - rendered separately to avoid Fragment inside AnimatePresence */}
         {isOpen && (
           <motion.div
