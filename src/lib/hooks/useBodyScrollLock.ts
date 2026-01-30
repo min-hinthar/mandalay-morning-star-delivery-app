@@ -7,9 +7,6 @@
  * Uses position: fixed technique to prevent iOS scroll issues.
  * Preserves and restores scroll position on lock/unlock.
  *
- * IMPORTANT: Scroll restoration is deferred using requestAnimationFrame
- * to prevent iOS Safari crashes during AnimatePresence exit animations.
- *
  * @example
  * function Modal({ isOpen, children }) {
  *   useBodyScrollLock(isOpen);
@@ -19,66 +16,49 @@
 
 import { useEffect, useRef } from "react";
 
-// Global lock count to handle nested overlays (modal inside drawer, etc.)
-let activeLockCount = 0;
-let globalScrollY = 0;
-
 /**
  * Lock/unlock body scroll with scroll position preservation.
  *
  * @param isLocked - Whether scroll should be locked
  */
 export function useBodyScrollLock(isLocked: boolean): void {
-  const wasLockedRef = useRef(false);
+  const scrollYRef = useRef<number>(0);
 
   useEffect(() => {
-    if (isLocked && !wasLockedRef.current) {
-      // First lock - store scroll position globally
-      if (activeLockCount === 0) {
-        globalScrollY = window.scrollY;
+    if (isLocked) {
+      // Store current scroll position
+      scrollYRef.current = window.scrollY;
 
-        // Lock body scroll
-        document.body.style.position = "fixed";
-        document.body.style.top = `-${globalScrollY}px`;
-        document.body.style.left = "0";
-        document.body.style.right = "0";
-        document.body.style.overflow = "hidden";
+      // Lock body scroll
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollYRef.current}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.overflow = "hidden";
 
-        // Account for scrollbar width to prevent layout shift
-        const scrollbarWidth =
-          window.innerWidth - document.documentElement.clientWidth;
-        if (scrollbarWidth > 0) {
-          document.body.style.paddingRight = `${scrollbarWidth}px`;
-        }
+      // Account for scrollbar width to prevent layout shift
+      const scrollbarWidth =
+        window.innerWidth - document.documentElement.clientWidth;
+      if (scrollbarWidth > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
       }
-
-      activeLockCount++;
-      wasLockedRef.current = true;
     }
 
     return () => {
-      if (wasLockedRef.current) {
-        wasLockedRef.current = false;
-        activeLockCount = Math.max(0, activeLockCount - 1);
+      if (isLocked) {
+        // Get stored scroll position from body.style.top
+        const storedScrollY = parseInt(document.body.style.top || "0", 10) * -1;
 
-        // Only restore when last lock is released
-        if (activeLockCount === 0) {
-          const scrollY = globalScrollY;
+        // Reset all body styles
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.overflow = "";
+        document.body.style.paddingRight = "";
 
-          // Reset body styles immediately so content is visible
-          document.body.style.position = "";
-          document.body.style.top = "";
-          document.body.style.left = "";
-          document.body.style.right = "";
-          document.body.style.overflow = "";
-          document.body.style.paddingRight = "";
-
-          // Defer scroll restoration to next frame to let DOM stabilize
-          // This prevents iOS Safari crashes during AnimatePresence exit
-          requestAnimationFrame(() => {
-            window.scrollTo(0, scrollY);
-          });
-        }
+        // Restore scroll position
+        window.scrollTo(0, storedScrollY);
       }
     };
   }, [isLocked]);
