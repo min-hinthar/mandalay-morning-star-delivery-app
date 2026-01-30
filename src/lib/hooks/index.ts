@@ -119,3 +119,19 @@ export { useABTest } from "./useABTest";
 
 export { useRouteChangeClose } from "./useRouteChangeClose";
 export { useBodyScrollLock } from "./useBodyScrollLock";
+
+// ============================================
+// SAFE EFFECT UTILITIES
+// ============================================
+
+export {
+  useMountedRef,
+  useSafeTimeout,
+  useSafeInterval,
+  useSafeAsync,
+} from "./useSafeEffects";
+export type {
+  SafeTimeoutControls,
+  SafeIntervalControls,
+  SafeAsyncControls,
+} from "./useSafeEffects";
