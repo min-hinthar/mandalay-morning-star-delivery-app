@@ -16,7 +16,7 @@
  * <MenuContent className="min-h-screen" />
  */
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useMenu } from "@/lib/hooks/useMenu";
@@ -77,6 +77,16 @@ export function MenuContent({ className }: MenuContentProps) {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
+  // Timeout ref for cleanup
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    };
+  }, []);
+
   // ============================================
   // HANDLERS
   // ============================================
@@ -88,8 +98,10 @@ export function MenuContent({ className }: MenuContentProps) {
 
   const handleCloseDetail = useCallback(() => {
     setIsDetailOpen(false);
+    // Clear any pending timeout
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
     // Delay clearing item to allow close animation to complete
-    setTimeout(() => setSelectedItem(null), 300);
+    closeTimeoutRef.current = setTimeout(() => setSelectedItem(null), 300);
   }, []);
 
   // Handle URL param to open item modal (from command palette search)

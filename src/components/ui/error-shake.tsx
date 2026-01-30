@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -90,11 +90,21 @@ export function ErrorShake({
  */
 export function useErrorShake() {
   const [shake, setShake] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const triggerShake = useCallback(() => {
     setShake(true);
+    // Clear any pending timeout
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     // Auto-reset after animation duration
-    setTimeout(() => setShake(false), 500);
+    timeoutRef.current = setTimeout(() => setShake(false), 500);
   }, []);
 
   return { shake, triggerShake };
