@@ -7,51 +7,19 @@
  * Uses position: fixed technique to prevent iOS scroll issues.
  * Preserves and restores scroll position on lock/unlock.
  *
- * IMPORTANT: On mobile Safari, immediate scroll restoration during
- * AnimatePresence exit animations can cause layout thrashing and
- * "Can't open page" crashes. Use deferScrollRestore option when
- * used with animated overlays, and call restoreScroll() in
- * AnimatePresence's onExitComplete callback.
+ * IMPORTANT: Scroll restoration is deferred using requestAnimationFrame
+ * to prevent iOS Safari crashes during AnimatePresence exit animations.
  *
  * @example
- * // Basic usage (immediate restore)
  * function Modal({ isOpen, children }) {
  *   useBodyScrollLock(isOpen);
  *   return isOpen ? <div>{children}</div> : null;
  * }
- *
- * @example
- * // Deferred restore for animated overlays
- * function AnimatedModal({ isOpen, children }) {
- *   const { restoreScroll } = useBodyScrollLock(isOpen, { deferScrollRestore: true });
- *   return (
- *     <AnimatePresence onExitComplete={restoreScroll}>
- *       {isOpen && <motion.div>{children}</motion.div>}
- *     </AnimatePresence>
- *   );
- * }
  */
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef } from "react";
 
-export interface UseBodyScrollLockOptions {
-  /**
-   * If true, scroll restoration is deferred until restoreScroll() is called.
-   * Use this when the overlay has exit animations to prevent iOS Safari crashes.
-   * @default false
-   */
-  deferScrollRestore?: boolean;
-}
-
-export interface UseBodyScrollLockReturn {
-  /**
-   * Manually restore scroll position. Call this in onExitComplete
-   * when deferScrollRestore is true.
-   */
-  restoreScroll: () => void;
-}
-
-// Track active locks globally to prevent conflicts between multiple overlays
+// Global lock count to handle nested overlays (modal inside drawer, etc.)
 let activeLockCount = 0;
 let globalScrollY = 0;
 
@@ -59,52 +27,15 @@ let globalScrollY = 0;
  * Lock/unlock body scroll with scroll position preservation.
  *
  * @param isLocked - Whether scroll should be locked
- * @param options - Configuration options
- * @returns Object containing restoreScroll function for deferred restoration
  */
-export function useBodyScrollLock(
-  isLocked: boolean,
-  options: UseBodyScrollLockOptions = {}
-): UseBodyScrollLockReturn {
-  const { deferScrollRestore = false } = options;
-  const scrollYRef = useRef<number>(0);
-  const wasLockedRef = useRef<boolean>(false);
-  const needsRestoreRef = useRef<boolean>(false);
-
-  // Restore scroll position - can be called manually or from cleanup
-  const restoreScroll = useCallback(() => {
-    if (!needsRestoreRef.current) return;
-
-    // Only restore if this was the last lock
-    if (activeLockCount === 0) {
-      // Use requestAnimationFrame to ensure DOM is stable
-      requestAnimationFrame(() => {
-        const storedScrollY = globalScrollY;
-
-        // Reset all body styles
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.left = "";
-        document.body.style.right = "";
-        document.body.style.overflow = "";
-        document.body.style.paddingRight = "";
-
-        // Restore scroll position on next frame to ensure layout is complete
-        requestAnimationFrame(() => {
-          window.scrollTo(0, storedScrollY);
-        });
-      });
-    }
-
-    needsRestoreRef.current = false;
-  }, []);
+export function useBodyScrollLock(isLocked: boolean): void {
+  const wasLockedRef = useRef(false);
 
   useEffect(() => {
     if (isLocked && !wasLockedRef.current) {
-      // First lock - store scroll position
+      // First lock - store scroll position globally
       if (activeLockCount === 0) {
         globalScrollY = window.scrollY;
-        scrollYRef.current = globalScrollY;
 
         // Lock body scroll
         document.body.style.position = "fixed";
@@ -123,23 +54,32 @@ export function useBodyScrollLock(
 
       activeLockCount++;
       wasLockedRef.current = true;
-      needsRestoreRef.current = false;
     }
 
     return () => {
       if (wasLockedRef.current) {
-        activeLockCount = Math.max(0, activeLockCount - 1);
         wasLockedRef.current = false;
-        needsRestoreRef.current = true;
+        activeLockCount = Math.max(0, activeLockCount - 1);
 
-        if (!deferScrollRestore) {
-          // Immediate restore - but still use rAF for stability
-          restoreScroll();
+        // Only restore when last lock is released
+        if (activeLockCount === 0) {
+          const scrollY = globalScrollY;
+
+          // Reset body styles immediately so content is visible
+          document.body.style.position = "";
+          document.body.style.top = "";
+          document.body.style.left = "";
+          document.body.style.right = "";
+          document.body.style.overflow = "";
+          document.body.style.paddingRight = "";
+
+          // Defer scroll restoration to next frame to let DOM stabilize
+          // This prevents iOS Safari crashes during AnimatePresence exit
+          requestAnimationFrame(() => {
+            window.scrollTo(0, scrollY);
+          });
         }
-        // If deferScrollRestore is true, caller must call restoreScroll()
       }
     };
-  }, [isLocked, deferScrollRestore, restoreScroll]);
-
-  return { restoreScroll };
+  }, [isLocked]);
 }
