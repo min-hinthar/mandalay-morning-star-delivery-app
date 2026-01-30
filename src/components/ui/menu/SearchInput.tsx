@@ -78,6 +78,18 @@ export function SearchInput({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
+  // Timeout refs for cleanup
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
+      if (focusTimeoutRef.current) clearTimeout(focusTimeoutRef.current);
+    };
+  }, []);
+
   // Debounced query for API calls
   const debouncedQuery = useDebounce(query, DEBOUNCE_MS);
 
@@ -138,8 +150,10 @@ export function SearchInput({
 
   // Handle blur
   const handleBlur = useCallback(() => {
+    // Clear any pending blur timeout
+    if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
     // Delay blur to allow autocomplete click to register
-    setTimeout(() => {
+    blurTimeoutRef.current = setTimeout(() => {
       setIsFocused(false);
       // Collapse on mobile if empty
       if (isMobile && mobileCollapsible && !query) {
@@ -165,7 +179,8 @@ export function SearchInput({
     if (isMobile && mobileCollapsible && !isExpanded) {
       setIsExpanded(true);
       // Focus input after expansion animation
-      setTimeout(() => inputRef.current?.focus(), 100);
+      if (focusTimeoutRef.current) clearTimeout(focusTimeoutRef.current);
+      focusTimeoutRef.current = setTimeout(() => inputRef.current?.focus(), 100);
     } else {
       inputRef.current?.focus();
     }
