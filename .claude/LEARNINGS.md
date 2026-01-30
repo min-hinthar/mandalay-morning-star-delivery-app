@@ -860,6 +860,75 @@ experimental: {
 
 ---
 
+## 2026-01-29: React Portal for Escaping CSS Stacking Contexts
+
+**Context:** Autocomplete dropdown appearing behind glass cards with Framer Motion hover animations
+**Learning:** Parent elements with CSS transforms (Framer Motion's `whileHover: { scale }`) create new stacking contexts. Child elements cannot escape with z-index alone, regardless of value.
+
+**Fix:** Use React Portal to render dropdown at `document.body` level with position tracking:
+
+```tsx
+import { createPortal } from "react-dom";
+
+const inputRef = useRef<HTMLDivElement>(null);
+const [position, setPosition] = useState<{ top: number; left: number; width: number } | null>(null);
+const [isMounted, setIsMounted] = useState(false);
+
+useEffect(() => { setIsMounted(true); }, []);
+
+useEffect(() => {
+  if (isFocused && inputRef.current) {
+    const rect = inputRef.current.getBoundingClientRect();
+    setPosition({
+      top: rect.bottom + window.scrollY + 4,  // Account for scroll
+      left: rect.left + window.scrollX,
+      width: rect.width,
+    });
+  }
+}, [isFocused]);
+
+// Portal-based dropdown
+{isMounted && createPortal(
+  <div
+    style={{
+      position: "absolute",
+      top: position?.top,
+      left: position?.left,
+      width: position?.width,
+      backgroundColor: "var(--color-surface-elevated)",  // Inline for reliability
+    }}
+    className="z-[9999]"
+  >
+    {dropdownContent}
+  </div>,
+  document.body
+)}
+```
+
+**Apply when:** Dropdowns, tooltips, or popovers inside components with Framer Motion transforms (scale, rotate, translate). Signs: z-index not working despite high values.
+
+---
+
+## 2026-01-29: Inline Styles with CSS Variables for Guaranteed Application
+
+**Context:** Semantic token `bg-surface-elevated` not applying reliably to portal dropdown
+**Learning:** When className-based tokens don't apply (stacking context issues, specificity conflicts), use inline `style` prop with CSS variable reference for guaranteed application.
+
+```tsx
+// ❌ May not apply in certain stacking contexts
+className="bg-surface-elevated"
+
+// ✅ Guaranteed application - combines both approaches
+style={{ backgroundColor: "var(--color-surface-elevated)" }}
+className="bg-surface-elevated"
+```
+
+**Why both:** className provides IDE autocomplete and linting; inline style ensures CSS actually applies regardless of cascade issues.
+
+**Apply when:** Portal-rendered elements, dynamically positioned elements, or any case where semantic token classes aren't applying as expected.
+
+---
+
 ## 2026-01-29: Google Maps AdvancedMarkerElement Requires Map ID
 
 **Context:** Upgrading from legacy `Marker` to `AdvancedMarkerElement` caused warning "map is initialized without a valid Map ID"
