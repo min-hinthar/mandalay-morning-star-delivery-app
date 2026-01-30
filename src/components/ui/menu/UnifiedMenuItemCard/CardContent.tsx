@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { cn } from "@/lib/utils/cn";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import type { MenuItem } from "@/types/menu";
@@ -34,7 +35,7 @@ export interface CardContentProps {
  * - Burmese name (text-xs, muted, optional)
  * - Price (subtle, animated via PriceTicker)
  */
-export function CardContent({
+export const CardContent = memo(function CardContent({
   item,
   showDescription = true,
   showBurmeseName = true,
@@ -83,6 +84,6 @@ export function CardContent({
       </div>
     </div>
   );
-}
+});
 
 export default CardContent;

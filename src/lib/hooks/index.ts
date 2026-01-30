@@ -27,12 +27,7 @@ export type { Breakpoint } from "./useResponsive";
 
 export { useMediaQuery } from "./useMediaQuery";
 export { useAnimationPreference } from "./useAnimationPreference";
-export {
-  useReducedMotion,
-  useSystemReducedMotion,
-  useMotionVariants,
-  useMotionTransition,
-} from "./useReducedMotion";
+export { useReducedMotion, useSystemReducedMotion } from "./useReducedMotion";
 
 // ============================================
 // UI HOOKS

@@ -21,10 +21,10 @@ import { Button } from "@/components/ui/button";
 import {
   MetricCard,
   MetricCardGrid,
-  DeliverySuccessChart,
-  ETAAccuracyGauge,
-  PeakHoursChart,
-  ExceptionBreakdown,
+  LazyDeliverySuccessChart as DeliverySuccessChart,
+  LazyETAAccuracyGauge as ETAAccuracyGauge,
+  LazyPeakHoursChart as PeakHoursChart,
+  LazyExceptionBreakdown as ExceptionBreakdown,
   RecentExceptionsList,
   LeaderboardCompact,
 } from "@/components/ui/admin/analytics";

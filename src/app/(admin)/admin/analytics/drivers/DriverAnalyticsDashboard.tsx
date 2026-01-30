@@ -23,7 +23,7 @@ import {
   MetricCard,
   MetricCardGrid,
   DriverLeaderboard,
-  PerformanceChart,
+  LazyPerformanceChart as PerformanceChart,
   RatingDistributionBars,
 } from "@/components/ui/admin/analytics";
 import type {

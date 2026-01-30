@@ -10,7 +10,6 @@
 
 export { AdminLayout, DashboardGrid, KPIRow, MainArea, SideArea, FullWidthArea } from "./AdminLayout";
 
-export { CheckoutLayout } from "./CheckoutLayout";
 export type { CheckoutStep } from "@/types/checkout";
 
 export { DriverLayout } from "./DriverLayout";

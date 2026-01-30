@@ -70,6 +70,16 @@ export function MenuContent({ className }: MenuContentProps) {
   // Create favorites Set for quick lookup
   const favoritesSet = useMemo(() => new Set(favorites), [favorites]);
 
+  // Memoize category tabs data transformation
+  const tabCategories = useMemo(
+    () => categories.map((cat: MenuCategory) => ({
+      slug: cat.slug,
+      name: cat.name,
+      nameEn: cat.name,
+    })),
+    [categories]
+  );
+
   // ============================================
   // ITEM DETAIL STATE
   // ============================================
@@ -240,13 +250,7 @@ export function MenuContent({ className }: MenuContentProps) {
   return (
     <div className={cn("relative", className)}>
       {/* Category Tabs */}
-      <CategoryTabs
-        categories={categories.map((cat: MenuCategory) => ({
-          slug: cat.slug,
-          name: cat.name,
-          nameEn: cat.name,
-        }))}
-      />
+      <CategoryTabs categories={tabCategories} />
 
       {/* Menu Sections with scroll-triggered animations */}
       <div className="space-y-8 px-4 pb-8 pt-2">

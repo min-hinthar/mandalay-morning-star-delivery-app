@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { memo, useState, useCallback, useRef, useEffect } from "react";
 import {
   motion,
   AnimatePresence,
@@ -15,7 +15,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { QuantitySelector } from "./QuantitySelector";
-import type { CartItem } from "@/types/cart";
+import type { CartItem as CartItemType } from "@/types/cart";
 
 // ============================================
 // TYPES
@@ -23,9 +23,9 @@ import type { CartItem } from "@/types/cart";
 
 export interface CartItemProps {
   /** Cart item data */
-  item: CartItem;
+  item: CartItemType;
   /** Callback when edit is requested */
-  onEdit?: (item: CartItem) => void;
+  onEdit?: (item: CartItemType) => void;
   /** Compact mode for smaller display */
   compact?: boolean;
   /** Additional className */
@@ -81,6 +81,62 @@ function SwipeDeleteIndicator({ progress }: SwipeDeleteIndicatorProps) {
 }
 
 // ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+/**
+ * Get fallback emoji based on item name
+ */
+function getFallbackEmoji(name: string): string {
+  const lowercaseName = name.toLowerCase();
+
+  // Rice dishes
+  if (
+    lowercaseName.includes("rice") ||
+    lowercaseName.includes("fried rice") ||
+    lowercaseName.includes("htamin")
+  ) {
+    return "\u{1F35A}"; // Rice bowl
+  }
+
+  // Noodles
+  if (
+    lowercaseName.includes("noodle") ||
+    lowercaseName.includes("khao swe") ||
+    lowercaseName.includes("mohinga")
+  ) {
+    return "\u{1F35C}"; // Noodle bowl
+  }
+
+  // Curry
+  if (lowercaseName.includes("curry") || lowercaseName.includes("hin")) {
+    return "\u{1F35B}"; // Curry
+  }
+
+  // Soup
+  if (lowercaseName.includes("soup") || lowercaseName.includes("hin cho")) {
+    return "\u{1F372}"; // Pot of food
+  }
+
+  // Salad
+  if (lowercaseName.includes("salad") || lowercaseName.includes("thoke")) {
+    return "\u{1F957}"; // Salad
+  }
+
+  // Tea/drinks
+  if (
+    lowercaseName.includes("tea") ||
+    lowercaseName.includes("laphet") ||
+    lowercaseName.includes("drink")
+  ) {
+    return "\u{1F375}"; // Tea
+  }
+
+  // Default food emoji
+  return "\u{1F35C}"; // Default noodle bowl for Myanmar cuisine
+}
+
+// ============================================
 // CART ITEM ANIMATION VARIANTS
 // ============================================
 
@@ -117,7 +173,7 @@ const cartItemVariants = {
 // MAIN COMPONENT
 // ============================================
 
-export function CartItem({
+export const CartItem = memo(function CartItem({
   item,
   onEdit,
   compact = false,
@@ -349,62 +405,6 @@ export function CartItem({
       </motion.div>
     </motion.div>
   );
-}
-
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
-
-/**
- * Get fallback emoji based on item name
- */
-function getFallbackEmoji(name: string): string {
-  const lowercaseName = name.toLowerCase();
-
-  // Rice dishes
-  if (
-    lowercaseName.includes("rice") ||
-    lowercaseName.includes("fried rice") ||
-    lowercaseName.includes("htamin")
-  ) {
-    return "\u{1F35A}"; // Rice bowl
-  }
-
-  // Noodles
-  if (
-    lowercaseName.includes("noodle") ||
-    lowercaseName.includes("khao swe") ||
-    lowercaseName.includes("mohinga")
-  ) {
-    return "\u{1F35C}"; // Noodle bowl
-  }
-
-  // Curry
-  if (lowercaseName.includes("curry") || lowercaseName.includes("hin")) {
-    return "\u{1F35B}"; // Curry
-  }
-
-  // Soup
-  if (lowercaseName.includes("soup") || lowercaseName.includes("hin cho")) {
-    return "\u{1F372}"; // Pot of food
-  }
-
-  // Salad
-  if (lowercaseName.includes("salad") || lowercaseName.includes("thoke")) {
-    return "\u{1F957}"; // Salad
-  }
-
-  // Tea/drinks
-  if (
-    lowercaseName.includes("tea") ||
-    lowercaseName.includes("laphet") ||
-    lowercaseName.includes("drink")
-  ) {
-    return "\u{1F375}"; // Tea
-  }
-
-  // Default food emoji
-  return "\u{1F35C}"; // Default noodle bowl for Myanmar cuisine
-}
+});
 
 export default CartItem;

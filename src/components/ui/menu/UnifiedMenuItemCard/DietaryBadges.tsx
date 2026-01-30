@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { Leaf, Flame, Star, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -118,7 +119,7 @@ function BadgeItem({ config, index }: BadgeItemProps) {
  * Positioned top-left of image with spring entrance animation.
  * Shows: vegetarian, vegan, spicy (1-3 levels), popular, featured
  */
-export function DietaryBadges({ tags, className }: DietaryBadgesProps) {
+export const DietaryBadges = memo(function DietaryBadges({ tags, className }: DietaryBadgesProps) {
   // Parse tags to get badge configs
   const badges: { config: BadgeConfig; key: string }[] = [];
 
@@ -174,6 +175,6 @@ export function DietaryBadges({ tags, className }: DietaryBadgesProps) {
       ))}
     </div>
   );
-}
+});
 
 export default DietaryBadges;

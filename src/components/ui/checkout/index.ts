@@ -24,16 +24,6 @@ export { CheckoutSummaryV8 as CheckoutSummary } from "./CheckoutSummaryV8";
 export { PaymentStepV8 as PaymentStep } from "./PaymentStepV8";
 export { TimeStepV8 as TimeStep } from "./TimeStepV8";
 
-// Wizard components
-export {
-  CheckoutWizard,
-  CheckoutStepCard,
-} from "./CheckoutWizard";
-export type {
-  CheckoutWizardProps,
-  CheckoutStepCardProps,
-  CheckoutSummaryProps,
-} from "./CheckoutWizard";
 
 // Address input components
 export {
