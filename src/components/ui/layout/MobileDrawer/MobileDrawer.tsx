@@ -36,6 +36,10 @@ const navItems = [
   { href: "/account", label: "Account", icon: <User className="w-5 h-5" /> },
 ];
 
+// Memoize stagger variants at module level to prevent re-creation on every render
+// This prevents animation re-triggers during exit and improves performance
+const navStaggerVariants = staggerContainer80(0.15);
+
 // ============================================
 // COMPONENT
 // ============================================
@@ -137,13 +141,15 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
           {/* User section */}
           <DrawerUserSection user={user ?? null} onClose={onClose} />
 
-          {/* Nav links with stagger animation */}
+          {/* Nav links with stagger animation
+              Note: Using module-level memoized variants to prevent re-creation on render.
+              Removed exit="exit" - let parent drawer handle exit animation to prevent
+              nested animation conflicts that can cause crashes on mobile. */}
           <motion.div
             className="flex-1 overflow-y-auto px-2 py-2"
-            variants={staggerContainer80(0.15)}
+            variants={navStaggerVariants}
             initial="hidden"
             animate="visible"
-            exit="exit"
           >
             {navItems.map((item) => (
               <DrawerNavLink
