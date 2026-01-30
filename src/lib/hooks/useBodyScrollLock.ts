@@ -63,6 +63,7 @@ export function useBodyScrollLock(
 ): UseBodyScrollLockReturn {
   const { deferRestore = false } = options;
   const scrollYRef = useRef<number>(0);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (isLocked) {
@@ -86,6 +87,12 @@ export function useBodyScrollLock(
 
     return () => {
       if (isLocked) {
+        // Clear any pending scroll restoration timeout first
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+
         // Reset all body styles immediately so content is visible
         document.body.style.position = "";
         document.body.style.top = "";
@@ -98,13 +105,24 @@ export function useBodyScrollLock(
         // When deferred, caller uses restoreScrollPosition in onExitComplete
         if (!deferRestore) {
           const storedScrollY = scrollYRef.current;
-          setTimeout(() => {
+          timeoutRef.current = setTimeout(() => {
             window.scrollTo(0, storedScrollY);
+            timeoutRef.current = null;
           }, 0);
         }
       }
     };
   }, [isLocked, deferRestore]);
+
+  // Cleanup timeout on component unmount (safety net)
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
 
   // Manual scroll restoration for deferred mode
   const restoreScrollPosition = useCallback(() => {

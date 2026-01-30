@@ -168,48 +168,50 @@ git commit -m "fix: correct Drawer.tsx casing for Linux builds"
 
 ---
 
-## 2026-01-29: Mobile Crash on Modal/Drawer Close (Scroll Lock Race Condition)
+## 2026-01-29: Mobile Crash on Modal/Drawer Close (Scroll Lock Issues)
 **Type:** Runtime | **Severity:** Critical
 
 **Files:** `src/lib/hooks/useBodyScrollLock.ts`, `src/components/ui/Drawer.tsx`, `src/components/ui/Modal.tsx`, `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx`
 
 **Error:** App crashes, reloads, shows "Can't open page" error, or white screen when closing modals/drawers on mobile (iOS Safari, Chrome, Android). Intermittent - sometimes works, sometimes crashes.
 
-**Root Cause:** Scroll lock cleanup called `window.scrollTo()` synchronously when overlay closed, but Framer Motion's `AnimatePresence` exit animation was still running (~200-300ms). iOS Safari tried to scroll while DOM was in inconsistent state (fixed-position elements being removed, transforms animating).
+### Issue 1: scrollTo During Exit Animation (Fixed 2026-01-29)
+Scroll lock cleanup called `window.scrollTo()` synchronously, but AnimatePresence exit animation was still running (~200ms).
 
+**Fix:** Use `deferRestore: true` option and call `restoreScrollPosition` in `onExitComplete`:
 ```tsx
-// BROKEN - scrollTo during exit animation
-useEffect(() => {
-  if (isLocked) {
-    document.body.style.overflow = "hidden";
-  }
-  return () => {
-    document.body.style.overflow = "";
-    window.scrollTo(0, savedScrollY);  // Fires during exit animation!
-  };
-}, [isLocked]);
+const { restoreScrollPosition } = useBodyScrollLock(isOpen, { deferRestore: true });
+<AnimatePresence onExitComplete={restoreScrollPosition}>
 ```
 
-**Fix:** Defer scroll restoration until animation completes using `onExitComplete`:
+### Issue 2: setTimeout Not Cleaned Up (Fixed 2026-01-29)
+Even with `deferRestore: false`, the setTimeout wasn't tracked or cleaned. Component unmount → timeout still queued → `scrollTo` on disposed DOM → crash.
 
-```tsx
-// Hook: Support deferred restore
-export function useBodyScrollLock(isLocked: boolean, options: { deferScrollRestore?: boolean } = {}) {
-  // Lock/unlock logic...
-  // If deferScrollRestore=true, DON'T restore in cleanup
+```typescript
+// BROKEN - setTimeout fires after unmount
+if (!deferRestore) {
+  setTimeout(() => window.scrollTo(0, scrollY), 0);  // Never cleaned!
 }
+```
 
-// Component: Restore in onExitComplete
-<AnimatePresence onExitComplete={() => restoreBodyScroll()}>
-  {isOpen && <Content />}
-</AnimatePresence>
+**Fix:** Track timeout in ref and clear on cleanup:
+```typescript
+const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+// In cleanup:
+if (timeoutRef.current) clearTimeout(timeoutRef.current);
+timeoutRef.current = setTimeout(() => { ... }, 0);
+
+// Unmount cleanup:
+useEffect(() => () => {
+  if (timeoutRef.current) clearTimeout(timeoutRef.current);
+}, []);
 ```
 
 **Prevention:**
-1. Any scroll manipulation must use `requestAnimationFrame` for DOM stability
-2. Coordinate scroll lock lifecycle with animation lifecycle via `onExitComplete`
-3. Add global lock counting to handle nested overlays (modal inside drawer)
-4. Test overlay close on actual iOS devices, not just Chrome DevTools mobile emulator
+1. Always track and cleanup setTimeout/setInterval in useEffect
+2. Use `onExitComplete` for scroll operations during animated unmounts
+3. Test overlay close on actual iOS devices, not Chrome DevTools emulator
 
 ---
 
