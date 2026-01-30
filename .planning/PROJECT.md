@@ -157,7 +157,19 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 
 ### Active
 
-(No active requirements — ready for v1.4 milestone planning)
+(Defining requirements for v1.4)
+
+## Current Milestone: v1.4 Mobile Excellence & Homepage Completion
+
+**Goal:** Wire unused homepage components into the app, clean up dead code, and maximize mobile performance with image optimization, caching, and crash prevention.
+
+**Target features:**
+- Homepage component integration (Hero, CTABanner, FooterCTA, HowItWorksSection, TestimonialsCarousel)
+- Dead code cleanup (23 verified unused files)
+- Mobile image optimization (lazy loading, compression, responsive images)
+- Memory management and crash prevention
+- Offline support and aggressive caching
+- Skeleton states and loading optimizations
 
 ### Out of Scope
 - Backend/schema changes — Supabase + Stripe contracts stay stable
@@ -243,4 +255,4 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 | WCAG AAA for dark mode primary | #FF6B6B gives 6.33:1 contrast ratio | ✓ Good — v1.3 |
 
 ---
-*Last updated: 2026-01-28 after v1.3 milestone complete*
+*Last updated: 2026-01-30 — v1.4 milestone started*
