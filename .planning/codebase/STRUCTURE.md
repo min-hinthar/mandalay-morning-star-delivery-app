@@ -1,351 +1,259 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-01-21
+**Analysis Date:** 2026-01-30
 
 ## Directory Layout
 
 ```
 mandalay-morning-star-delivery-app/
+├── .claude/                # Claude Code skills and workflows
+├── .planning/              # Project planning docs (phases, codebase analysis)
+├── e2e/                    # Playwright end-to-end tests
+├── public/                 # Static assets (images, icons, manifest)
+├── scripts/                # Utility scripts (seeding, auditing, RLS testing)
 ├── src/
-│   ├── app/                           # Next.js App Router (pages, routes, layouts)
-│   │   ├── (admin)/                   # Protected admin routes (route group)
-│   │   │   └── admin/                 # Admin dashboard
-│   │   │       ├── layout.tsx         # Admin auth check + role validation
-│   │   │       ├── analytics/         # Delivery & driver analytics dashboards
-│   │   │       ├── drivers/           # Driver management
-│   │   │       ├── menu/              # Menu item management
-│   │   │       ├── orders/            # Order management
-│   │   │       ├── categories/        # Category management
-│   │   │       ├── routes/            # Delivery route management
-│   │   │       └── page.tsx           # Admin home
-│   │   ├── (auth)/                    # Auth route group
-│   │   │   ├── login/
-│   │   │   ├── signup/
-│   │   │   └── forgot-password/
-│   │   ├── (customer)/                # Customer route group
-│   │   │   ├── cart/                  # Cart page
-│   │   │   ├── checkout/              # Checkout flow
-│   │   │   ├── orders/                # Order history & details
-│   │   │   │   └── [id]/              # Single order details
-│   │   │   │       ├── confirmation/
-│   │   │   │       ├── tracking/
-│   │   │   │       └── feedback/
-│   │   │   └── debug/                 # Debug utilities (Sentry test)
-│   │   ├── (driver)/                  # Driver route group
-│   │   │   └── driver/
-│   │   │       ├── layout.tsx         # Driver auth check + status validation
-│   │   │       ├── page.tsx           # Active route display
-│   │   │       ├── route/             # Delivery route with stops
-│   │   │       │   └── [stopId]/
-│   │   │       └── history/           # Past deliveries
-│   │   ├── (public)/                  # Public route group
-│   │   │   ├── page.tsx               # Homepage
-│   │   │   └── menu/                  # Public menu browse
-│   │   ├── api/                       # HTTP API endpoints
-│   │   │   ├── addresses/             # Address CRUD
-│   │   │   ├── admin/                 # Admin-only APIs
-│   │   │   │   ├── analytics/
-│   │   │   │   ├── categories/
-│   │   │   │   ├── drivers/
-│   │   │   │   ├── menu/
-│   │   │   │   ├── orders/
-│   │   │   │   └── routes/
-│   │   │   ├── checkout/
-│   │   │   │   └── session/           # Stripe checkout creation
-│   │   │   ├── driver/                # Driver-specific APIs
-│   │   │   ├── orders/                # Order state APIs
-│   │   │   ├── webhooks/              # External service webhooks
-│   │   │   └── ...
-│   │   ├── layout.tsx                 # Root layout (fonts, providers, metadata)
-│   │   ├── providers.tsx              # Client providers (Query, Theme, Cart)
-│   │   └── globals.css                # Global styles
-│   ├── components/                    # React components organized by feature
-│   │   ├── admin/                     # Admin dashboard components
-│   │   │   ├── AdminNav.tsx           # Sidebar navigation
-│   │   │   ├── analytics/
-│   │   │   ├── drivers/
-│   │   │   └── routes/
-│   │   ├── auth/                      # Authentication forms
-│   │   │   ├── LoginForm.tsx
-│   │   │   ├── SignupForm.tsx
-│   │   │   └── __tests__/
-│   │   ├── cart/                      # Shopping cart UI
-│   │   │   ├── v7-index.tsx           # Latest cart drawer version
-│   │   │   ├── CartBar.tsx            # Fixed bottom bar
-│   │   │   └── ...
-│   │   ├── checkout/                  # Checkout flow components
-│   │   │   ├── AddressForm.tsx
-│   │   │   ├── DeliveryWindow.tsx
-│   │   │   └── ...
-│   │   ├── driver/                    # Driver-facing components
-│   │   │   ├── DriverNav.tsx          # Bottom navigation
-│   │   │   ├── DriverShell.tsx        # Layout wrapper
-│   │   │   └── ...
-│   │   ├── homepage/                  # Home page components
-│   │   │   ├── HomePageClient.tsx
-│   │   │   └── HomepageMenuSection.tsx
-│   │   ├── layout/                    # Header, nav, footers
-│   │   │   ├── HeaderServer.tsx       # Top navigation (server-rendered)
-│   │   │   └── ...
-│   │   ├── menu/                      # Menu display components
-│   │   │   ├── MenuContent.tsx
-│   │   │   ├── menu-skeleton.tsx
-│   │   │   └── __tests__/
-│   │   ├── map/                       # Map integration (Google Maps)
-│   │   ├── orders/                    # Order display components
-│   │   │   ├── OrderCard.tsx
-│   │   │   └── ...
-│   │   ├── tracking/                  # Real-time order tracking
-│   │   ├── ui/                        # UI primitives (button, dialog, etc.)
-│   │   │   ├── button.tsx             # shadcn/ui components
-│   │   │   ├── dialog.tsx
-│   │   │   ├── form.tsx
-│   │   │   ├── toast.tsx
-│   │   │   └── ...
-│   │   ├── theme/                     # Theme management
-│   │   │   ├── DynamicThemeProvider.tsx
-│   │   │   └── ...
-│   │   └── theme-provider.tsx         # Next-themes wrapper
-│   ├── lib/                           # Reusable logic and utilities
-│   │   ├── auth/                      # Authentication helpers
-│   │   │   ├── admin.ts               # requireAdmin() function
-│   │   │   ├── driver.ts              # requireDriver() function
-│   │   │   └── index.ts
-│   │   ├── constants/                 # Application constants
-│   │   │   └── *.ts
-│   │   ├── hooks/                     # Custom React hooks
-│   │   │   └── use-cart.ts            # Cart store hook
-│   │   ├── providers/                 # Provider components
-│   │   │   └── query-provider.tsx     # React Query setup
-│   │   ├── queries/                   # Server-side data fetching
-│   │   │   └── menu.ts                # getMenuWithCategories()
-│   │   ├── schemas/                   # Zod validation schemas
-│   │   │   └── *.ts
-│   │   ├── services/                  # Business logic services
-│   │   │   ├── coverage.ts            # Delivery area validation
-│   │   │   ├── geocoding.ts           # Address geocoding
-│   │   │   ├── offline-store.ts       # Offline store data
-│   │   │   ├── route-optimization.ts  # Delivery route optimization
-│   │   │   └── __tests__/
-│   │   ├── stores/                    # Client state (Zustand)
-│   │   │   └── cart-store.ts          # useCartStore (persist, calc helpers)
-│   │   ├── stripe/                    # Stripe integration
-│   │   │   └── server.ts              # Stripe client, customer creation
-│   │   ├── supabase/                  # Supabase clients and utilities
-│   │   │   ├── server.ts              # createClient, createServiceClient
-│   │   │   ├── client.ts
-│   │   │   ├── middleware.ts
-│   │   │   └── actions.ts
-│   │   ├── utils/                     # Utility functions
-│   │   │   ├── analytics-helpers.ts   # Metric calculations
-│   │   │   ├── currency.ts            # formatPrice()
-│   │   │   ├── delivery-dates.ts      # Date utilities
-│   │   │   ├── eta.ts                 # ETA calculations
-│   │   │   ├── logger.ts              # Structured logging
-│   │   │   ├── order.ts               # Order calc & validation
-│   │   │   ├── price.ts
-│   │   │   ├── rate-limit.ts
-│   │   │   └── __tests__/
-│   │   ├── validations/               # Zod schemas for API input
-│   │   │   ├── checkout.ts
-│   │   │   └── *.ts
-│   │   └── validators/
-│   ├── types/                         # TypeScript type definitions
-│   │   ├── database.ts                # Supabase table row types
-│   │   ├── address.ts
-│   │   ├── analytics.ts
-│   │   ├── api.ts
-│   │   ├── cart.ts
-│   │   ├── checkout.ts
-│   │   ├── delivery.ts
-│   │   ├── driver.ts
-│   │   ├── menu.ts
-│   │   ├── order.ts
-│   │   └── tracking.ts
-│   ├── hooks/                         # Deprecated: Use src/lib/hooks instead
-│   ├── stores/                        # Deprecated: Re-exports from lib/stores
-│   ├── contexts/                      # Context providers (unused in current architecture)
-│   ├── proxy.ts                       # Legacy - may be unused
-│   └── styles/                        # Static CSS modules (mostly replaced by TailwindCSS)
-├── public/                            # Static assets
-│   ├── icons/                         # App icons
-│   ├── images/                        # Static images
-│   └── manifest.json                  # PWA manifest
-├── e2e/                               # Playwright E2E tests
-│   ├── accessibility.spec.ts
-│   ├── animations/
-│   └── *.spec.ts
-├── .storybook/                        # Storybook config for component dev
-├── .planning/                         # GSD planning documents
-│   └── codebase/                      # This analysis
-├── .env                               # Local environment (git-ignored)
-├── .env.example                       # Example env vars
-├── package.json                       # Dependencies, scripts
-├── tsconfig.json                      # TypeScript config
-├── tailwind.config.ts                 # Tailwind theming
-├── next.config.js                     # Next.js build config
-├── eslint.config.mjs                  # ESLint rules
-├── .stylelintrc.json                  # CSS linting
-└── vitest.config.ts                   # Unit test runner config
+│   ├── app/                # Next.js App Router (pages, layouts, API routes)
+│   ├── components/         # React components (UI library)
+│   ├── lib/                # Business logic, utilities, integrations
+│   ├── stories/            # Storybook stories
+│   ├── styles/             # Global CSS
+│   ├── test/               # Test utilities and setup
+│   └── types/              # TypeScript type definitions
+├── supabase/               # Supabase migrations and functions
+└── [config files]          # ESLint, TypeScript, Tailwind, etc.
 ```
 
 ## Directory Purposes
 
-**`src/app/`:**
-- Purpose: Next.js App Router entry points for pages and API routes
-- Contains: Route groups (wrapped in `(parentheses)`), layouts, error boundaries, page components
-- Key files: `layout.tsx` (root), `providers.tsx` (client wrappers), individual route `page.tsx` files
+**`.planning/codebase/`:**
+- Purpose: Codebase analysis documents for GSD workflow
+- Contains: ARCHITECTURE.md, STRUCTURE.md, CONVENTIONS.md, etc.
+- Key files: Auto-generated by `/gsd:map-codebase` command
 
-**`src/components/`:**
-- Purpose: Reusable UI components organized by feature domain
-- Contains: React components (TSX), Storybook stories, unit tests
-- Pattern: One feature per subdirectory, co-locate tests as `__tests__/` subdirectory
-- Notable: `ui/` contains shadcn/ui primitives; other folders are feature-specific
+**`.planning/phases/`:**
+- Purpose: Implementation plans organized by phase
+- Contains: Phase directories with PLAN.md and IMPLEMENTATION.md
+- Key files: Incremental development tracking
+
+**`src/app/`:**
+- Purpose: Next.js App Router pages, layouts, and API routes
+- Contains: Route groups, page components, API handlers
+- Key files: `layout.tsx`, `page.tsx`, `route.ts`, `error.tsx`
+
+**`src/app/(admin)/admin/`:**
+- Purpose: Admin dashboard pages
+- Contains: Analytics, menu management, driver management, route optimization
+- Key files: `src/app/(admin)/admin/page.tsx`, `src/app/(admin)/admin/layout.tsx`
+
+**`src/app/(customer)/`:**
+- Purpose: Customer-facing pages (cart, checkout, orders)
+- Contains: Shopping cart, checkout flow, order tracking
+- Key files: `src/app/(customer)/cart/page.tsx`, `src/app/(customer)/checkout/page.tsx`
+
+**`src/app/(driver)/driver/`:**
+- Purpose: Driver app pages
+- Contains: Route management, delivery tracking, history
+- Key files: `src/app/(driver)/driver/route/page.tsx`
+
+**`src/app/(public)/`:**
+- Purpose: Public pages (homepage, menu browsing)
+- Contains: Landing page, menu catalog
+- Key files: `src/app/(public)/page.tsx`, `src/app/(public)/menu/page.tsx`
+
+**`src/app/(auth)/`:**
+- Purpose: Authentication pages
+- Contains: Login, signup, password reset
+- Key files: `src/app/(auth)/login/page.tsx`, `src/app/(auth)/signup/page.tsx`
+
+**`src/app/api/`:**
+- Purpose: RESTful API endpoints
+- Contains: Route handlers organized by resource
+- Key files: `src/app/api/menu/route.ts`, `src/app/api/checkout/session/route.ts`, `src/app/api/webhooks/stripe/route.ts`
+
+**`src/components/ui/`:**
+- Purpose: Reusable UI components organized by feature
+- Contains: Feature-specific component directories
+- Key files: Cart, menu, checkout, admin, driver, layout components
 
 **`src/lib/`:**
-- Purpose: Core application logic, services, and utilities shared across pages and components
-- Contains: Auth checks, Supabase clients, validation schemas, business logic, logging
-- Pattern: Organized by concern (auth/, services/, utils/, stores/), not by page
+- Purpose: Business logic, utilities, integrations, state management
+- Contains: Stores, hooks, queries, services, validations, design tokens
+- Key files: Zustand stores, Supabase clients, Stripe utilities
+
+**`src/lib/stores/`:**
+- Purpose: Zustand state management
+- Contains: Global client state stores
+- Key files: `cart-store.ts`, `checkout-store.ts`, `driver-store.ts`
+
+**`src/lib/supabase/`:**
+- Purpose: Supabase client factories
+- Contains: Server, client, and service role clients
+- Key files: `server.ts`, `client.ts`, `actions.ts`
+
+**`src/lib/queries/`:**
+- Purpose: Server-side data fetching functions
+- Contains: Reusable query functions for server components
+- Key files: `menu.ts`
+
+**`src/lib/hooks/`:**
+- Purpose: Custom React hooks
+- Contains: Reusable hook logic
+- Key files: Custom hooks with tests in `__tests__/`
+
+**`src/lib/validations/`:**
+- Purpose: Zod validation schemas
+- Contains: Input validation for forms and API routes
+- Key files: `checkout.ts` with corresponding tests
+
+**`src/lib/design-system/`:**
+- Purpose: Design tokens and theming
+- Contains: Color, spacing, typography tokens
+- Key files: `tokens/` subdirectory
 
 **`src/types/`:**
-- Purpose: TypeScript definitions for domain models and database rows
-- Contains: Interfaces generated from Supabase (ProfilesRow, OrdersRow, etc.), custom types (Address, MenuItem)
-- Usage: Imported throughout app for type safety on database operations
-
-**`src/styles/`:**
-- Purpose: Global and component-scoped CSS (deprecated in favor of TailwindCSS)
-- Contains: Mostly unused; new styling uses Tailwind utility classes in JSX
-
-**`public/`:**
-- Purpose: Static assets served as-is by Next.js
-- Contains: Favicon, app icons, manifest.json for PWA, static images
+- Purpose: TypeScript type definitions
+- Contains: Domain types, API types, database types
+- Key files: `database.ts`, `menu.ts`, `cart.ts`, `order.ts`, `checkout.ts`
 
 **`e2e/`:**
-- Purpose: Playwright end-to-end test scenarios
-- Contains: Accessibility tests, animation tests, user flow tests
-- Scripts: `pnpm test:e2e`, `pnpm test:a11y`, `pnpm test:animations`
+- Purpose: End-to-end tests with Playwright
+- Contains: Test specs for critical user flows
+- Key files: Animation tests, accessibility tests
+
+**`scripts/`:**
+- Purpose: Utility scripts for development and testing
+- Contains: Database seeding, token auditing, RLS testing
+- Key files: `seed-menu.ts`, `audit-tokens.js`, `rls-isolation-test.mjs`
 
 ## Key File Locations
 
 **Entry Points:**
-- `src/app/layout.tsx` - Root layout (fonts, providers, metadata)
-- `src/app/(public)/page.tsx` - Homepage
-- `src/app/(public)/menu/page.tsx` - Menu browse
-- `src/app/(customer)/checkout/page.tsx` - Checkout flow
-- `src/app/(admin)/admin/page.tsx` - Admin dashboard
-- `src/app/(driver)/driver/page.tsx` - Driver active route
+- `src/app/layout.tsx`: Root layout with providers
+- `src/app/(public)/page.tsx`: Homepage
+- `src/app/providers.tsx`: Client-side provider wrapper
 
 **Configuration:**
-- `src/app/providers.tsx` - Client-side provider setup (Query, Theme, Cart)
-- `src/lib/supabase/server.ts` - Supabase client factories
-- `src/lib/stripe/server.ts` - Stripe SDK setup
-- `src/lib/auth/admin.ts` - Role-based auth helpers
-- `package.json` - Dependencies and scripts
+- `tsconfig.json`: TypeScript configuration
+- `tailwind.config.ts`: Tailwind CSS configuration
+- `next.config.ts`: Next.js configuration with Sentry
+- `eslint.config.mjs`: ESLint rules
+- `vitest.config.ts`: Vitest test configuration
+- `playwright.config.ts`: Playwright E2E configuration
 
 **Core Logic:**
-- `src/lib/utils/order.ts` - Order validation and calculation (calculateOrderTotals, validateCartItems)
-- `src/lib/utils/logger.ts` - Structured logging with Sentry integration
-- `src/lib/services/route-optimization.ts` - Delivery route optimization
-- `src/lib/queries/menu.ts` - Menu fetching with categories and modifiers
-- `src/lib/stores/cart-store.ts` - Zustand cart state with persistence
-
-**API Routes:**
-- `src/app/api/checkout/session/route.ts` - Stripe checkout session creation (critical flow)
-- `src/app/api/admin/menu/route.ts` - Menu CRUD with admin auth
-- `src/app/api/admin/analytics/delivery/route.ts` - Delivery metrics endpoint
-- `src/app/api/webhooks/stripe/route.ts` - Stripe webhook handler (payment confirmation)
-
-**Authentication & Authorization:**
-- `src/lib/auth/admin.ts` - `requireAdmin()` function for API routes
-- `src/lib/auth/driver.ts` - `requireDriver()` function for API routes
-- `src/app/(admin)/admin/layout.tsx` - Admin route protection
-- `src/app/(driver)/driver/layout.tsx` - Driver route protection
+- `src/lib/stores/cart-store.ts`: Shopping cart state
+- `src/lib/supabase/server.ts`: Database client factory
+- `src/app/api/checkout/session/route.ts`: Checkout API endpoint
+- `src/app/api/webhooks/stripe/route.ts`: Payment webhook handler
 
 **Testing:**
-- `src/components/menu/__tests__/menu-content.test.tsx` - Menu component test
-- `src/lib/utils/__tests__/` - Utility function tests
-- `src/lib/services/__tests__/` - Service layer tests
-- `e2e/accessibility.spec.ts` - Accessibility test suite
-- `vitest.config.ts` - Test runner configuration
+- `src/lib/stores/__tests__/`: Zustand store unit tests
+- `src/lib/hooks/__tests__/`: Custom hook tests
+- `e2e/`: Playwright E2E tests
+- `src/test/`: Test utilities and setup
 
 ## Naming Conventions
 
 **Files:**
-- Page components: `page.tsx` (required for Next.js routing)
-- Layout components: `layout.tsx` (required for Next.js nesting)
-- Error boundaries: `error.tsx` (caught by Next.js error boundary)
-- Components: `PascalCase.tsx` (React convention) - e.g., `MenuContent.tsx`, `CartBar.tsx`
-- Utilities/hooks: `camelCase.ts` - e.g., `cn.ts`, `use-cart.ts`, `order.ts`
-- Schemas/types: `camelCase.ts` - e.g., `checkout.ts`, `menu.ts`
-- Tests: `*.test.ts` or `*.spec.ts` (run by vitest)
+- Components: PascalCase (e.g., `CartItem.tsx`, `MenuItemCard.tsx`)
+- Utilities: kebab-case (e.g., `cart-store.ts`, `route-optimization.ts`)
+- API routes: `route.ts` in directory matching endpoint path
+- Tests: `*.test.tsx` or `*.test.ts` co-located or in `__tests__/`
 
 **Directories:**
-- Route groups: `(parenthesized)` - e.g., `(admin)`, `(customer)`, `(public)` - don't affect URL
-- Dynamic routes: `[bracketed]` - e.g., `[id]`, `[stopId]` - create URL parameters
-- Feature domains: `camelCase` or `kebab-case` - e.g., `admin/`, `checkout/`, `driver/`
-- Shared: `lib/` for logic, `types/` for types, `public/` for assets
+- Feature directories: kebab-case (e.g., `menu/`, `checkout/`)
+- Route groups: Parentheses for layout grouping (e.g., `(admin)/`, `(customer)/`)
+- Component feature modules: PascalCase (e.g., `UnifiedMenuItemCard/`)
+
+**Components:**
+- Client components: "use client" directive at top
+- Server components: No directive (default in App Router)
+- Layout components: `layout.tsx`
+- Page components: `page.tsx`
+- Error boundaries: `error.tsx`
 
 ## Where to Add New Code
 
-**New Feature (e.g., "Delivery Feedback"):**
-- Page component: `src/app/(customer)/orders/[id]/feedback/page.tsx`
-- API route (if needed): `src/app/api/orders/[id]/feedback/route.ts`
-- Form component: `src/components/orders/FeedbackForm.tsx`
-- Type: Add to `src/types/order.ts`
-- Validation: Add schema to `src/lib/validations/feedback.ts`
-- Test: `src/components/orders/__tests__/FeedbackForm.test.tsx`
-- E2E: `e2e/feedback.spec.ts`
+**New Feature:**
+- Primary code: `src/components/ui/[feature-name]/`
+- Tests: `src/components/ui/[feature-name]/__tests__/` or co-located `*.test.tsx`
+- Types: `src/types/[feature-name].ts`
+- API endpoints: `src/app/api/[resource]/route.ts`
 
 **New Component/Module:**
-- UI component: `src/components/{feature}/{ComponentName}.tsx`
-- Business logic: `src/lib/services/{domain}.ts`
-- Utilities: `src/lib/utils/{utility}.ts`
-- Hooks: `src/lib/hooks/{use-name}.ts`
-- Tests: Co-locate in `__tests__/` subdirectory
+- Implementation: `src/components/ui/[feature]/ComponentName.tsx`
+- Organized by feature domain (admin, cart, menu, checkout, driver, layout)
+- For complex components: Create subdirectory with index export
 
 **Utilities:**
-- Shared helpers: `src/lib/utils/{concern}.ts` (e.g., `currency.ts`, `date.ts`)
-- Constants: `src/lib/constants/{domain}.ts`
-- Validation: `src/lib/validations/{domain}.ts`
+- Shared helpers: `src/lib/utils/[category].ts`
+- Business logic: `src/lib/services/[service-name].ts`
+- Validation: `src/lib/validations/[resource].ts`
 
-**API Endpoints:**
-- User-facing APIs: `src/app/api/{resource}/route.ts`
-- Admin APIs: `src/app/api/admin/{resource}/route.ts`
-- Webhooks: `src/app/api/webhooks/{service}/route.ts`
-- All routes use `requireAdmin()` or `requireDriver()` for auth
+**New API Endpoint:**
+- RESTful resource: `src/app/api/[resource]/route.ts`
+- Nested resource: `src/app/api/[parent]/[child]/route.ts`
+- Dynamic route: `src/app/api/[resource]/[id]/route.ts`
+
+**New Page:**
+- Public page: `src/app/(public)/[page-name]/page.tsx`
+- Customer page: `src/app/(customer)/[page-name]/page.tsx`
+- Admin page: `src/app/(admin)/admin/[page-name]/page.tsx`
+- Driver page: `src/app/(driver)/driver/[page-name]/page.tsx`
+
+**New State:**
+- Global client state: `src/lib/stores/[feature]-store.ts`
+- Server data fetching: `src/lib/queries/[resource].ts`
+
+**New Integration:**
+- External service: `src/lib/[service-name]/`
+- Example: `src/lib/stripe/`, `src/lib/supabase/`
 
 ## Special Directories
 
-**`src/app/api/admin/`:**
-- Purpose: Admin-only endpoints
-- Protected by: `requireAdmin()` call at start of every handler
-- Pattern: All handlers verify auth, return typed error responses
-- Example: `src/app/api/admin/menu/route.ts` fetches menu items with role check
+**`src/app/contexts/`:**
+- Purpose: React Context providers (legacy pattern)
+- Generated: No
+- Committed: Yes
+- Note: Being phased out in favor of Zustand stores
 
-**`src/components/ui/`:**
-- Purpose: Reusable UI primitives (not feature-specific)
-- Origin: shadcn/ui component library
-- Pattern: Exported from centralized index, composed into feature components
-- Do not edit: These are scaffolded from shadcn; regenerate via `pnpm dlx shadcn-ui@latest add {component}`
+**`.next/`:**
+- Purpose: Next.js build output
+- Generated: Yes (on build)
+- Committed: No (in .gitignore)
 
-**`src/lib/stores/`:**
-- Purpose: Client-side state management using Zustand
-- Current: Only `cart-store.ts` (shopping cart with localStorage persistence)
-- Pattern: Create/persist middleware, export hook (useCartStore)
-- Usage: Called from client components via hooks, never from server routes
+**`node_modules/`:**
+- Purpose: Package dependencies
+- Generated: Yes (on install)
+- Committed: No (in .gitignore)
 
-**`src/lib/queries/`:**
-- Purpose: Server-side data fetching with Suspense support
-- Current: `menu.ts` (fetches all menu data with categories/modifiers)
-- Pattern: Async functions that fetch from Supabase, return typed data
-- Usage: Called from page components wrapped in `<Suspense>`, not from client
+**`.planning/`:**
+- Purpose: Project planning and codebase documentation
+- Generated: Partially (by GSD commands)
+- Committed: Yes
 
-**`.planning/codebase/`:**
-- Purpose: GSD-generated documentation (this file and siblings)
-- Generated: By `/gsd:map-codebase` command
-- Consumed: By `/gsd:plan-phase` and `/gsd:execute-phase` commands
-- Do not edit: Regenerate via GSD when architecture changes
+**`public/`:**
+- Purpose: Static assets served from root
+- Generated: No
+- Committed: Yes
+- Contents: Icons, images, fonts, manifest.json
+
+**`supabase/migrations/`:**
+- Purpose: Database schema migrations
+- Generated: Via Supabase CLI
+- Committed: Yes
+- Note: Sequential numbered migrations
+
+**`.storybook/`:**
+- Purpose: Storybook configuration
+- Generated: No
+- Committed: Yes
+
+**`playwright-report/`, `test-results/`, `storybook-static/`:**
+- Purpose: Test and build artifacts
+- Generated: Yes (on test/build)
+- Committed: No (in .gitignore)
 
 ---
 
-*Structure analysis: 2026-01-21*
+*Structure analysis: 2026-01-30*

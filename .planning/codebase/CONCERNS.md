@@ -1,342 +1,276 @@
 # Codebase Concerns
 
-**Analysis Date:** 2026-01-21
+**Analysis Date:** 2026-01-30
 
 ## Tech Debt
 
-**Version Consolidation Overhead:**
-- Issue: V4/V5/V6/V7 token versioning creates maintenance burden across 1000+ lines of tokens.css
-- Files: `src/styles/tokens.css`, `tailwind.config.ts`, 38+ component files with V7 suffix
-- Impact: Token migration required repeatedly; inconsistent naming increases bugs; migration-validator hook needed
-- Fix approach: Continue consolidation to single version namespace. Deprecate versioned variants in new sprints.
+**Sentry Integration Disabled in Development:**
+- Issue: Sentry client-side instrumentation causes "Maximum update depth exceeded" infinite loop blocking navigation
+- Files: `instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`
+- Impact: No error tracking in development mode, can't debug client-side errors locally, production-only monitoring
+- Fix approach: Wait for @sentry/nextjs compatibility fix for Next.js 16 / React 19, monitor Sentry release notes
 
-**Component Duplication (cards, items):**
-- Issue: ItemCard and MenuItemCard with different aspect ratios (4:3 vs 16:9) create duplicate logic
-- Files: `src/components/menu/ItemCard.tsx`, `src/components/menu/MenuItemCard.tsx`
-- Impact: Bug fixes must be applied to both; diverging behaviors cause user confusion
-- Fix approach: Merge into single ItemCard with `variant` prop; apply in next component audit sprint
+**In-Memory Rate Limiting Not Production-Ready:**
+- Issue: Rate limiter uses Map-based in-memory store, won't work across multiple server instances
+- Files: `src/lib/utils/rate-limit.ts`
+- Impact: Rate limits reset on server restart, can be bypassed with multiple requests to different instances, memory accumulation over time
+- Fix approach: Replace with Redis or Upstash for distributed state, add IP-based fallback, implement proper cleanup
 
-**Large Component Files (>600 lines):**
-- Files exceeding single-responsibility:
-  - `src/components/ui/FormValidation.tsx` (1031 lines) - Form state + validation + rendering
-  - `src/components/cart/CartAnimations.tsx` (919 lines) - Cart logic + animation variants + state
-  - `src/components/ui/TabSwitcher.tsx` (790 lines) - Tab navigation + swipe + animations
-  - `src/components/ui/Modal.tsx` (733 lines) - Modal + overlay + animations
-  - `src/components/admin/RouteOptimization.tsx` (732 lines) - Route logic + UI + maps
-- Impact: Hard to test; cognitive overload during reviews; refactoring risky
-- Fix approach: Split into domain-focused modules (e.g., CartState + CartUI + CartAnimations)
+**Large Component Files:**
+- Issue: Multiple components exceed 500+ lines, some exceed 1000 lines
+- Files: `src/components/ui/FormValidation.tsx` (1031 lines), `src/lib/motion-tokens.ts` (927 lines), `src/components/ui/homepage/HowItWorksSection.tsx` (873 lines), `src/components/ui/Modal.tsx` (719 lines), `src/lib/swipe-gestures.ts` (687 lines)
+- Impact: Harder to maintain, test, and reason about; increases cognitive load; violates project convention of <400 lines
+- Fix approach: Split into smaller modules using composition patterns (extract sub-components, hooks, utilities)
 
-**Missing A/B Testing Infrastructure (half-implemented):**
-- Issue: A/B test system in `src/lib/ab-testing.ts` hardcoded to sessionStorage/localStorage; no experiment tracking backend
-- Files: `src/lib/ab-testing.ts`, debug console.log statements left in
-- Impact: Experiments forced manually for debugging; no analytics pipeline; can't run production tests
-- Fix approach: Connect to analytics service (Segment/Mixpanel) for experiment tracking; remove debug logs
+**setTimeout/setInterval Cleanup Pattern Not Enforced:**
+- Issue: Many files recently fixed for missing timeout cleanup, but pattern not enforced at lint/build time
+- Files: Recent fixes in 15+ components (see ERROR_HISTORY.md entries from 2026-01-29 to 2026-01-30)
+- Impact: New code may introduce same mobile crash bugs, no automated detection
+- Fix approach: Create ESLint rule to detect setTimeout/setInterval without cleanup, add to CI pipeline
 
----
+**TypeScript `any` Usage:**
+- Issue: 29 instances of `any` type across 21 files
+- Files: `src/app/(customer)/checkout/page.tsx`, `src/app/(admin)/admin/menu/page.tsx`, `src/lib/webgl/gradients.ts`, `src/lib/hooks/useCart.ts`, and 17 others
+- Impact: Type safety bypassed, potential runtime errors not caught at compile time
+- Fix approach: Audit each usage, replace with proper types or `unknown` with type guards
+
+**Console Logs in Production Code:**
+- Issue: 30 console.log/warn/error statements across 19 files
+- Files: `src/lib/web-vitals.tsx`, `src/lib/services/route-optimization.ts`, `src/lib/services/geocoding.ts`, `src/lib/stores/cart-store.ts`, and 15 others
+- Impact: Some survive next.config.ts removeConsole filter (errors/warns excluded), leak internal state to production console
+- Fix approach: Replace with proper logger utility (`src/lib/utils/logger.ts` exists), enforce via ESLint rule
+
+**Missing Google Maps Map ID:**
+- Issue: AdvancedMarkerElement requires Map ID but not configured in all environments
+- Files: `src/components/ui/orders/tracking/DeliveryMap.tsx`, `src/components/ui/homepage/HowItWorksSection.tsx`, `src/components/ui/coverage/CoverageRouteMap.tsx`
+- Impact: Falls back to legacy Marker API, can't use vector maps or custom HTML markers, console warnings in production
+- Fix approach: Add NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID to .env.example, document in setup guide, add validation check
 
 ## Known Bugs
 
-**Tracking Route ID Missing:**
-- Symptoms: Real-time driver location updates don't filter by route; all route updates are received
-- Files: `src/components/tracking/TrackingPageClient.tsx` (line 50 TODO comment)
-- Trigger: Open any order tracking page; location updates come from wrong routes
-- Workaround: Still works but inefficient; extra server round trips
-- Fix: Extract `route_id` from initial `routeStop` data; pass to `useTrackingSubscription`
+**Route ID Extraction Missing:**
+- Symptoms: Tracking page can't extract route_id from routeStop
+- Files: `src/components/ui/orders/tracking/TrackingPageClient.tsx:51`
+- Trigger: Order tracking when routeStop doesn't contain route_id field
+- Workaround: TODO comment indicates feature not implemented yet
 
-**Mobile Menu State Persistence Across Routes:**
-- Symptoms: Mobile menu remains open when navigating between pages; backdrop blocks clicks
-- Files: `src/components/layout/HeaderClient.tsx` (header state), `src/app/(public)/page.tsx` (homepage context)
-- Trigger: Open mobile menu, navigate to `/menu`, try to click items
-- Workaround: Close menu manually or refresh page
-- Fix: Add `useEffect` to reset `isMobileMenuOpen` when `pathname` changes
+**Dropdown Close on Item Click (Fixed but Fragile):**
+- Symptoms: Clicking dropdown items closes menu before action fires
+- Files: `src/components/ui/dropdown-menu.tsx`
+- Trigger: Fast click on menu items
+- Workaround: Fixed with mousedown handler and click-outside ref wrapping entire dropdown, but pattern could regress
 
-**PriceTicker Cent-to-Dollar Display Bug:**
-- Symptoms: Cart and checkout display prices as $1299 instead of $12.99
-- Files: `src/components/cart/CartDrawer.tsx` (line 233), `src/components/cart/CartItem.tsx` (line 375)
-- Trigger: Add items to cart; view cart drawer
-- Workaround: None visible to user; prices appear wrong
-- Fix: Add `inCents={true}` prop to PriceTicker components using cent-denominated values
-
-**DropdownAction preventDefault() Blocks Redirects:**
-- Symptoms: Signout button in user dropdown shows loading but doesn't redirect
-- Files: `src/components/ui/DropdownAction.tsx` (onSelect handler)
-- Trigger: Click signout in header dropdown menu
-- Workaround: Log out via API directly or refresh page
-- Fix: Remove `event.preventDefault()` from onSelect handler; let menu close naturally and redirect
-
-**Form Autocomplete Glass Background (PlacesAutocomplete):**
-- Symptoms: Autocomplete dropdown has transparent glass background; text hard to read on light backgrounds
-- Files: `src/components/checkout/AddressInput.tsx` (dropdown className)
-- Trigger: Type in address field on checkout page
-- Workaround: Can still see results if contrast is sufficient
-- Fix: Replace `glass` class with solid background: `bg-[var(--color-surface-primary)] border border-border`
-
-**Favorites State Not Persisting:**
-- Symptoms: Heart icon clicked on menu items; favorites lost on page refresh
-- Files: `src/components/homepage/HomepageMenuSection.tsx` (local useState), `src/components/menu/menu-content.tsx` (no favorite wiring)
-- Trigger: Add favorite, refresh page
-- Workaround: None
-- Fix: Create `useFavoritesStore` with Zustand + localStorage persistence; wire to both components
-
----
+**Mobile Scroll Lock Still Has Edge Cases:**
+- Symptoms: Occasional crash/reload when rapidly opening/closing nested overlays
+- Files: `src/lib/hooks/useBodyScrollLock.ts`, multiple modal/drawer components
+- Trigger: Rapidly toggle nested modals (modal inside drawer, item detail inside cart)
+- Workaround: useBodyScrollLock now tracks global lock count and defers restore, but timing-sensitive
 
 ## Security Considerations
 
-**Supabase RLS Bypasses in Webhooks:**
-- Risk: Stripe webhook updates orders using `createClient()` (anon key) would fail; mitigated by using `createServiceClient()`
-- Files: `src/app/api/webhooks/stripe/route.ts`, `src/lib/supabase/server.ts`
-- Current mitigation: Service role client used for webhook handler (correct)
-- Recommendations: Audit all webhook handlers for service client usage; ensure no anon key usage in webhooks
+**Service Role Key Exposure Risk:**
+- Risk: SUPABASE_SERVICE_ROLE_KEY bypasses Row Level Security, could expose all data
+- Files: `.env.example`, server-side API routes
+- Current mitigation: Only used server-side, never in NEXT_PUBLIC_ vars, documented in .env.example
+- Recommendations: Audit all usages, ensure never sent to client, consider rotating periodically
 
-**Window Location Redirects Without Validation:**
-- Risk: Direct `window.location.href` assignments to URLs from API responses (Stripe)
-- Files: `src/components/checkout/PaymentStep.tsx` (line with Stripe URL), `src/components/orders/PendingOrderActions.tsx`
-- Current mitigation: Only used for known safe URLs (Stripe checkout, tel: links)
-- Recommendations: Create safe redirect utility that validates URL origin; use Next.js `router.push()` for internal navigation
+**Secrets in Environment Files:**
+- Risk: .env.local contains actual secrets, could be committed accidentally
+- Files: `.env`, `.env.local` (git-ignored but present on disk)
+- Current mitigation: .gitignore excludes .env.local, .env.example shows template
+- Recommendations: Add pre-commit hook to scan for secrets, use encrypted secrets manager for team sharing
 
-**Console Logs in Production:**
-- Risk: Debug info exposed (A/B test assignments, order reordering, location selections)
-- Files: `src/lib/ab-testing.ts`, `src/components/admin/OrderManagement.tsx`, `src/components/checkout/AddressInput.tsx`, `src/components/menu/ItemDetail.tsx`
-- Current mitigation: Only in development environments locally
-- Recommendations: Remove all console.log statements; use proper logging service (Sentry) for errors only
+**Google Maps API Key:**
+- Risk: GOOGLE_MAPS_API_KEY is public (exposed to client), could be scraped and abused
+- Files: `.env.example`, Google Maps components
+- Current mitigation: Should have domain restrictions in Google Cloud Console
+- Recommendations: Document API key restrictions setup, add HTTP referrer restrictions, monitor usage quotas
 
-**localStorage Direct Access for Sensitive State:**
-- Risk: High-contrast mode and A/B test overrides stored in localStorage unencrypted
-- Files: `src/components/layouts/DriverLayout.tsx`, `src/contexts/DriverContrastContext.tsx`, `src/lib/ab-testing.ts`
-- Current mitigation: Non-sensitive preferences; not user auth data
-- Recommendations: For A/B overrides, move to server-side session; high-contrast can remain client-side
+**Stripe Webhook Secret:**
+- Risk: If STRIPE_WEBHOOK_SECRET leaked, attacker could forge payment events
+- Files: `.env.example`, webhook handler
+- Current mitigation: Not exposed to client, only server-side
+- Recommendations: Rotate on any suspected compromise, use Stripe CLI secret for local dev only
 
----
+**Dangerously Allow SVG:**
+- Risk: next.config.ts enables dangerouslyAllowSVG which could allow XSS via SVG files
+- Files: `next.config.ts:37`
+- Current mitigation: CSP sandbox policy applied, content-disposition attachment
+- Recommendations: Validate SVG sources, consider disabling if not needed, keep CSP strict
 
 ## Performance Bottlenecks
 
-**Cart Animations Rendering Inefficiency:**
-- Problem: 919-line CartAnimations.tsx combines all animation variants; every cart change re-renders all animation logic
-- Files: `src/components/cart/CartAnimations.tsx`, `src/components/cart/CartItem.tsx`
-- Cause: Single component manages add-to-cart, swipe, and quantity animations; no fine-grained memoization
-- Improvement path: Split animations into separate hooks; wrap CartItem in memo() with animation props only
+**Large Bundle Size from Heavy Components:**
+- Problem: HowItWorksSection includes Google Maps (369KB), loads synchronously even when below fold
+- Files: `src/components/ui/homepage/HowItWorksSection.tsx` (873 lines), Google Maps integration
+- Cause: No lazy loading for below-fold heavy components
+- Improvement path: Already wrapped in React.lazy() per LEARNINGS.md, verify it's applied consistently, consider IntersectionObserver for maps
 
-**Large Form Validation Component:**
-- Problem: 1031-line FormValidation.tsx re-validates entire form on every keystroke
-- Files: `src/components/ui/FormValidation.tsx`
-- Cause: All validation rules in single component; no debouncing or lazy validation
-- Improvement path: Extract validation logic to hook; debounce in input handlers; lazy-validate on blur only
+**Framer Motion willChange Always Applied:**
+- Problem: Multiple menu cards with `willChange: "transform"` create GPU memory pressure
+- Files: `src/components/ui/menu/UnifiedMenuItemCard/*.tsx`, GSAP-animated components
+- Cause: Static willChange creates compositor layers even when not animating
+- Improvement path: Apply willChange conditionally on hover/interaction only (pattern in LEARNINGS.md)
 
-**Admin Dashboard Analytics Queries:**
-- Problem: DeliveryMetricsDashboard and DriverAnalyticsDashboard make 3-4 sequential API calls on page load
-- Files: `src/app/(admin)/admin/analytics/delivery/DeliveryMetricsDashboard.tsx`, `src/app/(admin)/admin/analytics/drivers/DriverAnalyticsDashboard.tsx`
-- Cause: No query batching; parallel requests but slow network = waterfall
-- Improvement path: Create batch API endpoint for analytics; use React Query or SWR for caching
+**setInterval Animations Run Off-Screen:**
+- Problem: Animation intervals continue when elements not visible (CPU/battery waste)
+- Files: `src/components/ui/homepage/HowItWorksSection.tsx`, pulsing animations in maps
+- Cause: No visibility detection for repeating animations
+- Improvement path: Add IntersectionObserver to pause animations when off-screen (pattern in LEARNINGS.md 2026-01-29)
 
-**Real-Time Tracking Subscription Overhead:**
-- Problem: Tracking page subscribes to both order and route stop channels; location updates can come separately
-- Files: `src/components/tracking/TrackingPageClient.tsx`, `src/lib/hooks/useTrackingSubscription.ts`
-- Cause: Route ID not tracked; all route location updates received even for other deliveries
-- Improvement path: Extract route_id from routeStop; filter subscriptions by route_id; use single update channel
+**Multiple Overlay Implementations:**
+- Problem: 6 separate drawer/modal implementations (Drawer, MobileDrawer, Modal, AuthModal, ExceptionModal, Dialog)
+- Files: `src/components/ui/Drawer.tsx`, `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx`, `src/components/ui/Modal.tsx`, `src/components/ui/auth/AuthModal.tsx`, driver exception modal, Radix Dialog
+- Cause: Intentional architecture per LEARNINGS.md - each serves specific use case
+- Improvement path: NOT a concern - this is correct architecture. Shared hooks (useBodyScrollLock, useSwipeToClose) prevent duplication
 
----
+**WebGL Fallback Code:**
+- Problem: WebGL gradient system has fallback CSS with potential hardcoded values
+- Files: `src/lib/webgl/gradients.ts`
+- Cause: Fallback path for unsupported browsers may not use design tokens
+- Improvement path: Audit fallback inline styles for token violations, ensure theme-aware
 
 ## Fragile Areas
 
-**Checkout Flow Type Inconsistencies:**
-- Files: `src/components/layouts/CheckoutLayout.tsx`, `src/lib/stores/checkout-store.ts`, `src/types/checkout.ts`
-- Why fragile: Step counts and step names differ between layout (4) and store (3); adds confusion during refactors
-- Safe modification: Export canonical CheckoutStep type from types/checkout.ts; import everywhere; run typecheck after changes
-- Test coverage: Checkout flow tests limited; manual E2E required after step changes
+**AnimatePresence + Scroll Lock Cleanup Timing:**
+- Files: `src/lib/hooks/useBodyScrollLock.ts`, all modal/drawer components using exit animations
+- Why fragile: Scroll operations during exit animation cause iOS Safari crashes; requires precise timing with onExitComplete
+- Safe modification: Always use deferRestore option, test on actual iOS devices (not Chrome emulator), never call scrollTo during animation
+- Test coverage: No automated E2E tests for scroll lock cleanup timing
 
-**Dynamic Route Slug Names:**
-- Files: `src/app/api/orders/[id]/`, `src/app/api/orders/[id]/rating/`
-- Why fragile: Next.js enforces single slug naming across sibling directories; mismatch causes build failures
-- Safe modification: Ensure all dynamic routes use consistent parameter names (e.g., `[id]` not `[orderId]`); test build after adds
-- Test coverage: Build-time check only; no runtime tests
+**Event Listener Accumulation Pattern:**
+- Files: `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx`, any component with isOpen in useCallback dependencies
+- Why fragile: useCallback with state dependencies changes function reference, listeners accumulate if not defined inside useEffect
+- Safe modification: Define handlers inside useEffect with guard clause, never use useCallback for addEventListener handlers with state deps
+- Test coverage: Requires manual testing with multiple open/close cycles
 
-**Tests Coupled to CSS Classes:**
-- Files: `src/components/menu/menu-content.test.tsx` (uses `.closest("[class*='opacity-60']")`)
-- Why fragile: Test fails when styling refactored (e.g., opacity-60 → opacity-70); class-based selectors unmaintainable
-- Safe modification: Use data-testid attributes instead of class selectors; test behavior not implementation
-- Test coverage: Re-evaluate test strategy after refactoring; add data attributes for state testing
+**Framer Motion + 3D Transform Conflicts:**
+- Files: `src/components/ui/menu/UnifiedMenuItemCard/*.tsx`, components with preserve-3d tilt effects
+- Why fragile: whileHover scale + 3D transforms create stacking context conflicts causing flicker
+- Safe modification: Disable scale when using 3D tilt, or disable tilt on low-end devices
+- Test coverage: Visual regression tests exist but may not catch flicker on all devices
 
-**V7 Component Barrel Export Chain:**
-- Files: `src/components/ui/v7-index.ts`, `src/components/layouts/v7-index.ts`, individual component files
-- Why fragile: 38 components renamed; barrel exports reference both old and new names; missed updates break imports
-- Safe modification: After bulk renames, verify all barrel exports with `pnpm typecheck`; search for old export names before deleting files
-- Test coverage: Typecheck runs at build time; no ESLint rule catches unused exports
+**Portal-Rendered Dropdowns:**
+- Files: `src/components/ui/menu/SearchAutocomplete.tsx`, components using createPortal for escape hatches
+- Why fragile: Position tracking requires manual getBoundingClientRect and scroll offset calculation
+- Safe modification: Use inline styles with CSS variables for guaranteed application, track position in useEffect
+- Test coverage: E2E tests for basic functionality, but edge cases (parent transform, iframe) not covered
 
-**Zustand Store Initialization in Components:**
-- Files: `src/lib/hooks/useCart.ts`, other store-based hooks
-- Why fragile: Store initialized lazily on first hook call; SSR/hydration mismatches possible if stores accessed differently
-- Safe modification: Initialize all stores at app root in providers.tsx; test SSR rendering with stores
-- Test coverage: SSR hydration tests missing; manual Vercel deployment testing only
-
----
+**Route Optimization Algorithm:**
+- Files: `src/lib/services/route-optimization.ts`
+- Why fragile: Complex traveling salesman approximation, could have edge cases with overlapping coordinates
+- Safe modification: Add extensive logging, test with real-world address sets, validate output manually
+- Test coverage: Limited unit tests, needs property-based testing
 
 ## Scaling Limits
 
-**Supabase Real-Time Subscriptions (Current):**
-- Current capacity: 100+ concurrent users each subscribing to order + route + location channels = 300+ channels
-- Limit: Supabase free tier supports ~100 concurrent connections; beyond that = connection drops
-- Scaling path: Migrate to Supabase Pro ($25/mo) or implement local state polling for non-critical updates
+**In-Memory Cart Store:**
+- Current capacity: Single browser session, lost on refresh
+- Limit: Can't sync across devices, doesn't persist
+- Scaling path: Add Supabase persistence with sync, implement optimistic updates
 
-**Admin Dashboard Analytics Data Size:**
-- Current capacity: 10,000 orders/month displays instantly
-- Limit: 100,000+ orders/month = multi-second query times; browser memory issues with large result sets
-- Scaling path: Implement server-side pagination; aggregate old data into daily summaries; use time-range filters
+**Rate Limiter Map-Based Store:**
+- Current capacity: Single server instance, unbounded growth
+- Limit: Memory leak potential, resets on server restart, 5-minute cleanup interval may be too slow under load
+- Scaling path: Replace with Redis or Upstash, implement sliding window algorithm, add monitoring
 
-**A/B Testing localStorage:**
-- Current capacity: ~50 KB of JSON in localStorage (experiment configs + overrides)
-- Limit: Browser localStorage limit ~5-10 MB; other apps/extensions also use storage
-- Scaling path: Move experiment config to CDN or server-side; keep only assignment in localStorage
+**Google Maps API Usage:**
+- Current capacity: Unknown quota, no monitoring
+- Limit: Could hit daily request limits with traffic growth
+- Scaling path: Add usage tracking, implement client-side caching, batch geocoding requests
 
----
+**Supabase Connection Pool:**
+- Current capacity: Default Supabase project limits
+- Limit: May exhaust connections under high concurrent load
+- Scaling path: Monitor connection metrics, implement connection pooling with PgBouncer, upgrade plan
 
 ## Dependencies at Risk
 
-**@conform-to/react Form Validation (v1.x):**
-- Risk: Conform uses older React patterns; latest Next.js 16 has subtle hook incompatibilities
-- Impact: Form submission may fail silently during major Next.js upgrades
-- Migration plan: Monitor React Hook Form as lighter alternative; maintain form validation tests for easy swap
+**@sentry/nextjs Compatibility:**
+- Risk: Currently disabled in dev due to Next.js 16 / React 19 incompatibility causing infinite loops
+- Impact: No error tracking in development, can't test Sentry integration locally
+- Migration plan: Monitor Sentry releases for Next.js 16 compatibility, re-enable when fixed, test thoroughly
 
-**Framer Motion v11+ (Type Safety):**
-- Risk: Motion value typing changed in v11; `useTransform` returns complex union types that don't match `MotionValue<T>`
-- Impact: Type errors when passing motion values as props; casting required
-- Migration plan: Use `MotionValue<number>` from framer-motion package for prop types; avoid TypeScript inference
+**Framer Motion on React 19:**
+- Risk: Framer Motion heavily used (200+ files), React 19 may introduce breaking changes
+- Impact: Animation system could break, core UX affected
+- Migration plan: Pin Framer Motion version, monitor release notes, test animations thoroughly on major FM updates
 
-**Supabase Client (JWT Expiration):**
-- Risk: Client JWT refreshes automatically but can fail silently in offline scenarios
-- Impact: Users see "unauthorized" after ~1 hour of inactivity; no clear error message
-- Migration plan: Implement JWT refresh error handling; show login prompt; test offline scenarios
+**Google Maps API Deprecations:**
+- Risk: Using legacy Marker API as fallback when Map ID not provided
+- Impact: Legacy API could be deprecated, maps would break
+- Migration plan: Complete migration to AdvancedMarkerElement by adding Map IDs to all environments
 
-**Next.js 16 Middleware Streaming:**
-- Risk: Middleware streaming requests can cause timeout on slow networks
-- Impact: Slow clients timeout before response completes
-- Migration plan: Set appropriate timeout headers; test on 3G networks; consider disabling streaming for critical paths
-
----
+**TailwindCSS v4 Still New:**
+- Risk: v4 has different behavior than v3 (z-index, content scanning, @theme inline), may have undiscovered issues
+- Impact: Already encountered multiple issues (see ERROR_HISTORY.md z-index entries)
+- Migration plan: Monitor Tailwind issues, document workarounds, consider staying on v4 LTS when available
 
 ## Missing Critical Features
 
-**Route ID Tracking for Real-Time Updates:**
-- Problem: Driver location updates come from all active routes; no filtering by current order's route
-- Blocks: Efficient real-time tracking; accurate ETA calculations; multi-delivery order batching
-- Priority: **Medium** - Works but inefficient; affects driver app performance under load
+**No Offline Support for Menu:**
+- Problem: Menu data requires network, unavailable offline
+- Blocks: Can't browse menu without connection, poor mobile experience in weak signal
+- Priority: Medium - affects UX but not core checkout
 
-**Batch Analytics API:**
-- Problem: Admin dashboard makes 3-4 sequential API calls for metrics; no cache reuse
-- Blocks: Loading times acceptable for admin but problematic as metrics scale; can't pre-aggregate
-- Priority: **Medium** - Admin features; doesn't block customer usage
+**No PWA Installation:**
+- Problem: No manifest.json or service worker for installable app
+- Blocks: Can't install to home screen, no offline capabilities
+- Priority: Medium - nice-to-have for mobile-first experience
 
-**Experiment Assignment Backend:**
-- Problem: A/B testing fully client-side; no server to track assignments persistently
-- Blocks: Multi-device consistent experiment experience; analytics pipeline integration; audit trails
-- Priority: **Low** - Current system works for MVP; needed for production scale
+**No Real-Time Order Updates Client-Side:**
+- Problem: Order tracking requires manual refresh
+- Blocks: Customer doesn't see live driver location updates
+- Priority: High - core feature for delivery tracking UX
 
-**Image Optimization (Menu Items):**
-- Problem: Menu item images fetched from API without resizing; large photos loaded for small thumbnails
-- Blocks: Performance on slow networks; high bandwidth costs; can't show different sizes per device
-- Priority: **Medium** - Noticeable on mobile; implement Next.js Image component with srcSet
+**No Automated Accessibility Testing:**
+- Problem: No axe or other a11y tests in CI
+- Blocks: Accessibility regressions could ship unnoticed
+- Priority: Medium - have manual a11y testing but not automated
 
-**Offline Support:**
-- Problem: App requires internet; cart lost on disconnect
-- Blocks: Service worker caching; PWA features; limited connectivity scenarios
-- Priority: **Low** - Not required for MVP; consider for future roadmap
-
----
+**No Error Boundary Fallbacks:**
+- Problem: Limited error boundaries, crashes could show blank page
+- Blocks: Poor UX when components throw errors
+- Priority: High - affects recovery from runtime errors
 
 ## Test Coverage Gaps
 
-**Tracking Subscription Reliability:**
-- What's not tested: Edge cases in `useTrackingSubscription` - connection drops, reconnects, stale data
-- Files: `src/lib/hooks/useTrackingSubscription.ts`
-- Risk: Real-time tracking silently stops updating; user doesn't know driver location is stale
-- Priority: **High** - Critical user flow
+**Mobile Crash Scenarios:**
+- What's not tested: Rapid open/close of overlays, setTimeout cleanup, event listener cleanup
+- Files: `src/lib/hooks/useBodyScrollLock.ts`, `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx`, all modal/drawer components
+- Risk: Recent wave of mobile crash fixes (2026-01-29 to 2026-01-30) indicates fragile patterns
+- Priority: High - affects core mobile UX
 
-**Checkout Flow Step Progression:**
-- What's not tested: Valid step transitions; prevention of skipping steps; backward navigation
-- Files: `src/components/layouts/CheckoutLayout.tsx`, `src/lib/stores/checkout-store.ts`
-- Risk: Users stuck on payment step; bypass security validation
-- Priority: **High** - Money flow critical
+**Animation Exit Timing:**
+- What's not tested: AnimatePresence onExitComplete callbacks, scroll restore timing, iOS Safari specific behavior
+- Files: All components using AnimatePresence with scroll lock
+- Risk: Timing-sensitive code prone to regression
+- Priority: High - crashes are user-facing
 
-**Form Validation Edge Cases:**
-- What's not tested: Complex modifier groups; optional vs required; quantity limits
-- Files: `src/components/ui/FormValidation.tsx`
-- Risk: Invalid orders submitted; incorrect charges
-- Priority: **High** - Data integrity
+**Rate Limiting:**
+- What's not tested: Rate limiter cleanup, memory growth over time, expired entry cleanup
+- Files: `src/lib/utils/rate-limit.ts`
+- Risk: Memory leak potential in production
+- Priority: Medium - only 18 test files total in codebase
 
-**Mobile Gesture Handling:**
-- What's not tested: Swipe-to-delete on slow devices; multiple rapid swipes; landscape orientation changes
-- Files: `src/lib/swipe-gestures.ts`, `src/components/cart/CartItem.tsx`
-- Risk: Accidental deletions; gesture lag; loss of undo
-- Priority: **Medium** - UX but not critical
+**Server Actions with redirect():**
+- What's not tested: Server actions that call redirect() with various error handling patterns
+- Files: Components using server actions (signout, form submissions)
+- Risk: NEXT_REDIRECT swallowing documented in ERROR_HISTORY.md, could regress
+- Priority: Medium - affects auth flows
 
-**Admin Route Optimization:**
-- What's not tested: Algorithm correctness; edge cases (1 order, 100+ orders, no-route scenarios)
-- Files: `src/app/api/admin/routes/optimize/route.ts`, `src/components/admin/RouteOptimization.tsx`
-- Risk: Routes inefficient or impossible to execute; drivers overloaded
-- Priority: **High** - Operations dependent
+**WebGL Fallback Paths:**
+- What's not tested: WebGL gradient system fallback code, token compliance in fallback CSS
+- Files: `src/lib/webgl/gradients.ts`
+- Risk: Fallback code may have hardcoded values that break theming
+- Priority: Low - affects unsupported browsers only
 
-**Analytics Query Performance:**
-- What's not tested: Large data sets (100K orders); slow network conditions; cancellation
-- Files: `src/app/(admin)/admin/analytics/*/`, API endpoints
-- Risk: Admin dashboards timeout; no error recovery
-- Priority: **Medium** - Admin experience
-
-**Error Recovery Paths:**
-- What's not tested: Network failures during checkout; Stripe webhook failures; Supabase outages
-- Files: `src/app/api/checkout/session/route.ts`, `src/app/api/webhooks/stripe/route.ts`
-- Risk: Orders stuck in pending; payment issues unresolved; silent failures
-- Priority: **Critical** - Money flow depends on this
+**Portal Positioning Edge Cases:**
+- What's not tested: Dropdown positioning when parent has transforms, inside iframes, with page scroll
+- Files: `src/components/ui/menu/SearchAutocomplete.tsx`, portal-rendered components
+- Risk: Dropdowns could be mispositioned in edge cases
+- Priority: Low - basic positioning works
 
 ---
 
-## Lint & Type Issues
-
-**Unused Imports (213+ warnings):**
-- Issue: V7 components have unused Lucide icons, React utilities, and Framer Motion imports
-- Files: 38+ component files, primarily V7-suffix components
-- Root cause: Features planned but not implemented (Sparkles, PartyPopper for celebrations; Share2, Download)
-- Impact: Noise in typecheck; indicators of incomplete UX
-- Fix: Remove unused imports OR implement intended features; treat as feature gap checklist
-
-**No-Unused-Vars ESLint Configuration:**
-- Issue: Underscore convention (`_unused`) not recognized by ESLint no-unused-vars rule
-- Files: `eslint.config.mjs`
-- Fix: Add `argsIgnorePattern: "^_"` to rule configuration
-
-**Hardcoded Colors & Z-Index Values:**
-- Issue: 50+ instances of arbitrary Tailwind classes like `z-[60]`, `bg-[#FF5733]`
-- Files: Component files across all domains
-- Root cause: Design token system incomplete; easier to hardcode than look up tokens
-- Impact: Cannot enforce design consistency; difficult to theme changes
-- Fix: ESLint `no-restricted-syntax` rule with regex patterns catches new violations; audit and fix existing
-
-**Type Safety with Any/Unknown:**
-- Issue: 20+ uses of `Record<string, unknown>` and `any` in admin routes
-- Files: `src/app/api/admin/drivers/[id]/route.ts`, analytics routes
-- Root cause: Dynamic object updates; flexible but unsafe
-- Impact: Type errors missed at build time; runtime failures possible
-- Fix: Create strict types for each update payload; validate with Zod or similar
-
----
-
-## Deployment & CI/CD Issues
-
-**Vitest 4 Worker Hangs on CI:**
-- Issue: Tests pass but process never exits; CI timeout after 5 minutes
-- Files: `package.json` test:ci script, GitHub Actions workflow
-- Root cause: Vitest 4 worker threads don't clean up after completion
-- Workaround: Use timeout wrapper; accept exit code 124 as success
-- Fix: Upgrade to Vitest 5+ when available; or use `--no-file-parallelism` flag
-
-**ESLint Flat Config Ignores Missing:**
-- Issue: `.eslintignore` file deprecated; ESLint shows warnings
-- Files: `.eslintignore`, `eslint.config.mjs`
-- Fix: Move ignores to flat config; delete `.eslintignore`
-
-**Next.js 16 Instrumentation Setup:**
-- Issue: Sentry requires `instrumentation-client.ts` for Next.js 16; old config doesn't work
-- Files: `src/instrumentation-client.ts`, `sentry.server.config.ts`
-- Status: Fixed but ensure on production deployment
-
----
-
-*Concerns audit: 2026-01-21*
+*Concerns audit: 2026-01-30*

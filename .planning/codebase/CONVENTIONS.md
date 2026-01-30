@@ -1,291 +1,224 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-01-21
+**Analysis Date:** 2026-01-30
 
 ## Naming Patterns
 
 **Files:**
-- PascalCase for React components: `LoginForm.tsx`, `MenuContent.tsx`
-- camelCase for utility functions: `useCart.ts`, `geocoding.ts`
-- camelCase for hooks: `useAnimationPreference.ts`, `useResponsive.ts`
-- kebab-case for test files: `login-form.test.tsx`, `cart-store.test.ts`
-- UPPERCASE constants: `MAX_ITEM_QUANTITY`, `DELIVERY_FEE_CENTS`
-- Index files for barrel exports: `src/lib/hooks/index.ts`, `src/lib/auth/index.ts`
+- Components: PascalCase with `.tsx` extension (`Button.tsx`, `LoginForm.tsx`, `CartDrawer.tsx`)
+- Utilities/logic: kebab-case with `.ts` extension (`format.ts`, `eta.ts`, `delivery-dates.ts`)
+- Test files: co-located in `__tests__/` directories with `.test.ts` or `.test.tsx` suffix
+- E2E specs: kebab-case with `.spec.ts` in `e2e/` directory (`happy-path.spec.ts`, `checkout-flow.spec.ts`)
+- API routes: `route.ts` in directory structure matching endpoint (`src/app/api/checkout/session/route.ts`)
 
 **Functions:**
-- camelCase naming: `getNextSaturday()`, `calculateTrendPercentage()`, `formatPrice()`
-- Verb-first for functions that perform actions: `validateStopsForOptimization()`, `transformDriverStats()`
-- Query-style for data accessors: `getItemsSubtotal()`, `getEstimatedDeliveryFee()`
-- Function parameters are camelCase
-- Event handlers prefixed with `handle`: `handleSubmit()`, `handleChange()`
+- Exported utilities: camelCase (`formatPrice`, `createItemSignature`, `shouldDebounce`)
+- React components: PascalCase (`Button`, `LoginForm`, `MenuCardWrapper`)
+- Hooks: camelCase with `use` prefix (`useAnimationPreference`, `useCartStore`, `useTrackingSubscription`)
+- Event handlers: camelCase with `handle` prefix (`handleSubmit`, `handleClick`)
 
 **Variables:**
-- camelCase for all variables: `const baseItem`, `let preference`, `const newItem`
-- Underscore-prefixed variables (_) for intentionally unused parameters (allowed via ESLint config)
-- const by default, let only when mutation needed
-- Descriptive names: `formatValue`, `sanitizedNodeOptions`, `isHydrated`
+- Constants: UPPER_SNAKE_CASE (`DELIVERY_FEE_CENTS`, `MAX_ITEM_QUANTITY`, `DEBOUNCE_MS`, `STORAGE_KEY`)
+- Regular variables: camelCase (`buttonContent`, `isDisabled`, `validBody`)
+- Private/internal: underscore prefix for unused destructured vars (`_addressId`)
 
 **Types:**
-- PascalCase for types and interfaces: `CartStore`, `ChartDataPoint`, `MenuCategory`
-- Interface prefix removed (don't use `ICartStore`): `type SubmitButtonProps`
-- Suffixed with `Props` for component props: `ChartsProps`, `MenuItemProps`
-- Suffixed with `Row` for database rows: `MenuItemsRow`, `ModifierOptionsRow`
-- Suffixed with `Schema` for validation schemas: `createCheckoutSessionSchema`, `driverAnalyticsQuerySchema`
-- Enum values in SCREAMING_SNAKE_CASE when appropriate
+- Interfaces/Types: PascalCase (`ButtonProps`, `AnimationPreference`, `CartItem`, `MenuItemsRow`)
+- Type suffixes: `Props` for component props, `Store` for Zustand stores, `Row` for database types
 
 ## Code Style
 
 **Formatting:**
-- Tool: Prettier
-- Print width: 100 characters
-- Single quotes: false (use double quotes)
-- Semicolons: true
-- Trailing commas: es5 (objects/arrays trailing comma, function params no comma)
+- Tool: Prettier 3.7.4
+- Config: `.prettierrc`
+  - Double quotes (`"singleQuote": false`)
+  - Semicolons required (`"semi": true`)
+  - Print width: 100 characters
+  - Trailing commas: ES5 style (`"trailingComma": "es5"`)
 
 **Linting:**
-- Tool: ESLint with FlatConfig format
-- Extends: `next/core-web-vitals`, `next/typescript`, `prettier`
-- Unused variables warning with exceptions for `_`-prefixed vars
-- Design token enforcement for z-index and colors in component/page files
+- Tool: ESLint 9 (flat config)
+- Config: `eslint.config.mjs`
+- Base: Next.js core-web-vitals + TypeScript + Prettier integration
+- Key rules:
+  - `@typescript-eslint/no-unused-vars`: warn with ignore pattern `^_` for unused params
+  - `no-restricted-imports`: error for consolidated directories (prevents imports from old paths like `@/components/ui-v8/*`)
+  - `no-restricted-syntax`: error for design token violations (hardcoded colors, z-index, spacing, typography)
 
-**Key ESLint Rules:**
-- `@typescript-eslint/no-unused-vars`: warns on unused vars but allows `_` prefix
-- `no-restricted-syntax`: warns against hardcoded z-index values (require design tokens)
-- No hardcoded hex colors in className strings (use design tokens via `var()`)
+**CSS/Styling:**
+- Tool: Stylelint 17.0.0
+- Config: `.stylelintrc.json` extends `stylelint-config-standard`
+- Key rules:
+  - Disallow hardcoded z-index values, require CSS variables (`var(--z-modal)`)
+  - Custom property naming: kebab-case with optional double-dash modifiers
+  - Allow Tailwind directives (`@tailwind`, `@apply`, `@layer`)
+
+**TypeScript:**
+- Strict mode enabled (`tsconfig.json`)
+- `noUnusedLocals`: true
+- `noUnusedParameters`: true
+- Path alias: `@/*` maps to `./src/*`
+- Target: ES2017
 
 ## Import Organization
 
 **Order:**
-1. React/Next.js built-ins: `import React`, `import Link`, `import { useState }`
-2. Third-party packages: `import { motion } from "framer-motion"`, `import { create } from "zustand"`
-3. Internal absolute imports: `import { useCartStore } from "@/lib/stores/cart-store"`
-4. Types: `import type { CartItem } from "@/types/cart"`
-5. Blank line between groups
+1. React imports
+2. Third-party libraries (grouped by package)
+3. Internal components (`@/components/*`)
+4. Internal utilities (`@/lib/*`)
+5. Types (`@/types/*` or `type` imports)
+6. Relative imports
+7. CSS imports (last)
 
-**Pattern Example:**
+**Example from `src/components/ui/button.tsx`:**
 ```typescript
-import { useState, useEffect, type ReactElement } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import { motion, type HTMLMotionProps } from "framer-motion";
 
-import { useCartStore } from "@/lib/stores/cart-store";
+import { BrandedSpinner } from "@/components/ui/branded-spinner";
+
 import { cn } from "@/lib/utils/cn";
-
-import type { CartStore } from "@/types/cart";
+import { spring, hover } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 ```
 
 **Path Aliases:**
-- `@/*`: resolves to `./src/` directory
-- All internal imports use absolute paths with `@/`
-- No relative path imports (e.g., never `../utils/cn`)
+- `@/*`: src directory root (`@/components`, `@/lib`, `@/types`)
+- No barrel exports for `ui/` components (import directly from component file)
 
 ## Error Handling
 
-**Pattern: Return Object Pattern (Services)**
-- Services return result objects with success/error state rather than throwing
-- Example from `src/lib/services/geocoding.ts`:
-```typescript
-return {
-  formattedAddress: "",
-  lat: 0,
-  lng: 0,
-  isValid: false,
-  reason: "GEOCODE_FAILED",
-};
-```
+**Patterns:**
+- Server actions: Return `{ success?: string, error?: string }` objects
+- Validation: Use Zod schemas with `.safeParse()` for safe parsing
+- API routes: Return `NextResponse.json()` with status codes
+- Client components: Display errors via toast notifications or inline error states
+- Tests: Use `expect().toBe()` for validation errors, check `success` boolean
 
-**Pattern: Try-Catch with Logging**
-- Wrap external API calls in try-catch
-- Always console.error with context when catching
-- Return safe fallback values
-- Example:
-```typescript
-try {
-  const response = await fetch(url.toString());
-  const data = await response.json();
-  // process data
-} catch (error) {
-  console.error("Geocoding error:", error);
-  return safeFallbackValue;
-}
-```
-
-**Pattern: Validation Errors**
-- Use Zod schemas for input validation
-- Return validation result object with `success` boolean
-- Use `schema.safeParse()` not `schema.parse()`
-- Example:
+**Example from tests:**
 ```typescript
 const result = createCheckoutSessionSchema.safeParse(body);
-if (result.success) {
-  // use result.data
-} else {
-  // handle result.error
-}
+expect(result.success).toBe(false);
 ```
-
-**Pattern: Throwing (Rare)**
-- Only throw for missing critical config: `throw new Error("Missing GOOGLE_MAPS_API_KEY")`
-- Do not throw for user input errors (validate instead)
 
 ## Logging
 
-**Framework:** console methods (console.log, console.warn, console.error)
+**Framework:** Console (native)
 
 **Patterns:**
-- `console.error()` with context message for exceptions: `console.error("Geocoding error:", error)`
-- `console.warn()` for recoverable issues: `console.warn("Cart limit reached")`
-- No debug logs in production code (use Sentry/analytics instead)
-- Always include context string before error object
+- Development warnings: `console.warn()` for accessibility issues (e.g., missing aria-labels)
+- Development-only: Check `process.env.NODE_ENV === "development"` before logging
+- Error tracking: Sentry integration for production errors (`@sentry/nextjs`)
+- No logging in production UI components (use Sentry)
+
+**Example from `src/components/ui/button.tsx`:**
+```typescript
+if (isIconOnly && !props["aria-label"] && process.env.NODE_ENV === "development") {
+  console.warn("Button: Icon-only buttons should have an aria-label for accessibility");
+}
+```
 
 ## Comments
 
 **When to Comment:**
-- Header comments (/** */) for complex components or Sprint information
-- Inline comments for non-obvious logic only
-- No comments for self-documenting code
-- Comment structure sections with `// ==== SECTION NAME ====`
+- Complex business logic (debounce tracking, signature generation)
+- Public API documentation (JSDoc for exported functions/components)
+- Non-obvious patterns (animation preferences, design system decisions)
+- TODO/FIXME for known issues (tracked in ERROR_HISTORY.md)
 
 **JSDoc/TSDoc:**
-- Function documentation for public utilities:
-```typescript
-/**
- * Format price in cents to currency string
- * @param cents Amount in cents (e.g., 1200 for $12.00)
- * @returns Formatted currency string
- */
-export function formatPrice(cents: number): string {
-  // implementation
-}
-```
+- Used extensively for hooks and utilities
+- Includes `@param`, `@returns`, `@example` blocks
+- Component props documented via TypeScript interfaces with inline comments
 
-- Comments for hooks with examples:
+**Example from `src/lib/hooks/useAnimationPreference.ts`:**
 ```typescript
 /**
  * V7 Hook to manage animation preferences
  *
- * @example
- * const { preference, setPreference, shouldAnimate } = useAnimationPreference();
- */
-export function useAnimationPreference() {
-  // implementation
-}
-```
-
-**File Headers:**
-- Include Sprint info and feature description for major components
-- Example from `src/components/admin/analytics/Charts.tsx`:
-```typescript
-/**
- *  Animated Charts - Motion-First Data Visualization
+ * Key difference from V5/V6:
+ * - Defaults to "full" regardless of OS setting
+ * - User must explicitly opt-in to reduced motion
+ * - Provides more granular control and callbacks
  *
- * Sprint 8: Admin Dashboard
- * Features: Recharts with enter animations, animated axes,
- * interactive tooltips, gradient fills, responsive design
+ * @example
+ * const {
+ *   preference,
+ *   setPreference,
+ *   isFullMotion,
+ *   shouldAnimate,
+ * } = useAnimationPreference();
  */
 ```
 
 ## Function Design
 
-**Size:** Keep functions under 100 lines; split larger functions
+**Size:** Keep functions focused and single-purpose. Extract complex logic into helpers (as seen in `src/lib/stores/cart-store.ts` with `createItemSignature`, `shouldDebounce`)
 
 **Parameters:**
-- Max 3-4 params; use object destructuring for more:
-```typescript
-// Good
-function createOrder({ items, address, notes }: CreateOrderProps) {}
-
-// Avoid
-function createOrder(items, address, notes, customerId, scheduledDate) {}
-```
-
-- Use type for props objects: `type ChartsProps { ... }`
+- Use destructuring for object parameters
+- Provide default values where appropriate (`currency: string = "USD"`)
+- Use TypeScript for type safety, avoid runtime type checks
 
 **Return Values:**
-- Explicit return type annotations for all functions:
-```typescript
-export function formatDate(value: Date | string): string {
-  // implementation
-}
+- Utilities: Return primitive values or typed objects
+- Hooks: Return objects with named properties for destructuring
+- Components: Return JSX.Element or ReactElement
+- Server actions: Return `{ success?: string, error?: string }` for form actions
 
-export async function geocodeAddress(address: string): Promise<GeocodingResult> {
-  // implementation
-}
-```
-
-- Return null for optional/missing values (not undefined)
-- Return early to avoid deep nesting:
+**Example:**
 ```typescript
-if (!active || !payload?.length) return null;
-// main logic here
+export function formatPrice(cents: number, currency: string = "USD") {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+  }).format(cents / 100);
+}
 ```
 
 ## Module Design
 
 **Exports:**
-- Use named exports for everything (avoid default exports)
-- Group related exports by section in barrel files
-- Example from `src/lib/hooks/index.ts`:
-```typescript
-// ============================================
-// RESPONSIVE HOOKS
-// ============================================
+- Named exports preferred over default exports for utilities
+- Default exports used for pages and route handlers
+- Barrel files: NOT used for components (direct imports required)
+- Re-export types from index files where helpful
 
-export { useIsMobile, useIsTablet, useIsDesktop } from "./useResponsive";
+**Component Exports:**
+```typescript
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(/* ... */);
+Button.displayName = "Button";
+
+export { Button, buttonVariants };
 ```
 
-**Barrel Files:**
-- Located at `src/lib/hooks/index.ts`, `src/lib/auth/index.ts`
-- Used to centralize and document export groups
-- Organize by category with section comments
-- Import from barrel, not individual files:
+**Pattern: Export internal utilities for testing:**
 ```typescript
-// Good
-import { useCart, useAddresses } from "@/lib/hooks";
-
-// Avoid
-import { useCart } from "@/lib/hooks/useCart";
+// From cart-store.ts
+export { __clearDebounceState }; // Test-only export
 ```
 
-**Storage Patterns:**
-- Zustand for client state: `src/lib/stores/cart-store.ts`
-- SSR-safe storage using conditional logic for window/localStorage
-- Persist middleware for persistence across page reloads
+## Design Token Enforcement
 
-## Client Component Markers
+**ESLint Rules:**
+- Prohibit hardcoded hex colors in Tailwind classes (`bg-[#fff]` → use `bg-surface-primary`)
+- Prohibit hardcoded spacing (`p-[16px]` → use `p-4`)
+- Prohibit hardcoded typography (`text-[14px]` → use `text-sm`)
+- Prohibit inline zIndex numbers (use design system tokens)
+- Prohibit hardcoded color keywords (`text-white` → use `text-text-inverse`)
 
-**"use client" directive:**
-- Required for interactive components and hooks
-- Placed at top of file before imports
-- Example:
-```typescript
-"use client";
+**Enforcement:**
+- ESLint: AST-based detection via `no-restricted-syntax` selector rules
+- Stylelint: CSS variable enforcement for z-index
+- Audit script: `pnpm audit:tokens` for token compliance
 
-import { useState } from "react";
-```
-
-## Type Patterns
-
-**Avoid any:**
-- Always use proper types
-- Use `unknown` for truly unknown types, then narrow
-
-**Optional vs Null:**
-- Use `value: Type | null` for values that can be absent
-- Use optional (`value?: Type`) only for object properties
-
-**Readonly:**
-- Use `readonly` for immutable arrays/objects
-- Good for props and configuration objects
-
-## CSS/Tailwind
-
-**Class Names:**
-- Use `cn()` utility for conditional classes: `cn("base-class", condition && "active-class")`
-- Import from: `import { cn } from "@/lib/utils/cn"`
-- Design tokens via Tailwind utilities: `z-modal` not `z-50`
-- Color tokens: `bg-[var(--color-primary)]` not `bg-red-600`
+**Exceptions:**
+- Framer Motion: Numeric values allowed for physics-based animations
+- Spring transitions: Inline values permitted for interpolation
 
 ---
 
-*Convention analysis: 2026-01-21*
+*Convention analysis: 2026-01-30*

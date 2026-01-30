@@ -1,234 +1,186 @@
 # Architecture
 
-**Analysis Date:** 2026-01-21
+**Analysis Date:** 2026-01-30
 
 ## Pattern Overview
 
-**Overall:** Next.js App Router with layered architecture (Pages/UI → API Routes → Services → Data Access)
+**Overall:** Next.js App Router with Server/Client Component Split
 
 **Key Characteristics:**
-- Role-based multi-tenant system (Customer, Driver, Admin)
-- Server-first approach with selective client components
-- Stripe payment integration for transactions
-- Supabase for database and authentication
-- Real-time order tracking and delivery management
+- Server-first architecture with selective client hydration
+- API routes handle backend logic and database access
+- Client state managed via Zustand stores
+- Server state fetched via direct Supabase queries or API routes
+- Route groups organize pages by role (admin, customer, driver, public, auth)
 
 ## Layers
 
-**Page/Route Layer:**
-- Purpose: Request entry points, server-side rendering, data fetching
-- Location: `src/app/` (subdirectories per route)
-- Contains: Next.js page components, layouts, error boundaries
-- Depends on: API routes, services, queries, components
-- Used by: End users through HTTP requests
+**Presentation Layer (Client Components):**
+- Purpose: Interactive UI with animations, state, and event handlers
+- Location: `src/components/ui/**/*`
+- Contains: React client components with "use client" directive
+- Depends on: Stores, hooks, design tokens, GSAP/Framer Motion
+- Used by: Pages (both server and client components)
 
-**API Route Layer:**
-- Purpose: Server-side HTTP endpoints for client requests
-- Location: `src/app/api/`
-- Contains: Request handlers, validation schemas, authentication checks, business logic
-- Depends on: Auth helpers, Supabase clients, service utilities, type validation
-- Used by: Client-side fetch calls, webhook handlers, admin dashboards
+**Presentation Layer (Server Components):**
+- Purpose: Static, SEO-friendly rendering with direct data fetching
+- Location: `src/app/**/page.tsx`, `src/app/**/layout.tsx`
+- Contains: React server components (no "use client")
+- Depends on: Query functions, Supabase server client
+- Used by: Next.js App Router
 
-**Service/Business Logic Layer:**
-- Purpose: Reusable domain logic, calculations, external service integrations
-- Location: `src/lib/services/`, `src/lib/utils/`
-- Contains: Order calculations, geocoding, route optimization, analytics helpers, logging
-- Depends on: Database types, validation schemas, Supabase clients
-- Used by: API routes, queries, client components
+**API Layer:**
+- Purpose: RESTful endpoints for CRUD operations, webhooks, and server actions
+- Location: `src/app/api/**/*`
+- Contains: Next.js Route Handlers (GET, POST, PATCH, DELETE)
+- Depends on: Supabase server/service clients, Stripe SDK, validation schemas
+- Used by: Client components via fetch/React Query
 
-**Query/Data Access Layer:**
-- Purpose: Structured server-side data fetching from database
-- Location: `src/lib/queries/` (e.g., `menu.ts`)
-- Contains: Supabase select queries with joins, type-safe result handling
-- Depends on: Supabase server client, database types
-- Used by: Page components via Suspense, not called from client
-
-**Component Layer:**
-- Purpose: UI rendering with interactivity
-- Location: `src/components/`
-- Contains: Feature components (cart, menu, checkout), UI primitives (button, dialog), layout shells
-- Depends on: Hooks, stores, utilities, TailwindCSS
-- Used by: Page components, other components
+**Data Access Layer:**
+- Purpose: Encapsulate database queries and external service calls
+- Location: `src/lib/queries/*`, `src/lib/supabase/*`, `src/lib/stripe/*`
+- Contains: Query functions, Supabase client factories, Stripe utilities
+- Depends on: Supabase SDK, Stripe SDK, database types
+- Used by: API routes, server components, server actions
 
 **State Management Layer:**
-- Purpose: Client-side state persistence and sharing
-- Location: `src/lib/stores/`, `src/hooks/`
-- Contains: Zustand stores (cart store), custom hooks
-- Depends on: Zustand, localStorage wrapper
-- Used by: Client components, provider wrappers
+- Purpose: Client-side global state with persistence
+- Location: `src/lib/stores/*`
+- Contains: Zustand stores (cart, checkout, driver, animations)
+- Depends on: Types, constants
+- Used by: Client components
 
-**Utility/Helper Layer:**
-- Purpose: Cross-cutting concerns and pure functions
-- Location: `src/lib/utils/`, `src/lib/constants/`
-- Contains: Currency formatting, price calculations, order validation, logger, rate limiting
-- Depends on: Sentry, standard libraries
-- Used by: Services, routes, components
+**Business Logic Layer:**
+- Purpose: Core business rules, calculations, and validations
+- Location: `src/lib/services/*`, `src/lib/utils/*`, `src/lib/validations/*`
+- Contains: Service modules, utility functions, Zod schemas
+- Depends on: Types, constants
+- Used by: API routes, components, stores
 
 ## Data Flow
 
-**Customer Order Flow:**
+**Server-Side Rendering (SSR):**
 
-1. User browses menu (`GET /menu`) → `MenuPage` → `getMenuWithCategories()` query → fetches from Supabase
-2. User adds items to cart → `useCartStore` updates Zustand state → persisted to localStorage
-3. User proceeds to checkout → `CartPage` renders checkout form
-4. User submits checkout → `POST /api/checkout/session` route handler:
-   - Validates request with Zod schema
-   - Authenticates user via Supabase auth
-   - Validates address ownership and delivery coverage
-   - Fetches menu items and modifier options from database
-   - Calls `validateCartItems()` (service layer) to verify items and prices
-   - Calls `calculateOrderTotals()` to compute subtotal, delivery fee, tax, total
-   - Creates order in database with status "pending"
-   - Calls `getOrCreateStripeCustomer()` to link customer
-   - Calls `createStripeLineItems()` to format for Stripe
-   - Creates Stripe checkout session via stripe SDK
-   - Returns session URL and order ID to client
-5. Client redirects to Stripe Checkout → User pays
-6. Stripe webhook posts to `POST /api/webhooks/stripe` → Updates order status to "confirmed" → Sends notification
+1. User requests page → Next.js App Router invokes server component
+2. Server component calls query function (`src/lib/queries/*`)
+3. Query function uses Supabase server client (`src/lib/supabase/server.ts`)
+4. Data returned to component, rendered to HTML
+5. HTML sent to browser (no JavaScript needed for static content)
 
-**Admin Analytics Flow:**
+**Client-Side Interaction:**
 
-1. Admin navigates to `/admin/analytics/delivery` → `AdminLayout` (layout component) checks auth and role via `requireAdmin()`
-2. Layout redirects to login if not authenticated or not admin role
-3. Page component renders `DeliveryMetricsDashboard` ("use client")
-4. Dashboard calls `GET /api/admin/analytics/delivery` via React Query
-5. API route checks `requireAdmin()` again, fetches metrics from `delivery_metrics_mv` materialized view
-6. Returns aggregated data (on-time rate, avg delivery time, total orders, revenue)
-7. Dashboard renders charts using Recharts library
+1. User interacts with UI → Client component event handler fires
+2. Event handler updates Zustand store (`src/lib/stores/*`) or calls API
+3. If API call: fetch → API route → Supabase → response → update UI
+4. If store update: Zustand triggers re-render + localStorage persistence
 
-**Driver Delivery Flow:**
+**Checkout Flow (Critical Path):**
 
-1. Driver logs in → `DriverLayout` checks Supabase auth and driver status from `drivers` table
-2. Driver navigates to `/driver` → Shows assigned route with stops
-3. Driver taps stop → Shows order details, map, delivery address
-4. Driver completes delivery → PUT to `/api/driver/route/[stopId]` with status update
-5. API route updates stop status and recalculates ETA for remaining stops
-6. Order status propagates to customer tracking page in near real-time
+1. User adds items to cart → `useCartStore.addItem()` → localStorage
+2. User proceeds to checkout → `src/app/(customer)/checkout/page.tsx`
+3. Submit form → POST `/api/checkout/session` → validate cart server-side
+4. Create order in database → Create Stripe session → redirect to Stripe
+5. Payment success → Stripe webhook → `/api/webhooks/stripe` → update order status
+6. Redirect to confirmation page → `src/app/(customer)/orders/[id]/confirmation/page.tsx`
 
 **State Management:**
-
-- **Cart state:** Client-only Zustand store persisted to localStorage
-  - Why: Cart must survive page refreshes and be available during checkout
-  - Location: `src/lib/stores/cart-store.ts`
-
-- **Auth state:** Server-side via Supabase cookies + JWT
-  - Why: Auth credentials are sensitive, must not leak to client JS
-  - Stored in: Secure httpOnly cookies (managed by Next.js middleware)
-
-- **UI state (theme, etc.):** Next-themes context + localStorage
-  - Why: Theme preference is user preference, needs to load before paint
-  - Location: `src/components/theme-provider.tsx`
-
-- **Order/delivery data:** Server-rendered at fetch time, React Query caching for re-fetches
-  - Why: Order data changes frequently, needs real-time consistency
-  - Fetched via: Queries (`src/lib/queries/`) and API routes with React Query
+- Client state: Zustand with localStorage persistence (cart, checkout, driver location)
+- Server state: React Query for API data caching (not yet fully adopted)
+- URL state: Next.js searchParams for filters, pagination
+- Form state: React Hook Form with Zod validation
 
 ## Key Abstractions
 
-**Role-Based Access Control:**
-- Purpose: Enforce authorization at multiple layers
-- Examples: `src/lib/auth/admin.ts`, `src/lib/auth/driver.ts`
-- Pattern: Utility functions (`requireAdmin()`, `requireDriver()`) that return typed results with success/failure state, not throw errors
-- Usage: Called in layouts and API routes to gate access
+**Supabase Client Factory:**
+- Purpose: Provide authenticated database access in different contexts
+- Examples: `src/lib/supabase/server.ts`, `src/lib/supabase/client.ts`
+- Pattern: Three client types (server w/ cookies, public, service role)
 
-**Order Validation & Calculation:**
-- Purpose: Ensure prices match database, prevent tampering, ensure consistency
-- Examples: `src/lib/utils/order.ts` (validateCartItems, calculateOrderTotals, createStripeLineItems)
-- Pattern: Pure functions that accept lookup maps (not queries) for testability
-- Usage: Isolated in API route handlers for server-side trust
+**API Route Handlers:**
+- Purpose: Standardized request/response handling with auth and validation
+- Examples: `src/app/api/menu/route.ts`, `src/app/api/checkout/session/route.ts`
+- Pattern: Validate input → authenticate → authorize → query → respond with typed errors
 
-**Menu Query:**
-- Purpose: Fetch complete menu with nested categories and modifiers
-- Location: `src/lib/queries/menu.ts` (getMenuWithCategories)
-- Pattern: Server component query with Supabase select, joins, and array mappings
-- Usage: Called from menu page during server-side render via Suspense
+**Zustand Stores:**
+- Purpose: Global state with computed selectors and persistence
+- Examples: `src/lib/stores/cart-store.ts`, `src/lib/stores/checkout-store.ts`
+- Pattern: Create store with persist middleware, export typed hooks
 
-**Logger:**
-- Purpose: Structured logging with Sentry integration
-- Location: `src/lib/utils/logger.ts`
-- Pattern: Facade over Sentry SDK with breadcrumbs, context, and tags
-- Usage: All API routes and error boundaries use `logger.exception()` and `logger.error()`
+**Server Query Functions:**
+- Purpose: Reusable data fetching for server components
+- Examples: `src/lib/queries/menu.ts`
+- Pattern: Async function → Supabase query → transform to domain types
 
-**Stripe Integration:**
-- Purpose: Payment processing with metadata linking
-- Location: `src/lib/stripe/server.ts`
-- Pattern: Service client with helper functions (getOrCreateStripeCustomer, createLineItems)
-- Usage: Called from checkout API route to create sessions and handle webhooks
+**Validation Schemas:**
+- Purpose: Type-safe runtime validation for API inputs and forms
+- Examples: `src/lib/validations/checkout.ts`
+- Pattern: Zod schema → infer TypeScript type → use in API/forms
 
 ## Entry Points
 
-**Web Pages (Server Routes):**
-- Location: `src/app/(public)/`, `src/app/(customer)/`, `src/app/(admin)/`, `src/app/(driver)/`
-- Triggers: HTTP GET/POST from browser
-- Responsibilities: Server-side data fetching, role checks (for protected routes), rendering UI
-
-**API Endpoints:**
-- Location: `src/app/api/`
-- Triggers: Fetch calls from client, webhook deliveries from external services
-- Responsibilities: Request validation, authentication, business logic, database mutations, error handling
-
 **Root Layout:**
 - Location: `src/app/layout.tsx`
-- Triggers: On every page load
-- Responsibilities: Font loading, metadata, provider setup (theme, query client, cart drawer), Web Vitals monitoring
+- Triggers: All page requests
+- Responsibilities: Load fonts, inject providers (Query, Theme, Toast), render header
 
-**Providers:**
-- Location: `src/app/providers.tsx`
-- Triggers: During layout hydration
-- Responsibilities: Wrapping app with QueryProvider, ThemeProvider, CartDrawer/CartBar conditional rendering based on route
+**Homepage:**
+- Location: `src/app/(public)/page.tsx`
+- Triggers: User navigates to `/`
+- Responsibilities: Server-fetch menu, render hero + menu sections
+
+**API Middleware:**
+- Location: Implicit in Next.js Route Handlers
+- Triggers: API requests to `/api/*`
+- Responsibilities: Parse request, route to handler, serialize response
+
+**Stripe Webhook:**
+- Location: `src/app/api/webhooks/stripe/route.ts`
+- Triggers: Stripe events (checkout.session.completed, payment_intent.succeeded)
+- Responsibilities: Verify signature, update order status, trigger notifications
 
 ## Error Handling
 
-**Strategy:** Typed error responses with retry logic at API layer, error boundaries at component layer, Sentry tracking globally
+**Strategy:** Layered error handling with typed error codes
 
 **Patterns:**
+- API routes: Try/catch → typed error response with status code
+- Server components: Error boundaries + error.tsx files
+- Client components: Try/catch in event handlers → toast notifications
+- Validation: Zod schemas return typed validation errors
+- Database: Supabase errors logged to Sentry, generic message to user
 
-- **API Routes:** Return typed error objects with code + message + status (not throw exceptions)
-  ```typescript
-  // src/app/api/checkout/session/route.ts
-  function errorResponse(code: CheckoutErrorCode, message: string, status: number, details?: unknown) {
-    const error: CheckoutError = { code, message, details };
-    return NextResponse.json({ error }, { status });
-  }
-  ```
-
-- **Auth Failures:** Use discriminated union (success: false) instead of throwing
-  ```typescript
-  // src/lib/auth/admin.ts
-  export type AdminAuthResult = AdminAuthSuccess | AdminAuthFailure;
-  // Usage: if (!auth.success) { return NextResponse.json(...) }
-  ```
-
-- **Logging:** All errors go through Sentry with flowId context
-  ```typescript
-  logger.exception(error, { userId, orderId, api: "checkout-session", flowId: "checkout" });
-  ```
-
-- **Client-Side:** Error boundary components redirect to error pages (e.g., `src/app/(customer)/orders/error.tsx`)
+**Error Types:**
+- Validation errors: 400 with field-level details
+- Auth errors: 401/403 with redirect to login
+- Not found: 404 with custom UI
+- Server errors: 500 with generic message (details logged to Sentry)
 
 ## Cross-Cutting Concerns
 
-**Logging:**
-- Tool: Sentry SDK with custom logger wrapper (`src/lib/utils/logger.ts`)
-- Usage: Import `logger` in services/routes, call `logger.exception()` on catch, `logger.info()` for flow tracking
-- Tags: `flowId` (checkout, order-status), `api` (endpoint name), `userId`
+**Logging:** Structured logging via `src/lib/utils/logger.ts` → Sentry integration
 
-**Validation:**
-- Tool: Zod schemas (`src/lib/validations/`)
-- Pattern: Define schema near where it's used (e.g., checkout schema in `checkout.ts`), call `.safeParse()` in route handlers
-- Usage: Protects API routes from invalid input, enables typed error feedback to client
+**Validation:** Zod schemas in `src/lib/validations/*` → shared by API and forms
 
 **Authentication:**
-- Tool: Supabase Auth with JWT in httpOnly cookies
-- Pattern: Server-side `createClient()` reads cookies, client-side middleware validates on protected routes
-- Usage: Checked in layouts (`src/app/(admin)/admin/layout.tsx`) and API routes (`requireAdmin()`)
+- Supabase Auth with cookie-based sessions
+- Server-side auth checks via `src/lib/supabase/server.ts`
+- Role-based access control via `src/lib/auth/admin.ts` and `src/lib/auth/driver.ts`
 
-**Performance:**
-- Server-side rendering: Menu data fetched at request time, cached via query
-- Suspense: Long-running queries wrapped in Suspense with skeleton fallback (e.g., MenuSkeleton)
-- React Query: 5-minute stale time for API responses to reduce refetches
-- Image optimization: Centralized in `src/lib/utils/image-optimization.ts`
+**Authorization:**
+- Row-Level Security (RLS) in Supabase
+- Server-side role checks in API routes
+- Client-side route protection via middleware (implicit in Next.js)
+
+**Performance Monitoring:**
+- Web Vitals via `src/lib/web-vitals.tsx` → Vercel Analytics
+- Sentry performance monitoring
+- Lighthouse CI in GitHub Actions
+
+**Animation:**
+- GSAP for physics-based animations (`src/lib/gsap/*`)
+- Framer Motion for declarative animations
+- Cleanup pattern for RAF/timers to prevent memory leaks
 
 ---
 
-*Architecture analysis: 2026-01-21*
+*Architecture analysis: 2026-01-30*

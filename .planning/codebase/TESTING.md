@@ -1,163 +1,147 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-01-21
+**Analysis Date:** 2026-01-30
 
 ## Test Framework
 
 **Runner:**
-- Vitest (latest)
+- Vitest 4.0.17
 - Config: `vitest.config.ts`
 
 **Assertion Library:**
-- Vitest built-in expect API
-- `@testing-library/react` for component testing
-- `@testing-library/jest-dom` for DOM matchers
+- Vitest globals (`describe`, `it`, `expect`, `vi`)
+- @testing-library/jest-dom for DOM matchers
 
 **Run Commands:**
 ```bash
-pnpm test              # Run all tests once
-pnpm test:ci           # CI mode: bail on first failure, no parallelism
+pnpm test              # Run all tests
+pnpm test:ci           # CI mode (bail on first failure, no parallelism)
 pnpm test:menu         # Run specific test file
-pnpm test:e2e          # Run Playwright e2e tests
-pnpm test:e2e:ui       # Run e2e tests with browser UI
-pnpm test:a11y         # Run accessibility and animation tests
+pnpm test:e2e          # E2E tests with Playwright
+pnpm test:e2e:ui       # Playwright UI mode
+pnpm test:a11y         # Accessibility tests
+pnpm test:animations   # Animation tests
 ```
 
 ## Test File Organization
 
 **Location:**
-- Co-located with source files in `__tests__` directories
-- Same directory level as module being tested
-- One test file per module (e.g., `src/lib/stores/cart-store.ts` → `src/lib/stores/__tests__/cart-store.test.ts`)
+- Co-located in `__tests__/` directories next to source files
+- Unit tests: `src/lib/**/__tests__/*.test.ts`
+- Component tests: `src/components/**/__tests__/*.test.tsx`
+- API tests: `src/app/api/**/__tests__/*.test.ts`
+- E2E tests: `e2e/*.spec.ts` (separate directory)
 
 **Naming:**
-- Pattern: `[module-name].test.ts` or `[module-name].test.tsx`
-- Examples: `cart-store.test.ts`, `login-form.test.tsx`, `route.test.ts`
+- Unit/integration: `{filename}.test.ts` or `{filename}.test.tsx`
+- E2E: `{feature}.spec.ts`
 
 **Structure:**
 ```
 src/
 ├── lib/
+│   ├── utils/
+│   │   ├── format.ts
+│   │   └── __tests__/
+│   │       └── format.test.ts
 │   ├── stores/
 │   │   ├── cart-store.ts
 │   │   └── __tests__/
 │   │       └── cart-store.test.ts
-│   ├── services/
-│   │   ├── route-optimization.ts
-│   │   └── __tests__/
-│   │       └── route-optimization.test.ts
 ├── components/
-│   ├── auth/
-│   │   ├── login-form.tsx
-│   │   └── __tests__/
-│   │       └── login-form.test.tsx
+│   └── ui/
+│       └── auth/
+│           ├── LoginForm.tsx
+│           └── __tests__/
+│               └── login-form.test.tsx
+e2e/
+├── happy-path.spec.ts
+├── checkout-flow.spec.ts
+└── accessibility.spec.ts
 ```
 
 ## Test Structure
 
 **Suite Organization:**
 ```typescript
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { myFunction } from "@/lib/services/my-service";
+import { describe, it, expect } from "vitest";
+import { formatPrice } from "../format";
 
-describe("Service Name", () => {
-  beforeEach(() => {
-    // Setup before each test
-  });
-
-  afterEach(() => {
-    // Cleanup after each test
-    vi.restoreAllMocks();
-  });
-
-  describe("featureName", () => {
-    it("should do something when condition met", () => {
-      // Arrange
-      const input = {};
-
-      // Act
-      const result = myFunction(input);
-
-      // Assert
-      expect(result).toBe(expected);
-    });
-
-    it("handles error case", () => {
-      // test error scenario
-    });
+describe("formatPrice", () => {
+  it("formats cents to dollars", () => {
+    expect(formatPrice(1500)).toBe("$15.00");
+    expect(formatPrice(0)).toBe("$0.00");
+    expect(formatPrice(99)).toBe("$0.99");
   });
 });
 ```
 
 **Patterns:**
-- `describe()` for grouping related tests
-- `it()` for individual test case (readable assertion)
-- Nested `describe()` for sub-features
-- Arrange-Act-Assert (AAA) pattern (comments optional)
-- `beforeEach()` for setup; `afterEach()` for cleanup
-- `vi.restoreAllMocks()` after all mocks in test
+- Top-level `describe` block per function/component
+- Nested `describe` blocks for method groups (e.g., `describe("addItem")` within `describe("CartStore")`)
+- `beforeEach` for test setup/cleanup
+- `it` blocks focus on single assertion or behavior
 
-## Mocking
-
-**Framework:** Vitest `vi` mock API
-
-**Mock Module Pattern:**
+**Example with setup:**
 ```typescript
-import { signIn } from "@/lib/supabase/actions";
+describe("CartStore", () => {
+  beforeEach(() => {
+    useCartStore.getState().clearCart();
+    useCartStore.persist.clearStorage?.();
+    __clearDebounceState();
+  });
 
-vi.mock("@/lib/supabase/actions", () => ({
-  signIn: vi.fn(),
-}));
+  describe("addItem", () => {
+    it("adds item to cart", () => {
+      const store = useCartStore.getState();
+      store.addItem(baseItem);
 
-describe("LoginForm", () => {
-  it("submits the email", async () => {
-    const signInMock = signIn as Mock;
-    signInMock.mockResolvedValue({ success: "Magic link sent" });
-
-    // test code
-    expect(signInMock).toHaveBeenCalledTimes(1);
+      const updated = useCartStore.getState();
+      expect(updated.items).toHaveLength(1);
+      expect(updated.items[0].menuItemId).toBe("item-1");
+    });
   });
 });
 ```
 
-**Mock Global Objects:**
-- `vi.stubGlobal("fetch", vi.fn())` for fetch
-- `vi.restoreAllMocks()` to reset all mocks after tests
-- Environment variable mocking with `process.env = { ...originalEnv }`
+## Mocking
 
-**Example from test setup:**
+**Framework:** Vitest (`vi.mock`, `vi.fn`)
+
+**Patterns:**
 ```typescript
-beforeEach(() => {
-  vi.stubGlobal("fetch", vi.fn());
-  process.env = { ...originalEnv };
-});
+// Mock module
+vi.mock("@/lib/supabase/actions", () => ({
+  signIn: vi.fn(),
+}));
 
-afterEach(() => {
-  global.fetch = originalFetch;
-  process.env = originalEnv;
-  vi.restoreAllMocks();
-});
+// Setup mock return value
+const signInMock = signIn as Mock;
+signInMock.mockResolvedValue({ success: "Magic link sent" });
+
+// Assert mock calls
+expect(signInMock).toHaveBeenCalledTimes(1);
+const formData = signInMock.mock.calls[0][0] as FormData;
+expect(formData.get("email")).toBe("test@example.com");
 ```
 
 **What to Mock:**
-- External API calls (fetch, Stripe, Supabase)
-- Module dependencies (services, utilities)
-- Global objects only when needed (fetch, localStorage)
-- Zustand stores: get current state and clear storage
+- External API calls (Supabase, Stripe)
+- Server actions (`@/lib/supabase/actions`)
+- Browser APIs (ResizeObserver, matchMedia, localStorage - mocked in `src/test/setup.ts`)
+- Environment variables (mocked in setup for tests)
 
 **What NOT to Mock:**
-- Internal utilities and helpers
-- Data structures and types
-- Test setup utilities
-- Always test actual validation logic
+- Internal utilities (test the real implementation)
+- React Testing Library utilities
+- Simple helper functions
+- Pure functions without side effects
 
 ## Fixtures and Factories
 
 **Test Data:**
-- Use factory functions for creating test data
-- Located in: `src/test/factories.ts` (check if exists, otherwise inline)
-- Pattern:
 ```typescript
+// From cart-store.test.ts
 const baseItem = {
   menuItemId: "item-1",
   menuItemSlug: "mohinga",
@@ -169,283 +153,229 @@ const baseItem = {
   modifiers: [],
   notes: "",
 };
-
-// Usage in test
-store.addItem(baseItem);
-store.addItem({ ...baseItem, quantity: 2 });
 ```
 
-**Mock Categories:**
+**Factory Pattern:**
 ```typescript
-const categories: MenuCategory[] = [
-  {
-    id: "cat-1",
-    slug: "breakfast",
-    name: "Breakfast",
-    sortOrder: 1,
-    items: [
-      {
-        id: "item-1",
-        slug: "kyay-o",
-        nameEn: "Kyay-O / Si-Chat",
-        basePriceCents: 1800,
-        // ...
-      },
-    ],
-  },
-];
+// From test/factories/index.ts
+import { createMockMenuItem, createMockModifierOption } from "@/test/factories";
+
+// Used in tests
+const menuItem = createMockMenuItem();
+const modifier = createMockModifierOption();
 ```
+
+**Location:**
+- Factories: `src/test/factories/`
+- Inline fixtures: Defined at top of test file for simple cases
 
 ## Coverage
 
-**Requirements:** No enforced target (not configured)
+**Requirements:** No strict target enforced
 
 **View Coverage:**
 ```bash
 pnpm test -- --coverage
 ```
 
+**Config:**
+- Provider: @vitest/coverage-v8
+- Excludes: `node_modules`, `e2e` directory
+
 ## Test Types
 
 **Unit Tests:**
-- Test individual functions/methods in isolation
-- Mock external dependencies
-- Examples:
-  - `src/lib/utils/format.ts` - utility function behavior
-  - `src/lib/stores/cart-store.test.ts` - Zustand store actions
-  - `src/lib/validations/analytics.test.ts` - Zod schema validation
-
-**Component Tests:**
-- Render component with React Testing Library
-- Test user interactions and output
-- Mock child components if needed
-- Example: `src/components/auth/login-form.test.tsx`
-```typescript
-it("renders the magic link login form", () => {
-  render(<LoginForm />);
-  expect(screen.getByLabelText("Email")).toBeInTheDocument();
-});
-
-it("submits the email and shows success text", async () => {
-  const signInMock = signIn as Mock;
-  signInMock.mockResolvedValue({ success: "Magic link sent" });
-
-  render(<LoginForm />);
-  const input = screen.getByLabelText("Email");
-  fireEvent.change(input, { target: { value: "test@example.com" } });
-  fireEvent.submit(container.querySelector("form") as HTMLFormElement);
-
-  expect(await screen.findByText("Magic link sent")).toBeInTheDocument();
-});
-```
+- Scope: Individual functions, utilities, hooks
+- Location: `src/lib/**/__tests__/`
+- Examples: `format.test.ts`, `delivery-dates.test.ts`, `price.test.ts`
+- Approach: Import function, call with inputs, assert outputs
 
 **Integration Tests:**
-- Test business logic and validation across modules
-- Example: `src/app/api/checkout/session/__tests__/route.test.ts`
-- Focus on validation schemas and business rules
-- Full API route testing deferred to E2E tests
+- Scope: Stores, API validation, multi-function workflows
+- Location: `src/lib/stores/__tests__/`, `src/app/api/**/__tests__/`
+- Examples: `cart-store.test.ts`, `route.test.ts`
+- Approach: Test interactions between multiple units (store + persistence, validation + business logic)
+
+**Component Tests:**
+- Scope: React components
+- Location: `src/components/**/__tests__/`
+- Examples: `login-form.test.tsx`, `signup-form.test.tsx`
+- Approach: Render component, interact via Testing Library, assert DOM/behavior
 
 **E2E Tests:**
-- Framework: Playwright (`@playwright/test`)
-- Located in: `e2e/` directory
-- Run with: `pnpm test:e2e`
-- Tests real user workflows
-- Examples:
-  - `e2e/accessibility.spec.ts` - accessibility compliance
-  - `e2e/animations/` - animation behavior
+- Framework: Playwright 1.57.0
+- Config: `playwright.config.ts`
+- Location: `e2e/*.spec.ts`
+- Browsers: Desktop Chrome, Mobile Chrome (Pixel 5)
+- Approach: Full user flows in real browser
 
 ## Common Patterns
 
 **Async Testing:**
 ```typescript
-// Using async/await
 it("submits the email and shows success text", async () => {
   const signInMock = signIn as Mock;
   signInMock.mockResolvedValue({ success: "Magic link sent" });
 
-  render(<LoginForm />);
+  const { container } = render(<LoginForm />);
   const input = screen.getByLabelText("Email");
   fireEvent.change(input, { target: { value: "test@example.com" } });
 
-  // Use await with screen.findBy* for async DOM updates
+  const form = container.querySelector("form");
+  fireEvent.submit(form as HTMLFormElement);
+
   expect(await screen.findByText("Magic link sent")).toBeInTheDocument();
-});
-
-// Using promise chain (alternative)
-it("handles promise result", () => {
-  const mockFn = vi.fn().mockResolvedValue({ status: "ok" });
-
-  mockFn().then((result) => {
-    expect(result.status).toBe("ok");
-  });
 });
 ```
 
 **Error Testing:**
 ```typescript
-it("rejects missing addressId", () => {
-  const { addressId: _addressId, ...body } = validBody;
+it("rejects invalid addressId format (not UUID)", () => {
+  const body = { ...validBody, addressId: "not-a-uuid" };
   const result = createCheckoutSessionSchema.safeParse(body);
-
   expect(result.success).toBe(false);
-  // Error details in result.error
-});
-
-it("returns invalid when stops are missing coordinates", () => {
-  const stops: RoutableStop[] = [
-    {
-      stopId: "stop-1",
-      orderId: "order-1",
-      address: { lat: null, lng: null, line1: "123 Main St", /* ... */ },
-    },
-  ];
-
-  const result = validateStopsForOptimization(stops);
-
-  expect(result.valid).toBe(false);
-  expect(result.errors).toHaveLength(1);
-  expect(result.errors[0].code).toBe("MISSING_COORDINATES");
 });
 ```
 
-## Setup and Environment
-
-**Setup File:** `src/test/setup.ts`
-
-**What's configured:**
-- `@testing-library/jest-dom` imported (provides DOM matchers like `toBeInTheDocument`)
-- ResizeObserver mock (not available in jsdom)
-- localStorage mock with complete Storage interface
-- window.matchMedia mock for media queries
-- Test environment variables:
-  - `GOOGLE_MAPS_API_KEY=test-google-maps-api-key`
-  - `STRIPE_SECRET_KEY=sk_test_mock`
-  - `STRIPE_WEBHOOK_SECRET=whsec_test_mock`
-  - `NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321`
-  - Supabase keys set for testing
-
-**Vitest Config:**
+**Store Testing:**
 ```typescript
-// From vitest.config.ts
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    environment: "jsdom",
-    setupFiles: ["./src/test/setup.ts"],
-    globals: true,              // Use vi, describe, it without imports
-    exclude: ["**/node_modules/**", "**/e2e/**"],
-    teardownTimeout: 1000,
-    testTimeout: 10000,
-    hookTimeout: 10000,
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-});
-```
-
-## React Testing Library Patterns
-
-**Query Methods (in priority order):**
-1. `getByRole()` - most accessible: `screen.getByRole("button", { name: "Submit" })`
-2. `getByLabelText()` - for form inputs: `screen.getByLabelText("Email")`
-3. `getByPlaceholderText()` - fallback for inputs
-4. `getByText()` - for content: `screen.getByText("Our Menu")`
-5. `queryBy*()` - for non-existence assertions: `expect(screen.queryByText("X")).not.toBeInTheDocument()`
-6. `findBy*()` - for async DOM updates: `expect(await screen.findByText("Success")).toBeInTheDocument()`
-
-**User Interactions:**
-```typescript
-// Render component
-render(<LoginForm />);
-
-// Change input value
-fireEvent.change(input, { target: { value: "test@example.com" } });
-
-// Submit form
-fireEvent.submit(form as HTMLFormElement);
-
-// Click button (don't use fireEvent for click; use userEvent in modern tests)
-fireEvent.click(button);
-```
-
-**Wrapper Pattern (for providers):**
-```typescript
-function renderMenu(ui: ReactElement) {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
+it("calculates subtotal with modifiers", () => {
+  const store = useCartStore.getState();
+  store.addItem({
+    ...baseItem,
+    quantity: 2,
+    modifiers: [
+      {
+        groupId: "g1",
+        groupName: "Spice",
+        optionId: "o1",
+        optionName: "Extra",
+        priceDeltaCents: 100,
+      },
+    ],
   });
 
-  return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
-  );
-}
-
-// Usage
-renderMenu(<MenuContent categories={categories} />);
+  expect(store.getItemsSubtotal()).toBe(2600);
+});
 ```
 
-## Validation Schema Testing
-
-**Pattern:**
+**E2E Testing:**
 ```typescript
-const validBody = {
-  addressId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  scheduledDate: "2026-01-18",
-  items: [{ menuItemId: "id", quantity: 2, modifiers: [], notes: "" }],
+test("user can browse menu and see categories", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByRole("heading", { name: /menu/i })).toBeVisible();
+
+  const categoryTabs = page.getByRole("tablist");
+  await expect(categoryTabs).toBeVisible();
+
+  const menuItems = page.locator('[data-testid="menu-item"]');
+  await expect(menuItems.first()).toBeVisible();
+});
+```
+
+## Test Setup
+
+**Global Setup:**
+- File: `src/test/setup.ts`
+- Referenced in: `vitest.config.ts` (`setupFiles`)
+
+**Mocks in setup:**
+```typescript
+// ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
 };
 
-it("accepts valid checkout body", () => {
-  const result = createCheckoutSessionSchema.safeParse(validBody);
-  expect(result.success).toBe(true);
-});
+// localStorage
+const localStorageMock = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {},
+  clear: () => {},
+  length: 0,
+  key: () => null,
+};
 
-it("rejects missing addressId", () => {
-  const { addressId: _addressId, ...body } = validBody;
-  const result = createCheckoutSessionSchema.safeParse(body);
-  expect(result.success).toBe(false);
+// matchMedia
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => true,
+  }),
 });
 ```
 
-## Store Testing (Zustand)
-
-**Pattern:**
+**Environment Variables:**
 ```typescript
-describe("CartStore", () => {
-  beforeEach(() => {
-    // Clear store before each test
-    useCartStore.getState().clearCart();
-    useCartStore.persist.clearStorage?.();
-  });
-
-  it("adds item to cart", () => {
-    const store = useCartStore.getState();
-    store.addItem(baseItem);
-
-    // Get updated state
-    const updated = useCartStore.getState();
-    expect(updated.items).toHaveLength(1);
-    expect(updated.items[0].menuItemId).toBe("item-1");
-  });
-
-  it("clamps quantity to MAX_ITEM_QUANTITY", () => {
-    const store = useCartStore.getState();
-    store.addItem({ ...baseItem, quantity: 100 });
-
-    expect(useCartStore.getState().items[0].quantity).toBe(MAX_ITEM_QUANTITY);
-  });
-});
+process.env.GOOGLE_MAPS_API_KEY = "test-google-maps-api-key";
+process.env.STRIPE_SECRET_KEY = "sk_test_mock";
+process.env.STRIPE_WEBHOOK_SECRET = "whsec_test_mock";
+process.env.NEXT_PUBLIC_SUPABASE_URL = "http://localhost:54321";
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-anon-key";
+process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role-key";
 ```
 
-## Excluded from Tests
+## E2E Configuration
 
-**Config excludes:**
-- `**/node_modules/**` - third-party code
-- `**/e2e/**` - E2E tests run separately with Playwright
-- `.next/**` - build output
+**Playwright Settings:**
+- Test directory: `./e2e`
+- Timeout: 30000ms
+- Base URL: `http://localhost:3000`
+- Retries: 2 in CI, 0 in local
+- Workers: 1 in CI, unlimited in local
+- Reporter: HTML report
+
+**Visual Regression:**
+- Snapshot directory: `e2e/__snapshots__/`
+- Max diff pixels: 100
+- Threshold: 0.2 (20%)
+
+**Devices:**
+- Desktop: Chrome
+- Mobile: Pixel 5
+
+**Web Server:**
+```javascript
+webServer: {
+  command: "pnpm dev --webpack",
+  url: "http://localhost:3000",
+  reuseExistingServer: !process.env.CI,
+  timeout: 180000,
+}
+```
+
+## Pre-commit Hooks
+
+**Tool:** Husky + lint-staged
+
+**Runs on commit:**
+```json
+"lint-staged": {
+  "src/**/*.{ts,tsx}": [
+    "eslint --max-warnings=0 --no-warn-ignored"
+  ],
+  "src/**/*.css": [
+    "stylelint"
+  ]
+}
+```
+
+## Verification Pipeline
+
+**Before merge:**
+```bash
+pnpm lint && pnpm lint:css && pnpm typecheck && pnpm test && pnpm build
+```
 
 ---
 
-*Testing analysis: 2026-01-21*
+*Testing analysis: 2026-01-30*
