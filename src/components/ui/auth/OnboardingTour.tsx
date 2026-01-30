@@ -303,8 +303,10 @@ export function OnboardingTour({
     setCurrentStep(index);
   }, []);
 
-  // Keyboard navigation
+  // Keyboard navigation - handler defined inside useEffect for proper closure
   useEffect(() => {
+    if (isExiting) return; // Don't handle keys during exit animation
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === "Enter") {
         handleNext();
@@ -317,7 +319,7 @@ export function OnboardingTour({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleNext, handleSkip, currentStep]);
+  }, [handleNext, handleSkip, currentStep, isExiting]);
 
   return (
     <motion.div

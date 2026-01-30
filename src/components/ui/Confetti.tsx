@@ -7,7 +7,7 @@
 
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 
@@ -268,6 +268,17 @@ export function SuccessAnimation({
   className,
 }: SuccessAnimationProps) {
   const prefersReducedMotion = useReducedMotion();
+  const completeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup timeout on unmount to prevent setState/callback on unmounted component
+  useEffect(() => {
+    return () => {
+      if (completeTimeoutRef.current) {
+        clearTimeout(completeTimeoutRef.current);
+        completeTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   const checkmarkVariants = {
     hidden: { pathLength: 0, opacity: 0 },
@@ -308,7 +319,14 @@ export function SuccessAnimation({
             exit={{ opacity: 0 }}
             onAnimationComplete={() => {
               // Delay onComplete to let user see the success state
-              setTimeout(() => onComplete?.(), 1500);
+              // Use ref to allow cleanup on unmount
+              if (completeTimeoutRef.current) {
+                clearTimeout(completeTimeoutRef.current);
+              }
+              completeTimeoutRef.current = setTimeout(() => {
+                onComplete?.();
+                completeTimeoutRef.current = null;
+              }, 1500);
             }}
             className={cn(
               "flex flex-col items-center justify-center p-8",

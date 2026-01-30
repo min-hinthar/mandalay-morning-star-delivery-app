@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback, useMemo } from "react";
+import { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import {
   motion,
   useMotionValue,
@@ -142,6 +142,16 @@ export function UnifiedMenuItemCard({
   const [isMobileTiltActive, setIsMobileTiltActive] = useState(false);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+
+  // Cleanup longPressTimer on unmount to prevent setState on unmounted component
+  useEffect(() => {
+    return () => {
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current);
+        longPressTimer.current = null;
+      }
+    };
+  }, []);
 
   // Favorites - use controlled state if provided, else use hook
   const favoritesHook = useFavorites();
