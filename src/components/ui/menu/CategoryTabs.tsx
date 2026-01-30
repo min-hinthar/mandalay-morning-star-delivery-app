@@ -127,10 +127,17 @@ export function CategoryTabs({
 
     if (!container || !activeTab) return;
 
+    // Track if effect is still active (component mounted)
+    let isMounted = true;
+    let rafId: number | null = null;
+
     // Use requestAnimationFrame to wait for layout to settle after touch events
     // and Framer Motion animations (whileTap scale) on mobile devices.
     // Without this delay, getBoundingClientRect() may return stale values.
-    const rafId = requestAnimationFrame(() => {
+    rafId = requestAnimationFrame(() => {
+      // Guard against unmount during rAF
+      if (!isMounted) return;
+
       // Re-check refs inside rAF in case component unmounted
       const currentContainer = scrollContainerRef.current;
       const currentTab = activeTabRef.current;
@@ -174,7 +181,12 @@ export function CategoryTabs({
       }
     });
 
-    return () => cancelAnimationFrame(rafId);
+    return () => {
+      isMounted = false;
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
   }, [activeCategory, shouldAnimate]);
 
   // Handle tab click

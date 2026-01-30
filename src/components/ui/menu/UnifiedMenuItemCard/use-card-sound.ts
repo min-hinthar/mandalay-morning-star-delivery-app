@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useEffect } from "react";
 
 // ============================================
 // TYPES
@@ -77,6 +77,24 @@ export function useCardSound() {
     initialized: false,
     userInteracted: false,
   });
+
+  // Cleanup AudioContext on unmount to prevent resource leaks
+  useEffect(() => {
+    // Capture ref at effect setup time for cleanup
+    const state = audioState;
+    return () => {
+      const ctx = state.current.context;
+      if (ctx && ctx.state !== "closed") {
+        try {
+          ctx.close();
+        } catch {
+          // Silently fail - context may already be closed
+        }
+      }
+      state.current.context = null;
+      state.current.initialized = false;
+    };
+  }, []);
 
   /**
    * Mark that user has interacted (enables sound playback)

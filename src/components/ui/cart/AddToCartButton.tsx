@@ -133,23 +133,29 @@ export function AddToCartButton({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const lastAddTimeRef = useRef<number>(0);
   const isMountedRef = useRef(true);
+  const timeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const { fly, isAnimating } = useFlyToCart();
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   const [state, setState] = useState<"idle" | "loading" | "success">("idle");
 
-  // Track mounted state to prevent setState on unmounted component
+  // Track mounted state and cleanup all timeouts on unmount
   useEffect(() => {
     isMountedRef.current = true;
+    // Capture current timeouts set for cleanup
+    const timeouts = timeoutsRef.current;
     return () => {
       isMountedRef.current = false;
+      // Clear all pending timeouts on unmount
+      timeouts.forEach((timeout) => clearTimeout(timeout));
+      timeouts.clear();
     };
   }, []);
 
   // Debounce interval to prevent duplicate additions from rapid clicks
   const DEBOUNCE_MS = 500;
 
-  const handleClick = useCallback(async () => {
+  const handleClick = useCallback(() => {
     // Debounce guard for rapid clicks
     const now = Date.now();
     if (now - lastAddTimeRef.current < DEBOUNCE_MS) return;
@@ -174,14 +180,23 @@ export function AddToCartButton({
     // Parent is responsible for calling addItem() - this prevents double-add
     onAdd?.();
 
-    // Show success state (only if still mounted)
-    if (shouldAnimate && isMountedRef.current) {
+    // Show success state using setTimeout with proper cleanup tracking
+    if (shouldAnimate) {
+      // Transition to success state immediately (loading is brief)
       setState("success");
-      await new Promise((resolve) => setTimeout(resolve, 600));
-    }
 
-    // Reset to idle (only if still mounted)
-    if (isMountedRef.current) {
+      // Schedule return to idle state with tracked timeout
+      const idleTimeout = setTimeout(() => {
+        timeoutsRef.current.delete(idleTimeout);
+        if (isMountedRef.current) {
+          setState("idle");
+        }
+      }, 600);
+
+      // Track timeout for cleanup on unmount
+      timeoutsRef.current.add(idleTimeout);
+    } else {
+      // No animation, reset to idle immediately
       setState("idle");
     }
   }, [state, disabled, shouldAnimate, fly, item, onAdd]);
