@@ -216,12 +216,21 @@ export function AuthModal({
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { shake: errorShake, triggerShake } = useErrorShake();
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (focusTimeoutRef.current) clearTimeout(focusTimeoutRef.current);
+    };
+  }, []);
 
   // Focus input when opened
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => {
+      if (focusTimeoutRef.current) clearTimeout(focusTimeoutRef.current);
+      focusTimeoutRef.current = setTimeout(() => {
         inputRef.current?.focus();
       }, 300);
     }
