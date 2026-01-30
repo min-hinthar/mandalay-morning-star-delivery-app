@@ -82,6 +82,16 @@ export function AddButton({
   // Track if we're in the middle of an add operation
   const isProcessingRef = useRef(false);
 
+  // Timeout ref for cleanup
+  const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current);
+    };
+  }, []);
+
   const { fly } = useFlyToCart();
   const { playAddSound, playRemoveSound, markUserInteraction } = useCardSound();
 
@@ -135,8 +145,9 @@ export function AddButton({
       // Call parent callback to add to cart
       onAdd();
 
-      // End animation after delay
-      setTimeout(() => {
+      // End animation after delay (with cleanup)
+      if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = setTimeout(() => {
         setIsAddingAnimation(false);
         isProcessingRef.current = false;
       }, 350);
