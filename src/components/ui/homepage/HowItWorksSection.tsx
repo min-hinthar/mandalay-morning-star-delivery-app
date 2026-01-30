@@ -304,10 +304,20 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
   const inputWrapperRef = useRef<HTMLDivElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Track mount state for portal
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  // Cleanup blur timeout on unmount to prevent setState on unmounted component
+  useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+      }
+    };
   }, []);
 
   // Update dropdown position when focused
@@ -422,7 +432,12 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onFocus={() => setIsFocused(true)}
-            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+            onBlur={() => {
+              if (blurTimeoutRef.current) {
+                clearTimeout(blurTimeoutRef.current);
+              }
+              blurTimeoutRef.current = setTimeout(() => setIsFocused(false), 200);
+            }}
             placeholder={isReady ? "Enter your delivery address..." : "Loading..."}
             disabled={!isReady || isCheckingCoverage}
             className={cn(

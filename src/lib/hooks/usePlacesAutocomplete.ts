@@ -60,6 +60,9 @@ export function usePlacesAutocomplete(
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Track mount state to prevent setState on unmounted component
+  const isMountedRef = useRef(true);
+
   const debouncedInput = useDebounce(input, debounceMs);
 
   // Session token for billing optimization
@@ -95,6 +98,14 @@ export function usePlacesAutocomplete(
       placesServiceRef.current = new google.maps.places.PlacesService(dummyDiv);
     }
   }, [isLoaded]);
+
+  // Track mount state for async cleanup
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Fetch predictions using new API
   const fetchPredictionsNew = useCallback(async (searchInput: string): Promise<PlacePrediction[] | null> => {
@@ -186,12 +197,19 @@ export function usePlacesAutocomplete(
           results = await fetchPredictionsLegacy(debouncedInput);
         }
 
-        setPredictions(results);
+        // Only update state if still mounted (prevents setState on unmounted component)
+        if (isMountedRef.current) {
+          setPredictions(results);
+        }
       } catch {
-        setError("Failed to fetch suggestions");
-        setPredictions([]);
+        if (isMountedRef.current) {
+          setError("Failed to fetch suggestions");
+          setPredictions([]);
+        }
       } finally {
-        setIsLoading(false);
+        if (isMountedRef.current) {
+          setIsLoading(false);
+        }
       }
     };
 
