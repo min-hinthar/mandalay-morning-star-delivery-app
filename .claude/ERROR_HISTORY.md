@@ -168,6 +168,51 @@ git commit -m "fix: correct Drawer.tsx casing for Linux builds"
 
 ---
 
+## 2026-01-29: Mobile Crash on Modal/Drawer Close (Scroll Lock Race Condition)
+**Type:** Runtime | **Severity:** Critical
+
+**Files:** `src/lib/hooks/useBodyScrollLock.ts`, `src/components/ui/Drawer.tsx`, `src/components/ui/Modal.tsx`, `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx`
+
+**Error:** App crashes, reloads, shows "Can't open page" error, or white screen when closing modals/drawers on mobile (iOS Safari, Chrome, Android). Intermittent - sometimes works, sometimes crashes.
+
+**Root Cause:** Scroll lock cleanup called `window.scrollTo()` synchronously when overlay closed, but Framer Motion's `AnimatePresence` exit animation was still running (~200-300ms). iOS Safari tried to scroll while DOM was in inconsistent state (fixed-position elements being removed, transforms animating).
+
+```tsx
+// BROKEN - scrollTo during exit animation
+useEffect(() => {
+  if (isLocked) {
+    document.body.style.overflow = "hidden";
+  }
+  return () => {
+    document.body.style.overflow = "";
+    window.scrollTo(0, savedScrollY);  // Fires during exit animation!
+  };
+}, [isLocked]);
+```
+
+**Fix:** Defer scroll restoration until animation completes using `onExitComplete`:
+
+```tsx
+// Hook: Support deferred restore
+export function useBodyScrollLock(isLocked: boolean, options: { deferScrollRestore?: boolean } = {}) {
+  // Lock/unlock logic...
+  // If deferScrollRestore=true, DON'T restore in cleanup
+}
+
+// Component: Restore in onExitComplete
+<AnimatePresence onExitComplete={() => restoreBodyScroll()}>
+  {isOpen && <Content />}
+</AnimatePresence>
+```
+
+**Prevention:**
+1. Any scroll manipulation must use `requestAnimationFrame` for DOM stability
+2. Coordinate scroll lock lifecycle with animation lifecycle via `onExitComplete`
+3. Add global lock counting to handle nested overlays (modal inside drawer)
+4. Test overlay close on actual iOS devices, not just Chrome DevTools mobile emulator
+
+---
+
 ## 2026-01-26: Double-Add Cart Items (Button + Callback Both Mutate)
 **Type:** Logic | **Severity:** High
 
