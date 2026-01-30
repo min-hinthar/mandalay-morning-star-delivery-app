@@ -91,7 +91,8 @@ export function MobileMenu({
             alt="Mandalay Morning Star"
             width={64}
             height={64}
-            className="w-16 h-16"
+            style={{ height: "auto" }}
+            className="w-16"
           />
           <span className="font-display font-bold text-lg text-primary">
             Morning Star

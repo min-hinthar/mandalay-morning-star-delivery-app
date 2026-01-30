@@ -859,3 +859,67 @@ experimental: {
 **Apply when:** Designing mobile bottom sheets, especially with scrollable content.
 
 ---
+
+## 2026-01-29: Google Maps AdvancedMarkerElement Requires Map ID
+
+**Context:** Upgrading from legacy `Marker` to `AdvancedMarkerElement` caused warning "map is initialized without a valid Map ID"
+**Learning:** `AdvancedMarkerElement` requires a Map ID from Google Cloud Console. Without `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`, markers won't render on vector maps.
+
+**Fix:** Implement fallback pattern - use `AdvancedMarkerElement` when Map ID available, legacy `Marker` otherwise:
+
+```tsx
+const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+
+// Map options - only include mapId when available
+options={{
+  ...(MAP_ID && { mapId: MAP_ID }),
+}}
+
+// Inside GoogleMap: Legacy fallback when no Map ID
+{!MAP_ID && (
+  <Marker position={position} icon={{ path: google.maps.SymbolPath.CIRCLE, ... }} />
+)}
+
+// AdvancedMarkerElement via useEffect when Map ID available
+useEffect(() => {
+  if (!map || !isLoaded || !MAP_ID) return;
+  markerRef.current = new google.maps.marker.AdvancedMarkerElement({
+    map,
+    position,
+    content: customHtmlElement,
+  });
+  return () => { markerRef.current?.map = null; };
+}, [map, isLoaded]);
+```
+
+**Apply when:** Using Google Maps with custom markers. Enables gradual adoption of vector maps while maintaining compatibility.
+
+---
+
+## 2026-01-29: Next.js Image Aspect Ratio with Fixed Width
+
+**Context:** Logo images getting squished due to fixed width AND height classes
+**Learning:** When using Next.js Image with a fixed width, add `style={{ height: "auto" }}` to maintain aspect ratio instead of using both `w-*` and `h-*` classes.
+
+```tsx
+// ❌ Squished - both dimensions fixed
+<Image
+  src="/logo.png"
+  width={48}
+  height={48}
+  className="w-12 h-12"
+/>
+
+// ✅ Maintains aspect ratio
+<Image
+  src="/logo.png"
+  width={48}
+  height={48}
+  style={{ height: "auto" }}
+  className="w-12"
+/>
+```
+
+**Apply when:** Displaying logos or images where aspect ratio must be preserved and width is the controlling dimension.
+
+---
