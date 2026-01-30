@@ -21,12 +21,12 @@ export function TimeSlotDisplay({ selection, className }: TimeSlotDisplayProps) 
 
   return (
     <div className={cn("flex flex-wrap items-center gap-4 text-sm", className)}>
-      <span className="flex items-center gap-1.5 text-muted">
-        <Calendar className="h-4 w-4" />
+      <span className="flex items-center gap-1.5 text-text-primary">
+        <Calendar className="h-4 w-4 text-primary" />
         {displayDate}
       </span>
-      <span className="flex items-center gap-1.5 text-muted">
-        <Clock className="h-4 w-4" />
+      <span className="flex items-center gap-1.5 text-text-primary">
+        <Clock className="h-4 w-4 text-primary" />
         {window?.label ?? `${selection.windowStart} - ${selection.windowEnd}`}
       </span>
     </div>
