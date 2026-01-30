@@ -171,7 +171,7 @@ git commit -m "fix: correct Drawer.tsx casing for Linux builds"
 ## 2026-01-29: Mobile Crash on Modal/Drawer Close (Scroll Lock Issues)
 **Type:** Runtime | **Severity:** Critical
 
-**Files:** `src/lib/hooks/useBodyScrollLock.ts`, `src/components/ui/Drawer.tsx`, `src/components/ui/Modal.tsx`, `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx`
+**Files:** `src/lib/hooks/useBodyScrollLock.ts`, `src/components/ui/Drawer.tsx`, `src/components/ui/Modal.tsx`, `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx`, `src/components/ui/menu/SearchInput.tsx`
 
 **Error:** App crashes, reloads, shows "Can't open page" error, or white screen when closing modals/drawers on mobile (iOS Safari, Chrome, Android). Intermittent - sometimes works, sometimes crashes.
 
@@ -205,6 +205,32 @@ timeoutRef.current = setTimeout(() => { ... }, 0);
 // Unmount cleanup:
 useEffect(() => () => {
   if (timeoutRef.current) clearTimeout(timeoutRef.current);
+}, []);
+```
+
+### Issue 3: SearchInput handleBlur setTimeout (Fixed 2026-01-30)
+SearchInput.tsx had setTimeout in `handleBlur` and `handleIconClick` not tracked or cleaned.
+
+```typescript
+// BROKEN - setTimeout fires after unmount
+const handleBlur = useCallback(() => {
+  setTimeout(() => {
+    setIsFocused(false);  // Fires on unmounted component!
+  }, 150);
+}, []);
+```
+
+**Fix:** Same pattern - track timeout in ref:
+```typescript
+const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+const handleBlur = useCallback(() => {
+  if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
+  blurTimeoutRef.current = setTimeout(() => setIsFocused(false), 150);
+}, []);
+
+useEffect(() => () => {
+  if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
 }, []);
 ```
 
