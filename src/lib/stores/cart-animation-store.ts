@@ -25,9 +25,14 @@ interface CartAnimationStore {
   setFlyingElement: (el: HTMLElement | null) => void;
   /** Whether badge should pulse (triggered after fly completes) */
   shouldPulseBadge: boolean;
-  /** Trigger badge pulse animation */
-  triggerBadgePulse: () => void;
+  /** Trigger badge pulse animation - returns cleanup function */
+  triggerBadgePulse: () => (() => void);
+  /** Cancel any pending pulse timeout */
+  cancelPendingPulse: () => void;
 }
+
+// Track pending pulse timeout for cleanup
+let pulseTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
 export const useCartAnimationStore = create<CartAnimationStore>((set) => ({
   badgeRef: null,
@@ -38,8 +43,33 @@ export const useCartAnimationStore = create<CartAnimationStore>((set) => ({
   setFlyingElement: (el) => set({ flyingElement: el }),
   shouldPulseBadge: false,
   triggerBadgePulse: () => {
+    // Clear any existing timeout to prevent overlapping pulses
+    if (pulseTimeoutId) {
+      clearTimeout(pulseTimeoutId);
+      pulseTimeoutId = null;
+    }
+
     set({ shouldPulseBadge: true });
-    // Auto-reset after pulse duration
-    setTimeout(() => set({ shouldPulseBadge: false }), 300);
+
+    // Auto-reset after pulse duration with tracked timeout
+    pulseTimeoutId = setTimeout(() => {
+      pulseTimeoutId = null;
+      set({ shouldPulseBadge: false });
+    }, 300);
+
+    // Return cleanup function for callers to use
+    return () => {
+      if (pulseTimeoutId) {
+        clearTimeout(pulseTimeoutId);
+        pulseTimeoutId = null;
+      }
+    };
+  },
+  cancelPendingPulse: () => {
+    if (pulseTimeoutId) {
+      clearTimeout(pulseTimeoutId);
+      pulseTimeoutId = null;
+      set({ shouldPulseBadge: false });
+    }
   },
 }));

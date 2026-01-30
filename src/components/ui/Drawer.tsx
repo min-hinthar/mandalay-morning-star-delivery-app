@@ -26,7 +26,7 @@
  * </Drawer>
  */
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useMemo, type ReactNode } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Portal } from "./Portal";
 import { useRouteChangeClose, useBodyScrollLock } from "@/lib/hooks";
@@ -137,12 +137,15 @@ export function Drawer({
 
   // Store last active element and focus first focusable on open
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
     if (isOpen) {
       // Store currently focused element
       lastActiveElementRef.current = document.activeElement as HTMLElement;
 
       // Focus first focusable element after animation starts
-      const timeoutId = setTimeout(() => {
+      timeoutId = setTimeout(() => {
+        timeoutId = null;
         if (drawerRef.current) {
           const focusables =
             drawerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
@@ -154,8 +157,6 @@ export function Drawer({
           }
         }
       }, 50);
-
-      return () => clearTimeout(timeoutId);
     } else {
       // Restore focus on close
       if (lastActiveElementRef.current) {
@@ -163,6 +164,12 @@ export function Drawer({
         lastActiveElementRef.current = null;
       }
     }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [isOpen]);
 
   // Escape key handler
@@ -212,6 +219,15 @@ export function Drawer({
 
   // Use appropriate variants
   const variants = prefersReducedMotion ? reducedMotionVariants : bottomVariants;
+
+  // Memoize style object to prevent unnecessary re-renders
+  const bottomSheetStyle = useMemo(() => {
+    if (!isBottom) return undefined;
+    return {
+      ...(swipeProps?.style || {}),
+      height: height === "full" ? "80vh" : "auto",
+    };
+  }, [isBottom, swipeProps?.style, height]);
 
   return (
     <Portal>
@@ -263,11 +279,7 @@ export function Drawer({
               className
             )}
             {...(isBottom && !prefersReducedMotion ? swipeProps : {})}
-            style={isBottom ? {
-              // Merge swipeProps style (touchAction) with our height
-              ...(swipeProps?.style || {}),
-              height: height === "full" ? "80vh" : "auto",
-            } : undefined}
+            style={bottomSheetStyle}
             initial={isBottom ? "hidden" : { x: slideFrom }}
             animate={isBottom ? "visible" : { x: 0 }}
             exit={isBottom ? "exit" : { x: slideFrom }}
