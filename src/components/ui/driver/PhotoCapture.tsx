@@ -7,10 +7,11 @@
 
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, RotateCcw, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
 
 interface PhotoCaptureProps {
   isOpen: boolean;
@@ -92,6 +93,9 @@ export function PhotoCapture({
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Body scroll lock (deferred restore for animation safety)
+  const { restoreScrollPosition } = useBodyScrollLock(isOpen, { deferRestore: true });
 
   // Start camera
   const startCamera = useCallback(async () => {
@@ -211,20 +215,15 @@ export function PhotoCapture({
     handleClose();
   }, [capturedBlob, onCapture, onUpload, handleClose]);
 
-  // Start camera when modal opens
-  const handleOpen = useCallback(() => {
-    if (isOpen && !stream && !capturedPhoto) {
+  // Start camera when modal opens (proper useEffect, not side effect in render)
+  useEffect(() => {
+    if (isOpen && !stream && !capturedPhoto && !error) {
       startCamera();
     }
-  }, [isOpen, stream, capturedPhoto, startCamera]);
-
-  // Effect for opening
-  if (isOpen && !stream && !capturedPhoto && !error) {
-    handleOpen();
-  }
+  }, [isOpen, stream, capturedPhoto, error, startCamera]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={restoreScrollPosition}>
       {isOpen && (
         // Camera full-screen overlay - intentionally dark for camera UI
         <motion.div
