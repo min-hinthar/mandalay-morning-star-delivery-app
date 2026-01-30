@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -138,8 +138,16 @@ export function FavoriteButton({
 }: FavoriteButtonProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const [showBurst, setShowBurst] = useState(false);
+  const burstTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sizes = sizeConfig[size];
   const springConfig = getSpring(spring.ultraBouncy);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (burstTimeoutRef.current) clearTimeout(burstTimeoutRef.current);
+    };
+  }, []);
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
@@ -154,7 +162,8 @@ export function FavoriteButton({
       // Show burst animation on favorite
       if (newState && shouldAnimate) {
         setShowBurst(true);
-        setTimeout(() => setShowBurst(false), 500);
+        if (burstTimeoutRef.current) clearTimeout(burstTimeoutRef.current);
+        burstTimeoutRef.current = setTimeout(() => setShowBurst(false), 500);
       }
 
       onToggle(newState);
