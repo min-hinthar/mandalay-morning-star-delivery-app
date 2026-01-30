@@ -171,7 +171,7 @@ git commit -m "fix: correct Drawer.tsx casing for Linux builds"
 ## 2026-01-29: Mobile Crash on Modal/Drawer Close (Scroll Lock Issues)
 **Type:** Runtime | **Severity:** Critical
 
-**Files:** `src/lib/hooks/useBodyScrollLock.ts`, `src/components/ui/Drawer.tsx`, `src/components/ui/Modal.tsx`, `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx`, `src/components/ui/menu/SearchInput.tsx`
+**Files:** `src/lib/hooks/useBodyScrollLock.ts`, `src/components/ui/Drawer.tsx`, `src/components/ui/Modal.tsx`, `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx`, `src/components/ui/menu/SearchInput.tsx`, `src/components/ui/cart/AddToCartButton.tsx`
 
 **Error:** App crashes, reloads, shows "Can't open page" error, or white screen when closing modals/drawers on mobile (iOS Safari, Chrome, Android). Intermittent - sometimes works, sometimes crashes.
 
@@ -210,6 +210,33 @@ useEffect(() => () => {
 
 ### Issue 3: SearchInput handleBlur setTimeout (Fixed 2026-01-30)
 SearchInput.tsx had setTimeout in `handleBlur` and `handleIconClick` not tracked or cleaned.
+
+### Issue 4: AddToCartButton async setState (Fixed 2026-01-30)
+AddToCartButton.tsx has async `handleClick` with `await setTimeout(600ms)` for success animation.
+When user adds item, parent calls `onClose()` → component unmounts → async continues → `setState` on unmounted.
+
+```typescript
+// BROKEN - async function continues after unmount
+const handleClick = useCallback(async () => {
+  setState("loading");
+  onAdd?.();  // Parent closes drawer here!
+  setState("success");
+  await new Promise((r) => setTimeout(r, 600));  // Still waiting...
+  setState("idle");  // CRASH - component unmounted!
+}, []);
+```
+
+**Fix:** Add isMountedRef to guard setState in async code:
+```typescript
+const isMountedRef = useRef(true);
+useEffect(() => {
+  isMountedRef.current = true;
+  return () => { isMountedRef.current = false; };
+}, []);
+
+// In async function:
+if (isMountedRef.current) setState("idle");
+```
 
 ```typescript
 // BROKEN - setTimeout fires after unmount
