@@ -49,7 +49,7 @@ export function useBodyScrollLock(isLocked: boolean): void {
         // Get stored scroll position from body.style.top
         const storedScrollY = parseInt(document.body.style.top || "0", 10) * -1;
 
-        // Reset all body styles
+        // Reset all body styles immediately so content is visible
         document.body.style.position = "";
         document.body.style.top = "";
         document.body.style.left = "";
@@ -57,8 +57,11 @@ export function useBodyScrollLock(isLocked: boolean): void {
         document.body.style.overflow = "";
         document.body.style.paddingRight = "";
 
-        // Restore scroll position
-        window.scrollTo(0, storedScrollY);
+        // Defer scroll restoration to prevent iOS Safari crashes
+        // during AnimatePresence exit animations
+        setTimeout(() => {
+          window.scrollTo(0, storedScrollY);
+        }, 0);
       }
     };
   }, [isLocked]);
