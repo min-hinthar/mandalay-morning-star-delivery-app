@@ -17,6 +17,7 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
+import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
 
 interface SuccessCheckmarkProps {
   /** Whether to show the checkmark */
@@ -210,6 +211,9 @@ export function SuccessOverlay({
   className,
 }: SuccessOverlayProps) {
   const prefersReducedMotion = useReducedMotion();
+
+  // Body scroll lock when overlay is shown
+  useBodyScrollLock(show);
 
   if (!show) return null;
 

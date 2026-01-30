@@ -11,6 +11,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, AlertTriangle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
 import type { DeliveryExceptionType } from "@/types/driver";
 
 const EXCEPTION_TYPES: { value: DeliveryExceptionType; label: string; description: string }[] = [
@@ -66,6 +67,9 @@ export function ExceptionModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Body scroll lock (deferred restore for animation safety)
+  const { restoreScrollPosition } = useBodyScrollLock(isOpen, { deferRestore: true });
+
   const handleSubmit = async () => {
     if (!selectedType) return;
 
@@ -109,7 +113,7 @@ export function ExceptionModal({
   };
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={restoreScrollPosition}>
       {isOpen && (
         <motion.div
           initial={{ opacity: 0 }}

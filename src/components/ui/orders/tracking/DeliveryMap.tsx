@@ -19,6 +19,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, MapPin, Navigation, Maximize2, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
 
 // Custom map styles for warm aesthetic (consistent with CoverageMap)
 const mapStyles: google.maps.MapTypeStyle[] = [
@@ -95,6 +96,9 @@ export function DeliveryMap({
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const prevDriverLocation = useRef(driverLocation);
+
+  // Body scroll lock for fullscreen mode (deferred restore for animation safety)
+  const { restoreScrollPosition } = useBodyScrollLock(isFullscreen, { deferRestore: true });
 
   // Refs for AdvancedMarkerElements
   const customerMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
@@ -422,7 +426,7 @@ export function DeliveryMap({
       </motion.div>
 
       {/* Fullscreen overlay */}
-      <AnimatePresence>
+      <AnimatePresence onExitComplete={restoreScrollPosition}>
         {isFullscreen && (
           <motion.div
             initial={{ opacity: 0 }}
