@@ -37,7 +37,7 @@ export function CTABanner({ id }: CTABannerProps) {
             y: 0,
             boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
           }}
-          viewport={{ once: false, amount: 0.5 }}
+          viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.5, ease: easing.default }}
           className="relative rounded-2xl bg-surface-primary p-8 md:p-12 text-center shadow-xl"
         >
@@ -62,7 +62,7 @@ export function CTABanner({ id }: CTABannerProps) {
           <motion.div
             initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : false}
             whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: false, amount: 0.5 }}
+            viewport={{ once: true, amount: 0.5 }}
             transition={{ delay: 0.1, ...spring.default }}
             className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/20 text-secondary rounded-pill mb-6"
           >
@@ -74,7 +74,7 @@ export function CTABanner({ id }: CTABannerProps) {
           <motion.h2
             initial={shouldAnimate ? { opacity: 0, y: 16 } : false}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.5 }}
+            viewport={{ once: true, amount: 0.5 }}
             transition={{ delay: 0.15, duration: 0.4, ease: easing.default }}
             className="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-text-primary mb-4"
           >
@@ -86,7 +86,7 @@ export function CTABanner({ id }: CTABannerProps) {
           <motion.p
             initial={shouldAnimate ? { opacity: 0, y: 16 } : false}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.5 }}
+            viewport={{ once: true, amount: 0.5 }}
             transition={{ delay: 0.2, duration: 0.4, ease: easing.default }}
             className="font-body text-lg text-text-secondary max-w-xl mx-auto mb-8"
           >
@@ -97,7 +97,7 @@ export function CTABanner({ id }: CTABannerProps) {
           <motion.div
             initial={shouldAnimate ? { opacity: 0, y: 16 } : false}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.5 }}
+            viewport={{ once: true, amount: 0.5 }}
             transition={{ delay: 0.25, duration: 0.4, ease: easing.default }}
             whileHover={shouldAnimate ? { scale: 1.03 } : undefined}
             whileTap={shouldAnimate ? { scale: 0.97 } : undefined}

@@ -25,6 +25,11 @@ export function useServiceWorker(): UseServiceWorkerReturn {
 
     setIsSupported(true);
 
+    // Track listeners for cleanup
+    let updateFoundHandler: (() => void) | null = null;
+    let messageHandler: ((event: MessageEvent) => void) | null = null;
+    let currentReg: ServiceWorkerRegistration | null = null;
+
     // Register service worker
     const registerSW = async () => {
       try {
@@ -32,11 +37,12 @@ export function useServiceWorker(): UseServiceWorkerReturn {
           scope: "/driver",
         });
 
+        currentReg = reg;
         setRegistration(reg);
         setIsRegistered(true);
 
         // Check for updates
-        reg.addEventListener("updatefound", () => {
+        updateFoundHandler = () => {
           const newWorker = reg.installing;
           if (newWorker) {
             newWorker.addEventListener("statechange", () => {
@@ -49,15 +55,17 @@ export function useServiceWorker(): UseServiceWorkerReturn {
               }
             });
           }
-        });
+        };
+        reg.addEventListener("updatefound", updateFoundHandler);
 
         // Listen for messages from service worker
-        navigator.serviceWorker.addEventListener("message", (event) => {
+        messageHandler = (event: MessageEvent) => {
           if (event.data?.type === "SYNC_REQUESTED") {
             // Trigger sync from IndexedDB
             window.dispatchEvent(new CustomEvent("sw-sync-request"));
           }
-        });
+        };
+        navigator.serviceWorker.addEventListener("message", messageHandler);
       } catch (err) {
         setError(err instanceof Error ? err : new Error("Failed to register SW"));
       }
@@ -65,9 +73,14 @@ export function useServiceWorker(): UseServiceWorkerReturn {
 
     registerSW();
 
-    // Cleanup
+    // Cleanup event listeners on unmount
     return () => {
-      // Service worker persists, no cleanup needed
+      if (currentReg && updateFoundHandler) {
+        currentReg.removeEventListener("updatefound", updateFoundHandler);
+      }
+      if (messageHandler) {
+        navigator.serviceWorker.removeEventListener("message", messageHandler);
+      }
     };
   }, []);
 

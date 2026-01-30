@@ -223,6 +223,16 @@ export function AddressAutocomplete({
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup blur timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Real Google Places autocomplete with 300ms debounce
   const {
@@ -281,7 +291,12 @@ export function AddressAutocomplete({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onFocus={() => setIsFocused(true)}
-          onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+          onBlur={() => {
+            if (blurTimeoutRef.current) {
+              clearTimeout(blurTimeoutRef.current);
+            }
+            blurTimeoutRef.current = setTimeout(() => setIsFocused(false), 200);
+          }}
           placeholder={isReady ? placeholder : "Loading..."}
           disabled={!isReady}
           className={cn(
