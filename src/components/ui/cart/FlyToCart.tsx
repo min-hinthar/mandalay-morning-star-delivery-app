@@ -65,13 +65,22 @@ export function useFlyToCart() {
   const { shouldAnimate } = useAnimationPreference();
 
   const flyingRef = useRef<FlyingElement | null>(null);
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
-  // Cleanup on unmount
+  // Cleanup on unmount - kill GSAP timeline and remove flying element
   useEffect(() => {
-    const currentFlying = flyingRef.current;
+    // Capture refs at effect setup time for cleanup
+    const timeline = timelineRef;
+    const flying = flyingRef;
     return () => {
-      if (currentFlying?.element) {
-        currentFlying.element.remove();
+      // Kill any active GSAP timeline to prevent callbacks on unmounted component
+      if (timeline.current) {
+        timeline.current.kill();
+        timeline.current = null;
+      }
+      // Remove flying element if it exists
+      if (flying.current?.element) {
+        flying.current.element.remove();
       }
     };
   }, []);
@@ -133,8 +142,12 @@ export function useFlyToCart() {
           setFlyingElement(null);
           setIsAnimating(false);
           triggerBadgePulse();
+          timelineRef.current = null;
         },
       });
+
+      // Store timeline reference for cleanup on unmount
+      timelineRef.current = tl;
 
       // Keyframes for arc trajectory
       tl.to(flyingEl, {
