@@ -71,51 +71,16 @@ export function CartEmptyState({ onClose, className }: CartEmptyStateProps) {
         className
       )}
     >
-      {/* Animated bag icon */}
+      {/* Static bag icon - removed infinite animations to prevent mobile crashes */}
       <motion.div
         variants={shouldAnimate ? itemVariants : undefined}
-        animate={
-          shouldAnimate
-            ? {
-                y: [0, -8, 0],
-                rotate: [0, 3, -3, 0],
-              }
-            : undefined
-        }
-        transition={{
-          y: {
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut",
-          },
-          rotate: {
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-          },
-        }}
         className={cn(
           "flex h-28 w-28 items-center justify-center rounded-full",
           "bg-gradient-cart-summary",
           "shadow-lg shadow-amber-500/10"
         )}
       >
-        <motion.div
-          animate={
-            shouldAnimate
-              ? {
-                  scale: [1, 1.05, 1],
-                }
-              : undefined
-          }
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        >
-          <ShoppingBag className="h-14 w-14 text-amber-500/70" />
-        </motion.div>
+        <ShoppingBag className="h-14 w-14 text-amber-500/70" />
       </motion.div>
 
       {/* Heading */}

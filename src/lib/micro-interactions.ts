@@ -298,7 +298,7 @@ export const shakeVariants: Variants = {
 };
 
 // ============================================
-// PULSE (for attention)
+// PULSE (for attention) - bounded repeat to prevent mobile crashes
 // ============================================
 
 export const pulseVariants: Variants = {
@@ -308,7 +308,7 @@ export const pulseVariants: Variants = {
     opacity: [1, 0.8, 1],
     transition: {
       duration: 1,
-      repeat: Infinity,
+      repeat: 3, // Bounded to prevent mobile memory issues
       ease: easing.easeInOut,
     },
   },
