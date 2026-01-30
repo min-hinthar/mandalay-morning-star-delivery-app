@@ -327,6 +327,69 @@ useEffect(() => {
 
 ---
 
+## 2026-01-30: Comprehensive setTimeout Cleanup (Mobile Crash Prevention)
+**Type:** Runtime | **Severity:** Critical
+
+**Files Fixed:**
+- `src/components/ui/auth/AuthModal.tsx` - focus delay
+- `src/components/ui/auth/OnboardingTour.tsx` - complete/skip delays
+- `src/components/ui/menu/FavoriteButton.tsx` - burst animation delay
+- `src/components/ui/menu/UnifiedMenuItemCard/AddButton.tsx` - animation reset delay
+- `src/components/ui/menu/MenuContent.tsx` - close animation delay
+- `src/components/ui/menu/SearchInput.tsx` - blur/focus delays
+- `src/components/ui/error-shake.tsx` - shake reset delay
+- `src/components/ui/cart/AddToCartButton.tsx` - async success animation
+
+**Error:** Mobile app crashes or refreshes when closing modals/drawers. Pattern: interact → close quickly → crash.
+
+**Root Cause:** setTimeout in callbacks or effects without cleanup. When component unmounts before timer fires, setState executes on unmounted component → mobile browser crash.
+
+**Universal Fix Pattern:**
+```typescript
+// 1. Add ref to track timeout
+const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+// 2. Add cleanup effect
+useEffect(() => {
+  return () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  };
+}, []);
+
+// 3. Use ref when setting timeout
+const handleAction = useCallback(() => {
+  if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  timeoutRef.current = setTimeout(() => {
+    setState(newValue);
+  }, delay);
+}, []);
+```
+
+**For async functions with await:**
+```typescript
+const isMountedRef = useRef(true);
+
+useEffect(() => {
+  isMountedRef.current = true;
+  return () => { isMountedRef.current = false; };
+}, []);
+
+const handleAsync = useCallback(async () => {
+  await someOperation();
+  if (isMountedRef.current) {
+    setState(newValue);  // Only update if still mounted
+  }
+}, []);
+```
+
+**Prevention:**
+1. ALWAYS track setTimeout with useRef
+2. ALWAYS add cleanup useEffect
+3. For async code, use isMountedRef guard before setState
+4. Search for `setTimeout` in PR reviews - require cleanup pattern
+
+---
+
 ## 2026-01-26: Double-Add Cart Items (Button + Callback Both Mutate)
 **Type:** Logic | **Severity:** High
 
