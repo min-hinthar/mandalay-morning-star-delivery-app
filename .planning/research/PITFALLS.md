@@ -1,596 +1,781 @@
-# Domain Pitfalls: Theme Consistency & Hero Redesign
+# Domain Pitfalls: Mobile Optimization, Homepage Components, Offline Support
 
-**Project:** Morning Star Delivery App - v1.3 Theme Fixes & Hero Overhaul
-**Domain:** TailwindCSS 4 | Next.js 16 | CSS 3D Transforms | Parallax | Mobile Touch
-**Researched:** 2026-01-27
-**Confidence:** HIGH (verified against codebase ERROR_HISTORY.md, LEARNINGS.md, and official sources)
+**Project:** Morning Star Delivery App - Mobile Performance & Homepage Integration
+**Domain:** Next.js 16 | React 19 | GSAP + Framer Motion | iOS Safari | Service Workers | Zustand
+**Researched:** 2026-01-30
+**Confidence:** HIGH (verified against codebase ERROR_HISTORY.md, LEARNINGS.md, web research, and official sources)
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause visual regressions, broken themes, or content disappearing.
+Mistakes that cause mobile crashes, memory leaks, or app-breaking issues.
 
 ---
 
-### Pitfall 1: Incomplete Theme Token Audit (Partial Fix Syndrome)
+### Pitfall 1: setTimeout/setInterval Not Cleaned Up on Unmount (ACTIVE IN CODEBASE)
 
-**What goes wrong:** Fixing hardcoded colors in visible areas while missing them in fallback code, error states, inline styles, or dynamically generated content. Users in specific themes see broken UI.
-
-**Why it happens:**
-- ESLint/grep catches className violations but misses inline `style={{}}` objects
-- Fallback/polyfill code paths rarely tested in both themes
-- Dynamic style generation (gradients, shadows) often uses hardcoded values
-- SVG fills/strokes frequently hardcoded
-
-**Consequences:**
-- Light mode footer text invisible (white on white) - documented in LEARNINGS.md
-- Error states unreadable in dark mode
-- Animations/confetti use hardcoded colors that clash with theme
-- PDF/email templates don't respect theme
-
-**Evidence from codebase (LEARNINGS.md 2026-01-26):**
-```tsx
-// BROKEN - bg-text-primary inverts, text-white doesn't
-<section className="bg-text-primary">
-  <h3 className="text-white">...</h3>  // Dark mode: light bg + white text = invisible
-</section>
-```
-
-**Current scope (from grep analysis):**
-- 221 occurrences of `text-white/text-black/bg-white/bg-black` across 89 files
-- 133 occurrences of hardcoded hex colors in component files
-- Key files: Modal.tsx (23 hex colors), AddToCartButton.tsx (4), DeliveryMap.tsx (8)
-
-**Prevention:**
-
-1. **Comprehensive audit approach:**
-   ```bash
-   # Find ALL hardcoded colors (not just obvious ones)
-   grep -rn "text-white\|text-black\|bg-white\|bg-black" src/components --include="*.tsx"
-   grep -rn "#[0-9A-Fa-f]\{3,6\}" src/components --include="*.tsx"
-   grep -rn "style={{" src/components --include="*.tsx" | grep -i "color\|background"
-   grep -rn "fill=\|stroke=" src/components --include="*.tsx"
-   ```
-
-2. **Create audit checklist by code path:**
-   - [ ] Primary UI (visible on load)
-   - [ ] Error states (`catch`, error boundaries)
-   - [ ] Loading states (skeletons, spinners)
-   - [ ] Empty states (no data messages)
-   - [ ] Success states (confetti, checkmarks)
-   - [ ] Modal/overlay backdrops
-   - [ ] SVG icons and illustrations
-   - [ ] Inline style objects
-
-3. **Fix in waves, verify each:**
-   ```tsx
-   // Wave 1: High-traffic pages (home, menu, checkout)
-   // Wave 2: Auth flows (login, signup, error)
-   // Wave 3: Admin/driver dashboards
-   // Wave 4: Edge cases (empty states, errors)
-   ```
-
-4. **ESLint rule for enforcement (after migration):**
-   ```js
-   // .eslintrc - Add after migration complete
-   "no-restricted-syntax": ["error", {
-     "selector": "JSXAttribute[name.name='style'] ObjectExpression Property[key.name=/color|background/i]",
-     "message": "Use CSS variables or Tailwind classes for theme-aware colors"
-   }]
-   ```
-
-**Detection (warning signs):**
-- Works in light mode, broken in dark mode (or vice versa)
-- Specific pages/components look wrong while others are fine
-- Colors "pop" harshly against themed backgrounds
-- User reports of "can't see X in dark mode"
-
-**Phase mapping:** Phase 1 - Complete audit before any fixes to establish baseline
-
----
-
-### Pitfall 2: CSS 3D Transforms + Stacking Context = Content Disappearing
-
-**What goes wrong:** Adding `preserve-3d`, `perspective`, or CSS 3D rotation causes content to flicker, disappear during hover, or render behind other elements.
+**What goes wrong:** Mobile app crashes, page refreshes, or shows "Can't open page" error when closing modals/drawers.
 
 **Why it happens:**
-- `transform-style: preserve-3d` creates new stacking context separate from z-index
-- `overflow: hidden/auto/scroll` forces `preserve-3d` to `flat`
-- `opacity < 1` forces `preserve-3d` to `flat`
-- Scale transforms combined with 3D rotation create conflicting contexts
-- zIndex changes in Framer Motion `whileHover` break 3D context
+- setTimeout fires after component unmounts
+- setState called on unmounted component
+- iOS Safari particularly sensitive to this (crashes instead of just console warning)
+- Common in animation delays, blur handlers, debounced actions
 
-**Consequences:**
-- Menu cards disappear during 3D tilt interaction
-- Content flickers when hovering 3D elements
-- Modal/dropdown appears behind 3D transformed elements
-- Mobile long-press tilt causes content to vanish
-
-**Evidence from codebase (LEARNINGS.md 2026-01-26):**
+**Evidence from codebase (ERROR_HISTORY.md 2026-01-29, 2026-01-30):**
 ```tsx
-// BROKEN - zIndex and scale create stacking context conflicts
-<motion.div
-  style={{ transformStyle: "preserve-3d", rotateX, rotateY }}
-  whileHover={{ scale: 1.03, zIndex: 50 }}  // Breaks 3D context
-  whileTap={{ scale: 0.98 }}                 // Also conflicts
->
+// BROKEN - setTimeout fires after unmount
+const handleBlur = useCallback(() => {
+  setTimeout(() => {
+    setIsFocused(false);  // Fires on unmounted component!
+  }, 150);
+}, []);
 
-// WORKING - disable scale when using 3D tilt
-<motion.div
-  style={{ transformStyle: "preserve-3d", rotateX, rotateY }}
-  whileHover={!shouldEnableTilt ? { scale: 1.03 } : undefined}
-  whileTap={!shouldEnableTilt ? { scale: 0.98 } : undefined}
->
+// BROKEN - async function continues after unmount
+const handleClick = async () => {
+  setState("loading");
+  onAdd?.();  // Parent closes drawer here!
+  setState("success");
+  await new Promise((r) => setTimeout(r, 600));  // Still waiting...
+  setState("idle");  // CRASH - component unmounted!
+};
 ```
 
+**Files already fixed (do not regress):**
+- `useBodyScrollLock.ts`, `SearchInput.tsx`, `AddToCartButton.tsx`
+- `AuthModal.tsx`, `OnboardingTour.tsx`, `FavoriteButton.tsx`
+- `MenuContent.tsx`, `error-shake.tsx`, `AddButton.tsx`
+
 **Prevention:**
+```tsx
+// Pattern 1: Track timeout in ref
+const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-1. **Never combine these with preserve-3d:**
-   ```css
-   /* These force flat, breaking 3D */
-   overflow: hidden;
-   overflow: auto;
-   opacity: 0.99;  /* Any value < 1 */
-   filter: blur(1px);
-   contain: paint;
-   ```
+useEffect(() => {
+  return () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  };
+}, []);
 
-2. **Use translateZ instead of z-index in 3D contexts:**
-   ```css
-   /* Inside 3D context, use 3D stacking */
-   .front-element {
-     transform: translateZ(50px);
-   }
-   .back-element {
-     transform: translateZ(0);
-   }
-   ```
+const handleAction = useCallback(() => {
+  if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  timeoutRef.current = setTimeout(() => {
+    setState(newValue);
+  }, delay);
+}, []);
 
-3. **Disable competing animations on 3D elements:**
-   ```tsx
-   // 3D tilt IS the hover feedback - don't add scale
-   const shouldEnableTilt = variant === 'menu' && !disableTilt;
+// Pattern 2: isMountedRef for async functions
+const isMountedRef = useRef(true);
 
-   <motion.div
-     style={shouldEnableTilt ? { transformStyle: "preserve-3d", rotateX, rotateY } : undefined}
-     whileHover={shouldEnableTilt ? undefined : { scale: 1.03 }}
-   >
-   ```
+useEffect(() => {
+  isMountedRef.current = true;
+  return () => { isMountedRef.current = false; };
+}, []);
 
-4. **Isolate 3D contexts:**
-   ```css
-   /* Prevent 3D leaking to siblings */
-   .page-content {
-     isolation: isolate;
-     transform-style: flat;
-   }
-   ```
+const handleAsync = async () => {
+  await someOperation();
+  if (isMountedRef.current) {
+    setState(newValue);  // Only update if still mounted
+  }
+};
+```
 
 **Detection:**
-- Content disappears on hover but returns on mouse leave
-- Works without animation, breaks with animation enabled
-- Computed style shows `transform-style: flat` when `preserve-3d` expected
-- DevTools 3D view shows unexpected flattening
+- Mobile crash/refresh on modal/drawer close
+- "Can't open page" Safari error
+- Chrome DevTools shows "Can't perform a React state update on an unmounted component"
+- Pattern: open -> close -> crash (or open -> close -> open -> close -> crash)
 
-**Phase mapping:** Phase 2 (Hero Implementation) - establish 3D architecture before adding effects
+**Phase mapping:** Phase 1 - Audit ALL setTimeout/setInterval usage before adding features
 
 ---
 
-### Pitfall 3: Semantic Token Misuse (Inverse Tokens)
+### Pitfall 2: Event Listener Accumulation from useCallback Dependencies (ACTIVE IN CODEBASE)
 
-**What goes wrong:** Using `bg-text-*` tokens for backgrounds or `text-surface-*` for text creates inverted contrast that breaks in one theme.
+**What goes wrong:** First modal close works, second crashes. Event listeners accumulate because cleanup removes wrong function reference.
 
 **Why it happens:**
-- Token names don't clearly indicate intended usage
-- Developers assume "primary" means "main" not "role"
-- Copy-paste from components designed for opposite context
-- Dark sections on light pages (and vice versa) need special handling
+- `useCallback` with `isOpen` in dependency array creates new function reference on every toggle
+- `addEventListener` called with reference v1
+- `removeEventListener` called with reference v2 (different!)
+- Old listener (v1) remains attached, fires on wrong state
 
-**Consequences:**
-- Footer/hero text invisible in one theme
-- Contrast ratio fails WCAG in specific combinations
-- "Inverted" sections (dark on light page) break completely
-
-**Evidence from codebase:**
+**Evidence from codebase (ERROR_HISTORY.md 2026-01-30):**
 ```tsx
-// tokens.css defines paired tokens that switch together:
---color-text-primary: #111111;  // Light: dark text
---color-text-inverse: #FFFFFF;  // Light: light text (for dark bgs)
+// BROKEN - function reference changes when isOpen changes
+const handleEscape = useCallback(
+  (e: KeyboardEvent) => {
+    if (e.key === "Escape" && isOpen) {
+      onClose();
+    }
+  },
+  [isOpen, onClose]  // isOpen causes new function on every toggle
+);
 
-// In dark mode, these flip:
---color-text-primary: #F8F7F6;  // Dark: light text
---color-text-inverse: #000000;  // Dark: dark text (for light bgs)
+useEffect(() => {
+  window.addEventListener("keydown", handleEscape);
+  return () => window.removeEventListener("keydown", handleEscape);
+  // Cleanup tries to remove CURRENT reference, but listener was added with PREVIOUS reference
+}, [handleEscape]);
 ```
 
 **Prevention:**
+```tsx
+// CORRECT - handler defined INSIDE useEffect
+useEffect(() => {
+  if (!isOpen) return;  // Guard: no listener when closed
 
-1. **Use section-specific token pairs:**
-   ```tsx
-   // CORRECT - footer tokens switch together
-   <footer className="bg-footer-bg text-footer-text">
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      onClose();
+    }
+  };
 
-   // CORRECT - hero tokens switch together
-   <section className="bg-hero-gradient text-hero-text">
-   ```
-
-2. **Never mix "opposite" tokens:**
-   ```tsx
-   // WRONG - bg uses text token, text is hardcoded
-   <div className="bg-text-primary text-white">
-
-   // CORRECT - use inverse token for contrast
-   <div className="bg-surface-primary text-text-primary">
-   ```
-
-3. **Create explicit paired tokens for special sections:**
-   ```css
-   /* tokens.css - always define pairs */
-   :root {
-     --cta-section-bg: var(--color-primary);
-     --cta-section-text: var(--color-text-inverse);
-   }
-   .dark {
-     --cta-section-bg: var(--color-primary);
-     --cta-section-text: var(--color-text-inverse);
-   }
-   ```
+  window.addEventListener("keydown", handleKeyDown);
+  return () => window.removeEventListener("keydown", handleKeyDown);
+}, [isOpen, onClose]);
+```
 
 **Detection:**
-- Text readable in light mode, invisible in dark mode (or vice versa)
-- Section "inverts" incorrectly on theme switch
-- WCAG contrast checker fails for specific theme
+- First close works, second crashes
+- Multiple event handlers firing (logged to console)
+- Memory usage grows with each open/close cycle
 
-**Phase mapping:** Phase 1 (Audit) - identify all misused tokens before fixing
+**Phase mapping:** Phase 1 - Audit all event listener patterns in overlay components
 
 ---
 
-### Pitfall 4: Touch Device Detection for 3D Effects
+### Pitfall 3: Body Scroll Lock Crashes on iOS Safari (ACTIVE IN CODEBASE)
 
-**What goes wrong:** 3D tilt effects enabled on touch devices cause content to disappear, become unclickable, or trigger unintended scrolling.
+**What goes wrong:** `window.scrollTo()` during AnimatePresence exit animation crashes iOS Safari.
 
 **Why it happens:**
-- `pointer: coarse` media query doesn't catch all touch devices
-- Hybrid devices (Surface, iPad with keyboard) detected incorrectly
-- Touch and mouse events fire differently (touchstart/mouseenter race)
-- Long-press for tilt conflicts with native context menu
+- `useBodyScrollLock` restores scroll synchronously on unmount
+- AnimatePresence exit animation is still running (~200-300ms)
+- iOS Safari tries to scroll while DOM is in inconsistent state
+- Layout thrashing + memory pressure = crash
 
-**Consequences:**
-- Menu card content disappears on mobile long-press
-- Tilt effect blocks scroll/swipe gestures
-- Users can't tap cards because touchmove triggers tilt
-- iOS context menu appears during tilt interaction
-
-**Current implementation (UnifiedMenuItemCard.tsx):**
+**Evidence from codebase (ERROR_HISTORY.md 2026-01-29):**
 ```tsx
-// Long-press to enable tilt
-const handleTouchStart = useCallback(() => {
-  if (!shouldEnableTilt) return;
-  longPressTimer.current = setTimeout(() => {
-    setIsMobileTiltActive(true);
-    navigator.vibrate?.(20);
-  }, 300);
-}, [shouldEnableTilt]);
+// BROKEN - scrollTo races with exit animation
+useEffect(() => {
+  return () => {
+    window.scrollTo(0, savedScrollY);  // Fires immediately on unmount
+  };
+}, []);
 
-// Prevent scroll during tilt
-touchAction: isMobileTiltActive ? "none" : "auto"
+// FIXED - defer until animation complete
+const { restoreScrollPosition } = useBodyScrollLock(isOpen, { deferRestore: true });
+
+<AnimatePresence onExitComplete={restoreScrollPosition}>
+  {isOpen && <DrawerContent />}
+</AnimatePresence>
 ```
+
+**Additional iOS Safari issues (from research):**
+- `body { overflow: hidden }` alone doesn't prevent scroll
+- Need `touch-action: none` for full iOS lock
+- iOS 18 doesn't update `window.innerHeight` correctly
+
+**Prevention:**
+```tsx
+// iOS-compatible scroll lock
+useEffect(() => {
+  if (!isLocked) return;
+
+  const scrollY = window.scrollY;
+  document.body.style.cssText = `
+    position: fixed;
+    top: -${scrollY}px;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    touch-action: none;
+    -webkit-overflow-scrolling: none;
+    overscroll-behavior: none;
+  `;
+
+  return () => {
+    // Restore AFTER animation
+    requestAnimationFrame(() => {
+      document.body.style.cssText = '';
+      window.scrollTo(0, scrollY);
+    });
+  };
+}, [isLocked]);
+```
+
+**Detection:**
+- Mobile crashes specifically when closing overlays
+- Works in Chrome DevTools mobile emulator, crashes on real iPhone
+- App refreshes or shows white screen
+
+**Phase mapping:** Phase 1 - Verify scroll lock patterns before adding new overlays
+
+**Sources:** [iOS Safari scroll lock fix](https://stripearmy.medium.com/i-fixed-a-decade-long-ios-safari-problem-0d85f76caec0), [body-scroll-lock npm](https://www.npmjs.com/package/body-scroll-lock)
+
+---
+
+### Pitfall 4: GSAP + Framer Motion Animation Conflicts
+
+**What goes wrong:** Animations stutter, fight each other, or cause layout thrashing when GSAP and Framer Motion both try to animate the same element.
+
+**Why it happens:**
+- GSAP directly manipulates DOM, bypasses React
+- Framer Motion works within React's render cycle
+- Both can target same CSS properties (transform, opacity)
+- GSAP ScrollTrigger and Framer's useScroll can conflict
+
+**Current codebase state:**
+- GSAP used for: ScrollTrigger animations, complex timelines
+- Framer Motion used for: Page transitions, AnimatePresence, hover/tap
+- Risk areas: Homepage sections using both libraries
 
 **Prevention:**
 
-1. **Proper device detection hierarchy:**
+1. **Clear ownership per element:**
    ```tsx
-   // Check capabilities, not device type
-   const supportsHover = window.matchMedia('(hover: hover)').matches;
-   const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
-   const prefersTilt = supportsHover && !hasCoarsePointer;
+   // WRONG - both animate same element
+   <motion.div whileHover={{ scale: 1.05 }}>
+     <div ref={gsapRef}>Content</div>  // GSAP also animating this
+   </motion.div>
 
-   // Or disable for all touch-capable devices
-   const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+   // CORRECT - separate concerns
+   <motion.div whileHover={{ scale: 1.05 }}>
+     <div>Framer handles hover</div>
+   </motion.div>
+   <div ref={gsapRef}>GSAP handles scroll</div>
    ```
 
-2. **SSR-safe detection with mounted state:**
-   ```tsx
-   const [deviceCapabilities, setDeviceCapabilities] = useState({
-     hasTouch: false,
-     supportsHover: true, // Safe default for SSR
-     mounted: false
-   });
+2. **Use one library per animation type:**
+   | Animation Type | Use |
+   |---------------|-----|
+   | Enter/exit transitions | Framer Motion (AnimatePresence) |
+   | Scroll-triggered | GSAP ScrollTrigger |
+   | Hover/tap gestures | Framer Motion |
+   | Complex timelines | GSAP |
+   | Layout animations | Framer Motion (layout prop) |
 
+3. **Clean up GSAP in useEffect:**
+   ```tsx
    useEffect(() => {
-     setDeviceCapabilities({
-       hasTouch: 'ontouchstart' in window,
-       supportsHover: window.matchMedia('(hover: hover)').matches,
-       mounted: true
-     });
+     const ctx = gsap.context(() => {
+       gsap.from(element, { opacity: 0 });
+     }, containerRef);
+
+     return () => ctx.revert();  // CRITICAL for cleanup
    }, []);
    ```
 
-3. **Graceful degradation for touch:**
+4. **Don't use GSAP for React state-driven UI:**
    ```tsx
-   // Mobile: tap to select, no tilt
-   // Desktop: hover for tilt, click to select
-   const enableTilt = deviceCapabilities.mounted && !deviceCapabilities.hasTouch;
-   ```
+   // WRONG - fighting React
+   gsap.to(element, { display: isOpen ? 'block' : 'none' });
 
-4. **Prevent scroll conflicts:**
-   ```tsx
-   // Only prevent scroll when actively tilting
-   <motion.div
-     style={{ touchAction: isTilting ? 'none' : 'manipulation' }}
-     onTouchStart={handleTouchStart}
-     onTouchEnd={handleTouchEnd}
-   >
+   // CORRECT - let React handle visibility
+   {isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} />}
    ```
 
 **Detection:**
-- Works on desktop, broken on mobile
-- Content disappears when long-pressing on mobile
-- Scroll doesn't work near 3D elements on touch devices
-- Hydration mismatch warnings related to touch detection
+- Animations "jump" or reset mid-way
+- Double animations visible
+- Memory leaks from uncleaned GSAP timelines
+- Performance degrades over time
 
-**Phase mapping:** Phase 2 (Hero) - implement detection before adding parallax/3D effects
+**Phase mapping:** Phase 2 - Establish animation ownership before building homepage sections
+
+**Sources:** [GSAP vs Motion comparison](https://motion.dev/docs/gsap-vs-motion), [GSAP React best practices](https://gsap.com/community/forums/topic/38826-why-gsap-but-not-framer-motion/)
 
 ---
 
-### Pitfall 5: Parallax Performance on Mobile Safari
+### Pitfall 5: AnimatePresence Exit Animation Memory Leaks
 
-**What goes wrong:** Parallax scroll effects cause janky animation, battery drain, or complete failure on iOS Safari.
+**What goes wrong:** Components don't unmount properly, memory grows with each modal open/close, eventually crashes.
 
 **Why it happens:**
-- `background-attachment: fixed` NOT supported on iOS Safari
-- Scroll-linked animations trigger expensive repaints
-- Safari compositor behaves differently than Chrome
-- High DPI screens require more GPU memory
+- Child removed from DOM mid-animation
+- React Fragment as direct child breaks key tracking
+- State changes during exit animation
+- Motion version bugs (fixed in 12.23.28+)
 
-**Consequences:**
-- Parallax background doesn't move on iPhone/iPad
-- Page scrolls at 15fps instead of 60fps
-- Device overheats during scroll
-- Visible "snap" as parallax catches up
-
-**Current hero implementation uses Framer Motion scroll:**
-```tsx
-// Hero.tsx - uses useScroll + useTransform
-const { scrollYProgress } = useScroll({
-  target: containerRef,
-  offset: ["start start", "end start"],
-});
-const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
-```
+**Evidence from research (Motion changelog):**
+- "Fix duplicate exit animations in AnimatePresence" (v12.23.28, Jan 2026)
+- "Remove memory leak from retained matchMedia callbacks"
+- "Fix MotionStyle type with React 19"
 
 **Prevention:**
 
-1. **Use CSS scroll-driven animations (modern approach):**
-   ```css
-   /* GPU-accelerated, no JavaScript */
-   @supports (animation-timeline: scroll()) {
-     .parallax-layer {
-       animation: parallax linear;
-       animation-timeline: scroll();
-     }
-     @keyframes parallax {
-       from { transform: translateY(0); }
-       to { transform: translateY(-20%); }
-     }
-   }
-   ```
-
-2. **Fallback for Safari < 17.6:**
+1. **Never use Fragment as direct child:**
    ```tsx
-   // Detect support
-   const supportsScrollTimeline = CSS.supports('animation-timeline', 'scroll()');
+   // BROKEN - Fragment doesn't register as keyed child
+   <AnimatePresence>
+     <>
+       <motion.div key="a">A</motion.div>
+       <motion.div key="b">B</motion.div>
+     </>
+   </AnimatePresence>
 
-   // Use simpler effect on unsupported browsers
-   if (!supportsScrollTimeline) {
-     // Static or reduced-motion version
-   }
+   // CORRECT - direct keyed children
+   <AnimatePresence>
+     <motion.div key="a">A</motion.div>
+     <motion.div key="b">B</motion.div>
+   </AnimatePresence>
    ```
 
-3. **Limit parallax layers:**
+2. **Stable keys (not index-based):**
    ```tsx
-   // Maximum 3 parallax layers for mobile
-   // Each layer = GPU memory + compositing cost
-   <ParallaxLayer speed={0.1}>Background</ParallaxLayer>
-   <ParallaxLayer speed={0.3}>Midground</ParallaxLayer>
-   <div>Content (no parallax)</div>
+   // BROKEN - index changes when items reorder
+   {items.map((item, i) => <motion.div key={i} />)}
+
+   // CORRECT - stable unique ID
+   {items.map((item) => <motion.div key={item.id} />)}
    ```
 
-4. **Disable on reduced motion:**
+3. **Don't change state rapidly during animations:**
    ```tsx
-   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
-   const enableParallax = !prefersReducedMotion && !isMobile;
+   // Risk: AnimatePresence gets stuck
+   const handleClose = () => {
+     setIsOpen(false);
+     setIsOpen(true);   // Immediately! Bad.
+     setIsOpen(false);
+   };
    ```
 
-5. **Use will-change sparingly:**
-   ```css
-   /* Only on elements that actually animate */
-   .parallax-layer {
-     will-change: transform;
-   }
-   /* Remove after animation completes */
+4. **Use mode="wait" for sequential transitions:**
+   ```tsx
+   <AnimatePresence mode="wait">
+     {step === 1 && <Step1 key="step1" />}
+     {step === 2 && <Step2 key="step2" />}
+   </AnimatePresence>
    ```
 
 **Detection:**
-- Lighthouse Performance score drops on mobile
-- Safari-specific visual bugs (test in Safari, not just Chrome)
-- Battery usage high during scroll
-- `prefers-reduced-motion` users report motion anyway
+- Memory usage grows in DevTools Performance monitor
+- Exit animations don't play (immediate removal)
+- Double animations playing simultaneously
+- "AnimatePresence gets stuck" behavior
 
-**Phase mapping:** Phase 2 (Hero) - test on real iOS device, not just simulator
+**Phase mapping:** Phase 2 - Audit AnimatePresence usage before adding homepage transitions
+
+**Sources:** [AnimatePresence memory leak issue](https://github.com/framer/motion/issues/625), [AnimatePresence stuck bug](https://github.com/framer/motion/issues/2554)
 
 ---
 
-### Pitfall 6: Hydration Mismatch from Theme/Device Detection
+### Pitfall 6: Service Worker + Next.js App Router Conflicts
 
-**What goes wrong:** Server renders with default theme/device assumptions, client renders with actual values, React throws hydration errors.
+**What goes wrong:** Stale content served, navigation breaks, or app stuck in old version after deploy.
 
 **Why it happens:**
-- `localStorage` (theme preference) not available on server
-- `navigator.userAgent` / `window.matchMedia` not available on server
-- `useMediaQuery` returns `false` on server, real value on client
-- Theme detection runs during render, not in useEffect
+- Service worker caches HTML pages by default
+- Next.js App Router uses client-side navigation
+- SW serves stale cached HTML, ignoring server updates
+- next-pwa library not maintained for App Router
 
-**Consequences:**
-- Console: "Hydration failed because the initial UI does not match"
-- Flash of wrong theme on load (FOUC)
-- Layout shift as device detection kicks in
-- Errors in strict mode
-
-**Evidence from codebase (useMediaQuery.ts):**
-```tsx
-// Returns false during SSR to avoid hydration mismatch
-const [matches, setMatches] = useState(false);
-
-useEffect(() => {
-  const mediaQuery = window.matchMedia(query);
-  setMatches(mediaQuery.matches);  // Real value set client-side
-}, [query]);
-```
+**Current state:** No service worker in codebase yet.
 
 **Prevention:**
 
-1. **Use mounted state for device-dependent UI:**
+1. **Use Serwist instead of next-pwa:**
    ```tsx
-   const [mounted, setMounted] = useState(false);
-   const isMobile = useMediaQuery("(max-width: 639px)");
-
-   useEffect(() => setMounted(true), []);
-
-   // Render neutral content until mounted
-   if (!mounted) return <Skeleton />;
-   return isMobile ? <MobileUI /> : <DesktopUI />;
+   // next-pwa is abandoned, use Serwist
+   // npm install @serwist/next
    ```
 
-2. **CSS-first for theme switching:**
-   ```css
-   /* CSS handles theme, no hydration issue */
-   :root { --bg: white; }
-   .dark { --bg: black; }
-
-   .container { background: var(--bg); }
+2. **Never cache HTML/RSC payloads:**
+   ```ts
+   // sw-config.ts
+   runtimeCaching: [
+     {
+       urlPattern: /^https:\/\/.*\.(js|css|woff2)$/,
+       handler: 'CacheFirst',
+     },
+     {
+       urlPattern: /^https:\/\/.*\.json$/,  // API responses
+       handler: 'NetworkFirst',
+     },
+     // DON'T cache HTML or RSC
+   ]
    ```
 
-3. **Suppress warning only for unavoidable cases:**
+3. **Handle update prompt:**
    ```tsx
-   // Only for elements that MUST differ (like platform-specific shortcuts)
-   <span suppressHydrationWarning>{mounted ? (isMac ? "Cmd" : "Ctrl") : ""}</span>
-   ```
-
-4. **Theme script in head (flash prevention):**
-   ```tsx
-   // layout.tsx - set theme before hydration
-   <script dangerouslySetInnerHTML={{ __html: `
-     const theme = localStorage.getItem('theme') || 'system';
-     if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-       document.documentElement.classList.add('dark');
+   useEffect(() => {
+     if ('serviceWorker' in navigator) {
+       navigator.serviceWorker.addEventListener('controllerchange', () => {
+         // New SW activated - prompt reload
+         if (confirm('New version available. Reload?')) {
+           window.location.reload();
+         }
+       });
      }
-   `}} />
+   }, []);
+   ```
+
+4. **Turbopack compatibility:**
+   ```json
+   // package.json - Serwist needs Webpack
+   "scripts": {
+     "build": "next build --webpack"
+   }
+   ```
+
+5. **Don't redirect SW requests:**
+   ```
+   // vercel.json or server config
+   // SW must be served from same origin, no redirects
    ```
 
 **Detection:**
-- Console errors mentioning "hydration"
-- Content flickers on page load
-- Theme switches after page appears
-- React Strict Mode shows double renders with different values
+- Users see old content after deploy
+- Navigation works first time, then breaks
+- "Service worker registration failed" in console
+- Build errors with Turbopack
 
-**Phase mapping:** Phase 1 (Foundation) - establish SSR-safe patterns before adding device-specific features
+**Phase mapping:** Phase 3 - Add service worker AFTER core features stable
+
+**Sources:** [Next.js PWA official guide](https://nextjs.org/docs/app/guides/progressive-web-apps), [Serwist migration guide](https://javascript.plainenglish.io/building-a-progressive-web-app-pwa-in-next-js-with-serwist-next-pwa-successor-94e05cb418d7), [Next.js 16 PWA with offline support](https://blog.logrocket.com/nextjs-16-pwa-offline-support)
+
+---
+
+### Pitfall 7: Image Loading Causes Layout Shift (CLS)
+
+**What goes wrong:** Page content jumps as images load, hurting Core Web Vitals and user experience.
+
+**Why it happens:**
+- Image dimensions not specified
+- Lazy loading without placeholder
+- Using fill without sized parent
+- Safari < 15 aspect-ratio bugs
+
+**Current codebase has BlurImage component, but new components may regress.**
+
+**Prevention:**
+
+1. **Always specify width/height:**
+   ```tsx
+   // WRONG - no dimensions
+   <Image src="/food.jpg" alt="Food" />
+
+   // CORRECT - dimensions specified
+   <Image src="/food.jpg" alt="Food" width={400} height={300} />
+   ```
+
+2. **Use placeholder for lazy images:**
+   ```tsx
+   <Image
+     src="/food.jpg"
+     alt="Food"
+     width={400}
+     height={300}
+     placeholder="blur"
+     blurDataURL={base64Placeholder}
+   />
+   ```
+
+3. **Fill requires sized parent:**
+   ```tsx
+   // WRONG - parent has no size
+   <div>
+     <Image src="/hero.jpg" fill alt="" />
+   </div>
+
+   // CORRECT - parent has explicit dimensions
+   <div className="relative h-[400px] w-full">
+     <Image src="/hero.jpg" fill alt="" sizes="100vw" />
+   </div>
+   ```
+
+4. **Use priority for above-fold:**
+   ```tsx
+   // Hero images should preload
+   <Image
+     src="/hero.jpg"
+     priority  // Disables lazy loading, preloads
+     alt=""
+     width={1200}
+     height={600}
+   />
+   ```
+
+5. **Use deviceSizes for responsive:**
+   ```ts
+   // next.config.ts
+   images: {
+     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+   }
+   ```
+
+**Detection:**
+- Lighthouse CLS score > 0.1
+- Content visibly jumps on load
+- Images appear to "pop in"
+
+**Phase mapping:** Phase 2 - All homepage images need proper sizing
+
+**Sources:** [Next.js Image optimization](https://nextjs.org/docs/app/getting-started/images), [CLS fix with Next.js Image](https://dev.to/oba1dkhan/how-nextjs-image-component-solves-layout-shift-issues-2117)
+
+---
+
+### Pitfall 8: Zustand Store Memory Leaks from Subscriptions
+
+**What goes wrong:** Memory usage grows over time, eventually causing mobile crash or slowdown.
+
+**Why it happens:**
+- Subscriptions not cleaned up on unmount
+- Large monolithic stores never garbage collected
+- Storing non-serializable data (functions, class instances)
+
+**Current codebase:** Uses Zustand for cart, checkout, driver stores.
+
+**Prevention:**
+
+1. **Small independent stores over monolithic:**
+   ```tsx
+   // BETTER - can be garbage collected when unused
+   const useCartStore = create(() => ({ items: [] }));
+   const useCheckoutStore = create(() => ({ step: 1 }));
+
+   // WORSE - entire store stays in memory forever
+   const useAppStore = create(() => ({
+     cart: { items: [] },
+     checkout: { step: 1 },
+     user: { ... },
+     // etc.
+   }));
+   ```
+
+2. **Clean up manual subscriptions:**
+   ```tsx
+   useEffect(() => {
+     const unsubscribe = useCartStore.subscribe(
+       (state) => state.items,
+       (items) => console.log(items)
+     );
+     return unsubscribe;  // CRITICAL
+   }, []);
+   ```
+
+3. **Don't store functions or class instances:**
+   ```tsx
+   // WRONG - function stored in state
+   const useStore = create((set) => ({
+     callback: () => {},  // Never garbage collected
+   }));
+
+   // CORRECT - store data, compute functions
+   const useStore = create((set) => ({
+     count: 0,
+   }));
+   const getCallback = () => () => useStore.getState().count;
+   ```
+
+4. **Use selectors to prevent unnecessary re-renders:**
+   ```tsx
+   // WRONG - re-renders on ANY store change
+   const store = useCartStore();
+
+   // CORRECT - only re-renders when items change
+   const items = useCartStore((state) => state.items);
+   ```
+
+**Detection:**
+- Memory tab shows growing heap
+- App slows down over time
+- Mobile eventually crashes after extended use
+
+**Phase mapping:** Phase 1 - Review store structure before adding offline sync
+
+**Sources:** [Zustand memory discussion](https://github.com/pmndrs/zustand/discussions/2540), [React state management 2025](https://www.zignuts.com/blog/react-state-management-2025)
 
 ---
 
 ## Moderate Pitfalls
 
-Mistakes that cause visual bugs, performance issues, or maintenance burden.
+Mistakes that cause performance issues, visual bugs, or maintenance burden.
 
 ---
 
-### Pitfall 7: TailwindCSS 4 Auto-Content Scanning Documentation
+### Pitfall 9: CSS 3D Transforms + Stacking Context = Content Disappearing
 
-**What goes wrong:** Deprecated Tailwind classes in markdown documentation get compiled into CSS, causing build warnings or unexpected styles.
+**What goes wrong:** Adding `preserve-3d`, `perspective`, or CSS 3D rotation causes content to flicker, disappear during hover, or render behind other elements.
 
-**Why it happens:** TailwindCSS 4 with `@tailwindcss/postcss` scans ALL files in repository including `.planning/`, `.claude/`, `docs/` - even without explicit config.
+**Already documented in codebase LEARNINGS.md.** Key points:
+- `transform-style: preserve-3d` creates new stacking context
+- `overflow: hidden/auto/scroll` forces `preserve-3d` to `flat`
+- `opacity < 1` forces `preserve-3d` to `flat`
+- Scale transforms combined with 3D rotation create conflicts
 
-**Evidence from codebase (LEARNINGS.md):**
-```markdown
-TailwindCSS 4 with `@tailwindcss/postcss` scans ALL files in repository -
-including `docs/`, `.planning/`, `.claude/` - even when not in configured
-content paths. Code examples in markdown get compiled into CSS.
-```
-
-**Prevention:**
-- Use valid, current Tailwind classes in ALL documentation
-- Or add to `.gitignore` for Tailwind scanning
-
-**Phase mapping:** Phase 1 - clean up any deprecated class references in planning docs
-
----
-
-### Pitfall 8: Gradient Fallback Code Using Hardcoded Colors
-
-**What goes wrong:** Non-WebGL fallback paths in Hero (gradient backgrounds, canvas fallbacks) use hardcoded colors that don't respect theme.
-
-**Current Hero implementation:**
+**Prevention:** See existing LEARNINGS.md entry. Key rule:
 ```tsx
-// Hero.tsx - GradientFallback component
-style={useCustomGradient ? {
-  background: `linear-gradient(180deg, ${gradientPalette[0]} 0%, ${gradientPalette[1]} 50%, ${gradientPalette[2]} 100%)`,
-} : {
-  background: `linear-gradient(180deg, var(--hero-gradient-start) 0%, var(--hero-gradient-mid) 50%, var(--hero-gradient-end) 100%)`,
-}}
+// When using 3D tilt, disable Framer Motion scale
+<motion.div
+  style={{ transformStyle: "preserve-3d", rotateX, rotateY }}
+  whileHover={!shouldEnableTilt ? { scale: 1.03 } : undefined}
+>
 ```
 
-**Prevention:**
-1. Always use CSS variables for gradients
-2. Test gradient fallback in both themes
-3. Verify `--hero-gradient-*` variables exist in both `:root` and `.dark`
-
-**Phase mapping:** Phase 2 (Hero) - verify all gradient paths use variables
+**Phase mapping:** Phase 2 - Hero implementation
 
 ---
 
-### Pitfall 9: Isolation Insufficient for Mixed Legacy/New Components
+### Pitfall 10: Offline Caching Stale Data
 
-**What goes wrong:** Using `isolation: isolate` to contain z-index doesn't work when legacy components without isolation exist elsewhere.
+**What goes wrong:** User sees old prices, unavailable items, or out-of-sync cart after going offline/online.
 
-**Evidence from codebase (LEARNINGS.md):**
-```markdown
-`isolate` only prevents z-index competition within subtree. Multiple isolated
-sections still compete at document level. Legacy components without isolation
-create z-index leakage.
-
-**Solution:** Remove all legacy components, establish single z-index hierarchy
-from app root.
-```
+**Why it happens:**
+- IndexedDB/localStorage not invalidated on reconnect
+- Cache-first strategy serves stale data indefinitely
+- No timestamp validation on cached data
 
 **Prevention:**
-- Audit ALL z-index usage across codebase
-- Either isolate everything or nothing
-- Prefer portal-based overlays (Radix) that escape stacking contexts
 
-**Phase mapping:** Phase 1 (Foundation) - z-index audit before adding new layers
+1. **Version cached data:**
+   ```tsx
+   const CACHE_VERSION = 1;
+
+   function getCachedMenu() {
+     const cached = localStorage.getItem('menu');
+     if (cached) {
+       const { version, data, timestamp } = JSON.parse(cached);
+       if (version !== CACHE_VERSION) return null;  // Invalidate
+       if (Date.now() - timestamp > 1000 * 60 * 60) return null;  // 1hr max
+       return data;
+     }
+     return null;
+   }
+   ```
+
+2. **Revalidate on reconnect:**
+   ```tsx
+   useEffect(() => {
+     const handleOnline = () => {
+       queryClient.invalidateQueries(['menu']);  // Force refetch
+     };
+     window.addEventListener('online', handleOnline);
+     return () => window.removeEventListener('online', handleOnline);
+   }, []);
+   ```
+
+3. **Show stale indicator:**
+   ```tsx
+   {isOffline && <Banner>Showing cached data. Some items may be unavailable.</Banner>}
+   ```
+
+4. **Don't cache prices in service worker:**
+   ```ts
+   // Prices should always be network-first
+   runtimeCaching: [
+     {
+       urlPattern: /\/api\/menu/,
+       handler: 'NetworkFirst',
+       options: { networkTimeoutSeconds: 3 }
+     }
+   ]
+   ```
+
+**Detection:**
+- User complaints about wrong prices
+- "Item unavailable" after ordering
+- Cart total doesn't match checkout
+
+**Phase mapping:** Phase 3 - Offline support
 
 ---
 
-### Pitfall 10: Animation Spring Constants Creating Inconsistent Motion
+### Pitfall 11: willChange Causing GPU Memory Pressure
 
-**What goes wrong:** Different spring configurations across components (Framer Motion vs CSS springs) create jarring inconsistent motion.
+**What goes wrong:** Page becomes janky, animations stutter, mobile device overheats.
 
-**Current issue:** Hero uses custom spring config, cards use motion-tokens.ts springs, CSS uses different timing.
+**Why it happens:**
+- `will-change: transform` creates GPU layer
+- Too many layers = memory pressure
+- Permanent will-change wastes resources
 
-**Prevention:**
+**Evidence from codebase (LEARNINGS.md 2026-01-29):**
 ```tsx
-// Centralize ALL spring configs in motion-tokens.ts
-export const spring = {
-  default: { stiffness: 200, damping: 20 },
-  rubbery: { stiffness: 150, damping: 15 },
-  snappy: { stiffness: 400, damping: 30 },
+// WRONG - always creates GPU layer
+<div style={{ willChange: "transform" }} />
+
+// CORRECT - layer only when needed
+<div
+  style={{ willChange: isHovered ? "transform" : "auto" }}
+  onMouseEnter={() => setIsHovered(true)}
+  onMouseLeave={() => setIsHovered(false)}
+/>
+```
+
+**Prevention:**
+- Only add willChange during interaction
+- Remove after animation completes
+- Limit to 2-3 animated elements at a time on mobile
+
+**Phase mapping:** Phase 2 - Homepage animations
+
+---
+
+### Pitfall 12: Portal Dropdown Behind Transformed Parent
+
+**What goes wrong:** Autocomplete/dropdown renders behind parent card that has Framer Motion transforms.
+
+**Why it happens:**
+- CSS transforms create new stacking context
+- z-index cannot escape parent's stacking context
+- Dropdown z-index:9999 still behind parent transform
+
+**Evidence from codebase (LEARNINGS.md 2026-01-29):**
+```tsx
+// CORRECT - use React Portal to escape stacking context
+{isMounted && createPortal(
+  <div
+    style={{
+      position: "absolute",
+      top: position?.top,
+      left: position?.left,
+      width: position?.width,
+      zIndex: 9999,
+    }}
+  >
+    {dropdownContent}
+  </div>,
+  document.body
+)}
+```
+
+**Prevention:**
+- Use portals for all dropdowns/tooltips
+- Calculate position from getBoundingClientRect
+- Account for scroll position
+
+**Phase mapping:** Phase 2 - Any autocomplete in homepage components
+
+---
+
+### Pitfall 13: Double-Add Mutations from Callback + Direct Call
+
+**What goes wrong:** Items added to cart twice, quantities doubled.
+
+**Evidence from codebase (ERROR_HISTORY.md 2026-01-26):**
+```tsx
+// BROKEN - component mutates AND triggers callback that also mutates
+const handleClick = async () => {
+  addItem({ ...item });  // First add
+  onAdd?.();             // Parent's onAdd also calls addItem() -> Second add
 };
 
-// Use everywhere - no inline spring values
-<motion.div transition={getSpring(spring.default)} />
+// CORRECT - component only triggers callback
+const handleClick = async () => {
+  playAnimation();   // UI only
+  onAdd?.();         // Parent is SOLE owner of mutation
+};
 ```
 
-**Phase mapping:** Phase 2 (Hero) - use existing motion-tokens, don't add new springs
+**Prevention:**
+- One mutation owner principle
+- Buttons only trigger callbacks, never direct mutations
+- Store-level debounce as safety net
+
+**Phase mapping:** Phase 2 - Any new add-to-cart buttons
 
 ---
 
@@ -600,50 +785,57 @@ Annoyances that waste time but are easily fixed.
 
 ---
 
-### Pitfall 11: Focus Ring Color Not Respecting Theme
+### Pitfall 14: requestAnimationFrame Not Cleaned Up
 
-**What goes wrong:** Focus rings use hardcoded colors or default browser blue, looking out of place.
+**What goes wrong:** Animations continue after unmount, console errors, memory leaks.
 
 **Prevention:**
-```css
-/* Use theme-aware focus ring */
-:focus-visible {
-  outline: 2px solid var(--color-ring);
-  outline-offset: 2px;
-}
+```tsx
+useEffect(() => {
+  let rafId: number;
+
+  const animate = () => {
+    // animation logic
+    rafId = requestAnimationFrame(animate);
+  };
+  rafId = requestAnimationFrame(animate);
+
+  return () => cancelAnimationFrame(rafId);
+}, []);
 ```
 
 ---
 
-### Pitfall 12: SVG Icons Using currentColor Inconsistently
+### Pitfall 15: AudioContext Not Closed
 
-**What goes wrong:** Some SVG icons use `currentColor` (theme-aware), others use hardcoded fills.
+**What goes wrong:** Browser limits audio contexts (6 per page), haptic/sound effects stop working.
 
 **Prevention:**
 ```tsx
-// Always use currentColor for icons
-<svg fill="currentColor" stroke="currentColor">
-// Set color via parent
-<div className="text-primary"><Icon /></div>
+useEffect(() => {
+  const audioContext = new AudioContext();
+
+  return () => {
+    audioContext.close();
+  };
+}, []);
 ```
 
 ---
 
-### Pitfall 13: Button Shadows Using Hardcoded Colors
+### Pitfall 16: IntersectionObserver Not Disconnected
 
-**What goes wrong:** Box shadows with hardcoded rgba values don't adapt to theme.
+**What goes wrong:** Multiple observers accumulate, performance degrades.
 
-**Current Hero has:**
+**Prevention:**
 ```tsx
-className="shadow-lg shadow-secondary/30"  // OK - uses Tailwind opacity
-```
+useEffect(() => {
+  const observer = new IntersectionObserver(callback, options);
+  if (elementRef.current) observer.observe(elementRef.current);
 
-But some components use:
-```tsx
-style={{ boxShadow: "0 4px 14px rgba(164, 16, 52, 0.15)" }}  // Hardcoded!
+  return () => observer.disconnect();
+}, []);
 ```
-
-**Prevention:** Use CSS variable shadows from tokens.css
 
 ---
 
@@ -651,60 +843,84 @@ style={{ boxShadow: "0 4px 14px rgba(164, 16, 52, 0.15)" }}  // Hardcoded!
 
 | Phase | Topic | Likely Pitfall | Mitigation |
 |-------|-------|---------------|------------|
-| Phase 1 | Audit | Missing inline styles | grep for `style={{` with color/background |
-| Phase 1 | Audit | Missing SVG colors | grep for `fill=` and `stroke=` |
-| Phase 1 | Foundation | Z-index conflicts | Complete audit before any fixes |
-| Phase 2 | Hero 3D | preserve-3d + scale conflict | Disable scale when tilt enabled |
-| Phase 2 | Hero | Mobile Safari parallax | Use CSS scroll-timeline, fallback gracefully |
-| Phase 2 | Hero | Touch detection | SSR-safe detection, disable tilt on touch |
-| Phase 3 | Fix pages | Partial fixes | Fix ALL occurrences per file, not just visible ones |
-| Phase 3 | Testing | One theme only | Always test BOTH themes before marking complete |
+| Phase 1 | Audit | Uncleaned setTimeout | grep for `setTimeout` without `clearTimeout` |
+| Phase 1 | Audit | Event listener accumulation | Review all useCallback + addEventListener |
+| Phase 1 | Audit | Scroll lock patterns | Verify deferRestore used with AnimatePresence |
+| Phase 2 | Homepage | GSAP/Framer conflict | Assign clear ownership per element |
+| Phase 2 | Homepage | AnimatePresence memory | No Fragments as direct children |
+| Phase 2 | Homepage | Image CLS | All images need width/height |
+| Phase 2 | Homepage | willChange abuse | Only apply during interaction |
+| Phase 3 | Offline | Stale cache | Version + timestamp all cached data |
+| Phase 3 | Offline | SW + App Router | Use Serwist, never cache HTML |
+| Phase 3 | Offline | Reconnect sync | Invalidate queries on 'online' event |
 
 ---
 
-## Prevention Checklist for Theme/Hero Work
+## Prevention Checklist
 
-Before starting theme audit:
-- [ ] Run grep commands to establish complete violation inventory
-- [ ] Document all files with hardcoded colors
-- [ ] Check inline styles, not just classNames
-- [ ] Verify CSS variable coverage for both themes
+### Before adding any setTimeout/setInterval:
+- [ ] Timeout ref created
+- [ ] Cleanup effect added
+- [ ] Cleared before setting new timeout
 
-Before implementing hero parallax:
-- [ ] Test on real iOS Safari device
-- [ ] Implement touch detection with mounted state
-- [ ] Verify `prefers-reduced-motion` disables parallax
-- [ ] Check CSS scroll-timeline browser support
+### Before adding event listeners:
+- [ ] Handler defined INSIDE useEffect (not useCallback)
+- [ ] Guard clause for closed state
+- [ ] Same reference for add/remove
 
-Before shipping any fix:
-- [ ] Tested in light mode
-- [ ] Tested in dark mode
-- [ ] Tested with `prefers-reduced-motion: reduce`
-- [ ] No hydration warnings in console
-- [ ] Lighthouse performance not degraded
+### Before adding overlays/modals:
+- [ ] Body scroll lock uses deferRestore
+- [ ] restoreScrollPosition called in onExitComplete
+- [ ] Tested on real iOS device
+
+### Before adding GSAP animations:
+- [ ] No Framer Motion on same element
+- [ ] gsap.context() used with ref
+- [ ] ctx.revert() in cleanup
+- [ ] ScrollTrigger.kill() if using scroll
+
+### Before adding AnimatePresence:
+- [ ] No Fragment as direct child
+- [ ] Stable keys (not index)
+- [ ] Motion version 12.23.28+
+
+### Before adding service worker:
+- [ ] Using Serwist (not next-pwa)
+- [ ] HTML not cached
+- [ ] Update prompt implemented
+- [ ] Build uses --webpack flag
+
+### Before adding offline caching:
+- [ ] Cache versioned
+- [ ] Timestamp checked
+- [ ] Revalidate on reconnect
+- [ ] Stale indicator shown
 
 ---
 
 ## Sources
 
 **Codebase Documentation:**
-- `.claude/ERROR_HISTORY.md` (2026-01-22 to 2026-01-26)
-- `.claude/LEARNINGS.md` (2026-01-25, 2026-01-26)
+- `.claude/ERROR_HISTORY.md` (2026-01-25 to 2026-01-30) - Mobile crash patterns
+- `.claude/LEARNINGS.md` (2026-01-25 to 2026-01-30) - Fix patterns
 
 **Official Documentation:**
-- [TailwindCSS 4 Dark Mode](https://tailwindcss.com/docs/dark-mode)
-- [TailwindCSS 4 Theme Configuration](https://tailwindcss.com/docs/theme)
-- [Next.js Hydration Errors](https://nextjs.org/docs/messages/react-hydration-error)
-- [MDN transform-style](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/transform-style)
-- [MDN CSS Scroll-Driven Animations](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scroll-driven_animations)
+- [Next.js Image Component](https://nextjs.org/docs/app/api-reference/components/image)
+- [Next.js PWA Guide](https://nextjs.org/docs/app/guides/progressive-web-apps)
+- [Framer Motion AnimatePresence](https://www.framer.com/motion/animate-presence/)
+- [GSAP React](https://gsap.com/resources/React/)
+- [Zustand](https://github.com/pmndrs/zustand)
 
 **Community Resources:**
-- [CSS 3D Transform Gotchas](https://css-tricks.com/things-watch-working-css-3d/)
-- [Performant Parallaxing](https://developer.chrome.com/blog/performant-parallaxing)
-- [Fixing Hydration Mismatch in Next.js](https://medium.com/@pavan1419/fixing-hydration-mismatch-in-next-js-next-themes-issue-8017c43dfef9)
-- [Understanding FOUC in Next.js 2025](https://dev.to/amritapadhy/understanding-fixing-fouc-in-nextjs-app-router-2025-guide-ojk)
+- [iOS Safari scroll lock fix](https://stripearmy.medium.com/i-fixed-a-decade-long-ios-safari-problem-0d85f76caec0)
+- [body-scroll-lock npm](https://www.npmjs.com/package/body-scroll-lock)
+- [GSAP vs Motion comparison](https://motion.dev/docs/gsap-vs-motion)
+- [Serwist migration guide](https://javascript.plainenglish.io/building-a-progressive-web-app-pwa-in-next-js-with-serwist-next-pwa-successor-94e05cb418d7)
+- [Next.js 16 PWA](https://blog.logrocket.com/nextjs-16-pwa-offline-support)
 
 **GitHub Issues:**
-- [TailwindCSS 4 Dark Mode Migration](https://github.com/tailwindlabs/tailwindcss/discussions/16517)
-- [W3C CSS preserve-3d Stacking Context](https://github.com/w3c/csswg-drafts/issues/6430)
-- [shadcn/ui Theme Provider Hydration Error](https://github.com/shadcn-ui/ui/issues/5552)
+- [AnimatePresence memory leak](https://github.com/framer/motion/issues/625)
+- [AnimatePresence stuck bug](https://github.com/framer/motion/issues/2554)
+- [AnimatePresence portal bug](https://github.com/framer/motion/issues/2692)
+- [Zustand memory discussion](https://github.com/pmndrs/zustand/discussions/2540)
+- [react-modal iOS scroll](https://github.com/reactjs/react-modal/issues/829)

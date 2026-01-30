@@ -1,191 +1,219 @@
-# Feature Landscape: Theme Consistency & Hero Redesign
+# Feature Landscape: Homepage Completion, Mobile Optimization & Offline Support
 
-**Domain:** Food delivery app - theme system hardening + hero enhancement
-**Researched:** 2026-01-27
-**Mode:** Feature research for existing codebase fixes
-**Confidence:** HIGH (codebase analysis + verified web research)
+**Domain:** Food delivery app - homepage integration + mobile performance + customer offline support
+**Researched:** 2026-01-30
+**Mode:** Feature research for subsequent milestone
+**Confidence:** HIGH (codebase analysis verified + industry best practices)
 
 ---
 
 ## Context: What This Milestone Addresses
 
-This research supersedes v1.2 Playful UI Overhaul research, focusing specifically on:
-1. **Fixing theme inconsistencies** across home, menu, checkout pages
-2. **Fixing mobile 3D tilt bug** where content disappears on UnifiedMenuItemCard
-3. **Enhancing existing hero** with floating food emojis and parallax (NOT 3D React Three Fiber)
+This research covers three interconnected areas for the Morning Star Delivery App:
 
-**Key Clarification:** The hero redesign is 2D enhancement, not 3D. The existing hero uses CSS/Framer Motion patterns. We enhance with floating emojis and parallax, not React Three Fiber.
+1. **Homepage Component Integration** - 5 existing components (Hero, CTABanner, HowItWorksSection, TestimonialsCarousel, FooterCTA) are already built and wired in. Focus shifts to polish, performance, and mobile optimization.
+
+2. **Mobile Performance Optimization** - App experiencing crashes on mobile devices. Need systematic optimization for mobile-first experience.
+
+3. **Customer Offline Support** - Driver app has IndexedDB offline support (`offline-store.ts`, `useOfflineSync.ts`). Customer-facing features need similar resilience patterns.
 
 ---
 
 ## Existing Features (Already Built - Reference Only)
 
-| Feature | Implementation | Location | Status |
-|---------|---------------|----------|--------|
-| OLED-friendly dark mode | CSS tokens, `.dark` class | `tokens.css` | Working |
-| Circular reveal transition | View Transitions API | `globals.css` | Working |
-| Animated theme toggle | Sun/moon morph | `theme-toggle.tsx` | Working |
-| Color token system | CSS custom properties | `tokens.css`, `tailwind.config.ts` | Defined but bypassed |
-| 2D hero with gradient | Linear gradient + animations | `Hero.tsx` | Working, needs polish |
-| UnifiedMenuItemCard 3D tilt | Framer Motion + perspective | `UnifiedMenuItemCard.tsx` | Has mobile bug |
-| Float animation keyframes | CSS `@keyframes float` | `globals.css` | Available for reuse |
+### Homepage Components (All Wired In)
+
+| Component | Location | Status | Notes |
+|-----------|----------|--------|-------|
+| `Hero` | `src/components/ui/homepage/Hero.tsx` | Complete | Parallax, floating emojis, time-of-day greeting |
+| `HowItWorksSection` | `src/components/ui/homepage/HowItWorksSection.tsx` | Complete | Lazy-loaded to defer Google Maps (369KB) |
+| `CTABanner` | `src/components/ui/homepage/CTABanner.tsx` | Complete | Pulsing glow, floating entrance |
+| `TestimonialsCarousel` | `src/components/ui/homepage/TestimonialsCarousel.tsx` | Complete | Auto-rotation, NavDots, pause on hover |
+| `FooterCTA` | `src/components/ui/homepage/FooterCTA.tsx` | Complete | CTA + contact info + social |
+| `HomepageMenuSection` | `src/components/ui/homepage/HomepageMenuSection.tsx` | Complete | Featured carousel, category tabs, search |
+| `HomePageClient` | `src/components/ui/homepage/HomePageClient.tsx` | Complete | Orchestrates all sections |
+
+### Mobile Infrastructure (Already Built)
+
+| Feature | Location | Status |
+|---------|----------|--------|
+| `useAnimationPreference` | `src/lib/hooks/useAnimationPreference.ts` | Complete - respects reduced motion |
+| `useCanHover` | `src/lib/hooks/useResponsive.ts` | Complete - detects touch devices |
+| Image optimization utilities | `src/lib/utils/image-optimization.ts` | Complete - size presets, blur placeholders |
+| MenuSkeleton | `src/components/ui/menu/MenuSkeleton.tsx` | Complete - shimmer animations |
+| Driver offline store | `src/lib/services/offline-store.ts` | Complete - IndexedDB for driver app |
+| useOfflineSync hook | `src/lib/hooks/useOfflineSync.ts` | Complete - driver app only |
 
 ---
 
-## Table Stakes: Theme Consistency (Must Fix)
+## Table Stakes: Mobile Performance (Must Have)
 
-Features users expect. Missing = broken user experience.
-
-| Feature | Why Expected | Complexity | Current State | Priority |
-|---------|--------------|------------|---------------|----------|
-| **No hardcoded `text-white`** | Dark mode users see invisible text on dark backgrounds | Medium | 200+ violations | P0 |
-| **No hardcoded `bg-white`** | Light-only backgrounds break dark mode | Medium | 80+ violations | P0 |
-| **No hardcoded `text-black`** | Light mode users see invisible text on light backgrounds | Low | 15+ violations | P1 |
-| **Semantic color tokens throughout** | `text-text-inverse` not `text-white` | Medium | Token system exists, not enforced | P0 |
-| **Consistent overlay colors** | Modals, backdrops need theme-aware opacity | Low | `bg-black/50` hardcoded in 15+ places | P1 |
-| **Status colors via tokens** | Success/error/warning must theme correctly | Low | Tokens defined, usage inconsistent | P1 |
-| **Focus ring consistency** | Accessibility + visual polish | Low | Needs audit | P2 |
-
-### Critical Finding: Hardcoded Color Hotspots
-
-From grep analysis of codebase:
-
-| Area | Violations | Examples | Severity |
-|------|------------|----------|----------|
-| **Driver components** | 40+ | `StopCard`, `PhotoCapture`, `DeliveryActions`, `OfflineBanner` | High - accessibility critical |
-| **Admin components** | 30+ | `OrderManagement`, `RouteOptimization`, analytics dashboards | Medium |
-| **Auth components** | 20+ | `AuthModal`, `MagicLinkSent`, `WelcomeAnimation` | Medium |
-| **Checkout** | 15+ | `TimeSlotPicker`, `AddressInput`, `PaymentSuccess` | Medium |
-| **UI-v8 components** | 25+ | `Toast`, `Tooltip`, `Modal`, `Drawer`, `BottomSheet` | High - shared |
-| **Layout components** | 10+ | `MobileDrawer`, `CommandPalette`, `AppShell` | Medium |
-| **Homepage** | 8+ | `CTABanner`, `FooterCTA`, `TestimonialsCarousel` | Medium |
-
-### Recommended Semantic Token Mapping
-
-| Hardcoded | Replace With | Use Case |
-|-----------|--------------|----------|
-| `text-white` | `text-text-inverse` | Text on colored backgrounds |
-| `bg-white` | `bg-surface-primary` | Card/container backgrounds |
-| `text-black` | `text-text-primary` | Primary body text |
-| `bg-black/50` | `bg-surface-primary/50` or custom `--overlay-bg` token | Modal overlays |
-| `bg-white/20` | `bg-surface-primary/20` | Glassmorphism effects |
-| `dark:bg-zinc-900` | `bg-surface-secondary` or `bg-surface-elevated` | Dark mode surfaces |
-
----
-
-## Table Stakes: Mobile 3D Tilt Fix (Must Fix)
+Features users expect. Missing = app feels broken on mobile.
 
 | Feature | Why Expected | Complexity | Current State | Priority |
 |---------|--------------|------------|---------------|----------|
-| **Content visible during tilt** | Core functionality broken | Medium | Content clips/disappears on iOS | P0 |
-| **Smooth tilt animation** | No flickering or jank | Low | Works on desktop, issues on mobile | P0 |
-| **Touch interaction stable** | No accidental triggers | Low | Long-press implemented | P1 |
+| **Sub-2.5s LCP on mobile** | Google Core Web Vital threshold, user perception | Medium | Needs audit - HowItWorks lazy loading helps | P0 |
+| **No layout shifts (CLS < 0.1)** | Content jumping is jarring | Low | Good - explicit dimensions used | P1 |
+| **No crashes on mobile** | Basic stability | High | **Active issue** - crashes reported | P0 |
+| **Responsive images** | Mobile bandwidth constraints | Low | `next/image` with sizes configured | P1 |
+| **Touch-friendly targets** | Minimum 44x44px touch targets | Low | Needs audit | P1 |
+| **Smooth scrolling** | 60fps even during animations | Medium | Animation tokens exist, may over-animate | P0 |
+| **Memory management** | Prevent OOM crashes | Medium | Need cleanup audit (timers, listeners, GSAP) | P0 |
 
-### Root Cause Analysis
+### Mobile Crash Root Cause Analysis
 
-Based on code review of `UnifiedMenuItemCard.tsx`:
+Based on recent git commits and debug files:
 
-| Issue | Code Location | Root Cause |
-|-------|---------------|------------|
-| Content clipping | `overflow-visible` set but child has `overflow: hidden` | Safari compositing layer conflict |
-| Flickering on iOS | Missing `-webkit-backface-visibility` | Hardware acceleration not consistent |
-| Z-index stacking | `preserve-3d` without proper z-index handling | WebKit preserve-3d z-index bug |
+| Commit | Issue Fixed | Pattern |
+|--------|-------------|---------|
+| `1486c38` | setTimeout cleanup for unmounted state updates | Missing cleanup in useEffect |
+| `deabb17` | Race conditions causing random crashes | Async operations without mount checks |
+| `a08d2ff` | Performance optimization, dead code removal | Bundle bloat |
+| `9ced763` | rAF, AudioContext, GSAP timelines, async timeouts | Improper resource cleanup |
 
-### Verified Fix Pattern (From MDN + Apple Forums)
+**Common patterns causing crashes:**
+1. **Missing cleanup in useEffect** - Timers, subscriptions, async operations
+2. **State updates on unmounted components** - Need `isMounted` ref pattern
+3. **Heavy animations on low-power devices** - GSAP timelines not properly killed
+4. **Memory leaks** - Event listeners not removed, large objects retained
 
-```css
-/* Container with perspective */
-.card-3d-container {
-  perspective: 1000px;
-  -webkit-perspective: 1000px;
-}
+### Recommended Mobile Performance Fixes
 
-/* Card element with 3D transforms */
-.card-3d {
-  transform-style: preserve-3d;
-  -webkit-transform-style: preserve-3d;
+```typescript
+// Pattern: Safe async with mount check
+useEffect(() => {
+  let isMounted = true;
+  const controller = new AbortController();
 
-  /* Critical for iOS Safari */
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  async function fetchData() {
+    try {
+      const result = await api.get(url, { signal: controller.signal });
+      if (isMounted) {
+        setState(result);
+      }
+    } catch (e) {
+      if (e.name !== 'AbortError' && isMounted) {
+        setError(e);
+      }
+    }
+  }
 
-  /* Force GPU compositing layer */
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-}
+  fetchData();
 
-/* Child elements need explicit z-translation */
-.card-3d-content {
-  transform: translateZ(1px);
-  -webkit-transform: translateZ(1px);
-}
+  return () => {
+    isMounted = false;
+    controller.abort();
+  };
+}, []);
 ```
 
 ---
 
-## Table Stakes: Hero Section
+## Table Stakes: Skeleton Loading States (Must Have)
 
 | Feature | Why Expected | Complexity | Current State | Priority |
 |---------|--------------|------------|---------------|----------|
-| **No layout shift** | Core Web Vital | Low | Good - min-h-[100svh] | N/A |
-| **Theme-aware gradient** | Consistent dark mode | Low | Good - uses `--hero-*` tokens | N/A |
-| **Accessible CTAs** | Primary conversion | Low | Good | N/A |
-| **Mobile responsive** | Majority of traffic | Low | Good | N/A |
+| **Menu skeleton** | Prevent empty flash | Low | **Complete** - MenuSkeleton.tsx | Done |
+| **Homepage skeleton** | Prevent loading blank | Low | **Complete** - HowItWorksSkeleton inline | Done |
+| **Cart skeleton** | Quick drawer open | Low | Not implemented | P2 |
+| **Checkout skeleton** | Multi-step loading | Low | Not implemented | P2 |
+| **Order history skeleton** | List loading state | Low | Not implemented | P2 |
+
+### Skeleton Best Practices (Verified)
+
+| Best Practice | Implementation | Notes |
+|---------------|----------------|-------|
+| Match content structure | Skeleton matches real content layout | Prevents CLS on load |
+| Shimmer animation | CSS `animate-shimmer` keyframes | Already defined in globals.css |
+| Respect reduced motion | Disable shimmer for `prefers-reduced-motion` | Use `shouldAnimate` from hook |
+| Staggered reveal | CSS `stagger-1` through `stagger-8` classes | Already in MenuSkeleton |
 
 ---
 
-## Differentiators: Hero Enhancement
+## Table Stakes: Customer Offline Support (Must Have)
 
-Features that elevate experience. Not expected, but valued.
+| Feature | Why Expected | Complexity | Current State | Priority |
+|---------|--------------|------------|---------------|----------|
+| **Offline menu browsing** | View menu without network | Medium | Not implemented for customers | P1 |
+| **Cart persistence** | Don't lose cart on refresh | Low | **Complete** - Zustand persist | Done |
+| **Connection status indicator** | Know when offline | Low | Driver app only | P1 |
+| **Graceful degradation** | Show cached content vs error | Medium | Not implemented | P1 |
+
+### Existing Offline Architecture (Driver App)
+
+```
+src/lib/services/offline-store.ts
+  - IndexedDB wrapper for driver-specific data
+  - route-cache, pending-status, pending-photos, pending-locations stores
+
+src/lib/hooks/useOfflineSync.ts
+  - Online/offline detection via navigator.onLine
+  - Auto-sync when coming back online
+  - Queue methods for offline operations
+```
+
+**Gap Analysis:** Customer app needs similar patterns:
+- Cache menu data for offline browsing
+- Show connection status banner
+- Queue orders for submission when online (stretch goal)
+
+---
+
+## Differentiators: Homepage Experience (Competitive Advantage)
+
+Features that set the app apart. Not expected, but valued.
 
 | Feature | Value Proposition | Complexity | Dependencies | Priority |
 |---------|-------------------|------------|--------------|----------|
-| **Floating food emojis** | Playful brand identity, memorable | Medium | CSS `@keyframes float` (exists) | P1 |
-| **Enhanced parallax scroll** | Depth, premium feel, +22% CTA engagement | Low | `useScroll` (exists) | P2 |
-| **Gradient animation** | Dynamic, living design | Low | `@keyframes gradient-x` (exists) | P3 |
-| **Staggered emoji entrance** | Polished reveal animation | Low | `stagger` variants (exist) | P2 |
-
-### Floating Food Emojis Implementation
-
-**Pattern:** Multiple absolutely-positioned emoji elements with varied animation delays and positions.
-
-```tsx
-// Conceptual structure
-const floatingEmojis = [
-  { emoji: "🍜", position: "top-[10%] left-[5%]", delay: 0, duration: 6 },
-  { emoji: "🥢", position: "top-[20%] right-[10%]", delay: 1.2, duration: 8 },
-  { emoji: "🍲", position: "bottom-[30%] left-[15%]", delay: 0.5, duration: 7 },
-  // ... more emojis with varied positions
-];
-```
-
-**Performance considerations:**
-- Use `will-change: transform` sparingly
-- Limit to 6-8 floating elements
-- Reduce/disable on `prefers-reduced-motion`
-- Use CSS animations over JS for float (already implemented)
-
-### Parallax Optimization
-
-Current implementation uses Framer Motion `useScroll`. Recommended enhancements:
-
-| Current | Enhancement | Rationale |
-|---------|-------------|-----------|
-| Single parallax layer | Multiple layers at different speeds | Depth |
-| Speed: varies | Standardize: 0.2 (slow) to 0.5 (fast) | Avoid motion sickness |
-| No mobile differentiation | Reduce speeds on mobile | Performance, battery |
-| `useTransform` raw | Add `useSpring` smoothing | Buttery feel |
+| **Time-of-day greeting** | Personalized, delightful | Low | **Complete** - in Hero.tsx | Done |
+| **Interactive coverage checker** | Converts visitors, reduces support | Medium | **Complete** - in HowItWorksSection | Done |
+| **Featured carousel** | Highlights best sellers | Medium | **Complete** - in HomepageMenuSection | Done |
+| **Floating food emojis** | Playful brand identity | Low | **Complete** - in Hero.tsx | Done |
+| **Scroll-linked section nav** | Easy navigation | Low | **Complete** - SectionNavDots | Done |
+| **Parallax hero** | Premium feel | Low | **Complete** - multi-layer parallax | Done |
+| **View-in-dark-mode preview** | Decision helper for new users | Medium | Not implemented | P3 |
 
 ---
 
-## Mobile-Specific Considerations
+## Differentiators: Mobile-First Optimizations
 
-| Feature | Complexity | Current State | Recommendation |
-|---------|------------|---------------|----------------|
-| **Disable 3D tilt on touch** | Low | Long-press activates | Consider full disable |
-| **Reduce parallax speed** | Low | Same as desktop | Add `matchMedia` check |
-| **Touch-safe floating emojis** | Low | N/A | Keep emojis out of touch target zones |
-| **iOS safe areas** | Low | Implemented | `.pb-safe` utilities working |
+| Feature | Value Proposition | Complexity | Notes | Priority |
+|---------|-------------------|------------|-------|----------|
+| **Device-based animation scaling** | Better UX on low-power devices | Medium | Reduce/disable animations based on device | P1 |
+| **Optimistic UI for cart** | Instant feedback | Low | Add to cart shows immediately | P2 |
+| **Native app-like transitions** | Premium feel | Medium | View Transitions API (already used for theme) | P2 |
+| **Pull-to-refresh** | Mobile UX pattern | Low | Not standard for web, consider for PWA | P3 |
+| **Haptic feedback** | Tactile confirmation | Low | Limited browser support | P3 |
+
+### Device-Based Animation Scaling
+
+```typescript
+// Recommended pattern
+function useDeviceCapability() {
+  const [capability, setCapability] = useState<'high' | 'medium' | 'low'>('high');
+
+  useEffect(() => {
+    // Check device memory (Chrome only)
+    const memory = (navigator as any).deviceMemory;
+    // Check hardware concurrency
+    const cores = navigator.hardwareConcurrency;
+    // Check connection type
+    const connection = (navigator as any).connection?.effectiveType;
+
+    if (memory && memory < 2) setCapability('low');
+    else if (cores && cores < 4) setCapability('medium');
+    else if (connection === '2g' || connection === 'slow-2g') setCapability('low');
+    else if (connection === '3g') setCapability('medium');
+  }, []);
+
+  return capability;
+}
+
+// Usage in animation components
+const capability = useDeviceCapability();
+const shouldAnimate = capability !== 'low' && !prefersReducedMotion;
+const animationDuration = capability === 'high' ? 0.3 : 0.15;
+```
 
 ---
 
@@ -193,127 +221,160 @@ Current implementation uses Framer Motion `useScroll`. Recommended enhancements:
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| **Heavy parallax (speed > 0.7)** | Motion sickness, poor LCP | Keep speeds 0.2-0.5 |
-| **Parallax on all sections** | Overwhelming, performance | Hero only |
-| **React Three Fiber for this milestone** | Scope creep, out of scope | Stick to 2D CSS/Framer |
-| **Particle.js or similar libraries** | 100KB+ bundle, overkill | CSS `@keyframes` animations |
-| **Glassmorphism without fallback** | Invisible content on older browsers | Test `backdrop-filter` support |
-| **3D tilt on ALL cards** | Performance on list views | Featured cards only or disable |
-| **Different color mappings per component** | Maintenance nightmare | Single token system |
-| **`!important` for theme fixes** | Specificity wars | Fix at source |
-| **Animations without reduced-motion** | Accessibility violation | Always respect preference |
-| **Floating elements that block CTAs** | Conversion killer | Position emojis in margins |
+| **Full PWA with service worker caching** | Complexity, cache invalidation bugs | Simple menu caching only for MVP |
+| **Offline order submission** | Payment requires network, inventory sync issues | Show "order requires connection" message |
+| **Aggressive prefetching** | Wastes mobile data, slows current page | Prefetch only on hover/focus (Next.js default) |
+| **Client-side image optimization** | CPU intensive on mobile | Use next/image server-side optimization |
+| **Complex loading orchestration** | Hard to maintain, race conditions | Simple Suspense boundaries |
+| **Custom skeleton library** | Maintenance burden | Use simple CSS + existing utilities |
+| **Intersection Observer for every element** | Performance overhead | Use CSS scroll-snap or virtual lists |
+| **Background sync for all data** | Over-engineering | Only for critical user data |
 
 ---
 
 ## Feature Dependencies
 
 ```
-Theme Consistency Fix:
-  tokens.css (source of truth)
-    -> tailwind.config.ts (maps tokens to utilities)
-      -> Component audit
-        -> Systematic replacement of hardcoded colors
-          -> Verification pass (dark mode QA)
+Mobile Performance Optimization:
+  Audit existing useEffect hooks
+    -> Add cleanup patterns
+      -> Add isMounted checks for async
+        -> Add GSAP timeline cleanup
+          -> Test on low-power devices
+            -> Device capability detection
 
-Mobile 3D Tilt Fix:
-  UnifiedMenuItemCard.tsx
-    -> Add backface-visibility: hidden
-    -> Add translate3d(0,0,0) to content
-    -> Test on iOS Safari 17+
-      -> Consider disabling tilt on touch devices if issues persist
+Skeleton States:
+  Existing MenuSkeleton pattern
+    -> CartDrawer skeleton
+    -> Checkout step skeletons
+    -> Order history skeleton
 
-Hero Enhancement:
-  Existing float keyframes (globals.css)
-    -> FloatingEmoji component (new)
-      -> Integration with Hero.tsx
-        -> Parallax enhancement (useScroll optimization)
+Customer Offline Support:
+  Existing driver offline-store.ts
+    -> Create customer-offline-store.ts
+      -> Cache menu data
+      -> Add useCustomerOfflineSync hook
+        -> Online/offline banner component
+          -> Graceful degradation in components
 ```
 
 ---
 
 ## MVP Recommendation (Phased)
 
-### Phase 1: Theme Consistency (P0)
+### Phase 1: Mobile Crash Fixes (P0)
 
-**Goal:** No visible theme bugs in dark mode.
+**Goal:** Zero crashes on mobile devices.
 
-1. Create find-replace script for common patterns:
-   - `text-white` -> `text-text-inverse` (where appropriate)
-   - `bg-white` -> `bg-surface-primary`
-   - `bg-black/50` -> custom overlay token
+1. **Audit all useEffect hooks** for missing cleanup
+   - Timers (setTimeout, setInterval)
+   - Animation frames (requestAnimationFrame)
+   - Event listeners
+   - Subscriptions
 
-2. Manual review for context-dependent replacements
+2. **Add isMounted pattern** to async operations
+   - Data fetching
+   - Delayed state updates
+   - Animation callbacks
 
-3. Dark mode QA pass on all pages
+3. **GSAP cleanup audit**
+   - Kill timelines on unmount
+   - Clear ScrollTrigger instances
 
-**Complexity:** Medium (200+ files to touch)
-**Risk:** Low (non-breaking changes)
+4. **Test on low-power device** (iPhone SE, Android mid-range)
 
-### Phase 2: Mobile 3D Tilt Fix (P0)
+**Complexity:** Medium
+**Risk:** Low (fixes, not new features)
 
-**Goal:** Menu cards work on iOS Safari.
+### Phase 2: LCP Optimization (P0)
 
-1. Add CSS fixes to UnifiedMenuItemCard:
-   ```css
-   -webkit-backface-visibility: hidden;
-   transform: translate3d(0, 0, 0);
-   ```
+**Goal:** Mobile LCP < 2.5s.
 
-2. Add `translateZ(1px)` to child content elements
-
-3. Test on iOS Safari 17 (iPhone 15)
-
-4. If issues persist: disable tilt on touch devices
+1. **Audit hero images** - ensure priority loading
+2. **Verify lazy loading** - confirm HowItWorks defers Google Maps
+3. **Check font loading** - ensure font-display: swap
+4. **Minimize main thread work** - defer non-critical JS
 
 **Complexity:** Low-Medium
-**Risk:** Low (isolated to one component)
+**Risk:** Low (configuration changes)
 
-### Phase 3: Hero Enhancement (P1-P2)
+### Phase 3: Customer Offline Support (P1)
 
-**Goal:** Floating emojis + improved parallax.
+**Goal:** Menu browsable offline, connection status visible.
 
-1. Create `FloatingEmoji` component using existing float keyframes
-
-2. Add 6-8 positioned emojis to hero
-
-3. Enhance parallax with multi-layer speeds
-
-4. Enable gradient animation (already defined)
-
-5. Respect `prefers-reduced-motion`
+1. **Create customer-offline-store.ts** based on driver pattern
+2. **Cache menu data** in IndexedDB
+3. **Add OfflineIndicator component** (reuse driver pattern)
+4. **Graceful fallback** when data unavailable
 
 **Complexity:** Medium
 **Risk:** Low (additive feature)
+
+### Phase 4: Additional Skeletons (P2)
+
+**Goal:** No blank loading states anywhere.
+
+1. **CartDrawer skeleton** - show immediately on open
+2. **Checkout skeleton** - per-step loading
+3. **Order history skeleton** - list placeholder
+
+**Complexity:** Low
+**Risk:** Very low (visual polish)
+
+---
+
+## Image Optimization Checklist
+
+Based on existing `image-optimization.ts`:
+
+| Category | Preset | Width | Height | sizes Attribute |
+|----------|--------|-------|--------|-----------------|
+| Menu cards | `menuCard` | 400 | 225 | `(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw` |
+| Hero | `hero` | 1920 | 1080 | `100vw` |
+| Thumbnails | `thumbnail` | 96 | 96 | `(max-width: 640px) 25vw, 10vw` |
+| Cart items | `cartItem` | 80 | 80 | `80px` |
+
+**LCP Image Checklist:**
+- [ ] Hero image has `priority={true}` (or `preload` in Next.js 16)
+- [ ] Hero image has explicit width/height
+- [ ] Hero uses sizes="100vw" for responsive serving
+- [ ] No lazy-load on above-fold images
 
 ---
 
 ## Sources
 
-### Theme Consistency
-- [Tailwind CSS Best Practices 2025-2026](https://www.frontendtools.tech/blog/tailwind-css-best-practices-design-system-patterns)
-- [Design Tokens Explained - Contentful](https://www.contentful.com/blog/design-token-system/)
-- [Design Tokens and CSS Variables - Penpot](https://penpot.app/blog/the-developers-guide-to-design-tokens-and-css-variables/)
-- [Tailwind Dark Mode Semantic Colors - GitHub Discussion](https://github.com/tailwindlabs/tailwindcss/discussions/10274)
-- [Advanced Theming with Design Tokens - David Supik](https://david-supik.medium.com/advanced-theming-techniques-with-design-tokens-bd147fe7236e)
+### Mobile Performance
+- [Mastering Mobile Performance: Next.js Lighthouse Scores](https://www.wisp.blog/blog/mastering-mobile-performance-a-complete-guide-to-improving-nextjs-lighthouse-scores)
+- [React & Next.js Best Practices 2026: Performance, Scale](https://fabwebstudio.com/blog/react-nextjs-best-practices-2026-performance-scale)
+- [Next.js Performance Optimization 2025](https://pagepro.co/blog/nextjs-performance-optimization-in-9-steps/)
+- [How to Optimize Next.js Performance - DebugBear](https://www.debugbear.com/blog/nextjs-performance)
 
-### Hero & Parallax
-- [Hero Section Design Best Practices 2026 - Perfect Afternoon](https://www.perfectafternoon.com/2025/hero-section-design/)
-- [Best Parallax Scrolling Effect 2026 - Builder.io](https://www.builder.io/blog/parallax-scrolling-effect)
-- [Parallax Scrolling with CSS - LogRocket](https://blog.logrocket.com/create-parallax-scrolling-css/)
-- [Web Design Trends 2026 - Really Good Designs](https://reallygooddesigns.com/web-design-trends-2026/)
-- [Top Hero Sections 2026 - PaperStreet](https://www.paperstreet.com/blog/top-10-hero-sections/)
+### Image Optimization & LCP
+- [Fix LCP by Optimizing Image Loading - MDN Blog](https://developer.mozilla.org/en-US/blog/fix-image-lcp/)
+- [How to Optimize Website Images 2026 - Request Metrics](https://requestmetrics.com/web-performance/high-performance-images/)
+- [Next.js Image Optimization - DebugBear](https://www.debugbear.com/blog/nextjs-image-optimization)
+- [LCP Image Optimization for Enhanced SEO - Quattr](https://www.quattr.com/core-web-vitals/lcp-image-optimization)
 
-### 3D Transform Mobile Fixes
-- [CSS Perspective - MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/perspective)
-- [3D Tilt Effect Tutorial - Francesco Saviano](https://medium.com/@francesco.saviano87/how-to-create-a-3d-tilt-effect-on-a-card-with-html-css-and-javascript-1d0b0ab5a9d7)
-- [CSS 3D Perspective Animations - Frontend.fyi](https://www.frontend.fyi/tutorials/css-3d-perspective-animations)
-- [Force Hardware Acceleration - David Walsh](https://davidwalsh.name/translate3d)
-- [iOS Safari Elements Disappearing - Apple Developer Forums](https://developer.apple.com/forums/thread/129318)
+### Skeleton Loading
+- [Handling React Loading States with Skeleton - LogRocket](https://blog.logrocket.com/handling-react-loading-states-react-loading-skeleton/)
+- [Implementing Skeleton Screens in React - Smashing Magazine](https://www.smashingmagazine.com/2020/04/skeleton-screens-react/)
+- [Understanding Skeleton Loaders in React - DEV](https://dev.to/ankitakanchan/understanding-skeleton-loaders-a-guide-to-content-loading-in-react-bc8)
+
+### Offline/PWA Support
+- [Build Next.js 16 PWA with True Offline Support - LogRocket](https://blog.logrocket.com/nextjs-16-pwa-offline-support)
+- [PWA Development Trends 2026 - Vocal Media](https://vocal.media/journal/progressive-web-app-development-trends-and-use-cases-for-2026)
+- [Offline and Background Operation - MDN](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Offline_and_background_operation)
+
+### Food Delivery Design
+- [Food Delivery App UI/UX Design 2025 - Medium](https://medium.com/@prajapatisuketu/food-delivery-app-ui-ux-design-in-2025-trends-principles-best-practices-4eddc91ebaee)
+- [Food Delivery App Design for Engagement - Seven Square Tech](https://www.sevensquaretech.com/food-delivery-app-design-for-higher-engagement/)
+- [25 Food Delivery Website Design Examples - Subframe](https://www.subframe.com/tips/food-delivery-website-design-examples)
 
 ### Codebase Analysis (HIGH Confidence)
-- `src/styles/tokens.css` - Token definitions verified
-- `src/tailwind.config.ts` - Token mapping verified
-- `src/components/menu/UnifiedMenuItemCard/UnifiedMenuItemCard.tsx` - 3D tilt implementation reviewed
-- `src/components/homepage/Hero.tsx` - Current hero implementation reviewed
-- `src/app/globals.css` - Animation keyframes available
+- `src/components/ui/homepage/*.tsx` - All homepage components reviewed
+- `src/lib/services/offline-store.ts` - Driver offline architecture analyzed
+- `src/lib/hooks/useOfflineSync.ts` - Existing sync hook patterns
+- `src/lib/utils/image-optimization.ts` - Image preset configuration
+- `src/components/ui/menu/MenuSkeleton.tsx` - Skeleton pattern reference
+- Git history (commits 1486c38, deabb17, a08d2ff, 9ced763) - Crash fix patterns
