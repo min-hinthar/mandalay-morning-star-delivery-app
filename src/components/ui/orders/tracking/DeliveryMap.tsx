@@ -4,6 +4,7 @@
  * Shows live driver location and customer destination on a map.
  * Updates smoothly as driver position changes.
  * Supports fullscreen expansion on tap.
+ * Uses AdvancedMarkerElement for modern marker support.
  */
 
 "use client";
@@ -12,8 +13,8 @@ import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import {
   GoogleMap,
   useJsApiLoader,
-  Marker,
   Polyline,
+  Marker,
 } from "@react-google-maps/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, MapPin, Navigation, Maximize2, X } from "lucide-react";
@@ -78,6 +79,12 @@ const containerStyle = {
   height: "100%",
 };
 
+// Libraries must match other map components
+const LIBRARIES: ("places" | "geometry" | "marker")[] = ["places", "geometry", "marker"];
+
+// Check if Map ID is available for AdvancedMarkerElement
+const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+
 export function DeliveryMap({
   customerLocation,
   driverLocation,
@@ -89,9 +96,13 @@ export function DeliveryMap({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const prevDriverLocation = useRef(driverLocation);
 
+  // Refs for AdvancedMarkerElements
+  const customerMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const driverMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-    libraries: ["places"],
+    libraries: LIBRARIES,
   });
 
   // Calculate center and bounds
@@ -140,6 +151,86 @@ export function DeliveryMap({
       prevDriverLocation.current = driverLocation;
     }
   }, [driverLocation, map]);
+
+  // Create customer marker using AdvancedMarkerElement (if Map ID available)
+  useEffect(() => {
+    if (!map || !isLoaded || !MAP_ID) return;
+
+    // Create customer marker content
+    const customerContent = document.createElement("div");
+    customerContent.innerHTML = `
+      <div style="
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #2E8B57;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        border: 3px solid white;
+      "></div>
+    `;
+
+    // Create or update customer marker
+    if (customerMarkerRef.current) {
+      customerMarkerRef.current.map = null;
+    }
+
+    customerMarkerRef.current = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: customerLocation.lat, lng: customerLocation.lng },
+      content: customerContent,
+      title: customerLocation.address,
+    });
+
+    return () => {
+      if (customerMarkerRef.current) {
+        customerMarkerRef.current.map = null;
+      }
+    };
+  }, [map, isLoaded, customerLocation]);
+
+  // Create driver marker using AdvancedMarkerElement (if Map ID available)
+  useEffect(() => {
+    if (!map || !isLoaded || !MAP_ID) return;
+
+    // Remove existing driver marker
+    if (driverMarkerRef.current) {
+      driverMarkerRef.current.map = null;
+      driverMarkerRef.current = null;
+    }
+
+    if (!driverLocation) return;
+
+    // Create driver marker content with rotation
+    const rotation = driverLocation.heading || 0;
+    const driverContent = document.createElement("div");
+    driverContent.innerHTML = `
+      <div style="
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: rotate(${rotation}deg);
+      ">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#D4A017" stroke="white" stroke-width="2">
+          <path d="M12 2L22 12L12 22L2 12L12 2Z"/>
+        </svg>
+      </div>
+    `;
+
+    driverMarkerRef.current = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: driverLocation.lat, lng: driverLocation.lng },
+      content: driverContent,
+      title: "Your driver",
+    });
+
+    return () => {
+      if (driverMarkerRef.current) {
+        driverMarkerRef.current.map = null;
+      }
+    };
+  }, [map, isLoaded, driverLocation]);
 
   const onLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
@@ -246,6 +337,7 @@ export function DeliveryMap({
           zoomControl: true,
           clickableIcons: false,
           gestureHandling: inFullscreen ? "greedy" : "cooperative",
+          ...(MAP_ID && { mapId: MAP_ID }),
         }}
       >
         {/* Route polyline */}
@@ -260,36 +352,41 @@ export function DeliveryMap({
           />
         )}
 
-        {/* Customer destination marker */}
-        <Marker
-          position={{ lat: customerLocation.lat, lng: customerLocation.lng }}
-          icon={{
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 12,
-            fillColor: "#2E8B57", // Jade
-            fillOpacity: 1,
-            strokeColor: "#ffffff",
-            strokeWeight: 3,
-          }}
-          title={customerLocation.address}
-        />
-
-        {/* Driver location marker */}
-        {driverLocation && (
-          <Marker
-            position={{ lat: driverLocation.lat, lng: driverLocation.lng }}
-            icon={{
-              path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-              scale: 7,
-              fillColor: "#D4A017", // Saffron
-              fillOpacity: 1,
-              strokeColor: "#ffffff",
-              strokeWeight: 2,
-              rotation: driverLocation.heading || 0,
-            }}
-            title="Your driver"
-          />
+        {/* Legacy Marker fallback when Map ID is not available */}
+        {!MAP_ID && (
+          <>
+            {/* Customer location marker */}
+            <Marker
+              position={{ lat: customerLocation.lat, lng: customerLocation.lng }}
+              title={customerLocation.address}
+              icon={{
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 12,
+                fillColor: "#2E8B57",
+                fillOpacity: 1,
+                strokeColor: "white",
+                strokeWeight: 3,
+              }}
+            />
+            {/* Driver marker */}
+            {driverLocation && (
+              <Marker
+                position={{ lat: driverLocation.lat, lng: driverLocation.lng }}
+                title="Your driver"
+                icon={{
+                  path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                  scale: 6,
+                  fillColor: "#D4A017",
+                  fillOpacity: 1,
+                  strokeColor: "white",
+                  strokeWeight: 2,
+                  rotation: driverLocation.heading || 0,
+                }}
+              />
+            )}
+          </>
         )}
+        {/* AdvancedMarkerElements are created in useEffect hooks when Map ID is available */}
       </GoogleMap>
 
       {/* Legend */}

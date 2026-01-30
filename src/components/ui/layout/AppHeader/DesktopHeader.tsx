@@ -115,7 +115,8 @@ export function DesktopHeader({
             width={48}
             height={48}
             priority
-            className="w-12 h-12"
+            style={{ height: "auto" }}
+            className="w-12"
           />
           <span className="hidden lg:inline">Mandalay Morning Star</span>
         </Link>

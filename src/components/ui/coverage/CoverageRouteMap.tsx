@@ -4,9 +4,9 @@ import { useMemo, useCallback, useState, useEffect, useRef } from "react";
 import {
   GoogleMap,
   useJsApiLoader,
-  Marker,
   Polyline,
   Circle,
+  Marker,
 } from "@react-google-maps/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, MapPin, Clock, Navigation2 } from "lucide-react";
@@ -17,7 +17,7 @@ import { KITCHEN_LOCATION, COVERAGE_LIMITS } from "@/types/address";
 // Coverage radius in meters (40 miles)
 const COVERAGE_RADIUS_METERS = COVERAGE_LIMITS.maxDistanceMiles * 1609.34;
 
-// Local view radius (~15 miles) for default zoomed-in view
+// Local view radius (~15 miles) for inner circle
 const LOCAL_VIEW_RADIUS_METERS = 24000;
 
 // Warm, inviting map style that matches brand
@@ -83,7 +83,10 @@ interface CoverageRouteMapProps {
   className?: string;
 }
 
-const LIBRARIES: ("places" | "geometry")[] = ["places", "geometry"];
+const LIBRARIES: ("places" | "geometry" | "marker")[] = ["places", "geometry", "marker"];
+
+// Check if Map ID is available for AdvancedMarkerElement
+const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
 
 export function CoverageRouteMap({
   destinationLat,
@@ -98,6 +101,10 @@ export function CoverageRouteMap({
   const [circleOpacity, setCircleOpacity] = useState(0.15);
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Refs for AdvancedMarkerElements
+  const kitchenMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const destinationMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
@@ -134,14 +141,14 @@ export function CoverageRouteMap({
   const hasDestination =
     destinationLat !== undefined && destinationLng !== undefined;
 
-  // Calculate appropriate zoom based on destination distance
+  // Calculate appropriate zoom - show full coverage range by default
   const { zoom, shouldFitBounds } = useMemo(() => {
     if (!hasDestination) {
-      // Default: zoom in to show local area around kitchen (zoom 11 ≈ 15 mile view)
-      return { zoom: 11, shouldFitBounds: false };
+      // Default: zoom out to show full 40-mile coverage area (zoom 9)
+      return { zoom: 9, shouldFitBounds: false };
     }
     // When destination is set, fit bounds to show both points
-    return { zoom: 10, shouldFitBounds: true };
+    return { zoom: 9, shouldFitBounds: true };
   }, [hasDestination]);
 
   // Fit bounds when destination is set
@@ -154,6 +161,87 @@ export function CoverageRouteMap({
       map.fitBounds(bounds, { top: 60, bottom: 70, left: 40, right: 40 });
     }
   }, [map, hasDestination, shouldFitBounds, destinationLat, destinationLng]);
+
+  // Create kitchen marker using AdvancedMarkerElement (if Map ID available) or legacy Marker
+  useEffect(() => {
+    if (!map || !isLoaded || !MAP_ID) return;
+
+    // Create kitchen marker content for AdvancedMarkerElement
+    const kitchenContent = document.createElement("div");
+    kitchenContent.innerHTML = `
+      <div style="
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #A41034;
+      ">
+        <img src="/logo.png" alt="Kitchen" style="width: 36px; height: auto; border-radius: 6px;" />
+      </div>
+    `;
+
+    // Create or update kitchen marker
+    if (kitchenMarkerRef.current) {
+      kitchenMarkerRef.current.map = null;
+    }
+
+    kitchenMarkerRef.current = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng },
+      content: kitchenContent,
+      title: "Mandalay Morning Star Kitchen",
+    });
+
+    return () => {
+      if (kitchenMarkerRef.current) {
+        kitchenMarkerRef.current.map = null;
+      }
+    };
+  }, [map, isLoaded]);
+
+  // Create destination marker using AdvancedMarkerElement (if Map ID available)
+  useEffect(() => {
+    if (!map || !isLoaded || !MAP_ID) return;
+
+    // Remove existing destination marker
+    if (destinationMarkerRef.current) {
+      destinationMarkerRef.current.map = null;
+      destinationMarkerRef.current = null;
+    }
+
+    if (!hasDestination || !destinationLat || !destinationLng) return;
+
+    // Create destination marker content
+    const color = isValid ? "#52A52E" : "#DC2626";
+    const destContent = document.createElement("div");
+    destContent.innerHTML = `
+      <div style="
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: ${color};
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        border: 3px solid white;
+      "></div>
+    `;
+
+    destinationMarkerRef.current = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: destinationLat, lng: destinationLng },
+      content: destContent,
+      title: "Your Delivery Address",
+    });
+
+    return () => {
+      if (destinationMarkerRef.current) {
+        destinationMarkerRef.current.map = null;
+      }
+    };
+  }, [map, isLoaded, hasDestination, destinationLat, destinationLng, isValid]);
 
   // Decode polyline to path
   const routePath = useMemo(() => {
@@ -233,6 +321,7 @@ export function CoverageRouteMap({
           zoomControl: false,
           clickableIcons: false,
           gestureHandling: "greedy",
+          ...(MAP_ID && { mapId: MAP_ID }),
         }}
       >
         {/* Animated local coverage circle - smaller, more visible */}
@@ -248,16 +337,16 @@ export function CoverageRouteMap({
           }}
         />
 
-        {/* Full coverage boundary - subtle outer ring */}
+        {/* Full coverage boundary - visible outer ring */}
         <Circle
           center={{ lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng }}
           radius={COVERAGE_RADIUS_METERS}
           options={{
-            fillColor: "transparent",
-            fillOpacity: 0,
+            fillColor: "#A41034",
+            fillOpacity: circleOpacity * 0.15,
             strokeColor: "#A41034",
-            strokeOpacity: 0.2,
-            strokeWeight: 1,
+            strokeOpacity: 0.4,
+            strokeWeight: 2,
             strokePosition: google.maps.StrokePosition.OUTSIDE,
           }}
         />
@@ -274,32 +363,37 @@ export function CoverageRouteMap({
           />
         )}
 
-        {/* Kitchen marker with logo */}
-        <Marker
-          position={{ lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng }}
-          icon={{
-            url: "/logo.png",
-            scaledSize: new google.maps.Size(48, 48),
-            anchor: new google.maps.Point(24, 24),
-          }}
-          title="Mandalay Morning Star Kitchen"
-        />
-
-        {/* Destination marker with animation */}
-        {hasDestination && (
-          <Marker
-            position={{ lat: destinationLat, lng: destinationLng }}
-            icon={{
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 12,
-              fillColor: isValid ? "#52A52E" : "#DC2626",
-              fillOpacity: 1,
-              strokeColor: "#ffffff",
-              strokeWeight: 3,
-            }}
-            title="Your Delivery Address"
-          />
+        {/* Legacy Marker fallback when Map ID is not available */}
+        {!MAP_ID && (
+          <>
+            {/* Kitchen marker */}
+            <Marker
+              position={{ lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng }}
+              title="Mandalay Morning Star Kitchen"
+              icon={{
+                url: "/logo.png",
+                scaledSize: new google.maps.Size(40, 40),
+                anchor: new google.maps.Point(20, 20),
+              }}
+            />
+            {/* Destination marker */}
+            {hasDestination && destinationLat && destinationLng && (
+              <Marker
+                position={{ lat: destinationLat, lng: destinationLng }}
+                title="Your Delivery Address"
+                icon={{
+                  path: google.maps.SymbolPath.CIRCLE,
+                  scale: 12,
+                  fillColor: isValid ? "#52A52E" : "#DC2626",
+                  fillOpacity: 1,
+                  strokeColor: "white",
+                  strokeWeight: 3,
+                }}
+              />
+            )}
+          </>
         )}
+        {/* AdvancedMarkerElements are created in useEffect hooks when Map ID is available */}
       </GoogleMap>
 
       {/* Gradient overlay for depth */}
@@ -354,6 +448,7 @@ export function CoverageRouteMap({
             alt="Mandalay Morning Star"
             width={28}
             height={28}
+            style={{ height: "auto" }}
             className="rounded-lg"
           />
           <div className="pr-1">
