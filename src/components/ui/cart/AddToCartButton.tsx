@@ -14,7 +14,7 @@
  * - Accessible with dynamic aria-label
  */
 
-import { useRef, useState, useCallback, type ReactNode } from "react";
+import { useRef, useState, useCallback, useEffect, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ShoppingCart, Check, Loader2 } from "lucide-react";
 import { useFlyToCart } from "./FlyToCart";
@@ -132,10 +132,19 @@ export function AddToCartButton({
   void _notes;
   const buttonRef = useRef<HTMLButtonElement>(null);
   const lastAddTimeRef = useRef<number>(0);
+  const isMountedRef = useRef(true);
   const { fly, isAnimating } = useFlyToCart();
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   const [state, setState] = useState<"idle" | "loading" | "success">("idle");
+
+  // Track mounted state to prevent setState on unmounted component
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Debounce interval to prevent duplicate additions from rapid clicks
   const DEBOUNCE_MS = 500;
@@ -165,14 +174,16 @@ export function AddToCartButton({
     // Parent is responsible for calling addItem() - this prevents double-add
     onAdd?.();
 
-    // Show success state
-    if (shouldAnimate) {
+    // Show success state (only if still mounted)
+    if (shouldAnimate && isMountedRef.current) {
       setState("success");
       await new Promise((resolve) => setTimeout(resolve, 600));
     }
 
-    // Reset to idle
-    setState("idle");
+    // Reset to idle (only if still mounted)
+    if (isMountedRef.current) {
+      setState("idle");
+    }
   }, [state, disabled, shouldAnimate, fly, item, onAdd]);
 
   const config = sizeConfig[size];
