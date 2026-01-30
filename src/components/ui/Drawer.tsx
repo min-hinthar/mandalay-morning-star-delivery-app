@@ -117,8 +117,8 @@ export function Drawer({
   // Route change closes drawer
   useRouteChangeClose(isOpen, onClose);
 
-  // Lock body scroll when open
-  useBodyScrollLock(isOpen);
+  // Lock body scroll when open (deferred restore for animation safety)
+  const { restoreScrollPosition } = useBodyScrollLock(isOpen, { deferRestore: true });
 
   // Swipe to close for bottom sheet
   const {
@@ -215,7 +215,7 @@ export function Drawer({
 
   return (
     <Portal>
-      <AnimatePresence>
+      <AnimatePresence onExitComplete={restoreScrollPosition}>
         {/* Backdrop */}
         {isOpen && (
           <motion.div
