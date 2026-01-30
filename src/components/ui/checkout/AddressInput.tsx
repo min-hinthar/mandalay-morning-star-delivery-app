@@ -326,9 +326,10 @@ export function AddressAutocomplete({
             exit={shouldAnimate ? { opacity: 0, y: -10 } : undefined}
             transition={getSpring(spring.snappy)}
             className={cn(
-              "absolute top-full left-0 right-0 mt-2 z-10",
-              "bg-surface-primary rounded-xl",
-              "border border-border shadow-elevated",
+              "absolute top-full left-0 right-0 mt-2 z-[9999]",
+              "bg-surface-elevated rounded-xl",
+              "border border-border",
+              "shadow-[0_10px_40px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.05)]",
               "overflow-hidden"
             )}
           >
@@ -342,10 +343,11 @@ export function AddressAutocomplete({
                 transition={{ delay: index * 0.05 }}
                 className={cn(
                   "w-full text-left px-4 py-3",
+                  "bg-surface-elevated",
                   "hover:bg-surface-secondary",
                   "transition-colors duration-150",
                   "flex items-start gap-3",
-                  index !== predictions.length - 1 && "border-b border-border"
+                  index !== predictions.length - 1 && "border-b border-border/50"
                 )}
               >
                 <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />

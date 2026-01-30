@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState, useCallback, type ReactNode } from "react";
+import { useRef, useState, useCallback, useEffect, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { motion, useInView, AnimatePresence, type Variants } from "framer-motion";
 import {
@@ -300,6 +301,26 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
     lng: number;
   } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const inputWrapperRef = useRef<HTMLDivElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Track mount state for portal
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Update dropdown position when focused
+  useEffect(() => {
+    if (isFocused && inputWrapperRef.current) {
+      const rect = inputWrapperRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  }, [isFocused]);
 
   // Places autocomplete with 300ms debounce
   const {
@@ -382,7 +403,7 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
       </motion.div>
 
       {/* Search Input */}
-      <div className="relative">
+      <div className="relative" ref={inputWrapperRef}>
         <motion.div
           animate={isFocused && shouldAnimate ? { scale: 1.01 } : { scale: 1 }}
           transition={getSpring(spring.snappy)}
@@ -440,50 +461,63 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
           </div>
         </motion.div>
 
-        {/* Autocomplete Dropdown */}
-        <AnimatePresence>
-          {predictions.length > 0 && isFocused && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={getSpring(spring.snappy)}
-              className={cn(
-                "absolute top-full left-0 right-0 mt-1 z-[100]",
-                "bg-surface-primary rounded-xl",
-                "border border-border shadow-xl",
-                "overflow-hidden"
-              )}
-            >
-              {predictions.map((prediction, idx) => (
-                <motion.button
-                  key={prediction.placeId}
-                  type="button"
-                  custom={idx}
-                  variants={shouldAnimate ? dropdownItemVariants : undefined}
-                  initial="hidden"
-                  animate="visible"
-                  onClick={() => handleSelectAddress(prediction)}
-                  className={cn(
-                    "w-full text-left px-3 py-2.5",
-                    "hover:bg-surface-secondary",
-                    "transition-colors duration-150",
-                    "flex items-start gap-2",
-                    idx !== predictions.length - 1 && "border-b border-border"
-                  )}
-                >
-                  <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                  <div className="min-w-0">
-                    <p className="font-medium text-sm text-text-primary truncate">
-                      {prediction.mainText}
-                    </p>
-                    <p className="text-xs text-text-muted truncate">{prediction.secondaryText}</p>
-                  </div>
-                </motion.button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Autocomplete Dropdown - rendered via portal to escape stacking context */}
+        {isMounted && createPortal(
+          <AnimatePresence>
+            {predictions.length > 0 && isFocused && dropdownPosition && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={getSpring(spring.snappy)}
+                style={{
+                  position: "absolute",
+                  top: dropdownPosition.top,
+                  left: dropdownPosition.left,
+                  width: dropdownPosition.width,
+                  backgroundColor: "var(--color-surface-elevated)",
+                  opacity: 1,
+                }}
+                className={cn(
+                  "z-[9999]",
+                  "rounded-xl",
+                  "border border-border",
+                  "shadow-[0_10px_40px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.08)]",
+                  "overflow-hidden"
+                )}
+              >
+                {predictions.map((prediction, idx) => (
+                  <motion.button
+                    key={prediction.placeId}
+                    type="button"
+                    custom={idx}
+                    variants={shouldAnimate ? dropdownItemVariants : undefined}
+                    initial="hidden"
+                    animate="visible"
+                    onClick={() => handleSelectAddress(prediction)}
+                    style={{ backgroundColor: "var(--color-surface-elevated)" }}
+                    className={cn(
+                      "w-full text-left px-3 py-2.5",
+                      "hover:bg-surface-secondary",
+                      "transition-colors duration-150",
+                      "flex items-start gap-2",
+                      idx !== predictions.length - 1 && "border-b border-border/50"
+                    )}
+                  >
+                    <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm text-text-primary truncate">
+                        {prediction.mainText}
+                      </p>
+                      <p className="text-xs text-text-muted truncate">{prediction.secondaryText}</p>
+                    </div>
+                  </motion.button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
       </div>
 
       {/* Coverage Result */}
