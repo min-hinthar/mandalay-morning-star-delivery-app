@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { motion, MotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -45,7 +46,7 @@ export interface CardImageProps {
  * Receives normalized mouse position for subtle image parallax.
  * Contains shine overlay that follows mouse position during hover.
  */
-export function CardImage({
+export const CardImage = memo(function CardImage({
   imageUrl,
   alt,
   mouseX,
@@ -145,6 +146,6 @@ export function CardImage({
       <div className="absolute inset-0 bg-gradient-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
     </div>
   );
-}
+});
 
 export default CardImage;

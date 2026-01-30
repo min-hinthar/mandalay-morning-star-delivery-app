@@ -21,9 +21,8 @@ import { AlertTriangle, X } from "lucide-react";
 import { AnimatedImage } from "@/components/ui/animated-image";
 import { Modal } from "@/components/ui/Modal";
 import { Drawer } from "@/components/ui/Drawer";
-import { AddToCartButton } from "@/components/ui/cart";
+import { AddToCartButton, QuantitySelector } from "@/components/ui/cart";
 import { ModifierGroup } from "./ModifierGroup";
-import { QuantitySelector } from "./QuantitySelector";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -298,9 +297,11 @@ export function ItemDetailSheet({
           <div className="flex items-center justify-between">
             <Label>Quantity</Label>
             <QuantitySelector
-              value={quantity}
-              onChange={setQuantity}
-              disabled={item.isSoldOut}
+              quantity={quantity}
+              onIncrement={() => !item.isSoldOut && setQuantity((q) => Math.min(q + 1, 99))}
+              onDecrement={() => !item.isSoldOut && setQuantity((q) => Math.max(q - 1, 1))}
+              min={1}
+              max={99}
             />
           </div>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -28,7 +29,7 @@ export interface GlassOverlayProps {
  * Renders the frosted glass background effect with brand color
  * border glow on hover.
  */
-export function GlassOverlay({
+export const GlassOverlay = memo(function GlassOverlay({
   isHovered,
   rounded = "rounded-3xl",
   className,
@@ -76,6 +77,6 @@ export function GlassOverlay({
       )}
     </div>
   );
-}
+});
 
 export default GlassOverlay;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { memo, useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -63,7 +63,7 @@ function triggerHaptic(type: "light" | "medium" = "light") {
  * - Cart mutations happen via callbacks (onAdd, onIncrement, onDecrement)
  * - External quantity prop drives the state machine
  */
-export function AddButton({
+export const AddButton = memo(function AddButton({
   item,
   quantity,
   onAdd,
@@ -276,6 +276,6 @@ export function AddButton({
       </AnimatePresence>
     </div>
   );
-}
+});
 
 export default AddButton;

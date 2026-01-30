@@ -49,9 +49,6 @@ export type { MenuAccordionProps } from "./MenuAccordion";
 
 export { ModifierGroup } from "./ModifierGroup";
 
-// Note: QuantitySelector not exported to avoid conflict with cart/QuantitySelector
-// Import directly from "./QuantitySelector" if needed for menu item detail use case
-
 // ============================================
 // SEARCH
 // ============================================

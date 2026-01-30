@@ -18,7 +18,7 @@
  * />
  */
 
-import { useRef, useState, useEffect, useCallback, useMemo } from "react";
+import { memo, useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useActiveCategory } from "@/lib/hooks/useActiveCategory";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -50,7 +50,7 @@ export interface CategoryTabsProps {
   className?: string;
 }
 
-export function CategoryTabs({
+export const CategoryTabs = memo(function CategoryTabs({
   categories,
   activeCategory: controlledActiveCategory,
   onCategoryClick,
@@ -299,6 +299,6 @@ export function CategoryTabs({
       )}
     </div>
   );
-}
+});
 
 export default CategoryTabs;

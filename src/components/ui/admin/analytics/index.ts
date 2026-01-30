@@ -29,3 +29,12 @@ export {
   DriverLeaderboard,
   LeaderboardCompact,
 } from "./DriverLeaderboard";
+
+// Lazy-loaded chart components (for code-splitting)
+export {
+  LazyDeliverySuccessChart,
+  LazyETAAccuracyGauge,
+  LazyPeakHoursChart,
+  LazyExceptionBreakdown,
+  LazyPerformanceChart,
+} from "./LazyCharts";
