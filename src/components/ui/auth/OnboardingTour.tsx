@@ -8,7 +8,7 @@
  * skip/next controls, completion celebration
  */
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChefHat,
@@ -251,6 +251,16 @@ export function OnboardingTour({
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const [currentStep, setCurrentStep] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
+  const completeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (completeTimeoutRef.current) clearTimeout(completeTimeoutRef.current);
+      if (skipTimeoutRef.current) clearTimeout(skipTimeoutRef.current);
+    };
+  }, []);
 
   const isLastStep = currentStep === steps.length - 1;
   const step = steps[currentStep];
@@ -263,7 +273,8 @@ export function OnboardingTour({
       if (typeof navigator !== "undefined" && navigator.vibrate) {
         navigator.vibrate([50, 30, 100]);
       }
-      setTimeout(() => {
+      if (completeTimeoutRef.current) clearTimeout(completeTimeoutRef.current);
+      completeTimeoutRef.current = setTimeout(() => {
         onComplete?.();
       }, 500);
     } else {
@@ -278,7 +289,8 @@ export function OnboardingTour({
   // Handle skip
   const handleSkip = useCallback(() => {
     setIsExiting(true);
-    setTimeout(() => {
+    if (skipTimeoutRef.current) clearTimeout(skipTimeoutRef.current);
+    skipTimeoutRef.current = setTimeout(() => {
       onSkip?.();
     }, 300);
   }, [onSkip]);
