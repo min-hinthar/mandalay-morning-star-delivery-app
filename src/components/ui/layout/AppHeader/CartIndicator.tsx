@@ -25,7 +25,7 @@ export interface CartIndicatorProps {
 }
 
 /**
- * Badge bounce animation - scale with rubbery spring
+ * Badge bounce animation - scale with tween (spring only supports 2 keyframes)
  */
 const badgeBounce = {
   initial: { scale: 0, opacity: 0 },
@@ -33,7 +33,11 @@ const badgeBounce = {
   exit: { scale: 0, opacity: 0 },
   bounce: {
     scale: [1, 1.4, 1],
-    transition: spring.rubbery,
+    transition: {
+      duration: 0.3,
+      times: [0, 0.5, 1],
+      ease: "easeOut",
+    },
   },
 };
 
