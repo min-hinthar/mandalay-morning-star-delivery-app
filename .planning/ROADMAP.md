@@ -38,12 +38,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can scroll homepage with GSAP animations without memory growth
   4. User experiences zero crashes during 10-minute session on iPhone SE
   5. User can trigger/cancel animations without AudioContext exhaustion
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 35-01: TBD
-- [ ] 35-02: TBD
-- [ ] 35-03: TBD
+- [ ] 35-01-PLAN.md - Audit + Foundation (utility hooks, documentation)
+- [ ] 35-02-PLAN.md - Fix Critical Issues (timers, event listeners, GSAP)
+- [ ] 35-03-PLAN.md - Fix Remaining + Verify (observers, modals, device testing)
 
 ### Phase 36: Image Optimization & LCP
 **Goal**: Sub-2.5s Largest Contentful Paint on mobile with zero cumulative layout shift from images
@@ -117,7 +117,7 @@ Phases execute in numeric order: 35 -> 35.1 -> 36 -> 37 -> 38 -> 39
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 35. Mobile Crash Prevention | v1.4 | 0/3 | Not started | - |
+| 35. Mobile Crash Prevention | v1.4 | 0/3 | Planned | - |
 | 36. Image Optimization & LCP | v1.4 | 0/2 | Not started | - |
 | 37. Codebase Cleanup | v1.4 | 0/2 | Not started | - |
 | 38. Customer Offline Support | v1.4 | 0/3 | Not started | - |
