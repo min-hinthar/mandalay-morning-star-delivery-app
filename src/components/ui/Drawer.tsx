@@ -117,9 +117,8 @@ export function Drawer({
   // Route change closes drawer
   useRouteChangeClose(isOpen, onClose);
 
-  // Lock body scroll when open - defer scroll restoration until exit animation completes
-  // This prevents iOS Safari crashes from scroll restoration during DOM transition
-  const { restoreScroll } = useBodyScrollLock(isOpen, { deferScrollRestore: true });
+  // Lock body scroll when open
+  useBodyScrollLock(isOpen);
 
   // Swipe to close for bottom sheet
   const {
@@ -216,7 +215,7 @@ export function Drawer({
 
   return (
     <Portal>
-      <AnimatePresence onExitComplete={restoreScroll}>
+      <AnimatePresence>
         {/* Backdrop */}
         {isOpen && (
           <motion.div
