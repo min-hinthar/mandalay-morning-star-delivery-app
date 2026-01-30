@@ -1038,3 +1038,23 @@ useEffect(() => {
 **Apply when:** Displaying logos or images where aspect ratio must be preserved and width is the controlling dimension.
 
 ---
+
+## 2026-01-29: Multiple Overlay Components is Intentional Architecture
+
+**Context:** Debugging mobile crashes, found Drawer.tsx, MobileDrawer.tsx, Modal.tsx, AuthModal.tsx, ExceptionModal.tsx
+**Learning:** Multiple drawer/modal implementations is **intentional architecture**, not technical debt. Each serves a specific use case:
+
+| Component | Purpose | Why Separate |
+|-----------|---------|--------------|
+| Drawer.tsx | Universal side/bottom drawer | Generic commerce overlays (cart) |
+| MobileDrawer.tsx | Left navigation menu | Different swipe direction (left), standalone |
+| Modal.tsx | Centered dialogs | Nested modal support via context |
+| AuthModal.tsx | Auth flow | Standalone glassmorphism, specific UX |
+| ExceptionModal.tsx | Driver exceptions | Touch-optimized for drivers (56px targets) |
+| Dialog (Radix) | Admin forms | Built-in accessibility |
+
+**Key pattern:** They share hooks (`useBodyScrollLock`, `useSwipeToClose`) but are architecturally separate.
+
+**Apply when:** Debugging overlay issues - fix shared hooks (affects all) vs component-specific code (affects one).
+
+---
