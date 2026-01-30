@@ -57,7 +57,7 @@ export function FooterCTA() {
             variants={ctaContainerVariants}
             initial={shouldAnimate ? "hidden" : false}
             whileInView="visible"
-            viewport={{ once: false, amount: 0.3 }}
+            viewport={{ once: true, amount: 0.3 }}
             className="space-y-6"
           >
             {/* Badge */}
@@ -127,7 +127,7 @@ export function FooterCTA() {
               variants={columnVariants}
               initial={shouldAnimate ? "hidden" : false}
               whileInView="visible"
-              viewport={{ once: false, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.3 }}
             >
               <h3 className="font-display text-xl text-footer-text font-semibold mb-4">Contact Us</h3>
               <div className="space-y-3">
@@ -163,7 +163,7 @@ export function FooterCTA() {
               variants={columnVariants}
               initial={shouldAnimate ? "hidden" : false}
               whileInView="visible"
-              viewport={{ once: false, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.3 }}
             >
               <h3 className="font-display text-xl text-footer-text font-semibold mb-4">Delivery Hours</h3>
               <div className="space-y-3">
@@ -188,7 +188,7 @@ export function FooterCTA() {
               variants={columnVariants}
               initial={shouldAnimate ? "hidden" : false}
               whileInView="visible"
-              viewport={{ once: false, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.3 }}
             >
               <h3 className="font-display text-xl text-footer-text font-semibold mb-4">Follow Us</h3>
               <div className="flex gap-4">
@@ -226,7 +226,7 @@ export function FooterCTA() {
             variants={copyrightVariants}
             initial={shouldAnimate ? "hidden" : false}
             whileInView="visible"
-            viewport={{ once: false, amount: 0.3 }}
+            viewport={{ once: true, amount: 0.3 }}
             className="mt-12 pt-8 border-t border-footer-border text-center"
           >
             <p className="text-sm font-body text-footer-text-muted">
