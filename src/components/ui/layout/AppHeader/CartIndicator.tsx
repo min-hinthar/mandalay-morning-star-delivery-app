@@ -36,7 +36,7 @@ const badgeBounce = {
     transition: {
       duration: 0.3,
       times: [0, 0.5, 1],
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
 };
