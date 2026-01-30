@@ -286,10 +286,12 @@ export function AuthModal({
     [handleClose]
   );
 
-  // Handle escape key
+  // Handle escape key - only add listener when open
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
+      if (e.key === "Escape") {
         handleClose();
       }
     };
