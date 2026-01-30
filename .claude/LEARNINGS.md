@@ -929,6 +929,52 @@ className="bg-surface-elevated"
 
 ---
 
+## 2026-01-29: Scroll Lock Cleanup Must Defer Until Animation Complete
+
+**Context:** Mobile app crashing/reloading when closing modals, drawers, item details
+**Learning:** `useBodyScrollLock` calling `window.scrollTo()` synchronously on unmount races with Framer Motion's `AnimatePresence` exit animation (~200-300ms). iOS Safari tries to scroll while DOM is in inconsistent state (fixed-position elements being removed, transforms animating) → layout thrashing → memory pressure → crash.
+
+**Fix:** Defer scroll restoration until exit animation completes:
+
+```tsx
+// Hook: Support deferred scroll restore
+export function useBodyScrollLock(
+  isLocked: boolean,
+  options: { deferScrollRestore?: boolean } = {}
+) {
+  // ... lock logic ...
+
+  // If deferring, skip auto-restore in cleanup
+  return () => {
+    if (!options.deferScrollRestore) {
+      restoreScroll();  // Only restore if NOT deferring
+    }
+  };
+}
+
+// Export manual restore for deferred case
+export function restoreBodyScroll() {
+  requestAnimationFrame(() => {
+    window.scrollTo(0, savedScrollY);
+    document.body.style.overflow = "";
+  });
+}
+
+// Component: Call restore in onExitComplete
+<AnimatePresence onExitComplete={() => restoreBodyScroll()}>
+  {isOpen && <DrawerContent />}
+</AnimatePresence>
+```
+
+**Key patterns:**
+1. Use `requestAnimationFrame` for scroll operations to ensure DOM stability
+2. Add global lock counting to prevent conflicts between nested overlays
+3. Hook into `AnimatePresence`'s `onExitComplete` callback for deferred restore
+
+**Apply when:** Any overlay (modal, drawer, sheet) with exit animations that uses scroll lock. Symptoms: mobile crashes, "Can't open page" errors, white screen on close.
+
+---
+
 ## 2026-01-29: Google Maps AdvancedMarkerElement Requires Map ID
 
 **Context:** Upgrading from legacy `Marker` to `AdvancedMarkerElement` caused warning "map is initialized without a valid Map ID"
