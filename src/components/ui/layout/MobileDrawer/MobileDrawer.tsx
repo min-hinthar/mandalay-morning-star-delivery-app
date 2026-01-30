@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer80, duration } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
 import { useSwipeToClose } from "@/lib/swipe-gestures";
 import { zClass } from "@/lib/design-system/tokens/z-index";
 import { Home, UtensilsCrossed, Package, User, X } from "lucide-react";
@@ -49,17 +50,8 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
     threshold: 100,
   });
 
-  // Body scroll lock
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  // Body scroll lock (deferred restore for animation safety)
+  const { restoreScrollPosition } = useBodyScrollLock(isOpen, { deferRestore: true });
 
   // Escape key handler
   const handleEscape = useCallback(
@@ -80,7 +72,7 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
   const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={restoreScrollPosition}>
       {isOpen && (
         <>
           {/* Backdrop */}
