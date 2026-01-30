@@ -53,7 +53,7 @@
 
 - [ ] **ANIM-01**: useDeviceCapability hook detects device memory, cores, and connection type
 - [ ] **ANIM-02**: Low-capability devices disable non-essential animations (parallax, stagger)
-- [ ] **ANIM-03**: Medium-capability devices use reduced animation durations (0.3s → 0.15s)
+- [ ] **ANIM-03**: Medium-capability devices use reduced animation durations (0.3s -> 0.15s)
 - [ ] **ANIM-04**: High-capability devices get full animation experience
 - [ ] **ANIM-05**: Animation ownership clarified: GSAP for scroll, Framer Motion for interactions
 - [ ] **ANIM-06**: No GSAP and Framer Motion animations on same DOM element
@@ -100,27 +100,72 @@
 
 ## Traceability
 
-| REQ-ID | Phase | Plan |
-|--------|-------|------|
-| CRASH-01 to CRASH-10 | TBD | TBD |
-| IMAGE-01 to IMAGE-10 | TBD | TBD |
-| OFFLINE-01 to OFFLINE-12 | TBD | TBD |
-| ANIM-01 to ANIM-09 | TBD | TBD |
-| REFACTOR-01 to REFACTOR-08 | TBD | TBD |
+| REQ-ID | Phase | Status |
+|--------|-------|--------|
+| CRASH-01 | Phase 35 | Pending |
+| CRASH-02 | Phase 35 | Pending |
+| CRASH-03 | Phase 35 | Pending |
+| CRASH-04 | Phase 35 | Pending |
+| CRASH-05 | Phase 35 | Pending |
+| CRASH-06 | Phase 35 | Pending |
+| CRASH-07 | Phase 35 | Pending |
+| CRASH-08 | Phase 35 | Pending |
+| CRASH-09 | Phase 35 | Pending |
+| CRASH-10 | Phase 35 | Pending |
+| IMAGE-01 | Phase 36 | Pending |
+| IMAGE-02 | Phase 36 | Pending |
+| IMAGE-03 | Phase 36 | Pending |
+| IMAGE-04 | Phase 36 | Pending |
+| IMAGE-05 | Phase 36 | Pending |
+| IMAGE-06 | Phase 36 | Pending |
+| IMAGE-07 | Phase 36 | Pending |
+| IMAGE-08 | Phase 36 | Pending |
+| IMAGE-09 | Phase 36 | Pending |
+| IMAGE-10 | Phase 36 | Pending |
+| REFACTOR-01 | Phase 37 | Pending |
+| REFACTOR-02 | Phase 37 | Pending |
+| REFACTOR-03 | Phase 37 | Pending |
+| REFACTOR-04 | Phase 37 | Pending |
+| REFACTOR-05 | Phase 37 | Pending |
+| REFACTOR-06 | Phase 37 | Pending |
+| REFACTOR-07 | Phase 37 | Pending |
+| REFACTOR-08 | Phase 37 | Pending |
+| OFFLINE-01 | Phase 38 | Pending |
+| OFFLINE-02 | Phase 38 | Pending |
+| OFFLINE-03 | Phase 38 | Pending |
+| OFFLINE-04 | Phase 38 | Pending |
+| OFFLINE-05 | Phase 38 | Pending |
+| OFFLINE-06 | Phase 38 | Pending |
+| OFFLINE-07 | Phase 38 | Pending |
+| OFFLINE-08 | Phase 38 | Pending |
+| OFFLINE-09 | Phase 38 | Pending |
+| OFFLINE-10 | Phase 38 | Pending |
+| OFFLINE-11 | Phase 38 | Pending |
+| OFFLINE-12 | Phase 38 | Pending |
+| ANIM-01 | Phase 39 | Pending |
+| ANIM-02 | Phase 39 | Pending |
+| ANIM-03 | Phase 39 | Pending |
+| ANIM-04 | Phase 39 | Pending |
+| ANIM-05 | Phase 39 | Pending |
+| ANIM-06 | Phase 39 | Pending |
+| ANIM-07 | Phase 39 | Pending |
+| ANIM-08 | Phase 39 | Pending |
+| ANIM-09 | Phase 39 | Pending |
 
 ---
 
 ## Summary
 
-| Category | Count | Priority |
-|----------|-------|----------|
-| Mobile Crash Prevention | 10 | P0 |
-| Image Optimization & LCP | 10 | P0 |
-| Customer Offline Support | 12 | P1 |
-| Animation Optimization | 9 | P2 |
-| Codebase Refactoring | 8 | P1 |
-| **Total** | **49** | — |
+| Category | Count | Priority | Phase |
+|----------|-------|----------|-------|
+| Mobile Crash Prevention | 10 | P0 | 35 |
+| Image Optimization & LCP | 10 | P0 | 36 |
+| Codebase Refactoring | 8 | P1 | 37 |
+| Customer Offline Support | 12 | P1 | 38 |
+| Animation Optimization | 9 | P2 | 39 |
+| **Total** | **49** | - | - |
 
 ---
 
 *Created: 2026-01-30*
+*Updated: 2026-01-30 - Traceability section added with phase mappings*
