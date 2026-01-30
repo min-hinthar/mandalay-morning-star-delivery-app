@@ -25,6 +25,7 @@ import {
   hover,
 } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
 import { ErrorShake, useErrorShake } from "@/components/ui/error-shake";
 import { signIn } from "@/lib/supabase/actions";
 
@@ -219,6 +220,9 @@ export function AuthModal({
   const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { shake: errorShake, triggerShake } = useErrorShake();
 
+  // Body scroll lock (deferred restore for animation safety)
+  const { restoreScrollPosition } = useBodyScrollLock(isOpen, { deferRestore: true });
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -310,7 +314,7 @@ export function AuthModal({
   }, [isOpen, handleClose]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={restoreScrollPosition}>
       {isOpen && (
         <motion.div
           initial={shouldAnimate ? { opacity: 0 } : undefined}
