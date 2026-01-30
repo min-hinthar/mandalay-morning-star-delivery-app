@@ -123,4 +123,8 @@ export { useABTest } from "./useABTest";
 // ============================================
 
 export { useRouteChangeClose } from "./useRouteChangeClose";
-export { useBodyScrollLock } from "./useBodyScrollLock";
+export {
+  useBodyScrollLock,
+  type UseBodyScrollLockOptions,
+  type UseBodyScrollLockReturn,
+} from "./useBodyScrollLock";
