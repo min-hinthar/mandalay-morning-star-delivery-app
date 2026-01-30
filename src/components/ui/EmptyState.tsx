@@ -123,7 +123,6 @@ const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
 // ============================================
 
 interface AnimatedIconProps {
-  variant: EmptyStateVariant;
   Icon: LucideIcon;
   isPositive?: boolean;
   gradientStyle: React.CSSProperties;
@@ -131,47 +130,11 @@ interface AnimatedIconProps {
 }
 
 function AnimatedIcon({
-  variant,
   Icon,
   isPositive,
   gradientStyle,
   shouldAnimate,
 }: AnimatedIconProps) {
-  // Different animation patterns per variant
-  const getIconAnimation = () => {
-    if (!shouldAnimate) return undefined;
-
-    switch (variant) {
-      case "cart":
-        // Shopping bag with floating items effect
-        return {
-          y: [0, -6, 0],
-          rotate: [0, -3, 3, 0],
-        };
-      case "search":
-        // Searching motion
-        return {
-          x: [0, 4, -4, 0],
-          scale: [1, 1.05, 1],
-        };
-      case "orders":
-        // Receipt with sparkle effect
-        return {
-          y: [0, -4, 0],
-          scale: [1, 1.02, 1],
-        };
-      case "favorites":
-        // Heart beating
-        return {
-          scale: [1, 1.15, 1],
-        };
-      default:
-        return {
-          y: [0, -4, 0],
-        };
-    }
-  };
-
   return (
     <motion.div
       initial={shouldAnimate ? { opacity: 0, scale: 0.6 } : undefined}
@@ -179,33 +142,14 @@ function AnimatedIcon({
       transition={shouldAnimate ? { ...spring.ultraBouncy, delay: 0 } : undefined}
       className="relative mb-6"
     >
-      {/* Gradient blob background */}
-      <motion.div
-        className="absolute inset-0 rounded-full blur-xl"
+      {/* Static gradient blob background - removed infinite animation to prevent mobile crashes */}
+      <div
+        className="absolute inset-0 rounded-full blur-xl opacity-70"
         style={gradientStyle}
-        animate={
-          shouldAnimate
-            ? {
-                scale: [1, 1.1, 1],
-                opacity: [0.6, 0.8, 0.6],
-              }
-            : undefined
-        }
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
       />
 
-      {/* Icon container */}
-      <motion.div
-        animate={getIconAnimation()}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+      {/* Static icon container - removed infinite animations to prevent mobile crashes */}
+      <div
         className={cn(
           "relative flex h-20 w-20 items-center justify-center rounded-full",
           isPositive
@@ -214,37 +158,7 @@ function AnimatedIcon({
         )}
       >
         <Icon className="h-10 w-10" strokeWidth={1.5} />
-
-        {/* Sparkle decorations for certain variants */}
-        {shouldAnimate && (variant === "orders" || variant === "favorites") && (
-          <>
-            <motion.span
-              className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-amber-400"
-              animate={{
-                scale: [0, 1, 0],
-                opacity: [0, 1, 0],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                delay: 0.5,
-              }}
-            />
-            <motion.span
-              className="absolute -bottom-1 -left-1 h-1.5 w-1.5 rounded-full bg-primary"
-              animate={{
-                scale: [0, 1, 0],
-                opacity: [0, 1, 0],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                delay: 1,
-              }}
-            />
-          </>
-        )}
-      </motion.div>
+      </div>
     </motion.div>
   );
 }
@@ -316,9 +230,8 @@ export function EmptyState({
         className
       )}
     >
-      {/* Animated Icon (fades in first) */}
+      {/* Icon (fades in first) */}
       <AnimatedIcon
-        variant={variant}
         Icon={Icon}
         isPositive={isPositive}
         gradientStyle={config.gradientStyle}

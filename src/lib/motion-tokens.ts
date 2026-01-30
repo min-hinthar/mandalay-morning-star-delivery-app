@@ -734,6 +734,10 @@ export const celebration = {
 // (For hero elements, decoratives)
 // ============================================
 
+/**
+ * Float animation with BOUNDED repeat count to prevent mobile crashes.
+ * Use sparingly on hero sections only.
+ */
 export function float(index: number) {
   return {
     animate: {
@@ -743,13 +747,17 @@ export function float(index: number) {
     },
     transition: {
       duration: 5 + index * 0.7,
-      repeat: Infinity,
+      repeat: 3, // Bounded to prevent mobile memory issues
       ease: "easeInOut" as const,
       delay: index * 0.4,
     },
   };
 }
 
+/**
+ * Gentle float animation with BOUNDED repeat count to prevent mobile crashes.
+ * Use sparingly on hero sections only.
+ */
 export function floatGentle(index: number) {
   return {
     animate: {
@@ -758,7 +766,7 @@ export function floatGentle(index: number) {
     },
     transition: {
       duration: 6 + index * 0.5,
-      repeat: Infinity,
+      repeat: 3, // Bounded to prevent mobile memory issues
       ease: "easeInOut" as const,
       delay: index * 0.3,
     },
@@ -820,14 +828,14 @@ export const routeDraw = {
     },
   } as Variants,
 
-  /** Marker pulse */
+  /** Marker pulse - bounded repeat to prevent mobile crashes */
   markerPulse: {
     animate: {
       scale: [1, 1.2, 1],
       opacity: [1, 0.7, 1],
       transition: {
         duration: 2,
-        repeat: Infinity,
+        repeat: 5, // Bounded to prevent mobile memory issues
         ease: "easeInOut",
       },
     },

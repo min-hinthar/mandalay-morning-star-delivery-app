@@ -84,23 +84,8 @@ export function CartSummary({ className }: CartSummaryProps) {
           )}
         >
           <div className="flex items-center gap-2 mb-3">
-            <motion.div
-              animate={
-                shouldAnimate
-                  ? {
-                      rotate: [0, 5, -5, 0],
-                      y: [0, -2, 0],
-                    }
-                  : undefined
-              }
-              transition={{
-                duration: 0.5,
-                repeat: Infinity,
-                repeatDelay: 1.5,
-              }}
-            >
-              <Sparkles className="w-4 h-4 text-amber-500" />
-            </motion.div>
+            {/* Static sparkle icon - removed infinite animation to prevent mobile crashes */}
+            <Sparkles className="w-4 h-4 text-amber-500" />
             <span className="text-sm font-semibold text-text-money">
               ${(amountToFreeDelivery / 100).toFixed(2)} away from free delivery!
             </span>
@@ -132,26 +117,13 @@ export function CartSummary({ className }: CartSummaryProps) {
               />
             </div>
 
-            {/* Animated truck on progress - animate prop handles smooth position updates */}
+            {/* Truck on progress - position animates, removed infinite bounce to prevent mobile crashes */}
             <motion.div
               className="absolute top-1/2 -translate-y-1/2"
               animate={{ left: `calc(${progressPercent}% - 12px)` }}
               transition={getSpring(spring.rubbery)}
             >
-              <motion.div
-                animate={
-                  shouldAnimate
-                    ? {
-                        y: [0, -2, 0],
-                        rotate: [0, -3, 3, 0],
-                      }
-                    : undefined
-                }
-                transition={{
-                  duration: 0.4,
-                  repeat: Infinity,
-                  repeatDelay: 0.1,
-                }}
+              <div
                 className={cn(
                   "flex items-center justify-center",
                   "w-6 h-6 rounded-full",
@@ -161,7 +133,7 @@ export function CartSummary({ className }: CartSummaryProps) {
                 )}
               >
                 <Truck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              </motion.div>
+              </div>
             </motion.div>
 
             {/* Goal flag at end */}
@@ -197,47 +169,11 @@ export function CartSummary({ className }: CartSummaryProps) {
             "shadow-sm"
           )}
         >
-          {/* Celebration sparkles background */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {shouldAnimate && [...Array(5)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-1 h-1 rounded-full bg-green-400/60"
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{
-                  opacity: [0, 1, 0],
-                  scale: [0, 1, 0],
-                  y: [0, -20],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  delay: i * 0.3,
-                  repeatDelay: 1,
-                }}
-                style={{
-                  left: `${20 + i * 15}%`,
-                  top: "80%",
-                }}
-              />
-            ))}
-          </div>
+          {/* Static sparkles background - removed infinite animation to prevent mobile crashes */}
 
           <div className="flex items-center gap-3 relative">
-            <motion.div
-              animate={
-                shouldAnimate
-                  ? {
-                      rotate: [0, -10, 10, 0],
-                      scale: [1, 1.15, 1],
-                    }
-                  : undefined
-              }
-              transition={{
-                duration: 0.6,
-                repeat: Infinity,
-                repeatDelay: 2,
-              }}
+            {/* Static truck icon - removed infinite animation to prevent mobile crashes */}
+            <div
               className={cn(
                 "flex items-center justify-center",
                 "w-10 h-10 rounded-full",
@@ -246,18 +182,14 @@ export function CartSummary({ className }: CartSummaryProps) {
               )}
             >
               <Truck className="w-5 h-5 text-green-600 dark:text-green-400" />
-            </motion.div>
+            </div>
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="text-sm font-bold text-green-700 dark:text-green-300">
                   Free Delivery Unlocked!
                 </span>
-                <motion.div
-                  animate={shouldAnimate ? { rotate: [0, 15, -15, 0] } : undefined}
-                  transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
-                >
-                  <PartyPopper className="w-4 h-4 text-green-500" />
-                </motion.div>
+                {/* Static party popper - removed infinite animation to prevent mobile crashes */}
+                <PartyPopper className="w-4 h-4 text-green-500" />
               </div>
               <span className="text-xs text-green-600/80 dark:text-green-400/80">
                 You&apos;ve hit the $100 threshold

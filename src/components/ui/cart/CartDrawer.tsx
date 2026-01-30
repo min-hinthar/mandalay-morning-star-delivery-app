@@ -65,20 +65,8 @@ function CartHeader({ itemCount, onClose, onClearClick, showClear }: CartHeaderP
         id="cart-drawer-title"
         className="flex items-center gap-3 text-lg font-display font-bold text-text-primary"
       >
-        {/* Animated bag icon */}
+        {/* Bag icon - no infinite animation to prevent mobile crashes */}
         <motion.div
-          animate={
-            shouldAnimate
-              ? {
-                  rotate: [0, -5, 5, 0],
-                }
-              : undefined
-          }
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            repeatDelay: 3,
-          }}
           className={cn(
             "flex h-10 w-10 items-center justify-center rounded-full",
             "bg-amber-100 dark:bg-amber-900/30"
@@ -229,20 +217,9 @@ function CartFooter({ onClose, onCheckout }: CartFooterProps) {
           transition={getSpring(spring.snappyButton)}
           className="relative"
         >
-          {/* Pulsing glow behind button */}
+          {/* Static glow behind button - removed infinite animation to prevent mobile crashes */}
           {shouldAnimate && (
-            <motion.div
-              className="absolute inset-0 rounded-xl bg-primary/30 blur-lg"
-              animate={{
-                opacity: [0.4, 0.7, 0.4],
-                scale: [1, 1.02, 1],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
+            <div className="absolute inset-0 rounded-xl bg-primary/30 blur-lg opacity-50" />
           )}
           <Button
             variant="primary"

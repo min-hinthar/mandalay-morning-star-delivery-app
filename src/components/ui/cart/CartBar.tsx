@@ -56,29 +56,19 @@ export interface CartBarProps {
 interface DeliveryProgressProps {
   progressPercent: number;
   amountToFreeDelivery: number;
-  shouldAnimate: boolean;
   getSpring: (preset: typeof spring.rubbery) => object;
 }
 
 function DeliveryProgress({
   progressPercent,
   amountToFreeDelivery,
-  shouldAnimate,
   getSpring,
 }: DeliveryProgressProps) {
   return (
     <div className="px-4 pt-3 pb-1">
       <div className="flex items-center gap-2 mb-2">
-        <motion.div
-          animate={
-            shouldAnimate
-              ? { rotate: [0, 5, -5, 0], y: [0, -1, 0] }
-              : undefined
-          }
-          transition={{ duration: 0.4, repeat: Infinity, repeatDelay: 2 }}
-        >
-          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-        </motion.div>
+        {/* Static sparkle icon - removed infinite animation to prevent mobile crashes */}
+        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
         <span className="text-xs font-medium text-text-money">
           ${(amountToFreeDelivery / 100).toFixed(2)} to free delivery
         </span>
@@ -106,21 +96,15 @@ function DeliveryProgress({
           />
         </div>
 
-        {/* Animated truck */}
+        {/* Truck - position animates, removed infinite bounce to prevent mobile crashes */}
         <motion.div
           className="absolute top-1/2 -translate-y-1/2"
           animate={{ left: `calc(${progressPercent}% - 8px)` }}
           transition={getSpring(spring.rubbery)}
         >
-          <motion.div
-            animate={
-              shouldAnimate ? { y: [0, -1, 0], rotate: [0, -2, 2, 0] } : undefined
-            }
-            transition={{ duration: 0.3, repeat: Infinity, repeatDelay: 0.5 }}
-            className="w-4 h-4 rounded-full bg-surface-primary dark:bg-surface-tertiary border border-amber-400 shadow-sm flex items-center justify-center"
-          >
+          <div className="w-4 h-4 rounded-full bg-surface-primary dark:bg-surface-tertiary border border-amber-400 shadow-sm flex items-center justify-center">
             <Truck className="w-2.5 h-2.5 text-amber-600" />
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </div>
@@ -131,32 +115,16 @@ function DeliveryProgress({
 // FREE DELIVERY ACHIEVED BANNER
 // ============================================
 
-interface FreeDeliveryBannerProps {
-  shouldAnimate: boolean;
-}
-
-function FreeDeliveryBanner({ shouldAnimate }: FreeDeliveryBannerProps) {
+function FreeDeliveryBanner() {
   return (
     <div className="px-4 pt-3 pb-1">
-      <motion.div
-        initial={shouldAnimate ? { scale: 0.9, opacity: 0 } : false}
-        animate={{ scale: 1, opacity: 1 }}
-        className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full bg-gradient-delivery-success"
-      >
-        <motion.div
-          animate={
-            shouldAnimate
-              ? { rotate: [0, -10, 10, 0], scale: [1, 1.1, 1] }
-              : undefined
-          }
-          transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 3 }}
-        >
-          <Truck className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-        </motion.div>
+      <div className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full bg-gradient-delivery-success">
+        {/* Static truck icon - removed infinite animation to prevent mobile crashes */}
+        <Truck className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
         <span className="text-xs font-semibold text-text-money">
           Free Delivery!
         </span>
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -249,11 +217,10 @@ export function CartBar({
             <DeliveryProgress
               progressPercent={progressPercent}
               amountToFreeDelivery={amountToFreeDelivery}
-              shouldAnimate={shouldAnimate}
               getSpring={getSpring}
             />
           ) : (
-            <FreeDeliveryBanner shouldAnimate={shouldAnimate} />
+            <FreeDeliveryBanner />
           )}
 
           {/* Main content row */}
