@@ -390,6 +390,66 @@ const handleAsync = useCallback(async () => {
 
 ---
 
+## 2026-01-30: Cleanup Pattern Audit (Phase 35)
+**Type:** Proactive Audit / Prevention | **Severity:** N/A - No issues found
+
+**Files Audited:** 300 files in `src/components/` and `src/lib/`
+
+**Summary:**
+Comprehensive audit for memory leaks and crash patterns found 0 critical issues. The codebase already implements proper cleanup patterns for all identified risk areas:
+
+| Pattern | Files | Status |
+|---------|-------|--------|
+| setTimeout/setInterval | 36+7 files | All have cleanup in useEffect |
+| addEventListener | 22 files | All have matching removeEventListener |
+| GSAP animations | 4 files | All use useGSAP or manual kill() |
+| IntersectionObserver | 4 files | All have disconnect() in cleanup |
+| requestAnimationFrame | 4 files | All have cancelAnimationFrame |
+| AudioContext | 2 files | All have close() in cleanup |
+
+**Prevention Utilities Created (35-01):**
+- `useMountedRef` - isMounted tracking for async callbacks
+- `useSafeTimeout` - Auto-cleanup timeout hook
+- `useSafeInterval` - Auto-cleanup interval hook
+- `useSafeAsync` - AbortController-based async hook
+
+**Reference:**
+- `.planning/phases/35-mobile-crash-prevention/35-AUDIT.md` - Full audit report
+- `.claude/CLEANUP-PATTERNS.md` - Pattern documentation
+- `src/lib/hooks/useSafeEffects.ts` - Utility hooks
+
+**Key Patterns (already in codebase):**
+
+1. **Timer cleanup:** Store timeout/interval ID in ref, clear in useEffect cleanup
+   ```typescript
+   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+   useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
+   ```
+
+2. **Event listener cleanup:** Define handler inside useEffect, remove in cleanup
+   ```typescript
+   useEffect(() => {
+     const handler = (e: Event) => { ... };
+     window.addEventListener("keydown", handler);
+     return () => window.removeEventListener("keydown", handler);
+   }, []);
+   ```
+
+3. **GSAP cleanup:** Use useGSAP with scope for automatic context cleanup
+   ```typescript
+   useGSAP(() => { gsap.to(...) }, { scope: containerRef });
+   ```
+
+4. **Observer cleanup:** Call disconnect() in useEffect cleanup
+   ```typescript
+   useEffect(() => {
+     const observer = new IntersectionObserver(...);
+     return () => observer.disconnect();
+   }, []);
+   ```
+
+---
+
 ## 2026-01-26: Double-Add Cart Items (Button + Callback Both Mutate)
 **Type:** Logic | **Severity:** High
 
