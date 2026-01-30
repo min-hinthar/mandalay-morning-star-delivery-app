@@ -215,6 +215,65 @@ useEffect(() => () => {
 
 ---
 
+## 2026-01-30: Mobile Crash from Event Listener Accumulation (useCallback Anti-pattern)
+**Type:** Runtime | **Severity:** Critical
+
+**Files:** `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx`
+
+**Error:** First modal close refreshes page. Second modal close crashes app. Pattern: open → close → open → close = crash.
+
+**Root Cause:** `useCallback` with `isOpen` in dependency array causes function reference to change on every toggle. Event listeners accumulate because cleanup removes wrong reference.
+
+```typescript
+// BROKEN - function reference changes when isOpen changes
+const handleEscape = useCallback(
+  (e: KeyboardEvent) => {
+    if (e.key === "Escape" && isOpen) {
+      onClose();
+    }
+  },
+  [isOpen, onClose]  // ← isOpen causes new function on every toggle
+);
+
+useEffect(() => {
+  window.addEventListener("keydown", handleEscape);
+  return () => window.removeEventListener("keydown", handleEscape);
+  // ↑ Cleanup tries to remove CURRENT reference, but listener was added with PREVIOUS reference
+}, [handleEscape]);
+```
+
+**Bug progression:**
+1. Open modal → add listener v1
+2. Close modal → isOpen changes → handleEscape becomes v2 → cleanup removes v2 (not v1!) → v1 remains
+3. Open again → add listener v3 → now v1 AND v3 are attached
+4. Close → multiple stale listeners fire → state corruption → crash
+
+**Fix:** Define handler inside useEffect with guard clause:
+
+```typescript
+// WORKING - same reference for add/remove, no listener when closed
+useEffect(() => {
+  if (!isOpen) return;  // Guard: no listener when closed
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      onClose();
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+  return () => window.removeEventListener("keydown", handleKeyDown);
+}, [isOpen, onClose]);
+```
+
+**Prevention:**
+1. Never use `isOpen` (or other frequently-changing state) in useCallback dependencies for event handlers
+2. Define event handlers INSIDE useEffect, not with useCallback
+3. Add `if (!isOpen) return` guard to prevent listeners when component inactive
+4. Pattern: Modal.tsx does this correctly, MobileDrawer.tsx did not
+
+---
+
 ## 2026-01-26: Double-Add Cart Items (Button + Callback Both Mutate)
 **Type:** Logic | **Severity:** High
 

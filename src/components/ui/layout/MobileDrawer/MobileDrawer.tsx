@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer80, duration } from "@/lib/motion-tokens";
@@ -53,20 +53,19 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
   // Body scroll lock (deferred restore for animation safety)
   const { restoreScrollPosition } = useBodyScrollLock(isOpen, { deferRestore: true });
 
-  // Escape key handler
-  const handleEscape = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
+  // Escape key handler - defined inside useEffect to ensure same reference for add/remove
+  useEffect(() => {
+    if (!isOpen) return; // No listener when closed
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
         onClose();
       }
-    },
-    [isOpen, onClose]
-  );
+    };
 
-  useEffect(() => {
-    window.addEventListener("keydown", handleEscape);
-    return () => window.removeEventListener("keydown", handleEscape);
-  }, [handleEscape]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   // Get current path for active state
   const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
