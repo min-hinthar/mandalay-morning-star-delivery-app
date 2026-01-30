@@ -1039,6 +1039,43 @@ useEffect(() => {
 
 ---
 
+## 2026-01-30: Event Listeners Must Be Defined Inside useEffect
+
+**Context:** MobileDrawer crash - first close refreshes, second close crashes
+**Learning:** Never use `useCallback` with state dependencies (like `isOpen`) for event handlers attached via `addEventListener`. The function reference changes when dependencies change, causing listeners to accumulate because cleanup removes the wrong reference.
+
+**Correct pattern:**
+```tsx
+// ✅ Handler defined INSIDE useEffect - guaranteed same reference for add/remove
+useEffect(() => {
+  if (!isOpen) return;  // Guard: no listener when closed
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") onClose();
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+  return () => window.removeEventListener("keydown", handleKeyDown);
+}, [isOpen, onClose]);
+```
+
+**Broken pattern:**
+```tsx
+// ❌ useCallback reference changes when isOpen changes → listener accumulation
+const handleEscape = useCallback((e) => {
+  if (e.key === "Escape" && isOpen) onClose();
+}, [isOpen, onClose]);  // isOpen in deps = new function every toggle
+
+useEffect(() => {
+  window.addEventListener("keydown", handleEscape);
+  return () => window.removeEventListener("keydown", handleEscape);
+}, [handleEscape]);  // Cleanup removes wrong reference
+```
+
+**Apply when:** Any event listener attached with `addEventListener` in a component with open/close state.
+
+---
+
 ## 2026-01-29: Multiple Overlay Components is Intentional Architecture
 
 **Context:** Debugging mobile crashes, found Drawer.tsx, MobileDrawer.tsx, Modal.tsx, AuthModal.tsx, ExceptionModal.tsx
