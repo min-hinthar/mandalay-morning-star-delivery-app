@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, forwardRef } from "react";
+import { useState, useEffect, useCallback, forwardRef, useRef } from "react";
 import { motion, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -418,8 +418,17 @@ export const BrandMascot = forwardRef<HTMLDivElement, BrandMascotProps>(
     const { shouldAnimate, getSpring } = useAnimationPreference();
     const [currentExpression, setCurrentExpression] = useState<MascotExpression>(expression);
     const [isBlinking, setIsBlinking] = useState(false);
+    const clickTimeoutRefs = useRef<NodeJS.Timeout[]>([]);
 
     const { container, face, eyes, mouth } = sizeConfig[size];
+
+    // Cleanup click timeouts on unmount
+    useEffect(() => {
+      return () => {
+        clickTimeoutRefs.current.forEach(clearTimeout);
+        clickTimeoutRefs.current = [];
+      };
+    }, []);
 
     // Sync expression prop
     useEffect(() => {
@@ -454,22 +463,37 @@ export const BrandMascot = forwardRef<HTMLDivElement, BrandMascotProps>(
     useEffect(() => {
       if (!idleAnimations || !shouldAnimate || currentExpression === "sleeping") return;
 
+      let isMounted = true;
+      let blinkTimer: NodeJS.Timeout | null = null;
+      let blinkEndTimer: NodeJS.Timeout | null = null;
+
       const blink = () => {
+        if (!isMounted) return;
         setIsBlinking(true);
-        setTimeout(() => setIsBlinking(false), 150);
+        blinkEndTimer = setTimeout(() => {
+          if (isMounted) setIsBlinking(false);
+        }, 150);
       };
 
       // Random blink interval (2-5 seconds)
       const scheduleBlink = () => {
+        if (!isMounted) return;
         const delay = 2000 + Math.random() * 3000;
-        return setTimeout(() => {
-          blink();
-          scheduleBlink();
+        blinkTimer = setTimeout(() => {
+          if (isMounted) {
+            blink();
+            scheduleBlink();
+          }
         }, delay);
       };
 
-      const timer = scheduleBlink();
-      return () => clearTimeout(timer);
+      scheduleBlink();
+
+      return () => {
+        isMounted = false;
+        if (blinkTimer) clearTimeout(blinkTimer);
+        if (blinkEndTimer) clearTimeout(blinkEndTimer);
+      };
     }, [idleAnimations, shouldAnimate, currentExpression]);
 
     // Click handler with reaction
@@ -479,9 +503,17 @@ export const BrandMascot = forwardRef<HTMLDivElement, BrandMascotProps>(
         return;
       }
 
+      // Clear any existing click animation timeouts
+      clickTimeoutRefs.current.forEach(clearTimeout);
+      clickTimeoutRefs.current = [];
+
       setCurrentExpression("surprised");
-      setTimeout(() => setCurrentExpression("excited"), 300);
-      setTimeout(() => setCurrentExpression(expression), 1500);
+      clickTimeoutRefs.current.push(
+        setTimeout(() => setCurrentExpression("excited"), 300)
+      );
+      clickTimeoutRefs.current.push(
+        setTimeout(() => setCurrentExpression(expression), 1500)
+      );
 
       onClick?.();
     }, [expression, onClick, shouldAnimate]);

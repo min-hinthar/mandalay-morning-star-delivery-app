@@ -8,7 +8,7 @@
  * staggered card entrance, spring-based value animations
  */
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
 import {
   Package,
@@ -396,6 +396,14 @@ export function AdminDashboard({
 }: AdminDashboardProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const [goalCelebration, setGoalCelebration] = useState(false);
+  const goalTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup goal timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (goalTimeoutRef.current) clearTimeout(goalTimeoutRef.current);
+    };
+  }, []);
 
   const handleGoalReached = useCallback(() => {
     setGoalCelebration(true);
@@ -404,7 +412,8 @@ export function AdminDashboard({
       navigator.vibrate([50, 30, 100]);
     }
     // Reset after animation
-    setTimeout(() => setGoalCelebration(false), 3000);
+    if (goalTimeoutRef.current) clearTimeout(goalTimeoutRef.current);
+    goalTimeoutRef.current = setTimeout(() => setGoalCelebration(false), 3000);
   }, []);
 
   // Quick stats from KPIs
