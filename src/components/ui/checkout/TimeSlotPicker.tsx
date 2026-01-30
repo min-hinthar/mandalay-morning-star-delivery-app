@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, ChevronLeft, ChevronRight, Sun, Moon, Sunrise, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -33,9 +33,11 @@ interface DatePillProps {
   isSelected: boolean;
   onSelect: () => void;
   index: number;
+  /** Week offset from current week (0 = this week, 1 = next week, etc.) */
+  weekOffset: number;
 }
 
-function DatePill({ date, isSelected, onSelect, index }: DatePillProps) {
+function DatePill({ date, isSelected, onSelect, index, weekOffset }: DatePillProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   // Parse date for display with proper timezone handling
@@ -116,10 +118,10 @@ function DatePill({ date, isSelected, onSelect, index }: DatePillProps) {
         </motion.div>
       )}
 
-      {/* Next week badge */}
-      {date.isNextWeek && !isSelected && (
+      {/* Week offset badge */}
+      {weekOffset > 0 && !isSelected && (
         <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-2xs px-1.5 py-0.5 rounded-full bg-secondary text-text-primary font-medium whitespace-nowrap">
-          Next Week
+          {weekOffset === 1 ? "Next Week" : `In ${weekOffset} Weeks`}
         </span>
       )}
     </motion.button>
@@ -254,6 +256,15 @@ export function TimeSlotPicker({
   const selectedTime = selectedDelivery
     ? { start: selectedDelivery.windowStart, end: selectedDelivery.windowEnd }
     : null;
+
+  // Calculate week offsets for badge display
+  // If first date's cutoff passed, first valid date is "next week" (offset=1)
+  const weekOffsets = useMemo(() => {
+    const firstDateCutoffPassed = availableDates[0]?.cutoffPassed ?? false;
+    return availableDates.map((_, index) =>
+      firstDateCutoffPassed ? index + 1 : index
+    );
+  }, [availableDates]);
 
   // Check scroll bounds
   const updateScrollButtons = useCallback(() => {
@@ -393,6 +404,7 @@ export function TimeSlotPicker({
                 isSelected={selectedDate === date.dateString}
                 onSelect={() => handleDateSelect(date)}
                 index={index}
+                weekOffset={weekOffsets[index]}
               />
             ))}
           </div>

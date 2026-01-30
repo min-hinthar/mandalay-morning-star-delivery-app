@@ -302,36 +302,17 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
             Back
           </Button>
 
-          <motion.button
-            whileHover={
-              shouldAnimate && !isCreatingSession ? { scale: 1.02 } : undefined
-            }
-            whileTap={
-              shouldAnimate && !isCreatingSession ? { scale: 0.98 } : undefined
-            }
+          <Button
+            variant="success"
+            size="lg"
             onClick={handleCheckout}
             disabled={isCreatingSession}
-            className={cn(
-              "inline-flex items-center justify-center gap-2",
-              "px-6 py-3 rounded-lg font-semibold",
-              "bg-status-success hover:bg-green-hover text-text-inverse",
-              "shadow-lg shadow-green-600/25",
-              "transition-colors duration-200",
-              "disabled:opacity-70 disabled:cursor-not-allowed"
-            )}
+            isLoading={isCreatingSession}
+            loadingText="Processing..."
+            leftIcon={!isCreatingSession ? <CreditCard className="w-5 h-5" /> : undefined}
           >
-            {isCreatingSession ? (
-              <>
-                <BrandedSpinner size="sm" label="Processing" className="text-text-inverse" />
-                Processing...
-              </>
-            ) : (
-              <>
-                <CreditCard className="w-5 h-5" />
-                Place Order
-              </>
-            )}
-          </motion.button>
+            Place Order
+          </Button>
         </motion.div>
       )}
     </motion.div>
