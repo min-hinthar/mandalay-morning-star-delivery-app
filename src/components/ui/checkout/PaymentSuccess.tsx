@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
@@ -232,6 +232,7 @@ export function PaymentSuccess({
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const [showConfetti, setShowConfetti] = useState(true);
   const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Generate confetti particles
   const confettiParticles = useMemo(() => {
@@ -255,12 +256,20 @@ export function PaymentSuccess({
     }
   }, []);
 
+  // Cleanup copy timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
+
   // Copy order ID
   const handleCopyOrderId = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(orderId);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       console.error("Failed to copy");
     }

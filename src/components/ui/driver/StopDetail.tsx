@@ -9,7 +9,7 @@
 
 import { motion } from "framer-motion";
 import { Phone, MapPin, Clock, Copy, Package, FileText } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils/cn";
 import { NavigationButton } from "./NavigationButton";
 import { DeliveryActions } from "./DeliveryActions";
@@ -66,6 +66,14 @@ export function StopDetail({
   onException,
 }: StopDetailProps) {
   const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup copy timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
 
   // Calculate progress
   const progressPercent = Math.round((stopIndex / totalStops) * 100);
@@ -95,15 +103,16 @@ export function StopDetail({
     .filter(Boolean)
     .join(", ");
 
-  const copyAddress = async () => {
+  const copyAddress = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(fullAddress);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       // Clipboard API might not be available
     }
-  };
+  }, [fullAddress]);
 
   const handleCall = () => {
     if (customer.phone) {
