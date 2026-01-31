@@ -10,6 +10,8 @@ export interface PhotoItem {
   name: string;
   imageUrl: string;
   categoryName?: string;
+  categoryId?: string;
+  storagePath?: string;
   isAssigned?: boolean;
 }
 
@@ -112,7 +114,7 @@ export function PhotoGrid({
                 </div>
 
                 {/* Assignment Badge */}
-                {photo.isAssigned && (
+                {photo.isAssigned === true && (
                   <Badge
                     className={cn(
                       "absolute top-2 left-2",
@@ -120,6 +122,16 @@ export function PhotoGrid({
                     )}
                   >
                     Assigned
+                  </Badge>
+                )}
+                {photo.isAssigned === false && (
+                  <Badge
+                    className={cn(
+                      "absolute top-2 left-2",
+                      "bg-yellow/90 text-text-inverse border-0 text-xs"
+                    )}
+                  >
+                    Unassigned
                   </Badge>
                 )}
               </button>
