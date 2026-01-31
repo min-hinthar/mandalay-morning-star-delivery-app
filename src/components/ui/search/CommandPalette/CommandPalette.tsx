@@ -128,7 +128,8 @@ export function CommandPalette({
             className={cn(
               "fixed inset-0",
               zClass.modalBackdrop,
-              "bg-overlay backdrop-blur-sm"
+              // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+              "bg-overlay sm:backdrop-blur-sm"
             )}
             aria-hidden="true"
           />
@@ -154,7 +155,8 @@ export function CommandPalette({
               className={cn(
                 "absolute -top-12 right-0 sm:hidden",
                 "h-10 w-10 flex items-center justify-center rounded-full",
-                "bg-surface-primary/90 backdrop-blur-sm",
+                // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+                "bg-surface-primary",
                 "text-text-secondary",
                 "shadow-lg border border-border/20",
                 "active:scale-95 transition-transform"

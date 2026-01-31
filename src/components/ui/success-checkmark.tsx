@@ -247,7 +247,8 @@ export function SuccessOverlay({
       onAnimationComplete={onAnimationComplete}
       className={cn(
         "fixed inset-0 z-50 flex flex-col items-center justify-center",
-        "bg-surface-primary/95 backdrop-blur-sm",
+        // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+        "bg-surface-primary sm:bg-surface-primary/95 sm:backdrop-blur-sm",
         className
       )}
     >

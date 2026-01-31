@@ -179,9 +179,10 @@ export function FavoriteButton({
         sizes.button,
         "relative flex items-center justify-center",
         "rounded-full",
+        // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
         showBackground && [
-          "bg-surface-primary/90 dark:bg-surface-primary/90",
-          "backdrop-blur-sm",
+          "bg-surface-primary dark:bg-surface-primary sm:bg-surface-primary/90 sm:dark:bg-surface-primary/90",
+          "sm:backdrop-blur-sm",
           "shadow-sm",
           isFavorite && "bg-red-50 dark:bg-red-950/30",
         ],

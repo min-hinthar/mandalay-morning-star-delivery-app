@@ -81,7 +81,9 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
         <motion.div
           key="drawer-backdrop"
           className={cn(
-            "fixed inset-0 bg-overlay backdrop-blur-sm",
+            // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+            // MobileDrawer is mobile-only so no blur at all
+            "fixed inset-0 bg-overlay",
             zClass.modalBackdrop
           )}
           initial={{ opacity: 0 }}

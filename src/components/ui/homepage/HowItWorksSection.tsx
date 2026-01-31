@@ -141,10 +141,11 @@ function StepIcon({ step, index }: StepIconProps) {
     <motion.div
       className={cn(
         // Larger size
+        // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
         "relative w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center",
-        "border-2 backdrop-blur-lg",
-        // Gradient background for depth
-        "bg-gradient-to-br from-surface-primary/60 to-surface-primary/40",
+        "border-2 md:backdrop-blur-lg",
+        // Gradient background for depth - solid on mobile
+        "bg-surface-primary md:bg-gradient-to-br md:from-surface-primary/60 md:to-surface-primary/40",
         step.iconBorder,
         // Enhanced shadow
         "shadow-[0_4px_16px_rgba(0,0,0,0.1),0_8px_32px_rgba(0,0,0,0.08)]"
@@ -648,9 +649,10 @@ function GlassCard({ children, className }: GlassCardProps) {
       }
       className={cn(
         "relative rounded-3xl p-6 md:p-8",
-        // Stronger glass effect
-        "bg-surface-primary/85 dark:bg-surface-primary/70",
-        "backdrop-blur-2xl",
+        // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+        // Solid background on mobile, glass effect on desktop
+        "bg-surface-primary dark:bg-gray-900 md:bg-surface-primary/85 md:dark:bg-surface-primary/70",
+        "md:backdrop-blur-2xl",
         // Thicker white-tinted border
         "border-2 border-white/40 dark:border-white/20",
         // Layered shadows with warm glow

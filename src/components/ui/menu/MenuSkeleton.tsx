@@ -74,7 +74,8 @@ export function MenuSkeleton({
   return (
     <div className={className}>
       {/* Category tabs skeleton */}
-      <div className="sticky top-[var(--tabs-offset)] z-20 border-b border-border bg-surface-primary/95 backdrop-blur-lg">
+      {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
+      <div className="sticky top-[var(--tabs-offset)] z-20 border-b border-border bg-surface-primary sm:bg-surface-primary/95 sm:backdrop-blur-lg">
         <div className="flex gap-2 overflow-hidden px-4 py-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div

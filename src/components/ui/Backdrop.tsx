@@ -40,7 +40,8 @@ export function Backdrop({
           key="backdrop"
           className={cn(
             "fixed inset-0",
-            "bg-overlay backdrop-blur-sm",
+            // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+            "bg-overlay sm:backdrop-blur-sm",
             className
           )}
           style={{ zIndex: zIndexValue ?? zIndex.modalBackdrop }}
