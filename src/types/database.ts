@@ -420,6 +420,75 @@ export interface OrderItemModifiersUpdate {
   created_at?: string;
 }
 
+export interface FeaturedSectionsRow {
+  id: string;
+  slug: string;
+  name: string;
+  subtitle: string | null;
+  icon: string | null;
+  accent_color: string | null;
+  sort_order: number;
+  item_count: number;
+  is_visible: boolean;
+  is_predefined: boolean;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  updated_by: string | null;
+}
+
+export interface FeaturedSectionsInsert {
+  id?: string;
+  slug: string;
+  name: string;
+  subtitle?: string | null;
+  icon?: string | null;
+  accent_color?: string | null;
+  sort_order?: number;
+  item_count?: number;
+  is_visible?: boolean;
+  is_predefined?: boolean;
+  deleted_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  updated_by?: string | null;
+}
+
+export interface FeaturedSectionsUpdate {
+  id?: string;
+  slug?: string;
+  name?: string;
+  subtitle?: string | null;
+  icon?: string | null;
+  accent_color?: string | null;
+  sort_order?: number;
+  item_count?: number;
+  is_visible?: boolean;
+  is_predefined?: boolean;
+  deleted_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  updated_by?: string | null;
+}
+
+export interface FeaturedSectionItemsRow {
+  section_id: string;
+  item_id: string;
+  sort_order: number;
+}
+
+export interface FeaturedSectionItemsInsert {
+  section_id: string;
+  item_id: string;
+  sort_order?: number;
+}
+
+export interface FeaturedSectionItemsUpdate {
+  section_id?: string;
+  item_id?: string;
+  sort_order?: number;
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -571,6 +640,41 @@ export type Database = {
             columns: ["order_item_id"];
             isOneToOne: false;
             referencedRelation: "order_items";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      featured_sections: {
+        Row: FeaturedSectionsRow;
+        Insert: FeaturedSectionsInsert;
+        Update: FeaturedSectionsUpdate;
+        Relationships: [
+          {
+            foreignKeyName: "featured_sections_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      featured_section_items: {
+        Row: FeaturedSectionItemsRow;
+        Insert: FeaturedSectionItemsInsert;
+        Update: FeaturedSectionItemsUpdate;
+        Relationships: [
+          {
+            foreignKeyName: "featured_section_items_section_id_fkey";
+            columns: ["section_id"];
+            isOneToOne: false;
+            referencedRelation: "featured_sections";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "featured_section_items_item_id_fkey";
+            columns: ["item_id"];
+            isOneToOne: false;
+            referencedRelation: "menu_items";
             referencedColumns: ["id"];
           }
         ];
