@@ -157,6 +157,7 @@ export async function PATCH(
     const updateData: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
       updated_by: auth.userId,
+      has_unpublished_changes: true, // Mark as having unpublished changes
     };
 
     if (parsed.data.name !== undefined) updateData.name = parsed.data.name;

@@ -431,6 +431,7 @@ export interface FeaturedSectionsRow {
   item_count: number;
   is_visible: boolean;
   is_predefined: boolean;
+  has_unpublished_changes: boolean;
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
@@ -448,6 +449,7 @@ export interface FeaturedSectionsInsert {
   item_count?: number;
   is_visible?: boolean;
   is_predefined?: boolean;
+  has_unpublished_changes?: boolean;
   deleted_at?: string | null;
   created_at?: string;
   updated_at?: string;
@@ -465,6 +467,7 @@ export interface FeaturedSectionsUpdate {
   item_count?: number;
   is_visible?: boolean;
   is_predefined?: boolean;
+  has_unpublished_changes?: boolean;
   deleted_at?: string | null;
   created_at?: string;
   updated_at?: string;
