@@ -202,7 +202,8 @@ export function CartBar({
           style={{ zIndex: zIndex.fixed }}
           className={cn(
             "fixed bottom-0 left-0 right-0",
-            "bg-surface-primary/80 dark:bg-gray-900/75 backdrop-blur-3xl border-t border-white/20 dark:border-white/10",
+            // Solid background on mobile (no blur) - backdrop-blur causes mobile Safari crashes
+            "bg-surface-primary dark:bg-gray-900 sm:bg-surface-primary/80 sm:dark:bg-gray-900/75 sm:backdrop-blur-3xl border-t border-white/20 dark:border-white/10",
             "shadow-nav-top",
             "rounded-t-2xl",
             // iOS safe area

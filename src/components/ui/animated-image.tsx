@@ -6,6 +6,7 @@ import Image, { type ImageProps } from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 
 // ============================================
 // TYPES
@@ -59,6 +60,9 @@ export function AnimatedImage({
   const { shouldAnimate } = useAnimationPreference();
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Disable blur filter animation on mobile - CSS filter animations cause Safari GPU crashes
+  const isMobile = useMediaQuery("(max-width: 639px)");
+
   const handleLoad = () => {
     setIsLoaded(true);
   };
@@ -76,7 +80,8 @@ export function AnimatedImage({
   }
 
   // Build variants based on type
-  const includesBlur = variant.includes("blur");
+  // On mobile, skip blur filter animation to prevent GPU crashes
+  const includesBlur = variant.includes("blur") && !isMobile;
   const includesScale = variant.includes("scale");
 
   // Framer Motion requires numeric blur values for interpolation between states
@@ -88,7 +93,7 @@ export function AnimatedImage({
       opacity: 0,
     },
     visible: {
-      filter: "blur(0px)",
+      ...(includesBlur && { filter: "blur(0px)" }),
       scale: 1,
       opacity: 1,
     },
@@ -106,7 +111,7 @@ export function AnimatedImage({
       transition={{
         ...spring.gentle,
         delay,
-        filter: { duration: 0.4, ease: "easeOut" },
+        ...(includesBlur && { filter: { duration: 0.4, ease: "easeOut" } }),
       }}
     >
       <Image
