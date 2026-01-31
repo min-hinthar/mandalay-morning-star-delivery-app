@@ -82,10 +82,11 @@ const backdropVariants = {
   exit: { opacity: 0 },
 };
 
+// Simplified bottom sheet variants - removed opacity animation to reduce GPU load
 const bottomVariants = {
-  hidden: { y: "100%", opacity: 0.8 },
-  visible: { y: 0, opacity: 1 },
-  exit: { y: "100%", opacity: 0.8 },
+  hidden: { y: "100%" },
+  visible: { y: 0 },
+  exit: { y: "100%" },
 };
 
 const reducedMotionVariants = {
@@ -243,7 +244,7 @@ export function Drawer({
             transition={overlayMotion.backdrop}
             style={{ opacity: computedBackdropOpacity }}
             onClick={onClose}
-            className="fixed inset-0 z-40 bg-overlay-heavy sm:backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-overlay-heavy"
             aria-hidden="true"
             data-testid="drawer-backdrop"
           />
@@ -260,8 +261,9 @@ export function Drawer({
             tabIndex={-1}
             className={cn(
               "fixed z-50",
-              // Glassmorphism matching CartBar
-              "bg-surface-primary/80 dark:bg-gray-900/75 backdrop-blur-3xl border border-white/20 dark:border-white/10",
+              // Solid background on mobile (no blur) - backdrop-blur-3xl causes mobile crashes
+              // Desktop can handle glassmorphism
+              "bg-surface-primary dark:bg-gray-900 sm:bg-surface-primary/80 sm:dark:bg-gray-900/75 sm:backdrop-blur-xl border border-white/20 dark:border-white/10",
               "shadow-xl",
               "outline-none",
               // Side drawer styles

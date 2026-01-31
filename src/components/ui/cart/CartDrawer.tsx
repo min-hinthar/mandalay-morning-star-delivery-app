@@ -161,20 +161,20 @@ function CartItemsList({ onClose }: CartItemsListProps) {
       className="flex-1 overflow-y-auto px-4 py-4"
     >
       <ul className="space-y-3">
-        <AnimatePresence mode="popLayout">
+        {/* CHANGED from mode="popLayout" to mode="sync" - popLayout causes layout thrashing that crashes mobile */}
+        <AnimatePresence mode="sync">
           {items.map((item) => (
             <motion.li
               key={item.cartItemId}
               variants={shouldAnimate ? staggerItem : undefined}
-              layout={shouldAnimate}
+              // REMOVED layout prop - causes expensive layout recalculations
               exit={
                 shouldAnimate
                   ? {
+                      // Simplified exit animation - removed scale and rotate to reduce GPU load
                       opacity: 0,
-                      x: -100,
-                      scale: 0.8,
-                      rotate: -3,
-                      transition: { duration: 0.2 },
+                      x: -50,
+                      transition: { duration: 0.15 },
                     }
                   : undefined
               }

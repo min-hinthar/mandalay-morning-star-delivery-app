@@ -130,26 +130,24 @@ const desktopVariants = {
   },
 };
 
+// Simplified mobile variants - removed opacity animation to reduce GPU load on mobile
 const mobileVariants = {
   hidden: {
     y: "100%",
-    opacity: 0.8,
   },
   visible: {
     y: 0,
-    opacity: 1,
     transition: {
-      type: "spring",
-      damping: 25,
+      type: "spring" as const,
+      damping: 30, // Increased damping for less bouncy, more stable
       stiffness: 300,
     },
   },
   exit: {
     y: "100%",
-    opacity: 0.8,
     transition: {
-      duration: 0.2,
-      ease: "easeIn",
+      duration: 0.15, // Faster exit
+      ease: "easeIn" as const,
     },
   },
 };
@@ -345,7 +343,8 @@ export function Modal({
             onClick={handleBackdropClick}
             className={cn(
               "fixed inset-0",
-              "bg-overlay backdrop-blur-md",
+              // No backdrop blur on mobile - causes crashes
+              "bg-overlay sm:backdrop-blur-sm",
               backdropClassName
             )}
             aria-hidden="true"
@@ -387,7 +386,8 @@ export function Modal({
               className={cn(
                 // Base styles
                 "relative w-full",
-                "bg-surface-primary/80 dark:bg-gray-900/75 backdrop-blur-3xl border border-white/20 dark:border-white/10",
+                // Solid background on mobile (no blur) - backdrop-blur-3xl causes mobile crashes
+                "bg-surface-primary dark:bg-gray-900 sm:bg-surface-primary/80 sm:dark:bg-gray-900/75 sm:backdrop-blur-xl border border-white/20 dark:border-white/10",
                 "shadow-xl",
                 "focus:outline-none",
                 // Mobile styles
