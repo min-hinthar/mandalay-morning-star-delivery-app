@@ -32,8 +32,9 @@ export function MenuHeader({
       transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
       className={cn(
         "sticky top-0 z-20 h-14",
-        "bg-[var(--color-cream)]/95 dark:bg-[var(--color-background)]/95",
-        "backdrop-blur-lg border-b border-[var(--color-border)]"
+        // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+        "bg-[var(--color-cream)] dark:bg-[var(--color-background)] sm:bg-[var(--color-cream)]/95 sm:dark:bg-[var(--color-background)]/95",
+        "sm:backdrop-blur-lg border-b border-[var(--color-border)]"
       )}
     >
       <div className="mx-auto flex h-full max-w-5xl items-center justify-between gap-4 px-4">

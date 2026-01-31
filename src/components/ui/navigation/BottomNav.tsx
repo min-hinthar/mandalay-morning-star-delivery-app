@@ -62,8 +62,9 @@ export function BottomNav({ items = defaultItems, className }: BottomNavProps) {
     <nav
       className={cn(
         "fixed bottom-0 left-0 right-0 z-30",
-        "bg-background/95 backdrop-blur-lg",
-        "border-t border-border/50",
+        // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+        // BottomNav is mobile-only (md:hidden) so no blur at all
+        "bg-background border-t border-border/50",
         "md:hidden",
         className
       )}

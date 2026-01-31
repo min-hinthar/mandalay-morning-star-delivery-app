@@ -41,7 +41,9 @@ export function DriverHeader({
   return (
     <header
       className={cn(
-        "sticky top-0 z-20 flex min-h-[56px] items-center justify-between border-b border-border bg-surface-primary/95 px-4 py-3 backdrop-blur-sm",
+        // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+        // DriverHeader is mobile-only, so no blur at all
+        "sticky top-0 z-20 flex min-h-[56px] items-center justify-between border-b border-border bg-surface-primary px-4 py-3",
         className
       )}
     >

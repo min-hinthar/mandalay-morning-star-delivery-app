@@ -200,22 +200,37 @@
     background-clip: text;
   }
 
-  /* Glassmorphism effect (dark text for contrast) */
+  /* Glassmorphism effect (dark text for contrast)
+     MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+     Blur only enabled on sm+ breakpoints (640px+) */
   .glass {
-    background: color-mix(in srgb, var(--color-surface-primary) 85%, transparent);
-    backdrop-filter: blur(var(--blur-lg));
-    -webkit-backdrop-filter: blur(var(--blur-lg));
+    background: var(--color-surface-primary);
     border: 1px solid var(--color-border-subtle);
     color: var(--color-text-primary);
   }
 
-  /* Dark glass (light text for contrast) */
+  @media (min-width: 640px) {
+    .glass {
+      background: color-mix(in srgb, var(--color-surface-primary) 85%, transparent);
+      backdrop-filter: blur(var(--blur-lg));
+      -webkit-backdrop-filter: blur(var(--blur-lg));
+    }
+  }
+
+  /* Dark glass (light text for contrast)
+     MOBILE CRASH PREVENTION: No backdrop-blur on mobile */
   .glass-dark {
-    background: color-mix(in srgb, var(--color-text-primary) 85%, transparent);
-    backdrop-filter: blur(var(--blur-lg));
-    -webkit-backdrop-filter: blur(var(--blur-lg));
+    background: var(--color-text-primary);
     border: 1px solid var(--color-border-strong);
     color: var(--color-text-inverse);
+  }
+
+  @media (min-width: 640px) {
+    .glass-dark {
+      background: color-mix(in srgb, var(--color-text-primary) 85%, transparent);
+      backdrop-filter: blur(var(--blur-lg));
+      -webkit-backdrop-filter: blur(var(--blur-lg));
+    }
   }
 
   /* Button glow effect on hover */
@@ -275,35 +290,42 @@
     animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
-  /* Enhanced glassmorphism for menu cards (30px+ blur per Phase 22 CONTEXT.md) */
+  /* Enhanced glassmorphism for menu cards (30px+ blur per Phase 22 CONTEXT.md)
+     MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+     Blur only enabled on sm+ breakpoints (640px+) */
   .glass-menu-card {
     --glass-tint: transparent;
 
-    background: color-mix(
-      in srgb,
-      color-mix(in srgb, var(--color-surface-primary) 75%, var(--glass-tint)),
-      transparent 25%
-    );
-    backdrop-filter: blur(var(--blur-2xl));
-    -webkit-backdrop-filter: blur(var(--blur-2xl));
+    background: var(--color-surface-primary);
     border: 1px solid var(--color-border-subtle);
-    transition:
-      backdrop-filter var(--duration-slow) var(--ease-out),
-      background var(--duration-slow) var(--ease-out);
-
-    /* GPU acceleration hint for mobile performance */
-    will-change: backdrop-filter, background;
+    transition: background var(--duration-slow) var(--ease-out);
   }
 
-  .glass-menu-card:hover,
-  .glass-menu-card:focus-within {
-    background: color-mix(
-      in srgb,
-      color-mix(in srgb, var(--color-surface-primary) 80%, var(--glass-tint)),
-      transparent 20%
-    );
-    backdrop-filter: blur(var(--blur-3xl));
-    -webkit-backdrop-filter: blur(var(--blur-3xl));
+  @media (min-width: 640px) {
+    .glass-menu-card {
+      background: color-mix(
+        in srgb,
+        color-mix(in srgb, var(--color-surface-primary) 75%, var(--glass-tint)),
+        transparent 25%
+      );
+      backdrop-filter: blur(var(--blur-2xl));
+      -webkit-backdrop-filter: blur(var(--blur-2xl));
+      transition:
+        backdrop-filter var(--duration-slow) var(--ease-out),
+        background var(--duration-slow) var(--ease-out);
+      will-change: backdrop-filter, background;
+    }
+
+    .glass-menu-card:hover,
+    .glass-menu-card:focus-within {
+      background: color-mix(
+        in srgb,
+        color-mix(in srgb, var(--color-surface-primary) 80%, var(--glass-tint)),
+        transparent 20%
+      );
+      backdrop-filter: blur(var(--blur-3xl));
+      -webkit-backdrop-filter: blur(var(--blur-3xl));
+    }
   }
 
   /* Gradient glow on hover - for cards/buttons */

@@ -39,7 +39,9 @@ export function DriverNav() {
   return (
     <nav
       data-testid="driver-nav"
-      className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-surface-primary/95 backdrop-blur-sm safe-area-pb"
+      // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+      // DriverNav is mobile-only, so no blur at all
+      className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-surface-primary safe-area-pb"
     >
       <div className="flex h-16 items-center justify-around px-4">
         {navItems.map((item) => {

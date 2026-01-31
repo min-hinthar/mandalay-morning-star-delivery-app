@@ -126,7 +126,8 @@ export function TrackingPageClient({
   return (
     <div className="min-h-screen bg-cream pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-cream/95 backdrop-blur-sm border-b border-charcoal-100">
+      {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
+      <header className="sticky top-0 z-20 bg-cream sm:bg-cream/95 sm:backdrop-blur-sm border-b border-charcoal-100">
         <div className="mx-auto max-w-2xl px-4">
           <div className="flex items-center justify-between h-14">
             <Link

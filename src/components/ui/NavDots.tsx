@@ -145,7 +145,8 @@ export function NavDots({
       className={cn(
         "inline-flex items-center justify-center gap-2",
         "px-3 py-2",
-        "bg-surface-primary/80 backdrop-blur-md",
+        // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+        "bg-surface-primary sm:bg-surface-primary/80 sm:backdrop-blur-md",
         "rounded-full border border-border-subtle",
         "shadow-lg",
         className

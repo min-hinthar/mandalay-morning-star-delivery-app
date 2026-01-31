@@ -121,7 +121,8 @@ function AnimatedInput({
           onBlur={() => setIsFocused(false)}
           className={cn(
             "w-full py-4 rounded-xl",
-            "bg-overlay-light backdrop-blur-sm",
+            // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+            "bg-surface-secondary sm:bg-overlay-light sm:backdrop-blur-sm",
             "border-2 transition-colors",
             error
               ? "border-red-500/50 focus:border-red-500"
@@ -325,7 +326,8 @@ export function AuthModal({
           className={cn(
             "fixed inset-0 z-modal",
             "flex items-center justify-center",
-            "bg-overlay backdrop-blur-md",
+            // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+            "bg-overlay sm:backdrop-blur-md",
             "p-4",
             className
           )}
@@ -341,8 +343,9 @@ export function AuthModal({
             className={cn(
               "relative w-full max-w-md",
               "p-8 rounded-3xl",
-              // Glassmorphism
-              "bg-surface-primary/80 backdrop-blur-xl",
+              // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+              // Solid background on mobile, glassmorphism on desktop
+              "bg-surface-primary sm:bg-surface-primary/80 sm:backdrop-blur-xl",
               "border border-white/50",
               "shadow-2xl shadow-black/10"
             )}

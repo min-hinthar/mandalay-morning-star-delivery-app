@@ -56,7 +56,8 @@ function ArrowButton({ direction, onClick, disabled }: ArrowButtonProps) {
             "w-10 h-10 md:w-12 md:h-12",
             "flex items-center justify-center",
             "rounded-full",
-            "bg-surface-primary/80 backdrop-blur-md",
+            // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+            "bg-surface-primary md:bg-surface-primary/80 md:backdrop-blur-md",
             "border border-border-subtle",
             "text-text-primary hover:text-primary",
             "shadow-lg hover:shadow-xl",

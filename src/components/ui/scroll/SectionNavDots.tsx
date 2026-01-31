@@ -77,8 +77,9 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
         // Show on all screens, comfortable gap
         "flex flex-col gap-2.5 md:gap-3",
         // Pill container styling - comfortable padding
+        // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
         "px-2 py-2.5 md:py-3 rounded-full",
-        "bg-surface-primary/80 backdrop-blur-md",
+        "bg-surface-primary md:bg-surface-primary/80 md:backdrop-blur-md",
         "border border-border-subtle shadow-lg",
         // Z-index above content but below modals
         zClass.fixed,
