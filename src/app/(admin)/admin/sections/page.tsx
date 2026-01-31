@@ -28,9 +28,12 @@ import {
   ItemSelector,
   type SelectableItem,
 } from "@/components/ui/admin/sections/ItemSelector";
+import { DraftBanner } from "@/components/ui/admin/sections/DraftBanner";
+import { HomepagePreview } from "@/components/ui/admin/sections/HomepagePreview";
 
 interface Section extends Omit<SectionCardSection, "items"> {
   items: (SelectableItem & { sortOrder: number })[];
+  hasUnpublishedChanges?: boolean;
 }
 
 export default function AdminSectionsPage() {
@@ -310,6 +313,7 @@ export default function AdminSectionsPage() {
     (sum, s) => sum + (s.actualItemCount ?? s.items?.length ?? 0),
     0
   );
+  const hasUnpublishedChanges = sections.some((s) => s.hasUnpublishedChanges);
 
   if (loading) {
     return (
@@ -333,42 +337,50 @@ export default function AdminSectionsPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
-        <div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-text-primary">
-            Featured Sections
-          </h1>
-          <p className="font-body text-text-secondary mt-1">
-            Manage homepage featured sections and their items
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="border-border hover:bg-surface-tertiary"
-          >
-            <RefreshCw
-              className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
-            />
-            Refresh
-          </Button>
-          <Button
-            onClick={handleCreateSection}
-            className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Create Section
-          </Button>
-        </div>
-      </motion.div>
+    <div className="flex h-full min-h-screen">
+      {/* Left: Section management */}
+      <div className="flex-1 overflow-auto p-4 md:p-8 space-y-6">
+        {/* Draft Banner */}
+        <DraftBanner
+          hasUnpublishedChanges={hasUnpublishedChanges}
+          onPublishComplete={fetchSections}
+        />
+
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        >
+          <div>
+            <h1 className="text-3xl md:text-4xl font-display font-bold text-text-primary">
+              Featured Sections
+            </h1>
+            <p className="font-body text-text-secondary mt-1">
+              Manage homepage featured sections and their items
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="border-border hover:bg-surface-tertiary"
+            >
+              <RefreshCw
+                className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
+              />
+              Refresh
+            </Button>
+            <Button
+              onClick={handleCreateSection}
+              className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create Section
+            </Button>
+          </div>
+        </motion.div>
 
       {/* Stats Cards */}
       <motion.div
@@ -553,18 +565,24 @@ export default function AdminSectionsPage() {
         </motion.div>
       )}
 
-      {/* Section Editor Modal */}
-      {isCreating && (
-        <SectionEditor
-          section={editingSection}
-          onSave={handleSaveSection}
-          onCancel={() => {
-            setIsCreating(false);
-            setEditingSection(null);
-          }}
-          isLoading={isSaving}
-        />
-      )}
+        {/* Section Editor Modal */}
+        {isCreating && (
+          <SectionEditor
+            section={editingSection}
+            onSave={handleSaveSection}
+            onCancel={() => {
+              setIsCreating(false);
+              setEditingSection(null);
+            }}
+            isLoading={isSaving}
+          />
+        )}
+      </div>
+
+      {/* Right: Live preview (hidden on mobile/tablet) */}
+      <div className="hidden xl:block w-[420px] border-l border-border shrink-0">
+        <HomepagePreview />
+      </div>
     </div>
   );
 }
