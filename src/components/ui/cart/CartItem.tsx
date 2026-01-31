@@ -140,32 +140,22 @@ function getFallbackEmoji(name: string): string {
 // CART ITEM ANIMATION VARIANTS
 // ============================================
 
+// Simplified animation variants to prevent mobile crashes
+// REMOVED: scale, rotate, height, marginBottom - too many simultaneous properties
 const cartItemVariants = {
   initial: {
     opacity: 0,
     x: 20,
-    scale: 0.95,
   },
   animate: {
     opacity: 1,
     x: 0,
-    scale: 1,
   },
   exit: {
+    // Simplified: just fade and slide - no scale/rotate/height changes
     opacity: 0,
-    x: -100,
-    scale: 0.9,
-    rotate: -3, // Subtle rotation on exit for natural feel
-    height: 0,
-    marginBottom: 0,
-    transition: {
-      opacity: { duration: 0.15 },
-      x: { duration: 0.2 },
-      scale: { duration: 0.15 },
-      rotate: { duration: 0.15 },
-      height: { delay: 0.15, duration: 0.2 },
-      marginBottom: { delay: 0.15, duration: 0.2 },
-    },
+    x: -50,
+    transition: { duration: 0.15 },
   },
 };
 
@@ -236,7 +226,7 @@ export const CartItem = memo(function CartItem({
   return (
     <motion.div
       ref={containerRef}
-      layout={shouldAnimate}
+      // REMOVED layout prop - causes expensive layout recalculations that crash mobile
       variants={shouldAnimate ? cartItemVariants : undefined}
       initial={shouldAnimate ? "initial" : undefined}
       animate={shouldAnimate ? "animate" : undefined}
@@ -384,7 +374,7 @@ export const CartItem = memo(function CartItem({
                 size={compact ? "sm" : "md"}
               />
 
-              <motion.div className="text-right" layout={shouldAnimate}>
+              <motion.div className="text-right">
                 <PriceTicker
                   value={itemTotal}
                   inCents={true}

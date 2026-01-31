@@ -90,7 +90,8 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
         animate={shouldAnimate ? "visible" : undefined}
         className="max-h-64 space-y-3 overflow-y-auto px-5 py-4"
       >
-        <AnimatePresence mode="popLayout">
+        {/* CHANGED from mode="popLayout" to mode="sync" - popLayout causes layout thrashing that crashes mobile */}
+        <AnimatePresence mode="sync">
           {items.map((item) => {
             const itemTotal =
               (item.basePriceCents +
@@ -104,7 +105,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                 initial={shouldAnimate ? "hidden" : undefined}
                 animate={shouldAnimate ? "visible" : undefined}
                 exit={shouldAnimate ? "exit" : undefined}
-                layout={shouldAnimate}
+                // REMOVED layout prop - causes expensive layout recalculations that crash mobile
                 className="flex justify-between text-sm"
               >
                 <div className="flex-1 min-w-0 pr-3">
