@@ -55,13 +55,15 @@ interface FlyingElement {
  * };
  */
 export function useFlyToCart() {
-  const {
-    badgeRef,
-    isAnimating,
-    setIsAnimating,
-    setFlyingElement,
-    triggerBadgePulse,
-  } = useCartAnimationStore();
+  // IMPORTANT: Use individual selectors to prevent re-renders when unrelated state changes.
+  // Subscribing to entire store (useCartAnimationStore()) causes cascading re-renders
+  // when ANY state changes (badgeRef, flyingElement, shouldPulseBadge, etc.).
+  // This was causing app freezes on page load, sheet close, and drawer close.
+  const badgeRef = useCartAnimationStore((s) => s.badgeRef);
+  const isAnimating = useCartAnimationStore((s) => s.isAnimating);
+  const setIsAnimating = useCartAnimationStore((s) => s.setIsAnimating);
+  const setFlyingElement = useCartAnimationStore((s) => s.setFlyingElement);
+  const triggerBadgePulse = useCartAnimationStore((s) => s.triggerBadgePulse);
   const { shouldAnimate } = useAnimationPreference();
 
   const flyingRef = useRef<FlyingElement | null>(null);
