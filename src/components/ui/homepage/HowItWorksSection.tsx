@@ -456,7 +456,7 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
             {isLoadingPlaces || isCheckingCoverage ? (
               <motion.div
                 animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 1, repeat: 20, ease: "linear" }}
               >
                 <Loader2 className="w-4 h-4 text-primary" />
               </motion.div>

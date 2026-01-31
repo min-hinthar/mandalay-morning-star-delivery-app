@@ -59,12 +59,13 @@ const sizeConfig: Record<MascotSize, { container: number; face: number; eyes: nu
 // EXPRESSION VARIANTS
 // ============================================
 
+// Bound all mascot animations to 5 cycles to prevent mobile crashes
 const expressionVariants: Record<MascotExpression, Variants> = {
   happy: {
     initial: { scale: 1 },
     animate: {
       scale: [1, 1.02, 1],
-      transition: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+      transition: { duration: 2, repeat: 5, ease: "easeInOut" },
     },
   },
   excited: {
@@ -72,14 +73,14 @@ const expressionVariants: Record<MascotExpression, Variants> = {
     animate: {
       y: [0, -8, 0],
       scale: [1, 1.1, 1],
-      transition: { duration: 0.5, repeat: Infinity, ease: "easeOut" },
+      transition: { duration: 0.5, repeat: 5, ease: "easeOut" },
     },
   },
   thinking: {
     initial: { rotate: 0 },
     animate: {
       rotate: [-5, 5, -5],
-      transition: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+      transition: { duration: 2, repeat: 5, ease: "easeInOut" },
     },
   },
   celebrating: {
@@ -87,21 +88,21 @@ const expressionVariants: Record<MascotExpression, Variants> = {
     animate: {
       scale: [1, 1.2, 0.9, 1.1, 1],
       rotate: [-10, 10, -10, 10, 0],
-      transition: { duration: 1, repeat: Infinity },
+      transition: { duration: 1, repeat: 5 },
     },
   },
   waving: {
     initial: { rotate: 0 },
     animate: {
       rotate: [0, 15, -5, 15, 0],
-      transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut" },
+      transition: { duration: 1.5, repeat: 5, ease: "easeInOut" },
     },
   },
   sleeping: {
     initial: { scale: 1 },
     animate: {
       scale: [1, 1.03, 1],
-      transition: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+      transition: { duration: 3, repeat: 5, ease: "easeInOut" },
     },
   },
   surprised: {
@@ -115,7 +116,7 @@ const expressionVariants: Record<MascotExpression, Variants> = {
     initial: { scale: 1 },
     animate: {
       scale: [1, 1.05, 0.95, 1.05, 1],
-      transition: { duration: 0.8, repeat: Infinity },
+      transition: { duration: 0.8, repeat: 5 },
     },
   },
 };
@@ -208,7 +209,7 @@ function Mouth({ expression, size }: MouthProps) {
             ry={mouthHeight * 0.5}
             fill="currentColor"
             animate={{ ry: [mouthHeight * 0.5, mouthHeight * 0.6, mouthHeight * 0.5] }}
-            transition={{ duration: 0.5, repeat: Infinity }}
+            transition={{ duration: 0.5, repeat: 5 }}
           />
         );
       case "surprised":
@@ -236,7 +237,7 @@ function Mouth({ expression, size }: MouthProps) {
               `M${mouthWidth * 0.2},${mouthHeight * 0.5} Q${mouthWidth * 0.5},${mouthHeight * 0.3} ${mouthWidth * 0.8},${mouthHeight * 0.5}`,
               `M${mouthWidth * 0.2},${mouthHeight * 0.5} Q${mouthWidth * 0.5},${mouthHeight * 0.5} ${mouthWidth * 0.8},${mouthHeight * 0.5}`,
             ]}}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 2, repeat: 5, ease: "easeInOut" }}
           />
         );
       case "sleeping":
@@ -260,7 +261,7 @@ function Mouth({ expression, size }: MouthProps) {
               ry: [mouthHeight * 0.4, mouthHeight * 0.2, mouthHeight * 0.4],
               rx: [mouthWidth * 0.3, mouthWidth * 0.35, mouthWidth * 0.3],
             }}
-            transition={{ duration: 0.4, repeat: Infinity }}
+            transition={{ duration: 0.4, repeat: 5 }}
           />
         );
       default:
@@ -310,17 +311,17 @@ function Accessories({ expression, size }: AccessoriesProps) {
           <motion.div
             className="w-2 h-2 rounded-full bg-secondary/60"
             animate={{ y: [0, -3, 0], opacity: [0.6, 1, 0.6] }}
-            transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
+            transition={{ duration: 1.5, repeat: 5, delay: 0.3 }}
           />
           <motion.div
             className="w-3 h-3 rounded-full bg-secondary/60"
             animate={{ y: [0, -2, 0], opacity: [0.6, 1, 0.6] }}
-            transition={{ duration: 1.5, repeat: Infinity, delay: 0.1 }}
+            transition={{ duration: 1.5, repeat: 5, delay: 0.1 }}
           />
           <motion.div
             className="w-4 h-4 rounded-full bg-secondary/60"
             animate={{ y: [0, -2, 0], opacity: [0.6, 1, 0.6] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
+            transition={{ duration: 1.5, repeat: 5 }}
           />
         </motion.div>
       </div>
@@ -339,7 +340,7 @@ function Accessories({ expression, size }: AccessoriesProps) {
             opacity: [0, 1, 0],
             scale: [0.8, 1.2, 0.8],
           }}
-          transition={{ duration: 2, repeat: Infinity }}
+          transition={{ duration: 2, repeat: 5 }}
         >
           z
         </motion.div>
@@ -368,7 +369,7 @@ function Accessories({ expression, size }: AccessoriesProps) {
             }}
             transition={{
               duration: 1,
-              repeat: Infinity,
+              repeat: 5,
               delay: i * 0.2,
             }}
           >
@@ -386,7 +387,7 @@ function Accessories({ expression, size }: AccessoriesProps) {
         className="absolute -right-4 top-1/2 -translate-y-1/2"
         style={{ fontSize: size * 0.5 }}
         animate={{ rotate: [0, 20, -10, 20, 0] }}
-        transition={{ duration: 0.8, repeat: Infinity }}
+        transition={{ duration: 0.8, repeat: 5 }}
       >
         👋
       </motion.div>
@@ -579,14 +580,9 @@ export const BrandMascot = forwardRef<HTMLDivElement, BrandMascotProps>(
         role="img"
         aria-label={ariaLabel}
       >
-        {/* Glow effect */}
-        <motion.div
-          className="absolute inset-0 rounded-full bg-secondary/30 blur-xl"
-          animate={{
-            scale: [1, 1.1, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        {/* Glow effect - removed infinite animation to prevent mobile crashes */}
+        <div
+          className="absolute inset-0 rounded-full bg-secondary/30 blur-xl opacity-40"
         />
 
         {/* Face */}

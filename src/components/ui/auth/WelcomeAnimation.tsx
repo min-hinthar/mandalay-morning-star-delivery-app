@@ -161,7 +161,7 @@ function MascotCelebrationV7() {
               }
             : undefined
         }
-        transition={{ duration: 2, repeat: Infinity }}
+        transition={{ duration: 2, repeat: 5 }}
         className="absolute inset-0 rounded-full blur-2xl"
         style={{ background: "linear-gradient(to bottom right, var(--color-secondary-light), var(--color-primary-light))" }}
       />
@@ -173,7 +173,7 @@ function MascotCelebrationV7() {
             ? { y: [0, -10, 0], rotate: [0, 3, -3, 0] }
             : undefined
         }
-        transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+        transition={{ duration: 2, repeat: 5, delay: 0.5 }}
         className={cn(
           "relative w-32 h-32 rounded-full",
           "bg-gradient-primary",
@@ -215,7 +215,7 @@ function MascotCelebrationV7() {
               }}
               transition={{
                 duration: 2,
-                repeat: Infinity,
+                repeat: 5,
                 delay: i * 0.5,
                 ease: "easeOut",
               }}
@@ -377,7 +377,7 @@ export function WelcomeAnimation({
                   }
                   transition={{
                     duration: 2,
-                    repeat: Infinity,
+                    repeat: 5,
                     delay: i * 0.2,
                   }}
                 >
@@ -435,16 +435,9 @@ export function WelcomeAnimation({
       {/* Background decorations */}
       {shouldAnimate && (
         <>
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-            className="absolute top-1/4 -left-20 w-40 h-40 rounded-full border border-primary/10"
-          />
-          <motion.div
-            animate={{ rotate: -360 }}
-            transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
-            className="absolute bottom-1/4 -right-32 w-64 h-64 rounded-full border border-secondary/10"
-          />
+          {/* Background decorations - removed infinite animations to prevent mobile crashes */}
+          <div className="absolute top-1/4 -left-20 w-40 h-40 rounded-full border border-primary/10" />
+          <div className="absolute bottom-1/4 -right-32 w-64 h-64 rounded-full border border-secondary/10" />
           <div className="absolute top-20 right-20 w-20 h-20 rounded-full bg-secondary/5" />
           <div className="absolute bottom-32 left-16 w-16 h-16 rounded-full bg-primary/5" />
         </>

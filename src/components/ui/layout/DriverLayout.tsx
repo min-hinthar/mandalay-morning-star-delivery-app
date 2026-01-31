@@ -263,7 +263,7 @@ export function DriverLayout({
                   {primaryAction.loading ? (
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      transition={{ duration: 1, repeat: 20, ease: "linear" }}
                       className="h-6 w-6 rounded-full border-2 border-current border-t-transparent"
                     />
                   ) : (

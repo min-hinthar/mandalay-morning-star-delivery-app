@@ -371,7 +371,7 @@ export const MorphingCloseButton = forwardRef<
         animate={state === "loading" ? { rotate: 360 } : undefined}
         transition={
           state === "loading"
-            ? { duration: 1, repeat: Infinity, ease: "linear" }
+            ? { duration: 1, repeat: 20, ease: "linear" }
             : getSpring(spring.snappy)
         }
       >

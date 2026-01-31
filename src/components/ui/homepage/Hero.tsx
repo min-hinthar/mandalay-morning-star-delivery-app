@@ -285,18 +285,7 @@ function HeroContent({
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </span>
                 {/* Glow sweep effect inside button */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0"
-                  animate={shouldAnimate ? {
-                    x: ["-100%", "200%"],
-                  } : undefined}
-                  transition={{
-                    duration: 2.5,
-                    repeat: Infinity,
-                    repeatDelay: 4,
-                    ease: "easeInOut",
-                  }}
-                />
+                {/* Glow sweep effect - removed infinite animation to prevent mobile crashes */}
               </Link>
             </Button>
           </motion.div>
@@ -342,7 +331,7 @@ function HeroContent({
         <motion.div
           className="flex flex-col items-center gap-1 text-hero-text-muted cursor-pointer"
           animate={shouldAnimate ? { y: [0, 8, 0] } : undefined}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 2, repeat: 5, ease: "easeInOut" }}
           onClick={() => {
             document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
           }}

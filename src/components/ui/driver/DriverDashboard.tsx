@@ -139,7 +139,7 @@ function StatCard({ icon, value, label, color, index, trend }: StatCardProps) {
             {trend && (
               <motion.span
                 animate={shouldAnimate ? { y: [0, -3, 0] } : undefined}
-                transition={{ duration: 1, repeat: Infinity, repeatDelay: 1 }}
+                transition={{ duration: 1, repeat: 5, repeatDelay: 1 }}
               >
                 {trend === "up" ? (
                   <TrendingUp className="w-4 h-4 text-green" />
@@ -191,7 +191,7 @@ function StreakDisplay({ days }: StreakDisplayProps) {
                   }
                 : undefined
             }
-            transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
+            transition={{ duration: 0.5, repeat: 5, repeatDelay: 1 }}
             className={cn(
               "flex h-12 w-12 items-center justify-center rounded-full",
               isOnFire ? "bg-orange-500/20" : "bg-primary/10"
@@ -233,7 +233,7 @@ function StreakDisplay({ days }: StreakDisplayProps) {
                 }}
                 transition={{
                   duration: 1.5 + Math.random(),
-                  repeat: Infinity,
+                  repeat: 5,
                   delay: i * 0.3,
                 }}
               />
@@ -280,7 +280,7 @@ function RouteCard({
       >
         <motion.div
           animate={shouldAnimate ? { y: [0, -5, 0] } : undefined}
-          transition={{ duration: 2, repeat: Infinity }}
+          transition={{ duration: 2, repeat: 5 }}
         >
           <Calendar className="w-12 h-12 text-text-muted mx-auto mb-3" />
         </motion.div>
@@ -354,7 +354,7 @@ function RouteCard({
             <motion.div
               className="absolute top-0 h-full w-8 bg-overlay-light"
               animate={{ x: ["-100%", "400%"] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 1.5, repeat: 5, ease: "linear" }}
             />
           )}
         </div>
@@ -552,7 +552,7 @@ export function DriverDashboard({
           <div className="flex items-center gap-3">
             <motion.div
               animate={shouldAnimate ? { rotate: [0, 10, -10, 0] } : undefined}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 2 }}
+              transition={{ duration: 2, repeat: 5, repeatDelay: 2 }}
               className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center"
             >
               <Target className="w-5 h-5 text-primary" />

@@ -129,7 +129,7 @@ function AnimatedCheckmark() {
         } : undefined}
         transition={{
           duration: 2,
-          repeat: Infinity,
+          repeat: 5,
         }}
         className="absolute inset-0 rounded-full bg-green/30"
       />
@@ -196,7 +196,7 @@ function TimelineStep({ icon, title, description, isActive, index }: TimelineSte
         } : undefined}
         transition={{
           duration: 2,
-          repeat: Infinity,
+          repeat: 5,
           repeatDelay: 1,
         }}
         className={cn(

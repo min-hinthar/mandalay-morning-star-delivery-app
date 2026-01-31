@@ -165,7 +165,7 @@ function NearbyAlert() {
     >
       <motion.div
         animate={shouldAnimate ? { scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] } : undefined}
-        transition={{ duration: 1, repeat: Infinity, repeatDelay: 1 }}
+        transition={{ duration: 1, repeat: 5, repeatDelay: 1 }}
         className="w-10 h-10 rounded-full bg-green/20 flex items-center justify-center"
       >
         <Zap className="w-5 h-5 text-green" />
@@ -358,7 +358,7 @@ export function ETACountdownCompact({
     >
       <motion.div
         animate={shouldAnimate ? { rotate: [0, 15, -15, 0] } : undefined}
-        transition={{ duration: 2, repeat: Infinity, repeatDelay: 2 }}
+        transition={{ duration: 2, repeat: 5, repeatDelay: 2 }}
       >
         <Navigation className="w-4 h-4 text-primary" />
       </motion.div>

@@ -27,12 +27,13 @@ export interface BlurImageProps extends Omit<ImageProps, "placeholder" | "blurDa
 // ANIMATION VARIANTS
 // ============================================
 
+// Bound shimmer to 10 cycles - images should load quickly
 const shimmerVariants = {
   shimmer: {
     backgroundPosition: ["200% 0", "-200% 0"],
     transition: {
       duration: 1.5,
-      repeat: Infinity,
+      repeat: 10,
       ease: "linear" as const,
     },
   },

@@ -53,7 +53,7 @@ export function CTABanner({ id }: CTABannerProps) {
                   "0 0 0 0 rgba(235, 205, 0, 0)",
                 ],
               }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              transition={{ duration: 2, repeat: 5, ease: "easeInOut" }}
             />
           )}
           {/* eslint-enable no-restricted-syntax */}

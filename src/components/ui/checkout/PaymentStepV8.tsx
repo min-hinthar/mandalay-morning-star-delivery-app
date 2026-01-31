@@ -251,7 +251,7 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
                   }
                   transition={{
                     duration: 2,
-                    repeat: Infinity,
+                    repeat: 5,
                     repeatDelay: 3,
                   }}
                 >

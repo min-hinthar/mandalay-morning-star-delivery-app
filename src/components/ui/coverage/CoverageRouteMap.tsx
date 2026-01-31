@@ -415,7 +415,7 @@ export function CoverageRouteMap({
         >
           <motion.div
             animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
+            transition={{ duration: 2, repeat: 5 }}
             className="w-2.5 h-2.5 rounded-full bg-primary"
           />
           <span className="text-text-primary font-semibold">
@@ -530,7 +530,7 @@ export function CoverageRouteMap({
               <div className="flex items-center gap-3 justify-center py-1">
                 <motion.div
                   animate={{ y: [0, -3, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
+                  transition={{ duration: 1.5, repeat: 5 }}
                 >
                   <MapPin className="w-5 h-5 text-primary" />
                 </motion.div>
