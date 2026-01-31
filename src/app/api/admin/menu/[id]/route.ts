@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
 import { logger } from "@/lib/utils/logger";
@@ -113,6 +114,11 @@ export async function PATCH(
       );
     }
 
+    // Revalidate menu cache so changes appear immediately
+    revalidatePath("/api/menu");
+    revalidatePath("/menu");
+    revalidatePath("/");
+
     return NextResponse.json(item);
   } catch (error) {
     logger.exception(error, { api: "admin/menu/[id]" });
@@ -162,6 +168,11 @@ export async function DELETE(
         { status: 500 }
       );
     }
+
+    // Revalidate menu cache so deletion reflects immediately
+    revalidatePath("/api/menu");
+    revalidatePath("/menu");
+    revalidatePath("/");
 
     return NextResponse.json({ success: true });
   } catch (error) {
