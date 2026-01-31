@@ -93,6 +93,9 @@ export function useBodyScrollLock(
           timeoutRef.current = null;
         }
 
+        // Capture scroll position before resetting styles
+        const storedScrollY = scrollYRef.current;
+
         // Reset all body styles immediately so content is visible
         document.body.style.position = "";
         document.body.style.top = "";
@@ -101,15 +104,10 @@ export function useBodyScrollLock(
         document.body.style.overflow = "";
         document.body.style.paddingRight = "";
 
-        // Only restore scroll if NOT deferred
-        // When deferred, caller uses restoreScrollPosition in onExitComplete
-        if (!deferRestore) {
-          const storedScrollY = scrollYRef.current;
-          timeoutRef.current = setTimeout(() => {
-            window.scrollTo(0, storedScrollY);
-            timeoutRef.current = null;
-          }, 0);
-        }
+        // ALWAYS restore scroll position immediately after removing fixed position
+        // Without this, page jumps to top because body was positioned with negative top offset
+        // For deferRestore mode, this happens in cleanup; onExitComplete is just for additional safety
+        window.scrollTo(0, storedScrollY);
       }
     };
   }, [isLocked, deferRestore]);
