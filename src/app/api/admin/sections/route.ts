@@ -76,6 +76,7 @@ export async function GET() {
       actualItemCount: section.featured_section_items?.length ?? 0,
       isVisible: section.is_visible,
       isPredefined: section.is_predefined,
+      hasUnpublishedChanges: section.has_unpublished_changes,
       deletedAt: section.deleted_at,
       createdAt: section.created_at,
       updatedAt: section.updated_at,
@@ -160,6 +161,7 @@ export async function POST(request: Request) {
         is_visible: parsed.data.isVisible,
         sort_order: sortOrder,
         is_predefined: false,
+        has_unpublished_changes: true, // New sections need to be published
         updated_by: auth.userId,
       })
       .select()
