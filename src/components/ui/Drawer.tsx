@@ -82,11 +82,27 @@ const backdropVariants = {
   exit: { opacity: 0 },
 };
 
-// Simplified bottom sheet variants - removed opacity animation to reduce GPU load
+// Bottom sheet variants with exit-specific transition
+// Uses spring for opening (bouncy feel) but simple duration for exit (prevents mobile Safari crashes)
+// Spring physics during exit animations can corrupt GPU compositor state on mobile Safari,
+// causing cascading crashes on subsequent modal closes
 const bottomVariants = {
   hidden: { y: "100%" },
-  visible: { y: 0 },
-  exit: { y: "100%" },
+  visible: {
+    y: 0,
+    transition: {
+      type: "spring" as const,
+      damping: 30,
+      stiffness: 300,
+    },
+  },
+  exit: {
+    y: "100%",
+    transition: {
+      duration: 0.15,
+      ease: "easeIn" as const,
+    },
+  },
 };
 
 const reducedMotionVariants = {
@@ -290,7 +306,7 @@ export function Drawer({
               prefersReducedMotion
                 ? { duration: 0 }
                 : isBottom
-                  ? overlayMotion.sheetOpen
+                  ? undefined // Bottom sheet uses variant-embedded transitions (spring open, simple exit)
                   : overlayMotion.drawerOpen
             }
             onKeyDown={handleKeyDown}
