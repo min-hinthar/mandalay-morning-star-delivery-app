@@ -68,7 +68,7 @@ export function useFlyToCart() {
   const flyingRef = useRef<FlyingElement | null>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
-  // Cleanup on unmount - kill GSAP timeline, remove flying element, and cancel pending pulse
+  // Cleanup on unmount - kill GSAP timeline, remove flying element, reset animation state, and cancel pending pulse
   useEffect(() => {
     // Capture refs at effect setup time for cleanup
     const timeline = timelineRef;
@@ -78,15 +78,19 @@ export function useFlyToCart() {
       if (timeline.current) {
         timeline.current.kill();
         timeline.current = null;
+        // CRITICAL: Reset isAnimating when killing timeline, otherwise it stays true forever
+        // The onComplete callback will never fire since we killed the timeline
+        setIsAnimating(false);
       }
       // Remove flying element if it exists
       if (flying.current?.element) {
         flying.current.element.remove();
+        setFlyingElement(null);
       }
       // Cancel any pending pulse timeout to prevent state update after unmount
       cancelPendingPulse();
     };
-  }, [cancelPendingPulse]);
+  }, [cancelPendingPulse, setIsAnimating, setFlyingElement]);
 
   const fly = useCallback(
     ({ sourceElement, imageUrl, size = 48 }: FlyToCartOptions) => {
@@ -101,79 +105,94 @@ export function useFlyToCart() {
 
       setIsAnimating(true);
 
-      // Create flying element
-      const flyingEl = document.createElement("div");
-      flyingEl.style.cssText = `
-        position: fixed;
-        width: ${size}px;
-        height: ${size}px;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: ${zIndex.popover};
-        left: ${sourceRect.left + sourceRect.width / 2 - size / 2}px;
-        top: ${sourceRect.top + sourceRect.height / 2 - size / 2}px;
-        will-change: transform, opacity;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      `;
+      // Wrap animation setup in try-catch to ensure isAnimating is reset on any error
+      let flyingEl: HTMLDivElement | null = null;
+      try {
+        // Create flying element
+        flyingEl = document.createElement("div");
+        flyingEl.style.cssText = `
+          position: fixed;
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: ${zIndex.popover};
+          left: ${sourceRect.left + sourceRect.width / 2 - size / 2}px;
+          top: ${sourceRect.top + sourceRect.height / 2 - size / 2}px;
+          will-change: transform, opacity;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        `;
 
-      if (imageUrl) {
-        flyingEl.style.backgroundImage = `url(${imageUrl})`;
-        flyingEl.style.backgroundSize = "cover";
-        flyingEl.style.backgroundPosition = "center";
-      } else {
-        // Amber circle fallback
-        flyingEl.style.background = "linear-gradient(135deg, var(--color-secondary), var(--color-accent-orange))";
-      }
+        if (imageUrl) {
+          flyingEl.style.backgroundImage = `url(${imageUrl})`;
+          flyingEl.style.backgroundSize = "cover";
+          flyingEl.style.backgroundPosition = "center";
+        } else {
+          // Amber circle fallback
+          flyingEl.style.background = "linear-gradient(135deg, var(--color-secondary), var(--color-accent-orange))";
+        }
 
-      document.body.appendChild(flyingEl);
-      setFlyingElement(flyingEl);
+        document.body.appendChild(flyingEl);
+        setFlyingElement(flyingEl);
 
-      // Calculate path
-      const startX = sourceRect.left + sourceRect.width / 2 - size / 2;
-      const startY = sourceRect.top + sourceRect.height / 2 - size / 2;
-      const endX = badgeRect.left + badgeRect.width / 2 - size / 2;
-      const endY = badgeRect.top + badgeRect.height / 2 - size / 2;
+        // Calculate path
+        const startX = sourceRect.left + sourceRect.width / 2 - size / 2;
+        const startY = sourceRect.top + sourceRect.height / 2 - size / 2;
+        const endX = badgeRect.left + badgeRect.width / 2 - size / 2;
+        const endY = badgeRect.top + badgeRect.height / 2 - size / 2;
 
-      // Calculate control point for arc (above midpoint)
-      const arcHeight = Math.min(startY, endY) - 80;
-      const midX = (startX + endX) / 2;
+        // Calculate control point for arc (above midpoint)
+        const arcHeight = Math.min(startY, endY) - 80;
+        const midX = (startX + endX) / 2;
 
-      // Animate with GSAP using bezier-like curve via keyframes
-      const tl = gsap.timeline({
-        onComplete: () => {
+        // Capture flyingEl for use in onComplete (avoid closure issues)
+        const animatedEl = flyingEl;
+
+        // Animate with GSAP using bezier-like curve via keyframes
+        const tl = gsap.timeline({
+          onComplete: () => {
+            animatedEl.remove();
+            setFlyingElement(null);
+            setIsAnimating(false);
+            triggerBadgePulse();
+            timelineRef.current = null;
+          },
+        });
+
+        // Store timeline reference for cleanup on unmount
+        timelineRef.current = tl;
+
+        // Keyframes for arc trajectory
+        tl.to(animatedEl, {
+          duration: 0.5,
+          ease: "power2.inOut",
+          keyframes: [
+            {
+              x: (midX - startX) * 0.5,
+              y: (arcHeight - startY) * 0.8,
+              scale: 0.7,
+              duration: 0.25,
+            },
+            {
+              x: endX - startX,
+              y: endY - startY,
+              scale: 0.3,
+              opacity: 0.6,
+              duration: 0.25,
+            },
+          ],
+        });
+
+        return true;
+      } catch {
+        // If anything fails during animation setup, clean up and reset state
+        if (flyingEl) {
           flyingEl.remove();
           setFlyingElement(null);
-          setIsAnimating(false);
-          triggerBadgePulse();
-          timelineRef.current = null;
-        },
-      });
-
-      // Store timeline reference for cleanup on unmount
-      timelineRef.current = tl;
-
-      // Keyframes for arc trajectory
-      tl.to(flyingEl, {
-        duration: 0.5,
-        ease: "power2.inOut",
-        keyframes: [
-          {
-            x: (midX - startX) * 0.5,
-            y: (arcHeight - startY) * 0.8,
-            scale: 0.7,
-            duration: 0.25,
-          },
-          {
-            x: endX - startX,
-            y: endY - startY,
-            scale: 0.3,
-            opacity: 0.6,
-            duration: 0.25,
-          },
-        ],
-      });
-
-      return true;
+        }
+        setIsAnimating(false);
+        return false;
+      }
     },
     [
       badgeRef,
