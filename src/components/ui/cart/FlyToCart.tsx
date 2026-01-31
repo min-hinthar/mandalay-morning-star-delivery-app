@@ -61,7 +61,6 @@ export function useFlyToCart() {
     setIsAnimating,
     setFlyingElement,
     triggerBadgePulse,
-    cancelPendingPulse,
   } = useCartAnimationStore();
   const { shouldAnimate } = useAnimationPreference();
 
@@ -69,28 +68,34 @@ export function useFlyToCart() {
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
   // Cleanup on unmount - kill GSAP timeline, remove flying element, reset animation state, and cancel pending pulse
+  // IMPORTANT: Use getState() to access actions without subscribing to store changes.
+  // This prevents infinite re-render loops when cleanup calls state-updating functions.
   useEffect(() => {
     // Capture refs at effect setup time for cleanup
     const timeline = timelineRef;
     const flying = flyingRef;
     return () => {
+      // Get actions via getState() to avoid triggering re-renders from this cleanup
+      const { setIsAnimating: resetAnimating, setFlyingElement: resetFlying, cancelPendingPulse: cancelPulse } =
+        useCartAnimationStore.getState();
+
       // Kill any active GSAP timeline to prevent callbacks on unmounted component
       if (timeline.current) {
         timeline.current.kill();
         timeline.current = null;
         // CRITICAL: Reset isAnimating when killing timeline, otherwise it stays true forever
         // The onComplete callback will never fire since we killed the timeline
-        setIsAnimating(false);
+        resetAnimating(false);
       }
       // Remove flying element if it exists
       if (flying.current?.element) {
         flying.current.element.remove();
-        setFlyingElement(null);
+        resetFlying(null);
       }
       // Cancel any pending pulse timeout to prevent state update after unmount
-      cancelPendingPulse();
+      cancelPulse();
     };
-  }, [cancelPendingPulse, setIsAnimating, setFlyingElement]);
+  }, []); // Empty deps - cleanup only needs to run on unmount, actions accessed via getState()
 
   const fly = useCallback(
     ({ sourceElement, imageUrl, size = 48 }: FlyToCartOptions) => {
