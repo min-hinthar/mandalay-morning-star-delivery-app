@@ -496,7 +496,10 @@ export default function AdminMenuPage() {
                             align="end"
                             className="bg-surface-primary border-border rounded-input shadow-md"
                           >
-                            <DropdownMenuItem className="font-body hover:bg-surface-tertiary cursor-pointer">
+                            <DropdownMenuItem
+                              className="font-body hover:bg-surface-tertiary cursor-pointer"
+                              onClick={() => window.location.href = `/admin/menu/${item.id}`}
+                            >
                               <Edit2 className="mr-2 h-4 w-4" />
                               Edit Details
                             </DropdownMenuItem>

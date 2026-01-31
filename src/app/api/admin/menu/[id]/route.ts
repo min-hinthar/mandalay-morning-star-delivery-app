@@ -3,6 +3,51 @@ import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
 import { logger } from "@/lib/utils/logger";
 
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const auth = await requireAdmin();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
+    const { data: item, error } = await auth.supabase
+      .from("menu_items")
+      .select(`
+        *,
+        menu_categories (
+          id,
+          name,
+          slug
+        )
+      `)
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      logger.exception(error, { api: "admin/menu/[id]", flowId: "fetch" });
+      if (error.code === "PGRST116") {
+        return NextResponse.json({ error: "Menu item not found" }, { status: 404 });
+      }
+      return NextResponse.json(
+        { error: "Failed to fetch menu item" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(item);
+  } catch (error) {
+    logger.exception(error, { api: "admin/menu/[id]", flowId: "fetch" });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 const updateMenuItemSchema = z.object({
   category_id: z.string().uuid("Invalid category ID").optional(),
   slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/, "Slug must be lowercase letters, numbers, and hyphens").optional(),
