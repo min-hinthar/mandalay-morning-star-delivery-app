@@ -9,7 +9,7 @@ interface MenuItemWithPhoto extends Pick<MenuItemsRow, "id" | "name_en" | "image
   };
 }
 
-interface PhotoInfo {
+interface AssignedPhotoInfo {
   id: string;
   name: string;
   imageUrl: string;
@@ -17,6 +17,16 @@ interface PhotoInfo {
   categoryId: string;
   isAssigned: true;
 }
+
+interface UnassignedPhotoInfo {
+  id: string;
+  name: string;
+  imageUrl: string;
+  storagePath: string;
+  isAssigned: false;
+}
+
+type PhotoInfo = AssignedPhotoInfo | UnassignedPhotoInfo;
 
 interface PhotosResponse {
   photos: PhotoInfo[];
@@ -29,7 +39,7 @@ interface PhotosResponse {
 
 /**
  * GET /api/admin/photos
- * List all photos with metadata (from menu items with images)
+ * List all photos with metadata (from menu items with images + unassigned in storage)
  * Query params: search, filter (assigned|unassigned|all)
  */
 export async function GET(request: Request) {
@@ -43,7 +53,7 @@ export async function GET(request: Request) {
     const search = searchParams.get("search")?.toLowerCase() || "";
     const filter = searchParams.get("filter") || "all";
 
-    // Get all menu items with images
+    // Get all menu items with images (assigned photos)
     let query = auth.supabase
       .from("menu_items")
       .select(`
@@ -57,7 +67,7 @@ export async function GET(request: Request) {
       `)
       .not("image_url", "is", null);
 
-    // Apply search filter
+    // Apply search filter for assigned photos
     if (search) {
       query = query.ilike("name_en", `%${search}%`);
     }
@@ -74,8 +84,8 @@ export async function GET(request: Request) {
       );
     }
 
-    // Transform to photo info
-    const photos: PhotoInfo[] = (items || [])
+    // Transform to assigned photo info
+    const assignedPhotos: AssignedPhotoInfo[] = (items || [])
       .filter((item) => item.image_url)
       .map((item) => ({
         id: item.id,
@@ -86,20 +96,62 @@ export async function GET(request: Request) {
         isAssigned: true as const,
       }));
 
-    // Apply filter
-    let filteredPhotos = photos;
+    // Get unassigned photos from storage bucket
+    let unassignedPhotos: UnassignedPhotoInfo[] = [];
+
+    if (filter !== "assigned") {
+      const { data: files, error: storageError } = await auth.supabase.storage
+        .from("menu-photos")
+        .list("unassigned", { limit: 1000 });
+
+      if (storageError) {
+        logger.exception(storageError, { api: "admin/photos", flowId: "list-unassigned" });
+      } else if (files) {
+        // Filter out folder entries (they have id property) and get actual files
+        const actualFiles = files.filter((f) => !f.id && f.name);
+
+        // Get public URLs for unassigned photos
+        unassignedPhotos = actualFiles.map((file) => {
+          const storagePath = `unassigned/${file.name}`;
+          const { data: { publicUrl } } = auth.supabase.storage
+            .from("menu-photos")
+            .getPublicUrl(storagePath);
+
+          return {
+            id: `unassigned-${file.name}`,
+            name: file.name,
+            imageUrl: publicUrl,
+            storagePath,
+            isAssigned: false as const,
+          };
+        });
+
+        // Apply search filter to unassigned photos (match filename)
+        if (search) {
+          unassignedPhotos = unassignedPhotos.filter((p) =>
+            p.name.toLowerCase().includes(search)
+          );
+        }
+      }
+    }
+
+    // Combine and filter
+    let allPhotos: PhotoInfo[] = [];
+
     if (filter === "assigned") {
-      filteredPhotos = photos; // All photos from menu_items are assigned
+      allPhotos = assignedPhotos;
     } else if (filter === "unassigned") {
-      filteredPhotos = []; // No unassigned photos in this implementation
+      allPhotos = unassignedPhotos;
+    } else {
+      allPhotos = [...assignedPhotos, ...unassignedPhotos];
     }
 
     const response: PhotosResponse = {
-      photos: filteredPhotos,
+      photos: allPhotos,
       stats: {
-        total: photos.length,
-        assigned: photos.length,
-        unassigned: 0,
+        total: assignedPhotos.length + unassignedPhotos.length,
+        assigned: assignedPhotos.length,
+        unassigned: unassignedPhotos.length,
       },
     };
 

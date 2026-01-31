@@ -12,7 +12,7 @@ const assignPhotoSchema = z.object({
 /**
  * PATCH /api/admin/photos/[id]
  * Assign photo to a menu item or update its image URL
- * [id] is the menu item ID
+ * [id] can be a menu item ID (UUID) or unassigned photo ID (unassigned-*)
  * Body: { menuItemId, imageUrl? }
  */
 export async function PATCH(
@@ -36,35 +36,41 @@ export async function PATCH(
       );
     }
 
-    // Get current item to check old image URL
-    const { data: currentItem, error: fetchError } = await auth.supabase
-      .from("menu_items")
-      .select("id, image_url")
-      .eq("id", id)
-      .single();
+    // Check if this is an unassigned photo (storage path ID, not a menu item UUID)
+    const isUnassignedPhoto = id.startsWith("unassigned-");
+    let imageUrl = parsed.data.imageUrl;
 
-    if (fetchError) {
-      if (fetchError.code === "PGRST116") {
-        return NextResponse.json(
-          { error: "Menu item not found" },
-          { status: 404 }
-        );
+    if (!isUnassignedPhoto) {
+      // Get current item to check old image URL
+      const { data: currentItem, error: fetchError } = await auth.supabase
+        .from("menu_items")
+        .select("id, image_url")
+        .eq("id", id)
+        .single();
+
+      if (fetchError) {
+        if (fetchError.code === "PGRST116") {
+          return NextResponse.json(
+            { error: "Menu item not found" },
+            { status: 404 }
+          );
+        }
+        throw fetchError;
       }
-      throw fetchError;
+
+      // Get the target menu item's current image to use as fallback
+      const { data: sourceItem, error: sourceError } = await auth.supabase
+        .from("menu_items")
+        .select("image_url")
+        .eq("id", parsed.data.menuItemId)
+        .single();
+
+      if (sourceError && sourceError.code !== "PGRST116") {
+        throw sourceError;
+      }
+
+      imageUrl = parsed.data.imageUrl || sourceItem?.image_url || currentItem?.image_url || undefined;
     }
-
-    // Get the target menu item's current image to use
-    const { data: sourceItem, error: sourceError } = await auth.supabase
-      .from("menu_items")
-      .select("image_url")
-      .eq("id", parsed.data.menuItemId)
-      .single();
-
-    if (sourceError && sourceError.code !== "PGRST116") {
-      throw sourceError;
-    }
-
-    const imageUrl = parsed.data.imageUrl || sourceItem?.image_url || currentItem?.image_url;
 
     if (!imageUrl) {
       return NextResponse.json(
@@ -99,6 +105,9 @@ export async function PATCH(
       );
     }
 
+    // If assigning an unassigned photo, optionally clean up the unassigned storage
+    // (storage cleanup is handled separately or via background job)
+
     return NextResponse.json({
       success: true,
       menuItemId: item.id,
@@ -116,8 +125,8 @@ export async function PATCH(
 
 /**
  * DELETE /api/admin/photos/[id]
- * Remove photo from a menu item
- * [id] is the menu item ID
+ * Remove photo from a menu item or delete unassigned photo from storage
+ * [id] can be a menu item ID (UUID) or unassigned photo ID (unassigned-*)
  */
 export async function DELETE(
   _request: Request,
@@ -130,6 +139,31 @@ export async function DELETE(
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
+    // Check if this is an unassigned photo (storage path ID, not a menu item UUID)
+    const isUnassignedPhoto = id.startsWith("unassigned-");
+
+    if (isUnassignedPhoto) {
+      // Extract filename from id (format: unassigned-{filename})
+      const filename = id.replace("unassigned-", "");
+      const storagePath = `unassigned/${filename}`;
+
+      // Delete from storage bucket
+      const { error: storageError } = await auth.supabase.storage
+        .from("menu-photos")
+        .remove([storagePath]);
+
+      if (storageError) {
+        logger.exception(storageError, { api: "admin/photos/[id]", flowId: "delete-unassigned" });
+        return NextResponse.json(
+          { error: "Failed to delete photo from storage" },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({ success: true });
+    }
+
+    // For assigned photos (menu item ID)
     // Get current item to check if it has an image
     const { data: currentItem, error: fetchError } = await auth.supabase
       .from("menu_items")
