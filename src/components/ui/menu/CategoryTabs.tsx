@@ -214,7 +214,8 @@ export const CategoryTabs = memo(function CategoryTabs({
     <div
       className={cn(
         "sticky top-[var(--tabs-offset)] z-20",
-        "bg-surface-primary/80 dark:bg-gray-900/75 backdrop-blur-3xl",
+        // Solid background on mobile (no blur) - backdrop-blur causes mobile Safari crashes
+        "bg-surface-primary dark:bg-gray-900 sm:bg-surface-primary/80 sm:dark:bg-gray-900/75 sm:backdrop-blur-3xl",
         "border-b border-border-subtle",
         className
       )}

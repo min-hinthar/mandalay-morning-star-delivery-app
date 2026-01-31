@@ -253,7 +253,8 @@ export const CartItem = memo(function CartItem({
           "border border-white/20 dark:border-white/10",
           // Premium shadow with colorful tint
           "shadow-colorful shadow-lg",
-          "touch-pan-y backdrop-blur-xl",
+          // No backdrop-blur on mobile - causes Safari crashes
+          "touch-pan-y sm:backdrop-blur-xl",
           compact ? "p-3" : "p-4"
         )}
         whileHover={
