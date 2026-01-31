@@ -30,10 +30,10 @@ const HEADER_HEIGHT = 64; // h-16 = 4rem = 64px
 /**
  * Glassmorphism styles for light mode
  */
+// MOBILE CRASH PREVENTION: backdropFilter removed from inline styles
+// Blur is applied via Tailwind sm:backdrop-blur-2xl class instead
 const glassStylesLight = {
   backgroundColor: "rgba(255, 255, 255, 0.75)",
-  backdropFilter: "blur(var(--blur-2xl))",
-  WebkitBackdropFilter: "blur(var(--blur-2xl))",
   borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
   boxShadow: `
     0 1px 0 rgba(164, 16, 52, 0.1),
@@ -43,11 +43,10 @@ const glassStylesLight = {
 
 /**
  * Glassmorphism styles for dark mode
+ * MOBILE CRASH PREVENTION: backdropFilter removed (applied via Tailwind sm:backdrop-blur-2xl)
  */
 const glassStylesDark = {
   backgroundColor: "rgba(24, 24, 27, 0.75)",
-  backdropFilter: "blur(var(--blur-2xl))",
-  WebkitBackdropFilter: "blur(var(--blur-2xl))",
   borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
   boxShadow: `
     0 1px 0 rgba(164, 16, 52, 0.2),
@@ -156,7 +155,8 @@ export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
       <>
         <motion.header
           ref={ref}
-          className={cn("fixed top-0 left-0 right-0", zClass.fixed, className)}
+          // MOBILE CRASH PREVENTION: Blur only on sm+ to prevent Safari crashes
+          className={cn("fixed top-0 left-0 right-0 sm:backdrop-blur-2xl", zClass.fixed, className)}
           initial={false}
           animate={{
             y: isVisible ? 0 : -HEADER_HEIGHT,

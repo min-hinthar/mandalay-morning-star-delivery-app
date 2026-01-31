@@ -159,10 +159,8 @@ export function Header({
   // Calculate dynamic values based on scroll position
   const headerHeight = isAtTop ? HEADER_HEIGHT_FULL : HEADER_HEIGHT_COLLAPSED;
   const bgOpacity = isAtTop ? 0.6 : 0.95;
-  // Dynamic blur based on scroll position
-  // Range: 8px (--blur-md at top) to 16px (--blur-lg + 4px when scrolled)
-  // Kept dynamic for smooth scroll-linked animation; cannot use single CSS token
-  const blurAmount = isAtTop ? 8 : 16;
+  // MOBILE CRASH PREVENTION: Dynamic blur removed (was causing Safari crashes)
+  // Blur is now applied via CSS sm:backdrop-blur-md class for mobile safety
 
   // Animation spring config
   const headerSpring = getSpring(spring.snappy);
@@ -177,8 +175,8 @@ export function Header({
       transition={shouldAnimate ? headerSpring : { duration: 0 }}
       style={{
         backgroundColor: `rgba(255, 255, 255, ${bgOpacity})`,
-        backdropFilter: `blur(${blurAmount}px)`,
-        WebkitBackdropFilter: `blur(${blurAmount}px)`,
+        // MOBILE CRASH PREVENTION: backdropFilter handled via CSS media query
+        // Inline styles removed to prevent mobile Safari GPU crashes
       }}
       className={cn(
         "fixed inset-x-0 top-0",
@@ -187,6 +185,8 @@ export function Header({
         zClass.fixed,
         // Dark mode background
         "dark:bg-zinc-900",
+        // MOBILE CRASH PREVENTION: Blur only on sm+ to prevent Safari crashes
+        "sm:backdrop-blur-md",
         className
       )}
     >

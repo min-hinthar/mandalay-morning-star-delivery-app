@@ -97,7 +97,8 @@ function BadgeItem({ config, index }: BadgeItemProps) {
         "rounded-full text-2xs font-semibold uppercase tracking-wide",
         config.bgColor,
         config.textColor,
-        "backdrop-blur-sm shadow-sm"
+        // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+        "sm:backdrop-blur-sm shadow-sm"
       )}
       initial={shouldAnimate ? { scale: 0, opacity: 0 } : undefined}
       animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}

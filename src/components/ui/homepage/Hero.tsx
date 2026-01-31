@@ -106,7 +106,8 @@ function StatItem({ icon, label, value, delay = 0 }: StatItemProps) {
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={shouldAnimate ? { ...getSpring(spring.default), delay } : undefined}
     >
-      <div className="p-2 rounded-full bg-hero-stat-bg backdrop-blur-sm">
+      {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
+      <div className="p-2 rounded-full bg-hero-stat-bg sm:backdrop-blur-sm">
         {icon}
       </div>
       <div className="text-left">
@@ -203,7 +204,8 @@ function HeroContent({
       <div className="max-w-4xl mx-auto text-center">
         {/* Time-based greeting badge */}
         <motion.div
-          className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg backdrop-blur-md border border-hero-text/20"
+          // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+          className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20"
           initial={shouldAnimate ? { opacity: 0, y: -20 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={shouldAnimate ? { ...getSpring(spring.default), delay: 0.3 } : undefined}
@@ -293,7 +295,8 @@ function HeroContent({
 
         {/* Stats Bar */}
         <motion.div
-          className="flex flex-wrap justify-center items-center gap-2 md:gap-4 p-4 rounded-2xl bg-hero-stat-bg/50 backdrop-blur-md border border-hero-text/10"
+          // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+          className="flex flex-wrap justify-center items-center gap-2 md:gap-4 p-4 rounded-2xl bg-hero-stat-bg sm:bg-hero-stat-bg/50 sm:backdrop-blur-md border border-hero-text/10"
           initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={shouldAnimate ? { ...getSpring(spring.default), delay: 1 } : undefined}

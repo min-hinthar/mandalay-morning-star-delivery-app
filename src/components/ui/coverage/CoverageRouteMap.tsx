@@ -408,7 +408,8 @@ export function CoverageRouteMap({
       >
         <div
           className={cn(
-            "px-3 py-2 rounded-xl bg-surface-primary/95 backdrop-blur-md",
+            // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+            "px-3 py-2 rounded-xl bg-surface-primary sm:bg-surface-primary/95 sm:backdrop-blur-md",
             "flex items-center gap-2 text-xs font-medium",
             "shadow-md ring-1 ring-border/30"
           )}
@@ -438,7 +439,8 @@ export function CoverageRouteMap({
       >
         <div
           className={cn(
-            "px-2 py-1.5 rounded-xl bg-surface-primary/95 backdrop-blur-md",
+            // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+            "px-2 py-1.5 rounded-xl bg-surface-primary sm:bg-surface-primary/95 sm:backdrop-blur-md",
             "flex items-center gap-2",
             "shadow-md ring-1 ring-border/30"
           )}
@@ -470,7 +472,8 @@ export function CoverageRouteMap({
         >
           <div
             className={cn(
-              "px-4 py-3 rounded-xl backdrop-blur-md",
+              // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+              "px-4 py-3 rounded-xl sm:backdrop-blur-md",
               "shadow-lg ring-1",
               hasDestination
                 ? isValid

@@ -154,7 +154,8 @@ function AnimatedIcon({
           "relative flex h-20 w-20 items-center justify-center rounded-full",
           isPositive
             ? "bg-green/10 text-green"
-            : "bg-surface-tertiary/80 backdrop-blur-sm text-text-muted"
+            // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+            : "bg-surface-tertiary sm:bg-surface-tertiary/80 sm:backdrop-blur-sm text-text-muted"
         )}
       >
         <Icon className="h-10 w-10" strokeWidth={1.5} />
