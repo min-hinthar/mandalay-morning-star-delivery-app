@@ -14,6 +14,8 @@ import {
   LogOut,
   Truck,
   Route,
+  LayoutGrid,
+  Image as ImageIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -56,6 +58,16 @@ const navItems = [
     label: "Categories",
     href: "/admin/categories",
     icon: FolderTree,
+  },
+  {
+    label: "Photos",
+    href: "/admin/photos",
+    icon: ImageIcon,
+  },
+  {
+    label: "Sections",
+    href: "/admin/sections",
+    icon: LayoutGrid,
   },
   {
     label: "Analytics",
