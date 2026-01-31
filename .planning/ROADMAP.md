@@ -21,6 +21,7 @@ v1.4 delivers mobile stability, performance optimization, and offline resilience
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 35: Mobile Crash Prevention** - Zero crashes on mobile devices via systematic cleanup patterns
+- [ ] **Phase 35.1: Admin Photo Upload & Featured Management (INSERTED)** - Supabase image storage, remove Browse All Dishes, expand Featured Dishes with admin management
 - [ ] **Phase 36: Image Optimization & LCP** - Sub-2.5s LCP with optimized image loading and CLS prevention
 - [ ] **Phase 37: Codebase Cleanup** - Remove dead code and enforce directory structure
 - [ ] **Phase 38: Customer Offline Support** - Service worker caching and offline menu browsing
@@ -44,6 +45,32 @@ Plans:
 - [x] 35-01-PLAN.md - Audit + Foundation (utility hooks, documentation)
 - [x] 35-02-PLAN.md - Fix Critical Issues (timers, event listeners, GSAP)
 - [x] 35-03-PLAN.md - Fix Remaining + Verify (observers, modals, device testing)
+
+### Phase 35.1: Admin Photo Upload & Featured Management (INSERTED)
+**Goal**: Enable admin photo uploads to Supabase Storage, remove Browse All Dishes section, expand Featured Dishes with admin-manageable featured sections
+**Depends on**: Phase 35
+**Requirements**: ADMIN-PHOTO-01 to ADMIN-PHOTO-05, FEATURED-01 to FEATURED-05
+**Success Criteria** (what must be TRUE):
+  1. Admin can upload food photos from dashboard and see them on menu items
+  2. Supabase Storage bucket configured with RLS for admin-only uploads
+  3. Homepage shows expanded Featured Dishes section instead of Browse All Dishes
+  4. Admin can manage which dishes appear in Featured section
+  5. Admin can create/edit/delete featured sections (e.g., "Weekly Specials", "New Arrivals")
+**Plans**: 5 plans
+
+Plans:
+- [ ] 35.1-01-PLAN.md - Database schema + Supabase Storage setup (foundation)
+- [ ] 35.1-02-PLAN.md - Admin Photo Management (upload components, Photos page)
+- [ ] 35.1-03-PLAN.md - Admin Featured Sections Management (Sections page, CRUD)
+- [ ] 35.1-04-PLAN.md - Homepage Refactor (remove Browse All, render dynamic sections)
+- [ ] 35.1-05-PLAN.md - Integration & Polish (draft/publish workflow, live preview)
+
+**Details:**
+- Supabase Storage setup with proper RLS policies (admin-only write, public read)
+- Admin dashboard photo upload component
+- Database schema for featured sections and dish assignments
+- Homepage refactor: remove BrowseAllDishes, expand FeaturedDishes
+- Admin UI for featured section management
 
 ### Phase 36: Image Optimization & LCP
 **Goal**: Sub-2.5s Largest Contentful Paint on mobile with zero cumulative layout shift from images
@@ -118,6 +145,7 @@ Phases execute in numeric order: 35 -> 35.1 -> 36 -> 37 -> 38 -> 39
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 35. Mobile Crash Prevention | v1.4 | 3/3 | Complete | 2026-01-30 |
+| 35.1 Admin Photo Upload & Featured (INSERTED) | v1.4 | 0/5 | Planned | - |
 | 36. Image Optimization & LCP | v1.4 | 0/2 | Not started | - |
 | 37. Codebase Cleanup | v1.4 | 0/2 | Not started | - |
 | 38. Customer Offline Support | v1.4 | 0/3 | Not started | - |
@@ -198,13 +226,14 @@ See MILESTONES.md for details.
 | Category | Requirements | Phase | Count |
 |----------|--------------|-------|-------|
 | Mobile Crash Prevention | CRASH-01 to CRASH-10 | Phase 35 | 10 |
+| Admin Photo Upload & Featured | ADMIN-PHOTO-01 to 05, FEATURED-01 to 05 | Phase 35.1 | 10 |
 | Image Optimization & LCP | IMAGE-01 to IMAGE-10 | Phase 36 | 10 |
 | Codebase Refactoring | REFACTOR-01 to REFACTOR-08 | Phase 37 | 8 |
 | Customer Offline Support | OFFLINE-01 to OFFLINE-12 | Phase 38 | 12 |
 | Animation Optimization | ANIM-01 to ANIM-09 | Phase 39 | 9 |
-| **Total** | | | **49** |
+| **Total** | | | **59** |
 
-All 49 v1.4 requirements mapped. No orphans.
+All 59 v1.4 requirements mapped. No orphans.
 
 ---
 
