@@ -107,8 +107,8 @@ export async function GET(request: Request) {
       if (storageError) {
         logger.exception(storageError, { api: "admin/photos", flowId: "list-unassigned" });
       } else if (files) {
-        // Filter out folder entries (they have id property) and get actual files
-        const actualFiles = files.filter((f) => !f.id && f.name);
+        // Filter to actual files (have metadata with size) - folders have metadata: null
+        const actualFiles = files.filter((f) => f.name && f.metadata);
 
         // Get public URLs for unassigned photos
         unassignedPhotos = actualFiles.map((file) => {

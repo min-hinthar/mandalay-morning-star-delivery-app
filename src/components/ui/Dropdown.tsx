@@ -296,9 +296,9 @@ export function DropdownItem({
 
   const itemClasses = cn(
     "relative flex cursor-pointer select-none items-center",
-    "rounded-sm px-2 py-1.5 text-sm",
+    "rounded-sm px-2 py-1.5 text-sm font-body text-text-primary",
     "outline-none transition-colors",
-    "hover:bg-muted focus:bg-muted",
+    "hover:bg-surface-tertiary focus:bg-surface-tertiary",
     disabled && "pointer-events-none opacity-50",
     className
   );
@@ -342,7 +342,7 @@ export function DropdownSeparator({ className }: DropdownSeparatorProps) {
   return (
     <div
       role="separator"
-      className={cn("h-px bg-muted -mx-1 my-1", className)}
+      className={cn("h-px bg-border -mx-1 my-1", className)}
     />
   );
 }
