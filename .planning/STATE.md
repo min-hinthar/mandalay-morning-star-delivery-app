@@ -62,6 +62,9 @@ Progress: [##############################--------------------------] v1.4 6/15 (
 | 35.1-01 | Public bucket for menu photos | No signed URLs needed - public menu items |
 | 35.1-01 | Soft delete for featured_sections | 30-day recovery per context decisions |
 | 35.1-01 | Trigger for storage cleanup | Delete photos when menu items deleted |
+| 35.1-02 | Canvas-based image optimization | Resize to 800px max, 85% quality JPEG before upload |
+| 35.1-02 | Server-side Drive URL verification | HEAD request to verify public accessibility |
+| 35.1-02 | Storage folder structure | {menuItemId}/{timestamp}.jpg for organization |
 | 35.1-03 | Predefined sections hidden not deleted | Built-in sections (Featured, Most Popular, New Arrivals) preserved |
 | 35.1-03 | Most Popular auto-suggest | Uses order_items history to suggest popular dishes |
 | 35.1-03 | Optimistic updates with rollback | Better UX for section/item reordering |
@@ -87,10 +90,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 35.1-03-PLAN.md (Admin Sections Management)
+Stopped at: Completed 35.1-02-PLAN.md (Admin Photo Management) and 35.1-03-PLAN.md (Admin Sections Management)
 Resume file: None
-Next action: `/gsd:execute-phase 35.1` (continue with plan 04 or 05)
+Next action: `/gsd:execute-phase 35.1` (continue with plan 04)
 
 ---
 
-*Updated: 2026-01-31 - Completed Plan 35.1-03 (Admin Sections Management)*
+*Updated: 2026-01-31 - Completed Plan 35.1-02 (Admin Photo Management)*
