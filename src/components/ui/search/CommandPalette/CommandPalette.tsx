@@ -171,12 +171,13 @@ export function CommandPalette({
               className={cn(
                 "rounded-xl overflow-hidden",
                 "border border-border/20",
-                "shadow-2xl"
+                "shadow-2xl",
+                // MOBILE CRASH PREVENTION: Blur only on sm+ to prevent Safari crashes
+                "sm:backdrop-blur-xl"
               )}
               style={{
+                // MOBILE CRASH PREVENTION: backdropFilter removed from inline styles
                 backgroundColor: "var(--color-surface-primary-85)",
-                backdropFilter: "blur(var(--blur-xl))",
-                WebkitBackdropFilter: "blur(var(--blur-xl))",
               }}
               shouldFilter={false}
             >

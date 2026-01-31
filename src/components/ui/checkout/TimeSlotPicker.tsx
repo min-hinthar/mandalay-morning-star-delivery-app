@@ -353,7 +353,8 @@ export function TimeSlotPicker({
                 className={cn(
                   "absolute left-0 top-1/2 -translate-y-1/2 z-10",
                   "w-10 h-10 rounded-full",
-                  "bg-surface-primary/90 backdrop-blur-sm",
+                  // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+                  "bg-surface-primary sm:bg-surface-primary/90 sm:backdrop-blur-sm",
                   "border border-border shadow-lg",
                   "flex items-center justify-center",
                   "text-text-primary hover:text-primary",
@@ -376,7 +377,8 @@ export function TimeSlotPicker({
                 className={cn(
                   "absolute right-0 top-1/2 -translate-y-1/2 z-10",
                   "w-10 h-10 rounded-full",
-                  "bg-surface-primary/90 backdrop-blur-sm",
+                  // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+                  "bg-surface-primary sm:bg-surface-primary/90 sm:backdrop-blur-sm",
                   "border border-border shadow-lg",
                   "flex items-center justify-center",
                   "text-text-primary hover:text-primary",

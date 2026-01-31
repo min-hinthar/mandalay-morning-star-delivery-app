@@ -123,7 +123,8 @@ export function MetricCard({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute inset-0 flex items-center justify-center bg-surface-primary/80 backdrop-blur-sm"
+          // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+          className="absolute inset-0 flex items-center justify-center bg-surface-primary sm:bg-surface-primary/80 sm:backdrop-blur-sm"
         >
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </motion.div>

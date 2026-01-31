@@ -63,7 +63,8 @@ export function FooterCTA() {
             {/* Badge */}
             <motion.div
               variants={staggerItem}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-overlay-light backdrop-blur-sm rounded-pill"
+              // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+              className="inline-flex items-center gap-2 px-4 py-2 bg-overlay-light sm:backdrop-blur-sm rounded-pill"
             >
               <Heart className="w-4 h-4 text-text-inverse" />
               <span className="text-sm font-body font-medium text-text-inverse">Made with Love in Covina</span>

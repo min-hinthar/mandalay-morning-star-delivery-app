@@ -407,19 +407,21 @@ export const overlay = {
     exit: { opacity: 0, scale: 0.92, y: 20, transition: transition.fast },
   } as Variants,
 
-  /** Glassmorphism modal */
+  /**
+   * Glassmorphism modal
+   * MOBILE CRASH PREVENTION: backdropFilter removed from animation
+   * Use CSS sm:backdrop-blur-* classes instead for mobile safety
+   */
   glass: {
-    initial: { opacity: 0, scale: 0.95, backdropFilter: "blur(0px)" },
+    initial: { opacity: 0, scale: 0.95 },
     animate: {
       opacity: 1,
       scale: 1,
-      backdropFilter: "blur(20px)",
       transition: spring.gentle,
     },
     exit: {
       opacity: 0,
       scale: 0.95,
-      backdropFilter: "blur(0px)",
       transition: transition.fast,
     },
   } as Variants,
