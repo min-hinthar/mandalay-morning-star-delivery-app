@@ -4,8 +4,8 @@
  * CartIndicator - Cart icon with animated badge for header
  *
  * Features:
- * - Badge bounces and icon shakes when item is added
- * - Uses spring.rubbery for satisfying overshoot
+ * - Consistent styling with CartBar/CartDrawer (amber background)
+ * - Badge bounces when item is added
  * - Registers badge ref for fly-to-cart animation target
  * - Hydration-safe with localStorage persistence
  */
@@ -16,44 +16,24 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useCartAnimationStore } from "@/lib/stores/cart-animation-store";
-import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
-import { spring } from "@/lib/motion-tokens";
 
 export interface CartIndicatorProps {
   className?: string;
 }
 
 /**
- * Badge bounce animation - scale with tween (spring only supports 2 keyframes)
+ * Badge animation - simple scale
  */
-const badgeBounce = {
+const badgeVariants = {
   initial: { scale: 0, opacity: 0 },
   animate: { scale: 1, opacity: 1 },
   exit: { scale: 0, opacity: 0 },
-  bounce: {
-    scale: [1, 1.4, 1],
-    transition: {
-      duration: 0.3,
-      times: [0, 0.5, 1],
-      ease: "easeOut" as const,
-    },
-  },
-};
-
-/**
- * Icon shake animation - rotate back and forth
- */
-const iconShake = {
-  rotate: [0, -8, 8, -8, 0],
-  transition: { duration: 0.4, ease: "easeInOut" as const },
 };
 
 export function CartIndicator({ className }: CartIndicatorProps) {
   const { itemCount } = useCart();
   const { open } = useCartDrawer();
-  const setBadgeRef = useCartAnimationStore((s) => s.setBadgeRef);
-  const { shouldAnimate, getSpring } = useAnimationPreference();
 
   // Badge ref for fly-to-cart animation target
   const badgeRef = useRef<HTMLSpanElement>(null);
@@ -61,39 +41,15 @@ export function CartIndicator({ className }: CartIndicatorProps) {
   // Hydration safety
   const [mounted, setMounted] = useState(false);
 
-  // Track item addition for animation trigger
-  const [shouldBounce, setShouldBounce] = useState(false);
-  const prevCountRef = useRef(itemCount);
-  const isInitialMount = useRef(true);
-
-  // Mount effect - register badge ref
+  // Mount effect - register badge ref (use getState to avoid subscription)
   useEffect(() => {
     setMounted(true);
-    setBadgeRef(badgeRef);
+    useCartAnimationStore.getState().setBadgeRef(badgeRef);
 
     return () => {
-      setBadgeRef(null);
+      useCartAnimationStore.getState().setBadgeRef(null);
     };
-  }, [setBadgeRef]);
-
-  // Trigger animations when item is added
-  useEffect(() => {
-    // Skip on initial mount
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      prevCountRef.current = itemCount;
-      return;
-    }
-
-    // Trigger bounce/shake when count increases
-    if (itemCount > prevCountRef.current) {
-      setShouldBounce(true);
-      const timeout = setTimeout(() => setShouldBounce(false), 500);
-      return () => clearTimeout(timeout);
-    }
-
-    prevCountRef.current = itemCount;
-  }, [itemCount]);
+  }, []);
 
   // Skeleton before hydration
   if (!mounted) {
@@ -101,52 +57,42 @@ export function CartIndicator({ className }: CartIndicatorProps) {
       <div
         className={cn(
           "relative flex h-10 w-10 items-center justify-center rounded-full",
-          "bg-zinc-100/50 dark:bg-zinc-800/50",
+          "bg-amber-100 dark:bg-amber-900/30",
           className
         )}
         aria-hidden="true"
       >
-        <ShoppingBag className="h-5 w-5 text-zinc-400" />
+        <ShoppingBag className="h-5 w-5 text-amber-600 dark:text-amber-400" />
       </div>
     );
   }
 
   return (
-    <motion.button
+    <button
       type="button"
       onClick={open}
-      whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
-      whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
-      animate={shouldAnimate && shouldBounce ? iconShake : undefined}
-      transition={getSpring(spring.snappy)}
       className={cn(
         "relative flex h-10 w-10 items-center justify-center rounded-full",
-        "bg-zinc-100/80 dark:bg-zinc-800/80",
-        "text-zinc-700 dark:text-zinc-300",
+        "bg-amber-100 dark:bg-amber-900/30",
         "transition-colors duration-150",
-        "hover:bg-amber-500 hover:text-text-inverse",
+        "hover:bg-amber-200 dark:hover:bg-amber-900/50",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2",
         className
       )}
       aria-label={`Open cart${itemCount > 0 ? `, ${itemCount} item${itemCount === 1 ? "" : "s"}` : ""}`}
     >
-      <ShoppingBag className="h-5 w-5" />
+      <ShoppingBag className="h-5 w-5 text-amber-600 dark:text-amber-400" />
 
       <AnimatePresence mode="wait">
         {itemCount > 0 && (
           <motion.span
             ref={badgeRef}
             key={`badge-${itemCount}`}
-            variants={shouldAnimate ? badgeBounce : undefined}
-            initial={shouldAnimate ? "initial" : false}
-            animate={
-              shouldAnimate
-                ? shouldBounce
-                  ? "bounce"
-                  : "animate"
-                : { scale: 1, opacity: 1 }
-            }
-            exit={shouldAnimate ? "exit" : undefined}
+            variants={badgeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.15 }}
             className={cn(
               "absolute -right-1 -top-1 flex items-center justify-center",
               "min-w-[20px] h-[20px] px-1 rounded-full",
@@ -158,7 +104,7 @@ export function CartIndicator({ className }: CartIndicatorProps) {
           </motion.span>
         )}
       </AnimatePresence>
-    </motion.button>
+    </button>
   );
 }
 
