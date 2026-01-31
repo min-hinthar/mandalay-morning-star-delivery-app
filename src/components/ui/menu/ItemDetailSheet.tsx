@@ -99,13 +99,14 @@ export function ItemDetailSheet({
   // Responsive overlay selection
   const isMobile = useMediaQuery("(max-width: 639px)");
 
-  // Reset state when item changes
+  // Reset state when item changes OR when modal opens
+  // Using isOpen ensures state resets even when opening the same item again
   useEffect(() => {
-    if (!item) return;
+    if (!item || !isOpen) return;
     setSelectedModifiers([]);
     setQuantity(1);
     setNotes("");
-  }, [item]);
+  }, [item, isOpen]);
 
   // ============================================
   // PRICE AND VALIDATION

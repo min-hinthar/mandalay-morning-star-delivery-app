@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, Search, Star } from "lucide-react";
 import {
@@ -85,9 +85,17 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { addItem } = useCart();
   const { open: openCart } = useCartDrawer();
   const { favorites, toggleFavorite } = useFavorites();
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    };
+  }, []);
 
   // Create favorites Set for quick lookup
   const favoritesSet = useMemo(() => new Set(favorites), [favorites]);
@@ -148,6 +156,15 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
     setIsModalOpen(true);
   }, []);
 
+  // Handle modal close - delay clearing item to allow exit animation to complete
+  const handleCloseDetail = useCallback(() => {
+    setIsModalOpen(false);
+    // Clear any pending timeout
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    // Delay clearing item to allow close animation to complete
+    closeTimeoutRef.current = setTimeout(() => setSelectedItem(null), 300);
+  }, []);
+
   // Handle favorite toggle
   const handleFavoriteToggle = useCallback(
     (item: MenuItem, _isFavorite: boolean) => {
@@ -177,11 +194,11 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
         notes,
       });
 
-      setIsModalOpen(false);
-      setSelectedItem(null);
+      // Use delayed close to allow exit animation to complete
+      handleCloseDetail();
       openCart();
     },
-    [addItem, openCart]
+    [addItem, handleCloseDetail, openCart]
   );
 
   // Set section ref
@@ -414,10 +431,7 @@ export function HomepageMenuSection({ categories }: HomepageMenuSectionProps) {
         <ItemDetailSheet
           item={selectedItem}
           isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedItem(null);
-          }}
+          onClose={handleCloseDetail}
           onAddToCart={handleAddToCart}
         />
 
