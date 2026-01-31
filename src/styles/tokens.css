@@ -57,6 +57,7 @@
   --color-surface-secondary: #FAFAFA;
   --color-surface-tertiary: #F5F5F5;
   --color-surface-elevated: #FFFFFF;
+  --color-surface-inverse: #000000;
 
   /* ===========================================
      TEXT COLORS
@@ -503,6 +504,7 @@
   --color-surface-secondary: #0a0a0a;
   --color-surface-tertiary: #141414;
   --color-surface-elevated: #1a1a1a;
+  --color-surface-inverse: #FFFFFF;
 
   /* ===========================================
      TEXT COLORS (Dark Mode)

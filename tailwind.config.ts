@@ -57,6 +57,7 @@ const config: Config = {
           secondary: "var(--color-surface-secondary)",
           tertiary: "var(--color-surface-tertiary)",
           elevated: "var(--color-surface-elevated)",
+          inverse: "var(--color-surface-inverse)",
         },
 
         // Text Colors
