@@ -324,7 +324,7 @@ export function AddressAutocomplete({
         {isLoading && (
           <motion.div
             animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            transition={{ duration: 1, repeat: 20, ease: "linear" }}
             className="absolute right-4 top-1/2 -translate-y-1/2"
           >
             <Loader2 className="w-4 h-4 text-primary" />

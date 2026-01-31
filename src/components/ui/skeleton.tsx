@@ -45,13 +45,14 @@ const radiusConfig = {
 // SHIMMER ANIMATION
 // ============================================
 
+// Bound shimmer to 10 cycles - skeletons should only show briefly during loading
 const shimmerAnimation = {
   initial: { x: "-100%" },
   animate: {
     x: "100%",
     transition: {
       duration: 1.5,
-      repeat: Infinity,
+      repeat: 10,
       ease: "linear" as const,
     },
   },
@@ -61,13 +62,14 @@ const shimmerAnimation = {
 // WAVE ANIMATION
 // ============================================
 
+// Bound wave to 10 cycles - skeletons should only show briefly during loading
 const waveAnimation = {
   initial: { backgroundPosition: "200% 0" },
   animate: {
     backgroundPosition: "-200% 0",
     transition: {
       duration: 3,
-      repeat: Infinity,
+      repeat: 10,
       ease: "linear" as const,
     },
   },
@@ -77,13 +79,14 @@ const waveAnimation = {
 // PULSE ANIMATION
 // ============================================
 
+// Bound pulse to 10 cycles - skeletons should only show briefly during loading
 const pulseAnimation = {
   initial: { opacity: 0.6 },
   animate: {
     opacity: [0.6, 0.3, 0.6],
     transition: {
       duration: 1.5,
-      repeat: Infinity,
+      repeat: 10,
       ease: "easeInOut" as const,
     },
   },
@@ -196,7 +199,7 @@ const SingleSkeleton = forwardRef<HTMLDivElement, Omit<SkeletonProps, "count" | 
             }}
             transition={{
               duration: 2,
-              repeat: Infinity,
+              repeat: 10,
               ease: "easeInOut",
             }}
           />

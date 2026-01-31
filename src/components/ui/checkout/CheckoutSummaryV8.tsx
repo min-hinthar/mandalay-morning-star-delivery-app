@@ -162,7 +162,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                 }
                 transition={{
                   duration: 0.6,
-                  repeat: Infinity,
+                  repeat: 5,
                   repeatDelay: 2,
                 }}
               >
@@ -208,7 +208,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                 }
                 transition={{
                   duration: 0.5,
-                  repeat: Infinity,
+                  repeat: 5,
                   repeatDelay: 3,
                 }}
               >

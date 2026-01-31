@@ -156,7 +156,7 @@ function TimelineStep({
             }
             transition={{
               duration: 2,
-              repeat: Infinity,
+              repeat: 5,
               repeatDelay: 1,
             }}
           >
@@ -169,7 +169,7 @@ function TimelineStep({
               <motion.span
                 className="absolute inset-0 rounded-full bg-primary"
                 animate={shouldAnimate ? { scale: [1, 1.5, 2], opacity: [0.4, 0.1, 0] } : undefined}
-                transition={{ duration: 2, repeat: Infinity }}
+                transition={{ duration: 2, repeat: 5 }}
               />
               <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-75" />
@@ -213,7 +213,7 @@ function TimelineStep({
             {isCurrent && isLive && (
               <motion.div
                 animate={shouldAnimate ? { y: [0, 20, 0] } : undefined}
-                transition={{ duration: 2, repeat: Infinity }}
+                transition={{ duration: 2, repeat: 5 }}
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-primary"
               />
             )}

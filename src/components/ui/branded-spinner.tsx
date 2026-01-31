@@ -43,7 +43,7 @@ export function BrandedSpinner({
           shouldAnimate
             ? {
                 duration: 1.5,
-                repeat: Infinity,
+                repeat: 20, // Bound to 20 cycles - spinners should only show during loading
                 ease: "linear",
               }
             : undefined
@@ -66,7 +66,7 @@ export function BrandedSpinner({
             shouldAnimate
               ? {
                   duration: 1.5,
-                  repeat: Infinity,
+                  repeat: 20, // Bound to 20 cycles - spinners should only show during loading
                   ease: "easeInOut",
                 }
               : undefined
@@ -114,7 +114,7 @@ export function RingSpinner({
           shouldAnimate
             ? {
                 duration: 1,
-                repeat: Infinity,
+                repeat: 20, // Bound to 20 cycles - spinners should only show during loading
                 ease: "linear",
               }
             : undefined

@@ -207,7 +207,7 @@ function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps) {
           >
             <motion.div
               animate={shouldAnimate ? { rotate: 360 } : undefined}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 1, repeat: 5, ease: "linear" }}
             >
               <RefreshCw className="w-4 h-4 text-text-muted" />
             </motion.div>
@@ -223,7 +223,7 @@ function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps) {
             scale: [1, 1.5, 1],
             opacity: [1, 0.5, 1],
           } : undefined}
-          transition={{ duration: 2, repeat: Infinity }}
+          transition={{ duration: 2, repeat: 5 }}
         />
       )}
 
@@ -373,7 +373,7 @@ function QuickStat({ label, value, icon, pulse }: QuickStatProps) {
               scale: [1, 1.3, 1],
               opacity: [1, 0.6, 1],
             } : undefined}
-            transition={{ duration: 1.5, repeat: Infinity }}
+            transition={{ duration: 1.5, repeat: 5 }}
           />
         )}
       </div>
@@ -433,7 +433,7 @@ export function AdminDashboard({
         <div className="flex items-center gap-3">
           <motion.div
             animate={shouldAnimate ? { rotate: [0, 5, -5, 0] } : undefined}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+            transition={{ duration: 2, repeat: 5, repeatDelay: 3 }}
           >
             <Zap className="w-6 h-6 text-secondary" />
           </motion.div>
@@ -478,7 +478,7 @@ export function AdminDashboard({
             >
               <motion.div
                 animate={refreshing && shouldAnimate ? { rotate: 360 } : undefined}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 1, repeat: 5, ease: "linear" }}
               >
                 <RefreshCw className="w-4 h-4" />
               </motion.div>

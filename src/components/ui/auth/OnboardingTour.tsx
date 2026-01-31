@@ -129,7 +129,7 @@ function StepIllustration({ icon, isActive }: StepIllustrationProps) {
               }
             : undefined
         }
-        transition={{ duration: 3, repeat: Infinity }}
+        transition={{ duration: 3, repeat: 5 }}
         className="absolute inset-0 rounded-full"
         style={{ background: "linear-gradient(to bottom right, var(--color-primary-light), var(--color-secondary-light))" }}
       />
@@ -142,7 +142,7 @@ function StepIllustration({ icon, isActive }: StepIllustrationProps) {
               }
             : undefined
         }
-        transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
+        transition={{ duration: 3, repeat: 5, delay: 0.5 }}
         className="absolute inset-4 rounded-full"
         style={{ background: "linear-gradient(to bottom right, var(--color-secondary-light), var(--color-accent-green-light))" }}
       />
@@ -165,7 +165,7 @@ function StepIllustration({ icon, isActive }: StepIllustrationProps) {
               ? { rotate: [0, 5, -5, 0] }
               : undefined
           }
-          transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+          transition={{ duration: 2, repeat: 5, delay: 1 }}
         >
           <Icon className="w-12 h-12 text-text-inverse" />
         </motion.div>
@@ -186,7 +186,7 @@ function StepIllustration({ icon, isActive }: StepIllustrationProps) {
               }}
               transition={{
                 duration: 2,
-                repeat: Infinity,
+                repeat: 5,
                 delay: i * 0.4,
               }}
               className="absolute w-3 h-3 rounded-full bg-secondary"
@@ -439,17 +439,17 @@ export function OnboardingTour({
         <>
           <motion.div
             animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
-            transition={{ duration: 8, repeat: Infinity }}
+            transition={{ duration: 8, repeat: 3 }}
             className="absolute bottom-20 left-10 w-20 h-20 rounded-full bg-secondary/10"
           />
           <motion.div
             animate={{ y: [0, 15, 0], rotate: [0, -3, 0] }}
-            transition={{ duration: 6, repeat: Infinity, delay: 1 }}
+            transition={{ duration: 6, repeat: 3, delay: 1 }}
             className="absolute top-32 right-16 w-16 h-16 rounded-full bg-primary/10"
           />
           <motion.div
             animate={{ y: [0, -10, 0], scale: [1, 1.1, 1] }}
-            transition={{ duration: 5, repeat: Infinity, delay: 2 }}
+            transition={{ duration: 5, repeat: 3, delay: 2 }}
             className="absolute top-1/4 left-1/4 w-8 h-8 rounded-full bg-green/10"
           />
         </>

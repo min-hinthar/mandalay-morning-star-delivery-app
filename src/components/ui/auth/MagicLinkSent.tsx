@@ -59,7 +59,7 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
               }
             : undefined
         }
-        transition={{ duration: 2, repeat: Infinity }}
+        transition={{ duration: 2, repeat: 5 }}
         className="absolute inset-0 rounded-full blur-xl"
         style={{ background: "linear-gradient(to bottom right, var(--color-primary-light), var(--color-secondary-light))" }}
       />
@@ -162,7 +162,7 @@ function AnimatedEnvelopeV7({ isOpening }: { isOpening: boolean }) {
               }}
               transition={{
                 duration: 2,
-                repeat: Infinity,
+                repeat: 5,
                 delay: i * 0.3,
               }}
               className="absolute w-2 h-2 rounded-full bg-secondary"

@@ -114,7 +114,7 @@ export function CheckoutStepperV8({
                         }}
                         transition={{
                           duration: 2,
-                          repeat: Infinity,
+                          repeat: 5,
                           ease: "easeInOut",
                         }}
                       />
@@ -132,7 +132,7 @@ export function CheckoutStepperV8({
                         }}
                         transition={{
                           duration: 1.5,
-                          repeat: Infinity,
+                          repeat: 5,
                           ease: "easeInOut",
                         }}
                       />
