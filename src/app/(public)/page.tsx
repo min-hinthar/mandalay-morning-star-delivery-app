@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { Suspense } from "react";
-import { getMenuWithCategories } from "@/lib/queries/menu";
+import { getFeaturedSections } from "@/lib/queries/sections";
 import { HomePageClient } from "@/components/ui/homepage/HomePageClient";
 import { HomepageMenuSection } from "@/components/ui/homepage/HomepageMenuSection";
 
@@ -14,8 +14,8 @@ function MenuSkeleton() {
           <div className="h-12 w-64 bg-muted rounded-lg mx-auto mb-4" />
           <div className="h-6 w-96 bg-muted rounded-lg mx-auto max-w-full" />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {Array.from({ length: 8 }).map((_, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
               className="aspect-[4/3] bg-muted rounded-2xl animate-pulse"
@@ -28,10 +28,10 @@ function MenuSkeleton() {
   );
 }
 
-// Server component to fetch menu data
+// Server component to fetch sections data
 async function MenuLoader() {
-  const categories = await getMenuWithCategories();
-  return <HomepageMenuSection categories={categories} />;
+  const featuredSections = await getFeaturedSections();
+  return <HomepageMenuSection featuredSections={featuredSections} />;
 }
 
 export default function HomePage(): ReactElement {
