@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 35.1 - Admin Photo Upload & Featured Management (INSERTED)
+**Current focus:** Phase 35.1 - Admin Photo Upload & Featured Management (COMPLETE)
 
 ## Current Position
 
 Phase: 35.1 of 39 (Admin Photo Upload & Featured Management)
-Plan: 3 of 4 complete in phase 35.1
-Status: In progress
-Last activity: 2026-01-31 - Completed 35.1-03-PLAN.md
+Plan: 4 of 4 complete in phase 35.1
+Status: Phase complete
+Last activity: 2026-01-31 - Completed 35.1-04-PLAN.md
 
-Progress: [##############################--------------------------] v1.4 6/15 (40%)
+Progress: [################################------------------------] v1.4 7/15 (47%)
 
 ## Milestones
 
@@ -26,20 +26,20 @@ Progress: [##############################--------------------------] v1.4 6/15 (
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 15 | In progress |
 
-**Total completed:** 35 phases, 142 plans, 165 requirements
+**Total completed:** 35.1 phases, 146 plans, 169 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 142 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 6
+- Total plans completed: 146 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 7
 
 **By Phase (v1.4):**
 
 | Phase | Plans | Status |
 |-------|-------|--------|
 | 35 | 3/3 | Complete |
-| 35.1 | 3/4 | In progress |
+| 35.1 | 4/4 | Complete |
 | 36 | 0/2 | Not started |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
@@ -68,10 +68,13 @@ Progress: [##############################--------------------------] v1.4 6/15 (
 | 35.1-03 | Predefined sections hidden not deleted | Built-in sections (Featured, Most Popular, New Arrivals) preserved |
 | 35.1-03 | Most Popular auto-suggest | Uses order_items history to suggest popular dishes |
 | 35.1-03 | Optimistic updates with rollback | Better UX for section/item reordering |
+| 35.1-04 | Static icon map for DynamicIcon | Turbopack compatibility - icons object not resolvable |
+| 35.1-04 | First section grid, others carousel | Visual hierarchy for featured content |
+| 35.1-04 | Browse All Dishes replaced with CTA | "See Full Menu" links to /menu page |
 
 ### Roadmap Evolution
 
-- Phase 35.1 inserted after Phase 35: Admin Photo Upload & Featured Management (URGENT)
+- Phase 35.1 inserted after Phase 35: Admin Photo Upload & Featured Management (COMPLETE)
   - Supabase Storage for food photos with RLS
   - Remove Browse All Dishes section from homepage
   - Expand Featured Dishes with admin-manageable sections
@@ -79,7 +82,7 @@ Progress: [##############################--------------------------] v1.4 6/15 (
 
 ### Research Flags
 
-- Phase 35.1 (Admin Photos): Research complete - migrations created
+- Phase 35.1 (Admin Photos): Complete
 - Phase 38 (Offline): Needs light research - Serwist configuration for Next.js App Router
 - Other phases: Standard patterns, skip research
 
@@ -90,10 +93,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-31
-Stopped at: Completed 35.1-02-PLAN.md (Admin Photo Management) and 35.1-03-PLAN.md (Admin Sections Management)
+Stopped at: Completed 35.1-04-PLAN.md (Homepage Featured Sections)
 Resume file: None
-Next action: `/gsd:execute-phase 35.1` (continue with plan 04)
+Next action: `/gsd:execute-phase 36` (start Phase 36)
 
 ---
 
-*Updated: 2026-01-31 - Completed Plan 35.1-02 (Admin Photo Management)*
+*Updated: 2026-01-31 - Completed Phase 35.1 (Admin Photo Upload & Featured Management)*
