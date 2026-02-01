@@ -102,23 +102,34 @@ Plans:
 ### Phase 36.1: Routes & Driver Features (INSERTED)
 **Goal**: Complete all missing page routes and implement admin driver management features
 **Depends on**: Phase 36
-**Requirements**: TBD (to be defined during planning)
+**Requirements**: ROUTE-01 to ROUTE-11 (driver detail, route detail, settings, customer account, order actions)
 **Success Criteria** (what must be TRUE):
   1. All planned page routes are implemented and accessible
   2. Admin can manage drivers (create, edit, assign, deactivate)
   3. Driver assignment workflow integrated with order management
   4. No 404 errors on any linked navigation items
   5. Build succeeds with all new routes
-**Plans**: TBD
+**Plans**: 11 plans
 
 Plans:
-- [ ] 36.1-01: TBD (run /gsd:plan-phase 36.1 to break down)
+- [ ] 36.1-01-PLAN.md — Settings database infrastructure and APIs
+- [ ] 36.1-02-PLAN.md — Driver APIs (routes, ratings, archive)
+- [ ] 36.1-03-PLAN.md — Route stop and exception APIs
+- [ ] 36.1-04-PLAN.md — Driver detail page UI
+- [ ] 36.1-05-PLAN.md — Route detail page UI (without map)
+- [ ] 36.1-06-PLAN.md — Route map with Google Maps
+- [ ] 36.1-07-PLAN.md — Settings page with tabs
+- [ ] 36.1-08-PLAN.md — Customer account APIs
+- [ ] 36.1-09-PLAN.md — Customer account page UI
+- [ ] 36.1-10-PLAN.md — Order audit log and cancel/refund APIs
+- [ ] 36.1-11-PLAN.md — Navigation integration and verification
 
 **Details:**
-- Missing page routes completion
-- Admin driver CRUD operations
-- Driver-order assignment features
-- Navigation link verification
+- Driver detail page: Activity-focused layout with routes, ratings, profile management
+- Route detail page: Map-first with stop cards, exception handling
+- Settings page: Tabbed interface for delivery, operations, notifications
+- Customer account: Profile, orders with reorder, addresses (max 5)
+- Order actions: Cancel with reason, item-level refunds, audit logging
 
 ### Phase 37: Codebase Cleanup
 **Goal**: Remove dead code and establish directory structure enforcement
@@ -179,7 +190,7 @@ Phases execute in numeric order: 35 -> 35.1 -> 36 -> 37 -> 38 -> 39
 | 35. Mobile Crash Prevention | v1.4 | 3/3 | Complete | 2026-01-30 |
 | 35.1 Admin Photo Upload & Featured (INSERTED) | v1.4 | 5/5 | Complete | 2026-02-01 |
 | 36. Image Optimization & LCP | v1.4 | 3/3 | Complete | 2026-02-01 |
-| 36.1 Routes & Driver Features (INSERTED) | v1.4 | 0/? | Not started | - |
+| 36.1 Routes & Driver Features (INSERTED) | v1.4 | 0/11 | Planned | - |
 | 37. Codebase Cleanup | v1.4 | 0/2 | Not started | - |
 | 38. Customer Offline Support | v1.4 | 0/3 | Not started | - |
 | 39. Animation Optimization | v1.4 | 0/2 | Not started | - |
