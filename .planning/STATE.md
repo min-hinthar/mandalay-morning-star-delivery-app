@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 35.1 - Admin Photo Upload & Featured Management (COMPLETE)
+**Current focus:** Phase 36 - Image Optimization & LCP (IN PROGRESS)
 
 ## Current Position
 
-Phase: 35.1 of 39 (Admin Photo Upload & Featured Management)
-Plan: 5 of 5 complete in phase 35.1
-Status: Phase complete
-Last activity: 2026-02-01 - Completed 35.1-05-PLAN.md
+Phase: 36 of 39 (Image Optimization & LCP)
+Plan: 1 of 2 complete in phase 36
+Status: In progress
+Last activity: 2026-02-01 - Completed 36-01-PLAN.md
 
-Progress: [####################################--------------------] v1.4 8/16 (50%)
+Progress: [######################################------------------] v1.4 9/16 (56%)
 
 ## Milestones
 
@@ -26,13 +26,13 @@ Progress: [####################################--------------------] v1.4 8/16 (
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 16 | In progress |
 
-**Total completed:** 35.1 phases, 147 plans, 169 requirements
+**Total completed:** 36 phases, 148 plans, 170 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 147 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 8
+- Total plans completed: 148 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 9
 
 **By Phase (v1.4):**
 
@@ -40,7 +40,7 @@ Progress: [####################################--------------------] v1.4 8/16 (
 |-------|-------|--------|
 | 35 | 3/3 | Complete |
 | 35.1 | 5/5 | Complete |
-| 36 | 0/2 | Not started |
+| 36 | 1/2 | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -71,6 +71,8 @@ Progress: [####################################--------------------] v1.4 8/16 (
 | 35.1-04 | Static icon map for DynamicIcon | Turbopack compatibility - icons object not resolvable |
 | 35.1-04 | First section grid, others carousel | Visual hierarchy for featured content |
 | 35.1-04 | Browse All Dishes replaced with CTA | "See Full Menu" links to /menu page |
+| 36-01 | Quality 70 as default for menu images | Visual quality maintained with ~30% smaller files |
+| 36-01 | Quality 85 available for hero images | Higher quality for LCP images where it matters |
 
 ### Roadmap Evolution
 
@@ -93,10 +95,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 35.1-05-PLAN.md (Integration & Polish)
+Stopped at: Completed 36-01-PLAN.md (Image Optimization Config)
 Resume file: None
-Next action: Phase verification then `/gsd:plan-phase 36`
+Next action: Execute 36-02-PLAN.md (Hero Image LCP)
 
 ---
 
-*Updated: 2026-02-01 - Completed Phase 35.1 Plan 05 (Integration & Polish)*
+*Updated: 2026-02-01 - Completed Phase 36 Plan 01 (Image Optimization Config)*
