@@ -18,7 +18,6 @@
 
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { AlertTriangle, X } from "lucide-react";
-import { AnimatedImage } from "@/components/ui/animated-image";
 import { Modal } from "@/components/ui/Modal";
 import { Drawer } from "@/components/ui/Drawer";
 import { AddToCartButton, QuantitySelector } from "@/components/ui/cart";
@@ -209,26 +208,13 @@ export function ItemDetailSheet({
             <X className="w-5 h-5" />
           </button>
           {item.imageUrl ? (
-            isMobile ? (
-              /* Mobile: Plain img tag - reliable rendering */
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={item.imageUrl}
-                alt={item.nameEn}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            ) : (
-              /* Desktop: AnimatedImage with blur-scale reveal effect */
-              <AnimatedImage
-                src={item.imageUrl}
-                alt={item.nameEn}
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 640px) 100vw, 480px"
-                variant="blur-scale"
-              />
-            )
+            /* Plain img tag - reliable across all devices and URL types (Supabase, Google Drive, etc.) */
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={item.imageUrl}
+              alt={item.nameEn}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-4xl">
