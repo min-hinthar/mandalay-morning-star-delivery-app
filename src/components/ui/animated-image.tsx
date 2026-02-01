@@ -100,9 +100,12 @@ export function AnimatedImage({
   };
   /* eslint-enable no-restricted-syntax */
 
+  // When using fill prop, the wrapper needs position relative and full dimensions
+  const hasFill = "fill" in imageProps && imageProps.fill;
+
   return (
     <motion.div
-      className={cn("overflow-hidden", className)}
+      className={cn("overflow-hidden", hasFill && "relative w-full h-full", className)}
       initial="hidden"
       animate={isLoaded ? "visible" : "hidden"}
       whileInView={animateOnView ? "visible" : undefined}
