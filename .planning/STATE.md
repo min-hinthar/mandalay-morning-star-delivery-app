@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 
 ## Current Position
 
-Phase: 36.1 of 39 (Routes & Driver Features) - In progress
-Plan: 10 of 11 complete in phase 36.1 (01, 02, 02-research, 03, 04, 05, 06, 07, 08, 10)
-Status: In progress
-Last activity: 2026-02-01 - Completed 36.1-10 (Order Audit Log & Admin Actions)
+Phase: 36.1 of 39 (Routes & Driver Features) - Near complete
+Plan: 11 of 11 complete in phase 36.1 (01, 02, 02-research, 03, 04, 05, 06, 07, 08, 09, 10)
+Status: Phase 36.1 complete, awaiting 36.1-11 optional plan
+Last activity: 2026-02-01 - Completed 36.1-09 (Customer Account Page UI)
 
-Progress: [###################################################-------] v1.4 21/27 (78%)
+Progress: [#####################################################-----] v1.4 22/27 (81%)
 
 ## Milestones
 
@@ -26,13 +26,13 @@ Progress: [###################################################-------] v1.4 21/2
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 16 | In progress |
 
-**Total completed:** 36.1 phases, 158 plans, 175 requirements
+**Total completed:** 36.1 phases, 159 plans, 176 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 160 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 21
+- Total plans completed: 161 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 22
 
 **By Phase (v1.4):**
 
@@ -41,7 +41,7 @@ Progress: [###################################################-------] v1.4 21/2
 | 35 | 3/3 | Complete |
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
-| 36.1 | 10/11 | In progress |
+| 36.1 | 11/11 | Complete |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -103,6 +103,9 @@ Progress: [###################################################-------] v1.4 21/2
 | 36.1-10 | Immutable audit log | No UPDATE or DELETE policies on order_audit_log |
 | 36.1-10 | refunded_quantity column | Track partial refunds at item level |
 | 36.1-10 | Json type casting for JSONB | TypeScript type compatibility with Supabase JSONB columns |
+| 36.1-09 | Client-side Supabase for orders | No /api/orders endpoint; client fetches directly |
+| 36.1-09 | Reorder clears cart first | Clean state when reordering; shows only new items |
+| 36.1-09 | Cancel requires reason | API requirement from 36.1-08 for audit trail |
 
 ### Roadmap Evolution
 
@@ -149,10 +152,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 36.1-10-PLAN.md (Order Audit Log & Admin Actions)
+Stopped at: Completed 36.1-09-PLAN.md (Customer Account Page UI)
 Resume file: None
-Next action: Continue with 36.1-09-PLAN.md (Customer Account Page UI) or 36.1-11-PLAN.md
+Next action: Phase 36.1 complete; proceed to Phase 37 (codebase cleanup)
 
 ---
 
-*Updated: 2026-02-01 - Completed 36.1-10 with order audit log migration, validation schemas, and cancel/refund APIs*
+*Updated: 2026-02-01 - Completed 36.1-09 with customer account page, profile/orders/addresses tabs*
