@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 36.1 of 39 (Routes & Driver Features) - In progress
-Plan: 7 of 11 complete in phase 36.1 (01, 02, 02-research, 03, 04, 05, 07)
+Plan: 8 of 11 complete in phase 36.1 (01, 02, 02-research, 03, 04, 05, 07, 08)
 Status: In progress
-Last activity: 2026-02-01 - Completed 36.1-05 (Route Detail Page)
+Last activity: 2026-02-01 - Completed 36.1-08 (Customer Account APIs)
 
-Progress: [################################################----------] v1.4 18/27 (67%)
+Progress: [#################################################---------] v1.4 19/27 (70%)
 
 ## Milestones
 
@@ -26,13 +26,13 @@ Progress: [################################################----------] v1.4 18/2
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 16 | In progress |
 
-**Total completed:** 36.1 phases, 156 plans, 173 requirements
+**Total completed:** 36.1 phases, 157 plans, 174 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 157 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 18
+- Total plans completed: 158 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 19
 
 **By Phase (v1.4):**
 
@@ -41,7 +41,7 @@ Progress: [################################################----------] v1.4 18/2
 | 35 | 3/3 | Complete |
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
-| 36.1 | 7/11 | In progress |
+| 36.1 | 8/11 | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -94,6 +94,9 @@ Progress: [################################################----------] v1.4 18/2
 | 36.1-07 | Reusable Tabs component | Generic tab UI for settings and future admin pages |
 | 36.1-07 | Currency cents display | Store cents, display dollars for UI clarity |
 | 36.1-07 | Deep JSON comparison | Detect settings changes for unsaved warning |
+| 36.1-08 | Reorder returns cart items | Server validates, client handles cart state |
+| 36.1-08 | Cancel window status-based | Only pending/confirmed cancellable by customer |
+| 36.1-08 | Max 5 addresses per user | Enforced at API level with ADDRESS_LIMIT error |
 
 ### Roadmap Evolution
 
@@ -140,10 +143,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 36.1-05-PLAN.md (Route Detail Page)
+Stopped at: Completed 36.1-08-PLAN.md (Customer Account APIs)
 Resume file: None
 Next action: Continue with 36.1-06-PLAN.md (Route Map with Polyline)
 
 ---
 
-*Updated: 2026-02-01 - Completed 36.1-05 with route detail page, stats bar, stop cards, and stops list*
+*Updated: 2026-02-01 - Completed 36.1-08 with profile, addresses, reorder, and cancel APIs*
