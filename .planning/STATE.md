@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 
 ## Current Position
 
-Phase: 36 of 39 (Image Optimization & LCP) - COMPLETE
-Plan: 3 of 3 complete in phase 36
-Status: Phase complete, ready for Phase 37
-Last activity: 2026-02-01 - Completed Phase 36 verification
+Phase: 36.1 of 39 (Routes & Driver Features) - In progress
+Plan: 1 of 11 complete in phase 36.1
+Status: In progress
+Last activity: 2026-02-01 - Completed 36.1-01 (App Settings Database & API)
 
-Progress: [###########################################-------------] v1.4 11/16 (69%)
+Progress: [############################################------------] v1.4 12/27 (44%)
 
 ## Milestones
 
@@ -26,13 +26,13 @@ Progress: [###########################################-------------] v1.4 11/16 
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 16 | In progress |
 
-**Total completed:** 36.1 phases, 149 plans, 170 requirements
+**Total completed:** 36.1 phases, 150 plans, 170 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 150 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 11
+- Total plans completed: 151 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 12
 
 **By Phase (v1.4):**
 
@@ -41,6 +41,7 @@ Progress: [###########################################-------------] v1.4 11/16 
 | 35 | 3/3 | Complete |
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
+| 36.1 | 1/11 | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -77,6 +78,9 @@ Progress: [###########################################-------------] v1.4 11/16 
 | 36-02 | Shimmer placeholder during image load | Better UX while images load |
 | 36-02 | Responsive sizes attribute | srcset optimization for different viewports |
 | 36-03 | LCP blocked by JS, not images | CLS: 0 (perfect), LCP needs JS optimization phase |
+| 36.1-01 | JSONB for settings values | Flexible storage for numbers, strings, arrays |
+| 36.1-01 | No delete RLS for settings | Restore uses upsert pattern, not delete+insert |
+| 36.1-01 | Separate /restore endpoint | Clearer API than DELETE method for reset |
 
 ### Roadmap Evolution
 
@@ -123,10 +127,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed Phase 36 (Image Optimization & LCP)
+Stopped at: Completed 36.1-01 (App Settings Database & API)
 Resume file: None
-Next action: Begin Phase 37 (Codebase Cleanup)
+Next action: Continue Phase 36.1 (Plan 02)
 
 ---
 
-*Updated: 2026-02-01 - Completed Phase 36 with CLS: 0, documented JS performance findings for future phase*
+*Updated: 2026-02-01 - Completed 36.1-01, app_settings table and admin API created*
