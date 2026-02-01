@@ -21,7 +21,7 @@ v1.4 delivers mobile stability, performance optimization, and offline resilience
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 35: Mobile Crash Prevention** - Zero crashes on mobile devices via systematic cleanup patterns
-- [ ] **Phase 35.1: Admin Photo Upload & Featured Management (INSERTED)** - Supabase image storage, remove Browse All Dishes, expand Featured Dishes with admin management
+- [x] **Phase 35.1: Admin Photo Upload & Featured Management (INSERTED)** - Supabase image storage, remove Browse All Dishes, expand Featured Dishes with admin management
 - [ ] **Phase 36: Image Optimization & LCP** - Sub-2.5s LCP with optimized image loading and CLS prevention
 - [ ] **Phase 37: Codebase Cleanup** - Remove dead code and enforce directory structure
 - [ ] **Phase 38: Customer Offline Support** - Service worker caching and offline menu browsing
@@ -82,11 +82,19 @@ Plans:
   3. User experiences no layout shift when images load (CLS < 0.1)
   4. User on slow connection sees optimized images (quality 70, responsive sizes)
   5. Lighthouse mobile audit scores LCP < 2.5s and CLS < 0.1
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 36-01: TBD
-- [ ] 36-02: TBD
+- [ ] 36-01-PLAN.md - Config & Utilities (Next.js 16 qualities, quality=70 default)
+- [ ] 36-02-PLAN.md - Image Components (preload hero, eager loading, shimmer placeholders)
+- [ ] 36-03-PLAN.md - Verification (font swap, deferred maps, Lighthouse audit)
+
+**Details:**
+- Next.js 16 image config with qualities array
+- Hero image with preload prop for LCP
+- First 6 menu cards with eager loading
+- CardImage with responsive sizes and shimmer placeholder
+- Lighthouse audit to verify LCP < 2.5s and CLS < 0.1
 
 ### Phase 37: Codebase Cleanup
 **Goal**: Remove dead code and establish directory structure enforcement
@@ -146,7 +154,7 @@ Phases execute in numeric order: 35 -> 35.1 -> 36 -> 37 -> 38 -> 39
 |-------|-----------|----------------|--------|-----------|
 | 35. Mobile Crash Prevention | v1.4 | 3/3 | Complete | 2026-01-30 |
 | 35.1 Admin Photo Upload & Featured (INSERTED) | v1.4 | 5/5 | Complete | 2026-02-01 |
-| 36. Image Optimization & LCP | v1.4 | 0/2 | Not started | - |
+| 36. Image Optimization & LCP | v1.4 | 0/3 | Not started | - |
 | 37. Codebase Cleanup | v1.4 | 0/2 | Not started | - |
 | 38. Customer Offline Support | v1.4 | 0/3 | Not started | - |
 | 39. Animation Optimization | v1.4 | 0/2 | Not started | - |
