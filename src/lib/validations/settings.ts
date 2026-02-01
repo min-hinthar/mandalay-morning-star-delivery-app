@@ -83,9 +83,9 @@ export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>;
 // ===========================================
 
 export interface SettingsResponse {
-  delivery: Partial<DeliverySettings>;
-  operations: Partial<OperationsSettings>;
-  notifications: Partial<NotificationSettings>;
+  delivery: Record<string, unknown>;
+  operations: Record<string, unknown>;
+  notifications: Record<string, unknown>;
 }
 
 export interface SettingRow {
