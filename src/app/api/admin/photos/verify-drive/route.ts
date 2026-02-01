@@ -71,8 +71,9 @@ export async function POST(request: Request) {
       });
     }
 
-    // Construct direct image URL
-    const previewUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+    // Construct direct image URL using thumbnail API (more reliable than /uc for embedding)
+    // sz=w2000 gives a high-resolution version suitable for menu photos
+    const previewUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w2000`;
 
     // Try to verify accessibility with a HEAD request
     try {
