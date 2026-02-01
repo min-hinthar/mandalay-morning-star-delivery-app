@@ -357,6 +357,45 @@ export interface OrdersUpdate {
   updated_at?: string;
 }
 
+export type OrderAuditAction = "status_change" | "cancel" | "refund" | "edit";
+export type OrderAuditActorRole = "customer" | "admin" | "driver" | "system";
+
+export interface OrderAuditLogRow {
+  id: string;
+  order_id: string;
+  action: OrderAuditAction;
+  actor_id: string;
+  actor_role: OrderAuditActorRole;
+  old_value: Json | null;
+  new_value: Json | null;
+  reason: string | null;
+  created_at: string;
+}
+
+export interface OrderAuditLogInsert {
+  id?: string;
+  order_id: string;
+  action: OrderAuditAction;
+  actor_id: string;
+  actor_role: OrderAuditActorRole;
+  old_value?: Json | null;
+  new_value?: Json | null;
+  reason?: string | null;
+  created_at?: string;
+}
+
+export interface OrderAuditLogUpdate {
+  id?: string;
+  order_id?: string;
+  action?: OrderAuditAction;
+  actor_id?: string;
+  actor_role?: OrderAuditActorRole;
+  old_value?: Json | null;
+  new_value?: Json | null;
+  reason?: string | null;
+  created_at?: string;
+}
+
 export interface OrderItemsRow {
   id: string;
   order_id: string;
@@ -366,6 +405,7 @@ export interface OrderItemsRow {
   quantity: number;
   line_total_cents: number;
   special_instructions: string | null;
+  refunded_quantity: number;
   created_at: string;
 }
 
@@ -378,6 +418,7 @@ export interface OrderItemsInsert {
   quantity?: number;
   line_total_cents: number;
   special_instructions?: string | null;
+  refunded_quantity?: number;
   created_at?: string;
 }
 
@@ -390,6 +431,7 @@ export interface OrderItemsUpdate {
   quantity?: number;
   line_total_cents?: number;
   special_instructions?: string | null;
+  refunded_quantity?: number;
   created_at?: string;
 }
 
@@ -599,6 +641,27 @@ export type Database = {
           {
             foreignKeyName: "orders_user_id_fkey";
             columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      order_audit_log: {
+        Row: OrderAuditLogRow;
+        Insert: OrderAuditLogInsert;
+        Update: OrderAuditLogUpdate;
+        Relationships: [
+          {
+            foreignKeyName: "order_audit_log_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "order_audit_log_actor_id_fkey";
+            columns: ["actor_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
