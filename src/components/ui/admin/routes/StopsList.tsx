@@ -1,5 +1,6 @@
 "use client";
 
+import type { MutableRefObject } from "react";
 import { motion } from "framer-motion";
 import { Package } from "lucide-react";
 import { RouteStopCard } from "./RouteStopCard";
@@ -10,6 +11,7 @@ interface StopsListProps {
   routeStatus: RouteStatus;
   onStatusChange: (stopId: string, status: RouteStopStatus) => void;
   onRemoveStop: (stopId: string) => void;
+  stopRefs?: MutableRefObject<Record<string, HTMLDivElement | null>>;
 }
 
 export function StopsList({
@@ -17,6 +19,7 @@ export function StopsList({
   routeStatus,
   onStatusChange,
   onRemoveStop,
+  stopRefs,
 }: StopsListProps) {
   // Sort stops by stop_index
   const sortedStops = [...stops].sort((a, b) => a.stopIndex - b.stopIndex);
@@ -57,14 +60,22 @@ export function StopsList({
 
       <div className="space-y-4">
         {sortedStops.map((stop, index) => (
-          <RouteStopCard
+          <div
             key={stop.id}
-            stop={stop}
-            index={index}
-            routeStatus={routeStatus}
-            onStatusChange={onStatusChange}
-            onRemoveStop={onRemoveStop}
-          />
+            ref={(el) => {
+              if (stopRefs) {
+                stopRefs.current[stop.id] = el;
+              }
+            }}
+          >
+            <RouteStopCard
+              stop={stop}
+              index={index}
+              routeStatus={routeStatus}
+              onStatusChange={onStatusChange}
+              onRemoveStop={onRemoveStop}
+            />
+          </div>
         ))}
       </div>
     </motion.div>

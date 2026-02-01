@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -14,7 +14,6 @@ import {
   User,
   Phone,
   MessageSquare,
-  MapPin,
   Route,
   Zap,
 } from "lucide-react";
@@ -31,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { RouteStatsBar } from "./RouteStatsBar";
 import { StopsList } from "./StopsList";
+import { RouteMap } from "./RouteMap";
 import type { RouteStatus, RouteStopStatus, DriverListItem, StopDetail, RouteStats } from "@/types/driver";
 
 // API Response types
@@ -82,6 +82,17 @@ export function RouteDetailClient() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Refs for scroll-to-stop functionality
+  const stopRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Handle map marker click - scroll to stop card
+  const handleStopClick = useCallback((stopId: string) => {
+    stopRefs.current[stopId]?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, []);
 
   // Fetch route details
   const fetchRoute = useCallback(async () => {
@@ -476,17 +487,27 @@ export function RouteDetailClient() {
         </div>
       </motion.div>
 
-      {/* Map placeholder - to be replaced in plan 06 */}
+      {/* Route Map */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="h-64 bg-surface-secondary rounded-card-sm border border-border flex items-center justify-center"
+        className="h-[400px] rounded-card-sm overflow-hidden"
       >
-        <div className="text-center">
-          <MapPin className="h-10 w-10 text-text-muted mx-auto mb-2" />
-          <span className="text-text-muted">Map will be added in next update</span>
-        </div>
+        <RouteMap
+          stops={route.stops
+            .map((stop) => ({
+              id: stop.id,
+              stopIndex: stop.stopIndex,
+              status: stop.status,
+              lat: stop.order?.address?.lat || 0,
+              lng: stop.order?.address?.lng || 0,
+              hasException: Boolean(stop.exception && !stop.exception.resolved),
+            }))
+            .filter((s) => s.lat && s.lng)}
+          polyline={route.optimizedPolyline}
+          onStopClick={handleStopClick}
+        />
       </motion.div>
 
       {/* Stops List */}
@@ -495,6 +516,7 @@ export function RouteDetailClient() {
         routeStatus={route.status}
         onStatusChange={handleStopStatusChange}
         onRemoveStop={handleRemoveStop}
+        stopRefs={stopRefs}
       />
     </div>
   );
