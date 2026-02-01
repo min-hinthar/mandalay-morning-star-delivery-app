@@ -146,7 +146,8 @@ export function NavDots({
         "inline-flex items-center justify-center gap-2",
         "px-3 py-2",
         // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
-        "bg-surface-primary sm:bg-surface-primary/80 sm:backdrop-blur-md",
+        // eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution
+        "bg-white dark:bg-black sm:bg-white/80 sm:dark:bg-black/80 sm:backdrop-blur-md",
         "rounded-full border border-border-subtle",
         "shadow-lg",
         className

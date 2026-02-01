@@ -66,7 +66,8 @@ function ArrowButton({ direction, onClick, disabled, accentColor }: ArrowButtonP
             "flex items-center justify-center",
             "rounded-full",
             // MOBILE: No backdrop-blur (Safari crashes)
-            "bg-surface-primary md:bg-surface-primary/80 md:backdrop-blur-md",
+            // eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution
+            "bg-white dark:bg-black md:bg-white/80 md:dark:bg-black/80 md:backdrop-blur-md",
             "border border-border-subtle",
             "text-text-primary hover:text-primary",
             "shadow-lg hover:shadow-xl",
