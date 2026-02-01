@@ -353,6 +353,8 @@ export function Modal({
         )}
 
         {/* Modal Container - rendered separately to avoid Fragment inside AnimatePresence */}
+        {/* Mobile: No opacity animation on container - prevents transparency issues since blur is disabled */}
+        {/* Desktop: Container fades in/out for smooth appearance with backdrop blur */}
         {isOpen && (
           <motion.div
             key="modal-container"
@@ -362,10 +364,10 @@ export function Modal({
             )}
             style={{ zIndex: modalZIndex + 1 }}
             onClick={handleBackdropClick}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            initial={isMobile ? undefined : { opacity: 0 }}
+            animate={isMobile ? undefined : { opacity: 1 }}
+            exit={isMobile ? undefined : { opacity: 0 }}
+            transition={isMobile ? undefined : { duration: 0.15 }}
           >
             {/* Modal Content */}
             <motion.div
