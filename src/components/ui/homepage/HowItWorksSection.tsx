@@ -735,14 +735,15 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
       id={id}
       className={cn("relative py-16 md:py-24 px-4 overflow-hidden", className)}
     >
-      {/* Background Image */}
+      {/* Background Image - LCP optimized with preload */}
       <Image
         src="/images/sunset_ubein.png"
         alt="U Bein Bridge sunset"
         fill
         sizes="100vw"
         className="object-cover object-center"
-        priority
+        preload={true}
+        quality={85}
       />
 
       {/* Vignette overlay for text readability */}
