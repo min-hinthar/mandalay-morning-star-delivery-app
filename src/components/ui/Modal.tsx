@@ -386,8 +386,11 @@ export function Modal({
               className={cn(
                 // Base styles
                 "relative w-full",
-                // Solid background on mobile (no blur) - backdrop-blur-3xl causes mobile crashes
-                "bg-surface-primary dark:bg-gray-900 sm:bg-surface-primary/80 sm:dark:bg-gray-900/75 sm:backdrop-blur-xl border border-white/20 dark:border-white/10",
+                // Solid background - using opacity via rgba for cross-browser support
+                // Mobile: solid background (no blur to prevent crashes)
+                // Desktop: slight transparency with backdrop blur
+                "bg-surface-primary border border-border",
+                "sm:backdrop-blur-xl",
                 "shadow-xl",
                 "focus:outline-none",
                 // Mobile styles
