@@ -111,10 +111,14 @@ export const CardImage = memo(function CardImage({
       {/* Shine overlay - follows mouse during hover (desktop) */}
       {shouldAnimate && isHovered && (
         <motion.div
-          className={cn("absolute inset-0 pointer-events-none bg-gradient-card-shine", zClass.cardShine)}
+          className={cn(
+            "absolute pointer-events-none bg-gradient-card-shine",
+            "w-[150%] h-[150%]",
+            zClass.cardShine
+          )}
           style={{
-            left: shineX,
-            top: shineY,
+            x: shineX,
+            y: shineY,
           }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
