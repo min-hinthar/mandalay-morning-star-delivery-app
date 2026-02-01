@@ -46,7 +46,6 @@ export default async function HomePage(): Promise<ReactElement> {
             <MenuSection featuredSections={featuredSections} />
           </Suspense>
         }
-        featuredSections={featuredSections}
       />
     </main>
   );
