@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 36.1 of 39 (Routes & Driver Features) - In progress
-Plan: 6 of 11 complete in phase 36.1 (01, 02, 02-research, 03, 04, 07)
+Plan: 7 of 11 complete in phase 36.1 (01, 02, 02-research, 03, 04, 05, 07)
 Status: In progress
-Last activity: 2026-02-01 - Completed 36.1-07 (Admin Settings Page)
+Last activity: 2026-02-01 - Completed 36.1-05 (Route Detail Page)
 
-Progress: [###############################################-----------] v1.4 17/27 (63%)
+Progress: [################################################----------] v1.4 18/27 (67%)
 
 ## Milestones
 
@@ -26,13 +26,13 @@ Progress: [###############################################-----------] v1.4 17/2
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 16 | In progress |
 
-**Total completed:** 36.1 phases, 155 plans, 172 requirements
+**Total completed:** 36.1 phases, 156 plans, 173 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 156 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 17
+- Total plans completed: 157 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 18
 
 **By Phase (v1.4):**
 
@@ -41,7 +41,7 @@ Progress: [###############################################-----------] v1.4 17/2
 | 35 | 3/3 | Complete |
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
-| 36.1 | 6/11 | In progress |
+| 36.1 | 7/11 | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -90,6 +90,7 @@ Progress: [###############################################-----------] v1.4 17/2
 | 36.1-04 | Activity-focused layout | Per CONTEXT.md - recent routes/activity as main view |
 | 36.1-04 | Edit profile via modal | Consistent with menu item editing pattern |
 | 36.1-04 | Archive requires reason | Audit trail for driver management |
+| 36.1-05 | RouteStopCard naming | Avoid conflict with driver/StopCard component |
 | 36.1-07 | Reusable Tabs component | Generic tab UI for settings and future admin pages |
 | 36.1-07 | Currency cents display | Store cents, display dollars for UI clarity |
 | 36.1-07 | Deep JSON comparison | Detect settings changes for unsaved warning |
@@ -139,10 +140,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 36.1-07-PLAN.md (Admin Settings Page)
+Stopped at: Completed 36.1-05-PLAN.md (Route Detail Page)
 Resume file: None
-Next action: Continue with remaining Wave 2 plans
+Next action: Continue with 36.1-06-PLAN.md (Route Map with Polyline)
 
 ---
 
-*Updated: 2026-02-01 - Completed 36.1-07 with settings page, tabs component, and form components*
+*Updated: 2026-02-01 - Completed 36.1-05 with route detail page, stats bar, stop cards, and stops list*
