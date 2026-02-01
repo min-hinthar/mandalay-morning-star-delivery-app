@@ -59,11 +59,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 35.1-01-PLAN.md - Database schema + Supabase Storage setup (foundation)
-- [ ] 35.1-02-PLAN.md - Admin Photo Management (upload components, Photos page)
-- [ ] 35.1-03-PLAN.md - Admin Featured Sections Management (Sections page, CRUD)
-- [ ] 35.1-04-PLAN.md - Homepage Refactor (remove Browse All, render dynamic sections)
-- [ ] 35.1-05-PLAN.md - Integration & Polish (draft/publish workflow, live preview)
+- [x] 35.1-01-PLAN.md - Database schema + Supabase Storage setup (foundation)
+- [x] 35.1-02-PLAN.md - Admin Photo Management (upload components, Photos page)
+- [x] 35.1-03-PLAN.md - Admin Featured Sections Management (Sections page, CRUD)
+- [x] 35.1-04-PLAN.md - Homepage Refactor (remove Browse All, render dynamic sections)
+- [x] 35.1-05-PLAN.md - Integration & Polish (draft/publish workflow, live preview)
 
 **Details:**
 - Supabase Storage setup with proper RLS policies (admin-only write, public read)
@@ -145,7 +145,7 @@ Phases execute in numeric order: 35 -> 35.1 -> 36 -> 37 -> 38 -> 39
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 35. Mobile Crash Prevention | v1.4 | 3/3 | Complete | 2026-01-30 |
-| 35.1 Admin Photo Upload & Featured (INSERTED) | v1.4 | 0/5 | Planned | - |
+| 35.1 Admin Photo Upload & Featured (INSERTED) | v1.4 | 5/5 | Complete | 2026-02-01 |
 | 36. Image Optimization & LCP | v1.4 | 0/2 | Not started | - |
 | 37. Codebase Cleanup | v1.4 | 0/2 | Not started | - |
 | 38. Customer Offline Support | v1.4 | 0/3 | Not started | - |
