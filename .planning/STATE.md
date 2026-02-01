@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 36.1 of 39 (Routes & Driver Features) - In progress
-Plan: 9 of 11 complete in phase 36.1 (01, 02, 02-research, 03, 04, 05, 06, 07, 08)
+Plan: 10 of 11 complete in phase 36.1 (01, 02, 02-research, 03, 04, 05, 06, 07, 08, 10)
 Status: In progress
-Last activity: 2026-02-01 - Completed 36.1-06 (Route Map with Polyline)
+Last activity: 2026-02-01 - Completed 36.1-10 (Order Audit Log & Admin Actions)
 
-Progress: [##################################################--------] v1.4 20/27 (74%)
+Progress: [###################################################-------] v1.4 21/27 (78%)
 
 ## Milestones
 
@@ -26,13 +26,13 @@ Progress: [##################################################--------] v1.4 20/2
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 16 | In progress |
 
-**Total completed:** 36.1 phases, 157 plans, 174 requirements
+**Total completed:** 36.1 phases, 158 plans, 175 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 159 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 20
+- Total plans completed: 160 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 21
 
 **By Phase (v1.4):**
 
@@ -41,7 +41,7 @@ Progress: [##################################################--------] v1.4 20/2
 | 35 | 3/3 | Complete |
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
-| 36.1 | 9/11 | In progress |
+| 36.1 | 10/11 | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -100,6 +100,9 @@ Progress: [##################################################--------] v1.4 20/2
 | 36.1-06 | Marker fallback for missing MAP_ID | Ensures map works without advanced features |
 | 36.1-06 | Status color mapping | pending=blue, enroute/arrived=amber, delivered=green, skipped=gray |
 | 36.1-06 | Exception override to red | Red markers regardless of status when unresolved exception |
+| 36.1-10 | Immutable audit log | No UPDATE or DELETE policies on order_audit_log |
+| 36.1-10 | refunded_quantity column | Track partial refunds at item level |
+| 36.1-10 | Json type casting for JSONB | TypeScript type compatibility with Supabase JSONB columns |
 
 ### Roadmap Evolution
 
@@ -146,10 +149,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 36.1-06-PLAN.md (Route Map with Polyline)
+Stopped at: Completed 36.1-10-PLAN.md (Order Audit Log & Admin Actions)
 Resume file: None
-Next action: Continue with 36.1-09-PLAN.md (Customer Account Page UI) or 36.1-10-PLAN.md (Order Actions APIs)
+Next action: Continue with 36.1-09-PLAN.md (Customer Account Page UI) or 36.1-11-PLAN.md
 
 ---
 
-*Updated: 2026-02-01 - Completed 36.1-06 with RouteMap component and scroll-to-stop interaction*
+*Updated: 2026-02-01 - Completed 36.1-10 with order audit log migration, validation schemas, and cancel/refund APIs*
