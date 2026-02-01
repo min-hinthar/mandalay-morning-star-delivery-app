@@ -105,8 +105,22 @@ export async function PATCH(
       );
     }
 
-    // If assigning an unassigned photo, optionally clean up the unassigned storage
-    // (storage cleanup is handled separately or via background job)
+    // If assigning an unassigned photo, clean up the unassigned storage
+    if (isUnassignedPhoto) {
+      // Extract filename from id (format: unassigned-{filename})
+      const filename = id.replace("unassigned-", "");
+      const storagePath = `unassigned/${filename}`;
+
+      // Delete from unassigned folder (best effort - don't fail if this fails)
+      try {
+        await auth.supabase.storage
+          .from("menu-photos")
+          .remove([storagePath]);
+      } catch (cleanupError) {
+        logger.exception(cleanupError, { api: "admin/photos/[id]", flowId: "cleanup-unassigned" });
+        // Continue - the assignment was successful even if cleanup failed
+      }
+    }
 
     return NextResponse.json({
       success: true,

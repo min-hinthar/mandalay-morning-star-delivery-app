@@ -37,6 +37,22 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Allow Supabase Storage and Google Drive images
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+      {
+        protocol: "https",
+        hostname: "drive.google.com",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+    ],
   },
 
   // Experimental optimizations
