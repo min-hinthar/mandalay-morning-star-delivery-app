@@ -92,7 +92,7 @@ export const CardImage = memo(function CardImage({
             src={imageUrl}
             alt={alt}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            sizes="(max-width: 1024px) 50vw, 33vw"
             priority={priority}
             variant="blur-scale"
             className="object-cover"
