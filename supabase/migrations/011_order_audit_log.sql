@@ -62,3 +62,9 @@ CREATE POLICY "Authenticated users can insert audit logs"
 
 -- No updates or deletes - audit log is immutable
 -- (No UPDATE or DELETE policies)
+
+-- ===========================================
+-- Add refunded_quantity to order_items
+-- ===========================================
+ALTER TABLE order_items
+ADD COLUMN IF NOT EXISTS refunded_quantity INTEGER DEFAULT 0 CHECK (refunded_quantity >= 0);
