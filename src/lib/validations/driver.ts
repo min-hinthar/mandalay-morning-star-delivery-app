@@ -26,7 +26,13 @@ export const toggleDriverActiveSchema = z.object({
   isActive: z.boolean(),
 });
 
+// Archive driver schema
+export const archiveDriverSchema = z.object({
+  reason: z.string().min(10, "Reason must be at least 10 characters").max(500, "Reason too long"),
+});
+
 // Type exports
 export type CreateDriverInput = z.infer<typeof createDriverSchema>;
 export type UpdateDriverInput = z.infer<typeof updateDriverSchema>;
 export type ToggleDriverActiveInput = z.infer<typeof toggleDriverActiveSchema>;
+export type ArchiveDriverInput = z.infer<typeof archiveDriverSchema>;
