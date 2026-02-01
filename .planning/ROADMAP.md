@@ -23,6 +23,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 35: Mobile Crash Prevention** - Zero crashes on mobile devices via systematic cleanup patterns
 - [x] **Phase 35.1: Admin Photo Upload & Featured Management (INSERTED)** - Supabase image storage, remove Browse All Dishes, expand Featured Dishes with admin management
 - [x] **Phase 36: Image Optimization & LCP** - Sub-2.5s LCP with optimized image loading and CLS prevention
+- [ ] **Phase 36.1: Routes & Driver Features (INSERTED)** - Complete missing page routes and admin driver management
 - [ ] **Phase 37: Codebase Cleanup** - Remove dead code and enforce directory structure
 - [ ] **Phase 38: Customer Offline Support** - Service worker caching and offline menu browsing
 - [ ] **Phase 39: Animation Optimization** - Device-adaptive animations and conflict resolution
@@ -98,9 +99,30 @@ Plans:
 - CardImage with responsive sizes and shimmer placeholder
 - Lighthouse audit to verify LCP < 2.5s and CLS < 0.1
 
+### Phase 36.1: Routes & Driver Features (INSERTED)
+**Goal**: Complete all missing page routes and implement admin driver management features
+**Depends on**: Phase 36
+**Requirements**: TBD (to be defined during planning)
+**Success Criteria** (what must be TRUE):
+  1. All planned page routes are implemented and accessible
+  2. Admin can manage drivers (create, edit, assign, deactivate)
+  3. Driver assignment workflow integrated with order management
+  4. No 404 errors on any linked navigation items
+  5. Build succeeds with all new routes
+**Plans**: TBD
+
+Plans:
+- [ ] 36.1-01: TBD (run /gsd:plan-phase 36.1 to break down)
+
+**Details:**
+- Missing page routes completion
+- Admin driver CRUD operations
+- Driver-order assignment features
+- Navigation link verification
+
 ### Phase 37: Codebase Cleanup
 **Goal**: Remove dead code and establish directory structure enforcement
-**Depends on**: Phase 35 (can run parallel with Phase 36)
+**Depends on**: Phase 36.1
 **Requirements**: REFACTOR-01, REFACTOR-02, REFACTOR-03, REFACTOR-04, REFACTOR-05, REFACTOR-06, REFACTOR-07, REFACTOR-08
 **Success Criteria** (what must be TRUE):
   1. Build succeeds with no imports from deleted files
@@ -157,6 +179,7 @@ Phases execute in numeric order: 35 -> 35.1 -> 36 -> 37 -> 38 -> 39
 | 35. Mobile Crash Prevention | v1.4 | 3/3 | Complete | 2026-01-30 |
 | 35.1 Admin Photo Upload & Featured (INSERTED) | v1.4 | 5/5 | Complete | 2026-02-01 |
 | 36. Image Optimization & LCP | v1.4 | 3/3 | Complete | 2026-02-01 |
+| 36.1 Routes & Driver Features (INSERTED) | v1.4 | 0/? | Not started | - |
 | 37. Codebase Cleanup | v1.4 | 0/2 | Not started | - |
 | 38. Customer Offline Support | v1.4 | 0/3 | Not started | - |
 | 39. Animation Optimization | v1.4 | 0/2 | Not started | - |
@@ -238,6 +261,7 @@ See MILESTONES.md for details.
 | Mobile Crash Prevention | CRASH-01 to CRASH-10 | Phase 35 | 10 |
 | Admin Photo Upload & Featured | ADMIN-PHOTO-01 to 05, FEATURED-01 to 05 | Phase 35.1 | 10 |
 | Image Optimization & LCP | IMAGE-01 to IMAGE-10 | Phase 36 | 10 |
+| Routes & Driver Features | TBD | Phase 36.1 | TBD |
 | Codebase Refactoring | REFACTOR-01 to REFACTOR-08 | Phase 37 | 8 |
 | Customer Offline Support | OFFLINE-01 to OFFLINE-12 | Phase 38 | 12 |
 | Animation Optimization | ANIM-01 to ANIM-09 | Phase 39 | 9 |

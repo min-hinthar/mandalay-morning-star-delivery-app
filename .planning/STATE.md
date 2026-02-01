@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 37 - Codebase Cleanup (NEXT)
+**Current focus:** Phase 36.1 - Routes & Driver Features (NEXT)
 
 ## Current Position
 
@@ -85,6 +85,10 @@ Progress: [###########################################-------------] v1.4 11/16 
   - Remove Browse All Dishes section from homepage
   - Expand Featured Dishes with admin-manageable sections
   - Admin dashboard for featured section CRUD
+- Phase 36.1 inserted after Phase 36: Routes & Driver Features (URGENT)
+  - Complete missing page routes
+  - Admin driver management features
+  - Must complete before codebase cleanup (Phase 37)
 
 ### Performance Findings (Phase 36)
 
