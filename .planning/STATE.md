@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 36.1 of 39 (Routes & Driver Features) - In progress
-Plan: 8 of 11 complete in phase 36.1 (01, 02, 02-research, 03, 04, 05, 07, 08)
+Plan: 9 of 11 complete in phase 36.1 (01, 02, 02-research, 03, 04, 05, 06, 07, 08)
 Status: In progress
-Last activity: 2026-02-01 - Completed 36.1-08 (Customer Account APIs)
+Last activity: 2026-02-01 - Completed 36.1-06 (Route Map with Polyline)
 
-Progress: [#################################################---------] v1.4 19/27 (70%)
+Progress: [##################################################--------] v1.4 20/27 (74%)
 
 ## Milestones
 
@@ -31,8 +31,8 @@ Progress: [#################################################---------] v1.4 19/2
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 158 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 19
+- Total plans completed: 159 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 20
 
 **By Phase (v1.4):**
 
@@ -41,7 +41,7 @@ Progress: [#################################################---------] v1.4 19/2
 | 35 | 3/3 | Complete |
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
-| 36.1 | 8/11 | In progress |
+| 36.1 | 9/11 | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -97,6 +97,9 @@ Progress: [#################################################---------] v1.4 19/2
 | 36.1-08 | Reorder returns cart items | Server validates, client handles cart state |
 | 36.1-08 | Cancel window status-based | Only pending/confirmed cancellable by customer |
 | 36.1-08 | Max 5 addresses per user | Enforced at API level with ADDRESS_LIMIT error |
+| 36.1-06 | Marker fallback for missing MAP_ID | Ensures map works without advanced features |
+| 36.1-06 | Status color mapping | pending=blue, enroute/arrived=amber, delivered=green, skipped=gray |
+| 36.1-06 | Exception override to red | Red markers regardless of status when unresolved exception |
 
 ### Roadmap Evolution
 
@@ -143,10 +146,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 36.1-08-PLAN.md (Customer Account APIs)
+Stopped at: Completed 36.1-06-PLAN.md (Route Map with Polyline)
 Resume file: None
-Next action: Continue with 36.1-06-PLAN.md (Route Map with Polyline)
+Next action: Continue with 36.1-09-PLAN.md (Customer Account Page UI) or 36.1-10-PLAN.md (Order Actions APIs)
 
 ---
 
-*Updated: 2026-02-01 - Completed 36.1-08 with profile, addresses, reorder, and cancel APIs*
+*Updated: 2026-02-01 - Completed 36.1-06 with RouteMap component and scroll-to-stop interaction*
