@@ -114,6 +114,11 @@ export default function AdminMenuItemEditPage() {
         tags: data.tags || [],
         image_url: data.image_url,
       });
+      // Pre-populate Drive URL if current image is from Google Drive
+      if (data.image_url && data.image_url.includes("drive.google.com")) {
+        setDriveUrl(data.image_url);
+        setDrivePreview(data.image_url);
+      }
     } catch {
       toast({ title: "Error", description: "Failed to fetch menu item", variant: "destructive" });
     } finally {
@@ -220,23 +225,26 @@ export default function AdminMenuItemEditPage() {
         throw new Error("Invalid Google Drive URL format");
       }
 
-      // Construct direct link
-      const directUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+      // Construct URL for verification (API will return optimized previewUrl)
+      const driveUrlForVerify = `https://drive.google.com/file/d/${fileId}/view`;
 
-      // Verify URL is accessible via API
+      // Verify URL is accessible via API - returns optimized thumbnail URL
       const response = await fetch("/api/admin/photos/verify-drive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: directUrl }),
+        body: JSON.stringify({ url: driveUrlForVerify }),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "URL not accessible");
+      const verifyData = await response.json();
+
+      if (!response.ok || !verifyData.valid) {
+        throw new Error(verifyData.error || "URL not accessible");
       }
 
-      setDrivePreview(directUrl);
-      setFormData((prev) => ({ ...prev, image_url: directUrl }));
+      // Use the API's returned previewUrl (thumbnail format for reliability)
+      const imageUrl = verifyData.previewUrl;
+      setDrivePreview(imageUrl);
+      setFormData((prev) => ({ ...prev, image_url: imageUrl }));
       toast({ title: "URL verified", description: "Image is accessible. Save to apply." });
     } catch (err) {
       toast({
@@ -605,7 +613,17 @@ export default function AdminMenuItemEditPage() {
                     alt="Preview"
                     className="w-20 h-20 rounded-input object-cover border border-green"
                   />
-                  <p className="text-xs text-green mt-1">URL verified</p>
+                  <p className="text-xs text-green mt-1">
+                    {formData.image_url === drivePreview ? "Current saved URL" : "URL verified - Save to apply"}
+                  </p>
+                </div>
+              )}
+              {/* Show full URL for reference */}
+              {formData.image_url && formData.image_url.includes("drive.google.com") && (
+                <div className="mt-2">
+                  <p className="text-xs text-text-muted break-all bg-surface-tertiary p-2 rounded-input">
+                    {formData.image_url}
+                  </p>
                 </div>
               )}
             </div>

@@ -56,6 +56,7 @@ export function PhotoMetadata({
     "idle" | "verifying" | "valid" | "invalid"
   >("idle");
   const [driveError, setDriveError] = useState<string | null>(null);
+  const [verifiedPreviewUrl, setVerifiedPreviewUrl] = useState<string | null>(null);
   const [isAssigning, setIsAssigning] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingDrive, setIsSavingDrive] = useState(false);
@@ -66,6 +67,7 @@ export function PhotoMetadata({
     setDriveUrl("");
     setDriveStatus("idle");
     setDriveError(null);
+    setVerifiedPreviewUrl(null);
   }, [photo?.id]);
 
   if (!photo) {
@@ -98,6 +100,7 @@ export function PhotoMetadata({
 
     setDriveStatus("verifying");
     setDriveError(null);
+    setVerifiedPreviewUrl(null);
 
     try {
       const response = await fetch("/api/admin/photos/verify-drive", {
@@ -108,8 +111,9 @@ export function PhotoMetadata({
 
       const data = await response.json();
 
-      if (data.valid) {
+      if (data.valid && data.previewUrl) {
         setDriveStatus("valid");
+        setVerifiedPreviewUrl(data.previewUrl);
       } else {
         setDriveStatus("invalid");
         setDriveError(data.error || "Could not verify URL");
@@ -121,12 +125,14 @@ export function PhotoMetadata({
   };
 
   const handleSaveDriveUrl = async () => {
-    if (driveStatus !== "valid") return;
+    if (driveStatus !== "valid" || !verifiedPreviewUrl) return;
     setIsSavingDrive(true);
     try {
-      await onGoogleDriveLink(photo.id, driveUrl);
+      // Use the API's verified preview URL (optimized thumbnail format)
+      await onGoogleDriveLink(photo.id, verifiedPreviewUrl);
       setDriveUrl("");
       setDriveStatus("idle");
+      setVerifiedPreviewUrl(null);
     } finally {
       setIsSavingDrive(false);
     }
@@ -194,6 +200,15 @@ export function PhotoMetadata({
             </Badge>
           </div>
         </div>
+        {/* Show current URL if it's a Google Drive URL */}
+        {photo.imageUrl && photo.imageUrl.includes("drive.google.com") && (
+          <div>
+            <label className="text-xs font-body text-text-muted">Current URL</label>
+            <p className="font-body text-xs text-text-secondary break-all bg-surface-tertiary p-2 rounded-input mt-1">
+              {photo.imageUrl}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Assign to Menu Item */}
