@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 36 - Image Optimization & LCP (IN PROGRESS)
+**Current focus:** Phase 36 - Image Optimization & LCP (COMPLETE)
 
 ## Current Position
 
 Phase: 36 of 39 (Image Optimization & LCP)
-Plan: 1 of 2 complete in phase 36
-Status: In progress
-Last activity: 2026-02-01 - Completed 36-01-PLAN.md
+Plan: 2 of 2 complete in phase 36
+Status: Phase complete
+Last activity: 2026-02-01 - Completed 36-02-PLAN.md
 
-Progress: [######################################------------------] v1.4 9/16 (56%)
+Progress: [########################################----------------] v1.4 10/16 (63%)
 
 ## Milestones
 
@@ -31,8 +31,8 @@ Progress: [######################################------------------] v1.4 9/16 (
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 148 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 9
+- Total plans completed: 149 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 10
 
 **By Phase (v1.4):**
 
@@ -40,7 +40,7 @@ Progress: [######################################------------------] v1.4 9/16 (
 |-------|-------|--------|
 | 35 | 3/3 | Complete |
 | 35.1 | 5/5 | Complete |
-| 36 | 1/2 | In progress |
+| 36 | 2/2 | Complete |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -73,6 +73,9 @@ Progress: [######################################------------------] v1.4 9/16 (
 | 35.1-04 | Browse All Dishes replaced with CTA | "See Full Menu" links to /menu page |
 | 36-01 | Quality 70 as default for menu images | Visual quality maintained with ~30% smaller files |
 | 36-01 | Quality 85 available for hero images | Higher quality for LCP images where it matters |
+| 36-02 | preload prop for hero images | Next.js 16 naming over priority |
+| 36-02 | Shimmer placeholder during image load | Better UX while images load |
+| 36-02 | Responsive sizes attribute | srcset optimization for different viewports |
 
 ### Roadmap Evolution
 
@@ -95,10 +98,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 36-01-PLAN.md (Image Optimization Config)
+Stopped at: Completed 36-02-PLAN.md (Hero Image LCP)
 Resume file: None
-Next action: Execute 36-02-PLAN.md (Hero Image LCP)
+Next action: Begin Phase 37 (Touch Gestures)
 
 ---
 
-*Updated: 2026-02-01 - Completed Phase 36 Plan 01 (Image Optimization Config)*
+*Updated: 2026-02-01 - Completed Phase 36 Plan 02 (Hero Image LCP) - Phase 36 complete*
