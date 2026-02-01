@@ -560,6 +560,27 @@ export { SearchInputV8 } from "./SearchInputV8";
 
 ---
 
+## 2026-02-01: Tailwind v4 Semantic Tokens Don't Resolve on Mobile
+
+**Context:** Modal, Drawer, navigation dots showing transparent backgrounds on mobile while desktop worked fine
+**Learning:** Tailwind v4's `@theme inline` block processes BEFORE `tokens.css` is imported. CSS variables like `--color-surface-primary` aren't available when utilities are generated. Desktop masks this with `backdrop-blur`, but mobile has blur disabled (Safari crash prevention).
+
+**Fix:** Use explicit Tailwind colors instead of semantic tokens for mobile-critical backgrounds:
+```tsx
+// ❌ Transparent on mobile - CSS var not resolved
+className="bg-surface-primary"
+
+// ✅ Works on all devices - explicit color with blur on desktop only
+// eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution
+className="bg-white dark:bg-black md:bg-white/80 md:dark:bg-black/80 md:backdrop-blur-md"
+```
+
+**Affected components:** Modal, Drawer, MobileDrawer, ItemDetailSheet, CartBar, NavDots, SectionNavDots, SectionCarousel
+
+**Apply when:** Any fixed/floating UI element that needs solid background on mobile. Signs: element appears transparent on mobile Safari/Chrome but works on desktop.
+
+---
+
 ## 2026-01-27: ESLint Guards for Consolidated Directories
 
 **Context:** Phase 33 consolidated 8 directories into ui/ subdirectories. Needed to prevent accidental recreation.
