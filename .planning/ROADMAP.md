@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 35: Mobile Crash Prevention** - Zero crashes on mobile devices via systematic cleanup patterns
 - [x] **Phase 35.1: Admin Photo Upload & Featured Management (INSERTED)** - Supabase image storage, remove Browse All Dishes, expand Featured Dishes with admin management
-- [ ] **Phase 36: Image Optimization & LCP** - Sub-2.5s LCP with optimized image loading and CLS prevention
+- [x] **Phase 36: Image Optimization & LCP** - Sub-2.5s LCP with optimized image loading and CLS prevention
 - [ ] **Phase 37: Codebase Cleanup** - Remove dead code and enforce directory structure
 - [ ] **Phase 38: Customer Offline Support** - Service worker caching and offline menu browsing
 - [ ] **Phase 39: Animation Optimization** - Device-adaptive animations and conflict resolution
@@ -85,9 +85,11 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 36-01-PLAN.md - Config & Utilities (Next.js 16 qualities, quality=70 default)
-- [ ] 36-02-PLAN.md - Image Components (preload hero, eager loading, shimmer placeholders)
-- [ ] 36-03-PLAN.md - Verification (font swap, deferred maps, Lighthouse audit)
+- [x] 36-01-PLAN.md - Config & Utilities (Next.js 16 qualities, quality=70 default)
+- [x] 36-02-PLAN.md - Image Components (preload hero, eager loading, shimmer placeholders)
+- [x] 36-03-PLAN.md - Verification (font swap, deferred maps, Lighthouse audit)
+
+**Note:** LCP target (< 2.5s) blocked by JavaScript execution (21.6s main thread work), not image loading. CLS: 0 (perfect). Image optimization complete. JS performance requires future phase.
 
 **Details:**
 - Next.js 16 image config with qualities array
@@ -154,7 +156,7 @@ Phases execute in numeric order: 35 -> 35.1 -> 36 -> 37 -> 38 -> 39
 |-------|-----------|----------------|--------|-----------|
 | 35. Mobile Crash Prevention | v1.4 | 3/3 | Complete | 2026-01-30 |
 | 35.1 Admin Photo Upload & Featured (INSERTED) | v1.4 | 5/5 | Complete | 2026-02-01 |
-| 36. Image Optimization & LCP | v1.4 | 0/3 | Not started | - |
+| 36. Image Optimization & LCP | v1.4 | 3/3 | Complete | 2026-02-01 |
 | 37. Codebase Cleanup | v1.4 | 0/2 | Not started | - |
 | 38. Customer Offline Support | v1.4 | 0/3 | Not started | - |
 | 39. Animation Optimization | v1.4 | 0/2 | Not started | - |

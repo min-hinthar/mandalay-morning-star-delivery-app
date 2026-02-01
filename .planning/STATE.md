@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 36 - Image Optimization & LCP (COMPLETE)
+**Current focus:** Phase 37 - Codebase Cleanup (NEXT)
 
 ## Current Position
 
-Phase: 36 of 39 (Image Optimization & LCP)
-Plan: 2 of 2 complete in phase 36
-Status: Phase complete
-Last activity: 2026-02-01 - Completed 36-02-PLAN.md
+Phase: 36 of 39 (Image Optimization & LCP) - COMPLETE
+Plan: 3 of 3 complete in phase 36
+Status: Phase complete, ready for Phase 37
+Last activity: 2026-02-01 - Completed Phase 36 verification
 
-Progress: [########################################----------------] v1.4 10/16 (63%)
+Progress: [###########################################-------------] v1.4 11/16 (69%)
 
 ## Milestones
 
@@ -26,13 +26,13 @@ Progress: [########################################----------------] v1.4 10/16 
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 16 | In progress |
 
-**Total completed:** 36 phases, 148 plans, 170 requirements
+**Total completed:** 36.1 phases, 149 plans, 170 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 149 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 10
+- Total plans completed: 150 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 11
 
 **By Phase (v1.4):**
 
@@ -40,7 +40,7 @@ Progress: [########################################----------------] v1.4 10/16 
 |-------|-------|--------|
 | 35 | 3/3 | Complete |
 | 35.1 | 5/5 | Complete |
-| 36 | 2/2 | Complete |
+| 36 | 3/3 | Complete |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -76,6 +76,7 @@ Progress: [########################################----------------] v1.4 10/16 
 | 36-02 | preload prop for hero images | Next.js 16 naming over priority |
 | 36-02 | Shimmer placeholder during image load | Better UX while images load |
 | 36-02 | Responsive sizes attribute | srcset optimization for different viewports |
+| 36-03 | LCP blocked by JS, not images | CLS: 0 (perfect), LCP needs JS optimization phase |
 
 ### Roadmap Evolution
 
@@ -84,6 +85,26 @@ Progress: [########################################----------------] v1.4 10/16 
   - Remove Browse All Dishes section from homepage
   - Expand Featured Dishes with admin-manageable sections
   - Admin dashboard for featured section CRUD
+
+### Performance Findings (Phase 36)
+
+**Image Optimization: COMPLETE**
+- CLS: 0 (target < 0.1) - shimmer placeholders prevent layout shift
+- Hero preload, responsive sizes, quality optimization all working
+
+**JavaScript Performance: FUTURE PHASE NEEDED**
+- LCP: 8.1s (target < 2.5s) - blocked by JS execution
+- Main thread work: 21.6s
+- Unused JavaScript: 482 KiB potential savings
+- TBT: 5.3s
+- LCP element is FloatingEmoji (decorative), not content
+
+**Recommended Future Work:**
+1. Defer FloatingEmoji rendering until after LCP
+2. Bundle splitting for heavy dependencies
+3. Tree-shake unused code (482 KiB)
+4. Defer Sentry initialization
+5. Consider dynamic imports for Framer Motion
 
 ### Research Flags
 
@@ -98,10 +119,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 36-02-PLAN.md (Hero Image LCP)
+Stopped at: Completed Phase 36 (Image Optimization & LCP)
 Resume file: None
-Next action: Begin Phase 37 (Touch Gestures)
+Next action: Begin Phase 37 (Codebase Cleanup)
 
 ---
 
-*Updated: 2026-02-01 - Completed Phase 36 Plan 02 (Hero Image LCP) - Phase 36 complete*
+*Updated: 2026-02-01 - Completed Phase 36 with CLS: 0, documented JS performance findings for future phase*
