@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { getFeaturedSections } from "@/lib/queries/sections";
 import { HomePageClient } from "@/components/ui/homepage/HomePageClient";
 import { HomepageMenuSection } from "@/components/ui/homepage/HomepageMenuSection";
+import type { FeaturedSectionWithItems } from "@/types/featured-sections";
 
 // Loading skeleton for menu section
 function MenuSkeleton() {
@@ -28,21 +29,24 @@ function MenuSkeleton() {
   );
 }
 
-// Server component to fetch sections data
-async function MenuLoader() {
-  const featuredSections = await getFeaturedSections();
+// Client component wrapper for the menu section
+function MenuSection({ featuredSections }: { featuredSections: FeaturedSectionWithItems[] }) {
   return <HomepageMenuSection featuredSections={featuredSections} />;
 }
 
-export default function HomePage(): ReactElement {
+export default async function HomePage(): Promise<ReactElement> {
+  // Fetch featured sections at page level to pass to both nav dots and menu section
+  const featuredSections = await getFeaturedSections();
+
   return (
     <main className="min-h-screen bg-background">
       <HomePageClient
         menuSection={
           <Suspense fallback={<MenuSkeleton />}>
-            <MenuLoader />
+            <MenuSection featuredSections={featuredSections} />
           </Suspense>
         }
+        featuredSections={featuredSections}
       />
     </main>
   );
