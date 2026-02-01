@@ -43,7 +43,14 @@ export const reorderStopsSchema = z.object({
 // Update stop status
 export const updateStopStatusSchema = z.object({
   status: routeStopStatusSchema,
-  deliveryNotes: z.string().max(500, "Notes too long").optional(),
+  reason: z.string().min(5).max(500).optional(), // Required for admin overrides
+  deliveryNotes: z.string().max(1000).optional(),
+});
+
+// Exception resolution
+export const resolveExceptionSchema = z.object({
+  resolutionNotes: z.string().min(10, "Resolution notes must be at least 10 characters").max(1000),
+  newDeliveryDate: z.string().optional(), // ISO date for rescheduling
 });
 
 // Route optimization request
@@ -57,4 +64,5 @@ export type UpdateRouteInput = z.infer<typeof updateRouteSchema>;
 export type AddStopsInput = z.infer<typeof addStopsSchema>;
 export type ReorderStopsInput = z.infer<typeof reorderStopsSchema>;
 export type UpdateStopStatusInput = z.infer<typeof updateStopStatusSchema>;
+export type ResolveExceptionInput = z.infer<typeof resolveExceptionSchema>;
 export type OptimizeRouteInput = z.infer<typeof optimizeRouteSchema>;
