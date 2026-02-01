@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState } from "react";
 import { motion, MotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -57,6 +57,8 @@ export const CardImage = memo(function CardImage({
   className,
 }: CardImageProps) {
   const { shouldAnimate } = useAnimationPreference();
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   // Parallax transforms (+-10px)
   const imageX = useTransform(mouseX, [0, 1], [-10, 10]);
@@ -76,6 +78,11 @@ export const CardImage = memo(function CardImage({
         className
       )}
     >
+      {/* Shimmer placeholder - shows until image loads */}
+      {imageUrl && !isLoaded && !hasError && (
+        <div className="absolute inset-0 bg-surface-tertiary animate-pulse" />
+      )}
+
       {/* Image with parallax */}
       <motion.div
         className="absolute inset-0"
@@ -86,14 +93,21 @@ export const CardImage = memo(function CardImage({
         }}
         transition={{ duration: 0.3 }}
       >
-        {imageUrl ? (
+        {imageUrl && !hasError ? (
           /* Plain img tag like cart drawer - reliable across all devices and URL types */
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={imageUrl}
             alt={alt}
-            className="w-full h-full object-cover"
+            className={cn(
+              "w-full h-full object-cover",
+              "transition-opacity duration-150",
+              isLoaded ? "opacity-100" : "opacity-0"
+            )}
             loading={priority ? "eager" : "lazy"}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            onLoad={() => setIsLoaded(true)}
+            onError={() => setHasError(true)}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-surface">
