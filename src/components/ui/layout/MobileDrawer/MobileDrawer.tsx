@@ -101,7 +101,8 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
           key="drawer-panel"
           className={cn(
             "fixed left-0 top-0 bottom-0 w-[85%] max-w-sm",
-            "bg-surface-primary",
+            // eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution
+            "bg-white dark:bg-black",
             "rounded-r-2xl shadow-2xl",
             "flex flex-col",
             zClass.modal

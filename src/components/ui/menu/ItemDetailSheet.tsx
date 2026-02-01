@@ -305,7 +305,8 @@ export function ItemDetailSheet({
         </div>
 
         {/* Footer with Add to Cart */}
-        <div className="shrink-0 border-t border-border p-4 bg-surface-primary dark:bg-surface-primary safe-area-inset-bottom">
+        {/* eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution */}
+        <div className="shrink-0 border-t border-border p-4 bg-white dark:bg-black safe-area-inset-bottom">
           {/* Validation Error */}
           {!validation.isValid && validation.errors[0] && (
             <p className="mb-2 text-sm text-status-error">{validation.errors[0]}</p>

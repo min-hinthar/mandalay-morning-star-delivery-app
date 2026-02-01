@@ -277,10 +277,11 @@ export function Drawer({
             tabIndex={-1}
             className={cn(
               "fixed z-50",
-              // Solid background - using semantic tokens for theme support
-              // Mobile: solid background (no blur to prevent crashes)
+              // Solid background - using explicit white/black for mobile reliability
+              // Mobile: solid bg-white/bg-black (no blur to prevent crashes)
               // Desktop: backdrop blur for depth
-              "bg-surface-primary border border-border",
+              // eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution
+              "bg-white dark:bg-black border border-border",
               "sm:backdrop-blur-xl",
               "shadow-xl",
               "outline-none",

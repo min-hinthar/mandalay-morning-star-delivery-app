@@ -388,10 +388,11 @@ export function Modal({
               className={cn(
                 // Base styles
                 "relative w-full",
-                // Solid background - using opacity via rgba for cross-browser support
-                // Mobile: solid background (no blur to prevent crashes)
+                // Solid background - using explicit white/black for mobile reliability
+                // Mobile: solid bg-white/bg-black (no blur to prevent crashes)
                 // Desktop: slight transparency with backdrop blur
-                "bg-surface-primary border border-border",
+                // eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution
+                "bg-white dark:bg-black border border-border",
                 "sm:backdrop-blur-xl",
                 "shadow-xl",
                 "focus:outline-none",
