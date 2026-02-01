@@ -24,12 +24,12 @@ interface SectionNavDotsProps {
 }
 
 /**
- * iOS-style side navigation dots for scrolling between sections.
+ * Compact iOS-style side navigation dots for scrolling between sections.
  *
  * Features:
  * - Fixed position on right side (visible on all screens)
- * - Unfilled ring dots with filled active state
- * - Hover reveals section label tooltip
+ * - Filled opaque dots with larger active state
+ * - Hover reveals section label tooltip (clears on selection)
  * - Snap-to-section scroll with haptic feedback
  * - Press-and-hold visual feedback like iOS
  * - Uses IntersectionObserver-based useScrollSpy
@@ -61,6 +61,8 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
   const handleClick = useCallback((index: number) => {
     // Trigger haptic feedback for tactile response
     triggerHaptic("medium");
+    // Clear tooltip on selection
+    setHoveredIndex(null);
 
     const el = document.getElementById(sections[index].id);
     if (el) {
@@ -93,15 +95,15 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
     <nav
       className={cn(
         // Fixed positioning, vertically centered on right
-        "fixed right-3 md:right-4 lg:right-8 top-1/2 -translate-y-1/2",
-        // Comfortable gap between dots
-        "flex flex-col gap-3 md:gap-4",
-        // Pill container styling
+        "fixed right-2 md:right-3 top-1/2 -translate-y-1/2",
+        // Compact gap between dots
+        "flex flex-col gap-2",
+        // Compact pill container
         // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
-        "px-2.5 py-3 md:py-4 rounded-full",
+        "px-1.5 py-2 rounded-full",
         // eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution
-        "bg-white/70 dark:bg-black/60 md:bg-white/60 md:dark:bg-black/50 md:backdrop-blur-md",
-        "border border-border-subtle shadow-lg",
+        "bg-white/80 dark:bg-black/70 md:bg-white/70 md:dark:bg-black/60 md:backdrop-blur-md",
+        "border border-border-subtle/50 shadow-md",
         // Z-index above content but below modals
         zClass.fixed,
         className
@@ -123,10 +125,10 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
             onMouseUp={handlePressEnd}
             onTouchStart={() => handlePressStart(index)}
             onTouchEnd={handlePressEnd}
-            // Larger touch target
-            className="group relative flex items-center justify-center p-1.5"
-            whileHover={shouldAnimate ? { scale: 1.2 } : undefined}
-            whileTap={shouldAnimate ? { scale: 0.85 } : undefined}
+            // Compact touch target
+            className="group relative flex items-center justify-center p-1"
+            whileHover={shouldAnimate ? { scale: 1.15 } : undefined}
+            whileTap={shouldAnimate ? { scale: 0.9 } : undefined}
             transition={getSpring(spring.snappy)}
             aria-label={`Go to ${section.label}`}
             aria-current={isActive ? "true" : undefined}
@@ -162,38 +164,25 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
               )}
             </AnimatePresence>
 
-            {/* Dot indicator - unfilled ring, filled when active */}
+            {/* Dot indicator - filled opaque dots */}
             <motion.span
               className={cn(
-                "w-3 h-3 rounded-full",
-                "transition-all duration-200",
+                "rounded-full transition-all duration-150",
                 isActive
-                  ? // Active: filled primary with glow
-                    "bg-primary shadow-[0_0_8px_rgba(164,16,52,0.5)]"
-                  : // Inactive: unfilled ring
-                    "bg-transparent border-2 border-gray-400 dark:border-gray-500",
+                  ? // Active: larger primary dot
+                    "w-2.5 h-2.5 bg-primary"
+                  : // Inactive: smaller muted dot
+                    "w-2 h-2 bg-gray-400 dark:bg-gray-500",
                 // Hover state for inactive dots
-                !isActive && isHovered && "border-primary dark:border-primary",
-                // Pressed state - shrink effect handled by whileTap
-                isPressed && !isActive && "border-primary/70"
+                !isActive && isHovered && "bg-primary/70 dark:bg-primary/70",
+                // Pressed state
+                isPressed && !isActive && "bg-primary/50"
               )}
               animate={{
-                scale: isPressed ? 0.8 : 1,
+                scale: isPressed ? 0.85 : 1,
               }}
               transition={{ duration: 0.1 }}
             />
-
-            {/* Active indicator ring animation */}
-            {isActive && shouldAnimate && (
-              <motion.span
-                className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={getSpring(spring.snappy)}
-              >
-                <span className="w-5 h-5 rounded-full border-2 border-primary/30" />
-              </motion.span>
-            )}
           </motion.button>
         );
       })}
