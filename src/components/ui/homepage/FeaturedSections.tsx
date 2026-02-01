@@ -80,8 +80,10 @@ interface SectionHeaderProps {
 }
 
 function SectionHeader({ section }: SectionHeaderProps) {
-  const accentColor = section.accentColor || "var(--secondary)";
-  const bgColor = section.accentColor ? `${section.accentColor}15` : "var(--secondary-10)";
+  // Use primary color as default for better light theme contrast (yellow doesn't contrast well)
+  const accentColor = section.accentColor || "var(--color-primary)";
+  // Background with 15% opacity of accent color, fallback to primary-light
+  const bgColor = section.accentColor ? `${section.accentColor}15` : "var(--color-primary-light)";
 
   return (
     <div className="flex items-center gap-3 mb-6 px-4 md:px-6 flex-wrap">
