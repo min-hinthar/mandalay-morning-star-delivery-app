@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 36.1 of 39 (Routes & Driver Features) - In progress
-Plan: 3 of 11 complete in phase 36.1 (01, 02-research, 03)
+Plan: 4 of 11 complete in phase 36.1 (01, 02, 02-research, 03)
 Status: In progress
-Last activity: 2026-02-01 - Completed 36.1-03 (Route Stop Management APIs)
+Last activity: 2026-02-01 - Completed 36.1-02 (Driver Detail APIs)
 
-Progress: [############################################------------] v1.4 14/27 (52%)
+Progress: [#############################################-----------] v1.4 15/27 (56%)
 
 ## Milestones
 
@@ -26,13 +26,13 @@ Progress: [############################################------------] v1.4 14/27 
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 16 | In progress |
 
-**Total completed:** 36.1 phases, 152 plans, 170 requirements
+**Total completed:** 36.1 phases, 153 plans, 170 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 153 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 14
+- Total plans completed: 154 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 15
 
 **By Phase (v1.4):**
 
@@ -41,7 +41,7 @@ Progress: [############################################------------] v1.4 14/27 
 | 35 | 3/3 | Complete |
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
-| 36.1 | 3/11 | In progress |
+| 36.1 | 4/11 | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -84,6 +84,9 @@ Progress: [############################################------------] v1.4 14/27 
 | 36.1-03 | RESTful paths for stop management | /stops/[stopId] cleaner than query params |
 | 36.1-03 | Exception ownership via join | Verify route_stops.route_id matches |
 | 36.1-03 | Skip reason in delivery_notes | Prefixed with "Skipped: " for clarity |
+| 36.1-02 | Archive reason logged not persisted | No database column change, use logger for audit |
+| 36.1-02 | Routes filtered by date range | Default last 7 days for flexible filtering |
+| 36.1-02 | Ratings use pre-computed average | Efficiency via drivers.rating_avg |
 
 ### Roadmap Evolution
 
@@ -130,10 +133,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 36.1-03-PLAN.md (Route Stop Management APIs)
+Stopped at: Completed 36.1-02-PLAN.md (Driver Detail APIs)
 Resume file: None
 Next action: Continue with 36.1-04-PLAN.md
 
 ---
 
-*Updated: 2026-02-01 - Completed 36.1-03 with stop management and exception resolution APIs*
+*Updated: 2026-02-01 - Completed 36.1-02 with driver routes, ratings, and archive APIs*
