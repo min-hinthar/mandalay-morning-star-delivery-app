@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
-import { motion } from "framer-motion";
+import { useMemo, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useScrollSpy } from "@/lib/hooks/useScrollSpy";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { triggerHaptic } from "@/lib/swipe-gestures";
 import { zClass } from "@/lib/design-system/tokens/z-index";
+import { spring } from "@/lib/motion-tokens";
 
 interface Section {
   /** Section element ID (must match the id attribute of the section) */
@@ -22,14 +24,14 @@ interface SectionNavDotsProps {
 }
 
 /**
- * Side navigation dots for scrolling between sections.
+ * iOS-style side navigation dots for scrolling between sections.
  *
  * Features:
  * - Fixed position on right side (visible on all screens)
- * - Responsive sizing (smaller on mobile)
- * - Active section highlighted
- * - Hover reveals section label with arrow pointer
- * - Click scrolls to section (smooth or instant based on motion preference)
+ * - Unfilled ring dots with filled active state
+ * - Hover reveals section label tooltip
+ * - Snap-to-section scroll with haptic feedback
+ * - Press-and-hold visual feedback like iOS
  * - Uses IntersectionObserver-based useScrollSpy
  *
  * @example
@@ -42,7 +44,9 @@ interface SectionNavDotsProps {
  * <SectionNavDots sections={sections} />
  */
 export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
-  const { shouldAnimate } = useAnimationPreference();
+  const { shouldAnimate, getSpring } = useAnimationPreference();
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [pressedIndex, setPressedIndex] = useState<number | null>(null);
 
   // Get section IDs for scroll spy
   const sectionIds = useMemo(
@@ -53,16 +57,32 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
   // Track active section index
   const activeIndex = useScrollSpy(sectionIds);
 
-  // Handle click: scroll to section
-  const handleClick = (index: number) => {
+  // Handle click: snap scroll to section with haptic feedback
+  const handleClick = useCallback((index: number) => {
+    // Trigger haptic feedback for tactile response
+    triggerHaptic("medium");
+
     const el = document.getElementById(sections[index].id);
     if (el) {
+      // Snap scroll to section
       el.scrollIntoView({
         behavior: shouldAnimate ? "smooth" : "auto",
         block: "start",
       });
     }
-  };
+  }, [sections, shouldAnimate]);
+
+  // Handle press start - iOS-style press feedback
+  const handlePressStart = useCallback((index: number) => {
+    setPressedIndex(index);
+    // Light haptic on press start
+    triggerHaptic("light");
+  }, []);
+
+  // Handle press end
+  const handlePressEnd = useCallback(() => {
+    setPressedIndex(null);
+  }, []);
 
   // Don't render if no sections
   if (sections.length === 0) {
@@ -72,15 +92,15 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
   return (
     <nav
       className={cn(
-        // Fixed positioning, vertically centered on right - more breathing room on mobile
+        // Fixed positioning, vertically centered on right
         "fixed right-3 md:right-4 lg:right-8 top-1/2 -translate-y-1/2",
-        // Show on all screens, comfortable gap
-        "flex flex-col gap-2.5 md:gap-3",
-        // Pill container styling - comfortable padding
+        // Comfortable gap between dots
+        "flex flex-col gap-3 md:gap-4",
+        // Pill container styling
         // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
-        "px-2 py-2.5 md:py-3 rounded-full",
+        "px-2.5 py-3 md:py-4 rounded-full",
         // eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution
-        "bg-white dark:bg-black md:bg-white/80 md:dark:bg-black/80 md:backdrop-blur-md",
+        "bg-white/70 dark:bg-black/60 md:bg-white/60 md:dark:bg-black/50 md:backdrop-blur-md",
         "border border-border-subtle shadow-lg",
         // Z-index above content but below modals
         zClass.fixed,
@@ -88,53 +108,95 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
       )}
       aria-label="Section navigation"
     >
-      {sections.map((section, index) => (
-        <motion.button
-          key={section.id}
-          onClick={() => handleClick(index)}
-          // Larger touch target with padding, negative margin to keep visual alignment
-          className="group relative flex items-center justify-center p-2 -m-1"
-          whileHover={shouldAnimate ? { scale: 1.15 } : undefined}
-          whileTap={shouldAnimate ? { scale: 0.9 } : undefined}
-          aria-label={`Go to ${section.label}`}
-          aria-current={index === activeIndex ? "true" : undefined}
-        >
-          {/* Label on hover - dark tooltip with arrow */}
-          <span
-            className={cn(
-              "absolute right-full mr-3 px-2 py-1 rounded z-10",
-              "text-xs font-medium whitespace-nowrap",
-              // Dark tooltip style
-              "bg-text-primary/90 text-surface-primary",
-              "shadow-sm",
-              // Hover reveal animation
-              "opacity-0 group-hover:opacity-100",
-              "translate-x-2 group-hover:translate-x-0",
-              "pointer-events-none",
-              shouldAnimate
-                ? "transition-all duration-200 ease-out"
-                : "transition-none"
-            )}
-          >
-            {section.label}
-            {/* Arrow pointing right toward dot */}
-            <span className="absolute top-1/2 -right-1 -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-l-4 border-transparent border-l-text-primary/90" />
-          </span>
+      {sections.map((section, index) => {
+        const isActive = index === activeIndex;
+        const isHovered = hoveredIndex === index;
+        const isPressed = pressedIndex === index;
 
-          {/* Dot indicator - uniform size */}
-          <span
-            className={cn(
-              "w-3 h-3 rounded-full",
-              shouldAnimate
-                ? "transition-colors duration-200"
-                : "transition-none",
-              index === activeIndex
-                ? "bg-primary"
-                : "bg-text-muted/30 group-hover:bg-text-muted/60"
+        return (
+          <motion.button
+            key={section.id}
+            onClick={() => handleClick(index)}
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
+            onMouseDown={() => handlePressStart(index)}
+            onMouseUp={handlePressEnd}
+            onTouchStart={() => handlePressStart(index)}
+            onTouchEnd={handlePressEnd}
+            // Larger touch target
+            className="group relative flex items-center justify-center p-1.5"
+            whileHover={shouldAnimate ? { scale: 1.2 } : undefined}
+            whileTap={shouldAnimate ? { scale: 0.85 } : undefined}
+            transition={getSpring(spring.snappy)}
+            aria-label={`Go to ${section.label}`}
+            aria-current={isActive ? "true" : undefined}
+          >
+            {/* Tooltip label on hover */}
+            <AnimatePresence>
+              {isHovered && (
+                <motion.span
+                  className={cn(
+                    "absolute right-full mr-4 px-3 py-1.5 rounded-lg z-10",
+                    "text-xs font-semibold whitespace-nowrap",
+                    // Dark tooltip with good contrast
+                    "bg-gray-900 dark:bg-gray-100 text-text-inverse dark:text-gray-900",
+                    "shadow-lg",
+                    "pointer-events-none"
+                  )}
+                  initial={{ opacity: 0, x: 8, scale: 0.9 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: 8, scale: 0.9 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                >
+                  {section.label}
+                  {/* Arrow pointing right toward dot */}
+                  <span
+                    className={cn(
+                      "absolute top-1/2 -right-1.5 -translate-y-1/2",
+                      "w-0 h-0",
+                      "border-t-[6px] border-b-[6px] border-l-[6px]",
+                      "border-transparent border-l-gray-900 dark:border-l-gray-100"
+                    )}
+                  />
+                </motion.span>
+              )}
+            </AnimatePresence>
+
+            {/* Dot indicator - unfilled ring, filled when active */}
+            <motion.span
+              className={cn(
+                "w-3 h-3 rounded-full",
+                "transition-all duration-200",
+                isActive
+                  ? // Active: filled primary with glow
+                    "bg-primary shadow-[0_0_8px_rgba(164,16,52,0.5)]"
+                  : // Inactive: unfilled ring
+                    "bg-transparent border-2 border-gray-400 dark:border-gray-500",
+                // Hover state for inactive dots
+                !isActive && isHovered && "border-primary dark:border-primary",
+                // Pressed state - shrink effect handled by whileTap
+                isPressed && !isActive && "border-primary/70"
+              )}
+              animate={{
+                scale: isPressed ? 0.8 : 1,
+              }}
+              transition={{ duration: 0.1 }}
+            />
+
+            {/* Active indicator ring animation */}
+            {isActive && shouldAnimate && (
+              <motion.span
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={getSpring(spring.snappy)}
+              >
+                <span className="w-5 h-5 rounded-full border-2 border-primary/30" />
+              </motion.span>
             )}
-          />
-        </motion.button>
-      ))}
+          </motion.button>
+        );
+      })}
     </nav>
   );
 }

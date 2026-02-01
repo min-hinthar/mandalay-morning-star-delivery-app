@@ -154,6 +154,7 @@ export function FeaturedSections({
       {sections.map((section, index) => (
         <motion.div
           key={section.id}
+          id={`featured-${section.slug}`}
           initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
           whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           viewport={{ once: true, margin: "-80px" }}
