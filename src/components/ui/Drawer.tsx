@@ -277,9 +277,11 @@ export function Drawer({
             tabIndex={-1}
             className={cn(
               "fixed z-50",
-              // Solid background on mobile (no blur) - backdrop-blur-3xl causes mobile crashes
-              // Desktop can handle glassmorphism
-              "bg-surface-primary dark:bg-gray-900 sm:bg-surface-primary/80 sm:dark:bg-gray-900/75 sm:backdrop-blur-xl border border-white/20 dark:border-white/10",
+              // Solid background - using semantic tokens for theme support
+              // Mobile: solid background (no blur to prevent crashes)
+              // Desktop: backdrop blur for depth
+              "bg-surface-primary border border-border",
+              "sm:backdrop-blur-xl",
               "shadow-xl",
               "outline-none",
               // Side drawer styles
