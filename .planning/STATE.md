@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 36.1 - Routes & Driver Features (NEXT)
+**Current focus:** Phase 36.1 - Routes & Driver Features
 
 ## Current Position
 
 Phase: 36.1 of 39 (Routes & Driver Features) - In progress
-Plan: 1 of 11 complete in phase 36.1
+Plan: 3 of 11 complete in phase 36.1 (01, 02-research, 03)
 Status: In progress
-Last activity: 2026-02-01 - Completed 36.1-01 (App Settings Database & API)
+Last activity: 2026-02-01 - Completed 36.1-03 (Route Stop Management APIs)
 
-Progress: [############################################------------] v1.4 12/27 (44%)
+Progress: [############################################------------] v1.4 14/27 (52%)
 
 ## Milestones
 
@@ -26,13 +26,13 @@ Progress: [############################################------------] v1.4 12/27 
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 16 | In progress |
 
-**Total completed:** 36.1 phases, 150 plans, 170 requirements
+**Total completed:** 36.1 phases, 152 plans, 170 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 151 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 12
+- Total plans completed: 153 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 14
 
 **By Phase (v1.4):**
 
@@ -41,7 +41,7 @@ Progress: [############################################------------] v1.4 12/27 
 | 35 | 3/3 | Complete |
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
-| 36.1 | 1/11 | In progress |
+| 36.1 | 3/11 | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -81,6 +81,9 @@ Progress: [############################################------------] v1.4 12/27 
 | 36.1-01 | JSONB for settings values | Flexible storage for numbers, strings, arrays |
 | 36.1-01 | No delete RLS for settings | Restore uses upsert pattern, not delete+insert |
 | 36.1-01 | Separate /restore endpoint | Clearer API than DELETE method for reset |
+| 36.1-03 | RESTful paths for stop management | /stops/[stopId] cleaner than query params |
+| 36.1-03 | Exception ownership via join | Verify route_stops.route_id matches |
+| 36.1-03 | Skip reason in delivery_notes | Prefixed with "Skipped: " for clarity |
 
 ### Roadmap Evolution
 
@@ -127,10 +130,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 36.1-01 (App Settings Database & API)
+Stopped at: Completed 36.1-03-PLAN.md (Route Stop Management APIs)
 Resume file: None
-Next action: Continue Phase 36.1 (Plan 02)
+Next action: Continue with 36.1-04-PLAN.md
 
 ---
 
-*Updated: 2026-02-01 - Completed 36.1-01, app_settings table and admin API created*
+*Updated: 2026-02-01 - Completed 36.1-03 with stop management and exception resolution APIs*
