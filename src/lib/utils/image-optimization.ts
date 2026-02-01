@@ -49,6 +49,13 @@ type ImageSize = keyof typeof IMAGE_SIZES;
 
 /**
  * Get optimized image props for a given size preset
+ *
+ * @param size - Size preset key from IMAGE_SIZES
+ * @param options - Optional overrides for priority and quality
+ * @returns Partial ImageProps for next/image
+ *
+ * Note: Default quality is 70 for smaller file sizes.
+ * Use quality: 85 for hero images where quality matters more.
  */
 export function getImageProps(
   size: ImageSize,
@@ -64,7 +71,7 @@ export function getImageProps(
     width: preset.width,
     height: preset.height,
     priority: options?.priority ?? false,
-    quality: options?.quality ?? 85,
+    quality: options?.quality ?? 70,
     loading: options?.priority ? "eager" : "lazy",
   };
 }
