@@ -79,7 +79,8 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
         // Pill container styling - comfortable padding
         // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
         "px-2 py-2.5 md:py-3 rounded-full",
-        "bg-surface-primary md:bg-surface-primary/80 md:backdrop-blur-md",
+        // eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution
+        "bg-white dark:bg-black md:bg-white/80 md:dark:bg-black/80 md:backdrop-blur-md",
         "border border-border-subtle shadow-lg",
         // Z-index above content but below modals
         zClass.fixed,
