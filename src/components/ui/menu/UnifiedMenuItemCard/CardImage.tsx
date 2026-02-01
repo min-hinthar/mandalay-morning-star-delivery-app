@@ -4,6 +4,7 @@ import { memo } from "react";
 import { motion, MotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import { getCategoryEmoji } from "@/components/ui/menu";
 import { AnimatedImage } from "@/components/ui/animated-image";
 import { zClass } from "@/lib/design-system/tokens/z-index";
@@ -58,6 +59,7 @@ export const CardImage = memo(function CardImage({
   className,
 }: CardImageProps) {
   const { shouldAnimate } = useAnimationPreference();
+  const isMobile = useMediaQuery("(max-width: 639px)");
 
   // Parallax transforms (+-10px)
   const imageX = useTransform(mouseX, [0, 1], [-10, 10]);
@@ -88,15 +90,27 @@ export const CardImage = memo(function CardImage({
         transition={{ duration: 0.3 }}
       >
         {imageUrl ? (
-          <AnimatedImage
-            src={imageUrl}
-            alt={alt}
-            fill
-            sizes="(max-width: 1024px) 50vw, 33vw"
-            priority={priority}
-            variant="blur-scale"
-            className="object-cover"
-          />
+          isMobile ? (
+            /* Mobile: Plain img tag like cart drawer - reliable rendering */
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={imageUrl}
+              alt={alt}
+              className="w-full h-full object-cover"
+              loading={priority ? "eager" : "lazy"}
+            />
+          ) : (
+            /* Desktop: AnimatedImage with blur-scale reveal effect */
+            <AnimatedImage
+              src={imageUrl}
+              alt={alt}
+              fill
+              sizes="(max-width: 1024px) 50vw, 33vw"
+              priority={priority}
+              variant="blur-scale"
+              className="object-cover"
+            />
+          )
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-surface">
             <span className="text-5xl" role="img" aria-label={alt}>
