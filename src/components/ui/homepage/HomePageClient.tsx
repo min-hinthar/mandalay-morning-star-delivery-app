@@ -1,12 +1,11 @@
 "use client";
 
-import { type ReactNode, Suspense, lazy, useMemo } from "react";
+import { type ReactNode, Suspense, lazy } from "react";
 import { Hero } from "./Hero";
 import { TestimonialsCarousel } from "./TestimonialsCarousel";
 import { CTABanner } from "./CTABanner";
 import { FooterCTA } from "./FooterCTA";
 import { SectionNavDots } from "@/components/ui/scroll";
-import type { FeaturedSectionWithItems } from "@/types/featured-sections";
 
 // Lazy load HowItWorksSection to defer 369KB Google Maps bundle
 // This section is below the fold and doesn't need to block initial render
@@ -16,15 +15,10 @@ const HowItWorksSection = lazy(() => import("./HowItWorksSection"));
 // SECTION NAVIGATION CONFIG
 // ============================================
 
-// Base sections that always exist
-const baseSections = [
+const sections = [
   { id: "hero", label: "Home" },
   { id: "how-it-works", label: "How It Works" },
   { id: "menu", label: "Menu" },
-];
-
-// Sections that come after featured sections
-const endSections = [
   { id: "testimonials", label: "Reviews" },
   { id: "cta", label: "Order" },
 ];
@@ -35,8 +29,6 @@ const endSections = [
 
 interface HomePageClientProps {
   menuSection: ReactNode;
-  /** Featured sections for dynamic nav dots */
-  featuredSections?: FeaturedSectionWithItems[];
 }
 
 // ============================================
@@ -82,17 +74,7 @@ function HowItWorksSkeleton() {
 // MAIN COMPONENT
 // ============================================
 
-export function HomePageClient({ menuSection, featuredSections = [] }: HomePageClientProps) {
-  // Build dynamic sections array including featured sections
-  const sections = useMemo(() => {
-    const featuredNavSections = featuredSections.map((section) => ({
-      id: `featured-${section.slug}`,
-      label: section.name,
-    }));
-
-    return [...baseSections, ...featuredNavSections, ...endSections];
-  }, [featuredSections]);
-
+export function HomePageClient({ menuSection }: HomePageClientProps) {
   return (
     <>
       {/* Section Navigation Dots - Desktop only */}
