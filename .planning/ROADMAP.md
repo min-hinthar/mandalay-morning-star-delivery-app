@@ -173,11 +173,11 @@ Plans:
   3. No circular dependencies detected in import graph
   4. ESLint fails if deleted directories are recreated
   5. Barrel exports match existing files (no dangling exports)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 37-01: TBD
-- [ ] 37-02: TBD
+- [ ] 37-01-PLAN.md — Delete Storybook files and unused auth components, update barrel exports
+- [ ] 37-02-PLAN.md — Fix circular dependencies, configure ESLint enforcement rules
 
 ### Phase 38: Customer Offline Support
 **Goal**: Customers can browse menu and see cached content when offline
