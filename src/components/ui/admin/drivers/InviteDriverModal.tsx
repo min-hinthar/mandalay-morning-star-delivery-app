@@ -9,7 +9,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Loader2, Mail, AlertCircle } from "lucide-react";
+import { Loader2, Mail, AlertCircle, Link, Copy, Check } from "lucide-react";
 
 import {
   Dialog,
@@ -43,6 +43,8 @@ export function InviteDriverModal({
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [magicLink, setMagicLink] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -77,15 +79,24 @@ export function InviteDriverModal({
         throw new Error(error.error || "Failed to send invite");
       }
 
-      toast({
-        title: "Invite Sent",
-        description: `Invitation sent to ${email}`,
-      });
+      const data = await response.json();
 
-      // Reset and close
-      setEmail("");
-      onOpenChange(false);
-      onSuccess?.();
+      // Check if this is an existing user with magic link
+      if (data.isExistingUser && data.magicLink) {
+        setMagicLink(data.magicLink);
+        setCopied(false);
+        onSuccess?.();
+      } else {
+        toast({
+          title: "Invite Sent",
+          description: `Invitation sent to ${email}`,
+        });
+
+        // Reset and close
+        setEmail("");
+        onOpenChange(false);
+        onSuccess?.();
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to send invite";
@@ -104,10 +115,31 @@ export function InviteDriverModal({
     }
   };
 
+  const handleCopyLink = async () => {
+    if (!magicLink) return;
+    try {
+      await navigator.clipboard.writeText(magicLink);
+      setCopied(true);
+      toast({
+        title: "Link Copied",
+        description: "Magic link copied to clipboard",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to copy link",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleClose = () => {
     if (!isSubmitting) {
       setEmail("");
       setErrors({});
+      setMagicLink(null);
+      setCopied(false);
       onOpenChange(false);
     }
   };
@@ -118,6 +150,74 @@ export function InviteDriverModal({
       setErrors((prev) => ({ ...prev, email: undefined }));
     }
   };
+
+  // Show magic link view if we have one
+  if (magicLink) {
+    return (
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-[480px] bg-surface-primary border-border rounded-card">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-display text-2xl text-text-primary">
+              <div className="p-2 rounded-input bg-primary text-text-inverse">
+                <Link className="h-5 w-5" />
+              </div>
+              Share Magic Link
+            </DialogTitle>
+            <DialogDescription className="font-body text-text-secondary">
+              This user already has an account. Share this magic link with{" "}
+              <span className="font-medium text-text-primary">{email}</span>{" "}
+              to let them complete driver registration.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="my-4">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                readOnly
+                value={magicLink}
+                className="flex-1 px-3 py-2 text-sm bg-surface-secondary border border-border rounded-input font-mono truncate"
+              />
+              <Button
+                onClick={handleCopyLink}
+                variant="outline"
+                size="sm"
+                className="shrink-0"
+              >
+                {copied ? (
+                  <Check className="h-4 w-4 text-green" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+            <p className="mt-2 text-xs text-text-muted">
+              This link expires in 1 hour. The user should open it in a browser where they are not already logged in.
+            </p>
+          </div>
+
+          <DialogFooter className="gap-2 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              className="border-border hover:bg-surface-tertiary"
+            >
+              Close
+            </Button>
+            <Button
+              type="button"
+              onClick={handleCopyLink}
+              className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm"
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              Copy Link
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
