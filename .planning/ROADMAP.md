@@ -25,7 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 36: Image Optimization & LCP** - Sub-2.5s LCP with optimized image loading and CLS prevention
 - [x] **Phase 36.1: Routes & Driver Features (INSERTED)** - Complete missing page routes and admin driver management
 - [x] **Phase 36.2: Feature Finalization & Polish (INSERTED)** - Driver invites, route optimization, settings polish, account polish
-- [ ] **Phase 37: Codebase Cleanup** - Remove dead code and enforce directory structure
+- [x] **Phase 37: Codebase Cleanup** - Remove dead code and enforce directory structure
 - [ ] **Phase 38: Customer Offline Support** - Service worker caching and offline menu browsing
 - [ ] **Phase 39: Animation Optimization** - Device-adaptive animations and conflict resolution
 
@@ -176,8 +176,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 37-01-PLAN.md — Delete Storybook files and unused auth components, update barrel exports
-- [ ] 37-02-PLAN.md — Fix circular dependencies, configure ESLint enforcement rules
+- [x] 37-01-PLAN.md — Delete Storybook files and unused auth components, update barrel exports
+- [x] 37-02-PLAN.md — Fix circular dependencies, configure ESLint enforcement rules
 
 ### Phase 38: Customer Offline Support
 **Goal**: Customers can browse menu and see cached content when offline
@@ -224,7 +224,7 @@ Phases execute in numeric order: 35 -> 35.1 -> 36 -> 36.1 -> 36.2 -> 37 -> 38 ->
 | 36. Image Optimization & LCP | v1.4 | 3/3 | Complete | 2026-02-01 |
 | 36.1 Routes & Driver Features (INSERTED) | v1.4 | 11/11 | Complete | 2026-02-03 |
 | 36.2 Feature Finalization & Polish (INSERTED) | v1.4 | 9/9 | Complete | 2026-02-04 |
-| 37. Codebase Cleanup | v1.4 | 0/2 | Not started | - |
+| 37. Codebase Cleanup | v1.4 | 2/2 | Complete | 2026-02-04 |
 | 38. Customer Offline Support | v1.4 | 0/3 | Not started | - |
 | 39. Animation Optimization | v1.4 | 0/2 | Not started | - |
 
