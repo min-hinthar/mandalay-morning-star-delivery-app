@@ -11,48 +11,59 @@ import { createClient } from "@/lib/supabase/client";
  *
  * This component:
  * 1. Detects tokens in the URL fragment
- * 2. Initializes Supabase client to process them (sets cookies)
- * 3. Reloads the page so server components can read the session
+ * 2. Uses onAuthStateChange to wait for session to be established
+ * 3. Reloads the page so server components can read the session cookies
  */
 export function AuthHandler() {
   const hasProcessed = useRef(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    // Only run once
+    // Check if there's a token in the URL hash
+    const hash = window.location.hash;
+    if (!hash || !hash.includes("access_token")) return;
     if (hasProcessed.current) return;
 
-    const handleAuthToken = async () => {
-      // Check if there's a token in the URL hash
-      const hash = window.location.hash;
-      if (!hash || !hash.includes("access_token")) return;
+    hasProcessed.current = true;
+    setIsProcessing(true);
 
-      hasProcessed.current = true;
-      setIsProcessing(true);
+    // Initialize Supabase client
+    const supabase = createClient();
 
-      // Initialize Supabase client - this automatically reads tokens from the hash
-      const supabase = createClient();
+    // Listen for auth state changes - this fires when the token is processed
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("[AuthHandler] Auth state change:", event, !!session);
 
-      // Get session to process the token and set cookies
-      const { data: { session }, error } = await supabase.auth.getSession();
+        // Handle INITIAL_SESSION (fires immediately if session exists)
+        // Handle SIGNED_IN (fires after hash token is processed)
+        // Handle TOKEN_REFRESHED (fires if token was refreshed)
+        if (session && (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED")) {
+          // Session established - reload to clean URL and let server read cookies
+          const url = new URL(window.location.href);
+          url.hash = "";
 
-      if (error) {
-        console.error("[AuthHandler] Error processing auth token:", error);
-        setIsProcessing(false);
-        return;
+          // Small delay to ensure cookies are written
+          setTimeout(() => {
+            window.location.replace(url.toString());
+          }, 100);
+        }
       }
+    );
 
-      if (session) {
-        // Get the URL without the hash
-        const url = new URL(window.location.href);
-        url.hash = "";
+    // Explicitly trigger session processing - this will:
+    // 1. Detect the hash fragment
+    // 2. Exchange tokens with Supabase
+    // 3. Set cookies
+    // 4. Fire the auth state change event
+    supabase.auth.getSession().then(({ data, error }) => {
+      console.log("[AuthHandler] getSession:", !!data.session, error?.message);
+    });
 
-        // Hard reload to the clean URL - this ensures server sees the cookies
-        window.location.replace(url.toString());
-      }
+    // Cleanup subscription on unmount
+    return () => {
+      subscription.unsubscribe();
     };
-
-    handleAuthToken();
   }, []);
 
   // Show loading state while processing auth token
