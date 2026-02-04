@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 36.1 - Routes & Driver Features
+**Current focus:** Phase 36.2 - Feature Finalization & Polish
 
 ## Current Position
 
-Phase: 36.1 of 39 (Routes & Driver Features) - COMPLETE
-Plan: 11 of 11 complete in phase 36.1
-Status: Phase 36.1 complete, ready for Phase 37
-Last activity: 2026-02-03 - Completed 36.1-11 (Navigation & Verification)
+Phase: 36.2 of 39 (Feature Finalization & Polish) - In progress
+Plan: 1 of TBD in phase 36.2
+Status: Plan 01 complete (Email Infrastructure)
+Last activity: 2026-02-03 - Completed 36.2-01-PLAN.md
 
-Progress: [########################################################----] v1.4 22/27 (81%)
+Progress: [#########################################################---] v1.4 23/28 (82%)
 
 ## Milestones
 
@@ -26,13 +26,13 @@ Progress: [########################################################----] v1.4 22
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 16 | In progress |
 
-**Total completed:** 36.1 phases, 159 plans, 176 requirements
+**Total completed:** 36.2 phases, 160 plans, 176 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 161 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 22
+- Total plans completed: 162 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 23
 
 **By Phase (v1.4):**
 
@@ -42,6 +42,7 @@ Progress: [########################################################----] v1.4 22
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
 | 36.1 | 11/11 | Complete |
+| 36.2 | 1/TBD | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -106,6 +107,9 @@ Progress: [########################################################----] v1.4 22
 | 36.1-09 | Client-side Supabase for orders | No /api/orders endpoint; client fetches directly |
 | 36.1-09 | Reorder clears cart first | Clean state when reordering; shows only new items |
 | 36.1-09 | Cancel requires reason | API requirement from 36.1-08 for audit trail |
+| 36.2-01 | Resend for email delivery | Official React Email integration, better DX |
+| 36.2-01 | Public token validation RLS | Onboarding page validates without auth |
+| 36.2-01 | Migration 012_driver_invites | Sequential numbering with existing migrations |
 
 ### Roadmap Evolution
 
@@ -114,10 +118,16 @@ Progress: [########################################################----] v1.4 22
   - Remove Browse All Dishes section from homepage
   - Expand Featured Dishes with admin-manageable sections
   - Admin dashboard for featured section CRUD
-- Phase 36.1 inserted after Phase 36: Routes & Driver Features (URGENT)
+- Phase 36.1 inserted after Phase 36: Routes & Driver Features (COMPLETE)
   - Complete missing page routes
   - Admin driver management features
   - Must complete before codebase cleanup (Phase 37)
+- Phase 36.2 inserted after Phase 36.1: Feature Finalization & Polish (URGENT)
+  - Driver invites via email with onboarding tokens
+  - Route optimization for efficient delivery paths
+  - Admin settings polish with full persistence
+  - Admin orders Manage/Track tab actions + View Full Details
+  - Customer account polish (payment handled by Stripe)
 
 ### Performance Findings (Phase 36)
 
@@ -152,10 +162,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed Phase 36.1 (all 11 plans)
+Stopped at: Completed 36.2-01-PLAN.md
 Resume file: None
-Next action: Proceed to Phase 37 (Codebase Cleanup)
+Next action: Execute 36.2-02-PLAN.md (Driver invite API endpoints)
 
 ---
 
-*Updated: 2026-02-03 - Phase 36.1 complete with all routes, driver features, settings, and customer account*
+*Updated: 2026-02-03 - Completed Plan 01: Email infrastructure with Resend, React Email template, driver_invites migration*
