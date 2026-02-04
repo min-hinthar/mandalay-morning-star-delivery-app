@@ -150,15 +150,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 2: Create profile record
+    // Step 2: Create or update profile record (existing users may have a customer profile)
     const { error: profileError } = await serviceSupabase
       .from("profiles")
-      .insert({
+      .upsert({
         id: user.id,
         email: email,
         full_name: fullName,
         phone: phone,
         role: "driver" as const,
+      }, {
+        onConflict: "id",
       });
 
     if (profileError) {
