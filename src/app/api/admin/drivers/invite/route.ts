@@ -123,30 +123,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists in auth.users
-    const { data: existingAuthUsers } = await supabase.auth.admin.listUsers();
-    const existingAuthUser = existingAuthUsers?.users?.find(
-      (u) => u.email?.toLowerCase() === normalizedEmail
+    // Try to send invite - this works for new users
+    const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
+      normalizedEmail,
+      {
+        redirectTo: `${BASE_URL}/driver/onboard`,
+        data: {
+          role: "driver",
+          invite_id: invite.id,
+        },
+      }
     );
 
-    if (existingAuthUser) {
-      // User exists - update metadata first via admin API
-      const { error: updateError } = await supabase.auth.admin.updateUserById(
-        existingAuthUser.id,
-        {
+    // If user already exists, generate a magic link instead
+    if (inviteError?.message?.includes("already been registered")) {
+      // First, update the user's metadata
+      const { data: userData } = await supabase.auth.admin.listUsers();
+      const existingUser = userData?.users?.find(
+        (u) => u.email?.toLowerCase() === normalizedEmail
+      );
+
+      if (existingUser) {
+        await supabase.auth.admin.updateUserById(existingUser.id, {
           user_metadata: {
-            ...existingAuthUser.user_metadata,
+            ...existingUser.user_metadata,
             role: "driver",
             invite_id: invite.id,
           },
-        }
-      );
-
-      if (updateError) {
-        logger.exception(updateError, { api: "admin/drivers/invite", flowId: "update-metadata" });
+        });
       }
 
-      // Generate magic link for existing user using admin API
+      // Generate magic link for existing user
       const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
         type: "magiclink",
         email: normalizedEmail,
@@ -165,7 +172,6 @@ export async function POST(request: NextRequest) {
       }
 
       // Return success with the magic link for existing users
-      // Admin can share this link directly with the driver
       return NextResponse.json(
         {
           id: invite.id,
@@ -177,27 +183,16 @@ export async function POST(request: NextRequest) {
         },
         { status: 201 }
       );
-    } else {
-      // New user - send invite
-      const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
-        normalizedEmail,
-        {
-          redirectTo: `${BASE_URL}/driver/onboard`,
-          data: {
-            role: "driver",
-            invite_id: invite.id,
-          },
-        }
-      );
+    }
 
-      if (inviteError) {
-        logger.exception(inviteError, { api: "admin/drivers/invite", flowId: "supabase-invite" });
-        await supabase.from("driver_invites").delete().eq("id", invite.id);
-        return NextResponse.json(
-          { error: "Failed to send invite email", details: inviteError.message, code: inviteError.code },
-          { status: 500 }
-        );
-      }
+    // Other invite errors
+    if (inviteError) {
+      logger.exception(inviteError, { api: "admin/drivers/invite", flowId: "supabase-invite" });
+      await supabase.from("driver_invites").delete().eq("id", invite.id);
+      return NextResponse.json(
+        { error: "Failed to send invite email", details: inviteError.message, code: inviteError.code },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(
