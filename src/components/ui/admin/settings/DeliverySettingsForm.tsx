@@ -41,6 +41,9 @@ function validateField(field: keyof DeliverySettings, value: unknown): string | 
       if (value > 100) return "Cannot exceed 100 miles";
       return undefined;
     case "minimumOrderCents":
+      if (typeof value !== "number" || value < 0) return "Must be 0 or greater";
+      if (value > 10000) return "Cannot exceed $100.00";
+      return undefined;
     case "freeDeliveryThresholdCents":
     case "baseDeliveryFeeCents":
       if (typeof value !== "number" || value < 0) return "Must be 0 or greater";
