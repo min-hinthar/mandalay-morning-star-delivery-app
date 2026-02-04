@@ -12,9 +12,21 @@ export const routeStopStatusSchema = z.enum([
   "skipped",
 ]);
 
+/**
+ * Validate that a date string represents a Saturday.
+ * Business rule: Deliveries only occur on Saturdays.
+ */
+function isSaturday(dateString: string): boolean {
+  const date = new Date(dateString + "T12:00:00"); // Use noon to avoid timezone issues
+  return date.getDay() === 6; // 6 = Saturday
+}
+
 // Create route schema
 export const createRouteSchema = z.object({
-  deliveryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
+  deliveryDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)")
+    .refine(isSaturday, "Delivery date must be a Saturday"),
   driverId: z.string().uuid("Invalid driver ID").optional(),
   orderIds: z.array(z.string().uuid("Invalid order ID")).min(1, "At least one order required"),
 });

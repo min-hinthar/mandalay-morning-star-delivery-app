@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { format, addDays, startOfDay } from "date-fns";
+import { format, nextSaturday, isSaturday } from "date-fns";
 import {
   Loader2,
   Route,
@@ -57,14 +57,23 @@ interface FormErrors {
   general?: string;
 }
 
+/**
+ * Get the next Saturday for delivery date default.
+ * Uses date-fns nextSaturday which returns the next Saturday from the given date.
+ */
+function getDefaultDeliveryDate(): string {
+  const today = new Date();
+  // If today is Saturday, use today; otherwise use next Saturday
+  const targetDate = isSaturday(today) ? today : nextSaturday(today);
+  return format(targetDate, "yyyy-MM-dd");
+}
+
 export function CreateRouteModal({
   open,
   onOpenChange,
   onSubmit,
 }: CreateRouteModalProps) {
-  const [deliveryDate, setDeliveryDate] = useState(
-    format(addDays(startOfDay(new Date()), 1), "yyyy-MM-dd")
-  );
+  const [deliveryDate, setDeliveryDate] = useState(getDefaultDeliveryDate);
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
@@ -133,6 +142,12 @@ export function CreateRouteModal({
 
     if (!deliveryDate) {
       newErrors.deliveryDate = "Delivery date is required";
+    } else {
+      // Validate it's a Saturday
+      const date = new Date(deliveryDate + "T12:00:00");
+      if (date.getDay() !== 6) {
+        newErrors.deliveryDate = "Delivery date must be a Saturday";
+      }
     }
 
     if (selectedOrderIds.length === 0) {
@@ -164,7 +179,7 @@ export function CreateRouteModal({
       await onSubmit(data);
 
       // Reset form on success
-      setDeliveryDate(format(addDays(startOfDay(new Date()), 1), "yyyy-MM-dd"));
+      setDeliveryDate(getDefaultDeliveryDate());
       setSelectedDriverId(null);
       setSelectedOrderIds([]);
       onOpenChange(false);
@@ -179,7 +194,7 @@ export function CreateRouteModal({
 
   const handleClose = () => {
     if (!isSubmitting) {
-      setDeliveryDate(format(addDays(startOfDay(new Date()), 1), "yyyy-MM-dd"));
+      setDeliveryDate(getDefaultDeliveryDate());
       setSelectedDriverId(null);
       setSelectedOrderIds([]);
       setErrors({});
@@ -268,6 +283,9 @@ export function CreateRouteModal({
             {errors.deliveryDate && (
               <p className="text-xs text-red-500">{errors.deliveryDate}</p>
             )}
+            <p className="text-xs text-muted-foreground">
+              Deliveries only occur on Saturdays
+            </p>
           </div>
 
           {/* Driver Selection */}
