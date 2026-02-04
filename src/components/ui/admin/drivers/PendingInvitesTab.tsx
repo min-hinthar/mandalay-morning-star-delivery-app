@@ -17,6 +17,9 @@ import {
   Trash2,
   Clock,
   AlertCircle,
+  Copy,
+  Link,
+  Check,
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 
@@ -69,6 +72,10 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
   const [selectedInvite, setSelectedInvite] = useState<PendingInvite | null>(null);
+  const [magicLinkDialogOpen, setMagicLinkDialogOpen] = useState(false);
+  const [magicLink, setMagicLink] = useState<string | null>(null);
+  const [magicLinkEmail, setMagicLinkEmail] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const fetchInvites = useCallback(async () => {
     try {
@@ -107,10 +114,20 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
         throw new Error(error.error || "Failed to resend invite");
       }
 
-      toast({
-        title: "Invite Resent",
-        description: `New invite sent to ${invite.email}`,
-      });
+      const data = await response.json();
+
+      // Check if this is an existing user with magic link
+      if (data.isExistingUser && data.magicLink) {
+        setMagicLink(data.magicLink);
+        setMagicLinkEmail(invite.email);
+        setMagicLinkDialogOpen(true);
+        setCopied(false);
+      } else {
+        toast({
+          title: "Invite Resent",
+          description: `New invite sent to ${invite.email}`,
+        });
+      }
 
       // Refresh to get updated expiration
       await fetchInvites();
@@ -122,6 +139,25 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
       });
     } finally {
       setActionLoading(null);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!magicLink) return;
+    try {
+      await navigator.clipboard.writeText(magicLink);
+      setCopied(true);
+      toast({
+        title: "Link Copied",
+        description: "Magic link copied to clipboard",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to copy link",
+        variant: "destructive",
+      });
     }
   };
 
@@ -428,6 +464,62 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
               className="bg-status-error hover:bg-status-error/90 text-text-inverse"
             >
               Revoke Invite
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Magic Link Dialog for Existing Users */}
+      <AlertDialog open={magicLinkDialogOpen} onOpenChange={setMagicLinkDialogOpen}>
+        <AlertDialogContent className="bg-surface-primary border-border max-w-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 font-display text-text-primary">
+              <Link className="h-5 w-5 text-primary" />
+              Share Magic Link
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-body text-text-secondary">
+              This user already has an account. Share this magic link with{" "}
+              <span className="font-medium text-text-primary">
+                {magicLinkEmail}
+              </span>{" "}
+              to let them complete driver registration.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="my-4">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                readOnly
+                value={magicLink || ""}
+                className="flex-1 px-3 py-2 text-sm bg-surface-secondary border border-border rounded-input font-mono truncate"
+              />
+              <Button
+                onClick={handleCopyLink}
+                variant="outline"
+                size="sm"
+                className="shrink-0"
+              >
+                {copied ? (
+                  <Check className="h-4 w-4 text-green" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+            <p className="mt-2 text-xs text-text-muted">
+              This link expires in 1 hour. The user should open it in a browser where they are not already logged in.
+            </p>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-border hover:bg-surface-tertiary">
+              Close
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCopyLink}
+              className="bg-primary hover:bg-primary/90 text-text-inverse"
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              Copy Link
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
