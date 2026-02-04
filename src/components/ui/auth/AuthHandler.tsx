@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 /**
@@ -13,11 +12,11 @@ import { createClient } from "@/lib/supabase/client";
  * This component:
  * 1. Detects tokens in the URL fragment
  * 2. Initializes Supabase client to process them (sets cookies)
- * 3. Refreshes the page so server components can read the session
+ * 3. Reloads the page so server components can read the session
  */
 export function AuthHandler() {
-  const router = useRouter();
   const hasProcessed = useRef(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     // Only run once
@@ -29,6 +28,7 @@ export function AuthHandler() {
       if (!hash || !hash.includes("access_token")) return;
 
       hasProcessed.current = true;
+      setIsProcessing(true);
 
       // Initialize Supabase client - this automatically reads tokens from the hash
       const supabase = createClient();
@@ -38,22 +38,34 @@ export function AuthHandler() {
 
       if (error) {
         console.error("[AuthHandler] Error processing auth token:", error);
+        setIsProcessing(false);
         return;
       }
 
       if (session) {
-        // Remove hash from URL and refresh to let server read the session cookies
+        // Get the URL without the hash
         const url = new URL(window.location.href);
         url.hash = "";
 
-        // Use replaceState to avoid adding to history, then refresh
-        window.history.replaceState({}, "", url.toString());
-        router.refresh();
+        // Hard reload to the clean URL - this ensures server sees the cookies
+        window.location.replace(url.toString());
       }
     };
 
     handleAuthToken();
-  }, [router]);
+  }, []);
+
+  // Show loading state while processing auth token
+  if (isProcessing) {
+    return (
+      <div className="fixed inset-0 bg-background z-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-red mx-auto mb-4" />
+          <p className="text-text-secondary">Signing you in...</p>
+        </div>
+      </div>
+    );
+  }
 
   return null;
 }
