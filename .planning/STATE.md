@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 36.2 of 39 (Feature Finalization & Polish) - In progress
-Plan: 4 of TBD in phase 36.2
-Status: Plan 04 complete (Pending Invites Tab)
-Last activity: 2026-02-04 - Completed 36.2-04-PLAN.md
+Plan: 5 of TBD in phase 36.2
+Status: Plan 05 complete (Route Optimization Comparison UI)
+Last activity: 2026-02-04 - Completed 36.2-05-PLAN.md
 
-Progress: [############################################################-] v1.4 26/28 (93%)
+Progress: [############################################################-] v1.4 27/28 (96%)
 
 ## Milestones
 
@@ -26,13 +26,13 @@ Progress: [############################################################-] v1.4 2
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 16 | In progress |
 
-**Total completed:** 36.2 phases, 161 plans, 177 requirements
+**Total completed:** 36.2 phases, 162 plans, 178 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 165 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 26
+- Total plans completed: 166 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 27
 
 **By Phase (v1.4):**
 
@@ -42,7 +42,7 @@ Progress: [############################################################-] v1.4 2
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
 | 36.1 | 11/11 | Complete |
-| 36.2 | 4/TBD | In progress |
+| 36.2 | 5/TBD | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -121,6 +121,9 @@ Progress: [############################################################-] v1.4 2
 | 36.2-04 | Separate invite modal | InviteDriverModal distinct from AddDriverModal |
 | 36.2-04 | Search hidden for pending | Not applicable to invites list |
 | 36.2-04 | Callback for count sync | PendingInvitesTab reports count to parent |
+| 36.2-05 | Modal-based optimization preview | Show before/after comparison before applying changes |
+| 36.2-05 | Savings estimation from route metrics | Original estimated as 10 min/2 mi per stop |
+| 36.2-05 | Amber warning badge for manual reorder | Visual indicator when route not optimized |
 
 ### Roadmap Evolution
 
@@ -173,10 +176,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 36.2-04-PLAN.md
+Stopped at: Completed 36.2-05-PLAN.md
 Resume file: None
-Next action: Execute 36.2-05-PLAN.md (if exists)
+Next action: Execute 36.2-06-PLAN.md (if exists)
 
 ---
 
-*Updated: 2026-02-04 - Completed Plan 04: Pending Invites tab with invite modal, resend/revoke actions*
+*Updated: 2026-02-04 - Completed Plan 05: Route optimization comparison UI with OptimizationModal and warning badge*
