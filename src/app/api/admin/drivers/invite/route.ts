@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
     if (insertError) {
       logger.exception(insertError, { api: "admin/drivers/invite", flowId: "insert" });
       return NextResponse.json(
-        { error: "Failed to create invite" },
+        { error: "Failed to create invite", details: insertError.message, code: insertError.code },
         { status: 500 }
       );
     }
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
       // Clean up the invite record since email failed
       await supabase.from("driver_invites").delete().eq("id", invite.id);
       return NextResponse.json(
-        { error: "Failed to send invite email. Please try again." },
+        { error: "Failed to send invite email", details: inviteError.message, code: inviteError.code },
         { status: 500 }
       );
     }
