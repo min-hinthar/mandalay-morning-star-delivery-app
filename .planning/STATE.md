@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 36.2 of 39 (Feature Finalization & Polish) - In progress
-Plan: 3 of TBD in phase 36.2
-Status: Plan 03 complete (Driver Onboarding Page)
-Last activity: 2026-02-04 - Completed 36.2-03-PLAN.md
+Plan: 4 of TBD in phase 36.2
+Status: Plan 04 complete (Pending Invites Tab)
+Last activity: 2026-02-04 - Completed 36.2-04-PLAN.md
 
-Progress: [###########################################################-] v1.4 25/28 (89%)
+Progress: [############################################################-] v1.4 26/28 (93%)
 
 ## Milestones
 
@@ -26,13 +26,13 @@ Progress: [###########################################################-] v1.4 25
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 16 | In progress |
 
-**Total completed:** 36.2 phases, 160 plans, 176 requirements
+**Total completed:** 36.2 phases, 161 plans, 177 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 164 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 25
+- Total plans completed: 165 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 26
 
 **By Phase (v1.4):**
 
@@ -42,7 +42,7 @@ Progress: [###########################################################-] v1.4 25
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
 | 36.1 | 11/11 | Complete |
-| 36.2 | 3/TBD | In progress |
+| 36.2 | 4/TBD | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -117,6 +117,10 @@ Progress: [###########################################################-] v1.4 25
 | 36.2-03 | Service role for user creation | Bypasses RLS for admin.createUser |
 | 36.2-03 | Auto sign-in after registration | Better UX than redirecting to login |
 | 36.2-03 | Cleanup on failure | Delete auth user if profile/driver creation fails |
+| 36.2-04 | Pending as filter tab | Alongside Active/Inactive for consistent UX |
+| 36.2-04 | Separate invite modal | InviteDriverModal distinct from AddDriverModal |
+| 36.2-04 | Search hidden for pending | Not applicable to invites list |
+| 36.2-04 | Callback for count sync | PendingInvitesTab reports count to parent |
 
 ### Roadmap Evolution
 
@@ -169,10 +173,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 36.2-03-PLAN.md
+Stopped at: Completed 36.2-04-PLAN.md
 Resume file: None
-Next action: Execute 36.2-04-PLAN.md (if exists)
+Next action: Execute 36.2-05-PLAN.md (if exists)
 
 ---
 
-*Updated: 2026-02-04 - Completed Plan 03: Driver onboarding page with token validation and registration form*
+*Updated: 2026-02-04 - Completed Plan 04: Pending Invites tab with invite modal, resend/revoke actions*
