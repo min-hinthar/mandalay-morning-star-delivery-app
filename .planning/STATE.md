@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 36.2 of 39 (Feature Finalization & Polish) - In progress
-Plan: 1 of TBD in phase 36.2
-Status: Plan 01 complete (Email Infrastructure)
-Last activity: 2026-02-03 - Completed 36.2-01-PLAN.md
+Plan: 2 of TBD in phase 36.2
+Status: Plan 02 complete (Driver Invite API Endpoints)
+Last activity: 2026-02-04 - Completed 36.2-02-PLAN.md
 
-Progress: [#########################################################---] v1.4 23/28 (82%)
+Progress: [##########################################################--] v1.4 24/28 (86%)
 
 ## Milestones
 
@@ -31,8 +31,8 @@ Progress: [#########################################################---] v1.4 23
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 162 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 23
+- Total plans completed: 163 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 24
 
 **By Phase (v1.4):**
 
@@ -42,7 +42,7 @@ Progress: [#########################################################---] v1.4 23
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
 | 36.1 | 11/11 | Complete |
-| 36.2 | 1/TBD | In progress |
+| 36.2 | 2/TBD | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -110,6 +110,9 @@ Progress: [#########################################################---] v1.4 23
 | 36.2-01 | Resend for email delivery | Official React Email integration, better DX |
 | 36.2-01 | Public token validation RLS | Onboarding page validates without auth |
 | 36.2-01 | Migration 012_driver_invites | Sequential numbering with existing migrations |
+| 36.2-02 | Email normalized to lowercase | Consistent duplicate checking |
+| 36.2-02 | Non-blocking email send | DB success returns 201 even if Resend fails |
+| 36.2-02 | [id] is invite ID | Resend/revoke routes use invite ID, not driver ID |
 
 ### Roadmap Evolution
 
@@ -161,11 +164,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-03
-Stopped at: Completed 36.2-01-PLAN.md
+Last session: 2026-02-04
+Stopped at: Completed 36.2-02-PLAN.md
 Resume file: None
-Next action: Execute 36.2-02-PLAN.md (Driver invite API endpoints)
+Next action: Execute 36.2-03-PLAN.md (Driver onboarding page)
 
 ---
 
-*Updated: 2026-02-03 - Completed Plan 01: Email infrastructure with Resend, React Email template, driver_invites migration*
+*Updated: 2026-02-04 - Completed Plan 02: Driver invite API endpoints (send, resend, revoke)*
