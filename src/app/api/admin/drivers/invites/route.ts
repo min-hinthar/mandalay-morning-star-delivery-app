@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth";
+import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 
 interface InviteWithProfile {
@@ -24,7 +25,9 @@ export async function GET() {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-    const { supabase } = auth;
+
+    // Use service client to bypass RLS
+    const supabase = createServiceClient();
 
     // Fetch pending invites with inviter profile
     const { data: invites, error: invitesError } = await supabase
