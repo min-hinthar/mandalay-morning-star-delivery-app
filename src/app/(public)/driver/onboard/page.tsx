@@ -24,6 +24,15 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
     error: authError,
   } = await supabase.auth.getUser();
 
+  // Debug: Log auth state (visible in server logs)
+  console.log("[DriverOnboard] Auth state:", {
+    hasUser: !!user,
+    authError: authError?.message,
+    email: user?.email,
+    role: user?.user_metadata?.role,
+    inviteId: user?.user_metadata?.invite_id,
+  });
+
   // Not authenticated - show message to check email
   if (authError || !user) {
     return (
@@ -53,6 +62,10 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
               </div>
             </CardContent>
           </Card>
+          {/* Debug info */}
+          <p className="mt-4 text-xs text-center text-gray-400">
+            State: not_authenticated | Error: {authError?.message || "none"}
+          </p>
         </div>
       </main>
     );
@@ -92,6 +105,10 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
               </div>
             </CardContent>
           </Card>
+          {/* Debug info */}
+          <p className="mt-4 text-xs text-center text-gray-400">
+            State: invalid_role | Role: {userRole || "none"} | InviteId: {inviteId || "none"}
+          </p>
         </div>
       </main>
     );
