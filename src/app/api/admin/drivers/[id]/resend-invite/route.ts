@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth";
+import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
-import type { ProfileRole } from "@/types/database";
-
-interface ProfileCheck {
-  role: ProfileRole;
-}
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -33,26 +29,15 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createClient();
 
-    // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Verify admin access
+    const auth = await requireAdmin();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    // Check admin role
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .returns<ProfileCheck[]>()
-      .single();
-
-    if (profileError || !profile || profile.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    // Use service client to bypass RLS
+    const supabase = createServiceClient();
 
     // Fetch the invite
     const { data: invite, error: inviteError } = await supabase
@@ -103,8 +88,7 @@ export async function POST(
     }
 
     // Resend invite via Supabase Auth
-    const serviceSupabase = createServiceClient();
-    const { error: inviteResendError } = await serviceSupabase.auth.admin.inviteUserByEmail(
+    const { error: inviteResendError } = await supabase.auth.admin.inviteUserByEmail(
       invite.email,
       {
         redirectTo: `${BASE_URL}/driver/onboard`,
