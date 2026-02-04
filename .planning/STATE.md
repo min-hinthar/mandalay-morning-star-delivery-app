@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 36.2 of 39 (Feature Finalization & Polish) - In progress
-Plan: 7 of 9 in phase 36.2
-Status: Plan 07 complete (Settings Forms Polish)
-Last activity: 2026-02-04 - Completed 36.2-07-PLAN.md
+Plan: 8 of 9 in phase 36.2
+Status: Plan 08 complete (Customer Account Tabs Polish)
+Last activity: 2026-02-04 - Completed 36.2-08-PLAN.md
 
-Progress: [############################################################-] v1.4 29/28 (103%)
+Progress: [############################################################-] v1.4 30/28 (107%)
 
 ## Milestones
 
@@ -31,8 +31,8 @@ Progress: [############################################################-] v1.4 2
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 168 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 29
+- Total plans completed: 169 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 30
 
 **By Phase (v1.4):**
 
@@ -42,7 +42,7 @@ Progress: [############################################################-] v1.4 2
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
 | 36.1 | 11/11 | Complete |
-| 36.2 | 7/9 | In progress |
+| 36.2 | 8/9 | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -130,6 +130,10 @@ Progress: [############################################################-] v1.4 2
 | 36.2-07 | DiscardChangesModal reused | Component already created in 36.2-08 plan |
 | 36.2-07 | 2-second checkmark flash | Clear visual feedback after successful save |
 | 36.2-07 | Skeleton matches form layout | Prevents content jump during load |
+| 36.2-08 | Inline validation only on submit | Better UX than real-time for simple forms |
+| 36.2-08 | Composed icon illustrations | Lucide icons layered for empty state illustrations |
+| 36.2-08 | Success checkmark animation | ProfileTab shows brief checkmark after save |
+| 36.2-08 | Field error clearing on change | Clears inline error when user types |
 
 ### Roadmap Evolution
 
@@ -182,10 +186,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 36.2-07-PLAN.md
+Stopped at: Completed 36.2-08-PLAN.md
 Resume file: None
-Next action: Execute 36.2-08-PLAN.md (Customer Account Polish)
+Next action: Execute 36.2-09-PLAN.md (Final Phase Polish)
 
 ---
 
-*Updated: 2026-02-04 - Completed Plan 07: Settings forms polish with skeleton, checkmark, discard modal*
+*Updated: 2026-02-04 - Completed Plan 08: Customer account tabs polish with skeletons, validation, empty states*
