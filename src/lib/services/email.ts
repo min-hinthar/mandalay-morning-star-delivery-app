@@ -5,7 +5,8 @@ import { DriverInviteEmail } from "@/emails/DriverInviteEmail";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_ADDRESS =
-  process.env.EMAIL_FROM_ADDRESS || "Morning Star <noreply@morningstardelivery.com>";
+  process.env.EMAIL_FROM_ADDRESS ||
+  "Mandalay Morning Star <admin@mandalaymorningstar.com>";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 interface SendEmailResult {
@@ -34,7 +35,7 @@ export async function sendDriverInvite(
   const { data, error } = await resend.emails.send({
     from: FROM_ADDRESS,
     to: email,
-    subject: "You're invited to join Morning Star Delivery",
+    subject: "You're invited to join Mandalay Morning Star Delivery",
     react: DriverInviteEmail({
       inviteUrl,
       expiresAt: expiresAtFormatted,
