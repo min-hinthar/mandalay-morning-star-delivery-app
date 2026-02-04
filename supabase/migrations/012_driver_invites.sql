@@ -37,6 +37,13 @@ CREATE POLICY "Admins can manage driver invites"
       WHERE profiles.id = auth.uid()
       AND profiles.role = 'admin'
     )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'admin'
+    )
   );
 
 -- Public can read valid tokens (for onboarding page)
