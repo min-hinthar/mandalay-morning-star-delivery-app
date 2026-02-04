@@ -130,17 +130,28 @@ export async function POST(request: NextRequest) {
     );
 
     if (existingAuthUser) {
-      // User exists - send magic link with metadata
-      // The data option updates user_metadata when they confirm the OTP
+      // User exists - update metadata first via admin API
+      const { error: updateError } = await supabase.auth.admin.updateUserById(
+        existingAuthUser.id,
+        {
+          user_metadata: {
+            ...existingAuthUser.user_metadata,
+            role: "driver",
+            invite_id: invite.id,
+          },
+        }
+      );
+
+      if (updateError) {
+        logger.exception(updateError, { api: "admin/drivers/invite", flowId: "update-metadata" });
+      }
+
+      // Send magic link email
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email: normalizedEmail,
         options: {
           emailRedirectTo: `${BASE_URL}/driver/onboard`,
           shouldCreateUser: false,
-          data: {
-            role: "driver",
-            invite_id: invite.id,
-          },
         },
       });
 

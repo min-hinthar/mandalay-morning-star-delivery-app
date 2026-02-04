@@ -107,7 +107,10 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
           </Card>
           {/* Debug info */}
           <p className="mt-4 text-xs text-center text-gray-400">
-            State: invalid_role | Role: {userRole || "none"} | InviteId: {inviteId || "none"}
+            State: invalid_role | Role: {userRole || "none"} | InviteId: {inviteId || "none"} | Email: {user.email}
+          </p>
+          <p className="mt-1 text-xs text-center text-gray-400 break-all">
+            Metadata: {JSON.stringify(user.user_metadata)}
           </p>
         </div>
       </main>
@@ -115,12 +118,20 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
   }
 
   // Check if invite is still valid
-  const { data: invite } = await supabase
+  const { data: invite, error: inviteError } = await supabase
     .from("driver_invites")
     .select("id, accepted_at")
     .eq("id", inviteId)
     .returns<InviteRow[]>()
     .single();
+
+  // Debug: Log invite lookup
+  console.log("[DriverOnboard] Invite lookup:", {
+    inviteId,
+    found: !!invite,
+    error: inviteError?.message,
+    code: inviteError?.code,
+  });
 
   if (!invite) {
     return (
@@ -148,6 +159,10 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
               </div>
             </CardContent>
           </Card>
+          {/* Debug info */}
+          <p className="mt-4 text-xs text-center text-gray-400">
+            State: invite_not_found | ID: {inviteId} | Error: {inviteError?.message || "none"}
+          </p>
         </div>
       </main>
     );
