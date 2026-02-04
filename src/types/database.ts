@@ -540,7 +540,7 @@ export interface FeaturedSectionItemsUpdate {
 export interface DriverInvitesRow {
   id: string;
   email: string;
-  token: string;
+  token: string | null;
   invited_by: string;
   expires_at: string;
   accepted_at: string | null;
@@ -551,7 +551,7 @@ export interface DriverInvitesRow {
 export interface DriverInvitesInsert {
   id?: string;
   email: string;
-  token: string;
+  token?: string | null;
   invited_by: string;
   expires_at: string;
   accepted_at?: string | null;

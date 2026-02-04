@@ -100,7 +100,6 @@ export async function POST(request: NextRequest) {
       .from("driver_invites")
       .insert({
         email: normalizedEmail,
-        token: "supabase-auth", // Placeholder - Supabase handles actual auth token
         invited_by: userId,
         expires_at: expiresAt.toISOString(),
       })
