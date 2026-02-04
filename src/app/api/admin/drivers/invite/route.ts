@@ -33,11 +33,15 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
  */
 export async function POST(request: NextRequest) {
   try {
+    // Verify admin access
     const auth = await requireAdmin();
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-    const { supabase, userId } = auth;
+    const { userId } = auth;
+
+    // Use service client to bypass RLS for admin operations
+    const supabase = createServiceClient();
 
     // Parse and validate request body
     const body = await request.json();
@@ -96,7 +100,7 @@ export async function POST(request: NextRequest) {
 
     // Create invite record for tracking (24 hour expiry)
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-    // Generate unique placeholder token (required until migration 015 is applied)
+    // Generate unique placeholder token (for backwards compatibility)
     const placeholderToken = `supabase-${crypto.randomBytes(16).toString("hex")}`;
 
     const { data: invite, error: insertError } = await supabase
@@ -120,8 +124,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send invite email via Supabase Auth
-    const serviceSupabase = createServiceClient();
-    const { error: inviteError } = await serviceSupabase.auth.admin.inviteUserByEmail(
+    const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
       normalizedEmail,
       {
         redirectTo: `${BASE_URL}/driver/onboard`,
