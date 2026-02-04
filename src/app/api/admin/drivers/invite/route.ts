@@ -123,26 +123,60 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send invite email via Supabase Auth
-    const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
-      normalizedEmail,
-      {
-        redirectTo: `${BASE_URL}/driver/onboard`,
-        data: {
+    // Check if user already exists in auth.users
+    const { data: existingAuthUsers } = await supabase.auth.admin.listUsers();
+    const existingAuthUser = existingAuthUsers?.users?.find(
+      (u) => u.email?.toLowerCase() === normalizedEmail
+    );
+
+    if (existingAuthUser) {
+      // User exists - update metadata and send magic link email
+      await supabase.auth.admin.updateUserById(existingAuthUser.id, {
+        user_metadata: {
+          ...existingAuthUser.user_metadata,
           role: "driver",
           invite_id: invite.id,
         },
-      }
-    );
+      });
 
-    if (inviteError) {
-      logger.exception(inviteError, { api: "admin/drivers/invite", flowId: "supabase-invite" });
-      // Clean up the invite record since email failed
-      await supabase.from("driver_invites").delete().eq("id", invite.id);
-      return NextResponse.json(
-        { error: "Failed to send invite email", details: inviteError.message, code: inviteError.code },
-        { status: 500 }
+      // Send magic link email using signInWithOtp (this actually sends the email)
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email: normalizedEmail,
+        options: {
+          emailRedirectTo: `${BASE_URL}/driver/onboard`,
+          shouldCreateUser: false,
+        },
+      });
+
+      if (otpError) {
+        logger.exception(otpError, { api: "admin/drivers/invite", flowId: "magic-link" });
+        await supabase.from("driver_invites").delete().eq("id", invite.id);
+        return NextResponse.json(
+          { error: "Failed to send invite email", details: otpError.message },
+          { status: 500 }
+        );
+      }
+    } else {
+      // New user - send invite
+      const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
+        normalizedEmail,
+        {
+          redirectTo: `${BASE_URL}/driver/onboard`,
+          data: {
+            role: "driver",
+            invite_id: invite.id,
+          },
+        }
       );
+
+      if (inviteError) {
+        logger.exception(inviteError, { api: "admin/drivers/invite", flowId: "supabase-invite" });
+        await supabase.from("driver_invites").delete().eq("id", invite.id);
+        return NextResponse.json(
+          { error: "Failed to send invite email", details: inviteError.message, code: inviteError.code },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json(
