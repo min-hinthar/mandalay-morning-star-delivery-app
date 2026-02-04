@@ -16,6 +16,7 @@ import {
   MessageSquare,
   Route,
   Zap,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,8 @@ import {
 import { RouteStatsBar } from "./RouteStatsBar";
 import { StopsList } from "./StopsList";
 import { RouteMap } from "./RouteMap";
+import { OptimizationModal, type StopSummary } from "./OptimizationModal";
+import { toast } from "@/lib/hooks/useToast";
 import type { RouteStatus, RouteStopStatus, DriverListItem, StopDetail, RouteStats } from "@/types/driver";
 
 // API Response types
@@ -80,8 +83,9 @@ export function RouteDetailClient() {
   const [drivers, setDrivers] = useState<DriverOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [isOptimizing, setIsOptimizing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [optimizationModalOpen, setOptimizationModalOpen] = useState(false);
+  const [isManuallyReordered, setIsManuallyReordered] = useState(false);
 
   // Refs for scroll-to-stop functionality
   const stopRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -260,27 +264,46 @@ export function RouteDetailClient() {
     }
   };
 
-  // Handle optimize route
-  const handleOptimize = async () => {
-    if (!route || isOptimizing || route.status !== "planned") return;
+  // Handle optimization modal apply
+  const handleOptimizationApply = async (
+    _optimizedStops: StopSummary[],
+    savings: { durationSeconds: number; distanceMeters: number }
+  ) => {
+    if (!route) return;
 
-    setIsOptimizing(true);
-    try {
-      const response = await fetch(`/api/admin/routes/${routeId}/optimize`, {
-        method: "POST",
-      });
+    // Close modal
+    setOptimizationModalOpen(false);
 
-      if (!response.ok) {
-        throw new Error("Failed to optimize route");
-      }
+    // The optimization API already updates the database
+    // Just refetch to get the new order
+    await fetchRoute();
 
-      // Refetch to get optimized order
-      await fetchRoute();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to optimize route");
-    } finally {
-      setIsOptimizing(false);
-    }
+    // Clear manual reorder flag
+    setIsManuallyReordered(false);
+
+    // Show success toast with savings
+    const minutes = Math.round(savings.durationSeconds / 60);
+    const miles = (savings.distanceMeters / 1609.34).toFixed(1);
+    toast({
+      title: "Route optimized",
+      description: `Saved ${minutes} min / ${miles} mi`,
+      variant: "success",
+    });
+  };
+
+  // Convert stops to StopSummary format for modal
+  const getStopSummaries = (): StopSummary[] => {
+    if (!route) return [];
+    return [...route.stops]
+      .sort((a, b) => a.stopIndex - b.stopIndex)
+      .map((stop, index) => ({
+        id: stop.id,
+        stopNumber: index + 1,
+        customerName: stop.order?.customer?.fullName || "Unknown Customer",
+        address: stop.order?.address
+          ? `${stop.order.address.line1}, ${stop.order.address.city}`
+          : "Unknown Address",
+      }));
   };
 
   // Loading skeleton
@@ -378,12 +401,22 @@ export function RouteDetailClient() {
           {route.status === "planned" && route.stops.length > 1 && (
             <Button
               variant="outline"
-              onClick={handleOptimize}
-              isLoading={isOptimizing}
+              onClick={() => setOptimizationModalOpen(true)}
               leftIcon={<Zap className="h-4 w-4" />}
             >
               Optimize
             </Button>
+          )}
+
+          {/* Manual reorder warning badge */}
+          {isManuallyReordered && route.status === "planned" && (
+            <Badge
+              variant="outline"
+              className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-700/30 gap-1.5"
+            >
+              <AlertTriangle className="h-3.5 w-3.5" />
+              Not optimized
+            </Badge>
           )}
 
           {/* Refresh button */}
@@ -517,6 +550,15 @@ export function RouteDetailClient() {
         onStatusChange={handleStopStatusChange}
         onRemoveStop={handleRemoveStop}
         stopRefs={stopRefs}
+      />
+
+      {/* Optimization Modal */}
+      <OptimizationModal
+        open={optimizationModalOpen}
+        onOpenChange={setOptimizationModalOpen}
+        routeId={routeId}
+        currentStops={getStopSummaries()}
+        onApply={handleOptimizationApply}
       />
     </div>
   );
