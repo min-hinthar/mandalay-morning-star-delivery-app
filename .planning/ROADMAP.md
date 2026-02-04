@@ -23,7 +23,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 35: Mobile Crash Prevention** - Zero crashes on mobile devices via systematic cleanup patterns
 - [x] **Phase 35.1: Admin Photo Upload & Featured Management (INSERTED)** - Supabase image storage, remove Browse All Dishes, expand Featured Dishes with admin management
 - [x] **Phase 36: Image Optimization & LCP** - Sub-2.5s LCP with optimized image loading and CLS prevention
-- [ ] **Phase 36.1: Routes & Driver Features (INSERTED)** - Complete missing page routes and admin driver management
+- [x] **Phase 36.1: Routes & Driver Features (INSERTED)** - Complete missing page routes and admin driver management
 - [ ] **Phase 37: Codebase Cleanup** - Remove dead code and enforce directory structure
 - [ ] **Phase 38: Customer Offline Support** - Service worker caching and offline menu browsing
 - [ ] **Phase 39: Animation Optimization** - Device-adaptive animations and conflict resolution
@@ -112,17 +112,17 @@ Plans:
 **Plans**: 11 plans
 
 Plans:
-- [ ] 36.1-01-PLAN.md — Settings database infrastructure and APIs
-- [ ] 36.1-02-PLAN.md — Driver APIs (routes, ratings, archive)
-- [ ] 36.1-03-PLAN.md — Route stop and exception APIs
-- [ ] 36.1-04-PLAN.md — Driver detail page UI
-- [ ] 36.1-05-PLAN.md — Route detail page UI (without map)
-- [ ] 36.1-06-PLAN.md — Route map with Google Maps
-- [ ] 36.1-07-PLAN.md — Settings page with tabs
-- [ ] 36.1-08-PLAN.md — Customer account APIs
-- [ ] 36.1-09-PLAN.md — Customer account page UI
-- [ ] 36.1-10-PLAN.md — Order audit log and cancel/refund APIs
-- [ ] 36.1-11-PLAN.md — Navigation integration and verification
+- [x] 36.1-01-PLAN.md — Settings database infrastructure and APIs
+- [x] 36.1-02-PLAN.md — Driver APIs (routes, ratings, archive)
+- [x] 36.1-03-PLAN.md — Route stop and exception APIs
+- [x] 36.1-04-PLAN.md — Driver detail page UI
+- [x] 36.1-05-PLAN.md — Route detail page UI (without map)
+- [x] 36.1-06-PLAN.md — Route map with Google Maps
+- [x] 36.1-07-PLAN.md — Settings page with tabs
+- [x] 36.1-08-PLAN.md — Customer account APIs
+- [x] 36.1-09-PLAN.md — Customer account page UI
+- [x] 36.1-10-PLAN.md — Order audit log and cancel/refund APIs
+- [x] 36.1-11-PLAN.md — Navigation integration and verification
 
 **Details:**
 - Driver detail page: Activity-focused layout with routes, ratings, profile management
@@ -190,7 +190,7 @@ Phases execute in numeric order: 35 -> 35.1 -> 36 -> 37 -> 38 -> 39
 | 35. Mobile Crash Prevention | v1.4 | 3/3 | Complete | 2026-01-30 |
 | 35.1 Admin Photo Upload & Featured (INSERTED) | v1.4 | 5/5 | Complete | 2026-02-01 |
 | 36. Image Optimization & LCP | v1.4 | 3/3 | Complete | 2026-02-01 |
-| 36.1 Routes & Driver Features (INSERTED) | v1.4 | 0/11 | Planned | - |
+| 36.1 Routes & Driver Features (INSERTED) | v1.4 | 11/11 | Complete | 2026-02-03 |
 | 37. Codebase Cleanup | v1.4 | 0/2 | Not started | - |
 | 38. Customer Offline Support | v1.4 | 0/3 | Not started | - |
 | 39. Animation Optimization | v1.4 | 0/2 | Not started | - |
