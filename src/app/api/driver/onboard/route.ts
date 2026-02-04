@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createPublicClient, createServiceClient, createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 
 const onboardSchema = z.object({
-  token: z.string().min(1, "Token is required"),
+  inviteId: z.string().uuid("Invalid invite ID"),
   fullName: z
     .string()
     .min(2, "Name must be at least 2 characters")
@@ -18,13 +18,7 @@ const onboardSchema = z.object({
 interface DriverInviteRow {
   id: string;
   email: string;
-  expires_at: string;
   accepted_at: string | null;
-  revoked_at: string | null;
-}
-
-interface ProfileRow {
-  id: string;
 }
 
 interface DriverRow {
@@ -33,7 +27,8 @@ interface DriverRow {
 
 /**
  * POST /api/driver/onboard
- * Complete driver registration using an invite token
+ * Complete driver registration for an invited user
+ * User must be authenticated via Supabase invite link
  */
 export async function POST(request: NextRequest) {
   try {
@@ -48,92 +43,118 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { token, fullName, phone, vehicleType, licensePlate, password } = result.data;
+    const { inviteId, fullName, phone, vehicleType, licensePlate, password } = result.data;
 
-    // Use public client to validate token (RLS allows public SELECT on valid tokens)
-    const publicSupabase = createPublicClient();
+    // Get authenticated user from session
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-    // Step 1: Validate token
-    const { data: invite, error: inviteError } = await publicSupabase
+    if (authError || !user) {
+      logger.warn("Driver onboard: No authenticated user");
+      return NextResponse.json(
+        { error: "Please click the link in your invitation email to continue" },
+        { status: 401 }
+      );
+    }
+
+    // Verify user metadata matches invite
+    const userInviteId = user.user_metadata?.invite_id as string | undefined;
+    const userRole = user.user_metadata?.role as string | undefined;
+
+    if (userRole !== "driver" || userInviteId !== inviteId) {
+      logger.warn("Driver onboard: Invalid invite metadata", {
+        userInviteId,
+        inviteId,
+        userRole,
+      });
+      return NextResponse.json(
+        { error: "Invalid invitation. Please use the link from your email." },
+        { status: 403 }
+      );
+    }
+
+    const email = user.email;
+    if (!email) {
+      return NextResponse.json(
+        { error: "User email not found" },
+        { status: 400 }
+      );
+    }
+
+    // Verify invite exists and is not already accepted
+    const serviceSupabase = createServiceClient();
+
+    const { data: invite, error: inviteError } = await serviceSupabase
       .from("driver_invites")
-      .select("id, email, expires_at, accepted_at, revoked_at")
-      .eq("token", token)
-      .gt("expires_at", new Date().toISOString())
-      .is("accepted_at", null)
-      .is("revoked_at", null)
+      .select("id, email, accepted_at")
+      .eq("id", inviteId)
       .returns<DriverInviteRow[]>()
       .single();
 
     if (inviteError || !invite) {
-      logger.warn("Driver onboard: Invalid or expired token", { token: token.substring(0, 8) + "..." });
+      logger.warn("Driver onboard: Invite not found", { inviteId });
       return NextResponse.json(
-        { error: "This invitation link is invalid or has expired" },
+        { error: "Invitation not found. Please contact your administrator." },
         { status: 404 }
       );
     }
 
-    const email = invite.email;
-
-    // Step 2: Create auth user using service role client (bypasses RLS)
-    const serviceSupabase = createServiceClient();
-
-    // Check if user already exists
-    const { data: existingProfile } = await serviceSupabase
-      .from("profiles")
-      .select("id")
-      .eq("email", email)
-      .returns<ProfileRow[]>()
-      .single();
-
-    if (existingProfile) {
-      // Check if they're already a driver
+    if (invite.accepted_at) {
+      // Check if they have a driver record (may have completed already)
       const { data: existingDriver } = await serviceSupabase
         .from("drivers")
         .select("id")
-        .eq("user_id", existingProfile.id)
+        .eq("user_id", user.id)
         .returns<DriverRow[]>()
         .single();
 
       if (existingDriver) {
         return NextResponse.json(
-          { error: "This email is already registered as a driver" },
-          { status: 409 }
+          {
+            message: "Registration already complete",
+            redirectUrl: "/driver",
+          },
+          { status: 200 }
         );
       }
+    }
 
-      // User exists but not as driver - this shouldn't happen with invite flow
+    // Check if user already has a driver record
+    const { data: existingDriver } = await serviceSupabase
+      .from("drivers")
+      .select("id")
+      .eq("user_id", user.id)
+      .returns<DriverRow[]>()
+      .single();
+
+    if (existingDriver) {
       return NextResponse.json(
-        { error: "This email is already registered. Please contact support." },
+        { error: "You are already registered as a driver" },
         { status: 409 }
       );
     }
 
-    // Create new auth user
-    const { data: authData, error: signUpError } = await serviceSupabase.auth.admin.createUser({
-      email,
+    // Step 1: Update user password
+    const { error: passwordError } = await supabase.auth.updateUser({
       password,
-      email_confirm: true, // Auto-confirm since they used invite link
-      user_metadata: {
-        full_name: fullName,
-        role: "driver",
-      },
     });
 
-    if (signUpError || !authData.user) {
-      logger.exception(signUpError, { api: "driver/onboard", flowId: "signUp" });
+    if (passwordError) {
+      logger.exception(passwordError, { api: "driver/onboard", flowId: "updatePassword" });
       return NextResponse.json(
-        { error: "Failed to create account. Please try again." },
+        { error: "Failed to set password. Please try again." },
         { status: 500 }
       );
     }
 
-    const userId = authData.user.id;
-
-    // Step 3: Create profile record
+    // Step 2: Create profile record
     const { error: profileError } = await serviceSupabase
       .from("profiles")
       .insert({
-        id: userId,
+        id: user.id,
         email: email,
         full_name: fullName,
         phone: phone,
@@ -142,17 +163,15 @@ export async function POST(request: NextRequest) {
 
     if (profileError) {
       logger.exception(profileError, { api: "driver/onboard", flowId: "profile" });
-      // Attempt cleanup - delete auth user
-      await serviceSupabase.auth.admin.deleteUser(userId);
       return NextResponse.json(
         { error: "Failed to create profile. Please try again." },
         { status: 500 }
       );
     }
 
-    // Step 4: Create driver record
+    // Step 3: Create driver record
     const { error: driverError } = await serviceSupabase.from("drivers").insert({
-      user_id: userId,
+      user_id: user.id,
       vehicle_type: vehicleType,
       license_plate: licensePlate.toUpperCase(),
       phone: phone,
@@ -162,43 +181,23 @@ export async function POST(request: NextRequest) {
 
     if (driverError) {
       logger.exception(driverError, { api: "driver/onboard", flowId: "driver" });
-      // Attempt cleanup - delete profile and auth user
-      await serviceSupabase.from("profiles").delete().eq("id", userId);
-      await serviceSupabase.auth.admin.deleteUser(userId);
+      // Attempt cleanup - delete profile
+      await serviceSupabase.from("profiles").delete().eq("id", user.id);
       return NextResponse.json(
         { error: "Failed to create driver record. Please try again." },
         { status: 500 }
       );
     }
 
-    // Step 5: Mark invite as accepted
+    // Step 4: Mark invite as accepted
     const { error: updateError } = await serviceSupabase
       .from("driver_invites")
       .update({ accepted_at: new Date().toISOString() })
-      .eq("id", invite.id);
+      .eq("id", inviteId);
 
     if (updateError) {
       logger.exception(updateError, { api: "driver/onboard", flowId: "updateInvite" });
       // Non-critical - continue
-    }
-
-    // Step 6: Sign in the user using regular client (to set session cookie)
-    const supabase = await createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (signInError) {
-      logger.exception(signInError, { api: "driver/onboard", flowId: "signIn" });
-      // Account was created but sign-in failed - redirect to login
-      return NextResponse.json(
-        {
-          message: "Account created successfully. Please sign in.",
-          redirectUrl: "/login",
-        },
-        { status: 201 }
-      );
     }
 
     return NextResponse.json(

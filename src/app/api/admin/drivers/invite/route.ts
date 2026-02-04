@@ -1,9 +1,8 @@
-import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth";
-import { sendDriverInvite } from "@/lib/services/email";
+import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 
 const inviteSchema = z.object({
@@ -25,9 +24,11 @@ interface DriverInviteRow {
   expires_at: string;
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
 /**
  * POST /api/admin/drivers/invite
- * Send a driver invite email with onboarding token
+ * Send a driver invite email using Supabase Auth
  */
 export async function POST(request: NextRequest) {
   try {
@@ -92,16 +93,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate secure token and expiration
-    const token = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    // Create invite record for tracking (24 hour expiry)
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    // Insert invite record
     const { data: invite, error: insertError } = await supabase
       .from("driver_invites")
       .insert({
         email: normalizedEmail,
-        token,
+        token: "supabase-auth", // Placeholder - Supabase handles actual auth token
         invited_by: userId,
         expires_at: expiresAt.toISOString(),
       })
@@ -117,21 +116,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send invite email (non-blocking - log error but still return success)
-    try {
-      const { error: emailError } = await sendDriverInvite(
-        normalizedEmail,
-        token,
-        expiresAt
-      );
-
-      if (emailError) {
-        logger.exception(emailError, { api: "admin/drivers/invite", flowId: "email" });
-        // Still return success since DB insert worked
+    // Send invite email via Supabase Auth
+    const serviceSupabase = createServiceClient();
+    const { error: inviteError } = await serviceSupabase.auth.admin.inviteUserByEmail(
+      normalizedEmail,
+      {
+        redirectTo: `${BASE_URL}/driver/onboard`,
+        data: {
+          role: "driver",
+          invite_id: invite.id,
+        },
       }
-    } catch (emailError) {
-      logger.exception(emailError, { api: "admin/drivers/invite", flowId: "email" });
-      // Still return success since DB insert worked
+    );
+
+    if (inviteError) {
+      logger.exception(inviteError, { api: "admin/drivers/invite", flowId: "supabase-invite" });
+      // Clean up the invite record since email failed
+      await supabase.from("driver_invites").delete().eq("id", invite.id);
+      return NextResponse.json(
+        { error: "Failed to send invite email. Please try again." },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(

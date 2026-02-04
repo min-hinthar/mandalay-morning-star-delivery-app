@@ -59,12 +59,12 @@ type FieldErrors = Partial<Record<keyof FormData, string>>;
 
 interface OnboardingFormProps {
   email: string;
-  token: string;
+  inviteId: string;
 }
 
 export function OnboardingForm({
   email: _email,
-  token,
+  inviteId,
 }: OnboardingFormProps): ReactElement {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,7 +115,7 @@ export function OnboardingForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          token,
+          inviteId,
           fullName: result.data.fullName,
           phone: result.data.phone,
           vehicleType: result.data.vehicleType,
