@@ -23,7 +23,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
-import { Drawer } from "@/components/ui";
+import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "./CartItem";
 import { CartSummary } from "./CartSummary";

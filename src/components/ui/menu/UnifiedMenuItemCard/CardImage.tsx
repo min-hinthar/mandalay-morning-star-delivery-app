@@ -4,7 +4,7 @@ import { memo, useState } from "react";
 import { motion, MotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { getCategoryEmoji } from "@/components/ui/menu";
+import { getCategoryEmoji } from "../EmojiPlaceholder";
 import { zClass } from "@/lib/design-system/tokens/z-index";
 
 // ============================================

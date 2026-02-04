@@ -16,7 +16,7 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, Trash2 } from "lucide-react";
-import { Modal } from "@/components/ui";
+import { Modal } from "@/components/ui/Modal";
 import { useCart } from "@/lib/hooks/useCart";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";

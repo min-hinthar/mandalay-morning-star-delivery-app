@@ -26,39 +26,15 @@ import { NotificationSettingsForm } from "./NotificationSettingsForm";
 import { useToast } from "@/lib/hooks/useToast";
 import { spring, variants } from "@/lib/motion-tokens";
 import { cn } from "@/lib/utils/cn";
+import type {
+  DeliverySettings,
+  OperationsSettings,
+  NotificationSettings,
+  AllSettings,
+} from "./settings-types";
 
-// ===========================================
-// TYPES
-// ===========================================
-
-export interface DeliverySettings {
-  deliveryRadiusMiles: number;
-  minimumOrderCents: number;
-  freeDeliveryThresholdCents: number;
-  baseDeliveryFeeCents: number;
-  deliveryCutoffTime: string;
-}
-
-export interface OperationsSettings {
-  maxStopsPerRoute: number;
-  autoAssignEnabled: boolean;
-  routeOptimizationEnabled: boolean;
-  defaultVehicleType: "car" | "motorcycle" | "bicycle" | "van" | "truck";
-}
-
-export interface NotificationSettings {
-  emailNotificationsEnabled: boolean;
-  smsNotificationsEnabled: boolean;
-  pushNotificationsEnabled: boolean;
-  notifyOnOrderPlaced: boolean;
-  notifyOnOrderStatusChange: boolean;
-}
-
-export interface AllSettings {
-  delivery: DeliverySettings;
-  operations: OperationsSettings;
-  notifications: NotificationSettings;
-}
+// Re-export types for backward compatibility
+export type { DeliverySettings, OperationsSettings, NotificationSettings, AllSettings } from "./settings-types";
 
 // Default settings (same as API)
 const DEFAULT_SETTINGS: AllSettings = {
