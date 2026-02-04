@@ -1,5 +1,6 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import storybook from "eslint-plugin-storybook";
+import importX from "eslint-plugin-import-x";
 
 import { FlatCompat } from "@eslint/eslintrc";
 import { fileURLToPath } from "node:url";
@@ -112,11 +113,43 @@ const config = [
             {
               group: ["@/design-system/*", "@/design-system"],
               message: "design-system/ consolidated into lib/design-system/. Import from @/lib/design-system."
+            },
+            // Phase 37: navigation/ consolidation guard
+            {
+              group: ["@/components/navigation/*", "@/components/navigation", "**/components/navigation/*"],
+              message: "navigation/ consolidated into ui/layout/ and ui/navigation/. Import from @/components/ui/layout or @/components/ui/navigation."
             }
           ]
         }
       ],
     },
+  },
+  {
+    // Circular dependency prevention - REFACTOR-07
+    plugins: { "import-x": importX },
+    rules: {
+      "import-x/no-cycle": [
+        "error",
+        {
+          maxDepth: 10,
+          ignoreExternal: true,
+        }
+      ]
+    }
+  },
+  {
+    // File size enforcement - REFACTOR-06 (warning only)
+    files: ["src/components/**/*.tsx"],
+    rules: {
+      "max-lines": [
+        "warn",
+        {
+          max: 400,
+          skipBlankLines: true,
+          skipComments: true,
+        }
+      ]
+    }
   },
   {
     // Design Token Enforcement Rules
