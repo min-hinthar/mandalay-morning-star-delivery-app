@@ -534,6 +534,39 @@ export interface FeaturedSectionItemsUpdate {
   sort_order?: number;
 }
 
+export interface DriverInvitesRow {
+  id: string;
+  email: string;
+  token: string;
+  invited_by: string;
+  expires_at: string;
+  accepted_at: string | null;
+  revoked_at: string | null;
+  created_at: string;
+}
+
+export interface DriverInvitesInsert {
+  id?: string;
+  email: string;
+  token: string;
+  invited_by: string;
+  expires_at: string;
+  accepted_at?: string | null;
+  revoked_at?: string | null;
+  created_at?: string;
+}
+
+export interface DriverInvitesUpdate {
+  id?: string;
+  email?: string;
+  token?: string;
+  invited_by?: string;
+  expires_at?: string;
+  accepted_at?: string | null;
+  revoked_at?: string | null;
+  created_at?: string;
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -741,6 +774,20 @@ export type Database = {
             columns: ["item_id"];
             isOneToOne: false;
             referencedRelation: "menu_items";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      driver_invites: {
+        Row: DriverInvitesRow;
+        Insert: DriverInvitesInsert;
+        Update: DriverInvitesUpdate;
+        Relationships: [
+          {
+            foreignKeyName: "driver_invites_invited_by_fkey";
+            columns: ["invited_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           }
         ];
