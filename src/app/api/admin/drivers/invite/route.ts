@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -95,11 +96,14 @@ export async function POST(request: NextRequest) {
 
     // Create invite record for tracking (24 hour expiry)
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    // Generate unique placeholder token (required until migration 015 is applied)
+    const placeholderToken = `supabase-${crypto.randomBytes(16).toString("hex")}`;
 
     const { data: invite, error: insertError } = await supabase
       .from("driver_invites")
       .insert({
         email: normalizedEmail,
+        token: placeholderToken,
         invited_by: userId,
         expires_at: expiresAt.toISOString(),
       })
