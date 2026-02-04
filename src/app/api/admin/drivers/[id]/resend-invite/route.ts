@@ -87,21 +87,52 @@ export async function POST(
       );
     }
 
-    // Resend invite via Supabase Auth
-    const { error: inviteResendError } = await supabase.auth.admin.inviteUserByEmail(
-      invite.email,
-      {
-        redirectTo: `${BASE_URL}/driver/onboard`,
-        data: {
+    // Check if user already exists in auth.users
+    const { data: existingAuthUsers } = await supabase.auth.admin.listUsers();
+    const existingAuthUser = existingAuthUsers?.users?.find(
+      (u) => u.email?.toLowerCase() === invite.email.toLowerCase()
+    );
+
+    if (existingAuthUser) {
+      // User exists - update metadata and send magic link email
+      await supabase.auth.admin.updateUserById(existingAuthUser.id, {
+        user_metadata: {
+          ...existingAuthUser.user_metadata,
           role: "driver",
           invite_id: invite.id,
         },
-      }
-    );
+      });
 
-    if (inviteResendError) {
-      logger.exception(inviteResendError, { api: "admin/drivers/[id]/resend-invite", flowId: "supabase-invite" });
-      // Don't fail - the invite record was updated successfully
+      // Send magic link email using signInWithOtp
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email: invite.email,
+        options: {
+          emailRedirectTo: `${BASE_URL}/driver/onboard`,
+          shouldCreateUser: false,
+        },
+      });
+
+      if (otpError) {
+        logger.exception(otpError, { api: "admin/drivers/[id]/resend-invite", flowId: "magic-link" });
+        // Don't fail - the invite record was updated successfully
+      }
+    } else {
+      // New user - send invite
+      const { error: inviteResendError } = await supabase.auth.admin.inviteUserByEmail(
+        invite.email,
+        {
+          redirectTo: `${BASE_URL}/driver/onboard`,
+          data: {
+            role: "driver",
+            invite_id: invite.id,
+          },
+        }
+      );
+
+      if (inviteResendError) {
+        logger.exception(inviteResendError, { api: "admin/drivers/[id]/resend-invite", flowId: "supabase-invite" });
+        // Don't fail - the invite record was updated successfully
+      }
     }
 
     return NextResponse.json({
