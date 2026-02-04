@@ -6,6 +6,9 @@
  *
  * Features:
  * - Full order history via client-side Supabase
+ * - Skeleton loading state with order card placeholders
+ * - Empty state with illustration and CTA
+ * - Error state with retry button
  * - Reorder button adds items to cart via useCartStore
  * - Cancel button for pending/confirmed orders (requires reason)
  * - Status badges with semantic colors
@@ -22,11 +25,13 @@ import {
   Loader2,
   ShoppingBag,
   AlertCircle,
+  UtensilsCrossed,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -105,10 +110,44 @@ interface OrderRow {
   order_items: Array<{ quantity: number }>;
 }
 
+// Order Card Skeleton Component
+function OrderCardSkeleton() {
+  return (
+    <Card className="shadow-card">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between gap-4">
+          {/* Order Info Skeleton */}
+          <div className="flex items-start gap-4 flex-1 min-w-0">
+            <Skeleton width={40} height={40} radius="full" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <Skeleton height={18} width="50%" radius="sm" />
+              <Skeleton height={14} width="70%" radius="sm" />
+              <Skeleton height={14} width="40%" radius="sm" />
+            </div>
+          </div>
+
+          {/* Price & Status Skeleton */}
+          <div className="text-right space-y-2 flex-shrink-0">
+            <Skeleton height={18} width={60} radius="sm" />
+            <Skeleton height={24} width={80} radius="lg" />
+          </div>
+        </div>
+
+        {/* Action Buttons Skeleton */}
+        <div className="flex gap-2 mt-4 pt-4 border-t border-border">
+          <Skeleton height={36} width={100} radius="lg" />
+          <Skeleton height={36} width={80} radius="lg" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function OrdersTab() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   const [reorderingId, setReorderingId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
@@ -125,6 +164,8 @@ export function OrdersTab() {
 
   // Fetch orders directly from Supabase
   const fetchOrders = useCallback(async () => {
+    setHasError(false);
+    setIsLoading(true);
     try {
       const {
         data: { user },
@@ -171,6 +212,7 @@ export function OrdersTab() {
 
       setOrders(transformedOrders);
     } catch (error) {
+      setHasError(true);
       toast({
         message:
           error instanceof Error ? error.message : "Failed to load orders",
@@ -292,14 +334,48 @@ export function OrdersTab() {
     }
   };
 
+  // Skeleton loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="space-y-4">
+        {[1, 2, 3, 4].map((i) => (
+          <OrderCardSkeleton key={i} />
+        ))}
       </div>
     );
   }
 
+  // Error state
+  if (hasError) {
+    return (
+      <motion.div
+        initial={shouldAnimate ? { opacity: 0 } : undefined}
+        animate={shouldAnimate ? { opacity: 1 } : undefined}
+        className="text-center py-16"
+      >
+        <div className="rounded-full bg-status-error/10 w-20 h-20 mx-auto flex items-center justify-center mb-6">
+          <AlertCircle className="h-10 w-10 text-status-error" />
+        </div>
+        <h2 className="text-xl font-display font-bold text-text-primary mb-2">
+          Unable to load orders
+        </h2>
+        <p className="font-body text-text-secondary mb-8">
+          We couldn&apos;t fetch your order history. Please try again.
+        </p>
+        <Button
+          variant="primary"
+          size="lg"
+          onClick={fetchOrders}
+          className="shadow-elevated"
+        >
+          <RefreshCcw className="h-4 w-4 mr-2" />
+          Try Again
+        </Button>
+      </motion.div>
+    );
+  }
+
+  // Empty state with illustration
   if (orders.length === 0) {
     return (
       <motion.div
@@ -307,14 +383,29 @@ export function OrdersTab() {
         animate={shouldAnimate ? { opacity: 1 } : undefined}
         className="text-center py-16"
       >
-        <div className="rounded-full bg-surface-tertiary w-20 h-20 mx-auto flex items-center justify-center mb-6">
-          <ShoppingBag className="h-10 w-10 text-text-muted" />
+        {/* Illustration: Food/delivery themed */}
+        <div className="relative w-32 h-32 mx-auto mb-6">
+          {/* Background circle */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-curry/20 to-primary/10" />
+          {/* Main icon */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <ShoppingBag className="h-12 w-12 text-curry" />
+          </div>
+          {/* Decorative elements */}
+          <div className="absolute -top-2 -right-2 bg-surface-primary rounded-full p-2 shadow-card">
+            <UtensilsCrossed className="h-5 w-5 text-primary" />
+          </div>
+          <div className="absolute -bottom-1 -left-1 bg-surface-primary rounded-full p-1.5 shadow-card">
+            <Package className="h-4 w-4 text-text-muted" />
+          </div>
         </div>
+
         <h2 className="text-xl font-display font-bold text-text-primary mb-2">
           No orders yet
         </h2>
-        <p className="font-body text-text-secondary mb-8">
-          When you place an order, it will appear here.
+        <p className="font-body text-text-secondary mb-8 max-w-sm mx-auto">
+          When you place an order, it will appear here. Ready to discover
+          delicious Burmese cuisine?
         </p>
         <Button asChild variant="primary" size="lg" className="shadow-elevated">
           <Link href="/menu">Browse Menu</Link>
