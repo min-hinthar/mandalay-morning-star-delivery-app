@@ -12,11 +12,14 @@
  * - Unsaved changes warning (UI + beforeunload)
  */
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Truck, Settings2, Bell, Save, RotateCcw, Loader2 } from "lucide-react";
+import { Truck, Settings2, Bell, Save, RotateCcw, Loader2, Check } from "lucide-react";
 import { Tabs } from "@/components/ui/Tabs";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DiscardChangesModal } from "@/components/ui/DiscardChangesModal";
 import { DeliverySettingsForm } from "./DeliverySettingsForm";
 import { OperationsSettingsForm } from "./OperationsSettingsForm";
 import { NotificationSettingsForm } from "./NotificationSettingsForm";
@@ -92,15 +95,67 @@ const SETTINGS_TABS = [
 ];
 
 // ===========================================
+// SKELETON LOADING UI
+// ===========================================
+
+function SettingsSkeleton() {
+  return (
+    <div className="p-4 md:p-8 max-w-4xl mx-auto">
+      {/* Header skeleton */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <Skeleton height={32} width={120} radius="md" />
+        <div className="flex gap-3 w-full sm:w-auto">
+          <Skeleton height={44} width={150} radius="lg" />
+          <Skeleton height={44} width={140} radius="lg" />
+        </div>
+      </div>
+
+      {/* Tabs skeleton */}
+      <div className="flex gap-2 mb-6">
+        <Skeleton height={40} width={100} radius="lg" />
+        <Skeleton height={40} width={110} radius="lg" />
+        <Skeleton height={40} width={120} radius="lg" />
+      </div>
+
+      {/* Form skeleton */}
+      <div className="space-y-6">
+        {/* Section header */}
+        <div className="pb-4 border-b border-border-subtle">
+          <Skeleton height={24} width={180} radius="sm" />
+          <Skeleton height={16} width={280} radius="sm" className="mt-2" />
+        </div>
+
+        {/* Form fields grid */}
+        <div className="grid gap-6 sm:grid-cols-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="space-y-2">
+              <Skeleton height={16} width={120} radius="sm" />
+              <Skeleton height={44} width={200} radius="md" />
+              <Skeleton height={12} width={180} radius="sm" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===========================================
 // COMPONENT
 // ===========================================
 
 export function SettingsClient() {
+  const router = useRouter();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("delivery");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [restoring, setRestoring] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // Discard modal state
+  const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const pendingNavigationRef = useRef<string | null>(null);
 
   // Settings state
   const [originalSettings, setOriginalSettings] = useState<AllSettings>(DEFAULT_SETTINGS);
@@ -200,19 +255,54 @@ export function SettingsClient() {
       }
 
       setOriginalSettings(settings);
+
+      // Show success checkmark briefly
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 2000);
+
       toast({
         variant: "success",
         description: "Settings saved successfully",
       });
+
+      return true; // Return success for modal handler
     } catch (error) {
       toast({
         variant: "destructive",
         description: error instanceof Error ? error.message : "Failed to save settings",
       });
+      return false;
     } finally {
       setSaving(false);
     }
   }, [hasChanges, settings, originalSettings, toast]);
+
+  // Discard changes and navigate
+  const handleDiscard = useCallback(() => {
+    setShowDiscardModal(false);
+    if (pendingNavigationRef.current) {
+      router.push(pendingNavigationRef.current);
+      pendingNavigationRef.current = null;
+    }
+  }, [router]);
+
+  // Save and then navigate
+  const handleSaveAndNavigate = useCallback(async () => {
+    const success = await handleSave();
+    if (success) {
+      setShowDiscardModal(false);
+      if (pendingNavigationRef.current) {
+        router.push(pendingNavigationRef.current);
+        pendingNavigationRef.current = null;
+      }
+    }
+  }, [handleSave, router]);
+
+  // Cancel navigation
+  const handleCancelNavigation = useCallback(() => {
+    setShowDiscardModal(false);
+    pendingNavigationRef.current = null;
+  }, []);
 
   // Restore defaults handler
   const handleRestoreDefaults = useCallback(async () => {
@@ -263,11 +353,7 @@ export function SettingsClient() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <SettingsSkeleton />;
   }
 
   return (
@@ -295,17 +381,19 @@ export function SettingsClient() {
             <span className="ml-2">Restore Defaults</span>
           </Button>
           <Button
-            variant="primary"
+            variant={showSuccess ? "success" : "primary"}
             onClick={handleSave}
-            disabled={!hasChanges || saving || restoring}
+            disabled={!hasChanges || saving || restoring || showSuccess}
             className="flex-1 sm:flex-none"
           >
             {saving ? (
               <Loader2 className="h-4 w-4 animate-spin" />
+            ) : showSuccess ? (
+              <Check className="h-4 w-4" />
             ) : (
               <Save className="h-4 w-4" />
             )}
-            <span className="ml-2">Save Changes</span>
+            <span className="ml-2">{showSuccess ? "Saved!" : "Save Changes"}</span>
           </Button>
         </div>
       </motion.div>
@@ -397,6 +485,16 @@ export function SettingsClient() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Discard Changes Modal */}
+      <DiscardChangesModal
+        open={showDiscardModal}
+        onDiscard={handleDiscard}
+        onSave={handleSaveAndNavigate}
+        onCancel={handleCancelNavigation}
+        isSaving={saving}
+      />
     </div>
   );
 }
+
