@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OnboardingForm } from "@/components/ui/driver/OnboardingForm";
 import { AlertCircle, Mail } from "lucide-react";
@@ -13,25 +13,17 @@ interface DriverRow {
 interface InviteRow {
   id: string;
   accepted_at: string | null;
+  email: string;
 }
 
 export default async function DriverOnboardPage(): Promise<ReactElement> {
   const supabase = await createClient();
 
-  // Check if user is authenticated via Supabase invite link
+  // Check if user is authenticated
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser();
-
-  // Debug: Log auth state (visible in server logs)
-  console.log("[DriverOnboard] Auth state:", {
-    hasUser: !!user,
-    authError: authError?.message,
-    email: user?.email,
-    role: user?.user_metadata?.role,
-    inviteId: user?.user_metadata?.invite_id,
-  });
 
   // Not authenticated - show message to check email
   if (authError || !user) {
@@ -62,77 +54,82 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
               </div>
             </CardContent>
           </Card>
-          {/* Debug info */}
-          <p className="mt-4 text-xs text-center text-gray-400">
-            State: not_authenticated | Error: {authError?.message || "none"}
-          </p>
         </div>
       </main>
     );
   }
 
-  // Check if user has pending invite via user metadata
-  const inviteId = user.user_metadata?.invite_id as string | undefined;
-  const userRole = user.user_metadata?.role as string | undefined;
-
-  // Verify user was invited as driver
-  if (userRole !== "driver" || !inviteId) {
+  const email = user.email;
+  if (!email) {
     return (
       <main className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-display text-brand-red">
-              Morning Star
-            </h1>
-            <p className="mt-2 text-muted">Driver Onboarding</p>
-          </div>
           <Card variant="alert" alertAccent="error">
             <CardContent className="pt-6">
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-status-error shrink-0 mt-0.5" />
                 <div>
                   <h2 className="font-semibold text-text-primary mb-2">
-                    Invalid Access
+                    Account Error
                   </h2>
-                  <p className="text-sm text-text-secondary mb-4">
-                    This page is only accessible through a valid driver
-                    invitation link.
-                  </p>
-                  <p className="text-sm text-text-muted">
-                    Please contact your administrator to request an invitation.
+                  <p className="text-sm text-text-secondary">
+                    Your account is missing an email address. Please contact support.
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          {/* Debug info */}
-          <p className="mt-4 text-xs text-center text-gray-400">
-            State: invalid_role | Role: {userRole || "none"} | InviteId: {inviteId || "none"} | Email: {user.email}
-          </p>
-          <p className="mt-1 text-xs text-center text-gray-400 break-all">
-            Metadata: {JSON.stringify(user.user_metadata)}
-          </p>
         </div>
       </main>
     );
   }
 
-  // Check if invite is still valid
-  const { data: invite, error: inviteError } = await supabase
-    .from("driver_invites")
-    .select("id, accepted_at")
-    .eq("id", inviteId)
-    .returns<InviteRow[]>()
-    .single();
+  // Use service client to check for invite by email (bypasses RLS)
+  const serviceSupabase = createServiceClient();
 
-  // Debug: Log invite lookup
-  console.log("[DriverOnboard] Invite lookup:", {
-    inviteId,
-    found: !!invite,
-    error: inviteError?.message,
-    code: inviteError?.code,
-  });
+  // First try user metadata (if set by callback)
+  let inviteId = user.user_metadata?.invite_id as string | undefined;
+  let invite: InviteRow | null = null;
 
+  // If no invite_id in metadata, look up by email
+  if (!inviteId) {
+    const { data: inviteByEmail } = await serviceSupabase
+      .from("driver_invites")
+      .select("id, accepted_at, email")
+      .eq("email", email.toLowerCase())
+      .is("accepted_at", null)
+      .is("revoked_at", null)
+      .order("created_at", { ascending: false })
+      .returns<InviteRow[]>()
+      .limit(1)
+      .single();
+
+    if (inviteByEmail) {
+      inviteId = inviteByEmail.id;
+      invite = inviteByEmail;
+
+      // Update user metadata for future requests
+      await serviceSupabase.auth.admin.updateUserById(user.id, {
+        user_metadata: {
+          ...user.user_metadata,
+          role: "driver",
+          invite_id: inviteId,
+        },
+      });
+    }
+  } else {
+    // Verify invite by ID
+    const { data: inviteById } = await serviceSupabase
+      .from("driver_invites")
+      .select("id, accepted_at, email")
+      .eq("id", inviteId)
+      .returns<InviteRow[]>()
+      .single();
+
+    invite = inviteById;
+  }
+
+  // No valid invite found
   if (!invite) {
     return (
       <main className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -149,20 +146,19 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
                 <AlertCircle className="h-5 w-5 text-status-error shrink-0 mt-0.5" />
                 <div>
                   <h2 className="font-semibold text-text-primary mb-2">
-                    Invitation Not Found
+                    No Invitation Found
                   </h2>
-                  <p className="text-sm text-text-secondary">
-                    This invitation link is no longer valid. Please contact your
-                    administrator.
+                  <p className="text-sm text-text-secondary mb-4">
+                    We couldn&apos;t find a pending driver invitation for your email
+                    ({email}).
+                  </p>
+                  <p className="text-sm text-text-muted">
+                    Please contact your administrator to request an invitation.
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          {/* Debug info */}
-          <p className="mt-4 text-xs text-center text-gray-400">
-            State: invite_not_found | ID: {inviteId} | Error: {inviteError?.message || "none"}
-          </p>
         </div>
       </main>
     );
@@ -171,7 +167,7 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
   // Check if already completed onboarding
   if (invite.accepted_at) {
     // Check if they have a driver record
-    const { data: driver } = await supabase
+    const { data: driver } = await serviceSupabase
       .from("drivers")
       .select("id")
       .eq("user_id", user.id)
@@ -206,10 +202,10 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
                 Email Address
               </label>
               <p className="text-sm text-text-primary bg-surface-secondary px-3 py-2 rounded-input">
-                {user.email}
+                {email}
               </p>
             </div>
-            <OnboardingForm email={user.email ?? ""} inviteId={inviteId} />
+            <OnboardingForm email={email} inviteId={inviteId!} />
           </CardContent>
         </Card>
       </div>

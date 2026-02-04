@@ -116,17 +116,12 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
 
       const data = await response.json();
 
-      // Check if this is an existing user with magic link
-      if (data.isExistingUser && data.magicLink) {
+      // Always show magic link dialog (unified flow)
+      if (data.magicLink) {
         setMagicLink(data.magicLink);
         setMagicLinkEmail(invite.email);
         setMagicLinkDialogOpen(true);
         setCopied(false);
-      } else {
-        toast({
-          title: "Invite Resent",
-          description: `New invite sent to ${invite.email}`,
-        });
       }
 
       // Refresh to get updated expiration
@@ -469,16 +464,16 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Magic Link Dialog for Existing Users */}
+      {/* Magic Link Dialog */}
       <AlertDialog open={magicLinkDialogOpen} onOpenChange={setMagicLinkDialogOpen}>
         <AlertDialogContent className="bg-surface-primary border-border max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 font-display text-text-primary">
               <Link className="h-5 w-5 text-primary" />
-              Share Magic Link
+              Invite Link Generated
             </AlertDialogTitle>
             <AlertDialogDescription className="font-body text-text-secondary">
-              This user already has an account. Share this magic link with{" "}
+              Share this link with{" "}
               <span className="font-medium text-text-primary">
                 {magicLinkEmail}
               </span>{" "}
@@ -507,7 +502,7 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
               </Button>
             </div>
             <p className="mt-2 text-xs text-text-muted">
-              This link expires in 1 hour. The user should open it in a browser where they are not already logged in.
+              This link expires in 24 hours. The recipient should open it in a browser where they are not already logged in.
             </p>
           </div>
           <AlertDialogFooter>

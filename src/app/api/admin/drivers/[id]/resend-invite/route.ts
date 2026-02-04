@@ -20,7 +20,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 /**
  * POST /api/admin/drivers/[id]/resend-invite
- * Resend a pending driver invite using Supabase Auth
+ * Resend a pending driver invite using unified magic link approach
  * Note: [id] is the invite ID, not driver ID
  */
 export async function POST(
@@ -87,85 +87,48 @@ export async function POST(
       );
     }
 
-    // Try to send invite - this works for new users
-    const { error: inviteResendError } = await supabase.auth.admin.inviteUserByEmail(
-      invite.email,
-      {
-        redirectTo: `${BASE_URL}/driver/onboard`,
-        data: {
-          role: "driver",
-          invite_id: invite.id,
-        },
-      }
+    // Check if user exists in auth system
+    const { data: userData } = await supabase.auth.admin.listUsers();
+    const existingUser = userData?.users?.find(
+      (u) => u.email?.toLowerCase() === invite.email.toLowerCase()
     );
 
-    // If user already exists, generate a magic link instead
-    if (inviteResendError?.message?.includes("already been registered") ||
-        inviteResendError?.message?.includes("email_exists")) {
-      // First, update the user's metadata
-      const { data: userData } = await supabase.auth.admin.listUsers();
-      const existingUser = userData?.users?.find(
-        (u) => u.email?.toLowerCase() === invite.email.toLowerCase()
-      );
-
-      if (existingUser) {
-        await supabase.auth.admin.updateUserById(existingUser.id, {
-          user_metadata: {
-            ...existingUser.user_metadata,
-            role: "driver",
-            invite_id: invite.id,
-          },
-        });
-      }
-
-      // Generate magic link for existing user
-      const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-        type: "magiclink",
-        email: invite.email,
-        options: {
-          redirectTo: `${BASE_URL}/driver/onboard`,
+    // Update user metadata if they exist
+    if (existingUser) {
+      await supabase.auth.admin.updateUserById(existingUser.id, {
+        user_metadata: {
+          ...existingUser.user_metadata,
+          pending_driver_invite: invite.id,
         },
       });
-
-      if (linkError || !linkData) {
-        logger.exception(linkError, { api: "admin/drivers/[id]/resend-invite", flowId: "generate-link" });
-        return NextResponse.json(
-          { error: "Failed to generate invite link", details: linkError?.message },
-          { status: 500 }
-        );
-      }
-
-      // Return success with the magic link for existing users
-      return NextResponse.json({
-        id: updatedInvite.id,
-        email: updatedInvite.email,
-        expiresAt: updatedInvite.expires_at,
-        message: "User already has an account. Share this magic link with them:",
-        magicLink: linkData.properties.action_link,
-        isExistingUser: true,
-      });
     }
 
-    // Handle rate limiting
-    if (inviteResendError?.message?.includes("rate") ||
-        inviteResendError?.message?.includes("429") ||
-        inviteResendError?.status === 429) {
+    // Generate new magic link
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: "magiclink",
+      email: invite.email,
+      options: {
+        redirectTo: `${BASE_URL}/auth/callback?next=/driver/onboard&invite_id=${invite.id}`,
+      },
+    });
+
+    if (linkError || !linkData) {
+      logger.exception(linkError, { api: "admin/drivers/[id]/resend-invite", flowId: "generate-link" });
       return NextResponse.json(
-        { error: "Too many requests. Please wait a minute before trying again." },
-        { status: 429 }
+        { error: "Failed to generate invite link", details: linkError?.message },
+        { status: 500 }
       );
-    }
-
-    // Log other errors but don't fail (invite record was updated)
-    if (inviteResendError) {
-      logger.exception(inviteResendError, { api: "admin/drivers/[id]/resend-invite", flowId: "supabase-invite" });
     }
 
     return NextResponse.json({
       id: updatedInvite.id,
       email: updatedInvite.email,
       expiresAt: updatedInvite.expires_at,
-      message: "Invite resent successfully",
+      magicLink: linkData.properties.action_link,
+      message: existingUser
+        ? "User has an existing account. Share this link to add driver role."
+        : "Share this link with the new driver to complete registration.",
+      isExistingUser: !!existingUser,
     });
   } catch (error) {
     logger.exception(error, { api: "admin/drivers/[id]/resend-invite" });
