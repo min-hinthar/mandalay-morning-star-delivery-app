@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 36.2 of 39 (Feature Finalization & Polish) - In progress
-Plan: 2 of TBD in phase 36.2
-Status: Plan 02 complete (Driver Invite API Endpoints)
-Last activity: 2026-02-04 - Completed 36.2-02-PLAN.md
+Plan: 3 of TBD in phase 36.2
+Status: Plan 03 complete (Driver Onboarding Page)
+Last activity: 2026-02-04 - Completed 36.2-03-PLAN.md
 
-Progress: [##########################################################--] v1.4 24/28 (86%)
+Progress: [###########################################################-] v1.4 25/28 (89%)
 
 ## Milestones
 
@@ -31,8 +31,8 @@ Progress: [##########################################################--] v1.4 24
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 163 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 24
+- Total plans completed: 164 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 25
 
 **By Phase (v1.4):**
 
@@ -42,7 +42,7 @@ Progress: [##########################################################--] v1.4 24
 | 35.1 | 5/5 | Complete |
 | 36 | 3/3 | Complete |
 | 36.1 | 11/11 | Complete |
-| 36.2 | 2/TBD | In progress |
+| 36.2 | 3/TBD | In progress |
 | 37 | 0/2 | Not started |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
@@ -113,6 +113,10 @@ Progress: [##########################################################--] v1.4 24
 | 36.2-02 | Email normalized to lowercase | Consistent duplicate checking |
 | 36.2-02 | Non-blocking email send | DB success returns 201 even if Resend fails |
 | 36.2-02 | [id] is invite ID | Resend/revoke routes use invite ID, not driver ID |
+| 36.2-03 | Public client for token validation | RLS allows public SELECT on valid tokens |
+| 36.2-03 | Service role for user creation | Bypasses RLS for admin.createUser |
+| 36.2-03 | Auto sign-in after registration | Better UX than redirecting to login |
+| 36.2-03 | Cleanup on failure | Delete auth user if profile/driver creation fails |
 
 ### Roadmap Evolution
 
@@ -165,10 +169,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 36.2-02-PLAN.md
+Stopped at: Completed 36.2-03-PLAN.md
 Resume file: None
-Next action: Execute 36.2-03-PLAN.md (Driver onboarding page)
+Next action: Execute 36.2-04-PLAN.md (if exists)
 
 ---
 
-*Updated: 2026-02-04 - Completed Plan 02: Driver invite API endpoints (send, resend, revoke)*
+*Updated: 2026-02-04 - Completed Plan 03: Driver onboarding page with token validation and registration form*
