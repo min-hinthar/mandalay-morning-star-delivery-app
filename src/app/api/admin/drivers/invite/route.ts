@@ -136,7 +136,8 @@ export async function POST(request: NextRequest) {
     );
 
     // If user already exists, generate a magic link instead
-    if (inviteError?.message?.includes("already been registered")) {
+    if (inviteError?.message?.includes("already been registered") ||
+        inviteError?.message?.includes("email_exists")) {
       // First, update the user's metadata
       const { data: userData } = await supabase.auth.admin.listUsers();
       const existingUser = userData?.users?.find(
@@ -182,6 +183,17 @@ export async function POST(request: NextRequest) {
           isExistingUser: true,
         },
         { status: 201 }
+      );
+    }
+
+    // Handle rate limiting
+    if (inviteError?.message?.includes("rate") ||
+        inviteError?.message?.includes("429") ||
+        inviteError?.status === 429) {
+      await supabase.from("driver_invites").delete().eq("id", invite.id);
+      return NextResponse.json(
+        { error: "Too many requests. Please wait a minute before trying again." },
+        { status: 429 }
       );
     }
 
