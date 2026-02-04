@@ -24,7 +24,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 35.1: Admin Photo Upload & Featured Management (INSERTED)** - Supabase image storage, remove Browse All Dishes, expand Featured Dishes with admin management
 - [x] **Phase 36: Image Optimization & LCP** - Sub-2.5s LCP with optimized image loading and CLS prevention
 - [x] **Phase 36.1: Routes & Driver Features (INSERTED)** - Complete missing page routes and admin driver management
-- [ ] **Phase 36.2: Feature Finalization & Polish (INSERTED)** - Driver invites, route optimization, settings polish, account polish
+- [x] **Phase 36.2: Feature Finalization & Polish (INSERTED)** - Driver invites, route optimization, settings polish, account polish
 - [ ] **Phase 37: Codebase Cleanup** - Remove dead code and enforce directory structure
 - [ ] **Phase 38: Customer Offline Support** - Service worker caching and offline menu browsing
 - [ ] **Phase 39: Animation Optimization** - Device-adaptive animations and conflict resolution
@@ -146,15 +146,15 @@ Plans:
 **Plans**: 9 plans
 
 Plans:
-- [ ] 36.2-01-PLAN.md — Email infrastructure (Resend, React Email, driver_invites table)
-- [ ] 36.2-02-PLAN.md — Driver invite API endpoints (send, resend, revoke)
-- [ ] 36.2-03-PLAN.md — Driver onboarding page and registration flow
-- [ ] 36.2-04-PLAN.md — Drivers page Pending tab and invite modal
-- [ ] 36.2-05-PLAN.md — Route optimization comparison modal
-- [ ] 36.2-06-PLAN.md — Order expanded details with full CRUD actions
-- [ ] 36.2-07-PLAN.md — Admin settings form polish (validation, loading, discard modal)
-- [ ] 36.2-08-PLAN.md — Customer account form polish (validation, skeletons, empty states)
-- [ ] 36.2-09-PLAN.md — Verification and end-to-end testing
+- [x] 36.2-01-PLAN.md — Email infrastructure (Resend, React Email, driver_invites table)
+- [x] 36.2-02-PLAN.md — Driver invite API endpoints (send, resend, revoke)
+- [x] 36.2-03-PLAN.md — Driver onboarding page and registration flow
+- [x] 36.2-04-PLAN.md — Drivers page Pending tab and invite modal
+- [x] 36.2-05-PLAN.md — Route optimization comparison modal
+- [x] 36.2-06-PLAN.md — Order expanded details with full CRUD actions
+- [x] 36.2-07-PLAN.md — Admin settings form polish (validation, loading, discard modal)
+- [x] 36.2-08-PLAN.md — Customer account form polish (validation, skeletons, empty states)
+- [x] 36.2-09-PLAN.md — Verification and end-to-end testing
 
 **Details:**
 - Driver invites: Email-based invite system with unique onboarding tokens
@@ -223,7 +223,7 @@ Phases execute in numeric order: 35 -> 35.1 -> 36 -> 36.1 -> 36.2 -> 37 -> 38 ->
 | 35.1 Admin Photo Upload & Featured (INSERTED) | v1.4 | 5/5 | Complete | 2026-02-01 |
 | 36. Image Optimization & LCP | v1.4 | 3/3 | Complete | 2026-02-01 |
 | 36.1 Routes & Driver Features (INSERTED) | v1.4 | 11/11 | Complete | 2026-02-03 |
-| 36.2 Feature Finalization & Polish (INSERTED) | v1.4 | 0/9 | Not started | - |
+| 36.2 Feature Finalization & Polish (INSERTED) | v1.4 | 9/9 | Complete | 2026-02-04 |
 | 37. Codebase Cleanup | v1.4 | 0/2 | Not started | - |
 | 38. Customer Offline Support | v1.4 | 0/3 | Not started | - |
 | 39. Animation Optimization | v1.4 | 0/2 | Not started | - |
