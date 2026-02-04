@@ -24,7 +24,8 @@ import {
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useMediaQuery } from "@/lib/hooks";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { Modal, Drawer } from "@/components/ui";
+import { Modal } from "@/components/ui/Modal";
+import { Drawer } from "@/components/ui/Drawer";
 import { AddressCardV8 } from "./AddressCardV8";
 import { AddressFormV8 } from "./AddressFormV8";
 import { Button } from "@/components/ui/button";

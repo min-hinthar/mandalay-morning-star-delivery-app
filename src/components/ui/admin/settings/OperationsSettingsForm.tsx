@@ -15,7 +15,7 @@ import { useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils/cn";
-import type { OperationsSettings } from "./SettingsClient";
+import type { OperationsSettings } from "./settings-types";
 
 interface OperationsSettingsFormProps {
   settings: OperationsSettings;

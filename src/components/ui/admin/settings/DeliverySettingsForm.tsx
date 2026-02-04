@@ -15,7 +15,7 @@
 import { useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { DeliverySettings } from "./SettingsClient";
+import type { DeliverySettings } from "./settings-types";
 
 interface DeliverySettingsFormProps {
   settings: DeliverySettings;

@@ -15,7 +15,7 @@
 import { useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils/cn";
-import type { NotificationSettings } from "./SettingsClient";
+import type { NotificationSettings } from "./settings-types";
 
 interface NotificationSettingsFormProps {
   settings: NotificationSettings;
