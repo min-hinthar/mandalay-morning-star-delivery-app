@@ -18,10 +18,10 @@ export function DriverInviteEmail({ inviteUrl, expiresAt }: DriverInviteEmailPro
   return (
     <Html>
       <Head />
-      <Preview>You&apos;re invited to join Morning Star Delivery</Preview>
+      <Preview>You&apos;re invited to join Mandalay Morning Star Delivery</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>Join Morning Star Delivery</Heading>
+          <Heading style={h1}>Join Mandalay Morning Star</Heading>
 
           <Text style={text}>
             You&apos;ve been invited to join our driver team. Click below to complete
