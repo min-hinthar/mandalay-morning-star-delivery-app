@@ -20,11 +20,11 @@ interface OrderRow {
     phone: string | null;
   } | null;
   addresses: {
-    street: string;
-    apt: string | null;
+    line_1: string;
+    line_2: string | null;
     city: string;
     state: string;
-    zip: string;
+    postal_code: string;
   } | null;
 }
 
@@ -93,11 +93,11 @@ export async function GET(
           phone
         ),
         addresses (
-          street,
-          apt,
+          line_1,
+          line_2,
           city,
           state,
-          zip
+          postal_code
         )
       `)
       .eq("id", orderId)
@@ -181,11 +181,11 @@ export async function GET(
       customerPhone: order.profiles?.phone ?? null,
       address: order.addresses
         ? {
-            street: order.addresses.street,
-            apt: order.addresses.apt,
+            street: order.addresses.line_1,
+            apt: order.addresses.line_2,
             city: order.addresses.city,
             state: order.addresses.state,
-            zip: order.addresses.zip,
+            zip: order.addresses.postal_code,
           }
         : null,
       items: (items || []).map((item) => ({
