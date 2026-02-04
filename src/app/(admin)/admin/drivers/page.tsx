@@ -2,7 +2,7 @@
  * V6 Admin Drivers Page - Pepper Aesthetic
  *
  * Driver fleet management page with V6 colors, typography, and animations.
- * Features stats cards, search/filters, and driver table.
+ * Features stats cards, search/filters, driver table, and pending invites.
  */
 
 "use client";
@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 import {
   RefreshCw,
   Search,
-  UserPlus,
+  Mail,
   Filter,
   Truck,
   Users,
@@ -33,13 +33,16 @@ import {
   AddDriverModal,
   type CreateDriverData,
 } from "@/components/ui/admin/drivers/AddDriverModal";
+import { PendingInvitesTab } from "@/components/ui/admin/drivers/PendingInvitesTab";
+import { InviteDriverModal } from "@/components/ui/admin/drivers/InviteDriverModal";
 
-type StatusFilter = "all" | "active" | "inactive";
+type StatusFilter = "all" | "active" | "inactive" | "pending";
 
 const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All Drivers" },
   { value: "active", label: "Active" },
   { value: "inactive", label: "Inactive" },
+  { value: "pending", label: "Pending Invites" },
 ];
 
 interface DriverStats {
@@ -57,6 +60,9 @@ export default function AdminDriversPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [pendingInvitesCount, setPendingInvitesCount] = useState(0);
+  const [invitesRefreshKey, setInvitesRefreshKey] = useState(0);
 
   const fetchDrivers = useCallback(async () => {
     try {
@@ -74,13 +80,29 @@ export default function AdminDriversPage() {
     }
   }, []);
 
+  // Fetch pending invites count
+  const fetchInvitesCount = useCallback(async () => {
+    try {
+      const response = await fetch("/api/admin/drivers/invites");
+      if (response.ok) {
+        const invites = await response.json();
+        setPendingInvitesCount(invites.length);
+      }
+    } catch {
+      // Silently fail for count fetch
+    }
+  }, []);
+
   useEffect(() => {
     fetchDrivers();
-  }, [fetchDrivers]);
+    fetchInvitesCount();
+  }, [fetchDrivers, fetchInvitesCount]);
 
   const handleRefresh = () => {
     setRefreshing(true);
     fetchDrivers();
+    fetchInvitesCount();
+    setInvitesRefreshKey((k) => k + 1);
   };
 
   const handleToggleActive = async (driverId: string, isActive: boolean) => {
@@ -133,9 +155,15 @@ export default function AdminDriversPage() {
     await fetchDrivers();
   };
 
-  // Filter drivers by status
+  const handleInviteSuccess = () => {
+    // Refresh invites count and list
+    fetchInvitesCount();
+    setInvitesRefreshKey((k) => k + 1);
+  };
+
+  // Filter drivers by status (excluding pending which shows invites)
   const filteredDrivers =
-    statusFilter === "all"
+    statusFilter === "all" || statusFilter === "pending"
       ? drivers
       : drivers.filter((driver) =>
           statusFilter === "active" ? driver.isActive : !driver.isActive
@@ -151,6 +179,20 @@ export default function AdminDriversPage() {
           drivers.filter((d) => d.ratingAvg !== null).length
         : null,
     totalDeliveries: drivers.reduce((sum, d) => sum + d.deliveriesCount, 0),
+  };
+
+  // Get count for each filter
+  const getFilterCount = (filter: StatusFilter): number => {
+    switch (filter) {
+      case "all":
+        return drivers.length;
+      case "active":
+        return drivers.filter((d) => d.isActive).length;
+      case "inactive":
+        return drivers.filter((d) => !d.isActive).length;
+      case "pending":
+        return pendingInvitesCount;
+    }
   };
 
   if (loading) {
@@ -199,11 +241,11 @@ export default function AdminDriversPage() {
             Refresh
           </Button>
           <Button
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={() => setIsInviteModalOpen(true)}
             className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm"
           >
-            <UserPlus className="mr-2 h-4 w-4" />
-            Add Driver
+            <Mail className="mr-2 h-4 w-4" />
+            Invite Driver
           </Button>
         </div>
       </motion.div>
@@ -287,31 +329,31 @@ export default function AdminDriversPage() {
         transition={{ delay: 0.2 }}
         className="flex flex-col sm:flex-row gap-4"
       >
-        {/* Search */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
-          <Input
-            type="text"
-            placeholder="Search by name, email, or phone..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input"
-          />
-        </div>
+        {/* Search - hidden when showing pending invites */}
+        {statusFilter !== "pending" && (
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+            <Input
+              type="text"
+              placeholder="Search by name, email, or phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input"
+            />
+          </div>
+        )}
 
         {/* Status Filters */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className={cn(
+          "flex items-center gap-2 flex-wrap",
+          statusFilter === "pending" && "flex-1"
+        )}>
           <div className="flex items-center gap-2 text-text-muted">
             <Filter className="h-4 w-4" />
             <span className="text-sm font-body hidden sm:inline">Status:</span>
           </div>
           {STATUS_FILTERS.map((filter) => {
-            const count =
-              filter.value === "all"
-                ? drivers.length
-                : filter.value === "active"
-                ? drivers.filter((d) => d.isActive).length
-                : drivers.filter((d) => !d.isActive).length;
+            const count = getFilterCount(filter.value);
             const isActive = statusFilter === filter.value;
 
             return (
@@ -336,25 +378,39 @@ export default function AdminDriversPage() {
         </div>
       </motion.div>
 
-      {/* Drivers Table */}
+      {/* Content - Drivers Table or Pending Invites */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <DriverListTable
-          drivers={filteredDrivers}
-          onToggleActive={handleToggleActive}
-          onViewDriver={handleViewDriver}
-          searchQuery={searchQuery}
-        />
+        {statusFilter === "pending" ? (
+          <PendingInvitesTab
+            key={invitesRefreshKey}
+            onInviteCountChange={setPendingInvitesCount}
+          />
+        ) : (
+          <DriverListTable
+            drivers={filteredDrivers}
+            onToggleActive={handleToggleActive}
+            onViewDriver={handleViewDriver}
+            searchQuery={searchQuery}
+          />
+        )}
       </motion.div>
 
-      {/* Add Driver Modal */}
+      {/* Add Driver Modal (for existing users) */}
       <AddDriverModal
         open={isAddModalOpen}
         onOpenChange={setIsAddModalOpen}
         onSubmit={handleAddDriver}
+      />
+
+      {/* Invite Driver Modal */}
+      <InviteDriverModal
+        open={isInviteModalOpen}
+        onOpenChange={setIsInviteModalOpen}
+        onSuccess={handleInviteSuccess}
       />
     </div>
   );
