@@ -1,20 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect, Fragment } from "react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
   ChevronUp,
+  ChevronRight,
   MoreHorizontal,
   Package,
   RefreshCw,
-  User,
-  Calendar,
-  DollarSign,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/currency";
+import { spring } from "@/lib/motion-tokens";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,11 +34,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  ExpandableTableRow,
-  QuickPreviewPanel,
-  useExpandedRows,
-} from "@/components/ui/admin/ExpandableTableRow";
+import { OrderDetailExpanded } from "@/components/ui/admin/orders/OrderDetailExpanded";
 import type { OrderStatus } from "@/types/database";
 
 /**
@@ -86,16 +83,28 @@ export interface AdminOrder {
 interface OrdersTableProps {
   orders: AdminOrder[];
   onStatusChange: (orderId: string, newStatus: OrderStatus) => Promise<void>;
+  onRefresh?: () => void;
 }
 
 type SortField = "placedAt" | "status" | "totalCents" | "deliveryWindowStart";
 type SortDirection = "asc" | "desc";
 
-export function OrdersTable({ orders, onStatusChange }: OrdersTableProps) {
+export function OrdersTable({ orders, onStatusChange, onRefresh }: OrdersTableProps) {
   const [sortField, setSortField] = useState<SortField>("placedAt");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
-  const { isExpanded, handleExpandChange } = useExpandedRows();
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
+  // ESC key handler to collapse expanded row
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && expandedOrderId) {
+        setExpandedOrderId(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [expandedOrderId]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -138,6 +147,30 @@ export function OrdersTable({ orders, onStatusChange }: OrdersTableProps) {
       setUpdatingOrderId(null);
     }
   };
+
+  const handleRowClick = useCallback(
+    (orderId: string, e: React.MouseEvent) => {
+      // Don't expand if clicking on interactive elements
+      const target = e.target as HTMLElement;
+      const isInteractive =
+        target.closest("button") ||
+        target.closest("a") ||
+        target.closest('[role="menuitem"]') ||
+        target.closest('[data-radix-collection-item]') ||
+        target.closest('[data-state]');
+
+      if (isInteractive) return;
+
+      // Toggle: click same row to collapse, different row to expand that one
+      setExpandedOrderId((prev) => (prev === orderId ? null : orderId));
+    },
+    []
+  );
+
+  const handleExpandedUpdate = useCallback(() => {
+    // Refresh the orders list when expanded view makes changes
+    onRefresh?.();
+  }, [onRefresh]);
 
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) return null;
@@ -208,166 +241,154 @@ export function OrdersTable({ orders, onStatusChange }: OrdersTableProps) {
           {sortedOrders.map((order) => {
             const isUpdating = updatingOrderId === order.id;
             const nextStatuses = NEXT_STATUSES[order.status];
+            const isExpanded = expandedOrderId === order.id;
 
             return (
-              <ExpandableTableRow
-                key={order.id}
-                id={order.id}
-                isExpanded={isExpanded(order.id)}
-                onExpandChange={handleExpandChange}
-                colSpan={8}
-                previewContent={
-                  <OrderQuickPreview order={order} />
-                }
-              >
-                <TableCell className="font-mono text-sm">
-                  #{order.id.slice(0, 8).toUpperCase()}
-                </TableCell>
-                <TableCell>
-                  <div>
-                    <p className="font-medium text-sm">
-                      {order.customerName || "Guest"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {order.customerEmail}
-                    </p>
-                  </div>
-                </TableCell>
-                <TableCell className="text-sm text-muted-foreground">
-                  {format(parseISO(order.placedAt), "MMM d, h:mm a")}
-                </TableCell>
-                <TableCell className="text-sm">
-                  {order.deliveryWindowStart ? (
-                    <span>{format(parseISO(order.deliveryWindowStart), "EEE, MMM d")}</span>
-                  ) : (
-                    <span className="text-muted-foreground">—</span>
+              <Fragment key={order.id}>
+                {/* Main Row */}
+                <TableRow
+                  onClick={(e) => handleRowClick(order.id, e)}
+                  className={cn(
+                    "cursor-pointer transition-colors duration-fast group",
+                    "hover:bg-surface-secondary/50",
+                    isExpanded && "bg-surface-secondary border-b-0"
                   )}
-                </TableCell>
-                <TableCell className="text-center">
-                  {order.itemCount}
-                </TableCell>
-                <TableCell className="text-right font-medium">
-                  {formatPrice(order.totalCents)}
-                </TableCell>
-                <TableCell>
-                  {nextStatuses.length > 0 ? (
+                >
+                  <TableCell className="font-mono text-sm">
+                    #{order.id.slice(0, 8).toUpperCase()}
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <p className="font-medium text-sm">
+                        {order.customerName || "Guest"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {order.customerEmail}
+                      </p>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {format(parseISO(order.placedAt), "MMM d, h:mm a")}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {order.deliveryWindowStart ? (
+                      <span>{format(parseISO(order.deliveryWindowStart), "EEE, MMM d")}</span>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {order.itemCount}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {formatPrice(order.totalCents)}
+                  </TableCell>
+                  <TableCell>
+                    {nextStatuses.length > 0 ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Badge
+                            className={cn(
+                              STATUS_COLORS[order.status],
+                              "cursor-pointer",
+                              isUpdating && "opacity-50"
+                            )}
+                          >
+                            {isUpdating ? (
+                              <RefreshCw className="h-3 w-3 animate-spin mr-1" />
+                            ) : null}
+                            {STATUS_LABELS[order.status]}
+                          </Badge>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Update Status</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          {nextStatuses.map((status) => (
+                            <DropdownMenuItem
+                              key={status}
+                              onClick={() => handleStatusChange(order.id, status)}
+                            >
+                              <Badge className={cn(STATUS_COLORS[status], "mr-2")}>
+                                {STATUS_LABELS[status]}
+                              </Badge>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : (
+                      <Badge className={STATUS_COLORS[order.status]}>
+                        {STATUS_LABELS[order.status]}
+                      </Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Badge
-                          className={cn(
-                            STATUS_COLORS[order.status],
-                            "cursor-pointer",
-                            isUpdating && "opacity-50"
-                          )}
-                        >
-                          {isUpdating ? (
-                            <RefreshCw className="h-3 w-3 animate-spin mr-1" />
-                          ) : null}
-                          {STATUS_LABELS[order.status]}
-                        </Badge>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Update Status</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {nextStatuses.map((status) => (
-                          <DropdownMenuItem
-                            key={status}
-                            onClick={() => handleStatusChange(order.id, status)}
-                          >
-                            <Badge className={cn(STATUS_COLORS[status], "mr-2")}>
-                              {STATUS_LABELS[status]}
-                            </Badge>
-                          </DropdownMenuItem>
-                        ))}
+                        <DropdownMenuItem asChild>
+                          <Link href={`/admin/orders/${order.id}`}>
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            View Full Page
+                          </Link>
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  ) : (
-                    <Badge className={STATUS_COLORS[order.status]}>
-                      {STATUS_LABELS[order.status]}
-                    </Badge>
+                  </TableCell>
+                  <TableCell className="w-8 pr-4">
+                    <motion.div
+                      initial={false}
+                      animate={{ rotate: isExpanded ? 90 : 0 }}
+                      transition={spring.default}
+                      className="text-text-muted group-hover:text-primary"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </motion.div>
+                  </TableCell>
+                </TableRow>
+
+                {/* Expanded Detail Row */}
+                <AnimatePresence initial={false}>
+                  {isExpanded && (
+                    <tr>
+                      <td colSpan={9} className="p-0 border-b border-border">
+                        <motion.div
+                          key={`expanded-${order.id}`}
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{
+                            height: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
+                            opacity: { duration: 0.2, delay: 0.1 },
+                          }}
+                          className="overflow-hidden"
+                        >
+                          <div className="relative">
+                            {/* Left accent border */}
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/60 to-transparent" />
+
+                            {/* Content container */}
+                            <div className="pl-6 pr-4 py-6 bg-gradient-to-r from-surface-secondary to-surface-primary">
+                              <OrderDetailExpanded
+                                orderId={order.id}
+                                onUpdate={handleExpandedUpdate}
+                              />
+                            </div>
+                          </div>
+                        </motion.div>
+                      </td>
+                    </tr>
                   )}
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link href={`/admin/orders/${order.id}`}>
-                          View Details
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </ExpandableTableRow>
+                </AnimatePresence>
+              </Fragment>
             );
           })}
         </TableBody>
       </Table>
     </div>
-  );
-}
-
-// ============================================
-// ORDER QUICK PREVIEW
-// ============================================
-
-function OrderQuickPreview({ order }: { order: AdminOrder }) {
-  return (
-    <QuickPreviewPanel
-      items={[
-        { name: `${order.itemCount} item(s)`, quantity: 1 },
-      ]}
-      detailsLink={`/admin/orders/${order.id}`}
-    >
-      {/* V6 Order Summary */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 text-text-muted">
-          <User className="h-4 w-4" />
-          <span className="text-xs font-body font-semibold uppercase tracking-wider">
-            Customer
-          </span>
-        </div>
-        <div className="text-sm font-body">
-          <p className="text-text-primary font-medium">
-            {order.customerName || "Guest"}
-          </p>
-          <p className="text-text-secondary">{order.customerEmail}</p>
-        </div>
-      </div>
-
-      {/* V6 Delivery Info */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 text-text-muted">
-          <Calendar className="h-4 w-4" />
-          <span className="text-xs font-body font-semibold uppercase tracking-wider">
-            Delivery Window
-          </span>
-        </div>
-        <p className="text-sm font-body text-text-primary">
-          {order.deliveryWindowStart
-            ? format(parseISO(order.deliveryWindowStart), "EEEE, MMMM d, yyyy")
-            : "Not scheduled"}
-        </p>
-      </div>
-
-      {/* V6 Order Total */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 text-text-muted">
-          <DollarSign className="h-4 w-4" />
-          <span className="text-xs font-body font-semibold uppercase tracking-wider">
-            Order Total
-          </span>
-        </div>
-        <p className="text-lg font-display font-bold text-primary">
-          {formatPrice(order.totalCents)}
-        </p>
-      </div>
-    </QuickPreviewPanel>
   );
 }
