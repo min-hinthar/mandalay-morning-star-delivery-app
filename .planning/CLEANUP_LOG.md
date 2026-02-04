@@ -40,8 +40,39 @@
 
 **Exports remaining:** LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm, UserMenu
 
+## Circular Dependencies Fixed (REFACTOR-07)
+
+| Cycle | Files Involved | Fix Applied |
+|-------|----------------|-------------|
+| 1-3 | SettingsClient ↔ DeliverySettingsForm/NotificationSettingsForm/OperationsSettingsForm | Extracted settings-types.ts |
+| 4-5 | cart barrel → CartDrawer → ClearCartConfirmation → ui barrel | Direct imports for Drawer/Modal |
+| 6 | checkout barrel → AddressStepV8 → ui barrel | Direct imports for Modal/Drawer |
+| 7-8 | menu barrel → FeaturedCarousel → CardImage/UnifiedMenuItemCard → ui/menu barrel | Relative imports for getCategoryEmoji/FavoriteButton |
+| 9 | navigation barrel → AppShell → MobileMenu → ui barrel | Direct import for Drawer |
+
+**Pattern applied:** Replace barrel imports (`@/components/ui`) with direct file imports (`@/components/ui/Drawer`)
+
+## ESLint Rules Added (REFACTOR-08)
+
+| Rule | Severity | Purpose |
+|------|----------|---------|
+| import-x/no-cycle | error | Prevent circular dependencies |
+| max-lines (components) | warn | Flag files >400 lines for review |
+| no-restricted-imports (navigation/) | error | Prevent recreation of deleted directory |
+
+## Files Over 400 Lines (REFACTOR-06 - Warning Only)
+
+Per CONTEXT.md decision: warning only, not build failure. Page files exempt.
+
+Files flagged as warnings (not blockers):
+- FormValidation.tsx, OrderDetailExpanded.tsx, HowItWorksSection.tsx, and others
+- These are candidates for future refactoring, not immediate action items
+
 ## Summary
 - Files deleted: 12
 - Lines removed: 3,401 (actual from git)
 - Barrel exports updated: 1
+- Circular dependencies fixed: 9
+- ESLint rules added: 3 (no-cycle, max-lines, navigation guard)
+- New files created: 1 (settings-types.ts)
 - Build verified: SUCCESS
