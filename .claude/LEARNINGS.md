@@ -1116,3 +1116,95 @@ useEffect(() => {
 **Apply when:** Debugging overlay issues - fix shared hooks (affects all) vs component-specific code (affects one).
 
 ---
+
+## 2026-02-04: Supabase Auth Invite Flow Patterns
+
+**Context:** Implementing driver invite flow with Supabase Auth - iterative debugging revealed multiple gotchas
+
+### `generateLink` vs `inviteUserByEmail`
+
+`inviteUserByEmail` only works for NEW users. Existing users get "already been registered" error.
+
+```typescript
+// ❌ Fails for existing users
+await supabase.auth.admin.inviteUserByEmail(email, { redirectTo, data });
+// Error: "User already been registered"
+
+// ✅ Works for BOTH new and existing users
+await supabase.auth.admin.generateLink({
+  type: "magiclink",
+  email,
+  options: { redirectTo },
+});
+```
+
+**Apply when:** Building invite flows where users may already have accounts (e.g., customer → driver upgrade).
+
+### RLS Cannot Query auth.users
+
+Policies with `auth.users` subquery fail with "permission denied for table users".
+
+```sql
+-- ❌ Regular users cannot query auth.users
+CREATE POLICY "Users can read their own invites"
+  ON driver_invites FOR SELECT
+  USING (email = (SELECT email FROM auth.users WHERE id = auth.uid()));
+
+-- ✅ Use JWT claims instead (no table query needed)
+CREATE POLICY "Users can read their own invites"
+  ON driver_invites FOR SELECT
+  USING (email = (auth.jwt() ->> 'email'));
+```
+
+**Apply when:** Writing RLS policies that need to check user email.
+
+### User Metadata May Be Stale After Admin Update
+
+When `updateUserById` sets metadata server-side, the client's session cookies still have old metadata.
+
+```typescript
+// Callback sets metadata
+await supabase.auth.admin.updateUserById(userId, {
+  user_metadata: { role: "driver", invite_id }
+});
+// But client session may not reflect this immediately
+
+// ✅ Check by email as fallback
+let inviteId = user.user_metadata?.invite_id;
+if (!inviteId) {
+  const { data } = await serviceSupabase
+    .from("driver_invites")
+    .select("id")
+    .eq("email", user.email)
+    .single();
+  inviteId = data?.id;
+}
+```
+
+**Apply when:** Using user metadata set by admin API in the same request flow.
+
+### Server-Side Callback vs Client-Side Hash Parsing
+
+Magic links can include query params that survive to callback route. Use this for passing context instead of relying on hash tokens.
+
+```typescript
+// Generate link with invite_id in redirect URL
+const { data } = await supabase.auth.admin.generateLink({
+  type: "magiclink",
+  email,
+  options: {
+    redirectTo: `${BASE_URL}/auth/callback?next=/driver/onboard&invite_id=${inviteId}`,
+  },
+});
+
+// In callback route - extract from searchParams
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const inviteId = searchParams.get("invite_id");
+  // Set metadata here, server-side
+}
+```
+
+**Apply when:** Need to pass context through auth flow. Simpler than client-side hash parsing with AuthHandler.
+
+---
