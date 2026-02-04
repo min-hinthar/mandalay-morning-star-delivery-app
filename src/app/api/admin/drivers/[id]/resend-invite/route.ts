@@ -110,19 +110,32 @@ export async function POST(
         logger.exception(updateError, { api: "admin/drivers/[id]/resend-invite", flowId: "update-metadata" });
       }
 
-      // Send magic link email
-      const { error: otpError } = await supabase.auth.signInWithOtp({
+      // Generate magic link for existing user using admin API
+      const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+        type: "magiclink",
         email: invite.email,
         options: {
-          emailRedirectTo: `${BASE_URL}/driver/onboard`,
-          shouldCreateUser: false,
+          redirectTo: `${BASE_URL}/driver/onboard`,
         },
       });
 
-      if (otpError) {
-        logger.exception(otpError, { api: "admin/drivers/[id]/resend-invite", flowId: "magic-link" });
-        // Don't fail - the invite record was updated successfully
+      if (linkError || !linkData) {
+        logger.exception(linkError, { api: "admin/drivers/[id]/resend-invite", flowId: "generate-link" });
+        return NextResponse.json(
+          { error: "Failed to generate invite link", details: linkError?.message },
+          { status: 500 }
+        );
       }
+
+      // Return success with the magic link for existing users
+      return NextResponse.json({
+        id: updatedInvite.id,
+        email: updatedInvite.email,
+        expiresAt: updatedInvite.expires_at,
+        message: "User already has an account. Share this magic link with them:",
+        magicLink: linkData.properties.action_link,
+        isExistingUser: true,
+      });
     } else {
       // New user - send invite
       const { error: inviteResendError } = await supabase.auth.admin.inviteUserByEmail(
