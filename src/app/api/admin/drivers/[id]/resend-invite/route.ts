@@ -1,8 +1,6 @@
-import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
-import { createClient } from "@/lib/supabase/server";
-import { sendDriverInvite } from "@/lib/services/email";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import type { ProfileRole } from "@/types/database";
 
@@ -22,9 +20,11 @@ interface DriverInviteRow {
   revoked_at: string | null;
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
 /**
  * POST /api/admin/drivers/[id]/resend-invite
- * Resend a pending driver invite with a new token
+ * Resend a pending driver invite using Supabase Auth
  * Note: [id] is the invite ID, not driver ID
  */
 export async function POST(
@@ -81,15 +81,12 @@ export async function POST(
       );
     }
 
-    // Generate new token and expiration
-    const newToken = crypto.randomBytes(32).toString("hex");
+    // Update expiration
     const newExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Update invite record
     const { data: updatedInvite, error: updateError } = await supabase
       .from("driver_invites")
       .update({
-        token: newToken,
         expires_at: newExpiresAt.toISOString(),
       })
       .eq("id", id)
@@ -105,19 +102,22 @@ export async function POST(
       );
     }
 
-    // Send new invite email
-    try {
-      const { error: emailError } = await sendDriverInvite(
-        invite.email,
-        newToken,
-        newExpiresAt
-      );
-
-      if (emailError) {
-        logger.exception(emailError, { api: "admin/drivers/[id]/resend-invite", flowId: "email" });
+    // Resend invite via Supabase Auth
+    const serviceSupabase = createServiceClient();
+    const { error: inviteResendError } = await serviceSupabase.auth.admin.inviteUserByEmail(
+      invite.email,
+      {
+        redirectTo: `${BASE_URL}/driver/onboard`,
+        data: {
+          role: "driver",
+          invite_id: invite.id,
+        },
       }
-    } catch (emailError) {
-      logger.exception(emailError, { api: "admin/drivers/[id]/resend-invite", flowId: "email" });
+    );
+
+    if (inviteResendError) {
+      logger.exception(inviteResendError, { api: "admin/drivers/[id]/resend-invite", flowId: "supabase-invite" });
+      // Don't fail - the invite record was updated successfully
     }
 
     return NextResponse.json({
