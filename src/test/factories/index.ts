@@ -87,6 +87,7 @@ export function createMockOrder(overrides?: Partial<OrdersRow>): OrdersRow {
     id: "order-uuid",
     user_id: "user-uuid",
     address_id: "address-uuid",
+    assigned_driver_id: null,
     status: "pending",
     subtotal_cents: 3000,
     delivery_fee_cents: 1500,
