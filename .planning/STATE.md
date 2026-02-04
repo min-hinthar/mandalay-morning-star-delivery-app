@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 
 ## Current Position
 
-Phase: 37 of 39 (Codebase Cleanup) - In progress
-Plan: 1 of 2 in phase 37
-Status: Completed 37-01-PLAN.md
-Last activity: 2026-02-04 - Completed 37-01-PLAN.md (Dead code deletion)
+Phase: 37 of 39 (Codebase Cleanup) - Complete
+Plan: 2 of 2 in phase 37
+Status: Phase 37 complete, ready for Phase 38
+Last activity: 2026-02-04 - Completed 37-02-PLAN.md (Circular dependency elimination)
 
-Progress: [##############################################################] v1.4 32/28 (114%)
+Progress: [###############################################################] v1.4 33/28 (118%)
 
 ## Milestones
 
@@ -31,8 +31,8 @@ Progress: [##############################################################] v1.4 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 171 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 32
+- Total plans completed: 172 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 33
 
 **By Phase (v1.4):**
 
@@ -43,7 +43,7 @@ Progress: [##############################################################] v1.4 
 | 36 | 3/3 | Complete |
 | 36.1 | 11/11 | Complete |
 | 36.2 | 9/9 | Complete |
-| 37 | 1/2 | In progress |
+| 37 | 2/2 | Complete |
 | 38 | 0/3 | Not started |
 | 39 | 0/2 | Not started |
 
@@ -136,6 +136,9 @@ Progress: [##############################################################] v1.4 
 | 36.2-08 | Field error clearing on change | Clears inline error when user types |
 | 37-01 | Used git rm for file deletion | Preserves history for potential recovery |
 | 37-01 | Kept 5 auth components | LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm, UserMenu |
+| 37-02 | Direct imports for overlay components | Barrel re-exports create cycles; use @/components/ui/Drawer not @/components/ui |
+| 37-02 | Type extraction pattern for cycles | Extract shared types to dedicated file (e.g., settings-types.ts) |
+| 37-02 | max-lines as warning only | Per CONTEXT.md - file size is advisory, not build failure |
 
 ### Roadmap Evolution
 
@@ -188,10 +191,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 37-01-PLAN.md
+Stopped at: Completed Phase 37 (Codebase Cleanup)
 Resume file: None
-Next action: Execute 37-02-PLAN.md
+Next action: Plan Phase 38 (Offline Support)
 
 ---
 
-*Updated: 2026-02-04 - Completed 37-01-PLAN.md: Dead code deletion (3 tasks, 12 files deleted)*
+*Updated: 2026-02-04 - Completed Phase 37: Codebase Cleanup (2 plans, 9 circular dependencies fixed)*
