@@ -29,7 +29,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 /**
  * POST /api/admin/drivers/invite
- * Send a driver invite email using Supabase Auth
+ * Send a driver invite using unified magic link approach
+ * Works for both new and existing users
  */
 export async function POST(request: NextRequest) {
   try {
@@ -98,9 +99,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create invite record for tracking (24 hour expiry)
+    // Create invite record (24 hour expiry)
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-    // Generate unique placeholder token (for backwards compatibility)
     const placeholderToken = `supabase-${crypto.randomBytes(16).toString("hex")}`;
 
     const { data: invite, error: insertError } = await supabase
@@ -118,101 +118,56 @@ export async function POST(request: NextRequest) {
     if (insertError) {
       logger.exception(insertError, { api: "admin/drivers/invite", flowId: "insert" });
       return NextResponse.json(
-        { error: "Failed to create invite", details: insertError.message, code: insertError.code },
+        { error: "Failed to create invite", details: insertError.message },
         { status: 500 }
       );
     }
 
-    // Try to send invite - this works for new users
-    const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
-      normalizedEmail,
-      {
-        redirectTo: `${BASE_URL}/driver/onboard`,
-        data: {
-          role: "driver",
-          invite_id: invite.id,
-        },
-      }
+    // Check if user already exists in auth system
+    const { data: userData } = await supabase.auth.admin.listUsers();
+    const existingUser = userData?.users?.find(
+      (u) => u.email?.toLowerCase() === normalizedEmail
     );
 
-    // If user already exists, generate a magic link instead
-    if (inviteError?.message?.includes("already been registered") ||
-        inviteError?.message?.includes("email_exists")) {
-      // First, update the user's metadata
-      const { data: userData } = await supabase.auth.admin.listUsers();
-      const existingUser = userData?.users?.find(
-        (u) => u.email?.toLowerCase() === normalizedEmail
-      );
-
-      if (existingUser) {
-        await supabase.auth.admin.updateUserById(existingUser.id, {
-          user_metadata: {
-            ...existingUser.user_metadata,
-            role: "driver",
-            invite_id: invite.id,
-          },
-        });
-      }
-
-      // Generate magic link for existing user
-      const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-        type: "magiclink",
-        email: normalizedEmail,
-        options: {
-          redirectTo: `${BASE_URL}/driver/onboard`,
+    // Update user metadata if they exist (so callback can detect driver invite)
+    if (existingUser) {
+      await supabase.auth.admin.updateUserById(existingUser.id, {
+        user_metadata: {
+          ...existingUser.user_metadata,
+          pending_driver_invite: invite.id,
         },
       });
-
-      if (linkError || !linkData) {
-        logger.exception(linkError, { api: "admin/drivers/invite", flowId: "generate-link" });
-        await supabase.from("driver_invites").delete().eq("id", invite.id);
-        return NextResponse.json(
-          { error: "Failed to generate invite link", details: linkError?.message },
-          { status: 500 }
-        );
-      }
-
-      // Return success with the magic link for existing users
-      return NextResponse.json(
-        {
-          id: invite.id,
-          email: invite.email,
-          expiresAt: invite.expires_at,
-          message: "User already has an account. Share this magic link with them:",
-          magicLink: linkData.properties.action_link,
-          isExistingUser: true,
-        },
-        { status: 201 }
-      );
     }
 
-    // Handle rate limiting
-    if (inviteError?.message?.includes("rate") ||
-        inviteError?.message?.includes("429") ||
-        inviteError?.status === 429) {
-      await supabase.from("driver_invites").delete().eq("id", invite.id);
-      return NextResponse.json(
-        { error: "Too many requests. Please wait a minute before trying again." },
-        { status: 429 }
-      );
-    }
+    // Generate magic link - works for both new and existing users
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: "magiclink",
+      email: normalizedEmail,
+      options: {
+        redirectTo: `${BASE_URL}/auth/callback?next=/driver/onboard&invite_id=${invite.id}`,
+      },
+    });
 
-    // Other invite errors
-    if (inviteError) {
-      logger.exception(inviteError, { api: "admin/drivers/invite", flowId: "supabase-invite" });
+    if (linkError || !linkData) {
+      logger.exception(linkError, { api: "admin/drivers/invite", flowId: "generate-link" });
       await supabase.from("driver_invites").delete().eq("id", invite.id);
       return NextResponse.json(
-        { error: "Failed to send invite email", details: inviteError.message, code: inviteError.code },
+        { error: "Failed to generate invite link", details: linkError?.message },
         { status: 500 }
       );
     }
 
+    // Return magic link for admin to share
     return NextResponse.json(
       {
         id: invite.id,
         email: invite.email,
         expiresAt: invite.expires_at,
-        message: "Invite sent successfully",
+        magicLink: linkData.properties.action_link,
+        message: existingUser
+          ? "User has an existing account. Share this link to add driver role."
+          : "Share this link with the new driver to complete registration.",
+        isExistingUser: !!existingUser,
       },
       { status: 201 }
     );

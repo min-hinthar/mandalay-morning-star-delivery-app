@@ -1,8 +1,8 @@
 /**
- * V6 Invite Driver Modal - Pepper Aesthetic
+ * Invite Driver Modal
  *
- * Modal for sending driver invite emails with V6 colors, typography, and animations.
- * Single email field with validation.
+ * Modal for sending driver invite emails.
+ * Always shows magic link for admin to share.
  */
 
 "use client";
@@ -35,6 +35,15 @@ interface FormErrors {
   general?: string;
 }
 
+interface InviteResponse {
+  id: string;
+  email: string;
+  expiresAt: string;
+  magicLink: string;
+  message: string;
+  isExistingUser: boolean;
+}
+
 export function InviteDriverModal({
   open,
   onOpenChange,
@@ -43,7 +52,7 @@ export function InviteDriverModal({
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [magicLink, setMagicLink] = useState<string | null>(null);
+  const [inviteResult, setInviteResult] = useState<InviteResponse | null>(null);
   const [copied, setCopied] = useState(false);
 
   const validateForm = (): boolean => {
@@ -76,30 +85,16 @@ export function InviteDriverModal({
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to send invite");
+        throw new Error(error.error || "Failed to create invite");
       }
 
-      const data = await response.json();
-
-      // Check if this is an existing user with magic link
-      if (data.isExistingUser && data.magicLink) {
-        setMagicLink(data.magicLink);
-        setCopied(false);
-        onSuccess?.();
-      } else {
-        toast({
-          title: "Invite Sent",
-          description: `Invitation sent to ${email}`,
-        });
-
-        // Reset and close
-        setEmail("");
-        onOpenChange(false);
-        onSuccess?.();
-      }
+      const data: InviteResponse = await response.json();
+      setInviteResult(data);
+      setCopied(false);
+      onSuccess?.();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to send invite";
+        error instanceof Error ? error.message : "Failed to create invite";
 
       // Show in form if it's a validation-type error
       if (
@@ -116,13 +111,13 @@ export function InviteDriverModal({
   };
 
   const handleCopyLink = async () => {
-    if (!magicLink) return;
+    if (!inviteResult?.magicLink) return;
     try {
-      await navigator.clipboard.writeText(magicLink);
+      await navigator.clipboard.writeText(inviteResult.magicLink);
       setCopied(true);
       toast({
         title: "Link Copied",
-        description: "Magic link copied to clipboard",
+        description: "Invite link copied to clipboard",
       });
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -138,7 +133,7 @@ export function InviteDriverModal({
     if (!isSubmitting) {
       setEmail("");
       setErrors({});
-      setMagicLink(null);
+      setInviteResult(null);
       setCopied(false);
       onOpenChange(false);
     }
@@ -151,8 +146,8 @@ export function InviteDriverModal({
     }
   };
 
-  // Show magic link view if we have one
-  if (magicLink) {
+  // Show magic link view after invite is created
+  if (inviteResult) {
     return (
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-[480px] bg-surface-primary border-border rounded-card">
@@ -161,12 +156,21 @@ export function InviteDriverModal({
               <div className="p-2 rounded-input bg-primary text-text-inverse">
                 <Link className="h-5 w-5" />
               </div>
-              Share Magic Link
+              Invite Created
             </DialogTitle>
             <DialogDescription className="font-body text-text-secondary">
-              This user already has an account. Share this magic link with{" "}
-              <span className="font-medium text-text-primary">{email}</span>{" "}
-              to let them complete driver registration.
+              {inviteResult.isExistingUser ? (
+                <>
+                  <span className="font-medium text-text-primary">{inviteResult.email}</span>{" "}
+                  already has an account. Share this link to add driver role.
+                </>
+              ) : (
+                <>
+                  Share this link with{" "}
+                  <span className="font-medium text-text-primary">{inviteResult.email}</span>{" "}
+                  to complete registration.
+                </>
+              )}
             </DialogDescription>
           </DialogHeader>
 
@@ -175,7 +179,7 @@ export function InviteDriverModal({
               <input
                 type="text"
                 readOnly
-                value={magicLink}
+                value={inviteResult.magicLink}
                 className="flex-1 px-3 py-2 text-sm bg-surface-secondary border border-border rounded-input font-mono truncate"
               />
               <Button
@@ -192,7 +196,8 @@ export function InviteDriverModal({
               </Button>
             </div>
             <p className="mt-2 text-xs text-text-muted">
-              This link expires in 1 hour. The user should open it in a browser where they are not already logged in.
+              This link expires in 24 hours. The recipient should open it in a browser
+              where they are not already logged in.
             </p>
           </div>
 
@@ -230,8 +235,8 @@ export function InviteDriverModal({
             Invite Driver
           </DialogTitle>
           <DialogDescription className="font-body text-text-secondary">
-            Send an email invitation to a new driver. They&apos;ll receive a link to
-            complete their registration.
+            Create an invitation for a new driver. You&apos;ll receive a link to
+            share with them.
           </DialogDescription>
         </DialogHeader>
 
@@ -276,7 +281,7 @@ export function InviteDriverModal({
               </p>
             )}
             <p className="text-xs font-body text-text-muted mt-2">
-              The invite will expire in 24 hours. You can resend it if needed.
+              Works for both new and existing users.
             </p>
           </div>
 
@@ -298,12 +303,12 @@ export function InviteDriverModal({
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
+                  Creating...
                 </>
               ) : (
                 <>
                   <Mail className="mr-2 h-4 w-4" />
-                  Send Invite
+                  Create Invite
                 </>
               )}
             </Button>
