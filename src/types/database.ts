@@ -301,6 +301,7 @@ export interface OrdersRow {
   id: string;
   user_id: string;
   address_id: string | null;
+  assigned_driver_id: string | null;
   status: OrderStatus;
   subtotal_cents: number;
   delivery_fee_cents: number;
@@ -321,6 +322,7 @@ export interface OrdersInsert {
   id?: string;
   user_id: string;
   address_id?: string | null;
+  assigned_driver_id?: string | null;
   status?: OrderStatus;
   subtotal_cents: number;
   delivery_fee_cents?: number;
@@ -341,6 +343,7 @@ export interface OrdersUpdate {
   id?: string;
   user_id?: string;
   address_id?: string | null;
+  assigned_driver_id?: string | null;
   status?: OrderStatus;
   subtotal_cents?: number;
   delivery_fee_cents?: number;
@@ -357,7 +360,7 @@ export interface OrdersUpdate {
   updated_at?: string;
 }
 
-export type OrderAuditAction = "status_change" | "cancel" | "refund" | "edit";
+export type OrderAuditAction = "status_change" | "cancel" | "refund" | "edit" | "update_items" | "assign_driver" | "unassign_driver";
 export type OrderAuditActorRole = "customer" | "admin" | "driver" | "system";
 
 export interface OrderAuditLogRow {
