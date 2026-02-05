@@ -5,6 +5,7 @@ import {
   NetworkFirst,
   StaleWhileRevalidate,
   ExpirationPlugin,
+  CacheableResponsePlugin,
   Serwist,
 } from "serwist";
 
@@ -27,6 +28,7 @@ const serwist = new Serwist({
   navigationPreload: true,
   runtimeCaching: [
     // External images (Google Drive, Supabase Storage) - CacheFirst (OFFLINE-03)
+    // Uses CacheableResponsePlugin to cache opaque cross-origin responses (status 0)
     {
       matcher: ({ url }) =>
         url.hostname.includes("drive.google.com") ||
@@ -36,6 +38,9 @@ const serwist = new Serwist({
       handler: new CacheFirst({
         cacheName: `external-images-${CACHE_VERSION}`,
         plugins: [
+          new CacheableResponsePlugin({
+            statuses: [0, 200], // 0 = opaque response (cross-origin)
+          }),
           new ExpirationPlugin({
             maxEntries: 200,
             maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
