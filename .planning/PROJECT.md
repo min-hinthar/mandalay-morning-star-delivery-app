@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A full frontend rewrite of the Morning Star Weekly Delivery meal subscription app. Fresh V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. V1 delivered customer flows (menu → cart → checkout) with reliable clickability. V1.1 completed tech debt cleanup with zero legacy patterns, strict TypeScript, and enforced design tokens. V1.2 delivered maximum playfulness with unified menu cards, rebuilt header/navigation, 12 micro-interactions, OLED dark mode, and comprehensive codebase cleanup. V1.3 completed full codebase consolidation: design token enforcement across 70+ files, component library unification, hero redesign with floating emojis and parallax, and quality infrastructure with Storybook docs, contrast testing, and pre-commit hooks.
+A full frontend rewrite of the Morning Star Weekly Delivery meal subscription app. Fresh V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. V1 delivered customer flows (menu → cart → checkout) with reliable clickability. V1.1 completed tech debt cleanup with zero legacy patterns, strict TypeScript, and enforced design tokens. V1.2 delivered maximum playfulness with unified menu cards, rebuilt header/navigation, 12 micro-interactions, OLED dark mode, and comprehensive codebase cleanup. V1.3 completed full codebase consolidation: design token enforcement across 70+ files, component library unification, hero redesign with floating emojis and parallax, and quality infrastructure with Storybook docs, contrast testing, and pre-commit hooks. V1.4 delivered mobile excellence: zero crashes, CLS 0, offline support with service worker caching, device-adaptive animations, admin photo management, driver invites, and complete route/settings/account pages.
 
 ## Core Value
 
@@ -154,22 +154,46 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - ✓ Hero visual regression tests with baselines — v1.3
 - ✓ design-system/ and contexts/ directories consolidated — v1.3
 - ✓ ESLint guards prevent recreation of removed directories (14 rules) — v1.3
+- ✓ Zero mobile crashes (300 files audited, utility hooks created) — v1.4
+- ✓ CLS: 0 (perfect), quality 70 default, shimmer placeholders — v1.4
+- ✓ Service worker with CacheFirst/NetworkFirst caching strategies — v1.4
+- ✓ IndexedDB menu cache with offline indicator and stale badges — v1.4
+- ✓ Device capability detection with low/high tier animations — v1.4
+- ✓ GSAP/Framer Motion conflict detector (dev-mode warnings) — v1.4
+- ✓ Enhanced fly-to-cart with sound, haptics, checkmark feedback — v1.4
+- ✓ Supabase Storage for admin photo uploads (menu-photos bucket) — v1.4
+- ✓ Dynamic featured sections with admin management — v1.4
+- ✓ Driver detail and route detail pages with Google Maps — v1.4
+- ✓ Settings page with tabbed interface — v1.4
+- ✓ Customer account page with profile, orders, addresses — v1.4
+- ✓ Driver invite system with email-based magic links — v1.4
+- ✓ Route optimization modal with before/after comparison — v1.4
+- ✓ Zero circular dependencies (9 cycles fixed) — v1.4
+- ✓ 12 dead code files deleted with ESLint guards — v1.4
 
 ### Active
 
-(Defining requirements for v1.4)
+(Defining requirements for v1.5)
 
-## Current Milestone: v1.4 Mobile Excellence & Homepage Completion
+## Current State (v1.4 shipped)
 
-**Goal:** Wire unused homepage components into the app, clean up dead code, and maximize mobile performance with image optimization, caching, and crash prevention.
+**Shipped:** 2026-02-05
+**Phases:** 39 (v1.0: 1-8, v1.1: 9-14, v1.2: 15-24, v1.3: 25-34, v1.4: 35-39)
+**Plans:** 174 total
+**Requirements:** 213 validated
 
-**Target features:**
-- Homepage component integration (Hero, CTABanner, FooterCTA, HowItWorksSection, TestimonialsCarousel)
-- Dead code cleanup (23 verified unused files)
-- Mobile image optimization (lazy loading, compression, responsive images)
-- Memory management and crash prevention
-- Offline support and aggressive caching
-- Skeleton states and loading optimizations
+**Key accomplishments in v1.4:**
+- Mobile crash prevention (300 files audited, 0 critical issues)
+- Image optimization (CLS: 0, hero preload, shimmer placeholders)
+- Offline support (service worker, IndexedDB cache, offline UI)
+- Device-adaptive animations (parallax disabled on low-power devices)
+- Admin photo and featured sections management
+- Complete route system with driver management
+- Driver invite flow with email onboarding
+
+**Next milestone:** v1.5 (not yet defined)
+
+Run `/gsd:new-milestone` to start planning.
 
 ### Out of Scope
 - Backend/schema changes — Supabase + Stripe contracts stay stable
@@ -178,27 +202,33 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 
 ## Context
 
-**Current state (v1.3 shipped):**
+**Current state (v1.4 shipped):**
 - Full design token system: 62+ semantic tokens enforced via ESLint
 - Single unified component library: @/components/ui/ with barrel exports
 - Hero with 13 floating emojis, 4-layer parallax, theme-aware gradients
-- Mobile stability: touch devices use fallback animations, Safari fixes applied
+- Mobile stability: zero crashes, device-adaptive animations, Safari fixes
 - Quality infrastructure: 7 Storybook token docs, 38 WCAG AAA contrast tests
 - Pre-commit hooks: Husky + lint-staged blocking ESLint violations
-- 164 requirements validated across 34 phases (v1.0 + v1.1 + v1.2 + v1.3)
+- 213 requirements validated across 39 phases (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
 - All flows using consolidated V8 components: customer, admin, driver
 - Zero design token violations (excluding documented exemptions)
+- Offline support: service worker, IndexedDB menu cache, stale indicators
+- Admin features: photo upload, featured sections, driver invites, route optimization
+- Customer features: account page, order history, address management
 
 **Tech stack:**
 - Next.js 16.1.2 + React 19.2.3 + TailwindCSS 4
 - Framer Motion 12.26.1 + GSAP 3.14.2
 - Zustand for state management
 - Supabase auth + Stripe checkout
-- 34,917 lines TypeScript total
+- Serwist for service worker
+- Resend + React Email for driver invites
+- 97,436 lines TypeScript total
 
 **Remaining tech debt:**
+- LCP: 8.1s (blocked by JavaScript execution, needs JS optimization phase)
+- 29 files exceed 400 lines (warning only per config)
 - 137 token violations in Storybook stories and driver components (intentional exemptions)
-- Visual regression baselines need network-enabled generation environment
 
 **Design direction:**
 - Animation-first: GSAP for timelines/scroll, Framer Motion for components
@@ -254,5 +284,14 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 | Husky pre-commit with --max-warnings=0 | All ESLint errors block commits | ✓ Good — v1.3 |
 | WCAG AAA for dark mode primary | #FF6B6B gives 6.33:1 contrast ratio | ✓ Good — v1.3 |
 
+| Low-power threshold <=4GB OR <=4 cores | Device tier detection for animation scaling | ✓ Good — v1.4 |
+| Safari fallback via user agent | Mobile Safari = low-power, desktop = high-power | ✓ Good — v1.4 |
+| Parallax only disabled on low-power | All other animations remain enabled | ✓ Good — v1.4 |
+| Custom SW build script for Turbopack | @serwist/next doesn't support Turbopack | ✓ Good — v1.4 |
+| CacheFirst for images 30-day | Offline image availability | ✓ Good — v1.4 |
+| NetworkFirst for menu API 5-min | Fresh data preferred, stale fallback | ✓ Good — v1.4 |
+| flyingCount replaces isAnimating | Allows multiple concurrent fly animations | ✓ Good — v1.4 |
+| cartPop sound 1200Hz→800Hz | Descending sine, 60ms for satisfying pop | ✓ Good — v1.4 |
+
 ---
-*Last updated: 2026-01-30 — v1.4 milestone started*
+*Last updated: 2026-02-05 after v1.4 milestone*
