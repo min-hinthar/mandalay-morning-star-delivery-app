@@ -138,13 +138,15 @@ export const CardImage = memo(function CardImage({
             key={`${imageUrl}-${retryCount}`}
             src={imageUrl}
             alt={alt}
-            className={cn(
-              "w-full h-full object-cover",
-              "transition-opacity duration-150",
-              isLoaded ? "opacity-100" : "opacity-0"
-            )}
+            className="w-full h-full object-cover"
+            style={{
+              // Use visibility instead of opacity - browser still loads invisible images
+              // but opacity:0 in animated parent may prevent load event
+              visibility: isLoaded ? "visible" : "hidden",
+            }}
             loading="eager"
             decoding="async"
+            fetchPriority="high"
             onLoad={handleLoad}
             onError={handleError}
           />
