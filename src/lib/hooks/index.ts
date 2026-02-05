@@ -136,3 +136,9 @@ export type {
   SafeIntervalControls,
   SafeAsyncControls,
 } from "./useSafeEffects";
+
+// ============================================
+// DEVICE CAPABILITY
+// ============================================
+
+export { useDeviceCapability, type DeviceTier } from "./useDeviceCapability";
