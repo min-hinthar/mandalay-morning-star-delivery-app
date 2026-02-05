@@ -70,7 +70,7 @@ export const CardImage = memo(function CardImage({
   // Retry failed images with exponential backoff (handles Google Drive rate limiting)
   const handleError = useCallback(() => {
     if (retryCount < MAX_RETRIES) {
-      const delay = BASE_RETRY_DELAY * Math.pow(2, retryCount);
+      const delay = BASE_RETRY_DELAY * 2 ** retryCount;
       setTimeout(() => {
         setRetryCount((prev) => prev + 1);
         setRetryKey((prev) => prev + 1);
