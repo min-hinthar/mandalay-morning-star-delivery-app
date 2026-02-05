@@ -26,7 +26,25 @@ const serwist = new Serwist({
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: [
-    // Images - CacheFirst with 30-day expiration (OFFLINE-03)
+    // External images (Google Drive, Supabase Storage) - CacheFirst (OFFLINE-03)
+    {
+      matcher: ({ url }) =>
+        url.hostname.includes("drive.google.com") ||
+        url.hostname.includes("googleusercontent.com") ||
+        url.hostname.includes("supabase.co") ||
+        url.hostname.includes("supabase.com"),
+      handler: new CacheFirst({
+        cacheName: `external-images-${CACHE_VERSION}`,
+        plugins: [
+          new ExpirationPlugin({
+            maxEntries: 200,
+            maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+            purgeOnQuotaError: true,
+          }),
+        ],
+      }),
+    },
+    // Same-origin images - CacheFirst with 30-day expiration (OFFLINE-03)
     {
       matcher: ({ request }) => request.destination === "image",
       handler: new CacheFirst({

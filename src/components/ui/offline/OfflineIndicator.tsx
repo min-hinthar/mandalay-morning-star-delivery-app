@@ -23,21 +23,17 @@ export function OfflineIndicator() {
   useEffect(() => {
     setMounted(true);
     // Set initial state after mount
-    const initialOnline = navigator.onLine;
-    setIsOnline(initialOnline);
-    console.log("[OfflineIndicator] Mounted, navigator.onLine:", initialOnline);
+    setIsOnline(navigator.onLine);
 
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     const handleOnline = () => {
-      console.log("[OfflineIndicator] Online event fired");
       setIsOnline(true);
       setWasOffline(true);
       timeoutId = setTimeout(() => setWasOffline(false), 3000);
     };
 
     const handleOffline = () => {
-      console.log("[OfflineIndicator] Offline event fired");
       setIsOnline(false);
       if (timeoutId) {
         clearTimeout(timeoutId);
@@ -63,16 +59,12 @@ export function OfflineIndicator() {
   const showBanner = !isOnline || wasOffline;
   const isReconnected = isOnline && wasOffline;
 
-  console.log("[OfflineIndicator] State:", { isOnline, wasOffline, showBanner, isReconnected });
-
   // Return null when not showing - prevents any invisible overlay
   if (!showBanner) return null;
 
-  console.log("[OfflineIndicator] Rendering banner");
-
   return (
     <div
-      className="fixed inset-x-0 top-0 z-[9999] pointer-events-auto"
+      className="relative w-full z-[9999]"
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
       {isReconnected ? (
