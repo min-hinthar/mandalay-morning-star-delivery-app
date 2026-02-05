@@ -139,6 +139,12 @@ Progress: [###############################################################] v1.4
 | 37-02 | Direct imports for overlay components | Barrel re-exports create cycles; use @/components/ui/Drawer not @/components/ui |
 | 37-02 | Type extraction pattern for cycles | Extract shared types to dedicated file (e.g., settings-types.ts) |
 | 37-02 | max-lines as warning only | Per CONTEXT.md - file size is advisory, not build failure |
+| 38-01 | Custom SW build script | @serwist/next doesn't support Turbopack - use esbuild |
+| 38-01 | CacheFirst for images | 30-day expiration, 250 entries (~50MB budget) |
+| 38-01 | NetworkFirst for menu API | 5s timeout, fresh data preferred |
+| 38-01 | StaleWhileRevalidate for static | Fast loads with background refresh |
+| 38-01 | Filter document from defaultCache | Prevents App Router RSC conflicts |
+| 38-01 | skipWaiting: false | Manual update control for update prompt UI |
 | 38-02 | Single record pattern for menu cache | Uses "current" key - simpler than per-category caching |
 | 38-02 | 24-hour staleness threshold | Per CONTEXT.md - balance freshness vs offline availability |
 | 38-02 | 3-second wasOffline window | "Back online" banner duration per CONTEXT.md UX spec |
@@ -184,7 +190,7 @@ Progress: [###############################################################] v1.4
 ### Research Flags
 
 - Phase 35.1 (Admin Photos): Complete
-- Phase 38 (Offline): Needs light research - Serwist configuration for Next.js App Router
+- Phase 38 (Offline): Research complete - custom build script for Turbopack compatibility
 - Other phases: Standard patterns, skip research
 
 ### Blockers/Concerns
