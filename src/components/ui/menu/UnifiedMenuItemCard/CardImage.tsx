@@ -65,27 +65,34 @@ export const CardImage = memo(function CardImage({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
-  const [retryKey, setRetryKey] = useState(0);
+  const [cacheBuster, setCacheBuster] = useState("");
 
   // Retry failed images with exponential backoff (handles Google Drive rate limiting)
   const handleError = useCallback(() => {
-    if (retryCount < MAX_RETRIES) {
-      const delay = BASE_RETRY_DELAY * 2 ** retryCount;
-      setTimeout(() => {
-        setRetryCount((prev) => prev + 1);
-        setRetryKey((prev) => prev + 1);
-      }, delay);
-    } else {
-      setHasError(true);
-    }
-  }, [retryCount]);
+    setRetryCount((prev) => {
+      if (prev < MAX_RETRIES) {
+        const delay = BASE_RETRY_DELAY * 2 ** prev;
+        setTimeout(() => {
+          // Add cache buster to force fresh request
+          setCacheBuster(`&_cb=${Date.now()}`);
+        }, delay);
+        return prev + 1;
+      } else {
+        setHasError(true);
+        return prev;
+      }
+    });
+  }, []);
+
+  // Build image URL with optional cache buster for retries
+  const imageSrc = imageUrl ? `${imageUrl}${cacheBuster}` : null;
 
   // Reset state when imageUrl changes
   useEffect(() => {
     setIsLoaded(false);
     setHasError(false);
     setRetryCount(0);
-    setRetryKey(0);
+    setCacheBuster("");
   }, [imageUrl]);
 
   // Parallax transforms (+-10px)
@@ -107,7 +114,7 @@ export const CardImage = memo(function CardImage({
       )}
     >
       {/* Shimmer placeholder - shows until image loads or during retry */}
-      {imageUrl && !isLoaded && !hasError && (
+      {imageSrc && !isLoaded && !hasError && (
         <div className="absolute inset-0 bg-surface-tertiary animate-pulse">
           {retryCount > 0 && (
             <div className="absolute bottom-2 right-2 text-xs text-text-muted opacity-50">
@@ -127,12 +134,11 @@ export const CardImage = memo(function CardImage({
         }}
         transition={{ duration: 0.3 }}
       >
-        {imageUrl && !hasError ? (
+        {imageSrc && !hasError ? (
           /* Plain img tag like cart drawer - reliable across all devices and URL types */
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
-            key={retryKey}
-            src={imageUrl}
+            src={imageSrc}
             alt={alt}
             className={cn(
               "w-full h-full object-cover",
