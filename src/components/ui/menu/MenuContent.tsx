@@ -11,6 +11,7 @@
  * - Shows MenuSkeleton while loading
  * - Error state with retry button
  * - Opens item modal from URL param (?item=slug) for command palette integration
+ * - Offline support: caches menu data and shows stale badge when offline
  *
  * @example
  * <MenuContent className="min-h-screen" />
@@ -22,8 +23,10 @@ import { motion } from "framer-motion";
 import { useMenu } from "@/lib/hooks/useMenu";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useCart } from "@/lib/hooks/useCart";
+import { useCustomerOfflineSync } from "@/lib/hooks/useCustomerOfflineSync";
+import { menuCache } from "@/lib/services/customer-offline-store";
 import { cn } from "@/lib/utils/cn";
-import type { MenuItem, MenuCategory } from "@/types/menu";
+import type { MenuItem, MenuCategory, MenuResponse } from "@/types/menu";
 import type { SelectedModifier } from "@/lib/utils/price";
 
 import { AnimatedSection, itemVariants } from "@/components/ui/scroll";
@@ -32,6 +35,7 @@ import { MenuSection } from "./MenuSection";
 import { MenuGrid } from "./MenuGrid";
 import { ItemDetailSheet } from "./ItemDetailSheet";
 import { MenuSkeleton } from "./MenuSkeleton";
+import { StaleBadge } from "@/components/ui/offline";
 
 // ============================================
 // TYPES
@@ -54,11 +58,67 @@ export function MenuContent({ className }: MenuContentProps) {
   const router = useRouter();
 
   // ============================================
+  // OFFLINE STATE
+  // ============================================
+  const { isOnline } = useCustomerOfflineSync();
+  const [cachedAt, setCachedAt] = useState<string | null>(null);
+  const [usingCachedData, setUsingCachedData] = useState(false);
+
+  // ============================================
   // DATA FETCHING
   // ============================================
 
   const { data, isLoading, error, refetch } = useMenu();
   const categories = useMemo(() => data?.data?.categories ?? [], [data?.data?.categories]);
+
+  // ============================================
+  // OFFLINE CACHING
+  // ============================================
+
+  // Save menu data to cache when successfully fetched
+  useEffect(() => {
+    if (data?.data?.categories && data.data.categories.length > 0) {
+      menuCache.save(data).catch((err) => {
+        console.error("[MenuContent] Failed to cache menu:", err);
+      });
+      // Clear cached data indicator when we have fresh data
+      setUsingCachedData(false);
+      setCachedAt(null);
+    }
+  }, [data]);
+
+  // Load from cache on error (offline fallback)
+  useEffect(() => {
+    if (error && !isLoading) {
+      menuCache.get().then((cached) => {
+        if (cached) {
+          setCachedAt(cached.cachedAt);
+          setUsingCachedData(true);
+        }
+      }).catch((err) => {
+        console.error("[MenuContent] Failed to load cached menu:", err);
+      });
+    }
+  }, [error, isLoading]);
+
+  // Get cached categories when using offline data
+  const [cachedCategories, setCachedCategories] = useState<MenuCategory[]>([]);
+
+  useEffect(() => {
+    if (usingCachedData) {
+      menuCache.get().then((cached) => {
+        if (cached?.data) {
+          const menuResponse = cached.data as MenuResponse;
+          setCachedCategories(menuResponse.data?.categories ?? []);
+        }
+      }).catch((err) => {
+        console.error("[MenuContent] Failed to read cached categories:", err);
+      });
+    }
+  }, [usingCachedData]);
+
+  // Use cached categories when offline, otherwise use fresh data
+  const displayCategories = usingCachedData ? cachedCategories : categories;
 
   // ============================================
   // FAVORITES
@@ -72,12 +132,12 @@ export function MenuContent({ className }: MenuContentProps) {
 
   // Memoize category tabs data transformation
   const tabCategories = useMemo(
-    () => categories.map((cat: MenuCategory) => ({
+    () => displayCategories.map((cat: MenuCategory) => ({
       slug: cat.slug,
       name: cat.name,
       nameEn: cat.name,
     })),
-    [categories]
+    [displayCategories]
   );
 
   // ============================================
@@ -117,13 +177,13 @@ export function MenuContent({ className }: MenuContentProps) {
   // Handle URL param to open item modal (from command palette search)
   // Uses useSearchParams to react to client-side navigation
   useEffect(() => {
-    if (categories.length === 0) return;
+    if (displayCategories.length === 0) return;
 
     const itemSlug = searchParams.get("item");
 
     if (itemSlug) {
       // Find the item across all categories
-      const item = categories
+      const item = displayCategories
         .flatMap((c: MenuCategory) => c.items ?? [])
         .find((i: MenuItem) => i.slug === itemSlug);
 
@@ -134,7 +194,7 @@ export function MenuContent({ className }: MenuContentProps) {
         router.replace("/menu", { scroll: false });
       }
     }
-  }, [categories, searchParams, router]);
+  }, [displayCategories, searchParams, router]);
 
   const handleFavoriteToggle = useCallback(
     (itemId: string) => {
@@ -184,10 +244,10 @@ export function MenuContent({ className }: MenuContentProps) {
   }
 
   // ============================================
-  // ERROR STATE
+  // ERROR STATE (only show if no cached data available)
   // ============================================
 
-  if (error) {
+  if (error && !usingCachedData) {
     return (
       <div
         className={cn(
@@ -196,7 +256,7 @@ export function MenuContent({ className }: MenuContentProps) {
           className
         )}
       >
-        <div className="text-4xl mb-4">😕</div>
+        <div className="text-4xl mb-4">:(</div>
         <h2 className="text-lg font-semibold text-text-primary mb-2">
           Failed to load menu
         </h2>
@@ -223,7 +283,7 @@ export function MenuContent({ className }: MenuContentProps) {
   // EMPTY STATE
   // ============================================
 
-  if (categories.length === 0) {
+  if (displayCategories.length === 0) {
     return (
       <div
         className={cn(
@@ -232,7 +292,7 @@ export function MenuContent({ className }: MenuContentProps) {
           className
         )}
       >
-        <div className="text-4xl mb-4">🍽️</div>
+        <div className="text-4xl mb-4">:(</div>
         <h2 className="text-lg font-semibold text-text-primary mb-2">
           Menu Coming Soon
         </h2>
@@ -243,6 +303,9 @@ export function MenuContent({ className }: MenuContentProps) {
     );
   }
 
+  // Show stale badge when offline with cached data
+  const showStaleBadge = !isOnline && cachedAt;
+
   // ============================================
   // MAIN RENDER
   // ============================================
@@ -252,9 +315,16 @@ export function MenuContent({ className }: MenuContentProps) {
       {/* Category Tabs */}
       <CategoryTabs categories={tabCategories} />
 
+      {/* Stale Badge - shown above menu grid when offline with cached data */}
+      {showStaleBadge && (
+        <div className="px-4 pt-2 pb-1">
+          <StaleBadge cachedAt={cachedAt} />
+        </div>
+      )}
+
       {/* Menu Sections with scroll-triggered animations */}
       <div className="space-y-8 px-4 pb-8 pt-2">
-        {categories.map((category: MenuCategory) => (
+        {displayCategories.map((category: MenuCategory) => (
           <AnimatedSection
             key={category.slug}
             id={`category-${category.slug}`}
