@@ -1,16 +1,11 @@
 "use client";
 
-import { memo, useState, useEffect, useCallback } from "react";
+import { memo, useState } from "react";
 import { motion, MotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { getCategoryEmoji } from "../EmojiPlaceholder";
 import { zClass } from "@/lib/design-system/tokens/z-index";
-
-// Max retries for rate-limited images (e.g., Google Drive)
-const MAX_RETRIES = 3;
-// Base delay in ms (doubles each retry: 1s, 2s, 4s)
-const BASE_RETRY_DELAY = 1000;
 
 // ============================================
 // TYPES
@@ -63,40 +58,7 @@ export const CardImage = memo(function CardImage({
   className,
 }: CardImageProps) {
   const { shouldAnimate } = useAnimationPreference();
-  const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-
-  // Retry failed images with exponential backoff (handles Google Drive rate limiting)
-  useEffect(() => {
-    if (hasError && retryCount < MAX_RETRIES) {
-      const delay = BASE_RETRY_DELAY * 2 ** retryCount;
-      const timer = setTimeout(() => {
-        setHasError(false);
-        setRetryCount((prev) => prev + 1);
-      }, delay);
-      return () => clearTimeout(timer);
-    }
-  }, [hasError, retryCount]);
-
-  const handleError = useCallback(() => {
-    setHasError(true);
-  }, []);
-
-  const handleLoad = useCallback(() => {
-    setIsLoaded(true);
-    setHasError(false);
-  }, []);
-
-  // Reset state when imageUrl changes
-  useEffect(() => {
-    setIsLoaded(false);
-    setHasError(false);
-    setRetryCount(0);
-  }, [imageUrl]);
-
-  // Show fallback if all retries exhausted
-  const showFallback = hasError && retryCount >= MAX_RETRIES;
 
   // Parallax transforms (+-10px)
   const imageX = useTransform(mouseX, [0, 1], [-10, 10]);
@@ -116,11 +78,6 @@ export const CardImage = memo(function CardImage({
         className
       )}
     >
-      {/* Shimmer placeholder - shows until image loads */}
-      {imageUrl && !isLoaded && !showFallback && (
-        <div className="absolute inset-0 bg-surface-tertiary animate-pulse" />
-      )}
-
       {/* Image with parallax */}
       <motion.div
         className="absolute inset-0"
@@ -131,24 +88,14 @@ export const CardImage = memo(function CardImage({
         }}
         transition={{ duration: 0.3 }}
       >
-        {imageUrl && !showFallback ? (
-          /* Plain img tag - reliable across all devices and URL types */
+        {imageUrl && !hasError ? (
+          /* Plain img tag - simple approach like ItemDetailSheet */
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
-            key={`${imageUrl}-${retryCount}`}
             src={imageUrl}
             alt={alt}
             className="w-full h-full object-cover"
-            style={{
-              // Use visibility instead of opacity - browser still loads invisible images
-              // but opacity:0 in animated parent may prevent load event
-              visibility: isLoaded ? "visible" : "hidden",
-            }}
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
-            onLoad={handleLoad}
-            onError={handleError}
+            onError={() => setHasError(true)}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-surface">
