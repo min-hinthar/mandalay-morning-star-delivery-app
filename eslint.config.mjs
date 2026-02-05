@@ -24,6 +24,8 @@ const config = [
       "storybook-static/**",
       "src/stories/**",
       ".claude/hooks/**",
+      "public/sw.js", // Auto-generated service worker
+      "scripts/**", // Build scripts
     ],
   },
   {

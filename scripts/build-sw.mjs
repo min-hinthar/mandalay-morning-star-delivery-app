@@ -12,7 +12,7 @@
 import { build } from "esbuild";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import { readFileSync, writeFileSync, existsSync } from "fs";
 import { glob } from "glob";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,7 +23,6 @@ const projectRoot = resolve(__dirname, "..");
 const SW_SRC = resolve(projectRoot, "src/app/sw.ts");
 const SW_DEST = resolve(projectRoot, "public/sw.js");
 const PUBLIC_DIR = resolve(projectRoot, "public");
-const NEXT_DIR = resolve(projectRoot, ".next");
 
 // Generate precache manifest from build output
 async function generatePrecacheManifest() {
@@ -71,11 +70,7 @@ async function buildServiceWorker() {
   // Generate manifest
   const manifest = await generatePrecacheManifest();
 
-  // Read the source file
-  let swSource = readFileSync(SW_SRC, "utf-8");
-
   // Inject the manifest - replace self.__SW_MANIFEST with actual entries
-  // This is a simplified approach; in production you'd want proper manifest injection
   const manifestCode = `self.__SW_MANIFEST = ${JSON.stringify(manifest)};`;
 
   try {
