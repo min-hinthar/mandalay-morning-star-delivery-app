@@ -23,6 +23,10 @@
 # production
 /build
 
+# service worker build artifact
+/public/sw.js
+/public/sw.js.map
+
 # misc
 .DS_Store
 *.pem
