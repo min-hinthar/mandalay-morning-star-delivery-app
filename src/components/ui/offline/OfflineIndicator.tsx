@@ -13,7 +13,6 @@
 
 import { useState, useEffect } from "react";
 import { WifiOff, Wifi } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 export function OfflineIndicator() {
   // Use local state with useEffect to avoid hydration mismatch
@@ -60,42 +59,32 @@ export function OfflineIndicator() {
   const showBanner = !isOnline || wasOffline;
   const isReconnected = isOnline && wasOffline;
 
+  // Return null when not showing - prevents any invisible overlay
+  if (!showBanner) return null;
+
   return (
-    <AnimatePresence mode="wait">
-      {showBanner && (
-        <motion.div
-          key="offline-banner"
-          initial={{ y: -60, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -60, opacity: 0 }}
-          transition={{
-            type: "spring",
-            stiffness: 300,
-            damping: 30,
-          }}
-          className="fixed inset-x-0 top-0 z-[9999]"
-          style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
-        >
-          {isReconnected ? (
-            // Back online banner - green
-            <div className="bg-green px-4 py-3 text-center font-body text-sm font-medium text-text-inverse shadow-lg">
-              <div className="flex items-center justify-center gap-2">
-                <Wifi className="h-4 w-4" />
-                <span>Back online</span>
-              </div>
-            </div>
-          ) : (
-            // Offline banner - amber/orange
-            <div className="bg-orange px-4 py-3 text-center font-body text-sm font-medium text-text-inverse shadow-lg">
-              <div className="flex items-center justify-center gap-2">
-                <WifiOff className="h-4 w-4" />
-                <span>You&apos;re offline</span>
-              </div>
-            </div>
-          )}
-        </motion.div>
+    <div
+      className="fixed inset-x-0 top-0 z-[9999] pointer-events-auto"
+      style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+    >
+      {isReconnected ? (
+        // Back online banner - green
+        <div className="bg-green px-4 py-3 text-center font-body text-sm font-medium text-text-inverse shadow-lg">
+          <div className="flex items-center justify-center gap-2">
+            <Wifi className="h-4 w-4" />
+            <span>Back online</span>
+          </div>
+        </div>
+      ) : (
+        // Offline banner - amber/orange
+        <div className="bg-orange px-4 py-3 text-center font-body text-sm font-medium text-text-inverse shadow-lg">
+          <div className="flex items-center justify-center gap-2">
+            <WifiOff className="h-4 w-4" />
+            <span>You&apos;re offline</span>
+          </div>
+        </div>
       )}
-    </AnimatePresence>
+    </div>
   );
 }
 
