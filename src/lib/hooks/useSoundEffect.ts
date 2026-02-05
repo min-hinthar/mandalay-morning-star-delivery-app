@@ -8,7 +8,7 @@ import { useAnimationPreference } from "./useAnimationPreference";
 // ============================================
 
 /** Available sound effect types */
-export type SoundEffect = "click" | "success" | "error" | "pop" | "swoosh";
+export type SoundEffect = "click" | "success" | "error" | "pop" | "swoosh" | "cartPop";
 
 /** Configuration for each sound effect */
 interface SoundConfig {
@@ -33,6 +33,8 @@ const SOUND_CONFIG: Record<SoundEffect, SoundConfig> = {
   error: { frequency: 200, duration: 0.15, type: "square" },
   pop: { frequency: 1000, duration: 0.03, type: "sine" },
   swoosh: { frequency: 400, duration: 0.08, type: "sawtooth" },
+  /** Satisfying pop for add-to-cart: bright attack descending to soft finish */
+  cartPop: { frequency: 1200, duration: 0.06, type: "sine", frequency2: 800 },
 };
 
 // ============================================
