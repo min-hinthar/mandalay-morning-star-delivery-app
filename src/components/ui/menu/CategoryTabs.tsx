@@ -63,6 +63,10 @@ export const CategoryTabs = memo(function CategoryTabs({
   // Determine if we're in controlled mode
   const isControlled = controlledActiveCategory !== undefined;
 
+  // Track if category change was from user click (vs scrollspy)
+  // Only scroll tabs into view on user-initiated changes
+  const isUserClickRef = useRef(false);
+
   // Fade indicator states
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(false);
@@ -119,10 +123,16 @@ export const CategoryTabs = memo(function CategoryTabs({
     };
   }, [updateFadeIndicators]);
 
-  // Scroll active tab into view when it changes
-  // Using manual scroll calculation instead of scrollIntoView to avoid
-  // interaction issues with sticky positioning and simultaneous page scroll
+  // Scroll active tab into view when user clicks a tab
+  // IMPORTANT: Only scroll on user click, NOT on scrollspy updates
+  // This prevents the tab container from jumping during page scroll on mobile
   useEffect(() => {
+    // Skip if this change was from scrollspy (not user click)
+    if (!isUserClickRef.current) return;
+
+    // Reset the flag
+    isUserClickRef.current = false;
+
     const container = scrollContainerRef.current;
     const activeTab = activeTabRef.current;
 
@@ -134,7 +144,6 @@ export const CategoryTabs = memo(function CategoryTabs({
 
     // Use requestAnimationFrame to wait for layout to settle after touch events
     // and Framer Motion animations (whileTap scale) on mobile devices.
-    // Without this delay, getBoundingClientRect() may return stale values.
     rafId = requestAnimationFrame(() => {
       // Guard against unmount during rAF
       if (!isMounted) return;
@@ -162,7 +171,6 @@ export const CategoryTabs = memo(function CategoryTabs({
       const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScroll));
 
       // Check if tab is already visible using scroll position (not getBoundingClientRect)
-      // This is more reliable on mobile as it doesn't depend on viewport coordinates
       const currentScrollLeft = currentContainer.scrollLeft;
       const tabLeftRelativeToScroll = tabOffsetLeft - currentScrollLeft;
       const tabRightRelativeToScroll = tabLeftRelativeToScroll + tabWidth;
@@ -193,6 +201,9 @@ export const CategoryTabs = memo(function CategoryTabs({
   // Handle tab click
   const handleTabClick = useCallback(
     (slug: string | null) => {
+      // Mark this as a user-initiated click so the scroll effect runs
+      isUserClickRef.current = true;
+
       // Only scroll to category section in uncontrolled (scrollspy) mode
       if (!isControlled) {
         scrollToCategory(slug);
