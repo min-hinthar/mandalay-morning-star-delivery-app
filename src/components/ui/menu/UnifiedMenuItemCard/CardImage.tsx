@@ -56,7 +56,8 @@ export const CardImage = memo(function CardImage({
   mouseY,
   isHovered,
   categorySlug,
-  priority = false,
+  // priority prop kept for API compatibility but always using eager loading
+  priority: _ = false,
   aspectClass = "aspect-[4/3]",
   roundedTop = "rounded-t-3xl",
   className,
@@ -65,35 +66,37 @@ export const CardImage = memo(function CardImage({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
-  const [cacheBuster, setCacheBuster] = useState("");
 
   // Retry failed images with exponential backoff (handles Google Drive rate limiting)
+  useEffect(() => {
+    if (hasError && retryCount < MAX_RETRIES) {
+      const delay = BASE_RETRY_DELAY * 2 ** retryCount;
+      const timer = setTimeout(() => {
+        setHasError(false);
+        setRetryCount((prev) => prev + 1);
+      }, delay);
+      return () => clearTimeout(timer);
+    }
+  }, [hasError, retryCount]);
+
   const handleError = useCallback(() => {
-    setRetryCount((prev) => {
-      if (prev < MAX_RETRIES) {
-        const delay = BASE_RETRY_DELAY * 2 ** prev;
-        setTimeout(() => {
-          // Add cache buster to force fresh request
-          setCacheBuster(`&_cb=${Date.now()}`);
-        }, delay);
-        return prev + 1;
-      } else {
-        setHasError(true);
-        return prev;
-      }
-    });
+    setHasError(true);
   }, []);
 
-  // Build image URL with optional cache buster for retries
-  const imageSrc = imageUrl ? `${imageUrl}${cacheBuster}` : null;
+  const handleLoad = useCallback(() => {
+    setIsLoaded(true);
+    setHasError(false);
+  }, []);
 
   // Reset state when imageUrl changes
   useEffect(() => {
     setIsLoaded(false);
     setHasError(false);
     setRetryCount(0);
-    setCacheBuster("");
   }, [imageUrl]);
+
+  // Show fallback if all retries exhausted
+  const showFallback = hasError && retryCount >= MAX_RETRIES;
 
   // Parallax transforms (+-10px)
   const imageX = useTransform(mouseX, [0, 1], [-10, 10]);
@@ -113,15 +116,9 @@ export const CardImage = memo(function CardImage({
         className
       )}
     >
-      {/* Shimmer placeholder - shows until image loads or during retry */}
-      {imageSrc && !isLoaded && !hasError && (
-        <div className="absolute inset-0 bg-surface-tertiary animate-pulse">
-          {retryCount > 0 && (
-            <div className="absolute bottom-2 right-2 text-xs text-text-muted opacity-50">
-              Retry {retryCount}/{MAX_RETRIES}
-            </div>
-          )}
-        </div>
+      {/* Shimmer placeholder - shows until image loads */}
+      {imageUrl && !isLoaded && !showFallback && (
+        <div className="absolute inset-0 bg-surface-tertiary animate-pulse" />
       )}
 
       {/* Image with parallax */}
@@ -134,20 +131,21 @@ export const CardImage = memo(function CardImage({
         }}
         transition={{ duration: 0.3 }}
       >
-        {imageSrc && !hasError ? (
-          /* Plain img tag like cart drawer - reliable across all devices and URL types */
+        {imageUrl && !showFallback ? (
+          /* Plain img tag - reliable across all devices and URL types */
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
-            src={imageSrc}
+            key={`${imageUrl}-${retryCount}`}
+            src={imageUrl}
             alt={alt}
             className={cn(
               "w-full h-full object-cover",
               "transition-opacity duration-150",
               isLoaded ? "opacity-100" : "opacity-0"
             )}
-            loading={priority ? "eager" : "lazy"}
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            onLoad={() => setIsLoaded(true)}
+            loading="eager"
+            decoding="async"
+            onLoad={handleLoad}
             onError={handleError}
           />
         ) : (
