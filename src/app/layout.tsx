@@ -7,7 +7,7 @@ import { HeaderWrapper } from "@/components/ui/layout/HeaderWrapper";
 import { Providers } from "@/app/providers";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { WebVitalsReporter } from "@/lib/web-vitals";
-import { OfflineIndicator, UpdatePrompt } from "@/components/ui/offline";
+import { OfflineIndicator, ServiceWorkerRegistration, UpdatePrompt } from "@/components/ui/offline";
 
 /**
  * Font Optimization:
@@ -77,6 +77,7 @@ export default function RootLayout({
         className={`${inter.variable} ${playfair.variable} font-body bg-background text-foreground antialiased`}
       >
         <Providers>
+          <ServiceWorkerRegistration />
           <ToastProvider>
             <OfflineIndicator />
             <HeaderWrapper />
