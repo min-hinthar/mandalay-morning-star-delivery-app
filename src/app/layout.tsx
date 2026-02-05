@@ -7,6 +7,7 @@ import { HeaderWrapper } from "@/components/ui/layout/HeaderWrapper";
 import { Providers } from "@/app/providers";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { WebVitalsReporter } from "@/lib/web-vitals";
+import { OfflineIndicator, UpdatePrompt } from "@/components/ui/offline";
 
 /**
  * Font Optimization:
@@ -77,8 +78,10 @@ export default function RootLayout({
       >
         <Providers>
           <ToastProvider>
+            <OfflineIndicator />
             <HeaderWrapper />
             {children}
+            <UpdatePrompt />
           </ToastProvider>
         </Providers>
         {/* Web Vitals monitoring - loads async, no render blocking */}
