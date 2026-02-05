@@ -63,9 +63,8 @@ export const CategoryTabs = memo(function CategoryTabs({
   // Determine if we're in controlled mode
   const isControlled = controlledActiveCategory !== undefined;
 
-  // Track if category change was from user click (vs scrollspy)
-  // Only scroll tabs into view on user-initiated changes
-  const isUserClickRef = useRef(false);
+  // Track previous active category to detect actual changes
+  const prevActiveCategoryRef = useRef<string | null>(null);
 
   // Fade indicator states
   const [showLeftFade, setShowLeftFade] = useState(false);
@@ -123,15 +122,12 @@ export const CategoryTabs = memo(function CategoryTabs({
     };
   }, [updateFadeIndicators]);
 
-  // Scroll active tab into view when user clicks a tab
-  // IMPORTANT: Only scroll on user click, NOT on scrollspy updates
-  // This prevents the tab container from jumping during page scroll on mobile
+  // Scroll active tab into view when category changes
+  // Uses debounce to prevent rapid scrolling during fast page scroll
   useEffect(() => {
-    // Skip if this change was from scrollspy (not user click)
-    if (!isUserClickRef.current) return;
-
-    // Reset the flag
-    isUserClickRef.current = false;
+    // Skip if category hasn't actually changed
+    if (activeCategory === prevActiveCategoryRef.current) return;
+    prevActiveCategoryRef.current = activeCategory;
 
     const container = scrollContainerRef.current;
     const activeTab = activeTabRef.current;
@@ -140,26 +136,20 @@ export const CategoryTabs = memo(function CategoryTabs({
 
     // Track if effect is still active (component mounted)
     let isMounted = true;
-    let rafId: number | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
-    // Use requestAnimationFrame to wait for layout to settle after touch events
-    // and Framer Motion animations (whileTap scale) on mobile devices.
-    rafId = requestAnimationFrame(() => {
-      // Guard against unmount during rAF
+    // Small delay to debounce rapid scrollspy updates on mobile
+    timeoutId = setTimeout(() => {
       if (!isMounted) return;
 
-      // Re-check refs inside rAF in case component unmounted
+      // Re-check refs in case component unmounted
       const currentContainer = scrollContainerRef.current;
       const currentTab = activeTabRef.current;
 
       if (!currentContainer || !currentTab) return;
 
       // Calculate the scroll position to center the active tab
-      const containerRect = currentContainer.getBoundingClientRect();
-      const containerWidth = containerRect.width;
-
-      // Use offsetLeft and offsetWidth for more reliable measurements
-      // These are not affected by CSS transforms (like whileTap scale)
+      const containerWidth = currentContainer.clientWidth;
       const tabOffsetLeft = currentTab.offsetLeft;
       const tabWidth = currentTab.offsetWidth;
 
@@ -170,11 +160,11 @@ export const CategoryTabs = memo(function CategoryTabs({
       const maxScroll = currentContainer.scrollWidth - containerWidth;
       const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScroll));
 
-      // Check if tab is already visible using scroll position (not getBoundingClientRect)
+      // Check if tab is already visible
       const currentScrollLeft = currentContainer.scrollLeft;
       const tabLeftRelativeToScroll = tabOffsetLeft - currentScrollLeft;
       const tabRightRelativeToScroll = tabLeftRelativeToScroll + tabWidth;
-      const padding = 20; // pixels of padding to consider "visible"
+      const padding = 20;
       const isVisible = tabLeftRelativeToScroll >= padding && tabRightRelativeToScroll <= containerWidth - padding;
 
       // Only scroll if tab is not visible
@@ -188,12 +178,12 @@ export const CategoryTabs = memo(function CategoryTabs({
           behavior: prefersReducedMotion || !shouldAnimate ? "auto" : "smooth",
         });
       }
-    });
+    }, 100); // 100ms debounce
 
     return () => {
       isMounted = false;
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
       }
     };
   }, [activeCategory, shouldAnimate]);
@@ -201,9 +191,6 @@ export const CategoryTabs = memo(function CategoryTabs({
   // Handle tab click
   const handleTabClick = useCallback(
     (slug: string | null) => {
-      // Mark this as a user-initiated click so the scroll effect runs
-      isUserClickRef.current = true;
-
       // Only scroll to category section in uncontrolled (scrollspy) mode
       if (!isControlled) {
         scrollToCategory(slug);
@@ -226,11 +213,13 @@ export const CategoryTabs = memo(function CategoryTabs({
     <div
       className={cn(
         "sticky top-[var(--tabs-offset)] z-20",
-        // Solid background - no transparency to ensure readability
+        // Solid background for tabs container
         "bg-surface-primary dark:bg-gray-900",
         "border-b border-border-subtle",
         className
       )}
+      // Inline fallback to ensure solid background on all browsers
+      style={{ backgroundColor: "var(--color-surface-primary)" }}
     >
       {/* Left fade indicator */}
       {showLeftFade && (
