@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 37 - Codebase Cleanup
+**Current focus:** Phase 38 - Customer Offline Support
 
 ## Current Position
 
-Phase: 37 of 39 (Codebase Cleanup) - Complete
-Plan: 2 of 2 in phase 37
-Status: Phase 37 complete, ready for Phase 38
-Last activity: 2026-02-04 - Completed 37-02-PLAN.md (Circular dependency elimination)
+Phase: 38 of 39 (Customer Offline Support) - In progress
+Plan: 2 of 3 in phase 38
+Status: 38-01 and 38-02 complete, ready for 38-03
+Last activity: 2026-02-05 - Completed 38-02-PLAN.md (Customer IndexedDB store and hook)
 
-Progress: [###############################################################] v1.4 33/28 (118%)
+Progress: [###############################################################] v1.4 35/28 (125%)
 
 ## Milestones
 
@@ -31,8 +31,8 @@ Progress: [###############################################################] v1.4
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 172 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 33
+- Total plans completed: 174 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 35
 
 **By Phase (v1.4):**
 
@@ -44,7 +44,7 @@ Progress: [###############################################################] v1.4
 | 36.1 | 11/11 | Complete |
 | 36.2 | 9/9 | Complete |
 | 37 | 2/2 | Complete |
-| 38 | 0/3 | Not started |
+| 38 | 2/3 | In progress |
 | 39 | 0/2 | Not started |
 
 ## Accumulated Context
@@ -139,6 +139,9 @@ Progress: [###############################################################] v1.4
 | 37-02 | Direct imports for overlay components | Barrel re-exports create cycles; use @/components/ui/Drawer not @/components/ui |
 | 37-02 | Type extraction pattern for cycles | Extract shared types to dedicated file (e.g., settings-types.ts) |
 | 37-02 | max-lines as warning only | Per CONTEXT.md - file size is advisory, not build failure |
+| 38-02 | Single record pattern for menu cache | Uses "current" key - simpler than per-category caching |
+| 38-02 | 24-hour staleness threshold | Per CONTEXT.md - balance freshness vs offline availability |
+| 38-02 | 3-second wasOffline window | "Back online" banner duration per CONTEXT.md UX spec |
 
 ### Roadmap Evolution
 
@@ -190,11 +193,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-04
-Stopped at: Completed Phase 37 (Codebase Cleanup)
+Last session: 2026-02-05
+Stopped at: Completed 38-02-PLAN.md (Customer IndexedDB store and hook)
 Resume file: None
-Next action: Plan Phase 38 (Offline Support)
+Next action: Execute 38-03-PLAN.md (Menu page offline integration)
 
 ---
 
-*Updated: 2026-02-04 - Completed Phase 37: Codebase Cleanup (2 plans, 9 circular dependencies fixed)*
+*Updated: 2026-02-05 - Completed 38-02: Customer IndexedDB store with menu cache and online/offline detection hook*
