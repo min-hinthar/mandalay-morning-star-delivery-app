@@ -1,5 +1,45 @@
 # Project Milestones: Morning Star V8 UI Rewrite
 
+## v1.4 Mobile Excellence (Shipped: 2026-02-05)
+
+**Delivered:** Mobile stability, performance optimization, offline resilience, and device-adaptive animations with zero crashes and perfect CLS score.
+
+**Phases completed:** 35-39 (39 plans total, 3 decimal insertions)
+
+**Key accomplishments:**
+
+- Zero mobile crashes: 300 files audited, utility hooks for memory leak prevention, all modals use proper scroll lock cleanup
+- Image optimization: CLS 0 (perfect), quality 70 default, hero preload, shimmer placeholders throughout
+- Admin photo & featured sections: Supabase Storage for food photos, dynamic featured sections with admin management
+- Complete route system: Driver detail, route detail with Google Maps, settings page, customer account with orders/addresses
+- Driver invite system: Email-based invites with magic link onboarding, pending invites management
+- Offline support: Service worker with caching strategies, IndexedDB menu cache, offline indicator and update prompt
+- Animation optimization: Device capability detection, parallax disabled on low-power devices, fly-to-cart with sound/haptics
+
+**Stats:**
+
+- 8 phases (including 3 decimal insertions), 39 plans
+- 49/49 requirements satisfied (100%)
+- 343 files modified, +40,957 net lines
+- 97,436 lines TypeScript total
+- 6 days from v1.3 to v1.4 (2026-01-30 → 2026-02-05)
+
+**Git range:** `feat(35-01)` → `docs(v1.4): complete milestone audit report`
+
+**Tech debt resolved from v1.3:**
+- ✓ Mobile crash prevention complete (0 critical issues)
+- ✓ Image optimization complete (CLS: 0)
+- ✓ Circular dependencies eliminated (9 cycles fixed)
+- ✓ Dead code removed (12 files deleted)
+
+**Tech debt remaining:**
+- LCP: 8.1s (blocked by JavaScript execution, not images - needs JS optimization phase)
+- 29 files exceed 400 lines (warning only per config)
+
+**What's next:** v1.5 milestone planning (JS performance optimization candidate)
+
+---
+
 ## v1.3 Full Codebase Consolidation (Shipped: 2026-01-28)
 
 **Delivered:** Systematic consolidation of component systems, full design token enforcement across 70+ files, mobile stability fixes, hero redesign with floating emojis and parallax, and quality infrastructure.
