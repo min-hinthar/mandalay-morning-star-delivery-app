@@ -57,7 +57,6 @@ export const CategoryTabs = memo(function CategoryTabs({
   className,
 }: CategoryTabsProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const activeTabRef = useRef<HTMLButtonElement>(null);
   const { shouldAnimate } = useAnimationPreference();
 
   // Determine if we're in controlled mode
@@ -123,68 +122,44 @@ export const CategoryTabs = memo(function CategoryTabs({
   }, [updateFadeIndicators]);
 
   // Scroll active tab into view when category changes
-  // Uses debounce to prevent rapid scrolling during fast page scroll
   useEffect(() => {
     // Skip if category hasn't actually changed
     if (activeCategory === prevActiveCategoryRef.current) return;
     prevActiveCategoryRef.current = activeCategory;
 
-    const container = scrollContainerRef.current;
-    const activeTab = activeTabRef.current;
+    // Use requestAnimationFrame to ensure DOM is updated
+    const rafId = requestAnimationFrame(() => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
 
-    if (!container || !activeTab) return;
-
-    // Track if effect is still active (component mounted)
-    let isMounted = true;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
-    // Small delay to debounce rapid scrollspy updates on mobile
-    timeoutId = setTimeout(() => {
-      if (!isMounted) return;
-
-      // Re-check refs in case component unmounted
-      const currentContainer = scrollContainerRef.current;
-      const currentTab = activeTabRef.current;
-
-      if (!currentContainer || !currentTab) return;
+      // Query DOM directly for selected tab (more reliable than ref with conditional assignment)
+      const activeTab = container.querySelector('[aria-selected="true"]') as HTMLElement | null;
+      if (!activeTab) return;
 
       // Calculate the scroll position to center the active tab
-      const containerWidth = currentContainer.clientWidth;
-      const tabOffsetLeft = currentTab.offsetLeft;
-      const tabWidth = currentTab.offsetWidth;
+      const containerWidth = container.clientWidth;
+      const tabOffsetLeft = activeTab.offsetLeft;
+      const tabWidth = activeTab.offsetWidth;
 
       // Calculate target scroll position to center the tab
       const targetScrollLeft = tabOffsetLeft - (containerWidth / 2) + (tabWidth / 2);
 
       // Clamp to valid scroll range
-      const maxScroll = currentContainer.scrollWidth - containerWidth;
+      const maxScroll = container.scrollWidth - containerWidth;
       const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScroll));
 
-      // Check if tab is already visible
-      const currentScrollLeft = currentContainer.scrollLeft;
-      const tabLeftRelativeToScroll = tabOffsetLeft - currentScrollLeft;
-      const tabRightRelativeToScroll = tabLeftRelativeToScroll + tabWidth;
-      const padding = 20;
-      const isVisible = tabLeftRelativeToScroll >= padding && tabRightRelativeToScroll <= containerWidth - padding;
+      const prefersReducedMotion =
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      // Only scroll if tab is not visible
-      if (!isVisible) {
-        const prefersReducedMotion =
-          typeof window !== "undefined" &&
-          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-        currentContainer.scrollTo({
-          left: clampedScrollLeft,
-          behavior: prefersReducedMotion || !shouldAnimate ? "auto" : "smooth",
-        });
-      }
-    }, 100); // 100ms debounce
+      container.scrollTo({
+        left: clampedScrollLeft,
+        behavior: prefersReducedMotion || !shouldAnimate ? "auto" : "smooth",
+      });
+    });
 
     return () => {
-      isMounted = false;
-      if (timeoutId !== null) {
-        clearTimeout(timeoutId);
-      }
+      cancelAnimationFrame(rafId);
     };
   }, [activeCategory, shouldAnimate]);
 
@@ -213,20 +188,19 @@ export const CategoryTabs = memo(function CategoryTabs({
     <div
       className={cn(
         "sticky top-[var(--tabs-offset)] z-20",
-        // Solid background for tabs container
-        "bg-surface-primary dark:bg-gray-900",
-        "border-b border-border-subtle",
+        // Solid background - elevated in dark mode for contrast against page
+        "bg-surface-primary dark:bg-surface-elevated",
+        // Visible border for separation
+        "border-b border-border-default",
         className
       )}
-      // Inline fallback to ensure solid background on all browsers
-      style={{ backgroundColor: "var(--color-surface-primary)" }}
     >
       {/* Left fade indicator */}
       {showLeftFade && (
         <div
           className={cn(
             "absolute left-0 top-0 bottom-0 w-8 z-10",
-            "bg-gradient-to-r from-surface-primary dark:from-gray-900 to-transparent",
+            "bg-gradient-to-r from-surface-primary dark:from-surface-elevated to-transparent",
             "pointer-events-none"
           )}
           aria-hidden="true"
@@ -252,7 +226,6 @@ export const CategoryTabs = memo(function CategoryTabs({
           return (
             <motion.button
               key={tab.slug ?? "all"}
-              ref={isActive ? activeTabRef : null}
               role="tab"
               aria-selected={isActive}
               aria-controls={tab.slug ? `category-${tab.slug}` : undefined}
@@ -293,7 +266,7 @@ export const CategoryTabs = memo(function CategoryTabs({
         <div
           className={cn(
             "absolute right-0 top-0 bottom-0 w-8 z-10",
-            "bg-gradient-to-l from-surface-primary dark:from-gray-900 to-transparent",
+            "bg-gradient-to-l from-surface-primary dark:from-surface-elevated to-transparent",
             "pointer-events-none"
           )}
           aria-hidden="true"

@@ -327,9 +327,7 @@ export function MenuContent({ className }: MenuContentProps) {
         {displayCategories.map((category: MenuCategory) => (
           <AnimatedSection
             key={category.slug}
-            id={`category-${category.slug}`}
             as="div"
-            className="scroll-mt-36"
           >
             <motion.div variants={itemVariants}>
               <MenuSection
