@@ -76,16 +76,22 @@ export function OfflineIndicator() {
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
       {isReconnected ? (
-        // Back online banner - green
-        <div className="bg-green px-4 py-3 text-center font-body text-sm font-medium text-text-inverse shadow-lg">
+        // Back online banner - green with explicit colors
+        <div
+          className="px-4 py-3 text-center font-body text-sm font-medium shadow-lg"
+          style={{ backgroundColor: "#52A52E", color: "#FFFFFF" }}
+        >
           <div className="flex items-center justify-center gap-2">
             <Wifi className="h-4 w-4" />
             <span>Back online</span>
           </div>
         </div>
       ) : (
-        // Offline banner - amber/orange
-        <div className="bg-orange px-4 py-3 text-center font-body text-sm font-medium text-text-inverse shadow-lg">
+        // Offline banner - amber/orange with explicit colors
+        <div
+          className="px-4 py-3 text-center font-body text-sm font-medium shadow-lg"
+          style={{ backgroundColor: "#E87D1E", color: "#FFFFFF" }}
+        >
           <div className="flex items-center justify-center gap-2">
             <WifiOff className="h-4 w-4" />
             <span>You&apos;re offline</span>
