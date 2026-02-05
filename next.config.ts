@@ -6,6 +6,10 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
+// Note: Service worker is built separately via scripts/build-sw.mjs
+// This avoids Serwist/Turbopack compatibility issues in Next.js 16
+// SW registration happens via src/lib/hooks/useServiceWorker.ts
+
 const nextConfig: NextConfig = {
   /**
    * V7 Performance Optimizations
