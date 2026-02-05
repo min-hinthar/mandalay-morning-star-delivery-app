@@ -111,52 +111,63 @@ export const AddButton = memo(function AddButton({
    * Handle add button click.
    * - Shows animation feedback
    * - Calls onAdd callback (parent handles cart mutation)
-   * - Cart store has debounce protection, so rapid clicks are safe
+   * - Checkmark synced with fly animation via callbacks
+   * - Sound and haptics are handled by FlyToCart hook
    */
   const handleAdd = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
 
-      // Prevent double-processing
-      if (disabled || isProcessingRef.current || isAddingAnimation) {
+      // Prevent double-processing while animation is playing
+      if (disabled || isProcessingRef.current) {
         return;
       }
 
       isProcessingRef.current = true;
 
-      // UI feedback
+      // UI feedback (mark interaction for audio context)
       markUserInteraction();
-      triggerHaptic("medium");
-      playAddSound();
 
-      // Start animation
-      setIsAddingAnimation(true);
+      // Call parent callback to add to cart (optimistic - happens immediately)
+      onAdd();
 
-      // Fly animation
+      // Fly animation with checkmark callbacks
+      // Sound and haptics are handled inside fly()
       const source = sourceRef?.current ?? buttonRef.current;
       if (source) {
         fly({
           sourceElement: source,
           imageUrl: item.imageUrl ?? undefined,
           size: 40,
+          onAnimationStart: () => {
+            // Show checkmark while flying
+            setIsAddingAnimation(true);
+            // Clear any existing timeout
+            if (animationTimeoutRef.current) {
+              clearTimeout(animationTimeoutRef.current);
+            }
+          },
+          onAnimationComplete: () => {
+            // Hide checkmark after brief delay (~500ms per CONTEXT.md)
+            animationTimeoutRef.current = setTimeout(() => {
+              setIsAddingAnimation(false);
+              isProcessingRef.current = false;
+            }, 500);
+          },
         });
+      } else {
+        // Fallback: no fly animation source, still show checkmark briefly
+        setIsAddingAnimation(true);
+        if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current);
+        animationTimeoutRef.current = setTimeout(() => {
+          setIsAddingAnimation(false);
+          isProcessingRef.current = false;
+        }, 350);
       }
-
-      // Call parent callback to add to cart
-      onAdd();
-
-      // End animation after delay (with cleanup)
-      if (animationTimeoutRef.current) clearTimeout(animationTimeoutRef.current);
-      animationTimeoutRef.current = setTimeout(() => {
-        setIsAddingAnimation(false);
-        isProcessingRef.current = false;
-      }, 350);
     },
     [
       disabled,
-      isAddingAnimation,
       markUserInteraction,
-      playAddSound,
       fly,
       sourceRef,
       item.imageUrl,
