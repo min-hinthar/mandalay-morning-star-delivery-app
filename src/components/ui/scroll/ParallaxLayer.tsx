@@ -3,7 +3,7 @@
 import { useRef, type ReactNode } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { cn } from "@/lib/utils/cn";
-import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useAnimationContextSafe } from "@/lib/providers/animation-provider";
 
 // ============================================
 // TYPES
@@ -59,11 +59,11 @@ export function ParallaxLayer({
 }: ParallaxLayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const elementRef = useRef<HTMLDivElement>(null);
-  const { shouldAnimate } = useAnimationPreference();
+  const { isParallaxEnabled } = useAnimationContextSafe();
 
   useGSAP(
     () => {
-      if (!shouldAnimate || !containerRef.current || !elementRef.current) return;
+      if (!isParallaxEnabled || !containerRef.current || !elementRef.current) return;
 
       // Calculate parallax offset based on speed (0-1 range)
       // Higher speed = more movement relative to scroll
@@ -83,12 +83,12 @@ export function ParallaxLayer({
     },
     {
       scope: containerRef,
-      dependencies: [shouldAnimate, speed, direction, start, end, scrub],
+      dependencies: [isParallaxEnabled, speed, direction, start, end, scrub],
     }
   );
 
   // Skip animation setup if disabled, just render children
-  if (!shouldAnimate) {
+  if (!isParallaxEnabled) {
     return <div className={className}>{children}</div>;
   }
 
