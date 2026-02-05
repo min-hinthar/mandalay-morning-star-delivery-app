@@ -142,15 +142,15 @@
 | OFFLINE-10 | Phase 38 | Complete |
 | OFFLINE-11 | Phase 38 | Complete |
 | OFFLINE-12 | Phase 38 | Complete |
-| ANIM-01 | Phase 39 | Pending |
-| ANIM-02 | Phase 39 | Pending |
-| ANIM-03 | Phase 39 | Pending |
-| ANIM-04 | Phase 39 | Pending |
-| ANIM-05 | Phase 39 | Pending |
-| ANIM-06 | Phase 39 | Pending |
-| ANIM-07 | Phase 39 | Pending |
-| ANIM-08 | Phase 39 | Pending |
-| ANIM-09 | Phase 39 | Pending |
+| ANIM-01 | Phase 39 | Complete |
+| ANIM-02 | Phase 39 | Complete |
+| ANIM-03 | Phase 39 | Complete |
+| ANIM-04 | Phase 39 | Complete |
+| ANIM-05 | Phase 39 | Complete |
+| ANIM-06 | Phase 39 | Complete |
+| ANIM-07 | Phase 39 | Complete |
+| ANIM-08 | Phase 39 | Complete |
+| ANIM-09 | Phase 39 | Complete |
 
 ---
 
