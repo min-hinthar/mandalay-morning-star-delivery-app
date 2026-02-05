@@ -192,9 +192,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 38-01-PLAN.md — Service worker infrastructure (Serwist install, sw.ts, caching strategies)
-- [ ] 38-02-PLAN.md — IndexedDB store and online detection hook
-- [ ] 38-03-PLAN.md — Offline UI components (OfflineIndicator, StaleBadge, UpdatePrompt)
+- [x] 38-01-PLAN.md — Service worker infrastructure (Serwist install, sw.ts, caching strategies)
+- [x] 38-02-PLAN.md — IndexedDB store and online detection hook
+- [x] 38-03-PLAN.md — Offline UI components (OfflineIndicator, StaleBadge, UpdatePrompt)
 
 **Details:**
 - Serwist (@serwist/next) for service worker integration
@@ -209,16 +209,25 @@ Plans:
 **Depends on**: Phase 38
 **Requirements**: ANIM-01, ANIM-02, ANIM-03, ANIM-04, ANIM-05, ANIM-06, ANIM-07, ANIM-08, ANIM-09
 **Success Criteria** (what must be TRUE):
-  1. User on low-power device sees simplified animations (no parallax, no stagger)
+  1. User on low-power device sees simplified animations (no parallax)
   2. User on high-power device sees full animation experience
   3. User adding item to cart sees immediate feedback (optimistic UI)
   4. User experiences no stutter from GSAP/Framer Motion conflicts
   5. All AnimatePresence components have direct keyed children (no Fragments)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 39-01: TBD
-- [ ] 39-02: TBD
+- [ ] 39-01-PLAN.md — Device capability detection and AnimationProvider context
+- [ ] 39-02-PLAN.md — Parallax optimization and GSAP/Framer Motion conflict detector
+- [ ] 39-03-PLAN.md — Enhanced fly-to-cart with sound, haptics, and checkmark feedback
+
+**Details:**
+- useDeviceCapability hook: Detects memory, cores, Safari mobile/desktop
+- AnimationProvider: Exposes tier, reducedMotion, isParallaxEnabled to all components
+- Low-power tier: Disables parallax only (per CONTEXT.md), keeps all other animations
+- Conflict detector: Dev-mode warnings when GSAP and Framer Motion target same element
+- Enhanced fly-to-cart: Curved arc path, cartPop sound, haptic feedback, checkmark on button
+- Optimistic UI: Cart count updates immediately, multiple rapid clicks queue thumbnails
 
 ## Progress
 
@@ -234,7 +243,7 @@ Phases execute in numeric order: 35 -> 35.1 -> 36 -> 36.1 -> 36.2 -> 37 -> 38 ->
 | 36.2 Feature Finalization & Polish (INSERTED) | v1.4 | 9/9 | Complete | 2026-02-04 |
 | 37. Codebase Cleanup | v1.4 | 2/2 | Complete | 2026-02-04 |
 | 38. Customer Offline Support | v1.4 | 3/3 | Complete | 2026-02-04 |
-| 39. Animation Optimization | v1.4 | 0/2 | Not started | - |
+| 39. Animation Optimization | v1.4 | 0/3 | Not started | - |
 
 ---
 
