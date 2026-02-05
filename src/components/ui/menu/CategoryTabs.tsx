@@ -74,11 +74,12 @@ export const CategoryTabs = memo(function CategoryTabs({
   );
 
   // Use scrollspy hook (only active in uncontrolled mode)
+  // Header height is 64px; offline banner offset is added dynamically by the hook
   const { activeCategory: scrollspyCategory, scrollToCategory } = useActiveCategory(
     isControlled ? [] : sectionIds, // Pass empty array when controlled to disable scrollspy
     {
-      rootMargin: "-72px 0px -80% 0px", // Account for sticky header
-      headerHeight: 72,
+      rootMargin: "-64px 0px -80% 0px", // Account for header
+      headerHeight: 64,
     }
   );
 

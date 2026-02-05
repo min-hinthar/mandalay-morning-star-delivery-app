@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 interface UseActiveCategoryOptions {
   /**
    * Root margin for the Intersection Observer
-   * Default accounts for collapsed header (56px) and focuses on top 20% of viewport
+   * Default accounts for header (64px) and focuses on top 20% of viewport
    */
   rootMargin?: string;
   /**
@@ -18,6 +18,7 @@ interface UseActiveCategoryOptions {
   updateHash?: boolean;
   /**
    * Header height in pixels for scroll offset calculation
+   * Note: Offline banner height is added dynamically
    */
   headerHeight?: number;
 }
@@ -50,10 +51,10 @@ export function useActiveCategory(
   options: UseActiveCategoryOptions = {}
 ): UseActiveCategoryReturn {
   const {
-    rootMargin = "-56px 0px -80% 0px",
+    rootMargin = "-64px 0px -80% 0px",
     threshold = [0, 0.1, 0.2, 0.3, 0.4, 0.5],
     updateHash = false,
-    headerHeight = 56,
+    headerHeight = 64,
   } = options;
 
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
@@ -139,6 +140,14 @@ export function useActiveCategory(
     };
   }, [sectionIds, rootMargin, threshold, isSupported, updateActiveSection]);
 
+  // Get dynamic header offset (header + offline banner)
+  const getDynamicOffset = useCallback(() => {
+    if (typeof window === "undefined") return headerHeight;
+    const style = getComputedStyle(document.documentElement);
+    const bannerHeight = parseInt(style.getPropertyValue("--offline-banner-height") || "0", 10);
+    return headerHeight + bannerHeight;
+  }, [headerHeight]);
+
   // Scroll to category with smooth behavior
   const scrollToCategory = useCallback(
     (slug: string | null) => {
@@ -156,9 +165,10 @@ export function useActiveCategory(
 
       const element = document.getElementById(`category-${slug}`);
       if (element) {
-        // Use scrollIntoView with block: "start" and account for header
+        // Use dynamic offset that includes offline banner
+        const totalOffset = getDynamicOffset();
         const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.scrollY - headerHeight - 8;
+        const offsetPosition = elementPosition + window.scrollY - totalOffset - 8;
 
         window.scrollTo({
           top: offsetPosition,
@@ -172,7 +182,7 @@ export function useActiveCategory(
         }
       }
     },
-    [headerHeight, updateHash]
+    [getDynamicOffset, updateHash]
   );
 
   // Extract active category from section ID
