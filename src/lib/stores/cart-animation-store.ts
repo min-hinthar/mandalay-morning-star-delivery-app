@@ -6,7 +6,7 @@ import type { RefObject } from "react";
  *
  * Coordinates fly-to-cart animation by:
  * - Storing the badge element ref as animation target
- * - Tracking animation state to prevent overlapping animations
+ * - Tracking animation state via flyingCount (supports multiple simultaneous animations)
  * - Managing flying element state for GSAP Flip animation
  * - Triggering badge pulse after fly animation completes
  */
@@ -15,11 +15,17 @@ interface CartAnimationStore {
   badgeRef: RefObject<HTMLSpanElement | null> | null;
   /** Set the badge ref (called on mount) */
   setBadgeRef: (ref: RefObject<HTMLSpanElement | null> | null) => void;
-  /** Whether a fly-to-cart animation is currently running */
+  /** Count of currently flying elements (supports multiple simultaneous animations) */
+  flyingCount: number;
+  /** Increment flying count when animation starts */
+  incrementFlying: () => void;
+  /** Decrement flying count when animation completes */
+  decrementFlying: () => void;
+  /** Whether any fly-to-cart animation is currently running (derived from flyingCount) */
   isAnimating: boolean;
-  /** Set animation state */
+  /** Set animation state - DEPRECATED: use incrementFlying/decrementFlying instead */
   setIsAnimating: (isAnimating: boolean) => void;
-  /** Currently flying element (cloned for animation) */
+  /** Currently flying element (cloned for animation) - legacy for cleanup */
   flyingElement: HTMLElement | null;
   /** Set the flying element */
   setFlyingElement: (el: HTMLElement | null) => void;
@@ -37,7 +43,14 @@ let pulseTimeoutId: ReturnType<typeof setTimeout> | null = null;
 export const useCartAnimationStore = create<CartAnimationStore>((set) => ({
   badgeRef: null,
   setBadgeRef: (ref) => set({ badgeRef: ref }),
+  flyingCount: 0,
+  incrementFlying: () => set((s) => ({ flyingCount: s.flyingCount + 1, isAnimating: true })),
+  decrementFlying: () => set((s) => {
+    const newCount = Math.max(0, s.flyingCount - 1);
+    return { flyingCount: newCount, isAnimating: newCount > 0 };
+  }),
   isAnimating: false,
+  // DEPRECATED: Kept for backwards compatibility, prefer incrementFlying/decrementFlying
   setIsAnimating: (isAnimating) => set({ isAnimating }),
   flyingElement: null,
   setFlyingElement: (el) => set({ flyingElement: el }),
