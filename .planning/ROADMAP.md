@@ -189,12 +189,20 @@ Plans:
   3. User sees "stale" indicator on cached content
   4. User is prompted to refresh when new service worker available
   5. User's images load from cache without network request after first visit
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 38-01: TBD
-- [ ] 38-02: TBD
-- [ ] 38-03: TBD
+- [ ] 38-01-PLAN.md — Service worker infrastructure (Serwist install, sw.ts, caching strategies)
+- [ ] 38-02-PLAN.md — IndexedDB store and online detection hook
+- [ ] 38-03-PLAN.md — Offline UI components (OfflineIndicator, StaleBadge, UpdatePrompt)
+
+**Details:**
+- Serwist (@serwist/next) for service worker integration
+- Images: CacheFirst 30-day, Menu API: NetworkFirst 5-min, Static: StaleWhileRevalidate
+- HTML/RSC payloads NOT cached (prevents App Router conflicts)
+- IndexedDB store for menu cache with timestamp tracking
+- Offline indicator banner (amber, top), update prompt (primary, bottom)
+- Stale badge with relative timestamp when viewing cached data offline
 
 ### Phase 39: Animation Optimization
 **Goal**: Device-adaptive animations that scale based on hardware capability
@@ -225,7 +233,7 @@ Phases execute in numeric order: 35 -> 35.1 -> 36 -> 36.1 -> 36.2 -> 37 -> 38 ->
 | 36.1 Routes & Driver Features (INSERTED) | v1.4 | 11/11 | Complete | 2026-02-03 |
 | 36.2 Feature Finalization & Polish (INSERTED) | v1.4 | 9/9 | Complete | 2026-02-04 |
 | 37. Codebase Cleanup | v1.4 | 2/2 | Complete | 2026-02-04 |
-| 38. Customer Offline Support | v1.4 | 0/3 | Not started | - |
+| 38. Customer Offline Support | v1.4 | 0/3 | Planned | - |
 | 39. Animation Optimization | v1.4 | 0/2 | Not started | - |
 
 ---
