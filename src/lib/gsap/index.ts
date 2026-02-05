@@ -16,10 +16,15 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { Flip } from "gsap/Flip";
 import { Observer } from "gsap/Observer";
+import { initConflictDetector } from "./conflict-detector";
 
 // Register all plugins ONCE at module load
 // This prevents "Plugin not registered" errors in production
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText, Flip, Observer);
+
+// Initialize dev-mode conflict detector after plugin registration
+// Warns when GSAP and Framer Motion target the same element
+initConflictDetector(gsap);
 
 // Global configuration for performance
 gsap.config({
