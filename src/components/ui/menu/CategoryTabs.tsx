@@ -226,8 +226,8 @@ export const CategoryTabs = memo(function CategoryTabs({
     <div
       className={cn(
         "sticky top-[var(--tabs-offset)] z-20",
-        // Solid background on mobile (no blur) - backdrop-blur causes mobile Safari crashes
-        "bg-surface-primary dark:bg-gray-900 sm:bg-surface-primary/80 sm:dark:bg-gray-900/75 sm:backdrop-blur-3xl",
+        // Solid background - no transparency to ensure readability
+        "bg-surface-primary dark:bg-gray-900",
         "border-b border-border-subtle",
         className
       )}
@@ -236,8 +236,8 @@ export const CategoryTabs = memo(function CategoryTabs({
       {showLeftFade && (
         <div
           className={cn(
-            "absolute left-0 top-0 bottom-0 w-8 z-0",
-            "bg-gradient-to-r from-surface-primary/80 to-transparent",
+            "absolute left-0 top-0 bottom-0 w-8 z-10",
+            "bg-gradient-to-r from-surface-primary dark:from-gray-900 to-transparent",
             "pointer-events-none"
           )}
           aria-hidden="true"
@@ -303,8 +303,8 @@ export const CategoryTabs = memo(function CategoryTabs({
       {showRightFade && (
         <div
           className={cn(
-            "absolute right-0 top-0 bottom-0 w-8 z-0",
-            "bg-gradient-to-l from-surface-primary/80 to-transparent",
+            "absolute right-0 top-0 bottom-0 w-8 z-10",
+            "bg-gradient-to-l from-surface-primary dark:from-gray-900 to-transparent",
             "pointer-events-none"
           )}
           aria-hidden="true"
