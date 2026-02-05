@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Hero component contains multiple subcomponents (AnimatedHeadline, StatItem, GradientFallback, HeroContent) that are tightly coupled and should not be split */
 "use client";
 
 import React, { useRef, useState, useCallback } from "react";
@@ -7,6 +8,7 @@ import { ArrowRight, ChefHat, Clock, MapPin, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, parallaxPresets } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useAnimationContextSafe } from "@/lib/providers/animation-provider";
 import { useCanHover } from "@/lib/hooks/useResponsive";
 import { useDynamicTheme } from "@/components/ui/theme";
 import { Button } from "@/components/ui/button";
@@ -362,6 +364,7 @@ export function Hero({
   className,
 }: HeroProps) {
   const { shouldAnimate } = useAnimationPreference();
+  const { isParallaxEnabled } = useAnimationContextSafe();
   const canHover = useCanHover();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -393,15 +396,16 @@ export function Hero({
 
   // Layer transforms using parallaxPresets from motion-tokens
   // Each layer moves at different speeds for depth perception
+  // Parallax disabled on low-power devices for performance
   const orbsFarY = useTransform(
     scrollYProgress,
     [0, 1],
-    ["0%", `${parallaxPresets.far.speedFactor * 100}%`]
+    isParallaxEnabled ? ["0%", `${parallaxPresets.far.speedFactor * 100}%`] : ["0%", "0%"]
   );
   const orbsMidY = useTransform(
     scrollYProgress,
     [0, 1],
-    ["0%", `${parallaxPresets.mid.speedFactor * 100}%`]
+    isParallaxEnabled ? ["0%", `${parallaxPresets.mid.speedFactor * 100}%`] : ["0%", "0%"]
   );
   // Emojis: no scroll parallax - they stay fixed and only use their own floating animation
   // (parallax removed per design: emojis should not shift with scroll)
@@ -409,8 +413,9 @@ export function Hero({
   const contentY = useTransform(
     scrollYProgress,
     [0, 1],
-    ["0%", `${parallaxPresets.content.speedFactor * 15}%`]
+    isParallaxEnabled ? ["0%", `${parallaxPresets.content.speedFactor * 15}%`] : ["0%", "0%"]
   );
+  // Opacity transform still works regardless of device tier (not parallax)
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   // Smooth springs for all parallax values
