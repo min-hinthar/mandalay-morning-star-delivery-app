@@ -26,7 +26,7 @@
  * </Drawer>
  */
 
-import { useEffect, useRef, useMemo, type ReactNode } from "react";
+import { useEffect, useRef, useMemo, useCallback, type ReactNode } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Portal } from "./Portal";
 import { useRouteChangeClose, useBodyScrollLock } from "@/lib/hooks";
@@ -246,6 +246,20 @@ export function Drawer({
     };
   }, [isBottom, swipeProps?.style, height]);
 
+  // willChange optimization: apply only during animation, remove when static
+  // Prevents compositor layer bloat when drawer is open but not animating
+  const handleAnimationStart = useCallback(() => {
+    if (drawerRef.current) {
+      drawerRef.current.style.willChange = "transform";
+    }
+  }, []);
+
+  const handleAnimationComplete = useCallback(() => {
+    if (drawerRef.current) {
+      drawerRef.current.style.willChange = "auto";
+    }
+  }, []);
+
   return (
     <Portal>
       <AnimatePresence onExitComplete={restoreScrollPosition}>
@@ -312,6 +326,8 @@ export function Drawer({
                   ? undefined // Bottom sheet uses variant-embedded transitions (spring open, simple exit)
                   : overlayMotion.drawerOpen
             }
+            onAnimationStart={handleAnimationStart}
+            onAnimationComplete={handleAnimationComplete}
             onKeyDown={handleKeyDown}
             onClick={(e) => e.stopPropagation()}
             data-testid="drawer"
