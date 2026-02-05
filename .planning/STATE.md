@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 38 - Customer Offline Support
+**Current focus:** Phase 39 - Animation Optimization
 
 ## Current Position
 
-Phase: 38 of 39 (Customer Offline Support) - COMPLETE
-Plan: 3 of 3 in phase 38
-Status: Phase 38 complete, ready for Phase 39
-Last activity: 2026-02-04 - Completed 38-03-PLAN.md (Offline UI components)
+Phase: 39 of 39 (Animation Optimization)
+Plan: 1 of 2 in phase 39
+Status: In progress
+Last activity: 2026-02-05 - Completed 39-01-PLAN.md (Device Capability Detection)
 
-Progress: [################################################################] v1.4 36/28 (128%)
+Progress: [#################################################################] v1.4 37/38 (97%)
 
 ## Milestones
 
@@ -26,13 +26,13 @@ Progress: [################################################################] v1.
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | **v1.4 Mobile Excellence** | 35-39 | 16 | In progress |
 
-**Total completed:** 37 phases, 164 plans, 179 requirements
+**Total completed:** 38 phases, 165 plans, 180 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 175 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 36
+- Total plans completed: 176 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
+- v1.4 plans completed: 37
 
 **By Phase (v1.4):**
 
@@ -45,7 +45,7 @@ Progress: [################################################################] v1.
 | 36.2 | 9/9 | Complete |
 | 37 | 2/2 | Complete |
 | 38 | 3/3 | Complete |
-| 39 | 0/2 | Not started |
+| 39 | 1/2 | In progress |
 
 ## Accumulated Context
 
@@ -152,6 +152,10 @@ Progress: [################################################################] v1.
 | 38-03 | Explicit hex colors for banners | CSS variables didn't resolve in fixed positioning context |
 | 38-03 | CSS variable for banner height | --offline-banner-height coordinates with header offset |
 | 38-03 | z-index 9999 for offline banner | Ensures visibility above all content including modals |
+| 39-01 | Low-power threshold <=4GB OR <=4 cores | Device tier detection for animation scaling |
+| 39-01 | Safari fallback via user agent | Mobile Safari = low-power, desktop = high-power |
+| 39-01 | Connection type slow-2g/2g = low-power | Network-aware animation tier |
+| 39-01 | Parallax only disabled on low-power | All other animations remain enabled |
 
 ### Roadmap Evolution
 
@@ -203,11 +207,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-04
-Stopped at: Completed 38-03-PLAN.md (Offline UI components)
+Last session: 2026-02-05
+Stopped at: Completed 39-01-PLAN.md (Device Capability Detection)
 Resume file: None
-Next action: Execute Phase 39 (Mobile Testing & Launch)
+Next action: Execute 39-02-PLAN.md (Animation Tier Application)
 
 ---
 
-*Updated: 2026-02-04 - Completed Phase 38: Customer offline support with UI components, menu caching, and service worker integration*
+*Updated: 2026-02-05 - Completed Plan 39-01: Device capability detection with AnimationProvider context*
