@@ -156,6 +156,10 @@ Progress: [##################################################################] v
 | 39-01 | Safari fallback via user agent | Mobile Safari = low-power, desktop = high-power |
 | 39-01 | Connection type slow-2g/2g = low-power | Network-aware animation tier |
 | 39-01 | Parallax only disabled on low-power | All other animations remain enabled |
+| 39-02 | useAnimationContextSafe for parallax | Safe hook returns defaults outside provider |
+| 39-02 | Conditional useTransform ranges | Returns ["0%", "0%"] when parallax disabled |
+| 39-02 | GSAP conflict detector via plugin | Tracks targets automatically without manual instrumentation |
+| 39-02 | willChange via animation callbacks | Apply during animation, "auto" when static |
 | 39-03 | cartPop sound 1200Hz->800Hz | Descending sine, 60ms for satisfying pop |
 | 39-03 | flyingCount replaces isAnimating | Allows multiple concurrent fly animations |
 | 39-03 | Animation callbacks for coordination | onAnimationStart/onAnimationComplete pattern |
