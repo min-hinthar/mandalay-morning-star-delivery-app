@@ -96,6 +96,7 @@ export { useTrackingSubscription } from "./useTrackingSubscription";
 // OFFLINE & SERVICE WORKER
 // ============================================
 
+export { useCustomerOfflineSync } from "./useCustomerOfflineSync";
 export { useOfflineSync } from "./useOfflineSync";
 export { useServiceWorker } from "./useServiceWorker";
 
