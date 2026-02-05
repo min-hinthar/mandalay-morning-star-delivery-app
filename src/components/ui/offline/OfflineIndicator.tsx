@@ -64,7 +64,7 @@ export function OfflineIndicator() {
 
   return (
     <div
-      className="relative w-full z-[9999]"
+      className="sticky top-0 w-full z-[9999]"
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
       {isReconnected ? (
