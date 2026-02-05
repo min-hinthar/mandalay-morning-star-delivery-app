@@ -10,6 +10,8 @@
  * - Arc trajectory animation using GSAP
  * - Shrinks while flying for depth effect
  * - Triggers badge pulse on completion
+ * - Sound effect (cartPop) and haptic feedback
+ * - Supports multiple simultaneous flying thumbnails
  * - Respects reduced motion preference
  * - Portal-rendered to avoid z-index issues
  */
@@ -19,6 +21,8 @@ import { createPortal } from "react-dom";
 import { gsap } from "@/lib/gsap";
 import { useCartAnimationStore } from "@/lib/stores/cart-animation-store";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { usePlaySound } from "@/lib/hooks/useSoundEffect";
+import { triggerHaptic } from "@/lib/motion-tokens";
 import { zIndex } from "@/lib/design-system/tokens/z-index";
 
 // ============================================
@@ -32,6 +36,10 @@ export interface FlyToCartOptions {
   imageUrl?: string;
   /** Size of flying element in pixels (default: 48) */
   size?: number;
+  /** Callback when animation starts (for checkmark state) */
+  onAnimationStart?: () => void;
+  /** Callback when animation completes */
+  onAnimationComplete?: () => void;
 }
 
 // ============================================
@@ -55,37 +63,38 @@ export function useFlyToCart() {
   // when ANY state changes (badgeRef, flyingElement, shouldPulseBadge, etc.).
   // This was causing app freezes on page load, sheet close, and drawer close.
   const badgeRef = useCartAnimationStore((s) => s.badgeRef);
-  const isAnimating = useCartAnimationStore((s) => s.isAnimating);
-  const setIsAnimating = useCartAnimationStore((s) => s.setIsAnimating);
+  const flyingCount = useCartAnimationStore((s) => s.flyingCount);
+  const incrementFlying = useCartAnimationStore((s) => s.incrementFlying);
+  const decrementFlying = useCartAnimationStore((s) => s.decrementFlying);
   const setFlyingElement = useCartAnimationStore((s) => s.setFlyingElement);
   const triggerBadgePulse = useCartAnimationStore((s) => s.triggerBadgePulse);
   const { shouldAnimate } = useAnimationPreference();
+  const playSound = usePlaySound();
 
-  const timelineRef = useRef<gsap.core.Timeline | null>(null);
+  // Track active timelines for cleanup (supports multiple simultaneous animations)
+  const timelinesRef = useRef<Set<gsap.core.Timeline>>(new Set());
 
-  // Cleanup on unmount - kill GSAP timeline, remove flying element, reset animation state, and cancel pending pulse
+  // Cleanup on unmount - kill all GSAP timelines, remove flying elements, reset animation state
   // IMPORTANT: Use getState() to access both state AND actions without subscribing to store changes.
   // This prevents infinite re-render loops when cleanup calls state-updating functions.
   useEffect(() => {
     // Capture ref at effect setup time for cleanup
-    const timeline = timelineRef;
+    const timelines = timelinesRef;
     return () => {
       // Get state AND actions via getState() to avoid triggering re-renders from this cleanup
       const {
         flyingElement,
         setIsAnimating: resetAnimating,
         setFlyingElement: resetFlying,
-        cancelPendingPulse: cancelPulse
+        cancelPendingPulse: cancelPulse,
       } = useCartAnimationStore.getState();
 
-      // Kill any active GSAP timeline to prevent callbacks on unmounted component
-      if (timeline.current) {
-        timeline.current.kill();
-        timeline.current = null;
-        // CRITICAL: Reset isAnimating when killing timeline, otherwise it stays true forever
-        // The onComplete callback will never fire since we killed the timeline
-        resetAnimating(false);
-      }
+      // Kill all active GSAP timelines to prevent callbacks on unmounted component
+      timelines.current.forEach((tl) => tl.kill());
+      timelines.current.clear();
+      // Reset isAnimating when killing timelines
+      resetAnimating(false);
+
       // Remove flying element if it exists (stored in Zustand store, not ref)
       if (flyingElement) {
         flyingElement.remove();
@@ -97,9 +106,16 @@ export function useFlyToCart() {
   }, []); // Empty deps - cleanup only needs to run on unmount, actions accessed via getState()
 
   const fly = useCallback(
-    ({ sourceElement, imageUrl, size = 48 }: FlyToCartOptions) => {
-      // Skip if animations disabled, badge not available, or already animating
-      if (!shouldAnimate || !badgeRef?.current || isAnimating) {
+    ({
+      sourceElement,
+      imageUrl,
+      size = 48,
+      onAnimationStart,
+      onAnimationComplete,
+    }: FlyToCartOptions) => {
+      // Skip if animations disabled or badge not available
+      // NOTE: Multiple rapid clicks are allowed - no isAnimating check
+      if (!shouldAnimate || !badgeRef?.current) {
         return false;
       }
 
@@ -107,9 +123,19 @@ export function useFlyToCart() {
       const sourceRect = sourceElement.getBoundingClientRect();
       const badgeRect = badgeElement.getBoundingClientRect();
 
-      setIsAnimating(true);
+      // Increment flying count for multiple simultaneous animations
+      incrementFlying();
 
-      // Wrap animation setup in try-catch to ensure isAnimating is reset on any error
+      // Trigger haptic feedback immediately (user interaction context)
+      triggerHaptic("light");
+
+      // Play pop sound
+      playSound("cartPop");
+
+      // Notify animation start callback
+      onAnimationStart?.();
+
+      // Wrap animation setup in try-catch to ensure flyingCount is decremented on any error
       let flyingEl: HTMLDivElement | null = null;
       try {
         // Create flying element
@@ -133,7 +159,8 @@ export function useFlyToCart() {
           flyingEl.style.backgroundPosition = "center";
         } else {
           // Amber circle fallback
-          flyingEl.style.background = "linear-gradient(135deg, var(--color-secondary), var(--color-accent-orange))";
+          flyingEl.style.background =
+            "linear-gradient(135deg, var(--color-secondary), var(--color-accent-orange))";
         }
 
         document.body.appendChild(flyingEl);
@@ -157,14 +184,17 @@ export function useFlyToCart() {
           onComplete: () => {
             animatedEl.remove();
             setFlyingElement(null);
-            setIsAnimating(false);
+            decrementFlying();
+            // Notify animation complete callback before badge pulse
+            onAnimationComplete?.();
             triggerBadgePulse();
-            timelineRef.current = null;
+            // Remove timeline from tracking set
+            timelinesRef.current.delete(tl);
           },
         });
 
-        // Store timeline reference for cleanup on unmount
-        timelineRef.current = tl;
+        // Track timeline for cleanup on unmount
+        timelinesRef.current.add(tl);
 
         // Keyframes for arc trajectory
         tl.to(animatedEl, {
@@ -194,21 +224,22 @@ export function useFlyToCart() {
           flyingEl.remove();
           setFlyingElement(null);
         }
-        setIsAnimating(false);
+        decrementFlying();
         return false;
       }
     },
     [
       badgeRef,
-      isAnimating,
-      setIsAnimating,
+      incrementFlying,
+      decrementFlying,
       setFlyingElement,
       triggerBadgePulse,
       shouldAnimate,
+      playSound,
     ]
   );
 
-  return { fly, isAnimating };
+  return { fly, isAnimating: flyingCount > 0 };
 }
 
 // ============================================
