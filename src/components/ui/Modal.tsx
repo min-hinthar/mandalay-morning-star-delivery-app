@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Modal module contains Modal, ConfirmModal, ModalHeader, ModalFooter, and useModal hook - splitting would break cohesion */
 /**
  * V5 Sprint 5: Modal Component
  *
@@ -305,6 +306,24 @@ export function Modal({
   );
 
   // ============================================
+  // WILL CHANGE OPTIMIZATION
+  // ============================================
+
+  // willChange optimization: apply only during animation, remove when static
+  // Prevents compositor layer bloat when modal is open but not animating
+  const handleAnimationStart = useCallback(() => {
+    if (modalRef.current) {
+      modalRef.current.style.willChange = "transform";
+    }
+  }, []);
+
+  const handleAnimationComplete = useCallback(() => {
+    if (modalRef.current) {
+      modalRef.current.style.willChange = "auto";
+    }
+  }, []);
+
+  // ============================================
   // RENDER
   // ============================================
 
@@ -379,6 +398,8 @@ export function Modal({
               initial="hidden"
               animate="visible"
               exit="exit"
+              onAnimationStart={handleAnimationStart}
+              onAnimationComplete={handleAnimationComplete}
               onKeyDown={handleKeyDown}
               onClick={(e) => e.stopPropagation()}
               {...(isMobile && closeOnSwipeDown && !prefersReducedMotion ? swipeProps : {})}
