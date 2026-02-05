@@ -156,13 +156,14 @@ export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
         <motion.header
           ref={ref}
           // MOBILE CRASH PREVENTION: Blur only on sm+ to prevent Safari crashes
-          className={cn("fixed top-0 left-0 right-0 sm:backdrop-blur-2xl", zClass.fixed, className)}
+          // top uses CSS var set by OfflineIndicator for offline banner offset
+          className={cn("fixed left-0 right-0 sm:backdrop-blur-2xl", zClass.fixed, className)}
           initial={false}
           animate={{
             y: isVisible ? 0 : -HEADER_HEIGHT,
           }}
           transition={getHeaderTransition(isFastScroll)}
-          style={glassStylesLight}
+          style={{ ...glassStylesLight, top: "var(--offline-banner-height, 0px)" }}
         >
           {/* Dark mode glassmorphism - apply via CSS class override */}
           <style jsx global>{`
@@ -223,12 +224,13 @@ AppHeader.displayName = "AppHeader";
 
 /**
  * HeaderSpacer - Add below AppHeader to prevent content overlap
+ * Accounts for offline banner height via CSS custom property
  */
 export function HeaderSpacer({ className }: { className?: string }) {
   return (
     <div
       className={cn("h-16", className)}
-      style={{ height: HEADER_HEIGHT }}
+      style={{ height: `calc(${HEADER_HEIGHT}px + var(--offline-banner-height, 0px))` }}
       aria-hidden="true"
     />
   );
