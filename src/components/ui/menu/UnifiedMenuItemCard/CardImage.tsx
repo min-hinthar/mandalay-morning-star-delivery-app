@@ -1,11 +1,16 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo, useState, useEffect, useCallback } from "react";
 import { motion, MotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { getCategoryEmoji } from "../EmojiPlaceholder";
 import { zClass } from "@/lib/design-system/tokens/z-index";
+
+// Max retries for rate-limited images (e.g., Google Drive)
+const MAX_RETRIES = 3;
+// Base delay in ms (doubles each retry: 1s, 2s, 4s)
+const BASE_RETRY_DELAY = 1000;
 
 // ============================================
 // TYPES
@@ -59,6 +64,29 @@ export const CardImage = memo(function CardImage({
   const { shouldAnimate } = useAnimationPreference();
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [retryKey, setRetryKey] = useState(0);
+
+  // Retry failed images with exponential backoff (handles Google Drive rate limiting)
+  const handleError = useCallback(() => {
+    if (retryCount < MAX_RETRIES) {
+      const delay = BASE_RETRY_DELAY * Math.pow(2, retryCount);
+      setTimeout(() => {
+        setRetryCount((prev) => prev + 1);
+        setRetryKey((prev) => prev + 1);
+      }, delay);
+    } else {
+      setHasError(true);
+    }
+  }, [retryCount]);
+
+  // Reset state when imageUrl changes
+  useEffect(() => {
+    setIsLoaded(false);
+    setHasError(false);
+    setRetryCount(0);
+    setRetryKey(0);
+  }, [imageUrl]);
 
   // Parallax transforms (+-10px)
   const imageX = useTransform(mouseX, [0, 1], [-10, 10]);
@@ -78,9 +106,15 @@ export const CardImage = memo(function CardImage({
         className
       )}
     >
-      {/* Shimmer placeholder - shows until image loads */}
+      {/* Shimmer placeholder - shows until image loads or during retry */}
       {imageUrl && !isLoaded && !hasError && (
-        <div className="absolute inset-0 bg-surface-tertiary animate-pulse" />
+        <div className="absolute inset-0 bg-surface-tertiary animate-pulse">
+          {retryCount > 0 && (
+            <div className="absolute bottom-2 right-2 text-xs text-text-muted opacity-50">
+              Retry {retryCount}/{MAX_RETRIES}
+            </div>
+          )}
+        </div>
       )}
 
       {/* Image with parallax */}
@@ -97,6 +131,7 @@ export const CardImage = memo(function CardImage({
           /* Plain img tag like cart drawer - reliable across all devices and URL types */
           /* eslint-disable-next-line @next/next/no-img-element */
           <img
+            key={retryKey}
             src={imageUrl}
             alt={alt}
             className={cn(
@@ -107,7 +142,7 @@ export const CardImage = memo(function CardImage({
             loading={priority ? "eager" : "lazy"}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             onLoad={() => setIsLoaded(true)}
-            onError={() => setHasError(true)}
+            onError={handleError}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-surface">

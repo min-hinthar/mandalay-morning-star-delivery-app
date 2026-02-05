@@ -11,13 +11,51 @@
  * - On reconnection: shows "Back online" for 3 seconds
  */
 
+import { useState, useEffect } from "react";
 import { WifiOff, Wifi } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCustomerOfflineSync } from "@/lib/hooks/useCustomerOfflineSync";
 import { zClass } from "@/lib/design-system/tokens/z-index";
 
 export function OfflineIndicator() {
-  const { isOnline, wasOffline } = useCustomerOfflineSync();
+  // Use local state with useEffect to avoid hydration mismatch
+  const [isOnline, setIsOnline] = useState(true);
+  const [wasOffline, setWasOffline] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // Set initial state after mount
+    setIsOnline(navigator.onLine);
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const handleOnline = () => {
+      setIsOnline(true);
+      setWasOffline(true);
+      timeoutId = setTimeout(() => setWasOffline(false), 3000);
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      setWasOffline(false);
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, []);
+
+  // Don't render until mounted to avoid hydration mismatch
+  if (!mounted) return null;
 
   // Show banner if offline OR in "Back online" transition period
   const showBanner = !isOnline || wasOffline;
@@ -27,6 +65,7 @@ export function OfflineIndicator() {
     <AnimatePresence mode="wait">
       {showBanner && (
         <motion.div
+          key="offline-banner"
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -100, opacity: 0 }}
