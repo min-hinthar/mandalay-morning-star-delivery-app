@@ -14,6 +14,9 @@
 import { useState, useEffect } from "react";
 import { WifiOff, Wifi } from "lucide-react";
 
+// Banner height for header offset calculation
+const BANNER_HEIGHT = 44; // py-3 (12px * 2) + text height (~20px)
+
 export function OfflineIndicator() {
   // Use local state with useEffect to avoid hydration mismatch
   const [isOnline, setIsOnline] = useState(true);
@@ -52,19 +55,32 @@ export function OfflineIndicator() {
     };
   }, []);
 
-  // Don't render until mounted to avoid hydration mismatch
-  if (!mounted) return null;
-
   // Show banner if offline OR in "Back online" transition period
   const showBanner = !isOnline || wasOffline;
   const isReconnected = isOnline && wasOffline;
+
+  // Set CSS custom property for header offset
+  useEffect(() => {
+    if (mounted) {
+      document.documentElement.style.setProperty(
+        "--offline-banner-height",
+        showBanner ? `${BANNER_HEIGHT}px` : "0px"
+      );
+    }
+    return () => {
+      document.documentElement.style.setProperty("--offline-banner-height", "0px");
+    };
+  }, [mounted, showBanner]);
+
+  // Don't render until mounted to avoid hydration mismatch
+  if (!mounted) return null;
 
   // Return null when not showing - prevents any invisible overlay
   if (!showBanner) return null;
 
   return (
     <div
-      className="sticky top-0 w-full z-[9999]"
+      className="fixed inset-x-0 top-0 w-full z-[9999]"
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
       {isReconnected ? (
