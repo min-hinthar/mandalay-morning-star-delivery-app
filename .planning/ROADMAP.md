@@ -30,10 +30,10 @@
   - [x] 41-05-PLAN.md — Home page server component conversion
   - [x] 41-06-PLAN.md — Order tracking page optimization
   - [x] 41-07-PLAN.md — Final hydration health check + results
-- [ ] Phase 42: Dynamic Import Heavy Libraries (code-split Recharts + Google Maps) - **3 plans**
-  - [ ] 42-01-PLAN.md — Shared hooks (viewport trigger, import retry) + skeleton/error components
-  - [ ] 42-02-PLAN.md — Enhanced LazyCharts + admin dashboard RevenueChart wiring
-  - [ ] 42-03-PLAN.md — LazyMaps + route detail (viewport) and tracking (eager) wiring
+- [x] Phase 42: Dynamic Import Heavy Libraries (code-split Recharts + Google Maps) - **3 plans**
+  - [x] 42-01-PLAN.md — Shared hooks (viewport trigger, import retry) + skeleton/error components
+  - [x] 42-02-PLAN.md — Enhanced LazyCharts + admin dashboard RevenueChart wiring
+  - [x] 42-03-PLAN.md — LazyMaps + route detail (viewport) and tracking (eager) wiring
 - [ ] Phase 43: Provider & Route Layout Refactoring (refinement to <2.5s)
 - [ ] Phase 44: Animation Optimization & Monitoring (lock in <2.5s)
 - [ ] Phase 45: Repo Cleanup & Hygiene
@@ -104,8 +104,8 @@ See MILESTONES.md for details.
 | v1.4 Mobile Excellence | 35-39 | 39 | Complete | 2026-02-05 |
 | **v1.5 Performance** | 40-46 | 13+ | Active | - |
 
-**Total shipped:** 40 phases, 178 plans
+**Total shipped:** 42 phases, 188 plans
 
 ---
 
-*Updated: 2026-02-06 - Phase 42 planned (3 plans in 2 waves)*
+*Updated: 2026-02-06 - Phase 42 complete (3 plans, 15/15 must-haves verified)*
