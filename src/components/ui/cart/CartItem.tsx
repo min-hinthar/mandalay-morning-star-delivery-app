@@ -2,7 +2,7 @@
 
 import { memo, useState, useCallback, useRef, useEffect } from "react";
 import {
-  motion,
+  m,
   AnimatePresence,
   useMotionValue,
   useTransform,

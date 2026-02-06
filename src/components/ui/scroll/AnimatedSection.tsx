@@ -102,7 +102,7 @@ export function AnimatedSection({
   }
 
   // Cast for TypeScript - motion[as] is valid but TS needs help
-  const MotionComponent = motion[as as keyof typeof motion] as typeof m.section;
+  const MotionComponent = m[as as keyof typeof m] as typeof m.section;
   const containerVariants = createContainerVariants(staggerGap);
 
   return (
