@@ -4,6 +4,7 @@ export type { KPIData } from "./AdminDashboard";
 export { OrdersTable } from "./OrdersTable";
 export type { AdminOrder } from "./OrdersTable";
 export { RevenueChart } from "./RevenueChart";
+export { LazyRevenueChart } from "./analytics/LazyCharts";
 export { PopularItems } from "./PopularItems";
 export { ExpandableTableRow, QuickPreviewPanel, DriverPreviewPanel, RoutePreviewPanel, useExpandedRows } from "./ExpandableTableRow";
 
