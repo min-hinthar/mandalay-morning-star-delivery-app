@@ -41,10 +41,10 @@
   - [x] 44-01-PLAN.md — React Compiler enable + GSAP dead plugin removal
   - [x] 44-02-PLAN.md — LazyMotion provider + full motion.* to m.* migration
   - [x] 44-03-PLAN.md — Lighthouse CI performance gate setup
-- [ ] Phase 45: Repo Cleanup & Hygiene - **3 plans**
-  - [ ] 45-01-PLAN.md — Delete legacy docs (V0-V8) + untrack build artifacts
-  - [ ] 45-02-PLAN.md — .gitignore audit + planning files archival + STATE/ROADMAP trim
-  - [ ] 45-03-PLAN.md — README update + PERFORMANCE.md creation
+- [x] Phase 45: Repo Cleanup & Hygiene - **3 plans**
+  - [x] 45-01-PLAN.md — Delete legacy docs (V0-V8) + untrack build artifacts
+  - [x] 45-02-PLAN.md — .gitignore audit + planning files archival + STATE/ROADMAP trim
+  - [x] 45-03-PLAN.md — README update + PERFORMANCE.md creation
 - [ ] Phase 46: Large File Refactoring (optional/stretch)
 
 ---
@@ -95,4 +95,4 @@ See archived milestone files in `.planning/archive/`
 
 ---
 
-*Updated: 2026-02-06 - Phase 45 planned (3 plans: legacy cleanup, archival, documentation)*
+*Updated: 2026-02-06 - Phase 45 complete (3 plans: legacy cleanup, archival, documentation)*
