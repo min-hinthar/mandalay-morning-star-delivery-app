@@ -21,7 +21,7 @@ import {
   useUpdateAddress,
   useDeleteAddress,
 } from "@/lib/hooks/useAddresses";
-import { useCheckoutStore } from "@/lib/stores/checkout-store";
+import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
 import { useMediaQuery } from "@/lib/hooks";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { Modal } from "@/components/ui/Modal";
@@ -60,7 +60,8 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
   const updateAddress = useUpdateAddress();
   const deleteAddress = useDeleteAddress();
 
-  const { address, setAddress, nextStep: storeNextStep, canProceed } = useCheckoutStore();
+  const { address, setAddress, nextStep: storeNextStep } = useCheckoutStore();
+  const canProceed = useCanProceed();
   const handleNext = onNext || storeNextStep;
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
@@ -247,7 +248,7 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
         <Button
           variant="default"
           onClick={handleNext}
-          disabled={!canProceed()}
+          disabled={!canProceed}
           size="lg"
         >
           Continue to Time Selection

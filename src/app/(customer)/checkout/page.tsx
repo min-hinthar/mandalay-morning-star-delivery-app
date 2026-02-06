@@ -75,20 +75,23 @@ export default function CheckoutPage() {
   // Get current direction value
   const direction = directionRef.current;
 
-  // Navigation handlers that set direction synchronously before step change
+  // Navigation handlers that set direction synchronously before step change.
+  // Read step from getState() to avoid stale closure issues.
   const goToNextStep = () => {
+    const currentStep = useCheckoutStore.getState().step;
     directionRef.current = 1;
     forceUpdate({});
-    const currentIndex = STEPS.indexOf(step);
+    const currentIndex = STEPS.indexOf(currentStep);
     if (currentIndex < STEPS.length - 1) {
       setStep(STEPS[currentIndex + 1]);
     }
   };
 
   const goToPrevStep = () => {
+    const currentStep = useCheckoutStore.getState().step;
     directionRef.current = -1;
     forceUpdate({});
-    const currentIndex = STEPS.indexOf(step);
+    const currentIndex = STEPS.indexOf(currentStep);
     if (currentIndex > 0) {
       setStep(STEPS[currentIndex - 1]);
     }
