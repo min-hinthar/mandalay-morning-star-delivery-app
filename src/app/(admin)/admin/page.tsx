@@ -10,7 +10,7 @@ import { formatPrice } from "@/lib/utils/currency";
 import { format, subDays, startOfDay, eachDayOfInterval } from "date-fns";
 import Link from "next/link";
 import type { OrderStatus } from "@/types/database";
-import { RevenueChart } from "@/components/ui/admin/RevenueChart";
+import { LazyRevenueChart } from "@/components/ui/admin/analytics/LazyCharts";
 import { PopularItems } from "@/components/ui/admin/PopularItems";
 import { AdminDashboard } from "@/components/ui/admin/AdminDashboard";
 import type { KPIData } from "@/components/ui/admin/AdminDashboard";
@@ -234,7 +234,7 @@ export default async function AdminDashboardPage() {
           <CardTitle>Revenue Trend (7 Days)</CardTitle>
         </CardHeader>
         <CardContent>
-          <RevenueChart data={dailyRevenue} />
+          <LazyRevenueChart data={dailyRevenue} />
         </CardContent>
       </Card>
 
