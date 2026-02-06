@@ -34,9 +34,9 @@
   - [x] 42-01-PLAN.md — Shared hooks (viewport trigger, import retry) + skeleton/error components
   - [x] 42-02-PLAN.md — Enhanced LazyCharts + admin dashboard RevenueChart wiring
   - [x] 42-03-PLAN.md — LazyMaps + route detail (viewport) and tracking (eager) wiring
-- [ ] Phase 43: Provider & Route Layout Refactoring (scope cart to customer/public routes, ~60KB savings) - **2 plans**
-  - [ ] 43-01-PLAN.md — Cart scoping to route-group layouts (CartOverlays + layouts + providers cleanup)
-  - [ ] 43-02-PLAN.md — Navigation guards + bundle verification
+- [x] Phase 43: Provider & Route Layout Refactoring (scope cart to customer/public routes, ~60KB savings) - **2 plans**
+  - [x] 43-01-PLAN.md — Cart scoping to route-group layouts (CartOverlays + layouts + providers cleanup)
+  - [x] 43-02-PLAN.md — Navigation guards + bundle verification
 - [ ] Phase 44: Animation Optimization & Monitoring (lock in <2.5s)
 - [ ] Phase 45: Repo Cleanup & Hygiene
 - [ ] Phase 46: Large File Refactoring (optional/stretch)
@@ -106,8 +106,8 @@ See MILESTONES.md for details.
 | v1.4 Mobile Excellence | 35-39 | 39 | Complete | 2026-02-05 |
 | **v1.5 Performance** | 40-46 | 15+ | Active | - |
 
-**Total shipped:** 42 phases, 188 plans
+**Total shipped:** 43 phases, 190 plans
 
 ---
 
-*Updated: 2026-02-06 - Phase 43 planned (2 plans, 2 waves)*
+*Updated: 2026-02-06 - Phase 43 complete (2 plans, 2 waves, human verification pending)*
