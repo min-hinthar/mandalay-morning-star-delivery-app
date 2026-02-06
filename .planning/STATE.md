@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 46 of 46 (Large File Refactoring)
-Plan: 2 of 7 complete
+Plan: 3 of 7 complete
 Status: In progress
-Last activity: 2026-02-06 — Completed 46-02-PLAN.md (9 admin/account component splits)
+Last activity: 2026-02-06 — Completed 46-05-PLAN.md (4 API route type/schema extractions)
 
-Progress: [########################                                          ] v1.5 24/52 (46%)
+Progress: [#########################                                         ] v1.5 25/52 (48%)
 
 ## Milestones
 
@@ -66,6 +66,8 @@ Progress: [########################                                          ] v
 | LazyMotion domMax + strict at root | drag + layoutId require domMax; strict prevents motion.* regression |
 | All motion.* migrated to m.* (174 files) | Per-component bundle ~34kb to ~4.6kb; features loaded once at root |
 | Lighthouse CI: warn-only, PR-only, 4 customer routes | Regression gate without blocking PRs; server mode for App Router |
+| API route co-location: types.ts/schemas.ts/helpers.ts siblings | Keep route.ts focused on HTTP handlers; types/schemas/helpers co-located |
+| Supabase client typing via Awaited<ReturnType<typeof createClient>> | Avoids direct @supabase/supabase-js import in helpers |
 
 ### Tech Debt (v1.5 Focus)
 
@@ -83,10 +85,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 46-02-PLAN.md (9 admin/account component splits)
+Stopped at: Completed 46-05-PLAN.md (4 API route type/schema extractions)
 Resume file: None
-Next action: Execute 46-03-PLAN.md
+Next action: Execute 46-06-PLAN.md
 
 ---
 
-*Updated: 2026-02-06 — Plan 46-02: Split 9 admin/account components into subfolders*
+*Updated: 2026-02-06 — Plan 46-05: Extract types/schemas/helpers from 4 API routes*
