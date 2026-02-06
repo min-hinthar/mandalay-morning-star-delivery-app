@@ -7,7 +7,6 @@ interface CheckoutStore extends CheckoutState {
   setStep: (step: CheckoutStep) => void;
   nextStep: () => void;
   prevStep: () => void;
-  canProceed: () => boolean;
   setAddress: (address: Address) => void;
   setDelivery: (delivery: DeliverySelection) => void;
   setCustomerNotes: (notes: string) => void;
@@ -45,23 +44,27 @@ export const useCheckoutStore = create<CheckoutStore>((set, get) => ({
     }
   },
 
-  canProceed: () => {
-    const { step, address, delivery } = get();
-    switch (step) {
-      case "address":
-        return address !== null;
-      case "time":
-        return delivery !== null;
-      case "payment":
-        return true;
-      default:
-        return false;
-    }
-  },
-
   setAddress: (address) => set({ address, addressId: address.id }),
   setDelivery: (delivery) => set({ delivery }),
   setCustomerNotes: (notes) => set({ customerNotes: notes }),
 
   reset: () => set(initialState),
 }));
+
+/**
+ * Derive whether the current step can proceed based on reactive state.
+ * Use this instead of a store method to ensure React re-renders on changes.
+ */
+export function useCanProceed(): boolean {
+  const { step, address, delivery } = useCheckoutStore();
+  switch (step) {
+    case "address":
+      return address !== null;
+    case "time":
+      return delivery !== null;
+    case "payment":
+      return true;
+    default:
+      return false;
+  }
+}

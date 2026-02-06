@@ -19,7 +19,7 @@ import { Clock, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { useCheckoutStore } from "@/lib/stores/checkout-store";
+import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
 import { getAvailableDeliveryDates } from "@/lib/utils/delivery-dates";
 import { TimeSlotPicker } from "./TimeSlotPicker";
 import { Button } from "@/components/ui/button";
@@ -54,8 +54,9 @@ export interface TimeStepV8Props {
 
 export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
   const { shouldAnimate } = useAnimationPreference();
-  const { delivery, setDelivery, nextStep: storeNextStep, prevStep: storePrevStep, canProceed } =
+  const { delivery, setDelivery, nextStep: storeNextStep, prevStep: storePrevStep } =
     useCheckoutStore();
+  const canProceed = useCanProceed();
 
   const handleNext = onNext || storeNextStep;
   const handleBack = onBack || storePrevStep;
@@ -108,7 +109,7 @@ export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        <Button onClick={handleNext} disabled={!canProceed()} size="lg">
+        <Button onClick={handleNext} disabled={!canProceed} size="lg">
           Continue to Payment
         </Button>
       </m.div>
