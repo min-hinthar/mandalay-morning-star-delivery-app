@@ -6,8 +6,11 @@ import { Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useCart } from "@/lib/hooks/useCart";
+import { useNavigationGuard } from "@/lib/hooks/useNavigationGuard";
+import { toast } from "@/lib/hooks/useToast";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { CartNavigationGuard } from "@/components/ui/cart/CartNavigationGuard";
 import { spring } from "@/lib/motion-tokens";
 import {
   CheckoutStepperV8,
@@ -59,6 +62,12 @@ export default function CheckoutPage() {
   const { step, setStep, reset } = useCheckoutStore();
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
+  // Navigation guard: warn when leaving checkout with items in cart
+  const { showModal, proceed, cancel } = useNavigationGuard({
+    enabled: !isEmpty,
+    allowedPaths: ["/cart", "/checkout", "/menu", "/"],
+  });
+
   // Track direction for step transitions using ref for synchronous access
   const directionRef = useRef(1);
   const [, forceUpdate] = useState({});
@@ -92,10 +101,11 @@ export default function CheckoutPage() {
     }
   }, [user, authLoading, router]);
 
-  // Redirect if cart is empty
+  // Redirect if cart is empty (deep link to /checkout with no items)
   useEffect(() => {
     if (!authLoading && user && isEmpty) {
-      router.push("/menu");
+      toast({ title: "Your cart is empty", description: "Browse our menu to get started!" });
+      router.replace("/menu");
     }
   }, [isEmpty, authLoading, user, router]);
 
@@ -208,6 +218,13 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      <CartNavigationGuard
+        isOpen={showModal}
+        onStay={cancel}
+        onLeave={proceed}
+        variant="checkout"
+      />
     </div>
   );
 }

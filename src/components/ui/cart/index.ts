@@ -27,6 +27,9 @@ export {
   ClearCartConfirmation,
   useClearCartConfirmation,
 } from "./ClearCartConfirmation";
+export { CartOverlays } from "./CartOverlays";
+export { CartNavigationGuard } from "./CartNavigationGuard";
+export type { CartNavigationGuardProps } from "./CartNavigationGuard";
 
 // Re-export types
 export type { CartButtonProps } from "./CartButton";
