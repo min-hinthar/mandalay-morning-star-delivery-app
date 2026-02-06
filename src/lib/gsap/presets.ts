@@ -98,7 +98,7 @@ export const gsapPresets = {
     ease: gsapEase.bouncy,
   },
 
-  /** Text reveal (for use with SplitText) */
+  /** Text reveal with staggered characters */
   textReveal: {
     y: 40,
     opacity: 0,
