@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -32,9 +32,9 @@ export function DrawerNavLink({
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.div variants={staggerItem}>
+    <m.div variants={staggerItem}>
       <Link href={href} onClick={onClick}>
-        <motion.div
+        <m.div
           className={cn(
             "flex items-center gap-4 min-h-[56px] py-4 px-4 rounded-xl",
             "transition-colors duration-150",
@@ -47,7 +47,7 @@ export function DrawerNavLink({
           transition={getSpring(spring.snappy)}
         >
           {/* Icon container with glow effect on active */}
-          <motion.span
+          <m.span
             className={cn(
               "flex items-center justify-center w-10 h-10 rounded-lg",
               isActive
@@ -56,23 +56,23 @@ export function DrawerNavLink({
             )}
           >
             {icon}
-          </motion.span>
+          </m.span>
 
           {/* Label */}
           <span className="flex-1 font-medium text-base">{label}</span>
 
           {/* Active indicator dot */}
           {isActive && (
-            <motion.span
+            <m.span
               className="w-2 h-2 rounded-full bg-primary"
               initial={shouldAnimate ? { scale: 0 } : undefined}
               animate={shouldAnimate ? { scale: 1 } : undefined}
               transition={getSpring(spring.ultraBouncy)}
             />
           )}
-        </motion.div>
+        </m.div>
       </Link>
-    </motion.div>
+    </m.div>
   );
 }
 

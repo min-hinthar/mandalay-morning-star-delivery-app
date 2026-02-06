@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChevronRight, Package, AlertCircle } from "lucide-react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
@@ -36,7 +36,7 @@ export function OrderCard({ order, index = 0 }: OrderCardProps) {
   const springConfig = getSpring(spring.default);
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={{ ...springConfig, delay }}
@@ -97,6 +97,6 @@ export function OrderCard({ order, index = 0 }: OrderCardProps) {
           </CardContent>
         </Card>
       </Link>
-    </motion.div>
+    </m.div>
   );
 }

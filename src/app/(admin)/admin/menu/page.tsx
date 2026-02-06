@@ -8,7 +8,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Plus,
   RefreshCw,
@@ -220,7 +220,7 @@ export default function AdminMenuPage() {
   return (
     <div className="p-4 md:p-8 space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
@@ -250,10 +250,10 @@ export default function AdminMenuPage() {
             Add Item
           </Button>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Stats Cards */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -303,10 +303,10 @@ export default function AdminMenuPage() {
             </p>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Filters */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -350,10 +350,10 @@ export default function AdminMenuPage() {
             </Badge>
           ))}
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Items Table */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
@@ -521,7 +521,7 @@ export default function AdminMenuPage() {
             </Table>
           </div>
         )}
-      </motion.div>
+      </m.div>
     </div>
   );
 }

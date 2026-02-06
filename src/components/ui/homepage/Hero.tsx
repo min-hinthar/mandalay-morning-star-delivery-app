@@ -3,7 +3,7 @@
 
 import React, { useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { m, useScroll, useTransform, useSpring } from "framer-motion";
 import { ArrowRight, ChefHat, Clock, MapPin, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, parallaxPresets } from "@/lib/motion-tokens";
@@ -52,14 +52,14 @@ function AnimatedHeadline({ text, className }: AnimatedHeadlineProps) {
   }
 
   return (
-    <motion.h1
+    <m.h1
       className={cn("flex flex-wrap justify-center gap-x-3 gap-y-1", className)}
       variants={staggerContainer()}
       initial="hidden"
       animate="visible"
     >
       {words.map((word, index) => (
-        <motion.span
+        <m.span
           key={`${word}-${index}`}
           className="inline-block"
           variants={{
@@ -81,9 +81,9 @@ function AnimatedHeadline({ text, className }: AnimatedHeadlineProps) {
           transition={getSpring(spring.rubbery)}
         >
           {word}
-        </motion.span>
+        </m.span>
       ))}
-    </motion.h1>
+    </m.h1>
   );
 }
 
@@ -102,7 +102,7 @@ function StatItem({ icon, label, value, delay = 0 }: StatItemProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       className="flex items-center gap-3 px-4 py-2"
       initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
@@ -116,7 +116,7 @@ function StatItem({ icon, label, value, delay = 0 }: StatItemProps) {
         <div className="text-xs text-hero-text-muted uppercase tracking-wide">{label}</div>
         <div className="text-sm font-semibold text-hero-text">{value}</div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -205,7 +205,7 @@ function HeroContent({
     <div className="relative flex flex-col items-center justify-start min-h-[100svh] min-h-[100dvh] px-4 pt-24 pb-20 pb-safe md:pt-28 md:pb-24">
       <div className="max-w-4xl mx-auto text-center">
         {/* Time-based greeting badge */}
-        <motion.div
+        <m.div
           // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
           className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20"
           initial={shouldAnimate ? { opacity: 0, y: -20 } : undefined}
@@ -222,7 +222,7 @@ function HeroContent({
           <span className="text-sm text-hero-text/90 font-medium">
             Fresh Burmese cuisine awaits
           </span>
-        </motion.div>
+        </m.div>
 
         {/* Animated Headline */}
         <AnimatedHeadline
@@ -231,33 +231,33 @@ function HeroContent({
         />
 
         {/* Tagline per CONTEXT.md */}
-        <motion.p
+        <m.p
           className="text-lg md:text-xl text-hero-text/70 font-medium mb-6"
           initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={shouldAnimate ? { ...getSpring(spring.default), delay: 0.5 } : undefined}
         >
           {tagline}
-        </motion.p>
+        </m.p>
 
         {/* Subheadline */}
-        <motion.p
+        <m.p
           className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-10 font-body"
           initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={shouldAnimate ? { ...getSpring(spring.default), delay: 0.6 } : undefined}
         >
           {subheadline}
-        </motion.p>
+        </m.p>
 
         {/* CTA Buttons */}
-        <motion.div
+        <m.div
           className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
           initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={shouldAnimate ? { ...getSpring(spring.default), delay: 0.8 } : undefined}
         >
-          <motion.div
+          <m.div
             whileHover={shouldAnimate ? {
               scale: 1.05,
               y: -2,  // Lift effect per CONTEXT.md
@@ -292,11 +292,11 @@ function HeroContent({
                 {/* Glow sweep effect - removed infinite animation to prevent mobile crashes */}
               </Link>
             </Button>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
 
         {/* Stats Bar */}
-        <motion.div
+        <m.div
           // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
           className="flex flex-wrap justify-center items-center gap-2 md:gap-4 p-4 rounded-2xl bg-hero-stat-bg sm:bg-hero-stat-bg/50 sm:backdrop-blur-md border border-hero-text/10"
           initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
@@ -323,17 +323,17 @@ function HeroContent({
             value="50 Mile Radius"
             delay={1.3}
           />
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Scroll indicator */}
-      <motion.div
+      <m.div
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
         initial={shouldAnimate ? { opacity: 0 } : undefined}
         animate={shouldAnimate ? { opacity: 1 } : undefined}
         transition={{ delay: 1.5 }}
       >
-        <motion.div
+        <m.div
           className="flex flex-col items-center gap-1 text-hero-text-muted cursor-pointer"
           animate={shouldAnimate ? { y: [0, 8, 0] } : undefined}
           transition={{ duration: 2, repeat: 5, ease: "easeInOut" }}
@@ -345,8 +345,8 @@ function HeroContent({
         >
           <span className="text-xs uppercase tracking-widest">Scroll</span>
           <ChevronDown className="w-6 h-6" />
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
     </div>
   );
 }
@@ -450,15 +450,15 @@ export function Hero({
     >
       {/* Gradient background - consistent SSR/CSR rendering (no hydration flicker) */}
       <GradientFallback>
-        <motion.div
+        <m.div
           style={shouldAnimate ? { y: smoothContentY, opacity: smoothOpacity } : undefined}
         >
           {heroContent}
-        </motion.div>
+        </m.div>
       </GradientFallback>
 
       {/* Layer 2: Background orbs (far) */}
-      <motion.div
+      <m.div
         className="absolute inset-0 pointer-events-none"
         // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
         style={{ y: smoothOrbsFarY, zIndex: 1 }}
@@ -467,10 +467,10 @@ export function Hero({
         {ORB_CONFIG_FAR.map((orb, i) => (
           <GradientOrb key={`orb-far-${i}`} {...orb} />
         ))}
-      </motion.div>
+      </m.div>
 
       {/* Layer 3: Mid-distance orbs */}
-      <motion.div
+      <m.div
         className="absolute inset-0 pointer-events-none"
         // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
         style={{ y: smoothOrbsMidY, zIndex: 2 }}
@@ -479,7 +479,7 @@ export function Hero({
         {ORB_CONFIG_MID.map((orb, i) => (
           <GradientOrb key={`orb-mid-${i}`} {...orb} />
         ))}
-      </motion.div>
+      </m.div>
 
       {/* Layer 4: Floating emojis - no scroll parallax, emojis animate independently */}
       <div

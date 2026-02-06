@@ -8,7 +8,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { ChevronDown, Package, Clock, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { TrackingOrderItem } from "@/types/tracking";
@@ -83,18 +83,18 @@ export function OrderSummary({
             </p>
           </div>
         </div>
-        <motion.div
+        <m.div
           animate={{ rotate: isExpanded ? 180 : 0 }}
           transition={{ duration: 0.2 }}
         >
           <ChevronDown className="h-5 w-5 text-charcoal-400" />
-        </motion.div>
+        </m.div>
       </button>
 
       {/* Expanded Content */}
       <AnimatePresence initial={false}>
         {isExpanded && (
-          <motion.div
+          <m.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -164,7 +164,7 @@ export function OrderSummary({
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

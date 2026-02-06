@@ -8,7 +8,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { X, Check, RotateCcw, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
@@ -226,7 +226,7 @@ export function PhotoCapture({
     <AnimatePresence onExitComplete={restoreScrollPosition}>
       {isOpen && (
         // Camera full-screen overlay - intentionally dark for camera UI
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -267,7 +267,7 @@ export function PhotoCapture({
                 {/* Error message */}
                 <AnimatePresence>
                   {error && (
-                    <motion.div
+                    <m.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
@@ -286,13 +286,13 @@ export function PhotoCapture({
                           Try Again
                         </button>
                       </div>
-                    </motion.div>
+                    </m.div>
                   )}
                 </AnimatePresence>
               </>
             ) : (
               // Photo preview - uses blob URL
-              <motion.img
+              <m.img
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 src={capturedPhoto}
@@ -306,7 +306,7 @@ export function PhotoCapture({
           <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-8 bg-gradient-to-t from-surface-inverse/70 to-transparent p-8 pb-12">
             {!capturedPhoto ? (
               // Capture button
-              <motion.button
+              <m.button
                 whileTap={{ scale: 0.95 }}
                 onClick={takePhoto}
                 disabled={!stream || !!error}
@@ -319,11 +319,11 @@ export function PhotoCapture({
                 aria-label="Take photo"
               >
                 <div className="h-16 w-16 rounded-full border-4 border-primary" />
-              </motion.button>
+              </m.button>
             ) : (
               // Confirm/Retake buttons
               <>
-                <motion.button
+                <m.button
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   whileTap={{ scale: 0.95 }}
@@ -337,9 +337,9 @@ export function PhotoCapture({
                   aria-label="Retake photo"
                 >
                   <RotateCcw className="h-7 w-7" />
-                </motion.button>
+                </m.button>
 
-                <motion.button
+                <m.button
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   whileTap={{ scale: 0.95 }}
@@ -358,11 +358,11 @@ export function PhotoCapture({
                   ) : (
                     <Check className="h-10 w-10" />
                   )}
-                </motion.button>
+                </m.button>
               </>
             )}
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

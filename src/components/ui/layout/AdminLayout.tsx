@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactNode, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -118,7 +118,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
 
                   {/* Active indicator */}
                   {active && (
-                    <motion.div
+                    <m.div
                       layoutId="admin-nav-indicator"
                       className="absolute bottom-0 left-2 right-2 h-0.5 bg-[var(--color-primary)] rounded-full"
                       transition={spring.snappy}
@@ -131,7 +131,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
 
           {/* User Dropdown */}
           <div className="relative">
-            <motion.button
+            <m.button
               onClick={toggleUserMenu}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -172,13 +172,13 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
                   showUserMenu && "rotate-180"
                 )}
               />
-            </motion.button>
+            </m.button>
 
             {/* Dropdown Menu */}
             <AnimatePresence>
               {/* Backdrop - rendered separately to avoid Fragment inside AnimatePresence */}
               {showUserMenu && (
-                <motion.div
+                <m.div
                   key="admin-dropdown-backdrop"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -190,7 +190,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
 
               {/* Menu - rendered separately to avoid Fragment inside AnimatePresence */}
               {showUserMenu && (
-                <motion.div
+                <m.div
                   key="admin-dropdown-menu"
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -257,7 +257,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
                       Exit Admin
                     </Link>
                   </div>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           </div>

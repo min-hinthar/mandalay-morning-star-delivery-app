@@ -8,7 +8,7 @@
  */
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { User, Package, MapPin, CreditCard } from "lucide-react";
 import { Tabs } from "@/components/ui/Tabs";
 import { ProfileTab } from "./ProfileTab";
@@ -32,13 +32,13 @@ export function AccountClient() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-surface-secondary to-surface-primary pt-8 pb-32 px-4">
       <div className="container max-w-4xl mx-auto">
-        <motion.h1
+        <m.h1
           initial={shouldAnimate ? { opacity: 0, y: -20 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           className="text-3xl font-display font-bold text-text-primary mb-6"
         >
           My Account
-        </motion.h1>
+        </m.h1>
 
         <Tabs
           tabs={TABS}
@@ -48,7 +48,7 @@ export function AccountClient() {
           layoutId="accountTab"
         />
 
-        <motion.div
+        <m.div
           key={activeTab}
           initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
@@ -63,7 +63,7 @@ export function AccountClient() {
               <p className="text-text-muted">Payment methods coming soon</p>
             </div>
           )}
-        </motion.div>
+        </m.div>
       </div>
     </main>
   );

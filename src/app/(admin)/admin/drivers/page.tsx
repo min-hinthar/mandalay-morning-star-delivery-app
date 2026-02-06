@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   RefreshCw,
   Search,
@@ -215,7 +215,7 @@ export default function AdminDriversPage() {
   return (
     <div className="p-4 md:p-8 space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
@@ -248,10 +248,10 @@ export default function AdminDriversPage() {
             Invite Driver
           </Button>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Stats Cards */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -320,10 +320,10 @@ export default function AdminDriversPage() {
             </p>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Search and Filters */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -376,10 +376,10 @@ export default function AdminDriversPage() {
             );
           })}
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Content - Drivers Table or Pending Invites */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
@@ -397,7 +397,7 @@ export default function AdminDriversPage() {
             searchQuery={searchQuery}
           />
         )}
-      </motion.div>
+      </m.div>
 
       {/* Add Driver Modal (for existing users) */}
       <AddDriverModal

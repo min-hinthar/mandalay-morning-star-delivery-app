@@ -15,7 +15,7 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { ShoppingBag, X, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
@@ -66,18 +66,18 @@ function CartHeader({ itemCount, onClose, onClearClick, showClear }: CartHeaderP
         className="flex items-center gap-3 text-lg font-display font-bold text-text-primary"
       >
         {/* Bag icon - no infinite animation to prevent mobile crashes */}
-        <motion.div
+        <m.div
           className={cn(
             "flex h-10 w-10 items-center justify-center rounded-full",
             "bg-amber-100 dark:bg-amber-900/30"
           )}
         >
           <ShoppingBag className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-        </motion.div>
+        </m.div>
         Your Cart
         {/* Item count badge - rubbery bounce on change */}
         {itemCount > 0 && (
-          <motion.span
+          <m.span
             key={itemCount}
             initial={shouldAnimate ? { scale: 0, rotate: -10 } : undefined}
             animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
@@ -88,14 +88,14 @@ function CartHeader({ itemCount, onClose, onClearClick, showClear }: CartHeaderP
             )}
           >
             {itemCount}
-          </motion.span>
+          </m.span>
         )}
       </h2>
 
       <div className="flex items-center gap-2">
         {/* Clear cart button */}
         {showClear && (
-          <motion.button
+          <m.button
             type="button"
             onClick={onClearClick}
             whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
@@ -111,11 +111,11 @@ function CartHeader({ itemCount, onClose, onClearClick, showClear }: CartHeaderP
             aria-label="Clear cart"
           >
             <Trash2 className="h-5 w-5" />
-          </motion.button>
+          </m.button>
         )}
 
         {/* Close button */}
-        <motion.button
+        <m.button
           type="button"
           onClick={onClose}
           whileHover={shouldAnimate ? { scale: 1.05, rotate: 90 } : undefined}
@@ -131,7 +131,7 @@ function CartHeader({ itemCount, onClose, onClearClick, showClear }: CartHeaderP
           aria-label="Close cart"
         >
           <X className="h-5 w-5" />
-        </motion.button>
+        </m.button>
       </div>
     </div>
   );
@@ -154,7 +154,7 @@ function CartItemsList({ onClose }: CartItemsListProps) {
   }
 
   return (
-    <motion.div
+    <m.div
       variants={shouldAnimate ? staggerContainer(0.08, 0.1) : undefined}
       initial={shouldAnimate ? "hidden" : undefined}
       animate={shouldAnimate ? "visible" : undefined}
@@ -164,7 +164,7 @@ function CartItemsList({ onClose }: CartItemsListProps) {
         {/* CHANGED from mode="popLayout" to mode="sync" - popLayout causes layout thrashing that crashes mobile */}
         <AnimatePresence mode="sync">
           {items.map((item) => (
-            <motion.li
+            <m.li
               key={item.cartItemId}
               variants={shouldAnimate ? staggerItem : undefined}
               // REMOVED layout prop - causes expensive layout recalculations
@@ -180,11 +180,11 @@ function CartItemsList({ onClose }: CartItemsListProps) {
               }
             >
               <CartItem item={item} />
-            </motion.li>
+            </m.li>
           ))}
         </AnimatePresence>
       </ul>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -201,7 +201,7 @@ function CartFooter({ onClose, onCheckout }: CartFooterProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={{ delay: 0.2 }}
@@ -211,7 +211,7 @@ function CartFooter({ onClose, onCheckout }: CartFooterProps) {
 
       <div className="mt-4 flex flex-col gap-3">
         {/* Primary CTA - Checkout with pulsing glow */}
-        <motion.div
+        <m.div
           whileHover={shouldAnimate ? { scale: 1.01 } : undefined}
           whileTap={shouldAnimate ? { scale: 0.99 } : undefined}
           transition={getSpring(spring.snappyButton)}
@@ -229,14 +229,14 @@ function CartFooter({ onClose, onCheckout }: CartFooterProps) {
           >
             Proceed to Checkout
           </Button>
-        </motion.div>
+        </m.div>
 
         {/* Secondary CTA - Continue Shopping */}
         <Button variant="outline" size="lg" className="w-full" onClick={onClose}>
           Continue Shopping
         </Button>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 

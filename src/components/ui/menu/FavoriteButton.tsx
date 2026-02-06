@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -172,7 +172,7 @@ export function FavoriteButton({
   );
 
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={handleClick}
       className={cn(
@@ -201,7 +201,7 @@ export function FavoriteButton({
       <AnimatePresence>
         {/* Ring burst */}
         {showBurst && shouldAnimate && (
-          <motion.div
+          <m.div
             key="ring-burst"
             className={cn(
               sizes.burst,
@@ -215,7 +215,7 @@ export function FavoriteButton({
         )}
         {/* Particle bursts */}
         {showBurst && shouldAnimate && Array.from({ length: particleCount }).map((_, i) => (
-          <motion.div
+          <m.div
             key={`particle-${i}`}
             className="absolute w-1.5 h-1.5 rounded-full bg-red-400"
             variants={getParticleVariants(i)}
@@ -228,7 +228,7 @@ export function FavoriteButton({
 
       {/* Heart icon with fill animation */}
       <AnimatePresence mode="wait" initial={false}>
-        <motion.div
+        <m.div
           key={isFavorite ? "filled" : "empty"}
           variants={shouldAnimate ? heartVariants : undefined}
           initial={shouldAnimate ? "initial" : undefined}
@@ -245,9 +245,9 @@ export function FavoriteButton({
             )}
             strokeWidth={2}
           />
-        </motion.div>
+        </m.div>
       </AnimatePresence>
-    </motion.button>
+    </m.button>
   );
 }
 

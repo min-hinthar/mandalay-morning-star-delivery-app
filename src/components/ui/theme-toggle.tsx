@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { useEffect, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useThemeTransition } from "@/lib/hooks/useThemeTransition";
@@ -80,7 +80,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
   const isDark = resolvedTheme === "dark";
 
   return (
-    <motion.button
+    <m.button
       onClick={handleToggle}
       className={cn(
         "relative flex h-10 w-10 items-center justify-center rounded-full",
@@ -97,7 +97,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
       <AnimatePresence mode="wait">
-        <motion.svg
+        <m.svg
           key={isDark ? "moon" : "sun"}
           viewBox="0 0 24 24"
           fill="none"
@@ -117,8 +117,8 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
           }}
         >
           {isDark ? <MoonIcon /> : <SunIcon />}
-        </motion.svg>
+        </m.svg>
       </AnimatePresence>
-    </motion.button>
+    </m.button>
   );
 }

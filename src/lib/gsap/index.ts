@@ -13,14 +13,11 @@
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
-import { Flip } from "gsap/Flip";
-import { Observer } from "gsap/Observer";
 import { initConflictDetector } from "./conflict-detector";
 
 // Register all plugins ONCE at module load
 // This prevents "Plugin not registered" errors in production
-gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText, Flip, Observer);
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 // Initialize dev-mode conflict detector after plugin registration
 // Warns when GSAP and Framer Motion target the same element
@@ -40,7 +37,7 @@ gsap.defaults({
 });
 
 // Re-export everything for single import point
-export { gsap, useGSAP, ScrollTrigger, SplitText, Flip, Observer };
+export { gsap, useGSAP, ScrollTrigger };
 
 // Re-export commonly used types from gsap core
 // Note: GSAPCallback, GSAPTweenVars are global ambient types, not module exports

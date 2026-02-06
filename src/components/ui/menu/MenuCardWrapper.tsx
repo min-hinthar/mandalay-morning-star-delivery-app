@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { staggerDelay, VIEWPORT_AMOUNT } from "@/lib/motion-tokens";
@@ -68,7 +68,7 @@ export function MenuCardWrapper({
   // Viewport mode: animate when scrolling into view
   if (animateMode === "viewport") {
     return (
-      <motion.div
+      <m.div
         data-menu-card={itemId}
         className={cn(
           "glow-gradient rounded-2xl",
@@ -87,13 +87,13 @@ export function MenuCardWrapper({
         }}
       >
         {children}
-      </motion.div>
+      </m.div>
     );
   }
 
   // Immediate mode: animate on mount (for AnimatePresence)
   return (
-    <motion.div
+    <m.div
       data-menu-card={itemId}
       className={cn(
         "glow-gradient rounded-2xl",
@@ -108,7 +108,7 @@ export function MenuCardWrapper({
       }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 

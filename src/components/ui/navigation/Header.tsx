@@ -14,7 +14,7 @@
  */
 
 import { type ReactNode } from "react";
-import { motion, type Variants } from "framer-motion";
+import { m, type Variants } from "framer-motion";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
@@ -72,7 +72,7 @@ interface NavLinkProps {
 
 function NavLink({ href, label, icon }: NavLinkProps) {
   return (
-    <motion.div
+    <m.div
       variants={navLinkVariants}
       initial="initial"
       animate="animate"
@@ -91,7 +91,7 @@ function NavLink({ href, label, icon }: NavLinkProps) {
         {icon && <span className="w-4 h-4">{icon}</span>}
         <span>{label}</span>
       </Link>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -105,7 +105,7 @@ interface HamburgerButtonProps {
 
 function HamburgerButton({ onClick }: HamburgerButtonProps) {
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={onClick}
       whileTap={{ scale: 0.92 }}
@@ -121,7 +121,7 @@ function HamburgerButton({ onClick }: HamburgerButtonProps) {
       aria-label="Open menu"
     >
       <Menu className="w-5 h-5" />
-    </motion.button>
+    </m.button>
   );
 }
 
@@ -166,7 +166,7 @@ export function Header({
   const headerSpring = getSpring(spring.snappy);
 
   return (
-    <motion.header
+    <m.header
       initial={false}
       animate={{
         y: isCollapsed ? -HEADER_HEIGHT_FULL : 0,
@@ -235,7 +235,7 @@ export function Header({
           </div>
         </div>
       </div>
-    </motion.header>
+    </m.header>
   );
 }
 

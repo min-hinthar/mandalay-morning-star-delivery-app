@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -198,7 +198,7 @@ export function SearchInput({
     >
       {/* Desktop: always visible input */}
       {/* Mobile: expandable from icon */}
-      <motion.div
+      <m.div
         variants={mobileCollapsible && isMobile && shouldAnimate ? expandVariants : undefined}
         initial={false}
         animate={
@@ -219,7 +219,7 @@ export function SearchInput({
         )}
       >
         {/* Search icon / expand button */}
-        <motion.button
+        <m.button
           type="button"
           onClick={handleIconClick}
           className={cn(
@@ -235,12 +235,12 @@ export function SearchInput({
           aria-label={showInput ? "Search" : "Open search"}
         >
           <Search className="w-5 h-5" />
-        </motion.button>
+        </m.button>
 
         {/* Input field */}
         <AnimatePresence>
           {showInput && (
-            <motion.input
+            <m.input
               ref={inputRef}
               type="text"
               value={query}
@@ -273,7 +273,7 @@ export function SearchInput({
         {/* Clear button */}
         <AnimatePresence>
           {showInput && query && (
-            <motion.button
+            <m.button
               type="button"
               onClick={handleClear}
               initial={shouldAnimate ? { opacity: 0, scale: 0.5 } : undefined}
@@ -291,10 +291,10 @@ export function SearchInput({
               aria-label="Clear search"
             >
               <X className="w-4 h-4" />
-            </motion.button>
+            </m.button>
           )}
         </AnimatePresence>
-      </motion.div>
+      </m.div>
 
       {/* Autocomplete dropdown */}
       <SearchAutocomplete

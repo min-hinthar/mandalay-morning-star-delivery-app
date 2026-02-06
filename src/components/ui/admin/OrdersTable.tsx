@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect, Fragment } from "react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
   ChevronUp,
@@ -340,14 +340,14 @@ export function OrdersTable({ orders, onStatusChange, onRefresh }: OrdersTablePr
                     </DropdownMenu>
                   </TableCell>
                   <TableCell className="w-8 pr-4">
-                    <motion.div
+                    <m.div
                       initial={false}
                       animate={{ rotate: isExpanded ? 90 : 0 }}
                       transition={spring.default}
                       className="text-text-muted group-hover:text-primary"
                     >
                       <ChevronRight className="h-4 w-4" />
-                    </motion.div>
+                    </m.div>
                   </TableCell>
                 </TableRow>
 
@@ -356,7 +356,7 @@ export function OrdersTable({ orders, onStatusChange, onRefresh }: OrdersTablePr
                   {isExpanded && (
                     <tr>
                       <td colSpan={9} className="p-0 border-b border-border">
-                        <motion.div
+                        <m.div
                           key={`expanded-${order.id}`}
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
@@ -379,7 +379,7 @@ export function OrdersTable({ orders, onStatusChange, onRefresh }: OrdersTablePr
                               />
                             </div>
                           </div>
-                        </motion.div>
+                        </m.div>
                       </td>
                     </tr>
                   )}

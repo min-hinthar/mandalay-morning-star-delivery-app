@@ -12,7 +12,7 @@
  * - Respects animation preferences
  */
 
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Truck, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerItem, staggerContainer } from "@/lib/motion-tokens";
@@ -84,7 +84,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
       </div>
 
       {/* Items */}
-      <motion.ul
+      <m.ul
         variants={shouldAnimate ? staggerContainer(0.05, 0.1) : undefined}
         initial={shouldAnimate ? "hidden" : undefined}
         animate={shouldAnimate ? "visible" : undefined}
@@ -99,7 +99,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
               item.quantity;
 
             return (
-              <motion.li
+              <m.li
                 key={item.cartItemId}
                 variants={shouldAnimate ? staggerItem : undefined}
                 initial={shouldAnimate ? "hidden" : undefined}
@@ -110,14 +110,14 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
               >
                 <div className="flex-1 min-w-0 pr-3">
                   <div className="flex items-center gap-1.5">
-                    <motion.span
+                    <m.span
                       className="inline-flex h-5 w-5 items-center justify-center rounded bg-primary/10 text-xs font-bold text-primary"
                       initial={shouldAnimate ? { scale: 0 } : undefined}
                       animate={shouldAnimate ? { scale: 1 } : undefined}
                       transition={getSpring(spring.ultraBouncy)}
                     >
                       {item.quantity}
-                    </motion.span>
+                    </m.span>
                     <span className="font-medium text-foreground truncate">
                       {item.nameEn}
                     </span>
@@ -131,17 +131,17 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                 <span className="font-semibold text-foreground flex-shrink-0">
                   <PriceTicker value={itemTotal} inCents={true} size="sm" />
                 </span>
-              </motion.li>
+              </m.li>
             );
           })}
         </AnimatePresence>
-      </motion.ul>
+      </m.ul>
 
       {/* Totals */}
       <div className="border-t border-border bg-muted/20 px-5 py-4 space-y-3">
         {/* Free delivery progress indicator */}
         {!hasFreeDelivery && (
-          <motion.div
+          <m.div
             initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
             animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
             transition={getSpring(spring.gentle)}
@@ -152,7 +152,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
             )}
           >
             <div className="flex items-center gap-2 mb-2">
-              <motion.div
+              <m.div
                 animate={
                   shouldAnimate
                     ? {
@@ -168,7 +168,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                 }}
               >
                 <Sparkles className="w-4 h-4 text-amber-500" />
-              </motion.div>
+              </m.div>
               <span className="text-sm font-medium text-text-money">
                 {formatPrice(amountToFreeDelivery)} more for free delivery!
               </span>
@@ -176,19 +176,19 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
 
             {/* Animated progress bar */}
             <div className="h-2 bg-surface-tertiary rounded-full overflow-hidden">
-              <motion.div
+              <m.div
                 className="h-full rounded-full bg-gradient-progress"
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPercent}%` }}
                 transition={getSpring(spring.rubbery)}
               />
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* Free delivery achieved celebration */}
         {hasFreeDelivery && (
-          <motion.div
+          <m.div
             initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
             animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
             transition={getSpring(spring.ultraBouncy)}
@@ -199,7 +199,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
             )}
           >
             <div className="flex items-center gap-2">
-              <motion.div
+              <m.div
                 animate={
                   shouldAnimate
                     ? {
@@ -214,16 +214,16 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                 }}
               >
                 <Sparkles className="w-4 h-4 text-green-500" />
-              </motion.div>
+              </m.div>
               <span className="text-sm font-medium text-green-700 dark:text-green-400">
                 You qualify for free delivery!
               </span>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* Subtotal */}
-        <motion.div
+        <m.div
           variants={shouldAnimate ? summaryRowVariants : undefined}
           initial={shouldAnimate ? "hidden" : undefined}
           animate={shouldAnimate ? "visible" : undefined}
@@ -231,10 +231,10 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
         >
           <span>Subtotal</span>
           <PriceTicker value={itemsSubtotal} inCents={true} size="sm" className="text-text-money" />
-        </motion.div>
+        </m.div>
 
         {/* Delivery Fee */}
-        <motion.div
+        <m.div
           variants={shouldAnimate ? summaryRowVariants : undefined}
           initial={shouldAnimate ? "hidden" : undefined}
           animate={shouldAnimate ? "visible" : undefined}
@@ -246,7 +246,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
             Delivery
           </span>
           {hasFreeDelivery ? (
-            <motion.span
+            <m.span
               initial={shouldAnimate ? { scale: 0.8, opacity: 0 } : undefined}
               animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
               transition={getSpring(spring.ultraBouncy)}
@@ -254,17 +254,17 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
             >
               <Sparkles className="h-3 w-3" />
               FREE
-            </motion.span>
+            </m.span>
           ) : (
             <PriceTicker value={estimatedDeliveryFee} inCents={true} size="sm" className="text-text-money" />
           )}
-        </motion.div>
+        </m.div>
 
         {/* Divider */}
         <div className="h-px bg-border" />
 
         {/* Total */}
-        <motion.div
+        <m.div
           variants={shouldAnimate ? summaryRowVariants : undefined}
           initial={shouldAnimate ? "hidden" : undefined}
           animate={shouldAnimate ? "visible" : undefined}
@@ -280,7 +280,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
             size="lg"
             className="text-text-money font-bold"
           />
-        </motion.div>
+        </m.div>
 
         <p className="text-xs text-muted-foreground text-center">
           Tax calculated at checkout

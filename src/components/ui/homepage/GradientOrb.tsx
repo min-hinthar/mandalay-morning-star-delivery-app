@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion, MotionValue } from "framer-motion";
+import { m, MotionValue } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 
 // ============================================
@@ -80,7 +80,7 @@ export function GradientOrb({
   };
 
   return (
-    <motion.div
+    <m.div
       className={cn("absolute rounded-full pointer-events-none", className)}
       style={{
         ...orbStyles,

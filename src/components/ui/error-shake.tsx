@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
@@ -57,7 +57,7 @@ export function ErrorShake({
   }
 
   return (
-    <motion.div
+    <m.div
       className={cn("relative", className)}
       variants={shakeVariants}
       initial="idle"
@@ -71,7 +71,7 @@ export function ErrorShake({
       {/* Red pulse overlay */}
       <AnimatePresence>
         {shake && (
-          <motion.div
+          <m.div
             className="absolute inset-0 rounded-inherit bg-status-error pointer-events-none"
             variants={pulseVariants}
             initial="idle"
@@ -81,7 +81,7 @@ export function ErrorShake({
         )}
       </AnimatePresence>
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 

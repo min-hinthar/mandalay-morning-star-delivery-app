@@ -7,7 +7,7 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   BarChart,
   Bar,
@@ -50,7 +50,7 @@ export function PeakHoursChart({ data, height = 250 }: PeakHoursChartProps) {
   }));
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="rounded-xl bg-surface-primary p-6 shadow-sm"
@@ -118,7 +118,7 @@ export function PeakHoursChart({ data, height = 250 }: PeakHoursChartProps) {
           <span>Low volume</span>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -132,7 +132,7 @@ export function PeakHoursCompact({ data }: { data: PeakHoursData[] }) {
     .slice(0, 3);
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="space-y-2"
@@ -140,7 +140,7 @@ export function PeakHoursCompact({ data }: { data: PeakHoursData[] }) {
       <p className="text-sm font-medium text-text-secondary">Busiest Hours</p>
       <div className="flex gap-2">
         {topHours.map((hour, i) => (
-          <motion.div
+          <m.div
             key={hour.hour}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -151,9 +151,9 @@ export function PeakHoursCompact({ data }: { data: PeakHoursData[] }) {
             <p className="text-xs text-text-secondary">
               {hour.deliveryCount} deliveries
             </p>
-          </motion.div>
+          </m.div>
         ))}
       </div>
-    </motion.div>
+    </m.div>
   );
 }

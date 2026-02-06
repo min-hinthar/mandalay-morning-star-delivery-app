@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Package, CheckCircle2, Clock, Route, Timer } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Progress } from "@/components/ui/progress";
@@ -52,7 +52,7 @@ export function RouteStatsBar({ route, className }: RouteStatsBarProps) {
   const totalDuration = stats?.total_duration_minutes;
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
@@ -104,6 +104,6 @@ export function RouteStatsBar({ route, className }: RouteStatsBarProps) {
           value={totalDuration ? `${totalDuration} min` : "—"}
         />
       </div>
-    </motion.div>
+    </m.div>
   );
 }

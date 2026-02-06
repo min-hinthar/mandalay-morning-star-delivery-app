@@ -13,7 +13,7 @@
  */
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { MapPin, Plus } from "lucide-react";
 import {
   useAddresses,
@@ -153,14 +153,14 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
   );
 
   return (
-    <motion.div
+    <m.div
       className="space-y-6"
       variants={shouldAnimate ? staggerContainer(0.08, 0.1) : undefined}
       initial={shouldAnimate ? "hidden" : undefined}
       animate={shouldAnimate ? "visible" : undefined}
     >
       {/* Header with stagger */}
-      <motion.div variants={shouldAnimate ? staggerItem : undefined}>
+      <m.div variants={shouldAnimate ? staggerItem : undefined}>
         <div className="flex items-center gap-2 mb-1">
           <MapPin className="h-5 w-5 text-primary" />
           <h2 className="font-display text-lg font-semibold text-foreground">
@@ -170,11 +170,11 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
         <p className="font-body text-sm text-muted-foreground">
           Select or add a delivery address
         </p>
-      </motion.div>
+      </m.div>
 
       {/* Skeleton loading state */}
       {isLoading && (
-        <motion.div variants={shouldAnimate ? staggerItem : undefined} className="space-y-3">
+        <m.div variants={shouldAnimate ? staggerItem : undefined} className="space-y-3">
           {[1, 2].map((i) => (
             <div
               key={i}
@@ -190,17 +190,17 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
               </div>
             </div>
           ))}
-        </motion.div>
+        </m.div>
       )}
 
       {/* Address cards with stagger animation */}
       {!isLoading && addresses.length > 0 && (
-        <motion.div
+        <m.div
           variants={shouldAnimate ? staggerItem : undefined}
           className="space-y-3"
         >
           {addresses.map((addr, idx) => (
-            <motion.div
+            <m.div
               key={addr.id}
               initial={shouldAnimate ? { opacity: 0, y: 16 } : undefined}
               animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
@@ -213,14 +213,14 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
                 onEdit={() => openEditModal(addr)}
                 onDelete={() => handleDelete(addr.id)}
               />
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
       )}
 
       {/* Empty state */}
       {!isLoading && addresses.length === 0 && (
-        <motion.div
+        <m.div
           variants={shouldAnimate ? staggerItem : undefined}
           className="text-center py-8 px-4 rounded-xl border border-dashed border-border"
         >
@@ -228,19 +228,19 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
           <p className="text-sm text-muted-foreground">
             No saved addresses yet
           </p>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Add new address button with scale entry */}
-      <motion.div variants={shouldAnimate ? buttonEntry : undefined}>
+      <m.div variants={shouldAnimate ? buttonEntry : undefined}>
         <Button variant="outline" onClick={openAddModal} className="w-full">
           <Plus className="mr-2 h-4 w-4" />
           Add New Address
         </Button>
-      </motion.div>
+      </m.div>
 
       {/* Continue button with scale entry */}
-      <motion.div
+      <m.div
         variants={shouldAnimate ? buttonEntry : undefined}
         className="flex justify-center pt-4 border-t border-border"
       >
@@ -252,7 +252,7 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
         >
           Continue to Time Selection
         </Button>
-      </motion.div>
+      </m.div>
 
       {/* Responsive overlay for add/edit */}
       {isMobile ? (
@@ -267,6 +267,6 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
           {FormContent}
         </Modal>
       )}
-    </motion.div>
+    </m.div>
   );
 }

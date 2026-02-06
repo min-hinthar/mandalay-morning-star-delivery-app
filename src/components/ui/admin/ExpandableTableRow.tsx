@@ -15,7 +15,7 @@
 
 import { useState, useCallback, type ReactNode, type MouseEvent } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   ChevronRight,
   MapPin,
@@ -91,14 +91,14 @@ export function ExpandableTableRow({
         {children}
         {/* V6 Expand indicator */}
         <TableCell className="w-8 pr-4">
-          <motion.div
+          <m.div
             initial={false}
             animate={{ rotate: isExpanded ? 90 : 0 }}
             transition={spring.default}
             className="text-text-muted group-hover:text-primary"
           >
             <ChevronRight className="h-4 w-4" />
-          </motion.div>
+          </m.div>
         </TableCell>
       </TableRow>
 
@@ -107,7 +107,7 @@ export function ExpandableTableRow({
         <tr>
           <td colSpan={colSpan + 1} className="p-0 border-b border-border">
             <AnimatePresence initial={false}>
-              <motion.div
+              <m.div
                 key="expanded-content"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
@@ -127,7 +127,7 @@ export function ExpandableTableRow({
                     {previewContent}
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             </AnimatePresence>
           </td>
         </tr>
@@ -164,7 +164,7 @@ export function QuickPreviewPanel({
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* V6 Items Section */}
       {items && items.length > 0 && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -178,7 +178,7 @@ export function QuickPreviewPanel({
           </div>
           <ul className="space-y-1.5">
             {items.slice(0, 4).map((item, i) => (
-              <motion.li
+              <m.li
                 key={`${item.name}-${i}`}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -196,7 +196,7 @@ export function QuickPreviewPanel({
                     ${(item.price / 100).toFixed(2)}
                   </span>
                 )}
-              </motion.li>
+              </m.li>
             ))}
             {items.length > 4 && (
               <li className="text-xs font-body text-text-muted italic">
@@ -204,12 +204,12 @@ export function QuickPreviewPanel({
               </li>
             )}
           </ul>
-        </motion.div>
+        </m.div>
       )}
 
       {/* V6 Address Section */}
       {address && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
@@ -224,12 +224,12 @@ export function QuickPreviewPanel({
           <p className="text-sm font-body text-text-primary leading-relaxed">
             {address}
           </p>
-        </motion.div>
+        </m.div>
       )}
 
       {/* V6 Notes Section */}
       {notes && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -244,14 +244,14 @@ export function QuickPreviewPanel({
           <p className="text-sm font-body text-text-primary leading-relaxed italic bg-surface-tertiary/50 rounded-input px-3 py-2 border-l-2 border-primary/30">
             &ldquo;{notes}&rdquo;
           </p>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Additional sections */}
       {children}
 
       {/* V6 View Full Details Link */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25 }}
@@ -270,7 +270,7 @@ export function QuickPreviewPanel({
           View Full Details
           <ExternalLink className="h-3.5 w-3.5 transition-transform group-hover/link:translate-x-0.5" />
         </Link>
-      </motion.div>
+      </m.div>
     </div>
   );
 }
@@ -335,7 +335,7 @@ export function RoutePreviewPanel({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* V6 Stops Summary */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -349,7 +349,7 @@ export function RoutePreviewPanel({
         </div>
         <ul className="space-y-2">
           {stops.slice(0, 3).map((stop, i) => (
-            <motion.li
+            <m.li
               key={`${stop.address}-${i}`}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
@@ -365,7 +365,7 @@ export function RoutePreviewPanel({
                   {stop.address}
                 </p>
               </div>
-            </motion.li>
+            </m.li>
           ))}
           {stops.length > 3 && (
             <li className="text-xs font-body text-text-muted italic pl-8">
@@ -373,12 +373,12 @@ export function RoutePreviewPanel({
             </li>
           )}
         </ul>
-      </motion.div>
+      </m.div>
 
       {/* V6 Duration & Action */}
       <div className="flex flex-col justify-between">
         {estimatedDuration && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
@@ -388,10 +388,10 @@ export function RoutePreviewPanel({
             <span className="font-medium text-text-primary">
               {estimatedDuration}
             </span>
-          </motion.div>
+          </m.div>
         )}
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -410,7 +410,7 @@ export function RoutePreviewPanel({
             View Route Details
             <ExternalLink className="h-3.5 w-3.5 transition-transform group-hover/link:translate-x-0.5" />
           </Link>
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );
@@ -442,7 +442,7 @@ export function DriverPreviewPanel({
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* V6 Contact Info */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -455,11 +455,11 @@ export function DriverPreviewPanel({
           <p className="text-text-primary">{email}</p>
           {phone && <p className="text-text-secondary">{phone}</p>}
         </div>
-      </motion.div>
+      </m.div>
 
       {/* V6 Vehicle Info */}
       {vehicleInfo && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
@@ -476,11 +476,11 @@ export function DriverPreviewPanel({
               </p>
             )}
           </div>
-        </motion.div>
+        </m.div>
       )}
 
       {/* V6 Stats */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -505,10 +505,10 @@ export function DriverPreviewPanel({
             </div>
           )}
         </div>
-      </motion.div>
+      </m.div>
 
       {/* V6 View Details */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25 }}
@@ -527,7 +527,7 @@ export function DriverPreviewPanel({
           View Driver Profile
           <ExternalLink className="h-3.5 w-3.5 transition-transform group-hover/link:translate-x-0.5" />
         </Link>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

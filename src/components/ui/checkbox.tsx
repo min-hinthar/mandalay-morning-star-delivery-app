@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -44,7 +44,7 @@ const Checkbox = React.forwardRef<
       {...props}
     >
       <CheckboxPrimitive.Indicator asChild>
-        <motion.span
+        <m.span
           className="flex items-center justify-center text-text-inverse"
           initial={shouldAnimate ? { scale: 0.5 } : undefined}
           animate={shouldAnimate ? { scale: 1 } : undefined}
@@ -61,7 +61,7 @@ const Checkbox = React.forwardRef<
           >
             <AnimatePresence>
               {isChecked && (
-                <motion.path
+                <m.path
                   d="M2.5 6L5 8.5L9.5 3.5"
                   stroke="currentColor"
                   strokeWidth="2"
@@ -75,7 +75,7 @@ const Checkbox = React.forwardRef<
               )}
             </AnimatePresence>
           </svg>
-        </motion.span>
+        </m.span>
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );

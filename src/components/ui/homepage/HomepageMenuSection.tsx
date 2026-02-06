@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, ArrowRight } from "lucide-react";
 import { ItemDetailSheet } from "@/components/ui/menu";
 import { FeaturedSections } from "@/components/ui/homepage/FeaturedSections";
@@ -105,32 +105,32 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
     <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-surface-primary via-surface-secondary/30 to-surface-primary isolate" id="menu">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <motion.div
+        <m.div
           variants={staggerContainer()}
           initial={shouldAnimate ? "hidden" : undefined}
           whileInView={shouldAnimate ? "visible" : undefined}
           viewport={{ once: true, margin: "-80px" }}
           className="text-center mb-12"
         >
-          <motion.div
+          <m.div
             variants={staggerItem}
             className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-pill mb-4"
           >
             <UtensilsCrossed className="w-4 h-4 text-secondary" />
             <span className="text-sm font-body font-medium text-secondary-hover">Our Menu</span>
-          </motion.div>
+          </m.div>
 
-          <motion.h2
+          <m.h2
             variants={staggerItem}
             className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4"
           >
             Authentic Burmese Cuisine
-          </motion.h2>
+          </m.h2>
 
-          <motion.p variants={staggerItem} className="font-body text-text-secondary max-w-2xl mx-auto">
+          <m.p variants={staggerItem} className="font-body text-text-secondary max-w-2xl mx-auto">
             Handcrafted dishes from traditional Burmese recipes, prepared fresh for Saturday delivery.
-          </motion.p>
-        </motion.div>
+          </m.p>
+        </m.div>
 
         {/* Dynamic Featured Sections */}
         {featuredSections.length > 0 ? (
@@ -141,7 +141,7 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
             onFavoriteToggle={handleFavoriteToggle}
           />
         ) : (
-          <motion.div
+          <m.div
             initial={shouldAnimate ? { opacity: 0 } : undefined}
             whileInView={shouldAnimate ? { opacity: 1 } : undefined}
             viewport={{ once: true }}
@@ -154,11 +154,11 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
             <p className="text-sm font-body text-text-muted">
               Check back later for our featured dishes.
             </p>
-          </motion.div>
+          </m.div>
         )}
 
         {/* See Full Menu CTA */}
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
           whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           viewport={{ once: true, margin: "-50px" }}
@@ -172,7 +172,7 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
             See Full Menu
             <ArrowRight className="w-5 h-5" />
           </Link>
-        </motion.div>
+        </m.div>
 
         {/* Item Detail Sheet */}
         <ItemDetailSheet
@@ -183,7 +183,7 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
         />
 
         {/* Footer CTA */}
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
           whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           viewport={{ once: true, margin: "-80px" }}
@@ -196,7 +196,7 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
               <strong className="text-green">Free delivery</strong> on orders over $100!
             </span>
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

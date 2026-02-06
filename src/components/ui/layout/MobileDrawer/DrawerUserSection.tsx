@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -24,7 +24,7 @@ export function DrawerUserSection({ user, onClose }: DrawerUserSectionProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       className="px-4 py-4"
       initial={shouldAnimate ? { opacity: 0, y: -10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
@@ -34,7 +34,7 @@ export function DrawerUserSection({ user, onClose }: DrawerUserSectionProps) {
         <div className="flex items-center gap-3">
           {/* Avatar with status dot */}
           <div className="relative">
-            <motion.div
+            <m.div
               className={cn(
                 "w-12 h-12 rounded-xl overflow-hidden",
                 "bg-gradient-avatar",
@@ -59,7 +59,7 @@ export function DrawerUserSection({ user, onClose }: DrawerUserSectionProps) {
               <span className={cn("text-lg font-bold", user.avatar && "hidden")}>
                 {user.name?.charAt(0).toUpperCase() || "U"}
               </span>
-            </motion.div>
+            </m.div>
 
             {/* Online status dot */}
             <span
@@ -96,7 +96,7 @@ export function DrawerUserSection({ user, onClose }: DrawerUserSectionProps) {
           Sign In
         </Link>
       )}
-    </motion.div>
+    </m.div>
   );
 }
 

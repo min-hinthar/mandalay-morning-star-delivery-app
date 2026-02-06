@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useMemo, forwardRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -89,7 +89,7 @@ function AnimatedDigit({ digit, prevDigit, direction, shouldAnimate }: DigitProp
   return (
     <span className="relative inline-block overflow-hidden">
       <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span
+        <m.span
           key={digit}
           className="inline-block"
           initial={{ y: yOffset, opacity: 0 }}
@@ -98,7 +98,7 @@ function AnimatedDigit({ digit, prevDigit, direction, shouldAnimate }: DigitProp
           transition={springConfig}
         >
           {digit}
-        </motion.span>
+        </m.span>
       </AnimatePresence>
     </span>
   );
@@ -183,7 +183,7 @@ export const PriceTicker = forwardRef<HTMLSpanElement, PriceTickerProps>(
       const isUp = actualValue > prevValueRef.current;
 
       return (
-        <motion.span
+        <m.span
           className="ml-1 inline-flex items-center"
           initial={{ opacity: 0, scale: 0.5, y: isUp ? 5 : -5 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -200,7 +200,7 @@ export const PriceTicker = forwardRef<HTMLSpanElement, PriceTickerProps>(
           >
             <path d="M12 4l-8 8h5v8h6v-8h5z" />
           </svg>
-        </motion.span>
+        </m.span>
       );
     };
 
@@ -298,14 +298,14 @@ export function PriceChangeBadge({
             {original.toFixed(2)}
           </span>
 
-          <motion.span
+          <m.span
             className="px-1.5 py-0.5 rounded-md bg-green/10 text-green text-xs font-semibold"
             initial={shouldAnimate ? { scale: 0, opacity: 0 } : undefined}
             animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
             transition={getSpring(spring.ultraBouncy)}
           >
             -{discount}%
-          </motion.span>
+          </m.span>
         </span>
       )}
     </span>

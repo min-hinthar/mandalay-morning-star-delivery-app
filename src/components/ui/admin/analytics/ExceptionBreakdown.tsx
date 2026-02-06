@@ -7,7 +7,7 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import {
   AlertTriangle,
@@ -90,28 +90,28 @@ export function ExceptionBreakdown({
 
   if (total === 0) {
     return (
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col items-center justify-center rounded-xl bg-surface-primary p-6 shadow-sm"
         style={{ minHeight: height }}
       >
-        <motion.div
+        <m.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", delay: 0.2 }}
           className="rounded-full bg-status-success-bg p-4"
         >
           <AlertTriangle className="h-8 w-8 text-status-success" />
-        </motion.div>
+        </m.div>
         <p className="mt-4 font-medium text-text-primary">No Exceptions</p>
         <p className="text-sm text-text-secondary">All deliveries completed successfully</p>
-      </motion.div>
+      </m.div>
     );
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="rounded-xl bg-surface-primary p-6 shadow-sm"
@@ -162,7 +162,7 @@ export function ExceptionBreakdown({
           />
         </PieChart>
       </ResponsiveContainer>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -179,7 +179,7 @@ export function RecentExceptionsList({
   const displayExceptions = exceptions.slice(0, limit);
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="rounded-xl bg-surface-primary p-6 shadow-sm"
@@ -194,7 +194,7 @@ export function RecentExceptionsList({
       {displayExceptions.length === 0 ? (
         <p className="text-sm text-text-secondary">No recent exceptions</p>
       ) : (
-        <motion.div
+        <m.div
           initial="hidden"
           animate="visible"
           variants={{
@@ -209,9 +209,9 @@ export function RecentExceptionsList({
           {displayExceptions.map((exception) => (
             <ExceptionRow key={exception.id} exception={exception} />
           ))}
-        </motion.div>
+        </m.div>
       )}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -220,7 +220,7 @@ function ExceptionRow({ exception }: { exception: RecentException }) {
   const Icon = config.icon;
 
   return (
-    <motion.div
+    <m.div
       variants={{
         hidden: { opacity: 0, x: -20 },
         visible: { opacity: 1, x: 0 },
@@ -256,7 +256,7 @@ function ExceptionRow({ exception }: { exception: RecentException }) {
       <p className="shrink-0 text-xs text-text-muted">
         {formatDistanceToNow(parseISO(exception.createdAt), { addSuffix: true })}
       </p>
-    </motion.div>
+    </m.div>
   );
 }
 

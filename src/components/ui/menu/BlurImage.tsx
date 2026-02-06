@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import Image, { type ImageProps } from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { getPlaceholderBlur, getImageProps } from "@/lib/utils/image-optimization";
 import { spring, duration } from "@/lib/motion-tokens";
@@ -91,7 +91,7 @@ export function BlurImage({
       {/* Shimmer loading effect */}
       <AnimatePresence>
         {showShimmer && !isLoaded && shouldAnimate && (
-          <motion.div
+          <m.div
             className={cn(
               "absolute inset-0 z-10",
               "bg-gradient-to-r from-transparent via-white/20 to-transparent",
@@ -115,7 +115,7 @@ export function BlurImage({
       )}
 
       {/* Actual image */}
-      <motion.div
+      <m.div
         className="relative w-full h-full"
         initial={shouldAnimate ? { opacity: 0, scale: 1.05 } : undefined}
         animate={
@@ -137,7 +137,7 @@ export function BlurImage({
           onError={handleError}
           {...props}
         />
-      </motion.div>
+      </m.div>
     </div>
   );
 }

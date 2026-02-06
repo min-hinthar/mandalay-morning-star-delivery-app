@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, ChevronLeft, ChevronRight, Sun, Moon, Sunrise, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer } from "@/lib/motion-tokens";
@@ -57,7 +57,7 @@ function DatePill({ date, isSelected, onSelect, index, weekOffset }: DatePillPro
   const isTomorrow = tomorrowStr === dateStr;
 
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={onSelect}
       disabled={date.cutoffPassed}
@@ -88,7 +88,7 @@ function DatePill({ date, isSelected, onSelect, index, weekOffset }: DatePillPro
       </span>
 
       {/* Day number */}
-      <motion.span
+      <m.span
         className="text-2xl font-bold"
         animate={isSelected && shouldAnimate ? {
           scale: [1, 1.1, 1],
@@ -96,7 +96,7 @@ function DatePill({ date, isSelected, onSelect, index, weekOffset }: DatePillPro
         transition={getSpring(spring.ultraBouncy)}
       >
         {dayNum}
-      </motion.span>
+      </m.span>
 
       {/* Month */}
       <span className={cn(
@@ -108,14 +108,14 @@ function DatePill({ date, isSelected, onSelect, index, weekOffset }: DatePillPro
 
       {/* Selected indicator */}
       {isSelected && (
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { scale: 0 } : undefined}
           animate={shouldAnimate ? { scale: 1 } : undefined}
           transition={getSpring(spring.ultraBouncy)}
           className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-surface-primary flex items-center justify-center"
         >
           <Check className="w-3 h-3 text-primary" />
-        </motion.div>
+        </m.div>
       )}
 
       {/* Week offset badge */}
@@ -124,7 +124,7 @@ function DatePill({ date, isSelected, onSelect, index, weekOffset }: DatePillPro
           {weekOffset === 1 ? "Next Week" : `In ${weekOffset} Weeks`}
         </span>
       )}
-    </motion.button>
+    </m.button>
   );
 }
 
@@ -154,7 +154,7 @@ function TimeSlotPill({
   const TimeIcon = hour < 12 ? Sunrise : hour < 17 ? Sun : Moon;
 
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={onSelect}
       disabled={isDisabled}
@@ -177,7 +177,7 @@ function TimeSlotPill({
     >
       {/* Time icon - overflow-hidden prevents scale animation from overflowing */}
       <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
-        <motion.div
+        <m.div
           animate={isSelected && shouldAnimate ? {
             rotate: [0, -10, 10, 0],
             scale: [1, 1.15, 1],
@@ -194,7 +194,7 @@ function TimeSlotPill({
           )}
         >
           <TimeIcon className="w-5 h-5" />
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Time label */}
@@ -211,7 +211,7 @@ function TimeSlotPill({
       </div>
 
       {/* Selection indicator */}
-      <motion.div
+      <m.div
         className={cn(
           "w-6 h-6 rounded-full border-2 flex items-center justify-center",
           isSelected
@@ -221,18 +221,18 @@ function TimeSlotPill({
       >
         <AnimatePresence>
           {isSelected && (
-            <motion.div
+            <m.div
               initial={shouldAnimate ? { scale: 0 } : undefined}
               animate={shouldAnimate ? { scale: 1 } : undefined}
               exit={shouldAnimate ? { scale: 0 } : undefined}
               transition={getSpring(spring.ultraBouncy)}
             >
               <Check className="w-4 h-4 text-text-inverse" />
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
-      </motion.div>
-    </motion.button>
+      </m.div>
+    </m.button>
   );
 }
 
@@ -344,7 +344,7 @@ export function TimeSlotPicker({
           {/* Scroll buttons */}
           <AnimatePresence>
             {canScrollLeft && (
-              <motion.button
+              <m.button
                 type="button"
                 initial={shouldAnimate ? { opacity: 0, x: 10 } : undefined}
                 animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
@@ -362,13 +362,13 @@ export function TimeSlotPicker({
                 )}
               >
                 <ChevronLeft className="w-5 h-5" />
-              </motion.button>
+              </m.button>
             )}
           </AnimatePresence>
 
           <AnimatePresence>
             {canScrollRight && (
-              <motion.button
+              <m.button
                 type="button"
                 initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
                 animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
@@ -386,7 +386,7 @@ export function TimeSlotPicker({
                 )}
               >
                 <ChevronRight className="w-5 h-5" />
-              </motion.button>
+              </m.button>
             )}
           </AnimatePresence>
 
@@ -416,7 +416,7 @@ export function TimeSlotPicker({
       {/* Time slot selector */}
       <AnimatePresence>
         {selectedDate && (
-          <motion.div
+          <m.div
             initial={shouldAnimate ? { opacity: 0, height: 0 } : undefined}
             animate={shouldAnimate ? { opacity: 1, height: "auto" } : undefined}
             exit={shouldAnimate ? { opacity: 0, height: 0 } : undefined}
@@ -428,7 +428,7 @@ export function TimeSlotPicker({
               <h3 className="font-semibold text-text-primary">Select Time</h3>
             </div>
 
-            <motion.div
+            <m.div
               variants={shouldAnimate ? staggerContainer(0.04, 0.1) : undefined}
               initial="hidden"
               animate="visible"
@@ -450,20 +450,20 @@ export function TimeSlotPicker({
                   />
                 );
               })}
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Empty state */}
       {!selectedDate && (
-        <motion.p
+        <m.p
           initial={shouldAnimate ? { opacity: 0 } : undefined}
           animate={shouldAnimate ? { opacity: 1 } : undefined}
           className="text-center text-text-muted py-4"
         >
           Select a delivery date to see available time slots
-        </motion.p>
+        </m.p>
       )}
     </div>
   );

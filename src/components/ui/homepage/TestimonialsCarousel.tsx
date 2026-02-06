@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -76,7 +76,7 @@ function StarRating({ rating }: StarRatingProps) {
   return (
     <div className="flex gap-1">
       {[...Array(5)].map((_, index) => (
-        <motion.div
+        <m.div
           key={index}
           initial={shouldAnimate ? { scale: 0, rotate: -30 } : undefined}
           animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
@@ -93,7 +93,7 @@ function StarRating({ rating }: StarRatingProps) {
               index < rating ? "fill-secondary text-secondary" : "fill-border text-border"
             )}
           />
-        </motion.div>
+        </m.div>
       ))}
     </div>
   );
@@ -222,23 +222,23 @@ export function TestimonialsCarousel({
     >
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <motion.div variants={itemVariants} className="text-center mb-12">
-          <motion.span
+        <m.div variants={itemVariants} className="text-center mb-12">
+          <m.span
             className="inline-block px-4 py-2 bg-secondary/10 rounded-pill text-sm font-body font-medium text-secondary-hover mb-4"
             variants={itemVariants}
           >
             Testimonials
-          </motion.span>
+          </m.span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">
             What Our Customers Say
           </h2>
           <p className="font-body text-text-secondary max-w-xl mx-auto">
             Join hundreds of satisfied customers enjoying authentic Burmese cuisine
           </p>
-        </motion.div>
+        </m.div>
 
         {/* Carousel */}
-        <motion.div
+        <m.div
           variants={itemVariants}
           className="relative bg-surface-primary rounded-card p-8 md:p-12 shadow-card border border-border"
           onMouseEnter={handlePause}
@@ -247,7 +247,7 @@ export function TestimonialsCarousel({
           onBlur={handleResume}
         >
           <AnimatePresence mode="wait">
-            <motion.div
+            <m.div
               key={currentIndex}
               initial={shouldAnimate ? { opacity: 0, x: 20 } : undefined}
               animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
@@ -255,7 +255,7 @@ export function TestimonialsCarousel({
               transition={{ duration: 0.3 }}
             >
               <TestimonialCard testimonial={testimonials[currentIndex]} />
-            </motion.div>
+            </m.div>
           </AnimatePresence>
 
           {/* Dot navigation */}
@@ -271,15 +271,15 @@ export function TestimonialsCarousel({
 
           {/* Pause indicator (subtle) */}
           {isPaused && shouldAnimate && !isReduced && (
-            <motion.div
+            <m.div
               className="absolute top-4 right-4 text-xs font-body text-text-muted"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Paused
-            </motion.div>
+            </m.div>
           )}
-        </motion.div>
+        </m.div>
       </div>
     </AnimatedSection>
   );

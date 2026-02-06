@@ -20,7 +20,7 @@ import React, {
   cloneElement,
   isValidElement,
 } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { zIndex } from "@/lib/design-system/tokens/z-index";
 import { overlayMotion } from "@/lib/design-system/tokens/motion";
 import { cn } from "@/lib/utils/cn";
@@ -192,7 +192,7 @@ export function TooltipContent({
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.span
+        <m.span
           role="tooltip"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -210,7 +210,7 @@ export function TooltipContent({
           style={positionStyle}
         >
           {children}
-        </motion.span>
+        </m.span>
       )}
     </AnimatePresence>
   );

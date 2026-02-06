@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { m, type Variants } from "framer-motion";
 import { Heart, Phone, Mail, MapPin, Clock, Instagram, Facebook } from "lucide-react";
 import { spring, easing, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -53,7 +53,7 @@ export function FooterCTA() {
         {/* Decorative overlay */}
         <div className="absolute inset-0 bg-overlay/20" />
         <div className="relative max-w-4xl mx-auto text-center">
-          <motion.div
+          <m.div
             variants={ctaContainerVariants}
             initial={shouldAnimate ? "hidden" : false}
             whileInView="visible"
@@ -61,39 +61,39 @@ export function FooterCTA() {
             className="space-y-6"
           >
             {/* Badge */}
-            <motion.div
+            <m.div
               variants={staggerItem}
               // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
               className="inline-flex items-center gap-2 px-4 py-2 bg-overlay-light sm:backdrop-blur-sm rounded-pill"
             >
               <Heart className="w-4 h-4 text-text-inverse" />
               <span className="text-sm font-body font-medium text-text-inverse">Made with Love in Covina</span>
-            </motion.div>
+            </m.div>
 
             {/* Headline */}
-            <motion.h2
+            <m.h2
               variants={staggerItem}
               className="font-display text-3xl md:text-4xl lg:text-5xl text-text-inverse font-bold"
             >
               Ready to Taste{" "}
               <span className="text-secondary">Authentic Burma?</span>
-            </motion.h2>
+            </m.h2>
 
             {/* Subtext */}
-            <motion.p
+            <m.p
               variants={staggerItem}
               className="text-lg font-body text-text-inverse/90 max-w-2xl mx-auto"
             >
               Order by Friday 3pm and we&apos;ll deliver fresh, homemade Burmese dishes
               straight to your door on Saturday.
-            </motion.p>
+            </m.p>
 
             {/* Buttons */}
-            <motion.div
+            <m.div
               variants={staggerItem}
               className="flex flex-col sm:flex-row gap-4 justify-center pt-4"
             >
-              <motion.a
+              <m.a
                 href="#menu"
                 whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
                 whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
@@ -101,9 +101,9 @@ export function FooterCTA() {
                 className="px-8 py-4 bg-surface-primary text-primary font-body font-semibold rounded-pill shadow-md hover:shadow-lg transition-shadow duration-fast"
               >
                 Order Now
-              </motion.a>
+              </m.a>
 
-              <motion.a
+              <m.a
                 href="tel:+16261234567"
                 whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
                 whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
@@ -112,9 +112,9 @@ export function FooterCTA() {
               >
                 <Phone className="w-5 h-5" />
                 Call Us
-              </motion.a>
-            </motion.div>
-          </motion.div>
+              </m.a>
+            </m.div>
+          </m.div>
         </div>
       </section>
 
@@ -123,7 +123,7 @@ export function FooterCTA() {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-3 gap-8 text-footer-text">
             {/* Contact Info - Column 0 */}
-            <motion.div
+            <m.div
               custom={0}
               variants={columnVariants}
               initial={shouldAnimate ? "hidden" : false}
@@ -156,10 +156,10 @@ export function FooterCTA() {
                   <span className="text-sm font-body">hello@mandalaymorningstar.com</span>
                 </a>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Hours - Column 1 */}
-            <motion.div
+            <m.div
               custom={1}
               variants={columnVariants}
               initial={shouldAnimate ? "hidden" : false}
@@ -181,10 +181,10 @@ export function FooterCTA() {
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Social - Column 2 */}
-            <motion.div
+            <m.div
               custom={2}
               variants={columnVariants}
               initial={shouldAnimate ? "hidden" : false}
@@ -193,7 +193,7 @@ export function FooterCTA() {
             >
               <h3 className="font-display text-xl text-footer-text font-semibold mb-4">Follow Us</h3>
               <div className="flex gap-4">
-                <motion.a
+                <m.a
                   href="https://instagram.com"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -203,8 +203,8 @@ export function FooterCTA() {
                   className="p-3 bg-footer-text/10 rounded-full hover:bg-secondary/20 transition-colors duration-fast"
                 >
                   <Instagram className="w-6 h-6" />
-                </motion.a>
-                <motion.a
+                </m.a>
+                <m.a
                   href="https://facebook.com"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -214,16 +214,16 @@ export function FooterCTA() {
                   className="p-3 bg-footer-text/10 rounded-full hover:bg-secondary/20 transition-colors duration-fast"
                 >
                   <Facebook className="w-6 h-6" />
-                </motion.a>
+                </m.a>
               </div>
               <p className="mt-4 text-sm font-body text-footer-text-muted">
                 Share your dishes with #MandalayMorningStar
               </p>
-            </motion.div>
+            </m.div>
           </div>
 
           {/* Copyright - fades in last */}
-          <motion.div
+          <m.div
             variants={copyrightVariants}
             initial={shouldAnimate ? "hidden" : false}
             whileInView="visible"
@@ -236,7 +236,7 @@ export function FooterCTA() {
             <p className="text-xs font-body text-footer-text-muted mt-2">
               Authentic Burmese Cuisine • Southern California
             </p>
-          </motion.div>
+          </m.div>
         </div>
       </section>
     </footer>

@@ -13,7 +13,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ShoppingBag } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useCartAnimationStore } from "@/lib/stores/cart-animation-store";
@@ -106,7 +106,7 @@ export function CartIndicator({ className }: CartIndicatorProps) {
 
       <AnimatePresence mode="wait">
         {itemCount > 0 && (
-          <motion.span
+          <m.span
             ref={badgeRef}
             key={`badge-${itemCount}`}
             variants={badgeVariants}
@@ -122,7 +122,7 @@ export function CartIndicator({ className }: CartIndicatorProps) {
             )}
           >
             {itemCount > 99 ? "99+" : itemCount}
-          </motion.span>
+          </m.span>
         )}
       </AnimatePresence>
     </button>

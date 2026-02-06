@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
@@ -30,7 +30,7 @@ export function ChartErrorCard({
   className,
 }: ChartErrorCardProps) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -55,6 +55,6 @@ export function ChartErrorCard({
           Unable to load. Please refresh the page.
         </p>
       )}
-    </motion.div>
+    </m.div>
   );
 }
