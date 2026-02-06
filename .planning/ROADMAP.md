@@ -22,7 +22,14 @@
   - [x] 40-01-PLAN.md - Baseline measurement and LCP identification
   - [x] 40-02-PLAN.md - CardImage conversion to Next.js Image
   - [x] 40-03-PLAN.md - Final measurement and verification
-- [ ] Phase 41: Server Component Conversions (target: 4-5s to 3-3.5s)
+- [ ] Phase 41: Server Component Conversions (target: 4-5s to 3-3.5s) - **7 plans**
+  - [ ] 41-01-PLAN.md — Loading/error infrastructure + hydration test setup
+  - [ ] 41-02-PLAN.md — Full 'use client' audit (275 files)
+  - [ ] 41-03-PLAN.md — Analytics page loading/error files
+  - [ ] 41-04-PLAN.md — Menu page server component conversion
+  - [ ] 41-05-PLAN.md — Home page server component conversion
+  - [ ] 41-06-PLAN.md — Order tracking page optimization
+  - [ ] 41-07-PLAN.md — Final hydration health check + results
 - [ ] Phase 42: Dynamic Import Heavy Libraries (target: 3-3.5s to 2.5s)
 - [ ] Phase 43: Provider & Route Layout Refactoring (refinement to <2.5s)
 - [ ] Phase 44: Animation Optimization & Monitoring (lock in <2.5s)
@@ -92,10 +99,10 @@ See MILESTONES.md for details.
 | v1.2 Playful UI | 15-24 | 29 | Complete | 2026-01-27 |
 | v1.3 Consolidation | 25-34 | 53 | Complete | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | Complete | 2026-02-05 |
-| **v1.5 Performance** | 40-46 | 3+ | Active | - |
+| **v1.5 Performance** | 40-46 | 10+ | Active | - |
 
 **Total shipped:** 40 phases, 178 plans
 
 ---
 
-*Updated: 2026-02-06 - Phase 40 complete (3/3 plans, 43-46% LCP reduction)*
+*Updated: 2026-02-05 - Phase 41 planned (7 plans in 3 waves)*
