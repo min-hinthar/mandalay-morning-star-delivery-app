@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 
 ## Current Position
 
-Phase: 41 of 46 (Server Component Conversions)
-Plan: 7 of 7 complete
-Status: Phase complete
-Last activity: 2026-02-06 — Completed 41-07 (hydration health check + audit update)
+Phase: 42 of 46 (Dynamic Import Heavy Libraries)
+Plan: 1 of 3 complete
+Status: In progress
+Last activity: 2026-02-06 — Completed 42-01 (shared infrastructure: hooks, skeletons, error cards)
 
-Progress: [############                                                      ] v1.5 12/52 (23%)
+Progress: [#############                                                     ] v1.5 13/52 (25%)
 
 ## Milestones
 
@@ -27,7 +27,7 @@ Progress: [############                                                      ] v
 | v1.4 Mobile Excellence | 35-39 | 39 | 2026-02-05 |
 | **v1.5 Performance & Repo Health** | 40-46 | 52 | In Progress |
 
-**Total completed:** 41 phases, 185 plans, 214 requirements
+**Total completed:** 41 phases, 186 plans, 214 requirements
 
 ## Accumulated Context
 
@@ -49,6 +49,8 @@ Progress: [############                                                      ] v
 | HomePageWrapper pattern | Minimal client wrapper for scroll spy; section composition at server level |
 | 282 'use client' files is optimal | +7 from baseline due to error boundaries; no further reduction recommended |
 | Phase 42+ focus: LCP/TBT | Not 'use client' reduction; still 9-11s LCP, 2-3s TBT |
+| importWithRetry is pure async, not a hook | Used inside next/dynamic factory; hooks not callable there |
+| Error cards co-located per domain | ChartErrorCard in analytics/, MapErrorCard in maps/ for clean ownership |
 
 ### Key Decisions (v1.4)
 
@@ -75,10 +77,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Phase 41 complete, verified (13/13 must-haves)
+Stopped at: Completed 42-01-PLAN.md (shared infrastructure)
 Resume file: None
-Next action: Plan Phase 42 (Dynamic Import Heavy Libraries)
+Next action: Execute 42-02-PLAN.md (chart dynamic imports)
 
 ---
 
-*Updated: 2026-02-06 — Phase 41 complete: 7/7 plans, 13/13 must-haves verified*
+*Updated: 2026-02-06 — Phase 42 plan 01 complete: 3/3 tasks, 7 files created*
