@@ -2,42 +2,142 @@
 
 /**
  * Lazy-loaded chart components for admin analytics dashboards.
- * Uses next/dynamic to code-split recharts bundle from initial load.
+ * Uses next/dynamic with importWithRetry for resilient code-splitting.
+ * Each chart shows a rich ChartSkeleton with per-chart labels,
+ * wrapped in LoadingWithTimeout (10s) for timeout messaging.
  */
 
 import dynamic from "next/dynamic";
+import { ChartSkeleton } from "./ChartSkeleton";
+import { LoadingWithTimeout } from "@/components/ui/LoadingWithTimeout";
+import { importWithRetry } from "@/lib/hooks/useDynamicImportWithRetry";
 
-// Chart loading skeleton
-const ChartSkeleton = () => (
-  <div className="h-80 w-full animate-pulse rounded-xl bg-charcoal-100" />
-);
+// --- Lazy-loaded chart components ---
 
-const GaugeSkeleton = () => (
-  <div className="h-72 w-full animate-pulse rounded-xl bg-charcoal-100" />
-);
-
-// Lazy-loaded chart components
 export const LazyDeliverySuccessChart = dynamic(
-  () => import("./DeliverySuccessChart").then((mod) => mod.DeliverySuccessChart),
-  { loading: () => <ChartSkeleton />, ssr: false }
+  () =>
+    importWithRetry(
+      () =>
+        import("./DeliverySuccessChart").then(
+          (mod) => mod.DeliverySuccessChart
+        ),
+      "DeliverySuccessChart"
+    ),
+  {
+    loading: () => (
+      <LoadingWithTimeout
+        skeleton={
+          <ChartSkeleton label="Loading delivery success chart..." height={300} />
+        }
+        timeoutMs={10000}
+        timeoutMessage="Charts taking longer than expected"
+      />
+    ),
+    ssr: false,
+  }
 );
 
 export const LazyETAAccuracyGauge = dynamic(
-  () => import("./DeliverySuccessChart").then((mod) => mod.ETAAccuracyGauge),
-  { loading: () => <GaugeSkeleton />, ssr: false }
+  () =>
+    importWithRetry(
+      () =>
+        import("./DeliverySuccessChart").then((mod) => mod.ETAAccuracyGauge),
+      "ETAAccuracyGauge"
+    ),
+  {
+    loading: () => (
+      <LoadingWithTimeout
+        skeleton={
+          <ChartSkeleton label="Loading ETA accuracy..." height={200} />
+        }
+        timeoutMs={10000}
+        timeoutMessage="Charts taking longer than expected"
+      />
+    ),
+    ssr: false,
+  }
 );
 
 export const LazyPeakHoursChart = dynamic(
-  () => import("./PeakHoursChart").then((mod) => mod.PeakHoursChart),
-  { loading: () => <ChartSkeleton />, ssr: false }
+  () =>
+    importWithRetry(
+      () =>
+        import("./PeakHoursChart").then((mod) => mod.PeakHoursChart),
+      "PeakHoursChart"
+    ),
+  {
+    loading: () => (
+      <LoadingWithTimeout
+        skeleton={
+          <ChartSkeleton label="Loading peak hours chart..." height={250} />
+        }
+        timeoutMs={10000}
+        timeoutMessage="Charts taking longer than expected"
+      />
+    ),
+    ssr: false,
+  }
 );
 
 export const LazyExceptionBreakdown = dynamic(
-  () => import("./ExceptionBreakdown").then((mod) => mod.ExceptionBreakdown),
-  { loading: () => <ChartSkeleton />, ssr: false }
+  () =>
+    importWithRetry(
+      () =>
+        import("./ExceptionBreakdown").then((mod) => mod.ExceptionBreakdown),
+      "ExceptionBreakdown"
+    ),
+  {
+    loading: () => (
+      <LoadingWithTimeout
+        skeleton={
+          <ChartSkeleton label="Loading exception breakdown..." height={250} />
+        }
+        timeoutMs={10000}
+        timeoutMessage="Charts taking longer than expected"
+      />
+    ),
+    ssr: false,
+  }
 );
 
 export const LazyPerformanceChart = dynamic(
-  () => import("./PerformanceChart").then((mod) => mod.PerformanceChart),
-  { loading: () => <ChartSkeleton />, ssr: false }
+  () =>
+    importWithRetry(
+      () =>
+        import("./PerformanceChart").then((mod) => mod.PerformanceChart),
+      "PerformanceChart"
+    ),
+  {
+    loading: () => (
+      <LoadingWithTimeout
+        skeleton={
+          <ChartSkeleton label="Loading performance chart..." height={300} />
+        }
+        timeoutMs={10000}
+        timeoutMessage="Charts taking longer than expected"
+      />
+    ),
+    ssr: false,
+  }
+);
+
+export const LazyRevenueChart = dynamic(
+  () =>
+    importWithRetry(
+      () =>
+        import("../RevenueChart").then((mod) => mod.RevenueChart),
+      "RevenueChart"
+    ),
+  {
+    loading: () => (
+      <LoadingWithTimeout
+        skeleton={
+          <ChartSkeleton label="Loading revenue chart..." height={300} />
+        }
+        timeoutMs={10000}
+        timeoutMessage="Charts taking longer than expected"
+      />
+    ),
+    ssr: false,
+  }
 );

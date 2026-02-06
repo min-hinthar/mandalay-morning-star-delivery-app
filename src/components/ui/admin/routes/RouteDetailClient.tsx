@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Route detail page orchestrates map, stops list, driver card, optimization modal, and status management - splitting would break data flow */
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -31,7 +32,9 @@ import {
 } from "@/components/ui/select";
 import { RouteStatsBar } from "./RouteStatsBar";
 import { StopsList } from "./StopsList";
-import { RouteMap } from "./RouteMap";
+import { LazyRouteMap } from "@/components/ui/maps/LazyMaps";
+import { useViewportTrigger } from "@/lib/hooks/useViewportTrigger";
+import { MapSkeleton } from "@/components/ui/maps/MapSkeleton";
 import { OptimizationModal, type StopSummary } from "./OptimizationModal";
 import { toast } from "@/lib/hooks/useToast";
 import type { RouteStatus, RouteStopStatus, DriverListItem, StopDetail, RouteStats } from "@/types/driver";
@@ -89,6 +92,9 @@ export function RouteDetailClient() {
 
   // Refs for scroll-to-stop functionality
   const stopRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Viewport-triggered map loading (defers ~120KB Google Maps bundle)
+  const { ref: mapRef, triggered: mapTriggered } = useViewportTrigger();
 
   // Handle map marker click - scroll to stop card
   const handleStopClick = useCallback((stopId: string) => {
@@ -520,27 +526,32 @@ export function RouteDetailClient() {
         </div>
       </motion.div>
 
-      {/* Route Map */}
+      {/* Route Map (viewport-triggered lazy load) */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
         className="h-[400px] rounded-card-sm overflow-hidden"
+        ref={mapRef}
       >
-        <RouteMap
-          stops={route.stops
-            .map((stop) => ({
-              id: stop.id,
-              stopIndex: stop.stopIndex,
-              status: stop.status,
-              lat: stop.order?.address?.lat || 0,
-              lng: stop.order?.address?.lng || 0,
-              hasException: Boolean(stop.exception && !stop.exception.resolved),
-            }))
-            .filter((s) => s.lat && s.lng)}
-          polyline={route.optimizedPolyline}
-          onStopClick={handleStopClick}
-        />
+        {mapTriggered ? (
+          <LazyRouteMap
+            stops={route.stops
+              .map((stop) => ({
+                id: stop.id,
+                stopIndex: stop.stopIndex,
+                status: stop.status,
+                lat: stop.order?.address?.lat || 0,
+                lng: stop.order?.address?.lng || 0,
+                hasException: Boolean(stop.exception && !stop.exception.resolved),
+              }))
+              .filter((s) => s.lat && s.lng)}
+            polyline={route.optimizedPolyline}
+            onStopClick={handleStopClick}
+          />
+        ) : (
+          <MapSkeleton height={400} />
+        )}
       </motion.div>
 
       {/* Stops List */}
