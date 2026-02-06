@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 42 of 46 (Dynamic Import Heavy Libraries)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-02-06 — Completed 42-01 (shared infrastructure: hooks, skeletons, error cards)
+Last activity: 2026-02-06 — Completed 42-02 (chart dynamic imports with rich skeletons)
 
-Progress: [#############                                                     ] v1.5 13/52 (25%)
+Progress: [##############                                                    ] v1.5 14/52 (27%)
 
 ## Milestones
 
@@ -51,6 +51,8 @@ Progress: [#############                                                     ] v
 | Phase 42+ focus: LCP/TBT | Not 'use client' reduction; still 9-11s LCP, 2-3s TBT |
 | importWithRetry is pure async, not a hook | Used inside next/dynamic factory; hooks not callable there |
 | Error cards co-located per domain | ChartErrorCard in analytics/, MapErrorCard in maps/ for clean ownership |
+| LazyX pattern for all chart wrappers | importWithRetry + LoadingWithTimeout + ChartSkeleton per chart |
+| Server components import client lazy wrappers directly | "use client" boundary at LazyCharts.tsx, not at page level |
 
 ### Key Decisions (v1.4)
 
@@ -77,10 +79,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 42-01-PLAN.md (shared infrastructure)
+Stopped at: Completed 42-02-PLAN.md (chart dynamic imports)
 Resume file: None
-Next action: Execute 42-02-PLAN.md (chart dynamic imports)
+Next action: Execute 42-03-PLAN.md (remaining dynamic imports)
 
 ---
 
-*Updated: 2026-02-06 — Phase 42 plan 01 complete: 3/3 tasks, 7 files created*
+*Updated: 2026-02-06 — Phase 42 plan 02 complete: 2/2 tasks, 4 files modified*
