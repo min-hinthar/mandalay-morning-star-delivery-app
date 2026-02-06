@@ -20,60 +20,18 @@ import {
   Route,
   Phone,
   Mail,
-  Car,
-  Bike,
-  Truck,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToast";
-import { spring } from "@/lib/motion-tokens";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { DriverStatsCards } from "./DriverStatsCards";
-import { RecentRoutesSection } from "./RecentRoutesSection";
-import { RecentRatingsSection } from "./RecentRatingsSection";
-import type { VehicleType } from "@/types/driver";
-
-interface DriverDetail {
-  id: string;
-  userId: string;
-  email: string;
-  fullName: string | null;
-  phone: string | null;
-  vehicleType: VehicleType | null;
-  licensePlate: string | null;
-  profileImageUrl: string | null;
-  isActive: boolean;
-  onboardingCompletedAt: string | null;
-  ratingAvg: number;
-  deliveriesCount: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-const VEHICLE_LABELS: Record<VehicleType, string> = {
-  car: "Car",
-  motorcycle: "Motorcycle",
-  bicycle: "Bicycle",
-  van: "Van",
-  truck: "Truck",
-};
-
-const VehicleIcon = ({ type }: { type: VehicleType | null }) => {
-  switch (type) {
-    case "car":
-      return <Car className="h-4 w-4" />;
-    case "motorcycle":
-    case "bicycle":
-      return <Bike className="h-4 w-4" />;
-    case "van":
-    case "truck":
-      return <Truck className="h-4 w-4" />;
-    default:
-      return <Car className="h-4 w-4 text-text-muted" />;
-  }
-};
+import { DriverStatsCards } from "../DriverStatsCards";
+import { RecentRoutesSection } from "../RecentRoutesSection";
+import { RecentRatingsSection } from "../RecentRatingsSection";
+import { EditProfileModal } from "./EditProfileModal";
+import { ArchiveConfirmModal } from "./ArchiveConfirmModal";
+import { VehicleIcon, VEHICLE_LABELS, formatDate } from "./types";
+import type { DriverDetail, EditFormState } from "./types";
 
 export function DriverDetailClient() {
   const params = useParams();
@@ -86,19 +44,16 @@ export function DriverDetailClient() {
   const [archiving, setArchiving] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Modal states
   const [showEditModal, setShowEditModal] = useState(false);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
 
-  // Edit form state
-  const [editForm, setEditForm] = useState({
+  const [editForm, setEditForm] = useState<EditFormState>({
     fullName: "",
     phone: "",
-    vehicleType: "" as VehicleType | "",
+    vehicleType: "",
     licensePlate: "",
   });
 
-  // Archive form state
   const [archiveReason, setArchiveReason] = useState("");
 
   const fetchDriver = useCallback(async () => {
@@ -217,14 +172,6 @@ export function DriverDetailClient() {
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
   if (loading) {
     return (
       <div className="p-4 md:p-8">
@@ -309,18 +256,14 @@ export function DriverDetailClient() {
         </div>
       </m.div>
 
-      {/* Stats Cards Row */}
       <DriverStatsCards driver={driver} />
 
-      {/* Two column layout on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main column (2/3) - Activity */}
         <div className="lg:col-span-2 space-y-6">
           <RecentRoutesSection driverId={driverId} />
           <RecentRatingsSection driverId={driverId} />
         </div>
 
-        {/* Side column (1/3) - Profile & Actions */}
         <div className="space-y-6">
           {/* Profile Card */}
           <m.div
@@ -428,170 +371,23 @@ export function DriverDetailClient() {
         </div>
       </div>
 
-      {/* Edit Profile Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <m.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-surface-inverse/60"
-            onClick={() => setShowEditModal(false)}
-          />
-          <m.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={spring.default}
-            className="relative bg-surface-primary rounded-card-sm border border-border p-6 w-full max-w-md shadow-xl"
-          >
-            <h2 className="text-xl font-display font-semibold text-text-primary mb-6">Edit Driver Profile</h2>
+      <EditProfileModal
+        open={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        editForm={editForm}
+        onFormChange={setEditForm}
+        onSave={handleSaveProfile}
+        saving={saving}
+      />
 
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-body font-medium text-text-secondary block mb-1.5">
-                  Full Name
-                </label>
-                <Input
-                  value={editForm.fullName}
-                  onChange={(e) => setEditForm((prev) => ({ ...prev, fullName: e.target.value }))}
-                  className="bg-surface-secondary border-border"
-                  placeholder="Enter full name"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-body font-medium text-text-secondary block mb-1.5">
-                  Phone
-                </label>
-                <Input
-                  value={editForm.phone}
-                  onChange={(e) => setEditForm((prev) => ({ ...prev, phone: e.target.value }))}
-                  className="bg-surface-secondary border-border"
-                  placeholder="Enter phone number"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-body font-medium text-text-secondary block mb-1.5">
-                  Vehicle Type
-                </label>
-                <select
-                  value={editForm.vehicleType}
-                  onChange={(e) =>
-                    setEditForm((prev) => ({ ...prev, vehicleType: e.target.value as VehicleType | "" }))
-                  }
-                  className={cn(
-                    "w-full px-3 py-2 rounded-input",
-                    "bg-surface-secondary border border-border",
-                    "font-body text-text-primary",
-                    "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  )}
-                >
-                  <option value="">Select vehicle type</option>
-                  <option value="car">Car</option>
-                  <option value="motorcycle">Motorcycle</option>
-                  <option value="bicycle">Bicycle</option>
-                  <option value="van">Van</option>
-                  <option value="truck">Truck</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-sm font-body font-medium text-text-secondary block mb-1.5">
-                  License Plate
-                </label>
-                <Input
-                  value={editForm.licensePlate}
-                  onChange={(e) => setEditForm((prev) => ({ ...prev, licensePlate: e.target.value }))}
-                  className="bg-surface-secondary border-border"
-                  placeholder="Enter license plate"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-3 mt-6">
-              <Button variant="ghost" onClick={() => setShowEditModal(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSaveProfile}
-                disabled={saving}
-                className="bg-primary hover:bg-primary-hover text-text-inverse"
-              >
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save Changes"
-                )}
-              </Button>
-            </div>
-          </m.div>
-        </div>
-      )}
-
-      {/* Archive Confirmation Modal */}
-      {showArchiveModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <m.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-surface-inverse/60"
-            onClick={() => setShowArchiveModal(false)}
-          />
-          <m.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={spring.default}
-            className="relative bg-surface-primary rounded-card-sm border border-border p-6 w-full max-w-md shadow-xl"
-          >
-            <h2 className="text-xl font-display font-semibold text-text-primary mb-2">Archive Driver</h2>
-            <p className="text-sm font-body text-text-secondary mb-6">
-              This will deactivate the driver and hide them from active lists. This action can be reversed by
-              reactivating the driver.
-            </p>
-
-            <div className="mb-6">
-              <label className="text-sm font-body font-medium text-text-secondary block mb-1.5">
-                Reason for archiving *
-              </label>
-              <textarea
-                value={archiveReason}
-                onChange={(e) => setArchiveReason(e.target.value)}
-                rows={3}
-                className={cn(
-                  "w-full px-3 py-2 rounded-input",
-                  "bg-surface-secondary border border-border",
-                  "font-body text-text-primary",
-                  "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                )}
-                placeholder="Enter reason for archiving this driver"
-              />
-            </div>
-
-            <div className="flex justify-end gap-3">
-              <Button variant="ghost" onClick={() => setShowArchiveModal(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleArchive}
-                disabled={archiving || !archiveReason.trim()}
-                className="bg-status-error hover:bg-status-error/90 text-text-inverse"
-              >
-                {archiving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Archiving...
-                  </>
-                ) : (
-                  "Archive Driver"
-                )}
-              </Button>
-            </div>
-          </m.div>
-        </div>
-      )}
+      <ArchiveConfirmModal
+        open={showArchiveModal}
+        onClose={() => setShowArchiveModal(false)}
+        archiveReason={archiveReason}
+        onReasonChange={setArchiveReason}
+        onArchive={handleArchive}
+        archiving={archiving}
+      />
     </div>
   );
 }

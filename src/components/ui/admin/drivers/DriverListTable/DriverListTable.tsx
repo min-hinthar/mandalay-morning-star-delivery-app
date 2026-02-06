@@ -1,14 +1,7 @@
-/**
- * V6 Driver List Table - Pepper Aesthetic
- *
- * Admin driver management table with V6 colors, typography, and spring animations.
- * Features desktop table view and mobile card view with expandable rows.
- */
-
 "use client";
 
 import { useState } from "react";
-import { m, AnimatePresence } from "framer-motion";
+import { m } from "framer-motion";
 import {
   ChevronDown,
   ChevronUp,
@@ -20,8 +13,6 @@ import {
   Phone,
   Mail,
   Truck,
-  Car,
-  Bike,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Badge } from "@/components/ui/badge";
@@ -46,55 +37,9 @@ import {
   DriverPreviewPanel,
   useExpandedRows,
 } from "@/components/ui/admin/ExpandableTableRow";
-import type { VehicleType } from "@/types/driver";
-
-export interface AdminDriver {
-  id: string;
-  userId: string;
-  email: string;
-  fullName: string | null;
-  phone: string | null;
-  vehicleType: VehicleType | null;
-  licensePlate: string | null;
-  isActive: boolean;
-  ratingAvg: number | null;
-  deliveriesCount: number;
-  createdAt: string;
-}
-
-interface DriverListTableProps {
-  drivers: AdminDriver[];
-  onToggleActive: (driverId: string, isActive: boolean) => Promise<void>;
-  onViewDriver: (driverId: string) => void;
-  searchQuery: string;
-}
-
-type SortField = "fullName" | "ratingAvg" | "deliveriesCount" | "createdAt";
-type SortDirection = "asc" | "desc";
-
-const VehicleIcon = ({ type }: { type: VehicleType | null }) => {
-  switch (type) {
-    case "car":
-      return <Car className="h-4 w-4" />;
-    case "motorcycle":
-      return <Bike className="h-4 w-4" />;
-    case "bicycle":
-      return <Bike className="h-4 w-4" />;
-    case "van":
-    case "truck":
-      return <Truck className="h-4 w-4" />;
-    default:
-      return <Car className="h-4 w-4 text-muted-foreground" />;
-  }
-};
-
-const VEHICLE_LABELS: Record<VehicleType, string> = {
-  car: "Car",
-  motorcycle: "Motorcycle",
-  bicycle: "Bicycle",
-  van: "Van",
-  truck: "Truck",
-};
+import { DriverMobileCard } from "./DriverMobileCard";
+import { VehicleIcon, VEHICLE_LABELS } from "./types";
+import type { DriverListTableProps, SortField, SortDirection } from "./types";
 
 export function DriverListTable({
   drivers,
@@ -116,7 +61,6 @@ export function DriverListTable({
     }
   };
 
-  // Filter drivers by search query
   const filteredDrivers = drivers.filter((driver) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
@@ -127,10 +71,8 @@ export function DriverListTable({
     );
   });
 
-  // Sort drivers
   const sortedDrivers = [...filteredDrivers].sort((a, b) => {
     let comparison = 0;
-
     switch (sortField) {
       case "fullName":
         comparison = (a.fullName || "").localeCompare(b.fullName || "");
@@ -142,11 +84,9 @@ export function DriverListTable({
         comparison = a.deliveriesCount - b.deliveriesCount;
         break;
       case "createdAt":
-        comparison =
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         break;
     }
-
     return sortDirection === "asc" ? comparison : -comparison;
   });
 
@@ -196,7 +136,6 @@ export function DriverListTable({
       animate={{ opacity: 1, y: 0 }}
       className="rounded-card-sm border border-border bg-surface-primary shadow-sm overflow-hidden"
     >
-      {/* Desktop Table View */}
       <div className="hidden md:block">
         <Table>
           <TableHeader>
@@ -230,7 +169,6 @@ export function DriverListTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {/* Note: Removed AnimatePresence - ExpandableTableRow returns Fragment which can't accept animation props */}
               {sortedDrivers.map((driver) => {
                 const isToggling = togglingDriverId === driver.id;
 
@@ -308,9 +246,7 @@ export function DriverListTable({
                           </div>
                         </div>
                       ) : (
-                        <span className="text-text-muted text-sm font-body">
-                          Not set
-                        </span>
+                        <span className="text-text-muted text-sm font-body">Not set</span>
                       )}
                     </TableCell>
                     <TableCell className="text-center">
@@ -341,7 +277,7 @@ export function DriverListTable({
                           </span>
                         </div>
                       ) : (
-                        <span className="text-text-muted text-sm font-body">—</span>
+                        <span className="text-text-muted text-sm font-body">{"\u2014"}</span>
                       )}
                     </TableCell>
                     <TableCell className="text-center">
@@ -402,122 +338,12 @@ export function DriverListTable({
         </Table>
       </div>
 
-      {/* Mobile Card View */}
-      <div className="md:hidden divide-y divide-border/50">
-        <AnimatePresence>
-          {sortedDrivers.map((driver, index) => {
-            const isToggling = togglingDriverId === driver.id;
-
-            return (
-              <m.div
-                key={driver.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ delay: index * 0.05 }}
-                className={cn(
-                  "p-4 hover:bg-primary-light/50 transition-colors duration-fast",
-                  !driver.isActive && "bg-surface-tertiary/50"
-                )}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-gradient-avatar flex items-center justify-center text-text-inverse font-display shadow-sm">
-                      {driver.fullName
-                        ? driver.fullName
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")
-                            .toUpperCase()
-                            .slice(0, 2)
-                        : "DR"}
-                    </div>
-                    <div>
-                      <p className="font-body font-medium text-text-primary">
-                        {driver.fullName || "Unnamed Driver"}
-                      </p>
-                      <p className="text-xs font-body text-text-secondary">
-                        {driver.email}
-                      </p>
-                    </div>
-                  </div>
-                  <Badge
-                    className={cn(
-                      "shrink-0",
-                      driver.isActive
-                        ? "bg-green/10 text-green border border-green/20"
-                        : "bg-surface-tertiary text-text-secondary border border-border"
-                    )}
-                    onClick={() => handleToggleActive(driver.id, driver.isActive)}
-                  >
-                    {isToggling ? "..." : driver.isActive ? "Active" : "Inactive"}
-                  </Badge>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  {driver.phone && (
-                    <div className="flex items-center gap-2 text-sm font-body text-text-secondary">
-                      <Phone className="h-4 w-4" />
-                      <span>{driver.phone}</span>
-                    </div>
-                  )}
-                  {driver.vehicleType && (
-                    <div className="flex items-center gap-2 text-sm font-body text-text-primary">
-                      <VehicleIcon type={driver.vehicleType} />
-                      <span>{VEHICLE_LABELS[driver.vehicleType]}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2 text-sm font-body">
-                    <Star className="h-4 w-4 text-primary fill-primary" />
-                    <span className="text-text-primary">
-                      {driver.ratingAvg?.toFixed(1) || "—"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-secondary-hover">
-                    <Truck className="h-4 w-4" />
-                    <span className="font-body font-medium">{driver.deliveriesCount} deliveries</span>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 border-primary/30 text-primary hover:bg-primary-light"
-                    onClick={() => onViewDriver(driver.id)}
-                  >
-                    <Eye className="mr-2 h-4 w-4" />
-                    View
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={cn(
-                      "flex-1",
-                      driver.isActive
-                        ? "border-status-error/30 text-status-error hover:bg-status-error/10"
-                        : "border-green/30 text-green hover:bg-green/10"
-                    )}
-                    onClick={() => handleToggleActive(driver.id, driver.isActive)}
-                  >
-                    {driver.isActive ? (
-                      <>
-                        <UserX className="mr-2 h-4 w-4" />
-                        Deactivate
-                      </>
-                    ) : (
-                      <>
-                        <UserCheck className="mr-2 h-4 w-4" />
-                        Activate
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </m.div>
-            );
-          })}
-        </AnimatePresence>
-      </div>
+      <DriverMobileCard
+        drivers={sortedDrivers}
+        togglingDriverId={togglingDriverId}
+        onToggleActive={handleToggleActive}
+        onViewDriver={onViewDriver}
+      />
     </m.div>
   );
 }
