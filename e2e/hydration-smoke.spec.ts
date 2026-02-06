@@ -56,7 +56,8 @@ test.describe("Authenticated Route Hydration", () => {
   test.skip("Order Tracking hydrates without errors", async ({
     page: _page,
   }) => {
-    // Placeholder for tracking page conversion
-    // Will be implemented when /tracking/:id route is converted
+    // Tracking page kept as client component in Phase 41
+    // Reason: Supabase realtime subscriptions require client boundary
+    // See: 41-06-SUMMARY.md for details
   });
 });
