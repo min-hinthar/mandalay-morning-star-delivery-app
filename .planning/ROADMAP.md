@@ -18,7 +18,10 @@
 **See full details:** `.planning/milestones/v1.5-ROADMAP.md`
 
 **Phases:**
-- [ ] Phase 40: LCP Element Quick Wins (target: 8.1s to 4-5s)
+- [ ] Phase 40: LCP Element Quick Wins (target: 8.1s to 4-5s) - **3 plans**
+  - [ ] 40-01-PLAN.md - Baseline measurement and LCP identification
+  - [ ] 40-02-PLAN.md - CardImage conversion to Next.js Image
+  - [ ] 40-03-PLAN.md - Final measurement and verification
 - [ ] Phase 41: Server Component Conversions (target: 4-5s to 3-3.5s)
 - [ ] Phase 42: Dynamic Import Heavy Libraries (target: 3-3.5s to 2.5s)
 - [ ] Phase 43: Provider & Route Layout Refactoring (refinement to <2.5s)
@@ -89,10 +92,10 @@ See MILESTONES.md for details.
 | v1.2 Playful UI | 15-24 | 29 | Complete | 2026-01-27 |
 | v1.3 Consolidation | 25-34 | 53 | Complete | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | Complete | 2026-02-05 |
-| **v1.5 Performance** | 40-46 | TBD | Active | - |
+| **v1.5 Performance** | 40-46 | 3+ | Active | - |
 
 **Total shipped:** 39 phases, 174 plans
 
 ---
 
-*Updated: 2026-02-05 - v1.5 milestone roadmap created*
+*Updated: 2026-02-05 - Phase 40 planned (3 plans in 3 waves)*
