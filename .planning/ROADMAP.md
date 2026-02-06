@@ -22,14 +22,14 @@
   - [x] 40-01-PLAN.md - Baseline measurement and LCP identification
   - [x] 40-02-PLAN.md - CardImage conversion to Next.js Image
   - [x] 40-03-PLAN.md - Final measurement and verification
-- [ ] Phase 41: Server Component Conversions (target: 4-5s to 3-3.5s) - **7 plans**
-  - [ ] 41-01-PLAN.md — Loading/error infrastructure + hydration test setup
-  - [ ] 41-02-PLAN.md — Full 'use client' audit (275 files)
-  - [ ] 41-03-PLAN.md — Analytics page loading/error files
-  - [ ] 41-04-PLAN.md — Menu page server component conversion
-  - [ ] 41-05-PLAN.md — Home page server component conversion
-  - [ ] 41-06-PLAN.md — Order tracking page optimization
-  - [ ] 41-07-PLAN.md — Final hydration health check + results
+- [x] Phase 41: Server Component Conversions (infrastructure + audit + pragmatic conversions) - **7 plans**
+  - [x] 41-01-PLAN.md — Loading/error infrastructure + hydration test setup
+  - [x] 41-02-PLAN.md — Full 'use client' audit (275 files)
+  - [x] 41-03-PLAN.md — Analytics page loading/error files
+  - [x] 41-04-PLAN.md — Menu page server component conversion
+  - [x] 41-05-PLAN.md — Home page server component conversion
+  - [x] 41-06-PLAN.md — Order tracking page optimization
+  - [x] 41-07-PLAN.md — Final hydration health check + results
 - [ ] Phase 42: Dynamic Import Heavy Libraries (target: 3-3.5s to 2.5s)
 - [ ] Phase 43: Provider & Route Layout Refactoring (refinement to <2.5s)
 - [ ] Phase 44: Animation Optimization & Monitoring (lock in <2.5s)
