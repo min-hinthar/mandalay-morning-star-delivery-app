@@ -1,31 +1,19 @@
-/**
- * V6 Admin Photos Page - Pepper Aesthetic
- *
- * Photo management page with drag-drop upload, search, and assignment.
- * Features stats cards, filter tabs, and photo grid.
- */
-
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import {
-  Search,
   RefreshCw,
-  Image as ImageIcon,
-  CheckCircle,
   AlertCircle,
-  HardDrive,
-  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { PhotoUploadZone } from "@/components/ui/admin/photos/PhotoUploadZone";
 import { PhotoGrid, type PhotoItem } from "@/components/ui/admin/photos/PhotoGrid";
 import { PhotoMetadata } from "@/components/ui/admin/photos/PhotoMetadata";
+import { PhotosStatsCards } from "./PhotosStatsCards";
+import { PhotosFilters } from "./PhotosFilters";
 
 interface PhotoStats {
   total: number;
@@ -190,7 +178,6 @@ export default function AdminPhotosPage() {
 
   const handleGoogleDriveLink = async (photoId: string, url: string) => {
     try {
-      // First verify the URL
       const verifyResponse = await fetch("/api/admin/photos/verify-drive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -202,7 +189,6 @@ export default function AdminPhotosPage() {
         throw new Error(verifyData.error || "Invalid Drive URL");
       }
 
-      // Then update the menu item
       const response = await fetch(`/api/admin/menu/${photoId}/photo`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -305,55 +291,11 @@ export default function AdminPhotosPage() {
         </Button>
       </m.div>
 
-      {/* Stats Cards */}
-      <m.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-4"
-      >
-        {/* Total Photos */}
-        <div className="relative overflow-hidden rounded-card-sm bg-surface-secondary border border-border p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-primary">
-              <ImageIcon className="h-5 w-5" />
-              <span className="text-sm font-body font-medium">Total Photos</span>
-            </div>
-            <p className="text-3xl font-display font-bold text-text-primary mt-2">
-              {stats.total}
-            </p>
-          </div>
-        </div>
-
-        {/* Assigned */}
-        <div className="relative overflow-hidden rounded-card-sm bg-green/5 border border-green/20 p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-green/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-green">
-              <CheckCircle className="h-5 w-5" />
-              <span className="text-sm font-body font-medium">Assigned</span>
-            </div>
-            <p className="text-3xl font-display font-bold text-text-primary mt-2">
-              {stats.assigned}
-            </p>
-          </div>
-        </div>
-
-        {/* Storage */}
-        <div className="relative overflow-hidden rounded-card-sm bg-secondary/5 border border-secondary/20 p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-secondary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-secondary-hover">
-              <HardDrive className="h-5 w-5" />
-              <span className="text-sm font-body font-medium">Unassigned</span>
-            </div>
-            <p className="text-3xl font-display font-bold text-text-primary mt-2">
-              {stats.unassigned}
-            </p>
-          </div>
-        </div>
-      </m.div>
+      <PhotosStatsCards
+        total={stats.total}
+        assigned={stats.assigned}
+        unassigned={stats.unassigned}
+      />
 
       {/* Upload Zone */}
       <m.div
@@ -364,73 +306,15 @@ export default function AdminPhotosPage() {
         <PhotoUploadZone onUploadComplete={handleUploadComplete} />
       </m.div>
 
-      {/* Filters */}
-      <m.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="flex flex-col sm:flex-row gap-4"
-      >
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
-          <Input
-            placeholder="Search by item name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input"
-          />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {(["all", "assigned", "unassigned"] as FilterType[]).map((f) => (
-            <Badge
-              key={f}
-              variant={filter === f ? "default" : "outline"}
-              className={cn(
-                "cursor-pointer transition-all duration-fast font-body capitalize",
-                filter === f
-                  ? "bg-primary hover:bg-primary-hover text-text-inverse border-transparent"
-                  : "bg-surface-primary border-border text-text-primary hover:bg-primary/10 hover:border-primary/30"
-              )}
-              onClick={() => setFilter(f)}
-            >
-              {f}
-            </Badge>
-          ))}
-        </div>
-      </m.div>
-
-      {/* Bulk Actions */}
-      <AnimatePresence>
-        {selectedIds.size > 0 && (
-          <m.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="flex items-center gap-4 p-3 bg-primary/10 border border-primary/30 rounded-card-sm"
-          >
-            <span className="font-body text-sm text-primary font-medium">
-              {selectedIds.size} selected
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSelectedIds(new Set())}
-              className="border-primary/30 text-primary hover:bg-primary/10"
-            >
-              Clear
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleBulkDelete}
-              className="border-status-error/30 text-status-error hover:bg-status-error/10"
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              Delete
-            </Button>
-          </m.div>
-        )}
-      </AnimatePresence>
+      <PhotosFilters
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        filter={filter}
+        onFilterChange={setFilter}
+        selectedCount={selectedIds.size}
+        onClearSelection={() => setSelectedIds(new Set())}
+        onBulkDelete={handleBulkDelete}
+      />
 
       {/* Main Content */}
       <m.div
@@ -439,7 +323,6 @@ export default function AdminPhotosPage() {
         transition={{ delay: 0.25 }}
         className="flex gap-6"
       >
-        {/* Photo Grid */}
         <div className="flex-1">
           {filteredPhotos.length === 0 ? (
             <div className="text-center py-16 bg-surface-secondary rounded-card-sm border border-border">
@@ -463,7 +346,6 @@ export default function AdminPhotosPage() {
           )}
         </div>
 
-        {/* Side Panel */}
         <AnimatePresence>
           {selectedPhoto && (
             <PhotoMetadata

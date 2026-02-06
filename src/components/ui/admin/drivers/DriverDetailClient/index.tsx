@@ -1,0 +1,1 @@
+export { DriverDetailClient } from "./DriverDetailClient";

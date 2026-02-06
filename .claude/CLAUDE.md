@@ -47,6 +47,39 @@
 | `src/components/` | React components |
 | `src/lib/` | Utilities, clients |
 
+## File Organization
+
+Files must stay under 400 lines (ESLint `max-lines` warning). When splitting:
+
+| File Type | Pattern | Entry File |
+|-----------|---------|------------|
+| UI Component | Subfolder with barrel | `ComponentName/index.tsx` |
+| Lib/Utility | Subfolder with barrel | `lib-file/index.ts` |
+| Admin Page | Co-located siblings | `page.tsx` + `SiblingComponent.tsx` |
+| API Route | Co-located siblings | `route.ts` + `types.ts` + `schemas.ts` |
+
+**Component subfolder:**
+```
+ComponentName/
+  index.tsx          # Barrel re-exports
+  SubComponent.tsx   # PascalCase
+  useHook.ts         # camelCase
+  helpers.ts         # camelCase
+```
+
+**Lib subfolder:**
+```
+lib-file/
+  index.ts           # Barrel re-exports everything
+  concern-a.ts       # By domain
+  concern-b.ts
+```
+
+- Every extracted file using hooks/events needs `'use client'`
+- Barrel `index.tsx` must re-export ALL original exports
+- Import paths don't change (subfolder index resolves automatically)
+- Exempt from 400-line rule: `src/types/**`, test files, Storybook stories
+
 ## Session Memory
 - `.claude/ERROR_HISTORY.md` - past bugs, root causes, fixes
 - `.claude/LEARNINGS.md` - codebase patterns, conventions
