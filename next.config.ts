@@ -25,6 +25,10 @@ const nextConfig: NextConfig = {
   // Enable React strict mode for better debugging
   reactStrictMode: true,
 
+  // React Compiler auto-memoizes all client components
+  // Eliminates unnecessary re-renders without manual useMemo/useCallback
+  reactCompiler: true,
+
   // Compress responses
   compress: true,
 
