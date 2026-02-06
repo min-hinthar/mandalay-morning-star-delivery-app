@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 46 of 46 (Large File Refactoring)
-Plan: 6 of 7 complete
-Status: In progress
-Last activity: 2026-02-06 — Completed 46-06-PLAN.md (lib file subfolder splits)
+Plan: 7 of 7 complete
+Status: Phase complete
+Last activity: 2026-02-06 — Completed 46-07-PLAN.md (ESLint max-lines expansion + file org docs)
 
-Progress: [#############################                                     ] v1.5 28/52 (54%)
+Progress: [##############################                                    ] v1.5 29/52 (56%)
 
 ## Milestones
 
@@ -76,13 +76,15 @@ Progress: [#############################                                     ] v
 | Constants extraction for oversized components | Animation variants and config objects to constants.ts when component exceeds 400 lines |
 | motion-tokens core.ts as foundation | duration/easing/spring/transition in core.ts; all sub-files import from core (one-directional) |
 | Lib subfolder barrel pattern | 7 lib files split into subfolders with complete barrel re-exports preserving all import paths |
+| ESLint max-lines expanded to all src/**/*.{ts,tsx} | Warning-only, exempts types/tests/stories; prevents regression |
+| 4 file-splitting patterns documented in CLAUDE.md | Component subfolder, lib subfolder, admin sibling, API route sibling |
 
 ### Tech Debt (v1.5 Focus)
 
 | Item | Status | Notes |
 |------|--------|-------|
 | LCP 11.4s (homepage), 9.8s (menu) | **Active** | Reduced from 19.9s/18.2s; target: <2.5s |
-| 29 files >400 lines | **Active** | Refactoring in v1.5 |
+| 29 files >400 lines | **Done** | Refactored in Phase 46; ESLint max-lines enforces going forward |
 | Legacy docs (V0-V8) | **Done** | 94 files deleted in 45-01 |
 | storybook-static in git | **Done** | Untracked in 45-01 (89 files) |
 
@@ -93,10 +95,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 46-06-PLAN.md (lib file subfolder splits)
+Stopped at: Completed 46-07-PLAN.md (ESLint max-lines expansion + file org docs)
 Resume file: None
-Next action: Execute 46-07-PLAN.md
+Next action: Phase 46 complete. All 7 plans executed.
 
 ---
 
-*Updated: 2026-02-06 — Plan 46-06: Split 7 lib files into subfolders with barrel re-exports*
+*Updated: 2026-02-06 — Plan 46-07: ESLint max-lines expanded to all source files + CLAUDE.md file organization docs*
