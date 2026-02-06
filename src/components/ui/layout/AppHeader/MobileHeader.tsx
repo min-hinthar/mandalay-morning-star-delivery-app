@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -61,7 +61,7 @@ export function MobileHeader({
       </div>
 
       {/* Center: Compact logo (image only on mobile) */}
-      <motion.div
+      <m.div
         whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
         whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
         transition={getSpring(spring.snappy)}
@@ -85,7 +85,7 @@ export function MobileHeader({
             className="w-12"
           />
         </Link>
-      </motion.div>
+      </m.div>
 
       {/* Right: Search, Cart, and Hamburger */}
       <div className="flex items-center gap-2 flex-shrink-0">

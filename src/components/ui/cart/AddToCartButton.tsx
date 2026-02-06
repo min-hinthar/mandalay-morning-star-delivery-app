@@ -15,7 +15,7 @@
  */
 
 import { useRef, useState, useCallback, useEffect, type ReactNode } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ShoppingCart, Check, Loader2 } from "lucide-react";
 import { useFlyToCart } from "./FlyToCart";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -216,7 +216,7 @@ export function AddToCartButton({
   };
 
   return (
-    <motion.button
+    <m.button
       ref={buttonRef}
       type="button"
       onClick={handleClick}
@@ -252,7 +252,7 @@ export function AddToCartButton({
           <span>{state === "success" ? "Added!" : "Add to Cart"}</span>
         </>
       )}
-    </motion.button>
+    </m.button>
   );
 }
 

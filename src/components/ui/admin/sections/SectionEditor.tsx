@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   X,
   Star,
@@ -132,14 +132,14 @@ export function SectionEditor({
 
   return (
     <AnimatePresence>
-      <motion.div
+      <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-center justify-center bg-surface-inverse/50 p-4"
         onClick={(e) => e.target === e.currentTarget && onCancel()}
       >
-        <motion.div
+        <m.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
@@ -298,7 +298,7 @@ export function SectionEditor({
                   isVisible ? "bg-green" : "bg-surface-tertiary"
                 )}
               >
-                <motion.div
+                <m.div
                   className="absolute top-1 w-4 h-4 bg-surface-primary rounded-full shadow-sm"
                   animate={{ left: isVisible ? 28 : 4 }}
                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
@@ -328,7 +328,7 @@ export function SectionEditor({
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
-                  <motion.span
+                  <m.span
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                     className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
@@ -342,8 +342,8 @@ export function SectionEditor({
               )}
             </Button>
           </div>
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
     </AnimatePresence>
   );
 }

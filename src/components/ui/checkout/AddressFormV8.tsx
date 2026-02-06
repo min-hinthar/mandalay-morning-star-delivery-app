@@ -2,7 +2,7 @@
 
 import { type Resolver, type SubmitHandler, useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ValidatedInput, type ValidationState } from "@/components/ui/FormValidation";
@@ -87,7 +87,7 @@ export function AddressFormV8({
       <ErrorShake shake={errorShake && !!error}>
         <AnimatePresence mode="wait">
           {error && (
-            <motion.div
+            <m.div
               key="form-error"
               initial={{ opacity: 0, y: -10, height: 0 }}
               animate={{ opacity: 1, y: 0, height: "auto" }}
@@ -97,7 +97,7 @@ export function AddressFormV8({
               role="alert"
             >
               {error}
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </ErrorShake>
@@ -125,7 +125,7 @@ export function AddressFormV8({
           </select>
           <AnimatePresence mode="wait">
             {errors.label && (
-              <motion.p
+              <m.p
                 initial={{ opacity: 0, y: -4, height: 0 }}
                 animate={{ opacity: 1, y: 0, height: "auto" }}
                 exit={{ opacity: 0, y: -4, height: 0 }}
@@ -133,7 +133,7 @@ export function AddressFormV8({
                 className="text-sm text-destructive"
               >
                 {errors.label.message}
-              </motion.p>
+              </m.p>
             )}
           </AnimatePresence>
         </div>

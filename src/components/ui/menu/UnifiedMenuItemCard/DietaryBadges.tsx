@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Leaf, Flame, Star, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -91,7 +91,7 @@ function BadgeItem({ config, index }: BadgeItemProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.span
+    <m.span
       className={cn(
         "inline-flex items-center gap-1 px-2 py-0.5",
         "rounded-full text-2xs font-semibold uppercase tracking-wide",
@@ -106,7 +106,7 @@ function BadgeItem({ config, index }: BadgeItemProps) {
     >
       {config.icon}
       <span>{config.label}</span>
-    </motion.span>
+    </m.span>
   );
 }
 

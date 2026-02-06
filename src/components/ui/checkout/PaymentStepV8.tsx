@@ -15,7 +15,7 @@
  */
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   CreditCard,
@@ -117,14 +117,14 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
   };
 
   return (
-    <motion.div
+    <m.div
       className={cn("space-y-6", className)}
       variants={shouldAnimate ? staggerContainer(0.08, 0.1) : undefined}
       initial={shouldAnimate ? "hidden" : undefined}
       animate={shouldAnimate ? "visible" : undefined}
     >
       {/* Header with stagger */}
-      <motion.div variants={shouldAnimate ? staggerItem : undefined}>
+      <m.div variants={shouldAnimate ? staggerItem : undefined}>
         <div className="flex items-center gap-2 mb-1">
           <CreditCard className="h-5 w-5 text-primary" />
           <h2 className="font-display text-lg font-semibold text-foreground">
@@ -134,12 +134,12 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
         <p className="font-body text-sm text-muted-foreground">
           Review your order and proceed to payment
         </p>
-      </motion.div>
+      </m.div>
 
       {/* Creating Session Loading State - uses BrandedSpinner */}
       <AnimatePresence mode="wait">
         {isCreatingSession ? (
-          <motion.div
+          <m.div
             key="loading"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -148,15 +148,15 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
             className="flex flex-col items-center justify-center py-12 space-y-4"
           >
             <BrandedSpinner size="lg" label="Preparing checkout" />
-            <motion.p
+            <m.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
               className="text-sm text-muted-foreground"
             >
               Preparing secure checkout...
-            </motion.p>
-            <motion.div
+            </m.p>
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
@@ -164,10 +164,10 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
             >
               <Lock className="w-3 h-3" />
               <span>Secured by Stripe</span>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         ) : (
-          <motion.div
+          <m.div
             key="content"
             variants={shouldAnimate ? staggerContainer(0.08, 0) : undefined}
             initial={shouldAnimate ? "hidden" : undefined}
@@ -176,7 +176,7 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
             className="space-y-6"
           >
             {/* Order Summary Card with stagger */}
-            <motion.div
+            <m.div
               variants={shouldAnimate ? staggerItem : undefined}
               className="space-y-4 rounded-lg bg-muted/50 p-5 border border-border"
             >
@@ -208,10 +208,10 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
                   />
                 )}
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Notes Input with stagger */}
-            <motion.div
+            <m.div
               variants={shouldAnimate ? staggerItem : undefined}
               className="space-y-2"
             >
@@ -233,15 +233,15 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
               <p className="font-body text-xs text-muted-foreground">
                 {customerNotes.length}/500 characters
               </p>
-            </motion.div>
+            </m.div>
 
             {/* Security Badge with stagger */}
-            <motion.div
+            <m.div
               variants={shouldAnimate ? staggerItem : undefined}
               className="p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200/50 dark:border-green-800/30"
             >
               <div className="flex items-center gap-3">
-                <motion.div
+                <m.div
                   animate={
                     shouldAnimate
                       ? {
@@ -256,7 +256,7 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
                   }}
                 >
                   <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </motion.div>
+                </m.div>
                 <div>
                   <p className="text-sm font-medium text-green-800 dark:text-green-200">
                     Secure Payment
@@ -267,13 +267,13 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Error State with ErrorShake */}
             <AnimatePresence>
               {error && (
                 <ErrorShake shake={!!error}>
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, scale: 0.95, y: -10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -10 }}
@@ -283,17 +283,17 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
                     <p className="text-sm text-red-700 dark:text-red-300">
                       {error}
                     </p>
-                  </motion.div>
+                  </m.div>
                 </ErrorShake>
               )}
             </AnimatePresence>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Navigation with button entry animation */}
       {!isCreatingSession && (
-        <motion.div
+        <m.div
           variants={shouldAnimate ? buttonEntry : undefined}
           className="flex justify-between pt-4 border-t border-border"
         >
@@ -313,9 +313,9 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
           >
             Place Order
           </Button>
-        </motion.div>
+        </m.div>
       )}
-    </motion.div>
+    </m.div>
   );
 }
 

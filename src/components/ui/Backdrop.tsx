@@ -11,7 +11,7 @@
  * <Backdrop isVisible={isOpen} onClick={onClose} />
  */
 
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { zIndex } from "@/lib/design-system/tokens/z-index";
 import { overlayMotion } from "@/lib/design-system/tokens/motion";
 import { cn } from "@/lib/utils/cn";
@@ -36,7 +36,7 @@ export function Backdrop({
   return (
     <AnimatePresence>
       {isVisible && (
-        <motion.div
+        <m.div
           key="backdrop"
           className={cn(
             "fixed inset-0",

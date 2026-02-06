@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { UtensilsCrossed, Package, User } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -95,7 +95,7 @@ export function DesktopHeader({
       </nav>
 
       {/* Center: Logo (absolutely positioned for true centering) */}
-      <motion.div
+      <m.div
         whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
         whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
         transition={getSpring(spring.snappy)}
@@ -120,7 +120,7 @@ export function DesktopHeader({
           />
           <span className="hidden lg:inline">Mandalay Morning Star</span>
         </Link>
-      </motion.div>
+      </m.div>
 
       {/* Right: Custom content (cart, search, theme, account indicators) */}
       <div className="flex items-center gap-2">

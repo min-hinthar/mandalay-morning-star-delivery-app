@@ -11,7 +11,7 @@
 
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -69,7 +69,7 @@ export function SearchTrigger({ onClick, className }: SearchTriggerProps) {
   const shortcutText = mounted ? (isMac ? "Cmd K" : "Ctrl K") : "K";
 
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
@@ -95,7 +95,7 @@ export function SearchTrigger({ onClick, className }: SearchTriggerProps) {
       {/* Keyboard hint badge on hover */}
       <AnimatePresence>
         {isHovered && (
-          <motion.span
+          <m.span
             variants={shouldAnimate ? hintVariants : undefined}
             initial={shouldAnimate ? "initial" : false}
             animate={shouldAnimate ? "animate" : { opacity: 1 }}
@@ -112,10 +112,10 @@ export function SearchTrigger({ onClick, className }: SearchTriggerProps) {
             )}
           >
             {shortcutText}
-          </motion.span>
+          </m.span>
         )}
       </AnimatePresence>
-    </motion.button>
+    </m.button>
   );
 }
 

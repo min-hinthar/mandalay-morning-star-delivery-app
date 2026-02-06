@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import {
   ChevronDown,
@@ -167,7 +167,7 @@ export function RouteListTable({
 
   if (routes.length === 0) {
     return (
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center py-16 bg-gradient-to-br from-surface-secondary to-surface-tertiary rounded-xl border border-border-v5"
@@ -181,12 +181,12 @@ export function RouteListTable({
         <p className="text-text-secondary max-w-md mx-auto">
           Create your first delivery route to start managing deliveries.
         </p>
-      </motion.div>
+      </m.div>
     );
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="rounded-xl border border-border-v5 bg-surface-primary shadow-md overflow-hidden"
@@ -415,7 +415,7 @@ export function RouteListTable({
             const statusConfig = STATUS_CONFIG[route.status];
 
             return (
-              <motion.div
+              <m.div
                 key={route.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -491,11 +491,11 @@ export function RouteListTable({
                     </Button>
                   )}
                 </div>
-              </motion.div>
+              </m.div>
             );
           })}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer80, duration } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -78,7 +78,7 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
     <AnimatePresence onExitComplete={restoreScrollPosition}>
       {/* Backdrop - rendered separately to avoid Fragment inside AnimatePresence */}
       {isOpen && (
-        <motion.div
+        <m.div
           key="drawer-backdrop"
           className={cn(
             // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
@@ -97,7 +97,7 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
 
       {/* Drawer panel - rendered separately to avoid Fragment inside AnimatePresence */}
       {isOpen && (
-        <motion.nav
+        <m.nav
           key="drawer-panel"
           className={cn(
             "fixed left-0 top-0 bottom-0 w-[85%] max-w-sm",
@@ -124,7 +124,7 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
             <span className="text-lg font-semibold text-text-primary">Menu</span>
             <div className="flex items-center gap-2">
               <ThemeToggle />
-              <motion.button
+              <m.button
                 onClick={onClose}
                 className={cn(
                   "flex items-center justify-center w-10 h-10 rounded-full",
@@ -137,7 +137,7 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
                 aria-label="Close menu"
               >
                 <X className="w-5 h-5 text-text-secondary" />
-              </motion.button>
+              </m.button>
             </div>
           </div>
 
@@ -148,7 +148,7 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
               Note: Using module-level memoized variants to prevent re-creation on render.
               Removed exit="exit" - let parent drawer handle exit animation to prevent
               nested animation conflicts that can cause crashes on mobile. */}
-          <motion.div
+          <m.div
             className="flex-1 overflow-y-auto px-2 py-2"
             variants={navStaggerVariants}
             initial="hidden"
@@ -167,11 +167,11 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
                 onClick={onClose}
               />
             ))}
-          </motion.div>
+          </m.div>
 
           {/* Footer */}
           <DrawerFooter />
-        </motion.nav>
+        </m.nav>
       )}
     </AnimatePresence>
   );

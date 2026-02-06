@@ -18,7 +18,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import {
@@ -96,7 +96,7 @@ export function AdminNav() {
 
   return (
     <TooltipProvider>
-      <motion.aside
+      <m.aside
         initial={false}
         animate={{ width: isCollapsed ? 64 : 256 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
@@ -203,7 +203,7 @@ export function AdminNav() {
             )}
           </Tooltip>
         </div>
-      </motion.aside>
+      </m.aside>
     </TooltipProvider>
   );
 }

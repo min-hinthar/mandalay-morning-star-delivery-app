@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { format, subDays, addDays, startOfDay, parseISO } from "date-fns";
 import {
   RefreshCw,
@@ -210,7 +210,7 @@ export default function AdminRoutesPage() {
   return (
     <div className="p-4 md:p-8 space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
@@ -243,10 +243,10 @@ export default function AdminRoutesPage() {
             Create Route
           </Button>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Stats Cards */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -312,10 +312,10 @@ export default function AdminRoutesPage() {
             </p>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Date Navigation & Status Filters */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -392,11 +392,11 @@ export default function AdminRoutesPage() {
             );
           })}
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Delivery Progress Summary */}
       {stats.totalStops > 0 && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
@@ -420,11 +420,11 @@ export default function AdminRoutesPage() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Routes Table */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
@@ -435,7 +435,7 @@ export default function AdminRoutesPage() {
           onStatusChange={handleStatusChange}
           onDeleteRoute={handleDeleteRoute}
         />
-      </motion.div>
+      </m.div>
 
       {/* Create Route Modal */}
       <CreateRouteModal

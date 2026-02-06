@@ -8,7 +8,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Package,
   DollarSign,
@@ -96,14 +96,14 @@ export function DeliveryMetricsDashboard() {
   const summary = data?.summary;
 
   return (
-    <motion.div
+    <m.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
       className="space-y-6"
     >
       {/* Header */}
-      <motion.div
+      <m.div
         variants={itemVariants}
         className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
@@ -143,11 +143,11 @@ export function DeliveryMetricsDashboard() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Date range indicator */}
       {summary && (
-        <motion.div variants={itemVariants} className="flex items-center gap-2 text-sm text-charcoal-500">
+        <m.div variants={itemVariants} className="flex items-center gap-2 text-sm text-charcoal-500">
           <Calendar className="h-4 w-4" />
           <span>
             {new Date(summary.startDate).toLocaleDateString("en-US", {
@@ -161,7 +161,7 @@ export function DeliveryMetricsDashboard() {
               year: "numeric",
             })}
           </span>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Summary Cards */}
@@ -220,7 +220,7 @@ export function DeliveryMetricsDashboard() {
       </MetricCardGrid>
 
       {/* Charts Row 1 */}
-      <motion.div variants={itemVariants} className="grid gap-6 lg:grid-cols-2">
+      <m.div variants={itemVariants} className="grid gap-6 lg:grid-cols-2">
         {data && (
           <>
             <DeliverySuccessChart data={data.dailyMetrics} type="area" />
@@ -233,10 +233,10 @@ export function DeliveryMetricsDashboard() {
             <div className="h-80 animate-pulse rounded-xl bg-charcoal-100" />
           </>
         )}
-      </motion.div>
+      </m.div>
 
       {/* Charts Row 2 */}
-      <motion.div variants={itemVariants} className="grid gap-6 lg:grid-cols-3">
+      <m.div variants={itemVariants} className="grid gap-6 lg:grid-cols-3">
         {/* ETA Accuracy */}
         {data && (
           <ETAAccuracyGauge value={data.summary.etaAccuracyRate} />
@@ -254,7 +254,7 @@ export function DeliveryMetricsDashboard() {
         )}
 
         {/* Top Drivers */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="rounded-xl bg-surface-primary p-6 shadow-warm-sm"
@@ -273,11 +273,11 @@ export function DeliveryMetricsDashboard() {
               ))}
             </div>
           )}
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
 
       {/* Exceptions Row */}
-      <motion.div variants={itemVariants} className="grid gap-6 lg:grid-cols-2">
+      <m.div variants={itemVariants} className="grid gap-6 lg:grid-cols-2">
         {data && (
           <>
             <ExceptionBreakdown
@@ -293,11 +293,11 @@ export function DeliveryMetricsDashboard() {
             <div className="h-80 animate-pulse rounded-xl bg-charcoal-100" />
           </>
         )}
-      </motion.div>
+      </m.div>
 
       {/* Quick Stats Footer */}
       {summary && (
-        <motion.div
+        <m.div
           variants={itemVariants}
           className="rounded-xl bg-gradient-to-r from-saffron/10 to-curry/10 p-6"
         >
@@ -327,8 +327,8 @@ export function DeliveryMetricsDashboard() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       )}
-    </motion.div>
+    </m.div>
   );
 }

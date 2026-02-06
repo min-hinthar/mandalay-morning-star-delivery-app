@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -64,7 +64,7 @@ export function HeaderNavLink({
       )}
     >
       {/* Layer 1: Background highlight */}
-      <motion.span
+      <m.span
         className="absolute inset-0 rounded-lg bg-primary/5 pointer-events-none"
         initial={{ opacity: 0 }}
         whileHover={shouldAnimate ? { opacity: 1 } : undefined}
@@ -73,13 +73,13 @@ export function HeaderNavLink({
       />
 
       {/* Layer 2 & 3: Icon + label lift with icon wiggle */}
-      <motion.span
+      <m.span
         className="relative flex items-center gap-2"
         whileHover={shouldAnimate ? { y: -2 } : undefined}
         transition={getSpring(spring.snappy)}
       >
         {/* Icon with wiggle animation */}
-        <motion.span
+        <m.span
           className="inline-flex"
           whileHover={
             shouldAnimate
@@ -91,14 +91,14 @@ export function HeaderNavLink({
           }
         >
           {icon}
-        </motion.span>
+        </m.span>
 
         {/* Label text */}
         <span>{label}</span>
-      </motion.span>
+      </m.span>
 
       {/* Layer 4: Animated underline */}
-      <motion.span
+      <m.span
         className={cn(
           "absolute bottom-0 left-1/2 h-0.5 bg-primary rounded-full",
           "pointer-events-none"

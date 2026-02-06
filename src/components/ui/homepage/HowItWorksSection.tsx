@@ -3,7 +3,7 @@
 import { useRef, useState, useCallback, useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { motion, useInView, AnimatePresence, type Variants } from "framer-motion";
+import { m, useInView, AnimatePresence, type Variants } from "framer-motion";
 import {
   MapPin,
   UtensilsCrossed,
@@ -138,7 +138,7 @@ function StepIcon({ step, index }: StepIconProps) {
   const Icon = step.icon;
 
   return (
-    <motion.div
+    <m.div
       className={cn(
         // Larger size
         // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
@@ -185,7 +185,7 @@ function StepIcon({ step, index }: StepIconProps) {
       >
         {index + 1}
       </span>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -215,7 +215,7 @@ function Connector({ index, orientation }: ConnectorProps) {
           <div className="absolute inset-0 blur-sm bg-gradient-to-r from-amber-400/30 to-orange-400/30" />
 
           {/* Animated fill */}
-          <motion.div
+          <m.div
             className="absolute inset-0 bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 rounded-full"
             initial={{ scaleX: 0 }}
             animate={isInView && shouldAnimate ? { scaleX: 1 } : { scaleX: 0 }}
@@ -224,7 +224,7 @@ function Connector({ index, orientation }: ConnectorProps) {
           />
 
           {/* Traveling light dot */}
-          <motion.div
+          <m.div
             className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_10px_rgba(255,255,255,0.8)]"
             initial={{ left: "0%", opacity: 0 }}
             animate={
@@ -255,7 +255,7 @@ function Connector({ index, orientation }: ConnectorProps) {
       {/* Glow effect */}
       <div className="absolute inset-0 blur-sm bg-gradient-to-b from-amber-400/30 to-orange-400/30" />
 
-      <motion.div
+      <m.div
         className="absolute inset-0 bg-gradient-to-b from-amber-400 via-orange-400 to-rose-400 rounded-full"
         initial={{ scaleY: 0 }}
         animate={isInView && shouldAnimate ? { scaleY: 1 } : { scaleY: 0 }}
@@ -264,7 +264,7 @@ function Connector({ index, orientation }: ConnectorProps) {
       />
 
       {/* Traveling light dot */}
-      <motion.div
+      <m.div
         className="absolute left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-amber-200 shadow-[0_0_10px_rgba(255,255,255,0.8)]"
         initial={{ top: "0%", opacity: 0 }}
         animate={
@@ -377,7 +377,7 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
   }, [clearInput, reset]);
 
   return (
-    <motion.div
+    <m.div
       className={cn("w-full", className)}
       initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
       whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
@@ -385,7 +385,7 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
       transition={getSpring(spring.gentle)}
     >
       {/* Map Container with Ambient Glow */}
-      <motion.div
+      <m.div
         initial={shouldAnimate ? { opacity: 0, scale: 0.95 } : undefined}
         whileInView={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
         viewport={{ once: true }}
@@ -411,11 +411,11 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
             "border-2 border-white/30"
           )}
         />
-      </motion.div>
+      </m.div>
 
       {/* Search Input */}
       <div className="relative" ref={inputWrapperRef}>
-        <motion.div
+        <m.div
           animate={isFocused && shouldAnimate ? { scale: 1.01 } : { scale: 1 }}
           transition={getSpring(spring.snappy)}
           className={cn(
@@ -455,14 +455,14 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
           {/* Clear / Loading */}
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
             {isLoadingPlaces || isCheckingCoverage ? (
-              <motion.div
+              <m.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: 20, ease: "linear" }}
               >
                 <Loader2 className="w-4 h-4 text-primary" />
-              </motion.div>
+              </m.div>
             ) : input ? (
-              <motion.button
+              <m.button
                 type="button"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -472,16 +472,16 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
                 className="p-0.5 rounded-full text-text-muted hover:text-text-primary transition-colors"
               >
                 <X className="w-4 h-4" />
-              </motion.button>
+              </m.button>
             ) : null}
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Autocomplete Dropdown - rendered via portal to escape stacking context */}
         {isMounted && createPortal(
           <AnimatePresence>
             {predictions.length > 0 && isFocused && dropdownPosition && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
@@ -503,7 +503,7 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
                 )}
               >
                 {predictions.map((prediction, idx) => (
-                  <motion.button
+                  <m.button
                     key={prediction.placeId}
                     type="button"
                     custom={idx}
@@ -527,9 +527,9 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
                       </p>
                       <p className="text-xs text-text-muted truncate">{prediction.secondaryText}</p>
                     </div>
-                  </motion.button>
+                  </m.button>
                 ))}
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>,
           document.body
@@ -539,7 +539,7 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
       {/* Coverage Result */}
       <AnimatePresence mode="wait">
         {coverageData && selectedAddress && (
-          <motion.div
+          <m.div
             key={coverageData.isValid ? "success" : "error"}
             initial={{ opacity: 0, scale: 0.95, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -617,10 +617,10 @@ function InteractiveCoverageChecker({ className }: InteractiveCoverageCheckerPro
             >
               Clear
             </button>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -637,7 +637,7 @@ function GlassCard({ children, className }: GlassCardProps) {
   const { shouldAnimate } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       whileHover={
         shouldAnimate
           ? {
@@ -667,7 +667,7 @@ function GlassCard({ children, className }: GlassCardProps) {
       {/* Inner glow layer */}
       <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/15 via-transparent to-transparent pointer-events-none" />
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -683,7 +683,7 @@ interface StepCardProps {
 
 function StepCard({ step, index, children }: StepCardProps) {
   return (
-    <motion.div
+    <m.div
       custom={index}
       variants={stepCardVariants}
       initial="hidden"
@@ -714,7 +714,7 @@ function StepCard({ step, index, children }: StepCardProps) {
 
         {children}
       </GlassCard>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -765,7 +765,7 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
 
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Header */}
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
           whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           viewport={{ once: true }}
@@ -773,7 +773,7 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
           className="text-center mb-12 md:mb-16"
         >
           {/* Pill badge */}
-          <motion.span
+          <m.span
             className={cn(
               "inline-block px-5 py-2.5 rounded-full text-base font-body font-bold mb-6",
               "bg-primary text-text-inverse",
@@ -786,7 +786,7 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
             transition={getSpring(spring.default)}
           >
             How It Works
-          </motion.span>
+          </m.span>
 
           {/* Main title - larger with multi-layer text shadow */}
           <h2
@@ -809,7 +809,7 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
           >
             From checking delivery coverage to enjoying fresh Burmese cuisine at your door
           </p>
-        </motion.div>
+        </m.div>
 
         {/* Desktop Layout - Coverage checker prominent on left */}
         <div className="hidden md:block">

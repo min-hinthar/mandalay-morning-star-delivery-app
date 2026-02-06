@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { AlertCircle, Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/hooks/useToast";
@@ -49,7 +49,7 @@ export function DraftBanner({
   return (
     <AnimatePresence>
       {hasUnpublishedChanges && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
@@ -86,7 +86,7 @@ export function DraftBanner({
               </>
             )}
           </Button>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

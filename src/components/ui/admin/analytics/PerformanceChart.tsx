@@ -7,7 +7,7 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   LineChart,
   Line,
@@ -144,7 +144,7 @@ export function PerformanceChart({
   };
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.2, duration: 0.5 }}
@@ -154,7 +154,7 @@ export function PerformanceChart({
       <ResponsiveContainer width="100%" height={height}>
         {renderChart()}
       </ResponsiveContainer>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -179,7 +179,7 @@ export function DualAxisChart({
   height?: number;
 }) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.2, duration: 0.5 }}
@@ -235,6 +235,6 @@ export function DualAxisChart({
           />
         </LineChart>
       </ResponsiveContainer>
-    </motion.div>
+    </m.div>
   );
 }

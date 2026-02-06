@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { RefreshCw, Monitor, Smartphone, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
@@ -60,7 +60,7 @@ export function HomepagePreview({ className }: HomepagePreviewProps) {
 
       {/* Preview iframe */}
       <div className="flex-1 overflow-hidden flex items-start justify-center bg-surface-tertiary/50 p-4">
-        <motion.div
+        <m.div
           layout
           className={cn(
             "bg-surface-primary rounded-lg overflow-hidden shadow-md border border-border",
@@ -78,7 +78,7 @@ export function HomepagePreview({ className }: HomepagePreviewProps) {
             className="w-full h-full border-0"
             title="Homepage Preview"
           />
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Device switcher */}

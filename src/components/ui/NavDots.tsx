@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -42,7 +42,7 @@ function Dot({ index, isActive, label, layoutId, onClick }: DotProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
@@ -62,7 +62,7 @@ function Dot({ index, isActive, label, layoutId, onClick }: DotProps) {
     >
       {/* Active dot indicator with layoutId for smooth transition */}
       {isActive && layoutId && (
-        <motion.div
+        <m.div
           layoutId={layoutId}
           className="absolute inset-0 rounded-full bg-primary"
           initial={false}
@@ -76,7 +76,7 @@ function Dot({ index, isActive, label, layoutId, onClick }: DotProps) {
       {/* Label tooltip on hover - below dot */}
       <AnimatePresence>
         {isHovered && label && (
-          <motion.span
+          <m.span
             className={cn(
               "absolute top-full mt-2 left-1/2 -translate-x-1/2",
               "px-2 py-1 text-2xs font-medium whitespace-nowrap",
@@ -92,10 +92,10 @@ function Dot({ index, isActive, label, layoutId, onClick }: DotProps) {
             {/* Arrow pointing up */}
             <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-text-primary/90" />
             {label}
-          </motion.span>
+          </m.span>
         )}
       </AnimatePresence>
-    </motion.button>
+    </m.button>
   );
 }
 
@@ -141,7 +141,7 @@ export function NavDots({
   if (total <= 1) return null;
 
   return (
-    <motion.div
+    <m.div
       className={cn(
         "inline-flex items-center justify-center gap-2",
         "px-3 py-2",
@@ -166,7 +166,7 @@ export function NavDots({
           onClick={() => handleDotClick(i)}
         />
       ))}
-    </motion.div>
+    </m.div>
   );
 }
 

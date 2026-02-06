@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion, type HTMLMotionProps } from "framer-motion";
+import { m, type HTMLMotionProps } from "framer-motion";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils/cn";
 
@@ -114,7 +114,7 @@ export interface AnimatedCardProps
 
 const AnimatedCard = React.forwardRef<HTMLDivElement, AnimatedCardProps>(
   ({ className, variant, alertAccent, ...props }, ref) => (
-    <motion.div
+    <m.div
       ref={ref}
       className={cn(cardVariants({ variant, alertAccent, className }))}
       {...props}

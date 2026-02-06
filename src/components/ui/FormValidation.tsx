@@ -19,7 +19,7 @@ import {
   type InputHTMLAttributes,
   type ReactNode,
 } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { AlertCircle, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -267,7 +267,7 @@ export function ValidationMessage({
   return (
     <AnimatePresence mode="wait">
       {message && (
-        <motion.div
+        <m.div
           key={message}
           variants={prefersReducedMotion ? undefined : messageVariants}
           initial={prefersReducedMotion ? { opacity: 1 } : "hidden"}
@@ -289,7 +289,7 @@ export function ValidationMessage({
             />
             <span>{message}</span>
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );
@@ -472,7 +472,7 @@ export const ValidatedInput = forwardRef<HTMLInputElement, ValidatedInputProps>(
         )}
 
         {/* Input wrapper */}
-        <motion.div
+        <m.div
           className={cn("relative", wrapperClassName)}
           animate={shouldShake ? "shake" : undefined}
           variants={shakeVariants}
@@ -527,7 +527,7 @@ export const ValidatedInput = forwardRef<HTMLInputElement, ValidatedInputProps>(
           {/* Status icons */}
           <AnimatePresence mode="wait">
             {state === "invalid" && (
-              <motion.div
+              <m.div
                 key="error-icon"
                 variants={iconVariants}
                 initial="hidden"
@@ -537,10 +537,10 @@ export const ValidatedInput = forwardRef<HTMLInputElement, ValidatedInputProps>(
                 aria-hidden="true"
               >
                 <AlertCircle className="h-5 w-5 text-[var(--color-status-error)]" />
-              </motion.div>
+              </m.div>
             )}
             {state === "valid" && showSuccess && (
-              <motion.div
+              <m.div
                 key="success-icon"
                 variants={iconVariants}
                 initial="hidden"
@@ -550,10 +550,10 @@ export const ValidatedInput = forwardRef<HTMLInputElement, ValidatedInputProps>(
                 aria-hidden="true"
               >
                 <Check className="h-5 w-5 text-[var(--color-accent-secondary)]" />
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
-        </motion.div>
+        </m.div>
 
         {/* Error message */}
         <div id={errorId}>
@@ -758,7 +758,7 @@ export const ValidatedTextarea = forwardRef<
         </label>
       )}
 
-      <motion.div
+      <m.div
         className="relative"
         animate={shouldShake ? "shake" : undefined}
         variants={shakeVariants}
@@ -787,7 +787,7 @@ export const ValidatedTextarea = forwardRef<
           )}
           {...rest}
         />
-      </motion.div>
+      </m.div>
 
       {/* Footer row: error/helper + char count */}
       <div className="flex items-start justify-between gap-4">

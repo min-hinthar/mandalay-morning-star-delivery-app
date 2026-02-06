@@ -1,7 +1,7 @@
 "use client";
 
 import { Command } from "cmdk";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Image from "next/image";
 import { spring, staggerItem } from "@/lib/motion-tokens";
 import { formatPrice } from "@/lib/utils/format";
@@ -44,7 +44,7 @@ export function SearchResults({ items, onSelect }: SearchResultsProps) {
               "data-[selected=true]:scale-[1.01]"
             )}
           >
-            <motion.div
+            <m.div
               variants={staggerItem}
               initial="hidden"
               animate="visible"
@@ -82,7 +82,7 @@ export function SearchResults({ items, onSelect }: SearchResultsProps) {
               <span className="text-sm text-text-muted">
                 {formatPrice(item.basePriceCents)}
               </span>
-            </motion.div>
+            </m.div>
           </Command.Item>
         ))}
       </div>

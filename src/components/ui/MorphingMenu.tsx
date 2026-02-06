@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring, transition } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -147,7 +147,7 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
     const gap = lineHeight * 2.5;
 
     return (
-      <motion.button
+      <m.button
         ref={ref}
         onClick={handleClick}
         className={cn(
@@ -165,7 +165,7 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
         transition={springConfig}
       >
         {/* Top Line */}
-        <motion.span
+        <m.span
           className="absolute"
           style={{
             width: lineWidth,
@@ -181,7 +181,7 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
         />
 
         {/* Middle Line */}
-        <motion.span
+        <m.span
           className="absolute"
           style={{
             width: lineWidth,
@@ -198,7 +198,7 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
         />
 
         {/* Bottom Line */}
-        <motion.span
+        <m.span
           className="absolute"
           style={{
             width: lineWidth,
@@ -215,7 +215,7 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
 
         {/* Decorative ring on open */}
         {shouldAnimate && (
-          <motion.span
+          <m.span
             className="absolute inset-0 rounded-lg border-2"
             style={{ borderColor: currentColor }}
             initial={{ opacity: 0, scale: 0.8 }}
@@ -227,7 +227,7 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
             transition={springConfig}
           />
         )}
-      </motion.button>
+      </m.button>
     );
   }
 );
@@ -282,7 +282,7 @@ export const MorphingMenuWithLabel = forwardRef<
           {...props}
         />
 
-        <motion.span
+        <m.span
           className="text-sm font-medium"
           initial={false}
           animate={
@@ -297,7 +297,7 @@ export const MorphingMenuWithLabel = forwardRef<
           transition={getSpring(spring.snappy)}
         >
           {label}
-        </motion.span>
+        </m.span>
       </div>
     );
   }
@@ -356,7 +356,7 @@ export const MorphingCloseButton = forwardRef<
     };
 
     return (
-      <motion.button
+      <m.button
         ref={ref}
         onClick={onClick}
         className={cn(
@@ -386,7 +386,7 @@ export const MorphingCloseButton = forwardRef<
           strokeLinejoin="round"
         >
           {state === "check" ? (
-            <motion.path
+            <m.path
               d="M5 12l5 5L19 7"
               initial={{ pathLength: 0 }}
               animate={shouldAnimate ? { pathLength: 1 } : undefined}
@@ -394,7 +394,7 @@ export const MorphingCloseButton = forwardRef<
             />
           ) : (
             <>
-              <motion.line
+              <m.line
                 x1="6"
                 y1="6"
                 x2="18"
@@ -403,7 +403,7 @@ export const MorphingCloseButton = forwardRef<
                 animate={shouldAnimate ? variants[state].line1 : undefined}
                 transition={getSpring(spring.snappy)}
               />
-              <motion.line
+              <m.line
                 x1="6"
                 y1="18"
                 x2="18"
@@ -415,7 +415,7 @@ export const MorphingCloseButton = forwardRef<
             </>
           )}
         </svg>
-      </motion.button>
+      </m.button>
     );
   }
 );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { m, AnimatePresence, Reorder } from "framer-motion";
 import {
   Search,
   X,
@@ -218,7 +218,7 @@ export function ItemSelector({
       {/* Search Results / Suggestions */}
       <AnimatePresence mode="wait">
         {(searchResults.length > 0 || showSuggestions) && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -245,7 +245,7 @@ export function ItemSelector({
                 const isSelected = selectedIds.has(item.id);
 
                 return (
-                  <motion.div
+                  <m.div
                     key={item.id}
                     layout
                     className={cn(
@@ -310,11 +310,11 @@ export function ItemSelector({
                         Added
                       </Badge>
                     )}
-                  </motion.div>
+                  </m.div>
                 );
               })}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 

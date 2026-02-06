@@ -8,7 +8,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   Search,
   RefreshCw,
@@ -279,7 +279,7 @@ export default function AdminPhotosPage() {
   return (
     <div className="p-4 md:p-8 space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
@@ -303,10 +303,10 @@ export default function AdminPhotosPage() {
           />
           Refresh
         </Button>
-      </motion.div>
+      </m.div>
 
       {/* Stats Cards */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -353,19 +353,19 @@ export default function AdminPhotosPage() {
             </p>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Upload Zone */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
       >
         <PhotoUploadZone onUploadComplete={handleUploadComplete} />
-      </motion.div>
+      </m.div>
 
       {/* Filters */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -397,12 +397,12 @@ export default function AdminPhotosPage() {
             </Badge>
           ))}
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Bulk Actions */}
       <AnimatePresence>
         {selectedIds.size > 0 && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -428,12 +428,12 @@ export default function AdminPhotosPage() {
               <Trash2 className="h-4 w-4 mr-1" />
               Delete
             </Button>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Main Content */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25 }}
@@ -476,7 +476,7 @@ export default function AdminPhotosPage() {
             />
           )}
         </AnimatePresence>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

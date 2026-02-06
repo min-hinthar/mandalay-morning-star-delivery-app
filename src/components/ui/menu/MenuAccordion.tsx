@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useId } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { MenuCategory, MenuItem } from "@/types/menu";
@@ -173,7 +173,7 @@ function AccordionCategory({
           </span>
 
           {/* Chevron - rotates 180° on expand */}
-          <motion.div
+          <m.div
             animate={{ rotate: isExpanded ? 180 : 0 }}
             transition={
               shouldReduceMotion
@@ -189,14 +189,14 @@ function AccordionCategory({
                   : "text-[var(--color-text-secondary)]"
               )}
             />
-          </motion.div>
+          </m.div>
         </div>
       </button>
 
       {/* Accordion Content */}
       <AnimatePresence initial={false}>
         {isExpanded && (
-          <motion.div
+          <m.div
             id={contentId}
             role="region"
             aria-labelledby={headerId}
@@ -239,7 +239,7 @@ function AccordionCategory({
                 </div>
               ))}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

@@ -8,7 +8,7 @@ import {
   Circle,
   Marker,
 } from "@react-google-maps/api";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Loader2, MapPin, Clock, Navigation2 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
@@ -297,7 +297,7 @@ export function CoverageRouteMap({
   const center = { lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng };
 
   return (
-    <motion.div
+    <m.div
       ref={containerRef}
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -400,7 +400,7 @@ export function CoverageRouteMap({
       <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/10 via-transparent to-transparent" />
 
       {/* Coverage limit badge - top left with animation */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.2 }}
@@ -414,7 +414,7 @@ export function CoverageRouteMap({
             "shadow-md ring-1 ring-border/30"
           )}
         >
-          <motion.div
+          <m.div
             animate={{ scale: [1, 1.2, 1] }}
             transition={{ duration: 2, repeat: 5 }}
             className="w-2.5 h-2.5 rounded-full bg-primary"
@@ -428,10 +428,10 @@ export function CoverageRouteMap({
             {COVERAGE_LIMITS.maxDurationMinutes} min
           </span>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Kitchen badge - top right */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, x: 10 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.3 }}
@@ -458,11 +458,11 @@ export function CoverageRouteMap({
             <p className="text-2xs text-text-muted leading-tight">Covina, CA</p>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Bottom info bar */}
       <AnimatePresence mode="wait">
-        <motion.div
+        <m.div
           key={hasDestination ? "route" : "default"}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -485,7 +485,7 @@ export function CoverageRouteMap({
             {hasDestination ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <motion.div
+                  <m.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -500,7 +500,7 @@ export function CoverageRouteMap({
                         isValid ? "text-green" : "text-status-error"
                       )}
                     />
-                  </motion.div>
+                  </m.div>
                   <div>
                     <p className={cn(
                       "font-display font-bold text-lg leading-tight",
@@ -513,7 +513,7 @@ export function CoverageRouteMap({
                     </p>
                   </div>
                 </div>
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
@@ -527,24 +527,24 @@ export function CoverageRouteMap({
                       ✗ Too Far
                     </span>
                   )}
-                </motion.div>
+                </m.div>
               </div>
             ) : (
               <div className="flex items-center gap-3 justify-center py-1">
-                <motion.div
+                <m.div
                   animate={{ y: [0, -3, 0] }}
                   transition={{ duration: 1.5, repeat: 5 }}
                 >
                   <MapPin className="w-5 h-5 text-primary" />
-                </motion.div>
+                </m.div>
                 <p className="text-sm text-text-secondary font-medium">
                   Enter your address to check if we deliver to you
                 </p>
               </div>
             )}
           </div>
-        </motion.div>
+        </m.div>
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   );
 }

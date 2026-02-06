@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useScrollSpy } from "@/lib/hooks/useScrollSpy";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -104,7 +104,7 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
   }
 
   return (
-    <motion.nav
+    <m.nav
       className={cn(
         // Fixed positioning on right
         "fixed right-2 md:right-3 top-1/2 -translate-y-1/2",
@@ -123,7 +123,7 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
       {/* Background container - animates in on expand */}
       <AnimatePresence>
         {isExpanded && (
-          <motion.div
+          <m.div
             className={cn(
               "absolute inset-0 -inset-x-1 -inset-y-1 rounded-xl",
               // MOBILE CRASH PREVENTION: No backdrop-blur on mobile
@@ -144,7 +144,7 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
         const isActive = index === activeIndex;
 
         return (
-          <motion.button
+          <m.button
             key={section.id}
             onClick={() => handleClick(index)}
             className={cn(
@@ -161,7 +161,7 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
             {/* Label - animate in/out with stagger */}
             <AnimatePresence>
               {isExpanded && (
-                <motion.span
+                <m.span
                   className={cn(
                     "text-xs font-medium whitespace-nowrap",
                     isActive
@@ -178,12 +178,12 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
                   }}
                 >
                   {section.label}
-                </motion.span>
+                </m.span>
               )}
             </AnimatePresence>
 
             {/* Dot indicator */}
-            <motion.span
+            <m.span
               className={cn(
                 "rounded-full flex-shrink-0 transition-all duration-150",
                 isActive
@@ -195,9 +195,9 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
               }}
               transition={{ duration: 0.1 }}
             />
-          </motion.button>
+          </m.button>
         );
       })}
-    </motion.nav>
+    </m.nav>
   );
 }

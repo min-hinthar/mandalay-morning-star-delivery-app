@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 import { cn } from "@/lib/utils/cn";
 import { spring, inputFocus } from "@/lib/motion-tokens";
@@ -111,7 +111,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div className="w-full">
-        <motion.input
+        <m.input
           type={type}
           className={cn(inputVariants({ size, variant: effectiveVariant, className }))}
           ref={ref}

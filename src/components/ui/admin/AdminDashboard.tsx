@@ -9,7 +9,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
+import { m, AnimatePresence, useSpring, useTransform } from "framer-motion";
 import {
   Package,
   TrendingUp,
@@ -105,9 +105,9 @@ function AnimatedValue({ value, format, className }: AnimatedValueProps) {
   }, [value, springValue, shouldAnimate]);
 
   return (
-    <motion.span className={cn("tabular-nums", className)}>
+    <m.span className={cn("tabular-nums", className)}>
       {displayValue}
-    </motion.span>
+    </m.span>
   );
 }
 
@@ -183,7 +183,7 @@ function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps) {
   }, [data.value, data.goal, hasReachedGoal, onGoalReached]);
 
   return (
-    <motion.div
+    <m.div
       variants={staggerItem}
       whileHover={shouldAnimate ? { y: -4, scale: 1.02 } : undefined}
       whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
@@ -199,25 +199,25 @@ function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps) {
       {/* Refreshing indicator */}
       <AnimatePresence>
         {refreshing && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="absolute top-3 right-3"
           >
-            <motion.div
+            <m.div
               animate={shouldAnimate ? { rotate: 360 } : undefined}
               transition={{ duration: 1, repeat: 5, ease: "linear" }}
             >
               <RefreshCw className="w-4 h-4 text-text-muted" />
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Live pulse indicator */}
       {variant === "success" && (
-        <motion.div
+        <m.div
           className="absolute top-3 right-3 w-2 h-2 rounded-full bg-green"
           animate={shouldAnimate ? {
             scale: [1, 1.5, 1],
@@ -229,7 +229,7 @@ function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps) {
 
       {/* Header */}
       <div className="flex items-start gap-3 mb-4">
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { scale: 0, rotate: -45 } : undefined}
           animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
           transition={{ ...getSpring(spring.ultraBouncy), delay: index * 0.05 + 0.2 }}
@@ -239,14 +239,14 @@ function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps) {
           )}
         >
           <Icon className={cn("w-5 h-5", styles.iconColor)} />
-        </motion.div>
+        </m.div>
 
         <div className="flex-1">
           <p className="text-sm font-medium text-text-secondary">{data.label}</p>
 
           {/* Change indicator */}
           {data.previousValue !== undefined && change !== 0 && (
-            <motion.div
+            <m.div
               initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
               animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
               transition={{ delay: index * 0.05 + 0.3 }}
@@ -261,13 +261,13 @@ function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps) {
                 <TrendingDown className="w-3 h-3" />
               )}
               <span>{change > 0 ? "+" : ""}{Math.round(change)}%</span>
-            </motion.div>
+            </m.div>
           )}
         </div>
       </div>
 
       {/* Value */}
-      <motion.div
+      <m.div
         initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
         animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
         transition={{ ...getSpring(spring.default), delay: index * 0.05 + 0.1 }}
@@ -278,7 +278,7 @@ function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps) {
           format={data.format}
           className="text-3xl font-bold text-text-primary"
         />
-      </motion.div>
+      </m.div>
 
       {/* Goal progress bar */}
       {data.goal && (
@@ -290,7 +290,7 @@ function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps) {
             </span>
           </div>
           <div className="h-2 rounded-full bg-surface-tertiary overflow-hidden">
-            <motion.div
+            <m.div
               initial={shouldAnimate ? { width: 0 } : undefined}
               animate={shouldAnimate ? { width: `${goalProgress}%` } : undefined}
               transition={getSpring(spring.gentle)}
@@ -306,7 +306,7 @@ function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps) {
       {/* Goal reached celebration */}
       <AnimatePresence>
         {hasReachedGoal && goalProgress >= 100 && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}
@@ -316,10 +316,10 @@ function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps) {
             <div className="p-1.5 rounded-full bg-secondary shadow-lg">
               <Sparkles className="w-4 h-4 text-text-inverse" />
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -360,14 +360,14 @@ function QuickStat({ label, value, icon, pulse }: QuickStatProps) {
   const { shouldAnimate } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-secondary"
     >
       <div className="relative">
         {icon}
         {pulse && (
-          <motion.div
+          <m.div
             className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-green"
             animate={shouldAnimate ? {
               scale: [1, 1.3, 1],
@@ -379,7 +379,7 @@ function QuickStat({ label, value, icon, pulse }: QuickStatProps) {
       </div>
       <span className="text-sm font-medium text-text-primary">{value}</span>
       <span className="text-xs text-text-muted">{label}</span>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -424,19 +424,19 @@ export function AdminDashboard({
   return (
     <div className={cn("space-y-6", className)}>
       {/* Header with quick stats */}
-      <motion.div
+      <m.div
         initial={shouldAnimate ? { opacity: 0, y: -10 } : undefined}
         animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
         transition={getSpring(spring.default)}
         className="flex flex-wrap items-center justify-between gap-4"
       >
         <div className="flex items-center gap-3">
-          <motion.div
+          <m.div
             animate={shouldAnimate ? { rotate: [0, 5, -5, 0] } : undefined}
             transition={{ duration: 2, repeat: 5, repeatDelay: 3 }}
           >
             <Zap className="w-6 h-6 text-secondary" />
-          </motion.div>
+          </m.div>
           <h2 className="text-xl font-bold text-text-primary">Dashboard Overview</h2>
         </div>
 
@@ -463,7 +463,7 @@ export function AdminDashboard({
 
           {/* Refresh button */}
           {onRefresh && (
-            <motion.button
+            <m.button
               whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
               whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
               onClick={onRefresh}
@@ -476,16 +476,16 @@ export function AdminDashboard({
                 "disabled:opacity-50"
               )}
             >
-              <motion.div
+              <m.div
                 animate={refreshing && shouldAnimate ? { rotate: 360 } : undefined}
                 transition={{ duration: 1, repeat: 5, ease: "linear" }}
               >
                 <RefreshCw className="w-4 h-4" />
-              </motion.div>
-            </motion.button>
+              </m.div>
+            </m.button>
           )}
         </div>
-      </motion.div>
+      </m.div>
 
       {/* KPI Grid */}
       {loading ? (
@@ -495,7 +495,7 @@ export function AdminDashboard({
           ))}
         </div>
       ) : (
-        <motion.div
+        <m.div
           variants={shouldAnimate ? staggerContainer(0.08, 0.1) : undefined}
           initial="hidden"
           animate="visible"
@@ -510,19 +510,19 @@ export function AdminDashboard({
               onGoalReached={handleGoalReached}
             />
           ))}
-        </motion.div>
+        </m.div>
       )}
 
       {/* Goal celebration overlay */}
       <AnimatePresence>
         {goalCelebration && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 pointer-events-none z-[100] flex items-center justify-center"
           >
-            <motion.div
+            <m.div
               variants={celebration.badge}
               initial="initial"
               animate="animate"
@@ -530,8 +530,8 @@ export function AdminDashboard({
             >
               <Sparkles className="w-5 h-5" />
               <span className="font-bold">Goal Reached!</span>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

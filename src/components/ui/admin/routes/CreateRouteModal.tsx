@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { format, nextSaturday, isSaturday } from "date-fns";
 import {
   Loader2,
@@ -243,14 +243,14 @@ export function CreateRouteModal({
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">
           {/* General Error */}
           {errors.general && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm"
             >
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{errors.general}</span>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Delivery Date */}

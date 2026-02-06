@@ -2,7 +2,7 @@
 
 import { type ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { m, AnimatePresence, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring, duration, easing } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -190,7 +190,7 @@ export function PageTransition({
 
   return (
     <AnimatePresence mode="wait" initial={false} onExitComplete={handleExitComplete}>
-      <motion.div
+      <m.div
         key={pathname}
         variants={variants}
         initial="initial"
@@ -203,7 +203,7 @@ export function PageTransition({
         }}
       >
         {children}
-      </motion.div>
+      </m.div>
     </AnimatePresence>
   );
 }

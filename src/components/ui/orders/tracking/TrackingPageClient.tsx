@@ -8,7 +8,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { StatusTimeline } from "./StatusTimeline";
@@ -174,7 +174,7 @@ export function TrackingPageClient({
       {/* Main content */}
       <main className="mx-auto max-w-2xl px-4 py-6 space-y-4">
         {/* V7 Status Timeline */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -186,11 +186,11 @@ export function TrackingPageClient({
             deliveredAt={initialData.order.deliveredAt}
             isLive={showLiveTracking}
           />
-        </motion.div>
+        </m.div>
 
         {/* V7 ETA Countdown - Only when out for delivery */}
         {showLiveTracking && eta && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -201,14 +201,14 @@ export function TrackingPageClient({
               estimatedArrival={eta.estimatedArrival}
               isNearby={eta.minMinutes <= 5}
             />
-          </motion.div>
+          </m.div>
         )}
 
         {/* Delivery Map - Only when out for delivery with location */}
         {showLiveTracking &&
           initialData.order.address.lat &&
           initialData.order.address.lng && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -231,22 +231,22 @@ export function TrackingPageClient({
                 isLive={subscription.isConnected}
                 className="h-[300px]"
               />
-            </motion.div>
+            </m.div>
           )}
 
         {/* Driver Card - Only when driver is assigned */}
         {driverInfo && stopProgress && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
             <DriverCard driver={driverInfo} stopProgress={stopProgress} />
-          </motion.div>
+          </m.div>
         )}
 
         {/* Order Summary */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
@@ -267,10 +267,10 @@ export function TrackingPageClient({
               state: initialData.order.address.state,
             }}
           />
-        </motion.div>
+        </m.div>
 
         {/* Support Actions */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
@@ -279,11 +279,11 @@ export function TrackingPageClient({
             driverPhone={initialData.driver?.phone ?? null}
             orderStatus={orderStatus}
           />
-        </motion.div>
+        </m.div>
 
         {/* Delivery Photo - Show when delivered */}
         {orderStatus === "delivered" && routeStop?.deliveryPhotoUrl && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
@@ -299,7 +299,7 @@ export function TrackingPageClient({
               className="w-full rounded-lg object-cover"
               style={{ maxHeight: 300 }}
             />
-          </motion.div>
+          </m.div>
         )}
       </main>
     </div>

@@ -56,7 +56,7 @@ function SwipeDeleteIndicator({ progress }: SwipeDeleteIndicatorProps) {
   const opacity = Math.min(1, progress * 2);
 
   return (
-    <motion.div
+    <m.div
       className={cn(
         "absolute right-0 inset-y-0 flex items-center justify-end pr-4",
         "bg-gradient-delete",
@@ -64,7 +64,7 @@ function SwipeDeleteIndicator({ progress }: SwipeDeleteIndicatorProps) {
       )}
       style={{ width: `${Math.min(100, progress * 150)}%` }}
     >
-      <motion.div
+      <m.div
         className={cn(
           "w-10 h-10 rounded-full bg-red-500 text-text-inverse",
           "flex items-center justify-center"
@@ -75,8 +75,8 @@ function SwipeDeleteIndicator({ progress }: SwipeDeleteIndicatorProps) {
         }}
       >
         <Trash2 className="w-5 h-5" />
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 }
 
@@ -224,7 +224,7 @@ export const CartItem = memo(function CartItem({
   }, [item.cartItemId, removeItem]);
 
   return (
-    <motion.div
+    <m.div
       ref={containerRef}
       // REMOVED layout prop - causes expensive layout recalculations that crash mobile
       variants={shouldAnimate ? cartItemVariants : undefined}
@@ -240,7 +240,7 @@ export const CartItem = memo(function CartItem({
       </AnimatePresence>
 
       {/* Main card - glassmorphism style matching unified card (no 3D tilt per CONTEXT.md) */}
-      <motion.div
+      <m.div
         drag={shouldAnimate ? "x" : false}
         dragConstraints={{ left: -150, right: 0 }}
         dragElastic={{ left: 0.1, right: 0 }}
@@ -264,7 +264,7 @@ export const CartItem = memo(function CartItem({
       >
         <div className="flex gap-3">
           {/* Image - rounded corners matching card style */}
-          <motion.div
+          <m.div
             className={cn(
               "flex-shrink-0 rounded-xl overflow-hidden bg-surface-secondary/50",
               compact ? "w-16 h-16" : "w-20 h-20"
@@ -287,7 +287,7 @@ export const CartItem = memo(function CartItem({
                 </span>
               </div>
             )}
-          </motion.div>
+          </m.div>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
@@ -305,7 +305,7 @@ export const CartItem = memo(function CartItem({
 
                 {/* Modifiers */}
                 {item.modifiers.length > 0 && (
-                  <motion.p
+                  <m.p
                     initial={shouldAnimate ? { opacity: 0 } : undefined}
                     animate={shouldAnimate ? { opacity: 1 } : undefined}
                     className={cn(
@@ -314,7 +314,7 @@ export const CartItem = memo(function CartItem({
                     )}
                   >
                     {item.modifiers.map((m) => m.optionName).join(", ")}
-                  </motion.p>
+                  </m.p>
                 )}
 
                 {/* Notes */}
@@ -328,7 +328,7 @@ export const CartItem = memo(function CartItem({
               {/* Action buttons */}
               <div className="flex items-center gap-1">
                 {onEdit && (
-                  <motion.button
+                  <m.button
                     type="button"
                     onClick={() => onEdit(item)}
                     className={cn(
@@ -343,10 +343,10 @@ export const CartItem = memo(function CartItem({
                     aria-label="Edit item"
                   >
                     <Edit3 className="w-4 h-4" />
-                  </motion.button>
+                  </m.button>
                 )}
 
-                <motion.button
+                <m.button
                   type="button"
                   onClick={handleRemove}
                   className={cn(
@@ -361,7 +361,7 @@ export const CartItem = memo(function CartItem({
                   aria-label="Remove item"
                 >
                   <Trash2 className="w-4 h-4" />
-                </motion.button>
+                </m.button>
               </div>
             </div>
 
@@ -375,7 +375,7 @@ export const CartItem = memo(function CartItem({
                 size={compact ? "sm" : "md"}
               />
 
-              <motion.div className="text-right">
+              <m.div className="text-right">
                 <PriceTicker
                   value={itemTotal}
                   inCents={true}
@@ -389,12 +389,12 @@ export const CartItem = memo(function CartItem({
                     ${(item.basePriceCents / 100).toFixed(2)} each
                   </p>
                 )}
-              </motion.div>
+              </m.div>
             </div>
           </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 });
 

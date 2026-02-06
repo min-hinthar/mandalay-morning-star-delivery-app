@@ -13,7 +13,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { User, LogOut, Package, UserCircle } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -157,7 +157,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
   if (!user) {
     return (
       <Link href="/login">
-        <motion.span
+        <m.span
           whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
           whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
           transition={getSpring(spring.snappy)}
@@ -173,7 +173,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
           aria-label="Sign in"
         >
           <User className="h-5 w-5" />
-        </motion.span>
+        </m.span>
       </Link>
     );
   }
@@ -186,7 +186,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
 
   return (
     <div className="relative">
-      <motion.button
+      <m.button
         ref={buttonRef}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -231,12 +231,12 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
           )}
           aria-hidden="true"
         />
-      </motion.button>
+      </m.button>
 
       {/* Dropdown menu */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
+          <m.div
             ref={dropdownRef}
             variants={shouldAnimate ? dropdownVariants : undefined}
             initial={shouldAnimate ? "initial" : false}
@@ -315,7 +315,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
                 Sign Out
               </button>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

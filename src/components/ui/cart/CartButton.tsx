@@ -14,7 +14,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { ShoppingCart } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useCartAnimationStore } from "@/lib/stores/cart-animation-store";
@@ -102,7 +102,7 @@ export function CartButton({ className }: CartButtonProps) {
   }
 
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={open}
       whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
@@ -123,7 +123,7 @@ export function CartButton({ className }: CartButtonProps) {
 
       <AnimatePresence mode="wait">
         {itemCount > 0 && (
-          <motion.span
+          <m.span
             ref={badgeRef}
             key={`badge-${itemCount}`}
             variants={shouldAnimate ? badgeVariants : undefined}
@@ -144,10 +144,10 @@ export function CartButton({ className }: CartButtonProps) {
             )}
           >
             {itemCount > 99 ? "99+" : itemCount}
-          </motion.span>
+          </m.span>
         )}
       </AnimatePresence>
-    </motion.button>
+    </m.button>
   );
 }
 

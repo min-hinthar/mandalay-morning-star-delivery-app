@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Clock, MapPin, Package } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,7 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
       <div className="min-h-screen bg-gradient-to-b from-cream to-lotus/30 py-12 px-4">
         <div className="mx-auto max-w-2xl">
           {/* Success Checkmark Animation */}
-          <motion.div
+          <m.div
             initial={shouldAnimate ? { scale: 0, opacity: 0 } : undefined}
             animate={{ scale: 1, opacity: 1 }}
             transition={getSpring(spring.ultraBouncy)}
@@ -66,10 +66,10 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
             <div className="rounded-full bg-green-100 dark:bg-green-900/30 p-6 shadow-lg">
               <SuccessCheckmark show={true} size={64} variant="default" />
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Confirmation Header */}
-          <motion.div
+          <m.div
             initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, ...getSpring(spring.default) }}
@@ -84,17 +84,17 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
             <p className="mt-2 text-sm text-muted-foreground">
               Order #{order.id.slice(0, 8).toUpperCase()}
             </p>
-          </motion.div>
+          </m.div>
 
           {/* Staggered Content Container */}
-          <motion.div
+          <m.div
             variants={shouldAnimate ? staggerContainer(0.1, 0.4) : undefined}
             initial="hidden"
             animate="visible"
             className="space-y-6"
           >
             {/* Order Details Card */}
-            <motion.div variants={shouldAnimate ? staggerItem : undefined}>
+            <m.div variants={shouldAnimate ? staggerItem : undefined}>
               <Card className="border-accent-secondary/20 shadow-lg">
                 <CardHeader className="bg-accent-secondary/5 border-b border-accent-secondary/10">
                   <div className="flex items-center gap-2 text-accent-secondary">
@@ -150,10 +150,10 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
 
             {/* Delivery Info Cards */}
-            <motion.div
+            <m.div
               variants={shouldAnimate ? staggerItem : undefined}
               className="grid gap-4 md:grid-cols-2"
             >
@@ -192,10 +192,10 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
 
             {/* Action Buttons */}
-            <motion.div
+            <m.div
               variants={shouldAnimate ? staggerItem : undefined}
               className="flex flex-col sm:flex-row gap-4 justify-center pt-2"
             >
@@ -209,11 +209,11 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                   Continue Shopping
                 </Link>
               </Button>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
 
           {/* Contact Info */}
-          <motion.p
+          <m.p
             initial={shouldAnimate ? { opacity: 0 } : undefined}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
@@ -223,7 +223,7 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
             <a href="mailto:support@mandalaymorningstar.com" className="text-accent-tertiary hover:underline">
               Contact us
             </a>
-          </motion.p>
+          </m.p>
         </div>
       </div>
     </>

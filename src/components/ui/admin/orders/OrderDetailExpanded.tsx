@@ -8,7 +8,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   Phone,
   Mail,
@@ -448,7 +448,7 @@ export function OrderDetailExpanded({ orderId, onUpdate }: OrderDetailExpandedPr
   const canEditItems = !["delivered", "cancelled"].includes(order.status);
 
   return (
-    <motion.div
+    <m.div
       initial="hidden"
       animate="visible"
       variants={staggerContainer(0.05, 0.1)}
@@ -457,7 +457,7 @@ export function OrderDetailExpanded({ orderId, onUpdate }: OrderDetailExpandedPr
       {/* Row 1: Customer Info + Status Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Customer Info */}
-        <motion.div variants={staggerItem} className="space-y-4">
+        <m.div variants={staggerItem} className="space-y-4">
           <div className="flex items-center gap-2 text-text-muted">
             <User className="h-4 w-4" />
             <span className="text-xs font-body font-semibold uppercase tracking-wider">
@@ -523,10 +523,10 @@ export function OrderDetailExpanded({ orderId, onUpdate }: OrderDetailExpandedPr
               </div>
             )}
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Status & Actions */}
-        <motion.div variants={staggerItem} className="space-y-4">
+        <m.div variants={staggerItem} className="space-y-4">
           <div className="flex items-center gap-2 text-text-muted">
             <Clock className="h-4 w-4" />
             <span className="text-xs font-body font-semibold uppercase tracking-wider">
@@ -586,13 +586,13 @@ export function OrderDetailExpanded({ orderId, onUpdate }: OrderDetailExpandedPr
               </Button>
             )}
           </div>
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Row 2: Items + Driver Assignment */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Order Items */}
-        <motion.div variants={staggerItem} className="space-y-4">
+        <m.div variants={staggerItem} className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-text-muted">
               <Package className="h-4 w-4" />
@@ -729,10 +729,10 @@ export function OrderDetailExpanded({ orderId, onUpdate }: OrderDetailExpandedPr
               <span className="text-primary">{formatPrice(order.totalCents)}</span>
             </div>
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Driver Assignment */}
-        <motion.div variants={staggerItem} className="space-y-4">
+        <m.div variants={staggerItem} className="space-y-4">
           <div className="flex items-center gap-2 text-text-muted">
             <Truck className="h-4 w-4" />
             <span className="text-xs font-body font-semibold uppercase tracking-wider">
@@ -799,11 +799,11 @@ export function OrderDetailExpanded({ orderId, onUpdate }: OrderDetailExpandedPr
               </p>
             </div>
           )}
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Row 3: Audit Log */}
-      <motion.div variants={staggerItem} className="space-y-4">
+      <m.div variants={staggerItem} className="space-y-4">
         <div className="flex items-center gap-2 text-text-muted">
           <History className="h-4 w-4" />
           <span className="text-xs font-body font-semibold uppercase tracking-wider">
@@ -841,19 +841,19 @@ export function OrderDetailExpanded({ orderId, onUpdate }: OrderDetailExpandedPr
         ) : (
           <p className="text-sm text-text-muted">No activity recorded</p>
         )}
-      </motion.div>
+      </m.div>
 
       {/* Cancel Modal */}
       <AnimatePresence>
         {showCancelModal && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-surface-inverse/50"
             onClick={() => setShowCancelModal(false)}
           >
-            <motion.div
+            <m.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -883,22 +883,22 @@ export function OrderDetailExpanded({ orderId, onUpdate }: OrderDetailExpandedPr
                   Cancel Order
                 </Button>
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Refund Modal */}
       <AnimatePresence>
         {showRefundModal && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-surface-inverse/50"
             onClick={() => setShowRefundModal(false)}
           >
-            <motion.div
+            <m.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -975,10 +975,10 @@ export function OrderDetailExpanded({ orderId, onUpdate }: OrderDetailExpandedPr
                   Process Refund
                 </Button>
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   );
 }

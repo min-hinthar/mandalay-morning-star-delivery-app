@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { motion, type HTMLMotionProps } from "framer-motion";
+import { m, type HTMLMotionProps } from "framer-motion";
 
 import { BrandedSpinner } from "@/components/ui/branded-spinner";
 
@@ -219,7 +219,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       : {};
 
     return (
-      <motion.button
+      <m.button
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         disabled={isDisabled}
@@ -228,7 +228,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...(props as Omit<HTMLMotionProps<"button">, "ref">)}
       >
         {buttonContent}
-      </motion.button>
+      </m.button>
     );
   }
 );

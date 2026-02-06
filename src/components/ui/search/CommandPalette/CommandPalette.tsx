@@ -1,7 +1,7 @@
 "use client";
 
 import { Command } from "cmdk";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { X } from "lucide-react";
@@ -118,7 +118,7 @@ export function CommandPalette({
       {open && (
         <>
           {/* Backdrop */}
-          <motion.div
+          <m.div
             key="command-palette-backdrop"
             variants={backdropVariants}
             initial="initial"
@@ -135,7 +135,7 @@ export function CommandPalette({
           />
 
           {/* Dialog */}
-          <motion.div
+          <m.div
             key="command-palette-dialog"
             variants={dialogVariants}
             initial="initial"
@@ -225,7 +225,7 @@ export function CommandPalette({
                 )}
               </Command.List>
             </Command>
-          </motion.div>
+          </m.div>
         </>
       )}
     </AnimatePresence>

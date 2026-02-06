@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useState, useCallback, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Plus, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -214,7 +214,7 @@ export const AddButton = memo(function AddButton({
       <AnimatePresence mode="wait" initial={false}>
         {/* Idle state - Add button */}
         {displayState === "idle" && (
-          <motion.button
+          <m.button
             key="add"
             ref={buttonRef}
             type="button"
@@ -238,12 +238,12 @@ export const AddButton = memo(function AddButton({
           >
             <Plus className="w-4 h-4" />
             <span className="text-sm">Add</span>
-          </motion.button>
+          </m.button>
         )}
 
         {/* Adding state - Checkmark animation */}
         {displayState === "adding" && (
-          <motion.div
+          <m.div
             key="adding"
             className={cn(
               "flex items-center justify-center w-10 h-10",
@@ -255,19 +255,19 @@ export const AddButton = memo(function AddButton({
             exit={shouldAnimate ? { scale: 0.8, opacity: 0 } : undefined}
             transition={getSpring(spring.ultraBouncy)}
           >
-            <motion.div
+            <m.div
               initial={shouldAnimate ? { pathLength: 0 } : undefined}
               animate={shouldAnimate ? { pathLength: 1 } : undefined}
               transition={{ duration: 0.2, delay: 0.1 }}
             >
               <Check className="w-5 h-5" strokeWidth={3} />
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
 
         {/* Quantity state - +/- controls */}
         {displayState === "quantity" && (
-          <motion.div
+          <m.div
             key="quantity"
             initial={shouldAnimate ? { scale: 0.8, opacity: 0 } : undefined}
             animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
@@ -282,7 +282,7 @@ export const AddButton = memo(function AddButton({
               max={99}
               size="sm"
             />
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

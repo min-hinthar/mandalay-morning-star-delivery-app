@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -222,7 +222,7 @@ export function EmojiPlaceholder({
   const springConfig = getSpring(spring.ultraBouncy);
 
   return (
-    <motion.div
+    <m.div
       className={cn(
         sizes.container,
         "rounded-lg flex items-center justify-center",
@@ -234,7 +234,7 @@ export function EmojiPlaceholder({
       animate={doAnimate ? { scale: 1, opacity: 1 } : undefined}
       transition={springConfig}
     >
-      <motion.span
+      <m.span
         role="img"
         aria-label={category ?? "Food"}
         className={cn(sizes.emoji, "select-none")}
@@ -243,8 +243,8 @@ export function EmojiPlaceholder({
         transition={doAnimate ? { ...springConfig, delay: 0.1 } : undefined}
       >
         {displayEmoji}
-      </motion.span>
-    </motion.div>
+      </m.span>
+    </m.div>
   );
 }
 

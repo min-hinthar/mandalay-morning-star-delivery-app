@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -98,7 +98,7 @@ function SearchResultItem({
   };
 
   return (
-    <motion.button
+    <m.button
       type="button"
       // Use onMouseDown to prevent blur-before-click issue
       onMouseDown={(e) => {
@@ -157,7 +157,7 @@ function SearchResultItem({
           <p className="text-xs text-red-500">Sold out</p>
         )}
       </div>
-    </motion.button>
+    </m.button>
   );
 }
 
@@ -208,7 +208,7 @@ export function SearchAutocomplete({
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <m.div
           variants={shouldAnimate ? dropdownVariants : undefined}
           initial={shouldAnimate ? "hidden" : undefined}
           animate={shouldAnimate ? "visible" : undefined}
@@ -243,7 +243,7 @@ export function SearchAutocomplete({
               ))}
             </div>
           )}
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

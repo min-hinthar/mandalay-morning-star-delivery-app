@@ -8,7 +8,7 @@
 /* eslint-disable no-restricted-syntax */
 
 import { type ReactNode, useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Sun, Moon, Settings, WifiOff, Star } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
@@ -145,7 +145,7 @@ export function DriverLayout({
             {/* Offline Indicator */}
             <AnimatePresence>
               {!isOnline && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
@@ -160,12 +160,12 @@ export function DriverLayout({
                 >
                   <WifiOff className="h-3.5 w-3.5" />
                   <span>Offline</span>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
 
             {/* High Contrast Toggle */}
-            <motion.button
+            <m.button
               onClick={toggleHighContrast}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -183,10 +183,10 @@ export function DriverLayout({
               ) : (
                 <Sun className="h-5 w-5" />
               )}
-            </motion.button>
+            </m.button>
 
             {/* Settings */}
-            <motion.button
+            <m.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               className={cn(
@@ -199,7 +199,7 @@ export function DriverLayout({
               aria-label="Settings"
             >
               <Settings className="h-5 w-5" />
-            </motion.button>
+            </m.button>
           </div>
         </div>
       </header>
@@ -219,7 +219,7 @@ export function DriverLayout({
       {/* Action Area */}
       <AnimatePresence>
         {showActions && (
-          <motion.div
+          <m.div
             initial="initial"
             animate="animate"
             exit="exit"
@@ -237,7 +237,7 @@ export function DriverLayout({
             <div className="flex flex-col gap-2 p-4">
               {/* Primary Action */}
               {primaryAction && (
-                <motion.button
+                <m.button
                   onClick={primaryAction.onClick}
                   disabled={primaryAction.disabled || primaryAction.loading}
                   whileHover={!primaryAction.disabled && !primaryAction.loading ? { scale: 1.01 } : undefined}
@@ -261,7 +261,7 @@ export function DriverLayout({
                   )}
                 >
                   {primaryAction.loading ? (
-                    <motion.div
+                    <m.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: 20, ease: "linear" }}
                       className="h-6 w-6 rounded-full border-2 border-current border-t-transparent"
@@ -269,14 +269,14 @@ export function DriverLayout({
                   ) : (
                     primaryAction.label
                   )}
-                </motion.button>
+                </m.button>
               )}
 
               {/* Secondary Actions */}
               {secondaryActions.length > 0 && (
                 <div className="flex gap-2">
                   {secondaryActions.slice(0, 2).map((action) => (
-                    <motion.button
+                    <m.button
                       key={action.label}
                       onClick={action.onClick}
                       disabled={action.disabled}
@@ -297,12 +297,12 @@ export function DriverLayout({
                       )}
                     >
                       {action.label}
-                    </motion.button>
+                    </m.button>
                   ))}
                 </div>
               )}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

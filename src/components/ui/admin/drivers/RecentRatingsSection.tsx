@@ -8,7 +8,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Star, MessageCircle, RefreshCw, User } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToast";
@@ -85,7 +85,7 @@ export function RecentRatingsSection({ driverId }: RecentRatingsSectionProps) {
 
   if (loading) {
     return (
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -102,12 +102,12 @@ export function RecentRatingsSection({ driverId }: RecentRatingsSectionProps) {
             <div key={i} className="h-20 bg-surface-tertiary rounded-input" />
           ))}
         </div>
-      </motion.div>
+      </m.div>
     );
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
@@ -154,7 +154,7 @@ export function RecentRatingsSection({ driverId }: RecentRatingsSectionProps) {
       ) : (
         <div className="space-y-3">
           {ratings.map((rating, index) => (
-            <motion.div
+            <m.div
               key={rating.id}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
@@ -194,10 +194,10 @@ export function RecentRatingsSection({ driverId }: RecentRatingsSectionProps) {
                   <span className="text-lg font-display font-bold text-primary">{rating.rating}</span>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       )}
-    </motion.div>
+    </m.div>
   );
 }

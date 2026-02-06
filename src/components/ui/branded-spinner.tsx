@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
@@ -32,7 +32,7 @@ export function BrandedSpinner({
       aria-label={label}
       className={cn("inline-flex items-center justify-center", className)}
     >
-      <motion.svg
+      <m.svg
         width={pixelSize}
         height={pixelSize}
         viewBox="0 0 40 40"
@@ -50,7 +50,7 @@ export function BrandedSpinner({
         }
       >
         {/* Morning Star - 8-pointed star shape */}
-        <motion.path
+        <m.path
           d="M20 2L23.5 14.5L36 14.5L26 22L29.5 35L20 27L10.5 35L14 22L4 14.5L16.5 14.5L20 2Z"
           fill="currentColor"
           className="text-primary"
@@ -80,7 +80,7 @@ export function BrandedSpinner({
           fill="currentColor"
           className="text-secondary"
         />
-      </motion.svg>
+      </m.svg>
       <span className="sr-only">{label}</span>
     </div>
   );
@@ -103,7 +103,7 @@ export function RingSpinner({
       aria-label={label}
       className={cn("inline-flex items-center justify-center", className)}
     >
-      <motion.svg
+      <m.svg
         width={pixelSize}
         height={pixelSize}
         viewBox="0 0 40 40"
@@ -131,7 +131,7 @@ export function RingSpinner({
           strokeDashoffset="60"
           className="text-primary"
         />
-      </motion.svg>
+      </m.svg>
       <span className="sr-only">{label}</span>
     </div>
   );

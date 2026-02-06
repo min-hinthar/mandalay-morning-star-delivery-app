@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -70,7 +70,7 @@ export function AnimatedToggle({
         className
       )}
     >
-      <motion.span
+      <m.span
         className={cn(
           knob,
           "absolute left-0.5 rounded-full bg-surface-primary shadow-md"

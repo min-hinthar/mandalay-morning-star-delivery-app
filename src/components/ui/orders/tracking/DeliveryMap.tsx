@@ -16,7 +16,7 @@ import {
   Polyline,
   Marker,
 } from "@react-google-maps/api";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Loader2, MapPin, Navigation, Maximize2, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
@@ -418,26 +418,26 @@ export function DeliveryMap({
   return (
     <>
       {/* Inline map */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         className={cn("relative rounded-xl overflow-hidden shadow-md", className)}
         style={{ minHeight: 300 }}
       >
         {mapContent(false)}
-      </motion.div>
+      </m.div>
 
       {/* Fullscreen overlay */}
       <AnimatePresence onExitComplete={restoreScrollPosition}>
         {isFullscreen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-50 bg-[var(--color-background)]"
           >
-            <motion.div
+            <m.div
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
@@ -445,8 +445,8 @@ export function DeliveryMap({
               className="relative h-full w-full"
             >
               {mapContent(true)}
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </>

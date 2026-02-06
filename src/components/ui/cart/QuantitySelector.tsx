@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -99,7 +99,7 @@ export function QuantitySelector({
   return (
     <div className={cn("flex items-center gap-1", className)}>
       {/* Decrement button */}
-      <motion.button
+      <m.button
         type="button"
         onClick={handleDecrement}
         disabled={quantity <= min}
@@ -118,7 +118,7 @@ export function QuantitySelector({
         aria-label="Decrease quantity"
       >
         <Minus className={sizes.icon} />
-      </motion.button>
+      </m.button>
 
       {/* Quantity display with rubbery flip animation */}
       <div
@@ -128,7 +128,7 @@ export function QuantitySelector({
         )}
       >
         <AnimatePresence mode="popLayout" initial={false}>
-          <motion.span
+          <m.span
             key={quantity}
             initial={
               shouldAnimate
@@ -167,12 +167,12 @@ export function QuantitySelector({
             )}
           >
             {quantity}
-          </motion.span>
+          </m.span>
         </AnimatePresence>
       </div>
 
       {/* Increment button */}
-      <motion.button
+      <m.button
         type="button"
         onClick={handleIncrement}
         disabled={quantity >= max}
@@ -191,7 +191,7 @@ export function QuantitySelector({
         aria-label="Increase quantity"
       >
         <Plus className={sizes.icon} />
-      </motion.button>
+      </m.button>
     </div>
   );
 }
