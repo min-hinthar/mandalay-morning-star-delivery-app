@@ -45,7 +45,14 @@
   - [x] 45-01-PLAN.md — Delete legacy docs (V0-V8) + untrack build artifacts
   - [x] 45-02-PLAN.md — .gitignore audit + planning files archival + STATE/ROADMAP trim
   - [x] 45-03-PLAN.md — README update + PERFORMANCE.md creation
-- [ ] Phase 46: Large File Refactoring (split 29 files >400 lines)
+- [x] Phase 46: Large File Refactoring (split 47 files >400 lines into sub-modules) - **7 plans**
+  - [x] 46-01-PLAN.md — Leaf UI components split (10 files: OrderDetailExpanded, HowItWorksSection, AddressesTab, BrandMascot, DriverDashboard, PendingInvitesTab, PaymentSuccess, ProfileTab, MorphingMenu, CartItem)
+  - [x] 46-02-PLAN.md — Admin components split (9 files: DriverDetailClient, RouteDetailClient, AdminDashboard, DriverListTable, RouteListTable, CreateRouteModal, SettingsClient, CoverageRouteMap, OrdersTab)
+  - [x] 46-03-PLAN.md — Shared UI components split (8-10 files: FormValidation, Modal, skeleton, ExpandableTableRow, AddressInput, TimeSlotPicker, DeliveryMap, StatusTimeline + Hero/UnifiedMenuItemCard evaluation)
+  - [x] 46-04-PLAN.md — Admin pages split (7 files: menu/[id], sections, categories, menu, photos, routes, drivers)
+  - [x] 46-05-PLAN.md — API routes split (4 files: sections/[id], routes/[id]/stops, routes/[id], tracking/[orderId])
+  - [x] 46-06-PLAN.md — Lib/utility files split (7 files: motion-tokens, swipe-gestures, analytics-helpers, micro-interactions, offline-store, route-optimization, useSafeEffects)
+  - [x] 46-07-PLAN.md — ESLint max-lines expansion + CLAUDE.md documentation
 - [ ] Phase 47: Final LCP Measurement & Gap Closure (audit gap closure)
 
 ---
@@ -90,10 +97,10 @@ See archived milestone files in `.planning/archive/`
 | v1.2 Playful UI | 15-24 | 29 | Complete | 2026-01-27 |
 | v1.3 Consolidation | 25-34 | 53 | Complete | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | Complete | 2026-02-05 |
-| **v1.5 Performance** | 40-47 | 21+ | Active | - |
+| **v1.5 Performance** | 40-47 | 28+ | Active | - |
 
-**Total shipped:** 43 phases, 190 plans
+**Total shipped:** 46 phases, 197 plans
 
 ---
 
-*Updated: 2026-02-06 - Added Phase 47 (gap closure) from milestone audit*
+*Updated: 2026-02-06 - Phase 46 complete. Added Phase 47 (gap closure) from milestone audit.*

@@ -140,8 +140,17 @@ const config = [
     }
   },
   {
-    // File size enforcement - REFACTOR-06 (warning only)
-    files: ["src/components/**/*.tsx"],
+    // File size enforcement - Phase 46 (warning only, expanded to all source files)
+    files: [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+    ],
+    ignores: [
+      "src/types/**",           // Type definition files (database.ts, driver.ts)
+      "src/**/*.test.ts",       // Test files
+      "src/**/*.test.tsx",      // Test files
+      "src/stories/**",         // Storybook stories
+    ],
     rules: {
       "max-lines": [
         "warn",

@@ -8,11 +8,7 @@ import {
   RefreshCw,
   Plus,
   Filter,
-  Route,
   MapPin,
-  TrendingUp,
-  CheckCircle2,
-  Clock,
   Calendar,
   ChevronLeft,
   ChevronRight,
@@ -30,6 +26,7 @@ import {
   type CreateRouteData,
 } from "@/components/ui/admin/routes/CreateRouteModal";
 import type { RouteStatus } from "@/types/driver";
+import { RoutesStatsCards } from "./RoutesStatsCards";
 
 type StatusFilter = "all" | RouteStatus;
 
@@ -39,15 +36,6 @@ const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: "in_progress", label: "In Progress" },
   { value: "completed", label: "Completed" },
 ];
-
-interface RouteStats {
-  total: number;
-  planned: number;
-  inProgress: number;
-  completed: number;
-  totalStops: number;
-  deliveredStops: number;
-}
 
 export default function AdminRoutesPage() {
   const router = useRouter();
@@ -104,7 +92,6 @@ export default function AdminRoutesPage() {
         throw new Error(error.error || "Failed to update route");
       }
 
-      // Refresh routes
       await fetchRoutes();
       router.refresh();
     } catch (err) {
@@ -127,7 +114,6 @@ export default function AdminRoutesPage() {
         throw new Error(error.error || "Failed to delete route");
       }
 
-      // Remove from local state
       setRoutes((prev) => prev.filter((r) => r.id !== routeId));
       router.refresh();
     } catch (err) {
@@ -151,11 +137,9 @@ export default function AdminRoutesPage() {
       throw new Error(error.error || "Failed to create route");
     }
 
-    // Refresh the list
     await fetchRoutes();
   };
 
-  // Navigate dates
   const goToPreviousDay = () => {
     const current = selectedDate
       ? parseISO(selectedDate)
@@ -174,14 +158,12 @@ export default function AdminRoutesPage() {
     setSelectedDate(null);
   };
 
-  // Filter routes by status
   const filteredRoutes =
     statusFilter === "all"
       ? routes
       : routes.filter((route) => route.status === statusFilter);
 
-  // Calculate stats
-  const stats: RouteStats = {
+  const stats = {
     total: routes.length,
     planned: routes.filter((r) => r.status === "planned").length,
     inProgress: routes.filter((r) => r.status === "in_progress").length,
@@ -245,74 +227,12 @@ export default function AdminRoutesPage() {
         </div>
       </m.div>
 
-      {/* Stats Cards */}
-      <m.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-4"
-      >
-        {/* Total Routes */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-cream to-lotus/30 border border-curry/10 p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-saffron/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-saffron">
-              <Route className="h-5 w-5" />
-              <span className="text-sm font-medium">Total Routes</span>
-            </div>
-            <p className="text-3xl font-display text-charcoal mt-2">
-              {stats.total}
-            </p>
-          </div>
-        </div>
-
-        {/* Planned */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200/50 p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-blue-100 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-blue-600">
-              <Clock className="h-5 w-5" />
-              <span className="text-sm font-medium">Planned</span>
-            </div>
-            <p className="text-3xl font-display text-charcoal mt-2">
-              {stats.planned}
-            </p>
-          </div>
-        </div>
-
-        {/* In Progress */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-saffron/5 to-saffron/10 border border-saffron/20 p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-saffron/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-saffron">
-              <TrendingUp className="h-5 w-5" />
-              <span className="text-sm font-medium">In Progress</span>
-            </div>
-            <p className="text-3xl font-display text-charcoal mt-2">
-              {stats.inProgress}
-            </p>
-          </div>
-        </div>
-
-        {/* Completed */}
-        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-jade/5 to-jade/10 border border-jade/20 p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-jade/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-jade">
-              <CheckCircle2 className="h-5 w-5" />
-              <span className="text-sm font-medium">Completed</span>
-            </div>
-            <p className="text-3xl font-display text-charcoal mt-2">
-              {stats.completed}
-              {stats.total > 0 && (
-                <span className="text-sm font-normal text-muted-foreground ml-2">
-                  ({Math.round((stats.completed / stats.total) * 100)}%)
-                </span>
-              )}
-            </p>
-          </div>
-        </div>
-      </m.div>
+      <RoutesStatsCards
+        total={stats.total}
+        planned={stats.planned}
+        inProgress={stats.inProgress}
+        completed={stats.completed}
+      />
 
       {/* Date Navigation & Status Filters */}
       <m.div
@@ -321,7 +241,6 @@ export default function AdminRoutesPage() {
         transition={{ delay: 0.2 }}
         className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
       >
-        {/* Date Navigation */}
         <div className="flex items-center gap-2 bg-surface-primary rounded-xl border border-curry/10 p-1">
           <Button
             variant="ghost"
@@ -359,22 +278,21 @@ export default function AdminRoutesPage() {
           )}
         </div>
 
-        {/* Status Filters */}
         <div className="flex items-center gap-2 flex-wrap">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Filter className="h-4 w-4" />
             <span className="text-sm hidden sm:inline">Status:</span>
           </div>
-          {STATUS_FILTERS.map((filter) => {
+          {STATUS_FILTERS.map((f) => {
             const count =
-              filter.value === "all"
+              f.value === "all"
                 ? routes.length
-                : routes.filter((r) => r.status === filter.value).length;
-            const isActive = statusFilter === filter.value;
+                : routes.filter((r) => r.status === f.value).length;
+            const isActive = statusFilter === f.value;
 
             return (
               <Badge
-                key={filter.value}
+                key={f.value}
                 variant={isActive ? "default" : "outline"}
                 className={cn(
                   "cursor-pointer transition-all",
@@ -382,9 +300,9 @@ export default function AdminRoutesPage() {
                     ? "bg-saffron hover:bg-saffron/90 text-text-inverse border-transparent"
                     : "bg-surface-primary border-curry/20 text-charcoal hover:bg-saffron/10 hover:border-saffron/30"
                 )}
-                onClick={() => setStatusFilter(filter.value)}
+                onClick={() => setStatusFilter(f.value)}
               >
-                {filter.label}
+                {f.label}
                 {count > 0 && (
                   <span className="ml-1.5 text-xs opacity-80">({count})</span>
                 )}
@@ -437,7 +355,6 @@ export default function AdminRoutesPage() {
         />
       </m.div>
 
-      {/* Create Route Modal */}
       <CreateRouteModal
         open={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
