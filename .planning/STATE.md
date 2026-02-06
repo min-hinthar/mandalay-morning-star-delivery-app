@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 44 of 46 (Animation Optimization & Monitoring)
-Plan: 2 of 3 complete
-Status: In progress
-Last activity: 2026-02-06 — Completed 44-02 (LazyMotion + m.* migration)
+Plan: 3 of 3 complete
+Status: Phase complete
+Last activity: 2026-02-06 — Completed 44-03 (Lighthouse CI setup)
 
-Progress: [###################                                               ] v1.5 19/52 (37%)
+Progress: [####################                                              ] v1.5 20/52 (38%)
 
 ## Milestones
 
@@ -65,6 +65,7 @@ Progress: [###################                                               ] v
 | SplitText, Flip, Observer removed from GSAP | Zero consumer files; only useGSAP + ScrollTrigger actively used |
 | LazyMotion domMax + strict at root | drag + layoutId require domMax; strict prevents motion.* regression |
 | All motion.* migrated to m.* (174 files) | Per-component bundle ~34kb to ~4.6kb; features loaded once at root |
+| Lighthouse CI: warn-only, PR-only, 4 customer routes | Regression gate without blocking PRs; server mode for App Router |
 
 ### Key Decisions (v1.4)
 
@@ -91,10 +92,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 44-02-PLAN.md
+Stopped at: Completed 44-03-PLAN.md (phase 44 complete)
 Resume file: None
-Next action: Execute 44-03-PLAN.md (Lighthouse CI setup)
+Next action: Plan phase 45
 
 ---
 
-*Updated: 2026-02-06 — Plan 44-02: LazyMotion + m.* migration across 174 files*
+*Updated: 2026-02-06 — Plan 44-03: Lighthouse CI regression gate on PRs*
