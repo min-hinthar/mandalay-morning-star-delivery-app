@@ -2,16 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { addStopsSchema, updateStopStatusSchema } from "@/lib/validations/route";
 import { logger } from "@/lib/utils/logger";
-import type { ProfileRole } from "@/types/database";
 import type { RouteStopStatus } from "@/types/driver";
-
-interface ProfileCheck {
-  role: ProfileRole;
-}
-
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
+import type { ProfileCheck, RouteParams } from "./types";
+import { updateRouteStats } from "./helpers";
 
 /**
  * POST /api/admin/routes/[id]/stops
@@ -145,28 +138,7 @@ export async function POST(
     }
 
     // Update route stats
-    const { data: allStops } = await supabase
-      .from("route_stops")
-      .select("status")
-      .eq("route_id", routeId)
-      .returns<{ status: string }[]>();
-
-    if (allStops) {
-      const stats = {
-        total_stops: allStops.length,
-        pending_stops: allStops.filter((s) => s.status === "pending").length,
-        delivered_stops: allStops.filter((s) => s.status === "delivered").length,
-        skipped_stops: allStops.filter((s) => s.status === "skipped").length,
-        completion_rate: Math.round(
-          (allStops.filter((s) => s.status === "delivered").length / allStops.length) * 100
-        ),
-      };
-
-      await supabase
-        .from("routes")
-        .update({ stats_json: stats })
-        .eq("id", routeId);
-    }
+    await updateRouteStats(supabase, routeId);
 
     return NextResponse.json({
       routeId,
@@ -279,28 +251,7 @@ export async function PATCH(
     }
 
     // Update route stats
-    const { data: allStops } = await supabase
-      .from("route_stops")
-      .select("status")
-      .eq("route_id", routeId)
-      .returns<{ status: string }[]>();
-
-    if (allStops) {
-      const stats = {
-        total_stops: allStops.length,
-        pending_stops: allStops.filter((s) => s.status === "pending").length,
-        delivered_stops: allStops.filter((s) => s.status === "delivered").length,
-        skipped_stops: allStops.filter((s) => s.status === "skipped").length,
-        completion_rate: Math.round(
-          (allStops.filter((s) => s.status === "delivered").length / allStops.length) * 100
-        ),
-      };
-
-      await supabase
-        .from("routes")
-        .update({ stats_json: stats })
-        .eq("id", routeId);
-    }
+    await updateRouteStats(supabase, routeId);
 
     return NextResponse.json({
       stopId,
@@ -405,30 +356,10 @@ export async function DELETE(
           .update({ stop_index: i })
           .eq("id", remainingStops[i].id);
       }
-
-      // Update route stats
-      const { data: allStops } = await supabase
-        .from("route_stops")
-        .select("status")
-        .eq("route_id", routeId);
-
-      if (allStops) {
-        const stats = {
-          total_stops: allStops.length,
-          pending_stops: allStops.filter((s) => s.status === "pending").length,
-          delivered_stops: allStops.filter((s) => s.status === "delivered").length,
-          skipped_stops: allStops.filter((s) => s.status === "skipped").length,
-          completion_rate: allStops.length > 0
-            ? Math.round((allStops.filter((s) => s.status === "delivered").length / allStops.length) * 100)
-            : 0,
-        };
-
-        await supabase
-          .from("routes")
-          .update({ stats_json: stats })
-          .eq("id", routeId);
-      }
     }
+
+    // Update route stats
+    await updateRouteStats(supabase, routeId);
 
     return NextResponse.json({
       stopId,
