@@ -7,7 +7,7 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Trophy, Medal, TrendingUp, TrendingDown, Minus, Star } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -74,7 +74,7 @@ export function DriverLeaderboard({
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="rounded-xl bg-surface-primary p-6 shadow-sm"
@@ -84,7 +84,7 @@ export function DriverLeaderboard({
         <h3 className="text-lg font-semibold text-text-primary">Top Drivers</h3>
       </div>
 
-      <motion.div
+      <m.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -98,8 +98,8 @@ export function DriverLeaderboard({
             showMedal={showMedals}
           />
         ))}
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 }
 
@@ -121,7 +121,7 @@ function LeaderboardRow({
       .slice(0, 2) ?? "??";
 
   return (
-    <motion.div
+    <m.div
       variants={itemVariants}
       whileHover={{
         scale: 1.01,
@@ -183,28 +183,28 @@ function LeaderboardRow({
       {/* Trend indicator */}
       <div className="w-6">
         {entry.trend === "up" && (
-          <motion.div
+          <m.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.3, type: "spring" }}
           >
             <TrendingUp className="h-5 w-5 text-status-success" />
-          </motion.div>
+          </m.div>
         )}
         {entry.trend === "down" && (
-          <motion.div
+          <m.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.3, type: "spring" }}
           >
             <TrendingDown className="h-5 w-5 text-status-error" />
-          </motion.div>
+          </m.div>
         )}
         {entry.trend === "stable" && (
           <Minus className="h-5 w-5 text-text-muted" />
         )}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -221,7 +221,7 @@ export function LeaderboardCompact({
   return (
     <div className="space-y-2">
       {entries.slice(0, limit).map((entry, i) => (
-        <motion.div
+        <m.div
           key={entry.driverId}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -240,7 +240,7 @@ export function LeaderboardCompact({
           <span className="text-sm font-semibold text-status-success">
             {entry.onTimeRate.toFixed(0)}%
           </span>
-        </motion.div>
+        </m.div>
       ))}
     </div>
   );

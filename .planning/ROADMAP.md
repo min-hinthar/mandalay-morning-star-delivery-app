@@ -37,10 +37,10 @@
 - [x] Phase 43: Provider & Route Layout Refactoring (scope cart to customer/public routes, ~60KB savings) - **2 plans**
   - [x] 43-01-PLAN.md — Cart scoping to route-group layouts (CartOverlays + layouts + providers cleanup)
   - [x] 43-02-PLAN.md — Navigation guards + bundle verification
-- [ ] Phase 44: Animation Optimization & Monitoring (lock in <2.5s) - **3 plans**
-  - [ ] 44-01-PLAN.md — React Compiler enable + GSAP dead plugin removal
-  - [ ] 44-02-PLAN.md — LazyMotion provider + full motion.* to m.* migration
-  - [ ] 44-03-PLAN.md — Lighthouse CI performance gate setup
+- [x] Phase 44: Animation Optimization & Monitoring (lock in <2.5s) - **3 plans**
+  - [x] 44-01-PLAN.md — React Compiler enable + GSAP dead plugin removal
+  - [x] 44-02-PLAN.md — LazyMotion provider + full motion.* to m.* migration
+  - [x] 44-03-PLAN.md — Lighthouse CI performance gate setup
 - [ ] Phase 45: Repo Cleanup & Hygiene
 - [ ] Phase 46: Large File Refactoring (optional/stretch)
 
@@ -113,4 +113,4 @@ See MILESTONES.md for details.
 
 ---
 
-*Updated: 2026-02-06 - Phase 44 planned (3 plans, 2 waves)*
+*Updated: 2026-02-06 - Phase 44 complete (3/3 plans, Lighthouse CI regression gate)*

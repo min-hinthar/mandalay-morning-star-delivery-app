@@ -8,7 +8,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, Send, CheckCircle, Star, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -76,7 +76,7 @@ export function DeliveryFeedbackForm({
   // Already rated - show read-only view
   if (existingRating) {
     return (
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-6"
@@ -91,14 +91,14 @@ export function DeliveryFeedbackForm({
 
         {/* Already Rated Card */}
         <div className="rounded-2xl bg-surface-primary p-8 shadow-warm-lg text-center">
-          <motion.div
+          <m.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", delay: 0.2 }}
             className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-jade/10"
           >
             <CheckCircle className="h-8 w-8 text-jade" />
-          </motion.div>
+          </m.div>
 
           <h1 className="mb-2 text-2xl font-display text-charcoal">
             Thanks for your feedback!
@@ -129,46 +129,46 @@ export function DeliveryFeedbackForm({
             </Button>
           </div>
         </div>
-      </motion.div>
+      </m.div>
     );
   }
 
   // Success state
   if (submitted) {
     return (
-      <motion.div
+      <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="rounded-2xl bg-surface-primary p-8 shadow-warm-lg text-center"
       >
-        <motion.div
+        <m.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 200, damping: 15 }}
           className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-jade to-jade/80"
         >
           <CheckCircle className="h-10 w-10 text-text-inverse" />
-        </motion.div>
+        </m.div>
 
-        <motion.h1
+        <m.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="mb-2 text-2xl font-display text-charcoal"
         >
           Thank You!
-        </motion.h1>
+        </m.h1>
 
-        <motion.p
+        <m.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="mb-8 text-charcoal-500"
         >
           Your feedback helps us improve our service.
-        </motion.p>
+        </m.p>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -180,14 +180,14 @@ export function DeliveryFeedbackForm({
           <Button variant="ghost" asChild>
             <Link href={`/orders/${orderId}`}>View Order</Link>
           </Button>
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
     );
   }
 
   // Rating form
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
@@ -205,14 +205,14 @@ export function DeliveryFeedbackForm({
         <div className="rounded-2xl bg-surface-primary p-8 shadow-warm-lg">
           {/* Header */}
           <div className="mb-8 text-center">
-            <motion.div
+            <m.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", delay: 0.1 }}
               className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-saffron/10"
             >
               <Star className="h-8 w-8 text-saffron" />
-            </motion.div>
+            </m.div>
             <h1 className="text-2xl font-display text-charcoal">
               How was your delivery?
             </h1>
@@ -222,7 +222,7 @@ export function DeliveryFeedbackForm({
           </div>
 
           {/* Star Rating */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -234,10 +234,10 @@ export function DeliveryFeedbackForm({
               size="lg"
               showLabel
             />
-          </motion.div>
+          </m.div>
 
           {/* Feedback Text */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -260,24 +260,24 @@ export function DeliveryFeedbackForm({
             <p className="mt-1 text-right text-xs text-charcoal-400">
               {feedbackText.length}/500
             </p>
-          </motion.div>
+          </m.div>
 
           {/* Error */}
           <AnimatePresence>
             {error && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 className="mb-4 rounded-lg bg-red-50 p-3 text-center text-sm text-red-600"
               >
                 {error}
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
 
           {/* Submit Button */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -300,9 +300,9 @@ export function DeliveryFeedbackForm({
                 </div>
               )}
             </Button>
-          </motion.div>
+          </m.div>
         </div>
       </form>
-    </motion.div>
+    </m.div>
   );
 }

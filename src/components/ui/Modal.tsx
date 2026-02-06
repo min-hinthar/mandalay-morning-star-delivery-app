@@ -28,7 +28,7 @@ import {
   type ReactNode,
   type KeyboardEvent,
 } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Portal } from "./Portal";
 import { X } from "lucide-react";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
@@ -348,7 +348,7 @@ export function Modal({
         <AnimatePresence onExitComplete={restoreScrollPosition}>
         {/* Backdrop - rendered separately to avoid Fragment inside AnimatePresence */}
         {isOpen && (
-          <motion.div
+          <m.div
             key="modal-backdrop"
             variants={backdropVariants}
             initial="hidden"
@@ -375,7 +375,7 @@ export function Modal({
         {/* Mobile: No opacity animation on container - prevents transparency issues since blur is disabled */}
         {/* Desktop: Container fades in/out for smooth appearance with backdrop blur */}
         {isOpen && (
-          <motion.div
+          <m.div
             key="modal-container"
             className={cn(
               "fixed inset-0 flex overflow-hidden",
@@ -389,7 +389,7 @@ export function Modal({
             transition={isMobile ? undefined : { duration: 0.15 }}
           >
             {/* Modal Content */}
-            <motion.div
+            <m.div
               ref={modalRef}
               role="dialog"
               aria-modal="true"
@@ -520,8 +520,8 @@ export function Modal({
                   {footer}
                 </div>
               )}
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
         </AnimatePresence>
       </ModalStackContext.Provider>

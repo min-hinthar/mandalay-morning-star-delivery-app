@@ -7,7 +7,7 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { AnimatedCounter } from "./AnimatedCounter";
@@ -102,7 +102,7 @@ export function MetricCard({
   };
 
   return (
-    <motion.div
+    <m.div
       variants={cardVariants}
       initial="hidden"
       animate="visible"
@@ -120,14 +120,14 @@ export function MetricCard({
     >
       {/* V6 Loading overlay */}
       {loading && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
           className="absolute inset-0 flex items-center justify-center bg-surface-primary sm:bg-surface-primary/80 sm:backdrop-blur-sm"
         >
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </motion.div>
+        </m.div>
       )}
 
       <div className="flex items-start justify-between">
@@ -141,7 +141,7 @@ export function MetricCard({
 
           {/* V6 Trend indicator */}
           {calculatedTrend && calculatedTrendValue !== undefined && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
@@ -172,20 +172,20 @@ export function MetricCard({
                 </>
               )}
               <span className="text-xs font-body text-text-muted">vs last period</span>
-            </motion.div>
+            </m.div>
           )}
         </div>
 
         {/* V6 Icon */}
         {icon && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, type: "spring" }}
             className={cn("rounded-card-sm p-3", styles.icon)}
           >
             {icon}
-          </motion.div>
+          </m.div>
         )}
       </div>
 
@@ -194,7 +194,7 @@ export function MetricCard({
         className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full"
         style={{ background: "linear-gradient(to bottom right, var(--color-primary-light), transparent)" }}
       />
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -203,7 +203,7 @@ export function MetricCard({
  */
 export function MetricCardGrid({ children }: { children: React.ReactNode }) {
   return (
-    <motion.div
+    <m.div
       initial="hidden"
       animate="visible"
       variants={{
@@ -218,6 +218,6 @@ export function MetricCardGrid({ children }: { children: React.ReactNode }) {
       className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

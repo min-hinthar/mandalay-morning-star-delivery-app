@@ -8,7 +8,7 @@
  */
 
 import React from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Star,
   TrendingUp,
@@ -94,7 +94,7 @@ function StatCard({ icon, value, label, color, index, trend }: StatCardProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, y: 20, scale: 0.9 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0, scale: 1 } : undefined}
       transition={{ ...getSpring(spring.rubbery), delay: index * 0.1 }}
@@ -115,7 +115,7 @@ function StatCard({ icon, value, label, color, index, trend }: StatCardProps) {
 
       <div className="relative flex items-center gap-3">
         {/* Icon */}
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { scale: 0, rotate: -180 } : undefined}
           animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
           transition={{ ...getSpring(spring.ultraBouncy), delay: index * 0.1 + 0.1 }}
@@ -125,11 +125,11 @@ function StatCard({ icon, value, label, color, index, trend }: StatCardProps) {
           )}
         >
           {icon}
-        </motion.div>
+        </m.div>
 
         {/* Value and label */}
         <div>
-          <motion.p
+          <m.p
             initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
             animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
             transition={{ delay: index * 0.1 + 0.15 }}
@@ -137,20 +137,20 @@ function StatCard({ icon, value, label, color, index, trend }: StatCardProps) {
           >
             {value}
             {trend && (
-              <motion.span
+              <m.span
                 animate={shouldAnimate ? { y: [0, -3, 0] } : undefined}
                 transition={{ duration: 1, repeat: 5, repeatDelay: 1 }}
               >
                 {trend === "up" ? (
                   <TrendingUp className="w-4 h-4 text-green" />
                 ) : null}
-              </motion.span>
+              </m.span>
             )}
-          </motion.p>
+          </m.p>
           <p className="text-sm text-text-muted">{label}</p>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -167,7 +167,7 @@ function StreakDisplay({ days }: StreakDisplayProps) {
   const isOnFire = days >= 5;
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, scale: 0.8 } : undefined}
       animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
       transition={getSpring(spring.ultraBouncy)}
@@ -182,7 +182,7 @@ function StreakDisplay({ days }: StreakDisplayProps) {
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <motion.div
+          <m.div
             animate={
               shouldAnimate && isOnFire
                 ? {
@@ -203,7 +203,7 @@ function StreakDisplay({ days }: StreakDisplayProps) {
                 isOnFire ? "text-orange-500" : "text-primary"
               )}
             />
-          </motion.div>
+          </m.div>
           <div>
             <p className="font-semibold text-text-primary">
               {days} Day Streak!
@@ -218,7 +218,7 @@ function StreakDisplay({ days }: StreakDisplayProps) {
         {isOnFire && shouldAnimate && (
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             {[...Array(5)].map((_, i) => (
-              <motion.div
+              <m.div
                 key={i}
                 className="absolute w-2 h-2 rounded-full bg-orange-400"
                 initial={{
@@ -241,7 +241,7 @@ function StreakDisplay({ days }: StreakDisplayProps) {
           </div>
         )}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -268,7 +268,7 @@ function RouteCard({
 
   if (!route) {
     return (
-      <motion.div
+      <m.div
         initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
         animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
         transition={getSpring(spring.default)}
@@ -278,17 +278,17 @@ function RouteCard({
           "text-center"
         )}
       >
-        <motion.div
+        <m.div
           animate={shouldAnimate ? { y: [0, -5, 0] } : undefined}
           transition={{ duration: 2, repeat: 5 }}
         >
           <Calendar className="w-12 h-12 text-text-muted mx-auto mb-3" />
-        </motion.div>
+        </m.div>
         <p className="font-semibold text-text-primary">No Route Today</p>
         <p className="text-sm text-text-muted mt-1">
           Enjoy your day off! Check back tomorrow.
         </p>
-      </motion.div>
+      </m.div>
     );
   }
 
@@ -297,7 +297,7 @@ function RouteCard({
     : 0;
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={getSpring(spring.default)}
@@ -341,7 +341,7 @@ function RouteCard({
 
         {/* Progress bar */}
         <div className="relative h-3 rounded-full bg-surface-tertiary overflow-hidden">
-          <motion.div
+          <m.div
             initial={shouldAnimate ? { scaleX: 0 } : undefined}
             animate={shouldAnimate ? { scaleX: progress / 100 } : undefined}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -351,7 +351,7 @@ function RouteCard({
 
           {/* Animated progress indicator */}
           {route.status === "in_progress" && shouldAnimate && (
-            <motion.div
+            <m.div
               className="absolute top-0 h-full w-8 bg-overlay-light"
               animate={{ x: ["-100%", "400%"] }}
               transition={{ duration: 1.5, repeat: 5, ease: "linear" }}
@@ -405,7 +405,7 @@ function RouteCard({
           </div>
         )}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -423,7 +423,7 @@ function BadgesDisplay({ badges }: BadgesDisplayProps) {
   if (badges.length === 0) return null;
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={getSpring(spring.default)}
@@ -439,7 +439,7 @@ function BadgesDisplay({ badges }: BadgesDisplayProps) {
 
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {badges.slice(0, 5).map((badge, index) => (
-          <motion.div
+          <m.div
             key={badge.id}
             initial={shouldAnimate ? { opacity: 0, scale: 0 } : undefined}
             animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
@@ -453,10 +453,10 @@ function BadgesDisplay({ badges }: BadgesDisplayProps) {
             <span className="text-xs text-text-muted whitespace-nowrap">
               {badge.name}
             </span>
-          </motion.div>
+          </m.div>
         ))}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -491,7 +491,7 @@ export function DriverDashboard({
     >
       <div className="px-4 py-6 space-y-6">
         {/* Greeting Section */}
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, y: -10 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={getSpring(spring.default)}
@@ -503,7 +503,7 @@ export function DriverDashboard({
             <Calendar className="h-4 w-4" />
             {dayOfWeek}, {dateDisplay}
           </p>
-        </motion.div>
+        </m.div>
 
         {/* Streak Display */}
         {streakDays > 0 && <StreakDisplay days={streakDays} />}
@@ -540,7 +540,7 @@ export function DriverDashboard({
         {badges.length > 0 && <BadgesDisplay badges={badges} />}
 
         {/* Weekly Goal (optional motivational element) */}
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={{ ...getSpring(spring.default), delay: 0.3 }}
@@ -550,13 +550,13 @@ export function DriverDashboard({
           )}
         >
           <div className="flex items-center gap-3">
-            <motion.div
+            <m.div
               animate={shouldAnimate ? { rotate: [0, 10, -10, 0] } : undefined}
               transition={{ duration: 2, repeat: 5, repeatDelay: 2 }}
               className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center"
             >
               <Target className="w-5 h-5 text-primary" />
-            </motion.div>
+            </m.div>
             <div className="flex-1">
               <p className="font-semibold text-text-primary">Weekly Goal</p>
               <p className="text-sm text-text-muted">
@@ -565,7 +565,7 @@ export function DriverDashboard({
             </div>
             <Sparkles className="w-5 h-5 text-secondary" />
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );

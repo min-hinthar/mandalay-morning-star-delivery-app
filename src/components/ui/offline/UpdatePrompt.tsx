@@ -14,7 +14,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { X, RefreshCw } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { zClass } from "@/lib/design-system/tokens/z-index";
 
 const COUNTDOWN_SECONDS = 5;
@@ -110,7 +110,7 @@ export function UpdatePrompt() {
   return (
     <AnimatePresence>
       {showPrompt && (
-        <motion.div
+        <m.div
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
@@ -142,7 +142,7 @@ export function UpdatePrompt() {
               </button>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Image, { type ImageProps } from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -104,7 +104,7 @@ export function AnimatedImage({
   const hasFill = "fill" in imageProps && imageProps.fill;
 
   return (
-    <motion.div
+    <m.div
       className={cn("overflow-hidden", hasFill && "relative w-full h-full", className)}
       initial="hidden"
       animate={isLoaded ? "visible" : "hidden"}
@@ -123,7 +123,7 @@ export function AnimatedImage({
         onLoad={handleLoad}
         {...imageProps}
       />
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -176,7 +176,7 @@ export function LazyAnimatedImage({
   }
 
   return (
-    <motion.div
+    <m.div
       className={cn("relative overflow-hidden", className)}
       initial={{ opacity: 0, scale: 1.05 }}
       animate={isLoaded ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.05 }}
@@ -190,7 +190,7 @@ export function LazyAnimatedImage({
         onLoad={() => setIsLoaded(true)}
         {...props}
       />
-    </motion.div>
+    </m.div>
   );
 }
 

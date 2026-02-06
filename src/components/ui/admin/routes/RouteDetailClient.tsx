@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import {
   ArrowLeft,
@@ -355,7 +355,7 @@ export function RouteDetailClient() {
   return (
     <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col md:flex-row md:items-center justify-between gap-4"
@@ -435,13 +435,13 @@ export function RouteDetailClient() {
             <RefreshCw className={cn("h-5 w-5", isUpdating && "animate-spin")} />
           </Button>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Stats Bar */}
       <RouteStatsBar route={route} />
 
       {/* Driver Info Card */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -524,10 +524,10 @@ export function RouteDetailClient() {
             </SelectContent>
           </Select>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Route Map (viewport-triggered lazy load) */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -552,7 +552,7 @@ export function RouteDetailClient() {
         ) : (
           <MapSkeleton height={400} />
         )}
-      </motion.div>
+      </m.div>
 
       {/* Stops List */}
       <StopsList

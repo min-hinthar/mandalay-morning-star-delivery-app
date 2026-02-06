@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   X,
   Trash2,
@@ -142,7 +142,7 @@ export function PhotoMetadata({
   const unassignedMenuItems = menuItems.filter((item) => !item.imageUrl);
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
@@ -337,6 +337,6 @@ export function PhotoMetadata({
           Remove Photo
         </Button>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { m, AnimatePresence, Reorder } from "framer-motion";
 import {
   Plus,
   RefreshCw,
@@ -347,7 +347,7 @@ export default function AdminSectionsPage() {
         />
 
         {/* Header */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
@@ -380,10 +380,10 @@ export default function AdminSectionsPage() {
               Create Section
             </Button>
           </div>
-        </motion.div>
+        </m.div>
 
       {/* Stats Cards */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -433,10 +433,10 @@ export default function AdminSectionsPage() {
             </p>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Sections List */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -483,7 +483,7 @@ export default function AdminSectionsPage() {
                     {/* Item Selector (when expanded) */}
                     <AnimatePresence>
                       {expandedId === section.id && (
-                        <motion.div
+                        <m.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
                           exit={{ opacity: 0, height: 0 }}
@@ -498,7 +498,7 @@ export default function AdminSectionsPage() {
                             onRemoveItem={(itemId) => handleRemoveItem(section.id, itemId)}
                             onReorderItems={(itemIds) => handleReorderItems(section.id, itemIds)}
                           />
-                        </motion.div>
+                        </m.div>
                       )}
                     </AnimatePresence>
                   </div>
@@ -507,11 +507,11 @@ export default function AdminSectionsPage() {
             </AnimatePresence>
           </Reorder.Group>
         )}
-      </motion.div>
+      </m.div>
 
       {/* Deleted Sections Panel */}
       {deletedSections.length > 0 && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -539,7 +539,7 @@ export default function AdminSectionsPage() {
 
           <AnimatePresence>
             {showDeleted && (
-              <motion.div
+              <m.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
@@ -559,10 +559,10 @@ export default function AdminSectionsPage() {
                     />
                   ))}
                 </div>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
-        </motion.div>
+        </m.div>
       )}
 
         {/* Section Editor Modal */}

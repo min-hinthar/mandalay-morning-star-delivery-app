@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactNode, type ElementType } from "react";
-import { motion, type Variants } from "framer-motion";
+import { m, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
@@ -73,9 +73,9 @@ interface AnimatedSectionProps {
  * Usage:
  * ```tsx
  * <AnimatedSection id="how-it-works">
- *   <motion.h2 variants={itemVariants}>How It Works</motion.h2>
- *   <motion.div variants={itemVariants}>Step 1</motion.div>
- *   <motion.div variants={itemVariants}>Step 2</motion.div>
+ *   <m.h2 variants={itemVariants}>How It Works</m.h2>
+ *   <m.div variants={itemVariants}>Step 1</m.div>
+ *   <m.div variants={itemVariants}>Step 2</m.div>
  * </AnimatedSection>
  * ```
  */
@@ -102,7 +102,7 @@ export function AnimatedSection({
   }
 
   // Cast for TypeScript - motion[as] is valid but TS needs help
-  const MotionComponent = motion[as as keyof typeof motion] as typeof motion.section;
+  const MotionComponent = m[as as keyof typeof m] as typeof m.section;
   const containerVariants = createContainerVariants(staggerGap);
 
   return (

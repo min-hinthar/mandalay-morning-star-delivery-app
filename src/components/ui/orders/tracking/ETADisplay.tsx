@@ -7,7 +7,7 @@
 
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Clock, Navigation } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatETARange, formatArrivalTime } from "@/lib/utils/eta";
@@ -52,7 +52,7 @@ export function ETADisplay({
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={spring.default}
@@ -73,7 +73,7 @@ export function ETADisplay({
             Estimated Arrival
           </p>
           <AnimatePresence mode="wait">
-            <motion.p
+            <m.p
               key={formattedRange}
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
@@ -81,7 +81,7 @@ export function ETADisplay({
               className="text-2xl font-display font-bold text-text-primary"
             >
               {formattedRange}
-            </motion.p>
+            </m.p>
           </AnimatePresence>
         </div>
 
@@ -89,7 +89,7 @@ export function ETADisplay({
         <div className="text-right">
           <p className="text-xs font-body text-text-muted">Arriving by</p>
           <AnimatePresence mode="wait">
-            <motion.p
+            <m.p
               key={formattedTime}
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
@@ -97,7 +97,7 @@ export function ETADisplay({
               className="text-lg font-display font-bold text-green"
             >
               {formattedTime}
-            </motion.p>
+            </m.p>
           </AnimatePresence>
         </div>
       </div>
@@ -107,7 +107,7 @@ export function ETADisplay({
         <Clock className="h-3 w-3" />
         <span>Updates as driver progresses</span>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -122,7 +122,7 @@ export function ETADisplayCompact({
   const formattedRange = formatETARange(minMinutes, maxMinutes);
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={spring.default}
@@ -134,6 +134,6 @@ export function ETADisplayCompact({
     >
       <Navigation className="h-4 w-4" />
       <span>{formattedRange}</span>
-    </motion.div>
+    </m.div>
   );
 }

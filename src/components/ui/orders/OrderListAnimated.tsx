@@ -6,7 +6,7 @@
  * Per Phase 22 CONTEXT: animations replay on re-enter viewport.
  */
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { AnimatedSection, itemVariants } from "@/components/ui/scroll";
 import { OrderCard } from "./OrderCard";
 import type { OrderStatus } from "@/types/order";
@@ -29,9 +29,9 @@ export function OrderListAnimated({ orders }: OrderListAnimatedProps) {
     <AnimatedSection as="div">
       <div className="space-y-4">
         {orders.map((order, index) => (
-          <motion.div key={order.id} variants={itemVariants}>
+          <m.div key={order.id} variants={itemVariants}>
             <OrderCard order={order} index={index} />
-          </motion.div>
+          </m.div>
         ))}
       </div>
     </AnimatedSection>

@@ -8,7 +8,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
   ChevronUp,
@@ -170,7 +170,7 @@ export function DriverListTable({
 
   if (filteredDrivers.length === 0) {
     return (
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center py-16 bg-surface-secondary rounded-card-sm border border-border"
@@ -186,12 +186,12 @@ export function DriverListTable({
             ? `No drivers match "${searchQuery}". Try a different search term.`
             : "Add your first driver to start managing your delivery fleet."}
         </p>
-      </motion.div>
+      </m.div>
     );
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="rounded-card-sm border border-border bg-surface-primary shadow-sm overflow-hidden"
@@ -409,7 +409,7 @@ export function DriverListTable({
             const isToggling = togglingDriverId === driver.id;
 
             return (
-              <motion.div
+              <m.div
                 key={driver.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -513,11 +513,11 @@ export function DriverListTable({
                     )}
                   </Button>
                 </div>
-              </motion.div>
+              </m.div>
             );
           })}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

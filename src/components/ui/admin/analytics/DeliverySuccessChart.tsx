@@ -7,7 +7,7 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   AreaChart,
   Area,
@@ -53,7 +53,7 @@ export function DeliverySuccessChart({
 
   if (type === "stacked") {
     return (
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="rounded-xl bg-surface-primary p-6 shadow-sm"
@@ -107,12 +107,12 @@ export function DeliverySuccessChart({
             />
           </BarChart>
         </ResponsiveContainer>
-      </motion.div>
+      </m.div>
     );
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="rounded-xl bg-surface-primary p-6 shadow-sm"
@@ -160,7 +160,7 @@ export function DeliverySuccessChart({
           />
         </AreaChart>
       </ResponsiveContainer>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -183,7 +183,7 @@ export function ETAAccuracyGauge({
   const offset = halfCircumference - (percentage / 100) * halfCircumference;
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col items-center rounded-xl bg-surface-primary p-6 shadow-sm"
@@ -203,7 +203,7 @@ export function ETAAccuracyGauge({
             strokeLinecap="round"
           />
           {/* Value arc */}
-          <motion.path
+          <m.path
             d="M 20 100 A 80 80 0 0 1 180 100"
             fill="none"
             stroke={V5_CHART_COLORS.success}
@@ -217,16 +217,16 @@ export function ETAAccuracyGauge({
         </svg>
 
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-2">
-          <motion.span
+          <m.span
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
             className="text-4xl font-bold text-text-primary"
           >
             {percentage}%
-          </motion.span>
+          </m.span>
           {trend !== 0 && (
-            <motion.span
+            <m.span
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
@@ -236,7 +236,7 @@ export function ETAAccuracyGauge({
             >
               {trend > 0 ? "+" : ""}
               {trend.toFixed(1)}%
-            </motion.span>
+            </m.span>
           )}
         </div>
       </div>
@@ -244,6 +244,6 @@ export function ETAAccuracyGauge({
       <p className="mt-2 text-sm text-text-secondary">
         Deliveries within estimated time
       </p>
-    </motion.div>
+    </m.div>
   );
 }

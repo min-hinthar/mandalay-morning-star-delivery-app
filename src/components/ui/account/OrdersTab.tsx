@@ -27,7 +27,7 @@ import {
   AlertCircle,
   UtensilsCrossed,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -348,7 +348,7 @@ export function OrdersTab() {
   // Error state
   if (hasError) {
     return (
-      <motion.div
+      <m.div
         initial={shouldAnimate ? { opacity: 0 } : undefined}
         animate={shouldAnimate ? { opacity: 1 } : undefined}
         className="text-center py-16"
@@ -371,14 +371,14 @@ export function OrdersTab() {
           <RefreshCcw className="h-4 w-4 mr-2" />
           Try Again
         </Button>
-      </motion.div>
+      </m.div>
     );
   }
 
   // Empty state with illustration
   if (orders.length === 0) {
     return (
-      <motion.div
+      <m.div
         initial={shouldAnimate ? { opacity: 0 } : undefined}
         animate={shouldAnimate ? { opacity: 1 } : undefined}
         className="text-center py-16"
@@ -410,18 +410,18 @@ export function OrdersTab() {
         <Button asChild variant="primary" size="lg" className="shadow-elevated">
           <Link href="/menu">Browse Menu</Link>
         </Button>
-      </motion.div>
+      </m.div>
     );
   }
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0 } : undefined}
       animate={shouldAnimate ? { opacity: 1 } : undefined}
     >
       <div className="space-y-4">
         {orders.map((order, index) => (
-          <motion.div
+          <m.div
             key={order.id}
             initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
             animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
@@ -514,7 +514,7 @@ export function OrdersTab() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         ))}
       </div>
 
@@ -563,6 +563,6 @@ export function OrdersTab() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </motion.div>
+    </m.div>
   );
 }

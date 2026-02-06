@@ -8,7 +8,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   Mail,
   MailPlus,
@@ -214,7 +214,7 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
 
   if (invites.length === 0) {
     return (
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center py-16 bg-surface-secondary rounded-card-sm border border-border"
@@ -228,13 +228,13 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
         <p className="text-text-secondary font-body max-w-md mx-auto">
           Use the &quot;Invite Driver&quot; button to send an invitation to a new driver.
         </p>
-      </motion.div>
+      </m.div>
     );
   }
 
   return (
     <>
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="rounded-card-sm border border-border bg-surface-primary shadow-sm overflow-hidden"
@@ -355,7 +355,7 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
               const isLoading = actionLoading === invite.id;
 
               return (
-                <motion.div
+                <m.div
                   key={invite.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -427,12 +427,12 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
                       Revoke
                     </Button>
                   </div>
-                </motion.div>
+                </m.div>
               );
             })}
           </AnimatePresence>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Revoke Confirmation Dialog */}
       <AlertDialog open={revokeDialogOpen} onOpenChange={setRevokeDialogOpen}>

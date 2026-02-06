@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { LazyMotion, domMax } from "framer-motion";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { AnimationProvider } from "@/lib/providers/animation-provider";
 import { ThemeProvider, DynamicThemeProvider } from "@/components/ui/theme";
@@ -14,9 +15,11 @@ export function Providers({ children }: ProvidersProps) {
     <ThemeProvider>
       <DynamicThemeProvider>
         <QueryProvider>
-          <AnimationProvider>
-            {children}
-          </AnimationProvider>
+          <LazyMotion features={domMax} strict>
+            <AnimationProvider>
+              {children}
+            </AnimationProvider>
+          </LazyMotion>
         </QueryProvider>
       </DynamicThemeProvider>
     </ThemeProvider>

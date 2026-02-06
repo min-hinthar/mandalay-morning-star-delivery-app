@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { zClass } from "@/lib/design-system/tokens/z-index";
@@ -57,7 +57,7 @@ export const GlassOverlay = memo(function GlassOverlay({
 
       {/* Hover border glow - brand color, ~--shadow-glow-primary equivalent */}
       {shouldAnimate && (
-        <motion.div
+        <m.div
           className={cn(
             "absolute inset-0 pointer-events-none",
             rounded,

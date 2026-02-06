@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
   CheckCircle,
@@ -74,7 +74,7 @@ function ConfettiParticle({ color, delay }: Omit<ConfettiParticleProps, "index">
   const shape = Math.random() > 0.5 ? "circle" : "square";
 
   return (
-    <motion.div
+    <m.div
       className="fixed pointer-events-none"
       style={{
         left: `${startX}%`,
@@ -115,14 +115,14 @@ function AnimatedCheckmark() {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { scale: 0 } : undefined}
       animate={shouldAnimate ? { scale: 1 } : undefined}
       transition={getSpring(spring.ultraBouncy)}
       className="relative"
     >
       {/* Outer glow */}
-      <motion.div
+      <m.div
         animate={shouldAnimate ? {
           scale: [1, 1.3, 1],
           opacity: [0.5, 0.2, 0.5],
@@ -135,7 +135,7 @@ function AnimatedCheckmark() {
       />
 
       {/* Circle background */}
-      <motion.div
+      <m.div
         initial={shouldAnimate ? { scale: 0 } : undefined}
         animate={shouldAnimate ? { scale: 1 } : undefined}
         transition={{ ...getSpring(spring.ultraBouncy), delay: 0.2 }}
@@ -156,15 +156,15 @@ function AnimatedCheckmark() {
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <motion.path
+          <m.path
             d="M5 12l5 5L20 7"
             initial={shouldAnimate ? { pathLength: 0 } : undefined}
             animate={shouldAnimate ? { pathLength: 1 } : undefined}
             transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
           />
         </svg>
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 }
 
@@ -184,13 +184,13 @@ function TimelineStep({ icon, title, description, isActive, index }: TimelineSte
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, x: -20 } : undefined}
       animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
       transition={{ ...getSpring(spring.default), delay: 0.8 + index * 0.15 }}
       className="flex items-start gap-3"
     >
-      <motion.div
+      <m.div
         animate={isActive && shouldAnimate ? {
           scale: [1, 1.2, 1],
         } : undefined}
@@ -207,12 +207,12 @@ function TimelineStep({ icon, title, description, isActive, index }: TimelineSte
         )}
       >
         {icon}
-      </motion.div>
+      </m.div>
       <div>
         <p className="font-semibold text-text-primary">{title}</p>
         <p className="text-sm text-text-secondary">{description}</p>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -280,7 +280,7 @@ export function PaymentSuccess({
       {/* Confetti */}
       <AnimatePresence>
         {showConfetti && shouldAnimate && (
-          <motion.div
+          <m.div
             key="confetti-container"
             className="fixed inset-0 pointer-events-none z-[100]"
             initial={{ opacity: 1 }}
@@ -294,12 +294,12 @@ export function PaymentSuccess({
                 delay={particle.delay}
               />
             ))}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Main content */}
-      <motion.div
+      <m.div
         initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
         animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
         transition={getSpring(spring.default)}
@@ -309,7 +309,7 @@ export function PaymentSuccess({
         <AnimatedCheckmark />
 
         {/* Title */}
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={{ delay: 0.4 }}
@@ -318,7 +318,7 @@ export function PaymentSuccess({
           <h1 className="text-2xl sm:text-3xl font-display font-bold text-text-primary">
             Order Confirmed!
           </h1>
-          <motion.div
+          <m.div
             initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
             animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
             transition={{ delay: 0.5 }}
@@ -328,11 +328,11 @@ export function PaymentSuccess({
             <p className="text-text-secondary">
               Thank you for your order!
             </p>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
 
         {/* Order ID */}
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0 } : undefined}
           animate={shouldAnimate ? { opacity: 1 } : undefined}
           transition={{ delay: 0.6 }}
@@ -342,7 +342,7 @@ export function PaymentSuccess({
           <code className="px-3 py-1 rounded-lg bg-surface-secondary font-mono text-sm text-text-primary">
             {orderId}
           </code>
-          <motion.button
+          <m.button
             type="button"
             onClick={handleCopyOrderId}
             whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
@@ -351,30 +351,30 @@ export function PaymentSuccess({
           >
             <AnimatePresence mode="wait">
               {copied ? (
-                <motion.div
+                <m.div
                   key="check"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
                 >
                   <Check className="w-4 h-4 text-green" />
-                </motion.div>
+                </m.div>
               ) : (
-                <motion.div
+                <m.div
                   key="copy"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
                 >
                   <Copy className="w-4 h-4 text-text-muted" />
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
-          </motion.button>
-        </motion.div>
+          </m.button>
+        </m.div>
 
         {/* Order summary card */}
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={{ delay: 0.7 }}
@@ -417,10 +417,10 @@ export function PaymentSuccess({
               </div>
             </div>
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Timeline */}
-        <motion.div
+        <m.div
           variants={shouldAnimate ? staggerContainer(0.15, 0.8) : undefined}
           initial="hidden"
           animate="visible"
@@ -454,10 +454,10 @@ export function PaymentSuccess({
             isActive={false}
             index={3}
           />
-        </motion.div>
+        </m.div>
 
         {/* Action buttons */}
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={{ delay: 1.3 }}
@@ -486,10 +486,10 @@ export function PaymentSuccess({
               Order Again
             </Link>
           </Button>
-        </motion.div>
+        </m.div>
 
         {/* Share button */}
-        <motion.button
+        <m.button
           type="button"
           initial={shouldAnimate ? { opacity: 0 } : undefined}
           animate={shouldAnimate ? { opacity: 1 } : undefined}
@@ -502,8 +502,8 @@ export function PaymentSuccess({
         >
           <Share2 className="w-4 h-4" />
           Share with friends
-        </motion.button>
-      </motion.div>
+        </m.button>
+      </m.div>
     </div>
   );
 }

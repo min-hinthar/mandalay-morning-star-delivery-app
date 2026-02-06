@@ -8,7 +8,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Plus,
   RefreshCw,
@@ -272,7 +272,7 @@ export default function AdminCategoriesPage() {
   return (
     <div className="p-4 md:p-8 space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
@@ -383,10 +383,10 @@ export default function AdminCategoriesPage() {
             </DialogContent>
           </Dialog>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Stats Cards */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
@@ -433,10 +433,10 @@ export default function AdminCategoriesPage() {
             </p>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Categories Table */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -571,7 +571,7 @@ export default function AdminCategoriesPage() {
             </Table>
           </div>
         )}
-      </motion.div>
+      </m.div>
     </div>
   );
 }

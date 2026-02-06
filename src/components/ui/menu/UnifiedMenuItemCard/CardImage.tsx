@@ -2,7 +2,7 @@
 
 import { memo, useState } from "react";
 import Image from "next/image";
-import { motion, MotionValue, useTransform } from "framer-motion";
+import { m, MotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { getCategoryEmoji } from "../EmojiPlaceholder";
@@ -79,7 +79,7 @@ export const CardImage = memo(function CardImage({
       )}
     >
       {/* Image with parallax */}
-      <motion.div
+      <m.div
         className="absolute inset-0"
         style={{
           x: shouldAnimate && isHovered ? imageX : 0,
@@ -106,11 +106,11 @@ export const CardImage = memo(function CardImage({
             </span>
           </div>
         )}
-      </motion.div>
+      </m.div>
 
       {/* Shine overlay - follows mouse during hover (desktop) */}
       {shouldAnimate && isHovered && (
-        <motion.div
+        <m.div
           className={cn(
             "absolute pointer-events-none bg-gradient-card-shine",
             "w-[150%] h-[150%]",

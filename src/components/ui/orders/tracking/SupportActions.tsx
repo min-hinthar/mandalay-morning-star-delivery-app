@@ -7,7 +7,7 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Phone, MessageCircle, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { OrderStatus } from "@/types/database";
@@ -45,7 +45,7 @@ export function SupportActions({
   };
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
@@ -93,7 +93,7 @@ export function SupportActions({
           ? "Order delivered. Contact support if you have any issues"
           : "Our team is here to help with any questions"}
       </p>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -116,7 +116,7 @@ export function SupportFAB({
   };
 
   return (
-    <motion.button
+    <m.button
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       whileHover={{ scale: 1.05 }}
@@ -133,6 +133,6 @@ export function SupportFAB({
       aria-label="Get help"
     >
       <MessageCircle className="h-6 w-6" />
-    </motion.button>
+    </m.button>
   );
 }

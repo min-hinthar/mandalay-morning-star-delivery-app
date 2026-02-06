@@ -8,7 +8,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Users,
   Trophy,
@@ -100,14 +100,14 @@ export function DriverAnalyticsDashboard() {
   }
 
   return (
-    <motion.div
+    <m.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
       className="space-y-6"
     >
       {/* Header */}
-      <motion.div
+      <m.div
         variants={itemVariants}
         className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
@@ -147,7 +147,7 @@ export function DriverAnalyticsDashboard() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Team Summary Cards */}
       <MetricCardGrid>
@@ -185,17 +185,17 @@ export function DriverAnalyticsDashboard() {
       {/* Main Content Grid */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Driver List */}
-        <motion.div variants={itemVariants} className="lg:col-span-2">
+        <m.div variants={itemVariants} className="lg:col-span-2">
           <DriverLeaderboard
             entries={data?.leaderboard ?? []}
             onDriverClick={handleDriverClick}
             loading={loading}
             showMedals
           />
-        </motion.div>
+        </m.div>
 
         {/* Selected Driver Details or Team Stats */}
-        <motion.div variants={itemVariants} className="space-y-6">
+        <m.div variants={itemVariants} className="space-y-6">
           {selectedDriver ? (
             <DriverDetailCard
               driver={selectedDriver}
@@ -209,12 +209,12 @@ export function DriverAnalyticsDashboard() {
               inactiveCount={data?.summary.totalInactiveDrivers ?? 0}
             />
           )}
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Performance Charts */}
       {data && data.drivers.length > 0 && (
-        <motion.div variants={itemVariants} className="grid gap-6 lg:grid-cols-2">
+        <m.div variants={itemVariants} className="grid gap-6 lg:grid-cols-2">
           <PerformanceChart
             data={data.drivers
               .sort((a, b) => b.totalDeliveries - a.totalDeliveries)
@@ -242,9 +242,9 @@ export function DriverAnalyticsDashboard() {
             type="bar"
             color="#2E8B57"
           />
-        </motion.div>
+        </m.div>
       )}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -256,7 +256,7 @@ function DriverDetailCard({
   onClose: () => void;
 }) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className="rounded-xl bg-surface-primary p-6 shadow-warm-sm"
@@ -306,7 +306,7 @@ function DriverDetailCard({
           </div>
         )}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -322,7 +322,7 @@ function TeamStatsCard({
   inactiveCount: number;
 }) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="rounded-xl bg-surface-primary p-6 shadow-warm-sm"
@@ -354,6 +354,6 @@ function TeamStatsCard({
           <span className="font-semibold text-charcoal-400">{inactiveCount}</span>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

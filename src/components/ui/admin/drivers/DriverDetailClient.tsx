@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   ArrowLeft,
   Edit2,
@@ -264,7 +264,7 @@ export function DriverDetailClient() {
   return (
     <div className="p-4 md:p-8 space-y-6 max-w-6xl">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
@@ -307,7 +307,7 @@ export function DriverDetailClient() {
             </div>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Stats Cards Row */}
       <DriverStatsCards driver={driver} />
@@ -323,7 +323,7 @@ export function DriverDetailClient() {
         {/* Side column (1/3) - Profile & Actions */}
         <div className="space-y-6">
           {/* Profile Card */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -371,10 +371,10 @@ export function DriverDetailClient() {
                 </p>
               </div>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Actions Card */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -424,20 +424,20 @@ export function DriverDetailClient() {
                 </Button>
               )}
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </div>
 
       {/* Edit Profile Modal */}
       {showEditModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="absolute inset-0 bg-surface-inverse/60"
             onClick={() => setShowEditModal(false)}
           />
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={spring.default}
@@ -527,20 +527,20 @@ export function DriverDetailClient() {
                 )}
               </Button>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       )}
 
       {/* Archive Confirmation Modal */}
       {showArchiveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="absolute inset-0 bg-surface-inverse/60"
             onClick={() => setShowArchiveModal(false)}
           />
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={spring.default}
@@ -589,7 +589,7 @@ export function DriverDetailClient() {
                 )}
               </Button>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       )}
     </div>

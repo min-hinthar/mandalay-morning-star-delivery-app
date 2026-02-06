@@ -8,7 +8,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { StopCard } from "./StopCard";
 import type { RouteStopStatus } from "@/types/driver";
 
@@ -58,7 +58,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
     <div className="space-y-6">
       {/* Current Stop */}
       {currentStop && (
-        <motion.section
+        <m.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -78,12 +78,12 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
             isCurrentStop
             onClick={() => handleStopClick(currentStop.id)}
           />
-        </motion.section>
+        </m.section>
       )}
 
       {/* Upcoming Stops */}
       {upcomingStops.length > 0 && (
-        <motion.section
+        <m.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -93,7 +93,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
           </h2>
           <div className="space-y-2">
             {upcomingStops.map((stop, index) => (
-              <motion.div
+              <m.div
                 key={stop.id}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -110,15 +110,15 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
                   }}
                   onClick={() => handleStopClick(stop.id)}
                 />
-              </motion.div>
+              </m.div>
             ))}
           </div>
-        </motion.section>
+        </m.section>
       )}
 
       {/* Completed Stops */}
       {completedStops.length > 0 && (
-        <motion.section
+        <m.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -142,7 +142,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
               />
             ))}
           </div>
-        </motion.section>
+        </m.section>
       )}
     </div>
   );

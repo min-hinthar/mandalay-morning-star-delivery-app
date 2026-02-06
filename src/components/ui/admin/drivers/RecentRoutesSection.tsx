@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Route, Calendar, Clock, ChevronRight, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToast";
@@ -100,7 +100,7 @@ export function RecentRoutesSection({ driverId }: RecentRoutesSectionProps) {
 
   if (loading) {
     return (
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-surface-secondary rounded-card-sm border border-border p-6"
@@ -116,12 +116,12 @@ export function RecentRoutesSection({ driverId }: RecentRoutesSectionProps) {
             <div key={i} className="h-16 bg-surface-tertiary rounded-input" />
           ))}
         </div>
-      </motion.div>
+      </m.div>
     );
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="bg-surface-secondary rounded-card-sm border border-border p-6"
@@ -157,7 +157,7 @@ export function RecentRoutesSection({ driverId }: RecentRoutesSectionProps) {
             const duration = calculateDuration(route);
 
             return (
-              <motion.div
+              <m.div
                 key={route.id}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -203,7 +203,7 @@ export function RecentRoutesSection({ driverId }: RecentRoutesSectionProps) {
                   {/* Arrow */}
                   <ChevronRight className="h-4 w-4 text-text-muted group-hover:text-primary transition-colors" />
                 </div>
-              </motion.div>
+              </m.div>
             );
           })}
         </div>
@@ -221,6 +221,6 @@ export function RecentRoutesSection({ driverId }: RecentRoutesSectionProps) {
           </Button>
         </div>
       )}
-    </motion.div>
+    </m.div>
   );
 }

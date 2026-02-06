@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -45,7 +45,7 @@ function ArrowButton({ direction, onClick, disabled }: ArrowButtonProps) {
   return (
     <AnimatePresence>
       {!disabled && (
-        <motion.button
+        <m.button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
@@ -74,7 +74,7 @@ function ArrowButton({ direction, onClick, disabled }: ArrowButtonProps) {
           aria-label={direction === "left" ? "Previous items" : "Next items"}
         >
           <Icon className="w-5 h-5 md:w-6 md:h-6" />
-        </motion.button>
+        </m.button>
       )}
     </AnimatePresence>
   );

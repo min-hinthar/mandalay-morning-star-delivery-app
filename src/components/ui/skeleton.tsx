@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
@@ -151,7 +151,7 @@ const SingleSkeleton = forwardRef<HTMLDivElement, Omit<SkeletonProps, "count" | 
           className={baseClasses}
           style={{ width, height }}
         >
-          <motion.div
+          <m.div
             className="absolute inset-0 bg-gradient-shimmer"
             {...shimmerAnimation}
           />
@@ -163,7 +163,7 @@ const SingleSkeleton = forwardRef<HTMLDivElement, Omit<SkeletonProps, "count" | 
     // Wave variant
     if (variant === "wave") {
       return (
-        <motion.div
+        <m.div
           ref={ref}
           className={cn(baseClasses, "bg-gradient-to-r")}
           style={{
@@ -176,7 +176,7 @@ const SingleSkeleton = forwardRef<HTMLDivElement, Omit<SkeletonProps, "count" | 
           {...waveAnimation}
         >
           {withGrain && <GrainOverlay />}
-        </motion.div>
+        </m.div>
       );
     }
 
@@ -188,7 +188,7 @@ const SingleSkeleton = forwardRef<HTMLDivElement, Omit<SkeletonProps, "count" | 
           className={baseClasses}
           style={{ width, height }}
         >
-          <motion.div
+          <m.div
             className="absolute inset-0 opacity-30"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
@@ -209,14 +209,14 @@ const SingleSkeleton = forwardRef<HTMLDivElement, Omit<SkeletonProps, "count" | 
 
     // Pulse variant (default fallback)
     return (
-      <motion.div
+      <m.div
         ref={ref}
         className={baseClasses}
         style={{ width, height }}
         {...pulseAnimation}
       >
         {withGrain && <GrainOverlay />}
-      </motion.div>
+      </m.div>
     );
   }
 );

@@ -19,7 +19,7 @@
  */
 
 import { memo, useRef, useState, useEffect, useCallback, useMemo } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useActiveCategory } from "@/lib/hooks/useActiveCategory";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { spring } from "@/lib/motion-tokens";
@@ -224,7 +224,7 @@ export const CategoryTabs = memo(function CategoryTabs({
               : activeCategory === tab.slug;
 
           return (
-            <motion.button
+            <m.button
               key={tab.slug ?? "all"}
               role="tab"
               aria-selected={isActive}
@@ -245,7 +245,7 @@ export const CategoryTabs = memo(function CategoryTabs({
             >
               {/* Animated pill background for active state */}
               {isActive && (
-                <motion.span
+                <m.span
                   layoutId="activeTabPill"
                   className="absolute inset-0 rounded-pill bg-primary shadow-sm"
                   transition={shouldAnimate ? spring.snappy : { duration: 0 }}
@@ -256,7 +256,7 @@ export const CategoryTabs = memo(function CategoryTabs({
               <span className="relative z-0">
                 {tab.nameEn || tab.name}
               </span>
-            </motion.button>
+            </m.button>
           );
         })}
       </div>

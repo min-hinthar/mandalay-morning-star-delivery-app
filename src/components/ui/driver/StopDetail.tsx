@@ -7,7 +7,7 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Phone, MapPin, Clock, Copy, Package, FileText } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils/cn";
@@ -123,7 +123,7 @@ export function StopDetail({
   return (
     <div className="space-y-6">
       {/* Progress Bar */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border"
@@ -137,17 +137,17 @@ export function StopDetail({
           </span>
         </div>
         <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface-tertiary">
-          <motion.div
+          <m.div
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="h-full rounded-full bg-green"
           />
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
@@ -162,11 +162,11 @@ export function StopDetail({
           </h1>
           <p className="font-body text-sm text-text-muted">Stop #{stopIndex}</p>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Contact */}
       {customer.phone && (
-        <motion.button
+        <m.button
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -184,11 +184,11 @@ export function StopDetail({
             <p className="font-body text-sm text-text-muted">Phone</p>
             <p className="font-body font-medium text-text-primary">{customer.phone}</p>
           </div>
-        </motion.button>
+        </m.button>
       )}
 
       {/* Address */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
@@ -221,11 +221,11 @@ export function StopDetail({
             <Copy className="h-4 w-4" />
           </button>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Time Window */}
       {timeDisplay && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -238,12 +238,12 @@ export function StopDetail({
             <p className="font-body text-sm text-text-muted">Delivery Window</p>
             <p className="font-body font-medium text-text-primary">{timeDisplay}</p>
           </div>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Delivery Notes - V6 warning style */}
       {deliveryNotes && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
@@ -258,12 +258,12 @@ export function StopDetail({
               <p className="mt-1 font-body text-text-primary">{deliveryNotes}</p>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Order Items */}
       {orderItems.length > 0 && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -294,7 +294,7 @@ export function StopDetail({
               </li>
             ))}
           </ul>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Navigation Button */}

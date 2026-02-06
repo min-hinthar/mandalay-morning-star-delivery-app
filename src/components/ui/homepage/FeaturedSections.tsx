@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -152,7 +152,7 @@ export function FeaturedSections({
   return (
     <div className={cn("space-y-12 md:space-y-16", className)}>
       {sections.map((section, index) => (
-        <motion.div
+        <m.div
           key={section.id}
           id={`featured-${section.slug}`}
           initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
@@ -180,7 +180,7 @@ export function FeaturedSections({
               accentColor={section.accentColor}
             />
           )}
-        </motion.div>
+        </m.div>
       ))}
     </div>
   );

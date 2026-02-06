@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   MapPin,
   Search,
@@ -83,7 +83,7 @@ function AddressCard({
   );
 
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={onSelect}
       variants={shouldAnimate ? staggerItem : undefined}
@@ -101,7 +101,7 @@ function AddressCard({
     >
       <div className="flex items-start gap-3">
         {/* Selection indicator */}
-        <motion.div
+        <m.div
           className={cn(
             "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5",
             isSelected
@@ -118,7 +118,7 @@ function AddressCard({
           ) : (
             labelIcon
           )}
-        </motion.div>
+        </m.div>
 
         {/* Address details */}
         <div className="flex-1 min-w-0">
@@ -139,7 +139,7 @@ function AddressCard({
 
           {/* Coverage status */}
           {coverageStatus && (
-            <motion.div
+            <m.div
               initial={shouldAnimate ? { opacity: 0, y: 5 } : undefined}
               animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
               className={cn(
@@ -162,7 +162,7 @@ function AddressCard({
                   <span>Outside delivery area</span>
                 </>
               )}
-            </motion.div>
+            </m.div>
           )}
         </div>
 
@@ -171,7 +171,7 @@ function AddressCard({
           isSelected && "text-primary rotate-90"
         )} />
       </div>
-    </motion.button>
+    </m.button>
   );
 }
 
@@ -273,7 +273,7 @@ export function AddressAutocomplete({
   return (
     <div className={cn("relative", className)}>
       {/* Input */}
-      <motion.div
+      <m.div
         animate={isFocused && shouldAnimate ? {
           scale: 1.01,
           boxShadow: "var(--shadow-focus)",
@@ -310,7 +310,7 @@ export function AddressAutocomplete({
           )}
         />
         {input && (
-          <motion.button
+          <m.button
             type="button"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -319,23 +319,23 @@ export function AddressAutocomplete({
             className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary"
           >
             <X className="w-4 h-4" />
-          </motion.button>
+          </m.button>
         )}
         {isLoading && (
-          <motion.div
+          <m.div
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: 20, ease: "linear" }}
             className="absolute right-4 top-1/2 -translate-y-1/2"
           >
             <Loader2 className="w-4 h-4 text-primary" />
-          </motion.div>
+          </m.div>
         )}
-      </motion.div>
+      </m.div>
 
       {/* Results dropdown */}
       <AnimatePresence>
         {predictions.length > 0 && isFocused && (
-          <motion.div
+          <m.div
             initial={shouldAnimate ? { opacity: 0, y: -10 } : undefined}
             animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
             exit={shouldAnimate ? { opacity: 0, y: -10 } : undefined}
@@ -349,7 +349,7 @@ export function AddressAutocomplete({
             )}
           >
             {predictions.map((prediction, index) => (
-              <motion.button
+              <m.button
                 key={prediction.placeId}
                 type="button"
                 onClick={() => handleSelect(prediction)}
@@ -374,9 +374,9 @@ export function AddressAutocomplete({
                     {prediction.secondaryText}
                   </p>
                 </div>
-              </motion.button>
+              </m.button>
             ))}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
@@ -466,7 +466,7 @@ export function AddressInput({
         <>
           {/* Saved addresses list */}
           {savedAddresses.length > 0 && (
-            <motion.div
+            <m.div
               variants={shouldAnimate ? staggerContainer(0.08, 0.1) : undefined}
               initial="hidden"
               animate="visible"
@@ -482,12 +482,12 @@ export function AddressInput({
                   index={index}
                 />
               ))}
-            </motion.div>
+            </m.div>
           )}
 
           {/* Add new address button */}
           {onAddAddress && (
-            <motion.button
+            <m.button
               type="button"
               onClick={() => setIsAddingNew(true)}
               whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
@@ -504,12 +504,12 @@ export function AddressInput({
             >
               <Plus className="w-5 h-5" />
               <span className="font-medium">Add New Address</span>
-            </motion.button>
+            </m.button>
           )}
         </>
       ) : (
         /* Add new address form */
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           className="space-y-4"
@@ -537,7 +537,7 @@ export function AddressInput({
           <p className="text-xs text-text-muted text-center">
             Start typing your address to search
           </p>
-        </motion.div>
+        </m.div>
       )}
     </div>
   );

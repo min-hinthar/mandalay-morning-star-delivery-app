@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Truck } from "lucide-react";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { spring, easing } from "@/lib/motion-tokens";
@@ -30,7 +30,7 @@ export function CTABanner({ id }: CTABannerProps) {
       <div className="relative max-w-4xl mx-auto">
         {/* Floating entrance with shadow animation - ~--shadow-xl equivalent, kept numeric for FM interpolation */}
         {/* eslint-disable no-restricted-syntax -- FM animation needs numeric boxShadow for interpolation */}
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, y: 40, boxShadow: "0 0 0 rgba(0,0,0,0)" } : false}
           whileInView={{
             opacity: 1,
@@ -43,7 +43,7 @@ export function CTABanner({ id }: CTABannerProps) {
         >
           {/* Pulsing glow border - secondary/gold color, ~--shadow-glow-warning equivalent */}
           {isFullMotion && (
-            <motion.div
+            <m.div
               className="absolute inset-0 rounded-2xl pointer-events-none"
               animate={{
                 // Kept numeric for FM keyframe interpolation
@@ -59,7 +59,7 @@ export function CTABanner({ id }: CTABannerProps) {
           {/* eslint-enable no-restricted-syntax */}
 
           {/* Promo badge */}
-          <motion.div
+          <m.div
             initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : false}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.5 }}
@@ -68,10 +68,10 @@ export function CTABanner({ id }: CTABannerProps) {
           >
             <Truck className="w-4 h-4" />
             <span className="text-sm font-body font-semibold">Free delivery over $100</span>
-          </motion.div>
+          </m.div>
 
           {/* Headline */}
-          <motion.h2
+          <m.h2
             initial={shouldAnimate ? { opacity: 0, y: 16 } : false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
@@ -80,10 +80,10 @@ export function CTABanner({ id }: CTABannerProps) {
           >
             Order by Friday 3pm for{" "}
             <span className="text-primary">Saturday Delivery</span>
-          </motion.h2>
+          </m.h2>
 
           {/* Subtext */}
-          <motion.p
+          <m.p
             initial={shouldAnimate ? { opacity: 0, y: 16 } : false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
@@ -91,10 +91,10 @@ export function CTABanner({ id }: CTABannerProps) {
             className="font-body text-lg text-text-secondary max-w-xl mx-auto mb-8"
           >
             Fresh homemade Burmese dishes, delivered to your door
-          </motion.p>
+          </m.p>
 
           {/* CTA Button */}
-          <motion.div
+          <m.div
             initial={shouldAnimate ? { opacity: 0, y: 16 } : false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
@@ -108,8 +108,8 @@ export function CTABanner({ id }: CTABannerProps) {
             >
               Order Now
             </Link>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </div>
     </section>
   );

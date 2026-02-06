@@ -2,7 +2,7 @@
 
 import { forwardRef, useState, useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import {
   useHeaderVisibility,
@@ -153,7 +153,7 @@ export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
 
     return (
       <>
-        <motion.header
+        <m.header
           ref={ref}
           // MOBILE CRASH PREVENTION: Blur only on sm+ to prevent Safari crashes
           // top uses CSS var set by OfflineIndicator for offline banner offset
@@ -200,7 +200,7 @@ export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
               />
             </div>
           </div>
-        </motion.header>
+        </m.header>
 
         {/* Mobile Drawer */}
         <MobileDrawer

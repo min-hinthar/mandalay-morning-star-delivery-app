@@ -11,7 +11,7 @@
  * - Respects animation preferences
  */
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Truck, Sparkles, PartyPopper } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerItem } from "@/lib/motion-tokens";
@@ -66,13 +66,13 @@ export function CartSummary({ className }: CartSummaryProps) {
   const hasFreeDelivery = amountToFreeDelivery === 0;
 
   return (
-    <motion.div
+    <m.div
       variants={shouldAnimate ? staggerItem : undefined}
       className={cn("space-y-3", className)}
     >
       {/* Free delivery progress indicator */}
       {!hasFreeDelivery && (
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={getSpring(spring.gentle)}
@@ -106,7 +106,7 @@ export function CartSummary({ className }: CartSummaryProps) {
               </div>
 
               {/* Filled progress - animate prop handles smooth transitions */}
-              <motion.div
+              <m.div
                 className={cn(
                   "h-full rounded-full relative",
                   "bg-gradient-progress",
@@ -118,7 +118,7 @@ export function CartSummary({ className }: CartSummaryProps) {
             </div>
 
             {/* Truck on progress - position animates, removed infinite bounce to prevent mobile crashes */}
-            <motion.div
+            <m.div
               className="absolute top-1/2 -translate-y-1/2"
               animate={{ left: `calc(${progressPercent}% - 12px)` }}
               transition={getSpring(spring.rubbery)}
@@ -134,7 +134,7 @@ export function CartSummary({ className }: CartSummaryProps) {
               >
                 <Truck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Goal flag at end */}
             <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2">
@@ -153,12 +153,12 @@ export function CartSummary({ className }: CartSummaryProps) {
               Free at $100
             </span>
           </div>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Free delivery achieved message */}
       {hasFreeDelivery && (
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
           animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
           transition={getSpring(spring.ultraBouncy)}
@@ -196,13 +196,13 @@ export function CartSummary({ className }: CartSummaryProps) {
               </span>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Summary rows */}
       <div className="space-y-2 text-sm">
         {/* Subtotal */}
-        <motion.div
+        <m.div
           variants={shouldAnimate ? summaryRowVariants : undefined}
           initial={shouldAnimate ? "hidden" : undefined}
           animate={shouldAnimate ? "visible" : undefined}
@@ -210,10 +210,10 @@ export function CartSummary({ className }: CartSummaryProps) {
         >
           <span>Subtotal</span>
           <PriceTicker value={itemsSubtotal} inCents={true} className="text-text-money" />
-        </motion.div>
+        </m.div>
 
         {/* Delivery Fee */}
-        <motion.div
+        <m.div
           variants={shouldAnimate ? summaryRowVariants : undefined}
           initial={shouldAnimate ? "hidden" : undefined}
           animate={shouldAnimate ? "visible" : undefined}
@@ -222,24 +222,24 @@ export function CartSummary({ className }: CartSummaryProps) {
         >
           <span>Delivery Fee</span>
           {hasFreeDelivery ? (
-            <motion.span
+            <m.span
               initial={shouldAnimate ? { scale: 0.8, opacity: 0 } : undefined}
               animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
               transition={getSpring(spring.ultraBouncy)}
               className="text-text-money font-semibold"
             >
               FREE
-            </motion.span>
+            </m.span>
           ) : (
             <PriceTicker value={estimatedDeliveryFee} inCents={true} className="text-text-money" />
           )}
-        </motion.div>
+        </m.div>
 
         {/* Divider */}
         <div className="h-px bg-border my-2" />
 
         {/* Estimated Total */}
-        <motion.div
+        <m.div
           variants={shouldAnimate ? summaryRowVariants : undefined}
           initial={shouldAnimate ? "hidden" : undefined}
           animate={shouldAnimate ? "visible" : undefined}
@@ -253,9 +253,9 @@ export function CartSummary({ className }: CartSummaryProps) {
             size="lg"
             className="text-text-money font-bold"
           />
-        </motion.div>
+        </m.div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 

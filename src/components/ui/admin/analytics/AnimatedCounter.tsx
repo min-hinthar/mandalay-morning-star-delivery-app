@@ -9,7 +9,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { motion, useSpring, useTransform, useInView } from "framer-motion";
+import { m, useSpring, useTransform, useInView } from "framer-motion";
 import type { AnimatedCounterProps } from "@/types/analytics";
 
 const springConfig = {
@@ -64,7 +64,7 @@ export function AnimatedCounter({
   }, [motionValue, value, isInView]);
 
   return (
-    <motion.span
+    <m.span
       ref={ref}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={isInView ? { opacity: 1, scale: 1 } : {}}
@@ -72,9 +72,9 @@ export function AnimatedCounter({
       className="inline-block tabular-nums"
     >
       {prefix}
-      <motion.span>{displayValue}</motion.span>
+      <m.span>{displayValue}</m.span>
       {suffix}
-    </motion.span>
+    </m.span>
   );
 }
 

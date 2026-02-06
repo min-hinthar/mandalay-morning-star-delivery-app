@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useCart } from "@/lib/hooks/useCart";
 import { useNavigationGuard } from "@/lib/hooks/useNavigationGuard";
@@ -153,7 +153,7 @@ export default function CheckoutPage() {
             <div className="rounded-lg border border-border bg-card p-4 sm:p-6 shadow-colorful overflow-hidden">
               <AnimatePresence mode="wait" custom={direction}>
                 {step === "address" && (
-                  <motion.div
+                  <m.div
                     key="address"
                     custom={direction}
                     variants={stepVariants}
@@ -168,10 +168,10 @@ export default function CheckoutPage() {
                     }}
                   >
                     <AddressStep onNext={goToNextStep} />
-                  </motion.div>
+                  </m.div>
                 )}
                 {step === "time" && (
-                  <motion.div
+                  <m.div
                     key="time"
                     custom={direction}
                     variants={stepVariants}
@@ -186,10 +186,10 @@ export default function CheckoutPage() {
                     }}
                   >
                     <TimeStep onNext={goToNextStep} onBack={goToPrevStep} />
-                  </motion.div>
+                  </m.div>
                 )}
                 {step === "payment" && (
-                  <motion.div
+                  <m.div
                     key="payment"
                     custom={direction}
                     variants={stepVariants}
@@ -204,7 +204,7 @@ export default function CheckoutPage() {
                     }}
                   >
                     <PaymentStep onBack={goToPrevStep} />
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
             </div>

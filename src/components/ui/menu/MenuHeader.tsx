@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { CartButton } from "@/components/ui/cart";
 import { SearchInput } from "./SearchInput";
 import { useScrollDirection } from "@/lib/hooks/useScrollDirection";
@@ -24,7 +24,7 @@ export function MenuHeader({
   const { isCollapsed } = useScrollDirection({ threshold: 10 });
 
   return (
-    <motion.header
+    <m.header
       initial={false}
       animate={{
         y: isCollapsed && !isSearchActive ? -64 : 0,
@@ -51,6 +51,6 @@ export function MenuHeader({
           <CartButton />
         </div>
       </div>
-    </motion.header>
+    </m.header>
   );
 }

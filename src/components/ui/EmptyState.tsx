@@ -10,7 +10,7 @@
 
 import { type ReactNode } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   ShoppingBag,
   Search,
@@ -136,7 +136,7 @@ function AnimatedIcon({
   shouldAnimate,
 }: AnimatedIconProps) {
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, scale: 0.6 } : undefined}
       animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
       transition={shouldAnimate ? { ...spring.ultraBouncy, delay: 0 } : undefined}
@@ -160,7 +160,7 @@ function AnimatedIcon({
       >
         <Icon className="h-10 w-10" strokeWidth={1.5} />
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -222,7 +222,7 @@ export function EmptyState({
   const springConfig = getSpring(spring.default);
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0 } : undefined}
       animate={shouldAnimate ? { opacity: 1 } : undefined}
       transition={springConfig}
@@ -240,7 +240,7 @@ export function EmptyState({
       />
 
       {/* Title (slides up second) */}
-      <motion.h2
+      <m.h2
         initial={shouldAnimate ? { opacity: 0, y: 16 } : undefined}
         animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
         transition={{ ...springConfig, delay: staggerDelay(1) }}
@@ -250,21 +250,21 @@ export function EmptyState({
         )}
       >
         {title}
-      </motion.h2>
+      </m.h2>
 
       {/* Description (slides up third) */}
-      <motion.p
+      <m.p
         initial={shouldAnimate ? { opacity: 0, y: 16 } : undefined}
         animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
         transition={{ ...springConfig, delay: staggerDelay(2) }}
         className="mb-8 max-w-sm font-body text-text-secondary"
       >
         {displayDescription}
-      </motion.p>
+      </m.p>
 
       {/* Action Button (scales in last) */}
       {actionLabel && (
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
           animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
           transition={{ ...springConfig, delay: staggerDelay(3) }}
@@ -278,20 +278,20 @@ export function EmptyState({
               {actionLabel}
             </Button>
           ) : null}
-        </motion.div>
+        </m.div>
       )}
 
       {/* Additional content */}
       {children && (
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0, y: 16 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={{ ...springConfig, delay: staggerDelay(4) }}
         >
           {children}
-        </motion.div>
+        </m.div>
       )}
-    </motion.div>
+    </m.div>
   );
 }
 

@@ -8,7 +8,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useRef } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 
 // ============================================
@@ -143,7 +143,7 @@ function ConfettiParticle({ particle, duration }: ConfettiParticleProps) {
   const drift = useMemo(() => (Math.random() - 0.5) * 30, []);
 
   return (
-    <motion.div
+    <m.div
       initial={{
         x: `${particle.x}vw`,
         y: `${startY}vh`,
@@ -172,7 +172,7 @@ function ConfettiParticle({ particle, duration }: ConfettiParticleProps) {
       }}
     >
       <ParticleShape shape={particle.shape} color={particle.color} />
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -313,7 +313,7 @@ export function SuccessAnimation({
 
       <AnimatePresence>
         {isVisible && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -334,7 +334,7 @@ export function SuccessAnimation({
             )}
           >
             {/* Animated checkmark */}
-            <motion.div
+            <m.div
               variants={prefersReducedMotion ? undefined : circleVariants}
               initial="hidden"
               animate="visible"
@@ -349,37 +349,37 @@ export function SuccessAnimation({
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <motion.path
+                <m.path
                   variants={prefersReducedMotion ? undefined : checkmarkVariants}
                   initial="hidden"
                   animate="visible"
                   d="M5 12l5 5L20 7"
                 />
               </svg>
-            </motion.div>
+            </m.div>
 
             {/* Title */}
-            <motion.h2
+            <m.h2
               variants={prefersReducedMotion ? undefined : textVariants}
               initial="hidden"
               animate="visible"
               className="text-xl font-bold text-[var(--color-text-primary)]"
             >
               {title}
-            </motion.h2>
+            </m.h2>
 
             {/* Subtitle */}
             {subtitle && (
-              <motion.p
+              <m.p
                 variants={prefersReducedMotion ? undefined : textVariants}
                 initial="hidden"
                 animate="visible"
                 className="mt-2 text-[var(--color-text-muted)]"
               >
                 {subtitle}
-              </motion.p>
+              </m.p>
             )}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </>

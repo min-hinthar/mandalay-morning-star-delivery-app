@@ -15,7 +15,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
 
@@ -131,7 +131,7 @@ export function SuccessCheckmark({
   }
 
   return variant === "default" ? (
-    <motion.div
+    <m.div
       variants={circleVariants}
       initial="hidden"
       animate={show ? "visible" : "hidden"}
@@ -154,14 +154,14 @@ export function SuccessCheckmark({
         className="text-text-inverse"
         style={{ width: size * 0.5, height: size * 0.5 }}
       >
-        <motion.path
+        <m.path
           d="M5 12l5 5L20 7"
           variants={checkVariants}
           initial="hidden"
           animate={show ? "visible" : "hidden"}
         />
       </svg>
-    </motion.div>
+    </m.div>
   ) : (
     <svg
       viewBox="0 0 24 24"
@@ -173,7 +173,7 @@ export function SuccessCheckmark({
       className={cn("text-green", className)}
       style={{ width: size, height: size }}
     >
-      <motion.path
+      <m.path
         d="M5 12l5 5L20 7"
         variants={checkVariants}
         initial="hidden"
@@ -239,7 +239,7 @@ export function SuccessOverlay({
   };
 
   return (
-    <motion.div
+    <m.div
       variants={prefersReducedMotion ? undefined : containerVariants}
       initial="hidden"
       animate="visible"
@@ -254,7 +254,7 @@ export function SuccessOverlay({
     >
       <SuccessCheckmark show={show} size={80} />
 
-      <motion.div
+      <m.div
         variants={prefersReducedMotion ? undefined : textVariants}
         initial="hidden"
         animate="visible"
@@ -268,8 +268,8 @@ export function SuccessOverlay({
             {subMessage}
           </p>
         )}
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 }
 

@@ -14,7 +14,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Truck, Settings2, Bell, Save, RotateCcw, Loader2, Check } from "lucide-react";
 import { Tabs } from "@/components/ui/Tabs";
 import { Button } from "@/components/ui/button";
@@ -335,7 +335,7 @@ export function SettingsClient() {
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={spring.default}
@@ -372,10 +372,10 @@ export function SettingsClient() {
             <span className="ml-2">{showSuccess ? "Saved!" : "Save Changes"}</span>
           </Button>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Tabs */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ ...spring.default, delay: 0.1 }}
@@ -386,10 +386,10 @@ export function SettingsClient() {
           onTabChange={setActiveTab}
           layoutId="settingsTab"
         />
-      </motion.div>
+      </m.div>
 
       {/* Tab Content */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ ...spring.default, delay: 0.2 }}
@@ -397,7 +397,7 @@ export function SettingsClient() {
       >
         <AnimatePresence mode="wait">
           {activeTab === "delivery" && (
-            <motion.div
+            <m.div
               key="delivery"
               {...variants.fadeIn}
               id="tabpanel-delivery"
@@ -408,10 +408,10 @@ export function SettingsClient() {
                 settings={settings.delivery}
                 onChange={handleDeliveryChange}
               />
-            </motion.div>
+            </m.div>
           )}
           {activeTab === "operations" && (
-            <motion.div
+            <m.div
               key="operations"
               {...variants.fadeIn}
               id="tabpanel-operations"
@@ -422,10 +422,10 @@ export function SettingsClient() {
                 settings={settings.operations}
                 onChange={handleOperationsChange}
               />
-            </motion.div>
+            </m.div>
           )}
           {activeTab === "notifications" && (
-            <motion.div
+            <m.div
               key="notifications"
               {...variants.fadeIn}
               id="tabpanel-notifications"
@@ -436,15 +436,15 @@ export function SettingsClient() {
                 settings={settings.notifications}
                 onChange={handleNotificationsChange}
               />
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </m.div>
 
       {/* Unsaved Changes Warning */}
       <AnimatePresence>
         {hasChanges && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
@@ -458,7 +458,7 @@ export function SettingsClient() {
             <p className="text-sm text-amber-700 dark:text-amber-400 font-medium">
               You have unsaved changes
             </p>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 

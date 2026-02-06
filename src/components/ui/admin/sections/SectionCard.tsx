@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   GripVertical,
   Eye,
@@ -98,7 +98,7 @@ export function SectionCard({
     : 0;
 
   return (
-    <motion.div
+    <m.div
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -269,7 +269,7 @@ export function SectionCard({
 
       {/* Expanded Items Preview */}
       {isExpanded && !isDeleted && (
-        <motion.div
+        <m.div
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: "auto", opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
@@ -312,8 +312,8 @@ export function SectionCard({
               </p>
             )}
           </div>
-        </motion.div>
+        </m.div>
       )}
-    </motion.div>
+    </m.div>
   );
 }

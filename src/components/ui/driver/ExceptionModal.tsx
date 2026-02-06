@@ -8,7 +8,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { X, AlertTriangle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
@@ -115,7 +115,7 @@ export function ExceptionModal({
   return (
     <AnimatePresence onExitComplete={restoreScrollPosition}>
       {isOpen && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -123,7 +123,7 @@ export function ExceptionModal({
           className="fixed inset-0 z-50 flex items-end justify-center bg-overlay p-4 sm:items-center"
           onClick={handleClose}
         >
-          <motion.div
+          <m.div
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
@@ -166,7 +166,7 @@ export function ExceptionModal({
               {/* Exception Type Selection */}
               <div className="space-y-2">
                 {EXCEPTION_TYPES.map((type, index) => (
-                  <motion.button
+                  <m.button
                     key={type.value}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -184,14 +184,14 @@ export function ExceptionModal({
                   >
                     <p className="font-body font-medium text-text-primary">{type.label}</p>
                     <p className="font-body text-sm text-text-secondary">{type.description}</p>
-                  </motion.button>
+                  </m.button>
                 ))}
               </div>
 
               {/* Additional Description */}
               <AnimatePresence>
                 {selectedType && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
@@ -220,14 +220,14 @@ export function ExceptionModal({
                         "transition-colors duration-fast"
                       )}
                     />
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
 
               {/* Error Message */}
               <AnimatePresence>
                 {error && (
-                  <motion.p
+                  <m.p
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
@@ -235,7 +235,7 @@ export function ExceptionModal({
                     role="alert"
                   >
                     {error}
-                  </motion.p>
+                  </m.p>
                 )}
               </AnimatePresence>
             </div>
@@ -265,8 +265,8 @@ export function ExceptionModal({
                 )}
               </button>
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

@@ -7,7 +7,7 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Phone, Car, Bike, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { VehicleType } from "@/types/driver";
@@ -71,7 +71,7 @@ export function DriverCard({
   };
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
@@ -126,7 +126,7 @@ export function DriverCard({
               </span>
             </div>
             <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-charcoal-100">
-              <motion.div
+              <m.div
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPercent}%` }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
@@ -149,7 +149,7 @@ export function DriverCard({
           </Button>
         )}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 

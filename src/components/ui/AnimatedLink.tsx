@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef, type ReactNode } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Link, { type LinkProps } from "next/link";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -92,7 +92,7 @@ export const AnimatedLink = forwardRef<HTMLAnchorElement, AnimatedLinkProps>(
       : null;
 
     const linkContent = (
-      <motion.span
+      <m.span
         className={cn(
           "relative inline-flex items-center gap-1.5 group",
           "font-medium transition-colors duration-150",
@@ -111,7 +111,7 @@ export const AnimatedLink = forwardRef<HTMLAnchorElement, AnimatedLinkProps>(
           {underlineStyle !== "none" && (
             <>
               {/* Primary underline */}
-              <motion.span
+              <m.span
                 className="absolute left-0 right-0 -bottom-0.5 h-0.5 rounded-full"
                 style={{ backgroundColor: underlineColor }}
                 variants={shouldAnimate && variant ? variant : undefined}
@@ -120,7 +120,7 @@ export const AnimatedLink = forwardRef<HTMLAnchorElement, AnimatedLinkProps>(
 
               {/* Glow effect for glow style */}
               {underlineStyle === "glow" && (
-                <motion.span
+                <m.span
                   className="absolute left-0 right-0 -bottom-0.5 h-0.5 rounded-full blur-sm"
                   style={{ backgroundColor: underlineColor }}
                   variants={
@@ -137,7 +137,7 @@ export const AnimatedLink = forwardRef<HTMLAnchorElement, AnimatedLinkProps>(
 
               {/* Second line for double style */}
               {underlineStyle === "double" && (
-                <motion.span
+                <m.span
                   className="absolute left-0 right-0 -bottom-1.5 h-0.5 rounded-full"
                   style={{ backgroundColor: underlineColor, opacity: 0.4 }}
                   variants={
@@ -157,7 +157,7 @@ export const AnimatedLink = forwardRef<HTMLAnchorElement, AnimatedLinkProps>(
 
         {/* Hover Icon */}
         {hoverIcon && (
-          <motion.span
+          <m.span
             variants={
               shouldAnimate
                 ? {
@@ -169,12 +169,12 @@ export const AnimatedLink = forwardRef<HTMLAnchorElement, AnimatedLinkProps>(
             transition={springConfig}
           >
             {hoverIcon}
-          </motion.span>
+          </m.span>
         )}
 
         {/* External link arrow */}
         {external && (
-          <motion.svg
+          <m.svg
             width="14"
             height="14"
             viewBox="0 0 24 24"
@@ -196,9 +196,9 @@ export const AnimatedLink = forwardRef<HTMLAnchorElement, AnimatedLinkProps>(
           >
             <path d="M7 17L17 7" />
             <path d="M7 7h10v10" />
-          </motion.svg>
+          </m.svg>
         )}
-      </motion.span>
+      </m.span>
     );
 
     // Handle external links
@@ -269,7 +269,7 @@ export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
         <span className="flex items-center gap-2">
           {/* Active dot indicator */}
           {showDot && (
-            <motion.span
+            <m.span
               className="w-1.5 h-1.5 rounded-full bg-primary"
               initial={{ scale: 0, opacity: 0 }}
               animate={

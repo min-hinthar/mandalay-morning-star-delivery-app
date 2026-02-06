@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, forwardRef, useRef } from "react";
-import { motion, type Variants } from "framer-motion";
+import { m, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -160,13 +160,13 @@ function Eyes({ expression, size, isBlinking }: EyesProps) {
 
   return (
     <div className="flex gap-1" style={{ gap: eyeSpacing }}>
-      <motion.div
+      <m.div
         className="bg-primary rounded-full"
         style={{ width: eyeSize, height: eyeSize }}
         animate={eyeStyle}
         transition={spring.snappy}
       />
-      <motion.div
+      <m.div
         className="bg-primary rounded-full"
         style={{ width: eyeSize, height: eyeSize }}
         animate={eyeStyle}
@@ -191,7 +191,7 @@ function Mouth({ expression, size }: MouthProps) {
       case "happy":
       case "waving":
         return (
-          <motion.path
+          <m.path
             d={`M0,${mouthHeight * 0.3} Q${mouthWidth / 2},${mouthHeight} ${mouthWidth},${mouthHeight * 0.3}`}
             stroke="currentColor"
             strokeWidth={2}
@@ -202,7 +202,7 @@ function Mouth({ expression, size }: MouthProps) {
       case "excited":
       case "celebrating":
         return (
-          <motion.ellipse
+          <m.ellipse
             cx={mouthWidth / 2}
             cy={mouthHeight / 2}
             rx={mouthWidth * 0.4}
@@ -214,7 +214,7 @@ function Mouth({ expression, size }: MouthProps) {
         );
       case "surprised":
         return (
-          <motion.ellipse
+          <m.ellipse
             cx={mouthWidth / 2}
             cy={mouthHeight / 2}
             rx={mouthWidth * 0.25}
@@ -227,7 +227,7 @@ function Mouth({ expression, size }: MouthProps) {
         );
       case "thinking":
         return (
-          <motion.path
+          <m.path
             d={`M${mouthWidth * 0.2},${mouthHeight * 0.5} Q${mouthWidth * 0.5},${mouthHeight * 0.3} ${mouthWidth * 0.8},${mouthHeight * 0.5}`}
             stroke="currentColor"
             strokeWidth={2}
@@ -242,7 +242,7 @@ function Mouth({ expression, size }: MouthProps) {
         );
       case "sleeping":
         return (
-          <motion.path
+          <m.path
             d={`M${mouthWidth * 0.2},${mouthHeight * 0.5} L${mouthWidth * 0.8},${mouthHeight * 0.5}`}
             stroke="currentColor"
             strokeWidth={2}
@@ -251,7 +251,7 @@ function Mouth({ expression, size }: MouthProps) {
         );
       case "eating":
         return (
-          <motion.ellipse
+          <m.ellipse
             cx={mouthWidth / 2}
             cy={mouthHeight / 2}
             rx={mouthWidth * 0.3}
@@ -266,7 +266,7 @@ function Mouth({ expression, size }: MouthProps) {
         );
       default:
         return (
-          <motion.path
+          <m.path
             d={`M0,${mouthHeight * 0.3} Q${mouthWidth / 2},${mouthHeight} ${mouthWidth},${mouthHeight * 0.3}`}
             stroke="currentColor"
             strokeWidth={2}
@@ -303,27 +303,27 @@ function Accessories({ expression, size }: AccessoriesProps) {
   if (expression === "thinking") {
     return (
       <div className="absolute -top-2 -right-2">
-        <motion.div
+        <m.div
           className="flex flex-col items-end gap-1"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <motion.div
+          <m.div
             className="w-2 h-2 rounded-full bg-secondary/60"
             animate={{ y: [0, -3, 0], opacity: [0.6, 1, 0.6] }}
             transition={{ duration: 1.5, repeat: 5, delay: 0.3 }}
           />
-          <motion.div
+          <m.div
             className="w-3 h-3 rounded-full bg-secondary/60"
             animate={{ y: [0, -2, 0], opacity: [0.6, 1, 0.6] }}
             transition={{ duration: 1.5, repeat: 5, delay: 0.1 }}
           />
-          <motion.div
+          <m.div
             className="w-4 h-4 rounded-full bg-secondary/60"
             animate={{ y: [0, -2, 0], opacity: [0.6, 1, 0.6] }}
             transition={{ duration: 1.5, repeat: 5 }}
           />
-        </motion.div>
+        </m.div>
       </div>
     );
   }
@@ -332,7 +332,7 @@ function Accessories({ expression, size }: AccessoriesProps) {
   if (expression === "sleeping") {
     return (
       <div className="absolute -top-4 -right-4">
-        <motion.div
+        <m.div
           className="text-primary/60 font-bold"
           style={{ fontSize: size * 0.4 }}
           animate={{
@@ -343,7 +343,7 @@ function Accessories({ expression, size }: AccessoriesProps) {
           transition={{ duration: 2, repeat: 5 }}
         >
           z
-        </motion.div>
+        </m.div>
       </div>
     );
   }
@@ -353,7 +353,7 @@ function Accessories({ expression, size }: AccessoriesProps) {
     return (
       <>
         {[...Array(4)].map((_, i) => (
-          <motion.div
+          <m.div
             key={i}
             className="absolute text-secondary"
             style={{
@@ -374,7 +374,7 @@ function Accessories({ expression, size }: AccessoriesProps) {
             }}
           >
             ✨
-          </motion.div>
+          </m.div>
         ))}
       </>
     );
@@ -383,14 +383,14 @@ function Accessories({ expression, size }: AccessoriesProps) {
   // Waving hand
   if (expression === "waving") {
     return (
-      <motion.div
+      <m.div
         className="absolute -right-4 top-1/2 -translate-y-1/2"
         style={{ fontSize: size * 0.5 }}
         animate={{ rotate: [0, 20, -10, 20, 0] }}
         transition={{ duration: 0.8, repeat: 5 }}
       >
         👋
-      </motion.div>
+      </m.div>
     );
   }
 
@@ -562,7 +562,7 @@ export const BrandMascot = forwardRef<HTMLDivElement, BrandMascotProps>(
     }
 
     return (
-      <motion.div
+      <m.div
         ref={ref}
         className={cn(
           "relative inline-flex items-center justify-center cursor-pointer",
@@ -586,14 +586,14 @@ export const BrandMascot = forwardRef<HTMLDivElement, BrandMascotProps>(
         />
 
         {/* Face */}
-        <motion.div
+        <m.div
           className="relative rounded-full bg-gradient-to-br from-secondary/30 to-secondary/10 border-4 border-secondary flex flex-col items-center justify-center shadow-lg"
           style={{ width: face, height: face, gap: face * 0.08 }}
         >
           {/* Blush */}
           {(currentExpression === "excited" || currentExpression === "celebrating") && (
             <>
-              <motion.div
+              <m.div
                 className="absolute rounded-full bg-primary/20"
                 style={{
                   width: face * 0.15,
@@ -604,7 +604,7 @@ export const BrandMascot = forwardRef<HTMLDivElement, BrandMascotProps>(
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.6 }}
               />
-              <motion.div
+              <m.div
                 className="absolute rounded-full bg-primary/20"
                 style={{
                   width: face * 0.15,
@@ -623,11 +623,11 @@ export const BrandMascot = forwardRef<HTMLDivElement, BrandMascotProps>(
 
           {/* Mouth */}
           <Mouth expression={currentExpression} size={mouth} />
-        </motion.div>
+        </m.div>
 
         {/* Accessories */}
         <Accessories expression={currentExpression} size={face} />
-      </motion.div>
+      </m.div>
     );
   }
 );

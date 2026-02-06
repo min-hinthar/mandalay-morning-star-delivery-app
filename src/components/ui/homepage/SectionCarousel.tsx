@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -54,7 +54,7 @@ function ArrowButton({ direction, onClick, disabled, accentColor }: ArrowButtonP
   return (
     <AnimatePresence>
       {!disabled && (
-        <motion.button
+        <m.button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
@@ -85,7 +85,7 @@ function ArrowButton({ direction, onClick, disabled, accentColor }: ArrowButtonP
           aria-label={direction === "left" ? "Previous items" : "Next items"}
         >
           <Icon className="w-5 h-5 md:w-6 md:h-6" />
-        </motion.button>
+        </m.button>
       )}
     </AnimatePresence>
   );

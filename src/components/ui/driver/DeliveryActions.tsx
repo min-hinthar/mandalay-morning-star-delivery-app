@@ -8,7 +8,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Check, AlertTriangle, MapPin, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { RouteStopStatus } from "@/types/driver";
@@ -66,7 +66,7 @@ export function DeliveryActions({
       case "pending":
       case "enroute":
         return (
-          <motion.button
+          <m.button
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             whileTap={{ scale: 0.98 }}
@@ -91,12 +91,12 @@ export function DeliveryActions({
                 <span>Mark Arrived</span>
               </>
             )}
-          </motion.button>
+          </m.button>
         );
 
       case "arrived":
         return (
-          <motion.button
+          <m.button
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             whileTap={{ scale: 0.98 }}
@@ -121,12 +121,12 @@ export function DeliveryActions({
                 <span>Mark Delivered</span>
               </>
             )}
-          </motion.button>
+          </m.button>
         );
 
       case "delivered":
         return (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className={cn(
@@ -136,12 +136,12 @@ export function DeliveryActions({
           >
             <Check className="h-5 w-5" />
             <span>Delivered</span>
-          </motion.div>
+          </m.div>
         );
 
       case "skipped":
         return (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className={cn(
@@ -151,7 +151,7 @@ export function DeliveryActions({
           >
             <AlertTriangle className="h-5 w-5" />
             <span>Skipped</span>
-          </motion.div>
+          </m.div>
         );
 
       default:
@@ -169,7 +169,7 @@ export function DeliveryActions({
 
       {/* Exception Button */}
       {canReportException && (
-        <motion.button
+        <m.button
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -189,19 +189,19 @@ export function DeliveryActions({
         >
           <AlertTriangle className="h-5 w-5" />
           <span>Can&apos;t Deliver</span>
-        </motion.button>
+        </m.button>
       )}
 
       {/* Error Message */}
       {error && (
-        <motion.p
+        <m.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center font-body text-sm text-status-error"
           role="alert"
         >
           {error}
-        </motion.p>
+        </m.p>
       )}
     </div>
   );

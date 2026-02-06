@@ -14,7 +14,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { User, Calendar, Mail, Phone, Check } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -269,7 +269,7 @@ export function ProfileTab() {
     : "Unknown";
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0 } : undefined}
       animate={shouldAnimate ? { opacity: 1 } : undefined}
     >
@@ -310,7 +310,7 @@ export function ProfileTab() {
               />
               <AnimatePresence>
                 {errors.fullName && (
-                  <motion.p
+                  <m.p
                     id="fullName-error"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
@@ -318,7 +318,7 @@ export function ProfileTab() {
                     className="mt-1 text-sm text-status-error"
                   >
                     {errors.fullName}
-                  </motion.p>
+                  </m.p>
                 )}
               </AnimatePresence>
             </div>
@@ -346,7 +346,7 @@ export function ProfileTab() {
               />
               <AnimatePresence>
                 {errors.phone && (
-                  <motion.p
+                  <m.p
                     id="phone-error"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
@@ -354,7 +354,7 @@ export function ProfileTab() {
                     className="mt-1 text-sm text-status-error"
                   >
                     {errors.phone}
-                  </motion.p>
+                  </m.p>
                 )}
               </AnimatePresence>
             </div>
@@ -400,7 +400,7 @@ export function ProfileTab() {
               >
                 <AnimatePresence mode="wait">
                   {showSuccess ? (
-                    <motion.span
+                    <m.span
                       key="success"
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -409,16 +409,16 @@ export function ProfileTab() {
                     >
                       <Check className="h-4 w-4" />
                       Saved!
-                    </motion.span>
+                    </m.span>
                   ) : (
-                    <motion.span
+                    <m.span
                       key="default"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                     >
                       {isSaving ? "Saving..." : "Save Changes"}
-                    </motion.span>
+                    </m.span>
                   )}
                 </AnimatePresence>
               </Button>
@@ -426,6 +426,6 @@ export function ProfileTab() {
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </m.div>
   );
 }
