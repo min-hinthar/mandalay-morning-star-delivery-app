@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Planning v1.5 milestone
+**Current focus:** v1.5 Performance & Repo Health
 
 ## Current Position
 
-Phase: 40 of TBD (Next milestone)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-02-05 — v1.4 milestone complete
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-05 — Milestone v1.5 started
 
-Progress: [##################################################################] v1.4 39/39 (100%)
+Progress: [                                                                  ] v1.5 0/TBD (0%)
 
 ## Milestones
 
@@ -25,28 +25,9 @@ Progress: [##################################################################] v
 | v1.2 Playful UI Overhaul | 15-24 | 29 | 2026-01-27 |
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | 2026-02-05 |
-| **v1.5** | 40+ | TBD | Planning |
+| **v1.5 Performance & Repo Health** | 40+ | TBD | In Progress |
 
 **Total completed:** 39 phases, 174 plans, 213 requirements
-
-## Performance Metrics
-
-**Velocity:**
-- Total plans completed: 174 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 39
-
-**By Milestone (v1.4):**
-
-| Phase | Plans | Status |
-|-------|-------|--------|
-| 35 | 3/3 | Complete |
-| 35.1 | 5/5 | Complete |
-| 36 | 3/3 | Complete |
-| 36.1 | 11/11 | Complete |
-| 36.2 | 9/9 | Complete |
-| 37 | 2/2 | Complete |
-| 38 | 3/3 | Complete |
-| 39 | 3/3 | Complete |
 
 ## Accumulated Context
 
@@ -59,12 +40,14 @@ Progress: [##################################################################] v
 | flyingCount for concurrency | Allows multiple simultaneous fly animations |
 | cartPop sound 1200Hz→800Hz | Satisfying descending pop effect |
 
-### Tech Debt
+### Tech Debt (v1.5 Focus)
 
 | Item | Status | Notes |
 |------|--------|-------|
-| LCP 8.1s | Deferred | Blocked by JS execution, needs dedicated phase |
-| 29 files >400 lines | Accepted | Warning only per config |
+| LCP 8.1s | **Active** | Primary v1.5 target: <2.5s |
+| 29 files >400 lines | **Active** | Refactoring in v1.5 |
+| Legacy docs (V0-V7) | **Active** | Archive in v1.5 |
+| storybook-static in git | **Active** | Untrack in v1.5 |
 
 ### Blockers/Concerns
 
@@ -73,10 +56,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-05
-Stopped at: v1.4 milestone completed
+Stopped at: v1.5 milestone initialization
 Resume file: None
-Next action: `/gsd:new-milestone` to start v1.5 planning
+Next action: Define requirements and create roadmap
 
 ---
 
-*Updated: 2026-02-05 — v1.4 milestone complete*
+*Updated: 2026-02-05 — v1.5 milestone started*

@@ -173,7 +173,20 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 
 ### Active
 
-(Defining requirements for v1.5)
+(Requirements being defined — see Phase 8 below)
+
+## Current Milestone: v1.5 Performance & Repo Health
+
+**Goal:** Reduce LCP from 8.1s to <2.5s through JavaScript optimization, code splitting, and bundle reduction while improving codebase hygiene through repo reorganization and large file refactoring.
+
+**Target features:**
+- LCP optimization (8.1s → <2.5s) via code splitting, dynamic imports, Server Components
+- Repo cleanup: archive legacy docs (V0-V7), remove storybook-static from git tracking
+- Large file refactoring: split 29 files exceeding 400 lines
+- Test coverage expansion for business logic and API routes
+- Font and third-party script optimization
+
+**Success criterion:** LCP < 2.5s on mobile (Core Web Vitals "Good" threshold)
 
 ## Current State (v1.4 shipped)
 
@@ -294,4 +307,4 @@ Run `/gsd:new-milestone` to start planning.
 | cartPop sound 1200Hz→800Hz | Descending sine, 60ms for satisfying pop | ✓ Good — v1.4 |
 
 ---
-*Last updated: 2026-02-05 after v1.4 milestone*
+*Last updated: 2026-02-05 after v1.5 milestone start*
