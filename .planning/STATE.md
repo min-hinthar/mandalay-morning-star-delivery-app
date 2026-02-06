@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 
 ## Current Position
 
-Phase: 44 of 46 (Animation Optimization & Monitoring)
+Phase: 45 of 46 (Repo Cleanup & Hygiene)
 Plan: 3 of 3 complete
 Status: Phase complete
-Last activity: 2026-02-06 — Completed 44-03 (Lighthouse CI setup)
+Last activity: 2026-02-06 — Completed 45-03-PLAN.md (README update + PERFORMANCE.md)
 
-Progress: [####################                                              ] v1.5 20/52 (38%)
+Progress: [########################                                          ] v1.5 22/52 (42%)
 
 ## Milestones
 
@@ -67,23 +67,14 @@ Progress: [####################                                              ] v
 | All motion.* migrated to m.* (174 files) | Per-component bundle ~34kb to ~4.6kb; features loaded once at root |
 | Lighthouse CI: warn-only, PR-only, 4 customer routes | Regression gate without blocking PRs; server mode for App Router |
 
-### Key Decisions (v1.4)
-
-| Decision | Rationale |
-|----------|-----------|
-| Two-tier animation system (low/high) | Simplified from three tiers per CONTEXT.md |
-| Custom SW build script | @serwist/next doesn't support Turbopack |
-| flyingCount for concurrency | Allows multiple simultaneous fly animations |
-| cartPop sound 1200Hz→800Hz | Satisfying descending pop effect |
-
 ### Tech Debt (v1.5 Focus)
 
 | Item | Status | Notes |
 |------|--------|-------|
 | LCP 11.4s (homepage), 9.8s (menu) | **Active** | Reduced from 19.9s/18.2s; target: <2.5s |
 | 29 files >400 lines | **Active** | Refactoring in v1.5 |
-| Legacy docs (V0-V7) | **Active** | Archive in v1.5 |
-| storybook-static in git | **Active** | Untrack in v1.5 |
+| Legacy docs (V0-V8) | **Done** | 94 files deleted in 45-01 |
+| storybook-static in git | **Done** | Untracked in 45-01 (89 files) |
 
 ### Blockers/Concerns
 
@@ -92,10 +83,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 44-03-PLAN.md (phase 44 complete)
+Stopped at: Completed 45-03-PLAN.md (Phase 45 complete)
 Resume file: None
-Next action: Plan phase 45
+Next action: Execute Phase 46
 
 ---
 
-*Updated: 2026-02-06 — Plan 44-03: Lighthouse CI regression gate on PRs*
+*Updated: 2026-02-06 — Plan 45-03: Update README to v1.5, create PERFORMANCE.md*

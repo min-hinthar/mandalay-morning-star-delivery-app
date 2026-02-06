@@ -13,8 +13,8 @@ A Progressive Web App for ordering authentic Burmese cuisine with Saturday-only 
 
 Mandalay Morning Star is a full-featured food delivery platform serving the Southern California Burmese community. Customers browse a categorized bilingual menu (English/Burmese), place orders with Stripe payment, and receive Saturday delivery within the coverage area (50 miles / 90 minutes from Covina, CA). The app includes admin dashboards, driver management with GPS tracking, real-time order tracking, and full offline support as a PWA.
 
-**Current version:** v1.4 (Mobile Excellence) — shipped 2026-02-05
-**Status:** 39 phases, 174 plans, 213 requirements completed across 5 milestones
+**Current version:** v1.5 (Performance & Repo Health) — in progress
+**Status:** 44 phases, 192 plans, 214 requirements completed across 6 milestones
 
 ## Features
 
@@ -50,6 +50,16 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 - Service worker with CacheFirst (images) / NetworkFirst (API) strategies
 - Zero CLS, shimmer placeholders, hero preloading
 - WCAG AAA contrast compliance (38 tests)
+
+### Performance (v1.5)
+
+| Metric | Before | After | Improvement |
+|--------|--------|-------|-------------|
+| LCP (Homepage) | 19.9s | 11.4s | 43% faster |
+| LCP (Menu) | 18.2s | 9.8s | 46% faster |
+| Framer Motion bundle | ~34KB/component | ~4.6KB/component | 86% smaller |
+
+Key optimizations: CardImage to Next.js Image, LazyMotion with domMax, React Compiler enabled, Lighthouse CI regression gate. See [PERFORMANCE.md](./PERFORMANCE.md) for full optimization journey.
 
 ## Tech Stack
 
@@ -274,7 +284,7 @@ pnpm lint && pnpm lint:css && pnpm typecheck && pnpm test && pnpm build
 | v1.2 | Playful UI Overhaul | 15-24 | 29 | 2026-01-27 |
 | v1.3 | Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | v1.4 | Mobile Excellence | 35-39 | 39 | 2026-02-05 |
-| **v1.5** | **TBD** | 40+ | TBD | Planning |
+| **v1.5** | **Performance & Repo Health** | 40-46 | 18+ | In Progress |
 
 ## Deployment
 
@@ -310,8 +320,7 @@ pnpm lint && pnpm lint:css && pnpm typecheck && pnpm test && pnpm build
 | Component Guide | `docs/component-guide.md` |
 | Deployment | `docs/DEPLOYMENT.md` |
 | Z-Index Strategy | `docs/STACKING-CONTEXT.md` |
-| V1 Spec | `docs/v1-spec.md` |
-| V2 Spec | `docs/v2-spec.md` |
+| Performance Guide | `PERFORMANCE.md` |
 | Change Log | `docs/change_log.md` |
 | Project Status | `docs/project_status.md` |
 | Business Context | `docs/00-context-pack.md` |
