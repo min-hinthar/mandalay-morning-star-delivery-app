@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 
 ## Current Position
 
-Phase: 42 of 46 (Dynamic Import Heavy Libraries)
-Plan: 3 of 3 complete
+Phase: 43 of 46 (Provider & Route Layout Refactoring)
+Plan: 2 of 2 complete
 Status: Phase complete
-Last activity: 2026-02-06 — Completed 42-03 (map dynamic imports with viewport/eager loading)
+Last activity: 2026-02-06 — Completed 43-02 (navigation guards + bundle verification)
 
-Progress: [###############                                                   ] v1.5 15/52 (29%)
+Progress: [#################                                                 ] v1.5 17/52 (33%)
 
 ## Milestones
 
@@ -27,7 +27,7 @@ Progress: [###############                                                   ] v
 | v1.4 Mobile Excellence | 35-39 | 39 | 2026-02-05 |
 | **v1.5 Performance & Repo Health** | 40-46 | 52 | In Progress |
 
-**Total completed:** 42 phases, 188 plans, 214 requirements
+**Total completed:** 42 phases, 190 plans, 214 requirements
 
 ## Accumulated Context
 
@@ -56,6 +56,11 @@ Progress: [###############                                                   ] v
 | 15s map timeout (vs 10s charts) | Mobile networks need more time for Google Maps SDK (~120KB) |
 | Route detail map viewport-triggered | Below-fold admin content; defers heavy bundle until scrolled into view |
 | Tracking page map eager lazy-loaded | Map IS primary content; code-split but no viewport gate |
+| CartOverlays wrapper for route-group scoping | DRY Fragment rendering CartBar + CartDrawer + FlyToCart |
+| CartIndicator pathname-aware fallback | Opens drawer on cart routes, navigates to /cart elsewhere |
+| useNavigationGuard: browser-level only | popstate + beforeunload; Link interception via page-level onNavigate |
+| Cart page guard nudges to checkout | onStay navigates to /checkout, not just close modal |
+| Empty checkout redirect with toast | router.replace to /menu avoids history pollution |
 
 ### Key Decisions (v1.4)
 
@@ -82,10 +87,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Phase 42 complete, verified (15/15 must-haves)
+Stopped at: Completed 43-02-PLAN.md (Phase 43 complete)
 Resume file: None
-Next action: Plan Phase 43 (Provider & Route Layout Refactoring)
+Next action: Begin Phase 44
 
 ---
 
-*Updated: 2026-02-06 — Phase 42 complete: 3/3 plans, 15/15 must-haves verified*
+*Updated: 2026-02-06 — Phase 43 complete: cart scoped to route groups + navigation guards on checkout/cart*

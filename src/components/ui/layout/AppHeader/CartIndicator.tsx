@@ -10,7 +10,8 @@
  * - Hydration-safe with localStorage persistence
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/hooks/useCart";
@@ -34,6 +35,26 @@ const badgeVariants = {
 export function CartIndicator({ className }: CartIndicatorProps) {
   const { itemCount } = useCart();
   const { open } = useCartDrawer();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Routes where CartOverlays are mounted (public + customer route groups)
+  const isCartRoute =
+    pathname === "/" ||
+    pathname.startsWith("/menu") ||
+    pathname === "/cart" ||
+    pathname === "/checkout" ||
+    pathname.startsWith("/account") ||
+    pathname.startsWith("/orders") ||
+    pathname === "/driver/onboard";
+
+  const handleClick = useCallback(() => {
+    if (isCartRoute) {
+      open();
+    } else {
+      router.push("/cart");
+    }
+  }, [isCartRoute, open, router]);
 
   // Badge ref for fly-to-cart animation target
   const badgeRef = useRef<HTMLSpanElement>(null);
@@ -70,7 +91,7 @@ export function CartIndicator({ className }: CartIndicatorProps) {
   return (
     <button
       type="button"
-      onClick={open}
+      onClick={handleClick}
       className={cn(
         "relative flex h-10 w-10 items-center justify-center rounded-full",
         "bg-amber-100 dark:bg-amber-900/30",
