@@ -3,7 +3,6 @@
 import type { ReactNode } from "react";
 import { QueryProvider } from "@/lib/providers/query-provider";
 import { AnimationProvider } from "@/lib/providers/animation-provider";
-import { CartBar, CartDrawer, FlyToCart } from "@/components/ui/cart";
 import { ThemeProvider, DynamicThemeProvider } from "@/components/ui/theme";
 
 interface ProvidersProps {
@@ -17,9 +16,6 @@ export function Providers({ children }: ProvidersProps) {
         <QueryProvider>
           <AnimationProvider>
             {children}
-            <CartBar />
-            <CartDrawer />
-            <FlyToCart />
           </AnimationProvider>
         </QueryProvider>
       </DynamicThemeProvider>
