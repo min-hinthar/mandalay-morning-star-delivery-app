@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 43 of 46 (Provider & Route Layout Refactoring)
-Plan: 1 of 2 complete
-Status: In progress
-Last activity: 2026-02-06 — Completed 43-01 (cart overlays + route-group layouts)
+Plan: 2 of 2 complete
+Status: Phase complete
+Last activity: 2026-02-06 — Completed 43-02 (navigation guards + bundle verification)
 
-Progress: [################                                                  ] v1.5 16/52 (31%)
+Progress: [#################                                                 ] v1.5 17/52 (33%)
 
 ## Milestones
 
@@ -27,7 +27,7 @@ Progress: [################                                                  ] v
 | v1.4 Mobile Excellence | 35-39 | 39 | 2026-02-05 |
 | **v1.5 Performance & Repo Health** | 40-46 | 52 | In Progress |
 
-**Total completed:** 42 phases, 189 plans, 214 requirements
+**Total completed:** 42 phases, 190 plans, 214 requirements
 
 ## Accumulated Context
 
@@ -58,6 +58,9 @@ Progress: [################                                                  ] v
 | Tracking page map eager lazy-loaded | Map IS primary content; code-split but no viewport gate |
 | CartOverlays wrapper for route-group scoping | DRY Fragment rendering CartBar + CartDrawer + FlyToCart |
 | CartIndicator pathname-aware fallback | Opens drawer on cart routes, navigates to /cart elsewhere |
+| useNavigationGuard: browser-level only | popstate + beforeunload; Link interception via page-level onNavigate |
+| Cart page guard nudges to checkout | onStay navigates to /checkout, not just close modal |
+| Empty checkout redirect with toast | router.replace to /menu avoids history pollution |
 
 ### Key Decisions (v1.4)
 
@@ -84,10 +87,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 43-01-PLAN.md
+Stopped at: Completed 43-02-PLAN.md (Phase 43 complete)
 Resume file: None
-Next action: Execute 43-02-PLAN.md
+Next action: Begin Phase 44
 
 ---
 
-*Updated: 2026-02-06 — Phase 43 plan 01 complete: cart overlays scoped to route-group layouts*
+*Updated: 2026-02-06 — Phase 43 complete: cart scoped to route groups + navigation guards on checkout/cart*
