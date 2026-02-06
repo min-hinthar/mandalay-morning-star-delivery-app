@@ -37,4 +37,5 @@ export {
   LazyPeakHoursChart,
   LazyExceptionBreakdown,
   LazyPerformanceChart,
+  LazyRevenueChart,
 } from "./LazyCharts";
