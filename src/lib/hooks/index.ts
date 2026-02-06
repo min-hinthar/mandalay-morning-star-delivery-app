@@ -142,3 +142,10 @@ export type {
 // ============================================
 
 export { useDeviceCapability, type DeviceTier } from "./useDeviceCapability";
+
+// ============================================
+// DYNAMIC IMPORT & VIEWPORT
+// ============================================
+
+export { useViewportTrigger } from "./useViewportTrigger";
+export { importWithRetry } from "./useDynamicImportWithRetry";
