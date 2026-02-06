@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useState } from "react";
+import Image from "next/image";
 import { motion, MotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -51,8 +52,7 @@ export const CardImage = memo(function CardImage({
   mouseY,
   isHovered,
   categorySlug,
-  // priority prop kept for API compatibility but always using eager loading
-  priority: _ = false,
+  priority = false,
   aspectClass = "aspect-[4/3]",
   roundedTop = "rounded-t-3xl",
   className,
@@ -89,12 +89,14 @@ export const CardImage = memo(function CardImage({
         transition={{ duration: 0.3 }}
       >
         {imageUrl && !hasError ? (
-          /* Plain img tag - simple approach like ItemDetailSheet */
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
+          <Image
             src={imageUrl}
             alt={alt}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : undefined}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             onError={() => setHasError(true)}
           />
         ) : (
