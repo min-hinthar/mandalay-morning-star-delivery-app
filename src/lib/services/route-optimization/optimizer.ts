@@ -1,74 +1,10 @@
 /**
- * Route Optimization Service
- * Integrates with Google Routes API to optimize delivery routes
+ * Route Optimization - Optimization Algorithms
+ * Google Routes API integration and nearest-neighbor fallback
  */
 
-import type { AddressesRow } from "@/types/database";
-
-// Kitchen origin coordinates
-const KITCHEN_ORIGIN = {
-  latitude: 34.0894,
-  longitude: -117.8897,
-  address: "750 Terrado Plaza, Suite 33, Covina, CA 91723",
-};
-
-export interface RoutableStop {
-  stopId: string;
-  orderId: string;
-  address: {
-    lat: number | null;
-    lng: number | null;
-    line1: string;
-    city: string;
-    state: string;
-    postalCode: string;
-  };
-  deliveryWindowStart?: string | null;
-  deliveryWindowEnd?: string | null;
-}
-
-export interface OptimizedRoute {
-  orderedStops: Array<{
-    stopId: string;
-    stopIndex: number;
-    eta: string | null;
-    distanceMeters: number;
-    durationSeconds: number;
-  }>;
-  totalDistanceMeters: number;
-  totalDurationSeconds: number;
-  optimizedPolyline: string | null;
-}
-
-export interface OptimizationError {
-  code: string;
-  message: string;
-  stopId?: string;
-}
-
-/**
- * Validates that all stops have valid coordinates
- */
-export function validateStopsForOptimization(
-  stops: RoutableStop[]
-): { valid: boolean; errors: OptimizationError[] } {
-  const errors: OptimizationError[] = [];
-
-  for (const stop of stops) {
-    if (stop.address.lat === null || stop.address.lng === null) {
-      errors.push({
-        code: "MISSING_COORDINATES",
-        message: `Stop ${stop.stopId} is missing coordinates. Please geocode the address first.`,
-        stopId: stop.stopId,
-      });
-    }
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors,
-  };
-}
+import type { RoutableStop, OptimizedRoute, OptimizeRouteStopsInput } from "./types";
+import { KITCHEN_ORIGIN, validateStopsForOptimization } from "./types";
 
 /**
  * Optimizes a route using Google Routes Optimization API
@@ -358,13 +294,7 @@ function estimateDrivingTime(distanceKm: number): number {
  */
 export async function optimizeRouteStops(
   _routeId: string,
-  stops: Array<{
-    id: string;
-    order_id: string;
-    address: Pick<AddressesRow, "lat" | "lng" | "line_1" | "city" | "state" | "postal_code">;
-    deliveryWindowStart?: string | null;
-    deliveryWindowEnd?: string | null;
-  }>,
+  stops: OptimizeRouteStopsInput[],
   departureTime?: Date
 ): Promise<{
   orderedStopIds: string[];
