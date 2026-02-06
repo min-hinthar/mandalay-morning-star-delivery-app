@@ -1,24 +1,9 @@
-/**
- * V6 Admin Categories Page - Pepper Aesthetic
- *
- * Category management page with V6 colors, typography, and animations.
- * Features stats cards, reorder controls, and categories table.
- */
-
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { m } from "framer-motion";
 import {
-  Plus,
   RefreshCw,
-  ChevronUp,
-  ChevronDown,
-  ToggleLeft,
-  ToggleRight,
-  Trash2,
-  AlertCircle,
-  Loader2,
   FolderTree,
   CheckCircle,
   UtensilsCrossed,
@@ -26,54 +11,27 @@ import {
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-
-interface Category {
-  id: string;
-  slug: string;
-  name: string;
-  sort_order: number;
-  is_active: boolean;
-  created_at: string;
-  item_count: number;
-}
+import { AddCategoryDialog } from "./AddCategoryDialog";
+import { CategoriesTable, type CategoryRow } from "./CategoriesTable";
 
 export default function AdminCategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [newCategory, setNewCategory] = useState({ name: "", slug: "" });
-  const [creating, setCreating] = useState(false);
 
   const fetchCategories = useCallback(async () => {
     try {
       const response = await fetch("/api/admin/categories");
       if (!response.ok) throw new Error("Failed to fetch categories");
-      const data: Category[] = await response.json();
+      const data: CategoryRow[] = await response.json();
       setCategories(data);
     } catch {
-      toast({ title: "Error", description: "Failed to fetch categories", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Failed to fetch categories",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -89,7 +47,7 @@ export default function AdminCategoriesPage() {
     fetchCategories();
   };
 
-  const handleToggleActive = async (category: Category) => {
+  const handleToggleActive = async (category: CategoryRow) => {
     setUpdatingId(category.id);
     try {
       const response = await fetch(`/api/admin/categories/${category.id}`, {
@@ -106,15 +64,23 @@ export default function AdminCategoriesPage() {
         )
       );
     } catch {
-      toast({ title: "Error", description: "Failed to update category", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Failed to update category",
+        variant: "destructive",
+      });
     } finally {
       setUpdatingId(null);
     }
   };
 
-  const handleMove = async (category: Category, direction: "up" | "down") => {
+  const handleMove = async (
+    category: CategoryRow,
+    direction: "up" | "down"
+  ) => {
     const currentIndex = categories.findIndex((c) => c.id === category.id);
-    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    const targetIndex =
+      direction === "up" ? currentIndex - 1 : currentIndex + 1;
 
     if (targetIndex < 0 || targetIndex >= categories.length) return;
 
@@ -122,7 +88,6 @@ export default function AdminCategoriesPage() {
     setUpdatingId(category.id);
 
     try {
-      // Swap sort_order values
       const [response1, response2] = await Promise.all([
         fetch(`/api/admin/categories/${category.id}`, {
           method: "PATCH",
@@ -140,7 +105,6 @@ export default function AdminCategoriesPage() {
         throw new Error("Failed to reorder categories");
       }
 
-      // Update local state
       setCategories((prev) => {
         const newCategories = [...prev];
         const currentSortOrder = newCategories[currentIndex].sort_order;
@@ -150,13 +114,17 @@ export default function AdminCategoriesPage() {
         return newCategories.sort((a, b) => a.sort_order - b.sort_order);
       });
     } catch {
-      toast({ title: "Error", description: "Failed to reorder categories", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Failed to reorder categories",
+        variant: "destructive",
+      });
     } finally {
       setUpdatingId(null);
     }
   };
 
-  const handleDelete = async (category: Category) => {
+  const handleDelete = async (category: CategoryRow) => {
     if (category.item_count > 0) {
       toast({
         title: "Cannot delete",
@@ -186,11 +154,15 @@ export default function AdminCategoriesPage() {
       }
 
       setCategories((prev) => prev.filter((c) => c.id !== category.id));
-      toast({ title: "Deleted", description: `"${category.name}" has been deleted` });
+      toast({
+        title: "Deleted",
+        description: `"${category.name}" has been deleted`,
+      });
     } catch (err) {
       toast({
         title: "Error",
-        description: err instanceof Error ? err.message : "Failed to delete category",
+        description:
+          err instanceof Error ? err.message : "Failed to delete category",
         variant: "destructive",
       });
     } finally {
@@ -198,55 +170,8 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  const handleCreateCategory = async () => {
-    if (!newCategory.name.trim() || !newCategory.slug.trim()) {
-      toast({ title: "Validation error", description: "Name and slug are required", variant: "destructive" });
-      return;
-    }
-
-    setCreating(true);
-    try {
-      const response = await fetch("/api/admin/categories", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: newCategory.name.trim(),
-          slug: newCategory.slug.trim().toLowerCase(),
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to create category");
-      }
-
-      const created = await response.json();
-      setCategories((prev) =>
-        [...prev, { ...created, item_count: 0 }].sort(
-          (a, b) => a.sort_order - b.sort_order
-        )
-      );
-      setNewCategory({ name: "", slug: "" });
-      setAddDialogOpen(false);
-      toast({ title: "Created", description: `Category "${newCategory.name}" created successfully` });
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to create category",
-        variant: "destructive",
-      });
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .trim();
+  const handleCategoryCreated = () => {
+    fetchCategories();
   };
 
   const activeCount = categories.filter((c) => c.is_active).length;
@@ -297,91 +222,7 @@ export default function AdminCategoriesPage() {
             />
             Refresh
           </Button>
-          <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Category
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-surface-primary border-border rounded-card">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 font-display text-2xl text-text-primary">
-                  <div className="p-2 rounded-input bg-primary text-text-inverse">
-                    <FolderTree className="h-5 w-5" />
-                  </div>
-                  Add New Category
-                </DialogTitle>
-                <DialogDescription className="font-body text-text-secondary">
-                  Create a new menu category. Categories are used to organize
-                  menu items.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="name"
-                    className="text-sm font-body font-medium text-text-primary"
-                  >
-                    Name
-                  </Label>
-                  <Input
-                    id="name"
-                    placeholder="e.g., Appetizers"
-                    value={newCategory.name}
-                    onChange={(e) => {
-                      const name = e.target.value;
-                      setNewCategory({
-                        name,
-                        slug: generateSlug(name),
-                      });
-                    }}
-                    className="bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="slug"
-                    className="text-sm font-body font-medium text-text-primary"
-                  >
-                    Slug
-                  </Label>
-                  <Input
-                    id="slug"
-                    placeholder="e.g., appetizers"
-                    value={newCategory.slug}
-                    onChange={(e) =>
-                      setNewCategory((prev) => ({
-                        ...prev,
-                        slug: e.target.value.toLowerCase(),
-                      }))
-                    }
-                    className="bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input font-mono"
-                  />
-                  <p className="text-xs font-body text-text-muted">
-                    URL-friendly identifier. Lowercase, no spaces.
-                  </p>
-                </div>
-              </div>
-              <DialogFooter className="gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setAddDialogOpen(false)}
-                  className="border-border hover:bg-surface-tertiary"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleCreateCategory}
-                  disabled={creating}
-                  className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm"
-                >
-                  {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create Category
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <AddCategoryDialog onCategoryCreated={handleCategoryCreated} />
         </div>
       </m.div>
 
@@ -392,13 +233,14 @@ export default function AdminCategoriesPage() {
         transition={{ delay: 0.1 }}
         className="grid grid-cols-1 md:grid-cols-3 gap-4"
       >
-        {/* Total Categories */}
         <div className="relative overflow-hidden rounded-card-sm bg-surface-secondary border border-border p-4 shadow-sm">
           <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
             <div className="flex items-center gap-2 text-primary">
               <FolderTree className="h-5 w-5" />
-              <span className="text-sm font-body font-medium">Total Categories</span>
+              <span className="text-sm font-body font-medium">
+                Total Categories
+              </span>
             </div>
             <p className="text-3xl font-display font-bold text-text-primary mt-2">
               {categories.length}
@@ -406,7 +248,6 @@ export default function AdminCategoriesPage() {
           </div>
         </div>
 
-        {/* Active Categories */}
         <div className="relative overflow-hidden rounded-card-sm bg-green/5 border border-green/20 p-4 shadow-sm">
           <div className="absolute top-0 right-0 w-20 h-20 bg-green/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
@@ -420,13 +261,14 @@ export default function AdminCategoriesPage() {
           </div>
         </div>
 
-        {/* Total Items */}
         <div className="relative overflow-hidden rounded-card-sm bg-secondary/5 border border-secondary/20 p-4 shadow-sm">
           <div className="absolute top-0 right-0 w-20 h-20 bg-secondary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="relative">
             <div className="flex items-center gap-2 text-primary">
               <UtensilsCrossed className="h-5 w-5" />
-              <span className="text-sm font-body font-medium">Total Items</span>
+              <span className="text-sm font-body font-medium">
+                Total Items
+              </span>
             </div>
             <p className="text-3xl font-display font-bold text-text-primary mt-2">
               {totalItems}
@@ -441,136 +283,13 @@ export default function AdminCategoriesPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        {categories.length === 0 ? (
-          <div className="text-center py-16 bg-surface-secondary rounded-card-sm border border-border">
-            <AlertCircle className="h-12 w-12 text-text-muted mx-auto mb-4" />
-            <h2 className="text-lg font-display font-medium text-text-primary mb-2">
-              No categories yet
-            </h2>
-            <p className="font-body text-text-secondary">
-              Add your first category to start organizing menu items
-            </p>
-          </div>
-        ) : (
-          <div className="rounded-card-sm border border-border bg-surface-primary overflow-hidden shadow-sm">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-surface-secondary hover:bg-surface-secondary">
-                  <TableHead className="w-[80px] font-body font-medium text-text-secondary">
-                    Order
-                  </TableHead>
-                  <TableHead className="font-body font-medium text-text-secondary">
-                    Name
-                  </TableHead>
-                  <TableHead className="font-body font-medium text-text-secondary">
-                    Slug
-                  </TableHead>
-                  <TableHead className="text-center font-body font-medium text-text-secondary">
-                    Items
-                  </TableHead>
-                  <TableHead className="text-center font-body font-medium text-text-secondary">
-                    Status
-                  </TableHead>
-                  <TableHead className="w-[100px] font-body font-medium text-text-secondary">
-                    Actions
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {categories.map((category, index) => {
-                  const isUpdating = updatingId === category.id;
-                  const isFirst = index === 0;
-                  const isLast = index === categories.length - 1;
-
-                  return (
-                    <TableRow
-                      key={category.id}
-                      className={cn(
-                        "hover:bg-surface-secondary/50 transition-colors duration-fast",
-                        !category.is_active && "opacity-50",
-                        isUpdating && "opacity-70"
-                      )}
-                    >
-                      <TableCell>
-                        <div className="flex flex-col gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 hover:bg-surface-tertiary"
-                            onClick={() => handleMove(category, "up")}
-                            disabled={isFirst || isUpdating}
-                          >
-                            <ChevronUp className="h-4 w-4 text-text-secondary" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 hover:bg-surface-tertiary"
-                            onClick={() => handleMove(category, "down")}
-                            disabled={isLast || isUpdating}
-                          >
-                            <ChevronDown className="h-4 w-4 text-text-secondary" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-body font-medium text-text-primary">
-                        {category.name}
-                      </TableCell>
-                      <TableCell>
-                        <code className="text-xs bg-surface-tertiary px-2 py-1 rounded-input font-mono text-text-secondary">
-                          {category.slug}
-                        </code>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge
-                          variant="outline"
-                          className="border-border text-text-secondary font-body"
-                        >
-                          {category.item_count}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleToggleActive(category)}
-                          disabled={isUpdating}
-                          className="p-1 hover:bg-transparent"
-                        >
-                          {category.is_active ? (
-                            <ToggleRight className="h-6 w-6 text-green" />
-                          ) : (
-                            <ToggleLeft className="h-6 w-6 text-text-muted" />
-                          )}
-                        </Button>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(category)}
-                          disabled={isUpdating || category.item_count > 0}
-                          className={cn(
-                            "p-1 hover:bg-status-error/10",
-                            category.item_count > 0 &&
-                              "opacity-30 cursor-not-allowed"
-                          )}
-                          title={
-                            category.item_count > 0
-                              ? "Cannot delete: has menu items"
-                              : "Delete category"
-                          }
-                        >
-                          <Trash2 className="h-4 w-4 text-status-error" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+        <CategoriesTable
+          categories={categories}
+          updatingId={updatingId}
+          onToggleActive={handleToggleActive}
+          onMove={handleMove}
+          onDelete={handleDelete}
+        />
       </m.div>
     </div>
   );

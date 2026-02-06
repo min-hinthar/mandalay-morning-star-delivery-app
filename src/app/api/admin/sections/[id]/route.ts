@@ -1,39 +1,10 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
-import { z } from "zod";
-import type { FeaturedSectionsRow, MenuItemsRow } from "@/types/database";
-
-interface SectionWithItems extends FeaturedSectionsRow {
-  featured_section_items: {
-    item_id: string;
-    sort_order: number;
-    menu_items: Pick<
-      MenuItemsRow,
-      "id" | "name_en" | "name_my" | "description_en" | "image_url" | "base_price_cents" | "is_active" | "is_sold_out"
-    >;
-  }[];
-}
-
-interface SectionWithItemIds extends FeaturedSectionsRow {
-  featured_section_items: {
-    item_id: string;
-    sort_order: number;
-  }[];
-}
-
-const updateSectionSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
-  subtitle: z.string().max(500).optional().nullable(),
-  icon: z.string().max(50).optional().nullable(),
-  accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Must be a hex color").optional().nullable(),
-  itemCount: z.number().int().min(1).max(20).optional(),
-  isVisible: z.boolean().optional(),
-});
-
-const actionSchema = z.object({
-  action: z.enum(["restore", "duplicate"]),
-});
+import type { FeaturedSectionsRow } from "@/types/database";
+import type { SectionWithItems, SectionWithItemIds } from "./types";
+import { updateSectionSchema, actionSchema } from "./schemas";
+import { transformSectionResponse } from "./helpers";
 
 export async function GET(
   _request: Request,
@@ -81,20 +52,7 @@ export async function GET(
     }
 
     return NextResponse.json({
-      id: section.id,
-      slug: section.slug,
-      name: section.name,
-      subtitle: section.subtitle,
-      icon: section.icon,
-      accentColor: section.accent_color,
-      sortOrder: section.sort_order,
-      itemCount: section.item_count,
-      isVisible: section.is_visible,
-      isPredefined: section.is_predefined,
-      deletedAt: section.deleted_at,
-      createdAt: section.created_at,
-      updatedAt: section.updated_at,
-      updatedBy: section.updated_by,
+      ...transformSectionResponse(section),
       items: section.featured_section_items
         ?.sort((a, b) => a.sort_order - b.sort_order)
         .map((item) => ({
@@ -188,22 +146,7 @@ export async function PATCH(
       );
     }
 
-    return NextResponse.json({
-      id: section.id,
-      slug: section.slug,
-      name: section.name,
-      subtitle: section.subtitle,
-      icon: section.icon,
-      accentColor: section.accent_color,
-      sortOrder: section.sort_order,
-      itemCount: section.item_count,
-      isVisible: section.is_visible,
-      isPredefined: section.is_predefined,
-      deletedAt: section.deleted_at,
-      createdAt: section.created_at,
-      updatedAt: section.updated_at,
-      updatedBy: section.updated_by,
-    });
+    return NextResponse.json(transformSectionResponse(section));
   } catch (error) {
     logger.exception(error, { api: "admin/sections/[id]", flowId: "update" });
     return NextResponse.json(
@@ -340,22 +283,7 @@ export async function POST(
         );
       }
 
-      return NextResponse.json({
-        id: section.id,
-        slug: section.slug,
-        name: section.name,
-        subtitle: section.subtitle,
-        icon: section.icon,
-        accentColor: section.accent_color,
-        sortOrder: section.sort_order,
-        itemCount: section.item_count,
-        isVisible: section.is_visible,
-        isPredefined: section.is_predefined,
-        deletedAt: section.deleted_at,
-        createdAt: section.created_at,
-        updatedAt: section.updated_at,
-        updatedBy: section.updated_by,
-      });
+      return NextResponse.json(transformSectionResponse(section));
     }
 
     if (action === "duplicate") {
@@ -455,22 +383,7 @@ export async function POST(
         }
       }
 
-      return NextResponse.json({
-        id: newSection.id,
-        slug: newSection.slug,
-        name: newSection.name,
-        subtitle: newSection.subtitle,
-        icon: newSection.icon,
-        accentColor: newSection.accent_color,
-        sortOrder: newSection.sort_order,
-        itemCount: newSection.item_count,
-        isVisible: newSection.is_visible,
-        isPredefined: newSection.is_predefined,
-        deletedAt: newSection.deleted_at,
-        createdAt: newSection.created_at,
-        updatedAt: newSection.updated_at,
-        updatedBy: newSection.updated_by,
-      }, { status: 201 });
+      return NextResponse.json(transformSectionResponse(newSection), { status: 201 });
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });

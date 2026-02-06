@@ -92,8 +92,10 @@ export function useFlyToCart() {
       // Kill all active GSAP timelines to prevent callbacks on unmounted component
       timelines.current.forEach((tl) => tl.kill());
       timelines.current.clear();
-      // Reset isAnimating when killing timelines
+      // Reset both isAnimating and flyingCount when killing timelines
+      // flyingCount must be reset to 0 because useFlyToCart returns flyingCount > 0 as isAnimating
       resetAnimating(false);
+      useCartAnimationStore.setState({ flyingCount: 0 });
 
       // Remove flying element if it exists (stored in Zustand store, not ref)
       if (flyingElement) {

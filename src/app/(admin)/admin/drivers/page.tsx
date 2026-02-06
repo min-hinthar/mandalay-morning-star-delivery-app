@@ -1,10 +1,3 @@
-/**
- * V6 Admin Drivers Page - Pepper Aesthetic
- *
- * Driver fleet management page with V6 colors, typography, and animations.
- * Features stats cards, search/filters, driver table, and pending invites.
- */
-
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -15,10 +8,6 @@ import {
   Search,
   Mail,
   Filter,
-  Truck,
-  Users,
-  Star,
-  TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +24,7 @@ import {
 } from "@/components/ui/admin/drivers/AddDriverModal";
 import { PendingInvitesTab } from "@/components/ui/admin/drivers/PendingInvitesTab";
 import { InviteDriverModal } from "@/components/ui/admin/drivers/InviteDriverModal";
+import { DriversStatsCards } from "./DriversStatsCards";
 
 type StatusFilter = "all" | "active" | "inactive" | "pending";
 
@@ -44,13 +34,6 @@ const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: "inactive", label: "Inactive" },
   { value: "pending", label: "Pending Invites" },
 ];
-
-interface DriverStats {
-  total: number;
-  active: number;
-  avgRating: number | null;
-  totalDeliveries: number;
-}
 
 export default function AdminDriversPage() {
   const router = useRouter();
@@ -80,7 +63,6 @@ export default function AdminDriversPage() {
     }
   }, []);
 
-  // Fetch pending invites count
   const fetchInvitesCount = useCallback(async () => {
     try {
       const response = await fetch("/api/admin/drivers/invites");
@@ -118,7 +100,6 @@ export default function AdminDriversPage() {
         throw new Error(error.error || "Failed to update driver");
       }
 
-      // Update local state
       setDrivers((prev) =>
         prev.map((driver) =>
           driver.id === driverId ? { ...driver, isActive } : driver
@@ -151,17 +132,14 @@ export default function AdminDriversPage() {
       throw new Error(error.error || "Failed to create driver");
     }
 
-    // Refresh the list
     await fetchDrivers();
   };
 
   const handleInviteSuccess = () => {
-    // Refresh invites count and list
     fetchInvitesCount();
     setInvitesRefreshKey((k) => k + 1);
   };
 
-  // Filter drivers by status (excluding pending which shows invites)
   const filteredDrivers =
     statusFilter === "all" || statusFilter === "pending"
       ? drivers
@@ -169,8 +147,7 @@ export default function AdminDriversPage() {
           statusFilter === "active" ? driver.isActive : !driver.isActive
         );
 
-  // Calculate stats
-  const stats: DriverStats = {
+  const stats = {
     total: drivers.length,
     active: drivers.filter((d) => d.isActive).length,
     avgRating:
@@ -181,7 +158,6 @@ export default function AdminDriversPage() {
     totalDeliveries: drivers.reduce((sum, d) => sum + d.deliveriesCount, 0),
   };
 
-  // Get count for each filter
   const getFilterCount = (filter: StatusFilter): number => {
     switch (filter) {
       case "all":
@@ -250,77 +226,12 @@ export default function AdminDriversPage() {
         </div>
       </m.div>
 
-      {/* Stats Cards */}
-      <m.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-4"
-      >
-        {/* Total Drivers */}
-        <div className="relative overflow-hidden rounded-card-sm bg-surface-secondary border border-border p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-primary">
-              <Users className="h-5 w-5" />
-              <span className="text-sm font-body font-medium">Total Drivers</span>
-            </div>
-            <p className="text-3xl font-display font-bold text-text-primary mt-2">
-              {stats.total}
-            </p>
-          </div>
-        </div>
-
-        {/* Active Drivers */}
-        <div className="relative overflow-hidden rounded-card-sm bg-green/5 border border-green/20 p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-green/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-green">
-              <Truck className="h-5 w-5" />
-              <span className="text-sm font-body font-medium">Active</span>
-            </div>
-            <p className="text-3xl font-display font-bold text-text-primary mt-2">
-              {stats.active}
-              <span className="text-sm font-body font-normal text-text-muted ml-2">
-                / {stats.total}
-              </span>
-            </p>
-          </div>
-        </div>
-
-        {/* Average Rating */}
-        <div className="relative overflow-hidden rounded-card-sm bg-primary/5 border border-primary/20 p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-primary">
-              <Star className="h-5 w-5 fill-primary" />
-              <span className="text-sm font-body font-medium">Avg Rating</span>
-            </div>
-            <p className="text-3xl font-display font-bold text-text-primary mt-2">
-              {stats.avgRating ? stats.avgRating.toFixed(1) : "—"}
-              {stats.avgRating && (
-                <span className="text-sm font-body font-normal text-text-muted ml-1">
-                  / 5.0
-                </span>
-              )}
-            </p>
-          </div>
-        </div>
-
-        {/* Total Deliveries */}
-        <div className="relative overflow-hidden rounded-card-sm bg-secondary/5 border border-secondary/20 p-4 shadow-sm">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-secondary/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-secondary-hover">
-              <TrendingUp className="h-5 w-5" />
-              <span className="text-sm font-body font-medium">Deliveries</span>
-            </div>
-            <p className="text-3xl font-display font-bold text-text-primary mt-2">
-              {stats.totalDeliveries.toLocaleString()}
-            </p>
-          </div>
-        </div>
-      </m.div>
+      <DriversStatsCards
+        total={stats.total}
+        active={stats.active}
+        avgRating={stats.avgRating}
+        totalDeliveries={stats.totalDeliveries}
+      />
 
       {/* Search and Filters */}
       <m.div
@@ -329,7 +240,6 @@ export default function AdminDriversPage() {
         transition={{ delay: 0.2 }}
         className="flex flex-col sm:flex-row gap-4"
       >
-        {/* Search - hidden when showing pending invites */}
         {statusFilter !== "pending" && (
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
@@ -343,22 +253,23 @@ export default function AdminDriversPage() {
           </div>
         )}
 
-        {/* Status Filters */}
-        <div className={cn(
-          "flex items-center gap-2 flex-wrap",
-          statusFilter === "pending" && "flex-1"
-        )}>
+        <div
+          className={cn(
+            "flex items-center gap-2 flex-wrap",
+            statusFilter === "pending" && "flex-1"
+          )}
+        >
           <div className="flex items-center gap-2 text-text-muted">
             <Filter className="h-4 w-4" />
             <span className="text-sm font-body hidden sm:inline">Status:</span>
           </div>
-          {STATUS_FILTERS.map((filter) => {
-            const count = getFilterCount(filter.value);
-            const isActive = statusFilter === filter.value;
+          {STATUS_FILTERS.map((f) => {
+            const count = getFilterCount(f.value);
+            const isActive = statusFilter === f.value;
 
             return (
               <Badge
-                key={filter.value}
+                key={f.value}
                 variant={isActive ? "default" : "outline"}
                 className={cn(
                   "cursor-pointer transition-all duration-fast font-body",
@@ -366,9 +277,9 @@ export default function AdminDriversPage() {
                     ? "bg-primary hover:bg-primary-hover text-text-inverse border-transparent"
                     : "bg-surface-primary border-border text-text-primary hover:bg-primary/10 hover:border-primary/30"
                 )}
-                onClick={() => setStatusFilter(filter.value)}
+                onClick={() => setStatusFilter(f.value)}
               >
-                {filter.label}
+                {f.label}
                 {count > 0 && (
                   <span className="ml-1.5 text-xs opacity-80">({count})</span>
                 )}
@@ -378,7 +289,7 @@ export default function AdminDriversPage() {
         </div>
       </m.div>
 
-      {/* Content - Drivers Table or Pending Invites */}
+      {/* Content */}
       <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -399,14 +310,12 @@ export default function AdminDriversPage() {
         )}
       </m.div>
 
-      {/* Add Driver Modal (for existing users) */}
       <AddDriverModal
         open={isAddModalOpen}
         onOpenChange={setIsAddModalOpen}
         onSubmit={handleAddDriver}
       />
 
-      {/* Invite Driver Modal */}
       <InviteDriverModal
         open={isInviteModalOpen}
         onOpenChange={setIsInviteModalOpen}

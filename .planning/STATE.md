@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.5 Performance & Repo Health
+**Current focus:** v1.5 Performance & Repo Health (complete)
 
 ## Current Position
 
-Phase: 45 of 47 (Repo Cleanup & Hygiene)
-Plan: 3 of 3 complete
-Status: Phase complete — Phase 46 + 47 pending
+Phase: 46 of 47 (Large File Refactoring)
+Plan: 7 of 7 complete
+Status: Phase complete — Phase 47 pending
 Last activity: 2026-02-06 — Added Phase 47 (gap closure from milestone audit)
 
-Progress: [########################                                          ] v1.5 22/52 (42%)
+Progress: [##############################                                    ] v1.5 29/52 (56%)
 
 ## Milestones
 
@@ -27,7 +27,7 @@ Progress: [########################                                          ] v
 | v1.4 Mobile Excellence | 35-39 | 39 | 2026-02-05 |
 | **v1.5 Performance & Repo Health** | 40-47 | 61 | In Progress |
 
-**Total completed:** 42 phases, 192 plans, 214 requirements
+**Total completed:** 46 phases, 199 plans, 214 requirements
 
 ## Accumulated Context
 
@@ -66,13 +66,25 @@ Progress: [########################                                          ] v
 | LazyMotion domMax + strict at root | drag + layoutId require domMax; strict prevents motion.* regression |
 | All motion.* migrated to m.* (174 files) | Per-component bundle ~34kb to ~4.6kb; features loaded once at root |
 | Lighthouse CI: warn-only, PR-only, 4 customer routes | Regression gate without blocking PRs; server mode for App Router |
+| API route co-location: types.ts/schemas.ts/helpers.ts siblings | Keep route.ts focused on HTTP handlers; types/schemas/helpers co-located |
+| Supabase client typing via Awaited<ReturnType<typeof createClient>> | Avoids direct @supabase/supabase-js import in helpers |
+| Admin page sibling co-location for extracted components | PascalCase .tsx files alongside page.tsx; safe in App Router |
+| State stays in page.tsx, extracted components get props | Thin orchestrator pattern: page manages state + handlers |
+| Hero.tsx split into subfolder pattern | Sub-components don't share state/refs; clean separation into 4 sub-files |
+| UnifiedMenuItemCard.tsx irreducible at 540 lines | Tightly coupled tilt physics, cart, touch handling through shared refs/state |
+| High-export barrels: subfolder pattern | FormValidation (20), Modal (10), skeleton (11) split with complete barrel re-exports |
+| Constants extraction for oversized components | Animation variants and config objects to constants.ts when component exceeds 400 lines |
+| motion-tokens core.ts as foundation | duration/easing/spring/transition in core.ts; all sub-files import from core (one-directional) |
+| Lib subfolder barrel pattern | 7 lib files split into subfolders with complete barrel re-exports preserving all import paths |
+| ESLint max-lines expanded to all src/**/*.{ts,tsx} | Warning-only, exempts types/tests/stories; prevents regression |
+| 4 file-splitting patterns documented in CLAUDE.md | Component subfolder, lib subfolder, admin sibling, API route sibling |
 
 ### Tech Debt (v1.5 Focus)
 
 | Item | Status | Notes |
 |------|--------|-------|
 | LCP 11.4s (homepage), 9.8s (menu) | **Active** | Reduced from 19.9s/18.2s; target: <2.5s |
-| 29 files >400 lines | **Active** | Refactoring in v1.5 |
+| 29 files >400 lines | **Done** | Refactored in Phase 46; ESLint max-lines enforces going forward |
 | Legacy docs (V0-V8) | **Done** | 94 files deleted in 45-01 |
 | storybook-static in git | **Done** | Untracked in 45-01 (89 files) |
 
@@ -83,10 +95,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Added Phase 47 gap closure from audit
+Stopped at: Phase 46 complete. Added Phase 47 gap closure from audit.
 Resume file: None
-Next action: Plan Phase 46 (Large File Refactoring), then Phase 47 (Final LCP Measurement)
+Next action: Plan and execute Phase 47 (Final LCP Measurement & Gap Closure)
 
 ---
 
-*Updated: 2026-02-06 — Added Phase 47 (gap closure from milestone audit)*
+*Updated: 2026-02-06 — Phase 46 complete. Added Phase 47 (gap closure from milestone audit).*
