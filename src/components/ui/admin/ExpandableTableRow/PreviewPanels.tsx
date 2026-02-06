@@ -1,155 +1,32 @@
-/**
- * V6 Expandable Table Row Component - Pepper Aesthetic
- *
- * Reusable table row with smooth expand/collapse animation.
- * Click row to reveal quick preview panel. Interactive elements
- * (dropdowns, buttons) work independently without triggering expand.
- *
- * V6 Features:
- * - V6 colors and typography
- * - Primary red accent for expanded state
- * - Spring animations
- */
-
 "use client";
 
-import { useState, useCallback, type ReactNode, type MouseEvent } from "react";
+/**
+ * Preview Panel Components
+ *
+ * QuickPreviewPanel, RoutePreviewPanel, DriverPreviewPanel
+ * Content panels for expanded table rows.
+ */
+
+import { type ReactNode } from "react";
 import Link from "next/link";
-import { m, AnimatePresence } from "framer-motion";
+import { m } from "framer-motion";
 import {
-  ChevronRight,
   MapPin,
   Package,
   MessageSquare,
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { TableRow, TableCell } from "@/components/ui/table";
-import { spring } from "@/lib/motion-tokens";
-
-// ============================================
-// EXPANDABLE TABLE ROW
-// ============================================
-
-interface ExpandableTableRowProps {
-  /** Unique ID for this row */
-  id: string;
-  /** Whether this row is currently expanded */
-  isExpanded: boolean;
-  /** Callback when expand state changes */
-  onExpandChange: (id: string, expanded: boolean) => void;
-  /** Number of columns in the table (for preview colspan) */
-  colSpan: number;
-  /** The main row cells content */
-  children: ReactNode;
-  /** The preview panel content */
-  previewContent: ReactNode;
-  /** Optional className for the row */
-  className?: string;
-}
-
-export function ExpandableTableRow({
-  id,
-  isExpanded,
-  onExpandChange,
-  colSpan,
-  children,
-  previewContent,
-  className,
-}: ExpandableTableRowProps) {
-  const handleRowClick = useCallback(
-    (e: MouseEvent<HTMLTableRowElement>) => {
-      // Don't expand if clicking on interactive elements
-      const target = e.target as HTMLElement;
-      const isInteractive =
-        target.closest("button") ||
-        target.closest("a") ||
-        target.closest('[role="menuitem"]') ||
-        target.closest('[data-radix-collection-item]') ||
-        target.closest('[data-state]') ||
-        target.closest(".dropdown-trigger");
-
-      if (isInteractive) return;
-
-      onExpandChange(id, !isExpanded);
-    },
-    [id, isExpanded, onExpandChange]
-  );
-
-  return (
-    <>
-      {/* V6 Main Row */}
-      <TableRow
-        onClick={handleRowClick}
-        className={cn(
-          "cursor-pointer transition-colors duration-fast group",
-          "hover:bg-surface-secondary/50",
-          isExpanded && "bg-surface-secondary border-b-0",
-          className
-        )}
-      >
-        {children}
-        {/* V6 Expand indicator */}
-        <TableCell className="w-8 pr-4">
-          <m.div
-            initial={false}
-            animate={{ rotate: isExpanded ? 90 : 0 }}
-            transition={spring.default}
-            className="text-text-muted group-hover:text-primary"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </m.div>
-        </TableCell>
-      </TableRow>
-
-      {/* V6 Preview Panel Row */}
-      {isExpanded && (
-        <tr>
-          <td colSpan={colSpan + 1} className="p-0 border-b border-border">
-            <AnimatePresence initial={false}>
-              <m.div
-                key="expanded-content"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{
-                  height: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
-                  opacity: { duration: 0.2, delay: 0.1 },
-                }}
-                className="overflow-hidden"
-              >
-                <div className="relative">
-                  {/* V6 Left accent border */}
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/60 to-transparent" />
-
-                  {/* V6 Content container */}
-                  <div className="pl-6 pr-4 py-4 bg-gradient-to-r from-surface-secondary to-surface-primary">
-                    {previewContent}
-                  </div>
-                </div>
-              </m.div>
-            </AnimatePresence>
-          </td>
-        </tr>
-      )}
-    </>
-  );
-}
 
 // ============================================
 // QUICK PREVIEW PANEL
 // ============================================
 
 interface QuickPreviewPanelProps {
-  /** Items list to display */
   items?: Array<{ name: string; quantity: number; price?: number }>;
-  /** Delivery address */
   address?: string;
-  /** Customer notes */
   notes?: string;
-  /** Link to full details page */
   detailsLink: string;
-  /** Optional additional sections */
   children?: ReactNode;
 }
 
@@ -162,7 +39,6 @@ export function QuickPreviewPanel({
 }: QuickPreviewPanelProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* V6 Items Section */}
       {items && items.length > 0 && (
         <m.div
           initial={{ opacity: 0, y: 10 }}
@@ -187,7 +63,7 @@ export function QuickPreviewPanel({
               >
                 <span className="text-text-primary">
                   <span className="text-primary font-medium">
-                    {item.quantity}×
+                    {item.quantity}x
                   </span>{" "}
                   {item.name}
                 </span>
@@ -207,7 +83,6 @@ export function QuickPreviewPanel({
         </m.div>
       )}
 
-      {/* V6 Address Section */}
       {address && (
         <m.div
           initial={{ opacity: 0, y: 10 }}
@@ -227,7 +102,6 @@ export function QuickPreviewPanel({
         </m.div>
       )}
 
-      {/* V6 Notes Section */}
       {notes && (
         <m.div
           initial={{ opacity: 0, y: 10 }}
@@ -247,10 +121,8 @@ export function QuickPreviewPanel({
         </m.div>
       )}
 
-      {/* Additional sections */}
       {children}
 
-      {/* V6 View Full Details Link */}
       <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -276,45 +148,7 @@ export function QuickPreviewPanel({
 }
 
 // ============================================
-// HOOK FOR MANAGING EXPANDED STATE
-// ============================================
-
-export function useExpandedRows() {
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
-
-  const handleExpandChange = useCallback((id: string, expanded: boolean) => {
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (expanded) {
-        // Only allow one row expanded at a time
-        next.clear();
-        next.add(id);
-      } else {
-        next.delete(id);
-      }
-      return next;
-    });
-  }, []);
-
-  const isExpanded = useCallback(
-    (id: string) => expandedIds.has(id),
-    [expandedIds]
-  );
-
-  const collapseAll = useCallback(() => {
-    setExpandedIds(new Set());
-  }, []);
-
-  return {
-    expandedIds,
-    handleExpandChange,
-    isExpanded,
-    collapseAll,
-  };
-}
-
-// ============================================
-// ROUTE-SPECIFIC PREVIEW
+// ROUTE PREVIEW PANEL
 // ============================================
 
 interface RoutePreviewProps {
@@ -334,7 +168,6 @@ export function RoutePreviewPanel({
 }: RoutePreviewProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* V6 Stops Summary */}
       <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -375,7 +208,6 @@ export function RoutePreviewPanel({
         </ul>
       </m.div>
 
-      {/* V6 Duration & Action */}
       <div className="flex flex-col justify-between">
         {estimatedDuration && (
           <m.div
@@ -417,7 +249,7 @@ export function RoutePreviewPanel({
 }
 
 // ============================================
-// DRIVER-SPECIFIC PREVIEW
+// DRIVER PREVIEW PANEL
 // ============================================
 
 interface DriverPreviewProps {
@@ -441,7 +273,6 @@ export function DriverPreviewPanel({
 }: DriverPreviewProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* V6 Contact Info */}
       <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -457,7 +288,6 @@ export function DriverPreviewPanel({
         </div>
       </m.div>
 
-      {/* V6 Vehicle Info */}
       {vehicleInfo && (
         <m.div
           initial={{ opacity: 0, y: 10 }}
@@ -479,7 +309,6 @@ export function DriverPreviewPanel({
         </m.div>
       )}
 
-      {/* V6 Stats */}
       <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -501,13 +330,12 @@ export function DriverPreviewPanel({
               <span className="text-secondary font-bold">
                 {rating.toFixed(1)}
               </span>{" "}
-              <span className="text-secondary">★</span>
+              <span className="text-secondary">&#9733;</span>
             </div>
           )}
         </div>
       </m.div>
 
-      {/* V6 View Details */}
       <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
