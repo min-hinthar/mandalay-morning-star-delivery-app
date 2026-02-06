@@ -1,458 +1,510 @@
-# Technology Stack: Theme Consistency & Hero Redesign
+# Technology Stack - LCP Optimization
 
 **Project:** Mandalay Morning Star Delivery App
-**Researched:** 2026-01-27
-**Focus:** Theme token consistency, parallax hero with floating emojis, mobile 3D tilt fix
-
----
+**Milestone:** Performance Optimization (LCP 8.1s → <2.5s)
+**Researched:** 2026-02-05
+**Confidence:** HIGH
 
 ## Executive Summary
 
-Three focus areas, no new dependencies required:
-
-1. **Theme Token Consistency:** Enforce via ESLint rules + Stylelint + CSS-first patterns (existing tooling)
-2. **Parallax Hero with Floating Emojis:** Use existing Framer Motion scroll hooks + CSS keyframes
-3. **Mobile 3D Tilt Fix:** CSS `@media (hover: hover) and (pointer: fine)` media query
+Next.js 16 provides native performance optimizations (React Compiler, Turbopack) that eliminate need for third-party virtual DOM replacements. Focus on JavaScript reduction through code splitting, deferred animations, and third-party script management. No major stack additions needed—optimize existing packages.
 
 ---
 
-## 1. Theme Token Consistency Patterns
+## Native Next.js 16 Capabilities (Use These First)
 
-### Problem Statement
+### React Compiler (Stable in v16)
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| React Compiler | Built-in | Auto-memoization | Eliminates manual useMemo/useCallback, reduces re-renders. Stable as of Next.js 16, production-ready at Meta. Enable via `reactCompiler: true` in config. |
 
-84 files contain hardcoded `text-white`, `bg-white`, or `text-black` instead of theme tokens. This breaks light/dark mode consistency.
-
-### Existing Enforcement Infrastructure
-
-The project already has linting infrastructure:
-
-| Tool | Config File | Current State |
-|------|-------------|---------------|
-| ESLint | `eslint.config.mjs` | Has `no-restricted-syntax` rules for hex colors in `bg-[]` and `text-[]` |
-| Stylelint | `.stylelintrc.json` | Has `declaration-property-value-disallowed-list` for z-index |
-| Tailwind IntelliSense | VS Code extension | Detects conflicting classes |
-
-### Recommended ESLint Rules to Add
-
-Extend existing `no-restricted-syntax` in `eslint.config.mjs`:
-
-```javascript
-{
-  // Catch hardcoded color utilities that break theming
-  selector: "Literal[value=/(?:^|\\s)(text-white|text-black|bg-white|bg-black)(?:\\s|$)/]",
-  message: "Use theme-aware tokens (text-text-primary, text-text-inverse, bg-surface-primary) instead of hardcoded text-white/black/bg-white/black."
-},
+**Installation:**
+```bash
+npm install babel-plugin-react-compiler@latest
 ```
 
-### Why ESLint Over Stylelint for This
-
-| Approach | Pros | Cons |
-|----------|------|------|
-| ESLint (recommended) | Catches Tailwind classes in JSX/TSX | More complex selector syntax |
-| Stylelint | CSS-only; already configured | Doesn't catch utility classes in React components |
-| eslint-plugin-tailwindcss | Dedicated Tailwind rules | v4 support still in beta |
-
-**Recommendation:** Extend existing ESLint `no-restricted-syntax` since 84/84 violations are in TSX files.
-
-### Semantic Token Mapping
-
-Map hardcoded colors to theme-aware alternatives:
-
-| Hardcoded | Theme-Aware Replacement | Usage |
-|-----------|-------------------------|-------|
-| `text-white` | `text-hero-text` | Hero/dark sections |
-| `text-white` | `text-text-inverse` | On primary backgrounds |
-| `text-black` | `text-text-primary` | Standard text |
-| `bg-white` | `bg-surface-primary` | Card/page backgrounds |
-| `bg-black` | `bg-surface-primary` (dark mode handles) | Rarely needed |
-
-### TailwindCSS 4 @theme Pattern (Context7 verified)
-
-The project already uses `@theme inline` correctly in `globals.css`. Key pattern:
-
-```css
-@theme inline {
-  /* Theme variables instruct Tailwind to create utility classes */
-  --color-text-primary: var(--color-text-primary);
-  --color-surface-primary: var(--color-surface-primary);
+**Configuration:**
+```ts
+// next.config.ts
+const nextConfig = {
+  reactCompiler: true,
 }
 ```
 
-**Critical:** Use `@theme` when you want tokens to map to utility classes. Use `:root` for internal CSS variables.
+**Impact:** Zero-code automatic memoization. Reduces JavaScript execution by eliminating unnecessary component re-renders.
 
-### Confidence: HIGH
+**Confidence:** HIGH (official Next.js 16 feature, stable)
 
-- Existing ESLint infrastructure validated
-- TailwindCSS 4 @theme pattern already in use
-- Token system in `tokens.css` is comprehensive
+**Sources:**
+- [Next.js 16 Release](https://nextjs.org/blog/next-16)
+- [React Compiler in Next.js 16](https://medium.com/better-dev-nextjs-react/react-compiler-in-next-js-16-what-it-fixes-what-it-breaks-and-how-to-ship-it-safely-62881c4c0b74)
 
 ---
 
-## 2. Parallax Hero with Floating Emojis
+### Turbopack Bundle Analyzer (v16.1+)
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| Next.js Bundle Analyzer | Built-in (experimental) | Bundle inspection for Turbopack | Replaces @next/bundle-analyzer for Turbopack builds. Precise import tracing, module graph visualization. |
 
-### Approach Comparison
+**Note:** Already have @next/bundle-analyzer installed. Keep it for webpack builds, use experimental Turbopack analyzer for faster iteration.
 
-| Approach | Bundle Size | Performance | Complexity | Recommendation |
-|----------|-------------|-------------|------------|----------------|
-| **Framer Motion scroll hooks** | Already included (32KB) | Excellent (Intersection Observer) | Low | **RECOMMENDED** |
-| GSAP ScrollTrigger | Already included (23KB) | Excellent (frame throttling) | Medium | Good alternative |
-| CSS-only scroll-timeline | 0KB | Good | Low | Future option (limited support) |
+**Access:** `next build --experimental-bundle-analyzer`
 
-### Why Framer Motion for This Project
+**Confidence:** MEDIUM (experimental feature in v16.1)
 
-The project already uses Framer Motion 12.26.1. Relevant existing utilities in `motion-tokens.ts`:
-
-```typescript
-// Already defined - use these
-export const parallaxPresets = {
-  background: { speedFactor: 0.1 },
-  far: { speedFactor: 0.25 },
-  mid: { speedFactor: 0.4 },
-  near: { speedFactor: 0.6 },
-  foreground: { speedFactor: 0.8 },
-};
-
-export function parallaxLayer(speed: number) {
-  return {
-    style: { willChange: "transform" },
-    speedFactor: speed,
-  };
-}
-```
-
-### Implementation Pattern
-
-```typescript
-import { useScroll, useTransform, motion } from 'framer-motion';
-
-function ParallaxHero() {
-  const { scrollYProgress } = useScroll();
-
-  // Different layers move at different speeds
-  const y1 = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);  // far
-  const y2 = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);  // mid
-  const y3 = useTransform(scrollYProgress, [0, 1], ['0%', '70%']);  // near
-
-  return (
-    <div className="relative h-screen overflow-hidden">
-      <motion.div style={{ y: y1 }}>/* Background layer */</motion.div>
-      <motion.div style={{ y: y2 }}>/* Floating emojis */</motion.div>
-      <motion.div style={{ y: y3 }}>/* Foreground content */</motion.div>
-    </div>
-  );
-}
-```
-
-### Floating Emoji Animation: CSS Keyframes Recommended
-
-**Why CSS over JavaScript for floating:**
-
-| Approach | Performance | Browser Optimization |
-|----------|-------------|---------------------|
-| **CSS keyframes** | GPU-accelerated | Browser can skip frames under load |
-| JS (requestAnimationFrame) | Similar | More control, more overhead |
-| Framer Motion infinite | Good | Runs through React reconciliation |
-
-**Recommendation:** Use CSS `@keyframes` for idle floating (already defined in project), use Framer Motion for scroll-linked parallax.
-
-Existing animation in `globals.css`:
-```css
-.float-element {
-  animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-}
-```
-
-Also in `tailwind.config.ts`:
-```typescript
-animation: {
-  float: "float 8s ease-in-out infinite",
-  "float-slow": "float 12s ease-in-out infinite",
-}
-```
-
-### Floating Emoji Component Pattern
-
-```typescript
-// Combine CSS float animation with Framer Motion parallax
-function FloatingEmoji({
-  emoji,
-  delay = 0,
-  parallaxSpeed = 0.3
-}: FloatingEmojiProps) {
-  const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', `${parallaxSpeed * 100}%`]);
-
-  return (
-    <motion.span
-      style={{ y }}
-      className="animate-float text-4xl"
-      // Stagger float animation start
-      aria-hidden="true"
-      style={{ animationDelay: `${delay}s` }}
-    >
-      {emoji}
-    </motion.span>
-  );
-}
-```
-
-### Performance Best Practices
-
-| Practice | Reason |
-|----------|--------|
-| Use `transform` and `opacity` only | GPU-accelerated, no layout recalculation |
-| Add `will-change: transform` | Hints browser to GPU-composite |
-| Limit floating elements to 6-8 | More elements = more paint operations |
-| Use `prefers-reduced-motion` | Respect user accessibility settings |
-
-Existing reduced motion support in `globals.css`:
-```css
-@media (prefers-reduced-motion: reduce) {
-  .float-element {
-    animation: none;
-  }
-}
-```
-
-### Confidence: HIGH
-
-- Framer Motion already installed and configured
-- Parallax utilities already exist in `motion-tokens.ts`
-- Float animation already defined in CSS
+**Sources:**
+- [Next.js 16.1 Bundle Analyzer](https://nextjs.org/blog/next-16-1)
 
 ---
 
-## 3. Mobile 3D Tilt Fix: Disable on Touch Devices
+## Code Splitting & Dynamic Imports
 
-### Problem Statement
+### next/dynamic (Native)
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| next/dynamic | Built-in | Component lazy-loading | Already available. Use to defer heavy components (Google Maps, animations, modals). |
 
-3D tilt effects (presumably from hover interactions) cause issues on touch devices. Need to disable tilt on mobile/touch while keeping it on desktop.
-
-### Recommended: CSS Media Query Approach
-
-```css
-/* Only apply tilt on hover-capable devices with fine pointer (mouse/trackpad) */
-@media (hover: hover) and (pointer: fine) {
-  .tilt-enabled {
-    /* 3D tilt styles */
-    transform-style: preserve-3d;
-    perspective: 1000px;
-  }
-
-  .tilt-enabled:hover {
-    transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
-  }
-}
-
-/* Touch devices: flat, no tilt */
-@media (hover: none) or (pointer: coarse) {
-  .tilt-enabled {
-    transform: none !important;
-  }
-}
-```
-
-### Why CSS Over JavaScript Detection
-
-| Approach | Pros | Cons |
-|----------|------|------|
-| **CSS `@media (hover: hover) and (pointer: fine)`** | No JS, instant, no FOUC | Samsung browser quirk (see below) |
-| `window.matchMedia()` in JS | Programmatic control | Requires hydration, adds complexity |
-| User-Agent sniffing | Works for known devices | Unreliable, breaks on new devices |
-| Touch event detection | Catches touch capability | Hybrid devices have both touch AND hover |
-
-**Recommendation:** CSS media queries. They are:
-- Zero JavaScript
-- SSR-compatible (no hydration mismatch)
-- Supported in all modern browsers
-- Recommended by MDN and web standards
-
-### Samsung Browser Quirk Mitigation
-
-Samsung browsers sometimes report touchscreen as having hover capability. Mitigation:
-
-```css
-/* More specific: require BOTH hover capability AND fine pointer */
-@media (hover: hover) and (pointer: fine) {
-  /* Desktop styles */
-}
-
-/* NOT just @media (hover: hover) - catches Samsung false positives */
-```
-
-### Implementation in Existing Component Pattern
-
-Looking at `motion-tokens.ts`, there's a `hover.tilt` preset:
-
-```typescript
-export const hover = {
-  tilt: {
-    whileHover: { rotate: 2, scale: 1.02 },
-    whileTap: { rotate: -1, scale: 0.98 },
-    transition: spring.snappy,
-  },
-};
-```
-
-**For Framer Motion tilt with device detection:**
-
-```typescript
-// Option A: CSS variable controlled (recommended)
-function TiltCard({ children }) {
-  return (
-    <motion.div
-      className="tilt-card" // CSS handles media query
-      whileHover={{
-        rotateX: 'var(--tilt-x, 0)',
-        rotateY: 'var(--tilt-y, 0)'
-      }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-```
-
-```css
-/* CSS sets variables only on hover-capable devices */
-@media (hover: hover) and (pointer: fine) {
-  .tilt-card {
-    --tilt-x: 5deg;
-    --tilt-y: 5deg;
-  }
-}
-
-@media (hover: none) or (pointer: coarse) {
-  .tilt-card {
-    --tilt-x: 0;
-    --tilt-y: 0;
-  }
-}
-```
-
-**Option B: JavaScript matchMedia (if dynamic control needed):**
-
-```typescript
-function useTouchDevice() {
-  const [isTouch, setIsTouch] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(hover: none) or (pointer: coarse)');
-    setIsTouch(mq.matches);
-
-    const handler = (e: MediaQueryListEvent) => setIsTouch(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-
-  return isTouch;
-}
-```
-
-### Confidence: MEDIUM-HIGH
-
-- CSS media queries widely supported
-- Samsung quirk documented but rare
-- May need testing on actual devices
-
----
-
-## Stack Summary: No New Dependencies
-
-### What to Use
-
-| Need | Solution | Already Installed |
-|------|----------|-------------------|
-| Theme token enforcement | ESLint `no-restricted-syntax` | Yes (eslint 9) |
-| Parallax scrolling | Framer Motion `useScroll`, `useTransform` | Yes (12.26.1) |
-| Floating animation | CSS `@keyframes float` | Yes (globals.css) |
-| Touch device detection | CSS `@media (hover: hover) and (pointer: fine)` | Native CSS |
-
-### Configuration Changes Needed
-
-| File | Change |
-|------|--------|
-| `eslint.config.mjs` | Add `no-restricted-syntax` rule for `text-white/black`, `bg-white/black` |
-| `src/app/globals.css` | Add `@media (hover: hover)` styles for tilt |
-| Component files | Replace hardcoded colors with theme tokens |
-
-### Files to Audit for Theme Consistency
-
-Based on grep results, 84 files contain hardcoded colors. Priority order:
-
-1. **Homepage/Hero** - Most visible
-2. **Layout components** - AppHeader, MobileDrawer, Footer
-3. **UI primitives** - Modal, Drawer, Toast
-4. **Feature components** - Cart, Menu, Checkout
-
----
-
-## Implementation Patterns Cheatsheet
-
-### Hardcoded Color Replacement
-
-```diff
-- <span className="text-white">Welcome</span>
-+ <span className="text-hero-text">Welcome</span>
-
-- <div className="bg-white rounded-lg">
-+ <div className="bg-surface-primary rounded-lg">
-
-- <p className="text-black">Description</p>
-+ <p className="text-text-primary">Description</p>
-```
-
-### Floating Emoji with Parallax
-
+**Critical pattern for LCP:**
 ```tsx
-<motion.span
-  style={{ y: useTransform(scrollY, [0, 1], ['0%', '40%']) }}
-  className="animate-float absolute text-4xl"
-  aria-hidden="true"
->
-  {/* Food emoji */}
-</motion.span>
+// Defer non-critical components
+const GoogleMap = dynamic(() => import('@/components/GoogleMap'), {
+  ssr: false,
+  loading: () => <MapSkeleton />
+})
+
+const AnimatedHero = dynamic(() => import('@/components/AnimatedHero'), {
+  loading: () => <StaticHero />
+})
 ```
 
-### Touch-Safe Tilt
+**What to dynamically import:**
+- Google Maps (loads 3.86 MB → defer until in viewport)
+- Framer Motion/GSAP animations (defer to client, ssr: false)
+- Stripe checkout UI (load on-demand)
+- Modals, tooltips, conditional UI
 
-```css
-@media (hover: hover) and (pointer: fine) {
-  .card-3d:hover {
-    transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
+**Anti-pattern:** Over-splitting small components creates network overhead.
+
+**Confidence:** HIGH (official Next.js feature)
+
+**Sources:**
+- [Code Splitting Best Practices](https://blazity.com/blog/code-splitting-next-js)
+- [Dynamic Imports in Next.js](https://daily.dev/blog/code-splitting-with-dynamic-imports-in-nextjs)
+
+---
+
+### react-intersection-observer (For Viewport-Based Loading)
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| react-intersection-observer | ^9.15.0 | Load components when in viewport | Defer Google Maps, heavy animations until user scrolls to them. Reduces initial JS execution. |
+
+**Installation:**
+```bash
+npm install react-intersection-observer
+```
+
+**Pattern:**
+```tsx
+import { useInView } from 'react-intersection-observer'
+
+function MapSection() {
+  const { ref, inView } = useInView({ triggerOnce: true })
+
+  return (
+    <div ref={ref}>
+      {inView ? <GoogleMap /> : <MapPlaceholder />}
+    </div>
+  )
+}
+```
+
+**Impact:** Delays loading Google Maps API (3.86 MB saved from initial load) until user scrolls to map section.
+
+**Confidence:** HIGH (established pattern, 9M+ weekly downloads)
+
+**Sources:**
+- [Lazy Loading Maps with Intersection Observer](https://damely-tineo.medium.com/lazy-loading-maps-with-intersection-observer-api-52c75c04bd04)
+- [Google Maps Optimization Guide](https://developers.google.com/maps/optimization-guide)
+
+---
+
+## Third-Party Script Management
+
+### Next.js Script Component (Native)
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| next/script | Built-in | Script loading strategies | Control when Google Maps, Stripe, analytics load. Use lazyOnload for non-critical scripts. |
+
+**Critical for LCP:**
+```tsx
+// Google Maps API - defer until needed
+<Script
+  src="https://maps.googleapis.com/maps/api/js?key=..."
+  strategy="lazyOnload" // Loads during browser idle time
+/>
+
+// Stripe - load after interactive
+<Script
+  src="https://js.stripe.com/v3/"
+  strategy="afterInteractive"
+/>
+
+// Analytics - lowest priority
+<Script
+  src="https://www.googletagmanager.com/gtag/js"
+  strategy="lazyOnload"
+/>
+```
+
+**Strategies:**
+- `lazyOnload`: Browser idle time (Google Maps, analytics)
+- `afterInteractive`: After hydration (Stripe, important scripts)
+- Never `beforeInteractive` for third-party scripts
+
+**Confidence:** HIGH (official Next.js feature)
+
+**Sources:**
+- [Optimizing Third-Party Scripts](https://developer.chrome.com/blog/script-component)
+- [Next.js Script Strategies](https://www.seocopilot.com/next-js/next-js-script-component-with-afterinteractive-powerful-strategies-to-improve-loading)
+
+---
+
+### Partytown (DO NOT ADD)
+| Technology | Recommendation | Reason |
+|------------|---------------|--------|
+| @builder.io/partytown | AVOID | Unsupported with Next.js App Router. Worker strategy experimental, Pages Router only. Manual integration fragile. Use next/script lazyOnload instead. |
+
+**Why avoid:**
+- "Worker strategy is currently unsupported with the Next.js 13+ app directory"
+- Adds complexity without benefit over native lazyOnload
+- Beta stability, active compatibility issues
+
+**Confidence:** HIGH (official Next.js docs confirm limitation)
+
+**Sources:**
+- [Next.js Scripts Guide](https://nextjs.org/docs/pages/guides/scripts)
+- [Partytown Next.js Integration](https://partytown.builder.io/nextjs)
+
+---
+
+## Animation Optimization
+
+### Existing Stack Optimization (No New Packages)
+| Library | Current Version | Optimization Strategy |
+|---------|----------------|----------------------|
+| Framer Motion | 12.26.1 | Use LazyMotion for 40% size reduction. Tree-shake unused features. |
+| GSAP | 3.14.2 | Import specific modules only (gsap/core, ScrollTrigger). Avoid importing all of GSAP (23KB → 8-10KB). |
+
+**Framer Motion LazyMotion pattern:**
+```tsx
+import { LazyMotion, domAnimation, m } from 'framer-motion'
+
+function App() {
+  return (
+    <LazyMotion features={domAnimation}>
+      <m.div animate={{ opacity: 1 }} />
+    </LazyMotion>
+  )
+}
+```
+
+**Impact:** Reduces Framer Motion from 32KB to ~19KB gzipped.
+
+**GSAP modular imports:**
+```tsx
+import { gsap } from 'gsap/core'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+// Don't import entire 'gsap' package
+```
+
+**Critical decision:** Keep both libraries (already installed). Framer Motion for React components, GSAP for complex timelines. Optimize usage, don't replace.
+
+**DO NOT ADD:**
+- Million.js (compatibility issues with Next.js, limited activity since May 2024)
+- Preact (React 19 features unsupported, requires full aliasing, risky migration)
+
+**Confidence:** HIGH (official optimization patterns)
+
+**Sources:**
+- [Framer Motion LazyMotion](https://motion.dev/docs/react-reduce-bundle-size)
+- [Framer Motion vs GSAP](https://semaphore.io/blog/react-framer-motion-gsap)
+
+---
+
+## Font Optimization
+
+### next/font (Native)
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| next/font | Built-in | Variable font optimization | Self-hosts fonts, eliminates external requests, zero layout shift. Use variable fonts for best performance. |
+
+**Critical for LCP:**
+```tsx
+import { Inter } from 'next/font/google'
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap', // Shows fallback immediately
+  preload: true,   // Preloads for LCP element
+})
+```
+
+**Impact:**
+- Removes Google Fonts network requests
+- Build-time optimization (fonts bundled as static assets)
+- Font files served from same domain (faster)
+
+**Variable fonts recommended:** Single file, multiple weights. No weight specification needed.
+
+**Confidence:** HIGH (official Next.js feature, updated Jan 2026)
+
+**Sources:**
+- [Next.js Font Optimization](https://nextjs.org/docs/app/getting-started/fonts)
+- [Variable Fonts Best Practices](https://www.contentful.com/blog/next-js-fonts/)
+
+---
+
+## Performance Monitoring (Use Existing Tools)
+
+### Already Installed
+| Tool | Current Status | Usage |
+|------|---------------|-------|
+| @next/bundle-analyzer | Installed | Use for webpack builds. Generates visual reports. Run with `ANALYZE=true npm run build`. |
+| Serwist | 9.5.4 | Service worker already configured. Verify caching strategy for static assets. |
+
+### Recommended Addition: Lighthouse CI
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| @lhci/cli | ^0.15.0 | Automated performance regression testing | Catches LCP regressions in CI. Sets budgets for bundle size, LCP, TBT. |
+
+**Installation:**
+```bash
+npm install -D @lhci/cli
+```
+
+**Configuration (.lighthouserc.json):**
+```json
+{
+  "ci": {
+    "collect": {
+      "staticDistDir": ".next",
+      "url": ["http://localhost:3000/"]
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
+        "total-blocking-time": ["warn", { "maxNumericValue": 300 }],
+        "cumulative-layout-shift": ["warn", { "maxNumericValue": 0.1 }]
+      }
+    }
   }
 }
 ```
+
+**Impact:** Prevents LCP regressions from being deployed. Enforces performance budgets.
+
+**Confidence:** HIGH (official Google Lighthouse tooling)
+
+**Sources:**
+- [Performance Tracking & Bundle Analysis](https://foundations.significa.co/guides/performance-tracking)
+- [Lighthouse CI Integration](https://github.com/GoogleChrome/lighthouse/issues/3862)
+
+---
+
+## Tree-Shaking Optimization
+
+### Configuration (No New Packages)
+| Technique | Implementation | Purpose |
+|-----------|---------------|---------|
+| sideEffects in package.json | Set `"sideEffects": false` | Enables aggressive tree-shaking. Mark CSS imports as side effects: `["*.css"]`. |
+| ESM imports | Import from ESM packages | Avoid CJS dependencies (cannot be tree-shaken). Check package.json `"type": "module"`. |
+
+**Critical for bundle size:**
+```json
+// package.json
+{
+  "sideEffects": ["*.css", "*.scss"]
+}
+```
+
+**Impact:** Removes unused exports from libraries. Particularly effective for TanStack Query, Zustand.
+
+**Warning:** Incorrectly marking files without side effects can break CSS imports and global initializers.
+
+**Confidence:** MEDIUM (requires careful configuration)
+
+**Sources:**
+- [Tree Shaking in Next.js](https://vercel.com/blog/how-we-optimized-package-imports-in-next-js)
+- [Tree Shaking Reference Guide](https://www.smashingmagazine.com/2021/05/tree-shaking-reference-guide/)
+
+---
+
+## Image Optimization (Native)
+
+### next/image (Built-in, Improved in v16)
+| Technology | Version | Changes in v16 | Why |
+|------------|---------|---------------|-----|
+| next/image | Built-in | minimumCacheTTL: 60s → 4 hours | Reduces revalidation requests. Serves optimized AVIF/WebP. |
+
+**Next.js 16 defaults (already optimized):**
+- Cache TTL increased to 4 hours (reduces CDN load)
+- Quality default: 75 (faster processing)
+- Removed 16px size from defaults (smaller srcset)
+
+**Critical for LCP:**
+```tsx
+<Image
+  src="/hero.jpg"
+  alt="Hero"
+  priority // Preloads for LCP element
+  sizes="100vw"
+/>
+```
+
+**No changes needed** - Next.js 16 already optimized.
+
+**Confidence:** HIGH (native feature)
+
+**Sources:**
+- [Next.js 16 Image Defaults](https://nextjs.org/blog/next-16)
+
+---
+
+## Alternatives Considered (DO NOT ADD)
+
+| Category | Recommended | Alternative | Why Not |
+|----------|-------------|-------------|---------|
+| Virtual DOM Optimization | React Compiler (native) | Million.js | Compatibility issues with Next.js, last update May 2024, 116 open issues. React Compiler is stable and native. |
+| React Replacement | Keep React 19 | Preact/compat | React 19 features unsupported (use() hook). 48% size reduction not worth migration risk. Security patch required (Jan 2026). |
+| Script Loading | next/script lazyOnload | Partytown | Unsupported with App Router. Worker strategy experimental, Pages Router only. Native lazyOnload sufficient. |
+| Animation Library | Optimize existing (Framer + GSAP) | Replace with Motion One | Already have both libraries. Optimization via LazyMotion/modular imports more effective than migration. |
+| Bundle Analysis | @next/bundle-analyzer + Turbopack analyzer | webpack-bundle-analyzer directly | Next.js wrappers provide framework-specific insights (route-based chunks). |
+
+---
+
+## Installation Summary
+
+**Add these:**
+```bash
+# Performance monitoring
+npm install -D @lhci/cli
+
+# Viewport-based loading
+npm install react-intersection-observer
+
+# React Compiler (if not already installed)
+npm install babel-plugin-react-compiler@latest
+```
+
+**Enable these (next.config.ts):**
+```ts
+const nextConfig = {
+  reactCompiler: true, // Auto-memoization
+
+  // Keep existing @next/bundle-analyzer config
+}
+```
+
+**Optimize these (no installation needed):**
+- Framer Motion: Implement LazyMotion
+- GSAP: Switch to modular imports
+- next/dynamic: Apply to Google Maps, animations, modals
+- next/script: Move scripts to lazyOnload strategy
+- next/font: Verify variable fonts, display: swap
+
+---
+
+## Integration Checklist
+
+**Before implementation:**
+- [ ] Enable React Compiler, test for rendering issues
+- [ ] Configure Lighthouse CI with LCP budget (2500ms)
+- [ ] Audit package.json sideEffects declarations
+- [ ] Map third-party scripts to loading strategies (lazyOnload vs afterInteractive)
+
+**During implementation:**
+- [ ] Wrap Google Maps in dynamic() with intersection observer
+- [ ] Convert Framer Motion to LazyMotion pattern
+- [ ] Switch GSAP to modular imports (gsap/core, ScrollTrigger only)
+- [ ] Move Google Maps API script to lazyOnload
+- [ ] Verify next/font uses variable fonts with display: swap
+
+**After implementation:**
+- [ ] Run Lighthouse CI to confirm LCP < 2.5s
+- [ ] Check bundle analyzer for unexpected growth
+- [ ] Verify React Compiler didn't break animations
+- [ ] Test service worker (Serwist) caching strategy
 
 ---
 
 ## Confidence Assessment
 
-| Area | Confidence | Rationale |
-|------|------------|-----------|
-| Theme token enforcement via ESLint | HIGH | Existing infrastructure, just needs rule extension |
-| Framer Motion parallax | HIGH | Already used in Hero.tsx with `useScroll` |
-| CSS float animations | HIGH | Already defined and used in project |
-| Touch device detection | MEDIUM-HIGH | CSS approach is standard; Samsung quirk documented |
-| No new dependencies needed | HIGH | All tools already installed |
+| Technology | Confidence | Source Quality |
+|-----------|-----------|----------------|
+| React Compiler | HIGH | Official Next.js 16 docs, production at Meta |
+| next/dynamic | HIGH | Official Next.js feature, established pattern |
+| next/script | HIGH | Official Next.js docs, Chrome DevRel guidance |
+| next/font | HIGH | Official Next.js docs, updated Jan 2026 |
+| LazyMotion | HIGH | Official Framer Motion docs |
+| Lighthouse CI | HIGH | Official Google tooling |
+| Intersection Observer | HIGH | Web standard, 9M+ weekly downloads |
+| Million.js rejection | MEDIUM | Last activity May 2024, limited 2026 data |
+| Preact rejection | HIGH | React 19 incompatibility confirmed in recent articles |
+| Partytown rejection | HIGH | Official Next.js docs confirm App Router limitation |
+
+---
+
+## Key Decisions Rationale
+
+**Why no virtual DOM replacement (Million.js)?**
+React Compiler (stable in Next.js 16) provides automatic memoization without third-party dependencies. Million.js has compatibility issues and limited recent activity (last release May 2024).
+
+**Why keep both Framer Motion and GSAP?**
+Different use cases: Framer for React component animations (declarative), GSAP for complex timelines (imperative). Optimization via LazyMotion/modular imports reduces bundle impact without migration risk.
+
+**Why avoid Partytown?**
+Unsupported with App Router. Native next/script lazyOnload strategy achieves same goal (defer third-party scripts) with better framework integration.
+
+**Why add Lighthouse CI?**
+Prevents LCP regressions from being deployed. Enforces performance budgets in CI pipeline. Catches bundle size growth before production.
+
+**Why next/font over external Google Fonts?**
+Self-hosting eliminates external network requests (major LCP contributor). Build-time optimization, zero layout shift, better privacy.
 
 ---
 
 ## Sources
 
-- [TailwindCSS v4.0 @theme Directive](https://tailwindcss.com/blog/tailwindcss-v4) - CSS-first configuration
-- [Theme Variables - Tailwind CSS Docs](https://tailwindcss.com/docs/theme) - @theme vs :root guidance
-- [eslint-plugin-tailwindcss](https://www.npmjs.com/package/eslint-plugin-tailwindcss) - v4 beta support
-- [Tailwind CSS IntelliSense Linting](https://tailwindcss.com/blog/introducing-linting-for-tailwindcss-intellisense) - Built-in linting
-- [CSS and JavaScript Animation Performance - MDN](https://developer.mozilla.org/en-US/docs/Web/Performance/Guides/CSS_JavaScript_animation_performance) - CSS vs JS animations
-- [Framer vs GSAP Comparison](https://pentaclay.com/blog/framer-vs-gsap-which-animation-library-should-you-choose) - When to use each
-- [Migrate from GSAP to Motion](https://motion.dev/docs/migrate-from-gsap-to-motion) - Motion's scroll approach
-- [A Guide to Hover and Pointer Media Queries - Smashing Magazine](https://www.smashingmagazine.com/2022/03/guide-hover-pointer-media-queries/) - Touch detection best practices
-- [Detecting Hover-Capable Devices - CSS-IRL](https://css-irl.info/detecting-hover-capable-devices/) - CSS-first approach
-- [Samsung CSS Hover Bug - Ctrl Blog](https://www.ctrl.blog/entry/css-media-hover-samsung.html) - Samsung quirk documentation
-- [How to Detect Touch Devices - DEV Community](https://dev.to/morewings/how-to-detect-touch-devices-using-browser-media-queries-1kbm) - matchMedia approach
+Performance Optimization:
+- [Next.js 16 Release](https://nextjs.org/blog/next-16)
+- [React Compiler in Next.js 16](https://medium.com/better-dev-nextjs-react/react-compiler-in-next-js-16-what-it-fixes-what-it-breaks-and-how-to-ship-it-safely-62881c4c0b74)
+- [Next.js Performance Guide 2026](https://www.sujalbuild.in/blog/nextjs-seo-performance-guide)
+
+Code Splitting:
+- [Code Splitting Best Practices](https://blazity.com/blog/code-splitting-next-js)
+- [Dynamic Imports Guide](https://daily.dev/blog/code-splitting-with-dynamic-imports-in-nextjs)
+
+Script Management:
+- [Optimizing Third-Party Scripts](https://developer.chrome.com/blog/script-component)
+- [Next.js Script Component](https://nextjs.org/docs/pages/guides/scripts)
+- [Partytown Next.js Limitations](https://partytown.builder.io/nextjs)
+
+Animation Optimization:
+- [Framer Motion LazyMotion](https://motion.dev/docs/react-reduce-bundle-size)
+- [Framer Motion vs GSAP](https://semaphore.io/blog/react-framer-motion-gsap)
+
+Font Optimization:
+- [Next.js Font Optimization](https://nextjs.org/docs/app/getting-started/fonts)
+- [Variable Fonts Guide](https://www.contentful.com/blog/next-js-fonts/)
+
+Bundle Analysis:
+- [Next.js Bundle Analyzer](https://nextjs.org/docs/app/guides/package-bundling)
+- [Lighthouse CI Integration](https://foundations.significa.co/guides/performance-tracking)
+
+Google Maps:
+- [Google Maps Optimization Guide](https://developers.google.com/maps/optimization-guide)
+- [Lazy Loading Maps](https://damely-tineo.medium.com/lazy-loading-maps-with-intersection-observer-api-52c75c04bd04)
+
+Tree Shaking:
+- [Optimized Package Imports](https://vercel.com/blog/how-we-optimized-package-imports-in-next-js)
+- [Tree Shaking Reference](https://www.smashingmagazine.com/2021/05/tree-shaking-reference-guide/)
