@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 41 of 46 (Server Component Conversions)
-Plan: 6 of 7 complete
-Status: In progress
-Last activity: 2026-02-06 — Completed 41-05 (home page server conversion)
+Plan: 7 of 7 complete
+Status: Phase complete
+Last activity: 2026-02-06 — Completed 41-07 (hydration health check + audit update)
 
-Progress: [##########                                                        ] v1.5 10/52 (19%)
+Progress: [###########                                                       ] v1.5 11/52 (21%)
 
 ## Milestones
 
@@ -47,6 +47,8 @@ Progress: [##########                                                        ] v
 | MenuContent kept as client component | React Query + offline IndexedDB too deeply integrated; MenuContentClient created for future enhancement |
 | Hero kept as client component | 519 lines tightly coupled with framer-motion parallax; splitting would cause hydration issues |
 | HomePageWrapper pattern | Minimal client wrapper for scroll spy; section composition at server level |
+| 282 'use client' files is optimal | +7 from baseline due to error boundaries; no further reduction recommended |
+| Phase 42+ focus: LCP/TBT | Not 'use client' reduction; still 9-11s LCP, 2-3s TBT |
 
 ### Key Decisions (v1.4)
 
@@ -73,10 +75,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 41-05-PLAN.md
+Stopped at: Completed Phase 41 (all 7 plans)
 Resume file: None
-Next action: Execute Phase 41 Plan 07 (driver routes) - final plan in phase
+Next action: Begin Phase 42 (File Size Reduction)
 
 ---
 
-*Updated: 2026-02-06 — Completed 41-05 (home page: HomePageWrapper + server composition)*
+*Updated: 2026-02-06 — Completed Phase 41: Server Component Conversions (7/7 plans)*
