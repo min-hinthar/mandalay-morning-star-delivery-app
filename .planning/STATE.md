@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 44 of 46 (Animation Optimization & Monitoring)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-02-06 — Completed 44-01 (React Compiler + GSAP cleanup)
+Last activity: 2026-02-06 — Completed 44-02 (LazyMotion + m.* migration)
 
-Progress: [##################                                                ] v1.5 18/52 (35%)
+Progress: [###################                                               ] v1.5 19/52 (37%)
 
 ## Milestones
 
@@ -27,7 +27,7 @@ Progress: [##################                                                ] v
 | v1.4 Mobile Excellence | 35-39 | 39 | 2026-02-05 |
 | **v1.5 Performance & Repo Health** | 40-46 | 52 | In Progress |
 
-**Total completed:** 42 phases, 191 plans, 214 requirements
+**Total completed:** 42 phases, 192 plans, 214 requirements
 
 ## Accumulated Context
 
@@ -63,6 +63,8 @@ Progress: [##################                                                ] v
 | Empty checkout redirect with toast | router.replace to /menu avoids history pollution |
 | React Compiler enabled globally, no opt-outs | All 282 client components compile cleanly; reactCompiler: true top-level |
 | SplitText, Flip, Observer removed from GSAP | Zero consumer files; only useGSAP + ScrollTrigger actively used |
+| LazyMotion domMax + strict at root | drag + layoutId require domMax; strict prevents motion.* regression |
+| All motion.* migrated to m.* (174 files) | Per-component bundle ~34kb to ~4.6kb; features loaded once at root |
 
 ### Key Decisions (v1.4)
 
@@ -89,10 +91,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 44-01-PLAN.md
+Stopped at: Completed 44-02-PLAN.md
 Resume file: None
-Next action: Execute 44-02-PLAN.md (LazyMotion + motion.* to m.* migration)
+Next action: Execute 44-03-PLAN.md (Lighthouse CI setup)
 
 ---
 
-*Updated: 2026-02-06 — Plan 44-01: React Compiler enabled globally + dead GSAP plugins removed*
+*Updated: 2026-02-06 — Plan 44-02: LazyMotion + m.* migration across 174 files*
