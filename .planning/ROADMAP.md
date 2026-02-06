@@ -7,7 +7,7 @@
 - v1.2 Playful UI Overhaul - Phases 15-24 (shipped 2026-01-27)
 - v1.3 Full Codebase Consolidation - Phases 25-34 (shipped 2026-01-28)
 - v1.4 Mobile Excellence - Phases 35-39 (shipped 2026-02-05)
-- **v1.5 Performance & Repo Health - Phases 40-46 (active)**
+- **v1.5 Performance & Repo Health - Phases 40-46 (shipped 2026-02-06)**
 
 ## Current Status
 
@@ -45,14 +45,14 @@
   - [x] 45-01-PLAN.md — Delete legacy docs (V0-V8) + untrack build artifacts
   - [x] 45-02-PLAN.md — .gitignore audit + planning files archival + STATE/ROADMAP trim
   - [x] 45-03-PLAN.md — README update + PERFORMANCE.md creation
-- [ ] Phase 46: Large File Refactoring (split 47 files >400 lines into sub-modules) - **7 plans**
-  - [ ] 46-01-PLAN.md — Leaf UI components split (10 files: OrderDetailExpanded, HowItWorksSection, AddressesTab, BrandMascot, DriverDashboard, PendingInvitesTab, PaymentSuccess, ProfileTab, MorphingMenu, CartItem)
-  - [ ] 46-02-PLAN.md — Admin components split (9 files: DriverDetailClient, RouteDetailClient, AdminDashboard, DriverListTable, RouteListTable, CreateRouteModal, SettingsClient, CoverageRouteMap, OrdersTab)
-  - [ ] 46-03-PLAN.md — Shared UI components split (8-10 files: FormValidation, Modal, skeleton, ExpandableTableRow, AddressInput, TimeSlotPicker, DeliveryMap, StatusTimeline + Hero/UnifiedMenuItemCard evaluation)
-  - [ ] 46-04-PLAN.md — Admin pages split (7 files: menu/[id], sections, categories, menu, photos, routes, drivers)
-  - [ ] 46-05-PLAN.md — API routes split (4 files: sections/[id], routes/[id]/stops, routes/[id], tracking/[orderId])
-  - [ ] 46-06-PLAN.md — Lib/utility files split (7 files: motion-tokens, swipe-gestures, analytics-helpers, micro-interactions, offline-store, route-optimization, useSafeEffects)
-  - [ ] 46-07-PLAN.md — ESLint max-lines expansion + CLAUDE.md documentation
+- [x] Phase 46: Large File Refactoring (split 47 files >400 lines into sub-modules) - **7 plans**
+  - [x] 46-01-PLAN.md — Leaf UI components split (10 files: OrderDetailExpanded, HowItWorksSection, AddressesTab, BrandMascot, DriverDashboard, PendingInvitesTab, PaymentSuccess, ProfileTab, MorphingMenu, CartItem)
+  - [x] 46-02-PLAN.md — Admin components split (9 files: DriverDetailClient, RouteDetailClient, AdminDashboard, DriverListTable, RouteListTable, CreateRouteModal, SettingsClient, CoverageRouteMap, OrdersTab)
+  - [x] 46-03-PLAN.md — Shared UI components split (8-10 files: FormValidation, Modal, skeleton, ExpandableTableRow, AddressInput, TimeSlotPicker, DeliveryMap, StatusTimeline + Hero/UnifiedMenuItemCard evaluation)
+  - [x] 46-04-PLAN.md — Admin pages split (7 files: menu/[id], sections, categories, menu, photos, routes, drivers)
+  - [x] 46-05-PLAN.md — API routes split (4 files: sections/[id], routes/[id]/stops, routes/[id], tracking/[orderId])
+  - [x] 46-06-PLAN.md — Lib/utility files split (7 files: motion-tokens, swipe-gestures, analytics-helpers, micro-interactions, offline-store, route-optimization, useSafeEffects)
+  - [x] 46-07-PLAN.md — ESLint max-lines expansion + CLAUDE.md documentation
 
 ---
 
@@ -96,10 +96,10 @@ See archived milestone files in `.planning/archive/`
 | v1.2 Playful UI | 15-24 | 29 | Complete | 2026-01-27 |
 | v1.3 Consolidation | 25-34 | 53 | Complete | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | Complete | 2026-02-05 |
-| **v1.5 Performance** | 40-46 | 28 | Active | - |
+| **v1.5 Performance** | 40-46 | 28 | Complete | 2026-02-06 |
 
-**Total shipped:** 43 phases, 190 plans
+**Total shipped:** 46 phases, 197 plans
 
 ---
 
-*Updated: 2026-02-06 - Phase 46 planned (7 plans: large file refactoring in 4 waves)*
+*Updated: 2026-02-06 - Phase 46 complete (7 plans: large file refactoring). v1.5 milestone complete.*
