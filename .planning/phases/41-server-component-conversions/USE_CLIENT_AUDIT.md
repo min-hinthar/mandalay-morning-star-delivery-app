@@ -4,6 +4,76 @@
 **Total Files:** 275
 **Target Reduction:** ~20-30 files (via page conversions and nearby wins)
 
+---
+
+## Conversion Results - Phase 41
+
+**Completion Date:** 2026-02-06
+**Final 'use client' Count:** 282 files
+**Change:** +7 files (from 275 baseline)
+
+### What Happened
+
+The 'use client' count increased rather than decreased because:
+
+1. **Error boundaries require 'use client'** - Added 4 new error.tsx files for route error handling (Next.js requirement)
+2. **New wrapper components** - Created HomePageWrapper.tsx and MenuContentClient.tsx as extraction targets
+3. **Deleted 1 file** - HomePageClient.tsx removed (server composition now in page.tsx)
+
+**Net calculation:** 275 - 1 (deleted) + 4 (error.tsx) + 2 (wrappers) = 280 (double quotes) + 2 (single quotes pre-existing) = 282
+
+### Conversions Made
+
+| File | Action | Result |
+|------|--------|--------|
+| HomePageClient.tsx | Deleted | Server composition in page.tsx |
+| HomePageWrapper.tsx | Created | Minimal client wrapper for scroll spy (46 lines) |
+| MenuContentClient.tsx | Created | React Query + offline logic extracted (placeholder for future) |
+
+### Conversions Skipped
+
+| File | Reason | Decision |
+|------|--------|----------|
+| Hero.tsx (519 lines) | Tightly coupled framer-motion parallax | KEEP - splitting would cause hydration issues |
+| MenuContent.tsx (364 lines) | React Query + IndexedDB offline deeply integrated | KEEP - MenuContentClient created for future enhancement |
+| TrackingPageClient.tsx | Supabase realtime subscriptions | KEEP - client boundary required for websockets |
+| Analytics dashboards | Charts, hooks, motion throughout | KEEP - inherently interactive components |
+
+### Build Metrics
+
+| Metric | Value |
+|--------|-------|
+| Build time | 21.9s compile + 16.1s post-compile |
+| Static bundle | 4.5 MB (.next/static) |
+| Total build output | 96 MB (.next) |
+| Typecheck | Pass (no errors) |
+| Hydration smoke test routes | 3 (/, /menu, /admin/analytics) |
+
+### Infrastructure Added
+
+| Component | Purpose |
+|-----------|---------|
+| RouteLoading.tsx | Reusable loading state component |
+| RouteError.tsx | Reusable error boundary component |
+| 4 loading.tsx files | Route-level loading states (server components) |
+| 4 error.tsx files | Route-level error boundaries (client components) |
+
+### Recommendations for Phase 42+
+
+**Do not pursue further 'use client' reduction as primary goal.** The remaining 282 client components are:
+
+1. **Necessary** - Hooks, events, animations, browser APIs
+2. **Optimal** - Already at the correct boundary
+3. **Small** - 54 are LEAF components (<120 lines)
+
+**Instead focus on:**
+- LCP optimization (still 9-11s, target <2.5s)
+- TBT reduction (still 2-3s)
+- Large file splits (5 files >400 lines)
+- Code splitting for route-specific bundles
+
+---
+
 ## Categories
 
 | Category | Count | Description |
