@@ -13,7 +13,7 @@ import { ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { StatusTimeline } from "./StatusTimeline";
 import { ETACountdown } from "./ETACountdown";
-import { DeliveryMap } from "./DeliveryMap";
+import { LazyDeliveryMap } from "@/components/ui/maps/LazyMaps";
 import { DriverCard } from "./DriverCard";
 import { OrderSummary } from "./OrderSummary";
 import { SupportActions } from "./SupportActions";
@@ -213,7 +213,7 @@ export function TrackingPageClient({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <DeliveryMap
+              <LazyDeliveryMap
                 customerLocation={{
                   lat: initialData.order.address.lat,
                   lng: initialData.order.address.lng,
