@@ -1,926 +1,701 @@
-# Domain Pitfalls: Mobile Optimization, Homepage Components, Offline Support
+# Domain Pitfalls: LCP Optimization in Animation-Heavy Next.js Apps
 
-**Project:** Morning Star Delivery App - Mobile Performance & Homepage Integration
-**Domain:** Next.js 16 | React 19 | GSAP + Framer Motion | iOS Safari | Service Workers | Zustand
-**Researched:** 2026-01-30
-**Confidence:** HIGH (verified against codebase ERROR_HISTORY.md, LEARNINGS.md, web research, and official sources)
+**Domain:** Performance optimization with GSAP + Framer Motion in Next.js 16 App Router
+**Researched:** 2026-02-05
+**Confidence:** HIGH (official Next.js docs + recent 2026 sources + project context)
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause mobile crashes, memory leaks, or app-breaking issues.
+Mistakes that cause rewrites, regression, or catastrophic performance issues.
 
----
+### Pitfall 1: Over-Marking with "use client"
 
-### Pitfall 1: setTimeout/setInterval Not Cleaned Up on Unmount (ACTIVE IN CODEBASE)
+**What goes wrong:** Marking entire page components or high-level layouts with `"use client"` forces the browser to hydrate everything, adding hundreds of KB of JavaScript that blocks LCP. Simple pages can take more than 2 seconds to become interactive.
 
-**What goes wrong:** Mobile app crashes, page refreshes, or shows "Can't open page" error when closing modals/drawers.
+**Why it happens:** Developers assume animation libraries require client-side rendering for the entire component tree rather than just interactive leaf components.
 
-**Why it happens:**
-- setTimeout fires after component unmounts
-- setState called on unmounted component
-- iOS Safari particularly sensitive to this (crashes instead of just console warning)
-- Common in animation delays, blur handlers, debounced actions
-
-**Evidence from codebase (ERROR_HISTORY.md 2026-01-29, 2026-01-30):**
-```tsx
-// BROKEN - setTimeout fires after unmount
-const handleBlur = useCallback(() => {
-  setTimeout(() => {
-    setIsFocused(false);  // Fires on unmounted component!
-  }, 150);
-}, []);
-
-// BROKEN - async function continues after unmount
-const handleClick = async () => {
-  setState("loading");
-  onAdd?.();  // Parent closes drawer here!
-  setState("success");
-  await new Promise((r) => setTimeout(r, 600));  // Still waiting...
-  setState("idle");  // CRASH - component unmounted!
-};
-```
-
-**Files already fixed (do not regress):**
-- `useBodyScrollLock.ts`, `SearchInput.tsx`, `AddToCartButton.tsx`
-- `AuthModal.tsx`, `OnboardingTour.tsx`, `FavoriteButton.tsx`
-- `MenuContent.tsx`, `error-shake.tsx`, `AddButton.tsx`
+**Consequences:**
+- LCP increases by 1-3 seconds due to massive JavaScript bundles
+- Server Components optimization completely disabled
+- Hydration blocks interactivity on low-end devices
+- TBT (Total Blocking Time) increases dramatically
 
 **Prevention:**
-```tsx
-// Pattern 1: Track timeout in ref
-const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-useEffect(() => {
-  return () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-  };
-}, []);
-
-const handleAction = useCallback(() => {
-  if (timeoutRef.current) clearTimeout(timeoutRef.current);
-  timeoutRef.current = setTimeout(() => {
-    setState(newValue);
-  }, delay);
-}, []);
-
-// Pattern 2: isMountedRef for async functions
-const isMountedRef = useRef(true);
-
-useEffect(() => {
-  isMountedRef.current = true;
-  return () => { isMountedRef.current = false; };
-}, []);
-
-const handleAsync = async () => {
-  await someOperation();
-  if (isMountedRef.current) {
-    setState(newValue);  // Only update if still mounted
-  }
-};
-```
+- Use `"use client"` only at the leaf component level (buttons, interactive cards)
+- Keep page layouts and static content as Server Components
+- Push client boundaries as deep into the component tree as possible
+- Audit bundle size: each `"use client"` boundary adds an entry point
 
 **Detection:**
-- Mobile crash/refresh on modal/drawer close
-- "Can't open page" Safari error
-- Chrome DevTools shows "Can't perform a React state update on an unmounted component"
-- Pattern: open -> close -> crash (or open -> close -> open -> close -> crash)
+- Bundle analysis shows unexpectedly large client chunks
+- Lighthouse shows high TBT during hydration
+- Field data shows slow Time to Interactive (TTI)
 
-**Phase mapping:** Phase 1 - Audit ALL setTimeout/setInterval usage before adding features
+**Warning signs:**
+- Entire page files marked with `"use client"`
+- Context providers at root level forcing client rendering
+- Animation imports in Server Component files
+
+**Phase implications:** Address in Phase 1-2 (foundation) before code splitting work begins.
 
 ---
 
-### Pitfall 2: Event Listener Accumulation from useCallback Dependencies (ACTIVE IN CODEBASE)
+### Pitfall 2: Barrel Import Performance Cliff
 
-**What goes wrong:** First modal close works, second crashes. Event listeners accumulate because cleanup removes wrong function reference.
+**What goes wrong:** Importing from barrel files (e.g., `import { IconName } from 'lucide-react'`) forces Next.js to process thousands of unused modules, adding 200-800ms overhead just to import a single icon. In extreme cases, it can take a few seconds.
 
-**Why it happens:**
-- `useCallback` with `isOpen` in dependency array creates new function reference on every toggle
-- `addEventListener` called with reference v1
-- `removeEventListener` called with reference v2 (different!)
-- Old listener (v1) remains attached, fires on wrong state
+**Why it happens:** Barrel files re-export everything. Even when importing one module, the bundler must parse the entire file graph to determine tree-shaking eligibility.
 
-**Evidence from codebase (ERROR_HISTORY.md 2026-01-30):**
-```tsx
-// BROKEN - function reference changes when isOpen changes
-const handleEscape = useCallback(
-  (e: KeyboardEvent) => {
-    if (e.key === "Escape" && isOpen) {
-      onClose();
-    }
-  },
-  [isOpen, onClose]  // isOpen causes new function on every toggle
-);
-
-useEffect(() => {
-  window.addEventListener("keydown", handleEscape);
-  return () => window.removeEventListener("keydown", handleEscape);
-  // Cleanup tries to remove CURRENT reference, but listener was added with PREVIOUS reference
-}, [handleEscape]);
-```
+**Consequences:**
+- Dev server startup slowdown (15-70% slower)
+- Production cold starts delayed in serverless
+- LCP increased by 200-800ms from bloated initial bundle
+- Animation libraries like GSAP plugins suffer same issue
 
 **Prevention:**
-```tsx
-// CORRECT - handler defined INSIDE useEffect
-useEffect(() => {
-  if (!isOpen) return;  // Guard: no listener when closed
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "Escape") {
-      onClose();
-    }
-  };
-
-  window.addEventListener("keydown", handleKeyDown);
-  return () => window.removeEventListener("keydown", handleKeyDown);
-}, [isOpen, onClose]);
-```
+- Use direct imports: `import IconName from 'lucide-react/dist/esm/icons/icon-name'`
+- Configure Next.js `optimizePackageImports` for common libraries
+- Next.js 16 pre-configures `lucide-react`, `@headlessui/react` automatically
+- Audit animation library imports (GSAP plugins, Framer Motion utilities)
 
 **Detection:**
-- First close works, second crashes
-- Multiple event handlers firing (logged to console)
-- Memory usage grows with each open/close cycle
+```bash
+# Check bundle analyzer for unexpectedly large chunks
+# Look for packages importing 100+ modules
+npm run build -- --analyze
+```
 
-**Phase mapping:** Phase 1 - Audit all event listener patterns in overlay components
+**Warning signs:**
+- Import statements like `import { * } from 'library'`
+- Single component importing entire icon library
+- GSAP plugins imported via barrel file
+
+**Phase implications:** Fix in Phase 1 (infrastructure) — affects all subsequent code splitting work.
 
 ---
 
-### Pitfall 3: Body Scroll Lock Crashes on iOS Safari (ACTIVE IN CODEBASE)
+### Pitfall 3: Hydration Blocking Animations
 
-**What goes wrong:** `window.scrollTo()` during AnimatePresence exit animation crashes iOS Safari.
+**What goes wrong:** GSAP/Framer Motion initialization runs during hydration, blocking the main thread for hundreds of milliseconds. Users see content but can't interact. React error 423 (hydration mismatch) re-renders the entire root, causing LCP image to be reported late.
 
-**Why it happens:**
-- `useBodyScrollLock` restores scroll synchronously on unmount
-- AnimatePresence exit animation is still running (~200-300ms)
-- iOS Safari tries to scroll while DOM is in inconsistent state
-- Layout thrashing + memory pressure = crash
+**Why it happens:** Animation setup runs in `useEffect` or component mount, which happens during hydration. Complex timelines, ScrollTrigger registration, and DOM measurements block the main thread.
 
-**Evidence from codebase (ERROR_HISTORY.md 2026-01-29):**
-```tsx
-// BROKEN - scrollTo races with exit animation
-useEffect(() => {
-  return () => {
-    window.scrollTo(0, savedScrollY);  // Fires immediately on unmount
-  };
-}, []);
-
-// FIXED - defer until animation complete
-const { restoreScrollPosition } = useBodyScrollLock(isOpen, { deferRestore: true });
-
-<AnimatePresence onExitComplete={restoreScrollPosition}>
-  {isOpen && <DrawerContent />}
-</AnimatePresence>
-```
-
-**Additional iOS Safari issues (from research):**
-- `body { overflow: hidden }` alone doesn't prevent scroll
-- Need `touch-action: none` for full iOS lock
-- iOS 18 doesn't update `window.innerHeight` correctly
+**Consequences:**
+- 300-1000ms delay before page becomes interactive
+- Poor INP (Interaction to Next Paint) scores
+- LCP reported late if hydration error occurs
+- Users clicking buttons get no feedback
 
 **Prevention:**
-```tsx
-// iOS-compatible scroll lock
-useEffect(() => {
-  if (!isLocked) return;
-
-  const scrollY = window.scrollY;
-  document.body.style.cssText = `
-    position: fixed;
-    top: -${scrollY}px;
-    left: 0;
-    right: 0;
-    overflow: hidden;
-    touch-action: none;
-    -webkit-overflow-scrolling: none;
-    overscroll-behavior: none;
-  `;
-
-  return () => {
-    // Restore AFTER animation
+- Defer non-critical animations with `requestIdleCallback` or `setTimeout`
+- Use progressive hydration via Suspense boundaries
+- Phase animations: critical first → next repaint → decorative delayed
+- Move ScrollTrigger initialization to after first paint:
+  ```typescript
+  useEffect(() => {
     requestAnimationFrame(() => {
-      document.body.style.cssText = '';
-      window.scrollTo(0, scrollY);
+      ScrollTrigger.refresh();
     });
-  };
-}, [isLocked]);
-```
+  }, []);
+  ```
 
 **Detection:**
-- Mobile crashes specifically when closing overlays
-- Works in Chrome DevTools mobile emulator, crashes on real iPhone
-- App refreshes or shows white screen
+- Chrome DevTools Performance: long tasks during hydration (red blocks)
+- Lighthouse: high TBT score
+- Field data: slow INP in Chrome User Experience Report
 
-**Phase mapping:** Phase 1 - Verify scroll lock patterns before adding new overlays
+**Warning signs:**
+- `useEffect` running heavy GSAP timelines immediately
+- ScrollTrigger calculations in component mount
+- Framer Motion `initial` animations on all elements above-the-fold
 
-**Sources:** [iOS Safari scroll lock fix](https://stripearmy.medium.com/i-fixed-a-decade-long-ios-safari-problem-0d85f76caec0), [body-scroll-lock npm](https://www.npmjs.com/package/body-scroll-lock)
+**Phase implications:** Must address in Phase 2-3 (animation optimization) before shipping.
 
 ---
 
-### Pitfall 4: GSAP + Framer Motion Animation Conflicts
+### Pitfall 4: GSAP ScrollTrigger Memory Leaks on Route Change
 
-**What goes wrong:** Animations stutter, fight each other, or cause layout thrashing when GSAP and Framer Motion both try to animate the same element.
+**What goes wrong:** ScrollTrigger instances aren't cleaned up when navigating between pages in App Router, causing memory consumption to grow, CPU spikes to 100%, and eventual application crashes.
 
-**Why it happens:**
-- GSAP directly manipulates DOM, bypasses React
-- Framer Motion works within React's render cycle
-- Both can target same CSS properties (transform, opacity)
-- GSAP ScrollTrigger and Framer's useScroll can conflict
+**Why it happens:** Next.js App Router uses client-side navigation. Components unmount but ScrollTrigger instances persist unless explicitly killed. Race conditions in ScrollTrigger package exacerbate the issue.
 
-**Current codebase state:**
-- GSAP used for: ScrollTrigger animations, complex timelines
-- Framer Motion used for: Page transitions, AnimatePresence, hover/tap
-- Risk areas: Homepage sections using both libraries
+**Consequences:**
+- Application becomes unresponsive after 3-5 page navigations
+- Memory leaks causing browser crashes on mobile
+- Scroll jank and missed frames
+- ScrollTrigger triggers not lining up after navigation
 
 **Prevention:**
+- Use `useGSAP` hook with proper cleanup:
+  ```typescript
+  import { useGSAP } from '@gsap/react';
 
-1. **Clear ownership per element:**
-   ```tsx
-   // WRONG - both animate same element
-   <motion.div whileHover={{ scale: 1.05 }}>
-     <div ref={gsapRef}>Content</div>  // GSAP also animating this
-   </motion.div>
+  useGSAP(() => {
+    const trigger = ScrollTrigger.create({ /* config */ });
 
-   // CORRECT - separate concerns
-   <motion.div whileHover={{ scale: 1.05 }}>
-     <div>Framer handles hover</div>
-   </motion.div>
-   <div ref={gsapRef}>GSAP handles scroll</div>
-   ```
-
-2. **Use one library per animation type:**
-   | Animation Type | Use |
-   |---------------|-----|
-   | Enter/exit transitions | Framer Motion (AnimatePresence) |
-   | Scroll-triggered | GSAP ScrollTrigger |
-   | Hover/tap gestures | Framer Motion |
-   | Complex timelines | GSAP |
-   | Layout animations | Framer Motion (layout prop) |
-
-3. **Clean up GSAP in useEffect:**
-   ```tsx
-   useEffect(() => {
-     const ctx = gsap.context(() => {
-       gsap.from(element, { opacity: 0 });
-     }, containerRef);
-
-     return () => ctx.revert();  // CRITICAL for cleanup
-   }, []);
-   ```
-
-4. **Don't use GSAP for React state-driven UI:**
-   ```tsx
-   // WRONG - fighting React
-   gsap.to(element, { display: isOpen ? 'block' : 'none' });
-
-   // CORRECT - let React handle visibility
-   {isOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} />}
-   ```
+    return () => {
+      trigger.kill();
+    };
+  }, { scope: containerRef });
+  ```
+- Call `ScrollTrigger.refresh()` once after all animations initialize
+- Centralize GSAP configuration to avoid multiple plugin registrations
+- Never register plugins in component files
 
 **Detection:**
-- Animations "jump" or reset mid-way
-- Double animations visible
-- Memory leaks from uncleaned GSAP timelines
-- Performance degrades over time
+- Memory profiler shows growing heap after navigation
+- Console warnings about detached DOM nodes
+- ScrollTrigger animations glitching after route change
 
-**Phase mapping:** Phase 2 - Establish animation ownership before building homepage sections
+**Warning signs:**
+- ScrollTrigger created without cleanup function
+- GSAP imported and plugins registered in multiple files
+- No `ScrollTrigger.kill()` or `ScrollTrigger.getAll().forEach(t => t.kill())`
 
-**Sources:** [GSAP vs Motion comparison](https://motion.dev/docs/gsap-vs-motion), [GSAP React best practices](https://gsap.com/community/forums/topic/38826-why-gsap-but-not-framer-motion/)
+**Phase implications:** Critical for Phase 3 (GSAP optimization) — must fix before route-level code splitting.
 
 ---
 
-### Pitfall 5: AnimatePresence Exit Animation Memory Leaks
+### Pitfall 5: Framer Motion Bundle Size Explosion
 
-**What goes wrong:** Components don't unmount properly, memory grows with each modal open/close, eventually crashes.
+**What goes wrong:** Framer Motion's 32KB gzipped bundle isn't modular. Using it for basic animations forces the entire library into the client bundle, even if only using simple fade/slide effects.
 
-**Why it happens:**
-- Child removed from DOM mid-animation
-- React Fragment as direct child breaks key tracking
-- State changes during exit animation
-- Motion version bugs (fixed in 12.23.28+)
+**Why it happens:** Framer Motion is tightly coupled — tree-shaking has limited effect. Layout animations and gestures are tied to React's rendering cycle, causing unnecessary JavaScript in components that only need simple opacity transitions.
 
-**Evidence from research (Motion changelog):**
-- "Fix duplicate exit animations in AnimatePresence" (v12.23.28, Jan 2026)
-- "Remove memory leak from retained matchMedia callbacks"
-- "Fix MotionStyle type with React 19"
+**Consequences:**
+- +32KB minimum to client bundle even for trivial animations
+- Complex animations lag on low-end devices
+- Layout calculations tied to React render cycle cause dropped frames
+- Heavy state updates in nested `motion` components cause jank
 
 **Prevention:**
-
-1. **Never use Fragment as direct child:**
-   ```tsx
-   // BROKEN - Fragment doesn't register as keyed child
-   <AnimatePresence>
-     <>
-       <motion.div key="a">A</motion.div>
-       <motion.div key="b">B</motion.div>
-     </>
-   </AnimatePresence>
-
-   // CORRECT - direct keyed children
-   <AnimatePresence>
-     <motion.div key="a">A</motion.div>
-     <motion.div key="b">B</motion.div>
-   </AnimatePresence>
-   ```
-
-2. **Stable keys (not index-based):**
-   ```tsx
-   // BROKEN - index changes when items reorder
-   {items.map((item, i) => <motion.div key={i} />)}
-
-   // CORRECT - stable unique ID
-   {items.map((item) => <motion.div key={item.id} />)}
-   ```
-
-3. **Don't change state rapidly during animations:**
-   ```tsx
-   // Risk: AnimatePresence gets stuck
-   const handleClose = () => {
-     setIsOpen(false);
-     setIsOpen(true);   // Immediately! Bad.
-     setIsOpen(false);
-   };
-   ```
-
-4. **Use mode="wait" for sequential transitions:**
-   ```tsx
-   <AnimatePresence mode="wait">
-     {step === 1 && <Step1 key="step1" />}
-     {step === 2 && <Step2 key="step2" />}
-   </AnimatePresence>
-   ```
+- Use CSS animations for simple opacity/transform effects
+- Reserve Framer Motion for gestures, layout animations, complex sequences
+- Dynamic import Framer Motion components that aren't above-the-fold:
+  ```typescript
+  const MotionDiv = dynamic(() => import('framer-motion').then(m => m.motion.div), {
+    ssr: false,
+    loading: () => <div>Loading...</div>
+  });
+  ```
+- For critical path: use GSAP (better performance) or CSS (zero JS)
 
 **Detection:**
-- Memory usage grows in DevTools Performance monitor
-- Exit animations don't play (immediate removal)
-- Double animations playing simultaneously
-- "AnimatePresence gets stuck" behavior
+- Bundle analyzer shows `framer-motion` in main chunk
+- Components using `<motion.div>` for simple fade-in effects
+- Performance profiler shows React re-renders during animations
 
-**Phase mapping:** Phase 2 - Audit AnimatePresence usage before adding homepage transitions
+**Warning signs:**
+- `motion` components used throughout the app for basic effects
+- Framer Motion imported in Server Components (forces "use client")
+- No dynamic imports for below-the-fold animations
 
-**Sources:** [AnimatePresence memory leak issue](https://github.com/framer/motion/issues/625), [AnimatePresence stuck bug](https://github.com/framer/motion/issues/2554)
-
----
-
-### Pitfall 6: Service Worker + Next.js App Router Conflicts
-
-**What goes wrong:** Stale content served, navigation breaks, or app stuck in old version after deploy.
-
-**Why it happens:**
-- Service worker caches HTML pages by default
-- Next.js App Router uses client-side navigation
-- SW serves stale cached HTML, ignoring server updates
-- next-pwa library not maintained for App Router
-
-**Current state:** No service worker in codebase yet.
-
-**Prevention:**
-
-1. **Use Serwist instead of next-pwa:**
-   ```tsx
-   // next-pwa is abandoned, use Serwist
-   // npm install @serwist/next
-   ```
-
-2. **Never cache HTML/RSC payloads:**
-   ```ts
-   // sw-config.ts
-   runtimeCaching: [
-     {
-       urlPattern: /^https:\/\/.*\.(js|css|woff2)$/,
-       handler: 'CacheFirst',
-     },
-     {
-       urlPattern: /^https:\/\/.*\.json$/,  // API responses
-       handler: 'NetworkFirst',
-     },
-     // DON'T cache HTML or RSC
-   ]
-   ```
-
-3. **Handle update prompt:**
-   ```tsx
-   useEffect(() => {
-     if ('serviceWorker' in navigator) {
-       navigator.serviceWorker.addEventListener('controllerchange', () => {
-         // New SW activated - prompt reload
-         if (confirm('New version available. Reload?')) {
-           window.location.reload();
-         }
-       });
-     }
-   }, []);
-   ```
-
-4. **Turbopack compatibility:**
-   ```json
-   // package.json - Serwist needs Webpack
-   "scripts": {
-     "build": "next build --webpack"
-   }
-   ```
-
-5. **Don't redirect SW requests:**
-   ```
-   // vercel.json or server config
-   // SW must be served from same origin, no redirects
-   ```
-
-**Detection:**
-- Users see old content after deploy
-- Navigation works first time, then breaks
-- "Service worker registration failed" in console
-- Build errors with Turbopack
-
-**Phase mapping:** Phase 3 - Add service worker AFTER core features stable
-
-**Sources:** [Next.js PWA official guide](https://nextjs.org/docs/app/guides/progressive-web-apps), [Serwist migration guide](https://javascript.plainenglish.io/building-a-progressive-web-app-pwa-in-next-js-with-serwist-next-pwa-successor-94e05cb418d7), [Next.js 16 PWA with offline support](https://blog.logrocket.com/nextjs-16-pwa-offline-support)
-
----
-
-### Pitfall 7: Image Loading Causes Layout Shift (CLS)
-
-**What goes wrong:** Page content jumps as images load, hurting Core Web Vitals and user experience.
-
-**Why it happens:**
-- Image dimensions not specified
-- Lazy loading without placeholder
-- Using fill without sized parent
-- Safari < 15 aspect-ratio bugs
-
-**Current codebase has BlurImage component, but new components may regress.**
-
-**Prevention:**
-
-1. **Always specify width/height:**
-   ```tsx
-   // WRONG - no dimensions
-   <Image src="/food.jpg" alt="Food" />
-
-   // CORRECT - dimensions specified
-   <Image src="/food.jpg" alt="Food" width={400} height={300} />
-   ```
-
-2. **Use placeholder for lazy images:**
-   ```tsx
-   <Image
-     src="/food.jpg"
-     alt="Food"
-     width={400}
-     height={300}
-     placeholder="blur"
-     blurDataURL={base64Placeholder}
-   />
-   ```
-
-3. **Fill requires sized parent:**
-   ```tsx
-   // WRONG - parent has no size
-   <div>
-     <Image src="/hero.jpg" fill alt="" />
-   </div>
-
-   // CORRECT - parent has explicit dimensions
-   <div className="relative h-[400px] w-full">
-     <Image src="/hero.jpg" fill alt="" sizes="100vw" />
-   </div>
-   ```
-
-4. **Use priority for above-fold:**
-   ```tsx
-   // Hero images should preload
-   <Image
-     src="/hero.jpg"
-     priority  // Disables lazy loading, preloads
-     alt=""
-     width={1200}
-     height={600}
-   />
-   ```
-
-5. **Use deviceSizes for responsive:**
-   ```ts
-   // next.config.ts
-   images: {
-     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
-   }
-   ```
-
-**Detection:**
-- Lighthouse CLS score > 0.1
-- Content visibly jumps on load
-- Images appear to "pop in"
-
-**Phase mapping:** Phase 2 - All homepage images need proper sizing
-
-**Sources:** [Next.js Image optimization](https://nextjs.org/docs/app/getting-started/images), [CLS fix with Next.js Image](https://dev.to/oba1dkhan/how-nextjs-image-component-solves-layout-shift-issues-2117)
-
----
-
-### Pitfall 8: Zustand Store Memory Leaks from Subscriptions
-
-**What goes wrong:** Memory usage grows over time, eventually causing mobile crash or slowdown.
-
-**Why it happens:**
-- Subscriptions not cleaned up on unmount
-- Large monolithic stores never garbage collected
-- Storing non-serializable data (functions, class instances)
-
-**Current codebase:** Uses Zustand for cart, checkout, driver stores.
-
-**Prevention:**
-
-1. **Small independent stores over monolithic:**
-   ```tsx
-   // BETTER - can be garbage collected when unused
-   const useCartStore = create(() => ({ items: [] }));
-   const useCheckoutStore = create(() => ({ step: 1 }));
-
-   // WORSE - entire store stays in memory forever
-   const useAppStore = create(() => ({
-     cart: { items: [] },
-     checkout: { step: 1 },
-     user: { ... },
-     // etc.
-   }));
-   ```
-
-2. **Clean up manual subscriptions:**
-   ```tsx
-   useEffect(() => {
-     const unsubscribe = useCartStore.subscribe(
-       (state) => state.items,
-       (items) => console.log(items)
-     );
-     return unsubscribe;  // CRITICAL
-   }, []);
-   ```
-
-3. **Don't store functions or class instances:**
-   ```tsx
-   // WRONG - function stored in state
-   const useStore = create((set) => ({
-     callback: () => {},  // Never garbage collected
-   }));
-
-   // CORRECT - store data, compute functions
-   const useStore = create((set) => ({
-     count: 0,
-   }));
-   const getCallback = () => () => useStore.getState().count;
-   ```
-
-4. **Use selectors to prevent unnecessary re-renders:**
-   ```tsx
-   // WRONG - re-renders on ANY store change
-   const store = useCartStore();
-
-   // CORRECT - only re-renders when items change
-   const items = useCartStore((state) => state.items);
-   ```
-
-**Detection:**
-- Memory tab shows growing heap
-- App slows down over time
-- Mobile eventually crashes after extended use
-
-**Phase mapping:** Phase 1 - Review store structure before adding offline sync
-
-**Sources:** [Zustand memory discussion](https://github.com/pmndrs/zustand/discussions/2540), [React state management 2025](https://www.zignuts.com/blog/react-state-management-2025)
+**Phase implications:** Address in Phase 2 (code splitting) — determine which animations need Framer Motion vs CSS/GSAP.
 
 ---
 
 ## Moderate Pitfalls
 
-Mistakes that cause performance issues, visual bugs, or maintenance burden.
+Mistakes that cause delays, performance regression, or technical debt.
 
----
+### Pitfall 6: will-change Overuse
 
-### Pitfall 9: CSS 3D Transforms + Stacking Context = Content Disappearing
+**What goes wrong:** Adding `will-change` to multiple elements or leaving it applied permanently causes excessive memory use, GPU hogging, and slower page load. The browser creates layers for everything, degrading performance instead of improving it.
 
-**What goes wrong:** Adding `preserve-3d`, `perspective`, or CSS 3D rotation causes content to flicker, disappear during hover, or render behind other elements.
+**Why it happens:** Developers apply `will-change` as premature optimization or misunderstand it as a "make animations faster" property.
 
-**Already documented in codebase LEARNINGS.md.** Key points:
-- `transform-style: preserve-3d` creates new stacking context
-- `overflow: hidden/auto/scroll` forces `preserve-3d` to `flat`
-- `opacity < 1` forces `preserve-3d` to `flat`
-- Scale transforms combined with 3D rotation create conflicts
-
-**Prevention:** See existing LEARNINGS.md entry. Key rule:
-```tsx
-// When using 3D tilt, disable Framer Motion scale
-<motion.div
-  style={{ transformStyle: "preserve-3d", rotateX, rotateY }}
-  whileHover={!shouldEnableTilt ? { scale: 1.03 } : undefined}
->
-```
-
-**Phase mapping:** Phase 2 - Hero implementation
-
----
-
-### Pitfall 10: Offline Caching Stale Data
-
-**What goes wrong:** User sees old prices, unavailable items, or out-of-sync cart after going offline/online.
-
-**Why it happens:**
-- IndexedDB/localStorage not invalidated on reconnect
-- Cache-first strategy serves stale data indefinitely
-- No timestamp validation on cached data
+**Consequences:**
+- Increased memory usage and GPU overhead
+- Slower page rendering due to excessive layer creation
+- Battery drain on mobile devices
+- Worse performance than not using it
 
 **Prevention:**
-
-1. **Version cached data:**
-   ```tsx
-   const CACHE_VERSION = 1;
-
-   function getCachedMenu() {
-     const cached = localStorage.getItem('menu');
-     if (cached) {
-       const { version, data, timestamp } = JSON.parse(cached);
-       if (version !== CACHE_VERSION) return null;  // Invalidate
-       if (Date.now() - timestamp > 1000 * 60 * 60) return null;  // 1hr max
-       return data;
-     }
-     return null;
-   }
-   ```
-
-2. **Revalidate on reconnect:**
-   ```tsx
-   useEffect(() => {
-     const handleOnline = () => {
-       queryClient.invalidateQueries(['menu']);  // Force refetch
-     };
-     window.addEventListener('online', handleOnline);
-     return () => window.removeEventListener('online', handleOnline);
-   }, []);
-   ```
-
-3. **Show stale indicator:**
-   ```tsx
-   {isOffline && <Banner>Showing cached data. Some items may be unavailable.</Banner>}
-   ```
-
-4. **Don't cache prices in service worker:**
-   ```ts
-   // Prices should always be network-first
-   runtimeCaching: [
-     {
-       urlPattern: /\/api\/menu/,
-       handler: 'NetworkFirst',
-       options: { networkTimeoutSeconds: 3 }
-     }
-   ]
-   ```
+- Use `will-change` only as a last resort for proven performance issues
+- Apply it just before animation starts, remove after animation ends:
+  ```typescript
+  element.style.willChange = 'transform';
+  // ... animation ...
+  element.style.willChange = 'auto';
+  ```
+- Do NOT apply on `:hover` — browser can't prepare mid-animation
+- Prefer `transform` and `opacity` (compositor properties) which are fast by default
 
 **Detection:**
-- User complaints about wrong prices
-- "Item unavailable" after ordering
-- Cart total doesn't match checkout
+- DevTools Rendering panel: excessive green layer borders
+- Performance profiler: high GPU memory usage
+- Animations stuttering despite `will-change`
 
-**Phase mapping:** Phase 3 - Offline support
-
----
-
-### Pitfall 11: willChange Causing GPU Memory Pressure
-
-**What goes wrong:** Page becomes janky, animations stutter, mobile device overheats.
-
-**Why it happens:**
-- `will-change: transform` creates GPU layer
-- Too many layers = memory pressure
-- Permanent will-change wastes resources
-
-**Evidence from codebase (LEARNINGS.md 2026-01-29):**
-```tsx
-// WRONG - always creates GPU layer
-<div style={{ willChange: "transform" }} />
-
-// CORRECT - layer only when needed
-<div
-  style={{ willChange: isHovered ? "transform" : "auto" }}
-  onMouseEnter={() => setIsHovered(true)}
-  onMouseLeave={() => setIsHovered(false)}
-/>
-```
-
-**Prevention:**
-- Only add willChange during interaction
-- Remove after animation completes
-- Limit to 2-3 animated elements at a time on mobile
-
-**Phase mapping:** Phase 2 - Homepage animations
+**Warning signs:**
+- `will-change` in global CSS or applied to many elements
+- `will-change` on non-animated elements
+- `will-change: transform, opacity, width, height` (only composite-able properties benefit)
 
 ---
 
-### Pitfall 12: Portal Dropdown Behind Transformed Parent
+### Pitfall 7: Animating Layout Properties
 
-**What goes wrong:** Autocomplete/dropdown renders behind parent card that has Framer Motion transforms.
+**What goes wrong:** Animating `width`, `height`, `margin`, `padding` forces browser reflow/repaint on every frame (expensive), causing dropped frames and jank. LCP can be delayed if layout animations run during initial paint.
 
-**Why it happens:**
-- CSS transforms create new stacking context
-- z-index cannot escape parent's stacking context
-- Dropdown z-index:9999 still behind parent transform
+**Why it happens:** Layout properties require recalculating entire page layout. Developers use them because they're intuitive (animate the thing you want to change).
 
-**Evidence from codebase (LEARNINGS.md 2026-01-29):**
-```tsx
-// CORRECT - use React Portal to escape stacking context
-{isMounted && createPortal(
-  <div
-    style={{
-      position: "absolute",
-      top: position?.top,
-      left: position?.left,
-      width: position?.width,
-      zIndex: 9999,
-    }}
-  >
-    {dropdownContent}
-  </div>,
-  document.body
-)}
-```
+**Consequences:**
+- 60fps drops to 20-30fps
+- Main thread blocked, delaying LCP/INP
+- Jank on low-end devices
+- Battery drain
 
 **Prevention:**
-- Use portals for all dropdowns/tooltips
-- Calculate position from getBoundingClientRect
-- Account for scroll position
+- Use `transform: scale()` instead of `width`/`height`
+- Use `transform: translate()` instead of `margin`/`padding`
+- Animate `opacity` for fade effects (GPU-accelerated)
+- Reserve layout animations for user-triggered interactions (not page load)
 
-**Phase mapping:** Phase 2 - Any autocomplete in homepage components
+**Detection:**
+- Performance profiler: purple "Recalculate Style" and "Layout" blocks
+- Lighthouse warns about layout shifts (CLS)
+- Animations feel choppy
+
+**Warning signs:**
+- GSAP/Framer animating `width`, `height`, `top`, `left`, `margin`
+- Glassmorphism blur effects animating `filter` (also expensive)
 
 ---
 
-### Pitfall 13: Double-Add Mutations from Callback + Direct Call
+### Pitfall 8: requestAnimationFrame Without Throttling
 
-**What goes wrong:** Items added to cart twice, quantities doubled.
+**What goes wrong:** Using `requestAnimationFrame` inside React state update loops causes excessive re-renders on high refresh rate displays (120Hz). React doesn't throttle automatically.
 
-**Evidence from codebase (ERROR_HISTORY.md 2026-01-26):**
-```tsx
-// BROKEN - component mutates AND triggers callback that also mutates
-const handleClick = async () => {
-  addItem({ ...item });  // First add
-  onAdd?.();             // Parent's onAdd also calls addItem() -> Second add
-};
+**Why it happens:** `rAF` fires on every display refresh. On 120Hz screens, that's 120 times per second. Triggering state updates at that rate overwhelms React.
 
-// CORRECT - component only triggers callback
-const handleClick = async () => {
-  playAnimation();   // UI only
-  onAdd?.();         // Parent is SOLE owner of mutation
-};
-```
+**Consequences:**
+- Excessive React renders (120/sec instead of 60/sec)
+- Main thread saturation
+- Battery drain
+- Animation performance degrades despite using `rAF`
 
 **Prevention:**
-- One mutation owner principle
-- Buttons only trigger callbacks, never direct mutations
-- Store-level debounce as safety net
+- Use `useRef` instead of state for animation values when possible
+- Throttle updates manually:
+  ```typescript
+  let lastUpdate = 0;
+  const throttle = 16; // ~60fps
 
-**Phase mapping:** Phase 2 - Any new add-to-cart buttons
+  requestAnimationFrame((timestamp) => {
+    if (timestamp - lastUpdate < throttle) return;
+    lastUpdate = timestamp;
+    // ... update logic
+  });
+  ```
+- Avoid triggering state updates inside `rAF` loops
+- For scroll-driven animations, use GSAP ScrollTrigger (optimized) instead of manual `rAF`
+
+**Detection:**
+- React DevTools Profiler: component rendering 100+ times/sec
+- High CPU usage during scroll
+- 120Hz devices show worse performance than 60Hz
+
+---
+
+### Pitfall 9: Glassmorphism Blur Performance Issues
+
+**What goes wrong:** Heavy backdrop blur (30px+) in glassmorphism cards causes GPU saturation on low-end devices, leading to dropped frames, lag, and crashes. Multiple translucent layers compound the problem.
+
+**Why it happens:** Blur requires GPU compositing on every frame. Older smartphones (2020-era mid-range) can't handle multiple blurred layers.
+
+**Consequences:**
+- Scroll jank and dropped frames
+- Crashes on low-memory devices
+- LCP delayed as GPU struggles with initial paint
+- Battery drain
+
+**Prevention:**
+- Limit blur radius: 20px max, 10-12px for mobile
+- Reduce layer count: avoid nested glassmorphism cards
+- Use device detection to disable blur on low-power devices:
+  ```typescript
+  // Project already has device detection in v1.4
+  const isLowPower = deviceMemory <= 4 || hardwareConcurrency <= 4;
+  const blurAmount = isLowPower ? 'backdrop-blur-sm' : 'backdrop-blur-3xl';
+  ```
+- Provide fallback: solid background with opacity
+- Use CSS `will-change: backdrop-filter` only during scroll (not permanent)
+
+**Detection:**
+- GPU profiler shows excessive compositing
+- Scroll performance degrades with glassmorphism enabled
+- Mobile Safari shows black boxes instead of blur
+
+**Warning signs:**
+- Multiple overlapping blur layers
+- `backdrop-blur-3xl` (40px) or higher used on project cards
+- No low-power device fallback
+
+**Project context:** Current implementation uses 30px blur on UnifiedMenuItemCard. Consider reducing to 20px or implementing device-adaptive blur levels.
+
+---
+
+### Pitfall 10: Lazy Loading LCP Images
+
+**What goes wrong:** Adding `loading="lazy"` to hero images or largest contentful paint elements delays their load, making LCP worse instead of better.
+
+**Why it happens:** Misunderstanding that lazy loading is for performance. It helps overall page weight but hurts LCP if applied to above-the-fold content.
+
+**Consequences:**
+- LCP increases by 500-2000ms
+- Hero image loads late, causing poor perceived performance
+- Google penalizes page in search rankings (LCP > 2.5s)
+
+**Prevention:**
+- Use `priority` prop on Next.js `<Image>` for LCP images
+- Set `fetchpriority="high"` on hero images
+- Preload LCP image in `<head>`:
+  ```tsx
+  <link rel="preload" as="image" href="/hero.jpg" fetchpriority="high" />
+  ```
+- Reserve lazy loading for below-fold images
+
+**Detection:**
+- Lighthouse identifies LCP element and flags if lazy loaded
+- Network waterfall shows hero image loading late
+- LCP metric > 2.5s in field data
+
+**Project context:** Hero section with 13 floating emojis and 4-layer parallax uses CSS animations (not images). Ensure menu card images on homepage use `priority` prop for above-fold items.
+
+---
+
+### Pitfall 11: Parallax on Low-Power Devices
+
+**What goes wrong:** Multi-layer parallax scroll effects drain battery and cause jank on low-power devices (<=4GB RAM, <=4 cores). Scroll performance degrades to <30fps.
+
+**Why it happens:** Parallax requires updating `transform` on multiple elements during scroll. Low-power GPUs can't keep up with 60fps transform updates.
+
+**Consequences:**
+- Scroll jank and dropped frames
+- Battery drain (important for mobile food delivery app)
+- Motion sickness for users with vestibular disorders
+- Poor Core Web Vitals (INP degradation)
+
+**Prevention:**
+- Disable parallax on low-power devices
+- Use `prefers-reduced-motion` media query:
+  ```css
+  @media (prefers-reduced-motion: reduce) {
+    .parallax { transform: none !important; }
+  }
+  ```
+- Limit parallax to 2-3 layers maximum
+- Use `will-change: transform` only during active scroll (add/remove dynamically)
+
+**Detection:**
+- Performance profiler shows dropped frames during scroll
+- `prefers-reduced-motion` not respected
+- No device capability detection
+
+**Warning signs:**
+- 4+ parallax layers
+- Parallax enabled on all devices without detection
+- No accessibility consideration for motion sensitivity
+
+**Project context:** V1.4 already implements device-adaptive animations with parallax disabled on low-power devices (<=4GB RAM, <=4 cores). Ensure this pattern continues in LCP optimization phase.
+
+---
+
+### Pitfall 12: Dynamic Import Without SSR Disabled for Client-Only Libraries
+
+**What goes wrong:** Dynamically importing animation libraries without `ssr: false` causes hydration mismatches and errors. Server tries to execute browser-only code (window, document).
+
+**Why it happens:** GSAP and Framer Motion rely on browser APIs. Without SSR disabled, Next.js attempts to render them on the server.
+
+**Consequences:**
+- Hydration errors: "Text content did not match"
+- Server crashes: `window is not defined`
+- Flash of unstyled content (FOUC)
+- Animation components fail to render
+
+**Prevention:**
+- Always use `ssr: false` for client-only animation libraries:
+  ```typescript
+  const AnimatedComponent = dynamic(() => import('./AnimatedComponent'), {
+    ssr: false,
+    loading: () => <Skeleton />
+  });
+  ```
+- Check imports with `typeof window !== 'undefined'` guards
+- Use `"use client"` for components using browser APIs
+
+**Detection:**
+- Console errors: "window is not defined"
+- Hydration mismatch warnings
+- Visual flash on page load
+
+---
+
+### Pitfall 13: Service Worker Caching Animation Assets Incorrectly
+
+**What goes wrong:** Over-caching animation-related JavaScript (GSAP, Framer Motion) prevents updates from deploying. Users stuck on old version with broken animations. Installation fails if any asset 404s.
+
+**Why it happens:** Aggressive precaching strategy caches too much. Developers cache entire libraries without versioning.
+
+**Consequences:**
+- New animations don't appear after deployment
+- Broken animations persist in cache
+- Service worker installation fails on missing assets
+- Stale JavaScript causes runtime errors
+
+**Prevention:**
+- Use runtime caching (not precaching) for animation libraries
+- Cache-bust with version query params or hashes
+- Use `NetworkFirst` strategy for JS bundles:
+  ```javascript
+  // In service worker
+  registerRoute(
+    /\.(js)$/,
+    new NetworkFirst({
+      cacheName: 'js-cache',
+      plugins: [
+        new ExpirationPlugin({ maxAgeSeconds: 60 * 60 * 24 }) // 1 day
+      ]
+    })
+  );
+  ```
+- Test cache invalidation in staging before production deploy
+
+**Detection:**
+- Users report not seeing new animations
+- Service worker update events not firing
+- Console errors about missing animation methods
+
+**Warning signs:**
+- Precaching lists include versioned JS files
+- No cache versioning or expiration strategy
+- Service worker never updates
+
+**Project context:** V1.4 uses Serwist with CacheFirst for images (30-day) and NetworkFirst for menu API (5-min). Ensure JS bundles use NetworkFirst, not CacheFirst.
 
 ---
 
 ## Minor Pitfalls
 
-Annoyances that waste time but are easily fixed.
+Mistakes that cause annoyance but are fixable.
+
+### Pitfall 14: Font Loading Blocking LCP
+
+**What goes wrong:** Custom web fonts block text rendering until loaded, delaying LCP by 500-1500ms. FOIT (flash of invisible text) causes poor perceived performance.
+
+**Why it happens:** Default `font-display: auto` hides text until font loads.
+
+**Consequences:**
+- LCP delayed
+- Text invisible during load
+- Layout shift when font swaps in
+
+**Prevention:**
+- Use `font-display: swap` in font declarations
+- Preload critical fonts in `<head>`:
+  ```tsx
+  <link rel="preload" as="font" href="/fonts/brand.woff2" crossOrigin="anonymous" />
+  ```
+- Use system fonts for initial render, swap to custom after load
+- Next.js 16: use `next/font` with `display: 'swap'`
 
 ---
 
-### Pitfall 14: requestAnimationFrame Not Cleaned Up
+### Pitfall 15: CSS Loading Priority Issues
 
-**What goes wrong:** Animations continue after unmount, console errors, memory leaks.
+**What goes wrong:** All CSS loads at high priority, blocking page render even when not needed. LCP image finishes loading but page still blocked by unused CSS.
+
+**Why it happens:** Default browser behavior treats all `<link rel="stylesheet">` as render-blocking.
+
+**Consequences:**
+- LCP delayed by 200-800ms
+- Unused CSS blocks critical rendering path
+- Poor Time to First Byte (TTFB)
 
 **Prevention:**
-```tsx
-useEffect(() => {
-  let rafId: number;
-
-  const animate = () => {
-    // animation logic
-    rafId = requestAnimationFrame(animate);
-  };
-  rafId = requestAnimationFrame(animate);
-
-  return () => cancelAnimationFrame(rafId);
-}, []);
-```
+- Split critical CSS (above-the-fold) from non-critical
+- Inline critical CSS in `<head>`
+- Defer non-critical CSS:
+  ```tsx
+  <link rel="preload" as="style" href="/non-critical.css" onLoad="this.rel='stylesheet'" />
+  ```
+- Use Next.js automatic CSS code splitting
 
 ---
 
-### Pitfall 15: AudioContext Not Closed
+### Pitfall 16: Animation Token Duplication
 
-**What goes wrong:** Browser limits audio contexts (6 per page), haptic/sound effects stop working.
+**What goes wrong:** Animation values scattered across files (durations, easings, springs) cause inconsistency. Some animations use motion tokens, others use hardcoded values.
+
+**Why it happens:** No centralized animation token source. Copy-pasted animation code from different sources.
+
+**Consequences:**
+- Inconsistent animation feel across app
+- Harder to maintain and update animation timings
+- ESLint can't enforce token usage
 
 **Prevention:**
-```tsx
-useEffect(() => {
-  const audioContext = new AudioContext();
+- Single source of truth for animation tokens
+- ESLint rule to prevent hardcoded animation values
+- Document animation patterns in Storybook
+- Code review checklist for token usage
 
-  return () => {
-    audioContext.close();
-  };
-}, []);
-```
+**Project context:** V1.2 consolidated animation tokens to single source at `@/lib/motion-tokens`. Ensure all LCP optimization work uses these tokens exclusively.
 
 ---
 
-### Pitfall 16: IntersectionObserver Not Disconnected
+### Pitfall 17: Missing prefers-reduced-motion Support
 
-**What goes wrong:** Multiple observers accumulate, performance degrades.
+**What goes wrong:** Ignoring `prefers-reduced-motion` causes motion sickness for users with vestibular disorders, violating WCAG 2.1 (success criterion 2.3.3). ADA Title II enforcement (April 2026) increases lawsuit risk.
+
+**Why it happens:** Developers unaware of accessibility requirement or think it means "disable all animations."
+
+**Consequences:**
+- Accessibility violations (70M+ affected users)
+- Legal risk (ADA lawsuits up 37% in 2025)
+- Poor UX for sensitive users
+- WCAG AA/AAA compliance failure
 
 **Prevention:**
-```tsx
-useEffect(() => {
-  const observer = new IntersectionObserver(callback, options);
-  if (elementRef.current) observer.observe(elementRef.current);
+- Respect `prefers-reduced-motion` media query
+- Keep opacity/color transitions, disable transform/layout animations
+- Use CSS:
+  ```css
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  ```
+- Framer Motion: use `useReducedMotion()` hook
+- Provide manual toggle in settings (in addition to system preference)
 
-  return () => observer.disconnect();
-}, []);
-```
+**Detection:**
+- Accessibility audit tools flag missing support
+- Manual testing with macOS "Reduce Motion" enabled
+- Lighthouse accessibility score penalized
+
+---
+
+### Pitfall 18: No Animation Conflict Detection
+
+**What goes wrong:** GSAP and Framer Motion both animating same property on same element causes visual glitches, jank, and unpredictable behavior.
+
+**Why it happens:** Component using GSAP wrapped in Framer Motion parent that animates same properties.
+
+**Consequences:**
+- Animations fight each other
+- Janky, unpredictable motion
+- Performance degradation from double work
+
+**Prevention:**
+- Pick one library per component/animation
+- Use GSAP for timelines, scroll choreography, complex sequences
+- Use Framer Motion for layout animations, gestures, simple component transitions
+- Never animate same property with both libraries
+
+**Project context:** V1.4 has conflict detector in dev mode. Ensure it remains active during LCP optimization work.
 
 ---
 
 ## Phase-Specific Warnings
 
-| Phase | Topic | Likely Pitfall | Mitigation |
-|-------|-------|---------------|------------|
-| Phase 1 | Audit | Uncleaned setTimeout | grep for `setTimeout` without `clearTimeout` |
-| Phase 1 | Audit | Event listener accumulation | Review all useCallback + addEventListener |
-| Phase 1 | Audit | Scroll lock patterns | Verify deferRestore used with AnimatePresence |
-| Phase 2 | Homepage | GSAP/Framer conflict | Assign clear ownership per element |
-| Phase 2 | Homepage | AnimatePresence memory | No Fragments as direct children |
-| Phase 2 | Homepage | Image CLS | All images need width/height |
-| Phase 2 | Homepage | willChange abuse | Only apply during interaction |
-| Phase 3 | Offline | Stale cache | Version + timestamp all cached data |
-| Phase 3 | Offline | SW + App Router | Use Serwist, never cache HTML |
-| Phase 3 | Offline | Reconnect sync | Invalidate queries on 'online' event |
+| Phase Topic | Likely Pitfall | Mitigation |
+|-------------|---------------|------------|
+| Code splitting (Phase 1-2) | Barrel imports slowing bundle | Configure `optimizePackageImports`, use direct imports |
+| "use client" boundaries (Phase 1-2) | Over-marking Server Components | Audit and push boundaries to leaf components |
+| Dynamic imports (Phase 2-3) | Not disabling SSR for animation libraries | Always use `ssr: false` for GSAP/Framer Motion |
+| GSAP optimization (Phase 3) | ScrollTrigger memory leaks | Use `useGSAP` hook with cleanup, centralize config |
+| Framer Motion optimization (Phase 3-4) | Bundle size explosion | Dynamic import below-fold animations, prefer CSS for simple effects |
+| Animation deferral (Phase 4) | Hydration blocking | Phase animations: critical → repaint → decorative |
+| Font optimization (Phase 5) | Font loading blocking LCP | Use `font-display: swap`, preload critical fonts |
+| Image optimization (Phase 5) | Lazy loading LCP images | Use `priority` prop, `fetchpriority="high"` for hero |
+| Glassmorphism (Phase 6) | GPU saturation on low-end devices | Reduce blur radius, device detection for fallbacks |
+| Parallax (Phase 6) | Low-power device jank | Disable on <=4GB RAM devices (already implemented) |
+| Accessibility (Phase 7) | Missing `prefers-reduced-motion` | Implement media query support, keep opacity/color transitions |
+| Service worker (Phase 8) | Over-caching JS bundles | Use `NetworkFirst` for JS, version-based cache busting |
 
 ---
 
-## Prevention Checklist
+## Integration Warnings: GSAP + Framer Motion
 
-### Before adding any setTimeout/setInterval:
-- [ ] Timeout ref created
-- [ ] Cleanup effect added
-- [ ] Cleared before setting new timeout
+**Conflict zones:**
+- Both libraries animating `transform` on same element
+- Framer Motion `layout` prop + GSAP timeline on same component
+- ScrollTrigger + Framer Motion `whileInView` on same element
 
-### Before adding event listeners:
-- [ ] Handler defined INSIDE useEffect (not useCallback)
-- [ ] Guard clause for closed state
-- [ ] Same reference for add/remove
+**Safe patterns:**
+- GSAP for page-level scroll choreography (hero parallax, section reveals)
+- Framer Motion for component-level interactions (buttons, cards, modals)
+- GSAP for SVG/path animations, Framer Motion for layout animations
+- Never nest: if parent uses GSAP, children use Framer Motion (or vice versa)
 
-### Before adding overlays/modals:
-- [ ] Body scroll lock uses deferRestore
-- [ ] restoreScrollPosition called in onExitComplete
-- [ ] Tested on real iOS device
-
-### Before adding GSAP animations:
-- [ ] No Framer Motion on same element
-- [ ] gsap.context() used with ref
-- [ ] ctx.revert() in cleanup
-- [ ] ScrollTrigger.kill() if using scroll
-
-### Before adding AnimatePresence:
-- [ ] No Fragment as direct child
-- [ ] Stable keys (not index)
-- [ ] Motion version 12.23.28+
-
-### Before adding service worker:
-- [ ] Using Serwist (not next-pwa)
-- [ ] HTML not cached
-- [ ] Update prompt implemented
-- [ ] Build uses --webpack flag
-
-### Before adding offline caching:
-- [ ] Cache versioned
-- [ ] Timestamp checked
-- [ ] Revalidate on reconnect
-- [ ] Stale indicator shown
+**Project-specific context:**
+- Hero: 4-layer parallax uses CSS animations (not GSAP/Framer) — safe
+- Menu cards: Framer Motion 3D tilt — don't add GSAP to same cards
+- ScrollTrigger: Use for section reveals, not individual card animations
+- Cart drawer: Framer Motion spring animations — don't add GSAP overlays
 
 ---
 
 ## Sources
 
-**Codebase Documentation:**
-- `.claude/ERROR_HISTORY.md` (2026-01-25 to 2026-01-30) - Mobile crash patterns
-- `.claude/LEARNINGS.md` (2026-01-25 to 2026-01-30) - Fix patterns
+### Next.js App Router & LCP Optimization (HIGH confidence)
+- [10 Performance Mistakes in Next.js 16 (Medium, Dec 2025)](https://medium.com/@sureshdotariya/10-performance-mistakes-in-next-js-16-that-are-killing-your-app-and-how-to-fix-them-2facfab26bea)
+- [Stop the Wait: A Developer's Guide to Smashing LCP in Next.js (Medium)](https://medium.com/@iamsandeshjain/stop-the-wait-a-developers-guide-to-smashing-lcp-in-next-js-634e2963f4c7)
+- [How to Optimize Core Web Vitals in NextJS App Router for 2025 (Makers' Den)](https://makersden.io/blog/optimize-web-vitals-in-nextjs-2025)
+- [Optimizing Next.js Performance: LCP, Render Delay & Hydration](https://www.iamtk.co/optimizing-nextjs-performance-lcp-render-delay-hydration)
+- [Next.js App Router: common mistakes and how to fix them](https://upsun.com/blog/avoid-common-mistakes-with-next-js-app-router/)
 
-**Official Documentation:**
-- [Next.js Image Component](https://nextjs.org/docs/app/api-reference/components/image)
-- [Next.js PWA Guide](https://nextjs.org/docs/app/guides/progressive-web-apps)
-- [Framer Motion AnimatePresence](https://www.framer.com/motion/animate-presence/)
-- [GSAP React](https://gsap.com/resources/React/)
-- [Zustand](https://github.com/pmndrs/zustand)
+### Animation Libraries Performance (HIGH confidence)
+- [GSAP vs. Framer Motion: A Comprehensive Comparison (Medium)](https://tharakasachin98.medium.com/gsap-vs-framer-motion-a-comprehensive-comparison-0e4888113825)
+- [Framer Motion vs GSAP (Semaphore)](https://semaphore.io/blog/react-framer-motion-gsap)
+- [How to Keep Rich Animations Snappy in Next.js 15 (Medium, Jan 2026)](https://medium.com/@thomasaugot/how-to-keep-rich-animations-snappy-in-next-js-15-46d90f503b15)
+- [Beyond Eye Candy: Top 7 React Animation Libraries for Real-World Apps in 2026 (Syncfusion)](https://www.syncfusion.com/blogs/post/top-react-animation-libraries)
 
-**Community Resources:**
-- [iOS Safari scroll lock fix](https://stripearmy.medium.com/i-fixed-a-decade-long-ios-safari-problem-0d85f76caec0)
-- [body-scroll-lock npm](https://www.npmjs.com/package/body-scroll-lock)
-- [GSAP vs Motion comparison](https://motion.dev/docs/gsap-vs-motion)
-- [Serwist migration guide](https://javascript.plainenglish.io/building-a-progressive-web-app-pwa-in-next-js-with-serwist-next-pwa-successor-94e05cb418d7)
-- [Next.js 16 PWA](https://blog.logrocket.com/nextjs-16-pwa-offline-support)
+### GSAP ScrollTrigger & Next.js (HIGH confidence)
+- [Optimizing GSAP Animations in Next.js 15 (Medium)](https://medium.com/@thomasaugot/optimizing-gsap-animations-in-next-js-15-best-practices-for-initialization-and-cleanup-2ebaba7d0232)
+- [ScrollTrigger and pinned section performance problem (GSAP Forums)](https://gsap.com/community/forums/topic/44313-scrolltrigger-and-pinned-section-performancejumping-problem-nextjs-app/)
+- [Application crashes with ScrollTrigger in NextJS (GitHub Issue)](https://github.com/greensock/GSAP/issues/440)
 
-**GitHub Issues:**
-- [AnimatePresence memory leak](https://github.com/framer/motion/issues/625)
-- [AnimatePresence stuck bug](https://github.com/framer/motion/issues/2554)
-- [AnimatePresence portal bug](https://github.com/framer/motion/issues/2692)
-- [Zustand memory discussion](https://github.com/pmndrs/zustand/discussions/2540)
-- [react-modal iOS scroll](https://github.com/reactjs/react-modal/issues/829)
+### Hydration & Client Components (HIGH confidence)
+- [Next.js Hydration Errors in 2026 (Medium, Jan 2026)](https://medium.com/@blogs-world/next-js-hydration-errors-in-2026-the-real-causes-fixes-and-prevention-checklist-4a8304d53702)
+- [How Suspense + Streaming + Selective Hydration Drive Page Speed (Makers' Den)](https://makersden.io/blog/suspense-streaming-selective-hydation-driving-next-level-speed-in-react-and-nextjs)
+- [Understanding Client Components and Client Boundaries (Zayne Lovecraft)](https://www.zaynelovecraft.com/articles/understanding-client-components-and-client-boundaries)
+- [Next.js Official Docs: Server and Client Components](https://nextjs.org/docs/app/getting-started/server-and-client-components)
+
+### Code Splitting & Barrel Imports (HIGH confidence)
+- [How we optimized package imports in Next.js (Vercel)](https://vercel.com/blog/how-we-optimized-package-imports-in-next-js)
+- [React & Next.js Best Practices in 2026 (FAB Web Studio)](https://fabwebstudio.com/blog/react-nextjs-best-practices-2026-performance-scale)
+- [When UI Libraries Explode Your Bundle (Medium)](https://medium.com/@sureshdotariya/when-ui-libraries-explode-your-bundle-smart-imports-tree-shaking-in-next-js-ee691a65cd2c)
+- [Dynamic imports and code splitting with Next.js (LogRocket)](https://blog.logrocket.com/dynamic-imports-code-splitting-next-js/)
+
+### Glassmorphism & Parallax Performance (MEDIUM confidence)
+- [Glassmorphism: What It Is and How to Use It in 2026 (Inverness Design Studio)](https://invernessdesignstudio.com/glassmorphism-what-it-is-and-how-to-use-it-in-2026)
+- [Dark Glassmorphism UI in 2026 (Medium, Dec 2025)](https://medium.com/@developer_89726/dark-glassmorphism-the-aesthetic-that-will-define-ui-in-2026-93aa4153088f)
+- [2026 Web Design Trends: Glassmorphism, Micro-Animations (Digital Upward)](https://www.digitalupward.com/blog/2026-web-design-trends-glassmorphism-micro-animations-ai-magic/)
+
+### CSS Animation & will-change (HIGH confidence)
+- [CSS will-change Property: When and When Not to Use It (DigitalOcean)](https://www.digitalocean.com/community/tutorials/css-will-change)
+- [MDN: will-change](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/will-change)
+- [Optimizing Performance in CSS Animations (DEV)](https://dev.to/nasehbadalov/optimizing-performance-in-css-animations-what-to-avoid-and-how-to-improve-it-bfa)
+- [How to create high-performance CSS animations (web.dev)](https://web.dev/articles/animations-guide)
+
+### requestAnimationFrame (MEDIUM confidence)
+- [Fix Your LCP Score By Improving Render Delay (DebugBear)](https://www.debugbear.com/blog/lcp-render-delay)
+- [Mastering requestAnimationFrame in React (Medium)](https://medium.com/@mohantaankit2002/mastering-requestanimationframe-and-cancelanimationframe-in-react-31bbee576137)
+- [Common misconceptions about how to optimize LCP (web.dev)](https://web.dev/blog/common-misconceptions-lcp)
+
+### Accessibility (HIGH confidence)
+- [Next.js Official Docs: Accessibility](https://nextjs.org/docs/architecture/accessibility)
+- [Accessible Animations in React with prefers-reduced-motion (Josh W. Comeau)](https://www.joshwcomeau.com/react/prefers-reduced-motion/)
+- [Building for Everyone: Accessible Web Technologies in 2025 (Medium, Dec 2025)](https://medium.com/@thewcag/building-for-everyone-the-developers-guide-to-accessible-web-technologies-in-2025-f5b05c92b82b)
+- [Design accessible animation and movement (Pope Tech, Dec 2025)](https://blog.pope.tech/2025/12/08/design-accessible-animation-and-movement/)
+
+### Service Worker Caching (MEDIUM confidence)
+- [PWA Resource Pre-fetching & Caching with Service Workers (ZeePalm)](https://www.zeepalm.com/blog/pwa-resource-pre-fetching-and-caching-with-service-workers)
+- [Caching Done Right: Why Every Web Project Deserves a Service Worker (Medium)](https://medium.com/@mevbg/caching-done-right-why-every-web-project-deserves-a-service-worker-288d254a34c4)
+- [Service Worker Caching Strategies (CodeSamplez)](https://codesamplez.com/front-end/service-worker-caching-strategies)

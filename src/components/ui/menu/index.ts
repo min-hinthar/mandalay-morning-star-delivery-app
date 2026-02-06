@@ -86,3 +86,13 @@ export type {
 
 export { MenuContent } from "./MenuContent";
 export type { MenuContentProps } from "./MenuContent";
+
+// ============================================
+// CLIENT WRAPPER (for future server component integration)
+// ============================================
+
+export { MenuContentClient, useMenuInteractivity } from "./MenuContentClient";
+export type {
+  MenuContentClientProps,
+  MenuInteractivityContext,
+} from "./MenuContentClient";

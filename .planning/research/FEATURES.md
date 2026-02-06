@@ -1,380 +1,240 @@
-# Feature Landscape: Homepage Completion, Mobile Optimization & Offline Support
+# Feature Landscape: LCP Optimization in Next.js 16 App Router
 
-**Domain:** Food delivery app - homepage integration + mobile performance + customer offline support
-**Researched:** 2026-01-30
-**Mode:** Feature research for subsequent milestone
-**Confidence:** HIGH (codebase analysis verified + industry best practices)
+**Domain:** Performance optimization for food delivery PWA
+**Focus:** Reducing LCP from 8.1s to <2.5s
+**Context:** Next.js 16 App Router, GSAP + Framer Motion, 508 TypeScript files, ~62K LOC
+**Researched:** 2026-02-05
 
----
+## Table Stakes
 
-## Context: What This Milestone Addresses
+Features users/Google expect. Missing = failure to meet Core Web Vitals threshold.
 
-This research covers three interconnected areas for the Morning Star Delivery App:
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| Image optimization with `next/image` | LCP element is often an image; Next.js Image auto-optimizes to AVIF/WebP | Low | Set `priority={true}` on hero/LCP images to preload |
+| Font optimization with `next/font` | Eliminates render-blocking font requests, improves FCP/LCP by 200-500ms | Low | Automatic preloading, inlined CSS, self-hosting |
+| Remove lazy loading from LCP element | Lazy loading above-the-fold delays LCP by 2-3s; Google explicitly warns against this | Low | **CRITICAL:** Use `loading="eager"` or remove attribute on LCP image |
+| `fetchpriority="high"` on LCP element | Tells browser to prioritize LCP resource over other downloads | Low | Can reduce LCP from ~5s to ~3.7s alone |
+| TTFB optimization (<600ms) | TTFB delay carries over to FCP/LCP; 1s TTFB = minimum 1s LCP | Medium | Enable caching, use CDN, optimize server response |
+| Eliminate render-blocking JavaScript | JavaScript execution blocking is your stated root cause of 8.1s LCP | High | Defer non-critical scripts, minimize client JS bundle |
+| React Server Components for data fetching | Shifts logic to server, reduces client JS payload by ~50KB+ per component | Medium | Default in App Router; keep heavy logic server-side |
+| Code splitting with `next/dynamic` | Reduces initial bundle size, prevents non-critical code from blocking LCP | Medium | Use `ssr: false` for client-only components like modals |
+| Remove unused dependencies | Each unused library adds to bundle size and parse time | Low | Audit with bundle analyzer; GSAP core is 23KB, Framer Motion is 32KB |
+| Preload critical resources | LCP resource must start loading ASAP; resource load delay is major bottleneck | Low | Use `<link rel="preload">` for LCP image/font |
 
-1. **Homepage Component Integration** - 5 existing components (Hero, CTABanner, HowItWorksSection, TestimonialsCarousel, FooterCTA) are already built and wired in. Focus shifts to polish, performance, and mobile optimization.
+## Differentiators
 
-2. **Mobile Performance Optimization** - App experiencing crashes on mobile devices. Need systematic optimization for mobile-first experience.
+Features that push beyond "good" (2.5s) toward "excellent" (<1s LCP). Not expected, but valued.
 
-3. **Customer Offline Support** - Driver app has IndexedDB offline support (`offline-store.ts`, `useOfflineSync.ts`). Customer-facing features need similar resilience patterns.
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Streaming SSR with Suspense | Delivers instant page shell while streaming slow components; improves LCP by 1.2s+ | Medium | Wrap slow components in `<Suspense>`, serve shell first |
+| Selective hydration | Only hydrate interactive components; reduces main thread blocking | Medium | Use Suspense boundaries, prioritize critical interactions |
+| Partial Prerendering (PPR) | Static shell for instant load + dynamic content streamed; mobile LCP: 26.4s → 0.9s | High | Next.js 16 feature; requires route-level configuration |
+| React Compiler (automatic memoization) | Eliminates unnecessary re-renders with zero manual code; 95%+ coverage | Low | Stable in Next.js 16; trades slightly slower builds for runtime perf |
+| AVIF format for images | 20% better compression than WebP without quality loss | Low | Configure in `next.config.js`; ensure browser fallbacks |
+| Modular animation library usage | Import only needed GSAP plugins vs full bundle; reduces JS parse time | Low | GSAP is modular (23KB core), Framer Motion is not (119KB fixed) |
+| `font-display: swap` | Ensures text visible during font loading; prevents invisible text delaying LCP | Low | Automatically handled by `next/font` |
+| Layout deduplication in routing | Next.js 16 optimizes prefetching and navigation; reduces redundant layouts | Low | Built-in; ensure proper layout hierarchy |
+| CDN for static assets | Serve images/fonts from edge locations; reduces TTFB by 200-400ms | Medium | Requires infrastructure setup; Vercel does this automatically |
+| Bundle analysis automation | Continuous monitoring of bundle size to prevent regressions | Low | Use `@next/bundle-analyzer`; set size budgets |
 
----
+## Anti-Features
 
-## Existing Features (Already Built - Reference Only)
-
-### Homepage Components (All Wired In)
-
-| Component | Location | Status | Notes |
-|-----------|----------|--------|-------|
-| `Hero` | `src/components/ui/homepage/Hero.tsx` | Complete | Parallax, floating emojis, time-of-day greeting |
-| `HowItWorksSection` | `src/components/ui/homepage/HowItWorksSection.tsx` | Complete | Lazy-loaded to defer Google Maps (369KB) |
-| `CTABanner` | `src/components/ui/homepage/CTABanner.tsx` | Complete | Pulsing glow, floating entrance |
-| `TestimonialsCarousel` | `src/components/ui/homepage/TestimonialsCarousel.tsx` | Complete | Auto-rotation, NavDots, pause on hover |
-| `FooterCTA` | `src/components/ui/homepage/FooterCTA.tsx` | Complete | CTA + contact info + social |
-| `HomepageMenuSection` | `src/components/ui/homepage/HomepageMenuSection.tsx` | Complete | Featured carousel, category tabs, search |
-| `HomePageClient` | `src/components/ui/homepage/HomePageClient.tsx` | Complete | Orchestrates all sections |
-
-### Mobile Infrastructure (Already Built)
-
-| Feature | Location | Status |
-|---------|----------|--------|
-| `useAnimationPreference` | `src/lib/hooks/useAnimationPreference.ts` | Complete - respects reduced motion |
-| `useCanHover` | `src/lib/hooks/useResponsive.ts` | Complete - detects touch devices |
-| Image optimization utilities | `src/lib/utils/image-optimization.ts` | Complete - size presets, blur placeholders |
-| MenuSkeleton | `src/components/ui/menu/MenuSkeleton.tsx` | Complete - shimmer animations |
-| Driver offline store | `src/lib/services/offline-store.ts` | Complete - IndexedDB for driver app |
-| useOfflineSync hook | `src/lib/hooks/useOfflineSync.ts` | Complete - driver app only |
-
----
-
-## Table Stakes: Mobile Performance (Must Have)
-
-Features users expect. Missing = app feels broken on mobile.
-
-| Feature | Why Expected | Complexity | Current State | Priority |
-|---------|--------------|------------|---------------|----------|
-| **Sub-2.5s LCP on mobile** | Google Core Web Vital threshold, user perception | Medium | Needs audit - HowItWorks lazy loading helps | P0 |
-| **No layout shifts (CLS < 0.1)** | Content jumping is jarring | Low | Good - explicit dimensions used | P1 |
-| **No crashes on mobile** | Basic stability | High | **Active issue** - crashes reported | P0 |
-| **Responsive images** | Mobile bandwidth constraints | Low | `next/image` with sizes configured | P1 |
-| **Touch-friendly targets** | Minimum 44x44px touch targets | Low | Needs audit | P1 |
-| **Smooth scrolling** | 60fps even during animations | Medium | Animation tokens exist, may over-animate | P0 |
-| **Memory management** | Prevent OOM crashes | Medium | Need cleanup audit (timers, listeners, GSAP) | P0 |
-
-### Mobile Crash Root Cause Analysis
-
-Based on recent git commits and debug files:
-
-| Commit | Issue Fixed | Pattern |
-|--------|-------------|---------|
-| `1486c38` | setTimeout cleanup for unmounted state updates | Missing cleanup in useEffect |
-| `deabb17` | Race conditions causing random crashes | Async operations without mount checks |
-| `a08d2ff` | Performance optimization, dead code removal | Bundle bloat |
-| `9ced763` | rAF, AudioContext, GSAP timelines, async timeouts | Improper resource cleanup |
-
-**Common patterns causing crashes:**
-1. **Missing cleanup in useEffect** - Timers, subscriptions, async operations
-2. **State updates on unmounted components** - Need `isMounted` ref pattern
-3. **Heavy animations on low-power devices** - GSAP timelines not properly killed
-4. **Memory leaks** - Event listeners not removed, large objects retained
-
-### Recommended Mobile Performance Fixes
-
-```typescript
-// Pattern: Safe async with mount check
-useEffect(() => {
-  let isMounted = true;
-  const controller = new AbortController();
-
-  async function fetchData() {
-    try {
-      const result = await api.get(url, { signal: controller.signal });
-      if (isMounted) {
-        setState(result);
-      }
-    } catch (e) {
-      if (e.name !== 'AbortError' && isMounted) {
-        setError(e);
-      }
-    }
-  }
-
-  fetchData();
-
-  return () => {
-    isMounted = false;
-    controller.abort();
-  };
-}, []);
-```
-
----
-
-## Table Stakes: Skeleton Loading States (Must Have)
-
-| Feature | Why Expected | Complexity | Current State | Priority |
-|---------|--------------|------------|---------------|----------|
-| **Menu skeleton** | Prevent empty flash | Low | **Complete** - MenuSkeleton.tsx | Done |
-| **Homepage skeleton** | Prevent loading blank | Low | **Complete** - HowItWorksSkeleton inline | Done |
-| **Cart skeleton** | Quick drawer open | Low | Not implemented | P2 |
-| **Checkout skeleton** | Multi-step loading | Low | Not implemented | P2 |
-| **Order history skeleton** | List loading state | Low | Not implemented | P2 |
-
-### Skeleton Best Practices (Verified)
-
-| Best Practice | Implementation | Notes |
-|---------------|----------------|-------|
-| Match content structure | Skeleton matches real content layout | Prevents CLS on load |
-| Shimmer animation | CSS `animate-shimmer` keyframes | Already defined in globals.css |
-| Respect reduced motion | Disable shimmer for `prefers-reduced-motion` | Use `shouldAnimate` from hook |
-| Staggered reveal | CSS `stagger-1` through `stagger-8` classes | Already in MenuSkeleton |
-
----
-
-## Table Stakes: Customer Offline Support (Must Have)
-
-| Feature | Why Expected | Complexity | Current State | Priority |
-|---------|--------------|------------|---------------|----------|
-| **Offline menu browsing** | View menu without network | Medium | Not implemented for customers | P1 |
-| **Cart persistence** | Don't lose cart on refresh | Low | **Complete** - Zustand persist | Done |
-| **Connection status indicator** | Know when offline | Low | Driver app only | P1 |
-| **Graceful degradation** | Show cached content vs error | Medium | Not implemented | P1 |
-
-### Existing Offline Architecture (Driver App)
-
-```
-src/lib/services/offline-store.ts
-  - IndexedDB wrapper for driver-specific data
-  - route-cache, pending-status, pending-photos, pending-locations stores
-
-src/lib/hooks/useOfflineSync.ts
-  - Online/offline detection via navigator.onLine
-  - Auto-sync when coming back online
-  - Queue methods for offline operations
-```
-
-**Gap Analysis:** Customer app needs similar patterns:
-- Cache menu data for offline browsing
-- Show connection status banner
-- Queue orders for submission when online (stretch goal)
-
----
-
-## Differentiators: Homepage Experience (Competitive Advantage)
-
-Features that set the app apart. Not expected, but valued.
-
-| Feature | Value Proposition | Complexity | Dependencies | Priority |
-|---------|-------------------|------------|--------------|----------|
-| **Time-of-day greeting** | Personalized, delightful | Low | **Complete** - in Hero.tsx | Done |
-| **Interactive coverage checker** | Converts visitors, reduces support | Medium | **Complete** - in HowItWorksSection | Done |
-| **Featured carousel** | Highlights best sellers | Medium | **Complete** - in HomepageMenuSection | Done |
-| **Floating food emojis** | Playful brand identity | Low | **Complete** - in Hero.tsx | Done |
-| **Scroll-linked section nav** | Easy navigation | Low | **Complete** - SectionNavDots | Done |
-| **Parallax hero** | Premium feel | Low | **Complete** - multi-layer parallax | Done |
-| **View-in-dark-mode preview** | Decision helper for new users | Medium | Not implemented | P3 |
-
----
-
-## Differentiators: Mobile-First Optimizations
-
-| Feature | Value Proposition | Complexity | Notes | Priority |
-|---------|-------------------|------------|-------|----------|
-| **Device-based animation scaling** | Better UX on low-power devices | Medium | Reduce/disable animations based on device | P1 |
-| **Optimistic UI for cart** | Instant feedback | Low | Add to cart shows immediately | P2 |
-| **Native app-like transitions** | Premium feel | Medium | View Transitions API (already used for theme) | P2 |
-| **Pull-to-refresh** | Mobile UX pattern | Low | Not standard for web, consider for PWA | P3 |
-| **Haptic feedback** | Tactile confirmation | Low | Limited browser support | P3 |
-
-### Device-Based Animation Scaling
-
-```typescript
-// Recommended pattern
-function useDeviceCapability() {
-  const [capability, setCapability] = useState<'high' | 'medium' | 'low'>('high');
-
-  useEffect(() => {
-    // Check device memory (Chrome only)
-    const memory = (navigator as any).deviceMemory;
-    // Check hardware concurrency
-    const cores = navigator.hardwareConcurrency;
-    // Check connection type
-    const connection = (navigator as any).connection?.effectiveType;
-
-    if (memory && memory < 2) setCapability('low');
-    else if (cores && cores < 4) setCapability('medium');
-    else if (connection === '2g' || connection === 'slow-2g') setCapability('low');
-    else if (connection === '3g') setCapability('medium');
-  }, []);
-
-  return capability;
-}
-
-// Usage in animation components
-const capability = useDeviceCapability();
-const shouldAnimate = capability !== 'low' && !prefersReducedMotion;
-const animationDuration = capability === 'high' ? 0.3 : 0.15;
-```
-
----
-
-## Anti-Features (Do NOT Build)
+Features to explicitly NOT build. Common mistakes that seem helpful but hurt LCP.
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| **Full PWA with service worker caching** | Complexity, cache invalidation bugs | Simple menu caching only for MVP |
-| **Offline order submission** | Payment requires network, inventory sync issues | Show "order requires connection" message |
-| **Aggressive prefetching** | Wastes mobile data, slows current page | Prefetch only on hover/focus (Next.js default) |
-| **Client-side image optimization** | CPU intensive on mobile | Use next/image server-side optimization |
-| **Complex loading orchestration** | Hard to maintain, race conditions | Simple Suspense boundaries |
-| **Custom skeleton library** | Maintenance burden | Use simple CSS + existing utilities |
-| **Intersection Observer for every element** | Performance overhead | Use CSS scroll-snap or virtual lists |
-| **Background sync for all data** | Over-engineering | Only for critical user data |
-
----
+| Lazy load LCP/hero images | Delays LCP by 2-3s; browser defers image for other resources; Google warns explicitly | Use `loading="eager"` or omit attribute; add `priority={true}` and `fetchpriority="high"` |
+| JavaScript-based image lazy loading | Even worse than native lazy loading; must wait for JS download + execution | Use native `loading="lazy"` for below-the-fold only; never for LCP element |
+| Over-optimize images at expense of other factors | Image download time is rarely the bottleneck; TTFB and resource load delay are bigger | Focus on TTFB, eliminate render-blocking JS, then optimize images |
+| Load all animation libraries upfront | 119KB Framer Motion + 23KB GSAP core = 142KB just for animations blocking LCP | Dynamic import animations with `next/dynamic` and `ssr: false`; defer until after LCP |
+| Premature optimization without measurement | Optimizing wrong areas wastes effort; "quick fixes" rarely improve LCP meaningfully | Measure with Lighthouse/PageSpeed Insights first; identify actual bottlenecks |
+| Use Client Components for everything | Sends all React code to client; increases JS bundle and hydration cost | Default to Server Components; only mark interactive components as "use client" |
+| Aggressive code splitting of critical path | Splitting hero component creates extra network request, delaying LCP | Only split non-critical/below-fold components; keep LCP path in main bundle |
+| Apply same optimization to all routes | Not all pages have same LCP element; hero image vs text vs map | Measure per-route; optimize each route's actual LCP element |
+| Enable all Next.js features simultaneously | React Compiler increases build time; PPR requires careful boundaries | Enable features incrementally; measure impact; PPR is experimental |
+| Ignore AVIF decode time on mobile | Smaller AVIF downloads faster but decodes slower on low-end devices; can negate benefit | Test on real devices; consider WebP for mobile, AVIF for desktop |
+| Third-party scripts in `<head>` | External scripts block rendering; unpredictable downtime/lag outside your control | Load async/defer; use Next.js Script component with `strategy="afterInteractive"` |
+| Forget srcset/responsive images | Sending 2000px image to mobile device wastes bandwidth and decode time | Use `next/image` (handles automatically) or manual srcset with proper sizes |
 
 ## Feature Dependencies
 
+### Critical Path (Must implement in order)
+
 ```
-Mobile Performance Optimization:
-  Audit existing useEffect hooks
-    -> Add cleanup patterns
-      -> Add isMounted checks for async
-        -> Add GSAP timeline cleanup
-          -> Test on low-power devices
-            -> Device capability detection
-
-Skeleton States:
-  Existing MenuSkeleton pattern
-    -> CartDrawer skeleton
-    -> Checkout step skeletons
-    -> Order history skeleton
-
-Customer Offline Support:
-  Existing driver offline-store.ts
-    -> Create customer-offline-store.ts
-      -> Cache menu data
-      -> Add useCustomerOfflineSync hook
-        -> Online/offline banner component
-          -> Graceful degradation in components
+1. Identify LCP element (Lighthouse/field data)
+   ↓
+2. Remove lazy loading from LCP element
+   ↓
+3. Add priority={true} + fetchpriority="high" to LCP element
+   ↓
+4. Optimize LCP resource (image → next/image, font → next/font)
+   ↓
+5. Eliminate render-blocking JavaScript on critical path
+   ↓
+6. Optimize TTFB (<600ms target)
 ```
 
----
+### Parallel Optimizations (Independent, can do simultaneously)
 
-## MVP Recommendation (Phased)
+```
+- Code split non-critical components (modals, animations)
+- Convert to React Server Components where possible
+- Preload critical resources
+- Enable React Compiler
+- Setup bundle analysis
+```
 
-### Phase 1: Mobile Crash Fixes (P0)
+### Advanced Optimizations (After table stakes achieved)
 
-**Goal:** Zero crashes on mobile devices.
+```
+Table Stakes Achieved (LCP < 2.5s)
+   ↓
+Streaming SSR + Suspense (target: <1.5s)
+   ↓
+Selective Hydration (target: <1s)
+   ↓
+Partial Prerendering (target: <0.9s)
+```
 
-1. **Audit all useEffect hooks** for missing cleanup
-   - Timers (setTimeout, setInterval)
-   - Animation frames (requestAnimationFrame)
-   - Event listeners
-   - Subscriptions
+### Animation Library Strategy
 
-2. **Add isMounted pattern** to async operations
-   - Data fetching
-   - Delayed state updates
-   - Animation callbacks
+```
+Current state: GSAP + Framer Motion both loaded upfront
+   ↓
+Audit: Which animations are critical to LCP?
+   ↓
+If none are critical:
+   → Dynamic import both with ssr: false
+   → Load after LCP painted
+   ↓
+If some are critical:
+   → Use GSAP for critical (smaller, modular)
+   → Dynamic import Framer Motion for non-critical
+```
 
-3. **GSAP cleanup audit**
-   - Kill timelines on unmount
-   - Clear ScrollTrigger instances
+## MVP Recommendation
 
-4. **Test on low-power device** (iPhone SE, Android mid-range)
+For achieving LCP < 2.5s, prioritize in this order:
 
-**Complexity:** Medium
-**Risk:** Low (fixes, not new features)
+### Phase 1: Quick Wins (Est. impact: 8.1s → 4-5s)
+1. Remove lazy loading from LCP element
+2. Add `priority={true}` and `fetchpriority="high"` to LCP image
+3. Ensure using `next/image` and `next/font`
+4. Identify and defer non-critical JavaScript blocking render
 
-### Phase 2: LCP Optimization (P0)
+### Phase 2: JavaScript Reduction (Est. impact: 4-5s → 2.5-3s)
+1. Dynamic import animation libraries with `ssr: false`
+2. Convert data-fetching components to Server Components
+3. Code split modals, tooltips, non-visible components
+4. Audit and remove unused dependencies
 
-**Goal:** Mobile LCP < 2.5s.
+### Phase 3: Infrastructure (Est. impact: 2.5-3s → 1.5-2s)
+1. Optimize TTFB (caching, CDN)
+2. Preload critical resources
+3. Enable React Compiler
+4. Implement Suspense boundaries for slow components
 
-1. **Audit hero images** - ensure priority loading
-2. **Verify lazy loading** - confirm HowItWorks defers Google Maps
-3. **Check font loading** - ensure font-display: swap
-4. **Minimize main thread work** - defer non-critical JS
+### Phase 4: Advanced (Est. impact: 1.5-2s → <1s)
+- Streaming SSR with Suspense
+- Selective hydration
+- Partial Prerendering (experimental)
 
-**Complexity:** Low-Medium
-**Risk:** Low (configuration changes)
+## Defer to Post-MVP
 
-### Phase 3: Customer Offline Support (P1)
+These are valuable but not blockers for LCP < 2.5s:
 
-**Goal:** Menu browsable offline, connection status visible.
+- **AVIF image format**: WebP is sufficient; AVIF decode time can hurt mobile
+- **Partial Prerendering**: Experimental in Next.js 16; requires significant testing
+- **Layout deduplication tuning**: Built-in optimization; minimal manual work needed
+- **Font subsetting**: next/font handles automatically; manual subsetting is diminishing returns
+- **Advanced bundle analysis**: Useful for monitoring, but basic analysis sufficient initially
 
-1. **Create customer-offline-store.ts** based on driver pattern
-2. **Cache menu data** in IndexedDB
-3. **Add OfflineIndicator component** (reuse driver pattern)
-4. **Graceful fallback** when data unavailable
+## Context: Food Delivery PWA Specifics
 
-**Complexity:** Medium
-**Risk:** Low (additive feature)
+### Likely LCP Elements by Route
 
-### Phase 4: Additional Skeletons (P2)
+| Route | Likely LCP Element | Optimization Priority |
+|-------|-------------------|----------------------|
+| Homepage | Hero image or restaurant card images | **CRITICAL** - highest traffic |
+| Restaurant page | Restaurant header image or menu item image | **HIGH** - conversion path |
+| Menu/Item page | Food item image | **HIGH** - conversion path |
+| Checkout | Form elements or map (Google Maps) | **MEDIUM** - text/map not image |
+| Order tracking | Map or status card | **MEDIUM** - map loaded dynamically |
 
-**Goal:** No blank loading states anywhere.
+### Animation Library Audit Needed
 
-1. **CartDrawer skeleton** - show immediately on open
-2. **Checkout skeleton** - per-step loading
-3. **Order history skeleton** - list placeholder
+With both GSAP and Framer Motion:
+- **Question 1:** Which animations run on initial page load before LCP?
+  - If none → Dynamic import both with `ssr: false`
+  - If some → Keep minimal critical animations, defer rest
+- **Question 2:** Can you consolidate to one library?
+  - GSAP: 23KB core, modular, better for complex sequences
+  - Framer Motion: 119KB fixed, React-friendly, better for declarative animations
+  - **Recommendation:** Audit usage; consider moving all to GSAP (smaller, tree-shakeable)
 
-**Complexity:** Low
-**Risk:** Very low (visual polish)
+### Google Maps Consideration
 
----
+Google Maps JavaScript API is ~600KB+ uncompressed:
+- If map is LCP element on any route → Major problem
+- **Solution:** Lazy load map component, show static map image as placeholder
+- Use `next/dynamic` with `ssr: false` for map component
+- Consider static map API for initial view, load interactive map after
 
-## Image Optimization Checklist
+### Service Worker Already Implemented
 
-Based on existing `image-optimization.ts`:
+Existing service worker with caching is excellent foundation:
+- Ensure critical LCP resources (images, fonts) are cached
+- Use stale-while-revalidate for images
+- Network-first for HTML to get latest content
+- Don't cache service worker itself
 
-| Category | Preset | Width | Height | sizes Attribute |
-|----------|--------|-------|--------|-----------------|
-| Menu cards | `menuCard` | 400 | 225 | `(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw` |
-| Hero | `hero` | 1920 | 1080 | `100vw` |
-| Thumbnails | `thumbnail` | 96 | 96 | `(max-width: 640px) 25vw, 10vw` |
-| Cart items | `cartItem` | 80 | 80 | `80px` |
+## Complexity Assessment
 
-**LCP Image Checklist:**
-- [ ] Hero image has `priority={true}` (or `preload` in Next.js 16)
-- [ ] Hero image has explicit width/height
-- [ ] Hero uses sizes="100vw" for responsive serving
-- [ ] No lazy-load on above-fold images
-
----
+| Feature Category | Effort | Risk | Impact on 8.1s → 2.5s Goal |
+|------------------|--------|------|---------------------------|
+| Remove lazy loading from LCP | 1 hour | Low | **HIGH** (likely -2-3s) |
+| Add priority/fetchpriority | 1 hour | Low | **HIGH** (likely -1-2s) |
+| Dynamic import animations | 4-8 hours | Medium | **HIGH** (likely -1-2s) |
+| Convert to Server Components | 16-40 hours | Medium | **MEDIUM** (-0.5-1s) |
+| TTFB optimization | 8-16 hours | Medium | **MEDIUM** (-0.5-1s) |
+| Streaming SSR + Suspense | 16-32 hours | High | **MEDIUM** (-0.5-1.2s) |
+| Partial Prerendering | 40+ hours | High | **HIGH** (-1-2s) but experimental |
 
 ## Sources
 
-### Mobile Performance
-- [Mastering Mobile Performance: Next.js Lighthouse Scores](https://www.wisp.blog/blog/mastering-mobile-performance-a-complete-guide-to-improving-nextjs-lighthouse-scores)
-- [React & Next.js Best Practices 2026: Performance, Scale](https://fabwebstudio.com/blog/react-nextjs-best-practices-2026-performance-scale)
-- [Next.js Performance Optimization 2025](https://pagepro.co/blog/nextjs-performance-optimization-in-9-steps/)
-- [How to Optimize Next.js Performance - DebugBear](https://www.debugbear.com/blog/nextjs-performance)
+### Table Stakes Evidence
+- [Optimize Largest Contentful Paint | web.dev](https://web.dev/articles/optimize-lcp)
+- [Don't lazy load Largest Contentful Paint image | GTmetrix](https://gtmetrix.com/dont-lazy-load-lcp-image.html)
+- [Google Warns: Lazy Loading Above-the-Fold Images Can Hurt LCP - Stan Ventures](https://www.stanventures.com/news/google-warns-lazy-loading-above-the-fold-images-can-hurt-lcp-4118/)
+- [How to Optimize Core Web Vitals in NextJS App Router for 2025 - Makers' Den](https://makersden.io/blog/optimize-web-vitals-in-nextjs-2025)
+- [Next.js performance tuning: practical fixes for better Lighthouse scores](https://www.qed42.com/insights/next-js-performance-tuning-practical-fixes-for-better-lighthouse-scores)
 
-### Image Optimization & LCP
-- [Fix LCP by Optimizing Image Loading - MDN Blog](https://developer.mozilla.org/en-US/blog/fix-image-lcp/)
-- [How to Optimize Website Images 2026 - Request Metrics](https://requestmetrics.com/web-performance/high-performance-images/)
-- [Next.js Image Optimization - DebugBear](https://www.debugbear.com/blog/nextjs-image-optimization)
-- [LCP Image Optimization for Enhanced SEO - Quattr](https://www.quattr.com/core-web-vitals/lcp-image-optimization)
+### Differentiators Evidence
+- [Next.js 16 | Next.js Blog](https://nextjs.org/blog/next-16)
+- [I Migrated a React App to Next.js 16 and Got a 218% Performance Boost on Mobile | Medium](https://medium.com/@desertwebdesigns/i-migrated-a-react-app-to-next-js-16-and-got-a-218-performance-boost-on-mobile-8ae35ee2a739)
+- [How Suspense + Streaming + Selective Hydration Drive Next-Level Page Speed - Makers' Den](https://makersden.io/blog/suspense-streaming-selective-hydation-driving-next-level-speed-in-react-and-nextjs)
+- [React Compiler in Next.js 16: Goodbye Manual Memoization | Mikul Gohil](https://www.mikul.me/blog/react-compiler-nextjs-16-goodbye-manual-memoization)
+- [The Next.js 15 Streaming Handbook — SSR, React Suspense, and Loading Skeleton](https://www.freecodecamp.org/news/the-nextjs-15-streaming-handbook/)
 
-### Skeleton Loading
-- [Handling React Loading States with Skeleton - LogRocket](https://blog.logrocket.com/handling-react-loading-states-react-loading-skeleton/)
-- [Implementing Skeleton Screens in React - Smashing Magazine](https://www.smashingmagazine.com/2020/04/skeleton-screens-react/)
-- [Understanding Skeleton Loaders in React - DEV](https://dev.to/ankitakanchan/understanding-skeleton-loaders-a-guide-to-content-loading-in-react-bc8)
+### Anti-Features Evidence
+- [Common misconceptions about how to optimize LCP | web.dev](https://web.dev/blog/common-misconceptions-lcp)
+- [How To Fix Largest Contentful Paint Image Was Lazily Loaded | DebugBear](https://www.debugbear.com/docs/lcp-lazily-loaded)
+- [7 Common Performance Mistakes in Next.js and How to Fix Them | Medium](https://medium.com/full-stack-forge/7-common-performance-mistakes-in-next-js-and-how-to-fix-them-edd355e2f9a9)
+- [10 Performance Mistakes in Next.js 16 That Are Killing Your App | Medium](https://medium.com/@sureshdotariya/10-performance-mistakes-in-next-js-16-that-are-killing-your-app-and-how-to-fix-them-2facfab26bea)
 
-### Offline/PWA Support
-- [Build Next.js 16 PWA with True Offline Support - LogRocket](https://blog.logrocket.com/nextjs-16-pwa-offline-support)
-- [PWA Development Trends 2026 - Vocal Media](https://vocal.media/journal/progressive-web-app-development-trends-and-use-cases-for-2026)
-- [Offline and Background Operation - MDN](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Offline_and_background_operation)
+### Animation Libraries Evidence
+- [Framer Motion vs GSAP](https://www.gabrielveres.com/blog/framer-motion-vs-gsap)
+- [Web Animation for Your React App: Framer Motion vs GSAP - Semaphore](https://semaphore.io/blog/react-framer-motion-gsap)
+- [GSAP vs. Framer Motion: A Comprehensive Comparison | Medium](https://tharakasachin98.medium.com/gsap-vs-framer-motion-a-comprehensive-comparison-0e4888113825)
 
-### Food Delivery Design
-- [Food Delivery App UI/UX Design 2025 - Medium](https://medium.com/@prajapatisuketu/food-delivery-app-ui-ux-design-in-2025-trends-principles-best-practices-4eddc91ebaee)
-- [Food Delivery App Design for Engagement - Seven Square Tech](https://www.sevensquaretech.com/food-delivery-app-design-for-higher-engagement/)
-- [25 Food Delivery Website Design Examples - Subframe](https://www.subframe.com/tips/food-delivery-website-design-examples)
+### Code Splitting & Optimization Evidence
+- [Dynamic imports and code splitting with Next.js - LogRocket](https://blog.logrocket.com/dynamic-imports-code-splitting-next-js/)
+- [Optimize Next.js Performance with Smart Code Splitting | Medium](https://medium.com/@aalbertini95_90842/optimize-next-js-performance-with-smart-code-splitting-what-to-load-when-and-why-485dac08cd24)
+- [Stop the Wait: A Developer's Guide to Smashing LCP in Next.js | Medium](https://medium.com/@iamsandeshjain/stop-the-wait-a-developers-guide-to-smashing-lcp-in-next-js-634e2963f4c7)
 
-### Codebase Analysis (HIGH Confidence)
-- `src/components/ui/homepage/*.tsx` - All homepage components reviewed
-- `src/lib/services/offline-store.ts` - Driver offline architecture analyzed
-- `src/lib/hooks/useOfflineSync.ts` - Existing sync hook patterns
-- `src/lib/utils/image-optimization.ts` - Image preset configuration
-- `src/components/ui/menu/MenuSkeleton.tsx` - Skeleton pattern reference
-- Git history (commits 1486c38, deabb17, a08d2ff, 9ced763) - Crash fix patterns
+### Font & Image Optimization Evidence
+- [Optimizing: Fonts | Next.js](https://nextjs.org/docs/14/app/building-your-application/optimizing/fonts)
+- [Core Web Vitals for React + Next.js Sites: Real Fixes That Cut LCP by 50% — Rise Marketing](https://rise.co/blog/core-web-vitals-for-react-next.js-sites-real-fixes-that-cut-lcp-by-50percent)
+- [Optimizing Next.js Performance: LCP, Render Delay & Hydration](https://www.iamtk.co/optimizing-nextjs-performance-lcp-render-delay-hydration)

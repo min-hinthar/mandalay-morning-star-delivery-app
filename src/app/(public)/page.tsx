@@ -1,9 +1,21 @@
 import type { ReactElement } from "react";
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 import { getFeaturedSections } from "@/lib/queries/sections";
-import { HomePageClient } from "@/components/ui/homepage/HomePageClient";
+import { HomePageWrapper } from "@/components/ui/homepage/HomePageWrapper";
 import { HomepageMenuSection } from "@/components/ui/homepage/HomepageMenuSection";
+import { Hero } from "@/components/ui/homepage/Hero";
+import { TestimonialsCarousel } from "@/components/ui/homepage/TestimonialsCarousel";
+import { CTABanner } from "@/components/ui/homepage/CTABanner";
+import { FooterCTA } from "@/components/ui/homepage/FooterCTA";
 import type { FeaturedSectionWithItems } from "@/types/featured-sections";
+
+// Lazy load HowItWorksSection to defer 369KB Google Maps bundle
+// This section is below the fold and doesn't need to block initial render
+const HowItWorksSection = lazy(() => import("@/components/ui/homepage/HowItWorksSection"));
+
+// ============================================
+// LOADING SKELETONS
+// ============================================
 
 // Loading skeleton for menu section
 function MenuSkeleton() {
@@ -29,24 +41,85 @@ function MenuSkeleton() {
   );
 }
 
+// Skeleton for HowItWorks - lazy loaded section
+function HowItWorksSkeleton() {
+  return (
+    <section className="relative py-16 md:py-24 px-4 overflow-hidden bg-gradient-to-b from-orange-400 to-orange-300">
+      <div className="max-w-6xl mx-auto">
+        {/* Header skeleton */}
+        <div className="text-center mb-12 md:mb-16">
+          <div className="h-10 w-40 bg-surface-primary/20 rounded-full mx-auto mb-6 animate-pulse" />
+          <div className="h-12 w-80 max-w-full bg-surface-primary/30 rounded-lg mx-auto mb-6 animate-pulse" />
+          <div className="h-6 w-96 max-w-full bg-surface-primary/20 rounded-lg mx-auto animate-pulse" />
+        </div>
+        {/* Steps skeleton - horizontal on desktop */}
+        <div className="hidden md:flex items-start justify-between gap-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="flex-1 flex flex-col items-center">
+              <div className="w-24 h-24 rounded-full bg-surface-primary/20 animate-pulse" />
+              <div className="h-8 w-32 bg-surface-primary/30 rounded-lg mt-4 animate-pulse" />
+              <div className="h-4 w-40 bg-surface-primary/20 rounded-lg mt-2 animate-pulse" />
+            </div>
+          ))}
+        </div>
+        {/* Steps skeleton - vertical on mobile */}
+        <div className="md:hidden flex flex-col items-center gap-8">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="flex flex-col items-center">
+              <div className="w-20 h-20 rounded-full bg-surface-primary/20 animate-pulse" />
+              <div className="h-8 w-32 bg-surface-primary/30 rounded-lg mt-4 animate-pulse" />
+              <div className="h-4 w-40 bg-surface-primary/20 rounded-lg mt-2 animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ============================================
+// SECTION COMPONENTS
+// ============================================
+
 // Client component wrapper for the menu section
 function MenuSection({ featuredSections }: { featuredSections: FeaturedSectionWithItems[] }) {
   return <HomepageMenuSection featuredSections={featuredSections} />;
 }
 
+// ============================================
+// MAIN PAGE - SERVER COMPONENT
+// ============================================
+
 export default async function HomePage(): Promise<ReactElement> {
-  // Fetch featured sections at page level to pass to both nav dots and menu section
+  // Fetch featured sections at page level (server-side data fetching)
   const featuredSections = await getFeaturedSections();
 
   return (
-    <main className="min-h-screen bg-background">
-      <HomePageClient
-        menuSection={
-          <Suspense fallback={<MenuSkeleton />}>
-            <MenuSection featuredSections={featuredSections} />
-          </Suspense>
-        }
-      />
-    </main>
+    <div className="min-h-screen bg-background">
+      {/* HomePageWrapper provides SectionNavDots (scroll spy) */}
+      <HomePageWrapper>
+        {/* Hero Section - client component (animations tightly coupled) */}
+        <Hero ctaHref="/menu" />
+
+        {/* How It Works Section - lazy loaded to defer Google Maps */}
+        <Suspense fallback={<HowItWorksSkeleton />}>
+          <HowItWorksSection id="how-it-works" />
+        </Suspense>
+
+        {/* Menu Section - server-fetched data, client rendering */}
+        <Suspense fallback={<MenuSkeleton />}>
+          <MenuSection featuredSections={featuredSections} />
+        </Suspense>
+
+        {/* Testimonials Section - client component (carousel state) */}
+        <TestimonialsCarousel id="testimonials" />
+
+        {/* CTA Banner Section - client component (animations) */}
+        <CTABanner id="cta" />
+
+        {/* Footer - client component (animations) */}
+        <FooterCTA />
+      </HomePageWrapper>
+    </div>
   );
 }

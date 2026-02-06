@@ -2,23 +2,44 @@
 
 ## Milestones
 
-- ✅ v1.0 MVP - Phases 1-8 (shipped 2026-01-23)
-- ✅ v1.1 Tech Debt Cleanup - Phases 9-14 (shipped 2026-01-23)
-- ✅ v1.2 Playful UI Overhaul - Phases 15-24 (shipped 2026-01-27)
-- ✅ v1.3 Full Codebase Consolidation - Phases 25-34 (shipped 2026-01-28)
-- ✅ v1.4 Mobile Excellence - Phases 35-39 (shipped 2026-02-05)
-- 📋 v1.5 — Planning next milestone
+- v1.0 MVP - Phases 1-8 (shipped 2026-01-23)
+- v1.1 Tech Debt Cleanup - Phases 9-14 (shipped 2026-01-23)
+- v1.2 Playful UI Overhaul - Phases 15-24 (shipped 2026-01-27)
+- v1.3 Full Codebase Consolidation - Phases 25-34 (shipped 2026-01-28)
+- v1.4 Mobile Excellence - Phases 35-39 (shipped 2026-02-05)
+- **v1.5 Performance & Repo Health - Phases 40-46 (active)**
 
 ## Current Status
 
-**Next milestone:** v1.5 (not yet defined)
+**Current milestone:** v1.5 Performance & Repo Health
+**Primary Goal:** LCP < 2.5s (from current 8.1s)
+**Secondary Goals:** Repo cleanup, large file refactoring
 
-Run `/gsd:new-milestone` to start planning the next milestone.
+**See full details:** `.planning/milestones/v1.5-ROADMAP.md`
+
+**Phases:**
+- [x] Phase 40: LCP Element Quick Wins (43-46% LCP reduction) - **3 plans**
+  - [x] 40-01-PLAN.md - Baseline measurement and LCP identification
+  - [x] 40-02-PLAN.md - CardImage conversion to Next.js Image
+  - [x] 40-03-PLAN.md - Final measurement and verification
+- [x] Phase 41: Server Component Conversions (infrastructure + audit + pragmatic conversions) - **7 plans**
+  - [x] 41-01-PLAN.md — Loading/error infrastructure + hydration test setup
+  - [x] 41-02-PLAN.md — Full 'use client' audit (275 files)
+  - [x] 41-03-PLAN.md — Analytics page loading/error files
+  - [x] 41-04-PLAN.md — Menu page server component conversion
+  - [x] 41-05-PLAN.md — Home page server component conversion
+  - [x] 41-06-PLAN.md — Order tracking page optimization
+  - [x] 41-07-PLAN.md — Final hydration health check + results
+- [ ] Phase 42: Dynamic Import Heavy Libraries (target: 3-3.5s to 2.5s)
+- [ ] Phase 43: Provider & Route Layout Refactoring (refinement to <2.5s)
+- [ ] Phase 44: Animation Optimization & Monitoring (lock in <2.5s)
+- [ ] Phase 45: Repo Cleanup & Hygiene
+- [ ] Phase 46: Large File Refactoring (optional/stretch)
 
 ---
 
 <details>
-<summary>✅ v1.4 Mobile Excellence (Phases 35-39) - SHIPPED 2026-02-05</summary>
+<summary>v1.4 Mobile Excellence (Phases 35-39) - SHIPPED 2026-02-05</summary>
 
 **See full details:** `.planning/milestones/v1.4-ROADMAP.md`
 
@@ -40,28 +61,28 @@ Run `/gsd:new-milestone` to start planning the next milestone.
 </details>
 
 <details>
-<summary>✅ v1.3 Full Codebase Consolidation (Phases 25-34) - SHIPPED 2026-01-28</summary>
+<summary>v1.3 Full Codebase Consolidation (Phases 25-34) - SHIPPED 2026-01-28</summary>
 
 See `.planning/milestones/v1.3-ROADMAP.md` or MILESTONES.md for details.
 
 </details>
 
 <details>
-<summary>✅ v1.2 Playful UI Overhaul (Phases 15-24) - SHIPPED 2026-01-27</summary>
+<summary>v1.2 Playful UI Overhaul (Phases 15-24) - SHIPPED 2026-01-27</summary>
 
 See MILESTONES.md for details.
 
 </details>
 
 <details>
-<summary>✅ v1.1 Tech Debt Cleanup (Phases 9-14) - SHIPPED 2026-01-23</summary>
+<summary>v1.1 Tech Debt Cleanup (Phases 9-14) - SHIPPED 2026-01-23</summary>
 
 See MILESTONES.md for details.
 
 </details>
 
 <details>
-<summary>✅ v1.0 MVP (Phases 1-8) - SHIPPED 2026-01-23</summary>
+<summary>v1.0 MVP (Phases 1-8) - SHIPPED 2026-01-23</summary>
 
 See MILESTONES.md for details.
 
@@ -78,10 +99,10 @@ See MILESTONES.md for details.
 | v1.2 Playful UI | 15-24 | 29 | Complete | 2026-01-27 |
 | v1.3 Consolidation | 25-34 | 53 | Complete | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | Complete | 2026-02-05 |
-| **v1.5** | 40+ | TBD | Planning | - |
+| **v1.5 Performance** | 40-46 | 10+ | Active | - |
 
-**Total shipped:** 39 phases, 174 plans
+**Total shipped:** 40 phases, 178 plans
 
 ---
 
-*Updated: 2026-02-05 — v1.4 milestone complete*
+*Updated: 2026-02-05 - Phase 41 planned (7 plans in 3 waves)*
