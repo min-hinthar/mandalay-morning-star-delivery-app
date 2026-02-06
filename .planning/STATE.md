@@ -12,9 +12,9 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 Phase: 41 of 46 (Server Component Conversions)
 Plan: 6 of 7 complete
 Status: In progress
-Last activity: 2026-02-06 — Completed 41-06 (tracking route analysis)
+Last activity: 2026-02-06 — Completed 41-05 (home page server conversion)
 
-Progress: [########                                                          ] v1.5 9/52 (17%)
+Progress: [##########                                                        ] v1.5 10/52 (19%)
 
 ## Milestones
 
@@ -45,6 +45,8 @@ Progress: [########                                                          ] v
 | 275 use client files audited | 184 KEEP, 37 CONVERT, 54 LEAF; 13 quick wins identified |
 | TrackingPageClient kept as-is | Realtime subscriptions require client boundary; animation coherence preserved |
 | MenuContent kept as client component | React Query + offline IndexedDB too deeply integrated; MenuContentClient created for future enhancement |
+| Hero kept as client component | 519 lines tightly coupled with framer-motion parallax; splitting would cause hydration issues |
+| HomePageWrapper pattern | Minimal client wrapper for scroll spy; section composition at server level |
 
 ### Key Decisions (v1.4)
 
@@ -71,10 +73,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 41-06-PLAN.md
+Stopped at: Completed 41-05-PLAN.md
 Resume file: None
-Next action: Execute Phase 41 Plan 07 (driver routes)
+Next action: Execute Phase 41 Plan 07 (driver routes) - final plan in phase
 
 ---
 
-*Updated: 2026-02-06 — Completed 41-06 (tracking route analysis: realtime structure optimal)*
+*Updated: 2026-02-06 — Completed 41-05 (home page: HomePageWrapper + server composition)*
