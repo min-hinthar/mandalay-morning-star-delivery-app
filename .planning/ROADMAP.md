@@ -41,7 +41,10 @@
   - [x] 44-01-PLAN.md — React Compiler enable + GSAP dead plugin removal
   - [x] 44-02-PLAN.md — LazyMotion provider + full motion.* to m.* migration
   - [x] 44-03-PLAN.md — Lighthouse CI performance gate setup
-- [ ] Phase 45: Repo Cleanup & Hygiene
+- [ ] Phase 45: Repo Cleanup & Hygiene - **3 plans**
+  - [ ] 45-01-PLAN.md — Delete legacy docs (V0-V8) + untrack build artifacts
+  - [ ] 45-02-PLAN.md — .gitignore audit + planning files archival + STATE/ROADMAP trim
+  - [ ] 45-03-PLAN.md — README update + PERFORMANCE.md creation
 - [ ] Phase 46: Large File Refactoring (optional/stretch)
 
 ---
@@ -69,30 +72,9 @@
 </details>
 
 <details>
-<summary>v1.3 Full Codebase Consolidation (Phases 25-34) - SHIPPED 2026-01-28</summary>
+<summary>v1.0-v1.3 (Phases 1-34) - SHIPPED</summary>
 
-See `.planning/milestones/v1.3-ROADMAP.md` or MILESTONES.md for details.
-
-</details>
-
-<details>
-<summary>v1.2 Playful UI Overhaul (Phases 15-24) - SHIPPED 2026-01-27</summary>
-
-See MILESTONES.md for details.
-
-</details>
-
-<details>
-<summary>v1.1 Tech Debt Cleanup (Phases 9-14) - SHIPPED 2026-01-23</summary>
-
-See MILESTONES.md for details.
-
-</details>
-
-<details>
-<summary>v1.0 MVP (Phases 1-8) - SHIPPED 2026-01-23</summary>
-
-See MILESTONES.md for details.
+See archived milestone files in `.planning/archive/`
 
 </details>
 
@@ -107,10 +89,10 @@ See MILESTONES.md for details.
 | v1.2 Playful UI | 15-24 | 29 | Complete | 2026-01-27 |
 | v1.3 Consolidation | 25-34 | 53 | Complete | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | Complete | 2026-02-05 |
-| **v1.5 Performance** | 40-46 | 18+ | Active | - |
+| **v1.5 Performance** | 40-46 | 21+ | Active | - |
 
 **Total shipped:** 43 phases, 190 plans
 
 ---
 
-*Updated: 2026-02-06 - Phase 44 complete (3/3 plans, Lighthouse CI regression gate)*
+*Updated: 2026-02-06 - Phase 45 planned (3 plans: legacy cleanup, archival, documentation)*
