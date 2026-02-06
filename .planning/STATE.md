@@ -44,6 +44,7 @@ Progress: [########                                                          ] v
 | Hydration smoke test foundation | Parameterized tests detect hydration mismatches |
 | 275 use client files audited | 184 KEEP, 37 CONVERT, 54 LEAF; 13 quick wins identified |
 | TrackingPageClient kept as-is | Realtime subscriptions require client boundary; animation coherence preserved |
+| MenuContent kept as client component | React Query + offline IndexedDB too deeply integrated; MenuContentClient created for future enhancement |
 
 ### Key Decisions (v1.4)
 
