@@ -18,7 +18,7 @@
 import { type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Home, UtensilsCrossed, Package, User } from "lucide-react";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { spring } from "@/lib/motion-tokens";
@@ -87,7 +87,7 @@ export function BottomNav({ items = defaultItems, className }: BottomNavProps) {
               aria-current={active ? "page" : undefined}
             >
               {/* Icon with scale animation */}
-              <motion.span
+              <m.span
                 animate={shouldAnimate ? { scale: active ? 1.1 : 1 } : {}}
                 transition={spring.snappy}
                 className={cn(
@@ -96,7 +96,7 @@ export function BottomNav({ items = defaultItems, className }: BottomNavProps) {
                 )}
               >
                 {item.icon}
-              </motion.span>
+              </m.span>
 
               {/* Label */}
               <span
@@ -110,7 +110,7 @@ export function BottomNav({ items = defaultItems, className }: BottomNavProps) {
 
               {/* Animated active indicator */}
               {active && (
-                <motion.span
+                <m.span
                   layoutId="bottomNavIndicator"
                   className="absolute bottom-1 h-0.5 w-6 rounded-full bg-primary"
                   transition={spring.snappy}

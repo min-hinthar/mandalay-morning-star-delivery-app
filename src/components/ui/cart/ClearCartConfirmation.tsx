@@ -14,7 +14,7 @@
  */
 
 import { useState, useCallback } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { AlertTriangle, Trash2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { useCart } from "@/lib/hooks/useCart";
@@ -97,7 +97,7 @@ export function ClearCartConfirmation({
     >
       <div className="flex flex-col items-center text-center pb-2">
         {/* Warning Icon */}
-        <motion.div
+        <m.div
           variants={shouldAnimate ? iconVariants : undefined}
           initial={shouldAnimate ? "initial" : false}
           animate={shouldAnimate ? "animate" : undefined}
@@ -108,20 +108,20 @@ export function ClearCartConfirmation({
           )}
         >
           <AlertTriangle className="h-8 w-8 text-red-500 dark:text-red-400" />
-        </motion.div>
+        </m.div>
 
         {/* Title */}
-        <motion.h3
+        <m.h3
           variants={shouldAnimate ? contentVariants : undefined}
           initial={shouldAnimate ? "initial" : false}
           animate={shouldAnimate ? "animate" : undefined}
           className="text-xl font-display font-bold text-text-primary mb-2"
         >
           Clear your cart?
-        </motion.h3>
+        </m.h3>
 
         {/* Message */}
-        <motion.p
+        <m.p
           variants={shouldAnimate ? contentVariants : undefined}
           initial={shouldAnimate ? "initial" : false}
           animate={shouldAnimate ? "animate" : undefined}
@@ -130,12 +130,12 @@ export function ClearCartConfirmation({
           {itemCount > 0
             ? `This will remove ${itemCount === 1 ? "1 item" : `all ${itemCount} items`} from your cart. This action cannot be undone.`
             : "This will remove all items from your cart. This action cannot be undone."}
-        </motion.p>
+        </m.p>
 
         {/* Actions */}
         <div className="flex w-full gap-3">
           {/* Cancel Button */}
-          <motion.button
+          <m.button
             type="button"
             onClick={handleCancel}
             whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
@@ -153,10 +153,10 @@ export function ClearCartConfirmation({
             )}
           >
             Cancel
-          </motion.button>
+          </m.button>
 
           {/* Confirm Button */}
-          <motion.button
+          <m.button
             type="button"
             onClick={handleConfirm}
             whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
@@ -174,7 +174,7 @@ export function ClearCartConfirmation({
           >
             <Trash2 className="h-4 w-4" />
             Clear Cart
-          </motion.button>
+          </m.button>
         </div>
       </div>
     </Modal>

@@ -8,7 +8,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { StarRatingProps } from "@/types/analytics";
@@ -45,7 +45,7 @@ export function StarRating({
     <div className="flex items-center gap-3">
       <div className={cn("flex", containerSizeClasses[size])}>
         {[1, 2, 3, 4, 5].map((star) => (
-          <motion.button
+          <m.button
             key={star}
             type="button"
             disabled={readonly}
@@ -71,7 +71,7 @@ export function StarRating({
             {/* Filled star overlay */}
             <AnimatePresence>
               {star <= displayValue && (
-                <motion.div
+                <m.div
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
@@ -84,13 +84,13 @@ export function StarRating({
                       "fill-interactive-primary text-interactive-primary"
                     )}
                   />
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
 
             {/* Pulse effect on selection */}
             {!readonly && star <= displayValue && (
-              <motion.div
+              <m.div
                 initial={{ scale: 1, opacity: 0.5 }}
                 animate={{ scale: 1.5, opacity: 0 }}
                 transition={{ duration: 0.4 }}
@@ -99,21 +99,21 @@ export function StarRating({
                 <Star
                   className={cn(sizeClasses[size], "fill-interactive-primary text-interactive-primary")}
                 />
-              </motion.div>
+              </m.div>
             )}
-          </motion.button>
+          </m.button>
         ))}
       </div>
 
       {showLabel && (
-        <motion.span
+        <m.span
           key={displayValue}
           initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-sm font-medium text-text-secondary"
         >
           {getRatingLabel(displayValue)}
-        </motion.span>
+        </m.span>
       )}
     </div>
   );
@@ -194,7 +194,7 @@ export function RatingDistributionBars({
   ];
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="space-y-2"
@@ -203,7 +203,7 @@ export function RatingDistributionBars({
         const percentage = total > 0 ? (bar.value / total) * 100 : 0;
 
         return (
-          <motion.div
+          <m.div
             key={bar.label}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -218,7 +218,7 @@ export function RatingDistributionBars({
             </div>
 
             <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-tertiary">
-              <motion.div
+              <m.div
                 initial={{ width: 0 }}
                 animate={{ width: `${percentage}%` }}
                 transition={{ delay: 0.3 + i * 0.1, duration: 0.5 }}
@@ -229,9 +229,9 @@ export function RatingDistributionBars({
             <span className="w-8 text-right text-sm text-text-secondary">
               {bar.value}
             </span>
-          </motion.div>
+          </m.div>
         );
       })}
-    </motion.div>
+    </m.div>
   );
 }

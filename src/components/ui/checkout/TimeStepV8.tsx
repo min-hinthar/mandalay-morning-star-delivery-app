@@ -14,7 +14,7 @@
  */
 
 import { useCallback, useMemo } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Clock, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { staggerContainer, staggerItem } from "@/lib/motion-tokens";
@@ -71,14 +71,14 @@ export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
   );
 
   return (
-    <motion.div
+    <m.div
       className={cn("space-y-6", className)}
       variants={shouldAnimate ? staggerContainer(0.08, 0.1) : undefined}
       initial={shouldAnimate ? "hidden" : undefined}
       animate={shouldAnimate ? "visible" : undefined}
     >
       {/* Header with stagger */}
-      <motion.div variants={shouldAnimate ? staggerItem : undefined}>
+      <m.div variants={shouldAnimate ? staggerItem : undefined}>
         <div className="flex items-center gap-2 mb-1">
           <Clock className="h-5 w-5 text-primary" />
           <h2 className="font-display text-lg font-semibold text-foreground">
@@ -88,19 +88,19 @@ export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
         <p className="font-body text-sm text-muted-foreground">
           Choose your preferred delivery window
         </p>
-      </motion.div>
+      </m.div>
 
       {/* Time slot picker with stagger */}
-      <motion.div variants={shouldAnimate ? staggerItem : undefined}>
+      <m.div variants={shouldAnimate ? staggerItem : undefined}>
         <TimeSlotPicker
           availableDates={availableDates}
           selectedDelivery={delivery}
           onSelectionChange={handleSelectionChange}
         />
-      </motion.div>
+      </m.div>
 
       {/* Navigation with button entry animation */}
-      <motion.div
+      <m.div
         variants={shouldAnimate ? buttonEntry : undefined}
         className="flex justify-between pt-4 border-t border-border"
       >
@@ -111,8 +111,8 @@ export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
         <Button onClick={handleNext} disabled={!canProceed()} size="lg">
           Continue to Payment
         </Button>
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 }
 

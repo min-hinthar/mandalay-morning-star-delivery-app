@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -45,7 +45,7 @@ export function CartNavigationGuard({
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <m.div
           className="fixed inset-0 z-50 flex items-center justify-center bg-surface-inverse/50 p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -56,7 +56,7 @@ export function CartNavigationGuard({
           aria-modal="true"
           aria-label={copy.title}
         >
-          <motion.div
+          <m.div
             className="w-full max-w-sm rounded-2xl bg-surface-primary p-6 text-center shadow-xl"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -91,8 +91,8 @@ export function CartNavigationGuard({
                 {copy.leave}
               </Button>
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

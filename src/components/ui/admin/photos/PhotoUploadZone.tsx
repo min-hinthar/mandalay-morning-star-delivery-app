@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Upload, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
@@ -168,7 +168,7 @@ export function PhotoUploadZone({
   return (
     <div className={cn("space-y-4", className)}>
       {/* Drop Zone */}
-      <motion.div
+      <m.div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -184,12 +184,12 @@ export function PhotoUploadZone({
         )}
       >
         <label className="flex flex-col items-center justify-center gap-4 p-8 cursor-pointer">
-          <motion.div
+          <m.div
             animate={{ y: isDragging ? -4 : 0 }}
             className="rounded-full bg-primary/10 p-4"
           >
             <Upload className="h-8 w-8 text-primary" />
-          </motion.div>
+          </m.div>
 
           <div className="text-center">
             <p className="font-body font-medium text-text-primary">
@@ -217,19 +217,19 @@ export function PhotoUploadZone({
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
         </label>
-      </motion.div>
+      </m.div>
 
       {/* Upload Progress List */}
       <AnimatePresence>
         {uploadingFiles.length > 0 && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="space-y-2"
           >
             {uploadingFiles.map((uploadFile) => (
-              <motion.div
+              <m.div
                 key={uploadFile.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -258,7 +258,7 @@ export function PhotoUploadZone({
                     {uploadFile.status === "uploading" && (
                       <>
                         <div className="flex-1 h-1.5 bg-surface-tertiary rounded-full overflow-hidden">
-                          <motion.div
+                          <m.div
                             className="h-full bg-primary"
                             initial={{ width: 0 }}
                             animate={{ width: `${uploadFile.progress}%` }}
@@ -313,9 +313,9 @@ export function PhotoUploadZone({
                     </div>
                   )}
                 </div>
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

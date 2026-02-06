@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
@@ -198,7 +198,7 @@ export function FloatingEmoji({
   }
 
   return (
-    <motion.span
+    <m.span
       className={`absolute ${SIZE_CLASSES[size]} select-none`}
       style={depthStyles}
       animate={animationVariant}
@@ -211,7 +211,7 @@ export function FloatingEmoji({
       role="presentation"
     >
       {emoji}
-    </motion.span>
+    </m.span>
   );
 }
 

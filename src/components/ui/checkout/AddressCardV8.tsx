@@ -12,7 +12,7 @@
  * Phase 6 Plan 03
  */
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { MapPin, Check, Pencil, Trash2, Star } from "lucide-react";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -37,7 +37,7 @@ export function AddressCardV8({
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={onSelect}
       whileHover={shouldAnimate ? { scale: 1.02, y: -2 } : undefined}
@@ -53,7 +53,7 @@ export function AddressCardV8({
       )}
     >
       {/* Selection indicator */}
-      <motion.div
+      <m.div
         initial={false}
         animate={
           shouldAnimate
@@ -70,7 +70,7 @@ export function AddressCardV8({
         className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary flex items-center justify-center"
       >
         <Check className="w-4 h-4 text-text-inverse" strokeWidth={3} />
-      </motion.div>
+      </m.div>
 
       {/* Address content */}
       <div className="flex items-start gap-3 pr-8">
@@ -142,6 +142,6 @@ export function AddressCardV8({
           )}
         </div>
       )}
-    </motion.button>
+    </m.button>
   );
 }

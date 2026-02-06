@@ -1,7 +1,7 @@
 "use client";
 
 import type { MutableRefObject } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Package } from "lucide-react";
 import { RouteStopCard } from "./RouteStopCard";
 import type { RouteStopStatus, StopDetail, RouteStatus } from "@/types/driver";
@@ -27,7 +27,7 @@ export function StopsList({
   // Empty state
   if (sortedStops.length === 0) {
     return (
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center py-16 bg-gradient-to-br from-surface-secondary to-surface-tertiary rounded-xl border border-border-v5"
@@ -41,12 +41,12 @@ export function StopsList({
         <p className="text-text-secondary max-w-md mx-auto">
           Add orders to this route to create delivery stops.
         </p>
-      </motion.div>
+      </m.div>
     );
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.3 }}
@@ -78,6 +78,6 @@ export function StopsList({
           </div>
         ))}
       </div>
-    </motion.div>
+    </m.div>
   );
 }

@@ -12,7 +12,7 @@
  */
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -62,7 +62,7 @@ export function CartEmptyState({ onClose, className }: CartEmptyStateProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       variants={shouldAnimate ? containerVariants : undefined}
       initial={shouldAnimate ? "hidden" : undefined}
       animate={shouldAnimate ? "visible" : undefined}
@@ -72,7 +72,7 @@ export function CartEmptyState({ onClose, className }: CartEmptyStateProps) {
       )}
     >
       {/* Static bag icon - removed infinite animations to prevent mobile crashes */}
-      <motion.div
+      <m.div
         variants={shouldAnimate ? itemVariants : undefined}
         className={cn(
           "flex h-28 w-28 items-center justify-center rounded-full",
@@ -81,27 +81,27 @@ export function CartEmptyState({ onClose, className }: CartEmptyStateProps) {
         )}
       >
         <ShoppingBag className="h-14 w-14 text-amber-500/70" />
-      </motion.div>
+      </m.div>
 
       {/* Heading */}
-      <motion.h3
+      <m.h3
         variants={shouldAnimate ? itemVariants : undefined}
         className="mt-6 text-xl font-display font-bold text-text-primary"
       >
         Your cart is empty
-      </motion.h3>
+      </m.h3>
 
       {/* Description */}
-      <motion.p
+      <m.p
         variants={shouldAnimate ? itemVariants : undefined}
         className="mt-2 text-sm font-body text-text-secondary max-w-[240px]"
       >
         Browse our authentic Burmese dishes and add something delicious to your
         cart!
-      </motion.p>
+      </m.p>
 
       {/* CTA Button */}
-      <motion.div
+      <m.div
         variants={shouldAnimate ? itemVariants : undefined}
         whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
         whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
@@ -117,8 +117,8 @@ export function CartEmptyState({ onClose, className }: CartEmptyStateProps) {
         >
           <Link href="/menu">Browse Menu</Link>
         </Button>
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 }
 

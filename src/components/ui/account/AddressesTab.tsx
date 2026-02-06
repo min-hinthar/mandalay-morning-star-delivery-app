@@ -26,7 +26,7 @@ import {
   RefreshCcw,
   Navigation,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -363,7 +363,7 @@ export function AddressesTab() {
   // Error state
   if (hasError) {
     return (
-      <motion.div
+      <m.div
         initial={shouldAnimate ? { opacity: 0 } : undefined}
         animate={shouldAnimate ? { opacity: 1 } : undefined}
         className="text-center py-16"
@@ -386,12 +386,12 @@ export function AddressesTab() {
           <RefreshCcw className="h-4 w-4 mr-2" />
           Try Again
         </Button>
-      </motion.div>
+      </m.div>
     );
   }
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0 } : undefined}
       animate={shouldAnimate ? { opacity: 1 } : undefined}
     >
@@ -451,7 +451,7 @@ export function AddressesTab() {
         /* Address list */
         <div className="space-y-4">
           {addresses.map((address, index) => (
-            <motion.div
+            <m.div
               key={address.id}
               initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
               animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
@@ -507,12 +507,12 @@ export function AddressesTab() {
                         className="text-status-error hover:text-status-error hover:bg-status-error/10"
                       >
                         {isDeleting === address.id ? (
-                          <motion.div
+                          <m.div
                             animate={{ rotate: 360 }}
                             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                           >
                             <RefreshCcw className="h-4 w-4" />
-                          </motion.div>
+                          </m.div>
                         ) : (
                           <Trash2 className="h-4 w-4" />
                         )}
@@ -521,7 +521,7 @@ export function AddressesTab() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       )}
@@ -560,7 +560,7 @@ export function AddressesTab() {
               />
               <AnimatePresence>
                 {formErrors.label && (
-                  <motion.p
+                  <m.p
                     id="label-error"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
@@ -568,7 +568,7 @@ export function AddressesTab() {
                     className="mt-1 text-sm text-status-error"
                   >
                     {formErrors.label}
-                  </motion.p>
+                  </m.p>
                 )}
               </AnimatePresence>
             </div>
@@ -592,7 +592,7 @@ export function AddressesTab() {
               />
               <AnimatePresence>
                 {formErrors.line1 && (
-                  <motion.p
+                  <m.p
                     id="line1-error"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
@@ -600,7 +600,7 @@ export function AddressesTab() {
                     className="mt-1 text-sm text-status-error"
                   >
                     {formErrors.line1}
-                  </motion.p>
+                  </m.p>
                 )}
               </AnimatePresence>
             </div>
@@ -640,7 +640,7 @@ export function AddressesTab() {
               />
               <AnimatePresence>
                 {formErrors.city && (
-                  <motion.p
+                  <m.p
                     id="city-error"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
@@ -648,7 +648,7 @@ export function AddressesTab() {
                     className="mt-1 text-sm text-status-error"
                   >
                     {formErrors.city}
-                  </motion.p>
+                  </m.p>
                 )}
               </AnimatePresence>
             </div>
@@ -674,7 +674,7 @@ export function AddressesTab() {
                 />
                 <AnimatePresence>
                   {formErrors.state && (
-                    <motion.p
+                    <m.p
                       id="state-error"
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
@@ -682,7 +682,7 @@ export function AddressesTab() {
                       className="mt-1 text-sm text-status-error"
                     >
                       {formErrors.state}
-                    </motion.p>
+                    </m.p>
                   )}
                 </AnimatePresence>
               </div>
@@ -704,7 +704,7 @@ export function AddressesTab() {
                 />
                 <AnimatePresence>
                   {formErrors.postalCode && (
-                    <motion.p
+                    <m.p
                       id="postalCode-error"
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
@@ -712,7 +712,7 @@ export function AddressesTab() {
                       className="mt-1 text-sm text-status-error"
                     >
                       {formErrors.postalCode}
-                    </motion.p>
+                    </m.p>
                   )}
                 </AnimatePresence>
               </div>
@@ -797,6 +797,6 @@ export function AddressesTab() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </motion.div>
+    </m.div>
   );
 }

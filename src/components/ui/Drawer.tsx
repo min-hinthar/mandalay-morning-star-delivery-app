@@ -27,7 +27,7 @@
  */
 
 import { useEffect, useRef, useMemo, useCallback, type ReactNode } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Portal } from "./Portal";
 import { useRouteChangeClose, useBodyScrollLock } from "@/lib/hooks";
 import { useSwipeToClose, triggerHaptic } from "@/lib/swipe-gestures";
@@ -265,7 +265,7 @@ export function Drawer({
       <AnimatePresence onExitComplete={restoreScrollPosition}>
         {/* Backdrop */}
         {isOpen && (
-          <motion.div
+          <m.div
             key="drawer-backdrop"
             variants={backdropVariants}
             initial="hidden"
@@ -282,7 +282,7 @@ export function Drawer({
 
         {/* Drawer Content */}
         {isOpen && (
-          <motion.div
+          <m.div
             key="drawer-content"
             ref={drawerRef}
             role="dialog"
@@ -370,7 +370,7 @@ export function Drawer({
             ) : (
               children
             )}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </Portal>

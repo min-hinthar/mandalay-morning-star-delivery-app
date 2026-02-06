@@ -19,7 +19,7 @@
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useMenu } from "@/lib/hooks/useMenu";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useCart } from "@/lib/hooks/useCart";
@@ -329,7 +329,7 @@ export function MenuContent({ className }: MenuContentProps) {
             key={category.slug}
             as="div"
           >
-            <motion.div variants={itemVariants}>
+            <m.div variants={itemVariants}>
               <MenuSection
                 category={{
                   slug: category.slug,
@@ -345,7 +345,7 @@ export function MenuContent({ className }: MenuContentProps) {
                   favorites={favoritesSet}
                 />
               </MenuSection>
-            </motion.div>
+            </m.div>
           </AnimatedSection>
         ))}
       </div>

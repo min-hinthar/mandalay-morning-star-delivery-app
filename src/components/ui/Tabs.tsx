@@ -23,7 +23,7 @@
  */
 
 import { memo, useRef, useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
 
@@ -201,7 +201,7 @@ export const Tabs = memo(function Tabs({
             >
               {/* Animated pill background for active state */}
               {isActive && (
-                <motion.div
+                <m.div
                   layoutId={layoutId}
                   className="absolute inset-0 bg-surface-primary rounded-input shadow-sm"
                   transition={shouldAnimate ? { type: "spring", bounce: 0.2, duration: 0.4 } : { duration: 0 }}

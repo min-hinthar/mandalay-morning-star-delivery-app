@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as ProgressPrimitive from "@radix-ui/react-progress";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 import { cn } from "@/lib/utils/cn";
 import { progressSpring } from "@/lib/micro-interactions";
@@ -30,7 +30,7 @@ const Progress = React.forwardRef<
     >
       {useSpring ? (
         // GPU-accelerated: using scaleX instead of width for 60fps
-        <motion.div
+        <m.div
           className="h-full w-full bg-gradient-progress"
           style={{ transformOrigin: "left" }}
           initial={{ scaleX: 0 }}

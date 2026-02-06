@@ -8,7 +8,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Loader2, UserPlus, Car, Bike, Truck, AlertCircle } from "lucide-react";
 import {
   Dialog,
@@ -176,14 +176,14 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">
           {/* General Error */}
           {errors.general && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               className="flex items-center gap-2 p-3 rounded-input bg-status-error/10 border border-status-error/20 text-status-error text-sm font-body"
             >
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{errors.general}</span>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Email */}
@@ -294,7 +294,7 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
 
           {/* License Plate (shown when vehicle is selected) */}
           {formData.vehicleType && formData.vehicleType !== "bicycle" && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
@@ -321,7 +321,7 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
               {errors.licensePlate && (
                 <p className="text-xs font-body text-status-error mt-1">{errors.licensePlate}</p>
               )}
-            </motion.div>
+            </m.div>
           )}
 
           <DialogFooter className="gap-2 pt-4">

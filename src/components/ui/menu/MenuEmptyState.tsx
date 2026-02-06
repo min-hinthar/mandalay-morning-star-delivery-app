@@ -4,7 +4,7 @@
 
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { m, useReducedMotion } from "framer-motion";
 import { Search, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { spring } from "@/lib/motion-tokens";
@@ -35,18 +35,18 @@ export function MenuEmptyState({
 
   if (type === "no-menu") {
     return (
-      <motion.div
+      <m.div
         variants={prefersReducedMotion ? undefined : containerVariants}
         initial="hidden"
         animate="visible"
         className="flex flex-col items-center justify-center px-4 py-20 text-center"
       >
-        <motion.div
+        <m.div
           variants={prefersReducedMotion ? undefined : iconVariants}
           className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-surface-tertiary"
         >
           <UtensilsCrossed className="h-10 w-10 text-text-muted" />
-        </motion.div>
+        </m.div>
         <h2 className="mb-2 font-display text-xl font-bold text-text-primary">
           Menu Coming Soon
         </h2>
@@ -54,23 +54,23 @@ export function MenuEmptyState({
           We&apos;re preparing something delicious for you. Check back soon to
           see our full menu of authentic Burmese dishes.
         </p>
-      </motion.div>
+      </m.div>
     );
   }
 
   return (
-    <motion.div
+    <m.div
       variants={prefersReducedMotion ? undefined : containerVariants}
       initial="hidden"
       animate="visible"
       className="flex flex-col items-center justify-center px-4 py-20 text-center"
     >
-      <motion.div
+      <m.div
         variants={prefersReducedMotion ? undefined : iconVariants}
         className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-surface-tertiary"
       >
         <Search className="h-10 w-10 text-text-muted" />
-      </motion.div>
+      </m.div>
       <h2 className="mb-2 font-display text-xl font-bold text-text-primary">
         No Results Found
       </h2>
@@ -98,6 +98,6 @@ export function MenuEmptyState({
           ))}
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

@@ -39,7 +39,7 @@ import React, {
   cloneElement,
   isValidElement,
 } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { zIndex } from "@/lib/design-system/tokens/z-index";
 import { overlayMotion } from "@/lib/design-system/tokens/motion";
 import { cn } from "@/lib/utils/cn";
@@ -233,7 +233,7 @@ export function DropdownContent({
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <m.div
           ref={contentRef}
           role="menu"
           aria-orientation="vertical"
@@ -256,7 +256,7 @@ export function DropdownContent({
           data-testid="dropdown-content"
         >
           {children}
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

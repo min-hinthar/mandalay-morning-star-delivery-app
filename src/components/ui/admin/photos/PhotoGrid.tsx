@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Check, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Badge } from "@/components/ui/badge";
@@ -64,7 +64,7 @@ export function PhotoGrid({
           const isSelected = selectedIds.has(photo.id);
 
           return (
-            <motion.div
+            <m.div
               key={photo.id}
               layout
               initial={{ opacity: 0, scale: 0.9 }}
@@ -155,7 +155,7 @@ export function PhotoGrid({
               >
                 {isSelected && <Check className="h-4 w-4 text-text-inverse" />}
               </button>
-            </motion.div>
+            </m.div>
           );
         })}
       </AnimatePresence>

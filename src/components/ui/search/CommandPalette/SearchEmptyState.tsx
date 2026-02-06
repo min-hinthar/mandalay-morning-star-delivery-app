@@ -1,7 +1,7 @@
 "use client";
 
 import { Command } from "cmdk";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Clock, TrendingUp, X } from "lucide-react";
 import Image from "next/image";
 import { spring, staggerItem } from "@/lib/motion-tokens";
@@ -53,7 +53,7 @@ export function SearchEmptyState({
   const displayItems = filteredPopular.length > 0 ? filteredPopular : popularItems.slice(0, 4);
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={spring.gentle}
@@ -83,14 +83,14 @@ export function SearchEmptyState({
               onSelect={() => onSelectRecent(term)}
               className="relative flex cursor-pointer items-center gap-3 px-3 py-2.5 text-sm outline-none transition-colors data-[selected=true]:bg-primary/10 dark:data-[selected=true]:bg-primary/20"
             >
-              <motion.div
+              <m.div
                 variants={staggerItem}
                 initial="hidden"
                 animate="visible"
                 custom={index}
               >
                 <Clock className="h-4 w-4 text-text-muted" />
-              </motion.div>
+              </m.div>
               <span className="text-text-primary">{term}</span>
             </Command.Item>
           ))}
@@ -111,7 +111,7 @@ export function SearchEmptyState({
               onSelect={() => onSelectItem(item)}
               className="relative flex cursor-pointer items-center gap-3 px-3 py-2.5 outline-none transition-colors data-[selected=true]:bg-primary/10 dark:data-[selected=true]:bg-primary/20"
             >
-              <motion.div
+              <m.div
                 variants={staggerItem}
                 initial="hidden"
                 animate="visible"
@@ -146,7 +146,7 @@ export function SearchEmptyState({
                 <span className="text-sm text-text-muted">
                   {formatPrice(item.basePriceCents)}
                 </span>
-              </motion.div>
+              </m.div>
             </Command.Item>
           ))}
         </Command.Group>
@@ -160,7 +160,7 @@ export function SearchEmptyState({
           </p>
         </div>
       )}
-    </motion.div>
+    </m.div>
   );
 }
 

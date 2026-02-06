@@ -7,7 +7,7 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Star, Truck, Circle, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer } from "@/lib/motion-tokens";
@@ -65,7 +65,7 @@ function StatCard({ title, value, icon, subtitle, color }: StatCardProps) {
   const styles = colorStyles[color];
 
   return (
-    <motion.div
+    <m.div
       variants={cardVariants}
       whileHover={{ y: -4, scale: 1.01 }}
       transition={spring.default}
@@ -85,14 +85,14 @@ function StatCard({ title, value, icon, subtitle, color }: StatCardProps) {
           </div>
         </div>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, type: "spring" }}
           className={cn("rounded-card-sm p-2.5", styles.icon)}
         >
           {icon}
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Gradient overlay */}
@@ -100,7 +100,7 @@ function StatCard({ title, value, icon, subtitle, color }: StatCardProps) {
         className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full"
         style={{ background: "linear-gradient(to bottom right, var(--color-primary-light), transparent)" }}
       />
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -113,7 +113,7 @@ export function DriverStatsCards({ driver }: DriverStatsCardsProps) {
   };
 
   return (
-    <motion.div
+    <m.div
       variants={staggerContainer(0.08, 0.1)}
       initial="hidden"
       animate="visible"
@@ -154,6 +154,6 @@ export function DriverStatsCards({ driver }: DriverStatsCardsProps) {
         icon={<Calendar className="h-5 w-5" />}
         color="curry"
       />
-    </motion.div>
+    </m.div>
   );
 }

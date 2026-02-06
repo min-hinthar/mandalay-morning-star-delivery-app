@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -32,7 +32,7 @@ export function DrawerFooter({ className }: DrawerFooterProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       className={cn(
         "px-4 py-4 border-t border-border-subtle bg-surface-secondary/50",
         className
@@ -59,7 +59,7 @@ export function DrawerFooter({ className }: DrawerFooterProps) {
       <p className="mt-3 text-center text-2xs text-text-muted">
         Made with love in Seattle
       </p>
-    </motion.div>
+    </m.div>
   );
 }
 

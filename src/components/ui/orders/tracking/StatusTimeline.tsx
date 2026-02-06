@@ -8,7 +8,7 @@
  */
 
 import React, { useMemo } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Clock,
   CheckCircle,
@@ -123,7 +123,7 @@ function TimelineStep({
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, x: -20 } : undefined}
       animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
       transition={{ ...getSpring(spring.rubbery), delay: index * 0.1 }}
@@ -132,7 +132,7 @@ function TimelineStep({
       {/* Timeline line and dot */}
       <div className="flex flex-col items-center">
         {/* Step indicator */}
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { scale: 0 } : undefined}
           animate={shouldAnimate ? { scale: 1 } : undefined}
           transition={{ ...getSpring(spring.ultraBouncy), delay: index * 0.1 + 0.1 }}
@@ -145,7 +145,7 @@ function TimelineStep({
           )}
         >
           {/* Icon with animation */}
-          <motion.div
+          <m.div
             animate={
               isCurrent && isLive && shouldAnimate
                 ? {
@@ -161,12 +161,12 @@ function TimelineStep({
             }}
           >
             <Icon className="h-6 w-6" />
-          </motion.div>
+          </m.div>
 
           {/* Live pulse indicator */}
           {isCurrent && isLive && (
             <>
-              <motion.span
+              <m.span
                 className="absolute inset-0 rounded-full bg-primary"
                 animate={shouldAnimate ? { scale: [1, 1.5, 2], opacity: [0.4, 0.1, 0] } : undefined}
                 transition={{ duration: 2, repeat: 5 }}
@@ -180,16 +180,16 @@ function TimelineStep({
 
           {/* Completed checkmark overlay */}
           {isCompleted && (
-            <motion.div
+            <m.div
               initial={shouldAnimate ? { scale: 0, rotate: -180 } : undefined}
               animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
               transition={getSpring(spring.ultraBouncy)}
               className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-surface-primary flex items-center justify-center shadow-sm"
             >
               <CheckCircle className="w-4 h-4 text-green" />
-            </motion.div>
+            </m.div>
           )}
-        </motion.div>
+        </m.div>
 
         {/* Connecting line */}
         {!isLast && (
@@ -198,7 +198,7 @@ function TimelineStep({
             <div className="absolute inset-0 rounded-full bg-border" />
 
             {/* Progress line */}
-            <motion.div
+            <m.div
               initial={shouldAnimate ? { scaleY: 0 } : undefined}
               animate={
                 shouldAnimate
@@ -211,7 +211,7 @@ function TimelineStep({
 
             {/* Animated progress for current step */}
             {isCurrent && isLive && (
-              <motion.div
+              <m.div
                 animate={shouldAnimate ? { y: [0, 20, 0] } : undefined}
                 transition={{ duration: 2, repeat: 5 }}
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-primary"
@@ -223,7 +223,7 @@ function TimelineStep({
 
       {/* Step content */}
       <div className="flex-1 pb-8">
-        <motion.p
+        <m.p
           initial={shouldAnimate ? { opacity: 0, y: 5 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={{ delay: index * 0.1 + 0.15 }}
@@ -235,23 +235,23 @@ function TimelineStep({
           )}
         >
           {label}
-        </motion.p>
+        </m.p>
 
         {/* Timestamp */}
         {timestamp && (isCompleted || isCurrent) && (
-          <motion.p
+          <m.p
             initial={shouldAnimate ? { opacity: 0 } : undefined}
             animate={shouldAnimate ? { opacity: 1 } : undefined}
             transition={{ delay: index * 0.1 + 0.2 }}
             className="text-sm text-text-secondary mt-0.5"
           >
             {format(parseISO(timestamp), "MMM d, yyyy 'at' h:mm a")}
-          </motion.p>
+          </m.p>
         )}
 
         {/* In progress message */}
         {isCurrent && !timestamp && (
-          <motion.div
+          <m.div
             initial={shouldAnimate ? { opacity: 0 } : undefined}
             animate={shouldAnimate ? { opacity: 1 } : undefined}
             transition={{ delay: index * 0.1 + 0.2 }}
@@ -265,10 +265,10 @@ function TimelineStep({
             ) : (
               <span className="text-sm text-text-muted">Current step</span>
             )}
-          </motion.div>
+          </m.div>
         )}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -280,21 +280,21 @@ function CancelledState() {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={getSpring(spring.default)}
       className="rounded-2xl border border-status-error/30 bg-status-error/5 p-5"
     >
       <div className="flex items-center gap-4">
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { scale: 0 } : undefined}
           animate={shouldAnimate ? { scale: 1 } : undefined}
           transition={getSpring(spring.ultraBouncy)}
           className="w-14 h-14 rounded-full bg-status-error/10 flex items-center justify-center"
         >
           <XCircle className="h-7 w-7 text-status-error" />
-        </motion.div>
+        </m.div>
         <div>
           <p className="font-semibold text-lg text-status-error">Order Cancelled</p>
           <p className="text-sm text-status-error/80 mt-0.5">
@@ -302,7 +302,7 @@ function CancelledState() {
           </p>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -357,7 +357,7 @@ export function StatusTimeline({
   }
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={getSpring(spring.default)}
@@ -368,14 +368,14 @@ export function StatusTimeline({
       )}
     >
       {/* Header */}
-      <motion.div
+      <m.div
         initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
         animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
         className="flex items-center justify-between mb-6"
       >
         <h3 className="font-semibold text-lg text-text-primary">Order Status</h3>
         {isLive && (
-          <motion.div
+          <m.div
             initial={shouldAnimate ? { opacity: 0, scale: 0.8 } : undefined}
             animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green/10"
@@ -385,9 +385,9 @@ export function StatusTimeline({
               <span className="relative inline-flex h-2 w-2 rounded-full bg-green" />
             </span>
             <span className="text-xs font-medium text-green">Live</span>
-          </motion.div>
+          </m.div>
         )}
-      </motion.div>
+      </m.div>
 
       {/* Timeline steps */}
       <div>
@@ -400,7 +400,7 @@ export function StatusTimeline({
           />
         ))}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 

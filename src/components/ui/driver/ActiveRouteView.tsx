@@ -9,7 +9,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Play, Loader2, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { StopList } from "./StopList";
@@ -116,7 +116,7 @@ export function ActiveRouteView({
   return (
     <div className="space-y-4">
       {/* Progress Bar */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border"
@@ -128,7 +128,7 @@ export function ActiveRouteView({
           </span>
         </div>
         <div className="h-3 overflow-hidden rounded-full bg-surface-tertiary">
-          <motion.div
+          <m.div
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
             transition={{ duration: 0.5, ease: "easeOut" }}
@@ -141,7 +141,7 @@ export function ActiveRouteView({
             <span>{skippedCount} skipped</span>
           </div>
         )}
-      </motion.div>
+      </m.div>
 
       {/* Location Tracker (when route in progress) */}
       {routeStatus === "in_progress" && (
@@ -154,7 +154,7 @@ export function ActiveRouteView({
 
       {/* Start Route Button (for planned routes) */}
       {routeStatus === "planned" && (
-        <motion.button
+        <m.button
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -176,12 +176,12 @@ export function ActiveRouteView({
               <span>Start Route</span>
             </>
           )}
-        </motion.button>
+        </m.button>
       )}
 
       {/* Complete Route Button (when all stops done) */}
       {routeStatus === "in_progress" && canComplete && (
-        <motion.button
+        <m.button
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           onClick={handleCompleteRoute}
@@ -202,7 +202,7 @@ export function ActiveRouteView({
               <span>Complete Route</span>
             </>
           )}
-        </motion.button>
+        </m.button>
       )}
 
       {/* Error Message */}

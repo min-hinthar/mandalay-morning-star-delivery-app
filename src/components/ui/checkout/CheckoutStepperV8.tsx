@@ -1,7 +1,7 @@
 "use client";
 
 import { MapPin, Clock, CreditCard } from "lucide-react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { CHECKOUT_STEPS, type CheckoutStep } from "@/types/checkout";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -23,7 +23,7 @@ function AnimatedCheckmark({ shouldAnimate }: { shouldAnimate: boolean }) {
       strokeLinejoin="round"
       className="h-4 w-4"
     >
-      <motion.path
+      <m.path
         d="M20 6L9 17L4 12"
         initial={shouldAnimate ? { pathLength: 0, opacity: 0 } : undefined}
         animate={shouldAnimate ? { pathLength: 1, opacity: 1 } : undefined}
@@ -84,7 +84,7 @@ export function CheckoutStepperV8({
                 {/* V8 Connector line - left side with glow */}
                 {index > 0 && (
                   <div className="flex-1 h-0.5 bg-border overflow-hidden relative">
-                    <motion.div
+                    <m.div
                       className="h-full bg-green"
                       initial={{ width: 0 }}
                       animate={{
@@ -105,7 +105,7 @@ export function CheckoutStepperV8({
                   {isCurrent && shouldAnimate && (
                     <>
                       {/* Outer expanding ring */}
-                      <motion.div
+                      <m.div
                         className="absolute inset-0 rounded-full bg-primary/30"
                         initial={{ scale: 1, opacity: 0.6 }}
                         animate={{
@@ -120,7 +120,7 @@ export function CheckoutStepperV8({
                       />
                       {/* Inner glow halo - --shadow-glow-primary equivalent, kept numeric for FM interpolation */}
                       {/* eslint-disable no-restricted-syntax -- FM animation needs numeric boxShadow for interpolation */}
-                      <motion.div
+                      <m.div
                         className="absolute inset-0 rounded-full"
                         initial={{ boxShadow: "0 0 0px rgba(164, 16, 52, 0)" }}
                         animate={{
@@ -140,7 +140,7 @@ export function CheckoutStepperV8({
                     </>
                   )}
 
-                  <motion.button
+                  <m.button
                     type="button"
                     onClick={() => isClickable && onStepClick(step)}
                     disabled={!isClickable}
@@ -160,23 +160,23 @@ export function CheckoutStepperV8({
                     aria-current={isCurrent ? "step" : undefined}
                   >
                     {isCompleted ? (
-                      <motion.div
+                      <m.div
                         initial={shouldAnimate ? { scale: 0, rotate: -180 } : undefined}
                         animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
                         transition={getSpring(spring.ultraBouncy)}
                       >
                         <AnimatedCheckmark shouldAnimate={shouldAnimate} />
-                      </motion.div>
+                      </m.div>
                     ) : (
                       <span className="text-xs font-bold">{index + 1}</span>
                     )}
-                  </motion.button>
+                  </m.button>
                 </div>
 
                 {/* V8 Connector line - right side with glow */}
                 {index < CHECKOUT_STEPS.length - 1 && (
                   <div className="flex-1 h-0.5 bg-border overflow-hidden relative">
-                    <motion.div
+                    <m.div
                       className="h-full bg-green"
                       initial={{ width: 0 }}
                       animate={{
@@ -193,7 +193,7 @@ export function CheckoutStepperV8({
               </div>
 
               {/* V8 Label below circle with fade animation */}
-              <motion.span
+              <m.span
                 initial={shouldAnimate ? { opacity: 0, y: 4 } : undefined}
                 animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
                 transition={{ delay: index * 0.1, ...getSpring(spring.gentle) }}
@@ -206,7 +206,7 @@ export function CheckoutStepperV8({
                 )}
               >
                 {config.label}
-              </motion.span>
+              </m.span>
             </li>
           );
         })}

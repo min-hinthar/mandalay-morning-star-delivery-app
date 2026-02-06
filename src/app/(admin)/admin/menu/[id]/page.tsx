@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   ArrowLeft,
   Save,
@@ -313,7 +313,7 @@ export default function AdminMenuItemEditPage() {
   return (
     <div className="p-4 md:p-8 space-y-6 max-w-5xl">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-between gap-4"
@@ -354,11 +354,11 @@ export default function AdminMenuItemEditPage() {
             </>
           )}
         </Button>
-      </motion.div>
+      </m.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column: Form Fields */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -524,10 +524,10 @@ export default function AdminMenuItemEditPage() {
               ))}
             </div>
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Right Column: Photo */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -639,7 +639,7 @@ export default function AdminMenuItemEditPage() {
               </span>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );

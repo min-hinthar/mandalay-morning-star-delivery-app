@@ -7,7 +7,7 @@
  * Uses z-[80] layer - highest z-index for notifications
  */
 
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { zIndex } from "@/lib/design-system/tokens/z-index";
 import { overlayMotion } from "@/lib/design-system/tokens/motion";
@@ -29,7 +29,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
   };
 
   return (
-    <motion.div
+    <m.div
       layout
       initial={{ opacity: 0, x: 100, scale: 0.9 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -57,7 +57,7 @@ export function Toast({ toast, onDismiss }: ToastProps) {
       >
         <X className="w-4 h-4" />
       </button>
-    </motion.div>
+    </m.div>
   );
 }
 

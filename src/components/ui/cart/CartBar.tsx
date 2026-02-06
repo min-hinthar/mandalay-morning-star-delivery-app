@@ -18,7 +18,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { ShoppingBag, ChevronUp, Truck, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/hooks/useCart";
@@ -89,7 +89,7 @@ function DeliveryProgress({
           </div>
 
           {/* Filled progress */}
-          <motion.div
+          <m.div
             className="h-full rounded-full bg-gradient-progress shadow-sm"
             animate={{ width: `${progressPercent}%` }}
             transition={getSpring(spring.rubbery)}
@@ -97,7 +97,7 @@ function DeliveryProgress({
         </div>
 
         {/* Truck - position animates, removed infinite bounce to prevent mobile crashes */}
-        <motion.div
+        <m.div
           className="absolute top-1/2 -translate-y-1/2"
           animate={{ left: `calc(${progressPercent}% - 8px)` }}
           transition={getSpring(spring.rubbery)}
@@ -105,7 +105,7 @@ function DeliveryProgress({
           <div className="w-4 h-4 rounded-full bg-surface-primary dark:bg-surface-tertiary border border-amber-400 shadow-sm flex items-center justify-center">
             <Truck className="w-2.5 h-2.5 text-amber-600" />
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );
@@ -194,7 +194,7 @@ export function CartBar({
   return (
     <AnimatePresence>
       {!isEmpty && (
-        <motion.div
+        <m.div
           variants={shouldAnimate ? cartBarSlideUp : undefined}
           initial={shouldAnimate ? "hidden" : false}
           animate={shouldAnimate ? "visible" : { y: 0, opacity: 1 }}
@@ -226,12 +226,12 @@ export function CartBar({
           )}
 
           {/* Main content row */}
-          <motion.div
+          <m.div
             animate={shouldBounce && shouldAnimate ? cartBarBounce : undefined}
             className="flex items-center justify-between gap-3 px-4 py-3"
           >
             {/* Left: Cart icon + count + price */}
-            <motion.button
+            <m.button
               onClick={handleViewCart}
               whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
               whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
@@ -251,7 +251,7 @@ export function CartBar({
                 </div>
 
                 {/* Animated badge */}
-                <motion.span
+                <m.span
                   key={itemCount}
                   variants={shouldAnimate ? badgeVariants : undefined}
                   initial={shouldAnimate ? "initial" : false}
@@ -264,7 +264,7 @@ export function CartBar({
                   )}
                 >
                   {itemCount > 99 ? "99+" : itemCount}
-                </motion.span>
+                </m.span>
               </div>
 
               {/* Item count and price */}
@@ -279,7 +279,7 @@ export function CartBar({
                   className="text-text-money font-bold"
                 />
               </div>
-            </motion.button>
+            </m.button>
 
             {/* Right: Action buttons */}
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -305,8 +305,8 @@ export function CartBar({
                 </Button>
               )}
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

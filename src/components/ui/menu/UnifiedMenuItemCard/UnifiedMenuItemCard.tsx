@@ -426,7 +426,7 @@ export function UnifiedMenuItemCard({
     : {};
 
   return (
-    <motion.article
+    <m.article
       ref={cardRef}
       className={cn(
         "relative group cursor-pointer",
@@ -533,7 +533,7 @@ export function UnifiedMenuItemCard({
           </div>
         )}
       </div>
-    </motion.article>
+    </m.article>
   );
 }
 

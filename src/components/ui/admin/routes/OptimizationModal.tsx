@@ -8,7 +8,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Loader2,
   Zap,
@@ -184,14 +184,14 @@ export function OptimizationModal({
         <div className="mt-4">
           {/* Error state */}
           {error && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               className="flex items-center gap-2 p-4 rounded-lg bg-status-error-bg border border-status-error/30 text-status-error text-sm mb-4"
             >
               <Route className="h-4 w-4 shrink-0" />
               <span>{error}</span>
-            </motion.div>
+            </m.div>
           )}
 
           {/* Loading state */}
@@ -207,7 +207,7 @@ export function OptimizationModal({
             <>
               {/* Savings summary */}
               {(durationSaving > 0 || distanceSaving > 0) && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex items-center justify-center gap-4 p-4 rounded-lg bg-status-success-bg border border-status-success/30 mb-6"
@@ -221,7 +221,7 @@ export function OptimizationModal({
                     <Route className="h-4 w-4" />
                     <span>{formatDistance(distanceSaving)}</span>
                   </div>
-                </motion.div>
+                </m.div>
               )}
 
               {/* Side-by-side comparison */}
@@ -234,7 +234,7 @@ export function OptimizationModal({
                   </h3>
                   <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
                     {currentStops.map((stop, index) => (
-                      <motion.div
+                      <m.div
                         key={stop.id}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -260,7 +260,7 @@ export function OptimizationModal({
                         {getStopMovement(stop.id) === "moved" && (
                           <MoveVertical className="h-4 w-4 text-amber-500 flex-shrink-0" />
                         )}
-                      </motion.div>
+                      </m.div>
                     ))}
                   </div>
                 </div>
@@ -284,7 +284,7 @@ export function OptimizationModal({
                       const moved = originalIndex !== index;
 
                       return (
-                        <motion.div
+                        <m.div
                           key={stop.id}
                           initial={{ opacity: 0, x: 10 }}
                           animate={{ opacity: 1, x: 0 }}
@@ -319,7 +319,7 @@ export function OptimizationModal({
                               #{originalIndex + 1} → #{index + 1}
                             </span>
                           )}
-                        </motion.div>
+                        </m.div>
                       );
                     })}
                   </div>

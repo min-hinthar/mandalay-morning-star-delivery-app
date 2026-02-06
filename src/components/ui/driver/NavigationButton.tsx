@@ -7,7 +7,7 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Navigation } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -39,7 +39,7 @@ export function NavigationButton({
   };
 
   return (
-    <motion.button
+    <m.button
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileTap={{ scale: 0.98 }}
@@ -63,6 +63,6 @@ export function NavigationButton({
     >
       <Navigation className={cn("h-5 w-5", variant === "primary" && "h-6 w-6")} />
       <span>Navigate</span>
-    </motion.button>
+    </m.button>
   );
 }

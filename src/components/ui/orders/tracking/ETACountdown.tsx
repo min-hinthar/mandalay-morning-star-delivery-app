@@ -8,7 +8,7 @@
  */
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Navigation, Clock, Zap } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -66,7 +66,7 @@ function FlipDigit({ value, delay = 0 }: FlipDigitProps) {
 
       {/* Digit with flip animation */}
       <AnimatePresence mode="popLayout">
-        <motion.div
+        <m.div
           key={displayValue}
           initial={shouldAnimate ? { rotateX: -90, opacity: 0 } : undefined}
           animate={shouldAnimate ? { rotateX: 0, opacity: 1 } : undefined}
@@ -81,7 +81,7 @@ function FlipDigit({ value, delay = 0 }: FlipDigitProps) {
           <span className="text-3xl font-bold text-text-primary tabular-nums">
             {displayValue}
           </span>
-        </motion.div>
+        </m.div>
       </AnimatePresence>
 
       {/* Center divider line */}
@@ -119,7 +119,7 @@ function ProgressRing({ progress, size = 120, strokeWidth = 8 }: ProgressRingPro
       />
 
       {/* Progress ring */}
-      <motion.circle
+      <m.circle
         cx={size / 2}
         cy={size / 2}
         r={radius}
@@ -153,7 +153,7 @@ function NearbyAlert() {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, scale: 0.9, y: 10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, scale: 1, y: 0 } : undefined}
       transition={getSpring(spring.ultraBouncy)}
@@ -163,18 +163,18 @@ function NearbyAlert() {
         "border border-green/30"
       )}
     >
-      <motion.div
+      <m.div
         animate={shouldAnimate ? { scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] } : undefined}
         transition={{ duration: 1, repeat: 5, repeatDelay: 1 }}
         className="w-10 h-10 rounded-full bg-green/20 flex items-center justify-center"
       >
         <Zap className="w-5 h-5 text-green" />
-      </motion.div>
+      </m.div>
       <div>
         <p className="font-semibold text-green">Driver is nearby!</p>
         <p className="text-sm text-green/80">Get ready for your delivery</p>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -225,7 +225,7 @@ export function ETACountdown({
   }
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={getSpring(spring.default)}
@@ -245,14 +245,14 @@ export function ETACountdown({
 
             {/* Centered content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <motion.div
+              <m.div
                 initial={shouldAnimate ? { scale: 0 } : undefined}
                 animate={shouldAnimate ? { scale: 1 } : undefined}
                 transition={getSpring(spring.ultraBouncy)}
                 className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-1"
               >
                 <Navigation className="w-5 h-5 text-primary" />
-              </motion.div>
+              </m.div>
               <p className="text-xs text-text-muted">ETA</p>
             </div>
           </div>
@@ -279,7 +279,7 @@ export function ETACountdown({
 
             {/* Range display */}
             <AnimatePresence mode="wait">
-              <motion.p
+              <m.p
                 key={formattedRange}
                 initial={shouldAnimate ? { opacity: 0, y: -5 } : undefined}
                 animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
@@ -287,7 +287,7 @@ export function ETACountdown({
                 className="text-xl font-bold text-text-primary"
               >
                 {formattedRange}
-              </motion.p>
+              </m.p>
             </AnimatePresence>
           </div>
 
@@ -295,7 +295,7 @@ export function ETACountdown({
           <div className="text-right">
             <p className="text-xs text-text-muted mb-1">Arriving by</p>
             <AnimatePresence mode="wait">
-              <motion.p
+              <m.p
                 key={formattedTime}
                 initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
                 animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
@@ -303,13 +303,13 @@ export function ETACountdown({
                 className="text-2xl font-bold text-green"
               >
                 {formattedTime}
-              </motion.p>
+              </m.p>
             </AnimatePresence>
           </div>
         </div>
 
         {/* Updates note */}
-        <motion.div
+        <m.div
           initial={shouldAnimate ? { opacity: 0 } : undefined}
           animate={shouldAnimate ? { opacity: 1 } : undefined}
           transition={{ delay: 0.3 }}
@@ -319,7 +319,7 @@ export function ETACountdown({
           <span className="text-xs text-text-muted">
             Updates automatically as driver progresses
           </span>
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Nearby alert */}
@@ -328,7 +328,7 @@ export function ETACountdown({
           <NearbyAlert />
         </div>
       )}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -344,7 +344,7 @@ export function ETACountdownCompact({
   const formattedRange = formatETARange(minMinutes, maxMinutes);
 
   return (
-    <motion.div
+    <m.div
       initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
       animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
       transition={getSpring(spring.snappy)}
@@ -356,14 +356,14 @@ export function ETACountdownCompact({
         className
       )}
     >
-      <motion.div
+      <m.div
         animate={shouldAnimate ? { rotate: [0, 15, -15, 0] } : undefined}
         transition={{ duration: 2, repeat: 5, repeatDelay: 2 }}
       >
         <Navigation className="w-4 h-4 text-primary" />
-      </motion.div>
+      </m.div>
       <span className="font-semibold text-sm text-primary">{formattedRange}</span>
-    </motion.div>
+    </m.div>
   );
 }
 

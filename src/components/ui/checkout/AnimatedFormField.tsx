@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
@@ -33,7 +33,7 @@ export function AnimatedFormField({
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <motion.div
+    <m.div
       className={cn("relative", className)}
       animate={shouldAnimate && isFocused ? { scale: focusScale } : { scale: 1 }}
       transition={getSpring(spring.snappy)}
@@ -41,6 +41,6 @@ export function AnimatedFormField({
       onBlurCapture={() => setIsFocused(false)}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
