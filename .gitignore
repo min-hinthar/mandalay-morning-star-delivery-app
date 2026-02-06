@@ -54,6 +54,12 @@ next-env.d.ts
 # crash dumps
 *.stackdump
 
+# pnpm store (created in Docker environments)
+.pnpm-store/
+
+# Windows
+Thumbs.db
+
 # claude local settings
 .claude/settings.local.json
 storybook-static
