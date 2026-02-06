@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 42 of 46 (Dynamic Import Heavy Libraries)
-Plan: 2 of 3 complete
-Status: In progress
-Last activity: 2026-02-06 — Completed 42-02 (chart dynamic imports with rich skeletons)
+Plan: 3 of 3 complete
+Status: Phase complete
+Last activity: 2026-02-06 — Completed 42-03 (map dynamic imports with viewport/eager loading)
 
-Progress: [##############                                                    ] v1.5 14/52 (27%)
+Progress: [###############                                                   ] v1.5 15/52 (29%)
 
 ## Milestones
 
@@ -53,6 +53,9 @@ Progress: [##############                                                    ] v
 | Error cards co-located per domain | ChartErrorCard in analytics/, MapErrorCard in maps/ for clean ownership |
 | LazyX pattern for all chart wrappers | importWithRetry + LoadingWithTimeout + ChartSkeleton per chart |
 | Server components import client lazy wrappers directly | "use client" boundary at LazyCharts.tsx, not at page level |
+| 15s map timeout (vs 10s charts) | Mobile networks need more time for Google Maps SDK (~120KB) |
+| Route detail map viewport-triggered | Below-fold admin content; defers heavy bundle until scrolled into view |
+| Tracking page map eager lazy-loaded | Map IS primary content; code-split but no viewport gate |
 
 ### Key Decisions (v1.4)
 
@@ -79,10 +82,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 42-02-PLAN.md (chart dynamic imports)
+Stopped at: Completed 42-03-PLAN.md (map dynamic imports)
 Resume file: None
-Next action: Execute 42-03-PLAN.md (remaining dynamic imports)
+Next action: Begin Phase 43
 
 ---
 
-*Updated: 2026-02-06 — Phase 42 plan 02 complete: 2/2 tasks, 4 files modified*
+*Updated: 2026-02-06 — Phase 42 complete: 3/3 plans, all heavy libraries dynamically imported*
