@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 46 of 46 (Large File Refactoring)
-Plan: 3 of 7 complete
+Plan: 4 of 7 complete
 Status: In progress
-Last activity: 2026-02-06 — Completed 46-05-PLAN.md (4 API route type/schema extractions)
+Last activity: 2026-02-06 — Completed 46-04-PLAN.md (7 admin page sub-component extractions)
 
-Progress: [#########################                                         ] v1.5 25/52 (48%)
+Progress: [##########################                                        ] v1.5 26/52 (50%)
 
 ## Milestones
 
@@ -68,6 +68,8 @@ Progress: [#########################                                         ] v
 | Lighthouse CI: warn-only, PR-only, 4 customer routes | Regression gate without blocking PRs; server mode for App Router |
 | API route co-location: types.ts/schemas.ts/helpers.ts siblings | Keep route.ts focused on HTTP handlers; types/schemas/helpers co-located |
 | Supabase client typing via Awaited<ReturnType<typeof createClient>> | Avoids direct @supabase/supabase-js import in helpers |
+| Admin page sibling co-location for extracted components | PascalCase .tsx files alongside page.tsx; safe in App Router |
+| State stays in page.tsx, extracted components get props | Thin orchestrator pattern: page manages state + handlers |
 
 ### Tech Debt (v1.5 Focus)
 
@@ -85,10 +87,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 46-05-PLAN.md (4 API route type/schema extractions)
+Stopped at: Completed 46-04-PLAN.md (7 admin page sub-component extractions)
 Resume file: None
-Next action: Execute 46-06-PLAN.md
+Next action: Execute 46-03-PLAN.md or 46-06-PLAN.md
 
 ---
 
-*Updated: 2026-02-06 — Plan 46-05: Extract types/schemas/helpers from 4 API routes*
+*Updated: 2026-02-06 — Plan 46-04: Extract sub-components from 7 admin pages*
