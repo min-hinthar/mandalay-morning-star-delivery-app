@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Planning v1.5 milestone
+**Current focus:** v1.5 Performance & Repo Health
 
 ## Current Position
 
-Phase: 40 of TBD (Next milestone)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-02-05 — v1.4 milestone complete
+Phase: 41 of 46 (Server Component Conversions)
+Plan: 7 of 7 complete
+Status: Phase complete
+Last activity: 2026-02-06 — Completed 41-07 (hydration health check + audit update)
 
-Progress: [##################################################################] v1.4 39/39 (100%)
+Progress: [############                                                      ] v1.5 12/52 (23%)
 
 ## Milestones
 
@@ -25,30 +25,30 @@ Progress: [##################################################################] v
 | v1.2 Playful UI Overhaul | 15-24 | 29 | 2026-01-27 |
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | 2026-02-05 |
-| **v1.5** | 40+ | TBD | Planning |
+| **v1.5 Performance & Repo Health** | 40-46 | 52 | In Progress |
 
-**Total completed:** 39 phases, 174 plans, 213 requirements
-
-## Performance Metrics
-
-**Velocity:**
-- Total plans completed: 174 (v1.0 + v1.1 + v1.2 + v1.3 + v1.4)
-- v1.4 plans completed: 39
-
-**By Milestone (v1.4):**
-
-| Phase | Plans | Status |
-|-------|-------|--------|
-| 35 | 3/3 | Complete |
-| 35.1 | 5/5 | Complete |
-| 36 | 3/3 | Complete |
-| 36.1 | 11/11 | Complete |
-| 36.2 | 9/9 | Complete |
-| 37 | 2/2 | Complete |
-| 38 | 3/3 | Complete |
-| 39 | 3/3 | Complete |
+**Total completed:** 41 phases, 185 plans, 214 requirements
 
 ## Accumulated Context
+
+### Key Decisions (v1.5)
+
+| Decision | Rationale |
+|----------|-----------|
+| LCP element: emoji (homepage), CardImage (menu) | Lighthouse analysis confirmed LCP targets |
+| Font loading already optimized | REQ-40.4 satisfied - display: swap in place |
+| Primary optimization: CardImage to Next.js Image | 2.6s resource load delay is main bottleneck |
+| CardImage converted: 43-46% LCP reduction | Homepage 19.9s→11.4s, Menu 18.2s→9.8s |
+| JS bundle is primary remaining bottleneck | TBT still 2-3s; Server Component conversion needed |
+| RouteLoading/RouteError infrastructure | Reusable components for route segments |
+| Hydration smoke test foundation | Parameterized tests detect hydration mismatches |
+| 275 use client files audited | 184 KEEP, 37 CONVERT, 54 LEAF; 13 quick wins identified |
+| TrackingPageClient kept as-is | Realtime subscriptions require client boundary; animation coherence preserved |
+| MenuContent kept as client component | React Query + offline IndexedDB too deeply integrated; MenuContentClient created for future enhancement |
+| Hero kept as client component | 519 lines tightly coupled with framer-motion parallax; splitting would cause hydration issues |
+| HomePageWrapper pattern | Minimal client wrapper for scroll spy; section composition at server level |
+| 282 'use client' files is optimal | +7 from baseline due to error boundaries; no further reduction recommended |
+| Phase 42+ focus: LCP/TBT | Not 'use client' reduction; still 9-11s LCP, 2-3s TBT |
 
 ### Key Decisions (v1.4)
 
@@ -59,12 +59,14 @@ Progress: [##################################################################] v
 | flyingCount for concurrency | Allows multiple simultaneous fly animations |
 | cartPop sound 1200Hz→800Hz | Satisfying descending pop effect |
 
-### Tech Debt
+### Tech Debt (v1.5 Focus)
 
 | Item | Status | Notes |
 |------|--------|-------|
-| LCP 8.1s | Deferred | Blocked by JS execution, needs dedicated phase |
-| 29 files >400 lines | Accepted | Warning only per config |
+| LCP 11.4s (homepage), 9.8s (menu) | **Active** | Reduced from 19.9s/18.2s; target: <2.5s |
+| 29 files >400 lines | **Active** | Refactoring in v1.5 |
+| Legacy docs (V0-V7) | **Active** | Archive in v1.5 |
+| storybook-static in git | **Active** | Untrack in v1.5 |
 
 ### Blockers/Concerns
 
@@ -72,11 +74,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-05
-Stopped at: v1.4 milestone completed
+Last session: 2026-02-06
+Stopped at: Phase 41 complete, verified (13/13 must-haves)
 Resume file: None
-Next action: `/gsd:new-milestone` to start v1.5 planning
+Next action: Plan Phase 42 (Dynamic Import Heavy Libraries)
 
 ---
 
-*Updated: 2026-02-05 — v1.4 milestone complete*
+*Updated: 2026-02-06 — Phase 41 complete: 7/7 plans, 13/13 must-haves verified*
