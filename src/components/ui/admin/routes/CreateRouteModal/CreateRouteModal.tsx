@@ -8,9 +8,7 @@ import {
   Route,
   Calendar,
   Users,
-  Package,
   AlertCircle,
-  Check,
 } from "lucide-react";
 import {
   Dialog,
@@ -23,49 +21,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils/cn";
+import { OrderSelectionList } from "./OrderSelectionList";
+import type { CreateRouteData, Driver, Order, FormErrors } from "./types";
+
+function getDefaultDeliveryDate(): string {
+  const today = new Date();
+  const targetDate = isSaturday(today) ? today : nextSaturday(today);
+  return format(targetDate, "yyyy-MM-dd");
+}
 
 interface CreateRouteModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: CreateRouteData) => Promise<void>;
-}
-
-export interface CreateRouteData {
-  deliveryDate: string;
-  driverId?: string;
-  orderIds: string[];
-}
-
-interface Driver {
-  id: string;
-  fullName: string | null;
-  isActive: boolean;
-}
-
-interface Order {
-  id: string;
-  totalCents: number;
-  customerName: string | null;
-  deliveryWindowStart: string | null;
-  itemCount: number;
-  status: string;
-}
-
-interface FormErrors {
-  deliveryDate?: string;
-  orderIds?: string;
-  general?: string;
-}
-
-/**
- * Get the next Saturday for delivery date default.
- * Uses date-fns nextSaturday which returns the next Saturday from the given date.
- */
-function getDefaultDeliveryDate(): string {
-  const today = new Date();
-  // If today is Saturday, use today; otherwise use next Saturday
-  const targetDate = isSaturday(today) ? today : nextSaturday(today);
-  return format(targetDate, "yyyy-MM-dd");
 }
 
 export function CreateRouteModal({
@@ -83,7 +51,6 @@ export function CreateRouteModal({
   const [loadingDrivers, setLoadingDrivers] = useState(false);
   const [loadingOrders, setLoadingOrders] = useState(false);
 
-  // Fetch drivers on open
   useEffect(() => {
     if (open) {
       fetchDrivers();
@@ -139,30 +106,24 @@ export function CreateRouteModal({
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-
     if (!deliveryDate) {
       newErrors.deliveryDate = "Delivery date is required";
     } else {
-      // Validate it's a Saturday
       const date = new Date(deliveryDate + "T12:00:00");
       if (date.getDay() !== 6) {
         newErrors.deliveryDate = "Delivery date must be a Saturday";
       }
     }
-
     if (selectedOrderIds.length === 0) {
       newErrors.orderIds = "At least one order is required";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
     setIsSubmitting(true);
     setErrors({});
 
@@ -171,14 +132,10 @@ export function CreateRouteModal({
         deliveryDate,
         orderIds: selectedOrderIds,
       };
-
       if (selectedDriverId) {
         data.driverId = selectedDriverId;
       }
-
       await onSubmit(data);
-
-      // Reset form on success
       setDeliveryDate(getDefaultDeliveryDate());
       setSelectedDriverId(null);
       setSelectedOrderIds([]);
@@ -213,17 +170,6 @@ export function CreateRouteModal({
     }
   };
 
-  const selectAllOrders = () => {
-    setSelectedOrderIds(orders.map((o) => o.id));
-    if (errors.orderIds) {
-      setErrors((prev) => ({ ...prev, orderIds: undefined }));
-    }
-  };
-
-  const deselectAllOrders = () => {
-    setSelectedOrderIds([]);
-  };
-
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-surface-secondary to-surface-tertiary border-border-v5">
@@ -235,13 +181,11 @@ export function CreateRouteModal({
             Create Delivery Route
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Create a new route by selecting orders and optionally assigning a
-            driver.
+            Create a new route by selecting orders and optionally assigning a driver.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">
-          {/* General Error */}
           {errors.general && (
             <m.div
               initial={{ opacity: 0, y: -10 }}
@@ -350,106 +294,19 @@ export function CreateRouteModal({
           </div>
 
           {/* Order Selection */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm font-medium text-text-primary">
-                <Package className="h-4 w-4 text-interactive-primary" />
-                Select Orders <span className="text-status-error">*</span>
-              </label>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={selectAllOrders}
-                  disabled={orders.length === 0 || isSubmitting}
-                  className="text-xs h-7"
-                >
-                  Select All
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={deselectAllOrders}
-                  disabled={selectedOrderIds.length === 0 || isSubmitting}
-                  className="text-xs h-7"
-                >
-                  Clear
-                </Button>
-              </div>
-            </div>
-
-            <div className="max-h-48 overflow-y-auto rounded-lg border border-border-v5 bg-surface-primary">
-              {loadingOrders ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-5 w-5 animate-spin text-interactive-primary" />
-                </div>
-              ) : orders.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-8 text-center">
-                  No confirmed orders available for routing
-                </p>
-              ) : (
-                <div className="divide-y divide-border-v5/50">
-                  {orders.map((order) => {
-                    const isSelected = selectedOrderIds.includes(order.id);
-
-                    return (
-                      <button
-                        key={order.id}
-                        type="button"
-                        onClick={() => toggleOrderSelection(order.id)}
-                        className={cn(
-                          "w-full flex items-center justify-between p-3 text-left transition-colors",
-                          isSelected
-                            ? "bg-interactive-primary-light"
-                            : "hover:bg-surface-secondary"
-                        )}
-                        disabled={isSubmitting}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={cn(
-                              "h-5 w-5 rounded border-2 flex items-center justify-center transition-all",
-                              isSelected
-                                ? "bg-interactive-primary border-interactive-primary"
-                                : "border-border-v5"
-                            )}
-                          >
-                            {isSelected && (
-                              <Check className="h-3 w-3 text-text-inverse" />
-                            )}
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-text-primary">
-                              #{order.id.slice(0, 8).toUpperCase()}
-                            </p>
-                            <p className="text-xs text-text-secondary">
-                              {order.customerName || "Guest"} •{" "}
-                              {order.itemCount} items
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-sm font-medium text-accent-tertiary">
-                          ${(order.totalCents / 100).toFixed(2)}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {errors.orderIds && (
-              <p className="text-xs text-red-500">{errors.orderIds}</p>
-            )}
-
-            {selectedOrderIds.length > 0 && (
-              <p className="text-xs text-muted-foreground">
-                {selectedOrderIds.length} order(s) selected
-              </p>
-            )}
-          </div>
+          <OrderSelectionList
+            orders={orders}
+            selectedOrderIds={selectedOrderIds}
+            loadingOrders={loadingOrders}
+            isSubmitting={isSubmitting}
+            error={errors.orderIds}
+            onToggle={toggleOrderSelection}
+            onSelectAll={() => {
+              setSelectedOrderIds(orders.map((o) => o.id));
+              if (errors.orderIds) setErrors((prev) => ({ ...prev, orderIds: undefined }));
+            }}
+            onDeselectAll={() => setSelectedOrderIds([])}
+          />
 
           <DialogFooter className="gap-2 pt-4">
             <Button

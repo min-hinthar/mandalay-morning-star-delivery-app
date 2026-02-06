@@ -1,19 +1,5 @@
 "use client";
 
-/**
- * Orders Tab Component
- * Display order history with reorder and cancel functionality
- *
- * Features:
- * - Full order history via client-side Supabase
- * - Skeleton loading state with order card placeholders
- * - Empty state with illustration and CTA
- * - Error state with retry button
- * - Reorder button adds items to cart via useCartStore
- * - Cancel button for pending/confirmed orders (requires reason)
- * - Status badges with semantic colors
- */
-
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -31,7 +17,6 @@ import { m } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -47,101 +32,13 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { createClient } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/utils/currency";
 import { format, parseISO } from "date-fns";
-import type { OrderStatus } from "@/types/order";
-
-interface Order {
-  id: string;
-  status: OrderStatus;
-  totalCents: number;
-  deliveryWindowStart: string | null;
-  placedAt: string;
-  itemCount: number;
-}
-
-interface ReorderCartItem {
-  menuItemId: string;
-  name: string;
-  quantity: number;
-  priceCents: number;
-  modifiers: Array<{
-    optionId: string | null;
-    name: string;
-    priceDeltaCents: number;
-  }>;
-  specialInstructions: string | null;
-}
-
-interface ReorderWarning {
-  menuItemId: string | null;
-  itemName: string;
-  type: "unavailable" | "sold_out" | "price_changed";
-  message: string;
-}
-
-// Status labels and colors
-const STATUS_LABELS: Record<OrderStatus, string> = {
-  pending: "Pending Payment",
-  confirmed: "Confirmed",
-  preparing: "Preparing",
-  out_for_delivery: "Out for Delivery",
-  delivered: "Delivered",
-  cancelled: "Cancelled",
-};
-
-const STATUS_COLORS: Record<OrderStatus, string> = {
-  pending: "bg-amber-100 text-amber-800",
-  confirmed: "bg-blue-100 text-blue-800",
-  preparing: "bg-blue-100 text-blue-800",
-  out_for_delivery: "bg-amber-100 text-amber-800",
-  delivered: "bg-green-100 text-green-800",
-  cancelled: "bg-red-100 text-red-800",
-};
-
-// Cancellable statuses
-const CANCELLABLE_STATUSES: OrderStatus[] = ["pending", "confirmed"];
-
-// Database row type
-interface OrderRow {
-  id: string;
-  status: OrderStatus;
-  total_cents: number;
-  delivery_window_start: string | null;
-  placed_at: string;
-  order_items: Array<{ quantity: number }>;
-}
-
-// Order Card Skeleton Component
-function OrderCardSkeleton() {
-  return (
-    <Card className="shadow-card">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-4">
-          {/* Order Info Skeleton */}
-          <div className="flex items-start gap-4 flex-1 min-w-0">
-            <Skeleton width={40} height={40} radius="full" />
-            <div className="min-w-0 flex-1 space-y-2">
-              <Skeleton height={18} width="50%" radius="sm" />
-              <Skeleton height={14} width="70%" radius="sm" />
-              <Skeleton height={14} width="40%" radius="sm" />
-            </div>
-          </div>
-
-          {/* Price & Status Skeleton */}
-          <div className="text-right space-y-2 flex-shrink-0">
-            <Skeleton height={18} width={60} radius="sm" />
-            <Skeleton height={24} width={80} radius="lg" />
-          </div>
-        </div>
-
-        {/* Action Buttons Skeleton */}
-        <div className="flex gap-2 mt-4 pt-4 border-t border-border">
-          <Skeleton height={36} width={100} radius="lg" />
-          <Skeleton height={36} width={80} radius="lg" />
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+import { OrderCardSkeleton } from "./OrderCardSkeleton";
+import {
+  STATUS_LABELS,
+  STATUS_COLORS,
+  CANCELLABLE_STATUSES,
+} from "./types";
+import type { Order, ReorderCartItem, ReorderWarning, OrderRow } from "./types";
 
 export function OrdersTab() {
   const router = useRouter();
@@ -155,67 +52,39 @@ export function OrdersTab() {
   const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
   const { shouldAnimate } = useAnimationPreference();
 
-  // Memoize Supabase client
   const supabase = useMemo(() => createClient(), []);
-
-  // Cart store actions
   const clearCart = useCartStore((state) => state.clearCart);
   const addItem = useCartStore((state) => state.addItem);
 
-  // Fetch orders directly from Supabase
   const fetchOrders = useCallback(async () => {
     setHasError(false);
     setIsLoading(true);
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        setOrders([]);
-        setIsLoading(false);
-        return;
-      }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setOrders([]); setIsLoading(false); return; }
 
       const { data: ordersData, error } = await supabase
         .from("orders")
-        .select(
-          `
-          id,
-          status,
-          total_cents,
-          delivery_window_start,
-          placed_at,
-          order_items (quantity)
-        `
-        )
+        .select(`id, status, total_cents, delivery_window_start, placed_at, order_items (quantity)`)
         .eq("user_id", user.id)
         .order("placed_at", { ascending: false })
         .returns<OrderRow[]>();
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      // Transform orders data
       const transformedOrders = (ordersData || []).map((order) => ({
         id: order.id,
         status: order.status,
         totalCents: order.total_cents,
         deliveryWindowStart: order.delivery_window_start,
         placedAt: order.placed_at,
-        itemCount: order.order_items.reduce(
-          (sum, item) => sum + item.quantity,
-          0
-        ),
+        itemCount: order.order_items.reduce((sum, item) => sum + item.quantity, 0),
       }));
-
       setOrders(transformedOrders);
     } catch (error) {
       setHasError(true);
       toast({
-        message:
-          error instanceof Error ? error.message : "Failed to load orders",
+        message: error instanceof Error ? error.message : "Failed to load orders",
         type: "error",
       });
     } finally {
@@ -223,35 +92,25 @@ export function OrdersTab() {
     }
   }, [supabase]);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+  useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
-  // Handle reorder
   const handleReorder = async (orderId: string) => {
     setReorderingId(orderId);
     try {
-      const response = await fetch(`/api/account/orders/${orderId}/reorder`, {
-        method: "POST",
-      });
+      const response = await fetch(`/api/account/orders/${orderId}/reorder`, { method: "POST" });
       const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error?.message || "Failed to reorder");
-      }
+      if (!response.ok) throw new Error(result.error?.message || "Failed to reorder");
 
       const { cartItems, warnings } = result.data as {
         cartItems: ReorderCartItem[];
         warnings: ReorderWarning[];
       };
 
-      // Clear existing cart and add reorder items
       clearCart();
-
       cartItems.forEach((item: ReorderCartItem) => {
         addItem({
           menuItemId: item.menuItemId,
-          menuItemSlug: item.menuItemId, // Use ID as slug for reorders
+          menuItemSlug: item.menuItemId,
           nameEn: item.name,
           nameMy: null,
           imageUrl: null,
@@ -268,84 +127,56 @@ export function OrdersTab() {
         });
       });
 
-      // Show warnings if any
       if (warnings && warnings.length > 0) {
-        toast({
-          message: `${warnings.length} item(s) had issues - check your cart`,
-          type: "warning",
-        });
+        toast({ message: `${warnings.length} item(s) had issues - check your cart`, type: "warning" });
       } else {
         toast({ message: "Items added to cart", type: "success" });
       }
-
       router.push("/cart");
     } catch (error) {
-      toast({
-        message: error instanceof Error ? error.message : "Failed to reorder",
-        type: "error",
-      });
+      toast({ message: error instanceof Error ? error.message : "Failed to reorder", type: "error" });
     } finally {
       setReorderingId(null);
     }
   };
 
-  // Open cancel dialog
   const openCancelDialog = (orderId: string) => {
     setOrderToCancel(orderId);
     setCancelReason("");
     setCancelDialogOpen(true);
   };
 
-  // Handle cancel
   const handleCancel = async () => {
     if (!orderToCancel || !cancelReason.trim()) return;
-
     setCancellingId(orderToCancel);
     try {
-      const response = await fetch(
-        `/api/account/orders/${orderToCancel}/cancel`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ reason: cancelReason.trim() }),
-        }
-      );
-
+      const response = await fetch(`/api/account/orders/${orderToCancel}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: cancelReason.trim() }),
+      });
       const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error?.message || "Failed to cancel order");
-      }
+      if (!response.ok) throw new Error(result.error?.message || "Failed to cancel order");
 
       toast({ message: "Order cancelled successfully", type: "success" });
       setCancelDialogOpen(false);
       setOrderToCancel(null);
-
-      // Refresh orders list
       fetchOrders();
     } catch (error) {
-      toast({
-        message:
-          error instanceof Error ? error.message : "Failed to cancel order",
-        type: "error",
-      });
+      toast({ message: error instanceof Error ? error.message : "Failed to cancel order", type: "error" });
     } finally {
       setCancellingId(null);
     }
   };
 
-  // Skeleton loading state
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3, 4].map((i) => (
-          <OrderCardSkeleton key={i} />
-        ))}
+        {[1, 2, 3, 4].map((i) => (<OrderCardSkeleton key={i} />))}
       </div>
     );
   }
 
-  // Error state
   if (hasError) {
     return (
       <m.div
@@ -356,26 +187,15 @@ export function OrdersTab() {
         <div className="rounded-full bg-status-error/10 w-20 h-20 mx-auto flex items-center justify-center mb-6">
           <AlertCircle className="h-10 w-10 text-status-error" />
         </div>
-        <h2 className="text-xl font-display font-bold text-text-primary mb-2">
-          Unable to load orders
-        </h2>
-        <p className="font-body text-text-secondary mb-8">
-          We couldn&apos;t fetch your order history. Please try again.
-        </p>
-        <Button
-          variant="primary"
-          size="lg"
-          onClick={fetchOrders}
-          className="shadow-elevated"
-        >
-          <RefreshCcw className="h-4 w-4 mr-2" />
-          Try Again
+        <h2 className="text-xl font-display font-bold text-text-primary mb-2">Unable to load orders</h2>
+        <p className="font-body text-text-secondary mb-8">We couldn&apos;t fetch your order history. Please try again.</p>
+        <Button variant="primary" size="lg" onClick={fetchOrders} className="shadow-elevated">
+          <RefreshCcw className="h-4 w-4 mr-2" />Try Again
         </Button>
       </m.div>
     );
   }
 
-  // Empty state with illustration
   if (orders.length === 0) {
     return (
       <m.div
@@ -383,15 +203,11 @@ export function OrdersTab() {
         animate={shouldAnimate ? { opacity: 1 } : undefined}
         className="text-center py-16"
       >
-        {/* Illustration: Food/delivery themed */}
         <div className="relative w-32 h-32 mx-auto mb-6">
-          {/* Background circle */}
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-curry/20 to-primary/10" />
-          {/* Main icon */}
           <div className="absolute inset-0 flex items-center justify-center">
             <ShoppingBag className="h-12 w-12 text-curry" />
           </div>
-          {/* Decorative elements */}
           <div className="absolute -top-2 -right-2 bg-surface-primary rounded-full p-2 shadow-card">
             <UtensilsCrossed className="h-5 w-5 text-primary" />
           </div>
@@ -399,13 +215,9 @@ export function OrdersTab() {
             <Package className="h-4 w-4 text-text-muted" />
           </div>
         </div>
-
-        <h2 className="text-xl font-display font-bold text-text-primary mb-2">
-          No orders yet
-        </h2>
+        <h2 className="text-xl font-display font-bold text-text-primary mb-2">No orders yet</h2>
         <p className="font-body text-text-secondary mb-8 max-w-sm mx-auto">
-          When you place an order, it will appear here. Ready to discover
-          delicious Burmese cuisine?
+          When you place an order, it will appear here. Ready to discover delicious Burmese cuisine?
         </p>
         <Button asChild variant="primary" size="lg" className="shadow-elevated">
           <Link href="/menu">Browse Menu</Link>
@@ -430,7 +242,6 @@ export function OrdersTab() {
             <Card className="shadow-card hover:shadow-card-hover transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-4">
-                  {/* Order Info */}
                   <Link
                     href={`/orders/${order.id}`}
                     className="flex items-start gap-4 flex-1 min-w-0 group"
@@ -448,37 +259,25 @@ export function OrdersTab() {
                       </p>
                       {order.deliveryWindowStart && (
                         <p className="text-sm text-text-secondary">
-                          Delivery:{" "}
-                          {format(
-                            parseISO(order.deliveryWindowStart),
-                            "EEEE, MMM d"
-                          )}
+                          Delivery: {format(parseISO(order.deliveryWindowStart), "EEEE, MMM d")}
                         </p>
                       )}
                     </div>
                     <ChevronRight className="h-5 w-5 text-text-muted flex-shrink-0 group-hover:text-primary transition-colors" />
                   </Link>
-
-                  {/* Price & Status */}
                   <div className="text-right flex-shrink-0">
-                    <p className="font-medium text-text-primary">
-                      {formatPrice(order.totalCents)}
-                    </p>
+                    <p className="font-medium text-text-primary">{formatPrice(order.totalCents)}</p>
                     <Badge className={STATUS_COLORS[order.status]}>
                       {STATUS_LABELS[order.status]}
                     </Badge>
                     {order.status === "pending" && (
                       <p className="text-xs text-amber-600 flex items-center justify-end gap-1 mt-1">
-                        <AlertCircle className="h-3 w-3" />
-                        Action required
+                        <AlertCircle className="h-3 w-3" />Action required
                       </p>
                     )}
                   </div>
                 </div>
-
-                {/* Action Buttons */}
                 <div className="flex gap-2 mt-4 pt-4 border-t border-border">
-                  {/* Reorder Button */}
                   <Button
                     variant="outline"
                     size="sm"
@@ -493,8 +292,6 @@ export function OrdersTab() {
                     )}
                     Reorder
                   </Button>
-
-                  {/* Cancel Button - Only for pending/confirmed */}
                   {CANCELLABLE_STATUSES.includes(order.status) && (
                     <Button
                       variant="ghost"
@@ -518,21 +315,16 @@ export function OrdersTab() {
         ))}
       </div>
 
-      {/* Cancel Confirmation Dialog */}
       <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Cancel Order</DialogTitle>
             <DialogDescription>
-              Please provide a reason for cancelling this order. This action
-              cannot be undone.
+              Please provide a reason for cancelling this order. This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <label
-              htmlFor="cancelReason"
-              className="block text-sm font-medium text-text-primary mb-2"
-            >
+            <label htmlFor="cancelReason" className="block text-sm font-medium text-text-primary mb-2">
               Cancellation Reason
             </label>
             <Input
@@ -543,13 +335,7 @@ export function OrdersTab() {
             />
           </div>
           <DialogFooter>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setCancelDialogOpen(false);
-                setOrderToCancel(null);
-              }}
-            >
+            <Button variant="ghost" onClick={() => { setCancelDialogOpen(false); setOrderToCancel(null); }}>
               Keep Order
             </Button>
             <Button
