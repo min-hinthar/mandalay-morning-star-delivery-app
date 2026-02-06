@@ -7,7 +7,7 @@
 - v1.2 Playful UI Overhaul - Phases 15-24 (shipped 2026-01-27)
 - v1.3 Full Codebase Consolidation - Phases 25-34 (shipped 2026-01-28)
 - v1.4 Mobile Excellence - Phases 35-39 (shipped 2026-02-05)
-- **v1.5 Performance & Repo Health - Phases 40-46 (active)**
+- **v1.5 Performance & Repo Health - Phases 40-47 (active)**
 
 ## Current Status
 
@@ -45,7 +45,8 @@
   - [x] 45-01-PLAN.md — Delete legacy docs (V0-V8) + untrack build artifacts
   - [x] 45-02-PLAN.md — .gitignore audit + planning files archival + STATE/ROADMAP trim
   - [x] 45-03-PLAN.md — README update + PERFORMANCE.md creation
-- [ ] Phase 46: Large File Refactoring (optional/stretch)
+- [ ] Phase 46: Large File Refactoring (split 29 files >400 lines)
+- [ ] Phase 47: Final LCP Measurement & Gap Closure (audit gap closure)
 
 ---
 
@@ -89,10 +90,10 @@ See archived milestone files in `.planning/archive/`
 | v1.2 Playful UI | 15-24 | 29 | Complete | 2026-01-27 |
 | v1.3 Consolidation | 25-34 | 53 | Complete | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | Complete | 2026-02-05 |
-| **v1.5 Performance** | 40-46 | 21+ | Active | - |
+| **v1.5 Performance** | 40-47 | 21+ | Active | - |
 
 **Total shipped:** 43 phases, 190 plans
 
 ---
 
-*Updated: 2026-02-06 - Phase 45 complete (3 plans: legacy cleanup, archival, documentation)*
+*Updated: 2026-02-06 - Added Phase 47 (gap closure) from milestone audit*
