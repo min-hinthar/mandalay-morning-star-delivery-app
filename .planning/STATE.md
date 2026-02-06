@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 
 ## Current Position
 
-Phase: 40 complete, ready for Phase 41
-Plan: 3 of 3 complete (Phase 40 done)
-Status: Phase 40 complete
-Last activity: 2026-02-06 — Phase 40 LCP Quick Wins complete (43-46% LCP reduction)
+Phase: 41 of 46 (Server Component Conversions)
+Plan: 1 of ? complete
+Status: In progress
+Last activity: 2026-02-06 — Completed 41-01 (loading/error infrastructure)
 
-Progress: [##                                                                ] v1.5 3/52 (6%)
+Progress: [###                                                               ] v1.5 4/52 (8%)
 
 ## Milestones
 
@@ -40,6 +40,8 @@ Progress: [##                                                                ] v
 | Primary optimization: CardImage to Next.js Image | 2.6s resource load delay is main bottleneck |
 | CardImage converted: 43-46% LCP reduction | Homepage 19.9s→11.4s, Menu 18.2s→9.8s |
 | JS bundle is primary remaining bottleneck | TBT still 2-3s; Server Component conversion needed |
+| RouteLoading/RouteError infrastructure | Reusable components for route segments |
+| Hydration smoke test foundation | Parameterized tests detect hydration mismatches |
 
 ### Key Decisions (v1.4)
 
@@ -66,10 +68,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Phase 40 complete (all 3 plans executed)
+Stopped at: Completed 41-01-PLAN.md
 Resume file: None
-Next action: Plan Phase 41 (Server Component Conversions)
+Next action: Execute Phase 41 Plan 02 (page conversions)
 
 ---
 
-*Updated: 2026-02-06 — Phase 40 complete (LCP: 19.9s→11.4s homepage, 18.2s→9.8s menu)*
+*Updated: 2026-02-06 — Completed 41-01 (RouteLoading, RouteError, hydration-smoke.spec.ts)*
