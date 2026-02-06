@@ -1,21 +1,12 @@
-/* eslint-disable max-lines -- Modal module contains Modal, ConfirmModal, ModalHeader, ModalFooter, and useModal hook - splitting would break cohesion */
+"use client";
+
 /**
- * V5 Sprint 5: Modal Component
+ * Modal Component
  *
  * Production-grade accessible modal with responsive animations.
  * - Desktop: Scale + fade centered dialog
  * - Mobile: Slide up bottom sheet with swipe-to-close
- *
- * Features:
- * - Focus trap with automatic focus management
- * - Escape key and backdrop click close
- * - Body scroll lock (preserves scroll position)
- * - Swipe to close on mobile via useSwipeToClose
- * - Nested modal support with z-index stacking
- * - Full reduced motion support
  */
-
-"use client";
 
 import {
   useState,
@@ -25,143 +16,30 @@ import {
   useId,
   createContext,
   useContext,
-  type ReactNode,
   type KeyboardEvent,
 } from "react";
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Portal } from "./Portal";
+import { Portal } from "../Portal";
 import { X } from "lucide-react";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
 import { useSwipeToClose, triggerHaptic } from "@/lib/swipe-gestures";
 import { cn } from "@/lib/utils/cn";
 import { zIndex as zIndexTokens } from "@/lib/design-system/tokens/z-index";
-
-// ============================================
-// CONTEXT FOR NESTED MODALS
-// ============================================
+import type { ModalProps } from "./types";
+import {
+  sizeConfig,
+  backdropVariants,
+  desktopVariants,
+  mobileVariants,
+  reducedMotionVariants,
+} from "./constants";
 
 const ModalStackContext = createContext<number>(0);
 
 function useModalStack() {
   return useContext(ModalStackContext);
 }
-
-// ============================================
-// TYPES
-// ============================================
-
-export interface ModalProps {
-  /** Whether the modal is open */
-  isOpen: boolean;
-  /** Callback when modal should close */
-  onClose: () => void;
-  /** Modal title for accessibility (visually hidden) */
-  title: string;
-  /** Modal content */
-  children: ReactNode;
-  /** Whether to show close button (default: true) */
-  showCloseButton?: boolean;
-  /** Whether clicking backdrop closes modal (default: true) */
-  closeOnBackdropClick?: boolean;
-  /** Whether pressing Escape closes modal (default: true) */
-  closeOnEscape?: boolean;
-  /** Whether swipe down closes modal on mobile (default: true) */
-  closeOnSwipeDown?: boolean;
-  /** Size variant */
-  size?: "sm" | "md" | "lg" | "xl" | "full";
-  /** Additional class names for modal content */
-  className?: string;
-  /** Additional class names for backdrop */
-  backdropClassName?: string;
-  /** Optional header content (replaces default) */
-  header?: ReactNode;
-  /** Optional footer content */
-  footer?: ReactNode;
-  /** Initial focus element ref */
-  initialFocusRef?: React.RefObject<HTMLElement>;
-}
-
-// ============================================
-// SIZE CONFIGURATIONS
-// ============================================
-
-const sizeConfig = {
-  sm: { maxWidth: "max-w-sm", padding: "p-4" },
-  md: { maxWidth: "max-w-md", padding: "p-5" },
-  lg: { maxWidth: "max-w-lg", padding: "p-6" },
-  xl: { maxWidth: "max-w-xl", padding: "p-6" },
-  full: { maxWidth: "max-w-[calc(100vw-2rem)]", padding: "p-6" },
-};
-
-// ============================================
-// ANIMATION VARIANTS
-// ============================================
-
-const backdropVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-  exit: { opacity: 0 },
-};
-
-const desktopVariants = {
-  hidden: {
-    opacity: 0,
-    scale: 0.95,
-    y: 8,
-  },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      damping: 25,
-      stiffness: 300,
-    },
-  },
-  exit: {
-    opacity: 0,
-    scale: 0.95,
-    y: 8,
-    transition: {
-      duration: 0.2,
-      ease: "easeIn",
-    },
-  },
-};
-
-// Simplified mobile variants - removed opacity animation to reduce GPU load on mobile
-const mobileVariants = {
-  hidden: {
-    y: "100%",
-  },
-  visible: {
-    y: 0,
-    transition: {
-      type: "spring" as const,
-      damping: 30, // Increased damping for less bouncy, more stable
-      stiffness: 300,
-    },
-  },
-  exit: {
-    y: "100%",
-    transition: {
-      duration: 0.15, // Faster exit
-      ease: "easeIn" as const,
-    },
-  },
-};
-
-const reducedMotionVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-  exit: { opacity: 0 },
-};
-
-// ============================================
-// MODAL COMPONENT
-// ============================================
 
 export function Modal({
   isOpen,
@@ -210,16 +88,10 @@ export function Modal({
     disabled: !isMobile || !closeOnSwipeDown || prefersReducedMotion === true,
   });
 
-  // ============================================
-  // SCROLL LOCK (uses shared hook with deferred restore)
-  // ============================================
-
+  // Scroll lock (uses shared hook with deferred restore)
   const { restoreScrollPosition } = useBodyScrollLock(isOpen, { deferRestore: true });
 
-  // ============================================
-  // FOCUS MANAGEMENT
-  // ============================================
-
+  // Focus management
   useEffect(() => {
     if (isOpen) {
       // Store last active element
@@ -247,10 +119,7 @@ export function Modal({
     }
   }, [isOpen, initialFocusRef]);
 
-  // ============================================
-  // KEYBOARD HANDLING
-  // ============================================
-
+  // Keyboard handling (Escape key)
   useEffect(() => {
     if (!isOpen || !closeOnEscape) return;
 
@@ -292,10 +161,7 @@ export function Modal({
     []
   );
 
-  // ============================================
-  // BACKDROP CLICK
-  // ============================================
-
+  // Backdrop click
   const handleBackdropClick = useCallback(
     (event: React.MouseEvent) => {
       if (closeOnBackdropClick && event.target === event.currentTarget) {
@@ -305,12 +171,7 @@ export function Modal({
     [closeOnBackdropClick, onClose]
   );
 
-  // ============================================
-  // WILL CHANGE OPTIMIZATION
-  // ============================================
-
-  // willChange optimization: apply only during animation, remove when static
-  // Prevents compositor layer bloat when modal is open but not animating
+  // willChange optimization
   const handleAnimationStart = useCallback(() => {
     if (modalRef.current) {
       modalRef.current.style.willChange = "transform";
@@ -322,10 +183,6 @@ export function Modal({
       modalRef.current.style.willChange = "auto";
     }
   }, []);
-
-  // ============================================
-  // RENDER
-  // ============================================
 
   // SSR safety: don't render portal until mounted on client
   if (!isMounted) return null;
@@ -410,8 +267,6 @@ export function Modal({
                 // Base styles
                 "relative w-full",
                 // Solid background - using explicit white/black for mobile reliability
-                // Mobile: solid bg-white/bg-black (no blur to prevent crashes)
-                // Desktop: slight transparency with backdrop blur
                 // eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution
                 "bg-white dark:bg-black border border-border",
                 "sm:backdrop-blur-xl",
@@ -526,221 +381,5 @@ export function Modal({
         </AnimatePresence>
       </ModalStackContext.Provider>
     </Portal>
-  );
-}
-
-// ============================================
-// MODAL STATE HOOK
-// ============================================
-
-export interface UseModalReturn {
-  isOpen: boolean;
-  open: () => void;
-  close: () => void;
-  toggle: () => void;
-  setIsOpen: (value: boolean) => void;
-}
-
-/**
- * Hook to manage modal state with convenient methods.
- *
- * @example
- * const { isOpen, open, close } = useModal();
- *
- * <button onClick={open}>Open Modal</button>
- * <Modal isOpen={isOpen} onClose={close} title="Example">
- *   Content here
- * </Modal>
- */
-export function useModal(initialOpen = false): UseModalReturn {
-  const [isOpen, setIsOpen] = useState(initialOpen);
-
-  const open = useCallback(() => setIsOpen(true), []);
-  const close = useCallback(() => setIsOpen(false), []);
-  const toggle = useCallback(() => setIsOpen((prev) => !prev), []);
-
-  return { isOpen, open, close, toggle, setIsOpen };
-}
-
-// ============================================
-// MODAL HEADER COMPONENT
-// ============================================
-
-export interface ModalHeaderProps {
-  children: ReactNode;
-  className?: string;
-}
-
-/**
- * Styled header for modal content.
- */
-export function ModalHeader({ children, className }: ModalHeaderProps) {
-  return (
-    <div className={cn(
-      "text-lg font-semibold",
-      "text-[var(--color-text-primary,#1a1918)] dark:text-[var(--color-text-primary-dark,#f8f7f6)]",
-      className
-    )}>
-      {children}
-    </div>
-  );
-}
-
-// ============================================
-// MODAL FOOTER COMPONENT
-// ============================================
-
-export interface ModalFooterProps {
-  children: ReactNode;
-  className?: string;
-}
-
-/**
- * Styled footer for modal actions.
- */
-export function ModalFooter({ children, className }: ModalFooterProps) {
-  return (
-    <div className={cn(
-      "flex items-center justify-end gap-3",
-      className
-    )}>
-      {children}
-    </div>
-  );
-}
-
-// ============================================
-// CONFIRMATION MODAL COMPONENT
-// ============================================
-
-export interface ConfirmModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  title: string;
-  message: ReactNode;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  variant?: "default" | "danger";
-  isLoading?: boolean;
-}
-
-/**
- * Pre-built confirmation dialog modal.
- *
- * @example
- * <ConfirmModal
- *   isOpen={showConfirm}
- *   onClose={() => setShowConfirm(false)}
- *   onConfirm={handleDelete}
- *   title="Delete Item"
- *   message="Are you sure you want to delete this item?"
- *   variant="danger"
- * />
- */
-export function ConfirmModal({
-  isOpen,
-  onClose,
-  onConfirm,
-  title,
-  message,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
-  variant = "default",
-  isLoading = false,
-}: ConfirmModalProps) {
-  const handleConfirm = useCallback(() => {
-    onConfirm();
-    onClose();
-  }, [onConfirm, onClose]);
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={title}
-      size="sm"
-      closeOnSwipeDown={false}
-    >
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold text-[var(--color-text-primary,#1a1918)] dark:text-[var(--color-text-primary-dark,#f8f7f6)]">
-            {title}
-          </h3>
-          <p className="mt-2 text-sm text-[var(--color-text-secondary,#4a4845)] dark:text-[var(--color-text-secondary-dark,#b5b3b0)]">
-            {message}
-          </p>
-        </div>
-
-        <div className="flex gap-3 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isLoading}
-            className={cn(
-              "flex-1 px-4 py-2.5 rounded-lg",
-              "text-sm font-medium",
-              "bg-[var(--color-surface-secondary,#f8f7f6)] dark:bg-[var(--color-surface-secondary-dark,#2a2827)]",
-              "text-[var(--color-text-primary,#1a1918)] dark:text-[var(--color-text-primary-dark,#f8f7f6)]",
-              "hover:bg-[var(--color-surface-tertiary,#f0eeec)] dark:hover:bg-[var(--color-surface-tertiary-dark,#3a3837)]",
-              "transition-colors duration-150",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-              "disabled:opacity-50 disabled:cursor-not-allowed"
-            )}
-          >
-            {cancelLabel}
-          </button>
-          <button
-            type="button"
-            onClick={handleConfirm}
-            disabled={isLoading}
-            className={cn(
-              "flex-1 px-4 py-2.5 rounded-lg",
-              "text-sm font-medium",
-              "transition-colors duration-150",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              variant === "danger"
-                ? [
-                    "bg-[var(--color-status-error,#C45C4A)]",
-                    "text-text-inverse",
-                    "hover:bg-[var(--color-accent-tertiary,#b54a3a)]",
-                    "focus-visible:ring-[var(--color-status-error,#C45C4A)]",
-                  ]
-                : [
-                    "bg-[var(--color-interactive-primary,#D4A853)]",
-                    "text-text-inverse",
-                    "hover:bg-[var(--color-interactive-hover,#C49843)]",
-                    "focus-visible:ring-[var(--color-interactive-primary,#D4A853)]",
-                  ]
-            )}
-          >
-            {isLoading ? (
-              <span className="inline-flex items-center gap-2">
-                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                Loading...
-              </span>
-            ) : (
-              confirmLabel
-            )}
-          </button>
-        </div>
-      </div>
-    </Modal>
   );
 }

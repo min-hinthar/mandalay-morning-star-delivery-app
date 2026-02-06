@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * Skeleton Base Component
+ *
+ * Core skeleton loading animation with shimmer, pulse, wave, and grain variants.
+ */
+
 import { forwardRef } from "react";
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
@@ -42,7 +48,7 @@ const radiusConfig = {
 };
 
 // ============================================
-// SHIMMER ANIMATION
+// ANIMATIONS
 // ============================================
 
 // Bound shimmer to 10 cycles - skeletons should only show briefly during loading
@@ -58,11 +64,7 @@ const shimmerAnimation = {
   },
 };
 
-// ============================================
-// WAVE ANIMATION
-// ============================================
-
-// Bound wave to 10 cycles - skeletons should only show briefly during loading
+// Bound wave to 10 cycles
 const waveAnimation = {
   initial: { backgroundPosition: "200% 0" },
   animate: {
@@ -75,11 +77,7 @@ const waveAnimation = {
   },
 };
 
-// ============================================
-// PULSE ANIMATION
-// ============================================
-
-// Bound pulse to 10 cycles - skeletons should only show briefly during loading
+// Bound pulse to 10 cycles
 const pulseAnimation = {
   initial: { opacity: 0.6 },
   animate: {
@@ -248,221 +246,3 @@ export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
 );
 
 Skeleton.displayName = "Skeleton";
-
-// ============================================
-// SKELETON TEXT
-// Pre-configured for text blocks
-// ============================================
-
-export interface SkeletonTextProps {
-  /** Number of lines */
-  lines?: number;
-  /** Last line width percentage */
-  lastLineWidth?: string;
-  /** Line height */
-  lineHeight?: number;
-  /** Gap between lines */
-  gap?: number;
-  /** Class names */
-  className?: string;
-}
-
-export function SkeletonText({
-  lines = 3,
-  lastLineWidth = "75%",
-  lineHeight = 16,
-  gap = 8,
-  className,
-}: SkeletonTextProps) {
-  return (
-    <div className={cn("flex flex-col", className)} style={{ gap }}>
-      {Array.from({ length: lines }).map((_, index) => (
-        <Skeleton
-          key={index}
-          height={lineHeight}
-          width={index === lines - 1 ? lastLineWidth : "100%"}
-          radius="sm"
-          variant="shimmer"
-        />
-      ))}
-    </div>
-  );
-}
-
-// ============================================
-// SKELETON AVATAR
-// Pre-configured for avatars
-// ============================================
-
-export interface SkeletonAvatarProps {
-  /** Avatar size */
-  size?: number | "sm" | "md" | "lg" | "xl";
-  /** Class names */
-  className?: string;
-}
-
-const avatarSizes = {
-  sm: 32,
-  md: 40,
-  lg: 48,
-  xl: 64,
-};
-
-export function SkeletonAvatar({ size = "md", className }: SkeletonAvatarProps) {
-  const actualSize = typeof size === "number" ? size : avatarSizes[size];
-
-  return (
-    <Skeleton
-      width={actualSize}
-      height={actualSize}
-      radius="full"
-      variant="shimmer"
-      className={className}
-    />
-  );
-}
-
-// ============================================
-// SKELETON CARD
-// Pre-configured card layout
-// ============================================
-
-export interface SkeletonCardProps {
-  /** Show image placeholder */
-  withImage?: boolean;
-  /** Image height */
-  imageHeight?: number;
-  /** Show avatar */
-  withAvatar?: boolean;
-  /** Number of text lines */
-  textLines?: number;
-  /** Class names */
-  className?: string;
-}
-
-export function SkeletonCard({
-  withImage = true,
-  imageHeight = 160,
-  withAvatar = false,
-  textLines = 2,
-  className,
-}: SkeletonCardProps) {
-  return (
-    <div
-      className={cn(
-        "bg-surface-primary rounded-xl border border-border-default overflow-hidden",
-        className
-      )}
-    >
-      {/* Image */}
-      {withImage && (
-        <Skeleton
-          height={imageHeight}
-          radius="none"
-          variant="shimmer"
-          withGrain
-        />
-      )}
-
-      {/* Content */}
-      <div className="p-4 space-y-3">
-        {/* Header with optional avatar */}
-        <div className="flex items-center gap-3">
-          {withAvatar && <SkeletonAvatar size="md" />}
-          <div className="flex-1 space-y-2">
-            <Skeleton height={18} width="70%" radius="sm" />
-            {withAvatar && <Skeleton height={14} width="40%" radius="sm" />}
-          </div>
-        </div>
-
-        {/* Text lines */}
-        {textLines > 0 && (
-          <SkeletonText lines={textLines} lineHeight={14} gap={6} />
-        )}
-
-        {/* Action area */}
-        <div className="flex justify-between items-center pt-2">
-          <Skeleton height={14} width="30%" radius="sm" />
-          <Skeleton height={32} width={80} radius="lg" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================
-// SKELETON MENU ITEM
-// Pre-configured for menu items
-// ============================================
-
-export function SkeletonMenuItem({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-4 p-4 bg-surface-primary rounded-xl border border-border-default",
-        className
-      )}
-    >
-      {/* Image */}
-      <Skeleton
-        width={80}
-        height={80}
-        radius="lg"
-        variant="shimmer"
-        withGrain
-      />
-
-      {/* Content */}
-      <div className="flex-1 space-y-2">
-        <Skeleton height={18} width="60%" radius="sm" />
-        <Skeleton height={14} width="80%" radius="sm" />
-        <div className="flex justify-between items-center pt-1">
-          <Skeleton height={20} width={60} radius="sm" />
-          <Skeleton height={32} width={32} radius="full" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================
-// SKELETON TABLE ROW
-// Pre-configured for table rows
-// ============================================
-
-export interface SkeletonTableRowProps {
-  /** Number of columns */
-  columns?: number;
-  /** Row height */
-  height?: number;
-  /** Class names */
-  className?: string;
-}
-
-export function SkeletonTableRow({
-  columns = 4,
-  height = 48,
-  className,
-}: SkeletonTableRowProps) {
-  const columnWidths = ["30%", "25%", "20%", "15%", "10%"];
-
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-4 px-4 border-b border-border-subtle",
-        className
-      )}
-      style={{ height }}
-    >
-      {Array.from({ length: columns }).map((_, index) => (
-        <Skeleton
-          key={index}
-          height={14}
-          width={columnWidths[index % columnWidths.length]}
-          radius="sm"
-          variant="pulse"
-        />
-      ))}
-    </div>
-  );
-}
