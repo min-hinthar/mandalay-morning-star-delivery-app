@@ -38,7 +38,7 @@
   - [x] 43-01-PLAN.md — Cart scoping to route-group layouts (CartOverlays + layouts + providers cleanup)
   - [x] 43-02-PLAN.md — Navigation guards + bundle verification
 - [ ] Phase 44: Animation Optimization & Monitoring (lock in <2.5s) - **3 plans**
-  - [ ] 44-01-PLAN.md — React Compiler enable + GSAP dead plugin removal
+  - [x] 44-01-PLAN.md — React Compiler enable + GSAP dead plugin removal
   - [ ] 44-02-PLAN.md — LazyMotion provider + full motion.* to m.* migration
   - [ ] 44-03-PLAN.md — Lighthouse CI performance gate setup
 - [ ] Phase 45: Repo Cleanup & Hygiene

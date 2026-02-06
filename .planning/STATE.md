@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 
 ## Current Position
 
-Phase: 43 of 46 (Provider & Route Layout Refactoring)
-Plan: 2 of 2 complete
-Status: Phase complete
-Last activity: 2026-02-06 — Completed 43-02 (navigation guards + bundle verification)
+Phase: 44 of 46 (Animation Optimization & Monitoring)
+Plan: 1 of 3 complete
+Status: In progress
+Last activity: 2026-02-06 — Completed 44-01 (React Compiler + GSAP cleanup)
 
-Progress: [#################                                                 ] v1.5 17/52 (33%)
+Progress: [##################                                                ] v1.5 18/52 (35%)
 
 ## Milestones
 
@@ -27,7 +27,7 @@ Progress: [#################                                                 ] v
 | v1.4 Mobile Excellence | 35-39 | 39 | 2026-02-05 |
 | **v1.5 Performance & Repo Health** | 40-46 | 52 | In Progress |
 
-**Total completed:** 42 phases, 190 plans, 214 requirements
+**Total completed:** 42 phases, 191 plans, 214 requirements
 
 ## Accumulated Context
 
@@ -61,6 +61,8 @@ Progress: [#################                                                 ] v
 | useNavigationGuard: browser-level only | popstate + beforeunload; Link interception via page-level onNavigate |
 | Cart page guard nudges to checkout | onStay navigates to /checkout, not just close modal |
 | Empty checkout redirect with toast | router.replace to /menu avoids history pollution |
+| React Compiler enabled globally, no opt-outs | All 282 client components compile cleanly; reactCompiler: true top-level |
+| SplitText, Flip, Observer removed from GSAP | Zero consumer files; only useGSAP + ScrollTrigger actively used |
 
 ### Key Decisions (v1.4)
 
@@ -87,10 +89,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 43-02-PLAN.md (Phase 43 complete)
+Stopped at: Completed 44-01-PLAN.md
 Resume file: None
-Next action: Begin Phase 44
+Next action: Execute 44-02-PLAN.md (LazyMotion + motion.* to m.* migration)
 
 ---
 
-*Updated: 2026-02-06 — Phase 43 complete: cart scoped to route groups + navigation guards on checkout/cart*
+*Updated: 2026-02-06 — Plan 44-01: React Compiler enabled globally + dead GSAP plugins removed*
