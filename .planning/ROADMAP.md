@@ -2,23 +2,34 @@
 
 ## Milestones
 
-- ✅ v1.0 MVP - Phases 1-8 (shipped 2026-01-23)
-- ✅ v1.1 Tech Debt Cleanup - Phases 9-14 (shipped 2026-01-23)
-- ✅ v1.2 Playful UI Overhaul - Phases 15-24 (shipped 2026-01-27)
-- ✅ v1.3 Full Codebase Consolidation - Phases 25-34 (shipped 2026-01-28)
-- ✅ v1.4 Mobile Excellence - Phases 35-39 (shipped 2026-02-05)
-- 📋 v1.5 — Planning next milestone
+- v1.0 MVP - Phases 1-8 (shipped 2026-01-23)
+- v1.1 Tech Debt Cleanup - Phases 9-14 (shipped 2026-01-23)
+- v1.2 Playful UI Overhaul - Phases 15-24 (shipped 2026-01-27)
+- v1.3 Full Codebase Consolidation - Phases 25-34 (shipped 2026-01-28)
+- v1.4 Mobile Excellence - Phases 35-39 (shipped 2026-02-05)
+- **v1.5 Performance & Repo Health - Phases 40-46 (active)**
 
 ## Current Status
 
-**Next milestone:** v1.5 (not yet defined)
+**Current milestone:** v1.5 Performance & Repo Health
+**Primary Goal:** LCP < 2.5s (from current 8.1s)
+**Secondary Goals:** Repo cleanup, large file refactoring
 
-Run `/gsd:new-milestone` to start planning the next milestone.
+**See full details:** `.planning/milestones/v1.5-ROADMAP.md`
+
+**Phases:**
+- [ ] Phase 40: LCP Element Quick Wins (target: 8.1s to 4-5s)
+- [ ] Phase 41: Server Component Conversions (target: 4-5s to 3-3.5s)
+- [ ] Phase 42: Dynamic Import Heavy Libraries (target: 3-3.5s to 2.5s)
+- [ ] Phase 43: Provider & Route Layout Refactoring (refinement to <2.5s)
+- [ ] Phase 44: Animation Optimization & Monitoring (lock in <2.5s)
+- [ ] Phase 45: Repo Cleanup & Hygiene
+- [ ] Phase 46: Large File Refactoring (optional/stretch)
 
 ---
 
 <details>
-<summary>✅ v1.4 Mobile Excellence (Phases 35-39) - SHIPPED 2026-02-05</summary>
+<summary>v1.4 Mobile Excellence (Phases 35-39) - SHIPPED 2026-02-05</summary>
 
 **See full details:** `.planning/milestones/v1.4-ROADMAP.md`
 
@@ -40,28 +51,28 @@ Run `/gsd:new-milestone` to start planning the next milestone.
 </details>
 
 <details>
-<summary>✅ v1.3 Full Codebase Consolidation (Phases 25-34) - SHIPPED 2026-01-28</summary>
+<summary>v1.3 Full Codebase Consolidation (Phases 25-34) - SHIPPED 2026-01-28</summary>
 
 See `.planning/milestones/v1.3-ROADMAP.md` or MILESTONES.md for details.
 
 </details>
 
 <details>
-<summary>✅ v1.2 Playful UI Overhaul (Phases 15-24) - SHIPPED 2026-01-27</summary>
+<summary>v1.2 Playful UI Overhaul (Phases 15-24) - SHIPPED 2026-01-27</summary>
 
 See MILESTONES.md for details.
 
 </details>
 
 <details>
-<summary>✅ v1.1 Tech Debt Cleanup (Phases 9-14) - SHIPPED 2026-01-23</summary>
+<summary>v1.1 Tech Debt Cleanup (Phases 9-14) - SHIPPED 2026-01-23</summary>
 
 See MILESTONES.md for details.
 
 </details>
 
 <details>
-<summary>✅ v1.0 MVP (Phases 1-8) - SHIPPED 2026-01-23</summary>
+<summary>v1.0 MVP (Phases 1-8) - SHIPPED 2026-01-23</summary>
 
 See MILESTONES.md for details.
 
@@ -78,10 +89,10 @@ See MILESTONES.md for details.
 | v1.2 Playful UI | 15-24 | 29 | Complete | 2026-01-27 |
 | v1.3 Consolidation | 25-34 | 53 | Complete | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | Complete | 2026-02-05 |
-| **v1.5** | 40+ | TBD | Planning | - |
+| **v1.5 Performance** | 40-46 | TBD | Active | - |
 
 **Total shipped:** 39 phases, 174 plans
 
 ---
 
-*Updated: 2026-02-05 — v1.4 milestone complete*
+*Updated: 2026-02-05 - v1.5 milestone roadmap created*
