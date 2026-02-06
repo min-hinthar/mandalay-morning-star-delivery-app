@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { m, AnimatePresence } from "framer-motion";
+import { m } from "framer-motion";
 import { format, parseISO } from "date-fns";
 import {
   ChevronDown,
@@ -9,11 +9,7 @@ import {
   MoreHorizontal,
   Eye,
   Trash2,
-  Play,
-  CheckCircle2,
   MapPin,
-  Clock,
-  User,
   Route,
   Package,
 } from "lucide-react";
@@ -42,55 +38,10 @@ import {
   RoutePreviewPanel,
   useExpandedRows,
 } from "@/components/ui/admin/ExpandableTableRow";
+import { RouteMobileCard } from "./RouteMobileCard";
+import { STATUS_CONFIG, NEXT_STATUSES } from "./types";
+import type { RouteListTableProps, SortField, SortDirection } from "./types";
 import type { RouteStatus } from "@/types/driver";
-
-export interface AdminRoute {
-  id: string;
-  deliveryDate: string;
-  driver: {
-    id: string;
-    fullName: string | null;
-  } | null;
-  status: RouteStatus;
-  stopCount: number;
-  deliveredCount: number;
-  completionRate: number;
-  createdAt: string;
-}
-
-interface RouteListTableProps {
-  routes: AdminRoute[];
-  onViewRoute: (routeId: string) => void;
-  onStatusChange: (routeId: string, status: RouteStatus) => Promise<void>;
-  onDeleteRoute: (routeId: string) => Promise<void>;
-}
-
-type SortField = "deliveryDate" | "status" | "stopCount" | "completionRate";
-type SortDirection = "asc" | "desc";
-
-const STATUS_CONFIG: Record<RouteStatus, { label: string; className: string; icon: React.ReactNode }> = {
-  planned: {
-    label: "Planned",
-    className: "bg-status-info-bg text-status-info border-status-info/30",
-    icon: <Clock className="h-3.5 w-3.5" />,
-  },
-  in_progress: {
-    label: "In Progress",
-    className: "bg-interactive-primary-light text-interactive-primary border-interactive-primary/30",
-    icon: <Play className="h-3.5 w-3.5" />,
-  },
-  completed: {
-    label: "Completed",
-    className: "bg-status-success-bg text-status-success border-status-success/30",
-    icon: <CheckCircle2 className="h-3.5 w-3.5" />,
-  },
-};
-
-const NEXT_STATUSES: Record<RouteStatus, RouteStatus[]> = {
-  planned: ["in_progress"],
-  in_progress: ["completed"],
-  completed: [],
-};
 
 export function RouteListTable({
   routes,
@@ -115,12 +66,9 @@ export function RouteListTable({
 
   const sortedRoutes = [...routes].sort((a, b) => {
     let comparison = 0;
-
     switch (sortField) {
       case "deliveryDate":
-        comparison =
-          new Date(a.deliveryDate).getTime() -
-          new Date(b.deliveryDate).getTime();
+        comparison = new Date(a.deliveryDate).getTime() - new Date(b.deliveryDate).getTime();
         break;
       case "status":
         comparison = a.status.localeCompare(b.status);
@@ -132,7 +80,6 @@ export function RouteListTable({
         comparison = a.completionRate - b.completionRate;
         break;
     }
-
     return sortDirection === "asc" ? comparison : -comparison;
   });
 
@@ -147,7 +94,6 @@ export function RouteListTable({
 
   const handleDelete = async (routeId: string) => {
     if (!confirm("Are you sure you want to delete this route?")) return;
-
     setDeletingRouteId(routeId);
     try {
       await onDeleteRoute(routeId);
@@ -175,9 +121,7 @@ export function RouteListTable({
         <div className="rounded-full bg-interactive-primary-light w-20 h-20 mx-auto flex items-center justify-center mb-4">
           <Route className="h-10 w-10 text-interactive-primary" />
         </div>
-        <h2 className="text-xl font-display text-text-primary mb-2">
-          No routes found
-        </h2>
+        <h2 className="text-xl font-display text-text-primary mb-2">No routes found</h2>
         <p className="text-text-secondary max-w-md mx-auto">
           Create your first delivery route to start managing deliveries.
         </p>
@@ -191,7 +135,6 @@ export function RouteListTable({
       animate={{ opacity: 1, y: 0 }}
       className="rounded-xl border border-border-v5 bg-surface-primary shadow-md overflow-hidden"
     >
-      {/* Desktop Table View */}
       <div className="hidden md:block">
         <Table>
           <TableHeader>
@@ -230,14 +173,12 @@ export function RouteListTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {/* Note: Removed AnimatePresence - ExpandableTableRow returns Fragment which can't accept animation props */}
               {sortedRoutes.map((route) => {
                 const isUpdating = updatingRouteId === route.id;
                 const isDeleting = deletingRouteId === route.id;
                 const nextStatuses = NEXT_STATUSES[route.status];
                 const statusConfig = STATUS_CONFIG[route.status];
 
-                // Create mock stops for preview (in real app, this would come from route data)
                 const mockStops = Array.from({ length: Math.min(route.stopCount, 5) }, (_, i) => ({
                   address: `Stop ${i + 1} address`,
                   customerName: `Customer ${i + 1}`,
@@ -291,9 +232,7 @@ export function RouteListTable({
                           </span>
                         </div>
                       ) : (
-                        <span className="text-sm text-text-secondary italic">
-                          Unassigned
-                        </span>
+                        <span className="text-sm text-text-secondary italic">Unassigned</span>
                       )}
                     </TableCell>
                     <TableCell className="text-center">
@@ -306,10 +245,7 @@ export function RouteListTable({
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Progress
-                          value={route.completionRate}
-                          className="w-24 h-2"
-                        />
+                        <Progress value={route.completionRate} className="w-24 h-2" />
                         <span className="text-sm font-medium text-text-primary w-10">
                           {route.completionRate}%
                         </span>
@@ -336,17 +272,10 @@ export function RouteListTable({
                             {nextStatuses.map((status) => (
                               <DropdownMenuItem
                                 key={status}
-                                onClick={() =>
-                                  handleStatusChange(route.id, status)
-                                }
+                                onClick={() => handleStatusChange(route.id, status)}
                                 className="cursor-pointer"
                               >
-                                <Badge
-                                  className={cn(
-                                    STATUS_CONFIG[status].className,
-                                    "gap-1.5 border"
-                                  )}
-                                >
+                                <Badge className={cn(STATUS_CONFIG[status].className, "gap-1.5 border")}>
                                   {STATUS_CONFIG[status].icon}
                                   {STATUS_CONFIG[status].label}
                                 </Badge>
@@ -355,12 +284,7 @@ export function RouteListTable({
                           </DropdownMenuContent>
                         </DropdownMenu>
                       ) : (
-                        <Badge
-                          className={cn(
-                            statusConfig.className,
-                            "gap-1.5 border"
-                          )}
-                        >
+                        <Badge className={cn(statusConfig.className, "gap-1.5 border")}>
                           {statusConfig.icon}
                           {statusConfig.label}
                         </Badge>
@@ -407,95 +331,12 @@ export function RouteListTable({
         </Table>
       </div>
 
-      {/* Mobile Card View */}
-      <div className="md:hidden divide-y divide-border-v5/50">
-        <AnimatePresence>
-          {sortedRoutes.map((route, index) => {
-            const isUpdating = updatingRouteId === route.id;
-            const statusConfig = STATUS_CONFIG[route.status];
-
-            return (
-              <m.div
-                key={route.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ delay: index * 0.05 }}
-                className="p-4 hover:bg-interactive-primary-light/50 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-interactive-primary-light to-accent-tertiary/10">
-                      <MapPin className="h-5 w-5 text-interactive-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-text-primary">
-                        {format(parseISO(route.deliveryDate), "EEE, MMM d")}
-                      </p>
-                      <p className="text-xs text-text-secondary">
-                        {route.stopCount} stops
-                      </p>
-                    </div>
-                  </div>
-                  <Badge
-                    className={cn(
-                      statusConfig.className,
-                      "gap-1.5 border shrink-0"
-                    )}
-                  >
-                    {statusConfig.icon}
-                    {isUpdating ? "..." : statusConfig.label}
-                  </Badge>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <User className="h-4 w-4 text-text-secondary" />
-                    <span className="text-text-secondary">
-                      {route.driver?.fullName || "Unassigned"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-accent-tertiary">
-                    <Package className="h-4 w-4" />
-                    <span className="font-medium">
-                      {route.deliveredCount}/{route.stopCount} delivered
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mt-3 flex items-center gap-3">
-                  <Progress value={route.completionRate} className="flex-1 h-2" />
-                  <span className="text-sm font-medium text-text-primary">
-                    {route.completionRate}%
-                  </span>
-                </div>
-
-                <div className="mt-4 flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 border-interactive-primary/30 text-interactive-primary hover:bg-interactive-primary-light"
-                    onClick={() => onViewRoute(route.id)}
-                  >
-                    <Eye className="mr-2 h-4 w-4" />
-                    View
-                  </Button>
-                  {route.status === "planned" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-red-200 text-red-600 hover:bg-red-50"
-                      onClick={() => handleDelete(route.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </m.div>
-            );
-          })}
-        </AnimatePresence>
-      </div>
+      <RouteMobileCard
+        routes={sortedRoutes}
+        updatingRouteId={updatingRouteId}
+        onViewRoute={onViewRoute}
+        onDelete={handleDelete}
+      />
     </m.div>
   );
 }
