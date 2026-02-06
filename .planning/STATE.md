@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 46 of 46 (Large File Refactoring)
-Plan: 5 of 7 complete
+Plan: 6 of 7 complete
 Status: In progress
-Last activity: 2026-02-06 — Completed 46-03-PLAN.md (shared UI component splits)
+Last activity: 2026-02-06 — Completed 46-06-PLAN.md (lib file subfolder splits)
 
-Progress: [############################                                      ] v1.5 27/52 (52%)
+Progress: [#############################                                     ] v1.5 28/52 (54%)
 
 ## Milestones
 
@@ -74,6 +74,8 @@ Progress: [############################                                      ] v
 | UnifiedMenuItemCard.tsx irreducible at 540 lines | Tightly coupled tilt physics, cart, touch handling through shared refs/state |
 | High-export barrels: subfolder pattern | FormValidation (20), Modal (10), skeleton (11) split with complete barrel re-exports |
 | Constants extraction for oversized components | Animation variants and config objects to constants.ts when component exceeds 400 lines |
+| motion-tokens core.ts as foundation | duration/easing/spring/transition in core.ts; all sub-files import from core (one-directional) |
+| Lib subfolder barrel pattern | 7 lib files split into subfolders with complete barrel re-exports preserving all import paths |
 
 ### Tech Debt (v1.5 Focus)
 
@@ -91,10 +93,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Completed 46-03-PLAN.md (shared UI component splits)
+Stopped at: Completed 46-06-PLAN.md (lib file subfolder splits)
 Resume file: None
-Next action: Execute 46-06-PLAN.md or 46-07-PLAN.md
+Next action: Execute 46-07-PLAN.md
 
 ---
 
-*Updated: 2026-02-06 — Plan 46-03: Split 8 shared UI components into subfolder pattern*
+*Updated: 2026-02-06 — Plan 46-06: Split 7 lib files into subfolders with barrel re-exports*
