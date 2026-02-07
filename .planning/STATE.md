@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 47 of 47 (Final LCP Measurement & Gap Closure)
-Plan: 3 of 3 complete (47-01, 47-02, 47-03)
-Status: Phase complete - v1.5 milestone awaiting follow-up verification
-Last activity: 2026-02-07 — Completed 47-03 (Documentation Update)
+Plan: 4 of 6 complete (47-01, 47-02, 47-03, 47-04)
+Status: In progress - gap closure plans executing
+Last activity: 2026-02-07 — Completed 47-04 (CI E2E & Desktop Lighthouse)
 
-Progress: [##################################################################] v1.5 Phase 47 complete (3/3 plans)
+Progress: [######################################################............] v1.5 Phase 47 gap closure (4/6 plans)
 
 ## Milestones
 
@@ -83,6 +83,9 @@ Progress: [##################################################################] v
 | Phase 47 LCP measurement: 8-11s on all routes | Target <4s missed; v1.6 optimization needed for JS execution, network latency, DOM size |
 | Lighthouse CI startServerReadyPattern fixed | Next.js 16 outputs "Starting" not "started server" |
 | v1.5 milestone: follow-up verification requested | User wants to verify updates are wired and working before closing |
+| Desktop Lighthouse profile via LIGHTHOUSE_PROFILE env var | Single config file, env var toggle; desktop settings match Lighthouse built-in preset |
+| E2E job reuses build artifacts | Download .next from build job; avoids rebuild in E2E job |
+| Lighthouse report persistence already solved | uploadArtifacts + temporaryPublicStorage in ci.yml already persist reports |
 
 ### Tech Debt (v1.5 Focus)
 
@@ -96,7 +99,7 @@ Progress: [##################################################################] v
 ### Blockers/Concerns
 
 **v1.5 Follow-up Verification Required** (before milestone closure):
-- [ ] Cart E2E tests (19 tests) integrated in CI pipeline
+- [x] Cart E2E tests (19 tests) integrated in CI pipeline (47-04: E2E job added)
 - [ ] Lighthouse CI workflow triggering on PRs
 - [ ] LazyMotion + React Compiler active in production build
 - [ ] Documentation accurately reflects deployed state
@@ -104,10 +107,10 @@ Progress: [##################################################################] v
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Phase 47 complete (all 3 plans). v1.5 milestone awaiting follow-up verification.
+Stopped at: Completed 47-04 (CI E2E & Desktop Lighthouse). Gap closure in progress.
 Resume file: None
-Next action: Follow-up verification before closing v1.5 milestone
+Next action: Execute 47-05 (E2E selector refinement) and 47-06 (build verification)
 
 ---
 
-*Updated: 2026-02-07 — Completed 47-03 (Documentation Update). v1.5 milestone NOT closed, follow-up verification requested.*
+*Updated: 2026-02-07 — Completed 47-04 (CI E2E & Desktop Lighthouse). Gap closure plans 5-6 remaining.*
