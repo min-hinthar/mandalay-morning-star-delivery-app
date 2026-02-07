@@ -53,10 +53,13 @@
   - [x] 46-05-PLAN.md — API routes split (4 files: sections/[id], routes/[id]/stops, routes/[id], tracking/[orderId])
   - [x] 46-06-PLAN.md — Lib/utility files split (7 files: motion-tokens, swipe-gestures, analytics-helpers, micro-interactions, offline-store, route-optimization, useSafeEffects)
   - [x] 46-07-PLAN.md — ESLint max-lines expansion + CLAUDE.md documentation
-- [x] Phase 47: Final LCP Measurement & Gap Closure (LCP 8-11s, gaps found) - **3 plans**
+- [ ] Phase 47: Final LCP Measurement & Gap Closure (LCP 8-11s, gaps found) - **6 plans**
   - [x] 47-01-PLAN.md — Build verification + Lighthouse measurements (4 routes)
   - [x] 47-02-PLAN.md — Bundle analysis + Cart E2E tests (closes REQ-43.4/43.8/43.9)
   - [x] 47-03-PLAN.md — PERFORMANCE.md update + phase verification + milestone decision
+  - [ ] 47-04-PLAN.md — Gap closure: E2E CI job + Lighthouse desktop profile
+  - [ ] 47-05-PLAN.md — Gap closure: Cart E2E selector refinement
+  - [ ] 47-06-PLAN.md — Gap closure: Verification + milestone close
 
 ---
 
@@ -100,10 +103,10 @@ See archived milestone files in `.planning/archive/`
 | v1.2 Playful UI | 15-24 | 29 | Complete | 2026-01-27 |
 | v1.3 Consolidation | 25-34 | 53 | Complete | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | Complete | 2026-02-05 |
-| **v1.5 Performance** | 40-47 | 31 | Active | - |
+| **v1.5 Performance** | 40-47 | 34 | Active | - |
 
-**Total shipped:** 47 phases, 200 plans
+**Total shipped:** 47 phases, 203 plans
 
 ---
 
-*Updated: 2026-02-06 - Phase 47 executed (3 plans). Gaps found: E2E CI integration, desktop profile. Follow-up verification before milestone closure.*
+*Updated: 2026-02-07 - Phase 47 gap closure plans created (47-04, 47-05, 47-06). Closing E2E CI, desktop profile, selector refinement, and verification gaps.*
