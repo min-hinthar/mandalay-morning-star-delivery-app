@@ -167,6 +167,46 @@ Create research directory:
 mkdir -p .planning/research
 ```
 
+**Check for agent teams capability:**
+
+```bash
+AGENT_TEAMS_ENABLED=$(echo $CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS)
+```
+
+**If agent teams enabled AND model_profile is "quality":**
+
+Use agent teams for research — researchers can challenge and build on each other's findings:
+
+```
+◆ Creating research team (agent teams mode)...
+  → Stack researcher (for new features)
+  → Features researcher
+  → Architecture researcher (integration)
+  → Pitfalls researcher
+
+Create an agent team with 4 researcher teammates for [new features] research.
+Use Opus for each teammate. Require plan approval before they write files.
+
+Teammate assignments:
+1. "Stack Researcher" — Research stack additions needed for [new features]. Existing stack: [from PROJECT.md]. Write to .planning/research/STACK.md using template at .claude/get-shit-done/templates/research-project/STACK.md
+2. "Features Researcher" — Research how [new features] typically work. What's expected behavior, table stakes vs differentiators. Write to .planning/research/FEATURES.md using template at .claude/get-shit-done/templates/research-project/FEATURES.md
+3. "Architecture Researcher" — Research how [new features] integrate with existing architecture: [summary]. Write to .planning/research/ARCHITECTURE.md using template at .claude/get-shit-done/templates/research-project/ARCHITECTURE.md
+4. "Pitfalls Researcher" — Research common mistakes when adding [new features] to existing [domain] apps. Write to .planning/research/PITFALLS.md using template at .claude/get-shit-done/templates/research-project/PITFALLS.md
+
+Project context: [PROJECT.md summary - current state, validated capabilities, new milestone goals]
+Milestone context: SUBSEQUENT — Adding to existing app. Do NOT re-research existing capabilities.
+
+When all 4 teammates finish, the lead should message each for key findings, then synthesize into .planning/research/SUMMARY.md.
+
+Wait for all teammates to complete their tasks before cleaning up the team.
+```
+
+After team completes, clean up and continue to synthesizer step.
+
+**If agent teams NOT enabled OR profile is not "quality":**
+
+Fall back to standard parallel Task() subagent calls:
+
 Display spawning indicator:
 ```
 ◆ Spawning 4 researchers in parallel...
