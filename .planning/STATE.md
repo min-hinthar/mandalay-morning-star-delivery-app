@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 47 of 47 (Final LCP Measurement & Gap Closure)
-Plan: 2 of 3 complete
-Status: In progress
-Last activity: 2026-02-06 — Completed 47-02 (Bundle & Cart Test Verification)
+Plan: 2 of 3 complete (47-01, 47-02)
+Status: In progress - 47-03 remaining
+Last activity: 2026-02-06 — Completed 47-01 (LCP Measurement)
 
-Progress: [################################                                  ] v1.5 31/52 (60%)
+Progress: [################################                                  ] v1.5 32/52 (62%)
 
 ## Milestones
 
@@ -80,12 +80,14 @@ Progress: [################################                                  ] v
 | Lib subfolder barrel pattern | 7 lib files split into subfolders with complete barrel re-exports preserving all import paths |
 | ESLint max-lines expanded to all src/**/*.{ts,tsx} | Warning-only, exempts types/tests/stories; prevents regression |
 | 4 file-splitting patterns documented in CLAUDE.md | Component subfolder, lib subfolder, admin sibling, API route sibling |
+| Phase 47 LCP measurement: 8-11s on all routes | Target <4s missed; v1.6 optimization needed for JS execution, network latency, DOM size |
+| Lighthouse CI startServerReadyPattern fixed | Next.js 16 outputs "Starting" not "started server" |
 
 ### Tech Debt (v1.5 Focus)
 
 | Item | Status | Notes |
 |------|--------|-------|
-| LCP 11.4s (homepage), 9.8s (menu) | **Active** | Reduced from 19.9s/18.2s; target: <2.5s |
+| LCP 10.9s (homepage), 11.0s (menu) | **FAIL** | Phase 47 measurement: 8-11s, target <4s missed; v1.6 optimization needed |
 | 29 files >400 lines | **Done** | Refactored in Phase 46; ESLint max-lines enforces going forward |
 | Legacy docs (V0-V8) | **Done** | 94 files deleted in 45-01 |
 | storybook-static in git | **Done** | Untracked in 45-01 (89 files) |
@@ -97,10 +99,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Phase 47 Plan 02 complete. Bundle scoping verified, cart E2E suite created (4/19 passing).
+Stopped at: Phase 47 Plan 01 complete. LCP measured: 8-11s on 4 routes, all exceed 4s target.
 Resume file: None
-Next action: Execute Phase 47 Plan 03 (Lighthouse LCP Measurement)
+Next action: Execute Phase 47 Plan 03 (Documentation Update)
 
 ---
 
-*Updated: 2026-02-06 — Completed 47-02 (Bundle & Cart Test Verification).*
+*Updated: 2026-02-06 — Completed 47-01 (LCP Measurement). LCP 8-11s, target <4s missed.*
