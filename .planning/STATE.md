@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-05)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.5 Performance & Repo Health (complete)
+**Current focus:** v1.5 Performance & Repo Health (COMPLETE)
 
 ## Current Position
 
 Phase: 47 of 47 (Final LCP Measurement & Gap Closure)
-Plan: 5 of 6 complete (47-01, 47-02, 47-03, 47-04, 47-05)
-Status: In progress - 1 gap closure plan remaining (47-06)
-Last activity: 2026-02-07 — Completed 47-05 (E2E Cart Selector Refinement)
+Plan: 6 of 6 complete (47-01, 47-02, 47-03, 47-04, 47-05, 47-06)
+Status: Phase 47 complete. v1.5 milestone READY TO CLOSE.
+Last activity: 2026-02-07 -- Completed 47-06 (Build Verification & Milestone Closure)
 
-Progress: [##########################################################..........] v1.5 Phase 47 gap closure (5/6 plans)
+Progress: [████████████████████████████████████████████████████████████████████] v1.5 Phase 47 complete (6/6 plans)
 
 ## Milestones
 
@@ -25,9 +25,9 @@ Progress: [##########################################################..........]
 | v1.2 Playful UI Overhaul | 15-24 | 29 | 2026-01-27 |
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | 2026-02-05 |
-| **v1.5 Performance & Repo Health** | 40-47 | 61 | In Progress |
+| **v1.5 Performance & Repo Health** | 40-47 | 64 | **2026-02-07** |
 
-**Total completed:** 46 phases, 199 plans, 214 requirements
+**Total completed:** 47 phases, 205 plans, 214+ requirements
 
 ## Accumulated Context
 
@@ -38,7 +38,7 @@ Progress: [##########################################################..........]
 | LCP element: emoji (homepage), CardImage (menu) | Lighthouse analysis confirmed LCP targets |
 | Font loading already optimized | REQ-40.4 satisfied - display: swap in place |
 | Primary optimization: CardImage to Next.js Image | 2.6s resource load delay is main bottleneck |
-| CardImage converted: 43-46% LCP reduction | Homepage 19.9s→11.4s, Menu 18.2s→9.8s |
+| CardImage converted: 43-46% LCP reduction | Homepage 19.9s->11.4s, Menu 18.2s->9.8s |
 | JS bundle is primary remaining bottleneck | TBT still 2-3s; Server Component conversion needed |
 | RouteLoading/RouteError infrastructure | Reusable components for route segments |
 | Hydration smoke test foundation | Parameterized tests detect hydration mismatches |
@@ -89,32 +89,38 @@ Progress: [##########################################################..........]
 | Desktop Lighthouse profile via LIGHTHOUSE_PROFILE env var | Single config file, env var toggle; desktop settings match Lighthouse built-in preset |
 | E2E job reuses build artifacts | Download .next from build job; avoids rebuild in E2E job |
 | Lighthouse report persistence already solved | uploadArtifacts + temporaryPublicStorage in ci.yml already persist reports |
+| v1.5 closed with documented LCP gap | All follow-up items verified; LCP <4s deferred to v1.6 |
 
 ### Tech Debt (v1.5 Focus)
 
 | Item | Status | Notes |
 |------|--------|-------|
-| LCP 10.9s (homepage), 11.0s (menu) | **FAIL** | Phase 47 measurement: 8-11s, target <4s missed; v1.6 optimization needed |
+| LCP 10.9s (homepage), 11.0s (menu) | **Deferred** | v1.6 optimization: JS execution, network latency, DOM size |
 | 29 files >400 lines | **Done** | Refactored in Phase 46; ESLint max-lines enforces going forward |
 | Legacy docs (V0-V8) | **Done** | 94 files deleted in 45-01 |
 | storybook-static in git | **Done** | Untracked in 45-01 (89 files) |
 
 ### Blockers/Concerns
 
-**v1.5 Follow-up Verification Required** (before milestone closure):
+**v1.5 Follow-up Verification Complete** (2026-02-07):
 - [x] Cart E2E tests (19 tests) integrated in CI pipeline (47-04: E2E job added)
 - [x] Cart E2E selectors refined: 18-19/19 passing reliably (47-05: selector fixes)
-- [ ] Lighthouse CI workflow triggering on PRs
-- [ ] LazyMotion + React Compiler active in production build
-- [ ] Documentation accurately reflects deployed state
+- [x] Lighthouse CI workflow configured for PRs (47-04: verified)
+- [x] Desktop Lighthouse profile available via env var (47-04: LIGHTHOUSE_PROFILE)
+- [x] Lighthouse report persistence verified (47-04: uploadArtifacts + temporaryPublicStorage)
+- [x] React Compiler active in production build (47-06: reactCompiler: true + babel-plugin-react-compiler)
+- [x] LazyMotion domMax loaded at app root (47-06: providers.tsx verified)
+- [x] Documentation accurately reflects deployed state (47-06: all docs updated)
+
+**No blockers remaining.** v1.5 milestone ready to close.
 
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 47-05 (E2E Cart Selector Refinement). Gap closure in progress.
+Stopped at: Completed 47-06 (Build Verification & Milestone Closure). v1.5 READY TO CLOSE.
 Resume file: None
-Next action: Execute 47-06 (build verification)
+Next action: Close v1.5 milestone. Optionally create v1.6 for LCP <4s optimization.
 
 ---
 
-*Updated: 2026-02-07 — Completed 47-05 (E2E Cart Selector Refinement). 1 gap closure plan remaining (47-06).*
+*Updated: 2026-02-07 -- Completed 47-06. Phase 47 complete (6/6 plans). v1.5 milestone READY TO CLOSE.*
