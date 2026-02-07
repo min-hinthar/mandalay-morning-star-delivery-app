@@ -251,6 +251,44 @@ After user runs /gsd:plan-phase {Z} --gaps:
 </offer_next>
 
 <wave_execution>
+**Check for agent teams capability:**
+
+```bash
+AGENT_TEAMS_ENABLED=$(echo $CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS)
+```
+
+**If agent teams enabled AND model_profile is "quality" AND wave has 2+ plans:**
+
+Use agent teams for wave execution — executors can coordinate on shared dependencies and avoid file conflicts:
+
+```
+◆ Creating executor team for wave {N} (agent teams mode)...
+
+Create an agent team with {M} executor teammates for wave {N} execution.
+Use Opus for each teammate.
+
+Teammate assignments:
+{For each plan in wave:}
+- "Executor {plan_id}" — Execute plan at {plan_path}. Read the plan for full context, tasks, deviation rules, and commit guidance. Execute all tasks, create SUMMARY.md, commit per task. Report completion with plan name, tasks completed, SUMMARY path, commit hashes.
+
+Project state: [STATE.md summary]
+
+IMPORTANT coordination rules:
+- Each teammate owns their plan's files — do NOT edit files another teammate owns
+- If you discover a dependency on another teammate's work, message them directly
+- Commit frequently — one commit per task
+- Follow all deviation rules from the plan
+
+Wait for all teammates to complete before proceeding to next wave.
+Clean up the team after wave completes.
+```
+
+After team completes, verify SUMMARYs created, then proceed to next wave or phase completion.
+
+**If agent teams NOT enabled OR profile is not "quality" OR wave has only 1 plan:**
+
+Fall back to standard parallel Task() subagent calls:
+
 **Parallel spawning:**
 
 Before spawning, read file contents. The `@` syntax does not work across Task() boundaries.

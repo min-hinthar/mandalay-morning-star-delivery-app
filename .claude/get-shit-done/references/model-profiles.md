@@ -58,6 +58,30 @@ Per-project default: Set in `.planning/config.json`:
 }
 ```
 
+## Agent Teams (Experimental)
+
+When `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set in global settings, opus-profile orchestrators use agent teams instead of parallel Task() subagents for workloads that benefit from inter-agent coordination.
+
+**Agent teams vs subagents:**
+- Subagents: report results back to caller only, no cross-communication
+- Agent teams: teammates message each other, share task lists, self-coordinate
+
+**When GSD uses agent teams (quality profile + feature enabled):**
+
+| Workflow | Subagent Default | Agent Team Upgrade | Benefit |
+|----------|------------------|--------------------|---------|
+| `new-project` Phase 6 | 4 parallel Task() researchers | Team of 4 researcher teammates | Researchers challenge/build on each other's findings |
+| `new-milestone` research | 4 parallel Task() researchers | Team of 4 researcher teammates | Same as above |
+| `execute-phase` wave execution | Parallel Task() executors per wave | Team of executor teammates per wave | Executors coordinate on shared dependencies |
+| `debug` investigation | Single debugger subagent | Team of hypothesis investigators | Competing theories, adversarial debate |
+
+**When GSD still uses subagents (no agent team upgrade):**
+- Single-agent spawns (planner, verifier, plan-checker, roadmapper)
+- Sequential execution (one plan at a time)
+- Budget/balanced profiles (overhead not justified)
+
+**Fallback:** If agent teams fail to spawn or feature is disabled, all orchestrators fall back to standard Task() subagent calls.
+
 ## Design Rationale
 
 **Why Opus for gsd-planner?**
