@@ -253,11 +253,11 @@ After user runs /gsd:plan-phase {Z} --gaps:
 <wave_execution>
 **Check for agent teams capability:**
 
-```bash
-AGENT_TEAMS_ENABLED=$(echo $CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS)
-```
+Read `.planning/config.json` and check `agent_teams.execution`:
+- If `agent_teams` is `false` (boolean) or missing → disabled
+- If `agent_teams` is an object → check `agent_teams.execution` (default: `false`)
 
-**If agent teams enabled AND model_profile is "quality" AND wave has 2+ plans:**
+**If agent_teams.execution is true AND model_profile is "quality" AND wave has 2+ plans:**
 
 Use agent teams for wave execution — executors can coordinate on shared dependencies and avoid file conflicts:
 
@@ -285,7 +285,7 @@ Clean up the team after wave completes.
 
 After team completes, verify SUMMARYs created, then proceed to next wave or phase completion.
 
-**If agent teams NOT enabled OR profile is not "quality" OR wave has only 1 plan:**
+**If agent_teams.execution is false OR profile is not "quality" OR wave has only 1 plan:**
 
 Fall back to standard parallel Task() subagent calls:
 

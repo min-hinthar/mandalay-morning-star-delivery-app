@@ -71,11 +71,11 @@ After all gathered, confirm ready to investigate.
 
 **Check for agent teams capability:**
 
-```bash
-AGENT_TEAMS_ENABLED=$(echo $CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS)
-```
+Read `.planning/config.json` and check `agent_teams.debug`:
+- If `agent_teams` is `false` (boolean) or missing → disabled
+- If `agent_teams` is an object → check `agent_teams.debug` (default: `false`)
 
-**If agent teams enabled AND model_profile is "quality":**
+**If agent_teams.debug is true AND model_profile is "quality":**
 
 Use agent teams for competing-hypothesis investigation — investigators challenge each other's theories:
 
@@ -111,7 +111,7 @@ Clean up the team after investigation completes.
 
 Handle agent team results same as step 4 below. Continue to step 4.
 
-**If agent teams NOT enabled OR profile is not "quality":**
+**If agent_teams.debug is false OR profile is not "quality":**
 
 Fall back to single debugger subagent:
 

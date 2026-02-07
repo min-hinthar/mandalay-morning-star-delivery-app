@@ -4,6 +4,11 @@
   "parallelization": true,
   "commit_docs": true,
   "model_profile": "quality",
+  "agent_teams": {
+    "research": true,
+    "execution": false,
+    "debug": true
+  },
   "workflow": {
     "research": true,
     "plan_check": true,
