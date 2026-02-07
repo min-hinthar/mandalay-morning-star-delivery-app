@@ -63,7 +63,7 @@ export default function CheckoutPage() {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   // Navigation guard: warn when leaving checkout with items in cart
-  const { showModal, proceed, cancel } = useNavigationGuard({
+  const { showModal, proceed, cancel, disable: disableGuard } = useNavigationGuard({
     enabled: !isEmpty,
     allowedPaths: ["/cart", "/checkout", "/menu", "/"],
   });
@@ -206,7 +206,7 @@ export default function CheckoutPage() {
                       boxShadow: { duration: 0.3 },
                     }}
                   >
-                    <PaymentStep onBack={goToPrevStep} />
+                    <PaymentStep onBack={goToPrevStep} disableGuard={disableGuard} />
                   </m.div>
                 )}
               </AnimatePresence>

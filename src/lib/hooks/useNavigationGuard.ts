@@ -17,6 +17,8 @@ export interface UseNavigationGuardReturn {
   proceed: () => void;
   /** User wants to stay on current page */
   cancel: () => void;
+  /** Programmatically disable the guard (e.g., before Stripe redirect) */
+  disable: () => void;
 }
 
 /**
@@ -48,6 +50,7 @@ export function useNavigationGuard({
     if (!enabled) return;
 
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!enabledRef.current) return;
       e.preventDefault();
     };
 
@@ -103,5 +106,9 @@ export function useNavigationGuard({
     setShowModal(false);
   }, []);
 
-  return { showModal, proceed, cancel };
+  const disable = useCallback(() => {
+    enabledRef.current = false;
+  }, []);
+
+  return { showModal, proceed, cancel, disable };
 }

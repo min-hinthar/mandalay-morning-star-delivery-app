@@ -31,8 +31,8 @@
      Vibrant supporting palette
      =========================================== */
 
-  --color-accent-green: #52A52E;
-  --color-accent-green-hover: #469925;
+  --color-accent-green: #3D8B22;
+  --color-accent-green-hover: #337A1C;
   --color-accent-green-light: rgba(82, 165, 46, 0.12);
 
   --color-accent-orange: #E87D1E;
@@ -55,7 +55,7 @@
   --color-surface-primary: #FFFFFF;
   --color-surface-primary-85: rgba(255, 255, 255, 0.85);
   --color-surface-secondary: #FAFAFA;
-  --color-surface-tertiary: #F5F5F5;
+  --color-surface-tertiary: #EBEBEB;
   --color-surface-elevated: #FFFFFF;
   --color-surface-inverse: #000000;
 
@@ -65,7 +65,7 @@
 
   --color-text-primary: #111111;
   --color-text-secondary: #3B3B3B;
-  --color-text-muted: #6B6B6B;
+  --color-text-muted: #5C5C5C;
   --color-text-inverse: #FFFFFF;
   --color-text-money: #16A34A;              /* Green-600 - money/price emphasis */
 
@@ -82,7 +82,7 @@
      Success, warning, error, info
      =========================================== */
 
-  --color-status-success: #52A52E;
+  --color-status-success: #3D8B22;
   --color-status-success-bg: rgba(82, 165, 46, 0.10);
   --color-status-warning: #E87D1E;
   --color-status-warning-bg: rgba(232, 125, 30, 0.10);
@@ -444,7 +444,7 @@
  * Light mode:
  *   text-primary (#111) on surface-primary (#FFF): ~21:1 OK
  *   text-secondary (#3B3B3B) on surface-secondary (#FAFAFA): ~8.5:1 OK
- *   text-muted (#6B6B6B) on surface-tertiary (#F5F5F5): ~4.6:1 OK
+ *   text-muted (#5C5C5C) on surface-tertiary (#EBEBEB): ~4.9:1 OK
  *
  * Dark mode:
  *   text-primary (#F8F7F6) on surface-primary (#000): ~20:1 OK

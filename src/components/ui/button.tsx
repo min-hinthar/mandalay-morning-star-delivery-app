@@ -31,7 +31,7 @@ const buttonVariants = cva(
     // Focus ring
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary",
     // Disabled state
-    "disabled:pointer-events-none disabled:opacity-40 disabled:cursor-not-allowed",
+    "disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed",
     // Icon sizing
     "[&_svg]:pointer-events-none [&_svg]:shrink-0",
   ].join(" "),

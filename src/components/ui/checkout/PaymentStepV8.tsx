@@ -55,13 +55,15 @@ export interface PaymentStepV8Props {
   className?: string;
   /** Custom back step handler */
   onBack?: () => void;
+  /** Disable navigation guard before external redirect */
+  disableGuard?: () => void;
 }
 
 // ============================================
 // MAIN COMPONENT
 // ============================================
 
-export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
+export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8Props) {
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -108,7 +110,8 @@ export function PaymentStepV8({ className, onBack }: PaymentStepV8Props) {
         throw new Error(data.error?.message ?? "Checkout failed");
       }
 
-      // Redirect to Stripe hosted checkout page
+      // Disable navigation guard before Stripe redirect to prevent "Leave page?" dialog
+      disableGuard?.();
       window.location.href = data.data.sessionUrl;
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
