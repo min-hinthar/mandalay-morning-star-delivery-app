@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 
 ## Current Position
 
-Phase: 46 of 47 (Large File Refactoring)
-Plan: 7 of 7 complete
-Status: Phase complete — Phase 47 pending
-Last activity: 2026-02-06 — Added Phase 47 (gap closure from milestone audit)
+Phase: 47 of 47 (Final LCP Measurement & Gap Closure)
+Plan: 2 of 3 complete
+Status: In progress
+Last activity: 2026-02-06 — Completed 47-02 (Bundle & Cart Test Verification)
 
-Progress: [##############################                                    ] v1.5 29/52 (56%)
+Progress: [################################                                  ] v1.5 31/52 (60%)
 
 ## Milestones
 
@@ -62,6 +62,8 @@ Progress: [##############################                                    ] v
 | Cart page guard nudges to checkout | onStay navigates to /checkout, not just close modal |
 | Empty checkout redirect with toast | router.replace to /menu avoids history pollution |
 | React Compiler enabled globally, no opt-outs | All 282 client components compile cleanly; reactCompiler: true top-level |
+| Cart scoping: static verification (vs bundle analyzer) | @next/bundle-analyzer incompatible with Turbopack; source analysis proves scoping |
+| Cart E2E selectors: aria-label based | Components use accessible labels; data-testid not present in components |
 | SplitText, Flip, Observer removed from GSAP | Zero consumer files; only useGSAP + ScrollTrigger actively used |
 | LazyMotion domMax + strict at root | drag + layoutId require domMax; strict prevents motion.* regression |
 | All motion.* migrated to m.* (174 files) | Per-component bundle ~34kb to ~4.6kb; features loaded once at root |
@@ -95,10 +97,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-06
-Stopped at: Phase 46 complete. Added Phase 47 gap closure from audit.
+Stopped at: Phase 47 Plan 02 complete. Bundle scoping verified, cart E2E suite created (4/19 passing).
 Resume file: None
-Next action: Plan and execute Phase 47 (Final LCP Measurement & Gap Closure)
+Next action: Execute Phase 47 Plan 03 (Lighthouse LCP Measurement)
 
 ---
 
-*Updated: 2026-02-06 — Phase 46 complete. Added Phase 47 (gap closure from milestone audit).*
+*Updated: 2026-02-06 — Completed 47-02 (Bundle & Cart Test Verification).*
