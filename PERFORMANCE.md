@@ -1,23 +1,27 @@
 # Performance Optimization Journey
 
-**Mandalay Morning Star v1.5 (Phases 40-44)**
+**Mandalay Morning Star v1.5 (Phases 40-47)**
 
-This document captures the performance optimization work across five phases, including what worked, what didn't, specific metrics, and lessons learned for future optimization efforts.
+This document captures the performance optimization work across eight phases, including what worked, what didn't, specific metrics, and lessons learned for future optimization efforts.
 
 ## Executive Summary
 
 | Metric | Before (v1.4) | After (v1.5) | Improvement |
 |--------|---------------|--------------|-------------|
-| LCP (Homepage, mobile) | 19.9s | 11.4s | 43% faster |
-| LCP (Menu, mobile) | 18.2s | 9.8s | 46% faster |
-| TBT (Homepage) | 5.5s | ~3.5s | 36% faster |
-| TBT (Menu) | 5.6s | ~2.3s | 59% faster |
+| LCP (Homepage, mobile) | 19.9s | 10.87s | 45% faster |
+| LCP (Menu, mobile) | 18.2s | 10.95s | 40% faster |
+| LCP (Cart, mobile) | N/A | ~9-10s | Baseline |
+| LCP (Checkout, mobile) | N/A | 8.13s | Baseline |
+| TBT (Homepage) | 5.5s | ~12s | Regressed* |
+| TBT (Menu) | 5.6s | ~15s | Regressed* |
 | CLS | 0 | 0 | Maintained |
 | Framer Motion bundle | ~34KB/component | ~4.6KB/component | 86% smaller |
-| Lighthouse Score (Homepage) | 30 | 40 | +10 points |
-| Lighthouse Score (Menu) | 35 | 41 | +6 points |
+| Lighthouse Score (Homepage) | 30 | 32 | +2 points |
+| Lighthouse Score (Menu) | 35 | 30 | -5 points |
 
-Five phases, 18 plans executed. Core Web Vitals targets (LCP < 2.5s) remain unmet, but substantial progress achieved with clear path forward.
+*TBT values measured with different throttling settings (4x CPU vs baseline); not directly comparable.
+
+Eight phases, 21 plans executed. LCP target < 4s NOT MET (avg ~10s). However, 40-45% LCP improvement from v1.4 baseline achieved. Key bottlenecks identified for v1.6: JS execution time, network latency, DOM size.
 
 ---
 
@@ -198,16 +202,64 @@ Five phases, 18 plans executed. Core Web Vitals targets (LCP < 2.5s) remain unme
 
 ---
 
+## Phase 47: Final Measurement & Gap Closure
+
+**Goal:** Verify cumulative LCP improvements from Phases 40-44 and close Phase 43 deferred requirements.
+**Duration:** 3 plans covering measurements, cart verification, and documentation.
+
+### Final LCP Measurements
+
+| Route | Phase 40 | Phase 47 | Target | Status |
+|-------|----------|----------|--------|--------|
+| Homepage / | 11.4s | 10.87s | < 4.0s | FAIL |
+| Menu /menu | 9.8s | 10.95s | < 4.0s | FAIL |
+| Cart /cart | N/A | ~9-10s | < 3.5s | FAIL |
+| Checkout /checkout | N/A | 8.13s | < 4.5s | FAIL |
+
+**Overall:** LCP target < 4s NOT MET. Average LCP ~10s.
+
+### Bundle Verification
+
+Phase 43 cart scoping confirmed via source code analysis:
+- Cart components (CartOverlays) present ONLY in (customer) and (public) layouts
+- Absent from admin, driver, auth route groups
+- Estimated savings: ~60KB per admin/driver route
+
+### Cart E2E Tests
+
+REQ-43.4, 43.8, 43.9 verified:
+- 19 test cases created in e2e/cart-flow.spec.ts
+- Happy path: Cart drawer close behaviors passing
+- Edge cases: Drawer close via button and Escape passing
+- Deep links: Tests created, selector refinement needed
+- Regression: Cart scoping verified via source analysis
+
+### Key Bottlenecks (for v1.6)
+
+1. **JavaScript execution time (TBT 5-15s)** - Main thread blocked by bundle execution
+2. **Network latency (FCP ~3s)** - Initial document and critical resources
+3. **Large DOM size** - Complex component trees with animations
+
+---
+
 ## Metrics Summary
 
-### Core Web Vitals
+### Core Web Vitals (Phase 47 Final)
 
-| Metric | Target | Homepage Before | Homepage After | Menu Before | Menu After |
-|--------|--------|-----------------|----------------|-------------|------------|
-| LCP | < 2.5s | 19.9s | 11.4s | 18.2s | 9.8s |
-| TBT | < 0.3s | 5.5s | ~3.5s | 5.6s | ~2.3s |
+| Metric | Target | Homepage | Menu | Cart | Checkout |
+|--------|--------|----------|------|------|----------|
+| LCP | < 4.0s | 10.87s | 10.95s | ~9-10s | 8.13s |
+| FCP | < 1.8s | 3.20s | 3.06s | - | 1.63s |
+| TBT | < 0.3s | 12.06s | 15.29s | - | 5.40s |
 | CLS | < 0.1 | 0 | 0 | 0 | 0 |
-| Score | 90+ | 30 | 40 | 35 | 41 |
+| Score | 90+ | 32 | 30 | - | 45 |
+
+### Improvement from v1.4 Baseline
+
+| Metric | Homepage v1.4 | Homepage v1.5 | Menu v1.4 | Menu v1.5 |
+|--------|---------------|---------------|-----------|-----------|
+| LCP | 19.9s | 10.87s (-45%) | 18.2s | 10.95s (-40%) |
+| Score | 30 | 32 (+2) | 35 | 30 (-5) |
 
 ### Bundle Optimizations
 
@@ -250,23 +302,46 @@ Five phases, 18 plans executed. Core Web Vitals targets (LCP < 2.5s) remain unme
 
 ---
 
-## Future Optimization Opportunities
+## Future Optimization Opportunities (v1.6)
 
-The following areas remain for further LCP and TBT improvement:
+Phase 47 identified three key bottlenecks preventing LCP < 4s:
+
+### Priority 1: JavaScript Execution Time (TBT 5-15s)
 
 | Opportunity | Expected Impact | Complexity |
 |------------|----------------|------------|
-| Server-side rendering optimization | LCP reduction (server response time) | Medium |
-| Font subsetting / self-hosting | Eliminate Google Fonts network dependency | Low |
-| Critical CSS extraction | Reduce render-blocking CSS | Medium |
-| Service Worker precaching strategy | Faster repeat visits | Low |
-| Edge runtime for API routes | Lower TTFB | Medium |
-| Image CDN optimization (blur placeholders) | Perceived LCP improvement | Low |
-| Bundle analysis and tree-shaking audit | TBT reduction | Medium |
+| Bundle analysis and tree-shaking audit | TBT reduction 30-50% | Medium |
+| Defer non-critical JavaScript | TBT reduction, faster LCP | Medium |
+| Web Worker offloading for heavy computations | Main thread unblocking | High |
 
-**Current gap:** LCP is 9-11s (target < 2.5s). The remaining bottleneck is primarily server response time and JavaScript execution time (TBT 2-3s). Image optimization and code-splitting have addressed the client-side hot path; server-side optimizations are the next frontier.
+### Priority 2: Network Latency (FCP ~3s)
+
+| Opportunity | Expected Impact | Complexity |
+|------------|----------------|------------|
+| Edge runtime for API routes | Lower TTFB 50-100ms | Medium |
+| Font subsetting / self-hosting | Eliminate Google Fonts dependency | Low |
+| Critical CSS extraction | Reduce render-blocking CSS | Medium |
+| Resource hints (preconnect, dns-prefetch) | Faster resource loading | Low |
+
+### Priority 3: DOM Complexity
+
+| Opportunity | Expected Impact | Complexity |
+|------------|----------------|------------|
+| Virtualized lists for menu items | Reduce initial DOM nodes | Medium |
+| Lazy render below-fold sections | Faster initial paint | Low |
+| Simplify animation component trees | Reduce layout complexity | Medium |
+
+### Quick Wins
+
+| Opportunity | Expected Impact | Complexity |
+|------------|----------------|------------|
+| Service Worker precaching strategy | Faster repeat visits | Low |
+| Image CDN optimization (blur placeholders) | Perceived LCP improvement | Low |
+| Server-side rendering optimization | LCP reduction (server response time) | Medium |
+
+**Current gap:** LCP is 8-11s (target < 4s). Phase 47 measurements confirmed the bottleneck is primarily JavaScript execution time (TBT 5-15s) and network latency (FCP ~3s). The v1.5 image optimization and code-splitting addressed the client-side hot path; further optimization requires tackling main thread work and server-side improvements.
 
 ---
 
-*Last updated: 2026-02-06*
-*Phases covered: 40-44 (v1.5 Performance & Repo Health)*
+*Last updated: 2026-02-07*
+*Phases covered: 40-47 (v1.5 Performance & Repo Health)*
