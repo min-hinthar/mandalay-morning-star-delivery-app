@@ -341,7 +341,18 @@ Phase 47 identified three key bottlenecks preventing LCP < 4s:
 
 **Current gap:** LCP is 8-11s (target < 4s). Phase 47 measurements confirmed the bottleneck is primarily JavaScript execution time (TBT 5-15s) and network latency (FCP ~3s). The v1.5 image optimization and code-splitting addressed the client-side hot path; further optimization requires tackling main thread work and server-side improvements.
 
+### Follow-up Verification Status
+
+**v1.5 milestone NOT closed (2026-02-07)**
+
+User requested follow-up verification to confirm all Phase 47 updates are wired and working before milestone closure. Verification items:
+- [ ] Cart E2E tests integrated in CI pipeline
+- [ ] Lighthouse CI workflow triggering on PRs
+- [ ] LazyMotion + React Compiler active in production
+- [ ] Documentation accurately reflects deployed state
+
 ---
 
 *Last updated: 2026-02-07*
 *Phases covered: 40-47 (v1.5 Performance & Repo Health)*
+*Milestone status: Follow-up verification pending*
