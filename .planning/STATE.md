@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-05)
 ## Current Position
 
 Phase: 47 of 47 (Final LCP Measurement & Gap Closure)
-Plan: 4 of 6 complete (47-01, 47-02, 47-03, 47-04)
-Status: In progress - gap closure plans executing
-Last activity: 2026-02-07 — Completed 47-04 (CI E2E & Desktop Lighthouse)
+Plan: 5 of 6 complete (47-01, 47-02, 47-03, 47-04, 47-05)
+Status: In progress - 1 gap closure plan remaining (47-06)
+Last activity: 2026-02-07 — Completed 47-05 (E2E Cart Selector Refinement)
 
-Progress: [######################################################............] v1.5 Phase 47 gap closure (4/6 plans)
+Progress: [##########################################################..........] v1.5 Phase 47 gap closure (5/6 plans)
 
 ## Milestones
 
@@ -64,6 +64,9 @@ Progress: [######################################################............] v
 | React Compiler enabled globally, no opt-outs | All 282 client components compile cleanly; reactCompiler: true top-level |
 | Cart scoping: static verification (vs bundle analyzer) | @next/bundle-analyzer incompatible with Turbopack; source analysis proves scoping |
 | Cart E2E selectors: aria-label based | Components use accessible labels; data-testid not present in components |
+| addItemToCart helper handles modal flow | Items with required modifiers open ItemDetailSheet; helper selects radiogroups and force-clicks |
+| evaluate(el => el.click()) for viewport-clipped elements | Playwright force:true still enforces viewport; native DOM click bypasses completely |
+| Drawer selector scoping via data-testid="drawer" | Prevents matching elements behind drawer overlay (e.g., CartBar checkout button) |
 | SplitText, Flip, Observer removed from GSAP | Zero consumer files; only useGSAP + ScrollTrigger actively used |
 | LazyMotion domMax + strict at root | drag + layoutId require domMax; strict prevents motion.* regression |
 | All motion.* migrated to m.* (174 files) | Per-component bundle ~34kb to ~4.6kb; features loaded once at root |
@@ -100,6 +103,7 @@ Progress: [######################################################............] v
 
 **v1.5 Follow-up Verification Required** (before milestone closure):
 - [x] Cart E2E tests (19 tests) integrated in CI pipeline (47-04: E2E job added)
+- [x] Cart E2E selectors refined: 18-19/19 passing reliably (47-05: selector fixes)
 - [ ] Lighthouse CI workflow triggering on PRs
 - [ ] LazyMotion + React Compiler active in production build
 - [ ] Documentation accurately reflects deployed state
@@ -107,10 +111,10 @@ Progress: [######################################################............] v
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 47-04 (CI E2E & Desktop Lighthouse). Gap closure in progress.
+Stopped at: Completed 47-05 (E2E Cart Selector Refinement). Gap closure in progress.
 Resume file: None
-Next action: Execute 47-05 (E2E selector refinement) and 47-06 (build verification)
+Next action: Execute 47-06 (build verification)
 
 ---
 
-*Updated: 2026-02-07 — Completed 47-04 (CI E2E & Desktop Lighthouse). Gap closure plans 5-6 remaining.*
+*Updated: 2026-02-07 — Completed 47-05 (E2E Cart Selector Refinement). 1 gap closure plan remaining (47-06).*
