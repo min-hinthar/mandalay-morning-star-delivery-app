@@ -16,7 +16,7 @@ module.exports = {
     collect: {
       // Start production server for auditing (required for App Router dynamic routes)
       startServerCommand: "pnpm start",
-      startServerReadyPattern: "started server",
+      startServerReadyPattern: "Starting",
       startServerReadyTimeout: 30000,
 
       // Customer-facing routes to audit
