@@ -1117,6 +1117,53 @@ useEffect(() => {
 
 ---
 
+## 2026-02-07: beforeunload Handler Must Check Ref for Programmatic Disable
+
+**Context:** Navigation guard (`useNavigationGuard`) blocking Stripe checkout redirect with browser "Leave page?" dialog
+**Learning:** `beforeunload` event handlers fire when `window.location.href` is set to an external URL. Even if the hook's `enabled` prop was designed to control the guard, the `beforeunload` handler must explicitly check the ref (`enabledRef.current`) — not rely on the effect cleanup running before the redirect.
+
+```tsx
+// ❌ Handler always fires - cleanup runs too late for external redirect
+const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+  e.preventDefault();  // Always blocks, even after programmatic disable
+};
+
+// ✅ Check ref inside handler - synchronous disable takes effect immediately
+const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+  if (!enabledRef.current) return;  // Skip if programmatically disabled
+  e.preventDefault();
+};
+
+// Expose disable function for consumers
+const disable = useCallback(() => { enabledRef.current = false; }, []);
+```
+
+**Pattern:** When a hook needs to be disabled before an external redirect, expose a `disable()` function that sets a ref. Call it before `window.location.href = url`.
+
+**Apply when:** Navigation guards, unsaved-changes warnings, or any `beforeunload` handler that needs programmatic bypass before external redirect (Stripe, OAuth, etc.).
+
+---
+
+## 2026-02-07: WCAG AA Contrast Ratios for Design Tokens
+
+**Context:** Multiple light-mode tokens had borderline or failing contrast ratios
+**Learning:** When defining design tokens, verify contrast ratios upfront:
+
+| Token pair | Min ratio | Tool |
+|-----------|-----------|------|
+| Button text on bg | 4.5:1 (AA normal text) | WebAIM contrast checker |
+| Muted text on surface | 4.5:1 (AA normal text) | Target ~6:1 for comfort |
+| Track/progress bg on card | Visual distinction | ~1.3:1 min luminance diff |
+
+Key values that failed:
+- `#52A52E` (green) on white = ~3.6:1 — darkened to `#3D8B22` (~5.3:1)
+- `#6B6B6B` (muted) on white = ~4.8:1 — darkened to `#5C5C5C` (~6:1)
+- `#F5F5F5` (surface-tertiary) on white = nearly invisible — darkened to `#EBEBEB`
+
+**Apply when:** Creating or auditing color tokens, especially for text-on-background pairs.
+
+---
+
 ## 2026-02-04: Supabase Auth Invite Flow Patterns
 
 **Context:** Implementing driver invite flow with Supabase Auth - iterative debugging revealed multiple gotchas
