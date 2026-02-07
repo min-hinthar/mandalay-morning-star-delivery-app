@@ -96,23 +96,34 @@ v1.5 focused on **Performance & Repo Health**. Final assessment:
 
 **Total:** 8 phases, 21 plans, 61 requirements
 
-## Recommendation
+## Milestone Decision
 
-**Close v1.5 with documented LCP gap.**
+**Status:** v1.5 NOT CLOSED - Follow-up verification requested
 
-Rationale:
-1. 45% LCP improvement achieved (19.9s to 10.9s)
-2. All non-LCP goals met (repo cleanup, refactoring, monitoring)
-3. Bottlenecks clearly identified for v1.6
-4. Cart scoping and E2E test infrastructure established
-5. Lighthouse CI prevents future regression
+**User decision (2026-02-07):** "needs follow-up to make sure new updates are wired and working"
 
-**Create v1.6 for further LCP optimization** targeting:
-- JavaScript execution time reduction
-- Network latency optimization
-- DOM complexity reduction
+The user wants to verify that all Phase 47 updates (and broader v1.5 milestone work) are properly wired and functioning before closing the milestone.
+
+### Follow-up Required
+
+Before closing v1.5, verify:
+1. PERFORMANCE.md updates reflect actual deployed state
+2. Cart E2E tests (19 tests) are integrated and passing in CI
+3. Lighthouse CI workflow is triggering on PRs
+4. LazyMotion/React Compiler optimizations are active in production build
+5. All documentation accurately reflects current codebase state
+
+### Recommendation (Pending Follow-up)
+
+Once follow-up verification complete:
+- **Close v1.5 with documented LCP gap**
+- **Create v1.6 for further LCP optimization** targeting:
+  - JavaScript execution time reduction
+  - Network latency optimization
+  - DOM complexity reduction
 
 ---
 
 *Verified: 2026-02-07*
 *Phase: 47-final-lcp-measurement-gap-closure*
+*Milestone Decision: Follow-up verification requested*
