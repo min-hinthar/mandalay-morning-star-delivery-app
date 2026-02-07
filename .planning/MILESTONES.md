@@ -1,5 +1,48 @@
 # Project Milestones: Morning Star V8 UI Rewrite
 
+## v1.5 Performance & Repo Health (Shipped: 2026-02-07)
+
+**Delivered:** 45% LCP improvement with code-splitting infrastructure, React Compiler, LazyMotion migration, file refactoring, and Lighthouse CI regression prevention.
+
+**Phases completed:** 40-47 (34 plans total)
+
+**Key accomplishments:**
+
+- LCP 45% improvement: 19.9s → 10.9s via CardImage optimization, Server Components, dynamic imports, cart scoping, React Compiler, LazyMotion
+- Code-splitting infrastructure: Recharts, Google Maps, cart components all lazy-loaded with viewport triggering
+- React Compiler enabled globally: 282 client components auto-memoized, zero opt-outs
+- LazyMotion with domMax: 174 files migrated from motion.* to m.* (~34KB → ~4.6KB per component)
+- Repository cleanup: 94 legacy docs deleted, 89 build artifacts untracked, planning files archived
+- File refactoring: 47 files >400 lines split into 129+ sub-files with ESLint max-lines enforcement
+- E2E cart tests: 19 tests integrated in CI pipeline, 18-19/19 passing reliably
+- Lighthouse CI: 4 customer routes measured on every PR with warn-only assertions
+
+**Stats:**
+
+- 8 phases, 34 plans
+- 61/61 requirements satisfied (100%)
+- 142 commits, 1,102 files modified
+- +155,700 / -156,085 lines (net refactoring)
+- ~40,010 lines TypeScript total
+- 3 days (2026-02-05 → 2026-02-07)
+
+**Git range:** `docs(40): research LCP element quick wins` → `feat(gsd): add per-workflow agent teams configuration`
+
+**Tech debt resolved from v1.4:**
+- ✓ 29 files >400 lines refactored (47 found, all split)
+- ✓ Legacy docs V0-V7 archived (94 files deleted)
+- ✓ storybook-static untracked from git
+
+**Tech debt remaining:**
+- LCP 8-11s vs <2.5s target (JS execution bottleneck — deferred to v1.6)
+- Lighthouse performance score 30-45 vs 90+ target
+- UnifiedMenuItemCard 540 lines (documented exception — tightly coupled state)
+- Lighthouse CI warn-only (PRs not blocked on regression)
+
+**What's next:** v1.6 LCP optimization targeting JS execution, network latency, DOM size reduction
+
+---
+
 ## v1.4 Mobile Excellence (Shipped: 2026-02-05)
 
 **Delivered:** Mobile stability, performance optimization, offline resilience, and device-adaptive animations with zero crashes and perfect CLS score.
