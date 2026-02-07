@@ -29,11 +29,12 @@ ls .planning/config.json 2>/dev/null
 cat .planning/config.json
 ```
 
-Parse current values (default to `true` if not present):
+Parse current values (default to `true` if not present unless noted):
 - `workflow.research` — spawn researcher during plan-phase
 - `workflow.plan_check` — spawn plan checker during plan-phase
 - `workflow.verifier` — spawn verifier during execute-phase
 - `model_profile` — which model each agent uses (default: `balanced`)
+- `agent_teams` — per-workflow agent teams config: `{ research, execution, debug }` (defaults: all `false`)
 
 ## 3. Present Settings
 
@@ -77,6 +78,17 @@ AskUserQuestion([
       { label: "Yes", description: "Verify must-haves after execution" },
       { label: "No", description: "Skip post-execution verification" }
     ]
+  },
+  {
+    question: "Which workflows should use agent teams? (inter-agent messaging, slower but better coordination)",
+    header: "Agent Teams",
+    multiSelect: true,
+    options: [
+      { label: "Research", description: "new-project/new-milestone research — researchers cross-pollinate findings" },
+      { label: "Debug", description: "Competing hypothesis investigators challenge each other's theories" },
+      { label: "Execution", description: "Wave executors coordinate on shared dependencies (rarely needed)" },
+      { label: "None (Recommended)", description: "Standard parallel Task() calls everywhere — faster, no overhead" }
+    ]
   }
 ])
 ```
@@ -91,6 +103,11 @@ Merge new settings into existing config.json:
 {
   ...existing_config,
   "model_profile": "quality" | "balanced" | "budget",
+  "agent_teams": {
+    "research": true/false,
+    "execution": true/false,
+    "debug": true/false
+  },
   "workflow": {
     "research": true/false,
     "plan_check": true/false,
@@ -116,6 +133,9 @@ Display:
 | Plan Researcher      | {On/Off} |
 | Plan Checker         | {On/Off} |
 | Execution Verifier   | {On/Off} |
+| Agent Teams Research | {On/Off} |
+| Agent Teams Debug    | {On/Off} |
+| Agent Teams Execution| {On/Off} |
 
 These settings apply to future /gsd:plan-phase and /gsd:execute-phase runs.
 

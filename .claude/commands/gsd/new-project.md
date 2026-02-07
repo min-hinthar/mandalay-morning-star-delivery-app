@@ -429,12 +429,11 @@ Check if this is greenfield or subsequent milestone:
 
 **Check for agent teams capability:**
 
-```bash
-# Check if agent teams are enabled globally
-AGENT_TEAMS_ENABLED=$(echo $CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS)
-```
+Read `.planning/config.json` and check `agent_teams.research`:
+- If `agent_teams` is `false` (boolean) or missing → disabled
+- If `agent_teams` is an object → check `agent_teams.research` (default: `false`)
 
-**If agent teams enabled AND model_profile is "quality":**
+**If agent_teams.research is true AND model_profile is "quality":**
 
 Use agent teams for research — researchers can challenge and build on each other's findings:
 
@@ -464,7 +463,7 @@ Wait for all teammates to complete their tasks before cleaning up the team.
 
 After team completes, clean up and continue to synthesizer step.
 
-**If agent teams NOT enabled OR profile is not "quality":**
+**If agent_teams.research is false OR profile is not "quality":**
 
 Fall back to standard parallel Task() subagent calls:
 
