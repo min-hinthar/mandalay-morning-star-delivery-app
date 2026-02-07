@@ -27,6 +27,7 @@
     "build-storybook": "storybook build",
     "chromatic": "chromatic --project-token=${CHROMATIC_PROJECT_TOKEN}",
     "lighthouse": "lhci autorun",
+    "lighthouse:desktop": "LIGHTHOUSE_PROFILE=desktop lhci autorun",
     "lighthouse:ci": "lhci autorun --collect.startServerCommand='pnpm start' --collect.url=http://localhost:3000",
     "test:animations": "playwright test e2e/animations/",
     "test:a11y": "playwright test e2e/accessibility.spec.ts e2e/animations/v7-accessibility.spec.ts",

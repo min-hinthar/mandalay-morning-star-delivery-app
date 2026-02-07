@@ -2,14 +2,53 @@
  * Lighthouse CI Configuration
  *
  * Performance regression gate for PRs.
- * Audits customer-facing routes with mobile throttling.
+ * Supports both mobile (default) and desktop profiles.
  * Warn-only assertions (does not block PRs).
  *
- * Run locally: pnpm lighthouse
- * CI: Runs automatically on pull requests via GitHub Actions
+ * Run locally:
+ *   pnpm lighthouse              # mobile (default)
+ *   pnpm lighthouse:desktop      # desktop profile
+ *
+ * CI: Runs automatically on pull requests via GitHub Actions (mobile profile)
  *
  * @see https://github.com/GoogleChrome/lighthouse-ci
  */
+
+const isDesktop = process.env.LIGHTHOUSE_PROFILE === "desktop";
+
+// Desktop settings match Lighthouse's built-in desktop config
+const desktopSettings = {
+  chromeFlags: "--no-sandbox --headless --disable-gpu",
+  throttling: {
+    rttMs: 40,
+    throughputKbps: 10240,
+    cpuSlowdownMultiplier: 1,
+  },
+  emulatedFormFactor: "desktop",
+  screenEmulation: {
+    mobile: false,
+    width: 1350,
+    height: 940,
+    deviceScaleFactor: 1,
+  },
+};
+
+// Mobile settings for realistic mobile performance
+const mobileSettings = {
+  chromeFlags: "--no-sandbox --headless --disable-gpu",
+  throttling: {
+    rttMs: 150,
+    throughputKbps: 1638.4,
+    cpuSlowdownMultiplier: 4,
+  },
+  emulatedFormFactor: "mobile",
+  screenEmulation: {
+    mobile: true,
+    width: 375,
+    height: 667,
+    deviceScaleFactor: 2,
+  },
+};
 
 module.exports = {
   ci: {
@@ -30,22 +69,7 @@ module.exports = {
       // 3 runs per URL for statistical accuracy
       numberOfRuns: 3,
 
-      settings: {
-        chromeFlags: "--no-sandbox --headless --disable-gpu",
-        // Mobile throttling for realistic performance
-        throttling: {
-          rttMs: 150,
-          throughputKbps: 1638.4,
-          cpuSlowdownMultiplier: 4,
-        },
-        emulatedFormFactor: "mobile",
-        screenEmulation: {
-          mobile: true,
-          width: 375,
-          height: 667,
-          deviceScaleFactor: 2,
-        },
-      },
+      settings: isDesktop ? desktopSettings : mobileSettings,
     },
 
     assert: {
