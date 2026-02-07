@@ -76,12 +76,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Build Next.js
         run: pnpm build
+      - name: Tar build output
+        run: tar -cf nextjs-build.tar .next
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-build
-          path: .next
-          include-hidden-files: true
+          path: nextjs-build.tar
           retention-days: 7
 
   e2e:
@@ -104,7 +105,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: nextjs-build
-          path: .next
+      - name: Extract build artifacts
+        run: tar -xf nextjs-build.tar
       - name: Run E2E tests
         run: pnpm test:e2e --project=chromium
         env:
@@ -136,7 +138,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: nextjs-build
-          path: .next
+      - name: Extract build artifacts
+        run: tar -xf nextjs-build.tar
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12
         with:
