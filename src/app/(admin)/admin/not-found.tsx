@@ -4,7 +4,7 @@ import {
   NavigationCardGrid,
 } from "@/components/ui/error-pages";
 
-export default function NotFound() {
+export default function AdminNotFound() {
   return (
     <ErrorPageShell>
       <ErrorMascot errorType="not-found" />
@@ -14,7 +14,7 @@ export default function NotFound() {
       <p className="text-base text-text-inverse/80 mb-8 text-center max-w-md">
         The page you ordered is nowhere on the menu. Try one of these instead.
       </p>
-      <NavigationCardGrid portal="customer" />
+      <NavigationCardGrid portal="admin" />
     </ErrorPageShell>
   );
 }
