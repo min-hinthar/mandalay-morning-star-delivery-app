@@ -235,7 +235,11 @@
 [data-reduce-motion="true"] .animate-scale-in,
 [data-reduce-motion="true"] .animate-scale-pulse,
 [data-reduce-motion="true"] .animate-gradient-shift,
-[data-reduce-motion="true"] .animate-cta-shimmer::after {
+[data-reduce-motion="true"] .animate-cta-shimmer::after,
+[data-reduce-motion="true"] .animate-error-bob,
+[data-reduce-motion="true"] .animate-error-drift-1,
+[data-reduce-motion="true"] .animate-error-drift-2,
+[data-reduce-motion="true"] .animate-error-drift-3 {
   animation: none !important;
 }
 
