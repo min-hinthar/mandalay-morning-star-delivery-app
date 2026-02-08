@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 50 (3 of 10 in v1.6)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-08 -- Completed 50-01-PLAN.md
+Last activity: 2026-02-08 -- Completed 50-02-PLAN.md
 
-Progress: [████░░░░░░░░░░░░░░░░░░░] ~18%
+Progress: [█████░░░░░░░░░░░░░░░░░░] ~19%
 
 ## Milestones
 
@@ -28,7 +28,7 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
 | v1.6 Production Polish | 48-57 | ~23 | -- |
 
-**Total completed:** 49 phases, 215 plans, 274 requirements
+**Total completed:** 49 phases, 216 plans, 274 requirements
 
 ## Performance Metrics
 
@@ -50,6 +50,8 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | ERRP-06-TOKENS | Semantic tokens replace ghost tokens in error UI | 48-01 |
 | DFAS-01-LAZY | customer_settings uses lazy row creation (INSERT ON CONFLICT DO NOTHING) | 50-01 |
 | DFAS-01-COMPAT | New settings fields optional in Zod schemas for backward compatibility | 50-01 |
+| DFAS-02-SAVEBTN | SaveButton wraps Button in m.div for scale animation to avoid motion prop conflicts | 50-02 |
+| DFAS-02-CONFIRM | ConfirmDialog uses Button variant mapping (destructive->danger) for consistency | 50-02 |
 
 ### Tech Debt (carried forward)
 
@@ -69,10 +71,10 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 50-01-PLAN.md
+Stopped at: Completed 50-02-PLAN.md
 Resume file: None
-Next action: Execute 50-02-PLAN.md
+Next action: Execute 50-03-PLAN.md
 
 ---
 
-*Updated: 2026-02-08 -- Completed plan 50-01 (customer_settings table + admin settings expansion with types/schemas).*
+*Updated: 2026-02-08 -- Completed plan 50-02 (SaveButton, FloatingUnsavedBar, ToggleSwitch, ConfirmDialog, RestoreDefaultsDialog components).*
