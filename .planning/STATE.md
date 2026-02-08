@@ -62,6 +62,8 @@ Progress: [████████████████████░░░
 | CUST-01-PARTIAL | All customer settings schema fields optional for partial PATCH updates | 51-01 |
 | CUST-02-SUSPENSE | Wrapped AccountClient in Suspense boundary for useSearchParams SSR safety | 51-02 |
 | CUST-02-SPLIT | Dietary restrictions split into predefined/custom on load via DIETARY_OPTIONS set check | 51-02 |
+| CUST-03-TOGGLE | ToggleSwitch wrapped in stopPropagation div to isolate from card expand/collapse | 51-03 |
+| CUST-03-CHIPS | Custom allergy chips use border-dashed style to distinguish from predefined chips | 51-03 |
 | CUST-04-FONTCSS | Font size applied via CSS custom property --font-size-base for instant WYSIWYG | 51-04 |
 | CUST-04-SOUNDSYNC | useSoundPreference shares localStorage key with useSoundEffect (no AudioContext overhead) | 51-04 |
 | CUST-04-THEMEFIRE | Theme DB sync is fire-and-forget PATCH (no loading state, already visually applied) | 51-04 |
@@ -90,4 +92,4 @@ Next action: Execute 51-05-PLAN.md (after 51-03 completes if still running)
 
 ---
 
-*Updated: 2026-02-08 -- Plan 51-04 complete. Display preferences section with theme selector, font size segmented control, animation and sound toggles. Plans 03+04 ran in parallel (wave 3). 1 plan remains in phase 51.*
+*Updated: 2026-02-08 -- Plans 51-03 and 51-04 complete (wave 3 parallel). Preferences section (dietary chips, custom allergies, delivery instructions), notifications section (3 expandable cards with toggles), and display section (theme, font, animation, sound). 1 plan remains in phase 51.*
