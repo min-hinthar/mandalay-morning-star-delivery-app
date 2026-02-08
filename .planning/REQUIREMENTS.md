@@ -58,7 +58,7 @@
 - [ ] **ERRP-03**: 404 page has animated background matching brand style
 - [ ] **ERRP-04**: Error pages show contextual messaging (food-themed copy: "We dropped the plate")
 - [ ] **ERRP-05**: Error pages have mascot with sad/confused expression
-- [ ] **ERRP-06**: Error boundaries use CSS-only animations (no Framer Motion -- prevents crash loop)
+- [x] **ERRP-06**: Error boundaries use CSS-only animations (no Framer Motion -- prevents crash loop)
 
 ### Search Enhancement
 
@@ -83,8 +83,8 @@
 
 ### Infrastructure
 
-- [ ] **INFR-01**: Error boundaries (error.tsx) on all 6 missing routes (admin/menu, admin/drivers, admin/routes, driver/route, account, checkout)
-- [ ] **INFR-02**: Loading states (loading.tsx) on all admin pages lacking them
+- [x] **INFR-01**: Error boundaries (error.tsx) on all 6 missing routes (admin/menu, admin/drivers, admin/routes, driver/route, account, checkout)
+- [x] **INFR-02**: Loading states (loading.tsx) on all admin pages lacking them
 - [ ] **INFR-03**: Driver offline sync retries pending actions on reconnect with exponential backoff
 - [ ] **INFR-04**: Offline sync queue consolidated (resolve dual Zustand + IndexedDB architecture)
 
@@ -153,7 +153,7 @@
 | ERRP-03 | Phase 49 | Pending |
 | ERRP-04 | Phase 49 | Pending |
 | ERRP-05 | Phase 49 | Pending |
-| ERRP-06 | Phase 48 | Pending |
+| ERRP-06 | Phase 48 | Complete |
 | SRCH-01 | Phase 55 | Pending |
 | SRCH-02 | Phase 55 | Pending |
 | SRCH-03 | Phase 55 | Pending |
@@ -169,8 +169,8 @@
 | POLH-10 | Phase 57 | Pending |
 | POLH-11 | Phase 57 | Pending |
 | POLH-12 | Phase 57 | Pending |
-| INFR-01 | Phase 48 | Pending |
-| INFR-02 | Phase 48 | Pending |
+| INFR-01 | Phase 48 | Complete |
+| INFR-02 | Phase 48 | Complete |
 | INFR-03 | Phase 56 | Pending |
 | INFR-04 | Phase 56 | Pending |
 
