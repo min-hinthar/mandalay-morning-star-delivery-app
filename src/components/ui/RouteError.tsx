@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { m } from "framer-motion";
+import Image from "next/image";
 import * as Sentry from "@sentry/nextjs";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,47 +14,67 @@ interface RouteErrorProps {
 }
 
 export function RouteError({ error, reset, context }: RouteErrorProps) {
+  const retryCount = useRef(0);
+  const [showHomeEmphasis, setShowHomeEmphasis] = useState(false);
+
   useEffect(() => {
+    console.error(error);
     Sentry.captureException(error, {
       tags: { location: `route-error-${context ?? "unknown"}` },
       extra: { digest: error.digest },
     });
   }, [error, context]);
 
+  function handleRetry() {
+    retryCount.current += 1;
+    if (retryCount.current >= 2) {
+      setShowHomeEmphasis(true);
+    }
+    reset();
+  }
+
   return (
-    <m.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="min-h-screen bg-background flex items-center justify-center p-4"
-    >
+    <div className="animate-fade-in-up min-h-[60vh] bg-background flex items-center justify-center p-4">
       <div className="max-w-md w-full text-center">
-        <m.div
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          className="mx-auto w-16 h-16 rounded-full bg-brand-red/10 flex items-center justify-center mb-6"
-        >
-          <AlertTriangle className="h-8 w-8 text-brand-red" />
-        </m.div>
-        <h1 className="text-xl font-display text-charcoal mb-2">
-          Something went wrong
+        <Image
+          src="/logo.png"
+          alt="Morning Star"
+          width={48}
+          height={48}
+          className="mx-auto mb-4"
+          style={{ height: "auto" }}
+        />
+        <div className="mx-auto w-16 h-16 rounded-full bg-status-error-bg flex items-center justify-center mb-6">
+          <AlertTriangle className="h-8 w-8 text-status-error" />
+        </div>
+        <h1 className="text-xl font-display text-text-primary mb-2">
+          Oops, we hit a bump!
         </h1>
-        <p className="text-sm text-muted-foreground mb-6">
+        <p className="text-sm text-text-secondary mb-6">
           {context
-            ? `We couldn't load the ${context}. Please try again.`
-            : "We encountered an unexpected error. Please try again."}
+            ? `We couldn't load the ${context}. Give it another shot!`
+            : "Something unexpected happened. Give it another shot!"}
         </p>
         {process.env.NODE_ENV === "development" && (
-          <pre className="text-xs bg-muted p-3 rounded-md overflow-auto max-h-24 mb-6 text-left">
+          <pre className="text-xs bg-surface-tertiary p-3 rounded-md overflow-auto max-h-24 mb-6 text-left">
             {error.message}
+            {error.stack && "\n\n" + error.stack}
           </pre>
         )}
         <div className="flex gap-3 justify-center">
-          <Button onClick={reset} variant="outline" size="sm">
+          <Button
+            onClick={handleRetry}
+            variant={showHomeEmphasis ? "outline" : "default"}
+            size="sm"
+          >
             <RefreshCw className="h-4 w-4 mr-2" />
             Try Again
           </Button>
-          <Button asChild size="sm">
+          <Button
+            asChild
+            variant={showHomeEmphasis ? "default" : "ghost"}
+            size="sm"
+          >
             <Link href="/">
               <Home className="h-4 w-4 mr-2" />
               Go Home
@@ -62,6 +82,6 @@ export function RouteError({ error, reset, context }: RouteErrorProps) {
           </Button>
         </div>
       </div>
-    </m.div>
+    </div>
   );
 }
