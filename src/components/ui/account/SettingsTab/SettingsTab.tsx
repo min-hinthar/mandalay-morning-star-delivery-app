@@ -15,6 +15,9 @@ import { Tabs } from "@/components/ui/Tabs";
 import { FloatingUnsavedBar } from "@/components/ui/admin/settings/FloatingUnsavedBar";
 import { AddressesTab } from "@/components/ui/account/AddressesTab";
 import { useCustomerSettings } from "./useCustomerSettings";
+import { PreferencesSection } from "./PreferencesSection";
+import { NotificationsSection } from "./NotificationsSection";
+import { DisplaySection } from "./DisplaySection";
 
 type SettingsSection = "preferences" | "addresses" | "notifications" | "display";
 
@@ -69,9 +72,19 @@ export function SettingsTab({ initialSection }: SettingsTabProps) {
     error,
     save,
     discard,
-    // updateField will be passed to sub-sections in Plans 03/04
-    updateField: _updateField,
+    updateField,
   } = useCustomerSettings();
+
+  /** Immediately PATCH theme to DB (fire-and-forget, no loading state) */
+  function handleThemeDbSync(theme: string) {
+    fetch("/api/account/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ theme }),
+    }).catch(() => {
+      // Silently fail — theme is already applied visually via next-themes
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -101,20 +114,25 @@ export function SettingsTab({ initialSection }: SettingsTabProps) {
       {!isLoading && settings && (
         <div>
           {activeSection === "preferences" && (
-            <div className="rounded-card bg-surface-primary p-6 text-text-secondary text-sm">
-              Preferences section (Plan 03)
-            </div>
+            <PreferencesSection
+              settings={settings}
+              updateField={updateField}
+            />
           )}
           {activeSection === "addresses" && <AddressesTab />}
           {activeSection === "notifications" && (
-            <div className="rounded-card bg-surface-primary p-6 text-text-secondary text-sm">
-              Notifications section (Plan 03)
-            </div>
+            <NotificationsSection
+              notificationPrefs={settings.notificationPrefs}
+              onUpdate={(key, val) =>
+                updateField("notificationPrefs", {
+                  ...settings.notificationPrefs,
+                  [key]: val,
+                })
+              }
+            />
           )}
           {activeSection === "display" && (
-            <div className="rounded-card bg-surface-primary p-6 text-text-secondary text-sm">
-              Display section (Plan 04)
-            </div>
+            <DisplaySection onThemeChange={handleThemeDbSync} />
           )}
         </div>
       )}
