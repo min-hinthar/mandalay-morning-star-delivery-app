@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 51 in progress. Customer settings API and types foundation complete.
+**Current focus:** Phase 51 in progress. Account page restructured to 3 tabs with SettingsTab container and useCustomerSettings hook.
 
 ## Current Position
 
 Phase: 51 (4 of 10 in v1.6)
-Plan: 1 of 5 in current phase
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-08 -- Completed 51-01-PLAN.md
+Last activity: 2026-02-08 -- Completed 51-02-PLAN.md
 
-Progress: [████████░░░░░░░░░░░░░░░] ~25%
+Progress: [██████████░░░░░░░░░░░░░] ~40%
 
 ## Milestones
 
@@ -60,6 +60,8 @@ Progress: [████████░░░░░░░░░░░░░░░
 | DFAS-04-PLACEMENT | PreferenceCounterCard placed as new row below 3-column grid (not crowding existing cards) | 50-04 |
 | CUST-01-CAST | Json JSONB columns cast through unknown intermediate for TypeScript strict mode | 51-01 |
 | CUST-01-PARTIAL | All customer settings schema fields optional for partial PATCH updates | 51-01 |
+| CUST-02-SUSPENSE | Wrapped AccountClient in Suspense boundary for useSearchParams SSR safety | 51-02 |
+| CUST-02-SPLIT | Dietary restrictions split into predefined/custom on load via DIETARY_OPTIONS set check | 51-02 |
 
 ### Tech Debt (carried forward)
 
@@ -79,10 +81,10 @@ Progress: [████████░░░░░░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 51-01-PLAN.md
+Stopped at: Completed 51-02-PLAN.md
 Resume file: None
-Next action: Execute 51-02-PLAN.md
+Next action: Execute 51-03-PLAN.md
 
 ---
 
-*Updated: 2026-02-08 -- Plan 51-01 complete. Customer settings API route (GET+PATCH) with Zod validation and shared types created. 4 more plans remain in phase 51.*
+*Updated: 2026-02-08 -- Plan 51-02 complete. Account page restructured to 3 tabs. SettingsTab container with sub-tabs and FloatingUnsavedBar. useCustomerSettings hook with dietary split/merge. 3 more plans remain in phase 51.*
