@@ -82,18 +82,21 @@ lib-file/
 - Exempt from 400-line rule: `src/types/**`, test files, Storybook stories
 
 ## Session Memory
+- `.claude/learnings/INDEX.md` - learnings index (scan first)
+- `.claude/learnings/` - topic-specific learnings (11 topic files)
 - `.claude/ERROR_HISTORY.md` - past bugs, root causes, fixes
-- `.claude/LEARNINGS.md` - codebase patterns, conventions
-- `/retro` - capture insights manually or on session exit
+- `/retro` - capture insights, routes to correct topic file
 
 ## Error Protocol
-1. **Check history first:** Read `.claude/ERROR_HISTORY.md` before debugging
-2. **When to log:**
+1. Check `.claude/ERROR_HISTORY.md` before debugging
+2. Scan `.claude/learnings/INDEX.md` for related topic
+3. **When to log:**
    - Same error type 2+ times in session
    - Error spans >2 files
    - Non-obvious root cause
    - Skip: typos, simple one-offs
-3. **Format:** date, type, severity, files, error, root cause, fix
+4. Log errors -> `ERROR_HISTORY.md`, patterns -> `.claude/learnings/[topic].md`
+5. **Format:** date, type, severity, files, error, root cause, fix
 
 ## MCP Tools
 | Tool | Trigger | Action |
