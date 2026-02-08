@@ -429,7 +429,7 @@ export function SettingsNudgeBanner() {
                 {/* See all settings link */}
                 <div className="mt-4 text-center">
                   <Link
-                    href="/account"
+                    href="/account?tab=settings"
                     onClick={() => localStorage.setItem(VISITED_KEY, "true")}
                     className="text-sm font-medium text-amber-700 hover:text-amber-900 underline underline-offset-2 transition-colors"
                   >
