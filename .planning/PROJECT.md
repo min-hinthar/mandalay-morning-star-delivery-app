@@ -187,31 +187,28 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 
 ### Active
 
-(No active requirements — run `/gsd:new-milestone` to define v1.6)
+## Current Milestone: v1.6 Production Polish
 
-## Current State (v1.5 shipped)
+**Goal:** Final production-readiness pass — elevate every page to premium polish, complete all missing features, wire all backend integrations, and harden error handling before public launch.
 
-**Shipped:** 2026-02-07
-**Phases:** 47 (v1.0: 1-8, v1.1: 9-14, v1.2: 15-24, v1.3: 25-34, v1.4: 35-39, v1.5: 40-47)
-**Plans:** 208 total
-**Requirements:** 274 validated (213 + 61 v1.5)
-
-**Key accomplishments in v1.5:**
-- LCP 45% improvement (19.9s → 10.9s) — image priority, Server Components, dynamic imports
-- React Compiler + LazyMotion — auto-memoization and per-component bundle savings
-- Code-splitting infrastructure — Recharts, Google Maps, cart all lazy-loaded
-- Repository cleanup — 94 legacy docs + 89 build artifacts removed from tracking
-- File refactoring — 47 oversized files split with barrel re-export preservation
-- Lighthouse CI + E2E cart tests — automated regression prevention in CI
-
-**Next milestone:** v1.6 (not yet defined — LCP <4s optimization candidate)
-
-Run `/gsd:new-milestone` to start planning.
+**Target features:**
+- Elevate auth forms (login, signup, forgot-password, reset-password) to premium animation/design
+- Complete `/cart` page (currently a stub)
+- Create customer settings page (notifications, delivery defaults, dietary preferences, theme, language)
+- Polish account, admin orders, driver stop detail, driver history pages
+- Branded 404 page
+- Premium search/command palette
+- Wire order confirmation email (verify Edge Function)
+- Driver offline sync retry on reconnect
+- Customer refund/cancel notifications
+- Cart validation on mount (stale item detection)
+- Error boundaries and loading states on all routes
 
 ### Out of Scope
 - Backend/schema changes — Supabase + Stripe contracts stay stable
 - Multi-restaurant marketplace — not part of Morning Star scope
-- LCP <2.5s — original target not achievable without fundamental architecture changes; v1.6 targets <4s
+- LCP optimization — deferred to v1.7 (v1.6 focuses on UI/UX polish and feature completeness)
+- Real-time subscriptions — current REST pattern sufficient for launch
 
 ## Context
 
