@@ -12,6 +12,7 @@
 
 @import "../styles/tokens.css";
 @import "../styles/animations.css";
+@import "../components/ui/error-pages/error-page.css";
 
 /* CSS Cascade Layers for proper stacking order control */
 @layer reset, base, tokens, components, utilities;
