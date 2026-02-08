@@ -14,6 +14,7 @@ import { LazyRevenueChart } from "@/components/ui/admin/analytics/LazyCharts";
 import { PopularItems } from "@/components/ui/admin/PopularItems";
 import { AdminDashboard } from "@/components/ui/admin/AdminDashboard";
 import type { KPIData } from "@/components/ui/admin/AdminDashboard";
+import { PreferenceCounterCard } from "@/components/ui/admin/PreferenceCounterCard";
 
 interface OrderStatsRow {
   status: OrderStatus;
@@ -350,6 +351,9 @@ export default async function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Customer Preferences */}
+      <PreferenceCounterCard className="mt-4" />
     </div>
   );
 }
