@@ -58,7 +58,7 @@
 - [ ] **ERRP-03**: 404 page has animated background matching brand style
 - [ ] **ERRP-04**: Error pages show contextual messaging (food-themed copy: "We dropped the plate")
 - [ ] **ERRP-05**: Error pages have mascot with sad/confused expression
-- [ ] **ERRP-06**: Error boundaries use CSS-only animations (no Framer Motion — prevents crash loop)
+- [ ] **ERRP-06**: Error boundaries use CSS-only animations (no Framer Motion -- prevents crash loop)
 
 ### Search Enhancement
 
@@ -111,27 +111,82 @@
 | Chat support widget | 200KB+ JS impact on LCP; support email link sufficient |
 | Animated onboarding carousel | Scope creep; branded auth pages + clear value prop is sufficient |
 | Payment methods management | Stripe Checkout handles this; link to Stripe Customer Portal |
-| LCP optimization | Deferred to v1.7 — v1.6 focuses on polish and features |
+| LCP optimization | Deferred to v1.7 -- v1.6 focuses on polish and features |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (To be filled during roadmap creation) | | |
+| AUTH-01 | Phase 53 | Pending |
+| AUTH-02 | Phase 53 | Pending |
+| AUTH-03 | Phase 53 | Pending |
+| AUTH-04 | Phase 53 | Pending |
+| AUTH-05 | Phase 53 | Pending |
+| AUTH-06 | Phase 53 | Pending |
+| AUTH-07 | Phase 53 | Pending |
+| AUTH-08 | Phase 53 | Pending |
+| AUTH-09 | Phase 53 | Pending |
+| AUTH-10 | Phase 53 | Pending |
+| MAIL-01 | Phase 54 | Pending |
+| MAIL-02 | Phase 54 | Pending |
+| MAIL-03 | Phase 54 | Pending |
+| MAIL-04 | Phase 54 | Pending |
+| MAIL-05 | Phase 54 | Pending |
+| CART-01 | Phase 52 | Pending |
+| CART-02 | Phase 52 | Pending |
+| CART-03 | Phase 52 | Pending |
+| CART-04 | Phase 52 | Pending |
+| CART-05 | Phase 52 | Pending |
+| SETT-01 | Phase 51 | Pending |
+| SETT-02 | Phase 51 | Pending |
+| SETT-03 | Phase 51 | Pending |
+| SETT-04 | Phase 51 | Pending |
+| SETT-05 | Phase 51 | Pending |
+| SETT-06 | Phase 51 | Pending |
+| SETT-07 | Phase 50 | Pending |
+| ADMN-01 | Phase 50 | Pending |
+| ADMN-02 | Phase 50 | Pending |
+| ADMN-03 | Phase 50 | Pending |
+| ADMN-04 | Phase 50 | Pending |
+| ERRP-01 | Phase 49 | Pending |
+| ERRP-02 | Phase 49 | Pending |
+| ERRP-03 | Phase 49 | Pending |
+| ERRP-04 | Phase 49 | Pending |
+| ERRP-05 | Phase 49 | Pending |
+| ERRP-06 | Phase 48 | Pending |
+| SRCH-01 | Phase 55 | Pending |
+| SRCH-02 | Phase 55 | Pending |
+| SRCH-03 | Phase 55 | Pending |
+| POLH-01 | Phase 57 | Pending |
+| POLH-02 | Phase 57 | Pending |
+| POLH-03 | Phase 57 | Pending |
+| POLH-04 | Phase 57 | Pending |
+| POLH-05 | Phase 57 | Pending |
+| POLH-06 | Phase 57 | Pending |
+| POLH-07 | Phase 57 | Pending |
+| POLH-08 | Phase 57 | Pending |
+| POLH-09 | Phase 57 | Pending |
+| POLH-10 | Phase 57 | Pending |
+| POLH-11 | Phase 57 | Pending |
+| POLH-12 | Phase 57 | Pending |
+| INFR-01 | Phase 48 | Pending |
+| INFR-02 | Phase 48 | Pending |
+| INFR-03 | Phase 56 | Pending |
+| INFR-04 | Phase 56 | Pending |
 
 **Coverage:**
-- v1.6 requirements: 50 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 50
+- v1.6 requirements: 56 total
+- Mapped to phases: 56
+- Unmapped: 0
 
 ## Implementation Constraints
 
 - **UI work must use `/frontend-design` skill** for all component creation and visual polish
-- Error boundaries must be CSS-only (no Framer Motion imports — prevents crash loops)
+- Error boundaries must be CSS-only (no Framer Motion imports -- prevents crash loops)
 - Cart validation must be Zustand hydration-aware (gate behind `onRehydrateStorage`)
 - Email templates use React Email components (no raw HTML tables)
 - Admin settings must persist to Supabase (not just localStorage)
 
 ---
 *Requirements defined: 2026-02-07*
-*Last updated: 2026-02-07 after initial definition*
+*Last updated: 2026-02-07 after roadmap creation (56 requirements mapped to 10 phases)*
