@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Planning next milestone (v1.6 candidate: LCP <4s optimization)
+**Current focus:** v1.6 Production Polish — final pass before public launch
 
 ## Current Position
 
-Phase: Between milestones
-Plan: N/A
-Status: v1.5 complete. Ready for `/gsd:new-milestone` to start v1.6.
-Last activity: 2026-02-07 — v1.5 milestone archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements for v1.6 Production Polish
+Last activity: 2026-02-07 — Milestone v1.6 started
 
 ## Milestones
 
@@ -24,6 +24,7 @@ Last activity: 2026-02-07 — v1.5 milestone archived
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | 2026-02-05 |
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
+| v1.6 Production Polish | TBD | TBD | — |
 
 **Total completed:** 47 phases, 208 plans, 274 requirements
 
@@ -31,16 +32,16 @@ Last activity: 2026-02-07 — v1.5 milestone archived
 
 ### Key Decisions
 
-(Cleared at milestone boundary — see PROJECT.md for full history)
+(Starting fresh for v1.6)
 
-### Tech Debt (carried forward to v1.6)
+### Tech Debt (carried forward)
 
 | Item | Severity | Notes |
 |------|----------|-------|
-| LCP 8-11s | Medium | JS execution bottleneck; needs SSR streaming, edge rendering, or JS payload reduction |
-| Lighthouse score 30-45 | Medium | Target 90+; blocked by LCP |
-| UnifiedMenuItemCard 540 lines | Low | Documented exception — tightly coupled tilt/cart/touch state |
-| Lighthouse CI warn-only | Low | PRs not blocked on LCP regression |
+| LCP 8-11s | Medium | Deferred to v1.7 — v1.6 focuses on polish/features |
+| Lighthouse score 30-45 | Medium | Deferred to v1.7 |
+| UnifiedMenuItemCard 540 lines | Low | Documented exception |
+| Lighthouse CI warn-only | Low | Deferred to v1.7 |
 
 ### Blockers/Concerns
 
@@ -49,10 +50,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: v1.5 milestone complete and archived.
+Stopped at: Defining requirements for v1.6 Production Polish
 Resume file: None
-Next action: Run `/gsd:new-milestone` to start v1.6 planning.
+Next action: Define requirements, then create roadmap.
 
 ---
 
-*Updated: 2026-02-07 — v1.5 milestone complete and archived.*
+*Updated: 2026-02-07 — Milestone v1.6 Production Polish started.*
