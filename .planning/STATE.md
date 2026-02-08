@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 51 in progress. Display preferences section complete. Plans 03+04 done (parallel wave 3). Plan 05 next.
+**Current focus:** Phase 51 complete. All 5 plans delivered: API, account restructure, preferences/notifications, display, checkout integration. Ready for Phase 52.
 
 ## Current Position
 
 Phase: 51 (4 of 10 in v1.6)
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-02-08 -- Completed 51-04-PLAN.md
+Plan: 5 of 5 in current phase
+Status: Phase complete
+Last activity: 2026-02-08 -- Completed 51-05-PLAN.md
 
-Progress: [████████████████████░░░] ~80%
+Progress: [████████████████████████] 100%
 
 ## Milestones
 
@@ -28,12 +28,12 @@ Progress: [████████████████████░░░
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
 | v1.6 Production Polish | 48-57 | ~23 | -- |
 
-**Total completed:** 50 phases, 219 plans, 279 requirements
+**Total completed:** 51 phases, 224 plans, 284 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 219
+- Total plans completed: 224
 - Average duration: --
 - Total execution time: --
 
@@ -67,6 +67,8 @@ Progress: [████████████████████░░░
 | CUST-04-FONTCSS | Font size applied via CSS custom property --font-size-base for instant WYSIWYG | 51-04 |
 | CUST-04-SOUNDSYNC | useSoundPreference shares localStorage key with useSoundEffect (no AudioContext overhead) | 51-04 |
 | CUST-04-THEMEFIRE | Theme DB sync is fire-and-forget PATCH (no loading state, already visually applied) | 51-04 |
+| CUST-05-SELFCONTAINED | DietarySummaryCard fetches own data, renders null on empty/error (non-critical for checkout) | 51-05 |
+| CUST-05-DEEPLINK | SettingsNudgeBanner uses ?tab=settings query param for direct Settings tab navigation | 51-05 |
 
 ### Tech Debt (carried forward)
 
@@ -86,10 +88,10 @@ Progress: [████████████████████░░░
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 51-04-PLAN.md
+Stopped at: Completed 51-05-PLAN.md (Phase 51 complete)
 Resume file: None
-Next action: Execute 51-05-PLAN.md (after 51-03 completes if still running)
+Next action: Plan Phase 52
 
 ---
 
-*Updated: 2026-02-08 -- Plans 51-03 and 51-04 complete (wave 3 parallel). Preferences section (dietary chips, custom allergies, delivery instructions), notifications section (3 expandable cards with toggles), and display section (theme, font, animation, sound). 1 plan remains in phase 51.*
+*Updated: 2026-02-08 -- Phase 51 (Customer Settings) complete. All 5 plans delivered: settings API & types, account restructure with SettingsTab, preferences & notifications sections, display preferences, checkout dietary card & nudge banner deep-link. Full verification passes.*
