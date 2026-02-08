@@ -16,17 +16,34 @@ const DEFAULT_SETTINGS = [
   { key: "base_delivery_fee_cents", value: 599, category: "delivery" },
   { key: "delivery_cutoff_time", value: "18:00", category: "delivery" },
   { key: "delivery_time_windows", value: [], category: "delivery" },
+  { key: "delivery_zones", value: [], category: "delivery" },
   // Operations settings
   { key: "max_stops_per_route", value: 15, category: "operations" },
   { key: "auto_assign_enabled", value: false, category: "operations" },
   { key: "route_optimization_enabled", value: true, category: "operations" },
   { key: "default_vehicle_type", value: "car", category: "operations" },
+  {
+    key: "store_hours",
+    value: {
+      monday: { open: "09:00", close: "21:00", closed: false },
+      tuesday: { open: "09:00", close: "21:00", closed: false },
+      wednesday: { open: "09:00", close: "21:00", closed: false },
+      thursday: { open: "09:00", close: "21:00", closed: false },
+      friday: { open: "09:00", close: "21:00", closed: false },
+      saturday: { open: "10:00", close: "22:00", closed: false },
+      sunday: { open: "10:00", close: "20:00", closed: false },
+    },
+    category: "operations",
+  },
+  { key: "max_orders_per_slot", value: 20, category: "operations" },
   // Notification settings
   { key: "email_notifications_enabled", value: true, category: "notifications" },
   { key: "sms_notifications_enabled", value: false, category: "notifications" },
   { key: "push_notifications_enabled", value: false, category: "notifications" },
   { key: "notify_on_order_placed", value: true, category: "notifications" },
   { key: "notify_on_order_status_change", value: true, category: "notifications" },
+  { key: "low_stock_threshold", value: 10, category: "notifications" },
+  { key: "daily_summary_enabled", value: false, category: "notifications" },
 ] as const;
 
 /**
