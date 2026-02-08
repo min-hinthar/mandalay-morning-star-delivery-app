@@ -35,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { BrandedSpinner } from "@/components/ui/branded-spinner";
 import { ErrorShake } from "@/components/ui/error-shake";
+import { DietarySummaryCard } from "./DietarySummaryCard";
 
 /** Button entry animation variant */
 const buttonEntry = {
@@ -211,6 +212,11 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
                   />
                 )}
               </div>
+            </m.div>
+
+            {/* Dietary Summary Card with stagger */}
+            <m.div variants={shouldAnimate ? staggerItem : undefined}>
+              <DietarySummaryCard />
             </m.div>
 
             {/* Notes Input with stagger */}
