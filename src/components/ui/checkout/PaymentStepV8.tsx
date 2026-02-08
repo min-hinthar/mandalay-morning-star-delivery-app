@@ -130,11 +130,11 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
       <m.div variants={shouldAnimate ? staggerItem : undefined}>
         <div className="flex items-center gap-2 mb-1">
           <CreditCard className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-lg font-semibold text-foreground">
+          <h2 className="font-display text-lg font-semibold text-text-primary">
             Review & Pay
           </h2>
         </div>
-        <p className="font-body text-sm text-muted-foreground">
+        <p className="font-body text-sm text-text-muted">
           Review your order and proceed to payment
         </p>
       </m.div>
@@ -155,7 +155,7 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-sm text-muted-foreground"
+              className="text-sm text-text-muted"
             >
               Preparing secure checkout...
             </m.p>
@@ -163,7 +163,7 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="flex items-center gap-2 text-xs text-muted-foreground"
+              className="flex items-center gap-2 text-xs text-text-muted"
             >
               <Lock className="w-3 h-3" />
               <span>Secured by Stripe</span>
@@ -181,17 +181,17 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
             {/* Order Summary Card with stagger */}
             <m.div
               variants={shouldAnimate ? staggerItem : undefined}
-              className="space-y-4 rounded-lg bg-muted/50 p-5 border border-border"
+              className="space-y-4 rounded-lg bg-surface-secondary p-5 border border-border"
             >
               {/* Address */}
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <MapPin className="h-4 w-4 text-primary" />
-                  <h3 className="font-body text-sm font-medium text-muted-foreground">
+                  <h3 className="font-body text-sm font-medium text-text-muted">
                     Delivery Address
                   </h3>
                 </div>
-                <p className="font-body text-foreground text-center">
+                <p className="font-body text-text-primary text-left">
                   {address?.formattedAddress}
                 </p>
               </div>
@@ -200,7 +200,7 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4 text-primary" />
-                  <h3 className="font-body text-sm font-medium text-muted-foreground">
+                  <h3 className="font-body text-sm font-medium text-text-muted">
                     Delivery Time
                   </h3>
                 </div>
@@ -220,7 +220,7 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
             >
               <Label
                 htmlFor="customerNotes"
-                className="font-body text-sm font-medium text-foreground"
+                className="font-body text-sm font-medium text-text-primary"
               >
                 Order Notes (optional)
               </Label>
@@ -233,7 +233,7 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
                 rows={3}
                 className="font-body"
               />
-              <p className="font-body text-xs text-muted-foreground">
+              <p className="font-body text-xs text-text-muted">
                 {customerNotes.length}/500 characters
               </p>
             </m.div>

@@ -120,7 +120,7 @@ export default function CheckoutPage() {
   if (authLoading || !user || isEmpty) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-red" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -138,9 +138,9 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30 pb-32">
+    <div className="min-h-screen bg-surface-secondary pb-32">
       <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
-        <h1 className="mb-6 text-xl sm:text-2xl font-display font-bold text-foreground">
+        <h1 className="mb-6 text-xl sm:text-2xl font-display font-bold text-text-primary">
           Checkout
         </h1>
 
@@ -153,7 +153,7 @@ export default function CheckoutPage() {
         <div className="grid gap-6 lg:gap-8 lg:grid-cols-3">
           {/* Main content - order form with animated transitions */}
           <div className="lg:col-span-2">
-            <div className="rounded-lg border border-border bg-card p-4 sm:p-6 shadow-colorful overflow-hidden">
+            <div className="rounded-lg border border-border bg-surface-primary p-4 sm:p-6 shadow-colorful overflow-hidden">
               <AnimatePresence mode="wait" custom={direction}>
                 {step === "address" && (
                   <m.div
