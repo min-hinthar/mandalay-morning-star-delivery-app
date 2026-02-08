@@ -10,82 +10,60 @@
  * - Push notifications (toggle)
  * - Notify on order placed (toggle)
  * - Notify on status change (toggle)
+ * - Low stock threshold (number + toggle)
+ * - Daily summary email (toggle)
  */
 
 import { useCallback } from "react";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils/cn";
+import { ToggleSwitch } from "./ToggleSwitch";
 import type { NotificationSettings } from "./settings-types";
 
 interface NotificationSettingsFormProps {
   settings: NotificationSettings;
+  originalSettings: NotificationSettings;
   onChange: (settings: NotificationSettings) => void;
 }
 
 // ===========================================
-// TOGGLE SWITCH
+// HELPERS
 // ===========================================
 
-interface ToggleSwitchProps {
-  id: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  label: string;
-  description?: string;
+function isFieldChanged(
+  settings: NotificationSettings,
+  originalSettings: NotificationSettings,
+  field: keyof NotificationSettings
+): boolean {
+  return JSON.stringify(settings[field]) !== JSON.stringify(originalSettings[field]);
 }
 
-function ToggleSwitch({ id, checked, onChange, label, description }: ToggleSwitchProps) {
-  return (
-    <div className="flex items-start justify-between gap-4 py-3">
-      <div className="flex-1">
-        <Label htmlFor={id} className="text-base font-medium cursor-pointer">
-          {label}
-        </Label>
-        {description && (
-          <p className="mt-1 text-sm text-text-secondary">{description}</p>
-        )}
-      </div>
-      <button
-        id={id}
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={cn(
-          "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-          checked ? "bg-green" : "bg-surface-tertiary"
-        )}
-      >
-        <span
-          className={cn(
-            "inline-block h-4 w-4 transform rounded-full bg-surface-primary shadow-sm transition-transform",
-            checked ? "translate-x-6" : "translate-x-1"
-          )}
-        />
-      </button>
-    </div>
-  );
-}
+const changedBorder = "border-l-2 border-l-primary pl-3";
 
 // ===========================================
 // COMPONENT
 // ===========================================
 
-export function NotificationSettingsForm({ settings, onChange }: NotificationSettingsFormProps) {
-  // Handle toggle changes
+export function NotificationSettingsForm({ settings, originalSettings, onChange }: NotificationSettingsFormProps) {
   const handleToggleChange = useCallback(
     (field: keyof NotificationSettings, checked: boolean) => {
-      onChange({
-        ...settings,
-        [field]: checked,
-      });
+      onChange({ ...settings, [field]: checked });
+    },
+    [settings, onChange]
+  );
+
+  const handleThresholdChange = useCallback(
+    (value: string) => {
+      const numValue = parseInt(value, 10);
+      if (isNaN(numValue)) return;
+      onChange({ ...settings, lowStockThreshold: Math.max(0, Math.min(1000, numValue)) });
     },
     [settings, onChange]
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Section Header */}
       <div className="pb-4 border-b border-border-subtle">
         <h2 className="text-lg font-display font-semibold text-text-primary">
@@ -97,7 +75,12 @@ export function NotificationSettingsForm({ settings, onChange }: NotificationSet
       </div>
 
       {/* Notification Channels */}
-      <div className="space-y-2">
+      <div className={cn(
+        "space-y-2",
+        (isFieldChanged(settings, originalSettings, "emailNotificationsEnabled") ||
+          isFieldChanged(settings, originalSettings, "smsNotificationsEnabled") ||
+          isFieldChanged(settings, originalSettings, "pushNotificationsEnabled")) && changedBorder
+      )}>
         <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
           Notification Channels
         </h3>
@@ -129,7 +112,11 @@ export function NotificationSettingsForm({ settings, onChange }: NotificationSet
       </div>
 
       {/* Notification Triggers */}
-      <div className="space-y-2">
+      <div className={cn(
+        "space-y-2",
+        (isFieldChanged(settings, originalSettings, "notifyOnOrderPlaced") ||
+          isFieldChanged(settings, originalSettings, "notifyOnOrderStatusChange")) && changedBorder
+      )}>
         <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
           Notification Triggers
         </h3>
@@ -148,6 +135,65 @@ export function NotificationSettingsForm({ settings, onChange }: NotificationSet
             onChange={(checked) => handleToggleChange("notifyOnOrderStatusChange", checked)}
             label="Status Change Notifications"
             description="Notify when order status changes"
+          />
+        </div>
+      </div>
+
+      {/* Admin Alerts */}
+      <div className="space-y-4">
+        <div className="pb-3 border-b border-border-subtle">
+          <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
+            Admin Alerts
+          </h3>
+        </div>
+
+        {/* Low Stock Alerts */}
+        <div className={cn(
+          "space-y-3",
+          isFieldChanged(settings, originalSettings, "lowStockThreshold") && changedBorder
+        )}>
+          <ToggleSwitch
+            id="lowStockAlerts"
+            checked={settings.lowStockThreshold > 0}
+            onChange={(enabled) =>
+              onChange({ ...settings, lowStockThreshold: enabled ? 10 : 0 })
+            }
+            label="Low Stock Alerts"
+            description="Get notified when any item's stock falls below threshold"
+          />
+
+          {settings.lowStockThreshold > 0 && (
+            <div className="ml-4 space-y-2">
+              <Label htmlFor="lowStockThreshold" className="text-sm">
+                Stock Threshold
+              </Label>
+              <Input
+                id="lowStockThreshold"
+                type="number"
+                min={1}
+                max={1000}
+                step={1}
+                value={settings.lowStockThreshold}
+                onChange={(e) => handleThresholdChange(e.target.value)}
+                className="max-w-[120px]"
+              />
+              <p className="text-xs text-text-muted">
+                Alert when any item falls below this quantity
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Daily Summary Email */}
+        <div className={cn(
+          isFieldChanged(settings, originalSettings, "dailySummaryEnabled") && changedBorder
+        )}>
+          <ToggleSwitch
+            id="dailySummary"
+            checked={settings.dailySummaryEnabled}
+            onChange={(checked) => handleToggleChange("dailySummaryEnabled", checked)}
+            label="Daily Summary Email"
+            description="Receive a daily email summarizing orders and activity"
           />
         </div>
       </div>
