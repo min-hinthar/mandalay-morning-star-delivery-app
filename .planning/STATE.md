@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 50 - Data Foundation & Admin Settings
+**Current focus:** Phase 50 complete. Ready for next phase in v1.6.
 
 ## Current Position
 
 Phase: 50 (3 of 10 in v1.6)
-Plan: 3 of 4 in current phase
-Status: In progress
-Last activity: 2026-02-08 -- Completed 50-03-PLAN.md
+Plan: 4 of 4 in current phase
+Status: Phase complete
+Last activity: 2026-02-08 -- Completed 50-04-PLAN.md
 
-Progress: [██████░░░░░░░░░░░░░░░░░] ~22%
+Progress: [███████░░░░░░░░░░░░░░░░] ~24%
 
 ## Milestones
 
@@ -28,12 +28,12 @@ Progress: [██████░░░░░░░░░░░░░░░░░
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
 | v1.6 Production Polish | 48-57 | ~23 | -- |
 
-**Total completed:** 49 phases, 216 plans, 274 requirements
+**Total completed:** 49 phases, 217 plans, 274 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 215
+- Total plans completed: 217
 - Average duration: --
 - Total execution time: --
 
@@ -55,6 +55,9 @@ Progress: [██████░░░░░░░░░░░░░░░░░
 | DFAS-03-SPLIT | Extracted delivery-helpers.ts from DeliverySettingsForm to stay under 400-line limit | 50-03 |
 | DFAS-03-DEFAULTS | Extracted settings-defaults.ts from SettingsClient for DEFAULT_SETTINGS and mapApiResponse | 50-03 |
 | DFAS-03-LOWSTOCK | Low stock alerts use threshold=0 as disabled state; toggle sets to 10 or 0 | 50-03 |
+| DFAS-04-UPSERT | Nudge banner uses direct Supabase client upsert (no API route) for inline saves | 50-04 |
+| DFAS-04-DBTYPES | Added CustomerSettings Row/Insert/Update types to database.ts for type safety | 50-04 |
+| DFAS-04-PLACEMENT | PreferenceCounterCard placed as new row below 3-column grid (not crowding existing cards) | 50-04 |
 
 ### Tech Debt (carried forward)
 
@@ -74,10 +77,10 @@ Progress: [██████░░░░░░░░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 50-03-PLAN.md
+Stopped at: Completed 50-04-PLAN.md (phase 50 complete)
 Resume file: None
-Next action: Execute 50-04-PLAN.md
+Next action: Begin next phase in v1.6 Production Polish
 
 ---
 
-*Updated: 2026-02-08 -- Completed plan 50-03 (form expansion with time windows/zones/store hours/capacity/alerts + save UX integration).*
+*Updated: 2026-02-08 -- Completed plan 50-04 (SettingsNudgeBanner + PreferenceCounterCard). Phase 50 complete.*
