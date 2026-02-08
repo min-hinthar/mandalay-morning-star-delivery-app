@@ -73,6 +73,72 @@
   --color-border-default: var(--color-border-default);
   --color-border-strong: var(--color-border-strong);
   --color-border-subtle: var(--color-border-subtle);
+
+  /* Primary / Secondary Variants (from tokens.css) */
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-active: var(--color-primary-active);
+  --color-primary-light: var(--color-primary-light);
+  --color-secondary-hover: var(--color-secondary-hover);
+  --color-secondary-active: var(--color-secondary-active);
+  --color-secondary-light: var(--color-secondary-light);
+
+  /* Accent Colors (from tokens.css) */
+  --color-green: var(--color-accent-green);
+  --color-green-hover: var(--color-accent-green-hover);
+  --color-green-light: var(--color-accent-green-light);
+  --color-orange: var(--color-accent-orange);
+  --color-orange-hover: var(--color-accent-orange-hover);
+  --color-orange-light: var(--color-accent-orange-light);
+  --color-teal: var(--color-accent-teal);
+  --color-teal-hover: var(--color-accent-teal-hover);
+  --color-teal-light: var(--color-accent-teal-light);
+  --color-magenta: var(--color-accent-magenta);
+  --color-magenta-hover: var(--color-accent-magenta-hover);
+  --color-magenta-light: var(--color-accent-magenta-light);
+  --color-accent-secondary: var(--color-accent-secondary);
+  --color-accent-tertiary: var(--color-accent-tertiary);
+
+  /* Text Money (from tokens.css) */
+  --color-text-money: var(--color-text-money);
+
+  /* Status Colors (from tokens.css) */
+  --color-status-success: var(--color-status-success);
+  --color-status-success-bg: var(--color-status-success-bg);
+  --color-status-warning: var(--color-status-warning);
+  --color-status-warning-bg: var(--color-status-warning-bg);
+  --color-status-error: var(--color-status-error);
+  --color-status-error-bg: var(--color-status-error-bg);
+  --color-status-info: var(--color-status-info);
+  --color-status-info-bg: var(--color-status-info-bg);
+
+  /* Interactive Colors (from tokens.css) */
+  --color-interactive: var(--color-interactive-primary);
+  --color-interactive-primary: var(--color-interactive-primary);
+  --color-interactive-hover: var(--color-interactive-hover);
+
+  /* Footer Colors (from tokens.css) */
+  --color-footer-bg: var(--color-footer-bg);
+  --color-footer-text: var(--color-footer-text);
+  --color-footer-text-muted: var(--color-footer-text-muted);
+  --color-footer-border: var(--color-footer-border);
+
+  /* Hero Colors (from tokens.css) */
+  --color-hero-gradient-start: var(--hero-gradient-start);
+  --color-hero-gradient-mid: var(--hero-gradient-mid);
+  --color-hero-gradient-end: var(--hero-gradient-end);
+  --color-hero-text: var(--hero-text);
+  --color-hero-text-muted: var(--hero-text-muted);
+  --color-hero-overlay: var(--hero-overlay);
+  --color-hero-stat-bg: var(--hero-stat-bg);
+
+  /* Skeleton / Disabled / Selection (from tokens.css) */
+  --color-skeleton: var(--color-skeleton);
+  --color-skeleton-shimmer: var(--color-skeleton-shimmer);
+  --color-disabled-bg: var(--color-disabled-bg);
+  --color-disabled-text: var(--color-disabled-text);
+  --color-selection: var(--color-selection);
+
+  /* Border Radius (from tokens.css) */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -80,6 +146,38 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  --radius-pill: var(--radius-pill);
+  --radius-card: var(--radius-card);
+  --radius-card-sm: var(--radius-card-sm);
+  --radius-input: var(--radius-input);
+  --radius-button: var(--radius-button);
+  --radius-badge: var(--radius-badge);
+  --radius-full: var(--radius-full);
+
+  /* Shadows (from tokens.css) */
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-elevated: var(--shadow-elevated);
+  --shadow-nav: var(--shadow-nav);
+  --shadow-nav-top: var(--shadow-nav-top);
+  --shadow-button-hover: var(--shadow-button-hover);
+  --shadow-inner-glow: var(--shadow-inner-glow);
+  --shadow-glow-primary: var(--shadow-glow-primary);
+  --shadow-glow-success: var(--shadow-glow-success);
+  --shadow-glow-warning: var(--shadow-glow-warning);
+  --shadow-glow-amber: var(--shadow-glow-amber);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-inner-sm: var(--shadow-inner-sm);
+  --shadow-inner-md: var(--shadow-inner-md);
+  --shadow-primary: var(--shadow-primary);
+  --shadow-success: var(--shadow-success);
+  --shadow-warning: var(--shadow-warning);
+  --shadow-error: var(--shadow-error);
+  --shadow-focus: var(--shadow-focus);
+  --shadow-focus-success: var(--shadow-focus-success);
+  --shadow-focus-error: var(--shadow-focus-error);
+  --shadow-hint-sm: var(--shadow-hint-sm);
+  --shadow-hint-md: var(--shadow-hint-md);
 
   /*
    * Z-Index: Defined in tailwind.config.ts using CSS variables from tokens.css

@@ -1255,3 +1255,44 @@ export async function GET(request: Request) {
 **Apply when:** Need to pass context through auth flow. Simpler than client-side hash parsing with AuthHandler.
 
 ---
+
+## 2026-02-07: Tailwind v4 + Turbopack — `tailwind.config.ts` Is Dead Code (SYSTEMIC)
+
+**Context:** After replacing hardcoded colors with Pepper design tokens (e.g., `bg-status-success-bg`, `text-status-error`, `bg-green`), Playwright revealed ALL custom tokens resolved to transparent/default. Buttons, status badges, border-radii — nothing worked.
+
+**Root Cause:** In Tailwind v4 + Turbopack, `tailwind.config.ts` is completely ignored. The `@config` directive is also silently ignored by Turbopack's CSS pipeline. The **only** source of truth for utility class generation is `@theme inline {}` in `globals.css`.
+
+**Scale of issue:** ~60+ Pepper tokens were defined only in `tailwind.config.ts` and `tokens.css` but never registered in `@theme inline`. This included:
+- All status colors (`status-success`, `status-error`, `status-warning`, `status-info` + `-bg` variants)
+- Primary/secondary hover/active/light variants
+- All accent colors (green, orange, teal, magenta + hover/light)
+- Interactive colors, text-money, footer/hero colors
+- Custom border radii (pill, card, button, badge)
+- Custom shadows (~20 entries)
+
+**Self-referencing pattern works:**
+```css
+@theme inline {
+  /* tokens.css defines --color-status-success on :root */
+  /* This tells Tailwind to generate bg-status-success, text-status-success, etc. */
+  --color-status-success: var(--color-status-success);
+  --color-status-success-bg: var(--color-status-success-bg);
+}
+```
+
+**Verification method:** Use Playwright `browser_evaluate` to create a temp element with the class and read `getComputedStyle()`. If value is `transparent` or `0px`, the token isn't registered.
+
+**Supersedes:** The 2026-01-27 entry about `bg-overlay-heavy` — same root cause, but that entry only covered one token. This is the systemic version.
+
+**Apply when:** ANY custom Tailwind utility class isn't working. Check `@theme inline` in `globals.css` first. Also check when adding new tokens to `tokens.css` — they MUST also be added to `@theme inline`.
+
+---
+
+## 2026-02-07: `@config` Directive Silently Ignored by Turbopack
+
+**Context:** Attempted `@config "../../tailwind.config.ts"` in globals.css as a fix for missing utilities.
+**Learning:** Turbopack's CSS pipeline does not process the `@config` directive. No error, no warning — it's simply ignored. The fix is to add tokens directly to `@theme inline`.
+
+**Apply when:** Tempted to use `@config` to load tailwind.config.ts in a Turbopack project. It won't work.
+
+---
