@@ -7,6 +7,7 @@ import { Hero } from "@/components/ui/homepage/Hero";
 import { TestimonialsCarousel } from "@/components/ui/homepage/TestimonialsCarousel";
 import { CTABanner } from "@/components/ui/homepage/CTABanner";
 import { FooterCTA } from "@/components/ui/homepage/FooterCTA";
+import { SettingsNudgeBanner } from "@/components/ui/homepage/SettingsNudgeBanner";
 import type { FeaturedSectionWithItems } from "@/types/featured-sections";
 
 // Lazy load HowItWorksSection to defer 369KB Google Maps bundle
@@ -100,6 +101,9 @@ export default async function HomePage(): Promise<ReactElement> {
       <HomePageWrapper>
         {/* Hero Section - client component (animations tightly coupled) */}
         <Hero ctaHref="/menu" />
+
+        {/* Settings Nudge Banner - client component (auth check, inline saves) */}
+        <SettingsNudgeBanner />
 
         {/* How It Works Section - lazy loaded to defer Google Maps */}
         <Suspense fallback={<HowItWorksSkeleton />}>

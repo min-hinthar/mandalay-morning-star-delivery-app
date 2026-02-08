@@ -570,9 +570,55 @@ export interface DriverInvitesUpdate {
   created_at?: string;
 }
 
+// ============================================
+// CUSTOMER SETTINGS
+// ============================================
+
+export interface CustomerSettingsRow {
+  user_id: string;
+  dietary_restrictions: Json;
+  delivery_instructions: string;
+  default_address: Json | null;
+  notification_prefs: Json;
+  theme: string;
+  updated_at: string;
+}
+
+export interface CustomerSettingsInsert {
+  user_id: string;
+  dietary_restrictions?: Json;
+  delivery_instructions?: string;
+  default_address?: Json | null;
+  notification_prefs?: Json;
+  theme?: string;
+}
+
+export interface CustomerSettingsUpdate {
+  user_id?: string;
+  dietary_restrictions?: Json;
+  delivery_instructions?: string;
+  default_address?: Json | null;
+  notification_prefs?: Json;
+  theme?: string;
+}
+
 export type Database = {
   public: {
     Tables: {
+      customer_settings: {
+        Row: CustomerSettingsRow;
+        Insert: CustomerSettingsInsert;
+        Update: CustomerSettingsUpdate;
+        Relationships: [
+          {
+            foreignKeyName: "customer_settings_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       profiles: {
         Row: ProfilesRow;
         Insert: ProfilesInsert;
