@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 51 in progress. Account page restructured to 3 tabs with SettingsTab container and useCustomerSettings hook.
+**Current focus:** Phase 51 in progress. Display preferences section complete. Plans 03+04 done (parallel wave 3). Plan 05 next.
 
 ## Current Position
 
 Phase: 51 (4 of 10 in v1.6)
-Plan: 2 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-08 -- Completed 51-02-PLAN.md
+Last activity: 2026-02-08 -- Completed 51-04-PLAN.md
 
-Progress: [██████████░░░░░░░░░░░░░] ~40%
+Progress: [████████████████████░░░] ~80%
 
 ## Milestones
 
@@ -62,6 +62,9 @@ Progress: [██████████░░░░░░░░░░░░░
 | CUST-01-PARTIAL | All customer settings schema fields optional for partial PATCH updates | 51-01 |
 | CUST-02-SUSPENSE | Wrapped AccountClient in Suspense boundary for useSearchParams SSR safety | 51-02 |
 | CUST-02-SPLIT | Dietary restrictions split into predefined/custom on load via DIETARY_OPTIONS set check | 51-02 |
+| CUST-04-FONTCSS | Font size applied via CSS custom property --font-size-base for instant WYSIWYG | 51-04 |
+| CUST-04-SOUNDSYNC | useSoundPreference shares localStorage key with useSoundEffect (no AudioContext overhead) | 51-04 |
+| CUST-04-THEMEFIRE | Theme DB sync is fire-and-forget PATCH (no loading state, already visually applied) | 51-04 |
 
 ### Tech Debt (carried forward)
 
@@ -81,10 +84,10 @@ Progress: [██████████░░░░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 51-02-PLAN.md
+Stopped at: Completed 51-04-PLAN.md
 Resume file: None
-Next action: Execute 51-03-PLAN.md
+Next action: Execute 51-05-PLAN.md (after 51-03 completes if still running)
 
 ---
 
-*Updated: 2026-02-08 -- Plan 51-02 complete. Account page restructured to 3 tabs. SettingsTab container with sub-tabs and FloatingUnsavedBar. useCustomerSettings hook with dietary split/merge. 3 more plans remain in phase 51.*
+*Updated: 2026-02-08 -- Plan 51-04 complete. Display preferences section with theme selector, font size segmented control, animation and sound toggles. Plans 03+04 ran in parallel (wave 3). 1 plan remains in phase 51.*
