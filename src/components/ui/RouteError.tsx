@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import * as Sentry from "@sentry/nextjs";
-import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import { RefreshCw, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ErrorMascot } from "@/components/ui/error-pages";
 
 interface RouteErrorProps {
   error: Error & { digest?: string };
@@ -44,16 +45,16 @@ export function RouteError({ error, reset, context }: RouteErrorProps) {
           className="mx-auto mb-4"
           style={{ height: "auto" }}
         />
-        <div className="mx-auto w-16 h-16 rounded-full bg-status-error-bg flex items-center justify-center mb-6">
-          <AlertTriangle className="h-8 w-8 text-status-error" />
+        <div className="mb-6">
+          <ErrorMascot errorType="server-error" />
         </div>
         <h1 className="text-xl font-display text-text-primary mb-2">
-          Oops, we hit a bump!
+          Kitchen meltdown!
         </h1>
         <p className="text-sm text-text-secondary mb-6">
           {context
-            ? `We couldn't load the ${context}. Give it another shot!`
-            : "Something unexpected happened. Give it another shot!"}
+            ? `The ${context} fell off the tray. Give it another shot!`
+            : "Something boiled over in the kitchen. Give it another shot!"}
         </p>
         {process.env.NODE_ENV === "development" && (
           <pre className="text-xs bg-surface-tertiary p-3 rounded-md overflow-auto max-h-24 mb-6 text-left">
