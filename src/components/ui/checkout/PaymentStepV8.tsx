@@ -241,7 +241,7 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
             {/* Security Badge with stagger */}
             <m.div
               variants={shouldAnimate ? staggerItem : undefined}
-              className="p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200/50 dark:border-green-800/30"
+              className="p-4 rounded-lg bg-status-success-bg border border-status-success/20"
             >
               <div className="flex items-center gap-3">
                 <m.div
@@ -258,13 +258,13 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
                     repeatDelay: 3,
                   }}
                 >
-                  <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <ShieldCheck className="h-5 w-5 text-status-success" />
                 </m.div>
                 <div>
-                  <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                  <p className="text-sm font-medium text-status-success">
                     Secure Payment
                   </p>
-                  <p className="text-xs text-green-700 dark:text-green-300">
+                  <p className="text-xs text-status-success">
                     You&apos;ll be redirected to Stripe&apos;s secure checkout
                     page to complete your payment.
                   </p>
@@ -281,9 +281,9 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -10 }}
                     transition={getSpring(spring.default)}
-                    className="rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200/50 dark:border-red-800/30 p-4"
+                    className="rounded-lg bg-status-error-bg border border-status-error/20 p-4"
                   >
-                    <p className="text-sm text-red-700 dark:text-red-300">
+                    <p className="text-sm text-status-error">
                       {error}
                     </p>
                   </m.div>

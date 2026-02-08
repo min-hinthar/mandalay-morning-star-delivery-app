@@ -147,8 +147,8 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
             transition={getSpring(spring.gentle)}
             className={cn(
               "p-3 rounded-lg",
-              "bg-amber-50 dark:bg-amber-950/30",
-              "border border-amber-200/50 dark:border-amber-800/30"
+              "bg-status-warning-bg",
+              "border border-status-warning/20"
             )}
           >
             <div className="flex items-center gap-2 mb-2">
@@ -167,7 +167,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                   repeatDelay: 2,
                 }}
               >
-                <Sparkles className="w-4 h-4 text-amber-500" />
+                <Sparkles className="w-4 h-4 text-status-warning" />
               </m.div>
               <span className="text-sm font-medium text-text-money">
                 {formatPrice(amountToFreeDelivery)} more for free delivery!
@@ -194,8 +194,8 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
             transition={getSpring(spring.ultraBouncy)}
             className={cn(
               "p-3 rounded-lg",
-              "bg-green-50 dark:bg-green-950/30",
-              "border border-green-200/50 dark:border-green-800/30"
+              "bg-status-success-bg",
+              "border border-status-success/20"
             )}
           >
             <div className="flex items-center gap-2">
@@ -213,9 +213,9 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                   repeatDelay: 3,
                 }}
               >
-                <Sparkles className="w-4 h-4 text-green-500" />
+                <Sparkles className="w-4 h-4 text-status-success" />
               </m.div>
-              <span className="text-sm font-medium text-green-700 dark:text-green-400">
+              <span className="text-sm font-medium text-status-success">
                 You qualify for free delivery!
               </span>
             </div>
