@@ -1,701 +1,344 @@
-# Domain Pitfalls: LCP Optimization in Animation-Heavy Next.js Apps
+# Pitfalls Research: v1.6 Production Polish
 
-**Domain:** Performance optimization with GSAP + Framer Motion in Next.js 16 App Router
-**Researched:** 2026-02-05
-**Confidence:** HIGH (official Next.js docs + recent 2026 sources + project context)
+**Domain:** Production polish for existing animation-heavy Next.js 16 meal delivery PWA
+**Researched:** 2026-02-07
+**Confidence:** HIGH (codebase audit + official docs + project error history)
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause rewrites, regression, or catastrophic performance issues.
+### Pitfall 1: Auth Form Animations Breaking Focus Management and Accessibility
 
-### Pitfall 1: Over-Marking with "use client"
+**What goes wrong:**
+Adding Framer Motion animations to the auth form (login, signup, forgot-password) disrupts keyboard focus order, screen reader announcements, and `prefers-reduced-motion`. Animated form transitions cause: (a) focus trapped in invisible elements during exit animations, (b) autofill popups positioned incorrectly relative to animated inputs, (c) magic link success message announced before animation completes (or never announced if animated in).
 
-**What goes wrong:** Marking entire page components or high-level layouts with `"use client"` forces the browser to hydrate everything, adding hundreds of KB of JavaScript that blocks LCP. Simple pages can take more than 2 seconds to become interactive.
+**Why it happens:**
+Framer Motion `AnimatePresence` removes DOM elements during exit animations. If focus is on a child element when it exits, focus is lost entirely. Developers animate the form container without managing focus programmatically. Browser autofill popups anchor to DOM position, not visual position -- animated `transform` creates disconnect.
 
-**Why it happens:** Developers assume animation libraries require client-side rendering for the entire component tree rather than just interactive leaf components.
-
-**Consequences:**
-- LCP increases by 1-3 seconds due to massive JavaScript bundles
-- Server Components optimization completely disabled
-- Hydration blocks interactivity on low-end devices
-- TBT (Total Blocking Time) increases dramatically
-
-**Prevention:**
-- Use `"use client"` only at the leaf component level (buttons, interactive cards)
-- Keep page layouts and static content as Server Components
-- Push client boundaries as deep into the component tree as possible
-- Audit bundle size: each `"use client"` boundary adds an entry point
-
-**Detection:**
-- Bundle analysis shows unexpectedly large client chunks
-- Lighthouse shows high TBT during hydration
-- Field data shows slow Time to Interactive (TTI)
+**How to avoid:**
+- Use `onExitComplete` to move focus to the next logical element after exit animation finishes
+- Set `aria-live="polite"` on success/error message containers so screen readers announce them after animation settles
+- Keep input elements in DOM during transitions (animate opacity/transform, not mount/unmount)
+- Test with `prefers-reduced-motion: reduce` -- auth must work with zero animation
+- Framer Motion v8+ makes tap events keyboard-accessible by default (`tabindex="0"` on tap listeners) -- leverage this, don't override it
 
 **Warning signs:**
-- Entire page files marked with `"use client"`
-- Context providers at root level forcing client rendering
-- Animation imports in Server Component files
+- Focus visually disappears after form step transitions
+- Tab key navigates to elements behind/inside animated containers
+- `useReducedMotion()` hook not checked before applying auth animations
+- Browser password autofill popup appears in wrong position
 
-**Phase implications:** Address in Phase 1-2 (foundation) before code splitting work begins.
+**Phase to address:** Auth form redesign phase
+
+**Project context:** Current `LoginForm.tsx` is simple (83 lines, no animations). Adding animations to a working auth form is high-risk for regressions. The existing `NEXT_REDIRECT` error in `ERROR_HISTORY.md` shows this codebase has had issues with auth flow interruptions.
 
 ---
 
-### Pitfall 2: Barrel Import Performance Cliff
+### Pitfall 2: Cart Validation Race Condition on Zustand Hydration
 
-**What goes wrong:** Importing from barrel files (e.g., `import { IconName } from 'lucide-react'`) forces Next.js to process thousands of unused modules, adding 200-800ms overhead just to import a single icon. In extreme cases, it can take a few seconds.
+**What goes wrong:**
+Cart validation fires before Zustand persist middleware finishes hydrating from localStorage. Validation sees empty cart (initial state), marks everything as stale, then hydration loads the real cart -- but validation already ran. User sees "your cart is empty" flash, then items appear, or worse, validation already cleared the cart.
 
-**Why it happens:** Barrel files re-export everything. Even when importing one module, the bundler must parse the entire file graph to determine tree-shaking eligibility.
+**Why it happens:**
+Zustand persist with `createJSONStorage(getStorage)` hydrates asynchronously on mount. The store starts with `items: []` (the initial state in `cart-store.ts` line 128). Any `useEffect` or component logic that reads `items` on first render sees the empty array. Server-rendered HTML shows empty cart, client hydrates with persisted items -- SSR mismatch.
 
-**Consequences:**
-- Dev server startup slowdown (15-70% slower)
-- Production cold starts delayed in serverless
-- LCP increased by 200-800ms from bloated initial bundle
-- Animation libraries like GSAP plugins suffer same issue
+**How to avoid:**
+- Use Zustand's `onRehydrateStorage` callback to flag hydration completion:
+  ```typescript
+  persist({
+    // ...existing config
+    onRehydrateStorage: () => (state) => {
+      // state is now hydrated, safe to validate
+      useCartStore.setState({ _hydrated: true });
+    },
+  })
+  ```
+- Gate all cart validation logic behind `_hydrated === true`
+- For SSR mismatch: render cart skeleton until hydrated (avoid showing empty cart then popping items in)
+- The existing `useCartStore` already uses `partialize` correctly (line 258) -- maintain this
 
-**Prevention:**
-- Use direct imports: `import IconName from 'lucide-react/dist/esm/icons/icon-name'`
-- Configure Next.js `optimizePackageImports` for common libraries
-- Next.js 16 pre-configures `lucide-react`, `@headlessui/react` automatically
-- Audit animation library imports (GSAP plugins, Framer Motion utilities)
+**Warning signs:**
+- Cart page flashes "empty cart" before showing items
+- Validation logic runs in `useEffect` without checking hydration state
+- Console hydration mismatch warnings on cart/checkout pages
+- Test passes in dev (hot reload preserves state) but fails on fresh page load
 
-**Detection:**
-```bash
-# Check bundle analyzer for unexpectedly large chunks
-# Look for packages importing 100+ modules
-npm run build -- --analyze
+**Phase to address:** Cart validation phase
+
+**Project context:** Cart store (`cart-store.ts`) persists to localStorage with `mms-cart` key. Checkout store (`checkout-store.ts`) does NOT persist -- intentional. Validation must handle the asymmetry: cart is persisted, checkout state resets on refresh.
+
+---
+
+### Pitfall 3: Stripe Webhook Duplicate Processing Without Idempotency
+
+**What goes wrong:**
+Stripe sends the same webhook event multiple times (retry on timeout, network flake). Without idempotency, the Edge Function processes each delivery: sends duplicate emails ("Your order has been confirmed" x3), creates duplicate database records, or charges wrong amounts by applying discounts twice.
+
+**Why it happens:**
+Supabase Edge Functions have cold starts (1-3 seconds). If the function takes >5 seconds on first invocation, Stripe's timeout fires and retries. The retry arrives while the first invocation is still processing -- both execute. Stripe explicitly documents: "Webhook endpoints might occasionally receive the same event more than once."
+
+**How to avoid:**
+- Store processed `event.id` in a Supabase table with a UNIQUE constraint before processing:
+  ```sql
+  INSERT INTO webhook_events (event_id, event_type, processed_at)
+  VALUES ($1, $2, NOW())
+  ON CONFLICT (event_id) DO NOTHING
+  RETURNING event_id;
+  ```
+  If insert returns no rows, event was already processed -- skip
+- Verify webhook signature within 5-minute window (Stripe requirement)
+- Disable default JWT auth for webhook endpoint in `config.toml`:
+  ```toml
+  [functions.stripe-webhook]
+  verify_jwt = false
+  ```
+- Use conditional database writes: `UPDATE orders SET status = 'confirmed' WHERE status = 'pending'` -- prevents re-confirming already-confirmed orders
+
+**Warning signs:**
+- No `webhook_events` or equivalent idempotency table in database schema
+- Edge Function processes event without checking if it was already handled
+- Email sends are not gated behind a status check
+- No signature verification (Stripe's `constructEvent` call)
+
+**Phase to address:** Email notifications phase
+
+---
+
+### Pitfall 4: Error Boundaries Not Catching Layout or Event Handler Errors
+
+**What goes wrong:**
+Adding `error.tsx` to every route segment gives false confidence. Error boundaries in Next.js App Router do NOT catch: (a) errors in the same-segment `layout.tsx`, (b) errors in event handlers, (c) errors in async callbacks/promises, (d) errors in server actions called from Client Components. The app appears "covered" by error boundaries but critical failure modes slip through.
+
+**Why it happens:**
+Next.js `error.tsx` wraps the page component, but the layout component wraps the error boundary. Architecture:
 ```
+layout.tsx         <-- NOT caught by same-level error.tsx
+  error.tsx        <-- catches page errors only
+    page.tsx
+```
+Event handler errors (onClick, onSubmit) are not rendering errors and React error boundaries don't catch them. `global-error.tsx` catches root layout errors but must render its own `<html>` and `<body>`.
+
+**How to avoid:**
+- Place `error.tsx` one level ABOVE the layout you want to protect (parent segment)
+- For event handlers: wrap in try/catch with Sentry reporting (already done in `RouteError.tsx`)
+- NEVER rely solely on error boundaries for event handler errors -- use `try/catch` in handlers that call APIs
+- For server actions: use `.catch()` on the promise returned by the action (but be careful of `NEXT_REDIRECT` -- see `ERROR_HISTORY.md`)
+- Current project has `global-error.tsx` (line 7-23) using `NextError statusCode={0}` -- this renders a generic error page. Consider making it consistent with the `RouteError` component design
 
 **Warning signs:**
-- Import statements like `import { * } from 'library'`
-- Single component importing entire icon library
-- GSAP plugins imported via barrel file
+- Error boundaries exist at every page level but not at layout-parent levels
+- No try/catch in onClick/onSubmit handlers that call APIs
+- `global-error.tsx` doesn't match the design language of other error pages
+- Missing error boundaries for route groups: `(auth)` has no `error.tsx`
 
-**Phase implications:** Fix in Phase 1 (infrastructure) — affects all subsequent code splitting work.
+**Phase to address:** Error boundaries phase
+
+**Project context:**
+Current error coverage audit:
+| Route Group | error.tsx | loading.tsx | Notes |
+|-------------|-----------|-------------|-------|
+| Root `app/` | Yes | No | Custom card UI with Sentry |
+| `(public)` | Yes | Yes | Uses `RouteError` component |
+| `(public)/menu` | Yes | Yes | |
+| `(customer)` | No | No | **GAP -- customer routes unprotected** |
+| `(customer)/orders` | Yes | No | |
+| `(customer)/orders/[id]/tracking` | Yes | Yes | |
+| `(admin)` | Yes | No | Custom admin error UI |
+| `(admin)/analytics` | Yes | Yes | |
+| `(driver)` | Yes | No | |
+| `(auth)` | **No** | **No** | **GAP -- auth errors unhandled** |
+| `(customer)/cart` | **No** | **No** | **GAP -- cart errors unhandled** |
+| `(customer)/checkout` | **No** | **No** | **GAP -- checkout errors unhandled** |
+| `(customer)/account` | **No** | **No** | **GAP -- account errors unhandled** |
 
 ---
 
-### Pitfall 3: Hydration Blocking Animations
+### Pitfall 5: Driver Offline Sync Replaying Duplicate Status Updates
 
-**What goes wrong:** GSAP/Framer Motion initialization runs during hydration, blocking the main thread for hundreds of milliseconds. Users see content but can't interact. React error 423 (hydration mismatch) re-renders the entire root, causing LCP image to be reported late.
+**What goes wrong:**
+Driver goes offline, marks delivery as "delivered", comes back online, sync fires and replays the status update. But: (a) the status was already synced via a different path (driver briefly reconnected), causing duplicate API calls, or (b) multiple sync attempts fire simultaneously (online event + periodic retry + Background Sync API), each replaying the full queue.
 
-**Why it happens:** Animation setup runs in `useEffect` or component mount, which happens during hydration. Complex timelines, ScrollTrigger registration, and DOM measurements block the main thread.
+**Why it happens:**
+The existing `driver-store.ts` has `pendingActions` array in Zustand with localStorage persistence. The `offline-store/stores.ts` has a SEPARATE IndexedDB-based `pendingStatus` queue. Two separate queues for the same purpose means two separate sync mechanisms can fire for the same action. Neither has idempotency keys or "in-flight" status tracking.
 
-**Consequences:**
-- 300-1000ms delay before page becomes interactive
-- Poor INP (Interaction to Next Paint) scores
-- LCP reported late if hydration error occurs
-- Users clicking buttons get no feedback
-
-**Prevention:**
-- Defer non-critical animations with `requestIdleCallback` or `setTimeout`
-- Use progressive hydration via Suspense boundaries
-- Phase animations: critical first → next repaint → decorative delayed
-- Move ScrollTrigger initialization to after first paint:
-  ```typescript
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      ScrollTrigger.refresh();
-    });
-  }, []);
-  ```
-
-**Detection:**
-- Chrome DevTools Performance: long tasks during hydration (red blocks)
-- Lighthouse: high TBT score
-- Field data: slow INP in Chrome User Experience Report
+**How to avoid:**
+- Add idempotency keys to every pending action. Current `pendingStatus.add()` uses `crypto.randomUUID()` as `id` -- this should be sent to the API as an idempotency key
+- Mark items as "syncing" before sending, not just "pending". Only remove after server confirms. Prevents double-send from concurrent sync triggers
+- Consolidate to ONE queue system. Currently: Zustand `pendingActions` (localStorage) AND IndexedDB `pendingStatus` store -- pick one, delete the other
+- Background Sync API only works in Chromium (not Firefox/Safari) -- always implement online-event-based fallback
+- Process queue items sequentially, not in parallel. Order matters for status transitions (can't mark "delivered" before "in_transit")
 
 **Warning signs:**
-- `useEffect` running heavy GSAP timelines immediately
-- ScrollTrigger calculations in component mount
-- Framer Motion `initial` animations on all elements above-the-fold
+- Two separate offline stores tracking similar data (driver-store.ts vs offline-store/stores.ts)
+- No "syncing" intermediate state -- items go from "pending" to "removed"
+- API endpoints don't check idempotency keys
+- Queue items processed with `Promise.all` instead of sequential loop
+- No status transition validation on server side
 
-**Phase implications:** Must address in Phase 2-3 (animation optimization) before shipping.
+**Phase to address:** Driver offline sync phase
+
+**Project context:** The `driver-store.ts` `PendingAction` type includes `type: "status_update" | "photo_upload" | "exception"` -- photo uploads are especially dangerous to duplicate (large payloads, storage costs).
 
 ---
 
-### Pitfall 4: GSAP ScrollTrigger Memory Leaks on Route Change
+### Pitfall 6: Polish Pass Regressions on Animation-Heavy Components
 
-**What goes wrong:** ScrollTrigger instances aren't cleaned up when navigating between pages in App Router, causing memory consumption to grow, CPU spikes to 100%, and eventual application crashes.
+**What goes wrong:**
+Refactoring working components for "visual polish" breaks existing animation timelines, GSAP cleanup, scroll behavior, or React Compiler optimizations. The component looked fine before, now it has: (a) animation conflicts between old GSAP and new Framer Motion additions, (b) broken cleanup patterns from restructured useEffect dependencies, (c) React Compiler bailouts from adding mutable refs or non-serializable state.
 
-**Why it happens:** Next.js App Router uses client-side navigation. Components unmount but ScrollTrigger instances persist unless explicitly killed. Race conditions in ScrollTrigger package exacerbate the issue.
+**Why it happens:**
+This project has 282 client components, many with complex animation lifecycles. React Compiler is enabled globally -- it auto-memoizes but bails out on patterns like `useRef` mutation inside render. Changing component structure (extracting subcomponents, adding wrapper divs for animations) disrupts existing `useGSAP` scope refs, `AnimatePresence` key hierarchies, and `ScrollTrigger` container refs. The project error history shows this HAS happened: mobile crashes from timer cleanup issues (2026-01-29/30).
 
-**Consequences:**
-- Application becomes unresponsive after 3-5 page navigations
-- Memory leaks causing browser crashes on mobile
-- Scroll jank and missed frames
-- ScrollTrigger triggers not lining up after navigation
-
-**Prevention:**
-- Use `useGSAP` hook with proper cleanup:
-  ```typescript
-  import { useGSAP } from '@gsap/react';
-
-  useGSAP(() => {
-    const trigger = ScrollTrigger.create({ /* config */ });
-
-    return () => {
-      trigger.kill();
-    };
-  }, { scope: containerRef });
-  ```
-- Call `ScrollTrigger.refresh()` once after all animations initialize
-- Centralize GSAP configuration to avoid multiple plugin registrations
-- Never register plugins in component files
-
-**Detection:**
-- Memory profiler shows growing heap after navigation
-- Console warnings about detached DOM nodes
-- ScrollTrigger animations glitching after route change
+**How to avoid:**
+- Before touching any component, verify its current animation behavior with Playwright visual snapshots
+- Check if component uses GSAP, Framer Motion, or both -- never add the second library to a component that only uses one (see existing conflict detector)
+- Run `pnpm typecheck` after every change -- React Compiler errors surface as type issues
+- Maintain the existing cleanup patterns (documented in `ERROR_HISTORY.md` Phase 35 audit)
+- Use the safe timeout/interval hooks from `src/lib/hooks/useSafeEffects.ts` for any new timers
 
 **Warning signs:**
-- ScrollTrigger created without cleanup function
-- GSAP imported and plugins registered in multiple files
-- No `ScrollTrigger.kill()` or `ScrollTrigger.getAll().forEach(t => t.kill())`
+- Component file is being restructured (extracted into subfolder) AND has GSAP/Framer Motion
+- Adding wrapper `<motion.div>` around existing GSAP-animated children
+- Changing useEffect dependency arrays in components with animation cleanup
+- No visual regression test before starting polish work
 
-**Phase implications:** Critical for Phase 3 (GSAP optimization) — must fix before route-level code splitting.
-
----
-
-### Pitfall 5: Framer Motion Bundle Size Explosion
-
-**What goes wrong:** Framer Motion's 32KB gzipped bundle isn't modular. Using it for basic animations forces the entire library into the client bundle, even if only using simple fade/slide effects.
-
-**Why it happens:** Framer Motion is tightly coupled — tree-shaking has limited effect. Layout animations and gestures are tied to React's rendering cycle, causing unnecessary JavaScript in components that only need simple opacity transitions.
-
-**Consequences:**
-- +32KB minimum to client bundle even for trivial animations
-- Complex animations lag on low-end devices
-- Layout calculations tied to React render cycle cause dropped frames
-- Heavy state updates in nested `motion` components cause jank
-
-**Prevention:**
-- Use CSS animations for simple opacity/transform effects
-- Reserve Framer Motion for gestures, layout animations, complex sequences
-- Dynamic import Framer Motion components that aren't above-the-fold:
-  ```typescript
-  const MotionDiv = dynamic(() => import('framer-motion').then(m => m.motion.div), {
-    ssr: false,
-    loading: () => <div>Loading...</div>
-  });
-  ```
-- For critical path: use GSAP (better performance) or CSS (zero JS)
-
-**Detection:**
-- Bundle analyzer shows `framer-motion` in main chunk
-- Components using `<motion.div>` for simple fade-in effects
-- Performance profiler shows React re-renders during animations
-
-**Warning signs:**
-- `motion` components used throughout the app for basic effects
-- Framer Motion imported in Server Components (forces "use client")
-- No dynamic imports for below-the-fold animations
-
-**Phase implications:** Address in Phase 2 (code splitting) — determine which animations need Framer Motion vs CSS/GSAP.
+**Phase to address:** Polish pass phase (run LAST, after all features are stable)
 
 ---
 
-## Moderate Pitfalls
-
-Mistakes that cause delays, performance regression, or technical debt.
-
-### Pitfall 6: will-change Overuse
-
-**What goes wrong:** Adding `will-change` to multiple elements or leaving it applied permanently causes excessive memory use, GPU hogging, and slower page load. The browser creates layers for everything, degrading performance instead of improving it.
-
-**Why it happens:** Developers apply `will-change` as premature optimization or misunderstand it as a "make animations faster" property.
-
-**Consequences:**
-- Increased memory usage and GPU overhead
-- Slower page rendering due to excessive layer creation
-- Battery drain on mobile devices
-- Worse performance than not using it
-
-**Prevention:**
-- Use `will-change` only as a last resort for proven performance issues
-- Apply it just before animation starts, remove after animation ends:
-  ```typescript
-  element.style.willChange = 'transform';
-  // ... animation ...
-  element.style.willChange = 'auto';
-  ```
-- Do NOT apply on `:hover` — browser can't prepare mid-animation
-- Prefer `transform` and `opacity` (compositor properties) which are fast by default
-
-**Detection:**
-- DevTools Rendering panel: excessive green layer borders
-- Performance profiler: high GPU memory usage
-- Animations stuttering despite `will-change`
-
-**Warning signs:**
-- `will-change` in global CSS or applied to many elements
-- `will-change` on non-animated elements
-- `will-change: transform, opacity, width, height` (only composite-able properties benefit)
-
----
-
-### Pitfall 7: Animating Layout Properties
-
-**What goes wrong:** Animating `width`, `height`, `margin`, `padding` forces browser reflow/repaint on every frame (expensive), causing dropped frames and jank. LCP can be delayed if layout animations run during initial paint.
-
-**Why it happens:** Layout properties require recalculating entire page layout. Developers use them because they're intuitive (animate the thing you want to change).
-
-**Consequences:**
-- 60fps drops to 20-30fps
-- Main thread blocked, delaying LCP/INP
-- Jank on low-end devices
-- Battery drain
-
-**Prevention:**
-- Use `transform: scale()` instead of `width`/`height`
-- Use `transform: translate()` instead of `margin`/`padding`
-- Animate `opacity` for fade effects (GPU-accelerated)
-- Reserve layout animations for user-triggered interactions (not page load)
-
-**Detection:**
-- Performance profiler: purple "Recalculate Style" and "Layout" blocks
-- Lighthouse warns about layout shifts (CLS)
-- Animations feel choppy
-
-**Warning signs:**
-- GSAP/Framer animating `width`, `height`, `top`, `left`, `margin`
-- Glassmorphism blur effects animating `filter` (also expensive)
-
----
-
-### Pitfall 8: requestAnimationFrame Without Throttling
-
-**What goes wrong:** Using `requestAnimationFrame` inside React state update loops causes excessive re-renders on high refresh rate displays (120Hz). React doesn't throttle automatically.
-
-**Why it happens:** `rAF` fires on every display refresh. On 120Hz screens, that's 120 times per second. Triggering state updates at that rate overwhelms React.
-
-**Consequences:**
-- Excessive React renders (120/sec instead of 60/sec)
-- Main thread saturation
-- Battery drain
-- Animation performance degrades despite using `rAF`
-
-**Prevention:**
-- Use `useRef` instead of state for animation values when possible
-- Throttle updates manually:
-  ```typescript
-  let lastUpdate = 0;
-  const throttle = 16; // ~60fps
-
-  requestAnimationFrame((timestamp) => {
-    if (timestamp - lastUpdate < throttle) return;
-    lastUpdate = timestamp;
-    // ... update logic
-  });
-  ```
-- Avoid triggering state updates inside `rAF` loops
-- For scroll-driven animations, use GSAP ScrollTrigger (optimized) instead of manual `rAF`
-
-**Detection:**
-- React DevTools Profiler: component rendering 100+ times/sec
-- High CPU usage during scroll
-- 120Hz devices show worse performance than 60Hz
-
----
-
-### Pitfall 9: Glassmorphism Blur Performance Issues
-
-**What goes wrong:** Heavy backdrop blur (30px+) in glassmorphism cards causes GPU saturation on low-end devices, leading to dropped frames, lag, and crashes. Multiple translucent layers compound the problem.
-
-**Why it happens:** Blur requires GPU compositing on every frame. Older smartphones (2020-era mid-range) can't handle multiple blurred layers.
-
-**Consequences:**
-- Scroll jank and dropped frames
-- Crashes on low-memory devices
-- LCP delayed as GPU struggles with initial paint
-- Battery drain
-
-**Prevention:**
-- Limit blur radius: 20px max, 10-12px for mobile
-- Reduce layer count: avoid nested glassmorphism cards
-- Use device detection to disable blur on low-power devices:
-  ```typescript
-  // Project already has device detection in v1.4
-  const isLowPower = deviceMemory <= 4 || hardwareConcurrency <= 4;
-  const blurAmount = isLowPower ? 'backdrop-blur-sm' : 'backdrop-blur-3xl';
-  ```
-- Provide fallback: solid background with opacity
-- Use CSS `will-change: backdrop-filter` only during scroll (not permanent)
-
-**Detection:**
-- GPU profiler shows excessive compositing
-- Scroll performance degrades with glassmorphism enabled
-- Mobile Safari shows black boxes instead of blur
-
-**Warning signs:**
-- Multiple overlapping blur layers
-- `backdrop-blur-3xl` (40px) or higher used on project cards
-- No low-power device fallback
-
-**Project context:** Current implementation uses 30px blur on UnifiedMenuItemCard. Consider reducing to 20px or implementing device-adaptive blur levels.
-
----
-
-### Pitfall 10: Lazy Loading LCP Images
-
-**What goes wrong:** Adding `loading="lazy"` to hero images or largest contentful paint elements delays their load, making LCP worse instead of better.
-
-**Why it happens:** Misunderstanding that lazy loading is for performance. It helps overall page weight but hurts LCP if applied to above-the-fold content.
-
-**Consequences:**
-- LCP increases by 500-2000ms
-- Hero image loads late, causing poor perceived performance
-- Google penalizes page in search rankings (LCP > 2.5s)
-
-**Prevention:**
-- Use `priority` prop on Next.js `<Image>` for LCP images
-- Set `fetchpriority="high"` on hero images
-- Preload LCP image in `<head>`:
-  ```tsx
-  <link rel="preload" as="image" href="/hero.jpg" fetchpriority="high" />
-  ```
-- Reserve lazy loading for below-fold images
-
-**Detection:**
-- Lighthouse identifies LCP element and flags if lazy loaded
-- Network waterfall shows hero image loading late
-- LCP metric > 2.5s in field data
-
-**Project context:** Hero section with 13 floating emojis and 4-layer parallax uses CSS animations (not images). Ensure menu card images on homepage use `priority` prop for above-fold items.
-
----
-
-### Pitfall 11: Parallax on Low-Power Devices
-
-**What goes wrong:** Multi-layer parallax scroll effects drain battery and cause jank on low-power devices (<=4GB RAM, <=4 cores). Scroll performance degrades to <30fps.
-
-**Why it happens:** Parallax requires updating `transform` on multiple elements during scroll. Low-power GPUs can't keep up with 60fps transform updates.
-
-**Consequences:**
-- Scroll jank and dropped frames
-- Battery drain (important for mobile food delivery app)
-- Motion sickness for users with vestibular disorders
-- Poor Core Web Vitals (INP degradation)
-
-**Prevention:**
-- Disable parallax on low-power devices
-- Use `prefers-reduced-motion` media query:
-  ```css
-  @media (prefers-reduced-motion: reduce) {
-    .parallax { transform: none !important; }
-  }
-  ```
-- Limit parallax to 2-3 layers maximum
-- Use `will-change: transform` only during active scroll (add/remove dynamically)
-
-**Detection:**
-- Performance profiler shows dropped frames during scroll
-- `prefers-reduced-motion` not respected
-- No device capability detection
-
-**Warning signs:**
-- 4+ parallax layers
-- Parallax enabled on all devices without detection
-- No accessibility consideration for motion sensitivity
-
-**Project context:** V1.4 already implements device-adaptive animations with parallax disabled on low-power devices (<=4GB RAM, <=4 cores). Ensure this pattern continues in LCP optimization phase.
-
----
-
-### Pitfall 12: Dynamic Import Without SSR Disabled for Client-Only Libraries
-
-**What goes wrong:** Dynamically importing animation libraries without `ssr: false` causes hydration mismatches and errors. Server tries to execute browser-only code (window, document).
-
-**Why it happens:** GSAP and Framer Motion rely on browser APIs. Without SSR disabled, Next.js attempts to render them on the server.
-
-**Consequences:**
-- Hydration errors: "Text content did not match"
-- Server crashes: `window is not defined`
-- Flash of unstyled content (FOUC)
-- Animation components fail to render
-
-**Prevention:**
-- Always use `ssr: false` for client-only animation libraries:
-  ```typescript
-  const AnimatedComponent = dynamic(() => import('./AnimatedComponent'), {
-    ssr: false,
-    loading: () => <Skeleton />
-  });
-  ```
-- Check imports with `typeof window !== 'undefined'` guards
-- Use `"use client"` for components using browser APIs
-
-**Detection:**
-- Console errors: "window is not defined"
-- Hydration mismatch warnings
-- Visual flash on page load
-
----
-
-### Pitfall 13: Service Worker Caching Animation Assets Incorrectly
-
-**What goes wrong:** Over-caching animation-related JavaScript (GSAP, Framer Motion) prevents updates from deploying. Users stuck on old version with broken animations. Installation fails if any asset 404s.
-
-**Why it happens:** Aggressive precaching strategy caches too much. Developers cache entire libraries without versioning.
-
-**Consequences:**
-- New animations don't appear after deployment
-- Broken animations persist in cache
-- Service worker installation fails on missing assets
-- Stale JavaScript causes runtime errors
-
-**Prevention:**
-- Use runtime caching (not precaching) for animation libraries
-- Cache-bust with version query params or hashes
-- Use `NetworkFirst` strategy for JS bundles:
-  ```javascript
-  // In service worker
-  registerRoute(
-    /\.(js)$/,
-    new NetworkFirst({
-      cacheName: 'js-cache',
-      plugins: [
-        new ExpirationPlugin({ maxAgeSeconds: 60 * 60 * 24 }) // 1 day
-      ]
-    })
-  );
-  ```
-- Test cache invalidation in staging before production deploy
-
-**Detection:**
-- Users report not seeing new animations
-- Service worker update events not firing
-- Console errors about missing animation methods
-
-**Warning signs:**
-- Precaching lists include versioned JS files
-- No cache versioning or expiration strategy
-- Service worker never updates
-
-**Project context:** V1.4 uses Serwist with CacheFirst for images (30-day) and NetworkFirst for menu API (5-min). Ensure JS bundles use NetworkFirst, not CacheFirst.
-
----
-
-## Minor Pitfalls
-
-Mistakes that cause annoyance but are fixable.
-
-### Pitfall 14: Font Loading Blocking LCP
-
-**What goes wrong:** Custom web fonts block text rendering until loaded, delaying LCP by 500-1500ms. FOIT (flash of invisible text) causes poor perceived performance.
-
-**Why it happens:** Default `font-display: auto` hides text until font loads.
-
-**Consequences:**
-- LCP delayed
-- Text invisible during load
-- Layout shift when font swaps in
-
-**Prevention:**
-- Use `font-display: swap` in font declarations
-- Preload critical fonts in `<head>`:
-  ```tsx
-  <link rel="preload" as="font" href="/fonts/brand.woff2" crossOrigin="anonymous" />
-  ```
-- Use system fonts for initial render, swap to custom after load
-- Next.js 16: use `next/font` with `display: 'swap'`
-
----
-
-### Pitfall 15: CSS Loading Priority Issues
-
-**What goes wrong:** All CSS loads at high priority, blocking page render even when not needed. LCP image finishes loading but page still blocked by unused CSS.
-
-**Why it happens:** Default browser behavior treats all `<link rel="stylesheet">` as render-blocking.
-
-**Consequences:**
-- LCP delayed by 200-800ms
-- Unused CSS blocks critical rendering path
-- Poor Time to First Byte (TTFB)
-
-**Prevention:**
-- Split critical CSS (above-the-fold) from non-critical
-- Inline critical CSS in `<head>`
-- Defer non-critical CSS:
-  ```tsx
-  <link rel="preload" as="style" href="/non-critical.css" onLoad="this.rel='stylesheet'" />
-  ```
-- Use Next.js automatic CSS code splitting
-
----
-
-### Pitfall 16: Animation Token Duplication
-
-**What goes wrong:** Animation values scattered across files (durations, easings, springs) cause inconsistency. Some animations use motion tokens, others use hardcoded values.
-
-**Why it happens:** No centralized animation token source. Copy-pasted animation code from different sources.
-
-**Consequences:**
-- Inconsistent animation feel across app
-- Harder to maintain and update animation timings
-- ESLint can't enforce token usage
-
-**Prevention:**
-- Single source of truth for animation tokens
-- ESLint rule to prevent hardcoded animation values
-- Document animation patterns in Storybook
-- Code review checklist for token usage
-
-**Project context:** V1.2 consolidated animation tokens to single source at `@/lib/motion-tokens`. Ensure all LCP optimization work uses these tokens exclusively.
-
----
-
-### Pitfall 17: Missing prefers-reduced-motion Support
-
-**What goes wrong:** Ignoring `prefers-reduced-motion` causes motion sickness for users with vestibular disorders, violating WCAG 2.1 (success criterion 2.3.3). ADA Title II enforcement (April 2026) increases lawsuit risk.
-
-**Why it happens:** Developers unaware of accessibility requirement or think it means "disable all animations."
-
-**Consequences:**
-- Accessibility violations (70M+ affected users)
-- Legal risk (ADA lawsuits up 37% in 2025)
-- Poor UX for sensitive users
-- WCAG AA/AAA compliance failure
-
-**Prevention:**
-- Respect `prefers-reduced-motion` media query
-- Keep opacity/color transitions, disable transform/layout animations
-- Use CSS:
-  ```css
-  @media (prefers-reduced-motion: reduce) {
-    * {
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-  ```
-- Framer Motion: use `useReducedMotion()` hook
-- Provide manual toggle in settings (in addition to system preference)
-
-**Detection:**
-- Accessibility audit tools flag missing support
-- Manual testing with macOS "Reduce Motion" enabled
-- Lighthouse accessibility score penalized
-
----
-
-### Pitfall 18: No Animation Conflict Detection
-
-**What goes wrong:** GSAP and Framer Motion both animating same property on same element causes visual glitches, jank, and unpredictable behavior.
-
-**Why it happens:** Component using GSAP wrapped in Framer Motion parent that animates same properties.
-
-**Consequences:**
-- Animations fight each other
-- Janky, unpredictable motion
-- Performance degradation from double work
-
-**Prevention:**
-- Pick one library per component/animation
-- Use GSAP for timelines, scroll choreography, complex sequences
-- Use Framer Motion for layout animations, gestures, simple component transitions
-- Never animate same property with both libraries
-
-**Project context:** V1.4 has conflict detector in dev mode. Ensure it remains active during LCP optimization work.
-
----
-
-## Phase-Specific Warnings
-
-| Phase Topic | Likely Pitfall | Mitigation |
-|-------------|---------------|------------|
-| Code splitting (Phase 1-2) | Barrel imports slowing bundle | Configure `optimizePackageImports`, use direct imports |
-| "use client" boundaries (Phase 1-2) | Over-marking Server Components | Audit and push boundaries to leaf components |
-| Dynamic imports (Phase 2-3) | Not disabling SSR for animation libraries | Always use `ssr: false` for GSAP/Framer Motion |
-| GSAP optimization (Phase 3) | ScrollTrigger memory leaks | Use `useGSAP` hook with cleanup, centralize config |
-| Framer Motion optimization (Phase 3-4) | Bundle size explosion | Dynamic import below-fold animations, prefer CSS for simple effects |
-| Animation deferral (Phase 4) | Hydration blocking | Phase animations: critical → repaint → decorative |
-| Font optimization (Phase 5) | Font loading blocking LCP | Use `font-display: swap`, preload critical fonts |
-| Image optimization (Phase 5) | Lazy loading LCP images | Use `priority` prop, `fetchpriority="high"` for hero |
-| Glassmorphism (Phase 6) | GPU saturation on low-end devices | Reduce blur radius, device detection for fallbacks |
-| Parallax (Phase 6) | Low-power device jank | Disable on <=4GB RAM devices (already implemented) |
-| Accessibility (Phase 7) | Missing `prefers-reduced-motion` | Implement media query support, keep opacity/color transitions |
-| Service worker (Phase 8) | Over-caching JS bundles | Use `NetworkFirst` for JS, version-based cache busting |
-
----
-
-## Integration Warnings: GSAP + Framer Motion
-
-**Conflict zones:**
-- Both libraries animating `transform` on same element
-- Framer Motion `layout` prop + GSAP timeline on same component
-- ScrollTrigger + Framer Motion `whileInView` on same element
-
-**Safe patterns:**
-- GSAP for page-level scroll choreography (hero parallax, section reveals)
-- Framer Motion for component-level interactions (buttons, cards, modals)
-- GSAP for SVG/path animations, Framer Motion for layout animations
-- Never nest: if parent uses GSAP, children use Framer Motion (or vice versa)
-
-**Project-specific context:**
-- Hero: 4-layer parallax uses CSS animations (not GSAP/Framer) — safe
-- Menu cards: Framer Motion 3D tilt — don't add GSAP to same cards
-- ScrollTrigger: Use for section reveals, not individual card animations
-- Cart drawer: Framer Motion spring animations — don't add GSAP overlays
-
----
+## Technical Debt Patterns
+
+| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
+|----------|-------------------|----------------|-----------------|
+| Hardcoded email templates in Edge Function | Ship faster | Hard to maintain, no preview, no i18n | MVP only -- migrate to React Email templates after launch |
+| Skip skeleton for low-traffic pages | Less code to write | Inconsistent loading experience | Never for customer-facing; acceptable for admin-only pages |
+| localStorage for customer settings | No server round-trip | Lost on device switch, no cross-device sync | Acceptable if backed by Supabase profile row for critical settings |
+| Inline error messages instead of toast | Quick implementation | Inconsistent error UX across app | Never -- use existing toast/error pattern consistently |
+| Copy-paste error.tsx for each route | Quick coverage | 10+ near-identical files to maintain | Short-term OK, but extract shared `RouteError` component (already exists) |
+
+## Integration Gotchas
+
+| Integration | Common Mistake | Correct Approach |
+|-------------|----------------|------------------|
+| Supabase Edge Functions + Resend | Not verifying sender domain in Resend dashboard | Verify domain FIRST, then deploy Edge Function. Unverified domain = all emails silently fail |
+| Stripe webhooks + Edge Functions | Default JWT verification blocks Stripe requests | Set `verify_jwt = false` in `config.toml` for webhook endpoint. Use Stripe signature verification instead |
+| Zustand persist + Next.js SSR | Reading persisted state during server render | Gate persisted state reads behind `_hydrated` flag or use `useSyncExternalStore` with `getServerSnapshot` returning initial state |
+| Sentry + error boundaries | Reporting error in `useEffect` but also in `global-error.tsx` | Deduplicate: use `error.digest` as fingerprint. Both `error.tsx` and `global-error.tsx` report -- same error gets two Sentry events |
+| Service worker + email deep links | Magic link email opens in app with stale cached page | Use `NetworkFirst` for auth callback routes. Current SW config caches static assets with `StaleWhileRevalidate` -- auth routes must bypass |
+| React Compiler + Framer Motion | Compiler auto-memoizes animation callbacks, breaking motion values | If animation stutters after React Compiler, add `"use no memo"` directive to specific component, not globally |
+
+## Performance Traps
+
+| Trap | Symptoms | Prevention | When It Breaks |
+|------|----------|------------|----------------|
+| Adding Framer Motion `layout` animations to list items | Jank on lists >20 items, dropped frames on mobile | Use `layoutId` only for shared-element transitions, not list reordering. Use CSS `view-transition` for lists | >15 animated items visible simultaneously |
+| Skeleton components importing animation libraries | Skeleton itself adds 30KB+ to initial bundle | Skeletons must be CSS-only (pulse animation via Tailwind `animate-pulse`). Never import Framer Motion for skeleton shimmer | Every page load -- skeletons ARE the critical path |
+| Loading entire settings schema on customer settings mount | 500ms+ delay rendering settings page on slow connections | Split settings into tabs, load each tab's data on demand. Use React Server Components for initial render | >5 settings categories with 10+ fields each |
+| Error boundary rendering complex animated error UI | Error state itself can crash if animation library failed to load | Error fallback must work WITHOUT Framer Motion. Current `RouteError.tsx` imports `m` from framer-motion -- this is a risk | When the error IS a Framer Motion crash |
+
+## Security Mistakes
+
+| Mistake | Risk | Prevention |
+|---------|------|------------|
+| Stripe webhook without signature verification | Attacker sends fake webhook, triggers fraudulent order confirmations or refunds | Always use `stripe.webhooks.constructEvent(body, sig, endpointSecret)` in Edge Function |
+| Customer settings API without row-level security | User A modifies User B's settings via direct API call | Supabase RLS policy: `auth.uid() = user_id` on settings table. Never trust client-side user ID |
+| Email notification containing order details over plain HTTP | Order data (address, phone) exposed in transit | Resend sends over HTTPS by default. But: don't include full address in email body -- link to authenticated order page instead |
+| Magic link + animation delay | User clicks "send magic link", animation plays for 2s, but link was already sent. User clicks again -> rate-limited by Supabase auth | Disable submit button immediately on click (already done with `useFormStatus` in `LoginForm.tsx`). Don't delay the disable for animation purposes |
+
+## UX Pitfalls
+
+| Pitfall | User Impact | Better Approach |
+|---------|-------------|-----------------|
+| Cart validation removing items without explanation | User returns to cart, items gone, no idea why | Show inline message per removed item: "Pad See Ew is no longer available" with undo option |
+| Loading skeleton that doesn't match final layout | Layout shift when real content replaces skeleton (CLS penalty) | Skeleton must match exact dimensions of loaded content. Measure real content first, build skeleton to match |
+| Error boundary "Try Again" that doesn't work | User clicks retry, same error, no progress. User gives up | After 2 failed retries, show different action: "Contact support" or "Go to homepage". Log retry count |
+| Settings save with no feedback | User changes setting, no confirmation it saved. Unsure if it worked | Show inline "Saved" toast on successful save. Show error toast on failure. Disable save button during save |
+| Email notification opt-in defaulting to "all on" | User annoyed by emails they didn't ask for. Marks as spam | Default to minimal: order confirmation only. Let user opt INTO marketing/status emails |
+
+## "Looks Done But Isn't" Checklist
+
+- [ ] **Error boundaries:** Route groups `(auth)`, `(customer)/cart`, `(customer)/checkout`, `(customer)/account` have no error.tsx -- verify all customer-facing routes are covered
+- [ ] **Loading states:** Route groups `(customer)`, `(driver)`, `(auth)` have no loading.tsx -- verify loading skeletons exist for all async pages
+- [ ] **Email notifications:** Domain verified in Resend dashboard, not just coded in Edge Function
+- [ ] **Cart validation:** Works on fresh page load (not just hot reload), including when cart has items from a previous session where menu items have since been removed
+- [ ] **Offline sync:** Idempotency key sent with every retry, server validates it. Test by: queue 3 actions offline, reconnect, verify exactly 3 API calls (not 6)
+- [ ] **Settings page:** Default values render immediately (not after API call). User with no saved settings sees sensible defaults, not empty/broken UI
+- [ ] **Auth animations:** Full flow works with `prefers-reduced-motion: reduce` enabled. Tab through entire form -- focus never gets lost
+- [ ] **Polish pass:** Visual regression tests pass for ALL pages touched, not just the one being polished. Check adjacent pages that share components
+- [ ] **global-error.tsx:** Must include `<html>` and `<body>` tags (current implementation does). Must NOT import from components that might be the source of the error
+- [ ] **Service worker:** Magic link auth callback route (`/auth/callback`) not cached by SW. Test: send magic link, click it, verify it works on first try without cache issues
+
+## Recovery Strategies
+
+| Pitfall | Recovery Cost | Recovery Steps |
+|---------|---------------|----------------|
+| Duplicate webhook processing | MEDIUM | Add idempotency table, dedupe existing records, re-verify order statuses against Stripe source of truth |
+| Cart validation clears valid items | LOW | Items are in localStorage `mms-cart` -- restore from browser storage if caught quickly. Add undo mechanism for future |
+| Auth animation breaks focus | LOW | Remove animations, revert to working non-animated form. Animations are enhancement, not requirement |
+| Error boundary gap causes white screen | HIGH | User sees blank page, can't navigate. Only recovery: browser back button or manual URL. Must prevent, not recover |
+| Offline sync duplicates | HIGH | Dedupe database records by idempotency key. For photos: check storage for duplicates by hash. For status updates: replay from Stripe/source of truth |
+| Polish regression breaks existing feature | MEDIUM | Git revert the polish commit. Run test suite to verify. Re-apply polish with visual regression tests in place |
+
+## Pitfall-to-Phase Mapping
+
+| Pitfall | Prevention Phase | Verification |
+|---------|------------------|--------------|
+| Auth animation focus management | Auth form redesign | Tab through form in all states. Screen reader announces all elements. Works with reduced motion |
+| Cart hydration race condition | Cart validation | Fresh page load with persisted cart shows items immediately. No flash of empty state |
+| Webhook duplicate processing | Email notifications | Send same Stripe event twice via CLI. Verify only one email sent, one DB record created |
+| Error boundary coverage gaps | Error boundaries | Trigger error in every route group. Verify styled error page (not white screen) for all |
+| Driver offline sync duplicates | Driver offline sync | Queue 5 actions offline. Reconnect. Verify exactly 5 API calls. Kill network mid-sync, reconnect again -- no duplicates |
+| Loading state consistency | Loading states | Navigate to every page on throttled 3G. Verify skeleton appears (not blank white) within 100ms |
+| Polish regression | Polish pass (LAST) | Playwright visual regression suite passes before AND after polish changes. No CLS increase |
+| Settings save without feedback | Customer settings | Save a setting. Toast appears. Refresh page. Setting persists. Change setting on slow network. Loading indicator visible |
 
 ## Sources
 
-### Next.js App Router & LCP Optimization (HIGH confidence)
-- [10 Performance Mistakes in Next.js 16 (Medium, Dec 2025)](https://medium.com/@sureshdotariya/10-performance-mistakes-in-next-js-16-that-are-killing-your-app-and-how-to-fix-them-2facfab26bea)
-- [Stop the Wait: A Developer's Guide to Smashing LCP in Next.js (Medium)](https://medium.com/@iamsandeshjain/stop-the-wait-a-developers-guide-to-smashing-lcp-in-next-js-634e2963f4c7)
-- [How to Optimize Core Web Vitals in NextJS App Router for 2025 (Makers' Den)](https://makersden.io/blog/optimize-web-vitals-in-nextjs-2025)
-- [Optimizing Next.js Performance: LCP, Render Delay & Hydration](https://www.iamtk.co/optimizing-nextjs-performance-lcp-render-delay-hydration)
-- [Next.js App Router: common mistakes and how to fix them](https://upsun.com/blog/avoid-common-mistakes-with-next-js-app-router/)
+### Next.js Error Handling (HIGH confidence)
+- [Next.js Official: Error Handling](https://nextjs.org/docs/app/getting-started/error-handling)
+- [Next.js Official: error.js Convention](https://nextjs.org/docs/app/api-reference/file-conventions/error)
+- [Confusion about error.tsx vs global-error.tsx (GitHub Discussion #68048)](https://github.com/vercel/next.js/discussions/68048)
+- [Next.js 15 Error Handling Best Practices (Dev & Deliver)](https://devanddeliver.com/blog/frontend/next-js-15-error-handling-best-practices-for-code-and-routes)
+- [Common Mistakes with Next.js App Router (Vercel)](https://vercel.com/blog/common-mistakes-with-the-next-js-app-router-and-how-to-fix-them)
 
-### Animation Libraries Performance (HIGH confidence)
-- [GSAP vs. Framer Motion: A Comprehensive Comparison (Medium)](https://tharakasachin98.medium.com/gsap-vs-framer-motion-a-comprehensive-comparison-0e4888113825)
-- [Framer Motion vs GSAP (Semaphore)](https://semaphore.io/blog/react-framer-motion-gsap)
-- [How to Keep Rich Animations Snappy in Next.js 15 (Medium, Jan 2026)](https://medium.com/@thomasaugot/how-to-keep-rich-animations-snappy-in-next-js-15-46d90f503b15)
-- [Beyond Eye Candy: Top 7 React Animation Libraries for Real-World Apps in 2026 (Syncfusion)](https://www.syncfusion.com/blogs/post/top-react-animation-libraries)
+### Supabase Edge Functions + Resend (HIGH confidence)
+- [Supabase Docs: Sending Emails](https://supabase.com/docs/guides/functions/examples/send-emails)
+- [Resend: Send with Supabase Edge Functions](https://resend.com/docs/send-with-supabase-edge-functions)
+- [Supabase Docs: Stripe Webhooks](https://supabase.com/docs/guides/functions/examples/stripe-webhooks)
+- [Edge Functions Troubleshooting](https://supabase.com/docs/guides/functions/troubleshooting)
 
-### GSAP ScrollTrigger & Next.js (HIGH confidence)
-- [Optimizing GSAP Animations in Next.js 15 (Medium)](https://medium.com/@thomasaugot/optimizing-gsap-animations-in-next-js-15-best-practices-for-initialization-and-cleanup-2ebaba7d0232)
-- [ScrollTrigger and pinned section performance problem (GSAP Forums)](https://gsap.com/community/forums/topic/44313-scrolltrigger-and-pinned-section-performancejumping-problem-nextjs-app/)
-- [Application crashes with ScrollTrigger in NextJS (GitHub Issue)](https://github.com/greensock/GSAP/issues/440)
+### Stripe Webhook Idempotency (HIGH confidence)
+- [Handling Payment Webhooks Reliably (Medium, Nov 2025)](https://medium.com/@sohail_saifii/handling-payment-webhooks-reliably-idempotency-retries-validation-69b762720bf5)
+- [Best Practices for Stripe Webhooks (Stigg)](https://www.stigg.io/blog-posts/best-practices-i-wish-we-knew-when-integrating-stripe-webhooks)
+- [Webhooks at Scale: Idempotent, Replay-Safe (DEV, 2026)](https://dev.to/art_light/webhooks-at-scale-designing-an-idempotent-replay-safe-and-observable-webhook-system-7lk)
 
-### Hydration & Client Components (HIGH confidence)
-- [Next.js Hydration Errors in 2026 (Medium, Jan 2026)](https://medium.com/@blogs-world/next-js-hydration-errors-in-2026-the-real-causes-fixes-and-prevention-checklist-4a8304d53702)
-- [How Suspense + Streaming + Selective Hydration Drive Page Speed (Makers' Den)](https://makersden.io/blog/suspense-streaming-selective-hydation-driving-next-level-speed-in-react-and-nextjs)
-- [Understanding Client Components and Client Boundaries (Zayne Lovecraft)](https://www.zaynelovecraft.com/articles/understanding-client-components-and-client-boundaries)
-- [Next.js Official Docs: Server and Client Components](https://nextjs.org/docs/app/getting-started/server-and-client-components)
+### Offline Sync + IndexedDB (MEDIUM confidence)
+- [Offline-First Frontend Apps in 2025 (LogRocket)](https://blog.logrocket.com/offline-first-frontend-apps-2025-indexeddb-sqlite/)
+- [Implementing Offline-First with IndexedDB and Sync (Medium)](https://medium.com/@sohail_saifii/implementing-offline-first-with-indexeddb-and-sync-a-real-world-guide-0638c8d01056)
+- [Advanced PWA: Offline, Push, Background Sync](https://rishikc.com/articles/advanced-pwa-features-offline-push-background-sync/)
 
-### Code Splitting & Barrel Imports (HIGH confidence)
-- [How we optimized package imports in Next.js (Vercel)](https://vercel.com/blog/how-we-optimized-package-imports-in-next-js)
-- [React & Next.js Best Practices in 2026 (FAB Web Studio)](https://fabwebstudio.com/blog/react-nextjs-best-practices-2026-performance-scale)
-- [When UI Libraries Explode Your Bundle (Medium)](https://medium.com/@sureshdotariya/when-ui-libraries-explode-your-bundle-smart-imports-tree-shaking-in-next-js-ee691a65cd2c)
-- [Dynamic imports and code splitting with Next.js (LogRocket)](https://blog.logrocket.com/dynamic-imports-code-splitting-next-js/)
+### Zustand Persist + Hydration (HIGH confidence)
+- [Zustand Docs: Persisting Store Data](https://zustand.docs.pmnd.rs/integrations/persisting-store-data)
+- [Zustand Docs: persist middleware](https://zustand.docs.pmnd.rs/middlewares/persist)
+- [Fixing Hydration Errors with Zustand Persist (Medium)](https://medium.com/@judemiracle/fixing-react-hydration-errors-when-using-zustand-persist-with-usesyncexternalstore-b6d7a40f2623)
+- [Is it possible to immediately load persisted data? (GitHub Issue #346)](https://github.com/pmndrs/zustand/issues/346)
 
-### Glassmorphism & Parallax Performance (MEDIUM confidence)
-- [Glassmorphism: What It Is and How to Use It in 2026 (Inverness Design Studio)](https://invernessdesignstudio.com/glassmorphism-what-it-is-and-how-to-use-it-in-2026)
-- [Dark Glassmorphism UI in 2026 (Medium, Dec 2025)](https://medium.com/@developer_89726/dark-glassmorphism-the-aesthetic-that-will-define-ui-in-2026-93aa4153088f)
-- [2026 Web Design Trends: Glassmorphism, Micro-Animations (Digital Upward)](https://www.digitalupward.com/blog/2026-web-design-trends-glassmorphism-micro-animations-ai-magic/)
+### Framer Motion Accessibility (HIGH confidence)
+- [Framer Motion: Accessibility Guide](https://framer.com/motion/guide-accessibility)
+- [Motion: React Accessibility](https://motion.dev/docs/react-accessibility)
 
-### CSS Animation & will-change (HIGH confidence)
-- [CSS will-change Property: When and When Not to Use It (DigitalOcean)](https://www.digitalocean.com/community/tutorials/css-will-change)
-- [MDN: will-change](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/will-change)
-- [Optimizing Performance in CSS Animations (DEV)](https://dev.to/nasehbadalov/optimizing-performance-in-css-animations-what-to-avoid-and-how-to-improve-it-bfa)
-- [How to create high-performance CSS animations (web.dev)](https://web.dev/articles/animations-guide)
+### React Suspense + Loading UI (HIGH confidence)
+- [Next.js Official: Loading UI and Streaming](https://nextjs.org/docs/14/app/building-your-application/routing/loading-ui-and-streaming)
+- [Next.js 15 Streaming Handbook (freeCodeCamp)](https://www.freecodecamp.org/news/the-nextjs-15-streaming-handbook/)
 
-### requestAnimationFrame (MEDIUM confidence)
-- [Fix Your LCP Score By Improving Render Delay (DebugBear)](https://www.debugbear.com/blog/lcp-render-delay)
-- [Mastering requestAnimationFrame in React (Medium)](https://medium.com/@mohantaankit2002/mastering-requestanimationframe-and-cancelanimationframe-in-react-31bbee576137)
-- [Common misconceptions about how to optimize LCP (web.dev)](https://web.dev/blog/common-misconceptions-lcp)
+### Project-Specific (HIGH confidence)
+- Project `ERROR_HISTORY.md` -- mobile crash patterns, NEXT_REDIRECT issues, cleanup audit
+- Project `cart-store.ts` -- Zustand persist implementation details
+- Project `driver-store.ts` + `offline-store/stores.ts` -- dual queue architecture
+- Project `sw.ts` -- service worker caching strategies
+- Project error.tsx audit -- coverage gaps identified
 
-### Accessibility (HIGH confidence)
-- [Next.js Official Docs: Accessibility](https://nextjs.org/docs/architecture/accessibility)
-- [Accessible Animations in React with prefers-reduced-motion (Josh W. Comeau)](https://www.joshwcomeau.com/react/prefers-reduced-motion/)
-- [Building for Everyone: Accessible Web Technologies in 2025 (Medium, Dec 2025)](https://medium.com/@thewcag/building-for-everyone-the-developers-guide-to-accessible-web-technologies-in-2025-f5b05c92b82b)
-- [Design accessible animation and movement (Pope Tech, Dec 2025)](https://blog.pope.tech/2025/12/08/design-accessible-animation-and-movement/)
-
-### Service Worker Caching (MEDIUM confidence)
-- [PWA Resource Pre-fetching & Caching with Service Workers (ZeePalm)](https://www.zeepalm.com/blog/pwa-resource-pre-fetching-and-caching-with-service-workers)
-- [Caching Done Right: Why Every Web Project Deserves a Service Worker (Medium)](https://medium.com/@mevbg/caching-done-right-why-every-web-project-deserves-a-service-worker-288d254a34c4)
-- [Service Worker Caching Strategies (CodeSamplez)](https://codesamplez.com/front-end/service-worker-caching-strategies)
+---
+*Pitfalls research for: v1.6 Production Polish*
+*Researched: 2026-02-07*

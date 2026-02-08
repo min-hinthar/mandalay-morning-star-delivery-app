@@ -1,510 +1,353 @@
-# Technology Stack - LCP Optimization
+# Stack Research: v1.6 Production Polish
 
-**Project:** Mandalay Morning Star Delivery App
-**Milestone:** Performance Optimization (LCP 8.1s → <2.5s)
-**Researched:** 2026-02-05
+**Domain:** Meal delivery PWA - production polish features
+**Researched:** 2026-02-07
 **Confidence:** HIGH
 
 ## Executive Summary
 
-Next.js 16 provides native performance optimizations (React Compiler, Turbopack) that eliminate need for third-party virtual DOM replacements. Focus on JavaScript reduction through code splitting, deferred animations, and third-party script management. No major stack additions needed—optimize existing packages.
+The v1.6 production polish milestone requires minimal new dependencies. The existing stack (Next.js 16, Framer Motion, Zustand, Supabase, cmdk, Serwist) already covers 80% of what's needed. The primary additions are: (1) `resend` + `@react-email/components` for server-side email rendering in Next.js API routes (replacing raw HTML strings in Supabase Edge Functions), and (2) leveraging Serwist's built-in `BackgroundSyncQueue` for driver offline retry (already bundled, just not used). Everything else -- auth form animations, settings page, 404 page, cart validation, command palette enhancement -- uses existing libraries with no new installs.
 
 ---
 
-## Native Next.js 16 Capabilities (Use These First)
+## New Dependencies (Install These)
 
-### React Compiler (Stable in v16)
+### Email System
+
 | Technology | Version | Purpose | Why |
 |------------|---------|---------|-----|
-| React Compiler | Built-in | Auto-memoization | Eliminates manual useMemo/useCallback, reduces re-renders. Stable as of Next.js 16, production-ready at Meta. Enable via `reactCompiler: true` in config. |
+| resend | ^6.9.1 | Email sending from Next.js API routes | Already used via raw HTTP in Edge Functions; SDK gives type-safe API, React component rendering, delivery tracking. Current driver invite flow already calls Resend API manually. |
+| @react-email/components | ^1.0.7 | Email template components | Replaces raw HTML string templates in Edge Functions. Type-safe JSX, preview-able, maintainable. Supports dark mode as of v5.0. |
+| @react-email/render | ^2.0.4 | Render React Email to HTML string | Needed to render templates server-side in API routes. Used by `resend.emails.send({ react: <Component /> })` internally but useful for preview/testing. |
+
+**Rationale for server-side email shift:**
+Current email system uses Supabase Edge Functions with raw HTML template strings (500+ lines in `send-order-confirmation/index.ts` and `send-delivery-notification/index.ts`). For the new refund/cancel notification emails, building in the Next.js app with React Email components is more maintainable:
+- Same language and tooling as the rest of the codebase
+- React components for email templates (reusable headers, footers, buttons)
+- Preview in browser during development
+- Type-safe props for template data
+- Existing Edge Functions continue to work for current flows
 
 **Installation:**
 ```bash
-npm install babel-plugin-react-compiler@latest
+pnpm add resend @react-email/components @react-email/render
 ```
-
-**Configuration:**
-```ts
-// next.config.ts
-const nextConfig = {
-  reactCompiler: true,
-}
-```
-
-**Impact:** Zero-code automatic memoization. Reduces JavaScript execution by eliminating unnecessary component re-renders.
-
-**Confidence:** HIGH (official Next.js 16 feature, stable)
-
-**Sources:**
-- [Next.js 16 Release](https://nextjs.org/blog/next-16)
-- [React Compiler in Next.js 16](https://medium.com/better-dev-nextjs-react/react-compiler-in-next-js-16-what-it-fixes-what-it-breaks-and-how-to-ship-it-safely-62881c4c0b74)
 
 ---
 
-### Turbopack Bundle Analyzer (v16.1+)
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Next.js Bundle Analyzer | Built-in (experimental) | Bundle inspection for Turbopack | Replaces @next/bundle-analyzer for Turbopack builds. Precise import tracing, module graph visualization. |
+## Existing Stack (No New Installs Needed)
 
-**Note:** Already have @next/bundle-analyzer installed. Keep it for webpack builds, use experimental Turbopack analyzer for faster iteration.
+### 1. Auth Form Animations
 
-**Access:** `next build --experimental-bundle-analyzer`
+| Existing Library | Version | Feature Area | How Used |
+|-----------------|---------|--------------|----------|
+| framer-motion | 12.26.1 | Premium auth form animations | AnimatePresence for form transitions, m.div for field reveals, spring physics for submit button states. LazyMotion with domMax already configured. |
+| react-hook-form | 7.71.1 | Form state management | Already used for auth forms. Add field-level animations tied to validation state. |
+| @hookform/resolvers | 5.2.2 | Zod validation | Already wired. Use for inline validation feedback animations. |
 
-**Confidence:** MEDIUM (experimental feature in v16.1)
+**Pattern:** Existing `LoginForm.tsx` and `SignupForm.tsx` use basic Card layout with server actions. Enhance with Framer Motion variants for:
+- Tab switching animation between login/signup
+- Field entrance stagger (opacity + translateY)
+- Error shake animation on validation failure
+- Success checkmark morph on magic link sent
+- Loading spinner transition on submit
 
-**Sources:**
-- [Next.js 16.1 Bundle Analyzer](https://nextjs.org/blog/next-16-1)
+**No new library needed.** Framer Motion 12.x supports all required animation patterns. The `AnimatePresence` + `m.div` components already used in `CommandPalette.tsx` demonstrate the exact patterns needed.
 
----
+### 2. Customer Settings Page
 
-## Code Splitting & Dynamic Imports
+| Existing Library | Version | Feature Area | How Used |
+|-----------------|---------|--------------|----------|
+| next-themes | 0.4.6 | Theme toggle (light/dark/system) | Already integrated. Settings page exposes `useTheme().setTheme()` via radio group. |
+| @radix-ui/react-radio-group | 1.3.1 | Preference selections | Already installed. Use for notification preferences, dietary preferences, theme selection. |
+| @radix-ui/react-checkbox | 1.3.2 | Toggle preferences | Already installed. Use for individual notification toggles (email, push). |
+| @radix-ui/react-select | 2.2.6 | Dropdown selections | Already installed. Use for language, delivery time defaults. |
+| zustand | 5.0.10 | Client-side preference persistence | Already used for cart/driver stores. Create `usePreferencesStore` with same persist pattern. |
+| zod | 4.3.5 | Settings validation | Already used. Define settings schema for type-safe preferences. |
 
-### next/dynamic (Native)
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| next/dynamic | Built-in | Component lazy-loading | Already available. Use to defer heavy components (Google Maps, animations, modals). |
+**Architecture:** Customer settings stored in two layers:
+1. **Supabase `profiles` table** -- server-authoritative preferences (notification preferences, delivery defaults, dietary restrictions) synced on save
+2. **Zustand + localStorage** -- UI preferences (theme, language) for instant client-side reactivity
 
-**Critical pattern for LCP:**
-```tsx
-// Defer non-critical components
-const GoogleMap = dynamic(() => import('@/components/GoogleMap'), {
-  ssr: false,
-  loading: () => <MapSkeleton />
-})
+**No customer settings page exists yet.** Route: `/settings`. Uses existing form patterns from admin settings page (`src/app/(admin)/admin/settings/page.tsx`).
 
-const AnimatedHero = dynamic(() => import('@/components/AnimatedHero'), {
-  loading: () => <StaticHero />
-})
-```
+### 3. Cart Validation (Stale Item Detection)
 
-**What to dynamically import:**
-- Google Maps (loads 3.86 MB → defer until in viewport)
-- Framer Motion/GSAP animations (defer to client, ssr: false)
-- Stripe checkout UI (load on-demand)
-- Modals, tooltips, conditional UI
+| Existing Library | Version | Feature Area | How Used |
+|-----------------|---------|--------------|----------|
+| zustand | 5.0.10 | Cart store | `useCartStore` already persists to localStorage. Add `validateCart()` method that cross-references menu API on mount. |
+| @tanstack/react-query | 5.90.1 | Menu data fetching | Use `useQuery` to fetch current menu prices on cart page mount. Compare against stored `basePriceCents`. |
 
-**Anti-pattern:** Over-splitting small components creates network overhead.
+**Pattern:** On cart page mount or checkout page mount:
+1. Fetch current menu items via existing `/api/menu` endpoint
+2. Compare each cart item's `basePriceCents` and `menuItemId` against live data
+3. Flag items that are: removed from menu, price-changed, or out-of-stock
+4. Show inline warning per item with "Remove" or "Update Price" actions
+5. Block checkout if any flagged items remain
 
-**Confidence:** HIGH (official Next.js feature)
+**No new dependency needed.** Uses existing cart store + React Query for the validation check.
 
-**Sources:**
-- [Code Splitting Best Practices](https://blazity.com/blog/code-splitting-next-js)
-- [Dynamic Imports in Next.js](https://daily.dev/blog/code-splitting-with-dynamic-imports-in-nextjs)
+### 4. Driver Offline Sync Retry
 
----
+| Existing Library | Version | Feature Area | How Used |
+|-----------------|---------|--------------|----------|
+| serwist | 9.5.4 | Service worker with background sync | Serwist includes `BackgroundSyncQueue` and `BackgroundSyncPlugin` out of the box. Currently NOT used -- the app has a custom IndexedDB sync implementation. |
 
-### react-intersection-observer (For Viewport-Based Loading)
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| react-intersection-observer | ^9.15.0 | Load components when in viewport | Defer Google Maps, heavy animations until user scrolls to them. Reduces initial JS execution. |
+**Current state:** The app already has a full offline sync system:
+- `src/lib/services/offline-store/db.ts` -- IndexedDB database with pending stores
+- `src/lib/services/offline-store/sync.ts` -- sequential sync with no retry/backoff
+- `src/lib/hooks/useOfflineSync.ts` -- React hook with queue/sync/counts
+- `src/lib/stores/driver-store.ts` -- Zustand store with pending actions queue
 
-**Installation:**
-```bash
-npm install react-intersection-observer
-```
+**What's missing:** Exponential backoff, retry limits, and Background Sync API integration. Two options:
 
-**Pattern:**
-```tsx
-import { useInView } from 'react-intersection-observer'
+**Option A (Recommended): Enhance existing custom implementation**
+- Add exponential backoff to `syncPendingItems()` (5s base, 5min cap)
+- Add `retryCount` and `maxRetries` fields to pending items in IndexedDB
+- Add `navigator.serviceWorker.ready.then(reg => reg.sync.register('pending-sync'))` to trigger sync from service worker
+- Keep existing IndexedDB stores (no migration needed)
 
-function MapSection() {
-  const { ref, inView } = useInView({ triggerOnce: true })
+**Option B: Replace with Serwist BackgroundSyncPlugin**
+- More standard, but requires rewriting the sync layer
+- Plugin automatically intercepts failed fetch requests and replays them
+- Less control over sync order and conflict resolution
 
-  return (
-    <div ref={ref}>
-      {inView ? <GoogleMap /> : <MapPlaceholder />}
-    </div>
-  )
-}
-```
+**Recommendation: Option A.** The existing custom implementation already handles the domain-specific sync logic (status updates, photo uploads, location updates have different retry semantics). Adding backoff + SW integration is ~50 lines of code. Ripping it out for Serwist's generic plugin loses domain logic.
 
-**Impact:** Delays loading Google Maps API (3.86 MB saved from initial load) until user scrolls to map section.
+### 5. Premium 404 Page
 
-**Confidence:** HIGH (established pattern, 9M+ weekly downloads)
+| Existing Library | Version | Feature Area | How Used |
+|-----------------|---------|--------------|----------|
+| framer-motion | 12.26.1 | Animation | Animated illustration, staggered text reveal, hover effects on CTA button |
+| lucide-react | 0.562.0 | Icons | 404 visual elements (search, map-pin, utensils for food-themed 404) |
 
-**Sources:**
-- [Lazy Loading Maps with Intersection Observer](https://damely-tineo.medium.com/lazy-loading-maps-with-intersection-observer-api-52c75c04bd04)
-- [Google Maps Optimization Guide](https://developers.google.com/maps/optimization-guide)
+**Pattern:** Next.js App Router uses `not-found.tsx` at the root app level. Currently no `not-found.tsx` exists. Create `src/app/not-found.tsx` with:
+- Animated food illustration (CSS/SVG animation or Framer Motion)
+- Branded color scheme using existing design tokens
+- Search bar linking to command palette
+- Popular menu items as suggestions
+- "Back to menu" CTA with hover animation
 
----
+**No new dependency needed.** GSAP could be used for a more elaborate illustration animation but Framer Motion is simpler and already the primary animation library for React components.
 
-## Third-Party Script Management
+### 6. Enhanced Command Palette
 
-### Next.js Script Component (Native)
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| next/script | Built-in | Script loading strategies | Control when Google Maps, Stripe, analytics load. Use lazyOnload for non-critical scripts. |
+| Existing Library | Version | Feature Area | How Used |
+|-----------------|---------|--------------|----------|
+| cmdk | 1.1.1 | Command palette core | Already integrated in `CommandPalette.tsx`. Has `keywords` prop (added in 1.1) for enhanced filtering. |
+| framer-motion | 12.26.1 | Animations | Already used for backdrop + dialog spring animations. |
 
-**Critical for LCP:**
-```tsx
-// Google Maps API - defer until needed
-<Script
-  src="https://maps.googleapis.com/maps/api/js?key=..."
-  strategy="lazyOnload" // Loads during browser idle time
-/>
+**Current implementation:** `src/components/ui/search/CommandPalette/` with:
+- cmdk integration for keyboard nav and filtering
+- Recent searches with localStorage
+- Popular item suggestions
+- Spring-animated entrance/exit
 
-// Stripe - load after interactive
-<Script
-  src="https://js.stripe.com/v3/"
-  strategy="afterInteractive"
-/>
+**Enhancements (no new deps):**
+- Add category-based grouping (`Command.Group`)
+- Add keyboard shortcut hints per result
+- Fuzzy matching via cmdk's built-in `command-score`
+- Action commands (not just search): "Go to cart", "Go to orders", "Toggle theme"
+- Item previews with thumbnail and price
 
-// Analytics - lowest priority
-<Script
-  src="https://www.googletagmanager.com/gtag/js"
-  strategy="lazyOnload"
-/>
-```
+**cmdk 1.1.1 is current.** Last published ~1 year ago, stable, no breaking changes expected. The `keywords` prop and `asChild` prop added in 1.1 are already available.
 
-**Strategies:**
-- `lazyOnload`: Browser idle time (Google Maps, analytics)
-- `afterInteractive`: After hydration (Stripe, important scripts)
-- Never `beforeInteractive` for third-party scripts
+### 7. Email Notifications (Order Confirmation, Refund, Cancel)
 
-**Confidence:** HIGH (official Next.js feature)
+| Existing Library | Version | Feature Area | How Used |
+|-----------------|---------|--------------|----------|
+| resend (NEW) | ^6.9.1 | Email delivery | Send refund/cancel notification emails from Next.js API routes |
+| @react-email/components (NEW) | ^1.0.7 | Email templates | Build maintainable templates for: order confirmation, refund processed, order cancelled |
 
-**Sources:**
-- [Optimizing Third-Party Scripts](https://developer.chrome.com/blog/script-component)
-- [Next.js Script Strategies](https://www.seocopilot.com/next-js/next-js-script-component-with-afterinteractive-powerful-strategies-to-improve-loading)
+**Current state:** Two Supabase Edge Functions handle order confirmation and delivery notifications using raw HTML strings with inline styles. These work but are unmaintainable.
 
----
+**New emails needed:**
+1. **Refund processed** -- triggered from `/api/admin/orders/[id]/refund` (already exists)
+2. **Order cancelled** -- triggered from `/api/admin/orders/[id]/cancel` (already exists)
+3. **Order confirmation (v2)** -- migrate existing Edge Function template to React Email (optional, can keep Edge Function)
 
-### Partytown (DO NOT ADD)
-| Technology | Recommendation | Reason |
-|------------|---------------|--------|
-| @builder.io/partytown | AVOID | Unsupported with Next.js App Router. Worker strategy experimental, Pages Router only. Manual integration fragile. Use next/script lazyOnload instead. |
-
-**Why avoid:**
-- "Worker strategy is currently unsupported with the Next.js 13+ app directory"
-- Adds complexity without benefit over native lazyOnload
-- Beta stability, active compatibility issues
-
-**Confidence:** HIGH (official Next.js docs confirm limitation)
-
-**Sources:**
-- [Next.js Scripts Guide](https://nextjs.org/docs/pages/guides/scripts)
-- [Partytown Next.js Integration](https://partytown.builder.io/nextjs)
+**Architecture decision:** Build new email templates in `src/emails/` using React Email. Send via Resend SDK from existing API routes. Keep existing Edge Functions running for backward compatibility -- migrate them to React Email in a future phase.
 
 ---
 
-## Animation Optimization
+## Alternatives Considered
 
-### Existing Stack Optimization (No New Packages)
-| Library | Current Version | Optimization Strategy |
-|---------|----------------|----------------------|
-| Framer Motion | 12.26.1 | Use LazyMotion for 40% size reduction. Tree-shake unused features. |
-| GSAP | 3.14.2 | Import specific modules only (gsap/core, ScrollTrigger). Avoid importing all of GSAP (23KB → 8-10KB). |
-
-**Framer Motion LazyMotion pattern:**
-```tsx
-import { LazyMotion, domAnimation, m } from 'framer-motion'
-
-function App() {
-  return (
-    <LazyMotion features={domAnimation}>
-      <m.div animate={{ opacity: 1 }} />
-    </LazyMotion>
-  )
-}
-```
-
-**Impact:** Reduces Framer Motion from 32KB to ~19KB gzipped.
-
-**GSAP modular imports:**
-```tsx
-import { gsap } from 'gsap/core'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-// Don't import entire 'gsap' package
-```
-
-**Critical decision:** Keep both libraries (already installed). Framer Motion for React components, GSAP for complex timelines. Optimize usage, don't replace.
-
-**DO NOT ADD:**
-- Million.js (compatibility issues with Next.js, limited activity since May 2024)
-- Preact (React 19 features unsupported, requires full aliasing, risky migration)
-
-**Confidence:** HIGH (official optimization patterns)
-
-**Sources:**
-- [Framer Motion LazyMotion](https://motion.dev/docs/react-reduce-bundle-size)
-- [Framer Motion vs GSAP](https://semaphore.io/blog/react-framer-motion-gsap)
+| Recommended | Alternative | When to Use Alternative |
+|-------------|-------------|-------------------------|
+| resend + @react-email/components | Keep Supabase Edge Functions with raw HTML | If you want to avoid adding dependencies; but raw HTML templates are fragile at 500+ lines |
+| Custom exponential backoff | Serwist BackgroundSyncPlugin | If starting from scratch with no existing sync logic; not worth it here since custom sync already handles domain-specific retry semantics |
+| Framer Motion for 404 animation | Lottie (lottie-react) | If you want a designer-created animated illustration; adds ~45KB dependency for a single page |
+| Zustand for preferences | Supabase only (no client cache) | If preferences rarely change and you don't need instant UI updates; latency on theme toggle would be poor |
+| cmdk 1.1.1 (keep current) | @udecode/cmdk or kbar | If you need multi-context menus or editor-style palettes; overkill for food search |
 
 ---
 
-## Font Optimization
+## What NOT to Add
 
-### next/font (Native)
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| next/font | Built-in | Variable font optimization | Self-hosts fonts, eliminates external requests, zero layout shift. Use variable fonts for best performance. |
-
-**Critical for LCP:**
-```tsx
-import { Inter } from 'next/font/google'
-
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap', // Shows fallback immediately
-  preload: true,   // Preloads for LCP element
-})
-```
-
-**Impact:**
-- Removes Google Fonts network requests
-- Build-time optimization (fonts bundled as static assets)
-- Font files served from same domain (faster)
-
-**Variable fonts recommended:** Single file, multiple weights. No weight specification needed.
-
-**Confidence:** HIGH (official Next.js feature, updated Jan 2026)
-
-**Sources:**
-- [Next.js Font Optimization](https://nextjs.org/docs/app/getting-started/fonts)
-- [Variable Fonts Best Practices](https://www.contentful.com/blog/next-js-fonts/)
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| nodemailer | Requires SMTP config, no delivery tracking, poor DX | resend (API-based, React component support) |
+| lottie-react / lottie-web | 45KB+ dependency for single 404 page animation | Framer Motion (already installed, 0KB marginal cost) |
+| react-i18next / next-intl | Premature for language settings; app has Burmese name fields but no full i18n | Store language preference in settings, implement i18n when needed |
+| web-push | Push notification library; premature unless push notifications are in scope | Defer to post-launch; email notifications cover v1.6 |
+| idb (IndexedDB wrapper) | Convenience wrapper for IndexedDB | Existing custom IndexedDB implementation in `src/lib/services/offline-store/` already works |
+| @tanstack/react-form | Alternative form library | react-hook-form already deeply integrated; switching adds migration cost for zero benefit |
+| sonner | Toast library | @radix-ui/react-toast already installed and configured |
 
 ---
 
-## Performance Monitoring (Use Existing Tools)
+## Version Compatibility
 
-### Already Installed
-| Tool | Current Status | Usage |
-|------|---------------|-------|
-| @next/bundle-analyzer | Installed | Use for webpack builds. Generates visual reports. Run with `ANALYZE=true npm run build`. |
-| Serwist | 9.5.4 | Service worker already configured. Verify caching strategy for static assets. |
+| Package | Compatible With | Notes |
+|---------|-----------------|-------|
+| resend@^6.9.1 | Next.js 16, React 19 | Server-side only; import in API routes, not client components |
+| @react-email/components@^1.0.7 | React 19 | Render on server only; components export JSX for email |
+| @react-email/render@^2.0.4 | @react-email/components@^1.0.7 | Peer dependency; renders React Email to HTML string |
+| cmdk@1.1.1 | React 19 | Already verified working in current codebase |
+| serwist@9.5.4 | BackgroundSyncQueue | Built-in; import from `serwist` package directly |
 
-### Recommended Addition: Lighthouse CI
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| @lhci/cli | ^0.15.0 | Automated performance regression testing | Catches LCP regressions in CI. Sets budgets for bundle size, LCP, TBT. |
+**React 19 compatibility note:** resend and @react-email/components both support React 19. The `react` property in `resend.emails.send()` accepts a React element and renders it server-side.
 
-**Installation:**
-```bash
-npm install -D @lhci/cli
-```
-
-**Configuration (.lighthouserc.json):**
-```json
-{
-  "ci": {
-    "collect": {
-      "staticDistDir": ".next",
-      "url": ["http://localhost:3000/"]
-    },
-    "assert": {
-      "assertions": {
-        "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
-        "total-blocking-time": ["warn", { "maxNumericValue": 300 }],
-        "cumulative-layout-shift": ["warn", { "maxNumericValue": 0.1 }]
-      }
-    }
-  }
-}
-```
-
-**Impact:** Prevents LCP regressions from being deployed. Enforces performance budgets.
-
-**Confidence:** HIGH (official Google Lighthouse tooling)
-
-**Sources:**
-- [Performance Tracking & Bundle Analysis](https://foundations.significa.co/guides/performance-tracking)
-- [Lighthouse CI Integration](https://github.com/GoogleChrome/lighthouse/issues/3862)
+**Next.js 16 compatibility note:** Add `@react-email/render` to `serverComponentsExternalPackages` in `next.config.ts` if build errors occur (known issue with SSR bundling of email rendering).
 
 ---
 
-## Tree-Shaking Optimization
+## Integration Points
 
-### Configuration (No New Packages)
-| Technique | Implementation | Purpose |
-|-----------|---------------|---------|
-| sideEffects in package.json | Set `"sideEffects": false` | Enables aggressive tree-shaking. Mark CSS imports as side effects: `["*.css"]`. |
-| ESM imports | Import from ESM packages | Avoid CJS dependencies (cannot be tree-shaken). Check package.json `"type": "module"`. |
+### Email Flow Architecture
 
-**Critical for bundle size:**
-```json
-// package.json
-{
-  "sideEffects": ["*.css", "*.scss"]
-}
+```
+Current (keep for now):
+  Stripe webhook -> API route -> Supabase Edge Function -> Resend API (raw HTML)
+
+New (for refund/cancel):
+  Admin action -> API route -> resend.emails.send({ react: <Template /> })
+
+Future migration:
+  Stripe webhook -> API route -> resend.emails.send({ react: <Template /> })
 ```
 
-**Impact:** Removes unused exports from libraries. Particularly effective for TanStack Query, Zustand.
+### Settings Page Data Flow
 
-**Warning:** Incorrectly marking files without side effects can break CSS imports and global initializers.
-
-**Confidence:** MEDIUM (requires careful configuration)
-
-**Sources:**
-- [Tree Shaking in Next.js](https://vercel.com/blog/how-we-optimized-package-imports-in-next-js)
-- [Tree Shaking Reference Guide](https://www.smashingmagazine.com/2021/05/tree-shaking-reference-guide/)
-
----
-
-## Image Optimization (Native)
-
-### next/image (Built-in, Improved in v16)
-| Technology | Version | Changes in v16 | Why |
-|------------|---------|---------------|-----|
-| next/image | Built-in | minimumCacheTTL: 60s → 4 hours | Reduces revalidation requests. Serves optimized AVIF/WebP. |
-
-**Next.js 16 defaults (already optimized):**
-- Cache TTL increased to 4 hours (reduces CDN load)
-- Quality default: 75 (faster processing)
-- Removed 16px size from defaults (smaller srcset)
-
-**Critical for LCP:**
-```tsx
-<Image
-  src="/hero.jpg"
-  alt="Hero"
-  priority // Preloads for LCP element
-  sizes="100vw"
-/>
+```
+Client                          Server
+  |                                |
+  |-- usePreferencesStore -------->| (Zustand, localStorage)
+  |   (theme, language - instant)  |
+  |                                |
+  |-- POST /api/settings -------->| (Supabase profiles table)
+  |   (notifications, dietary,     |
+  |    delivery defaults - on save)|
+  |                                |
+  |<- GET /api/settings -----------|
+  |   (hydrate on page load)       |
 ```
 
-**No changes needed** - Next.js 16 already optimized.
+### Cart Validation Flow
 
-**Confidence:** HIGH (native feature)
-
-**Sources:**
-- [Next.js 16 Image Defaults](https://nextjs.org/blog/next-16)
-
----
-
-## Alternatives Considered (DO NOT ADD)
-
-| Category | Recommended | Alternative | Why Not |
-|----------|-------------|-------------|---------|
-| Virtual DOM Optimization | React Compiler (native) | Million.js | Compatibility issues with Next.js, last update May 2024, 116 open issues. React Compiler is stable and native. |
-| React Replacement | Keep React 19 | Preact/compat | React 19 features unsupported (use() hook). 48% size reduction not worth migration risk. Security patch required (Jan 2026). |
-| Script Loading | next/script lazyOnload | Partytown | Unsupported with App Router. Worker strategy experimental, Pages Router only. Native lazyOnload sufficient. |
-| Animation Library | Optimize existing (Framer + GSAP) | Replace with Motion One | Already have both libraries. Optimization via LazyMotion/modular imports more effective than migration. |
-| Bundle Analysis | @next/bundle-analyzer + Turbopack analyzer | webpack-bundle-analyzer directly | Next.js wrappers provide framework-specific insights (route-based chunks). |
+```
+Cart page mount
+  |
+  v
+useQuery('/api/menu') -- fetch current menu
+  |
+  v
+compareCartItems(cartStore.items, menuData)
+  |
+  v
+Mark stale items: { removed, priceChanged, outOfStock }
+  |
+  v
+Show inline warnings per item
+  |
+  v
+Block checkout until resolved
+```
 
 ---
 
 ## Installation Summary
 
-**Add these:**
 ```bash
-# Performance monitoring
-npm install -D @lhci/cli
+# New dependencies (3 packages)
+pnpm add resend @react-email/components @react-email/render
 
-# Viewport-based loading
-npm install react-intersection-observer
-
-# React Compiler (if not already installed)
-npm install babel-plugin-react-compiler@latest
+# No dev dependencies needed
+# No config changes needed (beyond next.config.ts serverComponentsExternalPackages if needed)
 ```
 
-**Enable these (next.config.ts):**
-```ts
-const nextConfig = {
-  reactCompiler: true, // Auto-memoization
-
-  // Keep existing @next/bundle-analyzer config
-}
-```
-
-**Optimize these (no installation needed):**
-- Framer Motion: Implement LazyMotion
-- GSAP: Switch to modular imports
-- next/dynamic: Apply to Google Maps, animations, modals
-- next/script: Move scripts to lazyOnload strategy
-- next/font: Verify variable fonts, display: swap
+**Total new dependency cost:**
+- resend: ~15KB (server-only, no client bundle impact)
+- @react-email/components: ~25KB (server-only, no client bundle impact)
+- @react-email/render: ~10KB (server-only, no client bundle impact)
+- Client bundle impact: 0KB (all server-side)
 
 ---
 
-## Integration Checklist
+## Configuration Required
 
-**Before implementation:**
-- [ ] Enable React Compiler, test for rendering issues
-- [ ] Configure Lighthouse CI with LCP budget (2500ms)
-- [ ] Audit package.json sideEffects declarations
-- [ ] Map third-party scripts to loading strategies (lazyOnload vs afterInteractive)
+### next.config.ts (if needed)
 
-**During implementation:**
-- [ ] Wrap Google Maps in dynamic() with intersection observer
-- [ ] Convert Framer Motion to LazyMotion pattern
-- [ ] Switch GSAP to modular imports (gsap/core, ScrollTrigger only)
-- [ ] Move Google Maps API script to lazyOnload
-- [ ] Verify next/font uses variable fonts with display: swap
+```typescript
+const nextConfig = {
+  // Add only if @react-email/render causes SSR bundling errors
+  serverExternalPackages: ['@react-email/render'],
+};
+```
 
-**After implementation:**
-- [ ] Run Lighthouse CI to confirm LCP < 2.5s
-- [ ] Check bundle analyzer for unexpected growth
-- [ ] Verify React Compiler didn't break animations
-- [ ] Test service worker (Serwist) caching strategy
+### Email template directory
+
+```
+src/emails/
+  components/
+    EmailHeader.tsx      # Shared branded header
+    EmailFooter.tsx      # Shared footer with address
+    EmailButton.tsx      # Branded CTA button
+  OrderConfirmation.tsx  # Migrate from Edge Function (future)
+  RefundProcessed.tsx    # NEW
+  OrderCancelled.tsx     # NEW
+```
+
+### Resend client wrapper
+
+```typescript
+// src/lib/services/email.ts
+import { Resend } from 'resend';
+
+export const resend = new Resend(process.env.RESEND_API_KEY);
+```
+
+**Environment variable:** `RESEND_API_KEY` already configured (used by Supabase Edge Functions). Same key works for the Node.js SDK.
 
 ---
 
 ## Confidence Assessment
 
-| Technology | Confidence | Source Quality |
-|-----------|-----------|----------------|
-| React Compiler | HIGH | Official Next.js 16 docs, production at Meta |
-| next/dynamic | HIGH | Official Next.js feature, established pattern |
-| next/script | HIGH | Official Next.js docs, Chrome DevRel guidance |
-| next/font | HIGH | Official Next.js docs, updated Jan 2026 |
-| LazyMotion | HIGH | Official Framer Motion docs |
-| Lighthouse CI | HIGH | Official Google tooling |
-| Intersection Observer | HIGH | Web standard, 9M+ weekly downloads |
-| Million.js rejection | MEDIUM | Last activity May 2024, limited 2026 data |
-| Preact rejection | HIGH | React 19 incompatibility confirmed in recent articles |
-| Partytown rejection | HIGH | Official Next.js docs confirm App Router limitation |
-
----
-
-## Key Decisions Rationale
-
-**Why no virtual DOM replacement (Million.js)?**
-React Compiler (stable in Next.js 16) provides automatic memoization without third-party dependencies. Million.js has compatibility issues and limited recent activity (last release May 2024).
-
-**Why keep both Framer Motion and GSAP?**
-Different use cases: Framer for React component animations (declarative), GSAP for complex timelines (imperative). Optimization via LazyMotion/modular imports reduces bundle impact without migration risk.
-
-**Why avoid Partytown?**
-Unsupported with App Router. Native next/script lazyOnload strategy achieves same goal (defer third-party scripts) with better framework integration.
-
-**Why add Lighthouse CI?**
-Prevents LCP regressions from being deployed. Enforces performance budgets in CI pipeline. Catches bundle size growth before production.
-
-**Why next/font over external Google Fonts?**
-Self-hosting eliminates external network requests (major LCP contributor). Build-time optimization, zero layout shift, better privacy.
+| Area | Confidence | Reason |
+|------|------------|--------|
+| Email stack (resend + react-email) | HIGH | Already using Resend via raw HTTP; SDK is the official abstraction. React Email 5.0 confirmed React 19 + Tailwind 4 support. |
+| Auth form animations | HIGH | Framer Motion 12.x already in use; patterns demonstrated in CommandPalette.tsx |
+| Settings page | HIGH | All UI primitives already installed (Radix, RHF, Zustand); follows admin settings pattern |
+| Cart validation | HIGH | Uses existing cart store + menu API; pure business logic, no new deps |
+| Driver offline retry | HIGH | Custom IndexedDB sync already exists; enhancement is straightforward |
+| 404 page | HIGH | Standard Next.js file convention + Framer Motion |
+| Command palette | HIGH | cmdk 1.1.1 already integrated; enhancements use existing API |
 
 ---
 
 ## Sources
 
-Performance Optimization:
-- [Next.js 16 Release](https://nextjs.org/blog/next-16)
-- [React Compiler in Next.js 16](https://medium.com/better-dev-nextjs-react/react-compiler-in-next-js-16-what-it-fixes-what-it-breaks-and-how-to-ship-it-safely-62881c4c0b74)
-- [Next.js Performance Guide 2026](https://www.sujalbuild.in/blog/nextjs-seo-performance-guide)
+- [resend npm](https://www.npmjs.com/package/resend) -- v6.9.1 confirmed, published 11 days ago
+- [@react-email/components npm](https://www.npmjs.com/package/@react-email/components) -- v1.0.7 confirmed
+- [@react-email/render npm](https://www.npmjs.com/package/@react-email/render) -- v2.0.4 confirmed
+- [React Email 5.0 announcement](https://resend.com/blog/react-email-5) -- dark mode, Tailwind 4 support
+- [cmdk npm](https://www.npmjs.com/package/cmdk) -- v1.1.1, keywords prop, asChild prop
+- [Serwist background sync guide](https://serwist.pages.dev/docs/serwist/guide/background-syncing) -- BackgroundSyncQueue API
+- [Next.js not-found convention](https://nextjs.org/docs/app/api-reference/file-conventions/not-found) -- App Router file convention
+- [Framer Motion docs](https://motion.dev/docs) -- AnimatePresence, variants, spring physics
+- Codebase analysis: `package.json`, `src/lib/services/offline-store/`, `src/lib/stores/cart-store.ts`, `src/components/ui/auth/LoginForm.tsx`, `src/components/ui/search/CommandPalette/`, `supabase/functions/`
+- Previous research: `.planning/phases/36.2-feature-finalization-polish/36.2-RESEARCH.md`
 
-Code Splitting:
-- [Code Splitting Best Practices](https://blazity.com/blog/code-splitting-next-js)
-- [Dynamic Imports Guide](https://daily.dev/blog/code-splitting-with-dynamic-imports-in-nextjs)
-
-Script Management:
-- [Optimizing Third-Party Scripts](https://developer.chrome.com/blog/script-component)
-- [Next.js Script Component](https://nextjs.org/docs/pages/guides/scripts)
-- [Partytown Next.js Limitations](https://partytown.builder.io/nextjs)
-
-Animation Optimization:
-- [Framer Motion LazyMotion](https://motion.dev/docs/react-reduce-bundle-size)
-- [Framer Motion vs GSAP](https://semaphore.io/blog/react-framer-motion-gsap)
-
-Font Optimization:
-- [Next.js Font Optimization](https://nextjs.org/docs/app/getting-started/fonts)
-- [Variable Fonts Guide](https://www.contentful.com/blog/next-js-fonts/)
-
-Bundle Analysis:
-- [Next.js Bundle Analyzer](https://nextjs.org/docs/app/guides/package-bundling)
-- [Lighthouse CI Integration](https://foundations.significa.co/guides/performance-tracking)
-
-Google Maps:
-- [Google Maps Optimization Guide](https://developers.google.com/maps/optimization-guide)
-- [Lazy Loading Maps](https://damely-tineo.medium.com/lazy-loading-maps-with-intersection-observer-api-52c75c04bd04)
-
-Tree Shaking:
-- [Optimized Package Imports](https://vercel.com/blog/how-we-optimized-package-imports-in-next-js)
-- [Tree Shaking Reference](https://www.smashingmagazine.com/2021/05/tree-shaking-reference-guide/)
+---
+*Stack research for: v1.6 Production Polish*
+*Researched: 2026-02-07*

@@ -1,240 +1,339 @@
-# Feature Landscape: LCP Optimization in Next.js 16 App Router
+# Feature Research: v1.6 Production Polish
 
-**Domain:** Performance optimization for food delivery PWA
-**Focus:** Reducing LCP from 8.1s to <2.5s
-**Context:** Next.js 16 App Router, GSAP + Framer Motion, 508 TypeScript files, ~62K LOC
-**Researched:** 2026-02-05
+**Domain:** Premium food delivery PWA -- final production polish before public launch
+**Researched:** 2026-02-07
+**Confidence:** HIGH (verified against codebase + competitive analysis)
 
-## Table Stakes
+## Current State Assessment
 
-Features users/Google expect. Missing = failure to meet Core Web Vitals threshold.
+Before defining new features, here is what already exists:
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| Image optimization with `next/image` | LCP element is often an image; Next.js Image auto-optimizes to AVIF/WebP | Low | Set `priority={true}` on hero/LCP images to preload |
-| Font optimization with `next/font` | Eliminates render-blocking font requests, improves FCP/LCP by 200-500ms | Low | Automatic preloading, inlined CSS, self-hosting |
-| Remove lazy loading from LCP element | Lazy loading above-the-fold delays LCP by 2-3s; Google explicitly warns against this | Low | **CRITICAL:** Use `loading="eager"` or remove attribute on LCP image |
-| `fetchpriority="high"` on LCP element | Tells browser to prioritize LCP resource over other downloads | Low | Can reduce LCP from ~5s to ~3.7s alone |
-| TTFB optimization (<600ms) | TTFB delay carries over to FCP/LCP; 1s TTFB = minimum 1s LCP | Medium | Enable caching, use CDN, optimize server response |
-| Eliminate render-blocking JavaScript | JavaScript execution blocking is your stated root cause of 8.1s LCP | High | Defer non-critical scripts, minimize client JS bundle |
-| React Server Components for data fetching | Shifts logic to server, reduces client JS payload by ~50KB+ per component | Medium | Default in App Router; keep heavy logic server-side |
-| Code splitting with `next/dynamic` | Reduces initial bundle size, prevents non-critical code from blocking LCP | Medium | Use `ssr: false` for client-only components like modals |
-| Remove unused dependencies | Each unused library adds to bundle size and parse time | Low | Audit with bundle analyzer; GSAP core is 23KB, Framer Motion is 32KB |
-| Preload critical resources | LCP resource must start loading ASAP; resource load delay is major bottleneck | Low | Use `<link rel="preload">` for LCP image/font |
+| Area | Current State | Polish Level |
+|------|---------------|-------------|
+| Auth (login/signup) | Magic link only, plain Card layout, no branding/animation | Bare functional |
+| Account/Settings | Tabs: Profile (name/phone), Orders (history), Addresses (CRUD), Payment (placeholder) | Functional, no settings |
+| Email notifications | Webhook calls `send-order-confirmation` Edge Function (likely stub/unimplemented) | Stub only |
+| Cart validation | Server-side `validateCartItems` checks `is_active`, `is_sold_out`, modifier availability | Backend done, no client-side UX |
+| 404 page | 3 lines: heading + text, no branding, no navigation | Bare minimum |
+| Error page | Card with AlertTriangle, Retry/Home buttons, Sentry integration | Functional, generic |
+| Search/Command Palette | cmdk-based, fuzzy matching, recent searches, popular items, spring animations | 80% complete |
+| Admin pages | Functional tables/forms, basic `animate-pulse` loading, no micro-interactions | Functional, unpolished |
+| Driver pages | Skeleton loading, Suspense boundaries, route tracking, high-contrast mode | Mostly polished |
 
-## Differentiators
+---
 
-Features that push beyond "good" (2.5s) toward "excellent" (<1s LCP). Not expected, but valued.
+## Table Stakes (Users Expect These)
+
+Features users assume exist. Missing these = product feels incomplete or unprofessional at launch.
+
+### 1. Branded Auth Experience
+
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Brand logo/mascot on login/signup | Every premium app has branded auth; current plain text feels like a prototype | LOW | Existing `BrandMascot` component |
+| Social login (Google + Apple) | DoorDash, Uber Eats, Deliveroo all offer social login; 60%+ users prefer it | MEDIUM | Supabase Auth Google/Apple providers |
+| Animated form transitions | Current static forms clash with app's "over-the-top animated" philosophy | LOW | Existing Framer Motion setup |
+| "Check your email" magic link confirmation screen | Users need clear feedback after magic link send; current success message is easy to miss | LOW | None |
+| Forgot password flow polish | Page exists but likely matches the bare login/signup style | LOW | Existing `/forgot-password` route |
+
+**Competitive baseline (HIGH confidence):**
+- **DoorDash:** Email/password + Google + Apple + Facebook login. Clean branded screen with logo.
+- **Uber Eats:** Phone number primary + Google + Apple. Full-bleed hero image behind auth form.
+- **Deliveroo:** Email + Google + Apple + Facebook. Animated onboarding carousel before auth.
+- All three use single sign-on (SSO) for frictionless signup -- Google One Tap is particularly effective.
+
+**Supabase supports Google and Apple social login natively.** Configuration requires:
+- Google: OAuth credentials from Google Cloud Console
+- Apple: App ID + Services ID from Apple Developer Portal
+- Both use `signInWithOAuth` from `@supabase/supabase-js`
+
+### 2. Order Confirmation Email
+
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Branded order confirmation email | Every food delivery app sends this; highest-opened email type (>70% open rate) | MEDIUM | Resend + React Email |
+| Order details in email (items, totals, delivery window) | Users reference this email to know when food arrives | LOW | Order data already in DB |
+| Delivery address in email | Confirms correct delivery location | LOW | Address data in order |
+| Order number for reference | Support reference, reorder | LOW | Order ID exists |
+
+**Competitive baseline (HIGH confidence):**
+- Order confirmation emails are the #1 transactional email by open rate (>70%)
+- Must arrive within seconds of payment
+- Must include: order number, item list with quantities, pricing breakdown, delivery window, delivery address, support contact
+- Premium apps add: estimated delivery countdown, "track your order" CTA button, brand-consistent design
+
+**Implementation path (HIGH confidence):**
+- Stripe webhook already calls `sendOrderConfirmationEmail(orderId)` via Supabase Edge Function
+- Use **Resend + React Email** for templated transactional emails
+- Supabase has official Resend integration via Auth send-email hooks
+- React Email provides component-based templates (no table-layout HTML)
+- Resend free tier: 3,000 emails/month (sufficient for launch)
+
+### 3. Cart Validation UX (Client-Side)
+
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Show validation errors in cart/checkout UI | Server validates but errors return as generic API errors; user sees cryptic message | MEDIUM | Existing `CheckoutErrorCode` types |
+| Sold-out item visual indicator in cart | User should see which specific item is problematic, not just "something is wrong" | LOW | Cart store + menu data |
+| Stale price warning | If price changed since item was added, user should be informed before paying | MEDIUM | Compare cart `basePriceCents` vs current DB price |
+| Remove/replace unavailable items inline | User should be able to fix cart issues without leaving checkout flow | LOW | Cart store `removeItem` exists |
+
+**Competitive baseline (HIGH confidence):**
+- **DoorDash:** Shows inline "Item unavailable" badge, grays out item, suggests removal
+- **Uber Eats:** Real-time menu sync, items marked "Currently unavailable" before adding
+- **Instacart (grocery model):** Replacement preferences for out-of-stock items
+- All apps validate cart at checkout time and show item-specific error messages
+
+**Current codebase advantage:** Server-side validation already handles `ITEM_UNAVAILABLE`, `ITEM_SOLD_OUT`, `MODIFIER_UNAVAILABLE` with item-level `itemIndex`. The gap is purely client-side UX -- translating these structured errors into user-friendly inline feedback.
+
+### 4. Branded 404 Page
+
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Brand-consistent 404 with mascot | Current 404 is 3 lines of text; feels broken, not branded | LOW | `BrandMascot` component |
+| Helpful navigation (home, menu, orders) | Users hitting 404 need escape routes | LOW | None |
+| Search suggestion or menu link | Convert lost users into active users | LOW | Existing search/menu routes |
+
+**Competitive baseline (MEDIUM confidence):**
+- Premium apps use branded illustrations, playful copy, and clear CTAs
+- Wendy's: Built an entire branded game into their 404 page
+- Food delivery apps typically show food-related illustration + "Let's get you back on track"
+- Best practice: match brand tone (playful for MMS) + provide 2-3 navigation options
+
+### 5. Customer Settings/Preferences
+
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Notification preferences toggle | Users expect control over push/email notifications | MEDIUM | Push notification system (if exists) |
+| Dietary restrictions/allergies profile | Food apps should know about allergies; safety and personalization | MEDIUM | New DB field on `profiles` |
+| Default delivery address | Save time on repeat orders | LOW | Already exists (addresses with `is_default`) |
+| Delivery instructions default | "Leave at door" etc. -- users set once, applies to all orders | LOW | New DB field on `profiles` |
+| Language preference (English/Burmese) | Burmese cuisine app with bilingual menu data (`name_en`/`name_my`) | MEDIUM | Menu already has bilingual fields |
+
+**Competitive baseline (HIGH confidence):**
+- **DoorDash:** Notification settings (push + email + SMS), dietary preferences, default tip, delivery instructions
+- **Uber Eats:** Privacy controls (data sharing with delivery), notification preferences, communication preferences
+- **All apps:** Saved addresses with default, saved payment methods, order history with reorder
+
+**Current gap:** Account page has Profile (name/phone), Orders, Addresses, Payment (placeholder). No settings tab for preferences, notifications, or dietary needs.
+
+---
+
+## Differentiators (Competitive Advantage)
+
+Features that set the product apart. Not required for launch, but elevate the "over-the-top animated" brand identity.
+
+### 1. Premium Auth Animations
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Streaming SSR with Suspense | Delivers instant page shell while streaming slow components; improves LCP by 1.2s+ | Medium | Wrap slow components in `<Suspense>`, serve shell first |
-| Selective hydration | Only hydrate interactive components; reduces main thread blocking | Medium | Use Suspense boundaries, prioritize critical interactions |
-| Partial Prerendering (PPR) | Static shell for instant load + dynamic content streamed; mobile LCP: 26.4s → 0.9s | High | Next.js 16 feature; requires route-level configuration |
-| React Compiler (automatic memoization) | Eliminates unnecessary re-renders with zero manual code; 95%+ coverage | Low | Stable in Next.js 16; trades slightly slower builds for runtime perf |
-| AVIF format for images | 20% better compression than WebP without quality loss | Low | Configure in `next.config.js`; ensure browser fallbacks |
-| Modular animation library usage | Import only needed GSAP plugins vs full bundle; reduces JS parse time | Low | GSAP is modular (23KB core), Framer Motion is not (119KB fixed) |
-| `font-display: swap` | Ensures text visible during font loading; prevents invisible text delaying LCP | Low | Automatically handled by `next/font` |
-| Layout deduplication in routing | Next.js 16 optimizes prefetching and navigation; reduces redundant layouts | Low | Built-in; ensure proper layout hierarchy |
-| CDN for static assets | Serve images/fonts from edge locations; reduces TTFB by 200-400ms | Medium | Requires infrastructure setup; Vercel does this automatically |
-| Bundle analysis automation | Continuous monitoring of bundle size to prevent regressions | Low | Use `@next/bundle-analyzer`; set size budgets |
+| Animated background on auth pages (floating food illustrations) | Unique brand moment; most competitors have static backgrounds | MEDIUM | Use Framer Motion `m.div` with gentle float animations |
+| Logo morph animation on successful login | Delightful transition from auth to app; memorable first impression | MEDIUM | AnimatePresence exit + page transition |
+| Social proof counter ("Join 500+ families") | Builds trust for new signups; subscription model benefits from community feel | LOW | Static or dynamic counter from DB |
+| Animated "magic link sent" confirmation with envelope animation | Current success message is plain text; animation makes it feel premium | LOW | Lottie or Framer Motion sequence |
 
-## Anti-Features
+### 2. Polished Admin/Driver Page Details
 
-Features to explicitly NOT build. Common mistakes that seem helpful but hurt LCP.
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Skeleton shimmer loading (replace `animate-pulse`) | Shimmer > pulse for premium feel; current admin pages use basic pulse | LOW | CSS shimmer gradient animation |
+| Animated status badge transitions | When order status changes, badge should animate (scale + color morph) | LOW | Framer Motion `layoutId` on badges |
+| Hover micro-interactions on table rows | Subtle lift/glow on hover for admin tables | LOW | CSS `hover:translate-y-[-1px] hover:shadow-md` |
+| Animated number counters on dashboard stats | Numbers count up from 0 on mount; standard premium dashboard pattern | LOW | Framer Motion `useMotionValue` + `useTransform` |
+| Toast notifications with slide-in animation | Consistent notification pattern across admin/driver | LOW | Likely already exists via toast system |
+| Empty state illustrations | "No orders yet" with branded illustration vs plain text | MEDIUM | Custom SVG or Lottie illustrations |
 
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Lazy load LCP/hero images | Delays LCP by 2-3s; browser defers image for other resources; Google warns explicitly | Use `loading="eager"` or omit attribute; add `priority={true}` and `fetchpriority="high"` |
-| JavaScript-based image lazy loading | Even worse than native lazy loading; must wait for JS download + execution | Use native `loading="lazy"` for below-the-fold only; never for LCP element |
-| Over-optimize images at expense of other factors | Image download time is rarely the bottleneck; TTFB and resource load delay are bigger | Focus on TTFB, eliminate render-blocking JS, then optimize images |
-| Load all animation libraries upfront | 119KB Framer Motion + 23KB GSAP core = 142KB just for animations blocking LCP | Dynamic import animations with `next/dynamic` and `ssr: false`; defer until after LCP |
-| Premature optimization without measurement | Optimizing wrong areas wastes effort; "quick fixes" rarely improve LCP meaningfully | Measure with Lighthouse/PageSpeed Insights first; identify actual bottlenecks |
-| Use Client Components for everything | Sends all React code to client; increases JS bundle and hydration cost | Default to Server Components; only mark interactive components as "use client" |
-| Aggressive code splitting of critical path | Splitting hero component creates extra network request, delaying LCP | Only split non-critical/below-fold components; keep LCP path in main bundle |
-| Apply same optimization to all routes | Not all pages have same LCP element; hero image vs text vs map | Measure per-route; optimize each route's actual LCP element |
-| Enable all Next.js features simultaneously | React Compiler increases build time; PPR requires careful boundaries | Enable features incrementally; measure impact; PPR is experimental |
-| Ignore AVIF decode time on mobile | Smaller AVIF downloads faster but decodes slower on low-end devices; can negate benefit | Test on real devices; consider WebP for mobile, AVIF for desktop |
-| Third-party scripts in `<head>` | External scripts block rendering; unpredictable downtime/lag outside your control | Load async/defer; use Next.js Script component with `strategy="afterInteractive"` |
-| Forget srcset/responsive images | Sending 2000px image to mobile device wastes bandwidth and decode time | Use `next/image` (handles automatically) or manual srcset with proper sizes |
+### 3. Enhanced Search Experience
+
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Fuzzy matching with typo tolerance | Current search uses `.includes()` -- "mohiga" won't find "Mohinga" | MEDIUM | Use Fuse.js or similar fuzzy library |
+| Category-scoped search results | Group results by category (Soups, Rice, Snacks) | LOW | Category data exists in menu |
+| Keyboard shortcut hint in search trigger | "Cmd+K" badge on search icon; power-user signal | LOW | CSS badge component |
+| Search result image thumbnails | Show food photo in results; current results may be text-only | LOW | `imageUrl` exists on MenuItem |
+| "Did you mean..." suggestions for zero results | Convert zero-result searches into discoveries | MEDIUM | Levenshtein distance on menu item names |
+
+### 4. Error Page with Personality
+
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Animated mascot expression (confused/sad) on error pages | Brand mascot with contextual expressions; `BrandMascot` already supports `MascotExpression` | LOW | `BrandMascot` has expression prop |
+| Animated background on error (subtle, non-distracting) | Warm gradient animation matching brand; prevents "dead page" feeling | LOW | CSS gradient animation |
+| Contextual error messaging | "We dropped the plate" for 404 vs "Kitchen fire" for 500 | LOW | Copy only |
+| Animated transition back to safety | Smooth page transition when clicking "Go Home" | LOW | Existing page transition system |
+
+### 5. Cancellation + Refund Notification Emails
+
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Cancellation confirmation email | Users need written confirmation when order is cancelled | MEDIUM | Hook into order status webhook |
+| Refund processed email | Users need confirmation when refund hits their account | MEDIUM | Hook into `charge.refunded` webhook |
+| Delivery scheduled reminder email | "Your order arrives tomorrow" reminder for weekly subscribers | MEDIUM | Cron job or scheduled function |
+
+---
+
+## Anti-Features (Deliberately NOT Building for v1.6)
+
+Features that seem good but create problems at this stage.
+
+| Feature | Why Requested | Why Problematic | Alternative |
+|---------|---------------|-----------------|-------------|
+| Real-time cart price sync (WebSocket) | Keeps cart always current | Massive complexity for weekly menu model; prices rarely change mid-week | Validate at checkout time (already built); show inline error if stale |
+| OAuth with Facebook/Twitter | More social login options | Declining usage, privacy concerns, complex setup, Facebook API instability | Google + Apple covers 90%+ of social login demand |
+| Full notification preferences system | Granular control over every notification type | No push notification system exists yet; building preferences UI before the notification system is backward | Ship with email-only notifications; add preferences when push notifications are built |
+| Multi-language UI (i18n framework) | Burmese-speaking users | Full i18n is a v2.0 concern; menu items already bilingual; UI chrome in English is fine for LA market | Bilingual menu display (already built); defer full i18n to v2.0 |
+| Password-based auth | Some users prefer passwords | Magic link + social login is more secure; passwords create support burden (resets, breaches); Supabase magic link is proven | Keep magic link + add Google/Apple social; passwordless is the 2025+ trend |
+| Chat support widget | Users expect support | Third-party widget (Intercom, Crisp) adds 200KB+ JS, hurts LCP; small operation doesn't need real-time chat | Support email link in footer; FAQ page; error pages with contact info |
+| Animated onboarding carousel | Premium first-run experience | Scope creep for v1.6; users on meal subscription already know what they're signing up for | Branded auth pages + clear value prop copy is sufficient |
+| Payment methods management in account | Users expect to manage cards | Stripe Checkout handles payment; saved cards are managed by Stripe, not by us | Link to Stripe Customer Portal for card management |
+| Admin real-time order notifications (WebSocket) | Admin wants instant alerts | WebSocket infrastructure is complex; polling or Supabase Realtime subscription is simpler | Use Supabase Realtime subscription (already available) or polling with manual refresh (already built) |
+
+---
 
 ## Feature Dependencies
 
-### Critical Path (Must implement in order)
-
 ```
-1. Identify LCP element (Lighthouse/field data)
-   ↓
-2. Remove lazy loading from LCP element
-   ↓
-3. Add priority={true} + fetchpriority="high" to LCP element
-   ↓
-4. Optimize LCP resource (image → next/image, font → next/font)
-   ↓
-5. Eliminate render-blocking JavaScript on critical path
-   ↓
-6. Optimize TTFB (<600ms target)
-```
+Social Login (Google/Apple)
+    requires -> Supabase Auth provider config (env vars, OAuth setup)
+    requires -> Callback URL handler
 
-### Parallel Optimizations (Independent, can do simultaneously)
+Order Confirmation Email
+    requires -> Resend account + API key
+    requires -> React Email template components
+    requires -> Supabase Edge Function (send-order-confirmation)
+    enhances -> Stripe webhook (already calls sendOrderConfirmationEmail)
 
-```
-- Code split non-critical components (modals, animations)
-- Convert to React Server Components where possible
-- Preload critical resources
-- Enable React Compiler
-- Setup bundle analysis
-```
+Cart Validation UX
+    requires -> Existing validateCartItems error codes (already done)
+    requires -> Checkout error display component (new)
+    enhances -> Checkout flow (existing)
 
-### Advanced Optimizations (After table stakes achieved)
+Customer Settings
+    requires -> Profile DB schema additions (dietary, delivery_instructions)
+    requires -> New "Settings" tab in AccountClient
+    enhances -> Account page (existing)
 
-```
-Table Stakes Achieved (LCP < 2.5s)
-   ↓
-Streaming SSR + Suspense (target: <1.5s)
-   ↓
-Selective Hydration (target: <1s)
-   ↓
-Partial Prerendering (target: <0.9s)
-```
+Branded 404
+    requires -> BrandMascot component (already exists)
+    independent -- no other dependencies
 
-### Animation Library Strategy
+Auth Page Polish
+    requires -> BrandMascot component (already exists)
+    requires -> Framer Motion (already installed)
+    independent -- no other dependencies
 
-```
-Current state: GSAP + Framer Motion both loaded upfront
-   ↓
-Audit: Which animations are critical to LCP?
-   ↓
-If none are critical:
-   → Dynamic import both with ssr: false
-   → Load after LCP painted
-   ↓
-If some are critical:
-   → Use GSAP for critical (smaller, modular)
-   → Dynamic import Framer Motion for non-critical
+Admin/Driver Polish
+    independent -- pure UI enhancement
+    enhances -> All admin/driver pages (existing)
+
+Search Enhancements
+    requires -> Fuse.js or similar (new dependency)
+    enhances -> CommandPalette (existing)
+
+Email Templates (cancellation, refund)
+    requires -> Order Confirmation Email (template system must exist first)
+    requires -> Webhook handlers (already exist for charge.refunded, checkout.session.expired)
 ```
 
-## MVP Recommendation
+### Dependency Notes
 
-For achieving LCP < 2.5s, prioritize in this order:
+- **Order Confirmation Email requires Resend setup first:** All email features depend on establishing the Resend + React Email pipeline. Do this before cancellation/refund emails.
+- **Social Login requires external provider setup:** Google Cloud Console + Apple Developer Portal configuration needed before code changes.
+- **Cart Validation UX is pure frontend:** Backend validation already complete; this is UI work only.
+- **Customer Settings requires DB migration:** New columns on `profiles` table for dietary restrictions and delivery instructions.
 
-### Phase 1: Quick Wins (Est. impact: 8.1s → 4-5s)
-1. Remove lazy loading from LCP element
-2. Add `priority={true}` and `fetchpriority="high"` to LCP image
-3. Ensure using `next/image` and `next/font`
-4. Identify and defer non-critical JavaScript blocking render
+---
 
-### Phase 2: JavaScript Reduction (Est. impact: 4-5s → 2.5-3s)
-1. Dynamic import animation libraries with `ssr: false`
-2. Convert data-fetching components to Server Components
-3. Code split modals, tooltips, non-visible components
-4. Audit and remove unused dependencies
+## v1.6 Launch Priorities
 
-### Phase 3: Infrastructure (Est. impact: 2.5-3s → 1.5-2s)
-1. Optimize TTFB (caching, CDN)
-2. Preload critical resources
-3. Enable React Compiler
-4. Implement Suspense boundaries for slow components
+### P1: Must Ship (Production Blockers)
 
-### Phase 4: Advanced (Est. impact: 1.5-2s → <1s)
-- Streaming SSR with Suspense
-- Selective hydration
-- Partial Prerendering (experimental)
+- [ ] **Branded auth pages** -- Current auth looks like a prototype; first impression matters
+- [ ] **Order confirmation email** -- Users expect email confirmation after payment; highest-opened email type
+- [ ] **Cart validation UX** -- Backend validates but user sees cryptic errors; checkout confidence issue
+- [ ] **Branded 404/error pages** -- Current 404 is 3 lines of text; breaks premium illusion
+- [ ] **Social login (Google + Apple)** -- 60%+ users prefer social login; reduces signup friction
 
-## Defer to Post-MVP
+### P2: Should Ship (Polish That Matters)
 
-These are valuable but not blockers for LCP < 2.5s:
+- [ ] **Customer settings tab** -- Dietary restrictions + delivery defaults for repeat order experience
+- [ ] **Admin/driver skeleton shimmer** -- Replace `animate-pulse` with shimmer for premium feel
+- [ ] **Search fuzzy matching** -- Current `.includes()` misses typos; Burmese dish names are hard to spell
+- [ ] **Auth page animations** -- Floating food illustrations, mascot, animated transitions
+- [ ] **Error page personality** -- Mascot expressions, playful copy, animated recovery
 
-- **AVIF image format**: WebP is sufficient; AVIF decode time can hurt mobile
-- **Partial Prerendering**: Experimental in Next.js 16; requires significant testing
-- **Layout deduplication tuning**: Built-in optimization; minimal manual work needed
-- **Font subsetting**: next/font handles automatically; manual subsetting is diminishing returns
-- **Advanced bundle analysis**: Useful for monitoring, but basic analysis sufficient initially
+### P3: Nice to Have (Post-Launch)
 
-## Context: Food Delivery PWA Specifics
+- [ ] **Cancellation/refund emails** -- Important but not blocking launch
+- [ ] **Animated number counters on dashboards** -- Polish detail
+- [ ] **"Did you mean..." search suggestions** -- Edge case improvement
+- [ ] **Delivery reminder emails** -- Requires scheduling infrastructure
+- [ ] **Empty state illustrations** -- Custom SVG work needed
 
-### Likely LCP Elements by Route
+## Feature Prioritization Matrix
 
-| Route | Likely LCP Element | Optimization Priority |
-|-------|-------------------|----------------------|
-| Homepage | Hero image or restaurant card images | **CRITICAL** - highest traffic |
-| Restaurant page | Restaurant header image or menu item image | **HIGH** - conversion path |
-| Menu/Item page | Food item image | **HIGH** - conversion path |
-| Checkout | Form elements or map (Google Maps) | **MEDIUM** - text/map not image |
-| Order tracking | Map or status card | **MEDIUM** - map loaded dynamically |
+| Feature | User Value | Implementation Cost | Priority |
+|---------|------------|---------------------|----------|
+| Order confirmation email | HIGH | MEDIUM | P1 |
+| Social login (Google + Apple) | HIGH | MEDIUM | P1 |
+| Branded auth pages | HIGH | LOW | P1 |
+| Cart validation UX | HIGH | MEDIUM | P1 |
+| Branded 404/error pages | MEDIUM | LOW | P1 |
+| Customer settings tab | MEDIUM | MEDIUM | P2 |
+| Search fuzzy matching | MEDIUM | LOW | P2 |
+| Admin skeleton shimmer | LOW | LOW | P2 |
+| Auth animations (premium) | MEDIUM | MEDIUM | P2 |
+| Error page personality | LOW | LOW | P2 |
+| Cancellation/refund emails | MEDIUM | MEDIUM | P3 |
+| Dashboard number animations | LOW | LOW | P3 |
+| Search "Did you mean..." | LOW | MEDIUM | P3 |
+| Delivery reminder emails | MEDIUM | HIGH | P3 |
 
-### Animation Library Audit Needed
+## Competitor Feature Analysis
 
-With both GSAP and Framer Motion:
-- **Question 1:** Which animations run on initial page load before LCP?
-  - If none → Dynamic import both with `ssr: false`
-  - If some → Keep minimal critical animations, defer rest
-- **Question 2:** Can you consolidate to one library?
-  - GSAP: 23KB core, modular, better for complex sequences
-  - Framer Motion: 119KB fixed, React-friendly, better for declarative animations
-  - **Recommendation:** Audit usage; consider moving all to GSAP (smaller, tree-shakeable)
-
-### Google Maps Consideration
-
-Google Maps JavaScript API is ~600KB+ uncompressed:
-- If map is LCP element on any route → Major problem
-- **Solution:** Lazy load map component, show static map image as placeholder
-- Use `next/dynamic` with `ssr: false` for map component
-- Consider static map API for initial view, load interactive map after
-
-### Service Worker Already Implemented
-
-Existing service worker with caching is excellent foundation:
-- Ensure critical LCP resources (images, fonts) are cached
-- Use stale-while-revalidate for images
-- Network-first for HTML to get latest content
-- Don't cache service worker itself
-
-## Complexity Assessment
-
-| Feature Category | Effort | Risk | Impact on 8.1s → 2.5s Goal |
-|------------------|--------|------|---------------------------|
-| Remove lazy loading from LCP | 1 hour | Low | **HIGH** (likely -2-3s) |
-| Add priority/fetchpriority | 1 hour | Low | **HIGH** (likely -1-2s) |
-| Dynamic import animations | 4-8 hours | Medium | **HIGH** (likely -1-2s) |
-| Convert to Server Components | 16-40 hours | Medium | **MEDIUM** (-0.5-1s) |
-| TTFB optimization | 8-16 hours | Medium | **MEDIUM** (-0.5-1s) |
-| Streaming SSR + Suspense | 16-32 hours | High | **MEDIUM** (-0.5-1.2s) |
-| Partial Prerendering | 40+ hours | High | **HIGH** (-1-2s) but experimental |
+| Feature | DoorDash | Uber Eats | Deliveroo | Morning Star (Current) | Morning Star (v1.6 Target) |
+|---------|----------|-----------|-----------|----------------------|---------------------------|
+| Social login | Google, Apple, Facebook | Google, Apple | Google, Apple, Facebook | None | Google + Apple |
+| Auth branding | Logo + clean layout | Full-bleed image | Animated carousel | Plain text heading | Mascot + animations |
+| Order confirmation email | Rich HTML, tracking link | Rich HTML, ETA | Rich HTML, map | Stub/none | Branded React Email |
+| Cart validation | Inline badges, gray-out | Real-time sync | Inline warnings | Server errors only | Inline error display |
+| 404 page | Branded illustration | Branded illustration | Branded illustration | 3 lines of text | Mascot + navigation |
+| Settings | Notifications, dietary, defaults | Privacy, notifications | Notifications, dietary | Name + phone only | Dietary, defaults, notifications |
+| Search | Fuzzy, categories, images | AI-powered, trending | Fuzzy, filters | cmdk + includes() | Fuse.js fuzzy + categories |
+| Admin polish | N/A (merchant portal) | N/A (merchant portal) | N/A (merchant portal) | Basic pulse loading | Shimmer + micro-interactions |
 
 ## Sources
 
-### Table Stakes Evidence
-- [Optimize Largest Contentful Paint | web.dev](https://web.dev/articles/optimize-lcp)
-- [Don't lazy load Largest Contentful Paint image | GTmetrix](https://gtmetrix.com/dont-lazy-load-lcp-image.html)
-- [Google Warns: Lazy Loading Above-the-Fold Images Can Hurt LCP - Stan Ventures](https://www.stanventures.com/news/google-warns-lazy-loading-above-the-fold-images-can-hurt-lcp-4118/)
-- [How to Optimize Core Web Vitals in NextJS App Router for 2025 - Makers' Den](https://makersden.io/blog/optimize-web-vitals-in-nextjs-2025)
-- [Next.js performance tuning: practical fixes for better Lighthouse scores](https://www.qed42.com/insights/next-js-performance-tuning-practical-fixes-for-better-lighthouse-scores)
+### Auth & Social Login
+- [Supabase Social Login Docs](https://supabase.com/docs/guides/auth/social-login) -- HIGH confidence
+- [Supabase Google Login](https://supabase.com/docs/guides/auth/social-login/auth-google) -- HIGH confidence
+- [Supabase Apple Login](https://supabase.com/docs/guides/auth/social-login/auth-apple) -- HIGH confidence
+- [Passwordless Authentication Ecommerce 2026](https://www.nopaccelerate.com/passwordless-authentication-ecommerce-2026/) -- MEDIUM confidence
 
-### Differentiators Evidence
-- [Next.js 16 | Next.js Blog](https://nextjs.org/blog/next-16)
-- [I Migrated a React App to Next.js 16 and Got a 218% Performance Boost on Mobile | Medium](https://medium.com/@desertwebdesigns/i-migrated-a-react-app-to-next-js-16-and-got-a-218-performance-boost-on-mobile-8ae35ee2a739)
-- [How Suspense + Streaming + Selective Hydration Drive Next-Level Page Speed - Makers' Den](https://makersden.io/blog/suspense-streaming-selective-hydation-driving-next-level-speed-in-react-and-nextjs)
-- [React Compiler in Next.js 16: Goodbye Manual Memoization | Mikul Gohil](https://www.mikul.me/blog/react-compiler-nextjs-16-goodbye-manual-memoization)
-- [The Next.js 15 Streaming Handbook — SSR, React Suspense, and Loading Skeleton](https://www.freecodecamp.org/news/the-nextjs-15-streaming-handbook/)
+### Email Notifications
+- [Supabase + Resend Auth Email Hook](https://supabase.com/docs/guides/functions/examples/auth-send-email-hook-react-email-resend) -- HIGH confidence
+- [Resend Supabase Integration](https://resend.com/supabase) -- HIGH confidence
+- [Order Confirmation Email Best Practices - Klaviyo](https://www.klaviyo.com/blog/order-confirmation-email-tips-examples) -- MEDIUM confidence
+- [Transactional Email Best Practices 2026 - Moosend](https://moosend.com/blog/transactional-email-best-practices/) -- MEDIUM confidence
+- [Order Confirmation Emails 2026 - Moosend](https://moosend.com/blog/order-confirmation-emails/) -- MEDIUM confidence
 
-### Anti-Features Evidence
-- [Common misconceptions about how to optimize LCP | web.dev](https://web.dev/blog/common-misconceptions-lcp)
-- [How To Fix Largest Contentful Paint Image Was Lazily Loaded | DebugBear](https://www.debugbear.com/docs/lcp-lazily-loaded)
-- [7 Common Performance Mistakes in Next.js and How to Fix Them | Medium](https://medium.com/full-stack-forge/7-common-performance-mistakes-in-next-js-and-how-to-fix-them-edd355e2f9a9)
-- [10 Performance Mistakes in Next.js 16 That Are Killing Your App | Medium](https://medium.com/@sureshdotariya/10-performance-mistakes-in-next-js-16-that-are-killing-your-app-and-how-to-fix-them-2facfab26bea)
+### Cart Validation & Checkout UX
+- [Ecommerce Checkout UX Best Practices 2026 - Design Studio](https://www.designstudiouiux.com/blog/ecommerce-checkout-ux-best-practices/) -- MEDIUM confidence
+- [Baymard Food Delivery UX Research](https://baymard.com/blog/food-delivery-takeout-launch) -- HIGH confidence
+- [DoorDash Item Unavailable Help](https://help.doordash.com/dashers/s/article/Item-has-run-out-is-unavailable) -- HIGH confidence
 
-### Animation Libraries Evidence
-- [Framer Motion vs GSAP](https://www.gabrielveres.com/blog/framer-motion-vs-gsap)
-- [Web Animation for Your React App: Framer Motion vs GSAP - Semaphore](https://semaphore.io/blog/react-framer-motion-gsap)
-- [GSAP vs. Framer Motion: A Comprehensive Comparison | Medium](https://tharakasachin98.medium.com/gsap-vs-framer-motion-a-comprehensive-comparison-0e4888113825)
+### 404 & Error Pages
+- [Best 404 Pages - Digital Silk](https://www.digitalsilk.com/digital-trends/best-404-pages/) -- MEDIUM confidence
+- [404 Pages E-commerce - Amasty](https://amasty.com/blog/best-404-page-examples-in-e-commerce/) -- MEDIUM confidence
 
-### Code Splitting & Optimization Evidence
-- [Dynamic imports and code splitting with Next.js - LogRocket](https://blog.logrocket.com/dynamic-imports-code-splitting-next-js/)
-- [Optimize Next.js Performance with Smart Code Splitting | Medium](https://medium.com/@aalbertini95_90842/optimize-next-js-performance-with-smart-code-splitting-what-to-load-when-and-why-485dac08cd24)
-- [Stop the Wait: A Developer's Guide to Smashing LCP in Next.js | Medium](https://medium.com/@iamsandeshjain/stop-the-wait-a-developers-guide-to-smashing-lcp-in-next-js-634e2963f4c7)
+### Search UX
+- [Search UX Best Practices 2026 - Design Monks](https://www.designmonks.co/blog/search-ux-best-practices) -- MEDIUM confidence
+- [Food Delivery App UX Design 2025 - Medium](https://medium.com/@prajapatisuketu/food-delivery-app-ui-ux-design-in-2025-trends-principles-best-practices-4eddc91ebaee) -- LOW confidence
 
-### Font & Image Optimization Evidence
-- [Optimizing: Fonts | Next.js](https://nextjs.org/docs/14/app/building-your-application/optimizing/fonts)
-- [Core Web Vitals for React + Next.js Sites: Real Fixes That Cut LCP by 50% — Rise Marketing](https://rise.co/blog/core-web-vitals-for-react-next.js-sites-real-fixes-that-cut-lcp-by-50percent)
-- [Optimizing Next.js Performance: LCP, Render Delay & Hydration](https://www.iamtk.co/optimizing-nextjs-performance-lcp-render-delay-hydration)
+### Settings & Preferences
+- [Food Delivery App Features 2025 - HashStudioz](https://www.hashstudioz.com/blog/top-10-features-that-every-food-delivery-app-must-have/) -- MEDIUM confidence
+- [Uber Eats Account Settings](https://help.uber.com/ubereats/restaurants/section/account-settings) -- HIGH confidence
+
+---
+*Feature research for: v1.6 Production Polish*
+*Researched: 2026-02-07*
