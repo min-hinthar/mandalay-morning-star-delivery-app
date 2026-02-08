@@ -15,43 +15,61 @@ If errors occurred:
 - Add new entries only if: error spans >2 files, non-obvious root cause, or likely to recur
 - Use format: date, type, severity, files, error, root cause, fix, prevention
 
-### 2. Learnings
-Update `.claude/LEARNINGS.md` with:
-- Patterns that worked well in this codebase
-- Conventions discovered (naming, structure, data flow)
-- Gotchas or anti-patterns to avoid
-- Skip obvious/generic knowledge
+### 2. Learnings — Topic Routing
+Route new learnings to the correct topic file in `.claude/learnings/`:
 
-### 3. CLAUDE.md Updates
+| Topic area | Target file |
+|-----------|-------------|
+| Tailwind v4, CSS utilities, @theme | `tailwind-v4.md` |
+| React context, hydration, portals, Radix | `react-patterns.md` |
+| Touch, scroll lock, drawer, bottom sheet | `mobile-ux.md` |
+| Framer Motion, GSAP, stacking context | `animation.md` |
+| Route groups, redirect, Image, build | `nextjs.md` |
+| Semantic tokens, contrast, CSS vars | `design-tokens.md` |
+| Mutation owner, cart, debounce | `state-management.md` |
+| Invite flow, RLS, metadata | `supabase-auth.md` |
+| E2E, mocks, AnimatePresence | `testing.md` |
+| ESLint, build, Git casing, component org | `tooling.md` |
+| Lazy load, IntersectionObserver, willChange | `performance.md` |
+
+After adding entries:
+- Update the "Last Updated" column in `.claude/learnings/INDEX.md`
+- If a learning doesn't fit existing topics, create a new topic file and add it to INDEX.md
+
+### 3. Consolidation
+Within each modified topic file:
+- Merge overlapping entries that cover the same root cause
+- Add `**Supersedes:**` field when a new entry replaces an older, narrower one
+- Remove entries that are fully superseded
+- Keep each topic file under 400 lines
+
+### 4. Staleness Check
+Flag entries that may be stale:
+- Reference files that no longer exist in the codebase
+- Reference patterns/components that have been removed or renamed
+- Are >90 days old (check date prefix) — flag for review, don't auto-remove
+
+Report stale entries to user for decision.
+
+### 5. CLAUDE.md Updates
 If session revealed:
 - New verification commands needed
 - Additional paths worth documenting
 - MCP tool usage patterns
 - Agent strategy improvements
 
-## Entry Formats
-
-### LEARNINGS.md
+## Entry Format
 
 ```markdown
-## YYYY-MM-DD: [Brief Topic]
+## Brief Topic Title
 
 **Context:** [What was being done]
 **Learning:** [Key insight]
+
+[Code example if applicable]
+
+**Supersedes:** [Optional — reference to older entry this replaces]
 **Apply when:** [Trigger conditions]
-```
-
-### ERROR_HISTORY.md
-
-```markdown
-## YYYY-MM-DD: [Error Type]
-
-**Severity:** Low | Medium | High | Critical
-**Files:** [Affected files]
-**Error:** [Error message/symptom]
-**Root Cause:** [What actually caused it]
-**Fix:** [How resolved]
-**Prevention:** [How to avoid]
 ```
 
 ## Logging Guidelines
@@ -66,71 +84,28 @@ If session revealed:
 **Skip if:**
 - Simple typo or one-off
 - Generic/common knowledge
-- Already documented
+- Already documented in relevant topic file
 - Temporary workaround
 
 ## Quick Checklist
 
 - [ ] Check ERROR_HISTORY.md before logging (avoid duplicates)
-- [ ] Check LEARNINGS.md before logging (avoid duplicates)
-- [ ] Use terse, imperative language
-- [ ] Include when to apply the learning
-- [ ] Consider if pattern warrants skill update
-
----
-
-## Additional Resources
-
-### Reference Files
-
-For detailed guidance:
-- **`references/logging-triggers.md`** — What to log, when, and format details
-- **`references/skill-evolution.md`** — When to update skills vs log learnings
-- **`references/meta-learning.md`** — Reflection questions, retrospective templates
-
-### Scripts
-
-Utility scripts in `scripts/`:
-- **`validate-learnings.sh`** — Check for duplicates and stale entries
-
----
+- [ ] Scan `.claude/learnings/INDEX.md` for existing topic coverage
+- [ ] Route to correct topic file (see table above)
+- [ ] Update INDEX.md "Last Updated" column
+- [ ] Consolidate overlapping entries in modified files
+- [ ] Flag stale entries for review
+- [ ] Keep topic files under 400 lines
 
 ## Quick Reference
 
-### What to Log
+### What to Log Where
 
 | Category | Example | Destination |
 |----------|---------|-------------|
-| Hook/API quirk | `estimatedTotal` not `total` | LEARNINGS.md |
-| Path convention | `layouts/` vs `layout/` | LEARNINGS.md |
-| Type pattern | `as const` for variants | LEARNINGS.md |
-| Route conflict | Dynamic segment collision | ERROR_HISTORY.md |
-| Auth bypass | RLS exception needed | ERROR_HISTORY.md |
-| Import issue | Path resolution mismatch | ERROR_HISTORY.md |
-
-### Skill Update Triggers
-
-| If pattern... | Then update... |
-|---------------|----------------|
-| Motion/animation | frontend-design |
-| Question revealed scope | prd-clarify |
-| State/affordance | prd-ux |
-| Prompt structure | ux-prompts |
-| Verification command | CLAUDE.md |
-
-### Common Patterns to Watch
-
-**TypeScript/React:**
-- File casing (case-sensitive imports)
-- Framework namespace changes
-- Instrumentation patterns
-
-**Testing:**
-- Browser API mocks (ResizeObserver, matchMedia)
-- Exact matching requirements
-- Avoid class-based assertions
-
-**Build/Config:**
-- Version mismatches
-- Path alias resolution
-- Environment-specific behavior
+| Hook/API quirk | `estimatedTotal` not `total` | Topic file in `learnings/` |
+| Path convention | `layouts/` vs `layout/` | `learnings/tooling.md` |
+| Type pattern | `as const` for variants | `learnings/react-patterns.md` |
+| Route conflict | Dynamic segment collision | `ERROR_HISTORY.md` |
+| Auth bypass | RLS exception needed | `ERROR_HISTORY.md` |
+| Import issue | Path resolution mismatch | `ERROR_HISTORY.md` |
