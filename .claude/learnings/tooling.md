@@ -70,3 +70,6 @@ Google Fonts 403 errors in sandboxed environments are infrastructure issues, not
 | Dialog (Radix) | Admin forms |
 
 They share hooks (`useBodyScrollLock`, `useSwipeToClose`) but are architecturally separate. Fix shared hooks (affects all) vs component-specific code (affects one).
+
+
+> **GSD Patch Persistence & Agent Teams:** Moved to global learnings at `~/.claude/learnings/gsd-workflow.md` (cross-project patterns).

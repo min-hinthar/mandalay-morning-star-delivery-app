@@ -7,7 +7,9 @@
   "agent_teams": {
     "research": true,
     "execution": false,
-    "debug": true
+    "debug": true,
+    "map_codebase": true,
+    "verify_work": true
   },
   "workflow": {
     "research": true,
