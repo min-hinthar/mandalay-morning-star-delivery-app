@@ -54,7 +54,7 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
       {/* Confetti celebration */}
       <ConfettiComponent particleCount={30} duration={2.5} />
 
-      <div className="min-h-screen bg-gradient-to-b from-cream to-lotus/30 py-12 px-4">
+      <div className="min-h-screen bg-gradient-to-b from-surface-secondary to-primary/5 py-12 px-4">
         <div className="mx-auto max-w-2xl">
           {/* Success Checkmark Animation */}
           <m.div
@@ -63,7 +63,7 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
             transition={getSpring(spring.ultraBouncy)}
             className="flex justify-center mb-6"
           >
-            <div className="rounded-full bg-green-100 dark:bg-green-900/30 p-6 shadow-lg">
+            <div className="rounded-full bg-status-success-bg p-6 shadow-lg">
               <SuccessCheckmark show={true} size={64} variant="default" />
             </div>
           </m.div>
@@ -75,13 +75,13 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
             transition={{ delay: 0.3, ...getSpring(spring.default) }}
             className="text-center mb-8"
           >
-            <h1 className="text-3xl font-display text-charcoal mb-2">
+            <h1 className="text-3xl font-display text-text-primary mb-2">
               Order Confirmed!
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-text-muted">
               Thank you for your order. We&apos;ll start preparing it for Saturday delivery.
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-text-muted">
               Order #{order.id.slice(0, 8).toUpperCase()}
             </p>
           </m.div>
@@ -111,7 +111,7 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                           <span className="font-medium">{item.quantity}x</span>{" "}
                           {item.nameSnapshot}
                           {item.modifiers.length > 0 && (
-                            <span className="text-muted-foreground ml-1">
+                            <span className="text-text-muted ml-1">
                               ({item.modifiers.map(m => m.nameSnapshot).join(", ")})
                             </span>
                           )}
@@ -124,11 +124,11 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                   {/* Totals */}
                   <div className="border-t pt-4 space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Subtotal</span>
+                      <span className="text-text-muted">Subtotal</span>
                       <span>{formatPrice(order.subtotalCents)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Delivery Fee</span>
+                      <span className="text-text-muted">Delivery Fee</span>
                       <span>
                         {order.deliveryFeeCents === 0 ? (
                           <span className="text-accent-secondary">FREE</span>
@@ -139,13 +139,13 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                     </div>
                     {order.taxCents > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Tax</span>
+                        <span className="text-text-muted">Tax</span>
                         <span>{formatPrice(order.taxCents)}</span>
                       </div>
                     )}
                     <div className="flex justify-between font-medium text-lg pt-2 border-t">
                       <span>Total</span>
-                      <span className="text-accent-tertiary">{formatPrice(order.totalCents)}</span>
+                      <span className="text-text-money">{formatPrice(order.totalCents)}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -164,9 +164,9 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                     <Clock className="h-5 w-5 text-interactive" />
                   </div>
                   <div>
-                    <p className="font-medium text-charcoal">Delivery Time</p>
-                    <p className="text-sm text-muted-foreground">{deliveryDate}</p>
-                    <p className="text-sm text-muted-foreground">{deliveryTime}</p>
+                    <p className="font-medium text-text-primary">Delivery Time</p>
+                    <p className="text-sm text-text-muted">{deliveryDate}</p>
+                    <p className="text-sm text-text-muted">{deliveryTime}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -178,16 +178,16 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                     <MapPin className="h-5 w-5 text-accent-tertiary" />
                   </div>
                   <div>
-                    <p className="font-medium text-charcoal">Delivery Address</p>
+                    <p className="font-medium text-text-primary">Delivery Address</p>
                     {order.address ? (
                       <>
-                        <p className="text-sm text-muted-foreground">{order.address.line1}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-text-muted">{order.address.line1}</p>
+                        <p className="text-sm text-text-muted">
                           {order.address.city}, {order.address.state} {order.address.postalCode}
                         </p>
                       </>
                     ) : (
-                      <p className="text-sm text-muted-foreground">Address on file</p>
+                      <p className="text-sm text-text-muted">Address on file</p>
                     )}
                   </div>
                 </CardContent>
@@ -217,10 +217,10 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
             initial={shouldAnimate ? { opacity: 0 } : undefined}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
-            className="text-center text-sm text-muted-foreground mt-8"
+            className="text-center text-sm text-text-muted mt-8"
           >
             Questions about your order?{" "}
-            <a href="mailto:support@mandalaymorningstar.com" className="text-accent-tertiary hover:underline">
+            <a href="mailto:support@mandalaymorningstar.com" className="text-primary hover:underline">
               Contact us
             </a>
           </m.p>
