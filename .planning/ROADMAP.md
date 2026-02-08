@@ -91,12 +91,15 @@ Plans:
   3. Customer can set default delivery instructions that persist across orders
   4. Customer can toggle email notification preferences per type (order updates, promotions, reminders)
   5. Customer's theme preference persists across sessions and devices
-**Plans**: TBD
-**Notes**: Use /frontend-design skill. Settings UI follows existing ProfileTab pattern (useState + fetch, not Zustand). Language preference (SETT-04) affects menu display.
+**Plans**: 5 plans
+**Notes**: Use /frontend-design skill. Settings UI follows existing ProfileTab pattern (useState + fetch, not Zustand). SETT-04 (language preference) deferred to future phase.
 
 Plans:
-- [ ] 51-01: TBD
-- [ ] 51-02: TBD
+- [ ] 51-01-PLAN.md — API route + Zod schemas + settings types
+- [ ] 51-02-PLAN.md — AccountClient restructure (3 tabs) + SettingsTab container + useCustomerSettings hook
+- [ ] 51-03-PLAN.md — Preferences section (dietary chips + custom allergies) + Notifications section (expandable cards)
+- [ ] 51-04-PLAN.md — Display section (theme selector + font size + animation/sound toggles) + localStorage hooks
+- [ ] 51-05-PLAN.md — Checkout dietary summary card + SettingsNudgeBanner deep-link + full verification
 
 ### Phase 52: Cart Validation & Cart Page
 **Goal**: Cart reflects reality -- stale items are flagged, prices are current, and the cart page is fully functional
@@ -209,7 +212,7 @@ Phases execute in numeric order: 48 -> 49 -> 50 -> 51 -> 52 -> 53 -> 54 -> 55 ->
 | 48. Error Boundaries & Loading States | v1.6 | 2/2 | Complete | 2026-02-08 |
 | 49. Branded 404 & Error Pages | v1.6 | 2/2 | Complete | 2026-02-08 |
 | 50. Data Foundation & Admin Settings | v1.6 | 4/4 | Complete | 2026-02-08 |
-| 51. Customer Settings | v1.6 | 0/2 | Not started | - |
+| 51. Customer Settings | v1.6 | 0/5 | Not started | - |
 | 52. Cart Validation & Cart Page | v1.6 | 0/2 | Not started | - |
 | 53. Auth Experience | v1.6 | 0/3 | Not started | - |
 | 54. Email System | v1.6 | 0/3 | Not started | - |
