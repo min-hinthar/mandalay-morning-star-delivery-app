@@ -453,7 +453,7 @@ Comprehensive audit for memory leaks and crash patterns found 0 critical issues.
 ## 2026-01-26: Double-Add Cart Items (Button + Callback Both Mutate)
 **Type:** Logic | **Severity:** High
 
-**Files:** `src/components/ui-v8/cart/AddToCartButton.tsx`, `src/components/ui-v8/menu/MenuContentV8.tsx`, `src/components/homepage/HomepageMenuSection.tsx`
+**Files:** `src/components/ui/cart/AddToCartButton.tsx`, `src/components/ui/menu/MenuContentClient.tsx`, `src/components/homepage/HomepageMenuSection.tsx`
 
 **Error:** Menu items with required modifiers added to cart with quantity 2 instead of 1. User selects one item, cart shows two.
 

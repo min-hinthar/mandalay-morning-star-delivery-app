@@ -13,7 +13,7 @@ Consolidated knowledge from working on this codebase. Scan this file first, then
 | State Management | `state-management.md` | Single mutation owner; cart deduplication; store-level debounce | 2026-01-29 |
 | Supabase Auth | `supabase-auth.md` | generateLink vs inviteUserByEmail; RLS JWT claims; metadata staleness; callback context | 2026-02-04 |
 | Testing | `testing.md` | E2E DOM removal for AnimatePresence; cmdk state binding | 2026-01-25 |
-| Tooling | `tooling.md` | Git case rename; barrel cleanup; ESLint guards; component organization; build network errors | 2026-01-27 |
+| Tooling | `tooling.md` | Git case rename; barrel cleanup; ESLint guards; component organization | 2026-02-08 |
 | Performance | `performance.md` | Lazy load below-fold; IntersectionObserver pause; willChange on interaction; tree-shaking | 2026-01-29 |
 
 ## Usage
