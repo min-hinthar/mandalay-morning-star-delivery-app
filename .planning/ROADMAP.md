@@ -19,7 +19,7 @@ Final production-readiness pass before public launch. Ten phases covering safety
 ### Phases
 
 - [x] **Phase 48: Error Boundaries & Loading States** - Safety net for all route segments
-- [ ] **Phase 49: Branded 404 & Error Pages** - Premium error UX with mascot and navigation
+- [x] **Phase 49: Branded 404 & Error Pages** - Premium error UX with mascot and navigation
 - [ ] **Phase 50: Data Foundation & Admin Settings** - DB migration + admin settings backend/UI
 - [ ] **Phase 51: Customer Settings** - Settings page with dietary, delivery, notification preferences
 - [ ] **Phase 52: Cart Validation & Cart Page** - Hydration-aware validation + full cart page
@@ -59,8 +59,8 @@ Plans:
 **Notes**: Use /frontend-design skill for component creation. CSS-only animations carry over from Phase 48 constraint.
 
 Plans:
-- [ ] 49-01-PLAN.md — Create shared error page components (ErrorPageShell, FloatingFoodEmojis, ErrorMascot, NavigationCardGrid) + CSS keyframes
-- [ ] 49-02-PLAN.md — Assemble branded not-found.tsx pages (root, admin, driver) + upgrade RouteError with food-themed personality
+- [x] 49-01-PLAN.md — Create shared error page components (ErrorPageShell, FloatingFoodEmojis, ErrorMascot, NavigationCardGrid) + CSS keyframes
+- [x] 49-02-PLAN.md — Assemble branded not-found.tsx pages (root, admin, driver) + upgrade RouteError with food-themed personality
 
 ### Phase 50: Data Foundation & Admin Settings
 **Goal**: Settings infrastructure exists in the database and admin can manage operational settings through the app
@@ -205,7 +205,7 @@ Phases execute in numeric order: 48 -> 49 -> 50 -> 51 -> 52 -> 53 -> 54 -> 55 ->
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 48. Error Boundaries & Loading States | v1.6 | 2/2 | Complete | 2026-02-08 |
-| 49. Branded 404 & Error Pages | v1.6 | 0/2 | Not started | - |
+| 49. Branded 404 & Error Pages | v1.6 | 2/2 | Complete | 2026-02-08 |
 | 50. Data Foundation & Admin Settings | v1.6 | 0/2 | Not started | - |
 | 51. Customer Settings | v1.6 | 0/2 | Not started | - |
 | 52. Cart Validation & Cart Page | v1.6 | 0/2 | Not started | - |
