@@ -31,7 +31,8 @@
 | Task | Model |
 |------|-------|
 | Architecture, refactors, multi-file logic | Most capable (Opus) |
-| Boilerplate, tests, docs, lint fixes | Fast model (Haiku) |
+| Boilerplate, tests, docs, lint fixes | Sonnet (not Haiku) |
+| Subagents (Explore, Plan, Research) | Inherit parent model (see global CLAUDE.md) |
 
 ## Context Hygiene
 - `/compact` at 50% context usage
