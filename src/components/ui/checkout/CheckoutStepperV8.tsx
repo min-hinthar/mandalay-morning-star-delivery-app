@@ -91,8 +91,8 @@ export function CheckoutStepperV8({
                         width: isCompleted || isCurrent ? "100%" : "0%",
                         // --shadow-glow-success equivalent, kept numeric for FM interpolation
                         boxShadow: isCompleted || isCurrent
-                          ? "0 0 8px rgba(34, 197, 94, 0.5)"
-                          : "0 0 0px rgba(34, 197, 94, 0)",
+                          ? "0 0 8px rgba(61, 139, 34, 0.5)"
+                          : "0 0 0px rgba(61, 139, 34, 0)",
                       }}
                       transition={getSpring(spring.rubbery)}
                     />
@@ -183,8 +183,8 @@ export function CheckoutStepperV8({
                         width: isCompleted ? "100%" : "0%",
                         // --shadow-glow-success equivalent, kept numeric for FM interpolation
                         boxShadow: isCompleted
-                          ? "0 0 8px rgba(34, 197, 94, 0.5)"
-                          : "0 0 0px rgba(34, 197, 94, 0)",
+                          ? "0 0 8px rgba(61, 139, 34, 0.5)"
+                          : "0 0 0px rgba(61, 139, 34, 0)",
                       }}
                       transition={getSpring(spring.rubbery)}
                     />

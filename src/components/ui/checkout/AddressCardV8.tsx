@@ -49,7 +49,7 @@ export function AddressCardV8({
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         isSelected
           ? "border-primary bg-primary/5"
-          : "border-border bg-card hover:border-primary/50"
+          : "border-border bg-surface-primary hover:border-primary/50"
       )}
     >
       {/* Selection indicator */}
@@ -77,19 +77,19 @@ export function AddressCardV8({
         <div
           className={cn(
             "p-2 rounded-lg transition-colors",
-            isSelected ? "bg-primary/10" : "bg-muted"
+            isSelected ? "bg-primary/10" : "bg-surface-secondary"
           )}
         >
           <MapPin
             className={cn(
               "w-5 h-5",
-              isSelected ? "text-primary" : "text-muted-foreground"
+              isSelected ? "text-primary" : "text-text-muted"
             )}
           />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="font-medium text-foreground">{address.label}</p>
+            <p className="font-medium text-text-primary">{address.label}</p>
             {address.isDefault && (
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
                 <Star className="h-3 w-3 fill-current" />
@@ -97,15 +97,15 @@ export function AddressCardV8({
               </span>
             )}
           </div>
-          <p className="text-sm text-muted-foreground truncate">
+          <p className="text-sm text-text-muted truncate">
             {address.line1}
           </p>
           {address.line2 && (
-            <p className="text-sm text-muted-foreground truncate">
+            <p className="text-sm text-text-muted truncate">
               {address.line2}
             </p>
           )}
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-text-muted">
             {address.city}, {address.state} {address.postalCode}
           </p>
         </div>
@@ -121,7 +121,7 @@ export function AddressCardV8({
                 e.stopPropagation();
                 onEdit();
               }}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-xs text-text-muted hover:text-text-primary transition-colors"
             >
               <Pencil className="w-3 h-3" />
               Edit

@@ -71,13 +71,13 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
   return (
     <div
       className={cn(
-        "sticky top-4 overflow-hidden rounded-xl border border-border bg-card shadow-lg",
+        "overflow-hidden rounded-xl border border-border bg-surface-primary shadow-lg",
         className
       )}
     >
       {/* Header */}
       <div className="border-b border-border bg-gradient-to-r from-primary/5 to-transparent px-5 py-4">
-        <h3 className="flex items-center gap-2 font-bold text-foreground">
+        <h3 className="flex items-center gap-2 font-bold text-text-primary">
           <ShoppingBag className="h-5 w-5 text-primary" />
           Order Summary
         </h3>
@@ -118,17 +118,17 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                     >
                       {item.quantity}
                     </m.span>
-                    <span className="font-medium text-foreground truncate">
+                    <span className="font-medium text-text-primary truncate">
                       {item.nameEn}
                     </span>
                   </div>
                   {item.modifiers.length > 0 && (
-                    <p className="mt-1 text-xs text-muted-foreground truncate pl-6">
+                    <p className="mt-1 text-xs text-text-muted truncate pl-6">
                       {item.modifiers.map((m) => m.optionName).join(", ")}
                     </p>
                   )}
                 </div>
-                <span className="font-semibold text-foreground flex-shrink-0">
+                <span className="font-semibold text-text-primary flex-shrink-0">
                   <PriceTicker value={itemTotal} inCents={true} size="sm" />
                 </span>
               </m.li>
@@ -138,7 +138,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
       </m.ul>
 
       {/* Totals */}
-      <div className="border-t border-border bg-muted/20 px-5 py-4 space-y-3">
+      <div className="border-t border-border bg-surface-secondary/80 px-5 py-4 space-y-3">
         {/* Free delivery progress indicator */}
         {!hasFreeDelivery && (
           <m.div
@@ -227,7 +227,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           variants={shouldAnimate ? summaryRowVariants : undefined}
           initial={shouldAnimate ? "hidden" : undefined}
           animate={shouldAnimate ? "visible" : undefined}
-          className="flex justify-between text-sm text-muted-foreground"
+          className="flex justify-between text-sm text-text-muted"
         >
           <span>Subtotal</span>
           <PriceTicker value={itemsSubtotal} inCents={true} size="sm" className="text-text-money" />
@@ -239,7 +239,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           initial={shouldAnimate ? "hidden" : undefined}
           animate={shouldAnimate ? "visible" : undefined}
           transition={{ delay: 0.05 }}
-          className="flex justify-between text-sm text-muted-foreground"
+          className="flex justify-between text-sm text-text-muted"
         >
           <span className="flex items-center gap-1.5">
             <Truck className="h-3.5 w-3.5" />
@@ -271,7 +271,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           transition={{ delay: 0.1 }}
           className="flex justify-between items-center"
         >
-          <span className="text-base font-bold text-foreground">
+          <span className="text-base font-bold text-text-primary">
             Estimated Total
           </span>
           <PriceTicker
@@ -282,7 +282,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           />
         </m.div>
 
-        <p className="text-xs text-muted-foreground text-center">
+        <p className="text-xs text-text-muted text-center">
           Tax calculated at checkout
         </p>
       </div>

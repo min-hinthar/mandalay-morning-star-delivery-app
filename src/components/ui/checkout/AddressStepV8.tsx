@@ -164,11 +164,11 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
       <m.div variants={shouldAnimate ? staggerItem : undefined}>
         <div className="flex items-center gap-2 mb-1">
           <MapPin className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-lg font-semibold text-foreground">
+          <h2 className="font-display text-lg font-semibold text-text-primary">
             Delivery Address
           </h2>
         </div>
-        <p className="font-body text-sm text-muted-foreground">
+        <p className="font-body text-sm text-text-muted">
           Select or add a delivery address
         </p>
       </m.div>
@@ -225,8 +225,8 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
           variants={shouldAnimate ? staggerItem : undefined}
           className="text-center py-8 px-4 rounded-xl border border-dashed border-border"
         >
-          <MapPin className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">
+          <MapPin className="h-8 w-8 text-text-muted mx-auto mb-2" />
+          <p className="text-sm text-text-muted">
             No saved addresses yet
           </p>
         </m.div>
