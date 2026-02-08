@@ -1,267 +1,198 @@
-# Project Research Summary: v1.5 Performance & Repo Health
+# Project Research Summary
 
-**Project:** Mandalay Morning Star Delivery App
-**Domain:** LCP Optimization (8.1s to <2.5s) for Animation-Heavy Next.js 16 PWA
-**Researched:** 2026-02-05
+**Project:** Mandalay Morning Star Delivery App -- v1.6 Production Polish
+**Domain:** Meal delivery PWA -- production polish before public launch
+**Researched:** 2026-02-07
 **Confidence:** HIGH
 
 ## Executive Summary
 
-Reducing LCP from 8.1s to <2.5s requires zero new dependencies and zero stack changes. The current stack (Next.js 16.1.2, React 19.2.3, GSAP 3.14.2, Framer Motion 12.26.1) has native capabilities that are underutilized: React Compiler for automatic memoization, `next/dynamic` for code splitting, and `optimizePackageImports` for tree-shaking. The root cause is JavaScript execution blocking render — 275 out of 275 components are marked "use client" when only ~60 need it. Enable React Compiler, convert non-interactive components to Server Components, and dynamically import Recharts (180KB) and Google Maps (120KB) on applicable routes.
+v1.6 is a production polish milestone for an existing, functionally complete meal delivery PWA built on Next.js 16, React 19, Supabase, Stripe, and Framer Motion. The app already works -- orders flow end-to-end, drivers deliver, admins manage. What is missing is the professional finish: branded auth pages, order confirmation emails, cart validation UX, customer settings, error/loading coverage, a proper 404 page, and driver offline sync robustness. The existing stack covers ~97% of what is needed; only 3 new server-side packages are required (resend, @react-email/components, @react-email/render) with zero client bundle impact.
 
-The recommended approach prioritizes high-impact, low-risk changes first: (1) LCP element optimization (remove lazy loading, add `priority`), (2) Server Component conversions for data-fetching pages, (3) dynamic imports for admin-only and route-specific heavy libraries, (4) provider refactoring to remove cart from non-customer routes. Animation libraries (GSAP, Framer Motion) should NOT be dynamically imported — GSAP's centralized pattern prevents ScrollTrigger memory leaks, and Framer Motion is already tree-shaken via `optimizePackageImports`.
+The recommended approach is infrastructure-first, polish-last. Error boundaries and loading states should be added before any feature work to prevent regressions from masking behind white screens. The customer settings DB migration must precede email notification work since email preferences depend on it. Cart validation and auth form animations are independent and can be parallelized. Driver offline sync enhancement is the highest-risk item due to dual-queue architecture (Zustand localStorage + IndexedDB) and should come late when the codebase is stable. Visual polish (skeleton shimmer, micro-interactions, number counters) should be the final phase -- the error history shows animation refactoring has caused production regressions before (mobile crashes from timer cleanup, 2026-01-29/30).
 
-Key risks are ScrollTrigger memory leaks on route changes (mitigate with `useGSAP` hook cleanup), hydration blocking from animation initialization (defer non-critical animations with `requestIdleCallback`), and barrel import performance cliffs (already mitigated in next.config.ts). Adding Lighthouse CI for performance regression testing in CI prevents LCP from regressing after optimization.
-
----
+The top risks are: (1) Zustand hydration race conditions breaking cart validation on fresh page loads, (2) Stripe webhook duplicate processing when adding new email notifications, (3) animation additions breaking focus management in auth forms, and (4) dual offline sync queues causing duplicate driver status updates. All four have documented prevention strategies in PITFALLS.md. The project's existing patterns (RouteError component, Zustand persist, Framer Motion AnimatePresence) provide strong templates to follow -- the key is following them consistently rather than inventing new patterns.
 
 ## Key Findings
 
 ### Recommended Stack
 
-No major additions needed. Enable underutilized native features and add monitoring.
+The existing stack is nearly complete. Three new server-only packages are needed for email templating. Everything else -- auth animations, settings page, cart validation, 404 page, command palette enhancements, driver sync retry -- uses libraries already installed.
 
-**Enable (native, zero-install):**
-- **React Compiler:** `reactCompiler: true` in next.config.ts — automatic memoization, reduces re-renders
-- **next/dynamic:** Already available — defer Recharts, Google Maps, modals
-- **next/script lazyOnload:** Already available — defer third-party scripts (Google Maps API, analytics)
-- **next/font with display: swap:** Already available — eliminate font-blocking LCP delay
+**New dependencies (install):**
+- `resend` (^6.9.1): Email sending from Next.js API routes -- SDK for already-used Resend API
+- `@react-email/components` (^1.0.7): React-based email templates -- replaces raw HTML in Edge Functions
+- `@react-email/render` (^2.0.4): Server-side React-to-HTML rendering for email
 
-**Add (minimal dependencies):**
-- **react-intersection-observer (^9.15.0):** Viewport-based loading for Google Maps — delays 3.86 MB until visible
-- **@lhci/cli (dev dependency):** Lighthouse CI for performance regression testing — enforces LCP <2.5s budget
+**Existing stack (no installs):**
+- `framer-motion` (12.26.1): Auth animations, 404 page, error transitions -- already used in 174 files
+- `zustand` (5.0.10): Customer preferences store, cart validation state -- already used for cart/driver
+- `cmdk` (1.1.1): Command palette enhancements -- already integrated
+- `serwist` (9.5.4): Driver offline sync retry via built-in BackgroundSyncQueue -- already installed
+- `react-hook-form` + `zod`: Settings form validation -- already wired
 
-**DO NOT ADD:**
-- Million.js — compatibility issues with Next.js 16, last release May 2024
-- Partytown — unsupported with App Router, Pages Router only
-- Preact — React 19 features unsupported, risky migration
+**What NOT to add:** nodemailer (no delivery tracking), lottie-react (45KB for one page), react-i18next (premature), web-push (no push system exists), idb (custom IndexedDB already works).
 
-### Expected Features (LCP-Specific)
+**Client bundle impact: 0KB.** All new packages are server-only.
 
-**Must have (table stakes for <2.5s):**
-- Remove lazy loading from LCP element (hero/menu images)
-- Add `priority={true}` and `fetchpriority="high"` to LCP images
-- Eliminate render-blocking JavaScript on critical path
-- Use React Server Components for data fetching (default, not overridden)
-- Code split non-critical components (modals, animations, charts)
+### Expected Features
 
-**Should have (push toward <1.5s):**
-- Streaming SSR with Suspense for slow components
-- Selective hydration via Suspense boundaries
-- React Compiler automatic memoization
-- Framer Motion LazyMotion (32KB to ~19KB)
+**Must have (table stakes):**
+- Branded auth pages with logo/mascot -- current plain text looks like a prototype
+- Order confirmation email -- highest-opened transactional email type (>70% open rate)
+- Cart validation UX -- backend validates but user sees cryptic errors
+- Branded 404/error pages -- current 404 is 3 lines of text
+- Social login (Google + Apple) -- 60%+ users prefer it; Supabase supports natively
+- Error boundaries and loading states for all route segments -- 4 route groups have gaps
+
+**Should have (differentiators):**
+- Customer settings tab (dietary restrictions, delivery defaults, notification preferences)
+- Admin/driver skeleton shimmer (replace basic `animate-pulse`)
+- Search fuzzy matching (current `.includes()` misses typos on Burmese dish names)
+- Premium auth animations (floating food illustrations, mascot, animated transitions)
+- Cancellation/refund notification emails
 
 **Defer (v2+):**
-- Partial Prerendering (PPR) — experimental, requires significant testing
-- AVIF image format — WebP sufficient, AVIF decode slower on mobile
-- Advanced font subsetting — next/font handles automatically
+- Full i18n framework -- menu is already bilingual, UI chrome in English is fine for LA market
+- Real-time cart sync via WebSocket -- weekly menu model means prices rarely change mid-week
+- Push notifications -- no infrastructure exists; email covers v1.6
+- Chat support widget -- 200KB+ JS, hurts LCP; support email suffices
+- Password-based auth -- magic link + social is more secure and lower support burden
 
 ### Architecture Approach
 
-The architecture centers on reducing initial JavaScript by 600KB+ through Server Component conversions (275 to ~60 "use client" files) and route-based dynamic imports. Heavy libraries are isolated to their route groups: Recharts (180KB) to admin analytics, Google Maps (120KB) to tracking page. Cart components move from global providers to customer/public route layouts, removing ~60KB from admin/driver/auth routes.
+All 7 features integrate with the existing architecture without structural changes. The app uses route groups ((public), (auth), (customer), (admin), (driver)) for bundle isolation, Zustand stores with localStorage/IndexedDB for client persistence, and Supabase Edge Functions for server-side email. New features follow established patterns: settings tab follows `ProfileTab` (useState + fetch, not Zustand), cart validation is a single mount-only hook, email preferences are checked inside Edge Functions, and error/loading files use existing `RouteError`/`RouteLoading` components.
 
-**Code splitting strategy:**
-1. **GSAP (30KB):** Keep eager-loaded, centralized in `lib/gsap/index.ts` — prevents ScrollTrigger memory leaks
-2. **Framer Motion (150KB to 40KB):** Keep `optimizePackageImports` — already tree-shaken, used globally
-3. **Recharts (180KB):** Dynamic import via existing LazyCharts wrapper — admin-only, <5% traffic
-4. **Google Maps (120KB):** Partial dynamic import — map deferred, autocomplete stays eager (checkout critical)
+**Major components:**
+1. **Customer Settings** -- new `customer_settings` table + API route + SettingsTab component (follows ProfileTab pattern exactly)
+2. **Email Notifications** -- extend existing Edge Functions with preference checks; new React Email templates for refund/cancel
+3. **Cart Validation** -- new `useCartValidation` hook comparing persisted cart against live menu on page mount
+4. **Driver Offline Sync** -- add exponential backoff (1s/2s/4s, max 3 retries) + 30s periodic retry to existing sync.ts
+5. **Error/Loading Coverage** -- ~13 new trivial files (3-6 lines each) using existing RouteError/RouteLoading
+6. **Auth Form Upgrade** -- animation additions to existing LoginForm/SignupForm (no structural changes)
+7. **404 Page** -- single file redesign with branded layout, navigation links
 
-**Provider refactoring:**
-- Move CartBar, CartDrawer, FlyToCart from global providers.tsx to (customer) and (public) route layouts
-- Removes ~60KB from /admin, /driver, /auth routes where cart is unnecessary
+**Total new files: ~20. Modified files: ~10.**
 
 ### Critical Pitfalls
 
-1. **Over-marking with "use client"** — 275/275 files currently marked. Push boundaries to leaf components. Each "use client" adds an entry point to client bundle. Impact: 1-3s LCP reduction possible.
+1. **Cart validation race condition on Zustand hydration** -- Validation fires before persist middleware finishes loading from localStorage, sees empty cart. **Avoid:** Add `_hydrated` flag via `onRehydrateStorage` callback; gate validation behind it.
 
-2. **GSAP ScrollTrigger memory leaks** — ScrollTrigger instances not cleaned up on App Router navigation. Use `useGSAP` hook with cleanup function. Never dynamically import GSAP.
+2. **Stripe webhook duplicate processing** -- Stripe retries on timeout, Edge Function cold starts cause 1-3s delays, duplicate emails sent. **Avoid:** Store processed `event.id` in a table with UNIQUE constraint before processing; skip if already exists.
 
-3. **Hydration blocking animations** — GSAP/Framer Motion initialization during hydration blocks main thread 300-1000ms. Defer non-critical animations with `requestIdleCallback`. Phase animations: critical first, decorative delayed.
+3. **Auth animation breaking focus management** -- Framer Motion `AnimatePresence` removes DOM elements during exit, focus gets lost, autofill popups misaligned. **Avoid:** Use `onExitComplete` for focus management; keep inputs in DOM (animate opacity, not mount/unmount); test with `prefers-reduced-motion`.
 
-4. **Barrel import performance cliff** — Importing from barrel files (e.g., lucide-react) forces parsing thousands of modules. Already mitigated via `optimizePackageImports` in next.config.ts. Verify GSAP plugins use direct imports.
+4. **Driver offline sync duplicate status updates** -- Two separate queues (Zustand localStorage + IndexedDB) can fire simultaneously, both replaying the same actions. **Avoid:** Consolidate to one queue; add idempotency keys; mark items "syncing" before sending; process sequentially.
 
-5. **Lazy loading LCP images** — Adding `loading="lazy"` to hero images delays LCP by 500-2000ms. Use `priority={true}` on hero/menu images. Reserve lazy loading for below-fold only.
+5. **Error boundaries not catching layout errors** -- `error.tsx` wraps `page.tsx` but layout wraps the error boundary. Layout errors go uncaught. **Avoid:** Place error boundaries at parent level of layouts to protect; never rely solely on error boundaries for event handler errors.
 
-6. **Framer Motion bundle size explosion** — 32KB minimum regardless of usage. Already mitigated via `optimizePackageImports` (150KB to 40KB). For further reduction, use LazyMotion pattern.
-
-7. **Dynamic import without SSR disabled** — GSAP/Framer Motion require browser APIs. Always use `ssr: false` for animation components. Otherwise: "window is not defined" errors.
-
----
+6. **Polish pass regressions** -- Restructuring animated components breaks GSAP cleanup, React Compiler optimizations, and AnimatePresence hierarchies. **Avoid:** Playwright visual snapshots before touching any animated component; run typecheck after every change; polish phase comes LAST.
 
 ## Implications for Roadmap
 
-Based on research, suggested 5-phase structure for LCP optimization:
+Based on research, suggested phase structure:
 
-### Phase 1: LCP Element Quick Wins (Est. 8.1s to 4-5s)
+### Phase 1: Safety Net (Error Boundaries + Loading States + 404)
 
-**Rationale:** Highest impact, lowest risk. Addresses table stakes that directly affect LCP measurement.
+**Rationale:** These are zero-risk, zero-dependency additions that prevent white screens during all subsequent development. Adding error boundaries first means any bug introduced in later phases surfaces as a styled error page, not a blank screen. Approximately 13 files, each 3-6 lines.
+**Delivers:** Complete error/loading coverage for all route segments; branded 404 page
+**Addresses:** Error boundary coverage gaps (FEATURES P1), branded 404 (FEATURES P1)
+**Avoids:** Pitfall 4 (error boundaries not catching layout errors) -- place boundaries at correct hierarchy levels
 
-**Delivers:**
-- Properly prioritized LCP images
-- Removed lazy loading from above-fold content
-- Verified next/image and next/font configuration
+### Phase 2: Data Foundation (Customer Settings Migration + API)
 
-**Actions:**
-- Audit homepage and menu pages for LCP element
-- Add `priority={true}` and `fetchpriority="high"` to LCP images
-- Remove `loading="lazy"` from hero/above-fold images
-- Verify `display: 'swap'` on next/font configuration
+**Rationale:** The `customer_settings` table is a dependency for email notification preferences (Phase 4). Must exist before email work begins. DB migration + API route + validation schema -- no UI yet.
+**Delivers:** `customer_settings` table with RLS, GET/PATCH API route, Zod schema
+**Addresses:** Settings infrastructure (FEATURES P2 dependency)
+**Avoids:** Pitfall: settings without RLS (security mistake from PITFALLS.md)
 
-**Avoids:** Pitfall 10 (Lazy Loading LCP Images), Pitfall 14 (Font Loading Blocking LCP)
+### Phase 3: Core UX Features (Cart Validation + Settings UI + Auth Forms)
 
-**Estimated effort:** 4-8 hours
+**Rationale:** These three features are independent of each other and can be built in parallel. Cart validation is pure frontend (backend already validates). Settings UI builds on Phase 2 migration. Auth form upgrade is visual-only (no functional changes to auth flow). Grouping these maximizes parallelism.
+**Delivers:** Inline cart validation on mount, customer settings tab, branded auth experience
+**Addresses:** Cart validation UX (FEATURES P1), customer settings (FEATURES P2), branded auth (FEATURES P1)
+**Avoids:** Pitfall 1 (auth focus management -- test with reduced motion), Pitfall 2 (cart hydration race -- use `_hydrated` flag)
 
-### Phase 2: Server Component Conversions (Est. 4-5s to 3-3.5s)
+### Phase 4: Email System (React Email Templates + Notification Preferences)
 
-**Rationale:** Reduces client bundle by ~150KB. Server Components send zero JavaScript for data fetching.
+**Rationale:** Requires Phase 2 (customer_settings table for preference checks). Install 3 new packages, build email templates in `src/emails/`, integrate preference checks into existing Edge Functions. Order confirmation email is P1; cancellation/refund emails are P3.
+**Delivers:** Order confirmation email (React Email), refund/cancel emails, notification preference checks
+**Uses:** resend, @react-email/components, @react-email/render (from STACK.md)
+**Avoids:** Pitfall 3 (webhook idempotency -- add event ID table with UNIQUE constraint)
 
-**Delivers:**
-- Analytics page wrappers as Server Components
-- Menu page wrapper as Server Component
-- Order tracking wrapper as Server Component
-- loading.tsx files for route segments
+### Phase 5: Driver Offline Sync Enhancement
 
-**Actions:**
-- Convert `app/(admin)/admin/analytics/page.tsx` to Server Component wrapper
-- Convert `app/(public)/menu/page.tsx` to Server Component wrapper
-- Keep interactive content as "use client" leaf components
-- Add loading.tsx for graceful transitions
+**Rationale:** Highest-risk feature. Dual-queue architecture (Zustand + IndexedDB) creates duplication risk. Should come late when codebase is stable. Enhancement is ~50 lines of code but touches critical driver delivery flow.
+**Delivers:** Exponential backoff retry, 30s periodic retry, sync status badge in driver UI
+**Addresses:** Driver offline retry robustness
+**Avoids:** Pitfall 5 (duplicate status updates -- consolidate queues, add idempotency keys, sequential processing)
 
-**Avoids:** Pitfall 1 (Over-Marking with "use client"), Pitfall 3 (Client Component Cascade)
+### Phase 6: Visual Polish Pass
 
-**Estimated effort:** 1 week
-
-### Phase 3: Dynamic Import Heavy Libraries (Est. 3-3.5s to 2.5s)
-
-**Rationale:** Removes 180KB (Recharts) from non-admin routes and 120KB (Google Maps) from initial checkout load. Admin traffic is <5% of total.
-
-**Delivers:**
-- Recharts dynamically imported for admin analytics
-- Google Maps map component dynamically imported (autocomplete stays eager)
-- ChartSkeleton and MapSkeleton loading states
-
-**Actions:**
-- Verify LazyCharts wrapper exists and is used in analytics pages
-- Create dynamic import for DeliveryMap in TrackingPageClient
-- Keep usePlacesAutocomplete eager (checkout critical path)
-- Add skeleton components to prevent layout shift
-
-**Avoids:** Pitfall 12 (Dynamic Import Without SSR Disabled)
-
-**Estimated effort:** 1 week
-
-### Phase 4: Provider & Route Layout Refactoring (Est. refinement to <2.5s)
-
-**Rationale:** Cart components load on all routes including admin/driver where unnecessary. Moving to route-specific layouts removes ~60KB from 3 route groups.
-
-**Delivers:**
-- Cart components in (customer) and (public) layouts only
-- Cleaner global providers.tsx
-- Reduced bundle on /admin, /driver, /auth routes
-
-**Actions:**
-- Create `app/(customer)/layout.tsx` with CartBar, CartDrawer, FlyToCart
-- Create `app/(public)/layout.tsx` with same cart components
-- Remove cart components from global providers.tsx
-- Test all route groups for regressions
-
-**Avoids:** Pitfall 1 (Over-Marking with "use client" at root level)
-
-**Estimated effort:** 1.5 weeks
-
-### Phase 5: Animation Optimization & Monitoring (Est. lock in <2.5s, push toward <2s)
-
-**Rationale:** Fine-tune animation libraries for additional bundle reduction. Set up CI guardrails to prevent regression.
-
-**Delivers:**
-- React Compiler enabled for automatic memoization
-- Framer Motion using LazyMotion pattern (32KB to ~19KB)
-- GSAP using modular imports (verify current state)
-- Lighthouse CI enforcing LCP <2.5s budget
-
-**Actions:**
-- Enable `reactCompiler: true` in next.config.ts
-- Install `babel-plugin-react-compiler`
-- Audit Framer Motion usage, implement LazyMotion where applicable
-- Verify GSAP imports are modular (gsap/core, ScrollTrigger only)
-- Install @lhci/cli, configure .lighthouserc.json with LCP budget
-- Set up CI pipeline to run Lighthouse on PRs
-
-**Avoids:** Pitfall 3 (Hydration Blocking Animations), Pitfall 5 (Framer Motion Bundle Size)
-
-**Estimated effort:** 1 week
-
----
+**Rationale:** Must come LAST per PITFALLS research. Animation refactoring has caused production regressions before. Visual polish should only happen after all functional features are stable and tested. Includes: admin skeleton shimmer, search fuzzy matching, premium auth animations, dashboard number counters.
+**Delivers:** Premium visual finish across admin, driver, and customer-facing pages
+**Addresses:** Admin shimmer (FEATURES P2), search fuzzy matching (FEATURES P2), auth animations (FEATURES P2)
+**Avoids:** Pitfall 6 (polish regressions -- Playwright visual snapshots before/after every change)
 
 ### Phase Ordering Rationale
 
-1. **Phase 1 first:** Quick wins require no code restructuring. Immediate measurable impact (2-3s reduction). Validates measurement approach.
-
-2. **Phase 2 before Phase 3:** Server Components reduce overall bundle size, making dynamic import impact more visible. Establishes pattern for future work.
-
-3. **Phase 3 before Phase 4:** Library-level optimization is lower risk than provider refactoring. Dynamic imports are well-documented, isolated changes.
-
-4. **Phase 4 after core optimization:** Provider refactoring touches shared code. Earlier phases prove the value of bundle reduction, justifying the medium-risk refactor.
-
-5. **Phase 5 last:** React Compiler and Lighthouse CI are infrastructure improvements. Set up after core optimization validates the approach.
-
----
+- **Dependency chain:** Phase 2 (settings table) blocks Phase 4 (email preferences). Everything else is independent.
+- **Risk ordering:** Low-risk infrastructure first (Phase 1), high-risk sync last (Phase 5), visual polish after stability (Phase 6).
+- **Architecture alignment:** Phases follow the component dependency map from ARCHITECTURE.md -- independent features in parallel, dependent features sequential.
+- **Pitfall avoidance:** The phase where each pitfall applies is annotated. Highest-risk pitfalls (cart hydration, webhook idempotency, sync duplicates) are addressed in their respective phases with specific prevention strategies.
 
 ### Research Flags
 
-**Phases likely needing validation during execution:**
-- **Phase 4 (Provider Refactoring):** Test cart flow across all route groups after moving components. Potential for edge cases with deep linking.
-- **Phase 5 (React Compiler):** Test for rendering issues with existing animations. Compiler may conflict with GSAP/Framer Motion patterns.
+Phases likely needing deeper research during planning:
+- **Phase 4 (Email System):** Stripe webhook idempotency implementation details; Resend domain verification flow; React Email + Tailwind 4 compatibility in production
+- **Phase 5 (Driver Offline Sync):** Queue consolidation strategy (which queue to keep); Background Sync API browser support matrix; idempotency key propagation through API layer
 
-**Phases with standard patterns (no additional research needed):**
-- **Phase 1:** Well-documented LCP optimization (web.dev, Next.js docs)
-- **Phase 2:** Server Component pattern is core Next.js 16 feature
-- **Phase 3:** Dynamic imports are established pattern with clear documentation
-
----
+Phases with standard patterns (skip research-phase):
+- **Phase 1 (Safety Net):** Trivial file additions using existing components; fully documented in ARCHITECTURE.md
+- **Phase 2 (Data Foundation):** Follows existing migration + API route patterns exactly (010_app_settings.sql, api/account/profile/route.ts)
+- **Phase 3 (Core UX):** Cart validation is a simple hook; settings UI follows ProfileTab; auth animations follow CommandPalette patterns
+- **Phase 6 (Visual Polish):** CSS-only changes (shimmer) + existing Framer Motion patterns; well-documented in codebase
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Official Next.js 16 docs, React Compiler stable at Meta |
-| Features | HIGH | web.dev LCP guidance, GTmetrix, multiple 2025-2026 sources |
-| Architecture | HIGH | Verified against existing codebase, Next.js official patterns |
-| Pitfalls | HIGH | GSAP forums, Next.js official warnings, recent Medium articles |
+| Stack | HIGH | Only 3 new packages, all server-side, all verified against React 19 + Next.js 16. Zero client impact. |
+| Features | HIGH | Competitive analysis against DoorDash/Uber Eats/Deliveroo validates priority ordering. Codebase audit confirms current state. |
+| Architecture | HIGH | All patterns verified by direct codebase examination. Component dependency map tested against actual imports. |
+| Pitfalls | HIGH | 6 critical pitfalls identified from official docs, project error history, and codebase audit. Each has specific prevention strategy. |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-1. **Current LCP element identification:** Research assumes hero/menu images. Verify with Lighthouse which element is actual LCP on each route before Phase 1.
-
-2. **React Compiler + GSAP/Framer compatibility:** Limited 2026 data on React Compiler with animation libraries. Test on isolated branch before full rollout.
-
-3. **Actual bundle size measurements:** Architecture research estimates sizes. Run `pnpm analyze:browser` to get baseline before optimization.
-
----
+- **Social login (Google + Apple):** Listed as FEATURES P1 but requires external provider setup (Google Cloud Console, Apple Developer Portal). Credentials and OAuth callback URLs need to be configured before development. Not a code gap -- an ops/config gap.
+- **Resend domain verification:** Email sending requires verified sender domain in Resend dashboard. Must be done before any email feature works in production.
+- **Email Edge Function current state:** FEATURES.md notes the existing `send-order-confirmation` Edge Function may be a stub. Verify whether it actually sends emails or is placeholder code before deciding whether to extend or replace.
+- **Dual offline queue resolution:** PITFALLS.md identifies two sync queues (Zustand + IndexedDB) but does not prescribe which to keep. Phase 5 planning must decide: keep IndexedDB (more robust for large payloads) or Zustand (simpler, already integrated with driver UI state).
+- **React Email + Tailwind v4 compatibility:** React Email 5.0 claims Tailwind 4 support, but this codebase uses Tailwind v4 with `@theme inline` (non-standard config). Email templates may need separate styling approach. Validate during Phase 4 planning.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- [Next.js 16 Release](https://nextjs.org/blog/next-16) — React Compiler, image defaults
-- [Next.js Server and Client Components](https://nextjs.org/docs/app/getting-started/server-and-client-components) — boundary patterns
-- [web.dev Optimize LCP](https://web.dev/articles/optimize-lcp) — table stakes features
-- [Vercel Package Optimization](https://vercel.com/blog/how-we-optimized-package-imports-in-next-js) — optimizePackageImports
-- [GSAP Forums](https://gsap.com/community/forums/topic/40128-using-scrolltriggers-in-nextjs-with-usegsap/) — ScrollTrigger cleanup
+- Existing codebase examination -- all file references verified by direct reads
+- Project `ERROR_HISTORY.md` -- mobile crash patterns, NEXT_REDIRECT issues, cleanup audit
+- [Next.js Official: Error Handling](https://nextjs.org/docs/app/getting-started/error-handling)
+- [Supabase Social Login Docs](https://supabase.com/docs/guides/auth/social-login)
+- [Supabase + Resend Auth Email Hook](https://supabase.com/docs/guides/functions/examples/auth-send-email-hook-react-email-resend)
+- [Zustand Docs: Persisting Store Data](https://zustand.docs.pmnd.rs/integrations/persisting-store-data)
+- [Stripe Webhook Best Practices](https://www.stigg.io/blog-posts/best-practices-i-wish-we-knew-when-integrating-stripe-webhooks)
+- [Framer Motion: Accessibility Guide](https://framer.com/motion/guide-accessibility)
 
 ### Secondary (MEDIUM confidence)
-- [10 Performance Mistakes in Next.js 16 (Medium, Dec 2025)](https://medium.com/@sureshdotariya/10-performance-mistakes-in-next-js-16-that-are-killing-your-app-and-how-to-fix-them-2facfab26bea) — pitfall patterns
-- [React Compiler in Next.js 16 (Medium)](https://medium.com/better-dev-nextjs-react/react-compiler-in-next-js-16-what-it-fixes-what-it-breaks-and-how-to-ship-it-safely-62881c4c0b74) — compiler adoption
-- [Framer Motion LazyMotion](https://motion.dev/docs/react-reduce-bundle-size) — bundle reduction
-- [Recharts in Next.js](https://app-generator.dev/docs/technologies/nextjs/integrate-recharts.html) — dynamic import pattern
+- [Baymard Food Delivery UX Research](https://baymard.com/blog/food-delivery-takeout-launch)
+- [Order Confirmation Email Best Practices - Klaviyo](https://www.klaviyo.com/blog/order-confirmation-email-tips-examples)
+- [Offline-First Frontend Apps 2025 (LogRocket)](https://blog.logrocket.com/offline-first-frontend-apps-2025-indexeddb-sqlite/)
+- DoorDash / Uber Eats / Deliveroo competitive analysis (feature comparison)
 
-### Codebase (HIGH confidence)
-- Existing `optimizePackageImports` in next.config.ts
-- LazyCharts wrapper in `src/components/ui/admin/analytics/`
-- Centralized GSAP in `lib/gsap/index.ts`
-- Device detection in v1.4 (already respects reduced motion, low-power devices)
+### Tertiary (LOW confidence)
+- [Food Delivery App UX Design 2025 (Medium)](https://medium.com/@prajapatisuketu/food-delivery-app-ui-ux-design-in-2025-trends-principles-best-practices-4eddc91ebaee) -- general trends, needs validation against specific use case
 
 ---
-*Research completed: 2026-02-05*
+*Research completed: 2026-02-07*
 *Ready for roadmap: yes*
