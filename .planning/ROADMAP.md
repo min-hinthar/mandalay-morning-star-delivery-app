@@ -39,12 +39,12 @@ Final production-readiness pass before public launch. Ten phases covering safety
   1. Navigating to any route that throws an error shows a styled error page with retry action (not a white screen)
   2. All admin pages show skeleton/shimmer loading states while data fetches
   3. Error boundaries use CSS-only animations (no Framer Motion imports in error.tsx files)
-**Plans**: TBD
-**Notes**: ~13 new files, each 3-6 lines using existing RouteError/RouteLoading components. Error boundaries must be at correct hierarchy level to catch layout errors.
+**Plans**: 2 plans
+**Notes**: ~25 new/modified files. RouteError refactored to CSS-only, legacy error files migrated, all missing error.tsx and loading.tsx files created.
 
 Plans:
-- [ ] 48-01: TBD
-- [ ] 48-02: TBD
+- [ ] 48-01-PLAN.md — Refactor RouteError to CSS-only animations + migrate 4 legacy error boundaries
+- [ ] 48-02-PLAN.md — Create 6 missing error.tsx + 19 missing loading.tsx files
 
 ### Phase 49: Branded 404 & Error Pages
 **Goal**: Users who hit dead ends see a delightful branded page that guides them back
@@ -204,7 +204,7 @@ Phases execute in numeric order: 48 -> 49 -> 50 -> 51 -> 52 -> 53 -> 54 -> 55 ->
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 48. Error Boundaries & Loading States | v1.6 | 0/2 | Not started | - |
+| 48. Error Boundaries & Loading States | v1.6 | 0/2 | Planned | - |
 | 49. Branded 404 & Error Pages | v1.6 | 0/2 | Not started | - |
 | 50. Data Foundation & Admin Settings | v1.6 | 0/2 | Not started | - |
 | 51. Customer Settings | v1.6 | 0/2 | Not started | - |
