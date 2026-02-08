@@ -55,12 +55,12 @@ Plans:
   2. Error pages display food-themed contextual messaging (not generic "Something went wrong")
   3. 404 page provides working links to home, menu, and orders pages
   4. Error page mascot shows contextual expression matching the error type
-**Plans**: TBD
+**Plans**: 2 plans
 **Notes**: Use /frontend-design skill for component creation. CSS-only animations carry over from Phase 48 constraint.
 
 Plans:
-- [ ] 49-01: TBD
-- [ ] 49-02: TBD
+- [ ] 49-01-PLAN.md — Create shared error page components (ErrorPageShell, FloatingFoodEmojis, ErrorMascot, NavigationCardGrid) + CSS keyframes
+- [ ] 49-02-PLAN.md — Assemble branded not-found.tsx pages (root, admin, driver) + upgrade RouteError with food-themed personality
 
 ### Phase 50: Data Foundation & Admin Settings
 **Goal**: Settings infrastructure exists in the database and admin can manage operational settings through the app
