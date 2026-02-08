@@ -483,3 +483,23 @@ const handleClick = async () => {
 3. When adding callbacks to existing components, audit whether component already performs the action
 
 ---
+
+## 2026-02-07: Pepper Design Tokens Not Generating Tailwind Utilities (Systemic)
+**Type:** Build/Runtime | **Severity:** Critical
+
+**Files:** `src/app/globals.css`, `tailwind.config.ts`, `src/styles/tokens.css`
+
+**Error:** ~60+ custom design tokens (`bg-status-success-bg`, `text-status-error`, `bg-green`, `rounded-button`, etc.) silently resolve to transparent/0px despite CSS variables being correctly defined in `tokens.css` and mapped in `tailwind.config.ts`.
+
+**Root Cause:** Tailwind v4 + Turbopack ignores `tailwind.config.ts` entirely. The `@config` directive is also silently ignored. Only `@theme inline {}` in globals.css drives utility generation. Tokens were defined in config + CSS but never registered in `@theme inline`.
+
+**Fix:** Added all missing tokens to `@theme inline` block in `globals.css` using the self-referencing pattern: `--color-foo: var(--color-foo);`
+
+**Detection method:** Playwright `browser_evaluate` — create element with class, read `getComputedStyle()`. Transparent/0px = not registered.
+
+**Prevention:**
+1. When adding tokens to `tokens.css`, ALWAYS also add to `@theme inline` in `globals.css`
+2. Never rely on `tailwind.config.ts` for utility generation in Turbopack projects
+3. Verify new token classes with computed style checks, not just visual inspection
+
+---
