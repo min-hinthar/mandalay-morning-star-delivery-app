@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 50 complete. Ready for next phase in v1.6.
+**Current focus:** Phase 51 in progress. Customer settings API and types foundation complete.
 
 ## Current Position
 
-Phase: 50 (3 of 10 in v1.6)
-Plan: 4 of 4 in current phase
-Status: Phase complete
-Last activity: 2026-02-08 -- Completed 50-04-PLAN.md
+Phase: 51 (4 of 10 in v1.6)
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-02-08 -- Completed 51-01-PLAN.md
 
-Progress: [███████░░░░░░░░░░░░░░░░] ~24%
+Progress: [████████░░░░░░░░░░░░░░░] ~25%
 
 ## Milestones
 
@@ -28,12 +28,12 @@ Progress: [███████░░░░░░░░░░░░░░░░
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
 | v1.6 Production Polish | 48-57 | ~23 | -- |
 
-**Total completed:** 50 phases, 218 plans, 279 requirements
+**Total completed:** 50 phases, 219 plans, 279 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 218
+- Total plans completed: 219
 - Average duration: --
 - Total execution time: --
 
@@ -58,6 +58,8 @@ Progress: [███████░░░░░░░░░░░░░░░░
 | DFAS-04-UPSERT | Nudge banner uses direct Supabase client upsert (no API route) for inline saves | 50-04 |
 | DFAS-04-DBTYPES | Added CustomerSettings Row/Insert/Update types to database.ts for type safety | 50-04 |
 | DFAS-04-PLACEMENT | PreferenceCounterCard placed as new row below 3-column grid (not crowding existing cards) | 50-04 |
+| CUST-01-CAST | Json JSONB columns cast through unknown intermediate for TypeScript strict mode | 51-01 |
+| CUST-01-PARTIAL | All customer settings schema fields optional for partial PATCH updates | 51-01 |
 
 ### Tech Debt (carried forward)
 
@@ -77,10 +79,10 @@ Progress: [███████░░░░░░░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 50-04-PLAN.md (phase 50 complete)
+Stopped at: Completed 51-01-PLAN.md
 Resume file: None
-Next action: Begin Phase 51 planning
+Next action: Execute 51-02-PLAN.md
 
 ---
 
-*Updated: 2026-02-08 -- Phase 50 complete. 4 plans executed, goal verified (9/9 must-haves). Settings infrastructure in DB, admin settings UI with premium save UX, customer nudge banner, admin preference counter.*
+*Updated: 2026-02-08 -- Plan 51-01 complete. Customer settings API route (GET+PATCH) with Zod validation and shared types created. 4 more plans remain in phase 51.*
