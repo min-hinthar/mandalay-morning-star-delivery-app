@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 52 complete. Cart validation infrastructure, overlay UI, cart page layout, drawer integration, and final polish all verified.
+**Current focus:** Phase 53 complete. Premium auth experience with passwordless magic link, OAuth, animated background, and login success ceremony.
 
 ## Current Position
 
-Phase: 52 (5 of 10 in v1.6)
-Plan: 5 of 5 in current phase
+Phase: 53 (6 of 10 in v1.6)
+Plan: 6 of 6 in current phase
 Status: Phase complete
-Last activity: 2026-02-09 -- Completed 52-05-PLAN.md
+Last activity: 2026-02-09 -- Phase 53 executed + frontend-design polish applied
 
 Progress: [█████████████████████████] 100%
 
@@ -28,7 +28,7 @@ Progress: [███████████████████████
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
 | v1.6 Production Polish | 48-57 | ~23 | -- |
 
-**Total completed:** 51 phases, 231 plans, 289 requirements
+**Total completed:** 52 phases, 237 plans, 297 requirements
 
 ## Performance Metrics
 
@@ -83,6 +83,12 @@ Progress: [███████████████████████
 | CART-03-EDIT | Edit item handler is placeholder; full modifier editing deferred as TODO | 52-03 |
 | CART-05-PULSE | Checkout pulse increased to 1.08 scale with green glow blur behind button | 52-05 |
 | CART-05-ANIMPARENT | AnimatePresence moved to parent CartPageContent for proper AttentionSection exit animation | 52-05 |
+| AUTH-01-STEAM | Custom auth-steam-drift keyframes replace error-drift reuse (gentler, more vertical) | 53-02 |
+| AUTH-02-SOCIAL | Full-width labeled social buttons replace 56px icon squares ("Continue with Google/Apple") | 53-03 |
+| AUTH-03-GLASS | AuthCard uses layered shadows + ring-white/30 glow + via-secondary accent bar | 53-02 |
+| AUTH-04-SPARKLE | MagicLinkConfirmation uses 4 animated Sparkles icons around envelope | 53-04 |
+| AUTH-05-RING | LoginSuccessCeremony uses expanding golden ring + 6-sparkle burst computed with trig | 53-06 |
+| AUTH-06-EXPIRED | Expired page wrapped in AuthBackground for brand consistency | 53-05 |
 
 ### Tech Debt (carried forward)
 
@@ -102,10 +108,10 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 52-05-PLAN.md (Phase 52 complete)
+Stopped at: Phase 53 complete (verified + frontend-design polish)
 Resume file: None
-Next action: Plan Phase 53
+Next action: Plan Phase 54
 
 ---
 
-*Updated: 2026-02-09 -- Phase 52 complete. All 5 success criteria verified: sold-out/unavailable/price-changed overlays, full cart page, hydration-safe validation. Polished checkout pulse animation and fixed AttentionSection exit animation.*
+*Updated: 2026-02-09 -- Phase 53 complete. All 5 success criteria verified. Premium auth experience: passwordless magic link + OAuth, custom auth-steam-drift keyframes, full-width social buttons, glass card with golden glow, sparkle animations on confirmation/success, expired page with AuthBackground. Frontend-design pass applied for visual polish.*
