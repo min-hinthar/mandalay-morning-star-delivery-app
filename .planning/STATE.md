@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 52 in progress. Plans 01-04 complete: validation infrastructure + overlay UI + cart page layout + drawer integration.
+**Current focus:** Phase 52 complete. Cart validation infrastructure, overlay UI, cart page layout, drawer integration, and final polish all verified.
 
 ## Current Position
 
 Phase: 52 (5 of 10 in v1.6)
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-02-09 -- Completed 52-03-PLAN.md
+Plan: 5 of 5 in current phase
+Status: Phase complete
+Last activity: 2026-02-09 -- Completed 52-05-PLAN.md
 
-Progress: [██████████████████████░░] 80%
+Progress: [█████████████████████████] 100%
 
 ## Milestones
 
@@ -28,12 +28,12 @@ Progress: [██████████████████████░
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
 | v1.6 Production Polish | 48-57 | ~23 | -- |
 
-**Total completed:** 51 phases, 226 plans, 284 requirements
+**Total completed:** 51 phases, 231 plans, 289 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 226
+- Total plans completed: 231
 - Average duration: --
 - Total execution time: --
 
@@ -81,6 +81,8 @@ Progress: [██████████████████████░
 | CART-03-STORE | handleDismissPriceChange uses useCartStore.getState() directly (not require()) | 52-03 |
 | CART-03-TAX | Estimated tax at 8.5% displayed as "Est. Tax" in order summary | 52-03 |
 | CART-03-EDIT | Edit item handler is placeholder; full modifier editing deferred as TODO | 52-03 |
+| CART-05-PULSE | Checkout pulse increased to 1.08 scale with green glow blur behind button | 52-05 |
+| CART-05-ANIMPARENT | AnimatePresence moved to parent CartPageContent for proper AttentionSection exit animation | 52-05 |
 
 ### Tech Debt (carried forward)
 
@@ -100,10 +102,10 @@ Progress: [██████████████████████░
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 52-03-PLAN.md
+Stopped at: Completed 52-05-PLAN.md (Phase 52 complete)
 Resume file: None
-Next action: Execute 52-05-PLAN.md (final plan in phase 52)
+Next action: Plan Phase 53
 
 ---
 
-*Updated: 2026-02-09 -- Phase 52 plan 03 complete. Full cart page with two-column layout, category-grouped items, order summary with tax/minimum enforcement, checkout gate with warning banner and pulse-enabled button. Replaces stub cart page.*
+*Updated: 2026-02-09 -- Phase 52 complete. All 5 success criteria verified: sold-out/unavailable/price-changed overlays, full cart page, hydration-safe validation. Polished checkout pulse animation and fixed AttentionSection exit animation.*
