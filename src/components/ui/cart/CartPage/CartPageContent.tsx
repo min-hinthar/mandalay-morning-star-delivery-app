@@ -5,8 +5,6 @@ import { m, AnimatePresence } from "framer-motion";
 import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
-import { spring } from "@/lib/motion-tokens";
-import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import {
   useCartValidation,
@@ -15,6 +13,10 @@ import {
 import { useMenu } from "@/lib/hooks/useMenu";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { CartEmptyState } from "@/components/ui/cart/CartEmptyState";
+import {
+  ClearCartConfirmation,
+  useClearCartConfirmation,
+} from "@/components/ui/cart/ClearCartConfirmation";
 import { CartPageHeader } from "./CartPageHeader";
 import { CartItemGroup } from "./CartItemGroup";
 import { CartPageSummary } from "./CartPageSummary";
@@ -61,18 +63,25 @@ interface CategoryGroup {
 // ============================================
 
 export function CartPageContent() {
-  const { shouldAnimate, getSpring } = useAnimationPreference();
   const hydrated = useCartHydrated();
   const {
     items,
     itemCount,
     itemsSubtotal,
     estimatedDeliveryFee,
+    amountToFreeDelivery,
     isEmpty,
     addItem,
     removeItem,
   } = useCart();
   const validation = useCartValidation();
+  const {
+    isOpen: isClearOpen,
+    itemCount: clearItemCount,
+    openConfirmation: openClearCart,
+    handleConfirm: handleClearConfirm,
+    close: closeClearCart,
+  } = useClearCartConfirmation();
   const { data: menuData } = useMenu();
   const attentionRef = useRef<HTMLDivElement>(null);
 
@@ -231,7 +240,11 @@ export function CartPageContent() {
     <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8">
       {/* Left column: Items */}
       <div>
-        <CartPageHeader itemCount={itemCount} />
+        <CartPageHeader
+          itemCount={itemCount}
+          onClearCart={openClearCart}
+          showClear={!isEmpty}
+        />
 
         {/* Attention section for problem items (AnimatePresence enables exit animation) */}
         <AnimatePresence>
@@ -247,17 +260,27 @@ export function CartPageContent() {
           )}
         </AnimatePresence>
 
-        {/* Validating overlay indicator */}
-        {isValidating && (
-          <m.div
-            initial={shouldAnimate ? { opacity: 0 } : undefined}
-            animate={shouldAnimate ? { opacity: 1 } : undefined}
-            transition={getSpring(spring.gentle)}
-            className="mb-4 text-xs text-text-muted text-center"
-          >
-            Checking item availability...
-          </m.div>
-        )}
+        {/* Animated validation progress bar */}
+        <AnimatePresence>
+          {isValidating && (
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="h-0.5 w-full rounded-full bg-primary/20 mb-4 overflow-hidden"
+            >
+              <m.div
+                className="h-full w-1/3 rounded-full bg-primary"
+                animate={{ x: ["0%", "200%", "0%"] }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+            </m.div>
+          )}
+        </AnimatePresence>
 
         {/* Category-grouped items */}
         <AnimatePresence mode="sync">
@@ -293,12 +316,13 @@ export function CartPageContent() {
         </div>
       </div>
 
-      {/* Right column: Summary + Checkout */}
-      <div className="lg:mt-0 mt-2">
+      {/* Right column: Summary + Checkout (sticky so checkout stays visible) */}
+      <div className="lg:mt-0 mt-2 lg:sticky lg:top-24 lg:self-start">
         <CartPageSummary
           subtotalCents={itemsSubtotal}
           deliveryFeeCents={estimatedDeliveryFee}
           minimumShortfallCents={minimumShortfallCents}
+          amountToFreeDelivery={amountToFreeDelivery}
         />
         <CheckoutGate
           hasBlockingIssues={validation.hasBlockingIssues}
@@ -308,6 +332,14 @@ export function CartPageContent() {
           onCheckout={handleCheckout}
         />
       </div>
+
+      {/* Clear cart confirmation modal */}
+      <ClearCartConfirmation
+        isOpen={isClearOpen}
+        onClose={closeClearCart}
+        onConfirm={handleClearConfirm}
+        itemCount={clearItemCount}
+      />
     </div>
   );
 }
