@@ -1,3 +1,5 @@
+import type { MenuItem } from "@/types/menu";
+
 export interface SelectedModifier {
   groupId: string;
   groupName: string;
@@ -18,6 +20,7 @@ export interface CartItem {
   modifiers: SelectedModifier[];
   notes: string;
   addedAt: string;
+  categoryId?: string;
 }
 
 export interface CartStore {
@@ -30,8 +33,10 @@ export interface CartStore {
   getEstimatedDeliveryFee: () => number;
   getItemCount: () => number;
   getItemTotal: (cartItemId: string) => number;
+  updateItemPrice: (cartItemId: string, newPriceCents: number) => void;
 }
 
+export const MINIMUM_ORDER_CENTS = 2500;
 export const DELIVERY_FEE_CENTS = 1500;
 export const FREE_DELIVERY_THRESHOLD_CENTS = 10000;
 export const MAX_ITEM_QUANTITY = 50;
@@ -53,4 +58,35 @@ export function getDeliveryFeeMessage(subtotalCents: number): {
     fee: "$15.00",
     message: `Add $${(remaining / 100).toFixed(2)} more for free delivery`,
   };
+}
+
+// ============================================
+// CART VALIDATION TYPES
+// ============================================
+
+export type CartItemValidationStatus =
+  | "valid"
+  | "sold-out"
+  | "unavailable"
+  | "price-changed";
+
+export interface CartItemValidation {
+  cartItemId: string;
+  status: CartItemValidationStatus;
+  /** Present when status is 'price-changed' */
+  newPriceCents?: number;
+  /** Present when status is 'price-changed' */
+  priceDirection?: "up" | "down";
+}
+
+export interface CartValidationResult {
+  status: "idle" | "validating" | "done" | "error";
+  validations: Map<string, CartItemValidation>;
+  soldOutIds: string[];
+  unavailableIds: string[];
+  priceChangedIds: string[];
+  /** cartItemId -> up to 3 replacement suggestions from same category */
+  suggestions: Map<string, MenuItem[]>;
+  /** True if sold-out or unavailable items exist */
+  hasBlockingIssues: boolean;
 }
