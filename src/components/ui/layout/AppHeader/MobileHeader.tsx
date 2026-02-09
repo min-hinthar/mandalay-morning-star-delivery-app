@@ -66,6 +66,7 @@ export function MobileHeader({
         whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
         transition={getSpring(spring.snappy)}
         className="absolute left-1/2 -translate-x-1/2"
+        layoutId="app-logo"
       >
         <Link
           href="/"

@@ -42,6 +42,15 @@ export async function GET(request: Request): Promise<NextResponse> {
 
     if (error) {
       console.error("[Auth Callback] Code exchange error:", error.message);
+      const normalizedError = error.message.toLowerCase();
+      if (normalizedError.includes("expired") || normalizedError.includes("invalid")) {
+        const email = searchParams.get("email");
+        const emailParam = email ? `?email=${encodeURIComponent(email)}` : "";
+        return NextResponse.redirect(
+          `${origin}/auth/expired${emailParam}`,
+          { status: 302 }
+        );
+      }
       return NextResponse.redirect(
         `${origin}/login?error=auth_callback_error`,
         { status: 302 }
