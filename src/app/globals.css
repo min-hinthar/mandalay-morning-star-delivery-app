@@ -726,6 +726,7 @@
   /* Reduce motion preference */
   @media (prefers-reduced-motion: reduce) {
     .bg-gradient-animated,
+    .auth-gradient,
     .float-element,
     .pulse-ring,
     .btn-glow::before,
@@ -744,7 +745,48 @@
   }
 }
 
+@layer components {
+  .auth-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(35deg 90% 65%),
+      hsl(15deg 80% 70%),
+      hsl(40deg 60% 85%),
+      hsl(35deg 90% 65%)
+    );
+    background-size: 400% 400%;
+    animation: auth-gradient-shift 20s ease infinite;
+  }
+
+  .dark .auth-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(35deg 70% 25%),
+      hsl(15deg 60% 30%),
+      hsl(40deg 40% 20%),
+      hsl(35deg 70% 25%)
+    );
+    background-size: 400% 400%;
+    animation: auth-gradient-shift 20s ease infinite;
+  }
+}
+
 /* Custom keyframes */
+@keyframes auth-gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  33% {
+    background-position: 50% 100%;
+  }
+  66% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 @keyframes gradient-shift {
   0%,
   100% {
