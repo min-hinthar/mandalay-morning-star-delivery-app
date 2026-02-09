@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { checkRateLimit } from "@/lib/utils/rate-limit";
 
-interface ActionResult {
+export interface ActionResult {
   error?: string;
   success?: string;
 }
@@ -32,49 +32,16 @@ async function getAppUrl(): Promise<string> {
   return "http://localhost:3000";
 }
 
-export async function signUp(formData: FormData): Promise<ActionResult> {
+export async function signInWithMagicLink(
+  formData: FormData
+): Promise<ActionResult> {
   const supabase = await createClient();
-
   const email = formData.get("email") as string;
 
   if (!email) {
     return { error: "Email is required" };
   }
 
-  // Rate limiting
-  const rateCheck = checkRateLimit(email, "signUp");
-  if (!rateCheck.allowed) {
-    return {
-      error: `Too many signup attempts. Please try again in ${rateCheck.retryAfterSeconds} seconds.`,
-    };
-  }
-
-  const appUrl = await getAppUrl();
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: `${appUrl}/auth/callback`,
-      shouldCreateUser: true,
-    },
-  });
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  return { success: "Check your email for a magic link to finish signup" };
-}
-
-export async function signIn(formData: FormData): Promise<ActionResult | void> {
-  const supabase = await createClient();
-
-  const email = formData.get("email") as string;
-
-  if (!email) {
-    return { error: "Email is required" };
-  }
-
-  // Rate limiting
   const rateCheck = checkRateLimit(email, "signIn");
   if (!rateCheck.allowed) {
     return {
@@ -86,7 +53,8 @@ export async function signIn(formData: FormData): Promise<ActionResult | void> {
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${appUrl}/auth/callback`,
+      emailRedirectTo: `${appUrl}/auth/callback?next=/login`,
+      shouldCreateUser: true,
     },
   });
 
@@ -102,58 +70,4 @@ export async function signOut(): Promise<void> {
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
   redirect("/login");
-}
-
-export async function resetPassword(formData: FormData): Promise<ActionResult> {
-  const supabase = await createClient();
-  const email = formData.get("email") as string;
-
-  if (!email) {
-    return { error: "Email is required" };
-  }
-
-  // Rate limiting
-  const rateCheck = checkRateLimit(email, "resetPassword");
-  if (!rateCheck.allowed) {
-    return {
-      error: `Too many reset attempts. Please try again in ${rateCheck.retryAfterSeconds} seconds.`,
-    };
-  }
-
-  const appUrl = await getAppUrl();
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${appUrl}/auth/reset-password`,
-  });
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  return { success: "Check your email for reset instructions" };
-}
-
-export async function updatePassword(
-  formData: FormData
-): Promise<ActionResult | void> {
-  const supabase = await createClient();
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
-
-  if (password !== confirmPassword) {
-    return { error: "Passwords do not match" };
-  }
-
-  if (password.length < 8) {
-    return { error: "Password must be at least 8 characters" };
-  }
-
-  const { error } = await supabase.auth.updateUser({
-    password,
-  });
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  redirect("/");
 }

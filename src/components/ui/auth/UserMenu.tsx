@@ -52,10 +52,6 @@ export function UserMenu({ user }: UserMenuProps): ReactElement {
             <UserIcon className="h-5 w-5" />
           </Link>
         </Button>
-        {/* Sign Up */}
-        <Button size="sm" asChild className="hidden sm:block bg-primary hover:bg-brand-red-dark">
-          <Link href="/signup">Sign Up</Link>
-        </Button>
       </div>
     );
   }
