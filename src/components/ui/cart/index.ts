@@ -31,6 +31,18 @@ export { CartOverlays } from "./CartOverlays";
 export { CartNavigationGuard } from "./CartNavigationGuard";
 export type { CartNavigationGuardProps } from "./CartNavigationGuard";
 
+// CartPage components
+export { AttentionSection } from "./CartPage";
+export { SuggestionRow } from "./CartPage";
+export type { AttentionSectionProps, CartItemValidation } from "./CartPage";
+export type { SuggestionRowProps } from "./CartPage";
+
+// Validation overlay components
+export { ValidationOverlay } from "./CartItem/ValidationOverlay";
+export { PriceChangeBadge } from "./CartItem/PriceChangeBadge";
+export type { ValidationOverlayProps, ValidationStatus } from "./CartItem/ValidationOverlay";
+export type { PriceChangeBadgeProps } from "./CartItem/PriceChangeBadge";
+
 // Re-export types
 export type { CartButtonProps } from "./CartButton";
 export type { CartItemProps } from "./CartItem";
