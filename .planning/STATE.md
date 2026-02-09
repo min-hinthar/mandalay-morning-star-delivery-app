@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 52 in progress. Plans 01-02, 04 complete: validation infrastructure + overlay UI + drawer integration.
+**Current focus:** Phase 52 in progress. Plans 01-04 complete: validation infrastructure + overlay UI + cart page layout + drawer integration.
 
 ## Current Position
 
 Phase: 52 (5 of 10 in v1.6)
 Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-09 -- Completed 52-04-PLAN.md
+Last activity: 2026-02-09 -- Completed 52-03-PLAN.md
 
-Progress: [████████████████░░░░░░░░] 60%
+Progress: [██████████████████████░░] 80%
 
 ## Milestones
 
@@ -78,6 +78,9 @@ Progress: [████████████████░░░░░░░
 | CART-04-STALE | Stale items disable drag, hide quantity stepper, gray out with opacity-50 pointer-events-none | 52-04 |
 | CART-04-LOADER | Drawer shows thin animated primary-color bar during validation (not skeleton replacement) | 52-04 |
 | CART-04-GATE | Checkout button disabled + warning text when sold-out/unavailable items exist | 52-04 |
+| CART-03-STORE | handleDismissPriceChange uses useCartStore.getState() directly (not require()) | 52-03 |
+| CART-03-TAX | Estimated tax at 8.5% displayed as "Est. Tax" in order summary | 52-03 |
+| CART-03-EDIT | Edit item handler is placeholder; full modifier editing deferred as TODO | 52-03 |
 
 ### Tech Debt (carried forward)
 
@@ -97,10 +100,10 @@ Progress: [████████████████░░░░░░░
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 52-04-PLAN.md
+Stopped at: Completed 52-03-PLAN.md
 Resume file: None
-Next action: Execute remaining wave 2 plans (52-03, 52-05)
+Next action: Execute 52-05-PLAN.md (final plan in phase 52)
 
 ---
 
-*Updated: 2026-02-09 -- Phase 52 plan 04 complete. CartDrawer integrated with useCartValidation on mount, per-item validation overlays, subtle loading bar, suggestion rows, and checkout gate. CartItem backward compatible with optional validation props. Cart barrel exports all CartPage and validation overlay components.*
+*Updated: 2026-02-09 -- Phase 52 plan 03 complete. Full cart page with two-column layout, category-grouped items, order summary with tax/minimum enforcement, checkout gate with warning banner and pulse-enabled button. Replaces stub cart page.*
