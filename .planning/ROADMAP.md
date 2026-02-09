@@ -122,22 +122,24 @@ Plans:
 - [x] 52-05-PLAN.md — Animation polish, edge cases, and full phase verification
 
 ### Phase 53: Auth Experience
-**Goal**: Auth pages feel premium and trustworthy -- branded design, social login, and delightful animations
+**Goal**: Single premium /login page with passwordless auth (magic link + Google/Apple OAuth), warm animated background, and login success ceremony
 **Depends on**: Phase 48 (error boundaries for auth routes)
-**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06, AUTH-07, AUTH-08, AUTH-09, AUTH-10
+**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-08, AUTH-09, AUTH-10 (AUTH-06, AUTH-07 removed -- no password pages)
 **Success Criteria** (what must be TRUE):
-  1. Login and signup pages show brand logo, mascot, and animated floating food background
+  1. Single /login page shows brand logo, tagline, and animated floating food background with warm gradient
   2. User can sign in with Google OAuth and Apple OAuth via Supabase
   3. Auth form fields animate on focus, step transitions are smooth, and submit shows loading state
   4. Magic link confirmation shows animated envelope; successful login triggers logo morph transition
-  5. Forgot password and reset password pages match the premium auth styling
-**Plans**: TBD
-**Notes**: Use /frontend-design skill. Social login requires Google Cloud Console + Apple Developer Portal config (ops gap noted in research). AnimatePresence must use onExitComplete for focus management -- do not mount/unmount inputs, animate opacity instead. Signup page includes social proof counter.
+  5. Signup, forgot-password, and reset-password pages deleted (purely passwordless)
+**Plans**: 6 plans
 
 Plans:
-- [ ] 53-01: TBD
-- [ ] 53-02: TBD
-- [ ] 53-03: TBD
+- [ ] 53-01-PLAN.md -- Delete obsolete auth files, consolidate actions.ts, create Terms/Privacy placeholders
+- [ ] 53-02-PLAN.md -- AuthBackground (animated gradient + floating food) and AuthCard (state machine container)
+- [ ] 53-03-PLAN.md -- MagicLinkForm (floating label, validation) + SocialLoginButtons + OAuthLoadingOverlay
+- [ ] 53-04-PLAN.md -- MagicLinkConfirmation (envelope animation, resend countdown, spam hint)
+- [ ] 53-05-PLAN.md -- Login page assembly, UserMenu update, auth barrel, expired link page, callback update
+- [ ] 53-06-PLAN.md -- LoginSuccessCeremony (logo morph, welcome message) + header layoutId wiring
 
 ### Phase 54: Email System
 **Goal**: Customers receive branded transactional emails for every order lifecycle event
