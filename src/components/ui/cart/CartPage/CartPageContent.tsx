@@ -233,17 +233,19 @@ export function CartPageContent() {
       <div>
         <CartPageHeader itemCount={itemCount} />
 
-        {/* Attention section for problem items */}
-        {problemItems.length > 0 && (
-          <AttentionSection
-            ref={attentionRef}
-            items={problemItems}
-            validations={problemValidations}
-            suggestions={validation.suggestions}
-            onRemoveItem={removeItem}
-            onReplaceItem={handleReplaceItem}
-          />
-        )}
+        {/* Attention section for problem items (AnimatePresence enables exit animation) */}
+        <AnimatePresence>
+          {problemItems.length > 0 && (
+            <AttentionSection
+              ref={attentionRef}
+              items={problemItems}
+              validations={problemValidations}
+              suggestions={validation.suggestions}
+              onRemoveItem={removeItem}
+              onReplaceItem={handleReplaceItem}
+            />
+          )}
+        </AnimatePresence>
 
         {/* Validating overlay indicator */}
         {isValidating && (
