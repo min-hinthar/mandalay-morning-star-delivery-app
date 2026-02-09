@@ -111,12 +111,15 @@ Plans:
   3. Unavailable items show inline error with remove or replace action
   4. Cart page at /cart is fully implemented with complete cart UI (not a stub)
   5. Cart validation does not fire before Zustand hydration completes (no false positives on fresh page load)
-**Plans**: TBD
-**Notes**: Cart validation must gate behind `onRehydrateStorage` to avoid hydration race condition. useCartValidation hook compares persisted cart against live menu on mount.
+**Plans**: 5 plans
+**Notes**: Use /frontend-design skill. Validation gates on Zustand v5 persist.hasHydrated(). No new npm dependencies. Cart page recomposes existing cart drawer components into two-column layout with category grouping and attention section.
 
 Plans:
-- [ ] 52-01: TBD
-- [ ] 52-02: TBD
+- [ ] 52-01-PLAN.md — Validation infrastructure: types, cart store updateItemPrice, useCartHydrated + useCartValidation hooks
+- [ ] 52-02-PLAN.md — Validation UI components: ValidationOverlay, PriceChangeBadge, SuggestionRow, AttentionSection
+- [ ] 52-03-PLAN.md — Full cart page: CartPageContent, CartPageHeader, CartItemGroup, CartPageSummary, CheckoutGate, page.tsx
+- [ ] 52-04-PLAN.md — Cart drawer validation integration + CartItem validation props + barrel exports
+- [ ] 52-05-PLAN.md — Animation polish, edge cases, and full phase verification
 
 ### Phase 53: Auth Experience
 **Goal**: Auth pages feel premium and trustworthy -- branded design, social login, and delightful animations
