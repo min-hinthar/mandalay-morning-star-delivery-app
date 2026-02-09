@@ -15,15 +15,23 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { QuantitySelector } from "../QuantitySelector";
-import type { CartItem as CartItemType } from "@/types/cart";
+import type { CartItem as CartItemType, CartItemValidationStatus } from "@/types/cart";
 import { triggerHaptic, getFallbackEmoji } from "./helpers";
 import { SwipeDeleteIndicator } from "./SwipeDeleteIndicator";
+import { ValidationOverlay } from "./ValidationOverlay";
+import { PriceChangeBadge } from "./PriceChangeBadge";
 
 export interface CartItemProps {
   item: CartItemType;
   onEdit?: (item: CartItemType) => void;
   compact?: boolean;
   className?: string;
+  // Validation props (optional -- only provided when validation is active)
+  validationStatus?: CartItemValidationStatus;
+  priceDirection?: "up" | "down";
+  newPriceCents?: number;
+  onDismissPriceChange?: () => void;
+  onRemoveStale?: () => void;
 }
 
 // Simplified animation variants to prevent mobile crashes
@@ -38,10 +46,17 @@ export const CartItem = memo(function CartItem({
   onEdit,
   compact = false,
   className,
+  validationStatus,
+  priceDirection,
+  onDismissPriceChange,
+  onRemoveStale,
 }: CartItemProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { updateQuantity, removeItem, getItemTotal } = useCart();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const isStale = validationStatus === "sold-out" || validationStatus === "unavailable";
+  const hasPriceChange = validationStatus === "price-changed";
 
   const dragX = useMotionValue(0);
   const swipeProgress = useTransform(dragX, [-150, 0], [1, 0]);
@@ -100,7 +115,7 @@ export const CartItem = memo(function CartItem({
       </AnimatePresence>
 
       <m.div
-        drag={shouldAnimate ? "x" : false}
+        drag={shouldAnimate && !isStale ? "x" : false}
         dragConstraints={{ left: -150, right: 0 }}
         dragElastic={{ left: 0.1, right: 0 }}
         onDragStart={() => setIsDragging(true)}
@@ -113,14 +128,19 @@ export const CartItem = memo(function CartItem({
           "touch-pan-y sm:backdrop-blur-xl",
           compact ? "p-3" : "p-4"
         )}
-        whileHover={shouldAnimate && !isDragging ? { scale: 1.02, y: -2 } : undefined}
+        whileHover={shouldAnimate && !isDragging && !isStale ? { scale: 1.02, y: -2 } : undefined}
         transition={springConfig}
       >
-        <div className="flex gap-3">
+        {/* Validation overlay for sold-out/unavailable items */}
+        {isStale && onRemoveStale && (
+          <ValidationOverlay status={validationStatus as "sold-out" | "unavailable"} onRemove={onRemoveStale} />
+        )}
+
+        <div className={cn("flex gap-3", isStale && "opacity-50 pointer-events-none")}>
           {/* Image */}
           <m.div
             className={cn("flex-shrink-0 rounded-xl overflow-hidden bg-surface-secondary/50", compact ? "w-16 h-16" : "w-20 h-20")}
-            whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
+            whileHover={shouldAnimate && !isStale ? { scale: 1.05 } : undefined}
             transition={getSpring(spring.snappy)}
           >
             {item.imageUrl ? (
@@ -146,24 +166,35 @@ export const CartItem = memo(function CartItem({
                 {item.notes && (<p className="text-xs text-text-muted mt-1 italic truncate">&quot;{item.notes}&quot;</p>)}
               </div>
               <div className="flex items-center gap-1">
-                {onEdit && (
+                {onEdit && !isStale && (
                   <m.button type="button" onClick={() => onEdit(item)} className={cn("w-8 h-8 rounded-full flex items-center justify-center", "text-text-muted hover:text-text-primary", "hover:bg-surface-tertiary transition-colors", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2")} whileHover={shouldAnimate ? { scale: 1.1 } : undefined} whileTap={shouldAnimate ? { scale: 0.9 } : undefined} aria-label="Edit item">
                     <Edit3 className="w-4 h-4" />
                   </m.button>
                 )}
-                <m.button type="button" onClick={handleRemove} className={cn("w-8 h-8 rounded-full flex items-center justify-center", "text-text-muted hover:text-red-500", "hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2")} whileHover={shouldAnimate ? { scale: 1.1 } : undefined} whileTap={shouldAnimate ? { scale: 0.9 } : undefined} aria-label="Remove item">
-                  <Trash2 className="w-4 h-4" />
-                </m.button>
+                {!isStale && (
+                  <m.button type="button" onClick={handleRemove} className={cn("w-8 h-8 rounded-full flex items-center justify-center", "text-text-muted hover:text-red-500", "hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2")} whileHover={shouldAnimate ? { scale: 1.1 } : undefined} whileTap={shouldAnimate ? { scale: 0.9 } : undefined} aria-label="Remove item">
+                    <Trash2 className="w-4 h-4" />
+                  </m.button>
+                )}
               </div>
             </div>
 
             <div className="flex items-center justify-between mt-2">
-              <QuantitySelector quantity={item.quantity} onIncrement={handleIncrement} onDecrement={handleDecrement} min={0} size={compact ? "sm" : "md"} />
-              <m.div className="text-right">
+              {!isStale && (
+                <QuantitySelector quantity={item.quantity} onIncrement={handleIncrement} onDecrement={handleDecrement} min={0} size={compact ? "sm" : "md"} />
+              )}
+              <m.div className={cn("text-right", isStale && "ml-auto")}>
                 <PriceTicker value={itemTotal} inCents={true} className={cn("font-semibold text-primary", compact ? "text-sm" : "text-base")} />
                 {item.quantity > 1 && (<p className="text-xs text-text-muted">${(item.basePriceCents / 100).toFixed(2)} each</p>)}
               </m.div>
             </div>
+
+            {/* Price change badge below the price section */}
+            {hasPriceChange && priceDirection && onDismissPriceChange && (
+              <div className="mt-2">
+                <PriceChangeBadge direction={priceDirection} onDismiss={onDismissPriceChange} />
+              </div>
+            )}
           </div>
         </div>
       </m.div>
