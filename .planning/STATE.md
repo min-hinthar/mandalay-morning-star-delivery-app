@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 51 complete. All 5 plans delivered: API, account restructure, preferences/notifications, display, checkout integration. Ready for Phase 52.
+**Current focus:** Phase 52 in progress. Plan 01 complete: cart validation types, store extensions, useCartValidation hook with hydration guard.
 
 ## Current Position
 
-Phase: 51 (4 of 10 in v1.6)
-Plan: 5 of 5 in current phase
-Status: Phase complete
-Last activity: 2026-02-08 -- Completed 51-05-PLAN.md
+Phase: 52 (5 of 10 in v1.6)
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-02-09 -- Completed 52-01-PLAN.md
 
-Progress: [████████████████████████] 100%
+Progress: [████░░░░░░░░░░░░░░░░░░░░] 20%
 
 ## Milestones
 
@@ -28,12 +28,12 @@ Progress: [███████████████████████
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
 | v1.6 Production Polish | 48-57 | ~23 | -- |
 
-**Total completed:** 51 phases, 224 plans, 284 requirements
+**Total completed:** 51 phases, 225 plans, 284 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 224
+- Total plans completed: 225
 - Average duration: --
 - Total execution time: --
 
@@ -69,6 +69,9 @@ Progress: [███████████████████████
 | CUST-04-THEMEFIRE | Theme DB sync is fire-and-forget PATCH (no loading state, already visually applied) | 51-04 |
 | CUST-05-SELFCONTAINED | DietarySummaryCard fetches own data, renders null on empty/error (non-critical for checkout) | 51-05 |
 | CUST-05-DEEPLINK | SettingsNudgeBanner uses ?tab=settings query param for direct Settings tab navigation | 51-05 |
+| CART-01-HYDRATE | useCartHydrated uses persist.hasHydrated() + onFinishHydration() for reliable gate | 52-01 |
+| CART-01-REFETCH | Force-refetch menu on validation mount for freshness (not stale cache) | 52-01 |
+| CART-01-SILENT | API errors return status 'error' with hasBlockingIssues: false (backend validates on submit) | 52-01 |
 
 ### Tech Debt (carried forward)
 
@@ -87,11 +90,11 @@ Progress: [███████████████████████
 
 ## Session Continuity
 
-Last session: 2026-02-08
-Stopped at: Completed 51-05-PLAN.md (Phase 51 complete)
+Last session: 2026-02-09
+Stopped at: Completed 52-01-PLAN.md
 Resume file: None
-Next action: Plan Phase 52
+Next action: Execute 52-02-PLAN.md
 
 ---
 
-*Updated: 2026-02-08 -- Phase 51 (Customer Settings) complete. All 5 plans delivered: settings API & types, account restructure with SettingsTab, preferences & notifications sections, display preferences, checkout dietary card & nudge banner deep-link. Full verification passes.*
+*Updated: 2026-02-09 -- Phase 52 plan 01 complete. Cart validation infrastructure: types (CartValidationResult, CartItemValidation), useCartValidation hook with hydration guard, updateItemPrice store action, MINIMUM_ORDER_CENTS constant.*
