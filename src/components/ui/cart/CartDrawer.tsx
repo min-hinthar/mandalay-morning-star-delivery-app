@@ -16,19 +16,24 @@
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
-import { ShoppingBag, X, Trash2 } from "lucide-react";
+import { ShoppingBag, X, Trash2, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
+import { useCartValidation } from "@/lib/hooks/useCartValidation";
+import { useCartStore } from "@/lib/stores/cart-store";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "./CartItem";
 import { CartSummary } from "./CartSummary";
 import { CartEmptyState } from "./CartEmptyState";
+import { SuggestionRow } from "./CartPage/SuggestionRow";
 import { ClearCartConfirmation, useClearCartConfirmation } from "./ClearCartConfirmation";
+import type { CartValidationResult } from "@/types/cart";
+import type { MenuItem } from "@/types/menu";
 
 // ============================================
 // TYPES
@@ -143,11 +148,22 @@ function CartHeader({ itemCount, onClose, onClearClick, showClear }: CartHeaderP
 
 interface CartItemsListProps {
   onClose: () => void;
+  validation: CartValidationResult;
+  onDismissPriceChange: (cartItemId: string, newPriceCents: number) => void;
+  onRemoveStale: (cartItemId: string) => void;
+  onReplaceItem: (cartItemId: string, suggestion: MenuItem, originalQuantity: number) => void;
 }
 
-function CartItemsList({ onClose }: CartItemsListProps) {
+function CartItemsList({
+  onClose,
+  validation,
+  onDismissPriceChange,
+  onRemoveStale,
+  onReplaceItem,
+}: CartItemsListProps) {
   const { shouldAnimate } = useAnimationPreference();
   const { items, isEmpty } = useCart();
+  const isValidating = validation.status === "validating";
 
   if (isEmpty) {
     return <CartEmptyState onClose={onClose} />;
@@ -160,28 +176,72 @@ function CartItemsList({ onClose }: CartItemsListProps) {
       animate={shouldAnimate ? "visible" : undefined}
       className="flex-1 overflow-y-auto px-4 py-4"
     >
+      {/* Subtle loading indicator during validation */}
+      <AnimatePresence>
+        {isValidating && (
+          <m.div
+            key="validation-loader"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="h-0.5 w-full rounded-full bg-primary/30 mb-3 overflow-hidden"
+          >
+            <m.div
+              className="h-full w-1/3 rounded-full bg-primary"
+              animate={{ x: ["0%", "200%", "0%"] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </m.div>
+        )}
+      </AnimatePresence>
+
       <ul className="space-y-3">
         {/* CHANGED from mode="popLayout" to mode="sync" - popLayout causes layout thrashing that crashes mobile */}
         <AnimatePresence mode="sync">
-          {items.map((item) => (
-            <m.li
-              key={item.cartItemId}
-              variants={shouldAnimate ? staggerItem : undefined}
-              // REMOVED layout prop - causes expensive layout recalculations
-              exit={
-                shouldAnimate
-                  ? {
-                      // Simplified exit animation - removed scale and rotate to reduce GPU load
-                      opacity: 0,
-                      x: -50,
-                      transition: { duration: 0.15 },
-                    }
-                  : undefined
-              }
-            >
-              <CartItem item={item} />
-            </m.li>
-          ))}
+          {items.map((item) => {
+            const itemValidation = validation.validations.get(item.cartItemId);
+            const itemSuggestions = validation.suggestions.get(item.cartItemId);
+
+            return (
+              <m.li
+                key={item.cartItemId}
+                variants={shouldAnimate ? staggerItem : undefined}
+                exit={
+                  shouldAnimate
+                    ? {
+                        opacity: 0,
+                        x: -50,
+                        transition: { duration: 0.15 },
+                      }
+                    : undefined
+                }
+              >
+                <CartItem
+                  item={item}
+                  validationStatus={itemValidation?.status}
+                  priceDirection={itemValidation?.priceDirection}
+                  newPriceCents={itemValidation?.newPriceCents}
+                  onDismissPriceChange={
+                    itemValidation?.status === "price-changed" && itemValidation.newPriceCents
+                      ? () => onDismissPriceChange(item.cartItemId, itemValidation.newPriceCents!)
+                      : undefined
+                  }
+                  onRemoveStale={
+                    itemValidation?.status === "sold-out" || itemValidation?.status === "unavailable"
+                      ? () => onRemoveStale(item.cartItemId)
+                      : undefined
+                  }
+                />
+                {/* Suggestion row for stale items */}
+                {itemSuggestions && itemSuggestions.length > 0 && (
+                  <SuggestionRow
+                    suggestions={itemSuggestions}
+                    onReplace={(suggestion) => onReplaceItem(item.cartItemId, suggestion, item.quantity)}
+                  />
+                )}
+              </m.li>
+            );
+          })}
         </AnimatePresence>
       </ul>
     </m.div>
@@ -195,9 +255,10 @@ function CartItemsList({ onClose }: CartItemsListProps) {
 interface CartFooterProps {
   onClose: () => void;
   onCheckout: () => void;
+  hasBlockingIssues?: boolean;
 }
 
-function CartFooter({ onClose, onCheckout }: CartFooterProps) {
+function CartFooter({ onClose, onCheckout, hasBlockingIssues = false }: CartFooterProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
@@ -212,24 +273,36 @@ function CartFooter({ onClose, onCheckout }: CartFooterProps) {
       <div className="mt-4 flex flex-col gap-3">
         {/* Primary CTA - Checkout with pulsing glow */}
         <m.div
-          whileHover={shouldAnimate ? { scale: 1.01 } : undefined}
-          whileTap={shouldAnimate ? { scale: 0.99 } : undefined}
+          whileHover={shouldAnimate && !hasBlockingIssues ? { scale: 1.01 } : undefined}
+          whileTap={shouldAnimate && !hasBlockingIssues ? { scale: 0.99 } : undefined}
           transition={getSpring(spring.snappyButton)}
           className="relative"
         >
           {/* Static glow behind button - removed infinite animation to prevent mobile crashes */}
-          {shouldAnimate && (
+          {shouldAnimate && !hasBlockingIssues && (
             <div className="absolute inset-0 rounded-xl bg-primary/30 blur-lg opacity-50" />
           )}
           <Button
             variant="primary"
             size="lg"
-            className="relative w-full shadow-elevated"
-            onClick={onCheckout}
+            className={cn(
+              "relative w-full shadow-elevated",
+              hasBlockingIssues && "opacity-50 cursor-not-allowed"
+            )}
+            onClick={hasBlockingIssues ? undefined : onCheckout}
+            disabled={hasBlockingIssues}
           >
             Proceed to Checkout
           </Button>
         </m.div>
+
+        {/* Blocking issues warning */}
+        {hasBlockingIssues && (
+          <p className="flex items-center justify-center gap-1.5 text-xs text-text-muted">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+            Remove unavailable items to checkout
+          </p>
+        )}
 
         {/* Secondary CTA - Continue Shopping */}
         <Button variant="outline" size="lg" className="w-full" onClick={onClose}>
@@ -250,7 +323,9 @@ interface CartContentProps {
 
 function CartContent({ onClose }: CartContentProps) {
   const router = useRouter();
-  const { isEmpty, itemCount } = useCart();
+  const { isEmpty, itemCount, removeItem, addItem } = useCart();
+  const updateItemPrice = useCartStore((state) => state.updateItemPrice);
+  const validation = useCartValidation();
   const {
     isOpen: isClearOpen,
     openConfirmation,
@@ -262,6 +337,38 @@ function CartContent({ onClose }: CartContentProps) {
     onClose();
     router.push("/checkout");
   }, [onClose, router]);
+
+  const handleDismissPriceChange = useCallback(
+    (cartItemId: string, newPriceCents: number) => {
+      updateItemPrice(cartItemId, newPriceCents);
+    },
+    [updateItemPrice]
+  );
+
+  const handleRemoveStale = useCallback(
+    (cartItemId: string) => {
+      removeItem(cartItemId);
+    },
+    [removeItem]
+  );
+
+  const handleReplaceItem = useCallback(
+    (cartItemId: string, suggestion: MenuItem, originalQuantity: number) => {
+      removeItem(cartItemId);
+      addItem({
+        menuItemId: suggestion.id,
+        menuItemSlug: suggestion.slug,
+        nameEn: suggestion.nameEn,
+        nameMy: suggestion.nameMy ?? null,
+        imageUrl: suggestion.imageUrl ?? null,
+        basePriceCents: suggestion.basePriceCents,
+        quantity: originalQuantity,
+        modifiers: [],
+        notes: "",
+      });
+    },
+    [removeItem, addItem]
+  );
 
   return (
     <div className="flex flex-col h-full">
@@ -276,8 +383,18 @@ function CartContent({ onClose }: CartContentProps) {
         <CartEmptyState onClose={onClose} />
       ) : (
         <>
-          <CartItemsList onClose={onClose} />
-          <CartFooter onClose={onClose} onCheckout={handleCheckout} />
+          <CartItemsList
+            onClose={onClose}
+            validation={validation}
+            onDismissPriceChange={handleDismissPriceChange}
+            onRemoveStale={handleRemoveStale}
+            onReplaceItem={handleReplaceItem}
+          />
+          <CartFooter
+            onClose={onClose}
+            onCheckout={handleCheckout}
+            hasBlockingIssues={validation.hasBlockingIssues}
+          />
         </>
       )}
 
