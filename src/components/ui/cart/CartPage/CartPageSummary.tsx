@@ -6,11 +6,13 @@ import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { PriceTicker } from "@/components/ui/PriceTicker";
+import { FreeDeliveryProgress } from "../FreeDeliveryProgress";
 
 export interface CartPageSummaryProps {
   subtotalCents: number;
   deliveryFeeCents: number;
   minimumShortfallCents: number;
+  amountToFreeDelivery: number;
   className?: string;
 }
 
@@ -29,6 +31,7 @@ export const CartPageSummary = memo(function CartPageSummary({
   subtotalCents,
   deliveryFeeCents,
   minimumShortfallCents,
+  amountToFreeDelivery,
   className,
 }: CartPageSummaryProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
@@ -46,10 +49,14 @@ export const CartPageSummary = memo(function CartPageSummary({
         "glass-menu-card",
         "border border-surface-border/40",
         "shadow-colorful shadow-lg",
-        "lg:sticky lg:top-24",
         className
       )}
     >
+      <FreeDeliveryProgress
+        amountToFreeDelivery={amountToFreeDelivery}
+        className="mb-4"
+      />
+
       <h2 className="text-base font-display font-bold text-text-primary mb-4">
         Order Summary
       </h2>

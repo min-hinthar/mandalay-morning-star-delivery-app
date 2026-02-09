@@ -15,8 +15,9 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { m, AnimatePresence } from "framer-motion";
-import { ShoppingBag, X, Trash2, AlertTriangle } from "lucide-react";
+import { ShoppingBag, X, Trash2, AlertTriangle, Expand } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -256,9 +257,10 @@ interface CartFooterProps {
   onClose: () => void;
   onCheckout: () => void;
   hasBlockingIssues?: boolean;
+  showFullCartLink?: boolean;
 }
 
-function CartFooter({ onClose, onCheckout, hasBlockingIssues = false }: CartFooterProps) {
+function CartFooter({ onClose, onCheckout, hasBlockingIssues = false, showFullCartLink }: CartFooterProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
@@ -308,6 +310,22 @@ function CartFooter({ onClose, onCheckout, hasBlockingIssues = false }: CartFoot
         <Button variant="outline" size="lg" className="w-full" onClick={onClose}>
           Continue Shopping
         </Button>
+
+        {/* View full cart link (desktop only) */}
+        {showFullCartLink && (
+          <Link
+            href="/cart"
+            onClick={onClose}
+            className={cn(
+              "flex items-center justify-center gap-1.5",
+              "text-xs font-medium text-text-muted",
+              "hover:text-primary transition-colors"
+            )}
+          >
+            <Expand className="w-3.5 h-3.5" />
+            View full cart
+          </Link>
+        )}
       </div>
     </m.div>
   );
@@ -319,9 +337,10 @@ function CartFooter({ onClose, onCheckout, hasBlockingIssues = false }: CartFoot
 
 interface CartContentProps {
   onClose: () => void;
+  showFullCartLink?: boolean;
 }
 
-function CartContent({ onClose }: CartContentProps) {
+function CartContent({ onClose, showFullCartLink }: CartContentProps) {
   const router = useRouter();
   const { isEmpty, itemCount, removeItem, addItem } = useCart();
   const updateItemPrice = useCartStore((state) => state.updateItemPrice);
@@ -394,6 +413,7 @@ function CartContent({ onClose }: CartContentProps) {
             onClose={onClose}
             onCheckout={handleCheckout}
             hasBlockingIssues={validation.hasBlockingIssues}
+            showFullCartLink={showFullCartLink}
           />
         </>
       )}
@@ -443,7 +463,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
       title="Your Cart"
       className={cn("flex flex-col", className)}
     >
-      <CartContent onClose={close} />
+      <CartContent onClose={close} showFullCartLink />
     </Drawer>
   );
 }
