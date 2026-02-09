@@ -10,9 +10,6 @@ interface SocialLoginButtonsProps {
   onOAuthStart?: (provider: "google" | "apple" | null) => void;
 }
 
-const buttonBase =
-  "w-14 h-12 rounded-xl border border-border flex items-center justify-center transition-shadow";
-
 export function SocialLoginButtons({ onOAuthStart }: SocialLoginButtonsProps) {
   const { toast } = useToast();
   const { shouldAnimate } = useAnimationPreference();
@@ -51,82 +48,67 @@ export function SocialLoginButtons({ onOAuthStart }: SocialLoginButtonsProps) {
     }
   };
 
+  const buttonClass = cn(
+    "w-full h-12 rounded-2xl border border-border bg-surface-primary text-text-primary",
+    "flex items-center justify-center gap-3 text-sm font-medium",
+    "transition-all duration-200",
+    "hover:shadow-md hover:border-border-strong hover:bg-surface-secondary/50",
+    "active:scale-[0.98]"
+  );
+
   return (
     <div className="mt-6">
+      {/* Divider */}
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-surface-primary px-2 text-muted-foreground">
-            or continue with
+          <span className="bg-surface-primary px-3 text-muted-foreground tracking-wider">
+            or
           </span>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground text-center mb-3">
-        Quick sign in
-      </p>
-      <div className="flex gap-3 justify-center">
+
+      <div className="space-y-3">
+        {/* Google */}
         <m.button
           type="button"
-          title="Sign in with Google"
-          aria-label="Sign in with Google"
-          className={cn(
-            buttonBase,
-            "bg-surface-primary text-text-primary",
-            "hover:shadow-lg hover:border-primary/30"
-          )}
-          whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
-          whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+          aria-label="Continue with Google"
+          className={buttonClass}
+          whileHover={shouldAnimate ? { y: -1 } : undefined}
+          whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
           onClick={() => handleOAuth("google")}
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 48 48"
-            aria-hidden="true"
-          >
-            <path
-              fill="#FFC107"
-              d="M43.611 20.083H42V20H24v8h11.303C33.637 32.54 29.23 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.843 1.154 7.957 3.043l5.657-5.657C34.051 6.053 29.224 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.649-.389-3.917z"
-            />
-            <path
-              fill="#FF3D00"
-              d="M6.306 14.691l6.571 4.819C14.655 16.108 18.961 12 24 12c3.059 0 5.843 1.154 7.957 3.043l5.657-5.657C34.051 6.053 29.224 4 24 4c-7.682 0-14.344 4.327-17.694 10.691z"
-            />
-            <path
-              fill="#4CAF50"
-              d="M24 44c5.151 0 9.877-1.977 13.409-5.194l-6.19-5.238C29.118 35.091 26.673 36 24 36c-5.208 0-9.607-3.432-11.257-8.149l-6.505 5.008C9.546 39.556 16.227 44 24 44z"
-            />
-            <path
-              fill="#1976D2"
-              d="M43.611 20.083H42V20H24v8h11.303c-.792 2.18-2.396 4.027-4.585 5.264l.002-.001 6.19 5.238C36.56 38.738 44 33.5 44 24c0-1.341-.138-2.649-.389-3.917z"
-            />
+          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true" className="shrink-0">
+            <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.637 32.54 29.23 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.843 1.154 7.957 3.043l5.657-5.657C34.051 6.053 29.224 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.649-.389-3.917z" />
+            <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 16.108 18.961 12 24 12c3.059 0 5.843 1.154 7.957 3.043l5.657-5.657C34.051 6.053 29.224 4 24 4c-7.682 0-14.344 4.327-17.694 10.691z" />
+            <path fill="#4CAF50" d="M24 44c5.151 0 9.877-1.977 13.409-5.194l-6.19-5.238C29.118 35.091 26.673 36 24 36c-5.208 0-9.607-3.432-11.257-8.149l-6.505 5.008C9.546 39.556 16.227 44 24 44z" />
+            <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.18-2.396 4.027-4.585 5.264l.002-.001 6.19 5.238C36.56 38.738 44 33.5 44 24c0-1.341-.138-2.649-.389-3.917z" />
           </svg>
+          <span>Continue with Google</span>
         </m.button>
+
+        {/* Apple */}
         <m.button
           type="button"
-          title="Sign in with Apple"
-          aria-label="Sign in with Apple"
+          aria-label="Continue with Apple"
           className={cn(
-            buttonBase,
-            "bg-surface-primary text-text-primary",
-            "hover:shadow-lg hover:border-primary/30"
+            buttonClass,
+            "bg-surface-inverse text-text-inverse border-transparent",
+            "hover:bg-surface-inverse/90 hover:border-transparent",
+            "dark:bg-surface-primary dark:text-text-primary dark:border-border",
+            "dark:hover:bg-surface-secondary/50"
           )}
-          whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
-          whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+          whileHover={shouldAnimate ? { y: -1 } : undefined}
+          whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
           onClick={() => handleOAuth("apple")}
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            aria-hidden="true"
-          >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="shrink-0">
             <path d="M16.365 1.43c0 1.14-.42 2.08-1.26 2.83-.96.87-2.12 1.37-3.37 1.27-.15-1.08.43-2.2 1.27-2.92.92-.8 2.32-1.36 3.36-1.18z" />
             <path d="M20.84 17.17c-.45 1.03-.66 1.5-1.24 2.41-.82 1.27-1.98 2.85-3.44 2.87-1.29.01-1.62-.86-3.38-.84-1.76.01-2.12.86-3.41.85-1.46-.02-2.57-1.44-3.39-2.71-2.3-3.55-2.54-7.72-1.12-9.91.99-1.51 2.56-2.39 4.09-2.39 1.57 0 2.56.88 3.86.88 1.26 0 2.02-.88 3.83-.88 1.36 0 2.81.75 3.79 2.05-3.34 1.83-2.79 6.83.41 7.67z" />
           </svg>
+          <span>Continue with Apple</span>
         </m.button>
       </div>
     </div>

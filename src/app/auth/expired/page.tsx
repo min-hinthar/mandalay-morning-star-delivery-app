@@ -2,12 +2,13 @@
 
 import { Suspense, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { signInWithMagicLink } from "@/lib/supabase/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/lib/hooks/useToast";
+import { AuthBackground } from "@/components/ui/auth";
 
 function ExpiredContent() {
   const searchParams = useSearchParams();
@@ -51,42 +52,56 @@ function ExpiredContent() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <div className="max-w-md w-full p-8 rounded-2xl bg-surface-primary shadow-lg text-center space-y-6">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-status-error-bg text-status-error">
-          <AlertCircle className="h-7 w-7" />
-        </div>
-        <div className="space-y-2">
-          <h1 className="text-2xl font-display font-semibold text-text-primary">
-            Link expired
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            This magic link has expired or has already been used.
-          </p>
-        </div>
-        <div className="space-y-3">
-          <Input
-            id="email"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            error={error ?? undefined}
-          />
-          <Button
-            type="button"
-            className="w-full"
-            onClick={handleResend}
-            disabled={isPending}
+    <AuthBackground>
+      <div className="w-full sm:max-w-md bg-surface-primary sm:bg-surface-primary/70 sm:backdrop-blur-xl rounded-t-3xl sm:rounded-3xl shadow-2xl ring-1 ring-white/30 dark:ring-white/10">
+        <div className="h-1.5 bg-gradient-to-r from-status-error via-primary to-status-error rounded-t-3xl" />
+        <div className="p-7 sm:p-9 text-center space-y-6">
+          {/* Error icon */}
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-status-error/10 to-status-error/5 border border-status-error/15 text-status-error">
+            <AlertCircle className="h-8 w-8" />
+          </div>
+
+          <div className="space-y-2">
+            <h1 className="text-2xl font-display font-bold text-text-primary">
+              Link expired
+            </h1>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              This magic link has expired or has already been used.
+              <br />
+              No worries — we&apos;ll send you a fresh one.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              error={error ?? undefined}
+              className="rounded-2xl h-12"
+            />
+            <Button
+              type="button"
+              className="w-full h-12 rounded-2xl font-semibold"
+              onClick={handleResend}
+              disabled={isPending}
+            >
+              {isPending ? "Sending\u2026" : "Send a new link"}
+            </Button>
+          </div>
+
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline underline-offset-2"
           >
-            Send a new link
-          </Button>
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to sign in
+          </Link>
         </div>
-        <Link href="/login" className="text-sm text-primary hover:underline">
-          Back to sign in
-        </Link>
       </div>
-    </main>
+    </AuthBackground>
   );
 }
 
