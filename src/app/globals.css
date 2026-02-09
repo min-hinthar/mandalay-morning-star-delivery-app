@@ -723,14 +723,31 @@
     animation-play-state: paused;
   }
 
+  /* Auth-specific gentle drift — like steam rising from a pot of Mohinga */
+  .animate-auth-drift-1 {
+    animation: auth-steam-drift 22s ease-in-out infinite;
+  }
+
+  .animate-auth-drift-2 {
+    animation: auth-steam-drift 28s ease-in-out infinite reverse;
+  }
+
+  .animate-auth-drift-3 {
+    animation: auth-steam-drift 18s ease-in-out infinite;
+  }
+
   /* Reduce motion preference */
   @media (prefers-reduced-motion: reduce) {
     .bg-gradient-animated,
+    .auth-gradient,
     .float-element,
     .pulse-ring,
     .btn-glow::before,
     .animate-shine-sweep,
-    .animate-hero-shimmer {
+    .animate-hero-shimmer,
+    .animate-auth-drift-1,
+    .animate-auth-drift-2,
+    .animate-auth-drift-3 {
       animation: none;
     }
 
@@ -744,7 +761,70 @@
   }
 }
 
+@layer components {
+  .auth-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(35deg 90% 65%),
+      hsl(15deg 80% 70%),
+      hsl(40deg 60% 85%),
+      hsl(35deg 90% 65%)
+    );
+    background-size: 400% 400%;
+    animation: auth-gradient-shift 20s ease infinite;
+  }
+
+  .dark .auth-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(35deg 70% 25%),
+      hsl(15deg 60% 30%),
+      hsl(40deg 40% 20%),
+      hsl(35deg 70% 25%)
+    );
+    background-size: 400% 400%;
+    animation: auth-gradient-shift 20s ease infinite;
+  }
+}
+
 /* Custom keyframes */
+@keyframes auth-gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  33% {
+    background-position: 50% 100%;
+  }
+  66% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Auth floating food drift — gentler than error-drift, more vertical (like rising steam) */
+@keyframes auth-steam-drift {
+  0% {
+    transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+  }
+  20% {
+    transform: translateX(8px) translateY(-14px) rotate(3deg) scale(1.02);
+  }
+  40% {
+    transform: translateX(-6px) translateY(-25px) rotate(-2deg) scale(0.98);
+  }
+  60% {
+    transform: translateX(10px) translateY(-18px) rotate(4deg) scale(1.01);
+  }
+  80% {
+    transform: translateX(-4px) translateY(-8px) rotate(-1deg) scale(0.99);
+  }
+  100% {
+    transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+  }
+}
+
 @keyframes gradient-shift {
   0%,
   100% {
