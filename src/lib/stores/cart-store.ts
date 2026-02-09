@@ -250,6 +250,16 @@ export const useCartStore = create<CartStore>()(
 
         return (item.basePriceCents + modifierTotal) * item.quantity;
       },
+
+      updateItemPrice: (cartItemId, newPriceCents) => {
+        set((state) => ({
+          items: state.items.map((item) =>
+            item.cartItemId === cartItemId
+              ? { ...item, basePriceCents: newPriceCents }
+              : item
+          ),
+        }));
+      },
     }),
     {
       name: "mms-cart",
