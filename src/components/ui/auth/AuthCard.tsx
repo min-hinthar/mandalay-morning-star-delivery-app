@@ -46,6 +46,13 @@ const headingCopy: Record<AuthState, string> = {
   error: "Something went wrong",
 };
 
+const subheadingCopy: Record<AuthState, string> = {
+  form: "Sign in to your Mandalay Morning Star account",
+  confirmation: "We sent you a magic link",
+  success: "",
+  error: "Let\u2019s try that again",
+};
+
 export function AuthCard({ children, className }: AuthCardProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const [state, setState] = useState<AuthState>("form");
@@ -66,11 +73,11 @@ export function AuthCard({ children, className }: AuthCardProps) {
 
   const cardMotion = shouldAnimate
     ? {
-        initial: { opacity: 0, y: 20 },
-        animate: { opacity: 1, y: 0 },
+        initial: { opacity: 0, y: 24, scale: 0.97 },
+        animate: { opacity: 1, y: 0, scale: 1 },
         transition: getSpring(spring.gentle),
       }
-    : { initial: false, animate: { opacity: 1, y: 0 } };
+    : { initial: false, animate: { opacity: 1, y: 0, scale: 1 } };
 
   const showHeader = state !== "success";
 
@@ -80,39 +87,75 @@ export function AuthCard({ children, className }: AuthCardProps) {
         {...cardMotion}
         className={cn(
           "w-full sm:max-w-md",
+          /* Solid on mobile, glass on desktop (Safari crash prevention) */
           "bg-surface-primary sm:bg-surface-primary/70 sm:backdrop-blur-xl",
-          "rounded-t-2xl sm:rounded-2xl",
-          "shadow-2xl",
+          "rounded-t-3xl sm:rounded-3xl",
+          /* Layered shadows for depth */
+          "shadow-[0_8px_40px_-12px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.04)]",
+          "dark:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.06)]",
+          /* Subtle border glow */
+          "ring-1 ring-white/30 dark:ring-white/10",
           className
         )}
       >
-        <div className="h-1 bg-gradient-to-r from-primary via-brand-golden to-primary rounded-t-2xl" />
-        <div className="p-6 sm:p-8">
+        {/* Warm gradient accent bar */}
+        <div className="h-1.5 bg-gradient-to-r from-primary via-secondary to-primary rounded-t-3xl" />
+
+        <div className="p-7 sm:p-9">
           {showHeader && (
             <div className="flex flex-col items-center text-center">
-              <m.div className="flex flex-col items-center gap-3" layoutId="app-logo">
-                <Image
-                  src="/logo.png"
-                  alt="Mandalay Morning Star"
-                  width={72}
-                  height={72}
-                  priority
-                  className="h-16 w-16"
-                />
+              <m.div
+                className="flex flex-col items-center gap-3"
+                layoutId="app-logo"
+              >
+                {/* Logo with soft golden glow */}
+                <div className="relative">
+                  <div
+                    className="absolute inset-0 rounded-full blur-xl opacity-40"
+                    style={{ background: "radial-gradient(circle, hsla(40, 80%, 60%, 0.5), transparent 70%)" }}
+                    aria-hidden="true"
+                  />
+                  <Image
+                    src="/logo.png"
+                    alt="Mandalay Morning Star"
+                    width={80}
+                    height={80}
+                    priority
+                    className="relative h-18 w-18"
+                  />
+                </div>
                 <div>
-                  <p className="text-lg font-display font-semibold text-text-primary">
+                  <p className="text-lg font-display font-bold text-text-primary tracking-tight">
                     Mandalay Morning Star
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    Burmese kitchen • Saturday delivery
+                  <p className="text-xs text-muted-foreground tracking-wide uppercase">
+                    Burmese kitchen &bull; Saturday delivery
                   </p>
                 </div>
               </m.div>
-              <h1 className="mt-6 text-2xl font-display font-semibold text-text-primary">
-                {headingCopy[state]}
-              </h1>
+
+              <AnimatePresence mode="wait">
+                <m.div
+                  key={state}
+                  initial={shouldAnimate ? { opacity: 0, y: 6 } : false}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={shouldAnimate ? { opacity: 0, y: -4 } : undefined}
+                  transition={{ duration: 0.2 }}
+                  className="mt-7"
+                >
+                  <h1 className="text-2xl font-display font-bold text-text-primary">
+                    {headingCopy[state]}
+                  </h1>
+                  {subheadingCopy[state] && (
+                    <p className="mt-1.5 text-sm text-muted-foreground">
+                      {subheadingCopy[state]}
+                    </p>
+                  )}
+                </m.div>
+              </AnimatePresence>
             </div>
           )}
+
           <AnimatePresence mode="wait">
             <m.div
               key={state}
@@ -120,7 +163,7 @@ export function AuthCard({ children, className }: AuthCardProps) {
               animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
               exit={shouldAnimate ? { opacity: 0, y: -8 } : undefined}
               transition={shouldAnimate ? getSpring(spring.gentle) : undefined}
-              className={showHeader ? "mt-6" : undefined}
+              className={showHeader ? "mt-8" : undefined}
             >
               {children}
             </m.div>
