@@ -81,12 +81,13 @@ export const CheckoutGate = memo(function CheckoutGate({
         </m.button>
       )}
 
-      {/* Checkout button */}
+      {/* Checkout button with green glow pulse on enable */}
       <m.div
+        className="relative"
         animate={
           shouldAnimate && justEnabled
             ? {
-                scale: [1, 1.05, 1],
+                scale: [1, 1.08, 1],
                 transition: {
                   type: "spring" as const,
                   stiffness: 400,
@@ -97,13 +98,23 @@ export const CheckoutGate = memo(function CheckoutGate({
             : { scale: 1 }
         }
       >
+        {/* Green glow behind button during pulse */}
+        {shouldAnimate && justEnabled && (
+          <m.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.5 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 rounded-xl bg-green-500/30 blur-lg pointer-events-none"
+          />
+        )}
         <Button
           variant={isDisabled ? "outline" : "success"}
           size="lg"
           onClick={onCheckout}
           disabled={isDisabled}
           className={cn(
-            "w-full text-base",
+            "relative w-full text-base",
             isDisabled
               ? "bg-surface-tertiary text-text-muted border-border cursor-not-allowed hover:bg-surface-tertiary hover:shadow-none"
               : "shadow-elevated"

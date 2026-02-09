@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, forwardRef, useCallback } from "react";
-import { m, AnimatePresence } from "framer-motion";
+import { m } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -59,7 +59,6 @@ export const AttentionSection = memo(
     if (problemItems.length === 0) return null;
 
     return (
-      <AnimatePresence>
         <m.div
           ref={ref}
           key="attention-section"
@@ -127,7 +126,6 @@ export const AttentionSection = memo(
             })}
           </div>
         </m.div>
-      </AnimatePresence>
     );
   })
 );
