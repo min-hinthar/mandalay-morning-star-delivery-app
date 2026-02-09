@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/hooks/useCart";
 import { useNavigationGuard } from "@/lib/hooks/useNavigationGuard";
 import { CartNavigationGuard } from "@/components/ui/cart/CartNavigationGuard";
+import { CartPageContent } from "@/components/ui/cart/CartPage";
 
 export default function CartPage() {
   const router = useRouter();
@@ -16,9 +17,10 @@ export default function CartPage() {
   });
 
   return (
-    <main className="min-h-screen bg-background p-8">
-      <h1 className="text-3xl font-display text-brand-red">Cart</h1>
-      <p className="mt-2 text-muted">Cart details will appear here.</p>
+    <main className="min-h-screen bg-background">
+      <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <CartPageContent />
+      </div>
 
       <CartNavigationGuard
         isOpen={showModal}
