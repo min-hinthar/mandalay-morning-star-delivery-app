@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 52 in progress. Plan 01 complete: cart validation types, store extensions, useCartValidation hook with hydration guard.
+**Current focus:** Phase 52 in progress. Plans 01-02 complete: validation infrastructure + overlay UI components.
 
 ## Current Position
 
 Phase: 52 (5 of 10 in v1.6)
-Plan: 1 of 5 in current phase
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-09 -- Completed 52-01-PLAN.md
+Last activity: 2026-02-09 -- Completed 52-02-PLAN.md
 
-Progress: [████░░░░░░░░░░░░░░░░░░░░] 20%
+Progress: [████████░░░░░░░░░░░░░░░░] 40%
 
 ## Milestones
 
@@ -28,12 +28,12 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
 | v1.6 Production Polish | 48-57 | ~23 | -- |
 
-**Total completed:** 51 phases, 225 plans, 284 requirements
+**Total completed:** 51 phases, 226 plans, 284 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 225
+- Total plans completed: 226
 - Average duration: --
 - Total execution time: --
 
@@ -72,6 +72,9 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 | CART-01-HYDRATE | useCartHydrated uses persist.hasHydrated() + onFinishHydration() for reliable gate | 52-01 |
 | CART-01-REFETCH | Force-refetch menu on validation mount for freshness (not stale cache) | 52-01 |
 | CART-01-SILENT | API errors return status 'error' with hasBlockingIssues: false (backend validates on submit) | 52-01 |
+| CART-02-SEMANTIC | Overlay uses bg-surface-inverse/40 (not bg-black/40) per semantic token lint rules | 52-02 |
+| CART-02-LOCALTYPE | CartItemValidation type defined locally in AttentionSection (promoted to cart.ts in plan 03) | 52-02 |
+| CART-02-BADGEBTN | PriceChangeBadge is a full button (whole badge tappable to dismiss, not just X icon) | 52-02 |
 
 ### Tech Debt (carried forward)
 
@@ -91,10 +94,10 @@ Progress: [████░░░░░░░░░░░░░░░░░░░
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 52-01-PLAN.md
+Stopped at: Completed 52-02-PLAN.md
 Resume file: None
-Next action: Execute 52-02-PLAN.md
+Next action: Execute 52-03-PLAN.md
 
 ---
 
-*Updated: 2026-02-09 -- Phase 52 plan 01 complete. Cart validation infrastructure: types (CartValidationResult, CartItemValidation), useCartValidation hook with hydration guard, updateItemPrice store action, MINIMUM_ORDER_CENTS constant.*
+*Updated: 2026-02-09 -- Phase 52 plan 02 complete. Validation UI components: ValidationOverlay (gray overlay + amber/red badge), PriceChangeBadge (dismissable amber/green badge), SuggestionRow (3 replacement cards), AttentionSection (problem items container with animated collapse). CartPage barrel established.*
