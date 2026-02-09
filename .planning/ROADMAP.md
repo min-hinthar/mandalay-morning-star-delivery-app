@@ -22,7 +22,7 @@ Final production-readiness pass before public launch. Ten phases covering safety
 - [x] **Phase 49: Branded 404 & Error Pages** - Premium error UX with mascot and navigation
 - [x] **Phase 50: Data Foundation & Admin Settings** - DB migration + admin settings backend/UI
 - [x] **Phase 51: Customer Settings** - Settings page with dietary, delivery, notification preferences
-- [ ] **Phase 52: Cart Validation & Cart Page** - Hydration-aware validation + full cart page
+- [x] **Phase 52: Cart Validation & Cart Page** - Hydration-aware validation + full cart page
 - [ ] **Phase 53: Auth Experience** - Branded auth forms, social login, premium animations
 - [ ] **Phase 54: Email System** - Transactional emails via Resend + React Email
 - [ ] **Phase 55: Search Enhancement** - Fuzzy matching, categories, thumbnails
@@ -115,11 +115,11 @@ Plans:
 **Notes**: Use /frontend-design skill. Validation gates on Zustand v5 persist.hasHydrated(). No new npm dependencies. Cart page recomposes existing cart drawer components into two-column layout with category grouping and attention section.
 
 Plans:
-- [ ] 52-01-PLAN.md — Validation infrastructure: types, cart store updateItemPrice, useCartHydrated + useCartValidation hooks
-- [ ] 52-02-PLAN.md — Validation UI components: ValidationOverlay, PriceChangeBadge, SuggestionRow, AttentionSection
-- [ ] 52-03-PLAN.md — Full cart page: CartPageContent, CartPageHeader, CartItemGroup, CartPageSummary, CheckoutGate, page.tsx
-- [ ] 52-04-PLAN.md — Cart drawer validation integration + CartItem validation props + barrel exports
-- [ ] 52-05-PLAN.md — Animation polish, edge cases, and full phase verification
+- [x] 52-01-PLAN.md — Validation infrastructure: types, cart store updateItemPrice, useCartHydrated + useCartValidation hooks
+- [x] 52-02-PLAN.md — Validation UI components: ValidationOverlay, PriceChangeBadge, SuggestionRow, AttentionSection
+- [x] 52-03-PLAN.md — Full cart page: CartPageContent, CartPageHeader, CartItemGroup, CartPageSummary, CheckoutGate, page.tsx
+- [x] 52-04-PLAN.md — Cart drawer validation integration + CartItem validation props + barrel exports
+- [x] 52-05-PLAN.md — Animation polish, edge cases, and full phase verification
 
 ### Phase 53: Auth Experience
 **Goal**: Auth pages feel premium and trustworthy -- branded design, social login, and delightful animations
@@ -216,7 +216,7 @@ Phases execute in numeric order: 48 -> 49 -> 50 -> 51 -> 52 -> 53 -> 54 -> 55 ->
 | 49. Branded 404 & Error Pages | v1.6 | 2/2 | Complete | 2026-02-08 |
 | 50. Data Foundation & Admin Settings | v1.6 | 4/4 | Complete | 2026-02-08 |
 | 51. Customer Settings | v1.6 | 5/5 | Complete | 2026-02-08 |
-| 52. Cart Validation & Cart Page | v1.6 | 0/2 | Not started | - |
+| 52. Cart Validation & Cart Page | v1.6 | 5/5 | Complete | 2026-02-08 |
 | 53. Auth Experience | v1.6 | 0/3 | Not started | - |
 | 54. Email System | v1.6 | 0/3 | Not started | - |
 | 55. Search Enhancement | v1.6 | 0/1 | Not started | - |
