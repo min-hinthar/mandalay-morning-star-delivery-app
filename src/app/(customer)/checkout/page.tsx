@@ -66,6 +66,7 @@ export default function CheckoutPage() {
   const { showModal, proceed, cancel, disable: disableGuard } = useNavigationGuard({
     enabled: !isEmpty,
     allowedPaths: ["/checkout"],
+    allowBackNavigation: true,
   });
 
   // Track direction for step transitions using ref for synchronous access

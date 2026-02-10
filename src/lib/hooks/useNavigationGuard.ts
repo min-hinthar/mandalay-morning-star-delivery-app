@@ -8,6 +8,8 @@ export interface UseNavigationGuardOptions {
   enabled: boolean;
   /** Routes that should NOT trigger the guard (e.g., ["/cart", "/checkout"]) */
   allowedPaths?: string[];
+  /** When true, browser back/forward navigates freely (no popstate guard) */
+  allowBackNavigation?: boolean;
 }
 
 export interface UseNavigationGuardReturn {
@@ -32,11 +34,13 @@ export interface UseNavigationGuardReturn {
 export function useNavigationGuard({
   enabled,
   allowedPaths = [],
+  allowBackNavigation = false,
 }: UseNavigationGuardOptions): UseNavigationGuardReturn {
   const pathname = usePathname();
   const [showModal, setShowModal] = useState(false);
   const enabledRef = useRef(enabled);
   const allowedRef = useRef(allowedPaths);
+  const allowBackRef = useRef(allowBackNavigation);
   const pendingUrlRef = useRef<string | null>(null);
 
   // Keep refs in sync
@@ -47,6 +51,10 @@ export function useNavigationGuard({
   useEffect(() => {
     allowedRef.current = allowedPaths;
   }, [allowedPaths]);
+
+  useEffect(() => {
+    allowBackRef.current = allowBackNavigation;
+  }, [allowBackNavigation]);
 
   // Check if a URL is in the allowed list
   const isAllowed = useCallback((url: string): boolean => {
@@ -73,7 +81,7 @@ export function useNavigationGuard({
 
   // ── Push initial history entry so popstate can intercept back button ──
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || allowBackNavigation) return;
 
     window.history.pushState({ navigationGuard: true }, "", pathname);
 
@@ -86,14 +94,14 @@ export function useNavigationGuard({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled]);
+  }, [enabled, allowBackNavigation]);
 
   // ── popstate (browser back/forward) ──
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || allowBackNavigation) return;
 
     const handlePopState = () => {
-      if (!enabledRef.current) return;
+      if (!enabledRef.current || allowBackRef.current) return;
 
       window.history.pushState({ navigationGuard: true }, "", pathname);
       pendingUrlRef.current = null; // back nav — proceed uses history.go
@@ -102,7 +110,7 @@ export function useNavigationGuard({
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [enabled, pathname]);
+  }, [enabled, allowBackNavigation, pathname]);
 
   // ── pushState monkey-patch (intercepts Next.js client-side navigation) ──
   useEffect(() => {

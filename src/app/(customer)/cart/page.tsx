@@ -25,7 +25,7 @@ export default function CartPage() {
   // Navigation guard: nudge toward checkout when leaving cart with items
   const { showModal, proceed, cancel } = useNavigationGuard({
     enabled: !isEmpty,
-    allowedPaths: ["/cart", "/checkout", "/menu", "/"],
+    allowedPaths: ["/cart", "/checkout"],
   });
 
   // While mobile redirect is in flight, render nothing
