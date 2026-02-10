@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 54 in progress. Email infrastructure (54-01), shared components (54-02), all 4 email templates (54-03, 54-04), route integration (54-05), and cron/webhook endpoints (54-06) complete. All order lifecycle events now trigger branded emails via sendEmail().
+**Current focus:** Phase 54 complete. Email infrastructure (54-01), shared components (54-02), all 4 email templates (54-03, 54-04), route integration (54-05), cron/webhook endpoints (54-06), and admin email management API (54-07) complete. Full email system operational.
 
 ## Current Position
 
 Phase: 54 (7 of 10 in v1.6)
-Plan: 5 of ~6 in current phase (54-01 through 54-06 complete)
-Status: In progress
-Last activity: 2026-02-10 -- Completed 54-05-PLAN.md
+Plan: 7 of 7 in current phase (54-01 through 54-07 complete)
+Status: Phase complete
+Last activity: 2026-02-10 -- Completed 54-07-PLAN.md
 
-Progress: [█████████████████████████████░] ~95%
+Progress: [██████████████████████████████] ~97%
 
 ## Milestones
 
@@ -28,7 +28,7 @@ Progress: [███████████████████████
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
 | v1.6 Production Polish | 48-57 | ~23 | -- |
 
-**Total completed:** 52 phases, 237 plans, 297 requirements
+**Total completed:** 52 phases, 238 plans, 297 requirements
 
 ## Performance Metrics
 
@@ -106,6 +106,9 @@ Progress: [███████████████████████
 | EMAIL-05-FIREFORGET | All sendEmail() calls use void for fire-and-forget; email failure never blocks API responses | 54-05 |
 | EMAIL-05-IDEMPOTENCY | Webhook idempotency uses check-then-claim with UNIQUE constraint as atomic guard | 54-05 |
 | EMAIL-05-CREATEELEMENT | React.createElement() in .ts route files instead of JSX (no JSX transform in .ts) | 54-05 |
+| EMAIL-07-CASTQUERY | Cast notification_logs query results in admin email routes (same pattern as 54-06) | 54-07 |
+| EMAIL-07-BUILDHELPER | buildEmailElement() centralizes template selection for resend/manual/test routes | 54-07 |
+| EMAIL-07-TESTBYPASS | Test emails bypass sendEmail() pipeline, use Resend directly (admin-initiated) | 54-07 |
 
 ### Tech Debt (carried forward)
 
@@ -126,10 +129,10 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 54-05-PLAN.md
+Stopped at: Completed 54-07-PLAN.md
 Resume file: None
-Next action: Phase 54 email system nearly complete; remaining plans if any
+Next action: Phase 54 email system complete; move to next phase in v1.6
 
 ---
 
-*Updated: 2026-02-10 -- Phase 54-05 complete. Stripe webhook idempotency via webhook_events table. Fire-and-forget email triggers wired into all 4 order lifecycle routes: checkout confirmation, admin cancel, admin refund, customer cancel. Old Edge Function call removed.*
+*Updated: 2026-02-10 -- Phase 54-07 complete. Admin email management API: paginated log with filtering, detail view with delivery timeline, resend failed emails, manual trigger, test email sending. Phase 54 email system fully complete.*
