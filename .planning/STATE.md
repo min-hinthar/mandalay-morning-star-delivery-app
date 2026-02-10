@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 54 in progress. Email infrastructure (54-01), shared components (54-02), and all 4 email templates (54-03, 54-04) complete. Refund + delivery reminder templates ready for sendEmail() integration.
+**Current focus:** Phase 54 in progress. Email infrastructure (54-01), shared components (54-02), all 4 email templates (54-03, 54-04), and cron/webhook endpoints (54-06) complete. Delivery reminder cron + Resend webhook for email tracking deployed.
 
 ## Current Position
 
 Phase: 54 (7 of 10 in v1.6)
-Plan: 4 of ~6 in current phase (54-01 through 54-04 complete)
+Plan: 6 of ~6 in current phase (54-01 through 54-04, 54-06 complete)
 Status: In progress
-Last activity: 2026-02-10 -- Completed 54-04-PLAN.md
+Last activity: 2026-02-10 -- Completed 54-06-PLAN.md
 
-Progress: [██████████████████████████░░░] ~90%
+Progress: [████████████████████████████░] ~93%
 
 ## Milestones
 
@@ -100,6 +100,9 @@ Progress: [███████████████████████
 | EMAIL-03-FALLBACK | Refund amount defaults to totalCents if refundAmountCents not provided | 54-03 |
 | EMAIL-04-HELPERS | Extracted shared helpers.ts for formatPrice/formatDate/shortOrderId/font stacks across email templates | 54-04 |
 | EMAIL-04-MAPFALLBACK | Static map only renders when NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is set; View on Maps link always shown | 54-04 |
+| EMAIL-06-DRIVERCAST | Cast drivers table query results due to missing Database type definition | 54-06 |
+| EMAIL-06-LOGCAST | Cast notification_logs query results in webhook handler for same reason | 54-06 |
+| EMAIL-06-SIMPLEAUTH | Resend webhook uses simple webhook-secret header check (not full svix verification) | 54-06 |
 
 ### Tech Debt (carried forward)
 
@@ -109,6 +112,7 @@ Progress: [███████████████████████
 | Lighthouse score 30-45 | Medium | Deferred to v1.7 |
 | UnifiedMenuItemCard 540 lines | Low | Documented exception |
 | Lighthouse CI warn-only | Low | Deferred to v1.7 |
+| drivers/notification_logs not in Database type | Low | Requires Supabase type gen or manual addition |
 
 ### Blockers/Concerns
 
@@ -119,10 +123,10 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 54-04-PLAN.md
+Stopped at: Completed 54-06-PLAN.md
 Resume file: None
-Next action: Continue to 54-05 (webhook handler) or 54-06 (admin email management)
+Next action: Continue to 54-05 (sendEmail integration / order confirmation flow) or Phase 54 remaining plans
 
 ---
 
-*Updated: 2026-02-10 -- Phase 54-04 complete. RefundNotification (MAIL-03) with full/partial breakdown + DeliveryReminder (MAIL-04) with food excitement, static map fallback, and DeliveryBlock reuse. All 4 transactional email templates now ready for sendEmail() integration.*
+*Updated: 2026-02-10 -- Phase 54-06 complete. Delivery reminder cron endpoint with CRON_SECRET auth, order dedup, 100ms stagger. Resend webhook mapping 5 event types to notification_logs status + metadata event history. All cron/webhook email infrastructure now operational.*
