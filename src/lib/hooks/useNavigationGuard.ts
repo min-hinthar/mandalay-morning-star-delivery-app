@@ -42,6 +42,7 @@ export function useNavigationGuard({
   const allowedRef = useRef(allowedPaths);
   const allowBackRef = useRef(allowBackNavigation);
   const pendingUrlRef = useRef<string | null>(null);
+  const guardIdRef = useRef("");
 
   // Keep refs in sync
   useEffect(() => {
@@ -79,20 +80,25 @@ export function useNavigationGuard({
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [enabled]);
 
-  // ── Push initial history entry so popstate can intercept back button ──
+  // ── Push sentinel history entry so popstate can intercept back button ──
+  // On remount (e.g. returning via back button), reuse the existing sentinel
+  // instead of pushing a duplicate. No cleanup — history.back() is async and
+  // triggers false-positive popstate events under React Strict Mode.
   useEffect(() => {
     if (!enabled || allowBackNavigation) return;
 
-    window.history.pushState({ navigationGuard: true }, "", pathname);
+    if (
+      window.history.state?.navigationGuard &&
+      window.history.state._guardId
+    ) {
+      guardIdRef.current = window.history.state._guardId;
+      return;
+    }
 
-    return () => {
-      if (
-        window.history.state &&
-        window.history.state.navigationGuard === true
-      ) {
-        window.history.back();
-      }
-    };
+    const id = `g-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    guardIdRef.current = id;
+
+    window.history.pushState({ navigationGuard: true, _guardId: id }, "", pathname);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, allowBackNavigation]);
 
@@ -103,7 +109,17 @@ export function useNavigationGuard({
     const handlePopState = () => {
       if (!enabledRef.current || allowBackRef.current) return;
 
-      window.history.pushState({ navigationGuard: true }, "", pathname);
+      // If the current state still carries our sentinel's _guardId, this
+      // is a spurious popstate from Next.js navigation (replaceState merges
+      // our sentinel state). A real back press pops past our sentinel, so
+      // the current state will NOT have our _guardId.
+      if (window.history.state?._guardId === guardIdRef.current) return;
+
+      window.history.pushState(
+        { navigationGuard: true, _guardId: guardIdRef.current },
+        "",
+        pathname,
+      );
       pendingUrlRef.current = null; // back nav — proceed uses history.go
       setShowModal(true);
     };
@@ -112,7 +128,32 @@ export function useNavigationGuard({
     return () => window.removeEventListener("popstate", handlePopState);
   }, [enabled, allowBackNavigation, pathname]);
 
-  // ── pushState monkey-patch (intercepts Next.js client-side navigation) ──
+  // ── Link click interceptor (capture phase — fires before Next.js) ──
+  useEffect(() => {
+    if (!enabled) return;
+
+    const handleClick = (e: MouseEvent) => {
+      if (!enabledRef.current) return;
+
+      const anchor = (e.target as HTMLElement).closest("a[href]");
+      if (!anchor) return;
+
+      const href = (anchor as HTMLAnchorElement).href;
+      if (!href || isAllowed(href)) return;
+
+      // Block Next.js from handling this link click
+      e.preventDefault();
+      e.stopPropagation();
+
+      pendingUrlRef.current = new URL(href, window.location.origin).pathname;
+      setShowModal(true);
+    };
+
+    document.addEventListener("click", handleClick, true);
+    return () => document.removeEventListener("click", handleClick, true);
+  }, [enabled, isAllowed]);
+
+  // ── pushState fallback (catches programmatic router.push to disallowed paths) ──
   useEffect(() => {
     if (!enabled) return;
 
