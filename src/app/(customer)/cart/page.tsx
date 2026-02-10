@@ -32,7 +32,7 @@ export default function CartPage() {
   if (isMobile) return null;
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background pb-40">
       <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <CartPageContent />
       </div>
