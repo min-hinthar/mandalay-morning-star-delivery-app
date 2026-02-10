@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 54 in progress. Email infrastructure (54-01), shared components (54-02), all 4 email templates (54-03, 54-04), and cron/webhook endpoints (54-06) complete. Delivery reminder cron + Resend webhook for email tracking deployed.
+**Current focus:** Phase 54 in progress. Email infrastructure (54-01), shared components (54-02), all 4 email templates (54-03, 54-04), route integration (54-05), and cron/webhook endpoints (54-06) complete. All order lifecycle events now trigger branded emails via sendEmail().
 
 ## Current Position
 
 Phase: 54 (7 of 10 in v1.6)
-Plan: 6 of ~6 in current phase (54-01 through 54-04, 54-06 complete)
+Plan: 5 of ~6 in current phase (54-01 through 54-06 complete)
 Status: In progress
-Last activity: 2026-02-10 -- Completed 54-06-PLAN.md
+Last activity: 2026-02-10 -- Completed 54-05-PLAN.md
 
-Progress: [████████████████████████████░] ~93%
+Progress: [█████████████████████████████░] ~95%
 
 ## Milestones
 
@@ -103,6 +103,9 @@ Progress: [███████████████████████
 | EMAIL-06-DRIVERCAST | Cast drivers table query results due to missing Database type definition | 54-06 |
 | EMAIL-06-LOGCAST | Cast notification_logs query results in webhook handler for same reason | 54-06 |
 | EMAIL-06-SIMPLEAUTH | Resend webhook uses simple webhook-secret header check (not full svix verification) | 54-06 |
+| EMAIL-05-FIREFORGET | All sendEmail() calls use void for fire-and-forget; email failure never blocks API responses | 54-05 |
+| EMAIL-05-IDEMPOTENCY | Webhook idempotency uses check-then-claim with UNIQUE constraint as atomic guard | 54-05 |
+| EMAIL-05-CREATEELEMENT | React.createElement() in .ts route files instead of JSX (no JSX transform in .ts) | 54-05 |
 
 ### Tech Debt (carried forward)
 
@@ -118,15 +121,15 @@ Progress: [███████████████████████
 
 - Social login (AUTH-02, AUTH-03) requires Google Cloud Console + Apple Developer Portal config -- ops gap, not code gap
 - Resend domain verification needed before email features work in production
-- Existing send-order-confirmation Edge Function is full implementation (will be deprecated after Phase 54)
+- Old send-order-confirmation Edge Function replaced by sendEmail() in 54-05; Edge Function can be removed
 
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 54-06-PLAN.md
+Stopped at: Completed 54-05-PLAN.md
 Resume file: None
-Next action: Continue to 54-05 (sendEmail integration / order confirmation flow) or Phase 54 remaining plans
+Next action: Phase 54 email system nearly complete; remaining plans if any
 
 ---
 
-*Updated: 2026-02-10 -- Phase 54-06 complete. Delivery reminder cron endpoint with CRON_SECRET auth, order dedup, 100ms stagger. Resend webhook mapping 5 event types to notification_logs status + metadata event history. All cron/webhook email infrastructure now operational.*
+*Updated: 2026-02-10 -- Phase 54-05 complete. Stripe webhook idempotency via webhook_events table. Fire-and-forget email triggers wired into all 4 order lifecycle routes: checkout confirmation, admin cancel, admin refund, customer cancel. Old Edge Function call removed.*
