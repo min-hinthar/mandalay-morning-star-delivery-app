@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 54 in progress. Email infrastructure (54-01) complete: sendEmail() with Resend client, webhook idempotency, retry pipeline. Shared components (54-02) partially committed.
+**Current focus:** Phase 54 in progress. Email infrastructure (54-01), shared components (54-02), and all 4 email templates (54-03, 54-04) complete. Refund + delivery reminder templates ready for sendEmail() integration.
 
 ## Current Position
 
 Phase: 54 (7 of 10 in v1.6)
-Plan: 1 of ~6 in current phase (54-01 complete, 54-02 partial)
+Plan: 4 of ~6 in current phase (54-01 through 54-04 complete)
 Status: In progress
-Last activity: 2026-02-10 -- Completed 54-01-PLAN.md
+Last activity: 2026-02-10 -- Completed 54-04-PLAN.md
 
 Progress: [██████████████████████████░░░] ~90%
 
@@ -95,6 +95,8 @@ Progress: [███████████████████████
 | EMAIL-01-TAILWIND | Tailwind imported from @react-email/components (not separate @react-email/tailwind) | 54-02 |
 | EMAIL-02-FONTSTK | Georgia/Palatino serif headings + system sans-serif body in emails (no Google Fonts) | 54-02 |
 | EMAIL-03-INLINE | Heavy inline styles alongside Tailwind for email client compat | 54-02 |
+| EMAIL-04-HELPERS | Extracted shared helpers.ts for formatPrice/formatDate/shortOrderId/font stacks across email templates | 54-04 |
+| EMAIL-04-MAPFALLBACK | Static map only renders when NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is set; View on Maps link always shown | 54-04 |
 
 ### Tech Debt (carried forward)
 
@@ -114,10 +116,10 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 54-01-PLAN.md
+Stopped at: Completed 54-04-PLAN.md
 Resume file: None
-Next action: Complete 54-02-PLAN.md execution (partially committed) or continue to 54-03
+Next action: Continue to 54-05 (webhook handler) or 54-06 (admin email management)
 
 ---
 
-*Updated: 2026-02-10 -- Phase 54-01 complete. Email infrastructure: resend + react-email packages, webhook_events idempotency table, notification enum expansions, sendEmail() with kill switch/pref check/retry/logging pipeline. 54-02 shared components partially committed from prior session.*
+*Updated: 2026-02-10 -- Phase 54-04 complete. RefundNotification (MAIL-03) with full/partial breakdown + DeliveryReminder (MAIL-04) with food excitement, static map fallback, and DeliveryBlock reuse. All 4 transactional email templates now ready for sendEmail() integration.*
