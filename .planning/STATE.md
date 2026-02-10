@@ -95,6 +95,9 @@ Progress: [███████████████████████
 | EMAIL-01-TAILWIND | Tailwind imported from @react-email/components (not separate @react-email/tailwind) | 54-02 |
 | EMAIL-02-FONTSTK | Georgia/Palatino serif headings + system sans-serif body in emails (no Google Fonts) | 54-02 |
 | EMAIL-03-INLINE | Heavy inline styles alongside Tailwind for email client compat | 54-02 |
+| EMAIL-03-SPLIT | Extracted OrderTotalsTable, SuggestedItems, SupportSection as shared components for 400-line limit | 54-03 |
+| EMAIL-03-NOTRACKER | OrderCancellation omits OrderStatusTracker (cancelled not in delivery status flow) | 54-03 |
+| EMAIL-03-FALLBACK | Refund amount defaults to totalCents if refundAmountCents not provided | 54-03 |
 | EMAIL-04-HELPERS | Extracted shared helpers.ts for formatPrice/formatDate/shortOrderId/font stacks across email templates | 54-04 |
 | EMAIL-04-MAPFALLBACK | Static map only renders when NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is set; View on Maps link always shown | 54-04 |
 
