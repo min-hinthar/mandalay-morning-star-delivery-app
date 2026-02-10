@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 54 in progress. Email system: shared React Email components + fixtures for template composition.
+**Current focus:** Phase 54 in progress. Email infrastructure (54-01) complete: sendEmail() with Resend client, webhook idempotency, retry pipeline. Shared components (54-02) partially committed.
 
 ## Current Position
 
 Phase: 54 (7 of 10 in v1.6)
-Plan: 2 of ~6 in current phase
+Plan: 1 of ~6 in current phase (54-01 complete, 54-02 partial)
 Status: In progress
-Last activity: 2026-02-09 -- Completed 54-02-PLAN.md
+Last activity: 2026-02-10 -- Completed 54-01-PLAN.md
 
 Progress: [██████████████████████████░░░] ~90%
 
@@ -89,6 +89,9 @@ Progress: [███████████████████████
 | AUTH-04-SPARKLE | MagicLinkConfirmation uses 4 animated Sparkles icons around envelope | 53-04 |
 | AUTH-05-RING | LoginSuccessCeremony uses expanding golden ring + 6-sparkle burst computed with trig | 53-06 |
 | AUTH-06-EXPIRED | Expired page wrapped in AuthBackground for brand consistency | 53-05 |
+| EMAIL-01-CATEGORY | Used 'notifications' category for email_sending_enabled setting (matches existing CHECK constraint) | 54-01 |
+| EMAIL-01-FAILOPEN | Kill switch check fails open -- sending continues if app_settings unreadable | 54-01 |
+| EMAIL-01-NEWCUST | Customers without customer_settings row default to all notifications opted-in | 54-01 |
 | EMAIL-01-TAILWIND | Tailwind imported from @react-email/components (not separate @react-email/tailwind) | 54-02 |
 | EMAIL-02-FONTSTK | Georgia/Palatino serif headings + system sans-serif body in emails (no Google Fonts) | 54-02 |
 | EMAIL-03-INLINE | Heavy inline styles alongside Tailwind for email client compat | 54-02 |
@@ -110,11 +113,11 @@ Progress: [███████████████████████
 
 ## Session Continuity
 
-Last session: 2026-02-09
-Stopped at: Completed 54-02-PLAN.md
+Last session: 2026-02-10
+Stopped at: Completed 54-01-PLAN.md
 Resume file: None
-Next action: Execute 54-03-PLAN.md (or next plan in phase)
+Next action: Complete 54-02-PLAN.md execution (partially committed) or continue to 54-03
 
 ---
 
-*Updated: 2026-02-09 -- Phase 54-02 complete. 6 shared React Email components (EmailLayout, BrandHeader, BrandFooter, OrderStatusTracker, OrderItemsTable, DeliveryBlock) + 4 fixture objects with Burmese menu data. Ready for template composition in plans 03-06.*
+*Updated: 2026-02-10 -- Phase 54-01 complete. Email infrastructure: resend + react-email packages, webhook_events idempotency table, notification enum expansions, sendEmail() with kill switch/pref check/retry/logging pipeline. 54-02 shared components partially committed from prior session.*
