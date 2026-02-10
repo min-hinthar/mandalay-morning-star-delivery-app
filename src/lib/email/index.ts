@@ -1,3 +1,4 @@
+export { buildEmailElement } from "./build";
 export { getResendClient } from "./client";
 export {
   APP_URL,
