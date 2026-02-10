@@ -24,7 +24,7 @@ Final production-readiness pass before public launch. Ten phases covering safety
 - [x] **Phase 51: Customer Settings** - Settings page with dietary, delivery, notification preferences
 - [x] **Phase 52: Cart Validation & Cart Page** - Hydration-aware validation + full cart page
 - [x] **Phase 53: Auth Experience** - Branded auth forms, social login, premium animations
-- [ ] **Phase 54: Email System** - Transactional emails via Resend + React Email
+- [x] **Phase 54: Email System** - Transactional emails via Resend + React Email
 - [ ] **Phase 55: Search Enhancement** - Fuzzy matching, categories, thumbnails
 - [ ] **Phase 56: Driver Offline Sync** - Queue consolidation with exponential backoff
 - [ ] **Phase 57: Admin & Driver Polish** - Premium visual finish across all admin/driver pages
@@ -155,14 +155,14 @@ Plans:
 **Notes**: Install 3 new server-only packages: resend, @react-email/components, @react-email/render. Zero client bundle impact. Existing send-order-confirmation Edge Function replaced by Next.js API routes + React Email. Delivery reminder email (MAIL-04) fires morning of delivery via cron endpoint.
 
 Plans:
-- [ ] 54-01-PLAN.md — DB migration (webhook_events + enum expansion) + email service layer (sendEmail with retry/logging/preferences)
-- [ ] 54-02-PLAN.md — Shared email components (EmailLayout, BrandHeader, BrandFooter, OrderStatusTracker, OrderItemsTable, DeliveryBlock) + fixtures
-- [ ] 54-03-PLAN.md — Order Confirmation (MAIL-01) + Order Cancellation (MAIL-02) email templates
-- [ ] 54-04-PLAN.md — Refund Notification (MAIL-03) + Delivery Reminder (MAIL-04) email templates
-- [ ] 54-05-PLAN.md — Stripe webhook idempotency (MAIL-05) + email triggers in webhook/admin/customer cancel/refund routes
-- [ ] 54-06-PLAN.md — Delivery reminder cron endpoint + Resend webhook for email status tracking
-- [ ] 54-07-PLAN.md — Admin email management API routes (log, detail, resend, manual trigger, test email)
-- [ ] 54-08-PLAN.md — Admin email UI (settings kill switch + test buttons, email log page, per-order email history)
+- [x] 54-01-PLAN.md — DB migration (webhook_events + enum expansion) + email service layer (sendEmail with retry/logging/preferences)
+- [x] 54-02-PLAN.md — Shared email components (EmailLayout, BrandHeader, BrandFooter, OrderStatusTracker, OrderItemsTable, DeliveryBlock) + fixtures
+- [x] 54-03-PLAN.md — Order Confirmation (MAIL-01) + Order Cancellation (MAIL-02) email templates
+- [x] 54-04-PLAN.md — Refund Notification (MAIL-03) + Delivery Reminder (MAIL-04) email templates
+- [x] 54-05-PLAN.md — Stripe webhook idempotency (MAIL-05) + email triggers in webhook/admin/customer cancel/refund routes
+- [x] 54-06-PLAN.md — Delivery reminder cron endpoint + Resend webhook for email status tracking
+- [x] 54-07-PLAN.md — Admin email management API routes (log, detail, resend, manual trigger, test email)
+- [x] 54-08-PLAN.md — Admin email UI (settings kill switch + test buttons, email log page, per-order email history)
 
 ### Phase 55: Search Enhancement
 **Goal**: Search finds what customers want even with typos on Burmese dish names
@@ -225,7 +225,7 @@ Phases execute in numeric order: 48 -> 49 -> 50 -> 51 -> 52 -> 53 -> 54 -> 55 ->
 | 51. Customer Settings | v1.6 | 5/5 | Complete | 2026-02-08 |
 | 52. Cart Validation & Cart Page | v1.6 | 5/5 | Complete | 2026-02-08 |
 | 53. Auth Experience | v1.6 | 6/6 | Complete | 2026-02-09 |
-| 54. Email System | v1.6 | 0/3 | Not started | - |
+| 54. Email System | v1.6 | 8/8 | Complete | 2026-02-09 |
 | 55. Search Enhancement | v1.6 | 0/1 | Not started | - |
 | 56. Driver Offline Sync | v1.6 | 0/2 | Not started | - |
 | 57. Admin & Driver Polish | v1.6 | 0/4 | Not started | - |
