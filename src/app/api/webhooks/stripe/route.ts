@@ -1,12 +1,15 @@
+import React from "react";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe/server";
 import { createServiceClient } from "@/lib/supabase/server";
+import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
+import { OrderConfirmation } from "@/emails/OrderConfirmation";
+import { RefundNotification } from "@/emails/RefundNotification";
 import type Stripe from "stripe";
 
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
 export async function POST(request: Request) {
   if (!WEBHOOK_SECRET) {
@@ -45,6 +48,27 @@ export async function POST(request: Request) {
 
   // Use service role client to bypass RLS (webhook has no user context)
   const supabase = createServiceClient();
+
+  // Check idempotency — has this event already been processed?
+  const { data: existing } = await supabase
+    .from("webhook_events")
+    .select("id")
+    .eq("event_id", event.id)
+    .single();
+
+  if (existing) {
+    return NextResponse.json({ received: true, duplicate: true });
+  }
+
+  // Claim the event (UNIQUE constraint is the atomic guard)
+  const { error: claimError } = await supabase
+    .from("webhook_events")
+    .insert({ event_id: event.id, event_type: event.type });
+
+  if (claimError) {
+    // Unique constraint violation = another instance processing
+    return NextResponse.json({ received: true, duplicate: true });
+  }
 
   try {
     switch (event.type) {
@@ -120,41 +144,86 @@ async function handleCheckoutSessionCompleted(
 
   logger.info(`Order ${orderId} confirmed via webhook`, { orderId, api: "stripe-webhook", flowId: "checkout" });
 
-  // Trigger order confirmation email via Supabase Edge Function
-  await sendOrderConfirmationEmail(orderId);
-}
+  // Fetch full order data for email
+  const { data: orderData } = await supabase
+    .from("orders")
+    .select(`
+      id, user_id, subtotal_cents, delivery_fee_cents, tax_cents, total_cents,
+      delivery_window_start, delivery_window_end, special_instructions, placed_at,
+      profiles!orders_user_id_fkey ( email, full_name ),
+      addresses ( line_1, line_2, city, state, postal_code ),
+      order_items (
+        name_snapshot, quantity, line_total_cents,
+        order_item_modifiers ( name_snapshot, price_delta_snapshot )
+      )
+    `)
+    .eq("id", orderId)
+    .single();
 
-/**
- * Send order confirmation email via Supabase Edge Function
- */
-async function sendOrderConfirmationEmail(orderId: string): Promise<void> {
-  if (!SUPABASE_URL) {
-    logger.warn("SUPABASE_URL is not configured, skipping email", { orderId, api: "stripe-webhook", flowId: "email" });
+  if (!orderData) {
+    logger.error("Could not fetch order data for confirmation email", { orderId, api: "stripe-webhook", flowId: "email" });
     return;
   }
 
-  try {
-    const edgeFunctionUrl = `${SUPABASE_URL}/functions/v1/send-order-confirmation`;
+  const profile = orderData.profiles as unknown as { email: string | null; full_name: string | null } | null;
+  const address = orderData.addresses as unknown as { line_1: string; line_2: string | null; city: string; state: string; postal_code: string } | null;
+  const items = (orderData.order_items as unknown as Array<{
+    name_snapshot: string;
+    quantity: number;
+    line_total_cents: number;
+    order_item_modifiers: Array<{ name_snapshot: string; price_delta_snapshot: number }>;
+  }>) || [];
 
-    const response = await fetch(edgeFunctionUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ orderId }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      logger.error("Failed to send confirmation email", { orderId, errorData, api: "stripe-webhook", flowId: "email" });
-      // Don't throw - email failure shouldn't fail the webhook
-    } else {
-      logger.info(`Order confirmation email sent for order ${orderId}`, { orderId, api: "stripe-webhook", flowId: "email" });
-    }
-  } catch (error) {
-    // Log but don't throw - email failure shouldn't fail the webhook
-    logger.exception(error, { orderId, api: "stripe-webhook", flowId: "email" });
+  const customerEmail = profile?.email;
+  if (!customerEmail) {
+    logger.error("No customer email for order confirmation", { orderId, api: "stripe-webhook", flowId: "email" });
+    return;
   }
+
+  const shortId = orderId.slice(0, 8).toUpperCase();
+
+  // Fire-and-forget: email must not block webhook response
+  void sendEmail({
+    to: customerEmail,
+    subject: `\uD83C\uDF5C Your order is confirmed! Order #${shortId}`,
+    react: React.createElement(OrderConfirmation, {
+      customerName: profile?.full_name || "Valued Customer",
+      orderId,
+      items: items.map((item) => ({
+        name: item.name_snapshot,
+        quantity: item.quantity,
+        lineTotalCents: item.line_total_cents,
+        modifiers: item.order_item_modifiers?.map((m) => ({
+          name: m.name_snapshot,
+          priceDelta: m.price_delta_snapshot,
+        })),
+      })),
+      subtotalCents: orderData.subtotal_cents,
+      deliveryFeeCents: orderData.delivery_fee_cents,
+      taxCents: orderData.tax_cents,
+      totalCents: orderData.total_cents,
+      deliveryWindowStart: orderData.delivery_window_start ?? undefined,
+      deliveryWindowEnd: orderData.delivery_window_end ?? undefined,
+      address: address
+        ? {
+            line1: address.line_1,
+            line2: address.line_2 ?? undefined,
+            city: address.city,
+            state: address.state,
+            postalCode: address.postal_code,
+          }
+        : { line1: "Address on file", city: "", state: "", postalCode: "" },
+      specialInstructions: orderData.special_instructions ?? undefined,
+      placedAt: orderData.placed_at,
+    }),
+    type: "order_confirmation",
+    orderId,
+    userId: orderData.user_id,
+    mandatory: true,
+    idempotencyKey: `order-confirmation-${orderId}`,
+  });
+
+  logger.info(`Order confirmation email triggered for ${orderId}`, { orderId, api: "stripe-webhook", flowId: "email" });
 }
 
 /**
@@ -233,7 +302,7 @@ async function handleChargeRefunded(
   // Find and update the order
   const { data: order, error: findError } = await supabase
     .from("orders")
-    .select("id, status")
+    .select("id, status, user_id, total_cents")
     .eq("stripe_payment_intent_id", paymentIntentId)
     .single();
 
@@ -268,5 +337,46 @@ async function handleChargeRefunded(
       api: "stripe-webhook",
       flowId: "refund",
     });
+  }
+
+  // Trigger refund notification email
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("email, full_name")
+    .eq("id", order.user_id)
+    .single();
+
+  if (profile?.email) {
+    const refundAmountCents = charge.amount_refunded;
+    const isPartialRefund = charge.amount_refunded < charge.amount;
+
+    void sendEmail({
+      to: profile.email,
+      subject: `Your refund of $${(refundAmountCents / 100).toFixed(2)} has been processed`,
+      react: React.createElement(RefundNotification, {
+        customerName: profile.full_name || "Valued Customer",
+        orderId: order.id,
+        isPartialRefund,
+        refundedItems: [
+          {
+            name: isPartialRefund ? "Partial refund" : "Full order refund",
+            quantity: 1,
+            refundAmountCents,
+          },
+        ],
+        originalTotalCents: order.total_cents,
+        refundAmountCents,
+        refundMethod: "Original payment method",
+        refundTimeline: "3-5 business days",
+        processedAt: new Date().toISOString(),
+      }),
+      type: "refund",
+      orderId: order.id,
+      userId: order.user_id,
+      mandatory: true,
+      idempotencyKey: `refund-${charge.id}`,
+    });
+
+    logger.info(`Refund email triggered for order ${order.id}`, { orderId: order.id, api: "stripe-webhook", flowId: "email" });
   }
 }
