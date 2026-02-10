@@ -1,7 +1,10 @@
+import React from "react";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { refundOrderSchema } from "@/lib/validations/order";
+import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
+import { RefundNotification } from "@/emails/RefundNotification";
 import type { Json } from "@/types/database";
 
 interface OrderItemRow {
@@ -58,7 +61,7 @@ export async function POST(
     // Verify order exists
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("id, user_id, delivery_fee_cents")
+      .select("id, user_id, delivery_fee_cents, total_cents")
       .eq("id", orderId)
       .single();
 
@@ -209,13 +212,45 @@ export async function POST(
       });
     }
 
-    // TODO: If notifyCustomer is true, trigger notification
+    // Trigger refund email if requested
     if (notifyCustomer) {
-      logger.info("Customer notification requested for order refund", {
-        orderId,
-        customerId: order.user_id,
-        totalRefundCents,
-      });
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email, full_name")
+        .eq("id", order.user_id)
+        .single();
+
+      if (profile?.email) {
+        const isPartialRefund = totalRefundCents < (order.total_cents ?? 0);
+
+        void sendEmail({
+          to: profile.email,
+          subject: `Your refund of $${(totalRefundCents / 100).toFixed(2)} has been processed`,
+          react: React.createElement(RefundNotification, {
+            customerName: profile.full_name || "Valued Customer",
+            orderId,
+            isPartialRefund,
+            refundedItems: refundedItems.map((ri) => ({
+              name: ri.name,
+              quantity: ri.quantityRefunded,
+              refundAmountCents: ri.refundAmountCents,
+            })),
+            originalTotalCents: order.total_cents ?? 0,
+            refundAmountCents: totalRefundCents,
+            shippingRefundCents: shippingRefundCents > 0 ? shippingRefundCents : undefined,
+            refundMethod: "Original payment method",
+            refundTimeline: "3-5 business days",
+            processedAt: new Date().toISOString(),
+          }),
+          type: "refund",
+          orderId,
+          userId: order.user_id,
+          mandatory: true,
+          idempotencyKey: `refund-${orderId}-${Date.now()}`,
+        });
+
+        logger.info("Refund email triggered", { orderId, totalRefundCents, api: "admin/orders/[id]/refund" });
+      }
     }
 
     return NextResponse.json({

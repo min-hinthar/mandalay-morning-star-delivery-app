@@ -1,7 +1,10 @@
+import React from "react";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { cancelOrderSchema } from "@/lib/validations/order";
+import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
+import { OrderCancellation } from "@/emails/OrderCancellation";
 import type { OrderStatus, Json } from "@/types/database";
 
 interface OrderRow {
@@ -104,13 +107,53 @@ export async function POST(
       });
     }
 
-    // TODO: If notifyCustomer is true, trigger notification
-    // This would integrate with a notification service in the future
+    // Trigger cancellation email if requested
     if (notifyCustomer) {
-      logger.info("Customer notification requested for order cancellation", {
-        orderId,
-        customerId: order.user_id,
-      });
+      // Fetch customer profile for email
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email, full_name")
+        .eq("id", order.user_id)
+        .single();
+
+      // Fetch order items for email summary
+      const { data: orderItems } = await supabase
+        .from("order_items")
+        .select("name_snapshot, quantity, line_total_cents")
+        .eq("order_id", orderId);
+
+      // Fetch order total
+      const { data: orderData } = await supabase
+        .from("orders")
+        .select("total_cents")
+        .eq("id", orderId)
+        .single();
+
+      if (profile?.email) {
+        void sendEmail({
+          to: profile.email,
+          subject: "Your order has been cancelled",
+          react: React.createElement(OrderCancellation, {
+            customerName: profile.full_name || "Valued Customer",
+            orderId,
+            items: (orderItems || []).map((item) => ({
+              name: item.name_snapshot,
+              quantity: item.quantity,
+              lineTotalCents: item.line_total_cents,
+            })),
+            totalCents: orderData?.total_cents ?? 0,
+            cancellationReason: reason,
+            cancelledAt: new Date().toISOString(),
+            refundIssued: false,
+          }),
+          type: "cancellation",
+          orderId,
+          userId: order.user_id,
+          idempotencyKey: `cancellation-${orderId}`,
+        });
+
+        logger.info("Cancellation email triggered", { orderId, api: "admin/orders/[id]/cancel" });
+      }
     }
 
     return NextResponse.json({
