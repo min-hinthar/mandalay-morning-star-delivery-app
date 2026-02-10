@@ -1,7 +1,10 @@
+import React from "react";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { cancelOrderSchema } from "@/lib/validations/account";
+import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
+import { OrderCancellation } from "@/emails/OrderCancellation";
 import type { OrderStatus } from "@/types/database";
 
 interface RouteParams {
@@ -31,7 +34,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Verify order exists and belongs to user
     const { data: order, error: fetchError } = await supabase
       .from("orders")
-      .select("id, status, user_id")
+      .select("id, status, user_id, total_cents")
       .eq("id", orderId)
       .single();
 
@@ -111,6 +114,44 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         { error: { code: "INTERNAL_ERROR", message: "Failed to cancel order" } },
         { status: 500 }
       );
+    }
+
+    // Trigger cancellation email
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user.id)
+      .single();
+
+    const { data: orderItems } = await supabase
+      .from("order_items")
+      .select("name_snapshot, quantity, line_total_cents")
+      .eq("order_id", orderId);
+
+    if (user.email) {
+      void sendEmail({
+        to: user.email,
+        subject: "Your order has been cancelled",
+        react: React.createElement(OrderCancellation, {
+          customerName: profile?.full_name || "Valued Customer",
+          orderId,
+          items: (orderItems || []).map((item) => ({
+            name: item.name_snapshot,
+            quantity: item.quantity,
+            lineTotalCents: item.line_total_cents,
+          })),
+          totalCents: order.total_cents ?? 0,
+          cancellationReason: reason,
+          cancelledAt,
+          refundIssued: false,
+        }),
+        type: "cancellation",
+        orderId,
+        userId: user.id,
+        idempotencyKey: `cancellation-${orderId}`,
+      });
+
+      logger.info("Cancellation email triggered", { orderId, api: "account/orders/[id]/cancel" });
     }
 
     return NextResponse.json({
