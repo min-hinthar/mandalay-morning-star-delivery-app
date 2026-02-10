@@ -13,8 +13,8 @@ A Progressive Web App for ordering authentic Burmese cuisine with Saturday-only 
 
 Mandalay Morning Star is a full-featured food delivery platform serving the Southern California Burmese community. Customers browse a categorized bilingual menu (English/Burmese), place orders with Stripe payment, and receive Saturday delivery within the coverage area (50 miles / 90 minutes from Covina, CA). The app includes admin dashboards, driver management with GPS tracking, real-time order tracking, and full offline support as a PWA.
 
-**Current version:** v1.5 (Performance & Repo Health) — in progress
-**Status:** 44 phases, 192 plans, 214 requirements completed across 6 milestones
+**Current version:** v1.6 (Production Polish) — in progress
+**Status:** 54 phases, 245 plans, 297 requirements completed across 7 milestones
 
 ## Features
 
@@ -34,6 +34,7 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 - Route creation and optimization (Google Routes API)
 - Featured sections management
 - Analytics: driver performance, delivery metrics, customer feedback
+- Email management: delivery log, resend failures, manual triggers, kill switch
 
 ### Driver Mobile Interface
 - Active route view with stop list and Google Maps
@@ -41,6 +42,16 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 - Delivery photo capture with proof of delivery
 - Offline support (IndexedDB + Service Worker sync)
 - Route optimization with before/after comparison
+
+### Transactional Email System
+- 4 branded email templates: order confirmation, cancellation, refund, delivery reminder
+- React Email + Resend for rendering and delivery
+- Stripe webhook idempotency (prevents duplicate sends on retries)
+- Customer notification preferences (opt-out per email type)
+- Admin kill switch to disable all emails instantly
+- Delivery reminder cron (morning-of with staggered sends)
+- Resend webhook tracking: delivered, opened, clicked, bounced status
+- Admin email log with search, filter, resend, and manual trigger
 
 ### Platform Capabilities
 - Animation-first design: GSAP timelines + Framer Motion components
@@ -75,6 +86,7 @@ Key optimizations: CardImage to Next.js Image, LazyMotion with domMax, React Com
 | Forms | React Hook Form + Conform + Zod | 7.71.1 + 1.15.1 + 4.3.5 |
 | Auth & DB | Supabase (Auth + Postgres + RLS + Storage) | 2.90.1 |
 | Payments | Stripe | 20.1.2 |
+| Email | Resend + React Email | - |
 | Maps | Google Maps API (@react-google-maps/api) | 2.20.8 |
 | PWA | Serwist (Service Worker) | 9.5.4 |
 | Error Tracking | Sentry | 10.34.0 |
@@ -109,6 +121,7 @@ Key optimizations: CardImage to Next.js Image, LazyMotion with domMax, React Com
 - Supabase project
 - Google Maps API key (Geocoding + Routes API enabled)
 - Stripe account (test mode for development)
+- Resend account (for transactional emails)
 
 ### Installation
 
@@ -140,6 +153,13 @@ STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 
+# Resend (transactional emails)
+RESEND_API_KEY=re_...
+RESEND_WEBHOOK_SECRET=whsec_...   # optional, for delivery tracking
+
+# Cron (delivery reminders)
+CRON_SECRET=your_cron_secret      # optional, secures /api/cron/* endpoints
+
 # App URL (defaults to localhost:3000)
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
@@ -152,14 +172,20 @@ SENTRY_DSN=https://...@sentry.io/...
 ```
 src/
 ├── app/                         # Next.js App Router
-│   ├── (auth)/                  # Login, signup, password reset
+│   ├── (auth)/                  # Passwordless login (magic link + OAuth)
 │   ├── (public)/                # Home, public menu, driver onboarding
 │   ├── (customer)/              # Menu, cart, checkout, orders, tracking, account
-│   ├── (admin)/                 # Admin dashboard (menu, orders, drivers, routes, analytics)
+│   ├── (admin)/                 # Admin dashboard (menu, orders, drivers, routes, emails)
 │   ├── (driver)/                # Driver mobile (routes, stops, location, photos)
 │   ├── api/                     # 100+ API routes (see API section)
 │   ├── auth/                    # Auth callback handlers
 │   └── contexts/                # React context providers
+├── emails/                      # React Email templates + shared components
+│   ├── components/              # EmailLayout, BrandHeader, BrandFooter, etc.
+│   ├── OrderConfirmation.tsx    # MAIL-01
+│   ├── OrderCancellation.tsx    # MAIL-02
+│   ├── RefundNotification.tsx   # MAIL-03
+│   └── DeliveryReminder.tsx     # MAIL-04
 ├── components/ui/               # 70+ React components
 │   ├── admin/                   # Admin: orders, drivers, routes, analytics
 │   ├── auth/                    # Login/signup forms
@@ -174,6 +200,7 @@ src/
 ├── lib/                         # Shared utilities
 │   ├── auth/                    # Supabase auth helpers
 │   ├── constants/               # Business rules, config
+│   ├── email/                   # Email service (Resend client, sendEmail, types)
 │   ├── design-system/           # Design tokens, animations
 │   ├── hooks/                   # 30+ custom React hooks
 │   ├── queries/                 # React Query definitions
@@ -186,14 +213,16 @@ src/
 └── test/                        # Test fixtures and mocks
 
 supabase/
-├── migrations/                  # Database migrations
+├── migrations/                  # Database migrations (000-020)
 │   ├── 000_initial_schema.sql   # Tables, enums, indexes
 │   ├── 001_functions_triggers.sql
 │   ├── 002_rls_policies.sql     # Row-level security
 │   ├── 003_analytics.sql        # Materialized views
 │   ├── 004_storage.sql          # Storage buckets
-│   └── 005_testing.sql          # pgTAP + linting
-└── functions/                   # Edge functions (email notifications)
+│   ├── 005_testing.sql          # pgTAP + linting
+│   ├── 019_customer_settings.sql # Customer + admin settings
+│   └── 020_email_system.sql     # Webhook events + enum expansions
+└── functions/                   # Edge functions (legacy)
 
 docs/                            # Documentation (see docs/README)
 scripts/                         # Build and utility scripts
@@ -216,18 +245,22 @@ public/                          # Static assets (logos, icons, images)
 | Coverage | `/api/coverage/check` | Delivery area validation |
 | Orders | `/api/orders[/id][/cancel][/rating]` | Order CRUD, feedback |
 | Tracking | `/api/tracking/[orderId]` | Real-time order tracking |
-| Webhooks | `/api/webhooks/stripe` | Payment status updates |
+| Webhooks | `/api/webhooks/stripe` | Payment + email triggers (idempotent) |
+| Webhooks | `/api/webhooks/resend` | Email delivery status tracking |
+| Cron | `/api/cron/delivery-reminders` | Morning-of delivery reminder emails |
 | Admin Menu | `/api/admin/menu[/id][/photo]` | Menu item management |
 | Admin Orders | `/api/admin/orders[/id][/...actions]` | Order management, refunds |
 | Admin Drivers | `/api/admin/drivers[/id][/routes][/ratings]` | Driver CRUD |
 | Admin Routes | `/api/admin/routes[/id][/optimize][/stops]` | Route management |
 | Admin Analytics | `/api/admin/analytics/[drivers\|delivery]` | Dashboard data |
 | Driver | `/api/driver/[me\|routes\|location]` | Driver operations |
+| Admin Emails | `/api/admin/emails[/id][/resend][/send]` | Email log, resend, manual trigger |
+| Test Email | `/api/emails/test` | Send test emails from admin settings |
 | Account | `/api/account/[profile\|orders\|addresses]` | Customer account |
 
 ## Database
 
-15+ tables with Row-Level Security on all tables:
+20+ tables with Row-Level Security on all tables:
 
 | Table | Purpose |
 |-------|---------|
@@ -241,7 +274,10 @@ public/                          # Static assets (logos, icons, images)
 | `delivery_photos` | Proof of delivery photos |
 | `delivery_exceptions` | Delivery issue tracking |
 | `driver_ratings` | Customer feedback (1-5 stars) |
-| `notification_logs` | Email notification tracking |
+| `notification_logs` | Email notification tracking (status, delivery events) |
+| `webhook_events` | Stripe webhook idempotency (prevents duplicate processing) |
+| `customer_settings` | Dietary, notification, display preferences |
+| `app_settings` | Admin-configurable settings (email kill switch, etc.) |
 | `featured_sections` | Dynamic homepage sections |
 
 **Security:** RLS enabled on all tables, `is_admin()` / `is_driver()` / `get_my_driver_id()` SECURITY DEFINER functions, all FK columns indexed.
@@ -284,7 +320,8 @@ pnpm lint && pnpm lint:css && pnpm typecheck && pnpm test && pnpm build
 | v1.2 | Playful UI Overhaul | 15-24 | 29 | 2026-01-27 |
 | v1.3 | Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | v1.4 | Mobile Excellence | 35-39 | 39 | 2026-02-05 |
-| **v1.5** | **Performance & Repo Health** | 40-46 | 18+ | In Progress |
+| v1.5 | Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
+| **v1.6** | **Production Polish** | 48-57 | 30+ | In Progress |
 
 ## Deployment
 
@@ -294,17 +331,70 @@ pnpm lint && pnpm lint:css && pnpm typecheck && pnpm test && pnpm build
 2. Set environment variables (see `.env.example`)
 3. Configure Supabase auth callback: `https://your-app.vercel.app/auth/callback`
 4. Configure Stripe webhook: `https://your-app.vercel.app/api/webhooks/stripe`
-   - Events: `checkout.session.completed`, `payment_intent.succeeded`
+   - Events: `checkout.session.completed`, `payment_intent.succeeded`, `charge.refunded`
 5. Push to `main` — Vercel auto-deploys
+
+### Database Migration
+
+Run migration `020_email_system.sql` on your Supabase project. This creates:
+- `webhook_events` table (Stripe idempotency)
+- New enum values: `cancellation`, `refund`, `delivery_reminder` (notification_type); `opened`, `clicked` (notification_status)
+- `email_sending_enabled` app setting (admin kill switch)
+
+```bash
+# Via Supabase CLI
+supabase db push
+
+# Or manually via Supabase Dashboard > SQL Editor
+# Copy and run supabase/migrations/020_email_system.sql
+```
+
+### Resend Setup
+
+1. Create account at [resend.com](https://resend.com)
+2. **Verify sending domain:** Add `mail.mandalaymorningstar.com` in Resend Dashboard > Domains
+   - Add the DNS records (MX, TXT, DKIM) to your domain registrar
+   - Wait for verification (usually < 5 minutes)
+3. **Create API key:** Resend Dashboard > API Keys > Create API Key
+   - Set `RESEND_API_KEY` in Vercel environment variables
+4. **Configure webhook (optional, for delivery tracking):**
+   - Resend Dashboard > Webhooks > Add Webhook
+   - URL: `https://your-app.vercel.app/api/webhooks/resend`
+   - Events: `email.delivered`, `email.opened`, `email.clicked`, `email.bounced`, `email.complained`
+   - Copy signing secret → set `RESEND_WEBHOOK_SECRET` in Vercel
+
+### Delivery Reminder Cron
+
+The delivery reminder emails fire via `/api/cron/delivery-reminders`. Configure in `vercel.json`:
+
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/delivery-reminders",
+      "schedule": "0 16 * * 5"
+    }
+  ]
+}
+```
+
+This runs every Friday at 4 PM UTC (8 AM PT) — morning of Saturday delivery.
+
+Set `CRON_SECRET` in Vercel env vars, then Vercel automatically sends the `Authorization: Bearer <CRON_SECRET>` header.
 
 ### Production Checklist
 
 - [ ] All environment variables set in Vercel
 - [ ] `NEXT_PUBLIC_APP_URL` matches production domain
 - [ ] Supabase callback URL configured
+- [ ] Supabase migration `020_email_system.sql` applied
 - [ ] Stripe using LIVE keys
-- [ ] Stripe webhook endpoint verified
+- [ ] Stripe webhook endpoint verified (including `charge.refunded` event)
 - [ ] Google Maps API key restricted to production domain
+- [ ] Resend domain verified (`mail.mandalaymorningstar.com`)
+- [ ] `RESEND_API_KEY` set in Vercel
+- [ ] Resend webhook configured (optional, for open/click tracking)
+- [ ] `CRON_SECRET` set and cron job configured in `vercel.json`
 - [ ] Sentry DSN configured
 - [ ] Custom domain configured (optional)
 
@@ -342,6 +432,14 @@ Common: missing env vars, TypeScript errors, ESLint violations
 1. Verify webhook secret matches `STRIPE_WEBHOOK_SECRET`
 2. Check Stripe Dashboard > Developers > Webhooks for delivery logs
 3. Confirm endpoint URL: `/api/webhooks/stripe`
+4. Required events: `checkout.session.completed`, `payment_intent.succeeded`, `charge.refunded`
+
+### Emails Not Sending
+1. Verify `RESEND_API_KEY` is set and valid
+2. Check admin kill switch: Admin > Settings > Email > Email Sending toggle must be ON
+3. Verify domain `mail.mandalaymorningstar.com` is verified in Resend Dashboard
+4. Check customer notification preferences (Settings > Notifications)
+5. View email log: Admin > Emails for delivery status and errors
 
 ### Database Connection
 1. Verify Supabase URL and keys
