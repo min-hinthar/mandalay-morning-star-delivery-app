@@ -69,6 +69,9 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // Prevent Turbopack bundling issues with @react-email/render (prettier dep)
+  serverExternalPackages: ["@react-email/render"],
+
   // Experimental optimizations
   experimental: {
     // Enable PPR for faster page loads
