@@ -602,6 +602,34 @@ export interface CustomerSettingsUpdate {
   theme?: string;
 }
 
+// ============================================
+// WEBHOOK EVENTS (idempotency)
+// ============================================
+
+export interface WebhookEventsRow {
+  id: string;
+  event_id: string;
+  event_type: string;
+  processed_at: string;
+  created_at: string;
+}
+
+export interface WebhookEventsInsert {
+  id?: string;
+  event_id: string;
+  event_type: string;
+  processed_at?: string;
+  created_at?: string;
+}
+
+export interface WebhookEventsUpdate {
+  id?: string;
+  event_id?: string;
+  event_type?: string;
+  processed_at?: string;
+  created_at?: string;
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -840,6 +868,12 @@ export type Database = {
             referencedColumns: ["id"];
           }
         ];
+      };
+      webhook_events: {
+        Row: WebhookEventsRow;
+        Insert: WebhookEventsInsert;
+        Update: WebhookEventsUpdate;
+        Relationships: [];
       };
     } & Record<string, GenericTable>;
     Views: Record<string, GenericView>;

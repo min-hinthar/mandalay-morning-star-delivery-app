@@ -15,14 +15,19 @@ export type NotificationType =
   | "out_for_delivery"
   | "arriving_soon"
   | "delivered"
-  | "feedback_request";
+  | "feedback_request"
+  | "cancellation"
+  | "refund"
+  | "delivery_reminder";
 
 export type NotificationStatus =
   | "pending"
   | "sent"
   | "delivered"
   | "failed"
-  | "bounced";
+  | "bounced"
+  | "opened"
+  | "clicked";
 
 export type NotificationChannel = "email" | "sms" | "push";
 
