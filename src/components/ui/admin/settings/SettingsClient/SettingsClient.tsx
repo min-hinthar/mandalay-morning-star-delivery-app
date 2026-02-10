@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Truck, Settings2, Bell, RotateCcw, Loader2 } from "lucide-react";
+import { Truck, Settings2, Bell, Mail, RotateCcw, Loader2 } from "lucide-react";
 import { Tabs } from "@/components/ui/Tabs";
 import { Button } from "@/components/ui/button";
 import { DeliverySettingsForm } from "../DeliverySettingsForm";
 import { OperationsSettingsForm } from "../OperationsSettingsForm";
 import { NotificationSettingsForm } from "../NotificationSettingsForm";
+import { EmailSettingsForm } from "../EmailSettingsForm";
 import { SaveButton } from "../SaveButton";
 import { FloatingUnsavedBar } from "../FloatingUnsavedBar";
 import { ConfirmDialog } from "../ConfirmDialog";
@@ -30,6 +31,7 @@ const SETTINGS_TABS = [
   { id: "delivery", label: "Delivery", icon: <Truck className="h-4 w-4" /> },
   { id: "operations", label: "Operations", icon: <Settings2 className="h-4 w-4" /> },
   { id: "notifications", label: "Notifications", icon: <Bell className="h-4 w-4" /> },
+  { id: "email", label: "Email", icon: <Mail className="h-4 w-4" /> },
 ];
 
 export function SettingsClient() {
@@ -48,9 +50,16 @@ export function SettingsClient() {
   const [originalSettings, setOriginalSettings] = useState<AllSettings>(DEFAULT_SETTINGS);
   const [settings, setSettings] = useState<AllSettings>(DEFAULT_SETTINGS);
 
+  // Email kill switch state (stored in app_settings as email_sending_enabled under notifications category)
+  const [emailSendingEnabled, setEmailSendingEnabled] = useState(true);
+  const [originalEmailEnabled, setOriginalEmailEnabled] = useState(true);
+
   const hasChanges = useMemo(() => {
-    return JSON.stringify(settings) !== JSON.stringify(originalSettings);
-  }, [settings, originalSettings]);
+    return (
+      JSON.stringify(settings) !== JSON.stringify(originalSettings) ||
+      emailSendingEnabled !== originalEmailEnabled
+    );
+  }, [settings, originalSettings, emailSendingEnabled, originalEmailEnabled]);
 
   // Fetch settings from API
   useEffect(() => {
@@ -62,6 +71,10 @@ export function SettingsClient() {
         const mapped = mapApiResponse(data);
         setSettings(mapped);
         setOriginalSettings(mapped);
+        // Email kill switch is under notifications category as emailSendingEnabled
+        const emailEnabled = data.notifications?.emailSendingEnabled ?? true;
+        setEmailSendingEnabled(emailEnabled);
+        setOriginalEmailEnabled(emailEnabled);
       } catch {
         toast({ variant: "destructive", description: "Failed to load settings" });
       } finally {
@@ -103,6 +116,22 @@ export function SettingsClient() {
           }
         }
       }
+      // Save email kill switch if changed
+      if (emailSendingEnabled !== originalEmailEnabled) {
+        const response = await fetch("/api/admin/settings", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            category: "notifications",
+            settings: { emailSendingEnabled },
+          }),
+        });
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || "Failed to save email settings");
+        }
+        setOriginalEmailEnabled(emailSendingEnabled);
+      }
       setOriginalSettings(settings);
       toast({ variant: "success", description: "Settings saved successfully" });
       return true;
@@ -114,7 +143,7 @@ export function SettingsClient() {
     } finally {
       setSaving(false);
     }
-  }, [hasChanges, settings, originalSettings, toast]);
+  }, [hasChanges, settings, originalSettings, emailSendingEnabled, originalEmailEnabled, toast]);
 
   // Tab switch with unsaved changes warning
   const handleTabChange = useCallback(
@@ -131,10 +160,11 @@ export function SettingsClient() {
   const confirmTabSwitch = useCallback(() => {
     if (pendingTabId) {
       setSettings(originalSettings);
+      setEmailSendingEnabled(originalEmailEnabled);
       setActiveTab(pendingTabId);
       setPendingTabId(null);
     }
-  }, [pendingTabId, originalSettings]);
+  }, [pendingTabId, originalSettings, originalEmailEnabled]);
 
   const cancelTabSwitch = useCallback(() => {
     setPendingTabId(null);
@@ -143,9 +173,10 @@ export function SettingsClient() {
   // Discard changes from FloatingUnsavedBar
   const handleDiscardConfirm = useCallback(() => {
     setSettings(originalSettings);
+    setEmailSendingEnabled(originalEmailEnabled);
     setShowDiscardDialog(false);
     setSaveError(null);
-  }, [originalSettings]);
+  }, [originalSettings, originalEmailEnabled]);
 
   // Restore defaults
   const executeRestore = useCallback(async () => {
@@ -158,6 +189,8 @@ export function SettingsClient() {
       }
       setSettings(DEFAULT_SETTINGS);
       setOriginalSettings(DEFAULT_SETTINGS);
+      setEmailSendingEnabled(true);
+      setOriginalEmailEnabled(true);
       setSaveError(null);
       toast({ variant: "success", description: "Settings restored to defaults" });
     } catch (error) {
@@ -241,6 +274,11 @@ export function SettingsClient() {
           {activeTab === "notifications" && (
             <m.div key="notifications" {...variants.fadeIn} id="tabpanel-notifications" role="tabpanel" aria-labelledby="tab-notifications">
               <NotificationSettingsForm settings={settings.notifications} originalSettings={originalSettings.notifications} onChange={handleNotificationsChange} />
+            </m.div>
+          )}
+          {activeTab === "email" && (
+            <m.div key="email" {...variants.fadeIn} id="tabpanel-email" role="tabpanel" aria-labelledby="tab-email">
+              <EmailSettingsForm emailEnabled={emailSendingEnabled} onToggle={setEmailSendingEnabled} />
             </m.div>
           )}
         </AnimatePresence>
