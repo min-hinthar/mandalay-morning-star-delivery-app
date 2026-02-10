@@ -4,6 +4,7 @@ import { useRef, useMemo, useCallback, useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { useCart } from "@/lib/hooks/useCart";
 import {
@@ -63,6 +64,7 @@ interface CategoryGroup {
 // ============================================
 
 export function CartPageContent() {
+  const router = useRouter();
   const hydrated = useCartHydrated();
   const {
     items,
@@ -130,9 +132,8 @@ export function CartPageContent() {
   }, []);
 
   const handleCheckout = useCallback(() => {
-    // Navigate to checkout
-    window.location.href = "/checkout";
-  }, []);
+    router.push("/checkout");
+  }, [router]);
 
   // ============================================
   // CATEGORY GROUPING

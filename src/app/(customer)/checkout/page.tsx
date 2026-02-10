@@ -65,7 +65,7 @@ export default function CheckoutPage() {
   // Navigation guard: warn when leaving checkout with items in cart
   const { showModal, proceed, cancel, disable: disableGuard } = useNavigationGuard({
     enabled: !isEmpty,
-    allowedPaths: ["/cart", "/checkout", "/menu", "/"],
+    allowedPaths: ["/checkout"],
   });
 
   // Track direction for step transitions using ref for synchronous access

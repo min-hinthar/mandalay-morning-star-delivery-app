@@ -22,28 +22,41 @@ export interface UseNavigationGuardReturn {
 }
 
 /**
- * Navigation guard hook combining beforeunload + popstate interception.
+ * Navigation guard hook combining:
+ * - beforeunload: native browser dialog on tab close / external nav
+ * - popstate: intercepts browser back/forward
+ * - pushState monkey-patch: intercepts Next.js client-side Link/router.push navigation
  *
- * - beforeunload: shows native browser dialog on tab close / external nav
- * - popstate: intercepts browser back/forward, pushes state back, shows custom modal
- *
- * NOTE: This hook does NOT intercept Next.js Link navigation. Pages should use
- * the Link `onNavigate` prop or similar pattern for in-app link interception.
+ * Navigation to allowedPaths passes through without triggering the guard.
  */
 export function useNavigationGuard({
   enabled,
-  // allowedPaths is part of the public API for callers to document intent;
-  // actual path filtering should be done by the caller when computing `enabled`.
-  allowedPaths: _allowedPaths = [],
+  allowedPaths = [],
 }: UseNavigationGuardOptions): UseNavigationGuardReturn {
   const pathname = usePathname();
   const [showModal, setShowModal] = useState(false);
   const enabledRef = useRef(enabled);
+  const allowedRef = useRef(allowedPaths);
+  const pendingUrlRef = useRef<string | null>(null);
 
-  // Keep ref in sync for use in event handlers
+  // Keep refs in sync
   useEffect(() => {
     enabledRef.current = enabled;
   }, [enabled]);
+
+  useEffect(() => {
+    allowedRef.current = allowedPaths;
+  }, [allowedPaths]);
+
+  // Check if a URL is in the allowed list
+  const isAllowed = useCallback((url: string): boolean => {
+    try {
+      const path = new URL(url, window.location.origin).pathname;
+      return allowedRef.current.some((allowed) => path.startsWith(allowed));
+    } catch {
+      return false;
+    }
+  }, []);
 
   // ── beforeunload (native browser dialog on tab close) ──
   useEffect(() => {
@@ -62,16 +75,13 @@ export function useNavigationGuard({
   useEffect(() => {
     if (!enabled) return;
 
-    // Push a sentinel state so we can detect back-button presses
     window.history.pushState({ navigationGuard: true }, "", pathname);
 
     return () => {
-      // Clean up: if we still have our sentinel on top, pop it
       if (
         window.history.state &&
         window.history.state.navigationGuard === true
       ) {
-        // Go back to remove the sentinel entry we pushed
         window.history.back();
       }
     };
@@ -85,8 +95,8 @@ export function useNavigationGuard({
     const handlePopState = () => {
       if (!enabledRef.current) return;
 
-      // Re-push current state to prevent leaving
       window.history.pushState({ navigationGuard: true }, "", pathname);
+      pendingUrlRef.current = null; // back nav — proceed uses history.go
       setShowModal(true);
     };
 
@@ -94,16 +104,60 @@ export function useNavigationGuard({
     return () => window.removeEventListener("popstate", handlePopState);
   }, [enabled, pathname]);
 
+  // ── pushState monkey-patch (intercepts Next.js client-side navigation) ──
+  useEffect(() => {
+    if (!enabled) return;
+
+    const originalPushState = window.history.pushState.bind(window.history);
+
+    window.history.pushState = function patchedPushState(
+      data: unknown,
+      unused: string,
+      url?: string | URL | null,
+    ) {
+      // If guard is disabled or no URL, pass through
+      if (!enabledRef.current || !url) {
+        return originalPushState(data, unused, url);
+      }
+
+      const urlStr = typeof url === "string" ? url : url.toString();
+
+      // Allow navigation to allowed paths and our own sentinel pushes
+      if (
+        isAllowed(urlStr) ||
+        (data && typeof data === "object" && (data as Record<string, unknown>).navigationGuard)
+      ) {
+        return originalPushState(data, unused, url);
+      }
+
+      // Block navigation: show modal instead
+      pendingUrlRef.current = urlStr;
+      setShowModal(true);
+    };
+
+    return () => {
+      window.history.pushState = originalPushState;
+    };
+  }, [enabled, isAllowed]);
+
   const proceed = useCallback(() => {
     setShowModal(false);
-    // Temporarily disable guard, then navigate back
     enabledRef.current = false;
-    // Remove our sentinel entry and the original entry (actual back navigation)
-    window.history.go(-2);
+
+    if (pendingUrlRef.current) {
+      // Client-side nav was blocked — replay it
+      const url = pendingUrlRef.current;
+      pendingUrlRef.current = null;
+      window.location.href = url;
+    } else {
+      // Back/forward nav was blocked — go back past sentinel
+      window.history.go(-2);
+    }
   }, []);
 
   const cancel = useCallback(() => {
     setShowModal(false);
+    pendingUrlRef.current = null;
   }, []);
 
   const disable = useCallback(() => {
