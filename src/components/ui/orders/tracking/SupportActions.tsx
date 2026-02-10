@@ -40,7 +40,7 @@ export function SupportActions({
       onContactSupport();
     } else {
       // Default: open email
-      window.location.href = "mailto:support@mandalaymorningstar.com?subject=Order Support";
+      window.location.href = "mailto:admin@mandalaymorningstar.com?subject=Order Support";
     }
   };
 
@@ -111,7 +111,7 @@ export function SupportFAB({
     if (onClick) {
       onClick();
     } else {
-      window.location.href = "mailto:support@mandalaymorningstar.com?subject=Order Support";
+      window.location.href = "mailto:admin@mandalaymorningstar.com?subject=Order Support";
     }
   };
 

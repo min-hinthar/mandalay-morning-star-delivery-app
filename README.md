@@ -352,7 +352,7 @@ supabase db push
 ### Resend Setup
 
 1. Create account at [resend.com](https://resend.com)
-2. **Verify sending domain:** Add `mail.mandalaymorningstar.com` in Resend Dashboard > Domains
+2. **Verify sending domain:** Add `mandalaymorningstar.com` in Resend Dashboard > Domains
    - Add the DNS records (MX, TXT, DKIM) to your domain registrar
    - Wait for verification (usually < 5 minutes)
 3. **Create API key:** Resend Dashboard > API Keys > Create API Key
@@ -391,7 +391,7 @@ Set `CRON_SECRET` in Vercel env vars, then Vercel automatically sends the `Autho
 - [ ] Stripe using LIVE keys
 - [ ] Stripe webhook endpoint verified (including `charge.refunded` event)
 - [ ] Google Maps API key restricted to production domain
-- [ ] Resend domain verified (`mail.mandalaymorningstar.com`)
+- [ ] Resend domain verified (`mandalaymorningstar.com`)
 - [ ] `RESEND_API_KEY` set in Vercel
 - [ ] Resend webhook configured (optional, for open/click tracking)
 - [ ] `CRON_SECRET` set and cron job configured in `vercel.json`
@@ -437,7 +437,7 @@ Common: missing env vars, TypeScript errors, ESLint violations
 ### Emails Not Sending
 1. Verify `RESEND_API_KEY` is set and valid
 2. Check admin kill switch: Admin > Settings > Email > Email Sending toggle must be ON
-3. Verify domain `mail.mandalaymorningstar.com` is verified in Resend Dashboard
+3. Verify domain `mandalaymorningstar.com` is verified in Resend Dashboard
 4. Check customer notification preferences (Settings > Notifications)
 5. View email log: Admin > Emails for delivery status and errors
 

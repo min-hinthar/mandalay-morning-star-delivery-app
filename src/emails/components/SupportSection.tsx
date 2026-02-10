@@ -31,10 +31,10 @@ export function SupportSection() {
       >
         Simply reply to this email or contact us at{' '}
         <Link
-          href="mailto:support@mandalaymorningstar.com"
+          href="mailto:admin@mandalaymorningstar.com"
           style={{ color: '#D4A017', textDecoration: 'underline' }}
         >
-          support@mandalaymorningstar.com
+          admin@mandalaymorningstar.com
         </Link>
       </Text>
     </Section>
