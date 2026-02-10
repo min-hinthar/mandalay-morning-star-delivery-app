@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 54 complete. Email infrastructure (54-01), shared components (54-02), all 4 email templates (54-03, 54-04), route integration (54-05), cron/webhook endpoints (54-06), and admin email management API (54-07) complete. Full email system operational.
+**Current focus:** Phase 54 complete. Email infrastructure (54-01), shared components (54-02), all 4 email templates (54-03, 54-04), route integration (54-05), cron/webhook endpoints (54-06), admin email management API (54-07), and admin email UI (54-08) complete. Full email system operational with admin management.
 
 ## Current Position
 
 Phase: 54 (7 of 10 in v1.6)
-Plan: 7 of 7 in current phase (54-01 through 54-07 complete)
+Plan: 8 of 8 in current phase (54-01 through 54-08 complete)
 Status: Phase complete
-Last activity: 2026-02-10 -- Completed 54-07-PLAN.md
+Last activity: 2026-02-10 -- Completed 54-08-PLAN.md
 
-Progress: [██████████████████████████████] ~97%
+Progress: [██████████████████████████████] ~98%
 
 ## Milestones
 
@@ -28,12 +28,12 @@ Progress: [███████████████████████
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
 | v1.6 Production Polish | 48-57 | ~23 | -- |
 
-**Total completed:** 52 phases, 238 plans, 297 requirements
+**Total completed:** 52 phases, 239 plans, 297 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 231
+- Total plans completed: 239
 - Average duration: --
 - Total execution time: --
 
@@ -109,6 +109,9 @@ Progress: [███████████████████████
 | EMAIL-07-CASTQUERY | Cast notification_logs query results in admin email routes (same pattern as 54-06) | 54-07 |
 | EMAIL-07-BUILDHELPER | buildEmailElement() centralizes template selection for resend/manual/test routes | 54-07 |
 | EMAIL-07-TESTBYPASS | Test emails bypass sendEmail() pipeline, use Resend directly (admin-initiated) | 54-07 |
+| EMAIL-08-KILLSWITCH | Kill switch stored under notifications category via emailSendingEnabled key | 54-08 |
+| EMAIL-08-SEPARATESTATE | Email enabled state tracked separately from AllSettings type in SettingsClient | 54-08 |
+| EMAIL-08-SPLIT | Extracted email-log-types.ts from page.tsx to stay under 400-line limit | 54-08 |
 
 ### Tech Debt (carried forward)
 
@@ -129,10 +132,10 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 54-07-PLAN.md
+Stopped at: Completed 54-08-PLAN.md
 Resume file: None
-Next action: Phase 54 email system complete; move to next phase in v1.6
+Next action: Phase 54 email system fully complete; move to next phase in v1.6
 
 ---
 
-*Updated: 2026-02-10 -- Phase 54-07 complete. Admin email management API: paginated log with filtering, detail view with delivery timeline, resend failed emails, manual trigger, test email sending. Phase 54 email system fully complete.*
+*Updated: 2026-02-10 -- Phase 54-08 complete. Admin email management UI: settings kill switch + test email buttons, email log page with search/filter/pagination, per-order email history component. Phase 54 email system fully complete with 8 plans.*
