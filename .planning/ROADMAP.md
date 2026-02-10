@@ -151,13 +151,18 @@ Plans:
   3. Processing a refund sends a refund notification email
   4. Stripe webhook idempotency table prevents duplicate emails on webhook retries
   5. Email sending respects customer notification preferences from settings
-**Plans**: TBD
-**Notes**: Install 3 new server-only packages: resend, @react-email/components, @react-email/render. Zero client bundle impact. Verify existing send-order-confirmation Edge Function state (may be stub). Delivery reminder email (MAIL-04) sends day before scheduled delivery. React Email + Tailwind v4 compatibility needs validation during planning.
+**Plans**: 8 plans in 4 waves
+**Notes**: Install 3 new server-only packages: resend, @react-email/components, @react-email/render. Zero client bundle impact. Existing send-order-confirmation Edge Function replaced by Next.js API routes + React Email. Delivery reminder email (MAIL-04) fires morning of delivery via cron endpoint.
 
 Plans:
-- [ ] 54-01: TBD
-- [ ] 54-02: TBD
-- [ ] 54-03: TBD
+- [ ] 54-01-PLAN.md — DB migration (webhook_events + enum expansion) + email service layer (sendEmail with retry/logging/preferences)
+- [ ] 54-02-PLAN.md — Shared email components (EmailLayout, BrandHeader, BrandFooter, OrderStatusTracker, OrderItemsTable, DeliveryBlock) + fixtures
+- [ ] 54-03-PLAN.md — Order Confirmation (MAIL-01) + Order Cancellation (MAIL-02) email templates
+- [ ] 54-04-PLAN.md — Refund Notification (MAIL-03) + Delivery Reminder (MAIL-04) email templates
+- [ ] 54-05-PLAN.md — Stripe webhook idempotency (MAIL-05) + email triggers in webhook/admin/customer cancel/refund routes
+- [ ] 54-06-PLAN.md — Delivery reminder cron endpoint + Resend webhook for email status tracking
+- [ ] 54-07-PLAN.md — Admin email management API routes (log, detail, resend, manual trigger, test email)
+- [ ] 54-08-PLAN.md — Admin email UI (settings kill switch + test buttons, email log page, per-order email history)
 
 ### Phase 55: Search Enhancement
 **Goal**: Search finds what customers want even with typos on Burmese dish names
