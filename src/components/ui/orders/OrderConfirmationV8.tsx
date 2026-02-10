@@ -220,7 +220,7 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
             className="text-center text-sm text-text-muted mt-8"
           >
             Questions about your order?{" "}
-            <a href="mailto:support@mandalaymorningstar.com" className="text-primary hover:underline">
+            <a href="mailto:admin@mandalaymorningstar.com" className="text-primary hover:underline">
               Contact us
             </a>
           </m.p>

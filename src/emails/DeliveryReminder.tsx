@@ -167,7 +167,7 @@ export function DeliveryReminder({
         <Hr style={{ borderColor: '#E5E7EB', borderWidth: '1px 0 0 0', margin: '0 0 16px 0' }} />
         <Text style={{ fontSize: '13px', color: '#9CA3AF', fontFamily: FONT_STACK, margin: '0', textAlign: 'center' as const, lineHeight: '1.6' }}>
           Need help?{' '}
-          <Link href="mailto:support@mandalaymorningstar.com" style={{ color: '#D4A017', textDecoration: 'underline' }}>
+          <Link href="mailto:admin@mandalaymorningstar.com" style={{ color: '#D4A017', textDecoration: 'underline' }}>
             Contact our support team
           </Link>{' '}
           and we&apos;ll be happy to assist you.

@@ -3,9 +3,9 @@
 // ===========================================
 
 export const EMAIL_FROM =
-  "Mandalay Morning Star <orders@mail.mandalaymorningstar.com>";
+  "Mandalay Morning Star <orders@mandalaymorningstar.com>";
 
-export const EMAIL_REPLY_TO = "support@mandalaymorningstar.com";
+export const EMAIL_REPLY_TO = "admin@mandalaymorningstar.com";
 
 export const APP_URL =
   process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
