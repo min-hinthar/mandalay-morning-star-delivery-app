@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 57 (10 of 10 in v1.6)
-Plan: 4 of TBD in current phase
+Plan: 7 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-11 -- Completed 57-04-PLAN.md (admin routes card layout)
+Last activity: 2026-02-11 -- Completed 57-07-PLAN.md (driver route & stop detail premium animations)
 
 Progress: [██████████████████████████████] ~99%
 
@@ -155,6 +155,9 @@ Progress: [███████████████████████
 | ROUTES-04-DRAWER | RouteDetailDrawer uses framer-motion slide-in (no sheet library) with escape+backdrop close | 57-04 |
 | ROUTES-04-VOID | onViewRoute/onStatusChange props retained in interface but voided (drawer handles navigation) | 57-04 |
 | ROUTES-04-DATEGROUP | Routes grouped by date with sticky headers using isToday/isYesterday from date-fns | 57-04 |
+| DRIVER-07-PULSERING | MapMarkerPulse reuses existing pulse-ring CSS keyframe (no new keyframe needed) | 57-07 |
+| DRIVER-07-TIMELINE | TimelineStepSequence shows 4-step flow; skipped status grays all steps | 57-07 |
+| DRIVER-07-STATUSANIM | Status transition uses AnimatePresence mode=wait with scale 1.2/0.8 | 57-07 |
 
 ### Tech Debt (carried forward)
 
@@ -175,10 +178,10 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 57-04-PLAN.md (admin routes card layout)
+Stopped at: Completed 57-07-PLAN.md (driver route & stop detail premium animations)
 Resume file: None
 Next action: Execute next plan in phase 57
 
 ---
 
-*Updated: 2026-02-11 -- Phase 57 plans 03+04 complete. Drivers page card-based layout with avatars, drawer, shimmer skeleton, empty states, teal accent. Routes page card-based layout with progress bars, date grouping, slide-in drawer.*
+*Updated: 2026-02-11 -- Phase 57 plan 07 complete. Driver route page shimmer skeleton, teal progress bar, staggered stop cards. Stop detail has timeline step sequence, status transitions, map marker pulse, cascading reveals.*
