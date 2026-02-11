@@ -42,6 +42,10 @@
   --color-accent-teal: #00979D;
   --color-accent-teal-hover: #008288;
   --color-accent-teal-light: rgba(0, 151, 157, 0.12);
+  --color-accent-teal-subtle: rgba(0, 151, 157, 0.05);
+
+  /* Extended status: in-transit blue */
+  --color-status-in-transit: #3B82F6;
 
   --color-accent-magenta: #C9006B;
   --color-accent-magenta-hover: #B0005D;
@@ -490,6 +494,10 @@
   --color-accent-teal: #2DD4DB;
   --color-accent-teal-hover: #4DDDEA;
   --color-accent-teal-light: rgba(45, 212, 219, 0.15);
+  --color-accent-teal-subtle: rgba(45, 212, 219, 0.08);
+
+  /* Extended status: in-transit blue */
+  --color-status-in-transit: #60A5FA;
 
   --color-accent-magenta: #F24A9B;
   --color-accent-magenta-hover: #FF5DAE;
