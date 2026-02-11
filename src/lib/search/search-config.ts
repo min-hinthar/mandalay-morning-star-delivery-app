@@ -5,9 +5,9 @@ import type { EnrichedMenuItem } from "./use-fuzzy-search";
  * Fuse.js configuration tuned for Burmese dish name fuzzy matching.
  *
  * Key tuning rationale:
- * - threshold 0.4: lenient for short Burmese names ("mohiga" -> "Mohinga")
+ * - threshold 0.2: strict matching — near-exact only ("mohiga" -> "Mohinga")
  * - ignoreLocation: true: match anywhere in string, not just start
- * - distance 200: wide match window for description fields
+ * - distance 100: focused match window
  * - minMatchCharLength 2: skip single-character noise
  */
 export const FUSE_CONFIG: IFuseOptions<EnrichedMenuItem> = {
@@ -17,10 +17,9 @@ export const FUSE_CONFIG: IFuseOptions<EnrichedMenuItem> = {
     { name: "descriptionEn", weight: 1 },
     { name: "_categoryName", weight: 0.5 },
     { name: "tags", weight: 0.5 },
-    { name: "allergens", weight: 0.5 },
   ],
-  threshold: 0.4,
-  distance: 200,
+  threshold: 0.2,
+  distance: 100,
   ignoreLocation: true,
   includeMatches: true,
   includeScore: true,
@@ -48,4 +47,4 @@ export const CATEGORY_EMOJI_MAP: Record<string, string> = {
  * Fuse scores: 0 = perfect match, 1 = no match.
  * Results with score > SCORE_THRESHOLD are discarded.
  */
-export const SCORE_THRESHOLD = 0.7;
+export const SCORE_THRESHOLD = 0.35;

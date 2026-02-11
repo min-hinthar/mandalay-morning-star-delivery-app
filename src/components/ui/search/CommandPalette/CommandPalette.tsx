@@ -299,6 +299,12 @@ export function CommandPalette({
                 backgroundColor: "var(--color-surface-primary-85)",
               }}
               shouldFilter={false}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  handleOpenChange(false);
+                }
+              }}
             >
               {/* Search Input with clear button */}
               <SearchInput
@@ -306,6 +312,7 @@ export function CommandPalette({
                 value={query}
                 onValueChange={setQuery}
                 onClear={handleClear}
+                autoFocus
               />
 
               {/* Category tabs -- only when query has results */}

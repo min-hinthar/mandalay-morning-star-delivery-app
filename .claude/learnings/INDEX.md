@@ -15,6 +15,7 @@ Consolidated knowledge from working on this codebase. Scan this file first, then
 | Testing | `testing.md` | E2E DOM removal for AnimatePresence; cmdk state binding | 2026-01-25 |
 | Tooling | `tooling.md` | Git case rename; barrel cleanup; ESLint guards; component organization | 2026-02-08 |
 | Performance | `performance.md` | Lazy load below-fold; IntersectionObserver pause; willChange on interaction; tree-shaking | 2026-01-29 |
+| Data Schema | `data-schema.md` | Allergen duplication in tags vs allergens columns; Fuse.js tuning for menu dataset | 2026-02-10 |
 
 ## Usage
 
