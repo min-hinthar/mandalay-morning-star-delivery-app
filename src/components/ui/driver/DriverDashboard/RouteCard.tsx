@@ -60,13 +60,15 @@ export function RouteCard({
       initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={getSpring(spring.default)}
+      whileHover={shouldAnimate ? { scale: 1.01 } : undefined}
+      whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
       className={cn(
         "rounded-2xl bg-surface-primary overflow-hidden",
         "shadow-card border border-border"
       )}
     >
       {/* Header */}
-      <div className="p-4 bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-border">
+      <div className="p-4 bg-gradient-to-r from-accent-teal/10 to-secondary/10 border-b border-border">
         <div className="flex items-center justify-between">
           <div>
             <p className="font-semibold text-text-primary">Today&apos;s Route</p>
@@ -78,7 +80,7 @@ export function RouteCard({
             className={cn(
               "px-3 py-1 rounded-full text-xs font-semibold",
               route.status === "planned" && "bg-secondary/10 text-secondary",
-              route.status === "in_progress" && "bg-primary/10 text-primary",
+              route.status === "in_progress" && "bg-accent-teal/10 text-accent-teal",
               route.status === "completed" && "bg-green/10 text-green"
             )}
           >
@@ -103,7 +105,7 @@ export function RouteCard({
             initial={shouldAnimate ? { scaleX: 0 } : undefined}
             animate={shouldAnimate ? { scaleX: progress / 100 } : undefined}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary to-green origin-left"
+            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-accent-teal to-green origin-left"
             style={{ width: "100%" }}
           />
           {route.status === "in_progress" && shouldAnimate && (
