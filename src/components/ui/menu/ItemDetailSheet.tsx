@@ -17,6 +17,7 @@
  */
 
 import { useEffect, useMemo, useState, useCallback } from "react";
+import Image from "next/image";
 import { AlertTriangle, X } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Drawer } from "@/components/ui/Drawer";
@@ -54,6 +55,8 @@ export interface ItemDetailSheetProps {
     quantity: number,
     notes: string
   ) => void;
+  /** Extra className for the Drawer/Modal wrapper (e.g. z-index override) */
+  className?: string;
 }
 
 // ============================================
@@ -89,6 +92,7 @@ export function ItemDetailSheet({
   isOpen,
   onClose,
   onAddToCart,
+  className: wrapperClassName,
 }: ItemDetailSheetProps) {
   // State
   const [selectedModifiers, setSelectedModifiers] = useState<SelectedModifier[]>([]);
@@ -208,12 +212,13 @@ export function ItemDetailSheet({
             <X className="w-5 h-5" />
           </button>
           {item.imageUrl ? (
-            /* Plain img tag - reliable across all devices and URL types (Supabase, Google Drive, etc.) */
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
+            <Image
               src={item.imageUrl}
               alt={item.nameEn}
-              className="absolute inset-0 w-full h-full object-cover"
+              fill
+              sizes="(max-width: 640px) 100vw, 512px"
+              className="object-cover"
+              priority
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -350,7 +355,7 @@ export function ItemDetailSheet({
         position="bottom"
         height="full"
         showDragHandle={true}
-        className="flex flex-col"
+        className={cn("flex flex-col", wrapperClassName)}
       >
         {renderContent()}
       </Drawer>
@@ -364,7 +369,7 @@ export function ItemDetailSheet({
       title={item?.nameEn ?? "Item Detail"}
       size="lg"
       showCloseButton={true}
-      className="overflow-hidden p-0"
+      className={cn("overflow-hidden p-0", wrapperClassName)}
     >
       {renderContent()}
     </Modal>
