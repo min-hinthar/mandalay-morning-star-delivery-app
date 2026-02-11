@@ -145,6 +145,9 @@ Progress: [███████████████████████
 | ADMIN-01-INTRANSIT | status-in-transit token (#3B82F6 light, #60A5FA dark) for blue status | 57-01 |
 | ADMIN-01-HOVERCONST | CardRow hover boxShadow extracted to const to satisfy ESLint no-restricted-syntax | 57-01 |
 | ADMIN-01-EMOJISPLIT | EmptyState variant configs extracted to empty-state-variants.ts for 400-line limit | 57-01 |
+| ADMIN-03-TEALACCENT | Migrated drivers page from primary to accent-teal for all non-destructive interactive elements | 57-03 |
+| ADMIN-03-DRAWERREUSE | DriverDetailDrawer reuses Drawer component with position=right (no new overlay system) | 57-03 |
+| ADMIN-03-VOIDSUPPRESS | onToggleActive preserved in DriverListTable interface but void-suppressed (toggle moved to detail page) | 57-03 |
 | ROUTES-04-DRAWER | RouteDetailDrawer uses framer-motion slide-in (no sheet library) with escape+backdrop close | 57-04 |
 | ROUTES-04-VOID | onViewRoute/onStatusChange props retained in interface but voided (drawer handles navigation) | 57-04 |
 | ROUTES-04-DATEGROUP | Routes grouped by date with sticky headers using isToday/isYesterday from date-fns | 57-04 |
@@ -174,4 +177,4 @@ Next action: Execute next plan in phase 57
 
 ---
 
-*Updated: 2026-02-11 -- Phase 57 plan 04 complete. Routes page card-based layout with progress bars, date grouping, slide-in drawer, shimmer skeleton crossfade, teal accent migration.*
+*Updated: 2026-02-11 -- Phase 57 plans 03+04 complete. Drivers page card-based layout with avatars, drawer, shimmer skeleton, empty states, teal accent. Routes page card-based layout with progress bars, date grouping, slide-in drawer.*
