@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { DriverPageHeader } from "@/components/ui/driver/DriverPageHeader";
 import { ActiveRouteView } from "@/components/ui/driver/ActiveRouteView";
+import { Skeleton } from "@/components/ui/skeleton/base";
 import type { RouteStats, RouteStopStatus } from "@/types/driver";
 
 const TIMEZONE = "America/Los_Angeles";
@@ -150,30 +151,27 @@ async function getActiveRoute() {
   return { route, stops: transformedStops, driverId: driver.id };
 }
 
+function ActiveRouteSkeleton() {
+  return (
+    <div className="space-y-4">
+      {/* Progress bar skeleton */}
+      <Skeleton width="100%" height={6} radius="full" />
+      {/* Route info skeleton */}
+      <Skeleton width="100%" height={60} radius="xl" />
+      {/* Stop card skeletons */}
+      {[1, 2, 3, 4].map((i) => (
+        <Skeleton key={i} width="100%" height={72} radius="xl" />
+      ))}
+    </div>
+  );
+}
+
 function RouteLoading() {
   return (
     <div className="min-h-screen bg-surface-secondary">
       <DriverPageHeader title="Route" showBack backHref="/driver" />
       <div className="p-4">
-        <div className="animate-pulse space-y-4">
-          {/* Progress bar skeleton */}
-          <div className="h-4 w-full rounded-full bg-surface-tertiary" />
-
-          {/* Current stop skeleton */}
-          <div className="rounded-card bg-surface-primary p-4 shadow-md">
-            <div className="mb-3 h-5 w-32 rounded-input bg-surface-tertiary" />
-            <div className="mb-2 h-4 w-48 rounded-input bg-surface-tertiary" />
-            <div className="h-4 w-64 rounded-input bg-surface-tertiary" />
-          </div>
-
-          {/* Upcoming stops skeleton */}
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-card-sm bg-surface-primary p-3 shadow-sm">
-              <div className="mb-2 h-4 w-24 rounded-input bg-surface-tertiary" />
-              <div className="h-3 w-40 rounded-input bg-surface-tertiary" />
-            </div>
-          ))}
-        </div>
+        <ActiveRouteSkeleton />
       </div>
     </div>
   );

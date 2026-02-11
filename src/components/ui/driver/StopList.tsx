@@ -1,16 +1,21 @@
 /**
- * V6 Stop List Component - Pepper Aesthetic
+ * V8 Stop List Component - Driver Polish
  *
- * Grouped list of delivery stops with V6 styling.
- * Shows current, upcoming, and completed stops.
+ * Grouped list of delivery stops with staggered entry animation (40ms per card).
+ * Shows current, upcoming, and completed stops with empty state fallback.
  */
 
 "use client";
 
 import { useRouter } from "next/navigation";
 import { m } from "framer-motion";
+import { staggerContainer } from "@/lib/motion-tokens/stagger";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { StopCard } from "./StopCard";
 import type { RouteStopStatus } from "@/types/driver";
+
+/** 40ms per card stagger container */
+const stopContainer = staggerContainer(0.04, 0.06);
 
 interface StopData {
   id: string;
@@ -41,6 +46,11 @@ interface StopListProps {
 export function StopList({ stops, currentStopIndex }: StopListProps) {
   const router = useRouter();
 
+  // Empty state
+  if (stops.length === 0) {
+    return <EmptyState variant="driver-route" />;
+  }
+
   // Group stops by status
   const currentStop = stops.find((s) => s.stopIndex === currentStopIndex);
   const upcomingStops = stops.filter(
@@ -59,9 +69,9 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
       {/* Current Stop */}
       {currentStop && (
         <m.section
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          variants={stopContainer}
+          initial="hidden"
+          animate="visible"
         >
           <h2 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-text-muted">
             Current Stop
@@ -75,6 +85,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
               start: currentStop.order.deliveryWindowStart,
               end: currentStop.order.deliveryWindowEnd,
             }}
+            eta={currentStop.eta}
             isCurrentStop
             onClick={() => handleStopClick(currentStop.id)}
           />
@@ -83,50 +94,47 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
 
       {/* Upcoming Stops */}
       {upcomingStops.length > 0 && (
-        <m.section
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+        <section>
           <h2 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-text-muted">
             Upcoming ({upcomingStops.length})
           </h2>
-          <div className="space-y-2">
-            {upcomingStops.map((stop, index) => (
-              <m.div
+          <m.div
+            className="space-y-2"
+            variants={stopContainer}
+            initial="hidden"
+            animate="visible"
+          >
+            {upcomingStops.map((stop) => (
+              <StopCard
                 key={stop.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 + index * 0.05 }}
-              >
-                <StopCard
-                  stopIndex={stop.stopIndex}
-                  status={stop.status}
-                  customerName={stop.order.customer.fullName}
-                  address={stop.order.address}
-                  timeWindow={{
-                    start: stop.order.deliveryWindowStart,
-                    end: stop.order.deliveryWindowEnd,
-                  }}
-                  onClick={() => handleStopClick(stop.id)}
-                />
-              </m.div>
+                stopIndex={stop.stopIndex}
+                status={stop.status}
+                customerName={stop.order.customer.fullName}
+                address={stop.order.address}
+                timeWindow={{
+                  start: stop.order.deliveryWindowStart,
+                  end: stop.order.deliveryWindowEnd,
+                }}
+                eta={stop.eta}
+                onClick={() => handleStopClick(stop.id)}
+              />
             ))}
-          </div>
-        </m.section>
+          </m.div>
+        </section>
       )}
 
       {/* Completed Stops */}
       {completedStops.length > 0 && (
-        <m.section
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
+        <section>
           <h2 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-text-muted">
             Completed ({completedStops.length})
           </h2>
-          <div className="space-y-2">
+          <m.div
+            className="space-y-2"
+            variants={stopContainer}
+            initial="hidden"
+            animate="visible"
+          >
             {completedStops.map((stop) => (
               <StopCard
                 key={stop.id}
@@ -138,11 +146,12 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
                   start: stop.order.deliveryWindowStart,
                   end: stop.order.deliveryWindowEnd,
                 }}
+                eta={stop.eta}
                 onClick={() => handleStopClick(stop.id)}
               />
             ))}
-          </div>
-        </m.section>
+          </m.div>
+        </section>
       )}
     </div>
   );

@@ -1,8 +1,8 @@
 /**
- * V6 Active Route View - Pepper Aesthetic
+ * V8 Active Route View - Driver Polish
  *
- * Active route display with progress, start/complete buttons, and stop list.
- * V6 colors, typography, and high-contrast support.
+ * Active route display with teal progress bar, AnimatedValue count,
+ * staggered stop list entry, and premium animations.
  */
 
 "use client";
@@ -12,6 +12,9 @@ import { useRouter } from "next/navigation";
 import { m } from "framer-motion";
 import { Play, Loader2, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { spring } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { AnimatedValue } from "@/components/ui/admin/AdminDashboard/AnimatedValue";
 import { StopList } from "./StopList";
 import { LocationTracker } from "./LocationTracker";
 import type { RouteStopStatus } from "@/types/driver";
@@ -52,6 +55,7 @@ export function ActiveRouteView({
   const [isStarting, setIsStarting] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { isFullMotion, shouldAnimate, getSpring } = useAnimationPreference();
 
   // Calculate current stop index (first pending or enroute stop)
   const currentStopIndex =
@@ -114,11 +118,16 @@ export function ActiveRouteView({
   };
 
   return (
-    <div className="space-y-4">
+    <m.div
+      className="space-y-4"
+      initial={shouldAnimate ? { opacity: 0 } : undefined}
+      animate={shouldAnimate ? { opacity: 1 } : undefined}
+      transition={getSpring(spring.default)}
+    >
       {/* Progress Bar */}
       <m.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+        animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
         className="rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border"
       >
         <div className="mb-2 flex justify-between font-body text-sm">
@@ -127,16 +136,20 @@ export function ActiveRouteView({
             {completedCount}/{totalCount} stops
           </span>
         </div>
-        <div className="h-3 overflow-hidden rounded-full bg-surface-tertiary">
+        <div className="h-2 overflow-hidden rounded-full bg-surface-tertiary">
           <m.div
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="h-full rounded-full bg-green"
+            transition={isFullMotion ? { type: "spring", stiffness: 80, damping: 20 } : { duration: 0.3 }}
+            className="h-full rounded-full bg-accent-teal"
           />
         </div>
+        <p className="mt-2 font-body text-xs text-text-secondary">
+          <AnimatedValue value={completedCount} format="number" className="font-semibold text-accent-teal" />
+          {" "}of {totalCount} stops completed
+        </p>
         {deliveredCount > 0 && skippedCount > 0 && (
-          <div className="mt-2 flex gap-4 font-body text-xs text-text-secondary">
+          <div className="mt-1 flex gap-4 font-body text-xs text-text-muted">
             <span>{deliveredCount} delivered</span>
             <span>{skippedCount} skipped</span>
           </div>
@@ -217,6 +230,6 @@ export function ActiveRouteView({
         stops={stops}
         currentStopIndex={currentStopIndex}
       />
-    </div>
+    </m.div>
   );
 }

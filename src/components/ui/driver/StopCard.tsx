@@ -1,14 +1,17 @@
 /**
- * V6 Stop Card Component - Pepper Aesthetic
+ * V8 Stop Card Component - Driver Polish
  *
- * Individual stop card with status badge, address, and time window.
- * V6 colors, typography, and 56px touch targets.
+ * Individual stop card with status-based left border, hover/tap micro-interactions,
+ * staggered entry animation, and status badge with pulse for active statuses.
  */
 
 "use client";
 
+import { m, type Variants } from "framer-motion";
 import { MapPin, Clock, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { staggerItem } from "@/lib/motion-tokens/stagger";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import type { RouteStopStatus } from "@/types/driver";
 
 interface StopCardProps {
@@ -25,32 +28,44 @@ interface StopCardProps {
     start: string | null;
     end: string | null;
   };
+  eta?: string | null;
   isCurrentStop?: boolean;
   onClick?: () => void;
 }
 
-const statusConfig: Record<RouteStopStatus, { label: string; className: string }> = {
+const statusConfig: Record<RouteStopStatus, { label: string; badgeClass: string; borderClass: string }> = {
   pending: {
     label: "Pending",
-    className: "bg-surface-tertiary text-text-secondary",
+    badgeClass: "bg-amber-100 text-amber-800",
+    borderClass: "border-l-amber-400",
   },
   enroute: {
     label: "En Route",
-    className: "bg-secondary/20 text-secondary-hover",
+    badgeClass: "bg-blue-100 text-blue-800",
+    borderClass: "border-l-blue-500",
   },
   arrived: {
     label: "Arrived",
-    className: "bg-green/10 text-green",
+    badgeClass: "bg-green/10 text-green",
+    borderClass: "border-l-green",
   },
   delivered: {
     label: "Delivered",
-    className: "bg-green text-text-inverse",
+    badgeClass: "bg-green text-text-inverse",
+    borderClass: "border-l-green",
   },
   skipped: {
     label: "Skipped",
-    className: "bg-status-error/10 text-status-error",
+    badgeClass: "bg-status-error/10 text-status-error",
+    borderClass: "border-l-gray-400",
   },
 };
+
+/** Active statuses that get a pulse dot indicator */
+const ACTIVE_STATUSES = new Set<RouteStopStatus>(["pending", "enroute", "arrived"]);
+
+/** Re-export stagger item variant for parent containers */
+export const stopCardItem: Variants = staggerItem;
 
 export function StopCard({
   stopIndex,
@@ -58,10 +73,13 @@ export function StopCard({
   customerName,
   address,
   timeWindow,
+  eta,
   isCurrentStop = false,
   onClick,
 }: StopCardProps) {
   const config = statusConfig[status];
+  const { isFullMotion, shouldAnimate } = useAnimationPreference();
+  const isActive = ACTIVE_STATUSES.has(status);
 
   // Format time window
   const formatTime = (isoString: string | null): string => {
@@ -79,14 +97,21 @@ export function StopCard({
       ? `${formatTime(timeWindow.start)} - ${formatTime(timeWindow.end)}`
       : null;
 
+  // ETA display
+  const etaDisplay = eta ? formatTime(eta) : null;
+
   return (
-    <button
+    <m.button
+      variants={stopCardItem}
+      whileHover={isFullMotion ? { scale: 1.01 } : undefined}
+      whileTap={isFullMotion ? { scale: 0.98 } : undefined}
       onClick={onClick}
       className={cn(
-        "w-full rounded-card-sm bg-surface-primary p-4 text-left shadow-sm border border-border",
-        "transition-all duration-fast",
-        "hover:shadow-md active:scale-[0.98]",
-        isCurrentStop && "ring-2 ring-primary ring-offset-2"
+        "w-full rounded-xl bg-surface-primary p-4 text-left shadow-sm",
+        "border border-border border-l-4",
+        config.borderClass,
+        "transition-shadow duration-fast",
+        isCurrentStop && "ring-2 ring-accent-teal ring-offset-2"
       )}
       data-testid="stop-card"
     >
@@ -113,24 +138,33 @@ export function StopCard({
             </span>
           </div>
 
-          {/* Time window */}
-          {timeDisplay && (
+          {/* Time window or ETA */}
+          {(etaDisplay || timeDisplay) && (
             <div className="flex items-center gap-1.5 mt-1.5 font-body text-sm text-text-muted">
               <Clock className="h-3.5 w-3.5" />
-              <span>{timeDisplay}</span>
+              <span>
+                {etaDisplay ? `ETA ${etaDisplay}` : timeDisplay}
+              </span>
             </div>
           )}
         </div>
 
         {/* Right side */}
         <div className="flex flex-col items-end gap-2">
-          {/* Status badge */}
+          {/* Status badge with pulse dot for active */}
           <span
             className={cn(
-              "rounded-full px-2.5 py-0.5 font-body text-xs font-medium",
-              config.className
+              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-body text-xs font-medium",
+              config.badgeClass
             )}
           >
+            {shouldAnimate && isActive && (
+              <m.span
+                animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
+                transition={{ duration: 1.5, repeat: 5 }}
+                className="inline-block h-1.5 w-1.5 rounded-full bg-current"
+              />
+            )}
             {config.label}
           </span>
 
@@ -138,6 +172,6 @@ export function StopCard({
           <ChevronRight className="h-5 w-5 text-text-muted" />
         </div>
       </div>
-    </button>
+    </m.button>
   );
 }
