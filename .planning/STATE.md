@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 57 (10 of 10 in v1.6)
-Plan: 7 of TBD in current phase
+Plan: 5 of 8 in current phase (also 06, 07 done in parallel)
 Status: In progress
-Last activity: 2026-02-11 -- Completed 57-07-PLAN.md (driver route & stop detail premium animations)
+Last activity: 2026-02-11 -- Completed 57-05-PLAN.md (admin stats, driver perf section, route timeline)
 
 Progress: [██████████████████████████████] ~99%
 
@@ -161,6 +161,9 @@ Progress: [███████████████████████
 | DRIVER-07-PULSERING | MapMarkerPulse reuses existing pulse-ring CSS keyframe (no new keyframe needed) | 57-07 |
 | DRIVER-07-TIMELINE | TimelineStepSequence shows 4-step flow; skipped status grays all steps | 57-07 |
 | DRIVER-07-STATUSANIM | Status transition uses AnimatePresence mode=wait with scale 1.2/0.8 | 57-07 |
+| ROUTE-05-TIMELINE | RouteTimeline renders alongside StopsList (both visible) rather than replacing it | 57-05 |
+| ROUTE-05-TIMECOMP | TimeComparison only renders for completed routes with startedAt+completedAt | 57-05 |
+| ROUTE-05-EXCEPTION | ExceptionAlert Mark Resolved uses placeholder onClick (no API endpoint yet) | 57-05 |
 
 ### Tech Debt (carried forward)
 
@@ -181,10 +184,10 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 57-07-PLAN.md (driver route & stop detail premium animations)
+Stopped at: Completed 57-05-PLAN.md (admin stats, driver perf, route timeline)
 Resume file: None
-Next action: Execute next plan in phase 57
+Next action: Execute 57-08 (remaining plan in phase 57)
 
 ---
 
-*Updated: 2026-02-11 -- Phase 57 plan 06 complete. Real on-time % from route_stops data, collapsible history summary cards, shimmer skeletons, animated stat counters across driver history. Plans 01-04, 06-07 done.*
+*Updated: 2026-02-11 -- Phase 57 plan 05 complete. Admin dashboard teal stats with AnimatedValue, driver performance section with 4 animated cards + SVG on-time ring, route timeline with connected dots + time comparison + exception alert. Plans 01-07 done; 08 remaining.*
