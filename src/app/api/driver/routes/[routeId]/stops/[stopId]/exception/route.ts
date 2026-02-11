@@ -99,12 +99,35 @@ export async function POST(
       );
     }
 
-    // Check stop isn't already delivered/skipped
+    // Idempotency: status check prevents duplicate exception reports for completed stops.
+    // Once a stop is delivered or skipped, this returns 400 (permanent failure for the client queue).
     if (stop.status === "delivered" || stop.status === "skipped") {
       return NextResponse.json(
         { error: `Cannot report exception for stop with status: ${stop.status}` },
         { status: 400 }
       );
+    }
+
+    // Idempotency: check for existing exception on this stop to prevent rapid double-tap duplicates.
+    // If an exception already exists, return it as an idempotent success response.
+    interface ExceptionQueryResult {
+      id: string;
+    }
+
+    const { data: existingException } = await supabase
+      .from("delivery_exceptions")
+      .select("id")
+      .eq("route_stop_id", stopId)
+      .limit(1)
+      .returns<ExceptionQueryResult[]>()
+      .single();
+
+    if (existingException) {
+      return NextResponse.json({
+        success: true,
+        exceptionId: existingException.id,
+        stopStatus: "skipped" as RouteStopStatus,
+      });
     }
 
     // Create the exception

@@ -113,7 +113,9 @@ export async function PATCH(
       );
     }
 
-    // Validate status transition
+    // Idempotency: status transition validation prevents duplicate updates.
+    // A duplicate "mark as arrived" when already arrived returns 400, which
+    // the client treats as a permanent failure and removes from the queue.
     if (!isValidStatusTransition(stop.status, newStatus)) {
       return NextResponse.json(
         { error: `Cannot transition from ${stop.status} to ${newStatus}` },
