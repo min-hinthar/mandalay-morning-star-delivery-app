@@ -145,6 +145,10 @@ Progress: [███████████████████████
 | ADMIN-01-INTRANSIT | status-in-transit token (#3B82F6 light, #60A5FA dark) for blue status | 57-01 |
 | ADMIN-01-HOVERCONST | CardRow hover boxShadow extracted to const to satisfy ESLint no-restricted-syntax | 57-01 |
 | ADMIN-01-EMOJISPLIT | EmptyState variant configs extracted to empty-state-variants.ts for 400-line limit | 57-01 |
+| ADMIN-02-TEALFILTER | Filter badges use accent-teal (not brand-red) for admin teal accent | 57-02 |
+| ADMIN-02-DATEGROUP | Orders grouped by date with sticky section headers (Today/Yesterday/absolute) | 57-02 |
+| ADMIN-02-LOADMORE | 20-item pagination with Load More button (not infinite scroll) | 57-02 |
+| ADMIN-02-DRAWERSTATUS | Drawer uses accent-teal for forward status, status-error for cancel | 57-02 |
 | ADMIN-03-TEALACCENT | Migrated drivers page from primary to accent-teal for all non-destructive interactive elements | 57-03 |
 | ADMIN-03-DRAWERREUSE | DriverDetailDrawer reuses Drawer component with position=right (no new overlay system) | 57-03 |
 | ADMIN-03-VOIDSUPPRESS | onToggleActive preserved in DriverListTable interface but void-suppressed (toggle moved to detail page) | 57-03 |
