@@ -72,7 +72,7 @@ export function CommandPalette({
 }: CommandPaletteProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const { recentSearches, addSearch, clearSearches } = useRecentSearches();
+  const { recentSearches, addSearch, removeSearch, clearSearches } = useRecentSearches();
   const { search, enrichedItems } = useFuzzySearch(categories);
 
   // Fuzzy search results (replaces .includes() filter)
@@ -207,6 +207,7 @@ export function CommandPalette({
                   <SearchEmptyState
                     recentSearches={recentSearches}
                     onSelectRecent={handleSelectRecent}
+                    onRemoveRecent={removeSearch}
                     onClearRecent={clearSearches}
                     popularItems={enrichedItems}
                     onSelectItem={handleSelectItem}
