@@ -34,6 +34,7 @@ export { SearchResultCard, type SearchResultCardProps } from "./SearchResultCard
 export { SearchCategoryTabs, type SearchCategoryTabsProps } from "./SearchCategoryTabs";
 export { SearchSkeleton, type SearchSkeletonProps } from "./SearchSkeleton";
 export { HighlightedText, type HighlightedTextProps } from "./HighlightedText";
+export { NoResultsState, type NoResultsStateProps } from "./NoResultsState";
 
 // Re-export as default for simpler imports
 export { CommandPalette as default } from "./CommandPalette";
