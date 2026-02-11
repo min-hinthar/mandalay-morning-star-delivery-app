@@ -5,3 +5,4 @@
 
 export { routeCache, pendingStatus, pendingPhotos, pendingLocations } from './stores';
 export { syncPendingItems, getPendingCounts } from './sync';
+export { purgeExpiredEntries, getBackoffDelay } from './retry';

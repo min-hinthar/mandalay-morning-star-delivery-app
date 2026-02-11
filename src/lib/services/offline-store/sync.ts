@@ -1,76 +1,97 @@
 "use client";
 
 // IndexedDB Offline Store - Sync Logic
-// Sync pending items when online, get pending counts
+// Sync pending items when online with exponential backoff and idempotency
 
 import { pendingStatus, pendingPhotos, pendingLocations } from "./stores";
+import { retryWithBackoff } from "./retry";
 
 // Sync all pending items when online
 export async function syncPendingItems(): Promise<{
   statusSynced: number;
   photosSynced: number;
   locationsSynced: number;
+  permanentFailures: number;
   errors: string[];
 }> {
   const errors: string[] = [];
   let statusSynced = 0;
   let photosSynced = 0;
   let locationsSynced = 0;
+  let permanentFailures = 0;
 
-  // Sync pending status updates
+  // Sync pending status updates (FIFO by createdAt)
   const statusUpdates = await pendingStatus.getAll();
-  for (const update of statusUpdates) {
-    try {
-      const response = await fetch(
-        `/api/driver/routes/${update.routeId}/stops/${update.stopId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            status: update.status,
-            deliveryNotes: update.deliveryNotes,
-          }),
-        }
-      );
+  const sortedStatuses = statusUpdates.sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
 
-      if (response.ok) {
-        await pendingStatus.remove(update.id);
-        statusSynced++;
-      } else {
-        errors.push(`Status update for stop ${update.stopId} failed`);
-      }
-    } catch {
-      errors.push(`Network error syncing status for stop ${update.stopId}`);
+  for (const update of sortedStatuses) {
+    const result = await retryWithBackoff(
+      `/api/driver/routes/${update.routeId}/stops/${update.stopId}`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: update.status,
+          deliveryNotes: update.deliveryNotes,
+        }),
+      },
+      update.idempotencyKey
+    );
+
+    if (result.ok) {
+      await pendingStatus.remove(update.id);
+      statusSynced++;
+    } else if (result.permanentFailure) {
+      await pendingStatus.remove(update.id);
+      permanentFailures++;
+      const msg = `[PERMANENT] Status update for stop ${update.stopId} failed: ${result.status}`;
+      errors.push(msg);
+      console.error(msg);
+    } else {
+      errors.push(
+        `Status update for stop ${update.stopId} failed after retries`
+      );
     }
   }
 
-  // Sync pending photos
+  // Sync pending photos (FIFO by createdAt)
   const photos = await pendingPhotos.getAll();
-  for (const photo of photos) {
-    try {
-      const formData = new FormData();
-      formData.append("photo", photo.blob, "delivery-photo.jpg");
+  const sortedPhotos = photos.sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
 
-      const response = await fetch(
-        `/api/driver/routes/${photo.routeId}/stops/${photo.stopId}/photo`,
-        {
-          method: "POST",
-          body: formData,
-        }
+  for (const photo of sortedPhotos) {
+    const formData = new FormData();
+    formData.append("photo", photo.blob, "delivery-photo.jpg");
+
+    const result = await retryWithBackoff(
+      `/api/driver/routes/${photo.routeId}/stops/${photo.stopId}/photo`,
+      {
+        method: "POST",
+        body: formData,
+      },
+      photo.idempotencyKey
+    );
+
+    if (result.ok) {
+      await pendingPhotos.remove(photo.id);
+      photosSynced++;
+    } else if (result.permanentFailure) {
+      await pendingPhotos.remove(photo.id);
+      permanentFailures++;
+      const msg = `[PERMANENT] Photo upload for stop ${photo.stopId} failed: ${result.status}`;
+      errors.push(msg);
+      console.error(msg);
+    } else {
+      errors.push(
+        `Photo upload for stop ${photo.stopId} failed after retries`
       );
-
-      if (response.ok) {
-        await pendingPhotos.remove(photo.id);
-        photosSynced++;
-      } else {
-        errors.push(`Photo upload for stop ${photo.stopId} failed`);
-      }
-    } catch {
-      errors.push(`Network error uploading photo for stop ${photo.stopId}`);
     }
   }
 
-  // Sync pending locations
+  // Sync pending locations (fire-and-forget, no idempotency, no backoff)
   const locations = await pendingLocations.getAll();
   for (const loc of locations) {
     try {
@@ -99,7 +120,13 @@ export async function syncPendingItems(): Promise<{
     }
   }
 
-  return { statusSynced, photosSynced, locationsSynced, errors };
+  return {
+    statusSynced,
+    photosSynced,
+    locationsSynced,
+    permanentFailures,
+    errors,
+  };
 }
 
 // Get pending counts for UI
