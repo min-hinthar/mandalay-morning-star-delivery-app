@@ -4,6 +4,7 @@
  * Contextual empty state displays when no data is available.
  * Each variant includes animated icon, playful message, and action to resolve.
  * Phase 22: Enhanced with staggered animations and page-specific personality.
+ * Phase 57: Added admin/driver emoji variants with floating animation.
  */
 
 "use client";
@@ -11,119 +12,25 @@
 import { type ReactNode } from "react";
 import Link from "next/link";
 import { m } from "framer-motion";
-import {
-  ShoppingBag,
-  Search,
-  Receipt,
-  Heart,
-  Calendar,
-  Inbox,
-  CheckCircle,
-  type LucideIcon,
-} from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerDelay } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import {
+  type EmptyStateVariant,
+  variantConfigs,
+} from "./empty-state-variants";
 
-// ============================================
-// TYPES
-// ============================================
-
-export type EmptyStateVariant =
-  | "cart"
-  | "search"
-  | "orders"
-  | "favorites"
-  | "driver-route"
-  | "admin-orders"
-  | "exceptions";
-
-interface EmptyStateConfig {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  actionLabel?: string;
-  actionHref?: string;
-  isPositive?: boolean;
-  /** CSS variable-based gradient style for icon area */
-  gradientStyle: React.CSSProperties;
-}
-
-const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
-  cart: {
-    icon: ShoppingBag,
-    title: "Your cart is feeling lonely",
-    description: "Add some delicious items from our menu to fill it up!",
-    actionLabel: "Browse Menu",
-    actionHref: "/menu",
-    gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-secondary-light), var(--color-accent-orange-light))",
-    },
-  },
-  search: {
-    icon: Search,
-    title: "No results found",
-    description: "Try different keywords or browse our categories",
-    actionLabel: "Clear Search",
-    gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-teal-light), var(--color-accent-magenta-light))",
-    },
-  },
-  orders: {
-    icon: Receipt,
-    title: "No orders yet",
-    description: "Your culinary journey awaits! Place your first order to begin.",
-    actionLabel: "Start Your Journey",
-    actionHref: "/menu",
-    gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-green-light), var(--color-accent-teal-light))",
-    },
-  },
-  favorites: {
-    icon: Heart,
-    title: "No favorites saved",
-    description: "Tap the heart on items you love to save them here",
-    actionLabel: "Discover favorites",
-    actionHref: "/menu",
-    gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-magenta-light), var(--color-primary-light))",
-    },
-  },
-  "driver-route": {
-    icon: Calendar,
-    title: "No route assigned today",
-    description: "Check back later for your delivery assignments",
-    gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-surface-tertiary), var(--color-surface-secondary))",
-    },
-  },
-  "admin-orders": {
-    icon: Inbox,
-    title: "No orders for this period",
-    description: "Try adjusting your date filter to see more results",
-    actionLabel: "Adjust filter",
-    gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-magenta-light), var(--color-primary-light))",
-    },
-  },
-  exceptions: {
-    icon: CheckCircle,
-    title: "No exceptions - all good!",
-    description: "All deliveries are running smoothly",
-    isPositive: true,
-    gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-green-light), var(--color-status-success-bg))",
-    },
-  },
-};
+export type { EmptyStateVariant };
 
 // ============================================
 // ANIMATED ICON WRAPPER
 // ============================================
 
 interface AnimatedIconProps {
-  Icon: LucideIcon;
+  Icon?: LucideIcon;
+  emoji?: string;
   isPositive?: boolean;
   gradientStyle: React.CSSProperties;
   shouldAnimate: boolean;
@@ -131,10 +38,44 @@ interface AnimatedIconProps {
 
 function AnimatedIcon({
   Icon,
+  emoji,
   isPositive,
   gradientStyle,
   shouldAnimate,
 }: AnimatedIconProps) {
+  // Emoji composition variant
+  if (emoji) {
+    return (
+      <m.div
+        initial={shouldAnimate ? { opacity: 0, scale: 0.6 } : undefined}
+        animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
+        transition={shouldAnimate ? { ...spring.ultraBouncy, delay: 0 } : undefined}
+        className="relative mb-6"
+      >
+        <div
+          className="absolute inset-0 rounded-full blur-xl opacity-70"
+          style={gradientStyle}
+        />
+        <m.span
+          animate={shouldAnimate ? { y: [0, -6, 0] } : undefined}
+          transition={
+            shouldAnimate
+              ? { duration: 3, repeat: 5, ease: "easeInOut" }
+              : undefined
+          }
+          className="relative text-5xl select-none"
+          role="img"
+          aria-hidden="true"
+        >
+          {emoji}
+        </m.span>
+      </m.div>
+    );
+  }
+
+  // Lucide icon variant (original)
+  if (!Icon) return null;
+
   return (
     <m.div
       initial={shouldAnimate ? { opacity: 0, scale: 0.6 } : undefined}
@@ -142,13 +83,10 @@ function AnimatedIcon({
       transition={shouldAnimate ? { ...spring.ultraBouncy, delay: 0 } : undefined}
       className="relative mb-6"
     >
-      {/* Static gradient blob background - removed infinite animation to prevent mobile crashes */}
       <div
         className="absolute inset-0 rounded-full blur-xl opacity-70"
         style={gradientStyle}
       />
-
-      {/* Static icon container - removed infinite animations to prevent mobile crashes */}
       <div
         className={cn(
           "relative flex h-20 w-20 items-center justify-center rounded-full",
@@ -169,25 +107,15 @@ function AnimatedIcon({
 // ============================================
 
 export interface EmptyStateProps {
-  /** Predefined variant or custom configuration */
   variant?: EmptyStateVariant;
-  /** Custom icon (overrides variant) */
   icon?: LucideIcon;
-  /** Custom title (overrides variant) */
   title?: string;
-  /** Custom description (overrides variant) */
   description?: string;
-  /** Custom action label (overrides variant) */
   actionLabel?: string;
-  /** Action href for Link (overrides variant) */
   actionHref?: string;
-  /** Action click handler (for button without href) */
   onAction?: () => void;
-  /** Search query for display (used with search variant) */
   searchQuery?: string;
-  /** Additional content below the action */
   children?: ReactNode;
-  /** Additional class names */
   className?: string;
 }
 
@@ -207,13 +135,13 @@ export function EmptyState({
   const config = variantConfigs[variant];
 
   const Icon = customIcon ?? config.icon;
+  const emoji = config.emoji;
   const title = customTitle ?? config.title;
   const description = customDescription ?? config.description;
   const actionLabel = customActionLabel ?? config.actionLabel;
   const actionHref = customActionHref ?? config.actionHref;
   const isPositive = config.isPositive;
 
-  // Handle search query display
   const displayDescription =
     variant === "search" && searchQuery
       ? `No results for "${searchQuery}". ${description}`
@@ -231,15 +159,14 @@ export function EmptyState({
         className
       )}
     >
-      {/* Icon (fades in first) */}
       <AnimatedIcon
         Icon={Icon}
+        emoji={emoji}
         isPositive={isPositive}
         gradientStyle={config.gradientStyle}
         shouldAnimate={shouldAnimate}
       />
 
-      {/* Title (slides up second) */}
       <m.h2
         initial={shouldAnimate ? { opacity: 0, y: 16 } : undefined}
         animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
@@ -252,7 +179,6 @@ export function EmptyState({
         {title}
       </m.h2>
 
-      {/* Description (slides up third) */}
       <m.p
         initial={shouldAnimate ? { opacity: 0, y: 16 } : undefined}
         animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
@@ -262,7 +188,6 @@ export function EmptyState({
         {displayDescription}
       </m.p>
 
-      {/* Action Button (scales in last) */}
       {actionLabel && (
         <m.div
           initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
@@ -281,7 +206,6 @@ export function EmptyState({
         </m.div>
       )}
 
-      {/* Additional content */}
       {children && (
         <m.div
           initial={shouldAnimate ? { opacity: 0, y: 16 } : undefined}
@@ -299,16 +223,10 @@ export function EmptyState({
 // SPECIALIZED EMPTY STATES
 // ============================================
 
-/**
- * Cart empty state with browse menu CTA
- */
 export function CartEmptyState() {
   return <EmptyState variant="cart" />;
 }
 
-/**
- * Search empty state with clear action
- */
 export function SearchEmptyState({
   query,
   onClear,
@@ -318,7 +236,6 @@ export function SearchEmptyState({
 }) {
   return (
     <EmptyState variant="search" searchQuery={query} onAction={onClear}>
-      {/* V6 Popular searches */}
       <div className="mt-6 font-body text-sm text-text-muted">
         <p className="mb-3 font-medium text-text-secondary">
           Popular searches:
@@ -338,37 +255,46 @@ export function SearchEmptyState({
   );
 }
 
-/**
- * Orders empty state
- */
 export function OrdersEmptyState() {
   return <EmptyState variant="orders" />;
 }
 
-/**
- * Favorites empty state
- */
 export function FavoritesEmptyState() {
   return <EmptyState variant="favorites" />;
 }
 
-/**
- * Driver no route empty state
- */
 export function DriverRouteEmptyState() {
   return <EmptyState variant="driver-route" />;
 }
 
-/**
- * Admin no orders empty state
- */
 export function AdminOrdersEmptyState({ onAdjustFilter }: { onAdjustFilter?: () => void }) {
   return <EmptyState variant="admin-orders" onAction={onAdjustFilter} />;
 }
 
-/**
- * Exceptions all-clear state (positive)
- */
 export function ExceptionsEmptyState() {
   return <EmptyState variant="exceptions" />;
+}
+
+export function AdminDriversEmptyState({ onAddDriver }: { onAddDriver?: () => void }) {
+  return <EmptyState variant="admin-drivers" onAction={onAddDriver} />;
+}
+
+export function AdminRoutesEmptyState({ onCreateRoute }: { onCreateRoute?: () => void }) {
+  return <EmptyState variant="admin-routes" onAction={onCreateRoute} />;
+}
+
+export function DriverHistoryEmptyState() {
+  return <EmptyState variant="driver-history" />;
+}
+
+export function AdminOrdersFilteredEmptyState({ onClearFilters }: { onClearFilters?: () => void }) {
+  return <EmptyState variant="admin-orders-filtered" onAction={onClearFilters} />;
+}
+
+export function AdminDriversFilteredEmptyState({ onClearSearch }: { onClearSearch?: () => void }) {
+  return <EmptyState variant="admin-drivers-filtered" onAction={onClearSearch} />;
+}
+
+export function AdminRoutesFilteredEmptyState({ onClearFilters }: { onClearFilters?: () => void }) {
+  return <EmptyState variant="admin-routes-filtered" onAction={onClearFilters} />;
 }
