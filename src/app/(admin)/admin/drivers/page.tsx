@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { m } from "framer-motion";
 import {
   RefreshCw,
   Search,
@@ -14,6 +13,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToast";
+import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
+import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
+import { InlineErrorCard } from "@/components/ui/admin/InlineErrorCard";
+import { DriversPageSkeleton } from "@/components/ui/admin/drivers/DriverListTable/DriversPageSkeleton";
 import {
   DriverListTable,
   type AdminDriver,
@@ -39,6 +42,7 @@ export default function AdminDriversPage() {
   const router = useRouter();
   const [drivers, setDrivers] = useState<AdminDriver[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -49,6 +53,7 @@ export default function AdminDriversPage() {
 
   const fetchDrivers = useCallback(async () => {
     try {
+      setError(null);
       const response = await fetch("/api/admin/drivers");
       if (!response.ok) {
         throw new Error("Failed to fetch drivers");
@@ -56,6 +61,7 @@ export default function AdminDriversPage() {
       const data: AdminDriver[] = await response.json();
       setDrivers(data);
     } catch {
+      setError("Failed to load drivers. Please try again.");
       toast({ title: "Error", description: "Failed to fetch drivers", variant: "destructive" });
     } finally {
       setLoading(false);
@@ -96,8 +102,8 @@ export default function AdminDriversPage() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to update driver");
+        const err = await response.json();
+        throw new Error(err.error || "Failed to update driver");
       }
 
       setDrivers((prev) =>
@@ -128,8 +134,8 @@ export default function AdminDriversPage() {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Failed to create driver");
+      const err = await response.json();
+      throw new Error(err.error || "Failed to create driver");
     }
 
     await fetchDrivers();
@@ -171,144 +177,124 @@ export default function AdminDriversPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-8">
-        <div className="animate-pulse space-y-6">
-          <div className="h-10 w-48 bg-surface-tertiary rounded-input" />
-          <div className="h-4 w-64 bg-surface-tertiary rounded-input" />
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-24 bg-surface-tertiary rounded-card-sm" />
-            ))}
-          </div>
-          <div className="h-96 bg-surface-tertiary rounded-card-sm" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-4 md:p-8 space-y-6">
       {/* Header */}
-      <m.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
-        <div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-text-primary">
-            Driver Fleet
-          </h1>
-          <p className="font-body text-text-secondary mt-1">
-            Manage your delivery drivers and track performance
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="border-border hover:bg-surface-tertiary"
-          >
-            <RefreshCw
-              className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
-            />
-            Refresh
-          </Button>
-          <Button
-            onClick={() => setIsInviteModalOpen(true)}
-            className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm"
-          >
-            <Mail className="mr-2 h-4 w-4" />
-            Invite Driver
-          </Button>
-        </div>
-      </m.div>
-
-      <DriversStatsCards
-        total={stats.total}
-        active={stats.active}
-        avgRating={stats.avgRating}
-        totalDeliveries={stats.totalDeliveries}
+      <AdminPageHeader
+        title="Driver Fleet"
+        count={drivers.length}
+        breadcrumbs={[
+          { label: "Dashboard", href: "/admin" },
+          { label: "Drivers" },
+        ]}
+        actions={
+          <>
+            <Button
+              variant="outline"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="border-border hover:bg-surface-tertiary"
+            >
+              <RefreshCw
+                className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
+              />
+              Refresh
+            </Button>
+            <Button
+              onClick={() => setIsInviteModalOpen(true)}
+              className="bg-accent-teal hover:bg-accent-teal/90 text-text-inverse shadow-sm"
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              Invite Driver
+            </Button>
+          </>
+        }
       />
 
-      {/* Search and Filters */}
-      <m.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="flex flex-col sm:flex-row gap-4"
-      >
-        {statusFilter !== "pending" && (
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
-            <Input
-              type="text"
-              placeholder="Search by name, email, or phone..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input"
-            />
-          </div>
-        )}
-
-        <div
-          className={cn(
-            "flex items-center gap-2 flex-wrap",
-            statusFilter === "pending" && "flex-1"
-          )}
-        >
-          <div className="flex items-center gap-2 text-text-muted">
-            <Filter className="h-4 w-4" />
-            <span className="text-sm font-body hidden sm:inline">Status:</span>
-          </div>
-          {STATUS_FILTERS.map((f) => {
-            const count = getFilterCount(f.value);
-            const isActive = statusFilter === f.value;
-
-            return (
-              <Badge
-                key={f.value}
-                variant={isActive ? "default" : "outline"}
-                className={cn(
-                  "cursor-pointer transition-all duration-fast font-body",
-                  isActive
-                    ? "bg-primary hover:bg-primary-hover text-text-inverse border-transparent"
-                    : "bg-surface-primary border-border text-text-primary hover:bg-primary/10 hover:border-primary/30"
-                )}
-                onClick={() => setStatusFilter(f.value)}
-              >
-                {f.label}
-                {count > 0 && (
-                  <span className="ml-1.5 text-xs opacity-80">({count})</span>
-                )}
-              </Badge>
-            );
-          })}
-        </div>
-      </m.div>
-
-      {/* Content */}
-      <m.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        {statusFilter === "pending" ? (
-          <PendingInvitesTab
-            key={invitesRefreshKey}
-            onInviteCountChange={setPendingInvitesCount}
-          />
+      {/* Skeleton Crossfade for loading */}
+      <SkeletonCrossfade isLoading={loading} skeleton={<DriversPageSkeleton />}>
+        {/* Error state */}
+        {error ? (
+          <InlineErrorCard message={error} onRetry={handleRefresh} />
         ) : (
-          <DriverListTable
-            drivers={filteredDrivers}
-            onToggleActive={handleToggleActive}
-            onViewDriver={handleViewDriver}
-            searchQuery={searchQuery}
-          />
+          <>
+            <DriversStatsCards
+              total={stats.total}
+              active={stats.active}
+              avgRating={stats.avgRating}
+              totalDeliveries={stats.totalDeliveries}
+            />
+
+            {/* Search and Filters */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              {statusFilter !== "pending" && (
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+                  <Input
+                    type="text"
+                    placeholder="Search by name, email, or phone..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 bg-surface-primary border-border focus:border-accent-teal focus:ring-accent-teal/20 rounded-input"
+                  />
+                </div>
+              )}
+
+              <div
+                className={cn(
+                  "flex items-center gap-2 flex-wrap",
+                  statusFilter === "pending" && "flex-1"
+                )}
+              >
+                <div className="flex items-center gap-2 text-text-muted">
+                  <Filter className="h-4 w-4" />
+                  <span className="text-sm font-body hidden sm:inline">Status:</span>
+                </div>
+                {STATUS_FILTERS.map((f) => {
+                  const count = getFilterCount(f.value);
+                  const isActive = statusFilter === f.value;
+
+                  return (
+                    <Badge
+                      key={f.value}
+                      variant={isActive ? "default" : "outline"}
+                      className={cn(
+                        "cursor-pointer transition-all duration-fast font-body",
+                        isActive
+                          ? "bg-accent-teal hover:bg-accent-teal/90 text-text-inverse border-transparent"
+                          : "bg-surface-primary border-border text-text-primary hover:bg-accent-teal/10 hover:border-accent-teal/30"
+                      )}
+                      onClick={() => setStatusFilter(f.value)}
+                    >
+                      {f.label}
+                      {count > 0 && (
+                        <span className="ml-1.5 text-xs opacity-80">({count})</span>
+                      )}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Content */}
+            <div>
+              {statusFilter === "pending" ? (
+                <PendingInvitesTab
+                  key={invitesRefreshKey}
+                  onInviteCountChange={setPendingInvitesCount}
+                />
+              ) : (
+                <DriverListTable
+                  drivers={filteredDrivers}
+                  onToggleActive={handleToggleActive}
+                  onViewDriver={handleViewDriver}
+                  searchQuery={searchQuery}
+                />
+              )}
+            </div>
+          </>
         )}
-      </m.div>
+      </SkeletonCrossfade>
 
       <AddDriverModal
         open={isAddModalOpen}
