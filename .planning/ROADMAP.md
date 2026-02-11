@@ -207,14 +207,18 @@ Plans:
   3. Empty states across admin pages show branded illustrations with helpful messaging
   4. Driver history shows real on-time percentage (computed from data, not hardcoded)
   5. Driver stop detail, admin driver detail, and route detail pages have premium animations matching dashboard quality
-**Plans**: TBD
+**Plans**: 8 plans in 4 waves
 **Notes**: Use /frontend-design skill. Must come LAST -- animation refactoring has caused production regressions before (mobile crashes from timer cleanup, 2026-01-29/30). Take Playwright visual snapshots before/after every change.
 
 Plans:
-- [ ] 57-01: TBD
-- [ ] 57-02: TBD
-- [ ] 57-03: TBD
-- [ ] 57-04: TBD
+- [ ] 57-01-PLAN.md -- Shared primitives: AdminPageHeader, CardRow, StatusBadge, FloatingLabelInput, SkeletonCrossfade, InlineErrorCard, EmptyState variants, teal tokens
+- [ ] 57-02-PLAN.md -- Admin orders page: card rows, skeleton crossfade, drawer detail, empty states, teal accent
+- [ ] 57-03-PLAN.md -- Admin drivers page: card rows with avatars, skeleton crossfade, drawer detail, empty states
+- [ ] 57-04-PLAN.md -- Admin routes page: card rows with progress indicators, skeleton crossfade, drawer detail, empty states
+- [ ] 57-05-PLAN.md -- Admin dashboard stats + driver detail performance section + route detail timeline
+- [ ] 57-06-PLAN.md -- Driver dashboard skeleton + driver history real on-time percentage + summary cards
+- [ ] 57-07-PLAN.md -- Driver route + stop detail premium animations (status transitions, timeline, map pulse)
+- [ ] 57-08-PLAN.md -- Navigation (AdminNav/DriverNav animated indicators) + forms (floating labels) + toast upgrade
 
 ## Progress
 
@@ -232,7 +236,7 @@ Phases execute in numeric order: 48 -> 49 -> 50 -> 51 -> 52 -> 53 -> 54 -> 55 ->
 | 54. Email System | v1.6 | 8/8 | Complete | 2026-02-09 |
 | 55. Search Enhancement | v1.6 | 4/4 | Complete | 2026-02-11 |
 | 56. Driver Offline Sync | v1.6 | 3/3 | Complete | 2026-02-11 |
-| 57. Admin & Driver Polish | v1.6 | 0/4 | Not started | - |
+| 57. Admin & Driver Polish | v1.6 | 0/8 | Not started | - |
 
 ---
 *Created: 2026-02-07*
