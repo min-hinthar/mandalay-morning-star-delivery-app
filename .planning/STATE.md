@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 55 search enhancement in progress. Plans 01-03 complete. Search interaction lifecycle (empty state with individual deletion, order history, no-results fallback) deployed. Plan 04 remaining: polish and accessibility.
+**Current focus:** Phase 55 search enhancement complete. Phase 56 driver offline sync next.
 
 ## Current Position
 
-Phase: 55 (8 of 10 in v1.6)
-Plan: 3 of 4 in current phase (55-01, 55-02, 55-03 complete)
-Status: In progress
-Last activity: 2026-02-11 -- Completed 55-03-PLAN.md
+Phase: 56 (9 of 10 in v1.6)
+Plan: 0 of TBD in current phase
+Status: Not started
+Last activity: 2026-02-11 -- Completed phase 55 (all 4 plans)
 
 Progress: [██████████████████████████████] ~99%
 
@@ -126,6 +126,10 @@ Progress: [███████████████████████
 | SRCH-03-CLEARBTN | Clear button uses AnimatePresence scale+fade animation between input and ESC hint | 55-03 |
 | SRCH-03-NORESULTS | NoResultsState as inline component in CommandPalette with popular items fallback | 55-03 |
 | SRCH-03-PARALLELMRG | Plan 02 and 03 ran in parallel; lint auto-merged CommandPalette changes into Plan 02's commit | 55-03 |
+| SRCH-04-NEXTIMAGE | Replaced plain <img> with Next.js <Image> in ItemDetailSheet hero — Google Drive thumbnail URLs fail with direct loading | 55-04 |
+| SRCH-04-TAGFILTER | Added !t.endsWith('_optional') to SearchResultCard tag filter — removes raw 'spicy_optional' text | 55-04 |
+| SRCH-04-TAGLABEL | formatTagLabel() capitalizes and formats tag slugs for display ('vegetarian' → 'Vegetarian') | 55-04 |
+| SRCH-04-CONSOLIDATE | Category badge + dietary tags consolidated to single line with dot separator | 55-04 |
 
 ### Tech Debt (carried forward)
 
@@ -146,10 +150,10 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 55-03-PLAN.md
+Stopped at: Completed phase 55 (all 4 plans)
 Resume file: None
-Next action: Continue phase 55 search enhancement with plan 04 (polish and accessibility)
+Next action: Plan phase 56 (Driver Offline Sync)
 
 ---
 
-*Updated: 2026-02-11 -- Phase 55-03 complete. Search interaction lifecycle deployed: enhanced SearchEmptyState with individual deletion + popular badges, SearchOrderHistory "From your orders" section, SearchInput clear button, NoResultsState with popular fallback.*
+*Updated: 2026-02-11 -- Phase 55 complete. All 4 plans executed: Fuse.js integration, rich search cards, search interaction lifecycle, ItemDetailSheet integration + hero image fix + tag cleanup.*
