@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 57 (10 of 10 in v1.6)
-Plan: 1 of TBD in current phase
+Plan: 4 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-11 -- Completed 57-01-PLAN.md (shared primitives)
+Last activity: 2026-02-11 -- Completed 57-04-PLAN.md (admin routes card layout)
 
 Progress: [██████████████████████████████] ~99%
 
@@ -145,6 +145,9 @@ Progress: [███████████████████████
 | ADMIN-01-INTRANSIT | status-in-transit token (#3B82F6 light, #60A5FA dark) for blue status | 57-01 |
 | ADMIN-01-HOVERCONST | CardRow hover boxShadow extracted to const to satisfy ESLint no-restricted-syntax | 57-01 |
 | ADMIN-01-EMOJISPLIT | EmptyState variant configs extracted to empty-state-variants.ts for 400-line limit | 57-01 |
+| ROUTES-04-DRAWER | RouteDetailDrawer uses framer-motion slide-in (no sheet library) with escape+backdrop close | 57-04 |
+| ROUTES-04-VOID | onViewRoute/onStatusChange props retained in interface but voided (drawer handles navigation) | 57-04 |
+| ROUTES-04-DATEGROUP | Routes grouped by date with sticky headers using isToday/isYesterday from date-fns | 57-04 |
 
 ### Tech Debt (carried forward)
 
@@ -165,10 +168,10 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 57-01-PLAN.md (shared primitives)
+Stopped at: Completed 57-04-PLAN.md (admin routes card layout)
 Resume file: None
-Next action: Execute 57-02-PLAN.md
+Next action: Execute next plan in phase 57
 
 ---
 
-*Updated: 2026-02-11 -- Phase 57 plan 01 complete. 7 shared primitives (AdminPageHeader, CardRow, StatusBadge, FloatingLabelInput, SkeletonCrossfade, InlineErrorCard, EmptyState variants) + teal token registration.*
+*Updated: 2026-02-11 -- Phase 57 plan 04 complete. Routes page card-based layout with progress bars, date grouping, slide-in drawer, shimmer skeleton crossfade, teal accent migration.*
