@@ -40,9 +40,13 @@ export function SearchResultCard({
   const isSoldOut = item.isSoldOut;
   const isPopular = item.tags.includes("popular");
 
-  // Filter displayable tags: exclude "popular" (own badge) and "contains_*" (duplicates allergens)
+  // Filter displayable tags: exclude meta tags, allergen-prefixed, and optional-suffix
   const dietaryTags = item.tags.filter(
-    (t) => t !== "popular" && t !== "featured" && !t.startsWith("contains_")
+    (t) =>
+      t !== "popular" &&
+      t !== "featured" &&
+      !t.startsWith("contains_") &&
+      !t.endsWith("_optional")
   );
 
   return (
@@ -118,47 +122,50 @@ export function SearchResultCard({
             />
           </p>
 
-          {/* Category badge */}
-          <span
-            className={cn(
-              "inline-flex items-center mt-1",
-              "px-1.5 py-0.5 rounded-full",
-              "text-2xs font-medium",
-              "bg-surface-secondary/80 text-text-muted",
-              "leading-none"
-            )}
-          >
-            {item._categoryName}
-          </span>
-
-          {/* Dietary tags + allergen icon badges */}
-          {(dietaryTags.length > 0 || item.allergens.length > 0) && (
-            <div className="flex flex-wrap items-center gap-1 mt-1.5">
-              {dietaryTags.map((tag) => (
-                <span
-                  key={tag}
-                  className={cn(
-                    "inline-flex items-center",
-                    "px-1.5 py-0.5 rounded-full",
-                    "text-2xs font-medium leading-none",
-                    tag === "vegetarian" && "bg-green-500/15 text-green-700 dark:text-green-400",
-                    tag === "vegan" && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-                    (tag === "spicy" || tag === "very-spicy" || tag === "extra-spicy") && "bg-red-500/15 text-red-600 dark:text-red-400",
-                    tag !== "vegetarian" && tag !== "vegan" && tag !== "spicy" && tag !== "very-spicy" && tag !== "extra-spicy" && "bg-surface-secondary text-text-muted"
-                  )}
-                >
-                  {tag}
-                </span>
-              ))}
-              {item.allergens.length > 0 && (
-                <span
-                  className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-2xs font-medium leading-none bg-orange-500/10 text-orange-700 dark:text-orange-400"
-                  title={item.allergens.map((a) => ALLERGEN_MAP[a]?.label || a).join(", ")}
-                >
-                  <AlertTriangle className="w-2.5 h-2.5" />
-                  {item.allergens.length > 1 ? `${item.allergens.length} allergens` : ALLERGEN_MAP[item.allergens[0]]?.label || item.allergens[0]}
-                </span>
+          {/* Category badge + dietary tags (single line) */}
+          <div className="flex flex-wrap items-center gap-1 mt-1">
+            <span
+              className={cn(
+                "inline-flex items-center",
+                "px-1.5 py-0.5 rounded-full",
+                "text-2xs font-medium",
+                "bg-surface-secondary/80 text-text-muted",
+                "leading-none"
               )}
+            >
+              {item._categoryName}
+            </span>
+            {dietaryTags.length > 0 && (
+              <span className="text-border text-2xs leading-none">·</span>
+            )}
+            {dietaryTags.map((tag) => (
+              <span
+                key={tag}
+                className={cn(
+                  "inline-flex items-center",
+                  "px-1.5 py-0.5 rounded-full",
+                  "text-2xs font-medium leading-none",
+                  tag === "vegetarian" && "bg-green-500/15 text-green-700 dark:text-green-400",
+                  tag === "vegan" && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
+                  (tag === "spicy" || tag === "very-spicy" || tag === "extra-spicy") && "bg-red-500/15 text-red-600 dark:text-red-400",
+                  tag !== "vegetarian" && tag !== "vegan" && tag !== "spicy" && tag !== "very-spicy" && tag !== "extra-spicy" && "bg-surface-secondary text-text-muted"
+                )}
+              >
+                {formatTagLabel(tag)}
+              </span>
+            ))}
+          </div>
+
+          {/* Allergen badge (separate line — safety-critical) */}
+          {item.allergens.length > 0 && (
+            <div className="flex items-center mt-1">
+              <span
+                className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-2xs font-medium leading-none bg-orange-500/10 text-orange-700 dark:text-orange-400"
+                title={item.allergens.map((a) => ALLERGEN_MAP[a]?.label || a).join(", ")}
+              >
+                <AlertTriangle className="w-2.5 h-2.5" />
+                {item.allergens.length > 1 ? `${item.allergens.length} allergens` : ALLERGEN_MAP[item.allergens[0]]?.label || item.allergens[0]}
+              </span>
             </div>
           )}
         </div>
@@ -186,6 +193,12 @@ export function SearchResultCard({
       </m.div>
     </Command.Item>
   );
+}
+
+/** Capitalize and format tag slug for display: "vegetarian" → "Vegetarian", "very-spicy" → "Very spicy" */
+function formatTagLabel(tag: string): string {
+  const label = tag.replace(/[-_]/g, " ");
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
 export default SearchResultCard;
