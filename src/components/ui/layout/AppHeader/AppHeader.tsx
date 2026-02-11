@@ -97,11 +97,11 @@ export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
     // Mobile drawer state
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    // Flatten menu items for command palette
-    const menuItems = useMemo(() => {
-      if (!menuData?.data?.categories) return [];
-      return menuData.data.categories.flatMap((c) => c.items);
-    }, [menuData]);
+    // Extract categories for command palette (preserves category context for search)
+    const categories = useMemo(
+      () => menuData?.data?.categories ?? [],
+      [menuData]
+    );
 
     // User data for mobile drawer
     const drawerUser = useMemo(() => {
@@ -213,7 +213,7 @@ export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
         <CommandPalette
           open={isPaletteOpen}
           onOpenChange={(open) => !open && closePalette()}
-          menuItems={menuItems}
+          categories={categories}
         />
       </>
     );

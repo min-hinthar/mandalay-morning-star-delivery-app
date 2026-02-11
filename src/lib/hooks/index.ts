@@ -75,6 +75,10 @@ export type {
 // ============================================
 
 export { useMenu } from "./useMenu";
+export {
+  useOrderHistorySearch,
+  type OrderHistoryItem,
+} from "./useOrderHistorySearch";
 export { useAddresses } from "./useAddresses";
 export { useTimeSlot } from "./useTimeSlot";
 export { useCoverageCheck } from "./useCoverageCheck";
