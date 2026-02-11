@@ -2,8 +2,13 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { DriverPageHeader } from "@/components/ui/driver/DriverPageHeader";
+import { HistorySkeleton } from "@/components/ui/driver/DriverDashboard/HistorySkeleton";
+import { DriverHistoryContent } from "./DriverHistoryContent";
 import type { RouteStats } from "@/types/driver";
-import { CheckCircle, Clock, MapPin, TrendingUp, Star } from "lucide-react";
+
+// ============================================
+// TYPES
+// ============================================
 
 interface DriverQueryResult {
   id: string;
@@ -20,17 +25,35 @@ interface RouteQueryResult {
   completed_at: string | null;
 }
 
+interface RouteStopQueryResult {
+  id: string;
+  route_id: string;
+  status: string;
+  delivered_at: string | null;
+  order_id: string;
+}
+
+interface OrderDeliveryWindow {
+  id: string;
+  delivery_window_end: string | null;
+}
+
+// ============================================
+// DATA FETCHING
+// ============================================
+
 async function getDriverHistory() {
   const supabase = await createClient();
 
-  // Check authentication
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     redirect("/login?next=/driver/history");
   }
 
-  // Get driver
   const { data: driver } = await supabase
     .from("drivers")
     .select("id, deliveries_count, rating_avg")
@@ -53,158 +76,136 @@ async function getDriverHistory() {
     .limit(20)
     .returns<RouteQueryResult[]>();
 
-  // Calculate on-time percentage (mock for now - would need delivery window data)
-  const onTimePercentage = 98;
+  const routeList = routes ?? [];
+  const routeIds = routeList.map((r) => r.id);
+
+  // Fetch route_stops for all routes to compute real on-time %
+  const stopsByRoute: Record<string, RouteStopQueryResult[]> = {};
+  const orderWindowMap: Record<string, string | null> = {};
+
+  if (routeIds.length > 0) {
+    const { data: stops } = await supabase
+      .from("route_stops")
+      .select("id, route_id, status, delivered_at, order_id")
+      .in("route_id", routeIds)
+      .returns<RouteStopQueryResult[]>();
+
+    if (stops) {
+      for (const stop of stops) {
+        if (!stopsByRoute[stop.route_id]) {
+          stopsByRoute[stop.route_id] = [];
+        }
+        stopsByRoute[stop.route_id].push(stop);
+      }
+
+      // Fetch delivery windows for orders in delivered stops
+      const deliveredOrderIds = stops
+        .filter((s) => s.status === "delivered" && s.delivered_at)
+        .map((s) => s.order_id);
+
+      if (deliveredOrderIds.length > 0) {
+        const { data: orders } = await supabase
+          .from("orders")
+          .select("id, delivery_window_end")
+          .in("id", deliveredOrderIds)
+          .returns<OrderDeliveryWindow[]>();
+
+        if (orders) {
+          for (const order of orders) {
+            orderWindowMap[order.id] = order.delivery_window_end;
+          }
+        }
+      }
+    }
+  }
+
+  // Compute real on-time percentage per route and overall
+  let totalDelivered = 0;
+  let totalOnTime = 0;
+
+  const routeData = routeList.map((route) => {
+    const stops = stopsByRoute[route.id] ?? [];
+    const deliveredStops = stops.filter((s) => s.status === "delivered");
+    let routeOnTime = 0;
+
+    for (const stop of deliveredStops) {
+      const windowEnd = orderWindowMap[stop.order_id];
+      if (stop.delivered_at && windowEnd) {
+        // Compare delivered_at against delivery_window_end
+        const deliveredTime = new Date(stop.delivered_at).getTime();
+        const windowEndTime = new Date(windowEnd).getTime();
+        if (deliveredTime <= windowEndTime) {
+          routeOnTime++;
+        }
+      } else {
+        // No delivery window data -- assume on-time (best effort)
+        routeOnTime++;
+      }
+    }
+
+    totalDelivered += deliveredStops.length;
+    totalOnTime += routeOnTime;
+
+    const routeOnTimePct =
+      deliveredStops.length > 0
+        ? Math.round((routeOnTime / deliveredStops.length) * 100)
+        : 0;
+
+    return {
+      id: route.id,
+      date: route.delivery_date,
+      stopCount: route.stats_json?.total_stops ?? stops.length,
+      deliveredCount: deliveredStops.length,
+      onTimePercentage: routeOnTimePct,
+      totalDurationMinutes: route.stats_json?.total_duration_minutes ?? null,
+      startedAt: route.started_at,
+      completedAt: route.completed_at,
+      stops: stops.map((s) => ({
+        id: s.id,
+        status: s.status,
+        address: "", // Addresses fetched client-side if needed
+        deliveredAt: s.delivered_at,
+      })),
+    };
+  });
+
+  const overallOnTime =
+    totalDelivered > 0 ? Math.round((totalOnTime / totalDelivered) * 100) : 0;
 
   return {
     driver: {
       deliveriesCount: driver.deliveries_count,
       ratingAvg: driver.rating_avg,
-      onTimePercentage,
+      onTimePercentage: overallOnTime,
     },
-    routes: routes ?? [],
+    routes: routeData,
+    totalRoutes: routeList.length,
   };
 }
 
-function HistoryLoading() {
-  return (
-    <div className="min-h-screen bg-surface-secondary">
-      <DriverPageHeader title="Delivery History" showBack backHref="/driver" />
-      <div className="p-4">
-        <div className="animate-pulse space-y-4">
-          {/* Stats skeleton */}
-          <div className="grid grid-cols-3 gap-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="rounded-xl bg-surface-primary p-3 shadow-sm">
-                <div className="mb-2 h-6 w-10 rounded bg-text-secondary/10" />
-                <div className="h-3 w-16 rounded bg-text-secondary/10" />
-              </div>
-            ))}
-          </div>
-
-          {/* Routes skeleton */}
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="rounded-xl bg-surface-primary p-4 shadow-sm">
-                <div className="mb-2 h-4 w-32 rounded bg-text-secondary/10" />
-                <div className="h-3 w-24 rounded bg-text-secondary/10" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+// ============================================
+// PAGE
+// ============================================
 
 export default async function DriverHistoryPage() {
   return (
-    <Suspense fallback={<HistoryLoading />}>
-      <DriverHistoryPageContent />
-    </Suspense>
+    <div className="min-h-screen bg-surface-secondary">
+      <DriverPageHeader title="Delivery History" showBack backHref="/driver" />
+      <Suspense fallback={<HistorySkeleton />}>
+        <DriverHistoryPageContent />
+      </Suspense>
+    </div>
   );
 }
 
 async function DriverHistoryPageContent() {
-  const { driver, routes } = await getDriverHistory();
+  const { driver, routes, totalRoutes } = await getDriverHistory();
 
   return (
-    <div className="min-h-screen bg-surface-secondary">
-      <DriverPageHeader title="Delivery History" showBack backHref="/driver" />
-
-      <div className="p-4">
-        {/* Stats Cards */}
-        <div className="mb-6 grid grid-cols-3 gap-3">
-          <div className="rounded-xl bg-surface-primary p-3 text-center shadow-sm">
-            <div className="flex items-center justify-center gap-1">
-              <TrendingUp className="h-4 w-4 text-status-success" />
-              <span className="text-xl font-bold text-text-primary">
-                {driver.deliveriesCount}
-              </span>
-            </div>
-            <p className="text-xs text-text-secondary">Deliveries</p>
-          </div>
-
-          <div className="rounded-xl bg-surface-primary p-3 text-center shadow-sm">
-            <div className="flex items-center justify-center gap-1">
-              <Star className="h-4 w-4 text-interactive-primary" />
-              <span className="text-xl font-bold text-text-primary">
-                {driver.ratingAvg.toFixed(1)}
-              </span>
-            </div>
-            <p className="text-xs text-text-secondary">Rating</p>
-          </div>
-
-          <div className="rounded-xl bg-surface-primary p-3 text-center shadow-sm">
-            <div className="flex items-center justify-center gap-1">
-              <Clock className="h-4 w-4 text-status-success" />
-              <span className="text-xl font-bold text-text-primary">
-                {driver.onTimePercentage}%
-              </span>
-            </div>
-            <p className="text-xs text-text-secondary">On Time</p>
-          </div>
-        </div>
-
-        {/* Past Routes */}
-        <h2 className="mb-3 font-display text-lg font-semibold text-text-primary">
-          Past Routes
-        </h2>
-
-        {routes.length === 0 ? (
-          <div className="rounded-xl bg-surface-primary p-8 text-center shadow-sm">
-            <p className="text-text-secondary">No completed routes yet</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {routes.map((route) => {
-              const stats = route.stats_json;
-              const deliveryDate = new Date(route.delivery_date + "T00:00:00");
-              const durationMinutes = stats?.total_duration_minutes;
-              const hours = durationMinutes
-                ? (durationMinutes / 60).toFixed(1)
-                : null;
-
-              const dateFormatter = new Intl.DateTimeFormat("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              });
-
-              return (
-                <div
-                  key={route.id}
-                  className="rounded-xl bg-surface-primary p-4 shadow-sm"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-medium text-text-primary">
-                        {dateFormatter.format(deliveryDate)}
-                      </p>
-                      <div className="mt-1 flex items-center gap-3 text-sm text-text-secondary">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5" />
-                          {stats?.total_stops ?? 0} stops
-                        </span>
-                        {hours && (
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3.5 w-3.5" />
-                            {hours} hrs
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1 text-status-success">
-                      <CheckCircle className="h-4 w-4" />
-                      <span className="text-xs font-medium">Completed</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
+    <DriverHistoryContent
+      driver={driver}
+      routes={routes}
+      totalRoutes={totalRoutes}
+    />
   );
 }
