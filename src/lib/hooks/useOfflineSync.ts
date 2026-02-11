@@ -24,6 +24,7 @@ interface UseOfflineSyncReturn {
     statusSynced: number;
     photosSynced: number;
     locationsSynced: number;
+    permanentFailures: number;
     errors: string[];
   } | null;
   syncNow: () => Promise<void>;
@@ -60,6 +61,7 @@ export function useOfflineSync(): UseOfflineSyncReturn {
     statusSynced: number;
     photosSynced: number;
     locationsSynced: number;
+    permanentFailures: number;
     errors: string[];
   } | null>(null);
 
