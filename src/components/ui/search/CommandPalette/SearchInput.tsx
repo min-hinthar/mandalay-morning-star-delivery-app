@@ -2,6 +2,7 @@
 
 import { Command } from "cmdk";
 import { AnimatePresence, m } from "framer-motion";
+import { useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -14,6 +15,8 @@ export interface SearchInputProps {
   onValueChange?: (value: string) => void;
   /** Callback when clear button is pressed */
   onClear?: () => void;
+  /** Auto-focus input on mount */
+  autoFocus?: boolean;
   /** Additional class names */
   className?: string;
 }
@@ -32,9 +35,21 @@ export function SearchInput({
   value,
   onValueChange,
   onClear,
+  autoFocus,
   className,
 }: SearchInputProps) {
   const hasValue = Boolean(value?.trim());
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus input on mount when autoFocus is true
+  useEffect(() => {
+    if (autoFocus) {
+      // Small delay to ensure DOM is ready after AnimatePresence mount
+      requestAnimationFrame(() => {
+        inputRef.current?.focus();
+      });
+    }
+  }, [autoFocus]);
 
   return (
     <div
@@ -48,6 +63,7 @@ export function SearchInput({
 
       {/* Input */}
       <Command.Input
+        ref={inputRef}
         placeholder={placeholder}
         value={value}
         onValueChange={onValueChange}

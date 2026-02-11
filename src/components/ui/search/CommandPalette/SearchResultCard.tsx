@@ -4,8 +4,9 @@ import { Command } from "cmdk";
 import type { FuseResultMatch } from "fuse.js";
 import { m } from "framer-motion";
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { Star, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { ALLERGEN_MAP } from "@/lib/constants/allergens";
 import { formatPrice } from "@/lib/utils/format";
 import { getCategoryEmoji } from "@/lib/search";
 import type { EnrichedMenuItem } from "@/lib/search";
@@ -39,9 +40,9 @@ export function SearchResultCard({
   const isSoldOut = item.isSoldOut;
   const isPopular = item.tags.includes("popular");
 
-  // Filter displayable tags (exclude "popular" since it gets its own badge)
+  // Filter displayable tags: exclude "popular" (own badge) and "contains_*" (duplicates allergens)
   const dietaryTags = item.tags.filter(
-    (t) => t !== "popular" && t !== "featured"
+    (t) => t !== "popular" && t !== "featured" && !t.startsWith("contains_")
   );
 
   return (
@@ -130,9 +131,9 @@ export function SearchResultCard({
             {item._categoryName}
           </span>
 
-          {/* Dietary and allergen tags */}
+          {/* Dietary tags + allergen icon badges */}
           {(dietaryTags.length > 0 || item.allergens.length > 0) && (
-            <div className="flex flex-wrap gap-1 mt-1.5">
+            <div className="flex flex-wrap items-center gap-1 mt-1.5">
               {dietaryTags.map((tag) => (
                 <span
                   key={tag}
@@ -149,14 +150,15 @@ export function SearchResultCard({
                   {tag}
                 </span>
               ))}
-              {item.allergens.map((allergen) => (
+              {item.allergens.length > 0 && (
                 <span
-                  key={allergen}
-                  className="inline-flex items-center px-1.5 py-0.5 rounded-full text-2xs font-medium leading-none bg-orange-500/10 text-orange-700 dark:text-orange-400"
+                  className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-2xs font-medium leading-none bg-orange-500/10 text-orange-700 dark:text-orange-400"
+                  title={item.allergens.map((a) => ALLERGEN_MAP[a]?.label || a).join(", ")}
                 >
-                  {allergen}
+                  <AlertTriangle className="w-2.5 h-2.5" />
+                  {item.allergens.length > 1 ? `${item.allergens.length} allergens` : ALLERGEN_MAP[item.allergens[0]]?.label || item.allergens[0]}
                 </span>
-              ))}
+              )}
             </div>
           )}
         </div>
