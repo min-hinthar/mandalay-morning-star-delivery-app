@@ -172,11 +172,14 @@ Plans:
   1. Searching "mohiga" finds "Mohinga" (fuzzy matching with typo tolerance)
   2. Search results are grouped by category (Soups, Rice, Snacks, etc.)
   3. Search results display food image thumbnails alongside item names
-**Plans**: TBD
-**Notes**: Use /frontend-design skill. Current search uses `.includes()` which misses typos. Enhance existing CommandPalette/search component.
+**Plans**: 4 plans in 3 waves
+**Notes**: Install fuse.js for client-side fuzzy search. Enhance existing CommandPalette with rich cards, category tabs, match highlighting, order history search, and ItemDetailSheet integration for search state persistence.
 
 Plans:
-- [ ] 55-01: TBD
+- [ ] 55-01-PLAN.md — Fuse.js integration, search lib module, enhanced useRecentSearches, order history hook, AppHeader categories prop rewiring
+- [ ] 55-02-PLAN.md — Rich SearchResultCard (64px thumbnails, badges, tags), HighlightedText, SearchCategoryTabs, SearchSkeleton, rewritten SearchResults
+- [ ] 55-03-PLAN.md — Enhanced SearchEmptyState (individual delete, popular items), SearchOrderHistory section, SearchInput clear button, no-results fallback
+- [ ] 55-04-PLAN.md — ItemDetailSheet integration for search state persistence, final verification checkpoint
 
 ### Phase 56: Driver Offline Sync
 **Goal**: Driver status updates never get lost -- pending actions retry automatically when connectivity returns
