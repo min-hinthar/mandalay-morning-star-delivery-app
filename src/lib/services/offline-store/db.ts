@@ -25,6 +25,7 @@ export interface PendingStatusUpdate {
   id: string;
   routeId: string;
   stopId: string;
+  idempotencyKey: string;
   status: string;
   deliveryNotes?: string;
   createdAt: string;
@@ -34,6 +35,7 @@ export interface PendingPhoto {
   id: string;
   routeId: string;
   stopId: string;
+  idempotencyKey: string;
   blob: Blob;
   createdAt: string;
 }

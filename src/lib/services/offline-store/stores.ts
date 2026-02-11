@@ -40,12 +40,14 @@ export const pendingStatus = {
     routeId: string,
     stopId: string,
     status: string,
-    deliveryNotes?: string
+    deliveryNotes?: string,
+    idempotencyKey?: string
   ): Promise<void> {
     await addToStore(STORES.PENDING_STATUS, {
       id: crypto.randomUUID(),
       routeId,
       stopId,
+      idempotencyKey: idempotencyKey ?? crypto.randomUUID(),
       status,
       deliveryNotes,
       createdAt: new Date().toISOString(),
@@ -67,11 +69,17 @@ export const pendingStatus = {
 
 // Pending photos
 export const pendingPhotos = {
-  async add(routeId: string, stopId: string, blob: Blob): Promise<void> {
+  async add(
+    routeId: string,
+    stopId: string,
+    blob: Blob,
+    idempotencyKey?: string
+  ): Promise<void> {
     await addToStore(STORES.PENDING_PHOTOS, {
       id: crypto.randomUUID(),
       routeId,
       stopId,
+      idempotencyKey: idempotencyKey ?? crypto.randomUUID(),
       blob,
       createdAt: new Date().toISOString(),
     } as PendingPhoto);

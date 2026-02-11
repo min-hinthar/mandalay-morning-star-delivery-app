@@ -8,15 +8,6 @@ interface LocationState {
   timestamp: string;
 }
 
-interface PendingAction {
-  id: string;
-  type: "status_update" | "photo_upload" | "exception";
-  stopId: string;
-  routeId: string;
-  data: Record<string, unknown>;
-  createdAt: string;
-}
-
 interface DriverState {
   // Current route state
   currentRouteId: string | null;
@@ -25,9 +16,6 @@ interface DriverState {
   // Location tracking
   isTrackingLocation: boolean;
   lastLocation: LocationState | null;
-
-  // Offline queue
-  pendingActions: PendingAction[];
 
   // UI state
   isOnline: boolean;
@@ -39,11 +27,6 @@ interface DriverState {
   setLocation: (location: LocationState) => void;
   setOnlineStatus: (isOnline: boolean) => void;
 
-  // Offline queue actions
-  addPendingAction: (action: Omit<PendingAction, "id" | "createdAt">) => void;
-  removePendingAction: (id: string) => void;
-  clearPendingActions: () => void;
-
   // Reset
   resetDriverState: () => void;
 }
@@ -53,7 +36,6 @@ const initialState = {
   currentStopIndex: 0,
   isTrackingLocation: false,
   lastLocation: null,
-  pendingActions: [],
   isOnline: true,
 };
 
@@ -120,27 +102,6 @@ export const useDriverStore = create<DriverState>()(
         set({ isOnline });
       },
 
-      addPendingAction: (action) => {
-        const id = crypto.randomUUID();
-        const createdAt = new Date().toISOString();
-        set((state) => ({
-          pendingActions: [
-            ...state.pendingActions,
-            { ...action, id, createdAt },
-          ],
-        }));
-      },
-
-      removePendingAction: (id) => {
-        set((state) => ({
-          pendingActions: state.pendingActions.filter((a) => a.id !== id),
-        }));
-      },
-
-      clearPendingActions: () => {
-        set({ pendingActions: [] });
-      },
-
       resetDriverState: () => {
         set(initialState);
       },
@@ -152,7 +113,6 @@ export const useDriverStore = create<DriverState>()(
         currentRouteId: state.currentRouteId,
         currentStopIndex: state.currentStopIndex,
         lastLocation: state.lastLocation,
-        pendingActions: state.pendingActions,
       }),
     }
   )

@@ -15,7 +15,6 @@ describe("Driver Store", () => {
       expect(state.currentStopIndex).toBe(0);
       expect(state.isTrackingLocation).toBe(false);
       expect(state.lastLocation).toBeNull();
-      expect(state.pendingActions).toEqual([]);
       expect(state.isOnline).toBe(true);
     });
   });
@@ -100,86 +99,6 @@ describe("Driver Store", () => {
     });
   });
 
-  describe("Pending Actions Queue", () => {
-    it("should add pending action", () => {
-      const { addPendingAction } = useDriverStore.getState();
-      const action = {
-        type: "status_update" as const,
-        stopId: "stop-123",
-        routeId: "route-123",
-        data: { status: "delivered" },
-      };
-
-      addPendingAction(action);
-
-      const { pendingActions } = useDriverStore.getState();
-      expect(pendingActions).toHaveLength(1);
-      expect(pendingActions[0].type).toBe("status_update");
-      expect(pendingActions[0].stopId).toBe("stop-123");
-      expect(pendingActions[0].id).toBeDefined();
-      expect(pendingActions[0].createdAt).toBeDefined();
-    });
-
-    it("should add multiple pending actions", () => {
-      const { addPendingAction } = useDriverStore.getState();
-
-      addPendingAction({
-        type: "status_update",
-        stopId: "stop-1",
-        routeId: "route-123",
-        data: {},
-      });
-
-      addPendingAction({
-        type: "photo_upload",
-        stopId: "stop-2",
-        routeId: "route-123",
-        data: {},
-      });
-
-      expect(useDriverStore.getState().pendingActions).toHaveLength(2);
-    });
-
-    it("should remove pending action by id", () => {
-      const { addPendingAction, removePendingAction } = useDriverStore.getState();
-
-      addPendingAction({
-        type: "status_update",
-        stopId: "stop-1",
-        routeId: "route-123",
-        data: {},
-      });
-
-      const actionId = useDriverStore.getState().pendingActions[0].id;
-
-      removePendingAction(actionId);
-
-      expect(useDriverStore.getState().pendingActions).toHaveLength(0);
-    });
-
-    it("should clear all pending actions", () => {
-      const { addPendingAction, clearPendingActions } = useDriverStore.getState();
-
-      addPendingAction({
-        type: "status_update",
-        stopId: "stop-1",
-        routeId: "route-123",
-        data: {},
-      });
-
-      addPendingAction({
-        type: "exception",
-        stopId: "stop-2",
-        routeId: "route-123",
-        data: {},
-      });
-
-      clearPendingActions();
-
-      expect(useDriverStore.getState().pendingActions).toHaveLength(0);
-    });
-  });
-
   describe("Reset State", () => {
     it("should reset all state to initial values", () => {
       const state = useDriverStore.getState();
@@ -195,12 +114,6 @@ describe("Driver Store", () => {
         accuracy: 10,
         timestamp: "2024-01-15T12:00:00Z",
       });
-      state.addPendingAction({
-        type: "status_update",
-        stopId: "stop-1",
-        routeId: "route-123",
-        data: {},
-      });
 
       // Reset
       state.resetDriverState();
@@ -211,7 +124,6 @@ describe("Driver Store", () => {
       expect(resetState.currentStopIndex).toBe(0);
       expect(resetState.isTrackingLocation).toBe(false);
       expect(resetState.lastLocation).toBeNull();
-      expect(resetState.pendingActions).toEqual([]);
       expect(resetState.isOnline).toBe(true);
     });
   });
