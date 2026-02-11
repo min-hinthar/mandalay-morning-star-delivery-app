@@ -25,6 +25,10 @@ import {
   CreateRouteModal,
   type CreateRouteData,
 } from "@/components/ui/admin/routes/CreateRouteModal";
+import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
+import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
+import { InlineErrorCard } from "@/components/ui/admin/InlineErrorCard";
+import { RoutesPageSkeleton } from "@/components/ui/admin/routes/RouteListTable/RoutesPageSkeleton";
 import type { RouteStatus } from "@/types/driver";
 import { RoutesStatsCards } from "./RoutesStatsCards";
 
@@ -41,6 +45,7 @@ export default function AdminRoutesPage() {
   const router = useRouter();
   const [routes, setRoutes] = useState<AdminRoute[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -48,6 +53,7 @@ export default function AdminRoutesPage() {
 
   const fetchRoutes = useCallback(async () => {
     try {
+      setError(null);
       let url = "/api/admin/routes";
       if (selectedDate) {
         url += `?date=${selectedDate}`;
@@ -59,6 +65,7 @@ export default function AdminRoutesPage() {
       const data: AdminRoute[] = await response.json();
       setRoutes(data);
     } catch {
+      setError("Failed to load routes. Please try again.");
       toast({ title: "Error", description: "Failed to fetch routes", variant: "destructive" });
     } finally {
       setLoading(false);
@@ -88,8 +95,8 @@ export default function AdminRoutesPage() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to update route");
+        const err = await response.json();
+        throw new Error(err.error || "Failed to update route");
       }
 
       await fetchRoutes();
@@ -110,8 +117,8 @@ export default function AdminRoutesPage() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to delete route");
+        const err = await response.json();
+        throw new Error(err.error || "Failed to delete route");
       }
 
       setRoutes((prev) => prev.filter((r) => r.id !== routeId));
@@ -133,8 +140,8 @@ export default function AdminRoutesPage() {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Failed to create route");
+      const err = await response.json();
+      throw new Error(err.error || "Failed to create route");
     }
 
     await fetchRoutes();
@@ -172,194 +179,187 @@ export default function AdminRoutesPage() {
     deliveredStops: routes.reduce((sum, r) => sum + r.deliveredCount, 0),
   };
 
-  if (loading) {
-    return (
-      <div className="p-8">
-        <div className="animate-pulse space-y-6">
-          <div className="h-10 w-48 bg-muted rounded" />
-          <div className="h-4 w-64 bg-muted rounded" />
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-24 bg-muted rounded-xl" />
-            ))}
-          </div>
-          <div className="h-96 bg-muted rounded-xl" />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-4 md:p-8 space-y-6">
-      {/* Header */}
-      <m.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
-        <div>
-          <h1 className="text-3xl md:text-4xl font-display text-charcoal">
-            Delivery Routes
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Plan and manage delivery routes for your drivers
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="border-curry/20 hover:bg-curry/5"
-          >
-            <RefreshCw
-              className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
-            />
-            Refresh
-          </Button>
-          <Button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="bg-gradient-to-r from-saffron to-curry hover:from-saffron-dark hover:to-curry-dark text-text-inverse shadow-md"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Create Route
-          </Button>
-        </div>
-      </m.div>
-
-      <RoutesStatsCards
-        total={stats.total}
-        planned={stats.planned}
-        inProgress={stats.inProgress}
-        completed={stats.completed}
-      />
-
-      {/* Date Navigation & Status Filters */}
-      <m.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
-      >
-        <div className="flex items-center gap-2 bg-surface-primary rounded-xl border border-curry/10 p-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={goToPreviousDay}
-            className="h-8 w-8"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <div className="flex items-center gap-2 px-3">
-            <Calendar className="h-4 w-4 text-saffron" />
-            <span className="text-sm font-medium min-w-[120px] text-center">
-              {selectedDate
-                ? format(parseISO(selectedDate), "EEE, MMM d")
-                : "All Dates"}
-            </span>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={goToNextDay}
-            className="h-8 w-8"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          {selectedDate && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={goToToday}
-              className="text-xs text-saffron hover:text-saffron"
-            >
-              Clear
-            </Button>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Filter className="h-4 w-4" />
-            <span className="text-sm hidden sm:inline">Status:</span>
-          </div>
-          {STATUS_FILTERS.map((f) => {
-            const count =
-              f.value === "all"
-                ? routes.length
-                : routes.filter((r) => r.status === f.value).length;
-            const isActive = statusFilter === f.value;
-
-            return (
-              <Badge
-                key={f.value}
-                variant={isActive ? "default" : "outline"}
-                className={cn(
-                  "cursor-pointer transition-all",
-                  isActive
-                    ? "bg-saffron hover:bg-saffron/90 text-text-inverse border-transparent"
-                    : "bg-surface-primary border-curry/20 text-charcoal hover:bg-saffron/10 hover:border-saffron/30"
-                )}
-                onClick={() => setStatusFilter(f.value)}
+    <SkeletonCrossfade isLoading={loading} skeleton={<RoutesPageSkeleton />}>
+      <div className="p-4 md:p-8 space-y-6">
+        {/* Header with AdminPageHeader */}
+        <AdminPageHeader
+          title="Routes"
+          count={routes.length}
+          breadcrumbs={[
+            { label: "Dashboard", href: "/admin" },
+            { label: "Routes" },
+          ]}
+          actions={
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="border-accent-teal/20 hover:bg-accent-teal/5"
               >
-                {f.label}
-                {count > 0 && (
-                  <span className="ml-1.5 text-xs opacity-80">({count})</span>
-                )}
-              </Badge>
-            );
-          })}
-        </div>
-      </m.div>
+                <RefreshCw
+                  className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
+                />
+                Refresh
+              </Button>
+              <Button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="bg-accent-teal hover:bg-accent-teal/90 text-text-inverse shadow-md"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Create Route
+              </Button>
+            </div>
+          }
+        />
 
-      {/* Delivery Progress Summary */}
-      {stats.totalStops > 0 && (
-        <m.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="bg-gradient-to-r from-cream to-lotus/20 rounded-xl border border-curry/10 p-4"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <MapPin className="h-5 w-5 text-curry" />
-              <div>
-                <p className="text-sm font-medium text-charcoal">
-                  Delivery Progress
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {stats.deliveredStops} of {stats.totalStops} stops completed
+        {/* Error state */}
+        {error && !loading && (
+          <InlineErrorCard message={error} onRetry={handleRefresh} />
+        )}
+
+        {/* Stats cards */}
+        {!error && (
+          <RoutesStatsCards
+            total={stats.total}
+            planned={stats.planned}
+            inProgress={stats.inProgress}
+            completed={stats.completed}
+          />
+        )}
+
+        {/* Date Navigation & Status Filters */}
+        {!error && (
+          <m.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
+          >
+            <div className="flex items-center gap-2 bg-surface-primary rounded-xl border border-accent-teal/10 p-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goToPreviousDay}
+                className="h-8 w-8"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="flex items-center gap-2 px-3">
+                <Calendar className="h-4 w-4 text-accent-teal" />
+                <span className="text-sm font-medium min-w-[120px] text-center">
+                  {selectedDate
+                    ? format(parseISO(selectedDate), "EEE, MMM d")
+                    : "All Dates"}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goToNextDay}
+                className="h-8 w-8"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              {selectedDate && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={goToToday}
+                  className="text-xs text-accent-teal hover:text-accent-teal"
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 text-text-muted">
+                <Filter className="h-4 w-4" />
+                <span className="text-sm hidden sm:inline">Status:</span>
+              </div>
+              {STATUS_FILTERS.map((f) => {
+                const count =
+                  f.value === "all"
+                    ? routes.length
+                    : routes.filter((r) => r.status === f.value).length;
+                const isActive = statusFilter === f.value;
+
+                return (
+                  <Badge
+                    key={f.value}
+                    variant={isActive ? "default" : "outline"}
+                    className={cn(
+                      "cursor-pointer transition-all",
+                      isActive
+                        ? "bg-accent-teal hover:bg-accent-teal/90 text-text-inverse border-transparent"
+                        : "bg-surface-primary border-accent-teal/20 text-text-primary hover:bg-accent-teal/10 hover:border-accent-teal/30"
+                    )}
+                    onClick={() => setStatusFilter(f.value)}
+                  >
+                    {f.label}
+                    {count > 0 && (
+                      <span className="ml-1.5 text-xs opacity-80">({count})</span>
+                    )}
+                  </Badge>
+                );
+              })}
+            </div>
+          </m.div>
+        )}
+
+        {/* Delivery Progress Summary */}
+        {!error && stats.totalStops > 0 && (
+          <m.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="bg-gradient-to-r from-accent-teal/5 to-accent-teal/10 rounded-xl border border-accent-teal/10 p-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <MapPin className="h-5 w-5 text-accent-teal" />
+                <div>
+                  <p className="text-sm font-medium text-text-primary">
+                    Delivery Progress
+                  </p>
+                  <p className="text-xs text-text-muted">
+                    {stats.deliveredStops} of {stats.totalStops} stops completed
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-display text-text-primary">
+                  {Math.round((stats.deliveredStops / stats.totalStops) * 100)}%
                 </p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-2xl font-display text-charcoal">
-                {Math.round((stats.deliveredStops / stats.totalStops) * 100)}%
-              </p>
-            </div>
-          </div>
-        </m.div>
-      )}
+          </m.div>
+        )}
 
-      {/* Routes Table */}
-      <m.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <RouteListTable
-          routes={filteredRoutes}
-          onViewRoute={handleViewRoute}
-          onStatusChange={handleStatusChange}
-          onDeleteRoute={handleDeleteRoute}
+        {/* Routes Table */}
+        {!error && (
+          <m.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <RouteListTable
+              routes={filteredRoutes}
+              onViewRoute={handleViewRoute}
+              onStatusChange={handleStatusChange}
+              onDeleteRoute={handleDeleteRoute}
+            />
+          </m.div>
+        )}
+
+        <CreateRouteModal
+          open={isCreateModalOpen}
+          onOpenChange={setIsCreateModalOpen}
+          onSubmit={handleCreateRoute}
         />
-      </m.div>
-
-      <CreateRouteModal
-        open={isCreateModalOpen}
-        onOpenChange={setIsCreateModalOpen}
-        onSubmit={handleCreateRoute}
-      />
-    </div>
+      </div>
+    </SkeletonCrossfade>
   );
 }
