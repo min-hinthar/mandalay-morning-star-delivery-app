@@ -9,7 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { spring } from "@/lib/motion-tokens";
+import { spring, staggerContainer } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import type { DriverDashboardProps } from "./types";
 import { getGreeting } from "./types";
@@ -63,14 +63,20 @@ export function DriverDashboard({
         {streakDays > 0 && <StreakDisplay days={streakDays} />}
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4">
+        <m.div
+          variants={staggerContainer(0.04, 0.08)}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-2 gap-4"
+        >
           <StatCard
-            icon={<TrendingUp className="w-6 h-6 text-green" />}
+            icon={<TrendingUp className="w-6 h-6 text-accent-teal" />}
             value={driver.deliveriesCount}
             label="Total Deliveries"
-            color="bg-green"
+            color="bg-accent-teal"
             index={0}
             trend="up"
+            animatedFormat="number"
           />
           <StatCard
             icon={<Star className="w-6 h-6 text-secondary fill-secondary" />}
@@ -79,7 +85,7 @@ export function DriverDashboard({
             color="bg-secondary"
             index={1}
           />
-        </div>
+        </m.div>
 
         {/* Today's Route */}
         <RouteCard
@@ -99,17 +105,17 @@ export function DriverDashboard({
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={{ ...getSpring(spring.default), delay: 0.3 }}
           className={cn(
-            "rounded-2xl bg-gradient-to-r from-primary/5 to-green/5",
-            "p-4 border border-primary/10"
+            "rounded-2xl bg-gradient-to-r from-accent-teal/5 to-green/5",
+            "p-4 border border-accent-teal/10"
           )}
         >
           <div className="flex items-center gap-3">
             <m.div
               animate={shouldAnimate ? { rotate: [0, 10, -10, 0] } : undefined}
               transition={{ duration: 2, repeat: 5, repeatDelay: 2 }}
-              className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center"
+              className="w-10 h-10 rounded-full bg-accent-teal/10 flex items-center justify-center"
             >
-              <Target className="w-5 h-5 text-primary" />
+              <Target className="w-5 h-5 text-accent-teal" />
             </m.div>
             <div className="flex-1">
               <p className="font-semibold text-text-primary">Weekly Goal</p>

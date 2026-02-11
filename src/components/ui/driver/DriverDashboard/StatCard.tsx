@@ -6,6 +6,7 @@ import { TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { AnimatedValue } from "@/components/ui/admin/AdminDashboard/AnimatedValue";
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -14,9 +15,19 @@ interface StatCardProps {
   color: string;
   index: number;
   trend?: "up" | "down" | null;
+  /** Format for AnimatedValue counting animation */
+  animatedFormat?: "number" | "currency" | "percentage" | "duration";
 }
 
-export function StatCard({ icon, value, label, color, index, trend }: StatCardProps) {
+export function StatCard({
+  icon,
+  value,
+  label,
+  color,
+  index,
+  trend,
+  animatedFormat,
+}: StatCardProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
@@ -27,8 +38,8 @@ export function StatCard({ icon, value, label, color, index, trend }: StatCardPr
       whileHover={shouldAnimate ? { scale: 1.03, y: -4 } : undefined}
       className={cn(
         "relative overflow-hidden rounded-2xl",
-        "bg-surface-primary p-4",
-        "shadow-card border border-border"
+        "bg-gradient-to-br from-accent-teal/5 to-accent-teal/10",
+        "p-4 shadow-card border border-border"
       )}
     >
       {/* Background decoration */}
@@ -61,14 +72,18 @@ export function StatCard({ icon, value, label, color, index, trend }: StatCardPr
             transition={{ delay: index * 0.1 + 0.15 }}
             className="text-2xl font-bold text-text-primary flex items-center gap-1"
           >
-            {value}
+            {animatedFormat && typeof value === "number" ? (
+              <AnimatedValue value={value} format={animatedFormat} />
+            ) : (
+              value
+            )}
             {trend && (
               <m.span
                 animate={shouldAnimate ? { y: [0, -3, 0] } : undefined}
                 transition={{ duration: 1, repeat: 5, repeatDelay: 1 }}
               >
                 {trend === "up" ? (
-                  <TrendingUp className="w-4 h-4 text-green" />
+                  <TrendingUp className="w-4 h-4 text-accent-teal" />
                 ) : null}
               </m.span>
             )}

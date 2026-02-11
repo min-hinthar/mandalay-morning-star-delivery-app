@@ -11,7 +11,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { m } from "framer-motion";
 import {
-  ArrowLeft,
   Edit2,
   UserX,
   UserCheck,
@@ -25,7 +24,11 @@ import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
+import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
 import { DriverStatsCards } from "../DriverStatsCards";
+import { PerformanceSection } from "./PerformanceSection";
 import { RecentRoutesSection } from "../RecentRoutesSection";
 import { RecentRatingsSection } from "../RecentRatingsSection";
 import { EditProfileModal } from "./EditProfileModal";
@@ -172,32 +175,37 @@ export function DriverDetailClient() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-4 md:p-8">
-        <div className="animate-pulse space-y-6 max-w-6xl">
-          <div className="h-10 w-48 bg-surface-tertiary rounded-input" />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-28 bg-surface-tertiary rounded-card-sm" />
-            ))}
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-              <div className="h-64 bg-surface-tertiary rounded-card-sm" />
-              <div className="h-48 bg-surface-tertiary rounded-card-sm" />
-            </div>
-            <div className="space-y-6">
-              <div className="h-48 bg-surface-tertiary rounded-card-sm" />
-              <div className="h-32 bg-surface-tertiary rounded-card-sm" />
-            </div>
-          </div>
+  const driverName = driver?.fullName || "Driver";
+
+  const driverDetailSkeleton = (
+    <div className="p-4 md:p-8 space-y-6 max-w-6xl">
+      <Skeleton width={300} height={24} radius="md" />
+      <div className="flex items-center gap-4">
+        <Skeleton width={48} height={48} radius="full" />
+        <div className="space-y-2">
+          <Skeleton width={180} height={24} radius="md" />
+          <Skeleton width={80} height={20} radius="md" />
         </div>
       </div>
-    );
-  }
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} width="100%" height={112} radius="lg" />
+        ))}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <Skeleton width="100%" height={256} radius="lg" />
+          <Skeleton width="100%" height={192} radius="lg" />
+        </div>
+        <div className="space-y-6">
+          <Skeleton width="100%" height={192} radius="lg" />
+          <Skeleton width="100%" height={128} radius="lg" />
+        </div>
+      </div>
+    </div>
+  );
 
-  if (!driver) {
+  if (!loading && !driver) {
     return (
       <div className="p-8 text-center">
         <p className="text-text-secondary">Driver not found</p>
@@ -208,55 +216,57 @@ export function DriverDetailClient() {
     );
   }
 
+  // While loading, show skeleton; when done, driver is guaranteed non-null (early return above)
+  if (!driver) {
+    return driverDetailSkeleton;
+  }
+
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-6xl">
+    <SkeletonCrossfade isLoading={loading} skeleton={driverDetailSkeleton}>
+      <div className="p-4 md:p-8 space-y-6 max-w-6xl">
+      <AdminPageHeader
+        title={driverName}
+        breadcrumbs={[
+          { label: "Dashboard", href: "/admin" },
+          { label: "Drivers", href: "/admin/drivers" },
+          { label: driverName },
+        ]}
+      />
+
       {/* Header */}
       <m.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push("/admin/drivers")}
-            className="hover:bg-surface-tertiary"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-gradient-avatar flex items-center justify-center text-text-inverse font-display text-lg shadow-sm">
-              {driver.fullName
-                ? driver.fullName
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)
-                : "DR"}
-            </div>
-            <div>
-              <h1 className="text-xl md:text-2xl font-display font-bold text-text-primary">
-                {driver.fullName || "Unnamed Driver"}
-              </h1>
-              <Badge
-                className={cn(
-                  "mt-1",
-                  driver.isActive
-                    ? "bg-green/10 text-green border border-green/20"
-                    : "bg-surface-tertiary text-text-secondary border border-border"
-                )}
-              >
-                {driver.isActive ? "Active" : "Inactive"}
-              </Badge>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="h-12 w-12 rounded-full bg-gradient-avatar flex items-center justify-center text-text-inverse font-display text-lg shadow-sm">
+            {driver?.fullName
+              ? driver.fullName
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2)
+              : "DR"}
+          </div>
+          <div>
+            <Badge
+              className={cn(
+                "mt-1",
+                driver?.isActive
+                  ? "bg-accent-teal/10 text-accent-teal border border-accent-teal/20"
+                  : "bg-surface-tertiary text-text-secondary border border-border"
+              )}
+            >
+              {driver?.isActive ? "Active" : "Inactive"}
+            </Badge>
           </div>
         </div>
       </m.div>
 
-      <DriverStatsCards driver={driver} />
+      {driver && <PerformanceSection driver={driver} />}
+      {driver && <DriverStatsCards driver={driver} />}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
@@ -278,7 +288,7 @@ export function DriverDetailClient() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowEditModal(true)}
-                className="text-primary hover:bg-primary-light"
+                className="text-accent-teal hover:bg-accent-teal/10"
               >
                 <Edit2 className="h-4 w-4 mr-1" />
                 Edit
@@ -288,17 +298,17 @@ export function DriverDetailClient() {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-text-muted" />
-                <span className="text-sm font-body text-text-secondary truncate">{driver.email}</span>
+                <span className="text-sm font-body text-text-secondary truncate">{driver?.email}</span>
               </div>
 
-              {driver.phone && (
+              {driver?.phone && (
                 <div className="flex items-center gap-3">
                   <Phone className="h-4 w-4 text-text-muted" />
                   <span className="text-sm font-body text-text-secondary">{driver.phone}</span>
                 </div>
               )}
 
-              {driver.vehicleType && (
+              {driver?.vehicleType && (
                 <div className="flex items-center gap-3">
                   <VehicleIcon type={driver.vehicleType} />
                   <span className="text-sm font-body text-text-secondary">
@@ -310,7 +320,7 @@ export function DriverDetailClient() {
 
               <div className="pt-3 border-t border-border">
                 <p className="text-xs font-body text-text-muted">
-                  Member since {formatDate(driver.createdAt)}
+                  Member since {driver?.createdAt ? formatDate(driver.createdAt) : "—"}
                 </p>
               </div>
             </div>
@@ -328,7 +338,7 @@ export function DriverDetailClient() {
             <div className="space-y-3">
               <Button
                 variant="outline"
-                className="w-full justify-start border-primary/30 text-primary hover:bg-primary-light"
+                className="w-full justify-start border-accent-teal/30 text-accent-teal hover:bg-accent-teal/10"
                 onClick={() => router.push(`/admin/routes?driver=${driverId}`)}
               >
                 <Route className="h-4 w-4 mr-2" />
@@ -339,7 +349,7 @@ export function DriverDetailClient() {
                 variant="outline"
                 className={cn(
                   "w-full justify-start",
-                  driver.isActive
+                  driver?.isActive
                     ? "border-secondary/30 text-secondary-hover hover:bg-secondary-light"
                     : "border-green/30 text-green hover:bg-green/10"
                 )}
@@ -348,15 +358,15 @@ export function DriverDetailClient() {
               >
                 {toggling ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : driver.isActive ? (
+                ) : driver?.isActive ? (
                   <UserX className="h-4 w-4 mr-2" />
                 ) : (
                   <UserCheck className="h-4 w-4 mr-2" />
                 )}
-                {driver.isActive ? "Deactivate" : "Activate"}
+                {driver?.isActive ? "Deactivate" : "Activate"}
               </Button>
 
-              {driver.isActive && (
+              {driver?.isActive && (
                 <Button
                   variant="outline"
                   className="w-full justify-start border-status-error/30 text-status-error hover:bg-status-error/10"
@@ -388,6 +398,7 @@ export function DriverDetailClient() {
         onArchive={handleArchive}
         archiving={archiving}
       />
-    </div>
+      </div>
+    </SkeletonCrossfade>
   );
 }
