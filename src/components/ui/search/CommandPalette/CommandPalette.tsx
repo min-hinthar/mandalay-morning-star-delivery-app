@@ -2,26 +2,26 @@
 
 import { Command } from "cmdk";
 import { AnimatePresence, m } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { SearchX, TrendingUp, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useRecentSearches } from "@/lib/hooks";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useOrderHistorySearch } from "@/lib/hooks/useOrderHistorySearch";
 import { cn } from "@/lib/utils/cn";
 import { zClass } from "@/lib/design-system/tokens/z-index";
-import { spring, staggerItem } from "@/lib/motion-tokens";
-import { formatPrice } from "@/lib/utils/format";
-import Image from "next/image";
+import { useCartStore } from "@/lib/stores/cart-store";
 import type { MenuItem, MenuCategory } from "@/types/menu";
+import type { SelectedModifier } from "@/lib/utils/price";
 import { useFuzzySearch, deriveCategoryTabs } from "@/lib/search";
 import type { EnrichedMenuItem } from "@/lib/search";
+import { ItemDetailSheet } from "@/components/ui/menu/ItemDetailSheet";
 import { SearchInput } from "./SearchInput";
 import { SearchResults } from "./SearchResults";
 import { SearchEmptyState } from "./SearchEmptyState";
 import { SearchOrderHistory } from "./SearchOrderHistory";
 import { SearchCategoryTabs } from "./SearchCategoryTabs";
 import { SearchSkeleton } from "./SearchSkeleton";
+import { NoResultsState } from "./NoResultsState";
 
 export interface CommandPaletteProps {
   /** Whether the palette is open */
@@ -90,10 +90,10 @@ export function CommandPalette({
   onOpenChange,
   categories,
 }: CommandPaletteProps) {
-  const router = useRouter();
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const { recentSearches, addSearch, removeSearch, clearSearches } =
     useRecentSearches();
   const { search, enrichedItems } = useFuzzySearch(categories);
@@ -159,15 +159,49 @@ export function CommandPalette({
   const hasOrderResults = orderHistoryResults.length > 0;
   const hasAnyResults = hasMenuResults || hasOrderResults;
 
-  // Handle item selection - navigate to menu with item query param to open modal
+  // Handle item selection - open ItemDetailSheet overlay (palette stays open, query preserved)
   const handleSelectItem = useCallback(
     (item: MenuItem | EnrichedMenuItem) => {
       addSearch(item.nameEn);
-      onOpenChange(false);
-      setQuery("");
-      router.push(`/menu?item=${item.slug}`);
+      setSelectedItem(item as MenuItem);
     },
-    [addSearch, onOpenChange, router]
+    [addSearch]
+  );
+
+  // Close item detail sheet - returns to search with query intact
+  const handleCloseItemDetail = useCallback(() => {
+    setSelectedItem(null);
+  }, []);
+
+  // Add to cart from item detail sheet
+  const handleAddToCart = useCallback(
+    (
+      item: MenuItem,
+      modifiers: SelectedModifier[],
+      quantity: number,
+      notes: string
+    ) => {
+      useCartStore.getState().addItem({
+        menuItemId: item.id,
+        menuItemSlug: item.slug,
+        nameEn: item.nameEn,
+        nameMy: item.nameMy,
+        basePriceCents: item.basePriceCents,
+        imageUrl: item.imageUrl,
+        quantity,
+        modifiers: modifiers.map((mod) => ({
+          groupId: mod.groupId,
+          groupName: mod.groupName,
+          optionId: mod.optionId,
+          optionName: mod.optionName,
+          priceDeltaCents: mod.priceDeltaCents,
+        })),
+        notes,
+      });
+      // Close item sheet after adding, palette stays open for continued browsing
+      setSelectedItem(null);
+    },
+    []
   );
 
   // Handle recent search selection - fills input and runs search immediately
@@ -185,12 +219,13 @@ export function CommandPalette({
     setQuery("");
   }, []);
 
-  // Handle dialog close
+  // Handle dialog close - clear all state including item detail
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
       if (!newOpen) {
         setQuery("");
         setActiveTab(null);
+        setSelectedItem(null);
       }
       onOpenChange(newOpen);
     },
@@ -344,111 +379,17 @@ export function CommandPalette({
               </Command.List>
             </Command>
           </m.div>
+
+          {/* Item Detail Sheet - renders on top of search palette via Portal */}
+          <ItemDetailSheet
+            item={selectedItem}
+            isOpen={!!selectedItem}
+            onClose={handleCloseItemDetail}
+            onAddToCart={handleAddToCart}
+          />
         </>
       )}
     </AnimatePresence>
-  );
-}
-
-// ─────────────────────────────────────────────────
-// No-results state with popular items fallback
-// ─────────────────────────────────────────────────
-
-interface NoResultsStateProps {
-  query: string;
-  popularItems: MenuItem[];
-  onSelectItem: (item: MenuItem) => void;
-}
-
-function NoResultsState({
-  query,
-  popularItems,
-  onSelectItem,
-}: NoResultsStateProps) {
-  return (
-    <m.div
-      initial={{ opacity: 0, y: -4 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={spring.gentle}
-      className="py-2"
-    >
-      {/* No results message */}
-      <div className="px-4 py-6 text-center">
-        <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-surface-secondary">
-          <SearchX className="h-5 w-5 text-text-muted" />
-        </div>
-        <p className="text-sm font-medium text-text-primary">
-          No results for &ldquo;{query}&rdquo;
-        </p>
-        <p className="mt-1 text-xs text-text-muted">
-          Try a different search term
-        </p>
-      </div>
-
-      {/* Popular items to browse */}
-      {popularItems.length > 0 && (
-        <Command.Group heading="">
-          <div className="mx-4 border-t border-border/30" />
-          <div className="flex items-center gap-1.5 px-4 py-2 pt-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
-            <TrendingUp className="h-3 w-3" />
-            Try these instead
-          </div>
-          {popularItems.map((item, index) => (
-            <Command.Item
-              key={item.id}
-              value={`no-results-popular:${item.nameEn}`}
-              onSelect={() => onSelectItem(item)}
-              className={cn(
-                "relative flex cursor-pointer items-center gap-3",
-                "px-4 py-2 outline-none",
-                "transition-all duration-150",
-                "data-[selected=true]:bg-primary/8 dark:data-[selected=true]:bg-primary/15"
-              )}
-            >
-              <m.div
-                variants={staggerItem}
-                initial="hidden"
-                animate="visible"
-                custom={index}
-                className="flex w-full items-center gap-3"
-              >
-                {/* Thumbnail */}
-                <div
-                  className={cn(
-                    "relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg",
-                    "bg-surface-secondary ring-1 ring-border/10"
-                  )}
-                >
-                  {item.imageUrl ? (
-                    <Image
-                      src={item.imageUrl}
-                      alt={item.nameEn}
-                      fill
-                      sizes="40px"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5 text-text-muted">
-                      <span className="text-base font-medium">
-                        {item.nameEn.charAt(0)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Name + Price */}
-                <span className="flex-1 truncate text-sm font-medium text-text-primary">
-                  {item.nameEn}
-                </span>
-                <span className="text-sm text-text-muted">
-                  {formatPrice(item.basePriceCents)}
-                </span>
-              </m.div>
-            </Command.Item>
-          ))}
-        </Command.Group>
-      )}
-    </m.div>
   );
 }
 
