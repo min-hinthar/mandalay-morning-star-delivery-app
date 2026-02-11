@@ -155,6 +155,9 @@ Progress: [███████████████████████
 | ROUTES-04-DRAWER | RouteDetailDrawer uses framer-motion slide-in (no sheet library) with escape+backdrop close | 57-04 |
 | ROUTES-04-VOID | onViewRoute/onStatusChange props retained in interface but voided (drawer handles navigation) | 57-04 |
 | ROUTES-04-DATEGROUP | Routes grouped by date with sticky headers using isToday/isYesterday from date-fns | 57-04 |
+| HIST-06-ONTIME | On-time computed server-side from delivered_at <= delivery_window_end; falls back to on-time when no window data | 57-06 |
+| HIST-06-SPLIT | DriverHistoryContent extracted as client component for AnimatedValue + framer-motion animations | 57-06 |
+| HIST-06-COLORCODE | On-time percentage color-coded: green >= 90%, amber/secondary >= 75%, red < 75% | 57-06 |
 | DRIVER-07-PULSERING | MapMarkerPulse reuses existing pulse-ring CSS keyframe (no new keyframe needed) | 57-07 |
 | DRIVER-07-TIMELINE | TimelineStepSequence shows 4-step flow; skipped status grays all steps | 57-07 |
 | DRIVER-07-STATUSANIM | Status transition uses AnimatePresence mode=wait with scale 1.2/0.8 | 57-07 |
@@ -184,4 +187,4 @@ Next action: Execute next plan in phase 57
 
 ---
 
-*Updated: 2026-02-11 -- Phase 57 plan 07 complete. Driver route page shimmer skeleton, teal progress bar, staggered stop cards. Stop detail has timeline step sequence, status transitions, map marker pulse, cascading reveals.*
+*Updated: 2026-02-11 -- Phase 57 plan 06 complete. Real on-time % from route_stops data, collapsible history summary cards, shimmer skeletons, animated stat counters across driver history. Plans 01-04, 06-07 done.*
