@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 56 driver offline sync -- Plan 01 (queue infrastructure) complete.
+**Current focus:** Phase 56 driver offline sync -- Plan 02 (UI wiring) complete.
 
 ## Current Position
 
 Phase: 56 (9 of 10 in v1.6)
-Plan: 1 of TBD in current phase
+Plan: 2 of TBD in current phase
 Status: In progress
-Last activity: 2026-02-11 -- Completed 56-01-PLAN.md (queue infrastructure)
+Last activity: 2026-02-11 -- Completed 56-02-PLAN.md (UI wiring for offline sync)
 
 Progress: [██████████████████████████████] ~99%
 
@@ -28,12 +28,12 @@ Progress: [███████████████████████
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
 | v1.6 Production Polish | 48-57 | ~23 | -- |
 
-**Total completed:** 52 phases, 244 plans, 297 requirements
+**Total completed:** 52 phases, 245 plans, 297 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 243
+- Total plans completed: 245
 - Average duration: --
 - Total execution time: --
 
@@ -134,6 +134,10 @@ Progress: [███████████████████████
 | SYNC-01-FIREFORGET | Locations are fire-and-forget (no idempotency key, no backoff) | 56-01 |
 | SYNC-01-BACKOFF | Backoff: 2s base, 32s cap, 5 max attempts, no jitter | 56-01 |
 | SYNC-01-PERM4XX | 4xx = permanent failure (removed from queue immediately) | 56-01 |
+| SYNC-02-EXCPQUEUE | Exception offline: queue 'skipped' status update (not full exception POST) | 56-02 |
+| SYNC-02-NAVONLINE | navigator.onLine used directly in handlers for freshness (not React state) | 56-02 |
+| SYNC-02-5XXQUEUE | 5xx responses fall through to offline queue (same as network errors) | 56-02 |
+| SYNC-02-DRAINREF | onDrain callback via useRef to avoid effect dependency churn | 56-02 |
 
 ### Tech Debt (carried forward)
 
@@ -154,10 +158,10 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 56-01-PLAN.md (queue infrastructure)
+Stopped at: Completed 56-02-PLAN.md (UI wiring for offline sync)
 Resume file: None
-Next action: Execute 56-02-PLAN.md (UI wiring for offline sync)
+Next action: Execute 56-03-PLAN.md (sync status indicators and offline banner UI)
 
 ---
 
-*Updated: 2026-02-11 -- Phase 56 Plan 01 complete. Single IndexedDB queue with idempotency keys, exponential backoff retry, 4xx/5xx discrimination, and 2-hour expiry purge.*
+*Updated: 2026-02-11 -- Phase 56 Plan 02 complete. Driver UI components wired through IndexedDB offline queue with syncState machine, 60s background timer, and drain-triggered data refresh.*
