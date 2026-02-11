@@ -1,7 +1,8 @@
 "use client";
 
 import { Command } from "cmdk";
-import { Search } from "lucide-react";
+import { AnimatePresence, m } from "framer-motion";
+import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export interface SearchInputProps {
@@ -11,6 +12,8 @@ export interface SearchInputProps {
   value?: string;
   /** Callback when value changes */
   onValueChange?: (value: string) => void;
+  /** Callback when clear button is pressed */
+  onClear?: () => void;
   /** Additional class names */
   className?: string;
 }
@@ -20,15 +23,19 @@ export interface SearchInputProps {
  *
  * Features:
  * - Search icon on left
- * - ESC keyboard hint on right
+ * - Clear (X) button when text is present
+ * - ESC keyboard hint on right (desktop)
  * - Focus ring with primary color
  */
 export function SearchInput({
   placeholder = "Search menu items...",
   value,
   onValueChange,
-  className
+  onClear,
+  className,
 }: SearchInputProps) {
+  const hasValue = Boolean(value?.trim());
+
   return (
     <div
       className={cn(
@@ -51,7 +58,30 @@ export function SearchInput({
         )}
       />
 
-      {/* ESC hint */}
+      {/* Clear button - appears when text is present */}
+      <AnimatePresence>
+        {hasValue && onClear && (
+          <m.button
+            type="button"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.12 }}
+            onClick={onClear}
+            className={cn(
+              "flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full",
+              "bg-surface-secondary/80 hover:bg-surface-secondary",
+              "text-text-muted hover:text-text-primary",
+              "transition-colors duration-150"
+            )}
+            aria-label="Clear search"
+          >
+            <X className="h-3.5 w-3.5" />
+          </m.button>
+        )}
+      </AnimatePresence>
+
+      {/* ESC hint - visible on desktop alongside clear button */}
       <kbd
         className={cn(
           "hidden sm:inline-flex",
