@@ -93,6 +93,9 @@
   --color-teal: var(--color-accent-teal);
   --color-teal-hover: var(--color-accent-teal-hover);
   --color-teal-light: var(--color-accent-teal-light);
+  --color-accent-teal: var(--color-accent-teal);
+  --color-accent-teal-subtle: var(--color-accent-teal-subtle);
+  --color-status-in-transit: var(--color-status-in-transit);
   --color-magenta: var(--color-accent-magenta);
   --color-magenta-hover: var(--color-accent-magenta-hover);
   --color-magenta-light: var(--color-accent-magenta-light);
