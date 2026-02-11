@@ -3,14 +3,16 @@
  *
  * Primary action buttons for drivers: Mark Arrived, Mark Delivered, Can't Deliver.
  * V6 colors, typography, and 56px touch targets for high-contrast mode.
+ * Offline-aware: queues status updates to IndexedDB when connectivity drops.
  */
 
 "use client";
 
 import { useState } from "react";
 import { m } from "framer-motion";
-import { Check, AlertTriangle, MapPin, Loader2 } from "lucide-react";
+import { Check, AlertTriangle, MapPin, Loader2, WifiOff } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
 import type { RouteStopStatus } from "@/types/driver";
 
 interface DeliveryActionsProps {
@@ -18,6 +20,7 @@ interface DeliveryActionsProps {
   stopId: string;
   currentStatus: RouteStopStatus;
   onStatusChange?: (newStatus: RouteStopStatus) => void;
+  onQueuedOffline?: () => void;
   onException?: () => void;
   disabled?: boolean;
 }
@@ -27,17 +30,34 @@ export function DeliveryActions({
   stopId,
   currentStatus,
   onStatusChange,
+  onQueuedOffline,
   onException,
   disabled = false,
 }: DeliveryActionsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [queued, setQueued] = useState(false);
+  const { queueStatusUpdate } = useOfflineSync();
+
+  const queueOffline = async (newStatus: RouteStopStatus) => {
+    await queueStatusUpdate(routeId, stopId, newStatus);
+    onStatusChange?.(newStatus);
+    onQueuedOffline?.();
+    // Brief "Queued" flash
+    setQueued(true);
+    setTimeout(() => setQueued(false), 1500);
+  };
 
   const updateStatus = async (newStatus: RouteStopStatus) => {
     setIsLoading(true);
     setError(null);
 
     try {
+      if (!navigator.onLine) {
+        await queueOffline(newStatus);
+        return;
+      }
+
       const response = await fetch(
         `/api/driver/routes/${routeId}/stops/${stopId}`,
         {
@@ -48,16 +68,51 @@ export function DeliveryActions({
       );
 
       if (!response.ok) {
+        const status = response.status;
+        if (status >= 500) {
+          // 5xx: fall through to queue
+          await queueOffline(newStatus);
+          return;
+        }
         const data = await response.json();
         throw new Error(data.error || "Failed to update status");
       }
 
       onStatusChange?.(newStatus);
     } catch (err) {
+      // Network TypeError: fall through to queue
+      if (err instanceof TypeError) {
+        await queueOffline(newStatus);
+        return;
+      }
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const renderButtonContent = (
+    icon: React.ReactNode,
+    label: string
+  ) => {
+    if (queued) {
+      return (
+        <>
+          <WifiOff className="h-5 w-5" />
+          <span>Queued</span>
+          <Check className="h-5 w-5" />
+        </>
+      );
+    }
+    if (isLoading) {
+      return <Loader2 className="h-6 w-6 animate-spin" />;
+    }
+    return (
+      <>
+        {icon}
+        <span>{label}</span>
+      </>
+    );
   };
 
   // Determine which action to show based on current status
@@ -83,13 +138,9 @@ export function DeliveryActions({
             )}
             data-testid="mark-arrived-button"
           >
-            {isLoading ? (
-              <Loader2 className="h-6 w-6 animate-spin" />
-            ) : (
-              <>
-                <MapPin className="h-6 w-6" />
-                <span>Mark Arrived</span>
-              </>
+            {renderButtonContent(
+              <MapPin className="h-6 w-6" />,
+              "Mark Arrived"
             )}
           </m.button>
         );
@@ -113,13 +164,9 @@ export function DeliveryActions({
             )}
             data-testid="mark-delivered-button"
           >
-            {isLoading ? (
-              <Loader2 className="h-6 w-6 animate-spin" />
-            ) : (
-              <>
-                <Check className="h-6 w-6" />
-                <span>Mark Delivered</span>
-              </>
+            {renderButtonContent(
+              <Check className="h-6 w-6" />,
+              "Mark Delivered"
             )}
           </m.button>
         );

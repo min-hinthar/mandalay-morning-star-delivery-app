@@ -3,6 +3,7 @@
  *
  * Exception reporting modal for drivers with V6 styling.
  * Large touch targets (56px), high-contrast support.
+ * Offline-aware: queues skip-status to IndexedDB when connectivity drops.
  */
 
 "use client";
@@ -12,6 +13,7 @@ import { m, AnimatePresence } from "framer-motion";
 import { X, AlertTriangle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
+import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
 import type { DeliveryExceptionType } from "@/types/driver";
 
 const EXCEPTION_TYPES: { value: DeliveryExceptionType; label: string; description: string }[] = [
@@ -66,9 +68,18 @@ export function ExceptionModal({
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { queueStatusUpdate } = useOfflineSync();
 
   // Body scroll lock (deferred restore for animation safety)
   const { restoreScrollPosition } = useBodyScrollLock(isOpen, { deferRestore: true });
+
+  const queueOfflineException = async () => {
+    if (!selectedType) return;
+    const notes = `Exception: ${selectedType} - ${description.trim() || "No details"}`;
+    await queueStatusUpdate(routeId, stopId, "skipped", notes);
+    onSuccess?.();
+    onClose();
+  };
 
   const handleSubmit = async () => {
     if (!selectedType) return;
@@ -77,6 +88,11 @@ export function ExceptionModal({
     setError(null);
 
     try {
+      if (!navigator.onLine) {
+        await queueOfflineException();
+        return;
+      }
+
       const response = await fetch(
         `/api/driver/routes/${routeId}/stops/${stopId}/exception`,
         {
@@ -90,6 +106,11 @@ export function ExceptionModal({
       );
 
       if (!response.ok) {
+        const status = response.status;
+        if (status >= 500) {
+          await queueOfflineException();
+          return;
+        }
         const data = await response.json();
         throw new Error(data.error || "Failed to report exception");
       }
@@ -97,6 +118,11 @@ export function ExceptionModal({
       onSuccess?.();
       onClose();
     } catch (err) {
+      if (err instanceof TypeError) {
+        // Network error: queue offline
+        await queueOfflineException();
+        return;
+      }
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setIsSubmitting(false);

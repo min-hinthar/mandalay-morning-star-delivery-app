@@ -3,6 +3,7 @@
  *
  * Full stop detail view with customer info, address, order items, and actions.
  * V6 colors, typography, and high-contrast support.
+ * Offline-aware: queues photos to IndexedDB when connectivity drops.
  */
 
 "use client";
@@ -14,6 +15,7 @@ import { StopDetail } from "./StopDetail";
 import { ExceptionModal } from "./ExceptionModal";
 import { PhotoCapture } from "./PhotoCapture";
 import { cn } from "@/lib/utils/cn";
+import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
 import type { RouteStopStatus } from "@/types/driver";
 
 interface OrderItem {
@@ -67,6 +69,9 @@ export function StopDetailView({
   const [isPhotoCaptureOpen, setIsPhotoCaptureOpen] = useState(false);
   const [hasPhoto, setHasPhoto] = useState(false);
   const [currentStatus, setCurrentStatus] = useState<RouteStopStatus>(status);
+  const { queuePhoto } = useOfflineSync({
+    onDrain: () => router.refresh(),
+  });
 
   const handleStatusChange = (newStatus: RouteStopStatus) => {
     setCurrentStatus(newStatus);
@@ -83,24 +88,46 @@ export function StopDetailView({
 
   const handlePhotoUpload = useCallback(
     async (blob: Blob) => {
-      const formData = new FormData();
-      formData.append("photo", blob, "delivery-photo.jpg");
-
-      const response = await fetch(
-        `/api/driver/routes/${routeId}/stops/${stopId}/photo`,
-        {
-          method: "POST",
-          body: formData,
+      try {
+        if (!navigator.onLine) {
+          await queuePhoto(routeId, stopId, blob);
+          setHasPhoto(true);
+          return;
         }
-      );
 
-      if (!response.ok) {
-        throw new Error("Failed to upload photo");
+        const formData = new FormData();
+        formData.append("photo", blob, "delivery-photo.jpg");
+
+        const response = await fetch(
+          `/api/driver/routes/${routeId}/stops/${stopId}/photo`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        if (!response.ok) {
+          if (response.status >= 500) {
+            // 5xx: queue offline
+            await queuePhoto(routeId, stopId, blob);
+            setHasPhoto(true);
+            return;
+          }
+          throw new Error("Failed to upload photo");
+        }
+
+        setHasPhoto(true);
+      } catch (err) {
+        if (err instanceof TypeError) {
+          // Network error: queue offline
+          await queuePhoto(routeId, stopId, blob);
+          setHasPhoto(true);
+          return;
+        }
+        throw err;
       }
-
-      setHasPhoto(true);
     },
-    [routeId, stopId]
+    [routeId, stopId, queuePhoto]
   );
 
   const handlePhotoCapture = useCallback(() => {
