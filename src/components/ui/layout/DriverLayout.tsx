@@ -9,10 +9,10 @@
 
 import { type ReactNode, useState, useEffect, useCallback } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Sun, Moon, Settings, WifiOff, Star } from "lucide-react";
+import { Sun, Moon, Settings, Star } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
-import { spring, variants } from "@/lib/motion-tokens";
+import { variants } from "@/lib/motion-tokens";
 import { useServiceWorker } from "@/lib/hooks/useServiceWorker";
 import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
 
@@ -58,7 +58,6 @@ export function DriverLayout({
   hideActions = false,
 }: DriverLayoutProps) {
   const [highContrast, setHighContrast] = useState(false);
-  const [isOnline, setIsOnline] = useState(true);
 
   // Register service worker and sync
   useServiceWorker();
@@ -75,22 +74,6 @@ export function DriverLayout({
       window.removeEventListener("sw-sync-request", handleSyncRequest);
     };
   }, [syncNow]);
-
-  // Track online status
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-
-    setIsOnline(navigator.onLine);
-
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-
-    return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-    };
-  }, []);
 
   const toggleHighContrast = useCallback(() => {
     setHighContrast((prev) => !prev);
@@ -142,28 +125,6 @@ export function DriverLayout({
 
           {/* Right Controls */}
           <div className="flex items-center gap-2">
-            {/* Offline Indicator */}
-            <AnimatePresence>
-              {!isOnline && (
-                <m.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={spring.snappy}
-                  className={cn(
-                    "flex items-center gap-1.5 rounded-full px-2.5 py-1",
-                    "text-xs font-semibold",
-                                highContrast
-                      ? "bg-yellow-400 text-black"
-                      : "bg-[var(--color-warning)] text-white"
-                  )}
-                >
-                  <WifiOff className="h-3.5 w-3.5" />
-                  <span>Offline</span>
-                </m.div>
-              )}
-            </AnimatePresence>
-
             {/* High Contrast Toggle */}
             <m.button
               onClick={toggleHighContrast}
