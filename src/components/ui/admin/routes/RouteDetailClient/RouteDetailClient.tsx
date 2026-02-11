@@ -6,6 +6,8 @@ import { m } from "framer-motion";
 import { Route } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
+import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
 import { RouteStatsBar } from "../RouteStatsBar";
 import { StopsList } from "../StopsList";
 import { LazyRouteMap } from "@/components/ui/maps/LazyMaps";
@@ -15,6 +17,9 @@ import { OptimizationModal, type StopSummary } from "../OptimizationModal";
 import { toast } from "@/lib/hooks/useToast";
 import { RouteHeader } from "./RouteHeader";
 import { DriverInfoCard } from "./DriverInfoCard";
+import { RouteTimeline } from "./RouteTimeline";
+import { TimeComparison } from "./TimeComparison";
+import { ExceptionAlert } from "./ExceptionAlert";
 import type { RouteDetailResponse, DriverOption, RouteStatus, RouteStopStatus } from "./types";
 
 export function RouteDetailClient() {
@@ -191,25 +196,28 @@ export function RouteDetailClient() {
       }));
   };
 
-  if (isLoading) {
-    return (
-      <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
-        <div className="flex items-center justify-between">
-          <Skeleton width={120} height={36} radius="lg" />
-          <Skeleton width={200} height={40} radius="md" />
-        </div>
-        <Skeleton width="100%" height={80} radius="lg" />
-        <Skeleton width="100%" height={256} radius="lg" />
-        <div className="space-y-4">
-          <Skeleton width="100%" height={160} radius="lg" />
-          <Skeleton width="100%" height={160} radius="lg" />
-          <Skeleton width="100%" height={160} radius="lg" />
-        </div>
-      </div>
-    );
-  }
+  const routeName = route
+    ? `Route #${routeId.slice(0, 8)}`
+    : "Route Details";
 
-  if (error || !route) {
+  const routeDetailSkeleton = (
+    <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
+      <Skeleton width={300} height={24} radius="md" />
+      <div className="flex items-center justify-between">
+        <Skeleton width={120} height={36} radius="lg" />
+        <Skeleton width={200} height={40} radius="md" />
+      </div>
+      <Skeleton width="100%" height={80} radius="lg" />
+      <Skeleton width="100%" height={256} radius="lg" />
+      <div className="space-y-4">
+        <Skeleton width="100%" height={160} radius="lg" />
+        <Skeleton width="100%" height={160} radius="lg" />
+        <Skeleton width="100%" height={160} radius="lg" />
+      </div>
+    </div>
+  );
+
+  if (!isLoading && (error || !route)) {
     return (
       <div className="p-4 md:p-8">
         <div className="text-center py-16 bg-gradient-to-br from-surface-secondary to-surface-tertiary rounded-xl border border-border-v5">
@@ -228,70 +236,95 @@ export function RouteDetailClient() {
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
-      <RouteHeader
-        route={route}
-        routeId={routeId}
-        isUpdating={isUpdating}
-        isManuallyReordered={isManuallyReordered}
-        onStatusChange={handleStatusChange}
-        onOptimize={() => setOptimizationModalOpen(true)}
-        onRefresh={fetchRoute}
-        onBack={() => router.push("/admin/routes")}
-      />
+    <SkeletonCrossfade isLoading={isLoading} skeleton={routeDetailSkeleton}>
+      <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
+        <AdminPageHeader
+          title={routeName}
+          breadcrumbs={[
+            { label: "Dashboard", href: "/admin" },
+            { label: "Routes", href: "/admin/routes" },
+            { label: routeName },
+          ]}
+        />
 
-      <RouteStatsBar route={route} />
+        {route && (
+          <>
+            <RouteHeader
+              route={route}
+              routeId={routeId}
+              isUpdating={isUpdating}
+              isManuallyReordered={isManuallyReordered}
+              onStatusChange={handleStatusChange}
+              onOptimize={() => setOptimizationModalOpen(true)}
+              onRefresh={fetchRoute}
+              onBack={() => router.push("/admin/routes")}
+            />
 
-      <DriverInfoCard
-        route={route}
-        drivers={drivers}
-        isUpdating={isUpdating}
-        onDriverChange={handleDriverChange}
-      />
+            {/* Exception alert at top */}
+            <ExceptionAlert stops={route.stops} />
 
-      {/* Route Map (viewport-triggered lazy load) */}
-      <m.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="h-[400px] rounded-card-sm overflow-hidden"
-        ref={mapRef}
-      >
-        {mapTriggered ? (
-          <LazyRouteMap
-            stops={route.stops
-              .map((stop) => ({
-                id: stop.id,
-                stopIndex: stop.stopIndex,
-                status: stop.status,
-                lat: stop.order?.address?.lat || 0,
-                lng: stop.order?.address?.lng || 0,
-                hasException: Boolean(stop.exception && !stop.exception.resolved),
-              }))
-              .filter((s) => s.lat && s.lng)}
-            polyline={route.optimizedPolyline}
-            onStopClick={handleStopClick}
-          />
-        ) : (
-          <MapSkeleton height={400} />
+            <RouteStatsBar route={route} />
+
+            {/* Time comparison (only shows for completed routes) */}
+            <TimeComparison route={route} />
+
+            <DriverInfoCard
+              route={route}
+              drivers={drivers}
+              isUpdating={isUpdating}
+              onDriverChange={handleDriverChange}
+            />
+
+            {/* Route Map */}
+            <m.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="h-[400px] rounded-xl shadow-lg overflow-hidden"
+              ref={mapRef}
+            >
+              {mapTriggered ? (
+                <LazyRouteMap
+                  stops={route.stops
+                    .map((stop) => ({
+                      id: stop.id,
+                      stopIndex: stop.stopIndex,
+                      status: stop.status,
+                      lat: stop.order?.address?.lat || 0,
+                      lng: stop.order?.address?.lng || 0,
+                      hasException: Boolean(stop.exception && !stop.exception.resolved),
+                    }))
+                    .filter((s) => s.lat && s.lng)}
+                  polyline={route.optimizedPolyline}
+                  onStopClick={handleStopClick}
+                />
+              ) : (
+                <MapSkeleton height={400} />
+              )}
+            </m.div>
+
+            {/* Route Timeline */}
+            <RouteTimeline stops={route.stops} />
+
+            {/* Traditional stops list */}
+            <StopsList
+              stops={route.stops}
+              routeStatus={route.status}
+              onStatusChange={handleStopStatusChange}
+              onRemoveStop={handleRemoveStop}
+              stopRefs={stopRefs}
+            />
+
+            <OptimizationModal
+              open={optimizationModalOpen}
+              onOpenChange={setOptimizationModalOpen}
+              routeId={routeId}
+              currentStops={getStopSummaries()}
+              onApply={handleOptimizationApply}
+            />
+          </>
         )}
-      </m.div>
-
-      <StopsList
-        stops={route.stops}
-        routeStatus={route.status}
-        onStatusChange={handleStopStatusChange}
-        onRemoveStop={handleRemoveStop}
-        stopRefs={stopRefs}
-      />
-
-      <OptimizationModal
-        open={optimizationModalOpen}
-        onOpenChange={setOptimizationModalOpen}
-        routeId={routeId}
-        currentStops={getStopSummaries()}
-        onApply={handleOptimizationApply}
-      />
-    </div>
+      </div>
+    </SkeletonCrossfade>
   );
 }

@@ -86,8 +86,13 @@ export function RouteStopCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       className={cn(
-        "bg-surface-secondary rounded-card-sm border p-4",
-        hasException ? "border-status-error/30" : "border-border"
+        "bg-surface-primary rounded-xl border border-border p-4 shadow-sm border-l-4",
+        hasException && "border-status-error/30",
+        stop.status === "delivered" && "border-l-status-success",
+        stop.status === "enroute" && "border-l-status-in-transit",
+        stop.status === "arrived" && "border-l-status-in-transit",
+        stop.status === "pending" && "border-l-border",
+        stop.status === "skipped" && "border-l-secondary"
       )}
     >
       {/* Header: Stop number, Status badge, ETA */}
