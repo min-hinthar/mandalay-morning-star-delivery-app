@@ -8,7 +8,8 @@ import { X } from "lucide-react";
 import { useRecentSearches } from "@/lib/hooks";
 import { cn } from "@/lib/utils/cn";
 import { zClass } from "@/lib/design-system/tokens/z-index";
-import type { MenuItem } from "@/types/menu";
+import type { MenuItem, MenuCategory } from "@/types/menu";
+import { useFuzzySearch } from "@/lib/search";
 import { SearchInput } from "./SearchInput";
 import { SearchResults } from "./SearchResults";
 import { SearchEmptyState } from "./SearchEmptyState";
@@ -18,8 +19,8 @@ export interface CommandPaletteProps {
   open: boolean;
   /** Callback when open state changes */
   onOpenChange: (open: boolean) => void;
-  /** Menu items to search */
-  menuItems: MenuItem[];
+  /** Menu categories containing items to search */
+  categories: MenuCategory[];
 }
 
 // Linear-like animation: scale up + fade + slide down
@@ -57,7 +58,8 @@ const dialogVariants = {
  * Linear-style command palette for menu item search
  *
  * Features:
- * - cmdk integration for keyboard navigation and filtering
+ * - Fuse.js fuzzy matching (replaces .includes())
+ * - cmdk integration for keyboard navigation
  * - Recent searches with localStorage persistence
  * - Popular item suggestions in empty state
  * - Animated entrance/exit with spring physics
@@ -66,22 +68,24 @@ const dialogVariants = {
 export function CommandPalette({
   open,
   onOpenChange,
-  menuItems,
+  categories,
 }: CommandPaletteProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const { recentSearches, addSearch, clearSearches } = useRecentSearches();
+  const { search, enrichedItems } = useFuzzySearch(categories);
 
-  // Filter items based on query (cmdk handles this, but we need the filtered list for display)
-  const filteredItems = useMemo(() => {
-    if (!query.trim() || !menuItems?.length) return [];
-    const lowerQuery = query.toLowerCase();
-    return menuItems.filter(
-      (item) =>
-        item.nameEn?.toLowerCase().includes(lowerQuery) ||
-        (item.descriptionEn && item.descriptionEn.toLowerCase().includes(lowerQuery))
-    );
-  }, [menuItems, query]);
+  // Fuzzy search results (replaces .includes() filter)
+  const fuseResults = useMemo(
+    () => (query.trim() ? search(query) : []),
+    [search, query]
+  );
+
+  // Extract items from Fuse results for SearchResults component
+  const filteredItems = useMemo(
+    () => fuseResults.map((r) => r.item),
+    [fuseResults]
+  );
 
   // Handle item selection - navigate to menu with item query param to open modal
   const handleSelectItem = useCallback(
@@ -204,7 +208,7 @@ export function CommandPalette({
                     recentSearches={recentSearches}
                     onSelectRecent={handleSelectRecent}
                     onClearRecent={clearSearches}
-                    popularItems={menuItems}
+                    popularItems={enrichedItems}
                     onSelectItem={handleSelectItem}
                   />
                 )}

@@ -3,13 +3,15 @@
 import { useState, useEffect, useCallback } from "react";
 
 const STORAGE_KEY = "mms-recent-searches";
-const MAX_SEARCHES = 5;
+const MAX_SEARCHES = 10;
 
 export interface UseRecentSearchesReturn {
   /** Array of recent search terms */
   recentSearches: string[];
   /** Add a search term to recent searches */
   addSearch: (term: string) => void;
+  /** Remove a single search term */
+  removeSearch: (term: string) => void;
   /** Clear all recent searches */
   clearSearches: () => void;
 }
@@ -18,7 +20,7 @@ export interface UseRecentSearchesReturn {
  * Manages recent search history with localStorage persistence
  *
  * Features:
- * - Stores up to 5 recent searches
+ * - Stores up to 10 recent searches
  * - SSR-safe with hydration protection
  * - Deduplicates searches (moves existing to top)
  * - Persists across sessions
@@ -87,6 +89,27 @@ export function useRecentSearches(): UseRecentSearchesReturn {
     });
   }, []);
 
+  const removeSearch = useCallback((term: string) => {
+    setRecentSearches((prev) => {
+      const updated = prev.filter(
+        (search) => search.toLowerCase() !== term.toLowerCase()
+      );
+
+      // Persist to localStorage
+      try {
+        if (updated.length > 0) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        } else {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      } catch {
+        // Ignore localStorage errors
+      }
+
+      return updated;
+    });
+  }, []);
+
   const clearSearches = useCallback(() => {
     setRecentSearches([]);
     try {
@@ -99,6 +122,7 @@ export function useRecentSearches(): UseRecentSearchesReturn {
   return {
     recentSearches,
     addSearch,
+    removeSearch,
     clearSearches,
   };
 }
