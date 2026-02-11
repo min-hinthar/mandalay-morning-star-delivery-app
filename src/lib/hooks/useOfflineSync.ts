@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   syncPendingItems,
   getPendingCounts,
   pendingStatus,
   pendingPhotos,
   pendingLocations,
+  purgeExpiredEntries,
 } from "@/lib/services/offline-store";
+
+type SyncState = "idle" | "syncing" | "synced" | "error";
 
 interface PendingCounts {
   status: number;
@@ -16,19 +19,26 @@ interface PendingCounts {
   total: number;
 }
 
+interface SyncResult {
+  statusSynced: number;
+  photosSynced: number;
+  locationsSynced: number;
+  permanentFailures: number;
+  errors: string[];
+}
+
+interface UseOfflineSyncOptions {
+  onDrain?: () => void;
+}
+
 interface UseOfflineSyncReturn {
   isOnline: boolean;
+  /** @deprecated Use syncState instead */
   isSyncing: boolean;
+  syncState: SyncState;
   pendingCounts: PendingCounts;
-  lastSyncResult: {
-    statusSynced: number;
-    photosSynced: number;
-    locationsSynced: number;
-    permanentFailures: number;
-    errors: string[];
-  } | null;
+  lastSyncResult: SyncResult | null;
   syncNow: () => Promise<void>;
-  // Queue methods for offline use
   queueStatusUpdate: (
     routeId: string,
     stopId: string,
@@ -46,51 +56,76 @@ interface UseOfflineSyncReturn {
   ) => Promise<void>;
 }
 
-export function useOfflineSync(): UseOfflineSyncReturn {
+export function useOfflineSync(
+  options?: UseOfflineSyncOptions
+): UseOfflineSyncReturn {
   const [isOnline, setIsOnline] = useState(
     typeof navigator !== "undefined" ? navigator.onLine : true
   );
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncState, setSyncState] = useState<SyncState>("idle");
   const [pendingCounts, setPendingCounts] = useState<PendingCounts>({
     status: 0,
     photos: 0,
     locations: 0,
     total: 0,
   });
-  const [lastSyncResult, setLastSyncResult] = useState<{
-    statusSynced: number;
-    photosSynced: number;
-    locationsSynced: number;
-    permanentFailures: number;
-    errors: string[];
-  } | null>(null);
+  const [lastSyncResult, setLastSyncResult] = useState<SyncResult | null>(
+    null
+  );
+
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const prevTotalRef = useRef<number>(0);
+  const onDrainRef = useRef(options?.onDrain);
+
+  // Keep onDrain ref current without triggering effects
+  onDrainRef.current = options?.onDrain;
 
   // Update pending counts
   const updatePendingCounts = useCallback(async () => {
     try {
       const counts = await getPendingCounts();
-      setPendingCounts({
-        ...counts,
-        total: counts.status + counts.photos + counts.locations,
-      });
+      const total = counts.status + counts.photos + counts.locations;
+      setPendingCounts({ ...counts, total });
+      return total;
     } catch {
       // IndexedDB might not be available
+      return pendingCounts.total;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sync pending items
+  // Sync pending items with state machine
   const syncNow = useCallback(async () => {
-    if (isSyncing || !isOnline) return;
+    // Use navigator.onLine for freshness (not React state)
+    if (syncState === "syncing" || !navigator.onLine) return;
 
-    setIsSyncing(true);
+    setSyncState("syncing");
     try {
       const result = await syncPendingItems();
       setLastSyncResult(result);
-      await updatePendingCounts();
-    } finally {
-      setIsSyncing(false);
+
+      const newTotal = await updatePendingCounts();
+
+      // Drain detection: queue went from non-empty to empty
+      if (prevTotalRef.current > 0 && newTotal === 0) {
+        onDrainRef.current?.();
+      }
+      prevTotalRef.current = newTotal;
+
+      if (newTotal === 0) {
+        setSyncState("synced");
+        setTimeout(() => setSyncState("idle"), 3000);
+      } else if (result.errors.length > 0) {
+        setSyncState("error");
+        setTimeout(() => setSyncState("idle"), 5000);
+      } else {
+        setSyncState("idle");
+      }
+    } catch {
+      setSyncState("error");
+      setTimeout(() => setSyncState("idle"), 5000);
     }
-  }, [isSyncing, isOnline, updatePendingCounts]);
+  }, [syncState, updatePendingCounts]);
 
   // Queue methods
   const queueStatusUpdate = useCallback(
@@ -101,7 +136,8 @@ export function useOfflineSync(): UseOfflineSyncReturn {
       deliveryNotes?: string
     ) => {
       await pendingStatus.add(routeId, stopId, status, deliveryNotes);
-      await updatePendingCounts();
+      const total = await updatePendingCounts();
+      prevTotalRef.current = total;
     },
     [updatePendingCounts]
   );
@@ -109,7 +145,8 @@ export function useOfflineSync(): UseOfflineSyncReturn {
   const queuePhoto = useCallback(
     async (routeId: string, stopId: string, blob: Blob) => {
       await pendingPhotos.add(routeId, stopId, blob);
-      await updatePendingCounts();
+      const total = await updatePendingCounts();
+      prevTotalRef.current = total;
     },
     [updatePendingCounts]
   );
@@ -131,16 +168,16 @@ export function useOfflineSync(): UseOfflineSyncReturn {
         speed,
         routeId
       );
-      await updatePendingCounts();
+      const total = await updatePendingCounts();
+      prevTotalRef.current = total;
     },
     [updatePendingCounts]
   );
 
-  // Listen for online/offline events
+  // Online/offline events + expiry purge on mount
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      // Auto-sync when coming back online
       syncNow();
     };
 
@@ -151,8 +188,17 @@ export function useOfflineSync(): UseOfflineSyncReturn {
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
+    // Purge expired entries on mount
+    purgeExpiredEntries().then((purged) => {
+      if (purged > 0) {
+        console.info(`[useOfflineSync] Purged ${purged} expired entries`);
+      }
+    });
+
     // Initial pending counts
-    updatePendingCounts();
+    updatePendingCounts().then((total) => {
+      prevTotalRef.current = total;
+    });
 
     return () => {
       window.removeEventListener("online", handleOnline);
@@ -160,9 +206,29 @@ export function useOfflineSync(): UseOfflineSyncReturn {
     };
   }, [syncNow, updatePendingCounts]);
 
+  // Background timer: 60s interval when queue non-empty and online
+  useEffect(() => {
+    if (pendingCounts.total > 0 && isOnline) {
+      timerRef.current = setInterval(() => {
+        syncNow();
+      }, 60_000);
+    } else if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [pendingCounts.total, isOnline, syncNow]);
+
   return {
     isOnline,
-    isSyncing,
+    isSyncing: syncState === "syncing",
+    syncState,
     pendingCounts,
     lastSyncResult,
     syncNow,
