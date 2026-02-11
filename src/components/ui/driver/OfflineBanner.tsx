@@ -1,88 +1,64 @@
 /**
- * V6 Offline Banner - Pepper Aesthetic
+ * Offline Banner - Amber animated slide-in/out with sync states
  *
- * Banner showing offline status, pending sync items, and sync results.
- * V6 colors for status indicators with high visibility.
+ * States:
+ * 1. Offline: amber bg, WifiOff icon, "Offline -- N actions pending"
+ * 2. Syncing: amber bg, spinning RefreshCw, "Syncing..."
+ * 3. Synced: green bg, Check icon, "All synced!" (auto-dismisses)
  */
 
 "use client";
 
-import { useEffect, useState } from "react";
-import { WifiOff, RefreshCw, Check, AlertCircle } from "lucide-react";
+import { m, AnimatePresence } from "framer-motion";
+import { WifiOff, RefreshCw, Check } from "lucide-react";
 import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
 
 export function OfflineBanner() {
-  const { isOnline, isSyncing, pendingCounts, syncNow, lastSyncResult } =
-    useOfflineSync();
-  const [showSyncResult, setShowSyncResult] = useState(false);
+  const { isOnline, syncState, pendingCounts } = useOfflineSync();
 
-  // Show sync result notification briefly
-  useEffect(() => {
-    if (lastSyncResult) {
-      setShowSyncResult(true);
-      const timer = setTimeout(() => setShowSyncResult(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [lastSyncResult]);
+  const showBanner =
+    !isOnline || syncState === "syncing" || syncState === "synced";
 
-  // Don't render if online and no pending items
-  if (isOnline && pendingCounts.total === 0 && !showSyncResult) {
-    return null;
+  // Determine banner content
+  let icon: React.ReactNode;
+  let text: string;
+  let bannerClass: string;
+
+  if (!isOnline) {
+    icon = <WifiOff className="h-4 w-4 shrink-0" />;
+    text =
+      pendingCounts.total > 0
+        ? `Offline \u2014 ${pendingCounts.total} action${pendingCounts.total === 1 ? "" : "s"} pending`
+        : "You\u2019re offline";
+    bannerClass = "bg-status-warning text-text-inverse";
+  } else if (syncState === "syncing") {
+    icon = <RefreshCw className="h-4 w-4 shrink-0 animate-spin" />;
+    text = "Syncing\u2026";
+    bannerClass = "bg-status-warning text-text-inverse";
+  } else {
+    // synced
+    icon = <Check className="h-4 w-4 shrink-0" />;
+    text = "All synced!";
+    bannerClass = "bg-green text-text-inverse";
   }
 
   return (
-    <div className="fixed left-0 right-0 top-0 z-[80]">
-      {/* Offline banner */}
-      {!isOnline && (
-        <div className="bg-status-error px-4 py-2 text-center font-body text-sm font-medium text-text-inverse">
+    <AnimatePresence>
+      {showBanner && (
+        <m.div
+          key="offline-banner"
+          initial={{ y: -60, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -60, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          className={`fixed inset-x-0 top-0 z-[80] px-4 py-2.5 text-center font-body text-sm font-medium ${bannerClass}`}
+        >
           <div className="flex items-center justify-center gap-2">
-            <WifiOff className="h-4 w-4" />
-            <span>You&apos;re offline. Changes will sync when reconnected.</span>
+            {icon}
+            <span>{text}</span>
           </div>
-        </div>
+        </m.div>
       )}
-
-      {/* Pending items banner */}
-      {isOnline && pendingCounts.total > 0 && (
-        <div className="bg-secondary px-4 py-2 text-center font-body text-sm font-medium text-text-primary">
-          <div className="flex items-center justify-center gap-2">
-            {isSyncing ? (
-              <>
-                <RefreshCw className="h-4 w-4 animate-spin" />
-                <span>Syncing {pendingCounts.total} pending items...</span>
-              </>
-            ) : (
-              <>
-                <AlertCircle className="h-4 w-4" />
-                <span>{pendingCounts.total} items pending sync</span>
-                <button
-                  onClick={syncNow}
-                  className="ml-2 rounded-full bg-overlay-light px-3 py-0.5 text-xs font-semibold transition-colors hover:bg-overlay"
-                >
-                  Sync Now
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Sync success notification */}
-      {showSyncResult &&
-        lastSyncResult &&
-        lastSyncResult.errors.length === 0 &&
-        (lastSyncResult.statusSynced > 0 ||
-          lastSyncResult.photosSynced > 0 ||
-          lastSyncResult.locationsSynced > 0) && (
-          <div className="bg-green px-4 py-2 text-center font-body text-sm font-medium text-text-inverse">
-            <div className="flex items-center justify-center gap-2">
-              <Check className="h-4 w-4" />
-              <span>
-                Synced {lastSyncResult.statusSynced + lastSyncResult.photosSynced} items
-              </span>
-            </div>
-          </div>
-        )}
-    </div>
+    </AnimatePresence>
   );
 }
