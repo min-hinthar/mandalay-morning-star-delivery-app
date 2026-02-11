@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 55 search enhancement complete. Phase 56 driver offline sync next.
+**Current focus:** Phase 56 driver offline sync -- Plan 01 (queue infrastructure) complete.
 
 ## Current Position
 
 Phase: 56 (9 of 10 in v1.6)
-Plan: 0 of TBD in current phase
-Status: Not started
-Last activity: 2026-02-11 -- Completed phase 55 (all 4 plans)
+Plan: 1 of TBD in current phase
+Status: In progress
+Last activity: 2026-02-11 -- Completed 56-01-PLAN.md (queue infrastructure)
 
 Progress: [██████████████████████████████] ~99%
 
@@ -28,7 +28,7 @@ Progress: [███████████████████████
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
 | v1.6 Production Polish | 48-57 | ~23 | -- |
 
-**Total completed:** 52 phases, 243 plans, 297 requirements
+**Total completed:** 52 phases, 244 plans, 297 requirements
 
 ## Performance Metrics
 
@@ -130,6 +130,10 @@ Progress: [███████████████████████
 | SRCH-04-TAGFILTER | Added !t.endsWith('_optional') to SearchResultCard tag filter — removes raw 'spicy_optional' text | 55-04 |
 | SRCH-04-TAGLABEL | formatTagLabel() capitalizes and formats tag slugs for display ('vegetarian' → 'Vegetarian') | 55-04 |
 | SRCH-04-CONSOLIDATE | Category badge + dietary tags consolidated to single line with dot separator | 55-04 |
+| SYNC-01-SINGLEQUEUE | IndexedDB is the single queue -- Zustand pendingActions fully removed | 56-01 |
+| SYNC-01-FIREFORGET | Locations are fire-and-forget (no idempotency key, no backoff) | 56-01 |
+| SYNC-01-BACKOFF | Backoff: 2s base, 32s cap, 5 max attempts, no jitter | 56-01 |
+| SYNC-01-PERM4XX | 4xx = permanent failure (removed from queue immediately) | 56-01 |
 
 ### Tech Debt (carried forward)
 
@@ -150,10 +154,10 @@ Progress: [███████████████████████
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed phase 55 (all 4 plans)
+Stopped at: Completed 56-01-PLAN.md (queue infrastructure)
 Resume file: None
-Next action: Plan phase 56 (Driver Offline Sync)
+Next action: Execute 56-02-PLAN.md (UI wiring for offline sync)
 
 ---
 
-*Updated: 2026-02-11 -- Phase 55 complete. All 4 plans executed: Fuse.js integration, rich search cards, search interaction lifecycle, ItemDetailSheet integration + hero image fix + tag cleanup.*
+*Updated: 2026-02-11 -- Phase 56 Plan 01 complete. Single IndexedDB queue with idempotency keys, exponential backoff retry, 4xx/5xx discrimination, and 2-hour expiry purge.*
