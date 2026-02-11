@@ -189,12 +189,13 @@ Plans:
   1. Driver going offline then back online sees pending actions automatically retry with exponential backoff
   2. Offline sync uses a single consolidated queue (not dual Zustand + IndexedDB)
   3. Duplicate status updates do not occur during sync retry (idempotency keys prevent duplicates)
-**Plans**: TBD
-**Notes**: Highest-risk feature in milestone. Dual-queue architecture (Zustand localStorage + IndexedDB) must be consolidated to one. Planning phase must decide which queue to keep. ~50 lines of code but touches critical driver delivery flow. Schedule late when codebase is stable.
+**Plans**: 3 plans in 3 waves
+**Notes**: Highest-risk feature in milestone. Dual-queue architecture (Zustand localStorage + IndexedDB) consolidated to IndexedDB. Exponential backoff retry (2s/4s/8s/16s/32s, no jitter), 2-hour expiry, idempotency keys. No new dependencies.
 
 Plans:
-- [ ] 56-01: TBD
-- [ ] 56-02: TBD
+- [ ] 56-01-PLAN.md -- Queue foundation: remove Zustand pendingActions, add idempotency keys, exponential backoff retry, 2hr expiry purge
+- [ ] 56-02-PLAN.md -- UI wiring: useOfflineSync upgrade (sync state, background timer, drain detection), offline dispatch in DeliveryActions/ExceptionModal/StopDetailView
+- [ ] 56-03-PLAN.md -- Banner + server: amber animated OfflineBanner redesign, DriverLayout cleanup, API route idempotency guards
 
 ### Phase 57: Admin & Driver Polish
 **Goal**: Admin and driver dashboards feel as premium as the customer experience
@@ -230,7 +231,7 @@ Phases execute in numeric order: 48 -> 49 -> 50 -> 51 -> 52 -> 53 -> 54 -> 55 ->
 | 53. Auth Experience | v1.6 | 6/6 | Complete | 2026-02-09 |
 | 54. Email System | v1.6 | 8/8 | Complete | 2026-02-09 |
 | 55. Search Enhancement | v1.6 | 4/4 | Complete | 2026-02-11 |
-| 56. Driver Offline Sync | v1.6 | 0/2 | Not started | - |
+| 56. Driver Offline Sync | v1.6 | 0/3 | Not started | - |
 | 57. Admin & Driver Polish | v1.6 | 0/4 | Not started | - |
 
 ---
