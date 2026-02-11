@@ -74,7 +74,7 @@ export function AdminDashboard({
           <QuickStat
             label="orders today"
             value={ordersToday}
-            icon={<Package className="w-4 h-4 text-primary" />}
+            icon={<Package className="w-4 h-4 text-accent-teal" />}
           />
           <QuickStat
             label="active drivers"
