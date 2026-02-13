@@ -2,18 +2,16 @@
 
 /**
  * Toast State Management Hook (V8)
- * Global toast state with listener pattern
- *
- * Uses same pattern as existing useToast.ts but with V8 suffix
- * to avoid conflicts during migration.
+ * Global toast state with listener pattern, sound support, and stacking.
  *
  * @example
  * // Imperative API
  * import { toast } from "@/lib/hooks/useToastV8";
  * toast({ message: "Success!", type: "success" });
+ * toast({ message: "New order!", type: "order" }); // plays chime
  *
  * // Hook API in components
- * const { toasts, dismiss } = useToast();
+ * const { toasts, dismiss, expanded, toggleExpanded } = useToast();
  */
 
 import { useState, useEffect, useCallback } from "react";
@@ -22,7 +20,7 @@ import { useState, useEffect, useCallback } from "react";
 // TYPES
 // ============================================
 
-export type ToastType = "success" | "error" | "info" | "warning";
+export type ToastType = "success" | "error" | "info" | "warning" | "order" | "exception";
 
 export interface Toast {
   id: string;
@@ -30,21 +28,26 @@ export interface Toast {
   type: ToastType;
   /** Auto-dismiss duration in ms (default: 5000) */
   duration?: number;
+  /** Whether to play a chime sound (auto-set for order/exception types) */
+  sound?: boolean;
 }
 
 interface ToastOptions {
   message: string;
   type?: ToastType;
   duration?: number;
+  sound?: boolean;
 }
 
 type ToastAction =
   | { type: "ADD_TOAST"; toast: Toast }
   | { type: "DISMISS_TOAST"; id: string }
-  | { type: "REMOVE_TOAST"; id: string };
+  | { type: "REMOVE_TOAST"; id: string }
+  | { type: "TOGGLE_EXPANDED" };
 
 interface ToastState {
   toasts: Toast[];
+  expanded: boolean;
 }
 
 // ============================================
@@ -53,6 +56,7 @@ interface ToastState {
 
 const TOAST_LIMIT = 5;
 const TOAST_REMOVE_DELAY = 5000;
+const CHIME_TYPES: ToastType[] = ["order", "exception"];
 
 // ============================================
 // GLOBAL STATE
@@ -60,7 +64,70 @@ const TOAST_REMOVE_DELAY = 5000;
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 const listeners: Array<(state: ToastState) => void> = [];
-let memoryState: ToastState = { toasts: [] };
+let memoryState: ToastState = { toasts: [], expanded: false };
+
+// ============================================
+// AUDIO
+// ============================================
+
+let audioContext: AudioContext | null = null;
+let userHasInteracted = false;
+
+function markUserInteraction() {
+  userHasInteracted = true;
+}
+
+// Listen for first interaction to enable audio
+if (typeof window !== "undefined") {
+  const handler = () => {
+    markUserInteraction();
+    window.removeEventListener("click", handler);
+    window.removeEventListener("touchstart", handler);
+    window.removeEventListener("keydown", handler);
+  };
+  window.addEventListener("click", handler, { once: true });
+  window.addEventListener("touchstart", handler, { once: true });
+  window.addEventListener("keydown", handler, { once: true });
+}
+
+function playChimeSound() {
+  if (!userHasInteracted || typeof window === "undefined") return;
+
+  try {
+    if (!audioContext) {
+      const AudioContextClass =
+        window.AudioContext ||
+        (window as typeof window & { webkitAudioContext?: typeof AudioContext })
+          .webkitAudioContext;
+      if (!AudioContextClass) return;
+      audioContext = new AudioContextClass();
+    }
+
+    const ctx = audioContext;
+    if (ctx.state === "suspended") {
+      void ctx.resume();
+    }
+
+    // Create a pleasant chime: 440Hz sine wave, 150ms, exponential decay
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.frequency.setValueAtTime(440, ctx.currentTime);
+    oscillator.type = "sine";
+
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.15);
+  } catch {
+    // Silently fail - audio is non-critical
+  }
+}
 
 // ============================================
 // HELPERS
@@ -76,10 +143,11 @@ function reducer(state: ToastState, action: ToastAction): ToastState {
       return {
         ...state,
         toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
+        // Collapse when new toast arrives (show only first)
+        expanded: false,
       };
 
     case "DISMISS_TOAST":
-      // Mark for removal, but keep in state briefly for exit animation
       return {
         ...state,
         toasts: state.toasts.filter((t) => t.id !== action.id),
@@ -89,6 +157,12 @@ function reducer(state: ToastState, action: ToastAction): ToastState {
       return {
         ...state,
         toasts: state.toasts.filter((t) => t.id !== action.id),
+      };
+
+    case "TOGGLE_EXPANDED":
+      return {
+        ...state,
+        expanded: !state.expanded,
       };
 
     default:
@@ -123,18 +197,26 @@ function addToRemoveQueue(id: string, duration: number) {
 export function toast(options: ToastOptions) {
   const id = genId();
   const duration = options.duration ?? TOAST_REMOVE_DELAY;
+  const toastType = options.type ?? "info";
+  const shouldSound = options.sound ?? CHIME_TYPES.includes(toastType);
 
   const newToast: Toast = {
     id,
     message: options.message,
-    type: options.type ?? "info",
+    type: toastType,
     duration,
+    sound: shouldSound,
   };
 
   dispatch({
     type: "ADD_TOAST",
     toast: newToast,
   });
+
+  // Play chime for order/exception toasts
+  if (shouldSound) {
+    playChimeSound();
+  }
 
   // Auto-dismiss after duration
   addToRemoveQueue(id, duration);
@@ -195,9 +277,15 @@ export function useToast() {
     dispatch({ type: "DISMISS_TOAST", id });
   }, []);
 
+  const toggleExpanded = useCallback(() => {
+    dispatch({ type: "TOGGLE_EXPANDED" });
+  }, []);
+
   return {
     toasts: state.toasts,
+    expanded: state.expanded,
     toast,
     dismiss,
+    toggleExpanded,
   };
 }

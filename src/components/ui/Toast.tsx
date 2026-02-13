@@ -2,31 +2,84 @@
 
 /**
  * Toast Component (V8)
- * Notification toasts with stacking and animations
+ * Premium floating card toasts with stacking, swipe dismiss, and type icons.
  *
  * Uses z-[80] layer - highest z-index for notifications
+ * Position: top-right (per CONTEXT.md)
  */
 
-import { m, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { m, AnimatePresence, type PanInfo } from "framer-motion";
+import {
+  X,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Info,
+  Bell,
+  AlertOctagon,
+} from "lucide-react";
 import { zIndex } from "@/lib/design-system/tokens/z-index";
-import { overlayMotion } from "@/lib/design-system/tokens/motion";
 import { cn } from "@/lib/utils/cn";
 import { Portal } from "./Portal";
-import { useToast, type Toast as ToastType } from "@/lib/hooks/useToastV8";
+import { useToast, type Toast as ToastType, type ToastType as ToastVariant } from "@/lib/hooks/useToastV8";
 
-interface ToastProps {
+// ============================================
+// ICON + COLOR MAP
+// ============================================
+
+const toastConfig: Record<ToastVariant, { icon: typeof CheckCircle; color: string; borderColor: string }> = {
+  success: {
+    icon: CheckCircle,
+    color: "text-green-600 dark:text-green-400",
+    borderColor: "border-l-green-500",
+  },
+  error: {
+    icon: XCircle,
+    color: "text-status-error",
+    borderColor: "border-l-status-error",
+  },
+  warning: {
+    icon: AlertTriangle,
+    color: "text-amber-500 dark:text-amber-400",
+    borderColor: "border-l-amber-500",
+  },
+  info: {
+    icon: Info,
+    color: "text-blue-500 dark:text-blue-400",
+    borderColor: "border-l-blue-500",
+  },
+  order: {
+    icon: Bell,
+    color: "text-accent-teal",
+    borderColor: "border-l-accent-teal",
+  },
+  exception: {
+    icon: AlertOctagon,
+    color: "text-status-error",
+    borderColor: "border-l-status-error",
+  },
+};
+
+const SWIPE_DISMISS_THRESHOLD = 100;
+
+// ============================================
+// SINGLE TOAST
+// ============================================
+
+interface ToastCardProps {
   toast: ToastType;
   onDismiss: (id: string) => void;
 }
 
-export function Toast({ toast, onDismiss }: ToastProps) {
-  const typeStyles: Record<ToastType["type"], string> = {
-    success: "bg-status-success text-text-inverse",
-    error: "bg-status-error text-text-inverse",
-    warning: "bg-status-warning text-text-inverse",
-    info: "bg-status-info text-text-inverse",
-  };
+function ToastCard({ toast, onDismiss }: ToastCardProps) {
+  const config = toastConfig[toast.type];
+  const Icon = config.icon;
+
+  function handleDragEnd(_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
+    if (info.offset.x > SWIPE_DISMISS_THRESHOLD) {
+      onDismiss(toast.id);
+    }
+  }
 
   return (
     <m.div
@@ -34,24 +87,33 @@ export function Toast({ toast, onDismiss }: ToastProps) {
       initial={{ opacity: 0, x: 100, scale: 0.9 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 100, scale: 0.9 }}
-      transition={overlayMotion.toast}
+      transition={{ type: "spring", damping: 20, stiffness: 300 }}
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={{ left: 0, right: 0.5 }}
+      onDragEnd={handleDragEnd}
       role="alert"
       aria-live="polite"
       className={cn(
-        "flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg",
-        "pointer-events-auto",
-        "min-w-[200px] max-w-[350px]",
-        typeStyles[toast.type]
+        "flex items-start gap-3 p-4 rounded-xl shadow-lg",
+        "bg-surface-primary border border-border border-l-4",
+        "pointer-events-auto cursor-grab active:cursor-grabbing",
+        "min-w-[280px] max-w-[380px]",
+        config.borderColor
       )}
     >
-      <span className="flex-1 text-sm font-medium">{toast.message}</span>
+      <Icon className={cn("h-5 w-5 shrink-0 mt-0.5", config.color)} />
+      <span className="flex-1 text-sm font-medium text-text-primary leading-snug">
+        {toast.message}
+      </span>
       <button
         type="button"
         onClick={() => onDismiss(toast.id)}
         className={cn(
           "flex-shrink-0 p-1 rounded-full",
-          "hover:bg-overlay-light transition-colors",
-          "focus:outline-none focus:ring-2 focus:ring-overlay-light"
+          "text-text-muted hover:text-text-primary hover:bg-surface-tertiary",
+          "transition-colors",
+          "focus:outline-none focus:ring-2 focus:ring-accent-teal/30"
         )}
         aria-label="Dismiss notification"
       >
@@ -61,15 +123,52 @@ export function Toast({ toast, onDismiss }: ToastProps) {
   );
 }
 
+// ============================================
+// COLLAPSED BADGE
+// ============================================
+
+interface CollapsedBadgeProps {
+  count: number;
+  onClick: () => void;
+}
+
+function CollapsedBadge({ count, onClick }: CollapsedBadgeProps) {
+  return (
+    <m.button
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.8 }}
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-2 px-4 py-2 rounded-xl shadow-md",
+        "bg-surface-secondary border border-border",
+        "pointer-events-auto",
+        "text-sm font-medium text-text-secondary",
+        "hover:bg-surface-tertiary transition-colors"
+      )}
+    >
+      +{count} more
+    </m.button>
+  );
+}
+
+// ============================================
+// CONTAINER
+// ============================================
+
 export function ToastContainer() {
-  const { toasts, dismiss } = useToast();
+  const { toasts, dismiss, expanded, toggleExpanded } = useToast();
+
+  const visibleToasts = expanded ? toasts : toasts.slice(0, 1);
+  const hiddenCount = expanded ? 0 : Math.max(0, toasts.length - 1);
 
   return (
     <Portal>
       <div
         aria-label="Notifications"
         className={cn(
-          "fixed bottom-4 right-4",
+          "fixed top-4 right-4",
           "max-sm:left-4 max-sm:right-4",
           "flex flex-col gap-2 items-end",
           "pointer-events-none"
@@ -77,11 +176,22 @@ export function ToastContainer() {
         style={{ zIndex: zIndex.toast }}
       >
         <AnimatePresence mode="popLayout">
-          {toasts.map((t) => (
-            <Toast key={t.id} toast={t} onDismiss={dismiss} />
+          {visibleToasts.map((t) => (
+            <ToastCard key={t.id} toast={t} onDismiss={dismiss} />
           ))}
+
+          {hiddenCount > 0 && (
+            <CollapsedBadge
+              key="collapsed-badge"
+              count={hiddenCount}
+              onClick={toggleExpanded}
+            />
+          )}
         </AnimatePresence>
       </div>
     </Portal>
   );
 }
+
+// Re-export Toast card for standalone use
+export { ToastCard as Toast };
