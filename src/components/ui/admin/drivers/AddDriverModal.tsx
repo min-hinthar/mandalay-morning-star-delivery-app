@@ -1,15 +1,15 @@
 /**
- * V6 Add Driver Modal - Pepper Aesthetic
+ * V8 Add Driver Modal - Floating Labels + SaveButton
  *
- * Modal form for adding new drivers with V6 colors, typography, and animations.
- * Features vehicle type selector and animated form validation.
+ * Modal form for adding new drivers with floating label inputs,
+ * shake validation, vehicle type selector, and SaveButton.
  */
 
 "use client";
 
 import { useState } from "react";
 import { m } from "framer-motion";
-import { Loader2, UserPlus, Car, Bike, Truck, AlertCircle } from "lucide-react";
+import { UserPlus, Car, Bike, Truck, AlertCircle, Mail, User, Phone } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { FloatingLabelInput } from "@/components/ui/FloatingLabelInput";
+import { SaveButton } from "@/components/ui/admin/settings/SaveButton";
 import { cn } from "@/lib/utils/cn";
 import type { VehicleType } from "@/types/driver";
 
@@ -100,10 +101,8 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
+  const handleSubmit = async (): Promise<boolean> => {
+    if (!validateForm()) return false;
 
     setIsSubmitting(true);
     setErrors({});
@@ -135,13 +134,20 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
         licensePlate: "",
       });
       onOpenChange(false);
+      return true;
     } catch (error) {
       setErrors({
         general: error instanceof Error ? error.message : "Failed to create driver",
       });
+      return false;
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleSubmit();
   };
 
   const handleClose = () => {
@@ -163,7 +169,7 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
       <DialogContent className="sm:max-w-[500px] bg-surface-primary border-border rounded-card">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-display text-2xl text-text-primary">
-            <div className="p-2 rounded-input bg-primary text-text-inverse">
+            <div className="p-2 rounded-input bg-accent-teal text-text-inverse">
               <UserPlus className="h-5 w-5" />
             </div>
             Add New Driver
@@ -173,7 +179,7 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+        <form onSubmit={handleFormSubmit} className="space-y-5 mt-4">
           {/* General Error */}
           {errors.general && (
             <m.div
@@ -187,79 +193,36 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
           )}
 
           {/* Email */}
-          <div className="space-y-2">
-            <label
-              htmlFor="email"
-              className="text-sm font-body font-medium text-text-primary"
-            >
-              Email Address <span className="text-status-error">*</span>
-            </label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="driver@example.com"
-              value={formData.email}
-              onChange={(e) => handleChange("email", e.target.value)}
-              className={cn(
-                "bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input",
-                errors.email && "border-status-error focus:border-status-error focus:ring-status-error/20"
-              )}
-              disabled={isSubmitting}
-            />
-            {errors.email && (
-              <p className="text-xs font-body text-status-error mt-1">{errors.email}</p>
-            )}
-          </div>
+          <FloatingLabelInput
+            label="Email Address *"
+            icon={Mail}
+            type="email"
+            value={formData.email}
+            onChange={(e) => handleChange("email", e.target.value)}
+            error={errors.email}
+            disabled={isSubmitting}
+          />
 
           {/* Full Name */}
-          <div className="space-y-2">
-            <label
-              htmlFor="fullName"
-              className="text-sm font-body font-medium text-text-primary"
-            >
-              Full Name <span className="text-status-error">*</span>
-            </label>
-            <Input
-              id="fullName"
-              type="text"
-              placeholder="John Doe"
-              value={formData.fullName}
-              onChange={(e) => handleChange("fullName", e.target.value)}
-              className={cn(
-                "bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input",
-                errors.fullName && "border-status-error focus:border-status-error focus:ring-status-error/20"
-              )}
-              disabled={isSubmitting}
-            />
-            {errors.fullName && (
-              <p className="text-xs font-body text-status-error mt-1">{errors.fullName}</p>
-            )}
-          </div>
+          <FloatingLabelInput
+            label="Full Name *"
+            icon={User}
+            value={formData.fullName}
+            onChange={(e) => handleChange("fullName", e.target.value)}
+            error={errors.fullName}
+            disabled={isSubmitting}
+          />
 
           {/* Phone */}
-          <div className="space-y-2">
-            <label
-              htmlFor="phone"
-              className="text-sm font-body font-medium text-text-primary"
-            >
-              Phone Number
-            </label>
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="+1 (555) 123-4567"
-              value={formData.phone}
-              onChange={(e) => handleChange("phone", e.target.value)}
-              className={cn(
-                "bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input",
-                errors.phone && "border-status-error focus:border-status-error focus:ring-status-error/20"
-              )}
-              disabled={isSubmitting}
-            />
-            {errors.phone && (
-              <p className="text-xs font-body text-status-error mt-1">{errors.phone}</p>
-            )}
-          </div>
+          <FloatingLabelInput
+            label="Phone Number"
+            icon={Phone}
+            type="tel"
+            value={formData.phone}
+            onChange={(e) => handleChange("phone", e.target.value)}
+            error={errors.phone}
+            disabled={isSubmitting}
+          />
 
           {/* Vehicle Type */}
           <div className="space-y-2">
@@ -280,8 +243,8 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
                   className={cn(
                     "flex flex-col items-center gap-1.5 p-3 rounded-card-sm border-2 transition-all duration-fast",
                     formData.vehicleType === option.value
-                      ? "border-primary bg-primary-light text-primary"
-                      : "border-border bg-surface-primary hover:border-primary/50 text-text-secondary hover:text-text-primary"
+                      ? "border-accent-teal bg-accent-teal/10 text-accent-teal"
+                      : "border-border bg-surface-primary hover:border-accent-teal/50 text-text-secondary hover:text-text-primary"
                   )}
                   disabled={isSubmitting}
                 >
@@ -298,29 +261,16 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="space-y-2"
             >
-              <label
-                htmlFor="licensePlate"
-                className="text-sm font-body font-medium text-text-primary"
-              >
-                License Plate
-              </label>
-              <Input
-                id="licensePlate"
-                type="text"
-                placeholder="ABC 1234"
+              <FloatingLabelInput
+                label="License Plate"
+                icon={Truck}
                 value={formData.licensePlate}
                 onChange={(e) => handleChange("licensePlate", e.target.value.toUpperCase())}
-                className={cn(
-                  "bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input font-mono uppercase",
-                  errors.licensePlate && "border-status-error focus:border-status-error focus:ring-status-error/20"
-                )}
+                error={errors.licensePlate}
                 disabled={isSubmitting}
+                className="font-mono uppercase"
               />
-              {errors.licensePlate && (
-                <p className="text-xs font-body text-status-error mt-1">{errors.licensePlate}</p>
-              )}
             </m.div>
           )}
 
@@ -334,23 +284,12 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
+            <SaveButton
+              onClick={handleSubmit}
               disabled={isSubmitting}
-              className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Adding...
-                </>
-              ) : (
-                <>
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Add Driver
-                </>
-              )}
-            </Button>
+              hasChanges={Boolean(formData.email && formData.fullName)}
+              className="min-w-[140px]"
+            />
           </DialogFooter>
         </form>
       </DialogContent>

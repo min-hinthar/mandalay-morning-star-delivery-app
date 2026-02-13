@@ -14,8 +14,10 @@
  */
 
 import { useState, useCallback } from "react";
+import { Hash, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FloatingLabelInput } from "@/components/ui/FloatingLabelInput";
 import { cn } from "@/lib/utils/cn";
 import { ToggleSwitch } from "./ToggleSwitch";
 import type { OperationsSettings, WeeklyStoreHours, DayHours } from "./settings-types";
@@ -174,18 +176,19 @@ export function OperationsSettingsForm({ settings, originalSettings, onChange }:
       <div className="space-y-6">
         {/* Max Stops Per Route */}
         <div className={cn("space-y-2", isFieldChanged(settings, originalSettings, "maxStopsPerRoute") && changedBorder)}>
-          <Label htmlFor="maxStops">Maximum Stops Per Route</Label>
-          <Input
-            id="maxStops"
-            type="number"
-            min={1}
-            max={50}
-            step={1}
-            value={settings.maxStopsPerRoute}
-            onChange={(e) => handleMaxStopsChange(e.target.value)}
-            error={errors.maxStopsPerRoute}
-            className="max-w-[200px]"
-          />
+          <div className="max-w-[200px]">
+            <FloatingLabelInput
+              label="Maximum Stops Per Route"
+              icon={Hash}
+              type="number"
+              min={1}
+              max={50}
+              step={1}
+              value={settings.maxStopsPerRoute}
+              onChange={(e) => handleMaxStopsChange(e.target.value)}
+              error={errors.maxStopsPerRoute}
+            />
+          </div>
           <p className="text-xs text-text-muted">
             Maximum number of delivery stops a driver can have on one route (1-50)
           </p>
@@ -313,18 +316,19 @@ export function OperationsSettingsForm({ settings, originalSettings, onChange }:
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="maxOrdersPerSlot">Max Orders Per Time Slot</Label>
-          <Input
-            id="maxOrdersPerSlot"
-            type="number"
-            min={1}
-            max={100}
-            step={1}
-            value={settings.maxOrdersPerSlot}
-            onChange={(e) => handleMaxOrdersChange(e.target.value)}
-            error={errors.maxOrdersPerSlot}
-            className="max-w-[200px]"
-          />
+          <div className="max-w-[200px]">
+            <FloatingLabelInput
+              label="Max Orders Per Time Slot"
+              icon={Clock}
+              type="number"
+              min={1}
+              max={100}
+              step={1}
+              value={settings.maxOrdersPerSlot}
+              onChange={(e) => handleMaxOrdersChange(e.target.value)}
+              error={errors.maxOrdersPerSlot}
+            />
+          </div>
           <p className="text-xs text-text-muted">
             Maximum orders that can be scheduled in each delivery time window
           </p>

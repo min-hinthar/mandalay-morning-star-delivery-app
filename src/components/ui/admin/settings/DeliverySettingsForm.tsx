@@ -6,10 +6,11 @@
  */
 
 import { useState, useCallback } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { FloatingLabelInput } from "@/components/ui/FloatingLabelInput";
 import { cn } from "@/lib/utils/cn";
 import type { DeliverySettings, DeliveryTimeWindow, DeliveryZone } from "./settings-types";
 import {
@@ -131,8 +132,9 @@ export function DeliverySettingsForm({ settings, originalSettings, onChange }: D
       {/* Core Fields */}
       <div className="grid gap-6 sm:grid-cols-2">
         <div className={cn("space-y-2", changed("deliveryRadiusMiles") && CHANGED_BORDER)}>
-          <Label htmlFor="deliveryRadius">Delivery Radius (miles)</Label>
-          <Input id="deliveryRadius" type="number" min={1} max={100} step={1} value={settings.deliveryRadiusMiles} onChange={(e) => handleNumberChange("deliveryRadiusMiles", e.target.value)} error={errors.deliveryRadiusMiles} className="max-w-[200px]" />
+          <div className="max-w-[200px]">
+            <FloatingLabelInput label="Delivery Radius (miles)" icon={MapPin} type="number" min={1} max={100} step={1} value={settings.deliveryRadiusMiles} onChange={(e) => handleNumberChange("deliveryRadiusMiles", e.target.value)} error={errors.deliveryRadiusMiles} />
+          </div>
           <p className="text-xs text-text-muted">Maximum distance for deliveries (1-100 miles)</p>
         </div>
 
