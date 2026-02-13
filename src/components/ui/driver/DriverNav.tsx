@@ -1,8 +1,8 @@
 /**
- * V6 Driver Navigation - Pepper Aesthetic
+ * V8 Driver Navigation - Teal Accent with Animated Indicator + Badges
  *
- * Bottom navigation for driver app with V6 colors and high-contrast support.
- * 56px touch targets for accessibility, sticky positioning.
+ * Bottom navigation for driver app with animated active indicator,
+ * optional badge counts, and 56px touch targets for accessibility.
  */
 
 "use client";
@@ -10,6 +10,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Package, History } from "lucide-react";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 
 const navItems = [
@@ -17,23 +18,34 @@ const navItems = [
     label: "Home",
     href: "/driver",
     icon: Home,
+    key: "home",
     exact: true,
   },
   {
     label: "Route",
     href: "/driver/route",
     icon: Package,
+    key: "route",
     exact: false,
   },
   {
     label: "History",
     href: "/driver/history",
     icon: History,
+    key: "history",
     exact: true,
   },
 ];
 
-export function DriverNav() {
+const indicatorSpring = { type: "spring" as const, stiffness: 300, damping: 30 };
+const badgeSpring = { type: "spring" as const, stiffness: 400, damping: 20 };
+
+interface DriverNavProps {
+  /** Optional badge counts keyed by tab key (home, route, history) */
+  badges?: Record<string, number>;
+}
+
+export function DriverNav({ badges }: DriverNavProps) {
   const pathname = usePathname();
 
   return (
@@ -49,25 +61,52 @@ export function DriverNav() {
             ? pathname === item.href
             : pathname.startsWith(item.href);
           const Icon = item.icon;
+          const badgeCount = badges?.[item.key] ?? 0;
 
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "flex min-h-[56px] min-w-[64px] flex-col items-center justify-center gap-1 rounded-input px-3 py-2 transition-all duration-fast",
+                "relative flex min-h-[56px] min-w-[64px] flex-col items-center justify-center gap-1 rounded-input px-3 py-2 transition-colors duration-fast",
                 isActive
-                  ? "text-primary"
+                  ? "text-accent-teal"
                   : "text-text-secondary hover:text-text-primary hover:bg-surface-secondary"
               )}
             >
-              <Icon
-                className={cn(
-                  "h-6 w-6 transition-transform duration-fast",
-                  isActive && "scale-110"
+              {/* Animated active indicator pill */}
+              {isActive && (
+                <m.div
+                  layoutId="driver-nav-indicator"
+                  className="absolute -bottom-0.5 h-1 w-6 rounded-full bg-accent-teal"
+                  transition={indicatorSpring}
+                />
+              )}
+
+              <div className="relative">
+                <Icon
+                  className={cn(
+                    "h-6 w-6 transition-transform duration-fast",
+                    isActive && "scale-110"
+                  )}
+                  strokeWidth={isActive ? 2.5 : 2}
+                />
+
+                {/* Badge count */}
+                {badgeCount > 0 && (
+                  <m.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={badgeSpring}
+                    className="absolute -top-1.5 -right-2 flex min-w-5 h-5 items-center justify-center rounded-full bg-status-error px-1"
+                  >
+                    <span className="text-xs font-bold text-text-inverse leading-none">
+                      {badgeCount > 99 ? "99+" : badgeCount}
+                    </span>
+                  </m.div>
                 )}
-                strokeWidth={isActive ? 2.5 : 2}
-              />
+              </div>
+
               <span
                 className={cn(
                   "font-body text-xs font-medium",

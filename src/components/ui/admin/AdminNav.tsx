@@ -81,14 +81,17 @@ const navItems = [
   },
 ];
 
+const indicatorSpring = { type: "spring" as const, stiffness: 300, damping: 30 };
+const iconHoverTransition = { duration: 0.3 };
+
 /**
- * V6 Admin Navigation - Pepper Aesthetic
+ * V8 Admin Navigation - Teal Accent with Animated Indicator
  *
  * Features:
- * - V6 colors with primary red accent
+ * - Animated active indicator that slides between nav items (layoutId)
+ * - Icon hover animation (wobble + scale)
+ * - Teal accent for active state
  * - Collapsible sidebar with smooth animation
- * - Active state with left border accent
- * - V6 typography and hover states
  */
 export function AdminNav() {
   const pathname = usePathname();
@@ -105,11 +108,11 @@ export function AdminNav() {
           "bg-surface-secondary border-r border-border"
         )}
       >
-        {/* V6 Header */}
+        {/* Header */}
         <div className="flex h-16 items-center justify-between border-b border-border px-4">
           {!isCollapsed && (
             <Link href="/admin" className="flex items-center gap-2">
-              <span className="font-display text-lg font-bold text-primary">
+              <span className="font-display text-lg font-bold text-accent-teal">
                 Admin
               </span>
             </Link>
@@ -128,7 +131,7 @@ export function AdminNav() {
           </Button>
         </div>
 
-        {/* V6 Navigation */}
+        {/* Navigation */}
         <nav className="flex-1 space-y-1 p-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href ||
@@ -139,27 +142,37 @@ export function AdminNav() {
               <Link
                 href={item.href}
                 className={cn(
-                  "relative flex items-center gap-3 rounded-input px-3 py-2.5",
+                  "relative flex items-center gap-3 rounded-lg px-3 py-2.5",
                   "font-body text-sm font-medium",
-                  "transition-all duration-fast",
+                  "transition-colors duration-fast",
                   isActive
-                    ? [
-                        "bg-primary/10 text-primary",
-                        "before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2",
-                        "before:h-6 before:w-1 before:rounded-r-full before:bg-primary",
-                      ]
-                    : [
-                        "text-text-secondary",
-                        "hover:bg-surface-tertiary hover:text-text-primary",
-                      ],
+                    ? "text-accent-teal"
+                    : "text-text-secondary hover:bg-surface-tertiary hover:text-text-primary",
                   isCollapsed && "justify-center px-2"
                 )}
               >
-                <Icon className={cn(
-                  "h-5 w-5 shrink-0",
-                  isActive ? "text-primary" : "text-text-muted"
-                )} />
-                {!isCollapsed && <span>{item.label}</span>}
+                {/* Animated active indicator */}
+                {isActive && (
+                  <m.div
+                    layoutId="admin-nav-indicator"
+                    className="absolute inset-0 rounded-lg bg-accent-teal/10"
+                    transition={indicatorSpring}
+                  />
+                )}
+
+                {/* Icon with hover animation */}
+                <m.div
+                  className="relative z-10 shrink-0"
+                  whileHover={{ scale: 1.15, rotate: [-3, 3, 0] }}
+                  transition={iconHoverTransition}
+                >
+                  <Icon className={cn(
+                    "h-5 w-5",
+                    isActive ? "text-accent-teal" : "text-text-muted"
+                  )} />
+                </m.div>
+
+                {!isCollapsed && <span className="relative z-10">{item.label}</span>}
               </Link>
             );
 
@@ -178,7 +191,7 @@ export function AdminNav() {
           })}
         </nav>
 
-        {/* V6 Footer */}
+        {/* Footer */}
         <div className="border-t border-border p-2">
           <Tooltip>
             <TooltipTrigger asChild>
