@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 57 admin & driver polish in progress.
+**Current focus:** Phase 57 admin & driver polish COMPLETE. v1.6 Production Polish milestone done.
 
 ## Current Position
 
 Phase: 57 (10 of 10 in v1.6)
-Plan: 5 of 8 in current phase (also 06, 07 done in parallel)
-Status: In progress
-Last activity: 2026-02-11 -- Completed 57-05-PLAN.md (admin stats, driver perf section, route timeline)
+Plan: 8 of 8 in current phase (PHASE COMPLETE)
+Status: Phase complete
+Last activity: 2026-02-13 -- Completed 57-08-PLAN.md (nav/toast/form polish)
 
-Progress: [██████████████████████████████] ~99%
+Progress: [██████████████████████████████] 100%
 
 ## Milestones
 
@@ -26,14 +26,14 @@ Progress: [███████████████████████
 | v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
 | v1.4 Mobile Excellence | 35-39 | 39 | 2026-02-05 |
 | v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
-| v1.6 Production Polish | 48-57 | ~23 | -- |
+| v1.6 Production Polish | 48-57 | ~23 | 2026-02-13 |
 
-**Total completed:** 52 phases, 247 plans, 297 requirements
+**Total completed:** 57 phases, 255 plans, 309 requirements
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 247
+- Total plans completed: 255
 - Average duration: --
 - Total execution time: --
 
@@ -164,6 +164,12 @@ Progress: [███████████████████████
 | ROUTE-05-TIMELINE | RouteTimeline renders alongside StopsList (both visible) rather than replacing it | 57-05 |
 | ROUTE-05-TIMECOMP | TimeComparison only renders for completed routes with startedAt+completedAt | 57-05 |
 | ROUTE-05-EXCEPTION | ExceptionAlert Mark Resolved uses placeholder onClick (no API endpoint yet) | 57-05 |
+| NAV-08-LAYOUTID | layoutId spring animation for sliding active indicators in AdminNav and DriverNav | 57-08 |
+| TOAST-08-TOPRIGHT | Toast position changed from bottom-right to top-right per CONTEXT.md | 57-08 |
+| TOAST-08-CHIME | Web Audio API 440Hz sine wave chime for order/exception toast types | 57-08 |
+| TOAST-08-STACK | First toast visible, additional collapse to +N more badge with expand | 57-08 |
+| FORMS-08-SETTINGS | FloatingUnsavedBar already at parent SettingsClient level, not duplicated in forms | 57-08 |
+| FORMS-08-SPECIALIZED | Time/currency inputs kept as standard Input; FloatingLabelInput for text fields only | 57-08 |
 
 ### Tech Debt (carried forward)
 
@@ -183,11 +189,11 @@ Progress: [███████████████████████
 
 ## Session Continuity
 
-Last session: 2026-02-11
-Stopped at: Completed 57-05-PLAN.md (admin stats, driver perf, route timeline)
+Last session: 2026-02-13
+Stopped at: Completed 57-08-PLAN.md (nav/toast/form polish -- PHASE 57 COMPLETE)
 Resume file: None
-Next action: Execute 57-08 (remaining plan in phase 57)
+Next action: v1.6 Production Polish milestone complete. Plan next milestone (v1.7) or ship.
 
 ---
 
-*Updated: 2026-02-11 -- Phase 57 plan 05 complete. Admin dashboard teal stats with AnimatedValue, driver performance section with 4 animated cards + SVG on-time ring, route timeline with connected dots + time comparison + exception alert. Plans 01-07 done; 08 remaining.*
+*Updated: 2026-02-13 -- Phase 57 plan 08 complete. AdminNav/DriverNav layoutId sliding indicators, premium floating toast cards with stacking/swipe/chime, admin forms with FloatingLabelInput and SaveButton. All 8 plans in phase 57 done. v1.6 milestone shipped.*
