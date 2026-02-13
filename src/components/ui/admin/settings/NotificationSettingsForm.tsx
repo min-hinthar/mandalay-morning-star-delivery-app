@@ -15,8 +15,8 @@
  */
 
 import { useCallback } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Package } from "lucide-react";
+import { FloatingLabelInput } from "@/components/ui/FloatingLabelInput";
 import { cn } from "@/lib/utils/cn";
 import { ToggleSwitch } from "./ToggleSwitch";
 import type { NotificationSettings } from "./settings-types";
@@ -164,19 +164,18 @@ export function NotificationSettingsForm({ settings, originalSettings, onChange 
 
           {settings.lowStockThreshold > 0 && (
             <div className="ml-4 space-y-2">
-              <Label htmlFor="lowStockThreshold" className="text-sm">
-                Stock Threshold
-              </Label>
-              <Input
-                id="lowStockThreshold"
-                type="number"
-                min={1}
-                max={1000}
-                step={1}
-                value={settings.lowStockThreshold}
-                onChange={(e) => handleThresholdChange(e.target.value)}
-                className="max-w-[120px]"
-              />
+              <div className="max-w-[160px]">
+                <FloatingLabelInput
+                  label="Stock Threshold"
+                  icon={Package}
+                  type="number"
+                  min={1}
+                  max={1000}
+                  step={1}
+                  value={settings.lowStockThreshold}
+                  onChange={(e) => handleThresholdChange(e.target.value)}
+                />
+              </div>
               <p className="text-xs text-text-muted">
                 Alert when any item falls below this quantity
               </p>
