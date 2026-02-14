@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminNav } from "@/components/ui/admin/AdminNav";
+import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
 import type { ProfileRole } from "@/types/database";
 
 interface ProfileRow {
@@ -35,11 +36,13 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-cream">
-      <AdminNav />
-      <main className="flex-1 overflow-auto">
-        {children}
-      </main>
-    </div>
+    <DomMaxProvider>
+      <div className="flex min-h-screen bg-cream">
+        <AdminNav />
+        <main className="flex-1 overflow-auto">
+          {children}
+        </main>
+      </div>
+    </DomMaxProvider>
   );
 }

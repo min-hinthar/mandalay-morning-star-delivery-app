@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DriverNav } from "@/components/ui/driver/DriverNav";
 import { DriverShell } from "@/components/ui/driver/DriverShell";
+import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
 import type { DriversRow } from "@/types/driver";
 
 export default async function DriverLayout({
@@ -33,16 +34,18 @@ export default async function DriverLayout({
   }
 
   return (
-    <DriverShell>
-      <div className="flex min-h-screen flex-col bg-cream">
-        {/* Main content area - scrollable */}
-        <main className="flex-1 overflow-auto pb-20">
-          {children}
-        </main>
+    <DomMaxProvider>
+      <DriverShell>
+        <div className="flex min-h-screen flex-col bg-cream">
+          {/* Main content area - scrollable */}
+          <main className="flex-1 overflow-auto pb-20">
+            {children}
+          </main>
 
-        {/* Fixed bottom navigation */}
-        <DriverNav />
-      </div>
-    </DriverShell>
+          {/* Fixed bottom navigation */}
+          <DriverNav />
+        </div>
+      </DriverShell>
+    </DomMaxProvider>
   );
 }
