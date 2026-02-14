@@ -28,6 +28,7 @@ const importantVars = {
   GOOGLE_MAPS_API_KEY: z.string().min(1),
   NEXT_PUBLIC_SENTRY_DSN: z.string().url(),
   SENTRY_AUTH_TOKEN: z.string().min(1),
+  GOOGLE_SITE_VERIFICATION: z.string().min(1),
 } as const;
 
 const criticalSchema = z.object(criticalVars);
