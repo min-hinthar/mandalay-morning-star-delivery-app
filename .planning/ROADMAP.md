@@ -20,7 +20,7 @@
 - [x] **Phase 58: Deployment Verification** - Validate production environment and service connectivity
 - [x] **Phase 59: Monitoring & Error Tracking** - Sentry initialization and real user monitoring
 - [x] **Phase 60: LCP Optimization** - Server-rendered hero and async LazyMotion for sub-4s LCP
-- [ ] **Phase 61: Admin Pages** - Order detail and profile pages (APIs already exist)
+- [x] **Phase 61: Admin Pages** - Order detail and profile pages (APIs already exist)
 - [ ] **Phase 62: Production Operations** - OAuth, Stripe webhook, Resend domain, Search Console
 - [ ] **Phase 63: Branding & Compliance** - Homepage content for Google OAuth verification
 - [ ] **Phase 64: Service Worker Hardening** - Full-scope SW with content-hash caching and update banner
@@ -82,11 +82,11 @@ Plans:
   4. Admin profile page at `/admin/profile` allows viewing and editing own name, email, and role info
 **Plans:** 5 plans
 Plans:
-- [ ] 61-01-PLAN.md -- Order detail API extensions + priority migration
-- [ ] 61-02-PLAN.md -- Admin profile API (GET/PATCH, stats, notification prefs)
-- [ ] 61-03-PLAN.md -- Order detail page (cards, status change, timeline, email history)
-- [ ] 61-04-PLAN.md -- Admin profile page (info, stats, notifications, theme, sign out)
-- [ ] 61-05-PLAN.md -- Manual email compose (Tiptap editor, compose API)
+- [x] 61-01-PLAN.md -- Order detail API extensions + priority migration
+- [x] 61-02-PLAN.md -- Admin profile API (GET/PATCH, stats, notification prefs)
+- [x] 61-03-PLAN.md -- Order detail page (cards, status change, timeline, email history)
+- [x] 61-04-PLAN.md -- Admin profile page (info, stats, notifications, theme, sign out)
+- [x] 61-05-PLAN.md -- Manual email compose (Tiptap editor, compose API)
 
 ### Phase 62: Production Operations
 **Goal**: Social login, transactional email, payment webhooks, and search indexing work on the production domain
@@ -164,14 +164,14 @@ Phases execute in numeric order: 58 -> 59 -> 60 -> 61 -> 62 -> 63 -> 64 -> 65 ->
 | 58. Deployment Verification | v1.7 | 2/2 | Complete | 2026-02-14 |
 | 59. Monitoring & Error Tracking | v1.7 | 2/2 | Complete | 2026-02-14 |
 | 60. LCP Optimization | v1.7 | 3/3 | Complete | 2026-02-14 |
-| 61. Admin Pages | v1.7 | 0/0 | Not started | - |
+| 61. Admin Pages | v1.7 | 5/5 | Complete | 2026-02-14 |
 | 62. Production Operations | v1.7 | 0/0 | Not started | - |
 | 63. Branding & Compliance | v1.7 | 0/0 | Not started | - |
 | 64. Service Worker Hardening | v1.7 | 0/0 | Not started | - |
 | 65. CI/CD Hardening | v1.7 | 0/0 | Not started | - |
 | 66. Backlog Cleanup | v1.7 | 0/0 | Not started | - |
 
-**Total: 66 phases across 8 milestones (60 complete, 6 pending)**
+**Total: 66 phases across 8 milestones (61 complete, 5 pending)**
 
 ---
 *v1.6 details archived to: .planning/milestones/v1.6-ROADMAP.md*
