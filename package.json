@@ -52,7 +52,7 @@
     "@react-email/components": "^1.0.7",
     "@react-email/render": "^2.0.4",
     "@react-google-maps/api": "^2.20.8",
-    "@sentry/nextjs": "^10.34.0",
+    "@sentry/nextjs": "^10.38.0",
     "@serwist/next": "^9.5.4",
     "@stripe/stripe-js": "^8.6.1",
     "@supabase/ssr": "^0.8.0",
