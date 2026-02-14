@@ -9,6 +9,8 @@ interface CollapsibleCardProps {
   icon: ReactNode;
   defaultOpen?: boolean;
   children: ReactNode;
+  /** Optional action element rendered in the header (e.g. a button) */
+  action?: ReactNode;
 }
 
 export function CollapsibleCard({
@@ -16,32 +18,40 @@ export function CollapsibleCard({
   icon,
   defaultOpen = true,
   children,
+  action,
 }: CollapsibleCardProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
     <div className="rounded-xl border border-border bg-surface-primary overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
-        className={cn(
-          "flex w-full items-center justify-between px-4 py-3",
-          "text-left hover:bg-surface-secondary/50 transition-colors"
-        )}
-      >
-        <div className="flex items-center gap-2 text-text-muted">
-          {icon}
-          <span className="text-xs font-body font-semibold uppercase tracking-wider">
-            {title}
-          </span>
-        </div>
-        <ChevronDown
+      <div className="flex items-center">
+        <button
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
           className={cn(
-            "h-4 w-4 text-text-muted transition-transform duration-200",
-            isOpen && "rotate-180"
+            "flex flex-1 items-center justify-between px-4 py-3",
+            "text-left hover:bg-surface-secondary/50 transition-colors"
           )}
-        />
-      </button>
+        >
+          <div className="flex items-center gap-2 text-text-muted">
+            {icon}
+            <span className="text-xs font-body font-semibold uppercase tracking-wider">
+              {title}
+            </span>
+          </div>
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 text-text-muted transition-transform duration-200",
+              isOpen && "rotate-180"
+            )}
+          />
+        </button>
+        {action && (
+          <div className="pr-3" onClick={(e) => e.stopPropagation()}>
+            {action}
+          </div>
+        )}
+      </div>
       {isOpen && (
         <div className="px-4 pb-4 pt-1">{children}</div>
       )}

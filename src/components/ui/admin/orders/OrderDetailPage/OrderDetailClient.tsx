@@ -124,6 +124,16 @@ export function OrderDetailClient() {
 
   const shortId = order.id.slice(0, 8).toUpperCase();
 
+  // Build order summary for manual email footer
+  const orderSummary = [
+    order.items.map((i) => `${i.name} x${i.quantity}`).join(", "),
+    order.address
+      ? `Delivery: ${order.address.street}, ${order.address.city}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(". ");
+
   return (
     <div className="p-8">
       <AdminPageHeader
@@ -158,7 +168,12 @@ export function OrderDetailClient() {
         <div className="space-y-6">
           <OrderItemsCard items={order.items} />
           <TotalsCard order={order} />
-          <EmailHistoryCard orderId={order.id} />
+          <EmailHistoryCard
+            orderId={order.id}
+            orderNumber={shortId}
+            customerEmail={order.customerEmail}
+            orderSummary={orderSummary}
+          />
         </div>
 
         {/* Right column: Customer + Status Timeline + Payment */}
