@@ -3,7 +3,7 @@
 // ===========================================
 
 export const EMAIL_FROM =
-  "Mandalay Morning Star <admin@mandalaymorningstar.com>";
+  "Mandalay Morning Star Burmese Kitchen (Los Angeles) <admin@mandalaymorningstar.com>";
 
 export const EMAIL_REPLY_TO = "admin@mandalaymorningstar.com";
 
