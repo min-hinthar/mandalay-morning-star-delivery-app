@@ -7,10 +7,7 @@
  */
 
 import React from "react";
-import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { spring, staggerContainer } from "@/lib/motion-tokens";
-import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
 // ANIMATED HEADLINE
@@ -22,46 +19,10 @@ interface AnimatedHeadlineProps {
 }
 
 export function AnimatedHeadline({ text, className }: AnimatedHeadlineProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreference();
-  const words = text.split(" ");
-
-  if (!shouldAnimate) {
-    return <h1 className={className}>{text}</h1>;
-  }
-
   return (
-    <m.h1
-      className={cn("flex flex-wrap justify-center gap-x-3 gap-y-1", className)}
-      variants={staggerContainer()}
-      initial="hidden"
-      animate="visible"
-    >
-      {words.map((word, index) => (
-        <m.span
-          key={`${word}-${index}`}
-          className="inline-block"
-          variants={{
-            hidden: {
-              opacity: 0,
-              y: 40,
-              rotateX: -90,
-              // eslint-disable-next-line no-restricted-syntax -- FM animation interpolation requires numeric blur (~--blur-md)
-              filter: "blur(10px)",
-            },
-            visible: {
-              opacity: 1,
-              y: 0,
-              rotateX: 0,
-              // eslint-disable-next-line no-restricted-syntax -- FM animation interpolation requires numeric blur
-              filter: "blur(0px)",
-            },
-          }}
-          transition={getSpring(spring.rubbery)}
-        >
-          {word}
-        </m.span>
-      ))}
-    </m.h1>
+    <h1 className={cn(className, "animate-fade-in-up")}>
+      {text}
+    </h1>
   );
 }
 
@@ -73,19 +34,11 @@ interface StatItemProps {
   icon: React.ReactNode;
   label: string;
   value: string;
-  delay?: number;
 }
 
-export function StatItem({ icon, label, value, delay = 0 }: StatItemProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreference();
-
+export function StatItem({ icon, label, value }: StatItemProps) {
   return (
-    <m.div
-      className="flex items-center gap-3 px-4 py-2"
-      initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
-      animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-      transition={shouldAnimate ? { ...getSpring(spring.default), delay } : undefined}
-    >
+    <div className="flex items-center gap-3 px-4 py-2">
       {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
       <div className="p-2 rounded-full bg-hero-stat-bg sm:backdrop-blur-sm">
         {icon}
@@ -94,7 +47,7 @@ export function StatItem({ icon, label, value, delay = 0 }: StatItemProps) {
         <div className="text-xs text-hero-text-muted uppercase tracking-wide">{label}</div>
         <div className="text-sm font-semibold text-hero-text">{value}</div>
       </div>
-    </m.div>
+    </div>
   );
 }
 
