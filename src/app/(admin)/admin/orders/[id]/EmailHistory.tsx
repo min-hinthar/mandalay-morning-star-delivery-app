@@ -77,6 +77,7 @@ const TYPE_LABELS: Record<string, string> = {
   cancellation: "Cancellation",
   refund: "Refund",
   delivery_reminder: "Reminder",
+  manual: "Manual",
 };
 
 // ===========================================
