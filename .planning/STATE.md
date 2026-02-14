@@ -5,15 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.6 Production Polish milestone COMPLETE. Planning next milestone.
+**Current focus:** v1.7 Production Deployment & Readiness
 
 ## Current Position
 
-Phase: Between milestones (v1.6 shipped, v1.7 not started)
-Status: Ready for next milestone planning
-Last activity: 2026-02-13 -- v1.6 milestone archived
-
-Progress: [██████████████████████████████] 100% (v1.6)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-13 — Milestone v1.7 started
 
 ## Milestones
 
@@ -60,10 +59,10 @@ Cleared — full decision log in PROJECT.md Key Decisions table.
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: v1.6 milestone completion
+Stopped at: v1.7 milestone definition
 Resume file: None
-Next action: /gsd:new-milestone for v1.7
+Next action: Research → Requirements → Roadmap
 
 ---
 
-*Updated: 2026-02-13 -- v1.6 Production Polish milestone archived*
+*Updated: 2026-02-13 — v1.7 Production Deployment & Readiness started*
