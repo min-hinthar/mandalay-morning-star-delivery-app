@@ -202,13 +202,31 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 
 ### Active
 
-(No active milestone — ready for v1.7 planning)
+## Current Milestone: v1.7 Production Deployment & Readiness
+
+**Goal:** Deploy to production at delivery.mandalaymorningstar.com with full ops config, monitoring, performance optimization, and backlog cleanup.
+
+**Target features:**
+- Vercel deployment with custom subdomain (delivery.mandalaymorningstar.com)
+- Social login ops config (Google OAuth + Apple Sign-in)
+- Resend domain verification (SPF/DKIM/DMARC)
+- Sentry error monitoring (client + server)
+- CI/CD hardening (Lighthouse CI blocking, preview deploys)
+- LCP optimization (8-11s → <4s)
+- Lighthouse score improvement (30-45 → 70+)
+- Admin order detail page (/admin/orders/[id])
+- Admin profile page (/admin/profile)
+- SETT-04 language preference
+- CartPage modifier editor wiring
+- Tracking page route_id extraction
+- UnifiedMenuItemCard refactoring (<400 lines)
+- Visual regression baselines generation
+- Dead code removal (old send-order-confirmation Edge Function)
 
 ### Out of Scope
 - Backend/schema changes — Supabase + Stripe contracts stay stable
 - Multi-restaurant marketplace — not part of Morning Star scope
 - Real-time subscriptions — current REST pattern sufficient for launch
-- SETT-04 language preference — deferred to future milestone
 
 ## Context
 
@@ -337,4 +355,4 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 | dangerouslySetInnerHTML for header styles | Prevents styled-jsx hydration mismatch | ✓ Good — v1.6 |
 
 ---
-*Last updated: 2026-02-13 after v1.6 milestone completion*
+*Last updated: 2026-02-13 after v1.7 milestone start*
