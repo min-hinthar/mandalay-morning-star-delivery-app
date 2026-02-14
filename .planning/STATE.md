@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 61 of 66 (Admin Pages)
-Plan: 2 of N in current phase
+Plan: 1 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-14 -- Completed 61-02-PLAN.md
+Last activity: 2026-02-14 -- Completed 61-01-PLAN.md
 
 Progress: [############################........] 91% (61/66 phases)
 
@@ -69,6 +69,10 @@ Recent decisions affecting v1.7:
 - Admin profile auth provider from user.identities[0].provider; member-since from user.created_at
 - Admin stats count audit log by actor_id (per-admin, not team total)
 - Notification prefs reuse customer_settings table with upsert pattern
+- discountCents hardcoded to 0 (no discount_cents column in orders table)
+- Status email only fires for confirmed/cancelled transitions (no templates for out_for_delivery/delivered yet)
+- priority_change added to OrderAuditAction for audit log consistency
+- Admin mutation pattern: requireAdmin -> validate -> mutate -> audit log -> optional email -> response
 
 ### Pending Todos
 
@@ -85,5 +89,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Completed 61-02-PLAN.md
+Stopped at: Completed 61-01-PLAN.md
 Resume file: None
