@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 59 - Monitoring & Error Tracking
+**Current focus:** Phase 60 - LCP Optimization
 
 ## Current Position
 
-Phase: 59 of 66 (Monitoring & Error Tracking)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-14 -- Completed 59-02-PLAN.md (Speed Insights & Web Vitals cleanup)
+Phase: 60 of 66 (LCP Optimization)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-14 -- Completed 60-01-PLAN.md (Async domAnimation + server-visible hero)
 
-Progress: [############################........] 89% (59/66 phases)
+Progress: [############################........] 90% (60/66 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 257 (across v1.0-v1.7)
+- Total plans completed: 258 (across v1.0-v1.7)
 - Average duration: ~15 min
-- Total execution time: ~64 hours
+- Total execution time: ~64.5 hours
 
 **By Milestone:**
 
@@ -56,6 +56,9 @@ Recent decisions affecting v1.7:
 - Sentry environment from NEXT_PUBLIC_VERCEL_ENV with NODE_ENV fallback
 - Speed Insights at 50% sample rate to balance Hobby plan quota with statistical significance
 - Removed manual window.Sentry global access and dead sendBeacon endpoint from web-vitals.tsx
+- Async domAnimation instead of sync domMax removes ~25kb from critical path
+- CSS fade-in-up at opacity 0.85 start (near-visible before animation) for LCP-critical content
+- Pre-existing layoutId->CSS migration completed (Tabs, BottomNav, callers)
 
 ### Pending Todos
 
@@ -63,13 +66,14 @@ None yet.
 
 ### Blockers/Concerns
 
-- LCP 8-11s: Root cause is domMax synchronous import + opacity:0 animations blocking hero render
+- LCP 8-11s: Root cause partially addressed (async provider + server-visible hero). Plans 02-03 complete migration.
 - OAuth redirect URLs: Must configure Google Cloud Console + Apple Developer Portal for production domain
 - Resend domain: SPF/DKIM/DMARC DNS records needed at Hostinger for production email delivery
 - Service worker scope: Currently `/driver` only, needs expansion to `/`
+- Build environment: Turbopack ENOENT on OneDrive-synced directory (pre-existing, not blocking deploys)
 
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Phase 59 complete, ready for Phase 60
+Stopped at: Completed 60-01-PLAN.md, ready for 60-02-PLAN.md
 Resume file: None
