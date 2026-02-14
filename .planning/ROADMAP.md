@@ -17,7 +17,7 @@
 - Integer phases (58, 59, 60...): Planned milestone work
 - Decimal phases (59.1, 59.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 58: Deployment Verification** - Validate production environment and service connectivity
+- [x] **Phase 58: Deployment Verification** - Validate production environment and service connectivity
 - [ ] **Phase 59: Monitoring & Error Tracking** - Sentry initialization and real user monitoring
 - [ ] **Phase 60: LCP Optimization** - Server-rendered hero and async LazyMotion for sub-4s LCP
 - [ ] **Phase 61: Admin Pages** - Order detail and profile pages (APIs already exist)
@@ -39,8 +39,8 @@
   3. Health endpoint is accessible at `delivery.mandalaymorningstar.com/api/health` and reports all services green
 **Plans:** 2 plans
 Plans:
-- [ ] 58-01-PLAN.md -- Health library (types, env validation, service checks)
-- [ ] 58-02-PLAN.md -- Health API route, CORS config, verification
+- [x] 58-01-PLAN.md -- Health library (types, env validation, service checks)
+- [x] 58-02-PLAN.md -- Health API route, CORS config, verification
 
 ### Phase 59: Monitoring & Error Tracking
 **Goal**: Production errors are captured, triaged, and linked to source code with readable stack traces
@@ -148,7 +148,7 @@ Phases execute in numeric order: 58 -> 59 -> 60 -> 61 -> 62 -> 63 -> 64 -> 65 ->
 | 55. Search Enhancement | v1.6 | 4/4 | Complete | 2026-02-11 |
 | 56. Driver Offline Sync | v1.6 | 3/3 | Complete | 2026-02-11 |
 | 57. Admin & Driver Polish | v1.6 | 8/8 | Complete | 2026-02-13 |
-| 58. Deployment Verification | v1.7 | 0/0 | Not started | - |
+| 58. Deployment Verification | v1.7 | 2/2 | Complete | 2026-02-14 |
 | 59. Monitoring & Error Tracking | v1.7 | 0/0 | Not started | - |
 | 60. LCP Optimization | v1.7 | 0/0 | Not started | - |
 | 61. Admin Pages | v1.7 | 0/0 | Not started | - |
@@ -158,7 +158,7 @@ Phases execute in numeric order: 58 -> 59 -> 60 -> 61 -> 62 -> 63 -> 64 -> 65 ->
 | 65. CI/CD Hardening | v1.7 | 0/0 | Not started | - |
 | 66. Backlog Cleanup | v1.7 | 0/0 | Not started | - |
 
-**Total: 66 phases across 8 milestones (57 complete, 9 pending)**
+**Total: 66 phases across 8 milestones (58 complete, 8 pending)**
 
 ---
 *v1.6 details archived to: .planning/milestones/v1.6-ROADMAP.md*
