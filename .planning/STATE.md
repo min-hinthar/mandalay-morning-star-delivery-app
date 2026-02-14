@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 59 of 66 (Monitoring & Error Tracking)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-14 -- Completed 59-01-PLAN.md (Sentry SDK upgrade & config)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-14 -- Completed 59-02-PLAN.md (Speed Insights & Web Vitals cleanup)
 
-Progress: [###########################.........] 88% (58/66 phases)
+Progress: [############################........] 89% (59/66 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 256 (across v1.0-v1.7)
+- Total plans completed: 257 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~64 hours
 
@@ -54,6 +54,8 @@ Recent decisions affecting v1.7:
 - Error-only session replay (replaysSessionSampleRate: 0) with full privacy masking
 - 20% production tracing, 100% dev tracing across all Sentry configs
 - Sentry environment from NEXT_PUBLIC_VERCEL_ENV with NODE_ENV fallback
+- Speed Insights at 50% sample rate to balance Hobby plan quota with statistical significance
+- Removed manual window.Sentry global access and dead sendBeacon endpoint from web-vitals.tsx
 
 ### Pending Todos
 
@@ -69,5 +71,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Completed 59-01-PLAN.md, ready for 59-02
+Stopped at: Phase 59 complete, ready for Phase 60
 Resume file: None
