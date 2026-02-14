@@ -8,7 +8,7 @@
  * Position: top-right (per CONTEXT.md)
  */
 
-import { m, AnimatePresence, type PanInfo } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   X,
   CheckCircle,
@@ -60,8 +60,6 @@ const toastConfig: Record<ToastVariant, { icon: typeof CheckCircle; color: strin
   },
 };
 
-const SWIPE_DISMISS_THRESHOLD = 100;
-
 // ============================================
 // SINGLE TOAST
 // ============================================
@@ -75,12 +73,6 @@ function ToastCard({ toast, onDismiss }: ToastCardProps) {
   const config = toastConfig[toast.type];
   const Icon = config.icon;
 
-  function handleDragEnd(_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
-    if (info.offset.x > SWIPE_DISMISS_THRESHOLD) {
-      onDismiss(toast.id);
-    }
-  }
-
   return (
     <m.div
       layout
@@ -88,16 +80,12 @@ function ToastCard({ toast, onDismiss }: ToastCardProps) {
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 100, scale: 0.9 }}
       transition={{ type: "spring", damping: 20, stiffness: 300 }}
-      drag="x"
-      dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={{ left: 0, right: 0.5 }}
-      onDragEnd={handleDragEnd}
       role="alert"
       aria-live="polite"
       className={cn(
         "flex items-start gap-3 p-4 rounded-xl shadow-lg",
         "bg-surface-primary border border-border border-l-4",
-        "pointer-events-auto cursor-grab active:cursor-grabbing",
+        "pointer-events-auto",
         "min-w-[280px] max-w-[380px]",
         config.borderColor
       )}
