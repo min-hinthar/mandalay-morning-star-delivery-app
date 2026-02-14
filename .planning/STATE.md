@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 61 - Admin Pages (complete)
+**Current focus:** Phase 62 - Production Operations (in progress)
 
 ## Current Position
 
-Phase: 61 of 66 (Admin Pages)
-Plan: 5 of 5 in current phase (all complete)
-Status: Phase complete
-Last activity: 2026-02-14 -- Completed 61-05-PLAN.md
+Phase: 62 of 66 (Production Operations)
+Plan: 2 of 4 in current phase
+Status: In progress
+Last activity: 2026-02-14 -- Completed 62-02-PLAN.md
 
-Progress: [############################........] 92% (61/66 phases)
+Progress: [############################........] 93% (62/66 phases)
 
 ## Performance Metrics
 
@@ -82,6 +82,8 @@ Recent decisions affecting v1.7:
 - Resend client used directly for manual compose emails (bypasses React email templates)
 - Tiptap v3.19.0 compatible with React 19 out of the box
 - CollapsibleCard action prop for header-level buttons (e.g., Compose button in EmailHistoryCard)
+- Email sender name: "Mandalay Morning Star Burmese Kitchen (Los Angeles)" per user decision
+- OAuth error toast shows generic user-friendly message; raw errors logged server-side only
 
 ### Pending Todos
 
@@ -98,5 +100,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Completed 61-05-PLAN.md (Phase 61 complete, all 5 plans delivered)
+Stopped at: Completed 62-02-PLAN.md (email sender identity + OAuth error UX)
 Resume file: None
