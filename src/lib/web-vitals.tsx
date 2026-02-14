@@ -48,10 +48,14 @@ function formatValue(name: string, value: number): string {
 }
 
 /**
- * Report metric to console (dev) and Sentry (prod)
+ * Report metric to console (dev only)
+ *
+ * Production CWV reporting handled by:
+ * - @vercel/speed-insights (Vercel dashboard)
+ * - @sentry/nextjs browserTracingIntegration (Sentry dashboard)
  */
 function reportMetric(metric: Metric) {
-  const { name, value, id, navigationType } = metric;
+  const { name, value } = metric;
   const rating = getRating(name as MetricName, value);
 
   // Console logging in development
@@ -60,49 +64,6 @@ function reportMetric(metric: Metric) {
       `%c[Web Vitals] ${name}: ${formatValue(name, value)} (${rating})`,
       `color: ${rating === "good" ? "#22c55e" : rating === "needs-improvement" ? "#eab308" : "#ef4444"}`
     );
-  }
-
-  // Report to Sentry in production
-  if (typeof window !== "undefined" && "Sentry" in window) {
-    const Sentry = (window as unknown as { Sentry: {
-      setMeasurement: (name: string, value: number, unit: string) => void;
-      addBreadcrumb: (options: { category: string; message: string; level: string; data: Record<string, unknown> }) => void;
-    } }).Sentry;
-
-    // Send as Sentry measurement
-    Sentry.setMeasurement(name, value, name === "CLS" ? "" : "millisecond");
-
-    // Add breadcrumb for context
-    Sentry.addBreadcrumb({
-      category: "web-vitals",
-      message: `${name}: ${formatValue(name, value)}`,
-      level: rating === "poor" ? "warning" : "info",
-      data: {
-        value,
-        rating,
-        id,
-        navigationType,
-      },
-    });
-  }
-
-  // Send to analytics endpoint (customize as needed)
-  if (process.env.NODE_ENV === "production") {
-    // Beacon API for reliable delivery
-    const body = JSON.stringify({
-      name,
-      value,
-      rating,
-      id,
-      navigationType,
-      url: window.location.href,
-      timestamp: Date.now(),
-    });
-
-    // Use sendBeacon for fire-and-forget
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon("/api/analytics/vitals", body);
-    }
   }
 }
 
