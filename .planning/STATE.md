@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 59 of 66 (Monitoring & Error Tracking)
-Plan: 0 of 0 in current phase (not yet planned)
-Status: Ready to plan
-Last activity: 2026-02-14 -- Phase 58 complete (health endpoint verified)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-14 -- Completed 59-01-PLAN.md (Sentry SDK upgrade & config)
 
 Progress: [###########################.........] 88% (58/66 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 255 (across v1.0-v1.6)
+- Total plans completed: 256 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~64 hours
 
@@ -50,6 +50,10 @@ Recent decisions affecting v1.7:
 - 30-second in-memory cache prevents repeated deep checks on rapid requests
 - CORS for /api/health via next.config.ts headers() (wildcard origin for monitoring dashboards)
 - Config-only health check assumes healthy if env vars present (fast default path)
+- Sentry captures ALL errors (ignoreErrors removed entirely per user decision)
+- Error-only session replay (replaysSessionSampleRate: 0) with full privacy masking
+- 20% production tracing, 100% dev tracing across all Sentry configs
+- Sentry environment from NEXT_PUBLIC_VERCEL_ENV with NODE_ENV fallback
 
 ### Pending Todos
 
@@ -65,5 +69,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Phase 58 complete, ready to plan Phase 59
+Stopped at: Completed 59-01-PLAN.md, ready for 59-02
 Resume file: None
