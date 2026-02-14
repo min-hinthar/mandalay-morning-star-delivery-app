@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 58 of 66 (Deployment Verification)
-Plan: 1 of 2 in current phase
+Plan: 2 of 2 in current phase (checkpoint pending)
 Status: In progress
-Last activity: 2026-02-14 -- Completed 58-01-PLAN.md (health check library)
+Last activity: 2026-02-14 -- Completed 58-02-PLAN.md (health API route, checkpoint pending)
 
 Progress: [##########################..........] 86% (57/66 phases)
 
@@ -48,6 +48,8 @@ Recent decisions affecting v1.7:
 - Health checks use dynamic imports to avoid build-time crashes when env vars missing
 - Promise.allSettled for parallel deep checks with graceful fallback
 - 30-second in-memory cache prevents repeated deep checks on rapid requests
+- CORS for /api/health via next.config.ts headers() (wildcard origin for monitoring dashboards)
+- Config-only health check assumes healthy if env vars present (fast default path)
 
 ### Pending Todos
 
@@ -63,5 +65,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Completed 58-01-PLAN.md (health check library)
+Stopped at: Completed 58-02-PLAN.md (health API route, checkpoint pending user verification)
 Resume file: None
