@@ -311,6 +311,7 @@ export interface OrdersRow {
   delivery_window_end: string | null;
   special_instructions: string | null;
   stripe_payment_intent_id: string | null;
+  is_priority: boolean;
   placed_at: string;
   confirmed_at: string | null;
   delivered_at: string | null;
@@ -332,6 +333,7 @@ export interface OrdersInsert {
   delivery_window_end?: string | null;
   special_instructions?: string | null;
   stripe_payment_intent_id?: string | null;
+  is_priority?: boolean;
   placed_at?: string;
   confirmed_at?: string | null;
   delivered_at?: string | null;
@@ -353,6 +355,7 @@ export interface OrdersUpdate {
   delivery_window_end?: string | null;
   special_instructions?: string | null;
   stripe_payment_intent_id?: string | null;
+  is_priority?: boolean;
   placed_at?: string;
   confirmed_at?: string | null;
   delivered_at?: string | null;
@@ -360,7 +363,7 @@ export interface OrdersUpdate {
   updated_at?: string;
 }
 
-export type OrderAuditAction = "status_change" | "cancel" | "refund" | "edit" | "update_items" | "assign_driver" | "unassign_driver";
+export type OrderAuditAction = "status_change" | "cancel" | "refund" | "edit" | "update_items" | "assign_driver" | "unassign_driver" | "priority_change";
 export type OrderAuditActorRole = "customer" | "admin" | "driver" | "system";
 
 export interface OrderAuditLogRow {

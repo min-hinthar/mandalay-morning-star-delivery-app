@@ -97,6 +97,7 @@ export function createMockOrder(overrides?: Partial<OrdersRow>): OrdersRow {
     delivery_window_end: "2026-01-18T12:00:00-08:00",
     special_instructions: null,
     stripe_payment_intent_id: null,
+    is_priority: false,
     placed_at: new Date().toISOString(),
     confirmed_at: null,
     delivered_at: null,

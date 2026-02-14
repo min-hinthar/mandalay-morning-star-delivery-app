@@ -14,6 +14,11 @@ interface OrderRow {
   confirmed_at: string | null;
   delivered_at: string | null;
   assigned_driver_id: string | null;
+  delivery_window_start: string | null;
+  delivery_window_end: string | null;
+  stripe_payment_intent_id: string | null;
+  is_priority: boolean | null;
+  user_id: string;
   profiles: {
     full_name: string | null;
     email: string;
@@ -87,6 +92,11 @@ export async function GET(
         confirmed_at,
         delivered_at,
         assigned_driver_id,
+        delivery_window_start,
+        delivery_window_end,
+        stripe_payment_intent_id,
+        is_priority,
+        user_id,
         profiles (
           full_name,
           email,
@@ -201,12 +211,17 @@ export async function GET(
       deliveryFeeCents: order.delivery_fee_cents,
       taxCents: order.tax_cents,
       totalCents: order.total_cents,
+      discountCents: 0,
       specialInstructions: order.special_instructions,
       placedAt: order.placed_at,
       confirmedAt: order.confirmed_at,
       deliveredAt: order.delivered_at,
       assignedDriverId: order.assigned_driver_id,
       assignedDriverName,
+      deliveryWindowStart: order.delivery_window_start ?? null,
+      deliveryWindowEnd: order.delivery_window_end ?? null,
+      stripePaymentIntentId: order.stripe_payment_intent_id ?? null,
+      isPriority: order.is_priority ?? false,
       auditLog: (auditLog || []).map((entry) => ({
         id: entry.id,
         action: entry.action,
