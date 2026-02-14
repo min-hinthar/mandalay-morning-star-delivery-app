@@ -37,7 +37,10 @@
   1. `/api/health` endpoint returns status of Supabase, Stripe, and Resend connections
   2. All environment variables are configured in Vercel for production scope (not just preview/development)
   3. Health endpoint is accessible at `delivery.mandalaymorningstar.com/api/health` and reports all services green
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 58-01-PLAN.md -- Health library (types, env validation, service checks)
+- [ ] 58-02-PLAN.md -- Health API route, CORS config, verification
 
 ### Phase 59: Monitoring & Error Tracking
 **Goal**: Production errors are captured, triaged, and linked to source code with readable stack traces
