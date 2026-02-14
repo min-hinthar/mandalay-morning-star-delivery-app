@@ -51,7 +51,10 @@ Plans:
   2. Server-side and Edge runtime errors appear in Sentry with source-mapped stack traces
   3. Real user Core Web Vitals (LCP, CLS, FID) are visible in Vercel Speed Insights dashboard
   4. Sentry source maps match deployed code (stack traces show original TypeScript, not minified JS)
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 59-01-PLAN.md -- Sentry SDK upgrade + server/edge/client config overhaul
+- [ ] 59-02-PLAN.md -- Vercel Speed Insights integration + web-vitals cleanup
 
 ### Phase 60: LCP Optimization
 **Goal**: Homepage loads with visible content in under 4 seconds on mobile Lighthouse
