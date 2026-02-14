@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 61 - Admin Pages
+**Current focus:** Phase 61 - Admin Pages (complete)
 
 ## Current Position
 
 Phase: 61 of 66 (Admin Pages)
-Plan: 4 of 5 in current phase (61-01, 61-02, 61-03, 61-04 complete)
-Status: In progress
-Last activity: 2026-02-14 -- Completed 61-03-PLAN.md
+Plan: 5 of 5 in current phase (all complete)
+Status: Phase complete
+Last activity: 2026-02-14 -- Completed 61-05-PLAN.md
 
-Progress: [############################........] 91% (61/66 phases)
+Progress: [############################........] 92% (61/66 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 260 (across v1.0-v1.7)
+- Total plans completed: 261 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~65 hours
 
@@ -79,6 +79,9 @@ Recent decisions affecting v1.7:
 - Used Modal (not ConfirmDialog) for StatusChangeDialog since ConfirmDialog only supports description string
 - Payment status derived from order status (no Stripe API call): delivered=Paid, cancelled=Refunded, else Pending
 - Order list navigation kept as drawer pattern with "View Full Order Page" link to detail page
+- Resend client used directly for manual compose emails (bypasses React email templates)
+- Tiptap v3.19.0 compatible with React 19 out of the box
+- CollapsibleCard action prop for header-level buttons (e.g., Compose button in EmailHistoryCard)
 
 ### Pending Todos
 
@@ -95,5 +98,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Completed 61-03-PLAN.md (61-01 through 61-04 now all complete)
+Stopped at: Completed 61-05-PLAN.md (Phase 61 complete, all 5 plans delivered)
 Resume file: None
