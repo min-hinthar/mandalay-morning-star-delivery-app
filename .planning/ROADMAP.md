@@ -65,7 +65,11 @@ Plans:
   2. LazyMotion features load asynchronously (domAnimation async import, not synchronous domMax)
   3. Lighthouse mobile performance score > 70 on homepage
   4. LCP < 4000ms on homepage (Lighthouse mobile emulation)
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 60-01-PLAN.md -- Hero LCP fix + async domAnimation root provider
+- [ ] 60-02-PLAN.md -- CSS transition migration for layoutId indicators (Tabs, NavDots, BottomNav, CategoryTabs, carousels)
+- [ ] 60-03-PLAN.md -- Per-route domMax providers + Toast cleanup + Lighthouse verification
 
 ### Phase 61: Admin Pages
 **Goal**: Admins can view full order details and manage their own profile without leaving the app
