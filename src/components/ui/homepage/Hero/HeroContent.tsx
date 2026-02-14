@@ -31,18 +31,15 @@ export function HeroContent({
   ctaText,
   ctaHref,
 }: HeroContentProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreference();
+  const { shouldAnimate } = useAnimationPreference();
   const { timeOfDay } = useDynamicTheme();
 
   return (
     <div className="relative flex flex-col items-center justify-start min-h-[100svh] min-h-[100dvh] px-4 pt-24 pb-20 pb-safe md:pt-28 md:pb-24">
       <div className="max-w-4xl mx-auto text-center">
         {/* Time-based greeting badge */}
-        <m.div
-          className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20"
-          initial={shouldAnimate ? { opacity: 0, y: -20 } : undefined}
-          animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-          transition={shouldAnimate ? { ...getSpring(spring.default), delay: 0.3 } : undefined}
+        <div
+          className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1"
         >
           <span className="text-secondary">
             {timeOfDay === "morning" && "Good morning!"}
@@ -54,36 +51,27 @@ export function HeroContent({
           <span className="text-sm text-hero-text/90 font-medium">
             Fresh Burmese cuisine awaits
           </span>
-        </m.div>
+        </div>
 
         <AnimatedHeadline
           text={headline}
           className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-4 leading-tight"
         />
 
-        <m.p
-          className="text-lg md:text-xl text-hero-text/70 font-medium mb-6"
-          initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
-          animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-          transition={shouldAnimate ? { ...getSpring(spring.default), delay: 0.5 } : undefined}
+        <p
+          className="text-lg md:text-xl text-hero-text/70 font-medium mb-6 animate-fade-in-up-delay-1"
         >
           {tagline}
-        </m.p>
+        </p>
 
-        <m.p
-          className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-10 font-body"
-          initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
-          animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-          transition={shouldAnimate ? { ...getSpring(spring.default), delay: 0.6 } : undefined}
+        <p
+          className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-10 font-body animate-fade-in-up-delay-2"
         >
           {subheadline}
-        </m.p>
+        </p>
 
-        <m.div
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
-          initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
-          animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-          transition={shouldAnimate ? { ...getSpring(spring.default), delay: 0.8 } : undefined}
+        <div
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-fade-in-up-delay-3"
         >
           <m.div
             whileHover={shouldAnimate ? { scale: 1.05, y: -2 } : undefined}
@@ -112,20 +100,17 @@ export function HeroContent({
               </Link>
             </Button>
           </m.div>
-        </m.div>
+        </div>
 
-        <m.div
-          className="flex flex-wrap justify-center items-center gap-2 md:gap-4 p-4 rounded-2xl bg-hero-stat-bg sm:bg-hero-stat-bg/50 sm:backdrop-blur-md border border-hero-text/10"
-          initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
-          animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-          transition={shouldAnimate ? { ...getSpring(spring.default), delay: 1 } : undefined}
+        <div
+          className="flex flex-wrap justify-center items-center gap-2 md:gap-4 p-4 rounded-2xl bg-hero-stat-bg sm:bg-hero-stat-bg/50 sm:backdrop-blur-md border border-hero-text/10 animate-fade-in-up-delay-4"
         >
-          <StatItem icon={<ChefHat className="w-4 h-4 text-secondary" />} label="Authentic" value="Burmese Recipes" delay={1.1} />
+          <StatItem icon={<ChefHat className="w-4 h-4 text-secondary" />} label="Authentic" value="Burmese Recipes" />
           <div className="hidden md:block w-px h-10 bg-hero-text/20" />
-          <StatItem icon={<Clock className="w-4 h-4 text-secondary" />} label="Delivery" value="Every Saturday" delay={1.2} />
+          <StatItem icon={<Clock className="w-4 h-4 text-secondary" />} label="Delivery" value="Every Saturday" />
           <div className="hidden md:block w-px h-10 bg-hero-text/20" />
-          <StatItem icon={<MapPin className="w-4 h-4 text-secondary" />} label="Coverage" value="50 Mile Radius" delay={1.3} />
-        </m.div>
+          <StatItem icon={<MapPin className="w-4 h-4 text-secondary" />} label="Coverage" value="50 Mile Radius" />
+        </div>
       </div>
 
       <m.div
