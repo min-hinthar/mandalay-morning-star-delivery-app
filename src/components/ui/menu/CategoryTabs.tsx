@@ -7,7 +7,7 @@
  * Features:
  * - Horizontal scroll on mobile with fade indicators
  * - Active tab highlights based on scroll position via Intersection Observer
- * - Smooth animated pill indicator with layoutId
+ * - Smooth CSS transition pill indicator
  * - Click to scroll to category section
  * - Accessibility: proper tablist/tab roles
  *
@@ -57,6 +57,7 @@ export const CategoryTabs = memo(function CategoryTabs({
   className,
 }: CategoryTabsProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const { shouldAnimate } = useAnimationPreference();
 
   // Determine if we're in controlled mode
@@ -68,6 +69,12 @@ export const CategoryTabs = memo(function CategoryTabs({
   // Fade indicator states
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(false);
+
+  // CSS indicator position state
+  const [indicatorStyle, setIndicatorStyle] = useState<{
+    left: number;
+    width: number;
+  } | null>(null);
 
   // Generate section IDs for scrollspy (only used in uncontrolled mode)
   const sectionIds = useMemo(
@@ -100,6 +107,20 @@ export const CategoryTabs = memo(function CategoryTabs({
     setShowRightFade(isScrollable && scrollLeft < scrollWidth - clientWidth - 10);
   }, []);
 
+  // Calculate indicator position from active tab button
+  const updateIndicatorPosition = useCallback(() => {
+    const key = activeCategory ?? "__all__";
+    const activeButton = tabRefs.current.get(key);
+    if (!activeButton) {
+      setIndicatorStyle(null);
+      return;
+    }
+    setIndicatorStyle({
+      left: activeButton.offsetLeft,
+      width: activeButton.offsetWidth,
+    });
+  }, [activeCategory]);
+
   // Set up scroll and resize observers
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -112,14 +133,22 @@ export const CategoryTabs = memo(function CategoryTabs({
     container.addEventListener("scroll", updateFadeIndicators, { passive: true });
 
     // Resize observer
-    const resizeObserver = new ResizeObserver(updateFadeIndicators);
+    const resizeObserver = new ResizeObserver(() => {
+      updateFadeIndicators();
+      updateIndicatorPosition();
+    });
     resizeObserver.observe(container);
 
     return () => {
       container.removeEventListener("scroll", updateFadeIndicators);
       resizeObserver.disconnect();
     };
-  }, [updateFadeIndicators]);
+  }, [updateFadeIndicators, updateIndicatorPosition]);
+
+  // Update indicator when active category changes
+  useEffect(() => {
+    updateIndicatorPosition();
+  }, [updateIndicatorPosition]);
 
   // Scroll active tab into view when category changes
   useEffect(() => {
@@ -213,19 +242,41 @@ export const CategoryTabs = memo(function CategoryTabs({
         role="tablist"
         aria-label="Menu categories"
         className={cn(
-          "flex gap-2 overflow-x-auto scrollbar-hide",
+          "relative flex gap-2 overflow-x-auto scrollbar-hide",
           "px-4 py-3"
         )}
       >
+        {/* CSS-transitioned pill indicator */}
+        {indicatorStyle && (
+          <div
+            className="absolute rounded-pill bg-primary shadow-sm transition-all duration-200 ease-out"
+            style={{
+              left: indicatorStyle.left,
+              width: indicatorStyle.width,
+              top: 12,
+              height: "calc(100% - 24px)",
+            }}
+            aria-hidden="true"
+          />
+        )}
+
         {allTabs.map((tab) => {
           const isActive =
             tab.slug === null
               ? activeCategory === null
               : activeCategory === tab.slug;
+          const key = tab.slug ?? "__all__";
 
           return (
             <m.button
               key={tab.slug ?? "all"}
+              ref={(el) => {
+                if (el) {
+                  tabRefs.current.set(key, el);
+                } else {
+                  tabRefs.current.delete(key);
+                }
+              }}
               role="tab"
               aria-selected={isActive}
               aria-controls={tab.slug ? `category-${tab.slug}` : undefined}
@@ -243,15 +294,6 @@ export const CategoryTabs = memo(function CategoryTabs({
                   : "text-text-secondary hover:text-text-primary hover:bg-surface-secondary"
               )}
             >
-              {/* Animated pill background for active state */}
-              {isActive && (
-                <m.span
-                  layoutId="activeTabPill"
-                  className="absolute inset-0 rounded-pill bg-primary shadow-sm"
-                  transition={shouldAnimate ? spring.snappy : { duration: 0 }}
-                />
-              )}
-
               {/* Tab label */}
               <span className="relative z-0">
                 {tab.nameEn || tab.name}

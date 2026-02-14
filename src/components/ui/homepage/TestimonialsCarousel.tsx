@@ -265,7 +265,6 @@ export function TestimonialsCarousel({
               current={currentIndex}
               onSelect={handleDotSelect}
               labels={testimonials.map((t) => t.name)}
-              layoutId="testimonialDot"
             />
           </div>
 
