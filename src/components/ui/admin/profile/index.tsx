@@ -1,0 +1,1 @@
+export { AdminProfileClient } from "./AdminProfileClient";
