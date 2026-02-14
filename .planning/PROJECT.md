@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A full frontend rewrite of the Morning Star Weekly Delivery meal subscription app. Fresh V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. V1 delivered customer flows (menu → cart → checkout) with reliable clickability. V1.1 completed tech debt cleanup with zero legacy patterns, strict TypeScript, and enforced design tokens. V1.2 delivered maximum playfulness with unified menu cards, rebuilt header/navigation, 12 micro-interactions, OLED dark mode, and comprehensive codebase cleanup. V1.3 completed full codebase consolidation: design token enforcement across 70+ files, component library unification, hero redesign with floating emojis and parallax, and quality infrastructure with Storybook docs, contrast testing, and pre-commit hooks. V1.4 delivered mobile excellence: zero crashes, CLS 0, offline support with service worker caching, device-adaptive animations, admin photo management, driver invites, and complete route/settings/account pages. V1.5 delivered performance infrastructure: 45% LCP improvement via code-splitting, React Compiler, LazyMotion migration (174 files), Lighthouse CI on every PR, 47 large files refactored into 129+ sub-modules, and repository cleanup (94 legacy docs deleted, 89 build artifacts untracked).
+A full frontend rewrite of the Morning Star Weekly Delivery meal subscription app. Fresh V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. Seven milestones shipped (v1.0-v1.6): customer flows, tech debt cleanup, playful UI overhaul, codebase consolidation, mobile excellence, performance infrastructure, and production polish. V1.6 completed the production-readiness pass: error boundaries on all routes, branded 404 pages, premium passwordless auth (magic link + Google/Apple OAuth), transactional email system via Resend, fuzzy search with Burmese dish name tolerance, cart validation with stale item detection, customer/admin settings with DB persistence, driver offline sync with consolidated IndexedDB queue, and premium admin/driver visual polish with card-based tables, skeleton crossfade, and animated status badges.
 
 ## Core Value
 
@@ -184,54 +184,54 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - ✓ PERFORMANCE.md documenting optimization journey and bottleneck analysis — v1.5
 - ✓ File organization patterns documented in CLAUDE.md (4 patterns) — v1.5
 - ✓ Desktop Lighthouse profile available via LIGHTHOUSE_PROFILE env var — v1.5
+- ✓ Error boundaries (error.tsx) on all routes — v1.6
+- ✓ Loading states (loading.tsx) on all admin pages — v1.6
+- ✓ Branded 404 pages with food-themed mascot and navigation — v1.6
+- ✓ Admin settings fully managed in app UI with DB persistence — v1.6
+- ✓ Customer settings page (dietary, notifications, theme, delivery instructions) — v1.6
+- ✓ Cart validation on mount (hydration-aware, stale item detection) — v1.6
+- ✓ Full cart page (two-column layout, category grouping, attention section) — v1.6
+- ✓ Passwordless auth (magic link + Google/Apple OAuth) with premium animations — v1.6
+- ✓ Login success ceremony with logo morph animation — v1.6
+- ✓ Transactional emails (confirmation, cancellation, refund, reminder) via Resend — v1.6
+- ✓ Stripe webhook idempotency preventing duplicate emails — v1.6
+- ✓ Fuzzy search with Fuse.js, category tabs, thumbnails, order history — v1.6
+- ✓ Driver offline sync with consolidated IndexedDB queue and exponential backoff — v1.6
+- ✓ Admin/driver premium polish (card tables, skeleton crossfade, status badges, empty states) — v1.6
+- ✓ Driver history shows real on-time percentage (computed from data) — v1.6
 
 ### Active
 
-## Current Milestone: v1.6 Production Polish
-
-**Goal:** Final production-readiness pass — elevate every page to premium polish, complete all missing features, wire all backend integrations, and harden error handling before public launch.
-
-**Target features:**
-- Elevate auth forms (login, signup, forgot-password, reset-password) to premium animation/design
-- Complete `/cart` page (currently a stub)
-- Create customer settings page (notifications, delivery defaults, dietary preferences, theme, language)
-- Polish account, admin orders, driver stop detail, driver history pages
-- Branded 404 page
-- Premium search/command palette
-- Wire order confirmation email (verify Edge Function)
-- Driver offline sync retry on reconnect
-- Customer refund/cancel notifications
-- Cart validation on mount (stale item detection)
-- Error boundaries and loading states on all routes
+(No active milestone — ready for v1.7 planning)
 
 ### Out of Scope
 - Backend/schema changes — Supabase + Stripe contracts stay stable
 - Multi-restaurant marketplace — not part of Morning Star scope
-- LCP optimization — deferred to v1.7 (v1.6 focuses on UI/UX polish and feature completeness)
 - Real-time subscriptions — current REST pattern sufficient for launch
+- SETT-04 language preference — deferred to future milestone
 
 ## Context
 
-**Current state (v1.5 shipped):**
+**Current state (v1.6 shipped):**
+- 7 milestones complete: v1.0-v1.6 (57 phases, 255 plans, 309+ requirements)
 - Full design token system: 62+ semantic tokens enforced via ESLint
 - Single unified component library: @/components/ui/ with barrel exports
-- Hero with 13 floating emojis, 4-layer parallax, theme-aware gradients
-- Mobile stability: zero crashes, device-adaptive animations, Safari fixes
-- Quality infrastructure: 7 Storybook token docs, 38 WCAG AAA contrast tests
-- Pre-commit hooks: Husky + lint-staged blocking ESLint violations
-- 274 requirements validated across 47 phases (v1.0–v1.5)
-- All flows using consolidated V8 components: customer, admin, driver
+- Error boundaries + loading states on every route (14 error.tsx, 23 loading.tsx)
+- Branded 404 pages with food-themed mascot across customer/admin/driver portals
+- Premium passwordless auth: magic link + Google/Apple OAuth with login ceremony
+- Transactional email system: 4 templates, Stripe webhook idempotency, admin UI
+- Fuzzy search: Fuse.js with Burmese dish name tolerance, category tabs, thumbnails
+- Cart validation: hydration-aware stale detection, full cart page
+- Customer settings: dietary prefs, notifications, theme, delivery instructions
+- Admin settings: delivery, operations, notifications with DB persistence
+- Driver offline sync: consolidated IndexedDB queue, exponential backoff, idempotency
+- Admin/driver premium polish: card-based tables, skeleton crossfade, animated badges
 - React Compiler enabled globally (282 client components)
-- LazyMotion domMax at app root (174 files use m.* instead of motion.*)
+- LazyMotion domMax (174 files use m.* instead of motion.*)
 - Code-splitting: Recharts, Google Maps, cart all dynamically imported
-- Cart scoped to customer/public routes only
 - Lighthouse CI running on every PR (4 routes, warn-only)
-- E2E cart tests: 19 tests in CI pipeline
-- ESLint max-lines: 400-line warning on all src/**/*.{ts,tsx}
-- File organization: 4 documented patterns (component subfolder, lib subfolder, admin sibling, API route sibling)
-- Offline support: service worker, IndexedDB menu cache, stale indicators
-- Admin features: photo upload, featured sections, driver invites, route optimization
-- Customer features: account page, order history, address management
+- Pre-commit hooks: Husky + lint-staged blocking ESLint violations
+- 844 source files, ~53,394 lines TypeScript
 
 **Tech stack:**
 - Next.js 16.1.2 + React 19.2.3 + TailwindCSS 4
@@ -240,20 +240,23 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - Zustand for state management
 - Supabase auth + Stripe checkout
 - Serwist for service worker
-- Resend + React Email for driver invites
-- ~40,010 lines TypeScript total
+- Resend + React Email for transactional emails
+- Fuse.js for fuzzy search
+- ~53,394 lines TypeScript total
 
 **Remaining tech debt:**
 - LCP: 8-11s (JS execution bottleneck — needs SSR streaming, edge rendering, or JS payload reduction)
 - Lighthouse performance score: 30-45 (target 90+)
 - UnifiedMenuItemCard: 540 lines (documented exception — tightly coupled state)
 - Lighthouse CI: warn-only (PRs not blocked on LCP regression)
-- 137 token violations in Storybook stories and driver components (intentional exemptions)
+- Social login requires Google Cloud Console + Apple Developer Portal ops config
+- Resend domain verification needed for production email delivery
 
 **Design direction:**
 - Animation-first: GSAP for timelines/scroll, Framer Motion for components
 - Reference apps: DoorDash, Uber Eats, Pepper template
 - V8 colors: amber-500 primary accent, warm dark mode undertones
+- Admin accent: teal for admin/driver pages (distinct from customer amber)
 
 ## Constraints
 
@@ -323,7 +326,15 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 | Lighthouse CI warn-only, PR-only | Regression gate without blocking PRs | ✓ Good — v1.5 |
 | ESLint max-lines at 400 warning | Prevents file growth regression; exempts types/tests/stories | ✓ Good — v1.5 |
 | 4 file-splitting patterns in CLAUDE.md | Component subfolder, lib subfolder, admin sibling, API route sibling | ✓ Good — v1.5 |
-| LCP target revised from <2.5s to <4s | Original target unrealistic without architecture changes | ⚠️ Revisit — v1.6 |
+| LCP target revised from <2.5s to <4s | Original target unrealistic without architecture changes | ⚠️ Revisit — v1.7 |
+| CSS-only error boundary animations | Framer Motion in error.tsx causes crash loops | ✓ Good — v1.6 |
+| Passwordless auth (no password pages) | Magic link + OAuth more secure; simpler UX | ✓ Good — v1.6 |
+| Fire-and-forget email sending | Email failure never blocks API responses | ✓ Good — v1.6 |
+| Webhook idempotency via UNIQUE constraint | Atomic check-then-claim for duplicate prevention | ✓ Good — v1.6 |
+| Fuse.js threshold 0.4 for Burmese names | Typo tolerance without false positives | ✓ Good — v1.6 |
+| IndexedDB single queue (removed Zustand) | Eliminated dual-queue sync conflicts | ✓ Good — v1.6 |
+| Teal accent for admin pages | Visual distinction from customer amber | ✓ Good — v1.6 |
+| dangerouslySetInnerHTML for header styles | Prevents styled-jsx hydration mismatch | ✓ Good — v1.6 |
 
 ---
-*Last updated: 2026-02-07 after v1.5 milestone completion*
+*Last updated: 2026-02-13 after v1.6 milestone completion*
