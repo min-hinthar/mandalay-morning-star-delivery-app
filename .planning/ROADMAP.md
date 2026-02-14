@@ -19,7 +19,7 @@
 
 - [x] **Phase 58: Deployment Verification** - Validate production environment and service connectivity
 - [x] **Phase 59: Monitoring & Error Tracking** - Sentry initialization and real user monitoring
-- [ ] **Phase 60: LCP Optimization** - Server-rendered hero and async LazyMotion for sub-4s LCP
+- [x] **Phase 60: LCP Optimization** - Server-rendered hero and async LazyMotion for sub-4s LCP
 - [ ] **Phase 61: Admin Pages** - Order detail and profile pages (APIs already exist)
 - [ ] **Phase 62: Production Operations** - OAuth, Stripe webhook, Resend domain, Search Console
 - [ ] **Phase 63: Branding & Compliance** - Homepage content for Google OAuth verification
@@ -67,9 +67,9 @@ Plans:
   4. LCP < 4000ms on homepage (Lighthouse mobile emulation)
 **Plans:** 3 plans
 Plans:
-- [ ] 60-01-PLAN.md -- Hero LCP fix + async domAnimation root provider
-- [ ] 60-02-PLAN.md -- CSS transition migration for layoutId indicators (Tabs, NavDots, BottomNav, CategoryTabs, carousels)
-- [ ] 60-03-PLAN.md -- Per-route domMax providers + Toast cleanup + Lighthouse verification
+- [x] 60-01-PLAN.md -- Hero LCP fix + async domAnimation root provider
+- [x] 60-02-PLAN.md -- CSS transition migration for layoutId indicators (Tabs, NavDots, BottomNav, CategoryTabs, carousels)
+- [x] 60-03-PLAN.md -- Per-route domMax providers + Toast cleanup + Lighthouse verification
 
 ### Phase 61: Admin Pages
 **Goal**: Admins can view full order details and manage their own profile without leaving the app
@@ -157,7 +157,7 @@ Phases execute in numeric order: 58 -> 59 -> 60 -> 61 -> 62 -> 63 -> 64 -> 65 ->
 | 57. Admin & Driver Polish | v1.6 | 8/8 | Complete | 2026-02-13 |
 | 58. Deployment Verification | v1.7 | 2/2 | Complete | 2026-02-14 |
 | 59. Monitoring & Error Tracking | v1.7 | 2/2 | Complete | 2026-02-14 |
-| 60. LCP Optimization | v1.7 | 0/0 | Not started | - |
+| 60. LCP Optimization | v1.7 | 3/3 | Complete | 2026-02-14 |
 | 61. Admin Pages | v1.7 | 0/0 | Not started | - |
 | 62. Production Operations | v1.7 | 0/0 | Not started | - |
 | 63. Branding & Compliance | v1.7 | 0/0 | Not started | - |
@@ -165,7 +165,7 @@ Phases execute in numeric order: 58 -> 59 -> 60 -> 61 -> 62 -> 63 -> 64 -> 65 ->
 | 65. CI/CD Hardening | v1.7 | 0/0 | Not started | - |
 | 66. Backlog Cleanup | v1.7 | 0/0 | Not started | - |
 
-**Total: 66 phases across 8 milestones (59 complete, 7 pending)**
+**Total: 66 phases across 8 milestones (60 complete, 6 pending)**
 
 ---
 *v1.6 details archived to: .planning/milestones/v1.6-ROADMAP.md*
