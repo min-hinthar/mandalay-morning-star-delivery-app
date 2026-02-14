@@ -5,64 +5,60 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.7 Production Deployment & Readiness
+**Current focus:** Phase 58 - Deployment Verification
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-13 — Milestone v1.7 started
+Phase: 58 of 66 (Deployment Verification)
+Plan: 0 of 0 in current phase (not yet planned)
+Status: Ready to plan
+Last activity: 2026-02-13 -- v1.7 roadmap created (9 phases, 34 requirements)
 
-## Milestones
-
-| Milestone | Phases | Plans | Shipped |
-|-----------|--------|-------|---------|
-| v1.0 MVP | 1-8 | 32 | 2026-01-23 |
-| v1.1 Tech Debt | 9-14 | 21 | 2026-01-23 |
-| v1.2 Playful UI Overhaul | 15-24 | 29 | 2026-01-27 |
-| v1.3 Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
-| v1.4 Mobile Excellence | 35-39 | 39 | 2026-02-05 |
-| v1.5 Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
-| v1.6 Production Polish | 48-57 | 47 | 2026-02-13 |
-
-**Total completed:** 57 phases, 255 plans, 309+ requirements
+Progress: [##########################..........] 86% (57/66 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 255
-- v1.6: 47 plans in 6 days (2026-02-07 → 2026-02-13)
+- Total plans completed: 255 (across v1.0-v1.6)
+- Average duration: ~15 min
+- Total execution time: ~64 hours
+
+**By Milestone:**
+
+| Milestone | Phases | Plans | Duration |
+|-----------|--------|-------|----------|
+| v1.0 | 8 | 32 | 2 days |
+| v1.1 | 6 | 21 | 1 day |
+| v1.2 | 9 | 29 | 4 days |
+| v1.3 | 10 | 53 | 2 days |
+| v1.4 | 8 | 39 | 6 days |
+| v1.5 | 8 | 34 | 3 days |
+| v1.6 | 10 | 47 | 6 days |
 
 ## Accumulated Context
 
-### Key Decisions
+### Decisions
 
-Cleared — full decision log in PROJECT.md Key Decisions table.
+Decisions logged in PROJECT.md Key Decisions table.
+Recent decisions affecting v1.7:
 
-### Tech Debt (carried forward)
+- DEPL-01 already complete (app live at delivery.mandalaymorningstar.com)
+- LCP target revised from <2.5s to <4s (original unrealistic without architecture changes)
+- Lighthouse CI warn-only until LCP baseline improves (Phase 65 enables blocking)
 
-| Item | Severity | Notes |
-|------|----------|-------|
-| LCP 8-11s | Medium | Deferred to v1.7 |
-| Lighthouse score 30-45 | Medium | Deferred to v1.7 |
-| UnifiedMenuItemCard 540 lines | Low | Documented exception |
-| Social login ops config | Medium | Google/Apple developer portals not configured |
-| Resend domain verification | Medium | Required for production email delivery |
+### Pending Todos
+
+None yet.
 
 ### Blockers/Concerns
 
-- Social login (AUTH-02, AUTH-03) requires Google Cloud Console + Apple Developer Portal config
-- Resend domain verification needed before email features work in production
-- Old send-order-confirmation Edge Function can be removed (replaced by sendEmail in v1.6)
+- LCP 8-11s: Root cause is domMax synchronous import + opacity:0 animations blocking hero render
+- OAuth redirect URLs: Must configure Google Cloud Console + Apple Developer Portal for production domain
+- Resend domain: SPF/DKIM/DMARC DNS records needed at Hostinger for production email delivery
+- Service worker scope: Currently `/driver` only, needs expansion to `/`
 
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: v1.7 milestone definition
+Stopped at: v1.7 roadmap created, ready to plan Phase 58
 Resume file: None
-Next action: Research → Requirements → Roadmap
-
----
-
-*Updated: 2026-02-13 — v1.7 Production Deployment & Readiness started*
