@@ -40,11 +40,20 @@ export async function GET(request: NextRequest) {
   );
   const stripeConfigured = Boolean(process.env.STRIPE_SECRET_KEY);
   const resendConfigured = Boolean(process.env.RESEND_API_KEY);
+  const googleOAuthConfigured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
+  const searchConsoleConfigured = Boolean(
+    process.env.GOOGLE_SITE_VERIFICATION,
+  );
 
   let services: HealthResponse["services"] = {
     supabase: configOnlyService(supabaseConfigured),
     stripe: configOnlyService(stripeConfigured),
     resend: configOnlyService(resendConfigured),
+    google_oauth: configOnlyService(googleOAuthConfigured),
+    search_console: configOnlyService(searchConsoleConfigured),
   };
 
   let routes: HealthResponse["routes"] = {
@@ -64,6 +73,8 @@ export async function GET(request: NextRequest) {
     services.supabase.status,
     services.stripe.status,
     services.resend.status,
+    services.google_oauth.status,
+    services.search_console.status,
   ];
   const status = worstStatus(allStatuses);
 

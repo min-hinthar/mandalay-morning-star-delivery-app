@@ -150,6 +150,30 @@ export async function checkResend(): Promise<ServiceStatus> {
   }
 }
 
+export async function checkGoogleOAuth(): Promise<ServiceStatus> {
+  // Config-only check: verify Supabase env vars for OAuth are present
+  // Actual OAuth requires browser interaction -- can't test programmatically
+  const configured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
+
+  return {
+    status: configured ? "healthy" : "down",
+    configured,
+  };
+}
+
+export async function checkSearchConsole(): Promise<ServiceStatus> {
+  // Config-only check: verify verification code env var is set
+  const configured = Boolean(process.env.GOOGLE_SITE_VERIFICATION);
+
+  return {
+    status: configured ? "healthy" : "down",
+    configured,
+  };
+}
+
 // ---- Route reachability ----
 
 export async function checkRoutes(
@@ -198,6 +222,8 @@ interface DeepCheckResult {
     supabase: ServiceStatus;
     stripe: ServiceStatus;
     resend: ServiceStatus;
+    google_oauth: ServiceStatus;
+    search_console: ServiceStatus;
   };
   routes: {
     auth_callback: RouteStatus;
@@ -211,11 +237,13 @@ export async function runDeepChecks(origin: string): Promise<DeepCheckResult> {
     return cachedResult.data;
   }
 
-  const [supabaseResult, stripeResult, resendResult, routesResult] =
+  const [supabaseResult, stripeResult, resendResult, googleOAuthResult, searchConsoleResult, routesResult] =
     await Promise.allSettled([
       checkSupabase(),
       checkStripe(),
       checkResend(),
+      checkGoogleOAuth(),
+      checkSearchConsole(),
       checkRoutes(origin),
     ]);
 
@@ -244,6 +272,14 @@ export async function runDeepChecks(origin: string): Promise<DeepCheckResult> {
       resend:
         resendResult.status === "fulfilled"
           ? resendResult.value
+          : fallbackService,
+      google_oauth:
+        googleOAuthResult.status === "fulfilled"
+          ? googleOAuthResult.value
+          : fallbackService,
+      search_console:
+        searchConsoleResult.status === "fulfilled"
+          ? searchConsoleResult.value
           : fallbackService,
     },
     routes:
