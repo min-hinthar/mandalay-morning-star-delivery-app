@@ -255,7 +255,7 @@ export function SettingsClient() {
 
       {/* Tabs */}
       <m.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring.default, delay: 0.1 }}>
-        <Tabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={handleTabChange} layoutId="settingsTab" />
+        <Tabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={handleTabChange} />
       </m.div>
 
       {/* Tab Content */}
