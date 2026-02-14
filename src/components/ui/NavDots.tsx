@@ -19,8 +19,6 @@ export interface NavDotsProps {
   onSelect: (index: number) => void;
   /** Labels for each dot (optional, shows on hover) */
   labels?: string[];
-  /** Layout ID for shared animation (optional) */
-  layoutId?: string;
   /** Additional className for container */
   className?: string;
 }
@@ -33,11 +31,10 @@ interface DotProps {
   index: number;
   isActive: boolean;
   label?: string;
-  layoutId?: string;
   onClick: () => void;
 }
 
-function Dot({ index, isActive, label, layoutId, onClick }: DotProps) {
+function Dot({ index, isActive, label, onClick }: DotProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const [isHovered, setIsHovered] = useState(false);
 
@@ -48,31 +45,20 @@ function Dot({ index, isActive, label, layoutId, onClick }: DotProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "relative rounded-full transition-colors duration-150",
+        "relative rounded-full",
+        "transition-all duration-200 ease-out",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         isActive
           ? "w-3 h-3 bg-primary"
           : "w-2 h-2 bg-text-muted/30 hover:bg-text-muted/50"
       )}
+      style={isActive ? { boxShadow: "var(--shadow-glow-primary)" } : undefined}
       whileHover={shouldAnimate ? { scale: 1.3 } : undefined}
       whileTap={shouldAnimate ? { scale: 0.9 } : undefined}
       transition={shouldAnimate ? getSpring(spring.snappy) : undefined}
       aria-label={label ? `Go to ${label}` : `Go to item ${index + 1}`}
       aria-current={isActive ? "true" : undefined}
     >
-      {/* Active dot indicator with layoutId for smooth transition */}
-      {isActive && layoutId && (
-        <m.div
-          layoutId={layoutId}
-          className="absolute inset-0 rounded-full bg-primary"
-          initial={false}
-          transition={shouldAnimate ? getSpring(spring.snappy) : { duration: 0 }}
-          style={{
-            boxShadow: "var(--shadow-glow-primary)",
-          }}
-        />
-      )}
-
       {/* Label tooltip on hover - below dot */}
       <AnimatePresence>
         {isHovered && label && (
@@ -109,7 +95,7 @@ function Dot({ index, isActive, label, layoutId, onClick }: DotProps) {
  * Features:
  * - Shadowed pill container with glassmorphism
  * - Hover labels appear below dots (subtle dark tooltip)
- * - Smooth dot transition via layoutId
+ * - Smooth dot transition via CSS transitions on size/color
  * - Animation-preference aware
  *
  * @example
@@ -118,7 +104,6 @@ function Dot({ index, isActive, label, layoutId, onClick }: DotProps) {
  *   current={currentIndex}
  *   onSelect={setCurrentIndex}
  *   labels={["Home", "About", "Contact"]}
- *   layoutId="myCarouselDot"
  * />
  */
 export function NavDots({
@@ -126,7 +111,6 @@ export function NavDots({
   current,
   onSelect,
   labels,
-  layoutId,
   className,
 }: NavDotsProps) {
   const { shouldAnimate } = useAnimationPreference();
@@ -162,7 +146,6 @@ export function NavDots({
           index={i}
           isActive={current === i}
           label={labels?.[i]}
-          layoutId={layoutId}
           onClick={() => handleDotClick(i)}
         />
       ))}

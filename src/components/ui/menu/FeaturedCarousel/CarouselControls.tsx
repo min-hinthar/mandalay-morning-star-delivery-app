@@ -117,7 +117,6 @@ export function CarouselControls({
           current={currentIndex}
           onSelect={onDotClick}
           labels={dotLabels}
-          layoutId="featuredCarouselDot"
         />
       </div>
     </div>
