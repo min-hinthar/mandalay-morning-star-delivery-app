@@ -80,7 +80,13 @@ Plans:
   2. Order detail page shows email history (sent emails for that order with status and timestamps)
   3. Admin can change order status (pending, confirmed, preparing, delivered, cancelled) from the order detail page
   4. Admin profile page at `/admin/profile` allows viewing and editing own name, email, and role info
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 61-01-PLAN.md -- Order detail API extensions + priority migration
+- [ ] 61-02-PLAN.md -- Admin profile API (GET/PATCH, stats, notification prefs)
+- [ ] 61-03-PLAN.md -- Order detail page (cards, status change, timeline, email history)
+- [ ] 61-04-PLAN.md -- Admin profile page (info, stats, notifications, theme, sign out)
+- [ ] 61-05-PLAN.md -- Manual email compose (Tiptap editor, compose API)
 
 ### Phase 62: Production Operations
 **Goal**: Social login, transactional email, payment webhooks, and search indexing work on the production domain
