@@ -15,6 +15,9 @@ import { CustomerInfoCard } from "./CustomerInfoCard";
 import { OrderItemsCard } from "./OrderItemsCard";
 import { TotalsCard } from "./TotalsCard";
 import { PaymentInfoCard } from "./PaymentInfoCard";
+import { StatusChangeDialog } from "./StatusChangeDialog";
+import { StatusTimelineCard } from "./StatusTimelineCard";
+import { EmailHistoryCard } from "./EmailHistoryCard";
 
 export function OrderDetailClient() {
   const params = useParams<{ id: string }>();
@@ -24,7 +27,7 @@ export function OrderDetailClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Status change dialog state (wired in Task 2)
+  // Status change dialog state
   const [pendingStatus, setPendingStatus] = useState<OrderStatus | null>(null);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
   // Highlight animation class
@@ -75,7 +78,7 @@ export function OrderDetailClient() {
     setTimeout(() => setHighlightStatus(false), 1000);
   };
 
-  const handleStatusRevert = (previousStatus: OrderStatus) => {
+  const handleStatusFailed = (previousStatus: OrderStatus) => {
     if (!order) return;
     setOrder({ ...order, status: previousStatus });
     toast({
@@ -151,27 +154,35 @@ export function OrderDetailClient() {
 
       {/* Two-column layout */}
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left column: Items + Totals + Email History (Task 2) */}
+        {/* Left column: Items + Totals + Email History */}
         <div className="space-y-6">
           <OrderItemsCard items={order.items} />
           <TotalsCard order={order} />
-          {/* EmailHistoryCard added in Task 2 */}
+          <EmailHistoryCard orderId={order.id} />
         </div>
 
-        {/* Right column: Customer + Status Timeline (Task 2) + Payment */}
+        {/* Right column: Customer + Status Timeline + Payment */}
         <div className="space-y-6">
           <CustomerInfoCard order={order} />
-          {/* StatusTimelineCard added in Task 2 */}
+          <StatusTimelineCard auditLog={order.auditLog} />
           <PaymentInfoCard order={order} />
         </div>
       </div>
 
-      {/* StatusChangeDialog - wired in Task 2 with real dialog */}
-      {statusDialogOpen && pendingStatus && (
-        <div
-          data-status-dialog-placeholder="true"
-          data-on-changed={String(handleStatusChanged)}
-          data-on-revert={String(handleStatusRevert)}
+      {/* Status Change Confirmation Dialog */}
+      {pendingStatus && (
+        <StatusChangeDialog
+          open={statusDialogOpen}
+          onClose={() => {
+            setStatusDialogOpen(false);
+            setPendingStatus(null);
+          }}
+          orderId={order.id}
+          currentStatus={order.status}
+          newStatus={pendingStatus}
+          customerEmail={order.customerEmail}
+          onStatusChanged={handleStatusChanged}
+          onStatusFailed={handleStatusFailed}
         />
       )}
     </div>
