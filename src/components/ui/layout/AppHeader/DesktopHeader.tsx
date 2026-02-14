@@ -114,10 +114,8 @@ export function DesktopHeader({
             src="/logo.png"
             alt="Mandalay Morning Star"
             width={48}
-            height={48}
+            height={32}
             priority
-            style={{ height: "auto" }}
-            className="w-12"
           />
           <span className="hidden lg:inline">Mandalay Morning Star</span>
         </Link>
