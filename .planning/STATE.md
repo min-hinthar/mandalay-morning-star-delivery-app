@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 61 of 66 (Admin Pages)
-Plan: 4 of 5 in current phase
+Plan: 4 of 5 in current phase (61-01, 61-02, 61-03, 61-04 complete)
 Status: In progress
-Last activity: 2026-02-14 -- Completed 61-04-PLAN.md
+Last activity: 2026-02-14 -- Completed 61-03-PLAN.md
 
 Progress: [############################........] 91% (61/66 phases)
 
@@ -76,6 +76,9 @@ Recent decisions affecting v1.7:
 - Notification prefs card has independent save (separate API endpoint from profile PATCH)
 - Admin permissions hardcoded by role (no dynamic permission system)
 - Reused SaveButton and ThemeSelector from existing components for admin profile
+- Used Modal (not ConfirmDialog) for StatusChangeDialog since ConfirmDialog only supports description string
+- Payment status derived from order status (no Stripe API call): delivered=Paid, cancelled=Refunded, else Pending
+- Order list navigation kept as drawer pattern with "View Full Order Page" link to detail page
 
 ### Pending Todos
 
@@ -92,5 +95,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Completed 61-04-PLAN.md
+Stopped at: Completed 61-03-PLAN.md (61-01 through 61-04 now all complete)
 Resume file: None
