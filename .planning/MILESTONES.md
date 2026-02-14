@@ -1,5 +1,50 @@
 # Project Milestones: Morning Star V8 UI Rewrite
 
+## v1.6 Production Polish (Shipped: 2026-02-13)
+
+**Delivered:** Final production-readiness pass — error safety nets, branded error/404 pages, customer/admin settings, cart validation, premium passwordless auth, transactional email system, fuzzy search, driver offline sync, and admin/driver visual polish.
+
+**Phases completed:** 48-57 (47 plans total)
+
+**Key accomplishments:**
+
+- Error safety net: 14 error boundaries + 23 loading states + branded 404 pages with food-themed mascot
+- Premium passwordless auth: Magic link + Google/Apple OAuth, warm animated background, login success ceremony with logo morph
+- Transactional email system: 4 branded React Email templates via Resend, Stripe webhook idempotency, admin email management UI
+- Cart validation & full cart page: Hydration-aware stale item detection, price change warnings, suggestion replacements
+- Customer & admin settings: Dietary preferences, notification toggles, theme persistence, admin operational settings with DB sync
+- Fuzzy search: Fuse.js with typo tolerance for Burmese dish names, category tabs, thumbnails, order history search
+- Driver offline sync: Consolidated IndexedDB queue with exponential backoff, idempotency keys, animated offline banner
+- Admin & driver premium polish: Card-based tables, skeleton crossfade, animated status badges, empty states, premium animations
+
+**Stats:**
+
+- 10 phases, 47 plans
+- 54/56 requirements satisfied (2 removed for passwordless, 1 deferred)
+- 182 commits, 405 files modified
+- +45,059 / -5,679 lines
+- ~53,394 lines TypeScript total
+- 6 days (2026-02-07 → 2026-02-13)
+
+**Git range:** `docs(48): capture phase context` → `fix(57): resolve hydration mismatch + logo aspect ratio warnings`
+
+**Tech debt resolved from v1.5:**
+- ✓ Error boundaries on all routes (was missing on 6 routes)
+- ✓ Loading states on all admin pages (was missing on 19 routes)
+- ✓ Cart page fully implemented (was a stub)
+
+**Tech debt remaining:**
+- LCP 8-11s (deferred to v1.7)
+- Lighthouse performance score 30-45 (deferred to v1.7)
+- UnifiedMenuItemCard 540 lines (documented exception)
+- SETT-04 language preference (deferred to future milestone)
+- Social login requires Google/Apple developer portal config (ops, not code)
+- Resend domain verification needed for production emails
+
+**What's next:** v1.7 Performance optimization or production deployment
+
+---
+
 ## v1.5 Performance & Repo Health (Shipped: 2026-02-07)
 
 **Delivered:** 45% LCP improvement with code-splitting infrastructure, React Compiler, LazyMotion migration, file refactoring, and Lighthouse CI regression prevention.
@@ -224,4 +269,4 @@
 
 **What's next:** v1.1 Admin Flow Rewrite or v1.1 Driver Flow Rewrite
 
----
+
