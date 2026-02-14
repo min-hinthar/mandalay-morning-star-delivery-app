@@ -123,9 +123,17 @@ const nextConfig: NextConfig = {
     } : false,
   },
 
-  // Headers for caching static assets
+  // Headers for caching static assets and CORS
   async headers() {
     return [
+      {
+        source: "/api/health",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET, OPTIONS" },
+          { key: "Access-Control-Allow-Headers", value: "Content-Type" },
+        ],
+      },
       {
         source: "/fonts/:path*",
         headers: [
