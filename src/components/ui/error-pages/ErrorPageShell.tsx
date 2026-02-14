@@ -28,9 +28,8 @@ export function ErrorPageShell({ children }: ErrorPageShellProps) {
           src="/logo.png"
           alt="Morning Star"
           width={56}
-          height={56}
+          height={37}
           className="mb-6"
-          style={{ height: "auto" }}
           priority
         />
 

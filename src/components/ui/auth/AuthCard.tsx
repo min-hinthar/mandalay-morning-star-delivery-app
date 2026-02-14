@@ -119,9 +119,9 @@ export function AuthCard({ children, className }: AuthCardProps) {
                     src="/logo.png"
                     alt="Mandalay Morning Star"
                     width={80}
-                    height={80}
+                    height={53}
                     priority
-                    className="relative h-18 w-18"
+                    className="relative h-18 w-18 object-contain"
                   />
                 </div>
                 <div>

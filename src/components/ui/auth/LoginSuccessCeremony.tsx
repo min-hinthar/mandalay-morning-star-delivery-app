@@ -100,9 +100,9 @@ export function LoginSuccessCeremony({ userName, avatarUrl }: LoginSuccessCeremo
             src="/logo.png"
             alt="Mandalay Morning Star"
             width={96}
-            height={96}
+            height={64}
             priority
-            className="h-24 w-24"
+            className="h-24 w-24 object-contain"
           />
         </m.div>
       </div>

@@ -165,14 +165,12 @@ export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
           transition={getHeaderTransition(isFastScroll)}
           style={{ ...glassStylesLight, top: "var(--offline-banner-height, 0px)" }}
         >
-          {/* Dark mode glassmorphism - apply via CSS class override */}
-          <style jsx global>{`
-            .dark header[class*="fixed"] {
-              background-color: ${glassStylesDark.backgroundColor} !important;
-              border-bottom: ${glassStylesDark.borderBottom} !important;
-              box-shadow: ${glassStylesDark.boxShadow} !important;
-            }
-          `}</style>
+          {/* Dark mode glassmorphism - plain <style> to avoid styled-jsx hydration mismatch */}
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `.dark header[class*="fixed"]{background-color:${glassStylesDark.backgroundColor}!important;border-bottom:${glassStylesDark.borderBottom}!important;box-shadow:${glassStylesDark.boxShadow}!important;}`,
+            }}
+          />
 
           {/* Top accent border with primary gradient glow */}
           <div

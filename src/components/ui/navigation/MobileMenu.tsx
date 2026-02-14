@@ -90,8 +90,7 @@ export function MobileMenu({
             src="/logo.png"
             alt="Mandalay Morning Star"
             width={64}
-            height={64}
-            style={{ height: "auto" }}
+            height={43}
             className="w-16"
           />
           <span className="font-display font-bold text-lg text-primary">

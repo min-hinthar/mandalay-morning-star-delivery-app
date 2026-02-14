@@ -41,9 +41,8 @@ export function RouteError({ error, reset, context }: RouteErrorProps) {
           src="/logo.png"
           alt="Morning Star"
           width={48}
-          height={48}
+          height={32}
           className="mx-auto mb-4"
-          style={{ height: "auto" }}
         />
         <div className="mb-6">
           <ErrorMascot errorType="server-error" />

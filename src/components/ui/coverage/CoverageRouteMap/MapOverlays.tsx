@@ -67,8 +67,7 @@ export function MapOverlays({ hasDestination, isValid, distanceMiles, durationMi
             src="/logo.png"
             alt="Mandalay Morning Star"
             width={28}
-            height={28}
-            style={{ height: "auto" }}
+            height={19}
             className="rounded-lg"
           />
           <div className="pr-1">
