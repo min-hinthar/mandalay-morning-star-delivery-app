@@ -132,10 +132,9 @@ export function LoginPageClient() {
     const error = searchParams.get("error");
     if (!error) return;
 
-    const decoded = decodeURIComponent(error);
     toast({
-      title: "Sign-in error",
-      description: decoded,
+      title: "Google sign-in didn't work",
+      description: "Please try again or use the email link below.",
       variant: "destructive",
     });
   }, [searchParams, toast]);
