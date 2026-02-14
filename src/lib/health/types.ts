@@ -2,7 +2,7 @@
 // Health Check Types
 // ===========================================
 
-export type ServiceName = "supabase" | "stripe" | "resend";
+export type ServiceName = "supabase" | "stripe" | "resend" | "google_oauth" | "search_console";
 export type StatusLevel = "healthy" | "degraded" | "down";
 
 export interface ServiceStatus {
@@ -37,6 +37,8 @@ export interface HealthResponse {
     supabase: ServiceStatus;
     stripe: ServiceStatus;
     resend: ServiceStatus;
+    google_oauth: ServiceStatus;
+    search_console: ServiceStatus;
   };
 
   routes: {
