@@ -107,51 +107,51 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DEPL-01 | — | Complete |
-| DEPL-02 | TBD | Pending |
-| DEPL-03 | TBD | Pending |
-| MNTR-01 | TBD | Pending |
-| MNTR-02 | TBD | Pending |
-| MNTR-03 | TBD | Pending |
-| MNTR-04 | TBD | Pending |
-| MNTR-05 | TBD | Pending |
-| PERF-01 | TBD | Pending |
-| PERF-02 | TBD | Pending |
-| PERF-03 | TBD | Pending |
-| PERF-04 | TBD | Pending |
-| ADMN-01 | TBD | Pending |
-| ADMN-02 | TBD | Pending |
-| ADMN-03 | TBD | Pending |
-| ADMN-04 | TBD | Pending |
-| OPS-01 | TBD | Pending |
-| OPS-02 | TBD | Pending |
-| OPS-03 | TBD | Pending |
-| OPS-04 | TBD | Pending |
-| OPS-05 | TBD | Pending |
-| OPS-06 | TBD | Pending |
-| BRND-01 | TBD | Pending |
-| BRND-02 | TBD | Pending |
-| BRND-03 | TBD | Pending |
-| SW-01 | TBD | Pending |
-| SW-02 | TBD | Pending |
-| SW-03 | TBD | Pending |
-| SW-04 | TBD | Pending |
-| CICD-01 | TBD | Pending |
-| CICD-02 | TBD | Pending |
-| CICD-03 | TBD | Pending |
-| CICD-04 | TBD | Pending |
-| BKLG-01 | TBD | Pending |
-| BKLG-02 | TBD | Pending |
-| BKLG-03 | TBD | Pending |
-| BKLG-04 | TBD | Pending |
-| BKLG-05 | TBD | Pending |
-| BKLG-06 | TBD | Pending |
+| DEPL-01 | -- | Complete |
+| DEPL-02 | Phase 58 | Pending |
+| DEPL-03 | Phase 58 | Pending |
+| MNTR-01 | Phase 59 | Pending |
+| MNTR-02 | Phase 59 | Pending |
+| MNTR-03 | Phase 59 | Pending |
+| MNTR-04 | Phase 59 | Pending |
+| MNTR-05 | Phase 59 | Pending |
+| PERF-01 | Phase 60 | Pending |
+| PERF-02 | Phase 60 | Pending |
+| PERF-03 | Phase 60 | Pending |
+| PERF-04 | Phase 60 | Pending |
+| ADMN-01 | Phase 61 | Pending |
+| ADMN-02 | Phase 61 | Pending |
+| ADMN-03 | Phase 61 | Pending |
+| ADMN-04 | Phase 61 | Pending |
+| OPS-01 | Phase 62 | Pending |
+| OPS-02 | Phase 62 | Pending |
+| OPS-03 | Phase 62 | Pending |
+| OPS-04 | Phase 62 | Pending |
+| OPS-05 | Phase 62 | Pending |
+| OPS-06 | Phase 62 | Pending |
+| BRND-01 | Phase 63 | Pending |
+| BRND-02 | Phase 63 | Pending |
+| BRND-03 | Phase 63 | Pending |
+| SW-01 | Phase 64 | Pending |
+| SW-02 | Phase 64 | Pending |
+| SW-03 | Phase 64 | Pending |
+| SW-04 | Phase 64 | Pending |
+| CICD-01 | Phase 65 | Pending |
+| CICD-02 | Phase 65 | Pending |
+| CICD-03 | Phase 65 | Pending |
+| CICD-04 | Phase 65 | Pending |
+| BKLG-01 | Phase 66 | Pending |
+| BKLG-02 | Phase 66 | Pending |
+| BKLG-03 | Phase 66 | Pending |
+| BKLG-04 | Phase 66 | Pending |
+| BKLG-05 | Phase 66 | Pending |
+| BKLG-06 | Phase 66 | Pending |
 
 **Coverage:**
 - v1.7 requirements: 35 total (1 already complete)
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 34
+- Mapped to phases: 34/34 pending requirements mapped
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-13*
-*Last updated: 2026-02-13 after initial definition*
+*Last updated: 2026-02-13 after roadmap creation*
