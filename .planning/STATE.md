@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 62 of 66 (Production Operations)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-14 -- Completed 62-02-PLAN.md
+Last activity: 2026-02-14 -- Completed 62-03-PLAN.md
 
 Progress: [############################........] 93% (62/66 phases)
 
@@ -84,6 +84,8 @@ Recent decisions affecting v1.7:
 - CollapsibleCard action prop for header-level buttons (e.g., Compose button in EmailHistoryCard)
 - Email sender name: "Mandalay Morning Star Burmese Kitchen (Los Angeles)" per user decision
 - OAuth error toast shows generic user-friendly message; raw errors logged server-side only
+- Google OAuth health check validates Supabase URL/anon key (OAuth through Supabase Auth, not direct Google API)
+- GOOGLE_SITE_VERIFICATION in importantVars (not critical) -- app works without Search Console
 
 ### Pending Todos
 
@@ -100,5 +102,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Completed 62-02-PLAN.md (email sender identity + OAuth error UX)
+Stopped at: Completed 62-03-PLAN.md (health endpoint extension with Google OAuth + Search Console)
 Resume file: None
