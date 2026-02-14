@@ -98,7 +98,12 @@ Plans:
   3. Transactional emails (order confirmation, etc.) arrive in inbox (not spam) from a verified Resend domain with SPF/DKIM/DMARC
   4. Stripe webhooks fire successfully on production with correct signing secret (order events processed without signature errors)
   5. Production domain is verified in Google Search Console
-**Plans**: TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 62-01-PLAN.md -- SEO foundation (sitemap.ts, robots.ts, Search Console verification metadata)
+- [ ] 62-02-PLAN.md -- Email sender name update + OAuth error UX
+- [ ] 62-03-PLAN.md -- Health endpoint extensions (Google OAuth, Search Console checks)
+- [ ] 62-04-PLAN.md -- External dashboard configuration + production verification (checkpoint)
 
 ### Phase 63: Branding & Compliance
 **Goal**: Homepage communicates app purpose clearly and links to required legal pages for OAuth verification
