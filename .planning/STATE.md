@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 60 - LCP Optimization (complete)
+**Current focus:** Phase 61 - Admin Pages
 
 ## Current Position
 
-Phase: 60 of 66 (LCP Optimization)
-Plan: 3 of 3 in current phase
-Status: Phase complete (UAT skipped by user)
-Last activity: 2026-02-14 -- Phase 60 completed, ready for Phase 61
+Phase: 61 of 66 (Admin Pages)
+Plan: 2 of N in current phase
+Status: In progress
+Last activity: 2026-02-14 -- Completed 61-02-PLAN.md
 
-Progress: [############################........] 90% (60/66 phases)
+Progress: [############################........] 91% (61/66 phases)
 
 ## Performance Metrics
 
@@ -66,6 +66,9 @@ Recent decisions affecting v1.7:
 - Toast drag removed (non-signature); X button and auto-timer dismiss with domAnimation
 - Header app-logo layoutId removed (cross-route animation never fires in App Router)
 - DomMaxProvider wraps customer/admin/driver/auth route layouts for drag/layoutId/useAnimate
+- Admin profile auth provider from user.identities[0].provider; member-since from user.created_at
+- Admin stats count audit log by actor_id (per-admin, not team total)
+- Notification prefs reuse customer_settings table with upsert pattern
 
 ### Pending Todos
 
@@ -82,5 +85,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Completed 60-03-PLAN.md, Phase 60 complete
+Stopped at: Completed 61-02-PLAN.md
 Resume file: None
