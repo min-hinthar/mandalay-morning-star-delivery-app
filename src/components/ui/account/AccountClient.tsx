@@ -85,7 +85,6 @@ function AccountClientInner() {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           className="mb-6"
-          layoutId="accountTab"
         />
 
         <m.div

@@ -6,7 +6,7 @@
  *
  * Features:
  * - Fixed at bottom on mobile only (hidden on md+)
- * - Animated active state with layoutId for smooth transitions
+ * - CSS transition active indicator for smooth sliding
  * - Icon scale animation on active
  * - iOS safe area support
  * - Respects animation preferences
@@ -58,6 +58,8 @@ export function BottomNav({ items = defaultItems, className }: BottomNavProps) {
   const isActive = (href: string) =>
     pathname === href || (href !== "/" && pathname.startsWith(href));
 
+  const activeIndex = items.findIndex((item) => isActive(item.href));
+
   return (
     <nav
       className={cn(
@@ -71,7 +73,19 @@ export function BottomNav({ items = defaultItems, className }: BottomNavProps) {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-label="Main navigation"
     >
-      <div className="flex h-16 items-center justify-around">
+      <div className="relative flex h-16 items-center justify-around">
+        {/* CSS-transitioned active indicator */}
+        <span
+          className="absolute bottom-1 h-0.5 w-6 rounded-full bg-primary transition-all duration-200 ease-out"
+          style={{
+            left: activeIndex >= 0
+              ? `calc(${(activeIndex / items.length) * 100}% + ${100 / items.length / 2}% - 12px)`
+              : "0%",
+            opacity: activeIndex >= 0 ? 1 : 0,
+          }}
+          aria-hidden="true"
+        />
+
         {items.map((item) => {
           const active = isActive(item.href);
 
@@ -107,15 +121,6 @@ export function BottomNav({ items = defaultItems, className }: BottomNavProps) {
               >
                 {item.label}
               </span>
-
-              {/* Animated active indicator */}
-              {active && (
-                <m.span
-                  layoutId="bottomNavIndicator"
-                  className="absolute bottom-1 h-0.5 w-6 rounded-full bg-primary"
-                  transition={spring.snappy}
-                />
-              )}
             </Link>
           );
         })}

@@ -93,7 +93,6 @@ export function SettingsTab({ initialSection }: SettingsTabProps) {
         tabs={SETTINGS_TABS}
         activeTab={activeSection}
         onTabChange={(id) => setActiveSection(id as SettingsSection)}
-        layoutId="settingsSubTab"
       />
 
       {/* Error message */}

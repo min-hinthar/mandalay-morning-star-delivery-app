@@ -5,9 +5,8 @@
  * Horizontal tabs with animated pill indicator
  *
  * Features:
- * - Horizontal layout with animated pill indicator (layoutId)
+ * - Horizontal layout with CSS transition pill indicator
  * - Support for icons in tabs
- * - Motion animations with spring physics
  * - Accessible: role="tablist", aria-selected
  * - Scrollable on mobile
  *
@@ -23,7 +22,6 @@
  */
 
 import { memo, useRef, useState, useEffect, useCallback } from "react";
-import { m } from "framer-motion";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
 
@@ -45,8 +43,6 @@ export interface TabsProps {
   onTabChange: (tabId: string) => void;
   /** Additional CSS classes for container */
   className?: string;
-  /** Unique layout ID for animated pill (use when multiple Tabs on same page) */
-  layoutId?: string;
 }
 
 export const Tabs = memo(function Tabs({
@@ -54,11 +50,14 @@ export const Tabs = memo(function Tabs({
   activeTab,
   onTabChange,
   className,
-  layoutId = "activeTab",
 }: TabsProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeTabRef = useRef<HTMLButtonElement>(null);
+  const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const { shouldAnimate } = useAnimationPreference();
+
+  // CSS indicator position state
+  const [indicatorStyle, setIndicatorStyle] = useState<{ left: number; width: number } | null>(null);
 
   // Fade indicator states for overflow
   const [showLeftFade, setShowLeftFade] = useState(false);
@@ -97,12 +96,41 @@ export const Tabs = memo(function Tabs({
     };
   }, [updateFadeIndicators]);
 
+  // Calculate indicator position from active tab button
+  const updateIndicatorPosition = useCallback(() => {
+    const activeButton = tabRefs.current.get(activeTab);
+    if (!activeButton) {
+      setIndicatorStyle(null);
+      return;
+    }
+    setIndicatorStyle({
+      left: activeButton.offsetLeft,
+      width: activeButton.offsetWidth,
+    });
+  }, [activeTab]);
+
+  // Update indicator when active tab changes
+  useEffect(() => {
+    updateIndicatorPosition();
+  }, [updateIndicatorPosition]);
+
+  // Recalculate indicator on resize
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const resizeObserver = new ResizeObserver(updateIndicatorPosition);
+    resizeObserver.observe(container);
+
+    return () => resizeObserver.disconnect();
+  }, [updateIndicatorPosition]);
+
   // Scroll active tab into view when it changes
   useEffect(() => {
     const container = scrollContainerRef.current;
-    const activeTab = activeTabRef.current;
+    const activeTabEl = activeTabRef.current;
 
-    if (!container || !activeTab) return;
+    if (!container || !activeTabEl) return;
 
     let isMounted = true;
     let rafId: number | null = null;
@@ -175,17 +203,37 @@ export const Tabs = memo(function Tabs({
         role="tablist"
         aria-label="Settings tabs"
         className={cn(
-          "flex gap-1 p-1 overflow-x-auto scrollbar-hide",
+          "relative flex gap-1 p-1 overflow-x-auto scrollbar-hide",
           "bg-surface-secondary rounded-card-sm"
         )}
       >
+        {/* CSS-transitioned pill indicator */}
+        {indicatorStyle && (
+          <div
+            className="absolute top-1 bg-surface-primary rounded-input shadow-sm transition-all duration-200 ease-out"
+            style={{
+              left: indicatorStyle.left,
+              width: indicatorStyle.width,
+              height: "calc(100% - 8px)",
+            }}
+            aria-hidden="true"
+          />
+        )}
+
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
 
           return (
             <button
               key={tab.id}
-              ref={isActive ? activeTabRef : null}
+              ref={(el) => {
+                if (isActive) activeTabRef.current = el;
+                if (el) {
+                  tabRefs.current.set(tab.id, el);
+                } else {
+                  tabRefs.current.delete(tab.id);
+                }
+              }}
               role="tab"
               aria-selected={isActive}
               aria-controls={`tabpanel-${tab.id}`}
@@ -199,15 +247,6 @@ export const Tabs = memo(function Tabs({
                   : "text-text-secondary hover:text-text-primary"
               )}
             >
-              {/* Animated pill background for active state */}
-              {isActive && (
-                <m.div
-                  layoutId={layoutId}
-                  className="absolute inset-0 bg-surface-primary rounded-input shadow-sm"
-                  transition={shouldAnimate ? { type: "spring", bounce: 0.2, duration: 0.4 } : { duration: 0 }}
-                />
-              )}
-
               {/* Tab content */}
               <span className="relative z-10 flex items-center gap-2">
                 {tab.icon}
