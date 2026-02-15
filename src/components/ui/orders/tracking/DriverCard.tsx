@@ -64,6 +64,10 @@ export function DriverCard({
       : 0;
 
   const handleContact = () => {
+    // Haptic feedback on tap (mobile)
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(50);
+    }
     if (driver.phone) {
       window.location.href = `tel:${driver.phone}`;
     }
@@ -136,16 +140,17 @@ export function DriverCard({
           </div>
         </div>
 
-        {/* Contact Button */}
+        {/* Call Driver Button */}
         {driver.phone && (
           <Button
             variant="outline"
-            size="icon"
+            size="sm"
             onClick={handleContact}
-            className="shrink-0 h-10 w-10 rounded-full border-jade-200 hover:bg-jade-50 hover:border-jade-300"
+            className="shrink-0 gap-1.5 rounded-full border-jade-200 hover:bg-jade-50 hover:border-jade-300"
             aria-label="Call driver"
           >
             <Phone className="h-4 w-4 text-jade-600" />
+            <span className="text-jade-700 text-xs font-medium">Call Driver</span>
           </Button>
         )}
       </div>
