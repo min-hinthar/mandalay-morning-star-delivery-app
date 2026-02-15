@@ -22,7 +22,7 @@
 - [x] **Phase 60: LCP Optimization** - Server-rendered hero and async LazyMotion for sub-4s LCP
 - [x] **Phase 61: Admin Pages** - Order detail and profile pages (APIs already exist)
 - [x] **Phase 62: Production Operations** - OAuth, Stripe webhook, Resend domain, Search Console
-- [ ] **Phase 63: Branding & Compliance** - Homepage content for Google OAuth verification
+- [x] **Phase 63: Branding & Compliance** - Homepage content for Google OAuth verification
 - [ ] **Phase 64: Service Worker Hardening** - Full-scope SW with content-hash caching and update banner
 - [ ] **Phase 65: CI/CD Hardening** - Lighthouse CI blocking, Chromatic visual regression, lint gates
 - [ ] **Phase 66: Backlog Cleanup** - Language pref, cart modifiers, tracking fix, card refactor, dead code
@@ -115,9 +115,9 @@ Plans:
   3. Google OAuth brand verification application submitted with compliant homepage as evidence
 **Plans:** 3 plans
 Plans:
-- [ ] 63-01-PLAN.md -- Comprehensive privacy policy and terms of service page rewrites
-- [ ] 63-02-PLAN.md -- Footer split (SiteFooter for all public pages) + login agreement text
-- [ ] 63-03-PLAN.md -- Google OAuth brand verification submission (checkpoint)
+- [x] 63-01-PLAN.md -- Comprehensive privacy policy and terms of service page rewrites
+- [x] 63-02-PLAN.md -- Footer split (SiteFooter for all public pages) + login agreement text
+- [x] 63-03-PLAN.md -- Google OAuth brand verification submission (checkpoint)
 
 ### Phase 64: Service Worker Hardening
 **Goal**: All app routes benefit from service worker caching with safe update behavior
@@ -175,12 +175,12 @@ Phases execute in numeric order: 58 -> 59 -> 60 -> 61 -> 62 -> 63 -> 64 -> 65 ->
 | 60. LCP Optimization | v1.7 | 3/3 | Complete | 2026-02-14 |
 | 61. Admin Pages | v1.7 | 5/5 | Complete | 2026-02-14 |
 | 62. Production Operations | v1.7 | 4/4 | Complete | 2026-02-14 |
-| 63. Branding & Compliance | v1.7 | 0/0 | Not started | - |
+| 63. Branding & Compliance | v1.7 | 3/3 | Complete | 2026-02-15 |
 | 64. Service Worker Hardening | v1.7 | 0/0 | Not started | - |
 | 65. CI/CD Hardening | v1.7 | 0/0 | Not started | - |
 | 66. Backlog Cleanup | v1.7 | 0/0 | Not started | - |
 
-**Total: 66 phases across 8 milestones (62 complete, 4 pending)**
+**Total: 66 phases across 8 milestones (63 complete, 3 pending)**
 
 ---
 *v1.6 details archived to: .planning/milestones/v1.6-ROADMAP.md*
