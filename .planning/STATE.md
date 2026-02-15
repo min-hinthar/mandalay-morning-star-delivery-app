@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 64 - Service Worker Hardening (in progress)
+**Current focus:** Phase 64 - Service Worker Hardening (complete)
 
 ## Current Position
 
 Phase: 64 of 66 (Service Worker Hardening)
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-02-15 -- Completed 64-04-PLAN.md
+Plan: 5 of 5 in current phase
+Status: Phase complete
+Last activity: 2026-02-15 -- Completed 64-05-PLAN.md
 
-Progress: [##############################......] 95% (63/66 phases)
+Progress: [###############################.....] 97% (64/66 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 267 (across v1.0-v1.7)
+- Total plans completed: 268 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~65 hours
 
@@ -118,6 +118,9 @@ Recent decisions affecting v1.7:
 - Custom event "offline-state-change" for banner priority coordination (offline wins over update)
 - document.documentElement.dataset.offline for disabling non-queueable actions
 - OfflinePage as self-contained 'use client' component (no ErrorPageShell dependency for offline weight)
+- getRegistration('/') replaces register('/sw.js', {scope: '/driver'}) to reuse root SW registration
+- Sentry breadcrumbs (not custom metrics) for cache observability -- lightweight, no pipeline overhead
+- invalidateMenuCache opens 'menu-api-cache-v1' directly via Cache API (matches sw.ts cache name)
 
 ### Pending Todos
 
@@ -128,11 +131,11 @@ None yet.
 - LCP 8-11s: Optimization complete (async domAnimation root + CSS animations + layoutId migration + per-route domMax). Lighthouse manual verification pending.
 - OAuth redirect URLs: Google configured and verified; Apple deferred
 - Resend domain: Verified; SPF/DKIM/DMARC confirmed passing
-- Service worker scope: Currently `/driver` only, needs expansion to `/`
+- Service worker scope: RESOLVED -- consolidated to root `/` scope (64-05)
 - Build environment: Turbopack ENOENT on OneDrive-synced directory (pre-existing, not blocking deploys)
 
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 64-04-PLAN.md
+Stopped at: Completed 64-05-PLAN.md (Phase 64 complete)
 Resume file: None
