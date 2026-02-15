@@ -1,17 +1,20 @@
 /**
- * V2 Sprint 3: Tracking Page Client Component
+ * TrackingPageClient - Split-view tracking page
  *
- * Main client component that orchestrates real-time tracking.
- * Combines all tracking components and handles Supabase Realtime subscriptions.
+ * Split layout: map top 50% / info bottom 50% (mobile), side-by-side on desktop.
+ * Map visible in all order states (pre-delivery, en route, delivered).
+ * StatusStepper at top of info section, StatusTimeline below as detail.
+ * Browser tab title updates with live status.
  */
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { m } from "framer-motion";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { StatusTimeline } from "./StatusTimeline";
+import { StatusStepper } from "./StatusStepper";
 import { ETACountdown } from "./ETACountdown";
 import { LazyDeliveryMap } from "@/components/ui/maps/LazyMaps";
 import { DriverCard } from "./DriverCard";
@@ -27,6 +30,15 @@ import type { TrackingData } from "@/types/tracking";
 import type { OrderStatus } from "@/types/database";
 import type { VehicleType } from "@/types/driver";
 
+const STATUS_TITLES: Record<OrderStatus, string> = {
+  pending: "Order Placed | Morning Star",
+  confirmed: "Confirmed | Morning Star",
+  preparing: "Preparing... | Morning Star",
+  out_for_delivery: "Out for Delivery | Morning Star",
+  delivered: "Delivered! | Morning Star",
+  cancelled: "Cancelled | Morning Star",
+};
+
 interface TrackingPageClientProps {
   orderId: string;
   initialData: TrackingData;
@@ -36,7 +48,6 @@ export function TrackingPageClient({
   orderId,
   initialData,
 }: TrackingPageClientProps) {
-  // Local state merged with initial data
   const [orderStatus, setOrderStatus] = useState<OrderStatus>(
     initialData.order.status
   );
@@ -46,20 +57,24 @@ export function TrackingPageClient({
   );
   const [eta, setEta] = useState(initialData.eta);
 
-  // Setup realtime subscription with routeId for location channel
+  // Browser tab title
+  useEffect(() => {
+    const originalTitle = document.title;
+    document.title = STATUS_TITLES[orderStatus] ?? originalTitle;
+    return () => {
+      document.title = originalTitle;
+    };
+  }, [orderStatus]);
+
   const subscription = useTrackingSubscription({
     orderId,
     routeId: initialData.routeId ?? undefined,
     enabled: true,
-    onOrderUpdate: (status) => {
-      setOrderStatus(status);
-    },
+    onOrderUpdate: (status) => setOrderStatus(status),
     onStopUpdate: (stopData) => {
       if (stopData.status) {
         setRouteStop((prev) =>
-          prev
-            ? { ...prev, status: stopData.status! }
-            : null
+          prev ? { ...prev, status: stopData.status! } : null
         );
       }
       if (stopData.eta) {
@@ -70,7 +85,6 @@ export function TrackingPageClient({
     },
     onLocationUpdate: (location) => {
       setDriverLocation(location);
-      // Recalculate ETA with new location
       if (
         initialData.order.address.lat &&
         initialData.order.address.lng &&
@@ -97,22 +111,21 @@ export function TrackingPageClient({
     },
   });
 
-  // Determine if we should show live tracking
   const showLiveTracking = useShowLiveTracking(orderStatus, driverLocation);
   const lastUpdateDisplay = useLastUpdateDisplay(subscription.lastUpdate);
 
-  // Memoize driver info for DriverCard
   const driverInfo = useMemo(() => {
     if (!initialData.driver) return null;
     return {
       fullName: initialData.driver.fullName,
       profileImageUrl: initialData.driver.profileImageUrl,
       phone: initialData.driver.phone,
-      vehicleType: (initialData.driver as { vehicleType?: VehicleType }).vehicleType ?? null,
+      vehicleType:
+        (initialData.driver as { vehicleType?: VehicleType }).vehicleType ??
+        null,
     };
   }, [initialData.driver]);
 
-  // Memoize stop progress
   const stopProgress = useMemo(() => {
     if (!routeStop) return null;
     return {
@@ -121,12 +134,14 @@ export function TrackingPageClient({
     };
   }, [routeStop]);
 
+  const hasLocation =
+    !!initialData.order.address.lat && !!initialData.order.address.lng;
+
   return (
-    <div className="min-h-screen bg-cream pb-24">
+    <div className="min-h-screen bg-cream">
       {/* Header */}
-      {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
       <header className="sticky top-0 z-20 bg-cream sm:bg-cream/95 sm:backdrop-blur-sm border-b border-charcoal-100">
-        <div className="mx-auto max-w-2xl px-4">
+        <div className="mx-auto max-w-5xl px-4">
           <div className="flex items-center justify-between h-14">
             <Link
               href={`/orders/${orderId}`}
@@ -135,8 +150,6 @@ export function TrackingPageClient({
               <ArrowLeft className="h-5 w-5" />
               <span className="text-sm font-medium">Back to Order</span>
             </Link>
-
-            {/* Connection status */}
             <div className="flex items-center gap-2 text-xs text-charcoal-500">
               {subscription.isConnected ? (
                 <>
@@ -155,7 +168,9 @@ export function TrackingPageClient({
                 </>
               )}
               {lastUpdateDisplay && (
-                <span className="text-charcoal-400">• {lastUpdateDisplay}</span>
+                <span className="text-charcoal-400">
+                  &bull; {lastUpdateDisplay}
+                </span>
               )}
               <button
                 onClick={() => subscription.refresh()}
@@ -169,137 +184,151 @@ export function TrackingPageClient({
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="mx-auto max-w-2xl px-4 py-6 space-y-4">
-        {/* V7 Status Timeline */}
-        <m.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <StatusTimeline
-            currentStatus={orderStatus}
-            placedAt={initialData.order.placedAt}
-            confirmedAt={initialData.order.confirmedAt}
-            deliveredAt={initialData.order.deliveredAt}
-            isLive={showLiveTracking}
-          />
-        </m.div>
-
-        {/* V7 ETA Countdown - Only when out for delivery */}
-        {showLiveTracking && eta && (
-          <m.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <ETACountdown
-              minMinutes={eta.minMinutes}
-              maxMinutes={eta.maxMinutes}
-              estimatedArrival={eta.estimatedArrival}
-              isNearby={eta.minMinutes <= 5}
+      {/* Split-view layout */}
+      <div className="mx-auto max-w-5xl lg:grid lg:grid-cols-2 lg:h-[calc(100vh-3.5rem)]">
+        {/* Map section: top 50vh mobile, left 50% desktop */}
+        {hasLocation && (
+          <div className="h-[50vh] lg:h-full relative">
+            <LazyDeliveryMap
+              customerLocation={{
+                lat: initialData.order.address.lat!,
+                lng: initialData.order.address.lng!,
+                address: `${initialData.order.address.line1}, ${initialData.order.address.city}`,
+              }}
+              driverLocation={
+                driverLocation
+                  ? {
+                      lat: driverLocation.latitude,
+                      lng: driverLocation.longitude,
+                      heading: driverLocation.heading,
+                    }
+                  : null
+              }
+              restaurantLocation={initialData.restaurantLocation}
+              orderStatus={orderStatus}
+              lastLocationUpdate={subscription.lastUpdate}
+              isLive={subscription.isConnected}
+              className="h-full rounded-none lg:rounded-none"
             />
-          </m.div>
+          </div>
         )}
 
-        {/* Delivery Map - Only when out for delivery with location */}
-        {showLiveTracking &&
-          initialData.order.address.lat &&
-          initialData.order.address.lng && (
+        {/* Info section: bottom 50vh mobile (scrollable), right 50% desktop */}
+        <div className="h-[50vh] lg:h-full overflow-y-auto pb-24">
+          <div className="px-4 py-4 space-y-4">
+            {/* StatusStepper - horizontal progress */}
+            <m.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <StatusStepper
+                currentStatus={orderStatus}
+                cancelledAt={initialData.order.cancelledAt}
+              />
+            </m.div>
+
+            {/* ETA Countdown */}
+            {showLiveTracking && eta && (
+              <m.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <ETACountdown
+                  minMinutes={eta.minMinutes}
+                  maxMinutes={eta.maxMinutes}
+                  estimatedArrival={eta.estimatedArrival}
+                  isNearby={eta.minMinutes <= 5}
+                />
+              </m.div>
+            )}
+
+            {/* Status Timeline (detailed vertical) */}
             <m.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <LazyDeliveryMap
-                customerLocation={{
-                  lat: initialData.order.address.lat,
-                  lng: initialData.order.address.lng,
-                  address: `${initialData.order.address.line1}, ${initialData.order.address.city}`,
-                }}
-                driverLocation={
-                  driverLocation
-                    ? {
-                        lat: driverLocation.latitude,
-                        lng: driverLocation.longitude,
-                        heading: driverLocation.heading,
-                      }
-                    : null
-                }
-                isLive={subscription.isConnected}
-                className="h-[300px]"
+              <StatusTimeline
+                currentStatus={orderStatus}
+                placedAt={initialData.order.placedAt}
+                confirmedAt={initialData.order.confirmedAt}
+                deliveredAt={initialData.order.deliveredAt}
+                isLive={showLiveTracking}
               />
             </m.div>
-          )}
 
-        {/* Driver Card - Only when driver is assigned */}
-        {driverInfo && stopProgress && (
-          <m.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <DriverCard driver={driverInfo} stopProgress={stopProgress} />
-          </m.div>
-        )}
+            {/* Driver Card */}
+            {driverInfo && stopProgress && (
+              <m.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <DriverCard driver={driverInfo} stopProgress={stopProgress} />
+              </m.div>
+            )}
 
-        {/* Order Summary */}
-        <m.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <OrderSummary
-            items={initialData.order.items}
-            subtotalCents={initialData.order.subtotalCents}
-            deliveryFeeCents={initialData.order.deliveryFeeCents}
-            taxCents={initialData.order.taxCents}
-            totalCents={initialData.order.totalCents}
-            deliveryWindow={{
-              start: initialData.order.deliveryWindowStart,
-              end: initialData.order.deliveryWindowEnd,
-            }}
-            deliveryAddress={{
-              line1: initialData.order.address.line1,
-              city: initialData.order.address.city,
-              state: initialData.order.address.state,
-            }}
-          />
-        </m.div>
+            {/* Order Summary */}
+            <m.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <OrderSummary
+                items={initialData.order.items}
+                subtotalCents={initialData.order.subtotalCents}
+                deliveryFeeCents={initialData.order.deliveryFeeCents}
+                taxCents={initialData.order.taxCents}
+                totalCents={initialData.order.totalCents}
+                deliveryWindow={{
+                  start: initialData.order.deliveryWindowStart,
+                  end: initialData.order.deliveryWindowEnd,
+                }}
+                deliveryAddress={{
+                  line1: initialData.order.address.line1,
+                  city: initialData.order.address.city,
+                  state: initialData.order.address.state,
+                }}
+              />
+            </m.div>
 
-        {/* Support Actions */}
-        <m.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <SupportActions
-            driverPhone={initialData.driver?.phone ?? null}
-            orderStatus={orderStatus}
-          />
-        </m.div>
+            {/* Support Actions */}
+            <m.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <SupportActions
+                driverPhone={initialData.driver?.phone ?? null}
+                orderStatus={orderStatus}
+              />
+            </m.div>
 
-        {/* Delivery Photo - Show when delivered */}
-        {orderStatus === "delivered" && routeStop?.deliveryPhotoUrl && (
-          <m.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="rounded-xl bg-surface-primary p-4 shadow-warm-sm"
-          >
-            <p className="text-sm font-medium text-charcoal-600 mb-3">
-              Delivery Photo
-            </p>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={routeStop.deliveryPhotoUrl}
-              alt="Delivery confirmation"
-              className="w-full rounded-lg object-cover"
-              style={{ maxHeight: 300 }}
-            />
-          </m.div>
-        )}
-      </main>
+            {/* Delivery Photo */}
+            {orderStatus === "delivered" && routeStop?.deliveryPhotoUrl && (
+              <m.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+                className="rounded-xl bg-surface-primary p-4 shadow-warm-sm"
+              >
+                <p className="text-sm font-medium text-charcoal-600 mb-3">
+                  Delivery Photo
+                </p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={routeStop.deliveryPhotoUrl}
+                  alt="Delivery confirmation"
+                  className="w-full rounded-lg object-cover"
+                  style={{ maxHeight: 300 }}
+                />
+              </m.div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
