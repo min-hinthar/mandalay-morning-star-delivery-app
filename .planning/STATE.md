@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 63 - Branding Compliance (plan 01 complete)
+**Current focus:** Phase 63 - Branding Compliance (plan 02 complete)
 
 ## Current Position
 
 Phase: 63 of 66 (Branding Compliance)
-Plan: 1 of 1 in current phase (all complete)
-Status: Phase complete
-Last activity: 2026-02-15 -- Completed 63-01-PLAN.md (legal pages rewrite)
+Plan: 2 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-15 -- Completed 63-02-PLAN.md (footer split + legal links)
 
 Progress: [#############################.......] 95% (63/66 phases)
 
@@ -91,6 +91,10 @@ Recent decisions affecting v1.7:
 - Privacy policy: professional + warm tone, all 5 data processors named, Sentry session replay disclosed
 - Terms of service: food allergen "order at your own risk" disclaimer, California governing law, LA County jurisdiction
 - Legal pages hardcode admin email string (avoid coupling to email lib constants)
+- SiteFooter in (public)/layout.tsx ensures all public pages get footer without per-page imports
+- FooterCTA changed from <footer> to <section> to avoid duplicate footer semantics on homepage
+- Business listing URLs use generic search/homepage links with TODO for specific restaurant pages
+- Copyright uses full name "Mandalay Morning Star Burmese Kitchen" in SiteFooter
 
 ### Pending Todos
 
@@ -107,5 +111,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed Phase 63 (63-01 legal pages rewrite)
+Stopped at: Completed 63-02-PLAN.md (footer split + legal links)
 Resume file: None
