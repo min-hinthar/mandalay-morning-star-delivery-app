@@ -24,7 +24,7 @@
 - [x] **Phase 62: Production Operations** - OAuth, Stripe webhook, Resend domain, Search Console
 - [x] **Phase 63: Branding & Compliance** - Homepage content for Google OAuth verification
 - [x] **Phase 64: Service Worker Hardening** - Full-scope SW with content-hash caching and update banner
-- [ ] **Phase 65: CI/CD Hardening** - Lighthouse CI blocking, Chromatic visual regression, lint gates
+- [x] **Phase 65: CI/CD Hardening** - Lighthouse CI blocking, Chromatic visual regression, lint gates
 - [ ] **Phase 66: Backlog Cleanup** - Language pref, cart modifiers, tracking fix, card refactor, dead code
 
 ## Phase Details
@@ -145,7 +145,7 @@ Plans:
   2. CSS lint violations and Prettier formatting issues fail the CI check
 **Plans:** 1 plan
 Plans:
-- [ ] 65-01-PLAN.md -- Lighthouse CI error assertions + lint gate expansion + path filtering + Node 22
+- [x] 65-01-PLAN.md -- Lighthouse CI error assertions + lint gate expansion + path filtering + Node 22
 
 ### Phase 66: Backlog Cleanup
 **Goal**: Outstanding feature gaps and tech debt items from previous milestones are resolved
@@ -183,10 +183,10 @@ Phases execute in numeric order: 58 -> 59 -> 60 -> 61 -> 62 -> 63 -> 64 -> 65 ->
 | 62. Production Operations | v1.7 | 4/4 | Complete | 2026-02-14 |
 | 63. Branding & Compliance | v1.7 | 3/3 | Complete | 2026-02-15 |
 | 64. Service Worker Hardening | v1.7 | 5/5 | Complete | 2026-02-15 |
-| 65. CI/CD Hardening | v1.7 | 0/1 | In Progress | - |
+| 65. CI/CD Hardening | v1.7 | 1/1 | Complete | 2026-02-15 |
 | 66. Backlog Cleanup | v1.7 | 0/0 | Not started | - |
 
-**Total: 66 phases across 8 milestones (64 complete, 2 pending)**
+**Total: 66 phases across 8 milestones (65 complete, 1 pending)**
 
 ---
 *v1.6 details archived to: .planning/milestones/v1.6-ROADMAP.md*
