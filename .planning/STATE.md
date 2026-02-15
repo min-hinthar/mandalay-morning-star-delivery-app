@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 65 - CI/CD Hardening (next up)
+**Current focus:** Phase 65 - CI/CD Hardening (plan 01 complete)
 
 ## Current Position
 
 Phase: 65 of 66 (CI/CD Hardening)
-Plan: 0 of 0 in current phase (not yet planned)
-Status: Ready to plan
-Last activity: 2026-02-15 -- Phase 64 verified and complete
+Plan: 1 of 1 in current phase
+Status: Phase complete
+Last activity: 2026-02-15 -- Completed 65-01-PLAN.md
 
-Progress: [###############################.....] 97% (64/66 phases)
+Progress: [################################....] 98% (65/66 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 271 (across v1.0-v1.7)
+- Total plans completed: 272 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~65 hours
 
@@ -44,7 +44,10 @@ Recent decisions affecting v1.7:
 
 - DEPL-01 already complete (app live at delivery.mandalaymorningstar.com)
 - LCP target revised from <2.5s to <4s (original unrealistic without architecture changes)
-- Lighthouse CI warn-only until LCP baseline improves (Phase 65 enables blocking)
+- Lighthouse CI upgraded to error-level assertions: LCP <4000ms, CLS <0.15, perf >=0.6, a11y >=0.9
+- CI lint expanded: ESLint --max-warnings 0, Stylelint CSS lint, Prettier format check
+- Path filtering via dorny/paths-filter skips Lighthouse for docs-only PRs
+- Node 22 LTS across all CI jobs (upgraded from Node 20)
 - Health checks use dynamic imports to avoid build-time crashes when env vars missing
 - Promise.allSettled for parallel deep checks with graceful fallback
 - 30-second in-memory cache prevents repeated deep checks on rapid requests
@@ -137,5 +140,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Phase 64 complete; Phase 65 next
+Stopped at: Completed 65-01-PLAN.md (Phase 65 complete)
 Resume file: None
