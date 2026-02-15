@@ -46,12 +46,10 @@ export function TrackingPageClient({
   );
   const [eta, setEta] = useState(initialData.eta);
 
-  // Setup realtime subscription
-  // Note: routeId tracking for location updates is currently not implemented
-  // TODO: Extract route_id from routeStop when available
+  // Setup realtime subscription with routeId for location channel
   const subscription = useTrackingSubscription({
     orderId,
-    routeId: undefined, // We need to track route_id separately
+    routeId: initialData.routeId ?? undefined,
     enabled: true,
     onOrderUpdate: (status) => {
       setOrderStatus(status);

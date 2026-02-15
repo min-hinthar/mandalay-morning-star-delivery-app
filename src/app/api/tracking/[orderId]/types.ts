@@ -26,6 +26,8 @@ export interface OrderQueryResult {
   placed_at: string;
   confirmed_at: string | null;
   delivered_at: string | null;
+  cancelled_at: string | null;
+  cancellation_reason: string | null;
   delivery_window_start: string | null;
   delivery_window_end: string | null;
   special_instructions: string | null;

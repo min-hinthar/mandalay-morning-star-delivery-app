@@ -32,12 +32,17 @@ import type {
   CurrentStopData,
 } from "./types";
 
+// Restaurant location constant (Mandalay Morning Star, Los Angeles)
+const RESTAURANT_LOCATION = { lat: 34.0522, lng: -118.2437 };
+
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ orderId: string }> }
 ): Promise<NextResponse<{ data: TrackingData } | { error: TrackingApiError }>> {
   try {
     const { orderId } = await params;
+    const url = new URL(request.url);
+    const isShared = url.searchParams.get("shared") === "true";
     const supabase = await createClient();
 
     // Check authentication
@@ -69,6 +74,8 @@ export async function GET(
         placed_at,
         confirmed_at,
         delivered_at,
+        cancelled_at,
+        cancellation_reason,
         delivery_window_start,
         delivery_window_end,
         special_instructions,
@@ -111,8 +118,8 @@ export async function GET(
       );
     }
 
-    // Verify user owns this order
-    if (order.user_id !== user.id) {
+    // Verify user owns this order (skip for shared tracking links)
+    if (!isShared && order.user_id !== user.id) {
       return NextResponse.json(
         {
           error: {
@@ -160,9 +167,12 @@ export async function GET(
       placedAt: order.placed_at,
       confirmedAt: order.confirmed_at,
       deliveredAt: order.delivered_at,
+      cancelledAt: order.cancelled_at ?? null,
+      cancellationReason: order.cancellation_reason ?? null,
       deliveryWindowStart: order.delivery_window_start,
       deliveryWindowEnd: order.delivery_window_end,
       specialInstructions: order.special_instructions,
+      deliveryNotes: order.special_instructions,
       address,
       items,
       subtotalCents: order.subtotal_cents,
@@ -176,6 +186,7 @@ export async function GET(
     let driver: TrackingData["driver"] = null;
     let driverLocation: TrackingData["driverLocation"] = null;
     let eta: TrackingData["eta"] = null;
+    let routeId: string | null = null;
 
     // Check if order is assigned to a route
     const { data: routeStopData } = await supabase
@@ -199,6 +210,9 @@ export async function GET(
       .single();
 
     if (routeStopData?.routes) {
+      // Extract routeId for location subscription
+      routeId = routeStopData.routes.id;
+
       // Get total stops for this route
       const { count: totalStops } = await supabase
         .from("route_stops")
@@ -315,12 +329,26 @@ export async function GET(
       }
     }
 
+    // Lookup existing rating for this order
+    let rating: number | null = null;
+    const { data: driverRating } = await supabase
+      .from("driver_ratings")
+      .select("rating")
+      .eq("order_id", orderId)
+      .single();
+    if (driverRating) {
+      rating = driverRating.rating;
+    }
+
     const trackingData: TrackingData = {
       order: orderInfo,
       routeStop,
       driver,
       driverLocation,
       eta,
+      routeId,
+      restaurantLocation: RESTAURANT_LOCATION,
+      rating,
     };
 
     return NextResponse.json({ data: trackingData });

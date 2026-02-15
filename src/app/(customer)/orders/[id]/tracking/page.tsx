@@ -157,9 +157,12 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
         placedAt: order.placed_at,
         confirmedAt: order.confirmed_at,
         deliveredAt: order.delivered_at,
+        cancelledAt: null,
+        cancellationReason: null,
         deliveryWindowStart: order.delivery_window_start,
         deliveryWindowEnd: order.delivery_window_end,
         specialInstructions: order.special_instructions,
+        deliveryNotes: order.special_instructions,
         address: order.addresses
           ? {
               line1: order.addresses.line_1,
@@ -194,6 +197,9 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
       driver: null,
       driverLocation: null,
       eta: null,
+      routeId: null,
+      restaurantLocation: null,
+      rating: null,
     };
 
     return <TrackingPageClient orderId={orderId} initialData={fallbackData} />;
