@@ -1,25 +1,21 @@
 "use client";
 
-import { useRef, useState, useCallback, useMemo, useEffect } from "react";
-import {
-  m,
-  useMotionValue,
-  useSpring,
-  useTransform,
-} from "framer-motion";
+import { useRef, useMemo, useCallback } from "react";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { zClass } from "@/lib/design-system/tokens/z-index";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCanHover } from "@/lib/hooks/useResponsive";
 import { useFavorites } from "@/lib/hooks/useFavorites";
-import { useCart } from "@/lib/hooks/useCart";
 import { GlassOverlay } from "./GlassOverlay";
 import { CardImage } from "./CardImage";
 import { CardContent } from "./CardContent";
 import { AddButton } from "./AddButton";
 import { DietaryBadges } from "./DietaryBadges";
 import { FavoriteButton } from "../FavoriteButton";
+import { useTiltEffect } from "./useTiltEffect";
+import { useCardInteractions } from "./useCardInteractions";
 import type { MenuItem } from "@/types/menu";
 
 // ============================================
@@ -85,16 +81,6 @@ const variantConfig = {
   },
 } as const;
 
-// ============================================
-// TILT CONFIGURATION
-// ============================================
-
-const TILT_MAX_ANGLE = 18;
-const SPRING_CONFIG = { stiffness: 150, damping: 15 };
-
-// Long-press duration for opening detail sheet (iOS standard per CONTEXT.md)
-const LONG_PRESS_DURATION = 500;
-
 // Touch device tap feedback (shadow elevation + lift per CONTEXT.md)
 const TOUCH_TAP_VARIANTS = {
   idle: {
@@ -138,20 +124,6 @@ export function UnifiedMenuItemCard({
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const canHover = useCanHover();
   const cardRef = useRef<HTMLElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isMobileTiltActive, setIsMobileTiltActive] = useState(false);
-  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
-  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
-
-  // Cleanup longPressTimer on unmount to prevent setState on unmounted component
-  useEffect(() => {
-    return () => {
-      if (longPressTimer.current) {
-        clearTimeout(longPressTimer.current);
-        longPressTimer.current = null;
-      }
-    };
-  }, []);
 
   // Favorites - use controlled state if provided, else use hook
   const favoritesHook = useFavorites();
@@ -160,38 +132,11 @@ export function UnifiedMenuItemCard({
       ? controlledFavorite
       : favoritesHook.isFavorite(item.id);
 
-  // Cart integration
-  const cart = useCart();
-
-  /**
-   * Get total quantity of this item in cart (all modifier variants combined).
-   * This shows user that they have this item, regardless of which modifiers.
-   */
-  const totalQuantityInCart = useMemo(() => {
-    return cart.items
-      .filter((ci) => ci.menuItemId === item.id)
-      .reduce((sum, ci) => sum + ci.quantity, 0);
-  }, [cart.items, item.id]);
-
   // Get variant config
   const config = variantConfig[variant];
   // Disable tilt on touch-only devices (complete disable per CONTEXT.md)
   const shouldEnableTilt =
     config.enableTilt && !disableTilt && shouldAnimate && !item.isSoldOut && canHover;
-
-  // Mouse position for 3D tilt (0-1 normalized)
-  const mouseX = useMotionValue(0.5);
-  const mouseY = useMotionValue(0.5);
-
-  // Spring-smoothed rotation transforms
-  const rotateX = useSpring(
-    useTransform(mouseY, [0, 1], [TILT_MAX_ANGLE, -TILT_MAX_ANGLE]),
-    SPRING_CONFIG
-  );
-  const rotateY = useSpring(
-    useTransform(mouseX, [0, 1], [-TILT_MAX_ANGLE, TILT_MAX_ANGLE]),
-    SPRING_CONFIG
-  );
 
   // Memoized spring config
   const springConfig = useMemo(
@@ -199,231 +144,49 @@ export function UnifiedMenuItemCard({
     [getSpring]
   );
 
-  // Check if item has required modifiers (must go through detail modal)
-  const hasRequiredModifiers = useMemo(() => {
-    return (
-      item.modifierGroups &&
-      item.modifierGroups.some((group) => group.minSelect > 0)
-    );
-  }, [item.modifierGroups]);
+  // 3D tilt effect
+  const {
+    mouseX,
+    mouseY,
+    tiltStyle,
+    isHovered,
+    handleMouseMove,
+    handleMouseEnter,
+    handleMouseLeave,
+    handleTiltTouchMove,
+    resetTilt,
+  } = useTiltEffect({ enabled: shouldEnableTilt, cardRef });
 
-  // ==========================================
-  // EVENT HANDLERS
-  // ==========================================
+  // Card interactions (click, add, increment, decrement, favorite, long-press)
+  const {
+    totalQuantityInCart,
+    handleCardClick,
+    handleFavoriteToggle,
+    handleAdd,
+    handleIncrement,
+    handleDecrement,
+    handleTouchStart,
+    handleTouchEnd,
+    handleTouchMoveCancel,
+  } = useCardInteractions({
+    item,
+    onSelect,
+    onQuickAdd,
+    isFavorite: isItemFavorite,
+    controlledFavoriteToggle,
+    favoritesToggle: favoritesHook.toggleFavorite,
+    shouldEnableTilt,
+    resetTilt,
+  });
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (!shouldEnableTilt) return;
-
-      const rect = cardRef.current?.getBoundingClientRect();
-      if (!rect) return;
-
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = (e.clientY - rect.top) / rect.height;
-
-      mouseX.set(x);
-      mouseY.set(y);
-    },
-    [shouldEnableTilt, mouseX, mouseY]
-  );
-
-  const handleMouseEnter = useCallback(() => {
-    setIsHovered(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setIsHovered(false);
-    setIsMobileTiltActive(false);
-    // Springs on rotateX/rotateY handle smooth animation
-    mouseX.set(0.5);
-    mouseY.set(0.5);
-  }, [mouseX, mouseY]);
-
-  // Mobile long-press to open detail sheet (500ms iOS standard)
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      // On touch devices without hover, long-press opens detail sheet
-      // On hybrid devices with hover, this won't fire (tilt handled by mouse)
-      if (item.isSoldOut) return;
-
-      const touch = e.touches[0];
-      if (touch) {
-        touchStartPos.current = { x: touch.clientX, y: touch.clientY };
-      }
-
-      longPressTimer.current = setTimeout(() => {
-        // Haptic feedback
-        if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-          navigator.vibrate(20);
-        }
-        // Open detail sheet (same as card click)
-        onSelect?.(item);
-      }, LONG_PRESS_DURATION);
-    },
-    [item, onSelect]
-  );
-
-  const handleTouchEnd = useCallback(() => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-    touchStartPos.current = null;
-
-    // Reset tilt on hybrid devices (if tilt was enabled)
-    if (shouldEnableTilt) {
-      requestAnimationFrame(() => {
-        setIsMobileTiltActive(false);
-        mouseX.set(0.5);
-        mouseY.set(0.5);
-      });
-    }
-  }, [shouldEnableTilt, mouseX, mouseY]);
-
+  // Combine touch move handlers (long-press cancel + tilt)
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      // Cancel long-press if user scrolls (10px threshold)
-      if (touchStartPos.current && longPressTimer.current) {
-        const touch = e.touches[0];
-        if (touch) {
-          const dx = Math.abs(touch.clientX - touchStartPos.current.x);
-          const dy = Math.abs(touch.clientY - touchStartPos.current.y);
-
-          if (dx > 10 || dy > 10) {
-            clearTimeout(longPressTimer.current);
-            longPressTimer.current = null;
-            touchStartPos.current = null;
-          }
-        }
-      }
-
-      // Handle tilt play on hybrid devices
-      if (!isMobileTiltActive) return;
-
-      const touch = e.touches[0];
-      const rect = cardRef.current?.getBoundingClientRect();
-      if (!rect || !touch) return;
-
-      const x = (touch.clientX - rect.left) / rect.width;
-      const y = (touch.clientY - rect.top) / rect.height;
-
-      mouseX.set(Math.max(0, Math.min(1, x)));
-      mouseY.set(Math.max(0, Math.min(1, y)));
+      handleTouchMoveCancel(e);
+      handleTiltTouchMove(e);
     },
-    [isMobileTiltActive, mouseX, mouseY]
+    [handleTouchMoveCancel, handleTiltTouchMove]
   );
-
-  const handleCardClick = useCallback(() => {
-    if (item.isSoldOut) return;
-
-    // Haptic feedback
-    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-      navigator.vibrate(10);
-    }
-
-    onSelect?.(item);
-  }, [item, onSelect]);
-
-  const handleFavoriteToggle = useCallback(
-    (newState: boolean) => {
-      if (controlledFavoriteToggle) {
-        controlledFavoriteToggle(item, newState);
-      } else {
-        favoritesHook.toggleFavorite(item.id);
-      }
-    },
-    [item, controlledFavoriteToggle, favoritesHook]
-  );
-
-  /**
-   * Handle Add button click.
-   *
-   * SINGLE ADD PATH:
-   * 1. Items with required modifiers → open detail modal (user must select modifiers)
-   * 2. Items without required modifiers → quick-add to cart
-   *
-   * Cart mutation happens in ONE place only:
-   * - If onQuickAdd provided: parent handles mutation
-   * - Otherwise: this component handles mutation directly
-   */
-  const handleAdd = useCallback(() => {
-    // Items with required modifiers must go through detail modal
-    if (hasRequiredModifiers) {
-      onSelect?.(item);
-      return;
-    }
-
-    // Quick-add path for items without required modifiers
-    if (onQuickAdd) {
-      // Parent handles cart mutation
-      onQuickAdd(item);
-    } else {
-      // Direct cart mutation (single source)
-      cart.addItem({
-        menuItemId: item.id,
-        menuItemSlug: item.slug,
-        nameEn: item.nameEn,
-        nameMy: item.nameMy,
-        imageUrl: item.imageUrl,
-        basePriceCents: item.basePriceCents,
-        quantity: 1,
-        modifiers: [],
-        notes: "",
-      });
-    }
-  }, [item, onQuickAdd, cart, hasRequiredModifiers, onSelect]);
-
-  /**
-   * Handle quantity increment.
-   * Finds the first cart item for this menu item and increments it.
-   * For items with modifiers, user should use detail modal to add new variants.
-   */
-  const handleIncrement = useCallback(() => {
-    // Find first cart item for this menu item
-    const cartItem = cart.items.find((ci) => ci.menuItemId === item.id);
-    if (cartItem) {
-      cart.updateQuantity(cartItem.cartItemId, cartItem.quantity + 1);
-    } else {
-      // No item in cart, do a fresh add
-      handleAdd();
-    }
-  }, [cart, item.id, handleAdd]);
-
-  /**
-   * Handle quantity decrement.
-   * Finds the first cart item for this menu item and decrements/removes it.
-   */
-  const handleDecrement = useCallback(() => {
-    // Find first cart item for this menu item
-    const cartItem = cart.items.find((ci) => ci.menuItemId === item.id);
-    if (cartItem) {
-      if (cartItem.quantity <= 1) {
-        cart.removeItem(cartItem.cartItemId);
-      } else {
-        cart.updateQuantity(cartItem.cartItemId, cartItem.quantity - 1);
-      }
-    }
-  }, [cart, item.id]);
-
-  // ==========================================
-  // RENDER
-  // ==========================================
-
-  // Only apply willChange when hovered to reduce compositor layer count
-  // willChange creates GPU layers - having it on all cards causes memory pressure
-  const tiltStyle = shouldEnableTilt
-    ? {
-        rotateX,
-        rotateY,
-        transformStyle: "preserve-3d" as const,
-        transformPerspective: 1000,
-        // Conditionally apply willChange only when interacting (hover/active)
-        willChange: isHovered ? ("transform" as const) : ("auto" as const),
-        backfaceVisibility: "hidden" as const,
-        // Prevent scroll conflicts during tilt interaction on mobile
-        touchAction: isMobileTiltActive ? ("none" as const) : ("auto" as const),
-      }
-    : {};
 
   return (
     <m.article
