@@ -6,6 +6,7 @@ import {
   StaleWhileRevalidate,
   ExpirationPlugin,
   CacheableResponsePlugin,
+  NavigationRoute,
   Serwist,
 } from "serwist";
 
@@ -20,6 +21,19 @@ declare const self: WorkerGlobalScope & typeof globalThis;
 
 // Cache version for invalidation control (OFFLINE-12)
 const CACHE_VERSION = "v1";
+
+// Navigation handler - NetworkFirst with 3s timeout for page navigations
+const navigationHandler = new NetworkFirst({
+  cacheName: `navigations-${CACHE_VERSION}`,
+  networkTimeoutSeconds: 3,
+});
+
+// Denylist: routes excluded from SW navigation interception
+const denylist = [
+  /^\/auth\//, // OAuth callbacks
+  /^\/monitoring/, // Sentry tunnel
+  /^\/api\//, // All API routes
+];
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
@@ -63,7 +77,7 @@ const serwist = new Serwist({
         ],
       }),
     },
-    // Menu API - NetworkFirst with 5-minute network timeout (OFFLINE-04)
+    // Menu API - NetworkFirst with 15-minute cache TTL (OFFLINE-04)
     {
       matcher: ({ url }) =>
         url.pathname === "/api/menu" || url.pathname.startsWith("/api/menu/"),
@@ -73,7 +87,7 @@ const serwist = new Serwist({
         plugins: [
           new ExpirationPlugin({
             maxEntries: 10,
-            maxAgeSeconds: 5 * 60, // 5 minutes
+            maxAgeSeconds: 15 * 60, // 15 minutes
           }),
         ],
       }),
@@ -101,7 +115,23 @@ const serwist = new Serwist({
       return !urlPattern.includes("document");
     }),
   ],
+  // Offline fallback for document requests when both network and cache fail
+  fallbacks: {
+    entries: [
+      {
+        url: "/offline",
+        matcher({ request }) {
+          return request.destination === "document";
+        },
+      },
+    ],
+  },
 });
+
+// Register NavigationRoute with denylist for safe navigation caching
+serwist.registerRoute(
+  new NavigationRoute(navigationHandler, { denylist })
+);
 
 // Listen for skip waiting message from update prompt (OFFLINE-11)
 self.addEventListener("message", (event: MessageEvent) => {
