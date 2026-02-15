@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 66 - Backlog Cleanup (plans 01, 02, 03, 06, 07 complete)
+**Current focus:** Phase 66 - Backlog Cleanup (plans 01, 02, 03, 04, 06, 07 complete)
 
 ## Current Position
 
 Phase: 66 of 66 (Backlog Cleanup)
-Plan: 5 of 7 in current phase (01, 02, 03, 06, 07 complete)
+Plan: 6 of 7 in current phase (01, 02, 03, 04, 06, 07 complete)
 Status: In progress
-Last activity: 2026-02-15 -- Completed 66-03-PLAN.md
+Last activity: 2026-02-15 -- Completed 66-04-PLAN.md
 
-Progress: [#################################...] 98% (66/66 phases, 5/7 plans)
+Progress: [##################################..] 99% (66/66 phases, 6/7 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 277 (across v1.0-v1.7)
+- Total plans completed: 278 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~65 hours
 
@@ -140,6 +140,10 @@ Recent decisions affecting v1.7:
 - AdvancedMarkerElement content uses raw DOM helpers (not React) -- CustomMarkers.tsx pattern
 - Map visible in all order states (pre-delivery shows restaurant+destination, not just out_for_delivery)
 - DeliveryMap split into MapContent/MapLegend sub-components for 400-line compliance
+- Notes API updates special_instructions column with ownership + status lock (delivered/cancelled blocks edit)
+- Admin bypass for notes editing via JWT app_metadata.role
+- ETA dual format: countdown <=30 min (flip digits + useSafeInterval), time window >30 min
+- 30-second countdown tick interval to save mobile battery
 
 ### Pending Todos
 
@@ -156,5 +160,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 66-03-PLAN.md (Enhanced tracking map + StatusStepper)
+Stopped at: Completed 66-04-PLAN.md (Tracking info section: DeliveryNotesEditor + ETA dual format)
 Resume file: None
