@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 64 of 66 (Service Worker Hardening)
-Plan: 1 of 5 in current phase
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-15 -- Completed 64-01-PLAN.md
+Last activity: 2026-02-15 -- Completed 64-02-PLAN.md
 
 Progress: [##############################......] 95% (63/66 phases)
 
@@ -103,6 +103,10 @@ Recent decisions affecting v1.7:
 - Offline fallback page at /offline (force-static) served when network + cache fail
 - Menu API cache TTL bumped from 5 to 15 minutes
 - NEXT_PUBLIC_APP_VERSION exposed from package.json in next.config.ts
+- Update banner uses info color (bg-info) distinct from offline warning (bg-primary)
+- sessionStorage for dismiss count (resets per session, appropriate for update prompts)
+- CSS transition width for progress bar (simpler than Radix Progress for linear countdown)
+- Passive event listeners for interaction detection (no scroll jank)
 
 ### Pending Todos
 
@@ -119,5 +123,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 64-01-PLAN.md
+Stopped at: Completed 64-02-PLAN.md
 Resume file: None
