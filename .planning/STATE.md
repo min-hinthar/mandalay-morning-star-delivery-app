@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 62 - Production Operations (complete)
+**Current focus:** Phase 63 - Branding Compliance (plan 01 complete)
 
 ## Current Position
 
-Phase: 62 of 66 (Production Operations)
-Plan: 4 of 4 in current phase (all complete)
+Phase: 63 of 66 (Branding Compliance)
+Plan: 1 of 1 in current phase (all complete)
 Status: Phase complete
-Last activity: 2026-02-14 -- Completed 62-04-PLAN.md (all services verified)
+Last activity: 2026-02-15 -- Completed 63-01-PLAN.md (legal pages rewrite)
 
-Progress: [############################........] 94% (62/66 phases)
+Progress: [#############################.......] 95% (63/66 phases)
 
 ## Performance Metrics
 
@@ -88,6 +88,9 @@ Recent decisions affecting v1.7:
 - GOOGLE_SITE_VERIFICATION in importantVars (not critical) -- app works without Search Console
 - SEO verification code from env var GOOGLE_SITE_VERIFICATION (not hardcoded), graceful when undefined
 - Only 5 public routes in sitemap (/, /menu, /login, /privacy, /terms)
+- Privacy policy: professional + warm tone, all 5 data processors named, Sentry session replay disclosed
+- Terms of service: food allergen "order at your own risk" disclaimer, California governing law, LA County jurisdiction
+- Legal pages hardcode admin email string (avoid coupling to email lib constants)
 
 ### Pending Todos
 
@@ -103,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-14
-Stopped at: Completed Phase 62 (all 4 plans + production service verification)
+Last session: 2026-02-15
+Stopped at: Completed Phase 63 (63-01 legal pages rewrite)
 Resume file: None
