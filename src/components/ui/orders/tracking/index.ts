@@ -25,4 +25,15 @@ export { SupportActions, SupportFAB } from "./SupportActions";
 export { StatusStepper } from "./StatusStepper";
 export type { StatusStepperProps } from "./StatusStepper";
 
+// StarRating intentionally not re-exported (name collision with admin/analytics/StarRating)
+// Used internally by DeliveredScreen via direct import
+
+export { DeliveredScreen } from "./DeliveredScreen";
+
+export { CancelledOverlay } from "./CancelledOverlay";
+
+export { ShareButton } from "./ShareButton";
+
+export { NearbyBanner } from "./NearbyBanner";
+
 export { TrackingPageClient } from "./TrackingPageClient";
