@@ -128,7 +128,13 @@ Plans:
   2. Deploying a new version uses content-hash based revision (only changed assets invalidated, not entire cache)
   3. Users see an "Update available" banner when a new version is deployed, with a button to reload
   4. Auth callback (`/auth/callback`) and Sentry tunnel routes are excluded from SW interception
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 64-01-PLAN.md -- Content-hash build script + SW NavigationRoute + offline page + menu TTL
+- [ ] 64-02-PLAN.md -- Update banner rewrite (10s countdown, interaction pause, progress bar, version)
+- [ ] 64-03-PLAN.md -- Offline indicator enhancement + branded offline page component
+- [ ] 64-04-PLAN.md -- Cart IndexedDB migration (idb-keyval, localStorage migration, hydration)
+- [ ] 64-05-PLAN.md -- SW registration consolidation + cache metrics + verification
 
 ### Phase 65: CI/CD Hardening
 **Goal**: PRs are blocked by performance regressions, visual regressions, and lint violations
