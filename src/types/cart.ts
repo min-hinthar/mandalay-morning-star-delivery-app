@@ -21,10 +21,13 @@ export interface CartItem {
   notes: string;
   addedAt: string;
   categoryId?: string;
+  pendingSync?: boolean;
 }
 
 export interface CartStore {
   items: CartItem[];
+  _hasHydrated: boolean;
+  _setHasHydrated: (v: boolean) => void;
   addItem: (item: Omit<CartItem, "cartItemId" | "addedAt">) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   removeItem: (cartItemId: string) => void;
