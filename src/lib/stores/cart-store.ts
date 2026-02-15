@@ -217,6 +217,25 @@ export const useCartStore = create<CartStore>()(
         return (item.basePriceCents + modifierTotal) * item.quantity;
       },
 
+      updateItem: (cartItemId, updates) => {
+        set((state) => ({
+          items: state.items.map((item) =>
+            item.cartItemId === cartItemId
+              ? {
+                  ...item,
+                  modifiers: updates.modifiers,
+                  quantity: Math.min(
+                    Math.max(1, updates.quantity),
+                    MAX_ITEM_QUANTITY
+                  ),
+                  notes: updates.notes.trim(),
+                  basePriceCents: updates.basePriceCents,
+                }
+              : item
+          ),
+        }));
+      },
+
       updateItemPrice: (cartItemId, newPriceCents) => {
         set((state) => ({
           items: state.items.map((item) =>

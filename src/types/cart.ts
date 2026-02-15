@@ -37,6 +37,15 @@ export interface CartStore {
   getItemCount: () => number;
   getItemTotal: (cartItemId: string) => number;
   updateItemPrice: (cartItemId: string, newPriceCents: number) => void;
+  updateItem: (
+    cartItemId: string,
+    updates: {
+      modifiers: SelectedModifier[];
+      quantity: number;
+      notes: string;
+      basePriceCents: number;
+    }
+  ) => void;
 }
 
 export const MINIMUM_ORDER_CENTS = 2500;

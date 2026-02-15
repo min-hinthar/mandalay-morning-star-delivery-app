@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 65 - CI/CD Hardening (plan 01 complete)
+**Current focus:** Phase 66 - Backlog Cleanup (plan 06 complete)
 
 ## Current Position
 
-Phase: 65 of 66 (CI/CD Hardening)
-Plan: 1 of 1 in current phase
-Status: Phase complete
-Last activity: 2026-02-15 -- Completed 65-01-PLAN.md
+Phase: 66 of 66 (Backlog Cleanup)
+Plan: 6 of 7 in current phase
+Status: In progress
+Last activity: 2026-02-15 -- Completed 66-06-PLAN.md
 
-Progress: [################################....] 98% (65/66 phases)
+Progress: [################################....] 98% (66/66 phases, 1/7 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 272 (across v1.0-v1.7)
+- Total plans completed: 273 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~65 hours
 
@@ -124,6 +124,7 @@ Recent decisions affecting v1.7:
 - getRegistration('/') replaces register('/sw.js', {scope: '/driver'}) to reuse root SW registration
 - Sentry breadcrumbs (not custom metrics) for cache observability -- lightweight, no pipeline overhead
 - invalidateMenuCache opens 'menu-api-cache-v1' directly via Cache API (matches sw.ts cache name)
+- UnifiedMenuItemCard hook extraction: useTiltEffect and useCardInteractions as internal hooks (not barrel-exported)
 
 ### Pending Todos
 
@@ -140,5 +141,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 65-01-PLAN.md (Phase 65 complete)
+Stopped at: Completed 66-06-PLAN.md (UnifiedMenuItemCard refactor)
 Resume file: None
