@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import {
   AuthBackground,
   AuthCard,
@@ -83,6 +84,23 @@ function AuthCardContent({
     >
       <MagicLinkForm onSuccess={handleMagicLinkSent} />
       <SocialLoginButtons onOAuthStart={onOAuthStart} />
+      <p className="text-center text-xs text-muted-foreground leading-relaxed">
+        By signing in, you agree to our{" "}
+        <Link
+          href="/terms"
+          className="underline underline-offset-2 hover:text-text-primary transition-colors"
+        >
+          Terms of Service
+        </Link>{" "}
+        and{" "}
+        <Link
+          href="/privacy"
+          className="underline underline-offset-2 hover:text-text-primary transition-colors"
+        >
+          Privacy Policy
+        </Link>
+        .
+      </p>
     </m.div>
   );
 }
