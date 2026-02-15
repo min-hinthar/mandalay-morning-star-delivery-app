@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 66 - Backlog Cleanup (plans 01, 02, 06, 07 complete)
+**Current focus:** Phase 66 - Backlog Cleanup (plans 01, 02, 03, 06, 07 complete)
 
 ## Current Position
 
 Phase: 66 of 66 (Backlog Cleanup)
-Plan: 4 of 7 in current phase (01, 02, 06, 07 complete)
+Plan: 5 of 7 in current phase (01, 02, 03, 06, 07 complete)
 Status: In progress
-Last activity: 2026-02-15 -- Completed 66-07-PLAN.md
+Last activity: 2026-02-15 -- Completed 66-03-PLAN.md
 
-Progress: [################################....] 98% (66/66 phases, 4/7 plans)
+Progress: [#################################...] 98% (66/66 phases, 5/7 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 276 (across v1.0-v1.7)
+- Total plans completed: 277 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~65 hours
 
@@ -137,6 +137,9 @@ Recent decisions affecting v1.7:
 - Dead code: 8 unused deps removed (@conform-to/react, @conform-to/zod, @radix-ui/react-toast, @stripe/stripe-js, vaul, @vitest/coverage-v8, glob, react-email)
 - Knip false positives: eslint-config-next, eslint-config-prettier, postcss added to ignoreDependencies
 - Flagged for review: /api/analytics/vitals (zero frontend refs), NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY (only in health check)
+- AdvancedMarkerElement content uses raw DOM helpers (not React) -- CustomMarkers.tsx pattern
+- Map visible in all order states (pre-delivery shows restaurant+destination, not just out_for_delivery)
+- DeliveryMap split into MapContent/MapLegend sub-components for 400-line compliance
 
 ### Pending Todos
 
@@ -153,5 +156,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 66-07-PLAN.md (Dead code removal + audit)
+Stopped at: Completed 66-03-PLAN.md (Enhanced tracking map + StatusStepper)
 Resume file: None
