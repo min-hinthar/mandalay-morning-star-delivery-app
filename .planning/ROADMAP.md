@@ -9,7 +9,7 @@
 - v1.4 Mobile Excellence - Phases 35-39 (shipped 2026-02-05)
 - v1.5 Performance & Repo Health - Phases 40-47 (shipped 2026-02-07)
 - v1.6 Production Polish - Phases 48-57 (shipped 2026-02-13)
-- v1.7 Production Deployment & Readiness - Phases 58-66 (in progress)
+- v1.7 Production Deployment & Readiness - Phases 58-66 (shipped 2026-02-15)
 
 ## Phases
 
@@ -25,7 +25,7 @@
 - [x] **Phase 63: Branding & Compliance** - Homepage content for Google OAuth verification
 - [x] **Phase 64: Service Worker Hardening** - Full-scope SW with content-hash caching and update banner
 - [x] **Phase 65: CI/CD Hardening** - Lighthouse CI blocking, Chromatic visual regression, lint gates
-- [ ] **Phase 66: Backlog Cleanup** - Language pref, cart modifiers, tracking fix, card refactor, dead code
+- [x] **Phase 66: Backlog Cleanup** - Language pref, cart modifiers, tracking fix, card refactor, dead code
 
 ## Phase Details
 
@@ -159,13 +159,13 @@ Plans:
   5. Dead code audit complete (unused exports, deps, CSS, types, API routes, env vars flagged)
 **Plans:** 7 plans
 Plans:
-- [ ] 66-01-PLAN.md -- Cart modifier editing via ItemDetailSheet with edit mode
-- [ ] 66-02-PLAN.md -- Tracking foundation: route_id fix, types, API extensions, shared access
-- [ ] 66-03-PLAN.md -- Tracking map enhancement: custom markers, route line, split-view, status stepper
-- [ ] 66-04-PLAN.md -- Tracking info section: driver card, delivery notes, ETA format, order summary
-- [ ] 66-05-PLAN.md -- Tracking features: delivered screen, rating, sharing, cancellation, notifications
-- [ ] 66-06-PLAN.md -- UnifiedMenuItemCard refactor (useTiltEffect + useCardInteractions extraction)
-- [ ] 66-07-PLAN.md -- Dead code audit + Edge Function removal
+- [x] 66-01-PLAN.md -- Cart modifier editing via ItemDetailSheet with edit mode
+- [x] 66-02-PLAN.md -- Tracking foundation: route_id fix, types, API extensions, shared access
+- [x] 66-03-PLAN.md -- Tracking map enhancement: custom markers, route line, split-view, status stepper
+- [x] 66-04-PLAN.md -- Tracking info section: driver card, delivery notes, ETA format, order summary
+- [x] 66-05-PLAN.md -- Tracking features: delivered screen, rating, sharing, cancellation, notifications
+- [x] 66-06-PLAN.md -- UnifiedMenuItemCard refactor (useTiltEffect + useCardInteractions extraction)
+- [x] 66-07-PLAN.md -- Dead code audit + Edge Function removal
 
 ## Progress
 
@@ -192,9 +192,9 @@ Phases execute in numeric order: 58 -> 59 -> 60 -> 61 -> 62 -> 63 -> 64 -> 65 ->
 | 63. Branding & Compliance | v1.7 | 3/3 | Complete | 2026-02-15 |
 | 64. Service Worker Hardening | v1.7 | 5/5 | Complete | 2026-02-15 |
 | 65. CI/CD Hardening | v1.7 | 1/1 | Complete | 2026-02-15 |
-| 66. Backlog Cleanup | v1.7 | 0/7 | Not started | - |
+| 66. Backlog Cleanup | v1.7 | 7/7 | Complete | 2026-02-15 |
 
-**Total: 66 phases across 8 milestones (65 complete, 1 pending)**
+**Total: 66 phases across 8 milestones (66 complete, 0 pending)**
 
 ---
 *v1.6 details archived to: .planning/milestones/v1.6-ROADMAP.md*
