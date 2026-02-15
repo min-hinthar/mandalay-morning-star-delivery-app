@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 66 - Backlog Cleanup (plans 01, 02, 03, 04, 06, 07 complete)
+**Current focus:** Phase 66 - Backlog Cleanup (plans 01, 02, 03, 04, 05, 06, 07 complete)
 
 ## Current Position
 
 Phase: 66 of 66 (Backlog Cleanup)
-Plan: 6 of 7 in current phase (01, 02, 03, 04, 06, 07 complete)
-Status: In progress
-Last activity: 2026-02-15 -- Completed 66-04-PLAN.md
+Plan: 7 of 7 in current phase (01, 02, 03, 04, 05, 06, 07 complete)
+Status: Phase complete
+Last activity: 2026-02-15 -- Completed 66-05-PLAN.md
 
-Progress: [##################################..] 99% (66/66 phases, 6/7 plans)
+Progress: [####################################] 100% (66/66 phases, 7/7 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 278 (across v1.0-v1.7)
+- Total plans completed: 279 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~65 hours
 
@@ -144,6 +144,12 @@ Recent decisions affecting v1.7:
 - Admin bypass for notes editing via JWT app_metadata.role
 - ETA dual format: countdown <=30 min (flip digits + useSafeInterval), time window >30 min
 - 30-second countdown tick interval to save mobile battery
+- Rating API changed from 409-reject to upsert (re-rating replaces previous)
+- StarRating omitted from tracking barrel to avoid name collision with admin/analytics/StarRating
+- Confetti uses CSS @keyframes (no library) with 20 randomized dots
+- Post-delivery revisit skips celebration animation when rating already exists
+- NearbyBanner triggers on etaMinutes <= 2 AND status === out_for_delivery
+- Status transition effects: useRef prevStatusRef + useEffect comparison pattern
 
 ### Pending Todos
 
@@ -160,5 +166,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 66-04-PLAN.md (Tracking info section: DeliveryNotesEditor + ETA dual format)
+Stopped at: Completed 66-05-PLAN.md (Post-delivery features: DeliveredScreen, StarRating, CancelledOverlay, ShareButton, NearbyBanner)
 Resume file: None
