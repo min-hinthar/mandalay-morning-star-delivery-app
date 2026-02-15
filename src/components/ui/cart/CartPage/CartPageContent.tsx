@@ -18,6 +18,8 @@ import {
   ClearCartConfirmation,
   useClearCartConfirmation,
 } from "@/components/ui/cart/ClearCartConfirmation";
+import { ItemDetailSheet } from "@/components/ui/menu/ItemDetailSheet";
+import { toast } from "@/lib/hooks/useToastV8";
 import { CartPageHeader } from "./CartPageHeader";
 import { CartItemGroup } from "./CartItemGroup";
 import { CartPageSummary } from "./CartPageSummary";
@@ -25,6 +27,7 @@ import { CheckoutGate } from "./CheckoutGate";
 import { AttentionSection } from "./AttentionSection";
 import { MINIMUM_ORDER_CENTS } from "@/types/cart";
 import type { CartItem } from "@/types/cart";
+import type { SelectedModifier } from "@/types/cart";
 import type { MenuItem } from "@/types/menu";
 
 // ============================================
@@ -87,8 +90,9 @@ export function CartPageContent() {
   const { data: menuData } = useMenu();
   const attentionRef = useRef<HTMLDivElement>(null);
 
-  // Edit modal state (basic implementation)
-  const [, setEditingItem] = useState<CartItem | null>(null);
+  // Edit modal state
+  const [editingItem, setEditingItem] = useState<CartItem | null>(null);
+  const [editMenuItem, setEditMenuItem] = useState<MenuItem | null>(null);
 
   // ============================================
   // HANDLERS
@@ -126,9 +130,50 @@ export function CartPageContent() {
     []
   );
 
-  const handleEditItem = useCallback((item: CartItem) => {
-    // TODO: Wire to ItemDetailSheet or full modifier editor
-    setEditingItem(item);
+  const handleEditItem = useCallback(
+    (item: CartItem) => {
+      const categories = menuData?.data?.categories ?? [];
+      let foundMenuItem: MenuItem | null = null;
+      for (const category of categories) {
+        const match = category.items.find((mi) => mi.id === item.menuItemId);
+        if (match) {
+          foundMenuItem = match;
+          break;
+        }
+      }
+      if (!foundMenuItem) {
+        toast({ message: "This item is no longer on the menu", type: "warning" });
+        return;
+      }
+      setEditingItem(item);
+      setEditMenuItem(foundMenuItem);
+    },
+    [menuData]
+  );
+
+  const handleUpdateCart = useCallback(
+    (
+      cartItemId: string,
+      modifiers: SelectedModifier[],
+      quantity: number,
+      notes: string,
+      basePriceCents: number
+    ) => {
+      useCartStore.getState().updateItem(cartItemId, {
+        modifiers,
+        quantity,
+        notes,
+        basePriceCents,
+      });
+      setEditingItem(null);
+      setEditMenuItem(null);
+    },
+    []
+  );
+
+  const handleCloseEdit = useCallback(() => {
+    setEditingItem(null);
+    setEditMenuItem(null);
   }, []);
 
   const handleCheckout = useCallback(() => {
@@ -139,19 +184,24 @@ export function CartPageContent() {
   // CATEGORY GROUPING
   // ============================================
 
-  const { categoryGroups, problemItems } = useMemo(() => {
-    if (!items.length) return { categoryGroups: [], problemItems: [] };
+  const { categoryGroups, problemItems, editableItemIds } = useMemo(() => {
+    if (!items.length)
+      return { categoryGroups: [], problemItems: [], editableItemIds: new Set<string>() };
 
     const categories = menuData?.data?.categories ?? [];
 
-    // Build menuItemId -> category lookup
+    // Build menuItemId -> category lookup and track editable items
     const categoryLookup = new Map<string, { name: string; id: string }>();
+    const editable = new Set<string>();
     for (const category of categories) {
       for (const menuItem of category.items) {
         categoryLookup.set(menuItem.id, {
           name: category.name,
           id: category.id,
         });
+        if (menuItem.modifierGroups && menuItem.modifierGroups.length > 0) {
+          editable.add(menuItem.id);
+        }
       }
     }
 
@@ -192,6 +242,7 @@ export function CartPageContent() {
     return {
       categoryGroups: Array.from(groupMap.values()),
       problemItems: problems,
+      editableItemIds: editable,
     };
   }, [items, menuData, validation.validations]);
 
@@ -296,6 +347,7 @@ export function CartPageContent() {
               onReplaceItem={handleReplaceItem}
               onEditItem={handleEditItem}
               onDismissPriceChange={handleDismissPriceChange}
+              editableItemIds={editableItemIds}
             />
           ))}
         </AnimatePresence>
@@ -333,6 +385,15 @@ export function CartPageContent() {
           onCheckout={handleCheckout}
         />
       </div>
+
+      {/* Edit item sheet */}
+      <ItemDetailSheet
+        item={editMenuItem}
+        isOpen={editingItem !== null}
+        onClose={handleCloseEdit}
+        editingCartItem={editingItem ?? undefined}
+        onUpdateCart={handleUpdateCart}
+      />
 
       {/* Clear cart confirmation modal */}
       <ClearCartConfirmation
