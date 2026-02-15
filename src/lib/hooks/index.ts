@@ -107,7 +107,11 @@ export { useTrackingSubscription } from "./useTrackingSubscription";
 
 export { useCustomerOfflineSync } from "./useCustomerOfflineSync";
 export { useOfflineSync } from "./useOfflineSync";
-export { useServiceWorker } from "./useServiceWorker";
+export {
+  useServiceWorker,
+  invalidateMenuCache,
+  reportCacheMetrics,
+} from "./useServiceWorker";
 export { useUpdateBanner } from "./useUpdateBanner";
 export type { UseUpdateBannerReturn } from "./useUpdateBanner";
 
