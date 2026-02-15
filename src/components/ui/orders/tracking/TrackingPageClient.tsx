@@ -5,12 +5,13 @@
  * Map visible in all order states (pre-delivery, en route, delivered).
  * StatusStepper at top of info section, StatusTimeline below as detail.
  * Browser tab title updates with live status.
+ * Delivered/Cancelled overlays, share button, nearby banner, status effects.
  */
 
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { m } from "framer-motion";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { m, AnimatePresence } from "framer-motion";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { StatusTimeline } from "./StatusTimeline";
@@ -20,6 +21,11 @@ import { LazyDeliveryMap } from "@/components/ui/maps/LazyMaps";
 import { DriverCard } from "./DriverCard";
 import { OrderSummary } from "./OrderSummary";
 import { SupportActions } from "./SupportActions";
+import { DeliveryNotesEditor } from "./DeliveryNotesEditor";
+import { DeliveredScreen } from "./DeliveredScreen";
+import { CancelledOverlay } from "./CancelledOverlay";
+import { ShareButton } from "./ShareButton";
+import { NearbyBanner } from "./NearbyBanner";
 import {
   useTrackingSubscription,
   useShowLiveTracking,
@@ -57,6 +63,14 @@ export function TrackingPageClient({
   );
   const [eta, setEta] = useState(initialData.eta);
 
+  // Track previous status for transition effects
+  const prevStatusRef = useRef<OrderStatus>(orderStatus);
+
+  // Delayed delivered screen appearance (500ms after status change)
+  const [showDelivered, setShowDelivered] = useState(
+    orderStatus === "delivered"
+  );
+
   // Browser tab title
   useEffect(() => {
     const originalTitle = document.title;
@@ -64,6 +78,36 @@ export function TrackingPageClient({
     return () => {
       document.title = originalTitle;
     };
+  }, [orderStatus]);
+
+  // Status transition effects: haptic + sound + delayed delivered screen
+  useEffect(() => {
+    if (prevStatusRef.current === orderStatus) return;
+    prevStatusRef.current = orderStatus;
+
+    // Haptic feedback on any status change
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(50);
+    }
+
+    // Brief audio cue
+    try {
+      const audio = new Audio("/sounds/notification.mp3");
+      audio.volume = 0.2;
+      void audio.play().catch(() => {
+        // Sound file may not exist -- graceful failure
+      });
+    } catch {
+      // Audio creation failed -- skip
+    }
+
+    // Delayed delivered screen appearance
+    if (orderStatus === "delivered") {
+      const timer = setTimeout(() => setShowDelivered(true), 500);
+      return () => clearTimeout(timer);
+    } else {
+      setShowDelivered(false);
+    }
   }, [orderStatus]);
 
   const subscription = useTrackingSubscription({
@@ -137,6 +181,9 @@ export function TrackingPageClient({
   const hasLocation =
     !!initialData.order.address.lat && !!initialData.order.address.lng;
 
+  const isTerminalStatus =
+    orderStatus === "delivered" || orderStatus === "cancelled";
+
   return (
     <div className="min-h-screen bg-cream">
       {/* Header */}
@@ -172,6 +219,7 @@ export function TrackingPageClient({
                   &bull; {lastUpdateDisplay}
                 </span>
               )}
+              <ShareButton orderId={orderId} orderStatus={orderStatus} />
               <button
                 onClick={() => subscription.refresh()}
                 className="p-1 hover:bg-charcoal-100 rounded-full transition-colors"
@@ -210,12 +258,29 @@ export function TrackingPageClient({
               isLive={subscription.isConnected}
               className="h-full rounded-none lg:rounded-none"
             />
+            {/* Cancelled overlay on top of map */}
+            <AnimatePresence>
+              {orderStatus === "cancelled" && (
+                <CancelledOverlay
+                  cancellationReason={
+                    initialData.order.cancellationReason
+                  }
+                  orderId={orderId}
+                />
+              )}
+            </AnimatePresence>
           </div>
         )}
 
         {/* Info section: bottom 50vh mobile (scrollable), right 50% desktop */}
         <div className="h-[50vh] lg:h-full overflow-y-auto pb-24">
           <div className="px-4 py-4 space-y-4">
+            {/* Nearby Banner */}
+            <NearbyBanner
+              etaMinutes={eta?.minMinutes ?? null}
+              isVisible={orderStatus === "out_for_delivery"}
+            />
+
             {/* StatusStepper - horizontal progress */}
             <m.div
               initial={{ opacity: 0, y: 10 }}
@@ -244,6 +309,17 @@ export function TrackingPageClient({
               </m.div>
             )}
 
+            {/* Delivered Screen */}
+            <AnimatePresence>
+              {showDelivered && orderStatus === "delivered" && (
+                <DeliveredScreen
+                  orderId={orderId}
+                  initialRating={initialData.rating}
+                  deliveryPhotoUrl={routeStop?.deliveryPhotoUrl}
+                />
+              )}
+            </AnimatePresence>
+
             {/* Status Timeline (detailed vertical) */}
             <m.div
               initial={{ opacity: 0, y: 10 }}
@@ -269,6 +345,19 @@ export function TrackingPageClient({
                 <DriverCard driver={driverInfo} stopProgress={stopProgress} />
               </m.div>
             )}
+
+            {/* Delivery Notes Editor */}
+            <m.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
+            >
+              <DeliveryNotesEditor
+                orderId={orderId}
+                initialNotes={initialData.order.specialInstructions}
+                isEditable={!isTerminalStatus}
+              />
+            </m.div>
 
             {/* Order Summary */}
             <m.div
@@ -305,27 +394,6 @@ export function TrackingPageClient({
                 orderStatus={orderStatus}
               />
             </m.div>
-
-            {/* Delivery Photo */}
-            {orderStatus === "delivered" && routeStop?.deliveryPhotoUrl && (
-              <m.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="rounded-xl bg-surface-primary p-4 shadow-warm-sm"
-              >
-                <p className="text-sm font-medium text-charcoal-600 mb-3">
-                  Delivery Photo
-                </p>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={routeStop.deliveryPhotoUrl}
-                  alt="Delivery confirmation"
-                  className="w-full rounded-lg object-cover"
-                  style={{ maxHeight: 300 }}
-                />
-              </m.div>
-            )}
           </div>
         </div>
       </div>
