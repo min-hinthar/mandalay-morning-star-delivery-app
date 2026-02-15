@@ -16,14 +16,15 @@
  * - Price calculation with real-time updates
  */
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Image from "next/image";
-import { AlertTriangle, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Drawer } from "@/components/ui/Drawer";
 import { AddToCartButton, QuantitySelector } from "@/components/ui/cart";
 import { ModifierGroup } from "./ModifierGroup";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
@@ -33,9 +34,11 @@ import {
   validateModifierSelection,
   type SelectedModifier,
 } from "@/lib/utils/price";
-import { ALLERGEN_MAP } from "@/lib/constants/allergens";
+import { toast } from "@/lib/hooks/useToastV8";
 import { cn } from "@/lib/utils/cn";
+import type { CartItem } from "@/types/cart";
 import type { MenuItem, ModifierOption } from "@/types/menu";
+import { AllergenWarning, DiscardChangesDialog, getCategoryEmoji } from "./ItemDetailSheet/helpers";
 
 // ============================================
 // TYPES
@@ -55,32 +58,18 @@ export interface ItemDetailSheetProps {
     quantity: number,
     notes: string
   ) => void;
+  /** Cart item being edited (enables edit mode when provided) */
+  editingCartItem?: CartItem;
+  /** Callback when cart item is updated in edit mode */
+  onUpdateCart?: (
+    cartItemId: string,
+    modifiers: SelectedModifier[],
+    quantity: number,
+    notes: string,
+    basePriceCents: number
+  ) => void;
   /** Extra className for the Drawer/Modal wrapper (e.g. z-index override) */
   className?: string;
-}
-
-// ============================================
-// ALLERGEN WARNING COMPONENT
-// ============================================
-
-function AllergenWarning({ allergens }: { allergens: string[] }) {
-  return (
-    <div
-      className={cn(
-        "flex items-start gap-3 rounded-lg p-3",
-        "border border-status-warning/30 bg-status-warning/10"
-      )}
-    >
-      <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-status-warning" />
-      <div>
-        <p className="font-medium text-text-primary">Allergen Information</p>
-        <p className="text-sm text-text-secondary">
-          Contains:{" "}
-          {allergens.map((a) => ALLERGEN_MAP[a]?.label || a).join(", ")}
-        </p>
-      </div>
-    </div>
-  );
 }
 
 // ============================================
@@ -92,24 +81,78 @@ export function ItemDetailSheet({
   isOpen,
   onClose,
   onAddToCart,
+  editingCartItem,
+  onUpdateCart,
   className: wrapperClassName,
 }: ItemDetailSheetProps) {
   // State
   const [selectedModifiers, setSelectedModifiers] = useState<SelectedModifier[]>([]);
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState("");
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+
+  // Track initial edit values to detect dirty state
+  const initialEditState = useRef<{
+    modifiers: SelectedModifier[];
+    quantity: number;
+    notes: string;
+  } | null>(null);
+
+  const isEditMode = !!editingCartItem;
 
   // Responsive overlay selection
   const isMobile = useMediaQuery("(max-width: 639px)");
 
   // Reset state when item changes OR when modal opens
-  // Using isOpen ensures state resets even when opening the same item again
+  // In edit mode, pre-populate from editingCartItem
   useEffect(() => {
     if (!item || !isOpen) return;
-    setSelectedModifiers([]);
-    setQuantity(1);
-    setNotes("");
-  }, [item, isOpen]);
+
+    if (editingCartItem) {
+      // Edit mode: pre-populate from cart item
+      const editModifiers = editingCartItem.modifiers.map((m) => ({
+        groupId: m.groupId,
+        groupName: m.groupName,
+        optionId: m.optionId,
+        optionName: m.optionName,
+        priceDeltaCents: m.priceDeltaCents,
+      }));
+      setSelectedModifiers(editModifiers);
+      setQuantity(editingCartItem.quantity);
+      setNotes(editingCartItem.notes);
+      initialEditState.current = {
+        modifiers: editModifiers,
+        quantity: editingCartItem.quantity,
+        notes: editingCartItem.notes,
+      };
+    } else {
+      // Add mode: reset to empty
+      setSelectedModifiers([]);
+      setQuantity(1);
+      setNotes("");
+      initialEditState.current = null;
+    }
+  }, [item, isOpen, editingCartItem]);
+
+  // Compute dirty state for edit mode
+  const isDirty = useMemo(() => {
+    if (!isEditMode || !initialEditState.current) return false;
+    const initial = initialEditState.current;
+    if (quantity !== initial.quantity) return true;
+    if (notes !== initial.notes) return true;
+    if (selectedModifiers.length !== initial.modifiers.length) return true;
+    const initialIds = new Set(initial.modifiers.map((m) => m.optionId));
+    return selectedModifiers.some((m) => !initialIds.has(m.optionId));
+  }, [isEditMode, selectedModifiers, quantity, notes]);
+
+  // Handle close with dirty-state check
+  const handleRequestClose = useCallback(() => {
+    if (isEditMode && isDirty) {
+      setShowDiscardDialog(true);
+    } else {
+      onClose();
+    }
+  }, [isEditMode, isDirty, onClose]);
 
   // ============================================
   // PRICE AND VALIDATION
@@ -184,6 +227,21 @@ export function ItemDetailSheet({
     onClose();
   }, [item, onAddToCart, selectedModifiers, quantity, notes, onClose]);
 
+  const handleUpdateCart = useCallback(() => {
+    if (!item || !editingCartItem || !onUpdateCart) return;
+    const totalCents = priceCalc?.totalCents ?? 0;
+    const unitPriceCents = quantity > 0 ? Math.round(totalCents / quantity) : item.basePriceCents;
+    onUpdateCart(
+      editingCartItem.cartItemId,
+      selectedModifiers,
+      quantity,
+      notes.trim(),
+      unitPriceCents
+    );
+    toast({ message: "Cart updated", type: "success" });
+    onClose();
+  }, [item, editingCartItem, onUpdateCart, selectedModifiers, quantity, notes, priceCalc, onClose]);
+
   // ============================================
   // RENDER CONTENT
   // ============================================
@@ -197,7 +255,7 @@ export function ItemDetailSheet({
         <div className="relative aspect-video shrink-0 bg-zinc-100 dark:bg-zinc-800">
           {/* Close Button - uses semi-transparent overlay on image */}
           <button
-            onClick={onClose}
+            onClick={handleRequestClose}
             className={cn(
               "absolute top-3 right-3 z-10",
               "w-8 h-8 rounded-full",
@@ -309,7 +367,7 @@ export function ItemDetailSheet({
           </div>
         </div>
 
-        {/* Footer with Add to Cart */}
+        {/* Footer with Add to Cart / Update Cart */}
         {/* eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution */}
         <div className="shrink-0 border-t border-border p-4 bg-white dark:bg-black safe-area-inset-bottom">
           {/* Validation Error */}
@@ -317,28 +375,61 @@ export function ItemDetailSheet({
             <p className="mb-2 text-sm text-status-error">{validation.errors[0]}</p>
           )}
 
-          <AddToCartButton
-            item={{
-              menuItemId: item.id,
-              menuItemSlug: item.slug,
-              nameEn: item.nameEn,
-              nameMy: item.nameMy,
-              imageUrl: item.imageUrl,
-              basePriceCents: priceCalc?.totalCents ?? item.basePriceCents,
-            }}
-            quantity={quantity}
-            modifiers={selectedModifiers}
-            notes={notes.trim()}
-            disabled={item.isSoldOut || !validation.isValid}
-            onAdd={handleAddToCart}
-            className="w-full"
-            size="lg"
-          >
-            {item.isSoldOut
-              ? "Sold Out"
-              : `Add to Cart - ${formatPrice(priceCalc?.totalCents ?? 0)}`}
-          </AddToCartButton>
+          {isEditMode ? (
+            item.isSoldOut ? (
+              <Button
+                variant="danger"
+                size="lg"
+                onClick={handleRequestClose}
+                className="w-full"
+              >
+                Item Unavailable - Remove from Cart
+              </Button>
+            ) : (
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={handleUpdateCart}
+                disabled={!validation.isValid}
+                className="w-full"
+              >
+                {`Update Cart - ${formatPrice(priceCalc?.totalCents ?? 0)}`}
+              </Button>
+            )
+          ) : (
+            <AddToCartButton
+              item={{
+                menuItemId: item.id,
+                menuItemSlug: item.slug,
+                nameEn: item.nameEn,
+                nameMy: item.nameMy,
+                imageUrl: item.imageUrl,
+                basePriceCents: priceCalc?.totalCents ?? item.basePriceCents,
+              }}
+              quantity={quantity}
+              modifiers={selectedModifiers}
+              notes={notes.trim()}
+              disabled={item.isSoldOut || !validation.isValid}
+              onAdd={handleAddToCart}
+              className="w-full"
+              size="lg"
+            >
+              {item.isSoldOut
+                ? "Sold Out"
+                : `Add to Cart - ${formatPrice(priceCalc?.totalCents ?? 0)}`}
+            </AddToCartButton>
+          )}
         </div>
+
+        {/* Discard changes confirmation dialog */}
+        <DiscardChangesDialog
+          open={showDiscardDialog}
+          onOpenChange={setShowDiscardDialog}
+          onDiscard={() => {
+            setShowDiscardDialog(false);
+            onClose();
+          }}
+        />
       </div>
     );
   };
@@ -351,7 +442,7 @@ export function ItemDetailSheet({
     return (
       <Drawer
         isOpen={isOpen && item !== null}
-        onClose={onClose}
+        onClose={handleRequestClose}
         position="bottom"
         height="full"
         showDragHandle={true}
@@ -365,7 +456,7 @@ export function ItemDetailSheet({
   return (
     <Modal
       isOpen={isOpen && item !== null}
-      onClose={onClose}
+      onClose={handleRequestClose}
       title={item?.nameEn ?? "Item Detail"}
       size="lg"
       showCloseButton={true}
@@ -374,31 +465,6 @@ export function ItemDetailSheet({
       {renderContent()}
     </Modal>
   );
-}
-
-// ============================================
-// HELPERS
-// ============================================
-
-/**
- * Get emoji placeholder for menu item based on category/tags
- */
-function getCategoryEmoji(category?: string): string {
-  const emojiMap: Record<string, string> = {
-    appetizers: "🥟",
-    soups: "🍲",
-    salads: "🥗",
-    curries: "🍛",
-    noodles: "🍜",
-    rice: "🍚",
-    seafood: "🦐",
-    meat: "🥩",
-    vegetarian: "🥬",
-    desserts: "🍰",
-    drinks: "🥤",
-    specials: "⭐",
-  };
-  return emojiMap[category?.toLowerCase() ?? ""] ?? "🍽️";
 }
 
 export default ItemDetailSheet;
