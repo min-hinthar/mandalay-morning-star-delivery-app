@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 ## Current Position
 
 Phase: 64 of 66 (Service Worker Hardening)
-Plan: 2 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-15 -- Completed 64-02-PLAN.md
+Last activity: 2026-02-15 -- Completed 64-04-PLAN.md
 
 Progress: [##############################......] 95% (63/66 phases)
 
@@ -107,6 +107,12 @@ Recent decisions affecting v1.7:
 - sessionStorage for dismiss count (resets per session, appropriate for update prompts)
 - CSS transition width for progress bar (simpler than Radix Progress for linear countdown)
 - Passive event listeners for interaction detection (no scroll jank)
+- Cart persistence moved from localStorage to IndexedDB via idb-keyval adapter
+- Transparent one-time localStorage-to-IndexedDB migration on first load
+- pendingSync flag on CartItem for offline-added items (optional boolean, not separate queue)
+- Online event listener clears pendingSync + shows "Cart synced!" toast on reconnect
+- _hasHydrated flag for async hydration tracking (UI should check before rendering cart count)
+- fake-indexeddb/auto added to test setup for IndexedDB mock in jsdom
 
 ### Pending Todos
 
@@ -123,5 +129,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 64-02-PLAN.md
+Stopped at: Completed 64-04-PLAN.md
 Resume file: None
