@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-13)
 Phase: 62 of 66 (Production Operations)
 Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-02-14 -- Completed 62-03-PLAN.md
+Last activity: 2026-02-14 -- Completed 62-01-PLAN.md
 
 Progress: [############################........] 93% (62/66 phases)
 
@@ -86,6 +86,8 @@ Recent decisions affecting v1.7:
 - OAuth error toast shows generic user-friendly message; raw errors logged server-side only
 - Google OAuth health check validates Supabase URL/anon key (OAuth through Supabase Auth, not direct Google API)
 - GOOGLE_SITE_VERIFICATION in importantVars (not critical) -- app works without Search Console
+- SEO verification code from env var GOOGLE_SITE_VERIFICATION (not hardcoded), graceful when undefined
+- Only 5 public routes in sitemap (/, /menu, /login, /privacy, /terms)
 
 ### Pending Todos
 
@@ -102,5 +104,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Completed 62-03-PLAN.md (health endpoint extension with Google OAuth + Search Console)
+Stopped at: Completed 62-01-PLAN.md (SEO foundation: sitemap, robots.txt, Search Console verification)
 Resume file: None
