@@ -2,7 +2,16 @@
 
 import { m, type Variants } from "framer-motion";
 import Link from "next/link";
-import { MapPin, Phone, Mail, Clock, ExternalLink } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Heart } from "lucide-react";
+import {
+  YelpIcon,
+  GoogleMapsIcon,
+  UberEatsIcon,
+  DoorDashIcon,
+  GrubHubIcon,
+  MyanmarFlagIcon,
+  CaliforniaFlagIcon,
+} from "@/components/ui/icons/BrandIcons";
 import { easing } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { KITCHEN_LOCATION } from "@/types/address";
@@ -39,29 +48,34 @@ const copyrightVariants: Variants = {
   },
 };
 
-/** Business listing links (external) */
+/** Business listing links with brand icons */
 const BUSINESS_LISTINGS = [
   {
     name: "Yelp",
+    icon: YelpIcon,
     // TODO: Replace with verified Yelp business page URL once confirmed
     href: "https://www.yelp.com/search?find_desc=Mandalay+Morning+Star+Burmese+Kitchen&find_loc=Covina+CA",
   },
   {
     name: "Google Maps",
+    icon: GoogleMapsIcon,
     href: `https://maps.google.com/?q=${encodeURIComponent(KITCHEN_LOCATION.address)}`,
   },
   {
     name: "Uber Eats",
+    icon: UberEatsIcon,
     // TODO: Replace with specific Uber Eats restaurant page URL
     href: "https://www.ubereats.com",
   },
   {
     name: "DoorDash",
+    icon: DoorDashIcon,
     // TODO: Replace with specific DoorDash restaurant page URL
     href: "https://www.doordash.com",
   },
   {
     name: "GrubHub",
+    icon: GrubHubIcon,
     // TODO: Replace with specific GrubHub restaurant page URL
     href: "https://www.grubhub.com",
   },
@@ -105,18 +119,18 @@ export function SiteFooter() {
                 <span className="text-sm font-body">{KITCHEN_LOCATION.address}</span>
               </a>
               <a
-                href="tel:+16261234567"
+                href="tel:+16266655317"
                 className="flex items-center gap-3 hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
               >
                 <Phone className="w-5 h-5" />
-                <span className="text-sm font-body">(626) 123-4567</span>
+                <span className="text-sm font-body">(626) 665-5317</span>
               </a>
               <a
-                href="mailto:hello@mandalaymorningstar.com"
+                href="mailto:admin@mandalaymorningstar.com"
                 className="flex items-center gap-3 hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
               >
                 <Mail className="w-5 h-5" />
-                <span className="text-sm font-body">hello@mandalaymorningstar.com</span>
+                <span className="text-sm font-body">admin@mandalaymorningstar.com</span>
               </a>
             </div>
           </m.div>
@@ -168,9 +182,9 @@ export function SiteFooter() {
                     href={listing.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm font-body hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
+                    className="flex items-center gap-2.5 text-sm font-body hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
                   >
-                    <ExternalLink className="w-4 h-4 flex-shrink-0" />
+                    <listing.icon className="w-5 h-5 flex-shrink-0" />
                     {listing.name}
                   </a>
                 </li>
@@ -222,8 +236,13 @@ export function SiteFooter() {
             &copy; {new Date().getFullYear()} Mandalay Morning Star Burmese Kitchen.
             All rights reserved.
           </p>
-          <p className="text-xs font-body text-footer-text-muted mt-2">
-            Cooked with Love &#10084;&#65039; for the Burmese &#127474;&#127474; Community of Los Angeles &#128059;
+          <p className="text-xs font-body text-footer-text-muted mt-2 inline-flex items-center justify-center gap-1 flex-wrap">
+            <span>Cooked with Love</span>
+            <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" />
+            <span>for the Burmese</span>
+            <MyanmarFlagIcon className="w-5 h-3.5" />
+            <span>Community of Los Angeles</span>
+            <CaliforniaFlagIcon className="w-5 h-3.5" />
           </p>
         </m.div>
       </div>
