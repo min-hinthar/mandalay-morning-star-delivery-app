@@ -111,20 +111,13 @@ export async function POST(
       );
     }
 
-    // Check if rating already exists
+    // Check if rating already exists (for upsert)
     const { data: existingRating } = await supabase
       .from("driver_ratings")
       .select("id")
       .eq("order_id", orderId)
       .returns<ExistingRating[]>()
       .single();
-
-    if (existingRating) {
-      return NextResponse.json(
-        { error: "You have already rated this order" },
-        { status: 409 }
-      );
-    }
 
     // Get the route stop to find the driver
     const { data: routeStop, error: routeStopError } = await supabase
@@ -149,30 +142,56 @@ export async function POST(
       );
     }
 
-    // Insert the rating
-    const { data: newRating, error: insertError } = await supabase
-      .from("driver_ratings")
-      .insert({
-        driver_id: routeStop.routes.driver_id,
-        order_id: orderId,
-        route_stop_id: routeStop.id,
-        rating,
-        feedback_text: feedbackText || null,
-      })
-      .select("id")
-      .returns<NewRatingResult[]>()
-      .single();
+    let ratingId: string;
 
-    if (insertError) {
-      logger.exception(insertError, { api: "orders/[id]/rating", flowId: "submit" });
-      return NextResponse.json(
-        { error: "Failed to submit rating" },
-        { status: 500 }
-      );
+    if (existingRating) {
+      // Update existing rating (upsert)
+      const { error: updateError } = await supabase
+        .from("driver_ratings")
+        .update({
+          rating,
+          feedback_text: feedbackText || null,
+          submitted_at: new Date().toISOString(),
+        })
+        .eq("id", existingRating.id);
+
+      if (updateError) {
+        logger.exception(updateError, { api: "orders/[id]/rating", flowId: "update" });
+        return NextResponse.json(
+          { error: "Failed to update rating" },
+          { status: 500 }
+        );
+      }
+
+      ratingId = existingRating.id;
+    } else {
+      // Insert new rating
+      const { data: newRating, error: insertError } = await supabase
+        .from("driver_ratings")
+        .insert({
+          driver_id: routeStop.routes.driver_id,
+          order_id: orderId,
+          route_stop_id: routeStop.id,
+          rating,
+          feedback_text: feedbackText || null,
+        })
+        .select("id")
+        .returns<NewRatingResult[]>()
+        .single();
+
+      if (insertError) {
+        logger.exception(insertError, { api: "orders/[id]/rating", flowId: "submit" });
+        return NextResponse.json(
+          { error: "Failed to submit rating" },
+          { status: 500 }
+        );
+      }
+
+      ratingId = newRating.id;
     }
 
     const response: SubmitRatingResponse = {
-      id: newRating.id,
+      id: ratingId,
       message: "Thank you for your feedback!",
     };
 
