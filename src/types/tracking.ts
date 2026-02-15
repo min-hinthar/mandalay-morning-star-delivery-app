@@ -26,6 +26,9 @@ export interface TrackingData {
   driver: TrackingDriverInfo | null;
   driverLocation: DriverLocation | null;
   eta: EtaInfo | null;
+  routeId: string | null;
+  restaurantLocation: LatLng | null;
+  rating: number | null;
 }
 
 /**
@@ -37,9 +40,12 @@ export interface TrackingOrderInfo {
   placedAt: string;
   confirmedAt: string | null;
   deliveredAt: string | null;
+  cancelledAt: string | null;
+  cancellationReason: string | null;
   deliveryWindowStart: string | null;
   deliveryWindowEnd: string | null;
   specialInstructions: string | null;
+  deliveryNotes: string | null;
   address: TrackingAddressInfo;
   items: TrackingOrderItem[];
   subtotalCents: number;
