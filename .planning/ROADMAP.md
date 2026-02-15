@@ -113,7 +113,11 @@ Plans:
   1. Homepage footer or nav links to privacy policy and terms of service pages
   2. Homepage clearly explains the app is a meal delivery subscription service (visible above the fold or in hero)
   3. Google OAuth brand verification application submitted with compliant homepage as evidence
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 63-01-PLAN.md -- Comprehensive privacy policy and terms of service page rewrites
+- [ ] 63-02-PLAN.md -- Footer split (SiteFooter for all public pages) + login agreement text
+- [ ] 63-03-PLAN.md -- Google OAuth brand verification submission (checkpoint)
 
 ### Phase 64: Service Worker Hardening
 **Goal**: All app routes benefit from service worker caching with safe update behavior
