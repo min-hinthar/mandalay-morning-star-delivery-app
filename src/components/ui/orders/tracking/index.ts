@@ -18,6 +18,11 @@ export { DriverCard, DriverCardSkeleton } from "./DriverCard";
 
 export { OrderSummary } from "./OrderSummary";
 
+export { DeliveryNotesEditor } from "./DeliveryNotesEditor";
+
 export { SupportActions, SupportFAB } from "./SupportActions";
+
+export { StatusStepper } from "./StatusStepper";
+export type { StatusStepperProps } from "./StatusStepper";
 
 export { TrackingPageClient } from "./TrackingPageClient";
