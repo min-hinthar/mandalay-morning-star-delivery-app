@@ -115,21 +115,21 @@ export function SiteFooter() {
                 rel="noopener noreferrer"
                 className="flex items-start gap-3 hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
               >
-                <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0 text-secondary" />
                 <span className="text-sm font-body">{KITCHEN_LOCATION.address}</span>
               </a>
               <a
                 href="tel:+16266655317"
                 className="flex items-center gap-3 hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
               >
-                <Phone className="w-5 h-5" />
+                <Phone className="w-5 h-5 text-secondary" />
                 <span className="text-sm font-body">(626) 665-5317</span>
               </a>
               <a
                 href="mailto:admin@mandalaymorningstar.com"
                 className="flex items-center gap-3 hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
               >
-                <Mail className="w-5 h-5" />
+                <Mail className="w-5 h-5 text-secondary" />
                 <span className="text-sm font-body">admin@mandalaymorningstar.com</span>
               </a>
             </div>
@@ -148,7 +148,7 @@ export function SiteFooter() {
             </h3>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5" />
+                <Clock className="w-5 h-5 text-secondary" />
                 <div>
                   <p className="text-sm font-body font-medium">Saturday Delivery</p>
                   <p className="text-sm font-body text-footer-text-muted">
