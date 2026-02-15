@@ -1,2 +1,6 @@
-export { OrderDetailExpanded } from "./OrderDetailExpanded";
-export type { OrderDetailExpandedProps } from "./types";
+export {
+  STATUS_COLORS,
+  STATUS_LABELS,
+  NEXT_STATUSES,
+  AUDIT_ACTION_LABELS,
+} from "./config";
