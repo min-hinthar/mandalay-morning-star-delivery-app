@@ -25,6 +25,8 @@ export interface CartItemGroupProps {
   ) => void;
   onEditItem: (item: CartItemType) => void;
   onDismissPriceChange: (cartItemId: string, newPriceCents: number) => void;
+  /** Set of menuItemIds that have modifier groups (show edit icon) */
+  editableItemIds?: Set<string>;
   className?: string;
 }
 
@@ -37,6 +39,7 @@ export const CartItemGroup = memo(function CartItemGroup({
   onReplaceItem,
   onEditItem,
   onDismissPriceChange,
+  editableItemIds,
   className,
 }: CartItemGroupProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
@@ -86,7 +89,11 @@ export const CartItemGroup = memo(function CartItemGroup({
                 <div className="relative">
                   <CartItem
                     item={item}
-                    onEdit={onEditItem}
+                    onEdit={
+                      !editableItemIds || editableItemIds.has(item.menuItemId)
+                        ? onEditItem
+                        : undefined
+                    }
                   />
                   {isSoldOutOrUnavailable && validation && (
                     <ValidationOverlay
