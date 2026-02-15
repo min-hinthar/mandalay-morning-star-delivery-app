@@ -606,6 +606,46 @@ export interface CustomerSettingsUpdate {
 }
 
 // ============================================
+// DRIVER RATINGS
+// ============================================
+
+export interface DriverRatingsRow {
+  id: string;
+  order_id: string;
+  driver_id: string;
+  user_id: string;
+  route_stop_id: string;
+  rating: number; // 1-5
+  feedback_text: string | null;
+  submitted_at: string;
+  created_at: string;
+}
+
+export interface DriverRatingsInsert {
+  order_id: string;
+  driver_id: string;
+  user_id?: string;
+  route_stop_id: string;
+  rating: number;
+  feedback_text?: string | null;
+  id?: string;
+  created_at?: string;
+  submitted_at?: string;
+}
+
+export interface DriverRatingsUpdate {
+  id?: string;
+  order_id?: string;
+  driver_id?: string;
+  user_id?: string;
+  route_stop_id?: string;
+  rating?: number;
+  feedback_text?: string | null;
+  submitted_at?: string;
+  created_at?: string;
+}
+
+// ============================================
 // WEBHOOK EVENTS (idempotency)
 // ============================================
 
@@ -868,6 +908,41 @@ export type Database = {
             columns: ["invited_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      driver_ratings: {
+        Row: DriverRatingsRow;
+        Insert: DriverRatingsInsert;
+        Update: DriverRatingsUpdate;
+        Relationships: [
+          {
+            foreignKeyName: "driver_ratings_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: true;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "driver_ratings_driver_id_fkey";
+            columns: ["driver_id"];
+            isOneToOne: false;
+            referencedRelation: "drivers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "driver_ratings_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "driver_ratings_route_stop_id_fkey";
+            columns: ["route_stop_id"];
+            isOneToOne: false;
+            referencedRelation: "route_stops";
             referencedColumns: ["id"];
           }
         ];
