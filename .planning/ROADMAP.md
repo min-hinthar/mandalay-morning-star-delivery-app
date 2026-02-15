@@ -137,15 +137,15 @@ Plans:
 - [x] 64-05-PLAN.md -- SW registration consolidation + cache metrics + verification
 
 ### Phase 65: CI/CD Hardening
-**Goal**: PRs are blocked by performance regressions, visual regressions, and lint violations
+**Goal**: Lighthouse CI errors on performance regressions; CSS lint and Prettier gates in CI pipeline
 **Depends on**: Phase 60 (LCP must pass before enabling blocking Lighthouse CI)
-**Requirements**: CICD-01, CICD-02, CICD-03, CICD-04
+**Requirements**: CICD-01, CICD-03 (CICD-02 Chromatic and CICD-04 branch protection deferred)
 **Success Criteria** (what must be TRUE):
-  1. A PR that regresses LCP beyond 4000ms or CLS beyond 0.15 fails the Lighthouse CI check and cannot merge
-  2. Visual regression snapshots are captured via Chromatic on every PR with review workflow
-  3. CSS lint violations and Prettier formatting issues fail the CI check
-  4. GitHub branch protection requires Lighthouse CI and Chromatic checks to pass before merge
-**Plans**: TBD
+  1. A PR that regresses LCP beyond 4000ms or CLS beyond 0.15 fails the Lighthouse CI check
+  2. CSS lint violations and Prettier formatting issues fail the CI check
+**Plans:** 1 plan
+Plans:
+- [ ] 65-01-PLAN.md -- Lighthouse CI error assertions + lint gate expansion + path filtering + Node 22
 
 ### Phase 66: Backlog Cleanup
 **Goal**: Outstanding feature gaps and tech debt items from previous milestones are resolved
@@ -183,7 +183,7 @@ Phases execute in numeric order: 58 -> 59 -> 60 -> 61 -> 62 -> 63 -> 64 -> 65 ->
 | 62. Production Operations | v1.7 | 4/4 | Complete | 2026-02-14 |
 | 63. Branding & Compliance | v1.7 | 3/3 | Complete | 2026-02-15 |
 | 64. Service Worker Hardening | v1.7 | 5/5 | Complete | 2026-02-15 |
-| 65. CI/CD Hardening | v1.7 | 0/0 | Not started | - |
+| 65. CI/CD Hardening | v1.7 | 0/1 | In Progress | - |
 | 66. Backlog Cleanup | v1.7 | 0/0 | Not started | - |
 
 **Total: 66 phases across 8 milestones (64 complete, 2 pending)**
