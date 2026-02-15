@@ -113,6 +113,11 @@ Recent decisions affecting v1.7:
 - Online event listener clears pendingSync + shows "Cart synced!" toast on reconnect
 - _hasHydrated flag for async hydration tracking (UI should check before rendering cart count)
 - fake-indexeddb/auto added to test setup for IndexedDB mock in jsdom
+- Offline banner text: "You're offline -- showing cached content" (not just "You're offline")
+- Manual refresh button on reconnection banner (user chooses when to refresh)
+- Custom event "offline-state-change" for banner priority coordination (offline wins over update)
+- document.documentElement.dataset.offline for disabling non-queueable actions
+- OfflinePage as self-contained 'use client' component (no ErrorPageShell dependency for offline weight)
 
 ### Pending Todos
 
