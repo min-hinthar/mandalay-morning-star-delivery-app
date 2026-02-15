@@ -23,7 +23,7 @@
 - [x] **Phase 61: Admin Pages** - Order detail and profile pages (APIs already exist)
 - [x] **Phase 62: Production Operations** - OAuth, Stripe webhook, Resend domain, Search Console
 - [x] **Phase 63: Branding & Compliance** - Homepage content for Google OAuth verification
-- [ ] **Phase 64: Service Worker Hardening** - Full-scope SW with content-hash caching and update banner
+- [x] **Phase 64: Service Worker Hardening** - Full-scope SW with content-hash caching and update banner
 - [ ] **Phase 65: CI/CD Hardening** - Lighthouse CI blocking, Chromatic visual regression, lint gates
 - [ ] **Phase 66: Backlog Cleanup** - Language pref, cart modifiers, tracking fix, card refactor, dead code
 
@@ -130,11 +130,11 @@ Plans:
   4. Auth callback (`/auth/callback`) and Sentry tunnel routes are excluded from SW interception
 **Plans:** 5 plans
 Plans:
-- [ ] 64-01-PLAN.md -- Content-hash build script + SW NavigationRoute + offline page + menu TTL
-- [ ] 64-02-PLAN.md -- Update banner rewrite (10s countdown, interaction pause, progress bar, version)
-- [ ] 64-03-PLAN.md -- Offline indicator enhancement + branded offline page component
-- [ ] 64-04-PLAN.md -- Cart IndexedDB migration (idb-keyval, localStorage migration, hydration)
-- [ ] 64-05-PLAN.md -- SW registration consolidation + cache metrics + verification
+- [x] 64-01-PLAN.md -- Content-hash build script + SW NavigationRoute + offline page + menu TTL
+- [x] 64-02-PLAN.md -- Update banner rewrite (10s countdown, interaction pause, progress bar, version)
+- [x] 64-03-PLAN.md -- Offline indicator enhancement + branded offline page component
+- [x] 64-04-PLAN.md -- Cart IndexedDB migration (idb-keyval, localStorage migration, hydration)
+- [x] 64-05-PLAN.md -- SW registration consolidation + cache metrics + verification
 
 ### Phase 65: CI/CD Hardening
 **Goal**: PRs are blocked by performance regressions, visual regressions, and lint violations
@@ -182,11 +182,11 @@ Phases execute in numeric order: 58 -> 59 -> 60 -> 61 -> 62 -> 63 -> 64 -> 65 ->
 | 61. Admin Pages | v1.7 | 5/5 | Complete | 2026-02-14 |
 | 62. Production Operations | v1.7 | 4/4 | Complete | 2026-02-14 |
 | 63. Branding & Compliance | v1.7 | 3/3 | Complete | 2026-02-15 |
-| 64. Service Worker Hardening | v1.7 | 0/0 | Not started | - |
+| 64. Service Worker Hardening | v1.7 | 5/5 | Complete | 2026-02-15 |
 | 65. CI/CD Hardening | v1.7 | 0/0 | Not started | - |
 | 66. Backlog Cleanup | v1.7 | 0/0 | Not started | - |
 
-**Total: 66 phases across 8 milestones (63 complete, 3 pending)**
+**Total: 66 phases across 8 milestones (64 complete, 2 pending)**
 
 ---
 *v1.6 details archived to: .planning/milestones/v1.6-ROADMAP.md*
