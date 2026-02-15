@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 66 - Backlog Cleanup (plan 02 complete)
+**Current focus:** Phase 66 - Backlog Cleanup (plans 01, 02, 06 complete)
 
 ## Current Position
 
 Phase: 66 of 66 (Backlog Cleanup)
-Plan: 2 of 7 in current phase
+Plan: 3 of 7 in current phase (01, 02, 06 complete)
 Status: In progress
-Last activity: 2026-02-15 -- Completed 66-02-PLAN.md
+Last activity: 2026-02-15 -- Completed 66-01-PLAN.md
 
-Progress: [################################....] 98% (66/66 phases, 2/7 plans)
+Progress: [################################....] 98% (66/66 phases, 3/7 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 274 (across v1.0-v1.7)
+- Total plans completed: 275 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~65 hours
 
@@ -129,6 +129,10 @@ Recent decisions affecting v1.7:
 - Restaurant location hardcoded as LA constant (single-restaurant app, no settings table)
 - Shared tracking links: ?shared=true skips ownership check but still requires authentication
 - deliveryNotes aliases specialInstructions (semantic naming for tracking UI)
+- Cart edit mode: editingCartItem prop enables pre-populated ItemDetailSheet with Update Cart CTA
+- Button (not AddToCartButton) for Update Cart CTA (no fly animation for edits)
+- editableItemIds Set gates pencil icon visibility on items with modifier groups
+- Dirty-state tracking via useRef initial snapshot comparison
 
 ### Pending Todos
 
@@ -145,5 +149,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 66-02-PLAN.md (Tracking foundation: route_id fix, extended types, shared links)
+Stopped at: Completed 66-01-PLAN.md (Cart modifier editing via ItemDetailSheet)
 Resume file: None
