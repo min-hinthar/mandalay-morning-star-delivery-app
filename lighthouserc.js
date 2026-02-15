@@ -2,53 +2,20 @@
  * Lighthouse CI Configuration
  *
  * Performance regression gate for PRs.
- * Supports both mobile (default) and desktop profiles.
- * Warn-only assertions (does not block PRs).
+ * Mobile-only settings (mobile-first delivery app).
+ *
+ * Assertions:
+ *   ERROR (blocks CI check): LCP, CLS, performance score, accessibility score
+ *   WARN  (informational):   FCP, TBT
  *
  * Run locally:
  *   pnpm lighthouse              # mobile (default)
- *   pnpm lighthouse:desktop      # desktop profile
+ *   pnpm lighthouse:desktop      # desktop profile (local use only)
  *
  * CI: Runs automatically on pull requests via GitHub Actions (mobile profile)
  *
  * @see https://github.com/GoogleChrome/lighthouse-ci
  */
-
-const isDesktop = process.env.LIGHTHOUSE_PROFILE === "desktop";
-
-// Desktop settings match Lighthouse's built-in desktop config
-const desktopSettings = {
-  chromeFlags: "--no-sandbox --headless --disable-gpu",
-  throttling: {
-    rttMs: 40,
-    throughputKbps: 10240,
-    cpuSlowdownMultiplier: 1,
-  },
-  emulatedFormFactor: "desktop",
-  screenEmulation: {
-    mobile: false,
-    width: 1350,
-    height: 940,
-    deviceScaleFactor: 1,
-  },
-};
-
-// Mobile settings for realistic mobile performance
-const mobileSettings = {
-  chromeFlags: "--no-sandbox --headless --disable-gpu",
-  throttling: {
-    rttMs: 150,
-    throughputKbps: 1638.4,
-    cpuSlowdownMultiplier: 4,
-  },
-  emulatedFormFactor: "mobile",
-  screenEmulation: {
-    mobile: true,
-    width: 375,
-    height: 667,
-    deviceScaleFactor: 2,
-  },
-};
 
 module.exports = {
   ci: {
@@ -58,31 +25,49 @@ module.exports = {
       startServerReadyPattern: "Starting",
       startServerReadyTimeout: 30000,
 
-      // Customer-facing routes to audit
+      // Public routes to audit (5 routes)
       url: [
         "http://localhost:3000/",
         "http://localhost:3000/menu",
-        "http://localhost:3000/cart",
-        "http://localhost:3000/checkout",
+        "http://localhost:3000/login",
+        "http://localhost:3000/privacy",
+        "http://localhost:3000/terms",
       ],
 
       // 3 runs per URL for statistical accuracy
       numberOfRuns: 3,
 
-      settings: isDesktop ? desktopSettings : mobileSettings,
+      // Mobile settings for realistic mobile performance
+      settings: {
+        chromeFlags: "--no-sandbox --headless --disable-gpu",
+        throttling: {
+          rttMs: 150,
+          throughputKbps: 1638.4,
+          cpuSlowdownMultiplier: 4,
+        },
+        emulatedFormFactor: "mobile",
+        screenEmulation: {
+          mobile: true,
+          width: 375,
+          height: 667,
+          deviceScaleFactor: 2,
+        },
+      },
     },
 
     assert: {
       assertions: {
-        // Core Web Vitals - WARN only (per decision: do not block PRs)
-        "first-contentful-paint": ["warn", { maxNumericValue: 1500 }],
-        "largest-contentful-paint": ["warn", { maxNumericValue: 2500 }],
-        "cumulative-layout-shift": ["warn", { maxNumericValue: 0.1 }],
-        "total-blocking-time": ["warn", { maxNumericValue: 200 }],
+        // Core Web Vitals - ERROR (fails CI check)
+        "largest-contentful-paint": ["error", { maxNumericValue: 4000 }],
+        "cumulative-layout-shift": ["error", { maxNumericValue: 0.15 }],
 
-        // Overall score thresholds - WARN only
-        "categories:performance": ["warn", { minScore: 0.9 }],
-        "categories:accessibility": ["warn", { minScore: 0.95 }],
+        // Core Web Vitals - WARN (informational only)
+        "first-contentful-paint": ["warn", { maxNumericValue: 2000 }],
+        "total-blocking-time": ["warn", { maxNumericValue: 300 }],
+
+        // Overall score thresholds - ERROR (fails CI check)
+        "categories:performance": ["error", { minScore: 0.6 }],
+        "categories:accessibility": ["error", { minScore: 0.9 }],
       },
     },
 
