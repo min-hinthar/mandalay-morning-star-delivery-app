@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 66 - Backlog Cleanup (plan 06 complete)
+**Current focus:** Phase 66 - Backlog Cleanup (plan 02 complete)
 
 ## Current Position
 
 Phase: 66 of 66 (Backlog Cleanup)
-Plan: 6 of 7 in current phase
+Plan: 2 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-15 -- Completed 66-06-PLAN.md
+Last activity: 2026-02-15 -- Completed 66-02-PLAN.md
 
-Progress: [################################....] 98% (66/66 phases, 1/7 plans)
+Progress: [################################....] 98% (66/66 phases, 2/7 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 273 (across v1.0-v1.7)
+- Total plans completed: 274 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~65 hours
 
@@ -125,6 +125,10 @@ Recent decisions affecting v1.7:
 - Sentry breadcrumbs (not custom metrics) for cache observability -- lightweight, no pipeline overhead
 - invalidateMenuCache opens 'menu-api-cache-v1' directly via Cache API (matches sw.ts cache name)
 - UnifiedMenuItemCard hook extraction: useTiltEffect and useCardInteractions as internal hooks (not barrel-exported)
+- DriverRatingsRow schema aligned with actual DB (route_stop_id, feedback_text, submitted_at columns)
+- Restaurant location hardcoded as LA constant (single-restaurant app, no settings table)
+- Shared tracking links: ?shared=true skips ownership check but still requires authentication
+- deliveryNotes aliases specialInstructions (semantic naming for tracking UI)
 
 ### Pending Todos
 
@@ -141,5 +145,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 66-06-PLAN.md (UnifiedMenuItemCard refactor)
+Stopped at: Completed 66-02-PLAN.md (Tracking foundation: route_id fix, extended types, shared links)
 Resume file: None
