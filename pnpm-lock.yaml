@@ -189,6 +189,9 @@ importers:
       '@playwright/test':
         specifier: ^1.57.0
         version: 1.57.0
+      '@serwist/build':
+        specifier: ^9.5.6
+        version: 9.5.6(browserslist@4.28.1)(typescript@5.9.3)
       '@storybook/addon-a11y':
         specifier: ^10.1.11
         version: 10.1.11(storybook@10.1.11(@testing-library/dom@10.4.1)(prettier@3.7.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
@@ -2504,6 +2507,15 @@ packages:
       typescript:
         optional: true
 
+  '@serwist/build@9.5.6':
+    resolution: {integrity: sha512-/YUi2BKrvnIkYg8k/PW5N/lAR4N0h/F8eBaqCaDNOy2fdOiNCkvRaWq/ZaoYN5tocvNsMc7OSm7+m1aJqR7trQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      typescript: '>=5.0.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   '@serwist/next@9.5.4':
     resolution: {integrity: sha512-bkPkvMs4GfNV3C3tSZg9O5mb+B7Rq8zLpkZNF2hV96zep6d/ujA7yBp8o8bD1rmLb7I++ifsIMQzH2a+vVc/ag==}
     engines: {node: '>=18.0.0'}
@@ -2520,6 +2532,14 @@ packages:
 
   '@serwist/utils@9.5.4':
     resolution: {integrity: sha512-uyriGQF1qjNEHXXfsd8XJ5kfK3/MezEaUw//XdHjZeJ0LvLamrgnLJGQQoyJqUfEPCiJ4jJwc4uYMB9LjLiHxA==}
+    peerDependencies:
+      browserslist: '>=4'
+    peerDependenciesMeta:
+      browserslist:
+        optional: true
+
+  '@serwist/utils@9.5.6':
+    resolution: {integrity: sha512-WV5hAZd/Oo8hyHv7Pd39EDZu3bIhKe0lW39lyMlKVHm5gIGEnPdrH3DojlXAFHiV18nz/bLeqkVo6rK82kBGHw==}
     peerDependencies:
       browserslist: '>=4'
     peerDependenciesMeta:
@@ -9695,6 +9715,19 @@ snapshots:
     transitivePeerDependencies:
       - browserslist
 
+  '@serwist/build@9.5.6(browserslist@4.28.1)(typescript@5.9.3)':
+    dependencies:
+      '@serwist/utils': 9.5.6(browserslist@4.28.1)
+      common-tags: 1.8.2
+      glob: 10.5.0
+      pretty-bytes: 6.1.1
+      source-map: 0.8.0-beta.0
+      zod: 4.3.6
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - browserslist
+
   '@serwist/next@9.5.4(next@16.1.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.57.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)(typescript@5.9.3)(webpack@5.104.1(esbuild@0.27.2))':
     dependencies:
       '@serwist/build': 9.5.4(browserslist@4.28.1)(typescript@5.9.3)
@@ -9715,6 +9748,10 @@ snapshots:
       - webpack
 
   '@serwist/utils@9.5.4(browserslist@4.28.1)':
+    optionalDependencies:
+      browserslist: 4.28.1
+
+  '@serwist/utils@9.5.6(browserslist@4.28.1)':
     optionalDependencies:
       browserslist: 4.28.1
 

@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 import bundleAnalyzer from "@next/bundle-analyzer";
+import { readFileSync } from "fs";
+
+const { version: appVersion } = JSON.parse(
+  readFileSync(new URL("./package.json", import.meta.url), "utf-8")
+);
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
@@ -21,6 +26,11 @@ const nextConfig: NextConfig = {
    * - CLS: < 0.1
    * - TBT: < 200ms
    */
+
+  // Expose app version for service worker update banner
+  env: {
+    NEXT_PUBLIC_APP_VERSION: appVersion,
+  },
 
   // Enable React strict mode for better debugging
   reactStrictMode: true,
