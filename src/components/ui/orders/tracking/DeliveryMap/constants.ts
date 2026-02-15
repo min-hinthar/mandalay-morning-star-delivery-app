@@ -52,3 +52,20 @@ export const LIBRARIES: ("places" | "geometry" | "marker")[] = ["places", "geome
 
 // Check if Map ID is available for AdvancedMarkerElement
 export const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+
+// ---- Marker sizes ----
+export const MARKER_SIZES = {
+  restaurant: { width: 40, height: 48 },
+  vehicle: { width: 36, height: 36 },
+  destination: { width: 40, height: 48 },
+} as const;
+
+// ---- Animation ----
+export const MARKER_ANIMATION_DURATION_MS = 1000;
+export const MARKER_ANIMATION_FRAMES = 60;
+
+// ---- Stale location threshold (2 minutes) ----
+export const STALE_LOCATION_THRESHOLD_MS = 2 * 60 * 1000;
+
+// ---- Auto-fit threshold (lat/lng delta) ----
+export const AUTO_FIT_THRESHOLD = 0.001;

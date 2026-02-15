@@ -253,7 +253,11 @@ export interface OrderSummaryProps {
     start: string | null;
     end: string | null;
   };
-  defaultExpanded?: boolean;
+  deliveryAddress?: {
+    line1: string;
+    city: string;
+    state: string;
+  };
 }
 
 /**
