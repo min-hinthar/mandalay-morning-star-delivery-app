@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 66 - Backlog Cleanup (plans 01, 02, 06 complete)
+**Current focus:** Phase 66 - Backlog Cleanup (plans 01, 02, 06, 07 complete)
 
 ## Current Position
 
 Phase: 66 of 66 (Backlog Cleanup)
-Plan: 3 of 7 in current phase (01, 02, 06 complete)
+Plan: 4 of 7 in current phase (01, 02, 06, 07 complete)
 Status: In progress
-Last activity: 2026-02-15 -- Completed 66-01-PLAN.md
+Last activity: 2026-02-15 -- Completed 66-07-PLAN.md
 
-Progress: [################################....] 98% (66/66 phases, 3/7 plans)
+Progress: [################################....] 98% (66/66 phases, 4/7 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 275 (across v1.0-v1.7)
+- Total plans completed: 276 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~65 hours
 
@@ -133,6 +133,10 @@ Recent decisions affecting v1.7:
 - Button (not AddToCartButton) for Update Cart CTA (no fly animation for edits)
 - editableItemIds Set gates pencil icon visibility on items with modifier groups
 - Dirty-state tracking via useRef initial snapshot comparison
+- Dead code: send-order-confirmation + send-delivery-notification Edge Functions removed (superseded by src/lib/email)
+- Dead code: 8 unused deps removed (@conform-to/react, @conform-to/zod, @radix-ui/react-toast, @stripe/stripe-js, vaul, @vitest/coverage-v8, glob, react-email)
+- Knip false positives: eslint-config-next, eslint-config-prettier, postcss added to ignoreDependencies
+- Flagged for review: /api/analytics/vitals (zero frontend refs), NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY (only in health check)
 
 ### Pending Todos
 
@@ -149,5 +153,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 66-01-PLAN.md (Cart modifier editing via ItemDetailSheet)
+Stopped at: Completed 66-07-PLAN.md (Dead code removal + audit)
 Resume file: None
