@@ -114,7 +114,14 @@ export async function GET(
       .returns<OrderRow[]>()
       .single();
 
-    if (orderError || !order) {
+    if (orderError) {
+      logger.exception(orderError, { api: "admin/orders/[id]/details", orderId });
+      return NextResponse.json(
+        { error: "Failed to fetch order" },
+        { status: 500 }
+      );
+    }
+    if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 

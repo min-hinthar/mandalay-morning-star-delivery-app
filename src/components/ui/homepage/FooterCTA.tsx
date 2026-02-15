@@ -74,7 +74,7 @@ export function FooterCTA() {
               </m.a>
 
               <m.a
-                href="tel:+16261234567"
+                href="tel:+16266655317"
                 whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
                 whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
                 transition={spring.snappy}
