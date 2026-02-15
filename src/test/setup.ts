@@ -1,4 +1,5 @@
 /// <reference types="vitest/globals" />
+import "fake-indexeddb/auto";
 import "@testing-library/jest-dom";
 
 // Mock ResizeObserver for tests (not available in jsdom)

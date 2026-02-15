@@ -8,6 +8,8 @@ import {
   MAX_CART_ITEMS,
   MAX_ITEM_QUANTITY,
 } from "@/types/cart";
+import { cartIDBStorage } from "@/lib/services/cart-idb-storage";
+import { toast } from "@/lib/hooks/useToastV8";
 
 // ============================================
 // DEDUPLICATION SIGNATURE
@@ -76,48 +78,6 @@ function shouldDebounce(signature: string): boolean {
 }
 
 // ============================================
-// STORAGE UTILS
-// ============================================
-
-const createMemoryStorage = (): Storage => {
-  const store = new Map<string, string>();
-
-  return {
-    getItem: (name) => store.get(name) ?? null,
-    setItem: (name, value) => {
-      store.set(name, value);
-    },
-    removeItem: (name) => {
-      store.delete(name);
-    },
-    clear: () => {
-      store.clear();
-    },
-    key: (index) => Array.from(store.keys())[index] ?? null,
-    get length() {
-      return store.size;
-    },
-  };
-};
-
-const getStorage = (): Storage => {
-  if (typeof window === "undefined") {
-    return createMemoryStorage();
-  }
-
-  const storage = window.localStorage;
-  if (
-    !storage ||
-    typeof storage.getItem !== "function" ||
-    typeof storage.setItem !== "function"
-  ) {
-    return createMemoryStorage();
-  }
-
-  return storage;
-};
-
-// ============================================
 // CART STORE
 // ============================================
 
@@ -125,6 +85,8 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      _hasHydrated: false,
+      _setHasHydrated: (v: boolean) => set({ _hasHydrated: v }),
 
       /**
        * Add item to cart with deduplication and debounce protection.
@@ -173,6 +135,9 @@ export const useCartStore = create<CartStore>()(
           return;
         }
 
+        const isOffline =
+          typeof navigator !== "undefined" && !navigator.onLine;
+
         const newItem: CartItem = {
           menuItemId: item.menuItemId,
           menuItemSlug: item.menuItemSlug,
@@ -185,6 +150,7 @@ export const useCartStore = create<CartStore>()(
           cartItemId: uuidv4(),
           addedAt: new Date().toISOString(),
           quantity: Math.min(Math.max(1, item.quantity || 1), MAX_ITEM_QUANTITY),
+          ...(isOffline ? { pendingSync: true } : {}),
         };
 
         set({ items: [...items, newItem] });
@@ -263,11 +229,39 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: "mms-cart",
-      storage: createJSONStorage(getStorage),
+      storage: createJSONStorage(() => cartIDBStorage),
       partialize: (state) => ({ items: state.items }),
+      onRehydrateStorage: () => (state) => {
+        state?._setHasHydrated(true);
+      },
     }
   )
 );
+
+// ============================================
+// ONLINE SYNC LISTENER
+// ============================================
+
+/**
+ * When the browser comes back online, clear pendingSync flags
+ * and notify the user that their cart has been synced.
+ */
+function setupOnlineListener() {
+  if (typeof window !== "undefined") {
+    window.addEventListener("online", () => {
+      const { items } = useCartStore.getState();
+      const hasPending = items.some((i) => i.pendingSync);
+      if (hasPending) {
+        useCartStore.setState({
+          items: items.map((i) => ({ ...i, pendingSync: false })),
+        });
+        toast({ message: "Cart synced!", type: "success" });
+      }
+    });
+  }
+}
+
+setupOnlineListener();
 
 // ============================================
 // EXPORTS FOR TESTING
