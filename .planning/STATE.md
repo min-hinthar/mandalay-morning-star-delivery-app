@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 64 - Service Worker Hardening (next up)
+**Current focus:** Phase 64 - Service Worker Hardening (in progress)
 
 ## Current Position
 
 Phase: 64 of 66 (Service Worker Hardening)
-Plan: 0 of 0 in current phase (not yet planned)
-Status: Ready to plan
-Last activity: 2026-02-15 -- Phase 63 approved and complete
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-02-15 -- Completed 64-01-PLAN.md
 
 Progress: [##############################......] 95% (63/66 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 266 (across v1.0-v1.7)
+- Total plans completed: 267 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~65 hours
 
@@ -97,6 +97,12 @@ Recent decisions affecting v1.7:
 - Copyright uses full name "Mandalay Morning Star Burmese Kitchen" in SiteFooter
 - OAuth scopes confirmed non-sensitive (openid, email, profile) -- no demo video needed for Google verification
 - Production deployment required before Google OAuth verification submission (Plans 01+02 code not yet deployed)
+- @serwist/build added as explicit dev dependency (not transitive from @serwist/next)
+- Content-hash precache via getManifest(); git short SHA for dynamic page revisions
+- NavigationRoute denylist: /auth/, /monitoring, /api/ excluded from SW navigation
+- Offline fallback page at /offline (force-static) served when network + cache fail
+- Menu API cache TTL bumped from 5 to 15 minutes
+- NEXT_PUBLIC_APP_VERSION exposed from package.json in next.config.ts
 
 ### Pending Todos
 
@@ -113,5 +119,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Phase 63 complete; Phase 64 next
+Stopped at: Completed 64-01-PLAN.md
 Resume file: None
