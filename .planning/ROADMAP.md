@@ -150,14 +150,22 @@ Plans:
 ### Phase 66: Backlog Cleanup
 **Goal**: Outstanding feature gaps and tech debt items from previous milestones are resolved
 **Depends on**: Nothing (independent items, can run after any phase)
-**Requirements**: BKLG-01, BKLG-02, BKLG-03, BKLG-04, BKLG-05, BKLG-06
+**Requirements**: BKLG-02, BKLG-03, BKLG-04, BKLG-05, BKLG-06 (BKLG-01/SETT-04 deferred)
 **Success Criteria** (what must be TRUE):
-  1. Customer settings page includes a language preference selector (SETT-04)
-  2. CartPage modifier button opens ItemDetailSheet for editing modifiers on an existing cart item
-  3. Tracking page correctly extracts route_id from routeStop data (driver tracking works)
-  4. UnifiedMenuItemCard is under 400 lines (refactored into sub-modules with barrel exports)
-  5. Dead `send-order-confirmation` Edge Function is removed from the codebase
-**Plans**: TBD
+  1. CartPage modifier button opens ItemDetailSheet for editing modifiers on an existing cart item
+  2. Tracking page correctly extracts route_id and provides full tracking experience (map, ETA, status, rating)
+  3. UnifiedMenuItemCard is under 400 lines (refactored into sub-modules with barrel exports)
+  4. Dead `send-order-confirmation` Edge Function is removed from the codebase
+  5. Dead code audit complete (unused exports, deps, CSS, types, API routes, env vars flagged)
+**Plans:** 7 plans
+Plans:
+- [ ] 66-01-PLAN.md -- Cart modifier editing via ItemDetailSheet with edit mode
+- [ ] 66-02-PLAN.md -- Tracking foundation: route_id fix, types, API extensions, shared access
+- [ ] 66-03-PLAN.md -- Tracking map enhancement: custom markers, route line, split-view, status stepper
+- [ ] 66-04-PLAN.md -- Tracking info section: driver card, delivery notes, ETA format, order summary
+- [ ] 66-05-PLAN.md -- Tracking features: delivered screen, rating, sharing, cancellation, notifications
+- [ ] 66-06-PLAN.md -- UnifiedMenuItemCard refactor (useTiltEffect + useCardInteractions extraction)
+- [ ] 66-07-PLAN.md -- Dead code audit + Edge Function removal
 
 ## Progress
 
@@ -184,7 +192,7 @@ Phases execute in numeric order: 58 -> 59 -> 60 -> 61 -> 62 -> 63 -> 64 -> 65 ->
 | 63. Branding & Compliance | v1.7 | 3/3 | Complete | 2026-02-15 |
 | 64. Service Worker Hardening | v1.7 | 5/5 | Complete | 2026-02-15 |
 | 65. CI/CD Hardening | v1.7 | 1/1 | Complete | 2026-02-15 |
-| 66. Backlog Cleanup | v1.7 | 0/0 | Not started | - |
+| 66. Backlog Cleanup | v1.7 | 0/7 | Not started | - |
 
 **Total: 66 phases across 8 milestones (65 complete, 1 pending)**
 
