@@ -63,7 +63,7 @@ export function useServiceWorker(): UseServiceWorkerReturn {
                 navigator.serviceWorker.controller
               ) {
                 // New service worker available
-                console.log("New service worker available");
+                console.debug("[SW] New service worker available");
               }
             });
           }

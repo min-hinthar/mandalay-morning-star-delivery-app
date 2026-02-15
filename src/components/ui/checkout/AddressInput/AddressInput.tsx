@@ -144,7 +144,7 @@ export function AddressInput({
 
           <AddressAutocomplete
             onSelect={(result) => {
-              console.log("Selected:", result);
+              console.debug("[AddressInput] Selected:", result);
             }}
           />
 
