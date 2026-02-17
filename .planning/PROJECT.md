@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A full frontend rewrite of the Morning Star Weekly Delivery meal subscription app. Fresh V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. Seven milestones shipped (v1.0-v1.6): customer flows, tech debt cleanup, playful UI overhaul, codebase consolidation, mobile excellence, performance infrastructure, and production polish. V1.6 completed the production-readiness pass: error boundaries on all routes, branded 404 pages, premium passwordless auth (magic link + Google/Apple OAuth), transactional email system via Resend, fuzzy search with Burmese dish name tolerance, cart validation with stale item detection, customer/admin settings with DB persistence, driver offline sync with consolidated IndexedDB queue, and premium admin/driver visual polish with card-based tables, skeleton crossfade, and animated status badges.
+A full frontend rewrite of the Morning Star Weekly Delivery meal subscription app. Fresh V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. Eight milestones shipped (v1.0-v1.7): customer flows, tech debt cleanup, playful UI overhaul, codebase consolidation, mobile excellence, performance infrastructure, production polish, and production deployment. V1.7 completed deployment readiness: health endpoint validating 5 services, Sentry observability (client/server/edge), LCP optimized to <4s with async LazyMotion and CSS animations, admin order detail and profile pages, production operations (Google OAuth, Resend email, Stripe webhook, Search Console), privacy policy and terms of service, service worker hardening with content-hash revisions and IndexedDB cart persistence, CI/CD quality gates (Lighthouse CI error assertions, CSS lint, Prettier), and backlog cleanup including order tracking with maps/ratings/sharing and dead code audit.
 
 ## Core Value
 
@@ -199,76 +199,78 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - ✓ Driver offline sync with consolidated IndexedDB queue and exponential backoff — v1.6
 - ✓ Admin/driver premium polish (card tables, skeleton crossfade, status badges, empty states) — v1.6
 - ✓ Driver history shows real on-time percentage (computed from data) — v1.6
+- ✓ Health endpoint validates all service connections (/api/health) — v1.7
+- ✓ Sentry client/server/edge error capture with source maps — v1.7
+- ✓ Speed Insights integrated for real user monitoring — v1.7
+- ✓ Hero text visible at server render (CSS animation, no opacity:0) — v1.7
+- ✓ LazyMotion async domAnimation root, per-route domMax — v1.7
+- ✓ LCP < 4000ms enforced in Lighthouse CI — v1.7
+- ✓ Admin order detail page with status management + email history — v1.7
+- ✓ Admin profile page with self-management + notification preferences — v1.7
+- ✓ Google OAuth consent screen configured — v1.7
+- ✓ Resend domain verified with SPF/DKIM/DMARC — v1.7
+- ✓ Stripe production webhook endpoint — v1.7
+- ✓ Google Search Console domain verified — v1.7
+- ✓ Privacy policy and terms of service pages — v1.7
+- ✓ Service worker scope expanded to / with content-hash revisions — v1.7
+- ✓ Update banner on new version deployment — v1.7
+- ✓ Auth/Sentry routes excluded from SW caching — v1.7
+- ✓ Lighthouse CI error assertions (LCP, CLS, perf, a11y) — v1.7
+- ✓ CSS lint + Prettier format check in CI — v1.7
+- ✓ Cart modifier editor wired to ItemDetailSheet — v1.7
+- ✓ Tracking page with Google Maps, driver ratings, sharing — v1.7
+- ✓ UnifiedMenuItemCard refactored to <400 lines — v1.7
+- ✓ Dead code audit (8 unused deps, dead Edge Functions removed) — v1.7
 
 ### Active
 
-## Current Milestone: v1.7 Production Deployment & Readiness
-
-**Goal:** Deploy to production at delivery.mandalaymorningstar.com with full ops config, monitoring, performance optimization, and backlog cleanup.
-
-**Target features:**
-- Vercel deployment with custom subdomain (delivery.mandalaymorningstar.com)
-- Social login ops config (Google OAuth + Apple Sign-in)
-- Resend domain verification (SPF/DKIM/DMARC)
-- Sentry error monitoring (client + server)
-- CI/CD hardening (Lighthouse CI blocking, preview deploys)
-- LCP optimization (8-11s → <4s)
-- Lighthouse score improvement (30-45 → 70+)
-- Admin order detail page (/admin/orders/[id])
-- Admin profile page (/admin/profile)
-- SETT-04 language preference
-- CartPage modifier editor wiring
-- Tracking page route_id extraction
-- UnifiedMenuItemCard refactoring (<400 lines)
-- Visual regression baselines generation
-- Dead code removal (old send-order-confirmation Edge Function)
+(No active milestone — planning v1.8+)
 
 ### Out of Scope
 - Backend/schema changes — Supabase + Stripe contracts stay stable
 - Multi-restaurant marketplace — not part of Morning Star scope
 - Real-time subscriptions — current REST pattern sufficient for launch
+- Docker/Kubernetes — Vercel is serverless; containerization adds zero value
+- Multi-region deployment — single US region fine for LA-based service
 
 ## Context
 
-**Current state (v1.6 shipped):**
-- 7 milestones complete: v1.0-v1.6 (57 phases, 255 plans, 309+ requirements)
-- Full design token system: 62+ semantic tokens enforced via ESLint
-- Single unified component library: @/components/ui/ with barrel exports
-- Error boundaries + loading states on every route (14 error.tsx, 23 loading.tsx)
-- Branded 404 pages with food-themed mascot across customer/admin/driver portals
-- Premium passwordless auth: magic link + Google/Apple OAuth with login ceremony
-- Transactional email system: 4 templates, Stripe webhook idempotency, admin UI
-- Fuzzy search: Fuse.js with Burmese dish name tolerance, category tabs, thumbnails
-- Cart validation: hydration-aware stale detection, full cart page
-- Customer settings: dietary prefs, notifications, theme, delivery instructions
-- Admin settings: delivery, operations, notifications with DB persistence
-- Driver offline sync: consolidated IndexedDB queue, exponential backoff, idempotency
-- Admin/driver premium polish: card-based tables, skeleton crossfade, animated badges
-- React Compiler enabled globally (282 client components)
-- LazyMotion domMax (174 files use m.* instead of motion.*)
-- Code-splitting: Recharts, Google Maps, cart all dynamically imported
-- Lighthouse CI running on every PR (4 routes, warn-only)
-- Pre-commit hooks: Husky + lint-staged blocking ESLint violations
-- 844 source files, ~53,394 lines TypeScript
+**Current state (v1.7 shipped):**
+- 8 milestones complete: v1.0-v1.7 (66 phases, 287 plans, 335+ requirements)
+- Deployed to production at delivery.mandalaymorningstar.com
+- Health endpoint validates 5 services (Supabase, Stripe, Google OAuth, Search Console, Resend)
+- Full observability: Sentry client/server/edge with source maps, Speed Insights, web vitals
+- LCP optimized to <4s (async LazyMotion, CSS-only hero, CI-enforced)
+- Admin dashboard with order detail, status management, email history, profile
+- Production operations: Google OAuth, Resend email (SPF/DKIM/DMARC), Stripe webhook, Search Console
+- Privacy policy + terms of service, SiteFooter on all public pages
+- Service worker: content-hash revisions, update banner, offline cart via IndexedDB
+- CI/CD: Lighthouse CI error assertions, CSS lint, Prettier, path filtering
+- 335 unit tests passing across 16 test files
+- 60,174 lines TypeScript total
 
 **Tech stack:**
 - Next.js 16.1.2 + React 19.2.3 + TailwindCSS 4
-- Framer Motion 12.26.1 (LazyMotion domMax) + GSAP 3.14.2 (useGSAP + ScrollTrigger)
+- Framer Motion 12.26.1 (async domAnimation root, per-route domMax) + GSAP 3.14.2
 - React Compiler (babel-plugin-react-compiler)
-- Zustand for state management
+- Zustand + idb-keyval for state management (cart persisted to IndexedDB)
 - Supabase auth + Stripe checkout
-- Serwist for service worker
+- Serwist for service worker (@serwist/build)
 - Resend + React Email for transactional emails
+- Sentry for error monitoring + Speed Insights for RUM
 - Fuse.js for fuzzy search
-- ~53,394 lines TypeScript total
+- ~60,174 lines TypeScript total
 
 **Remaining tech debt:**
-- LCP: 8-11s (JS execution bottleneck — needs SSR streaming, edge rendering, or JS payload reduction)
-- Lighthouse performance score: 30-45 (target 90+)
-- UnifiedMenuItemCard: 540 lines (documented exception — tightly coupled state)
-- Lighthouse CI: warn-only (PRs not blocked on LCP regression)
-- Social login requires Google Cloud Console + Apple Developer Portal ops config
-- Resend domain verification needed for production email delivery
+- Lighthouse CI gates at score 60 (target 70, conservative threshold)
+- _hasHydrated flag unused in UI (potential empty-cart flash on slow devices)
+- offline-state-change event dispatched but not consumed by update banner
+- Rate limiting: in-memory Map (upgrade to Redis/Vercel KV for production scale)
+- Content Security Policy headers not configured
+- Supabase RLS audit needed for all tables
+- SETT-04 language preference deferred
+- Chromatic visual regression baselines deferred
+- Branch protection rules deferred (single developer)
 
 **Design direction:**
 - Animation-first: GSAP for timelines/scroll, Framer Motion for components
@@ -353,6 +355,20 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 | IndexedDB single queue (removed Zustand) | Eliminated dual-queue sync conflicts | ✓ Good — v1.6 |
 | Teal accent for admin pages | Visual distinction from customer amber | ✓ Good — v1.6 |
 | dangerouslySetInnerHTML for header styles | Prevents styled-jsx hydration mismatch | ✓ Good — v1.6 |
+| Async domAnimation root, per-route domMax | ~25KB savings on public routes; domMax only where needed | ✓ Good — v1.7 |
+| CSS fade-in-up at opacity 0.85 start | Near-visible hero before animation; no LCP-blocking opacity:0 | ✓ Good — v1.7 |
+| layoutId→CSS migration for nav indicators | CSS transitions simpler, smaller bundle, no domMax needed | ✓ Good — v1.7 |
+| Health check dynamic imports | Prevents build-time crashes when env vars missing | ✓ Good — v1.7 |
+| Promise.allSettled for parallel deep checks | Graceful fallback if individual service checks fail | ✓ Good — v1.7 |
+| Config-only health check (no live probes) | Fast default path; deep checks only on ?deep=true | ✓ Good — v1.7 |
+| Sentry captures ALL errors (no ignoreErrors) | Full visibility; filter in Sentry dashboard instead | ✓ Good — v1.7 |
+| Error-only session replay (0% session, 100% error) | Minimal overhead; full context when errors occur | ✓ Good — v1.7 |
+| Content-hash precache via getManifest() | Deterministic cache invalidation vs Date.now() | ✓ Good — v1.7 |
+| Cart IndexedDB via idb-keyval adapter | Larger storage, async access, transparent migration from localStorage | ✓ Good — v1.7 |
+| Lighthouse CI error assertions (not warn) | LCP <4s and CLS <0.15 block PRs | ✓ Good — v1.7 |
+| LCP target revised from <2.5s to <4s | Original unrealistic without architecture changes | ✓ Good — v1.7 |
+| Apple Sign-in removed (no developer account) | Defer until Apple Developer account available | — Pending |
+| Rating API upsert (not 409 reject) | Users can re-rate; previous rating replaced | ✓ Good — v1.7 |
 
 ---
-*Last updated: 2026-02-13 after v1.7 milestone start*
+*Last updated: 2026-02-16 after v1.7 milestone complete*
