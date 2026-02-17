@@ -99,7 +99,10 @@ export function AuthCard({ children, className }: AuthCardProps) {
         )}
       >
         {/* Warm gradient accent bar */}
-        <div className="h-1.5 bg-gradient-to-r from-primary via-secondary to-primary rounded-t-3xl" />
+        <div
+          className="h-1.5 rounded-t-3xl"
+          style={{ background: "linear-gradient(to right, var(--hero-bg-start), var(--hero-bg-mid), var(--hero-bg-end))" }}
+        />
 
         <div className="p-7 sm:p-9">
           {showHeader && (
