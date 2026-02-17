@@ -1,5 +1,52 @@
 # Project Milestones: Morning Star V8 UI Rewrite
 
+## v1.7 Production Deployment & Readiness (Shipped: 2026-02-16)
+
+**Delivered:** Production deployment pipeline with full observability, LCP optimization, admin dashboard, service worker hardening, CI/CD quality gates, and backlog cleanup.
+
+**Phases completed:** 58-66 (32 plans total)
+
+**Key accomplishments:**
+
+- Production deployment: Health endpoint validates 5 services (Supabase, Stripe, Google OAuth, Search Console, Resend), environment variable auditing
+- Full observability stack: Sentry client/server/edge with source maps, Speed Insights, web vitals reporting with custom thresholds
+- LCP optimization: Async LazyMotion (domAnimation root, per-route domMax), CSS-only hero animations at opacity 0.85, sub-4s LCP enforced in CI
+- Admin dashboard: Order detail with status management + email history, admin profile with self-management + notification preferences
+- Production operations: Google OAuth consent screen, Resend email with SPF/DKIM/DMARC, Stripe webhook endpoint, Search Console verification
+- Branding & compliance: Privacy policy + terms of service, SiteFooter on all public pages, SEO sitemap + robots.txt
+- Service worker hardening: Content-hash precache revisions, update banner with interaction-aware countdown, offline cart persistence via IndexedDB
+- CI/CD quality gates: Lighthouse CI error assertions (LCP <4s, CLS <0.15, perf >=0.6, a11y >=0.9), CSS lint, Prettier format check
+- Backlog cleanup: Cart modifier editor, order tracking with Google Maps + driver ratings + sharing, dead code audit (8 unused deps removed)
+
+**Stats:**
+
+- 9 phases, 32 plans
+- 26/31 requirements satisfied (84%), 8 human verification pending, 3 deferred, 1 removed
+- 46 feature commits, 238 files modified
+- +26,965 / -5,969 lines
+- ~60,174 lines TypeScript total
+- 3 days (2026-02-13 → 2026-02-16)
+
+**Git range:** `feat(58-01): create health types and env validation` → `feat(66-05): ShareButton, NearbyBanner, status effects`
+
+**Tech debt resolved from v1.6:**
+- LCP optimized from 8-11s to <4s (CI-enforced)
+- UnifiedMenuItemCard refactored to <400 lines
+- Dead Edge Functions removed (send-order-confirmation, send-delivery-notification)
+- 8 unused dependencies removed via Knip audit
+
+**Tech debt remaining:**
+- Lighthouse CI gates at score 60 (target 70, conservative CI threshold)
+- _hasHydrated flag unused in UI (potential empty-cart flash)
+- offline-state-change event dispatched but not consumed by update banner
+- Rate limiting upgrade from in-memory Map to Redis/Vercel KV (HARD-01)
+- Content Security Policy headers (HARD-02)
+- Supabase RLS audit (HARD-03)
+
+**What's next:** v1.8+ post-launch hardening, visual regression baselines, branch protection
+
+---
+
 ## v1.6 Production Polish (Shipped: 2026-02-13)
 
 **Delivered:** Final production-readiness pass — error safety nets, branded error/404 pages, customer/admin settings, cart validation, premium passwordless auth, transactional email system, fuzzy search, driver offline sync, and admin/driver visual polish.
@@ -268,5 +315,3 @@
 - 11 visual regression snapshots need human baseline generation
 
 **What's next:** v1.1 Admin Flow Rewrite or v1.1 Driver Flow Rewrite
-
-
