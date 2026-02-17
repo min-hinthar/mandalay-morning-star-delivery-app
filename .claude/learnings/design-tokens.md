@@ -70,6 +70,24 @@ grep -r "zIndex.*[0-9][0-9][0-9]" src/lib src/components --include="*.ts" --incl
 
 ---
 
+## Non-Existent Token Names Silently Resolve to Transparent
+
+`bg-info` compiles but resolves to nothing because `--color-info` doesn't exist in `tokens.css` or `@theme inline`. The actual token is `--color-status-info`, so the correct class is `bg-status-info`.
+
+This is invisible in dev — no build error, no runtime error, just a transparent background.
+
+**Common mismatches in this codebase:**
+| Wrong class | Correct class | Token |
+|------------|--------------|-------|
+| `bg-info` | `bg-status-info` | `--color-status-info` |
+| `text-info` | `text-status-info` | `--color-status-info` |
+
+**Detection:** Inspect element → computed background is `transparent` or `rgba(0,0,0,0)`.
+
+**Apply when:** Using color utility classes — always verify the token name exists in `@theme inline` block of `globals.css`. Shorthand names like `info`, `success`, `error` are usually prefixed with `status-` in this project.
+
+---
+
 ## ESLint Severity for Legacy Migration
 
 Add rules at "warn" first, upgrade to "error" after migration complete. Create migration tracker with violation inventory.

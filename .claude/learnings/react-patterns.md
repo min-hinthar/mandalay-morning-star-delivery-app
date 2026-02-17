@@ -89,6 +89,32 @@ Parent elements with CSS transforms (Framer Motion's `whileHover: { scale }`) cr
 
 ---
 
+## useRef Won't Re-trigger Effects for Late-Mounting Elements
+
+`useRef` doesn't cause re-renders when `.current` changes. If a ref targets an element inside conditional rendering (`{data && <div ref={ref} />}`), the effect runs before the element exists and never re-runs.
+
+```tsx
+// BROKEN — effect runs once when ref.current is null, never re-runs
+const ref = useRef<HTMLDivElement>(null);
+useEffect(() => {
+  if (!ref.current) return; // Always true on first render if element is conditional
+  observer.observe(ref.current);
+}, []); // No deps change when ref.current updates
+
+// WORKING — callback ref triggers state change → effect re-runs
+const [element, setElement] = useState<HTMLDivElement | null>(null);
+const ref = useCallback((node: HTMLDivElement | null) => setElement(node), []);
+useEffect(() => {
+  if (!element) return;
+  observer.observe(element);
+  return () => observer.disconnect();
+}, [element]); // Re-runs when element mounts
+```
+
+**Apply when:** Refs targeting elements inside `{condition && <div ref={ref} />}`, especially IntersectionObserver, ResizeObserver, or any DOM measurement that needs the element to exist.
+
+---
+
 ## Inline Styles with CSS Variables for Guaranteed Application
 
 When className-based tokens don't apply (stacking context, specificity), use inline `style` with CSS variable reference:
