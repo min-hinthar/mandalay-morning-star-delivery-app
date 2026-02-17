@@ -43,12 +43,12 @@
   3. All cssText usages in FlyToCart.tsx and CustomMarkers.tsx replaced with individual DOM property assignments that pass CSP
   4. CSP upgraded from Report-Only to enforcing mode after validation
   5. Dead code exports and barrel file removed, placeholder social links resolved
-**Plans**: TBD
+**Plans**: 3 plans (Wave 1: all parallel)
 
 Plans:
-- [ ] 67-01: TBD
-- [ ] 67-02: TBD
-- [ ] 67-03: TBD
+- [ ] 67-01-PLAN.md — CSP Report-Only header, security headers, Sentry reporting, ESLint cssText guard
+- [ ] 67-02-PLAN.md — Replace all cssText usages with individual DOM style assignments
+- [ ] 67-03-PLAN.md — Remove dead code exports, barrel file, useABTest, resolve placeholder links
 
 #### Phase 68: RLS Audit & Hardening
 **Goal**: Every Supabase table has verified row-level security policies with correct role-based access
