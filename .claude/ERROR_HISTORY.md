@@ -503,3 +503,39 @@ const handleClick = async () => {
 3. Verify new token classes with computed style checks, not just visual inspection
 
 ---
+
+## 2026-02-16: Update Banner Invisible (Wrong Token Name)
+**Type:** Runtime | **Severity:** Medium
+
+**Files:** `src/components/ui/offline/UpdatePrompt.tsx`
+
+**Error:** Auto-update banner fully transparent — invisible to users. No build or lint error.
+
+**Root Cause:** Used `bg-info` which maps to `--color-info` — a token that doesn't exist. The actual token is `--color-status-info` (class: `bg-status-info`). Tailwind generates the class but the CSS variable resolves to nothing → transparent.
+
+**Fix:** `bg-info` → `bg-status-info`, `bg-info/20` → `bg-status-info/20`
+
+**Prevention:**
+1. Status colors in this project use `status-` prefix: `bg-status-info`, `bg-status-error`, etc.
+2. Shorthand names (`info`, `error`, `success`) don't exist as standalone tokens
+3. Verify with DevTools computed style — transparent = wrong token name
+
+---
+
+## 2026-02-16: Route Map Never Renders (useRef + Conditional Mount)
+**Type:** Runtime | **Severity:** High
+
+**Files:** `src/lib/hooks/useViewportTrigger.ts`, `src/components/ui/admin/routes/RouteDetailClient/RouteDetailClient.tsx`
+
+**Error:** Google Maps on admin route detail page permanently shows skeleton — map never loads.
+
+**Root Cause:** `useViewportTrigger` used `useRef` for the target element. The map container only mounts after async route data loads (`{route && <div ref={mapRef} />}`). By then the `useEffect` had already run with `ref.current === null` and never re-ran (deps: `[triggered, threshold, fallbackToEager]` — none change when ref.current updates).
+
+**Fix:** Switched to callback ref + `useState` pattern. When element mounts, `setElement(node)` triggers state change → effect re-runs → IntersectionObserver attaches.
+
+**Prevention:**
+1. Never use `useRef` for elements inside conditional renders when the ref is consumed by `useEffect`
+2. Use callback ref + state pattern for deferred/conditional elements
+3. Test lazy-loaded components with actual async data, not just static renders
+
+---

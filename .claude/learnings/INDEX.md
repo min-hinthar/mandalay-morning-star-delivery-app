@@ -5,11 +5,11 @@ Consolidated knowledge from working on this codebase. Scan this file first, then
 | Topic | File | Key Patterns | Last Updated |
 |-------|------|-------------|--------------|
 | Tailwind v4 | `tailwind-v4.md` | `@theme inline` is only source of truth; `tailwind.config.ts` dead code; `@source not` for docs; auto-content scanning | 2026-02-07 |
-| React Patterns | `react-patterns.md` | Context memoization; hydration guards; event listeners in useEffect; portal escapes; Radix Slot fragments | 2026-01-30 |
+| React Patterns | `react-patterns.md` | Context memoization; hydration guards; event listeners in useEffect; portal escapes; Radix Slot fragments; useRef vs callback ref for conditional elements | 2026-02-16 |
 | Mobile UX | `mobile-ux.md` | touchAction conflicts; scroll lock defer; bottom sheet fallbacks; backdrop blur mobile | 2026-01-29 |
 | Animation | `animation.md` | Framer Motion direction refs; GSAP ScrollTrigger; 3D transform + scale flickering; skeleton structure | 2026-01-29 |
 | Next.js | `nextjs.md` | Route groups not in URL; NEXT_REDIRECT uncatchable; Image aspect ratio; optimizePackageImports | 2026-01-29 |
-| Design Tokens | `design-tokens.md` | Semantic token naming; contrast ratios; CSS vars for inline styles; fallback code auditing | 2026-02-07 |
+| Design Tokens | `design-tokens.md` | Semantic token naming; contrast ratios; CSS vars for inline styles; fallback code auditing; non-existent token → transparent | 2026-02-16 |
 | State Management | `state-management.md` | Single mutation owner; cart deduplication; store-level debounce | 2026-01-29 |
 | Supabase Auth | `supabase-auth.md` | generateLink vs inviteUserByEmail; RLS JWT claims; metadata staleness; callback context | 2026-02-04 |
 | Testing | `testing.md` | E2E DOM removal for AnimatePresence; cmdk state binding | 2026-01-25 |
