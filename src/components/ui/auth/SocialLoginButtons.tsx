@@ -7,25 +7,23 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
 
 interface SocialLoginButtonsProps {
-  onOAuthStart?: (provider: "google" | "apple" | null) => void;
+  onOAuthStart?: (provider: "google" | null) => void;
 }
 
 export function SocialLoginButtons({ onOAuthStart }: SocialLoginButtonsProps) {
   const { toast } = useToast();
   const { shouldAnimate } = useAnimationPreference();
 
-  const handleOAuth = async (provider: "google" | "apple") => {
-    onOAuthStart?.(provider);
+  const handleOAuth = async () => {
+    onOAuthStart?.("google");
     const supabase = createClient();
 
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider,
+        provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/callback?next=/login`,
-          ...(provider === "google"
-            ? { queryParams: { access_type: "offline", prompt: "consent" } }
-            : {}),
+          queryParams: { access_type: "offline", prompt: "consent" },
         },
       });
 
@@ -78,7 +76,7 @@ export function SocialLoginButtons({ onOAuthStart }: SocialLoginButtonsProps) {
           className={buttonClass}
           whileHover={shouldAnimate ? { y: -1 } : undefined}
           whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
-          onClick={() => handleOAuth("google")}
+          onClick={handleOAuth}
         >
           <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true" className="shrink-0">
             <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.637 32.54 29.23 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.843 1.154 7.957 3.043l5.657-5.657C34.051 6.053 29.224 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.649-.389-3.917z" />
@@ -87,28 +85,6 @@ export function SocialLoginButtons({ onOAuthStart }: SocialLoginButtonsProps) {
             <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.18-2.396 4.027-4.585 5.264l.002-.001 6.19 5.238C36.56 38.738 44 33.5 44 24c0-1.341-.138-2.649-.389-3.917z" />
           </svg>
           <span>Continue with Google</span>
-        </m.button>
-
-        {/* Apple */}
-        <m.button
-          type="button"
-          aria-label="Continue with Apple"
-          className={cn(
-            buttonClass,
-            "bg-surface-inverse text-text-inverse border-transparent",
-            "hover:bg-surface-inverse/90 hover:border-transparent",
-            "dark:bg-surface-primary dark:text-text-primary dark:border-border",
-            "dark:hover:bg-surface-secondary/50"
-          )}
-          whileHover={shouldAnimate ? { y: -1 } : undefined}
-          whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
-          onClick={() => handleOAuth("apple")}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="shrink-0">
-            <path d="M16.365 1.43c0 1.14-.42 2.08-1.26 2.83-.96.87-2.12 1.37-3.37 1.27-.15-1.08.43-2.2 1.27-2.92.92-.8 2.32-1.36 3.36-1.18z" />
-            <path d="M20.84 17.17c-.45 1.03-.66 1.5-1.24 2.41-.82 1.27-1.98 2.85-3.44 2.87-1.29.01-1.62-.86-3.38-.84-1.76.01-2.12.86-3.41.85-1.46-.02-2.57-1.44-3.39-2.71-2.3-3.55-2.54-7.72-1.12-9.91.99-1.51 2.56-2.39 4.09-2.39 1.57 0 2.56.88 3.86.88 1.26 0 2.02-.88 3.83-.88 1.36 0 2.81.75 3.79 2.05-3.34 1.83-2.79 6.83.41 7.67z" />
-          </svg>
-          <span>Continue with Apple</span>
         </m.button>
       </div>
     </div>
