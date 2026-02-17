@@ -41,12 +41,17 @@ const sentryDsn = parseSentryDsn(process.env.NEXT_PUBLIC_SENTRY_DSN);
 
 const cspDirectives = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://maps.googleapis.com`,
+  // Google Maps requires *.googleapis.com, *.gstatic.com, *.google.com, blob:
+  // See: https://developers.google.com/maps/documentation/javascript/content-security-policy
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://*.googleapis.com https://*.gstatic.com https://*.google.com blob:`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "img-src 'self' blob: data: https://*.supabase.co https://lh3.googleusercontent.com https://drive.google.com https://maps.googleapis.com https://maps.gstatic.com",
+  "img-src 'self' blob: data: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.googleusercontent.com",
   "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.ingest.us.sentry.io https://maps.googleapis.com https://routes.googleapis.com",
-  "worker-src 'self'",
+  // Google Maps: *.googleapis.com, *.google.com, *.gstatic.com, data:, blob:
+  // Vercel Speed Insights: vitals.vercel-insights.com (fallback when not proxied)
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.ingest.us.sentry.io https://*.googleapis.com https://*.google.com https://*.gstatic.com https://vitals.vercel-insights.com data: blob:",
+  "worker-src 'self' blob:",
+  "frame-src https://*.google.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
