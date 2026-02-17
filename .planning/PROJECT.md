@@ -224,7 +224,23 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 
 ### Active
 
-(No active milestone — planning v1.8+)
+## Current Milestone: v1.8 Post-Launch Hardening & Driver Experience
+
+**Goal:** Harden production security (CSP, RLS, rate limiting), overhaul driver experience (UI polish, earnings, routes, onboarding), and add role-based login redirects.
+
+**Target features:**
+- Content Security Policy headers
+- Supabase RLS audit for all tables
+- Rate limiting upgrade (in-memory → Redis/Vercel KV)
+- Driver UI polish (layout, mobile usability, visual consistency)
+- Driver earnings dashboard
+- Driver route history & stats
+- Driver availability scheduling
+- Planned/assigned route visibility for drivers
+- Driver profile setup (vehicle, photo, preferences)
+- Guided first delivery walkthrough
+- Test page for delivery flow
+- Role-based login redirects (admin → /admin, driver → /driver, customer → /menu)
 
 ### Out of Scope
 - Backend/schema changes — Supabase + Stripe contracts stay stable
@@ -371,4 +387,4 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 | Rating API upsert (not 409 reject) | Users can re-rate; previous rating replaced | ✓ Good — v1.7 |
 
 ---
-*Last updated: 2026-02-16 after v1.7 milestone complete*
+*Last updated: 2026-02-16 after v1.8 milestone started*
