@@ -5,14 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.8 Post-Launch Hardening & Driver Experience
+**Current focus:** Phase 67 — CSP & Security Headers
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-16 — Milestone v1.8 started
+Phase: 67 of 74 (CSP & Security Headers)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-02-16 — Roadmap created for v1.8 (8 phases, 37 requirements)
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -39,7 +41,12 @@ Last activity: 2026-02-16 — Milestone v1.8 started
 ### Decisions
 
 Decisions logged in PROJECT.md Key Decisions table.
-All v1.7 decisions archived. See PROJECT.md for full list.
+
+Recent for v1.8:
+- CSP uses 'unsafe-inline' for style-src (GSAP has no nonce support, 700+ inline styles)
+- Rate limiting moves to Upstash Redis (in-memory Map is non-functional on Vercel)
+- Role redirects go in auth callback, NOT proxy.ts (callback has session context)
+- Driver availability uses JSONB column on drivers table (not separate table)
 
 ### Pending Todos
 
@@ -47,11 +54,13 @@ None.
 
 ### Blockers/Concerns
 
-- Human verification needed: OAuth sign-in, email delivery, Stripe webhook, Search Console (8 items)
-- Google OAuth brand verification: requires submission in Cloud Console after deployment
+- Human verification needed: OAuth sign-in, email delivery, Stripe webhook, Search Console (8 items from v1.7)
+- Upstash Redis provisioning needed via Vercel Marketplace before Phase 69
+- Earnings computation join path needs verification (route_stops -> orders.total_cents)
+- Availability business rules: confirm day-of-week pattern vs Saturday-only
 
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: v1.7 milestone archived, all planning docs updated
+Stopped at: v1.8 roadmap created (8 phases, Phases 67-74)
 Resume file: None
