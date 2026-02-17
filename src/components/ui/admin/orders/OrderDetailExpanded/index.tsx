@@ -1,6 +1,0 @@
-export {
-  STATUS_COLORS,
-  STATUS_LABELS,
-  NEXT_STATUSES,
-  AUDIT_ACTION_LABELS,
-} from "./config";
