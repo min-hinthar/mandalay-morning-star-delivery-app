@@ -8,8 +8,11 @@
 // ---- Restaurant Marker ----
 export function createRestaurantMarkerContent(): HTMLElement {
   const container = document.createElement("div");
-  container.style.cssText =
-    "width:40px;height:48px;position:relative;cursor:pointer;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));";
+  container.style.width = "40px";
+  container.style.height = "48px";
+  container.style.position = "relative";
+  container.style.cursor = "pointer";
+  container.style.filter = "drop-shadow(0 2px 4px rgba(0,0,0,0.3))";
   container.innerHTML = `
     <svg width="40" height="48" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M20 0C9 0 0 9 0 20c0 15 20 28 20 28s20-13 20-28C40 9 31 0 20 0z" fill="#C75050"/>
@@ -33,7 +36,14 @@ export function createVehicleMarkerContent(
   const rotation = heading ?? 0;
   const opacity = isStale ? "0.5" : "1";
   const container = document.createElement("div");
-  container.style.cssText = `width:36px;height:36px;position:relative;cursor:pointer;opacity:${opacity};transition:opacity 0.3s ease;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));transform:rotate(${rotation}deg);`;
+  container.style.width = "36px";
+  container.style.height = "36px";
+  container.style.position = "relative";
+  container.style.cursor = "pointer";
+  container.style.opacity = opacity;
+  container.style.transition = "opacity 0.3s ease";
+  container.style.filter = "drop-shadow(0 2px 4px rgba(0,0,0,0.3))";
+  container.style.transform = `rotate(${rotation}deg)`;
   container.innerHTML = `
     <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="18" cy="18" r="16" fill="#D4A017"/>
@@ -49,8 +59,11 @@ export function createVehicleMarkerContent(
 // ---- Destination Marker ----
 export function createDestinationMarkerContent(): HTMLElement {
   const container = document.createElement("div");
-  container.style.cssText =
-    "width:40px;height:48px;position:relative;cursor:pointer;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));";
+  container.style.width = "40px";
+  container.style.height = "48px";
+  container.style.position = "relative";
+  container.style.cursor = "pointer";
+  container.style.filter = "drop-shadow(0 2px 4px rgba(0,0,0,0.3))";
   container.innerHTML = `
     <svg width="40" height="48" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M20 0C9 0 0 9 0 20c0 15 20 28 20 28s20-13 20-28C40 9 31 0 20 0z" fill="#2E8B57"/>
@@ -67,8 +80,18 @@ export function createDestinationMarkerContent(): HTMLElement {
 // ---- Stale Location Badge ----
 export function createStaleBadgeContent(minutesAgo: number): HTMLElement {
   const container = document.createElement("div");
-  container.style.cssText =
-    "position:absolute;top:-8px;left:50%;transform:translateX(-50%);white-space:nowrap;background:rgba(0,0,0,0.75);color:white;font-size:10px;padding:2px 6px;border-radius:4px;pointer-events:none;z-index:1;";
+  container.style.position = "absolute";
+  container.style.top = "-8px";
+  container.style.left = "50%";
+  container.style.transform = "translateX(-50%)";
+  container.style.whiteSpace = "nowrap";
+  container.style.background = "rgba(0,0,0,0.75)";
+  container.style.color = "white";
+  container.style.fontSize = "10px";
+  container.style.padding = "2px 6px";
+  container.style.borderRadius = "4px";
+  container.style.pointerEvents = "none";
+  container.style.zIndex = "1";
   container.textContent = `${minutesAgo}m ago`;
   return container;
 }
