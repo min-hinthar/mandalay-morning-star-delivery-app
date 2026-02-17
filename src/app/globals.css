@@ -774,22 +774,10 @@
   .auth-gradient {
     background: linear-gradient(
       135deg,
-      hsl(35deg 90% 65%),
-      hsl(15deg 80% 70%),
-      hsl(40deg 60% 85%),
-      hsl(35deg 90% 65%)
-    );
-    background-size: 400% 400%;
-    animation: auth-gradient-shift 20s ease infinite;
-  }
-
-  .dark .auth-gradient {
-    background: linear-gradient(
-      135deg,
-      hsl(35deg 70% 25%),
-      hsl(15deg 60% 30%),
-      hsl(40deg 40% 20%),
-      hsl(35deg 70% 25%)
+      var(--hero-bg-start),
+      var(--hero-bg-mid),
+      var(--hero-bg-end),
+      var(--hero-bg-start)
     );
     background-size: 400% 400%;
     animation: auth-gradient-shift 20s ease infinite;
