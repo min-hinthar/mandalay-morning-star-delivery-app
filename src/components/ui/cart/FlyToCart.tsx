@@ -142,18 +142,16 @@ export function useFlyToCart() {
       try {
         // Create flying element
         flyingEl = document.createElement("div");
-        flyingEl.style.cssText = `
-          position: fixed;
-          width: ${size}px;
-          height: ${size}px;
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: ${zIndex.popover};
-          left: ${sourceRect.left + sourceRect.width / 2 - size / 2}px;
-          top: ${sourceRect.top + sourceRect.height / 2 - size / 2}px;
-          will-change: transform, opacity;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        `;
+        flyingEl.style.position = "fixed";
+        flyingEl.style.width = `${size}px`;
+        flyingEl.style.height = `${size}px`;
+        flyingEl.style.borderRadius = "50%";
+        flyingEl.style.pointerEvents = "none";
+        flyingEl.style.zIndex = String(zIndex.popover);
+        flyingEl.style.left = `${sourceRect.left + sourceRect.width / 2 - size / 2}px`;
+        flyingEl.style.top = `${sourceRect.top + sourceRect.height / 2 - size / 2}px`;
+        flyingEl.style.willChange = "transform, opacity";
+        flyingEl.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
 
         if (imageUrl) {
           flyingEl.style.backgroundImage = `url(${imageUrl})`;
