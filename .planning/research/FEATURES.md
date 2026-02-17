@@ -1,472 +1,511 @@
-# Feature Landscape: Production Deployment & Hardening
+# Feature Landscape: v1.8 Post-Launch Hardening & Driver Experience
 
-**Domain:** Production readiness for meal delivery PWA -- deployment, monitoring, CI/CD, performance, missing pages
-**Researched:** 2026-02-13
-**Confidence:** HIGH (verified against codebase, official docs, web research)
+**Domain:** Driver experience overhaul, security hardening, and role-based auth for weekly meal delivery PWA
+**Researched:** 2026-02-16
+**Confidence:** HIGH (verified against codebase, official Supabase/Next.js docs, web research)
 
 ## Current State Assessment
 
-| Area | Current State | Production-Ready? |
-|------|---------------|-------------------|
-| Deployment | No Vercel project linked; no custom domain | NO |
-| Domain | Main site on Hostinger Website Builder (mandalaymorningstar.com) | Partial -- main site exists |
-| Sentry monitoring | Installed (@sentry/nextjs 10.34.0), server + edge configs done, client disabled in dev due to Next.js 16 infinite loop | Partial -- production-only |
-| Lighthouse CI | lighthouserc.js exists, GitHub Actions job exists, assertions at "warn" level only | Partial -- does not block PRs |
-| CI pipeline | lint + typecheck + test + build + lighthouse(warn-only) | Partial -- no blocking perf gate |
-| LCP performance | 8-11s (reported); hero section with animations, lazy-loaded Google Maps below fold | NO -- target is <2.5s |
-| Lighthouse score | 30-45 (reported) | NO -- target is 90+ |
-| Admin order detail | `/admin/orders/[id]` page does NOT exist; API route `/api/admin/orders/[id]/details` DOES exist | NO -- broken links on dashboard |
-| Admin profile | `/admin/profile` page does NOT exist | NO -- no admin self-management |
-| Social login ops | Supabase Auth supports Google/Apple natively; code may exist, but Google Cloud Console + Apple Developer Portal config needed | NO -- requires ops setup |
-| Resend domain | Resend API key configured; domain NOT verified (no SPF/DKIM/DMARC on production domain) | NO -- emails may hit spam |
-| Service worker | Custom SW built via esbuild (`scripts/build-sw.mjs`), manifest.json exists | Partial |
-| Error boundaries | Limited error.tsx files, no global error boundary | Partial |
+| Area | Current State | v1.8 Target |
+|------|---------------|-------------|
+| Driver dashboard | Home with today's route + stats, active route view, history page | Add earnings, planned routes, availability, profile setup |
+| Driver nav | 3 tabs: Home, Route, History | Expand for earnings + schedule tabs |
+| Driver onboarding | POST /api/driver/onboard collects name, phone, vehicle, plate, password | Add guided first-delivery walkthrough |
+| Auth redirects | All users land on `/` after login; driver layout checks role on render | Middleware-based redirect: admin -> /admin, driver -> /driver, customer -> /menu |
+| CSP headers | None configured; `poweredByHeader: false` is only security header | Full CSP with nonces for inline scripts |
+| RLS policies | 17 tables have RLS policies in migration 002; newer tables (011-020) have partial RLS | Audit all tables, add missing policies |
+| Rate limiting | In-memory Map in `rate-limit.ts`; resets per serverless cold start | Upgrade to Upstash Redis or Vercel KV |
+| Driver profile | DriversRow has vehicle_type, license_plate, phone, profile_image_url, onboarding_completed_at | Add profile edit page, photo upload |
+| Driver earnings | DriverDashboardProps has `weeklyEarningsCents` field (unused, always undefined) | Compute from route/delivery data, display dashboard |
+| Driver availability | No concept of availability or schedule in schema | New: driver_availability table + UI |
+| Planned routes | Driver only sees today's in_progress/planned routes | Show future assigned routes |
 
 ---
 
-## Table Stakes (Must Have for Production Launch)
+## Table Stakes (Users Expect These)
 
-Features that are non-negotiable for going live. Missing any of these means the product is not production-ready.
+Features that are non-negotiable for the v1.8 driver experience and security milestones.
 
-### 1. Vercel Deployment + Custom Domain (delivery.mandalaymorningstar.com)
+### 1. Role-Based Login Redirects
 
-| Feature | Why Required | Complexity | Depends On |
-|---------|-------------|------------|------------|
-| Vercel project creation + Git integration | App is not deployed anywhere; cannot be accessed by users | LOW | Vercel account, GitHub repo access |
-| Custom subdomain CNAME setup | `delivery.mandalaymorningstar.com` pointing to Vercel | LOW | Hostinger DNS panel access |
-| Environment variables in Vercel | Supabase, Stripe, Sentry, Resend, Google Maps keys | LOW | All API keys already in .env.local |
-| SSL/TLS certificate | Vercel provides automatic SSL via Let's Encrypt | FREE | Domain DNS propagation |
-| Production branch deployment | Main branch auto-deploys to production | LOW | Vercel Git integration |
-| Preview deployments for PRs | Each PR gets a preview URL for testing | FREE | Vercel default behavior |
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Middleware-based auth redirect | Drivers currently land on customer homepage after login; confusing UX | MEDIUM | Next.js middleware, Supabase session, profiles.role lookup |
+| Role detection from JWT/profile | Must check `profiles.role` (or `app_metadata.role` for admin) to determine redirect target | LOW | Existing `requireAdmin`/`requireDriver` patterns |
+| Redirect targets: admin -> /admin, driver -> /driver, customer -> /menu | Each role has a distinct landing page already built | LOW | Existing route groups |
+| Auth callback role-aware redirect | `/auth/callback` currently redirects to `next` param or `/`; should detect role | LOW | Existing callback route at `src/app/auth/callback/route.ts` |
+| Protect admin routes from non-admins at middleware level | Currently checked in layout.tsx; middleware is more secure (blocks before render) | MEDIUM | Middleware must NOT call `getUser()` (expensive); use session JWT claims |
 
-**Key constraint -- Hostinger Website Builder DNS:**
-- Main site (mandalaymorningstar.com) is on Hostinger Website Builder, NOT a traditional hosting plan
-- Hostinger Website Builder manages DNS automatically for the root domain
-- For a subdomain (delivery.mandalaymorningstar.com), add a **CNAME record** in Hostinger DNS zone editor pointing to `cname.vercel-dns.com`
-- Do NOT change nameservers to Vercel (would break the main Hostinger Website Builder site)
-- DNS propagation: 15 minutes to 48 hours
-- Vercel auto-provisions SSL once DNS propagates
+**Implementation pattern (verified from Supabase docs):**
+- Create `middleware.ts` at project root (currently none exists)
+- Use `@supabase/ssr` `updateSession()` to refresh auth tokens
+- Read role from `session.user.app_metadata.role` (fast, no DB query)
+- For drivers, fall back to profiles table check (role not in app_metadata by default)
+- Redirect map: `{ admin: '/admin', driver: '/driver', customer: '/menu' }`
+- Exclude from middleware: `/api/*`, `/_next/*`, `/auth/*`, `/login`, public pages
 
-**Confidence:** HIGH -- verified via Vercel docs and Hostinger subdomain documentation.
+**Caveats:**
+- `user_metadata` is user-editable and MUST NOT be trusted for auth. Use `app_metadata` (server-side only) or DB query.
+- Middleware runs on edge; cannot use Node.js-only Supabase client. Use `@supabase/ssr` cookie-based client.
+- Do NOT use middleware for heavy role lookups on every request; cache role in JWT claims via Supabase auth hook.
 
-### 2. Sentry Error Monitoring (Production-Ready)
+**Confidence:** HIGH -- verified via Supabase official docs for Next.js server-side auth and middleware pattern.
 
-| Feature | Why Required | Complexity | Depends On |
-|---------|-------------|------------|------------|
-| Fix client-side Sentry initialization | Currently disabled in dev due to "Maximum update depth exceeded" infinite loop with Next.js 16 | MEDIUM | @sentry/nextjs compatibility |
-| Verify production Sentry works end-to-end | Server + edge configs exist but untested in production | LOW | Vercel deployment |
-| Source map upload in CI/CD | Stack traces need readable function names, not minified code | LOW | SENTRY_AUTH_TOKEN in Vercel env |
-| Sentry tunnel route verification | `/monitoring` tunnel route configured to bypass ad blockers | LOW | next.config.ts already configured |
-| Error alerting rules | Slack/email notifications for new errors, error spikes | LOW | Sentry dashboard config |
-| Session replay verification | `replaysOnErrorSampleRate: 1.0` configured; verify it captures replays | LOW | Production traffic |
+### 2. Content Security Policy Headers
 
-**Current Sentry status (codebase-verified):**
-- `sentry.server.config.ts`: tracesSampleRate 0.1 prod, ignoreErrors configured, extraErrorDataIntegration
-- `sentry.edge.config.ts`: tracesSampleRate 0.1 prod
-- `instrumentation-client.ts`: Production-only init with replayIntegration + browserTracingIntegration; `onRouterTransitionStart` DISABLED (causes infinite loop)
-- `instrumentation.ts`: Server register + `onRequestError = Sentry.captureRequestError`
-- `next.config.ts`: Sentry org/project configured, `tunnelRoute: "/monitoring"`, `widenClientFileUpload: true`
-- **Known issue:** `@sentry/nextjs` client-side `onRouterTransitionStart` causes "Maximum update depth exceeded" with Next.js 16 / React 19. Keep it disabled until Sentry fixes this. The rest of client Sentry (error capture, replay, performance) works in production.
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| CSP header via middleware (nonce-based) | Prevents XSS; required for production security | MEDIUM | Next.js middleware |
+| Nonce generation per request | Each page render gets a unique nonce for inline scripts | LOW | `crypto.randomUUID()` in middleware |
+| Allow Supabase, Stripe, Google Maps, Sentry domains | External scripts/connections must be whitelisted | LOW | Know all external domains used |
+| Allow Framer Motion/GSAP inline styles | Animation libraries set inline styles; `style-src 'unsafe-inline'` or nonce | LOW | App Router requires `'unsafe-inline'` for styles |
+| Report-only mode first | Deploy CSP in report-only to catch violations before enforcing | LOW | `Content-Security-Policy-Report-Only` header |
 
-**Confidence:** HIGH -- verified against codebase files. Sentry has added Next.js 16 e2e tests, suggesting active compatibility work.
-
-### 3. Lighthouse CI Performance Gate (Blocking Mode)
-
-| Feature | Why Required | Complexity | Depends On |
-|---------|-------------|------------|------------|
-| Switch Lighthouse assertions from "warn" to "error" | Current "warn" mode means performance regressions ship silently | LOW | lighthouserc.js change |
-| Set realistic initial thresholds | Current thresholds (LCP <2.5s, perf >0.9) are aspirational; need achievable-but-improving targets | LOW | Baseline measurement |
-| Make Lighthouse CI a required check for PR merge | GitHub branch protection rule: require `lighthouse` check to pass | LOW | GitHub repo settings |
-| Add Lighthouse score to PR comments | Visual performance report in PR for reviewer context | LOW | treosh/lighthouse-ci-action already configured with `uploadArtifacts: true` |
-
-**Current Lighthouse CI config (codebase-verified):**
+**Required CSP directives for this app:**
 ```
-Assertions (all "warn" -- none block PRs):
-- FCP: maxNumericValue 1500ms
-- LCP: maxNumericValue 2500ms
-- CLS: maxNumericValue 0.1
-- TBT: maxNumericValue 200ms
-- Performance score: minScore 0.9
-- Accessibility score: minScore 0.95
-
-URLs tested: /, /menu, /cart, /checkout
-Runs: 3 per URL
-Upload: temporary-public-storage
+default-src 'self';
+script-src 'self' 'nonce-{nonce}' 'strict-dynamic' https://js.stripe.com https://maps.googleapis.com;
+style-src 'self' 'unsafe-inline';  // Required for App Router + animation libs
+img-src 'self' blob: data: https://*.supabase.co https://lh3.googleusercontent.com https://drive.google.com;
+font-src 'self' https://fonts.gstatic.com;
+connect-src 'self' https://*.supabase.co https://api.stripe.com https://maps.googleapis.com https://*.sentry.io https://vitals.vercel-insights.com;
+frame-src https://js.stripe.com https://hooks.stripe.com;
+object-src 'none';
+base-uri 'self';
+form-action 'self';
+frame-ancestors 'none';
+upgrade-insecure-requests;
 ```
 
-**Recommended approach:**
-1. First, fix LCP to get performance score to 70+
-2. Set initial blocking thresholds at the NEW baseline (e.g., perf >0.65, LCP <4000ms)
-3. Tighten thresholds incrementally as performance improves
-4. Keep accessibility at "error" level immediately (score >0.9)
+**Confidence:** HIGH -- verified via Next.js official CSP guide; `style-src 'unsafe-inline'` is required for App Router.
 
-**The "error" vs "warn" distinction:**
-- `"warn"`: Prints warning in CI output but exit code 0 (pipeline passes)
-- `"error"`: Exit code non-zero (pipeline fails, PR blocked if check is required)
-- Changing from `"warn"` to `"error"` is a one-line change per assertion in lighthouserc.js
+### 3. Supabase RLS Audit
 
-**Confidence:** HIGH -- verified via Lighthouse CI documentation and codebase config.
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Audit all tables for RLS enabled | Some newer tables may lack RLS | MEDIUM | SQL query against pg_tables + pg_policies |
+| Verify driver can only see own routes/stops | `get_my_driver_id()` function used correctly | LOW | Existing function in migrations |
+| Verify customer can only see own orders | Existing policies look correct; need testing | LOW | Test with different user sessions |
+| Verify admin bypass works for all tables | `is_admin()` function checked | LOW | Existing function |
+| Add RLS for tables added after 002_rls_policies | Tables from migrations 008-020: featured_sections, customer_settings, driver_invites, webhook_events, driver_ratings, order_audit_log, email_logs, app_settings | MEDIUM | Individual migration files |
+| Index columns used in RLS policies | `user_id`, `driver_id`, `route_id` used in WHERE clauses of policies | LOW | CREATE INDEX IF NOT EXISTS |
 
-### 4. LCP Optimization (8-11s to <3s)
+**Tables needing RLS audit (codebase-verified):**
 
-| Feature | Why Required | Complexity | Depends On |
-|---------|-------------|------------|------------|
-| Identify LCP element | Unknown what the actual LCP element is (hero image? text? animation?) | LOW | Lighthouse audit, Web Vitals |
-| Hero section render optimization | Hero likely blocks on GSAP/Framer Motion initialization before paint | HIGH | Hero component refactor |
-| Critical CSS extraction | Ensure above-the-fold styles are inlined, not loaded via external CSS | MEDIUM | Next.js handles most of this |
-| Font loading optimization | Verify fonts use `next/font` with `display: swap` | LOW | Check existing font config |
-| Image optimization for hero | If LCP is an image: `priority` attribute, proper sizing, AVIF/WebP | LOW | next.config.ts image config already has AVIF/WebP |
-| Reduce client-side JS for initial render | Hero uses client components with GSAP; consider SSR-first approach | HIGH | Hero component architecture |
-| Defer non-critical animations | GSAP/Framer Motion initialization should not block first paint | MEDIUM | Animation system refactor |
-| Remove/defer Google Maps from homepage | Already lazy-loaded via `React.lazy()` but 369KB still loads eventually | LOW | Already done |
-| Enable Partial Prerendering (PPR) | `ppr: true` commented out in next.config.ts; could improve TTFB | MEDIUM | Next.js 16 experimental feature |
-| Bundle analysis and code splitting | `@next/bundle-analyzer` already installed; identify largest chunks | LOW | Run `pnpm analyze` |
+| Table | RLS Enabled? | Policies Exist? | Notes |
+|-------|-------------|-----------------|-------|
+| profiles | YES | YES (002) | Select own + admin, update own |
+| addresses | YES | YES (002) | Full CRUD for own, admin select |
+| menu_categories | YES | YES (002) | Public read, admin write |
+| menu_items | YES | YES (002) | Public read, admin write |
+| orders | YES | YES (002) | Own read, admin update |
+| order_items | YES | YES (002) | Join-based own read |
+| drivers | YES | YES (002) | Own read/update, admin insert/delete |
+| routes | YES | YES (002) | Driver-own + admin |
+| route_stops | YES | YES (002) | Route-owner + order-owner + admin |
+| location_updates | YES | YES (002) | Driver-own insert, tracking read |
+| delivery_exceptions | YES | YES (002) | Route-owner + admin |
+| driver_ratings | YES | YES (002) | Order-owner insert, driver-own read |
+| featured_sections | NEEDS CHECK | Likely from 008/009 | May need admin-only write policy |
+| customer_settings | NEEDS CHECK | Likely from 019 | Own-only read/write |
+| driver_invites | YES | YES (012-018) | Multiple fix migrations -- verify final state |
+| webhook_events | NEEDS CHECK | Unknown | Should be service-role only |
+| order_audit_log | NEEDS CHECK | Likely from 011 | Admin read, system insert |
+| app_settings | NEEDS CHECK | Likely from 010 | Admin read/write |
+| email_logs | NEEDS CHECK | Likely from 020 | Admin read |
 
-**Root cause analysis (codebase-verified):**
-The homepage has a heavy Hero component that is a client component with animations. The server component page.tsx does server-side data fetching, but the Hero renders client-side with GSAP. This means:
-1. Server sends HTML shell
-2. Client downloads React + GSAP + Framer Motion bundles
-3. Client hydrates
-4. GSAP initializes animations
-5. LCP element finally paints
+**Confidence:** HIGH -- verified from migration files in codebase.
 
-**LCP optimization priority order:**
-1. Determine the actual LCP element (run Lighthouse, check "Largest Contentful Paint element")
-2. If text: ensure font loads fast (preload, font-display: swap)
-3. If image: add `priority`, proper `sizes`, preload hint
-4. If animation-blocked: make Hero server-renderable for initial paint, hydrate animations after
-5. Reduce JS bundle: check if Framer Motion + GSAP both needed for Hero
-6. Consider PPR for static shell + streaming dynamic content
+### 4. Rate Limiting Upgrade
 
-**Target:** LCP <2.5s (Google "Good"), Lighthouse performance >90.
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Replace in-memory Map with distributed store | Current rate limiter resets on each serverless cold start; useless on Vercel | MEDIUM | Upstash Redis or Vercel KV |
+| Sliding window algorithm | Current implementation is basic fixed-window; upgrade to sliding window for smoother limits | LOW | `@upstash/ratelimit` provides this |
+| Rate limit auth endpoints | signIn: 5/min, signUp: 3/hr, resetPassword: 3/hr (current config is good) | LOW | Preserve existing config values |
+| Rate limit API routes | Add rate limiting to driver location updates, order creation, admin bulk operations | LOW | Apply to high-traffic endpoints |
+| Edge middleware rate limiting | Block abusive IPs before they hit API routes | MEDIUM | Middleware + Upstash Redis |
 
-**Confidence:** HIGH for diagnosis approach, MEDIUM for specific fix (need to identify actual LCP element first).
+**Recommended approach: Upstash Redis + @upstash/ratelimit**
+- Vercel KV is also Upstash-backed but Upstash direct is cheaper and has better rate limit SDK
+- `@upstash/ratelimit` provides sliding window, token bucket, fixed window algorithms
+- Caches data in edge function memory when "hot"; only calls Redis on cold start
+- Cost: Upstash free tier gives 10K commands/day (sufficient for this app)
 
-### 5. Admin Order Detail Page (/admin/orders/[id])
+**Confidence:** HIGH -- verified via Upstash docs and Vercel rate limiting template.
 
-| Feature | Why Required | Complexity | Depends On |
-|---------|-------------|------------|------------|
-| Order detail page with full order info | Dashboard links to `/admin/orders/[id]` (line 263 of admin/page.tsx) but page doesn't exist -- 404 | MEDIUM | API route already exists (`/api/admin/orders/[id]/details`) |
-| Customer info display | Name, email, phone for contacting about order issues | LOW | API response includes customer fields |
-| Order items list with quantities and prices | Admin needs to see what was ordered | LOW | API response includes items array |
-| Delivery address display | Admin needs to know where to deliver | LOW | API response includes address |
-| Order status management | Change status (confirm, prepare, out for delivery, deliver) | LOW | API route `/api/admin/orders/[id]/status` already exists |
-| Audit log display | See history of status changes, who made them | LOW | API response includes auditLog array |
-| Driver assignment display | See which driver is assigned | LOW | API response includes assignedDriverName |
-| Cancel/refund actions | Admin can cancel order, process refund | MEDIUM | API routes `/api/admin/orders/[id]/cancel` and `/refund` exist |
-| Print-friendly order summary | For kitchen staff who print orders | LOW | CSS print styles |
+### 5. Driver Earnings Dashboard
 
-**Existing API infrastructure (codebase-verified):**
-- `GET /api/admin/orders/[id]/details` -- Returns complete order with customer, items, address, audit log, driver info
-- `PATCH /api/admin/orders/[id]/status` -- Update order status
-- `GET /api/admin/orders/[id]/items` -- Get order items
-- `GET /api/admin/orders/[id]/driver` -- Get assigned driver
-- `POST /api/admin/orders/[id]/cancel` -- Cancel order
-- `POST /api/admin/orders/[id]/refund` -- Process refund
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Weekly earnings summary card | Drivers need to see what they earned this week | MEDIUM | Earnings computation logic; no `earnings` table exists |
+| Per-route earnings breakdown | Show earnings per completed route | LOW | Computed from deliveries_count + route stats |
+| Earnings history (weekly/monthly) | Drivers want to see trends over time | MEDIUM | Aggregate from completed routes |
+| Earnings chart (bar/line) | Visual earnings trend; Recharts already in the project | LOW | Recharts (already installed, lazy-loaded) |
 
-**All backend is done.** This is purely a frontend page that consumes the existing API.
+**Schema consideration:**
+The app has no `earnings` or `payments` table. Earnings must be derived from existing data or a new table.
 
-**Pattern to follow:** The customer-facing order detail page (`/orders/[id]/page.tsx`) provides a good reference for layout and data flow. The admin version needs additional admin-specific features (status controls, audit log, cancel/refund actions).
+Option A: **Compute from config** -- Admin sets per-delivery rate in app_settings; earnings = rate x deliveries. Simple but inflexible.
 
-**Confidence:** HIGH -- API routes verified in codebase.
+Option B: **New `driver_earnings` table** -- Track per-route earnings with columns: driver_id, route_id, delivery_date, base_pay_cents, bonus_cents, tip_cents, total_cents. More flexible, supports future features (bonuses, tips).
 
-### 6. Admin Profile Page (/admin/profile)
+**Recommendation:** Option A for v1.8 (compute from config). The app is a small weekly delivery service with a fixed per-delivery rate. A dedicated earnings table is over-engineering for the current scale. Add it later if tip/bonus features are needed.
 
-| Feature | Why Required | Complexity | Depends On |
-|---------|-------------|------------|------------|
-| Admin profile view/edit | Admin needs to manage their own name, email, phone | LOW | Supabase auth user data |
-| Password/auth management | Change password, manage social logins | LOW | Supabase auth APIs |
-| Activity log | Recent admin actions (status changes, refunds) | MEDIUM | audit_log table query |
-| Notification preferences | Control what admin notifications they receive | LOW | New DB field or local storage |
+**Confidence:** MEDIUM -- earnings model depends on business rules not fully specified.
 
-**Complexity note:** This is a simple CRUD page. The customer-facing `/account` page (AccountClient component) can be adapted for admin context. Core difference: admin profile may include admin-specific fields and activity log.
+### 6. Driver Route History & Stats
 
-**Confidence:** HIGH for basic profile, MEDIUM for activity log (depends on existing audit infrastructure).
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Past routes list with completion stats | Already exists at `/driver/history` with DriverHistoryContent | LOW | Already built; enhance only |
+| On-time percentage (computed from data) | Already showing real on-time percentage | DONE | Already in v1.6 |
+| Total deliveries count | Already on dashboard (deliveriesCount) | DONE | DriversRow.deliveries_count |
+| Average rating display | Already on dashboard (ratingAvg) | DONE | DriversRow.rating_avg |
+| Route detail view with map | Already exists at `/driver/route/[stopId]` | DONE | Existing pages |
 
-### 7. Google OAuth + Apple Sign-In Production Configuration
+**What's actually missing (codebase-verified):**
+- No lifetime/monthly stats aggregation beyond the 3 stat cards
+- No date-range filtering on history
+- History shows recent routes but no pagination
+- No "best week" or performance milestones
 
-| Feature | Why Required | Complexity | Depends On |
-|---------|-------------|------------|------------|
-| Google Cloud Console OAuth setup | Create OAuth 2.0 credentials for production domain | LOW | Google Cloud Console access |
-| Google authorized redirect URIs | Add Supabase callback URL for production | LOW | Supabase project URL |
-| Apple Developer account setup | Register App ID + Services ID for Sign in with Apple | MEDIUM | Apple Developer Program ($99/yr) |
-| Apple client secret generation | Apple requires a new JWT secret every 6 months | LOW (but recurring) | Apple .p8 signing key |
-| Supabase Auth provider configuration | Add Google/Apple credentials in Supabase dashboard | LOW | Both provider credentials |
-| Production callback URL configuration | Ensure OAuth redirects work on delivery.mandalaymorningstar.com | LOW | Custom domain deployed |
+**Recommendation:** The history/stats feature is largely built. Focus v1.8 enhancement on: (1) date-range filtering, (2) pagination for history, (3) monthly summary view. Keep scope small.
 
-**Critical Apple Sign-In note:** Apple OAuth requires regenerating the client secret every 6 months using the .p8 signing key. Set a calendar reminder. If the secret expires, Apple Sign-In will silently fail.
+**Confidence:** HIGH -- verified from existing DriverHistoryContent.tsx and history page.
 
-**Confidence:** HIGH -- verified via Supabase Auth docs for Google and Apple social login.
+### 7. Planned/Assigned Route Visibility
 
-### 8. Resend Domain Verification (Email Deliverability)
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| See upcoming assigned routes (not just today's) | Drivers currently only see today's planned/in_progress route | MEDIUM | Query routes table for future dates |
+| Weekly schedule view | Show all routes assigned for the coming week | LOW | Simple date-range query on routes table |
+| Route preview with stop count and estimated duration | Before delivery day, driver sees what's coming | LOW | stats_json already has stop counts and duration |
+| Push notification for new route assignment | Alert driver when admin assigns them a route | HIGH | Requires push notification infrastructure (not in scope) |
 
-| Feature | Why Required | Complexity | Depends On |
-|---------|-------------|------------|------------|
-| Add sending domain to Resend | Register mandalaymorningstar.com (or subdomain) in Resend dashboard | LOW | Resend account |
-| Add SPF DNS record | Authorize Resend to send on behalf of domain | LOW | Hostinger DNS panel |
-| Add DKIM DNS record | Email authentication for deliverability | LOW | Hostinger DNS panel |
-| Add DMARC DNS record | Additional trust signal for mailbox providers | LOW | Hostinger DNS panel |
-| Verify domain status in Resend | Wait for DNS propagation, confirm "Verified" status | LOW | DNS propagation (up to 72 hours) |
-| Test email deliverability | Send test emails, check spam folder placement | LOW | Verified domain |
+**Implementation:**
+- API: Add `/api/driver/routes/upcoming` endpoint querying `routes` where `driver_id = mine AND delivery_date > today AND status = 'planned'`
+- UI: New section on driver home page showing upcoming routes, or a separate `/driver/schedule` page
+- RLS: Existing `routes_select` policy already allows drivers to see their own routes (any date)
 
-**Recommended sending domain:** Use a subdomain like `mail.mandalaymorningstar.com` or `updates.mandalaymorningstar.com` to isolate sending reputation from the main domain. This is Resend's recommended practice.
+**Confidence:** HIGH -- routes table already has delivery_date and driver_id; just needs a new query endpoint.
 
-**DNS records to add (3 total):**
-1. **SPF** (TXT record): Authorizes Resend IP addresses
-2. **DKIM** (CNAME records, usually 2-3): Provides signing keys for email authentication
-3. **DMARC** (TXT record, optional but recommended): Policy for failed authentication
+### 8. Driver Availability Scheduling
 
-Resend auto-generates the exact DNS record values when you add a domain in their dashboard.
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Mark available/unavailable days | Admin needs to know which drivers are available for assignment | MEDIUM | New `driver_availability` table |
+| Weekly availability calendar | Visual day-of-week picker for recurring availability | LOW | Client-side calendar component |
+| One-off unavailability (vacation, sick) | Driver can block specific dates | LOW | Date picker + availability table |
+| Admin view of driver availability | Admin sees who's available when creating routes | MEDIUM | Admin drivers page enhancement |
 
-**Confidence:** HIGH -- verified via Resend domain documentation.
+**Schema recommendation:**
+```sql
+CREATE TABLE driver_availability (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  driver_id UUID REFERENCES drivers(id) NOT NULL,
+  day_of_week INT,            -- 0=Sun..6=Sat (recurring weekly)
+  specific_date DATE,          -- For one-off overrides
+  is_available BOOLEAN DEFAULT true,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+- `day_of_week` for recurring (e.g., "I'm available every Saturday")
+- `specific_date` for overrides (e.g., "Not available Feb 22")
+- Specific date overrides recurring availability
+- RLS: Driver can read/write own, admin can read all
+
+**Context:** This is a weekly Saturday delivery service. Availability is primarily "am I available this Saturday?" Simple toggle per week is sufficient MVP.
+
+**Confidence:** MEDIUM -- schema design is straightforward but business rules for availability need confirmation.
+
+### 9. Driver Profile Setup & Edit
+
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Profile edit page (name, phone, vehicle, plate) | Onboarding collects these but driver can't change them | LOW | Update drivers/profiles tables |
+| Profile photo upload | `profile_image_url` field exists but no upload UI for drivers | MEDIUM | Supabase Storage (menu-photos bucket exists; need driver-photos bucket) |
+| Vehicle info display on dashboard | Show vehicle type badge on driver home | LOW | Already in DriversRow.vehicle_type |
+| Profile completeness indicator | Show what's missing from profile | LOW | Check null fields |
+
+**Existing onboarding flow (codebase-verified):**
+- Admin invites driver via email magic link
+- Driver clicks link -> auth callback sets role metadata -> redirect to /driver/onboard
+- Onboard form collects: fullName, phone, vehicleType, licensePlate, password
+- Creates profile + drivers record, marks invite accepted
+- No profile photo upload in onboarding
+
+**What to add:**
+- `/driver/profile` page with edit form
+- Photo upload component (reuse pattern from admin MenuItemPhotoSection)
+- New Supabase Storage bucket: `driver-photos`
+- Update to drivers table via PATCH endpoint
+
+**Confidence:** HIGH -- existing onboard flow is well-understood; profile edit is straightforward extension.
+
+### 10. Guided First Delivery Walkthrough
+
+| Feature | Why Expected | Complexity | Depends On |
+|---------|--------------|------------|------------|
+| Step-by-step tooltip walkthrough on first login | New drivers need to understand the delivery flow | MEDIUM | Onboarding state tracking (onboarding_completed_at) |
+| Interactive tour of dashboard, route view, stop detail | Walk through each major screen with action prompts | MEDIUM | Tooltip/highlight overlay system |
+| Test delivery mode | Practice delivery flow without real orders | HIGH | Mock data system for test routes |
+| Checklist showing completed onboarding steps | Progress indicator for what's been learned | LOW | Local storage or driver record flags |
+
+**Recommendation:** Skip the full interactive tour and test delivery mode for v1.8. Instead:
+1. **Onboarding checklist** on dashboard for new drivers (profile complete? first route viewed? first delivery done?)
+2. **Contextual tooltips** on first visit to route/stop pages (use `onboarding_completed_at` as gate)
+3. **Test page for delivery flow** -- a dedicated `/driver/test-delivery` with mock data (specified in project scope)
+
+**Confidence:** MEDIUM -- walkthrough UX is well-documented in industry but implementation complexity varies.
 
 ---
 
-## Differentiators (Elevate Beyond Minimum)
+## Differentiators (Competitive Advantage)
 
-Features that go beyond the baseline and provide a polished production experience.
-
-### 1. CI/CD Pipeline Hardening
+Features that elevate the driver experience beyond basic functionality.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| CSS linting in CI | `pnpm lint:css` exists but not in CI pipeline | LOW | Add to lint job |
-| Prettier format check in CI | `pnpm format:check` exists but not in CI pipeline | LOW | Add to lint job |
-| Dependency audit in CI | Check for known vulnerabilities on every PR | LOW | `pnpm audit --audit-level moderate` |
-| Bundle size tracking | Track JS bundle size changes per PR, alert on >10% increases | MEDIUM | `@next/bundle-analyzer` already installed |
-| E2E tests in CI | `pnpm test:e2e` exists but not in CI pipeline | HIGH | Requires Playwright in CI (browser install) |
-| Sentry release tracking | Tag each deploy with a release version for error tracking | LOW | `SENTRY_RELEASE` env var in Vercel |
-| Vercel deployment protection | Require successful CI checks before Vercel deploys | LOW | Vercel dashboard setting |
-
-**Current CI gaps (codebase-verified):**
-The GitHub Actions CI pipeline runs: `lint` -> `typecheck` -> `test` -> `build` -> `lighthouse(warn-only)`
-
-Missing from CI:
-- `pnpm lint:css` (Stylelint)
-- `pnpm format:check` (Prettier)
-- E2E tests (Playwright)
-- Security audit
-- Bundle size tracking
-
-### 2. Performance Monitoring Dashboard
-
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Web Vitals reporting to Vercel Analytics | `@vercel/analytics` already installed; verify it reports CWV | LOW | May need Vercel Analytics enable |
-| Sentry performance monitoring | Transaction tracing for API routes, page loads | LOW | Already configured at 10% sample rate |
-| Custom performance alerts | Alert if LCP regresses above threshold in production | MEDIUM | Sentry alerts or Vercel Speed Insights |
-| Real User Monitoring (RUM) | Track actual user performance, not just synthetic (Lighthouse) | LOW | `web-vitals` package already installed |
-
-### 3. Production Security Hardening
-
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Content Security Policy headers | Prevent XSS, restrict script sources | MEDIUM | next.config.ts headers() |
-| Rate limiting upgrade | Current in-memory Map won't work across Vercel serverless instances | MEDIUM | Replace with Vercel KV or Upstash Redis |
-| Supabase RLS audit | Verify all tables have proper RLS policies before going public | MEDIUM | SQL audit script exists (`rls:test`) |
-| API route auth audit | Verify all admin routes use `requireAdmin()` | LOW | Grep + manual review |
-| Stripe webhook signature verification | Already implemented; verify in production | LOW | Test with Stripe CLI |
-
-### 4. Database Production Readiness
-
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| Supabase production project | Separate from development project | MEDIUM | Supabase dashboard |
-| Database migration strategy | Apply migrations to production safely | LOW | Supabase CLI `db push` |
-| Connection pooling | PgBouncer for handling serverless connection patterns | LOW | Supabase has built-in pooler |
-| Backup verification | Verify Supabase automatic backups are enabled | LOW | Supabase dashboard |
+| Earnings streak/badges | Gamification motivates consistent availability; DriverDashboard already has `badges` and `streakDays` props (unused) | LOW | Wire up existing UI props with computed data |
+| Performance milestones | "100 deliveries" badge, "5-star streak" -- driver retention tool | LOW | Computed from existing driver stats fields |
+| Offline-first availability toggle | Driver can mark available/unavailable even without connection; sync via existing IndexedDB queue | MEDIUM | Extend existing offline sync system |
+| Animated earnings counter | Earnings number animates up as deliveries complete; AnimatedValue component already exists | LOW | Reuse existing AnimatedValue from admin dashboard |
+| Route preview with Google Maps | Show upcoming route on map before delivery day; Google Maps already integrated | LOW | Reuse existing route map components |
+| Driver-to-admin messaging | Quick message to admin about route issues without phone call | HIGH | Requires new messaging infrastructure |
+| Weather-aware route alerts | Show weather warnings for delivery day | MEDIUM | External weather API integration |
 
 ---
 
-## Anti-Features (Do NOT Build for This Milestone)
+## Anti-Features (Do NOT Build for v1.8)
 
 | Feature | Why It Seems Needed | Why Problematic | Alternative |
 |---------|---------------------|-----------------|-------------|
-| Custom monitoring dashboard | "We need to see everything" | Sentry + Vercel Analytics already provide dashboards; building custom is waste | Use Sentry for errors, Vercel for performance |
-| Blue-green deployment | "Zero downtime deploys" | Vercel handles this automatically with atomic deployments | Vercel's default deployment strategy is already zero-downtime |
-| Kubernetes/Docker containerization | "Production needs containers" | Vercel is serverless; containerization adds complexity with no benefit | Vercel serverless functions |
-| Custom CDN configuration | "We need edge caching" | Vercel Edge Network handles this automatically | Vercel's built-in CDN |
-| Database read replicas | "Production database needs replicas" | Overkill for a weekly delivery app; Supabase handles scaling | Supabase's built-in scaling |
-| Full E2E test suite in CI | "Need complete test coverage" | Playwright in CI is slow (5-10 min), expensive, fragile; defer until test suite is mature | Run critical path E2E only, or run locally before merge |
-| WebSocket real-time updates | "Orders should update in real-time" | Supabase Realtime exists but adds complexity; manual refresh works for weekly delivery model | Keep existing refresh button; consider Supabase Realtime post-launch |
-| Multi-region deployment | "Need global availability" | Single region (US) is fine for LA-based meal delivery service | Vercel auto-selects closest region |
-| Uptime monitoring (Pingdom/Better Uptime) | "Need to know when site is down" | Premature for launch; Vercel has built-in uptime monitoring on Pro plan | Check Vercel status page; add external monitoring post-launch if needed |
-| Admin RBAC (role-based access control) | "Different admin permission levels" | Single admin (business owner) for now; RBAC adds complexity | Simple admin boolean check (already implemented via `requireAdmin()`) |
+| Real-time earnings tracking | "Drivers want instant updates" | This is a weekly Saturday delivery, not gig economy; real-time adds complexity with no value | Show earnings on route completion |
+| Driver-side route optimization | "Let drivers reorder stops" | Admin assigns optimized routes; driver reordering undermines admin control and optimization | Admin optimizes, driver follows |
+| Tip tracking from customers | "Drivers want to see tips" | No tip infrastructure exists; Stripe checkout doesn't include tips; adding is a major feature | Defer to v2 if tips are desired |
+| In-app navigation (turn-by-turn) | "Drivers need directions" | Google Maps/Waze deep links already provide this; building in-app nav is enormous scope | Keep existing "Navigate" button that opens native maps |
+| Driver chat/messaging | "Drivers need to communicate" | Phone call to admin is sufficient for small team; chat requires infrastructure (websockets, message storage) | Phone number on dashboard |
+| Multi-language driver interface | "Burmese drivers need Burmese UI" | Internationalization is a large cross-cutting concern; driver UI is small and action-oriented | Keep English; add Burmese labels for key actions only if needed |
+| Automated route assignment | "System should auto-assign routes" | Weekly delivery with 2-3 drivers doesn't need automation; admin manual assignment works | Keep admin manual assignment |
+| Driver payments/payroll integration | "Pay drivers through the app" | Payroll is a regulated, complex domain; Morning Star pays drivers outside the app | Track earnings for visibility; actual payment stays external |
+| Push notifications | "Notify drivers of new routes" | Requires service worker push subscription, backend push service, permission flow | Use email notifications for route assignments (Resend already set up) |
 
 ---
 
 ## Feature Dependencies
 
 ```
-Vercel Deployment (FIRST -- everything depends on this)
-    requires -> Vercel account
-    requires -> GitHub repo linked
-    requires -> Environment variables configured
-    unlocks -> Custom domain, preview deploys, Sentry in production
+Role-Based Redirects
+    requires -> Next.js middleware.ts (new file)
+    requires -> Supabase session refresh in middleware
+    enhances -> All role-specific landing pages (already built)
 
-Custom Domain (delivery.mandalaymorningstar.com)
-    requires -> Vercel deployment (above)
-    requires -> Hostinger DNS panel access
-    requires -> CNAME record: delivery -> cname.vercel-dns.com
-    unlocks -> OAuth redirect URLs, Resend domain verification
+CSP Headers
+    requires -> Next.js middleware.ts (same file as auth redirects)
+    requires -> Nonce generation per request
+    requires -> Audit all external scripts/styles/connections
+    conflicts with -> Nothing (additive security)
 
-Sentry Production Verification
-    requires -> Vercel deployment (SENTRY_AUTH_TOKEN in env)
-    requires -> Production traffic to generate events
-    independent of -> Custom domain (works with Vercel URL)
+RLS Audit
+    requires -> Access to Supabase SQL editor or migration files
+    independent of -> All other features
+    blocks -> Nothing (but should complete before adding new tables)
 
-Lighthouse CI Blocking
-    requires -> Baseline performance measurement (after LCP fix)
-    requires -> lighthouserc.js threshold adjustments
-    requires -> GitHub branch protection rules
-    independent of -> Vercel deployment
-
-LCP Optimization
-    requires -> Lighthouse audit to identify LCP element
-    requires -> Bundle analysis (`pnpm analyze`)
-    blocks -> Lighthouse CI blocking thresholds (need good baseline first)
-    independent of -> Vercel deployment (can develop locally)
-
-Admin Order Detail Page
-    requires -> Existing API routes (ALREADY DONE)
-    requires -> Admin layout/components (ALREADY DONE)
-    independent of -> Vercel deployment
-
-Admin Profile Page
-    requires -> Supabase auth APIs
+Rate Limiting Upgrade
+    requires -> Upstash Redis account + API keys
+    requires -> @upstash/ratelimit package install
+    replaces -> src/lib/utils/rate-limit.ts (in-memory Map)
     independent of -> Other features
 
-Google OAuth Production Config
-    requires -> Custom domain deployed (for redirect URLs)
-    requires -> Google Cloud Console access
-    requires -> Supabase dashboard access
+Driver Earnings Dashboard
+    requires -> Earnings computation logic (per-delivery rate from app_settings)
+    requires -> Completed routes/deliveries data (already exists)
+    enhances -> Driver dashboard home page
+    independent of -> Availability scheduling
 
-Apple Sign-In Production Config
-    requires -> Custom domain deployed (for redirect URLs)
-    requires -> Apple Developer Program membership ($99/yr)
-    requires -> Supabase dashboard access
+Driver Route History Enhancement
+    requires -> Existing history page (already built)
+    independent of -> Other features
+    enhances -> Driver history page with filtering/pagination
 
-Resend Domain Verification
-    requires -> Hostinger DNS panel access (for SPF/DKIM/DMARC records)
-    independent of -> Vercel deployment (DNS is separate)
-    unlocks -> Reliable email delivery in production
+Planned Route Visibility
+    requires -> New API endpoint for upcoming routes
+    requires -> Existing routes table and RLS policies
+    enhances -> Driver home page
+    independent of -> Availability scheduling (but complementary)
 
-CI/CD Hardening
-    requires -> GitHub Actions workflow updates
-    independent of -> Vercel deployment
+Driver Availability Scheduling
+    requires -> New driver_availability table
+    requires -> RLS policies for new table
+    enhances -> Admin route assignment workflow
+    complements -> Planned route visibility
+
+Driver Profile Setup
+    requires -> Supabase Storage bucket for photos
+    requires -> New /driver/profile page
+    enhances -> Driver onboarding flow
+    independent of -> Other features
+
+Guided First Delivery
+    requires -> Driver profile setup (needs completed profile first)
+    requires -> Test route data or mock system
+    enhances -> Driver onboarding experience
+    should follow -> Profile setup and planned routes
 ```
 
 ### Critical Path
 
 ```
-LCP Fix --> Lighthouse Baseline --> Lighthouse Blocking Thresholds --> CI Gate
-Vercel Deploy --> Custom Domain --> OAuth Config + Resend DNS
-Admin Pages --> No blockers (pure frontend work)
+Middleware.ts (shared foundation)
+    ├── Role-based redirects (add auth redirect logic)
+    └── CSP headers (add CSP nonce generation)
+
+Security (can run in parallel)
+    ├── RLS audit (SQL work, independent)
+    └── Rate limiting upgrade (package install + refactor)
+
+Driver Experience (sequential within, parallel to security)
+    ├── Driver profile setup (foundation for others)
+    ├── Earnings dashboard (independent of profile)
+    ├── Planned route visibility (independent)
+    ├── Availability scheduling (needs new table)
+    ├── History enhancement (existing page polish)
+    └── First delivery walkthrough (last -- needs other features working)
 ```
 
 ---
 
-## Priority Matrix
+## Milestone Phase Recommendation
 
-### P0: Deploy Blockers (Cannot Launch Without)
+### Phase 1: Security Foundation
+- Middleware.ts with role-based redirects + CSP headers
+- RLS audit for all tables
+- Rate limiting upgrade to Upstash
 
-| Feature | User Value | Effort | Why P0 |
-|---------|-----------|--------|--------|
-| Vercel deployment + env vars | CRITICAL | LOW | App is inaccessible without deployment |
-| Custom domain CNAME | CRITICAL | LOW | Users need a URL |
-| SSL certificate | CRITICAL | FREE | Automatic with Vercel |
-| Sentry production verification | HIGH | LOW | Cannot debug production issues without monitoring |
-| Resend domain verification | HIGH | LOW | Emails hit spam without SPF/DKIM |
-| Admin order detail page | HIGH | MEDIUM | Dashboard links are broken (404) |
+### Phase 2: Driver Profile & Earnings
+- Driver profile edit page with photo upload
+- Earnings dashboard (computed from app_settings rate)
+- Driver home page enhancements
 
-### P1: Launch Quality (Should Have Day 1)
+### Phase 3: Route Visibility & Scheduling
+- Planned/upcoming route view
+- Availability scheduling (new table + UI)
+- History page enhancements (filtering, pagination)
 
-| Feature | User Value | Effort | Why P1 |
-|---------|-----------|--------|--------|
-| LCP optimization | HIGH | HIGH | 8-11s LCP is unacceptable; users will bounce |
-| Lighthouse CI blocking mode | MEDIUM | LOW | Prevent performance regressions after fix |
-| Google OAuth production config | HIGH | LOW | Social login configured but not operational |
-| Apple Sign-In production config | MEDIUM | MEDIUM | Apple Developer Program + recurring secret rotation |
-| Admin profile page | MEDIUM | LOW | Admin needs self-management |
-| Source map upload to Sentry | MEDIUM | LOW | Readable stack traces in production |
+### Phase 4: Onboarding & Polish
+- Guided first delivery walkthrough
+- Test delivery page
+- Driver UI polish (layout, mobile usability, visual consistency)
 
-### P2: Hardening (Week 1 Post-Launch)
+**Phase ordering rationale:**
+1. Security first because it's foundational and doesn't depend on feature work
+2. Profile + earnings next because they're the most visible driver improvements
+3. Routes + scheduling require new schema (driver_availability) -- keep schema changes together
+4. Onboarding walkthrough last because it needs the other features working to walk through
 
-| Feature | User Value | Effort | Why P2 |
-|---------|-----------|--------|--------|
-| CI/CD pipeline gaps (lint:css, format:check) | LOW | LOW | Code quality enforcement |
-| Rate limiting upgrade (Redis/KV) | MEDIUM | MEDIUM | Current in-memory rate limiter resets per serverless invocation |
-| CSP headers | MEDIUM | MEDIUM | Security hardening |
-| RLS audit | HIGH | MEDIUM | Security verification before public traffic |
-| Performance monitoring dashboard | LOW | LOW | Already partially configured |
+---
 
-### P3: Optimization (Post-Launch)
+## Feature Prioritization Matrix
 
-| Feature | User Value | Effort | Why P3 |
-|---------|-----------|--------|--------|
-| Bundle size tracking in CI | LOW | MEDIUM | Nice to have for ongoing maintenance |
-| E2E tests in CI | MEDIUM | HIGH | Test infrastructure needs maturation first |
-| Database production project separation | MEDIUM | MEDIUM | Can launch on single project initially |
-| Dependency security audit in CI | LOW | LOW | Automated vulnerability scanning |
+| Feature | User Value | Implementation Cost | Priority | Phase |
+|---------|------------|---------------------|----------|-------|
+| Role-based redirects | HIGH | MEDIUM | P0 | 1 |
+| CSP headers | HIGH | MEDIUM | P0 | 1 |
+| RLS audit | HIGH | MEDIUM | P0 | 1 |
+| Rate limiting upgrade | MEDIUM | MEDIUM | P1 | 1 |
+| Driver profile edit | HIGH | LOW | P1 | 2 |
+| Earnings dashboard | HIGH | MEDIUM | P1 | 2 |
+| Planned route visibility | HIGH | LOW | P1 | 3 |
+| Availability scheduling | MEDIUM | MEDIUM | P1 | 3 |
+| History enhancements | LOW | LOW | P2 | 3 |
+| Guided walkthrough | MEDIUM | MEDIUM | P2 | 4 |
+| Test delivery page | MEDIUM | HIGH | P2 | 4 |
+| Driver UI polish | MEDIUM | LOW | P2 | 4 |
+| Earnings badges/streaks | LOW | LOW | P3 | 4 |
+
+**Priority key:**
+- P0: Security requirements -- must ship before other features
+- P1: Core driver experience improvements
+- P2: Polish and onboarding enhancements
+- P3: Nice to have, wire up existing unused UI props
+
+---
+
+## Competitor Feature Analysis
+
+| Feature | DoorDash Dasher | Uber Eats Driver | Morning Star (v1.8) |
+|---------|-----------------|-------------------|---------------------|
+| Earnings dashboard | Real-time per-delivery + weekly summary + tips | Real-time with fare breakdown | Weekly summary computed from delivery rate |
+| Route assignment | On-demand offers | On-demand offers | Admin-assigned weekly routes |
+| Availability | Set hours per day/week | Toggle online/offline | Weekly availability toggle |
+| Profile setup | Photo, vehicle, documents, background check | Photo, vehicle, documents | Photo, vehicle, license plate |
+| Navigation | Built-in turn-by-turn | Built-in with Uber nav | External maps deep link |
+| Performance stats | Acceptance rate, completion rate, on-time | Rating, satisfaction, cancellation rate | Rating, on-time %, delivery count |
+| Onboarding | Multi-day orientation + test deliveries | Video tutorials + shadow delivery | Guided walkthrough + test page |
+
+**Key insight:** Morning Star is NOT a gig platform. It's a small weekly delivery service with 2-3 regular drivers. Features like on-demand offers, real-time earnings, and built-in navigation are over-engineering. Focus on clarity, simplicity, and reliability over feature parity with DoorDash/Uber.
 
 ---
 
 ## Feature Complexity Estimates
 
-| Feature | Frontend | Backend | Ops/Infra | Total |
-|---------|----------|---------|-----------|-------|
-| Vercel deployment | None | None | 1-2 hours | LOW |
-| Custom domain | None | None | 30 min + DNS wait | LOW |
-| Sentry verification | None | None | 1 hour | LOW |
-| Lighthouse CI blocking | None | None | 30 min config | LOW |
-| LCP optimization | 2-4 days | None | None | HIGH |
-| Admin order detail page | 1-2 days | None (API exists) | None | MEDIUM |
-| Admin profile page | 0.5-1 day | None | None | LOW |
-| Google OAuth config | None | None | 1-2 hours ops | LOW |
-| Apple Sign-In config | None | None | 2-3 hours ops | MEDIUM |
-| Resend domain verification | None | None | 30 min + DNS wait | LOW |
-| CI/CD hardening | None | None | 1-2 hours | LOW |
-| Rate limit upgrade | None | 0.5-1 day | Redis/KV setup | MEDIUM |
-| CSP headers | None | 0.5 day | None | MEDIUM |
-| RLS audit | None | 1 day | None | MEDIUM |
+| Feature | Frontend | Backend | Schema | Total |
+|---------|----------|---------|--------|-------|
+| Role-based redirects | None | Middleware.ts | None | MEDIUM (1 day) |
+| CSP headers | None | Middleware.ts (same file) | None | MEDIUM (0.5 day) |
+| RLS audit | None | SQL migration | None | MEDIUM (1 day) |
+| Rate limiting upgrade | None | Refactor rate-limit.ts | None | MEDIUM (0.5 day) |
+| Driver profile edit | New page + form | PATCH endpoint | None | LOW (1 day) |
+| Profile photo upload | Upload component | Storage bucket | None | MEDIUM (0.5 day) |
+| Earnings dashboard | Dashboard UI + chart | Earnings API endpoint | None (use app_settings) | MEDIUM (1-2 days) |
+| Planned route view | Route list component | GET upcoming routes API | None | LOW (0.5 day) |
+| Availability scheduling | Calendar UI | CRUD API | New table | MEDIUM (1-2 days) |
+| History enhancements | Date filter + pagination | Existing API tweaks | None | LOW (0.5 day) |
+| Guided walkthrough | Tooltip overlay system | None | None | MEDIUM (1-2 days) |
+| Test delivery page | Mock route view | Mock data endpoint | None | MEDIUM (1 day) |
+| Driver UI polish | Layout/style updates | None | None | LOW (1 day) |
+
+**Total estimated effort:** 10-14 days across 4 phases
 
 ---
 
 ## Sources
 
-### Vercel Deployment & Custom Domains
-- [Vercel: Adding & Configuring a Custom Domain](https://vercel.com/docs/domains/working-with-domains/add-a-domain) -- HIGH confidence
-- [Vercel: Working with Domains](https://vercel.com/docs/domains/working-with-domains) -- HIGH confidence
-- [Connect Hostinger Domain to Vercel](https://medium.com/@rajanraj8979/learn-how-to-connect-your-hostinger-domain-to-your-vercel-deployed-project-with-this-easy-966f082919f3) -- MEDIUM confidence
-- [Hostinger: Connect Subdomain to Website Builder](https://www.hostinger.com/support/6976680-how-to-connect-a-subdomain-to-hostinger-website-builder/) -- HIGH confidence
+### Role-Based Redirects
+- [Supabase: Setting up Server-Side Auth for Next.js](https://supabase.com/docs/guides/auth/server-side/nextjs) -- HIGH confidence
+- [Supabase: Use Supabase Auth with Next.js](https://supabase.com/docs/guides/auth/quickstarts/nextjs) -- HIGH confidence
 
-### Sentry + Next.js
-- [Sentry Next.js Guide](https://docs.sentry.io/platforms/javascript/guides/nextjs/) -- HIGH confidence
-- [Sentry React 19 Support](https://sentry.io/changelog/react-19-support/) -- HIGH confidence
-- [Sentry Next.js Troubleshooting](https://docs.sentry.io/platforms/javascript/guides/nextjs/troubleshooting/) -- HIGH confidence
-- [Sentry JavaScript Releases](https://github.com/getsentry/sentry-javascript/releases) -- HIGH confidence
+### Content Security Policy
+- [Next.js: Content Security Policy Guide](https://nextjs.org/docs/pages/guides/content-security-policy) -- HIGH confidence
+- [Next.js: next.config.js headers](https://nextjs.org/docs/pages/api-reference/config/next-config-js/headers) -- HIGH confidence
+- [Adding Security Headers to a Next.js Application](https://alvinwanjala.com/blog/adding-security-headers-nextjs/) -- MEDIUM confidence
 
-### Lighthouse CI
-- [Lighthouse CI Configuration](https://googlechrome.github.io/lighthouse-ci/docs/configuration.html) -- HIGH confidence
-- [Lighthouse CI GitHub](https://github.com/GoogleChrome/lighthouse-ci) -- HIGH confidence
-- [Lighthouse CI: Catch Performance Regressions](https://www.trevorlasn.com/blog/lighthouse-ci) -- MEDIUM confidence
+### Supabase RLS
+- [Supabase: Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security) -- HIGH confidence
+- [Supabase: Performance and Security Advisors](https://supabase.com/docs/guides/database/database-advisors) -- HIGH confidence
+- [Supabase RLS Best Practices: Production Patterns](https://makerkit.dev/blog/tutorials/supabase-rls-best-practices) -- MEDIUM confidence
+- [Supabase RLS Complete Guide 2026](https://vibeappscanner.com/supabase-row-level-security) -- MEDIUM confidence
 
-### LCP Optimization
-- [Next.js SEO: LCP](https://nextjs.org/learn/seo/web-performance/lcp) -- HIGH confidence
-- [Core Web Vitals for React + Next.js: Real Fixes](https://rise.co/blog/core-web-vitals-for-react-next.js-sites-real-fixes-that-cut-lcp-by-50percent) -- MEDIUM confidence
-- [Next.js Performance Tuning: Practical Fixes](https://www.qed42.com/insights/next-js-performance-tuning-practical-fixes-for-better-lighthouse-scores) -- MEDIUM confidence
+### Rate Limiting
+- [Vercel: Ratelimit with Upstash Redis Template](https://vercel.com/templates/next.js/ratelimit-with-upstash-redis) -- HIGH confidence
+- [Upstash: Rate Limiting Next.js API Routes](https://upstash.com/blog/nextjs-ratelimiting) -- HIGH confidence
+- [Upstash: Edge Rate Limiting](https://upstash.com/blog/edge-rate-limiting) -- HIGH confidence
+- [@upstash/ratelimit-js GitHub](https://github.com/upstash/ratelimit-js) -- HIGH confidence
 
-### OAuth Production Setup
-- [Supabase: Login with Google](https://supabase.com/docs/guides/auth/social-login/auth-google) -- HIGH confidence
-- [Supabase: Login with Apple](https://supabase.com/docs/guides/auth/social-login/auth-apple) -- HIGH confidence
-- [Google OAuth Redirect with Vercel + Supabase](https://community.vercel.com/t/google-oauth-redirect-url-with-vercel-preview-urls-supabase/6345) -- MEDIUM confidence
+### Driver Experience / Delivery Apps
+- [Delivery Driver Statistics 2026 (Upper)](https://www.upperinc.com/blog/delivery-driver-statistics/) -- MEDIUM confidence
+- [10 Best Delivery Driver Apps (8ration)](https://www.8ration.com/blogs/apps-for-delivery-drivers/) -- MEDIUM confidence
+- [Dashboard Design Principles 2026 (DesignRush)](https://www.designrush.com/agency/ui-ux-design/dashboard/trends/dashboard-design-principles) -- MEDIUM confidence
 
-### Resend Domain Verification
-- [Resend: Managing Domains](https://resend.com/docs/dashboard/domains/introduction) -- HIGH confidence
-- [Resend: Email Authentication Guide](https://resend.com/blog/email-authentication-a-developers-guide) -- HIGH confidence
-- [Resend SPF/DKIM/DMARC Setup Guide](https://dmarcdkim.com/setup/how-to-setup-resend-spf-dkim-and-dmarc-records) -- MEDIUM confidence
+### Onboarding UX
+- [19 Onboarding UX Examples (UserPilot)](https://userpilot.com/blog/onboarding-ux-examples/) -- MEDIUM confidence
+- [In-App Onboarding Guide (Userflow)](https://www.userflow.com/blog/the-ultimate-guide-to-in-app-onboarding-boost-user-retention-and-engagement) -- MEDIUM confidence
+- [Product Tour UI/UX Patterns (Appcues)](https://www.appcues.com/blog/product-tours-ui-patterns) -- MEDIUM confidence
 
 ---
-
-*Feature research for: Production Deployment & Hardening*
-*Researched: 2026-02-13*
+*Feature research for: v1.8 Post-Launch Hardening & Driver Experience*
+*Researched: 2026-02-16*
