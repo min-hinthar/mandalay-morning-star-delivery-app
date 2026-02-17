@@ -44,9 +44,9 @@ export function UpdatePrompt() {
           className={`fixed bottom-0 left-0 right-0 ${zClass.toast}`}
         >
           {/* Progress bar */}
-          <div className="h-1 w-full bg-info/20">
+          <div className="h-1 w-full bg-status-info/20">
             <div
-              className="h-full bg-info transition-all duration-1000 ease-linear"
+              className="h-full bg-status-info transition-all duration-1000 ease-linear"
               style={{
                 width: `${progress * 100}%`,
                 transitionDuration: isPaused ? "0ms" : "1000ms",
@@ -55,7 +55,7 @@ export function UpdatePrompt() {
           </div>
 
           {/* Banner content */}
-          <div className="bg-info px-4 py-3 font-body text-sm font-medium text-text-inverse">
+          <div className="bg-status-info px-4 py-3 font-body text-sm font-medium text-text-inverse">
             <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
               {/* Left: icon + text */}
               <div className="flex items-center gap-2.5">
