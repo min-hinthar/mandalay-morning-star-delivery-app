@@ -59,25 +59,22 @@ const BUSINESS_LISTINGS = [
   {
     name: "Google Maps",
     icon: GoogleMapsIcon,
-    href: `https://maps.google.com/?q=${encodeURIComponent(KITCHEN_LOCATION.address)}`,
+    href: "https://maps.app.goo.gl/UYuCYzaWnpVF1dUQ9",
   },
   {
     name: "Uber Eats",
     icon: UberEatsIcon,
-    // TODO: Replace with specific Uber Eats restaurant page URL
-    href: "https://www.ubereats.com",
+    href: "https://www.order.store/store/mandalay-morning-star-burmese-kitchen/RxuPcCBjVy2v1vLh9I7pwQ",
   },
   {
     name: "DoorDash",
     icon: DoorDashIcon,
-    // TODO: Replace with specific DoorDash restaurant page URL
-    href: "https://www.doordash.com",
+    href: "https://order.online/store/-28733114/",
   },
   {
     name: "GrubHub",
     icon: GrubHubIcon,
-    // TODO: Replace with specific GrubHub restaurant page URL
-    href: "https://www.grubhub.com",
+    href: "https://mandalaymorningstar.dine.online/locations/6986528/",
   },
 ] as const;
 
