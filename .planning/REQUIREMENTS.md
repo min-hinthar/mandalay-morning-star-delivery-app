@@ -102,49 +102,49 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | — | Pending |
-| SEC-02 | — | Pending |
-| SEC-03 | — | Pending |
-| SEC-04 | — | Pending |
-| SEC-05 | — | Pending |
-| SEC-06 | — | Pending |
-| SEC-07 | — | Pending |
-| SEC-08 | — | Pending |
-| AUTH-01 | — | Pending |
-| AUTH-02 | — | Pending |
-| AUTH-03 | — | Pending |
-| AUTH-04 | — | Pending |
-| AUTH-05 | — | Pending |
-| DPROF-01 | — | Pending |
-| DPROF-02 | — | Pending |
-| DPROF-03 | — | Pending |
-| DPROF-04 | — | Pending |
-| DPROF-05 | — | Pending |
-| DDASH-01 | — | Pending |
-| DDASH-02 | — | Pending |
-| DDASH-03 | — | Pending |
-| DDASH-04 | — | Pending |
-| DDASH-05 | — | Pending |
-| DDASH-06 | — | Pending |
-| DDASH-07 | — | Pending |
-| DDASH-08 | — | Pending |
-| DDASH-09 | — | Pending |
-| DDASH-10 | — | Pending |
-| DDASH-11 | — | Pending |
-| DDASH-12 | — | Pending |
-| DUI-01 | — | Pending |
-| DUI-02 | — | Pending |
-| DUI-03 | — | Pending |
-| DUI-04 | — | Pending |
-| CLN-01 | — | Pending |
-| CLN-02 | — | Pending |
-| CLN-03 | — | Pending |
+| SEC-01 | Phase 67 | Pending |
+| SEC-02 | Phase 67 | Pending |
+| SEC-03 | Phase 68 | Pending |
+| SEC-04 | Phase 68 | Pending |
+| SEC-05 | Phase 68 | Pending |
+| SEC-06 | Phase 69 | Pending |
+| SEC-07 | Phase 69 | Pending |
+| SEC-08 | Phase 67 | Pending |
+| AUTH-01 | Phase 70 | Pending |
+| AUTH-02 | Phase 70 | Pending |
+| AUTH-03 | Phase 70 | Pending |
+| AUTH-04 | Phase 70 | Pending |
+| AUTH-05 | Phase 70 | Pending |
+| DPROF-01 | Phase 71 | Pending |
+| DPROF-02 | Phase 71 | Pending |
+| DPROF-03 | Phase 71 | Pending |
+| DPROF-04 | Phase 74 | Pending |
+| DPROF-05 | Phase 74 | Pending |
+| DDASH-01 | Phase 72 | Pending |
+| DDASH-02 | Phase 72 | Pending |
+| DDASH-03 | Phase 72 | Pending |
+| DDASH-04 | Phase 73 | Pending |
+| DDASH-05 | Phase 73 | Pending |
+| DDASH-06 | Phase 73 | Pending |
+| DDASH-07 | Phase 73 | Pending |
+| DDASH-08 | Phase 73 | Pending |
+| DDASH-09 | Phase 73 | Pending |
+| DDASH-10 | Phase 73 | Pending |
+| DDASH-11 | Phase 72 | Pending |
+| DDASH-12 | Phase 72 | Pending |
+| DUI-01 | Phase 72 | Pending |
+| DUI-02 | Phase 74 | Pending |
+| DUI-03 | Phase 74 | Pending |
+| DUI-04 | Phase 73 | Pending |
+| CLN-01 | Phase 67 | Pending |
+| CLN-02 | Phase 67 | Pending |
+| CLN-03 | Phase 67 | Pending |
 
 **Coverage:**
-- v1.8 requirements: 38 total
-- Mapped to phases: 0
-- Unmapped: 38
+- v1.8 requirements: 37 total
+- Mapped to phases: 37
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-16*
-*Last updated: 2026-02-16 after initial definition*
+*Last updated: 2026-02-16 after roadmap creation*
