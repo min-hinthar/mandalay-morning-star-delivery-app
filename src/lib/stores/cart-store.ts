@@ -286,8 +286,6 @@ setupOnlineListener();
 // EXPORTS FOR TESTING
 // ============================================
 
-export { createItemSignature };
-
 /**
  * Clear debounce state - for testing only.
  * Call this in beforeEach to reset debounce tracking between tests.

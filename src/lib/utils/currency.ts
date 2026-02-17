@@ -7,7 +7,3 @@ export function formatPrice(cents: number): string {
   }).format(dollars);
 }
 
-export function parsePriceToCents(price: string): number {
-  const cleaned = price.replace(/[^0-9.]/g, "");
-  return Math.round(parseFloat(cleaned) * 100);
-}
