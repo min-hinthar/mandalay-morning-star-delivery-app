@@ -80,26 +80,3 @@ export async function geocodeAddress(address: string): Promise<GeocodingResult> 
   }
 }
 
-export async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
-  if (!GOOGLE_MAPS_API_KEY) {
-    throw new Error("Missing GOOGLE_MAPS_API_KEY");
-  }
-
-  try {
-    const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
-    url.searchParams.set("latlng", `${lat},${lng}`);
-    url.searchParams.set("key", GOOGLE_MAPS_API_KEY);
-
-    const response = await fetch(url.toString());
-    const data: GoogleGeocodingResponse = await response.json();
-
-    if (data.status !== "OK" || data.results.length === 0) {
-      return null;
-    }
-
-    return data.results[0].formatted_address;
-  } catch (error) {
-    console.error("Reverse geocoding error:", error);
-    return null;
-  }
-}

@@ -17,7 +17,7 @@ import type { Metric } from "web-vitals";
 /**
  * Performance thresholds based on Google's Core Web Vitals
  */
-export const WEB_VITALS_THRESHOLDS = {
+const WEB_VITALS_THRESHOLDS = {
   LCP: { good: 2500, needsImprovement: 4000 },
   INP: { good: 200, needsImprovement: 500 },  // Replaced FID in 2024
   CLS: { good: 0.1, needsImprovement: 0.25 },
@@ -118,38 +118,3 @@ export function WebVitalsReporter() {
   return null;
 }
 
-/**
- * Get performance score summary
- * Useful for displaying in a performance dashboard
- */
-export function getPerformanceScore(metrics: Record<string, number>): {
-  score: number;
-  breakdown: Record<string, { value: number; rating: string; weight: number }>;
-} {
-  const weights = {
-    LCP: 0.25,
-    FID: 0.25,
-    CLS: 0.25,
-    FCP: 0.15,
-    TTFB: 0.10,
-  };
-
-  let totalWeight = 0;
-  let weightedScore = 0;
-  const breakdown: Record<string, { value: number; rating: string; weight: number }> = {};
-
-  for (const [name, value] of Object.entries(metrics)) {
-    const weight = weights[name as keyof typeof weights] || 0;
-    const rating = getRating(name as MetricName, value);
-    const score = rating === "good" ? 1 : rating === "needs-improvement" ? 0.5 : 0;
-
-    breakdown[name] = { value, rating, weight };
-    weightedScore += score * weight;
-    totalWeight += weight;
-  }
-
-  return {
-    score: totalWeight > 0 ? Math.round((weightedScore / totalWeight) * 100) : 0,
-    breakdown,
-  };
-}

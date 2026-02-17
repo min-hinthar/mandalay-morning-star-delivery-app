@@ -108,11 +108,6 @@ function formatDisplayDate(date: Date): string {
   }).format(date);
 }
 
-function parseDateString(dateString: string): Date {
-  const [year, month, day] = dateString.split("-").map(Number);
-  return zonedTimeToUtc({ year, month, day });
-}
-
 /**
  * Get the next Saturday for delivery.
  */
@@ -200,14 +195,6 @@ export function getTimeUntilCutoff(
   const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
   return { hours, minutes, isPastCutoff: false };
-}
-
-/**
- * Check if an order can still be edited (before cutoff).
- */
-export function canEditOrder(scheduledDate: string): boolean {
-  const saturday = parseDateString(scheduledDate);
-  return !isPastCutoff(saturday);
 }
 
 /**
