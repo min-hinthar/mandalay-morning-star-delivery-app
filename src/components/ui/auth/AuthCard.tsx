@@ -89,7 +89,7 @@ export function AuthCard({ children, className }: AuthCardProps) {
           "w-full sm:max-w-md",
           /* Solid on mobile, glass on desktop (Safari crash prevention) */
           "bg-surface-primary sm:bg-surface-primary/70 sm:backdrop-blur-xl",
-          "rounded-t-3xl sm:rounded-3xl",
+          "rounded-t-3xl sm:rounded-3xl overflow-hidden",
           /* Layered shadows for depth */
           "shadow-[0_8px_40px_-12px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.04)]",
           "dark:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.06)]",
@@ -100,7 +100,7 @@ export function AuthCard({ children, className }: AuthCardProps) {
       >
         {/* Warm gradient accent bar */}
         <div
-          className="h-1.5 rounded-t-3xl"
+          className="h-1.5"
           style={{ background: "linear-gradient(to right, var(--hero-bg-start), var(--hero-bg-mid), var(--hero-bg-end))" }}
         />
 
