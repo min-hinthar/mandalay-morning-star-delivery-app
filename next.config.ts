@@ -15,6 +15,87 @@ const withBundleAnalyzer = bundleAnalyzer({
 // This avoids Serwist/Turbopack compatibility issues in Next.js 16
 // SW registration happens via src/lib/hooks/useServiceWorker.ts
 
+// ---------------------------------------------------------------------------
+// CSP & Security Headers
+// ---------------------------------------------------------------------------
+const isDev = process.env.NODE_ENV === "development";
+
+// Parse Sentry DSN to build CSP reporting endpoint
+// DSN format: https://<PUBLIC_KEY>@<ORG_SLUG>.ingest.us.sentry.io/<PROJECT_ID>
+function parseSentryDsn(dsn: string | undefined) {
+  if (!dsn) return null;
+  try {
+    const url = new URL(dsn);
+    const publicKey = url.username;
+    const projectId = url.pathname.replace("/", "");
+    const ingestDomain = url.hostname; // e.g. o1234.ingest.us.sentry.io
+    return {
+      endpoint: `https://${ingestDomain}/api/${projectId}/security/?sentry_key=${publicKey}`,
+    };
+  } catch {
+    return null;
+  }
+}
+
+const sentryDsn = parseSentryDsn(process.env.NEXT_PUBLIC_SENTRY_DSN);
+
+const cspDirectives = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://maps.googleapis.com`,
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "img-src 'self' blob: data: https://*.supabase.co https://lh3.googleusercontent.com https://drive.google.com https://maps.googleapis.com https://maps.gstatic.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.ingest.us.sentry.io https://maps.googleapis.com https://routes.googleapis.com",
+  "worker-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  !isDev ? "upgrade-insecure-requests" : "",
+  sentryDsn ? `report-uri ${sentryDsn.endpoint}` : "",
+  sentryDsn ? "report-to csp-endpoint" : "",
+]
+  .filter(Boolean)
+  .join("; ");
+
+const securityHeaders = [
+  {
+    key: "Content-Security-Policy-Report-Only",
+    value: cspDirectives,
+  },
+  ...(sentryDsn
+    ? [
+        {
+          key: "Report-To",
+          value: JSON.stringify({
+            group: "csp-endpoint",
+            max_age: 10886400,
+            endpoints: [{ url: sentryDsn.endpoint }],
+            include_subdomains: true,
+          }),
+        },
+        {
+          key: "Reporting-Endpoints",
+          value: `csp-endpoint="${sentryDsn.endpoint}"`,
+        },
+      ]
+    : []),
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  {
+    key: "Referrer-Policy",
+    value: "strict-origin-when-cross-origin",
+  },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(self)",
+  },
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
+  },
+];
+
 const nextConfig: NextConfig = {
   /**
    * V7 Performance Optimizations
@@ -133,9 +214,13 @@ const nextConfig: NextConfig = {
     } : false,
   },
 
-  // Headers for caching static assets and CORS
+  // Headers for CSP, security, caching, and CORS
   async headers() {
     return [
+      {
+        source: "/(.*)",
+        headers: securityHeaders,
+      },
       {
         source: "/api/health",
         headers: [
