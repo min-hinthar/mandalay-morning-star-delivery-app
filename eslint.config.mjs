@@ -163,6 +163,24 @@ const config = [
     }
   },
   {
+    // CSP cssText prevention - Phase 67
+    // Uses no-restricted-properties (not no-restricted-syntax) to avoid being
+    // overridden by the design token block's error-level no-restricted-syntax rule
+    files: [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+    ],
+    rules: {
+      "no-restricted-properties": [
+        "warn",
+        {
+          property: "cssText",
+          message: "Use individual style.property assignments instead of cssText for CSP compatibility.",
+        },
+      ],
+    },
+  },
+  {
     // Design Token Enforcement Rules
     files: ["src/components/**/*.tsx", "src/app/**/*.tsx"],
     rules: {
