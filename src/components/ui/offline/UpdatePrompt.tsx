@@ -55,7 +55,7 @@ export function UpdatePrompt() {
           </div>
 
           {/* Banner content */}
-          <div className="bg-info/95 px-4 py-3 font-body text-sm font-medium text-text-inverse backdrop-blur-sm">
+          <div className="bg-info px-4 py-3 font-body text-sm font-medium text-text-inverse">
             <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
               {/* Left: icon + text */}
               <div className="flex items-center gap-2.5">
@@ -66,10 +66,11 @@ export function UpdatePrompt() {
                   <span className="text-xs font-semibold leading-tight">
                     A fresher version is ready!
                   </span>
-                  <span className="text-xs leading-tight opacity-80">
+                  <span className="text-xs leading-tight opacity-90">
                     {version && `v${version} is ready! · `}
                     {isPaused ? "Paused" : `Reloading in ${countdown}s`}
                   </span>
+
                 </div>
               </div>
 

@@ -29,7 +29,7 @@ function AuthCardContent({
   onOAuthStart,
   successProfile,
 }: {
-  onOAuthStart: (provider: "google" | "apple" | null) => void;
+  onOAuthStart: (provider: "google" | null) => void;
   successProfile: SuccessProfile;
 }) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
@@ -140,7 +140,7 @@ function AuthSessionListener({
 export function LoginPageClient() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const [oauthProvider, setOauthProvider] = useState<"google" | "apple" | null>(null);
+  const [oauthProvider, setOauthProvider] = useState<"google" | null>(null);
   const [successProfile, setSuccessProfile] = useState<SuccessProfile>({
     name: null,
     avatarUrl: null,
