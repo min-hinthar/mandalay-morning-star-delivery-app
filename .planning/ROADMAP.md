@@ -46,9 +46,9 @@
 **Plans**: 3 plans (Wave 1: 01 + 03 parallel, Wave 2: 02 depends on 01)
 
 Plans:
-- [ ] 67-01-PLAN.md — CSP Report-Only header, security headers, Sentry reporting, ESLint cssText guard, enforcing upgrade after validation
-- [ ] 67-02-PLAN.md — Replace all cssText usages with individual DOM style assignments (depends on 01)
-- [ ] 67-03-PLAN.md — Remove dead code exports, barrel file, useABTest, resolve placeholder links (user provides social URLs)
+- [x] 67-01-PLAN.md — CSP enforcing header, security headers, Sentry reporting, ESLint cssText guard — completed 2026-02-17
+- [x] 67-02-PLAN.md — Replace all cssText usages with individual DOM style assignments — completed 2026-02-17
+- [x] 67-03-PLAN.md — Remove dead code exports, barrel file, useABTest, verified social/business URLs — completed 2026-02-17
 
 #### Phase 68: RLS Audit & Hardening
 **Goal**: Every Supabase table has verified row-level security policies with correct role-based access
