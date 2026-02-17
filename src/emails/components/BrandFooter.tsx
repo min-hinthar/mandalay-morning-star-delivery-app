@@ -75,14 +75,14 @@ export function BrandFooter({ unsubscribeUrl }: BrandFooterProps) {
         }}
       >
         <Link
-          href="https://instagram.com/mandalaymorningstar"
+          href="https://www.instagram.com/mandalays.morningstar/"
           style={{ color: '#9CA3AF', textDecoration: 'underline', marginRight: '12px' }}
         >
           Instagram
         </Link>
         {' \u00B7 '}
         <Link
-          href="https://facebook.com/mandalaymorningstar"
+          href="https://www.facebook.com/MandalayMorningStarLA/"
           style={{ color: '#9CA3AF', textDecoration: 'underline' }}
         >
           Facebook
