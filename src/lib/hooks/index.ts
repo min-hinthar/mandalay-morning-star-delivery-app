@@ -124,12 +124,6 @@ export { useToast as useToastV8, toast as toastV8 } from "./useToastV8";
 export type { Toast as ToastV8, ToastType as ToastTypeV8 } from "./useToastV8";
 
 // ============================================
-// A/B TESTING
-// ============================================
-
-export { useABTest } from "./useABTest";
-
-// ============================================
 // OVERLAY HOOKS
 // ============================================
 
