@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { User, Mail, Phone, MapPin, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { CollapsibleCard } from "./CollapsibleCard";
@@ -80,10 +81,13 @@ export function CustomerInfoCard({ order }: CustomerInfoCardProps) {
 
         {/* Static map */}
         {encodedAddr && googleMapsKey && (
-          <img
+          <Image
             src={`https://maps.googleapis.com/maps/api/staticmap?center=${encodedAddr}&zoom=15&size=400x200&scale=2&markers=color:red|${encodedAddr}&key=${googleMapsKey}`}
             alt="Delivery location map"
+            width={800}
+            height={400}
             loading="lazy"
+            unoptimized
             className="w-full rounded-lg"
           />
         )}
