@@ -5,16 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Planning next milestone (v1.8+)
+**Current focus:** v1.8 Post-Launch Hardening & Driver Experience
 
 ## Current Position
 
-Phase: 66 of 66 (all milestones complete)
-Plan: All plans complete across 8 milestones
-Status: v1.7 milestone archived
-Last activity: 2026-02-16 -- v1.7 milestone completed and archived
-
-Progress: [####################################] 100% (66/66 phases, 287/287 plans)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-16 — Milestone v1.8 started
 
 ## Performance Metrics
 
