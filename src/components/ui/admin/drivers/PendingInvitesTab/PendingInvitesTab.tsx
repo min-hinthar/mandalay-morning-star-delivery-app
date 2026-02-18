@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { PendingInvite } from "./types";
 import { InviteDesktopTable } from "./InviteDesktopTable";
-import { RevokeDialog, MagicLinkDialog } from "./InviteDialogs";
+import { RevokeDialog } from "./InviteDialogs";
 
 interface PendingInvitesTabProps {
   onInviteCountChange?: (count: number) => void;
@@ -22,10 +22,6 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
   const [selectedInvite, setSelectedInvite] = useState<PendingInvite | null>(null);
-  const [magicLinkDialogOpen, setMagicLinkDialogOpen] = useState(false);
-  const [magicLink, setMagicLink] = useState<string | null>(null);
-  const [magicLinkEmail, setMagicLinkEmail] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
 
   const fetchInvites = useCallback(async () => {
     try {
@@ -59,13 +55,10 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
         const error = await response.json();
         throw new Error(error.error || "Failed to resend invite");
       }
-      const data = await response.json();
-      if (data.magicLink) {
-        setMagicLink(data.magicLink);
-        setMagicLinkEmail(invite.email);
-        setMagicLinkDialogOpen(true);
-        setCopied(false);
-      }
+      toast({
+        title: "Invite Resent",
+        description: `Email sent to ${invite.email}`,
+      });
       await fetchInvites();
     } catch (err) {
       toast({
@@ -75,18 +68,6 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
       });
     } finally {
       setActionLoading(null);
-    }
-  };
-
-  const handleCopyLink = async () => {
-    if (!magicLink) return;
-    try {
-      await navigator.clipboard.writeText(magicLink);
-      setCopied(true);
-      toast({ title: "Link Copied", description: "Magic link copied to clipboard" });
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast({ title: "Error", description: "Failed to copy link", variant: "destructive" });
     }
   };
 
@@ -257,14 +238,6 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
         onOpenChange={setRevokeDialogOpen}
         invite={selectedInvite}
         onConfirm={handleRevokeConfirm}
-      />
-      <MagicLinkDialog
-        open={magicLinkDialogOpen}
-        onOpenChange={setMagicLinkDialogOpen}
-        magicLink={magicLink}
-        email={magicLinkEmail}
-        copied={copied}
-        onCopyLink={handleCopyLink}
       />
     </>
   );

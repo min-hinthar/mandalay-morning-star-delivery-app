@@ -1,8 +1,13 @@
 import crypto from "crypto";
+import React from "react";
 import { NextRequest, NextResponse } from "next/server";
+import { render } from "@react-email/render";
 import { z } from "zod";
 
+import { DriverInvite } from "@/emails/DriverInvite";
 import { requireAdmin } from "@/lib/auth";
+import { getResendClient } from "@/lib/email/client";
+import { EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
 import { getAppUrl } from "@/lib/supabase/actions";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
@@ -155,16 +160,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Return magic link for admin to share
+    // Send invite email to driver
+    const resend = getResendClient();
+    const emailComponent = React.createElement(DriverInvite, {
+      driverEmail: normalizedEmail,
+      magicLink: linkData.properties.action_link,
+      expiresIn: "24 hours",
+    });
+    const html = await render(emailComponent);
+    const text = await render(emailComponent, { plainText: true });
+
+    await resend.emails.send({
+      from: EMAIL_FROM,
+      to: normalizedEmail,
+      replyTo: EMAIL_REPLY_TO,
+      subject: "You're invited to drive for Mandalay Morning Star",
+      html,
+      text,
+    });
+
     return NextResponse.json(
       {
         id: invite.id,
         email: invite.email,
         expiresAt: invite.expires_at,
-        magicLink: linkData.properties.action_link,
-        message: existingUser
-          ? "User has an existing account. Share this link to add driver role."
-          : "Share this link with the new driver to complete registration.",
+        emailSent: true,
+        message: "Invite email sent to driver",
         isExistingUser: !!existingUser,
       },
       { status: 201 }
