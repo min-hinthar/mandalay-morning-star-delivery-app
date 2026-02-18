@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 68 complete (gap closure done). Ready for Phase 69.
+**Current focus:** Phase 69 in progress (distributed rate limiting). Plan 01 complete (core library).
 
 ## Current Position
 
-Phase: 68 of 74 (RLS Audit & Hardening)
-Plan: 3 of 3 in current phase (gap closure)
-Status: Phase complete
-Last activity: 2026-02-18 — Completed 68-03-PLAN.md (RLS isolation test gap closure)
+Phase: 69 of 74 (Distributed Rate Limiting)
+Plan: 1 of 3 in current phase (core library)
+Status: In progress
+Last activity: 2026-02-18 — Completed 69-01-PLAN.md (core rate limit library)
 
-Progress: [███░░░░░░░] ~28% (Phase 68 complete, 6 phases remain)
+Progress: [███░░░░░░░] ~29% (Phase 69: 1/3 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 291 (across v1.0-v1.8)
+- Total plans completed: 292 (across v1.0-v1.8)
 - Average duration: ~15 min
 - Total execution time: ~70 hours
 
@@ -57,6 +57,10 @@ Recent for v1.8:
 - pgTAP not installed on production; use direct pg_policy/pg_proc queries for RLS verification
 - 62-assertion regression test in supabase/tests/00_rls_policies.test.sql for future CI
 - RLS isolation test requires DRIVER_A/B and ADMIN env vars for 4-role coverage
+- All rate limiters typed as Ratelimit | null; callers must handle null (fail-open pattern)
+- Sliding window algorithm for all limiters (prevents boundary-burst exploit)
+- analytics: false on all limiters (avoids waitUntil/@vercel/functions dependency)
+- .env.example now tracked in git (added !.env.example negation to .gitignore)
 
 ### Pending Todos
 
@@ -72,5 +76,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Phase 68 complete (3/3 plans, including gap closure). Ready for Phase 69.
+Stopped at: Completed 69-01-PLAN.md (core rate limit library). Next: 69-02-PLAN.md (route integration).
 Resume file: None
