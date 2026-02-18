@@ -59,6 +59,22 @@ export async function GET(request: Request): Promise<NextResponse> {
   // Handle OAuth errors from Supabase
   if (errorParam) {
     console.error("[Auth Callback] OAuth error:", errorParam, errorDescription);
+
+    // Preserve driver invite context through error redirect
+    if (inviteId) {
+      const serviceSupabase = createServiceClient();
+      const { data: invite } = await serviceSupabase
+        .from("driver_invites")
+        .select("email")
+        .eq("id", inviteId)
+        .single();
+      const email = invite?.email ?? "";
+      return NextResponse.redirect(
+        `${origin}/auth/expired?email=${encodeURIComponent(email)}&invite_id=${inviteId}`,
+        { status: 302 },
+      );
+    }
+
     const errorMessage = encodeURIComponent(errorDescription || errorParam);
     return NextResponse.redirect(`${origin}/login?error=${errorMessage}`, { status: 302 });
   }
@@ -71,9 +87,21 @@ export async function GET(request: Request): Promise<NextResponse> {
       console.error("[Auth Callback] Code exchange error:", error.message);
       const normalizedError = error.message.toLowerCase();
       if (normalizedError.includes("expired") || normalizedError.includes("invalid")) {
-        const email = searchParams.get("email");
-        const emailParam = email ? `?email=${encodeURIComponent(email)}` : "";
-        return NextResponse.redirect(`${origin}/auth/expired${emailParam}`, { status: 302 });
+        // Look up email from invite record (email is never in callback URL)
+        if (inviteId) {
+          const serviceSupabase = createServiceClient();
+          const { data: invite } = await serviceSupabase
+            .from("driver_invites")
+            .select("email")
+            .eq("id", inviteId)
+            .single();
+          const email = invite?.email ?? "";
+          return NextResponse.redirect(
+            `${origin}/auth/expired?email=${encodeURIComponent(email)}&invite_id=${inviteId}`,
+            { status: 302 },
+          );
+        }
+        return NextResponse.redirect(`${origin}/auth/expired`, { status: 302 });
       }
       return NextResponse.redirect(`${origin}/login?error=auth_callback_error`, { status: 302 });
     }
