@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import type { RouteStats, RouteStatus, RouteStopStatus } from "@/types/driver";
 
@@ -91,21 +92,7 @@ interface StopDetailResponse {
   };
 }
 
-interface RouteDetailResponse {
-  id: string;
-  deliveryDate: string;
-  status: RouteStatus;
-  stats: RouteStats | null;
-  startedAt: string | null;
-  completedAt: string | null;
-  optimizedPolyline: string | null;
-  stops: StopDetailResponse[];
-}
-
-export async function GET(
-  _request: NextRequest,
-  { params }: RouteParams
-): Promise<NextResponse<RouteDetailResponse | { error: string }>> {
+export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { routeId } = await params;
 
@@ -114,6 +101,14 @@ export async function GET(
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
     const { supabase, driverId } = auth;
+
+    const rl = await checkRateLimit({
+      limiter: driverActionLimiter,
+      identifier: driverId,
+      role: "driver",
+      route: "driver/routes/[routeId]",
+    });
+    if (rl.limited) return rl.response;
 
     // Get route with stops
     const { data: route, error: routeError } = await supabase

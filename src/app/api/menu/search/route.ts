@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createPublicClient } from "@/lib/supabase/server";
+import { checkRateLimit, publicReadLimiter, getClientIp } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import type { MenuItem, MenuSearchResponse, ModifierGroup } from "@/types/menu";
 
@@ -49,6 +50,15 @@ type MenuItemRow = {
 
 export async function GET(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+    const rl = await checkRateLimit({
+      limiter: publicReadLimiter,
+      identifier: ip,
+      role: "anon",
+      route: "menu/search",
+    });
+    if (rl.limited) return rl.response;
+
     const { searchParams } = new URL(request.url);
     const result = searchSchema.safeParse({ q: searchParams.get("q") });
 

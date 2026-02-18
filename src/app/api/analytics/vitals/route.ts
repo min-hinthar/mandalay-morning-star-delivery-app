@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, publicReadLimiter, getClientIp } from "@/lib/rate-limit";
 
 /**
  * Web Vitals Analytics Endpoint
@@ -20,6 +21,10 @@ interface VitalsPayload {
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const rl = await checkRateLimit({ limiter: publicReadLimiter, identifier: ip, role: "anon", route: "analytics/vitals" });
+    if (rl.limited) return rl.response;
+
     const payload: VitalsPayload = await request.json();
 
     // Validate required fields

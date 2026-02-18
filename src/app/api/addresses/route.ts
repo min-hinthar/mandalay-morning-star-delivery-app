@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { checkCoverage } from "@/lib/services/coverage";
 import { geocodeAddress } from "@/lib/services/geocoding";
 import { addressFormSchema, type AddressFormValues } from "@/lib/validations/address";
+import { checkRateLimit, customerLimiter } from "@/lib/rate-limit";
 import { transformAddress, type AddressRow } from "./transform";
 import { logger } from "@/lib/utils/logger";
 
@@ -20,6 +21,9 @@ export async function GET() {
         { status: 401 }
       );
     }
+
+    const rl = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "addresses" });
+    if (rl.limited) return rl.response;
 
     const { data: addresses, error } = await supabase
       .from("addresses")
@@ -58,6 +62,9 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    const rlPost = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "addresses" });
+    if (rlPost.limited) return rlPost.response;
 
     const body = await request.json();
     const result = addressFormSchema.safeParse(body);

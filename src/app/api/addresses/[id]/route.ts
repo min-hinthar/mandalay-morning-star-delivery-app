@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { checkCoverage } from "@/lib/services/coverage";
 import { geocodeAddress } from "@/lib/services/geocoding";
 import { addressFormSchema } from "@/lib/validations/address";
+import { checkRateLimit, customerLimiter } from "@/lib/rate-limit";
 import { transformAddress, type AddressRow } from "../transform";
 import { logger } from "@/lib/utils/logger";
 
@@ -21,6 +22,9 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
         { status: 401 }
       );
     }
+
+    const rlGet = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "addresses/[id]" });
+    if (rlGet.limited) return rlGet.response;
 
     const { data: address, error } = await supabase
       .from("addresses")
@@ -62,6 +66,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         { status: 401 }
       );
     }
+
+    const rlPut = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "addresses/[id]" });
+    if (rlPut.limited) return rlPut.response;
 
     const body = await request.json();
     const result = addressFormSchema.safeParse(body);
@@ -159,6 +166,9 @@ export async function DELETE(
         { status: 401 }
       );
     }
+
+    const rlDel = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "addresses/[id]" });
+    if (rlDel.limited) return rlDel.response;
 
     const { error } = await supabase.from("addresses").delete().eq("id", id).eq("user_id", user.id);
 

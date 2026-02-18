@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import { completeRouteSchema } from "@/lib/validations/driver-api";
 import type { RouteStats } from "@/types/driver";
@@ -15,16 +16,7 @@ interface RouteQueryResult {
   stats_json: RouteStats | null;
 }
 
-interface CompleteRouteResponse {
-  success: boolean;
-  completedAt: string;
-  stats: RouteStats | null;
-}
-
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-): Promise<NextResponse<CompleteRouteResponse | { error: string }>> {
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { routeId } = await params;
 
@@ -42,6 +34,14 @@ export async function POST(
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
     const { supabase, driverId } = auth;
+
+    const rl = await checkRateLimit({
+      limiter: driverActionLimiter,
+      identifier: driverId,
+      role: "driver",
+      route: "driver/routes/[routeId]/complete",
+    });
+    if (rl.limited) return rl.response;
 
     // Get route
     const { data: route, error: routeError } = await supabase

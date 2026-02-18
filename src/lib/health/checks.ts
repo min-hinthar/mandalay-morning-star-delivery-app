@@ -166,6 +166,38 @@ export async function checkSearchConsole(): Promise<ServiceStatus> {
   };
 }
 
+export async function checkRedis(): Promise<ServiceStatus> {
+  const configured = Boolean(process.env.UPSTASH_REDIS_REST_URL);
+
+  if (!configured) {
+    return { status: "down", configured: false };
+  }
+
+  const start = Date.now();
+  try {
+    const { getRedisClient } = await import("@/lib/rate-limit");
+    const redis = getRedisClient();
+    if (!redis) {
+      return { status: "down", configured: true, connected: false };
+    }
+    await redis.ping();
+    return {
+      status: "healthy",
+      configured: true,
+      connected: true,
+      latency_ms: Date.now() - start,
+    };
+  } catch (err) {
+    return {
+      status: "down",
+      configured: true,
+      connected: false,
+      latency_ms: Date.now() - start,
+      error: errorMessage(err),
+    };
+  }
+}
+
 // ---- Route reachability ----
 
 export async function checkRoutes(
@@ -214,6 +246,7 @@ interface DeepCheckResult {
     resend: ServiceStatus;
     google_oauth: ServiceStatus;
     search_console: ServiceStatus;
+    redis: ServiceStatus;
   };
   routes: {
     auth_callback: RouteStatus;
@@ -233,6 +266,7 @@ export async function runDeepChecks(origin: string): Promise<DeepCheckResult> {
     resendResult,
     googleOAuthResult,
     searchConsoleResult,
+    redisResult,
     routesResult,
   ] = await Promise.allSettled([
     checkSupabase(),
@@ -240,6 +274,7 @@ export async function runDeepChecks(origin: string): Promise<DeepCheckResult> {
     checkResend(),
     checkGoogleOAuth(),
     checkSearchConsole(),
+    checkRedis(),
     checkRoutes(origin),
   ]);
 
@@ -264,6 +299,7 @@ export async function runDeepChecks(origin: string): Promise<DeepCheckResult> {
         googleOAuthResult.status === "fulfilled" ? googleOAuthResult.value : fallbackService,
       search_console:
         searchConsoleResult.status === "fulfilled" ? searchConsoleResult.value : fallbackService,
+      redis: redisResult.status === "fulfilled" ? redisResult.value : fallbackService,
     },
     routes: routesResult.status === "fulfilled" ? routesResult.value : fallbackRoutes,
   };

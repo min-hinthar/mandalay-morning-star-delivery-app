@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import type { RoutesRow, RouteStats, VehicleType } from "@/types/driver";
 
@@ -34,13 +35,16 @@ interface DriverMeResponse {
   } | null;
 }
 
-export async function GET(): Promise<NextResponse<DriverMeResponse | { error: string }>> {
+export async function GET() {
   try {
     const auth = await requireDriver();
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
     const { supabase, driverId, userId } = auth;
+
+    const rl = await checkRateLimit({ limiter: driverActionLimiter, identifier: driverId, role: "driver", route: "driver/me" });
+    if (rl.limited) return rl.response;
 
     // Get driver profile with user data
     interface DriverQueryResult {

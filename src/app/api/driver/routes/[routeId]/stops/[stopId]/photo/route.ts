@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 
 interface RouteParams {
@@ -17,18 +18,10 @@ interface StopQueryResult {
   order_id: string;
 }
 
-interface UploadPhotoResponse {
-  success: boolean;
-  photoUrl: string;
-}
-
 // Max file size: 5MB
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-): Promise<NextResponse<UploadPhotoResponse | { error: string }>> {
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { routeId, stopId } = await params;
 
@@ -37,6 +30,14 @@ export async function POST(
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
     const { supabase, driverId } = auth;
+
+    const rl = await checkRateLimit({
+      limiter: driverActionLimiter,
+      identifier: driverId,
+      role: "driver",
+      route: "driver/routes/[routeId]/stops/[stopId]/photo",
+    });
+    if (rl.limited) return rl.response;
 
     // Get route
     const { data: route, error: routeError } = await supabase

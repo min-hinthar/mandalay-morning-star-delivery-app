@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createPublicClient } from "@/lib/supabase/server";
+import { checkRateLimit, publicReadLimiter, getClientIp } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import type { MenuCategory, MenuItem, MenuResponse, ModifierGroup } from "@/types/menu";
 
@@ -51,8 +52,17 @@ type MenuItemRow = {
   item_modifier_groups: ItemModifierGroupRow[] | null;
 };
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const rl = await checkRateLimit({
+      limiter: publicReadLimiter,
+      identifier: ip,
+      role: "anon",
+      route: "menu",
+    });
+    if (rl.limited) return rl.response;
+
     const supabase = createPublicClient();
 
     const { data: categories, error: catError } = await supabase
