@@ -75,6 +75,30 @@ Google Fonts 403 errors in sandboxed environments are infrastructure issues, not
 
 They share hooks (`useBodyScrollLock`, `useSwipeToClose`) but are architecturally separate. Fix shared hooks (affects all) vs component-specific code (affects one).
 
+## `.prettierignore` Must Exclude Non-Source Dirs
+
+`.claude/` and `.planning/` contain auto-generated session logs and GSD state files. Prettier flags them as unformatted, causing CI `format:check` to fail.
+
+```
+# .prettierignore
+.claude
+.planning
+```
+
+**Apply when:** Adding new tool/config directories that contain non-source files.
+
+---
+
+## CI Verification Must Include `format:check`
+
+CI runs `pnpm format:check` (Prettier). Local `pnpm lint` does NOT catch formatting issues. The CLAUDE.md verification command must include `pnpm format:check` or CI will fail on unformatted files.
+
+**Apply when:** Writing new files or editing files — always run `pnpm format:check` or `pnpm prettier --write` before committing.
+
+**Supersedes:** The `CI Lint Uses --max-warnings 0` entry below (expanded scope).
+
+---
+
 ## CI Lint Uses --max-warnings 0
 
 **Context:** `pnpm lint` passes locally (allows warnings), but CI runs `pnpm lint --max-warnings 0` which fails on any warning.

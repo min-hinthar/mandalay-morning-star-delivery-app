@@ -11,9 +11,9 @@ Consolidated knowledge from working on this codebase. Scan this file first, then
 | Next.js          | `nextjs.md`           | Route groups not in URL; NEXT_REDIRECT uncatchable; Image aspect ratio; optimizePackageImports                                                             | 2026-01-29   |
 | Design Tokens    | `design-tokens.md`    | Semantic token naming; contrast ratios; CSS vars for inline styles; fallback code auditing; non-existent token → transparent                               | 2026-02-16   |
 | State Management | `state-management.md` | Single mutation owner; cart deduplication; store-level debounce                                                                                            | 2026-01-29   |
-| Supabase Auth    | `supabase-auth.md`    | generateLink vs inviteUserByEmail; RLS JWT claims; metadata staleness; callback context                                                                    | 2026-02-04   |
+| Supabase Auth    | `supabase-auth.md`    | generateLink vs inviteUserByEmail; RLS JWT claims; metadata staleness; NEVER use action_link (use hashed_token + verifyOtp)                                | 2026-02-17   |
 | Testing          | `testing.md`          | E2E DOM removal for AnimatePresence; cmdk state binding                                                                                                    | 2026-01-25   |
-| Tooling          | `tooling.md`          | Git case rename; barrel cleanup; ESLint guards; component organization; CI --max-warnings 0                                                                | 2026-02-17   |
+| Tooling          | `tooling.md`          | Git case rename; barrel cleanup; ESLint guards; .prettierignore non-source dirs; CI format:check + --max-warnings 0                                        | 2026-02-17   |
 | Performance      | `performance.md`      | Lazy load below-fold; IntersectionObserver pause; willChange on interaction; tree-shaking                                                                  | 2026-01-29   |
 | Data Schema      | `data-schema.md`      | Allergen duplication in tags vs allergens columns; Fuse.js tuning for menu dataset                                                                         | 2026-02-10   |
 
