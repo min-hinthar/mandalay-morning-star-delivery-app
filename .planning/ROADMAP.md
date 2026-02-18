@@ -70,7 +70,7 @@ Plans:
 
 - [x] 68-01-PLAN.md — Migration 022: fix 5 RLS gaps, initplan optimization, policy naming standardization
 - [x] 68-02-PLAN.md — Expand pgTAP test suite to all 24 tables, run verification
-- [ ] 68-03-PLAN.md — Gap closure: expand isolation test with driver, admin, anon assertions
+- [x] 68-03-PLAN.md — Gap closure: expand isolation test with driver, admin, anon assertions — completed 2026-02-17
 
 #### Phase 69: Distributed Rate Limiting
 
@@ -193,8 +193,8 @@ Note: Phases 68 and 69 are parallelizable (both are infra with no UI overlap).
 
 | Phase                                      | Milestone | Plans Complete | Status      | Completed |
 | ------------------------------------------ | --------- | -------------- | ----------- | --------- |
-| 67. CSP & Security Headers                 | v1.8      | 0/TBD          | Not started | -         |
-| 68. RLS Audit & Hardening                  | v1.8      | 0/TBD          | Not started | -         |
+| 67. CSP & Security Headers                 | v1.8      | 3/3            | ✓ Complete  | 2026-02-17 |
+| 68. RLS Audit & Hardening                  | v1.8      | 3/3            | ✓ Complete  | 2026-02-17 |
 | 69. Distributed Rate Limiting              | v1.8      | 0/TBD          | Not started | -         |
 | 70. Role-Based Auth Redirects              | v1.8      | 0/TBD          | Not started | -         |
 | 71. Driver Profile Setup                   | v1.8      | 0/TBD          | Not started | -         |
