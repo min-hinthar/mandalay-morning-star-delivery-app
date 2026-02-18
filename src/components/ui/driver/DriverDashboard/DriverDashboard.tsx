@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import { m } from "framer-motion";
 import {
   Star,
@@ -31,6 +33,25 @@ export function DriverDashboard({
   className,
 }: DriverDashboardProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
+  const router = useRouter();
+  const [isStarting, setIsStarting] = useState(false);
+
+  const handleStartRoute = useCallback(async () => {
+    if (!todayRoute || isStarting) return;
+    setIsStarting(true);
+    try {
+      const res = await fetch(`/api/driver/routes/${todayRoute.id}/start`, { method: "POST" });
+      if (res.ok) {
+        router.push("/driver/route");
+      }
+    } finally {
+      setIsStarting(false);
+    }
+  }, [todayRoute, isStarting, router]);
+
+  const handleContinueRoute = useCallback(() => {
+    router.push("/driver/route");
+  }, [router]);
 
   const greeting = getGreeting();
   const firstName = driver.fullName?.split(" ")[0] ?? "Driver";
@@ -92,8 +113,8 @@ export function DriverDashboard({
           route={todayRoute}
           dateDisplay={dateDisplay}
           dayOfWeek={dayOfWeek}
-          onStartRoute={onStartRoute}
-          onContinueRoute={onContinueRoute}
+          onStartRoute={onStartRoute ?? handleStartRoute}
+          onContinueRoute={onContinueRoute ?? handleContinueRoute}
         />
 
         {/* Badges */}

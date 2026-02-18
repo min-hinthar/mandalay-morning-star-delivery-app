@@ -72,4 +72,14 @@ Google Fonts 403 errors in sandboxed environments are infrastructure issues, not
 They share hooks (`useBodyScrollLock`, `useSwipeToClose`) but are architecturally separate. Fix shared hooks (affects all) vs component-specific code (affects one).
 
 
+## CI Lint Uses --max-warnings 0
+
+**Context:** `pnpm lint` passes locally (allows warnings), but CI runs `pnpm lint --max-warnings 0` which fails on any warning.
+
+**Learning:** Always verify locally with `pnpm lint --max-warnings 0` to match CI behavior. The CLAUDE.md verification command `pnpm lint` is insufficient — it won't catch warnings that block CI.
+
+**Apply when:** Running pre-push verification. Use `pnpm lint --max-warnings 0` instead of `pnpm lint`.
+
+---
+
 > **GSD Patch Persistence & Agent Teams:** Moved to global learnings at `~/.claude/learnings/gsd-workflow.md` (cross-project patterns).

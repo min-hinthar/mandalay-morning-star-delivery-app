@@ -20,9 +20,11 @@ type MagicLinkFormValues = z.infer<typeof schema>;
 
 interface MagicLinkFormProps {
   onSuccess: (email: string) => void;
+  /** Where to redirect after login (forwarded through auth callback) */
+  redirectTo?: string;
 }
 
-export function MagicLinkForm({ onSuccess }: MagicLinkFormProps) {
+export function MagicLinkForm({ onSuccess, redirectTo }: MagicLinkFormProps) {
   const { shouldAnimate } = useAnimationPreference();
   const [isPending, startTransition] = useTransition();
   const [isShaking, setIsShaking] = useState(false);
@@ -49,6 +51,7 @@ export function MagicLinkForm({ onSuccess }: MagicLinkFormProps) {
       void (async () => {
         const formData = new FormData();
         formData.set("email", data.email);
+        if (redirectTo) formData.set("redirectTo", redirectTo);
         const result = await signInWithMagicLink(formData);
         if (result?.error) {
           setError("root", { message: result.error });

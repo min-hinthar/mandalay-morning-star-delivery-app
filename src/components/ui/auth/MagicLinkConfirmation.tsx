@@ -11,6 +11,8 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 interface MagicLinkConfirmationProps {
   email: string;
   onBack: () => void;
+  /** Where to redirect after login (forwarded through auth callback) */
+  redirectTo?: string;
 }
 
 /* Sparkle positions around the envelope — placed by hand for organic feel */
@@ -29,7 +31,7 @@ const SPARKLE_POSITIONS: SparklePos[] = [
   { top: "-2px", left: "50%", delay: 0.15 },
 ];
 
-export function MagicLinkConfirmation({ email, onBack }: MagicLinkConfirmationProps) {
+export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkConfirmationProps) {
   const { toast } = useToast();
   const { shouldAnimate } = useAnimationPreference();
   const [scope, animate] = useAnimate();
@@ -95,6 +97,7 @@ export function MagicLinkConfirmation({ email, onBack }: MagicLinkConfirmationPr
       void (async () => {
         const formData = new FormData();
         formData.set("email", email);
+        if (redirectTo) formData.set("redirectTo", redirectTo);
         const result = await signInWithMagicLink(formData);
 
         if (result?.error) {

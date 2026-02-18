@@ -37,6 +37,7 @@ export async function signInWithMagicLink(
 ): Promise<ActionResult> {
   const supabase = await createClient();
   const email = formData.get("email") as string;
+  const redirectTo = (formData.get("redirectTo") as string) || "/login";
 
   if (!email) {
     return { error: "Email is required" };
@@ -50,10 +51,11 @@ export async function signInWithMagicLink(
   }
 
   const appUrl = await getAppUrl();
+  const callbackNext = encodeURIComponent(redirectTo);
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${appUrl}/auth/callback?next=/login`,
+      emailRedirectTo: `${appUrl}/auth/callback?next=${callbackNext}`,
       shouldCreateUser: true,
     },
   });

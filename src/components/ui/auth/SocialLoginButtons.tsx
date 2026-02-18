@@ -8,9 +8,11 @@ import { cn } from "@/lib/utils/cn";
 
 interface SocialLoginButtonsProps {
   onOAuthStart?: (provider: "google" | null) => void;
+  /** Where to redirect after login (forwarded through auth callback) */
+  redirectTo?: string;
 }
 
-export function SocialLoginButtons({ onOAuthStart }: SocialLoginButtonsProps) {
+export function SocialLoginButtons({ onOAuthStart, redirectTo }: SocialLoginButtonsProps) {
   const { toast } = useToast();
   const { shouldAnimate } = useAnimationPreference();
 
@@ -22,7 +24,7 @@ export function SocialLoginButtons({ onOAuthStart }: SocialLoginButtonsProps) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/login`,
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo || "/login")}`,
           queryParams: { access_type: "offline", prompt: "consent" },
         },
       });
