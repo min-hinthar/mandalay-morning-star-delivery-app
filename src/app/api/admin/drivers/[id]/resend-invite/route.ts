@@ -95,14 +95,11 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       });
     }
 
-    // Generate new magic link
+    // Generate magic link token — use hashed_token + /auth/confirm route
     const appUrl = await getAppUrl();
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: "magiclink",
       email: invite.email,
-      options: {
-        redirectTo: `${appUrl}/auth/callback?next=/driver/onboard&invite_id=${invite.id}`,
-      },
     });
 
     if (linkError || !linkData) {
@@ -116,11 +113,18 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Construct verification URL with all params preserved in our own route
+    const confirmUrl = new URL(`${appUrl}/auth/confirm`);
+    confirmUrl.searchParams.set("token_hash", linkData.properties.hashed_token);
+    confirmUrl.searchParams.set("type", "magiclink");
+    confirmUrl.searchParams.set("next", "/driver/onboard");
+    confirmUrl.searchParams.set("invite_id", invite.id);
+
     // Send invite email to driver
     const resend = getResendClient();
     const emailComponent = React.createElement(DriverInvite, {
       driverEmail: invite.email,
-      magicLink: linkData.properties.action_link,
+      magicLink: confirmUrl.toString(),
       expiresIn: "24 hours",
     });
     const html = await render(emailComponent);
