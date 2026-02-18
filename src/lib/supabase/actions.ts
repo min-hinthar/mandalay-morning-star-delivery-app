@@ -11,7 +11,7 @@ export interface ActionResult {
   success?: string;
 }
 
-async function getAppUrl(): Promise<string> {
+export async function getAppUrl(): Promise<string> {
   const envUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (envUrl) {
     return envUrl.replace(/\/$/, "");
@@ -93,8 +93,9 @@ export async function resendDriverInvite(inviteId: string): Promise<ActionResult
   const appUrl = await getAppUrl();
   const next = encodeURIComponent("/driver/onboard");
 
-  // Send OTP with invite-aware redirect so the callback preserves invite context
-  const { error } = await serviceSupabase.auth.signInWithOtp({
+  // Use anon-key client for OTP — service role suppresses Supabase email delivery
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithOtp({
     email: invite.email,
     options: {
       emailRedirectTo: `${appUrl}/auth/callback?next=${next}&invite_id=${inviteId}`,
