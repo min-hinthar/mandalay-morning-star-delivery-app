@@ -58,21 +58,36 @@ if (!inviteId) {
 
 ---
 
-## Server-Side Callback for Magic Link Context
+## NEVER Use `action_link` from `generateLink` — Use `hashed_token` Instead
 
-Pass context through redirect URL instead of relying on hash tokens:
+`generateLink`'s `action_link` uses Supabase's **implicit flow**, which delivers tokens as `#hash` fragments. Server-side Route Handlers cannot read hash fragments — `searchParams.get("code")` returns `null`, so `exchangeCodeForSession()` fails silently.
+
+Additionally, `redirectTo` with multiple query params (e.g., `?next=...&invite_id=...`) gets `&`-split by GoTrue's `/verify` endpoint — only the first param survives.
+
+**Fix:** Use `hashed_token` + a custom `/auth/confirm` route that calls `verifyOtp()`:
 
 ```typescript
-const { data } = await supabase.auth.admin.generateLink({
+// API: generate token, construct our own URL
+const { data: linkData } = await supabase.auth.admin.generateLink({
   type: "magiclink",
   email,
-  options: {
-    redirectTo: `${BASE_URL}/auth/callback?next=/driver/onboard&invite_id=${inviteId}`,
-  },
+  // Do NOT pass redirectTo — it won't work correctly
 });
 
-// In callback route - extract from searchParams
-const inviteId = searchParams.get("invite_id");
+const confirmUrl = new URL(`${appUrl}/auth/confirm`);
+confirmUrl.searchParams.set("token_hash", linkData.properties.hashed_token);
+confirmUrl.searchParams.set("type", "magiclink");
+confirmUrl.searchParams.set("next", "/driver/onboard");
+confirmUrl.searchParams.set("invite_id", inviteId);
+
+// /auth/confirm route: verify token server-side
+const { data, error } = await supabase.auth.verifyOtp({
+  type,
+  token_hash: tokenHash,
+});
+// Then process invite + redirect to `next`
 ```
 
-**Apply when:** Passing context through auth flow. Simpler than client-side hash parsing.
+**Apply when:** ANY use of `admin.generateLink()` where you need server-side session establishment or query param preservation.
+
+**Related issues:** supabase/auth-js#767, supabase/auth#1738, supabase/supabase#1915

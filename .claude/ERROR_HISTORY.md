@@ -6,6 +6,21 @@ Reference for past bugs, root causes, and fixes. Check here before debugging sim
 
 ---
 
+## Driver Invite Magic Link Redirects to Homepage
+
+**Date:** 2026-02-17 | **Type:** Auth Flow | **Severity:** Critical
+**Files:** `auth/callback/route.ts`, `api/admin/drivers/invite/route.ts`, `api/admin/drivers/[id]/resend-invite/route.ts`
+
+**Error:** Driver clicks invite email link → redirected to homepage. No session established, role not changed.
+
+**Root cause:** `admin.generateLink()` returns an `action_link` that uses Supabase's **implicit flow**. Tokens arrive as `#hash` fragments, invisible to server-side Route Handlers. `exchangeCodeForSession(code)` gets `null` for `code` and fails. Additionally, `&invite_id=...` in `redirectTo` gets split off by GoTrue's `/verify` endpoint.
+
+**Fix:** Created `/auth/confirm/route.ts` that takes `hashed_token` from `generateLink` and calls `verifyOtp()` server-side. Invite APIs now construct their own URL using `hashed_token` + `URL.searchParams` (proper encoding) instead of `action_link`.
+
+**Key learning:** Never use `action_link` from `generateLink()`. Always use `hashed_token` + `verifyOtp()`. See `.claude/learnings/supabase-auth.md`.
+
+---
+
 ## TailwindCSS 4 Z-Index System (Consolidated)
 
 **Type:** Build/Runtime | **Severity:** Critical | **Dates:** 2026-01-22 to 2026-01-24
