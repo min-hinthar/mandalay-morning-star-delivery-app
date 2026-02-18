@@ -82,12 +82,13 @@ Plans:
 1. Rate limiting uses Upstash Redis instead of in-memory Map (shared state across all Vercel instances)
 2. Auth endpoints enforce limits (5/min signIn, 3/hr signUp) and return 429 with retry-after header
 3. High-traffic API routes (location updates, order creation) are rate-limited with appropriate windows
-   **Plans**: TBD
+   **Plans**: 3 plans (Wave 1: 01, Wave 2: 02 + 03 parallel)
 
 Plans:
 
-- [ ] 69-01: TBD
-- [ ] 69-02: TBD
+- [ ] 69-01-PLAN.md — Core rate-limit library (Upstash Redis client, named limiters, env-var config, fail-open)
+- [ ] 69-02-PLAN.md — Apply rate limiting to auth, public, customer, and driver routes + health check + remove old rate-limit.ts
+- [ ] 69-03-PLAN.md — Admin route rate limiting + client-side 429 toast handler + Sentry monitoring
 
 #### Phase 70: Role-Based Auth Redirects
 
