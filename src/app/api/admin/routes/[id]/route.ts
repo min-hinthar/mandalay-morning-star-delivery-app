@@ -9,16 +9,16 @@ import type { ProfileCheck, RouteDetailRow, RouteParams } from "./types";
  * GET /api/admin/routes/[id]
  * Get route details with all stops and order info
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -39,7 +39,8 @@ export async function GET(
     // Fetch route with all details
     const { data: route, error: routeError } = await supabase
       .from("routes")
-      .select(`
+      .select(
+        `
         id,
         delivery_date,
         driver_id,
@@ -114,7 +115,8 @@ export async function GET(
             resolved_at
           )
         )
-      `)
+      `
+      )
       .eq("id", id)
       .order("stop_index", { referencedTable: "route_stops", ascending: true })
       .returns<RouteDetailRow[]>()
@@ -133,20 +135,22 @@ export async function GET(
       stats: route.stats_json,
       startedAt: route.started_at,
       completedAt: route.completed_at,
-      driver: route.drivers ? {
-        id: route.drivers.id,
-        userId: route.drivers.user_id,
-        email: route.drivers.profiles?.email ?? "",
-        fullName: route.drivers.profiles?.full_name ?? null,
-        phone: route.drivers.phone ?? route.drivers.profiles?.phone ?? null,
-        vehicleType: route.drivers.vehicle_type,
-        licensePlate: route.drivers.license_plate,
-        profileImageUrl: route.drivers.profile_image_url,
-        isActive: route.drivers.is_active,
-        ratingAvg: route.drivers.rating_avg,
-        deliveriesCount: route.drivers.deliveries_count,
-        createdAt: route.drivers.created_at,
-      } : null,
+      driver: route.drivers
+        ? {
+            id: route.drivers.id,
+            userId: route.drivers.user_id,
+            email: route.drivers.profiles?.email ?? "",
+            fullName: route.drivers.profiles?.full_name ?? null,
+            phone: route.drivers.phone ?? route.drivers.profiles?.phone ?? null,
+            vehicleType: route.drivers.vehicle_type,
+            licensePlate: route.drivers.license_plate,
+            profileImageUrl: route.drivers.profile_image_url,
+            isActive: route.drivers.is_active,
+            ratingAvg: route.drivers.rating_avg,
+            deliveriesCount: route.drivers.deliveries_count,
+            createdAt: route.drivers.created_at,
+          }
+        : null,
       stops: route.route_stops.map((stop) => ({
         id: stop.id,
         stopIndex: stop.stop_index,
@@ -156,45 +160,51 @@ export async function GET(
         deliveredAt: stop.delivered_at,
         deliveryPhotoUrl: stop.delivery_photo_url,
         deliveryNotes: stop.delivery_notes,
-        order: stop.orders ? {
-          id: stop.orders.id,
-          totalCents: stop.orders.total_cents,
-          deliveryWindowStart: stop.orders.delivery_window_start,
-          deliveryWindowEnd: stop.orders.delivery_window_end,
-          specialInstructions: stop.orders.special_instructions,
-          itemCount: stop.orders.order_items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0,
-          customer: stop.orders.profiles ? {
-            id: stop.orders.profiles.id,
-            fullName: stop.orders.profiles.full_name,
-            phone: stop.orders.profiles.phone,
-          } : null,
-          address: stop.orders.addresses ? {
-            line1: stop.orders.addresses.line_1,
-            line2: stop.orders.addresses.line_2,
-            city: stop.orders.addresses.city,
-            state: stop.orders.addresses.state,
-            postalCode: stop.orders.addresses.postal_code,
-            lat: stop.orders.addresses.lat,
-            lng: stop.orders.addresses.lng,
-          } : null,
-        } : null,
-        exception: stop.delivery_exceptions?.[0] ? {
-          id: stop.delivery_exceptions[0].id,
-          type: stop.delivery_exceptions[0].exception_type,
-          description: stop.delivery_exceptions[0].description,
-          photoUrl: stop.delivery_exceptions[0].photo_url,
-          resolved: stop.delivery_exceptions[0].resolved_at !== null,
-        } : null,
+        order: stop.orders
+          ? {
+              id: stop.orders.id,
+              totalCents: stop.orders.total_cents,
+              deliveryWindowStart: stop.orders.delivery_window_start,
+              deliveryWindowEnd: stop.orders.delivery_window_end,
+              specialInstructions: stop.orders.special_instructions,
+              itemCount:
+                stop.orders.order_items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0,
+              customer: stop.orders.profiles
+                ? {
+                    id: stop.orders.profiles.id,
+                    fullName: stop.orders.profiles.full_name,
+                    phone: stop.orders.profiles.phone,
+                  }
+                : null,
+              address: stop.orders.addresses
+                ? {
+                    line1: stop.orders.addresses.line_1,
+                    line2: stop.orders.addresses.line_2,
+                    city: stop.orders.addresses.city,
+                    state: stop.orders.addresses.state,
+                    postalCode: stop.orders.addresses.postal_code,
+                    lat: stop.orders.addresses.lat,
+                    lng: stop.orders.addresses.lng,
+                  }
+                : null,
+            }
+          : null,
+        exception: stop.delivery_exceptions?.[0]
+          ? {
+              id: stop.delivery_exceptions[0].id,
+              type: stop.delivery_exceptions[0].exception_type,
+              description: stop.delivery_exceptions[0].description,
+              photoUrl: stop.delivery_exceptions[0].photo_url,
+              resolved: stop.delivery_exceptions[0].resolved_at !== null,
+            }
+          : null,
       })),
     };
 
     return NextResponse.json(response);
   } catch (error) {
     logger.exception(error, { api: "admin/routes/[id]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -202,16 +212,16 @@ export async function GET(
  * PATCH /api/admin/routes/[id]
  * Update route (assign driver, change status, reorder stops)
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -246,10 +256,7 @@ export async function PATCH(
 
         if (updateError) {
           logger.exception(updateError, { api: "admin/routes/[id]", flowId: "reorder-stops" });
-          return NextResponse.json(
-            { error: "Failed to reorder stops" },
-            { status: 500 }
-          );
+          return NextResponse.json({ error: "Failed to reorder stops" }, { status: 500 });
         }
       }
 
@@ -300,10 +307,7 @@ export async function PATCH(
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/routes/[id]", flowId: "update" });
-      return NextResponse.json(
-        { error: "Failed to update route" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to update route" }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -314,10 +318,7 @@ export async function PATCH(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/routes/[id]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -325,16 +326,16 @@ export async function PATCH(
  * DELETE /api/admin/routes/[id]
  * Delete route (only if planned)
  */
-export async function DELETE(
-  _request: NextRequest,
-  { params }: RouteParams
-) {
+export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -353,35 +354,22 @@ export async function DELETE(
     }
 
     // Check route status
-    const { data: route } = await supabase
-      .from("routes")
-      .select("status")
-      .eq("id", id)
-      .single();
+    const { data: route } = await supabase.from("routes").select("status").eq("id", id).single();
 
     if (!route) {
       return NextResponse.json({ error: "Route not found" }, { status: 404 });
     }
 
     if (route.status !== "planned") {
-      return NextResponse.json(
-        { error: "Can only delete planned routes" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Can only delete planned routes" }, { status: 400 });
     }
 
     // Delete route (stops will cascade)
-    const { error: deleteError } = await supabase
-      .from("routes")
-      .delete()
-      .eq("id", id);
+    const { error: deleteError } = await supabase.from("routes").delete().eq("id", id);
 
     if (deleteError) {
       logger.exception(deleteError, { api: "admin/routes/[id]", flowId: "delete" });
-      return NextResponse.json(
-        { error: "Failed to delete route" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to delete route" }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -390,9 +378,6 @@ export async function DELETE(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/routes/[id]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

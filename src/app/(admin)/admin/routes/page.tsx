@@ -4,23 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { m } from "framer-motion";
 import { format, subDays, addDays, startOfDay, parseISO } from "date-fns";
-import {
-  RefreshCw,
-  Plus,
-  Filter,
-  MapPin,
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { RefreshCw, Plus, Filter, MapPin, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToast";
-import {
-  RouteListTable,
-  type AdminRoute,
-} from "@/components/ui/admin/routes/RouteListTable";
+import { RouteListTable, type AdminRoute } from "@/components/ui/admin/routes/RouteListTable";
 import {
   CreateRouteModal,
   type CreateRouteData,
@@ -148,16 +137,12 @@ export default function AdminRoutesPage() {
   };
 
   const goToPreviousDay = () => {
-    const current = selectedDate
-      ? parseISO(selectedDate)
-      : startOfDay(new Date());
+    const current = selectedDate ? parseISO(selectedDate) : startOfDay(new Date());
     setSelectedDate(format(subDays(current, 1), "yyyy-MM-dd"));
   };
 
   const goToNextDay = () => {
-    const current = selectedDate
-      ? parseISO(selectedDate)
-      : startOfDay(new Date());
+    const current = selectedDate ? parseISO(selectedDate) : startOfDay(new Date());
     setSelectedDate(format(addDays(current, 1), "yyyy-MM-dd"));
   };
 
@@ -166,9 +151,7 @@ export default function AdminRoutesPage() {
   };
 
   const filteredRoutes =
-    statusFilter === "all"
-      ? routes
-      : routes.filter((route) => route.status === statusFilter);
+    statusFilter === "all" ? routes : routes.filter((route) => route.status === statusFilter);
 
   const stats = {
     total: routes.length,
@@ -186,10 +169,7 @@ export default function AdminRoutesPage() {
         <AdminPageHeader
           title="Routes"
           count={routes.length}
-          breadcrumbs={[
-            { label: "Dashboard", href: "/admin" },
-            { label: "Routes" },
-          ]}
+          breadcrumbs={[{ label: "Dashboard", href: "/admin" }, { label: "Routes" }]}
           actions={
             <div className="flex items-center gap-2">
               <Button
@@ -198,9 +178,7 @@ export default function AdminRoutesPage() {
                 disabled={refreshing}
                 className="border-accent-teal/20 hover:bg-accent-teal/5"
               >
-                <RefreshCw
-                  className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
-                />
+                <RefreshCw className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")} />
                 Refresh
               </Button>
               <Button
@@ -215,9 +193,7 @@ export default function AdminRoutesPage() {
         />
 
         {/* Error state */}
-        {error && !loading && (
-          <InlineErrorCard message={error} onRetry={handleRefresh} />
-        )}
+        {error && !loading && <InlineErrorCard message={error} onRetry={handleRefresh} />}
 
         {/* Stats cards */}
         {!error && (
@@ -238,28 +214,16 @@ export default function AdminRoutesPage() {
             className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
           >
             <div className="flex items-center gap-2 bg-surface-primary rounded-xl border border-accent-teal/10 p-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={goToPreviousDay}
-                className="h-8 w-8"
-              >
+              <Button variant="ghost" size="icon" onClick={goToPreviousDay} className="h-8 w-8">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <div className="flex items-center gap-2 px-3">
                 <Calendar className="h-4 w-4 text-accent-teal" />
                 <span className="text-sm font-medium min-w-[120px] text-center">
-                  {selectedDate
-                    ? format(parseISO(selectedDate), "EEE, MMM d")
-                    : "All Dates"}
+                  {selectedDate ? format(parseISO(selectedDate), "EEE, MMM d") : "All Dates"}
                 </span>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={goToNextDay}
-                className="h-8 w-8"
-              >
+              <Button variant="ghost" size="icon" onClick={goToNextDay} className="h-8 w-8">
                 <ChevronRight className="h-4 w-4" />
               </Button>
               {selectedDate && (
@@ -299,9 +263,7 @@ export default function AdminRoutesPage() {
                     onClick={() => setStatusFilter(f.value)}
                   >
                     {f.label}
-                    {count > 0 && (
-                      <span className="ml-1.5 text-xs opacity-80">({count})</span>
-                    )}
+                    {count > 0 && <span className="ml-1.5 text-xs opacity-80">({count})</span>}
                   </Badge>
                 );
               })}
@@ -321,9 +283,7 @@ export default function AdminRoutesPage() {
               <div className="flex items-center gap-3">
                 <MapPin className="h-5 w-5 text-accent-teal" />
                 <div>
-                  <p className="text-sm font-medium text-text-primary">
-                    Delivery Progress
-                  </p>
+                  <p className="text-sm font-medium text-text-primary">Delivery Progress</p>
                   <p className="text-xs text-text-muted">
                     {stats.deliveredStops} of {stats.totalStops} stops completed
                   </p>

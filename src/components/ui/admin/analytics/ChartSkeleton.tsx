@@ -16,26 +16,16 @@ interface ChartSkeletonProps {
  * Faux bar chart skeleton with staggered pulse animation.
  * Shows 12 bars of varying heights with per-chart label text.
  */
-export function ChartSkeleton({
-  label,
-  height = 248,
-  className,
-}: ChartSkeletonProps) {
+export function ChartSkeleton({ label, height = 248, className }: ChartSkeletonProps) {
   const barAreaHeight = height - 48; // subtract padding
 
   return (
     <div
-      className={cn(
-        "rounded-xl bg-surface-primary p-6 shadow-sm",
-        className
-      )}
+      className={cn("rounded-xl bg-surface-primary p-6 shadow-sm", className)}
       role="status"
       aria-label={label}
     >
-      <div
-        className="flex items-end gap-2"
-        style={{ height: barAreaHeight }}
-      >
+      <div className="flex items-end gap-2" style={{ height: barAreaHeight }}>
         {BAR_HEIGHTS.map((h, i) => (
           <div
             key={i}

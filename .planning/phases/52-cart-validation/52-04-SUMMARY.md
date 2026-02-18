@@ -57,6 +57,7 @@ completed: 2026-02-09
 - **Files modified:** 3
 
 ## Accomplishments
+
 - CartItem accepts optional validation props and conditionally renders ValidationOverlay (sold-out/unavailable) or PriceChangeBadge (price-changed)
 - CartDrawer runs useCartValidation on mount, passes per-item validation data to CartItemsList
 - Subtle animated loading bar during validation (thin primary-color bar, not skeleton replacement)
@@ -72,11 +73,13 @@ Each task was committed atomically:
 2. **Task 2: Integrate validation into CartDrawer and update barrel exports** - `5a6aa5d` (feat)
 
 ## Files Created/Modified
+
 - `src/components/ui/cart/CartItem/CartItem.tsx` - Added optional validation props, conditional ValidationOverlay/PriceChangeBadge rendering, stale item graying
 - `src/components/ui/cart/CartDrawer.tsx` - Integrated useCartValidation in CartContent, per-item validation props in CartItemsList, checkout gate in CartFooter
 - `src/components/ui/cart/index.ts` - Added CartPage component exports and validation overlay component exports
 
 ## Decisions Made
+
 - **CART-04-STALE:** Stale items (sold-out/unavailable) disable drag-to-delete, hide quantity stepper/edit/remove buttons, and gray out content with `opacity-50 pointer-events-none`. The ValidationOverlay sits above the grayed content.
 - **CART-04-LOADER:** Drawer shows a thin 2px animated bar in primary color during validation rather than replacing items with skeletons (per research recommendation for drawer context).
 - **CART-04-GATE:** Checkout button gets `opacity-50 cursor-not-allowed disabled` treatment plus "Remove unavailable items to checkout" warning text with AlertTriangle icon when blocking issues exist.
@@ -86,17 +89,21 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Cart drawer has full validation UX matching cart page treatment
 - CartItem backward compatible: existing usage without validation props unchanged
 - All CartPage and validation overlay components exported from cart barrel
 - Ready for plan 05 (full cart page composition with validation)
 
 ---
-*Phase: 52-cart-validation*
-*Completed: 2026-02-09*
+
+_Phase: 52-cart-validation_
+_Completed: 2026-02-09_

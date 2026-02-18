@@ -14,6 +14,7 @@ Consolidate all src/ subdirectories (contexts, design-system, lib, styles, types
 ## Implementation Decisions
 
 ### Duplicate Detection
+
 - Use knip for unused exports + TypeScript analysis for type conflicts/duplicate declarations
 - Identify duplicates by same export name AND same functionality (aggressive detection)
 - Flag types that overlap in purpose even if structures differ
@@ -23,6 +24,7 @@ Consolidate all src/ subdirectories (contexts, design-system, lib, styles, types
 - Delete unused code immediately — git history preserves if ever needed
 
 ### Merge Strategy
+
 - Most recent version (by git commit date) wins when duplicates exist
 - Port any useful features from older version to newer before deleting old
 - Newer type definition is canonical — update consumers accordingly
@@ -33,7 +35,9 @@ Consolidate all src/ subdirectories (contexts, design-system, lib, styles, types
 - Update barrel exports (index.ts) incrementally after each merge
 
 ### Directory Structure
+
 **Final structure:**
+
 ```
 src/
 ├── app/           # Routes + contexts (moved here)
@@ -56,6 +60,7 @@ src/
 - types/, styles/, stories/, test/ stay as separate top-level directories
 
 ### app/ Route Cleanup
+
 - Identify unused routes via link analysis + traffic data (if available)
 - Consolidate duplicate layout.tsx logic to root app/layout.tsx
 - Keep empty/placeholder pages but add clear TODO comments
@@ -67,6 +72,7 @@ src/
 - Standardize metadata exports across all pages
 
 ### Claude's Discretion
+
 - Exact clustering for context merge decisions
 - Final route group organization (analyze current routes, propose optimal)
 - How to handle edge cases in type merging
@@ -92,5 +98,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 34-full-src-consolidation*
-*Context gathered: 2026-01-27*
+_Phase: 34-full-src-consolidation_
+_Context gathered: 2026-01-27_

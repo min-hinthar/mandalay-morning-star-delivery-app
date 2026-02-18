@@ -55,6 +55,7 @@ completed: 2026-01-28
 - **Files modified:** 1
 
 ## Accomplishments
+
 - Hero background gradient tokens for both themes (saffron warmth)
 - Gradient orb tokens with brighter dark mode values
 - Emoji depth tokens with theme-adaptive shadows
@@ -69,9 +70,11 @@ Each task was committed atomically:
 3. **Task 3: Add emoji depth tokens** - `62fcf4e` (feat)
 
 ## Files Created/Modified
+
 - `src/styles/tokens.css` - Added 28 new hero tokens for redesigned hero section
 
 ## Decisions Made
+
 - Saffron-to-cream gradient for light mode (warm brand aesthetic)
 - Black-to-saffron-glow gradient for dark mode (dramatic warm accent)
 - Orbs use brand colors (saffron, jade, ruby) per CONTEXT.md
@@ -79,19 +82,24 @@ Each task was committed atomically:
 - Emoji shadows: 3x stronger in dark mode (0.3/0.4/0.5 vs 0.1/0.15/0.2)
 
 ## Deviations from Plan
+
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Token infrastructure complete for hero visual layers
 - Ready for 31-02: Hero.tsx gradient background implementation
-- Tokens can be consumed via var(--hero-bg-*), var(--hero-orb-*), var(--hero-emoji-*)
+- Tokens can be consumed via var(--hero-bg-_), var(--hero-orb-_), var(--hero-emoji-\*)
 
 ---
-*Phase: 31-hero-redesign*
-*Completed: 2026-01-28*
+
+_Phase: 31-hero-redesign_
+_Completed: 2026-01-28_

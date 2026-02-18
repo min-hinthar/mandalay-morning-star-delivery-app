@@ -32,10 +32,7 @@ const onboardingSchema = z
     phone: z
       .string()
       .min(10, "Please enter a valid phone number")
-      .regex(
-        /^[\d\s\-+()]+$/,
-        "Phone number can only contain digits, spaces, and + - ( )"
-      ),
+      .regex(/^[\d\s\-+()]+$/, "Phone number can only contain digits, spaces, and + - ( )"),
     vehicleType: z.enum(["car", "motorcycle", "bicycle", "van", "truck"], {
       message: "Please select a vehicle type",
     }),
@@ -62,10 +59,7 @@ interface OnboardingFormProps {
   inviteId: string;
 }
 
-export function OnboardingForm({
-  email: _email,
-  inviteId,
-}: OnboardingFormProps): ReactElement {
+export function OnboardingForm({ email: _email, inviteId }: OnboardingFormProps): ReactElement {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -144,9 +138,7 @@ export function OnboardingForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {formError && (
-        <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">
-          {formError}
-        </div>
+        <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">{formError}</div>
       )}
 
       <div className="space-y-2">
@@ -189,9 +181,7 @@ export function OnboardingForm({
         </label>
         <Select
           value={formData.vehicleType}
-          onValueChange={(value) =>
-            handleChange("vehicleType", value as VehicleType)
-          }
+          onValueChange={(value) => handleChange("vehicleType", value as VehicleType)}
           disabled={isSubmitting}
         >
           <SelectTrigger
@@ -237,9 +227,7 @@ export function OnboardingForm({
           type="text"
           placeholder="ABC 1234"
           value={formData.licensePlate}
-          onChange={(e) =>
-            handleChange("licensePlate", e.target.value.toUpperCase())
-          }
+          onChange={(e) => handleChange("licensePlate", e.target.value.toUpperCase())}
           error={fieldErrors.licensePlate}
           disabled={isSubmitting}
           required

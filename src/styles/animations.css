@@ -9,43 +9,59 @@
 
 @layer utilities {
   /* Duration utilities */
-  .duration-micro { animation-duration: 150ms; }
-  .duration-fast { animation-duration: 200ms; }
-  .duration-standard { animation-duration: 300ms; }
-  .duration-slow { animation-duration: 400ms; }
-  .duration-dramatic { animation-duration: 500ms; }
+  .duration-micro {
+    animation-duration: 150ms;
+  }
+  .duration-fast {
+    animation-duration: 200ms;
+  }
+  .duration-standard {
+    animation-duration: 300ms;
+  }
+  .duration-slow {
+    animation-duration: 400ms;
+  }
+  .duration-dramatic {
+    animation-duration: 500ms;
+  }
 
   /* Delay utilities */
-  .delay-micro { animation-delay: 150ms; }
-  .delay-standard { animation-delay: 300ms; }
-  .delay-dramatic { animation-delay: 500ms; }
+  .delay-micro {
+    animation-delay: 150ms;
+  }
+  .delay-standard {
+    animation-delay: 300ms;
+  }
+  .delay-dramatic {
+    animation-delay: 500ms;
+  }
 
   /* Easing utilities */
-  .ease-out-custom { animation-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1); }
-  .ease-in-custom { animation-timing-function: cubic-bezier(0.4, 0, 1, 1); }
-  .ease-in-out-custom { animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
-  .ease-bounce-custom { animation-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55); }
-  .ease-spring { animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1); }
+  .ease-out-custom {
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+  .ease-in-custom {
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+  .ease-in-out-custom {
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .ease-bounce-custom {
+    animation-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  .ease-spring {
+    animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
 
   /* Shimmer effect for loading */
   .animate-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.4),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
     background-size: 200% 100%;
     animation: shimmer 1.5s linear infinite;
   }
 
   .dark .animate-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     background-size: 200% 100%;
   }
 
@@ -102,14 +118,30 @@
   }
 
   /* Stagger delays */
-  .stagger-1 { animation-delay: 0.1s; }
-  .stagger-2 { animation-delay: 0.2s; }
-  .stagger-3 { animation-delay: 0.3s; }
-  .stagger-4 { animation-delay: 0.4s; }
-  .stagger-5 { animation-delay: 0.5s; }
-  .stagger-6 { animation-delay: 0.6s; }
-  .stagger-7 { animation-delay: 0.7s; }
-  .stagger-8 { animation-delay: 0.8s; }
+  .stagger-1 {
+    animation-delay: 0.1s;
+  }
+  .stagger-2 {
+    animation-delay: 0.2s;
+  }
+  .stagger-3 {
+    animation-delay: 0.3s;
+  }
+  .stagger-4 {
+    animation-delay: 0.4s;
+  }
+  .stagger-5 {
+    animation-delay: 0.5s;
+  }
+  .stagger-6 {
+    animation-delay: 0.6s;
+  }
+  .stagger-7 {
+    animation-delay: 0.7s;
+  }
+  .stagger-8 {
+    animation-delay: 0.8s;
+  }
 
   /* Gradient shift for backgrounds */
   .animate-gradient-shift {
@@ -143,24 +175,46 @@
    ============================================ */
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes pulse-ring {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.5); opacity: 0.5; }
-  100% { transform: scale(2); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
 @keyframes glow {
-  0% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
-  100% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.6); }
+  0% {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+  }
 }
 
 @keyframes confetti {
@@ -175,43 +229,85 @@
 }
 
 @keyframes slide-in-right {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 @keyframes slide-in-up {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes scale-in {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes scale-pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.02); opacity: 0.7; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.7;
+  }
 }
 
 @keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 @keyframes cta-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* ============================================

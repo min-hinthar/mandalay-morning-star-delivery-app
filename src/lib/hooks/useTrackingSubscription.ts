@@ -228,14 +228,7 @@ export function useTrackingSubscription({
       });
 
     channelRef.current = channel;
-  }, [
-    orderId,
-    supabase,
-    handleOrderUpdate,
-    handleRouteStopUpdate,
-    startPolling,
-    stopPolling,
-  ]);
+  }, [orderId, supabase, handleOrderUpdate, handleRouteStopUpdate, startPolling, stopPolling]);
 
   /**
    * Setup location subscription (separate channel for higher frequency)

@@ -17,25 +17,29 @@ Key insight: V8 components use AnimatePresence for DOM removal when overlays clo
 The established libraries/tools for this domain:
 
 ### Core
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| @playwright/test | ^1.57.0 | E2E test runner | Already configured, project standard |
-| toHaveScreenshot | built-in | Visual regression | Native Playwright, no extra deps |
-| @axe-core/playwright | ^4.11.0 | Accessibility | Already integrated for a11y tests |
+
+| Library              | Version  | Purpose           | Why Standard                         |
+| -------------------- | -------- | ----------------- | ------------------------------------ |
+| @playwright/test     | ^1.57.0  | E2E test runner   | Already configured, project standard |
+| toHaveScreenshot     | built-in | Visual regression | Native Playwright, no extra deps     |
+| @axe-core/playwright | ^4.11.0  | Accessibility     | Already integrated for a11y tests    |
 
 ### Supporting
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| framer-motion AnimatePresence | ^12.26.1 | DOM removal | Verified by checking element absence |
-| data-testid attributes | - | Element selection | All V8 components have them |
+
+| Library                       | Version  | Purpose           | When to Use                          |
+| ----------------------------- | -------- | ----------------- | ------------------------------------ |
+| framer-motion AnimatePresence | ^12.26.1 | DOM removal       | Verified by checking element absence |
+| data-testid attributes        | -        | Element selection | All V8 components have them          |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| Percy/Chromatic | Playwright toHaveScreenshot | External service vs built-in |
-| Cypress | Playwright | Already using Playwright, no migration |
+
+| Instead of      | Could Use                   | Tradeoff                               |
+| --------------- | --------------------------- | -------------------------------------- |
+| Percy/Chromatic | Playwright toHaveScreenshot | External service vs built-in           |
+| Cypress         | Playwright                  | Already using Playwright, no migration |
 
 **Installation:**
+
 ```bash
 # Already installed - no new dependencies needed
 ```
@@ -43,6 +47,7 @@ The established libraries/tools for this domain:
 ## Architecture Patterns
 
 ### Test File Organization
+
 ```
 e2e/
 ├── v8-overlay-behavior.spec.ts  # NEW: TEST-01 through TEST-04
@@ -59,9 +64,11 @@ e2e/
 ```
 
 ### Pattern 1: Verifying DOM Removal (Critical for TEST-04)
+
 **What:** Test that closed overlays are fully removed from DOM, not just hidden
 **When to use:** Any overlay that uses AnimatePresence (Backdrop, Drawer, BottomSheet, Modal)
 **Example:**
+
 ```typescript
 // Source: Playwright documentation + project pattern
 test("closed overlay is removed from DOM", async ({ page }) => {
@@ -85,9 +92,11 @@ test("closed overlay is removed from DOM", async ({ page }) => {
 ```
 
 ### Pattern 2: Testing Click Propagation (TEST-01)
+
 **What:** Verify header buttons are clickable and events propagate correctly
 **When to use:** Testing clickability across routes
 **Example:**
+
 ```typescript
 // Source: Project patterns from happy-path.spec.ts
 test("header buttons clickable on menu page", async ({ page }) => {
@@ -106,9 +115,11 @@ test("header buttons clickable on menu page", async ({ page }) => {
 ```
 
 ### Pattern 3: Testing Outside Click Dismissal (TEST-03)
+
 **What:** Dropdown/tooltip closes on outside click without blocking events
 **When to use:** Testing Dropdown component behavior
 **Example:**
+
 ```typescript
 // Source: Dropdown.tsx uses mousedown for outside click
 test("dropdown dismisses on outside click", async ({ page }) => {
@@ -131,9 +142,11 @@ test("dropdown dismisses on outside click", async ({ page }) => {
 ```
 
 ### Pattern 4: Visual Regression for Overlays (TEST-05)
+
 **What:** Capture baseline screenshots for header, overlays, cart drawer
 **When to use:** Visual consistency verification
 **Example:**
+
 ```typescript
 // Source: e2e/visual-regression.spec.ts patterns
 test("V8 cart drawer - desktop", async ({ page }) => {
@@ -156,9 +169,11 @@ test("V8 cart drawer - desktop", async ({ page }) => {
 ```
 
 ### Pattern 5: Responsive Testing (Mobile vs Desktop)
+
 **What:** Test CartDrawerV8 renders as BottomSheet on mobile, Drawer on desktop
 **When to use:** TEST-02 cart drawer behavior
 **Example:**
+
 ```typescript
 // Desktop: Drawer from right
 test("cart drawer renders as side drawer on desktop", async ({ page }) => {
@@ -187,6 +202,7 @@ test.describe("Mobile", () => {
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Using visibility checks alone:** `not.toBeVisible()` does not verify DOM removal; use `.count()` to verify element is gone
 - **Fixed timeouts without animation wait:** Use `waitForTimeout(400)` after close to allow exit animation
 - **Ignoring Escape key handling:** All overlays should close on Escape; test this explicitly
@@ -196,42 +212,47 @@ test.describe("Mobile", () => {
 
 Problems that look simple but have existing solutions:
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Visual regression | Custom image comparison | `toHaveScreenshot()` | Built-in Playwright, handles diff thresholds |
-| Element visibility | Custom wait loops | `expect(locator).toBeVisible()` | Auto-retry built into Playwright |
-| Click interception test | Manual event listeners | `await element.click()` throws on blocked | Playwright fails if click is intercepted |
-| Accessibility checks | Manual ARIA verification | `@axe-core/playwright` | Already integrated, catches issues automatically |
+| Problem                 | Don't Build              | Use Instead                               | Why                                              |
+| ----------------------- | ------------------------ | ----------------------------------------- | ------------------------------------------------ |
+| Visual regression       | Custom image comparison  | `toHaveScreenshot()`                      | Built-in Playwright, handles diff thresholds     |
+| Element visibility      | Custom wait loops        | `expect(locator).toBeVisible()`           | Auto-retry built into Playwright                 |
+| Click interception test | Manual event listeners   | `await element.click()` throws on blocked | Playwright fails if click is intercepted         |
+| Accessibility checks    | Manual ARIA verification | `@axe-core/playwright`                    | Already integrated, catches issues automatically |
 
 **Key insight:** Playwright's native assertions auto-retry, making most custom wait logic unnecessary.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Testing Visibility Instead of DOM Presence
+
 **What goes wrong:** Test passes when overlay is `opacity: 0` but still in DOM blocking clicks
 **Why it happens:** `not.toBeVisible()` checks CSS visibility, not DOM presence
 **How to avoid:** Use `.count()` to verify element count is 0, or click background element
 **Warning signs:** Test passes but user reports click-blocking
 
 ### Pitfall 2: Race Conditions with Animations
+
 **What goes wrong:** Test runs before exit animation completes
 **Why it happens:** Framer Motion AnimatePresence has ~300ms exit animation
 **How to avoid:** Add `waitForTimeout(400)` after close action, before verifying DOM removal
 **Warning signs:** Flaky tests that sometimes pass, sometimes fail
 
 ### Pitfall 3: Mobile Viewport Not Applied
+
 **What goes wrong:** CartDrawerV8 renders as Drawer instead of BottomSheet
 **Why it happens:** Viewport not set before navigation
 **How to avoid:** Use `test.use({ viewport: {...} })` at describe level, not in test body
 **Warning signs:** Test locators fail to find expected mobile components
 
 ### Pitfall 4: Snapshot Threshold Too Strict
+
 **What goes wrong:** Tests fail due to anti-aliasing or font rendering differences
 **Why it happens:** Default `maxDiffPixels` too low for complex components
 **How to avoid:** Use `maxDiffPixels: 100-150` for full components, `maxDiffPixels: 50` for buttons
 **Warning signs:** CI fails on snapshots that look identical visually
 
 ### Pitfall 5: Missing data-testid on V8 Components
+
 **What goes wrong:** Locators fail because selectors target V7 components
 **Why it happens:** V8 components have different testids or missing them
 **How to avoid:** Verify testids exist in component source before writing tests
@@ -242,6 +263,7 @@ Problems that look simple but have existing solutions:
 Verified patterns from project sources:
 
 ### Complete TEST-01 Example: Header Clickability
+
 ```typescript
 // Source: Pattern from e2e/happy-path.spec.ts + V8 components
 test.describe("Header Clickability (TEST-01)", () => {
@@ -275,6 +297,7 @@ test.describe("Header Clickability (TEST-01)", () => {
 ```
 
 ### Complete TEST-02 Example: Cart Drawer Behavior
+
 ```typescript
 // Source: Pattern from e2e/visual-regression.spec.ts
 test.describe("Cart Drawer Behavior (TEST-02)", () => {
@@ -324,6 +347,7 @@ test.describe("Cart Drawer Behavior (TEST-02)", () => {
 ```
 
 ### Complete TEST-04 Example: No Click Blocking
+
 ```typescript
 // Source: Critical V7 fix verification
 test.describe("Overlay No Background Blocking (TEST-04)", () => {
@@ -373,6 +397,7 @@ test.describe("Overlay No Background Blocking (TEST-04)", () => {
 ```
 
 ### Complete TEST-05 Example: Visual Regression
+
 ```typescript
 // Source: e2e/visual-regression.spec.ts patterns
 test.describe("V8 Visual Regression (TEST-05)", () => {
@@ -433,14 +458,15 @@ test.describe("V8 Visual Regression (TEST-05)", () => {
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| `visibility: hidden` overlays | AnimatePresence DOM removal | V8 rewrite | No click blocking |
-| `click` for outside dismiss | `mousedown` event | V8 Dropdown | Catches before propagation |
-| `stopPropagation()` everywhere | No stopPropagation on content | V8 Dropdown | Form submissions work |
-| V7 layered z-index | V8 z-index tokens | V8 rewrite | Consistent stacking |
+| Old Approach                   | Current Approach              | When Changed | Impact                     |
+| ------------------------------ | ----------------------------- | ------------ | -------------------------- |
+| `visibility: hidden` overlays  | AnimatePresence DOM removal   | V8 rewrite   | No click blocking          |
+| `click` for outside dismiss    | `mousedown` event             | V8 Dropdown  | Catches before propagation |
+| `stopPropagation()` everywhere | No stopPropagation on content | V8 Dropdown  | Form submissions work      |
+| V7 layered z-index             | V8 z-index tokens             | V8 rewrite   | Consistent stacking        |
 
 **Deprecated/outdated:**
+
 - V7 overlay components: Being replaced by V8, but may still exist in codebase
 - Manual scroll locking: Now handled by `useBodyScrollLock` hook
 
@@ -466,6 +492,7 @@ Things that couldn't be fully resolved:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - `/home/user/mandalay-morning-star-delivery-app/playwright.config.ts` - Playwright configuration
 - `/home/user/mandalay-morning-star-delivery-app/e2e/visual-regression.spec.ts` - Visual regression patterns
 - `/home/user/mandalay-morning-star-delivery-app/e2e/accessibility.spec.ts` - Focus trap and a11y patterns
@@ -477,15 +504,18 @@ Things that couldn't be fully resolved:
 - `/home/user/mandalay-morning-star-delivery-app/src/components/ui-v8/cart/CartDrawerV8.tsx` - Responsive cart
 
 ### Secondary (MEDIUM confidence)
+
 - `/home/user/mandalay-morning-star-delivery-app/e2e/animations/v7-motion.spec.ts` - Animation test patterns
 - `/home/user/mandalay-morning-star-delivery-app/package.json` - Dependency versions
 
 ### Tertiary (LOW confidence)
+
 - Playwright documentation patterns (training data, not verified against 1.57)
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - All dependencies already in project
 - Architecture: HIGH - Based on existing test files
 - Pitfalls: HIGH - Derived from V7 issues and V8 fixes documented in code

@@ -14,14 +14,10 @@ export function ThemeCard() {
     <div className="rounded-card border border-border bg-surface-primary p-5 space-y-4">
       <div className="flex items-center gap-2">
         <Palette className="h-5 w-5 text-text-muted" />
-        <h2 className="font-display text-lg font-semibold text-text-primary">
-          Appearance
-        </h2>
+        <h2 className="font-display text-lg font-semibold text-text-primary">Appearance</h2>
       </div>
       <ThemeSelector />
-      <p className="text-xs text-text-muted">
-        Theme changes apply immediately.
-      </p>
+      <p className="text-xs text-text-muted">Theme changes apply immediately.</p>
     </div>
   );
 }

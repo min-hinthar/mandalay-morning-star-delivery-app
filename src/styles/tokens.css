@@ -16,14 +16,14 @@
      Deep Rich Red + Golden Yellow
      =========================================== */
 
-  --color-primary: #A41034;
-  --color-primary-hover: #8A0D2B;
-  --color-primary-active: #6D0A22;
+  --color-primary: #a41034;
+  --color-primary-hover: #8a0d2b;
+  --color-primary-active: #6d0a22;
   --color-primary-light: rgba(164, 16, 52, 0.08);
 
-  --color-secondary: #EBCD00;
-  --color-secondary-hover: #D4B800;
-  --color-secondary-active: #BDA300;
+  --color-secondary: #ebcd00;
+  --color-secondary-hover: #d4b800;
+  --color-secondary-active: #bda300;
   --color-secondary-light: rgba(235, 205, 0, 0.12);
 
   /* ===========================================
@@ -31,24 +31,24 @@
      Vibrant supporting palette
      =========================================== */
 
-  --color-accent-green: #3D8B22;
-  --color-accent-green-hover: #337A1C;
+  --color-accent-green: #3d8b22;
+  --color-accent-green-hover: #337a1c;
   --color-accent-green-light: rgba(82, 165, 46, 0.12);
 
-  --color-accent-orange: #E87D1E;
-  --color-accent-orange-hover: #D06F18;
+  --color-accent-orange: #e87d1e;
+  --color-accent-orange-hover: #d06f18;
   --color-accent-orange-light: rgba(232, 125, 30, 0.12);
 
-  --color-accent-teal: #00979D;
+  --color-accent-teal: #00979d;
   --color-accent-teal-hover: #008288;
   --color-accent-teal-light: rgba(0, 151, 157, 0.12);
   --color-accent-teal-subtle: rgba(0, 151, 157, 0.05);
 
   /* Extended status: in-transit blue */
-  --color-status-in-transit: #3B82F6;
+  --color-status-in-transit: #3b82f6;
 
-  --color-accent-magenta: #C9006B;
-  --color-accent-magenta-hover: #B0005D;
+  --color-accent-magenta: #c9006b;
+  --color-accent-magenta-hover: #b0005d;
   --color-accent-magenta-light: rgba(201, 0, 107, 0.12);
 
   /* ===========================================
@@ -56,11 +56,11 @@
      Clean & vibrant backgrounds
      =========================================== */
 
-  --color-surface-primary: #FFFFFF;
+  --color-surface-primary: #ffffff;
   --color-surface-primary-85: rgba(255, 255, 255, 0.85);
-  --color-surface-secondary: #FAFAFA;
-  --color-surface-tertiary: #EBEBEB;
-  --color-surface-elevated: #FFFFFF;
+  --color-surface-secondary: #fafafa;
+  --color-surface-tertiary: #ebebeb;
+  --color-surface-elevated: #ffffff;
   --color-surface-inverse: #000000;
 
   /* ===========================================
@@ -68,56 +68,56 @@
      =========================================== */
 
   --color-text-primary: #111111;
-  --color-text-secondary: #3B3B3B;
-  --color-text-muted: #5C5C5C;
-  --color-text-inverse: #FFFFFF;
-  --color-text-money: #16A34A;              /* Green-600 - money/price emphasis */
+  --color-text-secondary: #3b3b3b;
+  --color-text-muted: #5c5c5c;
+  --color-text-inverse: #ffffff;
+  --color-text-money: #16a34a; /* Green-600 - money/price emphasis */
 
   /* ===========================================
      BORDER COLORS
      =========================================== */
 
-  --color-border-default: #E5E7EB;
-  --color-border-strong: #D1D5DB;
-  --color-border-subtle: #F3F4F6;
+  --color-border-default: #e5e7eb;
+  --color-border-strong: #d1d5db;
+  --color-border-subtle: #f3f4f6;
 
   /* ===========================================
      STATUS COLORS
      Success, warning, error, info
      =========================================== */
 
-  --color-status-success: #3D8B22;
-  --color-status-success-bg: rgba(82, 165, 46, 0.10);
-  --color-status-warning: #E87D1E;
-  --color-status-warning-bg: rgba(232, 125, 30, 0.10);
-  --color-status-error: #C45C4A;
-  --color-status-error-bg: rgba(196, 92, 74, 0.10);
-  --color-status-info: #00979D;
-  --color-status-info-bg: rgba(0, 151, 157, 0.10);
+  --color-status-success: #3d8b22;
+  --color-status-success-bg: rgba(82, 165, 46, 0.1);
+  --color-status-warning: #e87d1e;
+  --color-status-warning-bg: rgba(232, 125, 30, 0.1);
+  --color-status-error: #c45c4a;
+  --color-status-error-bg: rgba(196, 92, 74, 0.1);
+  --color-status-info: #00979d;
+  --color-status-info-bg: rgba(0, 151, 157, 0.1);
 
   /* ===========================================
      HERO SECTION
      Dark gradient hero (consistent across themes)
      =========================================== */
 
-  --hero-gradient-start: #A41034;
-  --hero-gradient-mid: #5C0A1E;
+  --hero-gradient-start: #a41034;
+  --hero-gradient-mid: #5c0a1e;
   --hero-gradient-end: #1a0a0f;
-  --hero-text: #FFFFFF;
+  --hero-text: #ffffff;
   --hero-text-muted: rgba(255, 255, 255, 0.7);
   --hero-overlay: rgba(0, 0, 0, 0.6);
   --hero-stat-bg: rgba(255, 255, 255, 0.1);
 
   /* Hero redesign - Premium sunset gradient (orange → rose → violet) */
-  --hero-bg-start: #FB923C;                     /* Orange-400 - golden sunset */
-  --hero-bg-mid: #EC4899;                       /* Pink-500 - rose sky */
-  --hero-bg-end: #7C3AED;                       /* Violet-600 - twilight purple */
-  --hero-shimmer: rgba(251, 191, 36, 0.18);     /* Amber shimmer */
+  --hero-bg-start: #fb923c; /* Orange-400 - golden sunset */
+  --hero-bg-mid: #ec4899; /* Pink-500 - rose sky */
+  --hero-bg-end: #7c3aed; /* Violet-600 - twilight purple */
+  --hero-shimmer: rgba(251, 191, 36, 0.18); /* Amber shimmer */
 
   /* Hero orbs - sunset palette */
-  --hero-orb-saffron: rgba(251, 191, 36, 0.4);  /* Golden sun glow */
-  --hero-orb-jade: rgba(244, 114, 182, 0.35);   /* Rose pink glow */
-  --hero-orb-ruby: rgba(139, 92, 246, 0.3);     /* Violet twilight glow */
+  --hero-orb-saffron: rgba(251, 191, 36, 0.4); /* Golden sun glow */
+  --hero-orb-jade: rgba(244, 114, 182, 0.35); /* Rose pink glow */
+  --hero-orb-ruby: rgba(139, 92, 246, 0.3); /* Violet twilight glow */
   --hero-orb-blur: 100px;
 
   /* Hero emoji depth effects - same as dark theme */
@@ -144,12 +144,12 @@
      =========================================== */
 
   --radius-none: 0;
-  --radius-sm: 0.375rem;   /* 6px */
-  --radius-md: 0.5rem;     /* 8px */
-  --radius-lg: 0.75rem;    /* 12px */
-  --radius-xl: 1rem;       /* 16px */
-  --radius-2xl: 1.5rem;    /* 24px */
-  --radius-3xl: 2rem;      /* 32px */
+  --radius-sm: 0.375rem; /* 6px */
+  --radius-md: 0.5rem; /* 8px */
+  --radius-lg: 0.75rem; /* 12px */
+  --radius-xl: 1rem; /* 16px */
+  --radius-2xl: 1.5rem; /* 24px */
+  --radius-3xl: 2rem; /* 32px */
   --radius-full: 9999px;
 
   /* Semantic radius */
@@ -176,7 +176,7 @@
   --shadow-card-hover: 0 12px 32px rgba(164, 16, 52, 0.12);
   --shadow-elevated: 0 16px 48px rgba(164, 16, 52, 0.16);
   --shadow-nav: 0 4px 12px rgba(164, 16, 52, 0.06);
-  --shadow-button-hover: 0 4px 16px rgba(164, 16, 52, 0.20);
+  --shadow-button-hover: 0 4px 16px rgba(164, 16, 52, 0.2);
 
   /* Glow effects */
   --shadow-glow-primary: 0 0 20px rgba(164, 16, 52, 0.4);
@@ -260,25 +260,25 @@
      =========================================== */
 
   /* Font Families */
-  --font-display: 'Nunito', ui-rounded, system-ui, sans-serif;
-  --font-body: 'Nunito', system-ui, sans-serif;
-  --font-burmese: 'Padauk', 'Noto Sans Myanmar', sans-serif;
+  --font-display: "Nunito", ui-rounded, system-ui, sans-serif;
+  --font-body: "Nunito", system-ui, sans-serif;
+  --font-burmese: "Padauk", "Noto Sans Myanmar", sans-serif;
 
   /* Font Sizes */
-  --text-2xs: 0.625rem;   /* 10px */
+  --text-2xs: 0.625rem; /* 10px */
   --text-2xs--line-height: 1.4;
   --text-2xs--letter-spacing: 0.01em;
-  --text-xs: 0.75rem;     /* 12px */
-  --text-sm: 0.875rem;    /* 14px */
-  --text-base: 1rem;      /* 16px */
-  --text-lg: 1.125rem;    /* 18px */
-  --text-xl: 1.25rem;     /* 20px */
-  --text-2xl: 1.5rem;     /* 24px */
-  --text-3xl: 2rem;       /* 32px */
-  --text-4xl: 2.5rem;     /* 40px */
-  --text-5xl: 3rem;       /* 48px */
-  --text-6xl: 3.75rem;    /* 60px */
-  --text-7xl: 4.5rem;     /* 72px */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 2rem; /* 32px */
+  --text-4xl: 2.5rem; /* 40px */
+  --text-5xl: 3rem; /* 48px */
+  --text-6xl: 3.75rem; /* 60px */
+  --text-7xl: 4.5rem; /* 72px */
 
   /* Font Weights */
   --font-normal: 400;
@@ -322,28 +322,28 @@
 
   --space-0: 0;
   --space-px: 1px;
-  --space-0-5: 0.125rem;  /* 2px */
-  --space-1: 0.25rem;     /* 4px */
-  --space-1-5: 0.375rem;  /* 6px */
-  --space-2: 0.5rem;      /* 8px */
-  --space-2-5: 0.625rem;  /* 10px */
-  --space-3: 0.75rem;     /* 12px */
-  --space-3-5: 0.875rem;  /* 14px */
-  --space-4: 1rem;        /* 16px */
-  --space-5: 1.25rem;     /* 20px */
-  --space-6: 1.5rem;      /* 24px */
-  --space-7: 1.75rem;     /* 28px */
-  --space-8: 2rem;        /* 32px */
-  --space-9: 2.25rem;     /* 36px */
-  --space-10: 2.5rem;     /* 40px */
-  --space-11: 2.75rem;    /* 44px */
-  --space-12: 3rem;       /* 48px */
-  --space-14: 3.5rem;     /* 56px */
-  --space-16: 4rem;       /* 64px */
-  --space-20: 5rem;       /* 80px */
-  --space-24: 6rem;       /* 96px */
-  --space-28: 7rem;       /* 112px */
-  --space-32: 8rem;       /* 128px */
+  --space-0-5: 0.125rem; /* 2px */
+  --space-1: 0.25rem; /* 4px */
+  --space-1-5: 0.375rem; /* 6px */
+  --space-2: 0.5rem; /* 8px */
+  --space-2-5: 0.625rem; /* 10px */
+  --space-3: 0.75rem; /* 12px */
+  --space-3-5: 0.875rem; /* 14px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-7: 1.75rem; /* 28px */
+  --space-8: 2rem; /* 32px */
+  --space-9: 2.25rem; /* 36px */
+  --space-10: 2.5rem; /* 40px */
+  --space-11: 2.75rem; /* 44px */
+  --space-12: 3rem; /* 48px */
+  --space-14: 3.5rem; /* 56px */
+  --space-16: 4rem; /* 64px */
+  --space-20: 5rem; /* 80px */
+  --space-24: 6rem; /* 96px */
+  --space-28: 7rem; /* 112px */
+  --space-32: 8rem; /* 128px */
 
   /* ===========================================
      Z-INDEX LAYER SYSTEM
@@ -469,38 +469,38 @@
      More vibrant for dark backgrounds
      =========================================== */
 
-  --color-primary: #FF4D6D;
-  --color-primary-hover: #FF6B8A;
-  --color-primary-active: #E8435F;
+  --color-primary: #ff4d6d;
+  --color-primary-hover: #ff6b8a;
+  --color-primary-active: #e8435f;
   --color-primary-light: rgba(255, 77, 109, 0.15);
 
-  --color-secondary: #FFE066;
-  --color-secondary-hover: #FFE580;
-  --color-secondary-active: #E5C600;
+  --color-secondary: #ffe066;
+  --color-secondary-hover: #ffe580;
+  --color-secondary-active: #e5c600;
   --color-secondary-light: rgba(255, 224, 102, 0.15);
 
   /* ===========================================
      ACCENT COLORS (Dark Mode)
      =========================================== */
 
-  --color-accent-green: #6BD84B;
-  --color-accent-green-hover: #7DE85D;
+  --color-accent-green: #6bd84b;
+  --color-accent-green-hover: #7de85d;
   --color-accent-green-light: rgba(107, 216, 75, 0.15);
 
-  --color-accent-orange: #FF9F4A;
-  --color-accent-orange-hover: #FFB066;
+  --color-accent-orange: #ff9f4a;
+  --color-accent-orange-hover: #ffb066;
   --color-accent-orange-light: rgba(255, 159, 74, 0.15);
 
-  --color-accent-teal: #2DD4DB;
-  --color-accent-teal-hover: #4DDDEA;
+  --color-accent-teal: #2dd4db;
+  --color-accent-teal-hover: #4dddea;
   --color-accent-teal-light: rgba(45, 212, 219, 0.15);
   --color-accent-teal-subtle: rgba(45, 212, 219, 0.08);
 
   /* Extended status: in-transit blue */
-  --color-status-in-transit: #60A5FA;
+  --color-status-in-transit: #60a5fa;
 
-  --color-accent-magenta: #F24A9B;
-  --color-accent-magenta-hover: #FF5DAE;
+  --color-accent-magenta: #f24a9b;
+  --color-accent-magenta-hover: #ff5dae;
   --color-accent-magenta-light: rgba(242, 74, 155, 0.15);
 
   /* ===========================================
@@ -513,37 +513,37 @@
   --color-surface-secondary: #0a0a0a;
   --color-surface-tertiary: #141414;
   --color-surface-elevated: #1a1a1a;
-  --color-surface-inverse: #FFFFFF;
+  --color-surface-inverse: #ffffff;
 
   /* ===========================================
      TEXT COLORS (Dark Mode)
      =========================================== */
 
-  --color-text-primary: #F8F7F6;
-  --color-text-secondary: #C5C3C0;
-  --color-text-muted: #9A9794;
+  --color-text-primary: #f8f7f6;
+  --color-text-secondary: #c5c3c0;
+  --color-text-muted: #9a9794;
   --color-text-inverse: #000000;
-  --color-text-money: #4ADE80;              /* Green-400 - money/price emphasis */
+  --color-text-money: #4ade80; /* Green-400 - money/price emphasis */
 
   /* ===========================================
      BORDER COLORS (Dark Mode)
      =========================================== */
 
-  --color-border-default: #3D3B38;
-  --color-border-strong: #4D4B48;
-  --color-border-subtle: #2D2B28;
+  --color-border-default: #3d3b38;
+  --color-border-strong: #4d4b48;
+  --color-border-subtle: #2d2b28;
 
   /* ===========================================
      STATUS COLORS (Dark Mode)
      =========================================== */
 
-  --color-status-success: #6BD84B;
+  --color-status-success: #6bd84b;
   --color-status-success-bg: rgba(107, 216, 75, 0.18);
-  --color-status-warning: #FF9F4A;
+  --color-status-warning: #ff9f4a;
   --color-status-warning-bg: rgba(255, 159, 74, 0.18);
-  --color-status-error: #FF6B6B;
+  --color-status-error: #ff6b6b;
   --color-status-error-bg: rgba(255, 107, 107, 0.18);
-  --color-status-info: #2DD4DB;
+  --color-status-info: #2dd4db;
   --color-status-info-bg: rgba(45, 212, 219, 0.18);
 
   /* ===========================================
@@ -608,24 +608,24 @@
      Slightly more vibrant for dark theme
      =========================================== */
 
-  --hero-gradient-start: #C41844;
-  --hero-gradient-mid: #6B0C24;
+  --hero-gradient-start: #c41844;
+  --hero-gradient-mid: #6b0c24;
   --hero-gradient-end: #1a0a0f;
-  --hero-text: #FFFFFF;
+  --hero-text: #ffffff;
   --hero-text-muted: rgba(255, 255, 255, 0.75);
   --hero-overlay: rgba(0, 0, 0, 0.5);
   --hero-stat-bg: rgba(255, 255, 255, 0.12);
 
   /* Hero redesign - Premium sunset gradient (orange → rose → violet) */
-  --hero-bg-start: #FB923C;                     /* Orange-400 - golden sunset */
-  --hero-bg-mid: #EC4899;                       /* Pink-500 - rose sky */
-  --hero-bg-end: #7C3AED;                       /* Violet-600 - twilight purple */
-  --hero-shimmer: rgba(251, 191, 36, 0.18);     /* Amber shimmer */
+  --hero-bg-start: #fb923c; /* Orange-400 - golden sunset */
+  --hero-bg-mid: #ec4899; /* Pink-500 - rose sky */
+  --hero-bg-end: #7c3aed; /* Violet-600 - twilight purple */
+  --hero-shimmer: rgba(251, 191, 36, 0.18); /* Amber shimmer */
 
   /* Hero orbs - sunset palette */
-  --hero-orb-saffron: rgba(251, 191, 36, 0.4);  /* Golden sun glow */
-  --hero-orb-jade: rgba(244, 114, 182, 0.35);   /* Rose pink glow */
-  --hero-orb-ruby: rgba(139, 92, 246, 0.3);     /* Violet twilight glow */
+  --hero-orb-saffron: rgba(251, 191, 36, 0.4); /* Golden sun glow */
+  --hero-orb-jade: rgba(244, 114, 182, 0.35); /* Rose pink glow */
+  --hero-orb-ruby: rgba(139, 92, 246, 0.3); /* Violet twilight glow */
   --hero-orb-blur: 100px;
 
   /* Hero emoji depth effects - darker shadows (Phase 31) */
@@ -681,36 +681,36 @@
    ============================================ */
 
 [data-contrast="high"] {
-  --color-primary: #8A0D2B;
-  --color-primary-hover: #6D0A22;
-  --color-primary-active: #50071A;
+  --color-primary: #8a0d2b;
+  --color-primary-hover: #6d0a22;
+  --color-primary-active: #50071a;
   --color-primary-light: rgba(138, 13, 43, 0.12);
 
-  --color-secondary: #C9A800;
-  --color-secondary-hover: #B09200;
-  --color-secondary-active: #977D00;
+  --color-secondary: #c9a800;
+  --color-secondary-hover: #b09200;
+  --color-secondary-active: #977d00;
 
-  --color-surface-primary: #FFFFFF;
-  --color-surface-secondary: #F5F5F5;
-  --color-surface-tertiary: #EBEBEB;
+  --color-surface-primary: #ffffff;
+  --color-surface-secondary: #f5f5f5;
+  --color-surface-tertiary: #ebebeb;
 
   --color-text-primary: #000000;
-  --color-text-secondary: #1A1A1A;
+  --color-text-secondary: #1a1a1a;
   --color-text-muted: #333333;
-  --color-text-inverse: #FFFFFF;
+  --color-text-inverse: #ffffff;
 
   --color-border-default: #333333;
   --color-border-strong: #000000;
   --color-border-subtle: #666666;
 
   --color-status-success: #006622;
-  --color-status-success-bg: #C8F7D2;
-  --color-status-warning: #8B5A00;
-  --color-status-warning-bg: #FFF3C4;
-  --color-status-error: #8B0000;
-  --color-status-error-bg: #FFD4D4;
+  --color-status-success-bg: #c8f7d2;
+  --color-status-warning: #8b5a00;
+  --color-status-warning-bg: #fff3c4;
+  --color-status-error: #8b0000;
+  --color-status-error-bg: #ffd4d4;
   --color-status-info: #005577;
-  --color-status-info-bg: #CCE5FF;
+  --color-status-info-bg: #cce5ff;
 
   /* Larger touch targets for driver mode */
   --touch-target-min: 48px;
@@ -727,21 +727,21 @@
 /* High contrast dark mode */
 [data-theme="dark"][data-contrast="high"],
 .dark[data-contrast="high"] {
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #F0F0F0;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #f0f0f0;
   --color-text-inverse: #000000;
 
   --color-surface-primary: #000000;
   --color-surface-secondary: #111111;
   --color-surface-tertiary: #222222;
 
-  --color-border-default: #CCCCCC;
-  --color-border-strong: #FFFFFF;
+  --color-border-default: #cccccc;
+  --color-border-strong: #ffffff;
   --color-border-subtle: #999999;
 
-  --color-status-success: #4ADE80;
+  --color-status-success: #4ade80;
   --color-status-success-bg: rgba(74, 222, 128, 0.25);
-  --color-status-error: #FF6B6B;
+  --color-status-error: #ff6b6b;
   --color-status-error-bg: rgba(255, 107, 107, 0.25);
 }
 
@@ -782,10 +782,18 @@ html.theme-transitioning * {
    iOS notch, Dynamic Island, home indicator
    ============================================ */
 
-.pt-safe { padding-top: env(safe-area-inset-top, 0px); }
-.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
-.pl-safe { padding-left: env(safe-area-inset-left, 0px); }
-.pr-safe { padding-right: env(safe-area-inset-right, 0px); }
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pl-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.pr-safe {
+  padding-right: env(safe-area-inset-right, 0px);
+}
 .px-safe {
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
@@ -795,11 +803,16 @@ html.theme-transitioning * {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .p-safe {
-  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
 }
 
-.mt-safe { margin-top: env(safe-area-inset-top, 0px); }
-.mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
+.mt-safe {
+  margin-top: env(safe-area-inset-top, 0px);
+}
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
 .min-h-safe-bottom {
   min-height: calc(var(--touch-target-min) + env(safe-area-inset-bottom, 0px));
 }

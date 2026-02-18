@@ -15,10 +15,7 @@ const uploadPhotoSchema = z.object({
  *
  * Replaces existing photo if present
  */
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const auth = await requireAdmin();
@@ -45,10 +42,7 @@ export async function POST(
 
     if (fetchError) {
       if (fetchError.code === "PGRST116") {
-        return NextResponse.json(
-          { error: "Menu item not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: "Menu item not found" }, { status: 404 });
       }
       throw fetchError;
     }
@@ -69,10 +63,7 @@ export async function POST(
 
     if (error) {
       logger.exception(error, { api: "admin/menu/[id]/photo", flowId: "upload" });
-      return NextResponse.json(
-        { error: "Failed to update menu item photo" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to update menu item photo" }, { status: 500 });
     }
 
     // Note: If old image was in Supabase Storage, the deletion should be handled
@@ -87,10 +78,7 @@ export async function POST(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/menu/[id]/photo", flowId: "upload" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -98,10 +86,7 @@ export async function POST(
  * DELETE /api/admin/menu/[id]/photo
  * Remove photo from menu item
  */
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const auth = await requireAdmin();
@@ -118,19 +103,13 @@ export async function DELETE(
 
     if (fetchError) {
       if (fetchError.code === "PGRST116") {
-        return NextResponse.json(
-          { error: "Menu item not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: "Menu item not found" }, { status: 404 });
       }
       throw fetchError;
     }
 
     if (!currentItem.image_url) {
-      return NextResponse.json(
-        { error: "Menu item has no photo" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Menu item has no photo" }, { status: 400 });
     }
 
     // Clear the image_url
@@ -144,18 +123,12 @@ export async function DELETE(
 
     if (error) {
       logger.exception(error, { api: "admin/menu/[id]/photo", flowId: "delete" });
-      return NextResponse.json(
-        { error: "Failed to remove photo" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to remove photo" }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
     logger.exception(error, { api: "admin/menu/[id]/photo", flowId: "delete" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

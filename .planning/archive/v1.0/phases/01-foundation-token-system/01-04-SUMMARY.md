@@ -33,31 +33,33 @@ metrics:
 
 # Phase 01 Plan 04: Z-Index CSS Variable Fix Summary
 
-**One-liner:** Corrected zIndexVar to reference --z-index-* CSS custom properties matching globals.css @theme block.
+**One-liner:** Corrected zIndexVar to reference --z-index-\* CSS custom properties matching globals.css @theme block.
 
 ## What Was Done
 
-| Task | Description | Commit |
-|------|-------------|--------|
-| 1 | Updated all 10 zIndexVar properties to use --z-index-* prefix | 47e9d1d |
-| 2 | Added JSDoc clarifying CSS variable naming convention | 7beeb30 |
+| Task | Description                                                    | Commit  |
+| ---- | -------------------------------------------------------------- | ------- |
+| 1    | Updated all 10 zIndexVar properties to use --z-index-\* prefix | 47e9d1d |
+| 2    | Added JSDoc clarifying CSS variable naming convention          | 7beeb30 |
 
 ## Key Changes
 
 ### Before (BROKEN)
+
 ```typescript
 export const zIndexVar = {
-  modal: "var(--z-modal)",  // CSS variable doesn't exist
+  modal: "var(--z-modal)", // CSS variable doesn't exist
   // ...
-}
+};
 ```
 
 ### After (FIXED)
+
 ```typescript
 export const zIndexVar = {
-  modal: "var(--z-index-modal)",  // Matches globals.css @theme
+  modal: "var(--z-index-modal)", // Matches globals.css @theme
   // ...
-}
+};
 ```
 
 ## Root Cause
@@ -76,11 +78,11 @@ None - plan executed exactly as written.
 
 ## Success Criteria Verification
 
-| Criterion | Status |
-|-----------|--------|
-| zIndexVar.modal equals "var(--z-index-modal)" | PASS |
-| All 10 zIndexVar properties use --z-index-* prefix | PASS |
-| TypeScript compiles without errors | PASS |
+| Criterion                                           | Status |
+| --------------------------------------------------- | ------ |
+| zIndexVar.modal equals "var(--z-index-modal)"       | PASS   |
+| All 10 zIndexVar properties use --z-index-\* prefix | PASS   |
+| TypeScript compiles without errors                  | PASS   |
 
 ## Impact
 

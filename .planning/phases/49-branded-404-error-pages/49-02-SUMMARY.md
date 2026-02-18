@@ -29,10 +29,10 @@ Three portal-specific branded not-found pages with food pun copy, emoji mascots,
 
 ## Completed Tasks
 
-| # | Task | Commit | Key Files |
-|---|------|--------|-----------|
-| 1 | Create branded not-found pages for all portals | 3e12d08 | not-found.tsx (root, admin, driver) |
-| 2 | Upgrade RouteError with food-themed personality | e5c2012 | RouteError.tsx |
+| #   | Task                                            | Commit  | Key Files                           |
+| --- | ----------------------------------------------- | ------- | ----------------------------------- |
+| 1   | Create branded not-found pages for all portals  | 3e12d08 | not-found.tsx (root, admin, driver) |
+| 2   | Upgrade RouteError with food-themed personality | e5c2012 | RouteError.tsx                      |
 
 ## What Was Built
 

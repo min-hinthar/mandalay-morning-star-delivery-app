@@ -59,9 +59,7 @@ async function main() {
 
   // Extract files touched (from tool calls mentioning file paths)
   const fileMatches = transcript.match(/src\/[^\s"'`,)}\]]+\.\w+/g);
-  const uniqueFiles = fileMatches
-    ? [...new Set(fileMatches)].slice(0, 20)
-    : [];
+  const uniqueFiles = fileMatches ? [...new Set(fileMatches)].slice(0, 20) : [];
 
   // Determine topics touched based on file paths
   const topicMap = {
@@ -81,14 +79,14 @@ async function main() {
     "route.ts": "nextjs",
     supabase: "supabase-auth",
     auth: "supabase-auth",
-    "e2e": "testing",
+    e2e: "testing",
     test: "testing",
     playwright: "testing",
     eslint: "tooling",
     "package.json": "tooling",
     cart: "state-management",
     store: "state-management",
-    "lazy": "performance",
+    lazy: "performance",
     intersection: "performance",
   };
 
@@ -116,7 +114,10 @@ async function main() {
   const logFile = path.join(logDir, `${today}.md`);
   const sessionId = parsed.session_id || "unknown";
 
-  const lines = [`## Session ${sessionId.slice(0, 8)} — ${new Date().toISOString().slice(11, 16)}`, ""];
+  const lines = [
+    `## Session ${sessionId.slice(0, 8)} — ${new Date().toISOString().slice(11, 16)}`,
+    "",
+  ];
 
   if (counts.size > 0) {
     lines.push("### Errors");

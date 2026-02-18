@@ -64,10 +64,7 @@ interface DriverRow {
  * Fetch complete order details for expanded view.
  * Includes customer info, items, address, and audit log.
  */
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: orderId } = await params;
 
   try {
@@ -80,7 +77,8 @@ export async function GET(
     // Fetch order with customer and address info
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select(`
+      .select(
+        `
         id,
         status,
         subtotal_cents,
@@ -109,17 +107,15 @@ export async function GET(
           state,
           postal_code
         )
-      `)
+      `
+      )
       .eq("id", orderId)
       .returns<OrderRow[]>()
       .single();
 
     if (orderError) {
       logger.exception(orderError, { api: "admin/orders/[id]/details", orderId });
-      return NextResponse.json(
-        { error: "Failed to fetch order" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch order" }, { status: 500 });
     }
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
@@ -128,7 +124,8 @@ export async function GET(
     // Fetch order items
     const { data: items, error: itemsError } = await supabase
       .from("order_items")
-      .select(`
+      .select(
+        `
         id,
         name_snapshot,
         base_price_snapshot,
@@ -136,29 +133,29 @@ export async function GET(
         line_total_cents,
         refunded_quantity,
         special_instructions
-      `)
+      `
+      )
       .eq("order_id", orderId)
       .order("created_at", { ascending: true })
       .returns<OrderItemRow[]>();
 
     if (itemsError) {
       logger.exception(itemsError, { api: "admin/orders/[id]/details" });
-      return NextResponse.json(
-        { error: "Failed to fetch order items" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch order items" }, { status: 500 });
     }
 
     // Fetch audit log
     const { data: auditLog, error: auditError } = await supabase
       .from("order_audit_log")
-      .select(`
+      .select(
+        `
         id,
         action,
         actor_role,
         reason,
         created_at
-      `)
+      `
+      )
       .eq("order_id", orderId)
       .order("created_at", { ascending: false })
       .limit(20)
@@ -174,12 +171,14 @@ export async function GET(
     if (order.assigned_driver_id) {
       const { data: driver } = await supabase
         .from("drivers")
-        .select(`
+        .select(
+          `
           profiles (
             full_name,
             email
           )
-        `)
+        `
+        )
         .eq("id", order.assigned_driver_id)
         .returns<DriverRow[]>()
         .single();
@@ -241,9 +240,6 @@ export async function GET(
     return NextResponse.json(response);
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/details" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

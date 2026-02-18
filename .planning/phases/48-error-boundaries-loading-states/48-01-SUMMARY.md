@@ -37,6 +37,7 @@ metrics:
 ## What Was Done
 
 ### Task 1: Refactor RouteError to CSS-only with enhanced UX
+
 - Removed all framer-motion imports (`m` from `framer-motion`)
 - Applied `animate-fade-in-up` CSS class from `src/styles/animations.css`
 - Added retry counter with `useRef(0)` -- promotes go-home button after 2+ retries
@@ -48,6 +49,7 @@ metrics:
 - Added `console.error(error)` as dev fallback alongside Sentry
 
 ### Task 2: Migrate legacy error boundaries to RouteError delegation
+
 - Replaced 4 hand-crafted error.tsx files (50-65 lines each) with 13-line delegation pattern
 - Root: `context="page"`
 - Admin: `context="admin dashboard"`
@@ -58,18 +60,18 @@ metrics:
 
 ## Commits
 
-| Hash | Message |
-|------|---------|
-| 9394531 | feat(48-01): refactor RouteError to CSS-only with enhanced UX |
+| Hash    | Message                                                                   |
+| ------- | ------------------------------------------------------------------------- |
+| 9394531 | feat(48-01): refactor RouteError to CSS-only with enhanced UX             |
 | 571e570 | refactor(48-01): migrate legacy error boundaries to RouteError delegation |
 
 ## Decisions Made
 
-| ID | Decision | Rationale |
-|----|----------|-----------|
-| ERRP-06-CSS | CSS-only animation via animate-fade-in-up | Prevents crash loop if framer-motion itself errors |
-| ERRP-06-RETRY | useRef retry counter with button hierarchy flip | Guides users to go-home after repeated failures |
-| ERRP-06-TOKENS | Semantic design system tokens | Replaces ghost tokens (brand-red, charcoal, muted-foreground) with proper semantic tokens |
+| ID             | Decision                                        | Rationale                                                                                 |
+| -------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| ERRP-06-CSS    | CSS-only animation via animate-fade-in-up       | Prevents crash loop if framer-motion itself errors                                        |
+| ERRP-06-RETRY  | useRef retry counter with button hierarchy flip | Guides users to go-home after repeated failures                                           |
+| ERRP-06-TOKENS | Semantic design system tokens                   | Replaces ghost tokens (brand-red, charcoal, muted-foreground) with proper semantic tokens |
 
 ## Deviations from Plan
 

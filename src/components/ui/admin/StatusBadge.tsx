@@ -53,40 +53,27 @@ const DEFAULT_COLORS = "bg-gray-100 text-gray-800";
 // ============================================
 
 function formatStatusLabel(status: string): string {
-  return status
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 // ============================================
 // COMPONENT
 // ============================================
 
-export function StatusBadge({
-  status,
-  label,
-  size = "sm",
-}: StatusBadgeProps) {
+export function StatusBadge({ status, label, size = "sm" }: StatusBadgeProps) {
   const { shouldAnimate } = useAnimationPreference();
   const colors = STATUS_COLORS[status] ?? DEFAULT_COLORS;
   const displayLabel = label ?? formatStatusLabel(status);
   const isActive = ACTIVE_STATUSES.has(status);
 
-  const sizeClasses =
-    size === "md"
-      ? "px-3 py-1 text-sm"
-      : "px-2.5 py-0.5 text-xs";
+  const sizeClasses = size === "md" ? "px-3 py-1 text-sm" : "px-2.5 py-0.5 text-xs";
 
   return (
     <m.div
       animate={
-        shouldAnimate && isActive
-          ? { scale: [1, 1.05, 1], opacity: [1, 0.8, 1] }
-          : undefined
+        shouldAnimate && isActive ? { scale: [1, 1.05, 1], opacity: [1, 0.8, 1] } : undefined
       }
-      transition={
-        isActive ? { duration: 2, repeat: 5 } : undefined
-      }
+      transition={isActive ? { duration: 2, repeat: 5 } : undefined}
       className="inline-flex"
     >
       <span

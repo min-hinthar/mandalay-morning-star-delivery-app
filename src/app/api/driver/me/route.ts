@@ -54,23 +54,22 @@ export async function GET(): Promise<NextResponse<DriverMeResponse | { error: st
 
     const { data: driver, error: driverError } = await supabase
       .from("drivers")
-      .select(`
+      .select(
+        `
         id,
         vehicle_type,
         phone,
         profile_image_url,
         deliveries_count,
         rating_avg
-      `)
+      `
+      )
       .eq("id", driverId)
       .returns<DriverQueryResult[]>()
       .single();
 
     if (driverError || !driver) {
-      return NextResponse.json(
-        { error: "Failed to fetch driver profile" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch driver profile" }, { status: 500 });
     }
 
     // Get profile for full name
@@ -132,9 +131,6 @@ export async function GET(): Promise<NextResponse<DriverMeResponse | { error: st
     });
   } catch (error) {
     logger.exception(error, { api: "driver/me" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

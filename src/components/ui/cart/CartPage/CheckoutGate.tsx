@@ -45,14 +45,10 @@ export const CheckoutGate = memo(function CheckoutGate({
   // Build warning message parts
   const warningParts: string[] = [];
   if (staleCount > 0) {
-    warningParts.push(
-      `${staleCount} ${staleCount === 1 ? "item needs" : "items need"} attention`
-    );
+    warningParts.push(`${staleCount} ${staleCount === 1 ? "item needs" : "items need"} attention`);
   }
   if (minimumShortfallCents > 0) {
-    warningParts.push(
-      `$${(minimumShortfallCents / 100).toFixed(2)} below minimum`
-    );
+    warningParts.push(`$${(minimumShortfallCents / 100).toFixed(2)} below minimum`);
   }
   const warningMessage = warningParts.join(" \u00B7 ");
 
@@ -134,8 +130,7 @@ export const CheckoutGate = memo(function CheckoutGate({
           "py-1"
         )}
       >
-        <ShoppingBag className="w-4 h-4" />
-        + Add more items
+        <ShoppingBag className="w-4 h-4" />+ Add more items
       </Link>
     </div>
   );

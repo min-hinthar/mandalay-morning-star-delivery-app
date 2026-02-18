@@ -19,11 +19,13 @@ The Edge Function removal and dead code audit are straightforward. The `send-ord
 **Primary recommendation:** Execute as 5 independent plans (one per workstream), parallelizable with no cross-dependencies.
 
 <user_constraints>
+
 ## User Constraints (from CONTEXT.md)
 
 ### Locked Decisions
 
 #### Cart Modifier Editing
+
 - Open ItemDetailSheet for editing existing cart items (same sheet as adding)
 - Pre-populated with current modifier selections and quantity
 - Full edit: modifiers AND quantity changeable in the same sheet
@@ -36,6 +38,7 @@ The Edge Function removal and dead code audit are straightforward. The `send-ord
 - If menu item is unavailable (sold out), sheet opens in "unavailable" state -- user can only remove, not update
 
 #### Driver Tracking -- Bug Fix + Full Enhancement
+
 - Fix route_id extraction from routeStop data (original bug)
 - Google Maps integration with custom pin icons (restaurant, vehicle, destination)
 - Route line between driver and destination, dynamic update as driver progresses (completed portion changes color)
@@ -48,6 +51,7 @@ The Edge Function removal and dead code audit are straightforward. The `send-ord
 - Full item list visible in info section (not collapsed)
 
 #### Tracking -- Status Display
+
 - Horizontal stepper at top: Confirmed -> Preparing -> Out for Delivery -> Delivered (active step highlighted)
 - Vertical timeline below stepper with timestamps and detailed history
 - Status stepper dots fill with animation, timeline entries slide in
@@ -55,12 +59,14 @@ The Edge Function removal and dead code audit are straightforward. The `send-ord
 - Browser tab title updates with live status: "Preparing... | Morning Star" -> "Out for Delivery | Morning Star"
 
 #### Tracking -- ETA & Location
+
 - ETA display (format at Claude's discretion based on available data)
 - Off-route handling: subtle ETA recalculation only (no explicit "off-route" alert to customer)
 - Stale location (>2 min no update): faded driver pin + "Last updated X min ago" timestamp
 - Offline: show last cached driver position with "Last updated" label
 
 #### Tracking -- Pre-Delivery & Post-Delivery States
+
 - Pre-delivery (preparing): map shows restaurant pin, switches to driver tracking once en route
 - Delivered: auto-transition to "Delivered!" confirmation screen with celebration animation (confetti/animated checkmark)
 - Star rating (1-5) on delivered screen -- optional, quick tap
@@ -68,34 +74,42 @@ The Edge Function removal and dead code audit are straightforward. The `send-ord
 - Post-delivery: tracking page accessible from order history as read-only view (delivered status, map with final route, rating if given)
 
 #### Tracking -- Cancellation
+
 - Order cancelled during transit: cancelled overlay on map (stays visible) with reason and next steps
 
 #### Tracking -- Notifications
+
 - Push notification + in-app banner when driver is nearby (~2 min away)
 - Push notification tone: warm and friendly ("Your delicious meal is on its way!")
 - Sound + haptic feedback for status transitions
 
 #### Tracking -- Sharing & Access
+
 - Share button on tracking page (native share sheet or copy link)
 - Shared link viewable by any authenticated user (doesn't have to be order owner)
 - One tracking page per order (multiple active orders each have their own page)
 
 #### Tracking -- Delivery Notes
+
 - Delivery instructions visible and editable on tracking page
 - Editable at any time before order is marked delivered
 
 #### Tracking -- Loading & Errors
+
 - Map placeholder (grey rectangle) + skeleton lines for status info as loading state
 - Map load failure: error banner with "Retry" button, status info still visible below
 
 #### Tracking -- Testing
+
 - Supabase test seeds for manual QA with real real-time subscriptions
 
 #### UnifiedMenuItemCard Refactor
+
 - Split into sub-modules to get under 400 lines
 - Barrel export pattern (consuming files' imports don't change)
 
 #### Dead Code & Dependency Audit
+
 - Remove dead `send-order-confirmation` Edge Function
 - Full audit: unused exports/functions, deprecated patterns, unused npm deps, unused CSS classes
 - Scan for legacy API routes with zero frontend references
@@ -108,12 +122,14 @@ The Edge Function removal and dead code audit are straightforward. The `send-ord
 ### Claude's Discretion
 
 #### Cart
+
 - Zero-quantity behavior (remove item or minimum 1)
 - Live price update vs price on save
 - Animation style for sheet open/close
 - Sub-component test coverage strategy
 
 #### Tracking
+
 - ETA format (countdown vs time window)
 - Update frequency (WebSocket vs polling)
 - URL structure (/orders/[id]/tracking vs /tracking/[id])
@@ -123,6 +139,7 @@ The Edge Function removal and dead code audit are straightforward. The `send-ord
 - Performance budget handling for Maps bundle
 
 #### Card Refactor
+
 - Split strategy (by visual sections vs by responsibility)
 - Sub-component naming convention
 - Reusability of extracted components
@@ -132,6 +149,7 @@ The Edge Function removal and dead code audit are straightforward. The `send-ord
 - Import path approach (barrel vs deep imports)
 
 #### Dead Code
+
 - Confidence threshold for removal vs flagging
 - Which console statements are intentional vs debug
 - Which CSS tokens are safe to remove
@@ -139,41 +157,46 @@ The Edge Function removal and dead code audit are straightforward. The `send-ord
 - Legacy API route removal criteria
 
 ### Deferred Ideas (OUT OF SCOPE)
+
 - Language preference selector (SETT-04) -- removed from Phase 66 scope entirely, for a future milestone
 - Apple Sign-in integration -- previously deferred from Phase 62
-</user_constraints>
+  </user_constraints>
 
 ## Standard Stack
 
 ### Core (Already in Project)
-| Library | Version | Purpose | Status |
-|---------|---------|---------|--------|
-| `@react-google-maps/api` | ^2.20.8 | Google Maps React wrapper | In use for DeliveryMap |
-| `zustand` | ^5.0.10 | Cart store (IndexedDB persistence) | In use |
-| `framer-motion` | ^12.26.1 | Animations, transitions, gestures | In use |
-| `@supabase/supabase-js` | ^2.90.1 | Realtime subscriptions, DB queries | In use |
-| `knip` | ^5.82.1 | Dead code detection (already installed) | Configured in `knip.json` |
-| `lucide-react` | ^0.562.0 | Icons (Edit3, Star, etc.) | In use |
-| `vaul` | ^1.1.2 | Drawer component | In use |
-| `@radix-ui/react-dialog` | ^1.1.15 | Modal component | In use |
-| `@radix-ui/react-toast` | ^1.2.6 | Toast notifications | In use |
+
+| Library                  | Version  | Purpose                                 | Status                    |
+| ------------------------ | -------- | --------------------------------------- | ------------------------- |
+| `@react-google-maps/api` | ^2.20.8  | Google Maps React wrapper               | In use for DeliveryMap    |
+| `zustand`                | ^5.0.10  | Cart store (IndexedDB persistence)      | In use                    |
+| `framer-motion`          | ^12.26.1 | Animations, transitions, gestures       | In use                    |
+| `@supabase/supabase-js`  | ^2.90.1  | Realtime subscriptions, DB queries      | In use                    |
+| `knip`                   | ^5.82.1  | Dead code detection (already installed) | Configured in `knip.json` |
+| `lucide-react`           | ^0.562.0 | Icons (Edit3, Star, etc.)               | In use                    |
+| `vaul`                   | ^1.1.2   | Drawer component                        | In use                    |
+| `@radix-ui/react-dialog` | ^1.1.15  | Modal component                         | In use                    |
+| `@radix-ui/react-toast`  | ^1.2.6   | Toast notifications                     | In use                    |
 
 ### Supporting (May Need Adding)
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `web-push` | - | Push notifications | If implementing Service Worker push -- **investigate if Serwist supports this** |
-| None new needed | - | - | All tracking features achievable with existing stack |
+
+| Library         | Version | Purpose            | When to Use                                                                     |
+| --------------- | ------- | ------------------ | ------------------------------------------------------------------------------- |
+| `web-push`      | -       | Push notifications | If implementing Service Worker push -- **investigate if Serwist supports this** |
+| None new needed | -       | -                  | All tracking features achievable with existing stack                            |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| `@react-google-maps/api` | `@vis.gl/react-google-maps` (visgl) | Newer, maintained by vis.gl team, better AdvancedMarker support. BUT: project already uses the older lib with working DeliveryMap. Migration risk > benefit for this phase. |
-| Custom dead code scanning | `knip` | Knip already installed + configured. Use it. |
-| Manual push notifications | Firebase Cloud Messaging | Serwist (service worker) already in project. Can receive push via standard Web Push API without Firebase dependency. |
+
+| Instead of                | Could Use                           | Tradeoff                                                                                                                                                                    |
+| ------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@react-google-maps/api`  | `@vis.gl/react-google-maps` (visgl) | Newer, maintained by vis.gl team, better AdvancedMarker support. BUT: project already uses the older lib with working DeliveryMap. Migration risk > benefit for this phase. |
+| Custom dead code scanning | `knip`                              | Knip already installed + configured. Use it.                                                                                                                                |
+| Manual push notifications | Firebase Cloud Messaging            | Serwist (service worker) already in project. Can receive push via standard Web Push API without Firebase dependency.                                                        |
 
 ## Architecture Patterns
 
 ### Recommended Project Structure Additions
+
 ```
 src/
   components/ui/
@@ -213,10 +236,12 @@ src/
 ```
 
 ### Pattern 1: Cart Edit Mode via ItemDetailSheet
+
 **What:** Reuse ItemDetailSheet with an `editingCartItem` prop to pre-populate state
 **When to use:** When editing an existing cart item's modifiers/quantity/notes
 
 The current ItemDetailSheet accepts a `MenuItem` and calls `onAddToCart`. For edit mode:
+
 1. Accept optional `editingCartItem?: CartItem` prop
 2. When `editingCartItem` is provided, pre-populate `selectedModifiers`, `quantity`, `notes` from it
 3. Change CTA from "Add to Cart - $X.XX" to "Update Cart - $X.XX"
@@ -224,6 +249,7 @@ The current ItemDetailSheet accepts a `MenuItem` and calls `onAddToCart`. For ed
 5. Track `isDirty` state (any change from initial values) for discard confirmation
 
 **Key code locations:**
+
 - `src/components/ui/menu/ItemDetailSheet.tsx` (line 107: useEffect reset -- must check for editingCartItem)
 - `src/lib/stores/cart-store.ts` (needs new `updateItem` method)
 - `src/types/cart.ts` (needs `updateItem` in CartStore interface)
@@ -231,6 +257,7 @@ The current ItemDetailSheet accepts a `MenuItem` and calls `onAddToCart`. For ed
 - `src/components/ui/cart/CartPage/CartPageContent.tsx` (line 129-132: `handleEditItem` is a TODO stub)
 
 **CartStore.updateItem signature:**
+
 ```typescript
 updateItem: (cartItemId: string, updates: {
   modifiers: SelectedModifier[];
@@ -241,10 +268,12 @@ updateItem: (cartItemId: string, updates: {
 ```
 
 ### Pattern 2: Route ID Extraction Fix
+
 **What:** The tracking subscription currently passes `routeId: undefined` because route_id isn't extracted from the routeStop data
 **When to use:** Immediate bug fix
 
 Current code in `TrackingPageClient.tsx` (line 52-53):
+
 ```typescript
 const subscription = useTrackingSubscription({
   orderId,
@@ -252,6 +281,7 @@ const subscription = useTrackingSubscription({
 ```
 
 The routeStop data is fetched by the tracking API and contains `routes.id` in the response. The fix:
+
 1. The API already returns `routeStop` which is derived from `routeStopData.routes.id`
 2. But `TrackingData` type doesn't expose `routeId` at the top level
 3. Add `routeId: string | null` to `TrackingData` type
@@ -260,20 +290,24 @@ The routeStop data is fetched by the tracking API and contains `routes.id` in th
 6. The subscription will then set up the location channel correctly
 
 ### Pattern 3: Smooth Driver Marker Animation
+
 **What:** Animate driver marker from old to new position instead of jumping
 **When to use:** On each location update from Realtime
 
 The current DeliveryMap recreates the marker on every `driverLocation` change (line 114-132 in DeliveryMap.tsx). For smooth sliding:
+
 1. Store previous position in ref
 2. On new position, use `requestAnimationFrame` loop to interpolate lat/lng
 3. Update marker position incrementally over ~1 second
 4. The `@react-google-maps/api` AdvancedMarkerElement supports `position` updates without recreation
 
 ### Pattern 4: UnifiedMenuItemCard Extraction Strategy
+
 **What:** Extract event handlers and tilt logic into separate files
 **When to use:** The main file is 540 lines; needs to drop to <400
 
 Current breakdown:
+
 - `UnifiedMenuItemCard.tsx`: 540 lines (OVER LIMIT)
 - `CardContent.tsx`: 89 lines
 - `CardImage.tsx`: 138 lines
@@ -284,6 +318,7 @@ Current breakdown:
 - `index.ts`: 15 lines
 
 The main file contains:
+
 - Types + variant config (lines 1-110): ~110 lines
 - Tilt configuration + constants (lines 91-109): ~20 lines
 - Component body with hooks/state (lines 126-175): ~50 lines
@@ -291,6 +326,7 @@ The main file contains:
 - Render JSX (lines 408-538): ~130 lines
 
 **Recommended extraction (by responsibility):**
+
 1. **`useTiltEffect.ts`** (~80 lines): Extract mouseX/mouseY motion values, rotateX/rotateY springs, TILT_MAX_ANGLE constant, tiltStyle computation, and mouse/touch handlers for tilt
 2. **`useCardInteractions.ts`** (~80 lines): Extract handleCardClick, handleAdd, handleIncrement, handleDecrement, handleFavoriteToggle, long-press logic
 3. Keep types + variant config + render JSX in main file (~300 lines remaining)
@@ -298,10 +334,12 @@ The main file contains:
 Both extracted files need `'use client'` since they use hooks. Barrel `index.ts` must re-export all.
 
 ### Pattern 5: Dead Code Audit with Knip
+
 **What:** Run knip to detect unused exports, dependencies, and files
 **When to use:** Comprehensive audit step
 
 Existing `knip.json`:
+
 ```json
 {
   "entry": ["src/app/**/*.{ts,tsx}", "src/components/**/index.ts", "src/lib/**/index.ts"],
@@ -312,6 +350,7 @@ Existing `knip.json`:
 ```
 
 Run workflow:
+
 1. `pnpm knip` -- get initial report
 2. Review each category: unused files, unused exports, unused dependencies
 3. Cross-reference with CSS dead code (knip doesn't scan CSS)
@@ -319,6 +358,7 @@ Run workflow:
 5. For environment variables: grep `.env*` files, cross-reference with `process.env.` usage in code
 
 ### Anti-Patterns to Avoid
+
 - **Cart edit creating new items instead of updating:** The edit flow must call `updateItem`, not `removeItem + addItem` (which changes the cartItemId and loses position in list)
 - **Recreating Google Maps markers on every render:** Store marker refs and update position instead of destroy/recreate (performance + flickering)
 - **Breaking barrel exports during refactor:** Every moved export must remain accessible from `index.ts`
@@ -327,65 +367,74 @@ Run workflow:
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Dead code detection | Manual file scanning | `knip` (already installed) | Handles dependency graph analysis, transitive usage |
-| Map marker animation | Custom requestAnimationFrame loop | Google Maps `position` property updates + CSS transitions on marker content | Browser-native performance |
-| Push notifications | Custom WebSocket push | Web Push API via Serwist service worker | Standards-based, works when app is closed |
-| Star rating input | Custom star component from scratch | Simple array of 5 star icons with touch/click handlers + framer-motion scale | Not worth a library for 5 icons |
-| Discard confirmation | Custom modal | Existing `AlertDialog` (Radix) | Already in codebase |
-| Toast notifications | Custom toast system | Existing `toast()` from `useToastV8` | Already integrated |
+| Problem              | Don't Build                        | Use Instead                                                                  | Why                                                 |
+| -------------------- | ---------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------- |
+| Dead code detection  | Manual file scanning               | `knip` (already installed)                                                   | Handles dependency graph analysis, transitive usage |
+| Map marker animation | Custom requestAnimationFrame loop  | Google Maps `position` property updates + CSS transitions on marker content  | Browser-native performance                          |
+| Push notifications   | Custom WebSocket push              | Web Push API via Serwist service worker                                      | Standards-based, works when app is closed           |
+| Star rating input    | Custom star component from scratch | Simple array of 5 star icons with touch/click handlers + framer-motion scale | Not worth a library for 5 icons                     |
+| Discard confirmation | Custom modal                       | Existing `AlertDialog` (Radix)                                               | Already in codebase                                 |
+| Toast notifications  | Custom toast system                | Existing `toast()` from `useToastV8`                                         | Already integrated                                  |
 
 **Key insight:** The project already has all the UI primitives needed (Modal, Drawer, AlertDialog, Toast, Confetti/SuccessAnimation). No new UI libraries required.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Cart State Hydration Race in Edit Flow
+
 **What goes wrong:** ItemDetailSheet opens with stale/empty cart item data because IndexedDB hydration hasn't completed
 **Why it happens:** Cart uses IndexedDB persistence via `idb-keyval`. The `_hasHydrated` flag exists for this reason.
 **How to avoid:** Gate edit functionality on `_hasHydrated === true`. The CartPageContent already checks hydration (line 224).
 **Warning signs:** Empty modifier selections when opening edit sheet
 
 ### Pitfall 2: Route ID Null After Order Confirmed But Before Route Assigned
+
 **What goes wrong:** Tracking page tries to subscribe to location updates but route doesn't exist yet
 **Why it happens:** Orders are confirmed before being assigned to a route. The `routeStop` will be null.
 **How to avoid:** Already handled: `useTrackingSubscription` accepts `routeId?: string | null` and only sets up location channel when routeId is truthy (line 244-266 in hook).
 **Warning signs:** "routeId is undefined" in console when order status is `confirmed`
 
 ### Pitfall 3: Google Maps API Key Bundle Exposure
+
 **What goes wrong:** Maps API key leaked in client bundle, abused by bots
 **Why it happens:** `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` is inherently public
 **How to avoid:** Already mitigated via Google Cloud Console key restrictions (HTTP referrer restrictions). Not a Phase 66 concern -- just don't change the existing pattern.
 **Warning signs:** Unexpected Maps API billing spikes
 
 ### Pitfall 4: UnifiedMenuItemCard Refactor Breaking Consumers
+
 **What goes wrong:** Moving code to new files changes import paths, breaks consuming components
 **Why it happens:** Consumers import directly from the file instead of barrel
 **How to avoid:** Verify all consumers import from the barrel (`index.ts`). Current consumers:
+
 - `src/components/ui/menu/MenuContentClient.tsx`
 - `src/components/ui/homepage/HomepageMenuSection.tsx`
 - Any Storybook stories
-**Warning signs:** Build failures after refactor
+  **Warning signs:** Build failures after refactor
 
 ### Pitfall 5: Knip False Positives from Dynamic Imports
+
 **What goes wrong:** Knip reports files/exports as unused that are actually loaded via `dynamic()` or `import()`
 **Why it happens:** Knip's static analysis can miss dynamic import patterns
 **How to avoid:** Review each knip finding manually before deletion. Check for: `dynamic(() => import(...))`, `importWithRetry()`, `React.lazy()`. The project uses `importWithRetry` pattern extensively in `LazyMaps.tsx`.
 **Warning signs:** Runtime errors after removing "unused" exports
 
 ### Pitfall 6: Mobile Crash from New setTimeout/setInterval in Tracking
+
 **What goes wrong:** New tracking features add timers (ETA countdown, stale detection) without cleanup
 **Why it happens:** This codebase has a documented history of mobile crashes from uncleared timers (see ERROR_HISTORY.md)
 **How to avoid:** Use `useSafeTimeout` and `useSafeInterval` from `src/lib/hooks/useSafeEffects.ts`. These hooks auto-cleanup on unmount.
 **Warning signs:** App crash on navigating away from tracking page
 
 ### Pitfall 7: Driver Rating Table Missing from Database Types
+
 **What goes wrong:** TypeScript errors when inserting into `driver_ratings`
 **Why it happens:** The `driver_ratings` table exists in `000_initial_schema.sql` but is NOT in `src/types/database.ts`
 **How to avoid:** Add `DriverRatingsRow`, `DriverRatingsInsert` types to `database.ts` and add to `Database` type
 **Warning signs:** Type errors on `supabase.from("driver_ratings")`
 
 ### Pitfall 8: Push Notification Permission Denied Silently
+
 **What goes wrong:** Notification.requestPermission() returns "denied" but app doesn't inform user
 **Why it happens:** Users dismiss permission prompt; subsequent calls return "denied" without showing prompt again
 **How to avoid:** Check `Notification.permission` before requesting. If "denied", show in-app message explaining how to enable in browser settings. Gracefully degrade: in-app banner always works even without push permission.
@@ -394,6 +443,7 @@ Run workflow:
 ## Code Examples
 
 ### Cart Store `updateItem` Method
+
 ```typescript
 // Source: Derived from existing addItem pattern in cart-store.ts
 updateItem: (cartItemId, updates) => {
@@ -414,16 +464,27 @@ updateItem: (cartItemId, updates) => {
 ```
 
 ### ItemDetailSheet Edit Mode Detection
+
 ```typescript
 // Source: Pattern derived from existing ItemDetailSheet.tsx
 interface ItemDetailSheetProps {
   item: MenuItem | null;
   isOpen: boolean;
   onClose: () => void;
-  onAddToCart?: (item: MenuItem, modifiers: SelectedModifier[], quantity: number, notes: string) => void;
+  onAddToCart?: (
+    item: MenuItem,
+    modifiers: SelectedModifier[],
+    quantity: number,
+    notes: string
+  ) => void;
   // NEW: Edit mode
   editingCartItem?: CartItem;
-  onUpdateCart?: (cartItemId: string, modifiers: SelectedModifier[], quantity: number, notes: string) => void;
+  onUpdateCart?: (
+    cartItemId: string,
+    modifiers: SelectedModifier[],
+    quantity: number,
+    notes: string
+  ) => void;
   className?: string;
 }
 
@@ -445,6 +506,7 @@ useEffect(() => {
 ```
 
 ### Route ID Fix in TrackingPageClient
+
 ```typescript
 // Source: TrackingPageClient.tsx line 52-53 fix
 const subscription = useTrackingSubscription({
@@ -456,6 +518,7 @@ const subscription = useTrackingSubscription({
 ```
 
 ### Star Rating Component Pattern
+
 ```typescript
 // Source: Standard pattern using existing project primitives
 function StarRating({ value, onChange, disabled }: {
@@ -490,6 +553,7 @@ function StarRating({ value, onChange, disabled }: {
 ```
 
 ### Horizontal Status Stepper Pattern
+
 ```typescript
 // Source: Derived from existing StatusTimeline pattern
 // STATUS_ORDER: ["pending", "confirmed", "preparing", "out_for_delivery", "delivered"]
@@ -532,58 +596,63 @@ function StatusStepper({ currentStatus }: { currentStatus: OrderStatus }) {
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Supabase Edge Functions for email | In-app email via Resend + React Email | Phase 54 (email system) | Edge Function is dead code |
-| `@react-google-maps/api` (JustFly) | `@vis.gl/react-google-maps` (vis.gl) | 2024 | Newer lib has better AdvancedMarker. BUT: project already invested in older lib. Not worth migrating this phase. |
-| Manual timer cleanup | `useSafeTimeout`/`useSafeInterval` hooks | Phase 35 | Use these for all new timers |
-| `localStorage` cart | IndexedDB via `idb-keyval` | Previous phase | Cart already migrated |
+| Old Approach                       | Current Approach                         | When Changed            | Impact                                                                                                           |
+| ---------------------------------- | ---------------------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Supabase Edge Functions for email  | In-app email via Resend + React Email    | Phase 54 (email system) | Edge Function is dead code                                                                                       |
+| `@react-google-maps/api` (JustFly) | `@vis.gl/react-google-maps` (vis.gl)     | 2024                    | Newer lib has better AdvancedMarker. BUT: project already invested in older lib. Not worth migrating this phase. |
+| Manual timer cleanup               | `useSafeTimeout`/`useSafeInterval` hooks | Phase 35                | Use these for all new timers                                                                                     |
+| `localStorage` cart                | IndexedDB via `idb-keyval`               | Previous phase          | Cart already migrated                                                                                            |
 
 **Deprecated/outdated:**
+
 - `supabase/functions/send-order-confirmation/`: Superseded by `src/lib/email/` + Resend API. Safe to delete entirely.
 - `supabase/functions/send-delivery-notification/`: May also be dead -- verify before this phase or flag for review.
 
 ## Discretion Recommendations
 
 ### Cart Discretion
-| Decision | Recommendation | Rationale |
-|----------|---------------|-----------|
-| Zero-quantity behavior | Remove item when quantity reaches 0 | Consistent with existing `handleDecrement` in CartItem.tsx (line 90-96) which removes at qty=1 |
-| Live price update vs on save | Live price update in sheet | ItemDetailSheet already computes `priceCalc` on every modifier/quantity change (line 118-121) |
-| Animation style | Reuse existing Drawer/Modal animation | ItemDetailSheet already handles mobile=Drawer, desktop=Modal |
-| Test coverage | Unit test `updateItem` store method + integration test for edit flow | Store method is pure logic; edit flow needs component test |
+
+| Decision                     | Recommendation                                                       | Rationale                                                                                      |
+| ---------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Zero-quantity behavior       | Remove item when quantity reaches 0                                  | Consistent with existing `handleDecrement` in CartItem.tsx (line 90-96) which removes at qty=1 |
+| Live price update vs on save | Live price update in sheet                                           | ItemDetailSheet already computes `priceCalc` on every modifier/quantity change (line 118-121)  |
+| Animation style              | Reuse existing Drawer/Modal animation                                | ItemDetailSheet already handles mobile=Drawer, desktop=Modal                                   |
+| Test coverage                | Unit test `updateItem` store method + integration test for edit flow | Store method is pure logic; edit flow needs component test                                     |
 
 ### Tracking Discretion
-| Decision | Recommendation | Rationale |
-|----------|---------------|-----------|
-| ETA format | Countdown ("~12 min") when <30 min, time window ("4:15-4:30 PM") when >30 min | Countdown creates urgency for imminent delivery; time window for distant ETAs |
-| Update frequency | Keep Supabase Realtime (WebSocket) as primary, 30s polling as fallback | Already implemented in `useTrackingSubscription.ts` |
-| URL structure | Keep `/orders/[id]/tracking` | Already exists at `src/app/(customer)/orders/[id]/tracking/page.tsx` |
-| Tablet/landscape | Map takes full width, info scrolls below on landscape | Simple CSS media query, no structural change |
-| Google Maps dark mode | Use existing warm map styles, no dark variant | Brand aesthetic is warm/light; dark maps conflict |
-| Maps lazy loading | Keep existing `dynamic()` + `importWithRetry` pattern | Already in `LazyMaps.tsx` with 15s timeout |
-| Performance budget | Google Maps JS is ~200KB gzipped; already lazy-loaded; no additional budget concern | Dynamic import isolates from main bundle |
+
+| Decision              | Recommendation                                                                      | Rationale                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| ETA format            | Countdown ("~12 min") when <30 min, time window ("4:15-4:30 PM") when >30 min       | Countdown creates urgency for imminent delivery; time window for distant ETAs |
+| Update frequency      | Keep Supabase Realtime (WebSocket) as primary, 30s polling as fallback              | Already implemented in `useTrackingSubscription.ts`                           |
+| URL structure         | Keep `/orders/[id]/tracking`                                                        | Already exists at `src/app/(customer)/orders/[id]/tracking/page.tsx`          |
+| Tablet/landscape      | Map takes full width, info scrolls below on landscape                               | Simple CSS media query, no structural change                                  |
+| Google Maps dark mode | Use existing warm map styles, no dark variant                                       | Brand aesthetic is warm/light; dark maps conflict                             |
+| Maps lazy loading     | Keep existing `dynamic()` + `importWithRetry` pattern                               | Already in `LazyMaps.tsx` with 15s timeout                                    |
+| Performance budget    | Google Maps JS is ~200KB gzipped; already lazy-loaded; no additional budget concern | Dynamic import isolates from main bundle                                      |
 
 ### Card Refactor Discretion
-| Decision | Recommendation | Rationale |
-|----------|---------------|-----------|
-| Split strategy | By responsibility (hooks vs render) | Event handlers = `useCardInteractions` hook, tilt = `useTiltEffect` hook. Keeps main file as orchestrator. |
-| Sub-component naming | `useTiltEffect.ts`, `useCardInteractions.ts` (camelCase hooks) | Follows project convention (`use-card-sound.ts` exists) |
-| Reusability | Not a goal -- these are internal to UnifiedMenuItemCard | Extracting for line count, not reuse |
-| Props API simplification | No change this phase | Avoid scope creep |
-| Visual polish during refactor | No change | Pure refactor, no visual changes |
-| Test coverage | No new tests for extracted hooks (existing card tests still pass) | Refactor should be behavior-preserving |
-| Import approach | Barrel exports in `index.ts` | Already established pattern |
+
+| Decision                      | Recommendation                                                    | Rationale                                                                                                  |
+| ----------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Split strategy                | By responsibility (hooks vs render)                               | Event handlers = `useCardInteractions` hook, tilt = `useTiltEffect` hook. Keeps main file as orchestrator. |
+| Sub-component naming          | `useTiltEffect.ts`, `useCardInteractions.ts` (camelCase hooks)    | Follows project convention (`use-card-sound.ts` exists)                                                    |
+| Reusability                   | Not a goal -- these are internal to UnifiedMenuItemCard           | Extracting for line count, not reuse                                                                       |
+| Props API simplification      | No change this phase                                              | Avoid scope creep                                                                                          |
+| Visual polish during refactor | No change                                                         | Pure refactor, no visual changes                                                                           |
+| Test coverage                 | No new tests for extracted hooks (existing card tests still pass) | Refactor should be behavior-preserving                                                                     |
+| Import approach               | Barrel exports in `index.ts`                                      | Already established pattern                                                                                |
 
 ### Dead Code Discretion
-| Decision | Recommendation | Rationale |
-|----------|---------------|-----------|
-| Confidence threshold | HIGH confidence = delete; MEDIUM = flag in PR comment; LOW = skip | Conservative approach prevents breaking runtime |
-| Console statements | Keep `console.debug("[cart]"`, `console.warn("[cart]"` (prefixed = intentional). Remove bare `console.log` without prefix. | Existing code uses prefix convention |
-| CSS tokens | Only remove tokens with zero grep hits in `src/` | CSS tokens may be used dynamically via template strings |
-| TypeScript types | Remove if zero imports AND not re-exported | Types-only files are exempt from 400-line rule |
-| API route criteria | Remove if zero `fetch`/`Link`/`router.push` references | Check both `src/` and any external clients |
-| Env vars | Generate report of unused vars, present to user | Never auto-delete env vars |
+
+| Decision             | Recommendation                                                                                                             | Rationale                                               |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Confidence threshold | HIGH confidence = delete; MEDIUM = flag in PR comment; LOW = skip                                                          | Conservative approach prevents breaking runtime         |
+| Console statements   | Keep `console.debug("[cart]"`, `console.warn("[cart]"` (prefixed = intentional). Remove bare `console.log` without prefix. | Existing code uses prefix convention                    |
+| CSS tokens           | Only remove tokens with zero grep hits in `src/`                                                                           | CSS tokens may be used dynamically via template strings |
+| TypeScript types     | Remove if zero imports AND not re-exported                                                                                 | Types-only files are exempt from 400-line rule          |
+| API route criteria   | Remove if zero `fetch`/`Link`/`router.push` references                                                                     | Check both `src/` and any external clients              |
+| Env vars             | Generate report of unused vars, present to user                                                                            | Never auto-delete env vars                              |
 
 ## Open Questions
 
@@ -610,6 +679,7 @@ function StatusStepper({ currentStatus }: { currentStatus: OrderStatus }) {
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Codebase analysis: `src/components/ui/cart/CartItem/CartItem.tsx`, `CartPage/CartPageContent.tsx`, `menu/ItemDetailSheet.tsx`, `cart-store.ts` -- direct code inspection
 - Codebase analysis: `src/components/ui/orders/tracking/TrackingPageClient.tsx`, `useTrackingSubscription.ts`, `DeliveryMap/DeliveryMap.tsx` -- direct code inspection
 - Codebase analysis: `src/components/ui/menu/UnifiedMenuItemCard/UnifiedMenuItemCard.tsx` -- 540 lines confirmed via wc -l
@@ -619,16 +689,19 @@ function StatusStepper({ currentStatus }: { currentStatus: OrderStatus }) {
 - Context7 `/visgl/react-google-maps` -- AdvancedMarker, Polyline, Directions API patterns
 
 ### Secondary (MEDIUM confidence)
+
 - `@react-google-maps/api` documentation -- project uses this older library, patterns from Context7's newer `@vis.gl/react-google-maps` may not apply 1:1 but concepts transfer
 - Project learnings: `.claude/ERROR_HISTORY.md` -- mobile crash patterns from setTimeout, scroll lock
 - Project learnings: `.claude/learnings/INDEX.md` -- state management, Tailwind v4, React patterns
 
 ### Tertiary (LOW confidence)
+
 - Push notification feasibility -- Serwist/web-push integration specifics need validation against actual Serwist config
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH -- all libraries already in project, no new dependencies needed
 - Architecture (Cart): HIGH -- all components exist, gap is wiring + one new store method
 - Architecture (Tracking): HIGH for bug fix, MEDIUM for full enhancement (many new components)

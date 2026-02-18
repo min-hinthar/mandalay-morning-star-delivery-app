@@ -150,7 +150,9 @@ export function RouteDetailClient() {
     setRoute({ ...route, stops: route.stops.filter((s) => s.id !== stopId) });
 
     try {
-      const response = await fetch(`/api/admin/routes/${routeId}/stops/${stopId}`, { method: "DELETE" });
+      const response = await fetch(`/api/admin/routes/${routeId}/stops/${stopId}`, {
+        method: "DELETE",
+      });
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.error || "Failed to remove stop");
@@ -196,9 +198,7 @@ export function RouteDetailClient() {
       }));
   };
 
-  const routeName = route
-    ? `Route #${routeId.slice(0, 8)}`
-    : "Route Details";
+  const routeName = route ? `Route #${routeId.slice(0, 8)}` : "Route Details";
 
   const routeDetailSkeleton = (
     <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">

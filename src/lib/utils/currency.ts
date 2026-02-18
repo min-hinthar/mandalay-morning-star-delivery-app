@@ -6,4 +6,3 @@ export function formatPrice(cents: number): string {
     minimumFractionDigits: 2,
   }).format(dollars);
 }
-

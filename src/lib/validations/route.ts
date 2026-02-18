@@ -44,12 +44,14 @@ export const addStopsSchema = z.object({
 
 // Reorder stops
 export const reorderStopsSchema = z.object({
-  stopOrder: z.array(
-    z.object({
-      stopId: z.string().uuid("Invalid stop ID"),
-      stopIndex: z.number().int().min(0),
-    })
-  ).min(1, "At least one stop required"),
+  stopOrder: z
+    .array(
+      z.object({
+        stopId: z.string().uuid("Invalid stop ID"),
+        stopIndex: z.number().int().min(0),
+      })
+    )
+    .min(1, "At least one stop required"),
 });
 
 // Update stop status

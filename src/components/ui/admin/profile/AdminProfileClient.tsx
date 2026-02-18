@@ -91,8 +91,7 @@ export function AdminProfileClient() {
     } catch (err) {
       toast({
         title: "Error",
-        description:
-          err instanceof Error ? err.message : "Failed to update profile",
+        description: err instanceof Error ? err.message : "Failed to update profile",
         variant: "destructive",
       });
       return false;
@@ -115,9 +114,7 @@ export function AdminProfileClient() {
     return (
       <div className="p-4 sm:p-6 max-w-3xl mx-auto">
         <div className="rounded-card border border-status-error bg-status-error-bg p-6 text-center">
-          <p className="text-status-error font-medium">
-            {error ?? "Profile not found"}
-          </p>
+          <p className="text-status-error font-medium">{error ?? "Profile not found"}</p>
           <Button variant="outline" size="sm" className="mt-3" onClick={fetchProfile}>
             Retry
           </Button>
@@ -130,16 +127,8 @@ export function AdminProfileClient() {
     <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
       <AdminPageHeader
         title="Profile"
-        breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
-          { label: "Profile" },
-        ]}
-        actions={
-          <SaveButton
-            onClick={handleSave}
-            hasChanges={isDirty}
-          />
-        }
+        breadcrumbs={[{ label: "Dashboard", href: "/admin" }, { label: "Profile" }]}
+        actions={<SaveButton onClick={handleSave} hasChanges={isDirty} />}
       />
 
       {/* Profile info card */}

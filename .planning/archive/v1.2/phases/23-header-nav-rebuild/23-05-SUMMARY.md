@@ -42,18 +42,21 @@ Complete header rebuild with CartIndicator, AccountIndicator, SearchTrigger, and
 ## What Was Built
 
 ### CartIndicator Component
+
 - Badge bounces with rubbery spring when item added
 - Icon shakes with rotate animation on add
 - Registers badge ref for fly-to-cart animation target
 - Hydration-safe with localStorage persistence
 
 ### SearchTrigger Component
+
 - Shows "Cmd K" or "Ctrl K" hint on hover
 - Platform detection (Mac vs Windows/Linux)
 - Animated entrance for hint badge
 - Gradient shadow for premium feel
 
 ### AccountIndicator Component
+
 - When not logged in: User icon linking to /auth/login
 - When logged in: Avatar image or initials fallback
 - Green status dot indicates online
@@ -63,6 +66,7 @@ Complete header rebuild with CartIndicator, AccountIndicator, SearchTrigger, and
 - Gradient shadow on dropdown
 
 ### AppHeader Integration
+
 - Manages all internal state (mobile menu, command palette)
 - Desktop: Theme, Search, Cart, Account right section
 - Mobile: Cart only in header (rest in drawer)
@@ -71,27 +75,31 @@ Complete header rebuild with CartIndicator, AccountIndicator, SearchTrigger, and
 - Close mobile menu on route change
 
 ### Layout Update
+
 - Created HeaderWrapper client component
 - Replaced HeaderServer with HeaderWrapper in root layout
 - HeaderSpacer included in wrapper
 
 ## Commits
 
-| Hash | Type | Description |
-|------|------|-------------|
-| 38d9ac9 | feat | Add CartIndicator and SearchTrigger components |
+| Hash    | Type | Description                                        |
+| ------- | ---- | -------------------------------------------------- |
+| 38d9ac9 | feat | Add CartIndicator and SearchTrigger components     |
 | 6baf639 | feat | Add AccountIndicator with avatar and dropdown menu |
 | adc0814 | feat | Integrate header components and replace old header |
 
 ## Patterns Established
 
 ### Integrated Header State
+
 All header overlays (mobile menu, command palette, cart drawer) managed centrally:
+
 ```tsx
 const isOverlayOpen = isMobileMenuOpen || isCartOpen || isPaletteOpen;
 ```
 
 ### Platform Detection for Keyboard Hints
+
 ```tsx
 function useIsMac() {
   const [isMac, setIsMac] = useState(false);
@@ -104,6 +112,7 @@ function useIsMac() {
 ```
 
 ### Avatar Initials with Consistent Gradient
+
 Hash user email to pick from gradient palette for consistent avatar background.
 
 ## Deviations from Plan
@@ -120,6 +129,7 @@ None - plan executed exactly as written.
 ## Next Steps
 
 Checkpoint verification required:
+
 1. Test scroll hide/show behavior
 2. Verify cart badge animation on item add
 3. Test account dropdown functionality
@@ -129,4 +139,4 @@ Checkpoint verification required:
 
 ---
 
-*Phase 23 Plan 05 complete - Header & Nav Rebuild integration done*
+_Phase 23 Plan 05 complete - Header & Nav Rebuild integration done_

@@ -19,6 +19,7 @@ Progress: [█░░░░░░░░░] ~12% (Phase 67 complete, 7 phases rem
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 287 (across v1.0-v1.7)
 - Average duration: ~15 min
 - Total execution time: ~70 hours
@@ -26,15 +27,15 @@ Progress: [█░░░░░░░░░] ~12% (Phase 67 complete, 7 phases rem
 **By Milestone:**
 
 | Milestone | Phases | Plans | Duration |
-|-----------|--------|-------|----------|
-| v1.0 | 8 | 32 | 2 days |
-| v1.1 | 6 | 21 | 1 day |
-| v1.2 | 9 | 29 | 4 days |
-| v1.3 | 10 | 53 | 2 days |
-| v1.4 | 8 | 39 | 6 days |
-| v1.5 | 8 | 34 | 3 days |
-| v1.6 | 10 | 47 | 6 days |
-| v1.7 | 9 | 32 | 3 days |
+| --------- | ------ | ----- | -------- |
+| v1.0      | 8      | 32    | 2 days   |
+| v1.1      | 6      | 21    | 1 day    |
+| v1.2      | 9      | 29    | 4 days   |
+| v1.3      | 10     | 53    | 2 days   |
+| v1.4      | 8      | 39    | 6 days   |
+| v1.5      | 8      | 34    | 3 days   |
+| v1.6      | 10     | 47    | 6 days   |
+| v1.7      | 9      | 32    | 3 days   |
 
 ## Accumulated Context
 
@@ -43,6 +44,7 @@ Progress: [█░░░░░░░░░] ~12% (Phase 67 complete, 7 phases rem
 Decisions logged in PROJECT.md Key Decisions table.
 
 Recent for v1.8:
+
 - CSP uses 'unsafe-inline' for style-src (GSAP has no nonce support, 700+ inline styles)
 - Rate limiting moves to Upstash Redis (in-memory Map is non-functional on Vercel)
 - Role redirects go in auth callback, NOT proxy.ts (callback has session context)

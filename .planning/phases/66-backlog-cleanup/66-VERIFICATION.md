@@ -16,60 +16,60 @@ score: 5/5 must-haves verified
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 1 | CartPage modifier button opens ItemDetailSheet for editing modifiers on an existing cart item | ✓ VERIFIED | CartPageContent.tsx handleEditItem wired to ItemDetailSheet with editingCartItem prop; updateItem in cart-store.ts; "Update Cart" CTA in ItemDetailSheet.tsx |
-| 2 | Tracking page correctly extracts route_id and provides full tracking experience (map, ETA, status, rating) | ✓ VERIFIED | route.ts line 214 extracts routeId from routeStopData.routes.id; TrackingPageClient.tsx line 115 passes routeId to useTrackingSubscription; TrackingData interface includes routeId, restaurantLocation, rating |
-| 3 | UnifiedMenuItemCard is under 400 lines (refactored into sub-modules with barrel exports) | ✓ VERIFIED | UnifiedMenuItemCard.tsx is 303 lines; useTiltEffect.ts and useCardInteractions.ts extracted; barrel index.ts re-exports all |
-| 4 | Dead send-order-confirmation Edge Function is removed from the codebase | ✓ VERIFIED | supabase/functions/send-order-confirmation/ directory removed; send-delivery-notification also removed; confirmed via filesystem check |
-| 5 | Dead code audit complete (unused exports, deps, CSS, types, API routes, env vars flagged) | ✓ VERIFIED | 66-07-DEAD-CODE-REPORT.md created; 15 files removed (~3,900 lines); 8 dependencies removed; 2 console.log converted; flagged items documented |
+| #   | Truth                                                                                                      | Status     | Evidence                                                                                                                                                                                                        |
+| --- | ---------------------------------------------------------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | CartPage modifier button opens ItemDetailSheet for editing modifiers on an existing cart item              | ✓ VERIFIED | CartPageContent.tsx handleEditItem wired to ItemDetailSheet with editingCartItem prop; updateItem in cart-store.ts; "Update Cart" CTA in ItemDetailSheet.tsx                                                    |
+| 2   | Tracking page correctly extracts route_id and provides full tracking experience (map, ETA, status, rating) | ✓ VERIFIED | route.ts line 214 extracts routeId from routeStopData.routes.id; TrackingPageClient.tsx line 115 passes routeId to useTrackingSubscription; TrackingData interface includes routeId, restaurantLocation, rating |
+| 3   | UnifiedMenuItemCard is under 400 lines (refactored into sub-modules with barrel exports)                   | ✓ VERIFIED | UnifiedMenuItemCard.tsx is 303 lines; useTiltEffect.ts and useCardInteractions.ts extracted; barrel index.ts re-exports all                                                                                     |
+| 4   | Dead send-order-confirmation Edge Function is removed from the codebase                                    | ✓ VERIFIED | supabase/functions/send-order-confirmation/ directory removed; send-delivery-notification also removed; confirmed via filesystem check                                                                          |
+| 5   | Dead code audit complete (unused exports, deps, CSS, types, API routes, env vars flagged)                  | ✓ VERIFIED | 66-07-DEAD-CODE-REPORT.md created; 15 files removed (~3,900 lines); 8 dependencies removed; 2 console.log converted; flagged items documented                                                                   |
 
 **Score:** 5/5 truths verified
 
 ### Required Artifacts
 
-| Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| src/types/cart.ts | updateItem method on CartStore interface | ✓ VERIFIED | Lines 39-47: updateItem signature with modifiers, quantity, notes, basePriceCents |
-| src/lib/stores/cart-store.ts | updateItem implementation | ✓ VERIFIED | Lines 220-237: maps over items, clamps quantity, trims notes |
-| src/components/ui/menu/ItemDetailSheet.tsx | Edit mode with editingCartItem prop | ✓ VERIFIED | Lines 60-69: editingCartItem and onUpdateCart props; line 396: "Update Cart" CTA |
-| src/components/ui/cart/CartPage/CartPageContent.tsx | handleEditItem and handleUpdateCart wired | ✓ VERIFIED | Lines 133-152: handleEditItem looks up MenuItem; lines 154-169: handleUpdateCart calls store.updateItem |
-| src/types/tracking.ts | routeId field on TrackingData | ✓ VERIFIED | Line 28: routeId: string or null in TrackingData interface |
-| src/app/api/tracking/[orderId]/route.ts | routeId extraction and restaurantLocation | ✓ VERIFIED | Line 214: routeId = routeStopData.routes.id; line 349: routeId in response |
-| src/components/ui/orders/tracking/TrackingPageClient.tsx | routeId passed to useTrackingSubscription | ✓ VERIFIED | Line 115: routeId: initialData.routeId ?? undefined |
-| src/components/ui/menu/UnifiedMenuItemCard/UnifiedMenuItemCard.tsx | Main card under 400 lines | ✓ VERIFIED | 303 lines |
-| src/components/ui/menu/UnifiedMenuItemCard/useTiltEffect.ts | Tilt effect hook extracted | ✓ VERIFIED | Exports useTiltEffect; imported line 17 of UnifiedMenuItemCard.tsx |
-| src/components/ui/menu/UnifiedMenuItemCard/useCardInteractions.ts | Interaction handlers extracted | ✓ VERIFIED | Exports useCardInteractions; imported line 18 of UnifiedMenuItemCard.tsx |
-| .planning/phases/66-backlog-cleanup/66-07-DEAD-CODE-REPORT.md | Dead code audit report | ✓ VERIFIED | 96 lines; documents removed files, deps, console.log, flagged items |
+| Artifact                                                           | Expected                                  | Status     | Details                                                                                                 |
+| ------------------------------------------------------------------ | ----------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------- |
+| src/types/cart.ts                                                  | updateItem method on CartStore interface  | ✓ VERIFIED | Lines 39-47: updateItem signature with modifiers, quantity, notes, basePriceCents                       |
+| src/lib/stores/cart-store.ts                                       | updateItem implementation                 | ✓ VERIFIED | Lines 220-237: maps over items, clamps quantity, trims notes                                            |
+| src/components/ui/menu/ItemDetailSheet.tsx                         | Edit mode with editingCartItem prop       | ✓ VERIFIED | Lines 60-69: editingCartItem and onUpdateCart props; line 396: "Update Cart" CTA                        |
+| src/components/ui/cart/CartPage/CartPageContent.tsx                | handleEditItem and handleUpdateCart wired | ✓ VERIFIED | Lines 133-152: handleEditItem looks up MenuItem; lines 154-169: handleUpdateCart calls store.updateItem |
+| src/types/tracking.ts                                              | routeId field on TrackingData             | ✓ VERIFIED | Line 28: routeId: string or null in TrackingData interface                                              |
+| src/app/api/tracking/[orderId]/route.ts                            | routeId extraction and restaurantLocation | ✓ VERIFIED | Line 214: routeId = routeStopData.routes.id; line 349: routeId in response                              |
+| src/components/ui/orders/tracking/TrackingPageClient.tsx           | routeId passed to useTrackingSubscription | ✓ VERIFIED | Line 115: routeId: initialData.routeId ?? undefined                                                     |
+| src/components/ui/menu/UnifiedMenuItemCard/UnifiedMenuItemCard.tsx | Main card under 400 lines                 | ✓ VERIFIED | 303 lines                                                                                               |
+| src/components/ui/menu/UnifiedMenuItemCard/useTiltEffect.ts        | Tilt effect hook extracted                | ✓ VERIFIED | Exports useTiltEffect; imported line 17 of UnifiedMenuItemCard.tsx                                      |
+| src/components/ui/menu/UnifiedMenuItemCard/useCardInteractions.ts  | Interaction handlers extracted            | ✓ VERIFIED | Exports useCardInteractions; imported line 18 of UnifiedMenuItemCard.tsx                                |
+| .planning/phases/66-backlog-cleanup/66-07-DEAD-CODE-REPORT.md      | Dead code audit report                    | ✓ VERIFIED | 96 lines; documents removed files, deps, console.log, flagged items                                     |
 
 ### Key Link Verification
 
-| From | To | Via | Status | Details |
-|------|----|----|--------|---------|
-| CartPageContent.tsx | ItemDetailSheet.tsx | editingCartItem prop | ✓ WIRED | Line 394: editingCartItem passed to ItemDetailSheet |
-| ItemDetailSheet.tsx | cart-store.ts | onUpdateCart callback | ✓ WIRED | Wired in CartPageContent handleUpdateCart |
-| tracking API route.ts | tracking.ts TrackingData | routeId field | ✓ WIRED | Line 349 returns routeId; line 28 defines field |
-| TrackingPageClient.tsx | useTrackingSubscription.ts | routeId prop | ✓ WIRED | Line 115: routeId passed to subscription hook |
-| UnifiedMenuItemCard.tsx | useTiltEffect.ts | hook import | ✓ WIRED | Line 17 import; line 158 destructured call |
-| UnifiedMenuItemCard.tsx | useCardInteractions.ts | hook import | ✓ WIRED | Line 18 import; line 171 destructured call |
+| From                    | To                         | Via                   | Status  | Details                                             |
+| ----------------------- | -------------------------- | --------------------- | ------- | --------------------------------------------------- |
+| CartPageContent.tsx     | ItemDetailSheet.tsx        | editingCartItem prop  | ✓ WIRED | Line 394: editingCartItem passed to ItemDetailSheet |
+| ItemDetailSheet.tsx     | cart-store.ts              | onUpdateCart callback | ✓ WIRED | Wired in CartPageContent handleUpdateCart           |
+| tracking API route.ts   | tracking.ts TrackingData   | routeId field         | ✓ WIRED | Line 349 returns routeId; line 28 defines field     |
+| TrackingPageClient.tsx  | useTrackingSubscription.ts | routeId prop          | ✓ WIRED | Line 115: routeId passed to subscription hook       |
+| UnifiedMenuItemCard.tsx | useTiltEffect.ts           | hook import           | ✓ WIRED | Line 17 import; line 158 destructured call          |
+| UnifiedMenuItemCard.tsx | useCardInteractions.ts     | hook import           | ✓ WIRED | Line 18 import; line 171 destructured call          |
 
 ### Requirements Coverage
 
-| Requirement | Status | Blocking Issue |
-|-------------|--------|----------------|
-| BKLG-02: CartPage modifier editor wired to ItemDetailSheet | ✓ SATISFIED | All supporting artifacts verified |
-| BKLG-03: Tracking page route_id extraction from routeStop | ✓ SATISFIED | routeId extraction and subscription wiring verified |
-| BKLG-04: UnifiedMenuItemCard refactored to < 400 lines | ✓ SATISFIED | Main file 303 lines; hooks extracted |
-| BKLG-05: Dead send-order-confirmation Edge Function removed | ✓ SATISFIED | Both Edge Functions removed; confirmed missing |
-| BKLG-06: Dead code audit | ✓ SATISFIED | Comprehensive audit report with removals and flags |
+| Requirement                                                 | Status      | Blocking Issue                                      |
+| ----------------------------------------------------------- | ----------- | --------------------------------------------------- |
+| BKLG-02: CartPage modifier editor wired to ItemDetailSheet  | ✓ SATISFIED | All supporting artifacts verified                   |
+| BKLG-03: Tracking page route_id extraction from routeStop   | ✓ SATISFIED | routeId extraction and subscription wiring verified |
+| BKLG-04: UnifiedMenuItemCard refactored to < 400 lines      | ✓ SATISFIED | Main file 303 lines; hooks extracted                |
+| BKLG-05: Dead send-order-confirmation Edge Function removed | ✓ SATISFIED | Both Edge Functions removed; confirmed missing      |
+| BKLG-06: Dead code audit                                    | ✓ SATISFIED | Comprehensive audit report with removals and flags  |
 
 Note: REQUIREMENTS.md line 74 lists BKLG-06 as "Visual regression baselines via Chromatic" but ROADMAP.md success criterion 5 states "Dead code audit complete". Phase 66-07 delivered the audit, not Chromatic baselines (CICD-02 deferred).
 
 ### Anti-Patterns Found
 
-| File | Line | Pattern | Severity | Impact |
-|------|------|---------|----------|--------|
-| ItemDetailSheet.tsx | 348 | placeholder attribute | Info | Textarea placeholder (not stub) |
+| File                | Line | Pattern               | Severity | Impact                          |
+| ------------------- | ---- | --------------------- | -------- | ------------------------------- |
+| ItemDetailSheet.tsx | 348  | placeholder attribute | Info     | Textarea placeholder (not stub) |
 
 No TODOs, FIXMEs, or stub patterns found in modified files.
 

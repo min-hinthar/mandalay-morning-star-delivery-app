@@ -147,9 +147,7 @@ async function getDriverHistory() {
     totalOnTime += routeOnTime;
 
     const routeOnTimePct =
-      deliveredStops.length > 0
-        ? Math.round((routeOnTime / deliveredStops.length) * 100)
-        : 0;
+      deliveredStops.length > 0 ? Math.round((routeOnTime / deliveredStops.length) * 100) : 0;
 
     return {
       id: route.id,
@@ -169,8 +167,7 @@ async function getDriverHistory() {
     };
   });
 
-  const overallOnTime =
-    totalDelivered > 0 ? Math.round((totalOnTime / totalDelivered) * 100) : 0;
+  const overallOnTime = totalDelivered > 0 ? Math.round((totalOnTime / totalDelivered) * 100) : 0;
 
   return {
     driver: {
@@ -201,11 +198,5 @@ export default async function DriverHistoryPage() {
 async function DriverHistoryPageContent() {
   const { driver, routes, totalRoutes } = await getDriverHistory();
 
-  return (
-    <DriverHistoryContent
-      driver={driver}
-      routes={routes}
-      totalRoutes={totalRoutes}
-    />
-  );
+  return <DriverHistoryContent driver={driver} routes={routes} totalRoutes={totalRoutes} />;
 }

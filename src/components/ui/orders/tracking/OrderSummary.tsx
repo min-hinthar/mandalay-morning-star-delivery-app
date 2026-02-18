@@ -53,12 +53,7 @@ export function OrderSummary({
   }
 
   return (
-    <div
-      className={cn(
-        "rounded-xl bg-surface-primary shadow-warm-sm overflow-hidden",
-        className
-      )}
-    >
+    <div className={cn("rounded-xl bg-surface-primary shadow-warm-sm overflow-hidden", className)}>
       {/* Header */}
       <div className="flex items-center gap-3 p-4 pb-0">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-saffron-100">
@@ -67,8 +62,7 @@ export function OrderSummary({
         <div>
           <p className="font-semibold text-charcoal">Order Details</p>
           <p className="text-sm text-charcoal-500">
-            {itemCount} {itemCount === 1 ? "item" : "items"} \u2022{" "}
-            {formatPrice(totalCents)}
+            {itemCount} {itemCount === 1 ? "item" : "items"} \u2022 {formatPrice(totalCents)}
           </p>
         </div>
       </div>
@@ -80,17 +74,14 @@ export function OrderSummary({
           {deliveryWindowText && (
             <div className="flex items-start gap-2 text-sm">
               <Clock className="h-4 w-4 text-charcoal-400 mt-0.5" />
-              <span className="text-charcoal-600">
-                {deliveryWindowText}
-              </span>
+              <span className="text-charcoal-600">{deliveryWindowText}</span>
             </div>
           )}
           {deliveryAddress && (
             <div className="flex items-start gap-2 text-sm">
               <MapPin className="h-4 w-4 text-charcoal-400 mt-0.5" />
               <span className="text-charcoal-600">
-                {deliveryAddress.line1}, {deliveryAddress.city},{" "}
-                {deliveryAddress.state}
+                {deliveryAddress.line1}, {deliveryAddress.city}, {deliveryAddress.state}
               </span>
             </div>
           )}
@@ -105,9 +96,7 @@ export function OrderSummary({
                   {item.quantity}&times; {item.name}
                 </p>
                 {item.modifiers.length > 0 && (
-                  <p className="text-sm text-charcoal-500 truncate">
-                    {item.modifiers.join(", ")}
-                  </p>
+                  <p className="text-sm text-charcoal-500 truncate">{item.modifiers.join(", ")}</p>
                 )}
               </div>
             </div>
@@ -122,11 +111,7 @@ export function OrderSummary({
           </div>
           <div className="flex justify-between text-sm text-charcoal-600">
             <span>Delivery Fee</span>
-            <span>
-              {deliveryFeeCents === 0
-                ? "FREE"
-                : formatPrice(deliveryFeeCents)}
-            </span>
+            <span>{deliveryFeeCents === 0 ? "FREE" : formatPrice(deliveryFeeCents)}</span>
           </div>
           <div className="flex justify-between text-sm text-charcoal-600">
             <span>Tax</span>

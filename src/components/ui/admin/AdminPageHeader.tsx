@@ -54,19 +54,13 @@ export function AdminPageHeader({
                 initial={shouldAnimate ? { opacity: 0, x: -8 } : undefined}
                 animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
                 transition={
-                  shouldAnimate
-                    ? { ...getSpring(spring.default), delay: i * 0.05 }
-                    : undefined
+                  shouldAnimate ? { ...getSpring(spring.default), delay: i * 0.05 } : undefined
                 }
                 className="flex items-center gap-1"
               >
-                {i > 0 && (
-                  <ChevronRight className="h-3.5 w-3.5 text-text-muted" />
-                )}
+                {i > 0 && <ChevronRight className="h-3.5 w-3.5 text-text-muted" />}
                 {isLast || !crumb.href ? (
-                  <span className="font-medium text-text-primary">
-                    {crumb.label}
-                  </span>
+                  <span className="font-medium text-text-primary">{crumb.label}</span>
                 ) : (
                   <Link
                     href={crumb.href}
@@ -84,9 +78,7 @@ export function AdminPageHeader({
       {/* Title row */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <h1 className="font-display text-2xl font-bold text-text-primary">
-            {title}
-          </h1>
+          <h1 className="font-display text-2xl font-bold text-text-primary">{title}</h1>
 
           {/* Animated count badge */}
           {count !== undefined && (
@@ -96,18 +88,13 @@ export function AdminPageHeader({
               transition={getSpring(spring.default)}
               className="rounded-full bg-accent-teal/10 px-3 py-1 text-sm font-semibold text-accent-teal"
             >
-              <AnimatedValue
-                value={count}
-                format={countFormat}
-              />
+              <AnimatedValue value={count} format={countFormat} />
             </m.div>
           )}
         </div>
 
         {/* Actions slot */}
-        {actions && (
-          <div className="flex items-center gap-2">{actions}</div>
-        )}
+        {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
     </div>
   );

@@ -31,9 +31,7 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
       <main className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-display text-brand-red">
-              Morning Star
-            </h1>
+            <h1 className="text-3xl font-display text-brand-red">Morning Star</h1>
             <p className="mt-2 text-muted">Driver Onboarding</p>
           </div>
           <Card>
@@ -43,12 +41,10 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
                   <Mail className="h-8 w-8 text-brand-red" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-text-primary mb-2">
-                    Check Your Email
-                  </h2>
+                  <h2 className="font-semibold text-text-primary mb-2">Check Your Email</h2>
                   <p className="text-sm text-text-secondary">
-                    You should have received an invitation email. Click the link
-                    in that email to continue your registration.
+                    You should have received an invitation email. Click the link in that email to
+                    continue your registration.
                   </p>
                 </div>
               </div>
@@ -69,9 +65,7 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-status-error shrink-0 mt-0.5" />
                 <div>
-                  <h2 className="font-semibold text-text-primary mb-2">
-                    Account Error
-                  </h2>
+                  <h2 className="font-semibold text-text-primary mb-2">Account Error</h2>
                   <p className="text-sm text-text-secondary">
                     Your account is missing an email address. Please contact support.
                   </p>
@@ -135,9 +129,7 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
       <main className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-display text-brand-red">
-              Morning Star
-            </h1>
+            <h1 className="text-3xl font-display text-brand-red">Morning Star</h1>
             <p className="mt-2 text-muted">Driver Onboarding</p>
           </div>
           <Card variant="alert" alertAccent="error">
@@ -145,12 +137,9 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-status-error shrink-0 mt-0.5" />
                 <div>
-                  <h2 className="font-semibold text-text-primary mb-2">
-                    No Invitation Found
-                  </h2>
+                  <h2 className="font-semibold text-text-primary mb-2">No Invitation Found</h2>
                   <p className="text-sm text-text-secondary mb-4">
-                    We couldn&apos;t find a pending driver invitation for your email
-                    ({email}).
+                    We couldn&apos;t find a pending driver invitation for your email ({email}).
                   </p>
                   <p className="text-sm text-text-muted">
                     Please contact your administrator to request an invitation.
@@ -185,9 +174,7 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-display text-brand-red">Morning Star</h1>
-          <p className="mt-2 text-text-secondary">
-            Complete Your Driver Registration
-          </p>
+          <p className="mt-2 text-text-secondary">Complete Your Driver Registration</p>
         </div>
         <Card>
           <CardHeader>
@@ -198,9 +185,7 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-text-secondary">
-                Email Address
-              </label>
+              <label className="text-sm font-medium text-text-secondary">Email Address</label>
               <p className="text-sm text-text-primary bg-surface-secondary px-3 py-2 rounded-input">
                 {email}
               </p>

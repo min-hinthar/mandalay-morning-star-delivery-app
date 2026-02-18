@@ -53,15 +53,10 @@ export function NavigationCardGrid({ portal }: NavigationCardGridProps) {
               STAGGER_CLASSES[i],
             ].join(" ")}
           >
-            <span
-              className="block text-2xl mb-1"
-              aria-hidden="true"
-            >
+            <span className="block text-2xl mb-1" aria-hidden="true">
               {card.emoji}
             </span>
-            <span className="text-sm font-medium text-text-primary">
-              {card.label}
-            </span>
+            <span className="text-sm font-medium text-text-primary">{card.label}</span>
           </Link>
         ))}
       </div>

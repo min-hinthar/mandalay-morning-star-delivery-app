@@ -37,7 +37,9 @@ export function FooterCTA() {
               className="inline-flex items-center gap-2 px-4 py-2 bg-overlay-light sm:backdrop-blur-sm rounded-pill"
             >
               <Heart className="w-4 h-4 text-text-inverse" />
-              <span className="text-sm font-body font-medium text-text-inverse">Made with Love in Covina</span>
+              <span className="text-sm font-body font-medium text-text-inverse">
+                Made with Love in Covina
+              </span>
             </m.div>
 
             {/* Headline */}
@@ -45,8 +47,7 @@ export function FooterCTA() {
               variants={staggerItem}
               className="font-display text-3xl md:text-4xl lg:text-5xl text-text-inverse font-bold"
             >
-              Ready to Taste{" "}
-              <span className="text-secondary">Authentic Burma?</span>
+              Ready to Taste <span className="text-secondary">Authentic Burma?</span>
             </m.h2>
 
             {/* Subtext */}
@@ -54,8 +55,8 @@ export function FooterCTA() {
               variants={staggerItem}
               className="text-lg font-body text-text-inverse/90 max-w-2xl mx-auto"
             >
-              Order by Friday 3pm and we&apos;ll deliver fresh, homemade Burmese dishes
-              straight to your door on Saturday.
+              Order by Friday 3pm and we&apos;ll deliver fresh, homemade Burmese dishes straight to
+              your door on Saturday.
             </m.p>
 
             {/* Buttons */}

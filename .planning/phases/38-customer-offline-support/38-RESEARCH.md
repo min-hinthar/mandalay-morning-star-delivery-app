@@ -9,6 +9,7 @@
 Phase 38 implements offline support for customers using Serwist (@serwist/next), the maintained successor to next-pwa. The project already uses Next.js 16 with App Router and has an existing IndexedDB-based offline store for drivers (`offline-store.ts`) that provides a proven pattern for creating a customer-specific variant.
 
 Key implementation decisions from CONTEXT.md:
+
 - Fixed amber banner at top for offline indicator, slides down/up animation
 - Stale badge above menu grid with relative timestamps ("Cached 2 hours ago")
 - Stale-while-revalidate strategy, 24hr stale threshold, 50MB max, LRU eviction
@@ -20,26 +21,30 @@ Key implementation decisions from CONTEXT.md:
 ## Standard Stack
 
 ### Core
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| @serwist/next | latest | Next.js service worker integration | Official Next.js PWA solution, successor to next-pwa |
-| serwist | latest | Service worker runtime (dev dep) | Core Serwist functionality |
-| date-fns | 4.1.0 | Relative timestamps | Already in project, `formatDistanceToNow` |
+
+| Library       | Version | Purpose                            | Why Standard                                         |
+| ------------- | ------- | ---------------------------------- | ---------------------------------------------------- |
+| @serwist/next | latest  | Next.js service worker integration | Official Next.js PWA solution, successor to next-pwa |
+| serwist       | latest  | Service worker runtime (dev dep)   | Core Serwist functionality                           |
+| date-fns      | 4.1.0   | Relative timestamps                | Already in project, `formatDistanceToNow`            |
 
 ### Supporting
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| zustand | 5.0.10 | Offline state management | Already in project for cart/driver stores |
-| framer-motion | 12.26.1 | Banner animations | Already in project |
+
+| Library       | Version | Purpose                  | When to Use                               |
+| ------------- | ------- | ------------------------ | ----------------------------------------- |
+| zustand       | 5.0.10  | Offline state management | Already in project for cart/driver stores |
+| framer-motion | 12.26.1 | Banner animations        | Already in project                        |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| Serwist | Workbox directly | Serwist wraps Workbox, optimized for Next.js |
-| IndexedDB | localStorage | localStorage has 5MB limit, no structured data |
-| Custom online detection | react-detect-offline | Custom hook is simpler, no extra dependency |
+
+| Instead of              | Could Use            | Tradeoff                                       |
+| ----------------------- | -------------------- | ---------------------------------------------- |
+| Serwist                 | Workbox directly     | Serwist wraps Workbox, optimized for Next.js   |
+| IndexedDB               | localStorage         | localStorage has 5MB limit, no structured data |
+| Custom online detection | react-detect-offline | Custom hook is simpler, no extra dependency    |
 
 **Installation:**
+
 ```bash
 pnpm add @serwist/next
 pnpm add -D serwist
@@ -48,6 +53,7 @@ pnpm add -D serwist
 ## Architecture Patterns
 
 ### Recommended Project Structure
+
 ```
 src/
   app/
@@ -66,9 +72,11 @@ src/
 ```
 
 ### Pattern 1: Service Worker Configuration
+
 **What:** Configure Serwist with custom caching strategies per resource type
 **When to use:** Initial service worker setup
 **Example:**
+
 ```typescript
 // Source: https://serwist.pages.dev/docs/next/getting-started
 // app/sw.ts
@@ -143,9 +151,11 @@ serwist.addEventListeners();
 ```
 
 ### Pattern 2: Online/Offline Detection Hook
+
 **What:** Custom React hook using navigator.onLine and event listeners
 **When to use:** Any component needing online status
 **Example:**
+
 ```typescript
 // Source: https://peerlist.io/himanshuhere/articles/detecting-online-offline-status-in-react-with-typescript
 // src/lib/hooks/useCustomerOfflineSync.ts
@@ -185,9 +195,11 @@ export function useCustomerOfflineSync() {
 ```
 
 ### Pattern 3: IndexedDB Menu Cache Store
+
 **What:** Timestamp-based cache store following existing offline-store.ts pattern
 **When to use:** Storing menu data for offline access with staleness tracking
 **Example:**
+
 ```typescript
 // Based on existing pattern: src/lib/services/offline-store.ts
 // src/lib/services/customer-offline-store.ts
@@ -231,9 +243,11 @@ export const menuCache = {
 ```
 
 ### Pattern 4: Service Worker Update Prompt
+
 **What:** Detect waiting service worker and prompt user to update
 **When to use:** When new service worker version is available
 **Example:**
+
 ```typescript
 // Source: https://developer.chrome.com/docs/workbox/handling-service-worker-updates
 // src/components/ui/offline/UpdatePrompt.tsx
@@ -287,6 +301,7 @@ export function useServiceWorkerUpdate() {
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Caching HTML/RSC payloads:** Causes App Router navigation issues; explicitly exclude document requests
 - **Using skipWaiting: true by default:** Prevents controlled update experience; use message-based approach
 - **Caching /api/auth routes:** Auth should always be network-only
@@ -294,42 +309,47 @@ export function useServiceWorkerUpdate() {
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Service worker registration | Custom SW setup | @serwist/next withSerwistInit | Handles Next.js specifics, manifest injection |
-| Cache expiration | Manual timestamp checks | ExpirationPlugin | Handles LRU, quota errors, cleanup |
-| Relative time formatting | Custom date math | date-fns formatDistanceToNow | i18n support, edge cases handled |
-| IndexedDB wrapper | Raw IndexedDB API | Existing offline-store.ts pattern | Already proven in codebase |
+| Problem                     | Don't Build             | Use Instead                       | Why                                           |
+| --------------------------- | ----------------------- | --------------------------------- | --------------------------------------------- |
+| Service worker registration | Custom SW setup         | @serwist/next withSerwistInit     | Handles Next.js specifics, manifest injection |
+| Cache expiration            | Manual timestamp checks | ExpirationPlugin                  | Handles LRU, quota errors, cleanup            |
+| Relative time formatting    | Custom date math        | date-fns formatDistanceToNow      | i18n support, edge cases handled              |
+| IndexedDB wrapper           | Raw IndexedDB API       | Existing offline-store.ts pattern | Already proven in codebase                    |
 
 **Key insight:** Service worker caching is deceptively complex. Browser cache quota, opaque response handling, and App Router RSC payloads create edge cases that Serwist handles.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Caching RSC Payloads
+
 **What goes wrong:** App Router requests include RSC header, caching these causes navigation to show raw JSON or infinite loading
 **Why it happens:** Service worker intercepts all fetch requests including RSC prefetches
 **How to avoid:** Explicitly exclude document requests and RSC requests from caching; do NOT cache any request with `Rsc: 1` header or `_rsc` parameter
 **Warning signs:** Pages show JSON instead of HTML, navigation breaks after deployment
 
 ### Pitfall 2: Development Cache Hell
+
 **What goes wrong:** Old service worker serves stale assets, "I changed the code but nothing changed!"
 **Why it happens:** Service worker is installed and cached, updates require manual unregister
 **How to avoid:** Disable Serwist in development: `disable: process.env.NODE_ENV === "development"`
 **Warning signs:** Changes not appearing, DevTools shows old files
 
 ### Pitfall 3: Forced Page Refresh on Reconnect
+
 **What goes wrong:** User filling form, goes offline then online, page reloads and loses data
 **Why it happens:** Some PWA configs set `reloadOnOnline: true`
 **How to avoid:** Set `reloadOnOnline: false`, let app handle reconnection gracefully
 **Warning signs:** Customer complaints about lost cart/form data
 
 ### Pitfall 4: Quota Exceeded Errors
+
 **What goes wrong:** Cache fills up, new assets fail to cache, app breaks offline
 **Why it happens:** No cache size limits, images cached indefinitely
 **How to avoid:** Set `maxEntries` on all caches, enable `purgeOnQuotaError: true`
 **Warning signs:** Console errors about quota, IndexedDB errors
 
 ### Pitfall 5: Stale Cache on Menu Update
+
 **What goes wrong:** Menu prices/items change but customers see old data
 **Why it happens:** NetworkFirst still serves cache when network slow, no staleness indication
 **How to avoid:** Track cache timestamp, show stale indicator, limit stale threshold to 24 hours
@@ -338,6 +358,7 @@ export function useServiceWorkerUpdate() {
 ## Code Examples
 
 ### Next.js Config with Serwist
+
 ```typescript
 // Source: https://serwist.pages.dev/docs/next/getting-started
 // next.config.ts
@@ -360,6 +381,7 @@ export default withSerwist(nextConfig);
 ```
 
 ### Offline Indicator Component
+
 ```typescript
 // Following existing Toast.tsx pattern
 // src/components/ui/offline/OfflineIndicator.tsx
@@ -415,6 +437,7 @@ export function OfflineIndicator() {
 ```
 
 ### Stale Badge Component
+
 ```typescript
 // Using existing Badge component pattern
 // src/components/ui/offline/StaleBadge.tsx
@@ -446,6 +469,7 @@ export function StaleBadge({ cachedAt }: StaleBadgeProps) {
 ```
 
 ### TypeScript Configuration Updates
+
 ```json
 // tsconfig.json additions
 {
@@ -459,13 +483,14 @@ export function StaleBadge({ cachedAt }: StaleBadgeProps) {
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| next-pwa | @serwist/next | 2024 | next-pwa unmaintained, Serwist is the fork |
-| workbox-window | Serwist built-in | 2024 | Simpler API, same functionality |
-| Manual SW registration | withSerwistInit auto-registration | Current | Less boilerplate |
+| Old Approach           | Current Approach                  | When Changed | Impact                                     |
+| ---------------------- | --------------------------------- | ------------ | ------------------------------------------ |
+| next-pwa               | @serwist/next                     | 2024         | next-pwa unmaintained, Serwist is the fork |
+| workbox-window         | Serwist built-in                  | 2024         | Simpler API, same functionality            |
+| Manual SW registration | withSerwistInit auto-registration | Current      | Less boilerplate                           |
 
 **Deprecated/outdated:**
+
 - next-pwa: No longer maintained, use @serwist/next instead
 - workbox-build standalone: Serwist wraps and simplifies
 - Service Worker caching HTML in App Router: Causes RSC conflicts, avoid
@@ -485,23 +510,27 @@ export function StaleBadge({ cachedAt }: StaleBadgeProps) {
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - [Serwist Getting Started](https://serwist.pages.dev/docs/next/getting-started) - Installation, configuration, sw.ts structure
 - [Serwist Runtime Caching](https://serwist.pages.dev/docs/serwist/runtime-caching/caching-strategies) - CacheFirst, NetworkFirst, StaleWhileRevalidate
 - [Serwist ExpirationPlugin](https://serwist.pages.dev/docs/serwist/runtime-caching/plugins/expiration-plugin) - maxEntries, maxAgeSeconds, purgeOnQuotaError
 - [Chrome Workbox Service Worker Updates](https://developer.chrome.com/docs/workbox/handling-service-worker-updates) - Update prompt pattern
 
 ### Secondary (MEDIUM confidence)
+
 - [Next.js Caching Guide](https://nextjs.org/docs/app/guides/caching) - RSC cache behavior, conflicts
 - [Building Offline Apps with Next.js and Serwist (DEV.to)](https://dev.to/sukechris/building-offline-apps-with-nextjs-and-serwist-2cbj) - Development tips, gotchas
 - [Detecting Online/Offline in React](https://peerlist.io/himanshuhere/articles/detecting-online-offline-status-in-react-with-typescript) - navigator.onLine pattern
 - [date-fns formatDistanceToNow](https://date-fns.org/docs/formatDistanceToNow) - Relative time API
 
 ### Tertiary (LOW confidence)
+
 - GitHub discussions on RSC caching issues - Community workarounds, may be version-specific
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - Serwist is well-documented, official Next.js PWA solution
 - Architecture: HIGH - Patterns from official docs and existing codebase (offline-store.ts)
 - Pitfalls: HIGH - Well-documented in community, verified with official sources

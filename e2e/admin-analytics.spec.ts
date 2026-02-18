@@ -61,9 +61,7 @@ test.describe.skip("Authenticated Analytics Flow", () => {
     await page.goto("/admin/analytics/drivers");
 
     // Should show page title
-    await expect(
-      page.getByRole("heading", { name: "Driver Analytics" })
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Driver Analytics" })).toBeVisible();
 
     // Should show period selector
     await expect(page.getByRole("button", { name: "7 Days" })).toBeVisible();
@@ -83,9 +81,7 @@ test.describe.skip("Authenticated Analytics Flow", () => {
     await page.goto("/admin/analytics/delivery");
 
     // Should show page title
-    await expect(
-      page.getByRole("heading", { name: "Delivery Metrics" })
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Delivery Metrics" })).toBeVisible();
 
     // Should show period selector
     await expect(page.getByRole("button", { name: "7 Days" })).toBeVisible();
@@ -107,9 +103,7 @@ test.describe.skip("Authenticated Analytics Flow", () => {
     await page.getByRole("button", { name: "90 Days" }).click();
 
     // Should update the data (verify button is now selected)
-    await expect(page.getByRole("button", { name: "90 Days" })).toHaveClass(
-      /bg-saffron/
-    );
+    await expect(page.getByRole("button", { name: "90 Days" })).toHaveClass(/bg-saffron/);
   });
 
   test("can navigate from analytics landing to dashboards", async ({ page }) => {
@@ -120,9 +114,7 @@ test.describe.skip("Authenticated Analytics Flow", () => {
 
     // Should navigate to driver analytics
     await expect(page).toHaveURL("/admin/analytics/drivers");
-    await expect(
-      page.getByRole("heading", { name: "Driver Analytics" })
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Driver Analytics" })).toBeVisible();
   });
 
   test("leaderboard shows driver rankings", async ({ page }) => {

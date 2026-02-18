@@ -70,15 +70,8 @@ export type { ItemDetailSheetProps } from "./ItemDetailSheet";
 // LOADING STATES
 // ============================================
 
-export {
-  MenuSkeleton,
-  MenuItemCardSkeleton,
-  SearchSkeleton,
-} from "./MenuSkeleton";
-export type {
-  MenuSkeletonProps,
-  MenuItemCardSkeletonProps,
-} from "./MenuSkeleton";
+export { MenuSkeleton, MenuItemCardSkeleton, SearchSkeleton } from "./MenuSkeleton";
+export type { MenuSkeletonProps, MenuItemCardSkeletonProps } from "./MenuSkeleton";
 
 // ============================================
 // FULL COMPOSITION
@@ -92,7 +85,4 @@ export type { MenuContentProps } from "./MenuContent";
 // ============================================
 
 export { MenuContentClient, useMenuInteractivity } from "./MenuContentClient";
-export type {
-  MenuContentClientProps,
-  MenuInteractivityContext,
-} from "./MenuContentClient";
+export type { MenuContentClientProps, MenuInteractivityContext } from "./MenuContentClient";

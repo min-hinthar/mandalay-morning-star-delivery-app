@@ -29,21 +29,17 @@ export async function GET() {
     if (!user) {
       return NextResponse.json(
         { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
     // Lazy row creation — DB ON CONFLICT DO NOTHING handles existing rows
-    await supabase
-      .from("customer_settings")
-      .insert({ user_id: user.id })
-      .select()
-      .maybeSingle();
+    await supabase.from("customer_settings").insert({ user_id: user.id }).select().maybeSingle();
 
     const { data, error } = await supabase
       .from("customer_settings")
       .select(
-        "user_id, dietary_restrictions, delivery_instructions, notification_prefs, theme, updated_at",
+        "user_id, dietary_restrictions, delivery_instructions, notification_prefs, theme, updated_at"
       )
       .eq("user_id", user.id)
       .returns<CustomerSettingsRow>()
@@ -57,7 +53,7 @@ export async function GET() {
             message: "Settings not found",
           },
         },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -71,7 +67,7 @@ export async function GET() {
           message: "Failed to fetch settings",
         },
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -87,7 +83,7 @@ export async function PATCH(request: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
@@ -97,38 +93,34 @@ export async function PATCH(request: NextRequest) {
     if (!result.success) {
       return NextResponse.json(
         { error: { code: "VALIDATION_ERROR", details: result.error.issues } },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     // Build snake_case update object from validated fields
     const updates: Record<string, string | Json> = {};
     if (result.data.dietary_restrictions !== undefined) {
-      updates.dietary_restrictions = result.data
-        .dietary_restrictions as unknown as Json;
+      updates.dietary_restrictions = result.data.dietary_restrictions as unknown as Json;
     }
     if (result.data.delivery_instructions !== undefined) {
       updates.delivery_instructions = result.data.delivery_instructions;
     }
     if (result.data.notification_prefs !== undefined) {
-      updates.notification_prefs = result.data
-        .notification_prefs as unknown as Json;
+      updates.notification_prefs = result.data.notification_prefs as unknown as Json;
     }
     if (result.data.theme !== undefined) {
       updates.theme = result.data.theme;
     }
 
     // Upsert with user_id conflict
-    const { error: upsertError } = await supabase
-      .from("customer_settings")
-      .upsert(
-        {
-          user_id: user.id,
-          ...updates,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" },
-      );
+    const { error: upsertError } = await supabase.from("customer_settings").upsert(
+      {
+        user_id: user.id,
+        ...updates,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" }
+    );
 
     if (upsertError) throw upsertError;
 
@@ -136,7 +128,7 @@ export async function PATCH(request: NextRequest) {
     const { data, error: fetchError } = await supabase
       .from("customer_settings")
       .select(
-        "user_id, dietary_restrictions, delivery_instructions, notification_prefs, theme, updated_at",
+        "user_id, dietary_restrictions, delivery_instructions, notification_prefs, theme, updated_at"
       )
       .eq("user_id", user.id)
       .returns<CustomerSettingsRow>()
@@ -154,7 +146,7 @@ export async function PATCH(request: NextRequest) {
           message: "Failed to update settings",
         },
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

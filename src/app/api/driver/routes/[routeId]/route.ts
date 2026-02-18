@@ -118,7 +118,8 @@ export async function GET(
     // Get route with stops
     const { data: route, error: routeError } = await supabase
       .from("routes")
-      .select(`
+      .select(
+        `
         id,
         delivery_date,
         status,
@@ -160,25 +161,20 @@ export async function GET(
             )
           )
         )
-      `)
+      `
+      )
       .eq("id", routeId)
       .order("stop_index", { referencedTable: "route_stops", ascending: true })
       .returns<RouteQueryResult[]>()
       .single();
 
     if (routeError || !route) {
-      return NextResponse.json(
-        { error: "Route not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Route not found" }, { status: 404 });
     }
 
     // Verify driver owns this route
     if (route.driver_id !== driverId) {
-      return NextResponse.json(
-        { error: "Not authorized to view this route" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Not authorized to view this route" }, { status: 403 });
     }
 
     // Transform stops
@@ -228,9 +224,6 @@ export async function GET(
     });
   } catch (error) {
     logger.exception(error, { api: "driver/routes/[routeId]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

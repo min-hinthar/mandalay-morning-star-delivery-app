@@ -43,17 +43,11 @@ export function CancelledOverlay({
         {/* Red cancelled badge */}
         <div className="inline-flex items-center gap-2 rounded-full bg-ruby-50 px-3 py-1.5">
           <XCircle className="h-4 w-4 text-ruby-500" />
-          <span className="text-sm font-semibold text-ruby-600">
-            Order Cancelled
-          </span>
+          <span className="text-sm font-semibold text-ruby-600">Order Cancelled</span>
         </div>
 
         {/* Cancellation reason */}
-        {cancellationReason && (
-          <p className="text-sm text-charcoal-600">
-            {cancellationReason}
-          </p>
-        )}
+        {cancellationReason && <p className="text-sm text-charcoal-600">{cancellationReason}</p>}
 
         {/* Next steps */}
         <p className="text-xs text-charcoal-400">

@@ -3,14 +3,7 @@
  */
 
 import React from "react";
-import {
-  Clock,
-  CheckCircle,
-  Package,
-  Truck,
-  Home,
-  XCircle,
-} from "lucide-react";
+import { Clock, CheckCircle, Package, Truck, Home, XCircle } from "lucide-react";
 import type { OrderStatus } from "@/types/database";
 
 export const STATUS_ORDER: OrderStatus[] = [

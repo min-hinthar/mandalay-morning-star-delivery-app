@@ -49,27 +49,27 @@ completed: 2026-02-06
 
 ## LCP Results
 
-| Page | Before | After | Change | Improvement |
-|------|--------|-------|--------|-------------|
-| Homepage (mobile) | 19.9s | 11.4s | -8.5s | **43%** |
-| Menu (mobile) | 18.2s | 9.8s | -8.4s | **46%** |
+| Page              | Before | After | Change | Improvement |
+| ----------------- | ------ | ----- | ------ | ----------- |
+| Homepage (mobile) | 19.9s  | 11.4s | -8.5s  | **43%**     |
+| Menu (mobile)     | 18.2s  | 9.8s  | -8.4s  | **46%**     |
 
 ## Additional Metrics
 
 | Metric | Homepage Before | Homepage After | Menu Before | Menu After |
-|--------|-----------------|----------------|-------------|------------|
-| LCP | 19.9s | 11.4s | 18.2s | 9.8s |
-| TBT | 5.5s | ~3.5s | 5.6s | ~2.3s |
-| CLS | 0 | 0 | 0 | 0 |
-| Score | 30 | 40 | 35 | 41 |
+| ------ | --------------- | -------------- | ----------- | ---------- |
+| LCP    | 19.9s           | 11.4s          | 18.2s       | 9.8s       |
+| TBT    | 5.5s            | ~3.5s          | 5.6s        | ~2.3s      |
+| CLS    | 0               | 0              | 0           | 0          |
+| Score  | 30              | 40             | 35          | 41         |
 
 ## Target Assessment
 
-| Target | Status | Notes |
-|--------|--------|-------|
-| LCP < 2.5s (Core Web Vitals) | NOT MET | Still 9-11s |
-| LCP 4-5s (Plan target) | NOT MET | Best: 9.5s |
-| Meaningful improvement | **MET** | 43-46% reduction |
+| Target                       | Status  | Notes            |
+| ---------------------------- | ------- | ---------------- |
+| LCP < 2.5s (Core Web Vitals) | NOT MET | Still 9-11s      |
+| LCP 4-5s (Plan target)       | NOT MET | Best: 9.5s       |
+| Meaningful improvement       | **MET** | 43-46% reduction |
 
 ## Human Verification
 
@@ -104,5 +104,6 @@ completed: 2026-02-06
 ## Self-Check: PASSED
 
 ---
-*Phase: 40-lcp-element-quick-wins*
-*Completed: 2026-02-06*
+
+_Phase: 40-lcp-element-quick-wins_
+_Completed: 2026-02-06_

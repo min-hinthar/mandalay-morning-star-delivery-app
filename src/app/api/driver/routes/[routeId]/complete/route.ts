@@ -52,18 +52,12 @@ export async function POST(
       .single();
 
     if (routeError || !route) {
-      return NextResponse.json(
-        { error: "Route not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Route not found" }, { status: 404 });
     }
 
     // Verify driver owns this route
     if (route.driver_id !== driverId) {
-      return NextResponse.json(
-        { error: "Not authorized to complete this route" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Not authorized to complete this route" }, { status: 403 });
     }
 
     // Check route can be completed
@@ -82,16 +76,15 @@ export async function POST(
 
     const stats: RouteStats = {
       total_stops: stopCounts?.length ?? 0,
-      pending_stops: stopCounts?.filter(s => s.status === "pending").length ?? 0,
-      delivered_stops: stopCounts?.filter(s => s.status === "delivered").length ?? 0,
-      skipped_stops: stopCounts?.filter(s => s.status === "skipped").length ?? 0,
+      pending_stops: stopCounts?.filter((s) => s.status === "pending").length ?? 0,
+      delivered_stops: stopCounts?.filter((s) => s.status === "delivered").length ?? 0,
+      skipped_stops: stopCounts?.filter((s) => s.status === "skipped").length ?? 0,
       completion_rate: 0,
       ...route.stats_json, // Preserve distance/duration if set
     };
 
-    stats.completion_rate = stats.total_stops > 0
-      ? Math.round((stats.delivered_stops / stats.total_stops) * 100)
-      : 0;
+    stats.completion_rate =
+      stats.total_stops > 0 ? Math.round((stats.delivered_stops / stats.total_stops) * 100) : 0;
 
     // Complete the route
     const completedAt = new Date().toISOString();
@@ -106,10 +99,7 @@ export async function POST(
 
     if (updateError) {
       logger.exception(updateError, { api: "driver/routes/[routeId]/complete" });
-      return NextResponse.json(
-        { error: "Failed to complete route" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to complete route" }, { status: 500 });
     }
 
     // Update driver's delivery count
@@ -120,7 +110,9 @@ export async function POST(
       });
     } catch {
       // RPC might not exist yet, ignore
-      logger.info("increment_driver_deliveries RPC not available, skipping", { api: "driver/routes/[routeId]/complete" });
+      logger.info("increment_driver_deliveries RPC not available, skipping", {
+        api: "driver/routes/[routeId]/complete",
+      });
     }
 
     return NextResponse.json({
@@ -130,9 +122,6 @@ export async function POST(
     });
   } catch (error) {
     logger.exception(error, { api: "driver/routes/[routeId]/complete" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

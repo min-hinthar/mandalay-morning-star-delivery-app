@@ -103,25 +103,25 @@ Both are needed: onClick provides instant response, useRouteChangeClose handles 
 
 ## Verification Results
 
-| Check | Status |
-|-------|--------|
-| BottomNav uses usePathname | PASS |
-| BottomNav has layoutId="bottomNavIndicator" | PASS |
-| BottomNav uses z-fixed (no hardcoded z-index) | PASS |
-| BottomNav has md:hidden | PASS |
-| BottomNav has safe-area padding | PASS |
-| MobileMenu uses Drawer | PASS |
-| MobileMenu uses useRouteChangeClose | PASS |
-| MobileMenu links have onClick={onClose} | PASS |
-| pnpm typecheck | PASS |
-| pnpm lint | PASS (only pre-existing warnings) |
+| Check                                         | Status                            |
+| --------------------------------------------- | --------------------------------- |
+| BottomNav uses usePathname                    | PASS                              |
+| BottomNav has layoutId="bottomNavIndicator"   | PASS                              |
+| BottomNav uses z-fixed (no hardcoded z-index) | PASS                              |
+| BottomNav has md:hidden                       | PASS                              |
+| BottomNav has safe-area padding               | PASS                              |
+| MobileMenu uses Drawer                        | PASS                              |
+| MobileMenu uses useRouteChangeClose           | PASS                              |
+| MobileMenu links have onClick={onClose}       | PASS                              |
+| pnpm typecheck                                | PASS                              |
+| pnpm lint                                     | PASS (only pre-existing warnings) |
 
 ## Commits
 
-| Hash | Message |
-|------|---------|
-| 2b46948 | feat(03-03): create BottomNav component |
-| f6a63f0 | feat(03-03): create MobileMenu component |
+| Hash    | Message                                        |
+| ------- | ---------------------------------------------- |
+| 2b46948 | feat(03-03): create BottomNav component        |
+| f6a63f0 | feat(03-03): create MobileMenu component       |
 | c114951 | chore(03-03): update navigation barrel exports |
 
 ## Deviations from Plan

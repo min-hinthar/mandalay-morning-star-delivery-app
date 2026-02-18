@@ -18,11 +18,7 @@ const sizeConfig = {
   xl: 64,
 };
 
-export function BrandedSpinner({
-  size = "md",
-  className,
-  label = "Loading",
-}: BrandedSpinnerProps) {
+export function BrandedSpinner({ size = "md", className, label = "Loading" }: BrandedSpinnerProps) {
   const { shouldAnimate } = useAnimationPreference();
   const pixelSize = sizeConfig[size];
 
@@ -73,13 +69,7 @@ export function BrandedSpinner({
           }
         />
         {/* Center dot */}
-        <circle
-          cx="20"
-          cy="20"
-          r="3"
-          fill="currentColor"
-          className="text-secondary"
-        />
+        <circle cx="20" cy="20" r="3" fill="currentColor" className="text-secondary" />
       </m.svg>
       <span className="sr-only">{label}</span>
     </div>
@@ -89,11 +79,7 @@ export function BrandedSpinner({
 /**
  * Simpler rotating ring spinner as alternative
  */
-export function RingSpinner({
-  size = "md",
-  className,
-  label = "Loading",
-}: BrandedSpinnerProps) {
+export function RingSpinner({ size = "md", className, label = "Loading" }: BrandedSpinnerProps) {
   const { shouldAnimate } = useAnimationPreference();
   const pixelSize = sizeConfig[size];
 

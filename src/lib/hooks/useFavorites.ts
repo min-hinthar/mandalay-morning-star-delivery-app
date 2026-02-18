@@ -17,9 +17,7 @@ export const useFavoritesStore = create<FavoritesStore>()(
         const current = get().favorites;
         const isFav = current.includes(itemId);
         set({
-          favorites: isFav
-            ? current.filter((id) => id !== itemId)
-            : [...current, itemId],
+          favorites: isFav ? current.filter((id) => id !== itemId) : [...current, itemId],
         });
       },
       isFavorite: (itemId) => get().favorites.includes(itemId),

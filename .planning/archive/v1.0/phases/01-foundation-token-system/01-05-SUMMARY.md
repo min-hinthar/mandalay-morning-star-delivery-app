@@ -95,5 +95,6 @@ None - no external service configuration required.
 - Post-Phase 4: Consider upgrading rules back to error once legacy components migrated
 
 ---
-*Phase: 01-foundation-token-system*
-*Completed: 2026-01-22*
+
+_Phase: 01-foundation-token-system_
+_Completed: 2026-01-22_

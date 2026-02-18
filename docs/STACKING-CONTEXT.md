@@ -6,18 +6,18 @@ This document defines the z-index layer system and stacking context patterns for
 
 ## Z-Index Layer System
 
-| Token | Value | Tailwind Class | Use For |
-|-------|-------|----------------|---------|
-| `--z-index-base` | 0 | `z-base` | Default stacking, page content |
-| `--z-index-dropdown` | 10 | `z-dropdown` | Dropdown menus, select options |
-| `--z-index-sticky` | 20 | `z-sticky` | Sticky headers, floating buttons |
-| `--z-index-fixed` | 30 | `z-fixed` | Fixed navigation, persistent UI |
-| `--z-index-modal-backdrop` | 40 | `z-modal-backdrop` | Modal/drawer backdrops |
-| `--z-index-modal` | 50 | `z-modal` | Modal dialogs, drawers, sheets |
-| `--z-index-popover` | 60 | `z-popover` | Popovers appearing over modals |
-| `--z-index-tooltip` | 70 | `z-tooltip` | Tooltips (always on top of content) |
-| `--z-index-toast` | 80 | `z-toast` | Toast notifications |
-| `--z-index-max` | 100 | `z-max` | Emergency override (use sparingly) |
+| Token                      | Value | Tailwind Class     | Use For                             |
+| -------------------------- | ----- | ------------------ | ----------------------------------- |
+| `--z-index-base`           | 0     | `z-base`           | Default stacking, page content      |
+| `--z-index-dropdown`       | 10    | `z-dropdown`       | Dropdown menus, select options      |
+| `--z-index-sticky`         | 20    | `z-sticky`         | Sticky headers, floating buttons    |
+| `--z-index-fixed`          | 30    | `z-fixed`          | Fixed navigation, persistent UI     |
+| `--z-index-modal-backdrop` | 40    | `z-modal-backdrop` | Modal/drawer backdrops              |
+| `--z-index-modal`          | 50    | `z-modal`          | Modal dialogs, drawers, sheets      |
+| `--z-index-popover`        | 60    | `z-popover`        | Popovers appearing over modals      |
+| `--z-index-tooltip`        | 70    | `z-tooltip`        | Tooltips (always on top of content) |
+| `--z-index-toast`          | 80    | `z-toast`          | Toast notifications                 |
+| `--z-index-max`            | 100   | `z-max`            | Emergency override (use sparingly)  |
 
 ## Usage Patterns
 
@@ -63,6 +63,7 @@ import { zIndex, zIndexVar } from "@/design-system/tokens/z-index";
 ## Stacking Context Isolation
 
 A new stacking context is created when an element has:
+
 - `position: relative/absolute/fixed/sticky` with `z-index` other than auto
 - `opacity` less than 1
 - `transform`, `filter`, `backdrop-filter`, `perspective`
@@ -93,9 +94,7 @@ Create isolation boundaries to contain z-index scope:
 #### Sticky Header
 
 ```tsx
-<header className="sticky top-0 z-sticky">
-  {/* Header content at z-20 */}
-</header>
+<header className="sticky top-0 z-sticky">{/* Header content at z-20 */}</header>
 ```
 
 #### Modal with Backdrop

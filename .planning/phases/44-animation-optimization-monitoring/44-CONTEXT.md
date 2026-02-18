@@ -14,6 +14,7 @@ Lock in LCP < 2.5s by enabling React Compiler, reducing Framer Motion bundle via
 ## Implementation Decisions
 
 ### React Compiler rollout
+
 - Enable globally all at once in next.config.ts (not incremental)
 - Already on React 19.2.3 + Next.js 16.1.2 — no upgrade needed
 - If compiler breaks specific components, Claude picks opt-out strategy (e.g., "use no memo" or config exclude)
@@ -23,15 +24,17 @@ Lock in LCP < 2.5s by enabling React Compiler, reducing Framer Motion bundle via
 - No separate bundle measurement for compiler impact — LCP is the goal metric
 
 ### Framer Motion reduction
+
 - Feature bundle: Claude decides (audit actual feature usage, pick minimal set — domAnimation vs domMax)
 - Loading strategy: Claude decides (lazy dynamic import vs eager tree-shaken)
 - Convert ALL motion.div → m.div across entire codebase (full migration)
-- Complex components that can't easily migrate to m.* (AnimatePresence edge cases): keep as-is, pragmatic approach
+- Complex components that can't easily migrate to m.\* (AnimatePresence edge cases): keep as-is, pragmatic approach
 - LazyMotion provider placement: Claude decides based on animation distribution across routes
-- Enable strict mode on LazyMotion — force errors for any remaining motion.* usage inside LazyMotion
+- Enable strict mode on LazyMotion — force errors for any remaining motion.\* usage inside LazyMotion
 - All existing animations must survive optimization — no visual degradation acceptable
 
 ### Lighthouse CI thresholds
+
 - Warn only (not block) when metrics drop below threshold
 - Test all customer routes: homepage, menu, cart, checkout, tracking
 - Track full Lighthouse Performance score (not just LCP)
@@ -41,6 +44,7 @@ Lock in LCP < 2.5s by enabling React Compiler, reducing Framer Motion bundle via
 - PR comment: only when a metric drops below threshold (not on every run)
 
 ### GSAP import audit
+
 - Claude audits codebase to find all GSAP imports and plugins in use (user unsure of current state)
 - Claude decides whether any GSAP animations are removable based on usage analysis
 - Claude decides whether to enforce modular imports via ESLint rule or just document
@@ -50,6 +54,7 @@ Lock in LCP < 2.5s by enabling React Compiler, reducing Framer Motion bundle via
 - Shared GSAP config/setup file: Claude decides based on current codebase pattern
 
 ### Claude's Discretion
+
 - React Compiler opt-out strategy per-file (use no memo vs config exclude)
 - Framer Motion feature bundle selection (domAnimation vs domMax)
 - LazyMotion loading strategy (lazy vs eager)
@@ -67,7 +72,7 @@ Lock in LCP < 2.5s by enabling React Compiler, reducing Framer Motion bundle via
 
 - "Every UI element is reliably clickable and the app feels delightfully alive with motion" — core project value; animation quality must not degrade
 - All existing animations (hero parallax, cart fly-to-cart, page transitions, scroll triggers) must remain visually identical post-optimization
-- LazyMotion strict mode as the enforcement mechanism for full m.* migration
+- LazyMotion strict mode as the enforcement mechanism for full m.\* migration
 
 </specifics>
 
@@ -80,5 +85,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 44-animation-optimization-monitoring*
-*Context gathered: 2026-02-06*
+_Phase: 44-animation-optimization-monitoring_
+_Context gathered: 2026-02-06_

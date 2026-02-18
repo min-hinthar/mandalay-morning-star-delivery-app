@@ -66,18 +66,14 @@ export function StarRating({
             className={cn(
               "rounded-full p-1 outline-none transition-colors",
               "focus-visible:ring-2 focus-visible:ring-saffron-400 focus-visible:ring-offset-2",
-              disabled
-                ? "cursor-default opacity-70"
-                : "cursor-pointer hover:bg-saffron-50"
+              disabled ? "cursor-default opacity-70" : "cursor-pointer hover:bg-saffron-50"
             )}
           >
             <Star
               className={cn(
                 iconSize,
                 "transition-colors duration-200",
-                isFilled
-                  ? "fill-saffron-500 text-saffron-500"
-                  : "fill-none text-charcoal-300"
+                isFilled ? "fill-saffron-500 text-saffron-500" : "fill-none text-charcoal-300"
               )}
             />
           </m.button>

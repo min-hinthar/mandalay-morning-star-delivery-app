@@ -116,18 +116,18 @@ Split 10 leaf UI components (0-2 importers each) from monolithic files into subf
 
 ## Results
 
-| Component | Original | Files | Max Lines | Importers |
-|-----------|----------|-------|-----------|-----------|
-| OrderDetailExpanded | 984 | 8 | 396 | 1 |
-| HowItWorksSection | 876 | 9 | 272 | 1 |
-| AddressesTab | 802 | 6 | 242 | 1 |
-| BrandMascot | 635 | 6 | 215 | 1 |
-| DriverDashboard | 585 | 7 | 153 | 2 |
-| PendingInvitesTab | 524 | 5 | 187 | 1 |
-| PaymentSuccess | 511 | 5 | 183 | 1 |
-| ProfileTab | 431 | 4 | 187 | 1 |
-| MorphingMenu | 425 | 5 | 150 | 1 |
-| CartItem | 401 | 4 | 174 | 1 |
+| Component           | Original | Files | Max Lines | Importers |
+| ------------------- | -------- | ----- | --------- | --------- |
+| OrderDetailExpanded | 984      | 8     | 396       | 1         |
+| HowItWorksSection   | 876      | 9     | 272       | 1         |
+| AddressesTab        | 802      | 6     | 242       | 1         |
+| BrandMascot         | 635      | 6     | 215       | 1         |
+| DriverDashboard     | 585      | 7     | 153       | 2         |
+| PendingInvitesTab   | 524      | 5     | 187       | 1         |
+| PaymentSuccess      | 511      | 5     | 183       | 1         |
+| ProfileTab          | 431      | 4     | 187       | 1         |
+| MorphingMenu        | 425      | 5     | 150       | 1         |
+| CartItem            | 401      | 4     | 174       | 1         |
 
 **Total:** 10 monolithic files replaced by 59 focused files across 10 subfolders.
 
@@ -154,10 +154,10 @@ None - plan executed exactly as written.
 
 ## Commits
 
-| Hash | Description |
-|------|-------------|
+| Hash      | Description                                                                                                          |
+| --------- | -------------------------------------------------------------------------------------------------------------------- |
 | `0acfddd` | Split 5 largest leaf components (OrderDetailExpanded, HowItWorksSection, AddressesTab, BrandMascot, DriverDashboard) |
-| `d0ae117` | Split 5 smaller leaf components (PendingInvitesTab, PaymentSuccess, ProfileTab, MorphingMenu, CartItem) |
+| `d0ae117` | Split 5 smaller leaf components (PendingInvitesTab, PaymentSuccess, ProfileTab, MorphingMenu, CartItem)              |
 
 ## Next Phase Readiness
 

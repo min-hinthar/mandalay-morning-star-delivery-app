@@ -1,13 +1,7 @@
 "use client";
 
 import { memo, useState, useCallback, useRef, useEffect } from "react";
-import {
-  m,
-  AnimatePresence,
-  useMotionValue,
-  useTransform,
-  type PanInfo,
-} from "framer-motion";
+import { m, AnimatePresence, useMotionValue, useTransform, type PanInfo } from "framer-motion";
 import { Trash2, Edit3 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -133,13 +127,19 @@ export const CartItem = memo(function CartItem({
       >
         {/* Validation overlay for sold-out/unavailable items */}
         {isStale && onRemoveStale && (
-          <ValidationOverlay status={validationStatus as "sold-out" | "unavailable"} onRemove={onRemoveStale} />
+          <ValidationOverlay
+            status={validationStatus as "sold-out" | "unavailable"}
+            onRemove={onRemoveStale}
+          />
         )}
 
         <div className={cn("flex gap-3", isStale && "opacity-50 pointer-events-none")}>
           {/* Image */}
           <m.div
-            className={cn("flex-shrink-0 rounded-xl overflow-hidden bg-surface-secondary/50", compact ? "w-16 h-16" : "w-20 h-20")}
+            className={cn(
+              "flex-shrink-0 rounded-xl overflow-hidden bg-surface-secondary/50",
+              compact ? "w-16 h-16" : "w-20 h-20"
+            )}
             whileHover={shouldAnimate && !isStale ? { scale: 1.05 } : undefined}
             transition={getSpring(spring.snappy)}
           >
@@ -148,7 +148,9 @@ export const CartItem = memo(function CartItem({
               <img src={item.imageUrl} alt={item.nameEn} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-3xl">
-                <span role="img" aria-label="Food">{getFallbackEmoji(item.nameEn)}</span>
+                <span role="img" aria-label="Food">
+                  {getFallbackEmoji(item.nameEn)}
+                </span>
               </div>
             )}
           </m.div>
@@ -157,22 +159,61 @@ export const CartItem = memo(function CartItem({
           <div className="flex-1 min-w-0">
             <div className="flex justify-between items-start gap-2">
               <div className="min-w-0">
-                <h3 className={cn("font-semibold text-text-primary truncate", compact ? "text-sm" : "text-base")}>{item.nameEn}</h3>
+                <h3
+                  className={cn(
+                    "font-semibold text-text-primary truncate",
+                    compact ? "text-sm" : "text-base"
+                  )}
+                >
+                  {item.nameEn}
+                </h3>
                 {item.modifiers.length > 0 && (
-                  <m.p initial={shouldAnimate ? { opacity: 0 } : undefined} animate={shouldAnimate ? { opacity: 1 } : undefined} className={cn("text-text-secondary truncate", compact ? "text-xs" : "text-sm")}>
+                  <m.p
+                    initial={shouldAnimate ? { opacity: 0 } : undefined}
+                    animate={shouldAnimate ? { opacity: 1 } : undefined}
+                    className={cn("text-text-secondary truncate", compact ? "text-xs" : "text-sm")}
+                  >
                     {item.modifiers.map((m) => m.optionName).join(", ")}
                   </m.p>
                 )}
-                {item.notes && (<p className="text-xs text-text-muted mt-1 italic truncate">&quot;{item.notes}&quot;</p>)}
+                {item.notes && (
+                  <p className="text-xs text-text-muted mt-1 italic truncate">
+                    &quot;{item.notes}&quot;
+                  </p>
+                )}
               </div>
               <div className="flex items-center gap-1">
                 {onEdit && !isStale && (
-                  <m.button type="button" onClick={() => onEdit(item)} className={cn("w-8 h-8 rounded-full flex items-center justify-center", "text-text-muted hover:text-text-primary", "hover:bg-surface-tertiary transition-colors", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2")} whileHover={shouldAnimate ? { scale: 1.1 } : undefined} whileTap={shouldAnimate ? { scale: 0.9 } : undefined} aria-label="Edit item">
+                  <m.button
+                    type="button"
+                    onClick={() => onEdit(item)}
+                    className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center",
+                      "text-text-muted hover:text-text-primary",
+                      "hover:bg-surface-tertiary transition-colors",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    )}
+                    whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
+                    whileTap={shouldAnimate ? { scale: 0.9 } : undefined}
+                    aria-label="Edit item"
+                  >
                     <Edit3 className="w-4 h-4" />
                   </m.button>
                 )}
                 {!isStale && (
-                  <m.button type="button" onClick={handleRemove} className={cn("w-8 h-8 rounded-full flex items-center justify-center", "text-text-muted hover:text-red-500", "hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors", "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2")} whileHover={shouldAnimate ? { scale: 1.1 } : undefined} whileTap={shouldAnimate ? { scale: 0.9 } : undefined} aria-label="Remove item">
+                  <m.button
+                    type="button"
+                    onClick={handleRemove}
+                    className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center",
+                      "text-text-muted hover:text-red-500",
+                      "hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                    )}
+                    whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
+                    whileTap={shouldAnimate ? { scale: 0.9 } : undefined}
+                    aria-label="Remove item"
+                  >
                     <Trash2 className="w-4 h-4" />
                   </m.button>
                 )}
@@ -181,11 +222,25 @@ export const CartItem = memo(function CartItem({
 
             <div className="flex items-center justify-between mt-2">
               {!isStale && (
-                <QuantitySelector quantity={item.quantity} onIncrement={handleIncrement} onDecrement={handleDecrement} min={0} size={compact ? "sm" : "md"} />
+                <QuantitySelector
+                  quantity={item.quantity}
+                  onIncrement={handleIncrement}
+                  onDecrement={handleDecrement}
+                  min={0}
+                  size={compact ? "sm" : "md"}
+                />
               )}
               <m.div className={cn("text-right", isStale && "ml-auto")}>
-                <PriceTicker value={itemTotal} inCents={true} className={cn("font-semibold text-primary", compact ? "text-sm" : "text-base")} />
-                {item.quantity > 1 && (<p className="text-xs text-text-muted">${(item.basePriceCents / 100).toFixed(2)} each</p>)}
+                <PriceTicker
+                  value={itemTotal}
+                  inCents={true}
+                  className={cn("font-semibold text-primary", compact ? "text-sm" : "text-base")}
+                />
+                {item.quantity > 1 && (
+                  <p className="text-xs text-text-muted">
+                    ${(item.basePriceCents / 100).toFixed(2)} each
+                  </p>
+                )}
               </m.div>
             </div>
 

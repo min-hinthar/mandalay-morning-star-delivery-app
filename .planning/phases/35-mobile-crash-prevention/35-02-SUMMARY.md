@@ -78,19 +78,19 @@ Each task was committed atomically:
 
 ### Timer Cleanup (Task 1)
 
-| File | Pattern | Status |
-|------|---------|--------|
-| `src/components/ui/driver/StopDetail.tsx` | copyTimeoutRef with clearTimeout in cleanup | Compliant |
-| `src/components/ui/checkout/PaymentSuccess.tsx` | copyTimeoutRef + inline timer cleanup | Compliant |
-| `src/components/ui/brand/BrandMascot.tsx` | clickTimeoutRefs array + isMounted guard | Compliant |
+| File                                            | Pattern                                     | Status    |
+| ----------------------------------------------- | ------------------------------------------- | --------- |
+| `src/components/ui/driver/StopDetail.tsx`       | copyTimeoutRef with clearTimeout in cleanup | Compliant |
+| `src/components/ui/checkout/PaymentSuccess.tsx` | copyTimeoutRef + inline timer cleanup       | Compliant |
+| `src/components/ui/brand/BrandMascot.tsx`       | clickTimeoutRefs array + isMounted guard    | Compliant |
 
 ### Event Listener and GSAP (Task 2)
 
-| File | Pattern | Status |
-|------|---------|--------|
-| `src/components/ui/Drawer.tsx` | addEventListener with removeEventListener in cleanup | Compliant |
-| `src/components/ui/scroll/ScrollChoreographer.tsx` | useGSAP with scope (auto cleanup) | Compliant |
-| `src/components/ui/cart/FlyToCart.tsx` | timeline.kill() in useEffect cleanup | Compliant |
+| File                                               | Pattern                                              | Status    |
+| -------------------------------------------------- | ---------------------------------------------------- | --------- |
+| `src/components/ui/Drawer.tsx`                     | addEventListener with removeEventListener in cleanup | Compliant |
+| `src/components/ui/scroll/ScrollChoreographer.tsx` | useGSAP with scope (auto cleanup)                    | Compliant |
+| `src/components/ui/cart/FlyToCart.tsx`             | timeline.kill() in useEffect cleanup                 | Compliant |
 
 ## Decisions Made
 
@@ -116,5 +116,6 @@ None - no external service configuration required.
 - Prevention utilities from 35-01 available for future development
 
 ---
-*Phase: 35-mobile-crash-prevention*
-*Completed: 2026-01-30*
+
+_Phase: 35-mobile-crash-prevention_
+_Completed: 2026-01-30_

@@ -37,38 +37,38 @@ export function useCart() {
   );
 
   // Memoize the return object to prevent unnecessary re-renders
-  return useMemo(() => ({
-    items,
-    itemCount,
-    itemsSubtotal,
-    estimatedDeliveryFee,
-    estimatedTotal,
-    isEmpty: items.length === 0,
+  return useMemo(
+    () => ({
+      items,
+      itemCount,
+      itemsSubtotal,
+      estimatedDeliveryFee,
+      estimatedTotal,
+      isEmpty: items.length === 0,
 
-    formattedSubtotal: formatPrice(itemsSubtotal),
-    formattedDeliveryFee: formatPrice(estimatedDeliveryFee),
-    formattedTotal: formatPrice(estimatedTotal),
+      formattedSubtotal: formatPrice(itemsSubtotal),
+      formattedDeliveryFee: formatPrice(estimatedDeliveryFee),
+      formattedTotal: formatPrice(estimatedTotal),
 
-    amountToFreeDelivery: Math.max(
-      0,
-      FREE_DELIVERY_THRESHOLD_CENTS - itemsSubtotal
-    ),
+      amountToFreeDelivery: Math.max(0, FREE_DELIVERY_THRESHOLD_CENTS - itemsSubtotal),
 
-    addItem,
-    updateQuantity,
-    removeItem,
-    clearCart,
-    getItemTotal,
-  }), [
-    items,
-    itemCount,
-    itemsSubtotal,
-    estimatedDeliveryFee,
-    estimatedTotal,
-    addItem,
-    updateQuantity,
-    removeItem,
-    clearCart,
-    getItemTotal,
-  ]);
+      addItem,
+      updateQuantity,
+      removeItem,
+      clearCart,
+      getItemTotal,
+    }),
+    [
+      items,
+      itemCount,
+      itemsSubtotal,
+      estimatedDeliveryFee,
+      estimatedTotal,
+      addItem,
+      updateQuantity,
+      removeItem,
+      clearCart,
+      getItemTotal,
+    ]
+  );
 }

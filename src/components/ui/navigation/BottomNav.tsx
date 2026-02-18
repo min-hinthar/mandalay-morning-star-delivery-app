@@ -78,9 +78,10 @@ export function BottomNav({ items = defaultItems, className }: BottomNavProps) {
         <span
           className="absolute bottom-1 h-0.5 w-6 rounded-full bg-primary transition-all duration-200 ease-out"
           style={{
-            left: activeIndex >= 0
-              ? `calc(${(activeIndex / items.length) * 100}% + ${100 / items.length / 2}% - 12px)`
-              : "0%",
+            left:
+              activeIndex >= 0
+                ? `calc(${(activeIndex / items.length) * 100}% + ${100 / items.length / 2}% - 12px)`
+                : "0%",
             opacity: activeIndex >= 0 ? 1 : 0,
           }}
           aria-hidden="true"

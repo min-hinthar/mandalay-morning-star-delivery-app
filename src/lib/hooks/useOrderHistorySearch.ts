@@ -26,10 +26,7 @@ export interface OrderHistoryItem {
  * @param query - Search query string
  * @param userId - Authenticated user ID (undefined if not logged in)
  */
-export function useOrderHistorySearch(
-  query: string,
-  userId?: string
-): OrderHistoryItem[] {
+export function useOrderHistorySearch(query: string, userId?: string): OrderHistoryItem[] {
   // Fetch order items for search (small dataset per user)
   const { data: orderItems } = useQuery({
     queryKey: ["order-items-for-search", userId],
@@ -37,9 +34,7 @@ export function useOrderHistorySearch(
       const supabase = createClient();
       const { data, error } = await supabase
         .from("order_items")
-        .select(
-          "name_snapshot, quantity, orders!inner(id, placed_at, user_id)"
-        )
+        .select("name_snapshot, quantity, orders!inner(id, placed_at, user_id)")
         .eq("orders.user_id", userId!)
         .order("orders(placed_at)", { ascending: false })
         .limit(100);
@@ -47,21 +42,19 @@ export function useOrderHistorySearch(
       if (error) return [];
 
       // Transform to OrderHistoryItem[]
-      return (data ?? []).map(
-        (row: Record<string, unknown>) => {
-          const orders = row.orders as
-            | { id: string; placed_at: string }
-            | { id: string; placed_at: string }[];
-          const order = Array.isArray(orders) ? orders[0] : orders;
+      return (data ?? []).map((row: Record<string, unknown>) => {
+        const orders = row.orders as
+          | { id: string; placed_at: string }
+          | { id: string; placed_at: string }[];
+        const order = Array.isArray(orders) ? orders[0] : orders;
 
-          return {
-            orderId: order?.id ?? "",
-            nameSnapshot: (row.name_snapshot as string) ?? "",
-            placedAt: order?.placed_at ?? "",
-            quantity: (row.quantity as number) ?? 1,
-          };
-        }
-      );
+        return {
+          orderId: order?.id ?? "",
+          nameSnapshot: (row.name_snapshot as string) ?? "",
+          placedAt: order?.placed_at ?? "",
+          quantity: (row.quantity as number) ?? 1,
+        };
+      });
     },
     enabled: !!userId,
     staleTime: 5 * 60 * 1000,
@@ -80,7 +73,10 @@ export function useOrderHistorySearch(
   // Search and return top 5
   const results = useMemo(() => {
     if (!fuse || !query.trim()) return [];
-    return fuse.search(query).slice(0, 5).map((r) => r.item);
+    return fuse
+      .search(query)
+      .slice(0, 5)
+      .map((r) => r.item);
   }, [fuse, query]);
 
   return results;

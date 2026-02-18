@@ -54,6 +54,7 @@ completed: 2026-02-15
 - **Files modified:** 2
 
 ## Accomplishments
+
 - Lighthouse CI assertions upgraded from warn to error for LCP (<4000ms), CLS (<0.15), performance (>=0.6), accessibility (>=0.9)
 - 5 public routes tested: /, /menu, /login, /privacy, /terms (replaced /cart and /checkout)
 - CI lint job expanded with ESLint --max-warnings 0, Stylelint CSS lint, and Prettier format check
@@ -68,10 +69,12 @@ Each task was committed atomically:
 2. **Task 2: Expand lint job with CSS lint, Prettier, and strict ESLint** - `db66d61` (feat)
 
 ## Files Created/Modified
+
 - `lighthouserc.js` - Error-level assertions, 5 public routes, mobile-only settings
 - `.github/workflows/ci.yml` - Path filtering, expanded lint, Node 22
 
 ## Decisions Made
+
 - Error-level assertions for LCP <4000ms, CLS <0.15 (matching project targets from Phase 60)
 - Performance score floor 0.6, accessibility score floor 0.9 (pragmatic baselines)
 - FCP and TBT kept as warn-only (informational, not blocking)
@@ -92,10 +95,12 @@ None.
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - CI pipeline fully hardened with error-level performance gates and expanded lint checks
 - Advisory-only (checks visible on PRs but merge not blocked -- branch protection deferred)
 - Ready for Phase 66 (Final QA) or any future branch protection enablement
 
 ---
-*Phase: 65-cicd-hardening*
-*Completed: 2026-02-15*
+
+_Phase: 65-cicd-hardening_
+_Completed: 2026-02-15_

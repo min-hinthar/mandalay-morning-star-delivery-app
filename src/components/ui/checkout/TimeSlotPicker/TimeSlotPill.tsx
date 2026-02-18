@@ -21,13 +21,7 @@ interface TimeSlotPillProps {
   index: number;
 }
 
-export function TimeSlotPill({
-  slot,
-  isSelected,
-  isDisabled,
-  onSelect,
-  index,
-}: TimeSlotPillProps) {
+export function TimeSlotPill({ slot, isSelected, isDisabled, onSelect, index }: TimeSlotPillProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   const hour = parseInt(slot.start.split(":")[0]);
@@ -51,22 +45,24 @@ export function TimeSlotPill({
         isSelected
           ? "border-primary bg-primary-light/50 shadow-md"
           : isDisabled
-          ? "border-border bg-surface-tertiary text-text-muted cursor-not-allowed opacity-50"
-          : "border-border bg-surface-primary hover:border-primary/50"
+            ? "border-border bg-surface-tertiary text-text-muted cursor-not-allowed opacity-50"
+            : "border-border bg-surface-primary hover:border-primary/50"
       )}
     >
       <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
         <m.div
-          animate={isSelected && shouldAnimate ? {
-            rotate: [0, -10, 10, 0],
-            scale: [1, 1.15, 1],
-          } : undefined}
+          animate={
+            isSelected && shouldAnimate
+              ? {
+                  rotate: [0, -10, 10, 0],
+                  scale: [1, 1.15, 1],
+                }
+              : undefined
+          }
           transition={{ duration: 0.5, delay: 0.1 }}
           className={cn(
             "w-10 h-10 rounded-full flex items-center justify-center",
-            isSelected
-              ? "bg-primary text-text-inverse"
-              : "bg-surface-secondary text-text-muted"
+            isSelected ? "bg-primary text-text-inverse" : "bg-surface-secondary text-text-muted"
           )}
         >
           <TimeIcon className="w-5 h-5" />
@@ -74,10 +70,7 @@ export function TimeSlotPill({
       </div>
 
       <div className="flex-1 text-left">
-        <p className={cn(
-          "font-semibold",
-          isSelected ? "text-primary" : "text-text-primary"
-        )}>
+        <p className={cn("font-semibold", isSelected ? "text-primary" : "text-text-primary")}>
           {slot.label}
         </p>
         <p className="text-xs text-text-muted">1 hour delivery window</p>

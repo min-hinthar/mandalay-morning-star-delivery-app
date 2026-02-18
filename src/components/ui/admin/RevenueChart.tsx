@@ -55,11 +55,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
           bottom: 5,
         }}
       >
-        <CartesianGrid
-          strokeDasharray="3 3"
-          stroke={V6_CHART_COLORS.grid}
-          strokeOpacity={0.6}
-        />
+        <CartesianGrid strokeDasharray="3 3" stroke={V6_CHART_COLORS.grid} strokeOpacity={0.6} />
         <XAxis
           dataKey="date"
           className="text-xs font-body"

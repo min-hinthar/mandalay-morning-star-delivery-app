@@ -13,11 +13,13 @@ The key technical challenges are: (1) replacing 36 files' `animate-pulse` patter
 **Primary recommendation:** Work page-by-page in isolation. Each admin/driver page gets its own plan unit: skeleton replacement, card row styling, empty state, and micro-interactions. The existing `motion-tokens` system covers all animation needs -- no new libraries required.
 
 <user_constraints>
+
 ## User Constraints (from CONTEXT.md)
 
 ### Locked Decisions
 
 **Table & Card Styling:**
+
 - Card rows (not traditional tables) for orders, drivers, routes
 - Scale + shadow hover effect (tiny scale-up 1.01 + shadow increase)
 - Active status badges (In Transit, Preparing) soft-pulse; completed/cancelled static
@@ -36,6 +38,7 @@ The key technical challenges are: (1) replacing 36 files' `animate-pulse` patter
 - Mobile: stacked full-width cards showing status + name + items/amount + time, tap to expand
 
 **Skeleton & Loading Feel:**
+
 - Skeleton-to-content: fade crossfade transition (skeleton fades out, content fades in simultaneously)
 - Dashboard stat cards: counting animation (numbers count up from 0 to final value)
 - Inline error card when data fails to load (replaces skeleton area with error + retry button)
@@ -44,6 +47,7 @@ The key technical challenges are: (1) replacing 36 files' `animate-pulse` patter
 - Driver pages get same skeleton treatment as admin (consistent across both dashboards)
 
 **Empty State Personality:**
+
 - Food emoji compositions as illustrations (matching existing brand pattern)
 - Playful + food-themed messaging tone (e.g., "The kitchen is quiet... for now")
 - Every empty state includes a CTA/action button
@@ -53,6 +57,7 @@ The key technical challenges are: (1) replacing 36 files' `animate-pulse` patter
 - Celebration entrance when first item arrives after empty state (empty fades out, first card bounces in with sparkle)
 
 **Driver Data Presentation:**
+
 - Driver history: summary cards (date, stop count, on-time %, total time) -- collapsed by default, expandable for per-stop detail
 - Driver stop detail: full premium animation (status transitions, map marker pulse, timeline step sequence)
 - Admin driver detail: performance dashboard section with 4 stat cards (deliveries, avg time, on-time %, exceptions) with animated counters
@@ -63,12 +68,14 @@ The key technical challenges are: (1) replacing 36 files' `animate-pulse` patter
 - Exception actions: "Mark Resolved" quick action on alert card + link to navigate to full detail
 
 **Admin Dashboard Stats:**
+
 - All key metrics displayed: orders, revenue, active drivers, on-time rate, pending, exceptions
 - Each stat card links/navigates to its relevant detail page
 - Animated counter numbers on load
 - Stat cards with subtle teal gradients
 
 **Color & Theme:**
+
 - Admin uses teal/cyan accent color (distinct from customer's warm gold)
 - Driver app also uses teal accent (operational apps share palette, distinct from customer)
 - Token-ready for dark mode (semantic tokens throughout, dark mode itself deferred)
@@ -76,18 +83,21 @@ The key technical challenges are: (1) replacing 36 files' `animate-pulse` patter
 - Subtle teal gradients on stat cards and feature cards
 
 **Navigation:**
+
 - Admin sidebar: animated active indicator (slides to active item) + icon hover animations (wobble/scale)
 - Animated breadcrumbs with smooth transitions, chevron separators, clickable parents
 - Unified admin page header component: page title + animated count badge + action buttons area
 - Driver app: bottom tab bar with animated active indicator + badge counts for pending items
 
 **Notification Styling:**
+
 - Floating card toasts (rounded card with shadow, slides in from top-right, icon + message + optional action)
 - Critical-only sounds (subtle chime for new orders and exceptions, silent for success/info)
 - Toast stacking: first visible, rest collapsed as "+3 more" badge, expandable
 - Swipe to dismiss + auto-dismiss with fade after timeout
 
 **Form Polish:**
+
 - Floating labels (animate from inside input to above on focus, matching auth experience)
 - Validation: shake + inline error (invalid field shakes briefly + red text below + red border)
 - Save success: checkmark morph animation on button + success toast (double confirmation)
@@ -110,32 +120,32 @@ The key technical challenges are: (1) replacing 36 files' `animate-pulse` patter
 - **Admin dark mode** -- Full dark theme for admin. Token-ready in Phase 57, actual dark variants deferred.
 - **Notification bell + inbox** -- Persistent notification center with read/unread state. New feature, own phase.
 - **Multi-step wizard/stepper** -- Animated stepper UI for complex admin operations (create route, bulk assign). New component infrastructure, own phase.
-</user_constraints>
+  </user_constraints>
 
 ## Standard Stack
 
 ### Core (Already in Codebase)
 
-| Library | Version | Purpose | Status |
-|---------|---------|---------|--------|
-| Framer Motion | v11 | All animations: springs, variants, AnimatePresence, layout | Already installed |
-| Tailwind CSS v4 | v4 | Utility-first styling, `@theme inline` token system | Already installed |
-| lucide-react | latest | Icon library for all UI icons | Already installed |
-| Radix UI | various | Dialog, Select, Progress, Alert Dialog primitives | Already installed |
-| react-hook-form + zod | v5/v3 | Form validation (for floating label + shake pattern) | Already installed |
+| Library               | Version | Purpose                                                    | Status            |
+| --------------------- | ------- | ---------------------------------------------------------- | ----------------- |
+| Framer Motion         | v11     | All animations: springs, variants, AnimatePresence, layout | Already installed |
+| Tailwind CSS v4       | v4      | Utility-first styling, `@theme inline` token system        | Already installed |
+| lucide-react          | latest  | Icon library for all UI icons                              | Already installed |
+| Radix UI              | various | Dialog, Select, Progress, Alert Dialog primitives          | Already installed |
+| react-hook-form + zod | v5/v3   | Form validation (for floating label + shake pattern)       | Already installed |
 
 ### Supporting (Already in Codebase)
 
-| Library | Purpose | Location |
-|---------|---------|----------|
-| `motion-tokens` | Spring presets, stagger, hover, variants, tap | `src/lib/motion-tokens/` |
-| `Skeleton` component | Shimmer/pulse/wave/grain loading states | `src/components/ui/skeleton/` |
-| `EmptyState` component | Variant-based empty states with icons | `src/components/ui/EmptyState.tsx` |
-| `AnimatedValue` | Spring-based counting animation for numbers | `src/components/ui/admin/AdminDashboard/AnimatedValue.tsx` |
-| `SaveButton` | Morphing save button (idle/saving/success) | `src/components/ui/admin/settings/SaveButton.tsx` |
-| `FloatingUnsavedBar` | Fixed bottom bar for unsaved changes | `src/components/ui/admin/settings/FloatingUnsavedBar.tsx` |
-| `ExpandableTableRow` | Expandable row with preview panels | `src/components/ui/admin/ExpandableTableRow/` |
-| `useAnimationPreference` | Respects prefers-reduced-motion | `src/lib/hooks/useAnimationPreference` |
+| Library                  | Purpose                                       | Location                                                   |
+| ------------------------ | --------------------------------------------- | ---------------------------------------------------------- |
+| `motion-tokens`          | Spring presets, stagger, hover, variants, tap | `src/lib/motion-tokens/`                                   |
+| `Skeleton` component     | Shimmer/pulse/wave/grain loading states       | `src/components/ui/skeleton/`                              |
+| `EmptyState` component   | Variant-based empty states with icons         | `src/components/ui/EmptyState.tsx`                         |
+| `AnimatedValue`          | Spring-based counting animation for numbers   | `src/components/ui/admin/AdminDashboard/AnimatedValue.tsx` |
+| `SaveButton`             | Morphing save button (idle/saving/success)    | `src/components/ui/admin/settings/SaveButton.tsx`          |
+| `FloatingUnsavedBar`     | Fixed bottom bar for unsaved changes          | `src/components/ui/admin/settings/FloatingUnsavedBar.tsx`  |
+| `ExpandableTableRow`     | Expandable row with preview panels            | `src/components/ui/admin/ExpandableTableRow/`              |
+| `useAnimationPreference` | Respects prefers-reduced-motion               | `src/lib/hooks/useAnimationPreference`                     |
 
 ### New Libraries: NONE
 
@@ -239,12 +249,14 @@ const cardContainer = staggerContainer(0.04, 0.06);
     placeholder=" "
     className="peer w-full rounded-2xl border bg-surface-secondary/50 pl-11 pr-4 pt-6 pb-2"
   />
-  <label className={cn(
-    "absolute left-11 top-1/2 -translate-y-1/2 text-sm text-muted-foreground",
-    "transition-all duration-200 pointer-events-none",
-    "peer-focus:top-3 peer-focus:text-xs peer-focus:text-primary peer-focus:font-medium",
-    "peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs"
-  )}>
+  <label
+    className={cn(
+      "absolute left-11 top-1/2 -translate-y-1/2 text-sm text-muted-foreground",
+      "transition-all duration-200 pointer-events-none",
+      "peer-focus:top-3 peer-focus:text-xs peer-focus:text-primary peer-focus:font-medium",
+      "peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs"
+    )}
+  >
     Label text
   </label>
 </div>
@@ -292,18 +304,18 @@ import { overlay } from "@/lib/motion-tokens";
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Spring/bounce animations | Custom keyframes | `spring.*` from `motion-tokens/core.ts` | 10+ tested presets already exist |
-| Stagger animations | Manual delay calculations | `staggerContainer()` + `staggerItem` | Handles cap at 500ms, exit stagger |
-| Skeleton loading | Custom `animate-pulse` divs | `<Skeleton>` from `skeleton/base.tsx` | Shimmer, reduced motion, grain support |
-| Empty states | Inline "no data" text | `<EmptyState variant="...">` | Consistent icons, animations, CTAs |
-| Counting numbers | `setInterval` counter | `<AnimatedValue>` | Spring physics, format support |
-| Save button morph | Custom state machine | `<SaveButton>` | Tested idle/saving/success flow |
-| Unsaved changes bar | Custom bottom bar | `<FloatingUnsavedBar>` | AnimatePresence, spring entry |
-| Floating labels | Custom label positioning | CSS `peer` pattern from MagicLinkForm | Pure CSS, no JS, accessible |
-| Hover effects | Custom whileHover configs | `hover.*` from `motion-tokens/variants.ts` | Consistent lift/scale/glow |
-| Toast notifications | Custom toast system | Existing `Toast` + `useToast` | Stacking, dismiss, portal |
+| Problem                  | Don't Build                 | Use Instead                                | Why                                    |
+| ------------------------ | --------------------------- | ------------------------------------------ | -------------------------------------- |
+| Spring/bounce animations | Custom keyframes            | `spring.*` from `motion-tokens/core.ts`    | 10+ tested presets already exist       |
+| Stagger animations       | Manual delay calculations   | `staggerContainer()` + `staggerItem`       | Handles cap at 500ms, exit stagger     |
+| Skeleton loading         | Custom `animate-pulse` divs | `<Skeleton>` from `skeleton/base.tsx`      | Shimmer, reduced motion, grain support |
+| Empty states             | Inline "no data" text       | `<EmptyState variant="...">`               | Consistent icons, animations, CTAs     |
+| Counting numbers         | `setInterval` counter       | `<AnimatedValue>`                          | Spring physics, format support         |
+| Save button morph        | Custom state machine        | `<SaveButton>`                             | Tested idle/saving/success flow        |
+| Unsaved changes bar      | Custom bottom bar           | `<FloatingUnsavedBar>`                     | AnimatePresence, spring entry          |
+| Floating labels          | Custom label positioning    | CSS `peer` pattern from MagicLinkForm      | Pure CSS, no JS, accessible            |
+| Hover effects            | Custom whileHover configs   | `hover.*` from `motion-tokens/variants.ts` | Consistent lift/scale/glow             |
+| Toast notifications      | Custom toast system         | Existing `Toast` + `useToast`              | Stacking, dismiss, portal              |
 
 **Key insight:** This phase is 100% visual polish using existing infrastructure. The codebase has mature animation, skeleton, and empty state systems. The work is applying these consistently, not building new systems.
 
@@ -314,11 +326,12 @@ import { overlay } from "@/lib/motion-tokens";
 **What goes wrong:** Infinite animations or untracked timeouts cause mobile browsers to crash on component unmount.
 **Why it happens:** Phase 35 documented 8+ files with this pattern. Animation-heavy phases are highest risk.
 **How to avoid:**
+
 1. All `repeat` values must be finite (max 10, never `Infinity`)
 2. All `setTimeout` must use ref tracking + cleanup effect
 3. No `backdrop-blur` on mobile (use `sm:backdrop-blur-*` only)
 4. Test overlay close on actual iOS devices
-**Warning signs:** White screen on modal close, page refresh on drawer close.
+   **Warning signs:** White screen on modal close, page refresh on drawer close.
 
 ### Pitfall 2: Layout Shift During Skeleton-to-Content Transition
 
@@ -404,12 +417,12 @@ function OrdersPageSkeleton() {
 ```typescript
 // Status-based background tint per CONTEXT.md
 const STATUS_TINTS: Record<OrderStatus, string> = {
-  pending: "bg-secondary/[0.03]",        // amber wash
-  confirmed: "bg-accent-teal/[0.03]",    // teal wash
+  pending: "bg-secondary/[0.03]", // amber wash
+  confirmed: "bg-accent-teal/[0.03]", // teal wash
   preparing: "bg-accent-magenta/[0.03]", // purple wash
   out_for_delivery: "bg-primary/[0.03]", // red wash
-  delivered: "bg-green/[0.03]",          // green wash
-  cancelled: "bg-surface-tertiary/50",   // gray wash
+  delivered: "bg-green/[0.03]", // green wash
+  cancelled: "bg-surface-tertiary/50", // gray wash
 };
 ```
 
@@ -435,53 +448,54 @@ const isActiveStatus = ["pending", "confirmed", "preparing", "out_for_delivery"]
 ```typescript
 // Source: driver history page needs to replace hardcoded 98
 // Compute from route_stops: count stops delivered within delivery_window_end
-const onTimeStops = stops.filter(stop => {
-  if (stop.status !== "delivered" || !stop.delivered_at || !stop.order?.delivery_window_end) return false;
+const onTimeStops = stops.filter((stop) => {
+  if (stop.status !== "delivered" || !stop.delivered_at || !stop.order?.delivery_window_end)
+    return false;
   return new Date(stop.delivered_at) <= new Date(stop.order.delivery_window_end);
 });
-const onTimePercentage = totalDelivered > 0
-  ? Math.round((onTimeStops.length / totalDelivered) * 100)
-  : 0;
+const onTimePercentage =
+  totalDelivered > 0 ? Math.round((onTimeStops.length / totalDelivered) * 100) : 0;
 ```
 
 ## Codebase-Specific Findings
 
 ### Files Requiring animate-pulse Removal (Admin/Driver Scope)
 
-| File | Location | Current Pattern |
-|------|----------|-----------------|
-| `(admin)/admin/orders/page.tsx` | Lines 128-136 | 3 pulse divs |
-| `(admin)/admin/drivers/page.tsx` | Lines 174-189 | 4 stat skeletons + table |
-| `(admin)/admin/routes/page.tsx` | Lines 175-190 | 4 stat skeletons + table |
-| `(admin)/admin/drivers/[id]/page.tsx` via `DriverDetailClient.tsx` | Lines 175-198 | Full page pulse |
-| `(driver)/driver/page.tsx` | Lines 133-165 | Greeting + route + stats |
-| `(driver)/driver/history/page.tsx` | Lines 69-98 | Stats + routes |
-| `(driver)/driver/route/page.tsx` | Lines 152-180 | Progress + stops |
-| `(driver)/driver/route/[stopId]/page.tsx` | Lines 148-182 | Header + sections |
-| `admin/AdminDashboard/KPISkeleton.tsx` | Already uses Skeleton | OK -- keep |
-| `admin/settings/SettingsClient/SettingsSkeleton.tsx` | Already uses Skeleton | OK -- keep |
+| File                                                               | Location              | Current Pattern          |
+| ------------------------------------------------------------------ | --------------------- | ------------------------ |
+| `(admin)/admin/orders/page.tsx`                                    | Lines 128-136         | 3 pulse divs             |
+| `(admin)/admin/drivers/page.tsx`                                   | Lines 174-189         | 4 stat skeletons + table |
+| `(admin)/admin/routes/page.tsx`                                    | Lines 175-190         | 4 stat skeletons + table |
+| `(admin)/admin/drivers/[id]/page.tsx` via `DriverDetailClient.tsx` | Lines 175-198         | Full page pulse          |
+| `(driver)/driver/page.tsx`                                         | Lines 133-165         | Greeting + route + stats |
+| `(driver)/driver/history/page.tsx`                                 | Lines 69-98           | Stats + routes           |
+| `(driver)/driver/route/page.tsx`                                   | Lines 152-180         | Progress + stops         |
+| `(driver)/driver/route/[stopId]/page.tsx`                          | Lines 148-182         | Header + sections        |
+| `admin/AdminDashboard/KPISkeleton.tsx`                             | Already uses Skeleton | OK -- keep               |
+| `admin/settings/SettingsClient/SettingsSkeleton.tsx`               | Already uses Skeleton | OK -- keep               |
 
 ### Existing Empty State Variants
 
-| Variant | Exists | Page |
-|---------|--------|------|
-| `admin-orders` | YES | EmptyState.tsx |
-| `driver-route` | YES | EmptyState.tsx |
-| `exceptions` | YES | EmptyState.tsx |
-| Admin drivers empty | Inline in DriverListTable | Needs migration |
-| Admin routes empty | Inline in RouteListTable | Needs migration |
-| Driver history empty | Inline in history page | Needs migration |
+| Variant              | Exists                    | Page            |
+| -------------------- | ------------------------- | --------------- |
+| `admin-orders`       | YES                       | EmptyState.tsx  |
+| `driver-route`       | YES                       | EmptyState.tsx  |
+| `exceptions`         | YES                       | EmptyState.tsx  |
+| Admin drivers empty  | Inline in DriverListTable | Needs migration |
+| Admin routes empty   | Inline in RouteListTable  | Needs migration |
+| Driver history empty | Inline in history page    | Needs migration |
 
 ### Pages Needing Teal Color Migration
 
-| Page | Current Accent | Target |
-|------|---------------|--------|
-| `admin/orders/page.tsx` | `brand-red` | `accent-teal` / `primary` (admin context) |
-| `admin/routes/page.tsx` | `saffron` / `curry` | `accent-teal` |
-| Admin dashboard quick actions | `brand-red` | `accent-teal` |
-| Admin sidebar active state | `primary` (red) | Decision: keep or teal? |
+| Page                          | Current Accent      | Target                                    |
+| ----------------------------- | ------------------- | ----------------------------------------- |
+| `admin/orders/page.tsx`       | `brand-red`         | `accent-teal` / `primary` (admin context) |
+| `admin/routes/page.tsx`       | `saffron` / `curry` | `accent-teal`                             |
+| Admin dashboard quick actions | `brand-red`         | `accent-teal`                             |
+| Admin sidebar active state    | `primary` (red)     | Decision: keep or teal?                   |
 
 **Recommendation (Claude's Discretion):** The admin sidebar and KPI cards currently use `primary` (red) as accent. CONTEXT.md says "admin uses teal/cyan accent." This means replacing `primary` color references in admin pages with `accent-teal`. However, the sidebar `AdminNav.tsx` uses generic `primary` token -- consider whether to:
+
 1. Override `--color-primary` for admin route group (complex, CSS cascade)
 2. Replace `primary` with explicit `accent-teal` references in admin components (simpler, more files)
 
@@ -490,6 +504,7 @@ const onTimePercentage = totalDelivered > 0
 ### Existing AnimatedValue Reuse Map
 
 The `AnimatedValue` component already supports: `number`, `currency`, `percentage`, `duration` formats. This covers all stat card needs:
+
 - Orders count: `format="number"`
 - Revenue: `format="currency"`
 - On-time rate: `format="percentage"`
@@ -499,6 +514,7 @@ The `AnimatedValue` component already supports: `number`, `currency`, `percentag
 ### Toast System Assessment
 
 Current toast (`src/components/ui/Toast.tsx`) uses V8 system with:
+
 - Portal rendering
 - Right-side slide-in animation
 - Type-based colors (success/error/warning/info)
@@ -509,40 +525,45 @@ CONTEXT.md wants: top-right floating cards, stacking with "+N more" badge, swipe
 
 ### Form Components Needing Floating Labels
 
-| Form | File | Current Input Style |
-|------|------|-------------------|
-| Settings forms | `OperationsSettingsForm.tsx`, `DeliverySettingsForm.tsx`, `NotificationSettingsForm.tsx`, `EmailSettingsForm.tsx` | Standard `<Input>` |
-| Edit Driver Modal | `EditProfileModal.tsx` | Standard `<Input>` |
-| Create Route Modal | `CreateRouteModal.tsx` | Standard `<Input>` + `<Select>` |
-| Add Driver Modal | `AddDriverModal.tsx` | Standard `<Input>` |
-| Invite Driver Modal | `InviteDriverModal.tsx` | Standard `<Input>` |
+| Form                | File                                                                                                              | Current Input Style             |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Settings forms      | `OperationsSettingsForm.tsx`, `DeliverySettingsForm.tsx`, `NotificationSettingsForm.tsx`, `EmailSettingsForm.tsx` | Standard `<Input>`              |
+| Edit Driver Modal   | `EditProfileModal.tsx`                                                                                            | Standard `<Input>`              |
+| Create Route Modal  | `CreateRouteModal.tsx`                                                                                            | Standard `<Input>` + `<Select>` |
+| Add Driver Modal    | `AddDriverModal.tsx`                                                                                              | Standard `<Input>`              |
+| Invite Driver Modal | `InviteDriverModal.tsx`                                                                                           | Standard `<Input>`              |
 
 **Approach:** Create a `FloatingLabelInput` wrapper component that reuses the `peer` CSS pattern from `MagicLinkForm.tsx`, then replace `<Input>` instances in admin forms.
 
 ## Discretion Recommendations
 
 ### Shimmer Direction & Color
+
 - **Direction:** Left-to-right (matches existing `bg-gradient-shimmer` in codebase)
 - **Color:** Use existing `surface-tertiary` base with shimmer gradient (already configured)
 - **Min display time:** 300ms minimum before crossfade to prevent flash
 - **Initial vs refresh:** Initial = full skeleton, refresh = subtle inline spinner or thin top bar
 
 ### On-Time Visualization
+
 - **Recommendation:** Circular progress ring (donut chart style) with percentage in center
 - Rationale: Compact, works at card-small size, strong visual impact
 - Implementation: SVG `<circle>` with `stroke-dasharray` animated via Framer Motion
 
 ### Bulk Action Checkboxes
+
 - **Recommendation:** Skip for now. Admin volume is a small restaurant delivery app (5-20 orders/day, 3-10 drivers). Bulk actions add complexity without proportional value.
 - Add if: order volume exceeds 50/day consistently
 
 ### Filtered-to-Empty vs Truly-Empty
+
 - **Recommendation:** Distinguish with different messaging:
   - Truly empty: "The kitchen is quiet... for now" + CTA to create
   - Filtered empty: "No matches for this filter" + CTA to clear filter
   - Both use same `<EmptyState>` component with different props
 
 ### Animation Timing
+
 - **Stagger gap:** 40ms per CONTEXT.md (override codebase default 80ms)
 - **Crossfade:** 200ms (matches `transition.fast`)
 - **Spring preset:** `spring.gentle` for card hover, `spring.snappy` for buttons, `spring.default` for entries
@@ -573,6 +594,7 @@ CONTEXT.md wants: top-right floating cards, stacking with "+N more" badge, swipe
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Codebase analysis: 50+ files read across admin, driver, components, motion-tokens, skeleton system
 - `src/lib/motion-tokens/` -- full token system (core, stagger, variants, effects, cards, scroll)
 - `src/components/ui/skeleton/` -- base, table, card, text skeleton primitives
@@ -583,16 +605,19 @@ CONTEXT.md wants: top-right floating cards, stacking with "+N more" badge, swipe
 - `.claude/learnings/tailwind-v4.md` -- `@theme inline` requirement, token registration
 
 ### Secondary (MEDIUM confidence)
+
 - Phase 57 CONTEXT.md decisions -- user-locked specifications
 - Existing patterns: MagicLinkForm floating labels, SaveButton morph, FloatingUnsavedBar
 
 ### Tertiary (LOW confidence)
+
 - Web Audio API for toast sounds -- needs iOS testing validation
 - On-time percentage computation -- needs database schema verification for `delivered_at` column
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH -- 100% existing codebase libraries, zero new dependencies
 - Architecture: HIGH -- all patterns already exist in codebase, just need consistent application
 - Pitfalls: HIGH -- documented from past phases (ERROR_HISTORY.md, learnings/)

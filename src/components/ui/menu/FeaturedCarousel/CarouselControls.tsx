@@ -99,16 +99,8 @@ export function CarouselControls({
   return (
     <div className={cn("relative", className)}>
       {/* Arrow buttons */}
-      <ArrowButton
-        direction="left"
-        onClick={onPrev}
-        disabled={isAtStart}
-      />
-      <ArrowButton
-        direction="right"
-        onClick={onNext}
-        disabled={isAtEnd}
-      />
+      <ArrowButton direction="left" onClick={onPrev} disabled={isAtStart} />
+      <ArrowButton direction="right" onClick={onNext} disabled={isAtEnd} />
 
       {/* Dots indicator */}
       <div className="flex justify-center mt-6">

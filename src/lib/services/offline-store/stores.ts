@@ -69,12 +69,7 @@ export const pendingStatus = {
 
 // Pending photos
 export const pendingPhotos = {
-  async add(
-    routeId: string,
-    stopId: string,
-    blob: Blob,
-    idempotencyKey?: string
-  ): Promise<void> {
+  async add(routeId: string, stopId: string, blob: Blob, idempotencyKey?: string): Promise<void> {
     await addToStore(STORES.PENDING_PHOTOS, {
       id: crypto.randomUUID(),
       routeId,

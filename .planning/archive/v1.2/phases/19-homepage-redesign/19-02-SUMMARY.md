@@ -82,7 +82,7 @@ Each task was committed atomically:
 
 ## Decisions Made
 
-- **Floating animation timing:** 4 + index * 0.5 seconds for varied motion across icons
+- **Floating animation timing:** 4 + index \* 0.5 seconds for varied motion across icons
 - **Connector gradient:** Different gradient for each connector (primary->secondary, secondary->green, green->orange)
 - **Testimonial auto-rotation:** 5 seconds default, configurable via prop
 - **Reduced motion behavior:** Auto-rotation disabled, manual dot navigation preserved
@@ -108,5 +108,5 @@ None - no external service configuration required.
 
 ---
 
-*Phase: 19-homepage-redesign*
-*Completed: 2026-01-25*
+_Phase: 19-homepage-redesign_
+_Completed: 2026-01-25_

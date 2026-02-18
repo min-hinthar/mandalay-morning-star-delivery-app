@@ -1,5 +1,5 @@
-import { RouteLoading } from '@/components/ui/RouteLoading'
+import { RouteLoading } from "@/components/ui/RouteLoading";
 
 export default function SettingsLoading() {
-  return <RouteLoading message="Loading settings..." />
+  return <RouteLoading message="Loading settings..." />;
 }

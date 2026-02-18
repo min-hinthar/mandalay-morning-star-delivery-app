@@ -24,10 +24,7 @@ export const MAX_STAGGER_DELAY = 0.5;
 /**
  * Create staggered container variants
  */
-export function staggerContainer(
-  staggerDelay = 0.06,
-  delayChildren = 0.08
-): Variants {
+export function staggerContainer(staggerDelay = 0.06, delayChildren = 0.08): Variants {
   return {
     hidden: { opacity: 0 },
     visible: {
@@ -51,9 +48,7 @@ export function staggerContainer(
  * Create Phase 22 standard stagger container (80ms gap, capped at 500ms)
  * Use for menu items, order history, and other scrolling lists
  */
-export function staggerContainer80(
-  delayChildren = 0.08
-): Variants {
+export function staggerContainer80(delayChildren = 0.08): Variants {
   return {
     hidden: { opacity: 0 },
     visible: {

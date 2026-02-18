@@ -58,6 +58,7 @@ completed: 2026-02-09
 - **Files modified:** 3
 
 ## Accomplishments
+
 - CartValidationResult, CartItemValidation, CartItemValidationStatus types with all 4 validation states
 - useCartHydrated hook gates validation on Zustand persist rehydration
 - useCartValidation compares cart items against live menu data with force-refetch
@@ -73,11 +74,13 @@ Each task was committed atomically:
 2. **Task 2: Create useCartHydrated and useCartValidation hooks** - `fb0ff3f` (feat)
 
 ## Files Created/Modified
+
 - `src/types/cart.ts` - Added CartValidationResult types, categoryId on CartItem, MINIMUM_ORDER_CENTS, updateItemPrice to CartStore interface
 - `src/lib/stores/cart-store.ts` - Added updateItemPrice action implementation
 - `src/lib/hooks/useCartValidation.ts` - New file: useCartHydrated and useCartValidation hooks
 
 ## Decisions Made
+
 - **CART-01-HYDRATE:** useCartHydrated uses `persist.hasHydrated()` for initial check + `onFinishHydration()` subscription for async case, with re-check in effect to handle race condition
 - **CART-01-REFETCH:** Force-refetch menu data on mount via `refetch()` to ensure freshness rather than relying on potentially stale cache
 - **CART-01-SILENT:** API errors produce `status: 'error'` with `hasBlockingIssues: false` -- allows checkout to proceed, backend validates on submit
@@ -87,6 +90,7 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 - Pre-existing untracked files (ValidationOverlay.tsx, PriceChangeBadge.tsx) from future plan caused `pnpm lint` to fail globally. Confirmed these are not part of plan 01 scope. Plan-specific files lint clean.
 
 ## User Setup Required
@@ -94,10 +98,12 @@ None - plan executed exactly as written.
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Validation infrastructure ready for plan 02 (CartValidationBanner UI component)
 - useCartValidation hook provides all data needed for UI rendering
 - updateItemPrice enables price-change dismissal flow
 
 ---
-*Phase: 52-cart-validation*
-*Completed: 2026-02-09*
+
+_Phase: 52-cart-validation_
+_Completed: 2026-02-09_

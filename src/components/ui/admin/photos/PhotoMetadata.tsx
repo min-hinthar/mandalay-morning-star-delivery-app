@@ -2,15 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { m } from "framer-motion";
-import {
-  X,
-  Trash2,
-  Link2,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  ExternalLink,
-} from "lucide-react";
+import { X, Trash2, Link2, CheckCircle, AlertCircle, Loader2, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/currency";
 import { Button } from "@/components/ui/button";
@@ -52,9 +44,9 @@ export function PhotoMetadata({
 }: PhotoMetadataProps) {
   const [selectedMenuItemId, setSelectedMenuItemId] = useState<string>("");
   const [driveUrl, setDriveUrl] = useState("");
-  const [driveStatus, setDriveStatus] = useState<
-    "idle" | "verifying" | "valid" | "invalid"
-  >("idle");
+  const [driveStatus, setDriveStatus] = useState<"idle" | "verifying" | "valid" | "invalid">(
+    "idle"
+  );
   const [driveError, setDriveError] = useState<string | null>(null);
   const [verifiedPreviewUrl, setVerifiedPreviewUrl] = useState<string | null>(null);
   const [isAssigning, setIsAssigning] = useState(false);
@@ -150,15 +142,8 @@ export function PhotoMetadata({
     >
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="font-display font-semibold text-text-primary">
-          Photo Details
-        </h3>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClose}
-          className="h-8 w-8 p-0"
-        >
+        <h3 className="font-display font-semibold text-text-primary">Photo Details</h3>
+        <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -166,11 +151,7 @@ export function PhotoMetadata({
       {/* Photo Preview */}
       <div className="aspect-square w-full overflow-hidden rounded-card-sm bg-surface-tertiary">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={photo.imageUrl}
-          alt={photo.name}
-          className="h-full w-full object-cover"
-        />
+        <img src={photo.imageUrl} alt={photo.name} className="h-full w-full object-cover" />
       </div>
 
       {/* Photo Info */}
@@ -217,10 +198,7 @@ export function PhotoMetadata({
           Assign to Different Item
         </label>
         <div className="flex gap-2">
-          <Select
-            value={selectedMenuItemId}
-            onValueChange={setSelectedMenuItemId}
-          >
+          <Select value={selectedMenuItemId} onValueChange={setSelectedMenuItemId}>
             <SelectTrigger className="flex-1">
               <SelectValue placeholder="Select menu item" />
             </SelectTrigger>
@@ -243,16 +221,8 @@ export function PhotoMetadata({
               )}
             </SelectContent>
           </Select>
-          <Button
-            onClick={handleAssign}
-            disabled={!selectedMenuItemId || isAssigning}
-            size="sm"
-          >
-            {isAssigning ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Assign"
-            )}
+          <Button onClick={handleAssign} disabled={!selectedMenuItemId || isAssigning} size="sm">
+            {isAssigning ? <Loader2 className="h-4 w-4 animate-spin" /> : "Assign"}
           </Button>
         </div>
       </div>

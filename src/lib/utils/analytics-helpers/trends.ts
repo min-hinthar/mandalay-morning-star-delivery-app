@@ -9,10 +9,7 @@ import type { MetricsPeriod } from "@/types/analytics";
  * Calculate percentage change between two values
  * @returns Percentage change (positive = increase, negative = decrease)
  */
-export function calculateTrendPercentage(
-  current: number,
-  previous: number
-): number {
+export function calculateTrendPercentage(current: number, previous: number): number {
   if (previous === 0) {
     return current > 0 ? 100 : 0;
   }

@@ -146,8 +146,7 @@ export function OrdersTable({
       let comparison = 0;
       switch (sortField) {
         case "placedAt":
-          comparison =
-            new Date(a.placedAt).getTime() - new Date(b.placedAt).getTime();
+          comparison = new Date(a.placedAt).getTime() - new Date(b.placedAt).getTime();
           break;
         case "status":
           comparison = a.status.localeCompare(b.status);
@@ -161,8 +160,7 @@ export function OrdersTable({
           else if (!b.deliveryWindowStart) comparison = -1;
           else
             comparison =
-              new Date(a.deliveryWindowStart).getTime() -
-              new Date(b.deliveryWindowStart).getTime();
+              new Date(a.deliveryWindowStart).getTime() - new Date(b.deliveryWindowStart).getTime();
           break;
       }
       return sortDirection === "asc" ? comparison : -comparison;
@@ -174,10 +172,7 @@ export function OrdersTable({
     [sortedOrders, visibleCount]
   );
 
-  const dateGroups = useMemo(
-    () => groupOrdersByDate(paginatedOrders),
-    [paginatedOrders]
-  );
+  const dateGroups = useMemo(() => groupOrdersByDate(paginatedOrders), [paginatedOrders]);
 
   const selectedOrder = useMemo(
     () => orders.find((o) => o.id === selectedOrderId) ?? null,
@@ -189,12 +184,7 @@ export function OrdersTable({
   // Empty states
   if (orders.length === 0) {
     if (isFiltered) {
-      return (
-        <EmptyState
-          variant="admin-orders-filtered"
-          onAction={onClearFilters}
-        />
-      );
+      return <EmptyState variant="admin-orders-filtered" onAction={onClearFilters} />;
     }
     return <EmptyState variant="admin-orders" />;
   }
@@ -257,12 +247,7 @@ export function OrdersTable({
               className="space-y-2"
             >
               {group.orders.map((order) => (
-                <m.div
-                  key={order.id}
-                  variants={cardItem}
-                  layout
-                  transition={spring.gentle}
-                >
+                <m.div key={order.id} variants={cardItem} layout transition={spring.gentle}>
                   <OrderCardRow
                     order={order}
                     selected={selectedOrderId === order.id}

@@ -93,10 +93,7 @@ export function ParallaxLayer({
   }
 
   return (
-    <div
-      ref={containerRef}
-      className={cn("parallax-container overflow-hidden", className)}
-    >
+    <div ref={containerRef} className={cn("parallax-container overflow-hidden", className)}>
       <div ref={elementRef} className="parallax-layer will-change-transform">
         {children}
       </div>

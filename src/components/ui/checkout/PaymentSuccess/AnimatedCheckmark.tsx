@@ -17,10 +17,14 @@ export function AnimatedCheckmark() {
     >
       {/* Outer glow */}
       <m.div
-        animate={shouldAnimate ? {
-          scale: [1, 1.3, 1],
-          opacity: [0.5, 0.2, 0.5],
-        } : undefined}
+        animate={
+          shouldAnimate
+            ? {
+                scale: [1, 1.3, 1],
+                opacity: [0.5, 0.2, 0.5],
+              }
+            : undefined
+        }
         transition={{
           duration: 2,
           repeat: 5,

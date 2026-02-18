@@ -57,14 +57,12 @@ export function ProfileInfoCard({
   })();
 
   const roleBadgeVariant =
-    profile.role === "super_admin" ? "secondary" as const : "default" as const;
+    profile.role === "super_admin" ? ("secondary" as const) : ("default" as const);
   const roleLabel = profile.role === "super_admin" ? "Super Admin" : "Admin";
 
   return (
     <div className="rounded-card border border-border bg-surface-primary p-5 space-y-5">
-      <h2 className="font-display text-lg font-semibold text-text-primary">
-        Profile Information
-      </h2>
+      <h2 className="font-display text-lg font-semibold text-text-primary">Profile Information</h2>
 
       {/* Editable fields */}
       <div className="grid gap-4 sm:grid-cols-2">
@@ -113,18 +111,14 @@ export function ProfileInfoCard({
         <div className="flex items-center gap-3 text-sm">
           <KeyRound className="h-4 w-4 text-text-muted shrink-0" />
           <span className="text-text-secondary">Signed in with</span>
-          <span className="ml-auto text-text-primary font-medium">
-            {providerLabel}
-          </span>
+          <span className="ml-auto text-text-primary font-medium">{providerLabel}</span>
         </div>
 
         {/* Phone display (when viewing, shows icon) */}
         <div className="flex items-center gap-3 text-sm">
           <Phone className="h-4 w-4 text-text-muted shrink-0" />
           <span className="text-text-secondary">Member since</span>
-          <span className="ml-auto text-text-primary font-medium">
-            {memberSinceFormatted}
-          </span>
+          <span className="ml-auto text-text-primary font-medium">{memberSinceFormatted}</span>
         </div>
       </div>
 

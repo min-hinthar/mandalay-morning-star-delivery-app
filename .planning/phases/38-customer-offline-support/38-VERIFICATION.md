@@ -17,19 +17,20 @@ re_verification: false
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 1 | User sees OfflineIndicator banner when network disconnected | VERIFIED | OfflineIndicator.tsx renders amber banner with WifiOff icon when !isOnline |
-| 2 | User can browse cached menu data when offline | VERIFIED | MenuContent.tsx implements menuCache.save/get with fallback to cached data |
-| 3 | User sees stale indicator on cached content | VERIFIED | StaleBadge.tsx shows "Cached X ago" when !isOnline and cachedAt exists |
-| 4 | User is prompted to refresh when new service worker available | VERIFIED | UpdatePrompt.tsx detects waiting worker with 5-second countdown |
-| 5 | User images load from cache without network request after first visit | VERIFIED | sw.ts implements CacheFirst for images with 30-day expiration |
+| #   | Truth                                                                 | Status   | Evidence                                                                   |
+| --- | --------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------- |
+| 1   | User sees OfflineIndicator banner when network disconnected           | VERIFIED | OfflineIndicator.tsx renders amber banner with WifiOff icon when !isOnline |
+| 2   | User can browse cached menu data when offline                         | VERIFIED | MenuContent.tsx implements menuCache.save/get with fallback to cached data |
+| 3   | User sees stale indicator on cached content                           | VERIFIED | StaleBadge.tsx shows "Cached X ago" when !isOnline and cachedAt exists     |
+| 4   | User is prompted to refresh when new service worker available         | VERIFIED | UpdatePrompt.tsx detects waiting worker with 5-second countdown            |
+| 5   | User images load from cache without network request after first visit | VERIFIED | sw.ts implements CacheFirst for images with 30-day expiration              |
 
 **Score:** 5/5 truths verified
 
 ### Required Artifacts
 
 All 9 key artifacts exist, are substantive, and properly wired:
+
 - src/app/sw.ts (113 lines)
 - src/lib/services/customer-offline-store.ts (159 lines)
 - src/lib/hooks/useCustomerOfflineSync.ts (73 lines)
@@ -43,6 +44,7 @@ All 9 key artifacts exist, are substantive, and properly wired:
 ### Requirements Coverage
 
 All 12 OFFLINE requirements satisfied:
+
 - OFFLINE-01: @serwist/next installed (v9.5.4)
 - OFFLINE-02: Service worker registered (ServiceWorkerRegistration.tsx)
 - OFFLINE-03: Images CacheFirst 30-day (sw.ts line 54-64)

@@ -57,9 +57,10 @@ completed: 2026-01-28
 - **Files modified:** 2
 
 ## Accomplishments
+
 - BrandMascot completely removed (import, props, rendering)
 - Hero content vertically centered in viewport
-- Gradient uses --hero-bg-* tokens (warm saffron palette)
+- Gradient uses --hero-bg-\* tokens (warm saffron palette)
 - Layer containers exist for orbs (far, mid) and emojis
 - Parallax transforms use parallaxPresets from motion-tokens
 - Hero.tsx now 482 lines (was 442)
@@ -73,10 +74,12 @@ Each task was committed atomically:
 3. **Task 3: Update scroll parallax transforms** - `669ccc4` (feat)
 
 ## Files Created/Modified
+
 - `src/components/ui/homepage/Hero.tsx` - Restructured with layer architecture, parallax transforms
 - `src/components/ui/homepage/HomePageClient.tsx` - Removed showMascot prop
 
 ## Decisions Made
+
 - BrandMascot removed per CONTEXT.md (floating emojis replace it)
 - Content overlay changed from justify-end to justify-center for vertical centering
 - Gradient background uses var(--hero-bg-start/mid/end) tokens
@@ -85,9 +88,11 @@ Each task was committed atomically:
 - Smooth springs applied to all layer transforms (stiffness: 100, damping: 30)
 
 ## Deviations from Plan
+
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Fixed HomePageClient showMascot prop**
+
 - **Found during:** Task 1
 - **Issue:** HomePageClient passed showMascot={true} to Hero after prop was removed
 - **Fix:** Removed showMascot prop from Hero usage in HomePageClient.tsx
@@ -95,16 +100,20 @@ Each task was committed atomically:
 - **Commit:** Included in 1fd28d3
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Layer structure ready for orb and emoji components (31-03)
 - Parallax transforms defined but not yet connected to layers
 - Layer IDs available: hero-layer-orbs-far, hero-layer-orbs-mid, hero-layer-emojis
 
 ---
-*Phase: 31-hero-redesign*
-*Completed: 2026-01-28*
+
+_Phase: 31-hero-redesign_
+_Completed: 2026-01-28_

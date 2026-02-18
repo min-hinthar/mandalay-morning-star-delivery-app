@@ -31,22 +31,14 @@ export interface SearchResultCardProps {
  * Premium card design with layered depth, subtle shadows, and
  * staggered fade-in entrance animation via Framer Motion m.* components.
  */
-export function SearchResultCard({
-  item,
-  matches,
-  onSelect,
-  index,
-}: SearchResultCardProps) {
+export function SearchResultCard({ item, matches, onSelect, index }: SearchResultCardProps) {
   const isSoldOut = item.isSoldOut;
   const isPopular = item.tags.includes("popular");
 
   // Filter displayable tags: exclude meta tags, allergen-prefixed, and optional-suffix
   const dietaryTags = item.tags.filter(
     (t) =>
-      t !== "popular" &&
-      t !== "featured" &&
-      !t.startsWith("contains_") &&
-      !t.endsWith("_optional")
+      t !== "popular" && t !== "featured" && !t.startsWith("contains_") && !t.endsWith("_optional")
   );
 
   return (
@@ -70,10 +62,7 @@ export function SearchResultCard({
           damping: 28,
           delay: staggerDelay(index, 0.04, 0.32),
         }}
-        className={cn(
-          "flex items-start gap-3 px-3 py-2.5",
-          "group"
-        )}
+        className={cn("flex items-start gap-3 px-3 py-2.5", "group")}
       >
         {/* Thumbnail: 64px square */}
         <div
@@ -95,9 +84,7 @@ export function SearchResultCard({
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-surface-secondary">
-              <span className="text-2xl leading-none">
-                {getCategoryEmoji(item._categorySlug)}
-              </span>
+              <span className="text-2xl leading-none">{getCategoryEmoji(item._categorySlug)}</span>
             </div>
           )}
 
@@ -115,11 +102,7 @@ export function SearchResultCard({
         <div className="flex-1 min-w-0 py-0.5">
           {/* Item name with match highlighting */}
           <p className="text-sm font-semibold text-text-primary truncate leading-snug">
-            <HighlightedText
-              text={item.nameEn}
-              matches={matches}
-              fieldKey="nameEn"
-            />
+            <HighlightedText text={item.nameEn} matches={matches} fieldKey="nameEn" />
           </p>
 
           {/* Category badge + dietary tags (single line) */}
@@ -135,9 +118,7 @@ export function SearchResultCard({
             >
               {item._categoryName}
             </span>
-            {dietaryTags.length > 0 && (
-              <span className="text-border text-2xs leading-none">·</span>
-            )}
+            {dietaryTags.length > 0 && <span className="text-border text-2xs leading-none">·</span>}
             {dietaryTags.map((tag) => (
               <span
                 key={tag}
@@ -147,8 +128,14 @@ export function SearchResultCard({
                   "text-2xs font-medium leading-none",
                   tag === "vegetarian" && "bg-green-500/15 text-green-700 dark:text-green-400",
                   tag === "vegan" && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-                  (tag === "spicy" || tag === "very-spicy" || tag === "extra-spicy") && "bg-red-500/15 text-red-600 dark:text-red-400",
-                  tag !== "vegetarian" && tag !== "vegan" && tag !== "spicy" && tag !== "very-spicy" && tag !== "extra-spicy" && "bg-surface-secondary text-text-muted"
+                  (tag === "spicy" || tag === "very-spicy" || tag === "extra-spicy") &&
+                    "bg-red-500/15 text-red-600 dark:text-red-400",
+                  tag !== "vegetarian" &&
+                    tag !== "vegan" &&
+                    tag !== "spicy" &&
+                    tag !== "very-spicy" &&
+                    tag !== "extra-spicy" &&
+                    "bg-surface-secondary text-text-muted"
                 )}
               >
                 {formatTagLabel(tag)}
@@ -164,7 +151,9 @@ export function SearchResultCard({
                 title={item.allergens.map((a) => ALLERGEN_MAP[a]?.label || a).join(", ")}
               >
                 <AlertTriangle className="w-2.5 h-2.5" />
-                {item.allergens.length > 1 ? `${item.allergens.length} allergens` : ALLERGEN_MAP[item.allergens[0]]?.label || item.allergens[0]}
+                {item.allergens.length > 1
+                  ? `${item.allergens.length} allergens`
+                  : ALLERGEN_MAP[item.allergens[0]]?.label || item.allergens[0]}
               </span>
             </div>
           )}

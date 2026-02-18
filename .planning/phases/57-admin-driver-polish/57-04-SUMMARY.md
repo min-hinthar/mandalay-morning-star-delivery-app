@@ -91,17 +91,18 @@ completed: 2026-02-11
 
 ## Decisions Made
 
-| ID | Decision | Rationale |
-|----|----------|-----------|
-| ROUTES-04-DRAWER | RouteDetailDrawer uses framer-motion slide-in with escape+backdrop close | No sheet/dialog library in project; FM provides consistent animation with rest of admin UI |
-| ROUTES-04-VOID | onViewRoute/onStatusChange props retained but voided in RouteListTable | Drawer handles navigation via Link; props kept for interface compat and future per-row actions |
-| ROUTES-04-DATEGROUP | Routes grouped by date with sticky headers | Matches CONTEXT.md spec for sticky date section headers ("Today", "Yesterday", date string) |
+| ID                  | Decision                                                                 | Rationale                                                                                      |
+| ------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| ROUTES-04-DRAWER    | RouteDetailDrawer uses framer-motion slide-in with escape+backdrop close | No sheet/dialog library in project; FM provides consistent animation with rest of admin UI     |
+| ROUTES-04-VOID      | onViewRoute/onStatusChange props retained but voided in RouteListTable   | Drawer handles navigation via Link; props kept for interface compat and future per-row actions |
+| ROUTES-04-DATEGROUP | Routes grouped by date with sticky headers                               | Matches CONTEXT.md spec for sticky date section headers ("Today", "Yesterday", date string)    |
 
 ## Deviations from Plan
 
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Removed unused `cn` import from RouteCardRow**
+
 - **Found during:** Task 1 (RouteCardRow typecheck)
 - **Issue:** `cn` was imported but not used, causing TS6133 error
 - **Fix:** Removed unused import
@@ -110,6 +111,7 @@ completed: 2026-02-11
 - **Committed in:** c17bb61
 
 **2. [Rule 1 - Bug] Fixed unused imports in RouteListTable and RouteMobileCard**
+
 - **Found during:** Task 2 (typecheck)
 - **Issue:** `RouteStatus` type, `onViewRoute`/`onStatusChange` destructured but unused; `cardItem` import unused
 - **Fix:** Removed RouteStatus import, voided unused props, removed cardItem import
@@ -138,5 +140,6 @@ None - no external service configuration required.
 - All 3 admin table pages (orders, drivers, routes) now have consistent card-based treatment
 
 ---
-*Phase: 57-admin-driver-polish*
-*Completed: 2026-02-11*
+
+_Phase: 57-admin-driver-polish_
+_Completed: 2026-02-11_

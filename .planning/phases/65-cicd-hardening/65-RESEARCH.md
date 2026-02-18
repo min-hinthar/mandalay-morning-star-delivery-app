@@ -16,32 +16,32 @@ The existing `lighthouserc.js` tests 4 routes (`/`, `/menu`, `/cart`, `/checkout
 
 ### Core (already installed)
 
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| `@lhci/cli` | 0.15.1 | Lighthouse CI CLI | Official Google tool for CI performance testing |
-| `treosh/lighthouse-ci-action` | v12 | GitHub Action wrapper | De facto standard, uses Lighthouse v12.6 |
-| `stylelint` | 17.0.0 | CSS linting | Already configured with Tailwind v4 rules |
-| `prettier` | 3.7.4 | Code formatting | Already configured with `.prettierrc` |
-| `eslint` | 9.x | JS/TS linting | Already configured with flat config |
-| `vitest` | 4.0.17 | Unit testing | Already configured, `test:ci` script exists |
-| `pnpm/action-setup` | v4 | pnpm installer for CI | Official pnpm action |
-| `actions/setup-node` | v4 | Node.js setup with cache | Built-in pnpm store caching |
-| `actions/upload-artifact` | v4 | Artifact storage | Already used for build output |
+| Library                       | Version | Purpose                  | Why Standard                                    |
+| ----------------------------- | ------- | ------------------------ | ----------------------------------------------- |
+| `@lhci/cli`                   | 0.15.1  | Lighthouse CI CLI        | Official Google tool for CI performance testing |
+| `treosh/lighthouse-ci-action` | v12     | GitHub Action wrapper    | De facto standard, uses Lighthouse v12.6        |
+| `stylelint`                   | 17.0.0  | CSS linting              | Already configured with Tailwind v4 rules       |
+| `prettier`                    | 3.7.4   | Code formatting          | Already configured with `.prettierrc`           |
+| `eslint`                      | 9.x     | JS/TS linting            | Already configured with flat config             |
+| `vitest`                      | 4.0.17  | Unit testing             | Already configured, `test:ci` script exists     |
+| `pnpm/action-setup`           | v4      | pnpm installer for CI    | Official pnpm action                            |
+| `actions/setup-node`          | v4      | Node.js setup with cache | Built-in pnpm store caching                     |
+| `actions/upload-artifact`     | v4      | Artifact storage         | Already used for build output                   |
 
 ### Supporting (may add)
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `dorny/paths-filter` | v3 | Path-based job skipping | Skip Lighthouse for docs/config-only changes |
-| Lighthouse CI GitHub App | N/A | PR status checks + report links | Optional: adds status check badges to PR |
+| Library                  | Version | Purpose                         | When to Use                                  |
+| ------------------------ | ------- | ------------------------------- | -------------------------------------------- |
+| `dorny/paths-filter`     | v3      | Path-based job skipping         | Skip Lighthouse for docs/config-only changes |
+| Lighthouse CI GitHub App | N/A     | PR status checks + report links | Optional: adds status check badges to PR     |
 
 ### Alternatives Considered
 
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| `treosh/lighthouse-ci-action` | Raw `@lhci/cli` via `npx` | Action handles artifacts/storage automatically; raw CLI gives more control but more boilerplate |
-| `dorny/paths-filter` | GitHub's built-in `paths:` filter | Built-in `paths:` only works at workflow level, not job level; paths-filter works per-job |
-| `temporaryPublicStorage` | Self-hosted LHCI server | Temporary storage is sufficient for advisory checks; server adds infrastructure overhead |
+| Instead of                    | Could Use                         | Tradeoff                                                                                        |
+| ----------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `treosh/lighthouse-ci-action` | Raw `@lhci/cli` via `npx`         | Action handles artifacts/storage automatically; raw CLI gives more control but more boilerplate |
+| `dorny/paths-filter`          | GitHub's built-in `paths:` filter | Built-in `paths:` only works at workflow level, not job level; paths-filter works per-job       |
+| `temporaryPublicStorage`      | Self-hosted LHCI server           | Temporary storage is sufficient for advisory checks; server adds infrastructure overhead        |
 
 **No new installation needed.** All tools are already in `devDependencies`.
 
@@ -71,6 +71,7 @@ ci.yml
 ```
 
 **Key changes:**
+
 1. Merge CSS lint and Prettier check into the existing `lint` job (no new job = fewer billable minutes)
 2. Add path filtering so Lighthouse only runs when source code changes (not for README, .planning, etc.)
 3. Keep build + Lighthouse sequential (Lighthouse needs the build artifact)
@@ -81,6 +82,7 @@ ci.yml
 **What:** Run ESLint, Stylelint, and Prettier in a single job with `&&` chaining
 **When to use:** When all lint tools share the same Node.js/pnpm setup
 **Example:**
+
 ```yaml
 lint:
   name: Lint & Format
@@ -105,6 +107,7 @@ lint:
 **What:** Skip Lighthouse when only docs/config files change
 **When to use:** Save CI minutes on non-code PRs
 **Example:**
+
 ```yaml
 changes:
   runs-on: ubuntu-latest
@@ -143,13 +146,13 @@ lighthouse:
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Lighthouse report links on PRs | Custom PR comment action | `temporaryPublicStorage: true` in treosh action | Auto-generates report links, 7-day retention |
-| Path filtering | Bash script to diff files | `dorny/paths-filter@v3` | Battle-tested, handles all edge cases (new branches, force pushes) |
-| pnpm caching | Manual `actions/cache` with store path | `actions/setup-node@v4` with `cache: pnpm` | Built-in, fewer lines, same result |
-| Lighthouse server startup | Custom wait scripts | `startServerCommand` + `startServerReadyPattern` in lighthouserc.js | LHCI manages process lifecycle automatically |
-| PR status checks for Lighthouse | Custom GitHub API calls | Lighthouse CI GitHub App (optional) | Installs once, posts status checks automatically |
+| Problem                         | Don't Build                            | Use Instead                                                         | Why                                                                |
+| ------------------------------- | -------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Lighthouse report links on PRs  | Custom PR comment action               | `temporaryPublicStorage: true` in treosh action                     | Auto-generates report links, 7-day retention                       |
+| Path filtering                  | Bash script to diff files              | `dorny/paths-filter@v3`                                             | Battle-tested, handles all edge cases (new branches, force pushes) |
+| pnpm caching                    | Manual `actions/cache` with store path | `actions/setup-node@v4` with `cache: pnpm`                          | Built-in, fewer lines, same result                                 |
+| Lighthouse server startup       | Custom wait scripts                    | `startServerCommand` + `startServerReadyPattern` in lighthouserc.js | LHCI manages process lifecycle automatically                       |
+| PR status checks for Lighthouse | Custom GitHub API calls                | Lighthouse CI GitHub App (optional)                                 | Installs once, posts status checks automatically                   |
 
 ## Common Pitfalls
 
@@ -158,13 +161,14 @@ lighthouse:
 **What goes wrong:** Lighthouse scores fluctuate between runs on shared CI runners
 **Why it happens:** GitHub-hosted runners have variable CPU/network performance
 **How to avoid:**
+
 - Use `numberOfRuns: 3` (median smooths variance)
 - Use absolute thresholds not regression-from-baseline
 - Set thresholds with margin (LCP 4000ms not 3800ms)
 - Use `aggregationMethod: 'optimistic'` if too noisy (but `'median'` preferred)
-**Warning signs:** Flaky Lighthouse failures on unchanged code
+  **Warning signs:** Flaky Lighthouse failures on unchanged code
 
-### Pitfall 2: Next.js Build Requires NEXT_PUBLIC_ Env Vars
+### Pitfall 2: Next.js Build Requires NEXT*PUBLIC* Env Vars
 
 **What goes wrong:** Build fails or produces broken pages without env vars
 **Why it happens:** `NEXT_PUBLIC_*` vars are inlined at build time
@@ -204,11 +208,12 @@ lighthouse:
 **What goes wrong:** Exceeding 2000 min/month on free tier
 **Why it happens:** Each push + PR triggers parallel runners. Lighthouse adds 3-5 min per PR.
 **How to avoid:**
+
 - Current usage: ~2.5 min per push (4 parallel jobs at ~40s each = ~2.5 billable minutes)
 - With Lighthouse: ~5.5 min per PR (add ~3 min for Lighthouse)
 - Path filtering saves minutes on docs-only PRs
 - Only run Lighthouse on PRs, not pushes
-**Warning signs:** GitHub billing alerts
+  **Warning signs:** GitHub billing alerts
 
 ## Code Examples
 
@@ -277,6 +282,7 @@ module.exports = {
 ```
 
 **Threshold rationale:**
+
 - LCP 4000ms: Per CONTEXT decision (revised from 2500ms in Phase 60)
 - CLS 0.15: Per CONTEXT decision
 - Performance score 0.6: Conservative floor for mobile throttling on CI runners
@@ -334,20 +340,22 @@ changes:
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| `actions/setup-node@v3` | `actions/setup-node@v4` | 2024 | Better caching, Node 22 support |
-| `pnpm/action-setup@v2` | `pnpm/action-setup@v4` | 2024 | Automatic version detection from packageManager field |
-| Node 18/20 | Node 22 LTS | 2024-10 | Current LTS, used by Vercel |
-| `treosh/lighthouse-ci-action@v11` | `@v12` | 2024 | Uses Lighthouse v12.6 |
-| Lighthouse `emulatedFormFactor` | Still valid | N/A | No breaking changes |
+| Old Approach                      | Current Approach        | When Changed | Impact                                                |
+| --------------------------------- | ----------------------- | ------------ | ----------------------------------------------------- |
+| `actions/setup-node@v3`           | `actions/setup-node@v4` | 2024         | Better caching, Node 22 support                       |
+| `pnpm/action-setup@v2`            | `pnpm/action-setup@v4`  | 2024         | Automatic version detection from packageManager field |
+| Node 18/20                        | Node 22 LTS             | 2024-10      | Current LTS, used by Vercel                           |
+| `treosh/lighthouse-ci-action@v11` | `@v12`                  | 2024         | Uses Lighthouse v12.6                                 |
+| Lighthouse `emulatedFormFactor`   | Still valid             | N/A          | No breaking changes                                   |
 
 **Current versions in CI vs local:**
+
 - CI: Node 20, pnpm 10
 - Local: Node 25.2.1, pnpm 10.28.0
 - Recommendation: Upgrade CI to Node 22 (current LTS). Node 20 EOL April 2026. Node 25 is current/unstable. Node 22 matches Vercel's runtime.
 
 **Not changing:**
+
 - `@lhci/cli@0.15.1` -- current latest, no new version needed
 - `treosh/lighthouse-ci-action@v12` -- already on latest major
 
@@ -355,30 +363,30 @@ changes:
 
 Based on research, these are my recommendations for the discretion areas:
 
-| Decision | Recommendation | Rationale |
-|----------|---------------|-----------|
-| Authenticated routes | **Skip** | Admin/driver routes require auth; testing them adds complexity with no proportional value |
-| Mobile vs desktop | **Mobile only** | Delivery app is mobile-first; mobile throttling is stricter and catches more issues |
-| Number of runs | **3** | Standard for CI; balances variance smoothing vs time (3 runs x 5 URLs = 15 Lighthouse runs) |
-| CI serving strategy | **Local build+start** | Already working; Vercel preview URLs would add complexity and deployment dependency |
-| Tool choice | **treosh/lighthouse-ci-action** | Already configured; handles artifacts and storage automatically |
-| Results reporting | **temporaryPublicStorage + artifacts** | Already configured; gives clickable report links |
-| Bypass mechanism | **Path filtering** via dorny/paths-filter | Skips Lighthouse for docs/config-only changes |
-| ESLint warnings | **--max-warnings 0** | Matches local lint-staged config; prevents warning accumulation |
-| Lint scope | **Full codebase** | Consistent with local `pnpm lint`; changed-files-only adds complexity |
-| Unit tests | **Keep** | Already in pipeline; ~39s, catches regressions |
-| Build step | **Keep** | Already in pipeline; required for Lighthouse; catches build errors |
-| Trigger scope | **PRs + push to main** | Push to main validates merged code; Lighthouse only on PRs |
-| Job parallelization | **lint/typecheck/test parallel, build sequential, lighthouse sequential** | Current pattern is correct |
-| pnpm caching | **setup-node cache: pnpm** | Already in place, working |
-| Node.js version | **22 (single, not matrix)** | Current LTS, matches Vercel |
-| pnpm version | **10** | Already pinned in workflow |
-| Workflow file | **Single ci.yml** | One workflow is simpler; not enough jobs to justify splitting |
-| Performance score floor | **0.6** | Conservative for mobile throttling on shared runners |
-| Accessibility score floor | **0.9** | A11y audits are deterministic; high bar is appropriate |
-| Bundle size check | **Skip** | Vercel already reports bundle size on deployments; no additional value |
-| PR summary comments | **Skip for now** | temporaryPublicStorage already provides report links via treosh action |
-| Lighthouse CI GitHub App | **Optional enhancement** | Adds status check badges; requires one-time setup; not blocking |
+| Decision                  | Recommendation                                                            | Rationale                                                                                   |
+| ------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Authenticated routes      | **Skip**                                                                  | Admin/driver routes require auth; testing them adds complexity with no proportional value   |
+| Mobile vs desktop         | **Mobile only**                                                           | Delivery app is mobile-first; mobile throttling is stricter and catches more issues         |
+| Number of runs            | **3**                                                                     | Standard for CI; balances variance smoothing vs time (3 runs x 5 URLs = 15 Lighthouse runs) |
+| CI serving strategy       | **Local build+start**                                                     | Already working; Vercel preview URLs would add complexity and deployment dependency         |
+| Tool choice               | **treosh/lighthouse-ci-action**                                           | Already configured; handles artifacts and storage automatically                             |
+| Results reporting         | **temporaryPublicStorage + artifacts**                                    | Already configured; gives clickable report links                                            |
+| Bypass mechanism          | **Path filtering** via dorny/paths-filter                                 | Skips Lighthouse for docs/config-only changes                                               |
+| ESLint warnings           | **--max-warnings 0**                                                      | Matches local lint-staged config; prevents warning accumulation                             |
+| Lint scope                | **Full codebase**                                                         | Consistent with local `pnpm lint`; changed-files-only adds complexity                       |
+| Unit tests                | **Keep**                                                                  | Already in pipeline; ~39s, catches regressions                                              |
+| Build step                | **Keep**                                                                  | Already in pipeline; required for Lighthouse; catches build errors                          |
+| Trigger scope             | **PRs + push to main**                                                    | Push to main validates merged code; Lighthouse only on PRs                                  |
+| Job parallelization       | **lint/typecheck/test parallel, build sequential, lighthouse sequential** | Current pattern is correct                                                                  |
+| pnpm caching              | **setup-node cache: pnpm**                                                | Already in place, working                                                                   |
+| Node.js version           | **22 (single, not matrix)**                                               | Current LTS, matches Vercel                                                                 |
+| pnpm version              | **10**                                                                    | Already pinned in workflow                                                                  |
+| Workflow file             | **Single ci.yml**                                                         | One workflow is simpler; not enough jobs to justify splitting                               |
+| Performance score floor   | **0.6**                                                                   | Conservative for mobile throttling on shared runners                                        |
+| Accessibility score floor | **0.9**                                                                   | A11y audits are deterministic; high bar is appropriate                                      |
+| Bundle size check         | **Skip**                                                                  | Vercel already reports bundle size on deployments; no additional value                      |
+| PR summary comments       | **Skip for now**                                                          | temporaryPublicStorage already provides report links via treosh action                      |
+| Lighthouse CI GitHub App  | **Optional enhancement**                                                  | Adds status check badges; requires one-time setup; not blocking                             |
 
 ## Open Questions
 
@@ -400,6 +408,7 @@ Based on research, these are my recommendations for the discretion areas:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Existing `ci.yml` -- direct inspection of current pipeline
 - Existing `lighthouserc.js` -- direct inspection of current config
 - Existing `package.json` -- versions of all tools verified
@@ -407,6 +416,7 @@ Based on research, these are my recommendations for the discretion areas:
 - `@lhci/cli@0.15.1` lockfile entry -- confirmed installed version
 
 ### Secondary (MEDIUM confidence)
+
 - [treosh/lighthouse-ci-action README](https://github.com/treosh/lighthouse-ci-action/blob/main/README.md) -- inputs/outputs for v12
 - [Lighthouse CI configuration docs](https://github.com/GoogleChrome/lighthouse-ci/blob/main/docs/configuration.md) -- assert levels, aggregation methods
 - [Lighthouse CI getting started](https://github.com/GoogleChrome/lighthouse-ci/blob/main/docs/getting-started.md) -- GitHub App setup
@@ -416,11 +426,13 @@ Based on research, these are my recommendations for the discretion areas:
 - [GitHub Actions pricing 2026](https://resources.github.com/actions/2026-pricing-changes-for-github-actions/) -- free tier 2000 min/month unchanged
 
 ### Tertiary (LOW confidence)
+
 - Node.js 22 as "current Vercel runtime" -- based on general knowledge, not verified for this specific project's Vercel config
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH -- all tools already installed and verified in lockfile
 - Architecture: HIGH -- existing CI workflow analyzed, timing data from real runs
 - Pitfalls: HIGH -- based on actual project inspection (env vars, route structure, lint config)

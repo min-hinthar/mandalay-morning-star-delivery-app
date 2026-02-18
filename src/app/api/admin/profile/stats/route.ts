@@ -11,14 +11,18 @@ export async function GET() {
     const auth = await requireAdmin();
     if (!auth.success) {
       return NextResponse.json(
-        { error: { code: auth.status === 401 ? "UNAUTHORIZED" : "FORBIDDEN", message: auth.error } },
+        {
+          error: { code: auth.status === 401 ? "UNAUTHORIZED" : "FORBIDDEN", message: auth.error },
+        },
         { status: auth.status }
       );
     }
     const { supabase, userId } = auth;
 
     // Get auth user for last_sign_in_at
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     const lastLoginAt = user?.last_sign_in_at ?? null;
 
     // Count orders processed by this admin via audit log

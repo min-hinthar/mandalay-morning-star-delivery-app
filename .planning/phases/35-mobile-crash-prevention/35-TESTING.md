@@ -5,11 +5,11 @@
 
 ## Test Devices
 
-| Device | OS | Browser | Priority |
-|--------|-----|---------|----------|
-| iPhone SE (2nd gen or newer) | iOS 15+ | Safari | High |
-| Android mid-range (Samsung Galaxy A series) | Android 10+ | Chrome | High |
-| Any desktop | Windows/Mac | Chrome DevTools (mobile mode) | Medium |
+| Device                                      | OS          | Browser                       | Priority |
+| ------------------------------------------- | ----------- | ----------------------------- | -------- |
+| iPhone SE (2nd gen or newer)                | iOS 15+     | Safari                        | High     |
+| Android mid-range (Samsung Galaxy A series) | Android 10+ | Chrome                        | High     |
+| Any desktop                                 | Windows/Mac | Chrome DevTools (mobile mode) | Medium   |
 
 ## Pre-Test Setup
 
@@ -26,6 +26,7 @@
 **Target:** Modal scroll lock cleanup
 
 **Steps:**
+
 1. Open homepage
 2. Click any menu item card to open modal
 3. Close modal immediately (click X or tap backdrop)
@@ -34,6 +35,7 @@
 6. Monitor Memory for leaks
 
 **Pass Criteria:**
+
 - [ ] No crash or freeze
 - [ ] No "setState on unmounted component" warnings
 - [ ] Memory returns to baseline after closing all modals
@@ -47,6 +49,7 @@
 **Target:** Async operation cleanup on unmount
 
 **Steps:**
+
 1. Start on homepage
 2. Navigate rapidly: Home -> Menu -> Cart -> Checkout -> Home
 3. Use browser back/forward buttons rapidly
@@ -55,6 +58,7 @@
 6. Monitor Console for warnings
 
 **Pass Criteria:**
+
 - [ ] No crash or freeze
 - [ ] No console warnings about unmounted components
 - [ ] Navigation remains responsive throughout
@@ -68,6 +72,7 @@
 **Target:** GSAP and observer cleanup
 
 **Steps:**
+
 1. Load homepage (has GSAP scroll animations)
 2. Scroll down and up rapidly 20 times
 3. Trigger scroll-based animations (hero, testimonials)
@@ -77,6 +82,7 @@
 7. Monitor Memory for continuous growth
 
 **Pass Criteria:**
+
 - [ ] No crash or freeze
 - [ ] Animations replay correctly after navigation
 - [ ] Memory does not grow with repeated scrolling
@@ -90,6 +96,7 @@
 **Target:** AudioContext cleanup
 
 **Steps:**
+
 1. Enable sound effects (if app has sound toggle)
 2. Click buttons that trigger sounds (add to cart, etc.)
 3. Trigger sounds rapidly 20+ times
@@ -99,6 +106,7 @@
 7. Monitor Console for audio errors
 
 **Pass Criteria:**
+
 - [ ] Sounds play correctly each time
 - [ ] No audio glitches, distortion, or silence
 - [ ] No crash or freeze
@@ -112,6 +120,7 @@
 **Target:** Long-term memory stability
 
 **Steps:**
+
 1. Start timer
 2. Record initial memory usage
 3. Every 2 minutes, perform these actions:
@@ -124,6 +133,7 @@
 5. Continue using app - check for responsiveness
 
 **Pass Criteria:**
+
 - [ ] No crash during entire 10-minute session
 - [ ] App remains responsive at end
 - [ ] Memory stays under 100MB on iPhone SE
@@ -136,16 +146,17 @@
 
 Record memory readings during 10-minute test:
 
-| Time | Memory (MB) | Actions Performed | Notes |
-|------|-------------|-------------------|-------|
-| 0:00 | | Starting baseline | |
-| 2:00 | | Menu browse, 2 add-to-cart | |
-| 4:00 | | Cart open/close, navigation | |
-| 6:00 | | Search, scroll animations | |
-| 8:00 | | Modal open/close x5 | |
-| 10:00 | | Final measurement | |
+| Time  | Memory (MB) | Actions Performed           | Notes |
+| ----- | ----------- | --------------------------- | ----- |
+| 0:00  |             | Starting baseline           |       |
+| 2:00  |             | Menu browse, 2 add-to-cart  |       |
+| 4:00  |             | Cart open/close, navigation |       |
+| 6:00  |             | Search, scroll animations   |       |
+| 8:00  |             | Modal open/close x5         |       |
+| 10:00 |             | Final measurement           |       |
 
 **Expected Pattern:**
+
 - Memory may grow during interactions
 - Should stabilize (not continuously grow)
 - Should return close to baseline after idle
@@ -156,14 +167,14 @@ Record memory readings during 10-minute test:
 
 ### iPhone SE Test
 
-| Field | Value |
-|-------|-------|
-| Date tested | |
-| iOS version | |
-| Safari version | |
-| Tester | |
-| Result | [ ] PASS / [ ] FAIL |
-| Notes | |
+| Field          | Value               |
+| -------------- | ------------------- |
+| Date tested    |                     |
+| iOS version    |                     |
+| Safari version |                     |
+| Tester         |                     |
+| Result         | [ ] PASS / [ ] FAIL |
+| Notes          |                     |
 
 **Scenario Results:**
 | Scenario | Result | Notes |
@@ -178,15 +189,15 @@ Record memory readings during 10-minute test:
 
 ### Android Mid-Range Test
 
-| Field | Value |
-|-------|-------|
-| Date tested | |
-| Device model | |
-| Android version | |
-| Chrome version | |
-| Tester | |
-| Result | [ ] PASS / [ ] FAIL |
-| Notes | |
+| Field           | Value               |
+| --------------- | ------------------- |
+| Date tested     |                     |
+| Device model    |                     |
+| Android version |                     |
+| Chrome version  |                     |
+| Tester          |                     |
+| Result          | [ ] PASS / [ ] FAIL |
+| Notes           |                     |
 
 **Scenario Results:**
 | Scenario | Result | Notes |
@@ -201,14 +212,14 @@ Record memory readings during 10-minute test:
 
 ### Desktop Browser Test (DevTools Mobile Mode)
 
-| Field | Value |
-|-------|-------|
-| Date tested | |
-| Browser | |
-| Device emulated | |
-| Tester | |
-| Result | [ ] PASS / [ ] FAIL |
-| Notes | |
+| Field           | Value               |
+| --------------- | ------------------- |
+| Date tested     |                     |
+| Browser         |                     |
+| Device emulated |                     |
+| Tester          |                     |
+| Result          | [ ] PASS / [ ] FAIL |
+| Notes           |                     |
 
 ---
 
@@ -216,18 +227,18 @@ Record memory readings during 10-minute test:
 
 ### Requirements Coverage
 
-| Requirement | Description | Verified |
-|-------------|-------------|----------|
-| CRASH-01 | Timer cleanup (setTimeout/setInterval) | [ ] |
-| CRASH-02 | Async operation safety (isMounted/AbortController) | [ ] |
-| CRASH-03 | GSAP animation cleanup (useGSAP) | [ ] |
-| CRASH-04 | Event listener cleanup (removeEventListener) | [ ] |
-| CRASH-05 | WebSocket cleanup (close on unmount) | [ ] |
-| CRASH-06 | AudioContext cleanup (close on unmount) | [ ] |
-| CRASH-07 | requestAnimationFrame cleanup (cancelAnimationFrame) | [ ] |
-| CRASH-08 | Observer cleanup (disconnect on unmount) | [ ] |
-| CRASH-09 | Modal scroll lock (deferred restore) | [ ] |
-| CRASH-10 | Memory stability (no leaks under stress) | [ ] |
+| Requirement | Description                                          | Verified |
+| ----------- | ---------------------------------------------------- | -------- |
+| CRASH-01    | Timer cleanup (setTimeout/setInterval)               | [ ]      |
+| CRASH-02    | Async operation safety (isMounted/AbortController)   | [ ]      |
+| CRASH-03    | GSAP animation cleanup (useGSAP)                     | [ ]      |
+| CRASH-04    | Event listener cleanup (removeEventListener)         | [ ]      |
+| CRASH-05    | WebSocket cleanup (close on unmount)                 | [ ]      |
+| CRASH-06    | AudioContext cleanup (close on unmount)              | [ ]      |
+| CRASH-07    | requestAnimationFrame cleanup (cancelAnimationFrame) | [ ]      |
+| CRASH-08    | Observer cleanup (disconnect on unmount)             | [ ]      |
+| CRASH-09    | Modal scroll lock (deferred restore)                 | [ ]      |
+| CRASH-10    | Memory stability (no leaks under stress)             | [ ]      |
 
 ### Final Sign-off
 
@@ -237,8 +248,8 @@ Record memory readings during 10-minute test:
 - [ ] CRASH-01 through CRASH-10 all satisfied
 - [ ] Phase 35 complete
 
-**Approved by:** _______________
-**Date:** _______________
+**Approved by:** **\*\***\_\_\_**\*\***
+**Date:** **\*\***\_\_\_**\*\***
 
 ---
 
@@ -255,6 +266,7 @@ For fast verification without real device:
 7. Check console - no warnings about unmounted components
 
 **Minimum to pass:**
+
 - No crashes
 - No console warnings
 - Memory stable

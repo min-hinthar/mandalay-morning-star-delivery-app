@@ -80,7 +80,7 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: `radial-gradient(ellipse 80% 60% at 50% 30%, transparent 0%, rgba(0,0,0,0.25) 100%)`
+          background: `radial-gradient(ellipse 80% 60% at 50% 30%, transparent 0%, rgba(0,0,0,0.25) 100%)`,
         }}
       />
 

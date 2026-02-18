@@ -84,12 +84,7 @@ export function DriverLeaderboard({
         <h3 className="text-lg font-semibold text-text-primary">Top Drivers</h3>
       </div>
 
-      <m.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="space-y-2"
-      >
+      <m.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-2">
         {entries.map((entry) => (
           <LeaderboardRow
             key={entry.driverId}
@@ -137,16 +132,9 @@ function LeaderboardRow({
       {/* Rank */}
       <div className="flex w-8 items-center justify-center">
         {showMedal && entry.rank <= 3 ? (
-          <Medal
-            className={cn(
-              "h-6 w-6",
-              medalColors[entry.rank as keyof typeof medalColors]
-            )}
-          />
+          <Medal className={cn("h-6 w-6", medalColors[entry.rank as keyof typeof medalColors])} />
         ) : (
-          <span className="text-lg font-bold text-text-muted">
-            {entry.rank}
-          </span>
+          <span className="text-lg font-bold text-text-muted">{entry.rank}</span>
         )}
       </div>
 
@@ -200,9 +188,7 @@ function LeaderboardRow({
             <TrendingDown className="h-5 w-5 text-status-error" />
           </m.div>
         )}
-        {entry.trend === "stable" && (
-          <Minus className="h-5 w-5 text-text-muted" />
-        )}
+        {entry.trend === "stable" && <Minus className="h-5 w-5 text-text-muted" />}
       </div>
     </m.div>
   );
@@ -231,12 +217,14 @@ export function LeaderboardCompact({
           <Medal
             className={cn(
               "h-5 w-5",
-              i === 0 ? "text-interactive-primary" : i === 1 ? "text-text-muted" : "text-accent-tertiary"
+              i === 0
+                ? "text-interactive-primary"
+                : i === 1
+                  ? "text-text-muted"
+                  : "text-accent-tertiary"
             )}
           />
-          <span className="flex-1 truncate text-sm font-medium">
-            {entry.fullName ?? "Unknown"}
-          </span>
+          <span className="flex-1 truncate text-sm font-medium">{entry.fullName ?? "Unknown"}</span>
           <span className="text-sm font-semibold text-status-success">
             {entry.onTimeRate.toFixed(0)}%
           </span>

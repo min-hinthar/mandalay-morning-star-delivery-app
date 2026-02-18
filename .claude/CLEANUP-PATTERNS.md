@@ -198,10 +198,13 @@ import { gsap, useGSAP } from "@/lib/gsap";
 function GoodComponent() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useGSAP(() => {
-    // Animations auto-cleaned by scope
-    gsap.to(".item", { x: 100, duration: 1 });
-  }, { scope: containerRef });
+  useGSAP(
+    () => {
+      // Animations auto-cleaned by scope
+      gsap.to(".item", { x: 100, duration: 1 });
+    },
+    { scope: containerRef }
+  );
 
   return <div ref={containerRef}>...</div>;
 }
@@ -487,11 +490,7 @@ function GoodModal({ isOpen, onClose }) {
   return (
     <AnimatePresence onExitComplete={restoreScrollPosition}>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <ModalContent onClose={onClose} />
         </motion.div>
       )}
@@ -506,28 +505,29 @@ See `@/components/ui/Modal` and `@/components/ui/Drawer` for examples.
 
 ## Quick Reference
 
-| Pattern | Hook/Solution |
-|---------|---------------|
-| setTimeout | `useSafeTimeout()` |
-| setInterval | `useSafeInterval()` |
-| async/await | `useSafeAsync()` |
-| Mount check | `useMountedRef()` |
-| GSAP animations | `useGSAP()` from `@/lib/gsap` |
-| Event listeners | Manual cleanup with stable refs |
-| Observers | `disconnect()` in cleanup |
-| AudioContext | Single context, `close()` on unmount |
-| Scroll lock | `useBodyScrollLock()` with `deferRestore: true` |
+| Pattern         | Hook/Solution                                   |
+| --------------- | ----------------------------------------------- |
+| setTimeout      | `useSafeTimeout()`                              |
+| setInterval     | `useSafeInterval()`                             |
+| async/await     | `useSafeAsync()`                                |
+| Mount check     | `useMountedRef()`                               |
+| GSAP animations | `useGSAP()` from `@/lib/gsap`                   |
+| Event listeners | Manual cleanup with stable refs                 |
+| Observers       | `disconnect()` in cleanup                       |
+| AudioContext    | Single context, `close()` on unmount            |
+| Scroll lock     | `useBodyScrollLock()` with `deferRestore: true` |
 
 ---
 
 ## ESLint Enforcement
 
 Consider adding `eslint-plugin-react-hooks` exhaustive-deps rule and custom rules for:
+
 - Detecting `setTimeout` without `clearTimeout` in same effect
 - Detecting `addEventListener` without matching `removeEventListener`
 - Detecting `gsap.to/from` outside of `useGSAP`
 
 ---
 
-*Created: 2026-01-30*
-*Part of Phase 35: Mobile Crash Prevention*
+_Created: 2026-01-30_
+_Part of Phase 35: Mobile Crash Prevention_

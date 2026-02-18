@@ -49,9 +49,7 @@ export function NotificationPrefsCard() {
   const [hasChanges, setHasChanges] = useState(false);
 
   // Store original for dirty detection
-  const [originalPrefs, setOriginalPrefs] = useState<NotificationPrefs | null>(
-    null
-  );
+  const [originalPrefs, setOriginalPrefs] = useState<NotificationPrefs | null>(null);
 
   const fetchPrefs = useCallback(async () => {
     try {
@@ -65,9 +63,7 @@ export function NotificationPrefsCard() {
       setOriginalPrefs(data);
       setHasChanges(false);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Unable to load preferences"
-      );
+      setError(err instanceof Error ? err.message : "Unable to load preferences");
     } finally {
       setLoading(false);
     }
@@ -84,9 +80,7 @@ export function NotificationPrefsCard() {
     // Check dirty
     if (originalPrefs) {
       const dirty = Object.keys(updated).some(
-        (k) =>
-          updated[k as keyof NotificationPrefs] !==
-          originalPrefs[k as keyof NotificationPrefs]
+        (k) => updated[k as keyof NotificationPrefs] !== originalPrefs[k as keyof NotificationPrefs]
       );
       setHasChanges(dirty);
     }
@@ -114,10 +108,7 @@ export function NotificationPrefsCard() {
     } catch (err) {
       toast({
         title: "Error",
-        description:
-          err instanceof Error
-            ? err.message
-            : "Failed to save preferences",
+        description: err instanceof Error ? err.message : "Failed to save preferences",
         variant: "destructive",
       });
     } finally {

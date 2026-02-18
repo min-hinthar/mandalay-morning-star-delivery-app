@@ -1,5 +1,5 @@
-import { RouteLoading } from '@/components/ui/RouteLoading'
+import { RouteLoading } from "@/components/ui/RouteLoading";
 
 export default function AnalyticsLoading() {
-  return <RouteLoading message="Loading analytics..." />
+  return <RouteLoading message="Loading analytics..." />;
 }

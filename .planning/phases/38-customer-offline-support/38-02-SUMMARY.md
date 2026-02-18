@@ -16,15 +16,15 @@ IndexedDB menu cache with timestamp tracking and online/offline detection hook f
 
 ### Files Created
 
-| File | Purpose | Lines |
-|------|---------|-------|
-| `src/lib/services/customer-offline-store.ts` | IndexedDB menu cache with staleness tracking | 159 |
-| `src/lib/hooks/useCustomerOfflineSync.ts` | Online/offline detection hook | 73 |
+| File                                         | Purpose                                      | Lines |
+| -------------------------------------------- | -------------------------------------------- | ----- |
+| `src/lib/services/customer-offline-store.ts` | IndexedDB menu cache with staleness tracking | 159   |
+| `src/lib/hooks/useCustomerOfflineSync.ts`    | Online/offline detection hook                | 73    |
 
 ### Files Modified
 
-| File | Change |
-|------|--------|
+| File                     | Change                              |
+| ------------------------ | ----------------------------------- |
 | `src/lib/hooks/index.ts` | Added useCustomerOfflineSync export |
 
 ## Implementation Details
@@ -39,6 +39,7 @@ IndexedDB-based menu cache following existing driver offline-store.ts pattern:
 - **Version field:** For cache invalidation support (OFFLINE-12)
 
 **menuCache API:**
+
 - `save(data, version)` - Store menu data with timestamp
 - `get()` - Retrieve cached data with metadata
 - `isStale(cachedAt, thresholdHours=24)` - Check 24-hour staleness
@@ -54,6 +55,7 @@ Online/offline detection with reconnection handling per CONTEXT.md:
 - **checkStatus():** Manual status refresh
 
 **Features:**
+
 - SSR-safe with typeof guards
 - Window event listeners for online/offline
 - Automatic timeout cleanup on unmount
@@ -61,11 +63,11 @@ Online/offline detection with reconnection handling per CONTEXT.md:
 
 ## Commits
 
-| Hash | Description |
-|------|-------------|
-| 58f8196 | feat(38-02): create customer offline store with IndexedDB menu cache |
+| Hash    | Description                                                                  |
+| ------- | ---------------------------------------------------------------------------- |
+| 58f8196 | feat(38-02): create customer offline store with IndexedDB menu cache         |
 | 21dc529 | feat(38-02): create useCustomerOfflineSync hook for online/offline detection |
-| 041ab3c | feat(38-02): export useCustomerOfflineSync from hooks barrel |
+| 041ab3c | feat(38-02): export useCustomerOfflineSync from hooks barrel                 |
 
 ## Deviations from Plan
 

@@ -66,11 +66,7 @@ const getStorage = (): Storage => {
   }
 
   const storage = window.localStorage;
-  if (
-    !storage ||
-    typeof storage.getItem !== "function" ||
-    typeof storage.setItem !== "function"
-  ) {
+  if (!storage || typeof storage.getItem !== "function" || typeof storage.setItem !== "function") {
     return createMemoryStorage();
   }
 

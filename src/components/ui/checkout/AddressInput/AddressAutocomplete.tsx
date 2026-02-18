@@ -12,10 +12,7 @@ import { MapPin, Search, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import {
-  usePlacesAutocomplete,
-  type PlacePrediction,
-} from "@/lib/hooks/usePlacesAutocomplete";
+import { usePlacesAutocomplete, type PlacePrediction } from "@/lib/hooks/usePlacesAutocomplete";
 import type { AddressAutocompleteResult } from "./types";
 
 interface AddressAutocompleteProps {
@@ -79,13 +76,17 @@ export function AddressAutocomplete({
   return (
     <div className={cn("relative", className)}>
       <m.div
-        animate={isFocused && shouldAnimate ? {
-          scale: 1.01,
-          boxShadow: "var(--shadow-focus)",
-        } : {
-          scale: 1,
-          boxShadow: "var(--shadow-none)",
-        }}
+        animate={
+          isFocused && shouldAnimate
+            ? {
+                scale: 1.01,
+                boxShadow: "var(--shadow-focus)",
+              }
+            : {
+                scale: 1,
+                boxShadow: "var(--shadow-none)",
+              }
+        }
         transition={getSpring(spring.snappy)}
         className="relative"
       >

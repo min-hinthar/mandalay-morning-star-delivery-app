@@ -71,7 +71,10 @@ export function EmailSettingsForm({ emailEnabled, onToggle }: EmailSettingsFormP
           throw new Error(data.error || "Failed to send test email");
         }
 
-        toast({ variant: "success", description: `Test ${emailType.replace(/_/g, " ")} email sent` });
+        toast({
+          variant: "success",
+          description: `Test ${emailType.replace(/_/g, " ")} email sent`,
+        });
       } catch (error) {
         const message = error instanceof Error ? error.message : "Failed to send test email";
         toast({ variant: "destructive", description: message });
@@ -79,7 +82,7 @@ export function EmailSettingsForm({ emailEnabled, onToggle }: EmailSettingsFormP
         setSendingType(null);
       }
     },
-    [recipientEmail],
+    [recipientEmail]
   );
 
   return (
@@ -88,9 +91,7 @@ export function EmailSettingsForm({ emailEnabled, onToggle }: EmailSettingsFormP
       <div className="pb-4 border-b border-border-subtle">
         <div className="flex items-center gap-2">
           <Mail className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-display font-semibold text-text-primary">
-            Email System
-          </h2>
+          <h2 className="text-lg font-display font-semibold text-text-primary">Email System</h2>
         </div>
         <p className="mt-1 text-sm text-text-secondary">
           Manage outbound email sending and test email templates.
@@ -160,7 +161,7 @@ export function EmailSettingsForm({ emailEnabled, onToggle }: EmailSettingsFormP
               onClick={() => handleSendTest(type)}
               className={cn(
                 "justify-start gap-2",
-                !emailEnabled && "opacity-50 cursor-not-allowed",
+                !emailEnabled && "opacity-50 cursor-not-allowed"
               )}
             >
               {sendingType === type ? (
@@ -174,9 +175,7 @@ export function EmailSettingsForm({ emailEnabled, onToggle }: EmailSettingsFormP
         </div>
 
         {!emailEnabled && (
-          <p className="text-xs text-text-muted">
-            Enable email sending above to send test emails.
-          </p>
+          <p className="text-xs text-text-muted">Enable email sending above to send test emails.</p>
         )}
       </div>
     </div>

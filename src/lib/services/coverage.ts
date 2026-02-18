@@ -72,8 +72,7 @@ export async function checkCoverage(
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
-        "X-Goog-FieldMask":
-          "routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline",
+        "X-Goog-FieldMask": "routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline",
       },
       body: JSON.stringify(body),
     });
@@ -131,9 +130,7 @@ export async function checkCoverage(
   }
 }
 
-export async function checkAddressCoverage(
-  address: string
-): Promise<CoverageCheckResult> {
+export async function checkAddressCoverage(address: string): Promise<CoverageCheckResult> {
   const geocode = await geocodeAddress(address);
 
   if (!geocode.isValid) {

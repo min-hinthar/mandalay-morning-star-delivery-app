@@ -27,7 +27,9 @@ export function DatePill({ date, isSelected, onSelect, index, weekOffset }: Date
 
   const dateObj = date.date;
   const dayName = dateObj.toLocaleDateString("en-US", { weekday: "short", timeZone: TIMEZONE });
-  const dayNum = parseInt(dateObj.toLocaleDateString("en-US", { day: "numeric", timeZone: TIMEZONE }));
+  const dayNum = parseInt(
+    dateObj.toLocaleDateString("en-US", { day: "numeric", timeZone: TIMEZONE })
+  );
   const monthName = dateObj.toLocaleDateString("en-US", { month: "short", timeZone: TIMEZONE });
 
   const todayStr = new Date().toLocaleDateString("en-US", { timeZone: TIMEZONE });
@@ -57,14 +59,16 @@ export function DatePill({ date, isSelected, onSelect, index, weekOffset }: Date
         isSelected
           ? "border-primary bg-primary text-text-inverse shadow-lg shadow-primary/30"
           : date.cutoffPassed
-          ? "border-border bg-surface-tertiary text-text-muted cursor-not-allowed opacity-50"
-          : "border-border bg-surface-primary text-text-primary hover:border-primary/50"
+            ? "border-border bg-surface-tertiary text-text-muted cursor-not-allowed opacity-50"
+            : "border-border bg-surface-primary text-text-primary hover:border-primary/50"
       )}
     >
-      <span className={cn(
-        "text-xs font-medium uppercase tracking-wider",
-        isSelected ? "text-text-inverse/80" : "text-text-secondary"
-      )}>
+      <span
+        className={cn(
+          "text-xs font-medium uppercase tracking-wider",
+          isSelected ? "text-text-inverse/80" : "text-text-secondary"
+        )}
+      >
         {isToday ? "Today" : isTomorrow ? "Tomorrow" : dayName}
       </span>
 
@@ -76,10 +80,7 @@ export function DatePill({ date, isSelected, onSelect, index, weekOffset }: Date
         {dayNum}
       </m.span>
 
-      <span className={cn(
-        "text-xs",
-        isSelected ? "text-text-inverse/80" : "text-text-muted"
-      )}>
+      <span className={cn("text-xs", isSelected ? "text-text-inverse/80" : "text-text-muted")}>
         {monthName}
       </span>
 

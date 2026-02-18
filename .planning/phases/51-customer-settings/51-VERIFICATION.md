@@ -16,13 +16,13 @@ score: 5/5 must-haves verified
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 1 | Customer can access settings page from their account (dedicated tab or route) | VERIFIED | AccountClient.tsx has 3-tab navigation with Settings tab (line 28), SettingsTab component renders at /account?tab=settings |
-| 2 | Customer can set dietary restrictions (vegetarian, gluten-free, nut allergy) and see them reflected on next visit | VERIFIED | DietaryChipPicker with 6 predefined options + CustomAllergyInput for custom items, data persists via API PATCH to customer_settings table, useCustomerSettings fetches on mount |
-| 3 | Customer can set default delivery instructions that persist across orders | VERIFIED | PreferencesSection textarea (line 63-76) with 500 char limit, persists via delivery_instructions field in API route |
-| 4 | Customer can toggle email notification preferences per type (order updates, promotions, reminders) | VERIFIED | NotificationsSection renders 3 expandable cards from NOTIFICATION_GROUPS (order_updates, marketing, reminders), toggles persist to notification_prefs JSONB column |
-| 5 | Customer theme preference persists across sessions and devices | VERIFIED | ThemeSelector uses next-themes for localStorage persistence + handleThemeDbSync fire-and-forget PATCH to database (SettingsTab line 79-87), theme syncs to DB row on change |
+| #   | Truth                                                                                                             | Status   | Evidence                                                                                                                                                                        |
+| --- | ----------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Customer can access settings page from their account (dedicated tab or route)                                     | VERIFIED | AccountClient.tsx has 3-tab navigation with Settings tab (line 28), SettingsTab component renders at /account?tab=settings                                                      |
+| 2   | Customer can set dietary restrictions (vegetarian, gluten-free, nut allergy) and see them reflected on next visit | VERIFIED | DietaryChipPicker with 6 predefined options + CustomAllergyInput for custom items, data persists via API PATCH to customer_settings table, useCustomerSettings fetches on mount |
+| 3   | Customer can set default delivery instructions that persist across orders                                         | VERIFIED | PreferencesSection textarea (line 63-76) with 500 char limit, persists via delivery_instructions field in API route                                                             |
+| 4   | Customer can toggle email notification preferences per type (order updates, promotions, reminders)                | VERIFIED | NotificationsSection renders 3 expandable cards from NOTIFICATION_GROUPS (order_updates, marketing, reminders), toggles persist to notification_prefs JSONB column              |
+| 5   | Customer theme preference persists across sessions and devices                                                    | VERIFIED | ThemeSelector uses next-themes for localStorage persistence + handleThemeDbSync fire-and-forget PATCH to database (SettingsTab line 79-87), theme syncs to DB row on change     |
 
 **Score:** 5/5 truths verified
 
@@ -55,19 +55,20 @@ All 8 critical connections verified:
 
 ### Requirements Coverage
 
-| Requirement | Status | Blocking Issue |
-|-------------|--------|----------------|
+| Requirement                                             | Status    | Blocking Issue                           |
+| ------------------------------------------------------- | --------- | ---------------------------------------- |
 | SETT-01: Customer settings page accessible from account | SATISFIED | Settings tab in AccountClient navigation |
-| SETT-02: User can set dietary restrictions/allergies | SATISFIED | DietaryChipPicker + CustomAllergyInput |
-| SETT-03: User can set default delivery instructions | SATISFIED | PreferencesSection textarea |
-| SETT-04: User can set language preference | DEFERRED | Intentionally deferred per ROADMAP |
-| SETT-05: User can toggle email notification preferences | SATISFIED | 3 notification cards |
-| SETT-06: User theme preference persists | SATISFIED | next-themes + DB sync |
-| SETT-07: All settings sync to database on save | SATISFIED | useCustomerSettings.save() PATCH |
+| SETT-02: User can set dietary restrictions/allergies    | SATISFIED | DietaryChipPicker + CustomAllergyInput   |
+| SETT-03: User can set default delivery instructions     | SATISFIED | PreferencesSection textarea              |
+| SETT-04: User can set language preference               | DEFERRED  | Intentionally deferred per ROADMAP       |
+| SETT-05: User can toggle email notification preferences | SATISFIED | 3 notification cards                     |
+| SETT-06: User theme preference persists                 | SATISFIED | next-themes + DB sync                    |
+| SETT-07: All settings sync to database on save          | SATISFIED | useCustomerSettings.save() PATCH         |
 
 ### Anti-Patterns Found
 
 None detected. All files have:
+
 - No TODO/FIXME comments
 - No placeholder text or empty returns
 - No console.log-only implementations

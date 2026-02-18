@@ -5,10 +5,11 @@
 When direction is calculated in `useEffect` after step change, animation starts with stale direction value. AnimatePresence reads `custom={direction}` on render, before useEffect runs.
 
 **Fix:** Use ref for direction, set synchronously BEFORE step change:
+
 ```tsx
 const directionRef = useRef(1);
 const goToPrevStep = () => {
-  directionRef.current = -1;  // Set BEFORE step change
+  directionRef.current = -1; // Set BEFORE step change
   forceUpdate({});
   setStep(STEPS[currentIndex - 1]);
 };
@@ -22,11 +23,13 @@ const goToPrevStep = () => {
 
 ```tsx
 gsap.from(cards, {
-  y: 40, opacity: 0, stagger: 0.06,
+  y: 40,
+  opacity: 0,
+  stagger: 0.06,
   scrollTrigger: {
     trigger: containerRef.current,
     start: "top 85%",
-    toggleActions: "play none none none",  // Play once only
+    toggleActions: "play none none none", // Play once only
   },
 });
 ```
@@ -56,6 +59,7 @@ gsap.from(cards, {
 ## Skeleton Loading Structure
 
 Match exact DOM structure of loaded state to prevent layout shift:
+
 - Same sticky positions, heights, spacing
 - Same grid structure, aspect ratios
 

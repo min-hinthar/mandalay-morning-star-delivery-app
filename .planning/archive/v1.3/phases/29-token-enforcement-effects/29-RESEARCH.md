@@ -7,11 +7,13 @@
 ## Summary
 
 Phase 29 standardizes all visual effects (shadows, blur, animations) to use semantic design tokens. The project already has comprehensive token infrastructure:
+
 - Shadow tokens in `tokens.css` (--shadow-sm through --shadow-2xl, semantic aliases)
 - Motion tokens in `motion-tokens.ts` (Framer Motion compatible) and CSS variables
 - Blur usage via Tailwind's `backdrop-blur-*` utilities (consistent but not tokenized)
 
 Current state analysis found:
+
 - **Shadows:** ~35 hardcoded `boxShadow` values in inline styles + Framer Motion variants
 - **Blur:** 4 hardcoded `blur(Npx)` in globals.css; most usage via Tailwind utilities
 - **Motion:** ~100 inline `ease:` and `duration:` values in Framer Motion transitions
@@ -23,30 +25,34 @@ The audit script already detects `shadow-[...]`, `blur-[Npx]`, and `duration-[Nm
 ## Standard Stack
 
 ### Core
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| TailwindCSS | 4.x | Shadow/blur utilities | Already maps to CSS variables |
-| Framer Motion | 11.x | Animation timing | Existing motion-tokens.ts |
-| CSS Custom Properties | Native | Token definitions | Source of truth in tokens.css |
+
+| Library               | Version | Purpose               | Why Standard                  |
+| --------------------- | ------- | --------------------- | ----------------------------- |
+| TailwindCSS           | 4.x     | Shadow/blur utilities | Already maps to CSS variables |
+| Framer Motion         | 11.x    | Animation timing      | Existing motion-tokens.ts     |
+| CSS Custom Properties | Native  | Token definitions     | Source of truth in tokens.css |
 
 ### Supporting
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| @/lib/motion-tokens | Internal | Framer Motion presets | All animation transitions |
-| @/lib/micro-interactions | Internal | Button/card variants | Component hover/tap states |
-| @/lib/design-system/tokens/motion | Internal | Overlay transitions | Modal/drawer/toast animations |
+
+| Library                           | Version  | Purpose               | When to Use                   |
+| --------------------------------- | -------- | --------------------- | ----------------------------- |
+| @/lib/motion-tokens               | Internal | Framer Motion presets | All animation transitions     |
+| @/lib/micro-interactions          | Internal | Button/card variants  | Component hover/tap states    |
+| @/lib/design-system/tokens/motion | Internal | Overlay transitions   | Modal/drawer/toast animations |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| CSS variables for blur | Tailwind arbitrary values | Tailwind utilities already work; tokens add semantic meaning |
-| Multiple motion files | Single consolidated file | Existing structure works; dual export pattern covers CSS + FM |
+
+| Instead of             | Could Use                 | Tradeoff                                                      |
+| ---------------------- | ------------------------- | ------------------------------------------------------------- |
+| CSS variables for blur | Tailwind arbitrary values | Tailwind utilities already work; tokens add semantic meaning  |
+| Multiple motion files  | Single consolidated file  | Existing structure works; dual export pattern covers CSS + FM |
 
 **No installation needed:** All infrastructure exists.
 
 ## Architecture Patterns
 
 ### Existing Token Structure
+
 ```
 src/
 ├── styles/
@@ -69,9 +75,11 @@ src/
 ```
 
 ### Pattern 1: Shadow Token Migration
+
 **What:** Replace hardcoded boxShadow strings with CSS variables
 **When to use:** Inline styles, Framer Motion animate states
 **Example:**
+
 ```typescript
 // BEFORE: Hardcoded shadow
 style={{ boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }}
@@ -85,9 +93,11 @@ animate={{ boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }} // --shadow-lg equivalent
 ```
 
 ### Pattern 2: Blur Token System
+
 **What:** Create CSS variables for blur values, use Tailwind utilities
 **When to use:** backdrop-filter in inline styles, globals.css hardcoded values
 **Example:**
+
 ```css
 /* Add to tokens.css */
 --blur-sm: 4px;
@@ -97,13 +107,15 @@ animate={{ boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }} // --shadow-lg equivalent
 --blur-2xl: 30px;
 
 /* For backdrop filters in inline styles */
-backdropFilter: "blur(var(--blur-md))"
+backdropfilter: "blur(var(--blur-md))";
 ```
 
 ### Pattern 3: Motion Timing Standardization
+
 **What:** Use motion-tokens.ts presets instead of inline durations
 **When to use:** Framer Motion transition props
 **Example:**
+
 ```typescript
 // BEFORE: Inline duration
 transition={{ duration: 0.3, ease: "easeOut" }}
@@ -118,14 +130,16 @@ transition={{ duration: duration.slow, ease: easing.out }}
 ```
 
 ### Pattern 4: Semantic Shadow Aliases
+
 **What:** Add context-specific shadow tokens
 **When to use:** Component-specific shadows (buttons, inputs, cards)
 **Example:**
+
 ```css
 /* Existing in tokens.css */
 --shadow-card: 0 8px 24px rgba(164, 16, 52, 0.08);
 --shadow-card-hover: 0 12px 32px rgba(164, 16, 52, 0.12);
---shadow-button-hover: 0 4px 16px rgba(164, 16, 52, 0.20);
+--shadow-button-hover: 0 4px 16px rgba(164, 16, 52, 0.2);
 
 /* Add for Phase 29 (per CONTEXT.md decisions) */
 --shadow-xs: 0 1px 2px rgba(164, 16, 52, 0.03);
@@ -138,6 +152,7 @@ transition={{ duration: duration.slow, ease: easing.out }}
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Hardcoded rgba shadows:** Use `var(--shadow-*)` for theme awareness
 - **Inline blur values:** Use Tailwind `backdrop-blur-*` or CSS variables
 - **Magic duration numbers:** Import from motion-tokens.ts
@@ -145,15 +160,16 @@ transition={{ duration: duration.slow, ease: easing.out }}
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Shadow system | Custom shadow values | tokens.css `--shadow-*` | Theme-aware, dark mode support |
-| Blur values | Arbitrary `blur(Npx)` | Tailwind utilities or `--blur-*` | Consistency across overlays |
-| Animation timing | Inline `duration: 0.3` | motion-tokens.ts exports | Single source, easier updates |
-| Spring physics | Per-component springs | motion-tokens.ts `spring.*` | Tested, consistent feel |
-| Input focus rings | Custom boxShadow | inputFocus from motion-tokens | Standard glow patterns |
+| Problem           | Don't Build            | Use Instead                      | Why                            |
+| ----------------- | ---------------------- | -------------------------------- | ------------------------------ |
+| Shadow system     | Custom shadow values   | tokens.css `--shadow-*`          | Theme-aware, dark mode support |
+| Blur values       | Arbitrary `blur(Npx)`  | Tailwind utilities or `--blur-*` | Consistency across overlays    |
+| Animation timing  | Inline `duration: 0.3` | motion-tokens.ts exports         | Single source, easier updates  |
+| Spring physics    | Per-component springs  | motion-tokens.ts `spring.*`      | Tested, consistent feel        |
+| Input focus rings | Custom boxShadow       | inputFocus from motion-tokens    | Standard glow patterns         |
 
 **Key insight:** This project has TWO motion systems that need coordination:
+
 1. **CSS transitions** (Tailwind `duration-*`, `ease-*`) - for simple hover/transitions
 2. **Framer Motion** (motion-tokens.ts) - for complex animations
 
@@ -162,33 +178,39 @@ Both should derive from the same token values.
 ## Common Pitfalls
 
 ### Pitfall 1: Framer Motion Shadow Animation
+
 **What goes wrong:** CSS variables don't interpolate smoothly in Framer Motion
 **Why it happens:** FM interpolates between string values; `var(--shadow-lg)` can't interpolate
 **How to avoid:** For animated shadows, keep numeric values but add comment documenting token equivalent
 **Warning signs:** Shadows snap instead of smooth transition
 
 ### Pitfall 2: Dark Mode Shadow Tokens
+
 **What goes wrong:** Using light-mode shadow values in dark mode
 **Why it happens:** tokens.css already has dark mode variants; inline shadows don't
 **How to avoid:** Always use CSS variables which auto-switch in dark mode
 **Warning signs:** Shadows invisible or too harsh in dark theme
 
 ### Pitfall 3: Blur Performance
+
 **What goes wrong:** Heavy blur values cause jank on mobile
 **Why it happens:** backdrop-filter is GPU-intensive
 **How to avoid:** Use `blur-sm` (4px) for most cases; `blur-md` (8px) max for overlays
 **Warning signs:** Laggy scroll, frame drops on iOS
 
 ### Pitfall 4: Motion Token Import Paths
+
 **What goes wrong:** Importing from wrong location
 **Why it happens:** Multiple motion files exist
 **How to avoid:**
-  - `@/lib/motion-tokens` for general animations (springs, variants, hover)
-  - `@/lib/micro-interactions` for button/card variants
-  - `@/lib/design-system/tokens/motion` for overlay-specific
-**Warning signs:** TypeScript errors, missing exports
+
+- `@/lib/motion-tokens` for general animations (springs, variants, hover)
+- `@/lib/micro-interactions` for button/card variants
+- `@/lib/design-system/tokens/motion` for overlay-specific
+  **Warning signs:** TypeScript errors, missing exports
 
 ### Pitfall 5: Reduced Motion Regression
+
 **What goes wrong:** New animations don't respect `data-reduce-motion`
 **Why it happens:** animations.css handles CSS animations; Framer Motion needs separate handling
 **How to avoid:** Use `useReducedMotion()` hook from `@/lib/hooks/useReducedMotion`
@@ -197,6 +219,7 @@ Both should derive from the same token values.
 ## Code Examples
 
 ### Shadow Token Usage
+
 ```typescript
 // Component inline style
 <div style={{ boxShadow: "var(--shadow-card)" }} />
@@ -218,6 +241,7 @@ Both should derive from the same token values.
 ```
 
 ### Blur Token Usage
+
 ```typescript
 // Tailwind (preferred)
 <div className="backdrop-blur-sm" />  // 4px
@@ -236,6 +260,7 @@ Both should derive from the same token values.
 ```
 
 ### Motion Token Usage
+
 ```typescript
 import {
   duration,
@@ -267,6 +292,7 @@ import {
 ```
 
 ### ESLint Rules to Add
+
 ```javascript
 // Add to eslint.config.mjs
 {
@@ -290,40 +316,44 @@ import {
 ## Current Violation Inventory
 
 ### Shadows - Inline boxShadow (~35 occurrences)
-| File | Count | Pattern | Priority |
-|------|-------|---------|----------|
-| motion-tokens.ts | 6 | inputFocus, buttonPress | HIGH - token source |
-| micro-interactions.ts | 5 | primaryButton, card variants | HIGH - token source |
-| checkout/page.tsx | 2 | Animation states | MEDIUM |
-| CTABanner.tsx | 2 | Animation states | MEDIUM |
-| CheckoutStepperV8.tsx | 1 | Animation state | MEDIUM |
-| CartSummary.tsx | 1 | Tailwind arbitrary `shadow-[...]` | HIGH |
-| CartBar.tsx | 1 | Tailwind arbitrary `shadow-[...]` | HIGH |
-| theme-toggle.tsx | 1 | Dark mode glow | MEDIUM |
-| useLuminance.ts | 4 | Drop shadow utility | LOW - dynamic |
-| NavDots.tsx | 1 | Animation state | LOW |
+
+| File                  | Count | Pattern                           | Priority            |
+| --------------------- | ----- | --------------------------------- | ------------------- |
+| motion-tokens.ts      | 6     | inputFocus, buttonPress           | HIGH - token source |
+| micro-interactions.ts | 5     | primaryButton, card variants      | HIGH - token source |
+| checkout/page.tsx     | 2     | Animation states                  | MEDIUM              |
+| CTABanner.tsx         | 2     | Animation states                  | MEDIUM              |
+| CheckoutStepperV8.tsx | 1     | Animation state                   | MEDIUM              |
+| CartSummary.tsx       | 1     | Tailwind arbitrary `shadow-[...]` | HIGH                |
+| CartBar.tsx           | 1     | Tailwind arbitrary `shadow-[...]` | HIGH                |
+| theme-toggle.tsx      | 1     | Dark mode glow                    | MEDIUM              |
+| useLuminance.ts       | 4     | Drop shadow utility               | LOW - dynamic       |
+| NavDots.tsx           | 1     | Animation state                   | LOW                 |
 
 ### Shadows - Tailwind Arbitrary Values
-| File | Pattern | Fix |
-|------|---------|-----|
-| CartSummary.tsx | `shadow-[0_2px_8px_rgba(245,158,11,0.4)]` | Add `--shadow-glow-secondary` token |
-| CartBar.tsx | `shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)]` | Add `--shadow-nav-top` token |
-| theme-toggle.tsx | `shadow-[0_0_12px_rgba(229,62,62,0.3)]` | Use `--shadow-glow-primary` |
-| DrawerNavLink.tsx | `shadow-[0_0_12px_rgba(164,16,52,0.25)]` | Use `--shadow-glow-primary` |
-| SearchTrigger.tsx | `shadow-[0_2px_8px_...]` | Add focused search token |
-| AccountIndicator.tsx | `shadow-[0_4px_20px_...]` | Use existing or add semantic token |
+
+| File                 | Pattern                                     | Fix                                 |
+| -------------------- | ------------------------------------------- | ----------------------------------- |
+| CartSummary.tsx      | `shadow-[0_2px_8px_rgba(245,158,11,0.4)]`   | Add `--shadow-glow-secondary` token |
+| CartBar.tsx          | `shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)]` | Add `--shadow-nav-top` token        |
+| theme-toggle.tsx     | `shadow-[0_0_12px_rgba(229,62,62,0.3)]`     | Use `--shadow-glow-primary`         |
+| DrawerNavLink.tsx    | `shadow-[0_0_12px_rgba(164,16,52,0.25)]`    | Use `--shadow-glow-primary`         |
+| SearchTrigger.tsx    | `shadow-[0_2px_8px_...]`                    | Add focused search token            |
+| AccountIndicator.tsx | `shadow-[0_4px_20px_...]`                   | Use existing or add semantic token  |
 
 ### Blur - Hardcoded Values
-| File | Pattern | Fix |
-|------|---------|-----|
-| globals.css | `blur(12px)` x4 | Use `var(--blur-lg)` |
-| globals.css | `blur(30px)` x2 | Use `var(--blur-2xl)` |
-| globals.css | `blur(36px)` x2 | Add `--blur-3xl: 36px` |
-| CommandPalette.tsx | `blur(20px)` inline | Use `var(--blur-xl)` |
-| Header.tsx | `blur(${blurAmount}px)` | Keep dynamic; document tokens |
-| motion-tokens.ts | `blur(0px)`/`blur(20px)` | Keep for animation interpolation |
+
+| File               | Pattern                  | Fix                              |
+| ------------------ | ------------------------ | -------------------------------- |
+| globals.css        | `blur(12px)` x4          | Use `var(--blur-lg)`             |
+| globals.css        | `blur(30px)` x2          | Use `var(--blur-2xl)`            |
+| globals.css        | `blur(36px)` x2          | Add `--blur-3xl: 36px`           |
+| CommandPalette.tsx | `blur(20px)` inline      | Use `var(--blur-xl)`             |
+| Header.tsx         | `blur(${blurAmount}px)`  | Keep dynamic; document tokens    |
+| motion-tokens.ts   | `blur(0px)`/`blur(20px)` | Keep for animation interpolation |
 
 ### Motion - Inline Durations (~100 occurrences)
+
 Most in Framer Motion transitions. Sample of high-priority files:
 | File | Count | Pattern |
 |------|-------|---------|
@@ -338,6 +368,7 @@ Most in Framer Motion transitions. Sample of high-priority files:
 ## Migration Strategy (Per CONTEXT.md)
 
 ### Phase Order
+
 1. **Shadows first** - Highest visual impact, most violations
 2. **Blur tokens** - Small scope, quick wins
 3. **Motion timing** - Largest scope, lowest priority
@@ -345,45 +376,51 @@ Most in Framer Motion transitions. Sample of high-priority files:
 ### Sub-task Breakdown
 
 **29-01: Shadow Token Infrastructure**
+
 - Add missing shadow tokens to tokens.css (xs, none, semantic colors)
 - Add dark mode glow variants
 - Add ESLint rules for shadow enforcement
 - Update audit-tokens.js shadow pattern detection
 
 **29-02: Shadow Migration**
+
 - Migrate hardcoded shadows in micro-interactions.ts
 - Migrate hardcoded shadows in motion-tokens.ts
 - Migrate Tailwind arbitrary shadow values
 - Migrate inline boxShadow styles
 
 **29-03: Blur Token Infrastructure**
-- Add --blur-* tokens to tokens.css
+
+- Add --blur-\* tokens to tokens.css
 - Update Tailwind config if needed
 - Add ESLint rules for blur enforcement
 
 **29-04: Blur Migration**
+
 - Migrate globals.css hardcoded blur values
 - Migrate inline backdropFilter styles
 - Document Framer Motion blur exceptions
 
 **29-05: Motion Token Audit**
+
 - Identify candidates for duration token migration
 - Document intentional exceptions (decorative animations)
 - Update ESLint rules to info level for duration
 
 **29-06: Motion Migration (Optional)**
+
 - Migrate high-impact common durations
 - Leave decorative/intentional durations as-is
 - Verify reduced-motion support
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Per-component shadows | Token system `--shadow-*` | CSS custom properties maturity | Theme-aware, maintainable |
-| Hardcoded blur values | Tailwind `backdrop-blur-*` | Tailwind 3+ | Consistent, responsive |
-| Inline Framer durations | Centralized motion-tokens | Project v7 refactor | Reusable, testable |
-| No dark mode shadows | CSS variable switching | tokens.css dark mode | Automatic theme support |
+| Old Approach            | Current Approach           | When Changed                   | Impact                    |
+| ----------------------- | -------------------------- | ------------------------------ | ------------------------- |
+| Per-component shadows   | Token system `--shadow-*`  | CSS custom properties maturity | Theme-aware, maintainable |
+| Hardcoded blur values   | Tailwind `backdrop-blur-*` | Tailwind 3+                    | Consistent, responsive    |
+| Inline Framer durations | Centralized motion-tokens  | Project v7 refactor            | Reusable, testable        |
+| No dark mode shadows    | CSS variable switching     | tokens.css dark mode           | Automatic theme support   |
 
 **Current best practice:** All visual effects derive from CSS custom properties. Tailwind utilities map to these tokens. Framer Motion uses TypeScript exports that mirror the CSS values.
 
@@ -406,12 +443,13 @@ Most in Framer Motion transitions. Sample of high-priority files:
 
 4. **Ring vs Shadow Tokens**
    - What we know: Tailwind has separate ring utilities
-   - What's unclear: Should ring-* map to shadow tokens?
+   - What's unclear: Should ring-\* map to shadow tokens?
    - Recommendation: Keep ring utilities separate (focus states)
 
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - `src/styles/tokens.css` - Verified shadow/motion token definitions
 - `src/lib/motion-tokens.ts` - Verified Framer Motion exports (905 lines)
 - `src/lib/micro-interactions.ts` - Verified interaction variants
@@ -420,17 +458,20 @@ Most in Framer Motion transitions. Sample of high-priority files:
 - `scripts/audit-tokens.js` - Existing violation detection
 
 ### Secondary (MEDIUM confidence)
+
 - [TailwindCSS Box Shadow Docs](https://tailwindcss.com/docs/box-shadow) - Token patterns
 - [TailwindCSS Theme Variables](https://tailwindcss.com/docs/theme) - CSS variable integration
 - [Framer Motion Transitions](https://www.framer.com/motion/transition/) - Duration/easing patterns
 
 ### Tertiary (LOW confidence)
+
 - WebSearch results on Tailwind 4 design tokens - General patterns
 - WebSearch results on Framer Motion standardization - Community approaches
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - All tools already in project, verified
 - Architecture: HIGH - Patterns verified against existing codebase
 - Pitfalls: HIGH - Derived from code inspection + dark mode testing

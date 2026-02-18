@@ -80,6 +80,7 @@ completed: 2026-02-06
 ## Files Created/Modified
 
 ### FormValidation/ (8 files from 1)
+
 - `FormValidation/types.ts` - ValidationRule, ValidationState, FieldValidation
 - `FormValidation/validationRules.ts` - validationRules factory, combineRules
 - `FormValidation/useFieldValidation.ts` - useFieldValidation hook
@@ -91,6 +92,7 @@ completed: 2026-02-06
 - `FormValidation/index.tsx` - Barrel (20 exports)
 
 ### Modal/ (7 files from 1)
+
 - `Modal/types.ts` - ModalProps, UseModalReturn, ConfirmModalProps, etc.
 - `Modal/constants.ts` - Size config, animation variants
 - `Modal/useModal.ts` - useModal hook
@@ -100,6 +102,7 @@ completed: 2026-02-06
 - `Modal/index.tsx` - Barrel (10 exports)
 
 ### skeleton/ (5 files from 1)
+
 - `skeleton/base.tsx` - Skeleton component with shimmer/pulse/wave/grain
 - `skeleton/text-skeletons.tsx` - SkeletonText, SkeletonAvatar
 - `skeleton/card-skeletons.tsx` - SkeletonCard, SkeletonMenuItem
@@ -107,12 +110,14 @@ completed: 2026-02-06
 - `skeleton/index.tsx` - Barrel (11 exports)
 
 ### ExpandableTableRow/ (4 files from 1)
+
 - `ExpandableTableRow/ExpandableTableRow.tsx` - Row with expand/collapse
 - `ExpandableTableRow/PreviewPanels.tsx` - Quick, Route, Driver preview panels
 - `ExpandableTableRow/useExpandedRows.ts` - Row expansion state hook
 - `ExpandableTableRow/index.tsx` - Barrel (5 exports)
 
 ### AddressInput/ (6 files from 1)
+
 - `AddressInput/types.ts` - AddressInputProps, AddressAutocompleteResult
 - `AddressInput/AddressCard.tsx` - Selectable address card
 - `AddressInput/MapPreview.tsx` - Coverage route map preview
@@ -121,18 +126,21 @@ completed: 2026-02-06
 - `AddressInput/index.tsx` - Barrel (6 exports)
 
 ### TimeSlotPicker/ (4 files from 1)
+
 - `TimeSlotPicker/DatePill.tsx` - Selectable date pill
 - `TimeSlotPicker/TimeSlotPill.tsx` - Time slot button
 - `TimeSlotPicker/TimeSlotPicker.tsx` - Main component
 - `TimeSlotPicker/index.tsx` - Barrel (3 exports)
 
 ### DeliveryMap/ (4 files from 1)
+
 - `DeliveryMap/constants.ts` - Map styles, container config
 - `DeliveryMap/DeliveryMapSkeleton.tsx` - Loading skeleton
 - `DeliveryMap/DeliveryMap.tsx` - Main map with markers/polyline
 - `DeliveryMap/index.tsx` - Barrel (2 exports)
 
 ### StatusTimeline/ (5 files from 1)
+
 - `StatusTimeline/constants.ts` - STATUS_ORDER, STATUS_CONFIG
 - `StatusTimeline/TimelineStep.tsx` - Individual timeline step
 - `StatusTimeline/CancelledState.tsx` - Cancelled order display
@@ -140,6 +148,7 @@ completed: 2026-02-06
 - `StatusTimeline/index.tsx` - Barrel (3 exports)
 
 ### Hero/ (5 files from 1)
+
 - `Hero/types.ts` - HeroProps
 - `Hero/HeroSubComponents.tsx` - AnimatedHeadline, StatItem, GradientFallback
 - `Hero/HeroContent.tsx` - Text/CTA overlay content
@@ -156,7 +165,7 @@ completed: 2026-02-06
    - Favorites (controlled + uncontrolled modes)
    - Touch handling (long-press detection with 500ms timer, scroll cancellation)
    - Mouse tracking (tilt coords shared between handleMouseMove, handleMouseLeave, handleTouchEnd)
-   Splitting further would require passing 10+ props/refs between files for no readability gain. Documented as irreducible at current architecture.
+     Splitting further would require passing 10+ props/refs between files for no readability gain. Documented as irreducible at current architecture.
 
 3. **ValidatedInputs further split** - Original plan had ValidatedInput + ValidatedTextarea + ValidatedForm in one file (631 lines). Split into 3 separate files to meet 400-line limit.
 
@@ -167,6 +176,7 @@ completed: 2026-02-06
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] ValidatedInputs.tsx exceeded 400 lines**
+
 - **Found during:** Task 1
 - **Issue:** Combined ValidatedInput + ValidatedTextarea + ValidatedForm was 631 lines
 - **Fix:** Split into 3 separate files: ValidatedInput.tsx (334), ValidatedTextarea.tsx (279), ValidatedForm.tsx (53)
@@ -175,6 +185,7 @@ completed: 2026-02-06
 - **Committed in:** 918161d
 
 **2. [Rule 3 - Blocking] Modal.tsx exceeded 400 lines**
+
 - **Found during:** Task 1
 - **Issue:** Modal.tsx was 483 lines even after type/hook extraction
 - **Fix:** Extracted animation variants and size config to constants.ts, removed section comment headers
@@ -193,14 +204,17 @@ completed: 2026-02-06
 - `pnpm build` fails due to Google Fonts network error (Playfair Display fetch failure) - unrelated to code changes, sandbox network issue. Typecheck and lint both pass cleanly.
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - 9 components now split (8 planned + Hero evaluation resulted in split)
 - UnifiedMenuItemCard documented as irreducible with clear rationale
 - All barrel re-exports verified complete via typecheck
 - Ready for 46-04 (admin page splits) and beyond
 
 ---
-*Phase: 46-large-file-refactoring*
-*Completed: 2026-02-06*
+
+_Phase: 46-large-file-refactoring_
+_Completed: 2026-02-06_

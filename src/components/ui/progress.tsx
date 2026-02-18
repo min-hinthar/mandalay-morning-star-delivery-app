@@ -7,45 +7,40 @@ import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { progressSpring } from "@/lib/micro-interactions";
 
-interface ProgressProps
-  extends React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> {
+interface ProgressProps extends React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> {
   /** Use spring physics for animation (default: true) */
   useSpring?: boolean;
 }
 
-const Progress = React.forwardRef<
-  React.ElementRef<typeof ProgressPrimitive.Root>,
-  ProgressProps
->(({ className, value, useSpring = true, ...props }, ref) => {
-  const percentage = value || 0;
+const Progress = React.forwardRef<React.ElementRef<typeof ProgressPrimitive.Root>, ProgressProps>(
+  ({ className, value, useSpring = true, ...props }, ref) => {
+    const percentage = value || 0;
 
-  return (
-    <ProgressPrimitive.Root
-      ref={ref}
-      className={cn(
-        "relative h-4 w-full overflow-hidden rounded-full bg-secondary",
-        className
-      )}
-      {...props}
-    >
-      {useSpring ? (
-        // GPU-accelerated: using scaleX instead of width for 60fps
-        <m.div
-          className="h-full w-full bg-gradient-progress"
-          style={{ transformOrigin: "left" }}
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: percentage / 100 }}
-          transition={progressSpring}
-        />
-      ) : (
-        <ProgressPrimitive.Indicator
-          className="h-full w-full flex-1 bg-gradient-progress transition-transform duration-300 ease-out"
-          style={{ transform: `translateX(-${100 - percentage}%)` }}
-        />
-      )}
-    </ProgressPrimitive.Root>
-  );
-});
+    return (
+      <ProgressPrimitive.Root
+        ref={ref}
+        className={cn("relative h-4 w-full overflow-hidden rounded-full bg-secondary", className)}
+        {...props}
+      >
+        {useSpring ? (
+          // GPU-accelerated: using scaleX instead of width for 60fps
+          <m.div
+            className="h-full w-full bg-gradient-progress"
+            style={{ transformOrigin: "left" }}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: percentage / 100 }}
+            transition={progressSpring}
+          />
+        ) : (
+          <ProgressPrimitive.Indicator
+            className="h-full w-full flex-1 bg-gradient-progress transition-transform duration-300 ease-out"
+            style={{ transform: `translateX(-${100 - percentage}%)` }}
+          />
+        )}
+      </ProgressPrimitive.Root>
+    );
+  }
+);
 Progress.displayName = ProgressPrimitive.Root.displayName;
 
 export { Progress };

@@ -50,20 +50,13 @@ const summaryRowVariants = {
 
 export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
-  const {
-    items,
-    itemsSubtotal,
-    estimatedDeliveryFee,
-    estimatedTotal,
-    amountToFreeDelivery,
-  } = useCart();
+  const { items, itemsSubtotal, estimatedDeliveryFee, estimatedTotal, amountToFreeDelivery } =
+    useCart();
 
   // Calculate progress percentage toward free delivery
   const progressPercent = Math.min(
     100,
-    ((FREE_DELIVERY_THRESHOLD_CENTS - amountToFreeDelivery) /
-      FREE_DELIVERY_THRESHOLD_CENTS) *
-      100
+    ((FREE_DELIVERY_THRESHOLD_CENTS - amountToFreeDelivery) / FREE_DELIVERY_THRESHOLD_CENTS) * 100
   );
 
   const hasFreeDelivery = amountToFreeDelivery <= 0;
@@ -118,9 +111,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                     >
                       {item.quantity}
                     </m.span>
-                    <span className="font-medium text-text-primary truncate">
-                      {item.nameEn}
-                    </span>
+                    <span className="font-medium text-text-primary truncate">{item.nameEn}</span>
                   </div>
                   {item.modifiers.length > 0 && (
                     <p className="mt-1 text-xs text-text-muted truncate pl-6">
@@ -256,7 +247,12 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
               FREE
             </m.span>
           ) : (
-            <PriceTicker value={estimatedDeliveryFee} inCents={true} size="sm" className="text-text-money" />
+            <PriceTicker
+              value={estimatedDeliveryFee}
+              inCents={true}
+              size="sm"
+              className="text-text-money"
+            />
           )}
         </m.div>
 
@@ -271,9 +267,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           transition={{ delay: 0.1 }}
           className="flex justify-between items-center"
         >
-          <span className="text-base font-bold text-text-primary">
-            Estimated Total
-          </span>
+          <span className="text-base font-bold text-text-primary">Estimated Total</span>
           <PriceTicker
             value={estimatedTotal}
             inCents={true}
@@ -282,9 +276,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           />
         </m.div>
 
-        <p className="text-xs text-text-muted text-center">
-          Tax calculated at checkout
-        </p>
+        <p className="text-xs text-text-muted text-center">Tax calculated at checkout</p>
       </div>
     </div>
   );

@@ -76,54 +76,52 @@ const spacingMap: Record<SpacingToken, string> = {
 // COMPONENT
 // ============================================
 
-export const SafeArea = forwardRef<HTMLElement, SafeAreaProps>(
-  function SafeArea(
-    {
-      edges = ["top", "bottom", "left", "right"],
-      mode = "padding",
-      min,
-      as = "div",
-      className,
-      children,
-      ...props
-    },
-    ref
-  ) {
-    const Component = as as "div";
-    // Build style object for safe area insets
-    const safeAreaStyle = useMemo(() => {
-      const style: Record<string, string> = {};
-      const minValue = min ? spacingMap[min] : "0px";
-      const prefix = mode === "padding" ? "padding" : "margin";
+export const SafeArea = forwardRef<HTMLElement, SafeAreaProps>(function SafeArea(
+  {
+    edges = ["top", "bottom", "left", "right"],
+    mode = "padding",
+    min,
+    as = "div",
+    className,
+    children,
+    ...props
+  },
+  ref
+) {
+  const Component = as as "div";
+  // Build style object for safe area insets
+  const safeAreaStyle = useMemo(() => {
+    const style: Record<string, string> = {};
+    const minValue = min ? spacingMap[min] : "0px";
+    const prefix = mode === "padding" ? "padding" : "margin";
 
-      if (edges.includes("top")) {
-        style[`${prefix}Top`] = `max(env(safe-area-inset-top, 0px), ${minValue})`;
-      }
-      if (edges.includes("bottom")) {
-        style[`${prefix}Bottom`] = `max(env(safe-area-inset-bottom, 0px), ${minValue})`;
-      }
-      if (edges.includes("left")) {
-        style[`${prefix}Left`] = `max(env(safe-area-inset-left, 0px), ${minValue})`;
-      }
-      if (edges.includes("right")) {
-        style[`${prefix}Right`] = `max(env(safe-area-inset-right, 0px), ${minValue})`;
-      }
+    if (edges.includes("top")) {
+      style[`${prefix}Top`] = `max(env(safe-area-inset-top, 0px), ${minValue})`;
+    }
+    if (edges.includes("bottom")) {
+      style[`${prefix}Bottom`] = `max(env(safe-area-inset-bottom, 0px), ${minValue})`;
+    }
+    if (edges.includes("left")) {
+      style[`${prefix}Left`] = `max(env(safe-area-inset-left, 0px), ${minValue})`;
+    }
+    if (edges.includes("right")) {
+      style[`${prefix}Right`] = `max(env(safe-area-inset-right, 0px), ${minValue})`;
+    }
 
-      return style;
-    }, [edges, mode, min]);
+    return style;
+  }, [edges, mode, min]);
 
-    return (
-      <Component
-        ref={ref as React.Ref<HTMLDivElement>}
-        className={cn(className)}
-        style={safeAreaStyle}
-        {...props}
-      >
-        {children}
-      </Component>
-    );
-  }
-);
+  return (
+    <Component
+      ref={ref as React.Ref<HTMLDivElement>}
+      className={cn(className)}
+      style={safeAreaStyle}
+      {...props}
+    >
+      {children}
+    </Component>
+  );
+});
 
 SafeArea.displayName = "SafeArea";
 

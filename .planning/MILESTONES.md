@@ -30,14 +30,16 @@
 **Git range:** `feat(58-01): create health types and env validation` → `feat(66-05): ShareButton, NearbyBanner, status effects`
 
 **Tech debt resolved from v1.6:**
+
 - LCP optimized from 8-11s to <4s (CI-enforced)
 - UnifiedMenuItemCard refactored to <400 lines
 - Dead Edge Functions removed (send-order-confirmation, send-delivery-notification)
 - 8 unused dependencies removed via Knip audit
 
 **Tech debt remaining:**
+
 - Lighthouse CI gates at score 60 (target 70, conservative CI threshold)
-- _hasHydrated flag unused in UI (potential empty-cart flash)
+- \_hasHydrated flag unused in UI (potential empty-cart flash)
 - offline-state-change event dispatched but not consumed by update banner
 - Rate limiting upgrade from in-memory Map to Redis/Vercel KV (HARD-01)
 - Content Security Policy headers (HARD-02)
@@ -76,11 +78,13 @@
 **Git range:** `docs(48): capture phase context` → `fix(57): resolve hydration mismatch + logo aspect ratio warnings`
 
 **Tech debt resolved from v1.5:**
+
 - ✓ Error boundaries on all routes (was missing on 6 routes)
 - ✓ Loading states on all admin pages (was missing on 19 routes)
 - ✓ Cart page fully implemented (was a stub)
 
 **Tech debt remaining:**
+
 - LCP 8-11s (deferred to v1.7)
 - Lighthouse performance score 30-45 (deferred to v1.7)
 - UnifiedMenuItemCard 540 lines (documented exception)
@@ -103,7 +107,7 @@
 - LCP 45% improvement: 19.9s → 10.9s via CardImage optimization, Server Components, dynamic imports, cart scoping, React Compiler, LazyMotion
 - Code-splitting infrastructure: Recharts, Google Maps, cart components all lazy-loaded with viewport triggering
 - React Compiler enabled globally: 282 client components auto-memoized, zero opt-outs
-- LazyMotion with domMax: 174 files migrated from motion.* to m.* (~34KB → ~4.6KB per component)
+- LazyMotion with domMax: 174 files migrated from motion._ to m._ (~34KB → ~4.6KB per component)
 - Repository cleanup: 94 legacy docs deleted, 89 build artifacts untracked, planning files archived
 - File refactoring: 47 files >400 lines split into 129+ sub-files with ESLint max-lines enforcement
 - E2E cart tests: 19 tests integrated in CI pipeline, 18-19/19 passing reliably
@@ -121,11 +125,13 @@
 **Git range:** `docs(40): research LCP element quick wins` → `feat(gsd): add per-workflow agent teams configuration`
 
 **Tech debt resolved from v1.4:**
+
 - ✓ 29 files >400 lines refactored (47 found, all split)
 - ✓ Legacy docs V0-V7 archived (94 files deleted)
 - ✓ storybook-static untracked from git
 
 **Tech debt remaining:**
+
 - LCP 8-11s vs <2.5s target (JS execution bottleneck — deferred to v1.6)
 - Lighthouse performance score 30-45 vs 90+ target
 - UnifiedMenuItemCard 540 lines (documented exception — tightly coupled state)
@@ -162,12 +168,14 @@
 **Git range:** `feat(35-01)` → `docs(v1.4): complete milestone audit report`
 
 **Tech debt resolved from v1.3:**
+
 - ✓ Mobile crash prevention complete (0 critical issues)
 - ✓ Image optimization complete (CLS: 0)
 - ✓ Circular dependencies eliminated (9 cycles fixed)
 - ✓ Dead code removed (12 files deleted)
 
 **Tech debt remaining:**
+
 - LCP: 8.1s (blocked by JavaScript execution, not images - needs JS optimization phase)
 - 29 files exceed 400 lines (warning only per config)
 
@@ -201,12 +209,14 @@
 **Git range:** `docs(25): capture phase context` → `docs(32): mark Phase 32 complete in roadmap`
 
 **Tech debt resolved from v1.2:**
+
 - ✓ 221 hardcoded color violations (now 0)
 - ✓ 6 duplicate components eliminated
 - ✓ Mobile 3D tilt fixed (touch devices use fallback)
 - ✓ Hero section redesigned (mascot replaced with emojis)
 
 **Tech debt remaining:**
+
 - 137 token violations in Storybook stories and driver components (intentional exemptions)
 - Visual regression baselines need network-enabled generation environment
 
@@ -241,6 +251,7 @@
 **Requirements:** 44/48 satisfied (4 cancelled with Phase 17 - 3D hero removed)
 
 **Tech debt resolved:**
+
 - ✓ 3D code removed (Phase 24 cleanup)
 - ✓ Animation tokens consolidated to single source
 - ✓ Legacy header/nav files removed
@@ -275,6 +286,7 @@
 **Git range:** `docs(09): research phase domain` → `audit(v1.1): complete milestone audit with integration verification`
 
 **Tech debt resolved from v1:**
+
 - ✓ 64 legacy z-index violations (now 0)
 - ✓ TimeStepV8 created (checkout now uses V8 component)
 - ~ Visual regression baselines deferred (78 tests ready, baselines need network-enabled environment)
@@ -310,6 +322,7 @@
 **Git range:** `docs(phase-1): research foundation and token system` → `docs: update v1 milestone audit after Phase 8 gap closure`
 
 **Tech debt accepted:**
+
 - 64 legacy z-index violations (tracked in Z-INDEX-MIGRATION.md, migrate during future component rebuilds)
 - TimeStepV8 missing (checkout uses legacy TimeStep, functional but lacks V8 animation polish)
 - 11 visual regression snapshots need human baseline generation

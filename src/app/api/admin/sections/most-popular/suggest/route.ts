@@ -8,7 +8,14 @@ interface OrderItemWithMenuItem {
   quantity: number;
   menu_items: Pick<
     MenuItemsRow,
-    "id" | "name_en" | "name_my" | "description_en" | "image_url" | "base_price_cents" | "is_active" | "is_sold_out"
+    | "id"
+    | "name_en"
+    | "name_my"
+    | "description_en"
+    | "image_url"
+    | "base_price_cents"
+    | "is_active"
+    | "is_sold_out"
   > | null;
 }
 
@@ -34,7 +41,8 @@ export async function GET() {
     // Get order items with their menu items, excluding null menu_item_id
     const { data: orderItems, error } = await auth.supabase
       .from("order_items")
-      .select(`
+      .select(
+        `
         menu_item_id,
         quantity,
         menu_items (
@@ -47,20 +55,21 @@ export async function GET() {
           is_active,
           is_sold_out
         )
-      `)
+      `
+      )
       .not("menu_item_id", "is", null)
       .returns<OrderItemWithMenuItem[]>();
 
     if (error) {
       logger.exception(error, { api: "admin/sections/most-popular/suggest", flowId: "fetch" });
-      return NextResponse.json(
-        { error: "Failed to fetch order data" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch order data" }, { status: 500 });
     }
 
     // Aggregate by item_id
-    const itemCounts = new Map<string, { count: number; item: OrderItemWithMenuItem["menu_items"] }>();
+    const itemCounts = new Map<
+      string,
+      { count: number; item: OrderItemWithMenuItem["menu_items"] }
+    >();
 
     for (const orderItem of orderItems) {
       if (!orderItem.menu_item_id || !orderItem.menu_items) continue;
@@ -102,9 +111,6 @@ export async function GET() {
     });
   } catch (error) {
     logger.exception(error, { api: "admin/sections/most-popular/suggest", flowId: "fetch" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -88,10 +88,12 @@ test.describe("Form Validation", () => {
     // Should show validation error or prevent submission
     // The exact behavior depends on form validation implementation
     const errorMessage = page.getByText(/invalid|valid email/i);
-    await expect(errorMessage).toBeVisible().catch(() => {
-      // If no error message, the form should not have submitted successfully
-      expect(page.url()).toContain("login");
-    });
+    await expect(errorMessage)
+      .toBeVisible()
+      .catch(() => {
+        // If no error message, the form should not have submitted successfully
+        expect(page.url()).toContain("login");
+      });
   });
 });
 

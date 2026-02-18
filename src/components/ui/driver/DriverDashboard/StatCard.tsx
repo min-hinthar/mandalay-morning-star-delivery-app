@@ -43,12 +43,7 @@ export function StatCard({
       )}
     >
       {/* Background decoration */}
-      <div
-        className={cn(
-          "absolute -top-4 -right-4 w-20 h-20 rounded-full opacity-10",
-          color
-        )}
-      />
+      <div className={cn("absolute -top-4 -right-4 w-20 h-20 rounded-full opacity-10", color)} />
 
       <div className="relative flex items-center gap-3">
         {/* Icon */}
@@ -82,9 +77,7 @@ export function StatCard({
                 animate={shouldAnimate ? { y: [0, -3, 0] } : undefined}
                 transition={{ duration: 1, repeat: 5, repeatDelay: 1 }}
               >
-                {trend === "up" ? (
-                  <TrendingUp className="w-4 h-4 text-accent-teal" />
-                ) : null}
+                {trend === "up" ? <TrendingUp className="w-4 h-4 text-accent-teal" /> : null}
               </m.span>
             )}
           </m.p>

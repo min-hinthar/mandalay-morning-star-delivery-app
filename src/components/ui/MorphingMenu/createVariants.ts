@@ -1,9 +1,6 @@
 import type { MorphingMenuProps } from "./MorphingMenu";
 
-export const createVariants = (
-  variant: MorphingMenuProps["variant"],
-  lineHeight: number
-) => {
+export const createVariants = (variant: MorphingMenuProps["variant"], lineHeight: number) => {
   const gap = lineHeight * 2.5;
 
   switch (variant) {

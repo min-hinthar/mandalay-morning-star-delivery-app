@@ -14,6 +14,7 @@ Full-scope service worker with content-hash caching, update banner, offline fall
 ## Implementation Decisions
 
 ### Update Banner UX
+
 - Bottom toast position (consistent with existing toast system)
 - Keep auto-reload countdown behavior (10-second countdown)
 - Countdown pauses on user interaction (typing, scrolling), resumes after idle
@@ -29,6 +30,7 @@ Full-scope service worker with content-hash caching, update banner, offline fall
 - Same update behavior for all roles (customer, admin, driver)
 
 ### Cache Invalidation Strategy
+
 - Content-hash per file (not build timestamp) — only changed assets re-downloaded on deploy
 - Menu API cache TTL extended to 15 minutes (from 5 minutes)
 - Admin pages: same caching as customer pages (admin API calls are NetworkFirst anyway)
@@ -38,10 +40,12 @@ Full-scope service worker with content-hash caching, update banner, offline fall
 - Cache hit/miss metrics reported to Sentry/analytics for TTL tuning
 
 ### Route Exclusions
+
 - Auth callback and Sentry tunnel routes excluded from SW interception (discover exact paths from codebase)
 - Claude determines which additional routes are dangerous to cache (Stripe webhooks, health endpoint, etc.)
 
 ### Offline Fallback Behavior
+
 - Show last cached version of page when offline (with offline indicator)
 - Persistent banner at top of page: "You're offline — showing cached content" (warning style, red/warning vs blue/info for update)
 - When NO cached version exists: branded offline page with links to cached pages
@@ -50,6 +54,7 @@ Full-scope service worker with content-hash caching, update banner, offline fall
 - Non-queueable actions (Place Order) disabled with tooltip: "You're offline. Connect to place your order."
 
 ### Cart Offline Queue
+
 - Cart actions (add/remove/modify) queueable while offline
 - Migrate cart persistence from localStorage to IndexedDB (Zustand persist middleware)
 - Offline-queued cart items show "pending sync" badge until confirmed synced
@@ -57,6 +62,7 @@ Full-scope service worker with content-hash caching, update banner, offline fall
 - Sync failure: error toast + keep item in cart marked as "unavailable" (user removes manually)
 
 ### Claude's Discretion
+
 - Version number source (package.json vs git hash vs timestamp)
 - Countdown reset behavior on dismiss + re-show
 - Banner animation style (slide up, fade in)
@@ -71,7 +77,7 @@ Full-scope service worker with content-hash caching, update banner, offline fall
 - Cross-origin request interception policy
 - Font caching strategy
 - Driver route special treatment (leveraging Phase 56 offline sync)
-- Auth path exclusion scope (/auth/callback only vs /auth/*)
+- Auth path exclusion scope (/auth/callback only vs /auth/\*)
 - Health endpoint caching strategy
 - Document request caching approach (bypass vs NetworkFirst)
 - Pages to precache beyond /, /menu, /cart
@@ -108,5 +114,5 @@ Full-scope service worker with content-hash caching, update banner, offline fall
 
 ---
 
-*Phase: 64-service-worker-hardening*
-*Context gathered: 2026-02-14*
+_Phase: 64-service-worker-hardening_
+_Context gathered: 2026-02-14_

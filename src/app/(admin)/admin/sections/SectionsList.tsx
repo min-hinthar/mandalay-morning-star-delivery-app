@@ -1,23 +1,11 @@
-'use client';
+"use client";
 
 import { m, AnimatePresence, Reorder } from "framer-motion";
-import {
-  Plus,
-  LayoutGrid,
-  ChevronDown,
-  ChevronUp,
-  Trash2,
-} from "lucide-react";
+import { Plus, LayoutGrid, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  SectionCard,
-  type SectionCardSection,
-} from "@/components/ui/admin/sections/SectionCard";
-import {
-  ItemSelector,
-  type SelectableItem,
-} from "@/components/ui/admin/sections/ItemSelector";
+import { SectionCard, type SectionCardSection } from "@/components/ui/admin/sections/SectionCard";
+import { ItemSelector, type SelectableItem } from "@/components/ui/admin/sections/ItemSelector";
 
 interface Section extends Omit<SectionCardSection, "items"> {
   items: (SelectableItem & { sortOrder: number })[];

@@ -20,9 +20,7 @@ export async function optimizeRoute(
   // Validate stops first
   const validation = validateStopsForOptimization(stops);
   if (!validation.valid) {
-    throw new Error(
-      `Invalid stops: ${validation.errors.map((e) => e.message).join("; ")}`
-    );
+    throw new Error(`Invalid stops: ${validation.errors.map((e) => e.message).join("; ")}`);
   }
 
   // If only one stop, no optimization needed
@@ -130,24 +128,20 @@ async function optimizeWithGoogleRoutes(
     units: "IMPERIAL",
   };
 
-  const response = await fetch(
-    "https://routes.googleapis.com/directions/v2:computeRoutes",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Goog-Api-Key": googleApiKey,
-        "X-Goog-FieldMask": "routes.optimizedIntermediateWaypointIndex,routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.legs.duration,routes.legs.distanceMeters",
-      },
-      body: JSON.stringify(requestBody),
-    }
-  );
+  const response = await fetch("https://routes.googleapis.com/directions/v2:computeRoutes", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Goog-Api-Key": googleApiKey,
+      "X-Goog-FieldMask":
+        "routes.optimizedIntermediateWaypointIndex,routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.legs.duration,routes.legs.distanceMeters",
+    },
+    body: JSON.stringify(requestBody),
+  });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(
-      `Google Routes API error: ${error.error?.message || response.statusText}`
-    );
+    throw new Error(`Google Routes API error: ${error.error?.message || response.statusText}`);
   }
 
   const data = await response.json();
@@ -158,8 +152,7 @@ async function optimizeWithGoogleRoutes(
   }
 
   // Get optimized order from response
-  const optimizedOrder = route.optimizedIntermediateWaypointIndex ||
-    stops.map((_, i) => i);
+  const optimizedOrder = route.optimizedIntermediateWaypointIndex || stops.map((_, i) => i);
 
   // Build ordered stops with ETAs
   let cumulativeDuration = 0;
@@ -264,10 +257,7 @@ function calculateHaversineDistance(
 
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRadians(lat1)) *
-      Math.cos(toRadians(lat2)) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
+    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 

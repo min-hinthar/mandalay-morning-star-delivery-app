@@ -43,7 +43,7 @@ completed: 2026-02-06
 
 # Phase 46 Plan 07: ESLint max-lines expansion + file organization docs Summary
 
-**ESLint max-lines rule expanded from components-only to all src/**/*.{ts,tsx} with type/test/story exemptions; CLAUDE.md documents 4 splitting patterns**
+**ESLint max-lines rule expanded from components-only to all src/**/\*.{ts,tsx} with type/test/story exemptions; CLAUDE.md documents 4 splitting patterns\*\*
 
 ## Performance
 
@@ -54,6 +54,7 @@ completed: 2026-02-06
 - **Files modified:** 2
 
 ## Accomplishments
+
 - Expanded ESLint max-lines scope from `src/components/**/*.tsx` to `src/**/*.{ts,tsx}`
 - Added exemptions for type definitions, test files, and Storybook stories
 - Zero max-lines violations detected across entire source tree
@@ -67,10 +68,12 @@ Each task was committed atomically:
 2. **Task 2: Document file organization patterns in CLAUDE.md** - `4a3103a` (docs)
 
 ## Files Created/Modified
-- `eslint.config.mjs` - Expanded max-lines rule: files array covers all src/**/*.{ts,tsx}, ignores array exempts types/tests/stories
+
+- `eslint.config.mjs` - Expanded max-lines rule: files array covers all src/\*_/_.{ts,tsx}, ignores array exempts types/tests/stories
 - `.claude/CLAUDE.md` - Added File Organization section with 4 splitting patterns and conventions
 
 ## Decisions Made
+
 - Warning-only severity (`"warn"` not `"error"`) ensures builds never break due to file size
 - Exempted `src/types/**` (type definitions can be large by nature), test files, and Storybook stories
 - Placed File Organization section between Paths and Session Memory sections in CLAUDE.md
@@ -80,6 +83,7 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 - `pnpm build` fails due to Google Fonts network fetch error (Playfair Display unreachable in build environment) - pre-existing environment issue, unrelated to our changes. Verified via `pnpm lint` and `pnpm typecheck` both passing cleanly.
 
 ## User Setup Required
@@ -87,6 +91,7 @@ None - plan executed exactly as written.
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Phase 46 (Large File Refactoring) is now complete: all 7 plans executed
 - All source files under 400 lines (with documented exemptions)
 - ESLint enforces the limit going forward (warn-only, never blocking)
@@ -94,5 +99,6 @@ None - no external service configuration required.
 - No blockers
 
 ---
-*Phase: 46-large-file-refactoring*
-*Completed: 2026-02-06*
+
+_Phase: 46-large-file-refactoring_
+_Completed: 2026-02-06_

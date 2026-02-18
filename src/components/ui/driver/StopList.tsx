@@ -56,9 +56,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
   const upcomingStops = stops.filter(
     (s) => s.status === "pending" && s.stopIndex !== currentStopIndex
   );
-  const completedStops = stops.filter(
-    (s) => s.status === "delivered" || s.status === "skipped"
-  );
+  const completedStops = stops.filter((s) => s.status === "delivered" || s.status === "skipped");
 
   const handleStopClick = (stopId: string) => {
     router.push(`/driver/route/${stopId}`);
@@ -68,11 +66,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
     <div className="space-y-6">
       {/* Current Stop */}
       {currentStop && (
-        <m.section
-          variants={stopContainer}
-          initial="hidden"
-          animate="visible"
-        >
+        <m.section variants={stopContainer} initial="hidden" animate="visible">
           <h2 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-text-muted">
             Current Stop
           </h2>
@@ -98,12 +92,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
           <h2 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-text-muted">
             Upcoming ({upcomingStops.length})
           </h2>
-          <m.div
-            className="space-y-2"
-            variants={stopContainer}
-            initial="hidden"
-            animate="visible"
-          >
+          <m.div className="space-y-2" variants={stopContainer} initial="hidden" animate="visible">
             {upcomingStops.map((stop) => (
               <StopCard
                 key={stop.id}
@@ -129,12 +118,7 @@ export function StopList({ stops, currentStopIndex }: StopListProps) {
           <h2 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-text-muted">
             Completed ({completedStops.length})
           </h2>
-          <m.div
-            className="space-y-2"
-            variants={stopContainer}
-            initial="hidden"
-            animate="visible"
-          >
+          <m.div className="space-y-2" variants={stopContainer} initial="hidden" animate="visible">
             {completedStops.map((stop) => (
               <StopCard
                 key={stop.id}

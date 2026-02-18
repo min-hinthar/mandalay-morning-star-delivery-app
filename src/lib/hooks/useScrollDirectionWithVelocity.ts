@@ -70,7 +70,9 @@ export function useScrollDirectionWithVelocity(
 ): UseScrollDirectionWithVelocityReturn {
   const { threshold = 50, velocityThreshold = 300 } = options;
 
-  const [state, setState] = useState<Omit<UseScrollDirectionWithVelocityReturn, "scrollY"> & { scrollY: number }>({
+  const [state, setState] = useState<
+    Omit<UseScrollDirectionWithVelocityReturn, "scrollY"> & { scrollY: number }
+  >({
     direction: "idle",
     isCollapsed: false,
     isFastScroll: false,

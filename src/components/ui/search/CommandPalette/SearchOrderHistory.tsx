@@ -52,10 +52,7 @@ export interface SearchOrderHistoryProps {
  * match the current query. Each item shows the name snapshot,
  * quantity, and relative date.
  */
-export function SearchOrderHistory({
-  results,
-  onSelectItem,
-}: SearchOrderHistoryProps) {
+export function SearchOrderHistory({ results, onSelectItem }: SearchOrderHistoryProps) {
   if (results.length === 0) return null;
 
   return (
@@ -89,10 +86,12 @@ export function SearchOrderHistory({
             className="flex w-full items-center gap-3"
           >
             {/* Order icon with subtle background */}
-            <div className={cn(
-              "flex h-8 w-8 flex-shrink-0 items-center justify-center",
-              "rounded-lg bg-primary/8 dark:bg-primary/12"
-            )}>
+            <div
+              className={cn(
+                "flex h-8 w-8 flex-shrink-0 items-center justify-center",
+                "rounded-lg bg-primary/8 dark:bg-primary/12"
+              )}
+            >
               <ShoppingBag className="h-3.5 w-3.5 text-primary" />
             </div>
 

@@ -14,6 +14,7 @@ Enhance the existing CommandPalette/search to find Burmese dishes accurately eve
 ## Implementation Decisions
 
 ### Result Presentation
+
 - Rich card layout (not compact list rows)
 - Each card shows: food thumbnail (64px medium), item name, base price, category tag badge, dietary/spice tags
 - Sold-out items appear grayed out with "Sold out" badge (not hidden)
@@ -29,6 +30,7 @@ Enhance the existing CommandPalette/search to find Burmese dishes accurately eve
 - Theme: Claude's Discretion (inherit app theme or dark overlay)
 
 ### Matching Behavior
+
 - Search fields: name + description + category + ingredients/allergens
 - Live as-you-type with ~100-150ms debounce (nearly instant)
 - Support both Burmese script and English transliteration input
@@ -41,6 +43,7 @@ Enhance the existing CommandPalette/search to find Burmese dishes accurately eve
 - Burmese script fuzzy tolerance: Claude's Discretion (evaluate feasibility)
 
 ### Category Grouping
+
 - Tabbed categories at top of results (not section headers)
 - Default "All" tab shows all results
 - Only categories with matching results shown as tabs (no empty categories)
@@ -53,6 +56,7 @@ Enhance the existing CommandPalette/search to find Burmese dishes accurately eve
 - Tabs only filter search results (no standalone browse mode)
 
 ### Search Interaction
+
 - Keep existing CommandPalette trigger (enhance results, not entry point)
 - Auto-focus on open (keyboard appears immediately)
 - Clear button (X) inside search input
@@ -69,6 +73,7 @@ Enhance the existing CommandPalette/search to find Burmese dishes accurately eve
 - Voice search: Claude's Discretion (evaluate value vs complexity)
 
 ### Claude's Discretion
+
 - Search overlay visual style (full-screen vs dropdown — based on existing CommandPalette)
 - Theme treatment (inherit app theme or dark overlay)
 - Fuzzy matching library and tuning parameters
@@ -108,5 +113,5 @@ Enhance the existing CommandPalette/search to find Burmese dishes accurately eve
 
 ---
 
-*Phase: 55-search-enhancement*
-*Context gathered: 2026-02-10*
+_Phase: 55-search-enhancement_
+_Context gathered: 2026-02-10_

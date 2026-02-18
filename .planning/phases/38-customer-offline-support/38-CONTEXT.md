@@ -14,6 +14,7 @@ Customers can browse menu and see cached content when offline — service worker
 ## Implementation Decisions
 
 ### Offline Indicator
+
 - Fixed banner at top of viewport, pushes content down
 - Shown on all pages including admin
 - Subtle amber warning style with warning icon
@@ -22,11 +23,13 @@ Customers can browse menu and see cached content when offline — service worker
 - On reconnection: shows "Back online" for 3 seconds then auto-dismisses
 
 ### Cart Behavior While Offline
+
 - Cart operations (add/remove items) work offline
 - Checkout button disabled with tooltip explaining need for connection
 - No blocking modals, just disabled state with explanation
 
 ### Stale Content Display
+
 - Subtle amber badge matching offline banner style
 - Position: above menu grid (single badge, not per-item)
 - Relative timestamp format: "Cached 2 hours ago", "Cached yesterday"
@@ -36,6 +39,7 @@ Customers can browse menu and see cached content when offline — service worker
 - Unavailable/sold-out items shown as cached (no hiding)
 
 ### Cache Strategy
+
 - Cache scope: menu data + menu images (full browsing experience)
 - App shell (navigation, layout) cached separately
 - Stale-while-revalidate: show cache first, background refresh when online
@@ -46,6 +50,7 @@ Customers can browse menu and see cached content when offline — service worker
 - Eviction policy: LRU (oldest items first)
 
 ### Update Prompts
+
 - Fixed banner at bottom of viewport (separate from offline banner at top)
 - Primary brand color styling (positive update message)
 - Check for updates on each page load/navigation
@@ -54,6 +59,7 @@ Customers can browse menu and see cached content when offline — service worker
 - Text: "New version available - Refreshing in 5..."
 
 ### Claude's Discretion
+
 - Exact animation timing and easing curves
 - Cache key naming conventions
 - Service worker registration timing
@@ -81,5 +87,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 38-customer-offline-support*
-*Context gathered: 2026-02-04*
+_Phase: 38-customer-offline-support_
+_Context gathered: 2026-02-04_

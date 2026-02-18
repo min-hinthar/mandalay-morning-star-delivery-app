@@ -9,9 +9,7 @@ Parent's `touchAction: "pan-x"` (for swipe gesture) blocks vertical scroll in ch
 
 ```tsx
 <motion.div style={{ touchAction: "pan-x" }} drag="y">
-  <div style={{ touchAction: "pan-y" }}>
-    {/* Scrollable content */}
-  </div>
+  <div style={{ touchAction: "pan-y" }}>{/* Scrollable content */}</div>
 </motion.div>
 ```
 
@@ -24,6 +22,7 @@ Parent's `touchAction: "pan-x"` (for swipe gesture) blocks vertical scroll in ch
 `useBodyScrollLock` calling `window.scrollTo()` on unmount races with AnimatePresence exit animation (~200-300ms). iOS Safari: layout thrashing -> memory pressure -> crash.
 
 **Fix:** Defer scroll restoration:
+
 ```tsx
 // Hook supports deferred restore
 useBodyScrollLock(isLocked, { deferScrollRestore: true });
@@ -31,10 +30,11 @@ useBodyScrollLock(isLocked, { deferScrollRestore: true });
 // Call restore in onExitComplete
 <AnimatePresence onExitComplete={() => restoreBodyScroll()}>
   {isOpen && <DrawerContent />}
-</AnimatePresence>
+</AnimatePresence>;
 ```
 
 Key patterns:
+
 1. `requestAnimationFrame` for scroll operations
 2. Global lock counting for nested overlays
 3. `AnimatePresence.onExitComplete` for deferred restore
@@ -46,6 +46,7 @@ Key patterns:
 ## Bottom Sheet UX Fallbacks
 
 Swipe-to-close gesture is unreliable on mobile. Always provide:
+
 1. **Close button (X)** — explicit, accessible, always works
 2. **Reduced height (80vh not 90vh)** — exposes backdrop for tap-to-close
 3. **Swipe gesture** — nice-to-have, not required
@@ -60,7 +61,7 @@ Swipe-to-close gesture is unreliable on mobile. Always provide:
 
 ```tsx
 // Blur only on tablet+ (sm: = 640px+)
-className="fixed inset-0 bg-overlay-heavy sm:backdrop-blur-sm"
+className = "fixed inset-0 bg-overlay-heavy sm:backdrop-blur-sm";
 ```
 
 Increase overlay opacity to compensate for missing blur on mobile.

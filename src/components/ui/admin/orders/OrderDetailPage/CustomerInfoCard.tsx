@@ -27,11 +27,7 @@ export function CustomerInfoCard({ order }: CustomerInfoCardProps) {
   }
 
   return (
-    <CollapsibleCard
-      title="Customer"
-      icon={<User className="h-4 w-4" />}
-      defaultOpen
-    >
+    <CollapsibleCard title="Customer" icon={<User className="h-4 w-4" />} defaultOpen>
       <div className="space-y-3">
         {/* Customer name */}
         <p className="font-display font-semibold text-text-primary">

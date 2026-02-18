@@ -77,6 +77,7 @@ completed: 2026-02-06
 ### Current Structure
 
 **Server Component (`page.tsx`):**
+
 - Handles authentication
 - Fetches initial tracking data via API
 - Fallback to direct Supabase query
@@ -84,6 +85,7 @@ completed: 2026-02-06
 - Passes `initialData` to client component
 
 **Client Component (`TrackingPageClient.tsx`):**
+
 - Supabase realtime subscription (`useTrackingSubscription`)
 - useState for orderStatus, routeStop, driverLocation, eta
 - Framer motion animations (sequential delays 0.1-0.7s)
@@ -103,10 +105,10 @@ Per CONTEXT.md guidance ("don't fight it"), the current structure is already opt
 
 ## Decisions Made
 
-| Decision | Rationale |
-|----------|-----------|
+| Decision                      | Rationale                                                   |
+| ----------------------------- | ----------------------------------------------------------- |
 | Keep TrackingPageClient as-is | Realtime requirements mandate client boundary at page level |
-| No component extraction | Animation sequence would break; minimal perf gain |
+| No component extraction       | Animation sequence would break; minimal perf gain           |
 
 ## Deviations from Plan
 
@@ -135,5 +137,6 @@ None.
 - Ready for plan 41-07
 
 ---
-*Phase: 41-server-component-conversions*
-*Completed: 2026-02-06*
+
+_Phase: 41-server-component-conversions_
+_Completed: 2026-02-06_

@@ -25,7 +25,12 @@ import type {
 } from "../settings-types";
 
 // Re-export types for backward compatibility
-export type { DeliverySettings, OperationsSettings, NotificationSettings, AllSettings } from "../settings-types";
+export type {
+  DeliverySettings,
+  OperationsSettings,
+  NotificationSettings,
+  AllSettings,
+} from "../settings-types";
 
 const SETTINGS_TABS = [
   { id: "delivery", label: "Delivery", icon: <Truck className="h-4 w-4" /> },
@@ -246,7 +251,11 @@ export function SettingsClient() {
             disabled={restoring || saving}
             className="flex-1 sm:flex-none"
           >
-            {restoring ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+            {restoring ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RotateCcw className="h-4 w-4" />
+            )}
             <span className="ml-2">Restore Defaults</span>
           </Button>
           <SaveButton onClick={handleSave} hasChanges={hasChanges} disabled={restoring} />
@@ -254,31 +263,79 @@ export function SettingsClient() {
       </m.div>
 
       {/* Tabs */}
-      <m.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring.default, delay: 0.1 }}>
+      <m.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...spring.default, delay: 0.1 }}
+      >
         <Tabs tabs={SETTINGS_TABS} activeTab={activeTab} onTabChange={handleTabChange} />
       </m.div>
 
       {/* Tab Content */}
-      <m.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring.default, delay: 0.2 }} className="mt-6">
+      <m.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...spring.default, delay: 0.2 }}
+        className="mt-6"
+      >
         <AnimatePresence mode="wait">
           {activeTab === "delivery" && (
-            <m.div key="delivery" {...variants.fadeIn} id="tabpanel-delivery" role="tabpanel" aria-labelledby="tab-delivery">
-              <DeliverySettingsForm settings={settings.delivery} originalSettings={originalSettings.delivery} onChange={handleDeliveryChange} />
+            <m.div
+              key="delivery"
+              {...variants.fadeIn}
+              id="tabpanel-delivery"
+              role="tabpanel"
+              aria-labelledby="tab-delivery"
+            >
+              <DeliverySettingsForm
+                settings={settings.delivery}
+                originalSettings={originalSettings.delivery}
+                onChange={handleDeliveryChange}
+              />
             </m.div>
           )}
           {activeTab === "operations" && (
-            <m.div key="operations" {...variants.fadeIn} id="tabpanel-operations" role="tabpanel" aria-labelledby="tab-operations">
-              <OperationsSettingsForm settings={settings.operations} originalSettings={originalSettings.operations} onChange={handleOperationsChange} />
+            <m.div
+              key="operations"
+              {...variants.fadeIn}
+              id="tabpanel-operations"
+              role="tabpanel"
+              aria-labelledby="tab-operations"
+            >
+              <OperationsSettingsForm
+                settings={settings.operations}
+                originalSettings={originalSettings.operations}
+                onChange={handleOperationsChange}
+              />
             </m.div>
           )}
           {activeTab === "notifications" && (
-            <m.div key="notifications" {...variants.fadeIn} id="tabpanel-notifications" role="tabpanel" aria-labelledby="tab-notifications">
-              <NotificationSettingsForm settings={settings.notifications} originalSettings={originalSettings.notifications} onChange={handleNotificationsChange} />
+            <m.div
+              key="notifications"
+              {...variants.fadeIn}
+              id="tabpanel-notifications"
+              role="tabpanel"
+              aria-labelledby="tab-notifications"
+            >
+              <NotificationSettingsForm
+                settings={settings.notifications}
+                originalSettings={originalSettings.notifications}
+                onChange={handleNotificationsChange}
+              />
             </m.div>
           )}
           {activeTab === "email" && (
-            <m.div key="email" {...variants.fadeIn} id="tabpanel-email" role="tabpanel" aria-labelledby="tab-email">
-              <EmailSettingsForm emailEnabled={emailSendingEnabled} onToggle={setEmailSendingEnabled} />
+            <m.div
+              key="email"
+              {...variants.fadeIn}
+              id="tabpanel-email"
+              role="tabpanel"
+              aria-labelledby="tab-email"
+            >
+              <EmailSettingsForm
+                emailEnabled={emailSendingEnabled}
+                onToggle={setEmailSendingEnabled}
+              />
             </m.div>
           )}
         </AnimatePresence>

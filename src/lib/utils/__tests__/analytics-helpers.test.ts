@@ -181,9 +181,7 @@ describe("Analytics Helpers", () => {
         onTimeRate: 75,
       });
 
-      expect(calculateDriverScore(topDriver)).toBeGreaterThan(
-        calculateDriverScore(avgDriver)
-      );
+      expect(calculateDriverScore(topDriver)).toBeGreaterThan(calculateDriverScore(avgDriver));
     });
 
     it("should cap delivery score at 100 deliveries", () => {
@@ -251,9 +249,7 @@ describe("Analytics Helpers", () => {
     });
 
     it("should handle null duration", () => {
-      const deliveries = [
-        { deliveredAt: createLocalDateTime(14, 30), durationMinutes: null },
-      ];
+      const deliveries = [{ deliveredAt: createLocalDateTime(14, 30), durationMinutes: null }];
 
       const peakHours = calculatePeakHours(deliveries);
       const hour14 = peakHours.find((h) => h.hour === 14);
@@ -559,9 +555,7 @@ describe("Analytics Helpers", () => {
 // TEST HELPERS
 // ===========================================
 
-function createMockDriverStats(
-  overrides: Partial<DriverStats> = {}
-): DriverStats {
+function createMockDriverStats(overrides: Partial<DriverStats> = {}): DriverStats {
   return {
     driverId: "default-id",
     userId: "user-id",
@@ -598,9 +592,7 @@ function createMockDriverStats(
   };
 }
 
-function createMockDeliveryMetrics(
-  overrides: Partial<DeliveryMetrics> = {}
-): DeliveryMetrics {
+function createMockDeliveryMetrics(overrides: Partial<DeliveryMetrics> = {}): DeliveryMetrics {
   return {
     date: "2026-01-15",
     totalOrders: 50,

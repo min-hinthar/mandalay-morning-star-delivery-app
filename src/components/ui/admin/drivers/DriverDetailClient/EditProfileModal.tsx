@@ -48,7 +48,9 @@ export function EditProfileModal({
         transition={spring.default}
         className="relative bg-surface-primary rounded-card-sm border border-border p-6 w-full max-w-md shadow-xl"
       >
-        <h2 className="text-xl font-display font-semibold text-text-primary mb-6">Edit Driver Profile</h2>
+        <h2 className="text-xl font-display font-semibold text-text-primary mb-6">
+          Edit Driver Profile
+        </h2>
 
         <div className="space-y-4">
           <FloatingLabelInput
@@ -73,7 +75,10 @@ export function EditProfileModal({
             <select
               value={editForm.vehicleType}
               onChange={(e) =>
-                onFormChange((prev) => ({ ...prev, vehicleType: e.target.value as VehicleType | "" }))
+                onFormChange((prev) => ({
+                  ...prev,
+                  vehicleType: e.target.value as VehicleType | "",
+                }))
               }
               className={cn(
                 "w-full px-3 py-2 rounded-input",
@@ -103,11 +108,7 @@ export function EditProfileModal({
           <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <SaveButton
-            onClick={handleSave}
-            disabled={saving}
-            hasChanges={true}
-          />
+          <SaveButton onClick={handleSave} disabled={saving} hasChanges={true} />
         </div>
       </m.div>
     </div>

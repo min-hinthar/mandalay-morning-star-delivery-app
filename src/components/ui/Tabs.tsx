@@ -45,19 +45,16 @@ export interface TabsProps {
   className?: string;
 }
 
-export const Tabs = memo(function Tabs({
-  tabs,
-  activeTab,
-  onTabChange,
-  className,
-}: TabsProps) {
+export const Tabs = memo(function Tabs({ tabs, activeTab, onTabChange, className }: TabsProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeTabRef = useRef<HTMLButtonElement>(null);
   const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const { shouldAnimate } = useAnimationPreference();
 
   // CSS indicator position state
-  const [indicatorStyle, setIndicatorStyle] = useState<{ left: number; width: number } | null>(null);
+  const [indicatorStyle, setIndicatorStyle] = useState<{ left: number; width: number } | null>(
+    null
+  );
 
   // Fade indicator states for overflow
   const [showLeftFade, setShowLeftFade] = useState(false);
@@ -150,7 +147,7 @@ export const Tabs = memo(function Tabs({
       const tabWidth = currentTab.offsetWidth;
 
       // Calculate target scroll position to center the tab
-      const targetScrollLeft = tabOffsetLeft - (containerWidth / 2) + (tabWidth / 2);
+      const targetScrollLeft = tabOffsetLeft - containerWidth / 2 + tabWidth / 2;
 
       // Clamp to valid scroll range
       const maxScroll = currentContainer.scrollWidth - containerWidth;
@@ -161,7 +158,8 @@ export const Tabs = memo(function Tabs({
       const tabLeftRelativeToScroll = tabOffsetLeft - currentScrollLeft;
       const tabRightRelativeToScroll = tabLeftRelativeToScroll + tabWidth;
       const padding = 20;
-      const isVisible = tabLeftRelativeToScroll >= padding && tabRightRelativeToScroll <= containerWidth - padding;
+      const isVisible =
+        tabLeftRelativeToScroll >= padding && tabRightRelativeToScroll <= containerWidth - padding;
 
       if (!isVisible) {
         const prefersReducedMotion =
@@ -242,9 +240,7 @@ export const Tabs = memo(function Tabs({
                 "relative flex-shrink-0 px-4 py-2.5 min-h-[44px]",
                 "rounded-input font-body text-sm font-medium",
                 "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                isActive
-                  ? "text-text-primary"
-                  : "text-text-secondary hover:text-text-primary"
+                isActive ? "text-text-primary" : "text-text-secondary hover:text-text-primary"
               )}
             >
               {/* Tab content */}

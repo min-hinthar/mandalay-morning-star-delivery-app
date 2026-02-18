@@ -58,6 +58,7 @@ completed: 2026-02-08
 - **Files modified:** 2
 
 ## Accomplishments
+
 - DietarySummaryCard fetches dietary restrictions from `/api/account/settings`, renders emoji pills for predefined options and plain pills for custom allergies, returns null when empty
 - Integrated DietarySummaryCard into PaymentStepV8 between order summary and notes input with stagger animation
 - Updated SettingsNudgeBanner "See all settings" link from `/account` to `/account?tab=settings`
@@ -71,11 +72,13 @@ Each task was committed atomically:
 2. **Task 2: Update SettingsNudgeBanner deep-link and run full verification** - `e6fbe7b` (feat)
 
 ## Files Created/Modified
+
 - `src/components/ui/checkout/DietarySummaryCard.tsx` - Self-contained dietary restrictions card for checkout review with emoji pills and Edit link
 - `src/components/ui/checkout/PaymentStepV8.tsx` - Added DietarySummaryCard import and integration between order summary and notes
 - `src/components/ui/homepage/SettingsNudgeBanner.tsx` - Updated "See all settings" href to `/account?tab=settings`
 
 ## Decisions Made
+
 - **CUST-05-SELFCONTAINED:** DietarySummaryCard is self-contained -- fetches its own data on mount, renders null when no restrictions exist or on error. This keeps checkout flow unblocked since dietary display is informational-only.
 - **CUST-05-DEEPLINK:** SettingsNudgeBanner uses `?tab=settings` query param to deep-link directly to the Settings tab. The AccountClient already reads `tab` search param and passes it to TabNavigation.
 
@@ -84,12 +87,15 @@ Each task was committed atomically:
 None -- plan executed exactly as written.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None -- no external service configuration required.
 
 ## Next Phase Readiness
+
 - Phase 51 (Customer Settings) is complete: all 5 plans delivered
 - SETT-01 (API & types), SETT-02 (account restructure), SETT-03 (preferences & notifications), SETT-05 (display), SETT-06 (checkout integration) satisfied
 - SETT-04 (address management) deferred as planned
@@ -97,5 +103,6 @@ None -- no external service configuration required.
 - Ready for Phase 52 planning
 
 ---
-*Phase: 51-customer-settings*
-*Completed: 2026-02-08*
+
+_Phase: 51-customer-settings_
+_Completed: 2026-02-08_

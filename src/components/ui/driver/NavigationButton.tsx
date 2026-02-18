@@ -28,9 +28,7 @@ export function NavigationButton({
 }: NavigationButtonProps) {
   const handleNavigate = () => {
     // Build Google Maps URL with destination coordinates
-    const destination = address
-      ? encodeURIComponent(address)
-      : `${latitude},${longitude}`;
+    const destination = address ? encodeURIComponent(address) : `${latitude},${longitude}`;
 
     const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`;
 

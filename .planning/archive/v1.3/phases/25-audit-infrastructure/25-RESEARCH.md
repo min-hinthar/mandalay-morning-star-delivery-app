@@ -8,6 +8,7 @@
 ### Existing ESLint Configuration
 
 The project uses ESLint flat config (`eslint.config.mjs`) with:
+
 - `next/core-web-vitals`, `next/typescript`, `prettier` extends
 - Storybook plugin
 - Partial token enforcement already exists:
@@ -20,6 +21,7 @@ The project uses ESLint flat config (`eslint.config.mjs`) with:
 ### Existing Scripts
 
 Located in `/scripts/`:
+
 - `rls-isolation-test.mjs` - RLS testing
 - `seed-menu.ts` - Menu seeding
 - `verify-menu.ts` - Menu verification
@@ -29,24 +31,24 @@ Located in `/scripts/`:
 
 ### Design Token Files
 
-| File | Purpose |
-|------|---------|
+| File                    | Purpose                                                          |
+| ----------------------- | ---------------------------------------------------------------- |
 | `src/styles/tokens.css` | Primary design tokens (colors, spacing, radius, shadows, motion) |
-| `src/app/globals.css` | Imports tokens, defines Tailwind theme mappings |
-| `tailwind.config.ts` | Maps CSS variables to Tailwind utilities |
+| `src/app/globals.css`   | Imports tokens, defines Tailwind theme mappings                  |
+| `tailwind.config.ts`    | Maps CSS variables to Tailwind utilities                         |
 
 Token system is well-established. All semantic tokens are defined in `tokens.css` with light/dark/high-contrast variants.
 
 ### Current Violation Count
 
-| Pattern | Files | Total Occurrences |
-|---------|-------|-------------------|
-| `text-white`, `text-black`, `bg-white`, `bg-black` | 89 | 221 |
-| Hardcoded hex in TSX (e.g., `#FFFFFF`) | 28 | 152 |
-| Inline `style={}` objects | 58 | 137 |
-| `rgb()`/`rgba()` in TSX | 27 | 68 |
-| `border-white`, `border-black` | 9 | 13 |
-| V6/V7 deprecated naming (e.g., `v6-`, `v7-`) | 2 | 7 |
+| Pattern                                            | Files | Total Occurrences |
+| -------------------------------------------------- | ----- | ----------------- |
+| `text-white`, `text-black`, `bg-white`, `bg-black` | 89    | 221               |
+| Hardcoded hex in TSX (e.g., `#FFFFFF`)             | 28    | 152               |
+| Inline `style={}` objects                          | 58    | 137               |
+| `rgb()`/`rgba()` in TSX                            | 27    | 68                |
+| `border-white`, `border-black`                     | 9     | 13                |
+| V6/V7 deprecated naming (e.g., `v6-`, `v7-`)       | 2     | 7                 |
 
 **Baseline Total:** 221 primary color violations + ~250 secondary violations
 
@@ -98,9 +100,9 @@ const INLINE_STYLE_PATTERNS = [
 ```javascript
 // V6/V7 naming remnants
 const DEPRECATED_PATTERNS = [
-  /\bv6-[a-zA-Z-]+/,  // v6-primary, v6-text, etc.
-  /\bv7-[a-zA-Z-]+/,  // v7-palette references
-  /v7Palette/,        // camelCase version
+  /\bv6-[a-zA-Z-]+/, // v6-primary, v6-text, etc.
+  /\bv7-[a-zA-Z-]+/, // v7-palette references
+  /v7Palette/, // camelCase version
 ];
 ```
 
@@ -118,17 +120,19 @@ const IMPORT_PATTERNS = [
 ### Examples Found in Codebase
 
 **Tailwind color violations:**
+
 ```tsx
 // src/components/driver/PhotoCapture.tsx
-"bg-white/20 text-white"
-"bg-black/80"
+"bg-white/20 text-white";
+"bg-black/80";
 
 // src/components/auth/AuthModal.tsx
-"bg-white/50 backdrop-blur-sm"
-"bg-black/40 backdrop-blur-md"
+"bg-white/50 backdrop-blur-sm";
+"bg-black/40 backdrop-blur-md";
 ```
 
 **Inline style violations:**
+
 ```tsx
 // src/components/admin/RevenueChart.tsx
 backgroundColor: "#FFFFFF",
@@ -139,48 +143,53 @@ stylers: [{ color: "#d4e4ed" }],
 ```
 
 **Opacity variant violations:**
+
 ```tsx
 // src/components/layouts/DriverLayout.tsx
-"bg-white/10 text-white hover:bg-white/20"
-"bg-white/20 text-white border border-white hover:bg-white/30"
+"bg-white/10 text-white hover:bg-white/20";
+"bg-white/20 text-white border border-white hover:bg-white/30";
 ```
 
 ## Existing Token System
 
 ### Semantic Token Mappings
 
-| Violation | Suggested Fix |
-|-----------|---------------|
-| `text-white` | `text-text-inverse` or `text-hero-text` (context-dependent) |
-| `text-black` | `text-text-primary` |
-| `bg-white` | `bg-surface-primary` |
-| `bg-black` | `bg-surface-inverse` (new token needed) |
-| `text-white/50` | `text-text-inverse/50` |
-| `bg-white/80` | `bg-surface-primary/80` |
-| `bg-black/40` | `bg-[var(--color-text-primary)]/40` |
-| `border-white` | `border-border-color` or `border-text-inverse` |
-| `border-black` | `border-border-strong` |
+| Violation       | Suggested Fix                                               |
+| --------------- | ----------------------------------------------------------- |
+| `text-white`    | `text-text-inverse` or `text-hero-text` (context-dependent) |
+| `text-black`    | `text-text-primary`                                         |
+| `bg-white`      | `bg-surface-primary`                                        |
+| `bg-black`      | `bg-surface-inverse` (new token needed)                     |
+| `text-white/50` | `text-text-inverse/50`                                      |
+| `bg-white/80`   | `bg-surface-primary/80`                                     |
+| `bg-black/40`   | `bg-[var(--color-text-primary)]/40`                         |
+| `border-white`  | `border-border-color` or `border-text-inverse`              |
+| `border-black`  | `border-border-strong`                                      |
 
 ### Available Tokens (from tokens.css)
 
 **Text Colors:**
+
 - `--color-text-primary` (#111111 light / #F8F7F6 dark)
 - `--color-text-secondary` (#3B3B3B light / #C5C3C0 dark)
 - `--color-text-muted` (#6B6B6B light / #9A9794 dark)
 - `--color-text-inverse` (#FFFFFF light / #000000 dark)
 
 **Surface Colors:**
+
 - `--color-surface-primary` (#FFFFFF light / #000000 dark)
 - `--color-surface-secondary` (#FAFAFA light / #0a0a0a dark)
 - `--color-surface-tertiary` (#F5F5F5 light / #141414 dark)
 - `--color-surface-elevated` (#FFFFFF light / #1a1a1a dark)
 
 **Hero-specific:**
+
 - `--hero-text` (#FFFFFF both themes)
 - `--hero-text-muted` (rgba(255, 255, 255, 0.7))
 - `--hero-overlay` (rgba(0, 0, 0, 0.6))
 
 **Missing Tokens (may need to add):**
+
 - `--color-surface-inverse` for `bg-black` replacements
 - Consider backdrop-specific tokens
 
@@ -260,27 +269,39 @@ src/stories/*
 
 const PATTERNS = {
   colors: {
-    critical: [/* patterns */],
-    warning: [/* patterns */],
+    critical: [
+      /* patterns */
+    ],
+    warning: [
+      /* patterns */
+    ],
   },
   spacing: {
-    warning: [/* patterns */],
+    warning: [
+      /* patterns */
+    ],
   },
   effects: {
-    warning: [/* patterns */],
+    warning: [
+      /* patterns */
+    ],
   },
   deprecated: {
-    warning: [/* patterns */],
+    warning: [
+      /* patterns */
+    ],
   },
   imports: {
-    warning: [/* patterns */],
+    warning: [
+      /* patterns */
+    ],
   },
 };
 
 const FILE_SEVERITY = {
-  'src/app/(public)': 'critical',
-  'src/components/homepage': 'critical',
-  'src/components/menu': 'critical',
+  "src/app/(public)": "critical",
+  "src/components/homepage": "critical",
+  "src/components/menu": "critical",
   // ... etc
 };
 ```
@@ -296,6 +317,7 @@ const FILE_SEVERITY = {
 ### Output Format
 
 **Terminal (with TTY detection):**
+
 ```
 Audit Token Violations v1.0
 
@@ -315,6 +337,7 @@ Warnings (120):
 ```
 
 **Markdown Report (.planning/audit-report.md):**
+
 ```markdown
 # Token Audit Report
 
@@ -324,29 +347,32 @@ Total violations: 221
 
 ## Summary by Type
 
-| Category | Critical | Warning | Info |
-|----------|----------|---------|------|
-| Colors   | 89       | 102     | 0    |
-| Spacing  | 0        | 18      | 5    |
-| Effects  | 0        | 0       | 7    |
-| Deprecated | 0      | 7       | 0    |
-| Imports  | 0        | 12      | 0    |
+| Category   | Critical | Warning | Info |
+| ---------- | -------- | ------- | ---- |
+| Colors     | 89       | 102     | 0    |
+| Spacing    | 0        | 18      | 5    |
+| Effects    | 0        | 0       | 7    |
+| Deprecated | 0        | 7       | 0    |
+| Imports    | 0        | 12      | 0    |
 
 ## By File (sorted by severity)
 
 ### src/components/driver/PhotoCapture.tsx (9 violations)
+
 - Line 245: `bg-white/20` -> `bg-surface-primary/20`
 - Line 246: `text-white` -> `text-text-inverse`
-...
+  ...
 
 ## Baseline
 
 ### Historical Trend
-| Run | Date | Critical | Warning | Info | Total |
-|-----|------|----------|---------|------|-------|
-| 1   | 2026-01-27 | 89 | 120 | 12 | 221 |
+
+| Run | Date       | Critical | Warning | Info | Total |
+| --- | ---------- | -------- | ------- | ---- | ----- |
+| 1   | 2026-01-27 | 89       | 120     | 12   | 221   |
 
 ### Category Baselines
+
 - Colors: 221
 - Spacing: 23
 - Effects: 7

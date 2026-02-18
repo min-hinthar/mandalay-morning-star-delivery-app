@@ -59,9 +59,7 @@ export function UpdatePrompt() {
             <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
               {/* Left: icon + text */}
               <div className="flex items-center gap-2.5">
-                <RefreshCw
-                  className={`h-4 w-4 shrink-0 ${isPaused ? "" : "animate-spin-slow"}`}
-                />
+                <RefreshCw className={`h-4 w-4 shrink-0 ${isPaused ? "" : "animate-spin-slow"}`} />
                 <div className="flex flex-col">
                   <span className="text-xs font-semibold leading-tight">
                     A fresher version is ready!
@@ -70,7 +68,6 @@ export function UpdatePrompt() {
                     {version && `v${version} is ready! · `}
                     {isPaused ? "Paused" : `Reloading in ${countdown}s`}
                   </span>
-
                 </div>
               </div>
 

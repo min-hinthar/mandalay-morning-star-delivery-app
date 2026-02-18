@@ -6,12 +6,12 @@ This document outlines the process for measuring and improving Core Web Vitals.
 
 ## Target Metrics
 
-| Metric | Good | Needs Improvement | Poor |
-|--------|------|-------------------|------|
-| LCP (Largest Contentful Paint) | < 2.5s | 2.5s - 4s | > 4s |
-| FID (First Input Delay) | < 100ms | 100ms - 300ms | > 300ms |
-| INP (Interaction to Next Paint) | < 200ms | 200ms - 500ms | > 500ms |
-| CLS (Cumulative Layout Shift) | < 0.1 | 0.1 - 0.25 | > 0.25 |
+| Metric                          | Good    | Needs Improvement | Poor    |
+| ------------------------------- | ------- | ----------------- | ------- |
+| LCP (Largest Contentful Paint)  | < 2.5s  | 2.5s - 4s         | > 4s    |
+| FID (First Input Delay)         | < 100ms | 100ms - 300ms     | > 300ms |
+| INP (Interaction to Next Paint) | < 200ms | 200ms - 500ms     | > 500ms |
+| CLS (Cumulative Layout Shift)   | < 0.1   | 0.1 - 0.25        | > 0.25  |
 
 ## Running Lighthouse Audits
 
@@ -67,9 +67,9 @@ pnpm analyze
 ```typescript
 // next/font/google with swap display
 const inter = Inter({
-  display: "swap",     // Show fallback immediately
-  preload: true,       // Preload in head
-  subsets: ["latin"],  // Only required subsets
+  display: "swap", // Show fallback immediately
+  preload: true, // Preload in head
+  subsets: ["latin"], // Only required subsets
 });
 ```
 
@@ -123,7 +123,7 @@ headers: [
     source: "/fonts/:path*",
     headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
   },
-]
+];
 ```
 
 ## Monitoring in Production
@@ -150,20 +150,22 @@ Web vitals are automatically tracked via `src/lib/web-vitals.ts`:
 
 ### Homepage (Mobile)
 
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
-| Performance Score | XX | XX | +XX |
-| LCP | X.Xs | X.Xs | -X.Xs |
-| FID | XXms | XXms | -XXms |
-| CLS | X.XX | X.XX | -X.XX |
-| FCP | X.Xs | X.Xs | -X.Xs |
-| TTFB | XXms | XXms | -XXms |
+| Metric            | Before | After | Change |
+| ----------------- | ------ | ----- | ------ |
+| Performance Score | XX     | XX    | +XX    |
+| LCP               | X.Xs   | X.Xs  | -X.Xs  |
+| FID               | XXms   | XXms  | -XXms  |
+| CLS               | X.XX   | X.XX  | -X.XX  |
+| FCP               | X.Xs   | X.Xs  | -X.Xs  |
+| TTFB              | XXms   | XXms  | -XXms  |
 
 ### Changes Made
+
 - [ ] Change 1
 - [ ] Change 2
 
 ### Screenshots
+
 [Before] [After]
 ```
 

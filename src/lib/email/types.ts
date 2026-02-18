@@ -48,9 +48,7 @@ export const MANDATORY_EMAIL_TYPES: readonly EmailType[] = [
  * Maps an EmailType to the corresponding NotificationPrefs key.
  * Used to check if the user has opted out of this email category.
  */
-export function mapTypeToPrefKey(
-  type: EmailType,
-): keyof NotificationPrefs {
+export function mapTypeToPrefKey(type: EmailType): keyof NotificationPrefs {
   switch (type) {
     case "order_confirmation":
     case "cancellation":

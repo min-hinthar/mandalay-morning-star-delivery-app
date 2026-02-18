@@ -2,7 +2,19 @@
 phase: 57-admin-driver-polish
 plan: 01
 subsystem: ui
-tags: [framer-motion, tailwind, admin, driver, design-tokens, empty-state, card-row, status-badge, floating-label, skeleton]
+tags:
+  [
+    framer-motion,
+    tailwind,
+    admin,
+    driver,
+    design-tokens,
+    empty-state,
+    card-row,
+    status-badge,
+    floating-label,
+    skeleton,
+  ]
 
 # Dependency graph
 requires:
@@ -104,18 +116,19 @@ completed: 2026-02-11
 
 ## Decisions Made
 
-| ID | Decision | Rationale |
-|----|----------|-----------|
-| ADMIN-01-TEALSUBTLE | accent-teal-subtle token at 5% (light) / 8% (dark) opacity | Subtle enough for card tints without overpowering content |
-| ADMIN-01-INTRANSIT | status-in-transit blue (#3B82F6/#60A5FA) added to tokens | Extended status palette for delivery tracking states |
-| ADMIN-01-HOVERCONST | CardRow hover boxShadow extracted to module-level const | Satisfies ESLint no-restricted-syntax with eslint-disable block |
-| ADMIN-01-EMOJISPLIT | EmptyState variant configs extracted to separate file | Original file grew to 518 lines; extraction keeps main at 301 lines |
+| ID                  | Decision                                                   | Rationale                                                           |
+| ------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------- |
+| ADMIN-01-TEALSUBTLE | accent-teal-subtle token at 5% (light) / 8% (dark) opacity | Subtle enough for card tints without overpowering content           |
+| ADMIN-01-INTRANSIT  | status-in-transit blue (#3B82F6/#60A5FA) added to tokens   | Extended status palette for delivery tracking states                |
+| ADMIN-01-HOVERCONST | CardRow hover boxShadow extracted to module-level const    | Satisfies ESLint no-restricted-syntax with eslint-disable block     |
+| ADMIN-01-EMOJISPLIT | EmptyState variant configs extracted to separate file      | Original file grew to 518 lines; extraction keeps main at 301 lines |
 
 ## Deviations from Plan
 
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Fixed FloatingLabelInput shake trigger logic**
+
 - **Found during:** Task 2 (FloatingLabelInput implementation)
 - **Issue:** Initial implementation used `{ current: error }` object literal instead of `useRef` for tracking previous error, causing shake to never trigger (always false comparison)
 - **Fix:** Replaced with proper `useRef(error)` and `useEffect` to detect error changes
@@ -124,6 +137,7 @@ completed: 2026-02-11
 - **Committed in:** 5256d62
 
 **2. [Rule 3 - Blocking] Extracted empty-state-variants.ts for lint compliance**
+
 - **Found during:** Task 2 (EmptyState variant additions)
 - **Issue:** Adding 6 new variants pushed EmptyState.tsx to 518 lines, exceeding 400-line max-lines ESLint rule
 - **Fix:** Extracted variant config map and types to `empty-state-variants.ts`, re-exported EmptyStateVariant type from main file
@@ -154,5 +168,6 @@ None - no external service configuration required.
 - EmptyState admin/driver variants available for empty pages
 
 ---
-*Phase: 57-admin-driver-polish*
-*Completed: 2026-02-11*
+
+_Phase: 57-admin-driver-polish_
+_Completed: 2026-02-11_

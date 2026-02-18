@@ -37,10 +37,11 @@ export function AddressInput({
   const checkCoverage = useCallback(async (address: Address): Promise<CoverageResult> => {
     await new Promise((resolve) => setTimeout(resolve, 200));
 
-    const distance = Math.sqrt(
-      Math.pow(address.lat - KITCHEN_LOCATION.lat, 2) +
-      Math.pow(address.lng - KITCHEN_LOCATION.lng, 2)
-    ) * 69;
+    const distance =
+      Math.sqrt(
+        Math.pow(address.lat - KITCHEN_LOCATION.lat, 2) +
+          Math.pow(address.lng - KITCHEN_LOCATION.lng, 2)
+      ) * 69;
 
     const duration = Math.round(distance * 2);
 
@@ -53,9 +54,7 @@ export function AddressInput({
 
   useEffect(() => {
     const checkAll = async () => {
-      const unchecked = savedAddresses.filter(
-        (addr) => !checkedIdsRef.current.has(addr.id)
-      );
+      const unchecked = savedAddresses.filter((addr) => !checkedIdsRef.current.has(addr.id));
 
       if (unchecked.length === 0) return;
 
@@ -78,9 +77,7 @@ export function AddressInput({
     checkAll();
   }, [savedAddresses, checkCoverage]);
 
-  const selectedCoverage = selectedAddress
-    ? coverageResults.get(selectedAddress.id)
-    : null;
+  const selectedCoverage = selectedAddress ? coverageResults.get(selectedAddress.id) : null;
 
   return (
     <div className={cn("space-y-6", className)}>
@@ -148,9 +145,7 @@ export function AddressInput({
             }}
           />
 
-          <p className="text-xs text-text-muted text-center">
-            Start typing your address to search
-          </p>
+          <p className="text-xs text-text-muted text-center">Start typing your address to search</p>
         </m.div>
       )}
     </div>

@@ -24,10 +24,7 @@ export async function POST(request: Request) {
 
     // Validate required fields
     if (!payload.name || typeof payload.value !== "number") {
-      return NextResponse.json(
-        { error: "Invalid payload" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
     }
 
     // In production, forward to analytics service
@@ -44,9 +41,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch {
-    return NextResponse.json(
-      { error: "Failed to process vitals" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to process vitals" }, { status: 500 });
   }
 }

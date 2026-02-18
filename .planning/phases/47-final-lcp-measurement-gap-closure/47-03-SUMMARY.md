@@ -77,11 +77,11 @@ Each task was committed atomically:
 
 ## Decisions Made
 
-| Decision | Rationale |
-|----------|-----------|
-| v1.5 milestone NOT closed | User requested follow-up to verify updates are wired and working |
-| Follow-up checklist added | Concrete items for verification before milestone closure |
-| Bottlenecks documented for v1.6 | JS execution (TBT 5-15s), network (FCP 3s), DOM size |
+| Decision                        | Rationale                                                        |
+| ------------------------------- | ---------------------------------------------------------------- |
+| v1.5 milestone NOT closed       | User requested follow-up to verify updates are wired and working |
+| Follow-up checklist added       | Concrete items for verification before milestone closure         |
+| Bottlenecks documented for v1.6 | JS execution (TBT 5-15s), network (FCP 3s), DOM size             |
 
 ## Deviations from Plan
 
@@ -94,6 +94,7 @@ None - plan executed as written. Checkpoint resolved with user's "needs follow-u
 **User response:** "needs follow-up to make sure new updates are wired and working"
 
 **Action taken:**
+
 1. Updated 47-VERIFICATION.md with "Milestone Decision" section documenting user's choice
 2. Updated PERFORMANCE.md with "Follow-up Verification Status" section
 3. Defined follow-up verification checklist:
@@ -115,17 +116,20 @@ None - no external service configuration required.
 **v1.5 Milestone Status: Follow-up verification pending**
 
 Before closing v1.5:
+
 - Verify Cart E2E tests (19 tests) are integrated in CI
 - Confirm Lighthouse CI triggers on PRs
 - Validate production build has optimizations active
 - Review documentation accuracy
 
 **After follow-up verification:**
+
 - Close v1.5 milestone
 - Create v1.6 for further LCP optimization (target: 4s)
 
 ---
-*Phase: 47-final-lcp-measurement-gap-closure*
-*Plan: 03*
-*Completed: 2026-02-07*
-*Milestone Decision: Follow-up verification requested*
+
+_Phase: 47-final-lcp-measurement-gap-closure_
+_Plan: 03_
+_Completed: 2026-02-07_
+_Milestone Decision: Follow-up verification requested_

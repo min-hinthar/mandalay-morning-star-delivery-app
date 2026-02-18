@@ -60,6 +60,7 @@ completed: 2026-02-14
 - **Files modified:** 6
 
 ## Accomplishments
+
 - Order details API now returns deliveryWindowStart, deliveryWindowEnd, stripePaymentIntentId, isPriority, discountCents
 - Status PATCH accepts notifyCustomer boolean and optional reason, logs to order_audit_log, sends email on confirmed/cancelled transitions
 - New PATCH /api/admin/orders/[id]/priority endpoint with Zod validation and audit logging
@@ -74,6 +75,7 @@ Each task was committed atomically:
 2. **Task 2: Extend status route with email notification and reason support** - `8bed81f` (feat)
 
 ## Files Created/Modified
+
 - `src/app/api/admin/orders/[id]/details/route.ts` - Extended with delivery window, Stripe payment ID, priority, discountCents fields
 - `src/app/api/admin/orders/[id]/status/route.ts` - Extended with notifyCustomer, reason, audit logging, email dispatch
 - `src/app/api/admin/orders/[id]/priority/route.ts` - New priority toggle endpoint with Zod + audit
@@ -82,6 +84,7 @@ Each task was committed atomically:
 - `src/test/factories/index.ts` - Added is_priority default to mock order factory
 
 ## Decisions Made
+
 - Hardcoded discountCents to 0 since no discount_cents column exists in the orders table schema
 - Added priority_change to OrderAuditAction union type for type-safe audit logging
 - Status email only fires for confirmed (uses order_confirmation template) and cancelled (uses OrderCancellation component); out_for_delivery and delivered transitions log a skip message since no email templates exist yet
@@ -92,6 +95,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Added priority_change to OrderAuditAction type**
+
 - **Found during:** Task 1 (Priority endpoint)
 - **Issue:** OrderAuditAction type did not include "priority_change", causing type error on audit log insert
 - **Fix:** Extended the union type in database.ts
@@ -100,6 +104,7 @@ Each task was committed atomically:
 - **Committed in:** 6393342 (Task 1 commit)
 
 **2. [Rule 3 - Blocking] Added is_priority to OrdersRow/Insert/Update types and test factory**
+
 - **Found during:** Task 1 (Priority endpoint)
 - **Issue:** is_priority not in database types, blocked Supabase update call and test factory compilation
 - **Fix:** Added is_priority field to all three Order interfaces and mock factory
@@ -113,17 +118,21 @@ Each task was committed atomically:
 **Impact on plan:** Both auto-fixes necessary for compilation. No scope creep.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - All order detail API data available for frontend consumption
 - Status update endpoint ready with email + audit support
 - Priority toggle endpoint ready for admin UI integration
 - Remaining: Run migration on Supabase to add is_priority column
 
 ---
-*Phase: 61-admin-pages*
-*Completed: 2026-02-14*
+
+_Phase: 61-admin-pages_
+_Completed: 2026-02-14_

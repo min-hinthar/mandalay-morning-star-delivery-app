@@ -163,16 +163,13 @@ export function SearchInput({
   }, [isMobile, mobileCollapsible, query]);
 
   // Handle keyboard events
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Escape") {
-        setIsFocused(false);
-        setQuery("");
-        inputRef.current?.blur();
-      }
-    },
-    []
-  );
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      setIsFocused(false);
+      setQuery("");
+      inputRef.current?.blur();
+    }
+  }, []);
 
   // Handle icon click (expand on mobile)
   const handleIconClick = useCallback(() => {
@@ -192,10 +189,7 @@ export function SearchInput({
   const springConfig = getSpring(spring.snappy);
 
   return (
-    <div
-      ref={containerRef}
-      className={cn("relative", className)}
-    >
+    <div ref={containerRef} className={cn("relative", className)}>
       {/* Desktop: always visible input */}
       {/* Mobile: expandable from icon */}
       <m.div

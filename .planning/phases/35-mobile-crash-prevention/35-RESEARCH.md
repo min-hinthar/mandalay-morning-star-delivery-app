@@ -17,29 +17,33 @@ The codebase already has good infrastructure in place - notably `useGSAP` from @
 The established libraries/tools for this domain:
 
 ### Core
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| @gsap/react | 2.1.2 | GSAP React integration | Official hook with automatic cleanup via gsap.context() |
-| React | 19.2.3 | Component lifecycle | Standard, useEffect cleanup functions |
-| Framer Motion | 12.26.1 | Declarative animations | AnimatePresence handles lifecycle automatically |
+
+| Library       | Version | Purpose                | Why Standard                                            |
+| ------------- | ------- | ---------------------- | ------------------------------------------------------- |
+| @gsap/react   | 2.1.2   | GSAP React integration | Official hook with automatic cleanup via gsap.context() |
+| React         | 19.2.3  | Component lifecycle    | Standard, useEffect cleanup functions                   |
+| Framer Motion | 12.26.1 | Declarative animations | AnimatePresence handles lifecycle automatically         |
 
 ### Supporting
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| @testing-library/react | 16.3.1 | Testing hooks | Testing useSafeEffects utility hooks |
-| Vitest | 4.0.17 | Test runner | Unit tests for cleanup behavior |
+
+| Library                | Version | Purpose       | When to Use                          |
+| ---------------------- | ------- | ------------- | ------------------------------------ |
+| @testing-library/react | 16.3.1  | Testing hooks | Testing useSafeEffects utility hooks |
+| Vitest                 | 4.0.17  | Test runner   | Unit tests for cleanup behavior      |
 
 ### Existing Infrastructure
-| File | Purpose | Status |
-|------|---------|--------|
-| `src/lib/gsap/index.ts` | GSAP plugin registration, exports useGSAP | Already uses @gsap/react properly |
-| `src/lib/hooks/useBodyScrollLock.ts` | Scroll lock with cleanup | Already has deferRestore pattern |
-| `src/lib/hooks/useSoundEffect.ts` | AudioContext management | Already has proper cleanup |
-| `src/lib/hooks/useDebounce.ts` | Timer cleanup | Already has proper cleanup |
+
+| File                                 | Purpose                                   | Status                            |
+| ------------------------------------ | ----------------------------------------- | --------------------------------- |
+| `src/lib/gsap/index.ts`              | GSAP plugin registration, exports useGSAP | Already uses @gsap/react properly |
+| `src/lib/hooks/useBodyScrollLock.ts` | Scroll lock with cleanup                  | Already has deferRestore pattern  |
+| `src/lib/hooks/useSoundEffect.ts`    | AudioContext management                   | Already has proper cleanup        |
+| `src/lib/hooks/useDebounce.ts`       | Timer cleanup                             | Already has proper cleanup        |
 
 ## Architecture Patterns
 
 ### Recommended Project Structure
+
 ```
 src/lib/hooks/
   useSafeEffects.ts          # NEW: Safe cleanup utilities
@@ -48,9 +52,11 @@ src/lib/hooks/
 ```
 
 ### Pattern 1: useGSAP with Scope (GSAP Animations)
+
 **What:** Official GSAP React hook that auto-cleans all animations
 **When to use:** Any GSAP animation in React component
 **Example:**
+
 ```typescript
 // Source: https://gsap.com/resources/React/
 import { useRef } from "react";
@@ -75,9 +81,11 @@ function Component() {
 ```
 
 ### Pattern 2: Context-Safe Event Handlers (GSAP in Callbacks)
+
 **What:** Wrap event handler animations in contextSafe
 **When to use:** Animations triggered by clicks, timeouts, or other callbacks
 **Example:**
+
 ```typescript
 // Source: https://gsap.com/resources/React/
 import { useGSAP } from "@/lib/gsap";
@@ -101,9 +109,11 @@ function Component() {
 ```
 
 ### Pattern 3: isMounted Ref Pattern (Async Operations)
+
 **What:** Track component mount state to prevent setState after unmount
 **When to use:** Any async operation (fetch, setTimeout callback, Promise)
 **Example:**
+
 ```typescript
 // Existing pattern in codebase (usePlacesAutocomplete.ts, Modal.tsx)
 function useAsyncExample() {
@@ -129,9 +139,11 @@ function useAsyncExample() {
 ```
 
 ### Pattern 4: Timer Cleanup with Refs (Timers Outside useEffect)
+
 **What:** Store timer IDs in refs, clear in cleanup AND before re-scheduling
 **When to use:** Timers triggered by callbacks or outside useEffect
 **Example:**
+
 ```typescript
 // Existing pattern in codebase (Confetti.tsx, OnboardingTour.tsx)
 function Component() {
@@ -160,9 +172,11 @@ function Component() {
 ```
 
 ### Pattern 5: useBodyScrollLock with Deferred Restore (Modals)
+
 **What:** Lock scroll during modal, restore position after exit animation
 **When to use:** All modals with AnimatePresence exit animations
 **Example:**
+
 ```typescript
 // Existing pattern in codebase (Modal.tsx)
 function Modal({ isOpen, onClose }) {
@@ -191,54 +205,61 @@ function Modal({ isOpen, onClose }) {
 
 Problems that look simple but have existing solutions:
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| GSAP cleanup in React | Manual gsap.context() management | `useGSAP` from @gsap/react | Handles context, scope, revertOnUpdate automatically |
-| Debounced values | Custom timer logic | Existing `useDebounce` hook | Already has proper cleanup |
-| Body scroll lock | Manual position:fixed | Existing `useBodyScrollLock` | Handles iOS Safari edge cases |
-| Sound effects | Direct AudioContext calls | Existing `useSoundEffect` | Proper cleanup, autoplay policy handling |
-| Safe async operations | Ad-hoc isMounted flags | New `useSafeAsync` hook | Standardized pattern, AbortController support |
-| Safe timers | Ad-hoc refs per component | New `useSafeTimeout`/`useSafeInterval` | Consistent API, auto-cleanup |
+| Problem               | Don't Build                      | Use Instead                            | Why                                                  |
+| --------------------- | -------------------------------- | -------------------------------------- | ---------------------------------------------------- |
+| GSAP cleanup in React | Manual gsap.context() management | `useGSAP` from @gsap/react             | Handles context, scope, revertOnUpdate automatically |
+| Debounced values      | Custom timer logic               | Existing `useDebounce` hook            | Already has proper cleanup                           |
+| Body scroll lock      | Manual position:fixed            | Existing `useBodyScrollLock`           | Handles iOS Safari edge cases                        |
+| Sound effects         | Direct AudioContext calls        | Existing `useSoundEffect`              | Proper cleanup, autoplay policy handling             |
+| Safe async operations | Ad-hoc isMounted flags           | New `useSafeAsync` hook                | Standardized pattern, AbortController support        |
+| Safe timers           | Ad-hoc refs per component        | New `useSafeTimeout`/`useSafeInterval` | Consistent API, auto-cleanup                         |
 
 **Key insight:** The codebase has good existing patterns but they're scattered. Creating `useSafeEffects.ts` consolidates these into reusable hooks that prevent inconsistent implementations.
 
 ## Common Pitfalls
 
 ### Pitfall 1: iOS Safari Memory Limits
+
 **What goes wrong:** App crashes/reloads around 100MB memory on iPhone SE, 200MB on iPad
 **Why it happens:** iOS enforces strict memory pressure limits - sends SIGKILL without warning
 **How to avoid:**
-  - Clean up all GSAP animations (context.revert())
-  - Close AudioContexts when not needed
-  - Disconnect IntersectionObservers
-  - Clear large data structures on unmount
-**Warning signs:** Random crashes during heavy animation sequences, especially after rapid navigation
+
+- Clean up all GSAP animations (context.revert())
+- Close AudioContexts when not needed
+- Disconnect IntersectionObservers
+- Clear large data structures on unmount
+  **Warning signs:** Random crashes during heavy animation sequences, especially after rapid navigation
 
 ### Pitfall 2: React Strict Mode Double-Mounts
+
 **What goes wrong:** Effects run twice in development, causing duplicate animations or listeners
 **Why it happens:** React 18 Strict Mode intentionally double-invokes effects
 **How to avoid:** Always return cleanup functions that properly reset state
 **Warning signs:** Animations doubling up, listeners firing twice
 
 ### Pitfall 3: Stale Closures in Event Handlers
+
 **What goes wrong:** Callbacks capture old state values, cause incorrect behavior
 **Why it happens:** JavaScript closures capture values at definition time
 **How to avoid:** Include dependencies in useCallback deps, or use refs for latest values
 **Warning signs:** onClick handlers using outdated state
 
 ### Pitfall 4: Event Listener Handler Reference Mismatch
+
 **What goes wrong:** removeEventListener fails silently because handler reference changed
 **Why it happens:** Inline functions or useCallback without stable deps create new references
 **How to avoid:** Store handler in ref or ensure stable callback
 **Warning signs:** Listeners accumulate on each render, memory grows
 
 ### Pitfall 5: AnimatePresence Exit + Scroll Lock Conflict
+
 **What goes wrong:** iOS Safari crashes during exit animation when scroll is restored early
 **Why it happens:** Restoring scroll position during DOM transition causes layout thrash
 **How to avoid:** Use `deferRestore: true` and `onExitComplete={restoreScrollPosition}`
 **Warning signs:** Crashes specifically when closing modals on iOS Safari
 
 ### Pitfall 6: AudioContext Exhaustion
+
 **What goes wrong:** Browser limits exceeded, sounds stop working
 **Why it happens:** Each new AudioContext consumes system resources; browsers limit to ~6
 **How to avoid:** Reuse single AudioContext, close on component unmount
@@ -249,6 +270,7 @@ Problems that look simple but have existing solutions:
 Verified patterns from official sources and existing codebase:
 
 ### useSafeEffects.ts (NEW - To Be Created)
+
 ```typescript
 // New utility hook file: src/lib/hooks/useSafeEffects.ts
 import { useRef, useEffect, useCallback } from "react";
@@ -380,6 +402,7 @@ export function useSafeAsync<T>() {
 ```
 
 ### GSAP ScrollTrigger Cleanup
+
 ```typescript
 // Source: https://gsap.com/resources/React/
 // Correct pattern using useGSAP from @/lib/gsap
@@ -412,13 +435,16 @@ function ScrollAnimatedSection() {
 ```
 
 ### IntersectionObserver Cleanup
+
 ```typescript
 // Existing pattern in useActiveCategory.ts - proper cleanup
 useEffect(() => {
   if (!isSupported || sectionIds.length === 0) return;
 
   const observer = new IntersectionObserver(
-    (entries) => { /* ... */ },
+    (entries) => {
+      /* ... */
+    },
     { rootMargin, threshold }
   );
 
@@ -436,6 +462,7 @@ useEffect(() => {
 ```
 
 ### requestAnimationFrame Cleanup
+
 ```typescript
 // Pattern from gradients.ts AnimatedGradient class
 // When using rAF, store ID and cancel in cleanup
@@ -460,14 +487,15 @@ useEffect(() => {
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Manual gsap.context() | useGSAP hook | @gsap/react 2.0 | Auto cleanup, scope support |
-| isMounted state | isMounted ref | React 18 | Refs don't trigger re-renders |
-| Catch setState warnings | Ignore warnings (removed) | React 18 | Warnings gone but leaks still exist |
-| Single effect for multiple cleanups | Separate effects per concern | React best practices | Cleaner, easier to reason about |
+| Old Approach                        | Current Approach             | When Changed         | Impact                              |
+| ----------------------------------- | ---------------------------- | -------------------- | ----------------------------------- |
+| Manual gsap.context()               | useGSAP hook                 | @gsap/react 2.0      | Auto cleanup, scope support         |
+| isMounted state                     | isMounted ref                | React 18             | Refs don't trigger re-renders       |
+| Catch setState warnings             | Ignore warnings (removed)    | React 18             | Warnings gone but leaks still exist |
+| Single effect for multiple cleanups | Separate effects per concern | React best practices | Cleaner, easier to reason about     |
 
 **Deprecated/outdated:**
+
 - `componentWillUnmount`: Use useEffect cleanup function instead
 - Checking for setState warning: React 18 removed this warning but the underlying issue remains
 - Manual GSAP context management: useGSAP handles this automatically
@@ -494,17 +522,20 @@ Things that couldn't be fully resolved:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - [GSAP React Documentation](https://gsap.com/resources/React/) - useGSAP hook, context.revert(), cleanup patterns
 - [@gsap/react GitHub](https://github.com/greensock/react) - Official repository
 - [React useEffect documentation](https://react.dev/reference/react/useEffect) - Cleanup function patterns
 - [eslint-plugin-react-hooks](https://react.dev/reference/eslint-plugin-react-hooks) - exhaustive-deps rule
 
 ### Secondary (MEDIUM confidence)
+
 - [iOS Safari Memory Limits Article](https://lapcatsoftware.com/articles/2026/1/7.html) - Documented crash thresholds
 - [React Memory Leaks Prevention](https://www.c-sharpcorner.com/article/preventing-memory-leaks-in-react-with-useeffect-hooks/) - Best practices compilation
 - [LogRocket useEffect Cleanup](https://blog.logrocket.com/understanding-react-useeffect-cleanup-function/) - Cleanup patterns
 
 ### Codebase Analysis (HIGH confidence)
+
 - `src/lib/gsap/index.ts` - Confirmed useGSAP is properly registered
 - `src/lib/hooks/useBodyScrollLock.ts` - deferRestore pattern verified
 - `src/lib/hooks/useSoundEffect.ts` - AudioContext cleanup pattern verified
@@ -515,12 +546,14 @@ Things that couldn't be fully resolved:
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - Verified with official GSAP docs and existing codebase patterns
 - Architecture patterns: HIGH - Patterns verified in official docs and working in codebase
 - Pitfalls: HIGH - iOS memory limits documented, GSAP cleanup well-documented
 - Code examples: HIGH - Based on official docs and existing working code in codebase
 
 **Key statistics from codebase audit:**
+
 - 93 files use useEffect (need audit)
 - 40 files use setTimeout/setInterval (priority audit)
 - 8 files use GSAP/ScrollTrigger (should use useGSAP)

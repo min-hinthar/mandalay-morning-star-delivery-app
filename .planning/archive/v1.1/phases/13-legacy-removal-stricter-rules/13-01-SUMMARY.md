@@ -42,12 +42,14 @@ metrics:
 ## What Changed
 
 ### Task 1: Fix unused request params in API routes
+
 - **Files modified:** 14 API route files
 - **Changes:** Prefixed unused `request` parameters with `_request`
 - **Special case:** Stripe webhook's `handlePaymentFailed` had unused `supabase` parameter, prefixed with `_supabase`
 - **Commit:** 455a99c
 
 **Pattern applied:**
+
 ```typescript
 // Before:
 export async function GET(request: Request, { params }: Props) {
@@ -56,6 +58,7 @@ export async function GET(_request: Request, { params }: Props) {
 ```
 
 ### Task 2: Fix unused variables in E2E test
+
 - **File modified:** e2e/sprint-1-bugfixes.spec.ts
 - **Variables removed:**
   - `_initialScrollY` - captured scroll position never used

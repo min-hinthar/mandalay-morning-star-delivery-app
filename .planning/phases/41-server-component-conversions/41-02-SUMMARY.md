@@ -76,12 +76,12 @@ Each task was committed atomically:
 
 ## Decisions Made
 
-| Decision | Rationale |
-|----------|-----------|
-| 67% KEEP rate | Most files use hooks, events, or motion - expected for interactive app |
-| 13% CONVERT candidates | Pattern matching identified files without obvious client dependencies |
-| 0% SPLIT candidates | Files either small enough to be LEAF or too complex to easily split |
-| 120-line LEAF threshold | Balances "small component" with practical code size |
+| Decision                | Rationale                                                              |
+| ----------------------- | ---------------------------------------------------------------------- |
+| 67% KEEP rate           | Most files use hooks, events, or motion - expected for interactive app |
+| 13% CONVERT candidates  | Pattern matching identified files without obvious client dependencies  |
+| 0% SPLIT candidates     | Files either small enough to be LEAF or too complex to easily split    |
+| 120-line LEAF threshold | Balances "small component" with practical code size                    |
 
 ## Deviations from Plan
 
@@ -98,6 +98,7 @@ None - no external service configuration required.
 ## Next Phase Readiness
 
 Ready for Phase 41 Plan 03+ (page conversions):
+
 - USE_CLIENT_AUDIT.md provides conversion guidance
 - 13 quick wins identified for target pages
 - CONVERT candidates marked with review notes for indirect dependencies
@@ -105,5 +106,6 @@ Ready for Phase 41 Plan 03+ (page conversions):
 No blockers.
 
 ---
-*Phase: 41-server-component-conversions*
-*Completed: 2026-02-06*
+
+_Phase: 41-server-component-conversions_
+_Completed: 2026-02-06_

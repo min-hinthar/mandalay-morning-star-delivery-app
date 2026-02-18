@@ -30,8 +30,7 @@ export function AllergenWarning({ allergens }: { allergens: string[] }) {
       <div>
         <p className="font-medium text-text-primary">Allergen Information</p>
         <p className="text-sm text-text-secondary">
-          Contains:{" "}
-          {allergens.map((a) => ALLERGEN_MAP[a]?.label || a).join(", ")}
+          Contains: {allergens.map((a) => ALLERGEN_MAP[a]?.label || a).join(", ")}
         </p>
       </div>
     </div>
@@ -48,19 +47,14 @@ export interface DiscardChangesDialogProps {
   onDiscard: () => void;
 }
 
-export function DiscardChangesDialog({
-  open,
-  onOpenChange,
-  onDiscard,
-}: DiscardChangesDialogProps) {
+export function DiscardChangesDialog({ open, onOpenChange, onDiscard }: DiscardChangesDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Discard changes?</AlertDialogTitle>
           <AlertDialogDescription>
-            You have unsaved changes to this item. Are you sure you want to
-            discard them?
+            You have unsaved changes to this item. Are you sure you want to discard them?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

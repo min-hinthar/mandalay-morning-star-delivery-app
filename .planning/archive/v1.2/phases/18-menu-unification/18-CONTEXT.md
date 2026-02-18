@@ -14,6 +14,7 @@ Create a unified MenuItemCard component used consistently across homepage menu c
 ## Implementation Decisions
 
 ### Card Layout & Content
+
 - **Orientation:** Vertical (image on top) for menu grid, horizontal for cart — context-dependent
 - **Content density:** Claude's discretion based on context (full for menu page, compact elsewhere)
 - **Price display:** Subtle, secondary to item name — not screaming
@@ -22,6 +23,7 @@ Create a unified MenuItemCard component used consistently across homepage menu c
 - **Dietary/spice indicators:** Small icons/badges AND text labels, positioned next to or below item name
 
 ### Visual Styling
+
 - **Surface:** Glassmorphism (frosted glass effect with backdrop blur)
 - **Blur intensity:** Medium (16-24px), increases slightly on hover
 - **Corner radius:** Very rounded (24px+) — playful, bubbly aesthetic
@@ -32,6 +34,7 @@ Create a unified MenuItemCard component used consistently across homepage menu c
 - **Out of stock:** Normal appearance with 'Sold Out' badge
 
 ### Interaction Behavior
+
 - **3D tilt:** Medium intensity (15-20° max)
 - **Shine effect:** Light moves across card during tilt — physical feel
 - **Scale on hover:** Slight lift (1.02-1.05x) in addition to tilt
@@ -41,6 +44,7 @@ Create a unified MenuItemCard component used consistently across homepage menu c
 - **Sound effects:** Subtle click sounds on add/remove interactions
 
 ### Context Variations
+
 - **Homepage:** 10 featured items in horizontal carousel with auto-scroll (pauses on hover)
 - **Carousel navigation:** Both arrow buttons on sides AND dots indicator below
 - **Menu page:** Grid layout (2-3 columns on desktop)
@@ -52,6 +56,7 @@ Create a unified MenuItemCard component used consistently across homepage menu c
 - **Customization:** Add button opens modal/drawer for items with options (size, add-ons)
 
 ### Claude's Discretion
+
 - Exact animation timing/easing curves
 - Specific breakpoint thresholds for responsive behavior
 - Carousel scroll speed and auto-advance interval
@@ -79,5 +84,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 18-menu-unification*
-*Context gathered: 2026-01-24*
+_Phase: 18-menu-unification_
+_Context gathered: 2026-01-24_

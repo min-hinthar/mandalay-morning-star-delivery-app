@@ -18,10 +18,7 @@ const EMAIL_SUBJECTS: Record<string, string> = {
   cancelled: "Your order has been cancelled",
 };
 
-function getEmailSubject(
-  currentStatus: OrderStatus,
-  newStatus: OrderStatus
-): string {
+function getEmailSubject(currentStatus: OrderStatus, newStatus: OrderStatus): string {
   if (newStatus === "cancelled") return EMAIL_SUBJECTS["cancelled"];
   const key = `${currentStatus}->${newStatus}`;
   return EMAIL_SUBJECTS[key] || `Order status updated to ${STATUS_LABELS[newStatus]}`;
@@ -89,8 +86,7 @@ export function StatusChangeDialog({
       onStatusFailed(currentStatus);
       toast({
         title: "Error",
-        description:
-          err instanceof Error ? err.message : "Failed to update status",
+        description: err instanceof Error ? err.message : "Failed to update status",
         variant: "destructive",
       });
     } finally {
@@ -99,18 +95,11 @@ export function StatusChangeDialog({
   };
 
   return (
-    <Modal
-      isOpen={open}
-      onClose={onClose}
-      title="Change Order Status"
-      size="md"
-    >
+    <Modal isOpen={open} onClose={onClose} title="Change Order Status" size="md">
       <div className="space-y-5">
         {/* Title */}
         <div>
-          <h3 className="text-lg font-semibold text-text-primary">
-            Change Order Status
-          </h3>
+          <h3 className="text-lg font-semibold text-text-primary">Change Order Status</h3>
           <p className="mt-1 text-sm text-text-secondary">
             {STATUS_LABELS[currentStatus]} &rarr;{" "}
             <span className="font-medium">{STATUS_LABELS[newStatus]}</span>
@@ -123,12 +112,8 @@ export function StatusChangeDialog({
             <Mail className="h-3.5 w-3.5" />
             Email Preview
           </div>
-          <p className="text-sm font-medium text-text-primary">
-            Subject: {emailSubject}
-          </p>
-          <p className="text-xs text-text-muted">
-            To: {customerEmail}
-          </p>
+          <p className="text-sm font-medium text-text-primary">Subject: {emailSubject}</p>
+          <p className="text-xs text-text-muted">To: {customerEmail}</p>
         </div>
 
         {/* Notify customer checkbox */}
@@ -139,9 +124,7 @@ export function StatusChangeDialog({
             onChange={(e) => setNotifyCustomer(e.target.checked)}
             className="h-4 w-4 rounded border-border text-primary focus:ring-primary/30"
           />
-          <span className="text-sm text-text-primary">
-            Notify customer ({customerEmail})
-          </span>
+          <span className="text-sm text-text-primary">Notify customer ({customerEmail})</span>
         </label>
 
         {/* Reason text area */}
@@ -173,12 +156,7 @@ export function StatusChangeDialog({
 
         {/* Actions */}
         <div className="flex gap-3 pt-2">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={submitting}
-            className="flex-1"
-          >
+          <Button variant="outline" onClick={onClose} disabled={submitting} className="flex-1">
             Cancel
           </Button>
           <Button

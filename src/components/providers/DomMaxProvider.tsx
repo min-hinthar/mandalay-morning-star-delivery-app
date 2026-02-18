@@ -3,8 +3,7 @@
 import type { ReactNode } from "react";
 import { LazyMotion } from "framer-motion";
 
-const loadDomMax = () =>
-  import("framer-motion").then((mod) => mod.domMax);
+const loadDomMax = () => import("framer-motion").then((mod) => mod.domMax);
 
 interface DomMaxProviderProps {
   children: ReactNode;

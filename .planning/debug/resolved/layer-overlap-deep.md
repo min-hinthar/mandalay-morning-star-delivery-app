@@ -8,7 +8,7 @@ updated: 2026-01-23T00:10:00Z
 ## Current Focus
 
 hypothesis: CONFIRMED - Tailwind CSS 4 not generating custom z-index classes
-test: Checked generated CSS in .next/static/chunks/*.css
+test: Checked generated CSS in .next/static/chunks/\*.css
 expecting: z-fixed, z-sticky, z-modal, etc classes exist
 finding: Only numeric classes (z-0, z-10, z-20, z-30, z-40, z-50) and arbitrary values exist - NO z-fixed, z-sticky, z-modal, etc.
 result: Fixed by replacing all custom z-index tokens with numeric equivalents
@@ -43,7 +43,7 @@ started: Persists after z-index token fixes (commit b0ef758)
   implication: Need to examine for stacking context creation
 
 - timestamp: 2026-01-23T00:01:00Z
-  checked: Generated CSS in .next/static/chunks/*.css
+  checked: Generated CSS in .next/static/chunks/\*.css
   found: Only z-0, z-10, z-20, z-30, z-40, z-50 and arbitrary values exist. Custom names z-fixed, z-sticky, z-modal, z-toast, z-dropdown, z-base, z-max, z-popover, z-tooltip, z-modal-backdrop are NOT generated.
   implication: All elements using z-fixed, z-sticky, etc have NO z-index applied - THIS IS ROOT CAUSE
 
@@ -62,6 +62,7 @@ started: Persists after z-index token fixes (commit b0ef758)
 root_cause: Tailwind CSS 4 does NOT generate custom z-index utility classes (z-fixed, z-sticky, z-modal, etc.) from the zIndex extension in tailwind.config.ts. Elements using these non-existent classes have NO z-index applied, causing content to overlap fixed/sticky headers.
 
 fix: Replaced all custom z-index class names with their numeric equivalents that Tailwind CSS 4 DOES generate:
+
 - z-fixed -> z-30
 - z-sticky -> z-20
 - z-modal-backdrop -> z-40
@@ -76,11 +77,13 @@ fix: Replaced all custom z-index class names with their numeric equivalents that
 Also updated eslint.config.mjs to remove the z-index token enforcement rules that were incompatible with Tailwind CSS 4.
 
 verification:
+
 - pnpm typecheck: PASS
 - pnpm lint: PASS
 - pnpm lint:css: PASS
 
 files_changed:
+
 - src/components/layout/header.tsx (z-fixed -> z-30)
 - src/components/menu/CategoryCarousel.tsx (z-sticky -> z-20, z-dropdown -> z-10)
 - src/components/ui-v8/menu/CategoryTabsV8.tsx (z-sticky -> z-20, z-base -> z-0)

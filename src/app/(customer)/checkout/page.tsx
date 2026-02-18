@@ -63,7 +63,12 @@ export default function CheckoutPage() {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   // Navigation guard: warn when leaving checkout with items in cart
-  const { showModal, proceed, cancel, disable: disableGuard } = useNavigationGuard({
+  const {
+    showModal,
+    proceed,
+    cancel,
+    disable: disableGuard,
+  } = useNavigationGuard({
     enabled: !isEmpty,
     allowedPaths: ["/checkout"],
     allowBackNavigation: true,

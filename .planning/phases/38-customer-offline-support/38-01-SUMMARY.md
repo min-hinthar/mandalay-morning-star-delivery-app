@@ -62,6 +62,7 @@ completed: 2026-02-04
 - **Files modified:** 7
 
 ## Accomplishments
+
 - Installed @serwist/next and serwist packages
 - Created service worker source with all caching strategies per plan
 - Configured custom build script to workaround Turbopack incompatibility
@@ -78,6 +79,7 @@ Each task was committed atomically:
 4. **Cleanup: Add sw.js to gitignore** - `58f327a` (chore)
 
 ## Files Created/Modified
+
 - `src/app/sw.ts` - Service worker source with caching strategies
 - `scripts/build-sw.mjs` - Custom build script using esbuild
 - `next.config.ts` - Removed Serwist wrapper (using custom build)
@@ -86,6 +88,7 @@ Each task was committed atomically:
 - `.gitignore` - Added /public/sw.js
 
 ## Decisions Made
+
 - **Custom build script:** @serwist/next uses webpack plugins which don't work with Turbopack (Next.js 16 default). Created scripts/build-sw.mjs using esbuild to compile the SW separately.
 - **Cache strategies per research:** CacheFirst for images (long-lived), NetworkFirst for API (fresh preferred), StaleWhileRevalidate for static (fast + fresh)
 - **Document exclusion:** Filter defaultCache to exclude document requests, preventing App Router RSC conflicts
@@ -96,6 +99,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Turbopack incompatibility with @serwist/next**
+
 - **Found during:** Task 3 (next.config.ts configuration)
 - **Issue:** @serwist/next relies on webpack plugins; Turbopack (Next.js 16 default) doesn't support these
 - **Fix:** Created custom scripts/build-sw.mjs using esbuild to compile SW after next build
@@ -104,6 +108,7 @@ Each task was committed atomically:
 - **Committed in:** ec2d6da (Task 3 commit)
 
 **2. [Rule 3 - Blocking] Missing glob dependency**
+
 - **Found during:** Task 3 (running build script)
 - **Issue:** build-sw.mjs imports glob package not in dependencies
 - **Fix:** `pnpm add -D glob`
@@ -117,20 +122,24 @@ Each task was committed atomically:
 **Impact on plan:** Both auto-fixes necessary for build to work with Next.js 16 Turbopack. No scope creep - same outcome achieved via different means.
 
 ## Issues Encountered
+
 - @serwist/next Turbopack warning appeared during build but was informational only
 - Needed to verify Serwist actually compiled SW (runAfterProductionCompile ran but no output) - discovered webpack dependency
 - Solved by implementing custom build script approach
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Service worker infrastructure complete
 - SW registers on production build
 - Ready for 38-02: Customer offline store (IndexedDB)
 - No blockers
 
 ---
-*Phase: 38-customer-offline-support*
-*Plan: 01*
-*Completed: 2026-02-04*
+
+_Phase: 38-customer-offline-support_
+_Plan: 01_
+_Completed: 2026-02-04_

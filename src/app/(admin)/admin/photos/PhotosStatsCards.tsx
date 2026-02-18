@@ -1,11 +1,7 @@
-'use client';
+"use client";
 
 import { m } from "framer-motion";
-import {
-  Image as ImageIcon,
-  CheckCircle,
-  HardDrive,
-} from "lucide-react";
+import { Image as ImageIcon, CheckCircle, HardDrive } from "lucide-react";
 
 interface PhotosStatsCardsProps {
   total: number;
@@ -13,11 +9,7 @@ interface PhotosStatsCardsProps {
   unassigned: number;
 }
 
-export function PhotosStatsCards({
-  total,
-  assigned,
-  unassigned,
-}: PhotosStatsCardsProps) {
+export function PhotosStatsCards({ total, assigned, unassigned }: PhotosStatsCardsProps) {
   return (
     <m.div
       initial={{ opacity: 0, y: 10 }}
@@ -33,9 +25,7 @@ export function PhotosStatsCards({
             <ImageIcon className="h-5 w-5" />
             <span className="text-sm font-body font-medium">Total Photos</span>
           </div>
-          <p className="text-3xl font-display font-bold text-text-primary mt-2">
-            {total}
-          </p>
+          <p className="text-3xl font-display font-bold text-text-primary mt-2">{total}</p>
         </div>
       </div>
 
@@ -47,9 +37,7 @@ export function PhotosStatsCards({
             <CheckCircle className="h-5 w-5" />
             <span className="text-sm font-body font-medium">Assigned</span>
           </div>
-          <p className="text-3xl font-display font-bold text-text-primary mt-2">
-            {assigned}
-          </p>
+          <p className="text-3xl font-display font-bold text-text-primary mt-2">{assigned}</p>
         </div>
       </div>
 
@@ -61,9 +49,7 @@ export function PhotosStatsCards({
             <HardDrive className="h-5 w-5" />
             <span className="text-sm font-body font-medium">Unassigned</span>
           </div>
-          <p className="text-3xl font-display font-bold text-text-primary mt-2">
-            {unassigned}
-          </p>
+          <p className="text-3xl font-display font-bold text-text-primary mt-2">{unassigned}</p>
         </div>
       </div>
     </m.div>

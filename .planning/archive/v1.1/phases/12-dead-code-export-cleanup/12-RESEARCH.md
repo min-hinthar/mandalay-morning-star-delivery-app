@@ -21,41 +21,41 @@ The dead code report from Phase 9 identified 47 unused files, 480 unused exports
 
 ### Barrel File Structure
 
-| Barrel File | Location | Active Exports | Dead Exports | Notes |
-|-------------|----------|----------------|--------------|-------|
-| ui/index.ts | src/components/ui/ | ~50 | ~8 | Main UI library, 183 files import from it |
-| ui/v7-index.ts | src/components/ui/ | 0 | 37 | Entirely unused, safe to delete |
-| checkout/index.ts | src/components/checkout/ | ~25 | 5 legacy | 1 file imports from barrel |
-| checkout/v7-index.ts | src/components/checkout/ | 0 | 16 | Entirely unused, safe to delete |
-| admin/index.ts | src/components/admin/ | 5 | 0 | Minimal, no direct imports found |
-| admin/v7-index.ts | src/components/admin/ | 0 | 13 | Entirely unused, safe to delete |
+| Barrel File          | Location                 | Active Exports | Dead Exports | Notes                                     |
+| -------------------- | ------------------------ | -------------- | ------------ | ----------------------------------------- |
+| ui/index.ts          | src/components/ui/       | ~50            | ~8           | Main UI library, 183 files import from it |
+| ui/v7-index.ts       | src/components/ui/       | 0              | 37           | Entirely unused, safe to delete           |
+| checkout/index.ts    | src/components/checkout/ | ~25            | 5 legacy     | 1 file imports from barrel                |
+| checkout/v7-index.ts | src/components/checkout/ | 0              | 16           | Entirely unused, safe to delete           |
+| admin/index.ts       | src/components/admin/    | 5              | 0            | Minimal, no direct imports found          |
+| admin/v7-index.ts    | src/components/admin/    | 0              | 13           | Entirely unused, safe to delete           |
 
 ### v7-index.ts Files (All Unused)
 
-| File | Export Count | Status |
-|------|--------------|--------|
-| src/components/admin/v7-index.ts | 13 exports + 22 types | DELETE |
-| src/components/cart/v7-index.ts | ~8 exports | DELETE |
-| src/components/checkout/v7-index.ts | 16 exports | DELETE |
-| src/components/driver/v7-index.ts | 6 exports + 6 types | DELETE |
-| src/components/homepage/v7-index.ts | 5 exports + 11 types | DELETE |
-| src/components/layout/v7-index.ts | 5 exports + 7 types | DELETE |
-| src/components/layouts/v7-index.ts | 16 exports + 24 types | DELETE |
-| src/components/menu/v7-index.ts | 9 exports + 10 types | DELETE |
+| File                                | Export Count          | Status |
+| ----------------------------------- | --------------------- | ------ |
+| src/components/admin/v7-index.ts    | 13 exports + 22 types | DELETE |
+| src/components/cart/v7-index.ts     | ~8 exports            | DELETE |
+| src/components/checkout/v7-index.ts | 16 exports            | DELETE |
+| src/components/driver/v7-index.ts   | 6 exports + 6 types   | DELETE |
+| src/components/homepage/v7-index.ts | 5 exports + 11 types  | DELETE |
+| src/components/layout/v7-index.ts   | 5 exports + 7 types   | DELETE |
+| src/components/layouts/v7-index.ts  | 16 exports + 24 types | DELETE |
+| src/components/menu/v7-index.ts     | 9 exports + 10 types  | DELETE |
 | src/components/tracking/v7-index.ts | 14 exports + 17 types | DELETE |
-| src/components/ui/v7-index.ts | 37 exports + types | DELETE |
+| src/components/ui/v7-index.ts       | 37 exports + types    | DELETE |
 
 ### Unused Files (47 Total)
 
 High-priority unused files for removal:
 
-| Category | Files | Action |
-|----------|-------|--------|
-| Context/Store | HeaderContext.tsx, contexts/index.ts, cart-store.ts | Remove |
-| Hooks | use-cart.ts, useExperiment.tsx, useFeatureFlag.tsx, useFrameRate.ts | Remove |
-| Utilities | ab-testing.ts, feature-flags.ts, dynamic-imports.tsx | Remove |
-| Components | 25+ files including CartDrawer, CartItem duplicates | Remove |
-| Test Mocks | test/mocks/index.ts, test/mocks/supabase.ts | Remove |
+| Category      | Files                                                               | Action |
+| ------------- | ------------------------------------------------------------------- | ------ |
+| Context/Store | HeaderContext.tsx, contexts/index.ts, cart-store.ts                 | Remove |
+| Hooks         | use-cart.ts, useExperiment.tsx, useFeatureFlag.tsx, useFrameRate.ts | Remove |
+| Utilities     | ab-testing.ts, feature-flags.ts, dynamic-imports.tsx                | Remove |
+| Components    | 25+ files including CartDrawer, CartItem duplicates                 | Remove |
+| Test Mocks    | test/mocks/index.ts, test/mocks/supabase.ts                         | Remove |
 
 ## Dead Exports Inventory
 
@@ -63,12 +63,12 @@ High-priority unused files for removal:
 
 Exports to remove from src/components/ui/index.ts:
 
-| Export | Line | Reason |
-|--------|------|--------|
-| `Modal as LegacyModal` | 107 | Legacy alias, 0 references |
-| `DropdownAction` | 149 | 0 references |
-| `Confetti` | 258 | 0 references (but SuccessAnimation is also dead) |
-| SkipLinks, MainContent, VisuallyHidden, LiveRegion | SkipLink.tsx | 0 references each |
+| Export                                             | Line         | Reason                                           |
+| -------------------------------------------------- | ------------ | ------------------------------------------------ |
+| `Modal as LegacyModal`                             | 107          | Legacy alias, 0 references                       |
+| `DropdownAction`                                   | 149          | 0 references                                     |
+| `Confetti`                                         | 258          | 0 references (but SuccessAnimation is also dead) |
+| SkipLinks, MainContent, VisuallyHidden, LiveRegion | SkipLink.tsx | 0 references each                                |
 
 **Note:** Many ui/index.ts exports ARE actively used (183 imports). Only remove zero-reference items.
 
@@ -76,19 +76,20 @@ Exports to remove from src/components/ui/index.ts:
 
 From src/components/checkout/index.ts lines 27-35:
 
-| Export | Line | Status |
-|--------|------|--------|
-| `AddressStepLegacy` | 28 | Remove |
-| `TimeStepLegacy` | 29 | Remove |
-| `PaymentStepLegacy` | 32 | Remove |
-| `CheckoutSummaryLegacy` | 33 | Remove |
-| `AddressCardLegacy` | 34 | Remove |
+| Export                  | Line | Status |
+| ----------------------- | ---- | ------ |
+| `AddressStepLegacy`     | 28   | Remove |
+| `TimeStepLegacy`        | 29   | Remove |
+| `PaymentStepLegacy`     | 32   | Remove |
+| `CheckoutSummaryLegacy` | 33   | Remove |
+| `AddressCardLegacy`     | 34   | Remove |
 
 Plus entire v7-index.ts file (16 exports).
 
 ### EXPT-03: Admin Consolidation
 
 **Current admin/index.ts (5 exports):**
+
 ```typescript
 export { AdminNav } from "./AdminNav";
 export { OrdersTable } from "./OrdersTable";
@@ -98,6 +99,7 @@ export { PopularItems } from "./PopularItems";
 ```
 
 **admin/v7-index.ts (13 exports) - ALL UNUSED:**
+
 - AdminDashboard, AdminDashboardV7
 - Charts, ChartsV7, Sparkline, SparklineV7
 - OrderManagement, OrderManagementV7
@@ -110,28 +112,30 @@ export { PopularItems } from "./PopularItems";
 
 From dead code report, skeleton-related dead exports:
 
-| File | Export | Reason |
-|------|--------|--------|
-| skeleton.tsx | `default` (line 472) | Default export unused, named exports used |
-| ui/v7-index.ts | SkeletonV7, all skeleton re-exports | Entire file unused |
+| File           | Export                              | Reason                                    |
+| -------------- | ----------------------------------- | ----------------------------------------- |
+| skeleton.tsx   | `default` (line 472)                | Default export unused, named exports used |
+| ui/v7-index.ts | SkeletonV7, all skeleton re-exports | Entire file unused                        |
 
 **Note:** The named skeleton exports (Skeleton, SkeletonText, etc.) ARE actively used via ui/index.ts.
 
 ## Standard Stack
 
 ### Core Tools
-| Tool | Version | Purpose | Why Use |
-|------|---------|---------|---------|
-| knip | 5.82.1 | Dead code detection | Already configured, comprehensive analysis |
-| TypeScript | 5.x | Type checking | Verifies no import breaks |
-| Next.js | 16.1.2 | Build verification | Full tree-shaking, catches dead imports |
+
+| Tool       | Version | Purpose             | Why Use                                    |
+| ---------- | ------- | ------------------- | ------------------------------------------ |
+| knip       | 5.82.1  | Dead code detection | Already configured, comprehensive analysis |
+| TypeScript | 5.x     | Type checking       | Verifies no import breaks                  |
+| Next.js    | 16.1.2  | Build verification  | Full tree-shaking, catches dead imports    |
 
 ### Supporting
-| Tool | Purpose | When to Use |
-|------|---------|-------------|
-| pnpm build | Full verification | After each cleanup batch |
+
+| Tool           | Purpose            | When to Use                 |
+| -------------- | ------------------ | --------------------------- |
+| pnpm build     | Full verification  | After each cleanup batch    |
 | pnpm typecheck | Quick verification | After individual file edits |
-| pnpm test | Regression check | Before commit |
+| pnpm test      | Regression check   | Before commit               |
 
 ## Architecture Patterns
 
@@ -150,12 +154,14 @@ From dead code report, skeleton-related dead exports:
 ### Barrel Export Cleanup Pattern
 
 **Before:**
+
 ```typescript
 // Legacy pattern with V7 aliases
 export { Component, Component as ComponentV7 } from "./Component";
 ```
 
 **After:**
+
 ```typescript
 // Clean single export
 export { Component } from "./Component";
@@ -175,12 +181,12 @@ import { Component } from "@/components/checkout";
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Finding unused exports | Manual grep | knip report from Phase 9 | AST-aware, handles re-exports |
-| Verifying no breakage | Visual inspection | pnpm build + typecheck | Catches all import paths |
-| Finding all imports | grep | TypeScript errors | Type system knows all references |
-| Batching changes | One big PR | Multiple small commits | Easier rollback if issues |
+| Problem                | Don't Build       | Use Instead              | Why                              |
+| ---------------------- | ----------------- | ------------------------ | -------------------------------- |
+| Finding unused exports | Manual grep       | knip report from Phase 9 | AST-aware, handles re-exports    |
+| Verifying no breakage  | Visual inspection | pnpm build + typecheck   | Catches all import paths         |
+| Finding all imports    | grep              | TypeScript errors        | Type system knows all references |
+| Batching changes       | One big PR        | Multiple small commits   | Easier rollback if issues        |
 
 ## Common Pitfalls
 
@@ -227,17 +233,20 @@ import { Component } from "@/components/checkout";
 **Files to delete:** 47 unused files from dead code report
 
 **Batch 1: Context/Store/Hook files**
+
 - src/contexts/HeaderContext.tsx
 - src/contexts/index.ts
 - src/hooks/use-cart.ts
 - src/stores/cart-store.ts
 
 **Batch 2: Utility files**
+
 - src/lib/ab-testing.ts
 - src/lib/dynamic-imports.tsx
 - src/lib/feature-flags.ts
 
 **Batch 3: Component files (25+)**
+
 - Cart component duplicates
 - Admin unused components
 - Layout unused components
@@ -247,10 +256,12 @@ import { Component } from "@/components/checkout";
 **Scope:** Barrel file export cleanup
 
 **Step 1: Delete checkout/v7-index.ts**
+
 - Verify: `grep -r "v7-index" src/components/checkout/`
 - Action: Delete file
 
 **Step 2: Remove checkout/index.ts legacy exports**
+
 ```typescript
 // Remove these lines (27-35):
 export { AddressStep as AddressStepLegacy } from "./AddressStep";
@@ -261,10 +272,12 @@ export { AddressCard as AddressCardLegacy } from "./AddressCard";
 ```
 
 **Step 3: Delete ui/v7-index.ts**
+
 - Entire file is unused
 - Contains FlipCard, ExpandingCard, Carousel, etc. - all dead
 
 **Step 4: Clean ui/index.ts dead exports**
+
 - Remove LegacyModal alias
 - Remove DropdownAction export
 - Remove Confetti export (verify first)
@@ -274,10 +287,12 @@ export { AddressCard as AddressCardLegacy } from "./AddressCard";
 **Scope:** Admin barrel cleanup, remaining skeleton exports
 
 **Step 1: Delete admin/v7-index.ts**
+
 - Verify: `grep -r "v7-index" src/components/admin/`
 - Action: Delete file (13 exports, all unused)
 
 **Step 2: Delete remaining v7-index files**
+
 - cart/v7-index.ts
 - driver/v7-index.ts
 - homepage/v7-index.ts
@@ -287,32 +302,37 @@ export { AddressCard as AddressCardLegacy } from "./AddressCard";
 - tracking/v7-index.ts
 
 **Step 3: Remove skeleton default export**
+
 - Line 472 in skeleton.tsx: `export default Skeleton;`
 - Keep all named exports (actively used)
 
 ## Risk Areas
 
 ### High Risk
-| Area | Risk | Mitigation |
-|------|------|------------|
-| ui/index.ts changes | 183 files import from here | Remove only verified-dead exports |
-| Default exports | May break dynamic imports | Search for `import()` before removing |
+
+| Area                | Risk                       | Mitigation                            |
+| ------------------- | -------------------------- | ------------------------------------- |
+| ui/index.ts changes | 183 files import from here | Remove only verified-dead exports     |
+| Default exports     | May break dynamic imports  | Search for `import()` before removing |
 
 ### Medium Risk
-| Area | Risk | Mitigation |
-|------|------|------------|
-| Type exports | May be used for type-only imports | Remove with associated component |
-| Checkout changes | Active user flow | Verify checkout page works after |
+
+| Area             | Risk                              | Mitigation                       |
+| ---------------- | --------------------------------- | -------------------------------- |
+| Type exports     | May be used for type-only imports | Remove with associated component |
+| Checkout changes | Active user flow                  | Verify checkout page works after |
 
 ### Low Risk
-| Area | Risk | Mitigation |
-|------|------|------------|
-| v7-index.ts deletion | Files already confirmed unused | Grep verification before delete |
-| Unused files deletion | May have planned future use | Document what was removed |
+
+| Area                  | Risk                           | Mitigation                      |
+| --------------------- | ------------------------------ | ------------------------------- |
+| v7-index.ts deletion  | Files already confirmed unused | Grep verification before delete |
+| Unused files deletion | May have planned future use    | Document what was removed       |
 
 ## Testing Plan
 
 ### Pre-Cleanup Verification
+
 ```bash
 # Verify current state passes
 pnpm typecheck
@@ -321,6 +341,7 @@ pnpm build
 ```
 
 ### Per-Batch Verification
+
 ```bash
 # After each batch of deletions
 pnpm typecheck  # Quick check
@@ -328,6 +349,7 @@ pnpm build      # Full verification
 ```
 
 ### Post-Cleanup Verification
+
 ```bash
 # Full verification suite
 pnpm lint && pnpm lint:css && pnpm typecheck && pnpm test && pnpm build
@@ -339,6 +361,7 @@ pnpm lint && pnpm lint:css && pnpm typecheck && pnpm test && pnpm build
 ```
 
 ### Re-run Dead Code Analysis
+
 ```bash
 # Verify cleanup was successful
 npx knip --reporter json > dead-code-post-cleanup.json
@@ -348,14 +371,16 @@ npx knip --reporter json > dead-code-post-cleanup.json
 ## Code Examples
 
 ### Removing Barrel Export
+
 ```typescript
 // Before: src/components/checkout/index.ts
-export { AddressStep as AddressStepLegacy } from "./AddressStep";  // REMOVE
+export { AddressStep as AddressStepLegacy } from "./AddressStep"; // REMOVE
 
 // After: Line deleted
 ```
 
 ### Verifying No Imports Before Delete
+
 ```bash
 # Check for any imports of v7-index
 grep -r "from.*v7-index" src/
@@ -365,6 +390,7 @@ grep -r "import.*ComponentName" src/
 ```
 
 ### Deleting Unused File
+
 ```bash
 # Verify file has no references
 npx knip --include files | grep "filename.tsx"
@@ -379,6 +405,7 @@ pnpm typecheck
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - `.planning/phases/09-analysis-component-creation/dead-code-report.md` - Complete dead code inventory
 - `src/components/ui/index.ts` - Current barrel structure
 - `src/components/checkout/index.ts` - Checkout barrel
@@ -386,15 +413,18 @@ pnpm typecheck
 - `knip.json` - Dead code analysis configuration
 
 ### Secondary (MEDIUM confidence)
+
 - `src/components/*/v7-index.ts` - Legacy barrel files
 - Phase 9 research - Tool selection and methodology
 
 ### Tertiary (LOW confidence)
+
 - Dynamic import usage patterns - may need runtime verification
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Current state analysis: HIGH - verified via grep and file reading
 - Dead exports inventory: HIGH - from Phase 9 knip report
 - Removal strategy: HIGH - standard cleanup patterns

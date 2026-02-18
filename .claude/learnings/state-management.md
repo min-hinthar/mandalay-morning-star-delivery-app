@@ -8,16 +8,16 @@ Action buttons accepting callbacks should NOT also perform the same action direc
 // Double mutation - component AND parent both mutate
 const AddButton = ({ onAdd }) => {
   const handleClick = () => {
-    addToStore(item);  // Component mutates
-    onAdd?.();         // Callback may ALSO mutate
+    addToStore(item); // Component mutates
+    onAdd?.(); // Callback may ALSO mutate
   };
 };
 
 // Single owner - parent owns mutation
 const AddButton = ({ onAdd }) => {
   const handleClick = () => {
-    playAnimation();   // UI only
-    onAdd?.();         // Parent decides what to do
+    playAnimation(); // UI only
+    onAdd?.(); // Parent decides what to do
   };
 };
 ```

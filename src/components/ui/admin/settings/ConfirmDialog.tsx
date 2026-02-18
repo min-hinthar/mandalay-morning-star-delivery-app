@@ -45,21 +45,12 @@ export function ConfirmDialog({
     >
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-semibold text-text-primary">
-            {title}
-          </h3>
-          <p className="mt-2 text-sm text-text-secondary">
-            {description}
-          </p>
+          <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
+          <p className="mt-2 text-sm text-text-secondary">{description}</p>
         </div>
 
         <div className="flex gap-3 pt-2">
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            disabled={isLoading}
-            className="flex-1"
-          >
+          <Button variant="outline" onClick={onCancel} disabled={isLoading} className="flex-1">
             {cancelLabel}
           </Button>
           <Button

@@ -19,20 +19,8 @@ export interface MorphingCloseButtonProps {
   className?: string;
 }
 
-export const MorphingCloseButton = forwardRef<
-  HTMLButtonElement,
-  MorphingCloseButtonProps
->(
-  (
-    {
-      state = "close",
-      onClick,
-      size = 24,
-      color = "currentColor",
-      className,
-    },
-    ref
-  ) => {
+export const MorphingCloseButton = forwardRef<HTMLButtonElement, MorphingCloseButtonProps>(
+  ({ state = "close", onClick, size = 24, color = "currentColor", className }, ref) => {
     const { shouldAnimate, getSpring } = useAnimationPreference();
     const strokeWidth = 2;
 

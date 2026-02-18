@@ -52,9 +52,7 @@ export function CollapsibleCard({
           </div>
         )}
       </div>
-      {isOpen && (
-        <div className="px-4 pb-4 pt-1">{children}</div>
-      )}
+      {isOpen && <div className="px-4 pb-4 pt-1">{children}</div>}
     </div>
   );
 }

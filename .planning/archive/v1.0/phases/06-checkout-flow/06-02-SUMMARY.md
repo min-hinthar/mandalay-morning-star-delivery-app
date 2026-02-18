@@ -37,21 +37,23 @@ metrics:
 
 ## Completed Tasks
 
-| Task | Name | Commit | Files |
-|------|------|--------|-------|
-| 1 | Create AnimatedFormField wrapper component | 3e02527 | AnimatedFormField.tsx |
-| 2 | Create AddressFormV8 with micro-interactions | 6d96135 | AddressFormV8.tsx |
-| 3 | Update checkout barrel exports | 13bfde6 | index.ts |
+| Task | Name                                         | Commit  | Files                 |
+| ---- | -------------------------------------------- | ------- | --------------------- |
+| 1    | Create AnimatedFormField wrapper component   | 3e02527 | AnimatedFormField.tsx |
+| 2    | Create AddressFormV8 with micro-interactions | 6d96135 | AddressFormV8.tsx     |
+| 3    | Update checkout barrel exports               | 13bfde6 | index.ts              |
 
 ## What Was Built
 
 ### AnimatedFormField
+
 - Focus scale wrapper using `onFocusCapture`/`onBlurCapture`
 - Subtle 1.02x scale on focus with spring.snappy transition
 - Respects `useAnimationPreference` for reduced motion
 - Works with any child input element
 
 ### AddressFormV8
+
 - All form fields wrapped with AnimatedFormField for focus scale
 - ValidatedInput with `shakeOnError={true}` for validation feedback
 - Animated checkmark icons on valid fields (`showSuccess={true}`)
@@ -60,22 +62,24 @@ metrics:
 - react-hook-form Controller integration for proper typing
 
 ### Barrel Exports
+
 - Added AnimatedFormField and AddressFormV8 exports
 - Re-exported AddressFormV8 as AddressForm for migration
 - Fixed broken V7 references (removed non-existent exports)
 
 ## Decisions Made
 
-| Decision | Rationale |
-|----------|-----------|
+| Decision                     | Rationale                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------- |
 | Use Controller over register | ValidatedInput has custom onChange signature; Controller provides proper type compatibility |
-| Fix broken V7 exports | Pre-existing index.ts referenced non-existent V7 exports causing typecheck failures |
+| Fix broken V7 exports        | Pre-existing index.ts referenced non-existent V7 exports causing typecheck failures         |
 
 ## Deviations from Plan
 
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Fixed broken checkout/index.ts V7 exports**
+
 - **Found during:** Task 3
 - **Issue:** Pre-existing index.ts referenced non-existent V7 exports (CheckoutWizardV7, AddressInputV7, etc.)
 - **Fix:** Removed incorrect V7 references, kept only actual exports
@@ -95,6 +99,7 @@ metrics:
 ## Technical Notes
 
 ### Integration Pattern
+
 ```typescript
 // Controller integration for react-hook-form
 <Controller
@@ -114,6 +119,7 @@ metrics:
 ```
 
 ### Focus Scale Animation
+
 ```typescript
 // AnimatedFormField captures focus on any child
 <motion.div
@@ -129,6 +135,7 @@ metrics:
 ## Next Phase Readiness
 
 Ready for:
+
 - 06-03: Step transition animations
 - 06-04: Checkout integration
 

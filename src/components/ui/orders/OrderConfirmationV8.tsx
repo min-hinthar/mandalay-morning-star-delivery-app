@@ -45,9 +45,10 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
     ? format(parseISO(order.deliveryWindowStart), "EEEE, MMMM d, yyyy")
     : "Scheduled";
 
-  const deliveryTime = order.deliveryWindowStart && order.deliveryWindowEnd
-    ? `${format(parseISO(order.deliveryWindowStart), "h:mm a")} - ${format(parseISO(order.deliveryWindowEnd), "h:mm a")}`
-    : "Time slot selected";
+  const deliveryTime =
+    order.deliveryWindowStart && order.deliveryWindowEnd
+      ? `${format(parseISO(order.deliveryWindowStart), "h:mm a")} - ${format(parseISO(order.deliveryWindowEnd), "h:mm a")}`
+      : "Time slot selected";
 
   return (
     <>
@@ -75,9 +76,7 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
             transition={{ delay: 0.3, ...getSpring(spring.default) }}
             className="text-center mb-8"
           >
-            <h1 className="text-3xl font-display text-text-primary mb-2">
-              Order Confirmed!
-            </h1>
+            <h1 className="text-3xl font-display text-text-primary mb-2">Order Confirmed!</h1>
             <p className="text-text-muted">
               Thank you for your order. We&apos;ll start preparing it for Saturday delivery.
             </p>
@@ -108,11 +107,10 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                     {order.items?.map((item) => (
                       <div key={item.id} className="flex justify-between text-sm">
                         <div>
-                          <span className="font-medium">{item.quantity}x</span>{" "}
-                          {item.nameSnapshot}
+                          <span className="font-medium">{item.quantity}x</span> {item.nameSnapshot}
                           {item.modifiers.length > 0 && (
                             <span className="text-text-muted ml-1">
-                              ({item.modifiers.map(m => m.nameSnapshot).join(", ")})
+                              ({item.modifiers.map((m) => m.nameSnapshot).join(", ")})
                             </span>
                           )}
                         </div>
@@ -200,14 +198,10 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
               className="flex flex-col sm:flex-row gap-4 justify-center pt-2"
             >
               <Button asChild variant="default" size="lg">
-                <Link href={`/orders/${order.id}`}>
-                  Track Order
-                </Link>
+                <Link href={`/orders/${order.id}`}>Track Order</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link href="/menu">
-                  Continue Shopping
-                </Link>
+                <Link href="/menu">Continue Shopping</Link>
               </Button>
             </m.div>
           </m.div>

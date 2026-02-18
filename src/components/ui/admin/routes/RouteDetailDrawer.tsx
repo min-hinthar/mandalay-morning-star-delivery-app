@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import { m, AnimatePresence } from 'framer-motion';
-import { format, parseISO } from 'date-fns';
+import { useEffect, useCallback } from "react";
+import Link from "next/link";
+import { m, AnimatePresence } from "framer-motion";
+import { format, parseISO } from "date-fns";
 import {
   X,
   MapPin,
@@ -15,13 +15,13 @@ import {
   Zap,
   Pencil,
   Trash2,
-} from 'lucide-react';
-import { cn } from '@/lib/utils/cn';
-import { spring } from '@/lib/motion-tokens';
-import { useAnimationPreference } from '@/lib/hooks/useAnimationPreference';
-import { StatusBadge } from '@/components/ui/admin/StatusBadge';
-import { Button } from '@/components/ui/button';
-import type { AdminRoute } from './RouteListTable/types';
+} from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+import { spring } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { StatusBadge } from "@/components/ui/admin/StatusBadge";
+import { Button } from "@/components/ui/button";
+import type { AdminRoute } from "./RouteListTable/types";
 
 // ============================================
 // TYPES
@@ -40,9 +40,9 @@ export interface RouteDetailDrawerProps {
 
 function StopStatusIcon({ status }: { status: string }) {
   switch (status) {
-    case 'delivered':
+    case "delivered":
       return <CheckCircle2 className="h-4 w-4 text-status-success" />;
-    case 'pending':
+    case "pending":
       return <Clock className="h-4 w-4 text-status-warning" />;
     default:
       return <Circle className="h-4 w-4 text-text-muted" />;
@@ -53,30 +53,25 @@ function StopStatusIcon({ status }: { status: string }) {
 // COMPONENT
 // ============================================
 
-export function RouteDetailDrawer({
-  route,
-  open,
-  onClose,
-  onDelete,
-}: RouteDetailDrawerProps) {
+export function RouteDetailDrawer({ route, open, onClose, onDelete }: RouteDetailDrawerProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   // Close on escape
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === "Escape") onClose();
     },
     [onClose]
   );
 
   useEffect(() => {
     if (open) {
-      document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
+      document.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden";
     }
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
     };
   }, [open, handleKeyDown]);
 
@@ -84,7 +79,7 @@ export function RouteDetailDrawer({
   const stops = route
     ? Array.from({ length: Math.min(route.stopCount, 8) }, (_, i) => ({
         name: `Stop ${i + 1}`,
-        status: i < route.deliveredCount ? 'delivered' : 'pending',
+        status: i < route.deliveredCount ? "delivered" : "pending",
       }))
     : [];
 
@@ -108,21 +103,17 @@ export function RouteDetailDrawer({
           {/* Drawer panel */}
           <m.aside
             key="drawer"
-            initial={shouldAnimate ? { x: '100%' } : undefined}
+            initial={shouldAnimate ? { x: "100%" } : undefined}
             animate={shouldAnimate ? { x: 0 } : undefined}
-            exit={shouldAnimate ? { x: '100%' } : undefined}
+            exit={shouldAnimate ? { x: "100%" } : undefined}
             transition={getSpring(spring.default)}
             className="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-surface-primary border-l border-border shadow-xl overflow-y-auto"
           >
             {/* Header */}
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface-primary/95 backdrop-blur-sm px-6 py-4">
               <div>
-                <h2 className="font-display text-lg font-bold text-text-primary">
-                  Route Details
-                </h2>
-                <p className="text-xs text-text-muted font-mono">
-                  #{route.id.slice(0, 8)}
-                </p>
+                <h2 className="font-display text-lg font-bold text-text-primary">Route Details</h2>
+                <p className="text-xs text-text-muted font-mono">#{route.id.slice(0, 8)}</p>
               </div>
               <Button
                 variant="ghost"
@@ -140,7 +131,7 @@ export function RouteDetailDrawer({
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-accent-teal" />
                   <span className="text-sm font-medium text-text-primary">
-                    {format(parseISO(route.deliveryDate), 'EEEE, MMM d, yyyy')}
+                    {format(parseISO(route.deliveryDate), "EEEE, MMM d, yyyy")}
                   </span>
                 </div>
                 <StatusBadge status={route.status} size="md" />
@@ -155,14 +146,14 @@ export function RouteDetailDrawer({
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-accent-teal/10 flex items-center justify-center text-accent-teal font-semibold">
                       {route.driver.fullName
-                        ?.split(' ')
+                        ?.split(" ")
                         .map((n) => n[0])
-                        .join('')
+                        .join("")
                         .toUpperCase()
-                        .slice(0, 2) || 'DR'}
+                        .slice(0, 2) || "DR"}
                     </div>
                     <span className="text-sm font-medium text-text-primary">
-                      {route.driver.fullName || 'Unnamed'}
+                      {route.driver.fullName || "Unnamed"}
                     </span>
                   </div>
                 ) : (
@@ -203,11 +194,7 @@ export function RouteDetailDrawer({
                 <div className="mt-3 h-2 rounded-full bg-surface-tertiary overflow-hidden">
                   <m.div
                     className="h-full rounded-full bg-accent-teal"
-                    initial={
-                      shouldAnimate
-                        ? { width: 0 }
-                        : { width: `${route.completionRate}%` }
-                    }
+                    initial={shouldAnimate ? { width: 0 } : { width: `${route.completionRate}%` }}
                     animate={{ width: `${route.completionRate}%` }}
                     transition={getSpring(spring.gentle)}
                   />
@@ -224,10 +211,8 @@ export function RouteDetailDrawer({
                     <div
                       key={i}
                       className={cn(
-                        'flex items-center gap-3 rounded-lg px-3 py-2 text-sm',
-                        stop.status === 'delivered'
-                          ? 'bg-green-50/50'
-                          : 'bg-surface-secondary'
+                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm",
+                        stop.status === "delivered" ? "bg-green-50/50" : "bg-surface-secondary"
                       )}
                     >
                       <StopStatusIcon status={stop.status} />
@@ -252,9 +237,7 @@ export function RouteDetailDrawer({
                 </p>
                 <div className="flex items-center gap-3">
                   <Clock className="h-4 w-4 text-text-muted" />
-                  <span className="text-sm text-text-primary">
-                    ~{estMinutes} min estimated
-                  </span>
+                  <span className="text-sm text-text-primary">~{estMinutes} min estimated</span>
                 </div>
               </div>
 
@@ -277,7 +260,7 @@ export function RouteDetailDrawer({
                     <Pencil className="h-4 w-4 mr-2" />
                     Edit
                   </Button>
-                  {route.status === 'planned' && onDelete && (
+                  {route.status === "planned" && onDelete && (
                     <Button
                       variant="outline"
                       className="flex-1 justify-center border-red-200 text-red-600 hover:bg-red-50"
@@ -294,11 +277,7 @@ export function RouteDetailDrawer({
               </div>
 
               {/* View Full Details link */}
-              <Button
-                asChild
-                variant="primary"
-                className="w-full justify-center"
-              >
+              <Button asChild variant="primary" className="w-full justify-center">
                 <Link href={`/admin/routes/${route.id}`}>
                   <ExternalLink className="h-4 w-4 mr-2" />
                   View Full Details

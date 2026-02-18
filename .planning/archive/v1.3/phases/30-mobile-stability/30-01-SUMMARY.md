@@ -39,12 +39,14 @@ metrics:
 ## What Was Built
 
 ### 1. Updated useCanHover Hook (src/lib/hooks/useResponsive.ts)
+
 - Changed media query from `(hover: hover)` to `(hover: hover) and (pointer: fine)`
 - Returns false for pure touch devices (phones, tablets)
 - Returns true only for devices with mouse/trackpad
 - Added comprehensive JSDoc documenting behavior
 
 ### 2. Touch Fallback CSS Utilities (src/app/globals.css)
+
 - **shine-sweep keyframes:** 4.5s animation cycle for touch devices
 - **animate-shine-sweep:** Utility class with pause on interaction
 - **touch-only:** Visibility utility (hidden on hover-capable devices)
@@ -54,6 +56,7 @@ metrics:
 - Added to prefers-reduced-motion media query
 
 ### 3. Touch-Aware UnifiedMenuItemCard
+
 - Imports and uses `useCanHover` from useResponsive
 - `shouldEnableTilt` now includes `canHover` check
 - Added `TOUCH_TAP_VARIANTS` for touch feedback:
@@ -64,20 +67,20 @@ metrics:
 
 ## Key Links
 
-| From | To | Via | Pattern |
-|------|----|-----|---------|
-| UnifiedMenuItemCard.tsx | useResponsive.ts | import | useCanHover |
-| UnifiedMenuItemCard.tsx | globals.css | className | tilt-container |
-| CardImage.tsx | globals.css | className | animate-shine-sweep |
+| From                    | To               | Via       | Pattern             |
+| ----------------------- | ---------------- | --------- | ------------------- |
+| UnifiedMenuItemCard.tsx | useResponsive.ts | import    | useCanHover         |
+| UnifiedMenuItemCard.tsx | globals.css      | className | tilt-container      |
+| CardImage.tsx           | globals.css      | className | animate-shine-sweep |
 
 ## Decisions Made
 
-| Decision | Rationale |
-|----------|-----------|
-| `(hover: hover) and (pointer: fine)` media query | Matches CSS for JS/CSS consistency |
-| Static detection at mount | Per CONTEXT.md - no runtime switching |
-| Shadow elevation + lift for tap feedback | Preserves delight without 3D tilt complexity |
-| 4.5s shine sweep cycle | Subtle enough to not distract |
+| Decision                                         | Rationale                                    |
+| ------------------------------------------------ | -------------------------------------------- |
+| `(hover: hover) and (pointer: fine)` media query | Matches CSS for JS/CSS consistency           |
+| Static detection at mount                        | Per CONTEXT.md - no runtime switching        |
+| Shadow elevation + lift for tap feedback         | Preserves delight without 3D tilt complexity |
+| 4.5s shine sweep cycle                           | Subtle enough to not distract                |
 
 ## Deviations from Plan
 
@@ -93,16 +96,17 @@ None - plan executed exactly as written.
 
 ## Commits
 
-| Hash | Message |
-|------|---------|
+| Hash    | Message                                                    |
+| ------- | ---------------------------------------------------------- |
 | 63e9588 | feat(30-01): update useCanHover for fine pointer detection |
-| 89ac121 | feat(30-01): add touch fallback CSS utilities |
+| 89ac121 | feat(30-01): add touch fallback CSS utilities              |
 
 Note: Task 3 changes were already in place from prior 30-02 execution.
 
 ## Next Phase Readiness
 
 Ready for Phase 30-02+ with:
+
 - Accurate touch detection available via `useCanHover()`
 - CSS utilities for Safari GPU compositing fixes
 - Pattern established for touch fallback in other components

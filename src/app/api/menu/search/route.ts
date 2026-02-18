@@ -99,9 +99,7 @@ export async function GET(request: NextRequest) {
       `
       )
       .eq("is_active", true)
-      .or(
-        `name_en.ilike.%${query}%,name_my.ilike.%${query}%,description_en.ilike.%${query}%`
-      )
+      .or(`name_en.ilike.%${query}%,name_my.ilike.%${query}%,description_en.ilike.%${query}%`)
       .order("name_en")
       .returns<MenuItemRow[]>();
 

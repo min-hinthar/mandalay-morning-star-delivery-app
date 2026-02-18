@@ -1,11 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import {
-  CustomerSettings,
-  DEFAULT_CUSTOMER_SETTINGS,
-  DIETARY_OPTIONS,
-} from "./settings-types";
+import { CustomerSettings, DEFAULT_CUSTOMER_SETTINGS, DIETARY_OPTIONS } from "./settings-types";
 interface UseCustomerSettingsReturn {
   settings: CustomerSettings | null;
   setSettings: React.Dispatch<React.SetStateAction<CustomerSettings | null>>;
@@ -15,10 +11,7 @@ interface UseCustomerSettingsReturn {
   error: string | null;
   save: () => Promise<void>;
   discard: () => void;
-  updateField: <K extends keyof CustomerSettings>(
-    key: K,
-    value: CustomerSettings[K],
-  ) => void;
+  updateField: <K extends keyof CustomerSettings>(key: K, value: CustomerSettings[K]) => void;
 }
 
 /** Known predefined dietary options set for splitting */
@@ -53,8 +46,7 @@ function toSnakeCase(key: string): string {
 
 export function useCustomerSettings(): UseCustomerSettingsReturn {
   const [settings, setSettings] = useState<CustomerSettings | null>(null);
-  const [originalSettings, setOriginalSettings] =
-    useState<CustomerSettings | null>(null);
+  const [originalSettings, setOriginalSettings] = useState<CustomerSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,15 +70,13 @@ export function useCustomerSettings(): UseCustomerSettingsReturn {
 
         // API returns flat dietary_restrictions — split into predefined vs custom
         const rawRestrictions: string[] = data.dietaryRestrictions ?? [];
-        const { dietaryRestrictions, customAllergies } =
-          splitDietaryRestrictions(rawRestrictions);
+        const { dietaryRestrictions, customAllergies } = splitDietaryRestrictions(rawRestrictions);
 
         const parsed: CustomerSettings = {
           dietaryRestrictions,
           customAllergies,
           deliveryInstructions: data.deliveryInstructions ?? "",
-          notificationPrefs: data.notificationPrefs ??
-            DEFAULT_CUSTOMER_SETTINGS.notificationPrefs,
+          notificationPrefs: data.notificationPrefs ?? DEFAULT_CUSTOMER_SETTINGS.notificationPrefs,
           theme: data.theme ?? "system",
         };
 
@@ -96,9 +86,7 @@ export function useCustomerSettings(): UseCustomerSettingsReturn {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(
-            err instanceof Error ? err.message : "Failed to fetch settings",
-          );
+          setError(err instanceof Error ? err.message : "Failed to fetch settings");
         }
       } finally {
         if (!cancelled) {
@@ -124,7 +112,7 @@ export function useCustomerSettings(): UseCustomerSettingsReturn {
     <K extends keyof CustomerSettings>(key: K, value: CustomerSettings[K]) => {
       setSettings((prev) => (prev ? { ...prev, [key]: value } : prev));
     },
-    [],
+    []
   );
 
   const save = useCallback(async () => {
@@ -140,10 +128,7 @@ export function useCustomerSettings(): UseCustomerSettingsReturn {
       // Check each field for changes
       const keys = Object.keys(settings) as (keyof CustomerSettings)[];
       for (const key of keys) {
-        if (
-          JSON.stringify(settings[key]) !==
-          JSON.stringify(originalSettings[key])
-        ) {
+        if (JSON.stringify(settings[key]) !== JSON.stringify(originalSettings[key])) {
           // Special handling: merge dietaryRestrictions + customAllergies into one API field
           if (key === "dietaryRestrictions" || key === "customAllergies") {
             // Only add once
@@ -169,17 +154,13 @@ export function useCustomerSettings(): UseCustomerSettingsReturn {
 
       if (!response.ok) {
         const json = await response.json().catch(() => null);
-        throw new Error(
-          json?.error?.message ?? "Failed to save settings",
-        );
+        throw new Error(json?.error?.message ?? "Failed to save settings");
       }
 
       // On success, update originalSettings to match current
       setOriginalSettings({ ...settings });
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to save settings",
-      );
+      setError(err instanceof Error ? err.message : "Failed to save settings");
     } finally {
       setIsSaving(false);
     }

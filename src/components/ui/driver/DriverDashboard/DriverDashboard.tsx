@@ -3,13 +3,7 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { m } from "framer-motion";
-import {
-  Star,
-  TrendingUp,
-  Calendar,
-  Target,
-  Sparkles,
-} from "lucide-react";
+import { Star, TrendingUp, Calendar, Target, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -140,9 +134,7 @@ export function DriverDashboard({
             </m.div>
             <div className="flex-1">
               <p className="font-semibold text-text-primary">Weekly Goal</p>
-              <p className="text-sm text-text-muted">
-                Complete 5 more deliveries to unlock bonus!
-              </p>
+              <p className="text-sm text-text-muted">Complete 5 more deliveries to unlock bonus!</p>
             </div>
             <Sparkles className="w-5 h-5 text-secondary" />
           </div>

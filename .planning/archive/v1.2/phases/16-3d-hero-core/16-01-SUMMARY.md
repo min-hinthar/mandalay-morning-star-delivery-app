@@ -106,5 +106,6 @@ None - no external service configuration required.
 - All exports available from `src/components/3d` barrel
 
 ---
-*Phase: 16-3d-hero-core*
-*Completed: 2026-01-24*
+
+_Phase: 16-3d-hero-core_
+_Completed: 2026-01-24_

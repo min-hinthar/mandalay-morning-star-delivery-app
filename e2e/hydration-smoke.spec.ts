@@ -23,9 +23,7 @@ const HYDRATION_ERROR_PATTERNS = [
 
 test.describe("Server Component Hydration", () => {
   for (const route of CONVERTED_ROUTES) {
-    test(`${route.name} (${route.path}) hydrates without errors`, async ({
-      page,
-    }) => {
+    test(`${route.name} (${route.path}) hydrates without errors`, async ({ page }) => {
       const consoleErrors: string[] = [];
 
       page.on("console", (msg) => {
@@ -41,10 +39,7 @@ test.describe("Server Component Hydration", () => {
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(500);
 
-      expect(
-        consoleErrors,
-        `Hydration errors on ${route.path}`
-      ).toHaveLength(0);
+      expect(consoleErrors, `Hydration errors on ${route.path}`).toHaveLength(0);
 
       const body = page.locator("body");
       await expect(body).toBeVisible();
@@ -53,9 +48,7 @@ test.describe("Server Component Hydration", () => {
 });
 
 test.describe("Authenticated Route Hydration", () => {
-  test.skip("Order Tracking hydrates without errors", async ({
-    page: _page,
-  }) => {
+  test.skip("Order Tracking hydrates without errors", async ({ page: _page }) => {
     // Tracking page kept as client component in Phase 41
     // Reason: Supabase realtime subscriptions require client boundary
     // See: 41-06-SUMMARY.md for details

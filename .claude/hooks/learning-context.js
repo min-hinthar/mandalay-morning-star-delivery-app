@@ -12,16 +12,44 @@ const fs = require("fs");
 // Map file path patterns to learning topic files
 const TOPIC_MAP = [
   { pattern: /tokens\.css|globals\.css|tailwind/i, topic: "tailwind-v4", file: "tailwind-v4.md" },
-  { pattern: /tokens|design.*token|color|theme/i, topic: "design-tokens", file: "design-tokens.md" },
-  { pattern: /drawer|bottom.?sheet|scroll.?lock|swipe|touch/i, topic: "mobile-ux", file: "mobile-ux.md" },
+  {
+    pattern: /tokens|design.*token|color|theme/i,
+    topic: "design-tokens",
+    file: "design-tokens.md",
+  },
+  {
+    pattern: /drawer|bottom.?sheet|scroll.?lock|swipe|touch/i,
+    topic: "mobile-ux",
+    file: "mobile-ux.md",
+  },
   { pattern: /motion|animation|gsap|framer|animate/i, topic: "animation", file: "animation.md" },
-  { pattern: /next\.config|route\.(ts|js)|middleware|redirect/i, topic: "nextjs", file: "nextjs.md" },
-  { pattern: /supabase|auth|rls|invite|magic.?link/i, topic: "supabase-auth", file: "supabase-auth.md" },
-  { pattern: /context|provider|portal|hydrat/i, topic: "react-patterns", file: "react-patterns.md" },
-  { pattern: /cart|store|zustand|mutation|debounce/i, topic: "state-management", file: "state-management.md" },
+  {
+    pattern: /next\.config|route\.(ts|js)|middleware|redirect/i,
+    topic: "nextjs",
+    file: "nextjs.md",
+  },
+  {
+    pattern: /supabase|auth|rls|invite|magic.?link/i,
+    topic: "supabase-auth",
+    file: "supabase-auth.md",
+  },
+  {
+    pattern: /context|provider|portal|hydrat/i,
+    topic: "react-patterns",
+    file: "react-patterns.md",
+  },
+  {
+    pattern: /cart|store|zustand|mutation|debounce/i,
+    topic: "state-management",
+    file: "state-management.md",
+  },
   { pattern: /\.test\.|\.spec\.|e2e|playwright/i, topic: "testing", file: "testing.md" },
   { pattern: /eslint|\.config|barrel|index\.(ts|tsx)$/i, topic: "tooling", file: "tooling.md" },
-  { pattern: /lazy|intersect|performance|optimize|bundle/i, topic: "performance", file: "performance.md" },
+  {
+    pattern: /lazy|intersect|performance|optimize|bundle/i,
+    topic: "performance",
+    file: "performance.md",
+  },
 ];
 
 function main() {
@@ -36,11 +64,14 @@ function main() {
   // Get recently changed files
   let changedFiles;
   try {
-    changedFiles = execSync("git diff --name-only HEAD~5 2>nul || git diff --name-only HEAD 2>nul", {
-      cwd: projectRoot,
-      encoding: "utf-8",
-      timeout: 5000,
-    })
+    changedFiles = execSync(
+      "git diff --name-only HEAD~5 2>nul || git diff --name-only HEAD 2>nul",
+      {
+        cwd: projectRoot,
+        encoding: "utf-8",
+        timeout: 5000,
+      }
+    )
       .trim()
       .split("\n")
       .filter(Boolean);

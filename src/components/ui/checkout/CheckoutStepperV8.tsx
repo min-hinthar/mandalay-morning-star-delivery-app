@@ -58,11 +58,7 @@ const STEP_CONFIG: Record<CheckoutStep, { label: string; icon: typeof MapPin }> 
  * - Check icon with spring.ultraBouncy
  * - useAnimationPreference for reduced motion support
  */
-export function CheckoutStepperV8({
-  currentStep,
-  onStepClick,
-  className,
-}: CheckoutStepperV8Props) {
+export function CheckoutStepperV8({ currentStep, onStepClick, className }: CheckoutStepperV8Props) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const currentIndex = CHECKOUT_STEPS.indexOf(currentStep);
 
@@ -76,10 +72,7 @@ export function CheckoutStepperV8({
           const config = STEP_CONFIG[step];
 
           return (
-            <li
-              key={step}
-              className="flex flex-1 flex-col items-center"
-            >
+            <li key={step} className="flex flex-1 flex-col items-center">
               <div className="flex items-center w-full">
                 {/* V8 Connector line - left side with glow */}
                 {index > 0 && (
@@ -90,9 +83,10 @@ export function CheckoutStepperV8({
                       animate={{
                         width: isCompleted || isCurrent ? "100%" : "0%",
                         // --shadow-glow-success equivalent, kept numeric for FM interpolation
-                        boxShadow: isCompleted || isCurrent
-                          ? "0 0 8px rgba(61, 139, 34, 0.5)"
-                          : "0 0 0px rgba(61, 139, 34, 0)",
+                        boxShadow:
+                          isCompleted || isCurrent
+                            ? "0 0 8px rgba(61, 139, 34, 0.5)"
+                            : "0 0 0px rgba(61, 139, 34, 0)",
                       }}
                       transition={getSpring(spring.rubbery)}
                     />
@@ -155,7 +149,9 @@ export function CheckoutStepperV8({
                       "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                       isCompleted && "cursor-pointer bg-green text-text-inverse shadow-sm",
                       isCurrent && "bg-primary text-text-inverse shadow-md",
-                      !isCompleted && !isCurrent && "border-2 border-border bg-surface-primary text-text-muted"
+                      !isCompleted &&
+                        !isCurrent &&
+                        "border-2 border-border bg-surface-primary text-text-muted"
                     )}
                     aria-current={isCurrent ? "step" : undefined}
                   >

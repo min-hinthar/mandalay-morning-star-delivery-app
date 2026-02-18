@@ -2,10 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import {
-  RefreshCw,
-  AlertCircle,
-} from "lucide-react";
+import { RefreshCw, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToast";
 import { Button } from "@/components/ui/button";
@@ -70,13 +67,21 @@ export default function AdminPhotosPage() {
 
       const data = await response.json();
       setMenuItems(
-        data.map((item: { id: string; name_en: string; menu_categories: { name: string }; image_url: string | null; base_price_cents: number }) => ({
-          id: item.id,
-          name: item.name_en,
-          categoryName: item.menu_categories?.name || "Unknown",
-          imageUrl: item.image_url,
-          basePriceCents: item.base_price_cents,
-        }))
+        data.map(
+          (item: {
+            id: string;
+            name_en: string;
+            menu_categories: { name: string };
+            image_url: string | null;
+            base_price_cents: number;
+          }) => ({
+            id: item.id,
+            name: item.name_en,
+            categoryName: item.menu_categories?.name || "Unknown",
+            imageUrl: item.image_url,
+            basePriceCents: item.base_price_cents,
+          })
+        )
       );
     } catch {
       console.error("Failed to fetch menu items");
@@ -239,8 +244,7 @@ export default function AdminPhotosPage() {
 
   const filteredPhotos = photos.filter((photo) => {
     const matchesSearch =
-      searchQuery === "" ||
-      photo.name.toLowerCase().includes(searchQuery.toLowerCase());
+      searchQuery === "" || photo.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesSearch;
   });
 
@@ -271,12 +275,8 @@ export default function AdminPhotosPage() {
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-text-primary">
-            Photos
-          </h1>
-          <p className="font-body text-text-secondary mt-1">
-            Upload and manage menu item photos
-          </p>
+          <h1 className="text-3xl md:text-4xl font-display font-bold text-text-primary">Photos</h1>
+          <p className="font-body text-text-secondary mt-1">Upload and manage menu item photos</p>
         </div>
         <Button
           variant="outline"
@@ -284,9 +284,7 @@ export default function AdminPhotosPage() {
           disabled={refreshing}
           className="border-border hover:bg-surface-tertiary"
         >
-          <RefreshCw
-            className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
-          />
+          <RefreshCw className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")} />
           Refresh
         </Button>
       </m.div>

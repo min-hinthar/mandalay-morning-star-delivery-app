@@ -43,9 +43,15 @@ export function RouteStatsBar({ route, className }: RouteStatsBarProps) {
 
   // Calculate stats from stops if not available in stats_json
   const totalStops = stats?.total_stops ?? stops.length;
-  const deliveredStops = stats?.delivered_stops ?? stops.filter((s) => s.status === "delivered").length;
-  const pendingStops = stats?.pending_stops ?? stops.filter((s) => s.status === "pending" || s.status === "enroute" || s.status === "arrived").length;
-  const completionRate = stats?.completion_rate ?? (totalStops > 0 ? Math.round((deliveredStops / totalStops) * 100) : 0);
+  const deliveredStops =
+    stats?.delivered_stops ?? stops.filter((s) => s.status === "delivered").length;
+  const pendingStops =
+    stats?.pending_stops ??
+    stops.filter((s) => s.status === "pending" || s.status === "enroute" || s.status === "arrived")
+      .length;
+  const completionRate =
+    stats?.completion_rate ??
+    (totalStops > 0 ? Math.round((deliveredStops / totalStops) * 100) : 0);
 
   // Distance and time from stats_json
   const totalDistance = stats?.total_distance_miles;
@@ -55,10 +61,7 @@ export function RouteStatsBar({ route, className }: RouteStatsBarProps) {
     <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn(
-        "bg-surface-secondary rounded-card-sm border border-border p-4",
-        className
-      )}
+      className={cn("bg-surface-secondary rounded-card-sm border border-border p-4", className)}
     >
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
         {/* Total Stops */}

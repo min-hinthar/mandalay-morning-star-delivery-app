@@ -120,77 +120,78 @@ Deferred to future release. Tracked but not in current roadmap.
 
 Explicitly excluded. Documented to prevent scope creep.
 
-| Feature | Reason |
-|---------|--------|
-| Backend/schema changes | Supabase + Stripe contracts stay stable |
-| Multi-restaurant marketplace | Not part of Morning Star scope |
-| Auto-detect reduced motion | Motion-first by design; manual toggle in v2 |
-| Real-time chat | Not core to delivery experience |
-| Video content | Storage/bandwidth costs, not needed for meals |
+| Feature                      | Reason                                        |
+| ---------------------------- | --------------------------------------------- |
+| Backend/schema changes       | Supabase + Stripe contracts stay stable       |
+| Multi-restaurant marketplace | Not part of Morning Star scope                |
+| Auto-detect reduced motion   | Motion-first by design; manual toggle in v2   |
+| Real-time chat               | Not core to delivery experience               |
+| Video content                | Storage/bandwidth costs, not needed for meals |
 
 ## Traceability
 
 Which phases cover which requirements.
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| FOUND-01 | Phase 1 | Complete |
-| FOUND-02 | Phase 1 | Complete |
-| FOUND-03 | Phase 2 | Complete |
-| FOUND-04 | Phase 2 | Complete |
-| FOUND-05 | Phase 1 | Complete |
-| FOUND-06 | Phase 3 | Complete |
-| FOUND-07 | Phase 1 | Complete |
-| FOUND-08 | Phase 3 | Complete |
-| OVER-01 | Phase 2 | Complete |
-| OVER-02 | Phase 2 | Complete |
-| OVER-03 | Phase 2 | Complete |
-| OVER-04 | Phase 2 | Complete |
-| OVER-05 | Phase 2 | Complete |
-| OVER-06 | Phase 2 | Complete |
-| OVER-07 | Phase 2 | Complete |
-| OVER-08 | Phase 2 | Complete |
-| OVER-09 | Phase 2 | Complete |
-| NAV-01 | Phase 3 | Complete |
-| NAV-02 | Phase 3 | Complete |
-| NAV-03 | Phase 3 | Complete |
-| NAV-04 | Phase 3 | Complete |
-| NAV-05 | Phase 3 | Complete |
-| NAV-06 | Phase 3 | Complete |
-| NAV-07 | Phase 3 | Complete |
-| CART-01 | Phase 4 | Complete |
-| CART-02 | Phase 4 | Complete |
-| CART-03 | Phase 4 | Complete |
-| CART-04 | Phase 4 | Complete |
-| CART-05 | Phase 4 | Complete |
-| CART-06 | Phase 4 | Complete |
-| CART-07 | Phase 4 | Complete |
-| CART-08 | Phase 4 | Complete |
-| MENU-01 | Phase 5 | Complete |
-| MENU-02 | Phase 5 | Complete |
-| MENU-03 | Phase 5 | Complete |
-| MENU-04 | Phase 5 | Complete |
-| MENU-05 | Phase 5 | Complete |
-| MENU-06 | Phase 5 | Complete |
-| MENU-07 | Phase 5 | Complete |
-| MENU-08 | Phase 5 | Complete |
-| MENU-09 | Phase 5 | Complete |
-| CHKT-01 | Phase 6 | Complete |
-| CHKT-02 | Phase 6 | Complete |
-| CHKT-03 | Phase 6 | Complete |
-| CHKT-04 | Phase 6 | Complete |
-| CHKT-05 | Phase 6 | Complete |
-| CHKT-06 | Phase 6 | Complete |
-| CHKT-07 | Phase 6 | Complete |
-| CHKT-08 | Phase 6 | Complete |
-| CHKT-09 | Phase 6 | Complete |
-| TEST-01 | Phase 7 | Complete |
-| TEST-02 | Phase 7 | Complete |
-| TEST-03 | Phase 7 | Complete |
-| TEST-04 | Phase 7 | Complete |
-| TEST-05 | Phase 7 | Complete |
+| Requirement | Phase   | Status   |
+| ----------- | ------- | -------- |
+| FOUND-01    | Phase 1 | Complete |
+| FOUND-02    | Phase 1 | Complete |
+| FOUND-03    | Phase 2 | Complete |
+| FOUND-04    | Phase 2 | Complete |
+| FOUND-05    | Phase 1 | Complete |
+| FOUND-06    | Phase 3 | Complete |
+| FOUND-07    | Phase 1 | Complete |
+| FOUND-08    | Phase 3 | Complete |
+| OVER-01     | Phase 2 | Complete |
+| OVER-02     | Phase 2 | Complete |
+| OVER-03     | Phase 2 | Complete |
+| OVER-04     | Phase 2 | Complete |
+| OVER-05     | Phase 2 | Complete |
+| OVER-06     | Phase 2 | Complete |
+| OVER-07     | Phase 2 | Complete |
+| OVER-08     | Phase 2 | Complete |
+| OVER-09     | Phase 2 | Complete |
+| NAV-01      | Phase 3 | Complete |
+| NAV-02      | Phase 3 | Complete |
+| NAV-03      | Phase 3 | Complete |
+| NAV-04      | Phase 3 | Complete |
+| NAV-05      | Phase 3 | Complete |
+| NAV-06      | Phase 3 | Complete |
+| NAV-07      | Phase 3 | Complete |
+| CART-01     | Phase 4 | Complete |
+| CART-02     | Phase 4 | Complete |
+| CART-03     | Phase 4 | Complete |
+| CART-04     | Phase 4 | Complete |
+| CART-05     | Phase 4 | Complete |
+| CART-06     | Phase 4 | Complete |
+| CART-07     | Phase 4 | Complete |
+| CART-08     | Phase 4 | Complete |
+| MENU-01     | Phase 5 | Complete |
+| MENU-02     | Phase 5 | Complete |
+| MENU-03     | Phase 5 | Complete |
+| MENU-04     | Phase 5 | Complete |
+| MENU-05     | Phase 5 | Complete |
+| MENU-06     | Phase 5 | Complete |
+| MENU-07     | Phase 5 | Complete |
+| MENU-08     | Phase 5 | Complete |
+| MENU-09     | Phase 5 | Complete |
+| CHKT-01     | Phase 6 | Complete |
+| CHKT-02     | Phase 6 | Complete |
+| CHKT-03     | Phase 6 | Complete |
+| CHKT-04     | Phase 6 | Complete |
+| CHKT-05     | Phase 6 | Complete |
+| CHKT-06     | Phase 6 | Complete |
+| CHKT-07     | Phase 6 | Complete |
+| CHKT-08     | Phase 6 | Complete |
+| CHKT-09     | Phase 6 | Complete |
+| TEST-01     | Phase 7 | Complete |
+| TEST-02     | Phase 7 | Complete |
+| TEST-03     | Phase 7 | Complete |
+| TEST-04     | Phase 7 | Complete |
+| TEST-05     | Phase 7 | Complete |
 
 **Coverage:**
+
 - v1 requirements: 55 total
 - Mapped to phases: 55
 - Shipped: 55
@@ -207,4 +208,5 @@ Which phases cover which requirements.
 **Dropped:** None
 
 ---
-*Archived: 2026-01-23 as part of v1 milestone completion*
+
+_Archived: 2026-01-23 as part of v1 milestone completion_

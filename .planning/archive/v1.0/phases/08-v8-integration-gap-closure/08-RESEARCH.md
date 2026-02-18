@@ -17,12 +17,14 @@ This phase wires orphaned V8 components into the live application. Research conf
 ### File 1: `src/app/providers.tsx`
 
 **Current state:**
+
 ```tsx
 import { CartDrawerV8 } from "@/components/ui-v8/cart";
 // ... FlyToCart NOT imported
 ```
 
 **Change needed:**
+
 ```tsx
 import { CartDrawerV8, FlyToCart } from "@/components/ui-v8/cart";
 // ... Add <FlyToCart /> after <CartDrawerV8 />
@@ -33,6 +35,7 @@ import { CartDrawerV8, FlyToCart } from "@/components/ui-v8/cart";
 ### File 2: `src/app/(public)/menu/page.tsx`
 
 **Current state:**
+
 ```tsx
 import { MenuContent } from "@/components/menu/menu-content";
 // Uses server-side data fetching: getMenuWithCategories()
@@ -40,6 +43,7 @@ import { MenuContent } from "@/components/menu/menu-content";
 ```
 
 **Change needed:**
+
 ```tsx
 import { MenuContentV8 } from "@/components/ui-v8/menu";
 // Remove MenuLoader async component
@@ -50,15 +54,16 @@ import { MenuContentV8 } from "@/components/ui-v8/menu";
 
 ## Prop Compatibility Analysis
 
-| Aspect | Legacy MenuContent | MenuContentV8 | Compatible? |
-|--------|-------------------|---------------|-------------|
-| Props | `categories: MenuCategory[]` | `className?: string` | NO - different signature |
-| Data fetching | Server-side via `getMenuWithCategories()` | Client-side via `useMenu()` hook | N/A |
-| Loading state | External (Suspense fallback `MenuSkeleton`) | Internal (`MenuSkeletonV8`) | Works |
-| Error handling | External (error boundary) | Internal (retry button) | Works |
-| Empty state | External | Internal | Works |
+| Aspect         | Legacy MenuContent                          | MenuContentV8                    | Compatible?              |
+| -------------- | ------------------------------------------- | -------------------------------- | ------------------------ |
+| Props          | `categories: MenuCategory[]`                | `className?: string`             | NO - different signature |
+| Data fetching  | Server-side via `getMenuWithCategories()`   | Client-side via `useMenu()` hook | N/A                      |
+| Loading state  | External (Suspense fallback `MenuSkeleton`) | Internal (`MenuSkeletonV8`)      | Works                    |
+| Error handling | External (error boundary)                   | Internal (retry button)          | Works                    |
+| Empty state    | External                                    | Internal                         | Works                    |
 
 **CRITICAL:** Cannot do simple import swap. Must also change component usage:
+
 - Remove `<Suspense>` wrapper with `<MenuLoader />`
 - Replace with simple `<MenuContentV8 />`
 
@@ -73,6 +78,7 @@ FlyToCart mount → CartButtonV8 badge ref registration → AddToCartButton fly 
 ```
 
 **Order of integration:**
+
 1. **FlyToCart in providers.tsx** - Must mount first
    - CartButtonV8 already registers badge ref on mount
    - FlyToCart uses `useCartAnimationStore` to find badge target
@@ -86,24 +92,24 @@ FlyToCart mount → CartButtonV8 badge ref registration → AddToCartButton fly 
 
 ### Orphaned V8 Components (will be connected by integration)
 
-| Component | Location | Connected Via |
-|-----------|----------|---------------|
-| MenuContentV8 | ui-v8/menu/MenuContentV8.tsx | menu/page.tsx import |
-| MenuGridV8 | ui-v8/menu/MenuGridV8.tsx | MenuContentV8 composition |
-| CategoryTabsV8 | ui-v8/menu/CategoryTabsV8.tsx | MenuContentV8 composition |
-| ItemDetailSheetV8 | ui-v8/menu/ItemDetailSheetV8.tsx | MenuContentV8 composition |
-| SearchInputV8 | ui-v8/menu/SearchInputV8.tsx | MenuContentV8 composition |
-| MenuSkeletonV8 | ui-v8/menu/MenuSkeletonV8.tsx | MenuContentV8 loading state |
-| FlyToCart | ui-v8/cart/FlyToCart.tsx | providers.tsx mount |
-| AddToCartButton | ui-v8/cart/AddToCartButton.tsx | ItemDetailSheetV8 composition |
+| Component         | Location                         | Connected Via                 |
+| ----------------- | -------------------------------- | ----------------------------- |
+| MenuContentV8     | ui-v8/menu/MenuContentV8.tsx     | menu/page.tsx import          |
+| MenuGridV8        | ui-v8/menu/MenuGridV8.tsx        | MenuContentV8 composition     |
+| CategoryTabsV8    | ui-v8/menu/CategoryTabsV8.tsx    | MenuContentV8 composition     |
+| ItemDetailSheetV8 | ui-v8/menu/ItemDetailSheetV8.tsx | MenuContentV8 composition     |
+| SearchInputV8     | ui-v8/menu/SearchInputV8.tsx     | MenuContentV8 composition     |
+| MenuSkeletonV8    | ui-v8/menu/MenuSkeletonV8.tsx    | MenuContentV8 loading state   |
+| FlyToCart         | ui-v8/cart/FlyToCart.tsx         | providers.tsx mount           |
+| AddToCartButton   | ui-v8/cart/AddToCartButton.tsx   | ItemDetailSheetV8 composition |
 
 ### Already Integrated V8 Components (verification reference)
 
-| Component | Location | Integrated In |
-|-----------|----------|---------------|
+| Component    | Location                    | Integrated In                |
+| ------------ | --------------------------- | ---------------------------- |
 | CartButtonV8 | ui-v8/cart/CartButtonV8.tsx | Header via rightContent slot |
-| CartDrawerV8 | ui-v8/cart/CartDrawerV8.tsx | providers.tsx |
-| CartItemV8 | ui-v8/cart/CartItemV8.tsx | CartDrawerV8 composition |
+| CartDrawerV8 | ui-v8/cart/CartDrawerV8.tsx | providers.tsx                |
+| CartItemV8   | ui-v8/cart/CartItemV8.tsx   | CartDrawerV8 composition     |
 
 ## Animation Coordination
 
@@ -121,6 +127,7 @@ FlyToCart mount → CartButtonV8 badge ref registration → AddToCartButton fly 
 ```
 
 **Store coordination:**
+
 ```tsx
 // cart-animation-store.ts
 {
@@ -135,6 +142,7 @@ FlyToCart mount → CartButtonV8 badge ref registration → AddToCartButton fly 
 ### Reduced Motion Support
 
 All V8 animation components respect user preference:
+
 - `useFlyToCart` checks `shouldAnimate` from `useAnimationPreference`
 - `AddToCartButton` skips fly animation if disabled
 - Badge still updates count, just without animation
@@ -144,9 +152,10 @@ All V8 animation components respect user preference:
 ### Unit Verification
 
 1. **FlyToCart mounted:**
+
    ```tsx
    // In browser devtools
-   document.querySelector('[data-testid="fly-to-cart-container"]') !== null
+   document.querySelector('[data-testid="fly-to-cart-container"]') !== null;
    ```
 
 2. **MenuContentV8 rendering:**
@@ -170,26 +179,26 @@ All V8 animation components respect user preference:
 
 ### Requirement Mapping
 
-| Requirement | Component | Verification |
-|-------------|-----------|--------------|
-| MENU-01 | CategoryTabsV8 | Scrollspy active tab changes on scroll |
-| MENU-02 | MenuItemCardV8 | Cards render with hover effects |
-| MENU-03 | ItemDetailSheetV8 | Modal opens on desktop, BottomSheet on mobile |
-| MENU-04 | SearchInputV8 + SearchAutocomplete | Type to see suggestions |
-| MENU-05 | MenuSkeletonV8 | Visible during initial load |
-| MENU-06 | MenuGridV8 | Staggered reveal on scroll into view |
-| MENU-07 | BlurImage | Blur-up placeholder on images |
-| MENU-08 | FavoriteButton | Heart animation on toggle |
-| MENU-09 | EmojiPlaceholder | Emoji shows for items without images |
-| CART-05 | FlyToCart + AddToCartButton | Flying element + badge pulse |
+| Requirement | Component                          | Verification                                  |
+| ----------- | ---------------------------------- | --------------------------------------------- |
+| MENU-01     | CategoryTabsV8                     | Scrollspy active tab changes on scroll        |
+| MENU-02     | MenuItemCardV8                     | Cards render with hover effects               |
+| MENU-03     | ItemDetailSheetV8                  | Modal opens on desktop, BottomSheet on mobile |
+| MENU-04     | SearchInputV8 + SearchAutocomplete | Type to see suggestions                       |
+| MENU-05     | MenuSkeletonV8                     | Visible during initial load                   |
+| MENU-06     | MenuGridV8                         | Staggered reveal on scroll into view          |
+| MENU-07     | BlurImage                          | Blur-up placeholder on images                 |
+| MENU-08     | FavoriteButton                     | Heart animation on toggle                     |
+| MENU-09     | EmojiPlaceholder                   | Emoji shows for items without images          |
+| CART-05     | FlyToCart + AddToCartButton        | Flying element + badge pulse                  |
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Animation target coordination | Custom pub/sub | `useCartAnimationStore` | Already implemented, handles edge cases |
-| Arc trajectory math | Manual bezier | GSAP keyframes | GSAP handles timing, easing, cleanup |
-| Responsive overlay selection | Manual breakpoint | `useMediaQuery` + Modal/BottomSheet | Already abstracted in ItemDetailSheetV8 |
+| Problem                       | Don't Build       | Use Instead                         | Why                                     |
+| ----------------------------- | ----------------- | ----------------------------------- | --------------------------------------- |
+| Animation target coordination | Custom pub/sub    | `useCartAnimationStore`             | Already implemented, handles edge cases |
+| Arc trajectory math           | Manual bezier     | GSAP keyframes                      | GSAP handles timing, easing, cleanup    |
+| Responsive overlay selection  | Manual breakpoint | `useMediaQuery` + Modal/BottomSheet | Already abstracted in ItemDetailSheetV8 |
 
 ## Common Pitfalls
 
@@ -271,6 +280,7 @@ None - integration path is clear and components are verified working in isolatio
 ## Metadata
 
 **Confidence breakdown:**
+
 - File modifications: HIGH - Direct file inspection
 - Prop compatibility: HIGH - Type analysis of both components
 - Integration order: HIGH - Store dependency analysis

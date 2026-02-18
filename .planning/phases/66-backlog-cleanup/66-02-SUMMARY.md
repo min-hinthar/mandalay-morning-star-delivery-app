@@ -62,6 +62,7 @@ completed: 2026-02-15
 - **Files modified:** 6
 
 ## Accomplishments
+
 - Fixed the route_id extraction bug: TrackingPageClient now passes routeId to useTrackingSubscription, enabling the location channel subscription for realtime driver location updates
 - Extended TrackingData type with routeId, restaurantLocation, and rating fields
 - Added DriverRatingsRow/Insert/Update types to database.ts aligned with actual DB schema
@@ -77,6 +78,7 @@ Each task was committed atomically:
 2. **Task 2: Fix route_id extraction in API and wire to TrackingPageClient** - `d59b920` (fix)
 
 ## Files Created/Modified
+
 - `src/types/tracking.ts` - Added routeId, restaurantLocation, rating to TrackingData; cancellation fields and deliveryNotes to TrackingOrderInfo
 - `src/types/database.ts` - Added DriverRatingsRow, DriverRatingsInsert, DriverRatingsUpdate types and driver_ratings table definition
 - `src/app/api/tracking/[orderId]/route.ts` - Extract routeId, add restaurantLocation, shared access, cancellation fields, rating lookup
@@ -85,6 +87,7 @@ Each task was committed atomically:
 - `src/app/(customer)/orders/[id]/tracking/page.tsx` - Updated fallback TrackingData with new fields
 
 ## Decisions Made
+
 - Aligned DriverRatingsRow with existing rating API route schema (route_stop_id, feedback_text, submitted_at columns) instead of the simplified schema in the plan
 - Made user_id optional in DriverRatingsInsert since existing code inserts without it (DB likely auto-fills via RLS or default)
 - Used hardcoded LA coordinates for restaurant location (single-restaurant app, no restaurant_settings table exists)
@@ -96,6 +99,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Aligned DriverRatingsRow schema with actual DB columns**
+
 - **Found during:** Task 1 (type definitions)
 - **Issue:** Plan specified simplified DriverRatingsRow (id, order_id, driver_id, user_id, rating, created_at) but existing rating route uses route_stop_id, feedback_text, submitted_at columns
 - **Fix:** Added route_stop_id, feedback_text, submitted_at to DriverRatingsRow; made user_id optional in Insert
@@ -109,17 +113,21 @@ Each task was committed atomically:
 **Impact on plan:** Schema alignment essential for compatibility with existing rating API. No scope creep.
 
 ## Issues Encountered
+
 - Build fails with ENOENT on build-manifest.json: pre-existing Turbopack/OneDrive sync issue documented in STATE.md. Compilation succeeds; failure is in post-compilation page data collection. Not caused by these changes.
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - routeId extraction working, enabling realtime location subscription for tracking
 - TrackingData types ready for Plan 03 (tracking enhancement features)
 - driver_ratings types ready for rating UI components
 - Shared tracking link support ready for sharing feature implementation
 
 ---
-*Phase: 66-backlog-cleanup*
-*Completed: 2026-02-15*
+
+_Phase: 66-backlog-cleanup_
+_Completed: 2026-02-15_

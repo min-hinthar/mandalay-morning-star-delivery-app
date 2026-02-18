@@ -48,18 +48,13 @@ export function useFuzzySearch(categories: MenuCategory[]) {
   );
 
   // Memoized Fuse index -- only recreated when enrichedItems change
-  const fuse = useMemo(
-    () => new Fuse(enrichedItems, FUSE_CONFIG),
-    [enrichedItems]
-  );
+  const fuse = useMemo(() => new Fuse(enrichedItems, FUSE_CONFIG), [enrichedItems]);
 
   // Search function that filters by score threshold
   const search = useCallback(
     (query: string): FuseSearchResult[] => {
       const results = fuse.search(query);
-      return results.filter(
-        (r) => r.score !== undefined && r.score <= SCORE_THRESHOLD
-      );
+      return results.filter((r) => r.score !== undefined && r.score <= SCORE_THRESHOLD);
     },
     [fuse]
   );

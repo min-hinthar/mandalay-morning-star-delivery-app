@@ -21,10 +21,7 @@ export function calculateItemPrice(
   selectedModifiers: SelectedModifier[],
   quantity: number
 ): PriceCalculation {
-  const modifiersTotalCents = selectedModifiers.reduce(
-    (sum, mod) => sum + mod.priceDeltaCents,
-    0
-  );
+  const modifiersTotalCents = selectedModifiers.reduce((sum, mod) => sum + mod.priceDeltaCents, 0);
 
   const unitPriceCents = item.basePriceCents + modifiersTotalCents;
   const totalCents = unitPriceCents * quantity;
@@ -45,17 +42,13 @@ export function validateModifierSelection(
   const errors: string[] = [];
 
   for (const group of item.modifierGroups || []) {
-    const selectedInGroup = selectedModifiers.filter(
-      (mod) => mod.groupId === group.id
-    );
+    const selectedInGroup = selectedModifiers.filter((mod) => mod.groupId === group.id);
 
     if (selectedInGroup.length < group.minSelect) {
       if (group.minSelect === 1) {
         errors.push(`Please select a ${group.name}`);
       } else {
-        errors.push(
-          `Please select at least ${group.minSelect} options for ${group.name}`
-        );
+        errors.push(`Please select at least ${group.minSelect} options for ${group.name}`);
       }
     }
 

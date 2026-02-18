@@ -60,7 +60,10 @@ async function getDriverData() {
   const supabase = await createClient();
 
   // Check authentication
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     redirect("/login?next=/driver");
@@ -69,14 +72,16 @@ async function getDriverData() {
   // Get driver profile
   const { data: driver, error: driverError } = await supabase
     .from("drivers")
-    .select(`
+    .select(
+      `
       id,
       vehicle_type,
       phone,
       profile_image_url,
       deliveries_count,
       rating_avg
-    `)
+    `
+    )
     .eq("user_id", user.id)
     .eq("is_active", true)
     .returns<DriverQueryResult[]>()
@@ -137,15 +142,17 @@ async function getDriverData() {
       deliveriesCount: driver.deliveries_count,
       ratingAvg: driver.rating_avg,
     },
-    todayRoute: route ? {
-      id: route.id,
-      status: route.status as RoutesRow["status"],
-      stopCount: route.stats_json?.total_stops ?? 0,
-      deliveredCount: route.stats_json?.delivered_stops ?? 0,
-      pendingCount: route.stats_json?.pending_stops ?? 0,
-      totalDurationMinutes: route.stats_json?.total_duration_minutes ?? null,
-      startedAt: route.started_at,
-    } : null,
+    todayRoute: route
+      ? {
+          id: route.id,
+          status: route.status as RoutesRow["status"],
+          stopCount: route.stats_json?.total_stops ?? 0,
+          deliveredCount: route.stats_json?.delivered_stops ?? 0,
+          pendingCount: route.stats_json?.pending_stops ?? 0,
+          totalDurationMinutes: route.stats_json?.total_duration_minutes ?? null,
+          startedAt: route.started_at,
+        }
+      : null,
     streakDays,
     badges,
     dayOfWeek,
@@ -174,7 +181,10 @@ function DriverHomeLoading() {
         {/* Stats skeleton */}
         <div className="grid grid-cols-2 gap-4">
           {[0, 1].map((i) => (
-            <div key={i} className="rounded-2xl bg-surface-primary p-4 shadow-card border border-border space-y-2">
+            <div
+              key={i}
+              className="rounded-2xl bg-surface-primary p-4 shadow-card border border-border space-y-2"
+            >
               <Skeleton width={48} height={32} radius="md" variant="shimmer" />
               <Skeleton width={80} height={16} radius="md" variant="shimmer" />
             </div>

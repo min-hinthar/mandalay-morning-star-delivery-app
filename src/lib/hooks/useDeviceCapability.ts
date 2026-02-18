@@ -57,9 +57,7 @@ export function useDeviceCapability() {
       // Chromium browsers with deviceMemory support
       // Low-power: <=4 GB memory OR <=4 CPU cores OR slow connection
       const isLowPower =
-        (memory !== null && memory <= 4) ||
-        (cores !== null && cores <= 4) ||
-        isSlowConnection;
+        (memory !== null && memory <= 4) || (cores !== null && cores <= 4) || isSlowConnection;
       detectedTier = isLowPower ? "low" : "high";
     }
 

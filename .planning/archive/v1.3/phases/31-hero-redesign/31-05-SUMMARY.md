@@ -57,12 +57,13 @@ completed: 2026-01-28
 - **Files modified:** 1
 
 ## Accomplishments
+
 - Tagline "Authentic Burmese delivered" renders below headline with 0.5s delay fade animation
 - Scroll indicator uses ChevronDown icon with 2s infinite bounce animation
 - Clicking scroll indicator smooth scrolls to how-it-works section
 - Scroll indicator has role="button" and aria-label for accessibility
-- Zero legacy --hero-gradient-* tokens in Hero.tsx (verified via grep)
-- All hero gradients use semantic --hero-bg-* tokens
+- Zero legacy --hero-gradient-\* tokens in Hero.tsx (verified via grep)
+- All hero gradients use semantic --hero-bg-\* tokens
 - Hero content properly centered with justify-center
 
 ## Task Commits
@@ -76,21 +77,26 @@ Code changes for this plan were incorporated into the prior session's working tr
 **Note:** The tagline and ChevronDown changes were saved to the working tree before 31-04 execution began and were committed alongside 31-04 changes. This plan verifies completeness and creates documentation.
 
 ## Files Created/Modified
+
 - `src/components/ui/homepage/Hero.tsx` - Added tagline prop, ChevronDown import, scroll indicator with onClick/a11y
 
 ## Decisions Made
+
 - **Tagline text:** "Authentic Burmese delivered" - concise, memorable brand tagline
 - **Scroll indicator gap:** Reduced from gap-2 to gap-1 for tighter vertical spacing
 - **Icon choice:** ChevronDown from lucide-react for consistency with existing icon imports
 
 ## Deviations from Plan
+
 None - all requirements already met in codebase. Plan execution was verification-focused.
 
 ## Issues Encountered
+
 - Build verification blocked by locked .next cache from running dev server - typecheck confirmed code validity
 - Pre-existing ESLint violations (not from this plan) - 83 errors from prior phases
 
 ## Next Phase Readiness
+
 - Hero redesign phase (31) complete with all 5 plans executed
 - All HERO-01 through HERO-07 requirements satisfied:
   - HERO-01: Hero section visible without cutoff (100svh/100dvh units)
@@ -103,5 +109,6 @@ None - all requirements already met in codebase. Plan execution was verification
 - Ready to mark Phase 31 as complete
 
 ---
-*Phase: 31-hero-redesign*
-*Completed: 2026-01-28*
+
+_Phase: 31-hero-redesign_
+_Completed: 2026-01-28_

@@ -9,15 +9,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { m } from "framer-motion";
-import {
-  Users,
-  Trophy,
-  Clock,
-  Star,
-  TrendingUp,
-  RefreshCw,
-  ChevronRight,
-} from "lucide-react";
+import { Users, Trophy, Clock, Star, TrendingUp, RefreshCw, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   MetricCard,
@@ -26,11 +18,7 @@ import {
   LazyPerformanceChart as PerformanceChart,
   RatingDistributionBars,
 } from "@/components/ui/admin/analytics";
-import type {
-  DriverAnalyticsListResponse,
-  DriverStats,
-  MetricsPeriod,
-} from "@/types/analytics";
+import type { DriverAnalyticsListResponse, DriverStats, MetricsPeriod } from "@/types/analytics";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -100,21 +88,14 @@ export function DriverAnalyticsDashboard() {
   }
 
   return (
-    <m.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-6"
-    >
+    <m.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
       {/* Header */}
       <m.div
         variants={itemVariants}
         className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
         <div>
-          <h1 className="text-3xl font-display text-charcoal">
-            Driver Analytics
-          </h1>
+          <h1 className="text-3xl font-display text-charcoal">Driver Analytics</h1>
           <p className="text-charcoal-500">
             Monitor driver performance, ratings, and delivery metrics
           </p>
@@ -138,12 +119,7 @@ export function DriverAnalyticsDashboard() {
             ))}
           </div>
 
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={fetchData}
-            disabled={loading}
-          >
+          <Button variant="outline" size="icon" onClick={fetchData} disabled={loading}>
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
@@ -197,10 +173,7 @@ export function DriverAnalyticsDashboard() {
         {/* Selected Driver Details or Team Stats */}
         <m.div variants={itemVariants} className="space-y-6">
           {selectedDriver ? (
-            <DriverDetailCard
-              driver={selectedDriver}
-              onClose={() => setSelectedDriver(null)}
-            />
+            <DriverDetailCard driver={selectedDriver} onClose={() => setSelectedDriver(null)} />
           ) : (
             <TeamStatsCard
               totalDeliveriesMonth={data?.summary.totalDeliveriesThisMonth ?? 0}
@@ -248,13 +221,7 @@ export function DriverAnalyticsDashboard() {
   );
 }
 
-function DriverDetailCard({
-  driver,
-  onClose,
-}: {
-  driver: DriverStats;
-  onClose: () => void;
-}) {
+function DriverDetailCard({ driver, onClose }: { driver: DriverStats; onClose: () => void }) {
   return (
     <m.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -265,10 +232,7 @@ function DriverDetailCard({
         <h3 className="text-lg font-semibold text-charcoal-900">
           {driver.fullName ?? "Unknown Driver"}
         </h3>
-        <button
-          onClick={onClose}
-          className="text-charcoal-400 hover:text-charcoal-600"
-        >
+        <button onClick={onClose} className="text-charcoal-400 hover:text-charcoal-600">
           <ChevronRight className="h-5 w-5" />
         </button>
       </div>
@@ -277,15 +241,11 @@ function DriverDetailCard({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-charcoal-500">Total Deliveries</p>
-            <p className="text-2xl font-bold text-charcoal-900">
-              {driver.totalDeliveries}
-            </p>
+            <p className="text-2xl font-bold text-charcoal-900">{driver.totalDeliveries}</p>
           </div>
           <div>
             <p className="text-sm text-charcoal-500">On-Time Rate</p>
-            <p className="text-2xl font-bold text-jade">
-              {driver.onTimeRate.toFixed(1)}%
-            </p>
+            <p className="text-2xl font-bold text-jade">{driver.onTimeRate.toFixed(1)}%</p>
           </div>
         </div>
 
@@ -335,15 +295,11 @@ function TeamStatsCard({
       <div className="space-y-4">
         <div className="flex justify-between border-b pb-3">
           <span className="text-charcoal-500">This Month</span>
-          <span className="font-semibold text-charcoal-900">
-            {totalDeliveriesMonth} deliveries
-          </span>
+          <span className="font-semibold text-charcoal-900">{totalDeliveriesMonth} deliveries</span>
         </div>
         <div className="flex justify-between border-b pb-3">
           <span className="text-charcoal-500">This Week</span>
-          <span className="font-semibold text-charcoal-900">
-            {totalDeliveriesWeek} deliveries
-          </span>
+          <span className="font-semibold text-charcoal-900">{totalDeliveriesWeek} deliveries</span>
         </div>
         <div className="flex justify-between border-b pb-3">
           <span className="text-charcoal-500">Active Drivers</span>

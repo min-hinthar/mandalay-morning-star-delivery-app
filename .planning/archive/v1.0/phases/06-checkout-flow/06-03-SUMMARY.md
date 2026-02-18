@@ -77,10 +77,10 @@ completed: 2026-01-23
 
 ## Decisions Made
 
-| Decision | Rationale |
-|----------|-----------|
-| 639px breakpoint for responsive overlay | Consistent with ItemDetailSheetV8 decision for exact 640px desktop threshold |
-| Delete doesn't auto-clear selection | Store's setAddress only accepts Address (not null); user must select another address |
+| Decision                                | Rationale                                                                            |
+| --------------------------------------- | ------------------------------------------------------------------------------------ |
+| 639px breakpoint for responsive overlay | Consistent with ItemDetailSheetV8 decision for exact 640px desktop threshold         |
+| Delete doesn't auto-clear selection     | Store's setAddress only accepts Address (not null); user must select another address |
 
 ## Deviations from Plan
 
@@ -97,10 +97,12 @@ None - no external service configuration required.
 ## Next Phase Readiness
 
 Ready for:
+
 - 06-04: Checkout integration (AddressStepV8 can be used in checkout page)
 
 No blockers identified.
 
 ---
-*Phase: 06-checkout-flow*
-*Completed: 2026-01-23*
+
+_Phase: 06-checkout-flow_
+_Completed: 2026-01-23_

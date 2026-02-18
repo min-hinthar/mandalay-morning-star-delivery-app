@@ -24,13 +24,8 @@ export { CheckoutSummaryV8 as CheckoutSummary } from "./CheckoutSummaryV8";
 export { PaymentStepV8 as PaymentStep } from "./PaymentStepV8";
 export { TimeStepV8 as TimeStep } from "./TimeStepV8";
 
-
 // Address input components
-export {
-  AddressInput,
-  MapPreview,
-  AddressAutocomplete,
-} from "./AddressInput";
+export { AddressInput, MapPreview, AddressAutocomplete } from "./AddressInput";
 export type { AddressInputProps } from "./AddressInput";
 
 // Time slot picker

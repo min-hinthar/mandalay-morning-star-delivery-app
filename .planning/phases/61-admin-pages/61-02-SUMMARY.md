@@ -56,6 +56,7 @@ completed: 2026-02-14
 - **Files modified:** 3
 
 ## Accomplishments
+
 - Admin profile GET returns role, authProvider, memberSince alongside standard profile fields
 - Admin profile PATCH updates fullName and phone; role is read-only
 - Activity stats returns lastLoginAt (from auth) and ordersProcessed (from audit log by actor_id)
@@ -69,11 +70,13 @@ Each task was committed atomically:
 2. **Task 2: Create admin stats and notification preferences routes** - `7ee8f3f` (feat)
 
 ## Files Created/Modified
+
 - `src/app/api/admin/profile/route.ts` - Admin profile GET/PATCH with role, auth provider, member-since
 - `src/app/api/admin/profile/stats/route.ts` - Activity stats: last login + orders processed count
 - `src/app/api/admin/profile/notifications/route.ts` - Notification preferences GET/PUT with defaults
 
 ## Decisions Made
+
 - Auth provider derived from `user.identities[0].provider` -- first identity is the primary auth method
 - Member-since uses `user.created_at` from auth (account creation) not `profile.created_at` (profile row creation)
 - Orders processed counted per-admin via `actor_id` filter on `order_audit_log` (not team total)
@@ -85,6 +88,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Fixed `.returns<T>()` typing with `.single()`**
+
 - **Found during:** Task 1 (admin profile route)
 - **Issue:** `.returns<AdminProfileRow>()` with `.single()` resolves to `never` type; must use array form
 - **Fix:** Changed to `.returns<AdminProfileRow[]>()` to match Supabase SDK generics behavior
@@ -98,15 +102,19 @@ Each task was committed atomically:
 **Impact on plan:** Type fix necessary for compilation. No scope creep.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - All three admin profile API routes ready for frontend consumption
 - Plan 03 (admin profile page UI) can wire to these endpoints
 
 ---
-*Phase: 61-admin-pages*
-*Completed: 2026-02-14*
+
+_Phase: 61-admin-pages_
+_Completed: 2026-02-14_

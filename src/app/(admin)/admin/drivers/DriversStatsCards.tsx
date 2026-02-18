@@ -1,12 +1,7 @@
-'use client';
+"use client";
 
 import { m } from "framer-motion";
-import {
-  Truck,
-  Users,
-  Star,
-  TrendingUp,
-} from "lucide-react";
+import { Truck, Users, Star, TrendingUp } from "lucide-react";
 
 interface DriversStatsCardsProps {
   total: number;
@@ -36,9 +31,7 @@ export function DriversStatsCards({
             <Users className="h-5 w-5" />
             <span className="text-sm font-body font-medium">Total Drivers</span>
           </div>
-          <p className="text-3xl font-display font-bold text-text-primary mt-2">
-            {total}
-          </p>
+          <p className="text-3xl font-display font-bold text-text-primary mt-2">{total}</p>
         </div>
       </div>
 
@@ -52,9 +45,7 @@ export function DriversStatsCards({
           </div>
           <p className="text-3xl font-display font-bold text-text-primary mt-2">
             {active}
-            <span className="text-sm font-body font-normal text-text-muted ml-2">
-              / {total}
-            </span>
+            <span className="text-sm font-body font-normal text-text-muted ml-2">/ {total}</span>
           </p>
         </div>
       </div>
@@ -70,9 +61,7 @@ export function DriversStatsCards({
           <p className="text-3xl font-display font-bold text-text-primary mt-2">
             {avgRating ? avgRating.toFixed(1) : "\u2014"}
             {avgRating && (
-              <span className="text-sm font-body font-normal text-text-muted ml-1">
-                / 5.0
-              </span>
+              <span className="text-sm font-body font-normal text-text-muted ml-1">/ 5.0</span>
             )}
           </p>
         </div>

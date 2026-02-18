@@ -25,11 +25,7 @@ export function StepIcon({ step, index }: StepIconProps) {
         step.iconBorder,
         "shadow-[0_4px_16px_rgba(0,0,0,0.1),0_8px_32px_rgba(0,0,0,0.08)]"
       )}
-      whileHover={
-        shouldAnimate
-          ? { scale: 1.1, transition: spring.snappy }
-          : undefined
-      }
+      whileHover={shouldAnimate ? { scale: 1.1, transition: spring.snappy } : undefined}
       whileTap={shouldAnimate ? { scale: 0.95, transition: spring.snappy } : undefined}
     >
       {/* Background glow */}

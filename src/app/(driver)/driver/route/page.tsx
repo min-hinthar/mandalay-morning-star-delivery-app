@@ -26,7 +26,10 @@ async function getActiveRoute() {
   const supabase = await createClient();
 
   // Check authentication
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     redirect("/login?next=/driver/route");
@@ -60,14 +63,16 @@ async function getActiveRoute() {
 
   const { data: route } = await supabase
     .from("routes")
-    .select(`
+    .select(
+      `
       id,
       delivery_date,
       status,
       stats_json,
       started_at,
       optimized_polyline
-    `)
+    `
+    )
     .eq("driver_id", driver.id)
     .eq("delivery_date", todayStr)
     .in("status", ["planned", "in_progress"])
@@ -102,7 +107,8 @@ async function getActiveRoute() {
 
   const { data: stops } = await supabase
     .from("route_stops")
-    .select(`
+    .select(
+      `
       id,
       stop_index,
       status,
@@ -121,7 +127,8 @@ async function getActiveRoute() {
           state
         )
       )
-    `)
+    `
+    )
     .eq("route_id", route.id)
     .order("stop_index", { ascending: true })
     .returns<StopQueryResult[]>();
@@ -218,11 +225,7 @@ async function DriverRoutePageContent() {
         backHref="/driver"
       />
       <div className="p-4">
-        <ActiveRouteView
-          routeId={route.id}
-          routeStatus={route.status}
-          stops={stops}
-        />
+        <ActiveRouteView routeId={route.id} routeStatus={route.status} stops={stops} />
       </div>
     </div>
   );

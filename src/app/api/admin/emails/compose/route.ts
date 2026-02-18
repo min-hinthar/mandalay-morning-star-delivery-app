@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: parsed.error.issues[0]?.message || "Invalid request" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -60,34 +60,29 @@ export async function POST(request: Request) {
     const serviceClient = createServiceClient();
 
     // Fetch order for footer context
-    const { data: order, error: orderError } = await serviceClient
+    const { data: order, error: orderError } = (await serviceClient
       .from("orders")
       .select("id, user_id, delivery_address")
       .eq("id", orderId)
-      .single() as {
+      .single()) as {
       data: OrderRow | null;
       error: { message: string } | null;
     };
 
     if (orderError || !order) {
-      return NextResponse.json(
-        { error: "Order not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
     // Fetch order items for footer
-    const { data: orderItems } = await serviceClient
+    const { data: orderItems } = (await serviceClient
       .from("order_items")
       .select("name_snapshot, quantity")
-      .eq("order_id", orderId) as {
+      .eq("order_id", orderId)) as {
       data: OrderItemRow[] | null;
     };
 
     // Build order context footer
-    const items = (orderItems || [])
-      .map((i) => `${i.name_snapshot} x${i.quantity}`)
-      .join(", ");
+    const items = (orderItems || []).map((i) => `${i.name_snapshot} x${i.quantity}`).join(", ");
 
     const address = order.delivery_address as {
       line1?: string;
@@ -95,9 +90,7 @@ export async function POST(request: Request) {
       state?: string;
     } | null;
 
-    const deliveryLine = address?.line1
-      ? `${address.line1}, ${address.city || ""}`
-      : "";
+    const deliveryLine = address?.line1 ? `${address.line1}, ${address.city || ""}` : "";
 
     const shortId = orderId.slice(0, 8).toUpperCase();
     const footerHtml = `
@@ -162,10 +155,7 @@ export async function POST(request: Request) {
         error_message: sendError.message,
       });
 
-      return NextResponse.json(
-        { error: "Failed to send email" },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
     }
 
     // Log success
@@ -194,9 +184,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     logger.exception(error, { api: "admin/emails/compose" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

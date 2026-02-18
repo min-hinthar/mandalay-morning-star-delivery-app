@@ -7,15 +7,26 @@ export const vehicleTypeSchema = z.enum(["car", "van", "truck"]);
 export const createDriverSchema = z.object({
   email: z.string().email("Invalid email address"),
   fullName: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
-  phone: z.string().regex(/^\+?[1-9]\d{9,14}$/, "Invalid phone number").optional(),
+  phone: z
+    .string()
+    .regex(/^\+?[1-9]\d{9,14}$/, "Invalid phone number")
+    .optional(),
   vehicleType: vehicleTypeSchema.optional(),
   licensePlate: z.string().max(20, "License plate too long").optional(),
 });
 
 // Update driver schema
 export const updateDriverSchema = z.object({
-  fullName: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long").optional(),
-  phone: z.string().regex(/^\+?[1-9]\d{9,14}$/, "Invalid phone number").nullable().optional(),
+  fullName: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name too long")
+    .optional(),
+  phone: z
+    .string()
+    .regex(/^\+?[1-9]\d{9,14}$/, "Invalid phone number")
+    .nullable()
+    .optional(),
   vehicleType: vehicleTypeSchema.nullable().optional(),
   licensePlate: z.string().max(20, "License plate too long").nullable().optional(),
   profileImageUrl: z.string().url("Invalid image URL").nullable().optional(),

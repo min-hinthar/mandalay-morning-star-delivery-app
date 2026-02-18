@@ -72,10 +72,7 @@ export async function GET(
 
     if (routesError) {
       logger.exception(routesError, { api: "driver/routes/history" });
-      return NextResponse.json(
-        { error: "Failed to fetch routes" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch routes" }, { status: 500 });
     }
 
     // Transform routes
@@ -104,9 +101,6 @@ export async function GET(
     });
   } catch (error) {
     logger.exception(error, { api: "driver/routes/history" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

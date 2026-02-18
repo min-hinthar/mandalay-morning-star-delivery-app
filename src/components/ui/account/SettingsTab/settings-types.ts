@@ -76,14 +76,8 @@ export const NOTIFICATION_GROUPS: readonly NotificationGroup[] = [
     title: "Promotions & Deals",
     description: "Exclusive offers and seasonal specials",
     iconName: "Megaphone",
-    subCategories: [
-      "Weekly specials",
-      "Holiday promotions",
-      "New menu items",
-      "Loyalty rewards",
-    ],
-    warningText:
-      "You'll miss out on exclusive deals and promotions tailored for you.",
+    subCategories: ["Weekly specials", "Holiday promotions", "New menu items", "Loyalty rewards"],
+    warningText: "You'll miss out on exclusive deals and promotions tailored for you.",
   },
   {
     key: "reminders",
@@ -95,8 +89,7 @@ export const NOTIFICATION_GROUPS: readonly NotificationGroup[] = [
       "Delivery window reminders",
       "Saved items back in stock",
     ],
-    warningText:
-      "You won't receive reminders about reordering or delivery windows.",
+    warningText: "You won't receive reminders about reordering or delivery windows.",
   },
 ] as const;
 

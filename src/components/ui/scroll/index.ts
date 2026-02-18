@@ -10,22 +10,11 @@
  */
 
 // GSAP-powered components
-export {
-  ScrollChoreographer,
-  type ScrollChoreographerProps,
-} from "./ScrollChoreographer";
+export { ScrollChoreographer, type ScrollChoreographerProps } from "./ScrollChoreographer";
 
-export {
-  RevealOnScroll,
-  type RevealOnScrollProps,
-  type RevealDirection,
-} from "./RevealOnScroll";
+export { RevealOnScroll, type RevealOnScrollProps, type RevealDirection } from "./RevealOnScroll";
 
-export {
-  ParallaxLayer,
-  type ParallaxLayerProps,
-  type ParallaxDirection,
-} from "./ParallaxLayer";
+export { ParallaxLayer, type ParallaxLayerProps, type ParallaxDirection } from "./ParallaxLayer";
 
 // Framer Motion components
 export { AnimatedSection, itemVariants } from "./AnimatedSection";

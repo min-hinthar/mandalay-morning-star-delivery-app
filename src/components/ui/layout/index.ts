@@ -8,7 +8,14 @@
 // APP SHELLS
 // ============================================
 
-export { AdminLayout, DashboardGrid, KPIRow, MainArea, SideArea, FullWidthArea } from "./AdminLayout";
+export {
+  AdminLayout,
+  DashboardGrid,
+  KPIRow,
+  MainArea,
+  SideArea,
+  FullWidthArea,
+} from "./AdminLayout";
 
 export type { CheckoutStep } from "@/types/checkout";
 

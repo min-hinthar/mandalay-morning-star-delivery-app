@@ -52,6 +52,7 @@ completed: 2026-02-01
 - **Files modified:** 2
 
 ## Accomplishments
+
 - Added `qualities: [70, 85]` to next.config.ts for Next.js 16 compatibility
 - Updated getImageProps default quality from 85 to 70 for smaller file sizes
 - Added JSDoc documentation explaining quality choice
@@ -66,10 +67,12 @@ Each task was committed atomically:
 3. **Task 3: Verify build and run type checks** - (verification only, no commit)
 
 ## Files Created/Modified
+
 - `next.config.ts` - Added qualities: [70, 85] to images config
 - `src/lib/utils/image-optimization.ts` - Changed default quality from 85 to 70, added JSDoc
 
 ## Decisions Made
+
 - Quality 70 as default for menu images (visual quality maintained with ~30% smaller files)
 - Quality 85 available for hero images where quality matters more for LCP
 - Placed qualities array after formats, before deviceSizes per plan specification
@@ -87,10 +90,12 @@ None.
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Image quality configuration complete
 - Ready for Plan 02: Hero Image LCP optimization
 - Hero images can now explicitly use quality: 85 for better LCP scores
 
 ---
-*Phase: 36-image-optimization-lcp*
-*Completed: 2026-02-01*
+
+_Phase: 36-image-optimization-lcp_
+_Completed: 2026-02-01_

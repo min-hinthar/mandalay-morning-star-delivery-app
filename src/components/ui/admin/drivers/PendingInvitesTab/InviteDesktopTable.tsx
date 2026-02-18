@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Mail,
-  MailPlus,
-  MoreHorizontal,
-  RefreshCw,
-  Trash2,
-  Clock,
-} from "lucide-react";
+import { Mail, MailPlus, MoreHorizontal, RefreshCw, Trash2, Clock } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { cn } from "@/lib/utils/cn";
 import { Badge } from "@/components/ui/badge";
@@ -72,9 +65,7 @@ export function InviteDesktopTable({
                     <div className="p-2 rounded-input bg-primary-light text-primary">
                       <Mail className="h-4 w-4" />
                     </div>
-                    <span className="font-body font-medium text-text-primary">
-                      {invite.email}
-                    </span>
+                    <span className="font-body font-medium text-text-primary">{invite.email}</span>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -92,9 +83,7 @@ export function InviteDesktopTable({
                 <TableCell>
                   <div className="flex items-center gap-1.5 text-sm font-body text-text-secondary">
                     <Clock className="h-3.5 w-3.5" />
-                    <span>
-                      {format(new Date(invite.expiresAt), "MMM d, h:mm a")}
-                    </span>
+                    <span>{format(new Date(invite.expiresAt), "MMM d, h:mm a")}</span>
                   </div>
                 </TableCell>
                 <TableCell className="text-center">
@@ -126,10 +115,7 @@ export function InviteDesktopTable({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem
-                        onClick={() => onResend(invite)}
-                        className="cursor-pointer"
-                      >
+                      <DropdownMenuItem onClick={() => onResend(invite)} className="cursor-pointer">
                         <MailPlus className="mr-2 h-4 w-4" />
                         Resend Invite
                       </DropdownMenuItem>

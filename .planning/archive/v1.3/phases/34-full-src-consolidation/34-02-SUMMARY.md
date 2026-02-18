@@ -69,6 +69,7 @@ completed: 2026-01-28
 - **Files modified:** 21
 
 ## Accomplishments
+
 - Migrated 21 z-index imports from @/design-system/tokens/z-index to @/lib/design-system/tokens/z-index
 - Migrated 5 motion imports from @/design-system/tokens/motion to @/lib/design-system/tokens/motion
 - Verified build and typecheck pass with new import paths
@@ -85,6 +86,7 @@ Each task was committed atomically:
 ## Files Created/Modified
 
 **UI Core Components:**
+
 - `src/components/ui/Backdrop.tsx` - zIndex + overlayMotion
 - `src/components/ui/Toast.tsx` - zIndex + overlayMotion
 - `src/components/ui/Tooltip.tsx` - zIndex + overlayMotion
@@ -94,6 +96,7 @@ Each task was committed atomically:
 - `src/components/ui/dropdown-menu.tsx` - zClass
 
 **Layout Components:**
+
 - `src/components/ui/navigation/Header.tsx` - zClass
 - `src/components/ui/layout/AdminLayout.tsx` - zClass
 - `src/components/ui/layout/AppHeader/AppHeader.tsx` - zClass
@@ -101,6 +104,7 @@ Each task was committed atomically:
 - `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx` - zClass
 
 **Menu Components:**
+
 - `src/components/ui/menu/SearchAutocomplete.tsx` - zClass
 - `src/components/ui/menu/UnifiedMenuItemCard/UnifiedMenuItemCard.tsx` - zClass
 - `src/components/ui/menu/UnifiedMenuItemCard/CardImage.tsx` - zClass
@@ -108,6 +112,7 @@ Each task was committed atomically:
 - `src/components/ui/menu/UnifiedMenuItemCard/DietaryBadges.tsx` - zClass
 
 **Other Components:**
+
 - `src/components/ui/scroll/SectionNavDots.tsx` - zClass
 - `src/components/ui/cart/CartBar.tsx` - zIndex
 - `src/components/ui/cart/FlyToCart.tsx` - zIndex
@@ -130,10 +135,12 @@ None - all imports migrated cleanly with no errors.
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - All token consumers now use @/lib/design-system/tokens/
 - Old @/design-system/tokens/ directory can be deleted in 34-03
 - Build and typecheck verified passing
 
 ---
-*Phase: 34-full-src-consolidation*
-*Completed: 2026-01-28*
+
+_Phase: 34-full-src-consolidation_
+_Completed: 2026-01-28_

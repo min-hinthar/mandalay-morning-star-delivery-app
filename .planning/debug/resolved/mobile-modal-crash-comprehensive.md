@@ -75,18 +75,22 @@ started: Ongoing despite fixes applied 2026-01-29 to 2026-01-30
 ## Resolution
 
 root_cause: Two distinct issues causing remaining crashes:
+
 1. MobileDrawer uses Fragment inside AnimatePresence with multiple motion children - AnimatePresence cannot properly manage exit animations for Fragment children
 2. AuthModal lacks useBodyScrollLock entirely and its AnimatePresence has no onExitComplete - causes iOS Safari scroll/layout issues during close
 
 fix: Applied fixes to both files:
+
 1. MobileDrawer.tsx - Removed Fragment wrapper, render backdrop and panel as separate `{isOpen && ...}` blocks directly under AnimatePresence (both have unique keys so AnimatePresence can track them)
 2. AuthModal.tsx - Added useBodyScrollLock import and hook call with deferRestore:true, added onExitComplete={restoreScrollPosition} callback to AnimatePresence
 
 verification: All checks pass:
+
 - TypeScript typecheck: PASS
 - ESLint: PASS
 - Production build: PASS
 
 files_changed:
+
 - src/components/ui/layout/MobileDrawer/MobileDrawer.tsx
 - src/components/ui/auth/AuthModal.tsx

@@ -120,10 +120,16 @@ test.describe("Signup Flow", () => {
 
     // Enter weak password
     await page.getByLabel(/email/i).fill("test@example.com");
-    await page.getByLabel(/password/i).first().fill("123");
+    await page
+      .getByLabel(/password/i)
+      .first()
+      .fill("123");
 
     // Try to submit or blur
-    await page.getByLabel(/password/i).first().blur();
+    await page
+      .getByLabel(/password/i)
+      .first()
+      .blur();
 
     // Should show password requirements
     const hasRequirement = await page.getByText(/characters|strong|weak/i).isVisible();
@@ -201,8 +207,15 @@ test.describe("Session Persistence", () => {
     await page.reload();
 
     // Should still be logged in (check for user menu or logged-in indicator)
-    const isLoggedIn = await page.getByTestId("user-menu").isVisible().catch(() => false) ||
-      await page.getByText(/logout|sign out/i).isVisible().catch(() => false);
+    const isLoggedIn =
+      (await page
+        .getByTestId("user-menu")
+        .isVisible()
+        .catch(() => false)) ||
+      (await page
+        .getByText(/logout|sign out/i)
+        .isVisible()
+        .catch(() => false));
 
     expect(isLoggedIn).toBeTruthy();
   });

@@ -42,17 +42,10 @@ export function StreakDisplay({ days }: StreakDisplayProps) {
               isOnFire ? "bg-orange-500/20" : "bg-primary/10"
             )}
           >
-            <Flame
-              className={cn(
-                "w-6 h-6",
-                isOnFire ? "text-orange-500" : "text-primary"
-              )}
-            />
+            <Flame className={cn("w-6 h-6", isOnFire ? "text-orange-500" : "text-primary")} />
           </m.div>
           <div>
-            <p className="font-semibold text-text-primary">
-              {days} Day Streak!
-            </p>
+            <p className="font-semibold text-text-primary">{days} Day Streak!</p>
             <p className="text-sm text-text-muted">
               {isOnFire ? "You're on fire! Keep going!" : "Keep delivering daily!"}
             </p>

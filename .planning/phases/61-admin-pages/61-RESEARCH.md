@@ -13,11 +13,13 @@ The order detail page is the larger surface area. It must compose existing compo
 **Primary recommendation:** Build both pages following the established DriverDetailClient pattern — `useParams()` to get ID, client-side fetch, sectioned card layout, existing UI primitives. No new API routes needed for core functionality. New API routes needed only for: admin profile notification preferences, admin profile activity stats, and enhanced status change with email notification.
 
 <user_constraints>
+
 ## User Constraints (from CONTEXT.md)
 
 ### Locked Decisions
 
 #### Order Detail Layout
+
 - Sectioned card layout — separate collapsible cards for order items, customer info, totals, timeline, email history
 - Fully responsive — works well on both desktop and mobile
 - Clickable customer contacts — email (mailto:) and phone (tel:) links
@@ -32,6 +34,7 @@ The order detail page is the larger surface area. It must compose existing compo
 - Collapsible cards for mobile scroll reduction
 
 #### Status Change Workflow
+
 - Confirmation dialog required for every status change
 - Cancellation requires a reason; other transitions optional reason
 - Customer notification email on status change (reuses Phase 54 email templates)
@@ -44,6 +47,7 @@ The order detail page is the larger surface area. It must compose existing compo
 - Priority toggle — admin can flag orders as rush/priority (internal only, not visible to customer)
 
 #### Email History Display
+
 - Empty state shown when no emails sent for an order ("No emails sent for this order")
 - Failed emails show error reason from Resend API
 - Resend button on failed emails to retry delivery
@@ -54,6 +58,7 @@ The order detail page is the larger surface area. It must compose existing compo
 - Timestamps only (no user attribution) — consistent with status timeline
 
 #### Admin Profile Page
+
 - Card-based layout matching order detail design language
 - Show role + permissions list (read-only)
 - Show auth provider ("Signed in with Google")
@@ -67,6 +72,7 @@ The order detail page is the larger surface area. It must compose existing compo
 - Accessible from both sidebar link and avatar dropdown
 
 ### Claude's Discretion
+
 - Order item row density (compact vs detailed, with/without thumbnails)
 - Navigation style (back arrow vs breadcrumb)
 - Desktop grid layout (two-column vs single column)
@@ -94,42 +100,47 @@ The order detail page is the larger surface area. It must compose existing compo
 - Print/export functionality
 
 ### Deferred Ideas (OUT OF SCOPE)
+
 None — discussion stayed within phase scope
 </user_constraints>
 
 ## Standard Stack
 
 ### Core (Already Installed)
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| Next.js | 16.1.2 | App Router, route groups, dynamic routes | Framework |
-| React | 19.2.3 | UI rendering | Framework |
-| @supabase/ssr | 0.8.0 | Server-side Supabase client | Auth + DB |
-| @tanstack/react-query | 5.90.1 | Data fetching (not used in admin yet — admin uses raw fetch) | Available but not adopted in admin |
-| framer-motion | 12.26.1 | Animations, layoutId, AnimatePresence | Used throughout admin |
-| lucide-react | 0.562.0 | Icons | Consistent iconography |
-| date-fns | 4.1.0 | Date formatting | Used in OrdersTable, OrderDetailExpanded |
-| zod | 4.3.5 | Schema validation | Used for all form/API validation |
-| next-themes | 0.4.6 | Theme toggle (dark/light/system) | Already integrated, ThemeSelector exists |
-| react-hook-form | 7.71.1 | Form management | Available, used elsewhere in codebase |
-| @react-google-maps/api | 2.20.8 | Google Maps (interactive) | Already used in RouteMap, DeliveryMap |
-| resend | 6.9.1 | Email sending | Phase 54 email infrastructure |
-| @react-email/components | 1.0.7 | Email templates | Phase 54 email templates |
-| recharts | 3.6.0 | Charts (if needed for profile stats) | Already in admin analytics |
+
+| Library                 | Version | Purpose                                                      | Why Standard                             |
+| ----------------------- | ------- | ------------------------------------------------------------ | ---------------------------------------- |
+| Next.js                 | 16.1.2  | App Router, route groups, dynamic routes                     | Framework                                |
+| React                   | 19.2.3  | UI rendering                                                 | Framework                                |
+| @supabase/ssr           | 0.8.0   | Server-side Supabase client                                  | Auth + DB                                |
+| @tanstack/react-query   | 5.90.1  | Data fetching (not used in admin yet — admin uses raw fetch) | Available but not adopted in admin       |
+| framer-motion           | 12.26.1 | Animations, layoutId, AnimatePresence                        | Used throughout admin                    |
+| lucide-react            | 0.562.0 | Icons                                                        | Consistent iconography                   |
+| date-fns                | 4.1.0   | Date formatting                                              | Used in OrdersTable, OrderDetailExpanded |
+| zod                     | 4.3.5   | Schema validation                                            | Used for all form/API validation         |
+| next-themes             | 0.4.6   | Theme toggle (dark/light/system)                             | Already integrated, ThemeSelector exists |
+| react-hook-form         | 7.71.1  | Form management                                              | Available, used elsewhere in codebase    |
+| @react-google-maps/api  | 2.20.8  | Google Maps (interactive)                                    | Already used in RouteMap, DeliveryMap    |
+| resend                  | 6.9.1   | Email sending                                                | Phase 54 email infrastructure            |
+| @react-email/components | 1.0.7   | Email templates                                              | Phase 54 email templates                 |
+| recharts                | 3.6.0   | Charts (if needed for profile stats)                         | Already in admin analytics               |
 
 ### New Dependencies Needed
-| Library | Purpose | When to Use |
-|---------|---------|-------------|
+
+| Library                             | Purpose                                   | When to Use                                              |
+| ----------------------------------- | ----------------------------------------- | -------------------------------------------------------- |
 | @tiptap/react + @tiptap/starter-kit | Rich text editor for manual email compose | CONTEXT requires "rich text editor" — not plain textarea |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| @tiptap/react | Lexical, Quill | Tiptap is most popular with React; headless = full styling control with Tailwind |
+
+| Instead of             | Could Use                            | Tradeoff                                                                                                                  |
+| ---------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| @tiptap/react          | Lexical, Quill                       | Tiptap is most popular with React; headless = full styling control with Tailwind                                          |
 | Google Maps Static API | @react-google-maps/api (interactive) | Static is simpler/cheaper for address display; but interactive already loaded — use `GoogleMap` component for consistency |
-| Raw fetch | @tanstack/react-query | Admin pages all use raw fetch + useState — maintain consistency |
+| Raw fetch              | @tanstack/react-query                | Admin pages all use raw fetch + useState — maintain consistency                                                           |
 
 **Installation:**
+
 ```bash
 pnpm add @tiptap/react @tiptap/starter-kit @tiptap/extension-placeholder
 ```
@@ -137,6 +148,7 @@ pnpm add @tiptap/react @tiptap/starter-kit @tiptap/extension-placeholder
 ## Architecture Patterns
 
 ### Existing Admin Page Structure
+
 ```
 src/app/(admin)/admin/orders/[id]/
   page.tsx              # 'use client', renders <OrderDetailClient />
@@ -174,9 +186,11 @@ src/components/ui/admin/profile/
 ```
 
 ### Pattern 1: Client Detail Page (Established Pattern)
+
 **What:** Page.tsx delegates to a `*Client` component that uses `useParams()` for the ID, fetches data client-side, and renders sectioned cards.
 **When to use:** All admin detail pages.
 **Example:**
+
 ```typescript
 // src/app/(admin)/admin/orders/[id]/page.tsx
 "use client";
@@ -197,9 +211,11 @@ export function OrderDetailClient() {
 ```
 
 ### Pattern 2: Collapsible Card Section
+
 **What:** Each data section is wrapped in a collapsible card. Desktop: all expanded by default. Mobile: only first card expanded.
 **When to use:** Order detail page sections.
 **Example:**
+
 ```typescript
 // CollapsibleCard.tsx
 "use client";
@@ -236,14 +252,16 @@ export function CollapsibleCard({ title, icon, defaultOpen = true, children }: C
 ```
 
 ### Pattern 3: Optimistic Status Update with Revert
+
 **What:** Status badge updates immediately, API call fires in background, reverts on failure.
 **When to use:** Status changes on order detail page.
 **Example:**
+
 ```typescript
 const handleStatusChange = async (newStatus: OrderStatus) => {
   const previousStatus = order.status;
   // Optimistic update
-  setOrder(prev => prev ? { ...prev, status: newStatus } : null);
+  setOrder((prev) => (prev ? { ...prev, status: newStatus } : null));
   try {
     const res = await fetch(`/api/admin/orders/${orderId}/status`, {
       method: "PATCH",
@@ -255,15 +273,17 @@ const handleStatusChange = async (newStatus: OrderStatus) => {
     await fetchOrderDetails();
   } catch {
     // Revert optimistic update
-    setOrder(prev => prev ? { ...prev, status: previousStatus } : null);
+    setOrder((prev) => (prev ? { ...prev, status: previousStatus } : null));
   }
 };
 ```
 
 ### Pattern 4: Status Change Confirmation with Email Preview
+
 **What:** Every status change goes through a confirmation dialog showing what email the customer will receive, with a "Notify customer" checkbox.
 **When to use:** All status transitions.
 **Example flow:**
+
 1. Admin clicks "Confirm Order" button
 2. StatusChangeDialog opens showing:
    - Current status -> New status
@@ -274,6 +294,7 @@ const handleStatusChange = async (newStatus: OrderStatus) => {
 3. On confirm: optimistic update + API call + email trigger
 
 ### Anti-Patterns to Avoid
+
 - **Don't create a new API route for order detail** — `/api/admin/orders/[id]/details` already returns everything needed (customer info, items, address, audit log, driver). Only extend if fields are missing.
 - **Don't use server components for these pages** — Admin pages use `'use client'` with client-side fetch pattern consistently. Don't break the pattern.
 - **Don't build a custom rich text editor** — Use Tiptap with starter-kit. The manual email compose needs bold/italic/links/lists, not a full WYSIWYG.
@@ -282,65 +303,73 @@ const handleStatusChange = async (newStatus: OrderStatus) => {
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Rich text editing | Custom contenteditable | @tiptap/react + starter-kit | XSS, cursor, undo/redo, selection — deeply complex |
-| Collapsible sections | Custom accordion | Simple useState toggle (see Pattern 2) | No need for Radix Accordion — too simple |
-| Status badge colors | New color map | Existing `STATUS_COLORS` in config.ts + StatusBadge component | Already defined and used |
-| Confirmation dialogs | Custom modal | Existing ConfirmDialog + Modal components | Already built with loading states |
-| Theme toggle | Custom implementation | Existing ThemeSelector from account settings | Already handles hydration, next-themes integration |
-| Email sending | Custom fetch to Resend | Existing sendEmail() + buildEmailElement() pipeline | Handles logging, idempotency, notification_logs |
-| Sign out | Custom auth flow | Existing signOut() server action from supabase/actions.ts | Handles revalidation and redirect |
-| Date formatting | Custom formatters | date-fns format/parseISO (used throughout) | Consistent formatting |
-| Price formatting | Custom cents-to-dollar | Existing formatPrice() from lib/utils/currency | Already used in OrderItemsSection |
+| Problem              | Don't Build            | Use Instead                                                   | Why                                                |
+| -------------------- | ---------------------- | ------------------------------------------------------------- | -------------------------------------------------- |
+| Rich text editing    | Custom contenteditable | @tiptap/react + starter-kit                                   | XSS, cursor, undo/redo, selection — deeply complex |
+| Collapsible sections | Custom accordion       | Simple useState toggle (see Pattern 2)                        | No need for Radix Accordion — too simple           |
+| Status badge colors  | New color map          | Existing `STATUS_COLORS` in config.ts + StatusBadge component | Already defined and used                           |
+| Confirmation dialogs | Custom modal           | Existing ConfirmDialog + Modal components                     | Already built with loading states                  |
+| Theme toggle         | Custom implementation  | Existing ThemeSelector from account settings                  | Already handles hydration, next-themes integration |
+| Email sending        | Custom fetch to Resend | Existing sendEmail() + buildEmailElement() pipeline           | Handles logging, idempotency, notification_logs    |
+| Sign out             | Custom auth flow       | Existing signOut() server action from supabase/actions.ts     | Handles revalidation and redirect                  |
+| Date formatting      | Custom formatters      | date-fns format/parseISO (used throughout)                    | Consistent formatting                              |
+| Price formatting     | Custom cents-to-dollar | Existing formatPrice() from lib/utils/currency                | Already used in OrderItemsSection                  |
 
 **Key insight:** The codebase has extensive admin UI infrastructure. Phase 61 is primarily composition of existing components into new page layouts, not building new primitives.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Missing `delivery_window_start`/`delivery_window_end` from Order Details API
+
 **What goes wrong:** The order details API returns `placedAt`, `confirmedAt`, `deliveredAt` but NOT delivery window times.
 **Why it happens:** The `/api/admin/orders/[id]/details` route selects specific fields — `delivery_window_start` and `delivery_window_end` are NOT in the current select.
 **How to avoid:** Must extend the details API to include `delivery_window_start`, `delivery_window_end`, and `stripe_payment_intent_id` in the select query and response mapping.
 **Warning signs:** Delivery window and payment info sections render as empty/null.
 
 ### Pitfall 2: Stripe Payment Info Not Available via API
+
 **What goes wrong:** CONTEXT requires displaying payment method, status, and Stripe payment ID. The details API returns NO Stripe data.
 **Why it happens:** `stripe_payment_intent_id` exists in the orders table but isn't selected in the details route. Payment method/status requires a Stripe API call.
 **How to avoid:** Add `stripe_payment_intent_id` to the details API response. For payment status/method, either: (a) add a server-side Stripe API call in the details route, or (b) display just the payment intent ID as a link to Stripe dashboard.
 **Warning signs:** Payment card shows "Unknown" or empty.
 
 ### Pitfall 3: Status Change Email Integration Missing
+
 **What goes wrong:** The current `/api/admin/orders/[id]/status` PATCH route updates status but does NOT send email notifications. Only the cancel route sends emails.
 **Why it happens:** The status route was built as a simple PATCH. The cancel route has the full email pipeline.
 **How to avoid:** Extend the status route (or create a new composite endpoint) to: accept `notifyCustomer` boolean + optional `reason`, trigger appropriate email template on transition, log to audit with reason.
 **Warning signs:** Customer never receives status update emails from the order detail page.
 
 ### Pitfall 4: Google Maps Static API vs Interactive API
+
 **What goes wrong:** CONTEXT says "Static Google Maps embed" but the codebase uses `@react-google-maps/api` (interactive).
 **Why it happens:** Two different APIs — Static Maps is an `<img>` tag with URL parameters, Interactive is a JS component.
 **How to avoid:** For order detail, Static Maps API is actually better (lighter, no JS bundle, just an image). Use `<img src="https://maps.googleapis.com/maps/api/staticmap?...&key=${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}">`. The key already exists and is public-facing.
 **Warning signs:** Map doesn't load if using wrong API key or missing referrer restrictions.
 
 ### Pitfall 5: Admin Profile — No Existing Admin-Specific API
+
 **What goes wrong:** The `/api/account/profile` route returns only `id, email, full_name, phone, created_at`. It doesn't return `role`, auth provider, or notification preferences.
 **Why it happens:** That route was built for customers, not admin-specific profile data.
 **How to avoid:** Either extend the existing route or create `/api/admin/profile` that returns role, auth provider (from Supabase user.identities), created_at, and notification preferences.
 **Warning signs:** Role and auth provider show as "Unknown".
 
 ### Pitfall 6: Notification Preferences Storage for Admin
+
 **What goes wrong:** CONTEXT requires admin notification preference toggles but there's no admin_settings table or column.
 **Why it happens:** `customer_settings` table exists but is customer-scoped with `user_id` FK. It has `notification_prefs` JSON column.
 **How to avoid:** Reuse `customer_settings` table (it's per-user, not per-role) — admin users can have their own row. Or create an `admin_preferences` JSONB column on profiles. The simplest approach: use `customer_settings.notification_prefs` for admin too, since it's keyed by `user_id`.
 **Warning signs:** Save button errors with foreign key violation or missing row.
 
 ### Pitfall 7: Rich Text Editor Output for Emails
+
 **What goes wrong:** Tiptap outputs HTML by default. Sending raw Tiptap HTML as email content may break email client rendering.
 **Why it happens:** Email HTML has strict limitations (no modern CSS, inline styles only). Tiptap outputs standard HTML.
 **How to avoid:** For manual email compose, use Tiptap for input but render the final email through react-email components (wrap in EmailLayout). Convert Tiptap HTML to a simple `dangerouslySetInnerHTML` within the email layout, or use a text-only fallback.
 **Warning signs:** Emails render broken in Outlook/Gmail.
 
 ### Pitfall 8: Hydration Mismatch with Theme Toggle
+
 **What goes wrong:** ThemeSelector needs to be mounted before rendering selected state.
 **Why it happens:** `useTheme()` from next-themes returns different values on server vs client.
 **How to avoid:** The existing ThemeSelector already handles this with `useState(false)` for mounted + skeleton fallback. Just reuse it.
@@ -349,6 +378,7 @@ const handleStatusChange = async (newStatus: OrderStatus) => {
 ## Code Examples
 
 ### Existing Order Detail API Response Shape
+
 ```typescript
 // Source: src/app/api/admin/orders/[id]/details/route.ts
 // Response from GET /api/admin/orders/{id}/details
@@ -399,6 +429,7 @@ interface OrderDetailResponse {
 ```
 
 ### Existing Email History Component Integration
+
 ```typescript
 // Source: src/app/(admin)/admin/orders/[id]/EmailHistory.tsx
 // Already built! Just import and render:
@@ -414,12 +445,22 @@ import { EmailHistory } from "@/app/(admin)/admin/orders/[id]/EmailHistory";
 ```
 
 ### Existing Status Transition Rules
+
 ```typescript
 // Source: src/components/ui/admin/orders/OrderDetailExpanded/config.ts
 const NEXT_STATUSES: Record<OrderStatus, { status: OrderStatus; label: string }[]> = {
-  pending: [{ status: "confirmed", label: "Confirm Order" }, { status: "cancelled", label: "Cancel" }],
-  confirmed: [{ status: "preparing", label: "Start Preparing" }, { status: "cancelled", label: "Cancel" }],
-  preparing: [{ status: "out_for_delivery", label: "Send Out" }, { status: "cancelled", label: "Cancel" }],
+  pending: [
+    { status: "confirmed", label: "Confirm Order" },
+    { status: "cancelled", label: "Cancel" },
+  ],
+  confirmed: [
+    { status: "preparing", label: "Start Preparing" },
+    { status: "cancelled", label: "Cancel" },
+  ],
+  preparing: [
+    { status: "out_for_delivery", label: "Send Out" },
+    { status: "cancelled", label: "Cancel" },
+  ],
   out_for_delivery: [{ status: "delivered", label: "Mark Delivered" }],
   delivered: [],
   cancelled: [],
@@ -427,6 +468,7 @@ const NEXT_STATUSES: Record<OrderStatus, { status: OrderStatus; label: string }[
 ```
 
 ### Google Maps Static API Embed
+
 ```typescript
 // For order detail address map
 const MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -446,6 +488,7 @@ function StaticMapEmbed({ address }: { address: { street: string; city: string; 
 ```
 
 ### Sign Out Action
+
 ```typescript
 // Source: src/lib/supabase/actions.ts
 import { signOut } from "@/lib/supabase/actions";
@@ -459,6 +502,7 @@ import { signOut } from "@/lib/supabase/actions";
 ```
 
 ### Existing ConfirmDialog Usage
+
 ```typescript
 // Source: src/components/ui/admin/settings/ConfirmDialog.tsx
 import { ConfirmDialog } from "@/components/ui/admin/settings/ConfirmDialog";
@@ -476,42 +520,43 @@ import { ConfirmDialog } from "@/components/ui/admin/settings/ConfirmDialog";
 
 ## Discretion Recommendations
 
-| Area | Recommendation | Reasoning |
-|------|---------------|-----------|
-| Item row density | **Compact** — name, qty, price inline. No thumbnails. | Consistent with existing OrderItemsSection. Menu items don't have reliable thumbnails. |
-| Navigation | **Breadcrumb** — Dashboard > Orders > #XXXX | Existing AdminPageHeader supports breadcrumbs. Used on all admin pages. |
-| Desktop layout | **Two-column** — left: items + totals + email history; right: customer + status + timeline + payment | Matches OrderDetailExpanded grid pattern. Information density for 1080p. |
-| Status badge colors | **Reuse existing** STATUS_COLORS from config.ts | Already defined, tested, used throughout. |
-| Status transitions | **Strict forward** — use existing VALID_TRANSITIONS from status route | Backend already enforces this. Match frontend to backend. |
-| Auto-refresh | **Manual refresh button** — no polling | Admin explicitly refreshes. Avoids unnecessary API calls. Matches orders list page. |
-| Quick actions | **Yes** — status change buttons at top, below header | Quick access without scrolling. Matches OrderDetailExpanded pattern. |
-| Admin notes | **Defer** — not in requirements, not in locked decisions | Can add later. Keep scope focused. |
-| Order type | **Show delivery window info only** — all orders are delivery currently | No pickup infrastructure exists. |
-| Loading state | **Skeleton** — SkeletonCrossfade wrapping content | Consistent with all admin pages (orders, drivers, settings). |
-| Keyboard shortcuts | **Defer** — nice-to-have, not in requirements | Add in a polish phase. |
-| Email history format | **Expandable list** — reuse existing EmailHistory component as-is | Already built with expand/collapse, badges, resend. |
-| Email metadata | **Show recipient, status, resend_id, error message** | Already in EmailHistory component. |
-| Email HTML preview | **Defer** — complex, requires rendering email templates client-side | Would need @react-email/render on client. Not in requirements. |
-| Email templates for manual compose | **No templates** — free-form rich text with order context auto-appended | CONTEXT says "auto-include order context in footer". |
-| Cancelled order treatment | **Muted/greyed out cards** — reduced opacity, strikethrough on cancelled items | Visual distinction without hiding info. |
-| Dirty form state | **Yes** — FloatingUnsavedBar exists in admin settings, reuse it | Prevents accidental navigation. |
-| Print/export | **Defer** — not in requirements | Can add `window.print()` later. |
+| Area                               | Recommendation                                                                                       | Reasoning                                                                              |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Item row density                   | **Compact** — name, qty, price inline. No thumbnails.                                                | Consistent with existing OrderItemsSection. Menu items don't have reliable thumbnails. |
+| Navigation                         | **Breadcrumb** — Dashboard > Orders > #XXXX                                                          | Existing AdminPageHeader supports breadcrumbs. Used on all admin pages.                |
+| Desktop layout                     | **Two-column** — left: items + totals + email history; right: customer + status + timeline + payment | Matches OrderDetailExpanded grid pattern. Information density for 1080p.               |
+| Status badge colors                | **Reuse existing** STATUS_COLORS from config.ts                                                      | Already defined, tested, used throughout.                                              |
+| Status transitions                 | **Strict forward** — use existing VALID_TRANSITIONS from status route                                | Backend already enforces this. Match frontend to backend.                              |
+| Auto-refresh                       | **Manual refresh button** — no polling                                                               | Admin explicitly refreshes. Avoids unnecessary API calls. Matches orders list page.    |
+| Quick actions                      | **Yes** — status change buttons at top, below header                                                 | Quick access without scrolling. Matches OrderDetailExpanded pattern.                   |
+| Admin notes                        | **Defer** — not in requirements, not in locked decisions                                             | Can add later. Keep scope focused.                                                     |
+| Order type                         | **Show delivery window info only** — all orders are delivery currently                               | No pickup infrastructure exists.                                                       |
+| Loading state                      | **Skeleton** — SkeletonCrossfade wrapping content                                                    | Consistent with all admin pages (orders, drivers, settings).                           |
+| Keyboard shortcuts                 | **Defer** — nice-to-have, not in requirements                                                        | Add in a polish phase.                                                                 |
+| Email history format               | **Expandable list** — reuse existing EmailHistory component as-is                                    | Already built with expand/collapse, badges, resend.                                    |
+| Email metadata                     | **Show recipient, status, resend_id, error message**                                                 | Already in EmailHistory component.                                                     |
+| Email HTML preview                 | **Defer** — complex, requires rendering email templates client-side                                  | Would need @react-email/render on client. Not in requirements.                         |
+| Email templates for manual compose | **No templates** — free-form rich text with order context auto-appended                              | CONTEXT says "auto-include order context in footer".                                   |
+| Cancelled order treatment          | **Muted/greyed out cards** — reduced opacity, strikethrough on cancelled items                       | Visual distinction without hiding info.                                                |
+| Dirty form state                   | **Yes** — FloatingUnsavedBar exists in admin settings, reuse it                                      | Prevents accidental navigation.                                                        |
+| Print/export                       | **Defer** — not in requirements                                                                      | Can add `window.print()` later.                                                        |
 
 ## API Gaps Requiring New Routes or Extensions
 
-| Gap | Solution | Priority |
-|-----|----------|----------|
-| Order details missing delivery window + Stripe ID | Extend `/api/admin/orders/[id]/details` to include `delivery_window_start`, `delivery_window_end`, `stripe_payment_intent_id` | HIGH |
-| Status change doesn't send email | Extend `/api/admin/orders/[id]/status` to accept `notifyCustomer`, `reason`, trigger email | HIGH |
-| Admin profile with role + auth provider | Create `/api/admin/profile` GET route (or extend existing) returning role, identities, created_at | HIGH |
-| Admin notification preferences | Upsert to `customer_settings` table for admin user_id, or create admin-specific storage | MEDIUM |
-| Admin activity stats (orders processed, last login) | Create `/api/admin/profile/stats` route querying order_audit_log count + auth.users last_sign_in_at | MEDIUM |
-| Priority flag on orders | Add `is_priority` boolean column to orders table + migration + PATCH endpoint | MEDIUM |
-| Manual email compose endpoint | Create `/api/admin/emails/compose` POST route accepting HTML body + order context | MEDIUM |
+| Gap                                                 | Solution                                                                                                                      | Priority |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Order details missing delivery window + Stripe ID   | Extend `/api/admin/orders/[id]/details` to include `delivery_window_start`, `delivery_window_end`, `stripe_payment_intent_id` | HIGH     |
+| Status change doesn't send email                    | Extend `/api/admin/orders/[id]/status` to accept `notifyCustomer`, `reason`, trigger email                                    | HIGH     |
+| Admin profile with role + auth provider             | Create `/api/admin/profile` GET route (or extend existing) returning role, identities, created_at                             | HIGH     |
+| Admin notification preferences                      | Upsert to `customer_settings` table for admin user_id, or create admin-specific storage                                       | MEDIUM   |
+| Admin activity stats (orders processed, last login) | Create `/api/admin/profile/stats` route querying order_audit_log count + auth.users last_sign_in_at                           | MEDIUM   |
+| Priority flag on orders                             | Add `is_priority` boolean column to orders table + migration + PATCH endpoint                                                 | MEDIUM   |
+| Manual email compose endpoint                       | Create `/api/admin/emails/compose` POST route accepting HTML body + order context                                             | MEDIUM   |
 
 ## Database Considerations
 
 ### Existing Tables Used
+
 - `orders` — all order fields, status, timestamps, stripe_payment_intent_id
 - `order_items` — line items with snapshots
 - `order_audit_log` — status timeline source (action, actor_role, reason, created_at)
@@ -521,9 +566,11 @@ import { ConfirmDialog } from "@/components/ui/admin/settings/ConfirmDialog";
 - `addresses` — delivery address via order.address_id FK
 
 ### New Column Needed
+
 - `orders.is_priority` (boolean, default false) — for priority toggle feature
 
 ### Supabase Auth Data
+
 - `supabase.auth.getUser()` returns `user.identities` array with provider info
 - `user.last_sign_in_at` for last login display
 - `user.created_at` for "Member since" display
@@ -531,12 +578,12 @@ import { ConfirmDialog } from "@/components/ui/admin/settings/ConfirmDialog";
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Server Components for admin | Client Components with client-side fetch | Project convention | All admin pages are 'use client'. Don't break pattern. |
-| Radix Accordion for collapsible | Simple useState toggle | Project convention | Radix Accordion is overkill for 5-6 cards |
-| @tanstack/react-query | Raw fetch + useState | Project convention | Admin pages don't use React Query. Keep consistent. |
-| layoutId animations | CSS transitions | Phase 60 migration | But admin nav still uses layoutId. New page content should use CSS where possible. |
+| Old Approach                    | Current Approach                         | When Changed       | Impact                                                                             |
+| ------------------------------- | ---------------------------------------- | ------------------ | ---------------------------------------------------------------------------------- |
+| Server Components for admin     | Client Components with client-side fetch | Project convention | All admin pages are 'use client'. Don't break pattern.                             |
+| Radix Accordion for collapsible | Simple useState toggle                   | Project convention | Radix Accordion is overkill for 5-6 cards                                          |
+| @tanstack/react-query           | Raw fetch + useState                     | Project convention | Admin pages don't use React Query. Keep consistent.                                |
+| layoutId animations             | CSS transitions                          | Phase 60 migration | But admin nav still uses layoutId. New page content should use CSS where possible. |
 
 ## Open Questions
 
@@ -563,6 +610,7 @@ import { ConfirmDialog } from "@/components/ui/admin/settings/ConfirmDialog";
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Codebase analysis: `src/app/(admin)/admin/` — all existing admin pages, layouts, patterns
 - Codebase analysis: `src/app/api/admin/` — all existing admin API routes
 - Codebase analysis: `src/components/ui/admin/` — all existing admin UI components
@@ -571,16 +619,19 @@ import { ConfirmDialog } from "@/components/ui/admin/settings/ConfirmDialog";
 - Codebase analysis: `src/lib/auth/admin.ts` — admin auth pattern
 
 ### Secondary (MEDIUM confidence)
+
 - Codebase analysis: `src/lib/supabase/actions.ts` — signOut server action
 - Codebase analysis: `src/components/ui/account/SettingsTab/ThemeSelector.tsx` — theme toggle pattern
 - Codebase analysis: `src/app/api/account/profile/route.ts` — profile API pattern
 
 ### Tertiary (LOW confidence)
+
 - Tiptap rich text editor recommendation — based on ecosystem knowledge, not verified via Context7. Need to verify latest API for React 19 compatibility.
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH — all libraries already installed and used in codebase
 - Architecture: HIGH — follows 100% established codebase patterns
 - Pitfalls: HIGH — identified from direct code analysis of existing API routes and components

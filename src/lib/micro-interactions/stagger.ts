@@ -38,11 +38,7 @@ export function variableStagger(
     acceleration?: number;
   }
 ): number {
-  const {
-    baseDelay = 0.03,
-    maxDelay = 0.08,
-    acceleration = 0.005,
-  } = options ?? {};
+  const { baseDelay = 0.03, maxDelay = 0.08, acceleration = 0.005 } = options ?? {};
 
   // Quadratic deceleration: delay increases with index^2
   const delay = baseDelay + index * index * acceleration;
@@ -72,10 +68,7 @@ export function createVariableStaggerContainer(
 /**
  * Create a stagger transition for list items
  */
-export function staggerChildren(
-  staggerDelay = 0.05,
-  delayChildren = 0
-): Transition {
+export function staggerChildren(staggerDelay = 0.05, delayChildren = 0): Transition {
   return {
     staggerChildren: staggerDelay,
     delayChildren,

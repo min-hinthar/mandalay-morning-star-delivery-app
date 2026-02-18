@@ -14,6 +14,7 @@ Zero crashes on mobile devices through systematic cleanup of memory leaks and ra
 ## Implementation Decisions
 
 ### Audit Scope
+
 - Audit ALL components in src/components/ — comprehensive, systematic approach
 - Audit ALL hooks and utilities in src/lib/ — catch issues in shared code
 - Include driver/admin components — all dashboards need stability
@@ -24,6 +25,7 @@ Zero crashes on mobile devices through systematic cleanup of memory leaks and ra
 - Track progress with checklist in plan — each file/pattern gets a task
 
 ### Fix Strategy
+
 - Create shared utility hooks in dedicated file: src/lib/hooks/useSafeEffects.ts
   - useSafeTimeout, useSafeAsync, etc. for reusable cleanup patterns
 - Proactive fixes: Refactor adjacent code for consistency while fixing
@@ -34,6 +36,7 @@ Zero crashes on mobile devices through systematic cleanup of memory leaks and ra
 - Atomic commits: One commit per file or pattern — easy to revert if issues
 
 ### Testing Approach
+
 - Test on real devices: iPhone SE + Android mid-range (low-power where crashes most likely)
 - Use Chrome DevTools Memory tab to verify no leaks after fixes
 - Stress tests: Rapid modal open/close, fast navigation, repeated interactions
@@ -44,11 +47,13 @@ Zero crashes on mobile devices through systematic cleanup of memory leaks and ra
 - Acceptance criteria: Pass 10-min stress test on iPhone SE AND Android mid-range with zero crashes
 
 ### Documentation
+
 - Comprehensive update to .claude/ERROR_HISTORY.md with all patterns found
 - Create .claude/CLEANUP-PATTERNS.md guide with code examples for future reference
 - Comprehensive JSDoc comments on all utility hooks (params, returns, usage examples)
 
 ### Claude's Discretion
+
 - Exact utility hook API design
 - ESLint rule configuration details
 - Order of files within each pattern category
@@ -75,5 +80,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 35-mobile-crash-prevention*
-*Context gathered: 2026-01-30*
+_Phase: 35-mobile-crash-prevention_
+_Context gathered: 2026-01-30_

@@ -35,7 +35,10 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -79,16 +82,14 @@ export async function POST(request: NextRequest) {
 
     // Only optimize planned routes
     if (route.status !== "planned") {
-      return NextResponse.json(
-        { error: "Can only optimize planned routes" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Can only optimize planned routes" }, { status: 400 });
     }
 
     // Fetch stops with order addresses
     const { data: stops, error: stopsError } = await supabase
       .from("route_stops")
-      .select(`
+      .select(
+        `
         id,
         order_id,
         orders (
@@ -103,24 +104,19 @@ export async function POST(request: NextRequest) {
             postal_code
           )
         )
-      `)
+      `
+      )
       .eq("route_id", routeId)
       .order("stop_index", { ascending: true })
       .returns<RouteStopWithOrder[]>();
 
     if (stopsError) {
       logger.exception(stopsError, { api: "admin/routes/optimize", flowId: "fetch-stops" });
-      return NextResponse.json(
-        { error: "Failed to fetch route stops" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch route stops" }, { status: 500 });
     }
 
     if (!stops || stops.length === 0) {
-      return NextResponse.json(
-        { error: "Route has no stops to optimize" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Route has no stops to optimize" }, { status: 400 });
     }
 
     // Validate all stops have addresses with coordinates
@@ -155,10 +151,7 @@ export async function POST(request: NextRequest) {
     }));
 
     // Run optimization
-    const optimized = await optimizeRouteStops(
-      routeId,
-      stopsForOptimization
-    );
+    const optimized = await optimizeRouteStops(routeId, stopsForOptimization);
 
     // Update stop indices in database
     for (let i = 0; i < optimized.orderedStopIds.length; i++) {
@@ -168,7 +161,10 @@ export async function POST(request: NextRequest) {
         .eq("id", optimized.orderedStopIds[i]);
 
       if (updateError) {
-        logger.exception(updateError, { api: "admin/routes/optimize", flowId: "update-stop-index" });
+        logger.exception(updateError, {
+          api: "admin/routes/optimize",
+          flowId: "update-stop-index",
+        });
       }
     }
 

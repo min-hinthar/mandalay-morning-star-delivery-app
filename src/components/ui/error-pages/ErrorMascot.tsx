@@ -15,15 +15,8 @@ export function ErrorMascot({ errorType }: ErrorMascotProps) {
   const { emoji, label } = MASCOT_MAP[errorType];
 
   return (
-    <div
-      className="animate-error-bob text-center"
-      role="img"
-      aria-label={label}
-    >
-      <span
-        className="inline-block"
-        style={{ fontSize: "5.5rem", lineHeight: 1 }}
-      >
+    <div className="animate-error-bob text-center" role="img" aria-label={label}>
+      <span className="inline-block" style={{ fontSize: "5.5rem", lineHeight: 1 }}>
         {emoji}
       </span>
     </div>

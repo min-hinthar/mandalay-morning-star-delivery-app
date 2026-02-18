@@ -56,10 +56,7 @@ export const VALID_STOP_TRANSITIONS: Record<string, string[]> = {
 /**
  * Check if a status transition is valid
  */
-export function isValidStatusTransition(
-  currentStatus: string,
-  newStatus: string
-): boolean {
+export function isValidStatusTransition(currentStatus: string, newStatus: string): boolean {
   const validTransitions = VALID_STOP_TRANSITIONS[currentStatus] ?? [];
   return validTransitions.includes(newStatus);
 }
@@ -67,9 +64,7 @@ export function isValidStatusTransition(
 /**
  * Get the next expected status for a stop
  */
-export function getNextStopStatus(
-  currentStatus: string
-): string | null {
+export function getNextStopStatus(currentStatus: string): string | null {
   const transitions: Record<string, string> = {
     pending: "enroute",
     enroute: "arrived",

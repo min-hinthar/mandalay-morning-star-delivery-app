@@ -10,24 +10,24 @@
 
 ### Relevant Existing Components
 
-| Component | Location | Current State |
-|-----------|----------|---------------|
-| **Auth guards** | `src/app/(admin)/admin/layout.tsx`, `src/app/(driver)/driver/layout.tsx` | Server Component layouts do `supabase.auth.getUser()` + role check, redirect on failure |
-| **Auth helpers** | `src/lib/auth/{admin,driver}.ts` | `requireAdmin()` / `requireDriver()` for API route protection |
-| **Login page** | `src/app/(auth)/login/page.tsx` | Server Component checks user, redirects to `/` if logged in. No role-based redirect. |
-| **Auth callback** | `src/app/auth/callback/route.ts` | Exchanges code for session, handles driver invite flow, redirects to `?next=` param or `/` |
-| **Rate limiting** | `src/lib/utils/rate-limit.ts` | In-memory `Map<string, RateLimitEntry>` with cleanup interval. Used by `signInWithMagicLink`. Auth-only (signIn, signUp, resetPassword). |
-| **Location rate limit** | `src/app/api/driver/location/route.ts` | DB-query-based 1 req/min limit, queries `location_updates` table for last entry |
-| **Proxy/Middleware** | Does not exist | No `proxy.ts` or `middleware.ts` in project |
-| **CSP headers** | `next.config.ts` only | Image CSP for SVG (`contentSecurityPolicy` in images config). No global CSP headers. |
-| **Security headers** | `next.config.ts` `headers()` | Only CORS on `/api/health` and cache headers on fonts/icons. No X-Frame-Options, no HSTS, no CSP. |
-| **Driver pages** | `src/app/(driver)/driver/` | Home (dashboard), Route (active + stop detail), History. 3 nav tabs. |
-| **Driver components** | `src/components/ui/driver/` | 19 files: Dashboard, Nav, Shell, StopCard, StopDetail, LocationTracker, PhotoCapture, OnboardingForm, etc. |
-| **Driver API routes** | `src/app/api/driver/` | `/me`, `/onboard`, `/location`, `/routes/{routeId}/*` (complete, start, stops) |
-| **Driver types** | `src/types/driver.ts` | DriversRow, RoutesRow, RouteStopsRow, LocationUpdatesRow, DeliveryExceptionsRow |
-| **Supabase clients** | `src/lib/supabase/server.ts` | `createClient()` (cookie-based), `createPublicClient()`, `createServiceClient()` (service role) |
-| **Database roles** | `src/types/database.ts` | `ProfileRole = "customer" \| "admin" \| "driver"` in profiles table |
-| **RLS test script** | `scripts/rls-isolation-test.mjs` | Tests address isolation between two users. Basic cross-user visibility test only. |
+| Component               | Location                                                                 | Current State                                                                                                                            |
+| ----------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Auth guards**         | `src/app/(admin)/admin/layout.tsx`, `src/app/(driver)/driver/layout.tsx` | Server Component layouts do `supabase.auth.getUser()` + role check, redirect on failure                                                  |
+| **Auth helpers**        | `src/lib/auth/{admin,driver}.ts`                                         | `requireAdmin()` / `requireDriver()` for API route protection                                                                            |
+| **Login page**          | `src/app/(auth)/login/page.tsx`                                          | Server Component checks user, redirects to `/` if logged in. No role-based redirect.                                                     |
+| **Auth callback**       | `src/app/auth/callback/route.ts`                                         | Exchanges code for session, handles driver invite flow, redirects to `?next=` param or `/`                                               |
+| **Rate limiting**       | `src/lib/utils/rate-limit.ts`                                            | In-memory `Map<string, RateLimitEntry>` with cleanup interval. Used by `signInWithMagicLink`. Auth-only (signIn, signUp, resetPassword). |
+| **Location rate limit** | `src/app/api/driver/location/route.ts`                                   | DB-query-based 1 req/min limit, queries `location_updates` table for last entry                                                          |
+| **Proxy/Middleware**    | Does not exist                                                           | No `proxy.ts` or `middleware.ts` in project                                                                                              |
+| **CSP headers**         | `next.config.ts` only                                                    | Image CSP for SVG (`contentSecurityPolicy` in images config). No global CSP headers.                                                     |
+| **Security headers**    | `next.config.ts` `headers()`                                             | Only CORS on `/api/health` and cache headers on fonts/icons. No X-Frame-Options, no HSTS, no CSP.                                        |
+| **Driver pages**        | `src/app/(driver)/driver/`                                               | Home (dashboard), Route (active + stop detail), History. 3 nav tabs.                                                                     |
+| **Driver components**   | `src/components/ui/driver/`                                              | 19 files: Dashboard, Nav, Shell, StopCard, StopDetail, LocationTracker, PhotoCapture, OnboardingForm, etc.                               |
+| **Driver API routes**   | `src/app/api/driver/`                                                    | `/me`, `/onboard`, `/location`, `/routes/{routeId}/*` (complete, start, stops)                                                           |
+| **Driver types**        | `src/types/driver.ts`                                                    | DriversRow, RoutesRow, RouteStopsRow, LocationUpdatesRow, DeliveryExceptionsRow                                                          |
+| **Supabase clients**    | `src/lib/supabase/server.ts`                                             | `createClient()` (cookie-based), `createPublicClient()`, `createServiceClient()` (service role)                                          |
+| **Database roles**      | `src/types/database.ts`                                                  | `ProfileRole = "customer" \| "admin" \| "driver"` in profiles table                                                                      |
+| **RLS test script**     | `scripts/rls-isolation-test.mjs`                                         | Tests address isolation between two users. Basic cross-user visibility test only.                                                        |
 
 ### Key Architecture Fact: Next.js 16 Uses proxy.ts, Not middleware.ts
 
@@ -86,6 +86,7 @@ Browser Request
 **Decision: Use `next.config.ts` headers, NOT `proxy.ts` nonces.**
 
 **Rationale:**
+
 1. Nonce-based CSP forces ALL pages to dynamic rendering. This project has static public pages (menu, homepage) that benefit from CDN caching.
 2. The project uses `dangerouslySetInnerHTML` in header styles (documented in key decisions). Nonces would require refactoring that pattern.
 3. Framer Motion, GSAP, and React all inject inline styles/scripts. Full nonce-based CSP requires `'unsafe-inline'` for styles anyway.
@@ -129,19 +130,19 @@ Add CSP and security headers in `next.config.ts` `headers()`:
 
 ### CSP Allowlist Requirements (Domain-Specific)
 
-| Directive | Domains | Why |
-|-----------|---------|-----|
-| `script-src` | `'self' 'unsafe-inline'` | Framer Motion + GSAP inject inline scripts, React hydration, Sentry tunnel |
-| `style-src` | `'self' 'unsafe-inline' fonts.googleapis.com` | Tailwind inline styles, `dangerouslySetInnerHTML` header styles, Google Fonts |
-| `img-src` | `*.supabase.co lh3.googleusercontent.com drive.google.com` | Supabase Storage menu photos, Google OAuth avatars, Drive images |
-| `connect-src` | `*.supabase.co *.sentry.io maps.googleapis.com` | Supabase API/realtime, Sentry ingest (backup to tunnel), Google Maps tiles |
-| `font-src` | `fonts.gstatic.com` | Inter + Playfair Display from Google Fonts |
-| `frame-ancestors` | `'none'` | Prevent clickjacking |
+| Directive         | Domains                                                    | Why                                                                           |
+| ----------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `script-src`      | `'self' 'unsafe-inline'`                                   | Framer Motion + GSAP inject inline scripts, React hydration, Sentry tunnel    |
+| `style-src`       | `'self' 'unsafe-inline' fonts.googleapis.com`              | Tailwind inline styles, `dangerouslySetInnerHTML` header styles, Google Fonts |
+| `img-src`         | `*.supabase.co lh3.googleusercontent.com drive.google.com` | Supabase Storage menu photos, Google OAuth avatars, Drive images              |
+| `connect-src`     | `*.supabase.co *.sentry.io maps.googleapis.com`            | Supabase API/realtime, Sentry ingest (backup to tunnel), Google Maps tiles    |
+| `font-src`        | `fonts.gstatic.com`                                        | Inter + Playfair Display from Google Fonts                                    |
+| `frame-ancestors` | `'none'`                                                   | Prevent clickjacking                                                          |
 
 ### Modified Files
 
-| File | Change |
-|------|--------|
+| File             | Change                                             |
+| ---------------- | -------------------------------------------------- |
 | `next.config.ts` | Add CSP + security headers to `headers()` function |
 
 ### New Files
@@ -153,7 +154,7 @@ None. CSP is configuration-only.
 `'unsafe-eval'` is required in development (React uses `eval` for error stack reconstruction). Use environment check:
 
 ```typescript
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === "development";
 // script-src includes 'unsafe-eval' only in dev
 ```
 
@@ -171,21 +172,21 @@ The `scripts/rls-isolation-test.mjs` only tests address cross-user isolation. No
 
 Based on codebase analysis of all Supabase queries:
 
-| Table | Current Access Pattern | Required RLS | Risk Level |
-|-------|----------------------|--------------|------------|
-| `profiles` | Queried by `id = user.id` in layouts, API routes | Users read own profile; admins read all | HIGH -- personal data |
-| `drivers` | Queried by `user_id = user.id` in driver layout/APIs | Drivers read own; admins read all | HIGH -- PII |
-| `driver_invites` | Queried by `id` in callback; admin creates | Admins CRUD; invited user reads own | MEDIUM |
-| `orders` | Customer queries own; admin queries all | Customer reads own; admin reads all; driver reads assigned | HIGH -- financial |
-| `addresses` | Customer queries own | Users CRUD own addresses only | HIGH -- location data |
-| `routes` | Driver queries own; admin queries all | Driver reads assigned; admin CRUD all | MEDIUM |
-| `route_stops` | Driver updates own route's stops; admin manages | Inherit route access | MEDIUM |
-| `location_updates` | Driver inserts own; tracking reads latest for order | Driver inserts own; customer reads for their order | LOW |
-| `delivery_exceptions` | Driver creates; admin resolves | Driver creates on own stops; admin manages all | LOW |
-| `menu_items` | Public read; admin write | Anon/authenticated read; admin write | LOW |
-| `categories` | Public read; admin write | Anon/authenticated read; admin write | LOW |
-| `sections` | Public read; admin write | Anon/authenticated read; admin write | LOW |
-| `settings` | Admin read/write | Admin only | MEDIUM |
+| Table                 | Current Access Pattern                               | Required RLS                                               | Risk Level            |
+| --------------------- | ---------------------------------------------------- | ---------------------------------------------------------- | --------------------- |
+| `profiles`            | Queried by `id = user.id` in layouts, API routes     | Users read own profile; admins read all                    | HIGH -- personal data |
+| `drivers`             | Queried by `user_id = user.id` in driver layout/APIs | Drivers read own; admins read all                          | HIGH -- PII           |
+| `driver_invites`      | Queried by `id` in callback; admin creates           | Admins CRUD; invited user reads own                        | MEDIUM                |
+| `orders`              | Customer queries own; admin queries all              | Customer reads own; admin reads all; driver reads assigned | HIGH -- financial     |
+| `addresses`           | Customer queries own                                 | Users CRUD own addresses only                              | HIGH -- location data |
+| `routes`              | Driver queries own; admin queries all                | Driver reads assigned; admin CRUD all                      | MEDIUM                |
+| `route_stops`         | Driver updates own route's stops; admin manages      | Inherit route access                                       | MEDIUM                |
+| `location_updates`    | Driver inserts own; tracking reads latest for order  | Driver inserts own; customer reads for their order         | LOW                   |
+| `delivery_exceptions` | Driver creates; admin resolves                       | Driver creates on own stops; admin manages all             | LOW                   |
+| `menu_items`          | Public read; admin write                             | Anon/authenticated read; admin write                       | LOW                   |
+| `categories`          | Public read; admin write                             | Anon/authenticated read; admin write                       | LOW                   |
+| `sections`            | Public read; admin write                             | Anon/authenticated read; admin write                       | LOW                   |
+| `settings`            | Admin read/write                                     | Admin only                                                 | MEDIUM                |
 
 ### RLS Policy Pattern
 
@@ -212,26 +213,26 @@ CREATE POLICY "Admins read all profiles"
 
 Extend `scripts/rls-isolation-test.mjs` to cover all tables:
 
-| Test | What It Verifies |
-|------|-----------------|
-| Customer A cannot read Customer B's orders | Order isolation |
-| Customer cannot read driver data | Role boundary |
-| Driver cannot read other driver's routes | Driver isolation |
+| Test                                           | What It Verifies    |
+| ---------------------------------------------- | ------------------- |
+| Customer A cannot read Customer B's orders     | Order isolation     |
+| Customer cannot read driver data               | Role boundary       |
+| Driver cannot read other driver's routes       | Driver isolation    |
 | Driver cannot read customer addresses directly | Cross-role boundary |
-| Anon can read menu items | Public access |
-| Anon cannot read orders/profiles | Auth boundary |
-| Admin can read all profiles | Admin access |
+| Anon can read menu items                       | Public access       |
+| Anon cannot read orders/profiles               | Auth boundary       |
+| Admin can read all profiles                    | Admin access        |
 
 ### Modified Files
 
-| File | Change |
-|------|--------|
+| File                             | Change                             |
+| -------------------------------- | ---------------------------------- |
 | `scripts/rls-isolation-test.mjs` | Expand test coverage to all tables |
 
 ### New Files
 
-| File | Purpose |
-|------|---------|
+| File                      | Purpose                                  |
+| ------------------------- | ---------------------------------------- |
 | Supabase migrations (SQL) | RLS policies for any tables missing them |
 
 **Note:** RLS policies are Supabase-side (SQL migrations or dashboard). No TypeScript code changes needed for RLS itself -- the existing `createClient()` (anon key) automatically respects RLS.
@@ -260,9 +261,9 @@ pnpm add @upstash/ratelimit @upstash/redis
 
 ### Environment Variables
 
-| Variable | Purpose |
-|----------|---------|
-| `KV_REST_API_URL` | Vercel KV (Upstash) REST URL -- auto-set by Vercel KV integration |
+| Variable            | Purpose                                                             |
+| ------------------- | ------------------------------------------------------------------- |
+| `KV_REST_API_URL`   | Vercel KV (Upstash) REST URL -- auto-set by Vercel KV integration   |
 | `KV_REST_API_TOKEN` | Vercel KV (Upstash) REST token -- auto-set by Vercel KV integration |
 
 ### Implementation Pattern
@@ -282,42 +283,42 @@ const redis = new Redis({
 // Auth rate limits
 export const authRateLimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(5, "60 s"),  // 5 per minute
+  limiter: Ratelimit.slidingWindow(5, "60 s"), // 5 per minute
   prefix: "ratelimit:auth",
 });
 
 // API rate limits (general)
 export const apiRateLimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(60, "60 s"),  // 60 per minute
+  limiter: Ratelimit.slidingWindow(60, "60 s"), // 60 per minute
   prefix: "ratelimit:api",
 });
 
 // Driver location updates
 export const locationRateLimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.fixedWindow(1, "60 s"),  // 1 per minute
+  limiter: Ratelimit.fixedWindow(1, "60 s"), // 1 per minute
   prefix: "ratelimit:location",
 });
 ```
 
 ### Rate Limit Tiers
 
-| Endpoint Category | Limit | Algorithm | Identifier |
-|-------------------|-------|-----------|------------|
-| Auth (magic link, OAuth) | 5/min | Sliding window | Email address |
-| Public API (menu, sections) | 60/min | Sliding window | IP address |
-| Customer API (orders, account) | 30/min | Sliding window | User ID |
-| Admin API | 120/min | Sliding window | User ID |
-| Driver location | 1/min | Fixed window | Driver ID |
-| Webhook endpoints | No limit | N/A | Verified by secret |
+| Endpoint Category              | Limit    | Algorithm      | Identifier         |
+| ------------------------------ | -------- | -------------- | ------------------ |
+| Auth (magic link, OAuth)       | 5/min    | Sliding window | Email address      |
+| Public API (menu, sections)    | 60/min   | Sliding window | IP address         |
+| Customer API (orders, account) | 30/min   | Sliding window | User ID            |
+| Admin API                      | 120/min  | Sliding window | User ID            |
+| Driver location                | 1/min    | Fixed window   | Driver ID          |
+| Webhook endpoints              | No limit | N/A            | Verified by secret |
 
 ### Modified Files
 
-| File | Change |
-|------|--------|
-| `src/lib/utils/rate-limit.ts` | Complete rewrite: Map-based to Upstash-based |
-| `src/lib/supabase/actions.ts` | Update `checkRateLimit` call to use new async API |
+| File                                   | Change                                                               |
+| -------------------------------------- | -------------------------------------------------------------------- |
+| `src/lib/utils/rate-limit.ts`          | Complete rewrite: Map-based to Upstash-based                         |
+| `src/lib/supabase/actions.ts`          | Update `checkRateLimit` call to use new async API                    |
 | `src/app/api/driver/location/route.ts` | Replace DB-query rate limit with `locationRateLimit.limit(driverId)` |
 
 ### Data Flow Change
@@ -405,32 +406,32 @@ Current `DriverNav` has 3 tabs: Home, Route, History. Adding 5 new pages means t
 
 **Recommended approach:** Keep 3-4 bottom nav tabs + overflow via profile/settings icon.
 
-| Tab | Page | Rationale |
-|-----|------|-----------|
-| Home | `/driver` | Dashboard with today's route + quick stats |
-| Route | `/driver/route` | Active delivery route |
-| Earnings | `/driver/earnings` | Key motivational page for drivers |
-| Profile | `/driver/profile` | Links to: availability, routes-history, settings |
+| Tab      | Page               | Rationale                                        |
+| -------- | ------------------ | ------------------------------------------------ |
+| Home     | `/driver`          | Dashboard with today's route + quick stats       |
+| Route    | `/driver/route`    | Active delivery route                            |
+| Earnings | `/driver/earnings` | Key motivational page for drivers                |
+| Profile  | `/driver/profile`  | Links to: availability, routes-history, settings |
 
 Test delivery and first-delivery walkthrough are NOT nav items -- they are entry-point flows accessed from onboarding or admin action.
 
 ### Modified Files
 
-| File | Change |
-|------|--------|
-| `src/components/ui/driver/DriverNav.tsx` | Add Earnings tab, replace History with Profile tab |
+| File                                                | Change                                                                        |
+| --------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `src/components/ui/driver/DriverNav.tsx`            | Add Earnings tab, replace History with Profile tab                            |
 | `src/components/ui/driver/DriverDashboard/types.ts` | Add `weeklyEarningsCents`, `streakDays` to props (already stubbed but unused) |
 
 ### New API Routes
 
-| Route | Method | Purpose | Auth |
-|-------|--------|---------|------|
-| `GET /api/driver/earnings` | GET | Weekly/monthly earnings data | `requireDriver()` |
-| `GET /api/driver/availability` | GET | Current availability schedule | `requireDriver()` |
-| `PUT /api/driver/availability` | PUT | Update availability | `requireDriver()` |
-| `GET /api/driver/profile` | GET | Full driver profile + preferences | `requireDriver()` |
-| `PUT /api/driver/profile` | PUT | Update profile (vehicle, photo, preferences) | `requireDriver()` |
-| `GET /api/driver/routes/stats` | GET | Aggregated route stats (on-time %, avg duration) | `requireDriver()` |
+| Route                          | Method | Purpose                                          | Auth              |
+| ------------------------------ | ------ | ------------------------------------------------ | ----------------- |
+| `GET /api/driver/earnings`     | GET    | Weekly/monthly earnings data                     | `requireDriver()` |
+| `GET /api/driver/availability` | GET    | Current availability schedule                    | `requireDriver()` |
+| `PUT /api/driver/availability` | PUT    | Update availability                              | `requireDriver()` |
+| `GET /api/driver/profile`      | GET    | Full driver profile + preferences                | `requireDriver()` |
+| `PUT /api/driver/profile`      | PUT    | Update profile (vehicle, photo, preferences)     | `requireDriver()` |
+| `GET /api/driver/routes/stats` | GET    | Aggregated route stats (on-time %, avg duration) | `requireDriver()` |
 
 ### Component Architecture per Page
 
@@ -538,14 +539,14 @@ Existing `DriversRow` already has all needed fields:
 interface DriversRow {
   id: string;
   user_id: string;
-  vehicle_type: VehicleType | null;    // editable
-  license_plate: string | null;         // editable
-  phone: string | null;                 // editable
-  profile_image_url: string | null;     // editable (photo upload)
+  vehicle_type: VehicleType | null; // editable
+  license_plate: string | null; // editable
+  phone: string | null; // editable
+  profile_image_url: string | null; // editable (photo upload)
   is_active: boolean;
   onboarding_completed_at: string | null;
-  rating_avg: number;                   // read-only
-  deliveries_count: number;             // read-only
+  rating_avg: number; // read-only
+  deliveries_count: number; // read-only
 }
 ```
 
@@ -553,28 +554,28 @@ interface DriversRow {
 
 Reuse the existing Supabase Storage pattern from admin photo uploads:
 
-| Component | Existing | New |
-|-----------|----------|-----|
-| Storage bucket | `menu-photos` | `driver-photos` (new bucket) |
-| Upload API | `src/app/api/admin/menu/[id]/photo/route.ts` | `src/app/api/driver/profile/photo/route.ts` (new) |
-| Client component | Admin photo upload UI | Driver profile photo upload UI (new) |
+| Component        | Existing                                     | New                                               |
+| ---------------- | -------------------------------------------- | ------------------------------------------------- |
+| Storage bucket   | `menu-photos`                                | `driver-photos` (new bucket)                      |
+| Upload API       | `src/app/api/admin/menu/[id]/photo/route.ts` | `src/app/api/driver/profile/photo/route.ts` (new) |
+| Client component | Admin photo upload UI                        | Driver profile photo upload UI (new)              |
 
 ### Modified Files
 
-| File | Change |
-|------|--------|
+| File                  | Change                                              |
+| --------------------- | --------------------------------------------------- |
 | `src/types/driver.ts` | Add `availability_json` to DriversRow/Insert/Update |
 
 ### New Files
 
-| File | Purpose |
-|------|---------|
-| `src/app/(driver)/driver/profile/page.tsx` | Profile setup page |
-| `src/app/(driver)/driver/profile/DriverProfileContent.tsx` | Client component |
-| `src/app/(driver)/driver/profile/loading.tsx` | Skeleton |
-| `src/app/api/driver/profile/route.ts` | GET/PUT driver profile |
-| `src/app/api/driver/profile/photo/route.ts` | POST photo upload |
-| `src/components/ui/driver/DriverProfileForm.tsx` | Form component |
+| File                                                       | Purpose                |
+| ---------------------------------------------------------- | ---------------------- |
+| `src/app/(driver)/driver/profile/page.tsx`                 | Profile setup page     |
+| `src/app/(driver)/driver/profile/DriverProfileContent.tsx` | Client component       |
+| `src/app/(driver)/driver/profile/loading.tsx`              | Skeleton               |
+| `src/app/api/driver/profile/route.ts`                      | GET/PUT driver profile |
+| `src/app/api/driver/profile/photo/route.ts`                | POST photo upload      |
+| `src/components/ui/driver/DriverProfileForm.tsx`           | Form component         |
 
 ---
 
@@ -613,22 +614,22 @@ Use a client-side "coach marks" overlay pattern:
 ```typescript
 // Step definitions
 const WALKTHROUGH_STEPS = [
-  { target: '[data-step="start-route"]', content: 'Tap here to start your route' },
-  { target: '[data-step="navigate"]', content: 'Follow directions to the first stop' },
-  { target: '[data-step="mark-arrived"]', content: 'Tap when you arrive' },
-  { target: '[data-step="take-photo"]', content: 'Take a delivery photo' },
-  { target: '[data-step="mark-delivered"]', content: 'Confirm delivery' },
+  { target: '[data-step="start-route"]', content: "Tap here to start your route" },
+  { target: '[data-step="navigate"]', content: "Follow directions to the first stop" },
+  { target: '[data-step="mark-arrived"]', content: "Tap when you arrive" },
+  { target: '[data-step="take-photo"]', content: "Take a delivery photo" },
+  { target: '[data-step="mark-delivered"]', content: "Confirm delivery" },
 ];
 ```
 
 ### New Files
 
-| File | Purpose |
-|------|---------|
-| `src/app/(driver)/driver/test-delivery/page.tsx` | Test delivery entry page |
-| `src/app/(driver)/driver/test-delivery/TestDeliveryContent.tsx` | Client component with walkthrough |
-| `src/components/ui/driver/WalkthroughOverlay.tsx` | Reusable coach marks overlay |
-| `src/app/api/driver/routes/test/route.ts` | POST: create test route for driver |
+| File                                                            | Purpose                            |
+| --------------------------------------------------------------- | ---------------------------------- |
+| `src/app/(driver)/driver/test-delivery/page.tsx`                | Test delivery entry page           |
+| `src/app/(driver)/driver/test-delivery/TestDeliveryContent.tsx` | Client component with walkthrough  |
+| `src/components/ui/driver/WalkthroughOverlay.tsx`               | Reusable coach marks overlay       |
+| `src/app/api/driver/routes/test/route.ts`                       | POST: create test route for driver |
 
 ---
 
@@ -650,6 +651,7 @@ User visits /login
 The redirect logic belongs in `src/app/auth/callback/route.ts`, NOT in proxy.ts.
 
 **Rationale:**
+
 1. The auth callback already has the session (just exchanged code for token).
 2. Proxy (edge) cannot call `supabase.auth.getUser()` reliably -- it can only read cookies, which may be spoofed.
 3. The callback already does role-based logic for driver invites.
@@ -661,20 +663,20 @@ The redirect logic belongs in `src/app/auth/callback/route.ts`, NOT in proxy.ts.
 // In src/app/auth/callback/route.ts, after successful code exchange:
 
 // If no explicit next param (or next is /login), redirect by role
-if (!next || next === '/' || next === '/login') {
+if (!next || next === "/" || next === "/login") {
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', sessionData.session.user.id)
+    .from("profiles")
+    .select("role")
+    .eq("id", sessionData.session.user.id)
     .single();
 
   const roleRedirects: Record<string, string> = {
-    admin: '/admin',
-    driver: '/driver',
-    customer: '/menu',
+    admin: "/admin",
+    driver: "/driver",
+    customer: "/menu",
   };
 
-  const redirectPath = roleRedirects[profile?.role ?? ''] ?? '/menu';
+  const redirectPath = roleRedirects[profile?.role ?? ""] ?? "/menu";
   return NextResponse.redirect(`${origin}${redirectPath}`, { status: 302 });
 }
 ```
@@ -687,22 +689,22 @@ The login page currently redirects logged-in users to `/`. Update to redirect by
 // In src/app/(auth)/login/page.tsx
 if (user) {
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
     .single();
 
-  const roleRedirects = { admin: '/admin', driver: '/driver', customer: '/menu' };
-  redirect(roleRedirects[profile?.role ?? ''] ?? '/menu');
+  const roleRedirects = { admin: "/admin", driver: "/driver", customer: "/menu" };
+  redirect(roleRedirects[profile?.role ?? ""] ?? "/menu");
 }
 ```
 
 ### Modified Files
 
-| File | Change |
-|------|--------|
+| File                             | Change                                               |
+| -------------------------------- | ---------------------------------------------------- |
 | `src/app/auth/callback/route.ts` | Add role-based redirect when `next` param is generic |
-| `src/app/(auth)/login/page.tsx` | Redirect logged-in users to role-appropriate page |
+| `src/app/(auth)/login/page.tsx`  | Redirect logged-in users to role-appropriate page    |
 
 ### New Files
 
@@ -726,26 +728,26 @@ Although CSP headers are handled in `next.config.ts`, the project needs `proxy.t
 
 ### proxy.ts Responsibilities
 
-| Responsibility | How |
-|----------------|-----|
+| Responsibility     | How                                                                 |
+| ------------------ | ------------------------------------------------------------------- |
 | Auth token refresh | Call `supabase.auth.getUser()` to refresh expired tokens via cookie |
-| Cookie passthrough | Set refreshed cookies on response |
+| Cookie passthrough | Set refreshed cookies on response                                   |
 
 ### What proxy.ts Does NOT Do
 
-| Excluded | Why |
-|----------|-----|
-| CSP headers | Handled in `next.config.ts` (no nonces needed) |
-| Role-based redirects | Handled in auth callback (has session context) |
-| Rate limiting | Handled in API route handlers (need user identity) |
+| Excluded             | Why                                                |
+| -------------------- | -------------------------------------------------- |
+| CSP headers          | Handled in `next.config.ts` (no nonces needed)     |
+| Role-based redirects | Handled in auth callback (has session context)     |
+| Rate limiting        | Handled in API route handlers (need user identity) |
 | Auth guard redirects | Handled in route group layouts (server components) |
 
 ### Implementation Pattern
 
 ```typescript
 // src/proxy.ts
-import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -755,11 +757,11 @@ export async function proxy(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() { return request.cookies.getAll(); },
+        getAll() {
+          return request.cookies.getAll();
+        },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            request.cookies.set(name, value)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value));
           supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
@@ -777,27 +779,27 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|icons|fonts|sw.js|manifest.json|monitoring|api/health|api/webhooks).*)',
+    "/((?!_next/static|_next/image|favicon.ico|icons|fonts|sw.js|manifest.json|monitoring|api/health|api/webhooks).*)",
   ],
 };
 ```
 
 ### New Files
 
-| File | Purpose |
-|------|---------|
+| File           | Purpose                     |
+| -------------- | --------------------------- |
 | `src/proxy.ts` | Supabase auth token refresh |
 
 ### Matcher Exclusions
 
-| Excluded Path | Why |
-|---------------|-----|
-| `_next/static`, `_next/image` | Static assets, no auth needed |
-| `favicon.ico`, `icons`, `fonts` | Static files |
-| `sw.js`, `manifest.json` | Service worker files |
-| `monitoring` | Sentry tunnel route (must not be intercepted) |
-| `api/health` | Health check (public, no auth) |
-| `api/webhooks` | Stripe/Resend webhooks (use their own auth) |
+| Excluded Path                   | Why                                           |
+| ------------------------------- | --------------------------------------------- |
+| `_next/static`, `_next/image`   | Static assets, no auth needed                 |
+| `favicon.ico`, `icons`, `fonts` | Static files                                  |
+| `sw.js`, `manifest.json`        | Service worker files                          |
+| `monitoring`                    | Sentry tunnel route (must not be intercepted) |
+| `api/health`                    | Health check (public, no auth)                |
+| `api/webhooks`                  | Stripe/Resend webhooks (use their own auth)   |
 
 ---
 
@@ -805,36 +807,36 @@ export const config = {
 
 ### New Files (14)
 
-| File | Category | Purpose |
-|------|----------|---------|
-| `src/proxy.ts` | Security | Auth token refresh |
-| `src/app/(driver)/driver/earnings/page.tsx` | Driver | Earnings dashboard |
-| `src/app/(driver)/driver/earnings/EarningsContent.tsx` | Driver | Earnings client component |
-| `src/app/(driver)/driver/earnings/loading.tsx` | Driver | Skeleton |
-| `src/app/(driver)/driver/availability/page.tsx` | Driver | Availability scheduling |
-| `src/app/(driver)/driver/availability/AvailabilityContent.tsx` | Driver | Availability client component |
-| `src/app/(driver)/driver/availability/loading.tsx` | Driver | Skeleton |
-| `src/app/(driver)/driver/profile/page.tsx` | Driver | Profile setup |
-| `src/app/(driver)/driver/profile/DriverProfileContent.tsx` | Driver | Profile client component |
-| `src/app/(driver)/driver/profile/loading.tsx` | Driver | Skeleton |
-| `src/app/(driver)/driver/test-delivery/page.tsx` | Driver | Test delivery walkthrough |
-| `src/app/(driver)/driver/test-delivery/TestDeliveryContent.tsx` | Driver | Test flow client component |
-| `src/app/api/driver/earnings/route.ts` | API | Earnings data endpoint |
-| `src/app/api/driver/profile/route.ts` | API | Profile CRUD |
+| File                                                            | Category | Purpose                       |
+| --------------------------------------------------------------- | -------- | ----------------------------- |
+| `src/proxy.ts`                                                  | Security | Auth token refresh            |
+| `src/app/(driver)/driver/earnings/page.tsx`                     | Driver   | Earnings dashboard            |
+| `src/app/(driver)/driver/earnings/EarningsContent.tsx`          | Driver   | Earnings client component     |
+| `src/app/(driver)/driver/earnings/loading.tsx`                  | Driver   | Skeleton                      |
+| `src/app/(driver)/driver/availability/page.tsx`                 | Driver   | Availability scheduling       |
+| `src/app/(driver)/driver/availability/AvailabilityContent.tsx`  | Driver   | Availability client component |
+| `src/app/(driver)/driver/availability/loading.tsx`              | Driver   | Skeleton                      |
+| `src/app/(driver)/driver/profile/page.tsx`                      | Driver   | Profile setup                 |
+| `src/app/(driver)/driver/profile/DriverProfileContent.tsx`      | Driver   | Profile client component      |
+| `src/app/(driver)/driver/profile/loading.tsx`                   | Driver   | Skeleton                      |
+| `src/app/(driver)/driver/test-delivery/page.tsx`                | Driver   | Test delivery walkthrough     |
+| `src/app/(driver)/driver/test-delivery/TestDeliveryContent.tsx` | Driver   | Test flow client component    |
+| `src/app/api/driver/earnings/route.ts`                          | API      | Earnings data endpoint        |
+| `src/app/api/driver/profile/route.ts`                           | API      | Profile CRUD                  |
 
 ### Modified Files (9)
 
-| File | Change | Category |
-|------|--------|----------|
-| `next.config.ts` | Add CSP + security headers | Security |
-| `src/lib/utils/rate-limit.ts` | Rewrite: Map to Upstash | Security |
-| `src/lib/supabase/actions.ts` | Update rate limit call (async) | Security |
-| `src/app/api/driver/location/route.ts` | Use Upstash rate limit | Security |
-| `src/app/auth/callback/route.ts` | Add role-based redirect | Auth |
-| `src/app/(auth)/login/page.tsx` | Role-based redirect for logged-in users | Auth |
-| `src/components/ui/driver/DriverNav.tsx` | Restructure tabs (add Earnings, Profile) | Driver |
-| `src/types/driver.ts` | Add availability_json, is_test fields | Types |
-| `scripts/rls-isolation-test.mjs` | Expand to all tables | Security |
+| File                                     | Change                                   | Category |
+| ---------------------------------------- | ---------------------------------------- | -------- |
+| `next.config.ts`                         | Add CSP + security headers               | Security |
+| `src/lib/utils/rate-limit.ts`            | Rewrite: Map to Upstash                  | Security |
+| `src/lib/supabase/actions.ts`            | Update rate limit call (async)           | Security |
+| `src/app/api/driver/location/route.ts`   | Use Upstash rate limit                   | Security |
+| `src/app/auth/callback/route.ts`         | Add role-based redirect                  | Auth     |
+| `src/app/(auth)/login/page.tsx`          | Role-based redirect for logged-in users  | Auth     |
+| `src/components/ui/driver/DriverNav.tsx` | Restructure tabs (add Earnings, Profile) | Driver   |
+| `src/types/driver.ts`                    | Add availability_json, is_test fields    | Types    |
+| `scripts/rls-isolation-test.mjs`         | Expand to all tables                     | Security |
 
 ---
 
@@ -1016,21 +1018,25 @@ Recharts line/bar chart (existing Recharts dependency)
 ## Sources
 
 **Next.js 16 (HIGH confidence):**
+
 - [proxy.ts API Reference](https://nextjs.org/docs/app/api-reference/file-conventions/proxy) -- middleware renamed to proxy in v16
 - [CSP Guide](https://nextjs.org/docs/app/guides/content-security-policy) -- nonce vs non-nonce approaches, PPR incompatibility
 - [Content Security Policy (v16.1.6)](https://nextjs.org/docs/app/guides/content-security-policy) -- verified 2026-02-11
 
 **Supabase (HIGH confidence):**
+
 - [Server-Side Auth for Next.js](https://supabase.com/docs/guides/auth/server-side/nextjs) -- updateSession utility, getClaims()
 - [RLS Documentation](https://supabase.com/docs/guides/database/postgres/row-level-security) -- policy patterns
 - [RLS Best Practices](https://makerkit.dev/blog/tutorials/supabase-rls-best-practices) -- index columns in policies
 
 **Upstash / Vercel KV (HIGH confidence):**
+
 - [Rate Limiting Next.js with Upstash](https://upstash.com/blog/nextjs-ratelimiting) -- @upstash/ratelimit setup
 - [Vercel KV Template](https://vercel.com/templates/next.js/ratelimit-with-upstash-redis) -- first-party integration
 - [Ratelimit with Vercel KV](https://upstash.com/examples/ratelimitingwithvercelkv) -- algorithm options
 
 **Existing Codebase (HIGH confidence -- directly examined):**
+
 - `next.config.ts` -- current headers, image CSP, Sentry wrapper
 - `src/app/(driver)/driver/layout.tsx` -- driver auth guard pattern
 - `src/app/(admin)/admin/layout.tsx` -- admin auth guard pattern
@@ -1045,5 +1051,6 @@ Recharts line/bar chart (existing Recharts dependency)
 - `scripts/rls-isolation-test.mjs` -- existing RLS test
 
 ---
-*Architecture research for: v1.8 Post-Launch Hardening & Driver Experience*
-*Researched: 2026-02-16*
+
+_Architecture research for: v1.8 Post-Launch Hardening & Driver Experience_
+_Researched: 2026-02-16_

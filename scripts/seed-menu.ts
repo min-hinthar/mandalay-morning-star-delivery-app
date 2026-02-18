@@ -204,15 +204,13 @@ async function seedModifierGroups(
 
         if (updateError) throw updateError;
       } else {
-        const { error: insertError } = await supabase
-          .from("modifier_options")
-          .insert({
-            group_id: groupId,
-            slug: optionSlug,
-            name: option.name,
-            price_delta_cents: option.price_delta_cents,
-            sort_order: index,
-          });
+        const { error: insertError } = await supabase.from("modifier_options").insert({
+          group_id: groupId,
+          slug: optionSlug,
+          name: option.name,
+          price_delta_cents: option.price_delta_cents,
+          sort_order: index,
+        });
 
         if (insertError) throw insertError;
       }
@@ -319,10 +317,7 @@ async function seedMenuItems(
   return itemMap;
 }
 
-async function verifySeed(
-  supabase: SupabaseClient<Database>,
-  data: SeedData
-): Promise<void> {
+async function verifySeed(supabase: SupabaseClient<Database>, data: SeedData): Promise<void> {
   console.log("Verifying seed...");
 
   const { count: categoryCount, error: categoryError } = await supabase
@@ -355,7 +350,9 @@ async function verifySeed(
 
   if (linkError) throw linkError;
 
-  console.log(`\nVerification Results:\n  Categories: ${categoryCount} (expected: ${data.categories.length})\n  Items: ${itemCount} (expected: ${data.items.length})\n  Modifier Groups: ${groupCount} (expected: ${data.modifier_groups.length})\n  Modifier Options: ${optionCount}\n  Item-Modifier Links: ${linkCount}\n`);
+  console.log(
+    `\nVerification Results:\n  Categories: ${categoryCount} (expected: ${data.categories.length})\n  Items: ${itemCount} (expected: ${data.items.length})\n  Modifier Groups: ${groupCount} (expected: ${data.modifier_groups.length})\n  Modifier Options: ${optionCount}\n  Item-Modifier Links: ${linkCount}\n`
+  );
 
   if (categoryCount !== data.categories.length) {
     throw new Error("Category count mismatch!");

@@ -1,20 +1,13 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import {
-  X,
-  Phone,
-  Mail,
-  Pencil,
-  Archive,
-  ExternalLink,
-} from 'lucide-react';
-import { cn } from '@/lib/utils/cn';
-import { Drawer } from '@/components/ui/Drawer';
-import { Button } from '@/components/ui/button';
-import { StatusBadge } from '@/components/ui/admin/StatusBadge';
-import { VehicleIcon, VEHICLE_LABELS } from './DriverListTable/types';
-import type { AdminDriver } from './DriverListTable/types';
+import Link from "next/link";
+import { X, Phone, Mail, Pencil, Archive, ExternalLink } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+import { Drawer } from "@/components/ui/Drawer";
+import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/ui/admin/StatusBadge";
+import { VehicleIcon, VEHICLE_LABELS } from "./DriverListTable/types";
+import type { AdminDriver } from "./DriverListTable/types";
 
 // ============================================
 // TYPES
@@ -34,12 +27,12 @@ export interface DriverDetailDrawerProps {
 function LargeAvatar({ name }: { name: string | null }) {
   const initials = name
     ? name
-        .split(' ')
+        .split(" ")
         .map((n) => n[0])
-        .join('')
+        .join("")
         .toUpperCase()
         .slice(0, 2)
-    : 'DR';
+    : "DR";
 
   return (
     <div className="mx-auto h-20 w-20 rounded-full bg-accent-teal/10 text-accent-teal flex items-center justify-center font-display text-2xl font-bold">
@@ -65,12 +58,7 @@ function StatRow({ label, value }: { label: string; value: string | number }) {
 // COMPONENT
 // ============================================
 
-export function DriverDetailDrawer({
-  driver,
-  isOpen,
-  onClose,
-  onEdit,
-}: DriverDetailDrawerProps) {
+export function DriverDetailDrawer({ driver, isOpen, onClose, onEdit }: DriverDetailDrawerProps) {
   if (!driver) return null;
 
   return (
@@ -79,14 +67,12 @@ export function DriverDetailDrawer({
       onClose={onClose}
       position="right"
       width="md"
-      title={`Driver: ${driver.fullName || 'Unknown'}`}
+      title={`Driver: ${driver.fullName || "Unknown"}`}
     >
       <div className="flex flex-col h-full">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <h2 className="font-display text-lg font-bold text-text-primary">
-            Driver Details
-          </h2>
+          <h2 className="font-display text-lg font-bold text-text-primary">Driver Details</h2>
           <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
@@ -100,13 +86,10 @@ export function DriverDetailDrawer({
             <LargeAvatar name={driver.fullName} />
             <div>
               <h3 className="font-display text-lg font-bold text-text-primary">
-                {driver.fullName || 'Unnamed Driver'}
+                {driver.fullName || "Unnamed Driver"}
               </h3>
               <div className="mt-1.5 inline-block">
-                <StatusBadge
-                  status={driver.isActive ? 'active' : 'inactive'}
-                  size="md"
-                />
+                <StatusBadge status={driver.isActive ? "active" : "inactive"} size="md" />
               </div>
             </div>
           </div>
@@ -158,16 +141,14 @@ export function DriverDetailDrawer({
               <StatRow
                 label="Average Rating"
                 value={
-                  driver.ratingAvg !== null
-                    ? `${driver.ratingAvg.toFixed(1)} / 5.0`
-                    : '\u2014'
+                  driver.ratingAvg !== null ? `${driver.ratingAvg.toFixed(1)} / 5.0` : "\u2014"
                 }
               />
               <StatRow
                 label="Member Since"
-                value={new Date(driver.createdAt).toLocaleDateString('en-US', {
-                  month: 'short',
-                  year: 'numeric',
+                value={new Date(driver.createdAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  year: "numeric",
                 })}
               />
             </div>
@@ -192,8 +173,8 @@ export function DriverDetailDrawer({
                 variant="outline"
                 size="sm"
                 className={cn(
-                  'justify-start',
-                  'text-text-muted hover:text-status-error hover:border-status-error/30'
+                  "justify-start",
+                  "text-text-muted hover:text-status-error hover:border-status-error/30"
                 )}
               >
                 <Archive className="h-4 w-4 mr-2" />

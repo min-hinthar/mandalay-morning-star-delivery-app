@@ -16,10 +16,7 @@ export interface MorphingMenuWithLabelProps extends MorphingMenuProps {
   labelPosition?: "left" | "right";
 }
 
-export const MorphingMenuWithLabel = forwardRef<
-  HTMLButtonElement,
-  MorphingMenuWithLabelProps
->(
+export const MorphingMenuWithLabel = forwardRef<HTMLButtonElement, MorphingMenuWithLabelProps>(
   (
     {
       closedLabel = "Menu",
@@ -43,21 +40,12 @@ export const MorphingMenuWithLabel = forwardRef<
           className
         )}
       >
-        <MorphingMenu
-          ref={ref}
-          isOpen={isOpen}
-          onToggle={onToggle}
-          {...props}
-        />
+        <MorphingMenu ref={ref} isOpen={isOpen} onToggle={onToggle} {...props} />
 
         <m.span
           className="text-sm font-medium"
           initial={false}
-          animate={
-            shouldAnimate
-              ? { opacity: 1, x: 0 }
-              : undefined
-          }
+          animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
           key={label}
           transition={getSpring(spring.snappy)}
         >

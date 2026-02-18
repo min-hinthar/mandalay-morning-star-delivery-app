@@ -14,6 +14,7 @@ Customers receive branded transactional emails for every order lifecycle event: 
 ## Implementation Decisions
 
 ### Email Design & Branding
+
 - Warm & food-forward visual style matching the app's golden/warm palette
 - Full branded banner header: logo + tagline + warm gradient background strip
 - Playful & Burmese-themed tone: "Mingalabar! Your feast is on the way" style
@@ -34,6 +35,7 @@ Customers receive branded transactional emails for every order lifecycle event: 
 - "View in browser" fallback link at top of every email
 
 ### Email Content — Order Confirmation
+
 - Full receipt: all items with prices, quantities, modifiers, subtotal, tax, delivery fee, tip, total
 - Full delivery block: address (full structured with apt/unit bold), estimated window, delivery instructions, driver name when assigned
 - Items grouped by category (Soups, Rice Dishes, Drinks, etc.) mirroring menu structure
@@ -48,23 +50,27 @@ Customers receive branded transactional emails for every order lifecycle event: 
 - Social sharing option
 
 ### Email Content — Cancellation
+
 - Order summary showing what was cancelled
 - Cancellation reason (if available)
 - Whether a refund was issued
 - "Place new order" CTA button to encourage reorder
 
 ### Email Content — Refund
+
 - Detailed breakdown: original amount, refund amount, refund method, expected timeline, items refunded
 - Refund reason always shown
 - Partial refunds get distinct treatment: original total, items refunded, partial refund amount, remaining charge
 
 ### Email Content — Delivery Reminder
+
 - Food excitement at top ("Your Mohinga & Shan Noodles are coming tomorrow!") + logistics details below
 - Static map image of delivery address + "View on Map" link to Google Maps
 - Modify/cancel links directing to order details page
 - Fires morning of delivery (e.g., 8am)
 
 ### Delivery & Timing Behavior
+
 - Order confirmation sent immediately on payment confirmation
 - Delivery reminder fires morning of delivery day
 - Retry on failure: 3 attempts with exponential backoff (~30 second window), then log failure
@@ -78,6 +84,7 @@ Customers receive branded transactional emails for every order lifecycle event: 
 - Short retry window (3 attempts, ~30s) — no extended retry queue
 
 ### Preference & Opt-out Handling
+
 - Per-type toggles: separate controls for order updates, delivery reminders, promotions
 - Order confirmation and refund emails are mandatory (receipts) — cannot be opted out
 - Unsubscribe link goes to app's Settings page (Phase 51 notification toggles) — single source of truth
@@ -88,16 +95,19 @@ Customers receive branded transactional emails for every order lifecycle event: 
 - Admin kill switch to disable all email sending system-wide (in admin settings)
 
 ### Email Testing
+
 - React Email preview server for rapid iteration + real Resend sends for final verification
 - No unit tests for email template rendering (visual preview is sufficient)
 - "Send Test Email" button per email type in admin settings
 - Realistic sample data fixtures using actual menu item names (Mohinga, Shan Noodles, etc.)
 
 ### Error Handling
+
 - Retry storm protection: idempotency table for correctness + rate limiting for defense in depth
 - All error scenarios delegated to Claude's discretion (no email address, incomplete data, render failures, Resend outage, bounces, webhook verification)
 
 ### Admin Email Management
+
 - Per-order email history on order detail page + global email log page
 - Manual "Resend" button on failed emails
 - Manual trigger: admin can send any email type for any order (support tool)
@@ -105,6 +115,7 @@ Customers receive branded transactional emails for every order lifecycle event: 
 - Email stats (sent/failed/bounce rate) on email log page (not main dashboard)
 
 ### Claude's Discretion
+
 - Mascot usage in emails (based on rendering constraints)
 - Food motifs for decorative illustrations
 - Typography approach (web-safe vs Google Font)
@@ -171,5 +182,5 @@ Customers receive branded transactional emails for every order lifecycle event: 
 
 ---
 
-*Phase: 54-email-system*
-*Context gathered: 2026-02-09*
+_Phase: 54-email-system_
+_Context gathered: 2026-02-09_

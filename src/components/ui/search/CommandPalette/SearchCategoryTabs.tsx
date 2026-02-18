@@ -20,11 +20,7 @@ export interface SearchCategoryTabsProps {
  * - Inactive tabs: subtle secondary background with hover state
  * - Horizontal scroll with hidden scrollbar for many categories
  */
-export function SearchCategoryTabs({
-  tabs,
-  activeTab,
-  onTabChange,
-}: SearchCategoryTabsProps) {
+export function SearchCategoryTabs({ tabs, activeTab, onTabChange }: SearchCategoryTabsProps) {
   const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const [indicatorStyle, setIndicatorStyle] = useState<{
     left: number;
@@ -114,29 +110,30 @@ interface TabPillProps {
   onClick: () => void;
 }
 
-const TabPill = forwardRef<HTMLButtonElement, TabPillProps>(
-  function TabPill({ label, isActive, onClick }, ref) {
-    return (
-      <button
-        ref={ref}
-        type="button"
-        onClick={onClick}
-        className={cn(
-          "relative flex-shrink-0",
-          "px-3 py-1.5 rounded-full",
-          "text-xs font-medium",
-          "transition-colors duration-100",
-          "whitespace-nowrap",
-          isActive
-            ? "text-primary-foreground"
-            : "bg-surface-secondary/60 text-text-secondary hover:bg-surface-hover hover:text-text-primary"
-        )}
-      >
-        {/* Label text (above indicator) */}
-        <span className="relative z-10">{label}</span>
-      </button>
-    );
-  }
-);
+const TabPill = forwardRef<HTMLButtonElement, TabPillProps>(function TabPill(
+  { label, isActive, onClick },
+  ref
+) {
+  return (
+    <button
+      ref={ref}
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "relative flex-shrink-0",
+        "px-3 py-1.5 rounded-full",
+        "text-xs font-medium",
+        "transition-colors duration-100",
+        "whitespace-nowrap",
+        isActive
+          ? "text-primary-foreground"
+          : "bg-surface-secondary/60 text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+      )}
+    >
+      {/* Label text (above indicator) */}
+      <span className="relative z-10">{label}</span>
+    </button>
+  );
+});
 
 export default SearchCategoryTabs;

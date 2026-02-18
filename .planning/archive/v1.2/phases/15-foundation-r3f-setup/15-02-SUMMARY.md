@@ -16,7 +16,13 @@ affects: [16-hero-3d, 17-menu-3d, 18-cart-3d]
 
 # Tech tracking
 tech-stack:
-  added: ["@react-three/fiber@9.5.0", "@react-three/drei@10.7.7", "three@0.182.0", "@types/three@0.182.0"]
+  added:
+    [
+      "@react-three/fiber@9.5.0",
+      "@react-three/drei@10.7.7",
+      "three@0.182.0",
+      "@types/three@0.182.0",
+    ]
   patterns: [ssr-safe-canvas, dynamic-import-3d, useframe-animation]
 
 key-files:
@@ -107,5 +113,6 @@ None - no external service configuration required.
 **Note:** Pre-existing TypeScript errors in layout components should be addressed before production deployment, but do not block 3D development.
 
 ---
-*Phase: 15-foundation-r3f-setup*
-*Completed: 2026-01-23*
+
+_Phase: 15-foundation-r3f-setup_
+_Completed: 2026-01-23_

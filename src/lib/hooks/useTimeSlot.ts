@@ -1,9 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  TIME_WINDOWS,
-  type DeliverySelection,
-  type TimeWindow,
-} from "@/types/delivery";
+import { TIME_WINDOWS, type DeliverySelection, type TimeWindow } from "@/types/delivery";
 import { getDeliveryDate } from "@/lib/utils/delivery-dates";
 
 export function useTimeSlot() {

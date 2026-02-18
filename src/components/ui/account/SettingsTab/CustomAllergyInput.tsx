@@ -18,10 +18,7 @@ interface CustomAllergyInputProps {
   onChange: (items: string[]) => void;
 }
 
-export function CustomAllergyInput({
-  customItems,
-  onChange,
-}: CustomAllergyInputProps) {
+export function CustomAllergyInput({ customItems, onChange }: CustomAllergyInputProps) {
   const [inputValue, setInputValue] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [validationMsg, setValidationMsg] = useState<string | null>(null);
@@ -152,9 +149,7 @@ export function CustomAllergyInput({
       )}
 
       {/* Validation feedback */}
-      {validationMsg && (
-        <p className="text-xs text-status-warning">{validationMsg}</p>
-      )}
+      {validationMsg && <p className="text-xs text-status-warning">{validationMsg}</p>}
     </div>
   );
 }

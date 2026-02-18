@@ -17,18 +17,13 @@ import { importWithRetry } from "@/lib/hooks/useDynamicImportWithRetry";
 export const LazyDeliverySuccessChart = dynamic(
   () =>
     importWithRetry(
-      () =>
-        import("./DeliverySuccessChart").then(
-          (mod) => mod.DeliverySuccessChart
-        ),
+      () => import("./DeliverySuccessChart").then((mod) => mod.DeliverySuccessChart),
       "DeliverySuccessChart"
     ),
   {
     loading: () => (
       <LoadingWithTimeout
-        skeleton={
-          <ChartSkeleton label="Loading delivery success chart..." height={300} />
-        }
+        skeleton={<ChartSkeleton label="Loading delivery success chart..." height={300} />}
         timeoutMs={10000}
         timeoutMessage="Charts taking longer than expected"
       />
@@ -40,16 +35,13 @@ export const LazyDeliverySuccessChart = dynamic(
 export const LazyETAAccuracyGauge = dynamic(
   () =>
     importWithRetry(
-      () =>
-        import("./DeliverySuccessChart").then((mod) => mod.ETAAccuracyGauge),
+      () => import("./DeliverySuccessChart").then((mod) => mod.ETAAccuracyGauge),
       "ETAAccuracyGauge"
     ),
   {
     loading: () => (
       <LoadingWithTimeout
-        skeleton={
-          <ChartSkeleton label="Loading ETA accuracy..." height={200} />
-        }
+        skeleton={<ChartSkeleton label="Loading ETA accuracy..." height={200} />}
         timeoutMs={10000}
         timeoutMessage="Charts taking longer than expected"
       />
@@ -61,16 +53,13 @@ export const LazyETAAccuracyGauge = dynamic(
 export const LazyPeakHoursChart = dynamic(
   () =>
     importWithRetry(
-      () =>
-        import("./PeakHoursChart").then((mod) => mod.PeakHoursChart),
+      () => import("./PeakHoursChart").then((mod) => mod.PeakHoursChart),
       "PeakHoursChart"
     ),
   {
     loading: () => (
       <LoadingWithTimeout
-        skeleton={
-          <ChartSkeleton label="Loading peak hours chart..." height={250} />
-        }
+        skeleton={<ChartSkeleton label="Loading peak hours chart..." height={250} />}
         timeoutMs={10000}
         timeoutMessage="Charts taking longer than expected"
       />
@@ -82,16 +71,13 @@ export const LazyPeakHoursChart = dynamic(
 export const LazyExceptionBreakdown = dynamic(
   () =>
     importWithRetry(
-      () =>
-        import("./ExceptionBreakdown").then((mod) => mod.ExceptionBreakdown),
+      () => import("./ExceptionBreakdown").then((mod) => mod.ExceptionBreakdown),
       "ExceptionBreakdown"
     ),
   {
     loading: () => (
       <LoadingWithTimeout
-        skeleton={
-          <ChartSkeleton label="Loading exception breakdown..." height={250} />
-        }
+        skeleton={<ChartSkeleton label="Loading exception breakdown..." height={250} />}
         timeoutMs={10000}
         timeoutMessage="Charts taking longer than expected"
       />
@@ -103,16 +89,13 @@ export const LazyExceptionBreakdown = dynamic(
 export const LazyPerformanceChart = dynamic(
   () =>
     importWithRetry(
-      () =>
-        import("./PerformanceChart").then((mod) => mod.PerformanceChart),
+      () => import("./PerformanceChart").then((mod) => mod.PerformanceChart),
       "PerformanceChart"
     ),
   {
     loading: () => (
       <LoadingWithTimeout
-        skeleton={
-          <ChartSkeleton label="Loading performance chart..." height={300} />
-        }
+        skeleton={<ChartSkeleton label="Loading performance chart..." height={300} />}
         timeoutMs={10000}
         timeoutMessage="Charts taking longer than expected"
       />
@@ -124,16 +107,13 @@ export const LazyPerformanceChart = dynamic(
 export const LazyRevenueChart = dynamic(
   () =>
     importWithRetry(
-      () =>
-        import("../RevenueChart").then((mod) => mod.RevenueChart),
+      () => import("../RevenueChart").then((mod) => mod.RevenueChart),
       "RevenueChart"
     ),
   {
     loading: () => (
       <LoadingWithTimeout
-        skeleton={
-          <ChartSkeleton label="Loading revenue chart..." height={300} />
-        }
+        skeleton={<ChartSkeleton label="Loading revenue chart..." height={300} />}
         timeoutMs={10000}
         timeoutMessage="Charts taking longer than expected"
       />

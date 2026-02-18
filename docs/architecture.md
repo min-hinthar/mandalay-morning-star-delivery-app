@@ -457,25 +457,24 @@ Driver (Offline)           IndexedDB                  Server (when online)
 ```typescript
 // Menu data — public, cached aggressively
 const { data: menu } = useQuery({
-  queryKey: ['menu'],
-  queryFn: () => fetch('/api/menu').then(r => r.json()),
+  queryKey: ["menu"],
+  queryFn: () => fetch("/api/menu").then((r) => r.json()),
   staleTime: 5 * 60 * 1000, // 5 minutes
 });
 
 // User's orders — auth required, refetch on focus
 const { data: orders } = useQuery({
-  queryKey: ['orders', userId],
-  queryFn: () => fetch('/api/orders').then(r => r.json()),
+  queryKey: ["orders", userId],
+  queryFn: () => fetch("/api/orders").then((r) => r.json()),
   enabled: !!userId,
   refetchOnWindowFocus: true,
 });
 
 // Single order with realtime — for tracking
 const { data: order } = useQuery({
-  queryKey: ['order', orderId],
-  queryFn: () => fetch(`/api/orders/${orderId}`).then(r => r.json()),
-  refetchInterval: (query) => 
-    query.state.data?.status === 'out_for_delivery' ? 10000 : false,
+  queryKey: ["order", orderId],
+  queryFn: () => fetch(`/api/orders/${orderId}`).then((r) => r.json()),
+  refetchInterval: (query) => (query.state.data?.status === "out_for_delivery" ? 10000 : false),
 });
 ```
 
@@ -543,10 +542,10 @@ interface DriverState {
 // lib/services/offline-store.ts
 // Object stores for offline data
 const STORES = {
-  ROUTE_CACHE: 'route-cache',      // Cached route data
-  PENDING_STATUS: 'pending-status', // Queued status updates
-  PENDING_PHOTOS: 'pending-photos', // Queued photo uploads
-  PENDING_LOCATIONS: 'pending-locations', // Queued GPS updates
+  ROUTE_CACHE: "route-cache", // Cached route data
+  PENDING_STATUS: "pending-status", // Queued status updates
+  PENDING_PHOTOS: "pending-photos", // Queued photo uploads
+  PENDING_LOCATIONS: "pending-locations", // Queued GPS updates
 };
 
 // Auto-sync when online
@@ -563,48 +562,50 @@ export async function syncPendingItems(): Promise<SyncResult>;
 // Middleware: app/middleware.ts
 export async function middleware(request: NextRequest) {
   const supabase = createServerClient(/* ... */);
-  const { data: { session } } = await supabase.auth.getSession();
-  
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   // Route protection
-  if (request.nextUrl.pathname.startsWith('/checkout')) {
+  if (request.nextUrl.pathname.startsWith("/checkout")) {
     if (!session) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      return NextResponse.redirect(new URL("/login", request.url));
     }
   }
-  
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+
+  if (request.nextUrl.pathname.startsWith("/admin")) {
     if (!session) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      return NextResponse.redirect(new URL("/login", request.url));
     }
     const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', session.user.id)
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
       .single();
-    
-    if (profile?.role !== 'admin') {
-      return NextResponse.redirect(new URL('/', request.url));
+
+    if (profile?.role !== "admin") {
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
-  
+
   return NextResponse.next();
 }
 ```
 
 ### 5.2 Role Matrix
 
-| Route | Guest | Customer | Admin | Driver |
-|-------|-------|----------|-------|--------|
-| `/menu` | ✅ | ✅ | ✅ | ✅ |
-| `/cart` | 🔒 | ✅ | ✅ | ❌ |
-| `/checkout` | 🔒 | ✅ | ✅ | ❌ |
-| `/orders` | 🔒 | ✅ own | ✅ all | ❌ |
-| `/admin/**` | ❌ | ❌ | ✅ | ❌ |
-| `/admin/drivers/**` | ❌ | ❌ | ✅ | ❌ |
-| `/admin/routes/**` | ❌ | ❌ | ✅ | ❌ |
-| `/driver` | ❌ | ❌ | ❌ | ✅ |
-| `/driver/route` | ❌ | ❌ | ❌ | ✅ |
-| `/driver/history` | ❌ | ❌ | ❌ | ✅ |
+| Route               | Guest | Customer | Admin  | Driver |
+| ------------------- | ----- | -------- | ------ | ------ |
+| `/menu`             | ✅    | ✅       | ✅     | ✅     |
+| `/cart`             | 🔒    | ✅       | ✅     | ❌     |
+| `/checkout`         | 🔒    | ✅       | ✅     | ❌     |
+| `/orders`           | 🔒    | ✅ own   | ✅ all | ❌     |
+| `/admin/**`         | ❌    | ❌       | ✅     | ❌     |
+| `/admin/drivers/**` | ❌    | ❌       | ✅     | ❌     |
+| `/admin/routes/**`  | ❌    | ❌       | ✅     | ❌     |
+| `/driver`           | ❌    | ❌       | ❌     | ✅     |
+| `/driver/route`     | ❌    | ❌       | ❌     | ✅     |
+| `/driver/history`   | ❌    | ❌       | ❌     | ✅     |
 
 🔒 = Redirect to login
 ❌ = Redirect to home (or `/driver` for non-drivers trying driver routes)
@@ -645,14 +646,20 @@ export const createOrderSchema = z.object({
   addressId: z.string().uuid(),
   timeWindowStart: z.string().regex(/^\d{2}:\d{2}$/),
   timeWindowEnd: z.string().regex(/^\d{2}:\d{2}$/),
-  items: z.array(z.object({
-    menuItemId: z.string().uuid(),
-    quantity: z.number().int().min(1).max(50),
-    modifiers: z.array(z.object({
-      optionId: z.string().uuid(),
-    })),
-    notes: z.string().max(500).optional(),
-  })).min(1),
+  items: z
+    .array(
+      z.object({
+        menuItemId: z.string().uuid(),
+        quantity: z.number().int().min(1).max(50),
+        modifiers: z.array(
+          z.object({
+            optionId: z.string().uuid(),
+          })
+        ),
+        notes: z.string().max(500).optional(),
+      })
+    )
+    .min(1),
   customerNotes: z.string().max(1000).optional(),
 });
 
@@ -660,14 +667,14 @@ export const createOrderSchema = z.object({
 export async function POST(request: Request) {
   const body = await request.json();
   const result = createOrderSchema.safeParse(body);
-  
+
   if (!result.success) {
     return NextResponse.json(
-      { error: { code: 'VALIDATION_ERROR', details: result.error.issues } },
+      { error: { code: "VALIDATION_ERROR", details: result.error.issues } },
       { status: 400 }
     );
   }
-  
+
   // Proceed with validated data
   const validated = result.data;
 }
@@ -679,16 +686,16 @@ export async function POST(request: Request) {
 
 ### 7.1 Caching Strategy
 
-| Data | Cache | TTL | Invalidation |
-|------|-------|-----|--------------|
-| Menu categories | Edge (CDN) | 5 min | On admin update |
-| Menu items | Edge (CDN) | 5 min | On admin update |
-| User profile | None | - | - |
-| Orders | None | - | - |
-| Order status | Realtime | - | Supabase subscription |
-| Driver route | IndexedDB | Session | On route change |
-| Driver location | Memory | - | On new GPS reading |
-| Pending actions | IndexedDB | Until synced | On successful sync |
+| Data            | Cache      | TTL          | Invalidation          |
+| --------------- | ---------- | ------------ | --------------------- |
+| Menu categories | Edge (CDN) | 5 min        | On admin update       |
+| Menu items      | Edge (CDN) | 5 min        | On admin update       |
+| User profile    | None       | -            | -                     |
+| Orders          | None       | -            | -                     |
+| Order status    | Realtime   | -            | Supabase subscription |
+| Driver route    | IndexedDB  | Session      | On route change       |
+| Driver location | Memory     | -            | On new GPS reading    |
+| Pending actions | IndexedDB  | Until synced | On successful sync    |
 
 ### 7.2 Bundle Optimization
 
@@ -725,16 +732,16 @@ RootErrorBoundary (app/error.tsx)
 
 ### 8.2 Error Codes
 
-| Code | HTTP | Meaning |
-|------|------|---------|
-| `VALIDATION_ERROR` | 400 | Request body/params invalid |
-| `UNAUTHORIZED` | 401 | Not logged in |
-| `FORBIDDEN` | 403 | Logged in, insufficient role |
-| `NOT_FOUND` | 404 | Resource doesn't exist |
-| `COVERAGE_INVALID` | 422 | Address out of delivery range |
-| `CUTOFF_PASSED` | 422 | Order modification blocked |
-| `PAYMENT_FAILED` | 422 | Stripe payment failed |
-| `INTERNAL_ERROR` | 500 | Unexpected server error |
+| Code               | HTTP | Meaning                       |
+| ------------------ | ---- | ----------------------------- |
+| `VALIDATION_ERROR` | 400  | Request body/params invalid   |
+| `UNAUTHORIZED`     | 401  | Not logged in                 |
+| `FORBIDDEN`        | 403  | Logged in, insufficient role  |
+| `NOT_FOUND`        | 404  | Resource doesn't exist        |
+| `COVERAGE_INVALID` | 422  | Address out of delivery range |
+| `CUTOFF_PASSED`    | 422  | Order modification blocked    |
+| `PAYMENT_FAILED`   | 422  | Stripe payment failed         |
+| `INTERNAL_ERROR`   | 500  | Unexpected server error       |
 
 ---
 

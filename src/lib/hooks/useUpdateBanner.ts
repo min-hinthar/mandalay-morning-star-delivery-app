@@ -53,9 +53,7 @@ function setDismissCount(count: number): void {
 }
 
 function isDeferredPath(pathname: string): boolean {
-  return DEFERRED_PATHS.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`)
-  );
+  return DEFERRED_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
 // ============================================
@@ -163,16 +161,10 @@ export function useUpdateBanner(): UseUpdateBannerReturn {
     const handleControllerChange = () => {
       window.location.reload();
     };
-    navigator.serviceWorker.addEventListener(
-      "controllerchange",
-      handleControllerChange
-    );
+    navigator.serviceWorker.addEventListener("controllerchange", handleControllerChange);
 
     return () => {
-      navigator.serviceWorker.removeEventListener(
-        "controllerchange",
-        handleControllerChange
-      );
+      navigator.serviceWorker.removeEventListener("controllerchange", handleControllerChange);
     };
   }, [showUpdateBanner]);
 
@@ -180,11 +172,7 @@ export function useUpdateBanner(): UseUpdateBannerReturn {
   // Page deferral: re-show when leaving deferred path
   // ------------------------------------------
   useEffect(() => {
-    if (
-      hasDeferredUpdateRef.current &&
-      !isDeferredPath(pathname) &&
-      waitingWorkerRef.current
-    ) {
+    if (hasDeferredUpdateRef.current && !isDeferredPath(pathname) && waitingWorkerRef.current) {
       hasDeferredUpdateRef.current = false;
       showUpdateBanner();
     }
@@ -198,11 +186,7 @@ export function useUpdateBanner(): UseUpdateBannerReturn {
     if (prevPathnameRef.current !== pathname) {
       prevPathnameRef.current = pathname;
       // If we have a waiting worker and banner was dismissed, re-show
-      if (
-        waitingWorkerRef.current &&
-        !showBanner &&
-        !isDeferredPath(pathname)
-      ) {
+      if (waitingWorkerRef.current && !showBanner && !isDeferredPath(pathname)) {
         showUpdateBanner();
       }
     }

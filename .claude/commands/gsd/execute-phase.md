@@ -31,6 +31,7 @@ Context budget: ~15% orchestrator, 100% fresh per subagent.
 Phase: $ARGUMENTS
 
 **Flags:**
+
 - `--gaps-only` — Execute only gap closure plans (plans with `gap_closure: true` in frontmatter). Use after verify-work creates fix plans.
 
 @.planning/ROADMAP.md
@@ -40,21 +41,22 @@ Phase: $ARGUMENTS
 <process>
 0. **Resolve Model Profile**
 
-   Read model profile for agent spawning:
-   ```bash
-   MODEL_PROFILE=$(cat .planning/config.json 2>/dev/null | grep -o '"model_profile"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"' || echo "balanced")
-   ```
+Read model profile for agent spawning:
 
-   Default to "balanced" if not set.
+```bash
+MODEL_PROFILE=$(cat .planning/config.json 2>/dev/null | grep -o '"model_profile"[[:space:]]*:[[:space:]]*"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"' || echo "balanced")
+```
 
-   **Model lookup table:**
+Default to "balanced" if not set.
 
-   | Agent | quality | balanced | budget |
-   |-------|---------|----------|--------|
-   | gsd-executor | opus | sonnet | sonnet |
-   | gsd-verifier | sonnet | sonnet | haiku |
+**Model lookup table:**
 
-   Store resolved models for use in Task calls below.
+| Agent        | quality | balanced | budget |
+| ------------ | ------- | -------- | ------ |
+| gsd-executor | opus    | sonnet   | sonnet |
+| gsd-verifier | sonnet  | sonnet   | haiku  |
+
+Store resolved models for use in Task calls below.
 
 1. **Validate phase exists**
    - Find phase directory matching argument
@@ -62,8 +64,8 @@ Phase: $ARGUMENTS
    - Error if no plans found
 
 2. **Discover plans**
-   - List all *-PLAN.md files in phase directory
-   - Check which have *-SUMMARY.md (already complete)
+   - List all \*-PLAN.md files in phase directory
+   - Check which have \*-SUMMARY.md (already complete)
    - If `--gaps-only`: filter to only plans with `gap_closure: true`
    - Build list of incomplete plans
 
@@ -85,11 +87,13 @@ Phase: $ARGUMENTS
 
 6. **Commit any orchestrator corrections**
    Check for uncommitted changes before verification:
+
    ```bash
    git status --porcelain
    ```
 
    **If changes exist:** Orchestrator made corrections between executor completions. Commit them:
+
    ```bash
    git add -u && git commit -m "fix({phase}): orchestrator corrections"
    ```
@@ -129,26 +133,25 @@ Phase: $ARGUMENTS
     - Stage REQUIREMENTS.md if updated: `git add .planning/REQUIREMENTS.md`
     - Commit: `docs({phase}): complete {phase-name} phase`
 
-11. **Offer next steps**
-    - Route to next action (see `<offer_next>`)
-</process>
+11. **Offer next steps** - Route to next action (see `<offer_next>`)
+    </process>
 
 <offer_next>
 Output this markdown directly (not as a code block). Route based on status:
 
-| Status | Route |
-|--------|-------|
-| `gaps_found` | Route C (gap closure) |
-| `human_needed` | Present checklist, then re-route based on approval |
-| `passed` + more phases | Route A (next phase) |
-| `passed` + last phase | Route B (milestone complete) |
+| Status                 | Route                                              |
+| ---------------------- | -------------------------------------------------- |
+| `gaps_found`           | Route C (gap closure)                              |
+| `human_needed`         | Present checklist, then re-route based on approval |
+| `passed` + more phases | Route A (next phase)                               |
+| `passed` + last phase  | Route B (milestone complete)                       |
 
 ---
 
 **Route A: Phase verified, more phases remain**
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► PHASE {Z} COMPLETE ✓
+GSD ► PHASE {Z} COMPLETE ✓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 **Phase {Z}: {Name}**
@@ -169,6 +172,7 @@ Goal verified ✓
 ───────────────────────────────────────────────────────────────
 
 **Also available:**
+
 - /gsd:plan-phase {Z+1} — skip discussion, plan directly
 - /gsd:verify-work {Z} — manual acceptance testing before continuing
 
@@ -179,7 +183,7 @@ Goal verified ✓
 **Route B: Phase verified, milestone complete**
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► MILESTONE COMPLETE 🎉
+GSD ► MILESTONE COMPLETE 🎉
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 **v1.0**
@@ -200,6 +204,7 @@ All phase goals verified ✓
 ───────────────────────────────────────────────────────────────
 
 **Also available:**
+
 - /gsd:verify-work — manual acceptance testing
 - /gsd:complete-milestone — skip audit, archive directly
 
@@ -210,7 +215,7 @@ All phase goals verified ✓
 **Route C: Gaps found — need additional planning**
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSD ► PHASE {Z} GAPS FOUND ⚠
+GSD ► PHASE {Z} GAPS FOUND ⚠
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 **Phase {Z}: {Name}**
@@ -235,6 +240,7 @@ Report: .planning/phases/{phase_dir}/{phase}-VERIFICATION.md
 ───────────────────────────────────────────────────────────────
 
 **Also available:**
+
 - cat .planning/phases/{phase_dir}/{phase}-VERIFICATION.md — see full report
 - /gsd:verify-work {Z} — manual testing before planning
 
@@ -243,17 +249,19 @@ Report: .planning/phases/{phase_dir}/{phase}-VERIFICATION.md
 ---
 
 After user runs /gsd:plan-phase {Z} --gaps:
+
 1. Planner reads VERIFICATION.md gaps
 2. Creates plans 04, 05, etc. to close gaps
 3. User runs /gsd:execute-phase {Z} again
 4. Execute-phase runs incomplete plans (04, 05...)
 5. Verifier runs again → loop until passed
-</offer_next>
+   </offer_next>
 
 <wave_execution>
 **Check for agent teams capability:**
 
 Read `.planning/config.json` and check `agent_teams.execution`:
+
 - If `agent_teams` is `false` (boolean) or missing → disabled
 - If `agent_teams` is an object → check `agent_teams.execution` (default: `false`)
 
@@ -316,6 +324,7 @@ All three run in parallel. Task tool blocks until all complete.
 
 <checkpoint_handling>
 Plans with `autonomous: false` have checkpoints. The execute-phase.md workflow handles the full checkpoint flow:
+
 - Subagent pauses at checkpoint, returns structured state
 - Orchestrator presents to user, collects response
 - Spawns fresh continuation agent (not resume)
@@ -338,6 +347,7 @@ Only rule 4 requires user intervention.
 **Per-Task Commits:**
 
 After each task completes:
+
 1. Stage only files modified by that task
 2. Commit with format: `{type}({phase}-{plan}): {task-name}`
 3. Types: feat, fix, test, refactor, perf, chore
@@ -346,6 +356,7 @@ After each task completes:
 **Plan Metadata Commit:**
 
 After all tasks in a plan complete:
+
 1. Stage plan artifacts only: PLAN.md, SUMMARY.md
 2. Commit with format: `docs({phase}-{plan}): complete [plan-name] plan`
 3. NO code files (already committed per-task)
@@ -353,11 +364,13 @@ After all tasks in a plan complete:
 **Phase Completion Commit:**
 
 After all plans in phase complete (step 7):
+
 1. Stage: ROADMAP.md, STATE.md, REQUIREMENTS.md (if updated), VERIFICATION.md
 2. Commit with format: `docs({phase}): complete {phase-name} phase`
 3. Bundles all phase-level state updates in one commit
 
 **NEVER use:**
+
 - `git add .`
 - `git add -A`
 - `git add src/` or any broad directory
@@ -366,6 +379,7 @@ After all plans in phase complete (step 7):
 </commit_rules>
 
 <success_criteria>
+
 - [ ] All incomplete plans in phase executed
 - [ ] Each plan has SUMMARY.md
 - [ ] Phase goal verified (must_haves checked against codebase)
@@ -374,4 +388,4 @@ After all plans in phase complete (step 7):
 - [ ] ROADMAP.md updated
 - [ ] REQUIREMENTS.md updated (phase requirements marked Complete)
 - [ ] User informed of next steps
-</success_criteria>
+      </success_criteria>

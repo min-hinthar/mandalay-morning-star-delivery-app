@@ -16,10 +16,7 @@ function ExpiredContent() {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
-  const initialEmail = useMemo(
-    () => searchParams.get("email") ?? "",
-    [searchParams]
-  );
+  const initialEmail = useMemo(() => searchParams.get("email") ?? "", [searchParams]);
 
   const [email, setEmail] = useState(initialEmail);
   const [error, setError] = useState<string | null>(null);
@@ -62,9 +59,7 @@ function ExpiredContent() {
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-2xl font-display font-bold text-text-primary">
-              Link expired
-            </h1>
+            <h1 className="text-2xl font-display font-bold text-text-primary">Link expired</h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
               This magic link has expired or has already been used.
               <br />
@@ -107,9 +102,7 @@ function ExpiredContent() {
 
 export default function ExpiredLinkPage() {
   return (
-    <Suspense
-      fallback={<div className="min-h-screen bg-background" aria-hidden="true" />}
-    >
+    <Suspense fallback={<div className="min-h-screen bg-background" aria-hidden="true" />}>
       <ExpiredContent />
     </Suspense>
   );

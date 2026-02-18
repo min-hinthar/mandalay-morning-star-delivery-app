@@ -53,6 +53,7 @@ completed: 2026-02-15
 - **Files modified:** 2
 
 ## Accomplishments
+
 - Privacy policy with 12 sections naming Google, Sentry, Stripe, Resend, and Vercel with specific data collected by each
 - Sentry session replay disclosure with maskAllText/maskAllInputs/blockAllMedia masking details and error-only capture rates
 - Terms of service with 13 sections covering food allergen disclaimer, Saturday delivery, Friday 3 PM cutoff, California governing law
@@ -66,10 +67,12 @@ Each task was committed atomically:
 2. **Task 2: Rewrite terms of service page** - `387f510` (feat)
 
 ## Files Created/Modified
+
 - `src/app/(public)/privacy/page.tsx` - 272-line comprehensive privacy policy with 12 sections, 5 data processor disclosures
 - `src/app/(public)/terms/page.tsx` - 232-line comprehensive terms of service with 13 sections, food safety/allergen disclaimer
 
 ## Decisions Made
+
 - Hardcoded `admin@mandalaymorningstar.com` email string rather than importing `EMAIL_REPLY_TO` from `@/lib/email/constants.ts` (that file uses `process.env` which is fine on server, but keeping it self-contained avoids coupling legal pages to email lib)
 - Used `KITCHEN_LOCATION` from `@/types/address` for physical address (shared constant, no env dependency)
 - Professional + warm tone matching "blend of credibility and family-run charm" per user decision
@@ -83,6 +86,7 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 - Build lock file conflict (stale `.next/lock` from prior build) - cleared and rebuilt successfully
 - Turbopack ENOENT on OneDrive-synced directory on first build attempt (pre-existing, documented in STATE.md) - resolved by clearing `.next` cache
 
@@ -91,11 +95,13 @@ None - plan executed exactly as written.
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Both legal pages ready for Google OAuth brand verification review
 - Pages are prerendered as static content (optimal for Lighthouse)
 - Cross-links between privacy and terms pages functional
 - Ready for Phase 64 (favicon/metadata) and Phase 66 (launch checklist)
 
 ---
-*Phase: 63-branding-compliance*
-*Completed: 2026-02-15*
+
+_Phase: 63-branding-compliance_
+_Completed: 2026-02-15_

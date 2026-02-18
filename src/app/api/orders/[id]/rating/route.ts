@@ -34,22 +34,15 @@ interface NewRatingResult {
  * POST /api/orders/[id]/rating
  * Submit a rating for a delivered order
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const resolvedParams = await params;
     const orderId = resolvedParams.id;
 
     // Validate UUID format
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(orderId)) {
-      return NextResponse.json(
-        { error: "Invalid order ID format" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid order ID format" }, { status: 400 });
     }
 
     const supabase = await createClient();
@@ -89,26 +82,17 @@ export async function POST(
       .single();
 
     if (orderError || !order) {
-      return NextResponse.json(
-        { error: "Order not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
     // Verify user owns the order
     if (order.user_id !== user.id) {
-      return NextResponse.json(
-        { error: "You can only rate your own orders" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "You can only rate your own orders" }, { status: 403 });
     }
 
     // Verify order is delivered
     if (order.status !== "delivered") {
-      return NextResponse.json(
-        { error: "Order must be delivered before rating" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Order must be delivered before rating" }, { status: 400 });
     }
 
     // Check if rating already exists (for upsert)
@@ -157,10 +141,7 @@ export async function POST(
 
       if (updateError) {
         logger.exception(updateError, { api: "orders/[id]/rating", flowId: "update" });
-        return NextResponse.json(
-          { error: "Failed to update rating" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to update rating" }, { status: 500 });
       }
 
       ratingId = existingRating.id;
@@ -181,10 +162,7 @@ export async function POST(
 
       if (insertError) {
         logger.exception(insertError, { api: "orders/[id]/rating", flowId: "submit" });
-        return NextResponse.json(
-          { error: "Failed to submit rating" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to submit rating" }, { status: 500 });
       }
 
       ratingId = newRating.id;
@@ -198,10 +176,7 @@ export async function POST(
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
     logger.exception(error, { api: "orders/[id]/rating" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -209,10 +184,7 @@ export async function POST(
  * GET /api/orders/[id]/rating
  * Get the rating for an order (if exists)
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const resolvedParams = await params;
     const orderId = resolvedParams.id;
@@ -238,17 +210,11 @@ export async function GET(
       .single();
 
     if (!order) {
-      return NextResponse.json(
-        { error: "Order not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
     if (order.user_id !== user.id) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Get the rating
@@ -259,10 +225,7 @@ export async function GET(
       .single();
 
     if (!rating) {
-      return NextResponse.json(
-        { hasRating: false },
-        { status: 200 }
-      );
+      return NextResponse.json({ hasRating: false }, { status: 200 });
     }
 
     return NextResponse.json({
@@ -276,9 +239,6 @@ export async function GET(
     });
   } catch (error) {
     logger.exception(error, { api: "orders/[id]/rating" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

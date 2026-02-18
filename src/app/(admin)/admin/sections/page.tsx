@@ -2,9 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "@/lib/hooks/useToast";
-import {
-  type SectionCardSection,
-} from "@/components/ui/admin/sections/SectionCard";
+import { type SectionCardSection } from "@/components/ui/admin/sections/SectionCard";
 import {
   SectionEditor,
   type SectionEditorSection,
@@ -68,13 +66,13 @@ export default function AdminSectionsPage() {
     setIsCreating(true);
   };
 
-  const handleSaveSection = async (data: Omit<SectionEditorSection, "id" | "isPredefined" | "updatedAt" | "updatedBy">) => {
+  const handleSaveSection = async (
+    data: Omit<SectionEditorSection, "id" | "isPredefined" | "updatedAt" | "updatedBy">
+  ) => {
     setIsSaving(true);
     try {
       const isEditing = !!editingSection?.id;
-      const url = isEditing
-        ? `/api/admin/sections/${editingSection.id}`
-        : "/api/admin/sections";
+      const url = isEditing ? `/api/admin/sections/${editingSection.id}` : "/api/admin/sections";
       const method = isEditing ? "PATCH" : "POST";
 
       const response = await fetch(url, {
@@ -109,9 +107,7 @@ export default function AdminSectionsPage() {
 
   const handleToggleVisibility = async (section: SectionCardSection) => {
     setSections((prev) =>
-      prev.map((s) =>
-        s.id === section.id ? { ...s, isVisible: !s.isVisible } : s
-      )
+      prev.map((s) => (s.id === section.id ? { ...s, isVisible: !s.isVisible } : s))
     );
 
     try {
@@ -124,9 +120,7 @@ export default function AdminSectionsPage() {
       if (!response.ok) throw new Error("Failed to update visibility");
     } catch {
       setSections((prev) =>
-        prev.map((s) =>
-          s.id === section.id ? { ...s, isVisible: section.isVisible } : s
-        )
+        prev.map((s) => (s.id === section.id ? { ...s, isVisible: section.isVisible } : s))
       );
       toast({ title: "Error", description: "Failed to update visibility", variant: "destructive" });
     }
@@ -224,18 +218,15 @@ export default function AdminSectionsPage() {
 
     setSections((prev) =>
       prev.map((s) =>
-        s.id === sectionId
-          ? { ...s, items: updatedItems, actualItemCount: updatedItems.length }
-          : s
+        s.id === sectionId ? { ...s, items: updatedItems, actualItemCount: updatedItems.length } : s
       )
     );
   };
 
   const handleRemoveItem = async (sectionId: string, itemId: string) => {
-    const response = await fetch(
-      `/api/admin/sections/${sectionId}/items?itemId=${itemId}`,
-      { method: "DELETE" }
-    );
+    const response = await fetch(`/api/admin/sections/${sectionId}/items?itemId=${itemId}`, {
+      method: "DELETE",
+    });
 
     if (!response.ok) {
       const error = await response.json();
@@ -271,7 +262,10 @@ export default function AdminSectionsPage() {
     setSections((prev) =>
       prev.map((s) =>
         s.id === sectionId
-          ? { ...s, items: items.map((item, index) => ({ ...item, sortOrder: item.sortOrder ?? index })) }
+          ? {
+              ...s,
+              items: items.map((item, index) => ({ ...item, sortOrder: item.sortOrder ?? index })),
+            }
           : s
       )
     );

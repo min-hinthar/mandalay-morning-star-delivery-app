@@ -8,10 +8,7 @@ import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCoverageCheck } from "@/lib/hooks/useCoverageCheck";
-import {
-  usePlacesAutocomplete,
-  type PlacePrediction,
-} from "@/lib/hooks/usePlacesAutocomplete";
+import { usePlacesAutocomplete, type PlacePrediction } from "@/lib/hooks/usePlacesAutocomplete";
 import { CoverageRouteMap } from "@/components/ui/coverage/CoverageRouteMap";
 import { CoverageResult } from "./CoverageResult";
 import { dropdownItemVariants } from "./variants";
@@ -30,7 +27,11 @@ export function InteractiveCoverageChecker({ className }: InteractiveCoverageChe
   } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const inputWrapperRef = useRef<HTMLDivElement>(null);
-  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; width: number } | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -203,62 +204,65 @@ export function InteractiveCoverageChecker({ className }: InteractiveCoverageChe
         </m.div>
 
         {/* Autocomplete Dropdown - rendered via portal to escape stacking context */}
-        {isMounted && createPortal(
-          <AnimatePresence>
-            {predictions.length > 0 && isFocused && dropdownPosition && (
-              <m.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={getSpring(spring.snappy)}
-                style={{
-                  position: "absolute",
-                  top: dropdownPosition.top,
-                  left: dropdownPosition.left,
-                  width: dropdownPosition.width,
-                  backgroundColor: "var(--color-surface-elevated)",
-                  opacity: 1,
-                }}
-                className={cn(
-                  "z-[9999]",
-                  "rounded-xl",
-                  "border border-border",
-                  "shadow-[0_10px_40px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.08)]",
-                  "overflow-hidden"
-                )}
-              >
-                {predictions.map((prediction, idx) => (
-                  <m.button
-                    key={prediction.placeId}
-                    type="button"
-                    custom={idx}
-                    variants={shouldAnimate ? dropdownItemVariants : undefined}
-                    initial="hidden"
-                    animate="visible"
-                    onClick={() => handleSelectAddress(prediction)}
-                    style={{ backgroundColor: "var(--color-surface-elevated)" }}
-                    className={cn(
-                      "w-full text-left px-3 py-2.5",
-                      "hover:bg-surface-secondary",
-                      "transition-colors duration-150",
-                      "flex items-start gap-2",
-                      idx !== predictions.length - 1 && "border-b border-border/50"
-                    )}
-                  >
-                    <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                    <div className="min-w-0">
-                      <p className="font-medium text-sm text-text-primary truncate">
-                        {prediction.mainText}
-                      </p>
-                      <p className="text-xs text-text-muted truncate">{prediction.secondaryText}</p>
-                    </div>
-                  </m.button>
-                ))}
-              </m.div>
-            )}
-          </AnimatePresence>,
-          document.body
-        )}
+        {isMounted &&
+          createPortal(
+            <AnimatePresence>
+              {predictions.length > 0 && isFocused && dropdownPosition && (
+                <m.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={getSpring(spring.snappy)}
+                  style={{
+                    position: "absolute",
+                    top: dropdownPosition.top,
+                    left: dropdownPosition.left,
+                    width: dropdownPosition.width,
+                    backgroundColor: "var(--color-surface-elevated)",
+                    opacity: 1,
+                  }}
+                  className={cn(
+                    "z-[9999]",
+                    "rounded-xl",
+                    "border border-border",
+                    "shadow-[0_10px_40px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.08)]",
+                    "overflow-hidden"
+                  )}
+                >
+                  {predictions.map((prediction, idx) => (
+                    <m.button
+                      key={prediction.placeId}
+                      type="button"
+                      custom={idx}
+                      variants={shouldAnimate ? dropdownItemVariants : undefined}
+                      initial="hidden"
+                      animate="visible"
+                      onClick={() => handleSelectAddress(prediction)}
+                      style={{ backgroundColor: "var(--color-surface-elevated)" }}
+                      className={cn(
+                        "w-full text-left px-3 py-2.5",
+                        "hover:bg-surface-secondary",
+                        "transition-colors duration-150",
+                        "flex items-start gap-2",
+                        idx !== predictions.length - 1 && "border-b border-border/50"
+                      )}
+                    >
+                      <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm text-text-primary truncate">
+                          {prediction.mainText}
+                        </p>
+                        <p className="text-xs text-text-muted truncate">
+                          {prediction.secondaryText}
+                        </p>
+                      </div>
+                    </m.button>
+                  ))}
+                </m.div>
+              )}
+            </AnimatePresence>,
+            document.body
+          )}
       </div>
 
       {/* Coverage Result */}

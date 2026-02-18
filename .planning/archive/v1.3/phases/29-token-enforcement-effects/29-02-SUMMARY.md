@@ -52,29 +52,31 @@ metrics:
 
 ### Task 1: Component Shadow Migrations (from previous session)
 
-| Component | Before | After |
-|-----------|--------|-------|
-| CartSummary | `shadow-[0_2px_8px_rgba(245,158,11,0.4)]` | `shadow-glow-amber` |
-| CartBar | `shadow-[0_-4px_20px...]` light/dark | `shadow-nav-top` |
-| theme-toggle | `dark:shadow-[0_0_12px...]` | `dark:shadow-glow-primary` |
-| DrawerNavLink | `shadow-[0_0_12px_rgba(164,16,52,0.25)]` | `shadow-glow-primary` |
+| Component     | Before                                    | After                      |
+| ------------- | ----------------------------------------- | -------------------------- |
+| CartSummary   | `shadow-[0_2px_8px_rgba(245,158,11,0.4)]` | `shadow-glow-amber`        |
+| CartBar       | `shadow-[0_-4px_20px...]` light/dark      | `shadow-nav-top`           |
+| theme-toggle  | `dark:shadow-[0_0_12px...]`               | `dark:shadow-glow-primary` |
+| DrawerNavLink | `shadow-[0_0_12px_rgba(164,16,52,0.25)]`  | `shadow-glow-primary`      |
 
 ### Task 2: AppHeader Shadow Migrations
 
-| Component | Before | After |
-|-----------|--------|-------|
-| SearchTrigger hint | Compound gradient shadow | `shadow-hint-sm` |
+| Component                 | Before                   | After            |
+| ------------------------- | ------------------------ | ---------------- |
+| SearchTrigger hint        | Compound gradient shadow | `shadow-hint-sm` |
 | AccountIndicator dropdown | Compound gradient shadow | `shadow-hint-md` |
 
 ### Task 3: Motion Token Files
 
 **micro-interactions.ts:**
+
 - Added JSDoc documenting shadow token equivalents
 - primaryButtonVariants: ~--shadow-xs, ~--shadow-button-hover equivalents
 - cardVariants: ~--shadow-sm, ~--shadow-lg equivalents
 - Values kept numeric for Framer Motion interpolation
 
 **motion-tokens.ts:**
+
 - inputFocus now uses CSS variable tokens
   - initial: `var(--shadow-none)`
   - focus: `var(--shadow-focus)`
@@ -85,6 +87,7 @@ metrics:
 ### New Tokens Added
 
 **tokens.css (light mode):**
+
 ```css
 --shadow-glow-amber: 0 2px 8px rgba(245, 158, 11, 0.4);
 --shadow-hint-sm: 0 2px 8px rgba(164, 16, 52, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1);
@@ -92,6 +95,7 @@ metrics:
 ```
 
 **tokens.css (dark mode):**
+
 ```css
 --shadow-glow-amber: 0 2px 8px rgba(251, 191, 36, 0.5);
 --shadow-hint-sm: 0 2px 8px rgba(245, 158, 11, 0.2), 0 1px 4px rgba(0, 0, 0, 0.2);
@@ -99,6 +103,7 @@ metrics:
 ```
 
 **tailwind.config.ts:**
+
 ```typescript
 "glow-amber": "var(--shadow-glow-amber)",
 "hint-sm": "var(--shadow-hint-sm)",
@@ -128,14 +133,15 @@ None - plan executed exactly as written.
 ## Next Phase Readiness
 
 Phase 29-03 (blur migration) can proceed. All shadow tokens are now:
+
 - Theme-aware via CSS variables
 - Accessible via Tailwind utilities
 - Documented for Framer Motion animated cases
 
 ## Commits
 
-| Commit | Description |
-|--------|-------------|
+| Commit  | Description                                   |
+| ------- | --------------------------------------------- |
 | bc1b170 | Task 1 - Component shadows (previous session) |
-| e272ab2 | Task 2 - AppHeader shadows |
-| e733792 | Task 3 - Motion token files |
+| e272ab2 | Task 2 - AppHeader shadows                    |
+| e733792 | Task 3 - Motion token files                   |

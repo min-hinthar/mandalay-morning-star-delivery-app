@@ -24,7 +24,12 @@ affects: [65-lighthouse-ci]
 # Tech tracking
 tech-stack:
   added: []
-  patterns: ["getRegistration() reuse instead of duplicate register()", "Sentry breadcrumbs for cache metrics", "Cache API invalidation for admin-triggered cache-bust"]
+  patterns:
+    [
+      "getRegistration() reuse instead of duplicate register()",
+      "Sentry breadcrumbs for cache metrics",
+      "Cache API invalidation for admin-triggered cache-bust",
+    ]
 
 key-files:
   created: []
@@ -60,6 +65,7 @@ completed: 2026-02-15
 - **Files modified:** 2
 
 ## Accomplishments
+
 - Replaced `register("/sw.js", { scope: "/driver" })` with `getRegistration("/")` to reuse root-scope SW
 - Preserved updatefound and SYNC_REQUESTED message listeners for driver offline sync
 - Added `invalidateMenuCache()` utility opening `menu-api-cache-v1` and deleting /api/menu entries
@@ -75,10 +81,12 @@ Each task was committed atomically:
 2. **Task 2: Full verification suite** - verification-only, no file changes
 
 ## Files Created/Modified
+
 - `src/lib/hooks/useServiceWorker.ts` - Replaced register() with getRegistration(), added invalidateMenuCache() and reportCacheMetrics()
 - `src/lib/hooks/index.ts` - Added invalidateMenuCache and reportCacheMetrics barrel exports
 
 ## Decisions Made
+
 - Used `getRegistration("/")` instead of `register()` to attach to existing root registration (avoids duplicate /driver scope)
 - Sentry breadcrumbs chosen over full metrics pipeline (lightweight, no infrastructure needed)
 - Cache name `menu-api-cache-v1` matches the name used in sw.ts runtime caching config
@@ -89,12 +97,15 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Phase 64 is fully integration-complete:
   - Content-hash precaching with @serwist/build
   - Update banner with interaction-aware countdown
@@ -106,5 +117,6 @@ None - no external service configuration required.
 - Service worker scope blocker resolved (was listed in STATE.md concerns)
 
 ---
-*Phase: 64-service-worker-hardening*
-*Completed: 2026-02-15*
+
+_Phase: 64-service-worker-hardening_
+_Completed: 2026-02-15_

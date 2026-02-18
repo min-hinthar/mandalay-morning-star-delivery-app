@@ -35,9 +35,7 @@ const DEFAULT_RESTRICTIONS = { country: "us" };
  * Uses google.maps.places.AutocompleteSuggestion and google.maps.places.Place
  * when available, falling back to legacy APIs for compatibility.
  */
-export function usePlacesAutocomplete(
-  options: UsePlacesAutocompleteOptions = {}
-) {
+export function usePlacesAutocomplete(options: UsePlacesAutocompleteOptions = {}) {
   const {
     debounceMs = 300,
     types = DEFAULT_TYPES,
@@ -51,9 +49,12 @@ export function usePlacesAutocomplete(
   }, [componentRestrictions.country]);
 
   // Memoize componentRestrictions for legacy API
-  const stableRestrictions = useMemo(() => ({
-    country: componentRestrictions.country
-  }), [componentRestrictions.country]);
+  const stableRestrictions = useMemo(
+    () => ({
+      country: componentRestrictions.country,
+    }),
+    [componentRestrictions.country]
+  );
 
   const [input, setInput] = useState("");
   const [predictions, setPredictions] = useState<PlacePrediction[]>([]);
@@ -85,7 +86,8 @@ export function usePlacesAutocomplete(
     if (!isLoaded) return;
 
     // Check if new API is available
-    const hasNewApi = typeof google.maps.places.AutocompleteSuggestion?.fetchAutocompleteSuggestions === "function";
+    const hasNewApi =
+      typeof google.maps.places.AutocompleteSuggestion?.fetchAutocompleteSuggestions === "function";
     useNewApiRef.current = hasNewApi;
 
     // Always create session token (works for both APIs)
@@ -108,67 +110,80 @@ export function usePlacesAutocomplete(
   }, []);
 
   // Fetch predictions using new API
-  const fetchPredictionsNew = useCallback(async (searchInput: string): Promise<PlacePrediction[] | null> => {
-    try {
-      const request: google.maps.places.AutocompleteRequest = {
-        input: searchInput,
-        sessionToken: sessionTokenRef.current || undefined,
-        includedPrimaryTypes: types.includes("address") ? ["street_address", "route", "premise"] : types,
-        includedRegionCodes: country.split(","),
-      };
+  const fetchPredictionsNew = useCallback(
+    async (searchInput: string): Promise<PlacePrediction[] | null> => {
+      try {
+        const request: google.maps.places.AutocompleteRequest = {
+          input: searchInput,
+          sessionToken: sessionTokenRef.current || undefined,
+          includedPrimaryTypes: types.includes("address")
+            ? ["street_address", "route", "premise"]
+            : types,
+          includedRegionCodes: country.split(","),
+        };
 
-      const response = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+        const response =
+          await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
 
-      if (response?.suggestions) {
-        return response.suggestions
-          .filter((s): s is google.maps.places.AutocompleteSuggestion & { placePrediction: google.maps.places.PlacePrediction } =>
-            s.placePrediction !== null && s.placePrediction.mainText !== null
-          )
-          .map((suggestion) => ({
-            placeId: suggestion.placePrediction.placeId,
-            description: suggestion.placePrediction.text.text,
-            mainText: suggestion.placePrediction.mainText!.text,
-            secondaryText: suggestion.placePrediction.secondaryText?.text || "",
-          }));
+        if (response?.suggestions) {
+          return response.suggestions
+            .filter(
+              (
+                s
+              ): s is google.maps.places.AutocompleteSuggestion & {
+                placePrediction: google.maps.places.PlacePrediction;
+              } => s.placePrediction !== null && s.placePrediction.mainText !== null
+            )
+            .map((suggestion) => ({
+              placeId: suggestion.placePrediction.placeId,
+              description: suggestion.placePrediction.text.text,
+              mainText: suggestion.placePrediction.mainText!.text,
+              secondaryText: suggestion.placePrediction.secondaryText?.text || "",
+            }));
+        }
+        return [];
+      } catch {
+        return null; // Return null to trigger fallback
       }
-      return [];
-    } catch {
-      return null; // Return null to trigger fallback
-    }
-  }, [types, country]);
+    },
+    [types, country]
+  );
 
   // Fetch predictions using legacy API (fallback)
-  const fetchPredictionsLegacy = useCallback((searchInput: string): Promise<PlacePrediction[]> => {
-    return new Promise((resolve) => {
-      if (!autocompleteServiceRef.current) {
-        resolve([]);
-        return;
-      }
-
-      autocompleteServiceRef.current.getPlacePredictions(
-        {
-          input: searchInput,
-          types,
-          componentRestrictions: stableRestrictions,
-          sessionToken: sessionTokenRef.current || undefined,
-        },
-        (results, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-            resolve(
-              results.map((r) => ({
-                placeId: r.place_id,
-                description: r.description,
-                mainText: r.structured_formatting.main_text,
-                secondaryText: r.structured_formatting.secondary_text,
-              }))
-            );
-          } else {
-            resolve([]);
-          }
+  const fetchPredictionsLegacy = useCallback(
+    (searchInput: string): Promise<PlacePrediction[]> => {
+      return new Promise((resolve) => {
+        if (!autocompleteServiceRef.current) {
+          resolve([]);
+          return;
         }
-      );
-    });
-  }, [types, stableRestrictions]);
+
+        autocompleteServiceRef.current.getPlacePredictions(
+          {
+            input: searchInput,
+            types,
+            componentRestrictions: stableRestrictions,
+            sessionToken: sessionTokenRef.current || undefined,
+          },
+          (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+              resolve(
+                results.map((r) => ({
+                  placeId: r.place_id,
+                  description: r.description,
+                  mainText: r.structured_formatting.main_text,
+                  secondaryText: r.structured_formatting.secondary_text,
+                }))
+              );
+            } else {
+              resolve([]);
+            }
+          }
+        );
+      });
+    },
+    [types, stableRestrictions]
+  );
 
   // Fetch predictions when debounced input changes
   useEffect(() => {
@@ -262,10 +277,7 @@ export function usePlacesAutocomplete(
           // Reset session token after getDetails (ends billing session)
           sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken();
 
-          if (
-            status === google.maps.places.PlacesServiceStatus.OK &&
-            place?.geometry?.location
-          ) {
+          if (status === google.maps.places.PlacesServiceStatus.OK && place?.geometry?.location) {
             resolve({
               lat: place.geometry.location.lat(),
               lng: place.geometry.location.lng(),
@@ -280,16 +292,19 @@ export function usePlacesAutocomplete(
   }, []);
 
   // Combined getPlaceDetails that tries new API first
-  const getPlaceDetails = useCallback(async (placeId: string): Promise<PlaceDetails | null> => {
-    // Try new API first if available
-    if (useNewApiRef.current) {
-      const result = await getPlaceDetailsNew(placeId);
-      if (result) return result;
-    }
+  const getPlaceDetails = useCallback(
+    async (placeId: string): Promise<PlaceDetails | null> => {
+      // Try new API first if available
+      if (useNewApiRef.current) {
+        const result = await getPlaceDetailsNew(placeId);
+        if (result) return result;
+      }
 
-    // Fallback to legacy API
-    return getPlaceDetailsLegacy(placeId);
-  }, [getPlaceDetailsNew, getPlaceDetailsLegacy]);
+      // Fallback to legacy API
+      return getPlaceDetailsLegacy(placeId);
+    },
+    [getPlaceDetailsNew, getPlaceDetailsLegacy]
+  );
 
   const clearPredictions = useCallback(() => {
     setPredictions([]);

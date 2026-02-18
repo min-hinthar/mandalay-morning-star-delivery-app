@@ -15,10 +15,7 @@ const assignPhotoSchema = z.object({
  * [id] can be a menu item ID (UUID) or unassigned photo ID (unassigned-*)
  * Body: { menuItemId, imageUrl? }
  */
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const auth = await requireAdmin();
@@ -50,10 +47,7 @@ export async function PATCH(
 
       if (fetchError) {
         if (fetchError.code === "PGRST116") {
-          return NextResponse.json(
-            { error: "Menu item not found" },
-            { status: 404 }
-          );
+          return NextResponse.json({ error: "Menu item not found" }, { status: 404 });
         }
         throw fetchError;
       }
@@ -69,14 +63,12 @@ export async function PATCH(
         throw sourceError;
       }
 
-      imageUrl = parsed.data.imageUrl || sourceItem?.image_url || currentItem?.image_url || undefined;
+      imageUrl =
+        parsed.data.imageUrl || sourceItem?.image_url || currentItem?.image_url || undefined;
     }
 
     if (!imageUrl) {
-      return NextResponse.json(
-        { error: "No image URL provided or found" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "No image URL provided or found" }, { status: 400 });
     }
 
     // Update menu item with new image URL
@@ -94,15 +86,9 @@ export async function PATCH(
     if (error) {
       logger.exception(error, { api: "admin/photos/[id]", flowId: "assign" });
       if (error.code === "PGRST116") {
-        return NextResponse.json(
-          { error: "Target menu item not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: "Target menu item not found" }, { status: 404 });
       }
-      return NextResponse.json(
-        { error: "Failed to assign photo" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to assign photo" }, { status: 500 });
     }
 
     // If assigning an unassigned photo, clean up the unassigned storage
@@ -113,9 +99,7 @@ export async function PATCH(
 
       // Delete from unassigned folder (best effort - don't fail if this fails)
       try {
-        await auth.supabase.storage
-          .from("menu-photos")
-          .remove([storagePath]);
+        await auth.supabase.storage.from("menu-photos").remove([storagePath]);
       } catch (cleanupError) {
         logger.exception(cleanupError, { api: "admin/photos/[id]", flowId: "cleanup-unassigned" });
         // Continue - the assignment was successful even if cleanup failed
@@ -130,10 +114,7 @@ export async function PATCH(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/photos/[id]", flowId: "assign" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -142,10 +123,7 @@ export async function PATCH(
  * Remove photo from a menu item or delete unassigned photo from storage
  * [id] can be a menu item ID (UUID) or unassigned photo ID (unassigned-*)
  */
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const auth = await requireAdmin();
@@ -168,10 +146,7 @@ export async function DELETE(
 
       if (storageError) {
         logger.exception(storageError, { api: "admin/photos/[id]", flowId: "delete-unassigned" });
-        return NextResponse.json(
-          { error: "Failed to delete photo from storage" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to delete photo from storage" }, { status: 500 });
       }
 
       return NextResponse.json({ success: true });
@@ -187,19 +162,13 @@ export async function DELETE(
 
     if (fetchError) {
       if (fetchError.code === "PGRST116") {
-        return NextResponse.json(
-          { error: "Menu item not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: "Menu item not found" }, { status: 404 });
       }
       throw fetchError;
     }
 
     if (!currentItem.image_url) {
-      return NextResponse.json(
-        { error: "Menu item has no photo to delete" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Menu item has no photo to delete" }, { status: 400 });
     }
 
     // Clear the image_url (actual storage deletion handled by trigger if it's a Supabase URL)
@@ -213,18 +182,12 @@ export async function DELETE(
 
     if (error) {
       logger.exception(error, { api: "admin/photos/[id]", flowId: "delete" });
-      return NextResponse.json(
-        { error: "Failed to remove photo" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to remove photo" }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
     logger.exception(error, { api: "admin/photos/[id]", flowId: "delete" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

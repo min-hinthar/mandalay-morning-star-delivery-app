@@ -1,6 +1,7 @@
 # docs/05-menu.md (v1.1) — Menu System + Seed Spec (A La Carte)
 
 ## Goals
+
 - Represent a full categorized Burmese menu with Panda Express–style ordering UX:
   - Sticky category tabs + search
   - Item card grid/list
@@ -11,6 +12,7 @@
 - Preserve historical pricing via snapshots in `order_items` & `order_item_modifiers`.
 
 ## Sources / Canonical Truth
+
 - Canonical seed = **your collected dataset** (this repo).
 - Public cross-check:
   - Your website menu has descriptions + prices for many dishes. :contentReference[oaicite:1]{index=1}
@@ -23,16 +25,17 @@
 
 > Keep categories stable; items can move but slugs should not change once live.
 
-1) `all-day-breakfast`
-2) `rice-noodles-soups` (your “Breakfast / Rice / Soups on menu page”)
-3) `sides`
-4) `curries-a-la-carte`
-5) `vegetables`
-6) `seafood-curries`
-7) `appetizers-salads`
-8) `drinks`
+1. `all-day-breakfast`
+2. `rice-noodles-soups` (your “Breakfast / Rice / Soups on menu page”)
+3. `sides`
+4. `curries-a-la-carte`
+5. `vegetables`
+6. `seafood-curries`
+7. `appetizers-salads`
+8. `drinks`
 
 Mapping to DoorDash-style tabs (optional display layer):
+
 - Noodles → all-day-breakfast (noodles) + soups/noodles
 - Salads → appetizers-salads
 - Curries / Seafood Curries → curries-a-la-carte / seafood-curries
@@ -45,6 +48,7 @@ Mapping to DoorDash-style tabs (optional display layer):
 ## Item Data Model Requirements (for seed/import)
 
 Each menu item must include:
+
 - `slug` (unique, stable)
 - `name_en`, `name_my` (Burmese)
 - `description_en` (short, 1–2 sentences)
@@ -55,6 +59,7 @@ Each menu item must include:
 - `modifier_group_slugs[]` (optional)
 
 Allergens enum (suggested):
+
 - `peanuts`, `tree_nuts`, `egg`, `shellfish`, `fish`, `soy`, `gluten_wheat`, `sesame`, `dairy`
 
 ---
@@ -62,12 +67,14 @@ Allergens enum (suggested):
 ## Modifier System (v1)
 
 ### Modifier group patterns
+
 - **Variant (single)**: e.g., “Original / Offal”, “Rice / Noodles”, “Original / Masala / Coconut”
 - **Protein (single)**: chicken / fish / pork / beef (only where applicable)
 - **Add-ons (multi)**: extra egg, brains add-on, etc.
 - **Spice level (single)**: mild/medium/spicy (optional; only if you want it)
 
 ### Required groups (based on your menu descriptions)
+
 - `kyay_o_style` (single): `soup`, `si_chat` (optional if you split Kyay-O + SiChat into one item)
 - `kyay_o_protein` (single): `pork_default`, `chicken_plus_egg` (if you want that as a selectable)
 - `kyay_o_addons` (multi): `brains +$2.00` :contentReference[oaicite:4]{index=4}
@@ -79,6 +86,7 @@ Allergens enum (suggested):
 ---
 
 ## Seed Strategy (recommended)
+
 - Authoritative seed lives in `data/menu.seed.yaml`.
 - Admin “Import Menu” tool reads YAML (or converted CSV) and upserts:
   - categories → items → modifier groups/options → item↔group joins
@@ -87,6 +95,7 @@ Allergens enum (suggested):
 ---
 
 ## Quality Bar (UI copy + naming)
+
 - Display format:
   - Primary: English
   - Secondary: Burmese in lighter text (or toggle)
@@ -97,7 +106,9 @@ Allergens enum (suggested):
 ---
 
 ## Seed Completeness Checklist
+
 Before you go live, ensure:
+
 - Every item has: slug, bilingual name, price cents, category, active flag
 - All allergen tags are consistent
 - Modifier groups are attached where variants exist (curries, Kyay-O, Tom Yum base)

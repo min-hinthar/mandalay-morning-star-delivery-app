@@ -9,6 +9,7 @@
 This phase enforces consistent layout tokens across the codebase by migrating hardcoded pixel values to Tailwind's design scale. The project already has a comprehensive token system in `tokens.css` with CSS custom properties for spacing, typography, and border-radius. The main work involves identifying and replacing arbitrary values (`text-[10px]`, `top-[72px]`, `borderRadius: "8px"`) with standard Tailwind utilities or CSS variable references.
 
 Current violation audit (via `scripts/audit-tokens.js`):
+
 - **Typography:** 10 files with `text-[Npx]` arbitrary font sizes (mostly `text-[10px]` and `text-[11px]`)
 - **Spacing:** 2 files with arbitrary position values (`top-[72px]`)
 - **Border-radius:** 13 occurrences in 6 files (inline style `borderRadius: "Npx"` in charts and MorphingMenu)
@@ -21,30 +22,34 @@ The Phase 27 pattern (ESLint enforcement + batch migration by component type) ap
 ## Standard Stack
 
 ### Core
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| TailwindCSS | 4.x | Utility-first CSS | Already in use, spacing/typography scale is native |
-| CSS Custom Properties | Native | Design tokens | Already defined in tokens.css |
-| class-variance-authority | Latest | Variant management | Already used throughout codebase |
-| eslint-plugin-better-tailwindcss | 0.x | Arbitrary value enforcement | Can restrict `text-[Npx]`, `p-[Npx]` patterns |
+
+| Library                          | Version | Purpose                     | Why Standard                                       |
+| -------------------------------- | ------- | --------------------------- | -------------------------------------------------- |
+| TailwindCSS                      | 4.x     | Utility-first CSS           | Already in use, spacing/typography scale is native |
+| CSS Custom Properties            | Native  | Design tokens               | Already defined in tokens.css                      |
+| class-variance-authority         | Latest  | Variant management          | Already used throughout codebase                   |
+| eslint-plugin-better-tailwindcss | 0.x     | Arbitrary value enforcement | Can restrict `text-[Npx]`, `p-[Npx]` patterns      |
 
 ### Supporting
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| audit-tokens.js | In-repo | Violation detection | Already scans for spacing violations |
-| ESLint no-restricted-syntax | Built-in | AST-based enforcement | Block inline style violations |
+
+| Library                     | Version  | Purpose               | When to Use                          |
+| --------------------------- | -------- | --------------------- | ------------------------------------ |
+| audit-tokens.js             | In-repo  | Violation detection   | Already scans for spacing violations |
+| ESLint no-restricted-syntax | Built-in | AST-based enforcement | Block inline style violations        |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| Manual grep | ESLint plugin | ESLint provides IDE integration and CI blocking |
-| Global text scale override | Per-component migration | Migration preserves intentional variations |
+
+| Instead of                 | Could Use               | Tradeoff                                        |
+| -------------------------- | ----------------------- | ----------------------------------------------- |
+| Manual grep                | ESLint plugin           | ESLint provides IDE integration and CI blocking |
+| Global text scale override | Per-component migration | Migration preserves intentional variations      |
 
 **No installation needed:** All tools already in project. Consider adding `eslint-plugin-better-tailwindcss` for stronger enforcement.
 
 ## Architecture Patterns
 
 ### Token System Structure (Already Exists)
+
 ```
 src/
 ├── styles/
@@ -62,42 +67,48 @@ src/
 ```
 
 ### Pattern 1: Typography Scale Mapping
+
 **What:** Map arbitrary font sizes to Tailwind scale
 **When to use:** All `text-[Npx]` violations
 **Example:**
+
 ```typescript
 // BEFORE (arbitrary)
-className="text-[10px]"
+className = "text-[10px]";
 
 // AFTER (Tailwind scale)
-className="text-xs"  // 12px, close enough for most cases
+className = "text-xs"; // 12px, close enough for most cases
 
 // OR if 10px is truly needed, add to tokens:
 // In tokens.css: --text-2xs: 0.625rem;
 // In tailwind.config.ts: "2xs": ["var(--text-2xs)", {...}]
-className="text-2xs"
+className = "text-2xs";
 ```
 
 ### Pattern 2: Spacing Scale Mapping
+
 **What:** Replace arbitrary spacing with Tailwind scale
 **When to use:** `p-[Npx]`, `m-[Npx]`, `gap-[Npx]`, `top-[Npx]` violations
 **Example:**
+
 ```typescript
 // BEFORE (arbitrary 72px for header offset)
-className="top-[72px]"
+className = "top-[72px]";
 
 // AFTER (use CSS variable for semantic meaning)
-className="top-[var(--header-height)]"  // Already defined as 56px in tokens
+className = "top-[var(--header-height)]"; // Already defined as 56px in tokens
 
 // OR calculate with spacing scale
-className="top-14"  // 56px
+className = "top-14"; // 56px
 // If 72px truly needed: top-[calc(var(--header-height)+16px)] or define new token
 ```
 
 ### Pattern 3: Border-Radius in Inline Styles
+
 **What:** Replace hardcoded borderRadius in style objects with tokens
 **When to use:** Chart libraries, animation configs
 **Example:**
+
 ```typescript
 // BEFORE (hardcoded in Recharts config)
 element: {
@@ -119,9 +130,11 @@ element: {
 ```
 
 ### Pattern 4: Font-Weight Semantic Tokens
+
 **What:** Replace numeric font-weight with Tailwind classes
 **When to use:** Any `fontWeight: 600` or similar inline styles
 **Example:**
+
 ```typescript
 // BEFORE (hardcoded numeric)
 style={{ fontWeight: 600 }}
@@ -140,6 +153,7 @@ className="font-semibold"  // 600
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Pixel values for spacing:** Use Tailwind scale (`p-4` not `p-[16px]`)
 - **Arbitrary font sizes without token:** Add to tokens.css if truly needed
 - **Hardcoded borderRadius in animations:** Use CSS variables for consistency
@@ -147,42 +161,47 @@ className="font-semibold"  // 600
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Small font detection | Manual grep | ESLint pattern match | Catches at build time |
-| Typography scale | New font sizes | Existing Tailwind scale | Scale is designed for readability |
-| Position values for header | Magic numbers | CSS variable tokens | Single source of truth |
-| Border-radius consistency | Per-component values | Token variables | Theme-aware, maintainable |
+| Problem                    | Don't Build          | Use Instead             | Why                               |
+| -------------------------- | -------------------- | ----------------------- | --------------------------------- |
+| Small font detection       | Manual grep          | ESLint pattern match    | Catches at build time             |
+| Typography scale           | New font sizes       | Existing Tailwind scale | Scale is designed for readability |
+| Position values for header | Magic numbers        | CSS variable tokens     | Single source of truth            |
+| Border-radius consistency  | Per-component values | Token variables         | Theme-aware, maintainable         |
 
 **Key insight:** The token system is comprehensive. This phase is enforcement, not design. If a value truly doesn't fit the scale, add a semantic token with a meaningful name.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Over-Zealous Small Font Replacement
+
 **What goes wrong:** Replacing `text-[10px]` with `text-xs` when 10px was intentional
 **Why it happens:** Tailwind's smallest scale is `text-xs` (12px)
 **How to avoid:** Evaluate if 10px is truly needed (badges, captions, etc.). If yes, add `text-2xs` token.
 **Warning signs:** Text becomes too large after migration, breaking layouts
 
 ### Pitfall 2: Header Height Mismatch
+
 **What goes wrong:** Using `top-[72px]` but token is `--header-height: 56px`
 **Why it happens:** Header height changed or varies between contexts
 **How to avoid:** Verify actual header height, may need `--header-height-with-tabs` or similar
 **Warning signs:** Sticky elements overlap or have gaps
 
 ### Pitfall 3: Chart Library Styling Breaks
+
 **What goes wrong:** Recharts/Chart.js doesn't respect CSS variables
 **Why it happens:** Some libraries parse values at render time
 **How to avoid:** Test in browser after migration. May need computed value fallback.
 **Warning signs:** Charts render with wrong radii or no radii
 
 ### Pitfall 4: Animation Border-Radius Interpolation
+
 **What goes wrong:** MorphingMenu animation breaks when using CSS variables
 **Why it happens:** Framer Motion interpolates between string values
 **How to avoid:** Keep numeric strings for animation states, use semantic tokens for static styles only
 **Warning signs:** Janky animations, console errors about invalid values
 
 ### Pitfall 5: Responsive Variants Ignored
+
 **What goes wrong:** Fixing base class but missing `md:text-[10px]` variant
 **Why it happens:** Grep patterns don't catch responsive prefixes
 **How to avoid:** Search for full pattern including prefixes: `md:text-\[`, `lg:p-\[`
@@ -191,6 +210,7 @@ className="font-semibold"  // 600
 ## Code Examples
 
 ### Typography Token Mapping Reference
+
 ```typescript
 // Tailwind Scale → CSS Variable → Pixel Value
 // text-xs  → --text-xs   → 12px (0.75rem)
@@ -212,10 +232,11 @@ className="font-semibold"  // 600
 // "2xs": ["var(--text-2xs)", { lineHeight: "var(--text-2xs--line-height)" }],
 
 // Usage:
-className="text-2xs"
+className = "text-2xs";
 ```
 
 ### Spacing Token Mapping Reference
+
 ```typescript
 // Tailwind Scale → CSS Variable → Pixel Value
 // p-0    → --space-0    → 0
@@ -235,13 +256,14 @@ className="text-2xs"
 
 // For header offset (72px), use combination or new token:
 // Option A: Use existing close value
-className="top-[72px]"  // Keep if semantic
+className = "top-[72px]"; // Keep if semantic
 // Option B: Define semantic token
 // tokens.css: --header-height-full: 72px;
-className="top-[var(--header-height-full)]"
+className = "top-[var(--header-height-full)]";
 ```
 
 ### Border-Radius in Chart Libraries
+
 ```typescript
 // BEFORE: Recharts with hardcoded radius
 <Bar
@@ -266,6 +288,7 @@ element: {
 ```
 
 ### ESLint Rules for Layout Enforcement
+
 ```javascript
 // Add to eslint.config.mjs rules section
 {
@@ -293,48 +316,52 @@ element: {
 ## Current Violation Inventory
 
 ### Typography (`text-[Npx]`) - 10 files
-| File | Pattern | Count | Suggested Fix |
-|------|---------|-------|---------------|
-| badge.tsx | `text-[10px]` | 1 | Add `text-2xs` token |
-| TimeSlotPicker.tsx | `text-[10px]` | 1 | Use `text-2xs` or `text-xs` |
-| CartButton.tsx | `text-[11px]` | 1 | Use `text-xs` (close enough) |
-| CartBar.tsx | `text-[10px]` | 1 | Use `text-2xs` |
-| DietaryBadges.tsx | `text-[10px]` | 1 | Use `text-2xs` |
-| CheckoutStepperV8.tsx | `text-[10px]` | 1 | Use `text-2xs` |
-| CheckoutLayout.tsx | `text-[10px]` | 1 | Use `text-2xs` |
-| NavDots.tsx | `text-[10px]` | 1 | Use `text-2xs` |
-| CartIndicator.tsx | `text-[11px]` | 1 | Use `text-xs` |
-| DrawerFooter.tsx | `text-[10px]` | 1 | Use `text-2xs` |
+
+| File                  | Pattern       | Count | Suggested Fix                |
+| --------------------- | ------------- | ----- | ---------------------------- |
+| badge.tsx             | `text-[10px]` | 1     | Add `text-2xs` token         |
+| TimeSlotPicker.tsx    | `text-[10px]` | 1     | Use `text-2xs` or `text-xs`  |
+| CartButton.tsx        | `text-[11px]` | 1     | Use `text-xs` (close enough) |
+| CartBar.tsx           | `text-[10px]` | 1     | Use `text-2xs`               |
+| DietaryBadges.tsx     | `text-[10px]` | 1     | Use `text-2xs`               |
+| CheckoutStepperV8.tsx | `text-[10px]` | 1     | Use `text-2xs`               |
+| CheckoutLayout.tsx    | `text-[10px]` | 1     | Use `text-2xs`               |
+| NavDots.tsx           | `text-[10px]` | 1     | Use `text-2xs`               |
+| CartIndicator.tsx     | `text-[11px]` | 1     | Use `text-xs`                |
+| DrawerFooter.tsx      | `text-[10px]` | 1     | Use `text-2xs`               |
 
 ### Spacing (`top-[Npx]`) - 2 files
-| File | Pattern | Count | Suggested Fix |
-|------|---------|-------|---------------|
-| MenuSkeleton.tsx | `top-[72px]` | 1 | Define `--tabs-offset` token |
-| CategoryTabs.tsx | `top-[72px]` | 1 | Use same `--tabs-offset` token |
+
+| File             | Pattern      | Count | Suggested Fix                  |
+| ---------------- | ------------ | ----- | ------------------------------ |
+| MenuSkeleton.tsx | `top-[72px]` | 1     | Define `--tabs-offset` token   |
+| CategoryTabs.tsx | `top-[72px]` | 1     | Use same `--tabs-offset` token |
 
 ### Border-Radius (inline styles) - 6 files
-| File | Pattern | Count | Suggested Fix |
-|------|---------|-------|---------------|
-| MorphingMenu.tsx | `borderRadius: "2px"/"4px"` | 6 | Keep for animation interpolation |
-| RevenueChart.tsx | `borderRadius: "16px"` | 1 | Use `var(--radius-xl)` |
-| PerformanceChart.tsx | `borderRadius: "8px"` | 2 | Use `var(--radius-md)` |
-| PeakHoursChart.tsx | `borderRadius: "8px"` | 1 | Use `var(--radius-md)` |
-| ExceptionBreakdown.tsx | `borderRadius: "8px"` | 1 | Use `var(--radius-md)` |
-| DeliverySuccessChart.tsx | `borderRadius: "8px"` | 2 | Use `var(--radius-md)` |
+
+| File                     | Pattern                     | Count | Suggested Fix                    |
+| ------------------------ | --------------------------- | ----- | -------------------------------- |
+| MorphingMenu.tsx         | `borderRadius: "2px"/"4px"` | 6     | Keep for animation interpolation |
+| RevenueChart.tsx         | `borderRadius: "16px"`      | 1     | Use `var(--radius-xl)`           |
+| PerformanceChart.tsx     | `borderRadius: "8px"`       | 2     | Use `var(--radius-md)`           |
+| PeakHoursChart.tsx       | `borderRadius: "8px"`       | 1     | Use `var(--radius-md)`           |
+| ExceptionBreakdown.tsx   | `borderRadius: "8px"`       | 1     | Use `var(--radius-md)`           |
+| DeliverySuccessChart.tsx | `borderRadius: "8px"`       | 2     | Use `var(--radius-md)`           |
 
 ### Font-Weight (inline styles) - 1 file
-| File | Pattern | Count | Suggested Fix |
-|------|---------|-------|---------------|
-| RevenueChart.tsx | `fontWeight: 600` | 1 | Context-dependent (may be Recharts config) |
+
+| File             | Pattern           | Count | Suggested Fix                              |
+| ---------------- | ----------------- | ----- | ------------------------------------------ |
+| RevenueChart.tsx | `fontWeight: 600` | 1     | Context-dependent (may be Recharts config) |
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Arbitrary values everywhere | Constrained design tokens | TailwindCSS 4 theme directive | Consistent, maintainable |
-| `text-[10px]` for small text | Custom token `text-2xs` | Best practice 2024+ | Single source, responsive |
-| Magic numbers for positions | CSS variables for layout | CSS custom property maturity | Theme-aware, documented |
-| Per-file border-radius | Semantic `rounded-*` tokens | Design system adoption | Brand consistency |
+| Old Approach                 | Current Approach            | When Changed                  | Impact                    |
+| ---------------------------- | --------------------------- | ----------------------------- | ------------------------- |
+| Arbitrary values everywhere  | Constrained design tokens   | TailwindCSS 4 theme directive | Consistent, maintainable  |
+| `text-[10px]` for small text | Custom token `text-2xs`     | Best practice 2024+           | Single source, responsive |
+| Magic numbers for positions  | CSS variables for layout    | CSS custom property maturity  | Theme-aware, documented   |
+| Per-file border-radius       | Semantic `rounded-*` tokens | Design system adoption        | Brand consistency         |
 
 **Current best practice:** Define all layout values as CSS custom properties. Use Tailwind scale where possible. Add semantic tokens (with meaningful names) only when Tailwind scale doesn't cover the use case.
 
@@ -363,6 +390,7 @@ element: {
 4. **Trust build passing** for verification (no visual check required)
 
 **Recommended execution order:**
+
 1. **Plan 01:** Add `text-2xs` token + ESLint rules for typography/spacing
 2. **Plan 02:** Migrate all `text-[10px]` → `text-2xs` across badge/cart/nav components
 3. **Plan 03:** Migrate `top-[72px]` to CSS variable in menu components
@@ -371,6 +399,7 @@ element: {
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - `/websites/tailwindcss` Context7 - Typography, spacing, border-radius customization
 - `/schoero/eslint-plugin-better-tailwindcss` Context7 - Arbitrary value enforcement
 - `src/styles/tokens.css` - Project's existing token definitions (verified comprehensive)
@@ -379,15 +408,18 @@ element: {
 - `eslint.config.mjs` - Existing ESLint rules pattern for extension
 
 ### Secondary (MEDIUM confidence)
+
 - TailwindCSS v4 documentation on `@theme` directive
 - Phase 27 RESEARCH.md - Established migration patterns and ESLint approach
 
 ### Tertiary (LOW confidence)
+
 - None - all findings verified against codebase and official docs
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - All tools already in project
 - Architecture: HIGH - Patterns verified against existing codebase and token system
 - Pitfalls: HIGH - Derived from actual code inspection and animation library knowledge

@@ -13,9 +13,11 @@ The CSP domain audit identified 8 external origins that must be whitelisted. GSA
 **Primary recommendation:** Use `next.config.ts` `headers()` for CSP (no nonce needed since `'unsafe-inline'` is already required). Start with `Content-Security-Policy-Report-Only`, report directly to Sentry's `/security/` endpoint, validate for 1-2 weeks, then upgrade to enforcing.
 
 <user_constraints>
+
 ## User Constraints (from CONTEXT.md)
 
 ### Locked Decisions
+
 - Claude should audit codebase for all external domains (beyond the known: Stripe, Google Maps, Supabase, Sentry, Google Fonts, Vercel Analytics)
 - Claude should audit for iframe usage (Stripe Elements confirmed, check for others)
 - Claude should check deployment setup (believed to be Vercel-only, no WAF/CDN)
@@ -38,6 +40,7 @@ The CSP domain audit identified 8 external origins that must be whitelisted. GSA
 - Testing: **manual verification** for cssText replacements (no visual regression tests)
 
 ### Claude's Discretion
+
 - Report-Only vs enforcing timeline, validation period length
 - Single global policy vs per-route policies
 - CSP header location (next.config.js headers vs middleware)
@@ -63,26 +66,30 @@ The CSP domain audit identified 8 external origins that must be whitelisted. GSA
 - Unused type export cleanup based on consumer analysis
 
 ### Deferred Ideas (OUT OF SCOPE)
+
 None -- discussion stayed within phase scope
 </user_constraints>
 
 ## Standard Stack
 
 ### Core
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| Next.js | 16.1.2 | CSP headers via `headers()` in `next.config.ts` | Built-in, no extra dependency |
+
+| Library        | Version  | Purpose                                           | Why Standard                          |
+| -------------- | -------- | ------------------------------------------------- | ------------------------------------- |
+| Next.js        | 16.1.2   | CSP headers via `headers()` in `next.config.ts`   | Built-in, no extra dependency         |
 | @sentry/nextjs | ^10.38.0 | CSP violation reporting via `/security/` endpoint | Already installed, native CSP support |
 
 ### Supporting
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| knip | ^5.82.1 | Dead code detection (already in devDeps) | Cross-validate dead export audit |
+
+| Library | Version | Purpose                                  | When to Use                      |
+| ------- | ------- | ---------------------------------------- | -------------------------------- |
+| knip    | ^5.82.1 | Dead code detection (already in devDeps) | Cross-validate dead export audit |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| `next.config.ts` headers | `middleware.ts` | Middleware needed only for nonces; no nonce needed here since `'unsafe-inline'` required. headers() is simpler, no runtime overhead |
+
+| Instead of                          | Could Use                      | Tradeoff                                                                                                                             |
+| ----------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `next.config.ts` headers            | `middleware.ts`                | Middleware needed only for nonces; no nonce needed here since `'unsafe-inline'` required. headers() is simpler, no runtime overhead  |
 | Direct Sentry `/security/` endpoint | Custom `/api/csp-report` proxy | Proxy adds code + maintenance; Sentry endpoint is purpose-built. Free tier quota can be managed with sample rate on Report-To header |
 
 **Installation:** No new packages needed.
@@ -182,6 +189,7 @@ flyingEl.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Creating middleware.ts just for CSP:** Adds runtime cost on every request. Use `headers()` since nonces are unnecessary.
 - **Using `'unsafe-eval'` in production:** Only needed in dev for React Fast Refresh / hot reload. Never ship in production.
 - **Whitelisting `https://*.stripe.com` in `script-src`:** Stripe is server-side only in this codebase (`stripe` package, not `@stripe/stripe-js`). No Stripe scripts load client-side.
@@ -189,52 +197,59 @@ flyingEl.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| CSP violation reporting | Custom `/api/csp-report` proxy | Sentry `/security/` endpoint | Purpose-built, handles dedup, free tier sufficient with sampling |
-| Dead code detection | Manual grep for unused exports | `knip` (already installed) | Catches transitive dead code, type exports, unused deps |
-| Security header testing | Manual curl checks | `securityheaders.com` or `csp-evaluator.withgoogle.com` | Automated, comprehensive, catches mistakes |
+| Problem                 | Don't Build                    | Use Instead                                             | Why                                                              |
+| ----------------------- | ------------------------------ | ------------------------------------------------------- | ---------------------------------------------------------------- |
+| CSP violation reporting | Custom `/api/csp-report` proxy | Sentry `/security/` endpoint                            | Purpose-built, handles dedup, free tier sufficient with sampling |
+| Dead code detection     | Manual grep for unused exports | `knip` (already installed)                              | Catches transitive dead code, type exports, unused deps          |
+| Security header testing | Manual curl checks             | `securityheaders.com` or `csp-evaluator.withgoogle.com` | Automated, comprehensive, catches mistakes                       |
 
 **Key insight:** CSP is a browser-enforced policy. Testing must happen in real browsers, not just build checks. The Report-Only period catches real-world violations before enforcement breaks users.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Missing `connect-src` for Supabase Realtime (WebSocket)
+
 **What goes wrong:** Supabase realtime uses `wss://*.supabase.co`. If only `https://*.supabase.co` is in `connect-src`, WebSocket connections fail silently.
 **Why it happens:** Easy to forget `wss://` protocol.
 **How to avoid:** Include both `https://*.supabase.co wss://*.supabase.co` in `connect-src`.
 **Warning signs:** Order tracking live updates stop working; realtime location stops updating.
 
 ### Pitfall 2: Google Maps Requires Multiple Domains
+
 **What goes wrong:** Maps tiles/markers don't load.
 **Why it happens:** Google Maps uses `maps.googleapis.com` for API, `maps.gstatic.com` for static assets/tiles, `lh3.googleusercontent.com` for street view.
 **How to avoid:** Whitelist all three in `img-src` and `connect-src` (for Routes API).
 **Warning signs:** Map renders as grey box; markers don't appear; route optimization API calls fail.
 
 ### Pitfall 3: Sentry Tunnel Route Conflicts
+
 **What goes wrong:** CSP reports sent to Sentry get blocked by CSP itself.
 **Why it happens:** If `connect-src` doesn't include the Sentry ingest domain, the browser blocks the CSP report.
 **How to avoid:** The app already uses `tunnelRoute: "/monitoring"` in Sentry config, which routes through the same origin. For CSP `report-uri`, use the Sentry `/security/` endpoint directly (it's a different mechanism from JS SDK events). Ensure `connect-src` includes `https://*.ingest.us.sentry.io` as backup.
 **Warning signs:** Zero CSP reports in Sentry despite known violations.
 
 ### Pitfall 4: Browser Extension False Positives
+
 **What goes wrong:** CSP reports flooded with violations from extensions (password managers injecting scripts, ad blockers, etc.).
 **Why it happens:** Extensions inject content that violates the page's CSP.
 **How to avoid:** Sentry free tier has limited quota. Use `sentry_key` parameter filtering. In Sentry UI, set up filters for known extension patterns (`chrome-extension://`, `moz-extension://`). Consider environment tagging to separate prod from preview.
 **Warning signs:** Report volume spikes unexpectedly; quota consumed by noise.
 
 ### Pitfall 5: `upgrade-insecure-requests` Breaks Local Development
+
 **What goes wrong:** Local dev breaks because localhost uses HTTP.
 **Why it happens:** `upgrade-insecure-requests` forces all requests to HTTPS.
 **How to avoid:** Conditionally exclude in development: `isDev ? "" : "upgrade-insecure-requests"`.
 **Warning signs:** Dev server loads blank page; API calls fail with mixed content errors.
 
 ### Pitfall 6: Service Worker Not Covered by Page CSP
+
 **What goes wrong:** Service worker (`sw.js`) has its own execution context. Page CSP headers don't apply to fetch requests made by the service worker.
-**How to avoid:** The SW in this project (`src/app/sw.ts`) makes fetch requests to Supabase, Google Drive, and same-origin. Since SW inherits CSP from the response that registered it, and our CSP applies to `/(.*)`  which includes `/sw.js`, the SW's fetch requests will be governed by the CSP of the SW script response.
+**How to avoid:** The SW in this project (`src/app/sw.ts`) makes fetch requests to Supabase, Google Drive, and same-origin. Since SW inherits CSP from the response that registered it, and our CSP applies to `/(.*)` which includes `/sw.js`, the SW's fetch requests will be governed by the CSP of the SW script response.
 **Warning signs:** Offline caching stops working for external images.
 
 ### Pitfall 7: Data URIs in img-src
+
 **What goes wrong:** Skeleton components use `data:image/svg+xml,...` URLs in `backgroundImage` inline styles. If `data:` is missing from `img-src`, these break.
 **How to avoid:** Include `data:` in `img-src`. The skeleton base component (`src/components/ui/skeleton/base.tsx` lines 102, 192) uses inline SVG data URIs.
 **Warning signs:** Skeleton loading states appear as broken images or missing backgrounds.
@@ -243,39 +258,41 @@ flyingEl.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
 
 ### External Domain Inventory (HIGH confidence -- verified from source code)
 
-| Directive | Domain | Source File(s) | Purpose |
-|-----------|--------|---------------|---------|
-| `script-src` | `maps.googleapis.com` | DeliveryMap, RouteMap, CoverageRouteMap | Google Maps JS API loaded by `useJsApiLoader` |
-| `style-src` | `fonts.googleapis.com` | layout.tsx (preconnect) | Google Fonts CSS |
-| `font-src` | `fonts.gstatic.com` | layout.tsx (preconnect) | Google Fonts WOFF2 |
-| `img-src` | `*.supabase.co` | next.config.ts remotePatterns | Menu item photos |
-| `img-src` | `lh3.googleusercontent.com` | next.config.ts remotePatterns | Google OAuth avatars |
-| `img-src` | `drive.google.com` | next.config.ts remotePatterns | Menu photos from Drive |
-| `img-src` | `maps.googleapis.com` | CustomerInfoCard, DeliveryReminder | Static Maps API images |
-| `img-src` | `maps.gstatic.com` | (runtime) | Google Maps tile imagery |
-| `connect-src` | `*.supabase.co` (https + wss) | supabase/server.ts, realtime | API calls + realtime WebSocket |
-| `connect-src` | `*.ingest.us.sentry.io` | sentry.server.config.ts | Sentry error reporting (backup to tunnel) |
-| `connect-src` | `maps.googleapis.com` | geocoding.ts, coverage.ts | Geocoding API |
-| `connect-src` | `routes.googleapis.com` | route-optimization/optimizer.ts | Routes API |
-| `worker-src` | `'self'` | sw.ts | Service worker from same origin |
+| Directive     | Domain                        | Source File(s)                          | Purpose                                       |
+| ------------- | ----------------------------- | --------------------------------------- | --------------------------------------------- |
+| `script-src`  | `maps.googleapis.com`         | DeliveryMap, RouteMap, CoverageRouteMap | Google Maps JS API loaded by `useJsApiLoader` |
+| `style-src`   | `fonts.googleapis.com`        | layout.tsx (preconnect)                 | Google Fonts CSS                              |
+| `font-src`    | `fonts.gstatic.com`           | layout.tsx (preconnect)                 | Google Fonts WOFF2                            |
+| `img-src`     | `*.supabase.co`               | next.config.ts remotePatterns           | Menu item photos                              |
+| `img-src`     | `lh3.googleusercontent.com`   | next.config.ts remotePatterns           | Google OAuth avatars                          |
+| `img-src`     | `drive.google.com`            | next.config.ts remotePatterns           | Menu photos from Drive                        |
+| `img-src`     | `maps.googleapis.com`         | CustomerInfoCard, DeliveryReminder      | Static Maps API images                        |
+| `img-src`     | `maps.gstatic.com`            | (runtime)                               | Google Maps tile imagery                      |
+| `connect-src` | `*.supabase.co` (https + wss) | supabase/server.ts, realtime            | API calls + realtime WebSocket                |
+| `connect-src` | `*.ingest.us.sentry.io`       | sentry.server.config.ts                 | Sentry error reporting (backup to tunnel)     |
+| `connect-src` | `maps.googleapis.com`         | geocoding.ts, coverage.ts               | Geocoding API                                 |
+| `connect-src` | `routes.googleapis.com`       | route-optimization/optimizer.ts         | Routes API                                    |
+| `worker-src`  | `'self'`                      | sw.ts                                   | Service worker from same origin               |
 
 **NOT needed (verified):**
+
 - `frame-src` for Stripe: No `@stripe/stripe-js` or `loadStripe` in codebase. Stripe is server-side only (`stripe` npm package). No Stripe Elements iframes.
 - `script-src` for Vercel Analytics/Speed Insights: Both use same-origin `/_vercel/` paths (bundled scripts, not external CDN).
 - `connect-src` for Google Analytics/GTM: `dns-prefetch` for `googletagmanager.com` exists in layout.tsx but no actual script loading found. Can add later if needed.
 
 ### iframe Audit (HIGH confidence)
+
 **Result:** Zero `<iframe>` elements in codebase. No Stripe Elements. Google Maps uses `<div>` containers with JS API, not iframes. Tiptap editor uses `contentEditable`, not iframes. `frame-src 'none'` would be ideal but Google Maps internally creates iframes for its rendering -- `frame-src 'self' https://*.google.com` may be needed.
 
 ### cssText Usages (HIGH confidence -- 5 call sites in 2 files)
 
-| File | Line(s) | Context | Replacement Strategy |
-|------|---------|---------|---------------------|
-| `src/components/ui/cart/FlyToCart.tsx` | 145 | Flying element creation (pre-DOM-insertion) | Individual `.style.prop` assignments |
-| `src/components/ui/orders/tracking/DeliveryMap/CustomMarkers.tsx` | 11 | Restaurant marker container | Individual `.style.prop` assignments |
-| `src/components/ui/orders/tracking/DeliveryMap/CustomMarkers.tsx` | 36 | Vehicle marker container (dynamic opacity/rotation) | Individual `.style.prop` assignments |
-| `src/components/ui/orders/tracking/DeliveryMap/CustomMarkers.tsx` | 52 | Destination marker container | Individual `.style.prop` assignments |
-| `src/components/ui/orders/tracking/DeliveryMap/CustomMarkers.tsx` | 70 | Stale badge container | Individual `.style.prop` assignments |
+| File                                                              | Line(s) | Context                                             | Replacement Strategy                 |
+| ----------------------------------------------------------------- | ------- | --------------------------------------------------- | ------------------------------------ |
+| `src/components/ui/cart/FlyToCart.tsx`                            | 145     | Flying element creation (pre-DOM-insertion)         | Individual `.style.prop` assignments |
+| `src/components/ui/orders/tracking/DeliveryMap/CustomMarkers.tsx` | 11      | Restaurant marker container                         | Individual `.style.prop` assignments |
+| `src/components/ui/orders/tracking/DeliveryMap/CustomMarkers.tsx` | 36      | Vehicle marker container (dynamic opacity/rotation) | Individual `.style.prop` assignments |
+| `src/components/ui/orders/tracking/DeliveryMap/CustomMarkers.tsx` | 52      | Destination marker container                        | Individual `.style.prop` assignments |
+| `src/components/ui/orders/tracking/DeliveryMap/CustomMarkers.tsx` | 70      | Stale badge container                               | Individual `.style.prop` assignments |
 
 **CustomMarkers implementation:** Raw DOM manipulation (not React, not OverlayView). Creates `div` elements with `document.createElement`, sets styles, sets `innerHTML` with SVG content, passes to `AdvancedMarkerElement.content`. This is the standard pattern for Google Maps custom markers.
 
@@ -283,47 +300,50 @@ flyingEl.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
 
 ### innerHTML Usages (MEDIUM confidence -- 6 call sites in 3 files)
 
-| File | Line(s) | Content | CSP Risk |
-|------|---------|---------|----------|
-| CustomMarkers.tsx | 13, 37, 54 | Static SVG markup with inline `style` attributes | Low -- `'unsafe-inline'` in `style-src` covers this |
-| RouteMap.tsx | 153 | Dynamic HTML with inline `style` (stop markers) | Low -- same reason |
-| CoverageRouteMap.tsx | 91, 118 | Dynamic HTML with inline `style` (map markers) | Low -- same reason |
+| File                 | Line(s)    | Content                                          | CSP Risk                                            |
+| -------------------- | ---------- | ------------------------------------------------ | --------------------------------------------------- |
+| CustomMarkers.tsx    | 13, 37, 54 | Static SVG markup with inline `style` attributes | Low -- `'unsafe-inline'` in `style-src` covers this |
+| RouteMap.tsx         | 153        | Dynamic HTML with inline `style` (stop markers)  | Low -- same reason                                  |
+| CoverageRouteMap.tsx | 91, 118    | Dynamic HTML with inline `style` (map markers)   | Low -- same reason                                  |
 
 **CSP impact:** `innerHTML` with inline `style` attributes requires `'unsafe-inline'` in `style-src`, which is already mandated by GSAP. These usages are NOT a CSP violation with our planned policy. No `<script>` tags in any `innerHTML` calls.
 
 ### GSAP Inline Style Injection (HIGH confidence)
+
 GSAP manipulates styles via `element.style.transform = ...`, `element.style.opacity = ...` etc. This is DOM property manipulation, NOT inline style attribute injection. GSAP does NOT inject `<style>` elements or use `cssText`. The `'unsafe-inline'` requirement for `style-src` comes from:
+
 1. Framer Motion (injects `<style>` elements for keyframe animations)
 2. Google Fonts (loads CSS with inline font-face declarations)
 3. Tailwind's inline styles in JSX `style={{}}` props (these are actually DOM properties, CSP-safe, but components using `dangerouslySetInnerHTML` with styles need `'unsafe-inline'`)
 
 ### Third-Party Dynamic Injection Audit (HIGH confidence)
-| Library | Injection Method | CSP Impact |
-|---------|-----------------|------------|
-| GSAP | `element.style.prop = val` | None (DOM API, not CSP-restricted) |
-| Framer Motion | `<style>` element injection for keyframes | Requires `'unsafe-inline'` in `style-src` |
-| @react-google-maps/api | Script tag injection via `useJsApiLoader` | Requires `maps.googleapis.com` in `script-src` |
-| @vercel/analytics | Same-origin script at `/_vercel/insights/script.js` | Covered by `'self'` |
-| @vercel/speed-insights | Same-origin script at `/_vercel/speed-insights/script.js` | Covered by `'self'` |
-| Tiptap | `contentEditable` div, no iframes | None |
-| Recharts | SVG rendering, no style injection | None |
+
+| Library                | Injection Method                                          | CSP Impact                                     |
+| ---------------------- | --------------------------------------------------------- | ---------------------------------------------- |
+| GSAP                   | `element.style.prop = val`                                | None (DOM API, not CSP-restricted)             |
+| Framer Motion          | `<style>` element injection for keyframes                 | Requires `'unsafe-inline'` in `style-src`      |
+| @react-google-maps/api | Script tag injection via `useJsApiLoader`                 | Requires `maps.googleapis.com` in `script-src` |
+| @vercel/analytics      | Same-origin script at `/_vercel/insights/script.js`       | Covered by `'self'`                            |
+| @vercel/speed-insights | Same-origin script at `/_vercel/speed-insights/script.js` | Covered by `'self'`                            |
+| Tiptap                 | `contentEditable` div, no iframes                         | None                                           |
+| Recharts               | SVG rendering, no style injection                         | None                                           |
 
 ### Dead Code Audit (HIGH confidence -- verified with grep)
 
 **Zero-consumer exports (safe to remove):**
 
-| Export | File | Consumers |
-|--------|------|-----------|
-| `parsePriceToCents` | `src/lib/utils/currency.ts` | 0 imports |
-| `canEditOrder` | `src/lib/utils/delivery-dates.ts` | 0 imports |
-| `formatPriceValue` | `src/lib/utils/format.ts` | 0 imports |
-| `formatDate` | `src/lib/utils/format.ts` | 0 imports (local `formatDate` functions exist in 6+ files but none import from format.ts) |
-| `reverseGeocode` | `src/lib/services/geocoding.ts` | 0 imports (only `geocodeAddress` imported from this file) |
-| `createItemSignature` re-export | `src/lib/stores/cart-store.ts` line 289 | 0 external imports (used internally on lines 99, 111) |
-| `getDeliveryFeeMessage` | `src/types/cart.ts` | 0 imports |
-| `WEB_VITALS_THRESHOLDS` | `src/lib/web-vitals.tsx` | 0 external imports (used internally on line 34) |
-| `getPerformanceScore` | `src/lib/web-vitals.tsx` | 0 imports |
-| `useABTest` + all exports | `src/lib/hooks/useABTest.ts` | 0 imports (barrel re-exports on hooks/index.ts line 130 but zero consumer of that re-export) |
+| Export                          | File                                    | Consumers                                                                                    |
+| ------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `parsePriceToCents`             | `src/lib/utils/currency.ts`             | 0 imports                                                                                    |
+| `canEditOrder`                  | `src/lib/utils/delivery-dates.ts`       | 0 imports                                                                                    |
+| `formatPriceValue`              | `src/lib/utils/format.ts`               | 0 imports                                                                                    |
+| `formatDate`                    | `src/lib/utils/format.ts`               | 0 imports (local `formatDate` functions exist in 6+ files but none import from format.ts)    |
+| `reverseGeocode`                | `src/lib/services/geocoding.ts`         | 0 imports (only `geocodeAddress` imported from this file)                                    |
+| `createItemSignature` re-export | `src/lib/stores/cart-store.ts` line 289 | 0 external imports (used internally on lines 99, 111)                                        |
+| `getDeliveryFeeMessage`         | `src/types/cart.ts`                     | 0 imports                                                                                    |
+| `WEB_VITALS_THRESHOLDS`         | `src/lib/web-vitals.tsx`                | 0 external imports (used internally on line 34)                                              |
+| `getPerformanceScore`           | `src/lib/web-vitals.tsx`                | 0 imports                                                                                    |
+| `useABTest` + all exports       | `src/lib/hooks/useABTest.ts`            | 0 imports (barrel re-exports on hooks/index.ts line 130 but zero consumer of that re-export) |
 
 **Dead barrel file:**
 | File | Exports | Consumers |
@@ -337,19 +357,21 @@ Line 130: `export { useABTest } from "./useABTest"` -- zero consumers. The entir
 
 ### Placeholder Social Links (HIGH confidence)
 
-| File | Line(s) | Current URL | Status |
-|------|---------|-------------|--------|
-| `src/components/ui/homepage/SiteFooter.tsx` | 68 | `https://www.ubereats.com` | Placeholder (generic, no restaurant page) |
-| `src/components/ui/homepage/SiteFooter.tsx` | 74 | `https://www.doordash.com` | Placeholder (generic) |
-| `src/components/ui/homepage/SiteFooter.tsx` | 80 | `https://www.grubhub.com` | Placeholder (generic) |
-| `src/components/ui/homepage/SiteFooter.tsx` | 57 | Yelp search URL | Placeholder (search, not direct business page) |
-| `src/emails/components/BrandFooter.tsx` | 78 | `https://instagram.com/mandalaymorningstar` | Likely placeholder (unverified) |
-| `src/emails/components/BrandFooter.tsx` | 85 | `https://facebook.com/mandalaymorningstar` | Likely placeholder (unverified) |
+| File                                        | Line(s) | Current URL                                 | Status                                         |
+| ------------------------------------------- | ------- | ------------------------------------------- | ---------------------------------------------- |
+| `src/components/ui/homepage/SiteFooter.tsx` | 68      | `https://www.ubereats.com`                  | Placeholder (generic, no restaurant page)      |
+| `src/components/ui/homepage/SiteFooter.tsx` | 74      | `https://www.doordash.com`                  | Placeholder (generic)                          |
+| `src/components/ui/homepage/SiteFooter.tsx` | 80      | `https://www.grubhub.com`                   | Placeholder (generic)                          |
+| `src/components/ui/homepage/SiteFooter.tsx` | 57      | Yelp search URL                             | Placeholder (search, not direct business page) |
+| `src/emails/components/BrandFooter.tsx`     | 78      | `https://instagram.com/mandalaymorningstar` | Likely placeholder (unverified)                |
+| `src/emails/components/BrandFooter.tsx`     | 85      | `https://facebook.com/mandalaymorningstar`  | Likely placeholder (unverified)                |
 
 **Note:** User stated Facebook + Instagram URLs will be provided before execution. The SiteFooter has TODO comments on lines 56, 67, 73, 79 for the business listing links.
 
 ### TODO/FIXME Audit (HIGH confidence)
+
 Total: **11 occurrences across 3 files:**
+
 - `src/lib/supabase/storage.ts` -- 4 TODOs
 - `src/app/api/admin/photos/verify-drive/route.ts` -- 3 TODOs
 - `src/components/ui/homepage/SiteFooter.tsx` -- 4 TODOs (the placeholder URLs)
@@ -357,6 +379,7 @@ Total: **11 occurrences across 3 files:**
 The SiteFooter TODOs are addressed by CLN-03. The storage/photos TODOs are out of scope for this phase.
 
 ### Deployment Setup (HIGH confidence)
+
 - **Vercel-only** -- no WAF, no CDN layer, no vercel.json
 - Sentry tunnel route: `/monitoring` (configured in `next.config.ts` `withSentryConfig`)
 - Service worker: `sw.ts` compiled separately via `scripts/build-sw.mjs`, served from `/sw.js`
@@ -365,62 +388,82 @@ The SiteFooter TODOs are addressed by CLN-03. The storage/photos TODOs are out o
 ## Discretion Recommendations
 
 ### CSP Header Location: `next.config.ts` headers()
+
 **Recommendation: `next.config.ts` headers()** (not middleware)
+
 - No middleware.ts exists today -- creating one adds complexity
 - Nonces are pointless when `'unsafe-inline'` is required (GSAP/Framer)
 - `headers()` is edge-cached by Vercel -- zero runtime cost
 - All headers are static (no per-request variation needed)
 
 ### `unsafe-inline` for style-src: Keep permanently
+
 **Recommendation: Keep `'unsafe-inline'` in `style-src` permanently**
+
 - GSAP's `element.style.prop` assignments are DOM API (CSP-safe), but Framer Motion injects `<style>` elements
 - Eliminating Framer Motion's `<style>` injection would require replacing the animation library -- not worth it
 - `'unsafe-inline'` for styles is universally considered low-risk (XSS via CSS is theoretical, not practical)
 
 ### `unsafe-eval` for script-src: Dev only
+
 **Recommendation: `'unsafe-eval'` in development ONLY**
+
 - Required for React Fast Refresh / Next.js hot reload
 - Zero code in the codebase uses `eval()` or `new Function()`
 - Production CSP must NOT include `'unsafe-eval'`
 
 ### Rollout Strategy: Report-Only for 1-2 weeks, then enforce
+
 **Recommendation:**
+
 1. Deploy with `Content-Security-Policy-Report-Only` header
 2. Monitor Sentry for 1-2 weeks (covers at least 2 Saturday delivery cycles)
 3. Fix any legitimate violations discovered
 4. Flip header key to `Content-Security-Policy` (enforcing)
 
 ### CSP Reporting: Direct Sentry endpoint
+
 **Recommendation: Send directly to Sentry's `/security/` endpoint**
+
 - No custom `/api/csp-report` route needed
 - Sentry natively parses CSP reports into structured issues
 - Uses `report-uri` (broad browser support) + `report-to` (future support)
 - Free tier concern: CSP reports count as events. With `Content-Security-Policy-Report-Only`, expect high volume initially. After fixing violations and switching to enforcing, volume drops dramatically. Browser extension noise is the main ongoing concern.
 
 ### Environment Tagging
+
 **Recommendation: Use Sentry's `sentry_environment` query parameter**
+
 - Append `&sentry_environment=production` (or `preview`, `development`) to the report URI
 - Allows filtering CSP reports by environment in Sentry dashboard
 
 ### Service Worker CSP
+
 **Recommendation: No special handling needed**
+
 - The SW at `/sw.js` inherits the CSP from the response headers when the browser fetches it
-- Since our `/(.*)`  matcher covers `/sw.js`, the SW's outbound fetches (to Supabase, Google Drive) are governed by our `connect-src` and `img-src` policies
+- Since our `/(.*)` matcher covers `/sw.js`, the SW's outbound fetches (to Supabase, Google Drive) are governed by our `connect-src` and `img-src` policies
 - The SW denylist already excludes `/monitoring` (Sentry tunnel) and `/api/` routes
 
 ### Commit Strategy
+
 **Recommendation: 3 logical commits**
+
 1. `sec: add CSP Report-Only and security headers` -- headers in next.config.ts
 2. `refactor: replace cssText with individual style assignments` -- FlyToCart + CustomMarkers
 3. `chore: remove dead code, barrel file, resolve placeholder links` -- CLN-01/02/03
 
 ### ESLint Rule for cssText
+
 **Recommendation: Add simple `no-restricted-syntax` rule**
+
 - Low maintenance, prevents regression
 - Pattern: `MemberExpression[property.name="cssText"]`
 
 ### Single Global Policy vs Per-Route
+
 **Recommendation: Single global policy**
+
 - All pages use the same external services (maps, Supabase, Sentry)
 - Per-route policies add complexity with no security benefit
 - One policy to audit, maintain, and test
@@ -428,12 +471,12 @@ The SiteFooter TODOs are addressed by CLN-03. The storage/photos TODOs are out o
 ## Code Examples
 
 ### Security Headers Block (next.config.ts)
+
 ```typescript
 // Source: Next.js docs + Sentry CSP reporting docs
 const isDev = process.env.NODE_ENV === "development";
 
-const SENTRY_CSP_ENDPOINT =
-  `https://o${process.env.SENTRY_ORG_ID}.ingest.us.sentry.io/api/${process.env.SENTRY_PROJECT_ID}/security/?sentry_key=${process.env.NEXT_PUBLIC_SENTRY_DSN?.split("@")[0].split("//")[1]}`;
+const SENTRY_CSP_ENDPOINT = `https://o${process.env.SENTRY_ORG_ID}.ingest.us.sentry.io/api/${process.env.SENTRY_PROJECT_ID}/security/?sentry_key=${process.env.NEXT_PUBLIC_SENTRY_DSN?.split("@")[0].split("//")[1]}`;
 
 const cspDirectives = [
   "default-src 'self'",
@@ -450,10 +493,13 @@ const cspDirectives = [
   isDev ? "" : "upgrade-insecure-requests",
   `report-uri ${SENTRY_CSP_ENDPOINT}`,
   "report-to csp-endpoint",
-].filter(Boolean).join("; ");
+]
+  .filter(Boolean)
+  .join("; ");
 ```
 
 ### CustomMarkers cssText Replacement
+
 ```typescript
 // BEFORE
 container.style.cssText =
@@ -468,6 +514,7 @@ container.style.filter = "drop-shadow(0 2px 4px rgba(0,0,0,0.3))";
 ```
 
 ### ESLint No-cssText Rule
+
 ```javascript
 // eslint.config.mjs
 {
@@ -485,13 +532,14 @@ container.style.filter = "drop-shadow(0 2px 4px rgba(0,0,0,0.3))";
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| `report-uri` only | `report-uri` + `report-to` + `Reporting-Endpoints` | 2023+ | Forward compat; `report-uri` deprecated but still needed for Safari/Firefox |
-| Middleware nonce per request | Static CSP in headers() | When `'unsafe-inline'` is needed | Nonces are useless alongside `'unsafe-inline'` |
-| `X-XSS-Protection: 1; mode=block` | `X-XSS-Protection: 0` | 2019+ | Browser XSS filter is buggy, causes false positives; CSP replaces it |
+| Old Approach                      | Current Approach                                   | When Changed                     | Impact                                                                      |
+| --------------------------------- | -------------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------- |
+| `report-uri` only                 | `report-uri` + `report-to` + `Reporting-Endpoints` | 2023+                            | Forward compat; `report-uri` deprecated but still needed for Safari/Firefox |
+| Middleware nonce per request      | Static CSP in headers()                            | When `'unsafe-inline'` is needed | Nonces are useless alongside `'unsafe-inline'`                              |
+| `X-XSS-Protection: 1; mode=block` | `X-XSS-Protection: 0`                              | 2019+                            | Browser XSS filter is buggy, causes false positives; CSP replaces it        |
 
 **Deprecated/outdated:**
+
 - `report-uri` directive: Deprecated in favor of `report-to`, but `report-to` has poor browser support (Chrome-only as of 2025). Use both.
 - `X-XSS-Protection: 1`: Disable it (`0`). The browser's XSS auditor is removed from Chrome and was never reliable.
 
@@ -515,6 +563,7 @@ container.style.filter = "drop-shadow(0 2px 4px rgba(0,0,0,0.3))";
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Next.js official docs - CSP configuration guide (`/docs/app/guides/content-security-policy`)
 - Sentry Next.js docs - Security Policy Reporting (`/platforms/javascript/guides/nextjs/security-policy-reporting`)
 - Vercel Speed Insights docs - package configuration (`/docs/speed-insights/package`)
@@ -522,15 +571,18 @@ container.style.filter = "drop-shadow(0 2px 4px rgba(0,0,0,0.3))";
 - Codebase audit: `next.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, `src/app/layout.tsx`, `src/app/sw.ts`
 
 ### Secondary (MEDIUM confidence)
+
 - Prior milestone research: `.planning/research/STACK.md`, `.planning/research/ARCHITECTURE.md` (CSP domain analysis)
 - Vercel CSP community discussion: `github.com/vercel/next.js/discussions/56562`
 
 ### Tertiary (LOW confidence)
+
 - Google Maps internal iframe behavior -- needs runtime verification during Report-Only period
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - External domain inventory: HIGH -- verified every import, API call, and preconnect in source
 - CSP directive construction: HIGH -- cross-referenced with Next.js official docs and Sentry docs
 - cssText replacement safety: HIGH -- verified all 5 sites set styles before DOM insertion

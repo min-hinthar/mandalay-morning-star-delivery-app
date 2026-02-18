@@ -14,6 +14,7 @@ Admins can view full order details and manage their own profile without leaving 
 ## Implementation Decisions
 
 ### Order Detail Layout
+
 - Sectioned card layout — separate collapsible cards for order items, customer info, totals, timeline, email history
 - Fully responsive — works well on both desktop and mobile
 - Clickable customer contacts — email (mailto:) and phone (tel:) links
@@ -28,6 +29,7 @@ Admins can view full order details and manage their own profile without leaving 
 - Collapsible cards for mobile scroll reduction
 
 ### Status Change Workflow
+
 - Confirmation dialog required for every status change
 - Cancellation requires a reason; other transitions optional reason
 - Customer notification email on status change (reuses Phase 54 email templates)
@@ -40,6 +42,7 @@ Admins can view full order details and manage their own profile without leaving 
 - Priority toggle — admin can flag orders as rush/priority (internal only, not visible to customer)
 
 ### Email History Display
+
 - Empty state shown when no emails sent for an order ("No emails sent for this order")
 - Failed emails show error reason from Resend API
 - Resend button on failed emails to retry delivery
@@ -50,6 +53,7 @@ Admins can view full order details and manage their own profile without leaving 
 - Timestamps only (no user attribution) — consistent with status timeline
 
 ### Admin Profile Page
+
 - Card-based layout matching order detail design language
 - Show role + permissions list (read-only)
 - Show auth provider ("Signed in with Google")
@@ -63,6 +67,7 @@ Admins can view full order details and manage their own profile without leaving 
 - Accessible from both sidebar link and avatar dropdown
 
 ### Claude's Discretion
+
 - Order item row density (compact vs detailed, with/without thumbnails)
 - Navigation style (back arrow vs breadcrumb)
 - Desktop grid layout (two-column vs single column)
@@ -113,5 +118,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 61-admin-pages*
-*Context gathered: 2026-02-14*
+_Phase: 61-admin-pages_
+_Context gathered: 2026-02-14_

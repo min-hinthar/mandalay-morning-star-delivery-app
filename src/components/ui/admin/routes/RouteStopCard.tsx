@@ -3,14 +3,7 @@
 import { m } from "framer-motion";
 import Image from "next/image";
 import { format, parseISO } from "date-fns";
-import {
-  Phone,
-  MessageSquare,
-  Clock,
-  AlertTriangle,
-  Trash2,
-  ChevronDown,
-} from "lucide-react";
+import { Phone, MessageSquare, Clock, AlertTriangle, Trash2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +35,8 @@ const STOP_STATUS_CONFIG: Record<RouteStopStatus, { label: string; className: st
   },
   arrived: {
     label: "Arrived",
-    className: "bg-interactive-primary-light text-interactive-primary border-interactive-primary/30",
+    className:
+      "bg-interactive-primary-light text-interactive-primary border-interactive-primary/30",
   },
   delivered: {
     label: "Delivered",
@@ -101,9 +95,7 @@ export function RouteStopCard({
           <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-interactive-primary-light to-accent-tertiary/10 font-bold text-lg text-interactive-primary">
             {index + 1}
           </span>
-          <Badge className={cn(statusConfig.className, "border")}>
-            {statusConfig.label}
-          </Badge>
+          <Badge className={cn(statusConfig.className, "border")}>{statusConfig.label}</Badge>
         </div>
         {stop.eta && (
           <div className="flex items-center gap-1 text-sm text-text-muted">
@@ -115,15 +107,11 @@ export function RouteStopCard({
 
       {/* Customer Info */}
       <div className="mt-4">
-        <p className="font-medium text-text-primary">
-          {customer?.fullName || "Unknown Customer"}
-        </p>
+        <p className="font-medium text-text-primary">{customer?.fullName || "Unknown Customer"}</p>
         {address && (
           <>
             <p className="text-sm text-text-secondary">{address.line1}</p>
-            {address.line2 && (
-              <p className="text-sm text-text-secondary">{address.line2}</p>
-            )}
+            {address.line2 && <p className="text-sm text-text-secondary">{address.line2}</p>}
             <p className="text-sm text-text-muted">
               {address.city}, {address.state} {address.postalCode}
             </p>
@@ -140,7 +128,11 @@ export function RouteStopCard({
             </Button>
           </a>
           <a href={`sms:${customer.phone}`}>
-            <Button size="sm" variant="outline" leftIcon={<MessageSquare className="h-3.5 w-3.5" />}>
+            <Button
+              size="sm"
+              variant="outline"
+              leftIcon={<MessageSquare className="h-3.5 w-3.5" />}
+            >
               SMS
             </Button>
           </a>
@@ -153,9 +145,7 @@ export function RouteStopCard({
           {order.itemCount} items • ${(order.totalCents / 100).toFixed(2)}
         </p>
         {order.specialInstructions && (
-          <p className="text-xs text-text-muted mt-1">
-            Note: {order.specialInstructions}
-          </p>
+          <p className="text-xs text-text-muted mt-1">Note: {order.specialInstructions}</p>
         )}
       </div>
 
@@ -186,9 +176,7 @@ export function RouteStopCard({
 
       {/* Delivery Notes */}
       {stop.deliveryNotes && (
-        <p className="text-xs text-text-secondary mt-2 italic">
-          {stop.deliveryNotes}
-        </p>
+        <p className="text-xs text-text-secondary mt-2 italic">{stop.deliveryNotes}</p>
       )}
 
       {/* Exception Badge */}
@@ -201,9 +189,7 @@ export function RouteStopCard({
             </Badge>
           </div>
           {stop.exception.description && (
-            <p className="text-xs text-status-error mt-1">
-              {stop.exception.description}
-            </p>
+            <p className="text-xs text-status-error mt-1">{stop.exception.description}</p>
           )}
         </div>
       )}
@@ -221,10 +207,7 @@ export function RouteStopCard({
               <DropdownMenuItem
                 key={status}
                 onClick={() => onStatusChange(stop.id, status)}
-                className={cn(
-                  "cursor-pointer",
-                  status === stop.status && "bg-surface-tertiary"
-                )}
+                className={cn("cursor-pointer", status === stop.status && "bg-surface-tertiary")}
               >
                 <Badge className={cn(STOP_STATUS_CONFIG[status].className, "border")} size="sm">
                   {STOP_STATUS_CONFIG[status].label}

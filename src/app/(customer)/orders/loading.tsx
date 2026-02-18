@@ -1,5 +1,5 @@
-import { RouteLoading } from '@/components/ui/RouteLoading'
+import { RouteLoading } from "@/components/ui/RouteLoading";
 
 export default function OrdersPageLoading() {
-  return <RouteLoading message="Loading orders..." />
+  return <RouteLoading message="Loading orders..." />;
 }

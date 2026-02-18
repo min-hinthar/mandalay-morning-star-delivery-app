@@ -2,7 +2,8 @@
 phase: 57-admin-driver-polish
 plan: 03
 subsystem: ui
-tags: [framer-motion, tailwind, admin, drivers, card-row, skeleton, drawer, empty-state, status-badge]
+tags:
+  [framer-motion, tailwind, admin, drivers, card-row, skeleton, drawer, empty-state, status-badge]
 
 # Dependency graph
 requires:
@@ -88,17 +89,18 @@ completed: 2026-02-11
 
 ## Decisions Made
 
-| ID | Decision | Rationale |
-|----|----------|-----------|
-| ADMIN-03-TEALACCENT | Migrated all interactive elements from primary to accent-teal | Consistent with admin teal theme established in 57-01 |
-| ADMIN-03-DRAWERREUSE | Reused existing Drawer component (position=right) | No need for new overlay system; Drawer already has focus trap, escape, route-change close |
-| ADMIN-03-VOIDSUPPRESS | onToggleActive kept in interface but void-suppressed in DriverListTable | Toggle behavior moved to driver detail page; interface preserved for backward compat |
+| ID                    | Decision                                                                | Rationale                                                                                 |
+| --------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| ADMIN-03-TEALACCENT   | Migrated all interactive elements from primary to accent-teal           | Consistent with admin teal theme established in 57-01                                     |
+| ADMIN-03-DRAWERREUSE  | Reused existing Drawer component (position=right)                       | No need for new overlay system; Drawer already has focus trap, escape, route-change close |
+| ADMIN-03-VOIDSUPPRESS | onToggleActive kept in interface but void-suppressed in DriverListTable | Toggle behavior moved to driver detail page; interface preserved for backward compat      |
 
 ## Deviations from Plan
 
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Fixed unused import warnings in DriverDetailDrawer**
+
 - **Found during:** Task 1 (DriverDetailDrawer implementation)
 - **Issue:** Star and Truck lucide imports were unused (stats section uses text-only display)
 - **Fix:** Removed unused imports
@@ -126,5 +128,6 @@ None - no external service configuration required.
 - DriverMobileCard updated with CardRow base for consistent hover/selection
 
 ---
-*Phase: 57-admin-driver-polish*
-*Completed: 2026-02-11*
+
+_Phase: 57-admin-driver-polish_
+_Completed: 2026-02-11_

@@ -9,6 +9,7 @@
 This phase implements device-adaptive animations that scale based on hardware capability, resolves GSAP/Framer Motion conflicts, and enhances the fly-to-cart animation with sound and haptic feedback.
 
 The project already has a solid animation foundation:
+
 - GSAP 3.14.2 with ScrollTrigger, SplitText, Flip, Observer plugins registered at `@/lib/gsap`
 - Framer Motion 12.26.1 with comprehensive motion tokens at `@/lib/motion-tokens.ts`
 - `@gsap/react` 2.1.2 with `useGSAP` hook for automatic context cleanup
@@ -23,19 +24,22 @@ The key additions are: a new `useDeviceCapability` hook for hardware detection, 
 The established libraries/tools for this domain:
 
 ### Core (Already Installed)
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| gsap | 3.14.2 | Scroll-linked animations, complex timelines | Industry standard, now free after Webflow acquisition |
-| @gsap/react | 2.1.2 | React integration with automatic cleanup | Official GSAP React hooks, auto-handles context |
-| framer-motion | 12.26.1 | State-driven animations, gestures | React-first, excellent AnimatePresence |
+
+| Library       | Version | Purpose                                     | Why Standard                                          |
+| ------------- | ------- | ------------------------------------------- | ----------------------------------------------------- |
+| gsap          | 3.14.2  | Scroll-linked animations, complex timelines | Industry standard, now free after Webflow acquisition |
+| @gsap/react   | 2.1.2   | React integration with automatic cleanup    | Official GSAP React hooks, auto-handles context       |
+| framer-motion | 12.26.1 | State-driven animations, gestures           | React-first, excellent AnimatePresence                |
 
 ### Supporting (Already Installed)
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| gsap/ScrollTrigger | (bundled) | Scroll-linked animations | Parallax, reveal-on-scroll |
-| gsap/Flip | (bundled) | FLIP layout animations | Cart transitions (if needed) |
+
+| Library            | Version   | Purpose                  | When to Use                  |
+| ------------------ | --------- | ------------------------ | ---------------------------- |
+| gsap/ScrollTrigger | (bundled) | Scroll-linked animations | Parallax, reveal-on-scroll   |
+| gsap/Flip          | (bundled) | FLIP layout animations   | Cart transitions (if needed) |
 
 ### No Additional Dependencies Needed
+
 The existing stack covers all requirements. Sound effects use Web Audio API (browser native), haptics use Vibration API (browser native).
 
 **Installation:** None required - all dependencies already in package.json.
@@ -234,13 +238,13 @@ gsap.to(element, {
 
 Problems that look simple but have existing solutions:
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| GSAP context cleanup | Manual cleanup in useEffect | `useGSAP` hook from @gsap/react | Handles scope, cleanup, revertOnUpdate automatically |
-| Reduced motion detection | Custom media query listener | `useReducedMotion()` from framer-motion | Handles SSR, hydration, all edge cases |
-| Bezier path animation | Manual coordinate math | GSAP keyframes with arc calculation | Already implemented in FlyToCart.tsx |
-| Stagger timing | Manual delay calculations | GSAP `stagger` option or FM `staggerChildren` | Built-in, handles edge cases |
-| Scroll-linked animations | IntersectionObserver + manual updates | GSAP ScrollTrigger | Performance optimized, handles resize |
+| Problem                  | Don't Build                           | Use Instead                                   | Why                                                  |
+| ------------------------ | ------------------------------------- | --------------------------------------------- | ---------------------------------------------------- |
+| GSAP context cleanup     | Manual cleanup in useEffect           | `useGSAP` hook from @gsap/react               | Handles scope, cleanup, revertOnUpdate automatically |
+| Reduced motion detection | Custom media query listener           | `useReducedMotion()` from framer-motion       | Handles SSR, hydration, all edge cases               |
+| Bezier path animation    | Manual coordinate math                | GSAP keyframes with arc calculation           | Already implemented in FlyToCart.tsx                 |
+| Stagger timing           | Manual delay calculations             | GSAP `stagger` option or FM `staggerChildren` | Built-in, handles edge cases                         |
+| Scroll-linked animations | IntersectionObserver + manual updates | GSAP ScrollTrigger                            | Performance optimized, handles resize                |
 
 **Key insight:** The project already has well-structured animation utilities. This phase adds a capability layer on top, not a replacement.
 
@@ -321,7 +325,7 @@ class CartSoundManager {
     this.audioContext = new AudioContext();
 
     // Load a small pop/click sound (~1-2KB)
-    const response = await fetch('/sounds/pop.mp3');
+    const response = await fetch("/sounds/pop.mp3");
     const arrayBuffer = await response.arrayBuffer();
     this.audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
   }
@@ -344,7 +348,7 @@ export const cartSound = new CartSoundManager();
 ```typescript
 // Detect GSAP + Framer Motion conflict at dev time
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   const gsapTargets = new Set<Element>();
   const fmTargets = new Set<Element>();
 
@@ -355,11 +359,11 @@ if (process.env.NODE_ENV === 'development') {
       gsapTargets.add(target);
       if (fmTargets.has(target)) {
         console.warn(
-          '[Animation Conflict] Element animated by both GSAP and Framer Motion:',
+          "[Animation Conflict] Element animated by both GSAP and Framer Motion:",
           target
         );
       }
-    }
+    },
   });
 
   // For Framer Motion, use onAnimationStart callback in components
@@ -391,14 +395,15 @@ const fly = useCallback(({ sourceElement, imageUrl }: FlyToCartOptions) => {
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Manual GSAP cleanup | `useGSAP` hook | @gsap/react 2.0 | Auto cleanup, React 18 StrictMode safe |
-| `framer-motion` | `motion` | Feb 2025 rebrand | Same API, new name |
-| GSAP paid commercial | GSAP free for all | 2024 Webflow acquisition | No licensing concerns |
-| Device detection via UA parsing | Device Memory + Hardware Concurrency APIs | Available since Chrome 63 | More reliable than UA |
+| Old Approach                    | Current Approach                          | When Changed              | Impact                                 |
+| ------------------------------- | ----------------------------------------- | ------------------------- | -------------------------------------- |
+| Manual GSAP cleanup             | `useGSAP` hook                            | @gsap/react 2.0           | Auto cleanup, React 18 StrictMode safe |
+| `framer-motion`                 | `motion`                                  | Feb 2025 rebrand          | Same API, new name                     |
+| GSAP paid commercial            | GSAP free for all                         | 2024 Webflow acquisition  | No licensing concerns                  |
+| Device detection via UA parsing | Device Memory + Hardware Concurrency APIs | Available since Chrome 63 | More reliable than UA                  |
 
 **Deprecated/outdated:**
+
 - GSAP `TweenMax` / `TweenLite`: Use `gsap.to()` / `gsap.from()` instead
 - Direct `gsap.context()` manual management: Use `useGSAP` hook instead
 
@@ -424,6 +429,7 @@ Things that couldn't be fully resolved:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - [MDN navigator.deviceMemory](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/deviceMemory) - Device Memory API documentation
 - [MDN navigator.hardwareConcurrency](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/hardwareConcurrency) - Hardware Concurrency API
 - [@gsap/react GitHub](https://github.com/greensock/react) - Official useGSAP hook documentation
@@ -433,16 +439,19 @@ Things that couldn't be fully resolved:
 - [MDN Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) - Sound effect implementation
 
 ### Secondary (MEDIUM confidence)
+
 - [Understanding AnimatePresence](https://medium.com/javascript-decoded-in-plain-english/understanding-animatepresence-in-framer-motion-attributes-usage-and-a-common-bug-914538b9f1d3) - Fragment issue documentation
 - [Codrops Product to Cart](https://tympanus.net/codrops/2024/11/21/from-product-to-cart-adding-guiding-animations-to-the-shopping-experience/) - Fly-to-cart patterns
 - [GSAP MotionPath](https://gsap.com/docs/v3/Plugins/MotionPathPlugin/) - Bezier path animations
 
 ### Tertiary (LOW confidence)
+
 - [Web Audio iOS Weirdness](https://adactio.com/journal/17709) - iOS silent mode behavior (dated but relevant)
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - existing codebase verified, official docs checked
 - Architecture: HIGH - patterns derived from official GSAP React docs and existing code
 - Device detection: HIGH - MDN docs verified for all APIs

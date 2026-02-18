@@ -44,7 +44,9 @@ const DropdownMenu = ({ children }: DropdownMenuProps) => {
 
   return (
     <DropdownMenuContext.Provider value={contextValue}>
-      <div ref={containerRef} className="relative inline-block text-left">{children}</div>
+      <div ref={containerRef} className="relative inline-block text-left">
+        {children}
+      </div>
     </DropdownMenuContext.Provider>
   );
 };
@@ -91,11 +93,7 @@ interface DropdownMenuContentProps {
   className?: string;
 }
 
-const DropdownMenuContent = ({
-  children,
-  align = "end",
-  className,
-}: DropdownMenuContentProps) => {
+const DropdownMenuContent = ({ children, align = "end", className }: DropdownMenuContentProps) => {
   const { open } = React.useContext(DropdownMenuContext);
 
   if (!open) return null;
@@ -192,18 +190,12 @@ const DropdownMenuLabel = ({
   children,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn("px-2 py-1.5 text-sm font-semibold", className)}
-    {...props}
-  >
+  <div className={cn("px-2 py-1.5 text-sm font-semibold", className)} {...props}>
     {children}
   </div>
 );
 
-const DropdownMenuSeparator = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
+const DropdownMenuSeparator = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("-mx-1 my-1 h-px bg-muted", className)} {...props} />
 );
 

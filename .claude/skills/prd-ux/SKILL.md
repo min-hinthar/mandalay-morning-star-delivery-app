@@ -16,11 +16,13 @@ NO VISUAL SPECS UNTIL ALL 6 PASSES COMPLETE
 ```
 
 **Not negotiable:**
+
 - Don't mention colors, typography, or spacing until Pass 6 is done
 - Don't describe screen layouts until information architecture is explicit
 - Don't design components until affordances are mapped
 
 **No exceptions for urgency:**
+
 - "I'm in a hurry" → Passes take 5 minutes; fixing bad UX takes days
 - "Just give me screens" → Screens without foundations need rework
 - "Skip the analysis" → Analysis IS the value; screens are just output
@@ -28,6 +30,7 @@ NO VISUAL SPECS UNTIL ALL 6 PASSES COMPLETE
 ## Output Location
 
 Write UX spec to same directory as source PRD:
+
 - PRD `feature-x.md` → output `feature-x-ux-spec.md`
 - PRD `PRD.md` → output `UX-spec.md`
 
@@ -42,6 +45,7 @@ Execute IN ORDER. Each pass produces required outputs before the next begins.
 **Mindset:** "What does the user think is happening?"
 
 **Force:**
+
 - What does the user believe this system does?
 - What are they trying to accomplish in one sentence?
 - What wrong mental models are likely?
@@ -53,6 +57,7 @@ Execute IN ORDER. Each pass produces required outputs before the next begins.
 **Mindset:** "What exists, and how is it organized?"
 
 **Force:**
+
 1. Enumerate ALL concepts the user will encounter
 2. Group into logical buckets
 3. Classify each as: Primary / Secondary / Hidden
@@ -64,6 +69,7 @@ Execute IN ORDER. Each pass produces required outputs before the next begins.
 **Mindset:** "What actions are obvious without explanation?"
 
 **Force:**
+
 - What is clickable?
 - What looks editable?
 - What looks like output (read-only)?
@@ -76,11 +82,13 @@ Execute IN ORDER. Each pass produces required outputs before the next begins.
 **Mindset:** "Where will the user hesitate?"
 
 **Identify:**
+
 - Moments of choice (decisions required)
 - Moments of uncertainty (unclear what to do)
 - Moments of waiting (system processing)
 
 **Apply:**
+
 - Collapse decisions (fewer choices)
 - Delay complexity (progressive disclosure)
 - Introduce defaults (reduce decision burden)
@@ -92,6 +100,7 @@ Execute IN ORDER. Each pass produces required outputs before the next begins.
 **Mindset:** "How does the system talk back?"
 
 **For EACH major element, enumerate:**
+
 - Empty
 - Loading
 - Success
@@ -107,6 +116,7 @@ Execute IN ORDER. Each pass produces required outputs before the next begins.
 **Mindset:** "Does this feel inevitable?"
 
 **Check:**
+
 - Where could users get lost?
 - Where would a first-time user fail?
 - What must be visible vs can be implied?
@@ -116,6 +126,7 @@ Execute IN ORDER. Each pass produces required outputs before the next begins.
 ## THEN: Visual Specifications
 
 Only after all 6 passes, create:
+
 - Screen layouts
 - Component specifications
 - Design system
@@ -124,14 +135,14 @@ Only after all 6 passes, create:
 
 ## Red Flags - STOP and Restart
 
-| Violation | What You're Skipping |
-|-----------|---------------------|
-| Describing colors/fonts | All foundational passes |
-| "The main screen shows..." | Pass 1-2 (mental model, IA) |
-| Designing components before actions mapped | Pass 3 (affordances) |
-| No friction point analysis | Pass 4 (cognitive load) |
-| States only in component specs | Pass 5 (holistic state design) |
-| No "where could they fail?" | Pass 6 (flow integrity) |
+| Violation                                  | What You're Skipping           |
+| ------------------------------------------ | ------------------------------ |
+| Describing colors/fonts                    | All foundational passes        |
+| "The main screen shows..."                 | Pass 1-2 (mental model, IA)    |
+| Designing components before actions mapped | Pass 3 (affordances)           |
+| No friction point analysis                 | Pass 4 (cognitive load)        |
+| States only in component specs             | Pass 5 (holistic state design) |
+| No "where could they fail?"                | Pass 6 (flow integrity)        |
 
 ---
 
@@ -140,6 +151,7 @@ Only after all 6 passes, create:
 ### Reference Files
 
 For detailed techniques and patterns:
+
 - **`references/pass-enhancements.md`** — Advanced techniques for each pass
 - **`references/state-choreography.md`** — Transition design, feedback patterns
 - **`references/affordance-patterns.md`** — Z-index, touch targets, component consolidation
@@ -148,6 +160,7 @@ For detailed techniques and patterns:
 ### Example Files
 
 Working examples in `examples/`:
+
 - **`complete-ux-spec.md`** — Full 6-pass example for a task manager
 
 ---
@@ -156,28 +169,29 @@ Working examples in `examples/`:
 
 ### Pass Output Summary
 
-| Pass | Mindset | Key Output |
-|------|---------|------------|
-| 1 | What user thinks | Mental model, misconceptions |
-| 2 | What exists | IA structure, navigation |
-| 3 | What's obvious | Affordance mapping |
-| 4 | Where hesitation | Friction points, defaults |
-| 5 | How system responds | State matrices |
-| 6 | Where they fail | Risk mitigation, constraints |
+| Pass | Mindset             | Key Output                   |
+| ---- | ------------------- | ---------------------------- |
+| 1    | What user thinks    | Mental model, misconceptions |
+| 2    | What exists         | IA structure, navigation     |
+| 3    | What's obvious      | Affordance mapping           |
+| 4    | Where hesitation    | Friction points, defaults    |
+| 5    | How system responds | State matrices               |
+| 6    | Where they fail     | Risk mitigation, constraints |
 
 ### State Design Quick Matrix
 
-| State | User Sees | User Understands | User Can Do |
-|-------|-----------|------------------|-------------|
-| Empty | [Visual] | [Meaning] | [Actions] |
-| Loading | [Visual] | [Meaning] | [Actions] |
-| Success | [Visual] | [Meaning] | [Actions] |
-| Partial | [Visual] | [Meaning] | [Actions] |
-| Error | [Visual] | [Meaning] | [Actions] |
+| State   | User Sees | User Understands | User Can Do |
+| ------- | --------- | ---------------- | ----------- |
+| Empty   | [Visual]  | [Meaning]        | [Actions]   |
+| Loading | [Visual]  | [Meaning]        | [Actions]   |
+| Success | [Visual]  | [Meaning]        | [Actions]   |
+| Partial | [Visual]  | [Meaning]        | [Actions]   |
+| Error   | [Visual]  | [Meaning]        | [Actions]   |
 
 ### Success Feedback Pattern
 
 ```
 Action → Success indicator → Hold 300-500ms → Proceed
 ```
+
 Users must SEE success before UI transitions.

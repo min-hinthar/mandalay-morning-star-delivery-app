@@ -86,65 +86,67 @@ Deferred to future milestones. Tracked but not in current roadmap.
 
 ## Out of Scope
 
-| Feature | Reason |
-|---------|--------|
-| Real-time earnings tracking | Weekly Saturday delivery, not gig economy; real-time adds complexity with no value |
-| Driver-side route optimization | Admin assigns optimized routes; driver reordering undermines admin control |
-| In-app turn-by-turn navigation | Google Maps/Waze deep links already provide this |
-| Driver chat/messaging | Phone call to admin sufficient for 2-3 driver team |
-| Multi-language UI (Burmese) | Internationalization is cross-cutting; English is working |
-| Driver payments/payroll integration | Regulated domain; Morning Star pays drivers outside the app |
-| Backend schema changes beyond driver_availability | Supabase contracts stay stable |
+| Feature                                           | Reason                                                                             |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Real-time earnings tracking                       | Weekly Saturday delivery, not gig economy; real-time adds complexity with no value |
+| Driver-side route optimization                    | Admin assigns optimized routes; driver reordering undermines admin control         |
+| In-app turn-by-turn navigation                    | Google Maps/Waze deep links already provide this                                   |
+| Driver chat/messaging                             | Phone call to admin sufficient for 2-3 driver team                                 |
+| Multi-language UI (Burmese)                       | Internationalization is cross-cutting; English is working                          |
+| Driver payments/payroll integration               | Regulated domain; Morning Star pays drivers outside the app                        |
+| Backend schema changes beyond driver_availability | Supabase contracts stay stable                                                     |
 
 ## Traceability
 
 Which phases cover which requirements. Updated during roadmap creation.
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| SEC-01 | Phase 67 | Pending |
-| SEC-02 | Phase 67 | Pending |
-| SEC-03 | Phase 68 | Pending |
-| SEC-04 | Phase 68 | Pending |
-| SEC-05 | Phase 68 | Pending |
-| SEC-06 | Phase 69 | Pending |
-| SEC-07 | Phase 69 | Pending |
-| SEC-08 | Phase 67 | Pending |
-| AUTH-01 | Phase 70 | Pending |
-| AUTH-02 | Phase 70 | Pending |
-| AUTH-03 | Phase 70 | Pending |
-| AUTH-04 | Phase 70 | Pending |
-| AUTH-05 | Phase 70 | Pending |
-| DPROF-01 | Phase 71 | Pending |
-| DPROF-02 | Phase 71 | Pending |
-| DPROF-03 | Phase 71 | Pending |
-| DPROF-04 | Phase 74 | Pending |
-| DPROF-05 | Phase 74 | Pending |
-| DDASH-01 | Phase 72 | Pending |
-| DDASH-02 | Phase 72 | Pending |
-| DDASH-03 | Phase 72 | Pending |
-| DDASH-04 | Phase 73 | Pending |
-| DDASH-05 | Phase 73 | Pending |
-| DDASH-06 | Phase 73 | Pending |
-| DDASH-07 | Phase 73 | Pending |
-| DDASH-08 | Phase 73 | Pending |
-| DDASH-09 | Phase 73 | Pending |
-| DDASH-10 | Phase 73 | Pending |
-| DDASH-11 | Phase 72 | Pending |
-| DDASH-12 | Phase 72 | Pending |
-| DUI-01 | Phase 72 | Pending |
-| DUI-02 | Phase 74 | Pending |
-| DUI-03 | Phase 74 | Pending |
-| DUI-04 | Phase 73 | Pending |
-| CLN-01 | Phase 67 | Pending |
-| CLN-02 | Phase 67 | Pending |
-| CLN-03 | Phase 67 | Pending |
+| Requirement | Phase    | Status  |
+| ----------- | -------- | ------- |
+| SEC-01      | Phase 67 | Pending |
+| SEC-02      | Phase 67 | Pending |
+| SEC-03      | Phase 68 | Pending |
+| SEC-04      | Phase 68 | Pending |
+| SEC-05      | Phase 68 | Pending |
+| SEC-06      | Phase 69 | Pending |
+| SEC-07      | Phase 69 | Pending |
+| SEC-08      | Phase 67 | Pending |
+| AUTH-01     | Phase 70 | Pending |
+| AUTH-02     | Phase 70 | Pending |
+| AUTH-03     | Phase 70 | Pending |
+| AUTH-04     | Phase 70 | Pending |
+| AUTH-05     | Phase 70 | Pending |
+| DPROF-01    | Phase 71 | Pending |
+| DPROF-02    | Phase 71 | Pending |
+| DPROF-03    | Phase 71 | Pending |
+| DPROF-04    | Phase 74 | Pending |
+| DPROF-05    | Phase 74 | Pending |
+| DDASH-01    | Phase 72 | Pending |
+| DDASH-02    | Phase 72 | Pending |
+| DDASH-03    | Phase 72 | Pending |
+| DDASH-04    | Phase 73 | Pending |
+| DDASH-05    | Phase 73 | Pending |
+| DDASH-06    | Phase 73 | Pending |
+| DDASH-07    | Phase 73 | Pending |
+| DDASH-08    | Phase 73 | Pending |
+| DDASH-09    | Phase 73 | Pending |
+| DDASH-10    | Phase 73 | Pending |
+| DDASH-11    | Phase 72 | Pending |
+| DDASH-12    | Phase 72 | Pending |
+| DUI-01      | Phase 72 | Pending |
+| DUI-02      | Phase 74 | Pending |
+| DUI-03      | Phase 74 | Pending |
+| DUI-04      | Phase 73 | Pending |
+| CLN-01      | Phase 67 | Pending |
+| CLN-02      | Phase 67 | Pending |
+| CLN-03      | Phase 67 | Pending |
 
 **Coverage:**
+
 - v1.8 requirements: 37 total
 - Mapped to phases: 37
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-02-16*
-*Last updated: 2026-02-16 after roadmap creation*
+
+_Requirements defined: 2026-02-16_
+_Last updated: 2026-02-16 after roadmap creation_

@@ -44,12 +44,7 @@ const vehicleLabels: Record<VehicleType, string> = {
   truck: "Truck",
 };
 
-export function DriverCard({
-  driver,
-  stopProgress,
-  onContactDriver,
-  className,
-}: DriverCardProps) {
+export function DriverCard({ driver, stopProgress, onContactDriver, className }: DriverCardProps) {
   const displayName = driver.fullName || "Your Driver";
   const initials = displayName
     .split(" ")
@@ -59,9 +54,7 @@ export function DriverCard({
     .toUpperCase();
 
   const progressPercent =
-    stopProgress.totalStops > 0
-      ? (stopProgress.currentStop / stopProgress.totalStops) * 100
-      : 0;
+    stopProgress.totalStops > 0 ? (stopProgress.currentStop / stopProgress.totalStops) * 100 : 0;
 
   const handleContact = () => {
     // Haptic feedback on tap (mobile)
@@ -78,10 +71,7 @@ export function DriverCard({
     <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn(
-        "rounded-xl bg-surface-primary p-4 shadow-warm-sm",
-        className
-      )}
+      className={cn("rounded-xl bg-surface-primary p-4 shadow-warm-sm", className)}
     >
       <div className="flex items-start gap-4">
         {/* Driver Avatar */}
@@ -92,13 +82,19 @@ export function DriverCard({
               src={driver.profileImageUrl}
               alt={displayName}
               className="h-14 w-14 rounded-full object-cover ring-2 ring-jade-100"
-              onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }}
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                e.currentTarget.nextElementSibling?.classList.remove("hidden");
+              }}
             />
           ) : null}
-          <div className={cn("flex h-14 w-14 items-center justify-center rounded-full bg-jade-100 ring-2 ring-jade-200", driver.profileImageUrl && "hidden")}>
-            <span className="text-lg font-semibold text-jade-700">
-              {initials}
-            </span>
+          <div
+            className={cn(
+              "flex h-14 w-14 items-center justify-center rounded-full bg-jade-100 ring-2 ring-jade-200",
+              driver.profileImageUrl && "hidden"
+            )}
+          >
+            <span className="text-lg font-semibold text-jade-700">{initials}</span>
           </div>
           {/* Online indicator */}
           <span className="absolute bottom-0 right-0 flex h-4 w-4">
@@ -109,9 +105,7 @@ export function DriverCard({
 
         {/* Driver Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-charcoal truncate">
-            {displayName}
-          </h3>
+          <h3 className="font-semibold text-charcoal truncate">{displayName}</h3>
 
           {/* Vehicle Type Badge */}
           {driver.vehicleType && (

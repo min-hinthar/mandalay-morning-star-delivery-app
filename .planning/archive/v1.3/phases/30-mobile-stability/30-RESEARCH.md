@@ -15,25 +15,28 @@ The existing `UnifiedMenuItemCard` already has 3D tilt implemented with Framer M
 ## Standard Stack
 
 ### Core (Already in Project)
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
+
+| Library       | Version | Purpose                                     | Why Standard                  |
+| ------------- | ------- | ------------------------------------------- | ----------------------------- |
 | framer-motion | 12.26.1 | 3D tilt animation, useMotionValue/useSpring | Already used for tilt effects |
-| TailwindCSS | 4.x | CSS utilities, media queries | Project standard |
-| React | 19.2.3 | Component architecture | Project standard |
+| TailwindCSS   | 4.x     | CSS utilities, media queries                | Project standard              |
+| React         | 19.2.3  | Component architecture                      | Project standard              |
 
 ### Supporting (No New Dependencies)
-| Pattern | Purpose | When to Use |
-|---------|---------|-------------|
-| CSS Media Queries | Touch/pointer detection | All tilt components |
-| CSS Keyframes | Animated shine sweep | Touch device fallback |
-| CSS Variables | Theme-aware animations | Shine colors, shadow tokens |
+
+| Pattern           | Purpose                 | When to Use                 |
+| ----------------- | ----------------------- | --------------------------- |
+| CSS Media Queries | Touch/pointer detection | All tilt components         |
+| CSS Keyframes     | Animated shine sweep    | Touch device fallback       |
+| CSS Variables     | Theme-aware animations  | Shine colors, shadow tokens |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| CSS media queries | JS touch detection | CSS is simpler, more reliable, no hydration issues |
-| Complete tilt disable | Reduced tilt | User decided complete disable - cleaner, better performance |
-| `will-change: transform` | No GPU hint | Safari needs explicit GPU layer promotion |
+
+| Instead of               | Could Use          | Tradeoff                                                    |
+| ------------------------ | ------------------ | ----------------------------------------------------------- |
+| CSS media queries        | JS touch detection | CSS is simpler, more reliable, no hydration issues          |
+| Complete tilt disable    | Reduced tilt       | User decided complete disable - cleaner, better performance |
+| `will-change: transform` | No GPU hint        | Safari needs explicit GPU layer promotion                   |
 
 **No new dependencies required.** All patterns use existing CSS and Framer Motion capabilities.
 
@@ -103,42 +106,47 @@ Apply fixes in this order on tilt-enabled elements:
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Touch detection | Custom touchstart listeners | CSS `@media (hover: hover) and (pointer: fine)` | Browser handles edge cases, no JS hydration issues |
-| Animated shine | Canvas/WebGL shine effect | CSS keyframe animation with gradient | GPU-accelerated, works everywhere, simpler |
-| Long press detection | Raw touchstart/end timers | Existing pattern with cleanup | Timer cleanup on unmount is tricky |
-| Safari GPU bugs | Trial-and-error fixes | Established `-webkit-` prefix pattern | Known working solutions exist |
+| Problem              | Don't Build                 | Use Instead                                     | Why                                                |
+| -------------------- | --------------------------- | ----------------------------------------------- | -------------------------------------------------- |
+| Touch detection      | Custom touchstart listeners | CSS `@media (hover: hover) and (pointer: fine)` | Browser handles edge cases, no JS hydration issues |
+| Animated shine       | Canvas/WebGL shine effect   | CSS keyframe animation with gradient            | GPU-accelerated, works everywhere, simpler         |
+| Long press detection | Raw touchstart/end timers   | Existing pattern with cleanup                   | Timer cleanup on unmount is tricky                 |
+| Safari GPU bugs      | Trial-and-error fixes       | Established `-webkit-` prefix pattern           | Known working solutions exist                      |
 
 **Key insight:** Safari's rendering quirks with 3D transforms are well-documented with established workarounds. The fix combination (`will-change` + `-webkit-backface-visibility` + `translate3d`) is standard practice.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Stacking Context Breaks preserve-3d
+
 **What goes wrong:** Adding `zIndex` or `scale` in `whileHover`/`whileTap` creates new stacking contexts that break `preserve-3d` inheritance, causing content to flicker.
 **Why it happens:** Browser recalculates layer compositing when stacking context changes during 3D rotation.
 **How to avoid:** Disable Framer Motion hover/tap scale when 3D tilt is enabled. The 3D tilt IS the hover feedback.
 **Warning signs:** Content flickers, disappears, or z-order changes during tilt animation.
 
 ### Pitfall 2: Hydration Mismatch with Touch Detection
+
 **What goes wrong:** Hook returns different value server vs client, causing hydration mismatch.
 **Why it happens:** `window.matchMedia` unavailable on server; initial state differs from client.
 **How to avoid:** Default to `false` (touch behavior) on SSR, update on mount. CSS handles the visual difference.
 **Warning signs:** React hydration warnings in console, brief flash of wrong behavior.
 
 ### Pitfall 3: Safari backdrop-filter + transform Conflict
+
 **What goes wrong:** Glassmorphism blur disappears or shows artifacts when combined with 3D transforms.
 **Why it happens:** WebKit bug with compositing layers when `backdrop-filter` and 3D `transform` interact.
 **How to avoid:** Apply `isolation: isolate` and `overflow: hidden` to backdrop-filter element. Keep backdrop-filter element separate from transform element in DOM hierarchy.
 **Warning signs:** White blocks appearing, blur flickering, elements disappearing during rotation.
 
 ### Pitfall 4: Long Press Conflicts with Scroll
+
 **What goes wrong:** Long press starts, user scrolls slightly, card activates unexpectedly.
 **Why it happens:** Touch move threshold not set, timer fires despite movement.
 **How to avoid:** Cancel long press timer if touchmove exceeds ~10px threshold.
 **Warning signs:** Accidental activations during scroll, user frustration.
 
 ### Pitfall 5: will-change Memory Bloat
+
 **What goes wrong:** Page becomes sluggish, memory usage spikes.
 **Why it happens:** `will-change: transform` on many elements creates GPU layers (~50MB each).
 **How to avoid:** Apply only to actively animating elements. Remove after animation completes.
@@ -303,18 +311,21 @@ const LONG_PRESS_DURATION = 500; // iOS standard per CONTEXT.md
 const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 const touchStartPos = useRef<{ x: number; y: number } | null>(null);
 
-const handleTouchStart = useCallback((e: React.TouchEvent) => {
-  const touch = e.touches[0];
-  touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+const handleTouchStart = useCallback(
+  (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
 
-  longPressTimer.current = setTimeout(() => {
-    // Haptic feedback
-    if (navigator.vibrate) {
-      navigator.vibrate(10);
-    }
-    onLongPress?.();
-  }, LONG_PRESS_DURATION);
-}, [onLongPress]);
+    longPressTimer.current = setTimeout(() => {
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate(10);
+      }
+      onLongPress?.();
+    }, LONG_PRESS_DURATION);
+  },
+  [onLongPress]
+);
 
 const handleTouchMove = useCallback((e: React.TouchEvent) => {
   if (!touchStartPos.current || !longPressTimer.current) return;
@@ -341,14 +352,15 @@ const handleTouchEnd = useCallback(() => {
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| `ontouchstart in window` JS detection | CSS `(hover: hover) and (pointer: fine)` | ~2020 (CSS Level 5 Media Queries) | More reliable, no JS needed |
-| Separate mobile/desktop code paths | CSS feature queries + conditional behavior | Standard practice | Cleaner, progressive enhancement |
-| Manual `-webkit-` prefix everywhere | Autoprefixer + explicit prefixes for Safari bugs | Ongoing | Need both for Safari edge cases |
-| `backface-visibility` only | Combined with `will-change` + `translate3d` | Safari 15+ | Fixes compositing bugs |
+| Old Approach                          | Current Approach                                 | When Changed                      | Impact                           |
+| ------------------------------------- | ------------------------------------------------ | --------------------------------- | -------------------------------- |
+| `ontouchstart in window` JS detection | CSS `(hover: hover) and (pointer: fine)`         | ~2020 (CSS Level 5 Media Queries) | More reliable, no JS needed      |
+| Separate mobile/desktop code paths    | CSS feature queries + conditional behavior       | Standard practice                 | Cleaner, progressive enhancement |
+| Manual `-webkit-` prefix everywhere   | Autoprefixer + explicit prefixes for Safari bugs | Ongoing                           | Need both for Safari edge cases  |
+| `backface-visibility` only            | Combined with `will-change` + `translate3d`      | Safari 15+                        | Fixes compositing bugs           |
 
 **Deprecated/outdated:**
+
 - **`navigator.maxTouchPoints` detection:** Unreliable for hybrid devices
 - **`touch-action: none` for all tilt:** Breaks scrolling; use only during active interaction
 - **CSS `touch-action: manipulation`:** Only reduces tap delay, doesn't detect touch
@@ -368,23 +380,27 @@ const handleTouchEnd = useCallback(() => {
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - [MDN will-change](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/will-change) - GPU acceleration, best practices
 - [CSS-Tricks backface-visibility](https://css-tricks.com/almanac/properties/b/backface-visibility/) - Browser prefixes, Safari fixes
 - [Apple Safari Handling Events](https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/HandlingEvents/HandlingEvents.html) - iOS touch events, long press timing
 - Project LEARNINGS.md entry on "3D Transforms + Scale/Z-Index = Flickering" - Verified in this codebase
 
 ### Secondary (MEDIUM confidence)
+
 - [Smashing Magazine Hover/Pointer Media Queries](https://www.smashingmagazine.com/2022/03/guide-hover-pointer-media-queries/) - Touch detection patterns
 - [CSS IRL Detecting Hover-Capable Devices](https://css-irl.info/detecting-hover-capable-devices/) - Media query patterns
 - [Framer Motion MotionValue docs](https://motion.dev/motion/motionvalue/) - useMotionValue API
 
 ### Tertiary (LOW confidence)
+
 - [Ctrl Blog Samsung CSS hover bug](https://www.ctrl.blog/entry/css-media-hover-samsung.html) - Samsung touchscreen edge case
 - Multiple GitHub issues on Safari backdrop-filter bugs - Workarounds may need validation
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Touch detection patterns: HIGH - CSS media queries are well-documented standard
 - Safari fixes: HIGH - Established workarounds, verified in LEARNINGS.md
 - Animated shine: MEDIUM - Standard CSS keyframe pattern, exact timing needs tuning

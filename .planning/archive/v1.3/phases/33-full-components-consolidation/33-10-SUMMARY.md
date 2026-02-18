@@ -59,6 +59,7 @@ completed: 2026-01-27
 - **Files modified:** 1
 
 ## Accomplishments
+
 - Added ESLint guards for all 14 removed directories
 - Each guard shows migration path to correct @/components/ui subdirectory
 - Verified guards work correctly (test import triggers error)
@@ -73,28 +74,30 @@ Each task was committed atomically:
 **Note:** Task 2 was verification-only (no file changes to commit)
 
 ## Files Created/Modified
+
 - `eslint.config.mjs` - Added 14 no-restricted-imports patterns for consolidated directories
 
 ## Guarded Directories
 
-| Directory | New Path | Message |
-|-----------|----------|---------|
-| menu/ | ui/menu/ | Import from @/components/ui/menu |
-| scroll/ | ui/scroll/ | Import from @/components/ui/scroll |
-| layout/ | ui/layout/ | Import from @/components/ui/layout |
-| layouts/ | ui/layout/ or ui/ | Import from @/components/ui/layout or ui for primitives |
-| tracking/ | ui/orders/tracking/ | Import from @/components/ui/orders |
-| onboarding/ | ui/auth/ | Import from @/components/ui/auth |
-| mascot/ | ui/brand/ | Import from @/components/ui/brand |
-| admin/ | ui/admin/ | Import from @/components/ui/admin |
-| checkout/ | ui/checkout/ | Import from @/components/ui/checkout |
-| driver/ | ui/driver/ | Import from @/components/ui/driver |
-| homepage/ | ui/homepage/ | Import from @/components/ui/homepage |
-| orders/ | ui/orders/ | Import from @/components/ui/orders |
-| auth/ | ui/auth/ | Import from @/components/ui/auth |
-| theme/ | ui/theme/ | Import from @/components/ui/theme |
+| Directory   | New Path            | Message                                                 |
+| ----------- | ------------------- | ------------------------------------------------------- |
+| menu/       | ui/menu/            | Import from @/components/ui/menu                        |
+| scroll/     | ui/scroll/          | Import from @/components/ui/scroll                      |
+| layout/     | ui/layout/          | Import from @/components/ui/layout                      |
+| layouts/    | ui/layout/ or ui/   | Import from @/components/ui/layout or ui for primitives |
+| tracking/   | ui/orders/tracking/ | Import from @/components/ui/orders                      |
+| onboarding/ | ui/auth/            | Import from @/components/ui/auth                        |
+| mascot/     | ui/brand/           | Import from @/components/ui/brand                       |
+| admin/      | ui/admin/           | Import from @/components/ui/admin                       |
+| checkout/   | ui/checkout/        | Import from @/components/ui/checkout                    |
+| driver/     | ui/driver/          | Import from @/components/ui/driver                      |
+| homepage/   | ui/homepage/        | Import from @/components/ui/homepage                    |
+| orders/     | ui/orders/          | Import from @/components/ui/orders                      |
+| auth/       | ui/auth/            | Import from @/components/ui/auth                        |
+| theme/      | ui/theme/           | Import from @/components/ui/theme                       |
 
 ## Decisions Made
+
 - All 14 consolidated directories guarded with no-restricted-imports patterns
 - Each pattern includes three variants: `@/components/{dir}/*`, `@/components/{dir}`, `**/components/{dir}/*`
 - Migration messages guide developers to correct import paths
@@ -112,10 +115,12 @@ Pre-existing color token violations (199 errors) appear during lint, but these a
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - All ESLint guards in place
 - Ready for phase completion verification (33-11)
 - Future development protected from importing old paths
 
 ---
-*Phase: 33-full-components-consolidation*
-*Completed: 2026-01-27*
+
+_Phase: 33-full-components-consolidation_
+_Completed: 2026-01-27_

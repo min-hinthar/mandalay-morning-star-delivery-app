@@ -137,7 +137,7 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - ✓ Automated audit script detects design token regressions — v1.3
 - ✓ Token documentation with visual examples (7 MDX files in Storybook) — v1.3
 - ✓ ui-v8/ merged into ui/ directory — v1.3
-- ✓ All imports use unified @/components/ui/* paths — v1.3
+- ✓ All imports use unified @/components/ui/\* paths — v1.3
 - ✓ Single Modal, Drawer (with BottomSheet), Tooltip, Toast implementations — v1.3
 - ✓ 3D tilt disabled on touch devices via CSS media query — v1.3
 - ✓ Safari backface-visibility fixes applied — v1.3
@@ -172,7 +172,7 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - ✓ 12 dead code files deleted with ESLint guards — v1.4
 - ✓ LCP 45% improvement (19.9s → 10.9s) via image optimization, Server Components, dynamic imports — v1.5
 - ✓ React Compiler enabled globally (282 client components auto-memoized) — v1.5
-- ✓ LazyMotion domMax with strict mode (174 files migrated motion.* → m.*) — v1.5
+- ✓ LazyMotion domMax with strict mode (174 files migrated motion._ → m._) — v1.5
 - ✓ Code-splitting: Recharts, Google Maps, cart components lazy-loaded — v1.5
 - ✓ Cart scoped to customer/public routes (~60KB savings on admin/driver/auth) — v1.5
 - ✓ Server Component conversions: menu, home, analytics, tracking pages — v1.5
@@ -229,6 +229,7 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 **Goal:** Harden production security (CSP, RLS, rate limiting), overhaul driver experience (UI polish, earnings, routes, onboarding), and add role-based login redirects.
 
 **Target features:**
+
 - Content Security Policy headers
 - Supabase RLS audit for all tables
 - Rate limiting upgrade (in-memory → Redis/Vercel KV)
@@ -243,6 +244,7 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - Role-based login redirects (admin → /admin, driver → /driver, customer → /menu)
 
 ### Out of Scope
+
 - Backend/schema changes — Supabase + Stripe contracts stay stable
 - Multi-restaurant marketplace — not part of Morning Star scope
 - Real-time subscriptions — current REST pattern sufficient for launch
@@ -252,6 +254,7 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 ## Context
 
 **Current state (v1.7 shipped):**
+
 - 8 milestones complete: v1.0-v1.7 (66 phases, 287 plans, 335+ requirements)
 - Deployed to production at delivery.mandalaymorningstar.com
 - Health endpoint validates 5 services (Supabase, Stripe, Google OAuth, Search Console, Resend)
@@ -266,6 +269,7 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - 60,174 lines TypeScript total
 
 **Tech stack:**
+
 - Next.js 16.1.2 + React 19.2.3 + TailwindCSS 4
 - Framer Motion 12.26.1 (async domAnimation root, per-route domMax) + GSAP 3.14.2
 - React Compiler (babel-plugin-react-compiler)
@@ -278,8 +282,9 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - ~60,174 lines TypeScript total
 
 **Remaining tech debt:**
+
 - Lighthouse CI gates at score 60 (target 70, conservative threshold)
-- _hasHydrated flag unused in UI (potential empty-cart flash on slow devices)
+- \_hasHydrated flag unused in UI (potential empty-cart flash on slow devices)
 - offline-state-change event dispatched but not consumed by update banner
 - Rate limiting: in-memory Map (upgrade to Redis/Vercel KV for production scale)
 - Content Security Policy headers not configured
@@ -289,6 +294,7 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - Branch protection rules deferred (single developer)
 
 **Design direction:**
+
 - Animation-first: GSAP for timelines/scroll, Framer Motion for components
 - Reference apps: DoorDash, Uber Eats, Pepper template
 - V8 colors: amber-500 primary accent, warm dark mode undertones
@@ -303,45 +309,45 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 
 ## Key Decisions
 
-| Decision | Rationale | Outcome |
-|----------|-----------|---------|
-| Full frontend rewrite (not incremental fixes) | V7 has systemic layering issues; patching won't solve root cause | ✓ Good — delivered clean codebase |
-| Fresh components (parallel development) | Allows building new system without breaking existing | ✓ Good — swapped seamlessly |
-| Customer flows only for V1 | Admin/Driver work; focus on broken customer experience | ✓ Good — focused scope |
-| Animation everywhere (not selective) | User wants "over-the-top animated" experience | ✓ Good — distinctive feel |
-| Import GSAP from @/lib/gsap | Ensures plugins registered | ✓ Good — consistent setup |
-| ESLint z-index rules at warn severity | Legacy code awareness without blocking build | ✓ Good — phased migration |
-| overlayMotion spring/duration pattern | Natural entrance, snappy exit | ✓ Good — feels responsive |
-| Backdrop uses AnimatePresence | Fully removes from DOM when closed | ✓ Good — click-blocking fixed |
-| No stopPropagation on dropdown | Events bubble for form compatibility | ✓ Good — V7 bug fixed |
-| knip for dead code analysis | ESM-native, Next.js compatible, comprehensive output | ✓ Good — found 47 files, 480 exports |
-| TimeStepV8 uses enhanced TimeSlotPicker | Consistent V8 patterns (motion, tokens, types) | ✓ Good — checkout unified |
-| Semantic z-index tokens (z-dropdown, z-sticky, z-fixed) | Clear intent vs arbitrary numbers | ✓ Good — self-documenting |
-| Footer dark gradient as intentional | Custom dark theme colors documented, not tokens | ✓ Good — design preserved |
-| Chart colors use CSS variables | Theme consistency via var(--color-*) | ✓ Good — theme-aware |
-| ESLint z-index upgrade to error | Prevents regression; local stacking contexts exempt | ✓ Good — enforced |
-| Local stacking uses inline zIndex 1-4 | Components with isolate class exempt from token rule | ✓ Good — clean pattern |
-| mockFonts helper for visual tests | Prevents Google Fonts TLS failures in sandboxed CI | ✓ Good — network independence |
-| Visual regression baselines deferred | Network access needed; infrastructure ready | — Pending |
-| UnifiedMenuItemCard 3D tilt | 18-degree max, spring physics (stiffness 150, damping 15) | ✓ Good — premium feel |
-| Glassmorphism 30px blur | Upgraded from 20px for stronger glass effect | ✓ Good — distinctive cards |
-| 80ms stagger standard | STAGGER_GAP = 0.08, capped at 500ms max delay | ✓ Good — consistent reveals |
-| 25% viewport trigger | VIEWPORT_AMOUNT = 0.25 for scroll animations | ✓ Good — timely reveals |
-| OLED dark mode (pure black) | #000000 surfaces for OLED displays | ✓ Good — battery friendly |
-| View Transitions API circular reveal | Spring easing (0.34, 1.56, 0.64, 1) for theme switch | ✓ Good — delightful |
-| Velocity-aware scroll hide | 300px/s threshold for header show/hide | ✓ Good — natural feel |
-| MobileDrawer swipe 100px threshold | Left swipe to close, body scroll lock | ✓ Good — intuitive gesture |
-| Animation tokens single source | All imports from @/lib/motion-tokens exclusively | ✓ Good — maintainable |
-| 2D hero permanent (not fallback) | Gradient + floating animation, removed 3D | ✓ Good — performance |
-| 3D hero removed in cleanup | ~650KB reduction, simplified codebase | ✓ Good — faster loads |
-| Semantic color tokens (text-text-inverse, bg-overlay) | Theme-aware without hardcoded values | ✓ Good — v1.3 |
-| ESLint guards for removed directories | Prevents re-creation of deleted paths | ✓ Good — v1.3 |
-| BottomSheet merged into Drawer | position="bottom" prop instead of separate component | ✓ Good — v1.3 |
-| Touch detection via CSS media query | (hover: hover) and (pointer: fine) | ✓ Good — v1.3 |
-| Floating emojis replace mascot | 13 emojis with drift/spiral/bob animations | ✓ Good — v1.3 |
-| 4-layer parallax structure | orbs-far, orbs-mid, emojis, content with preset speeds | ✓ Good — v1.3 |
-| Husky pre-commit with --max-warnings=0 | All ESLint errors block commits | ✓ Good — v1.3 |
-| WCAG AAA for dark mode primary | #FF6B6B gives 6.33:1 contrast ratio | ✓ Good — v1.3 |
+| Decision                                                | Rationale                                                        | Outcome                              |
+| ------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------ |
+| Full frontend rewrite (not incremental fixes)           | V7 has systemic layering issues; patching won't solve root cause | ✓ Good — delivered clean codebase    |
+| Fresh components (parallel development)                 | Allows building new system without breaking existing             | ✓ Good — swapped seamlessly          |
+| Customer flows only for V1                              | Admin/Driver work; focus on broken customer experience           | ✓ Good — focused scope               |
+| Animation everywhere (not selective)                    | User wants "over-the-top animated" experience                    | ✓ Good — distinctive feel            |
+| Import GSAP from @/lib/gsap                             | Ensures plugins registered                                       | ✓ Good — consistent setup            |
+| ESLint z-index rules at warn severity                   | Legacy code awareness without blocking build                     | ✓ Good — phased migration            |
+| overlayMotion spring/duration pattern                   | Natural entrance, snappy exit                                    | ✓ Good — feels responsive            |
+| Backdrop uses AnimatePresence                           | Fully removes from DOM when closed                               | ✓ Good — click-blocking fixed        |
+| No stopPropagation on dropdown                          | Events bubble for form compatibility                             | ✓ Good — V7 bug fixed                |
+| knip for dead code analysis                             | ESM-native, Next.js compatible, comprehensive output             | ✓ Good — found 47 files, 480 exports |
+| TimeStepV8 uses enhanced TimeSlotPicker                 | Consistent V8 patterns (motion, tokens, types)                   | ✓ Good — checkout unified            |
+| Semantic z-index tokens (z-dropdown, z-sticky, z-fixed) | Clear intent vs arbitrary numbers                                | ✓ Good — self-documenting            |
+| Footer dark gradient as intentional                     | Custom dark theme colors documented, not tokens                  | ✓ Good — design preserved            |
+| Chart colors use CSS variables                          | Theme consistency via var(--color-\*)                            | ✓ Good — theme-aware                 |
+| ESLint z-index upgrade to error                         | Prevents regression; local stacking contexts exempt              | ✓ Good — enforced                    |
+| Local stacking uses inline zIndex 1-4                   | Components with isolate class exempt from token rule             | ✓ Good — clean pattern               |
+| mockFonts helper for visual tests                       | Prevents Google Fonts TLS failures in sandboxed CI               | ✓ Good — network independence        |
+| Visual regression baselines deferred                    | Network access needed; infrastructure ready                      | — Pending                            |
+| UnifiedMenuItemCard 3D tilt                             | 18-degree max, spring physics (stiffness 150, damping 15)        | ✓ Good — premium feel                |
+| Glassmorphism 30px blur                                 | Upgraded from 20px for stronger glass effect                     | ✓ Good — distinctive cards           |
+| 80ms stagger standard                                   | STAGGER_GAP = 0.08, capped at 500ms max delay                    | ✓ Good — consistent reveals          |
+| 25% viewport trigger                                    | VIEWPORT_AMOUNT = 0.25 for scroll animations                     | ✓ Good — timely reveals              |
+| OLED dark mode (pure black)                             | #000000 surfaces for OLED displays                               | ✓ Good — battery friendly            |
+| View Transitions API circular reveal                    | Spring easing (0.34, 1.56, 0.64, 1) for theme switch             | ✓ Good — delightful                  |
+| Velocity-aware scroll hide                              | 300px/s threshold for header show/hide                           | ✓ Good — natural feel                |
+| MobileDrawer swipe 100px threshold                      | Left swipe to close, body scroll lock                            | ✓ Good — intuitive gesture           |
+| Animation tokens single source                          | All imports from @/lib/motion-tokens exclusively                 | ✓ Good — maintainable                |
+| 2D hero permanent (not fallback)                        | Gradient + floating animation, removed 3D                        | ✓ Good — performance                 |
+| 3D hero removed in cleanup                              | ~650KB reduction, simplified codebase                            | ✓ Good — faster loads                |
+| Semantic color tokens (text-text-inverse, bg-overlay)   | Theme-aware without hardcoded values                             | ✓ Good — v1.3                        |
+| ESLint guards for removed directories                   | Prevents re-creation of deleted paths                            | ✓ Good — v1.3                        |
+| BottomSheet merged into Drawer                          | position="bottom" prop instead of separate component             | ✓ Good — v1.3                        |
+| Touch detection via CSS media query                     | (hover: hover) and (pointer: fine)                               | ✓ Good — v1.3                        |
+| Floating emojis replace mascot                          | 13 emojis with drift/spiral/bob animations                       | ✓ Good — v1.3                        |
+| 4-layer parallax structure                              | orbs-far, orbs-mid, emojis, content with preset speeds           | ✓ Good — v1.3                        |
+| Husky pre-commit with --max-warnings=0                  | All ESLint errors block commits                                  | ✓ Good — v1.3                        |
+| WCAG AAA for dark mode primary                          | #FF6B6B gives 6.33:1 contrast ratio                              | ✓ Good — v1.3                        |
 
 | Low-power threshold <=4GB OR <=4 cores | Device tier detection for animation scaling | ✓ Good — v1.4 |
 | Safari fallback via user agent | Mobile Safari = low-power, desktop = high-power | ✓ Good — v1.4 |
@@ -357,8 +363,8 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 | Viewport-triggered maps (IntersectionObserver) | Defers Google Maps (~120KB) until scrolled into view | ✓ Good — v1.5 |
 | CartOverlays wrapper for route-group scoping | DRY Fragment rendering CartBar + CartDrawer + FlyToCart | ✓ Good — v1.5 |
 | React Compiler enabled globally, no opt-outs | All 282 client components compile cleanly | ✓ Good — v1.5 |
-| LazyMotion domMax + strict at root | drag + layoutId require domMax; strict prevents motion.* regression | ✓ Good — v1.5 |
-| motion.* → m.* migration (174 files) | Per-component ~34KB to ~4.6KB; features loaded once at root | ✓ Good — v1.5 |
+| LazyMotion domMax + strict at root | drag + layoutId require domMax; strict prevents motion._ regression | ✓ Good — v1.5 |
+| motion._ → m.\* migration (174 files) | Per-component ~34KB to ~4.6KB; features loaded once at root | ✓ Good — v1.5 |
 | Lighthouse CI warn-only, PR-only | Regression gate without blocking PRs | ✓ Good — v1.5 |
 | ESLint max-lines at 400 warning | Prevents file growth regression; exempts types/tests/stories | ✓ Good — v1.5 |
 | 4 file-splitting patterns in CLAUDE.md | Component subfolder, lib subfolder, admin sibling, API route sibling | ✓ Good — v1.5 |
@@ -387,4 +393,5 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 | Rating API upsert (not 409 reject) | Users can re-rate; previous rating replaced | ✓ Good — v1.7 |
 
 ---
-*Last updated: 2026-02-16 after v1.8 milestone started*
+
+_Last updated: 2026-02-16 after v1.8 milestone started_

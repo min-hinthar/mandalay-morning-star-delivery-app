@@ -68,6 +68,7 @@ completed: 2026-02-10
 - **Files modified:** 1
 
 ## Accomplishments
+
 - Email settings form with master kill switch toggle and 4 test email buttons (one per template type) integrated as new Email tab in admin settings
 - Admin email log page at /admin/emails with order ID search, type/status dropdowns, date range filters, paginated results table, status badges, and resend capability for failed emails
 - Per-order EmailHistory component with expandable email detail showing recipient, resend ID, error messages, status timeline from Resend webhook events, resend button, and manual send dropdown
@@ -80,6 +81,7 @@ Each task was committed atomically:
 2. **Task 2: Admin email log page + per-order email history** - `0a55eab` (feat)
 
 ## Files Created/Modified
+
 - `src/components/ui/admin/settings/EmailSettingsForm.tsx` - Email settings section with kill switch toggle and 4 test email buttons
 - `src/components/ui/admin/settings/SettingsClient/SettingsClient.tsx` - Added Email tab, emailSendingEnabled state, fetch/save/discard/restore integration
 - `src/app/(admin)/admin/emails/page.tsx` - Admin email log page with search, filter, pagination, stats, resend
@@ -89,6 +91,7 @@ Each task was committed atomically:
 - `src/app/(admin)/admin/orders/[id]/EmailHistory.tsx` - Per-order email history with expandable detail, status timeline, resend, manual send
 
 ## Decisions Made
+
 - **EMAIL-08-KILLSWITCH:** Kill switch state stored under `notifications` category as `emailSendingEnabled` key, consistent with EMAIL-01-CATEGORY decision that email_sending_enabled uses notifications category
 - **EMAIL-08-SEPARATESTATE:** Email enabled state tracked as separate `useState` pair (not added to `AllSettings` type) to avoid modifying settings-types.ts and all existing form components. The kill switch is fetched from and saved to the same API but managed independently in the UI
 - **EMAIL-08-SPLIT:** Extracted `email-log-types.ts` from page.tsx to keep the admin email log page under the 400-line ESLint max-lines warning threshold
@@ -98,6 +101,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Extracted email-log-types.ts for 400-line compliance**
+
 - **Found during:** Task 2 (admin email log page)
 - **Issue:** Initial page.tsx was 421 lines, exceeding the 400-line lint warning limit
 - **Fix:** Extracted shared types (EmailLogEntry, PaginationMeta), constants (EMAIL_TYPES, EMAIL_STATUSES, STATUS_BADGE_MAP), and helper functions (formatEmailDate, formatEmailType) into `email-log-types.ts`
@@ -111,17 +115,21 @@ Each task was committed atomically:
 **Impact on plan:** File split necessary for lint compliance. No scope creep.
 
 ## Issues Encountered
+
 - Windows `.next` cache permission errors prevented `rm -rf .next` on first build attempt. Resolved by using `cmd /c rmdir /s /q .next` to force-remove stale Turbopack cache. This is a recurring Windows-specific issue documented in prior summaries.
 
 ## User Setup Required
+
 None - no new external service configuration required. All API routes referenced by the UI (test email, email log, resend, manual send) are created by Plan 54-07.
 
 ## Next Phase Readiness
+
 - Admin email management UI complete: settings kill switch, test emails, email log, per-order history
 - EmailHistory component ready for embedding in admin order detail page when it is created (integration comment at top of file)
 - Admin navigation may need a link added to /admin/emails (not part of this plan)
 - All Phase 54 email system plans now complete (infrastructure, templates, cron, webhooks, API routes, admin UI)
 
 ---
-*Phase: 54-email-system*
-*Completed: 2026-02-10*
+
+_Phase: 54-email-system_
+_Completed: 2026-02-10_

@@ -39,11 +39,12 @@ function SortHeader({
       )}
     >
       {label}
-      {isActive && (
-        direction === "asc"
-          ? <ChevronUp className="h-3.5 w-3.5" />
-          : <ChevronDown className="h-3.5 w-3.5" />
-      )}
+      {isActive &&
+        (direction === "asc" ? (
+          <ChevronUp className="h-3.5 w-3.5" />
+        ) : (
+          <ChevronDown className="h-3.5 w-3.5" />
+        ))}
     </button>
   );
 }
@@ -108,8 +109,9 @@ export function DriverListTable({
   });
 
   // Drawer handlers
-  const selectedDriver: AdminDriver | null =
-    selectedDriverId ? drivers.find((d) => d.id === selectedDriverId) ?? null : null;
+  const selectedDriver: AdminDriver | null = selectedDriverId
+    ? (drivers.find((d) => d.id === selectedDriverId) ?? null)
+    : null;
 
   const handleRowClick = (driverId: string) => {
     setSelectedDriverId(driverId);
@@ -178,12 +180,7 @@ export function DriverListTable({
       </div>
 
       {/* Card rows with stagger */}
-      <m.div
-        variants={cardContainer}
-        initial="hidden"
-        animate="visible"
-        className="space-y-2"
-      >
+      <m.div variants={cardContainer} initial="hidden" animate="visible" className="space-y-2">
         {sortedDrivers.map((driver) => (
           <DriverCardRow
             key={driver.id}

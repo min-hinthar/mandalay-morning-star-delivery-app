@@ -9,15 +9,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Users,
-  Truck,
-  TrendingUp,
-  Star,
-  ChevronRight,
-  Package,
-  Clock,
-} from "lucide-react";
+import { Users, Truck, TrendingUp, Star, ChevronRight, Package, Clock } from "lucide-react";
 import type { ProfileRole } from "@/types/database";
 
 interface ProfileCheck {
@@ -59,26 +51,16 @@ export default async function AnalyticsPage() {
 
   // Fetch quick stats
   const [driversResult, routesResult, ratingsResult] = await Promise.all([
-    supabase
-      .from("drivers")
-      .select("id", { count: "exact" })
-      .eq("is_active", true),
-    supabase
-      .from("routes")
-      .select("id", { count: "exact" })
-      .eq("status", "completed"),
-    supabase
-      .from("driver_ratings")
-      .select("rating")
-      .returns<RatingRow[]>(),
+    supabase.from("drivers").select("id", { count: "exact" }).eq("is_active", true),
+    supabase.from("routes").select("id", { count: "exact" }).eq("status", "completed"),
+    supabase.from("driver_ratings").select("rating").returns<RatingRow[]>(),
   ]);
 
   const activeDrivers = driversResult.count ?? 0;
   const completedRoutes = routesResult.count ?? 0;
   const ratings = ratingsResult.data ?? [];
-  const avgRating = ratings.length > 0
-    ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
-    : null;
+  const avgRating =
+    ratings.length > 0 ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length : null;
 
   return (
     <div className="p-8">
@@ -143,9 +125,7 @@ export default async function AnalyticsPage() {
                 <Users className="h-8 w-8 text-saffron" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-semibold text-charcoal">
-                  Driver Analytics
-                </h2>
+                <h2 className="text-xl font-semibold text-charcoal">Driver Analytics</h2>
                 <p className="text-sm text-muted-foreground">
                   Performance metrics, leaderboard, and ratings
                 </p>
@@ -162,9 +142,7 @@ export default async function AnalyticsPage() {
                 <Package className="h-8 w-8 text-jade" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-semibold text-charcoal">
-                  Delivery Metrics
-                </h2>
+                <h2 className="text-xl font-semibold text-charcoal">Delivery Metrics</h2>
                 <p className="text-sm text-muted-foreground">
                   Success rates, peak hours, and exceptions
                 </p>
@@ -177,18 +155,14 @@ export default async function AnalyticsPage() {
 
       {/* Coming Soon Section */}
       <div className="mt-8">
-        <h2 className="mb-4 text-lg font-semibold text-charcoal">
-          Quick Insights
-        </h2>
+        <h2 className="mb-4 text-lg font-semibold text-charcoal">Quick Insights</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Card className="border-dashed">
             <CardContent className="flex items-center gap-3 p-4">
               <Clock className="h-5 w-5 text-charcoal-400" />
               <div>
                 <p className="font-medium text-charcoal">Peak Hours</p>
-                <p className="text-sm text-muted-foreground">
-                  View in Delivery Metrics →
-                </p>
+                <p className="text-sm text-muted-foreground">View in Delivery Metrics →</p>
               </div>
             </CardContent>
           </Card>
@@ -198,9 +172,7 @@ export default async function AnalyticsPage() {
               <Star className="h-5 w-5 text-charcoal-400" />
               <div>
                 <p className="font-medium text-charcoal">Top Performers</p>
-                <p className="text-sm text-muted-foreground">
-                  View in Driver Analytics →
-                </p>
+                <p className="text-sm text-muted-foreground">View in Driver Analytics →</p>
               </div>
             </CardContent>
           </Card>
@@ -210,9 +182,7 @@ export default async function AnalyticsPage() {
               <TrendingUp className="h-5 w-5 text-charcoal-400" />
               <div>
                 <p className="font-medium text-charcoal">Trends</p>
-                <p className="text-sm text-muted-foreground">
-                  Compare performance over time
-                </p>
+                <p className="text-sm text-muted-foreground">Compare performance over time</p>
               </div>
             </CardContent>
           </Card>

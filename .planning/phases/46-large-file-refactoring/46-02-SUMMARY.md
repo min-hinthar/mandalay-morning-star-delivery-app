@@ -76,17 +76,17 @@ Split 9 admin and account components (486-597 lines each) into subfolder pattern
 
 ## Results
 
-| Component | Original | Files | Max File |
-|-----------|----------|-------|----------|
-| DriverDetailClient | 597 | 5 | 393 |
-| RouteDetailClient | 576 | 5 | 297 |
-| AdminDashboard | 541 | 7 | 215 |
-| DriverListTable | 523 | 4 | 349 |
-| RouteListTable | 501 | 4 | 342 |
-| CreateRouteModal | 486 | 4 | 343 |
-| SettingsClient | 476 | 3 | 298 |
-| CoverageRouteMap | 550 | 4 | 253 |
-| OrdersTab | 568 | 4 | 354 |
+| Component          | Original | Files | Max File |
+| ------------------ | -------- | ----- | -------- |
+| DriverDetailClient | 597      | 5     | 393      |
+| RouteDetailClient  | 576      | 5     | 297      |
+| AdminDashboard     | 541      | 7     | 215      |
+| DriverListTable    | 523      | 4     | 349      |
+| RouteListTable     | 501      | 4     | 342      |
+| CreateRouteModal   | 486      | 4     | 343      |
+| SettingsClient     | 476      | 3     | 298      |
+| CoverageRouteMap   | 550      | 4     | 253      |
+| OrdersTab          | 568      | 4     | 354      |
 
 ## Extraction Patterns Used
 

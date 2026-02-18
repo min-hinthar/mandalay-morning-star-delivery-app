@@ -99,10 +99,7 @@ export function SuccessCheckmark({
   if (prefersReducedMotion) {
     return variant === "default" ? (
       <div
-        className={cn(
-          "flex items-center justify-center rounded-full bg-green",
-          className
-        )}
+        className={cn("flex items-center justify-center rounded-full bg-green", className)}
         style={{ width: size, height: size }}
       >
         <svg
@@ -138,10 +135,7 @@ export function SuccessCheckmark({
       onAnimationComplete={() => {
         if (show) onAnimationComplete?.();
       }}
-      className={cn(
-        "flex items-center justify-center rounded-full bg-green shadow-md",
-        className
-      )}
+      className={cn("flex items-center justify-center rounded-full bg-green shadow-md", className)}
       style={{ width: size, height: size }}
     >
       <svg
@@ -260,14 +254,8 @@ export function SuccessOverlay({
         animate="visible"
         className="mt-6 text-center"
       >
-        <h2 className="font-display text-2xl font-bold text-text-primary">
-          {message}
-        </h2>
-        {subMessage && (
-          <p className="mt-2 font-body text-text-secondary">
-            {subMessage}
-          </p>
-        )}
+        <h2 className="font-display text-2xl font-bold text-text-primary">{message}</h2>
+        {subMessage && <p className="mt-2 font-body text-text-secondary">{subMessage}</p>}
       </m.div>
     </m.div>
   );

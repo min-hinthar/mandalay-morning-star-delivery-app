@@ -5,6 +5,7 @@
 ## What Was Built
 
 ### Task 1: Add Missing Token Definitions
+
 - Added overlay tokens (`--color-overlay`, `--color-overlay-heavy`, `--color-overlay-light`) to both light and dark themes
 - Added skeleton tokens (`--color-skeleton`, `--color-skeleton-shimmer`) for loading states
 - Added disabled tokens (`--color-disabled-bg`, `--color-disabled-text`)
@@ -12,59 +13,64 @@
 - Mapped all new tokens to Tailwind utilities in `tailwind.config.ts`
 
 ### Task 2: Homepage Component Migration
+
 Migrated 4 homepage components from hardcoded colors to semantic tokens:
 
-| File | Changes |
-|------|---------|
-| CTABanner.tsx | `text-white` -> `text-text-inverse`, `bg-black/5` -> `bg-overlay/10` |
-| FooterCTA.tsx | `bg-white/20` -> `bg-overlay-light`, `bg-black/10` -> `bg-overlay/20` |
-| HomepageMenuSection.tsx | `text-white` -> `text-text-inverse` |
-| TestimonialsCarousel.tsx | `text-white` -> `text-text-inverse` in avatar colors |
+| File                     | Changes                                                               |
+| ------------------------ | --------------------------------------------------------------------- |
+| CTABanner.tsx            | `text-white` -> `text-text-inverse`, `bg-black/5` -> `bg-overlay/10`  |
+| FooterCTA.tsx            | `bg-white/20` -> `bg-overlay-light`, `bg-black/10` -> `bg-overlay/20` |
+| HomepageMenuSection.tsx  | `text-white` -> `text-text-inverse`                                   |
+| TestimonialsCarousel.tsx | `text-white` -> `text-text-inverse` in avatar colors                  |
 
 ### Task 3: Checkout Component Migration
+
 Migrated 6 checkout components from hardcoded colors to semantic tokens:
 
-| File | Changes |
-|------|---------|
-| AddressInput.tsx | `text-white` -> `text-text-inverse`, `bg-white/90` -> `bg-surface-primary/90` |
-| TimeSlotPicker.tsx | `text-white` -> `text-text-inverse`, `bg-white` -> `bg-surface-primary` |
-| PaymentSuccess.tsx | `text-white` -> `text-text-inverse` in checkmark and timeline |
-| PaymentStepV8.tsx | `bg-green-600 text-white` -> `bg-status-success text-text-inverse` |
-| AddressCardV8.tsx | `text-white` -> `text-text-inverse` in selection indicator |
-| CheckoutWizard.tsx | `text-white` -> `text-text-inverse` in step circles |
+| File               | Changes                                                                       |
+| ------------------ | ----------------------------------------------------------------------------- |
+| AddressInput.tsx   | `text-white` -> `text-text-inverse`, `bg-white/90` -> `bg-surface-primary/90` |
+| TimeSlotPicker.tsx | `text-white` -> `text-text-inverse`, `bg-white` -> `bg-surface-primary`       |
+| PaymentSuccess.tsx | `text-white` -> `text-text-inverse` in checkmark and timeline                 |
+| PaymentStepV8.tsx  | `bg-green-600 text-white` -> `bg-status-success text-text-inverse`            |
+| AddressCardV8.tsx  | `text-white` -> `text-text-inverse` in selection indicator                    |
+| CheckoutWizard.tsx | `text-white` -> `text-text-inverse` in step circles                           |
 
 ## Verification Results
 
-| Check | Result |
-|-------|--------|
-| `pnpm typecheck` | Pass (no errors) |
-| `pnpm build` | Pass (4 CSS warnings - pre-existing from ESLint glob patterns) |
-| Homepage grep for violations | 0 matches |
-| Checkout grep for violations | 0 matches |
-| Overlay tokens in :root | Present |
-| Overlay tokens in .dark | Present |
+| Check                        | Result                                                         |
+| ---------------------------- | -------------------------------------------------------------- |
+| `pnpm typecheck`             | Pass (no errors)                                               |
+| `pnpm build`                 | Pass (4 CSS warnings - pre-existing from ESLint glob patterns) |
+| Homepage grep for violations | 0 matches                                                      |
+| Checkout grep for violations | 0 matches                                                      |
+| Overlay tokens in :root      | Present                                                        |
+| Overlay tokens in .dark      | Present                                                        |
 
 ## Commits
 
-| Hash | Type | Description |
-|------|------|-------------|
+| Hash    | Type | Description                                       |
+| ------- | ---- | ------------------------------------------------- |
 | d231e99 | feat | Add overlay, skeleton, disabled, selection tokens |
-| 1111559 | fix | Migrate homepage components to semantic tokens |
-| dece017 | fix | Migrate checkout components to semantic tokens |
+| 1111559 | fix  | Migrate homepage components to semantic tokens    |
+| dece017 | fix  | Migrate checkout components to semantic tokens    |
 
 ## Files Modified
 
 ### Token System
+
 - `src/styles/tokens.css` - Added 8 new CSS variables (4 light, 4 dark)
 - `tailwind.config.ts` - Added overlay, skeleton, disabled, selection utilities
 
 ### Homepage Components
+
 - `src/components/ui/homepage/CTABanner.tsx`
 - `src/components/ui/homepage/FooterCTA.tsx`
 - `src/components/ui/homepage/HomepageMenuSection.tsx`
 - `src/components/ui/homepage/TestimonialsCarousel.tsx`
 
 ### Checkout Components
+
 - `src/components/ui/checkout/AddressInput.tsx`
 - `src/components/ui/checkout/TimeSlotPicker.tsx`
 - `src/components/ui/checkout/PaymentSuccess.tsx`
@@ -87,4 +93,5 @@ None - plan executed exactly as written.
 ~8 minutes
 
 ---
-*Completed: 2026-01-28*
+
+_Completed: 2026-01-28_

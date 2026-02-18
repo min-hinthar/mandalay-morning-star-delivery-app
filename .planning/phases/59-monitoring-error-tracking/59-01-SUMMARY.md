@@ -62,6 +62,7 @@ completed: 2026-02-14
 - **Files modified:** 5 (package.json, pnpm-lock.yaml, sentry.server.config.ts, sentry.edge.config.ts, instrumentation-client.ts)
 
 ## Accomplishments
+
 - Upgraded @sentry/nextjs from 10.34.0 to 10.38.0
 - Removed ignoreErrors array and V7 rollout beforeSend from server config (capture ALL errors)
 - Configured error-only session replay with full privacy masking (maskAllText, maskAllInputs, blockAllMedia)
@@ -77,6 +78,7 @@ Each task was committed atomically:
 2. **Task 2: Reconfigure instrumentation-client.ts with replay, breadcrumbs, and environment** - `f291810` (feat)
 
 ## Files Created/Modified
+
 - `package.json` - Updated @sentry/nextjs version to 10.38.0
 - `pnpm-lock.yaml` - Lockfile updated for new SDK version
 - `sentry.server.config.ts` - Cleaned config: removed ignoreErrors, removed V7 beforeSend, updated environment/release/tracing
@@ -84,6 +86,7 @@ Each task was committed atomically:
 - `instrumentation-client.ts` - Unconditional init, error-only replay, privacy masking, breadcrumbs, environment/release
 
 ## Decisions Made
+
 - Removed ignoreErrors entirely per user decision to capture ALL errors (no filtering)
 - Set replaysSessionSampleRate to 0 (error-only capture) to minimize bandwidth while preserving debugging capability
 - Enabled full privacy masking on replays (maskAllText, maskAllInputs, blockAllMedia)
@@ -95,20 +98,24 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 None.
 
 ## User Setup Required
 
 **External services require manual configuration:**
+
 - Connect GitHub repository to Sentry (Settings -> Integrations -> GitHub -> Add Installation -> Select repo)
 - Enable suspect commits (Settings -> Integrations -> GitHub -> Configure -> Enable Suspect Commits)
 
 ## Next Phase Readiness
+
 - Sentry SDK configured and capturing errors across all runtimes
 - Ready for Plan 02 (custom error boundaries, structured logging, alert rules)
 - Source maps upload verified via successful `pnpm build`
 - GitHub integration requires manual dashboard setup (see User Setup)
 
 ---
-*Phase: 59-monitoring-error-tracking*
-*Completed: 2026-02-14*
+
+_Phase: 59-monitoring-error-tracking_
+_Completed: 2026-02-14_

@@ -38,10 +38,7 @@ export function calculateHaversineDistance(
 
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRadians(lat1)) *
-      Math.cos(toRadians(lat2)) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
+    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
@@ -53,12 +50,7 @@ export function calculateHaversineDistance(
  * @returns Distance in kilometers
  */
 export function getDistance(point1: LatLng, point2: LatLng): number {
-  return calculateHaversineDistance(
-    point1.lat,
-    point1.lng,
-    point2.lat,
-    point2.lng
-  );
+  return calculateHaversineDistance(point1.lat, point1.lng, point2.lat, point2.lng);
 }
 
 /**
@@ -107,10 +99,7 @@ export function calculateETA(input: ETACalculationInput): ETAResult {
   // Calculate min/max range
   // Min: Optimistic - 80% of stop buffer, no traffic delays
   // Max: Pessimistic - 150% of stop buffer, 20% traffic delay on driving
-  const minMinutes = Math.max(
-    1,
-    Math.round(baseDrivingTimeMinutes + stopBufferMinutes * 0.8)
-  );
+  const minMinutes = Math.max(1, Math.round(baseDrivingTimeMinutes + stopBufferMinutes * 0.8));
 
   const maxMinutes = Math.max(
     minMinutes + 5, // At least 5 minute range
@@ -191,9 +180,6 @@ export function isArrivingSoon(
  * @param targetStopIndex The stop index of the customer's order
  * @returns Number of stops remaining before customer's stop
  */
-export function calculateRemainingStops(
-  currentStopIndex: number,
-  targetStopIndex: number
-): number {
+export function calculateRemainingStops(currentStopIndex: number, targetStopIndex: number): number {
   return Math.max(0, targetStopIndex - currentStopIndex);
 }

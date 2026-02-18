@@ -7,11 +7,14 @@ import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 interface CoverageResultProps {
-  coverageData: {
-    isValid: boolean;
-    distanceMiles?: number;
-    durationMinutes?: number;
-  } | null | undefined;
+  coverageData:
+    | {
+        isValid: boolean;
+        distanceMiles?: number;
+        durationMinutes?: number;
+      }
+    | null
+    | undefined;
   selectedAddress: { description: string; lat: number; lng: number } | null;
   onClear: () => void;
 }
@@ -81,8 +84,7 @@ export function CoverageResult({ coverageData, selectedAddress, onClear }: Cover
               )}
               {coverageData.durationMinutes !== undefined && (
                 <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" />
-                  ~{coverageData.durationMinutes} min
+                  <Clock className="w-3.5 h-3.5" />~{coverageData.durationMinutes} min
                 </span>
               )}
             </div>

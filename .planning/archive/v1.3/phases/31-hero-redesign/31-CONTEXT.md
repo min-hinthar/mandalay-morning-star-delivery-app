@@ -14,6 +14,7 @@ Redesign hero section with floating food emojis (placeholders for future food im
 ## Implementation Decisions
 
 ### Floating Emoji System
+
 - **Emoji set:** Burmese-themed (🍜🥟🍲🌶️) — placeholders for later food images
 - **Density:** Dense (12-15 emojis visible at once)
 - **Animation style:** Mixed organic — each emoji has unique path (drift, spiral, bob)
@@ -27,6 +28,7 @@ Redesign hero section with floating food emojis (placeholders for future food im
 - **Touch devices:** Autonomous floating only (no tilt/gyro)
 
 ### Parallax Depth Layers
+
 - **Layer count:** 4+ layers for rich immersive depth
 - **Layer contents:** Gradient base + gradient orbs (glowing spheres) + floating emojis
 - **Orb style:** Radial gradients with soft glow/bloom effect
@@ -36,6 +38,7 @@ Redesign hero section with floating food emojis (placeholders for future food im
 - **Text parallax:** Hero text and CTA have subtle parallax (part of depth)
 
 ### Theme Transitions
+
 - **Switch animation:** Smooth 300ms crossfade when toggling light↔dark
 - **Light mode gradient:** Warm saffron→cream (golden warmth fading to light)
 - **Dark mode gradient:** Rich black→subtle saffron glow (dramatic warm accent)
@@ -46,6 +49,7 @@ Redesign hero section with floating food emojis (placeholders for future food im
 - **Emoji shadows:** Theme-adaptive — light shadows in light mode, darker in dark mode
 
 ### Hero Layout
+
 - **Mascot:** None in hero — floating emojis replace mascot role
 - **Text alignment:** Split — headline centered, CTA buttons below left
 - **Height:** Full viewport (100vh) on both desktop and mobile
@@ -56,6 +60,7 @@ Redesign hero section with floating food emojis (placeholders for future food im
 - **Tagline:** Short subtitle below headline (e.g., "Authentic Burmese delivered")
 
 ### Claude's Discretion
+
 - Exact emoji positions and animation timing
 - Orb sizes and placement
 - Specific gradient color stops
@@ -87,5 +92,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 31-hero-redesign*
-*Context gathered: 2026-01-28*
+_Phase: 31-hero-redesign_
+_Context gathered: 2026-01-28_

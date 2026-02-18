@@ -17,48 +17,48 @@ re_verification: false
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 1 | Service worker is active on all routes (not just /driver) | VERIFIED | ServiceWorkerRegistration.tsx registers at scope "/" (line 29), used by all routes via root layout.tsx (line 83) |
-| 2 | Content-hash based revision (only changed assets invalidated) | VERIFIED | build-sw.mjs uses @serwist/build getManifest() (line 56), public/sw.js contains hex revisions, git SHA for dynamic pages |
-| 3 | Users see update banner when new version deployed | VERIFIED | UpdatePrompt.tsx renders banner, useUpdateBanner.ts detects waiting worker, layout.tsx includes UpdatePrompt |
-| 4 | Auth callback and Sentry tunnel routes excluded from SW | VERIFIED | sw.ts denylist array with /auth/, /monitoring, /api/; built sw.js contains matching patterns |
+| #   | Truth                                                         | Status   | Evidence                                                                                                                 |
+| --- | ------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Service worker is active on all routes (not just /driver)     | VERIFIED | ServiceWorkerRegistration.tsx registers at scope "/" (line 29), used by all routes via root layout.tsx (line 83)         |
+| 2   | Content-hash based revision (only changed assets invalidated) | VERIFIED | build-sw.mjs uses @serwist/build getManifest() (line 56), public/sw.js contains hex revisions, git SHA for dynamic pages |
+| 3   | Users see update banner when new version deployed             | VERIFIED | UpdatePrompt.tsx renders banner, useUpdateBanner.ts detects waiting worker, layout.tsx includes UpdatePrompt             |
+| 4   | Auth callback and Sentry tunnel routes excluded from SW       | VERIFIED | sw.ts denylist array with /auth/, /monitoring, /api/; built sw.js contains matching patterns                             |
 
 **Score:** 4/4 truths verified
 
 ### Required Artifacts
 
-| Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| scripts/build-sw.mjs | Content-hash manifest generation | VERIFIED | 97 lines, imports getManifest, generates manifest, no Date.now() |
-| src/app/sw.ts | NavigationRoute with denylist | VERIFIED | 144 lines, NavigationRoute, denylist, fallbacks, menu TTL 15min |
-| src/app/offline/page.tsx | Static offline fallback page | VERIFIED | 14 lines, force-static, renders OfflinePage |
-| src/lib/hooks/useUpdateBanner.ts | Interaction-aware countdown | VERIFIED | 301 lines, 10s countdown, pause, dismissal, version |
-| src/components/ui/offline/UpdatePrompt.tsx | Update banner UI | VERIFIED | 103 lines, progress bar, version, Update Now button |
-| src/lib/services/cart-idb-storage.ts | idb-keyval adapter | VERIFIED | 38 lines, StateStorage interface, migration |
-| src/lib/stores/cart-store.ts | IndexedDB cart | VERIFIED | Uses cartIDBStorage, pendingSync, online listener |
-| next.config.ts | NEXT_PUBLIC_APP_VERSION | VERIFIED | Reads package.json, exposes in env |
-| public/sw.js | Built SW | VERIFIED | 132KB, 8 entries, content-hashed, NavigationRoute |
+| Artifact                                   | Expected                         | Status   | Details                                                          |
+| ------------------------------------------ | -------------------------------- | -------- | ---------------------------------------------------------------- |
+| scripts/build-sw.mjs                       | Content-hash manifest generation | VERIFIED | 97 lines, imports getManifest, generates manifest, no Date.now() |
+| src/app/sw.ts                              | NavigationRoute with denylist    | VERIFIED | 144 lines, NavigationRoute, denylist, fallbacks, menu TTL 15min  |
+| src/app/offline/page.tsx                   | Static offline fallback page     | VERIFIED | 14 lines, force-static, renders OfflinePage                      |
+| src/lib/hooks/useUpdateBanner.ts           | Interaction-aware countdown      | VERIFIED | 301 lines, 10s countdown, pause, dismissal, version              |
+| src/components/ui/offline/UpdatePrompt.tsx | Update banner UI                 | VERIFIED | 103 lines, progress bar, version, Update Now button              |
+| src/lib/services/cart-idb-storage.ts       | idb-keyval adapter               | VERIFIED | 38 lines, StateStorage interface, migration                      |
+| src/lib/stores/cart-store.ts               | IndexedDB cart                   | VERIFIED | Uses cartIDBStorage, pendingSync, online listener                |
+| next.config.ts                             | NEXT_PUBLIC_APP_VERSION          | VERIFIED | Reads package.json, exposes in env                               |
+| public/sw.js                               | Built SW                         | VERIFIED | 132KB, 8 entries, content-hashed, NavigationRoute                |
 
 ### Key Link Verification
 
-| From | To | Via | Status |
-|------|-----|-----|--------|
-| build-sw.mjs | sw.ts | self.__SW_MANIFEST injection | WIRED |
-| sw.ts | /offline | fallback for documents | WIRED |
-| layout.tsx | UpdatePrompt | Import and render | WIRED |
-| UpdatePrompt | useUpdateBanner | Hook consumption | WIRED |
-| useUpdateBanner | navigator.serviceWorker | Waiting worker detection | WIRED |
-| cart-store.ts | cart-idb-storage.ts | createJSONStorage adapter | WIRED |
+| From            | To                      | Via                            | Status |
+| --------------- | ----------------------- | ------------------------------ | ------ |
+| build-sw.mjs    | sw.ts                   | self.\_\_SW_MANIFEST injection | WIRED  |
+| sw.ts           | /offline                | fallback for documents         | WIRED  |
+| layout.tsx      | UpdatePrompt            | Import and render              | WIRED  |
+| UpdatePrompt    | useUpdateBanner         | Hook consumption               | WIRED  |
+| useUpdateBanner | navigator.serviceWorker | Waiting worker detection       | WIRED  |
+| cart-store.ts   | cart-idb-storage.ts     | createJSONStorage adapter      | WIRED  |
 
 ### Requirements Coverage
 
-| Requirement | Status | Supporting Truths |
-|-------------|--------|-------------------|
+| Requirement                               | Status    | Supporting Truths                 |
+| ----------------------------------------- | --------- | --------------------------------- |
 | SW-01: Service worker scope expanded to / | SATISFIED | Truth 1 (root scope registration) |
-| SW-02: Content-hash based revision | SATISFIED | Truth 2 (content-hash manifest) |
-| SW-03: Update banner shown | SATISFIED | Truth 3 (UpdatePrompt) |
-| SW-04: Auth/Sentry routes excluded | SATISFIED | Truth 4 (denylist) |
+| SW-02: Content-hash based revision        | SATISFIED | Truth 2 (content-hash manifest)   |
+| SW-03: Update banner shown                | SATISFIED | Truth 3 (UpdatePrompt)            |
+| SW-04: Auth/Sentry routes excluded        | SATISFIED | Truth 4 (denylist)                |
 
 ### Anti-Patterns Found
 
@@ -136,5 +136,6 @@ All automated checks passed. Phase 64 delivers production-ready service worker h
 Ready for Phase 65 (CI/CD Hardening).
 
 ---
-*Verified: 2026-02-15T07:30:00Z*
-*Verifier: Claude (gsd-verifier)*
+
+_Verified: 2026-02-15T07:30:00Z_
+_Verifier: Claude (gsd-verifier)_

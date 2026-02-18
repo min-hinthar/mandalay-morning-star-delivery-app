@@ -21,16 +21,16 @@ interface RouteParams {
  * GET /api/admin/drivers/[id]
  * Get driver details by ID
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -51,7 +51,8 @@ export async function GET(
     // Fetch driver with profile
     const { data: driver, error: driverError } = await supabase
       .from("drivers")
-      .select(`
+      .select(
+        `
         id,
         user_id,
         vehicle_type,
@@ -69,7 +70,8 @@ export async function GET(
           full_name,
           phone
         )
-      `)
+      `
+      )
       .eq("id", id)
       .returns<DriverWithProfile[]>()
       .single();
@@ -99,10 +101,7 @@ export async function GET(
     return NextResponse.json(response);
   } catch (error) {
     logger.exception(error, { api: "admin/drivers/[id]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -110,16 +109,16 @@ export async function GET(
  * PATCH /api/admin/drivers/[id]
  * Update driver details
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -152,10 +151,7 @@ export async function PATCH(
 
       if (updateError) {
         logger.exception(updateError, { api: "admin/drivers/[id]", flowId: "toggle-active" });
-        return NextResponse.json(
-          { error: "Failed to update driver" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to update driver" }, { status: 500 });
       }
 
       return NextResponse.json({
@@ -205,10 +201,7 @@ export async function PATCH(
 
       if (driverUpdateError) {
         logger.exception(driverUpdateError, { api: "admin/drivers/[id]", flowId: "update-driver" });
-        return NextResponse.json(
-          { error: "Failed to update driver" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to update driver" }, { status: 500 });
       }
     }
 
@@ -224,7 +217,10 @@ export async function PATCH(
         .eq("id", existingDriver.user_id);
 
       if (profileUpdateError) {
-        logger.exception(profileUpdateError, { api: "admin/drivers/[id]", flowId: "update-profile" });
+        logger.exception(profileUpdateError, {
+          api: "admin/drivers/[id]",
+          flowId: "update-profile",
+        });
         // Don't fail the whole request, driver update already succeeded
       }
     }
@@ -235,10 +231,7 @@ export async function PATCH(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/drivers/[id]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -246,16 +239,16 @@ export async function PATCH(
  * DELETE /api/admin/drivers/[id]
  * Soft delete driver (deactivate instead of hard delete)
  */
-export async function DELETE(
-  _request: NextRequest,
-  { params }: RouteParams
-) {
+export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -296,10 +289,7 @@ export async function DELETE(
 
     if (deleteError) {
       logger.exception(deleteError, { api: "admin/drivers/[id]", flowId: "delete" });
-      return NextResponse.json(
-        { error: "Failed to delete driver" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to delete driver" }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -308,9 +298,6 @@ export async function DELETE(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/drivers/[id]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

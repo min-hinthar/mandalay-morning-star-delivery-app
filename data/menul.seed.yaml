@@ -73,7 +73,7 @@ modifier_groups:
     options:
       - slug: brains
         name: "Brains add-on"
-        price_delta_cents: 200  # +$2 noted on your menu page
+        price_delta_cents: 200 # +$2 noted on your menu page
 
   - slug: goat_curry_cut
     name: "Goat Choice"

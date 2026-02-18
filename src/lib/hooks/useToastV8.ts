@@ -97,8 +97,7 @@ function playChimeSound() {
     if (!audioContext) {
       const AudioContextClass =
         window.AudioContext ||
-        (window as typeof window & { webkitAudioContext?: typeof AudioContext })
-          .webkitAudioContext;
+        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (!AudioContextClass) return;
       audioContext = new AudioContextClass();
     }

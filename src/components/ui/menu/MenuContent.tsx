@@ -90,14 +90,17 @@ export function MenuContent({ className }: MenuContentProps) {
   // Load from cache on error (offline fallback)
   useEffect(() => {
     if (error && !isLoading) {
-      menuCache.get().then((cached) => {
-        if (cached) {
-          setCachedAt(cached.cachedAt);
-          setUsingCachedData(true);
-        }
-      }).catch((err) => {
-        console.error("[MenuContent] Failed to load cached menu:", err);
-      });
+      menuCache
+        .get()
+        .then((cached) => {
+          if (cached) {
+            setCachedAt(cached.cachedAt);
+            setUsingCachedData(true);
+          }
+        })
+        .catch((err) => {
+          console.error("[MenuContent] Failed to load cached menu:", err);
+        });
     }
   }, [error, isLoading]);
 
@@ -106,14 +109,17 @@ export function MenuContent({ className }: MenuContentProps) {
 
   useEffect(() => {
     if (usingCachedData) {
-      menuCache.get().then((cached) => {
-        if (cached?.data) {
-          const menuResponse = cached.data as MenuResponse;
-          setCachedCategories(menuResponse.data?.categories ?? []);
-        }
-      }).catch((err) => {
-        console.error("[MenuContent] Failed to read cached categories:", err);
-      });
+      menuCache
+        .get()
+        .then((cached) => {
+          if (cached?.data) {
+            const menuResponse = cached.data as MenuResponse;
+            setCachedCategories(menuResponse.data?.categories ?? []);
+          }
+        })
+        .catch((err) => {
+          console.error("[MenuContent] Failed to read cached categories:", err);
+        });
     }
   }, [usingCachedData]);
 
@@ -132,11 +138,12 @@ export function MenuContent({ className }: MenuContentProps) {
 
   // Memoize category tabs data transformation
   const tabCategories = useMemo(
-    () => displayCategories.map((cat: MenuCategory) => ({
-      slug: cat.slug,
-      name: cat.name,
-      nameEn: cat.name,
-    })),
+    () =>
+      displayCategories.map((cat: MenuCategory) => ({
+        slug: cat.slug,
+        name: cat.name,
+        nameEn: cat.name,
+      })),
     [displayCategories]
   );
 
@@ -204,12 +211,7 @@ export function MenuContent({ className }: MenuContentProps) {
   );
 
   const handleAddToCart = useCallback(
-    (
-      item: MenuItem,
-      modifiers: SelectedModifier[],
-      quantity: number,
-      notes: string
-    ) => {
+    (item: MenuItem, modifiers: SelectedModifier[], quantity: number, notes: string) => {
       addItem({
         menuItemId: item.id,
         menuItemSlug: item.slug,
@@ -257,9 +259,7 @@ export function MenuContent({ className }: MenuContentProps) {
         )}
       >
         <div className="text-4xl mb-4">:(</div>
-        <h2 className="text-lg font-semibold text-text-primary mb-2">
-          Failed to load menu
-        </h2>
+        <h2 className="text-lg font-semibold text-text-primary mb-2">Failed to load menu</h2>
         <p className="text-text-muted mb-4 max-w-sm">
           We couldn&apos;t load the menu right now. Please check your connection and try again.
         </p>
@@ -293,9 +293,7 @@ export function MenuContent({ className }: MenuContentProps) {
         )}
       >
         <div className="text-4xl mb-4">:(</div>
-        <h2 className="text-lg font-semibold text-text-primary mb-2">
-          Menu Coming Soon
-        </h2>
+        <h2 className="text-lg font-semibold text-text-primary mb-2">Menu Coming Soon</h2>
         <p className="text-text-muted max-w-sm">
           Our menu is being prepared. Check back soon for delicious Burmese cuisine!
         </p>
@@ -325,10 +323,7 @@ export function MenuContent({ className }: MenuContentProps) {
       {/* Menu Sections with scroll-triggered animations */}
       <div className="space-y-8 px-4 pb-8 pt-2">
         {displayCategories.map((category: MenuCategory) => (
-          <AnimatedSection
-            key={category.slug}
-            as="div"
-          >
+          <AnimatedSection key={category.slug} as="div">
             <m.div variants={itemVariants}>
               <MenuSection
                 category={{

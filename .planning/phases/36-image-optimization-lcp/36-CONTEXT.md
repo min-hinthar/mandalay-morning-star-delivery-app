@@ -14,6 +14,7 @@ Sub-2.5s Largest Contentful Paint on mobile with zero cumulative layout shift fr
 ## Implementation Decisions
 
 ### Hero image strategy
+
 - Preload hero image in `<head>` for fastest LCP
 - Art-directed srcset with 3 breakpoints: mobile (768px), tablet (1024px), desktop
 - Auto-crop from single admin upload to generate breakpoint versions at upload time
@@ -22,6 +23,7 @@ Sub-2.5s Largest Contentful Paint on mobile with zero cumulative layout shift fr
 - Claude's discretion: Whether to preload on all hero pages or homepage only
 
 ### Menu card images
+
 - Lazy load with viewport + 200px threshold
 - First 6 above-the-fold cards use eager loading (skip lazy)
 - Skeleton shimmer placeholder with pulse opacity animation
@@ -34,6 +36,7 @@ Sub-2.5s Largest Contentful Paint on mobile with zero cumulative layout shift fr
 - Featured carousel preloads next card on hover/focus
 
 ### Image sizing & formats
+
 - 85% quality for menu photos (balance of size and quality)
 - Responsive sizes: 200px / 400px / 600px for menu cards
 - Hero mobile crop: 768px wide
@@ -41,6 +44,7 @@ Sub-2.5s Largest Contentful Paint on mobile with zero cumulative layout shift fr
 - Claude's discretion: WebP vs AVIF with fallback based on browser support
 
 ### Loading indicators
+
 - Pulse opacity shimmer (fade in/out, not gradient wave)
 - Skeleton color: slightly darker than surface background
 - Same pulse speed for all elements (consistent rhythm)
@@ -49,6 +53,7 @@ Sub-2.5s Largest Contentful Paint on mobile with zero cumulative layout shift fr
 - Claude's discretion: Exact skeleton aspect ratio, page loading strategy, global slow network indicator
 
 ### Claude's Discretion
+
 - Hero preload scope (homepage only vs all hero pages)
 - Image format strategy (WebP vs AVIF)
 - Skeleton exact dimensions for zero CLS
@@ -76,5 +81,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 36-image-optimization-lcp*
-*Context gathered: 2026-02-01*
+_Phase: 36-image-optimization-lcp_
+_Context gathered: 2026-02-01_

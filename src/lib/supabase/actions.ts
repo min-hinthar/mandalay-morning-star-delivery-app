@@ -32,9 +32,7 @@ async function getAppUrl(): Promise<string> {
   return "http://localhost:3000";
 }
 
-export async function signInWithMagicLink(
-  formData: FormData
-): Promise<ActionResult> {
+export async function signInWithMagicLink(formData: FormData): Promise<ActionResult> {
   const supabase = await createClient();
   const email = formData.get("email") as string;
   const redirectTo = (formData.get("redirectTo") as string) || "/login";

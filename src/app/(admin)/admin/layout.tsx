@@ -8,15 +8,14 @@ interface ProfileRow {
   role: ProfileRole;
 }
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
 
   // Check authentication
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     redirect("/login?next=/admin");
@@ -39,9 +38,7 @@ export default async function AdminLayout({
     <DomMaxProvider>
       <div className="flex min-h-screen bg-cream">
         <AdminNav />
-        <main className="flex-1 overflow-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-auto">{children}</main>
       </div>
     </DomMaxProvider>
   );

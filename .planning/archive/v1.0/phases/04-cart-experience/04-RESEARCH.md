@@ -9,6 +9,7 @@
 Phase 4 builds the cart experience with delightful animations and intuitive interactions. The good news: substantial cart infrastructure already exists in the codebase, including a complete Zustand store, cart types, animation variants, and even a working CartDrawer component.
 
 The phase focus should be on:
+
 1. Creating V8-consistent cart components using Phase 2 overlay primitives
 2. Implementing the celebration animation (fly-to-cart)
 3. Integrating cart button into AppShell header slot
@@ -21,30 +22,34 @@ The phase focus should be on:
 The established libraries/tools for this domain:
 
 ### Core (Already Installed)
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| Zustand | 4.x | Cart state management | Already used, persists to localStorage |
-| Framer Motion | 11.x | UI animations | Already used for overlays, springs |
-| GSAP | 3.x | Complex animations | Flip plugin for fly-to-cart, SplitText registered |
+
+| Library       | Version | Purpose               | Why Standard                                      |
+| ------------- | ------- | --------------------- | ------------------------------------------------- |
+| Zustand       | 4.x     | Cart state management | Already used, persists to localStorage            |
+| Framer Motion | 11.x    | UI animations         | Already used for overlays, springs                |
+| GSAP          | 3.x     | Complex animations    | Flip plugin for fly-to-cart, SplitText registered |
 
 ### Supporting (Already Available)
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| @gsap/react | 2.x | useGSAP hook | All GSAP animations in components |
-| lucide-react | 0.x | Icons | ShoppingCart, Trash2, Plus, Minus |
-| uuid | 9.x | Cart item IDs | Already generating cartItemId |
+
+| Library      | Version | Purpose       | When to Use                       |
+| ------------ | ------- | ------------- | --------------------------------- |
+| @gsap/react  | 2.x     | useGSAP hook  | All GSAP animations in components |
+| lucide-react | 0.x     | Icons         | ShoppingCart, Trash2, Plus, Minus |
+| uuid         | 9.x     | Cart item IDs | Already generating cartItemId     |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| GSAP Flip | CSS transitions | FLIP provides smoother cross-element animations |
-| Framer AnimatePresence | GSAP | Framer already handles list animations well |
+
+| Instead of             | Could Use       | Tradeoff                                        |
+| ---------------------- | --------------- | ----------------------------------------------- |
+| GSAP Flip              | CSS transitions | FLIP provides smoother cross-element animations |
+| Framer AnimatePresence | GSAP            | Framer already handles list animations well     |
 
 **Installation:** No new packages needed - all dependencies exist.
 
 ## Architecture Patterns
 
 ### Existing Cart Directory Structure
+
 ```
 src/
 ├── types/
@@ -74,9 +79,11 @@ src/
 ```
 
 ### Pattern 1: Responsive Cart Container
+
 **What:** CartDrawerV8 renders as BottomSheet on mobile, Drawer on desktop
 **When to use:** Responsive overlay patterns
 **Example:**
+
 ```typescript
 // Source: Existing CartDrawer.tsx pattern
 export function CartDrawerV8() {
@@ -101,9 +108,11 @@ export function CartDrawerV8() {
 ```
 
 ### Pattern 2: Animation Preference Integration
+
 **What:** All animations respect useAnimationPreference
 **When to use:** Every animated component
 **Example:**
+
 ```typescript
 // Source: Existing CartItem.tsx pattern
 const { shouldAnimate, getSpring } = useAnimationPreference();
@@ -116,9 +125,11 @@ const { shouldAnimate, getSpring } = useAnimationPreference();
 ```
 
 ### Pattern 3: GSAP Flip for Fly-to-Cart
+
 **What:** Element flies from source to destination with arc
 **When to use:** Add-to-cart celebration
 **Example:**
+
 ```typescript
 // Source: src/lib/animations/cart.ts calculateFlyToCartPath
 import { gsap, Flip } from "@/lib/gsap";
@@ -141,12 +152,13 @@ function triggerFlyToCart(sourceEl: HTMLElement, targetEl: HTMLElement) {
     onComplete: () => {
       clone.remove();
       // Trigger badge pulse
-    }
+    },
   });
 }
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Direct GSAP import:** Always use `import { gsap } from "@/lib/gsap"` - plugins must be registered
 - **Hardcoded z-index:** Use zIndex tokens from `@/design-system/tokens/z-index`
 - **Skipping animation preference:** Always check `shouldAnimate` before animating
@@ -156,22 +168,23 @@ function triggerFlyToCart(sourceEl: HTMLElement, targetEl: HTMLElement) {
 
 Problems that look simple but have existing solutions:
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Cart state | Custom useState | `useCartStore` | Persistence, computed values |
-| Drawer open/close | Custom boolean | `useCartDrawer` | Already exists |
-| Swipe-to-delete | Touch handlers | `useSwipeToDelete` | Threshold, velocity, haptic |
-| Swipe-to-close | Custom pan | `useSwipeToClose` | Already in BottomSheet |
-| Number animation | Custom counter | `PriceTicker` | Digit flip animation |
-| Badge pulse | Custom keyframes | `badgePop` variant | In cart.ts animations |
-| Focus trap | Manual tab handling | Drawer component | Built into V8 Drawer |
-| Body scroll lock | overflow: hidden | `useBodyScrollLock` | Handles scroll position |
+| Problem           | Don't Build         | Use Instead         | Why                          |
+| ----------------- | ------------------- | ------------------- | ---------------------------- |
+| Cart state        | Custom useState     | `useCartStore`      | Persistence, computed values |
+| Drawer open/close | Custom boolean      | `useCartDrawer`     | Already exists               |
+| Swipe-to-delete   | Touch handlers      | `useSwipeToDelete`  | Threshold, velocity, haptic  |
+| Swipe-to-close    | Custom pan          | `useSwipeToClose`   | Already in BottomSheet       |
+| Number animation  | Custom counter      | `PriceTicker`       | Digit flip animation         |
+| Badge pulse       | Custom keyframes    | `badgePop` variant  | In cart.ts animations        |
+| Focus trap        | Manual tab handling | Drawer component    | Built into V8 Drawer         |
+| Body scroll lock  | overflow: hidden    | `useBodyScrollLock` | Handles scroll position      |
 
 **Key insight:** Most cart functionality exists - the work is integration and V8 consistency.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Hydration Mismatch with Cart State
+
 **What goes wrong:** Server renders empty cart, client has items
 **Why it happens:** Zustand persist loads from localStorage on client
 **How to avoid:** Use `suppressHydrationWarning` or render cart count only on client
@@ -185,18 +198,21 @@ if (!mounted) return <CartButtonSkeleton />;
 ```
 
 ### Pitfall 2: Stale Closures in Drag Handlers
+
 **What goes wrong:** Handler references old state
 **Why it happens:** useCallback dependencies not updated
 **How to avoid:** Include all dependencies or use refs
 **Warning signs:** Delete triggers on wrong item
 
 ### Pitfall 3: Z-Index Stacking for Flying Element
+
 **What goes wrong:** Flying element hidden behind other content
 **Why it happens:** Need highest z-index for animation
 **How to avoid:** Use Portal with z-index above modal (z-popover: 60)
 **Warning signs:** Element disappears mid-flight
 
 ### Pitfall 4: Memory Leaks from Animation Cleanup
+
 **What goes wrong:** GSAP animations continue after unmount
 **Why it happens:** No cleanup in useEffect
 **How to avoid:** Use `useGSAP` hook with context/scope
@@ -205,6 +221,7 @@ if (!mounted) return <CartButtonSkeleton />;
 ## Code Examples
 
 ### Existing Cart Store Usage
+
 ```typescript
 // Source: src/lib/hooks/useCart.ts
 export function useCart() {
@@ -227,6 +244,7 @@ export function useCart() {
 ```
 
 ### Existing Swipe-to-Delete Pattern
+
 ```typescript
 // Source: src/components/cart/CartItem.tsx
 const dragX = useMotionValue(0);
@@ -244,6 +262,7 @@ const swipeProgress = useTransform(dragX, [-150, 0], [1, 0]);
 ```
 
 ### Existing Quantity Animation Pattern
+
 ```typescript
 // Source: src/components/cart/CartItem.tsx QuantitySelector
 <AnimatePresence mode="popLayout" initial={false}>
@@ -260,6 +279,7 @@ const swipeProgress = useTransform(dragX, [-150, 0], [1, 0]);
 ```
 
 ### Existing Badge Animation
+
 ```typescript
 // Source: src/lib/animations/cart.ts
 export const badgeVariants: Variants = {
@@ -274,6 +294,7 @@ export const badgeVariants: Variants = {
 ```
 
 ### Existing Free Delivery Progress
+
 ```typescript
 // Source: src/components/cart/CartDrawer.tsx CartSummary
 <motion.div
@@ -287,35 +308,39 @@ export const badgeVariants: Variants = {
 ## Existing vs New Implementation
 
 ### Already Exists (Reuse)
-| Component/Hook | Location | Status |
-|---------------|----------|--------|
-| `useCartStore` | src/lib/stores/cart-store.ts | Complete, well-tested |
-| `useCart` | src/lib/hooks/useCart.ts | Complete |
-| `useCartDrawer` | src/lib/hooks/useCartDrawer.ts | Complete |
-| Cart types | src/types/cart.ts | Complete |
-| `PriceTicker` | src/components/ui/PriceTicker.tsx | Complete with animations |
-| Animation variants | src/lib/animations/cart.ts | Comprehensive |
-| Swipe gestures | src/lib/swipe-gestures.ts | Complete |
-| V8 Drawer | src/components/ui-v8/Drawer.tsx | Complete |
-| V8 BottomSheet | src/components/ui-v8/BottomSheet.tsx | Complete |
+
+| Component/Hook     | Location                             | Status                   |
+| ------------------ | ------------------------------------ | ------------------------ |
+| `useCartStore`     | src/lib/stores/cart-store.ts         | Complete, well-tested    |
+| `useCart`          | src/lib/hooks/useCart.ts             | Complete                 |
+| `useCartDrawer`    | src/lib/hooks/useCartDrawer.ts       | Complete                 |
+| Cart types         | src/types/cart.ts                    | Complete                 |
+| `PriceTicker`      | src/components/ui/PriceTicker.tsx    | Complete with animations |
+| Animation variants | src/lib/animations/cart.ts           | Comprehensive            |
+| Swipe gestures     | src/lib/swipe-gestures.ts            | Complete                 |
+| V8 Drawer          | src/components/ui-v8/Drawer.tsx      | Complete                 |
+| V8 BottomSheet     | src/components/ui-v8/BottomSheet.tsx | Complete                 |
 
 ### Needs V8 Refactor
-| Component | Current Location | Issue |
-|-----------|-----------------|-------|
-| CartDrawer | src/components/cart/CartDrawer.tsx | Not using V8 Drawer/BottomSheet primitives |
-| CartItem | src/components/cart/CartItem.tsx | Inconsistent with V8 patterns |
-| CartButton | src/components/cart/cart-button.tsx | Needs integration with Header slot |
+
+| Component  | Current Location                    | Issue                                      |
+| ---------- | ----------------------------------- | ------------------------------------------ |
+| CartDrawer | src/components/cart/CartDrawer.tsx  | Not using V8 Drawer/BottomSheet primitives |
+| CartItem   | src/components/cart/CartItem.tsx    | Inconsistent with V8 patterns              |
+| CartButton | src/components/cart/cart-button.tsx | Needs integration with Header slot         |
 
 ### New Implementation Needed
-| Component | Purpose |
-|-----------|---------|
-| FlyToCartAnimation | GSAP Flip celebration animation |
-| ClearCartConfirmation | Modal with confirmation |
-| CartButtonV8 | Integrated with AppShell header |
+
+| Component             | Purpose                         |
+| --------------------- | ------------------------------- |
+| FlyToCartAnimation    | GSAP Flip celebration animation |
+| ClearCartConfirmation | Modal with confirmation         |
+| CartButtonV8          | Integrated with AppShell header |
 
 ## Integration Points
 
 ### AppShell Header Integration
+
 The V8 Header accepts `rightContent` prop for cart button:
 
 ```typescript
@@ -333,6 +358,7 @@ The V8 Header accepts `rightContent` prop for cart button:
 ```
 
 ### Cart Badge Target for Fly-to-Cart
+
 The CartButton needs a ref for fly-to-cart destination:
 
 ```typescript
@@ -348,14 +374,15 @@ export const useCartAnimationTarget = create(() => ({
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| CSS transitions | Framer Motion springs | V7 | More natural motion |
-| Custom drag handlers | useSwipeToDelete hook | V5 | Consistent gestures |
-| Manual localStorage | Zustand persist | V4 | Automatic persistence |
-| Static prices | PriceTicker animation | V5 | Delightful number changes |
+| Old Approach         | Current Approach      | When Changed | Impact                    |
+| -------------------- | --------------------- | ------------ | ------------------------- |
+| CSS transitions      | Framer Motion springs | V7           | More natural motion       |
+| Custom drag handlers | useSwipeToDelete hook | V5           | Consistent gestures       |
+| Manual localStorage  | Zustand persist       | V4           | Automatic persistence     |
+| Static prices        | PriceTicker animation | V5           | Delightful number changes |
 
 **Deprecated/outdated:**
+
 - src/components/cart/cart-item.tsx (V4): Use CartItem.tsx instead
 - Manual body scroll lock: Use useBodyScrollLock hook
 
@@ -381,6 +408,7 @@ Things that couldn't be fully resolved:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - `/src/lib/stores/cart-store.ts` - Complete cart implementation
 - `/src/lib/animations/cart.ts` - Animation variants
 - `/src/lib/swipe-gestures.ts` - Swipe hooks
@@ -389,15 +417,18 @@ Things that couldn't be fully resolved:
 - `/src/lib/gsap/index.ts` - GSAP with Flip plugin registered
 
 ### Secondary (MEDIUM confidence)
+
 - `/src/components/cart/CartDrawer.tsx` - Existing implementation (reference)
 - `/src/components/cart/CartItem.tsx` - Existing implementation (reference)
 
 ### Tertiary (LOW confidence)
+
 - None - all findings verified from codebase
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - All libraries already installed and used
 - Architecture: HIGH - Patterns established in Phases 2-3
 - Pitfalls: HIGH - Based on existing code patterns

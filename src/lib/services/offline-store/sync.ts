@@ -50,9 +50,7 @@ export async function syncPendingItems(): Promise<{
       errors.push(msg);
       console.error(msg);
     } else {
-      errors.push(
-        `Status update for stop ${update.stopId} failed after retries`
-      );
+      errors.push(`Status update for stop ${update.stopId} failed after retries`);
     }
   }
 
@@ -85,9 +83,7 @@ export async function syncPendingItems(): Promise<{
       errors.push(msg);
       console.error(msg);
     } else {
-      errors.push(
-        `Photo upload for stop ${photo.stopId} failed after retries`
-      );
+      errors.push(`Photo upload for stop ${photo.stopId} failed after retries`);
     }
   }
 

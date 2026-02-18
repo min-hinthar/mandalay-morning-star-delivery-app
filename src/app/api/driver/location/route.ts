@@ -24,10 +24,7 @@ export async function POST(
     const parseResult = locationUpdateSchema.safeParse(body);
 
     if (!parseResult.success) {
-      return NextResponse.json(
-        { error: parseResult.error.issues[0].message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: parseResult.error.issues[0].message }, { status: 400 });
     }
 
     const { latitude, longitude, accuracy, heading, speed, routeId } = parseResult.data;
@@ -70,35 +67,27 @@ export async function POST(
         .single();
 
       if (route && route.driver_id !== driverId) {
-        return NextResponse.json(
-          { error: "Route does not belong to driver" },
-          { status: 403 }
-        );
+        return NextResponse.json({ error: "Route does not belong to driver" }, { status: 403 });
       }
     }
 
     // Insert location update
     const recordedAt = new Date().toISOString();
-    const { error: insertError } = await supabase
-      .from("location_updates")
-      .insert({
-        driver_id: driverId,
-        route_id: routeId || null,
-        latitude,
-        longitude,
-        accuracy,
-        heading: heading || null,
-        speed: speed || null,
-        recorded_at: recordedAt,
-        source: "mobile",
-      });
+    const { error: insertError } = await supabase.from("location_updates").insert({
+      driver_id: driverId,
+      route_id: routeId || null,
+      latitude,
+      longitude,
+      accuracy,
+      heading: heading || null,
+      speed: speed || null,
+      recorded_at: recordedAt,
+      source: "mobile",
+    });
 
     if (insertError) {
       logger.exception(insertError, { api: "driver/location", flowId: "insert-location" });
-      return NextResponse.json(
-        { error: "Failed to save location" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to save location" }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -107,9 +96,6 @@ export async function POST(
     });
   } catch (error) {
     logger.exception(error, { api: "driver/location" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

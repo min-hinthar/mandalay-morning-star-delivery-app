@@ -56,6 +56,7 @@ root_cause: DropdownAction's async handleClick function was called with `void` o
 fix: Removed async/await pattern in DropdownAction. Changed to direct promise chaining with only a success handler (`.then()`). By NOT attaching a rejection handler, promise rejections (including NEXT_REDIRECT) propagate naturally to Next.js's global error handling which properly handles redirects.
 
 Key changes in DropdownAction.tsx:
+
 1. Changed handleClick from async function to regular function
 2. Use result.then(onSuccess) instead of await + try/catch
 3. Removed the void operator call (now just handleClick())

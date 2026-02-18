@@ -22,8 +22,7 @@ interface UseServiceWorkerReturn {
 export function useServiceWorker(): UseServiceWorkerReturn {
   const [isSupported, setIsSupported] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
-  const [registration, setRegistration] =
-    useState<ServiceWorkerRegistration | null>(null);
+  const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
@@ -58,10 +57,7 @@ export function useServiceWorker(): UseServiceWorkerReturn {
           const newWorker = reg.installing;
           if (newWorker) {
             newWorker.addEventListener("statechange", () => {
-              if (
-                newWorker.state === "installed" &&
-                navigator.serviceWorker.controller
-              ) {
+              if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
                 // New service worker available
                 console.debug("[SW] New service worker available");
               }
@@ -79,9 +75,7 @@ export function useServiceWorker(): UseServiceWorkerReturn {
         };
         navigator.serviceWorker.addEventListener("message", messageHandler);
       } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("Failed to get SW registration")
-        );
+        setError(err instanceof Error ? err : new Error("Failed to get SW registration"));
       }
     };
 

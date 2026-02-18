@@ -9,14 +9,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { m } from "framer-motion";
-import {
-  Loader2,
-  Zap,
-  ArrowRight,
-  Clock,
-  Route,
-  MoveVertical,
-} from "lucide-react";
+import { Loader2, Zap, ArrowRight, Clock, Route, MoveVertical } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -128,8 +121,14 @@ export function OptimizationModal({
 
     // Calculate savings
     const savings = {
-      durationSeconds: Math.max(0, originalDurationEstimate - optimizationResult.totalDurationSeconds),
-      distanceMeters: Math.max(0, originalDistanceEstimate - optimizationResult.totalDistanceMeters),
+      durationSeconds: Math.max(
+        0,
+        originalDurationEstimate - optimizationResult.totalDurationSeconds
+      ),
+      distanceMeters: Math.max(
+        0,
+        originalDistanceEstimate - optimizationResult.totalDistanceMeters
+      ),
     };
 
     onApply(optimizedStops, savings);
@@ -253,9 +252,7 @@ export function OptimizationModal({
                           <p className="text-sm font-medium text-text-primary truncate">
                             {stop.customerName}
                           </p>
-                          <p className="text-xs text-text-secondary truncate">
-                            {stop.address}
-                          </p>
+                          <p className="text-xs text-text-secondary truncate">{stop.address}</p>
                         </div>
                         {getStopMovement(stop.id) === "moved" && (
                           <MoveVertical className="h-4 w-4 text-amber-500 flex-shrink-0" />
@@ -310,9 +307,7 @@ export function OptimizationModal({
                             <p className="text-sm font-medium text-text-primary truncate">
                               {stop.customerName}
                             </p>
-                            <p className="text-xs text-text-secondary truncate">
-                              {stop.address}
-                            </p>
+                            <p className="text-xs text-text-secondary truncate">{stop.address}</p>
                           </div>
                           {moved && (
                             <span className="text-xs text-status-success bg-status-success/10 px-2 py-0.5 rounded-full">

@@ -23,9 +23,7 @@ describe("calculateLineTotal", () => {
   });
 
   it("adds positive modifier price deltas", () => {
-    const modifiers: ModifierOptionsRow[] = [
-      createMockModifierOption({ price_delta_cents: 200 }),
-    ];
+    const modifiers: ModifierOptionsRow[] = [createMockModifierOption({ price_delta_cents: 200 })];
     const result = calculateLineTotal(1500, modifiers, 1);
     expect(result).toBe(1700);
   });
@@ -41,9 +39,7 @@ describe("calculateLineTotal", () => {
   });
 
   it("multiplies by quantity correctly", () => {
-    const modifiers: ModifierOptionsRow[] = [
-      createMockModifierOption({ price_delta_cents: 100 }),
-    ];
+    const modifiers: ModifierOptionsRow[] = [createMockModifierOption({ price_delta_cents: 100 })];
     const result = calculateLineTotal(1500, modifiers, 3);
     expect(result).toBe(4800); // (1500 + 100) * 3
   });
@@ -54,9 +50,7 @@ describe("calculateLineTotal", () => {
   });
 
   it("handles zero base price with modifiers", () => {
-    const modifiers: ModifierOptionsRow[] = [
-      createMockModifierOption({ price_delta_cents: 500 }),
-    ];
+    const modifiers: ModifierOptionsRow[] = [createMockModifierOption({ price_delta_cents: 500 })];
     const result = calculateLineTotal(0, modifiers, 2);
     expect(result).toBe(1000); // (0 + 500) * 2
   });
@@ -159,11 +153,7 @@ describe("calculateOrderTotals", () => {
 
   it("handles items with modifiers", () => {
     const items = [
-      createValidatedCartItem(
-        { base_price_cents: 1500 },
-        [{ price_delta_cents: 200 }],
-        2
-      ),
+      createValidatedCartItem({ base_price_cents: 1500 }, [{ price_delta_cents: 200 }], 2),
     ];
     // lineTotalCents = (1500 + 200) * 2 = 3400
     const result = calculateOrderTotals(items);
@@ -207,9 +197,7 @@ describe("createStripeLineItems", () => {
 
     const result = createStripeLineItems(items, 0);
 
-    expect(result[0].price_data.product_data.description).toBe(
-      "Extra Spicy, No Onion"
-    );
+    expect(result[0].price_data.product_data.description).toBe("Extra Spicy, No Onion");
     expect(result[0].price_data.unit_amount).toBe(1600); // 1500 + 100 + 0
   });
 
@@ -246,7 +234,9 @@ describe("createStripeLineItems", () => {
     const result = createStripeLineItems(items, 0);
 
     expect(result).toHaveLength(1);
-    expect(result.find((item) => item.price_data.product_data.name === "Delivery Fee")).toBeUndefined();
+    expect(
+      result.find((item) => item.price_data.product_data.name === "Delivery Fee")
+    ).toBeUndefined();
   });
 
   it("handles items with no modifiers", () => {
@@ -303,10 +293,7 @@ describe("validateCartItems", () => {
 
   it("rejects inactive menu items with ITEM_UNAVAILABLE", async () => {
     const menuItems = new Map([
-      [
-        "item-1",
-        createMockMenuItem({ id: "item-1", is_active: false, name_en: "Inactive Item" }),
-      ],
+      ["item-1", createMockMenuItem({ id: "item-1", is_active: false, name_en: "Inactive Item" })],
     ]);
     const modifierOptions = new Map<string, ModifierOptionsRow>();
 
@@ -323,10 +310,7 @@ describe("validateCartItems", () => {
 
   it("rejects sold out items with ITEM_SOLD_OUT", async () => {
     const menuItems = new Map([
-      [
-        "item-1",
-        createMockMenuItem({ id: "item-1", is_sold_out: true, name_en: "Sold Out Item" }),
-      ],
+      ["item-1", createMockMenuItem({ id: "item-1", is_sold_out: true, name_en: "Sold Out Item" })],
     ]);
     const modifierOptions = new Map<string, ModifierOptionsRow>();
 
@@ -342,9 +326,7 @@ describe("validateCartItems", () => {
   });
 
   it("validates modifier options exist", async () => {
-    const menuItems = new Map([
-      ["item-1", createMockMenuItem({ id: "item-1" })],
-    ]);
+    const menuItems = new Map([["item-1", createMockMenuItem({ id: "item-1" })]]);
     const modifierOptions = new Map<string, ModifierOptionsRow>();
 
     const result = await validateCartItems(
@@ -365,14 +347,9 @@ describe("validateCartItems", () => {
   });
 
   it("rejects inactive modifier options", async () => {
-    const menuItems = new Map([
-      ["item-1", createMockMenuItem({ id: "item-1" })],
-    ]);
+    const menuItems = new Map([["item-1", createMockMenuItem({ id: "item-1" })]]);
     const modifierOptions = new Map([
-      [
-        "mod-1",
-        createMockModifierOption({ id: "mod-1", is_active: false, name: "Inactive Mod" }),
-      ],
+      ["mod-1", createMockModifierOption({ id: "mod-1", is_active: false, name: "Inactive Mod" })],
     ]);
 
     const result = await validateCartItems(

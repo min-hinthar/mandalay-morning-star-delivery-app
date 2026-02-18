@@ -14,6 +14,7 @@ All pages served with Content Security Policy and security headers protecting ag
 ## Implementation Decisions
 
 ### CSP Rollout Strategy
+
 - Claude's Discretion: Report-Only vs enforcing timeline, validation period length
 - Claude's Discretion: Single global policy vs per-route policies (analyze complexity vs security tradeoff)
 - Claude's Discretion: CSP header location (next.config.js headers vs middleware — decide based on routing/nonce needs)
@@ -27,6 +28,7 @@ All pages served with Content Security Policy and security headers protecting ag
 - No specific compliance driver — best-practice security hardening; PCI-DSS awareness for Stripe is prudent
 
 ### Violation Handling
+
 - Sentry is on **free tier** — must be mindful of report volume
 - Claude's Discretion: Filtering strategy for browser extension false positives
 - Violations stay invisible to users (no user-facing indicators)
@@ -40,6 +42,7 @@ All pages served with Content Security Policy and security headers protecting ag
 - Claude's Discretion: Environment tagging (production/preview/dev) for reports
 
 ### cssText Replacement
+
 - **Performance-critical animations** — FlyToCart and CustomMarkers are 60fps; replacement must not add layout thrashing
 - Claude's Discretion: DOM property assignments vs CSS classes (but must preserve animation performance)
 - Claude should audit ALL cssText usages in codebase — fix all, not just FlyToCart and CustomMarkers
@@ -52,6 +55,7 @@ All pages served with Content Security Policy and security headers protecting ag
 - Testing: **manual verification** for cssText replacements (no visual regression tests)
 
 ### Dead Code & Placeholder Cleanup
+
 - Audit ALL barrel files for unnecessary re-exports (not just the specific dead one)
 - Remove zero-consumer exports AND flag single-consumer exports for potential inlining
 - Include unused npm dependency removal from package.json
@@ -85,5 +89,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 67-csp-security-headers*
-*Context gathered: 2026-02-16*
+_Phase: 67-csp-security-headers_
+_Context gathered: 2026-02-16_

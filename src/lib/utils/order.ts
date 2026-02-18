@@ -28,10 +28,7 @@ export function calculateLineTotal(
   modifiers: ModifierOptionsRow[],
   quantity: number
 ): number {
-  const modifierTotal = modifiers.reduce(
-    (sum, mod) => sum + mod.price_delta_cents,
-    0
-  );
+  const modifierTotal = modifiers.reduce((sum, mod) => sum + mod.price_delta_cents, 0);
   return (basePriceCents + modifierTotal) * quantity;
 }
 
@@ -58,10 +55,7 @@ export function calculateTax(_subtotalCents: number): number {
 export function calculateOrderTotals(
   validatedItems: ValidatedCartItem[]
 ): Pick<OrderCalculation, "subtotalCents" | "deliveryFeeCents" | "taxCents" | "totalCents"> {
-  const subtotalCents = validatedItems.reduce(
-    (sum, item) => sum + item.lineTotalCents,
-    0
-  );
+  const subtotalCents = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
 
   const deliveryFeeCents = calculateDeliveryFee(subtotalCents);
   const taxCents = calculateTax(subtotalCents);

@@ -14,6 +14,7 @@ Complete rebuild of header and navigation with modern design and playful interac
 ## Implementation Decisions
 
 ### Header Layout
+
 - Hide on scroll down, reappear on scroll up (iOS Safari pattern)
 - Velocity-aware animation: fast scroll = instant hide, slow scroll = gradual
 - Immediate hide threshold (no delay)
@@ -25,12 +26,14 @@ Complete rebuild of header and navigation with modern design and playful interac
 - Header pins during interaction with overlays (Claude's discretion on specifics)
 
 ### Desktop Navigation
+
 - Icon-based with text labels
 - Core links only: Menu, Orders, Account
 - Multi-layered hover state: icon animation + underline animation + background highlight
 - Right side arrangement: Theme, Search, Cart, Account
 
 ### Mobile Navigation
+
 - Hamburger menu + drawer (slides from left)
 - ~85% width drawer (shows content sliver behind)
 - Combined backdrop: dark overlay + glassmorphism blur
@@ -48,6 +51,7 @@ Complete rebuild of header and navigation with modern design and playful interac
 - Theme toggle position: Claude's discretion
 
 ### Cart/Account Indicators
+
 - Cart: circle badge with number
 - Cart add animation: badge bounces AND icon has subtle shake
 - Cart click opens existing drawer (keep current behavior)
@@ -56,6 +60,7 @@ Complete rebuild of header and navigation with modern design and playful interac
 - Dropdown animation: slide down + scale + fade + gradient shadow/highlight
 
 ### Command Palette Search
+
 - Linear-style command palette
 - Triggers: icon click + Cmd/Ctrl+K keyboard shortcut
 - Icon shows ⌘K hint on hover with gradient shadow/highlight
@@ -68,6 +73,7 @@ Complete rebuild of header and navigation with modern design and playful interac
 - Mobile: same centered modal design scaled down
 
 ### Claude's Discretion
+
 - Header pinning behavior during specific overlays
 - Theme toggle position in mobile drawer
 - Scroll behavior when drawer open (internal scroll vs locked)
@@ -94,5 +100,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 23-header-nav-rebuild*
-*Context gathered: 2026-01-26*
+_Phase: 23-header-nav-rebuild_
+_Context gathered: 2026-01-26_

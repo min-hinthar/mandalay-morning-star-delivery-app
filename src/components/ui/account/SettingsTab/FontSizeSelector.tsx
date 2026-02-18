@@ -31,7 +31,7 @@ export function FontSizeSelector() {
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
               isSelected
                 ? "bg-primary text-text-inverse border-primary"
-                : "bg-surface-primary text-text-secondary border-border hover:border-primary/50",
+                : "bg-surface-primary text-text-secondary border-border hover:border-primary/50"
             )}
           >
             <span
@@ -40,9 +40,7 @@ export function FontSizeSelector() {
             >
               Aa
             </span>
-            <span className="text-2xs leading-none opacity-80">
-              {opt.label}
-            </span>
+            <span className="text-2xs leading-none opacity-80">{opt.label}</span>
           </button>
         );
       })}

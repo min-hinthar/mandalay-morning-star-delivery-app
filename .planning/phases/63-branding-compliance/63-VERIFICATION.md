@@ -26,52 +26,52 @@ human_verification:
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 1 | Privacy policy names all 5 data processors | ✓ VERIFIED | Google, Sentry, Stripe, Resend, Vercel all present with specific data disclosures |
-| 2 | Privacy policy discloses Sentry session replay with masking | ✓ VERIFIED | maskAllText, maskAllInputs, blockAllMedia disclosure on line 138-140 |
-| 3 | Terms of service describes meal delivery subscription | ✓ VERIFIED | weekly Burmese meal subscription delivery service line 38 |
-| 4 | Terms includes food allergen disclaimer | ✓ VERIFIED | Food Safety and Allergens section lines 113-143 with order at your own risk |
-| 5 | Both pages show effective date February 14, 2026 | ✓ VERIFIED | Line 18 privacy, line 18 terms |
-| 6 | Homepage footer links to /privacy and /terms | ✓ VERIFIED | SiteFooter lines 195-208, integrated in public layout line 11 |
-| 7 | Homepage explains app purpose above the fold | ✓ VERIFIED | Hero default props line 22-24 with weekly Saturday deliveries |
-| 8 | Login page shows privacy/terms agreement text | ✓ VERIFIED | LoginPageClient lines 87-103 with links to both pages |
+| #   | Truth                                                       | Status     | Evidence                                                                          |
+| --- | ----------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------- |
+| 1   | Privacy policy names all 5 data processors                  | ✓ VERIFIED | Google, Sentry, Stripe, Resend, Vercel all present with specific data disclosures |
+| 2   | Privacy policy discloses Sentry session replay with masking | ✓ VERIFIED | maskAllText, maskAllInputs, blockAllMedia disclosure on line 138-140              |
+| 3   | Terms of service describes meal delivery subscription       | ✓ VERIFIED | weekly Burmese meal subscription delivery service line 38                         |
+| 4   | Terms includes food allergen disclaimer                     | ✓ VERIFIED | Food Safety and Allergens section lines 113-143 with order at your own risk       |
+| 5   | Both pages show effective date February 14, 2026            | ✓ VERIFIED | Line 18 privacy, line 18 terms                                                    |
+| 6   | Homepage footer links to /privacy and /terms                | ✓ VERIFIED | SiteFooter lines 195-208, integrated in public layout line 11                     |
+| 7   | Homepage explains app purpose above the fold                | ✓ VERIFIED | Hero default props line 22-24 with weekly Saturday deliveries                     |
+| 8   | Login page shows privacy/terms agreement text               | ✓ VERIFIED | LoginPageClient lines 87-103 with links to both pages                             |
 
 **Score:** 8/8 truths verified
 
 ### Required Artifacts
 
-| Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| src/app/(public)/privacy/page.tsx | Comprehensive privacy policy | ✓ VERIFIED | 272 lines, 12 sections, server component, all 5 processors disclosed |
-| src/app/(public)/terms/page.tsx | Comprehensive terms of service | ✓ VERIFIED | 232 lines, 13 sections, server component, food safety disclaimer |
-| src/components/ui/homepage/SiteFooter.tsx | Shared footer with legal links | ✓ VERIFIED | 232 lines, 4-column grid, /privacy + /terms links lines 195-208 |
-| src/components/ui/homepage/FooterCTA.tsx | CTA-only section trimmed | ✓ VERIFIED | 94 lines, changed from footer to section element |
-| src/app/(public)/layout.tsx | Public layout with SiteFooter | ✓ VERIFIED | Imports and renders SiteFooter line 11 before CartOverlays |
-| src/app/(auth)/login/LoginPageClient.tsx | Login with agreement text | ✓ VERIFIED | Agreement text lines 87-103 with /privacy and /terms links |
+| Artifact                                  | Expected                       | Status     | Details                                                              |
+| ----------------------------------------- | ------------------------------ | ---------- | -------------------------------------------------------------------- |
+| src/app/(public)/privacy/page.tsx         | Comprehensive privacy policy   | ✓ VERIFIED | 272 lines, 12 sections, server component, all 5 processors disclosed |
+| src/app/(public)/terms/page.tsx           | Comprehensive terms of service | ✓ VERIFIED | 232 lines, 13 sections, server component, food safety disclaimer     |
+| src/components/ui/homepage/SiteFooter.tsx | Shared footer with legal links | ✓ VERIFIED | 232 lines, 4-column grid, /privacy + /terms links lines 195-208      |
+| src/components/ui/homepage/FooterCTA.tsx  | CTA-only section trimmed       | ✓ VERIFIED | 94 lines, changed from footer to section element                     |
+| src/app/(public)/layout.tsx               | Public layout with SiteFooter  | ✓ VERIFIED | Imports and renders SiteFooter line 11 before CartOverlays           |
+| src/app/(auth)/login/LoginPageClient.tsx  | Login with agreement text      | ✓ VERIFIED | Agreement text lines 87-103 with /privacy and /terms links           |
 
 **All artifacts:** 6/6 verified (exists, substantive, wired)
 
 ### Key Link Verification
 
-| From | To | Via | Status | Details |
-|------|----|-----|--------|---------|
-| SiteFooter.tsx | /privacy | Next.js Link | ✓ WIRED | Line 195 href="/privacy" |
-| SiteFooter.tsx | /terms | Next.js Link | ✓ WIRED | Line 203 href="/terms" |
-| privacy/page.tsx | /terms | Next.js Link | ✓ WIRED | Line 265 cross-link |
-| terms/page.tsx | /privacy | Next.js Link | ✓ WIRED | Line 225 cross-link |
+| From                | To         | Via             | Status  | Details                       |
+| ------------------- | ---------- | --------------- | ------- | ----------------------------- |
+| SiteFooter.tsx      | /privacy   | Next.js Link    | ✓ WIRED | Line 195 href="/privacy"      |
+| SiteFooter.tsx      | /terms     | Next.js Link    | ✓ WIRED | Line 203 href="/terms"        |
+| privacy/page.tsx    | /terms     | Next.js Link    | ✓ WIRED | Line 265 cross-link           |
+| terms/page.tsx      | /privacy   | Next.js Link    | ✓ WIRED | Line 225 cross-link           |
 | (public)/layout.tsx | SiteFooter | import + render | ✓ WIRED | Line 5 import, line 11 render |
-| LoginPageClient.tsx | /privacy | Next.js Link | ✓ WIRED | Line 97 href="/privacy" |
-| LoginPageClient.tsx | /terms | Next.js Link | ✓ WIRED | Line 90 href="/terms" |
+| LoginPageClient.tsx | /privacy   | Next.js Link    | ✓ WIRED | Line 97 href="/privacy"       |
+| LoginPageClient.tsx | /terms     | Next.js Link    | ✓ WIRED | Line 90 href="/terms"         |
 
 **All key links:** 7/7 wired
 
 ### Requirements Coverage
 
-| Requirement | Status | Evidence |
-|-------------|--------|----------|
-| BRND-01: Homepage links to privacy/terms | ✓ SATISFIED | SiteFooter integrated in public layout with links |
-| BRND-02: Homepage explains app purpose | ✓ SATISFIED | Hero headline Authentic Burmese Cuisine Delivered to Your Door |
+| Requirement                                  | Status           | Evidence                                                                    |
+| -------------------------------------------- | ---------------- | --------------------------------------------------------------------------- |
+| BRND-01: Homepage links to privacy/terms     | ✓ SATISFIED      | SiteFooter integrated in public layout with links                           |
+| BRND-02: Homepage explains app purpose       | ✓ SATISFIED      | Hero headline Authentic Burmese Cuisine Delivered to Your Door              |
 | BRND-03: Google OAuth verification submitted | ⏳ PENDING HUMAN | Code prerequisites complete, awaiting deployment + Cloud Console submission |
 
 **Requirements:** 2/3 satisfied (1 pending human action)
@@ -81,6 +81,7 @@ human_verification:
 None. All files are substantive implementations with no stub patterns detected.
 
 **Scan results:**
+
 - No TODO/FIXME in privacy or terms pages
 - No placeholder content in legal pages
 - No empty handlers or stub implementations
@@ -95,6 +96,7 @@ None. All files are substantive implementations with no stub patterns detected.
 **Test:** Push latest commits to main branch or deploy with vercel --prod, then visit production URLs.
 
 **Expected:**
+
 - Privacy page shows 12 sections with all 5 data processors
 - Privacy page discloses Sentry session replay with masking details
 - Terms page shows 13 sections with food allergen disclaimer
@@ -110,6 +112,7 @@ None. All files are substantive implementations with no stub patterns detected.
 **Test:** Visit production URLs and visually inspect footer presence on public vs authenticated routes.
 
 **Expected:**
+
 - SiteFooter appears on all public routes (/, /menu, /privacy, /terms)
 - SiteFooter does NOT appear on authenticated routes (/admin, /driver, /cart, /checkout)
 - Homepage shows FooterCTA section ABOVE SiteFooter
@@ -121,6 +124,7 @@ None. All files are substantive implementations with no stub patterns detected.
 **Test:** Go to Google Cloud Console OAuth consent screen and submit for verification with production URLs.
 
 **Expected:**
+
 - Verification status changes to Pending verification
 - No demo video required (non-sensitive scopes)
 - Approval typically takes 2-3 business days
@@ -132,18 +136,21 @@ None. All files are substantive implementations with no stub patterns detected.
 ### Code Quality Summary
 
 **Plan 63-01 (Legal Pages):**
+
 - Privacy policy: 272 lines, 12 sections, all 5 processors disclosed
 - Terms of service: 232 lines, 13 sections, food safety + California governing law
 - Both pages: Server components, design system classes, cross-linked
 - Effective date: February 14, 2026
 
 **Plan 63-02 (Footer Split):**
+
 - SiteFooter: 232 lines, 4-column grid, framer-motion animations
 - FooterCTA: 94 lines trimmed, CTA-only, changed from footer to section
 - Public layout: Integrated SiteFooter before CartOverlays
 - Login page: Agreement text with /privacy and /terms links
 
 **Plan 63-03 (Verification Checkpoint):**
+
 - OAuth scopes: Confirmed non-sensitive
 - Verification report: Pre-submission checklist created
 - Deployment: Required before Google submission
@@ -165,6 +172,7 @@ All code prerequisites for BRND-01, BRND-02, and BRND-03 are complete and verifi
 **Phase 63 goal achievement:** Code artifacts verified. Success criteria 1-2 satisfied. Success criterion 3 (Google OAuth verification submitted) pending human action after deployment.
 
 **Next steps for completion:**
+
 1. Deploy latest code to production
 2. Verify privacy/terms pages live at production URLs
 3. Submit Google OAuth brand verification in Cloud Console

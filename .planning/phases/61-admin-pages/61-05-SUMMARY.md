@@ -67,6 +67,7 @@ completed: 2026-02-14
 - **Files modified:** 7
 
 ## Accomplishments
+
 - TiptapEditor renders with bold/italic/bullet list/ordered list/link toolbar and focus ring styling
 - ManualEmailDialog provides two-step compose -> preview -> send flow with loading states
 - Order context auto-included in email footer (order number, items list, delivery address)
@@ -82,6 +83,7 @@ Each task was committed atomically:
 2. **Task 2: Create manual email compose API endpoint** - `22055b6` (feat)
 
 ## Files Created/Modified
+
 - `src/components/ui/admin/orders/OrderDetailPage/TiptapEditor.tsx` - Tiptap rich text editor with formatting toolbar
 - `src/components/ui/admin/orders/OrderDetailPage/ManualEmailDialog.tsx` - Two-step compose/preview modal dialog
 - `src/app/api/admin/emails/compose/route.ts` - Manual email compose API with Zod validation, Resend send, notification logging
@@ -91,6 +93,7 @@ Each task was committed atomically:
 - `src/app/(admin)/admin/orders/[id]/EmailHistory.tsx` - Added "Manual" to TYPE_LABELS
 
 ## Decisions Made
+
 - Used Resend client directly for manual compose (bypasses React email rendering since admin HTML doesn't need template processing)
 - Tiptap v3.19.0 works with React 19 without compatibility workarounds
 - Auto-footer built server-side from order data for email consistency
@@ -101,6 +104,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] CollapsibleCard missing action prop**
+
 - **Found during:** Task 1 (EmailHistoryCard update)
 - **Issue:** CollapsibleCard had no `action` prop for header-level buttons; EmailHistoryCard needed a Compose button in the card header
 - **Fix:** Added optional `action` prop to CollapsibleCard with stopPropagation wrapper, restructured header as flex container with button + action slot
@@ -109,6 +113,7 @@ Each task was committed atomically:
 - **Committed in:** `a545daa` (Task 1 commit)
 
 **2. [Rule 2 - Missing Critical] EmailHistory TYPE_LABELS missing "manual" type**
+
 - **Found during:** Task 2 (compose API endpoint)
 - **Issue:** EmailHistory component had no label for "manual" notification_type; manual emails would show raw type string
 - **Fix:** Added `manual: "Manual"` to TYPE_LABELS record
@@ -122,16 +127,20 @@ Each task was committed atomically:
 **Impact on plan:** Both fixes necessary for correct rendering. No scope creep.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - Resend API key and email configuration already in place from prior phases.
 
 ## Next Phase Readiness
+
 - Manual email compose fully functional from order detail page
 - Phase 61 (Admin Pages) is now complete with all 5 plans delivered
 - Ready for Phase 62+ work
 
 ---
-*Phase: 61-admin-pages*
-*Completed: 2026-02-14*
+
+_Phase: 61-admin-pages_
+_Completed: 2026-02-14_

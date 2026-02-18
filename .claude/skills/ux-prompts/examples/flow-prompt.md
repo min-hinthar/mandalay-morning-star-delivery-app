@@ -7,14 +7,17 @@ A complete, self-contained prompt for a multi-step user flow.
 ## Checkout Flow
 
 ### Context
+
 The checkout flow where authenticated users complete their purchase. Accessed from the cart (via "Checkout" button). Users review their order, select delivery address, choose payment method, and confirm purchase.
 
 **User state when entering:**
+
 - Authenticated (redirected to login if not)
 - Has at least 1 item in cart
 - Cart validated (items in stock, prices current)
 
 **Flow exits:**
+
 - Success: Order confirmation page
 - Cancel: Return to cart
 - Error: Error state with retry/support options
@@ -48,6 +51,7 @@ Cart → [Checkout Button]
 ### Page Layout
 
 **Desktop (>1024px):**
+
 ```
 ┌────────────────────────────────────────────────────┐
 │ [← Back to Cart]              Checkout    Step 1/4 │
@@ -70,6 +74,7 @@ Cart → [Checkout Button]
 ```
 
 **Mobile (<640px):**
+
 ```
 ┌─────────────────────────────────┐
 │ [←]  Checkout           1 of 4  │
@@ -90,6 +95,7 @@ Cart → [Checkout Button]
 ### Step 1: Review Order
 
 **Content:**
+
 - List of cart items with:
   - Product image (48x48px)
   - Name
@@ -112,6 +118,7 @@ Cart → [Checkout Button]
 ### Step 2: Delivery Address
 
 **Content:**
+
 - Saved addresses (radio list)
 - "Add new address" option
 - Address form (when adding):
@@ -134,6 +141,7 @@ Cart → [Checkout Button]
 | Save error | Error message | Retry |
 
 **Validation:**
+
 - Required: Name, street, city, state, postal, phone
 - Phone: Valid format
 - Postal: Valid for selected country
@@ -141,6 +149,7 @@ Cart → [Checkout Button]
 ### Step 3: Payment Method
 
 **Content:**
+
 - Saved cards (radio list) showing:
   - Card brand icon
   - Last 4 digits
@@ -163,6 +172,7 @@ Cart → [Checkout Button]
 | Card error | Specific error message | Fix and retry |
 
 **Security:**
+
 - Card input via Stripe Elements (PCI compliant)
 - CVC not stored
 - Show security badge
@@ -170,6 +180,7 @@ Cart → [Checkout Button]
 ### Step 4: Confirm & Place Order
 
 **Content:**
+
 - Order summary (all items)
 - Delivery address (with "Change" link)
 - Payment method (with "Change" link)
@@ -190,6 +201,7 @@ Cart → [Checkout Button]
 ### Step 5: Order Confirmation
 
 **Content:**
+
 - Success illustration
 - "Thank you for your order!"
 - Order number
@@ -199,56 +211,64 @@ Cart → [Checkout Button]
 - "View Order" button
 
 **Actions:**
+
 - Email confirmation sent
 - Order tracking available
 
 ### Interactions
 
 **Navigation:**
+
 - Progress indicator clickable for completed steps
 - Back button goes to previous step
 - Browser back works correctly
 - Direct URL to step redirects to step 1 if state missing
 
 **Persistence:**
+
 - Form data persisted in session
 - Survives page refresh within session
 - Cleared on order completion
 
 **Keyboard:**
+
 - Tab through fields
 - Enter to submit (when valid)
 - Escape to close modals
 
 ### Error Handling
 
-| Error | Where | Treatment | Recovery |
-|-------|-------|-----------|----------|
-| Session expired | Any step | Modal | Re-login (preserve cart) |
-| Network error | Any step | Toast + retry | Manual retry |
-| Validation error | Form fields | Inline errors | Fix and retry |
-| Payment declined | Step 3/4 | Modal | Try different card |
-| Item out of stock | Step 4 | Blocking modal | Remove item |
-| Price changed | Step 1/4 | Notification | Continue or cancel |
+| Error             | Where       | Treatment      | Recovery                 |
+| ----------------- | ----------- | -------------- | ------------------------ |
+| Session expired   | Any step    | Modal          | Re-login (preserve cart) |
+| Network error     | Any step    | Toast + retry  | Manual retry             |
+| Validation error  | Form fields | Inline errors  | Fix and retry            |
+| Payment declined  | Step 3/4    | Modal          | Try different card       |
+| Item out of stock | Step 4      | Blocking modal | Remove item              |
+| Price changed     | Step 1/4    | Notification   | Continue or cancel       |
 
 ### Animations
 
 **Step transitions:**
+
 - Current step slides left
 - New step slides in from right
 - Duration: 300ms
 - Easing: ease-out
 
 **Progress indicator:**
+
 - Step completion: checkmark draws in (200ms)
 - Active step: pulse ring (subtle, continuous)
 
 **Place order:**
+
 - Button → spinner (immediate)
 - Success → confetti (500ms)
 - Error → shake (200ms)
 
 **Reduced motion:**
+
 - Steps crossfade (instant)
 - No confetti
 - No shake
@@ -256,6 +276,7 @@ Cart → [Checkout Button]
 ### Constraints
 
 **This prompt includes:**
+
 - All 5 steps UI
 - Form validation
 - State management within flow
@@ -264,6 +285,7 @@ Cart → [Checkout Button]
 - Mobile responsive
 
 **This prompt does NOT include:**
+
 - Actual payment processing (mock/stub)
 - Email sending
 - Order database operations

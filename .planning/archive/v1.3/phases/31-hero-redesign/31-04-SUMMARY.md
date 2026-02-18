@@ -59,6 +59,7 @@ completed: 2026-01-28
 - **Files modified:** 2
 
 ## Accomplishments
+
 - Theme switch shows smooth 300ms gradient crossfade via hero-gradient-transition class
 - Background shimmer travels diagonally every 8 seconds using CSS keyframes
 - CTA button hover combines 1.05 scale, 2px lift, larger shadow, and glow ring
@@ -75,10 +76,12 @@ Each task was committed atomically:
 3. **Task 3: Polish CTA button interactions** - `f01e911` (feat)
 
 ## Files Created/Modified
+
 - `src/app/globals.css` - Added hero-shimmer keyframes, animate-hero-shimmer utility, hero-gradient-transition class, reduced motion support
 - `src/components/ui/homepage/Hero.tsx` - Added shimmer overlay layer, gradient transition class, enhanced CTA with gradient shift + shadow lift + glow ring
 
 ## Decisions Made
+
 - **8s shimmer cycle:** Long enough to be subtle, short enough to notice
 - **300ms transition:** Matches existing motion tokens, fast but visible
 - **CTA gradient shift:** from-secondary to from-secondary-hover creates subtle color movement
@@ -86,16 +89,20 @@ Each task was committed atomically:
 - **Removed SVG pattern:** Shimmer provides cleaner visual effect, reduces DOM complexity
 
 ## Deviations from Plan
+
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 - Build cache locked due to running dev server - typecheck passed confirming code validity, build verification deferred to visual testing
 
 ## Next Phase Readiness
+
 - Hero polish effects complete (shimmer, theme transition, CTA interactions)
 - Ready for 31-05 (final verification and adjustments if any)
 - Scroll indicator bounce and headline stagger preserved from prior phases
 
 ---
-*Phase: 31-hero-redesign*
-*Completed: 2026-01-28*
+
+_Phase: 31-hero-redesign_
+_Completed: 2026-01-28_

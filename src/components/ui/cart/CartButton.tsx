@@ -128,13 +128,7 @@ export function CartButton({ className }: CartButtonProps) {
             key={`badge-${itemCount}`}
             variants={shouldAnimate ? badgeVariants : undefined}
             initial={shouldAnimate ? "initial" : false}
-            animate={
-              shouldAnimate
-                ? shouldPulse
-                  ? "pop"
-                  : "animate"
-                : { scale: 1, opacity: 1 }
-            }
+            animate={shouldAnimate ? (shouldPulse ? "pop" : "animate") : { scale: 1, opacity: 1 }}
             exit={shouldAnimate ? "exit" : undefined}
             className={cn(
               "absolute -right-1 -top-1 flex items-center justify-center",

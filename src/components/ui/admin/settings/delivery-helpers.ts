@@ -17,7 +17,10 @@ export interface DeliveryValidationErrors {
   deliveryCutoffTime?: string;
 }
 
-export function validateDeliveryField(field: keyof DeliverySettings, value: unknown): string | undefined {
+export function validateDeliveryField(
+  field: keyof DeliverySettings,
+  value: unknown
+): string | undefined {
   switch (field) {
     case "deliveryRadiusMiles":
       if (typeof value !== "number" || value < 1) return "Must be at least 1 mile";

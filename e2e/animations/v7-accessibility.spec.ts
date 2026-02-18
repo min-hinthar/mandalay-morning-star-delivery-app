@@ -18,9 +18,7 @@ import AxeBuilder from "@axe-core/playwright";
 
 test.describe("V7 Animation Accessibility", () => {
   test.describe("Reduced Motion Preference", () => {
-    test("v7 animation preference overrides OS setting by default", async ({
-      page,
-    }) => {
+    test("v7 animation preference overrides OS setting by default", async ({ page }) => {
       // Set OS reduced motion preference
       await page.emulateMedia({ reducedMotion: "reduce" });
 
@@ -80,10 +78,7 @@ test.describe("V7 Animation Accessibility", () => {
 
         elements.forEach((el) => {
           const style = (el as HTMLElement).style;
-          if (
-            style.transitionDuration &&
-            parseFloat(style.transitionDuration) > 0.01
-          ) {
+          if (style.transitionDuration && parseFloat(style.transitionDuration) > 0.01) {
             allInstant = false;
           }
         });
@@ -112,9 +107,7 @@ test.describe("V7 Animation Accessibility", () => {
         await page.waitForLoadState("networkidle");
 
         // Focus should be on something (not lost)
-        const currentFocused = await page.evaluate(
-          () => document.activeElement?.tagName
-        );
+        const currentFocused = await page.evaluate(() => document.activeElement?.tagName);
         expect(currentFocused).toBeTruthy();
       }
     });
@@ -146,9 +139,7 @@ test.describe("V7 Animation Accessibility", () => {
       }
     });
 
-    test("animated elements receive focus in correct order", async ({
-      page,
-    }) => {
+    test("animated elements receive focus in correct order", async ({ page }) => {
       await page.goto("/");
       await page.waitForLoadState("networkidle");
 
@@ -171,9 +162,7 @@ test.describe("V7 Animation Accessibility", () => {
   });
 
   test.describe("Screen Reader Compatibility", () => {
-    test("animated content is not announced multiple times", async ({
-      page,
-    }) => {
+    test("animated content is not announced multiple times", async ({ page }) => {
       await page.goto("/");
       await page.waitForLoadState("networkidle");
 
@@ -217,9 +206,7 @@ test.describe("V7 Animation Accessibility", () => {
       }
     });
 
-    test("celebration animations do not interrupt screen readers", async ({
-      page,
-    }) => {
+    test("celebration animations do not interrupt screen readers", async ({ page }) => {
       await page.goto("/");
       await page.waitForLoadState("networkidle");
 
@@ -236,9 +223,7 @@ test.describe("V7 Animation Accessibility", () => {
         const isHidden =
           (await element.getAttribute("aria-hidden")) === "true" ||
           (await element.getAttribute("role")) === "presentation" ||
-          (await element.evaluate(
-            (el) => window.getComputedStyle(el).pointerEvents === "none"
-          ));
+          (await element.evaluate((el) => window.getComputedStyle(el).pointerEvents === "none"));
 
         // Decorative elements should not interfere with AT
         expect(isHidden || true).toBeTruthy(); // Soft assertion
@@ -295,9 +280,7 @@ test.describe("V7 Animation Accessibility", () => {
   });
 
   test.describe("WCAG Animation Requirements", () => {
-    test("no content flashes more than 3 times per second", async ({
-      page,
-    }) => {
+    test("no content flashes more than 3 times per second", async ({ page }) => {
       await page.goto("/");
       await page.waitForLoadState("networkidle");
 
@@ -311,8 +294,7 @@ test.describe("V7 Animation Accessibility", () => {
             mutations.forEach((mutation) => {
               if (mutation.type === "attributes") {
                 const el = mutation.target as HTMLElement;
-                const visible =
-                  el.style.opacity !== "0" && el.style.display !== "none";
+                const visible = el.style.opacity !== "0" && el.style.display !== "none";
                 if (visible !== lastVisible) {
                   flashes++;
                   lastVisible = visible;
@@ -352,9 +334,7 @@ test.describe("V7 Animation Accessibility", () => {
       await page.waitForLoadState("networkidle");
 
       // Check that parallax elements are still accessible
-      const parallaxElements = page.locator(
-        '[data-testid*="parallax"], [class*="parallax"]'
-      );
+      const parallaxElements = page.locator('[data-testid*="parallax"], [class*="parallax"]');
       const count = await parallaxElements.count();
 
       for (let i = 0; i < count; i++) {
@@ -379,9 +359,7 @@ test.describe("V7 Animation Accessibility", () => {
   });
 
   test.describe("Axe Accessibility Audit", () => {
-    test("homepage passes accessibility audit with animations", async ({
-      page,
-    }) => {
+    test("homepage passes accessibility audit with animations", async ({ page }) => {
       await page.goto("/");
       await page.waitForLoadState("networkidle");
 
@@ -393,9 +371,7 @@ test.describe("V7 Animation Accessibility", () => {
         .analyze();
 
       // No critical violations
-      const criticalViolations = results.violations.filter(
-        (v) => v.impact === "critical"
-      );
+      const criticalViolations = results.violations.filter((v) => v.impact === "critical");
 
       if (criticalViolations.length > 0) {
         console.log(
@@ -417,16 +393,14 @@ test.describe("V7 Animation Accessibility", () => {
         await menuItem.click();
         await page.waitForTimeout(500);
 
-        const results = await new AxeBuilder({ page })
-          .withTags(["wcag2a", "wcag2aa"])
-          .analyze();
+        const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
 
         // Focus on modal-related violations
         const modalViolations = results.violations.filter(
           (v) =>
-            v.nodes.some((n) =>
-              n.html.includes('role="dialog"')
-            ) || v.id.includes("dialog") || v.id.includes("modal")
+            v.nodes.some((n) => n.html.includes('role="dialog"')) ||
+            v.id.includes("dialog") ||
+            v.id.includes("modal")
         );
 
         expect(modalViolations.length).toBe(0);

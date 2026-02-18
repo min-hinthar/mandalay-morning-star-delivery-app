@@ -10,10 +10,10 @@
  * @module useSafeEffects
  */
 
-export { useMountedRef } from './useMountedRef';
-export { useSafeTimeout } from './useSafeTimeout';
-export type { SafeTimeoutControls } from './useSafeTimeout';
-export { useSafeInterval } from './useSafeInterval';
-export type { SafeIntervalControls } from './useSafeInterval';
-export { useSafeAsync } from './useSafeAsync';
-export type { SafeAsyncControls } from './useSafeAsync';
+export { useMountedRef } from "./useMountedRef";
+export { useSafeTimeout } from "./useSafeTimeout";
+export type { SafeTimeoutControls } from "./useSafeTimeout";
+export { useSafeInterval } from "./useSafeInterval";
+export type { SafeIntervalControls } from "./useSafeInterval";
+export { useSafeAsync } from "./useSafeAsync";
+export type { SafeAsyncControls } from "./useSafeAsync";

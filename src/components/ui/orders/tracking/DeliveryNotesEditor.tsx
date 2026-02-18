@@ -62,9 +62,7 @@ export function DeliveryNotesEditor({
         const data = (await response.json().catch(() => null)) as {
           error?: { message?: string };
         } | null;
-        throw new Error(
-          data?.error?.message ?? "Failed to update delivery instructions"
-        );
+        throw new Error(data?.error?.message ?? "Failed to update delivery instructions");
       }
 
       setNotes(trimmed);
@@ -72,9 +70,7 @@ export function DeliveryNotesEditor({
       toast({ message: "Delivery instructions updated", type: "success" });
     } catch (error) {
       const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to update delivery instructions";
+        error instanceof Error ? error.message : "Failed to update delivery instructions";
       toast({ message, type: "error" });
     } finally {
       setIsSaving(false);
@@ -85,19 +81,12 @@ export function DeliveryNotesEditor({
   const hasNotes = notes.length > 0;
 
   return (
-    <div
-      className={cn(
-        "rounded-xl bg-surface-primary p-4 shadow-warm-sm",
-        className
-      )}
-    >
+    <div className={cn("rounded-xl bg-surface-primary p-4 shadow-warm-sm", className)}>
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <FileText className="h-4 w-4 text-charcoal-400" />
-          <h4 className="text-sm font-semibold text-charcoal">
-            Delivery Instructions
-          </h4>
+          <h4 className="text-sm font-semibold text-charcoal">Delivery Instructions</h4>
         </div>
         {isEditable && !isEditing && (
           <Button
@@ -114,12 +103,7 @@ export function DeliveryNotesEditor({
 
       {/* View mode */}
       {!isEditing && (
-        <p
-          className={cn(
-            "text-sm",
-            hasNotes ? "text-charcoal-600" : "text-charcoal-400 italic"
-          )}
-        >
+        <p className={cn("text-sm", hasNotes ? "text-charcoal-600" : "text-charcoal-400 italic")}>
           {displayText}
         </p>
       )}
@@ -131,9 +115,7 @@ export function DeliveryNotesEditor({
             <textarea
               ref={textareaRef}
               value={editValue}
-              onChange={(e) =>
-                setEditValue(e.target.value.slice(0, MAX_NOTES_LENGTH))
-              }
+              onChange={(e) => setEditValue(e.target.value.slice(0, MAX_NOTES_LENGTH))}
               placeholder="Add delivery instructions (e.g., Leave at door, ring bell...)"
               className={cn(
                 "w-full rounded-lg border border-charcoal-200 bg-surface-primary p-3",

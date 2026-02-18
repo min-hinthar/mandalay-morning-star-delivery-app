@@ -24,10 +24,7 @@ export async function POST() {
 
     if (error) {
       logger.exception(error, { api: "admin/sections/publish" });
-      return NextResponse.json(
-        { error: "Failed to publish changes" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to publish changes" }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -36,9 +33,6 @@ export async function POST() {
     });
   } catch (error) {
     logger.exception(error, { api: "admin/sections/publish" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

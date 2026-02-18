@@ -93,10 +93,7 @@ export function useCardInteractions({
 
   // Check if item has required modifiers (must go through detail modal)
   const hasRequiredModifiers = useMemo(() => {
-    return (
-      item.modifierGroups &&
-      item.modifierGroups.some((group) => group.minSelect > 0)
-    );
+    return item.modifierGroups && item.modifierGroups.some((group) => group.minSelect > 0);
   }, [item.modifierGroups]);
 
   const handleCardClick = useCallback(() => {
@@ -205,25 +202,22 @@ export function useCardInteractions({
     }
   }, [shouldEnableTilt, resetTilt]);
 
-  const handleTouchMoveCancel = useCallback(
-    (e: React.TouchEvent) => {
-      // Cancel long-press if user scrolls (10px threshold)
-      if (touchStartPos.current && longPressTimer.current) {
-        const touch = e.touches[0];
-        if (touch) {
-          const dx = Math.abs(touch.clientX - touchStartPos.current.x);
-          const dy = Math.abs(touch.clientY - touchStartPos.current.y);
+  const handleTouchMoveCancel = useCallback((e: React.TouchEvent) => {
+    // Cancel long-press if user scrolls (10px threshold)
+    if (touchStartPos.current && longPressTimer.current) {
+      const touch = e.touches[0];
+      if (touch) {
+        const dx = Math.abs(touch.clientX - touchStartPos.current.x);
+        const dy = Math.abs(touch.clientY - touchStartPos.current.y);
 
-          if (dx > 10 || dy > 10) {
-            clearTimeout(longPressTimer.current);
-            longPressTimer.current = null;
-            touchStartPos.current = null;
-          }
+        if (dx > 10 || dy > 10) {
+          clearTimeout(longPressTimer.current);
+          longPressTimer.current = null;
+          touchStartPos.current = null;
         }
       }
-    },
-    []
-  );
+    }
+  }, []);
 
   return {
     totalQuantityInCart,

@@ -47,82 +47,108 @@ const config = [
             // Phase 26: ui-v8 consolidation guard
             {
               group: ["@/components/ui-v8/*", "@/components/ui-v8", "**/ui-v8/*", "**/ui-v8"],
-              message: "ui-v8 has been consolidated into ui/. Import from @/components/ui instead."
+              message: "ui-v8 has been consolidated into ui/. Import from @/components/ui instead.",
             },
             // Phase 33: Full Components Consolidation guards
             {
               group: ["@/components/menu/*", "@/components/menu", "**/components/menu/*"],
-              message: "menu/ consolidated into ui/menu/. Import from @/components/ui/menu."
+              message: "menu/ consolidated into ui/menu/. Import from @/components/ui/menu.",
             },
             {
               group: ["@/components/scroll/*", "@/components/scroll", "**/components/scroll/*"],
-              message: "scroll/ consolidated into ui/scroll/. Import from @/components/ui/scroll."
+              message: "scroll/ consolidated into ui/scroll/. Import from @/components/ui/scroll.",
             },
             {
               group: ["@/components/layout/*", "@/components/layout", "**/components/layout/*"],
-              message: "layout/ consolidated into ui/layout/. Import from @/components/ui/layout."
+              message: "layout/ consolidated into ui/layout/. Import from @/components/ui/layout.",
             },
             {
               group: ["@/components/layouts/*", "@/components/layouts", "**/components/layouts/*"],
-              message: "layouts/ consolidated into ui/layout/. Import from @/components/ui/layout or @/components/ui for primitives."
+              message:
+                "layouts/ consolidated into ui/layout/. Import from @/components/ui/layout or @/components/ui for primitives.",
             },
             {
-              group: ["@/components/tracking/*", "@/components/tracking", "**/components/tracking/*"],
-              message: "tracking/ consolidated into ui/orders/tracking/. Import from @/components/ui/orders."
+              group: [
+                "@/components/tracking/*",
+                "@/components/tracking",
+                "**/components/tracking/*",
+              ],
+              message:
+                "tracking/ consolidated into ui/orders/tracking/. Import from @/components/ui/orders.",
             },
             {
-              group: ["@/components/onboarding/*", "@/components/onboarding", "**/components/onboarding/*"],
-              message: "onboarding/ consolidated into ui/auth/. Import from @/components/ui/auth."
+              group: [
+                "@/components/onboarding/*",
+                "@/components/onboarding",
+                "**/components/onboarding/*",
+              ],
+              message: "onboarding/ consolidated into ui/auth/. Import from @/components/ui/auth.",
             },
             {
               group: ["@/components/mascot/*", "@/components/mascot", "**/components/mascot/*"],
-              message: "mascot/ consolidated into ui/brand/. Import from @/components/ui/brand."
+              message: "mascot/ consolidated into ui/brand/. Import from @/components/ui/brand.",
             },
             {
               group: ["@/components/admin/*", "@/components/admin", "**/components/admin/*"],
-              message: "admin/ consolidated into ui/admin/. Import from @/components/ui/admin."
+              message: "admin/ consolidated into ui/admin/. Import from @/components/ui/admin.",
             },
             {
-              group: ["@/components/checkout/*", "@/components/checkout", "**/components/checkout/*"],
-              message: "checkout/ consolidated into ui/checkout/. Import from @/components/ui/checkout."
+              group: [
+                "@/components/checkout/*",
+                "@/components/checkout",
+                "**/components/checkout/*",
+              ],
+              message:
+                "checkout/ consolidated into ui/checkout/. Import from @/components/ui/checkout.",
             },
             {
               group: ["@/components/driver/*", "@/components/driver", "**/components/driver/*"],
-              message: "driver/ consolidated into ui/driver/. Import from @/components/ui/driver."
+              message: "driver/ consolidated into ui/driver/. Import from @/components/ui/driver.",
             },
             {
-              group: ["@/components/homepage/*", "@/components/homepage", "**/components/homepage/*"],
-              message: "homepage/ consolidated into ui/homepage/. Import from @/components/ui/homepage."
+              group: [
+                "@/components/homepage/*",
+                "@/components/homepage",
+                "**/components/homepage/*",
+              ],
+              message:
+                "homepage/ consolidated into ui/homepage/. Import from @/components/ui/homepage.",
             },
             {
               group: ["@/components/orders/*", "@/components/orders", "**/components/orders/*"],
-              message: "orders/ consolidated into ui/orders/. Import from @/components/ui/orders."
+              message: "orders/ consolidated into ui/orders/. Import from @/components/ui/orders.",
             },
             {
               group: ["@/components/auth/*", "@/components/auth", "**/components/auth/*"],
-              message: "auth/ consolidated into ui/auth/. Import from @/components/ui/auth."
+              message: "auth/ consolidated into ui/auth/. Import from @/components/ui/auth.",
             },
             {
               group: ["@/components/theme/*", "@/components/theme", "**/components/theme/*"],
-              message: "theme/ consolidated into ui/theme/. Import from @/components/ui/theme."
+              message: "theme/ consolidated into ui/theme/. Import from @/components/ui/theme.",
             },
             // Phase 34: src/ consolidation guards
             // Note: @/app/contexts/* is the CORRECT location, only block old @/contexts/* imports
             {
               group: ["@/contexts/*", "@/contexts"],
-              message: "contexts/ moved to app/contexts/. Import from @/app/contexts."
+              message: "contexts/ moved to app/contexts/. Import from @/app/contexts.",
             },
             {
               group: ["@/design-system/*", "@/design-system"],
-              message: "design-system/ consolidated into lib/design-system/. Import from @/lib/design-system."
+              message:
+                "design-system/ consolidated into lib/design-system/. Import from @/lib/design-system.",
             },
             // Phase 37: navigation/ consolidation guard
             {
-              group: ["@/components/navigation/*", "@/components/navigation", "**/components/navigation/*"],
-              message: "navigation/ consolidated into ui/layout/ and ui/navigation/. Import from @/components/ui/layout or @/components/ui/navigation."
-            }
-          ]
-        }
+              group: [
+                "@/components/navigation/*",
+                "@/components/navigation",
+                "**/components/navigation/*",
+              ],
+              message:
+                "navigation/ consolidated into ui/layout/ and ui/navigation/. Import from @/components/ui/layout or @/components/ui/navigation.",
+            },
+          ],
+        },
       ],
     },
   },
@@ -135,21 +161,18 @@ const config = [
         {
           maxDepth: 10,
           ignoreExternal: true,
-        }
-      ]
-    }
+        },
+      ],
+    },
   },
   {
     // File size enforcement - Phase 46 (warning only, expanded to all source files)
-    files: [
-      "src/**/*.ts",
-      "src/**/*.tsx",
-    ],
+    files: ["src/**/*.ts", "src/**/*.tsx"],
     ignores: [
-      "src/types/**",           // Type definition files (database.ts, driver.ts)
-      "src/**/*.test.ts",       // Test files
-      "src/**/*.test.tsx",      // Test files
-      "src/stories/**",         // Storybook stories
+      "src/types/**", // Type definition files (database.ts, driver.ts)
+      "src/**/*.test.ts", // Test files
+      "src/**/*.test.tsx", // Test files
+      "src/stories/**", // Storybook stories
     ],
     rules: {
       "max-lines": [
@@ -158,24 +181,22 @@ const config = [
           max: 400,
           skipBlankLines: true,
           skipComments: true,
-        }
-      ]
-    }
+        },
+      ],
+    },
   },
   {
     // CSP cssText prevention - Phase 67
     // Uses no-restricted-properties (not no-restricted-syntax) to avoid being
     // overridden by the design token block's error-level no-restricted-syntax rule
-    files: [
-      "src/**/*.ts",
-      "src/**/*.tsx",
-    ],
+    files: ["src/**/*.ts", "src/**/*.tsx"],
     rules: {
       "no-restricted-properties": [
         "warn",
         {
           property: "cssText",
-          message: "Use individual style.property assignments instead of cssText for CSP compatibility.",
+          message:
+            "Use individual style.property assignments instead of cssText for CSP compatibility.",
         },
       ],
     },
@@ -196,17 +217,20 @@ const config = [
           // Catch inline zIndex in style objects: style={{ zIndex: 50 }}
           // Exception: allow zIndex from design-system/tokens/z-index
           selector: "Property[key.name='zIndex'][value.type='Literal'][value.raw=/^\\d+$/]",
-          message: "Use zIndex token from @/lib/design-system/tokens/z-index (e.g., zIndex.modal) instead of hardcoded number.",
+          message:
+            "Use zIndex token from @/lib/design-system/tokens/z-index (e.g., zIndex.modal) instead of hardcoded number.",
         },
         {
           // Catch hardcoded hex colors in bg-[]
           selector: "Literal[value=/bg-\\[#[0-9a-fA-F]{3,8}\\]/]",
-          message: "Use design token colors (e.g., bg-primary, bg-surface-primary) instead of hardcoded hex values.",
+          message:
+            "Use design token colors (e.g., bg-primary, bg-surface-primary) instead of hardcoded hex values.",
         },
         {
           // Catch hardcoded hex colors in text-[]
           selector: "Literal[value=/text-\\[#[0-9a-fA-F]{3,8}\\]/]",
-          message: "Use design token colors (e.g., text-primary, text-text-inverse) instead of hardcoded hex values.",
+          message:
+            "Use design token colors (e.g., text-primary, text-text-inverse) instead of hardcoded hex values.",
         },
         // Hardcoded color classes - use semantic tokens instead
         // NOTE: These are warnings during migration; audit script handles enforcement
@@ -229,82 +253,102 @@ const config = [
         // Typography: Catch arbitrary font sizes in Tailwind classes
         {
           selector: "Literal[value=/text-\\[\\d+px\\]/]",
-          message: "Use Tailwind typography scale (text-2xs, text-xs, text-sm, etc.) instead of text-[Npx]. For 10px use text-2xs.",
+          message:
+            "Use Tailwind typography scale (text-2xs, text-xs, text-sm, etc.) instead of text-[Npx]. For 10px use text-2xs.",
         },
         // Spacing: Catch arbitrary margin values
         {
           selector: "Literal[value=/\\bm-\\[\\d+px\\]/]",
-          message: "Use Tailwind spacing scale (m-1, m-2, m-4, etc.) or CSS variable instead of m-[Npx].",
+          message:
+            "Use Tailwind spacing scale (m-1, m-2, m-4, etc.) or CSS variable instead of m-[Npx].",
         },
         {
           selector: "Literal[value=/\\bm[xy]-\\[\\d+px\\]/]",
-          message: "Use Tailwind spacing scale (mx-1, my-2, etc.) or CSS variable instead of mx/my-[Npx].",
+          message:
+            "Use Tailwind spacing scale (mx-1, my-2, etc.) or CSS variable instead of mx/my-[Npx].",
         },
         {
           selector: "Literal[value=/\\bm[trbl]-\\[\\d+px\\]/]",
-          message: "Use Tailwind spacing scale (mt-1, mr-2, etc.) or CSS variable instead of mt/mr/mb/ml-[Npx].",
+          message:
+            "Use Tailwind spacing scale (mt-1, mr-2, etc.) or CSS variable instead of mt/mr/mb/ml-[Npx].",
         },
         // Spacing: Catch arbitrary padding values
         {
           selector: "Literal[value=/\\bp-\\[\\d+px\\]/]",
-          message: "Use Tailwind spacing scale (p-1, p-2, p-4, etc.) or CSS variable instead of p-[Npx].",
+          message:
+            "Use Tailwind spacing scale (p-1, p-2, p-4, etc.) or CSS variable instead of p-[Npx].",
         },
         {
           selector: "Literal[value=/\\bp[xy]-\\[\\d+px\\]/]",
-          message: "Use Tailwind spacing scale (px-1, py-2, etc.) or CSS variable instead of px/py-[Npx].",
+          message:
+            "Use Tailwind spacing scale (px-1, py-2, etc.) or CSS variable instead of px/py-[Npx].",
         },
         {
           selector: "Literal[value=/\\bp[trbl]-\\[\\d+px\\]/]",
-          message: "Use Tailwind spacing scale (pt-1, pr-2, etc.) or CSS variable instead of pt/pr/pb/pl-[Npx].",
+          message:
+            "Use Tailwind spacing scale (pt-1, pr-2, etc.) or CSS variable instead of pt/pr/pb/pl-[Npx].",
         },
         // Spacing: Catch arbitrary gap values
         {
           selector: "Literal[value=/\\bgap-\\[\\d+px\\]/]",
-          message: "Use Tailwind spacing scale (gap-1, gap-2, gap-4, etc.) or CSS variable instead of gap-[Npx].",
+          message:
+            "Use Tailwind spacing scale (gap-1, gap-2, gap-4, etc.) or CSS variable instead of gap-[Npx].",
         },
         {
           selector: "Literal[value=/\\bgap-[xy]-\\[\\d+px\\]/]",
-          message: "Use Tailwind spacing scale (gap-x-1, gap-y-2, etc.) or CSS variable instead of gap-x/y-[Npx].",
+          message:
+            "Use Tailwind spacing scale (gap-x-1, gap-y-2, etc.) or CSS variable instead of gap-x/y-[Npx].",
         },
         // Typography: Catch inline fontSize pixel values in style objects
         {
           selector: "Property[key.name='fontSize'][value.value=/^\\d+px$/]",
-          message: "Use Tailwind typography class or CSS variable instead of inline fontSize pixel value.",
+          message:
+            "Use Tailwind typography class or CSS variable instead of inline fontSize pixel value.",
         },
         // Typography: Catch inline fontWeight numeric values in style objects
         {
           selector: "Property[key.name='fontWeight'][value.type='Literal'][value.raw=/^\\d+$/]",
-          message: "Use Tailwind font-weight class (font-normal=400, font-medium=500, font-semibold=600, font-bold=700) instead of inline fontWeight number.",
+          message:
+            "Use Tailwind font-weight class (font-normal=400, font-medium=500, font-semibold=600, font-bold=700) instead of inline fontWeight number.",
         },
         // Shadow enforcement: catch inline boxShadow with hardcoded values
         {
-          selector: "Property[key.name='boxShadow'][value.type='Literal'][value.value=/^0\\s|^inset\\s|^none$/]",
-          message: "Use CSS variable (var(--shadow-*)) or Tailwind shadow-* utility instead of hardcoded boxShadow. Exception: Framer Motion animated shadows need numeric values for interpolation.",
+          selector:
+            "Property[key.name='boxShadow'][value.type='Literal'][value.value=/^0\\s|^inset\\s|^none$/]",
+          message:
+            "Use CSS variable (var(--shadow-*)) or Tailwind shadow-* utility instead of hardcoded boxShadow. Exception: Framer Motion animated shadows need numeric values for interpolation.",
         },
         // Blur enforcement: catch inline backdropFilter with hardcoded blur
         {
-          selector: "Property[key.name='backdropFilter'][value.type='Literal'][value.value=/blur\\(\\d+px\\)/]",
-          message: "Use CSS variable (var(--blur-*)) or Tailwind backdrop-blur-* utility instead of hardcoded blur value.",
+          selector:
+            "Property[key.name='backdropFilter'][value.type='Literal'][value.value=/blur\\(\\d+px\\)/]",
+          message:
+            "Use CSS variable (var(--blur-*)) or Tailwind backdrop-blur-* utility instead of hardcoded blur value.",
         },
         // Also catch filter with hardcoded blur
         {
-          selector: "Property[key.name='filter'][value.type='Literal'][value.value=/blur\\(\\d+px\\)/]",
+          selector:
+            "Property[key.name='filter'][value.type='Literal'][value.value=/blur\\(\\d+px\\)/]",
           message: "Use CSS variable (var(--blur-*)) instead of hardcoded blur value.",
         },
         // Motion timing enforcement: catch inline transitionDuration with hardcoded values
         {
-          selector: "Property[key.name='transitionDuration'][value.type='Literal'][value.value=/^\\d+m?s$/]",
-          message: "Use CSS variable (var(--duration-*)) or Tailwind duration-* utility instead of hardcoded transitionDuration. Options: duration-instant(0ms), duration-fast(150ms), duration-normal(220ms), duration-slow(350ms), duration-slower(500ms).",
+          selector:
+            "Property[key.name='transitionDuration'][value.type='Literal'][value.value=/^\\d+m?s$/]",
+          message:
+            "Use CSS variable (var(--duration-*)) or Tailwind duration-* utility instead of hardcoded transitionDuration. Options: duration-instant(0ms), duration-fast(150ms), duration-normal(220ms), duration-slow(350ms), duration-slower(500ms).",
         },
         // Catch inline transition with hardcoded duration
         {
           selector: "Property[key.name='transition'][value.type='Literal'][value.value=/\\d+m?s/]",
-          message: "Use CSS variable (var(--duration-*)) for transition durations. Framer Motion spring transitions may use numeric values for physics calculations.",
+          message:
+            "Use CSS variable (var(--duration-*)) for transition durations. Framer Motion spring transitions may use numeric values for physics calculations.",
         },
         // Catch Tailwind arbitrary duration in class strings
         {
           selector: "Literal[value=/duration-\\[\\d+m?s\\]/]",
-          message: "Use Tailwind duration token (duration-fast, duration-normal, duration-slow, duration-slower) instead of duration-[Nms].",
+          message:
+            "Use Tailwind duration token (duration-fast, duration-normal, duration-slow, duration-slower) instead of duration-[Nms].",
         },
         // Catch Tailwind arbitrary delay in class strings
         {
@@ -314,7 +358,7 @@ const config = [
       ],
     },
   },
-  ...storybook.configs["flat/recommended"]
+  ...storybook.configs["flat/recommended"],
 ];
 
 export default config;

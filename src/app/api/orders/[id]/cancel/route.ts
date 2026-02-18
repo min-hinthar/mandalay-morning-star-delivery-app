@@ -10,7 +10,10 @@ export async function POST(_request: Request, { params }: RouteParams) {
   const { id: orderId } = await params;
 
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     return NextResponse.json(
@@ -43,7 +46,12 @@ export async function POST(_request: Request, { params }: RouteParams) {
   // Only pending orders can be cancelled by users
   if (order.status !== "pending") {
     return NextResponse.json(
-      { error: { code: "INVALID_STATUS", message: "Only pending orders can be cancelled. Contact support for refunds." } },
+      {
+        error: {
+          code: "INVALID_STATUS",
+          message: "Only pending orders can be cancelled. Contact support for refunds.",
+        },
+      },
       { status: 400 }
     );
   }

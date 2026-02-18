@@ -8,15 +8,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { Clock } from "lucide-react";
 import type { PeakHoursData } from "@/types/analytics";
 
@@ -57,9 +49,7 @@ export function PeakHoursChart({ data, height = 250 }: PeakHoursChartProps) {
     >
       <div className="mb-4 flex items-center gap-2">
         <Clock className="h-5 w-5 text-interactive-primary" />
-        <h3 className="text-lg font-semibold text-text-primary">
-          Delivery Volume by Hour
-        </h3>
+        <h3 className="text-lg font-semibold text-text-primary">Delivery Volume by Hour</h3>
       </div>
 
       <ResponsiveContainer width="100%" height={height}>
@@ -94,10 +84,7 @@ export function PeakHoursChart({ data, height = 250 }: PeakHoursChartProps) {
             animationEasing="ease-out"
           >
             {chartData.map((_entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={getBarColor(data[index].deliveryCount)}
-              />
+              <Cell key={`cell-${index}`} fill={getBarColor(data[index].deliveryCount)} />
             ))}
           </Bar>
         </BarChart>
@@ -127,16 +114,10 @@ export function PeakHoursChart({ data, height = 250 }: PeakHoursChartProps) {
  */
 export function PeakHoursCompact({ data }: { data: PeakHoursData[] }) {
   // Sort by delivery count and take top 3
-  const topHours = [...data]
-    .sort((a, b) => b.deliveryCount - a.deliveryCount)
-    .slice(0, 3);
+  const topHours = [...data].sort((a, b) => b.deliveryCount - a.deliveryCount).slice(0, 3);
 
   return (
-    <m.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-2"
-    >
+    <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
       <p className="text-sm font-medium text-text-secondary">Busiest Hours</p>
       <div className="flex gap-2">
         {topHours.map((hour, i) => (
@@ -148,9 +129,7 @@ export function PeakHoursCompact({ data }: { data: PeakHoursData[] }) {
             className="flex-1 rounded-lg bg-interactive-primary-light p-2 text-center"
           >
             <p className="text-lg font-bold text-interactive-primary">{hour.label}</p>
-            <p className="text-xs text-text-secondary">
-              {hour.deliveryCount} deliveries
-            </p>
+            <p className="text-xs text-text-secondary">{hour.deliveryCount} deliveries</p>
           </m.div>
         ))}
       </div>

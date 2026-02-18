@@ -83,8 +83,7 @@ export function useSwipeToDelete(options: SwipeToDeleteOptions): SwipeToDeleteRe
       }
 
       const shouldDelete =
-        info.offset.x < -autoDeleteThreshold ||
-        info.velocity.x < -velocityThreshold;
+        info.offset.x < -autoDeleteThreshold || info.velocity.x < -velocityThreshold;
 
       if (shouldDelete) {
         if (hapticEnabled) triggerHaptic("success");

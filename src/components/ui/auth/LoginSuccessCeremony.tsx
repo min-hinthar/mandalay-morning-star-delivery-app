@@ -15,7 +15,7 @@ interface LoginSuccessCeremonyProps {
 
 /* Sparkle ring positions — 6 sparkles evenly around the logo */
 const SPARKLE_RING = Array.from({ length: 6 }, (_, i) => {
-  const angle = (i * 60) * (Math.PI / 180);
+  const angle = i * 60 * (Math.PI / 180);
   const radius = 56;
   return {
     x: Math.cos(angle) * radius,
@@ -56,7 +56,9 @@ export function LoginSuccessCeremony({ userName, avatarUrl }: LoginSuccessCeremo
         {/* Golden glow behind */}
         <m.div
           className="absolute -inset-4 rounded-full blur-2xl"
-          style={{ background: "radial-gradient(circle, hsla(40, 80%, 60%, 0.5), transparent 70%)" }}
+          style={{
+            background: "radial-gradient(circle, hsla(40, 80%, 60%, 0.5), transparent 70%)",
+          }}
           initial={shouldAnimate ? { opacity: 0 } : false}
           animate={{ opacity: 0.6 }}
           transition={{ delay: 0.3, duration: 0.8 }}
@@ -64,26 +66,27 @@ export function LoginSuccessCeremony({ userName, avatarUrl }: LoginSuccessCeremo
         />
 
         {/* Sparkle ring burst */}
-        {shouldAnimate && SPARKLE_RING.map((spark, i) => (
-          <m.div
-            key={i}
-            className="absolute top-1/2 left-1/2 text-secondary"
-            initial={{ x: 0, y: 0, opacity: 0, scale: 0 }}
-            animate={{
-              x: spark.x,
-              y: spark.y,
-              opacity: [0, 1, 0],
-              scale: [0, 1.2, 0],
-            }}
-            transition={{
-              duration: 1,
-              delay: 0.4 + spark.delay,
-              ease: "easeOut",
-            }}
-          >
-            <Sparkles className="h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2" />
-          </m.div>
-        ))}
+        {shouldAnimate &&
+          SPARKLE_RING.map((spark, i) => (
+            <m.div
+              key={i}
+              className="absolute top-1/2 left-1/2 text-secondary"
+              initial={{ x: 0, y: 0, opacity: 0, scale: 0 }}
+              animate={{
+                x: spark.x,
+                y: spark.y,
+                opacity: [0, 1, 0],
+                scale: [0, 1.2, 0],
+              }}
+              transition={{
+                duration: 1,
+                delay: 0.4 + spark.delay,
+                ease: "easeOut",
+              }}
+            >
+              <Sparkles className="h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2" />
+            </m.div>
+          ))}
 
         {/* Logo with shared layoutId for morph */}
         <m.div
@@ -118,7 +121,9 @@ export function LoginSuccessCeremony({ userName, avatarUrl }: LoginSuccessCeremo
           <div className="relative">
             <div
               className="absolute -inset-0.5 rounded-full"
-              style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))" }}
+              style={{
+                background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
+              }}
               aria-hidden="true"
             />
             <Image

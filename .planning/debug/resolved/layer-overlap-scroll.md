@@ -59,22 +59,26 @@ started: Recent issue - layering system has z-index tokens but overlap persists
 ## Resolution
 
 root_cause: Three components misuse z-index tokens:
+
 1. CategoryCarousel: sticky element uses z-fixed (30) instead of z-sticky (20)
 2. DriverHeader: sticky element uses z-fixed (30) instead of z-sticky (20)
 3. OfflineBanner: fixed banner competes with Header at same z-index; needs higher z-index (z-toast: 80) for critical visibility
 
 fix:
+
 1. CategoryCarousel.tsx line 224: Changed `z-fixed` to `z-sticky`
 2. DriverHeader.tsx line 44: Changed `z-fixed` to `z-sticky`
 3. OfflineBanner.tsx line 34: Changed `z-fixed` to `z-toast`
 
 verification:
+
 - Grep verified all three changes applied correctly
 - Z-index hierarchy now correct: sticky(20) < fixed(30) < toast(80)
 - Header (z-fixed:30) will stay above CategoryCarousel/DriverHeader (z-sticky:20)
 - OfflineBanner (z-toast:80) will stay visible above all for critical status
 
 files_changed:
+
 - src/components/menu/CategoryCarousel.tsx
 - src/components/driver/DriverHeader.tsx
 - src/components/driver/OfflineBanner.tsx

@@ -26,8 +26,7 @@ export function SupportActions({
   onContactSupport,
   className,
 }: SupportActionsProps) {
-  const canContactDriver =
-    orderStatus === "out_for_delivery" && driverPhone !== null;
+  const canContactDriver = orderStatus === "out_for_delivery" && driverPhone !== null;
 
   const handleContactDriver = () => {
     if (driverPhone) {
@@ -49,14 +48,9 @@ export function SupportActions({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className={cn(
-        "rounded-xl bg-surface-primary p-4 shadow-warm-sm",
-        className
-      )}
+      className={cn("rounded-xl bg-surface-primary p-4 shadow-warm-sm", className)}
     >
-      <p className="text-sm font-medium text-charcoal-600 mb-3">
-        Need Help?
-      </p>
+      <p className="text-sm font-medium text-charcoal-600 mb-3">Need Help?</p>
 
       <div className="flex gap-3">
         {/* Contact Driver Button */}
@@ -90,8 +84,8 @@ export function SupportActions({
         {canContactDriver
           ? "Contact your driver directly for delivery questions"
           : orderStatus === "delivered"
-          ? "Order delivered. Contact support if you have any issues"
-          : "Our team is here to help with any questions"}
+            ? "Order delivered. Contact support if you have any issues"
+            : "Our team is here to help with any questions"}
       </p>
     </m.div>
   );
@@ -100,13 +94,7 @@ export function SupportActions({
 /**
  * Floating action button variant for mobile
  */
-export function SupportFAB({
-  onClick,
-  className,
-}: {
-  onClick?: () => void;
-  className?: string;
-}) {
+export function SupportFAB({ onClick, className }: { onClick?: () => void; className?: string }) {
   const handleClick = () => {
     if (onClick) {
       onClick();

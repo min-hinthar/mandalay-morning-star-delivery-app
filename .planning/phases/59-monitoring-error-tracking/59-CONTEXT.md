@@ -14,6 +14,7 @@ Instrument the production app with Sentry error tracking, Vercel Speed Insights 
 ## Implementation Decisions
 
 ### Error capture scope
+
 - Capture ALL client-side errors (no filtering of extension/third-party noise)
 - React error boundaries auto-report to Sentry with component tree context
 - Server-side API route errors go to both Sentry AND Vercel logs
@@ -22,18 +23,22 @@ Instrument the production app with Sentry error tracking, Vercel Speed Insights 
 - Auto-breadcrumbs enabled: clicks, navigations, console logs, XHR/fetch
 
 ### Performance metrics
+
 - Vercel Speed Insights enabled (standard Core Web Vitals: LCP, CLS, FID/INP)
 - Vercel Web Analytics enabled (page views, referrers, top pages)
 - Sentry performance tracing enabled on all routes
 
 ### Alert & triage behavior
+
 - Sentry GitHub integration enabled — source context in errors, suspect commits
 - No session replay initially... correction: session replay IS enabled (see below)
 
 ### Session replay
+
 - Sentry session replay enabled — error-only capture (buffer records, saves on error)
 
 ### Claude's Discretion
+
 - Sentry tunnel route vs. direct ingest (ad blocker bypass decision)
 - SDK loading strategy (eager vs. lazy)
 - Vercel Speed Insights sample rate (balance free tier vs. coverage)
@@ -74,5 +79,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 59-monitoring-error-tracking*
-*Context gathered: 2026-02-13*
+_Phase: 59-monitoring-error-tracking_
+_Context gathered: 2026-02-13_

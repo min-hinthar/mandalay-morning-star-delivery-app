@@ -186,9 +186,7 @@ export function useActiveCategory(
   );
 
   // Extract active category from section ID
-  const activeCategory = activeSectionId
-    ? activeSectionId.replace("category-", "")
-    : null;
+  const activeCategory = activeSectionId ? activeSectionId.replace("category-", "") : null;
 
   return {
     activeCategory,

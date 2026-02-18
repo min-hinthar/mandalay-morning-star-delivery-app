@@ -14,6 +14,7 @@ Homepage loads with visible content in under 4 seconds on mobile Lighthouse. Her
 ## Implementation Decisions
 
 ### Hero visibility strategy
+
 - Hero text simplification is acceptable — simpler animations are fine
 - Keep some subtle motion on the hero (light fade, slight slide) — not fully static
 - Optimize full page load, not just hero — below-fold content should lazy load too
@@ -23,6 +24,7 @@ Homepage loads with visible content in under 4 seconds on mobile Lighthouse. Her
 - US-only users, mostly mobile (4G/LTE) — decent connections but mobile optimization matters
 
 ### Motion downgrade trade-offs
+
 - **All animations must keep working** after switching from domMax to domAnimation — fix all breakage
 - Balance playful feel with performance — keep signature animations, optimize or remove minor ones
 - **Signature animations to preserve:** cart bounce/spring, page transitions, all playful animation identity
@@ -34,6 +36,7 @@ Homepage loads with visible content in under 4 seconds on mobile Lighthouse. Her
 - Claude determines progressive loading strategy (fast content first vs complete appearance)
 
 ### Fallback & loading states
+
 - Claude determines pre-hydration UX for buttons/interactive elements
 - Claude decides motion loading strategy (render without animation vs placeholder)
 - Claude uses existing codebase loading patterns or picks best approach for data loading states
@@ -45,6 +48,7 @@ Homepage loads with visible content in under 4 seconds on mobile Lighthouse. Her
 - Claude determines if loading.tsx helps or hurts LCP for homepage route
 
 ### Performance budget
+
 - **Firm targets:** LCP < 4000ms, Lighthouse mobile > 70 (from roadmap)
 - **Aspirational:** sub-3s LCP and 80+ Lighthouse if achievable without over-engineering
 - Third-party scripts on homepage: Sentry + Vercel Speed Insights (Phase 59) — Claude ensures these are deferred/non-blocking
@@ -55,6 +59,7 @@ Homepage loads with visible content in under 4 seconds on mobile Lighthouse. Her
 - Verification: Claude decides between manual Lighthouse and lightweight CI check
 
 ### Claude's Discretion
+
 - Hero entrance animation approach (visible-with-delayed-animation vs instant)
 - Which hero elements are server-visible (all vs just heading)
 - Visual transition smoothness between static and animated states
@@ -92,5 +97,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 60-lcp-optimization*
-*Context gathered: 2026-02-14*
+_Phase: 60-lcp-optimization_
+_Context gathered: 2026-02-14_

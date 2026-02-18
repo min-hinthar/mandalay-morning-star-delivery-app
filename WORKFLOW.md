@@ -8,6 +8,7 @@
 ## Prime Directive
 
 Implement exactly what the specs say. If specs are unclear:
+
 1. Check linked documentation first
 2. If still unclear, ask for clarification
 
@@ -15,23 +16,24 @@ Implement exactly what the specs say. If specs are unclear:
 
 ## Key Documentation
 
-| Priority | Document | Purpose |
-|----------|----------|---------|
-| Must | [CLAUDE.md](CLAUDE.md) | Project memory + quick ref |
-| Must | [docs/v1-spec.md](docs/v1-spec.md) | V1 feature specs |
-| Important | [docs/architecture.md](docs/architecture.md) | System design |
-| Important | [docs/frontend-design-system.md](docs/frontend-design-system.md) | UI/UX patterns |
-| Important | [docs/component-guide.md](docs/component-guide.md) | Component patterns |
-| Reference | [docs/00-context-pack.md](docs/00-context-pack.md) | Business rules |
-| Reference | [docs/04-data-model.md](docs/04-data-model.md) | Database schema |
-| Reference | [docs/05-menu.md](docs/05-menu.md) | Menu system |
-| Reference | [docs/06-stripe.md](docs/06-stripe.md) | Payment flow |
+| Priority  | Document                                                         | Purpose                    |
+| --------- | ---------------------------------------------------------------- | -------------------------- |
+| Must      | [CLAUDE.md](CLAUDE.md)                                           | Project memory + quick ref |
+| Must      | [docs/v1-spec.md](docs/v1-spec.md)                               | V1 feature specs           |
+| Important | [docs/architecture.md](docs/architecture.md)                     | System design              |
+| Important | [docs/frontend-design-system.md](docs/frontend-design-system.md) | UI/UX patterns             |
+| Important | [docs/component-guide.md](docs/component-guide.md)               | Component patterns         |
+| Reference | [docs/00-context-pack.md](docs/00-context-pack.md)               | Business rules             |
+| Reference | [docs/04-data-model.md](docs/04-data-model.md)                   | Database schema            |
+| Reference | [docs/05-menu.md](docs/05-menu.md)                               | Menu system                |
+| Reference | [docs/06-stripe.md](docs/06-stripe.md)                           | Payment flow               |
 
 ---
 
 ## Branch / PR Discipline
 
 ### Branch Naming
+
 ```
 feat/<area>-<short>   → feat/stripe-checkout
 fix/<area>-<short>    → fix/webhook-signature
@@ -40,6 +42,7 @@ docs/<short>          → docs/api-contracts
 ```
 
 ### PR Rules
+
 - One branch, one PR, one focused change
 - No drive-by refactors
 - Screenshots/GIFs for UI changes
@@ -153,23 +156,24 @@ docs/<short>          → docs/api-contracts
 ## Code Quality Requirements
 
 ### TypeScript
+
 ```typescript
 // GOOD: Explicit types, no any
 const calculateSubtotal = (items: CartItem[]): number => {
   return items.reduce((sum, item) => {
-    const modifierTotal = item.modifiers.reduce(
-      (m, mod) => m + mod.priceDeltaCents,
-      0
-    );
+    const modifierTotal = item.modifiers.reduce((m, mod) => m + mod.priceDeltaCents, 0);
     return sum + (item.basePriceCents + modifierTotal) * item.quantity;
   }, 0);
 };
 
 // BAD: Using any
-const calculateSubtotal = (items: any) => { /* ... */ };
+const calculateSubtotal = (items: any) => {
+  /* ... */
+};
 ```
 
 ### Component Structure
+
 ```tsx
 // GOOD: Props interface, destructured props
 interface ItemCardProps {
@@ -187,9 +191,10 @@ export function ItemCard({ item, onSelect }: ItemCardProps) {
 ```
 
 ### API Routes
+
 ```typescript
 // GOOD: Zod validation, proper error handling
-import { z } from 'zod';
+import { z } from "zod";
 
 const schema = z.object({
   menuItemId: z.string().uuid(),
@@ -202,7 +207,7 @@ export async function POST(request: Request) {
 
   if (!result.success) {
     return NextResponse.json(
-      { error: { code: 'VALIDATION_ERROR', details: result.error.issues } },
+      { error: { code: "VALIDATION_ERROR", details: result.error.issues } },
       { status: 400 }
     );
   }
@@ -216,18 +221,21 @@ export async function POST(request: Request) {
 ## Testing Requirements
 
 ### Unit Tests (Vitest)
+
 - [ ] Price calculation with modifiers
 - [ ] Delivery fee threshold ($100)
 - [ ] Cutoff date calculation
 - [ ] Coverage validation logic
 
 ### Integration Tests
+
 - [ ] Menu API returns correct structure
 - [ ] Checkout session creation
 - [ ] Webhook processing
 - [ ] Order state transitions
 
 ### E2E Tests (Playwright)
+
 - [ ] Full order happy path
 - [ ] Out-of-coverage rejection
 - [ ] Sold-out item handling
@@ -280,13 +288,14 @@ types/
 ## Common Patterns
 
 ### React Query Hook
+
 ```typescript
 export function useMenu() {
   return useQuery({
-    queryKey: ['menu'],
+    queryKey: ["menu"],
     queryFn: async () => {
-      const res = await fetch('/api/menu');
-      if (!res.ok) throw new Error('Failed to fetch menu');
+      const res = await fetch("/api/menu");
+      if (!res.ok) throw new Error("Failed to fetch menu");
       return res.json();
     },
     staleTime: 5 * 60 * 1000,
@@ -295,9 +304,10 @@ export function useMenu() {
 ```
 
 ### Zustand Store
+
 ```typescript
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface CartStore {
   items: CartItem[];
@@ -308,28 +318,29 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set) => ({
       items: [],
-      addItem: (item) => set((state) => ({
-        items: [...state.items, item],
-      })),
+      addItem: (item) =>
+        set((state) => ({
+          items: [...state.items, item],
+        })),
     }),
-    { name: 'mms-cart' }
+    { name: "mms-cart" }
   )
 );
 ```
 
 ### API Route with Auth
+
 ```typescript
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json(
-      { error: { code: 'UNAUTHORIZED' } },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: { code: "UNAUTHORIZED" } }, { status: 401 });
   }
 
   // Continue with authenticated user
@@ -341,6 +352,7 @@ export async function GET(request: Request) {
 ## Definition of Done
 
 A task is complete when:
+
 - [ ] Code implements spec exactly
 - [ ] TypeScript compiles with no errors
 - [ ] ESLint passes with no warnings

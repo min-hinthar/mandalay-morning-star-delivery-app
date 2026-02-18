@@ -91,19 +91,22 @@ started: Unknown - reported after mobile optimization sprint
 root_cause: Multiple modal-like components (ExceptionModal, PhotoCapture, DeliveryMap fullscreen, SuccessOverlay) were missing the useBodyScrollLock hook. On iOS Safari, this causes scroll/DOM conflicts during modal transitions, potentially leading to crashes. Additionally, PhotoCapture had a side effect during render (calling handleOpen() outside of useEffect).
 
 fix: |
-  1. Added useBodyScrollLock with deferRestore to ExceptionModal, PhotoCapture, DeliveryMap, and SuccessOverlay
-  2. Added onExitComplete={restoreScrollPosition} to AnimatePresence in these components
-  3. Fixed PhotoCapture's side effect in render - moved handleOpen logic to proper useEffect
-  4. All components now follow the safe pattern established in Modal.tsx and Drawer.tsx
+
+1. Added useBodyScrollLock with deferRestore to ExceptionModal, PhotoCapture, DeliveryMap, and SuccessOverlay
+2. Added onExitComplete={restoreScrollPosition} to AnimatePresence in these components
+3. Fixed PhotoCapture's side effect in render - moved handleOpen logic to proper useEffect
+4. All components now follow the safe pattern established in Modal.tsx and Drawer.tsx
 
 verification: |
-  - TypeScript: pnpm typecheck passes
-  - ESLint: pnpm lint passes
-  - Tests: All 343 tests pass
-  - Changes are minimal and follow existing patterns
+
+- TypeScript: pnpm typecheck passes
+- ESLint: pnpm lint passes
+- Tests: All 343 tests pass
+- Changes are minimal and follow existing patterns
 
 files_changed:
-  - src/components/ui/driver/PhotoCapture.tsx
-  - src/components/ui/driver/ExceptionModal.tsx
-  - src/components/ui/orders/tracking/DeliveryMap.tsx
-  - src/components/ui/success-checkmark.tsx
+
+- src/components/ui/driver/PhotoCapture.tsx
+- src/components/ui/driver/ExceptionModal.tsx
+- src/components/ui/orders/tracking/DeliveryMap.tsx
+- src/components/ui/success-checkmark.tsx

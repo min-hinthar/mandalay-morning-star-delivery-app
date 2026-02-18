@@ -13,7 +13,12 @@ interface MapOverlaysProps {
   durationMinutes?: number;
 }
 
-export function MapOverlays({ hasDestination, isValid, distanceMiles, durationMinutes }: MapOverlaysProps) {
+export function MapOverlays({
+  hasDestination,
+  isValid,
+  distanceMiles,
+  durationMinutes,
+}: MapOverlaysProps) {
   return (
     <>
       {/* Gradient overlay for depth */}
@@ -43,9 +48,7 @@ export function MapOverlays({ hasDestination, isValid, distanceMiles, durationMi
           </span>
           <span className="text-text-muted/60">{"\u2022"}</span>
           <Clock className="w-3.5 h-3.5 text-text-muted" />
-          <span className="text-text-secondary">
-            {COVERAGE_LIMITS.maxDurationMinutes} min
-          </span>
+          <span className="text-text-secondary">{COVERAGE_LIMITS.maxDurationMinutes} min</span>
         </div>
       </m.div>
 
@@ -111,17 +114,16 @@ export function MapOverlays({ hasDestination, isValid, distanceMiles, durationMi
                     )}
                   >
                     <Navigation2
-                      className={cn(
-                        "w-5 h-5",
-                        isValid ? "text-green" : "text-status-error"
-                      )}
+                      className={cn("w-5 h-5", isValid ? "text-green" : "text-status-error")}
                     />
                   </m.div>
                   <div>
-                    <p className={cn(
-                      "font-display font-bold text-lg leading-tight",
-                      isValid ? "text-green" : "text-status-error"
-                    )}>
+                    <p
+                      className={cn(
+                        "font-display font-bold text-lg leading-tight",
+                        isValid ? "text-green" : "text-status-error"
+                      )}
+                    >
                       {distanceMiles?.toFixed(1) ?? "0"} miles
                     </p>
                     <p className="text-xs text-text-muted">
@@ -147,10 +149,7 @@ export function MapOverlays({ hasDestination, isValid, distanceMiles, durationMi
               </div>
             ) : (
               <div className="flex items-center gap-3 justify-center py-1">
-                <m.div
-                  animate={{ y: [0, -3, 0] }}
-                  transition={{ duration: 1.5, repeat: 5 }}
-                >
+                <m.div animate={{ y: [0, -3, 0] }} transition={{ duration: 1.5, repeat: 5 }}>
                   <MapPin className="w-5 h-5 text-primary" />
                 </m.div>
                 <p className="text-sm text-text-secondary font-medium">

@@ -76,29 +76,30 @@ Each task was committed atomically:
 
 ## Files Modified
 
-| File | Changes |
-|------|---------|
-| `src/components/homepage/Timeline.tsx` | z-10 -> z-dropdown (1 instance) |
-| `src/components/homepage/TestimonialsSection.tsx` | z-10 -> z-dropdown (1 instance) |
-| `src/components/homepage/HowItWorksTimeline.tsx` | z-10 -> z-dropdown (2 instances) |
-| `src/components/homepage/HomepageHero.tsx` | z-10 -> z-dropdown, -z-10 -> inline style |
-| `src/components/homepage/CoverageSection.tsx` | z-10 -> z-dropdown (2 instances) |
-| `src/components/homepage/Hero.tsx` | z-10 -> z-dropdown, local stacking docs |
-| `src/components/homepage/FloatingFood.tsx` | Local stacking context documentation |
+| File                                              | Changes                                   |
+| ------------------------------------------------- | ----------------------------------------- |
+| `src/components/homepage/Timeline.tsx`            | z-10 -> z-dropdown (1 instance)           |
+| `src/components/homepage/TestimonialsSection.tsx` | z-10 -> z-dropdown (1 instance)           |
+| `src/components/homepage/HowItWorksTimeline.tsx`  | z-10 -> z-dropdown (2 instances)          |
+| `src/components/homepage/HomepageHero.tsx`        | z-10 -> z-dropdown, -z-10 -> inline style |
+| `src/components/homepage/CoverageSection.tsx`     | z-10 -> z-dropdown (2 instances)          |
+| `src/components/homepage/Hero.tsx`                | z-10 -> z-dropdown, local stacking docs   |
+| `src/components/homepage/FloatingFood.tsx`        | Local stacking context documentation      |
 
 ## Decisions Made
 
-| Decision | Rationale |
-|----------|-----------|
-| Use z-dropdown token | Semantic meaning (dropdown layer = 10) matches existing z-10 usage |
-| Inline style for negative z-index | Tailwind doesn't support custom negative z-index values |
-| Preserve local zIndex 1-4 values | Hero/FloatingFood use local stacking, not global layers |
+| Decision                          | Rationale                                                          |
+| --------------------------------- | ------------------------------------------------------------------ |
+| Use z-dropdown token              | Semantic meaning (dropdown layer = 10) matches existing z-10 usage |
+| Inline style for negative z-index | Tailwind doesn't support custom negative z-index values            |
+| Preserve local zIndex 1-4 values  | Hero/FloatingFood use local stacking, not global layers            |
 
 ## Deviations from Plan
 
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Additional z-10 in Hero.tsx**
+
 - **Found during:** Task 2 verification
 - **Issue:** Hero.tsx had z-10 in button span at line 352, missed in Task 1
 - **Fix:** Migrated to z-dropdown
@@ -122,6 +123,7 @@ Each task was committed atomically:
 - Pattern established for remaining token migrations
 
 ---
-*Phase: 10-token-migration*
-*Plan: 01*
-*Completed: 2026-01-23*
+
+_Phase: 10-token-migration_
+_Plan: 01_
+_Completed: 2026-01-23_

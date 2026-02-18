@@ -20,19 +20,12 @@ export interface SkeletonTableRowProps {
   className?: string;
 }
 
-export function SkeletonTableRow({
-  columns = 4,
-  height = 48,
-  className,
-}: SkeletonTableRowProps) {
+export function SkeletonTableRow({ columns = 4, height = 48, className }: SkeletonTableRowProps) {
   const columnWidths = ["30%", "25%", "20%", "15%", "10%"];
 
   return (
     <div
-      className={cn(
-        "flex items-center gap-4 px-4 border-b border-border-subtle",
-        className
-      )}
+      className={cn("flex items-center gap-4 px-4 border-b border-border-subtle", className)}
       style={{ height }}
     >
       {Array.from({ length: columns }).map((_, index) => (

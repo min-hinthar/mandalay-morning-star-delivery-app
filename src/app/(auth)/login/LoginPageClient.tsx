@@ -52,15 +52,14 @@ function AuthCardContent({
   };
 
   if (state === "confirmation") {
-    return <MagicLinkConfirmation email={email} onBack={handleBackToForm} redirectTo={redirectTo} />;
+    return (
+      <MagicLinkConfirmation email={email} onBack={handleBackToForm} redirectTo={redirectTo} />
+    );
   }
 
   if (state === "success") {
     return (
-      <LoginSuccessCeremony
-        userName={successProfile.name}
-        avatarUrl={successProfile.avatarUrl}
-      />
+      <LoginSuccessCeremony userName={successProfile.name} avatarUrl={successProfile.avatarUrl} />
     );
   }
 
@@ -107,29 +106,25 @@ function AuthCardContent({
   );
 }
 
-function AuthSessionListener({
-  onSuccess,
-}: {
-  onSuccess: (profile: SuccessProfile) => void;
-}) {
+function AuthSessionListener({ onSuccess }: { onSuccess: (profile: SuccessProfile) => void }) {
   const { setState } = useAuthCard();
 
   useEffect(() => {
     const supabase = createClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (!session?.user) return;
-        if (event !== "SIGNED_IN" && event !== "INITIAL_SESSION") return;
-        const metadata = session.user.user_metadata ?? {};
-        const name =
-          metadata.full_name ||
-          metadata.name ||
-          (session.user.email ? session.user.email.split("@")[0] : null);
-        const avatarUrl = metadata.avatar_url ?? null;
-        onSuccess({ name: name ?? null, avatarUrl });
-        setState("success");
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session?.user) return;
+      if (event !== "SIGNED_IN" && event !== "INITIAL_SESSION") return;
+      const metadata = session.user.user_metadata ?? {};
+      const name =
+        metadata.full_name ||
+        metadata.name ||
+        (session.user.email ? session.user.email.split("@")[0] : null);
+      const avatarUrl = metadata.avatar_url ?? null;
+      onSuccess({ name: name ?? null, avatarUrl });
+      setState("success");
+    });
 
     return () => {
       subscription.unsubscribe();

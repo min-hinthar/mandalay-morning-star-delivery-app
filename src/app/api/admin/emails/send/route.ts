@@ -59,45 +59,39 @@ export async function POST(request: Request) {
 
     // Validate input
     if (!orderId || typeof orderId !== "string") {
-      return NextResponse.json(
-        { error: "orderId is required" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "orderId is required" }, { status: 400 });
     }
 
     if (!emailType || !VALID_EMAIL_TYPES.includes(emailType as EmailType)) {
       return NextResponse.json(
         { error: `Invalid emailType. Valid: ${VALID_EMAIL_TYPES.join(", ")}` },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     const type = emailType as EmailType;
 
     // Fetch order
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: orderError } = (await supabase
       .from("orders")
       .select(
-        "id, user_id, total_cents, delivery_fee_cents, tax_cents, subtotal_cents, tip_cents, status, created_at, delivery_address, delivery_instructions, special_instructions",
+        "id, user_id, total_cents, delivery_fee_cents, tax_cents, subtotal_cents, tip_cents, status, created_at, delivery_address, delivery_instructions, special_instructions"
       )
       .eq("id", orderId)
-      .single() as {
+      .single()) as {
       data: OrderRow | null;
       error: { message: string } | null;
     };
 
     if (orderError || !order) {
-      return NextResponse.json(
-        { error: "Order not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
     // Fetch order items
-    const { data: orderItems } = await supabase
+    const { data: orderItems } = (await supabase
       .from("order_items")
       .select("name_snapshot, quantity, line_total_cents")
-      .eq("order_id", orderId) as {
+      .eq("order_id", orderId)) as {
       data: OrderItemRow[] | null;
     };
 
@@ -110,10 +104,7 @@ export async function POST(request: Request) {
       .single();
 
     if (!profile?.email) {
-      return NextResponse.json(
-        { error: "Customer email not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Customer email not found" }, { status: 404 });
     }
 
     const customerName = profile.full_name || "Valued Customer";
@@ -196,10 +187,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     logger.exception(error, { api: "admin/emails/send" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 

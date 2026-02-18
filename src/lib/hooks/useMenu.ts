@@ -21,9 +21,7 @@ export function useMenuSearch(query: string) {
   return useQuery<MenuSearchResponse>({
     queryKey: ["menu", "search", trimmedQuery],
     queryFn: async () => {
-      const res = await fetch(
-        `/api/menu/search?q=${encodeURIComponent(trimmedQuery)}`
-      );
+      const res = await fetch(`/api/menu/search?q=${encodeURIComponent(trimmedQuery)}`);
       if (!res.ok) {
         throw new Error("Failed to search menu");
       }

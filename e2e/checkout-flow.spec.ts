@@ -158,7 +158,7 @@ test.describe("Order Summary", () => {
     await expect(page.getByText(/subtotal/i)).toBeVisible();
 
     // Subtotal should have a dollar amount
-    await expect(page.locator('text=/\\$\\d+\\.\\d{2}/')).toBeVisible();
+    await expect(page.locator("text=/\\$\\d+\\.\\d{2}/")).toBeVisible();
   });
 
   test("displays delivery fee", async ({ page }) => {
@@ -286,7 +286,10 @@ test.describe("Checkout Validation", () => {
     await page.goto("/checkout");
 
     // Should redirect back or show empty cart message
-    const hasEmptyMessage = await page.getByText(/empty|no items/i).isVisible().catch(() => false);
+    const hasEmptyMessage = await page
+      .getByText(/empty|no items/i)
+      .isVisible()
+      .catch(() => false);
     const redirectedAway = !page.url().includes("checkout");
 
     expect(hasEmptyMessage || redirectedAway).toBeTruthy();
@@ -302,7 +305,10 @@ test.describe("Checkout Validation", () => {
     const placeOrderBtn = page.getByRole("button", { name: /place order|pay|confirm/i });
 
     // If no address selected, button should be disabled or show error
-    const needsAddress = await page.getByText(/select.*address|add.*address|address required/i).isVisible().catch(() => false);
+    const needsAddress = await page
+      .getByText(/select.*address|add.*address|address required/i)
+      .isVisible()
+      .catch(() => false);
     const btnDisabled = await placeOrderBtn.isDisabled();
 
     // Either the button should be disabled or there should be an address prompt

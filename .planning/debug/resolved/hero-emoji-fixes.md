@@ -15,11 +15,13 @@ next_action: Archive
 ## Symptoms
 
 expected:
+
 1. Floating emojis should have transparent backgrounds (no visible rectangles)
 2. Emojis should NOT move with scroll parallax - static position (only floating animation)
 3. Emojis should appear once (not repeating) with varied, finite animations
 
 actual:
+
 1. Emojis show rectangular backgrounds behind them
 2. Emojis move with scroll parallax effect
 3. Emojis repeat and animations loop infinitely
@@ -50,17 +52,20 @@ started: Phase 31 implementation (31-03 created FloatingEmoji.tsx)
 ## Resolution
 
 root_cause: Three issues:
-  1. `boxShadow` CSS property on emoji spans creates rectangular shadow behind emoji text, appearing as a background rectangle
-  2. `smoothEmojisY` parallax transform on emoji container div in Hero.tsx causes emojis to shift with scroll
-  3. `repeat: Infinity` in FloatingEmoji.tsx animation transition causes infinite looping
+
+1. `boxShadow` CSS property on emoji spans creates rectangular shadow behind emoji text, appearing as a background rectangle
+2. `smoothEmojisY` parallax transform on emoji container div in Hero.tsx causes emojis to shift with scroll
+3. `repeat: Infinity` in FloatingEmoji.tsx animation transition causes infinite looping
 
 fix:
-  1. Replaced `boxShadow` with `filter: drop-shadow()` which follows the emoji glyph shape instead of the rectangular bounding box
-  2. Removed `emojisY`/`smoothEmojisY` scroll transforms from Hero.tsx; changed emoji container from `motion.div` to plain `div` (no parallax)
-  3. Changed `repeat: Infinity` to `repeat: getRepeatCount(index)` returning 1-3 based on index. Added per-emoji animation variation via index-based offsets to keyframe values. Added opacity fade-in keyframes to all animation types.
+
+1. Replaced `boxShadow` with `filter: drop-shadow()` which follows the emoji glyph shape instead of the rectangular bounding box
+2. Removed `emojisY`/`smoothEmojisY` scroll transforms from Hero.tsx; changed emoji container from `motion.div` to plain `div` (no parallax)
+3. Changed `repeat: Infinity` to `repeat: getRepeatCount(index)` returning 1-3 based on index. Added per-emoji animation variation via index-based offsets to keyframe values. Added opacity fade-in keyframes to all animation types.
 
 verification: TypeScript typecheck passes (0 errors). ESLint passes (only pre-existing blur warnings unrelated to changes). Next.js production build succeeds.
 
 files_changed:
-  - src/components/ui/homepage/FloatingEmoji.tsx
-  - src/components/ui/homepage/Hero.tsx
+
+- src/components/ui/homepage/FloatingEmoji.tsx
+- src/components/ui/homepage/Hero.tsx

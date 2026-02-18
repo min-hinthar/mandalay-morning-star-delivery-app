@@ -55,7 +55,10 @@ export async function POST() {
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -78,17 +81,15 @@ export async function POST() {
     // Since we're admin-only, we'll use upsert to restore values
 
     for (const setting of DEFAULT_SETTINGS) {
-      const { error: upsertError } = await supabase
-        .from("app_settings")
-        .upsert(
-          {
-            key: setting.key,
-            value: JSON.parse(JSON.stringify(setting.value)),
-            category: setting.category,
-            updated_by: user.id,
-          },
-          { onConflict: "key" }
-        );
+      const { error: upsertError } = await supabase.from("app_settings").upsert(
+        {
+          key: setting.key,
+          value: JSON.parse(JSON.stringify(setting.value)),
+          category: setting.category,
+          updated_by: user.id,
+        },
+        { onConflict: "key" }
+      );
 
       if (upsertError) {
         logger.exception(upsertError, {
@@ -109,9 +110,6 @@ export async function POST() {
     });
   } catch (error) {
     logger.exception(error, { api: "admin/settings/restore" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

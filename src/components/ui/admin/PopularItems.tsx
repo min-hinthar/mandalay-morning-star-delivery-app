@@ -27,11 +27,7 @@ export function PopularItems({ items }: PopularItemsProps) {
   };
 
   if (items.length === 0) {
-    return (
-      <p className="text-sm font-body text-text-muted">
-        No order data available
-      </p>
-    );
+    return <p className="text-sm font-body text-text-muted">No order data available</p>;
   }
 
   return (
@@ -61,17 +57,13 @@ export function PopularItems({ items }: PopularItemsProps) {
             >
               {index + 1}
             </div>
-            <span className="text-sm font-body font-medium text-text-primary">
-              {item.name}
-            </span>
+            <span className="text-sm font-body font-medium text-text-primary">{item.name}</span>
           </div>
           <div className="text-right">
             <p className="text-sm font-body font-semibold text-text-primary">
               {item.quantity} sold
             </p>
-            <p className="text-xs font-body text-text-muted">
-              {formatCurrency(item.revenue)}
-            </p>
+            <p className="text-xs font-body text-text-muted">{formatCurrency(item.revenue)}</p>
           </div>
         </div>
       ))}

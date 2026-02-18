@@ -203,10 +203,7 @@ export function FavoriteButton({
         {showBurst && shouldAnimate && (
           <m.div
             key="ring-burst"
-            className={cn(
-              sizes.burst,
-              "absolute rounded-full border-2 border-red-400"
-            )}
+            className={cn(sizes.burst, "absolute rounded-full border-2 border-red-400")}
             variants={burstVariants}
             initial="initial"
             animate="animate"
@@ -214,16 +211,18 @@ export function FavoriteButton({
           />
         )}
         {/* Particle bursts */}
-        {showBurst && shouldAnimate && Array.from({ length: particleCount }).map((_, i) => (
-          <m.div
-            key={`particle-${i}`}
-            className="absolute w-1.5 h-1.5 rounded-full bg-red-400"
-            variants={getParticleVariants(i)}
-            initial="initial"
-            animate="animate"
-            exit="initial"
-          />
-        ))}
+        {showBurst &&
+          shouldAnimate &&
+          Array.from({ length: particleCount }).map((_, i) => (
+            <m.div
+              key={`particle-${i}`}
+              className="absolute w-1.5 h-1.5 rounded-full bg-red-400"
+              variants={getParticleVariants(i)}
+              initial="initial"
+              animate="animate"
+              exit="initial"
+            />
+          ))}
       </AnimatePresence>
 
       {/* Heart icon with fill animation */}
@@ -266,11 +265,7 @@ export function FavoriteButtonSkeleton({
 
   return (
     <div
-      className={cn(
-        sizes.button,
-        "rounded-full bg-surface-tertiary animate-pulse",
-        className
-      )}
+      className={cn(sizes.button, "rounded-full bg-surface-tertiary animate-pulse", className)}
     />
   );
 }

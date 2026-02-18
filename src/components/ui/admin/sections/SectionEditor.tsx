@@ -55,7 +55,9 @@ export interface SectionEditorSection {
 
 interface SectionEditorProps {
   section: SectionEditorSection | null;
-  onSave: (data: Omit<SectionEditorSection, "id" | "isPredefined" | "updatedAt" | "updatedBy">) => void;
+  onSave: (
+    data: Omit<SectionEditorSection, "id" | "isPredefined" | "updatedAt" | "updatedBy">
+  ) => void;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -171,9 +173,7 @@ export function SectionEditor({
                 placeholder="e.g., Chef's Specials"
                 className={cn(errors.name && "border-status-error")}
               />
-              {errors.name && (
-                <p className="text-xs text-status-error mt-1">{errors.name}</p>
-              )}
+              {errors.name && <p className="text-xs text-status-error mt-1">{errors.name}</p>}
             </div>
 
             {/* Subtitle */}
@@ -243,9 +243,7 @@ export function SectionEditor({
                     )}
                     style={{ backgroundColor: color }}
                   >
-                    {accentColor === color && (
-                      <Check className="h-4 w-4 text-text-inverse" />
-                    )}
+                    {accentColor === color && <Check className="h-4 w-4 text-text-inverse" />}
                   </button>
                 ))}
               </div>

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  AlertCircle,
-  Link,
-  Copy,
-  Check,
-} from "lucide-react";
+import { AlertCircle, Link, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -37,10 +32,8 @@ export function RevokeDialog({ open, onOpenChange, invite, onConfirm }: RevokeDi
           </AlertDialogTitle>
           <AlertDialogDescription className="font-body text-text-secondary">
             Are you sure you want to revoke the invite for{" "}
-            <span className="font-medium text-text-primary">
-              {invite?.email}
-            </span>
-            ? This action cannot be undone.
+            <span className="font-medium text-text-primary">{invite?.email}</span>? This action
+            cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -85,11 +78,8 @@ export function MagicLinkDialog({
             Invite Link Generated
           </AlertDialogTitle>
           <AlertDialogDescription className="font-body text-text-secondary">
-            Share this link with{" "}
-            <span className="font-medium text-text-primary">
-              {email}
-            </span>{" "}
-            to let them complete driver registration.
+            Share this link with <span className="font-medium text-text-primary">{email}</span> to
+            let them complete driver registration.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="my-4">
@@ -100,21 +90,13 @@ export function MagicLinkDialog({
               value={magicLink || ""}
               className="flex-1 px-3 py-2 text-sm bg-surface-secondary border border-border rounded-input font-mono truncate"
             />
-            <Button
-              onClick={onCopyLink}
-              variant="outline"
-              size="sm"
-              className="shrink-0"
-            >
-              {copied ? (
-                <Check className="h-4 w-4 text-green" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
+            <Button onClick={onCopyLink} variant="outline" size="sm" className="shrink-0">
+              {copied ? <Check className="h-4 w-4 text-green" /> : <Copy className="h-4 w-4" />}
             </Button>
           </div>
           <p className="mt-2 text-xs text-text-muted">
-            This link expires in 24 hours. The recipient should open it in a browser where they are not already logged in.
+            This link expires in 24 hours. The recipient should open it in a browser where they are
+            not already logged in.
           </p>
         </div>
         <AlertDialogFooter>

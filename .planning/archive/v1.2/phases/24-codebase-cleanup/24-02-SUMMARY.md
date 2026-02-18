@@ -88,6 +88,7 @@ Each task was committed atomically:
 ## Files Deleted
 
 ### Layout (6 files, 1,570 lines)
+
 - `src/components/layout/header.tsx` - Old header (replaced by AppHeader/)
 - `src/components/layout/HeaderClient.tsx` - Old client header (replaced by AppHeader/)
 - `src/components/layout/HeaderServer.tsx` - Old server header (replaced by AppHeader/)
@@ -96,31 +97,38 @@ Each task was committed atomically:
 - `src/components/layout/footer.tsx` - Unused footer component
 
 ### Homepage (4 files)
+
 - `src/components/homepage/CoverageSection.tsx` - Unused coverage area section
 - `src/components/homepage/FloatingFood.tsx` - Unused floating animation
 - `src/components/homepage/HeroVideo.tsx` - Unused video hero
 - `src/components/homepage/Timeline.tsx` - Unused timeline component
 
 ### Checkout (1 file)
+
 - `src/components/checkout/CoverageStatus.tsx` - Unused coverage status display
 
 ### Menu (3 files)
+
 - `src/components/menu/CategoryCarousel.tsx` - Unused category carousel
 - `src/components/menu/ModifierToggle.tsx` - Unused modifier toggle
 - `src/components/menu/VisualPreview.tsx` - Unused visual preview
 
 ### Layouts (1 file)
+
 - `src/components/layouts/ParallaxContainer.tsx` - Unused parallax wrapper
 
 ### Map (2 files)
+
 - `src/components/map/CoverageMap.tsx` - Unused coverage map
 - `src/components/map/PlacesAutocomplete.tsx` - Unused places autocomplete
 
 ### Tracking (2 files)
+
 - `src/components/tracking/PushToast.tsx` - Unused push notification toast
 - `src/components/tracking/TrackingMap.tsx` - Unused tracking map
 
 ### WebGL (2 files)
+
 - `src/lib/webgl/grain.ts` - Unused grain shader
 - `src/lib/webgl/particles.ts` - Unused particle system
 
@@ -148,5 +156,6 @@ None - no external service configuration required.
 - No blockers or concerns
 
 ---
-*Phase: 24-codebase-cleanup*
-*Completed: 2026-01-27*
+
+_Phase: 24-codebase-cleanup_
+_Completed: 2026-01-27_

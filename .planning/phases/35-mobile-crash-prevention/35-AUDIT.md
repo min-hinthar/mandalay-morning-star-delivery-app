@@ -6,11 +6,11 @@
 
 ## Summary
 
-| Severity | Count | Pattern |
-|----------|-------|---------|
-| Critical | 0 | setTimeout/setInterval/addEventListener |
-| High | 0 | GSAP/Observer/rAF/AudioContext |
-| Medium | 4 | async/scroll-lock/best practice |
+| Severity | Count | Pattern                                 |
+| -------- | ----- | --------------------------------------- |
+| Critical | 0     | setTimeout/setInterval/addEventListener |
+| High     | 0     | GSAP/Observer/rAF/AudioContext          |
+| Medium   | 4     | async/scroll-lock/best practice         |
 
 The codebase is in excellent condition. The majority of files follow proper cleanup patterns. Only 4 minor best-practice issues were identified.
 
@@ -30,44 +30,44 @@ The codebase is in excellent condition. The majority of files follow proper clea
 
 **No issues found.** All 4 files with direct GSAP calls use proper patterns:
 
-| File | Pattern | Status |
-|------|---------|--------|
-| `src/components/ui/cart/FlyToCart.tsx` | Timeline with kill() in cleanup | Compliant |
-| `src/components/ui/scroll/ScrollChoreographer.tsx` | useGSAP with scope | Compliant |
-| `src/components/ui/scroll/RevealOnScroll.tsx` | useGSAP with scope | Compliant |
-| `src/components/ui/scroll/ParallaxLayer.tsx` | useGSAP with scope | Compliant |
-| `src/lib/gsap/presets.ts` | Static utility functions | N/A |
+| File                                               | Pattern                         | Status    |
+| -------------------------------------------------- | ------------------------------- | --------- |
+| `src/components/ui/cart/FlyToCart.tsx`             | Timeline with kill() in cleanup | Compliant |
+| `src/components/ui/scroll/ScrollChoreographer.tsx` | useGSAP with scope              | Compliant |
+| `src/components/ui/scroll/RevealOnScroll.tsx`      | useGSAP with scope              | Compliant |
+| `src/components/ui/scroll/ParallaxLayer.tsx`       | useGSAP with scope              | Compliant |
+| `src/lib/gsap/presets.ts`                          | Static utility functions        | N/A       |
 
 ### IntersectionObserver Without Cleanup
 
 **No issues found.** All 4 files using IntersectionObserver have `disconnect()` in cleanup.
 
-| File | Line | Status |
-|------|------|--------|
-| `src/components/ui/coverage/CoverageRouteMap.tsx` | 119-128 | disconnect() in cleanup |
+| File                                                           | Line    | Status                  |
+| -------------------------------------------------------------- | ------- | ----------------------- |
+| `src/components/ui/coverage/CoverageRouteMap.tsx`              | 119-128 | disconnect() in cleanup |
 | `src/components/ui/menu/FeaturedCarousel/FeaturedCarousel.tsx` | 165-194 | disconnect() in cleanup |
-| `src/lib/hooks/useScrollSpy.ts` | 29-80 | disconnect() in cleanup |
-| `src/lib/hooks/useActiveCategory.ts` | 95-140 | disconnect() in cleanup |
+| `src/lib/hooks/useScrollSpy.ts`                                | 29-80   | disconnect() in cleanup |
+| `src/lib/hooks/useActiveCategory.ts`                           | 95-140  | disconnect() in cleanup |
 
 ### requestAnimationFrame Without Cleanup
 
 **No issues found.** All 4 files using rAF have proper cancelAnimationFrame.
 
-| File | Line | Status |
-|------|------|--------|
-| `src/components/ui/menu/CategoryTabs.tsx` | 137-189 | cancelAnimationFrame in cleanup |
-| `src/components/ui/menu/UnifiedMenuItemCard/UnifiedMenuItemCard.tsx` | Uses rAF | cleanup in effect |
-| `src/lib/webgl/gradients.ts` | 270-279 | cancelAnimationFrame in destroy() |
-| `src/lib/hooks/useScrollDirection.ts` | 97-107 | Uses refs, not explicitly cancelled |
+| File                                                                 | Line     | Status                              |
+| -------------------------------------------------------------------- | -------- | ----------------------------------- |
+| `src/components/ui/menu/CategoryTabs.tsx`                            | 137-189  | cancelAnimationFrame in cleanup     |
+| `src/components/ui/menu/UnifiedMenuItemCard/UnifiedMenuItemCard.tsx` | Uses rAF | cleanup in effect                   |
+| `src/lib/webgl/gradients.ts`                                         | 270-279  | cancelAnimationFrame in destroy()   |
+| `src/lib/hooks/useScrollDirection.ts`                                | 97-107   | Uses refs, not explicitly cancelled |
 
 ### AudioContext Without Cleanup
 
 **No issues found.** Both files properly manage AudioContext.
 
-| File | Line | Status |
-|------|------|--------|
-| `src/components/ui/menu/UnifiedMenuItemCard/use-card-sound.ts` | - | Reuses single context |
-| `src/lib/hooks/useSoundEffect.ts` | 104-113 | close() in cleanup |
+| File                                                           | Line    | Status                |
+| -------------------------------------------------------------- | ------- | --------------------- |
+| `src/components/ui/menu/UnifiedMenuItemCard/use-card-sound.ts` | -       | Reuses single context |
+| `src/lib/hooks/useSoundEffect.ts`                              | 104-113 | close() in cleanup    |
 
 ## Medium Issues
 
@@ -79,12 +79,14 @@ These are best-practice improvements, not crash risks.
 **Lines:** 97-107
 **Pattern:** rAF ID stored in ref but not explicitly cancelled on unmount
 **Current:**
+
 ```typescript
 if (!ticking.current) {
   ticking.current = true;
   requestAnimationFrame(updateScrollDirection);
 }
 ```
+
 **Recommended Fix:** The rAF is self-cancelling via the `ticking` ref pattern. This is acceptable but could be more explicit. Low priority.
 **Severity:** Low - No actual leak, just style preference
 
@@ -94,9 +96,11 @@ if (!ticking.current) {
 **Lines:** 61, 107-113
 **Pattern:** Global `toastTimeouts` Map stores timeout IDs; cleared on dismiss but not on HMR
 **Current:**
+
 ```typescript
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 ```
+
 **Recommended Fix:** This is intentionally global for cross-component toast coordination. The pattern is correct. On page navigation, toasts are dismissed anyway. HMR is dev-only and acceptable to not optimize for.
 **Severity:** Low - Development-only edge case
 
@@ -184,5 +188,5 @@ The codebase demonstrates excellent cleanup hygiene. The patterns established in
 
 ---
 
-*Audited by: Claude (Phase 35-01)*
-*Audit methodology: Grep pattern matching + manual file review*
+_Audited by: Claude (Phase 35-01)_
+_Audit methodology: Grep pattern matching + manual file review_

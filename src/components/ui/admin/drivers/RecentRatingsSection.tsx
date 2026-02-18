@@ -51,24 +51,27 @@ export function RecentRatingsSection({ driverId }: RecentRatingsSectionProps) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchRatings = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
+  const fetchRatings = useCallback(
+    async (isRefresh = false) => {
+      if (isRefresh) setRefreshing(true);
 
-    try {
-      const response = await fetch(`/api/admin/drivers/${driverId}/ratings?limit=10`);
-      if (!response.ok) throw new Error("Failed to fetch ratings");
+      try {
+        const response = await fetch(`/api/admin/drivers/${driverId}/ratings?limit=10`);
+        if (!response.ok) throw new Error("Failed to fetch ratings");
 
-      const data = await response.json();
-      setRatings(data.ratings || []);
-      setAverageRating(data.averageRating);
-      setTotalRatings(data.totalRatings || 0);
-    } catch {
-      toast({ title: "Error", description: "Failed to fetch ratings", variant: "destructive" });
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [driverId]);
+        const data = await response.json();
+        setRatings(data.ratings || []);
+        setAverageRating(data.averageRating);
+        setTotalRatings(data.totalRatings || 0);
+      } catch {
+        toast({ title: "Error", description: "Failed to fetch ratings", variant: "destructive" });
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [driverId]
+  );
 
   useEffect(() => {
     fetchRatings();
@@ -185,13 +188,17 @@ export function RecentRatingsSection({ driverId }: RecentRatingsSectionProps) {
                       &ldquo;{rating.feedbackText}&rdquo;
                     </p>
                   ) : (
-                    <p className="mt-2 text-sm font-body text-text-muted italic">No feedback provided</p>
+                    <p className="mt-2 text-sm font-body text-text-muted italic">
+                      No feedback provided
+                    </p>
                   )}
                 </div>
 
                 {/* Rating Number */}
                 <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary-light shrink-0">
-                  <span className="text-lg font-display font-bold text-primary">{rating.rating}</span>
+                  <span className="text-lg font-display font-bold text-primary">
+                    {rating.rating}
+                  </span>
                 </div>
               </div>
             </m.div>

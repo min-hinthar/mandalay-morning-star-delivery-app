@@ -8,14 +8,15 @@ All animations maintain 60fps (16.67ms per frame) on mid-range devices.
 
 Only these properties can be animated at 60fps without triggering layout:
 
-| Property | GPU Accelerated | Use For |
-|----------|-----------------|---------|
-| `transform` | ✅ Yes | Movement, scale, rotation |
-| `opacity` | ✅ Yes | Fade in/out |
-| `filter` | ✅ Partial | Blur, brightness |
-| `will-change` | ✅ Hint | Prep for animation |
+| Property      | GPU Accelerated | Use For                   |
+| ------------- | --------------- | ------------------------- |
+| `transform`   | ✅ Yes          | Movement, scale, rotation |
+| `opacity`     | ✅ Yes          | Fade in/out               |
+| `filter`      | ✅ Partial      | Blur, brightness          |
+| `will-change` | ✅ Hint         | Prep for animation        |
 
 **Avoid animating** (triggers layout/paint):
+
 - `width`, `height`
 - `top`, `left`, `right`, `bottom`
 - `margin`, `padding`
@@ -60,24 +61,24 @@ Only these properties can be animated at 60fps without triggering layout:
 
 ### Components Using GPU-Accelerated Animations ✅
 
-| Component | Animation | Property |
-|-----------|-----------|----------|
-| MenuItemCard | Hover lift | `transform: translateY(-4px) scale(1.02)` |
-| CartDrawer | Slide in | `transform: translateX(100%)` |
-| ItemDetailModal | Scale up | `transform: scale(0.95)` → `scale(1)` |
-| CartBar | Bounce in | `transform: translateY(100%)` |
-| CategoryTabs | Scroll indicator | `opacity` |
-| HomepageHero | Float | `transform: translateY` |
-| Badge pulse | Pulse ring | `transform: scale`, `opacity` |
-| Skeleton | Shimmer | `background-position` (CSS) |
+| Component       | Animation        | Property                                  |
+| --------------- | ---------------- | ----------------------------------------- |
+| MenuItemCard    | Hover lift       | `transform: translateY(-4px) scale(1.02)` |
+| CartDrawer      | Slide in         | `transform: translateX(100%)`             |
+| ItemDetailModal | Scale up         | `transform: scale(0.95)` → `scale(1)`     |
+| CartBar         | Bounce in        | `transform: translateY(100%)`             |
+| CategoryTabs    | Scroll indicator | `opacity`                                 |
+| HomepageHero    | Float            | `transform: translateY`                   |
+| Badge pulse     | Pulse ring       | `transform: scale`, `opacity`             |
+| Skeleton        | Shimmer          | `background-position` (CSS)               |
 
 ### Animations Needing Review ⚠️
 
-| Component | Issue | Recommendation |
-|-----------|-------|----------------|
-| Progress bar | Animates `width` | Use `scaleX` with transform-origin |
-| Collapsible header | Height animation | Use `scaleY` or clip-path |
-| Cart badge count | May animate size | Ensure using scale only |
+| Component          | Issue            | Recommendation                     |
+| ------------------ | ---------------- | ---------------------------------- |
+| Progress bar       | Animates `width` | Use `scaleX` with transform-origin |
+| Collapsible header | Height animation | Use `scaleY` or clip-path          |
+| Cart badge count   | May animate size | Ensure using scale only            |
 
 ## CSS Animation Best Practices
 
@@ -85,15 +86,19 @@ Only these properties can be animated at 60fps without triggering layout:
 
 ```css
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .animate-shimmer {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255,255,255,0.4) 50%,
+    rgba(255, 255, 255, 0.4) 50%,
     transparent 100%
   );
   background-size: 200% 100%;

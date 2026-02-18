@@ -132,9 +132,7 @@ type ButtonHTMLProps = Omit<
   "onDrag" | "onDragEnd" | "onDragStart" | "onAnimationStart"
 >;
 
-export interface ButtonProps
-  extends ButtonHTMLProps,
-    VariantProps<typeof buttonVariants> {
+export interface ButtonProps extends ButtonHTMLProps, VariantProps<typeof buttonVariants> {
   /** Render as a different element using Radix Slot */
   asChild?: boolean;
   /** Show loading spinner and disable button */
@@ -174,16 +172,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     // Determine spinner size based on button size
-    const spinnerSize = size === "lg" || size === "xl" || size === "icon-lg" || size === "icon-xl"
-      ? "md"
-      : "sm";
+    const spinnerSize =
+      size === "lg" || size === "xl" || size === "icon-lg" || size === "icon-xl" ? "md" : "sm";
 
     const buttonContent = isLoading ? (
       <span className="contents">
         <BrandedSpinner size={spinnerSize} className="text-current" />
-        <span className={loadingText ? undefined : "sr-only"}>
-          {loadingText || "Loading..."}
-        </span>
+        <span className={loadingText ? undefined : "sr-only"}>{loadingText || "Loading..."}</span>
         {/* Keep original content in DOM but hidden to maintain width */}
         {!loadingText && <span className="invisible">{children}</span>}
       </span>

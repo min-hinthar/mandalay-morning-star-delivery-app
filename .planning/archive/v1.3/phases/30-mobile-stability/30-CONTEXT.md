@@ -14,6 +14,7 @@ Fix 3D tilt effects to work reliably on touch devices. Disable tilt where approp
 ## Implementation Decisions
 
 ### Touch Detection
+
 - CSS media queries only: `@media (hover: hover) and (pointer: fine)`
 - Hybrid devices (laptops with touchscreens): enable tilt if mouse/fine pointer detected
 - Detection scope: all tilt components, not just UnifiedMenuItemCard
@@ -24,6 +25,7 @@ Fix 3D tilt effects to work reliably on touch devices. Disable tilt where approp
 - No console logging for detection results
 
 ### Tilt Disable Behavior
+
 - Complete disable on touch devices (no reduced tilt, card stays flat)
 - Keep subtle shine effect (static or animated, just no cursor tracking)
 - Keep 3D context (preserve-3d) for glassmorphism and other effects
@@ -33,6 +35,7 @@ Fix 3D tilt effects to work reliably on touch devices. Disable tilt where approp
 - Long-press (500ms iOS standard) opens item detail sheet
 
 ### Fallback Experience
+
 - Shadow elevation change on tap (shadow-sm to shadow-xl, noticeable feedback)
 - Small upward translate on tap (-4px lift with shadow)
 - Animated shine sweep instead of cursor-tracked shine (4-5 second cycle)
@@ -41,6 +44,7 @@ Fix 3D tilt effects to work reliably on touch devices. Disable tilt where approp
 - Keep subtle animations for reduced-motion users (same as regular fallback)
 
 ### Safari Fixes
+
 - Fix all known issues: clipping, z-index, transform glitches, blur artifacts
 - Force GPU layers with `will-change: transform`
 - Manual -webkit- prefixes (don't rely solely on Autoprefixer)
@@ -48,6 +52,7 @@ Fix 3D tilt effects to work reliably on touch devices. Disable tilt where approp
 - Safari Technology Preview acceptable for verification (real devices not required)
 
 ### Claude's Discretion
+
 - Exact animation easing curves
 - Specific will-change properties to use
 - Order of compositing fix application
@@ -74,5 +79,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 30-mobile-stability*
-*Context gathered: 2026-01-28*
+_Phase: 30-mobile-stability_
+_Context gathered: 2026-01-28_

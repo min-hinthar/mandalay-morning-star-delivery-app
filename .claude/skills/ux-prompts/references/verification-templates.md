@@ -6,6 +6,7 @@ Standardized verification checklists for different prompt types.
 
 ```markdown
 ### Verification
+
 - [ ] Types compile without errors (`typecheck` passes)
 - [ ] Component renders in isolation (Storybook/test file)
 - [ ] All states visually verified:
@@ -27,6 +28,7 @@ Standardized verification checklists for different prompt types.
 
 ```markdown
 ### Verification
+
 - [ ] Happy path E2E test passes
 - [ ] Error states manually tested:
   - [ ] Network failure
@@ -45,6 +47,7 @@ Standardized verification checklists for different prompt types.
 
 ```markdown
 ### Verification
+
 - [ ] Runs at 60fps (no jank)
 - [ ] Respects `prefers-reduced-motion`:
   - [ ] Check with motion enabled
@@ -59,6 +62,7 @@ Standardized verification checklists for different prompt types.
 
 ```markdown
 ### Verification
+
 - [ ] All fields have labels (visible or aria-label)
 - [ ] Required fields marked with asterisk
 - [ ] Validation works:
@@ -77,6 +81,7 @@ Standardized verification checklists for different prompt types.
 
 ```markdown
 ### Verification
+
 - [ ] Empty state shows:
   - [ ] Appropriate illustration/icon
   - [ ] Helpful message
@@ -99,6 +104,7 @@ Standardized verification checklists for different prompt types.
 
 ```markdown
 ### Verification
+
 - [ ] Opens with animation
 - [ ] Closes with animation
 - [ ] Focus trapped inside modal
@@ -117,6 +123,7 @@ Standardized verification checklists for different prompt types.
 
 ```markdown
 ### Verification
+
 - [ ] Active state shows current location
 - [ ] Hover states on all links
 - [ ] Touch targets minimum 44x44px
@@ -136,13 +143,14 @@ Standardized verification checklists for different prompt types.
 
 ```markdown
 ### Verification
-| Breakpoint | Width | Layout | Verified |
-|------------|-------|--------|----------|
-| Mobile | 375px | [expected] | [ ] |
-| Mobile Large | 425px | [expected] | [ ] |
-| Tablet | 768px | [expected] | [ ] |
-| Desktop | 1024px | [expected] | [ ] |
-| Desktop Large | 1440px | [expected] | [ ] |
+
+| Breakpoint    | Width  | Layout     | Verified |
+| ------------- | ------ | ---------- | -------- |
+| Mobile        | 375px  | [expected] | [ ]      |
+| Mobile Large  | 425px  | [expected] | [ ]      |
+| Tablet        | 768px  | [expected] | [ ]      |
+| Desktop       | 1024px | [expected] | [ ]      |
+| Desktop Large | 1440px | [expected] | [ ]      |
 
 - [ ] No horizontal scroll at any breakpoint
 - [ ] Touch targets adequate on mobile
@@ -155,6 +163,7 @@ Standardized verification checklists for different prompt types.
 
 ```markdown
 ### Verification
+
 - [ ] Success case works
 - [ ] Loading state displays during fetch
 - [ ] Error handling:
@@ -174,6 +183,7 @@ Standardized verification checklists for different prompt types.
 
 ```markdown
 ### Verification
+
 - [ ] WCAG 2.1 AA compliant:
   - [ ] Color contrast 4.5:1 for text
   - [ ] Color contrast 3:1 for UI components
@@ -199,6 +209,7 @@ Standardized verification checklists for different prompt types.
 
 ```markdown
 ### Verification
+
 - [ ] Light mode:
   - [ ] Background colors correct
   - [ ] Text colors readable
@@ -222,6 +233,7 @@ Standardized verification checklists for different prompt types.
 ## Sprint [N] Verification
 
 ### Pre-Ship Checklist
+
 - [ ] All prompts in sprint completed
 - [ ] Individual verifications passed
 - [ ] Integration tests pass
@@ -240,11 +252,13 @@ Standardized verification checklists for different prompt types.
   - [ ] Edge (if required)
 
 ### Rollback Plan
+
 - [ ] Previous version tagged
 - [ ] Rollback procedure documented
 - [ ] Feature flags configured (if applicable)
 
 ### Monitoring
+
 - [ ] Error tracking enabled
 - [ ] Analytics events firing
 - [ ] Alerts configured

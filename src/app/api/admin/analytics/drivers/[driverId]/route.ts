@@ -75,10 +75,7 @@ interface RouteIdRow {
  * GET /api/admin/analytics/drivers/[driverId]
  * Get detailed analytics for a specific driver
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const resolvedParams = await params;
     const supabase = await createClient();
@@ -109,10 +106,7 @@ export async function GET(
     const paramResult = driverIdParamSchema.safeParse(resolvedParams);
 
     if (!paramResult.success) {
-      return NextResponse.json(
-        { error: "Invalid driver ID" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid driver ID" }, { status: 400 });
     }
 
     const { driverId } = paramResult.data;
@@ -126,10 +120,7 @@ export async function GET(
       .single();
 
     if (statsError || !driverStatsRow) {
-      return NextResponse.json(
-        { error: "Driver not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Driver not found" }, { status: 404 });
     }
 
     const stats = transformDriverStats(driverStatsRow);
@@ -172,31 +163,27 @@ export async function GET(
       .limit(20)
       .returns<RecentDeliveryRow[]>();
 
-    const recentDeliveries: RecentDelivery[] = (recentDeliveriesData || []).map(
-      (d) => {
-        const durationMinutes =
-          d.delivered_at && d.arrived_at
-            ? Math.round(
-                (new Date(d.delivered_at).getTime() -
-                  new Date(d.arrived_at).getTime()) /
-                  60000
-              )
-            : null;
+    const recentDeliveries: RecentDelivery[] = (recentDeliveriesData || []).map((d) => {
+      const durationMinutes =
+        d.delivered_at && d.arrived_at
+          ? Math.round(
+              (new Date(d.delivered_at).getTime() - new Date(d.arrived_at).getTime()) / 60000
+            )
+          : null;
 
-        return {
-          id: d.id,
-          orderId: d.order_id,
-          deliveredAt: d.delivered_at,
-          deliveryDurationMinutes: durationMinutes,
-          rating: null, // Will be populated from ratings query if needed
-          hasException: (d.delivery_exceptions || []).length > 0,
-          customerName: d.orders?.profiles?.full_name || null,
-          address: d.orders?.addresses
-            ? `${d.orders.addresses.line_1}, ${d.orders.addresses.city}`
-            : "N/A",
-        };
-      }
-    );
+      return {
+        id: d.id,
+        orderId: d.order_id,
+        deliveredAt: d.delivered_at,
+        deliveryDurationMinutes: durationMinutes,
+        rating: null, // Will be populated from ratings query if needed
+        hasException: (d.delivery_exceptions || []).length > 0,
+        customerName: d.orders?.profiles?.full_name || null,
+        address: d.orders?.addresses
+          ? `${d.orders.addresses.line_1}, ${d.orders.addresses.city}`
+          : "N/A",
+      };
+    });
 
     // Fetch rating history (aggregated by date)
     const { data: ratingsData } = await supabase
@@ -207,10 +194,7 @@ export async function GET(
       .returns<SimpleRatingRow[]>();
 
     // Aggregate ratings by date
-    const ratingsByDate = new Map<
-      string,
-      { total: number; count: number }
-    >();
+    const ratingsByDate = new Map<string, { total: number; count: number }>();
 
     (ratingsData || []).forEach((r) => {
       const date = r.submitted_at.split("T")[0];
@@ -220,13 +204,13 @@ export async function GET(
       ratingsByDate.set(date, existing);
     });
 
-    const ratingHistory: RatingTrendPoint[] = Array.from(
-      ratingsByDate.entries()
-    ).map(([date, data]) => ({
-      date,
-      avgRating: Math.round((data.total / data.count) * 10) / 10,
-      count: data.count,
-    }));
+    const ratingHistory: RatingTrendPoint[] = Array.from(ratingsByDate.entries()).map(
+      ([date, data]) => ({
+        date,
+        avgRating: Math.round((data.total / data.count) * 10) / 10,
+        count: data.count,
+      })
+    );
 
     // Fetch delivery trend (last 30 days)
     const thirtyDaysAgo = new Date();
@@ -257,9 +241,7 @@ export async function GET(
       }
     });
 
-    const deliveryTrend: DailyMetricPoint[] = Array.from(
-      deliveriesByDate.entries()
-    )
+    const deliveryTrend: DailyMetricPoint[] = Array.from(deliveriesByDate.entries())
       .map(([date, value]) => ({ date, value }))
       .sort((a, b) => a.date.localeCompare(b.date));
 
@@ -288,9 +270,7 @@ export async function GET(
       .limit(10)
       .returns<RatingRow[]>();
 
-    const recentRatings: DriverRatingWithDetails[] = (
-      recentRatingsData || []
-    ).map((r) => ({
+    const recentRatings: DriverRatingWithDetails[] = (recentRatingsData || []).map((r) => ({
       id: r.id,
       driver_id: driverId,
       order_id: r.order_id,
@@ -304,9 +284,7 @@ export async function GET(
         delivery_window_start: r.orders.delivery_window_start,
         total_cents: r.orders.total_cents,
       },
-      customer: r.orders.profiles
-        ? { full_name: r.orders.profiles.full_name }
-        : null,
+      customer: r.orders.profiles ? { full_name: r.orders.profiles.full_name } : null,
     }));
 
     const response: DriverAnalyticsDetailResponse = {
@@ -320,9 +298,6 @@ export async function GET(
     return NextResponse.json(response);
   } catch (error) {
     logger.exception(error, { api: "admin/analytics/drivers/[driverId]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

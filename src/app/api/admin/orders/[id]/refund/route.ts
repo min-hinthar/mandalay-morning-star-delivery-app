@@ -32,10 +32,7 @@ interface RefundedItem {
  * Note: Actual payment refund integration (Stripe, etc.) is out of scope.
  * This creates the audit trail and marks items as refunded.
  */
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: orderId } = await params;
 
   try {
@@ -79,10 +76,7 @@ export async function POST(
 
     if (itemsError) {
       logger.exception(itemsError, { api: "admin/orders/[id]/refund" });
-      return NextResponse.json(
-        { error: "Failed to fetch order items" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch order items" }, { status: 500 });
     }
 
     // Validate all items belong to this order
@@ -145,10 +139,7 @@ export async function POST(
           api: "admin/orders/[id]/refund",
           orderItemId: refundItem.orderItemId,
         });
-        return NextResponse.json(
-          { error: "Failed to update order item" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to update order item" }, { status: 500 });
       }
 
       refundedItems.push({
@@ -169,9 +160,7 @@ export async function POST(
     }
 
     // Create audit log entry
-    const auditReason =
-      items[0].reason ||
-      `Refund processed for ${refundedItems.length} item(s)`;
+    const auditReason = items[0].reason || `Refund processed for ${refundedItems.length} item(s)`;
 
     // Prepare audit values as Json-compatible objects
     const oldValue = {
@@ -249,7 +238,11 @@ export async function POST(
           idempotencyKey: `refund-${orderId}-${Date.now()}`,
         });
 
-        logger.info("Refund email triggered", { orderId, totalRefundCents, api: "admin/orders/[id]/refund" });
+        logger.info("Refund email triggered", {
+          orderId,
+          totalRefundCents,
+          api: "admin/orders/[id]/refund",
+        });
       }
     }
 
@@ -264,9 +257,6 @@ export async function POST(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/refund" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

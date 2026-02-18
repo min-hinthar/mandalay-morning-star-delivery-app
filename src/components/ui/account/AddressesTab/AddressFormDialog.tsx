@@ -38,20 +38,19 @@ export function AddressFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {editingAddress ? "Edit Address" : "Add Address"}
-          </DialogTitle>
+          <DialogTitle>{editingAddress ? "Edit Address" : "Add Address"}</DialogTitle>
           <DialogDescription>
-            {editingAddress
-              ? "Update your delivery address details"
-              : "Add a new delivery address"}
+            {editingAddress ? "Update your delivery address details" : "Add a new delivery address"}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           {/* Label */}
           <div>
-            <label htmlFor="addressLabel" className="block text-sm font-medium text-text-primary mb-2">
+            <label
+              htmlFor="addressLabel"
+              className="block text-sm font-medium text-text-primary mb-2"
+            >
               Label
             </label>
             <Input
@@ -65,7 +64,13 @@ export function AddressFormDialog({
             />
             <AnimatePresence>
               {formErrors.label && (
-                <m.p id="label-error" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-1 text-sm text-status-error">
+                <m.p
+                  id="label-error"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-1 text-sm text-status-error"
+                >
                   {formErrors.label}
                 </m.p>
               )}
@@ -74,7 +79,10 @@ export function AddressFormDialog({
 
           {/* Line 1 */}
           <div>
-            <label htmlFor="addressLine1" className="block text-sm font-medium text-text-primary mb-2">
+            <label
+              htmlFor="addressLine1"
+              className="block text-sm font-medium text-text-primary mb-2"
+            >
               Address Line 1 <span className="text-status-error">*</span>
             </label>
             <Input
@@ -88,7 +96,13 @@ export function AddressFormDialog({
             />
             <AnimatePresence>
               {formErrors.line1 && (
-                <m.p id="line1-error" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-1 text-sm text-status-error">
+                <m.p
+                  id="line1-error"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-1 text-sm text-status-error"
+                >
                   {formErrors.line1}
                 </m.p>
               )}
@@ -97,7 +111,10 @@ export function AddressFormDialog({
 
           {/* Line 2 */}
           <div>
-            <label htmlFor="addressLine2" className="block text-sm font-medium text-text-primary mb-2">
+            <label
+              htmlFor="addressLine2"
+              className="block text-sm font-medium text-text-primary mb-2"
+            >
               Address Line 2
             </label>
             <Input
@@ -110,7 +127,10 @@ export function AddressFormDialog({
 
           {/* City */}
           <div>
-            <label htmlFor="addressCity" className="block text-sm font-medium text-text-primary mb-2">
+            <label
+              htmlFor="addressCity"
+              className="block text-sm font-medium text-text-primary mb-2"
+            >
               City <span className="text-status-error">*</span>
             </label>
             <Input
@@ -124,7 +144,13 @@ export function AddressFormDialog({
             />
             <AnimatePresence>
               {formErrors.city && (
-                <m.p id="city-error" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-1 text-sm text-status-error">
+                <m.p
+                  id="city-error"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-1 text-sm text-status-error"
+                >
                   {formErrors.city}
                 </m.p>
               )}
@@ -134,7 +160,10 @@ export function AddressFormDialog({
           {/* State and Postal Code */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="addressState" className="block text-sm font-medium text-text-primary mb-2">
+              <label
+                htmlFor="addressState"
+                className="block text-sm font-medium text-text-primary mb-2"
+              >
                 State <span className="text-status-error">*</span>
               </label>
               <Input
@@ -149,14 +178,23 @@ export function AddressFormDialog({
               />
               <AnimatePresence>
                 {formErrors.state && (
-                  <m.p id="state-error" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-1 text-sm text-status-error">
+                  <m.p
+                    id="state-error"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-1 text-sm text-status-error"
+                  >
                     {formErrors.state}
                   </m.p>
                 )}
               </AnimatePresence>
             </div>
             <div>
-              <label htmlFor="addressPostalCode" className="block text-sm font-medium text-text-primary mb-2">
+              <label
+                htmlFor="addressPostalCode"
+                className="block text-sm font-medium text-text-primary mb-2"
+              >
                 Postal Code <span className="text-status-error">*</span>
               </label>
               <Input
@@ -166,11 +204,19 @@ export function AddressFormDialog({
                 placeholder="12345"
                 aria-invalid={!!formErrors.postalCode}
                 aria-describedby={formErrors.postalCode ? "postalCode-error" : undefined}
-                className={formErrors.postalCode ? "border-status-error focus:ring-status-error" : ""}
+                className={
+                  formErrors.postalCode ? "border-status-error focus:ring-status-error" : ""
+                }
               />
               <AnimatePresence>
                 {formErrors.postalCode && (
-                  <m.p id="postalCode-error" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-1 text-sm text-status-error">
+                  <m.p
+                    id="postalCode-error"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-1 text-sm text-status-error"
+                  >
                     {formErrors.postalCode}
                   </m.p>
                 )}

@@ -10,11 +10,7 @@ import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import {
-  staggerContainer,
-  staggerItem,
-  spring,
-} from "@/lib/motion-tokens";
+import { staggerContainer, staggerItem, spring } from "@/lib/motion-tokens";
 import type { MenuItem } from "@/types/menu";
 import type { FeaturedSectionWithItems } from "@/types/featured-sections";
 import type { SelectedModifier } from "@/types/cart";
@@ -102,7 +98,10 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
   );
 
   return (
-    <section className="py-16 md:py-24 px-4 bg-gradient-to-b from-surface-primary via-surface-secondary/30 to-surface-primary isolate" id="menu">
+    <section
+      className="py-16 md:py-24 px-4 bg-gradient-to-b from-surface-primary via-surface-secondary/30 to-surface-primary isolate"
+      id="menu"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <m.div
@@ -128,7 +127,8 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
           </m.h2>
 
           <m.p variants={staggerItem} className="font-body text-text-secondary max-w-2xl mx-auto">
-            Handcrafted dishes from traditional Burmese recipes, prepared fresh for Saturday delivery.
+            Handcrafted dishes from traditional Burmese recipes, prepared fresh for Saturday
+            delivery.
           </m.p>
         </m.div>
 

@@ -9,6 +9,7 @@
 ## Executive Summary
 
 The existing stack is well-suited for mobile optimization with minimal additions needed. Key recommendations:
+
 1. **Keep existing service worker** - Already has solid foundation, enhance with Serwist for image caching
 2. **DO NOT add virtualization libraries** - Menu list is small (~50 items), native scroll performs fine
 3. **Leverage existing Next.js Image** - Already optimized, needs responsive `sizes` tuning
@@ -20,31 +21,33 @@ The existing stack is well-suited for mobile optimization with minimal additions
 
 ### PWA & Offline Support
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| @serwist/next | ^9.5.0 | Service worker integration | Replaces manual sw.js with Workbox-based caching. Official Next.js recommended. Better runtime caching strategies for images. |
-| serwist | ^9.5.0 | Core service worker utilities | Dev dependency for SW build. Tree-shakeable, modern fork of Workbox. |
+| Technology    | Version | Purpose                       | Why                                                                                                                           |
+| ------------- | ------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| @serwist/next | ^9.5.0  | Service worker integration    | Replaces manual sw.js with Workbox-based caching. Official Next.js recommended. Better runtime caching strategies for images. |
+| serwist       | ^9.5.0  | Core service worker utilities | Dev dependency for SW build. Tree-shakeable, modern fork of Workbox.                                                          |
 
 **Rationale:** Current `public/sw.js` is manually written with basic caching. Serwist provides:
+
 - Automatic precaching manifest generation
 - Built-in image caching with expiration
 - StaleWhileRevalidate for API responses
 - Proper cache versioning and cleanup
 
 **Integration Points:**
+
 - Wraps existing `next.config.ts` with `withSerwistInit`
 - Replaces manual `public/sw.js` with generated worker
 - Works with existing `manifest.json`
 
 ### What NOT to Add
 
-| Technology | Why Skip |
-|------------|----------|
-| @tanstack/react-virtual | Menu has ~50 items. Virtualization adds complexity for no benefit. Only needed for 500+ item lists. |
-| react-window | Same reason - overkill for this list size |
-| sharp (manual) | Next.js Image already uses Sharp internally. No need to add manually. |
-| blurhash | Existing `getPlaceholderBlur()` in `image-optimization.ts` provides adequate placeholders with minimal bundle impact. |
-| workbox-webpack-plugin | Serwist wraps this - use Serwist directly |
+| Technology              | Why Skip                                                                                                              |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| @tanstack/react-virtual | Menu has ~50 items. Virtualization adds complexity for no benefit. Only needed for 500+ item lists.                   |
+| react-window            | Same reason - overkill for this list size                                                                             |
+| sharp (manual)          | Next.js Image already uses Sharp internally. No need to add manually.                                                 |
+| blurhash                | Existing `getPlaceholderBlur()` in `image-optimization.ts` provides adequate placeholders with minimal bundle impact. |
+| workbox-webpack-plugin  | Serwist wraps this - use Serwist directly                                                                             |
 
 ---
 
@@ -53,6 +56,7 @@ The existing stack is well-suited for mobile optimization with minimal additions
 ### Image Optimization (KEEP - TUNE ONLY)
 
 Current stack already has:
+
 ```
 next/image - Automatic WebP/AVIF, responsive sizing
 src/lib/utils/image-optimization.ts - Size presets, placeholders
@@ -61,6 +65,7 @@ src/components/ui/menu/BlurImage.tsx - Shimmer loading
 ```
 
 **What's Already Configured (next.config.ts):**
+
 ```typescript
 images: {
   formats: ["image/avif", "image/webp"],
@@ -71,6 +76,7 @@ images: {
 ```
 
 **Gaps to Address (no new packages):**
+
 1. `sizes` attribute needs mobile-first tuning in components
 2. Menu card images need more aggressive compression (quality: 85 -> 70)
 3. Priority loading needs audit (only first 4 visible items)
@@ -78,12 +84,14 @@ images: {
 ### Skeleton System (KEEP - EXTEND)
 
 Current stack already has comprehensive skeletons:
+
 ```
 src/components/ui/skeleton.tsx - Base primitives (shimmer, pulse, wave, grain)
 src/components/ui/menu/MenuSkeleton.tsx - Menu-specific skeletons
 ```
 
 **Existing Skeleton Variants:**
+
 - `Skeleton` - Base with shimmer/pulse/wave/grain variants
 - `SkeletonText` - Multi-line text blocks
 - `SkeletonAvatar` - Avatar placeholders
@@ -92,6 +100,7 @@ src/components/ui/menu/MenuSkeleton.tsx - Menu-specific skeletons
 - `SkeletonTableRow` - Table rows
 
 **Gaps to Address (no new packages):**
+
 1. Homepage sections need skeleton variants
 2. Cart drawer needs loading state
 3. Checkout steps need skeletons
@@ -99,6 +108,7 @@ src/components/ui/menu/MenuSkeleton.tsx - Menu-specific skeletons
 ### Offline Support (ENHANCE)
 
 Current implementation:
+
 ```
 public/sw.js - Manual service worker (driver routes only)
 src/lib/services/offline-store.ts - IndexedDB for driver data
@@ -106,12 +116,14 @@ src/lib/hooks/useOfflineSync.ts - Sync pending items
 ```
 
 **Current SW Capabilities:**
+
 - Network-first for `/driver` pages
 - Cache-first for static assets (JS, CSS, icons)
 - Background sync for pending data
 - Push notification support
 
 **Gaps to Address:**
+
 1. SW only covers `/driver` routes - needs customer menu/cart
 2. No image caching strategy
 3. No offline fallback page for customers
@@ -119,6 +131,7 @@ src/lib/hooks/useOfflineSync.ts - Sync pending items
 ### Memory Management (NO ADDITIONS NEEDED)
 
 Recent fixes (per debug logs in `.planning/debug/resolved/`) addressed:
+
 - setTimeout/setInterval cleanup patterns across all components
 - useBodyScrollLock added to all modals (ExceptionModal, PhotoCapture, DeliveryMap, SuccessOverlay)
 - AnimatePresence Fragment issues fixed in MobileDrawer
@@ -252,19 +265,20 @@ pnpm add -D serwist
 
 ## Alternatives Considered
 
-| Category | Recommended | Alternative | Why Not |
-|----------|-------------|-------------|---------|
-| PWA | @serwist/next | @ducanh2912/next-pwa | @ducanh2912 author recommends migrating to Serwist |
-| PWA | @serwist/next | next-pwa (shadowwalker) | Unmaintained since 2023 |
-| Virtualization | None | @tanstack/react-virtual | List size (~50 items) doesn't justify complexity |
-| Image placeholders | Existing SVG | blurhash | Adds 8KB+ to bundle, SVG placeholders sufficient |
-| Caching | Serwist | manual SW | Serwist handles cache versioning, cleanup automatically |
+| Category           | Recommended   | Alternative             | Why Not                                                 |
+| ------------------ | ------------- | ----------------------- | ------------------------------------------------------- |
+| PWA                | @serwist/next | @ducanh2912/next-pwa    | @ducanh2912 author recommends migrating to Serwist      |
+| PWA                | @serwist/next | next-pwa (shadowwalker) | Unmaintained since 2023                                 |
+| Virtualization     | None          | @tanstack/react-virtual | List size (~50 items) doesn't justify complexity        |
+| Image placeholders | Existing SVG  | blurhash                | Adds 8KB+ to bundle, SVG placeholders sufficient        |
+| Caching            | Serwist       | manual SW               | Serwist handles cache versioning, cleanup automatically |
 
 ---
 
 ## TypeScript Configuration
 
 Add to `tsconfig.json`:
+
 ```json
 {
   "compilerOptions": {
@@ -279,12 +293,12 @@ Add to `tsconfig.json`:
 
 ## Performance Targets
 
-| Metric | Current | Target | How |
-|--------|---------|--------|-----|
-| LCP | ~2.8s | < 2.0s | Priority images, image caching |
-| FCP | ~1.8s | < 1.2s | Skeleton states, streaming |
-| CLS | ~0.15 | < 0.1 | Explicit image dimensions |
-| TTI | ~3.5s | < 2.5s | Service worker precaching |
+| Metric          | Current  | Target  | How                                    |
+| --------------- | -------- | ------- | -------------------------------------- |
+| LCP             | ~2.8s    | < 2.0s  | Priority images, image caching         |
+| FCP             | ~1.8s    | < 1.2s  | Skeleton states, streaming             |
+| CLS             | ~0.15    | < 0.1   | Explicit image dimensions              |
+| TTI             | ~3.5s    | < 2.5s  | Service worker precaching              |
 | Memory (mobile) | Variable | < 150MB | useBodyScrollLock fixes, image cleanup |
 
 ---
@@ -292,22 +306,26 @@ Add to `tsconfig.json`:
 ## Roadmap Implications
 
 ### Phase 1: Image Optimization (no new deps)
+
 - Tune `sizes` attributes in CardImage, AnimatedImage
 - Audit priority loading (only first viewport)
 - Reduce quality for non-hero images
 
 ### Phase 2: Skeleton Coverage (no new deps)
+
 - Add homepage section skeletons
 - Add cart drawer skeleton
 - Add checkout step skeletons
 
 ### Phase 3: Offline Support (Serwist)
+
 - Install @serwist/next
 - Migrate sw.js to Serwist-managed
 - Add image caching strategy
 - Add offline fallback page
 
 ### Phase 4: Memory & Crash Prevention
+
 - Already addressed in recent fixes
 - Monitor via Sentry for regressions
 
@@ -315,13 +333,13 @@ Add to `tsconfig.json`:
 
 ## Confidence Assessment
 
-| Area | Confidence | Rationale |
-|------|------------|-----------|
-| Serwist recommendation | HIGH | Official Next.js docs recommend, Workbox fork with active development, 55K weekly downloads |
-| Skip virtualization | HIGH | Menu size is small (~50 items), perf testing shows no benefit |
-| Existing Image setup | HIGH | Already using Next.js Image with proper config, just needs tuning |
-| Memory fixes | HIGH | Debug logs show systematic cleanup patterns applied across all modal components |
-| Skeleton coverage | MEDIUM | Have primitives, need to audit coverage in actual pages |
+| Area                   | Confidence | Rationale                                                                                   |
+| ---------------------- | ---------- | ------------------------------------------------------------------------------------------- |
+| Serwist recommendation | HIGH       | Official Next.js docs recommend, Workbox fork with active development, 55K weekly downloads |
+| Skip virtualization    | HIGH       | Menu size is small (~50 items), perf testing shows no benefit                               |
+| Existing Image setup   | HIGH       | Already using Next.js Image with proper config, just needs tuning                           |
+| Memory fixes           | HIGH       | Debug logs show systematic cleanup patterns applied across all modal components             |
+| Skeleton coverage      | MEDIUM     | Have primitives, need to audit coverage in actual pages                                     |
 
 ---
 

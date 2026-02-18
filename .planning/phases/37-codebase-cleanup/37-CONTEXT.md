@@ -14,6 +14,7 @@ Remove dead code, establish directory structure enforcement, eliminate circular 
 ## Implementation Decisions
 
 ### Dead code detection
+
 - Remove unused exports AND unreachable code paths (dead branches)
 - Deprecated code that's still imported: remove now and fix all imports
 - Test files and Storybook stories: delete with their component
@@ -23,6 +24,7 @@ Remove dead code, establish directory structure enforcement, eliminate circular 
 - No exclusions — everything is fair game if unused
 
 ### File splitting rules
+
 - 400-line limit for component files (warning only, not build failure)
 - No line limit for page files (route segments)
 - Split approach: Claude decides based on file structure (by sub-component or by concern)
@@ -33,6 +35,7 @@ Remove dead code, establish directory structure enforcement, eliminate circular 
 - Hooks stay colocated unless reusable across components
 
 ### Directory enforcement
+
 - Protect only directories that were deleted in past milestones
 - Enforcement via ESLint rule (error severity — fails build)
 - Documentation approach: Claude decides
@@ -42,6 +45,7 @@ Remove dead code, establish directory structure enforcement, eliminate circular 
 - Minor consolidation allowed if something is obviously misplaced
 
 ### Circular dependency handling
+
 - Zero tolerance — eliminate ALL circular dependencies
 - Resolution approach: extract shared code to third file
 - Enforce via ESLint import/no-cycle rule
@@ -52,6 +56,7 @@ Remove dead code, establish directory structure enforcement, eliminate circular 
 - Priority order: Claude decides based on severity
 
 ### Duplicate detection and consolidation
+
 - Find both exact duplicates AND functional duplicates (same purpose)
 - Merge approach: Claude decides (keep better one vs merge best parts)
 - Duplicate API routes: consolidate to canonical route
@@ -71,6 +76,7 @@ Remove dead code, establish directory structure enforcement, eliminate circular 
 - Include test files in duplicate detection
 
 ### Claude's Discretion
+
 - Detection tooling choice (ts-prune, knip, madge, dpdm, etc.)
 - Split naming conventions
 - Documentation format (README per dir vs central STRUCTURE.md)
@@ -98,5 +104,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 37-codebase-cleanup*
-*Context gathered: 2026-02-04*
+_Phase: 37-codebase-cleanup_
+_Context gathered: 2026-02-04_

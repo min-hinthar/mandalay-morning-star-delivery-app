@@ -13,11 +13,11 @@ const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(request: Request) {
   if (!WEBHOOK_SECRET) {
-    logger.error("STRIPE_WEBHOOK_SECRET is not configured", { api: "stripe-webhook", flowId: "webhook" });
-    return NextResponse.json(
-      { error: "Webhook secret not configured" },
-      { status: 500 }
-    );
+    logger.error("STRIPE_WEBHOOK_SECRET is not configured", {
+      api: "stripe-webhook",
+      flowId: "webhook",
+    });
+    return NextResponse.json({ error: "Webhook secret not configured" }, { status: 500 });
   }
 
   // Get the raw body for signature verification
@@ -27,10 +27,7 @@ export async function POST(request: Request) {
 
   if (!signature) {
     logger.error("Missing Stripe signature header", { api: "stripe-webhook", flowId: "webhook" });
-    return NextResponse.json(
-      { error: "Missing signature" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
   let event: Stripe.Event;
@@ -40,10 +37,7 @@ export async function POST(request: Request) {
   } catch (err) {
     logger.exception(err, { api: "stripe-webhook", flowId: "webhook" });
     const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json(
-      { error: `Webhook Error: ${message}` },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: `Webhook Error: ${message}` }, { status: 400 });
   }
 
   // Use service role client to bypass RLS (webhook has no user context)
@@ -97,7 +91,10 @@ export async function POST(request: Request) {
       }
 
       default:
-        logger.info(`Unhandled event type: ${event.type}`, { api: "stripe-webhook", flowId: "webhook" });
+        logger.info(`Unhandled event type: ${event.type}`, {
+          api: "stripe-webhook",
+          flowId: "webhook",
+        });
     }
   } catch (err) {
     logger.exception(err, {
@@ -122,7 +119,11 @@ async function handleCheckoutSessionCompleted(
   const orderId = session.metadata?.order_id;
 
   if (!orderId) {
-    logger.error("No order_id in session metadata", { sessionId: session.id, api: "stripe-webhook", flowId: "checkout" });
+    logger.error("No order_id in session metadata", {
+      sessionId: session.id,
+      api: "stripe-webhook",
+      flowId: "checkout",
+    });
     return;
   }
 
@@ -142,12 +143,17 @@ async function handleCheckoutSessionCompleted(
     throw error;
   }
 
-  logger.info(`Order ${orderId} confirmed via webhook`, { orderId, api: "stripe-webhook", flowId: "checkout" });
+  logger.info(`Order ${orderId} confirmed via webhook`, {
+    orderId,
+    api: "stripe-webhook",
+    flowId: "checkout",
+  });
 
   // Fetch full order data for email
   const { data: orderData } = await supabase
     .from("orders")
-    .select(`
+    .select(
+      `
       id, user_id, subtotal_cents, delivery_fee_cents, tax_cents, total_cents,
       delivery_window_start, delivery_window_end, special_instructions, placed_at,
       profiles!orders_user_id_fkey ( email, full_name ),
@@ -156,27 +162,46 @@ async function handleCheckoutSessionCompleted(
         name_snapshot, quantity, line_total_cents,
         order_item_modifiers ( name_snapshot, price_delta_snapshot )
       )
-    `)
+    `
+    )
     .eq("id", orderId)
     .single();
 
   if (!orderData) {
-    logger.error("Could not fetch order data for confirmation email", { orderId, api: "stripe-webhook", flowId: "email" });
+    logger.error("Could not fetch order data for confirmation email", {
+      orderId,
+      api: "stripe-webhook",
+      flowId: "email",
+    });
     return;
   }
 
-  const profile = orderData.profiles as unknown as { email: string | null; full_name: string | null } | null;
-  const address = orderData.addresses as unknown as { line_1: string; line_2: string | null; city: string; state: string; postal_code: string } | null;
-  const items = (orderData.order_items as unknown as Array<{
-    name_snapshot: string;
-    quantity: number;
-    line_total_cents: number;
-    order_item_modifiers: Array<{ name_snapshot: string; price_delta_snapshot: number }>;
-  }>) || [];
+  const profile = orderData.profiles as unknown as {
+    email: string | null;
+    full_name: string | null;
+  } | null;
+  const address = orderData.addresses as unknown as {
+    line_1: string;
+    line_2: string | null;
+    city: string;
+    state: string;
+    postal_code: string;
+  } | null;
+  const items =
+    (orderData.order_items as unknown as Array<{
+      name_snapshot: string;
+      quantity: number;
+      line_total_cents: number;
+      order_item_modifiers: Array<{ name_snapshot: string; price_delta_snapshot: number }>;
+    }>) || [];
 
   const customerEmail = profile?.email;
   if (!customerEmail) {
-    logger.error("No customer email for order confirmation", { orderId, api: "stripe-webhook", flowId: "email" });
+    logger.error("No customer email for order confirmation", {
+      orderId,
+      api: "stripe-webhook",
+      flowId: "email",
+    });
     return;
   }
 
@@ -223,7 +248,11 @@ async function handleCheckoutSessionCompleted(
     idempotencyKey: `order-confirmation-${orderId}`,
   });
 
-  logger.info(`Order confirmation email triggered for ${orderId}`, { orderId, api: "stripe-webhook", flowId: "email" });
+  logger.info(`Order confirmation email triggered for ${orderId}`, {
+    orderId,
+    api: "stripe-webhook",
+    flowId: "email",
+  });
 }
 
 /**
@@ -236,7 +265,11 @@ async function handleCheckoutSessionExpired(
   const orderId = session.metadata?.order_id;
 
   if (!orderId) {
-    logger.error("No order_id in session metadata", { sessionId: session.id, api: "stripe-webhook", flowId: "checkout" });
+    logger.error("No order_id in session metadata", {
+      sessionId: session.id,
+      api: "stripe-webhook",
+      flowId: "checkout",
+    });
     return;
   }
 
@@ -254,7 +287,11 @@ async function handleCheckoutSessionExpired(
     throw error;
   }
 
-  logger.info(`Order ${orderId} cancelled due to expired checkout session`, { orderId, api: "stripe-webhook", flowId: "checkout" });
+  logger.info(`Order ${orderId} cancelled due to expired checkout session`, {
+    orderId,
+    api: "stripe-webhook",
+    flowId: "checkout",
+  });
 }
 
 /**
@@ -270,7 +307,10 @@ async function handlePaymentFailed(
 
   if (!orderId) {
     // This might be a retry or payment intent not associated with our checkout
-    logger.info("No order_id in payment_intent metadata, skipping", { api: "stripe-webhook", flowId: "payment" });
+    logger.info("No order_id in payment_intent metadata, skipping", {
+      api: "stripe-webhook",
+      flowId: "payment",
+    });
     return;
   }
 
@@ -295,7 +335,10 @@ async function handleChargeRefunded(
   const paymentIntentId = charge.payment_intent as string;
 
   if (!paymentIntentId) {
-    logger.info("No payment_intent on charge, skipping refund handler", { api: "stripe-webhook", flowId: "refund" });
+    logger.info("No payment_intent on charge, skipping refund handler", {
+      api: "stripe-webhook",
+      flowId: "refund",
+    });
     return;
   }
 
@@ -307,7 +350,11 @@ async function handleChargeRefunded(
     .single();
 
   if (findError || !order) {
-    logger.error("Could not find order for refund", { paymentIntentId, api: "stripe-webhook", flowId: "refund" });
+    logger.error("Could not find order for refund", {
+      paymentIntentId,
+      api: "stripe-webhook",
+      flowId: "refund",
+    });
     return;
   }
 
@@ -327,7 +374,11 @@ async function handleChargeRefunded(
       throw updateError;
     }
 
-    logger.info(`Order ${order.id} cancelled due to full refund`, { orderId: order.id, api: "stripe-webhook", flowId: "refund" });
+    logger.info(`Order ${order.id} cancelled due to full refund`, {
+      orderId: order.id,
+      api: "stripe-webhook",
+      flowId: "refund",
+    });
   } else {
     // Partial refund - log but don't change status
     logger.info(`Partial refund processed for order ${order.id}`, {
@@ -377,6 +428,10 @@ async function handleChargeRefunded(
       idempotencyKey: `refund-${charge.id}`,
     });
 
-    logger.info(`Refund email triggered for order ${order.id}`, { orderId: order.id, api: "stripe-webhook", flowId: "email" });
+    logger.info(`Refund email triggered for order ${order.id}`, {
+      orderId: order.id,
+      api: "stripe-webhook",
+      flowId: "email",
+    });
   }
 }

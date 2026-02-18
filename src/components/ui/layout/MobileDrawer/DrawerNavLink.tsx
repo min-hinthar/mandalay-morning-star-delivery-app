@@ -38,9 +38,7 @@ export function DrawerNavLink({
           className={cn(
             "flex items-center gap-4 min-h-[56px] py-4 px-4 rounded-xl",
             "transition-colors duration-150",
-            isActive
-              ? "bg-primary/10 text-primary"
-              : "text-text-primary hover:bg-surface-secondary"
+            isActive ? "bg-primary/10 text-primary" : "text-text-primary hover:bg-surface-secondary"
           )}
           whileHover={shouldAnimate ? { x: 8 } : undefined}
           whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
@@ -50,9 +48,7 @@ export function DrawerNavLink({
           <m.span
             className={cn(
               "flex items-center justify-center w-10 h-10 rounded-lg",
-              isActive
-                ? "bg-primary/10 shadow-glow-primary"
-                : "bg-surface-tertiary"
+              isActive ? "bg-primary/10 shadow-glow-primary" : "bg-surface-tertiary"
             )}
           >
             {icon}

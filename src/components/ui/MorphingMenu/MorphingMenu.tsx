@@ -134,11 +134,7 @@ export const MorphingMenu = forwardRef<HTMLButtonElement, MorphingMenuProps>(
             className="absolute inset-0 rounded-lg border-2"
             style={{ borderColor: currentColor }}
             initial={{ opacity: 0, scale: 0.8 }}
-            animate={
-              isOpen
-                ? { opacity: 0.15, scale: 1 }
-                : { opacity: 0, scale: 0.8 }
-            }
+            animate={isOpen ? { opacity: 0.15, scale: 1 } : { opacity: 0, scale: 0.8 }}
             transition={springConfig}
           />
         )}

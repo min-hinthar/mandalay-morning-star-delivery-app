@@ -17,10 +17,7 @@ export function Connector({ index, orientation }: ConnectorProps) {
 
   if (orientation === "horizontal") {
     return (
-      <div
-        ref={ref}
-        className="hidden md:flex items-center justify-center w-16 lg:w-20"
-      >
+      <div ref={ref} className="hidden md:flex items-center justify-center w-16 lg:w-20">
         <div className="relative h-1 w-full bg-border/20 rounded-full overflow-hidden">
           {/* Glow effect */}
           <div className="absolute inset-0 blur-sm bg-gradient-to-r from-amber-400/30 to-orange-400/30" />

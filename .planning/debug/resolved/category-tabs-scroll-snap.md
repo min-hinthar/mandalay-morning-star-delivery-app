@@ -87,98 +87,86 @@ started: Current behavior, happens on both homepage menu section and /menu page
 - timestamp: 2026-01-28T00:20:00Z
   checked: Deeper analysis of re-render flow
   found: When activeCategory changes from null to "soup":
-    1. setActiveCategory("soup") triggers re-render
-    2. AnimatePresence key changes from "all" to "soup"
-    3. mode="wait" causes old grid to EXIT before new grid ENTERS
-    4. CategoryTabs re-renders with new activeCategory
-    5. useEffect for scrollIntoView fires
-    6. BUT: The tab ref assignment happens in render, useEffect fires after render
-  implication: The ref SHOULD be assigned before useEffect fires
+  1. setActiveCategory("soup") triggers re-render
+  2. AnimatePresence key changes from "all" to "soup"
+  3. mode="wait" causes old grid to EXIT before new grid ENTERS
+  4. CategoryTabs re-renders with new activeCategory
+  5. useEffect for scrollIntoView fires
+  6. BUT: The tab ref assignment happens in render, useEffect fires after render
+     implication: The ref SHOULD be assigned before useEffect fires
 
 - timestamp: 2026-01-28T00:22:00Z
   checked: Root cause analysis - FOUND IT
   found: Looking at CategoryTabs line 197: ref={isActive ? activeTabRef : null}
-         When activeCategory changes from "appetizers" to "desserts":
-         - In SAME render: old button loses ref (isActive=false), new button gets ref (isActive=true)
-         - React ref behavior: when ref changes from element A to element B in same render,
-           the ref.current is updated to new element AFTER layout effects run
-         - useEffect (not useLayoutEffect!) runs AFTER browser paint
-         - So scrollIntoView SHOULD work correctly
+  When activeCategory changes from "appetizers" to "desserts": - In SAME render: old button loses ref (isActive=false), new button gets ref (isActive=true) - React ref behavior: when ref changes from element A to element B in same render,
+  the ref.current is updated to new element AFTER layout effects run - useEffect (not useLayoutEffect!) runs AFTER browser paint - So scrollIntoView SHOULD work correctly
   implication: Ref timing is NOT the issue
 
 - timestamp: 2026-01-28T00:25:00Z
   checked: Possibility of tab bar scroll container reset
   found: The CategoryTabs component receives activeCategory as prop
-         When prop changes, component re-renders but scroll container is NOT unmounted
-         Native browser scroll position should be preserved on re-render
+  When prop changes, component re-renders but scroll container is NOT unmounted
+  Native browser scroll position should be preserved on re-render
   implication: Scroll position should NOT reset just from prop change
 
 - timestamp: 2026-01-28T00:27:00Z
   checked: CSS sticky behavior interaction
   found: CategoryTabs has "sticky top-[var(--tabs-offset)]" class
-         When user scrolls down to see "Desserts" tab and clicks it:
-         - Content scrolls via window.scrollTo
-         - Page scroll position changes
-         - Tab bar position on screen might change due to sticky behavior
-         - BUT this shouldn't affect the INTERNAL scroll position of the tab bar
+  When user scrolls down to see "Desserts" tab and clicks it: - Content scrolls via window.scrollTo - Page scroll position changes - Tab bar position on screen might change due to sticky behavior - BUT this shouldn't affect the INTERNAL scroll position of the tab bar
   implication: Sticky positioning is NOT the cause
 
 - timestamp: 2026-01-28T00:30:00Z
   checked: Critical realization about render timing
-  found: In HomepageMenuSection, when category changes:
-         - AnimatePresence mode="wait" causes old content to ANIMATE OUT
-         - This animation takes time (exit animation)
-         - During exit, the content shrinks/fades
-         - This might cause layout reflow
-         - BUT the CategoryTabs is OUTSIDE the AnimatePresence block (lines 305-312 vs 315-411)
+  found: In HomepageMenuSection, when category changes: - AnimatePresence mode="wait" causes old content to ANIMATE OUT - This animation takes time (exit animation) - During exit, the content shrinks/fades - This might cause layout reflow - BUT the CategoryTabs is OUTSIDE the AnimatePresence block (lines 305-312 vs 315-411)
   implication: CategoryTabs should NOT be affected by AnimatePresence animations
 
 - timestamp: 2026-01-28T00:32:00Z
   checked: Looking for any scroll-to-top or scroll reset behavior
   found: No explicit scroll reset in CategoryTabs
-         BUT: If for some reason the scroll container is affected by layout changes, browser might reset scroll
+  BUT: If for some reason the scroll container is affected by layout changes, browser might reset scroll
   implication: Need to verify in browser - no clear code-level cause found
 
 - timestamp: 2026-01-28T00:35:00Z
   checked: scrollIntoView behavior with sticky containers
   found: scrollIntoView({ block: "nearest", inline: "center" }) operates on the element's position
-         When element is in a sticky container, scrollIntoView might affect:
-         1. The horizontal scroll container (intended)
-         2. The page scroll (unintended) - because element position relative to viewport changes during page scroll
+  When element is in a sticky container, scrollIntoView might affect: 1. The horizontal scroll container (intended) 2. The page scroll (unintended) - because element position relative to viewport changes during page scroll
   implication: POTENTIAL ROOT CAUSE - scrollIntoView might scroll the wrong ancestor or interact poorly with sticky positioning
 
 - timestamp: 2026-01-28T00:38:00Z
   checked: Alternative scroll approach
   found: Instead of scrollIntoView, we should directly scroll the scrollContainer using scrollTo or scrollLeft
-         This gives us precise control and avoids scrollIntoView's unpredictable behavior with sticky elements
+  This gives us precise control and avoids scrollIntoView's unpredictable behavior with sticky elements
   implication: FIX DIRECTION - Replace scrollIntoView with direct scrollContainer manipulation
 
 ## Resolution
 
 root_cause: |
-  The CategoryTabs component used `element.scrollIntoView({ block: "nearest", inline: "center" })` to scroll
-  the active tab into view. However, `scrollIntoView` can interact unpredictably when:
-  1. The element is inside a sticky container
-  2. The page is simultaneously scrolling (via window.scrollTo for content navigation)
+The CategoryTabs component used `element.scrollIntoView({ block: "nearest", inline: "center" })` to scroll
+the active tab into view. However, `scrollIntoView` can interact unpredictably when:
 
-  The `scrollIntoView` method operates on all scrollable ancestors, including the viewport.
-  When the tab bar is sticky and the page is scrolling, the browser may calculate incorrect
-  scroll targets or the scroll may be overridden by the page scroll operation.
+1. The element is inside a sticky container
+2. The page is simultaneously scrolling (via window.scrollTo for content navigation)
+
+The `scrollIntoView` method operates on all scrollable ancestors, including the viewport.
+When the tab bar is sticky and the page is scrolling, the browser may calculate incorrect
+scroll targets or the scroll may be overridden by the page scroll operation.
 
 fix: |
-  Replaced `scrollIntoView` with manual scroll calculation using `container.scrollTo`:
-  1. Calculate the tab's offsetLeft relative to the scroll container
-  2. Calculate target scroll position to center the tab horizontally
-  3. Clamp to valid scroll range (0 to maxScroll)
-  4. Check if tab is already visible (with padding)
-  5. Only scroll if not visible, using container.scrollTo({ left, behavior })
+Replaced `scrollIntoView` with manual scroll calculation using `container.scrollTo`:
 
-  This approach directly controls only the horizontal scroll container,
-  avoiding any interaction with page scroll or sticky positioning.
+1. Calculate the tab's offsetLeft relative to the scroll container
+2. Calculate target scroll position to center the tab horizontally
+3. Clamp to valid scroll range (0 to maxScroll)
+4. Check if tab is already visible (with padding)
+5. Only scroll if not visible, using container.scrollTo({ left, behavior })
+
+This approach directly controls only the horizontal scroll container,
+avoiding any interaction with page scroll or sticky positioning.
 
 verification: |
-  - TypeScript: No new errors introduced (pre-existing error in unrelated file)
-  - ESLint: CategoryTabs.tsx passes lint with no errors
-  - Browser testing needed: tap category tabs on right side of tab bar to verify scroll behavior
-files_changed:
-  - src/components/ui/menu/CategoryTabs.tsx
+
+- TypeScript: No new errors introduced (pre-existing error in unrelated file)
+- ESLint: CategoryTabs.tsx passes lint with no errors
+- Browser testing needed: tap category tabs on right side of tab bar to verify scroll behavior
+  files_changed:
+- src/components/ui/menu/CategoryTabs.tsx

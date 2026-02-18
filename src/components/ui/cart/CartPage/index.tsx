@@ -8,9 +8,6 @@ export type { CartPageSummaryProps } from "./CartPageSummary";
 export { CheckoutGate } from "./CheckoutGate";
 export type { CheckoutGateProps } from "./CheckoutGate";
 export { AttentionSection } from "./AttentionSection";
-export type {
-  AttentionSectionProps,
-  CartItemValidation,
-} from "./AttentionSection";
+export type { AttentionSectionProps, CartItemValidation } from "./AttentionSection";
 export { SuggestionRow } from "./SuggestionRow";
 export type { SuggestionRowProps } from "./SuggestionRow";

@@ -72,7 +72,7 @@ export function ThemeSelector({ onThemeChange }: ThemeSelectorProps) {
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
               isSelected
                 ? "border-primary bg-surface-primary"
-                : "border-border bg-surface-secondary hover:border-primary/50",
+                : "border-border bg-surface-secondary hover:border-primary/50"
             )}
           >
             {/* Color swatches */}
@@ -89,7 +89,7 @@ export function ThemeSelector({ onThemeChange }: ThemeSelectorProps) {
             <span
               className={cn(
                 "text-xs font-medium",
-                isSelected ? "text-primary" : "text-text-secondary",
+                isSelected ? "text-primary" : "text-text-secondary"
               )}
             >
               {opt.label}

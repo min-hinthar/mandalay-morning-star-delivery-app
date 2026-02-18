@@ -9,6 +9,7 @@
 Phase 3 builds the V8 app shell with sticky header, mobile bottom navigation, and page containers. Research confirms the codebase has extensive existing infrastructure that should be leveraged rather than rebuilt.
 
 **Key findings:**
+
 - Existing hooks (`useScrollDirection`, `useRouteChangeClose`, `useBodyScrollLock`) are production-ready and should be reused
 - V7 Header at `src/components/layout/header.tsx` provides scroll effects pattern to follow
 - `PageTransition` component at `src/components/layouts/PageTransition.tsx` already has 8 transition variants
@@ -22,38 +23,43 @@ Phase 3 builds the V8 app shell with sticky header, mobile bottom navigation, an
 The established libraries/tools for this domain:
 
 ### Core
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| framer-motion | 12.26.1 | Page transitions, AnimatePresence | Already used throughout codebase |
-| gsap | 3.14.2 | ScrollTrigger choreography | Registered at `@/lib/gsap` |
-| @gsap/react | 2.1.2 | useGSAP hook | Proper React cleanup |
-| next/navigation | 16.1.2 | usePathname for route detection | Native to Next.js |
+
+| Library         | Version | Purpose                           | Why Standard                     |
+| --------------- | ------- | --------------------------------- | -------------------------------- |
+| framer-motion   | 12.26.1 | Page transitions, AnimatePresence | Already used throughout codebase |
+| gsap            | 3.14.2  | ScrollTrigger choreography        | Registered at `@/lib/gsap`       |
+| @gsap/react     | 2.1.2   | useGSAP hook                      | Proper React cleanup             |
+| next/navigation | 16.1.2  | usePathname for route detection   | Native to Next.js                |
 
 ### Supporting
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| lucide-react | 0.562.0 | Navigation icons | Icon buttons |
-| class-variance-authority | 0.7.1 | Variant styling | Component variants |
-| tailwind-merge | 3.4.0 | Class merging | cn() utility |
+
+| Library                  | Version | Purpose          | When to Use        |
+| ------------------------ | ------- | ---------------- | ------------------ |
+| lucide-react             | 0.562.0 | Navigation icons | Icon buttons       |
+| class-variance-authority | 0.7.1   | Variant styling  | Component variants |
+| tailwind-merge           | 3.4.0   | Class merging    | cn() utility       |
 
 ### Existing Hooks to Reuse
-| Hook | Location | Purpose |
-|------|----------|---------|
-| `useScrollDirection` | `@/lib/hooks/useScrollDirection` | Header collapse on scroll |
-| `useRouteChangeClose` | `@/lib/hooks/useRouteChangeClose` | Auto-close overlays on nav |
-| `useBodyScrollLock` | `@/lib/hooks/useBodyScrollLock` | Prevent background scroll |
-| `useReducedMotion` | `@/lib/hooks/useReducedMotion` | Accessibility |
-| `useMediaQuery` | `@/lib/hooks/useMediaQuery` | Responsive breakpoints |
-| `useAnimationPreference` | `@/lib/hooks/useAnimationPreference` | User animation settings |
+
+| Hook                     | Location                             | Purpose                    |
+| ------------------------ | ------------------------------------ | -------------------------- |
+| `useScrollDirection`     | `@/lib/hooks/useScrollDirection`     | Header collapse on scroll  |
+| `useRouteChangeClose`    | `@/lib/hooks/useRouteChangeClose`    | Auto-close overlays on nav |
+| `useBodyScrollLock`      | `@/lib/hooks/useBodyScrollLock`      | Prevent background scroll  |
+| `useReducedMotion`       | `@/lib/hooks/useReducedMotion`       | Accessibility              |
+| `useMediaQuery`          | `@/lib/hooks/useMediaQuery`          | Responsive breakpoints     |
+| `useAnimationPreference` | `@/lib/hooks/useAnimationPreference` | User animation settings    |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| Custom scroll detection | Intersection Observer | useScrollDirection already optimized with throttling |
-| New page transition lib | Existing PageTransition | Would lose navigation history tracking |
-| CSS-only sticky header | Framer Motion animated | Need dynamic shrink/blur effects |
+
+| Instead of              | Could Use               | Tradeoff                                             |
+| ----------------------- | ----------------------- | ---------------------------------------------------- |
+| Custom scroll detection | Intersection Observer   | useScrollDirection already optimized with throttling |
+| New page transition lib | Existing PageTransition | Would lose navigation history tracking               |
+| CSS-only sticky header  | Framer Motion animated  | Need dynamic shrink/blur effects                     |
 
 **Installation:**
+
 ```bash
 # All dependencies already installed - no new packages needed
 ```
@@ -61,6 +67,7 @@ The established libraries/tools for this domain:
 ## Architecture Patterns
 
 ### Recommended Project Structure
+
 ```
 src/components/ui-v8/
 ├── navigation/
@@ -81,9 +88,11 @@ src/components/ui-v8/
 ```
 
 ### Pattern 1: App Shell Architecture
+
 **What:** Single layout component composing header, content area, and bottom nav
 **When to use:** Root layout for customer pages
 **Example:**
+
 ```typescript
 // Source: Derived from existing CustomerLayout pattern
 interface AppShellProps {
@@ -107,9 +116,11 @@ export function AppShell({ children, headerSlot, showBottomNav = true, showHeade
 ```
 
 ### Pattern 2: Header with Scroll Effects
+
 **What:** Header that shrinks and blurs on scroll, hides on scroll down
 **When to use:** All pages needing persistent header
 **Example:**
+
 ```typescript
 // Source: Existing header.tsx pattern
 const { isCollapsed, scrollY, isAtTop } = useScrollDirection({ threshold: 50 });
@@ -130,9 +141,11 @@ return (
 ```
 
 ### Pattern 3: Bottom Navigation with Active Indicator
+
 **What:** Mobile bottom nav with animated active state
 **When to use:** Mobile viewports below md breakpoint
 **Example:**
+
 ```typescript
 // Source: Derived from MobileNavItem pattern
 function BottomNavItem({ href, icon, label, isActive }: NavItemProps) {
@@ -157,9 +170,11 @@ function BottomNavItem({ href, icon, label, isActive }: NavItemProps) {
 ```
 
 ### Pattern 4: Page Transitions with AnimatePresence
+
 **What:** Route-aware page transitions with direction detection
 **When to use:** Page-level transitions
 **Example:**
+
 ```typescript
 // Source: Existing PageTransition.tsx
 <AnimatePresence mode="wait" initial={false}>
@@ -177,9 +192,11 @@ function BottomNavItem({ href, icon, label, isActive }: NavItemProps) {
 ```
 
 ### Pattern 5: GSAP ScrollTrigger Integration
+
 **What:** Scroll-choreographed animations using GSAP
 **When to use:** Reveal effects, parallax, pinned sections
 **Example:**
+
 ```typescript
 // Source: @/lib/gsap pattern
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
@@ -210,6 +227,7 @@ function ScrollRevealSection({ children }: { children: React.ReactNode }) {
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Mixing z-index approaches:** Use ONLY `z-sticky`, `z-fixed`, etc. from design tokens
 - **Manual body scroll lock:** Use `useBodyScrollLock` hook, not direct DOM manipulation
 - **Ignoring route changes for overlays:** Always use `useRouteChangeClose` for menus
@@ -220,69 +238,80 @@ function ScrollRevealSection({ children }: { children: React.ReactNode }) {
 
 Problems that look simple but have existing solutions:
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Scroll direction detection | Manual scroll listeners | `useScrollDirection` | Has throttling, threshold, RAF optimization |
-| Body scroll locking | `document.body.style.overflow = 'hidden'` | `useBodyScrollLock` | Handles iOS, preserves scroll position, accounts for scrollbar width |
-| Route change detection | Custom pathname tracking | `useRouteChangeClose` | Handles edge cases, ref management |
-| Reduced motion check | `matchMedia` query | `useReducedMotion` | Combines system + user preference |
-| Animation spring configs | Inline spring values | `spring` from motion-tokens | Consistent feel across app |
-| Page exit animations | Custom exit tracking | `AnimatePresence mode="wait"` | Framer Motion handles lifecycle |
-| GSAP cleanup | Manual `kill()` calls | `useGSAP` hook | Automatic cleanup on unmount |
+| Problem                    | Don't Build                               | Use Instead                   | Why                                                                  |
+| -------------------------- | ----------------------------------------- | ----------------------------- | -------------------------------------------------------------------- |
+| Scroll direction detection | Manual scroll listeners                   | `useScrollDirection`          | Has throttling, threshold, RAF optimization                          |
+| Body scroll locking        | `document.body.style.overflow = 'hidden'` | `useBodyScrollLock`           | Handles iOS, preserves scroll position, accounts for scrollbar width |
+| Route change detection     | Custom pathname tracking                  | `useRouteChangeClose`         | Handles edge cases, ref management                                   |
+| Reduced motion check       | `matchMedia` query                        | `useReducedMotion`            | Combines system + user preference                                    |
+| Animation spring configs   | Inline spring values                      | `spring` from motion-tokens   | Consistent feel across app                                           |
+| Page exit animations       | Custom exit tracking                      | `AnimatePresence mode="wait"` | Framer Motion handles lifecycle                                      |
+| GSAP cleanup               | Manual `kill()` calls                     | `useGSAP` hook                | Automatic cleanup on unmount                                         |
 
 **Key insight:** The codebase has battle-tested solutions for every common navigation challenge. Building custom alternatives risks regressions in edge cases (iOS Safari scroll, scrollbar width compensation, animation cleanup).
 
 ## Common Pitfalls
 
 ### Pitfall 1: AnimatePresence Key Mismatch
+
 **What goes wrong:** Page transitions don't animate because key doesn't change
 **Why it happens:** Using static key or component identity instead of pathname
 **How to avoid:** Always use `usePathname()` as AnimatePresence child key
 **Warning signs:** Exit animations never fire, pages snap instead of transition
 
 ### Pitfall 2: Z-Index Wars
+
 **What goes wrong:** Header appears behind modals, or dropdowns appear above everything
 **Why it happens:** Mixing arbitrary z-index values with token system
 **How to avoid:**
+
 - Use ONLY `z-sticky` (20), `z-fixed` (30), `z-modal` (50) etc.
 - Never use raw numbers like `z-50` or `z-[999]`
-**Warning signs:** Elements randomly appearing above/below each other
+  **Warning signs:** Elements randomly appearing above/below each other
 
 ### Pitfall 3: iOS Safe Area Ignored
+
 **What goes wrong:** Bottom nav hidden behind iPhone home indicator, content under notch
 **Why it happens:** Not using safe area insets
 **How to avoid:**
+
 - Header: `className="pt-safe"` or `padding-top: env(safe-area-inset-top)`
 - Bottom nav: `padding-bottom: env(safe-area-inset-bottom)`
-**Warning signs:** Works on Android/desktop, broken on iPhone
+  **Warning signs:** Works on Android/desktop, broken on iPhone
 
 ### Pitfall 4: Scroll Position Lost on Navigation
+
 **What goes wrong:** User scrolls down, navigates away, comes back to top of page
 **Why it happens:** Not preserving scroll position
 **How to avoid:** Use `preserveScroll` prop on PageTransition, or implement scroll restoration
 **Warning signs:** Users complain about losing their place
 
 ### Pitfall 5: GSAP ScrollTrigger Memory Leaks
+
 **What goes wrong:** Animations continue after component unmounts, performance degrades
 **Why it happens:** Not cleaning up ScrollTrigger instances
 **How to avoid:**
+
 - Always use `useGSAP` hook, never raw `useEffect`
 - Use `{ scope: containerRef }` for automatic cleanup
-**Warning signs:** Console warnings about dead animations, growing memory usage
+  **Warning signs:** Console warnings about dead animations, growing memory usage
 
 ### Pitfall 6: Header Flicker on Fast Scroll
+
 **What goes wrong:** Header rapidly shows/hides during scroll
 **Why it happens:** Threshold too low, no scroll debouncing
 **How to avoid:**
+
 - Use `threshold: 50` or higher in `useScrollDirection`
 - Don't collapse header while mobile menu is open
-**Warning signs:** Header feels "jittery" on scroll
+  **Warning signs:** Header feels "jittery" on scroll
 
 ## Code Examples
 
 Verified patterns from official sources:
 
 ### Mobile Menu with Route Close
+
 ```typescript
 // Source: Existing MobileNav.tsx pattern
 export function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProps) {
@@ -316,6 +345,7 @@ export function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProps) {
 ```
 
 ### Header Shrink on Scroll
+
 ```typescript
 // Source: Existing header.tsx
 export function Header({ navItems, cartCount, onCartClick }: HeaderProps) {
@@ -356,6 +386,7 @@ export function Header({ navItems, cartCount, onCartClick }: HeaderProps) {
 ```
 
 ### Bottom Navigation
+
 ```typescript
 // Pattern for mobile bottom nav
 const bottomNavItems = [
@@ -406,6 +437,7 @@ export function BottomNav() {
 ```
 
 ### GSAP Scroll Choreography
+
 ```typescript
 // Source: @/lib/gsap pattern + presets
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
@@ -450,6 +482,7 @@ export function ScrollChoreographer({ children }: { children: React.ReactNode })
 ```
 
 ### Page Container with Consistent Spacing
+
 ```typescript
 // Consistent page wrapper
 export function PageContainer({
@@ -473,15 +506,16 @@ export function PageContainer({
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| CSS transitions for page changes | Framer Motion AnimatePresence | 2023 | Proper exit animations, shared layout |
-| Manual scroll listener | useScrollDirection hook | V7 | Performance optimized, throttled |
-| document.body.overflow | useBodyScrollLock hook | V7 | iOS compatibility, scroll restoration |
-| GSAP in useEffect | useGSAP hook | GSAP 3.12 | Automatic cleanup, scope isolation |
-| Separate mobile/desktop headers | Single responsive header | V7 | Less code, consistent behavior |
+| Old Approach                     | Current Approach              | When Changed | Impact                                |
+| -------------------------------- | ----------------------------- | ------------ | ------------------------------------- |
+| CSS transitions for page changes | Framer Motion AnimatePresence | 2023         | Proper exit animations, shared layout |
+| Manual scroll listener           | useScrollDirection hook       | V7           | Performance optimized, throttled      |
+| document.body.overflow           | useBodyScrollLock hook        | V7           | iOS compatibility, scroll restoration |
+| GSAP in useEffect                | useGSAP hook                  | GSAP 3.12    | Automatic cleanup, scope isolation    |
+| Separate mobile/desktop headers  | Single responsive header      | V7           | Less code, consistent behavior        |
 
 **Deprecated/outdated:**
+
 - `next/router`: Replaced by `next/navigation` in App Router
 - Manual scroll restoration: Use Next.js built-in or PageTransition preserveScroll
 - CSS @keyframes for complex sequences: Use Framer Motion or GSAP for orchestration
@@ -508,6 +542,7 @@ Things that couldn't be fully resolved:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Codebase: `src/lib/gsap/index.ts` - GSAP plugin registration
 - Codebase: `src/lib/hooks/useScrollDirection.ts` - Scroll detection implementation
 - Codebase: `src/components/layouts/PageTransition.tsx` - Existing transition system
@@ -515,15 +550,18 @@ Things that couldn't be fully resolved:
 - Codebase: `src/design-system/tokens/z-index.ts` - Z-index layer system
 
 ### Secondary (MEDIUM confidence)
+
 - Codebase patterns: MobileNav.tsx swipe gestures, route change handling
 - Codebase patterns: CustomerLayout.tsx app shell structure
 
 ### Tertiary (LOW confidence)
+
 - Training data: Next.js 15 View Transitions API (needs verification)
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - All libraries already in package.json and working
 - Architecture: HIGH - Following existing codebase patterns
 - Pitfalls: HIGH - Documented from existing code and common issues

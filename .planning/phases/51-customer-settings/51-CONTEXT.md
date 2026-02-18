@@ -9,6 +9,7 @@
 Customer-facing settings UI within the existing account page. Customers set dietary restrictions, default delivery instructions, notification preferences, and display preferences (theme, font size, animations, sounds). All settings persist to the `customer_settings` table (created in Phase 50), except display preferences which are localStorage-only. No new database columns needed beyond what Phase 50 created (dietary_restrictions JSONB, delivery_instructions TEXT, notification_prefs JSONB, theme TEXT).
 
 **Existing infrastructure (do not rebuild):**
+
 - `customer_settings` table (migration 019 from Phase 50) with RLS policies
 - Lazy row creation pattern (INSERT ON CONFLICT DO NOTHING)
 - SaveButton, FloatingUnsavedBar, ToggleSwitch, ConfirmDialog from Phase 50
@@ -22,6 +23,7 @@ Customer-facing settings UI within the existing account page. Customers set diet
 ## Implementation Decisions
 
 ### Settings page placement
+
 - **Replace Payment tab** with Settings tab — Payment was a placeholder, remove it entirely
 - **Merge Addresses tab** into Settings — delivery address + instructions both live under Settings
 - **Final account tabs:** Profile | Orders | Settings (3 tabs, down from 4)
@@ -35,6 +37,7 @@ Customer-facing settings UI within the existing account page. Customers set diet
 - **No reset option** — customers edit individual fields, no bulk "reset to defaults"
 
 ### Dietary & allergy picker
+
 - **Chip style with emoji/icon + label** — rounded chips with emoji + text, tap to toggle
 - **Selection feedback:** Fill color change + checkmark icon on selected chips
 - **Selection animation:** Subtle pop (brief scale-up bounce) on toggle
@@ -46,6 +49,7 @@ Customer-facing settings UI within the existing account page. Customers set diet
 - **Delivery instructions:** Already show in checkout separately — dietary card is additional
 
 ### Notification toggle layout
+
 - **Card per group** — 3 stacked cards, each with distinct icon, title, description, and toggle
 - **Icons:** Distinct per group (e.g., Package for Orders, Megaphone for Marketing, Bell for Reminders)
 - **Expandable detail** — tap card to expand and see sub-categories covered (informational, no per-sub toggles)
@@ -56,6 +60,7 @@ Customer-facing settings UI within the existing account page. Customers set diet
 - **Groups (from Phase 50):** Order updates, Marketing, Reminders — all default ON (opt-out)
 
 ### Theme & display preferences
+
 - **Keep existing ThemeToggle style** — sun/moon animated button in header stays unchanged
 - **Settings presentation:** Labeled options with color preview swatches (more descriptive than icon-only)
 - **System theme option:** Claude's discretion whether to add a System (follow OS) option
@@ -68,6 +73,7 @@ Customer-facing settings UI within the existing account page. Customers set diet
 - **Theme persistence:** Both localStorage + DB sync (unchanged from Phase 50 decision — local wins on conflict)
 
 ### Claude's Discretion
+
 - Sub-tab grouping within Settings tab
 - Deep-link implementation (query param vs state-based)
 - Mobile sub-tab navigation style
@@ -104,5 +110,5 @@ Customer-facing settings UI within the existing account page. Customers set diet
 
 ---
 
-*Phase: 51-customer-settings*
-*Context gathered: 2026-02-08*
+_Phase: 51-customer-settings_
+_Context gathered: 2026-02-08_

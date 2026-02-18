@@ -134,10 +134,7 @@ function loadSettings(): Partial<{
   }
 }
 
-function saveSettings(settings: {
-  mode: ThemeMode;
-  userAccent: string | null;
-}): void {
+function saveSettings(settings: { mode: ThemeMode; userAccent: string | null }): void {
   if (typeof window === "undefined") return;
 
   try {
@@ -313,11 +310,7 @@ export function DynamicThemeProvider({
     ]
   );
 
-  return (
-    <DynamicThemeContext.Provider value={value}>
-      {children}
-    </DynamicThemeContext.Provider>
-  );
+  return <DynamicThemeContext.Provider value={value}>{children}</DynamicThemeContext.Provider>;
 }
 
 // ============================================

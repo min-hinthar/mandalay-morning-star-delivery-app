@@ -143,12 +143,7 @@ export function MenuItemCardSkeleton({
       aria-hidden="true"
     >
       {/* Image skeleton with shimmer */}
-      <div
-        className={cn(
-          config.imageContainer,
-          "relative bg-surface-tertiary"
-        )}
-      >
+      <div className={cn(config.imageContainer, "relative bg-surface-tertiary")}>
         {/* Shimmer overlay */}
         <div className="absolute inset-0 animate-shimmer" />
       </div>

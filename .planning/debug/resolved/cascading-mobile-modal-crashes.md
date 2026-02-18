@@ -64,11 +64,13 @@ started: After previous fixes - better but not solved
 root_cause: Drawer.tsx uses spring physics (`overlayMotion.sheetOpen` with damping: 30, stiffness: 300) for exit animations on mobile. Spring animations require continuous GPU computation during exit, which accumulates memory on mobile Safari. When Safari's GPU compositor crashes once, it enters a corrupted state where subsequent spring-based exit animations keep triggering crashes.
 
 fix: Modified bottomVariants to embed transitions directly in each state:
+
 - "visible" state: spring transition (type: "spring", damping: 30, stiffness: 300) for bouncy opening feel
 - "exit" state: simple duration-based transition (duration: 0.15, ease: "easeIn") to prevent GPU memory accumulation
-Changed the component's transition prop to use undefined for bottom sheet to allow variant-embedded transitions to take effect.
+  Changed the component's transition prop to use undefined for bottom sheet to allow variant-embedded transitions to take effect.
 
 verification: TypeScript passes, ESLint passes, production build succeeds
 
 files_changed:
-  - src/components/ui/Drawer.tsx
+
+- src/components/ui/Drawer.tsx

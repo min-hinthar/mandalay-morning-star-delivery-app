@@ -164,23 +164,16 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
       <m.div variants={shouldAnimate ? staggerItem : undefined}>
         <div className="flex items-center gap-2 mb-1">
           <MapPin className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-lg font-semibold text-text-primary">
-            Delivery Address
-          </h2>
+          <h2 className="font-display text-lg font-semibold text-text-primary">Delivery Address</h2>
         </div>
-        <p className="font-body text-sm text-text-muted">
-          Select or add a delivery address
-        </p>
+        <p className="font-body text-sm text-text-muted">Select or add a delivery address</p>
       </m.div>
 
       {/* Skeleton loading state */}
       {isLoading && (
         <m.div variants={shouldAnimate ? staggerItem : undefined} className="space-y-3">
           {[1, 2].map((i) => (
-            <div
-              key={i}
-              className="animate-pulse p-4 rounded-xl border border-border"
-            >
+            <div key={i} className="animate-pulse p-4 rounded-xl border border-border">
               <div className="flex gap-3">
                 <div className="w-9 h-9 bg-muted rounded-lg" />
                 <div className="flex-1 space-y-2">
@@ -196,10 +189,7 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
 
       {/* Address cards with stagger animation */}
       {!isLoading && addresses.length > 0 && (
-        <m.div
-          variants={shouldAnimate ? staggerItem : undefined}
-          className="space-y-3"
-        >
+        <m.div variants={shouldAnimate ? staggerItem : undefined} className="space-y-3">
           {addresses.map((addr, idx) => (
             <m.div
               key={addr.id}
@@ -226,9 +216,7 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
           className="text-center py-8 px-4 rounded-xl border border-dashed border-border"
         >
           <MapPin className="h-8 w-8 text-text-muted mx-auto mb-2" />
-          <p className="text-sm text-text-muted">
-            No saved addresses yet
-          </p>
+          <p className="text-sm text-text-muted">No saved addresses yet</p>
         </m.div>
       )}
 
@@ -245,12 +233,7 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
         variants={shouldAnimate ? buttonEntry : undefined}
         className="flex justify-center pt-4 border-t border-border"
       >
-        <Button
-          variant="default"
-          onClick={handleNext}
-          disabled={!canProceed}
-          size="lg"
-        >
+        <Button variant="default" onClick={handleNext} disabled={!canProceed} size="lg">
           Continue to Time Selection
         </Button>
       </m.div>

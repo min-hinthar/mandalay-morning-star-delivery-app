@@ -63,6 +63,7 @@ completed: 2026-02-15
 - **Files created/modified:** 4
 
 ## Accomplishments
+
 - Created DeliveryNotesEditor component with edit/save/cancel flow, PATCH integration, loading state, and toast notifications
 - Created PATCH /api/orders/{id}/notes API endpoint with UUID validation, authentication, ownership check (with admin bypass), status lock for delivered/cancelled, 500 char limit
 - Upgraded ETACountdown to dual format: flip-digit countdown when <=30 min, time window when >30 min
@@ -77,12 +78,14 @@ Each task was committed atomically:
 2. **Task 2: DeliveryNotesEditor, notes API, ETA dual format** - `95bdfa5` (feat)
 
 ## Files Created/Modified
+
 - `src/components/ui/orders/tracking/DeliveryNotesEditor.tsx` - Editable delivery instructions with edit/save/cancel flow
 - `src/app/api/orders/[id]/notes/route.ts` - PATCH endpoint for updating delivery notes with ownership + status validation
 - `src/components/ui/orders/tracking/ETACountdown.tsx` - Dual format ETA: countdown (<=30 min) vs time window (>30 min) with useSafeInterval
 - `src/components/ui/orders/tracking/index.ts` - Barrel export for DeliveryNotesEditor (already present from 66-03)
 
 ## Decisions Made
+
 - Task 1 work (DriverCard haptic/call text, OrderSummary expanded) was already committed in 66-03 (commit 503ae7c). Detected via `git diff` showing no changes needed. Skipped duplicate work.
 - Notes API writes to `special_instructions` column in orders table (existing column, matches deliveryNotes alias in TrackingOrderInfo)
 - Admin users (app_metadata.role === "admin") can edit notes for any order, bypassing ownership check
@@ -94,6 +97,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Fixed text-white lint violation in DeliveryNotesEditor**
+
 - **Found during:** Task 2 (lint verification)
 - **Issue:** `text-white` class violates project lint rule requiring semantic tokens
 - **Fix:** Changed to `text-text-inverse` semantic token
@@ -107,16 +111,20 @@ Each task was committed atomically:
 **Impact on plan:** Lint compliance fix only. No scope creep.
 
 ## Issues Encountered
+
 - Task 1 was already fully implemented by the 66-03 commit (503ae7c). This was detected when `git add` + commit resulted in "empty commit" -- investigation via `git diff 503ae7c~1 503ae7c` confirmed all Task 1 changes (haptic feedback, Call Driver text, OrderSummary expanded view, deliveryAddress prop, tracking types update) were already present. Task 1 was marked complete without duplicate work.
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - DeliveryNotesEditor ready for integration into TrackingPageClient (currently exported but not yet wired into the page layout)
 - ETA dual format active for any tracking view using ETACountdown component
 - Notes API endpoint ready for production use
 
 ---
-*Phase: 66-backlog-cleanup*
-*Completed: 2026-02-15*
+
+_Phase: 66-backlog-cleanup_
+_Completed: 2026-02-15_

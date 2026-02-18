@@ -106,5 +106,6 @@ None - no external service configuration required.
 - Business listing URLs need real restaurant page URLs when available (TODO comments in SiteFooter)
 
 ---
-*Phase: 63-branding-compliance*
-*Completed: 2026-02-15*
+
+_Phase: 63-branding-compliance_
+_Completed: 2026-02-15_

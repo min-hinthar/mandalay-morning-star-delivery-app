@@ -77,18 +77,18 @@ Each task was committed atomically:
 
 ## Files Modified
 
-| File | Changes |
-|------|---------|
-| `menu-skeleton.tsx` | 1 location: z-10 -> z-dropdown |
-| `menu-item-card.tsx` | 3 locations: z-10 -> z-dropdown |
-| `MenuItemCard.tsx` | 4 locations: z-10 -> z-dropdown, z-20 -> z-sticky |
+| File                    | Changes                                           |
+| ----------------------- | ------------------------------------------------- |
+| `menu-skeleton.tsx`     | 1 location: z-10 -> z-dropdown                    |
+| `menu-item-card.tsx`    | 3 locations: z-10 -> z-dropdown                   |
+| `MenuItemCard.tsx`      | 4 locations: z-10 -> z-dropdown, z-20 -> z-sticky |
 | `item-detail-modal.tsx` | 2 locations: z-10 -> z-dropdown, z-20 -> z-sticky |
-| `MenuLayout.tsx` | 1 location: z-20 -> z-sticky |
-| `ItemDetail.tsx` | 1 location: z-20 -> z-sticky |
-| `category-tabs.tsx` | 3 locations: z-10 -> z-dropdown |
-| `CategoryCarousel.tsx` | 4 locations: z-10 -> z-dropdown, z-30 -> z-fixed |
-| `MenuItemCardV8.tsx` | 1 location: z-10 -> z-dropdown |
-| `BlurImage.tsx` | 2 locations: z-10 -> z-dropdown |
+| `MenuLayout.tsx`        | 1 location: z-20 -> z-sticky                      |
+| `ItemDetail.tsx`        | 1 location: z-20 -> z-sticky                      |
+| `category-tabs.tsx`     | 3 locations: z-10 -> z-dropdown                   |
+| `CategoryCarousel.tsx`  | 4 locations: z-10 -> z-dropdown, z-30 -> z-fixed  |
+| `MenuItemCardV8.tsx`    | 1 location: z-10 -> z-dropdown                    |
+| `BlurImage.tsx`         | 2 locations: z-10 -> z-dropdown                   |
 
 ## Decisions Made
 
@@ -101,6 +101,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Additional z-10 in CategoryCarousel.tsx**
+
 - **Found during:** Task 2
 - **Issue:** Plan specified 3 z-10 locations in CategoryCarousel but there were 4 (including span text z-10)
 - **Fix:** Migrated all 4 instances to z-dropdown
@@ -127,5 +128,6 @@ None - no external service configuration required.
 - Visual layering preserved (badges above content, sticky headers above content)
 
 ---
-*Phase: 10-token-migration*
-*Completed: 2026-01-23*
+
+_Phase: 10-token-migration_
+_Completed: 2026-01-23_

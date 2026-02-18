@@ -58,21 +58,23 @@ completed: 2026-02-01
 
 ## Core Web Vitals Results
 
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| CLS | 0 | < 0.1 | PASS |
-| LCP | 8.1s | < 2.5s | BLOCKED BY JS |
-| FCP | 3.3s | < 1.8s | BLOCKED BY JS |
-| TBT | 5.3s | < 200ms | JS ISSUE |
+| Metric | Value | Target  | Status        |
+| ------ | ----- | ------- | ------------- |
+| CLS    | 0     | < 0.1   | PASS          |
+| LCP    | 8.1s  | < 2.5s  | BLOCKED BY JS |
+| FCP    | 3.3s  | < 1.8s  | BLOCKED BY JS |
+| TBT    | 5.3s  | < 200ms | JS ISSUE      |
 
 ## Root Cause Analysis
 
 **CLS: 0 (Perfect)**
+
 - Shimmer placeholders prevent layout shift
 - Explicit aspect ratios on images
 - Image optimization working as designed
 
 **LCP: 8.1s (Blocked by JavaScript)**
+
 - LCP element: FloatingEmoji (decorative), not hero image/content
 - TTFB: 520ms (acceptable)
 - Element render delay: 560ms (acceptable)
@@ -110,6 +112,7 @@ grep -n "useJsApiLoader" src/components/ui/coverage/CoverageRouteMap.tsx
 ## Deviations from Plan
 
 LCP target (< 2.5s) not met due to JavaScript performance issues outside image optimization scope:
+
 - FloatingEmoji (decorative) detected as LCP element
 - Heavy JS bundle (Sentry, Framer Motion, etc.) blocks main thread
 - Documented for future JS optimization phase
@@ -124,20 +127,21 @@ LCP target (< 2.5s) not met due to JavaScript performance issues outside image o
 
 ## Phase 36 Completion Status
 
-| Requirement | Status | Notes |
-|-------------|--------|-------|
-| IMAGE-01: Hero preload | COMPLETE | preload={true} quality={85} |
-| IMAGE-02: First 6 eager | COMPLETE | priority={index < 6} |
-| IMAGE-03: Responsive sizes | COMPLETE | sizes attribute on CardImage |
-| IMAGE-05: Quality 70 default | COMPLETE | next.config.ts + image-optimization.ts |
-| IMAGE-06: Explicit dimensions | COMPLETE | aspect-ratio classes |
-| IMAGE-07: Font swap | VERIFIED | display: "swap" on both fonts |
-| IMAGE-08: Deferred maps | VERIFIED | useJsApiLoader confirmed |
-| IMAGE-09: LCP < 2.5s | BLOCKED | JS issue, not image issue |
-| IMAGE-10: CLS < 0.1 | PASS | CLS: 0 |
+| Requirement                   | Status   | Notes                                  |
+| ----------------------------- | -------- | -------------------------------------- |
+| IMAGE-01: Hero preload        | COMPLETE | preload={true} quality={85}            |
+| IMAGE-02: First 6 eager       | COMPLETE | priority={index < 6}                   |
+| IMAGE-03: Responsive sizes    | COMPLETE | sizes attribute on CardImage           |
+| IMAGE-05: Quality 70 default  | COMPLETE | next.config.ts + image-optimization.ts |
+| IMAGE-06: Explicit dimensions | COMPLETE | aspect-ratio classes                   |
+| IMAGE-07: Font swap           | VERIFIED | display: "swap" on both fonts          |
+| IMAGE-08: Deferred maps       | VERIFIED | useJsApiLoader confirmed               |
+| IMAGE-09: LCP < 2.5s          | BLOCKED  | JS issue, not image issue              |
+| IMAGE-10: CLS < 0.1           | PASS     | CLS: 0                                 |
 
 **Image optimization objectives achieved. LCP requires dedicated JS performance phase.**
 
 ---
-*Phase: 36-image-optimization-lcp*
-*Completed: 2026-02-01*
+
+_Phase: 36-image-optimization-lcp_
+_Completed: 2026-02-01_

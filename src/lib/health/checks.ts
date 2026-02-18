@@ -22,10 +22,7 @@ function redactSecrets(message: string): string {
     .replace(/(pk_(?:live|test)_)[a-zA-Z0-9]+/g, "$1***")
     .replace(/(re_)[a-zA-Z0-9]+/g, "$1***")
     .replace(/(whsec_)[a-zA-Z0-9]+/g, "$1***")
-    .replace(
-      /eyJ[a-zA-Z0-9_-]+\.eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+/g,
-      "eyJ***",
-    )
+    .replace(/eyJ[a-zA-Z0-9_-]+\.eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+/g, "eyJ***")
     .replace(/(https?:\/\/)[^:]+:[^@]+@/g, "$1***:***@");
 }
 
@@ -37,8 +34,7 @@ function errorMessage(err: unknown): string {
 
 export async function checkSupabase(): Promise<ServiceStatus> {
   const configured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
   if (!configured) {
@@ -49,10 +45,7 @@ export async function checkSupabase(): Promise<ServiceStatus> {
   try {
     const { createPublicClient } = await import("@/lib/supabase/server");
     const supabase = createPublicClient();
-    const { error } = await supabase
-      .from("app_settings")
-      .select("key")
-      .limit(1);
+    const { error } = await supabase.from("app_settings").select("key").limit(1);
 
     if (error) {
       return {
@@ -154,8 +147,7 @@ export async function checkGoogleOAuth(): Promise<ServiceStatus> {
   // Config-only check: verify Supabase env vars for OAuth are present
   // Actual OAuth requires browser interaction -- can't test programmatically
   const configured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
   return {
@@ -177,7 +169,7 @@ export async function checkSearchConsole(): Promise<ServiceStatus> {
 // ---- Route reachability ----
 
 export async function checkRoutes(
-  origin: string,
+  origin: string
 ): Promise<{ auth_callback: RouteStatus; stripe_webhook: RouteStatus }> {
   const routes = [
     { path: "/auth/callback", key: "auth_callback" as const },
@@ -200,13 +192,11 @@ export async function checkRoutes(
       } catch {
         return { path, reachable: false } satisfies RouteStatus;
       }
-    }),
+    })
   );
 
   const resolved = results.map((r) =>
-    r.status === "fulfilled"
-      ? r.value
-      : ({ path: "", reachable: false } satisfies RouteStatus),
+    r.status === "fulfilled" ? r.value : ({ path: "", reachable: false } satisfies RouteStatus)
   );
 
   return {
@@ -237,15 +227,21 @@ export async function runDeepChecks(origin: string): Promise<DeepCheckResult> {
     return cachedResult.data;
   }
 
-  const [supabaseResult, stripeResult, resendResult, googleOAuthResult, searchConsoleResult, routesResult] =
-    await Promise.allSettled([
-      checkSupabase(),
-      checkStripe(),
-      checkResend(),
-      checkGoogleOAuth(),
-      checkSearchConsole(),
-      checkRoutes(origin),
-    ]);
+  const [
+    supabaseResult,
+    stripeResult,
+    resendResult,
+    googleOAuthResult,
+    searchConsoleResult,
+    routesResult,
+  ] = await Promise.allSettled([
+    checkSupabase(),
+    checkStripe(),
+    checkResend(),
+    checkGoogleOAuth(),
+    checkSearchConsole(),
+    checkRoutes(origin),
+  ]);
 
   const fallbackService: ServiceStatus = {
     status: "down",
@@ -261,31 +257,15 @@ export async function runDeepChecks(origin: string): Promise<DeepCheckResult> {
 
   const data: DeepCheckResult = {
     services: {
-      supabase:
-        supabaseResult.status === "fulfilled"
-          ? supabaseResult.value
-          : fallbackService,
-      stripe:
-        stripeResult.status === "fulfilled"
-          ? stripeResult.value
-          : fallbackService,
-      resend:
-        resendResult.status === "fulfilled"
-          ? resendResult.value
-          : fallbackService,
+      supabase: supabaseResult.status === "fulfilled" ? supabaseResult.value : fallbackService,
+      stripe: stripeResult.status === "fulfilled" ? stripeResult.value : fallbackService,
+      resend: resendResult.status === "fulfilled" ? resendResult.value : fallbackService,
       google_oauth:
-        googleOAuthResult.status === "fulfilled"
-          ? googleOAuthResult.value
-          : fallbackService,
+        googleOAuthResult.status === "fulfilled" ? googleOAuthResult.value : fallbackService,
       search_console:
-        searchConsoleResult.status === "fulfilled"
-          ? searchConsoleResult.value
-          : fallbackService,
+        searchConsoleResult.status === "fulfilled" ? searchConsoleResult.value : fallbackService,
     },
-    routes:
-      routesResult.status === "fulfilled"
-        ? routesResult.value
-        : fallbackRoutes,
+    routes: routesResult.status === "fulfilled" ? routesResult.value : fallbackRoutes,
   };
 
   cachedResult = { data, timestamp: Date.now() };

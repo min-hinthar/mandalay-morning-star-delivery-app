@@ -75,7 +75,7 @@ export async function GET(request: Request) {
     if (!VALID_SORT_COLUMNS.includes(sort as (typeof VALID_SORT_COLUMNS)[number])) {
       return NextResponse.json(
         { error: `Invalid sort column. Valid: ${VALID_SORT_COLUMNS.join(", ")}` },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -83,7 +83,7 @@ export async function GET(request: Request) {
     if (order !== "asc" && order !== "desc") {
       return NextResponse.json(
         { error: 'Invalid order direction. Valid: "asc", "desc"' },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -91,7 +91,7 @@ export async function GET(request: Request) {
     if (type && !VALID_TYPES.includes(type as (typeof VALID_TYPES)[number])) {
       return NextResponse.json(
         { error: `Invalid type filter. Valid: ${VALID_TYPES.join(", ")}` },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -99,7 +99,7 @@ export async function GET(request: Request) {
     if (status && !VALID_STATUSES.includes(status as (typeof VALID_STATUSES)[number])) {
       return NextResponse.json(
         { error: `Invalid status filter. Valid: ${VALID_STATUSES.join(", ")}` },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -108,7 +108,7 @@ export async function GET(request: Request) {
       .from("notification_logs")
       .select(
         "id, order_id, user_id, notification_type, channel, recipient, subject, resend_id, status, error_message, sent_at, created_at",
-        { count: "exact" },
+        { count: "exact" }
       );
 
     // Apply filters
@@ -144,10 +144,7 @@ export async function GET(request: Request) {
 
     if (error) {
       logger.exception(error, { api: "admin/emails" });
-      return NextResponse.json(
-        { error: "Failed to fetch email logs" },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: "Failed to fetch email logs" }, { status: 500 });
     }
 
     const total = count ?? 0;
@@ -164,9 +161,6 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     logger.exception(error, { api: "admin/emails" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -9,6 +9,7 @@
 Phase 48 fills gaps in error recovery and loading feedback across all route segments. The project already has 8 error.tsx files (4 legacy hand-crafted, 4 using `RouteError` component) and 4 loading.tsx files (all using `RouteLoading`). The task adds ~6 new error.tsx files per INFR-01, ~11 new loading.tsx files per INFR-02, and refactors the `RouteError` component to use CSS-only animations per ERRP-06.
 
 Two key patterns exist:
+
 - **New pattern (use this):** 3-6 line files delegating to `RouteError`/`RouteLoading` components
 - **Legacy pattern (do not copy):** 50+ line hand-crafted error pages with inline JSX
 
@@ -17,9 +18,11 @@ The `RouteError` component currently uses Framer Motion (`m.div` from `framer-mo
 **Primary recommendation:** Refactor `RouteError` to CSS-only animation, then create all missing error/loading files using the 3-6 line delegation pattern.
 
 <user_constraints>
+
 ## User Constraints (from CONTEXT.md)
 
 ### Locked Decisions
+
 - Two actions on error: **retry** (primary button) and **go home** (secondary/ghost button)
 - After 2+ retry failures, emphasize the "go home" action more prominently
 - Show technical error details (message, stack trace) in **development mode only**; production stays clean
@@ -39,6 +42,7 @@ The `RouteError` component currently uses Framer Motion (`m.div` from `framer-mo
 - Error card **vertically centered** in the content area
 
 ### Claude's Discretion
+
 - Exact skeleton component selection per loading.tsx
 - Nested error boundary hierarchy decisions (section vs full-page per route)
 - Exact error messages and wording (within "light personality" constraint)
@@ -46,27 +50,31 @@ The `RouteError` component currently uses Framer Motion (`m.div` from `framer-mo
 - CSS fade-in timing and easing
 
 ### Deferred Ideas (OUT OF SCOPE)
+
 None
 </user_constraints>
 
 ## Standard Stack
 
 ### Core
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| Next.js | 16.1.2 | App Router `error.tsx` / `loading.tsx` file conventions | Built-in error boundary and Suspense wrappers |
-| React | 19.2.3 | `useEffect`, `useState` for retry counter | Runtime |
-| @sentry/nextjs | ^10.34.0 | `captureException` in error boundaries | Already configured in project |
-| lucide-react | (installed) | `AlertTriangle`, `RefreshCw`, `Home` icons | Already used in existing error components |
-| framer-motion | ^12.26.1 | `RouteLoading` component only (NOT error files) | Already used in loading states |
+
+| Library        | Version     | Purpose                                                 | Why Standard                                  |
+| -------------- | ----------- | ------------------------------------------------------- | --------------------------------------------- |
+| Next.js        | 16.1.2      | App Router `error.tsx` / `loading.tsx` file conventions | Built-in error boundary and Suspense wrappers |
+| React          | 19.2.3      | `useEffect`, `useState` for retry counter               | Runtime                                       |
+| @sentry/nextjs | ^10.34.0    | `captureException` in error boundaries                  | Already configured in project                 |
+| lucide-react   | (installed) | `AlertTriangle`, `RefreshCw`, `Home` icons              | Already used in existing error components     |
+| framer-motion  | ^12.26.1    | `RouteLoading` component only (NOT error files)         | Already used in loading states                |
 
 ### Supporting
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| CSS animations | N/A | `animate-fade-in-up` class | Error boundary mount animation (ERRP-06) |
-| shadcn Button | (installed) | Primary/ghost button variants | Retry and go-home actions |
+
+| Library        | Version     | Purpose                       | When to Use                              |
+| -------------- | ----------- | ----------------------------- | ---------------------------------------- |
+| CSS animations | N/A         | `animate-fade-in-up` class    | Error boundary mount animation (ERRP-06) |
+| shadcn Button  | (installed) | Primary/ghost button variants | Retry and go-home actions                |
 
 ### Alternatives Considered
+
 None -- all tools already exist in the project.
 
 **Installation:** No new packages needed.
@@ -88,28 +96,31 @@ layout.tsx
 ### Current Route Structure and Coverage
 
 #### Existing error.tsx files (8 total)
-| File | Pattern | Notes |
-|------|---------|-------|
-| `src/app/error.tsx` | Legacy hand-crafted | 60 lines, inline JSX, uses `brand-red` |
-| `src/app/(admin)/admin/error.tsx` | Legacy hand-crafted | 60 lines, catches layout errors for all admin sub-routes |
-| `src/app/(customer)/orders/error.tsx` | Legacy hand-crafted | 65 lines, 3 buttons |
-| `src/app/(driver)/driver/error.tsx` | Legacy hand-crafted | 60 lines |
-| `src/app/(admin)/admin/analytics/error.tsx` | RouteError delegation | 13 lines |
-| `src/app/(customer)/orders/[id]/tracking/error.tsx` | RouteError delegation | 13 lines |
-| `src/app/(public)/error.tsx` | RouteError delegation | 13 lines |
-| `src/app/(public)/menu/error.tsx` | RouteError delegation | 13 lines |
+
+| File                                                | Pattern               | Notes                                                    |
+| --------------------------------------------------- | --------------------- | -------------------------------------------------------- |
+| `src/app/error.tsx`                                 | Legacy hand-crafted   | 60 lines, inline JSX, uses `brand-red`                   |
+| `src/app/(admin)/admin/error.tsx`                   | Legacy hand-crafted   | 60 lines, catches layout errors for all admin sub-routes |
+| `src/app/(customer)/orders/error.tsx`               | Legacy hand-crafted   | 65 lines, 3 buttons                                      |
+| `src/app/(driver)/driver/error.tsx`                 | Legacy hand-crafted   | 60 lines                                                 |
+| `src/app/(admin)/admin/analytics/error.tsx`         | RouteError delegation | 13 lines                                                 |
+| `src/app/(customer)/orders/[id]/tracking/error.tsx` | RouteError delegation | 13 lines                                                 |
+| `src/app/(public)/error.tsx`                        | RouteError delegation | 13 lines                                                 |
+| `src/app/(public)/menu/error.tsx`                   | RouteError delegation | 13 lines                                                 |
 
 #### Missing error.tsx files (INFR-01: 6 required)
-| Route Segment | Why Needed | Parent Fallback |
-|---------------|-----------|-----------------|
-| `(admin)/admin/menu/` | Menu management errors | Falls to `admin/error.tsx` |
-| `(admin)/admin/drivers/` | Driver management errors | Falls to `admin/error.tsx` |
-| `(admin)/admin/routes/` | Route management errors | Falls to `admin/error.tsx` |
-| `(driver)/driver/route/` | Active route errors | Falls to `driver/error.tsx` |
-| `(customer)/account/` | Account page errors | Falls to root `error.tsx` |
-| `(customer)/checkout/` | Checkout errors | Falls to root `error.tsx` |
+
+| Route Segment            | Why Needed               | Parent Fallback             |
+| ------------------------ | ------------------------ | --------------------------- |
+| `(admin)/admin/menu/`    | Menu management errors   | Falls to `admin/error.tsx`  |
+| `(admin)/admin/drivers/` | Driver management errors | Falls to `admin/error.tsx`  |
+| `(admin)/admin/routes/`  | Route management errors  | Falls to `admin/error.tsx`  |
+| `(driver)/driver/route/` | Active route errors      | Falls to `driver/error.tsx` |
+| `(customer)/account/`    | Account page errors      | Falls to root `error.tsx`   |
+| `(customer)/checkout/`   | Checkout errors          | Falls to root `error.tsx`   |
 
 #### Additional route segments without error.tsx (beyond INFR-01)
+
 These segments currently bubble up to parent error boundaries. Adding error.tsx here is optional but provides granularity:
 | Route Segment | Current Fallback |
 |---------------|-----------------|
@@ -126,35 +137,37 @@ These segments currently bubble up to parent error boundaries. Adding error.tsx 
 **Recommendation:** Per phase goal ("every route segment"), add error.tsx to ALL segments that have a `page.tsx` but no `error.tsx`. However, the strict requirement (INFR-01) only mandates 6. Claude's discretion on how many beyond 6.
 
 #### Existing loading.tsx files (4 total)
-| File | Pattern |
-|------|---------|
-| `(admin)/admin/analytics/loading.tsx` | RouteLoading delegation |
+
+| File                                          | Pattern                 |
+| --------------------------------------------- | ----------------------- |
+| `(admin)/admin/analytics/loading.tsx`         | RouteLoading delegation |
 | `(customer)/orders/[id]/tracking/loading.tsx` | RouteLoading delegation |
-| `(public)/loading.tsx` | RouteLoading delegation |
-| `(public)/menu/loading.tsx` | RouteLoading delegation |
+| `(public)/loading.tsx`                        | RouteLoading delegation |
+| `(public)/menu/loading.tsx`                   | RouteLoading delegation |
 
 #### Missing loading.tsx files (INFR-02: admin pages + others)
-| Route Segment | Suggested Message |
-|---------------|-------------------|
-| `(admin)/admin/` (root dashboard) | "Loading dashboard..." |
-| `(admin)/admin/categories/` | "Loading categories..." |
-| `(admin)/admin/drivers/` | "Loading drivers..." |
-| `(admin)/admin/drivers/[id]/` | "Loading driver details..." |
-| `(admin)/admin/menu/` | "Loading menu..." |
-| `(admin)/admin/menu/[id]/` | "Loading menu item..." |
-| `(admin)/admin/orders/` | "Loading orders..." |
-| `(admin)/admin/photos/` | "Loading photos..." |
-| `(admin)/admin/routes/` | "Loading routes..." |
-| `(admin)/admin/routes/[id]/` | "Loading route details..." |
-| `(admin)/admin/sections/` | "Loading sections..." |
-| `(admin)/admin/settings/` | "Loading settings..." |
-| `(driver)/driver/` (root) | "Loading dashboard..." |
-| `(driver)/driver/route/` | "Loading route..." |
-| `(driver)/driver/history/` | "Loading history..." |
-| `(customer)/account/` | "Loading account..." |
-| `(customer)/checkout/` | "Loading checkout..." |
-| `(customer)/cart/` | "Loading cart..." |
-| `(customer)/orders/` | "Loading orders..." |
+
+| Route Segment                     | Suggested Message           |
+| --------------------------------- | --------------------------- |
+| `(admin)/admin/` (root dashboard) | "Loading dashboard..."      |
+| `(admin)/admin/categories/`       | "Loading categories..."     |
+| `(admin)/admin/drivers/`          | "Loading drivers..."        |
+| `(admin)/admin/drivers/[id]/`     | "Loading driver details..." |
+| `(admin)/admin/menu/`             | "Loading menu..."           |
+| `(admin)/admin/menu/[id]/`        | "Loading menu item..."      |
+| `(admin)/admin/orders/`           | "Loading orders..."         |
+| `(admin)/admin/photos/`           | "Loading photos..."         |
+| `(admin)/admin/routes/`           | "Loading routes..."         |
+| `(admin)/admin/routes/[id]/`      | "Loading route details..."  |
+| `(admin)/admin/sections/`         | "Loading sections..."       |
+| `(admin)/admin/settings/`         | "Loading settings..."       |
+| `(driver)/driver/` (root)         | "Loading dashboard..."      |
+| `(driver)/driver/route/`          | "Loading route..."          |
+| `(driver)/driver/history/`        | "Loading history..."        |
+| `(customer)/account/`             | "Loading account..."        |
+| `(customer)/checkout/`            | "Loading checkout..."       |
+| `(customer)/cart/`                | "Loading cart..."           |
+| `(customer)/orders/`              | "Loading orders..."         |
 
 **Note on layout visibility:** The admin layout wraps `{children}` in a `<main className="flex-1 overflow-auto">` div. The `RouteLoading` component currently uses `min-h-screen` which would fill the content area. This is correct -- the nav sidebar stays visible (it's in the layout, outside the error/loading boundary).
 
@@ -187,6 +200,7 @@ export default function XxxLoading() {
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Hand-crafting error pages:** The 4 legacy files (root, admin, orders, driver) have 50-65 lines of inline JSX. New files must use delegation pattern.
 - **Using `brand-red` Tailwind class:** Not registered in `@theme inline`, likely resolves to transparent. Use `destructive`, `status-error`, or `primary` instead.
 - **Importing Framer Motion in error.tsx files:** Violates ERRP-06 and can cause crash loops if Framer Motion itself errors.
@@ -194,46 +208,52 @@ export default function XxxLoading() {
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Error boundary UI | Custom JSX per route | `RouteError` component | Consistency, maintainability, single update point |
-| Loading states | Custom skeletons per route | `RouteLoading` component | Phase scope says generic loading, no custom skeletons |
-| CSS fade animation | Inline CSS or new keyframes | `animate-fade-in-up` from `animations.css` | Already exists with reduced-motion support |
-| Sentry error logging | Custom fetch/API calls | `Sentry.captureException()` | Already configured with DSN, replay, tracing |
+| Problem              | Don't Build                 | Use Instead                                | Why                                                   |
+| -------------------- | --------------------------- | ------------------------------------------ | ----------------------------------------------------- |
+| Error boundary UI    | Custom JSX per route        | `RouteError` component                     | Consistency, maintainability, single update point     |
+| Loading states       | Custom skeletons per route  | `RouteLoading` component                   | Phase scope says generic loading, no custom skeletons |
+| CSS fade animation   | Inline CSS or new keyframes | `animate-fade-in-up` from `animations.css` | Already exists with reduced-motion support            |
+| Sentry error logging | Custom fetch/API calls      | `Sentry.captureException()`                | Already configured with DSN, replay, tracing          |
 
 **Key insight:** The entire phase is wiring up existing components. Almost zero new component code -- just ~13 tiny files delegating to existing components, plus a RouteError refactor.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Framer Motion in Error Boundaries
+
 **What goes wrong:** If Framer Motion itself errors (bundle load failure, hydration mismatch), an error.tsx that imports Framer Motion creates an infinite crash loop -- the error boundary crashes trying to render the error UI.
 **Why it happens:** error.tsx is the last line of defense. Its dependencies must be minimal and reliable.
 **How to avoid:** CSS-only animations in error files. `RouteError` must be refactored to remove `m.div` imports.
 **Warning signs:** White screen on error, recursive error in React DevTools.
 
 ### Pitfall 2: error.tsx Doesn't Catch Layout Errors
+
 **What goes wrong:** An error in `(admin)/admin/layout.tsx` is NOT caught by `(admin)/admin/error.tsx`. It bubbles to the root `error.tsx` or `global-error.tsx`.
 **Why it happens:** Next.js component hierarchy: `layout > error > loading > page`. The error boundary wraps the page, not the layout.
 **How to avoid:** Accept this hierarchy. The root `error.tsx` and `global-error.tsx` catch layout errors. No need for workarounds.
 **Warning signs:** Error in admin sidebar shows root error page instead of admin-styled error.
 
 ### Pitfall 3: `brand-red` Is a Ghost Token
+
 **What goes wrong:** `text-brand-red` and `bg-brand-red/10` appear in 24 files but `brand-red` is not registered in `@theme inline` in globals.css. In Tailwind v4 + Turbopack, this means the utility class resolves to nothing.
 **Why it happens:** Legacy class from before the Tailwind v4 migration. Was never cleaned up.
 **How to avoid:** Use `destructive` (Shadcn), `status-error` (design tokens), or `primary` (brand red). For the "soft red/orange" user preference, use `status-error` (`#C45C4A` light / `#FF6B6B` dark) or `destructive` (`#dc2626` light / `#F87171` dark).
 **Warning signs:** Error icon/text appearing without color (default text color instead of red).
 
 ### Pitfall 4: RouteLoading Uses min-h-screen
+
 **What goes wrong:** `RouteLoading` has `min-h-screen` which works for full-page loading but may look odd in nested admin routes where the sidebar takes up space.
 **Why it happens:** Component was designed for top-level routes.
 **How to avoid:** This is acceptable for admin routes because the sidebar is in the layout (stays visible), and `min-h-screen` on the content area just fills the remaining space. The flex layout handles this correctly.
 
 ### Pitfall 5: Sentry Client-Side Is Disabled in Dev
+
 **What goes wrong:** Sentry `captureException` calls in error boundaries won't do anything in development because `instrumentation-client.ts` only initializes Sentry in production.
 **Why it happens:** Sentry/Next.js 16 compatibility issue causing infinite loops.
 **How to avoid:** This is a known state. Error boundaries should still call `captureException` -- it's a no-op in dev but works in production. Add `console.error(error)` as dev fallback (already done in existing components).
 
 ### Pitfall 6: Retry Counter State Management
+
 **What goes wrong:** User requirement says "After 2+ retry failures, emphasize go home action." If retry counter is stored in component state, it resets when the error boundary re-mounts.
 **Why it happens:** When `reset()` succeeds momentarily then fails again, React re-mounts the error boundary, resetting state.
 **How to avoid:** Use `useRef` for the retry counter, or store in a module-level variable scoped to the component instance. The counter should increment on each `reset()` call and never reset during the component's lifecycle.
@@ -374,8 +394,14 @@ export default function MenuLoading() {
 }
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Reduced motion support already included */
@@ -386,45 +412,50 @@ export default function MenuLoading() {
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Hand-crafted 50-line error pages | 3-line delegation to `RouteError` | Analytics/tracking error.tsx additions | 10x less code per file |
-| Framer Motion in error boundaries | CSS-only animations (ERRP-06) | This phase | Eliminates crash loop risk |
-| `brand-red` color class | `status-error` or `destructive` | Tailwind v4 migration | `brand-red` not in @theme inline |
+| Old Approach                      | Current Approach                  | When Changed                           | Impact                           |
+| --------------------------------- | --------------------------------- | -------------------------------------- | -------------------------------- |
+| Hand-crafted 50-line error pages  | 3-line delegation to `RouteError` | Analytics/tracking error.tsx additions | 10x less code per file           |
+| Framer Motion in error boundaries | CSS-only animations (ERRP-06)     | This phase                             | Eliminates crash loop risk       |
+| `brand-red` color class           | `status-error` or `destructive`   | Tailwind v4 migration                  | `brand-red` not in @theme inline |
 
 **Deprecated/outdated:**
+
 - `brand-red` Tailwind class: Not registered in `@theme inline`, resolves to nothing in Tailwind v4 + Turbopack
 - Hand-crafted error boundaries: `src/app/error.tsx`, `(admin)/admin/error.tsx`, `(customer)/orders/error.tsx`, `(driver)/driver/error.tsx` should be migrated to use `RouteError` delegation (but that's optional scope expansion)
 
 ## Existing Infrastructure Inventory
 
 ### Components
-| Component | File | Uses Framer Motion? |
-|-----------|------|---------------------|
-| `RouteError` | `src/components/ui/RouteError.tsx` | YES (m.div) -- must refactor |
-| `RouteLoading` | `src/components/ui/RouteLoading.tsx` | YES (m.div, AnimatePresence) -- OK per user decision |
-| `BrandedSpinner` | `src/components/ui/branded-spinner.tsx` | YES (m.svg) -- used by RouteLoading |
-| `MapErrorCard` | `src/components/ui/maps/MapErrorCard.tsx` | YES -- component-level, not error.tsx |
-| `ChartErrorCard` | `src/components/ui/admin/analytics/ChartErrorCard.tsx` | YES -- component-level |
+
+| Component        | File                                                   | Uses Framer Motion?                                  |
+| ---------------- | ------------------------------------------------------ | ---------------------------------------------------- |
+| `RouteError`     | `src/components/ui/RouteError.tsx`                     | YES (m.div) -- must refactor                         |
+| `RouteLoading`   | `src/components/ui/RouteLoading.tsx`                   | YES (m.div, AnimatePresence) -- OK per user decision |
+| `BrandedSpinner` | `src/components/ui/branded-spinner.tsx`                | YES (m.svg) -- used by RouteLoading                  |
+| `MapErrorCard`   | `src/components/ui/maps/MapErrorCard.tsx`              | YES -- component-level, not error.tsx                |
+| `ChartErrorCard` | `src/components/ui/admin/analytics/ChartErrorCard.tsx` | YES -- component-level                               |
 
 ### Skeleton Components (available for future custom loading states, not needed this phase)
-| Component | File |
-|-----------|------|
-| `Skeleton` (base) | `src/components/ui/skeleton/base.tsx` |
-| `SkeletonCard` | `src/components/ui/skeleton/card-skeletons.tsx` |
+
+| Component          | File                                             |
+| ------------------ | ------------------------------------------------ |
+| `Skeleton` (base)  | `src/components/ui/skeleton/base.tsx`            |
+| `SkeletonCard`     | `src/components/ui/skeleton/card-skeletons.tsx`  |
 | `SkeletonTableRow` | `src/components/ui/skeleton/table-skeletons.tsx` |
-| `SkeletonText` | `src/components/ui/skeleton/text-skeletons.tsx` |
+| `SkeletonText`     | `src/components/ui/skeleton/text-skeletons.tsx`  |
 
 ### Sentry Setup
-| File | Status |
-|------|--------|
-| `instrumentation.ts` | Active -- server + edge Sentry init |
+
+| File                        | Status                                                                |
+| --------------------------- | --------------------------------------------------------------------- |
+| `instrumentation.ts`        | Active -- server + edge Sentry init                                   |
 | `instrumentation-client.ts` | **Production only** -- disabled in dev due to Next.js 16 compat issue |
-| `sentry.server.config.ts` | Active |
-| `sentry.edge.config.ts` | Active |
-| `global-error.tsx` | Active -- Sentry.captureException |
+| `sentry.server.config.ts`   | Active                                                                |
+| `sentry.edge.config.ts`     | Active                                                                |
+| `global-error.tsx`          | Active -- Sentry.captureException                                     |
 
 ### Logo Asset
+
 - `public/logo.png` -- Morning Star logo (use in RouteError component)
 - `public/icons/icon-192.png` -- App icon (PWA)
 - `public/icons/icon-512.png` -- App icon (PWA)
@@ -450,6 +481,7 @@ export default function MenuLoading() {
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Context7 `/vercel/next.js` -- error.tsx file conventions, component hierarchy, loading.tsx patterns
 - Codebase analysis -- all 8 existing error.tsx, 4 loading.tsx, RouteError, RouteLoading, skeleton library
 - `src/styles/animations.css` -- existing `animate-fade-in-up` CSS animation with reduced-motion support
@@ -457,15 +489,18 @@ export default function MenuLoading() {
 - `src/app/globals.css` -- @theme inline block (confirms brand-red is NOT registered)
 
 ### Secondary (MEDIUM confidence)
+
 - `instrumentation-client.ts` -- Sentry production-only constraint documented in code comments
 - `.claude/learnings/tailwind-v4.md` -- brand-red ghost token pattern
 
 ### Tertiary (LOW confidence)
+
 - None -- all items verified
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH -- all libraries already installed and configured
 - Architecture: HIGH -- patterns verified from existing codebase files
 - Pitfalls: HIGH -- identified from direct code analysis and learnings files

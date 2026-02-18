@@ -1,10 +1,4 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type OrderStatus =
   | "pending"
@@ -363,7 +357,15 @@ export interface OrdersUpdate {
   updated_at?: string;
 }
 
-export type OrderAuditAction = "status_change" | "cancel" | "refund" | "edit" | "update_items" | "assign_driver" | "unassign_driver" | "priority_change";
+export type OrderAuditAction =
+  | "status_change"
+  | "cancel"
+  | "refund"
+  | "edit"
+  | "update_items"
+  | "assign_driver"
+  | "unassign_driver"
+  | "priority_change";
 export type OrderAuditActorRole = "customer" | "admin" | "driver" | "system";
 
 export interface OrderAuditLogRow {
@@ -687,7 +689,7 @@ export type Database = {
             isOneToOne: true;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       profiles: {
@@ -701,7 +703,7 @@ export type Database = {
             isOneToOne: true;
             referencedRelation: "users";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       addresses: {
@@ -715,7 +717,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       menu_categories: {
@@ -735,7 +737,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "menu_categories";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       modifier_groups: {
@@ -755,7 +757,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "modifier_groups";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       item_modifier_groups: {
@@ -776,7 +778,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "menu_items";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       orders: {
@@ -797,7 +799,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       order_audit_log: {
@@ -818,7 +820,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       order_items: {
@@ -839,7 +841,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "orders";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       order_item_modifiers: {
@@ -860,7 +862,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "order_items";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       featured_sections: {
@@ -874,7 +876,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       featured_section_items: {
@@ -895,7 +897,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "menu_items";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       driver_invites: {
@@ -909,7 +911,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       driver_ratings: {
@@ -944,7 +946,7 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "route_stops";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       webhook_events: {

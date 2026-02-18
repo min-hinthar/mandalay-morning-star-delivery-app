@@ -66,6 +66,7 @@ completed: 2026-02-10
 - **Files created:** 5
 
 ## Accomplishments
+
 - OrderConfirmation with full receipt: greeting, status tracker, order details, delivery block, dietary callout, categorized items, totals, payment info, View Order CTA, Reorder link, suggested items, support section
 - OrderCancellation with warm/apologetic tone, cancellation details (pink bg), simplified item summary, conditional refund status (green checkmark if issued, neutral if not), Place New Order CTA
 - Extracted 3 reusable components (OrderTotalsTable, SuggestedItems, SupportSection) for cross-template sharing
@@ -78,6 +79,7 @@ Each task was committed atomically:
 2. **Task 2: Order Cancellation email template (MAIL-02)** - `d188d55` (feat)
 
 ## Files Created/Modified
+
 - `src/emails/OrderConfirmation.tsx` - MAIL-01 branded receipt with all order details, items, totals, CTAs
 - `src/emails/OrderCancellation.tsx` - MAIL-02 cancellation with reason, refund status, reorder CTA
 - `src/emails/components/OrderTotalsTable.tsx` - Reusable totals table with subtotal, delivery fee, tax, tip, total
@@ -85,6 +87,7 @@ Each task was committed atomically:
 - `src/emails/components/SupportSection.tsx` - "Need help?" support block with email link
 
 ## Decisions Made
+
 - **EMAIL-03-SPLIT:** Extracted OrderTotalsTable, SuggestedItems, SupportSection into shared components to keep OrderConfirmation under 400-line ESLint max-lines limit. These components are reusable across future email templates.
 - **EMAIL-03-NOTRACKER:** OrderCancellation omits OrderStatusTracker since "cancelled" is not part of the delivery status flow (confirmed -> preparing -> out for delivery -> delivered).
 - **EMAIL-03-FALLBACK:** When refundAmountCents is not provided on cancellation, defaults to totalCents for the refund display amount.
@@ -94,6 +97,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Extracted components to meet 400-line ESLint limit**
+
 - **Found during:** Task 1 (OrderConfirmation)
 - **Issue:** Initial single-file OrderConfirmation.tsx was 578 lines, exceeding the 400-line max-lines ESLint rule
 - **Fix:** Extracted OrderTotalsTable, SuggestedItems, and SupportSection into shared components in src/emails/components/
@@ -107,16 +111,20 @@ Each task was committed atomically:
 **Impact on plan:** Component extraction improved reusability. OrderCancellation reuses SupportSection. No scope creep.
 
 ## Issues Encountered
+
 - lint-staged backup conflict during Task 1 commit caused files to be committed alongside prior-session RefundNotification files in commit f18965e. Code is correct and present; commit attribution is mixed (same issue as 54-01 and 54-02).
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Both core email templates ready for integration with sendEmail() pipeline
 - Extracted shared components (OrderTotalsTable, SuggestedItems, SupportSection) available for RefundNotification and DeliveryReminder templates
 - All templates compose from EmailLayout with consistent branding
 
 ---
-*Phase: 54-email-system*
-*Completed: 2026-02-10*
+
+_Phase: 54-email-system_
+_Completed: 2026-02-10_

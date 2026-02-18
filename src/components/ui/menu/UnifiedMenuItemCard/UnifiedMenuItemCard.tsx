@@ -128,9 +128,7 @@ export function UnifiedMenuItemCard({
   // Favorites - use controlled state if provided, else use hook
   const favoritesHook = useFavorites();
   const isItemFavorite =
-    controlledFavorite !== undefined
-      ? controlledFavorite
-      : favoritesHook.isFavorite(item.id);
+    controlledFavorite !== undefined ? controlledFavorite : favoritesHook.isFavorite(item.id);
 
   // Get variant config
   const config = variantConfig[variant];
@@ -139,10 +137,7 @@ export function UnifiedMenuItemCard({
     config.enableTilt && !disableTilt && shouldAnimate && !item.isSoldOut && canHover;
 
   // Memoized spring config
-  const springConfig = useMemo(
-    () => getSpring(spring.snappy),
-    [getSpring]
-  );
+  const springConfig = useMemo(() => getSpring(spring.snappy), [getSpring]);
 
   // 3D tilt effect
   const {
@@ -252,22 +247,21 @@ export function UnifiedMenuItemCard({
         />
 
         {/* Dietary badges */}
-        {config.showBadges && item.tags.length > 0 && (
-          <DietaryBadges tags={item.tags} />
-        )}
+        {config.showBadges && item.tags.length > 0 && <DietaryBadges tags={item.tags} />}
 
         {/* Favorite button */}
         <div className={cn("absolute top-3 right-3", zClass.dropdown)}>
-          <FavoriteButton
-            isFavorite={isItemFavorite}
-            onToggle={handleFavoriteToggle}
-            size="md"
-          />
+          <FavoriteButton isFavorite={isItemFavorite} onToggle={handleFavoriteToggle} size="md" />
         </div>
 
         {/* Sold out overlay */}
         {item.isSoldOut && (
-          <div className={cn("absolute inset-0 bg-overlay flex items-center justify-center", zClass.sticky)}>
+          <div
+            className={cn(
+              "absolute inset-0 bg-overlay flex items-center justify-center",
+              zClass.sticky
+            )}
+          >
             <span className="px-4 py-2 bg-surface-primary rounded-full text-sm font-semibold text-text-primary shadow-lg">
               Sold Out
             </span>

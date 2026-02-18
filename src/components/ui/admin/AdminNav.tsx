@@ -21,12 +21,7 @@ import { useState } from "react";
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/Tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/Tooltip";
 
 const navItems = [
   {
@@ -103,18 +98,13 @@ export function AdminNav() {
         initial={false}
         animate={{ width: isCollapsed ? 64 : 256 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
-        className={cn(
-          "flex h-screen flex-col",
-          "bg-surface-secondary border-r border-border"
-        )}
+        className={cn("flex h-screen flex-col", "bg-surface-secondary border-r border-border")}
       >
         {/* Header */}
         <div className="flex h-16 items-center justify-between border-b border-border px-4">
           {!isCollapsed && (
             <Link href="/admin" className="flex items-center gap-2">
-              <span className="font-display text-lg font-bold text-accent-teal">
-                Admin
-              </span>
+              <span className="font-display text-lg font-bold text-accent-teal">Admin</span>
             </Link>
           )}
           <Button
@@ -123,19 +113,15 @@ export function AdminNav() {
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="h-8 w-8 p-0"
           >
-            {isCollapsed ? (
-              <Menu className="h-4 w-4" />
-            ) : (
-              <ChevronLeft className="h-4 w-4" />
-            )}
+            {isCollapsed ? <Menu className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 p-2">
           {navItems.map((item) => {
-            const isActive = pathname === item.href ||
-              (item.href !== "/admin" && pathname.startsWith(item.href));
+            const isActive =
+              pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
             const Icon = item.icon;
 
             const linkContent = (
@@ -166,10 +152,9 @@ export function AdminNav() {
                   whileHover={{ scale: 1.15, rotate: [-3, 3, 0] }}
                   transition={iconHoverTransition}
                 >
-                  <Icon className={cn(
-                    "h-5 w-5",
-                    isActive ? "text-accent-teal" : "text-text-muted"
-                  )} />
+                  <Icon
+                    className={cn("h-5 w-5", isActive ? "text-accent-teal" : "text-text-muted")}
+                  />
                 </m.div>
 
                 {!isCollapsed && <span className="relative z-10">{item.label}</span>}

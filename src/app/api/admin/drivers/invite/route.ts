@@ -125,9 +125,7 @@ export async function POST(request: NextRequest) {
 
     // Check if user already exists in auth system
     const { data: userData } = await supabase.auth.admin.listUsers();
-    const existingUser = userData?.users?.find(
-      (u) => u.email?.toLowerCase() === normalizedEmail
-    );
+    const existingUser = userData?.users?.find((u) => u.email?.toLowerCase() === normalizedEmail);
 
     // Update user metadata if they exist (so callback can detect driver invite)
     if (existingUser) {
@@ -173,9 +171,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     logger.exception(error, { api: "admin/drivers/invite" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

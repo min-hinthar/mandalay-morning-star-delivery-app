@@ -91,15 +91,7 @@ const alignMap: Record<FlexAlign, string> = {
 // ============================================
 
 export const Stack = forwardRef<HTMLElement, StackProps>(function Stack(
-  {
-    gap = "space-4",
-    align = "stretch",
-    divider,
-    as = "div",
-    className,
-    children,
-    ...props
-  },
+  { gap = "space-4", align = "stretch", divider, as = "div", className, children, ...props },
   ref
 ) {
   const Component = as as "div";
@@ -109,11 +101,7 @@ export const Stack = forwardRef<HTMLElement, StackProps>(function Stack(
 
     const childArray = Children.toArray(children).filter(isValidElement);
     const dividerElement =
-      divider === true ? (
-        <hr className="border-t border-border-default w-full" />
-      ) : (
-        divider
-      );
+      divider === true ? <hr className="border-t border-border-default w-full" /> : divider;
 
     return childArray.map((child, index) => (
       <Fragment key={index}>

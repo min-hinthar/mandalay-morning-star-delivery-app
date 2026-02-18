@@ -41,13 +41,7 @@ export function ConfirmModal({
   }, [onConfirm, onClose]);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={title}
-      size="sm"
-      closeOnSwipeDown={false}
-    >
+    <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm" closeOnSwipeDown={false}>
       <div className="space-y-4">
         <div>
           <h3 className="text-lg font-semibold text-[var(--color-text-primary,#1a1918)] dark:text-[var(--color-text-primary-dark,#f8f7f6)]">

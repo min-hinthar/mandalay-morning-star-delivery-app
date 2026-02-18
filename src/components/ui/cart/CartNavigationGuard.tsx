@@ -68,26 +68,14 @@ export function CartNavigationGuard({
               <ShoppingBag className="h-12 w-12 text-amber-500" />
             </div>
 
-            <h2 className="mb-2 font-display text-xl font-bold text-foreground">
-              {copy.title}
-            </h2>
-            <p className="mb-6 text-sm text-muted-foreground">
-              {copy.body}
-            </p>
+            <h2 className="mb-2 font-display text-xl font-bold text-foreground">{copy.title}</h2>
+            <p className="mb-6 text-sm text-muted-foreground">{copy.body}</p>
 
             <div className="flex flex-col gap-3">
-              <Button
-                variant="primary"
-                className="w-full"
-                onClick={onStay}
-              >
+              <Button variant="primary" className="w-full" onClick={onStay}>
                 {copy.stay}
               </Button>
-              <Button
-                variant="ghost"
-                className="w-full"
-                onClick={onLeave}
-              >
+              <Button variant="ghost" className="w-full" onClick={onLeave}>
                 {copy.leave}
               </Button>
             </div>

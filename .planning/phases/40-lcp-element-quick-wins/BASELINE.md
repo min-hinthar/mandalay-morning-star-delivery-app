@@ -6,13 +6,13 @@
 
 ## Core Web Vitals
 
-| Metric | Homepage | Menu Page | Target |
-|--------|----------|-----------|--------|
-| LCP | 19.9s | 18.2s | < 2.5s |
-| FCP | 3.2s | 1.9s | < 1.5s |
-| TBT | 5.5s | 5.6s | < 200ms |
-| CLS | 0 | 0 | < 0.1 |
-| Performance Score | 30 | 35 | > 90 |
+| Metric            | Homepage | Menu Page | Target  |
+| ----------------- | -------- | --------- | ------- |
+| LCP               | 19.9s    | 18.2s     | < 2.5s  |
+| FCP               | 3.2s     | 1.9s      | < 1.5s  |
+| TBT               | 5.5s     | 5.6s      | < 200ms |
+| CLS               | 0        | 0         | < 0.1   |
+| Performance Score | 30       | 35        | > 90    |
 
 ## LCP Element Identification
 
@@ -33,18 +33,20 @@
 ## LCP Breakdown
 
 ### Homepage
-| Subpart | Duration |
-|---------|----------|
-| Time to first byte | 2,024ms |
-| Element render delay | 2,189ms |
+
+| Subpart              | Duration |
+| -------------------- | -------- |
+| Time to first byte   | 2,024ms  |
+| Element render delay | 2,189ms  |
 
 ### Menu Page
-| Subpart | Duration |
-|---------|----------|
-| Time to first byte | 340ms |
-| Resource load delay | 2,604ms |
-| Resource load duration | 528ms |
-| Element render delay | 1,106ms |
+
+| Subpart                | Duration |
+| ---------------------- | -------- |
+| Time to first byte     | 340ms    |
+| Resource load delay    | 2,604ms  |
+| Resource load duration | 528ms    |
+| Element render delay   | 1,106ms  |
 
 ## Bundle Size
 

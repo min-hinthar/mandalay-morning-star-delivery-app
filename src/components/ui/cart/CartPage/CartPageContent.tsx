@@ -7,10 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { useCart } from "@/lib/hooks/useCart";
-import {
-  useCartValidation,
-  useCartHydrated,
-} from "@/lib/hooks/useCartValidation";
+import { useCartValidation, useCartHydrated } from "@/lib/hooks/useCartValidation";
 import { useMenu } from "@/lib/hooks/useMenu";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { CartEmptyState } from "@/components/ui/cart/CartEmptyState";
@@ -123,12 +120,9 @@ export function CartPageContent() {
     [removeItem, addItem]
   );
 
-  const handleDismissPriceChange = useCallback(
-    (cartItemId: string, newPriceCents: number) => {
-      useCartStore.getState().updateItemPrice(cartItemId, newPriceCents);
-    },
-    []
-  );
+  const handleDismissPriceChange = useCallback((cartItemId: string, newPriceCents: number) => {
+    useCartStore.getState().updateItemPrice(cartItemId, newPriceCents);
+  }, []);
 
   const handleEditItem = useCallback(
     (item: CartItem) => {
@@ -211,10 +205,7 @@ export function CartPageContent() {
 
     for (const item of items) {
       const itemValidation = validation.validations.get(item.cartItemId);
-      if (
-        itemValidation?.status === "sold-out" ||
-        itemValidation?.status === "unavailable"
-      ) {
+      if (itemValidation?.status === "sold-out" || itemValidation?.status === "unavailable") {
         problems.push(item);
       } else {
         validItems.push(item);
@@ -250,8 +241,7 @@ export function CartPageContent() {
   const minimumShortfallCents = Math.max(0, MINIMUM_ORDER_CENTS - itemsSubtotal);
 
   // Stale item count (sold-out + unavailable)
-  const staleCount =
-    validation.soldOutIds.length + validation.unavailableIds.length;
+  const staleCount = validation.soldOutIds.length + validation.unavailableIds.length;
 
   // Problem item validations map (only sold-out/unavailable)
   const problemValidations = useMemo(() => {
@@ -292,11 +282,7 @@ export function CartPageContent() {
     <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-8">
       {/* Left column: Items */}
       <div>
-        <CartPageHeader
-          itemCount={itemCount}
-          onClearCart={openClearCart}
-          showClear={!isEmpty}
-        />
+        <CartPageHeader itemCount={itemCount} onClearCart={openClearCart} showClear={!isEmpty} />
 
         {/* Attention section for problem items (AnimatePresence enables exit animation) */}
         <AnimatePresence>
@@ -363,8 +349,7 @@ export function CartPageContent() {
               "py-2"
             )}
           >
-            <ShoppingBag className="w-4 h-4" />
-            + Add more items
+            <ShoppingBag className="w-4 h-4" />+ Add more items
           </Link>
         </div>
       </div>

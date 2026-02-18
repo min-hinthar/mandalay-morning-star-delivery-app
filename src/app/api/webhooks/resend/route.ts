@@ -117,8 +117,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true });
   }
 
-  const mappedStatus =
-    EVENT_STATUS_MAP[eventType as ResendEventType];
+  const mappedStatus = EVENT_STATUS_MAP[eventType as ResendEventType];
   const emailId = data?.email_id;
 
   if (!emailId) {
@@ -156,14 +155,9 @@ export async function POST(request: Request) {
     }
 
     // Build updated metadata with event history
-    const existingMetadata = (logEntry.metadata ?? {}) as Record<
-      string,
-      unknown
-    >;
+    const existingMetadata = (logEntry.metadata ?? {}) as Record<string, unknown>;
     const resendEvents = (
-      Array.isArray(existingMetadata.resend_events)
-        ? existingMetadata.resend_events
-        : []
+      Array.isArray(existingMetadata.resend_events) ? existingMetadata.resend_events : []
     ) as { type: string; at: string }[];
 
     resendEvents.push({

@@ -59,7 +59,9 @@ function OnTimeRing({ percentage }: { percentage: number }) {
         strokeWidth={RING_STROKE}
         strokeLinecap="round"
         strokeDasharray={RING_CIRCUMFERENCE}
-        initial={shouldAnimate ? { strokeDashoffset: RING_CIRCUMFERENCE } : { strokeDashoffset: offset }}
+        initial={
+          shouldAnimate ? { strokeDashoffset: RING_CIRCUMFERENCE } : { strokeDashoffset: offset }
+        }
         animate={{ strokeDashoffset: offset }}
         transition={shouldAnimate ? { duration: 1, ease: "easeOut", delay: 0.3 } : { duration: 0 }}
       />
@@ -100,14 +102,10 @@ function PerfCard({ title, value, format, icon, ring }: PerfCardProps) {
           {ring !== undefined ? (
             <div className="relative flex items-center justify-center">
               <OnTimeRing percentage={ring} />
-              <div className="absolute inset-0 flex items-center justify-center">
-                {icon}
-              </div>
+              <div className="absolute inset-0 flex items-center justify-center">{icon}</div>
             </div>
           ) : (
-            <div className="p-2.5 rounded-xl bg-accent-teal/10">
-              {icon}
-            </div>
+            <div className="p-2.5 rounded-xl bg-accent-teal/10">{icon}</div>
           )}
         </div>
       </div>

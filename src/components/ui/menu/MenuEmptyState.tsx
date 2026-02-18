@@ -15,11 +15,7 @@ interface MenuEmptyStateProps {
   onClearSearch?: () => void;
 }
 
-export function MenuEmptyState({
-  type,
-  searchQuery,
-  onClearSearch,
-}: MenuEmptyStateProps) {
+export function MenuEmptyState({ type, searchQuery, onClearSearch }: MenuEmptyStateProps) {
   const prefersReducedMotion = useReducedMotion();
   const queryLabel = searchQuery ?? "";
 
@@ -47,12 +43,10 @@ export function MenuEmptyState({
         >
           <UtensilsCrossed className="h-10 w-10 text-text-muted" />
         </m.div>
-        <h2 className="mb-2 font-display text-xl font-bold text-text-primary">
-          Menu Coming Soon
-        </h2>
+        <h2 className="mb-2 font-display text-xl font-bold text-text-primary">Menu Coming Soon</h2>
         <p className="max-w-md font-body text-text-secondary">
-          We&apos;re preparing something delicious for you. Check back soon to
-          see our full menu of authentic Burmese dishes.
+          We&apos;re preparing something delicious for you. Check back soon to see our full menu of
+          authentic Burmese dishes.
         </p>
       </m.div>
     );
@@ -71,12 +65,10 @@ export function MenuEmptyState({
       >
         <Search className="h-10 w-10 text-text-muted" />
       </m.div>
-      <h2 className="mb-2 font-display text-xl font-bold text-text-primary">
-        No Results Found
-      </h2>
+      <h2 className="mb-2 font-display text-xl font-bold text-text-primary">No Results Found</h2>
       <p className="mb-8 max-w-md font-body text-text-secondary">
-        We couldn&apos;t find any dishes matching &quot;{queryLabel}&quot;. Try
-        a different search term or browse our categories.
+        We couldn&apos;t find any dishes matching &quot;{queryLabel}&quot;. Try a different search
+        term or browse our categories.
       </p>
       {onClearSearch && (
         <Button onClick={onClearSearch} variant="primary" size="lg" className="shadow-elevated">
@@ -84,9 +76,7 @@ export function MenuEmptyState({
         </Button>
       )}
       <div className="mt-8 font-body text-sm text-text-muted">
-        <p className="mb-3 font-medium text-text-secondary">
-          Popular searches:
-        </p>
+        <p className="mb-3 font-medium text-text-secondary">Popular searches:</p>
         <div className="flex flex-wrap justify-center gap-2">
           {["Mohinga", "Curry", "Noodles", "Seafood"].map((term) => (
             <span

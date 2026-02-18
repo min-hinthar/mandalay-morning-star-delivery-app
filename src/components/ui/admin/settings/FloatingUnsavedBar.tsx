@@ -19,12 +19,7 @@ export interface FloatingUnsavedBarProps {
   isSaving: boolean;
 }
 
-export function FloatingUnsavedBar({
-  show,
-  onSave,
-  onDiscard,
-  isSaving,
-}: FloatingUnsavedBarProps) {
+export function FloatingUnsavedBar({ show, onSave, onDiscard, isSaving }: FloatingUnsavedBarProps) {
   return (
     <AnimatePresence>
       {show && (
@@ -50,12 +45,7 @@ export function FloatingUnsavedBar({
 
           {/* Action buttons */}
           <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onDiscard}
-              disabled={isSaving}
-            >
+            <Button variant="ghost" size="sm" onClick={onDiscard} disabled={isSaving}>
               Discard
             </Button>
             <Button

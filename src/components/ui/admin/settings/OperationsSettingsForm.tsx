@@ -99,7 +99,11 @@ const changedBorder = "border-l-2 border-l-primary pl-3";
 // COMPONENT
 // ===========================================
 
-export function OperationsSettingsForm({ settings, originalSettings, onChange }: OperationsSettingsFormProps) {
+export function OperationsSettingsForm({
+  settings,
+  originalSettings,
+  onChange,
+}: OperationsSettingsFormProps) {
   const [errors, setErrors] = useState<ValidationErrors>({});
 
   const handleMaxStopsChange = useCallback(
@@ -175,7 +179,12 @@ export function OperationsSettingsForm({ settings, originalSettings, onChange }:
       {/* Form Fields */}
       <div className="space-y-6">
         {/* Max Stops Per Route */}
-        <div className={cn("space-y-2", isFieldChanged(settings, originalSettings, "maxStopsPerRoute") && changedBorder)}>
+        <div
+          className={cn(
+            "space-y-2",
+            isFieldChanged(settings, originalSettings, "maxStopsPerRoute") && changedBorder
+          )}
+        >
           <div className="max-w-[200px]">
             <FloatingLabelInput
               label="Maximum Stops Per Route"
@@ -195,7 +204,12 @@ export function OperationsSettingsForm({ settings, originalSettings, onChange }:
         </div>
 
         {/* Default Vehicle Type */}
-        <div className={cn("space-y-2", isFieldChanged(settings, originalSettings, "defaultVehicleType") && changedBorder)}>
+        <div
+          className={cn(
+            "space-y-2",
+            isFieldChanged(settings, originalSettings, "defaultVehicleType") && changedBorder
+          )}
+        >
           <Label htmlFor="vehicleType">Default Vehicle Type</Label>
           <select
             id="vehicleType"
@@ -220,11 +234,14 @@ export function OperationsSettingsForm({ settings, originalSettings, onChange }:
         </div>
 
         {/* Toggle Section */}
-        <div className={cn(
-          "space-y-1 divide-y divide-border-subtle",
-          (isFieldChanged(settings, originalSettings, "autoAssignEnabled") ||
-            isFieldChanged(settings, originalSettings, "routeOptimizationEnabled")) && changedBorder
-        )}>
+        <div
+          className={cn(
+            "space-y-1 divide-y divide-border-subtle",
+            (isFieldChanged(settings, originalSettings, "autoAssignEnabled") ||
+              isFieldChanged(settings, originalSettings, "routeOptimizationEnabled")) &&
+              changedBorder
+          )}
+        >
           <ToggleSwitch
             id="autoAssign"
             checked={settings.autoAssignEnabled}
@@ -244,7 +261,12 @@ export function OperationsSettingsForm({ settings, originalSettings, onChange }:
       </div>
 
       {/* Store Hours Section */}
-      <div className={cn("space-y-4", isFieldChanged(settings, originalSettings, "storeHours") && changedBorder)}>
+      <div
+        className={cn(
+          "space-y-4",
+          isFieldChanged(settings, originalSettings, "storeHours") && changedBorder
+        )}
+      >
         <div className="pb-3 border-b border-border-subtle">
           <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
             Store Hours
@@ -270,7 +292,10 @@ export function OperationsSettingsForm({ settings, originalSettings, onChange }:
                 </span>
 
                 <div className="flex items-center gap-2">
-                  <Label htmlFor={`hours-open-${day}`} className="text-xs text-text-secondary sr-only">
+                  <Label
+                    htmlFor={`hours-open-${day}`}
+                    className="text-xs text-text-secondary sr-only"
+                  >
                     Open
                   </Label>
                   <Input
@@ -282,7 +307,10 @@ export function OperationsSettingsForm({ settings, originalSettings, onChange }:
                     className="w-[120px]"
                   />
                   <span className="text-xs text-text-muted">to</span>
-                  <Label htmlFor={`hours-close-${day}`} className="text-xs text-text-secondary sr-only">
+                  <Label
+                    htmlFor={`hours-close-${day}`}
+                    className="text-xs text-text-secondary sr-only"
+                  >
                     Close
                   </Label>
                   <Input
@@ -308,7 +336,12 @@ export function OperationsSettingsForm({ settings, originalSettings, onChange }:
       </div>
 
       {/* Capacity Limits Section */}
-      <div className={cn("space-y-4", isFieldChanged(settings, originalSettings, "maxOrdersPerSlot") && changedBorder)}>
+      <div
+        className={cn(
+          "space-y-4",
+          isFieldChanged(settings, originalSettings, "maxOrdersPerSlot") && changedBorder
+        )}
+      >
         <div className="pb-3 border-b border-border-subtle">
           <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
             Capacity Limits

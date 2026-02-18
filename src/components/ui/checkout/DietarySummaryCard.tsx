@@ -52,23 +52,15 @@ export function DietarySummaryCard() {
     <div className="rounded-lg bg-amber-50/50 border border-amber-200/50 p-4">
       <div className="flex items-center gap-2 mb-2">
         <Leaf className="h-4 w-4 text-amber-600" />
-        <h3 className="text-sm font-medium text-amber-900">
-          Dietary Preferences
-        </h3>
+        <h3 className="text-sm font-medium text-amber-900">Dietary Preferences</h3>
       </div>
-      <p className="text-xs text-amber-700 mb-3">
-        These will be included in your order notes
-      </p>
+      <p className="text-xs text-amber-700 mb-3">These will be included in your order notes</p>
 
       {/* Restriction pills */}
       <div className="flex flex-wrap gap-1.5">
         {restrictions.map((item) => {
-          const isPredefined = (DIETARY_OPTIONS as readonly string[]).includes(
-            item
-          );
-          const emoji = isPredefined
-            ? DIETARY_EMOJIS[item as DietaryOption]
-            : undefined;
+          const isPredefined = (DIETARY_OPTIONS as readonly string[]).includes(item);
+          const emoji = isPredefined ? DIETARY_EMOJIS[item as DietaryOption] : undefined;
 
           return (
             <span

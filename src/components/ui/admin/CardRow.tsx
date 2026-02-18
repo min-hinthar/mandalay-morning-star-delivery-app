@@ -71,8 +71,7 @@ export function CardRow({
         "rounded-xl p-4 bg-surface-primary border border-border transition-shadow",
         onClick && "cursor-pointer",
         statusTint,
-        selected &&
-          "ring-2 ring-accent-teal shadow-lg bg-accent-teal/[0.04] scale-[1.01]",
+        selected && "ring-2 ring-accent-teal shadow-lg bg-accent-teal/[0.04] scale-[1.01]",
         className
       )}
     >

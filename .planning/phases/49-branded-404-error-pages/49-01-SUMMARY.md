@@ -33,10 +33,10 @@ CSS-only animated error page components (ErrorPageShell, FloatingFoodEmojis, Err
 
 ## Completed Tasks
 
-| # | Task | Commit | Key Files |
-|---|------|--------|-----------|
-| 1 | Create error page CSS keyframes and register in globals.css | c5acec8 | error-page.css, animations.css, globals.css |
-| 2 | Create error page components and barrel export | 012a746 | ErrorPageShell.tsx, FloatingFoodEmojis.tsx, ErrorMascot.tsx, NavigationCardGrid.tsx, index.tsx |
+| #   | Task                                                        | Commit  | Key Files                                                                                      |
+| --- | ----------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------- |
+| 1   | Create error page CSS keyframes and register in globals.css | c5acec8 | error-page.css, animations.css, globals.css                                                    |
+| 2   | Create error page components and barrel export              | 012a746 | ErrorPageShell.tsx, FloatingFoodEmojis.tsx, ErrorMascot.tsx, NavigationCardGrid.tsx, index.tsx |
 
 ## What Was Built
 
@@ -52,12 +52,14 @@ CSS-only animated error page components (ErrorPageShell, FloatingFoodEmojis, Err
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] ESLint design token enforcement: text-white -> text-text-inverse**
+
 - **Found during:** Task 2
 - **Issue:** `text-white` class triggers lint error requiring semantic token usage
 - **Fix:** Replaced with `text-text-inverse` in ErrorPageShell.tsx
 - **Files modified:** ErrorPageShell.tsx
 
 **2. [Rule 1 - Bug] ESLint design token enforcement: inline fontSize pixel values**
+
 - **Found during:** Task 2
 - **Issue:** Inline `fontSize: "28px"` style values trigger lint error for pixel-based font sizes
 - **Fix:** Converted all pixel values to rem equivalents (e.g., 28px -> 1.75rem)

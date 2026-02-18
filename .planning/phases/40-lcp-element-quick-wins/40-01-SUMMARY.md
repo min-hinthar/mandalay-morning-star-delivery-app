@@ -76,28 +76,28 @@ Each task was committed atomically:
 
 ### LCP Element Identification
 
-| Page | LCP Element | Selector | Content |
-|------|-------------|----------|---------|
-| Homepage | `<span>` | `section#hero > div.absolute > span.absolute` | Floating emoji (text) |
-| Menu | `<img>` | `div.relative > div.absolute > img.w-full` | CardImage (raw img) |
+| Page     | LCP Element | Selector                                      | Content               |
+| -------- | ----------- | --------------------------------------------- | --------------------- |
+| Homepage | `<span>`    | `section#hero > div.absolute > span.absolute` | Floating emoji (text) |
+| Menu     | `<img>`     | `div.relative > div.absolute > img.w-full`    | CardImage (raw img)   |
 
 ### LCP Breakdown (Menu Page)
 
-| Subpart | Duration | Impact |
-|---------|----------|--------|
-| Time to first byte | 340ms | Good |
-| Resource load delay | 2,604ms | **Critical** |
-| Resource load duration | 528ms | Acceptable |
-| Element render delay | 1,106ms | Moderate |
+| Subpart                | Duration | Impact       |
+| ---------------------- | -------- | ------------ |
+| Time to first byte     | 340ms    | Good         |
+| Resource load delay    | 2,604ms  | **Critical** |
+| Resource load duration | 528ms    | Acceptable   |
+| Element render delay   | 1,106ms  | Moderate     |
 
 ### Core Web Vitals
 
-| Metric | Homepage | Menu | Target |
-|--------|----------|------|--------|
-| LCP | 19.9s | 18.2s | < 2.5s |
-| FCP | 3.2s | 1.9s | < 1.5s |
-| TBT | 5.5s | 5.6s | < 200ms |
-| Performance Score | 30 | 35 | > 90 |
+| Metric            | Homepage | Menu  | Target  |
+| ----------------- | -------- | ----- | ------- |
+| LCP               | 19.9s    | 18.2s | < 2.5s  |
+| FCP               | 3.2s     | 1.9s  | < 1.5s  |
+| TBT               | 5.5s     | 5.6s  | < 200ms |
+| Performance Score | 30       | 35    | > 90    |
 
 ## Font Loading Verification (REQ-40.4)
 
@@ -141,5 +141,6 @@ None - plan executed exactly as written.
 ## Self-Check: PASSED
 
 ---
-*Phase: 40-lcp-element-quick-wins*
-*Completed: 2026-02-06*
+
+_Phase: 40-lcp-element-quick-wins_
+_Completed: 2026-02-06_

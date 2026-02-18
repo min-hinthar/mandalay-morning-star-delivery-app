@@ -17,33 +17,37 @@ Key integration points are well-established: `useActiveCategory` hook provides I
 The established libraries/tools for this domain:
 
 ### Core
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| GSAP | 3.x (registered) | ScrollTrigger animations, staggered reveals | Already configured in `@/lib/gsap`, plugins registered |
-| Framer Motion | 11.x | Hover effects, layoutId for tab indicator | Used throughout V6/V7/V8 components |
-| Next.js Image | 15.x | Lazy loading, blur placeholder | Built-in optimization, already configured |
-| React Query | 5.x | Menu/search data fetching | Already used in `useMenu`/`useMenuSearch` hooks |
+
+| Library       | Version          | Purpose                                     | Why Standard                                           |
+| ------------- | ---------------- | ------------------------------------------- | ------------------------------------------------------ |
+| GSAP          | 3.x (registered) | ScrollTrigger animations, staggered reveals | Already configured in `@/lib/gsap`, plugins registered |
+| Framer Motion | 11.x             | Hover effects, layoutId for tab indicator   | Used throughout V6/V7/V8 components                    |
+| Next.js Image | 15.x             | Lazy loading, blur placeholder              | Built-in optimization, already configured              |
+| React Query   | 5.x              | Menu/search data fetching                   | Already used in `useMenu`/`useMenuSearch` hooks        |
 
 ### Supporting
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| Zustand | 5.x | Favorites state | Already in `useFavoritesStore` |
-| Lucide React | - | Icons (Heart, Search, Star) | Standard icon library for project |
-| cn utility | - | Conditional classNames | Always for className composition |
+
+| Library      | Version | Purpose                     | When to Use                       |
+| ------------ | ------- | --------------------------- | --------------------------------- |
+| Zustand      | 5.x     | Favorites state             | Already in `useFavoritesStore`    |
+| Lucide React | -       | Icons (Heart, Search, Star) | Standard icon library for project |
+| cn utility   | -       | Conditional classNames      | Always for className composition  |
 
 ### Already Available (No Installation Needed)
-| Utility | Location | Purpose |
-|---------|----------|---------|
-| useActiveCategory | `@/lib/hooks/useActiveCategory` | Scrollspy with IntersectionObserver |
-| useDebounce | `@/lib/hooks/useDebounce` | Debounce search input |
-| useFavorites | `@/lib/hooks/useFavorites` | Toggle/check favorites |
-| useAnimationPreference | `@/lib/hooks/useAnimationPreference` | Check animation enabled |
-| getPlaceholderBlur | `@/lib/utils/image-optimization` | Generate blur placeholder SVG |
-| IMAGE_SIZES | `@/lib/utils/image-optimization` | Standard image dimensions |
+
+| Utility                | Location                             | Purpose                             |
+| ---------------------- | ------------------------------------ | ----------------------------------- |
+| useActiveCategory      | `@/lib/hooks/useActiveCategory`      | Scrollspy with IntersectionObserver |
+| useDebounce            | `@/lib/hooks/useDebounce`            | Debounce search input               |
+| useFavorites           | `@/lib/hooks/useFavorites`           | Toggle/check favorites              |
+| useAnimationPreference | `@/lib/hooks/useAnimationPreference` | Check animation enabled             |
+| getPlaceholderBlur     | `@/lib/utils/image-optimization`     | Generate blur placeholder SVG       |
+| IMAGE_SIZES            | `@/lib/utils/image-optimization`     | Standard image dimensions           |
 
 ## Architecture Patterns
 
 ### Recommended Project Structure
+
 ```
 src/components/ui-v8/menu/
   CategoryTabsV8.tsx       # MENU-01: Horizontal tabs with scrollspy
@@ -65,9 +69,11 @@ src/components/ui-v8/menu/hooks/
 ```
 
 ### Pattern 1: GSAP Staggered Reveal with ScrollTrigger
+
 **What:** Animate menu items as they scroll into view
 **When to use:** Menu sections, grid items
 **Example:**
+
 ```typescript
 // Source: @/lib/gsap + gsap/presets.ts
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
@@ -110,9 +116,11 @@ function MenuGridV8({ items }: { items: MenuItem[] }) {
 ```
 
 ### Pattern 2: Scrollspy Category Tabs
+
 **What:** Highlight category tab based on scroll position
 **When to use:** Sticky category navigation
 **Example:**
+
 ```typescript
 // Source: @/lib/hooks/useActiveCategory.ts
 import { useActiveCategory } from "@/lib/hooks/useActiveCategory";
@@ -146,9 +154,11 @@ function CategoryTabsV8({ categories }: Props) {
 ```
 
 ### Pattern 3: Blur-Up Image Loading
+
 **What:** Show blurred placeholder while image loads
 **When to use:** All menu item images
 **Example:**
+
 ```typescript
 // Source: @/lib/utils/image-optimization + Next.js Image
 import Image from "next/image";
@@ -170,9 +180,11 @@ function BlurImage({ src, alt }: { src: string; alt: string }) {
 ```
 
 ### Pattern 4: Heart Favorite Animation
+
 **What:** Bouncy heart toggle with scale animation
 **When to use:** Favorite button on menu cards
 **Example:**
+
 ```typescript
 // Source: @/lib/motion-tokens.ts spring.ultraBouncy
 import { motion, AnimatePresence } from "framer-motion";
@@ -211,9 +223,11 @@ function FavoriteButton({ isFavorite, onToggle }: Props) {
 ```
 
 ### Pattern 5: Item Detail with V8 Overlays
+
 **What:** Use Phase 2 Modal/BottomSheet for item detail
 **When to use:** When clicking menu item
 **Example:**
+
 ```typescript
 // Source: Phase 2 Modal/BottomSheet + Phase 4 AddToCartButton
 import { Modal } from "@/components/ui-v8/Modal";
@@ -252,6 +266,7 @@ function ItemDetailSheetV8({ item, isOpen, onClose }: Props) {
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Hand-rolling IntersectionObserver for scrollspy:** Use existing `useActiveCategory` hook
 - **Importing gsap directly:** Always import from `@/lib/gsap` to ensure plugin registration
 - **Creating custom overlay components:** Use Phase 2 Modal/BottomSheet
@@ -263,51 +278,57 @@ function ItemDetailSheetV8({ item, isOpen, onClose }: Props) {
 
 Problems that look simple but have existing solutions:
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Scrollspy | Custom IntersectionObserver | `useActiveCategory` hook | Handles edge cases, header offset, smooth scroll |
-| Debounced search | setTimeout wrapper | `useDebounce` hook | Proper cleanup, type-safe |
-| Modal/sheet overlay | Custom portal/backdrop | `Modal`/`BottomSheet` V8 | Focus trap, body scroll lock, route close |
-| Fly-to-cart animation | Custom GSAP timeline | `useFlyToCart` + `FlyToCart` | Badge integration, proper z-index |
-| Blur placeholder | Inline data URL | `getPlaceholderBlur()` | Consistent color, SSR-safe |
-| Animation toggle | Manual localStorage | `useAnimationPreference` | Persisted, data attribute for CSS |
-| Favorites persistence | Custom localStorage | `useFavorites` hook | Zustand persisted store |
+| Problem               | Don't Build                 | Use Instead                  | Why                                              |
+| --------------------- | --------------------------- | ---------------------------- | ------------------------------------------------ |
+| Scrollspy             | Custom IntersectionObserver | `useActiveCategory` hook     | Handles edge cases, header offset, smooth scroll |
+| Debounced search      | setTimeout wrapper          | `useDebounce` hook           | Proper cleanup, type-safe                        |
+| Modal/sheet overlay   | Custom portal/backdrop      | `Modal`/`BottomSheet` V8     | Focus trap, body scroll lock, route close        |
+| Fly-to-cart animation | Custom GSAP timeline        | `useFlyToCart` + `FlyToCart` | Badge integration, proper z-index                |
+| Blur placeholder      | Inline data URL             | `getPlaceholderBlur()`       | Consistent color, SSR-safe                       |
+| Animation toggle      | Manual localStorage         | `useAnimationPreference`     | Persisted, data attribute for CSS                |
+| Favorites persistence | Custom localStorage         | `useFavorites` hook          | Zustand persisted store                          |
 
 **Key insight:** Most complex behaviors already exist as hooks. The V8 work is composing them with new GSAP animations, not reimplementing logic.
 
 ## Common Pitfalls
 
 ### Pitfall 1: GSAP Plugin Not Registered
+
 **What goes wrong:** "ScrollTrigger is not defined" or animation doesn't work
 **Why it happens:** Importing from 'gsap' directly instead of '@/lib/gsap'
 **How to avoid:** Always use `import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap"`
 **Warning signs:** Any direct gsap import in code review
 
 ### Pitfall 2: Staggered Animation Reruns on Data Change
+
 **What goes wrong:** Cards re-animate every time React Query refetches
 **Why it happens:** useGSAP dependency includes the items array
 **How to avoid:** Use `toggleActions: "play none none none"` (animate once)
 **Warning signs:** Animations replaying when switching tabs back
 
 ### Pitfall 3: Scrollspy Jumpy on Fast Scroll
+
 **What goes wrong:** Active tab flickers between categories
 **Why it happens:** IntersectionObserver fires for multiple sections at once
 **How to avoid:** Use visibility ratio comparison in `useActiveCategory` (already implemented)
 **Warning signs:** Multiple sections showing as "active" briefly
 
 ### Pitfall 4: Image Layout Shift (CLS)
+
 **What goes wrong:** Cards jump when images load
 **Why it happens:** No explicit aspect ratio on image container
 **How to avoid:** Always use `aspect-video` or explicit height on image container
 **Warning signs:** CLS score > 0.1 in Lighthouse
 
 ### Pitfall 5: Search Autocomplete Click Not Registering
+
 **What goes wrong:** Clicking suggestion doesn't select it
 **Why it happens:** Input blur fires before suggestion click
 **How to avoid:** Use `onMouseDown` with `preventDefault()` on suggestions
 **Warning signs:** Need to click suggestions twice
 
 ### Pitfall 6: Heart Animation Flashes on Rerender
+
 **What goes wrong:** Heart scales down and up when unrelated state changes
 **Why it happens:** AnimatePresence key changes or component remounts
 **How to avoid:** Stable key based only on favorite state, memoize if needed
@@ -318,6 +339,7 @@ Problems that look simple but have existing solutions:
 Verified patterns from official sources:
 
 ### GSAP ScrollTrigger Setup
+
 ```typescript
 // Source: @/lib/gsap + @/components/ui-v8/scroll/RevealOnScroll.tsx
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
@@ -353,6 +375,7 @@ function RevealSection({ children }: { children: ReactNode }) {
 ```
 
 ### Framer Motion Hover Card
+
 ```typescript
 // Source: @/lib/motion-tokens.ts + existing MenuItemCard patterns
 import { motion } from "framer-motion";
@@ -385,6 +408,7 @@ function MenuItemCardV8({ item, onSelect }: Props) {
 ```
 
 ### Search with Autocomplete
+
 ```typescript
 // Source: @/lib/hooks/useDebounce + @/lib/hooks/useMenu
 import { useState, useCallback } from "react";
@@ -432,6 +456,7 @@ function SearchInputV8({ onSelectItem }: Props) {
 ```
 
 ### Emoji Placeholder for Missing Images
+
 ```typescript
 // Source: Business requirement MENU-09
 const CATEGORY_EMOJI_MAP: Record<string, string> = {
@@ -461,15 +486,16 @@ function EmojiPlaceholder({ categorySlug }: { categorySlug?: string }) {
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| V6 category-tabs.tsx | V8 with GSAP stagger | Phase 5 | More dramatic entrance animations |
-| V7 CategoryCarousel | Keep for reference | - | V8 uses similar patterns with enhanced GSAP |
-| V3 ItemDetailModal | Use V8 Modal/BottomSheet | Phase 2 | Consistent overlay behavior |
-| Custom add-to-cart | Phase 4 AddToCartButton | Phase 4 | FlyToCart integration |
-| Manual IntersectionObserver | useActiveCategory hook | Already exists | Tested scrollspy behavior |
+| Old Approach                | Current Approach         | When Changed   | Impact                                      |
+| --------------------------- | ------------------------ | -------------- | ------------------------------------------- |
+| V6 category-tabs.tsx        | V8 with GSAP stagger     | Phase 5        | More dramatic entrance animations           |
+| V7 CategoryCarousel         | Keep for reference       | -              | V8 uses similar patterns with enhanced GSAP |
+| V3 ItemDetailModal          | Use V8 Modal/BottomSheet | Phase 2        | Consistent overlay behavior                 |
+| Custom add-to-cart          | Phase 4 AddToCartButton  | Phase 4        | FlyToCart integration                       |
+| Manual IntersectionObserver | useActiveCategory hook   | Already exists | Tested scrollspy behavior                   |
 
 **Deprecated/outdated:**
+
 - V3 `ItemDetailModal`: Replace with V8 `Modal` or `BottomSheet` from Phase 2
 - V6 springs (`v6Spring`, `v6SpringBouncy`): Use V7 `spring` tokens from `@/lib/motion-tokens`
 - Direct gsap imports: Always use `@/lib/gsap`
@@ -477,32 +503,35 @@ function EmojiPlaceholder({ categorySlug }: { categorySlug?: string }) {
 ## Integration Points
 
 ### Phase 2 (Overlay Infrastructure)
-| V8 Component | Usage in Phase 5 |
-|--------------|------------------|
-| `Modal` | Item detail on desktop (centered dialog) |
-| `BottomSheet` | Item detail on mobile (swipe to close) |
-| `useMediaQuery` | Switch between Modal/BottomSheet |
-| `Portal` | If building custom dropdown for autocomplete |
-| `Backdrop` | Already included in Modal/BottomSheet |
+
+| V8 Component    | Usage in Phase 5                             |
+| --------------- | -------------------------------------------- |
+| `Modal`         | Item detail on desktop (centered dialog)     |
+| `BottomSheet`   | Item detail on mobile (swipe to close)       |
+| `useMediaQuery` | Switch between Modal/BottomSheet             |
+| `Portal`        | If building custom dropdown for autocomplete |
+| `Backdrop`      | Already included in Modal/BottomSheet        |
 
 ### Phase 4 (Cart Experience)
-| V8 Component | Usage in Phase 5 |
-|--------------|------------------|
-| `AddToCartButton` | Primary CTA in item detail sheet |
-| `useFlyToCart` | If building custom add button |
-| `CartDrawerV8` | Opens after add-to-cart (already wired) |
-| `CartButtonV8` | Badge target for FlyToCart (already wired) |
+
+| V8 Component      | Usage in Phase 5                           |
+| ----------------- | ------------------------------------------ |
+| `AddToCartButton` | Primary CTA in item detail sheet           |
+| `useFlyToCart`    | If building custom add button              |
+| `CartDrawerV8`    | Opens after add-to-cart (already wired)    |
+| `CartButtonV8`    | Badge target for FlyToCart (already wired) |
 
 ### Existing Hooks to Reuse
-| Hook | Usage |
-|------|-------|
-| `useActiveCategory` | Scrollspy for category tabs |
-| `useMenu` | Fetch menu categories |
-| `useMenuSearch` | Search with React Query |
-| `useDebounce` | Debounce search input |
-| `useFavorites` | Toggle/check favorites |
-| `useAnimationPreference` | Check animation enabled |
-| `useCart` | Direct cart manipulation (if needed) |
+
+| Hook                     | Usage                                |
+| ------------------------ | ------------------------------------ |
+| `useActiveCategory`      | Scrollspy for category tabs          |
+| `useMenu`                | Fetch menu categories                |
+| `useMenuSearch`          | Search with React Query              |
+| `useDebounce`            | Debounce search input                |
+| `useFavorites`           | Toggle/check favorites               |
+| `useAnimationPreference` | Check animation enabled              |
+| `useCart`                | Direct cart manipulation (if needed) |
 
 ## Open Questions
 
@@ -526,6 +555,7 @@ Things that couldn't be fully resolved:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - `@/lib/gsap/index.ts` - GSAP plugin registration pattern
 - `@/lib/gsap/presets.ts` - Duration, easing, stagger presets
 - `@/lib/hooks/useActiveCategory.ts` - Scrollspy implementation
@@ -537,15 +567,18 @@ Things that couldn't be fully resolved:
 - `@/lib/utils/image-optimization.ts` - Blur placeholder generator
 
 ### Secondary (MEDIUM confidence)
+
 - Existing V6/V7 components (`menu-item-card.tsx`, `CategoryCarousel.tsx`) - Reference patterns
 - `@/components/ui/skeleton.tsx` - Skeleton implementation reference
 
 ### Tertiary (LOW confidence)
+
 - None - all patterns verified in codebase
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - All libraries already configured in codebase
 - Architecture: HIGH - Patterns verified in existing V6/V7/V8 components
 - Pitfalls: HIGH - Documented from existing implementations

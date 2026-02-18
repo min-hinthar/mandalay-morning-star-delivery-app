@@ -5,14 +5,17 @@
 ## Test Framework
 
 **Runner:**
+
 - Vitest 4.0.17
 - Config: `vitest.config.ts`
 
 **Assertion Library:**
+
 - Vitest globals (`describe`, `it`, `expect`, `vi`)
 - @testing-library/jest-dom for DOM matchers
 
 **Run Commands:**
+
 ```bash
 pnpm test              # Run all tests
 pnpm test:ci           # CI mode (bail on first failure, no parallelism)
@@ -26,6 +29,7 @@ pnpm test:animations   # Animation tests
 ## Test File Organization
 
 **Location:**
+
 - Co-located in `__tests__/` directories next to source files
 - Unit tests: `src/lib/**/__tests__/*.test.ts`
 - Component tests: `src/components/**/__tests__/*.test.tsx`
@@ -33,10 +37,12 @@ pnpm test:animations   # Animation tests
 - E2E tests: `e2e/*.spec.ts` (separate directory)
 
 **Naming:**
+
 - Unit/integration: `{filename}.test.ts` or `{filename}.test.tsx`
 - E2E: `{feature}.spec.ts`
 
 **Structure:**
+
 ```
 src/
 ├── lib/
@@ -63,6 +69,7 @@ e2e/
 ## Test Structure
 
 **Suite Organization:**
+
 ```typescript
 import { describe, it, expect } from "vitest";
 import { formatPrice } from "../format";
@@ -77,12 +84,14 @@ describe("formatPrice", () => {
 ```
 
 **Patterns:**
+
 - Top-level `describe` block per function/component
 - Nested `describe` blocks for method groups (e.g., `describe("addItem")` within `describe("CartStore")`)
 - `beforeEach` for test setup/cleanup
 - `it` blocks focus on single assertion or behavior
 
 **Example with setup:**
+
 ```typescript
 describe("CartStore", () => {
   beforeEach(() => {
@@ -109,6 +118,7 @@ describe("CartStore", () => {
 **Framework:** Vitest (`vi.mock`, `vi.fn`)
 
 **Patterns:**
+
 ```typescript
 // Mock module
 vi.mock("@/lib/supabase/actions", () => ({
@@ -126,12 +136,14 @@ expect(formData.get("email")).toBe("test@example.com");
 ```
 
 **What to Mock:**
+
 - External API calls (Supabase, Stripe)
 - Server actions (`@/lib/supabase/actions`)
 - Browser APIs (ResizeObserver, matchMedia, localStorage - mocked in `src/test/setup.ts`)
 - Environment variables (mocked in setup for tests)
 
 **What NOT to Mock:**
+
 - Internal utilities (test the real implementation)
 - React Testing Library utilities
 - Simple helper functions
@@ -140,6 +152,7 @@ expect(formData.get("email")).toBe("test@example.com");
 ## Fixtures and Factories
 
 **Test Data:**
+
 ```typescript
 // From cart-store.test.ts
 const baseItem = {
@@ -156,6 +169,7 @@ const baseItem = {
 ```
 
 **Factory Pattern:**
+
 ```typescript
 // From test/factories/index.ts
 import { createMockMenuItem, createMockModifierOption } from "@/test/factories";
@@ -166,6 +180,7 @@ const modifier = createMockModifierOption();
 ```
 
 **Location:**
+
 - Factories: `src/test/factories/`
 - Inline fixtures: Defined at top of test file for simple cases
 
@@ -174,35 +189,41 @@ const modifier = createMockModifierOption();
 **Requirements:** No strict target enforced
 
 **View Coverage:**
+
 ```bash
 pnpm test -- --coverage
 ```
 
 **Config:**
+
 - Provider: @vitest/coverage-v8
 - Excludes: `node_modules`, `e2e` directory
 
 ## Test Types
 
 **Unit Tests:**
+
 - Scope: Individual functions, utilities, hooks
 - Location: `src/lib/**/__tests__/`
 - Examples: `format.test.ts`, `delivery-dates.test.ts`, `price.test.ts`
 - Approach: Import function, call with inputs, assert outputs
 
 **Integration Tests:**
+
 - Scope: Stores, API validation, multi-function workflows
 - Location: `src/lib/stores/__tests__/`, `src/app/api/**/__tests__/`
 - Examples: `cart-store.test.ts`, `route.test.ts`
 - Approach: Test interactions between multiple units (store + persistence, validation + business logic)
 
 **Component Tests:**
+
 - Scope: React components
 - Location: `src/components/**/__tests__/`
 - Examples: `login-form.test.tsx`, `signup-form.test.tsx`
 - Approach: Render component, interact via Testing Library, assert DOM/behavior
 
 **E2E Tests:**
+
 - Framework: Playwright 1.57.0
 - Config: `playwright.config.ts`
 - Location: `e2e/*.spec.ts`
@@ -212,6 +233,7 @@ pnpm test -- --coverage
 ## Common Patterns
 
 **Async Testing:**
+
 ```typescript
 it("submits the email and shows success text", async () => {
   const signInMock = signIn as Mock;
@@ -229,6 +251,7 @@ it("submits the email and shows success text", async () => {
 ```
 
 **Error Testing:**
+
 ```typescript
 it("rejects invalid addressId format (not UUID)", () => {
   const body = { ...validBody, addressId: "not-a-uuid" };
@@ -238,6 +261,7 @@ it("rejects invalid addressId format (not UUID)", () => {
 ```
 
 **Store Testing:**
+
 ```typescript
 it("calculates subtotal with modifiers", () => {
   const store = useCartStore.getState();
@@ -260,6 +284,7 @@ it("calculates subtotal with modifiers", () => {
 ```
 
 **E2E Testing:**
+
 ```typescript
 test("user can browse menu and see categories", async ({ page }) => {
   await page.goto("/");
@@ -277,10 +302,12 @@ test("user can browse menu and see categories", async ({ page }) => {
 ## Test Setup
 
 **Global Setup:**
+
 - File: `src/test/setup.ts`
 - Referenced in: `vitest.config.ts` (`setupFiles`)
 
 **Mocks in setup:**
+
 ```typescript
 // ResizeObserver
 global.ResizeObserver = class ResizeObserver {
@@ -315,6 +342,7 @@ Object.defineProperty(window, "matchMedia", {
 ```
 
 **Environment Variables:**
+
 ```typescript
 process.env.GOOGLE_MAPS_API_KEY = "test-google-maps-api-key";
 process.env.STRIPE_SECRET_KEY = "sk_test_mock";
@@ -327,6 +355,7 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role-key";
 ## E2E Configuration
 
 **Playwright Settings:**
+
 - Test directory: `./e2e`
 - Timeout: 30000ms
 - Base URL: `http://localhost:3000`
@@ -335,15 +364,18 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role-key";
 - Reporter: HTML report
 
 **Visual Regression:**
+
 - Snapshot directory: `e2e/__snapshots__/`
 - Max diff pixels: 100
 - Threshold: 0.2 (20%)
 
 **Devices:**
+
 - Desktop: Chrome
 - Mobile: Pixel 5
 
 **Web Server:**
+
 ```javascript
 webServer: {
   command: "pnpm dev --webpack",
@@ -358,6 +390,7 @@ webServer: {
 **Tool:** Husky + lint-staged
 
 **Runs on commit:**
+
 ```json
 "lint-staged": {
   "src/**/*.{ts,tsx}": [
@@ -372,10 +405,11 @@ webServer: {
 ## Verification Pipeline
 
 **Before merge:**
+
 ```bash
 pnpm lint && pnpm lint:css && pnpm typecheck && pnpm test && pnpm build
 ```
 
 ---
 
-*Testing analysis: 2026-01-30*
+_Testing analysis: 2026-01-30_

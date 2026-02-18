@@ -23,10 +23,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
  * Resend a pending driver invite using unified magic link approach
  * Note: [id] is the invite ID, not driver ID
  */
-export async function POST(
-  _request: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
@@ -53,17 +50,11 @@ export async function POST(
 
     // Verify invite is still pending
     if (invite.accepted_at) {
-      return NextResponse.json(
-        { error: "This invite has already been accepted" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "This invite has already been accepted" }, { status: 400 });
     }
 
     if (invite.revoked_at) {
-      return NextResponse.json(
-        { error: "This invite has been revoked" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "This invite has been revoked" }, { status: 400 });
     }
 
     // Update expiration
@@ -81,10 +72,7 @@ export async function POST(
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/drivers/[id]/resend-invite", flowId: "update" });
-      return NextResponse.json(
-        { error: "Failed to update invite" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to update invite" }, { status: 500 });
     }
 
     // Check if user exists in auth system
@@ -113,7 +101,10 @@ export async function POST(
     });
 
     if (linkError || !linkData) {
-      logger.exception(linkError, { api: "admin/drivers/[id]/resend-invite", flowId: "generate-link" });
+      logger.exception(linkError, {
+        api: "admin/drivers/[id]/resend-invite",
+        flowId: "generate-link",
+      });
       return NextResponse.json(
         { error: "Failed to generate invite link", details: linkError?.message },
         { status: 500 }
@@ -132,9 +123,6 @@ export async function POST(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/drivers/[id]/resend-invite" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

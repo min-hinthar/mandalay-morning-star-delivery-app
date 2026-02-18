@@ -80,14 +80,10 @@ export function getImageProps(
  * Placeholder blur data URL generator
  * Creates a tiny blurred placeholder for smoother image loading
  */
-export function getPlaceholderBlur(
-  color: string = "#f5f5f0"
-): `data:image/${string}` {
+export function getPlaceholderBlur(color: string = "#f5f5f0"): `data:image/${string}` {
   // Tiny 1x1 SVG with the dominant color
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><rect fill="${color}" width="1" height="1"/></svg>`;
-  const base64 = typeof window === "undefined"
-    ? Buffer.from(svg).toString("base64")
-    : btoa(svg);
+  const base64 = typeof window === "undefined" ? Buffer.from(svg).toString("base64") : btoa(svg);
 
   return `data:image/svg+xml;base64,${base64}`;
 }

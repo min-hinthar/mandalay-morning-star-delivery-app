@@ -14,6 +14,7 @@ Verify cumulative LCP improvements from Phases 40-44, confirm bundle savings fro
 ## Implementation Decisions
 
 ### Measurement approach
+
 - Run Lighthouse on **both** local production build (`pnpm build && pnpm start`) and deployed Vercel URLs
 - Deployed: measure both fresh preview deployment AND existing production URL
 - **3 runs per page**, take median
@@ -24,12 +25,14 @@ Verify cumulative LCP improvements from Phases 40-44, confirm bundle savings fro
 - If Google Fonts 403 build issue recurs: **fix the root cause** (don't skip font optimization)
 
 ### Pass/fail criteria
+
 - **Revised LCP target: < 4s** (adjusted from original 2.5s based on realistic assessment)
 - If LCP is 4-6s: document gap, add follow-up optimization phase to **v1.6 backlog**
 - Bundle analysis success criteria: **Claude's discretion** — determine appropriate metric based on what's measurable
 - Per-route thresholds: **Claude's discretion** — set reasonable targets based on page complexity (homepage/menu vs checkout/tracking with maps)
 
 ### Cart flow verification
+
 - Tests performed via **Playwright automation** (not manual)
 - Results recorded as **written checklist in VERIFICATION.md** (no screenshots)
 - REQ-47.5 (cart on customer routes): **full journey with edge cases** — happy path + empty cart, quantity changes, remove item, cart persistence across navigation
@@ -39,12 +42,14 @@ Verify cumulative LCP improvements from Phases 40-44, confirm bundle savings fro
 - Cart tests **kept as permanent E2E suite** in CI going forward
 
 ### Documentation & next steps
+
 - PERFORMANCE.md update: **summary table with before/after** (concise, quick reference)
 - If LCP misses <4s: **identify top 3 bottlenecks** with specific files/resources, actionable for v1.6
 - Milestone close: **auto-close v1.5 if LCP < 4s**, pause for user review if target missed
 - STATE.md and ROADMAP.md updates: **leave for milestone close ceremony**, not Phase 47
 
 ### Claude's Discretion
+
 - Bundle analysis success criteria for Phase 43 savings
 - Per-route LCP thresholds (tiered based on page complexity)
 - Whether to verify admin/driver routes lack cart components in Playwright
@@ -72,5 +77,5 @@ Verify cumulative LCP improvements from Phases 40-44, confirm bundle savings fro
 
 ---
 
-*Phase: 47-final-lcp-measurement-gap-closure*
-*Context gathered: 2026-02-06*
+_Phase: 47-final-lcp-measurement-gap-closure_
+_Context gathered: 2026-02-06_

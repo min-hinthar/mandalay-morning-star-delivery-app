@@ -35,18 +35,14 @@ export async function GET(request: NextRequest) {
 
   // Config-only service status (default mode)
   const supabaseConfigured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
   const stripeConfigured = Boolean(process.env.STRIPE_SECRET_KEY);
   const resendConfigured = Boolean(process.env.RESEND_API_KEY);
   const googleOAuthConfigured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
-  const searchConsoleConfigured = Boolean(
-    process.env.GOOGLE_SITE_VERIFICATION,
-  );
+  const searchConsoleConfigured = Boolean(process.env.GOOGLE_SITE_VERIFICATION);
 
   let services: HealthResponse["services"] = {
     supabase: configOnlyService(supabaseConfigured),
@@ -80,10 +76,8 @@ export async function GET(request: NextRequest) {
 
   // production_ready requires all critical env vars AND healthy services AND reachable routes
   const allHealthy = status === "healthy";
-  const allRoutesReachable =
-    routes.auth_callback.reachable && routes.stripe_webhook.reachable;
-  const productionReady =
-    envResult.all_critical_present && allHealthy && allRoutesReachable;
+  const allRoutesReachable = routes.auth_callback.reachable && routes.stripe_webhook.reachable;
+  const productionReady = envResult.all_critical_present && allHealthy && allRoutesReachable;
 
   const response: HealthResponse = {
     status,

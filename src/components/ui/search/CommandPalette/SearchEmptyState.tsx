@@ -10,12 +10,7 @@ import { cn } from "@/lib/utils/cn";
 import type { MenuItem } from "@/types/menu";
 
 // Hardcoded popular item suggestions for empty state
-const POPULAR_ITEM_SLUGS = [
-  "mohinga",
-  "tea-leaf-salad",
-  "shan-noodles",
-  "samosa",
-];
+const POPULAR_ITEM_SLUGS = ["mohinga", "tea-leaf-salad", "shan-noodles", "samosa"];
 
 export interface SearchEmptyStateProps {
   /** Recent search terms */
@@ -49,9 +44,7 @@ export function SearchEmptyState({
   onSelectItem,
 }: SearchEmptyStateProps) {
   // Tag-based popular detection: items with "popular" tag
-  const taggedPopular = popularItems.filter((item) =>
-    item.tags?.includes("popular")
-  );
+  const taggedPopular = popularItems.filter((item) => item.tags?.includes("popular"));
 
   // Slug-based fallback
   const slugPopular = POPULAR_ITEM_SLUGS.map((slug) =>
@@ -118,9 +111,7 @@ export function SearchEmptyState({
                 </div>
 
                 {/* Term */}
-                <span className="flex-1 truncate text-text-primary">
-                  {term}
-                </span>
+                <span className="flex-1 truncate text-text-primary">{term}</span>
 
                 {/* Individual delete X button */}
                 <button
@@ -152,9 +143,7 @@ export function SearchEmptyState({
       {displayItems.length > 0 && (
         <Command.Group heading="">
           {/* Section divider when recent searches exist above */}
-          {recentSearches.length > 0 && (
-            <div className="mx-4 my-1 border-t border-border/30" />
-          )}
+          {recentSearches.length > 0 && <div className="mx-4 my-1 border-t border-border/30" />}
           <div className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
             <TrendingUp className="h-3 w-3" />
             Popular
@@ -179,11 +168,13 @@ export function SearchEmptyState({
                 className="flex w-full items-center gap-3"
               >
                 {/* 64px Thumbnail with premium styling */}
-                <div className={cn(
-                  "relative h-[52px] w-[52px] flex-shrink-0 overflow-hidden rounded-xl",
-                  "bg-surface-secondary ring-1 ring-border/10",
-                  "shadow-sm"
-                )}>
+                <div
+                  className={cn(
+                    "relative h-[52px] w-[52px] flex-shrink-0 overflow-hidden rounded-xl",
+                    "bg-surface-secondary ring-1 ring-border/10",
+                    "shadow-sm"
+                  )}
+                >
                   {item.imageUrl ? (
                     <Image
                       src={item.imageUrl}
@@ -194,9 +185,7 @@ export function SearchEmptyState({
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5 text-text-muted">
-                      <span className="text-lg font-medium">
-                        {item.nameEn.charAt(0)}
-                      </span>
+                      <span className="text-lg font-medium">{item.nameEn.charAt(0)}</span>
                     </div>
                   )}
                 </div>
@@ -208,12 +197,14 @@ export function SearchEmptyState({
                       {item.nameEn}
                     </span>
                     {/* Popular badge */}
-                    <span className={cn(
-                      "inline-flex flex-shrink-0 items-center gap-0.5",
-                      "rounded-full px-1.5 py-px",
-                      "bg-amber-500/12 text-amber-600 dark:bg-amber-400/15 dark:text-amber-400",
-                      "text-2xs font-semibold uppercase tracking-wide"
-                    )}>
+                    <span
+                      className={cn(
+                        "inline-flex flex-shrink-0 items-center gap-0.5",
+                        "rounded-full px-1.5 py-px",
+                        "bg-amber-500/12 text-amber-600 dark:bg-amber-400/15 dark:text-amber-400",
+                        "text-2xs font-semibold uppercase tracking-wide"
+                      )}
+                    >
                       <Flame className="h-2.5 w-2.5" />
                       Popular
                     </span>
@@ -235,9 +226,7 @@ export function SearchEmptyState({
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-surface-secondary">
             <TrendingUp className="h-5 w-5 text-text-muted" />
           </div>
-          <p className="text-sm text-text-muted">
-            Search for your favorite dishes...
-          </p>
+          <p className="text-sm text-text-muted">Search for your favorite dishes...</p>
         </div>
       )}
     </m.div>

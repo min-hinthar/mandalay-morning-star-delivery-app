@@ -164,12 +164,7 @@ export const DietaryBadges = memo(function DietaryBadges({ tags, className }: Di
 
   return (
     <div
-      className={cn(
-        "absolute top-3 left-3",
-        zClass.dropdown,
-        "flex flex-wrap gap-1",
-        className
-      )}
+      className={cn("absolute top-3 left-3", zClass.dropdown, "flex flex-wrap gap-1", className)}
     >
       {badges.map((badge, index) => (
         <BadgeItem key={badge.key} config={badge.config} index={index} />

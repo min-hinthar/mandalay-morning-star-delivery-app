@@ -25,7 +25,7 @@ started: Still happening after MobileDrawer fix (commit 8207b6b)
 ## Evidence
 
 - timestamp: 2026-01-30T00:01:00Z
-  checked: grep for "repeat.*Infinity" across codebase
+  checked: grep for "repeat.\*Infinity" across codebase
   found: 85+ instances of repeat:Infinity animations across 25+ files
   implication: Massive number of infinite animations - this is the root cause
 
@@ -59,24 +59,26 @@ started: Still happening after MobileDrawer fix (commit 8207b6b)
 root_cause: 85+ repeat:Infinity animations across the codebase cause mobile GPU/memory exhaustion. When modals/drawers open, their content (with more infinite animations) adds to the load. On exit, the combined animation load causes WebKit to crash. First crash triggers page refresh, second attempt has corrupted state.
 
 fix: |
-  Removed infinite animations from all high-frequency components:
-  1. CartDrawer.tsx - Removed rotating bag icon and pulsing glow button
-  2. CartSummary.tsx - Removed sparkles, truck bounce, celebration particles, party popper animations
-  3. CartEmptyState.tsx - Removed floating bag and scale animations
-  4. CartBar.tsx - Removed sparkles, truck bounce, free delivery truck animations
-  5. EmptyState.tsx - Removed gradient pulse and icon animations
-  6. motion-tokens.ts - Changed float(), floatGentle() from repeat:Infinity to repeat:3
-  7. motion-tokens.ts - Changed routeDraw.markerPulse from repeat:Infinity to repeat:5
-  8. micro-interactions.ts - Changed pulseVariants from repeat:Infinity to repeat:3
+Removed infinite animations from all high-frequency components:
 
-  Pattern: Replace animated elements with static equivalents, or bound repeat counts
+1. CartDrawer.tsx - Removed rotating bag icon and pulsing glow button
+2. CartSummary.tsx - Removed sparkles, truck bounce, celebration particles, party popper animations
+3. CartEmptyState.tsx - Removed floating bag and scale animations
+4. CartBar.tsx - Removed sparkles, truck bounce, free delivery truck animations
+5. EmptyState.tsx - Removed gradient pulse and icon animations
+6. motion-tokens.ts - Changed float(), floatGentle() from repeat:Infinity to repeat:3
+7. motion-tokens.ts - Changed routeDraw.markerPulse from repeat:Infinity to repeat:5
+8. micro-interactions.ts - Changed pulseVariants from repeat:Infinity to repeat:3
+
+Pattern: Replace animated elements with static equivalents, or bound repeat counts
 
 verification: Build passes (npm run typecheck, npm run lint, npm run build all pass)
 files_changed:
-  - src/components/ui/cart/CartDrawer.tsx
-  - src/components/ui/cart/CartSummary.tsx
-  - src/components/ui/cart/CartEmptyState.tsx
-  - src/components/ui/cart/CartBar.tsx
-  - src/components/ui/EmptyState.tsx
-  - src/lib/motion-tokens.ts
-  - src/lib/micro-interactions.ts
+
+- src/components/ui/cart/CartDrawer.tsx
+- src/components/ui/cart/CartSummary.tsx
+- src/components/ui/cart/CartEmptyState.tsx
+- src/components/ui/cart/CartBar.tsx
+- src/components/ui/EmptyState.tsx
+- src/lib/motion-tokens.ts
+- src/lib/micro-interactions.ts

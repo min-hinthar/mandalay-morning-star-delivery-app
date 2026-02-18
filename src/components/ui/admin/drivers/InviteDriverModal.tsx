@@ -44,11 +44,7 @@ interface InviteResponse {
   isExistingUser: boolean;
 }
 
-export function InviteDriverModal({
-  open,
-  onOpenChange,
-  onSuccess,
-}: InviteDriverModalProps) {
+export function InviteDriverModal({ open, onOpenChange, onSuccess }: InviteDriverModalProps) {
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -93,14 +89,10 @@ export function InviteDriverModal({
       setCopied(false);
       onSuccess?.();
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to create invite";
+      const message = error instanceof Error ? error.message : "Failed to create invite";
 
       // Show in form if it's a validation-type error
-      if (
-        message.includes("pending invite") ||
-        message.includes("already registered")
-      ) {
+      if (message.includes("pending invite") || message.includes("already registered")) {
         setErrors({ email: message });
       } else {
         setErrors({ general: message });
@@ -167,8 +159,8 @@ export function InviteDriverModal({
               ) : (
                 <>
                   Share this link with{" "}
-                  <span className="font-medium text-text-primary">{inviteResult.email}</span>{" "}
-                  to complete registration.
+                  <span className="font-medium text-text-primary">{inviteResult.email}</span> to
+                  complete registration.
                 </>
               )}
             </DialogDescription>
@@ -182,22 +174,13 @@ export function InviteDriverModal({
                 value={inviteResult.magicLink}
                 className="flex-1 px-3 py-2 text-sm bg-surface-secondary border border-border rounded-input font-mono truncate"
               />
-              <Button
-                onClick={handleCopyLink}
-                variant="outline"
-                size="sm"
-                className="shrink-0"
-              >
-                {copied ? (
-                  <Check className="h-4 w-4 text-green" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
+              <Button onClick={handleCopyLink} variant="outline" size="sm" className="shrink-0">
+                {copied ? <Check className="h-4 w-4 text-green" /> : <Copy className="h-4 w-4" />}
               </Button>
             </div>
             <p className="mt-2 text-xs text-text-muted">
-              This link expires in 24 hours. The recipient should open it in a browser
-              where they are not already logged in.
+              This link expires in 24 hours. The recipient should open it in a browser where they
+              are not already logged in.
             </p>
           </div>
 
@@ -235,8 +218,7 @@ export function InviteDriverModal({
             Invite Driver
           </DialogTitle>
           <DialogDescription className="font-body text-text-secondary">
-            Create an invitation for a new driver. You&apos;ll receive a link to
-            share with them.
+            Create an invitation for a new driver. You&apos;ll receive a link to share with them.
           </DialogDescription>
         </DialogHeader>
 
@@ -276,9 +258,7 @@ export function InviteDriverModal({
               autoFocus
             />
             {errors.email && (
-              <p className="text-xs font-body text-status-error mt-1">
-                {errors.email}
-              </p>
+              <p className="text-xs font-body text-status-error mt-1">{errors.email}</p>
             )}
             <p className="text-xs font-body text-text-muted mt-2">
               Works for both new and existing users.

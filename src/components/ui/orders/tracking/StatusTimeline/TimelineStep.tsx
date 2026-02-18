@@ -62,9 +62,14 @@ export function TimelineStep({
           )}
         >
           <m.div
-            animate={isCurrent && isLive && shouldAnimate ? {
-              scale: [1, 1.2, 1], rotate: [0, 5, -5, 0],
-            } : undefined}
+            animate={
+              isCurrent && isLive && shouldAnimate
+                ? {
+                    scale: [1, 1.2, 1],
+                    rotate: [0, 5, -5, 0],
+                  }
+                : undefined
+            }
             transition={{ duration: 2, repeat: 5, repeatDelay: 1 }}
           >
             <Icon className="h-6 w-6" />
@@ -101,7 +106,9 @@ export function TimelineStep({
             <div className="absolute inset-0 rounded-full bg-border" />
             <m.div
               initial={shouldAnimate ? { scaleY: 0 } : undefined}
-              animate={shouldAnimate ? { scaleY: isCompleted ? 1 : isCurrent ? 0.5 : 0 } : undefined}
+              animate={
+                shouldAnimate ? { scaleY: isCompleted ? 1 : isCurrent ? 0.5 : 0 } : undefined
+              }
               transition={{ ...getSpring(spring.gentle), delay: index * 0.1 + 0.2 }}
               className="absolute inset-0 rounded-full bg-green origin-top"
             />

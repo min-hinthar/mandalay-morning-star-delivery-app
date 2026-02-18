@@ -1,5 +1,5 @@
-import { RouteLoading } from '@/components/ui/RouteLoading'
+import { RouteLoading } from "@/components/ui/RouteLoading";
 
 export default function DriverRouteLoading() {
-  return <RouteLoading message="Loading route..." />
+  return <RouteLoading message="Loading route..." />;
 }

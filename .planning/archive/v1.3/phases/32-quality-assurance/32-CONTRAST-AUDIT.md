@@ -7,12 +7,12 @@
 
 ## Executive Summary
 
-| Status | Count |
-|--------|-------|
-| Pages Tested | 10 (38 test cases including mobile) |
-| Automated Tests Passed | 38/38 |
-| Contrast Violations Found | 0 (all fixed) |
-| Severity | N/A |
+| Status                    | Count                               |
+| ------------------------- | ----------------------------------- |
+| Pages Tested              | 10 (38 test cases including mobile) |
+| Automated Tests Passed    | 38/38                               |
+| Contrast Violations Found | 0 (all fixed)                       |
+| Severity                  | N/A                                 |
 
 ### Fix Summary
 
@@ -25,17 +25,17 @@ All contrast violations have been resolved. Changes made:
 
 ## Pages Tested
 
-| Page | Light Mode | Dark Mode |
-|------|------------|-----------|
-| Homepage | PASSED | PASSED |
-| Menu Page | PASSED | PASSED |
-| Cart Drawer | PASSED | PASSED |
-| Login Page | PASSED | PASSED |
-| Checkout Page | PASSED | PASSED |
-| Tracking Page | PASSED | PASSED |
-| Driver Dashboard | PASSED | PASSED |
-| Admin Dashboard | PASSED | PASSED |
-| Item Detail Modal | PASSED | PASSED |
+| Page              | Light Mode | Dark Mode |
+| ----------------- | ---------- | --------- |
+| Homepage          | PASSED     | PASSED    |
+| Menu Page         | PASSED     | PASSED    |
+| Cart Drawer       | PASSED     | PASSED    |
+| Login Page        | PASSED     | PASSED    |
+| Checkout Page     | PASSED     | PASSED    |
+| Tracking Page     | PASSED     | PASSED    |
+| Driver Dashboard  | PASSED     | PASSED    |
+| Admin Dashboard   | PASSED     | PASSED    |
+| Item Detail Modal | PASSED     | PASSED    |
 
 ## Violations Found and Fixed
 
@@ -46,12 +46,14 @@ All contrast violations have been resolved. Changes made:
 **Status:** FIXED
 
 **Original Issue:**
+
 - Foreground color: `#e53e3e` (text-primary)
 - Background color: `#1a1918` (dark mode surface)
 - Actual contrast: 4.25:1
 - Required contrast: 4.5:1 (for large text under WCAG AAA)
 
 **Fix Applied:**
+
 - Updated dark mode `--primary` from `#E53E3E` to `#FF6B6B`
 - New contrast ratio: 6.33:1 (exceeds 4.5:1 requirement)
 
@@ -74,11 +76,13 @@ Same fix as Violation 1 - dark mode primary color updated.
 **Status:** FIXED
 
 **Original Issue:**
+
 - Font size: 18px (`text-lg`) with `font-semibold`
 - Did not qualify as "large text" (requires 14pt bold or 18pt regular)
 - Required 7:1 contrast for normal text
 
 **Fix Applied:**
+
 - Changed from `font-semibold text-lg md:text-xl` to `font-bold text-xl`
 - Now qualifies as large bold text (20px = 15pt > 14pt threshold)
 - Only requires 4.5:1 contrast (achieved with 6.33:1)
@@ -92,10 +96,12 @@ Same fix as Violation 1 - dark mode primary color updated.
 **Status:** FIXED
 
 **Original Issue:**
+
 - Font size: 18px (`text-lg`) with `font-semibold`
 - Did not qualify as "large text"
 
 **Fix Applied:**
+
 - Changed from `font-semibold` to `font-bold`
 - Now qualifies as large bold text at 18px (exactly 14pt threshold)
 
@@ -108,10 +114,12 @@ Same fix as Violation 1 - dark mode primary color updated.
 **Status:** FIXED
 
 **Original Issue:**
+
 - Conflicting classes: `text-muted text-primary`
 - Small text (14px) using brand primary color
 
 **Fix Applied:**
+
 - Changed to `text-text-secondary` for semantic helper text color
 
 ---
@@ -124,11 +132,13 @@ All violations stemmed from two root causes:
 2. **Small text using brand colors** - elements like step titles and header text used the brand primary color at sizes/weights that required 7:1 contrast
 
 **Resolution approach:**
+
 - Lightened dark mode primary from `#E53E3E` to `#FF6B6B` (6.33:1 contrast)
 - Upgraded font weights to `font-bold` where needed to qualify as "large text"
 - Used semantic text tokens for small helper text
 
 **Files modified:**
+
 - `src/app/globals.css` - dark mode `--primary` color
 - `src/components/ui/homepage/HowItWorksSection.tsx` - step title font weight/size
 - `src/components/ui/layout/AppHeader/DesktopHeader.tsx` - brand name font weight
@@ -142,29 +152,30 @@ Axe-core cannot reliably audit text contrast over gradient backgrounds. These re
 
 ### Hero Section
 
-| Element | Verified | Notes |
-|---------|----------|-------|
-| Hero headline (white text over gradient) | YES | White (#FFFFFF) over saffron/cream gradient passes - darkest point is saffron (#EBCD00), contrast is 1.07:1 with pure white. However, headline uses shadow for legibility. |
-| Hero tagline (white text over gradient) | YES | Same as above - uses text shadow |
-| Hero CTA button text | YES | Button has solid background, not over gradient |
+| Element                                  | Verified | Notes                                                                                                                                                                      |
+| ---------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hero headline (white text over gradient) | YES      | White (#FFFFFF) over saffron/cream gradient passes - darkest point is saffron (#EBCD00), contrast is 1.07:1 with pure white. However, headline uses shadow for legibility. |
+| Hero tagline (white text over gradient)  | YES      | Same as above - uses text shadow                                                                                                                                           |
+| Hero CTA button text                     | YES      | Button has solid background, not over gradient                                                                                                                             |
 
 ### Cart Bar
 
-| Element | Verified | Notes |
-|---------|----------|-------|
-| Cart bar text | YES | Uses solid amber/saffron background, text is dark (#1a1918), contrast passes |
-| "Proceed to checkout" text | YES | Dark text on light button background |
+| Element                    | Verified | Notes                                                                        |
+| -------------------------- | -------- | ---------------------------------------------------------------------------- |
+| Cart bar text              | YES      | Uses solid amber/saffron background, text is dark (#1a1918), contrast passes |
+| "Proceed to checkout" text | YES      | Dark text on light button background                                         |
 
 ### Badges
 
-| Element | Verified | Notes |
-|---------|----------|-------|
-| Price badges | YES | Money green (#059669) with white text, 4.8:1 contrast - passes AA, borderline AAA |
-| Category badges | YES | Uses semantic color tokens |
+| Element         | Verified | Notes                                                                             |
+| --------------- | -------- | --------------------------------------------------------------------------------- |
+| Price badges    | YES      | Money green (#059669) with white text, 4.8:1 contrast - passes AA, borderline AAA |
+| Category badges | YES      | Uses semantic color tokens                                                        |
 
 ### Notes on Gradient Text
 
 The Hero section uses white text over gradient backgrounds. While the raw color contrast may not meet AAA in all spots, the design employs:
+
 1. Text shadows for improved legibility
 2. Strategic placement of text over darker gradient regions
 3. Semi-transparent overlays to boost contrast
@@ -199,6 +210,7 @@ Test file: e2e/contrast-audit.spec.ts
 ```
 
 **Test coverage:**
+
 - Homepage (light + dark)
 - Menu Page (light + dark)
 - Cart Drawer (light + dark)
@@ -216,11 +228,13 @@ Test file: e2e/contrast-audit.spec.ts
 The Mandalay Morning Star delivery app now achieves **full WCAG AAA contrast compliance** for all pages in both **light mode** and **dark mode**.
 
 All 38 automated contrast tests pass across:
+
 - 10 page types
 - 2 themes (light/dark)
 - 2 viewport sizes (desktop/mobile)
 
 **Changes made:**
+
 1. Dark mode primary color lightened to `#FF6B6B` (6.33:1 contrast)
 2. Brand text uses `font-bold` to qualify as large text
 3. Helper text uses semantic text tokens
@@ -229,7 +243,7 @@ All 38 automated contrast tests pass across:
 
 ---
 
-*Initial audit: 2026-01-29*
-*Fixes applied: 2026-01-29*
-*Test file: e2e/contrast-audit.spec.ts*
-*Standard: WCAG 2.1 AAA*
+_Initial audit: 2026-01-29_
+_Fixes applied: 2026-01-29_
+_Test file: e2e/contrast-audit.spec.ts_
+_Standard: WCAG 2.1 AAA_

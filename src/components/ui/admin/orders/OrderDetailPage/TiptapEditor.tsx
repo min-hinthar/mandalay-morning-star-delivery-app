@@ -4,13 +4,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
-import {
-  Bold,
-  Italic,
-  List,
-  ListOrdered,
-  Link2,
-} from "lucide-react";
+import { Bold, Italic, List, ListOrdered, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useCallback } from "react";
 

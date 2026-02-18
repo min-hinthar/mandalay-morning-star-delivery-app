@@ -15,6 +15,7 @@ Phase 23 requires a complete rebuild of the header and navigation system with mo
 5. **Cart drawer** and cart store already integrated
 
 The main work involves:
+
 - Enhancing scroll hook for velocity-aware header behavior
 - Building new MobileDrawer with left-slide swipe-to-close
 - Implementing cmdk-based command palette for menu search
@@ -28,26 +29,30 @@ The main work involves:
 The established libraries/tools for this domain:
 
 ### Core
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
+
+| Library       | Version  | Purpose                      | Why Standard                                       |
+| ------------- | -------- | ---------------------------- | -------------------------------------------------- |
 | framer-motion | ^12.26.1 | Animations, gestures, scroll | Already in project, provides useScroll/useVelocity |
-| cmdk | ^1.0.0+ | Command palette | Used by Linear, Raycast; headless, accessible |
-| next-themes | ^0.4.6 | Theme switching | Already in project |
-| zustand | ^5.0.10 | State management | Already in project for cart drawer |
+| cmdk          | ^1.0.0+  | Command palette              | Used by Linear, Raycast; headless, accessible      |
+| next-themes   | ^0.4.6   | Theme switching              | Already in project                                 |
+| zustand       | ^5.0.10  | State management             | Already in project for cart drawer                 |
 
 ### Supporting
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| lucide-react | ^0.562.0 | Icons | Already in project, use for nav icons |
-| vaul | ^1.1.2 | Drawer primitives | Already in project, basis for bottom sheet |
+
+| Library      | Version  | Purpose           | When to Use                                |
+| ------------ | -------- | ----------------- | ------------------------------------------ |
+| lucide-react | ^0.562.0 | Icons             | Already in project, use for nav icons      |
+| vaul         | ^1.1.2   | Drawer primitives | Already in project, basis for bottom sheet |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| cmdk | react-cmdk | react-cmdk is pre-styled; cmdk is headless (better for custom design) |
+
+| Instead of             | Could Use          | Tradeoff                                                                            |
+| ---------------------- | ------------------ | ----------------------------------------------------------------------------------- |
+| cmdk                   | react-cmdk         | react-cmdk is pre-styled; cmdk is headless (better for custom design)               |
 | framer-motion gestures | @use-gesture/react | Already have use-gesture installed but framer gestures integrate better with motion |
 
 **Installation:**
+
 ```bash
 pnpm add cmdk
 ```
@@ -55,6 +60,7 @@ pnpm add cmdk
 ## Architecture Patterns
 
 ### Recommended Component Structure
+
 ```
 src/components/
   layout/
@@ -87,9 +93,11 @@ src/components/
 ```
 
 ### Pattern 1: Velocity-Aware Scroll Hook
+
 **What:** Enhance scroll direction detection with velocity for instant vs gradual animations
 **When to use:** Header hide/show behavior
 **Example:**
+
 ```typescript
 // Source: Framer Motion useVelocity documentation
 import { useScroll, useVelocity, useMotionValueEvent } from "framer-motion";
@@ -102,7 +110,7 @@ export function useScrollDirectionWithVelocity(options = {}) {
   const [state, setState] = useState({
     direction: "idle",
     isCollapsed: false,
-    isFastScroll: false
+    isFastScroll: false,
   });
 
   useMotionValueEvent(scrollY, "change", (current) => {
@@ -127,9 +135,11 @@ export function useScrollDirectionWithVelocity(options = {}) {
 ```
 
 ### Pattern 2: cmdk Command Palette
+
 **What:** Headless command palette with filtering and keyboard nav
 **When to use:** Menu item search
 **Example:**
+
 ```typescript
 // Source: cmdk GitHub README
 import { Command } from "cmdk";
@@ -164,9 +174,11 @@ export function CommandPalette({ open, onOpenChange, menuItems }) {
 ```
 
 ### Pattern 3: Left-Slide Drawer with Swipe
+
 **What:** Mobile nav drawer that slides from left and closes via swipe gesture
 **When to use:** Mobile navigation
 **Example:**
+
 ```typescript
 // Source: Existing useSwipeToClose in codebase + Framer Motion drag
 import { useSwipeToClose } from "@/lib/swipe-gestures";
@@ -199,6 +211,7 @@ export function MobileDrawer({ isOpen, onClose, children }) {
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Don't use CSS transitions for scroll-linked animations:** Use Framer Motion's spring physics for natural feel
 - **Don't debounce scroll events excessively:** The existing useScrollDirection already uses RAF and throttling
 - **Don't couple header visibility to route changes:** Keep scroll state separate from navigation
@@ -208,51 +221,57 @@ export function MobileDrawer({ isOpen, onClose, children }) {
 
 Problems that look simple but have existing solutions:
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Command palette filtering | Custom fuzzy search | cmdk's built-in filtering | Uses command-score, handles edge cases |
-| Keyboard navigation | Manual focus management | cmdk's built-in nav | Accessible, handles wrap-around |
-| Scroll velocity | Manual velocity calc | useVelocity from framer-motion | Already optimized, integrates with springs |
-| Body scroll lock | Manual overflow toggle | useBodyScrollLock hook | Already exists in codebase, handles iOS |
-| Focus trap | Manual Tab handling | Existing Drawer focus trap | Already implemented correctly |
-| Hamburger animation | Custom SVG animation | MorphingMenu component | Already exists with variants |
-| Theme transition | Custom transition | useThemeTransition | View Transitions API already integrated |
+| Problem                   | Don't Build             | Use Instead                    | Why                                        |
+| ------------------------- | ----------------------- | ------------------------------ | ------------------------------------------ |
+| Command palette filtering | Custom fuzzy search     | cmdk's built-in filtering      | Uses command-score, handles edge cases     |
+| Keyboard navigation       | Manual focus management | cmdk's built-in nav            | Accessible, handles wrap-around            |
+| Scroll velocity           | Manual velocity calc    | useVelocity from framer-motion | Already optimized, integrates with springs |
+| Body scroll lock          | Manual overflow toggle  | useBodyScrollLock hook         | Already exists in codebase, handles iOS    |
+| Focus trap                | Manual Tab handling     | Existing Drawer focus trap     | Already implemented correctly              |
+| Hamburger animation       | Custom SVG animation    | MorphingMenu component         | Already exists with variants               |
+| Theme transition          | Custom transition       | useThemeTransition             | View Transitions API already integrated    |
 
 **Key insight:** The codebase already has ~80% of the primitives needed. The work is primarily composition and enhancement, not new invention.
 
 ## Common Pitfalls
 
 ### Pitfall 1: iOS Safari Bounce Conflicts
+
 **What goes wrong:** Body scroll lock doesn't prevent iOS Safari rubber-band bounce, causing visual glitches when drawer is open
 **Why it happens:** iOS Safari has special overscroll behavior not handled by overflow:hidden
 **How to avoid:** Use existing `useBodyScrollLock` which handles iOS specifically with position:fixed
 **Warning signs:** Drawer content bounces unexpectedly, background scrolls behind drawer
 
 ### Pitfall 2: Header Z-Index Wars
+
 **What goes wrong:** Header, drawer, command palette, and cart drawer fight for z-index priority
 **Why it happens:** Multiple fixed/modal elements without coordinated layering
 **How to avoid:** Use existing `zIndex` tokens from design-system: fixed(30), modalBackdrop(40), modal(50)
 **Warning signs:** Elements appearing behind or above when shouldn't
 
 ### Pitfall 3: Scroll Position Reset on Route Change
+
 **What goes wrong:** Header state (collapsed/expanded) resets unexpectedly on navigation
 **Why it happens:** Component remounts or scroll position resets
 **How to avoid:** Store scroll state in ref/state that persists across route changes; use `scroll: false` in Link when needed
 **Warning signs:** Header jumps visible on every navigation
 
 ### Pitfall 4: Mobile Tap-Through Issues
+
 **What goes wrong:** Taps on drawer backdrop trigger elements behind it
 **Why it happens:** Backdrop click handler doesn't stop propagation correctly
 **How to avoid:** Use stopPropagation on drawer content, ensure backdrop has pointer-events
 **Warning signs:** Clicking backdrop closes drawer AND triggers something behind
 
 ### Pitfall 5: Cmd+K Conflicts
+
 **What goes wrong:** Browser or OS intercepts Cmd+K before app
 **Why it happens:** Some browsers use Cmd+K for search bar focus
 **How to avoid:** Use `e.preventDefault()` immediately; provide alternative trigger (click icon)
 **Warning signs:** Keyboard shortcut works inconsistently across browsers
 
 ### Pitfall 6: Swipe Gesture Conflicts with Scroll
+
 **What goes wrong:** Horizontal swipe to close drawer conflicts with vertical content scroll
 **Why it happens:** Both gestures active simultaneously
 **How to avoid:** Use `touchAction: "pan-y"` on drawer content; existing swipe hooks handle this
@@ -263,6 +282,7 @@ Problems that look simple but have existing solutions:
 Verified patterns from existing codebase and official sources:
 
 ### Multi-Layer Hover State (Desktop Nav)
+
 ```typescript
 // Pattern: Combine icon animation + underline + background
 // Source: Motion tokens + existing NavItem patterns
@@ -305,6 +325,7 @@ function DesktopNavLink({ href, label, icon }: NavLinkProps) {
 ```
 
 ### Cart Badge Animation
+
 ```typescript
 // Pattern: Bounce badge + shake icon on add
 // Source: cart-animation-store + motion tokens
@@ -351,6 +372,7 @@ function CartIndicator() {
 ```
 
 ### Glassmorphism Header Background
+
 ```typescript
 // Pattern: Consistent glass treatment with gradient accents
 // Source: CONTEXT.md decisions + existing glass-menu-card pattern
@@ -383,6 +405,7 @@ const headerStylesDark = {
 ```
 
 ### Velocity-Based Animation Duration
+
 ```typescript
 // Pattern: Fast scroll = instant, slow scroll = gradual
 // Source: Framer Motion useVelocity + motion tokens
@@ -401,6 +424,7 @@ function getHeaderTransition(isFastScroll: boolean) {
 ```
 
 ### Staggered Drawer Link Reveal
+
 ```typescript
 // Pattern: 80ms stagger for link reveal
 // Source: motion-tokens staggerContainer80
@@ -411,8 +435,8 @@ const drawerLinksVariants = {
     transition: {
       staggerChildren: 0.08, // STAGGER_GAP
       delayChildren: 0.1,
-    }
-  }
+    },
+  },
 };
 
 const drawerLinkVariants = {
@@ -420,21 +444,22 @@ const drawerLinkVariants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: spring.default
-  }
+    transition: spring.default,
+  },
 };
 ```
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| CSS scroll-behavior | Framer Motion useScroll | 2024 | Better spring physics, velocity access |
-| Custom fuzzy search | cmdk with command-score | 2023 | Accessible, keyboard-friendly, tested |
-| Fixed header always | Hide-on-scroll iOS pattern | 2024 | More screen real estate on mobile |
-| Hamburger CSS transition | MorphingMenu spring | Already done | Playful, consistent with UI |
+| Old Approach             | Current Approach           | When Changed | Impact                                 |
+| ------------------------ | -------------------------- | ------------ | -------------------------------------- |
+| CSS scroll-behavior      | Framer Motion useScroll    | 2024         | Better spring physics, velocity access |
+| Custom fuzzy search      | cmdk with command-score    | 2023         | Accessible, keyboard-friendly, tested  |
+| Fixed header always      | Hide-on-scroll iOS pattern | 2024         | More screen real estate on mobile      |
+| Hamburger CSS transition | MorphingMenu spring        | Already done | Playful, consistent with UI            |
 
 **Deprecated/outdated:**
+
 - **react-headroom:** Replaced by native scroll hooks; adds unnecessary dependency
 - **position: sticky + IntersectionObserver:** More complex than useScroll, less precise
 
@@ -460,21 +485,25 @@ Things that couldn't be fully resolved:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Framer Motion useScroll/useVelocity: https://motion.dev/docs/react-use-scroll
 - cmdk GitHub: https://github.com/dip/cmdk - API, installation, patterns
 - Existing codebase components: header.tsx, MobileNav.tsx, Drawer.tsx, useScrollDirection.ts
 
 ### Secondary (MEDIUM confidence)
+
 - Frontend.fyi auto-hiding nav tutorial: https://www.frontend.fyi/tutorials/making-a-disappearing-sticky-navigation
 - John Choura Medium article on hide/show header: https://johnchourajr.medium.com/show-hide-on-scroll-with-framer-motion-b6f937c2d662
 
 ### Tertiary (LOW confidence)
+
 - iOS Safari swipe gesture behavior (needs device testing)
 - Exact velocity thresholds for "fast" vs "slow" (needs user testing)
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - All libraries already in project or well-documented
 - Architecture: HIGH - Clear patterns from existing codebase
 - Hide-on-scroll: HIGH - Framer Motion docs explicit about useScroll/useVelocity
@@ -489,16 +518,16 @@ Things that couldn't be fully resolved:
 
 ## Integration Points Summary
 
-| Existing Component | How Phase 23 Uses It |
-|--------------------|----------------------|
-| `useScrollDirection` | Enhance with velocity via `useVelocity` |
-| `MorphingMenu` | Use directly for hamburger button |
-| `ui-v8/Drawer` | Reference for MobileDrawer patterns |
-| `useSwipeToClose` | Use directly with `direction: "left"` |
-| `ThemeToggle` | Use directly in header/drawer |
-| `useCartDrawer` | Keep as-is for cart button behavior |
-| `CartButtonV8` | Use directly or enhance with animation |
-| `useAuth` | Use for account indicator state |
-| `zIndex` tokens | Use for layering header/drawer/palette |
-| `spring` tokens | Use snappy, ultraBouncy, rubbery presets |
-| `staggerContainer80` | Use for drawer link reveal |
+| Existing Component   | How Phase 23 Uses It                     |
+| -------------------- | ---------------------------------------- |
+| `useScrollDirection` | Enhance with velocity via `useVelocity`  |
+| `MorphingMenu`       | Use directly for hamburger button        |
+| `ui-v8/Drawer`       | Reference for MobileDrawer patterns      |
+| `useSwipeToClose`    | Use directly with `direction: "left"`    |
+| `ThemeToggle`        | Use directly in header/drawer            |
+| `useCartDrawer`      | Keep as-is for cart button behavior      |
+| `CartButtonV8`       | Use directly or enhance with animation   |
+| `useAuth`            | Use for account indicator state          |
+| `zIndex` tokens      | Use for layering header/drawer/palette   |
+| `spring` tokens      | Use snappy, ultraBouncy, rubbery presets |
+| `staggerContainer80` | Use for drawer link reveal               |

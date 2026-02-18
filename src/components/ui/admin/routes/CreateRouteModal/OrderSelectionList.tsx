@@ -78,9 +78,7 @@ export function OrderSelectionList({
                   onClick={() => onToggle(order.id)}
                   className={cn(
                     "w-full flex items-center justify-between p-3 text-left transition-colors",
-                    isSelected
-                      ? "bg-interactive-primary-light"
-                      : "hover:bg-surface-secondary"
+                    isSelected ? "bg-interactive-primary-light" : "hover:bg-surface-secondary"
                   )}
                   disabled={isSubmitting}
                 >
@@ -93,17 +91,14 @@ export function OrderSelectionList({
                           : "border-border-v5"
                       )}
                     >
-                      {isSelected && (
-                        <Check className="h-3 w-3 text-text-inverse" />
-                      )}
+                      {isSelected && <Check className="h-3 w-3 text-text-inverse" />}
                     </div>
                     <div>
                       <p className="text-sm font-medium text-text-primary">
                         #{order.id.slice(0, 8).toUpperCase()}
                       </p>
                       <p className="text-xs text-text-secondary">
-                        {order.customerName || "Guest"} •{" "}
-                        {order.itemCount} items
+                        {order.customerName || "Guest"} • {order.itemCount} items
                       </p>
                     </div>
                   </div>
@@ -117,14 +112,10 @@ export function OrderSelectionList({
         )}
       </div>
 
-      {error && (
-        <p className="text-xs text-red-500">{error}</p>
-      )}
+      {error && <p className="text-xs text-red-500">{error}</p>}
 
       {selectedOrderIds.length > 0 && (
-        <p className="text-xs text-muted-foreground">
-          {selectedOrderIds.length} order(s) selected
-        </p>
+        <p className="text-xs text-muted-foreground">{selectedOrderIds.length} order(s) selected</p>
       )}
     </div>
   );

@@ -50,12 +50,7 @@ export function OrderCardRow({ order, selected = false, onClick }: OrderCardRowP
   const tint = STATUS_TINTS[order.status] ?? "";
 
   return (
-    <CardRow
-      statusTint={tint}
-      selected={selected}
-      onClick={onClick}
-      className="gap-3"
-    >
+    <CardRow statusTint={tint} selected={selected} onClick={onClick} className="gap-3">
       {/* Desktop layout */}
       <div className="hidden sm:flex items-center gap-4 w-full">
         {/* Order ID */}
@@ -68,9 +63,7 @@ export function OrderCardRow({ order, selected = false, onClick }: OrderCardRowP
           <p className="font-medium text-sm text-text-primary truncate">
             {order.customerName || "Guest"}
           </p>
-          <p className="text-xs text-text-muted truncate">
-            {order.customerEmail}
-          </p>
+          <p className="text-xs text-text-muted truncate">{order.customerEmail}</p>
         </div>
 
         {/* Items count */}
@@ -112,9 +105,7 @@ export function OrderCardRow({ order, selected = false, onClick }: OrderCardRowP
       <div className="flex sm:hidden flex-col gap-2 w-full">
         <div className="flex items-center justify-between">
           <StatusBadge status={order.status} />
-          <span className="text-xs text-text-muted">
-            {formatRelativeDate(order.placedAt)}
-          </span>
+          <span className="text-xs text-text-muted">{formatRelativeDate(order.placedAt)}</span>
         </div>
         <div className="flex items-center justify-between">
           <p className="font-medium text-sm text-text-primary truncate">
@@ -125,9 +116,7 @@ export function OrderCardRow({ order, selected = false, onClick }: OrderCardRowP
           </span>
         </div>
         <div className="flex items-center justify-between text-xs text-text-muted">
-          <span className="font-mono">
-            #{order.id.slice(0, 8).toUpperCase()}
-          </span>
+          <span className="font-mono">#{order.id.slice(0, 8).toUpperCase()}</span>
           <span>
             {order.itemCount} {order.itemCount === 1 ? "item" : "items"}
           </span>

@@ -34,13 +34,7 @@ export const routeStopStatusSchema = z.enum([
 // VEHICLE TYPE
 // ===========================================
 
-export const vehicleTypeSchema = z.enum([
-  "car",
-  "motorcycle",
-  "bicycle",
-  "van",
-  "truck",
-]);
+export const vehicleTypeSchema = z.enum(["car", "motorcycle", "bicycle", "van", "truck"]);
 
 // ===========================================
 // ADDRESS

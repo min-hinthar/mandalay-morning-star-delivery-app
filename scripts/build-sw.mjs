@@ -44,9 +44,7 @@ async function buildServiceWorker() {
   console.log("[@serwist/build] Building service worker...");
 
   if (!existsSync(SW_SRC)) {
-    console.error(
-      `[@serwist/build] Error: Service worker source not found at ${SW_SRC}`
-    );
+    console.error(`[@serwist/build] Error: Service worker source not found at ${SW_SRC}`);
     process.exit(1);
   }
 

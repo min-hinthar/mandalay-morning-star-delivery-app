@@ -14,15 +14,8 @@ function isSafeRedirect(path: string): boolean {
 }
 
 /** Resolve the dashboard path for a given user based on profiles.role */
-async function getRoleDashboard(
-  supabase: SupabaseClient,
-  userId: string
-): Promise<string> {
-  const { data } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", userId)
-    .single();
+async function getRoleDashboard(supabase: SupabaseClient, userId: string): Promise<string> {
+  const { data } = await supabase.from("profiles").select("role").eq("id", userId).single();
 
   const role = data?.role as string | undefined;
 
@@ -67,10 +60,7 @@ export async function GET(request: Request): Promise<NextResponse> {
   if (errorParam) {
     console.error("[Auth Callback] OAuth error:", errorParam, errorDescription);
     const errorMessage = encodeURIComponent(errorDescription || errorParam);
-    return NextResponse.redirect(
-      `${origin}/login?error=${errorMessage}`,
-      { status: 302 }
-    );
+    return NextResponse.redirect(`${origin}/login?error=${errorMessage}`, { status: 302 });
   }
 
   if (code) {
@@ -83,15 +73,9 @@ export async function GET(request: Request): Promise<NextResponse> {
       if (normalizedError.includes("expired") || normalizedError.includes("invalid")) {
         const email = searchParams.get("email");
         const emailParam = email ? `?email=${encodeURIComponent(email)}` : "";
-        return NextResponse.redirect(
-          `${origin}/auth/expired${emailParam}`,
-          { status: 302 }
-        );
+        return NextResponse.redirect(`${origin}/auth/expired${emailParam}`, { status: 302 });
       }
-      return NextResponse.redirect(
-        `${origin}/login?error=auth_callback_error`,
-        { status: 302 }
-      );
+      return NextResponse.redirect(`${origin}/login?error=auth_callback_error`, { status: 302 });
     }
 
     // Handle driver invite flow
@@ -114,16 +98,13 @@ export async function GET(request: Request): Promise<NextResponse> {
         // Verify email matches (case-insensitive)
         if (invite.email.toLowerCase() === userEmail?.toLowerCase()) {
           // Update user metadata with driver role and invite_id
-          const { error: updateError } = await serviceSupabase.auth.admin.updateUserById(
-            userId,
-            {
-              user_metadata: {
-                ...sessionData.session.user.user_metadata,
-                role: "driver",
-                invite_id: inviteId,
-              },
-            }
-          );
+          const { error: updateError } = await serviceSupabase.auth.admin.updateUserById(userId, {
+            user_metadata: {
+              ...sessionData.session.user.user_metadata,
+              role: "driver",
+              invite_id: inviteId,
+            },
+          });
 
           if (updateError) {
             console.error("[Auth Callback] Failed to update user metadata:", updateError.message);
@@ -156,8 +137,5 @@ export async function GET(request: Request): Promise<NextResponse> {
   }
 
   // Default error redirect
-  return NextResponse.redirect(
-    `${origin}/login?error=auth_callback_error`,
-    { status: 302 }
-  );
+  return NextResponse.redirect(`${origin}/login?error=auth_callback_error`, { status: 302 });
 }

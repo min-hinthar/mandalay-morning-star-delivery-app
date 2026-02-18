@@ -57,6 +57,7 @@ completed: 2026-01-28
 - **Files modified:** 3
 
 ## Accomplishments
+
 - Applied Safari compositing fixes (isolation, overflow, backface-visibility) to GlassOverlay
 - Added animated shine sweep fallback for touch devices using useCanHover detection
 - Updated long-press to 500ms iOS standard with scroll cancellation
@@ -70,11 +71,13 @@ Each task was committed atomically:
 3. **Task 3: Update long-press timing and wire to detail sheet** - `d0d4c86` (feat)
 
 ## Files Modified
+
 - `src/components/ui/menu/UnifiedMenuItemCard/GlassOverlay.tsx` - Added isolation: isolate, overflow: hidden, backface-visibility: hidden for Safari stability
 - `src/components/ui/menu/UnifiedMenuItemCard/CardImage.tsx` - Added useCanHover import and animated shine sweep for touch devices
 - `src/components/ui/menu/UnifiedMenuItemCard/UnifiedMenuItemCard.tsx` - Added 500ms long-press constant, touchStartPos ref, scroll cancellation logic
 
 ## Decisions Made
+
 - Safari fixes applied via inline styles (not new CSS classes) for specificity and component encapsulation
 - Touch shine uses existing `bg-gradient-card-shine` gradient for visual consistency
 - Long-press opens detail sheet (onSelect callback) rather than enabling mobile tilt play mode
@@ -85,6 +88,7 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 - Linter removed useCanHover import during auto-fix pass, had to re-add it manually
 - Pre-existing CSS lint errors in globals.css and tokens.css (not from this plan's changes)
 
@@ -93,11 +97,13 @@ None - plan executed exactly as written.
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Safari compositing issues addressed for glassmorphism + 3D transforms
 - Touch devices now have animated shine delight
 - Long-press gesture ready for detail sheet integration
 - Ready for next phase testing or additional mobile fixes
 
 ---
-*Phase: 30-mobile-stability*
-*Completed: 2026-01-28*
+
+_Phase: 30-mobile-stability_
+_Completed: 2026-01-28_

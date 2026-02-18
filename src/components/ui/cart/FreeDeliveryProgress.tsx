@@ -39,9 +39,7 @@ export function FreeDeliveryProgress({
 
   const progressPercent = Math.min(
     100,
-    ((FREE_DELIVERY_THRESHOLD_CENTS - amountToFreeDelivery) /
-      FREE_DELIVERY_THRESHOLD_CENTS) *
-      100
+    ((FREE_DELIVERY_THRESHOLD_CENTS - amountToFreeDelivery) / FREE_DELIVERY_THRESHOLD_CENTS) * 100
   );
 
   const hasFreeDelivery = amountToFreeDelivery === 0;
@@ -64,8 +62,7 @@ export function FreeDeliveryProgress({
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-amber-500" />
             <span className="text-sm font-semibold text-text-money">
-              ${(amountToFreeDelivery / 100).toFixed(2)} away from free
-              delivery!
+              ${(amountToFreeDelivery / 100).toFixed(2)} away from free delivery!
             </span>
           </div>
 

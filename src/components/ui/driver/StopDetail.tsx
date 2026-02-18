@@ -132,9 +132,7 @@ export function StopDetail({
           <span className="font-semibold text-text-primary">
             Stop {stopIndex} of {totalStops}
           </span>
-          <span className="font-medium text-green">
-            {progressPercent}%
-          </span>
+          <span className="font-medium text-green">{progressPercent}%</span>
         </div>
         <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-surface-tertiary">
           <m.div
@@ -201,9 +199,7 @@ export function StopDetail({
           <div className="flex-1">
             <p className="font-body text-sm text-text-muted">Delivery Address</p>
             <p className="font-body font-medium text-text-primary">{address.line1}</p>
-            {address.line2 && (
-              <p className="font-body text-text-secondary">{address.line2}</p>
-            )}
+            {address.line2 && <p className="font-body text-text-secondary">{address.line2}</p>}
             <p className="font-body text-text-secondary">
               {address.city}, {address.state} {address.zipCode}
             </p>
@@ -252,9 +248,7 @@ export function StopDetail({
           <div className="flex items-start gap-3">
             <FileText className="h-5 w-5 shrink-0 text-secondary-hover" />
             <div>
-              <p className="font-body text-sm font-medium text-secondary-hover">
-                Delivery Notes
-              </p>
+              <p className="font-body text-sm font-medium text-secondary-hover">Delivery Notes</p>
               <p className="mt-1 font-body text-text-primary">{deliveryNotes}</p>
             </div>
           </div>
@@ -286,9 +280,7 @@ export function StopDetail({
                     {item.quantity}x {item.name}
                   </p>
                   {item.modifiers && item.modifiers.length > 0 && (
-                    <p className="font-body text-sm text-text-muted">
-                      {item.modifiers.join(", ")}
-                    </p>
+                    <p className="font-body text-sm text-text-muted">{item.modifiers.join(", ")}</p>
                   )}
                 </div>
               </li>

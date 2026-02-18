@@ -14,6 +14,7 @@ Standardize spacing, typography, and border-radius across the codebase via desig
 ## Implementation Decisions
 
 ### Spacing Strategy
+
 - Tailwind scale preferred, custom values allowed for edge cases only
 - Custom spacing exceptions use CSS variables (not inline arbitrary values)
 - gap follows same rules as margin/padding
@@ -24,21 +25,24 @@ Standardize spacing, typography, and border-radius across the codebase via desig
 - Cards, list items, and form elements all need spacing attention
 
 ### Typography Approach
+
 - Tailwind font-size scale, but clamp() allowed for fluid typography
 - Font-weight: semantic only (font-normal, font-medium, font-semibold, font-bold)
-- Line-height: Tailwind leading-* only (no arbitrary values)
-- Letter-spacing: Tailwind tracking-* only
+- Line-height: Tailwind leading-\* only (no arbitrary values)
+- Letter-spacing: Tailwind tracking-\* only
 - Text truncation: Tailwind truncate/line-clamp only (no custom line-clamp)
 - Heading scale: Large (h1=text-4xl, h2=text-3xl, h3=text-2xl, h4=text-xl)
 - Body text: varies by context (cards smaller, pages larger)
 
 ### Border-radius Rules
+
 - Full Tailwind scale allowed (rounded-sm through rounded-full)
 - Category-based consistency: buttons share one value, inputs share another
 - Cards and modals can have different radii based on role
 - Custom radii via CSS variables if needed (not inline arbitrary)
 
 ### Migration Strategy
+
 - Claude decides optimal migration order
 - Fix all spacing inconsistencies within a component at once (not minimal changes)
 - Trust build passing for verification (no visual check required)
@@ -49,6 +53,7 @@ Standardize spacing, typography, and border-radius across the codebase via desig
 - Claude identifies highest-impact areas from audit data
 
 ### Claude's Discretion
+
 - Migration order (core primitives vs page layouts)
 - Specific ESLint rule configuration
 - Which components need most attention
@@ -74,5 +79,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 28-token-enforcement-layout*
-*Context gathered: 2026-01-28*
+_Phase: 28-token-enforcement-layout_
+_Context gathered: 2026-01-28_

@@ -1,9 +1,5 @@
 import { useCartStore, __clearDebounceState } from "@/lib/stores/cart-store";
-import {
-  DELIVERY_FEE_CENTS,
-  FREE_DELIVERY_THRESHOLD_CENTS,
-  MAX_ITEM_QUANTITY,
-} from "@/types/cart";
+import { DELIVERY_FEE_CENTS, FREE_DELIVERY_THRESHOLD_CENTS, MAX_ITEM_QUANTITY } from "@/types/cart";
 
 const baseItem = {
   menuItemId: "item-1",
@@ -40,9 +36,7 @@ describe("CartStore", () => {
       const store = useCartStore.getState();
       store.addItem({ ...baseItem, quantity: 100 });
 
-      expect(useCartStore.getState().items[0].quantity).toBe(
-        MAX_ITEM_QUANTITY
-      );
+      expect(useCartStore.getState().items[0].quantity).toBe(MAX_ITEM_QUANTITY);
     });
   });
 

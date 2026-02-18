@@ -70,30 +70,28 @@ export function Confetti({
   // Generate particles when activated
   useEffect(() => {
     if (isActive && !prefersReducedMotion) {
-      const newParticles: Particle[] = Array.from(
-        { length: particleCount },
-        (_, i) => ({
-          id: i,
-          x: Math.random() * 100, // Random horizontal position (%)
-          color: colors[Math.floor(Math.random() * colors.length)],
-          size: Math.random() * 8 + 6, // 6-14px
-          rotation: Math.random() * 720 - 360, // -360 to 360
-          delay: Math.random() * 0.3, // 0-0.3s delay
-          shape: ["circle", "square", "triangle"][
-            Math.floor(Math.random() * 3)
-          ] as Particle["shape"],
-        })
-      );
+      const newParticles: Particle[] = Array.from({ length: particleCount }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100, // Random horizontal position (%)
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: Math.random() * 8 + 6, // 6-14px
+        rotation: Math.random() * 720 - 360, // -360 to 360
+        delay: Math.random() * 0.3, // 0-0.3s delay
+        shape: ["circle", "square", "triangle"][Math.floor(Math.random() * 3)] as Particle["shape"],
+      }));
 
       setParticles(newParticles);
       setIsAnimating(true);
 
       // Cleanup after animation
-      const timer = setTimeout(() => {
-        setIsAnimating(false);
-        setParticles([]);
-        onComplete?.();
-      }, duration * 1000 + 500); // Extra buffer for exit animation
+      const timer = setTimeout(
+        () => {
+          setIsAnimating(false);
+          setParticles([]);
+          onComplete?.();
+        },
+        duration * 1000 + 500
+      ); // Extra buffer for exit animation
 
       return () => clearTimeout(timer);
     }
@@ -106,20 +104,13 @@ export function Confetti({
 
   return (
     <div
-      className={cn(
-        "pointer-events-none fixed inset-0 z-[100] overflow-hidden",
-        className
-      )}
+      className={cn("pointer-events-none fixed inset-0 z-[100] overflow-hidden", className)}
       aria-hidden="true"
     >
       <AnimatePresence>
         {isAnimating &&
           particles.map((particle) => (
-            <ConfettiParticle
-              key={particle.id}
-              particle={particle}
-              duration={duration}
-            />
+            <ConfettiParticle key={particle.id} particle={particle} duration={duration} />
           ))}
       </AnimatePresence>
     </div>
@@ -188,19 +179,9 @@ interface ParticleShapeProps {
 function ParticleShape({ shape, color }: ParticleShapeProps) {
   switch (shape) {
     case "circle":
-      return (
-        <div
-          className="h-full w-full rounded-full"
-          style={{ backgroundColor: color }}
-        />
-      );
+      return <div className="h-full w-full rounded-full" style={{ backgroundColor: color }} />;
     case "square":
-      return (
-        <div
-          className="h-full w-full rounded-sm"
-          style={{ backgroundColor: color }}
-        />
-      );
+      return <div className="h-full w-full rounded-sm" style={{ backgroundColor: color }} />;
     case "triangle":
       return (
         <div
@@ -237,11 +218,7 @@ export function useConfetti() {
     trigger,
     reset,
     Confetti: (props: Omit<ConfettiProps, "isActive" | "onComplete">) => (
-      <Confetti
-        {...props}
-        isActive={isActive}
-        onComplete={reset}
-      />
+      <Confetti {...props} isActive={isActive} onComplete={reset} />
     ),
   };
 }
@@ -328,10 +305,7 @@ export function SuccessAnimation({
                 completeTimeoutRef.current = null;
               }, 1500);
             }}
-            className={cn(
-              "flex flex-col items-center justify-center p-8",
-              className
-            )}
+            className={cn("flex flex-col items-center justify-center p-8", className)}
           >
             {/* Animated checkmark */}
             <m.div

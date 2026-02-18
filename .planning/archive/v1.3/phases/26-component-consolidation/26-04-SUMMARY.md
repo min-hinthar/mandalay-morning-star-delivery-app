@@ -85,6 +85,7 @@ The cart migration work was committed as part of the navigation/scroll/transitio
 ## Files Created/Modified
 
 **Created:**
+
 - `src/components/ui/cart/AddToCartButton.tsx` - Add to cart button with fly animation
 - `src/components/ui/cart/CartBar.tsx` - Fixed bottom cart summary bar
 - `src/components/ui/cart/CartButton.tsx` - Header cart button with badge
@@ -98,21 +99,23 @@ The cart migration work was committed as part of the navigation/scroll/transitio
 - `src/components/ui/cart/index.ts` - Barrel export
 
 **Modified:**
+
 - `src/app/providers.tsx` - Updated imports to ui/cart
 - `src/components/menu/menu-header.tsx` - CartButton import updated
 - `src/components/menu/UnifiedMenuItemCard/AddButton.tsx` - QuantitySelector, useFlyToCart imports
 - `src/components/ui/menu/ItemDetailSheet.tsx` - AddToCartButton import
 
 **Deleted:**
+
 - `src/components/ui-v8/cart/` - Entire directory removed
 
 ## Decisions Made
 
-| Decision | Rationale |
-|----------|-----------|
-| Use Drawer position="bottom" for mobile | Per 26-02 decision, BottomSheet merged into Drawer |
-| Import Modal from @/components/ui | Modal already migrated in Wave 1 (26-02) |
-| Keep naming simple (CartBar not CartBarBottomFixed) | Cleaner API, component name already descriptive |
+| Decision                                            | Rationale                                          |
+| --------------------------------------------------- | -------------------------------------------------- |
+| Use Drawer position="bottom" for mobile             | Per 26-02 decision, BottomSheet merged into Drawer |
+| Import Modal from @/components/ui                   | Modal already migrated in Wave 1 (26-02)           |
+| Keep naming simple (CartBar not CartBarBottomFixed) | Cleaner API, component name already descriptive    |
 
 ## Deviations from Plan
 
@@ -134,5 +137,6 @@ None - no external service configuration required.
 - No blockers for 26-05 (menu) or subsequent plans
 
 ---
-*Phase: 26-component-consolidation*
-*Completed: 2026-01-27*
+
+_Phase: 26-component-consolidation_
+_Completed: 2026-01-27_

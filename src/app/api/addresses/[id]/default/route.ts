@@ -4,10 +4,7 @@ import { transformAddress, type AddressRow } from "../../transform";
 import { logger } from "@/lib/utils/logger";
 
 // POST /api/addresses/[id]/default - Set as default
-export async function POST(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const supabase = await createClient();

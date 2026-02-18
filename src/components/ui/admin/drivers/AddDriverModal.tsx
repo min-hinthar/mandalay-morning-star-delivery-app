@@ -226,9 +226,7 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
 
           {/* Vehicle Type */}
           <div className="space-y-2">
-            <label className="text-sm font-body font-medium text-text-primary">
-              Vehicle Type
-            </label>
+            <label className="text-sm font-body font-medium text-text-primary">Vehicle Type</label>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {VEHICLE_OPTIONS.map((option) => (
                 <button
@@ -237,7 +235,9 @@ export function AddDriverModal({ open, onOpenChange, onSubmit }: AddDriverModalP
                   onClick={() =>
                     handleChange(
                       "vehicleType",
-                      formData.vehicleType === option.value ? undefined as unknown as VehicleType : option.value
+                      formData.vehicleType === option.value
+                        ? (undefined as unknown as VehicleType)
+                        : option.value
                     )
                   }
                   className={cn(

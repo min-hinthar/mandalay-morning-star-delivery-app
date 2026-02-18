@@ -89,9 +89,7 @@ export function NearbyBanner({ etaMinutes, isVisible }: NearbyBannerProps) {
             <MapPin className="h-4 w-4 text-jade-600" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-jade-700">
-              Your driver is almost here!
-            </p>
+            <p className="text-sm font-semibold text-jade-700">Your driver is almost here!</p>
             <p className="text-xs text-jade-600">
               Arriving in about {etaMinutes} minute{etaMinutes !== 1 ? "s" : ""}
             </p>

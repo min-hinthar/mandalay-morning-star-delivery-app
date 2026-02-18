@@ -25,26 +25,17 @@ export function SearchResultsGrid({
   isFavorite,
   onFavoriteToggle,
 }: SearchResultsGridProps) {
-
   if (isLoading && items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center px-4 py-20 text-center">
         <Loader2 className="mb-3 h-8 w-8 animate-spin text-muted-foreground" />
-        <p className="text-sm text-muted">
-          Searching{query ? ` for "${query}"` : ""}...
-        </p>
+        <p className="text-sm text-muted">Searching{query ? ` for "${query}"` : ""}...</p>
       </div>
     );
   }
 
   if (items.length === 0) {
-    return (
-      <MenuEmptyState
-        type="no-results"
-        searchQuery={query}
-        onClearSearch={onClearSearch}
-      />
-    );
+    return <MenuEmptyState type="no-results" searchQuery={query} onClearSearch={onClearSearch} />;
   }
 
   return (
@@ -62,21 +53,14 @@ export function SearchResultsGrid({
       {/* Responsive grid: 1 col mobile, 2 cols tablet, 3 cols desktop */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item, index) => (
-          <MenuCardWrapper
-            key={item.id}
-            itemId={item.id}
-            index={index}
-            replayOnScroll={true}
-          >
+          <MenuCardWrapper key={item.id} itemId={item.id} index={index} replayOnScroll={true}>
             <UnifiedMenuItemCard
               item={item}
               variant="menu"
               onSelect={onItemSelect}
               isFavorite={isFavorite?.(item.id)}
               onFavoriteToggle={
-                onFavoriteToggle
-                  ? (menuItem) => onFavoriteToggle(menuItem)
-                  : undefined
+                onFavoriteToggle ? (menuItem) => onFavoriteToggle(menuItem) : undefined
               }
               priority={index < 4}
             />

@@ -1,11 +1,13 @@
 # docs/00-context-pack.md (v1.0) — A La Carte Saturday Delivery
 
 ## Product
-Mandalay Morning Star — account-based, a la carte ordering from a full categorized menu for *upcoming Saturday delivery* in Southern California. Inspired by Panda Express-style ordering UX: fast category browsing, item detail modals, cart drawer, scheduled pickup/delivery selection, clean checkout.
+
+Mandalay Morning Star — account-based, a la carte ordering from a full categorized menu for _upcoming Saturday delivery_ in Southern California. Inspired by Panda Express-style ordering UX: fast category browsing, item detail modals, cart drawer, scheduled pickup/delivery selection, clean checkout.
 
 ## Core Business Rules
 
 ### Delivery Schedule
+
 - Delivery day: **Saturday only**
 - Delivery hours: **11:00–19:00 PT**
 - Customer selects an **hourly delivery window** (e.g., 14:00–15:00).
@@ -14,12 +16,14 @@ Mandalay Morning Star — account-based, a la carte ordering from a full categor
   - Address/time window changes are allowed **until cutoff**.
 
 ### Delivery Fee (Threshold Pricing)
+
 - If **items subtotal < $100**: delivery fee = **$15**
 - If **items subtotal ≥ $100**: delivery fee = **$0**
-- “Items subtotal” = sum of (menu item base price + modifier price deltas) * quantity (pre-tax, pre-fee).
+- “Items subtotal” = sum of (menu item base price + modifier price deltas) \* quantity (pre-tax, pre-fee).
 - (Optional v1 decision) Tips: enabled by default; stored separately from delivery fee.
 
 ### Coverage
+
 - Kitchen origin: 750 Terrado Plaza, Suite 33, Covina, CA 91723
 - Coverage hard limits:
   - **max distance = 50 miles**
@@ -29,11 +33,13 @@ Mandalay Morning Star — account-based, a la carte ordering from a full categor
 - If out of coverage: block checkout and clearly explain why.
 
 ### Account Requirement
+
 - Customers must create an account to place orders.
 - Support multiple saved addresses per user.
 - Delivery notes allowed (customer → driver/admin).
 
 ## Menu Model (A La Carte)
+
 - Full categorized menu (CRUD by admin).
 - Items can have:
   - categories (one primary, optional secondary tags)
@@ -46,6 +52,7 @@ Mandalay Morning Star — account-based, a la carte ordering from a full categor
   - item notes (optional)
 
 Initial categories to mirror DoorDash taxonomy:
+
 - Most Ordered
 - Noodles
 - Salads
@@ -56,6 +63,7 @@ Initial categories to mirror DoorDash taxonomy:
 - Drinks
 
 ## Order Lifecycle (Statuses)
+
 - draft (cart)
 - pending_payment
 - paid
@@ -67,16 +75,19 @@ Initial categories to mirror DoorDash taxonomy:
 - refunded (admin-only, via Stripe)
 
 ## Real-Time Tracking
+
 - Driver GPS location updates every ~5 minutes.
 - Milestones + statuses (in_kitchen → out_for_delivery → arriving → delivered).
 - Customer sees live map + ETA band (best-effort) and status timeline.
 
 ## Personas
+
 - Customer: browse menu, add to cart, schedule Saturday time window, pay, track delivery, view history
 - Admin: manage menu/categories/modifiers, manage orders, manage drivers/routes, refunds, exceptions
 - Driver: see assigned route/stops, update status, location pings, mark delivered (+ optional photo), notes
 
 ## Tech Stack (Hard Requirements)
+
 - Next.js App Router + TypeScript (strict)
 - Tailwind + shadcn/ui + Framer Motion (branded + premium; not generic)
 - Supabase Auth + Postgres + strict RLS
@@ -85,6 +96,7 @@ Initial categories to mirror DoorDash taxonomy:
 - CI gates all PRs (lint/typecheck/tests/build)
 
 ## UX Bar (Panda Express-style)
+
 - Sticky category tabs + search
 - Item cards grid; tap opens item detail modal
 - Cart drawer slide-over (mobile-first)

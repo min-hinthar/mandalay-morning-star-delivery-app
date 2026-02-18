@@ -22,11 +22,7 @@ interface PhotoUploadZoneProps {
   className?: string;
 }
 
-export function PhotoUploadZone({
-  menuItemId,
-  onUploadComplete,
-  className,
-}: PhotoUploadZoneProps) {
+export function PhotoUploadZone({ menuItemId, onUploadComplete, className }: PhotoUploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
 
@@ -55,23 +51,15 @@ export function PhotoUploadZone({
       for (const uploadFile of validFiles) {
         // Update status to uploading
         setUploadingFiles((prev) =>
-          prev.map((f) =>
-            f.id === uploadFile.id ? { ...f, status: "uploading" } : f
-          )
+          prev.map((f) => (f.id === uploadFile.id ? { ...f, status: "uploading" } : f))
         );
 
         try {
-          const result = await uploadMenuPhoto(
-            uploadFile.file,
-            menuItemId,
-            (progress) => {
-              setUploadingFiles((prev) =>
-                prev.map((f) =>
-                  f.id === uploadFile.id ? { ...f, progress: progress.percent } : f
-                )
-              );
-            }
-          );
+          const result = await uploadMenuPhoto(uploadFile.file, menuItemId, (progress) => {
+            setUploadingFiles((prev) =>
+              prev.map((f) => (f.id === uploadFile.id ? { ...f, progress: progress.percent } : f))
+            );
+          });
 
           // If menuItemId provided, also register with the API
           if (menuItemId) {
@@ -89,9 +77,7 @@ export function PhotoUploadZone({
 
           setUploadingFiles((prev) =>
             prev.map((f) =>
-              f.id === uploadFile.id
-                ? { ...f, status: "success", progress: 100, result }
-                : f
+              f.id === uploadFile.id ? { ...f, status: "success", progress: 100, result } : f
             )
           );
         } catch (error) {
@@ -101,8 +87,7 @@ export function PhotoUploadZone({
                 ? {
                     ...f,
                     status: "error",
-                    error:
-                      error instanceof Error ? error.message : "Upload failed",
+                    error: error instanceof Error ? error.message : "Upload failed",
                   }
                 : f
             )
@@ -116,9 +101,7 @@ export function PhotoUploadZone({
 
       // Clear completed uploads after delay
       setTimeout(() => {
-        setUploadingFiles((prev) =>
-          prev.filter((f) => f.status !== "success")
-        );
+        setUploadingFiles((prev) => prev.filter((f) => f.status !== "success"));
       }, 3000);
     },
     [menuItemId, onUploadComplete]
@@ -184,10 +167,7 @@ export function PhotoUploadZone({
         )}
       >
         <label className="flex flex-col items-center justify-center gap-4 p-8 cursor-pointer">
-          <m.div
-            animate={{ y: isDragging ? -4 : 0 }}
-            className="rounded-full bg-primary/10 p-4"
-          >
+          <m.div animate={{ y: isDragging ? -4 : 0 }} className="rounded-full bg-primary/10 p-4">
             <Upload className="h-8 w-8 text-primary" />
           </m.div>
 
@@ -200,12 +180,7 @@ export function PhotoUploadZone({
             </p>
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="pointer-events-none"
-          >
+          <Button type="button" variant="outline" size="sm" className="pointer-events-none">
             Select Files
           </Button>
 

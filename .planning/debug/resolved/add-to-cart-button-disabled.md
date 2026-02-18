@@ -42,11 +42,11 @@ started: Current behavior
 - timestamp: 2026-01-30T00:04:00.000Z
   checked: FlyToCart.tsx useFlyToCart hook lines 91-177
   found: |
-    Line 94: Early return if isAnimating is already true - guards against double animation
-    Line 102: setIsAnimating(true) - sets animation as running
-    Line 146: setIsAnimating(false) - only reset in GSAP onComplete callback
-    PROBLEM: If GSAP timeline never completes (error, killed, or timeout), isAnimating stays true FOREVER
-    The useEffect cleanup at lines 72-89 kills the timeline but does NOT reset isAnimating!
+  Line 94: Early return if isAnimating is already true - guards against double animation
+  Line 102: setIsAnimating(true) - sets animation as running
+  Line 146: setIsAnimating(false) - only reset in GSAP onComplete callback
+  PROBLEM: If GSAP timeline never completes (error, killed, or timeout), isAnimating stays true FOREVER
+  The useEffect cleanup at lines 72-89 kills the timeline but does NOT reset isAnimating!
   implication: ROOT CAUSE FOUND - cleanup kills timeline but leaves isAnimating=true in global store
 
 - timestamp: 2026-01-30T00:05:00.000Z
@@ -57,41 +57,45 @@ started: Current behavior
 ## Resolution
 
 root_cause: |
-  In useFlyToCart hook (FlyToCart.tsx), when the component unmounts during an active animation:
-  1. useEffect cleanup at line 76-81 kills the GSAP timeline (timeline.current.kill())
-  2. This prevents the onComplete callback from ever firing
-  3. The onComplete callback at line 146 is the ONLY place that calls setIsAnimating(false)
-  4. isAnimating is stored in a GLOBAL Zustand store, so it persists forever
-  5. All AddToCartButtons check isAnimating on line 205: `isDisabled = disabled || state === "loading" || isAnimating`
-  6. Result: Button stays disabled until page refresh
+In useFlyToCart hook (FlyToCart.tsx), when the component unmounts during an active animation:
 
-  This is exacerbated by:
-  - Rapid clicking (starting new animation while old one running)
-  - Closing the sheet while animation is in progress
-  - Any GSAP errors that prevent onComplete from firing
+1. useEffect cleanup at line 76-81 kills the GSAP timeline (timeline.current.kill())
+2. This prevents the onComplete callback from ever firing
+3. The onComplete callback at line 146 is the ONLY place that calls setIsAnimating(false)
+4. isAnimating is stored in a GLOBAL Zustand store, so it persists forever
+5. All AddToCartButtons check isAnimating on line 205: `isDisabled = disabled || state === "loading" || isAnimating`
+6. Result: Button stays disabled until page refresh
+
+This is exacerbated by:
+
+- Rapid clicking (starting new animation while old one running)
+- Closing the sheet while animation is in progress
+- Any GSAP errors that prevent onComplete from firing
 
 fix: |
-  Modified FlyToCart.tsx useFlyToCart hook with two changes:
+Modified FlyToCart.tsx useFlyToCart hook with two changes:
 
-  1. **Cleanup effect now resets isAnimating (lines 78-83):**
-     - When timeline is killed on unmount, now also calls setIsAnimating(false)
-     - Added setFlyingElement(null) cleanup as well
-     - Added setIsAnimating and setFlyingElement to useEffect deps
+1. **Cleanup effect now resets isAnimating (lines 78-83):**
+   - When timeline is killed on unmount, now also calls setIsAnimating(false)
+   - Added setFlyingElement(null) cleanup as well
+   - Added setIsAnimating and setFlyingElement to useEffect deps
 
-  2. **Added try-catch around animation setup (lines 108-195):**
-     - Wraps entire flying element creation and GSAP timeline setup
-     - If any error occurs, catch block cleans up flyingEl and resets isAnimating
-     - Ensures isAnimating is NEVER left stuck true regardless of how fly() fails
+2. **Added try-catch around animation setup (lines 108-195):**
+   - Wraps entire flying element creation and GSAP timeline setup
+   - If any error occurs, catch block cleans up flyingEl and resets isAnimating
+   - Ensures isAnimating is NEVER left stuck true regardless of how fly() fails
 
 verification: |
-  - TypeScript: PASS (npm run typecheck)
-  - ESLint: PASS (npm run lint)
-  - Build: PASS (npm run build)
-  - Tests: PASS (cart-store tests all passing)
-  - Manual: Button will now properly re-enable even if:
-    - Sheet is closed during animation
-    - Component unmounts mid-animation
-    - Any JS error occurs during animation setup
+
+- TypeScript: PASS (npm run typecheck)
+- ESLint: PASS (npm run lint)
+- Build: PASS (npm run build)
+- Tests: PASS (cart-store tests all passing)
+- Manual: Button will now properly re-enable even if:
+  - Sheet is closed during animation
+  - Component unmounts mid-animation
+  - Any JS error occurs during animation setup
 
 files_changed:
-  - src/components/ui/cart/FlyToCart.tsx
+
+- src/components/ui/cart/FlyToCart.tsx

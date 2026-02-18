@@ -41,15 +41,12 @@ export async function POST(request: Request) {
     if (!emailType || !VALID_EMAIL_TYPES.includes(emailType as EmailType)) {
       return NextResponse.json(
         { error: `Invalid emailType. Valid: ${VALID_EMAIL_TYPES.join(", ")}` },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     if (!recipientEmail || typeof recipientEmail !== "string" || !recipientEmail.includes("@")) {
-      return NextResponse.json(
-        { error: "Valid recipientEmail is required" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Valid recipientEmail is required" }, { status: 400 });
     }
 
     const type = emailType as EmailType;
@@ -77,10 +74,7 @@ export async function POST(request: Request) {
         emailType: type,
         error: error.message,
       });
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     logger.info("Test email sent", {
@@ -96,10 +90,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     logger.exception(error, { api: "emails/test" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 

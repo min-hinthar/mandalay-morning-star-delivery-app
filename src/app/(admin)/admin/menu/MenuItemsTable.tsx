@@ -1,13 +1,7 @@
-'use client';
+"use client";
 
 import { m } from "framer-motion";
-import {
-  Edit2,
-  Trash2,
-  ToggleLeft,
-  ToggleRight,
-  AlertCircle,
-} from "lucide-react";
+import { Edit2, Trash2, ToggleLeft, ToggleRight, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/currency";
 import { Button } from "@/components/ui/button";
@@ -138,12 +132,8 @@ export function MenuItemsTable({
                           </div>
                         )}
                         <div>
-                          <p className="font-body font-medium text-text-primary">
-                            {item.name_en}
-                          </p>
-                          <p className="text-xs font-body text-text-muted font-mono">
-                            {item.slug}
-                          </p>
+                          <p className="font-body font-medium text-text-primary">{item.name_en}</p>
+                          <p className="text-xs font-body text-text-muted font-mono">{item.slug}</p>
                         </div>
                       </div>
                     </TableCell>
@@ -213,9 +203,7 @@ export function MenuItemsTable({
                         >
                           <DropdownMenuItem
                             className="font-body hover:bg-surface-tertiary cursor-pointer"
-                            onClick={() =>
-                              (window.location.href = `/admin/menu/${item.id}`)
-                            }
+                            onClick={() => (window.location.href = `/admin/menu/${item.id}`)}
                           >
                             <Edit2 className="mr-2 h-4 w-4" />
                             Edit Details

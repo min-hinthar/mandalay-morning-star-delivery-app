@@ -38,9 +38,7 @@ export function useIsMobile(): boolean {
  * Use for tablet-specific layouts, side-by-side content
  */
 export function useIsTablet(): boolean {
-  return useMediaQuery(
-    `(min-width: ${breakpoints.sm}px) and (max-width: ${breakpoints.lg - 1}px)`
-  );
+  return useMediaQuery(`(min-width: ${breakpoints.sm}px) and (max-width: ${breakpoints.lg - 1}px)`);
 }
 
 /**

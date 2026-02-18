@@ -48,9 +48,7 @@ const Checkbox = React.forwardRef<
           className="flex items-center justify-center text-text-inverse"
           initial={shouldAnimate ? { scale: 0.5 } : undefined}
           animate={shouldAnimate ? { scale: 1 } : undefined}
-          transition={
-            shouldAnimate ? getSpring(spring.rubbery) : undefined
-          }
+          transition={shouldAnimate ? getSpring(spring.rubbery) : undefined}
         >
           <svg
             width="12"

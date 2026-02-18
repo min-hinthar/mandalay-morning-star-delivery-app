@@ -5,12 +5,27 @@
       "z-index": ["/^[2-9]\\d*$/", "/^-?[2-9]\\d*$/"],
       "message": "Use z-index CSS variable (e.g., var(--z-modal)) instead of hardcoded number. See docs/STACKING-CONTEXT.md"
     },
-    "at-rule-no-unknown": [true, {
-      "ignoreAtRules": ["tailwind", "apply", "layer", "config", "theme", "custom-variant", "utility", "source"]
-    }],
-    "function-no-unknown": [true, {
-      "ignoreFunctions": ["theme", "var"]
-    }],
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "tailwind",
+          "apply",
+          "layer",
+          "config",
+          "theme",
+          "custom-variant",
+          "utility",
+          "source"
+        ]
+      }
+    ],
+    "function-no-unknown": [
+      true,
+      {
+        "ignoreFunctions": ["theme", "var"]
+      }
+    ],
     "import-notation": null,
     "color-function-notation": null,
     "color-function-alias-notation": null,
@@ -28,11 +43,17 @@
     "declaration-block-no-duplicate-custom-properties": null,
     "value-keyword-case": null,
     "declaration-block-no-redundant-longhand-properties": null,
-    "no-invalid-position-at-import-rule": [true, {
-      "ignoreAtRules": ["tailwind", "source"]
-    }],
-    "custom-property-pattern": ["^([a-z][a-z0-9]*)(-[a-z0-9]+)*(--.+)?$", {
-      "message": "Expected custom property name to be kebab-case (allowing double-dash for modifiers)"
-    }]
+    "no-invalid-position-at-import-rule": [
+      true,
+      {
+        "ignoreAtRules": ["tailwind", "source"]
+      }
+    ],
+    "custom-property-pattern": [
+      "^([a-z][a-z0-9]*)(-[a-z0-9]+)*(--.+)?$",
+      {
+        "message": "Expected custom property name to be kebab-case (allowing double-dash for modifiers)"
+      }
+    ]
   }
 }

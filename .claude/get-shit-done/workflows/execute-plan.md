@@ -22,9 +22,9 @@ Default to "balanced" if not set.
 
 **Model lookup table:**
 
-| Agent | quality | balanced | budget |
-|-------|---------|----------|--------|
-| gsd-executor | opus | sonnet | sonnet |
+| Agent        | quality | balanced | budget |
+| ------------ | ------- | -------- | ------ |
+| gsd-executor | opus    | sonnet   | sonnet |
 
 Store resolved model for use in Task calls below.
 </step>
@@ -121,6 +121,7 @@ cat .planning/config.json 2>/dev/null
 [Plan X of Y for Phase Z]
 
 Starting execution...
+
 ```
 
 Proceed directly to parse_segments step.
@@ -130,11 +131,13 @@ Proceed directly to parse_segments step.
 Present:
 
 ```
+
 Found plan to execute: {phase}-{plan}-PLAN.md
 [Plan X of Y for Phase Z]
 
 Proceed with execution?
-```
+
+````
 
 Wait for confirmation before proceeding.
 </if>
@@ -146,7 +149,7 @@ Record execution start time for performance tracking:
 ```bash
 PLAN_START_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 PLAN_START_EPOCH=$(date +%s)
-```
+````
 
 Store in shell variables for duration calculation at completion.
 </step>
@@ -340,6 +343,7 @@ fi
 ```
 
 **If interrupted agent found:**
+
 - The agent ID file exists from a previous session that didn't complete
 - This agent can potentially be resumed using Task tool's `resume` parameter
 - Present to user: "Previous session was interrupted. Resume agent [ID] or start fresh?"
@@ -349,15 +353,17 @@ fi
 **3. Prune old entries (housekeeping):**
 
 If agent-history.json has more than `max_entries`:
+
 - Remove oldest entries with status "completed"
 - Never remove entries with status "spawned" (may need resume)
 - Keep file under size limit for fast reads
 
 **When to run this step:**
+
 - Pattern A (fully autonomous): Before spawning the single subagent
 - Pattern B (segmented): Before the segment execution loop
 - Pattern C (main context): Skip - no subagents spawned
-</step>
+  </step>
 
 <step name="segment_execution">
 **Detailed segment execution loop for segmented plans.**
@@ -499,7 +505,7 @@ Execution:
 → Subagent completes: 3 files modified, 0 deviations
 [2] Executing checkpoint 4 (human-verify)...
 ╔═══════════════════════════════════════════════════════╗
-║  CHECKPOINT: Verification Required                    ║
+║ CHECKPOINT: Verification Required ║
 ╚═══════════════════════════════════════════════════════╝
 
 Progress: 3/8 tasks complete
@@ -508,7 +514,8 @@ Task: Verify database schema
 Built: User and Session tables with relations
 
 How to verify:
-  1. Check src/db/schema.ts for correct types
+
+1. Check src/db/schema.ts for correct types
 
 ────────────────────────────────────────────────────────
 → YOUR ACTION: Type "approved" or describe issues
@@ -603,7 +610,6 @@ Execute each task in the prompt. **Deviations are normal** - handle them automat
    - Continue to next task
 
    **If `type="checkpoint:*"`:**
-
    - STOP immediately (do not continue to next task)
    - Execute checkpoint_protocol (see below)
    - Wait for user response
@@ -928,12 +934,14 @@ None - plan executed exactly as written.
 </deviation_documentation>
 
 <tdd_plan_execution>
+
 ## TDD Plan Execution
 
 When executing a plan with `type: tdd` in frontmatter, follow the RED-GREEN-REFACTOR cycle for the single feature defined in the plan.
 
 **1. Check test infrastructure (if first TDD plan):**
 If no test framework configured:
+
 - Detect project type from package.json/requirements.txt/etc.
 - Install minimal test framework (Jest, pytest, Go testing, etc.)
 - Create test config file
@@ -941,6 +949,7 @@ If no test framework configured:
 - This is part of the RED phase, not a separate task
 
 **2. RED - Write failing test:**
+
 - Read `<behavior>` element for test specification
 - Create test file if doesn't exist (follow project conventions)
 - Write test(s) that describe expected behavior
@@ -948,29 +957,34 @@ If no test framework configured:
 - Commit: `test({phase}-{plan}): add failing test for [feature]`
 
 **3. GREEN - Implement to pass:**
+
 - Read `<implementation>` element for guidance
 - Write minimal code to make test pass
 - Run tests - MUST pass
 - Commit: `feat({phase}-{plan}): implement [feature]`
 
 **4. REFACTOR (if needed):**
+
 - Clean up code if obvious improvements
 - Run tests - MUST still pass
 - Commit only if changes made: `refactor({phase}-{plan}): clean up [feature]`
 
 **Commit pattern for TDD plans:**
 Each TDD plan produces 2-3 atomic commits:
+
 1. `test({phase}-{plan}): add failing test for X`
 2. `feat({phase}-{plan}): implement X`
 3. `refactor({phase}-{plan}): clean up X` (optional)
 
 **Error handling:**
+
 - If test doesn't fail in RED phase: Test is wrong or feature already exists. Investigate before proceeding.
 - If test doesn't pass in GREEN phase: Debug implementation, keep iterating until green.
 - If tests fail in REFACTOR phase: Undo refactor, commit was premature.
 
 **Verification:**
 After TDD plan completion, ensure:
+
 - All tests pass
 - Test coverage for the new behavior exists
 - No unrelated tests broken
@@ -978,6 +992,7 @@ After TDD plan completion, ensure:
 **Why TDD uses dedicated plans:** TDD requires 2-3 execution cycles (RED → GREEN → REFACTOR), each with file reads, test runs, and potential debugging. This consumes 40-50% of context for a single feature. Dedicated plans ensure full quality throughout the cycle.
 
 **Comparison:**
+
 - Standard plans: Multiple tasks, 1 commit per task, 2-4 commits total
 - TDD plans: Single feature, 2-3 commits for RED/GREEN/REFACTOR cycle
 
@@ -985,6 +1000,7 @@ See `./.claude/get-shit-done/references/tdd.md` for TDD plan structure.
 </tdd_plan_execution>
 
 <task_commit>
+
 ## Task Commit Protocol
 
 After each task completes (verification passed, done criteria met), commit immediately:
@@ -1009,16 +1025,16 @@ git add src/types/user.ts
 
 **3. Determine commit type:**
 
-| Type | When to Use | Example |
-|------|-------------|---------|
-| `feat` | New feature, endpoint, component, functionality | feat(08-02): create user registration endpoint |
-| `fix` | Bug fix, error correction | fix(08-02): correct email validation regex |
-| `test` | Test-only changes (TDD RED phase) | test(08-02): add failing test for password hashing |
-| `refactor` | Code cleanup, no behavior change (TDD REFACTOR phase) | refactor(08-02): extract validation to helper |
-| `perf` | Performance improvement | perf(08-02): add database index for user lookups |
-| `docs` | Documentation changes | docs(08-02): add API endpoint documentation |
-| `style` | Formatting, linting fixes | style(08-02): format auth module |
-| `chore` | Config, tooling, dependencies | chore(08-02): add bcrypt dependency |
+| Type       | When to Use                                           | Example                                            |
+| ---------- | ----------------------------------------------------- | -------------------------------------------------- |
+| `feat`     | New feature, endpoint, component, functionality       | feat(08-02): create user registration endpoint     |
+| `fix`      | Bug fix, error correction                             | fix(08-02): correct email validation regex         |
+| `test`     | Test-only changes (TDD RED phase)                     | test(08-02): add failing test for password hashing |
+| `refactor` | Code cleanup, no behavior change (TDD REFACTOR phase) | refactor(08-02): extract validation to helper      |
+| `perf`     | Performance improvement                               | perf(08-02): add database index for user lookups   |
+| `docs`     | Documentation changes                                 | docs(08-02): add API endpoint documentation        |
+| `style`    | Formatting, linting fixes                             | style(08-02): format auth module                   |
+| `chore`    | Config, tooling, dependencies                         | chore(08-02): add bcrypt dependency                |
 
 **4. Craft commit message:**
 
@@ -1064,11 +1080,13 @@ echo "Task ${TASK_NUM} committed: ${TASK_COMMIT}"
 ```
 
 Store in array or list for SUMMARY generation:
+
 ```bash
 TASK_COMMITS+=("Task ${TASK_NUM}: ${TASK_COMMIT}")
 ```
 
 **Atomic commit benefits:**
+
 - Each task independently revertable
 - Git bisect finds exact failing task
 - Git blame traces line to specific task context
@@ -1219,6 +1237,7 @@ Type "done" when Convex is authenticated and project created.
 **After you return:**
 
 The orchestrator will:
+
 1. Parse your structured return
 2. Present checkpoint details to the user
 3. Collect user's response
@@ -1314,10 +1333,10 @@ Create `.planning/phases/XX-name/{phase}-USER-SETUP.md` using template from `./.
 
 ## Environment Variables
 
-| Status | Variable | Source | Add to |
-|--------|----------|--------|--------|
-| [ ] | `STRIPE_SECRET_KEY` | Stripe Dashboard → Developers → API keys → Secret key | `.env.local` |
-| [ ] | `STRIPE_WEBHOOK_SECRET` | Stripe Dashboard → Developers → Webhooks → Signing secret | `.env.local` |
+| Status | Variable                | Source                                                    | Add to       |
+| ------ | ----------------------- | --------------------------------------------------------- | ------------ |
+| [ ]    | `STRIPE_SECRET_KEY`     | Stripe Dashboard → Developers → API keys → Secret key     | `.env.local` |
+| [ ]    | `STRIPE_WEBHOOK_SECRET` | Stripe Dashboard → Developers → Webhooks → Signing secret | `.env.local` |
 
 ## Dashboard Configuration
 
@@ -1337,6 +1356,7 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 [Verification commands based on service]
 
 ---
+
 **Once all items complete:** Mark status as "Complete"
 ```
 
@@ -1535,7 +1555,7 @@ ROADMAP_FILE=".planning/ROADMAP.md"
 
 - Mark phase complete: status → "Complete"
 - Add completion date
-</step>
+  </step>
 
 <step name="git_commit_metadata">
 Commit execution metadata (SUMMARY + STATE + ROADMAP):
@@ -1546,12 +1566,14 @@ PLAN.md was already committed during plan-phase. This final commit captures exec
 **Check planning config:**
 
 If `COMMIT_PLANNING_DOCS=false` (set in load_project_state):
+
 - Skip all git operations for .planning/ files
 - Planning docs exist locally but are gitignored
 - Log: "Skipping planning docs commit (commit_docs: false)"
 - Proceed to next step
 
 If `COMMIT_PLANNING_DOCS=true` (default):
+
 - Continue with git operations below
 
 **1. Stage execution artifacts:**
@@ -1635,16 +1657,17 @@ git diff --name-only ${FIRST_TASK}^..HEAD 2>/dev/null
 
 **Update only if structural changes occurred:**
 
-| Change Detected | Update Action |
-|-----------------|---------------|
-| New directory in src/ | STRUCTURE.md: Add to directory layout |
-| package.json deps changed | STACK.md: Add/remove from dependencies list |
-| New file pattern (e.g., first .test.ts) | CONVENTIONS.md: Note new pattern |
-| New external API client | INTEGRATIONS.md: Add service entry with file path |
-| Config file added/changed | STACK.md: Update configuration section |
-| File renamed/moved | Update paths in relevant docs |
+| Change Detected                         | Update Action                                     |
+| --------------------------------------- | ------------------------------------------------- |
+| New directory in src/                   | STRUCTURE.md: Add to directory layout             |
+| package.json deps changed               | STACK.md: Add/remove from dependencies list       |
+| New file pattern (e.g., first .test.ts) | CONVENTIONS.md: Note new pattern                  |
+| New external API client                 | INTEGRATIONS.md: Add service entry with file path |
+| Config file added/changed               | STACK.md: Update configuration section            |
+| File renamed/moved                      | Update paths in relevant docs                     |
 
 **Skip update if only:**
+
 - Code changes within existing files
 - Bug fixes
 - Content changes (no structural impact)
@@ -1705,16 +1728,17 @@ State the counts: "This phase has [X] plans and [Y] summaries."
 
 Compare the counts from Step 1:
 
-| Condition | Meaning | Action |
-|-----------|---------|--------|
+| Condition         | Meaning           | Action            |
+| ----------------- | ----------------- | ----------------- |
 | summaries < plans | More plans remain | Go to **Route A** |
-| summaries = plans | Phase complete | Go to Step 3 |
+| summaries = plans | Phase complete    | Go to Step 3      |
 
 ---
 
 **Route A: More plans remain in this phase**
 
 Identify the next unexecuted plan:
+
 - Find the first PLAN.md file that has no matching SUMMARY.md
 - Read its `<objective>` section
 
@@ -1726,6 +1750,7 @@ Summary: .planning/phases/{phase-dir}/{phase}-{plan}-SUMMARY.md
 {Y} of {X} plans complete for Phase {Z}.
 
 ⚡ Auto-continuing: Execute next plan ({phase}-{next-plan})
+
 ```
 
 Loop back to identify_plan step automatically.
@@ -1733,6 +1758,7 @@ Loop back to identify_plan step automatically.
 
 <if mode="interactive" OR="custom with gates.execute_next_plan true">
 ```
+
 Plan {phase}-{plan} complete.
 Summary: .planning/phases/{phase-dir}/{phase}-{plan}-SUMMARY.md
 
@@ -1751,10 +1777,12 @@ Summary: .planning/phases/{phase-dir}/{phase}-{plan}-SUMMARY.md
 ---
 
 **Also available:**
+
 - `/gsd:verify-work {phase}-{plan}` — manual acceptance testing before continuing
 - Review what was built before continuing
 
 ---
+
 ```
 
 Wait for user to clear and run next command.
@@ -1792,6 +1820,7 @@ State: "Current phase is {X}. Milestone has {N} phases (highest: {Y})."
 Read ROADMAP.md to get the next phase's name and goal.
 
 ```
+
 Plan {phase}-{plan} complete.
 Summary: .planning/phases/{phase-dir}/{phase}-{plan}-SUMMARY.md
 
@@ -1812,11 +1841,13 @@ All {Y} plans finished.
 ---
 
 **Also available:**
+
 - `/gsd:verify-work {Z}` — manual acceptance testing before continuing
 - `/gsd:discuss-phase {Z+1}` — gather context first
 - Review phase accomplishments before continuing
 
 ---
+
 ```
 
 ---
@@ -1824,6 +1855,7 @@ All {Y} plans finished.
 **Route C: Milestone complete (all phases done)**
 
 ```
+
 🎉 MILESTONE COMPLETE!
 
 Plan {phase}-{plan} complete.
@@ -1834,7 +1866,7 @@ Summary: .planning/phases/{phase-dir}/{phase}-{plan}-SUMMARY.md
 All {Y} plans finished.
 
 ╔═══════════════════════════════════════════════════════╗
-║  All {N} phases complete! Milestone is 100% done.     ║
+║ All {N} phases complete! Milestone is 100% done. ║
 ╚═══════════════════════════════════════════════════════╝
 
 ---
@@ -1850,11 +1882,13 @@ All {Y} plans finished.
 ---
 
 **Also available:**
+
 - `/gsd:verify-work` — manual acceptance testing before completing milestone
 - `/gsd:add-phase <description>` — add another phase before completing
 - Review accomplishments before archiving
 
 ---
+
 ```
 
 </step>
@@ -1872,3 +1906,4 @@ All {Y} plans finished.
 - If codebase map exists: map updated with execution changes (or skipped if no significant changes)
 - If USER-SETUP.md created: prominently surfaced in completion output
   </success_criteria>
+```

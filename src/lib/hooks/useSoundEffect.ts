@@ -81,8 +81,7 @@ export function useSoundEffect() {
         try {
           const AudioContextClass =
             window.AudioContext ||
-            (window as unknown as { webkitAudioContext: typeof AudioContext })
-              .webkitAudioContext;
+            (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
           if (AudioContextClass) {
             audioContextRef.current = new AudioContextClass();
           }
@@ -152,10 +151,7 @@ export function useSoundEffect() {
 
         // Fade out to avoid clicks (amplitude envelope)
         gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(
-          0.001,
-          ctx.currentTime + config.duration
-        );
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + config.duration);
 
         oscillator.start(ctx.currentTime);
         oscillator.stop(ctx.currentTime + config.duration);

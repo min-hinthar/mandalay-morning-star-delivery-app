@@ -13,22 +13,22 @@ The z-index token migration is complete. All hardcoded z-index values have been 
 
 ### Key Outcomes
 
-| Metric | Before | After |
-|--------|--------|-------|
-| Violations | 64 | 0 |
-| ESLint severity | warn | error |
-| Token coverage | 0% | 100% |
+| Metric          | Before | After |
+| --------------- | ------ | ----- |
+| Violations      | 64     | 0     |
+| ESLint severity | warn   | error |
+| Token coverage  | 0%     | 100%  |
 
 ### Token Mapping Used
 
-| Old Pattern | New Token | Use Case |
-|-------------|-----------|----------|
-| z-10 | z-dropdown | Dropdowns, popovers |
-| z-20 | z-sticky | Sticky headers, nav |
-| z-30 | z-fixed | Fixed position elements |
-| z-40 | z-modal | Modals, dialogs |
-| z-50 | z-toast | Toast notifications |
-| zIndex: N | zIndex.modal, zIndex.max | Inline style tokens |
+| Old Pattern | New Token                | Use Case                |
+| ----------- | ------------------------ | ----------------------- |
+| z-10        | z-dropdown               | Dropdowns, popovers     |
+| z-20        | z-sticky                 | Sticky headers, nav     |
+| z-30        | z-fixed                  | Fixed position elements |
+| z-40        | z-modal                  | Modals, dialogs         |
+| z-50        | z-toast                  | Toast notifications     |
+| zIndex: N   | zIndex.modal, zIndex.max | Inline style tokens     |
 
 ### Local Stacking Contexts
 
@@ -42,11 +42,11 @@ Reference: `docs/STACKING-CONTEXT.md`
 
 ## Migration History
 
-| Phase | Work Done |
-|-------|-----------|
-| Phase 1 | Token system created, ESLint rule at warn |
-| Phase 10 | All 28 files migrated to tokens |
-| Phase 13 | ESLint rule upgraded to error |
+| Phase    | Work Done                                 |
+| -------- | ----------------------------------------- |
+| Phase 1  | Token system created, ESLint rule at warn |
+| Phase 10 | All 28 files migrated to tokens           |
+| Phase 13 | ESLint rule upgraded to error             |
 
 ## Verification
 
@@ -59,5 +59,6 @@ grep -B5 "Catch z-" eslint.config.mjs | grep -E '"error"|"warn"'
 ```
 
 ---
-*Migration completed: 2026-01-23*
-*Last updated: 2026-01-23*
+
+_Migration completed: 2026-01-23_
+_Last updated: 2026-01-23_

@@ -29,13 +29,7 @@ export function StaleBadge({ cachedAt, className }: StaleBadgeProps) {
   });
 
   return (
-    <Badge
-      variant="status-warning"
-      size="default"
-      showIcon
-      icon={Clock}
-      className={className}
-    >
+    <Badge variant="status-warning" size="default" showIcon icon={Clock} className={className}>
       Cached {relativeTime}
     </Badge>
   );

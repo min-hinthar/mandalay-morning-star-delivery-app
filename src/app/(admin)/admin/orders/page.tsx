@@ -72,10 +72,7 @@ export default function AdminOrdersPage() {
         totalCents: order.total_cents,
         deliveryWindowStart: order.delivery_window_start,
         placedAt: order.placed_at,
-        itemCount: order.order_items.reduce(
-          (sum, item) => sum + item.quantity,
-          0
-        ),
+        itemCount: order.order_items.reduce((sum, item) => sum + item.quantity, 0),
         customerName: order.profiles?.full_name || null,
         customerEmail: order.profiles?.email || "Unknown",
       }));
@@ -103,10 +100,7 @@ export default function AdminOrdersPage() {
     fetchOrders();
   };
 
-  const handleStatusChange = async (
-    orderId: string,
-    newStatus: OrderStatus
-  ) => {
+  const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
     try {
       const response = await fetch(`/api/admin/orders/${orderId}/status`, {
         method: "PATCH",
@@ -120,26 +114,21 @@ export default function AdminOrdersPage() {
       }
 
       setOrders((prev) =>
-        prev.map((order) =>
-          order.id === orderId ? { ...order, status: newStatus } : order
-        )
+        prev.map((order) => (order.id === orderId ? { ...order, status: newStatus } : order))
       );
 
       router.refresh();
     } catch (err) {
       toast({
         title: "Error",
-        description:
-          err instanceof Error ? err.message : "Failed to update status",
+        description: err instanceof Error ? err.message : "Failed to update status",
         variant: "destructive",
       });
     }
   };
 
   const filteredOrders =
-    statusFilter === "all"
-      ? orders
-      : orders.filter((order) => order.status === statusFilter);
+    statusFilter === "all" ? orders : orders.filter((order) => order.status === statusFilter);
 
   const statusCounts = orders.reduce(
     (acc, order) => {
@@ -158,22 +147,10 @@ export default function AdminOrdersPage() {
         <AdminPageHeader
           title="Orders"
           count={filteredOrders.length}
-          breadcrumbs={[
-            { label: "Dashboard", href: "/admin" },
-            { label: "Orders" },
-          ]}
+          breadcrumbs={[{ label: "Dashboard", href: "/admin" }, { label: "Orders" }]}
           actions={
-            <Button
-              variant="outline"
-              onClick={handleRefresh}
-              disabled={refreshing}
-            >
-              <RefreshCw
-                className={cn(
-                  "mr-2 h-4 w-4",
-                  refreshing && "animate-spin"
-                )}
-              />
+            <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
+              <RefreshCw className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")} />
               Refresh
             </Button>
           }
@@ -186,10 +163,7 @@ export default function AdminOrdersPage() {
             <span className="text-sm">Filter:</span>
           </div>
           {STATUS_FILTERS.map((filter) => {
-            const count =
-              filter.value === "all"
-                ? orders.length
-                : statusCounts[filter.value] || 0;
+            const count = filter.value === "all" ? orders.length : statusCounts[filter.value] || 0;
             const isActive = statusFilter === filter.value;
 
             return (
@@ -198,16 +172,12 @@ export default function AdminOrdersPage() {
                 variant={isActive ? "default" : "outline"}
                 className={cn(
                   "cursor-pointer transition-colors",
-                  isActive
-                    ? "bg-accent-teal hover:bg-accent-teal/90"
-                    : "hover:bg-muted"
+                  isActive ? "bg-accent-teal hover:bg-accent-teal/90" : "hover:bg-muted"
                 )}
                 onClick={() => setStatusFilter(filter.value)}
               >
                 {filter.label}
-                {count > 0 && (
-                  <span className="ml-1 text-xs opacity-70">({count})</span>
-                )}
+                {count > 0 && <span className="ml-1 text-xs opacity-70">({count})</span>}
               </Badge>
             );
           })}

@@ -179,11 +179,7 @@ export default function AdminMenuItemEditPage() {
     return (
       <div className="p-8 text-center">
         <p className="text-text-secondary">Menu item not found</p>
-        <Button
-          variant="outline"
-          onClick={() => router.push("/admin/menu")}
-          className="mt-4"
-        >
+        <Button variant="outline" onClick={() => router.push("/admin/menu")} className="mt-4">
           Back to Menu
         </Button>
       </div>
@@ -215,9 +211,7 @@ export default function AdminMenuItemEditPage() {
             <h1 className="text-2xl md:text-3xl font-display font-bold text-text-primary">
               Edit Menu Item
             </h1>
-            <p className="font-body text-text-secondary text-sm mt-0.5">
-              {item.name_en}
-            </p>
+            <p className="font-body text-text-secondary text-sm mt-0.5">{item.name_en}</p>
           </div>
         </div>
         <Button

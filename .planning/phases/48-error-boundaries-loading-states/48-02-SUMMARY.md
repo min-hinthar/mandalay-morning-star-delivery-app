@@ -51,6 +51,7 @@ metrics:
 ## What Was Done
 
 ### Task 1: Create 6 missing error.tsx files (INFR-01)
+
 - Created error boundaries for admin/menu, admin/drivers, admin/routes
 - Created error boundaries for driver/route, account, checkout
 - Each file is 13 lines: `'use client'` directive, RouteError import, default export with error/reset props
@@ -58,12 +59,14 @@ metrics:
 - Total error.tsx coverage: 14 files (8 existing + 6 new)
 
 ### Task 2a: Create 12 admin loading.tsx files (INFR-02)
+
 - Dashboard, categories, drivers, drivers/[id], menu, menu/[id]
 - Orders, photos, routes, routes/[id], sections, settings
 - Each file is 5 lines: RouteLoading import, default export with descriptive message
 - No `'use client'` directive (RouteLoading handles it internally)
 
 ### Task 2b: Create 7 driver + customer loading.tsx files (INFR-02)
+
 - Driver: dashboard, route, history
 - Customer: account, checkout, cart, orders
 - Same 5-line delegation pattern as admin loading files
@@ -71,10 +74,10 @@ metrics:
 
 ## Commits
 
-| Hash | Message |
-|------|---------|
-| dd5e643 | feat(48-02): create 6 missing error.tsx files (INFR-01) |
-| a0eb70c | feat(48-02): create 12 admin loading.tsx files (INFR-02) |
+| Hash    | Message                                                             |
+| ------- | ------------------------------------------------------------------- |
+| dd5e643 | feat(48-02): create 6 missing error.tsx files (INFR-01)             |
+| a0eb70c | feat(48-02): create 12 admin loading.tsx files (INFR-02)            |
 | 98cf2b7 | feat(48-02): create 7 driver + customer loading.tsx files (INFR-02) |
 
 ## Decisions Made

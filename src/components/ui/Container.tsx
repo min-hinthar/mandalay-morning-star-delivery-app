@@ -67,49 +67,47 @@ const sizeConfig: Record<ContainerSize, string> = {
 // COMPONENT
 // ============================================
 
-export const Container = forwardRef<HTMLElement, ContainerProps>(
-  function Container(
-    {
-      size = "lg",
-      flush = false,
-      center = true,
-      query = true,
-      name,
-      as = "div",
-      className,
-      children,
-      ...props
-    },
-    ref
-  ) {
-    const Component = as as "div";
-    return (
-      <Component
-        ref={ref as React.Ref<HTMLDivElement>}
-        className={cn(
-          // Base styles
-          "w-full",
-          // Max width based on size
-          sizeConfig[size],
-          // Horizontal padding (responsive)
-          !flush && "px-4 sm:px-6 lg:px-8",
-          // Center horizontally
-          center && "mx-auto",
-          // Custom classes
-          className
-        )}
-        // CSS Container Query support
-        style={{
-          containerType: query ? "inline-size" : undefined,
-          containerName: name || undefined,
-        }}
-        {...props}
-      >
-        {children}
-      </Component>
-    );
-  }
-);
+export const Container = forwardRef<HTMLElement, ContainerProps>(function Container(
+  {
+    size = "lg",
+    flush = false,
+    center = true,
+    query = true,
+    name,
+    as = "div",
+    className,
+    children,
+    ...props
+  },
+  ref
+) {
+  const Component = as as "div";
+  return (
+    <Component
+      ref={ref as React.Ref<HTMLDivElement>}
+      className={cn(
+        // Base styles
+        "w-full",
+        // Max width based on size
+        sizeConfig[size],
+        // Horizontal padding (responsive)
+        !flush && "px-4 sm:px-6 lg:px-8",
+        // Center horizontally
+        center && "mx-auto",
+        // Custom classes
+        className
+      )}
+      // CSS Container Query support
+      style={{
+        containerType: query ? "inline-size" : undefined,
+        containerName: name || undefined,
+      }}
+      {...props}
+    >
+      {children}
+    </Component>
+  );
+});
 
 Container.displayName = "Container";
 

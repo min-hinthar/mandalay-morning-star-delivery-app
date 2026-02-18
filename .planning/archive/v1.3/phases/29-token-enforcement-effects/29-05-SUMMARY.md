@@ -54,6 +54,7 @@ completed: 2026-01-28
 - **Files modified:** 3
 
 ## Accomplishments
+
 - Fixed AppHeader blur inconsistency: blur(30px) replaced with blur(var(--blur-2xl))
 - Added 4 ESLint rules detecting hardcoded transitionDuration, transition ms values, duration-[Nms], delay-[Nms]
 - Enhanced audit-tokens.js with 6 new motion timing patterns and fix suggestions
@@ -68,11 +69,13 @@ Each task was committed atomically:
 3. **Task 3: Enhance audit-tokens.js with motion timing detection** - `8dac91b` (feat)
 
 ## Files Created/Modified
+
 - `src/components/ui/layout/AppHeader/AppHeader.tsx` - Replaced blur(30px) with blur(var(--blur-2xl)) in glass styles
 - `eslint.config.mjs` - Added 4 motion timing detection rules
 - `scripts/audit-tokens.js` - Added 6 motion timing patterns with fix suggestions
 
 ## Decisions Made
+
 - **duration-[Nms] severity upgrade:** Changed from info to warning to enforce motion token usage during Phase 29
 - **Framer Motion exception:** ESLint messages explicitly note that spring physics require numeric values
 - **ease-[...] at info level:** Easing arbitrary values detected but not blocking (lower priority than duration)
@@ -90,11 +93,13 @@ None.
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Motion timing infrastructure ready for migration work in 29-06
 - ESLint catches new violations at lint time
 - Audit script reports motion timing in effects category
 - Baseline improved: 30 violations fixed from previous run
 
 ---
-*Phase: 29-token-enforcement-effects*
-*Completed: 2026-01-28*
+
+_Phase: 29-token-enforcement-effects_
+_Completed: 2026-01-28_

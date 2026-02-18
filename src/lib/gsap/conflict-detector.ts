@@ -73,9 +73,7 @@ export function trackFramerMotionElement(element: Element | null): void {
  * Initialize GSAP conflict detector plugin
  * Automatically tracks all GSAP animation targets
  */
-export function initConflictDetector(
-  gsapInstance: typeof import("gsap").gsap
-): void {
+export function initConflictDetector(gsapInstance: typeof import("gsap").gsap): void {
   if (!isDev) return;
 
   // Register a simple plugin that tracks targets

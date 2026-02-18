@@ -27,7 +27,8 @@ export async function GET() {
     // Fetch all orders with customer info
     const { data: orders, error: ordersError } = await supabase
       .from("orders")
-      .select(`
+      .select(
+        `
         id,
         status,
         total_cents,
@@ -38,25 +39,20 @@ export async function GET() {
           full_name,
           email
         )
-      `)
+      `
+      )
       .order("placed_at", { ascending: false })
       .limit(100)
       .returns<OrderRow[]>();
 
     if (ordersError) {
       logger.exception(ordersError, { api: "admin/orders", flowId: "fetch" });
-      return NextResponse.json(
-        { error: "Failed to fetch orders" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
     }
 
     return NextResponse.json(orders);
   } catch (error) {
     logger.exception(error, { api: "admin/orders", flowId: "fetch" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

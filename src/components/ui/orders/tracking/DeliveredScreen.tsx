@@ -73,11 +73,7 @@ function ConfettiDots() {
 
 function AnimatedCheckmark() {
   return (
-    <svg
-      viewBox="0 0 80 80"
-      className="h-20 w-20"
-      aria-hidden="true"
-    >
+    <svg viewBox="0 0 80 80" className="h-20 w-20" aria-hidden="true">
       {/* Circle */}
       <m.circle
         cx="40"
@@ -135,19 +131,12 @@ export function DeliveredScreen({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className={cn(
-        "relative rounded-xl bg-surface-primary p-6 shadow-warm-sm",
-        className
-      )}
+      className={cn("relative rounded-xl bg-surface-primary p-6 shadow-warm-sm", className)}
     >
       {/* Confetti overlay (celebration only) */}
       <AnimatePresence>
         {showCelebration && (
-          <m.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-          >
+          <m.div initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
             <ConfettiDots />
           </m.div>
         )}
@@ -198,29 +187,18 @@ export function DeliveredScreen({
           Delivered!
         </m.h2>
 
-        <p className="text-sm text-charcoal-500">
-          Your order has been delivered. Enjoy your meal!
-        </p>
+        <p className="text-sm text-charcoal-500">Your order has been delivered. Enjoy your meal!</p>
 
         {/* Star rating */}
         <div className="space-y-2 py-2">
-          <p className="text-sm font-medium text-charcoal-600">
-            How was your delivery?
-          </p>
-          <StarRating
-            value={rating}
-            onChange={submitRating}
-            disabled={isSubmitting}
-            size="lg"
-          />
+          <p className="text-sm font-medium text-charcoal-600">How was your delivery?</p>
+          <StarRating value={rating} onChange={submitRating} disabled={isSubmitting} size="lg" />
         </div>
 
         {/* Delivery photo */}
         {deliveryPhotoUrl && (
           <div className="w-full pt-2">
-            <p className="text-sm font-medium text-charcoal-600 mb-2">
-              Delivery Photo
-            </p>
+            <p className="text-sm font-medium text-charcoal-600 mb-2">Delivery Photo</p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={deliveryPhotoUrl}

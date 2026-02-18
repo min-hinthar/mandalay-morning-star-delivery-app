@@ -11,10 +11,7 @@ import { AnimatedFormField } from "./AnimatedFormField";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import {
-  addressFormSchema,
-  type AddressFormValues,
-} from "@/lib/validations/address";
+import { addressFormSchema, type AddressFormValues } from "@/lib/validations/address";
 import { ADDRESS_LABELS } from "@/types/address";
 
 interface AddressFormV8Props {
@@ -267,12 +264,7 @@ export function AddressFormV8({
           {defaultValues ? "Update Address" : "Add Address"}
         </Button>
         {onCancel && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isLoading}
-          >
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
             Cancel
           </Button>
         )}

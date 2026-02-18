@@ -90,11 +90,11 @@ completed: 2026-02-11
 
 ## Decisions Made
 
-| ID | Decision | Rationale |
-|----|----------|-----------|
-| DRIVER-07-PULSERING | MapMarkerPulse reuses existing pulse-ring CSS keyframe | Avoids duplicate keyframe; pulse-ring already defined in globals.css |
-| DRIVER-07-TIMELINE | 4-step flow with skipped graying all steps | Skipped is a terminal non-success state; graying communicates this visually |
-| DRIVER-07-STATUSANIM | AnimatePresence with scale 1.2/0.8 for status transitions | Provides clear visual feedback when stop status advances |
+| ID                   | Decision                                                  | Rationale                                                                   |
+| -------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------- |
+| DRIVER-07-PULSERING  | MapMarkerPulse reuses existing pulse-ring CSS keyframe    | Avoids duplicate keyframe; pulse-ring already defined in globals.css        |
+| DRIVER-07-TIMELINE   | 4-step flow with skipped graying all steps                | Skipped is a terminal non-success state; graying communicates this visually |
+| DRIVER-07-STATUSANIM | AnimatePresence with scale 1.2/0.8 for status transitions | Provides clear visual feedback when stop status advances                    |
 
 ## Deviations from Plan
 
@@ -116,5 +116,6 @@ None - no external service configuration required.
 - Ready for remaining phase 57 plans
 
 ---
-*Phase: 57-admin-driver-polish*
-*Completed: 2026-02-11*
+
+_Phase: 57-admin-driver-polish_
+_Completed: 2026-02-11_

@@ -78,8 +78,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const { label, line1, line2, city, state, postalCode, lat, lng, isDefault } =
-      result.data;
+    const { label, line1, line2, city, state, postalCode, lat, lng, isDefault } = result.data;
 
     // If setting as default, unset default on others
     if (isDefault) {
@@ -157,11 +156,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const { error } = await supabase
-      .from("addresses")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", user.id);
+    const { error } = await supabase.from("addresses").delete().eq("id", id).eq("user_id", user.id);
 
     if (error) throw error;
 
@@ -176,10 +171,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
         .single();
 
       if (newest) {
-        await supabase
-          .from("addresses")
-          .update({ is_default: true })
-          .eq("id", newest.id);
+        await supabase.from("addresses").update({ is_default: true }).eq("id", newest.id);
       }
     }
 

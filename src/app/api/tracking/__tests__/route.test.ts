@@ -401,8 +401,8 @@ describe("Tracking API Validation Schemas", () => {
         vehicleType: "car",
       },
       driverLocation: {
-        latitude: 34.0900,
-        longitude: -117.8800,
+        latitude: 34.09,
+        longitude: -117.88,
         recorded_at: "2026-01-18T14:25:00.000Z",
         accuracy: 10,
         heading: 270,
@@ -448,7 +448,6 @@ describe("Tracking API Validation Schemas", () => {
     });
 
     it("requires order to be present", () => {
-       
       const { order: _order, ...dataWithoutOrder } = validTrackingData;
       const result = trackingDataSchema.safeParse(dataWithoutOrder);
       expect(result.success).toBe(false);

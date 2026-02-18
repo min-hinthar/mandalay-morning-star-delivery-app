@@ -14,6 +14,7 @@ Automated detection tooling for codebase violations. Build scripts and ESLint ru
 ## Implementation Decisions
 
 ### Output Format
+
 - Terminal summary + full report to `.planning/audit-report.md`
 - Two views in report: by-file AND by-type summaries
 - Include suggested fixes (e.g., `text-white` → `text-foreground`)
@@ -22,6 +23,7 @@ Automated detection tooling for codebase violations. Build scripts and ESLint ru
 - Auto-detect TTY for colors: colored output in terminal, plain in pipes/CI
 
 ### Detection Scope
+
 - File types: TSX, JSX, CSS files, globals.css, tailwind.config
 - Inline styles flagged as violations (`style={{ color: 'white' }}`)
 - Color patterns: `text-white`, `bg-black`, opacity variants (`text-white/50`), hex values, rgb()
@@ -35,6 +37,7 @@ Automated detection tooling for codebase violations. Build scripts and ESLint ru
 - No false positive exceptions - fix everything
 
 ### CI Integration
+
 - Fail CI on critical severity violations only
 - Exit codes: 0 = clean, 1 = critical, 2 = warnings, 3 = info only
 - ESLint rules separate from audit script, both run in CI
@@ -42,6 +45,7 @@ Automated detection tooling for codebase violations. Build scripts and ESLint ru
 - Package.json script `pnpm audit:tokens` calling `scripts/audit-tokens.js`
 
 ### Baseline Handling
+
 - Baseline stored at bottom of audit-report.md
 - Auto-update baseline when violations decrease
 - Per-category tracking: separate counts for colors, spacing, effects
@@ -49,6 +53,7 @@ Automated detection tooling for codebase violations. Build scripts and ESLint ru
 - Fail on ANY regression (count increases from baseline = exit 1)
 
 ### Claude's Discretion
+
 - Violation detail level (file:line vs context snippets)
 - Exact progress bar implementation
 - Internal data structures for tracking
@@ -74,5 +79,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 25-audit-infrastructure*
-*Context gathered: 2026-01-27*
+_Phase: 25-audit-infrastructure_
+_Context gathered: 2026-01-27_

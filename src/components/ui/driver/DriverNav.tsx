@@ -57,9 +57,7 @@ export function DriverNav({ badges }: DriverNavProps) {
     >
       <div className="flex h-16 items-center justify-around px-4">
         {navItems.map((item) => {
-          const isActive = item.exact
-            ? pathname === item.href
-            : pathname.startsWith(item.href);
+          const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
           const Icon = item.icon;
           const badgeCount = badges?.[item.key] ?? 0;
 
@@ -107,12 +105,7 @@ export function DriverNav({ badges }: DriverNavProps) {
                 )}
               </div>
 
-              <span
-                className={cn(
-                  "font-body text-xs font-medium",
-                  isActive && "font-semibold"
-                )}
-              >
+              <span className={cn("font-body text-xs font-medium", isActive && "font-semibold")}>
                 {item.label}
               </span>
             </Link>

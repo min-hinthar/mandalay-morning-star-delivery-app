@@ -8,9 +8,11 @@
 ## [Unreleased]
 
 ### Added
+
 - None yet
 
 ### Changed
+
 - [REFACTOR] Complete database migration reorganization — @Claude
   - Consolidated 11 migrations into 6 with 3-digit numbering (000-005)
   - New structure:
@@ -23,6 +25,7 @@
   - **BREAKING**: Existing databases require fresh migration
 
 ### Fixed
+
 - [CI] Fixed Stripe build error — @Claude
   - `src/lib/stripe/server.ts`: Changed to lazy initialization via Proxy
   - Env var check now happens at runtime, not build time
@@ -53,6 +56,7 @@
   - No config changes needed (no middleware-related options in next.config.ts)
 
 ### Fixed
+
 - [BUILD] Fixed Next.js 16.1.2 deprecation warning for middleware file convention
 
 - [SECURITY] Fixed profiles RLS policy infinite recursion (42P17) — @Claude
@@ -73,6 +77,7 @@
   - Created `refresh_analytics_views_admin()` with admin check
 
 ### Added (Infrastructure)
+
 - [INFRA] Added Supabase database linting with plpgsql_check — @Claude
   - Extension enabled in `20260122000002_enable_testing_extensions.sql`
   - Helper functions: `testing.lint_all_functions()`, `testing.lint_function()`
@@ -92,6 +97,7 @@
   - Build now depends on database tests passing
 
 ### Removed
+
 - None yet
 
 ---
@@ -99,6 +105,7 @@
 ## [V1] — 2026-01-15 (Complete)
 
 ### Added — Sprint 1: Menu Browse
+
 - [FEATURE] Menu data layer (V1-S1-001) — Types, API routes, React Query hooks
 - [FEATURE] Category tabs (V1-S1-002) — Sticky, horizontal scroll, scroll-spy
 - [FEATURE] Item card (V1-S1-003) — Responsive card with image + price
@@ -107,6 +114,7 @@
 - [FEATURE] Item detail modal (V1-S1-006) — Modifiers, qty, notes
 
 ### Added — Sprint 2: Cart + Checkout
+
 - [FEATURE] Cart state (V1-S2-001) — Zustand store: add/update/remove/clear
 - [FEATURE] Cart drawer (V1-S2-002) — Slide-over, mobile-first
 - [FEATURE] Cart summary (V1-S2-003) — Subtotal + fee display
@@ -116,6 +124,7 @@
 - [FEATURE] Checkout stepper (V1-S2-007) — Address → Time → Pay stepper UI
 
 ### Added — Sprint 3: Payment + Confirmation
+
 - [FEATURE] Stripe integration (V1-S3-001) — Checkout Sessions API + order creation
 - [FEATURE] Webhook handler (V1-S3-002) — Signature verification + status updates
 - [FEATURE] Order creation flow (V1-S3-003) — Server-side totals + DB insertion
@@ -125,6 +134,7 @@
 - [FEATURE] Email notifications (V1-S3-007) — Supabase Edge Function + Resend
 
 ### Added — Sprint 4: Admin Basics
+
 - [FEATURE] Admin layout + nav (V1-S4-001) — Role-gated shell + collapsible nav
 - [FEATURE] Menu item CRUD (V1-S4-002) — List, toggle active/sold-out, delete
 - [FEATURE] Category management (V1-S4-003) — Reorder, activate, add/delete
@@ -132,6 +142,7 @@
 - [FEATURE] Basic analytics (V1-S4-005) — Stats cards, revenue chart, popular items
 
 ### Added — Test Coverage (V1 Completion)
+
 - [TEST] Test mock utilities — `src/test/mocks/` (google-routes, stripe, supabase)
 - [TEST] Test factories — `src/test/factories/index.ts` (menu items, modifiers, addresses, orders)
 - [TEST] Order calculation tests — `src/lib/utils/__tests__/order.test.ts` (35 tests)
@@ -143,12 +154,14 @@
 - [CONFIG] Playwright setup — `playwright.config.ts` + package.json scripts
 
 ### Technical Decisions
+
 - [DECISION] Vitest for unit/integration tests — Fast, ESM-first, excellent mocking
 - [DECISION] Playwright for E2E tests — Cross-browser, mobile testing, reliable
 - [DECISION] Focus on business logic testing — Validate order calculations, coverage, webhooks
 - [DECISION] Separate E2E from unit tests — vitest.config.ts excludes e2e/ directory
 
 ### V1 Acceptance Criteria (All Met)
+
 - ✅ Customer can browse full menu by category
 - ✅ Customer can search menu items
 - ✅ Customer can view item details + modifiers
@@ -174,6 +187,7 @@
 ## [V1-S1] — 2026-01-14
 
 ### Added
+
 - [FEATURE] Menu data layer (V1-S1-001) — @Codex
   - `src/types/menu.ts`: Menu type definitions (MenuItem, MenuCategory, ModifierGroup, etc.)
   - `src/app/api/menu/route.ts`: Full menu API with categories and modifiers
@@ -193,6 +207,7 @@
   - Respects `prefers-reduced-motion`
 
 ### Technical Decisions
+
 - [DECISION] React Query for server state — Caching with 5-min stale time, automatic refetch
 - [DECISION] Intersection Observer pattern for scroll-spy — Better performance than scroll events
 
@@ -201,6 +216,7 @@
 ## [V0] — 2026-01-13
 
 ### Added
+
 - Initial project scaffold (Next.js 15 + TypeScript)
 - Tailwind CSS + shadcn/ui configuration
 - Supabase project connection
@@ -218,6 +234,7 @@
   - Claude.md — Planning operating system
 
 ### Technical Decisions
+
 - [DECISION] Stripe Checkout Sessions over custom payment forms — Lower PCI scope
 - [DECISION] Zustand for client cart state — Lightweight, simple API
 - [DECISION] React Query for server state — Caching, optimistic updates
@@ -232,24 +249,30 @@
 ## [Version] — YYYY-MM-DD
 
 ### Added
+
 - [FEATURE] Description — @owner
 - [DOC] Added new documentation for X
 
 ### Changed
+
 - [REFACTOR] Improved X for better Y
 - [PERF] Optimized Z
 
 ### Fixed
+
 - [BUG] Fixed issue where X caused Y
 - [SECURITY] Patched vulnerability in Z
 
 ### Removed
+
 - [DEPRECATION] Removed legacy X
 
 ### Technical Decisions
+
 - [DECISION] Chose X over Y — Rationale
 
 ### Known Issues
+
 - [ISSUE] Description — Workaround if any
 ```
 

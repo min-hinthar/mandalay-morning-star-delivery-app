@@ -14,6 +14,7 @@ Scope cart components (CartBar, CartDrawer, FlyToCart) to customer/public routes
 ## Implementation Decisions
 
 ### Cart Scoping Boundary
+
 - Cart components load on Home, Menu, Cart, and Checkout pages only
 - Route group determines cart behavior, not user role — admin/driver users get full cart experience on customer pages
 - CartBar visible on all four cart-enabled pages (Home + Menu + Cart + Checkout)
@@ -23,6 +24,7 @@ Scope cart components (CartBar, CartDrawer, FlyToCart) to customer/public routes
 - Route group structure: Claude's discretion (single vs split groups based on codebase)
 
 ### Layout Transition Behavior
+
 - Instant switch when navigating between cart-enabled and non-cart routes (no fade animation)
 - CartDrawer: close drawer animation completes before route navigation occurs
 - Use existing RouteLoading infrastructure (Phase 41) for loading states
@@ -32,11 +34,13 @@ Scope cart components (CartBar, CartDrawer, FlyToCart) to customer/public routes
 - Total price also animates with counting animation — cohesive with count
 
 ### Checkout & Cart Navigation Guards
+
 - Custom styled modal (not browser native) on both checkout AND cart pages when navigating away with items
 - Playful/warm tone: e.g., "Your delicious items are waiting! Ready to checkout?"
 - Cart page guard includes positive nudge toward checkout
 
 ### Provider Consolidation
+
 - Theme provider: keep global
 - Toast/notification provider: keep global
 - Service worker registration: keep global
@@ -49,6 +53,7 @@ Scope cart components (CartBar, CartDrawer, FlyToCart) to customer/public routes
 - Provider count target: Claude's discretion
 
 ### Deep Link & State Handling
+
 - Cart state persists across browser sessions via localStorage
 - No cart expiry — items persist until user clears or completes checkout
 - Cart hydration timing: Claude's discretion (immediate vs lazy)
@@ -85,5 +90,5 @@ Scope cart components (CartBar, CartDrawer, FlyToCart) to customer/public routes
 
 ---
 
-*Phase: 43-provider-route-layout-refactoring*
-*Context gathered: 2026-02-05*
+_Phase: 43-provider-route-layout-refactoring_
+_Context gathered: 2026-02-05_

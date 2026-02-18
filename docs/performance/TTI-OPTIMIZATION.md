@@ -3,6 +3,7 @@
 ## Overview
 
 TTI measures when a page becomes fully interactive. Optimizing TTI involves:
+
 - Reducing main thread blocking
 - Deferring non-critical JavaScript
 - Code splitting by route
@@ -26,21 +27,20 @@ export const DynamicRevenueChart = dynamic(
 );
 
 // Google Maps (~25KB)
-export const DynamicDeliveryMap = dynamic(
-  () => import("@/components/tracking/DeliveryMap"),
-  { ssr: false }
-);
+export const DynamicDeliveryMap = dynamic(() => import("@/components/tracking/DeliveryMap"), {
+  ssr: false,
+});
 
 // Heavy modals
-export const DynamicItemDetailModal = dynamic(
-  () => import("@/components/menu/item-detail-modal"),
-  { ssr: false }
-);
+export const DynamicItemDetailModal = dynamic(() => import("@/components/menu/item-detail-modal"), {
+  ssr: false,
+});
 ```
 
 ### 2. Route-Based Code Splitting
 
 Next.js automatically splits by route. Structure:
+
 ```
 src/app/
   (public)/        # Minimal JS - menu browsing
@@ -83,8 +83,8 @@ experimental: {
 ```typescript
 // Analytics loaded after hydration
 useEffect(() => {
-  if (process.env.NODE_ENV === 'production') {
-    import('./analytics').then(m => m.init());
+  if (process.env.NODE_ENV === "production") {
+    import("./analytics").then((m) => m.init());
   }
 }, []);
 ```
@@ -101,18 +101,19 @@ useEffect(() => {
 ### Lighthouse
 
 TTI is measured as part of the performance audit:
+
 - Good: < 3.8s
 - Needs Improvement: 3.8s - 7.3s
 - Poor: > 7.3s
 
 ## Common Long Tasks
 
-| Task | Typical Duration | Solution |
-|------|------------------|----------|
-| React hydration | 50-200ms | Server components, streaming |
-| Chart rendering | 100-300ms | Dynamic import, SSR: false |
-| Map initialization | 200-500ms | Dynamic import, intersection observer |
-| Large list render | 50-150ms | Virtualization |
+| Task               | Typical Duration | Solution                              |
+| ------------------ | ---------------- | ------------------------------------- |
+| React hydration    | 50-200ms         | Server components, streaming          |
+| Chart rendering    | 100-300ms        | Dynamic import, SSR: false            |
+| Map initialization | 200-500ms        | Dynamic import, intersection observer |
+| Large list render  | 50-150ms         | Virtualization                        |
 
 ## Verification Checklist
 

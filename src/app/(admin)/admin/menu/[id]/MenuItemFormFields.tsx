@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { type Dispatch, type SetStateAction } from "react";
 import { m } from "framer-motion";
@@ -93,12 +93,12 @@ export function MenuItemFormFields({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-body font-medium text-text-secondary">
-            Description
-          </label>
+          <label className="text-sm font-body font-medium text-text-secondary">Description</label>
           <textarea
             value={formData.description_en}
-            onChange={(e) => onFormDataChange((prev) => ({ ...prev, description_en: e.target.value }))}
+            onChange={(e) =>
+              onFormDataChange((prev) => ({ ...prev, description_en: e.target.value }))
+            }
             rows={3}
             className={cn(
               "w-full px-3 py-2 rounded-input",
@@ -111,9 +111,7 @@ export function MenuItemFormFields({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-body font-medium text-text-secondary">
-            Price (USD)
-          </label>
+          <label className="text-sm font-body font-medium text-text-secondary">Price (USD)</label>
           <Input
             type="number"
             step="0.01"
@@ -131,12 +129,12 @@ export function MenuItemFormFields({
 
         {categories.length > 0 && (
           <div className="space-y-2">
-            <label className="text-sm font-body font-medium text-text-secondary">
-              Category
-            </label>
+            <label className="text-sm font-body font-medium text-text-secondary">Category</label>
             <select
               value={formData.category_id}
-              onChange={(e) => onFormDataChange((prev) => ({ ...prev, category_id: e.target.value }))}
+              onChange={(e) =>
+                onFormDataChange((prev) => ({ ...prev, category_id: e.target.value }))
+              }
               className={cn(
                 "w-full px-3 py-2 rounded-input",
                 "bg-surface-primary border border-border",
@@ -187,7 +185,9 @@ export function MenuItemFormFields({
           </div>
           <button
             type="button"
-            onClick={() => onFormDataChange((prev) => ({ ...prev, is_sold_out: !prev.is_sold_out }))}
+            onClick={() =>
+              onFormDataChange((prev) => ({ ...prev, is_sold_out: !prev.is_sold_out }))
+            }
             className={cn(
               "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
               formData.is_sold_out ? "bg-secondary" : "bg-surface-tertiary"

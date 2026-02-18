@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
-import {
-  updateStopStatusSchema,
-  isValidStatusTransition,
-} from "@/lib/validations/driver-api";
+import { updateStopStatusSchema, isValidStatusTransition } from "@/lib/validations/driver-api";
 import type { RouteStopStatus, RouteStats } from "@/types/driver";
 
 interface RouteParams {
@@ -52,10 +49,7 @@ export async function PATCH(
     const parseResult = updateStopStatusSchema.safeParse(body);
 
     if (!parseResult.success) {
-      return NextResponse.json(
-        { error: parseResult.error.issues[0].message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: parseResult.error.issues[0].message }, { status: 400 });
     }
 
     const { status: newStatus, deliveryNotes } = parseResult.data;
@@ -75,18 +69,12 @@ export async function PATCH(
       .single();
 
     if (routeError || !route) {
-      return NextResponse.json(
-        { error: "Route not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Route not found" }, { status: 404 });
     }
 
     // Verify driver owns this route
     if (route.driver_id !== driverId) {
-      return NextResponse.json(
-        { error: "Not authorized to update this stop" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Not authorized to update this stop" }, { status: 403 });
     }
 
     // Verify route is in progress
@@ -107,10 +95,7 @@ export async function PATCH(
       .single();
 
     if (stopError || !stop) {
-      return NextResponse.json(
-        { error: "Stop not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Stop not found" }, { status: 404 });
     }
 
     // Idempotency: status transition validation prevents duplicate updates.
@@ -147,18 +132,12 @@ export async function PATCH(
 
     if (updateError) {
       logger.exception(updateError, { api: "driver/routes/[routeId]/stops/[stopId]" });
-      return NextResponse.json(
-        { error: "Failed to update stop" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to update stop" }, { status: 500 });
     }
 
     // If delivered, update the order status
     if (newStatus === "delivered") {
-      await supabase
-        .from("orders")
-        .update({ status: "delivered" })
-        .eq("id", stop.order_id);
+      await supabase.from("orders").update({ status: "delivered" }).eq("id", stop.order_id);
     }
 
     // Update route stats
@@ -179,10 +158,7 @@ export async function PATCH(
 
       if (nextStopData) {
         // Set next stop to enroute
-        await supabase
-          .from("route_stops")
-          .update({ status: "enroute" })
-          .eq("id", nextStopData.id);
+        await supabase.from("route_stops").update({ status: "enroute" }).eq("id", nextStopData.id);
 
         nextStop = {
           id: nextStopData.id,
@@ -203,14 +179,14 @@ export async function PATCH(
     });
   } catch (error) {
     logger.exception(error, { api: "driver/routes/[routeId]/stops/[stopId]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-async function updateRouteStats(supabase: Awaited<ReturnType<typeof createClient>>, routeId: string) {
+async function updateRouteStats(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  routeId: string
+) {
   // Get all stops for the route
   const { data: stops } = await supabase
     .from("route_stops")
@@ -221,18 +197,16 @@ async function updateRouteStats(supabase: Awaited<ReturnType<typeof createClient
 
   const stats: RouteStats = {
     total_stops: stops.length,
-    pending_stops: stops.filter(s => s.status === "pending" || s.status === "enroute").length,
-    delivered_stops: stops.filter(s => s.status === "delivered").length,
-    skipped_stops: stops.filter(s => s.status === "skipped").length,
+    pending_stops: stops.filter((s) => s.status === "pending" || s.status === "enroute").length,
+    delivered_stops: stops.filter((s) => s.status === "delivered").length,
+    skipped_stops: stops.filter((s) => s.status === "skipped").length,
     completion_rate: 0,
   };
 
-  stats.completion_rate = stats.total_stops > 0
-    ? Math.round(((stats.delivered_stops + stats.skipped_stops) / stats.total_stops) * 100)
-    : 0;
+  stats.completion_rate =
+    stats.total_stops > 0
+      ? Math.round(((stats.delivered_stops + stats.skipped_stops) / stats.total_stops) * 100)
+      : 0;
 
-  await supabase
-    .from("routes")
-    .update({ stats_json: stats })
-    .eq("id", routeId);
+  await supabase.from("routes").update({ stats_json: stats }).eq("id", routeId);
 }

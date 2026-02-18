@@ -64,7 +64,7 @@ timeline: Persisting after all animation fixes
   found: Only depends on `item`, not `isOpen`. Effect: `if (!item) return` then reset state. This means:
   1. When SAME item is opened again, `item` reference is same, effect doesn't run, old state persists
   2. When modal closes and item becomes null, the early return skips reset
-  implication: State (selectedModifiers, quantity, notes) persists incorrectly across modal opens
+     implication: State (selectedModifiers, quantity, notes) persists incorrectly across modal opens
 
 - timestamp: 2026-01-30T02:19:00Z
   checked: handleAddToCart in HomepageMenuSection (lines 160-185)
@@ -89,14 +89,17 @@ root_cause: Two distinct issues:
    - This causes `validation.isValid = false`, disabling button
 
 fix:
+
 1. HomepageMenuSection: Added `handleCloseDetail` callback that delays `setSelectedItem(null)` by 300ms after setting `isModalOpen=false`, matching the correct pattern in MenuContent.tsx. Added `closeTimeoutRef` for cleanup on unmount.
 2. ItemDetailSheet: Added `isOpen` to the state reset useEffect dependency array so state resets when modal opens, even if same item is selected again.
 
 verification:
+
 - TypeScript typecheck: PASS
 - ESLint: PASS
 - Production build: PASS
 
 files_changed:
+
 - src/components/ui/menu/ItemDetailSheet.tsx (line 109: added isOpen to useEffect deps)
 - src/components/ui/homepage/HomepageMenuSection.tsx (added handleCloseDetail, closeTimeoutRef, updated handleAddToCart and onClose usage)

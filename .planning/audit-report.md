@@ -6,21 +6,21 @@ Total violations: 137
 
 ## Summary
 
-| Severity | Count |
-|----------|-------|
-| Critical | 100 |
-| Warning | 37 |
-| Info | 0 |
+| Severity  | Count   |
+| --------- | ------- |
+| Critical  | 100     |
+| Warning   | 37      |
+| Info      | 0       |
 | **Total** | **137** |
 
 ## By Category
 
-| Category | Critical | Warning | Info | Total |
-|----------|----------|---------|------|-------|
-| effects | 11 | 13 | 0 | 24 |
-| colors | 80 | 24 | 0 | 104 |
-| spacing | 2 | 0 | 0 | 2 |
-| deprecated | 7 | 0 | 0 | 7 |
+| Category   | Critical | Warning | Info | Total |
+| ---------- | -------- | ------- | ---- | ----- |
+| effects    | 11       | 13      | 0    | 24    |
+| colors     | 80       | 24      | 0    | 104   |
+| spacing    | 2        | 0       | 0    | 2     |
+| deprecated | 7        | 0       | 0    | 7     |
 
 ## By Type
 
@@ -74,7 +74,7 @@ Total violations: 137
 
 ### inline boxShadow (11) - **CRITICAL**
 
-**Suggested fix:** Use CSS variable: boxShadow: var(--shadow-*)
+**Suggested fix:** Use CSS variable: boxShadow: var(--shadow-\*)
 
 - `src/app/(customer)/checkout/page.tsx:41` - `boxShadow: "0 0`
 - `src/app/(customer)/checkout/page.tsx:47` - `boxShadow: "0 0`
@@ -128,7 +128,7 @@ Total violations: 137
 
 ### inline filter blur (6) - **CRITICAL**
 
-**Suggested fix:** Use CSS variable: filter: blur(var(--blur-*))
+**Suggested fix:** Use CSS variable: filter: blur(var(--blur-\*))
 
 - `src/components/ui/animated-image.tsx:89` - `filter: "blur(0px)`
 - `src/components/ui/homepage/Hero.tsx:73` - `filter: "blur(10px)`
@@ -137,7 +137,7 @@ Total violations: 137
 - `src/components/ui/transitions/PageTransition.tsx:81` - `filter: "blur(0px)`
 - `src/components/ui/transitions/PageTransition.tsx:91` - `filter: "blur(8px)`
 
-### v6-* prefix (6) - **CRITICAL**
+### v6-\* prefix (6) - **CRITICAL**
 
 **Suggested fix:** Remove v6- prefix, use semantic tokens
 
@@ -184,7 +184,7 @@ Total violations: 137
 
 ### inline backdropFilter (3) - WARNING
 
-**Suggested fix:** Use CSS variable: backdropFilter: blur(var(--blur-*))
+**Suggested fix:** Use CSS variable: backdropFilter: blur(var(--blur-\*))
 
 - `src/lib/motion-tokens.ts:412` - `backdropFilter: "blur(0px)`
 - `src/lib/motion-tokens.ts:416` - `backdropFilter: "blur(20px)`
@@ -216,7 +216,7 @@ Total violations: 137
 
 - `src/components/ui/navigation/AppShell.tsx:91` - `pt-[72px]`
 
-### v7-* prefix (1) - **CRITICAL**
+### v7-\* prefix (1) - **CRITICAL**
 
 **Suggested fix:** Remove v7- prefix, use semantic tokens
 
@@ -315,16 +315,16 @@ Severity breakdown: 3 critical, 0 warning, 0 info
 
 Severity breakdown: 3 critical, 0 warning, 0 info
 
-- Line 76: `filter: "blur(12px)` -> Use CSS variable: filter: blur(var(--blur-*))
-- Line 81: `filter: "blur(0px)` -> Use CSS variable: filter: blur(var(--blur-*))
-- Line 91: `filter: "blur(8px)` -> Use CSS variable: filter: blur(var(--blur-*))
+- Line 76: `filter: "blur(12px)` -> Use CSS variable: filter: blur(var(--blur-\*))
+- Line 81: `filter: "blur(0px)` -> Use CSS variable: filter: blur(var(--blur-\*))
+- Line 91: `filter: "blur(8px)` -> Use CSS variable: filter: blur(var(--blur-\*))
 
 ### src/app/(customer)/checkout/page.tsx (2 violations)
 
 Severity breakdown: 2 critical, 0 warning, 0 info
 
-- Line 41: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-*)
-- Line 47: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-*)
+- Line 41: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-\*)
+- Line 47: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-\*)
 
 ### src/components/ui/auth/AuthModal.tsx (2 violations)
 
@@ -365,15 +365,15 @@ Severity breakdown: 2 critical, 0 warning, 0 info
 
 Severity breakdown: 2 critical, 0 warning, 0 info
 
-- Line 33: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-*)
-- Line 37: `boxShadow: "0 2` -> Use CSS variable: boxShadow: var(--shadow-*)
+- Line 33: `boxShadow: "0 0` -> Use CSS variable: boxShadow: var(--shadow-\*)
+- Line 37: `boxShadow: "0 2` -> Use CSS variable: boxShadow: var(--shadow-\*)
 
 ### src/components/ui/homepage/Hero.tsx (2 violations)
 
 Severity breakdown: 2 critical, 0 warning, 0 info
 
-- Line 73: `filter: "blur(10px)` -> Use CSS variable: filter: blur(var(--blur-*))
-- Line 80: `filter: "blur(0px)` -> Use CSS variable: filter: blur(var(--blur-*))
+- Line 73: `filter: "blur(10px)` -> Use CSS variable: filter: blur(var(--blur-\*))
+- Line 80: `filter: "blur(0px)` -> Use CSS variable: filter: blur(var(--blur-\*))
 
 ### src/components/ui/layout/AppHeader/AppHeader.tsx (2 violations)
 
@@ -406,31 +406,33 @@ Severity breakdown: 1 critical, 0 warning, 0 info
 
 Severity breakdown: 1 critical, 0 warning, 0 info
 
-- Line 89: `filter: "blur(0px)` -> Use CSS variable: filter: blur(var(--blur-*))
+- Line 89: `filter: "blur(0px)` -> Use CSS variable: filter: blur(var(--blur-\*))
 
-
-*... and 17 more files with violations*
+_... and 17 more files with violations_
 
 ## Baseline
 
 ### Current Run
-| Category | Critical | Warning | Info | Total |
-|----------|----------|---------|------|-------|
-| effects | 11 | 13 | 0 | 24 |
-| colors | 80 | 24 | 0 | 104 |
-| spacing | 2 | 0 | 0 | 2 |
-| deprecated | 7 | 0 | 0 | 7 |
+
+| Category   | Critical | Warning | Info | Total |
+| ---------- | -------- | ------- | ---- | ----- |
+| effects    | 11       | 13      | 0    | 24    |
+| colors     | 80       | 24      | 0    | 104   |
+| spacing    | 2        | 0       | 0    | 2     |
+| deprecated | 7        | 0       | 0    | 7     |
 
 ### Historical Trend
-| Run | Date | Critical | Warning | Info | Total |
-|-----|------|----------|---------|------|-------|
-| 6 | 2026-01-29 | 100 | 37 | 0 | 137 |
-| 4 | 2026-01-27 | 283 | 51 | 0 | 334 |
-| 2 | 2026-01-27 | 283 | 51 | 0 | 334 |
-| 1 | 2026-01-27 | 283 | 51 | 0 | 334 |
-| 3 | 2026-01-27 | 283 | 51 | 0 | 334 |
+
+| Run | Date       | Critical | Warning | Info | Total |
+| --- | ---------- | -------- | ------- | ---- | ----- |
+| 6   | 2026-01-29 | 100      | 37      | 0    | 137   |
+| 4   | 2026-01-27 | 283      | 51      | 0    | 334   |
+| 2   | 2026-01-27 | 283      | 51      | 0    | 334   |
+| 1   | 2026-01-27 | 283      | 51      | 0    | 334   |
+| 3   | 2026-01-27 | 283      | 51      | 0    | 334   |
 
 ### Category Baselines
+
 - colors: 104
 - spacing: 2
 - effects: 24
@@ -438,6 +440,7 @@ Severity breakdown: 1 critical, 0 warning, 0 info
 - imports: 0
 
 ### Delta from Previous Run
+
 - colors: +11 **REGRESSION**
 - spacing: 0
 - effects: 0
@@ -447,4 +450,5 @@ Severity breakdown: 1 critical, 0 warning, 0 info
 **WARNING: Regression detected! Violations have increased.**
 
 ---
-*Generated by scripts/audit-tokens.js*
+
+_Generated by scripts/audit-tokens.js_

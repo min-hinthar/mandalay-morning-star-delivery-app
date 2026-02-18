@@ -39,11 +39,7 @@ export interface MenuSectionProps {
   className?: string;
 }
 
-export function MenuSection({
-  category,
-  children,
-  className,
-}: MenuSectionProps) {
+export function MenuSection({ category, children, className }: MenuSectionProps) {
   const sectionId = `category-${category.slug}`;
   const headingId = `category-heading-${category.slug}`;
 
@@ -58,15 +54,10 @@ export function MenuSection({
         className
       )}
     >
-      <h2
-        id={headingId}
-        className="font-display text-xl font-bold text-text-primary mb-4"
-      >
+      <h2 id={headingId} className="font-display text-xl font-bold text-text-primary mb-4">
         {category.nameEn || category.name}
         {category.nameMy && (
-          <span className="ml-2 font-burmese text-base text-text-muted">
-            {category.nameMy}
-          </span>
+          <span className="ml-2 font-burmese text-base text-text-muted">{category.nameMy}</span>
         )}
       </h2>
       {children}

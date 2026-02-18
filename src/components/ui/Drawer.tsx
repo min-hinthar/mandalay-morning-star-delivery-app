@@ -164,8 +164,7 @@ export function Drawer({
       timeoutId = setTimeout(() => {
         timeoutId = null;
         if (drawerRef.current) {
-          const focusables =
-            drawerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+          const focusables = drawerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
           if (focusables.length > 0) {
             focusables[0].focus();
           } else {
@@ -208,8 +207,7 @@ export function Drawer({
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key !== "Tab" || !drawerRef.current) return;
 
-    const focusables =
-      drawerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+    const focusables = drawerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
     if (focusables.length === 0) return;
 
     const firstFocusable = focusables[0];
@@ -307,10 +305,7 @@ export function Drawer({
                 "flex flex-col",
               ],
               // Bottom sheet styles
-              isBottom && [
-                "inset-x-0 bottom-0",
-                "rounded-t-3xl",
-              ],
+              isBottom && ["inset-x-0 bottom-0", "rounded-t-3xl"],
               className
             )}
             {...(isBottom && !prefersReducedMotion ? swipeProps : {})}
@@ -346,10 +341,7 @@ export function Drawer({
                     "w-12 h-1.5 rounded-full",
                     "bg-border-default dark:bg-border-default",
                     "transition-all duration-150",
-                    isDragging && [
-                      "bg-border-strong dark:bg-border-strong",
-                      "scale-x-110",
-                    ]
+                    isDragging && ["bg-border-strong dark:bg-border-strong", "scale-x-110"]
                   )}
                 />
               </div>

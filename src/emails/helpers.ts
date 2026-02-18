@@ -7,8 +7,7 @@ export const FONT_STACK =
 
 export const SERIF_STACK = "Georgia, 'Palatino Linotype', serif";
 
-export const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL || 'https://mandalaymorningstar.com';
+export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
 
 export function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
@@ -16,11 +15,11 @@ export function formatPrice(cents: number): string {
 
 export function formatDate(isoString: string): string {
   const date = new Date(isoString);
-  return date.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }
 

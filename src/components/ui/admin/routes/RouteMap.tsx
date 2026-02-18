@@ -9,12 +9,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import {
-  GoogleMap,
-  useJsApiLoader,
-  Polyline,
-  Marker,
-} from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader, Polyline, Marker } from "@react-google-maps/api";
 import { Loader2, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { RouteStopStatus } from "@/types/driver";
@@ -95,12 +90,7 @@ const LIBRARIES: ("places" | "geometry" | "marker")[] = ["places", "geometry", "
 // Check if Map ID is available for AdvancedMarkerElement
 const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
 
-export function RouteMap({
-  stops,
-  polyline,
-  onStopClick,
-  className,
-}: RouteMapProps) {
+export function RouteMap({ stops, polyline, onStopClick, className }: RouteMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
   // Refs for AdvancedMarkerElements
@@ -324,15 +314,24 @@ export function RouteMap({
       <div className="absolute bottom-3 left-3 right-3 z-10">
         <div className="flex items-center gap-4 rounded-lg bg-[var(--color-surface)] sm:bg-[var(--color-surface)]/90 px-3 py-2 shadow-sm sm:backdrop-blur-sm text-xs">
           <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: STATUS_COLORS.pending }} />
+            <div
+              className="h-3 w-3 rounded-full"
+              style={{ backgroundColor: STATUS_COLORS.pending }}
+            />
             <span className="text-text-secondary">Pending</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: STATUS_COLORS.enroute }} />
+            <div
+              className="h-3 w-3 rounded-full"
+              style={{ backgroundColor: STATUS_COLORS.enroute }}
+            />
             <span className="text-text-secondary">En Route</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: STATUS_COLORS.delivered }} />
+            <div
+              className="h-3 w-3 rounded-full"
+              style={{ backgroundColor: STATUS_COLORS.delivered }}
+            />
             <span className="text-text-secondary">Delivered</span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -350,12 +349,7 @@ export function RouteMap({
  */
 export function RouteMapSkeleton({ className }: { className?: string }) {
   return (
-    <div
-      className={cn(
-        "h-full rounded-card-sm bg-surface-muted animate-pulse",
-        className
-      )}
-    >
+    <div className={cn("h-full rounded-card-sm bg-surface-muted animate-pulse", className)}>
       <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-2 text-text-muted">
           <MapPin className="h-8 w-8" />
