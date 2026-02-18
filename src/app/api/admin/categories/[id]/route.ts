@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 const updateCategorySchema = z.object({
   slug: z
@@ -22,6 +23,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/categories/:id" });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const parsed = updateCategorySchema.safeParse(body);
@@ -68,6 +72,9 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/categories/:id" });
+    if (rl.limited) return rl.response;
 
     // Check if category has associated menu items
     const { count } = await auth.supabase

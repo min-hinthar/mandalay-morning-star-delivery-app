@@ -4,6 +4,7 @@ import { optimizeRouteSchema } from "@/lib/validations/route";
 import { optimizeRouteStops } from "@/lib/services/route-optimization";
 import { logger } from "@/lib/utils/logger";
 import type { ProfileRole } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface ProfileCheck {
   role: ProfileRole;
@@ -55,6 +56,9 @@ export async function POST(request: NextRequest) {
     if (profileError || !profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/routes/optimize" });
+    if (rl.limited) return rl.response;
 
     // Parse and validate request body
     const body = await request.json();

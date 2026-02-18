@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import { z } from "zod";
 import type { MenuCategoriesRow } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface CategoryWithCount extends MenuCategoriesRow {
   item_count: number;
@@ -25,6 +26,9 @@ export async function GET() {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/categories" });
+    if (rl.limited) return rl.response;
 
     // Get categories with item count
     const { data: categories, error } = await auth.supabase
@@ -76,6 +80,9 @@ export async function POST(request: Request) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/categories" });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const parsed = createCategorySchema.safeParse(body);

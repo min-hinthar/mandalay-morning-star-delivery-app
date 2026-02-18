@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 /**
  * POST /api/admin/sections/publish
@@ -12,6 +13,9 @@ export async function POST() {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/publish" });
+    if (rl.limited) return rl.response;
 
     const { error } = await auth.supabase
       .from("featured_sections")

@@ -12,6 +12,7 @@ import type {
   RatingTrendPoint,
   DriverRatingWithDetails,
 } from "@/types/analytics";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface ProfileCheck {
   role: ProfileRole;
@@ -101,6 +102,9 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     if (profileError || !profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/analytics/drivers/:driverId" });
+    if (rl.limited) return rl.response;
 
     // Validate driver ID
     const paramResult = driverIdParamSchema.safeParse(resolvedParams);

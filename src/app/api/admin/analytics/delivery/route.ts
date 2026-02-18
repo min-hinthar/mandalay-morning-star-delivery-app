@@ -19,6 +19,7 @@ import type {
   RecentException,
 } from "@/types/analytics";
 import type { DeliveryExceptionType } from "@/types/driver";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface ProfileCheck {
   role: ProfileRole;
@@ -79,6 +80,9 @@ export async function GET(request: NextRequest) {
     if (profileError || !profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/analytics/delivery" });
+    if (rl.limited) return rl.response;
 
     // Parse query parameters
     const searchParams = Object.fromEntries(request.nextUrl.searchParams);

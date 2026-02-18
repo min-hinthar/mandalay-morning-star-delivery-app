@@ -4,6 +4,7 @@ import { updateRouteSchema, reorderStopsSchema } from "@/lib/validations/route";
 import { logger } from "@/lib/utils/logger";
 import type { RouteStatus } from "@/types/driver";
 import type { ProfileCheck, RouteDetailRow, RouteParams } from "./types";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 /**
  * GET /api/admin/routes/[id]
@@ -35,6 +36,9 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     if (profileError || !profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/routes/:id" });
+    if (rl.limited) return rl.response;
 
     // Fetch route with all details
     const { data: route, error: routeError } = await supabase
@@ -239,6 +243,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/routes/:id" });
+    if (rl.limited) return rl.response;
+
     const body = await request.json();
 
     // Check if this is a reorder request
@@ -352,6 +359,9 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     if (profileError || !profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/routes/:id" });
+    if (rl.limited) return rl.response;
 
     // Check route status
     const { data: route } = await supabase.from("routes").select("status").eq("id", id).single();

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -49,6 +50,15 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         { status: 401 }
       );
     }
+
+    // Rate limit
+    const rl = await checkRateLimit({
+      limiter: apiWriteLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "orders/notes",
+    });
+    if (rl.limited) return rl.response;
 
     // Parse and validate body
     let body: unknown;

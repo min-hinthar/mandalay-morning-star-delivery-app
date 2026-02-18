@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { sendEmail, buildEmailElement } from "@/lib/email";
 import type { EmailType } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface NotificationLogRow {
   id: string;
@@ -53,6 +54,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/emails/:id/resend" });
+    if (rl.limited) return rl.response;
     const { supabase } = auth;
 
     // Fetch the notification log entry — cast due to missing Database type

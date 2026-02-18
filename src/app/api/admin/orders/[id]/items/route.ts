@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
 import { logger } from "@/lib/utils/logger";
 import type { Json, OrderStatus } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 // Items that can't be modified after certain statuses
 const NON_EDITABLE_STATUSES: OrderStatus[] = ["delivered", "cancelled"];
@@ -53,6 +54,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/orders/:id/items" });
+    if (rl.limited) return rl.response;
     const { supabase, userId } = auth;
 
     // Parse and validate request body

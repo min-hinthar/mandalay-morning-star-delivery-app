@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -11,6 +12,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/menu/:id" });
+    if (rl.limited) return rl.response;
 
     const { data: item, error } = await auth.supabase
       .from("menu_items")
@@ -69,6 +73,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/menu/:id" });
+    if (rl.limited) return rl.response;
+
     const body = await request.json();
     const parsed = updateMenuItemSchema.safeParse(body);
 
@@ -122,6 +129,9 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/menu/:id" });
+    if (rl.limited) return rl.response;
 
     // Check if item has associated orders
     const { count } = await auth.supabase

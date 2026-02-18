@@ -24,6 +24,7 @@ const config = [
       "storybook-static/**",
       "src/stories/**",
       ".claude/hooks/**",
+      ".planning/**", // Planning scripts and artifacts
       "public/sw.js", // Auto-generated service worker
       "scripts/**", // Build scripts
     ],

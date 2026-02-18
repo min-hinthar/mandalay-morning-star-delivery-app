@@ -11,6 +11,7 @@ import { EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
 import { getAppUrl } from "@/lib/supabase/actions";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 const inviteSchema = z.object({
   email: z.string().email("Invalid email format"),
@@ -43,6 +44,9 @@ export async function POST(request: NextRequest) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/drivers/invite" });
+    if (rl.limited) return rl.response;
     const { userId } = auth;
 
     // Use service client to bypass RLS for admin operations

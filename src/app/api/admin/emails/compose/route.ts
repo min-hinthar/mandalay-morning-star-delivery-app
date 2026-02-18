@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { getResendClient, EMAIL_FROM, EMAIL_REPLY_TO, APP_URL } from "@/lib/email";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 // ===========================================
 // VALIDATION
@@ -45,6 +46,9 @@ export async function POST(request: Request) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/emails/compose" });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const parsed = composeSchema.safeParse(body);

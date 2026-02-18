@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 const VALID_SORT_COLUMNS = [
   "created_at",
@@ -56,6 +57,9 @@ export async function GET(request: Request) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/emails" });
+    if (rl.limited) return rl.response;
     const { supabase } = auth;
 
     const { searchParams } = new URL(request.url);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
 
 const onboardSchema = z.object({
   inviteId: z.string().uuid("Invalid invite ID"),
@@ -59,6 +60,15 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    // Rate limit
+    const rl = await checkRateLimit({
+      limiter: apiWriteLimiter,
+      identifier: user.id,
+      role: "driver",
+      route: "driver/onboard",
+    });
+    if (rl.limited) return rl.response;
 
     // Verify user metadata matches invite
     const userInviteId = user.user_metadata?.invite_id as string | undefined;

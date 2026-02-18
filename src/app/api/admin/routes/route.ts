@@ -4,6 +4,7 @@ import { createRouteSchema } from "@/lib/validations/route";
 import { logger } from "@/lib/utils/logger";
 import type { ProfileRole, ProfilesRow } from "@/types/database";
 import type { RoutesRow, DriversRow, RouteStats } from "@/types/driver";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface ProfileCheck {
   role: ProfileRole;
@@ -49,6 +50,9 @@ export async function GET(request: NextRequest) {
     if (profileError || !profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/routes" });
+    if (rl.limited) return rl.response;
 
     // Build query
     let query = supabase
@@ -150,6 +154,9 @@ export async function POST(request: NextRequest) {
     if (profileError || !profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/routes" });
+    if (rl.limited) return rl.response;
 
     // Parse and validate request body
     const body = await request.json();

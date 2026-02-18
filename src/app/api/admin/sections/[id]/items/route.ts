@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import { z } from "zod";
 import type { MenuItemsRow } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface SectionItem {
   item_id: string;
@@ -35,6 +36,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/:id/items" });
+    if (rl.limited) return rl.response;
 
     // Check section exists
     const { error: sectionError } = await auth.supabase
@@ -103,6 +107,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/:id/items" });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const parsed = addItemsSchema.safeParse(body);
@@ -240,6 +247,9 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/:id/items" });
+    if (rl.limited) return rl.response;
+
     const { searchParams } = new URL(request.url);
     const itemId = searchParams.get("itemId");
 
@@ -281,6 +291,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/:id/items" });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const parsed = reorderItemsSchema.safeParse(body);
