@@ -55,9 +55,7 @@ export function DriverInvite({ driverEmail, magicLink, expiresIn }: DriverInvite
           marginBottom: "20px",
         }}
       >
-        <Text
-          style={{ fontSize: "13px", fontFamily: SANS, color: "#6B7280", margin: "0 0 4px 0" }}
-        >
+        <Text style={{ fontSize: "13px", fontFamily: SANS, color: "#6B7280", margin: "0 0 4px 0" }}>
           Invitation for
         </Text>
         <Text

@@ -88,15 +88,15 @@ function ExpiredContent() {
               {isDriverInvite ? "Driver invite link expired" : "Link expired"}
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {isDriverInvite
-                ? "Your driver invite link has expired. Tap below to receive a new one."
-                : (
-                    <>
-                      This magic link has expired or has already been used.
-                      <br />
-                      No worries — we&apos;ll send you a fresh one.
-                    </>
-                  )}
+              {isDriverInvite ? (
+                "Your driver invite link has expired. Tap below to receive a new one."
+              ) : (
+                <>
+                  This magic link has expired or has already been used.
+                  <br />
+                  No worries — we&apos;ll send you a fresh one.
+                </>
+              )}
             </p>
           </div>
 
@@ -112,16 +112,18 @@ function ExpiredContent() {
                 className="rounded-2xl h-12"
               />
             )}
-            {error && isDriverInvite && (
-              <p className="text-sm text-status-error">{error}</p>
-            )}
+            {error && isDriverInvite && <p className="text-sm text-status-error">{error}</p>}
             <Button
               type="button"
               className="w-full h-12 rounded-2xl font-semibold"
               onClick={handleResend}
               disabled={isPending}
             >
-              {isPending ? "Sending\u2026" : isDriverInvite ? "Resend invite link" : "Send a new link"}
+              {isPending
+                ? "Sending\u2026"
+                : isDriverInvite
+                  ? "Resend invite link"
+                  : "Send a new link"}
             </Button>
           </div>
 
