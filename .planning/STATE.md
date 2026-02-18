@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 68 — RLS Audit & Hardening
+**Current focus:** Phase 68 complete. Ready for Phase 69.
 
 ## Current Position
 
 Phase: 68 of 74 (RLS Audit & Hardening)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-18 — Completed 68-01-PLAN.md (RLS migration 022)
+Plan: 2 of 2 in current phase
+Status: Phase complete
+Last activity: 2026-02-18 — Completed 68-02-PLAN.md (RLS test suite & verification)
 
-Progress: [██░░░░░░░░] ~14% (Phase 68 plan 1/2, 7 phases remain)
+Progress: [███░░░░░░░] ~28% (Phase 68 complete, 6 phases remain)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 288 (across v1.0-v1.8)
+- Total plans completed: 290 (across v1.0-v1.8)
 - Average duration: ~15 min
 - Total execution time: ~70 hours
 
@@ -54,6 +54,8 @@ Recent for v1.8:
 - app_settings SELECT uses USING(true) for universal read including anon
 - order_audit_log restricted to admin-only SELECT/INSERT; service-role bypasses RLS
 - All RLS function calls must use (select ...) initplan wrapper
+- pgTAP not installed on production; use direct pg_policy/pg_proc queries for RLS verification
+- 62-assertion regression test in supabase/tests/00_rls_policies.test.sql for future CI
 
 ### Pending Todos
 
@@ -69,5 +71,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Phase 68 plan 1/2 complete. Ready for 68-02-PLAN.md.
+Stopped at: Phase 68 complete (2/2 plans). Ready for Phase 69.
 Resume file: None
