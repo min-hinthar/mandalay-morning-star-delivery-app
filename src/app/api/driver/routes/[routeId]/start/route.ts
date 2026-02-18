@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 
 interface RouteParams {
@@ -17,16 +18,7 @@ interface StopQueryResult {
   stop_index: number;
 }
 
-interface StartRouteResponse {
-  success: boolean;
-  startedAt: string;
-  firstStopId: string | null;
-}
-
-export async function POST(
-  _request: NextRequest,
-  { params }: RouteParams
-): Promise<NextResponse<StartRouteResponse | { error: string }>> {
+export async function POST(_request: NextRequest, { params }: RouteParams) {
   try {
     const { routeId } = await params;
 
@@ -35,6 +27,14 @@ export async function POST(
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
     const { supabase, driverId } = auth;
+
+    const rl = await checkRateLimit({
+      limiter: driverActionLimiter,
+      identifier: driverId,
+      role: "driver",
+      route: "driver/routes/[routeId]/start",
+    });
+    if (rl.limited) return rl.response;
 
     // Get route
     const { data: route, error: routeError } = await supabase

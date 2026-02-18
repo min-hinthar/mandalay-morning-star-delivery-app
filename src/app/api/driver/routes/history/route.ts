@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import type { RouteStats, RouteStatus } from "@/types/driver";
 
@@ -25,23 +26,21 @@ interface RouteHistoryItem {
   completedAt: string | null;
 }
 
-interface HistoryResponse {
-  driver: {
-    deliveriesCount: number;
-    ratingAvg: number;
-  };
-  routes: RouteHistoryItem[];
-}
-
-export async function GET(
-  request: NextRequest
-): Promise<NextResponse<HistoryResponse | { error: string }>> {
+export async function GET(request: NextRequest) {
   try {
     const auth = await requireDriver();
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
     const { supabase, driverId } = auth;
+
+    const rl = await checkRateLimit({
+      limiter: driverActionLimiter,
+      identifier: driverId,
+      role: "driver",
+      route: "driver/routes/history",
+    });
+    if (rl.limited) return rl.response;
 
     // Get driver stats
     interface DriverStatsResult {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { updateProfileSchema } from "@/lib/validations/account";
+import { checkRateLimit, customerLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 
 interface ProfileRow {
@@ -35,6 +36,9 @@ export async function GET() {
         { status: 401 }
       );
     }
+
+    const rl = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "account/profile" });
+    if (rl.limited) return rl.response;
 
     const { data: profile, error } = await supabase
       .from("profiles")
@@ -74,6 +78,9 @@ export async function PATCH(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    const rlPatch = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "account/profile" });
+    if (rlPatch.limited) return rlPatch.response;
 
     const body = await request.json();
     const result = updateProfileSchema.safeParse(body);

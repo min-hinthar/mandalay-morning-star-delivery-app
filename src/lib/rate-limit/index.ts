@@ -20,6 +20,7 @@ export {
   customerLimiter,
   adminLimiter,
   globalLimiter,
+  getRedisClient,
 } from "./client";
 
 export { RATE_LIMITS } from "./config";

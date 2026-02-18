@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getFeaturedSections } from "@/lib/queries/sections";
+import { checkRateLimit, publicReadLimiter, getClientIp } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 
 /**
@@ -8,8 +9,17 @@ import { logger } from "@/lib/utils/logger";
  * Returns visible, non-deleted sections with active menu items.
  * Cached for 60 seconds via CDN headers.
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const rl = await checkRateLimit({
+      limiter: publicReadLimiter,
+      identifier: ip,
+      role: "anon",
+      route: "sections",
+    });
+    if (rl.limited) return rl.response;
+
     const sections = await getFeaturedSections();
 
     return NextResponse.json(

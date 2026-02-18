@@ -28,9 +28,7 @@ export type RateLimitResult =
  *
  * Fails open when limiter is null (Redis not configured) or on timeout.
  */
-export async function checkRateLimit(
-  opts: RateLimitOptions,
-): Promise<RateLimitResult> {
+export async function checkRateLimit(opts: RateLimitOptions): Promise<RateLimitResult> {
   if (!opts.limiter) {
     return { limited: false, headers: {} };
   }
@@ -38,10 +36,7 @@ export async function checkRateLimit(
   const result = await opts.limiter.limit(opts.identifier);
 
   if (!result.success) {
-    const retryAfterSeconds = Math.max(
-      1,
-      Math.ceil((result.reset - Date.now()) / 1000),
-    );
+    const retryAfterSeconds = Math.max(1, Math.ceil((result.reset - Date.now()) / 1000));
 
     logger.warn("Rate limit exceeded", {
       api: opts.route,
@@ -67,7 +62,7 @@ export async function checkRateLimit(
             "X-RateLimit-Remaining": "0",
             "X-RateLimit-Reset": String(result.reset),
           },
-        },
+        }
       ),
     };
   }
@@ -104,10 +99,7 @@ export async function checkServerActionRateLimit(opts: {
   const result = await opts.limiter.limit(opts.identifier);
 
   if (!result.success) {
-    const retryAfterSeconds = Math.max(
-      1,
-      Math.ceil((result.reset - Date.now()) / 1000),
-    );
+    const retryAfterSeconds = Math.max(1, Math.ceil((result.reset - Date.now()) / 1000));
 
     logger.warn("Rate limit exceeded", {
       api: opts.route,

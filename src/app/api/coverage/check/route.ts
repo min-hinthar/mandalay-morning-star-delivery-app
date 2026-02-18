@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CoverageCheckRequestSchema } from "@/lib/validators/coverage";
 import { checkAddressCoverage, checkCoverage } from "@/lib/services/coverage";
+import { checkRateLimit, publicReadLimiter, getClientIp } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    const ip = getClientIp(request);
+    const rl = await checkRateLimit({ limiter: publicReadLimiter, identifier: ip, role: "anon", route: "coverage/check" });
+    if (rl.limited) return rl.response;
+
     const body = await request.json();
     const parsed = CoverageCheckRequestSchema.safeParse(body);
 

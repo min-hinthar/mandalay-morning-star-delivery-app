@@ -12,6 +12,7 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit, customerLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import { calculateETA, calculateRemainingStops } from "@/lib/utils/eta";
 import type { OrderStatus } from "@/types/database";
@@ -22,7 +23,6 @@ import type {
   TrackingRouteStopInfo,
   TrackingOrderItem,
   TrackingAddressInfo,
-  TrackingApiError,
 } from "@/types/tracking";
 import type {
   OrderQueryResult,
@@ -35,10 +35,7 @@ import type {
 // Restaurant location constant (Mandalay Morning Star, Los Angeles)
 const RESTAURANT_LOCATION = { lat: 34.0522, lng: -118.2437 };
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ orderId: string }> }
-): Promise<NextResponse<{ data: TrackingData } | { error: TrackingApiError }>> {
+export async function GET(request: Request, { params }: { params: Promise<{ orderId: string }> }) {
   try {
     const { orderId } = await params;
     const url = new URL(request.url);
@@ -62,6 +59,15 @@ export async function GET(
         { status: 401 }
       );
     }
+
+    // Rate limit by authenticated user
+    const rl = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "tracking/[orderId]",
+    });
+    if (rl.limited) return rl.response;
 
     // Fetch order with items and address
     const { data: order, error: orderError } = await supabase

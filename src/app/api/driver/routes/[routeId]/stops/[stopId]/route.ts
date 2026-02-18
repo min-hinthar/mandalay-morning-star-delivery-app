@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import { updateStopStatusSchema, isValidStatusTransition } from "@/lib/validations/driver-api";
 import type { RouteStopStatus, RouteStats } from "@/types/driver";
@@ -23,24 +24,7 @@ interface StopQueryResult {
   order_id: string;
 }
 
-interface UpdateStopResponse {
-  success: boolean;
-  stop: {
-    id: string;
-    status: RouteStopStatus;
-    arrivedAt: string | null;
-    deliveredAt: string | null;
-  };
-  nextStop: {
-    id: string;
-    stopIndex: number;
-  } | null;
-}
-
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteParams
-): Promise<NextResponse<UpdateStopResponse | { error: string }>> {
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { routeId, stopId } = await params;
 
@@ -59,6 +43,14 @@ export async function PATCH(
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
     const { supabase, driverId } = auth;
+
+    const rl = await checkRateLimit({
+      limiter: driverActionLimiter,
+      identifier: driverId,
+      role: "driver",
+      route: "driver/routes/[routeId]/stops/[stopId]",
+    });
+    if (rl.limited) return rl.response;
 
     // Get route
     const { data: route, error: routeError } = await supabase

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import type { RouteStats, RouteStatus, RouteStopStatus } from "@/types/driver";
 
@@ -97,26 +98,21 @@ interface StopDetailResponse {
   };
 }
 
-interface ActiveRouteResponse {
-  route: {
-    id: string;
-    deliveryDate: string;
-    status: RouteStatus;
-    stats: RouteStats | null;
-    startedAt: string | null;
-    optimizedPolyline: string | null;
-    stops: StopDetailResponse[];
-  } | null;
-  message?: string;
-}
-
-export async function GET(): Promise<NextResponse<ActiveRouteResponse | { error: string }>> {
+export async function GET() {
   try {
     const auth = await requireDriver();
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
     const { supabase, driverId } = auth;
+
+    const rl = await checkRateLimit({
+      limiter: driverActionLimiter,
+      identifier: driverId,
+      role: "driver",
+      route: "driver/routes/active",
+    });
+    if (rl.limited) return rl.response;
 
     // Get today's date in LA timezone
     const todayStr = getTodayInTimezone();
