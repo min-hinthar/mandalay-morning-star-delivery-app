@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth";
+import { getAppUrl } from "@/lib/supabase/actions";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 
@@ -15,8 +16,6 @@ interface DriverInviteRow {
   accepted_at: string | null;
   revoked_at: string | null;
 }
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 /**
  * POST /api/admin/drivers/[id]/resend-invite
@@ -92,11 +91,12 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     }
 
     // Generate new magic link
+    const appUrl = await getAppUrl();
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: "magiclink",
       email: invite.email,
       options: {
-        redirectTo: `${BASE_URL}/auth/callback?next=/driver/onboard&invite_id=${invite.id}`,
+        redirectTo: `${appUrl}/auth/callback?next=/driver/onboard&invite_id=${invite.id}`,
       },
     });
 

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/auth";
+import { getAppUrl } from "@/lib/supabase/actions";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 
@@ -24,8 +25,6 @@ interface DriverInviteRow {
   email: string;
   expires_at: string;
 }
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 /**
  * POST /api/admin/drivers/invite
@@ -138,11 +137,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate magic link - works for both new and existing users
+    const appUrl = await getAppUrl();
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: "magiclink",
       email: normalizedEmail,
       options: {
-        redirectTo: `${BASE_URL}/auth/callback?next=/driver/onboard&invite_id=${invite.id}`,
+        redirectTo: `${appUrl}/auth/callback?next=/driver/onboard&invite_id=${invite.id}`,
       },
     });
 

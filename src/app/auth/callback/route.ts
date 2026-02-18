@@ -157,8 +157,13 @@ export async function GET(request: Request): Promise<NextResponse> {
     // If next is /login (standard login flow), resolve by role
     // Otherwise honor the deep link as-is
     const isStandardLogin = next === "/login" || next === "/";
+
+    // Use service client for role lookup — SSR cookie state after
+    // exchangeCodeForSession can be inconsistent in Route Handlers,
+    // causing RLS-gated queries to return no data.
+    const roleClient = createServiceClient();
     const redirectPath = isStandardLogin
-      ? await getRoleDashboard(supabase, sessionData.session!.user.id)
+      ? await getRoleDashboard(roleClient, sessionData.session!.user.id)
       : next;
 
     return NextResponse.redirect(`${origin}${redirectPath}`, { status: 302 });
