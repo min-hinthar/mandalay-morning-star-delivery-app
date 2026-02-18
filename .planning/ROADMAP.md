@@ -86,9 +86,9 @@ Plans:
 
 Plans:
 
-- [ ] 69-01-PLAN.md — Core rate-limit library (Upstash Redis client, named limiters, env-var config, fail-open)
-- [ ] 69-02-PLAN.md — Apply rate limiting to auth, public, customer, and driver routes + health check + remove old rate-limit.ts
-- [ ] 69-03-PLAN.md — Admin route rate limiting + client-side 429 toast handler + Sentry monitoring
+- [x] 69-01-PLAN.md — Core rate-limit library (Upstash Redis client, named limiters, env-var config, fail-open) — completed 2026-02-18
+- [x] 69-02-PLAN.md — Apply rate limiting to auth, public, customer, and driver routes + health check + remove old rate-limit.ts — completed 2026-02-18
+- [x] 69-03-PLAN.md — Admin route rate limiting + client-side 429 toast handler + Sentry monitoring — completed 2026-02-18
 
 #### Phase 70: Role-Based Auth Redirects
 

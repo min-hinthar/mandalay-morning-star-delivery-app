@@ -5,24 +5,24 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 69 in progress (distributed rate limiting). Plan 01 complete (core library).
+**Current focus:** Phase 69 complete (distributed rate limiting). Next: Phase 70 (role-based auth redirects).
 
 ## Current Position
 
 Phase: 69 of 74 (Distributed Rate Limiting)
-Plan: 1 of 3 in current phase (core library)
-Status: In progress
-Last activity: 2026-02-18 — Completed 69-01-PLAN.md (core rate limit library)
+Plan: 3 of 3 in current phase (admin rate limiting + client-side 429 handler)
+Status: Phase complete
+Last activity: 2026-02-18 — Completed 69-03-PLAN.md (admin rate limiting + client-side 429 handler)
 
-Progress: [███░░░░░░░] ~29% (Phase 69: 1/3 plans complete)
+Progress: [████░░░░░░] ~38% (Phase 69: 3/3 plans complete, phase done)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 292 (across v1.0-v1.8)
+- Total plans completed: 295 (across v1.0-v1.8)
 - Average duration: ~15 min
-- Total execution time: ~70 hours
+- Total execution time: ~71 hours
 
 **By Milestone:**
 
@@ -61,6 +61,8 @@ Recent for v1.8:
 - Sliding window algorithm for all limiters (prevents boundary-burst exploit)
 - analytics: false on all limiters (avoids waitUntil/@vercel/functions dependency)
 - .env.example now tracked in git (added !.env.example negation to .gitignore)
+- Client-side 429 handler uses context-aware toast (checkout-specific reassuring message)
+- Sentry alert rule for rate limit spikes requires manual dashboard setup
 
 ### Pending Todos
 
@@ -69,12 +71,13 @@ None.
 ### Blockers/Concerns
 
 - Human verification needed: OAuth sign-in, email delivery, Stripe webhook, Search Console (8 items from v1.7)
-- Upstash Redis provisioning needed via Vercel Marketplace before Phase 69
+- Upstash Redis provisioning needed via Vercel Marketplace before rate limiting is active in production
+- Sentry alert rule "Rate Limit Spike" needs manual creation in Sentry Dashboard
 - Earnings computation join path needs verification (route_stops -> orders.total_cents)
 - Availability business rules: confirm day-of-week pattern vs Saturday-only
 
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Completed 69-01-PLAN.md (core rate limit library). Next: 69-02-PLAN.md (route integration).
+Stopped at: Completed 69-03-PLAN.md (admin rate limiting + client-side 429 handler). Phase 69 complete. Next: Phase 70 (role-based auth redirects).
 Resume file: None
