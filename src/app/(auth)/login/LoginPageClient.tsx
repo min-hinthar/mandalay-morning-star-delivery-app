@@ -28,9 +28,11 @@ interface SuccessProfile {
 function AuthCardContent({
   onOAuthStart,
   successProfile,
+  redirectTo,
 }: {
   onOAuthStart: (provider: "google" | null) => void;
   successProfile: SuccessProfile;
+  redirectTo?: string;
 }) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { state, setState, email, setEmail, errorMessage, setErrorMessage } = useAuthCard();
@@ -50,7 +52,7 @@ function AuthCardContent({
   };
 
   if (state === "confirmation") {
-    return <MagicLinkConfirmation email={email} onBack={handleBackToForm} />;
+    return <MagicLinkConfirmation email={email} onBack={handleBackToForm} redirectTo={redirectTo} />;
   }
 
   if (state === "success") {
@@ -82,8 +84,8 @@ function AuthCardContent({
       transition={shouldAnimate ? getSpring(spring.gentle) : undefined}
       className="space-y-4"
     >
-      <MagicLinkForm onSuccess={handleMagicLinkSent} />
-      <SocialLoginButtons onOAuthStart={onOAuthStart} />
+      <MagicLinkForm onSuccess={handleMagicLinkSent} redirectTo={redirectTo} />
+      <SocialLoginButtons onOAuthStart={onOAuthStart} redirectTo={redirectTo} />
       <p className="text-center text-xs text-muted-foreground leading-relaxed">
         By signing in, you agree to our{" "}
         <Link
@@ -140,6 +142,7 @@ function AuthSessionListener({
 export function LoginPageClient() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("next") ?? undefined;
   const [oauthProvider, setOauthProvider] = useState<"google" | null>(null);
   const [successProfile, setSuccessProfile] = useState<SuccessProfile>({
     name: null,
@@ -166,6 +169,7 @@ export function LoginPageClient() {
           <AuthCardContent
             onOAuthStart={setOauthProvider}
             successProfile={successProfile}
+            redirectTo={redirectTo}
           />
         </AuthCard>
       </AuthBackground>

@@ -316,6 +316,19 @@ export interface DeliveryExceptionWithDetails extends DeliveryExceptionsRow {
 }
 
 // ===========================================
+// DRIVER BADGES
+// ===========================================
+
+export interface DriverBadgesRow {
+  id: string;
+  driver_id: string;
+  badge_type: string;
+  name: string;
+  icon: string;
+  earned_at: string;
+}
+
+// ===========================================
 // API REQUEST/RESPONSE TYPES
 // ===========================================
 

@@ -1,10 +1,46 @@
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 interface DriverInviteRow {
   id: string;
   email: string;
   accepted_at: string | null;
+}
+
+/** Validate that a redirect path is safe (no open redirect) */
+function isSafeRedirect(path: string): boolean {
+  return path.startsWith("/") && !path.startsWith("//") && !path.includes("://");
+}
+
+/** Resolve the dashboard path for a given user based on profiles.role */
+async function getRoleDashboard(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<string> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .single();
+
+  const role = data?.role as string | undefined;
+
+  if (role === "admin") return "/admin";
+
+  if (role === "driver") {
+    // Only redirect to /driver if they have an active driver record
+    const { data: driver } = await supabase
+      .from("drivers")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("is_active", true)
+      .single();
+
+    if (driver) return "/driver";
+  }
+
+  return "/";
 }
 
 /**
@@ -21,7 +57,8 @@ interface DriverInviteRow {
 export async function GET(request: Request): Promise<NextResponse> {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+  const rawNext = searchParams.get("next") ?? "/";
+  const next = isSafeRedirect(rawNext) ? rawNext : "/";
   const inviteId = searchParams.get("invite_id");
   const errorParam = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
@@ -107,8 +144,15 @@ export async function GET(request: Request): Promise<NextResponse> {
       }
     }
 
-    // Redirect to the target page
-    return NextResponse.redirect(`${origin}${next}`, { status: 302 });
+    // Determine redirect target
+    // If next is /login (standard login flow), resolve by role
+    // Otherwise honor the deep link as-is
+    const isStandardLogin = next === "/login" || next === "/";
+    const redirectPath = isStandardLogin
+      ? await getRoleDashboard(supabase, sessionData.session!.user.id)
+      : next;
+
+    return NextResponse.redirect(`${origin}${redirectPath}`, { status: 302 });
   }
 
   // Default error redirect

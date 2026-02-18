@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { DriverDashboard } from "@/components/ui/driver/DriverDashboard";
 import { Skeleton } from "@/components/ui/skeleton/base";
-import type { RoutesRow, RouteStats, VehicleType } from "@/types/driver";
+import type { RoutesRow, RouteStats, VehicleType, DriverBadgesRow } from "@/types/driver";
 
 const TIMEZONE = "America/Los_Angeles";
 
@@ -97,15 +97,35 @@ async function getDriverData() {
   // Get today's date in LA timezone
   const { todayStr, dayOfWeek, dateDisplay } = getDateInfo();
 
-  // Get today's route for this driver
-  const { data: route } = await supabase
-    .from("routes")
-    .select("id, status, stats_json, started_at, optimized_polyline")
-    .eq("driver_id", driver.id)
-    .eq("delivery_date", todayStr)
-    .in("status", ["planned", "in_progress"])
-    .returns<RouteQueryResult[]>()
-    .single();
+  // Get today's route + gamification data in parallel
+  const [routeResult, streakResult, weeklyResult, badgesResult] = await Promise.all([
+    supabase
+      .from("routes")
+      .select("id, status, stats_json, started_at, optimized_polyline")
+      .eq("driver_id", driver.id)
+      .eq("delivery_date", todayStr)
+      .in("status", ["planned", "in_progress"])
+      .returns<RouteQueryResult[]>()
+      .single(),
+    supabase.rpc("calculate_driver_streak", { p_driver_id: driver.id }),
+    supabase.rpc("calculate_driver_weekly_deliveries", { p_driver_id: driver.id }),
+    supabase
+      .from("driver_badges")
+      .select("id, badge_type, name, icon, earned_at")
+      .eq("driver_id", driver.id)
+      .order("earned_at", { ascending: false })
+      .returns<DriverBadgesRow[]>(),
+  ]);
+
+  const route = routeResult.data;
+  const streakDays = (streakResult.data as number) ?? 0;
+  void weeklyResult; // reserved for weekly goal feature
+  const badges = (badgesResult.data ?? []).map((b) => ({
+    id: b.id,
+    name: b.name,
+    icon: b.icon,
+    earnedAt: b.earned_at,
+  }));
 
   return {
     driver: {
@@ -126,6 +146,8 @@ async function getDriverData() {
       totalDurationMinutes: route.stats_json?.total_duration_minutes ?? null,
       startedAt: route.started_at,
     } : null,
+    streakDays,
+    badges,
     dayOfWeek,
     dateDisplay,
   };
