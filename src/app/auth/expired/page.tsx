@@ -4,7 +4,7 @@ import { Suspense, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { signInWithMagicLink } from "@/lib/supabase/actions";
+import { signInWithMagicLink, resendDriverInvite } from "@/lib/supabase/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/lib/hooks/useToast";
@@ -17,17 +17,42 @@ function ExpiredContent() {
   const [isPending, startTransition] = useTransition();
 
   const initialEmail = useMemo(() => searchParams.get("email") ?? "", [searchParams]);
+  const inviteId = useMemo(() => searchParams.get("invite_id"), [searchParams]);
+  const isDriverInvite = Boolean(inviteId);
 
   const [email, setEmail] = useState(initialEmail);
   const [error, setError] = useState<string | null>(null);
 
   const handleResend = () => {
+    setError(null);
+
+    // Driver invite resend — uses invite_id, no email input needed
+    if (isDriverInvite) {
+      startTransition(() => {
+        void (async () => {
+          const result = await resendDriverInvite(inviteId!);
+
+          if (result?.error) {
+            setError(result.error);
+            return;
+          }
+
+          toast({
+            title: "Invite link sent",
+            description: "Check your inbox for the new driver invite link.",
+          });
+          router.push("/login");
+        })();
+      });
+      return;
+    }
+
+    // Generic magic link resend
     if (!email) {
       setError("Please enter your email.");
       return;
     }
 
-    setError(null);
     startTransition(() => {
       void (async () => {
         const formData = new FormData();
@@ -59,31 +84,44 @@ function ExpiredContent() {
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-2xl font-display font-bold text-text-primary">Link expired</h1>
+            <h1 className="text-2xl font-display font-bold text-text-primary">
+              {isDriverInvite ? "Driver invite link expired" : "Link expired"}
+            </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              This magic link has expired or has already been used.
-              <br />
-              No worries — we&apos;ll send you a fresh one.
+              {isDriverInvite
+                ? "Your driver invite link has expired. Tap below to receive a new one."
+                : (
+                    <>
+                      This magic link has expired or has already been used.
+                      <br />
+                      No worries — we&apos;ll send you a fresh one.
+                    </>
+                  )}
             </p>
           </div>
 
           <div className="space-y-3">
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              error={error ?? undefined}
-              className="rounded-2xl h-12"
-            />
+            {!isDriverInvite && (
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                error={error ?? undefined}
+                className="rounded-2xl h-12"
+              />
+            )}
+            {error && isDriverInvite && (
+              <p className="text-sm text-status-error">{error}</p>
+            )}
             <Button
               type="button"
               className="w-full h-12 rounded-2xl font-semibold"
               onClick={handleResend}
               disabled={isPending}
             >
-              {isPending ? "Sending\u2026" : "Send a new link"}
+              {isPending ? "Sending\u2026" : isDriverInvite ? "Resend invite link" : "Send a new link"}
             </Button>
           </div>
 

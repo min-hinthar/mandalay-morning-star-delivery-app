@@ -43,7 +43,7 @@ const cspDirectives = [
   "default-src 'self'",
   // Google Maps requires *.googleapis.com, *.gstatic.com, *.google.com, blob:
   // See: https://developers.google.com/maps/documentation/javascript/content-security-policy
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://*.googleapis.com https://*.gstatic.com https://*.google.com blob:`,
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googleapis.com https://*.gstatic.com https://*.google.com blob:`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' blob: data: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.googleusercontent.com",
   "font-src 'self' https://fonts.gstatic.com",
