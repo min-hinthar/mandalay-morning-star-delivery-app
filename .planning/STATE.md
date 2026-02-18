@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 67 — CSP & Security Headers
+**Current focus:** Phase 68 — RLS Audit & Hardening
 
 ## Current Position
 
-Phase: 67 of 74 (CSP & Security Headers)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-02-17 — Completed 67-02-PLAN.md (cssText replacement)
+Phase: 68 of 74 (RLS Audit & Hardening)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-18 — Completed 68-01-PLAN.md (RLS migration 022)
 
-Progress: [█░░░░░░░░░] ~12% (Phase 67 complete, 7 phases remain)
+Progress: [██░░░░░░░░] ~14% (Phase 68 plan 1/2, 7 phases remain)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 287 (across v1.0-v1.7)
+- Total plans completed: 288 (across v1.0-v1.8)
 - Average duration: ~15 min
 - Total execution time: ~70 hours
 
@@ -51,6 +51,9 @@ Recent for v1.8:
 - Driver availability uses JSONB column on drivers table (not separate table)
 - Individual style.property assignments preferred over cssText for CSP compatibility
 - String() used for numeric zIndex DOM style values
+- app_settings SELECT uses USING(true) for universal read including anon
+- order_audit_log restricted to admin-only SELECT/INSERT; service-role bypasses RLS
+- All RLS function calls must use (select ...) initplan wrapper
 
 ### Pending Todos
 
@@ -65,6 +68,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-17
-Stopped at: Phase 67 complete (3/3 plans). Ready for Phase 68.
+Last session: 2026-02-18
+Stopped at: Phase 68 plan 1/2 complete. Ready for 68-02-PLAN.md.
 Resume file: None
