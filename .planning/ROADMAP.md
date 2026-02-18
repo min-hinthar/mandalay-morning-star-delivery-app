@@ -64,12 +64,12 @@ Plans:
 2. Missing policies added with proper role gating (driver own-read, admin bypass, service-role for system tables)
 3. Performance indexes exist on user_id, driver_id, route_id columns used in RLS policy checks
 4. RLS isolation test script passes for all roles (customer, driver, admin, anonymous)
-   **Plans**: TBD
+   **Plans**: 2 plans (Wave 1: 01, Wave 2: 02 depends on 01)
 
 Plans:
 
-- [ ] 68-01: TBD
-- [ ] 68-02: TBD
+- [ ] 68-01-PLAN.md — Migration 022: fix 5 RLS gaps, initplan optimization, policy naming standardization
+- [ ] 68-02-PLAN.md — Expand pgTAP test suite to all 24 tables, run verification
 
 #### Phase 69: Distributed Rate Limiting
 
