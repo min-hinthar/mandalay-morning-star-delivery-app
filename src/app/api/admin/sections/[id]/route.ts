@@ -5,6 +5,7 @@ import type { FeaturedSectionsRow } from "@/types/database";
 import type { SectionWithItems, SectionWithItemIds } from "./types";
 import { updateSectionSchema, actionSchema } from "./schemas";
 import { transformSectionResponse } from "./helpers";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -13,6 +14,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/:id" });
+    if (rl.limited) return rl.response;
 
     const { data: section, error } = await auth.supabase
       .from("featured_sections")
@@ -77,6 +81,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/:id" });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const parsed = updateSectionSchema.safeParse(body);
@@ -149,6 +156,9 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/:id" });
+    if (rl.limited) return rl.response;
+
     // Check if section is predefined
     const { data: section, error: checkError } = await auth.supabase
       .from("featured_sections")
@@ -211,6 +221,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/:id" });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const parsed = actionSchema.safeParse(body);

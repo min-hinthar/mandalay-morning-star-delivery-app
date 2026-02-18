@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import type { MenuItemsRow } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface OrderItemWithMenuItem {
   menu_item_id: string | null;
@@ -37,6 +38,9 @@ export async function GET() {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/most-popular/suggest" });
+    if (rl.limited) return rl.response;
 
     // Get order items with their menu items, excluding null menu_item_id
     const { data: orderItems, error } = await auth.supabase

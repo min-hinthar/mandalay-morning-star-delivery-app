@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface OrderRow {
   id: string;
@@ -72,6 +73,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/orders/:id/details" });
+    if (rl.limited) return rl.response;
     const { supabase } = auth;
 
     // Fetch order with customer and address info

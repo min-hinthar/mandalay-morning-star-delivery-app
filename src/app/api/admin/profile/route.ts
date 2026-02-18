@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import type { ProfileRole } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface AdminProfileRow {
   id: string;
@@ -51,6 +52,9 @@ export async function GET() {
       );
     }
     const { supabase, userId } = auth;
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/profile" });
+    if (rl.limited) return rl.response;
 
     // Fetch profile
     const { data: profile, error: profileError } = await supabase
@@ -103,6 +107,9 @@ export async function PATCH(request: NextRequest) {
       );
     }
     const { supabase, userId } = auth;
+
+    const rl2 = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/profile" });
+    if (rl2.limited) return rl2.response;
 
     const body = await request.json();
     const result = updateAdminProfileSchema.safeParse(body);

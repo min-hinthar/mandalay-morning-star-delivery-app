@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 /**
  * GET /api/admin/profile/stats
@@ -18,6 +19,9 @@ export async function GET() {
       );
     }
     const { supabase, userId } = auth;
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/profile/stats" });
+    if (rl.limited) return rl.response;
 
     // Get auth user for last_sign_in_at
     const {

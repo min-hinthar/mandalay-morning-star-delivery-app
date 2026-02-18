@@ -6,6 +6,7 @@ import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 import { OrderCancellation } from "@/emails/OrderCancellation";
 import type { OrderStatus, Json } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface OrderRow {
   status: OrderStatus;
@@ -26,6 +27,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/orders/:id/cancel" });
+    if (rl.limited) return rl.response;
     const { supabase, userId } = auth;
 
     // Parse and validate request body

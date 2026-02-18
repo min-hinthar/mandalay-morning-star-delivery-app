@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import { z } from "zod";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface MenuItemRow {
   id: string;
@@ -50,6 +51,9 @@ export async function GET() {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/menu" });
+    if (rl.limited) return rl.response;
+
     const { data: items, error } = await auth.supabase
       .from("menu_items")
       .select(
@@ -83,6 +87,9 @@ export async function POST(request: Request) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/menu" });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const parsed = createMenuItemSchema.safeParse(body);

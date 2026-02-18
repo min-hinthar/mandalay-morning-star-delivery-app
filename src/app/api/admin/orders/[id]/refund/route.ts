@@ -6,6 +6,7 @@ import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 import { RefundNotification } from "@/emails/RefundNotification";
 import type { Json } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface OrderItemRow {
   id: string;
@@ -40,6 +41,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/orders/:id/refund" });
+    if (rl.limited) return rl.response;
     const { supabase, userId } = auth;
 
     // Parse and validate request body

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -29,6 +30,9 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/drivers/:id/revoke-invite" });
+    if (rl.limited) return rl.response;
     const { userId } = auth;
 
     // Use service client to bypass RLS

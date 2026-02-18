@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { isPastCutoff } from "@/lib/utils/delivery-dates";
+import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
 import type { ProfilesRow } from "@/types/database";
 
 interface RouteParams {
@@ -48,6 +49,15 @@ export async function POST(_request: Request, { params }: RouteParams) {
       { status: 401 }
     );
   }
+
+  // Rate limit
+  const rl = await checkRateLimit({
+    limiter: apiWriteLimiter,
+    identifier: user.id,
+    role: "customer",
+    route: "orders/retry-payment",
+  });
+  if (rl.limited) return rl.response;
 
   // Fetch order with items and modifiers
   const { data: order, error: fetchError } = await supabase

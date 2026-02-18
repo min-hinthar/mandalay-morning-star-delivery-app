@@ -4,6 +4,7 @@ import { updateDriverSchema, toggleDriverActiveSchema } from "@/lib/validations/
 import { logger } from "@/lib/utils/logger";
 import type { ProfileRole, ProfilesRow } from "@/types/database";
 import type { DriversRow, VehicleType } from "@/types/driver";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface ProfileCheck {
   role: ProfileRole;
@@ -47,6 +48,9 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     if (profileError || !profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/drivers/:id" });
+    if (rl.limited) return rl.response;
 
     // Fetch driver with profile
     const { data: driver, error: driverError } = await supabase
@@ -135,6 +139,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (profileError || !profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/drivers/:id" });
+    if (rl.limited) return rl.response;
 
     // Parse and validate request body
     const body = await request.json();
@@ -265,6 +272,9 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     if (profileError || !profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/drivers/:id" });
+    if (rl.limited) return rl.response;
 
     // Check if driver has active routes
     const { data: activeRoutes } = await supabase

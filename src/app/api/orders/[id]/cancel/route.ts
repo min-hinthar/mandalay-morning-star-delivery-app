@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -21,6 +22,15 @@ export async function POST(_request: Request, { params }: RouteParams) {
       { status: 401 }
     );
   }
+
+  // Rate limit
+  const rl = await checkRateLimit({
+    limiter: apiWriteLimiter,
+    identifier: user.id,
+    role: "customer",
+    route: "orders/cancel",
+  });
+  if (rl.limited) return rl.response;
 
   // Verify order exists and belongs to user
   const { data: order, error: fetchError } = await supabase

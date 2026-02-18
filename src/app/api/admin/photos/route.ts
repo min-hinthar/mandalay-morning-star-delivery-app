@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import type { MenuItemsRow } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface MenuItemWithPhoto extends Pick<
   MenuItemsRow,
@@ -51,6 +52,9 @@ export async function GET(request: Request) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/photos" });
+    if (rl.limited) return rl.response;
 
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search")?.toLowerCase() || "";
@@ -173,6 +177,9 @@ export async function POST(request: Request) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/photos" });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const { imageUrl, menuItemId } = body;

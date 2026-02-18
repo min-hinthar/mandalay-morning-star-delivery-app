@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import { z } from "zod";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 const reorderSchema = z.object({
   sectionIds: z.array(z.string().uuid()).min(1),
@@ -13,6 +14,9 @@ export async function POST(request: Request) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/reorder" });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const parsed = reorderSchema.safeParse(body);

@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import { z } from "zod";
 import type { MenuItemsRow } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 const uploadPhotoSchema = z.object({
   imageUrl: z.string().url("Invalid image URL"),
@@ -22,6 +23,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/menu/:id/photo" });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const parsed = uploadPhotoSchema.safeParse(body);
@@ -93,6 +97,9 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/menu/:id/photo" });
+    if (rl.limited) return rl.response;
 
     // Check if menu item exists and has a photo
     const { data: currentItem, error: fetchError } = await auth.supabase

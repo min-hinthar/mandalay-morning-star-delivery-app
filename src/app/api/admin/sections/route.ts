@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import { z } from "zod";
 import type { FeaturedSectionsRow, MenuItemsRow } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface SectionWithItems extends FeaturedSectionsRow {
   featured_section_items: {
@@ -39,6 +40,9 @@ export async function GET() {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections" });
+    if (rl.limited) return rl.response;
 
     // Get all sections (including soft-deleted for admin)
     const { data: sections, error } = await auth.supabase
@@ -109,6 +113,9 @@ export async function POST(request: Request) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections" });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const parsed = createSectionSchema.safeParse(body);

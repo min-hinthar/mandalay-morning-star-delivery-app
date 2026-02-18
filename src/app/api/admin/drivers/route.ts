@@ -4,6 +4,7 @@ import { logger } from "@/lib/utils/logger";
 import { createDriverSchema } from "@/lib/validations/driver";
 import type { ProfilesRow } from "@/types/database";
 import type { DriversRow, VehicleType } from "@/types/driver";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface DriverWithProfile extends DriversRow {
   profiles: Pick<ProfilesRow, "email" | "full_name" | "phone"> | null;
@@ -19,6 +20,9 @@ export async function GET() {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/drivers" });
+    if (rl.limited) return rl.response;
     const { supabase } = auth;
 
     // Fetch all drivers with profile info
@@ -87,6 +91,9 @@ export async function POST(request: NextRequest) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/drivers" });
+    if (rl.limited) return rl.response;
     const { supabase } = auth;
 
     // Parse and validate request body

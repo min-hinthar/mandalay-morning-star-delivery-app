@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import type { Json } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 const adminNotificationPrefsSchema = z.object({
   orderConfirmation: z.boolean(),
@@ -48,6 +49,9 @@ export async function GET() {
       );
     }
     const { supabase, userId } = auth;
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/profile/notifications" });
+    if (rl.limited) return rl.response;
 
     const { data: settings, error } = await supabase
       .from("customer_settings")
@@ -95,6 +99,9 @@ export async function PUT(request: NextRequest) {
       );
     }
     const { supabase, userId } = auth;
+
+    const rl2 = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/profile/notifications" });
+    if (rl2.limited) return rl2.response;
 
     const body = await request.json();
     const result = adminNotificationPrefsSchema.safeParse(body);

@@ -9,6 +9,7 @@ import { EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
 import { getAppUrl } from "@/lib/supabase/actions";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -36,6 +37,9 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/drivers/:id/resend-invite" });
+    if (rl.limited) return rl.response;
 
     // Use service client to bypass RLS
     const supabase = createServiceClient();

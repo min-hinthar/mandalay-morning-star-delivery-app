@@ -4,6 +4,7 @@ import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
 import { validateCartItems, calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
 import type { CheckoutError, CheckoutErrorCode } from "@/types/checkout";
 import type {
   AddressesRow,
@@ -45,6 +46,20 @@ export async function POST(request: Request) {
 
     if (authError || !user) {
       return errorResponse("UNAUTHORIZED", "You must be logged in to checkout", 401);
+    }
+
+    // Rate limit: prevent double-orders
+    const rl = await checkRateLimit({
+      limiter: apiWriteLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "checkout/session",
+    });
+    if (rl.limited) {
+      return NextResponse.json(
+        { error: { code: "RATE_LIMITED", message: "Your order is being processed. Please don't submit again." } },
+        { status: 429, headers: { "Retry-After": rl.response.headers.get("Retry-After") ?? "60" } }
+      );
     }
 
     // Validate address belongs to user and is verified

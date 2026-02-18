@@ -7,6 +7,7 @@ import {
 } from "@/lib/validations/settings";
 import { logger } from "@/lib/utils/logger";
 import type { ProfileRole } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface ProfileCheck {
   role: ProfileRole;
@@ -41,6 +42,9 @@ export async function GET() {
     if (profileError || !profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/settings" });
+    if (rl.limited) return rl.response;
 
     // Fetch all settings
     const { data: settings, error: settingsError } = await supabase
@@ -109,6 +113,9 @@ export async function PATCH(request: NextRequest) {
     if (profileError || !profile || profile.role !== "admin") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/settings" });
+    if (rl.limited) return rl.response;
 
     // Parse and validate request body
     const body = await request.json();

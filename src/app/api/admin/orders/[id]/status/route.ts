@@ -7,6 +7,7 @@ import { sendEmail, buildEmailElement } from "@/lib/email";
 import { OrderCancellation } from "@/emails/OrderCancellation";
 import type { OrderStatus, Json } from "@/types/database";
 import type { EmailType } from "@/lib/email/types";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 const updateStatusSchema = z.object({
   status: z.enum([
@@ -52,6 +53,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/orders/:id/status" });
+    if (rl.limited) return rl.response;
     const { supabase, userId } = auth;
 
     // Parse and validate request body

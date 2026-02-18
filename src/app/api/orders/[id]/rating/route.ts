@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { submitRatingSchema } from "@/lib/validations/analytics";
+import { checkRateLimit, apiWriteLimiter, customerLimiter } from "@/lib/rate-limit";
 import type { SubmitRatingResponse } from "@/types/analytics";
 
 interface RouteParams {
@@ -56,6 +57,15 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // Rate limit
+    const rl = await checkRateLimit({
+      limiter: apiWriteLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "orders/rating",
+    });
+    if (rl.limited) return rl.response;
 
     // Parse request body
     const body = await request.json();
@@ -200,6 +210,15 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // Rate limit
+    const rlGet = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "orders/rating",
+    });
+    if (rlGet.limited) return rlGet.response;
 
     // Verify order exists and belongs to user
     const { data: order } = await supabase

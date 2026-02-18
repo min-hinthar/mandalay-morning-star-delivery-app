@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { sendEmail, buildEmailElement } from "@/lib/email";
 import type { EmailType } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 const VALID_EMAIL_TYPES: EmailType[] = [
   "order_confirmation",
@@ -49,6 +50,9 @@ export async function POST(request: Request) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/emails/send" });
+    if (rl.limited) return rl.response;
     const { supabase } = auth;
 
     const body = await request.json();

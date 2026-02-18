@@ -2,22 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import { locationUpdateSchema } from "@/lib/validations/driver-api";
+import { checkRateLimit, driverLocationLimiter } from "@/lib/rate-limit";
 
-interface LastLocationResult {
-  created_at: string;
-}
-
-interface LocationUpdateResponse {
-  success: boolean;
-  recordedAt: string;
-}
-
-// Rate limit: 1 update per minute
-const MIN_UPDATE_INTERVAL_MS = 60 * 1000;
-
-export async function POST(
-  request: NextRequest
-): Promise<NextResponse<LocationUpdateResponse | { error: string }>> {
+export async function POST(request: NextRequest) {
   try {
     // Parse and validate request body first (before auth to fail fast on bad input)
     const body = await request.json();
@@ -35,28 +22,14 @@ export async function POST(
     }
     const { supabase, driverId } = auth;
 
-    // Check rate limit - get last location update
-    const { data: lastUpdate } = await supabase
-      .from("location_updates")
-      .select("created_at")
-      .eq("driver_id", driverId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .returns<LastLocationResult[]>()
-      .single();
-
-    if (lastUpdate) {
-      const lastTime = new Date(lastUpdate.created_at).getTime();
-      const now = Date.now();
-
-      if (now - lastTime < MIN_UPDATE_INTERVAL_MS) {
-        const waitSeconds = Math.ceil((MIN_UPDATE_INTERVAL_MS - (now - lastTime)) / 1000);
-        return NextResponse.json(
-          { error: `Rate limited. Please wait ${waitSeconds} seconds.` },
-          { status: 429 }
-        );
-      }
-    }
+    // Rate limit via Upstash (replaces DB-query-based rate check)
+    const rl = await checkRateLimit({
+      limiter: driverLocationLimiter,
+      identifier: driverId,
+      role: "driver",
+      route: "driver/location",
+    });
+    if (rl.limited) return rl.response;
 
     // Verify route belongs to driver if routeId provided
     if (routeId) {

@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import { z } from "zod";
 import type { MenuItemsRow } from "@/types/database";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 const assignPhotoSchema = z.object({
   menuItemId: z.string().uuid("Invalid menu item ID"),
@@ -22,6 +23,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/photos/:id" });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const parsed = assignPhotoSchema.safeParse(body);
@@ -130,6 +134,9 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
+
+    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/photos/:id" });
+    if (rl.limited) return rl.response;
 
     // Check if this is an unassigned photo (storage path ID, not a menu item UUID)
     const isUnassignedPhoto = id.startsWith("unassigned-");

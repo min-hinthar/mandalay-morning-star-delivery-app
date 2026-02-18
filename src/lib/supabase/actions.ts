@@ -4,7 +4,10 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { checkRateLimit } from "@/lib/utils/rate-limit";
+import {
+  checkServerActionRateLimit,
+  authSignInLimiter,
+} from "@/lib/rate-limit";
 
 export interface ActionResult {
   error?: string;
@@ -41,8 +44,13 @@ export async function signInWithMagicLink(formData: FormData): Promise<ActionRes
     return { error: "Email is required" };
   }
 
-  const rateCheck = checkRateLimit(email, "signIn");
-  if (!rateCheck.allowed) {
+  const rateCheck = await checkServerActionRateLimit({
+    limiter: authSignInLimiter,
+    identifier: email.toLowerCase(),
+    role: "anon",
+    route: "auth/signIn",
+  });
+  if (rateCheck.limited) {
     return {
       error: `Too many login attempts. Please try again in ${rateCheck.retryAfterSeconds} seconds.`,
     };
@@ -83,8 +91,13 @@ export async function resendDriverInvite(inviteId: string): Promise<ActionResult
     return { error: "Invite not found" };
   }
 
-  const rateCheck = checkRateLimit(invite.email, "signIn");
-  if (!rateCheck.allowed) {
+  const rateCheck = await checkServerActionRateLimit({
+    limiter: authSignInLimiter,
+    identifier: invite.email.toLowerCase(),
+    role: "anon",
+    route: "auth/resendInvite",
+  });
+  if (rateCheck.limited) {
     return {
       error: `Too many attempts. Please try again in ${rateCheck.retryAfterSeconds} seconds.`,
     };
