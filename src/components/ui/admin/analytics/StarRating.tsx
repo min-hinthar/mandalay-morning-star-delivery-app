@@ -61,12 +61,7 @@ export function StarRating({
             )}
           >
             {/* Background star */}
-            <Star
-              className={cn(
-                sizeClasses[size],
-                "text-border-v5 transition-colors"
-              )}
-            />
+            <Star className={cn(sizeClasses[size], "text-border-v5 transition-colors")} />
 
             {/* Filled star overlay */}
             <AnimatePresence>
@@ -97,7 +92,10 @@ export function StarRating({
                 className="pointer-events-none absolute inset-0"
               >
                 <Star
-                  className={cn(sizeClasses[size], "fill-interactive-primary text-interactive-primary")}
+                  className={cn(
+                    sizeClasses[size],
+                    "fill-interactive-primary text-interactive-primary"
+                  )}
                 />
               </m.div>
             )}
@@ -149,17 +147,15 @@ export function RatingDisplay({
   size?: "sm" | "md" | "lg";
 }) {
   if (value === null) {
-    return (
-      <span className="text-sm text-text-muted">No ratings yet</span>
-    );
+    return <span className="text-sm text-text-muted">No ratings yet</span>;
   }
 
   return (
     <div className="flex items-center gap-2">
-      <Star className={cn(sizeClasses[size], "fill-interactive-primary text-interactive-primary")} />
-      <span className="font-semibold text-text-primary">
-        {value.toFixed(1)}
-      </span>
+      <Star
+        className={cn(sizeClasses[size], "fill-interactive-primary text-interactive-primary")}
+      />
+      <span className="font-semibold text-text-primary">{value.toFixed(1)}</span>
       {count !== undefined && (
         <span className="text-sm text-text-secondary">
           ({count} {count === 1 ? "review" : "reviews"})
@@ -194,11 +190,7 @@ export function RatingDistributionBars({
   ];
 
   return (
-    <m.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-2"
-    >
+    <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2">
       {bars.map((bar, i) => {
         const percentage = total > 0 ? (bar.value / total) * 100 : 0;
 
@@ -211,9 +203,7 @@ export function RatingDistributionBars({
             className="flex items-center gap-3"
           >
             <div className="flex w-8 items-center gap-0.5">
-              <span className="text-sm font-medium text-text-secondary">
-                {bar.label}
-              </span>
+              <span className="text-sm font-medium text-text-secondary">{bar.label}</span>
               <Star className="h-3 w-3 fill-interactive-primary text-interactive-primary" />
             </div>
 
@@ -226,9 +216,7 @@ export function RatingDistributionBars({
               />
             </div>
 
-            <span className="w-8 text-right text-sm text-text-secondary">
-              {bar.value}
-            </span>
+            <span className="w-8 text-right text-sm text-text-secondary">{bar.value}</span>
           </m.div>
         );
       })}

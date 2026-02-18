@@ -39,16 +39,16 @@ interface DriverRouteResponse {
  * GET /api/admin/drivers/[id]/routes
  * Get recent routes for a driver
  */
-export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -78,7 +78,8 @@ export async function GET(
     // Fetch routes with stops count
     const { data: routes, error: routesError } = await supabase
       .from("routes")
-      .select(`
+      .select(
+        `
         id,
         delivery_date,
         status,
@@ -87,7 +88,8 @@ export async function GET(
         route_stops (
           status
         )
-      `)
+      `
+      )
       .eq("driver_id", id)
       .gte("delivery_date", startDate.toISOString().split("T")[0])
       .lte("delivery_date", endDate.toISOString().split("T")[0])
@@ -96,19 +98,15 @@ export async function GET(
 
     if (routesError) {
       logger.exception(routesError, { api: "admin/drivers/[id]/routes" });
-      return NextResponse.json(
-        { error: "Failed to fetch routes" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch routes" }, { status: 500 });
     }
 
     // Transform to API response format
     const response: { routes: DriverRouteResponse[] } = {
       routes: (routes || []).map((route) => {
         const totalStops = route.route_stops?.length || 0;
-        const completedStops = route.route_stops?.filter(
-          (stop) => stop.status === "delivered"
-        ).length || 0;
+        const completedStops =
+          route.route_stops?.filter((stop) => stop.status === "delivered").length || 0;
 
         return {
           id: route.id,
@@ -125,9 +123,6 @@ export async function GET(
     return NextResponse.json(response);
   } catch (error) {
     logger.exception(error, { api: "admin/drivers/[id]/routes" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

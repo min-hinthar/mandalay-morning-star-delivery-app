@@ -50,6 +50,7 @@ completed: 2026-01-27
 - **Files modified:** 1
 
 ## Accomplishments
+
 - Verified theme/ directory already merged (done in 33-06)
 - Added theme re-export to ui/index.ts barrel
 - Confirmed no @/components/theme imports remain
@@ -68,9 +69,11 @@ Each task was committed atomically:
    - Barrel export already correct in ui/theme/index.ts
 
 ## Files Created/Modified
+
 - `src/components/ui/index.ts` - Added theme subdirectory re-export
 
 ## Decisions Made
+
 - Theme re-exported from ui/ barrel for consistency with other subdirectories (cart, menu, scroll, etc.)
 
 ## Deviations from Plan
@@ -78,17 +81,21 @@ Each task was committed atomically:
 None - plan executed exactly as written. Theme was already consolidated in 33-06, this plan just added the barrel re-export.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Theme consolidation complete
 - All theme imports use @/components/ui/theme
 - ui/index.ts re-exports all subdirectories including theme
 - Ready for 33-10 (admin/ and driver/ consolidation)
 
 ---
-*Phase: 33-full-components-consolidation*
-*Completed: 2026-01-27*
+
+_Phase: 33-full-components-consolidation_
+_Completed: 2026-01-27_

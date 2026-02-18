@@ -49,16 +49,9 @@ export function MobileHeader({
   const { shouldAnimate, getSpring, isFullMotion } = useAnimationPreference();
 
   return (
-    <div
-      className={cn(
-        "flex md:hidden items-center justify-between w-full",
-        className
-      )}
-    >
+    <div className={cn("flex md:hidden items-center justify-between w-full", className)}>
       {/* Left: Avatar and Theme toggle */}
-      <div className="flex items-center gap-2 flex-shrink-0">
-        {leftContent}
-      </div>
+      <div className="flex items-center gap-2 flex-shrink-0">{leftContent}</div>
 
       {/* Center: Compact logo (image only on mobile) */}
       <m.div
@@ -75,13 +68,7 @@ export function MobileHeader({
             "flex items-center gap-2"
           )}
         >
-          <Image
-            src="/logo.png"
-            alt="Mandalay Morning Star"
-            width={48}
-            height={32}
-            priority
-          />
+          <Image src="/logo.png" alt="Mandalay Morning Star" width={48} height={32} priority />
         </Link>
       </m.div>
 

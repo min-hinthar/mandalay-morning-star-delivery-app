@@ -37,19 +37,13 @@ export function useFontSize() {
     const stored = localStorage.getItem(STORAGE_KEY);
     const validated = isValidFontSize(stored) ? stored : "medium";
     setSize(validated);
-    document.documentElement.style.setProperty(
-      CSS_PROPERTY,
-      FONT_SIZES[validated] + "px",
-    );
+    document.documentElement.style.setProperty(CSS_PROPERTY, FONT_SIZES[validated] + "px");
   }, []);
 
   const setFontSize = useCallback((newSize: FontSize) => {
     localStorage.setItem(STORAGE_KEY, newSize);
     setSize(newSize);
-    document.documentElement.style.setProperty(
-      CSS_PROPERTY,
-      FONT_SIZES[newSize] + "px",
-    );
+    document.documentElement.style.setProperty(CSS_PROPERTY, FONT_SIZES[newSize] + "px");
   }, []);
 
   return { size, setFontSize, sizes: FONT_SIZES };

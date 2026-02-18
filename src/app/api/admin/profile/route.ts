@@ -22,11 +22,7 @@ const updateAdminProfileSchema = z.object({
     .optional(),
 });
 
-function transformAdminProfile(
-  row: AdminProfileRow,
-  authProvider: string,
-  memberSince: string
-) {
+function transformAdminProfile(row: AdminProfileRow, authProvider: string, memberSince: string) {
   return {
     id: row.id,
     email: row.email,
@@ -48,7 +44,9 @@ export async function GET() {
     const auth = await requireAdmin();
     if (!auth.success) {
       return NextResponse.json(
-        { error: { code: auth.status === 401 ? "UNAUTHORIZED" : "FORBIDDEN", message: auth.error } },
+        {
+          error: { code: auth.status === 401 ? "UNAUTHORIZED" : "FORBIDDEN", message: auth.error },
+        },
         { status: auth.status }
       );
     }
@@ -70,10 +68,11 @@ export async function GET() {
     }
 
     // Get auth user for identities and created_at
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    const authProvider =
-      user?.identities?.[0]?.provider ?? "email";
+    const authProvider = user?.identities?.[0]?.provider ?? "email";
     const memberSince = user?.created_at ?? profile.created_at;
 
     return NextResponse.json({
@@ -97,7 +96,9 @@ export async function PATCH(request: NextRequest) {
     const auth = await requireAdmin();
     if (!auth.success) {
       return NextResponse.json(
-        { error: { code: auth.status === 401 ? "UNAUTHORIZED" : "FORBIDDEN", message: auth.error } },
+        {
+          error: { code: auth.status === 401 ? "UNAUTHORIZED" : "FORBIDDEN", message: auth.error },
+        },
         { status: auth.status }
       );
     }
@@ -133,10 +134,11 @@ export async function PATCH(request: NextRequest) {
     if (updateError) throw updateError;
 
     // Get auth user for identities and created_at
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    const authProvider =
-      user?.identities?.[0]?.provider ?? "email";
+    const authProvider = user?.identities?.[0]?.provider ?? "email";
     const memberSince = user?.created_at ?? profile.created_at;
 
     return NextResponse.json({

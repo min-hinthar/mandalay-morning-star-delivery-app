@@ -128,9 +128,6 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     logger.exception(error, { api: "admin/photos/verify-drive", flowId: "verify" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

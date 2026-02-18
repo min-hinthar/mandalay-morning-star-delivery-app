@@ -87,5 +87,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 20-micro-interactions*
-*Context gathered: 2026-01-25*
+_Phase: 20-micro-interactions_
+_Context gathered: 2026-01-25_

@@ -25,10 +25,14 @@ export function QuickStat({ label, value, icon, pulse }: QuickStatProps) {
         {pulse && (
           <m.div
             className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-green"
-            animate={shouldAnimate ? {
-              scale: [1, 1.3, 1],
-              opacity: [1, 0.6, 1],
-            } : undefined}
+            animate={
+              shouldAnimate
+                ? {
+                    scale: [1, 1.3, 1],
+                    opacity: [1, 0.6, 1],
+                  }
+                : undefined
+            }
             transition={{ duration: 1.5, repeat: 5 }}
           />
         )}

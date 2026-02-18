@@ -109,7 +109,10 @@ export async function GET(request: NextRequest) {
     // Refresh materialized views
     const { error: refreshError } = await supabase.rpc("refresh_analytics_views");
     if (refreshError) {
-      logger.warn("Failed to refresh analytics views", { api: "admin/analytics/delivery", flowId: "refresh-views" });
+      logger.warn("Failed to refresh analytics views", {
+        api: "admin/analytics/delivery",
+        flowId: "refresh-views",
+      });
     }
 
     // Fetch daily metrics from materialized view
@@ -123,10 +126,7 @@ export async function GET(request: NextRequest) {
 
     if (metricsError) {
       logger.exception(metricsError, { api: "admin/analytics/delivery" });
-      return NextResponse.json(
-        { error: "Failed to fetch delivery metrics" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch delivery metrics" }, { status: 500 });
     }
 
     const dailyMetrics = (metricsRows || []).map(transformDeliveryMetrics);
@@ -140,9 +140,7 @@ export async function GET(request: NextRequest) {
       .lte("delivery_date", previousRange.endDate.toISOString().split("T")[0])
       .returns<DeliveryMetricsMvRow[]>();
 
-    const previousMetrics = (previousMetricsRows || []).map(
-      transformDeliveryMetrics
-    );
+    const previousMetrics = (previousMetricsRows || []).map(transformDeliveryMetrics);
 
     // Calculate summary with trends
     const summary = calculateMetricsSummary(dailyMetrics, period, previousMetrics);
@@ -220,20 +218,18 @@ export async function GET(request: NextRequest) {
       .limit(10)
       .returns<ExceptionRow[]>();
 
-    const recentExceptions: RecentException[] = (exceptionsData || []).map(
-      (e) => ({
-        id: e.id,
-        orderId: e.route_stops.orders.id,
-        orderNumber: e.route_stops.orders.id.slice(0, 8).toUpperCase(),
-        driverId: e.route_stops.routes.driver_id,
-        driverName: e.route_stops.routes.drivers?.profiles?.full_name || null,
-        type: e.exception_type,
-        description: e.description,
-        createdAt: e.created_at,
-        resolved: e.resolved_at !== null,
-        resolvedAt: e.resolved_at,
-      })
-    );
+    const recentExceptions: RecentException[] = (exceptionsData || []).map((e) => ({
+      id: e.id,
+      orderId: e.route_stops.orders.id,
+      orderNumber: e.route_stops.orders.id.slice(0, 8).toUpperCase(),
+      driverId: e.route_stops.routes.driver_id,
+      driverName: e.route_stops.routes.drivers?.profiles?.full_name || null,
+      type: e.exception_type,
+      description: e.description,
+      createdAt: e.created_at,
+      resolved: e.resolved_at !== null,
+      resolvedAt: e.resolved_at,
+    }));
 
     const response: DeliveryDashboardResponse = {
       summary,
@@ -246,9 +242,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response);
   } catch (error) {
     logger.exception(error, { api: "admin/analytics/delivery" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

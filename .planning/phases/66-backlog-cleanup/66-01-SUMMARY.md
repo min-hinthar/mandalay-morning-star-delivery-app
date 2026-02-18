@@ -63,6 +63,7 @@ completed: 2026-02-15
 - **Files modified:** 6
 
 ## Accomplishments
+
 - CartStore `updateItem` method preserves cart item position during modifier edits
 - ItemDetailSheet edit mode pre-populates modifiers, quantity, notes from existing cart item
 - CTA says "Update Cart - $X.XX" in edit mode, "Add to Cart - $X.XX" in add mode
@@ -78,6 +79,7 @@ Each task was committed atomically:
 2. **Task 2: Wire CartPageContent to ItemDetailSheet with edit flow** - `623fe5c` (feat)
 
 ## Files Created/Modified
+
 - `src/types/cart.ts` - Added updateItem method signature to CartStore interface
 - `src/lib/stores/cart-store.ts` - Implemented updateItem with clamped quantity and trimmed notes
 - `src/components/ui/menu/ItemDetailSheet.tsx` - Edit mode with editingCartItem prop, pre-populated state, Update Cart CTA, dirty-state close guard
@@ -86,6 +88,7 @@ Each task was committed atomically:
 - `src/components/ui/cart/CartPage/CartItemGroup.tsx` - Added editableItemIds prop for conditional edit icon
 
 ## Decisions Made
+
 - Used Button component (not AddToCartButton) for "Update Cart" CTA since fly-to-cart animation is inappropriate for edits
 - basePriceCents in updateItem receives the unit price (totalCents / quantity) to match how cart calculates totals
 - Extracted helpers to stay under ESLint max-lines 400 rule
@@ -97,6 +100,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Pre-staged files from previous session mixed into Task 1 commit**
+
 - **Found during:** Task 1 commit
 - **Issue:** Previous session had uncommitted staged files (66-06 SUMMARY, STATE.md, 66-02 tracking files). The `git add` + `git commit` included those pre-staged files, resulting in a commit with message from the lint-staged/pre-commit hooks processing.
 - **Fix:** Proceeded with Task 2 as a separate clean commit. Code changes are all correct; only the commit message for Task 1 is inaccurate (says "docs(66-06)" instead of "feat(66-01)").
@@ -104,6 +108,7 @@ Each task was committed atomically:
 - **Verification:** All Task 1 code changes confirmed in commit c675d18 via `git show --stat`
 
 **2. [Rule 3 - Blocking] ItemDetailSheet exceeded 400-line ESLint max-lines rule**
+
 - **Found during:** Task 1 (after adding edit mode logic)
 - **Issue:** Adding edit mode state, dirty tracking, discard dialog, and update button pushed file to 437 counted lines
 - **Fix:** Extracted AllergenWarning, DiscardChangesDialog, and getCategoryEmoji to `ItemDetailSheet/helpers.tsx`
@@ -117,16 +122,20 @@ Each task was committed atomically:
 **Impact on plan:** Both were infrastructure issues. No scope creep. All planned functionality delivered.
 
 ## Issues Encountered
+
 - Pre-staged files from previous session caused mixed commit -- cosmetic issue only, code is correct
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Cart edit flow complete and functional
 - Manual verification recommended: pencil icon visibility, pre-population, Update Cart CTA, discard dialog
 - Ready for next backlog plan
 
 ---
-*Phase: 66-backlog-cleanup*
-*Completed: 2026-02-15*
+
+_Phase: 66-backlog-cleanup_
+_Completed: 2026-02-15_

@@ -104,7 +104,7 @@ export function DriverLayout({
       <header
         className={cn(
           "sticky top-0 z-20 h-12",
-            highContrast
+          highContrast
             ? "bg-black border-b border-white"
             : "bg-[var(--color-cream)] border-b border-[var(--color-border)]"
         )}
@@ -116,7 +116,7 @@ export function DriverLayout({
             className={cn(
               "flex items-center gap-2",
               "font-display text-base font-bold",
-                    highContrast ? "text-white" : "text-[var(--color-primary)]"
+              highContrast ? "text-white" : "text-[var(--color-primary)]"
             )}
           >
             <Star className="h-5 w-5" />
@@ -133,17 +133,13 @@ export function DriverLayout({
               className={cn(
                 "flex h-11 w-11 items-center justify-center rounded-full",
                 "transition-colors",
-                        highContrast
+                highContrast
                   ? "bg-white text-black"
                   : "bg-[var(--color-cream-darker)] text-[var(--color-charcoal)]"
               )}
               aria-label={highContrast ? "Disable high contrast" : "Enable high contrast"}
             >
-              {highContrast ? (
-                <Moon className="h-5 w-5" />
-              ) : (
-                <Sun className="h-5 w-5" />
-              )}
+              {highContrast ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
             </m.button>
 
             {/* Settings */}
@@ -153,7 +149,7 @@ export function DriverLayout({
               className={cn(
                 "flex h-11 w-11 items-center justify-center rounded-full",
                 "transition-colors",
-                        highContrast
+                highContrast
                   ? "bg-white/10 text-white hover:bg-white/20"
                   : "bg-[var(--color-cream-darker)] text-[var(--color-charcoal)] hover:bg-[var(--color-border)]"
               )}
@@ -187,7 +183,7 @@ export function DriverLayout({
             variants={variants.fadeIn}
             className={cn(
               "fixed bottom-0 left-0 right-0 z-30",
-                    highContrast
+              highContrast
                 ? "bg-black border-t border-white"
                 : "bg-[var(--color-cream-darker)] border-t border-[var(--color-border)]"
             )}
@@ -201,8 +197,12 @@ export function DriverLayout({
                 <m.button
                   onClick={primaryAction.onClick}
                   disabled={primaryAction.disabled || primaryAction.loading}
-                  whileHover={!primaryAction.disabled && !primaryAction.loading ? { scale: 1.01 } : undefined}
-                  whileTap={!primaryAction.disabled && !primaryAction.loading ? { scale: 0.99 } : undefined}
+                  whileHover={
+                    !primaryAction.disabled && !primaryAction.loading ? { scale: 1.01 } : undefined
+                  }
+                  whileTap={
+                    !primaryAction.disabled && !primaryAction.loading ? { scale: 0.99 } : undefined
+                  }
                   className={cn(
                     "flex h-14 w-full items-center justify-center rounded-xl",
                     "text-lg font-bold",
@@ -248,7 +248,7 @@ export function DriverLayout({
                         "text-base font-semibold",
                         "transition-all duration-[var(--duration-fast)]",
                         "focus-visible:outline-none focus-visible:ring-2",
-                                        action.disabled
+                        action.disabled
                           ? highContrast
                             ? "bg-gray-800 text-gray-500 cursor-not-allowed"
                             : "bg-[var(--color-border)] text-[var(--color-charcoal-muted)] cursor-not-allowed"

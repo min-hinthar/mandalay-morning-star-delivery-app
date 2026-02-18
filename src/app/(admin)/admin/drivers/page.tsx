@@ -2,12 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import {
-  RefreshCw,
-  Search,
-  Mail,
-  Filter,
-} from "lucide-react";
+import { RefreshCw, Search, Mail, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -17,10 +12,7 @@ import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
 import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
 import { InlineErrorCard } from "@/components/ui/admin/InlineErrorCard";
 import { DriversPageSkeleton } from "@/components/ui/admin/drivers/DriverListTable/DriversPageSkeleton";
-import {
-  DriverListTable,
-  type AdminDriver,
-} from "@/components/ui/admin/drivers/DriverListTable";
+import { DriverListTable, type AdminDriver } from "@/components/ui/admin/drivers/DriverListTable";
 import {
   AddDriverModal,
   type CreateDriverData,
@@ -107,9 +99,7 @@ export default function AdminDriversPage() {
       }
 
       setDrivers((prev) =>
-        prev.map((driver) =>
-          driver.id === driverId ? { ...driver, isActive } : driver
-        )
+        prev.map((driver) => (driver.id === driverId ? { ...driver, isActive } : driver))
       );
 
       router.refresh();
@@ -183,10 +173,7 @@ export default function AdminDriversPage() {
       <AdminPageHeader
         title="Driver Fleet"
         count={drivers.length}
-        breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
-          { label: "Drivers" },
-        ]}
+        breadcrumbs={[{ label: "Dashboard", href: "/admin" }, { label: "Drivers" }]}
         actions={
           <>
             <Button
@@ -195,9 +182,7 @@ export default function AdminDriversPage() {
               disabled={refreshing}
               className="border-border hover:bg-surface-tertiary"
             >
-              <RefreshCw
-                className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
-              />
+              <RefreshCw className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")} />
               Refresh
             </Button>
             <Button
@@ -267,9 +252,7 @@ export default function AdminDriversPage() {
                       onClick={() => setStatusFilter(f.value)}
                     >
                       {f.label}
-                      {count > 0 && (
-                        <span className="ml-1.5 text-xs opacity-80">({count})</span>
-                      )}
+                      {count > 0 && <span className="ml-1.5 text-xs opacity-80">({count})</span>}
                     </Badge>
                   );
                 })}

@@ -21,7 +21,8 @@ affects: []
 # Tech tracking
 tech-stack:
   added: []
-  patterns: [CSS variable coordination for fixed banners, local state for hydration-safe online detection]
+  patterns:
+    [CSS variable coordination for fixed banners, local state for hydration-safe online detection]
 
 key-files:
   created:
@@ -82,6 +83,7 @@ Each task was committed atomically:
 4. **Fix: Service worker registration** - `7eb67e9` (fix)
 
 **Follow-up fixes (post-checkpoint):**
+
 - `c357a9c` - Image retry logic and hydration fix
 - `c419093` - Indicator visibility improvements
 - `7e444c7` - Remove invisible overlay
@@ -94,6 +96,7 @@ Each task was committed atomically:
 ## Files Created/Modified
 
 **Created:**
+
 - `src/components/ui/offline/OfflineIndicator.tsx` - Amber/green banner with 3s reconnection window
 - `src/components/ui/offline/StaleBadge.tsx` - Badge showing "Cached X ago"
 - `src/components/ui/offline/UpdatePrompt.tsx` - Bottom banner with 5s countdown
@@ -101,6 +104,7 @@ Each task was committed atomically:
 - `src/components/ui/offline/index.ts` - Barrel exports
 
 **Modified:**
+
 - `src/app/layout.tsx` - Integrated OfflineIndicator, UpdatePrompt, ServiceWorkerRegistration
 - `src/components/ui/menu/MenuContent.tsx` - Added StaleBadge and IndexedDB caching
 - `src/components/ui/menu/CategoryTabs.tsx` - Account for offline banner height offset
@@ -122,6 +126,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Hydration mismatch on navigator.onLine**
+
 - **Found during:** Task 1 (OfflineIndicator implementation)
 - **Issue:** Initial useState(navigator.onLine) caused hydration mismatch since server has no navigator
 - **Fix:** Use useState(true) default, then setIsOnline(navigator.onLine) in useEffect after mount
@@ -129,6 +134,7 @@ Each task was committed atomically:
 - **Committed in:** c357a9c
 
 **2. [Rule 1 - Bug] CSS variables not resolving for banner colors**
+
 - **Found during:** Checkpoint verification
 - **Issue:** Tailwind CSS variables like `bg-orange` weren't rendering visible colors
 - **Fix:** Switched to explicit inline styles with hex colors
@@ -136,6 +142,7 @@ Each task was committed atomically:
 - **Committed in:** 8c21a84
 
 **3. [Rule 1 - Bug] Banner overlapping header**
+
 - **Found during:** Checkpoint verification
 - **Issue:** Fixed banner was overlapping sticky header, causing content shift issues
 - **Fix:** Added CSS variable coordination between OfflineIndicator and CategoryTabs
@@ -143,6 +150,7 @@ Each task was committed atomically:
 - **Committed in:** 74a1e65, b965f73
 
 **4. [Rule 2 - Missing Critical] Service worker not registering on customer pages**
+
 - **Found during:** Task 2 verification
 - **Issue:** SW only registered on driver pages; customer pages had no SW
 - **Fix:** Added ServiceWorkerRegistration component to root layout
@@ -172,6 +180,7 @@ None - no external service configuration required.
 - Ready for Phase 39 (Mobile Testing & Launch)
 
 ---
-*Phase: 38-customer-offline-support*
-*Plan: 03*
-*Completed: 2026-02-04*
+
+_Phase: 38-customer-offline-support_
+_Plan: 03_
+_Completed: 2026-02-04_

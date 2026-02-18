@@ -41,7 +41,7 @@ completed: 2026-01-28
 
 # Phase 34 Plan 07: Barrel Exports and Knip Configuration Summary
 
-**lib/design-system barrel export with knip entry point configuration for lib/**/index.ts**
+**lib/design-system barrel export with knip entry point configuration for lib/**/index.ts\*\*
 
 ## Performance
 
@@ -54,7 +54,7 @@ completed: 2026-01-28
 ## Accomplishments
 
 - Created barrel export for lib/design-system re-exporting z-index and motion tokens
-- Added lib/**/index.ts pattern to knip entry points
+- Added lib/\*\*/index.ts pattern to knip entry points
 - Verified knip has no false positives for design-system exports
 
 ## Task Commits
@@ -68,11 +68,11 @@ Each task was committed atomically:
 ## Files Created/Modified
 
 - `src/lib/design-system/index.ts` - Barrel export re-exporting z-index and motion tokens
-- `knip.json` - Added lib/**/index.ts to entry array
+- `knip.json` - Added lib/\*\*/index.ts to entry array
 
 ## Decisions Made
 
-- **lib/**/index.ts as knip entry pattern:** Future lib barrel exports automatically recognized
+- **lib/**/index.ts as knip entry pattern:\*\* Future lib barrel exports automatically recognized
 - **Barrel re-exports tokens:** Enables `import { zIndex } from "@/lib/design-system"` pattern
 
 ## Deviations from Plan
@@ -94,6 +94,7 @@ None - no external service configuration required.
 - Ready for 34-08 (types/ consolidation)
 
 ---
-*Phase: 34-full-src-consolidation*
-*Plan: 07*
-*Completed: 2026-01-28*
+
+_Phase: 34-full-src-consolidation_
+_Plan: 07_
+_Completed: 2026-01-28_

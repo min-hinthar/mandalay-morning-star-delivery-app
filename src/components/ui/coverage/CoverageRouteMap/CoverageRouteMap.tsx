@@ -1,13 +1,7 @@
 "use client";
 
 import { useMemo, useCallback, useState, useEffect, useRef } from "react";
-import {
-  GoogleMap,
-  useJsApiLoader,
-  Polyline,
-  Circle,
-  Marker,
-} from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader, Polyline, Circle, Marker } from "@react-google-maps/api";
 import { m } from "framer-motion";
 import { Loader2, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -54,7 +48,9 @@ export function CoverageRouteMap({
     const container = containerRef.current;
     if (!container) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { setIsVisible(entry.isIntersecting); },
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
       { threshold: 0.1 }
     );
     observer.observe(container);
@@ -102,7 +98,9 @@ export function CoverageRouteMap({
       title: "Mandalay Morning Star Kitchen",
     });
 
-    return () => { if (kitchenMarkerRef.current) kitchenMarkerRef.current.map = null; };
+    return () => {
+      if (kitchenMarkerRef.current) kitchenMarkerRef.current.map = null;
+    };
   }, [map, isLoaded]);
 
   useEffect(() => {
@@ -124,7 +122,9 @@ export function CoverageRouteMap({
       title: "Your Delivery Address",
     });
 
-    return () => { if (destinationMarkerRef.current) destinationMarkerRef.current.map = null; };
+    return () => {
+      if (destinationMarkerRef.current) destinationMarkerRef.current.map = null;
+    };
   }, [map, isLoaded, hasDestination, destinationLat, destinationLng, isValid]);
 
   const routePath = useMemo(() => {
@@ -132,15 +132,27 @@ export function CoverageRouteMap({
     try {
       const decoded = google.maps.geometry?.encoding?.decodePath(encodedPolyline);
       return decoded?.map((p) => ({ lat: p.lat(), lng: p.lng() })) || [];
-    } catch { return []; }
+    } catch {
+      return [];
+    }
   }, [encodedPolyline, isLoaded]);
 
-  const onLoad = useCallback((mapInstance: google.maps.Map) => { setMap(mapInstance); }, []);
-  const onUnmount = useCallback(() => { setMap(null); }, []);
+  const onLoad = useCallback((mapInstance: google.maps.Map) => {
+    setMap(mapInstance);
+  }, []);
+  const onUnmount = useCallback(() => {
+    setMap(null);
+  }, []);
 
   if (!isLoaded) {
     return (
-      <div className={cn("flex items-center justify-center bg-surface-secondary rounded-xl", className)} style={{ minHeight: 200 }}>
+      <div
+        className={cn(
+          "flex items-center justify-center bg-surface-secondary rounded-xl",
+          className
+        )}
+        style={{ minHeight: 200 }}
+      >
         <Loader2 className="h-8 w-8 animate-spin text-text-muted" />
       </div>
     );
@@ -148,7 +160,10 @@ export function CoverageRouteMap({
 
   if (loadError) {
     return (
-      <div className={cn("flex items-center justify-center bg-status-error/10 rounded-xl", className)} style={{ minHeight: 200 }}>
+      <div
+        className={cn("flex items-center justify-center bg-status-error/10 rounded-xl", className)}
+        style={{ minHeight: 200 }}
+      >
         <MapPin className="h-8 w-8 text-status-error" />
       </div>
     );
@@ -162,7 +177,11 @@ export function CoverageRouteMap({
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className={cn("relative rounded-2xl overflow-hidden", "ring-1 ring-border/50 shadow-lg", className)}
+      className={cn(
+        "relative rounded-2xl overflow-hidden",
+        "ring-1 ring-border/50 shadow-lg",
+        className
+      )}
       style={{ minHeight: 200 }}
     >
       <GoogleMap

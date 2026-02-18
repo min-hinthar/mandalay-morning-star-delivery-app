@@ -18,30 +18,31 @@ Key decision: Replace OrbitControls with a hybrid approach - use PresentationCon
 
 ### Core (Already Installed)
 
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| three | 0.182.0 | WebGL rendering | Already installed |
-| @react-three/fiber | 9.5.0 | React renderer | React 19 compatible |
-| @react-three/drei | 10.7.7 | PresentationControls, Sparkles | Physics-based rotation controls |
-| @react-spring/three | 10.0.3 | Carousel transitions | Already installed, spring physics |
+| Library             | Version | Purpose                        | Why Standard                      |
+| ------------------- | ------- | ------------------------------ | --------------------------------- |
+| three               | 0.182.0 | WebGL rendering                | Already installed                 |
+| @react-three/fiber  | 9.5.0   | React renderer                 | React 19 compatible               |
+| @react-three/drei   | 10.7.7  | PresentationControls, Sparkles | Physics-based rotation controls   |
+| @react-spring/three | 10.0.3  | Carousel transitions           | Already installed, spring physics |
 
 ### To Install
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| @use-gesture/react | ^10.3.1 | Gesture detection | Swipe for carousel, velocity for momentum |
-| wawa-vfx | ^0.6.x | GPU particle system | Steam, sparkles, herb particles |
+| Library            | Version | Purpose             | When to Use                               |
+| ------------------ | ------- | ------------------- | ----------------------------------------- |
+| @use-gesture/react | ^10.3.1 | Gesture detection   | Swipe for carousel, velocity for momentum |
+| wawa-vfx           | ^0.6.x  | GPU particle system | Steam, sparkles, herb particles           |
 
 ### Alternatives Considered
 
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| wawa-vfx | drei Sparkles | Sparkles is simpler but less flexible for steam/smoke effects |
-| wawa-vfx | Custom Canvas particles | 2D overlay, separate from 3D scene, z-fighting issues |
-| PresentationControls | Custom OrbitControls + spring | More work, PresentationControls has spring physics built-in |
-| @use-gesture | OrbitControls events | OrbitControls doesn't expose velocity for momentum calculation |
+| Instead of           | Could Use                     | Tradeoff                                                       |
+| -------------------- | ----------------------------- | -------------------------------------------------------------- |
+| wawa-vfx             | drei Sparkles                 | Sparkles is simpler but less flexible for steam/smoke effects  |
+| wawa-vfx             | Custom Canvas particles       | 2D overlay, separate from 3D scene, z-fighting issues          |
+| PresentationControls | Custom OrbitControls + spring | More work, PresentationControls has spring physics built-in    |
+| @use-gesture         | OrbitControls events          | OrbitControls doesn't expose velocity for momentum calculation |
 
 **Installation:**
+
 ```bash
 pnpm add @use-gesture/react wawa-vfx
 ```
@@ -49,6 +50,7 @@ pnpm add @use-gesture/react wawa-vfx
 ## Architecture Patterns
 
 ### Recommended Project Structure
+
 ```
 src/
   components/
@@ -74,6 +76,7 @@ src/
 **What:** Model rotates continuously but pauses immediately on user interaction, resumes after idle timeout with alternating direction
 **When to use:** Showcase mode for product display
 **Example:**
+
 ```typescript
 // Source: drei PresentationControls + custom hook
 import { useRef, useState, useCallback } from "react";
@@ -81,15 +84,15 @@ import { useFrame } from "@react-three/fiber";
 import type { Group } from "three";
 
 interface UseAutoRotateOptions {
-  speed?: number;           // Rotation per second (radians)
-  resumeDelay?: number;     // ms before resuming after interaction
+  speed?: number; // Rotation per second (radians)
+  resumeDelay?: number; // ms before resuming after interaction
   alternateDirection?: boolean;
 }
 
 export function useAutoRotate(options: UseAutoRotateOptions = {}) {
   const {
-    speed = Math.PI / 4,    // ~8 seconds per rotation
-    resumeDelay = 4000,     // Resume after 4 seconds idle
+    speed = Math.PI / 4, // ~8 seconds per rotation
+    resumeDelay = 4000, // Resume after 4 seconds idle
     alternateDirection = true,
   } = options;
 
@@ -138,23 +141,20 @@ export function useAutoRotate(options: UseAutoRotateOptions = {}) {
 **What:** Drag rotation continues after release based on release velocity, decelerates smoothly
 **When to use:** "Weighty" interaction feel like spinning a lazy susan
 **Example:**
+
 ```typescript
 // Source: @use-gesture/react + @react-spring/three
 import { useSpring } from "@react-spring/three";
 import { useDrag } from "@use-gesture/react";
 
 interface UseRotationMomentumOptions {
-  friction?: number;        // How quickly it slows down
-  sensitivity?: number;     // How much velocity affects spin
-  maxVelocity?: number;     // Cap on spin speed
+  friction?: number; // How quickly it slows down
+  sensitivity?: number; // How much velocity affects spin
+  maxVelocity?: number; // Cap on spin speed
 }
 
 export function useRotationMomentum(options: UseRotationMomentumOptions = {}) {
-  const {
-    friction = 0.95,
-    sensitivity = 0.01,
-    maxVelocity = 15,
-  } = options;
+  const { friction = 0.95, sensitivity = 0.01, maxVelocity = 15 } = options;
 
   const [{ rotation }, api] = useSpring(() => ({
     rotation: [0, 0],
@@ -170,10 +170,7 @@ export function useRotationMomentum(options: UseRotationMomentumOptions = {}) {
         });
       } else {
         // On release: apply velocity for momentum
-        const releaseVelocity = Math.min(
-          Math.sqrt(vx * vx + vy * vy),
-          maxVelocity
-        );
+        const releaseVelocity = Math.min(Math.sqrt(vx * vx + vy * vy), maxVelocity);
 
         // Project final position based on velocity
         const projectedX = rotation.get()[0] + vy * dx * releaseVelocity;
@@ -200,16 +197,17 @@ export function useRotationMomentum(options: UseRotationMomentumOptions = {}) {
 **What:** User can push past polar angle limits, springs back elastically
 **When to use:** Soft boundaries that feel natural
 **Example:**
+
 ```typescript
 // Source: Custom hook with @react-spring/three
 import { useSpring, animated } from "@react-spring/three";
 import { MathUtils } from "three";
 
 interface UsePolarRubberBandOptions {
-  minPolar: number;         // Minimum polar angle (radians)
-  maxPolar: number;         // Maximum polar angle (radians)
-  overscroll: number;       // How far past limit (radians)
-  springConfig?: object;    // Spring config for snap-back
+  minPolar: number; // Minimum polar angle (radians)
+  maxPolar: number; // Maximum polar angle (radians)
+  overscroll: number; // How far past limit (radians)
+  springConfig?: object; // Spring config for snap-back
 }
 
 export function usePolarRubberBand(options: UsePolarRubberBandOptions) {
@@ -217,7 +215,7 @@ export function usePolarRubberBand(options: UsePolarRubberBandOptions) {
     minPolar,
     maxPolar,
     overscroll = 0.15,
-    springConfig = { tension: 400, friction: 20 }
+    springConfig = { tension: 400, friction: 20 },
   } = options;
 
   const [{ polar }, api] = useSpring(() => ({
@@ -257,6 +255,7 @@ export function usePolarRubberBand(options: UsePolarRubberBandOptions) {
 **What:** Multiple food models with swipe navigation and 180-degree spin reveal
 **When to use:** Showcase multiple products in hero section
 **Example:**
+
 ```typescript
 // Source: @use-gesture/react + @react-spring/three
 import { useState, useCallback } from "react";
@@ -330,6 +329,7 @@ export function FoodCarousel() {
 **What:** Different particle styles per food type - steam for hot, sparkles for desserts, herbs for salads
 **When to use:** Visual feedback on 3D model interaction
 **Example:**
+
 ```typescript
 // Source: wawa-vfx GitHub documentation
 import { VFXParticles, VFXEmitter, useVFX } from "wawa-vfx";
@@ -436,6 +436,7 @@ export function FoodParticles({ foodType, position = [0, 0.5, 0] }: FoodParticle
 **What:** Subtle particle trail while dragging the model
 **When to use:** Continuous feedback during interaction
 **Example:**
+
 ```typescript
 // Source: wawa-vfx + useFrame
 import { useFrame, useThree } from "@react-three/fiber";
@@ -484,13 +485,13 @@ export function useDragTrail(isActive: boolean) {
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Spring physics rotation | Manual lerp/easing | PresentationControls | Spring physics, snap-back, polar limits built-in |
-| Gesture velocity | Pointer event math | @use-gesture/react | Normalized velocity, direction, swipe detection |
-| GPU particles | Canvas 2D particles | wawa-vfx | GPU instancing, 1000s of particles at 60fps |
-| Carousel transitions | Manual state machine | @react-spring/three | Interruptible, composable spring animations |
-| Sparkle effects | Custom shader | drei Sparkles | Ready-made, configurable, shader-based |
+| Problem                 | Don't Build          | Use Instead          | Why                                              |
+| ----------------------- | -------------------- | -------------------- | ------------------------------------------------ |
+| Spring physics rotation | Manual lerp/easing   | PresentationControls | Spring physics, snap-back, polar limits built-in |
+| Gesture velocity        | Pointer event math   | @use-gesture/react   | Normalized velocity, direction, swipe detection  |
+| GPU particles           | Canvas 2D particles  | wawa-vfx             | GPU instancing, 1000s of particles at 60fps      |
+| Carousel transitions    | Manual state machine | @react-spring/three  | Interruptible, composable spring animations      |
+| Sparkle effects         | Custom shader        | drei Sparkles        | Ready-made, configurable, shader-based           |
 
 **Key insight:** The combination of @use-gesture + @react-spring is the standard pattern for physics-based interactions in R3F. Gesture provides velocity data, Spring provides physics simulation. Don't try to implement momentum manually.
 
@@ -501,61 +502,67 @@ export function useDragTrail(isActive: boolean) {
 **What goes wrong:** Auto-rotation and user drag happen simultaneously, causing jitter
 **Why it happens:** OrbitControls autoRotate continues during interaction unless explicitly paused
 **How to avoid:**
+
 1. Listen for OrbitControls `start` event to pause autoRotate
 2. Set autoRotate={false} immediately on interaction
 3. Use timeout to resume after interaction ends
-**Warning signs:** Model jerks when user starts dragging
+   **Warning signs:** Model jerks when user starts dragging
 
 ### Pitfall 2: Velocity Units Mismatch Between gesture and spring
 
 **What goes wrong:** Momentum feels wrong - too fast or too slow
 **Why it happens:** @use-gesture velocity is px/ms, @react-spring expects different scale
 **How to avoid:**
+
 1. Scale velocity by a tuning factor (typically 0.01-0.1)
 2. Cap maximum velocity to prevent wild spins
 3. Test on both mouse and touch devices
-**Warning signs:** Desktop feels slow, mobile feels too fast (or vice versa)
+   **Warning signs:** Desktop feels slow, mobile feels too fast (or vice versa)
 
 ### Pitfall 3: Carousel Preloads All Models
 
 **What goes wrong:** Initial load time increases dramatically, memory spikes
 **Why it happens:** All GLB files loaded when component mounts
 **How to avoid:**
+
 1. Use Suspense per-model
 2. Preload only current + next model
 3. Dispose previous model on carousel change
-**Warning signs:** Long white screen on first load, mobile memory warnings
+   **Warning signs:** Long white screen on first load, mobile memory warnings
 
 ### Pitfall 4: Particles Emit During Auto-Rotation
 
 **What goes wrong:** Constant particle emission when user isn't interacting
 **Why it happens:** Emission tied to rotation state, not interaction state
 **How to avoid:**
+
 1. Only emit on pointer events, not on auto-rotation
 2. Check `isInteracting` flag before emission
 3. Use distinct "drag trail" vs "release burst" emitters
-**Warning signs:** Particle count grows unbounded, frame rate drops
+   **Warning signs:** Particle count grows unbounded, frame rate drops
 
 ### Pitfall 5: Rubber Band Feels Unnatural
 
 **What goes wrong:** Overscroll feels sticky or snappy, not elastic
 **Why it happens:** Wrong spring tension/friction values
 **How to avoid:**
+
 1. Higher tension (300-500) for quick snap-back
 2. Lower friction (15-25) for bouncy feel
 3. Limit overscroll amount to ~15-20 degrees
-**Warning signs:** Model sticks at limit, or snaps back harshly
+   **Warning signs:** Model sticks at limit, or snaps back harshly
 
 ### Pitfall 6: wawa-vfx Particles Not Visible
 
 **What goes wrong:** VFXParticles renders but nothing visible
 **Why it happens:** Missing or incorrect particle settings
 **How to avoid:**
+
 1. Set `intensity > 0` for emissive particles
 2. Ensure `fadeOpacity` starts at 1
 3. Check `renderMode` matches use case (billboard for always-facing)
 4. Verify emitter is actually triggering (use `debug` prop)
-**Warning signs:** No console errors but no visible particles
+   **Warning signs:** No console errors but no visible particles
 
 ## Code Examples
 
@@ -803,15 +810,16 @@ export function SteamEmitter({
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| OrbitControls autoRotate | PresentationControls + custom | drei 10+ | Better physics, snap-back |
-| react-use-gesture | @use-gesture/react | 2023 | New package name, better types |
-| Canvas 2D particles | GPU instanced particles (wawa-vfx) | 2025 | 100x more particles at same fps |
-| Manual spring math | @react-spring decay config | react-spring 9+ | Built-in physics simulation |
-| Separate particle overlay | In-scene VFX | wawa-vfx 2024 | Proper 3D depth, no z-fighting |
+| Old Approach              | Current Approach                   | When Changed    | Impact                          |
+| ------------------------- | ---------------------------------- | --------------- | ------------------------------- |
+| OrbitControls autoRotate  | PresentationControls + custom      | drei 10+        | Better physics, snap-back       |
+| react-use-gesture         | @use-gesture/react                 | 2023            | New package name, better types  |
+| Canvas 2D particles       | GPU instanced particles (wawa-vfx) | 2025            | 100x more particles at same fps |
+| Manual spring math        | @react-spring decay config         | react-spring 9+ | Built-in physics simulation     |
+| Separate particle overlay | In-scene VFX                       | wawa-vfx 2024   | Proper 3D depth, no z-fighting  |
 
 **Deprecated/outdated:**
+
 - `react-use-gesture` package: Replaced by `@use-gesture/react`
 - Canvas-based particles for 3D scenes: Use GPU particles with wawa-vfx or three.quarks
 - OrbitControls for momentum: Doesn't expose velocity, use gestures instead
@@ -841,6 +849,7 @@ export function SteamEmitter({
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - [Three.js OrbitControls docs](https://threejs.org/docs/pages/OrbitControls.html) - autoRotate, damping properties
 - [wawa-vfx GitHub](https://github.com/wass08/wawa-vfx) - VFXParticles, VFXEmitter API
 - [@use-gesture docs](https://use-gesture.netlify.app/docs/state/) - Gesture state properties, velocity
@@ -848,18 +857,21 @@ export function SteamEmitter({
 - Codebase: `src/lib/webgl/particles.ts` - Existing 2D particle system patterns
 
 ### Secondary (MEDIUM confidence)
+
 - [drei PresentationControls](https://drei.docs.pmnd.rs/controls/presentation-controls) - Spring physics rotation
 - [drei Sparkles](https://drei.docs.pmnd.rs/staging/sparkles) - Built-in particle component
 - [react-spring decay](https://github.com/pmndrs/react-spring/discussions/1898) - Drag + decay animation pattern
 - [Maxime Heckel particles tutorial](https://blog.maximeheckel.com/posts/the-magical-world-of-particles-with-react-three-fiber-and-shaders/) - R3F particle patterns
 
 ### Tertiary (LOW confidence)
+
 - WebSearch: Various forum discussions on rubber band physics - needs validation
 - WebSearch: wawa-vfx performance claims - needs testing on target devices
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Auto-rotation patterns: HIGH - OrbitControls docs + codebase patterns
 - Physics momentum: HIGH - @use-gesture + @react-spring well-documented
 - Carousel transitions: MEDIUM - Standard patterns, no exact R3F carousel tutorial found

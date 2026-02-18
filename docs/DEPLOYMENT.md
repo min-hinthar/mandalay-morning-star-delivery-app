@@ -28,19 +28,19 @@ Complete guide for deploying Mandalay Morning Star to production.
 
 Add all variables in Vercel Project Settings > Environment Variables:
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anonymous key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key |
-| `NEXT_PUBLIC_APP_URL` | Yes | Your production URL (e.g., `https://your-app.vercel.app`) |
-| `GOOGLE_MAPS_API_KEY` | Yes | Google Maps API key |
-| `STRIPE_SECRET_KEY` | Yes | Stripe secret key (live mode: `sk_live_...`) |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Yes | Stripe publishable key (live mode: `pk_live_...`) |
-| `STRIPE_WEBHOOK_SECRET` | Yes | Stripe webhook signing secret |
-| `RESEND_API_KEY` | Yes | Resend API key for emails |
-| `SENTRY_DSN` | No | Sentry DSN for error tracking |
-| `SENTRY_AUTH_TOKEN` | No | Sentry auth token for source maps |
+| Variable                             | Required | Description                                               |
+| ------------------------------------ | -------- | --------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`           | Yes      | Supabase project URL                                      |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | Yes      | Supabase anonymous key                                    |
+| `SUPABASE_SERVICE_ROLE_KEY`          | Yes      | Supabase service role key                                 |
+| `NEXT_PUBLIC_APP_URL`                | Yes      | Your production URL (e.g., `https://your-app.vercel.app`) |
+| `GOOGLE_MAPS_API_KEY`                | Yes      | Google Maps API key                                       |
+| `STRIPE_SECRET_KEY`                  | Yes      | Stripe secret key (live mode: `sk_live_...`)              |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Yes      | Stripe publishable key (live mode: `pk_live_...`)         |
+| `STRIPE_WEBHOOK_SECRET`              | Yes      | Stripe webhook signing secret                             |
+| `RESEND_API_KEY`                     | Yes      | Resend API key for emails                                 |
+| `SENTRY_DSN`                         | No       | Sentry DSN for error tracking                             |
+| `SENTRY_AUTH_TOKEN`                  | No       | Sentry auth token for source maps                         |
 
 ### Custom Domain (Optional)
 
@@ -61,6 +61,7 @@ Add all variables in Vercel Project Settings > Environment Variables:
 ### Email Templates (Optional)
 
 Customize email templates in Authentication > Email Templates:
+
 - Confirmation email
 - Magic link email
 - Password reset email
@@ -83,6 +84,7 @@ supabase db push
 ### Storage Buckets
 
 Verify storage buckets exist:
+
 - `menu-images` - Menu item images
 - `delivery-photos` - Driver delivery photos
 
@@ -103,6 +105,7 @@ Verify storage buckets exist:
 ### Products and Prices
 
 The app creates products dynamically. For production:
+
 1. Go to Stripe Dashboard > Products
 2. Verify menu items are created correctly after first order
 
@@ -136,15 +139,18 @@ For production, restrict your API key:
 ### Common Issues
 
 #### Auth Callback 303 Error
+
 - Verify `NEXT_PUBLIC_APP_URL` is set correctly
 - Check Supabase redirect URLs include your production domain
 
 #### Stripe Webhook Failures
+
 - Check webhook logs in Stripe Dashboard
 - Verify webhook secret is correct
 - Ensure endpoint URL is exactly `/api/webhooks/stripe`
 
 #### Map Not Loading
+
 - Verify Google Maps API key is set
 - Check API restrictions allow your domain
 - Verify Geocoding and Routes APIs are enabled
@@ -154,6 +160,7 @@ For production, restrict your API key:
 ### Vercel Analytics
 
 Enable in Vercel Project Settings > Analytics for:
+
 - Web Vitals tracking
 - Usage metrics
 - Error tracking
@@ -167,6 +174,7 @@ Enable in Vercel Project Settings > Analytics for:
 ### Supabase Monitoring
 
 Monitor in Supabase Dashboard:
+
 - API requests in API > Logs
 - Database queries in Database > Query Performance
 - Auth events in Authentication > Logs
@@ -188,6 +196,7 @@ supabase db push < backup.sql
 ### Environment Variables Backup
 
 Export environment variables from Vercel:
+
 1. Go to Project Settings > Environment Variables
 2. Document all variables in a secure location (1Password, etc.)
 
@@ -213,10 +222,10 @@ Export environment variables from Vercel:
 
 ## Quick Reference
 
-| Service | Dashboard |
-|---------|-----------|
-| Vercel | [vercel.com/dashboard](https://vercel.com/dashboard) |
-| Supabase | [app.supabase.com](https://app.supabase.com) |
-| Stripe | [dashboard.stripe.com](https://dashboard.stripe.com) |
+| Service      | Dashboard                                                    |
+| ------------ | ------------------------------------------------------------ |
+| Vercel       | [vercel.com/dashboard](https://vercel.com/dashboard)         |
+| Supabase     | [app.supabase.com](https://app.supabase.com)                 |
+| Stripe       | [dashboard.stripe.com](https://dashboard.stripe.com)         |
 | Google Cloud | [console.cloud.google.com](https://console.cloud.google.com) |
-| Sentry | [sentry.io](https://sentry.io) |
+| Sentry       | [sentry.io](https://sentry.io)                               |

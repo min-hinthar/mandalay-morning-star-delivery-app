@@ -1,10 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import type {
-  CoverageCheckRequest,
-  CoverageCheckResult,
-} from "@/types/address";
+import type { CoverageCheckRequest, CoverageCheckResult } from "@/types/address";
 
 export function useCoverageCheck() {
   return useMutation<CoverageCheckResult, Error, CoverageCheckRequest>({

@@ -9,6 +9,7 @@
 This phase establishes the foundational infrastructure that prevents z-index chaos and enables consistent animation timing across the application. The codebase already has significant foundation work in place (`tokens.css`, `motion-tokens.ts`, ESLint rules), but gaps exist in GSAP setup, Stylelint enforcement, and TailwindCSS 4 `@theme` integration.
 
 Key findings:
+
 - **Z-index tokens**: Already defined in `tokens.css` with correct semantic hierarchy. TailwindCSS 4 `@theme` integration needed for first-class utilities.
 - **ESLint z-index enforcement**: Partial rules exist but only catch `z-[number]` and `z-40/50`. Need comprehensive coverage.
 - **Stylelint z-index enforcement**: No rules currently. Plugin `stylelint-declaration-use-variable` available.
@@ -23,39 +24,40 @@ The established libraries/tools for this phase:
 
 ### Core
 
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| `gsap` | ^3.14 | Timeline choreography, scroll-driven animations | Now 100% free including all plugins. Best-in-class timeline control. |
-| `@gsap/react` | ^2.1 | React integration with `useGSAP` hook | Official hook with automatic cleanup, scoped selectors, `contextSafe()` |
-| `gsap/ScrollTrigger` | (bundled) | Scroll-linked animations | Essential for menu browsing, hero sections, parallax |
-| `gsap/SplitText` | (bundled) | Text animation (char/word/line splitting) | Hero headlines, category titles. Now free. |
+| Library              | Version   | Purpose                                         | Why Standard                                                            |
+| -------------------- | --------- | ----------------------------------------------- | ----------------------------------------------------------------------- |
+| `gsap`               | ^3.14     | Timeline choreography, scroll-driven animations | Now 100% free including all plugins. Best-in-class timeline control.    |
+| `@gsap/react`        | ^2.1      | React integration with `useGSAP` hook           | Official hook with automatic cleanup, scoped selectors, `contextSafe()` |
+| `gsap/ScrollTrigger` | (bundled) | Scroll-linked animations                        | Essential for menu browsing, hero sections, parallax                    |
+| `gsap/SplitText`     | (bundled) | Text animation (char/word/line splitting)       | Hero headlines, category titles. Now free.                              |
 
 ### Supporting
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `gsap/Flip` | (bundled) | Layout transition animations | Cart item reordering, category filtering |
-| `gsap/Observer` | (bundled) | Touch/scroll gesture detection | Swipe interactions on cart items |
-| `stylelint-declaration-use-variable` | ^3.1.0 | Enforce CSS custom properties | z-index, color enforcement in CSS |
+| Library                              | Version   | Purpose                        | When to Use                              |
+| ------------------------------------ | --------- | ------------------------------ | ---------------------------------------- |
+| `gsap/Flip`                          | (bundled) | Layout transition animations   | Cart item reordering, category filtering |
+| `gsap/Observer`                      | (bundled) | Touch/scroll gesture detection | Swipe interactions on cart items         |
+| `stylelint-declaration-use-variable` | ^3.1.0    | Enforce CSS custom properties  | z-index, color enforcement in CSS        |
 
 ### Already Installed (Keep)
 
-| Library | Version | Purpose |
-|---------|---------|---------|
+| Library         | Version  | Purpose                                             |
+| --------------- | -------- | --------------------------------------------------- |
 | `framer-motion` | ^12.26.1 | Component-level interactions (hover, tap, presence) |
-| `tailwindcss` | ^4 | Utility-first CSS with `@theme` support |
-| `stylelint` | ^17.0.0 | CSS linting |
-| `eslint` | ^9 | JavaScript/TypeScript linting |
+| `tailwindcss`   | ^4       | Utility-first CSS with `@theme` support             |
+| `stylelint`     | ^17.0.0  | CSS linting                                         |
+| `eslint`        | ^9       | JavaScript/TypeScript linting                       |
 
 ### Alternatives Considered
 
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| GSAP + Motion | GSAP only | Motion has superior React integration for component-level work |
-| GSAP + Motion | Motion only | Motion lacks timeline control and SplitText capabilities |
-| `stylelint-declaration-use-variable` | Custom rule | Existing plugin handles regex patterns for properties |
+| Instead of                           | Could Use   | Tradeoff                                                       |
+| ------------------------------------ | ----------- | -------------------------------------------------------------- |
+| GSAP + Motion                        | GSAP only   | Motion has superior React integration for component-level work |
+| GSAP + Motion                        | Motion only | Motion lacks timeline control and SplitText capabilities       |
+| `stylelint-declaration-use-variable` | Custom rule | Existing plugin handles regex patterns for properties          |
 
 **Installation:**
+
 ```bash
 # GSAP ecosystem (now 100% free)
 pnpm add gsap @gsap/react
@@ -217,25 +219,25 @@ This generates utilities: `z-dropdown`, `z-sticky`, `z-modal`, etc.
 
 ### Anti-Patterns to Avoid
 
-| Anti-Pattern | Why Bad | Instead |
-|--------------|---------|---------|
-| GSAP inside `useEffect` | No automatic cleanup, memory leaks | Use `useGSAP` hook |
-| Inline GSAP registration in components | Plugin loaded multiple times | Centralize in `lib/gsap/index.ts` |
-| ScrollTrigger without scope | Selectors leak between components | Pass `scope: containerRef` |
-| Hardcoded z-index numbers (`z-50`, `z-[999]`) | Unmaintainable, conflicts | Use token utilities (`z-modal`) |
-| Mixing Motion layout + GSAP on same element | Conflicting DOM manipulation | Pick one library per element |
+| Anti-Pattern                                  | Why Bad                            | Instead                           |
+| --------------------------------------------- | ---------------------------------- | --------------------------------- |
+| GSAP inside `useEffect`                       | No automatic cleanup, memory leaks | Use `useGSAP` hook                |
+| Inline GSAP registration in components        | Plugin loaded multiple times       | Centralize in `lib/gsap/index.ts` |
+| ScrollTrigger without scope                   | Selectors leak between components  | Pass `scope: containerRef`        |
+| Hardcoded z-index numbers (`z-50`, `z-[999]`) | Unmaintainable, conflicts          | Use token utilities (`z-modal`)   |
+| Mixing Motion layout + GSAP on same element   | Conflicting DOM manipulation       | Pick one library per element      |
 
 ## Don't Hand-Roll
 
 Problems with existing solutions:
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Text split animation | Manual DOM splitting | GSAP SplitText | Handles line breaks, resizing, accessibility |
-| Scroll-linked animations | IntersectionObserver DIY | GSAP ScrollTrigger | Scrubbing, pinning, snap, markers |
-| Layout transitions | Manual FLIP calculation | GSAP Flip plugin | Handles nested elements, stacking contexts |
-| Z-index enforcement | Manual code review | ESLint + Stylelint rules | Catches violations at build time |
-| Animation cleanup | Manual cleanup in useEffect | `useGSAP` hook | Automatic context-based cleanup |
+| Problem                  | Don't Build                 | Use Instead              | Why                                          |
+| ------------------------ | --------------------------- | ------------------------ | -------------------------------------------- |
+| Text split animation     | Manual DOM splitting        | GSAP SplitText           | Handles line breaks, resizing, accessibility |
+| Scroll-linked animations | IntersectionObserver DIY    | GSAP ScrollTrigger       | Scrubbing, pinning, snap, markers            |
+| Layout transitions       | Manual FLIP calculation     | GSAP Flip plugin         | Handles nested elements, stacking contexts   |
+| Z-index enforcement      | Manual code review          | ESLint + Stylelint rules | Catches violations at build time             |
+| Animation cleanup        | Manual cleanup in useEffect | `useGSAP` hook           | Automatic context-based cleanup              |
 
 **Key insight:** GSAP's plugin ecosystem solves edge cases (resize handling, SSR, accessibility) that take weeks to implement correctly.
 
@@ -246,10 +248,12 @@ Problems with existing solutions:
 **What goes wrong:** `ScrollTrigger is not defined` errors in production
 **Why it happens:** Tree-shaking removes unused imports; plugins must be explicitly registered
 **How to avoid:**
+
 ```typescript
 // ALWAYS register plugins, even if they seem to work without it
 gsap.registerPlugin(ScrollTrigger, SplitText, Flip, Observer);
 ```
+
 **Warning signs:** Works in dev, fails in production build
 
 ### Pitfall 2: useGSAP Missing Scope
@@ -257,10 +261,12 @@ gsap.registerPlugin(ScrollTrigger, SplitText, Flip, Observer);
 **What goes wrong:** Animations affect elements outside component; cleanup fails
 **Why it happens:** Selectors like `.box` match globally without scope
 **How to avoid:**
+
 ```typescript
 // ALWAYS pass scope
 useGSAP(() => { ... }, { scope: containerRef });
 ```
+
 **Warning signs:** Animations persist after component unmount; unrelated elements animate
 
 ### Pitfall 3: Stylelint z-index Rule Not Catching Tailwind Classes
@@ -282,6 +288,7 @@ useGSAP(() => { ... }, { scope: containerRef });
 **What goes wrong:** GSAP animations feel different from Framer Motion animations
 **Why it happens:** Different easing curves, duration values
 **How to avoid:** Create GSAP presets that map to existing motion tokens:
+
 ```typescript
 // Map to existing spring.snappy
 export const gsapEases = {
@@ -289,6 +296,7 @@ export const gsapEases = {
   bouncy: "back.out(1.7)", // Matches spring.ultraBouncy
 };
 ```
+
 **Warning signs:** Inconsistent animation feel across different components
 
 ## Code Examples
@@ -416,24 +424,36 @@ export const zIndexVar = {
       ["z-index", "/color/"],
       { "ignoreValues": ["auto", "inherit", "initial", "unset"] }
     ],
-    "at-rule-no-unknown": [true, {
-      "ignoreAtRules": ["tailwind", "apply", "layer", "config", "theme", "custom-variant", "utility"]
-    }]
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "tailwind",
+          "apply",
+          "layer",
+          "config",
+          "theme",
+          "custom-variant",
+          "utility"
+        ]
+      }
+    ]
   }
 }
 ```
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| GSAP Club membership | GSAP 100% free | 2024 (Webflow acquisition) | All plugins now accessible |
-| `tailwind.config.js` | TailwindCSS 4 `@theme` | 2024 | CSS-first configuration |
-| `framer-motion` package | `motion` package | 2024 | Same API, rebranded |
-| Manual useEffect cleanup | `useGSAP` hook | 2023 | Automatic gsap.context cleanup |
-| arbitrary z-index syntax | `z-modal` via @theme | TailwindCSS 4 | First-class utility generation |
+| Old Approach             | Current Approach       | When Changed               | Impact                         |
+| ------------------------ | ---------------------- | -------------------------- | ------------------------------ |
+| GSAP Club membership     | GSAP 100% free         | 2024 (Webflow acquisition) | All plugins now accessible     |
+| `tailwind.config.js`     | TailwindCSS 4 `@theme` | 2024                       | CSS-first configuration        |
+| `framer-motion` package  | `motion` package       | 2024                       | Same API, rebranded            |
+| Manual useEffect cleanup | `useGSAP` hook         | 2023                       | Automatic gsap.context cleanup |
+| arbitrary z-index syntax | `z-modal` via @theme   | TailwindCSS 4              | First-class utility generation |
 
 **Deprecated/outdated:**
+
 - `gsap/all` import pattern - Use individual plugin imports
 - GSAP `timeline.add()` without labels - Use labels for maintainability
 - Tailwind v3 `tailwind.config.js` for tokens - Use `@theme` directive
@@ -458,16 +478,19 @@ export const zIndexVar = {
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - [GSAP React Documentation](https://gsap.com/resources/React/) - useGSAP hook, contextSafe, cleanup patterns
 - [@gsap/react npm](https://www.npmjs.com/package/@gsap/react) - Version 2.1.2, API reference
 - [TailwindCSS 4 Theme Variables](https://tailwindcss.com/docs/theme) - @theme directive documentation
 - [TailwindCSS 4 Z-Index Discussion](https://github.com/tailwindlabs/tailwindcss/discussions/18031) - Working @theme z-index configuration
 
 ### Secondary (MEDIUM confidence)
+
 - [ESLint Custom Rules Documentation](https://eslint.org/docs/latest/extend/custom-rules) - no-restricted-syntax patterns
 - [stylelint-declaration-use-variable](https://www.npmjs.com/package/stylelint-declaration-use-variable) - z-index enforcement plugin
 
 ### Codebase Verified (HIGH confidence)
+
 - `src/styles/tokens.css` - Existing z-index tokens (lines 254-263)
 - `src/lib/motion-tokens.ts` - Existing Framer Motion token system
 - `eslint.config.mjs` - Existing partial z-index rules (lines 44-64)
@@ -477,6 +500,7 @@ export const zIndexVar = {
 ## Metadata
 
 **Confidence breakdown:**
+
 - Z-index token system: HIGH - Verified in codebase, standard pattern
 - GSAP setup patterns: HIGH - Official documentation verified
 - TailwindCSS 4 @theme: HIGH - Official docs + working examples

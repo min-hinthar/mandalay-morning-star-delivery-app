@@ -56,22 +56,29 @@ export function RecentRoutesSection({ driverId }: RecentRoutesSectionProps) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchRoutes = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
+  const fetchRoutes = useCallback(
+    async (isRefresh = false) => {
+      if (isRefresh) setRefreshing(true);
 
-    try {
-      const response = await fetch(`/api/admin/drivers/${driverId}/routes?limit=7`);
-      if (!response.ok) throw new Error("Failed to fetch routes");
+      try {
+        const response = await fetch(`/api/admin/drivers/${driverId}/routes?limit=7`);
+        if (!response.ok) throw new Error("Failed to fetch routes");
 
-      const data = await response.json();
-      setRoutes(data.routes || []);
-    } catch {
-      toast({ title: "Error", description: "Failed to fetch route history", variant: "destructive" });
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [driverId]);
+        const data = await response.json();
+        setRoutes(data.routes || []);
+      } catch {
+        toast({
+          title: "Error",
+          description: "Failed to fetch route history",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [driverId]
+  );
 
   useEffect(() => {
     fetchRoutes();
@@ -174,7 +181,9 @@ export function RecentRoutesSection({ driverId }: RecentRoutesSectionProps) {
                   {/* Date */}
                   <div className="flex items-center gap-2 min-w-[110px]">
                     <Calendar className="h-4 w-4 text-text-muted shrink-0" />
-                    <span className="text-sm font-body text-text-primary">{formatDate(route.deliveryDate)}</span>
+                    <span className="text-sm font-body text-text-primary">
+                      {formatDate(route.deliveryDate)}
+                    </span>
                   </div>
 
                   {/* Status */}

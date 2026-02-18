@@ -34,17 +34,20 @@ export function Hero({
 
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
-    if (!canHover) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const offsetX = Math.max(-20, Math.min(20, (mouseX - centerX) / centerX * 20));
-    const offsetY = Math.max(-20, Math.min(20, (mouseY - centerY) / centerY * 20));
-    setMouseOffset({ x: offsetX, y: offsetY });
-  }, [canHover]);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      if (!canHover) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const offsetX = Math.max(-20, Math.min(20, ((mouseX - centerX) / centerX) * 20));
+      const offsetY = Math.max(-20, Math.min(20, ((mouseY - centerY) / centerY) * 20));
+      setMouseOffset({ x: offsetX, y: offsetY });
+    },
+    [canHover]
+  );
 
   const handleMouseLeave = useCallback(() => {
     setMouseOffset({ x: 0, y: 0 });
@@ -55,12 +58,21 @@ export function Hero({
     offset: ["start start", "end start"],
   });
 
-  const orbsFarY = useTransform(scrollYProgress, [0, 1],
-    isParallaxEnabled ? ["0%", `${parallaxPresets.far.speedFactor * 100}%`] : ["0%", "0%"]);
-  const orbsMidY = useTransform(scrollYProgress, [0, 1],
-    isParallaxEnabled ? ["0%", `${parallaxPresets.mid.speedFactor * 100}%`] : ["0%", "0%"]);
-  const contentY = useTransform(scrollYProgress, [0, 1],
-    isParallaxEnabled ? ["0%", `${parallaxPresets.content.speedFactor * 15}%`] : ["0%", "0%"]);
+  const orbsFarY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    isParallaxEnabled ? ["0%", `${parallaxPresets.far.speedFactor * 100}%`] : ["0%", "0%"]
+  );
+  const orbsMidY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    isParallaxEnabled ? ["0%", `${parallaxPresets.mid.speedFactor * 100}%`] : ["0%", "0%"]
+  );
+  const contentY = useTransform(
+    scrollYProgress,
+    [0, 1],
+    isParallaxEnabled ? ["0%", `${parallaxPresets.content.speedFactor * 15}%`] : ["0%", "0%"]
+  );
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   const smoothOrbsFarY = useSpring(orbsFarY, { stiffness: 100, damping: 30 });
@@ -69,7 +81,13 @@ export function Hero({
   const smoothOpacity = useSpring(opacity, { stiffness: 100, damping: 30 });
 
   const heroContent = (
-    <HeroContent headline={headline} tagline={tagline} subheadline={subheadline} ctaText={ctaText} ctaHref={ctaHref} />
+    <HeroContent
+      headline={headline}
+      tagline={tagline}
+      subheadline={subheadline}
+      ctaText={ctaText}
+      ctaHref={ctaHref}
+    />
   );
 
   return (
@@ -118,8 +136,10 @@ export function Hero({
         style={{
           // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
           zIndex: 3,
-          maskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
+          maskImage:
+            "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
         }}
         aria-hidden="true"
       >

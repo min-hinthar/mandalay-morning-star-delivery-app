@@ -103,9 +103,12 @@ export function OrderTimeline({
               <div
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors",
-                  isCompleted && "border-[var(--color-accent-secondary)] bg-[var(--color-accent-secondary)] text-[var(--color-text-inverse)]",
-                  isCurrent && "border-[var(--color-interactive-primary)] bg-[var(--color-interactive-primary)] text-[var(--color-text-inverse)]",
-                  isPending && "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)]"
+                  isCompleted &&
+                    "border-[var(--color-accent-secondary)] bg-[var(--color-accent-secondary)] text-[var(--color-text-inverse)]",
+                  isCurrent &&
+                    "border-[var(--color-interactive-primary)] bg-[var(--color-interactive-primary)] text-[var(--color-text-inverse)]",
+                  isPending &&
+                    "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)]"
                 )}
               >
                 {step.icon}

@@ -165,14 +165,7 @@ export const AddButton = memo(function AddButton({
         }, 350);
       }
     },
-    [
-      disabled,
-      markUserInteraction,
-      fly,
-      sourceRef,
-      item.imageUrl,
-      onAdd,
-    ]
+    [disabled, markUserInteraction, fly, sourceRef, item.imageUrl, onAdd]
   );
 
   const handleIncrement = useCallback(
@@ -207,10 +200,7 @@ export const AddButton = memo(function AddButton({
   const springConfig = getSpring(spring.snappy);
 
   return (
-    <div
-      className={cn("relative", className)}
-      onClick={(e) => e.stopPropagation()}
-    >
+    <div className={cn("relative", className)} onClick={(e) => e.stopPropagation()}>
       <AnimatePresence mode="wait" initial={false}>
         {/* Idle state - Add button */}
         {displayState === "idle" && (

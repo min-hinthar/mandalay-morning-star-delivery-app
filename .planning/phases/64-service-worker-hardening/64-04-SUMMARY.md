@@ -19,7 +19,12 @@ affects: [64-05, 65-lighthouse-ci]
 # Tech tracking
 tech-stack:
   added: ["idb-keyval", "fake-indexeddb"]
-  patterns: ["IndexedDB StateStorage adapter for Zustand persist", "async hydration tracking with _hasHydrated", "online event listener for offline sync"]
+  patterns:
+    [
+      "IndexedDB StateStorage adapter for Zustand persist",
+      "async hydration tracking with _hasHydrated",
+      "online event listener for offline sync",
+    ]
 
 key-files:
   created:
@@ -60,9 +65,10 @@ completed: 2026-02-15
 - **Files modified:** 8
 
 ## Accomplishments
+
 - Created cartIDBStorage adapter implementing Zustand StateStorage with idb-keyval
 - Transparent one-time migration from localStorage to IndexedDB (read + copy + cleanup)
-- Added _hasHydrated flag for UI to avoid flash of empty cart during async hydration
+- Added \_hasHydrated flag for UI to avoid flash of empty cart during async hydration
 - Items added while offline get pendingSync: true flag for visual indicators
 - On reconnect: pendingSync flags cleared + "Cart synced!" success toast
 - All 335 existing tests pass with fake-indexeddb mock
@@ -75,13 +81,15 @@ Each task was committed atomically:
 2. **Task 2: Migrate cart store to IndexedDB with hydration tracking and offline sync** - `ecde60a` (feat)
 
 ## Files Created/Modified
+
 - `src/lib/services/cart-idb-storage.ts` - Zustand StateStorage adapter using idb-keyval with localStorage migration
 - `src/lib/stores/cart-store.ts` - Replaced localStorage backend with cartIDBStorage, added hydration tracking, offline awareness, and online sync listener
-- `src/types/cart.ts` - Added pendingSync optional boolean to CartItem, _hasHydrated and _setHasHydrated to CartStore interface
+- `src/types/cart.ts` - Added pendingSync optional boolean to CartItem, \_hasHydrated and \_setHasHydrated to CartStore interface
 - `src/test/setup.ts` - Added fake-indexeddb/auto import for test environment IndexedDB mock
 - `package.json` - Added idb-keyval dependency and fake-indexeddb devDependency
 
 ## Decisions Made
+
 - Used idb-keyval's default store (no custom DB name needed -- simpler, one key-value store suffices)
 - Migration strategy: check IndexedDB first, fall back to localStorage, copy to IDB + remove from LS
 - pendingSync as optional boolean on CartItem rather than separate offline queue (lightweight approach)
@@ -93,6 +101,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Added fake-indexeddb for test environment**
+
 - **Found during:** Task 2 (verification step)
 - **Issue:** Cart store tests failed with "ReferenceError: indexedDB is not defined" in jsdom environment
 - **Fix:** Installed fake-indexeddb as devDependency and added `import "fake-indexeddb/auto"` to test setup
@@ -101,6 +110,7 @@ Each task was committed atomically:
 - **Committed in:** ecde60a (Task 2 commit)
 
 **2. [Rule 3 - Blocking] Included orphaned OfflinePage component from prior plan**
+
 - **Found during:** Task 2 (typecheck verification)
 - **Issue:** typecheck failed because src/app/offline/page.tsx referenced OfflinePage from @/components/ui/offline which existed as uncommitted files from a prior plan execution
 - **Fix:** Included the orphaned files (OfflinePage.tsx, index.ts re-export, page.tsx refactor) in Task 2 commit
@@ -114,18 +124,22 @@ Each task was committed atomically:
 **Impact on plan:** Both auto-fixes necessary for test and type-check infrastructure. No scope creep.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Cart now persists in IndexedDB, surviving service worker cache clears
-- _hasHydrated flag available for UI components to avoid flash of empty cart
+- \_hasHydrated flag available for UI components to avoid flash of empty cart
 - pendingSync flag on cart items ready for visual indicators in cart UI
 - Online sync listener auto-clears pending state on reconnect
 - All existing cart operations remain backward-compatible
 
 ---
-*Phase: 64-service-worker-hardening*
-*Completed: 2026-02-15*
+
+_Phase: 64-service-worker-hardening_
+_Completed: 2026-02-15_

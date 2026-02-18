@@ -15,6 +15,7 @@
 ```
 
 Key tokens:
+
 - `text-text-inverse`: White in light mode, black in dark mode
 - `bg-footer-bg` / `text-footer-text`: Theme-aware footer pair
 
@@ -26,13 +27,14 @@ Key tokens:
 
 Verify contrast ratios when defining tokens:
 
-| Token pair | Min ratio |
-|-----------|-----------|
-| Button text on bg | 4.5:1 (AA normal) |
-| Muted text on surface | 4.5:1 (target ~6:1) |
+| Token pair                | Min ratio             |
+| ------------------------- | --------------------- |
+| Button text on bg         | 4.5:1 (AA normal)     |
+| Muted text on surface     | 4.5:1 (target ~6:1)   |
 | Track/progress bg on card | ~1.3:1 luminance diff |
 
 Values that failed and fixes:
+
 - `#52A52E` (green) on white = ~3.6:1 -> `#3D8B22` (~5.3:1)
 - `#6B6B6B` (muted) on white = ~4.8:1 -> `#5C5C5C` (~6:1)
 - `#F5F5F5` (surface-tertiary) on white = invisible -> `#EBEBEB`

@@ -45,7 +45,11 @@ const changedBorder = "border-l-2 border-l-primary pl-3";
 // COMPONENT
 // ===========================================
 
-export function NotificationSettingsForm({ settings, originalSettings, onChange }: NotificationSettingsFormProps) {
+export function NotificationSettingsForm({
+  settings,
+  originalSettings,
+  onChange,
+}: NotificationSettingsFormProps) {
   const handleToggleChange = useCallback(
     (field: keyof NotificationSettings, checked: boolean) => {
       onChange({ ...settings, [field]: checked });
@@ -75,12 +79,15 @@ export function NotificationSettingsForm({ settings, originalSettings, onChange 
       </div>
 
       {/* Notification Channels */}
-      <div className={cn(
-        "space-y-2",
-        (isFieldChanged(settings, originalSettings, "emailNotificationsEnabled") ||
-          isFieldChanged(settings, originalSettings, "smsNotificationsEnabled") ||
-          isFieldChanged(settings, originalSettings, "pushNotificationsEnabled")) && changedBorder
-      )}>
+      <div
+        className={cn(
+          "space-y-2",
+          (isFieldChanged(settings, originalSettings, "emailNotificationsEnabled") ||
+            isFieldChanged(settings, originalSettings, "smsNotificationsEnabled") ||
+            isFieldChanged(settings, originalSettings, "pushNotificationsEnabled")) &&
+            changedBorder
+        )}
+      >
         <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
           Notification Channels
         </h3>
@@ -112,11 +119,14 @@ export function NotificationSettingsForm({ settings, originalSettings, onChange 
       </div>
 
       {/* Notification Triggers */}
-      <div className={cn(
-        "space-y-2",
-        (isFieldChanged(settings, originalSettings, "notifyOnOrderPlaced") ||
-          isFieldChanged(settings, originalSettings, "notifyOnOrderStatusChange")) && changedBorder
-      )}>
+      <div
+        className={cn(
+          "space-y-2",
+          (isFieldChanged(settings, originalSettings, "notifyOnOrderPlaced") ||
+            isFieldChanged(settings, originalSettings, "notifyOnOrderStatusChange")) &&
+            changedBorder
+        )}
+      >
         <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
           Notification Triggers
         </h3>
@@ -148,16 +158,16 @@ export function NotificationSettingsForm({ settings, originalSettings, onChange 
         </div>
 
         {/* Low Stock Alerts */}
-        <div className={cn(
-          "space-y-3",
-          isFieldChanged(settings, originalSettings, "lowStockThreshold") && changedBorder
-        )}>
+        <div
+          className={cn(
+            "space-y-3",
+            isFieldChanged(settings, originalSettings, "lowStockThreshold") && changedBorder
+          )}
+        >
           <ToggleSwitch
             id="lowStockAlerts"
             checked={settings.lowStockThreshold > 0}
-            onChange={(enabled) =>
-              onChange({ ...settings, lowStockThreshold: enabled ? 10 : 0 })
-            }
+            onChange={(enabled) => onChange({ ...settings, lowStockThreshold: enabled ? 10 : 0 })}
             label="Low Stock Alerts"
             description="Get notified when any item's stock falls below threshold"
           />
@@ -184,9 +194,11 @@ export function NotificationSettingsForm({ settings, originalSettings, onChange 
         </div>
 
         {/* Daily Summary Email */}
-        <div className={cn(
-          isFieldChanged(settings, originalSettings, "dailySummaryEnabled") && changedBorder
-        )}>
+        <div
+          className={cn(
+            isFieldChanged(settings, originalSettings, "dailySummaryEnabled") && changedBorder
+          )}
+        >
           <ToggleSwitch
             id="dailySummary"
             checked={settings.dailySummaryEnabled}

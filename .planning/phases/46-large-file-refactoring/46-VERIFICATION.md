@@ -18,42 +18,42 @@ re_verification: false
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 1 | All 47 targeted files split into subfolders or sibling patterns | ✓ VERIFIED | 10 leaf components (46-01), 9 admin components (46-02), 8 shared UI (46-03), 7 admin pages (46-04), 4 API routes (46-05), 7 lib files (46-06) all have index.tsx/ts or co-located siblings |
-| 2 | Barrel re-exports preserve import paths | ✓ VERIFIED | `pnpm typecheck` passes with zero errors; spot-checked motion-tokens/ and FormValidation/ barrels complete |
-| 3 | No split files exceed 400 lines | ✓ VERIFIED | Largest split file: 398 lines (routes/[id]/route.ts). UnifiedMenuItemCard.tsx (540 lines) documented as irreducible exception in 46-03-SUMMARY.md |
-| 4 | ESLint max-lines enforces 400-line limit | ✓ VERIFIED | eslint.config.mjs lines 143-164: covers src/**/*.{ts,tsx}, exempts types/tests/stories, warning-level |
-| 5 | CLAUDE.md documents file organization patterns | ✓ VERIFIED | Lines 50-82: 4 patterns documented (component subfolder, lib subfolder, admin page sibling, API route sibling) |
-| 6 | TypeScript compiles without errors | ✓ VERIFIED | `pnpm typecheck` — zero errors |
-| 7 | ESLint passes without new errors | ✓ VERIFIED | `pnpm lint` — zero errors, zero max-lines warnings |
-| 8 | All 7 plan SUMMARYs exist | ✓ VERIFIED | 46-01 through 46-07 SUMMARY.md files present in phase directory |
+| #   | Truth                                                           | Status     | Evidence                                                                                                                                                                                   |
+| --- | --------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | All 47 targeted files split into subfolders or sibling patterns | ✓ VERIFIED | 10 leaf components (46-01), 9 admin components (46-02), 8 shared UI (46-03), 7 admin pages (46-04), 4 API routes (46-05), 7 lib files (46-06) all have index.tsx/ts or co-located siblings |
+| 2   | Barrel re-exports preserve import paths                         | ✓ VERIFIED | `pnpm typecheck` passes with zero errors; spot-checked motion-tokens/ and FormValidation/ barrels complete                                                                                 |
+| 3   | No split files exceed 400 lines                                 | ✓ VERIFIED | Largest split file: 398 lines (routes/[id]/route.ts). UnifiedMenuItemCard.tsx (540 lines) documented as irreducible exception in 46-03-SUMMARY.md                                          |
+| 4   | ESLint max-lines enforces 400-line limit                        | ✓ VERIFIED | eslint.config.mjs lines 143-164: covers src/\*_/_.{ts,tsx}, exempts types/tests/stories, warning-level                                                                                     |
+| 5   | CLAUDE.md documents file organization patterns                  | ✓ VERIFIED | Lines 50-82: 4 patterns documented (component subfolder, lib subfolder, admin page sibling, API route sibling)                                                                             |
+| 6   | TypeScript compiles without errors                              | ✓ VERIFIED | `pnpm typecheck` — zero errors                                                                                                                                                             |
+| 7   | ESLint passes without new errors                                | ✓ VERIFIED | `pnpm lint` — zero errors, zero max-lines warnings                                                                                                                                         |
+| 8   | All 7 plan SUMMARYs exist                                       | ✓ VERIFIED | 46-01 through 46-07 SUMMARY.md files present in phase directory                                                                                                                            |
 
 **Score:** 8/8 truths verified
 
 ### Required Artifacts
 
-| Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| Component subfolders (plan 46-01) | 10 subfolders with index.tsx | ✓ VERIFIED | OrderDetailExpanded, HowItWorksSection, AddressesTab, BrandMascot, DriverDashboard, PendingInvitesTab, PaymentSuccess, ProfileTab, MorphingMenu, CartItem |
-| Admin component subfolders (46-02) | 9 subfolders with index.tsx | ✓ VERIFIED | DriverDetailClient, RouteDetailClient, AdminDashboard, DriverListTable, RouteListTable, CreateRouteModal, SettingsClient, CoverageRouteMap, OrdersTab |
-| Shared UI subfolders (46-03) | 9 subfolders with index.tsx | ✓ VERIFIED | FormValidation (20 exports), Modal (10), skeleton (11), ExpandableTableRow, AddressInput, TimeSlotPicker, DeliveryMap, StatusTimeline, Hero |
-| Admin page co-located files (46-04) | 12 sibling .tsx files | ✓ VERIFIED | MenuItemFormFields, MenuItemPhotoSection, SectionsToolbar, SectionsList, AddCategoryDialog, CategoriesTable, MenuFilterBar, MenuItemsTable, PhotosStatsCards, PhotosFilters, RoutesStatsCards, DriversStatsCards |
-| API route co-located files (46-05) | 7 types/schemas/helpers.ts | ✓ VERIFIED | sections/[id] (types, schemas, helpers), routes/[id]/stops (types, helpers), routes/[id] (types), tracking/[orderId] (types) |
-| Lib subfolders (46-06) | 7 subfolders with index.ts | ✓ VERIFIED | motion-tokens (7 sub-files, 33 exports), swipe-gestures (6 sub-files, 21 exports), analytics-helpers (4), micro-interactions (6, 32 exports), offline-store (3), route-optimization (2), useSafeEffects (4) |
-| ESLint max-lines rule | src/**/*.{ts,tsx} coverage | ✓ VERIFIED | eslint.config.mjs lines 144-147: files array covers all src TS/TSX, ignores array exempts types/tests/stories |
-| CLAUDE.md file organization section | 4 patterns documented | ✓ VERIFIED | Lines 50-82: Component subfolder, lib subfolder, admin page sibling, API route sibling patterns with examples |
-| Plan SUMMARY files | 7 SUMMARY.md files | ✓ VERIFIED | 46-01-SUMMARY.md through 46-07-SUMMARY.md all present |
+| Artifact                            | Expected                     | Status     | Details                                                                                                                                                                                                          |
+| ----------------------------------- | ---------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Component subfolders (plan 46-01)   | 10 subfolders with index.tsx | ✓ VERIFIED | OrderDetailExpanded, HowItWorksSection, AddressesTab, BrandMascot, DriverDashboard, PendingInvitesTab, PaymentSuccess, ProfileTab, MorphingMenu, CartItem                                                        |
+| Admin component subfolders (46-02)  | 9 subfolders with index.tsx  | ✓ VERIFIED | DriverDetailClient, RouteDetailClient, AdminDashboard, DriverListTable, RouteListTable, CreateRouteModal, SettingsClient, CoverageRouteMap, OrdersTab                                                            |
+| Shared UI subfolders (46-03)        | 9 subfolders with index.tsx  | ✓ VERIFIED | FormValidation (20 exports), Modal (10), skeleton (11), ExpandableTableRow, AddressInput, TimeSlotPicker, DeliveryMap, StatusTimeline, Hero                                                                      |
+| Admin page co-located files (46-04) | 12 sibling .tsx files        | ✓ VERIFIED | MenuItemFormFields, MenuItemPhotoSection, SectionsToolbar, SectionsList, AddCategoryDialog, CategoriesTable, MenuFilterBar, MenuItemsTable, PhotosStatsCards, PhotosFilters, RoutesStatsCards, DriversStatsCards |
+| API route co-located files (46-05)  | 7 types/schemas/helpers.ts   | ✓ VERIFIED | sections/[id] (types, schemas, helpers), routes/[id]/stops (types, helpers), routes/[id] (types), tracking/[orderId] (types)                                                                                     |
+| Lib subfolders (46-06)              | 7 subfolders with index.ts   | ✓ VERIFIED | motion-tokens (7 sub-files, 33 exports), swipe-gestures (6 sub-files, 21 exports), analytics-helpers (4), micro-interactions (6, 32 exports), offline-store (3), route-optimization (2), useSafeEffects (4)      |
+| ESLint max-lines rule               | src/\*_/_.{ts,tsx} coverage  | ✓ VERIFIED | eslint.config.mjs lines 144-147: files array covers all src TS/TSX, ignores array exempts types/tests/stories                                                                                                    |
+| CLAUDE.md file organization section | 4 patterns documented        | ✓ VERIFIED | Lines 50-82: Component subfolder, lib subfolder, admin page sibling, API route sibling patterns with examples                                                                                                    |
+| Plan SUMMARY files                  | 7 SUMMARY.md files           | ✓ VERIFIED | 46-01-SUMMARY.md through 46-07-SUMMARY.md all present                                                                                                                                                            |
 
 ### Key Link Verification
 
-| From | To | Via | Status | Details |
-|------|----|----|--------|---------|
-| motion-tokens barrel | 7 sub-files | export * from './core' | ✓ WIRED | Barrel re-exports all 33 exports; typecheck passes |
-| FormValidation barrel | 8 sub-files | export {...} from './file' | ✓ WIRED | 20 named exports verified in index.tsx |
-| Modal barrel | 6 sub-files | export {...} from './file' | ✓ WIRED | 10 exports (components + hooks + types) |
-| Admin page co-located components | page.tsx | import './Component' | ✓ WIRED | MenuItemFormFields, SectionsToolbar etc. imported by sibling page.tsx |
-| API route types/schemas | route.ts | import from './types' | ✓ WIRED | sections/[id], routes/[id], tracking/[orderId] all import co-located files |
+| From                             | To          | Via                        | Status  | Details                                                                    |
+| -------------------------------- | ----------- | -------------------------- | ------- | -------------------------------------------------------------------------- |
+| motion-tokens barrel             | 7 sub-files | export \* from './core'    | ✓ WIRED | Barrel re-exports all 33 exports; typecheck passes                         |
+| FormValidation barrel            | 8 sub-files | export {...} from './file' | ✓ WIRED | 20 named exports verified in index.tsx                                     |
+| Modal barrel                     | 6 sub-files | export {...} from './file' | ✓ WIRED | 10 exports (components + hooks + types)                                    |
+| Admin page co-located components | page.tsx    | import './Component'       | ✓ WIRED | MenuItemFormFields, SectionsToolbar etc. imported by sibling page.tsx      |
+| API route types/schemas          | route.ts    | import from './types'      | ✓ WIRED | sections/[id], routes/[id], tracking/[orderId] all import co-located files |
 
 ### Requirements Coverage
 
@@ -61,9 +61,9 @@ No requirements explicitly mapped to Phase 46 in REQUIREMENTS.md. Phase goal ach
 
 ### Anti-Patterns Found
 
-| File | Line | Pattern | Severity | Impact |
-|------|------|---------|----------|--------|
-| UnifiedMenuItemCard.tsx | all | 540 lines (exceeds 400) | ℹ️ INFO | Documented exception: already in subfolder with 7 extracted files; remaining code tightly coupled via shared refs (tilt physics, cart integration, touch handlers) |
+| File                    | Line | Pattern                 | Severity | Impact                                                                                                                                                             |
+| ----------------------- | ---- | ----------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| UnifiedMenuItemCard.tsx | all  | 540 lines (exceeds 400) | ℹ️ INFO  | Documented exception: already in subfolder with 7 extracted files; remaining code tightly coupled via shared refs (tilt physics, cart integration, touch handlers) |
 
 **Blockers:** None
 **Warnings:** 1 intentional exception (UnifiedMenuItemCard)
@@ -75,24 +75,29 @@ None — all verification completed programmatically.
 ### File Size Distribution After Split
 
 **Component splits (plans 46-01, 46-02, 46-03):**
+
 - Largest: OrderDetailExpanded.tsx (396 lines)
 - Average max file per component: ~280 lines
 - Total: 27 components split into 129 sub-files
 
 **Admin pages (plan 46-04):**
+
 - Largest: sections/page.tsx (369 lines)
 - Average reduction: 34% (3685 → 2274 total lines across 7 pages)
 - Total: 7 pages with 12 co-located components
 
 **API routes (plan 46-05):**
+
 - Largest: sections/[id]/route.ts (397 lines)
 - Total: 4 routes with 7 co-located files
 
 **Lib files (plan 46-06):**
+
 - Largest: route-optimization/optimizer.ts (331 lines)
 - Total: 7 lib files split into 39 sub-files
 
 **Overall:**
+
 - Files over 400 lines: 1 (documented exception)
 - Files 350-400 lines: 19 (48% reduction risk eliminated)
 - ESLint max-lines warnings: 0
@@ -104,6 +109,7 @@ None — all verification completed programmatically.
 ### 1. Subfolder/Barrel Index Files Exist
 
 **Leaf UI components (46-01):**
+
 ```
 ✓ src/components/ui/admin/orders/OrderDetailExpanded/index.tsx
 ✓ src/components/ui/homepage/HowItWorksSection/index.tsx
@@ -118,6 +124,7 @@ None — all verification completed programmatically.
 ```
 
 **Admin/account components (46-02):**
+
 ```
 ✓ src/components/ui/admin/drivers/DriverDetailClient/index.tsx
 ✓ src/components/ui/admin/routes/RouteDetailClient/index.tsx
@@ -131,6 +138,7 @@ None — all verification completed programmatically.
 ```
 
 **Shared UI components (46-03):**
+
 ```
 ✓ src/components/ui/FormValidation/index.tsx (20 exports)
 ✓ src/components/ui/Modal/index.tsx (10 exports)
@@ -144,6 +152,7 @@ None — all verification completed programmatically.
 ```
 
 **Lib files (46-06):**
+
 ```
 ✓ src/lib/motion-tokens/index.ts (33 exports via 7 sub-files)
 ✓ src/lib/swipe-gestures/index.ts (21 exports via 6 sub-files)
@@ -195,6 +204,7 @@ None — all verification completed programmatically.
 ### 3. ESLint Configuration Verified
 
 **eslint.config.mjs lines 143-164:**
+
 ```javascript
 {
   // File size enforcement - Phase 46 (warning only, expanded to all source files)
@@ -221,7 +231,7 @@ None — all verification completed programmatically.
 }
 ```
 
-**Verification:** Covers all src/**/*.{ts,tsx}, exempts types/tests/stories, warning-level (non-blocking).
+**Verification:** Covers all src/\*_/_.{ts,tsx}, exempts types/tests/stories, warning-level (non-blocking).
 
 ### 4. CLAUDE.md Documentation Verified
 
@@ -232,30 +242,30 @@ None — all verification completed programmatically.
 
 Files must stay under 400 lines (ESLint `max-lines` warning). When splitting:
 
-| File Type | Pattern | Entry File |
-|-----------|---------|------------|
-| UI Component | Subfolder with barrel | `ComponentName/index.tsx` |
-| Lib/Utility | Subfolder with barrel | `lib-file/index.ts` |
-| Admin Page | Co-located siblings | `page.tsx` + `SiblingComponent.tsx` |
-| API Route | Co-located siblings | `route.ts` + `types.ts` + `schemas.ts` |
+| File Type    | Pattern               | Entry File                             |
+| ------------ | --------------------- | -------------------------------------- |
+| UI Component | Subfolder with barrel | `ComponentName/index.tsx`              |
+| Lib/Utility  | Subfolder with barrel | `lib-file/index.ts`                    |
+| Admin Page   | Co-located siblings   | `page.tsx` + `SiblingComponent.tsx`    |
+| API Route    | Co-located siblings   | `route.ts` + `types.ts` + `schemas.ts` |
 
 **Component subfolder:**
 ComponentName/
-  index.tsx          # Barrel re-exports
-  SubComponent.tsx   # PascalCase
-  useHook.ts         # camelCase
-  helpers.ts         # camelCase
+index.tsx # Barrel re-exports
+SubComponent.tsx # PascalCase
+useHook.ts # camelCase
+helpers.ts # camelCase
 
 **Lib subfolder:**
 lib-file/
-  index.ts           # Barrel re-exports everything
-  concern-a.ts       # By domain
-  concern-b.ts
+index.ts # Barrel re-exports everything
+concern-a.ts # By domain
+concern-b.ts
 
 - Every extracted file using hooks/events needs 'use client'
 - Barrel index.tsx must re-export ALL original exports
 - Import paths don't change (subfolder index resolves automatically)
-- Exempt from 400-line rule: src/types/**, test files, Storybook stories
+- Exempt from 400-line rule: src/types/\*\*, test files, Storybook stories
 ```
 
 **Verification:** All 4 patterns documented with examples and conventions.
@@ -263,6 +273,7 @@ lib-file/
 ### 5. Build Health Verified
 
 **TypeScript:**
+
 ```bash
 $ pnpm typecheck
 > tsc --noEmit
@@ -270,6 +281,7 @@ $ pnpm typecheck
 ```
 
 **ESLint:**
+
 ```bash
 $ pnpm lint
 > eslint
@@ -284,29 +296,36 @@ $ pnpm lint
 Phase 46 executed across 13 commits:
 
 **46-01 (Leaf components):**
+
 - `0acfddd` - Split 5 largest leaf components
 - `d0ae117` - Split 5 smaller leaf components
 
 **46-02 (Admin components):**
+
 - `7f3e8c0` - Split DriverDetailClient, RouteDetailClient, AdminDashboard, DriverListTable, RouteListTable
 - `c5a9f12` - Split CreateRouteModal, SettingsClient, CoverageRouteMap, OrdersTab
 
 **46-03 (Shared UI):**
+
 - `918161d` - Split FormValidation, Modal, skeleton
 - `3171c90` - Split 5 shared components + Hero
 
 **46-04 (Admin pages):**
+
 - `c832125` - Extract sub-components from 4 largest admin pages
 - `5c79711` - Extract sub-components from 3 remaining admin pages
 
 **46-05 (API routes):**
+
 - `14ed13a` - Extract types/schemas/helpers from 4 API routes
 
 **46-06 (Lib files):**
+
 - `da333e6` - Split motion-tokens.ts
 - `0792ead` - Split remaining 6 lib/utility files
 
 **46-07 (ESLint + docs):**
+
 - `d8cc6a8` - Expand ESLint max-lines rule + verify zero violations
 - `4a3103a` - Document file organization patterns in CLAUDE.md
 
@@ -330,17 +349,20 @@ Phase 46 executed across 13 commits:
 Phase 46 complete. No blockers or concerns.
 
 **Established patterns:**
+
 - Component subfolder splits (27 components → 129 sub-files)
 - Admin page co-location (7 pages + 12 sibling components)
 - API route co-location (4 routes + 7 type/schema/helper files)
 - Lib subfolder splits (7 files → 39 sub-files with barrel re-exports)
 
 **ESLint enforcement:**
-- max-lines rule active (warning-level, all src/**/*.{ts,tsx})
+
+- max-lines rule active (warning-level, all src/\*_/_.{ts,tsx})
 - Zero violations detected
 - Future files auto-flagged if exceeding 400 lines
 
 **Codebase health:**
+
 - TypeScript: Zero errors
 - ESLint: Zero errors
 - File size: 1 documented exception, all others under 400 lines

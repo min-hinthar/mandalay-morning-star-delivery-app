@@ -80,38 +80,42 @@ completed: 2026-01-28
 ## Accomplishments
 
 ### Task 1: Checkout Component Shadows
-| Component | Before | After |
-|-----------|--------|-------|
+
+| Component         | Before                | After                                        |
+| ----------------- | --------------------- | -------------------------------------------- |
 | CheckoutStepperV8 | Inline connector glow | Documented ~--shadow-glow-success equivalent |
-| CheckoutStepperV8 | Inline pulsing halo | Documented ~--shadow-glow-primary equivalent |
-| CheckoutWizard | Inline pulse shadow | Documented ~--shadow-focus equivalent |
-| AddressInput | Inline focus shadow | `var(--shadow-focus)` CSS variable |
-| checkout/page.tsx | Inline step glow | Documented ~--shadow-glow-primary equivalent |
+| CheckoutStepperV8 | Inline pulsing halo   | Documented ~--shadow-glow-primary equivalent |
+| CheckoutWizard    | Inline pulse shadow   | Documented ~--shadow-focus equivalent        |
+| AddressInput      | Inline focus shadow   | `var(--shadow-focus)` CSS variable           |
+| checkout/page.tsx | Inline step glow      | Documented ~--shadow-glow-primary equivalent |
 
 ### Task 2: Admin, Layout, and Homepage Shadows
-| Component | Before | After |
-|-----------|--------|-------|
-| CTABanner | Inline float/glow | Documented ~--shadow-xl and ~--shadow-glow-warning |
-| PerformanceChart | Inline tooltip shadow | `var(--shadow-md)` |
-| RevenueChart | Inline tooltip shadow | `var(--shadow-card)` |
-| DriverLayout | `--shadow-glow-jade` | `shadow-glow-success` utility |
+
+| Component        | Before                | After                                              |
+| ---------------- | --------------------- | -------------------------------------------------- |
+| CTABanner        | Inline float/glow     | Documented ~--shadow-xl and ~--shadow-glow-warning |
+| PerformanceChart | Inline tooltip shadow | `var(--shadow-md)`                                 |
+| RevenueChart     | Inline tooltip shadow | `var(--shadow-card)`                               |
+| DriverLayout     | `--shadow-glow-jade`  | `shadow-glow-success` utility                      |
 
 ### Task 3: Menu, Navigation, and Utility Shadows
-| Component | Before | After |
-|-----------|--------|-------|
-| GlassOverlay | Inline hover glow | Documented ~--shadow-glow-primary equivalent |
-| MenuAccordion | `shadow-[var(--elevation-2)]` | `shadow-sm` utility |
-| NavDots | Inline active glow | `var(--shadow-glow-primary)` |
-| DeliveryMap | `shadow-[var(--shadow-md)]` | `shadow-md` utility |
-| useLuminance | Undocumented dynamic | Documented with ESLint disable |
+
+| Component     | Before                        | After                                        |
+| ------------- | ----------------------------- | -------------------------------------------- |
+| GlassOverlay  | Inline hover glow             | Documented ~--shadow-glow-primary equivalent |
+| MenuAccordion | `shadow-[var(--elevation-2)]` | `shadow-sm` utility                          |
+| NavDots       | Inline active glow            | `var(--shadow-glow-primary)`                 |
+| DeliveryMap   | `shadow-[var(--shadow-md)]`   | `shadow-md` utility                          |
+| useLuminance  | Undocumented dynamic          | Documented with ESLint disable               |
 
 ### Cleanup: Layout CSS Variable Patterns
-| Component | Before | After |
-|-----------|--------|-------|
-| CheckoutLayout | `shadow-[var(--shadow-glow-primary)]` | `shadow-glow-primary` |
-| DriverLayout | `shadow-[var(--shadow-glow-*)]` | `shadow-glow-*` utilities |
-| AdminLayout | `shadow-[var(--shadow-lg)]` | `shadow-lg` |
-| Modal | `shadow-[var(--shadow-xl,...)]` | `shadow-xl` |
+
+| Component      | Before                                | After                     |
+| -------------- | ------------------------------------- | ------------------------- |
+| CheckoutLayout | `shadow-[var(--shadow-glow-primary)]` | `shadow-glow-primary`     |
+| DriverLayout   | `shadow-[var(--shadow-glow-*)]`       | `shadow-glow-*` utilities |
+| AdminLayout    | `shadow-[var(--shadow-lg)]`           | `shadow-lg`               |
+| Modal          | `shadow-[var(--shadow-xl,...)]`       | `shadow-xl`               |
 
 ## Verification Results
 
@@ -132,6 +136,7 @@ completed: 2026-01-28
 ## Deviations from Plan
 
 **[Rule 1 - Bug] Fixed missing --shadow-glow-jade token**
+
 - **Found during:** Task 2
 - **Issue:** DriverLayout referenced non-existent `--shadow-glow-jade` token
 - **Fix:** Changed to `shadow-glow-success` since jade is the success color
@@ -139,24 +144,26 @@ completed: 2026-01-28
 - **Commit:** a4c3468
 
 **[Rule 2 - Missing Critical] Cleanup of CSS variable arbitrary patterns**
+
 - **Found during:** Verification
 - **Issue:** Several files used `shadow-[var(--shadow-*)]` instead of proper Tailwind utilities
-- **Fix:** Converted to proper utilities (shadow-xl, shadow-lg, shadow-glow-*)
+- **Fix:** Converted to proper utilities (shadow-xl, shadow-lg, shadow-glow-\*)
 - **Files modified:** CheckoutLayout.tsx, DriverLayout.tsx, AdminLayout.tsx, Modal.tsx
 - **Commit:** 95ef339
 
 ## Commits
 
-| Commit | Description |
-|--------|-------------|
-| a49769d | Task 1 - Checkout component shadows |
-| a4c3468 | Task 2 - Admin, layout, homepage shadows |
-| 57b6a4d | Task 3 - Menu, navigation, utility shadows |
+| Commit  | Description                                      |
+| ------- | ------------------------------------------------ |
+| a49769d | Task 1 - Checkout component shadows              |
+| a4c3468 | Task 2 - Admin, layout, homepage shadows         |
+| 57b6a4d | Task 3 - Menu, navigation, utility shadows       |
 | 95ef339 | Cleanup - Convert shadow-[var(...)] to utilities |
 
 ## Next Phase Readiness
 
 Phase 29 shadow/blur token enforcement complete:
+
 - All shadow tokens are theme-aware via CSS variables
 - All blur tokens are tokenized
 - All animated values document token equivalents

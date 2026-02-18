@@ -58,17 +58,11 @@ export interface ValidationMessageProps {
   className?: string;
 }
 
-export function ValidationMessage({
-  message,
-  type = "error",
-  className,
-}: ValidationMessageProps) {
+export function ValidationMessage({ message, type = "error", className }: ValidationMessageProps) {
   const prefersReducedMotion = useReducedMotion();
 
   const colorClass =
-    type === "error"
-      ? "text-[var(--color-status-error)]"
-      : "text-[var(--color-accent-secondary)]";
+    type === "error" ? "text-[var(--color-status-error)]" : "text-[var(--color-accent-secondary)]";
 
   const Icon = type === "error" ? AlertCircle : Check;
 
@@ -85,16 +79,8 @@ export function ValidationMessage({
           role={type === "error" ? "alert" : "status"}
           aria-live={type === "error" ? "assertive" : "polite"}
         >
-          <div
-            className={cn(
-              "flex items-start gap-1.5 text-sm",
-              colorClass
-            )}
-          >
-            <Icon
-              className="h-4 w-4 flex-shrink-0 mt-0.5"
-              aria-hidden="true"
-            />
+          <div className={cn("flex items-start gap-1.5 text-sm", colorClass)}>
+            <Icon className="h-4 w-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
             <span>{message}</span>
           </div>
         </m.div>

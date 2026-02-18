@@ -1,12 +1,7 @@
 import { NextResponse } from "next/server";
 import { createPublicClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
-import type {
-  MenuCategory,
-  MenuItem,
-  MenuResponse,
-  ModifierGroup,
-} from "@/types/menu";
+import type { MenuCategory, MenuItem, MenuResponse, ModifierGroup } from "@/types/menu";
 
 export const revalidate = 300;
 
@@ -176,9 +171,7 @@ export async function GET() {
 
     const response: MenuResponse = {
       data: {
-        categories: Array.from(categoryMap.values()).sort(
-          (a, b) => a.sortOrder - b.sortOrder
-        ),
+        categories: Array.from(categoryMap.values()).sort((a, b) => a.sortOrder - b.sortOrder),
       },
       meta: {
         timestamp: new Date().toISOString(),

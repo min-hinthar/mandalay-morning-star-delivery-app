@@ -60,15 +60,15 @@ export const ratingQuerySchema = z.object({
 // DRIVER ANALYTICS QUERY SCHEMAS
 // ===========================================
 
-export const driverAnalyticsQuerySchema = z.object({
-  period: metricsPeriodSchema.optional(),
-  includeInactive: z
-    .string()
-    .optional(),
-}).transform((data) => ({
-  period: data.period ?? "month",
-  includeInactive: data.includeInactive === "true",
-}));
+export const driverAnalyticsQuerySchema = z
+  .object({
+    period: metricsPeriodSchema.optional(),
+    includeInactive: z.string().optional(),
+  })
+  .transform((data) => ({
+    period: data.period ?? "month",
+    includeInactive: data.includeInactive === "true",
+  }));
 
 export const driverIdParamSchema = z.object({
   driverId: z.string().uuid("Invalid driver ID"),

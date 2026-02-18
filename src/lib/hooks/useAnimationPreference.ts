@@ -193,9 +193,7 @@ export function useAnimationPreference() {
 export function getAnimationPreference(): AnimationPreference {
   if (typeof window === "undefined") return "full";
   const stored = localStorage.getItem(STORAGE_KEY) as AnimationPreference | null;
-  return stored === "full" || stored === "reduced" || stored === "none"
-    ? stored
-    : "full";
+  return stored === "full" || stored === "reduced" || stored === "none" ? stored : "full";
 }
 
 /**

@@ -64,6 +64,7 @@ completed: 2026-02-11
 - **Files modified:** 10
 
 ## Accomplishments
+
 - Admin dashboard stats polished: QuickStat uses AnimatedValue with teal border, primary accent replaced with teal
 - DriverStatsCards restyled with teal gradient backgrounds, AnimatedValue counting animation, consistent with KPICard pattern
 - Route detail page gains vertical timeline (RouteTimeline) with connected dots, status-colored circles, time between stops labels
@@ -82,11 +83,13 @@ Each task was committed atomically:
 ## Files Created/Modified
 
 ### Created
+
 - `src/components/ui/admin/routes/RouteDetailClient/RouteTimeline.tsx` - Vertical timeline with connected dots, status icons, time between stops
 - `src/components/ui/admin/routes/RouteDetailClient/TimeComparison.tsx` - Estimated vs actual time bars with delta badge
 - `src/components/ui/admin/routes/RouteDetailClient/ExceptionAlert.tsx` - Alert card for unresolved exceptions
 
 ### Modified
+
 - `src/components/ui/admin/AdminDashboard/AdminDashboard.tsx` - Replaced primary with accent-teal on QuickStat icon
 - `src/components/ui/admin/AdminDashboard/QuickStat.tsx` - AnimatedValue for numeric values, teal border accent
 - `src/components/ui/admin/AdminDashboard/KPICard.tsx` - Already had teal gradients (verified, staged for consistency)
@@ -97,17 +100,18 @@ Each task was committed atomically:
 
 ## Decisions Made
 
-| ID | Decision | Rationale |
-|----|----------|-----------|
-| ROUTE-05-TIMELINE | RouteTimeline renders alongside StopsList (both visible) | Timeline provides visual overview, StopsList provides full action controls |
-| ROUTE-05-TIMECOMP | TimeComparison only renders for completed routes with startedAt+completedAt | No data to compare for in-progress/planned routes |
-| ROUTE-05-EXCEPTION | ExceptionAlert Mark Resolved uses placeholder onClick | No exception resolve API endpoint exists yet |
+| ID                 | Decision                                                                    | Rationale                                                                  |
+| ------------------ | --------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| ROUTE-05-TIMELINE  | RouteTimeline renders alongside StopsList (both visible)                    | Timeline provides visual overview, StopsList provides full action controls |
+| ROUTE-05-TIMECOMP  | TimeComparison only renders for completed routes with startedAt+completedAt | No data to compare for in-progress/planned routes                          |
+| ROUTE-05-EXCEPTION | ExceptionAlert Mark Resolved uses placeholder onClick                       | No exception resolve API endpoint exists yet                               |
 
 ## Deviations from Plan
 
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] text-[10px] lint violation in RouteTimeline**
+
 - **Found during:** Task 2 (RouteTimeline)
 - **Issue:** Custom `text-[10px]` class violated no-restricted-syntax ESLint rule
 - **Fix:** Replaced with `text-2xs` Tailwind typography scale token
@@ -121,17 +125,21 @@ Each task was committed atomically:
 **Impact on plan:** Trivial lint fix. No scope creep.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Admin dashboard, driver detail, and route detail all have premium polish
 - Route timeline and time comparison ready for real data
 - Exception alert ready for API integration when resolve endpoint is built
 - Remaining plans: 57-08 (forms/toasts/navigation polish)
 
 ---
-*Phase: 57-admin-driver-polish*
-*Completed: 2026-02-11*
+
+_Phase: 57-admin-driver-polish_
+_Completed: 2026-02-11_

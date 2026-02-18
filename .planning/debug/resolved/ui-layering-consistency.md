@@ -59,24 +59,28 @@ started: Persisting issues
 ## Resolution
 
 root_cause: |
-  1. Z-INDEX VIOLATION: src/lib/webgl/grain.ts had hardcoded zIndex: 9999 in cssGrainStyles.overlay
-     (CSS fallback for grain effect), violating design token system (max token is 100)
-  2. UNUSED CODE: src/components/layouts/ contains 4 unused layout shell components
-     (CustomerLayout, CheckoutLayout, AdminLayout, DriverLayout) that are exported but never
-     imported anywhere in the app - these are legacy/aspirational code from design phase
-  3. NOT AN ISSUE: Hero section properly uses local stacking context with isolate + small z-index
-     values (1-4) - this is correct design pattern for contained visual effects
-  4. NOT AN ISSUE: Z-index token system is well-defined and components use it properly
-  5. NOT AN ISSUE: Cart icons are all used functionally (CartButtonV8, AddToCartButton, etc.)
+
+1. Z-INDEX VIOLATION: src/lib/webgl/grain.ts had hardcoded zIndex: 9999 in cssGrainStyles.overlay
+   (CSS fallback for grain effect), violating design token system (max token is 100)
+2. UNUSED CODE: src/components/layouts/ contains 4 unused layout shell components
+   (CustomerLayout, CheckoutLayout, AdminLayout, DriverLayout) that are exported but never
+   imported anywhere in the app - these are legacy/aspirational code from design phase
+3. NOT AN ISSUE: Hero section properly uses local stacking context with isolate + small z-index
+   values (1-4) - this is correct design pattern for contained visual effects
+4. NOT AN ISSUE: Z-index token system is well-defined and components use it properly
+5. NOT AN ISSUE: Cart icons are all used functionally (CartButtonV8, AddToCartButton, etc.)
 
 fix: |
-  - Fixed grain.ts zIndex: 9999 -> 100 (zIndex.max value) with explanatory comment
-  - Identified unused layouts for potential future cleanup (not deleted - out of scope)
+
+- Fixed grain.ts zIndex: 9999 -> 100 (zIndex.max value) with explanatory comment
+- Identified unused layouts for potential future cleanup (not deleted - out of scope)
 
 verification: |
-  - pnpm lint: PASS (0 errors, 2 pre-existing warnings unrelated to changes)
-  - pnpm typecheck: PASS (no errors)
-  - Z-index now uses design token value instead of arbitrary high number
+
+- pnpm lint: PASS (0 errors, 2 pre-existing warnings unrelated to changes)
+- pnpm typecheck: PASS (no errors)
+- Z-index now uses design token value instead of arbitrary high number
 
 files_changed:
-  - src/lib/webgl/grain.ts (line 264: zIndex 9999 -> 100)
+
+- src/lib/webgl/grain.ts (line 264: zIndex 9999 -> 100)

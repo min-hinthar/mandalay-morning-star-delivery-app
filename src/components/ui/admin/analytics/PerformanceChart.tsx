@@ -76,9 +76,7 @@ export function PerformanceChart({
       case "area":
         return (
           <AreaChart {...commonProps}>
-            {showGrid && (
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            )}
+            {showGrid && <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />}
             <XAxis dataKey="name" {...axisProps} />
             <YAxis {...axisProps} />
             {showTooltip && tooltipProps.tooltip}
@@ -103,9 +101,7 @@ export function PerformanceChart({
       case "bar":
         return (
           <BarChart {...commonProps}>
-            {showGrid && (
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            )}
+            {showGrid && <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />}
             <XAxis dataKey="name" {...axisProps} />
             <YAxis {...axisProps} />
             {showTooltip && tooltipProps.tooltip}
@@ -122,9 +118,7 @@ export function PerformanceChart({
       default:
         return (
           <LineChart {...commonProps}>
-            {showGrid && (
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            )}
+            {showGrid && <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />}
             <XAxis dataKey="name" {...axisProps} />
             <YAxis {...axisProps} />
             {showTooltip && tooltipProps.tooltip}

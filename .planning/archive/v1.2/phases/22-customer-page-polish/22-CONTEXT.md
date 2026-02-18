@@ -14,6 +14,7 @@ Enhance all customer-facing pages (Menu, Checkout, Order History, Account, Cart)
 ## Implementation Decisions
 
 ### Animation Intensity
+
 - Bold playful animations everywhere — same intensity across all pages
 - Max 300ms duration for entry effects (quick pop)
 - Reuse Phase 20 sound effects on customer pages
@@ -22,6 +23,7 @@ Enhance all customer-facing pages (Menu, Checkout, Order History, Account, Cart)
 - Hybrid form validation: required fields validate on blur, complex validation on submit
 
 ### Entry Choreography
+
 - Section-by-section reveal as user scrolls into viewport
 - Individual stagger within sections (80ms gaps between items)
 - Mixed direction by element type: cards fade up, buttons scale in, text fades in place
@@ -32,6 +34,7 @@ Enhance all customer-facing pages (Menu, Checkout, Order History, Account, Cart)
 - Same stagger pattern across all customer pages (no special treatment for account)
 
 ### Transition Style
+
 - Checkout steps: slide + fade + scale morph + glow effect
 - Reverse direction when going backward (slide from left on back, from right on forward)
 - Form fields within checkout steps stagger in sequence
@@ -42,6 +45,7 @@ Enhance all customer-facing pages (Menu, Checkout, Order History, Account, Cart)
 - Order detail opens in animated modal overlay
 
 ### Page Personality
+
 - Each page has distinct personality while staying cohesive:
   - **Menu page:** Playful discovery (encourages exploration, hover reveals, category delight)
   - **Checkout:** Celebratory journey (each step feels like achievement)
@@ -54,6 +58,7 @@ Enhance all customer-facing pages (Menu, Checkout, Order History, Account, Cart)
 - Animated filter/sort controls on menu (category tabs slide, dropdown springs, results animate on filter change)
 
 ### Glassmorphism Enhancement
+
 - Reapply and enhance glassmorphism on all card surfaces
 - More blur (30px+) for stronger frosted glass effect
 - Dynamic opacity variance on hover/focus states
@@ -61,11 +66,13 @@ Enhance all customer-facing pages (Menu, Checkout, Order History, Account, Cart)
 - Apply to: menu cards, order cards, account sections, checkout panels
 
 ### Colorful Gradients
+
 - Shadows and highlights use thematic colorful gradients (lovable app aesthetic)
 - Hover states show gradient glow around cards/buttons
 - Claude's discretion on color palette (brand-appropriate, theme-adaptive)
 
 ### Claude's Discretion
+
 - Specific gradient color choices (warm amber vs multi-color vs theme-adaptive)
 - Individual unique touches per page (what makes each page distinctive)
 - Exact empty state illustrations per page
@@ -91,12 +98,15 @@ Enhance all customer-facing pages (Menu, Checkout, Order History, Account, Cart)
 </deferred>
 
 <out_of_scope>
+
 ## Out of Scope for Phase 22
 
 ### Account Page Animations (PAGE-04)
+
 **Issue:** The CONTEXT decisions reference "Account page" animations, but no `/account` page exists in the codebase.
 
 **Resolution:** Account page creation is out of scope for this animation polish phase. Account page animations can be added when:
+
 1. A dedicated "Account Page" phase creates the page structure
 2. Or as a gap closure plan after account page exists
 
@@ -106,5 +116,5 @@ This phase focuses on animating **existing** customer pages: Menu, Checkout, Ord
 
 ---
 
-*Phase: 22-customer-page-polish*
-*Context gathered: 2026-01-26*
+_Phase: 22-customer-page-polish_
+_Context gathered: 2026-01-26_

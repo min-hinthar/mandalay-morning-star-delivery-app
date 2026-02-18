@@ -177,9 +177,7 @@ export function ItemDetailSheet({
       if (!item) return;
 
       // Find which group this option belongs to
-      const group = item.modifierGroups.find((g) =>
-        g.options.some((o) => o.id === optionId)
-      );
+      const group = item.modifierGroups.find((g) => g.options.some((o) => o.id === optionId));
       if (!group) return;
 
       if (group.selectionType === "single") {
@@ -280,9 +278,7 @@ export function ItemDetailSheet({
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-4xl">
-                {getCategoryEmoji(item.tags?.[0])}
-              </span>
+              <span className="text-4xl">{getCategoryEmoji(item.tags?.[0])}</span>
             </div>
           )}
           {item.isSoldOut && (
@@ -295,26 +291,18 @@ export function ItemDetailSheet({
         </div>
 
         {/* Scrollable Content - touchAction inherited from Drawer content wrapper */}
-        <div
-          className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4"
-        >
+        <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4">
           {/* Header */}
           <div>
-            <h2 className="font-display text-2xl font-bold text-text-primary">
-              {item.nameEn}
-            </h2>
-            {item.nameMy && (
-              <p className="font-burmese text-text-muted">{item.nameMy}</p>
-            )}
+            <h2 className="font-display text-2xl font-bold text-text-primary">{item.nameEn}</h2>
+            {item.nameMy && <p className="font-burmese text-text-muted">{item.nameMy}</p>}
             <p className="font-display text-2xl font-bold text-primary mt-1">
               {formatPrice(item.basePriceCents)}
             </p>
           </div>
 
           {/* Description */}
-          {item.descriptionEn && (
-            <p className="text-text-secondary">{item.descriptionEn}</p>
-          )}
+          {item.descriptionEn && <p className="text-text-secondary">{item.descriptionEn}</p>}
 
           {/* Allergen Warning */}
           {item.allergens && item.allergens.length > 0 && (
@@ -349,9 +337,7 @@ export function ItemDetailSheet({
               rows={3}
               className="resize-none"
             />
-            <p className="text-xs text-text-muted text-right">
-              {notes.length}/500
-            </p>
+            <p className="text-xs text-text-muted text-right">{notes.length}/500</p>
           </div>
 
           {/* Quantity */}
@@ -377,12 +363,7 @@ export function ItemDetailSheet({
 
           {isEditMode ? (
             item.isSoldOut ? (
-              <Button
-                variant="danger"
-                size="lg"
-                onClick={handleRequestClose}
-                className="w-full"
-              >
+              <Button variant="danger" size="lg" onClick={handleRequestClose} className="w-full">
                 Item Unavailable - Remove from Cart
               </Button>
             ) : (

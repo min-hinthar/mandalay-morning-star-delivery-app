@@ -48,8 +48,7 @@ export function OrderHeaderCard({
     } catch (err) {
       toast({
         title: "Error",
-        description:
-          err instanceof Error ? err.message : "Failed to toggle priority",
+        description: err instanceof Error ? err.message : "Failed to toggle priority",
         variant: "destructive",
       });
     } finally {
@@ -64,10 +63,7 @@ export function OrderHeaderCard({
     const end = format(parseISO(order.deliveryWindowEnd), "h:mm a");
     deliveryWindowText = `${start} - ${end}`;
   } else if (order.deliveryWindowStart) {
-    deliveryWindowText = format(
-      parseISO(order.deliveryWindowStart),
-      "MMM d, h:mm a"
-    );
+    deliveryWindowText = format(parseISO(order.deliveryWindowStart), "MMM d, h:mm a");
   }
 
   return (
@@ -88,19 +84,12 @@ export function OrderHeaderCard({
               ? "bg-secondary-light text-secondary-hover"
               : "bg-surface-tertiary text-text-muted hover:text-secondary-hover hover:bg-secondary-light/50"
           )}
-          aria-label={
-            order.isPriority ? "Remove priority" : "Mark as priority"
-          }
+          aria-label={order.isPriority ? "Remove priority" : "Mark as priority"}
         >
           {togglingPriority ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : (
-            <Star
-              className={cn(
-                "h-3.5 w-3.5",
-                order.isPriority && "fill-current"
-              )}
-            />
+            <Star className={cn("h-3.5 w-3.5", order.isPriority && "fill-current")} />
           )}
           {order.isPriority ? "Priority" : "Set Priority"}
         </button>
@@ -110,23 +99,17 @@ export function OrderHeaderCard({
       {deliveryWindowText && (
         <div className="flex items-center gap-2 text-sm">
           <span className="text-text-muted">Delivery:</span>
-          <span className="font-medium text-accent-teal">
-            {deliveryWindowText}
-          </span>
+          <span className="font-medium text-accent-teal">{deliveryWindowText}</span>
         </div>
       )}
 
       {/* Placed at + Driver */}
       <div className="flex flex-wrap items-center gap-4 text-xs text-text-muted">
-        <span>
-          Placed {format(parseISO(order.placedAt), "MMM d, yyyy 'at' h:mm a")}
-        </span>
+        <span>Placed {format(parseISO(order.placedAt), "MMM d, yyyy 'at' h:mm a")}</span>
         {order.assignedDriverName && (
           <span>
             Driver:{" "}
-            <span className="font-medium text-text-secondary">
-              {order.assignedDriverName}
-            </span>
+            <span className="font-medium text-text-secondary">{order.assignedDriverName}</span>
           </span>
         )}
       </div>

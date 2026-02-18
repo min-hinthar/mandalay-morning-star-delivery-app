@@ -5,11 +5,7 @@
 
 import { pendingStatus, pendingPhotos, pendingLocations } from "./stores";
 
-export function getBackoffDelay(
-  attempt: number,
-  baseMs = 2000,
-  maxMs = 32000
-): number {
+export function getBackoffDelay(attempt: number, baseMs = 2000, maxMs = 32000): number {
   return Math.min(baseMs * Math.pow(2, attempt), maxMs);
 }
 
@@ -52,16 +48,11 @@ export async function retryWithBackoff(
       }
 
       if (response.status >= 500) {
-        console.warn(
-          `Retry attempt ${attempt + 1}/${maxAttempts} for ${url}: ${response.status}`
-        );
+        console.warn(`Retry attempt ${attempt + 1}/${maxAttempts} for ${url}: ${response.status}`);
       }
     } catch (error) {
       // Network errors (TypeError from fetch)
-      console.warn(
-        `Retry attempt ${attempt + 1}/${maxAttempts} for ${url}: network error`,
-        error
-      );
+      console.warn(`Retry attempt ${attempt + 1}/${maxAttempts} for ${url}: network error`, error);
     }
 
     // Backoff between attempts (skip after last attempt)
@@ -73,9 +64,7 @@ export async function retryWithBackoff(
   return { ok: false, status: 0, permanentFailure: false };
 }
 
-export async function purgeExpiredEntries(
-  maxAgeMs = 2 * 60 * 60 * 1000
-): Promise<number> {
+export async function purgeExpiredEntries(maxAgeMs = 2 * 60 * 60 * 1000): Promise<number> {
   const now = Date.now();
   let purged = 0;
 

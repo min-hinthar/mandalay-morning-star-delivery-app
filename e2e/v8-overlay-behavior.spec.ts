@@ -82,9 +82,7 @@ test.describe("Cart Drawer Behavior (TEST-02)", () => {
 
     // Verify DOM removal, not just visibility
     await expect(page.getByRole("dialog")).not.toBeVisible();
-    const backdropCount = await page
-      .locator('[data-testid="overlay-backdrop"]')
-      .count();
+    const backdropCount = await page.locator('[data-testid="overlay-backdrop"]').count();
     expect(backdropCount).toBe(0);
   });
 
@@ -142,18 +140,14 @@ test.describe("Dropdown Visibility and Dismissal (TEST-03)", () => {
 
     if (await dropdownTrigger.isVisible()) {
       await dropdownTrigger.click();
-      await expect(
-        page.locator('[data-testid="dropdown-content"]')
-      ).toBeVisible();
+      await expect(page.locator('[data-testid="dropdown-content"]')).toBeVisible();
 
       // Click outside (mousedown triggers close in V8 Dropdown)
       await page.locator("body").click({ position: { x: 10, y: 10 } });
       await page.waitForTimeout(300);
 
       // Verify DOM removal
-      const dropdownCount = await page
-        .locator('[data-testid="dropdown-content"]')
-        .count();
+      const dropdownCount = await page.locator('[data-testid="dropdown-content"]').count();
       expect(dropdownCount).toBe(0);
     }
   });
@@ -166,24 +160,18 @@ test.describe("Dropdown Visibility and Dismissal (TEST-03)", () => {
 
     if (await dropdownTrigger.isVisible()) {
       await dropdownTrigger.click();
-      await expect(
-        page.locator('[data-testid="dropdown-content"]')
-      ).toBeVisible();
+      await expect(page.locator('[data-testid="dropdown-content"]')).toBeVisible();
 
       await page.keyboard.press("Escape");
       await page.waitForTimeout(300);
 
-      await expect(
-        page.locator('[data-testid="dropdown-content"]')
-      ).not.toBeVisible();
+      await expect(page.locator('[data-testid="dropdown-content"]')).not.toBeVisible();
     }
   });
 });
 
 test.describe("Overlay No Background Blocking (TEST-04)", () => {
-  test("closed cart drawer does not block menu item clicks", async ({
-    page,
-  }) => {
+  test("closed cart drawer does not block menu item clicks", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -223,9 +211,7 @@ test.describe("Overlay No Background Blocking (TEST-04)", () => {
     await page.waitForTimeout(400);
 
     // Verify DOM removal
-    const modalBackdropCount = await page
-      .locator('[data-testid="modal-backdrop"]')
-      .count();
+    const modalBackdropCount = await page.locator('[data-testid="modal-backdrop"]').count();
     expect(modalBackdropCount).toBe(0);
 
     // Click another menu item - should work
@@ -250,9 +236,7 @@ test.describe("Overlay No Background Blocking (TEST-04)", () => {
     await page.waitForTimeout(400);
 
     // Verify DOM removal
-    const sheetBackdropCount = await page
-      .locator('[data-testid="bottom-sheet-backdrop"]')
-      .count();
+    const sheetBackdropCount = await page.locator('[data-testid="bottom-sheet-backdrop"]').count();
     expect(sheetBackdropCount).toBe(0);
 
     // Page should be scrollable

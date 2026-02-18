@@ -17,7 +17,7 @@ export function getResendClient(): Resend {
   if (!apiKey) {
     throw new Error(
       "RESEND_API_KEY environment variable is not configured. " +
-        "Get your API key from https://resend.com/api-keys",
+        "Get your API key from https://resend.com/api-keys"
     );
   }
 

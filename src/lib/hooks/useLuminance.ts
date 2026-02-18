@@ -39,9 +39,7 @@ function parseColorToRGB(color: string): RGB | null {
   }
 
   // Handle rgb/rgba
-  const rgbMatch = trimmed.match(
-    /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*[\d.]+)?\s*\)/
-  );
+  const rgbMatch = trimmed.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*[\d.]+)?\s*\)/);
   if (rgbMatch) {
     return {
       r: parseInt(rgbMatch[1], 10),
@@ -217,9 +215,7 @@ export function useDynamicLuminance(
 
     // If there's a gradient, try to extract colors
     if (bgImage && bgImage.includes("gradient")) {
-      const colorMatches = bgImage.match(
-        /#[a-fA-F0-9]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)/g
-      );
+      const colorMatches = bgImage.match(/#[a-fA-F0-9]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\)/g);
       if (colorMatches && colorMatches.length > 0) {
         setResult(getTextColorForGradient(colorMatches));
         setIsReady(true);
@@ -266,9 +262,7 @@ export function getContrastTextClasses(
   const { withShadow = false, intensity = "normal" } = options || {};
 
   const textColor =
-    luminance === "light"
-      ? "text-[var(--color-charcoal)]"
-      : "text-[var(--color-cream)]";
+    luminance === "light" ? "text-[var(--color-charcoal)]" : "text-[var(--color-cream)]";
 
   if (!withShadow) return textColor;
 

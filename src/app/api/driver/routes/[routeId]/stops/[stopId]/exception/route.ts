@@ -38,10 +38,7 @@ export async function POST(
     const parseResult = reportExceptionSchema.safeParse(body);
 
     if (!parseResult.success) {
-      return NextResponse.json(
-        { error: parseResult.error.issues[0].message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: parseResult.error.issues[0].message }, { status: 400 });
     }
 
     const { type, description } = parseResult.data;
@@ -61,10 +58,7 @@ export async function POST(
       .single();
 
     if (routeError || !route) {
-      return NextResponse.json(
-        { error: "Route not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Route not found" }, { status: 404 });
     }
 
     // Verify driver owns this route
@@ -93,10 +87,7 @@ export async function POST(
       .single();
 
     if (stopError || !stop) {
-      return NextResponse.json(
-        { error: "Stop not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Stop not found" }, { status: 404 });
     }
 
     // Idempotency: status check prevents duplicate exception reports for completed stops.
@@ -148,17 +139,11 @@ export async function POST(
 
     if (insertError || !exception) {
       logger.exception(insertError, { api: "driver/routes/[routeId]/stops/[stopId]/exception" });
-      return NextResponse.json(
-        { error: "Failed to create exception" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to create exception" }, { status: 500 });
     }
 
     // Mark the stop as skipped
-    await supabase
-      .from("route_stops")
-      .update({ status: "skipped" })
-      .eq("id", stopId);
+    await supabase.from("route_stops").update({ status: "skipped" }).eq("id", stopId);
 
     // Set next pending stop to enroute
     interface NextStopResult {
@@ -176,10 +161,7 @@ export async function POST(
       .single();
 
     if (nextStop) {
-      await supabase
-        .from("route_stops")
-        .update({ status: "enroute" })
-        .eq("id", nextStop.id);
+      await supabase.from("route_stops").update({ status: "enroute" }).eq("id", nextStop.id);
     }
 
     return NextResponse.json({
@@ -189,9 +171,6 @@ export async function POST(
     });
   } catch (error) {
     logger.exception(error, { api: "driver/routes/[routeId]/stops/[stopId]/exception" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

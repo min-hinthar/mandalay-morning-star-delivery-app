@@ -21,12 +21,7 @@ async function checkA11y(
   page: import("@playwright/test").Page,
   options?: { excludeRules?: string[] }
 ) {
-  const builder = new AxeBuilder({ page }).withTags([
-    "wcag2a",
-    "wcag2aa",
-    "wcag21a",
-    "wcag21aa",
-  ]);
+  const builder = new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]);
 
   if (options?.excludeRules) {
     builder.disableRules(options.excludeRules);
@@ -206,11 +201,9 @@ test.describe("Cart Accessibility", () => {
     if (await decreaseBtn.isVisible()) {
       // Should have accessible names
       const decreaseLabel =
-        (await decreaseBtn.getAttribute("aria-label")) ||
-        (await decreaseBtn.textContent());
+        (await decreaseBtn.getAttribute("aria-label")) || (await decreaseBtn.textContent());
       const increaseLabel =
-        (await increaseBtn.getAttribute("aria-label")) ||
-        (await increaseBtn.textContent());
+        (await increaseBtn.getAttribute("aria-label")) || (await increaseBtn.textContent());
 
       expect(decreaseLabel).toBeTruthy();
       expect(increaseLabel).toBeTruthy();
@@ -246,9 +239,7 @@ test.describe("Item Modal Accessibility", () => {
     const hasAriaLabel = await modal.getAttribute("aria-labelledby");
     const hasAriaLabelText = await modal.getAttribute("aria-label");
 
-    expect(
-      hasAriaModal === "true" || hasAriaLabel || hasAriaLabelText
-    ).toBeTruthy();
+    expect(hasAriaModal === "true" || hasAriaLabel || hasAriaLabelText).toBeTruthy();
   });
 
   test("modal can be closed with Escape", async ({ page }) => {
@@ -358,9 +349,7 @@ test.describe("Driver Interface Accessibility", () => {
     await checkA11y(page);
   });
 
-  test("driver high contrast mode has sufficient contrast", async ({
-    page,
-  }) => {
+  test("driver high contrast mode has sufficient contrast", async ({ page }) => {
     await page.goto("/driver");
     await page.waitForLoadState("networkidle");
 
@@ -371,14 +360,10 @@ test.describe("Driver Interface Accessibility", () => {
       await page.waitForTimeout(300);
 
       // Run axe with stricter contrast requirements
-      const results = await new AxeBuilder({ page })
-        .withTags(["wcag2aaa"])
-        .analyze();
+      const results = await new AxeBuilder({ page }).withTags(["wcag2aaa"]).analyze();
 
       // In high contrast mode, there should be minimal contrast violations
-      const contrastViolations = results.violations.filter((v) =>
-        v.id.includes("contrast")
-      );
+      const contrastViolations = results.violations.filter((v) => v.id.includes("contrast"));
 
       expect(contrastViolations.length).toBeLessThanOrEqual(2);
     }
@@ -398,9 +383,7 @@ test.describe("Admin Dashboard Accessibility", () => {
 test.describe("Touch Targets", () => {
   test.use({ viewport: { width: 375, height: 667 } });
 
-  test("buttons have minimum 44x44px touch targets on mobile", async ({
-    page,
-  }) => {
+  test("buttons have minimum 44x44px touch targets on mobile", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
@@ -439,12 +422,8 @@ test.describe("Touch Targets", () => {
     await page.waitForTimeout(300);
 
     // Check spacing between quantity buttons
-    const decreaseBtn = page
-      .getByRole("button", { name: /decrease|minus|-/i })
-      .first();
-    const increaseBtn = page
-      .getByRole("button", { name: /increase|plus|\+/i })
-      .first();
+    const decreaseBtn = page.getByRole("button", { name: /decrease|minus|-/i }).first();
+    const increaseBtn = page.getByRole("button", { name: /increase|plus|\+/i }).first();
 
     if ((await decreaseBtn.isVisible()) && (await increaseBtn.isVisible())) {
       const decreaseBox = await decreaseBtn.boundingBox();
@@ -465,14 +444,10 @@ test.describe("Color Contrast", () => {
     await page.waitForLoadState("networkidle");
 
     // Run axe specifically for color contrast
-    const results = await new AxeBuilder({ page })
-      .withRules(["color-contrast"])
-      .analyze();
+    const results = await new AxeBuilder({ page }).withRules(["color-contrast"]).analyze();
 
     // No critical contrast violations
-    const criticalContrast = results.violations.filter(
-      (v) => v.impact === "critical"
-    );
+    const criticalContrast = results.violations.filter((v) => v.impact === "critical");
 
     expect(criticalContrast.length).toBe(0);
   });
@@ -482,13 +457,9 @@ test.describe("Color Contrast", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    const results = await new AxeBuilder({ page })
-      .withRules(["color-contrast"])
-      .analyze();
+    const results = await new AxeBuilder({ page }).withRules(["color-contrast"]).analyze();
 
-    const criticalContrast = results.violations.filter(
-      (v) => v.impact === "critical"
-    );
+    const criticalContrast = results.violations.filter((v) => v.impact === "critical");
 
     expect(criticalContrast.length).toBe(0);
   });
@@ -591,11 +562,7 @@ test.describe("Semantic HTML", () => {
     const orphanedLi = await page.locator("li").evaluateAll((elements) => {
       return elements.filter((el) => {
         const parent = el.parentElement;
-        return (
-          parent?.tagName !== "UL" &&
-          parent?.tagName !== "OL" &&
-          parent?.tagName !== "MENU"
-        );
+        return parent?.tagName !== "UL" && parent?.tagName !== "OL" && parent?.tagName !== "MENU";
       }).length;
     });
 

@@ -25,9 +25,7 @@ test.describe("Sprint 1: Bug Fixes", () => {
       await expect(mainHeading).toContainText("Morning Star");
     });
 
-    test("Saturday badge should have solid background for contrast", async ({
-      page,
-    }) => {
+    test("Saturday badge should have solid background for contrast", async ({ page }) => {
       await page.goto("/");
 
       // Find Saturday delivery badge
@@ -144,9 +142,7 @@ test.describe("Sprint 1: Bug Fixes", () => {
   // Task 1.5: DropdownAction Component
   // ============================================
   test.describe("Task 1.5: User Menu Signout", () => {
-    test("user menu or auth link should exist in header", async ({
-      page,
-    }) => {
+    test("user menu or auth link should exist in header", async ({ page }) => {
       // This test verifies auth UI exists (user menu when logged in, or sign in link when not)
       await page.goto("/");
       await page.waitForLoadState("networkidle");
@@ -183,9 +179,7 @@ test.describe("Sprint 1: Bug Fixes", () => {
       }
     });
 
-    test("category tabs should use CSS variable for z-index", async ({
-      page,
-    }) => {
+    test("category tabs should use CSS variable for z-index", async ({ page }) => {
       await page.goto("/menu");
       await page.waitForLoadState("networkidle");
 

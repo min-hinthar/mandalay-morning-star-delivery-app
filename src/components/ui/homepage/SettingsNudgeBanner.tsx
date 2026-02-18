@@ -79,10 +79,7 @@ async function upsertCustomerSettings(
 
   const { error } = await supabase
     .from("customer_settings")
-    .upsert(
-      payload as { user_id: string; [key: string]: unknown },
-      { onConflict: "user_id" }
-    );
+    .upsert(payload as { user_id: string; [key: string]: unknown }, { onConflict: "user_id" });
 
   if (error) {
     console.error("Failed to save customer settings:", error);
@@ -99,12 +96,8 @@ function SectionSaveIndicator({ status }: { status: SaveStatus }) {
 
   return (
     <span className="inline-flex items-center gap-1 text-xs ml-2">
-      {status === "saving" && (
-        <Loader2 className="h-3 w-3 animate-spin text-amber-600" />
-      )}
-      {status === "saved" && (
-        <Check className="h-3 w-3 text-green" />
-      )}
+      {status === "saving" && <Loader2 className="h-3 w-3 animate-spin text-amber-600" />}
+      {status === "saved" && <Check className="h-3 w-3 text-green" />}
       <span className={status === "saved" ? "text-green" : "text-amber-600"}>
         {status === "saving" ? "Saving..." : "Saved"}
       </span>
@@ -321,7 +314,15 @@ export function SettingsNudgeBanner() {
         <m.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20, height: 0, marginTop: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 0 }}
+          exit={{
+            opacity: 0,
+            y: -20,
+            height: 0,
+            marginTop: 0,
+            marginBottom: 0,
+            paddingTop: 0,
+            paddingBottom: 0,
+          }}
           transition={spring.gentle}
           className="px-4 py-6 md:py-8"
         >
@@ -351,7 +352,11 @@ export function SettingsNudgeBanner() {
               <div className="p-5 md:p-8">
                 {/* Header with mascot */}
                 <div className="flex items-start gap-3 mb-5">
-                  <span className="text-3xl md:text-4xl shrink-0" role="img" aria-label="star mascot">
+                  <span
+                    className="text-3xl md:text-4xl shrink-0"
+                    role="img"
+                    aria-label="star mascot"
+                  >
                     &#11088;
                   </span>
                   <div>
@@ -359,7 +364,8 @@ export function SettingsNudgeBanner() {
                       Personalize Your Experience
                     </h3>
                     <p className="text-sm text-amber-700 mt-0.5">
-                      Set your dietary preferences, delivery address, and notifications &mdash; takes 30 seconds!
+                      Set your dietary preferences, delivery address, and notifications &mdash;
+                      takes 30 seconds!
                     </p>
                   </div>
                 </div>

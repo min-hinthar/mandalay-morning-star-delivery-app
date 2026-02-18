@@ -77,9 +77,7 @@ export function MagicLinkForm({ onSuccess, redirectTo }: MagicLinkFormProps) {
         style={{ transformOrigin: "left" }}
         animate={shouldAnimate ? { scaleX: [0, 1] } : { scaleX: 1 }}
         transition={
-          shouldAnimate
-            ? { duration: 1.5, repeat: Infinity, ease: "linear" }
-            : { duration: 0 }
+          shouldAnimate ? { duration: 1.5, repeat: Infinity, ease: "linear" } : { duration: 0 }
         }
       />
     );
@@ -143,17 +141,21 @@ export function MagicLinkForm({ onSuccess, redirectTo }: MagicLinkFormProps) {
       </Button>
 
       {/* Trust signal */}
-      <p className="text-center text-sm text-muted-foreground">
-        Trusted by local families
-      </p>
+      <p className="text-center text-sm text-muted-foreground">Trusted by local families</p>
 
       <p className="text-center text-xs text-muted-foreground leading-relaxed">
         By continuing, you agree to our{" "}
-        <Link href="/terms" className="underline underline-offset-2 hover:text-text-primary transition-colors">
+        <Link
+          href="/terms"
+          className="underline underline-offset-2 hover:text-text-primary transition-colors"
+        >
           Terms
         </Link>{" "}
         and{" "}
-        <Link href="/privacy" className="underline underline-offset-2 hover:text-text-primary transition-colors">
+        <Link
+          href="/privacy"
+          className="underline underline-offset-2 hover:text-text-primary transition-colors"
+        >
           Privacy Policy
         </Link>
         .

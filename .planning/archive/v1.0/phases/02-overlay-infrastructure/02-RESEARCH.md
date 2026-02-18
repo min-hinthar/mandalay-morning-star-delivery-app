@@ -9,6 +9,7 @@
 Phase 2 builds the overlay component system (modals, drawers, sheets, dropdowns, toasts) that prevents click-blocking and resets on route changes. The codebase already has substantial overlay infrastructure from V5 Sprint 5 that provides excellent patterns to follow and extend.
 
 Key findings:
+
 - **Existing Modal component** (`src/components/ui/Modal.tsx`): Production-grade with portal, focus trap, escape key, backdrop click, nested modal support, and swipe-to-close. Uses Framer Motion spring physics. This is the template.
 - **Existing drawer** (`src/components/ui/drawer.tsx`): Radix-based Vaul drawer with Tailwind styling. Functional but not animation-rich.
 - **Swipe gesture system** (`src/lib/swipe-gestures.ts`): Complete hooks for swipe-to-close, swipe-to-delete with haptic feedback. Ready to use.
@@ -21,41 +22,42 @@ Key findings:
 
 ### Core
 
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| `react-dom` | 19.2.3 | `createPortal` for overlay mounting | Built-in, zero overhead |
-| `framer-motion` | 12.26.1 | Spring animations, AnimatePresence exit animations | Already used extensively in codebase |
-| `@radix-ui/react-dialog` | ^1.1 | Accessible dialog primitive | Production accessibility out of box |
-| `@radix-ui/react-dropdown-menu` | ^2.1 | Accessible dropdown primitive | Keyboard nav, aria, focus management |
-| `@radix-ui/react-tooltip` | ^1.1 | Accessible tooltip primitive | Delay, collision detection |
+| Library                         | Version | Purpose                                            | Why Standard                         |
+| ------------------------------- | ------- | -------------------------------------------------- | ------------------------------------ |
+| `react-dom`                     | 19.2.3  | `createPortal` for overlay mounting                | Built-in, zero overhead              |
+| `framer-motion`                 | 12.26.1 | Spring animations, AnimatePresence exit animations | Already used extensively in codebase |
+| `@radix-ui/react-dialog`        | ^1.1    | Accessible dialog primitive                        | Production accessibility out of box  |
+| `@radix-ui/react-dropdown-menu` | ^2.1    | Accessible dropdown primitive                      | Keyboard nav, aria, focus management |
+| `@radix-ui/react-tooltip`       | ^1.1    | Accessible tooltip primitive                       | Delay, collision detection           |
 
 ### Supporting
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `vaul` | ^1.1 | Mobile drawer component | Already installed; use for bottom sheet basis |
-| `sonner` | ^2.0 | Toast notification system | Consider for toast infrastructure |
-| `focus-trap-react` | ^10.3 | Focus trapping (if Radix insufficient) | Complex nested focus scenarios |
+| Library            | Version | Purpose                                | When to Use                                   |
+| ------------------ | ------- | -------------------------------------- | --------------------------------------------- |
+| `vaul`             | ^1.1    | Mobile drawer component                | Already installed; use for bottom sheet basis |
+| `sonner`           | ^2.0    | Toast notification system              | Consider for toast infrastructure             |
+| `focus-trap-react` | ^10.3   | Focus trapping (if Radix insufficient) | Complex nested focus scenarios                |
 
 ### Already in Use
 
-| Library | Version | Purpose |
-|---------|---------|---------|
-| `framer-motion` | 12.26.1 | Primary animation library for components |
-| `vaul` | (installed) | Drawer component (Radix-based) |
-| `@radix-ui/*` | various | UI primitives (dialog, dropdown already present) |
-| `lucide-react` | ^0.469 | Icons (X close button, etc.) |
+| Library         | Version     | Purpose                                          |
+| --------------- | ----------- | ------------------------------------------------ |
+| `framer-motion` | 12.26.1     | Primary animation library for components         |
+| `vaul`          | (installed) | Drawer component (Radix-based)                   |
+| `@radix-ui/*`   | various     | UI primitives (dialog, dropdown already present) |
+| `lucide-react`  | ^0.469      | Icons (X close button, etc.)                     |
 
 ### Animation Strategy
 
-| Use Case | Library | Reason |
-|----------|---------|--------|
-| Overlay open/close | Framer Motion | Spring physics, AnimatePresence handles exit |
-| Backdrop fade | Framer Motion | Simple opacity transitions |
-| Swipe gestures | Framer Motion | Built-in drag support via existing hooks |
-| Scroll-driven reveals | GSAP ScrollTrigger | Not needed for overlays |
+| Use Case              | Library            | Reason                                       |
+| --------------------- | ------------------ | -------------------------------------------- |
+| Overlay open/close    | Framer Motion      | Spring physics, AnimatePresence handles exit |
+| Backdrop fade         | Framer Motion      | Simple opacity transitions                   |
+| Swipe gestures        | Framer Motion      | Built-in drag support via existing hooks     |
+| Scroll-driven reveals | GSAP ScrollTrigger | Not needed for overlays                      |
 
 **Installation:**
+
 ```bash
 # Already installed - verify versions
 pnpm list framer-motion @radix-ui/react-dialog vaul
@@ -111,10 +113,7 @@ import { usePathname } from "next/navigation";
  * Close overlay when route changes.
  * Call onClose when pathname differs from when overlay opened.
  */
-export function useRouteChangeClose(
-  isOpen: boolean,
-  onClose: () => void
-): void {
+export function useRouteChangeClose(isOpen: boolean, onClose: () => void): void {
   const pathname = usePathname();
   const openedPathnameRef = useRef<string | null>(null);
 
@@ -127,11 +126,7 @@ export function useRouteChangeClose(
 
   useEffect(() => {
     // Close if pathname changed after opening
-    if (
-      isOpen &&
-      openedPathnameRef.current !== null &&
-      pathname !== openedPathnameRef.current
-    ) {
+    if (isOpen && openedPathnameRef.current !== null && pathname !== openedPathnameRef.current) {
       onClose();
       openedPathnameRef.current = null;
     }
@@ -313,25 +308,25 @@ export function Dropdown({ trigger, children }: DropdownProps) {
 
 ### Anti-Patterns to Avoid
 
-| Anti-Pattern | Why Bad | Instead |
-|--------------|---------|---------|
-| `pointer-events: none` on closed modal wrapper | Invisible overlay still blocks clicks | Remove from DOM with `AnimatePresence` |
-| Global event listeners without cleanup | Memory leaks, double-firing | Use useEffect cleanup, useCallback stable refs |
-| Hardcoded z-index in overlay | Layer conflicts | Use `zIndex.modal`, `zIndexVar.modal` tokens |
-| `overflow: hidden` on body without restoration | Scroll position lost, stuck state | Use body scroll lock hook with cleanup |
-| Focus trap without initial focus | Focus jumps unexpectedly | Explicit `initialFocusRef` or first focusable |
-| Dropdown stopPropagation on all clicks | Breaks form submissions in menus | Only stop on menu item selection |
+| Anti-Pattern                                   | Why Bad                               | Instead                                        |
+| ---------------------------------------------- | ------------------------------------- | ---------------------------------------------- |
+| `pointer-events: none` on closed modal wrapper | Invisible overlay still blocks clicks | Remove from DOM with `AnimatePresence`         |
+| Global event listeners without cleanup         | Memory leaks, double-firing           | Use useEffect cleanup, useCallback stable refs |
+| Hardcoded z-index in overlay                   | Layer conflicts                       | Use `zIndex.modal`, `zIndexVar.modal` tokens   |
+| `overflow: hidden` on body without restoration | Scroll position lost, stuck state     | Use body scroll lock hook with cleanup         |
+| Focus trap without initial focus               | Focus jumps unexpectedly              | Explicit `initialFocusRef` or first focusable  |
+| Dropdown stopPropagation on all clicks         | Breaks form submissions in menus      | Only stop on menu item selection               |
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Focus trapping | Manual tab key handler | Radix dialog / focus-trap-react | Edge cases: shadow DOM, dynamic content |
-| Accessible dialog | DIY aria attributes | Radix Dialog | Keyboard nav, screen reader announcements |
-| Click outside detection | Manual event listener | Radix primitives / Floating UI | Portal-aware, handles nested dialogs |
-| Body scroll lock | `overflow: hidden` only | Proper scroll lock hook | Preserves scroll position, handles iOS quirks |
-| Spring physics | Manual JS spring | Framer Motion spring | GPU-accelerated, handles interrupts |
-| Dropdown positioning | Manual positioning | Radix / Floating UI | Collision detection, viewport awareness |
+| Problem                 | Don't Build             | Use Instead                     | Why                                           |
+| ----------------------- | ----------------------- | ------------------------------- | --------------------------------------------- |
+| Focus trapping          | Manual tab key handler  | Radix dialog / focus-trap-react | Edge cases: shadow DOM, dynamic content       |
+| Accessible dialog       | DIY aria attributes     | Radix Dialog                    | Keyboard nav, screen reader announcements     |
+| Click outside detection | Manual event listener   | Radix primitives / Floating UI  | Portal-aware, handles nested dialogs          |
+| Body scroll lock        | `overflow: hidden` only | Proper scroll lock hook         | Preserves scroll position, handles iOS quirks |
+| Spring physics          | Manual JS spring        | Framer Motion spring            | GPU-accelerated, handles interrupts           |
+| Dropdown positioning    | Manual positioning      | Radix / Floating UI             | Collision detection, viewport awareness       |
 
 **Key insight:** Focus management and accessibility in overlays have massive edge case surface area (nested dialogs, shadow DOM, dynamic content, screen readers). Radix primitives handle these.
 
@@ -342,11 +337,13 @@ export function Dropdown({ trigger, children }: DropdownProps) {
 **What goes wrong:** Invisible overlay div still captures click events
 **Why it happens:** Overlay markup in DOM with `opacity: 0` but `pointer-events: auto`
 **How to avoid:** Use `AnimatePresence` to fully remove from DOM after exit animation
+
 ```tsx
 <AnimatePresence>
-  {isOpen && <OverlayContent />}  {/* Removed from DOM when closed */}
+  {isOpen && <OverlayContent />} {/* Removed from DOM when closed */}
 </AnimatePresence>
 ```
+
 **Warning signs:** Clicks on page don't work after closing modal
 
 ### Pitfall 2: Form Submission Swallowed by Dropdown
@@ -361,9 +358,11 @@ export function Dropdown({ trigger, children }: DropdownProps) {
 **What goes wrong:** Modal still visible after clicking link inside it
 **Why it happens:** No route change listener; state persists across navigation
 **How to avoid:** Use `useRouteChangeClose` hook in all overlays
+
 ```tsx
 useRouteChangeClose(isOpen, onClose);
 ```
+
 **Warning signs:** User sees modal + new page content
 
 ### Pitfall 4: Scroll Position Jump on Modal Open
@@ -371,6 +370,7 @@ useRouteChangeClose(isOpen, onClose);
 **What goes wrong:** Page scrolls to top when modal opens/closes
 **Why it happens:** Body scroll lock removes scroll position without storing it
 **How to avoid:** Store `window.scrollY` before lock, restore after unlock
+
 ```tsx
 // From existing Modal.tsx - correct pattern
 const scrollY = window.scrollY;
@@ -379,6 +379,7 @@ document.body.style.top = `-${scrollY}px`;
 // ... on cleanup
 window.scrollTo(0, scrollY);
 ```
+
 **Warning signs:** Page jumps to top when modal opens
 
 ### Pitfall 5: Toast Stack Z-Index Collision
@@ -393,6 +394,7 @@ window.scrollTo(0, scrollY);
 **What goes wrong:** Janky animation with backdrop-blur
 **Why it happens:** Blur is expensive; animating blur property causes repaints
 **How to avoid:** Never animate blur value. Apply blur at start, only animate opacity
+
 ```tsx
 // WRONG: animate blur
 <motion.div animate={{ backdropFilter: `blur(${isOpen ? 8 : 0}px)` }} />
@@ -403,6 +405,7 @@ window.scrollTo(0, scrollY);
   animate={{ opacity: isOpen ? 1 : 0 }}
 />
 ```
+
 **Warning signs:** Choppy backdrop animation on mid-range devices
 
 ## Code Examples
@@ -709,15 +712,16 @@ export function Drawer({
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| CSS transitions for overlays | Framer Motion spring physics | 2023+ | Natural feel, interrupt handling |
-| Manual focus trap | Radix primitives | Standard | Accessibility guaranteed |
-| `display: none` toggle | AnimatePresence exit animations | Framer Motion standard | Smooth exit transitions |
-| `document.body.style.overflow` | Proper scroll lock with position fixed | Best practice | No scroll jump, iOS support |
-| React Portals only | Portal + Radix compound components | Modern | Accessibility + animation combined |
+| Old Approach                   | Current Approach                       | When Changed           | Impact                             |
+| ------------------------------ | -------------------------------------- | ---------------------- | ---------------------------------- |
+| CSS transitions for overlays   | Framer Motion spring physics           | 2023+                  | Natural feel, interrupt handling   |
+| Manual focus trap              | Radix primitives                       | Standard               | Accessibility guaranteed           |
+| `display: none` toggle         | AnimatePresence exit animations        | Framer Motion standard | Smooth exit transitions            |
+| `document.body.style.overflow` | Proper scroll lock with position fixed | Best practice          | No scroll jump, iOS support        |
+| React Portals only             | Portal + Radix compound components     | Modern                 | Accessibility + animation combined |
 
 **Deprecated/outdated:**
+
 - react-modal (now use Radix or Framer Motion based)
 - react-overlays (low-level, Radix is better DX)
 - body-scroll-lock package (has iOS bugs; use custom hook)
@@ -742,6 +746,7 @@ export function Drawer({
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - `src/components/ui/Modal.tsx` - Production reference implementation (734 lines)
 - `src/lib/swipe-gestures.ts` - Complete swipe gesture system with hooks
 - `src/lib/hooks/useReducedMotion.ts` - Motion preference system
@@ -750,12 +755,14 @@ export function Drawer({
 - Radix UI documentation - Dialog, Dropdown primitives
 
 ### Secondary (MEDIUM confidence)
+
 - `src/components/ui/drawer.tsx` - Vaul-based drawer (simpler reference)
 - `src/components/ui/dropdown-menu.tsx` - Radix dropdown patterns
 - `src/components/ui/tooltip.tsx` - Radix tooltip patterns
 - `src/components/ui/toast.tsx` - Existing toast implementation
 
 ### Codebase Verified (HIGH confidence)
+
 - Route change pattern: `usePathname` in `src/app/providers.tsx`
 - Portal usage: `createPortal` in Modal.tsx
 - Spring values: damping 25, stiffness 300 used consistently
@@ -764,6 +771,7 @@ export function Drawer({
 ## Metadata
 
 **Confidence breakdown:**
+
 - Portal infrastructure: HIGH - createPortal is React standard, verified in codebase
 - Animation patterns: HIGH - Framer Motion extensively used, patterns proven
 - Focus management: HIGH - Radix primitives well-documented

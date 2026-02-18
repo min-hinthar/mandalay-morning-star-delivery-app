@@ -11,7 +11,7 @@ const HowItWorksSection = React.lazy(() =>
 
 <Suspense fallback={<HowItWorksSkeleton />}>
   <HowItWorksSection />
-</Suspense>
+</Suspense>;
 ```
 
 **Apply when:** Components with heavy dependencies not visible on initial viewport (below fold, in tabs, in modals).
@@ -25,10 +25,9 @@ setInterval animations waste CPU/battery when off-screen:
 ```tsx
 const [isVisible, setIsVisible] = useState(false);
 useEffect(() => {
-  const observer = new IntersectionObserver(
-    ([entry]) => setIsVisible(entry.isIntersecting),
-    { threshold: 0.1 }
-  );
+  const observer = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting), {
+    threshold: 0.1,
+  });
   if (containerRef.current) observer.observe(containerRef.current);
   return () => observer.disconnect();
 }, []);
@@ -54,7 +53,7 @@ const [isHovered, setIsHovered] = useState(false);
   style={{ willChange: isHovered ? "transform" : "auto" }}
   onMouseEnter={() => setIsHovered(true)}
   onMouseLeave={() => setIsHovered(false)}
-/>
+/>;
 ```
 
 **Apply when:** Components with hover/tap animations in lists (cards, menu items).

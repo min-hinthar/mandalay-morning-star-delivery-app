@@ -2,13 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { m } from "framer-motion";
-import {
-  Plus,
-  RefreshCw,
-  UtensilsCrossed,
-  CheckCircle,
-  Package,
-} from "lucide-react";
+import { Plus, RefreshCw, UtensilsCrossed, CheckCircle, Package } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToast";
 import { Button } from "@/components/ui/button";
@@ -77,9 +71,7 @@ export default function AdminMenuPage() {
       if (!response.ok) throw new Error("Failed to update item");
 
       setItems((prev) =>
-        prev.map((i) =>
-          i.id === item.id ? { ...i, is_active: !i.is_active } : i
-        )
+        prev.map((i) => (i.id === item.id ? { ...i, is_active: !i.is_active } : i))
       );
     } catch {
       toast({
@@ -104,9 +96,7 @@ export default function AdminMenuPage() {
       if (!response.ok) throw new Error("Failed to update item");
 
       setItems((prev) =>
-        prev.map((i) =>
-          i.id === item.id ? { ...i, is_sold_out: !i.is_sold_out } : i
-        )
+        prev.map((i) => (i.id === item.id ? { ...i, is_sold_out: !i.is_sold_out } : i))
       );
     } catch {
       toast({
@@ -120,11 +110,7 @@ export default function AdminMenuPage() {
   };
 
   const handleDelete = async (item: MenuTableItem) => {
-    if (
-      !confirm(
-        `Are you sure you want to delete "${item.name_en}"? This cannot be undone.`
-      )
-    ) {
+    if (!confirm(`Are you sure you want to delete "${item.name_en}"? This cannot be undone.`)) {
       return;
     }
 
@@ -143,8 +129,7 @@ export default function AdminMenuPage() {
     } catch (err) {
       toast({
         title: "Error",
-        description:
-          err instanceof Error ? err.message : "Failed to delete item",
+        description: err instanceof Error ? err.message : "Failed to delete item",
         variant: "destructive",
       });
     } finally {
@@ -158,8 +143,7 @@ export default function AdminMenuPage() {
       item.name_en.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.slug.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCategory =
-      selectedCategory === "all" || item.category_id === selectedCategory;
+    const matchesCategory = selectedCategory === "all" || item.category_id === selectedCategory;
 
     return matchesSearch && matchesCategory;
   });
@@ -207,9 +191,7 @@ export default function AdminMenuPage() {
             disabled={refreshing}
             className="border-border hover:bg-surface-tertiary"
           >
-            <RefreshCw
-              className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
-            />
+            <RefreshCw className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")} />
             Refresh
           </Button>
           <Button className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm">
@@ -233,9 +215,7 @@ export default function AdminMenuPage() {
               <UtensilsCrossed className="h-5 w-5" />
               <span className="text-sm font-body font-medium">Total Items</span>
             </div>
-            <p className="text-3xl font-display font-bold text-text-primary mt-2">
-              {items.length}
-            </p>
+            <p className="text-3xl font-display font-bold text-text-primary mt-2">{items.length}</p>
           </div>
         </div>
 
@@ -262,9 +242,7 @@ export default function AdminMenuPage() {
               <Package className="h-5 w-5" />
               <span className="text-sm font-body font-medium">Sold Out</span>
             </div>
-            <p className="text-3xl font-display font-bold text-text-primary mt-2">
-              {soldOutCount}
-            </p>
+            <p className="text-3xl font-display font-bold text-text-primary mt-2">{soldOutCount}</p>
           </div>
         </div>
       </m.div>

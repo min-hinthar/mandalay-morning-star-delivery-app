@@ -102,9 +102,7 @@ export function SiteFooter() {
             whileInView="visible"
             viewport={{ once: true, amount: 0.3 }}
           >
-            <h3 className="font-display text-xl text-footer-text font-semibold mb-4">
-              Contact Us
-            </h3>
+            <h3 className="font-display text-xl text-footer-text font-semibold mb-4">Contact Us</h3>
             <div className="space-y-3">
               <a
                 href={`https://maps.google.com/?q=${encodeURIComponent(KITCHEN_LOCATION.address)}`}
@@ -148,9 +146,7 @@ export function SiteFooter() {
                 <Clock className="w-5 h-5" />
                 <div>
                   <p className="text-sm font-body font-medium">Saturday Delivery</p>
-                  <p className="text-sm font-body text-footer-text-muted">
-                    11:00 AM - 7:00 PM PT
-                  </p>
+                  <p className="text-sm font-body text-footer-text-muted">11:00 AM - 7:00 PM PT</p>
                 </div>
               </div>
               <div className="p-3 bg-footer-text/10 rounded-input">
@@ -197,9 +193,7 @@ export function SiteFooter() {
             whileInView="visible"
             viewport={{ once: true, amount: 0.3 }}
           >
-            <h3 className="font-display text-xl text-footer-text font-semibold mb-4">
-              Legal
-            </h3>
+            <h3 className="font-display text-xl text-footer-text font-semibold mb-4">Legal</h3>
             <ul className="space-y-2.5">
               <li>
                 <Link
@@ -230,8 +224,8 @@ export function SiteFooter() {
           className="mt-12 pt-8 border-t border-footer-border text-center"
         >
           <p className="text-sm font-body text-footer-text-muted">
-            &copy; {new Date().getFullYear()} Mandalay Morning Star Burmese Kitchen.
-            All rights reserved.
+            &copy; {new Date().getFullYear()} Mandalay Morning Star Burmese Kitchen. All rights
+            reserved.
           </p>
           <p className="text-xs font-body text-footer-text-muted mt-2 inline-flex items-center justify-center gap-1 flex-wrap">
             <span>Cooked with Love</span>

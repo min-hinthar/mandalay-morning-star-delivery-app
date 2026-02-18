@@ -7,14 +7,7 @@
  * multiple validated fields.
  */
 
-import {
-  useState,
-  useCallback,
-  useRef,
-  createContext,
-  useContext,
-  type ReactNode,
-} from "react";
+import { useState, useCallback, useRef, createContext, useContext, type ReactNode } from "react";
 
 // ============================================
 // CONTEXT TYPES
@@ -42,9 +35,7 @@ interface FormValidationContextValue {
   setDirty: () => void;
 }
 
-const FormValidationContext = createContext<FormValidationContextValue | null>(
-  null
-);
+const FormValidationContext = createContext<FormValidationContextValue | null>(null);
 
 // ============================================
 // CONTEXT HOOKS
@@ -57,9 +48,7 @@ const FormValidationContext = createContext<FormValidationContextValue | null>(
 export function useFormValidation(): FormValidationContextValue {
   const context = useContext(FormValidationContext);
   if (!context) {
-    throw new Error(
-      "useFormValidation must be used within FormValidationProvider"
-    );
+    throw new Error("useFormValidation must be used within FormValidationProvider");
   }
   return context;
 }

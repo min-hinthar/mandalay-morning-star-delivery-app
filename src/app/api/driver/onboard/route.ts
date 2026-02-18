@@ -78,10 +78,7 @@ export async function POST(request: NextRequest) {
 
     const email = user.email;
     if (!email) {
-      return NextResponse.json(
-        { error: "User email not found" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "User email not found" }, { status: 400 });
     }
 
     // Verify invite exists and is not already accepted
@@ -151,17 +148,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 2: Create or update profile record (existing users may have a customer profile)
-    const { error: profileError } = await serviceSupabase
-      .from("profiles")
-      .upsert({
+    const { error: profileError } = await serviceSupabase.from("profiles").upsert(
+      {
         id: user.id,
         email: email,
         full_name: fullName,
         phone: phone,
         role: "driver" as const,
-      }, {
+      },
+      {
         onConflict: "id",
-      });
+      }
+    );
 
     if (profileError) {
       logger.exception(profileError, { api: "driver/onboard", flowId: "profile" });
@@ -211,9 +209,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     logger.exception(error, { api: "driver/onboard" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

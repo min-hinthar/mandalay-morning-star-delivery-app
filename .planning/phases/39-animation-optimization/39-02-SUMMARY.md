@@ -62,30 +62,33 @@ Device-aware parallax with conflict detection and willChange optimization for pe
 
 ## Tasks Completed
 
-| # | Task | Commit | Key Files |
-|---|------|--------|-----------|
-| 1 | Update ParallaxLayer to use AnimationContext | a640b2c | ParallaxLayer.tsx |
-| 2 | Update Hero parallax to respect device capability | 2f2e979 | Hero.tsx |
-| 3 | Create GSAP/Framer Motion conflict detector | 151e6f8 | conflict-detector.ts, gsap/index.ts |
-| 4 | Apply willChange optimization to Drawer/Modal | 6db024a, 0295fcf | Drawer.tsx, Modal.tsx |
+| #   | Task                                              | Commit           | Key Files                           |
+| --- | ------------------------------------------------- | ---------------- | ----------------------------------- |
+| 1   | Update ParallaxLayer to use AnimationContext      | a640b2c          | ParallaxLayer.tsx                   |
+| 2   | Update Hero parallax to respect device capability | 2f2e979          | Hero.tsx                            |
+| 3   | Create GSAP/Framer Motion conflict detector       | 151e6f8          | conflict-detector.ts, gsap/index.ts |
+| 4   | Apply willChange optimization to Drawer/Modal     | 6db024a, 0295fcf | Drawer.tsx, Modal.tsx               |
 
 ## Implementation Details
 
 ### Task 1: ParallaxLayer Device Awareness
 
 **Before:**
+
 ```tsx
 const { shouldAnimate } = useAnimationPreference();
 if (!shouldAnimate || !containerRef.current || !elementRef.current) return;
 ```
 
 **After:**
+
 ```tsx
 const { isParallaxEnabled } = useAnimationContextSafe();
 if (!isParallaxEnabled || !containerRef.current || !elementRef.current) return;
 ```
 
 `isParallaxEnabled` combines:
+
 - Device tier (low = disabled)
 - User reduced motion preference
 - System prefers-reduced-motion
@@ -150,8 +153,8 @@ const handleAnimationComplete = useCallback(() => {
 }, []);
 
 // On motion.div:
-onAnimationStart={handleAnimationStart}
-onAnimationComplete={handleAnimationComplete}
+onAnimationStart = { handleAnimationStart };
+onAnimationComplete = { handleAnimationComplete };
 ```
 
 **FlyToCart:** Already optimized - element is removed from DOM on animation complete, which automatically frees the compositor layer. No changes needed.
@@ -161,6 +164,7 @@ onAnimationComplete={handleAnimationComplete}
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Fixed unused 'get' parameter in cart-animation-store.ts**
+
 - **Found during:** Task 1
 - **Issue:** TypeScript error TS6133: 'get' is declared but its value is never read
 - **Fix:** Changed `create<CartAnimationStore>((set, get) => ({` to `create<CartAnimationStore>((set) => ({`
@@ -168,6 +172,7 @@ onAnimationComplete={handleAnimationComplete}
 - **Commit:** a640b2c
 
 **2. [Rule 3 - Blocking] Added eslint-disable for max-lines in Hero.tsx and Modal.tsx**
+
 - **Found during:** Tasks 2, 4
 - **Issue:** Pre-commit hook failed due to max-warnings=0 and max-lines warnings
 - **Fix:** Added `/* eslint-disable max-lines -- [explanation] */` per project decision 37-02
@@ -175,34 +180,35 @@ onAnimationComplete={handleAnimationComplete}
 
 ## Verification Results
 
-| Check | Result |
-|-------|--------|
-| `pnpm typecheck` | Pass |
-| `pnpm lint` | Pass (warnings only - pre-existing max-lines) |
-| `pnpm build` | Pass |
-| ParallaxLayer uses context | `grep -q "useAnimationContextSafe"` - Yes |
-| Hero uses isParallaxEnabled | `grep -q "isParallaxEnabled"` - 4 matches |
+| Check                         | Result                                                  |
+| ----------------------------- | ------------------------------------------------------- |
+| `pnpm typecheck`              | Pass                                                    |
+| `pnpm lint`                   | Pass (warnings only - pre-existing max-lines)           |
+| `pnpm build`                  | Pass                                                    |
+| ParallaxLayer uses context    | `grep -q "useAnimationContextSafe"` - Yes               |
+| Hero uses isParallaxEnabled   | `grep -q "isParallaxEnabled"` - 4 matches               |
 | Conflict detector initialized | `grep -q "initConflictDetector"` in gsap/index.ts - Yes |
-| willChange in Drawer | `grep -q "willChange"` - 3 matches |
-| willChange in Modal | `grep -q "willChange"` - 3 matches |
+| willChange in Drawer          | `grep -q "willChange"` - 3 matches                      |
+| willChange in Modal           | `grep -q "willChange"` - 3 matches                      |
 
 ## Success Criteria Verification
 
-| Criterion | Status |
-|-----------|--------|
-| ParallaxLayer uses AnimationContext | Done |
-| Hero parallax disabled on low-power devices | Done |
-| Hero floating emojis, stagger, opacity still work | Done (not affected by parallax changes) |
-| Conflict detector warns in dev mode | Done |
-| No production bundle size impact | Done (dev-only code) |
-| willChange:transform applied only during animations | Done |
-| willChange set to "auto" on animation complete | Done |
+| Criterion                                           | Status                                  |
+| --------------------------------------------------- | --------------------------------------- |
+| ParallaxLayer uses AnimationContext                 | Done                                    |
+| Hero parallax disabled on low-power devices         | Done                                    |
+| Hero floating emojis, stagger, opacity still work   | Done (not affected by parallax changes) |
+| Conflict detector warns in dev mode                 | Done                                    |
+| No production bundle size impact                    | Done (dev-only code)                    |
+| willChange:transform applied only during animations | Done                                    |
+| willChange set to "auto" on animation complete      | Done                                    |
 
 ## Next Phase Readiness
 
 **Phase 39 Plan 03:** Needs to be created if more animation optimization tasks remain.
 
 **Integration points:**
+
 - AnimationProvider context available app-wide
 - Conflict detector active in development
 - willChange optimization pattern established for other components

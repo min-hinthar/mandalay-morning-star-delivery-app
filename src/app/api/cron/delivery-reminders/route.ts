@@ -65,7 +65,7 @@ export async function GET(request: Request) {
         state,
         postal_code
       )
-    `,
+    `
     )
     .gte("delivery_window_start", `${today}T00:00:00`)
     .lt("delivery_window_start", `${today}T23:59:59`)
@@ -77,10 +77,7 @@ export async function GET(request: Request) {
       api: "cron",
     });
     logger.exception(ordersError, { flowId: FLOW_ID, api: "cron" });
-    return NextResponse.json(
-      { error: "Failed to query orders" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to query orders" }, { status: 500 });
   }
 
   if (!orders || orders.length === 0) {
@@ -103,9 +100,7 @@ export async function GET(request: Request) {
     .eq("notification_type", "delivery_reminder")
     .gte("created_at", `${today}T00:00:00`);
 
-  const alreadySentOrderIds = new Set(
-    (existingLogs ?? []).map((log) => log.order_id),
-  );
+  const alreadySentOrderIds = new Set((existingLogs ?? []).map((log) => log.order_id));
 
   // -----------------------------------------------
   // Step 3: Fetch order items for each qualifying order
@@ -115,10 +110,7 @@ export async function GET(request: Request) {
     .select("order_id, name_snapshot, quantity")
     .in("order_id", orderIds);
 
-  const orderItemsMap = new Map<
-    string,
-    { name_snapshot: string; quantity: number }[]
-  >();
+  const orderItemsMap = new Map<string, { name_snapshot: string; quantity: number }[]>();
   for (const item of allOrderItems ?? []) {
     const existing = orderItemsMap.get(item.order_id) ?? [];
     existing.push({
@@ -153,14 +145,11 @@ export async function GET(request: Request) {
         .in("id", driverUserIds);
 
       const userToName = new Map<string, string | null>(
-        (driverProfiles ?? []).map((p) => [p.id, p.full_name]),
+        (driverProfiles ?? []).map((p) => [p.id, p.full_name])
       );
 
       driverNameMap = new Map(
-        drivers.map((d) => [
-          d.id,
-          userToName.get(d.user_id) ?? "Your driver",
-        ]),
+        drivers.map((d) => [d.id, userToName.get(d.user_id) ?? "Your driver"])
       );
     }
   }

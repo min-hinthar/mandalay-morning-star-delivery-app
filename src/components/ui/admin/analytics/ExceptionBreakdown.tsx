@@ -75,11 +75,7 @@ const exceptionConfig: Record<
   },
 };
 
-export function ExceptionBreakdown({
-  byType,
-  total,
-  height = 250,
-}: ExceptionBreakdownProps) {
+export function ExceptionBreakdown({ byType, total, height = 250 }: ExceptionBreakdownProps) {
   const chartData = Object.entries(byType)
     .filter(([, count]) => count > 0)
     .map(([type, count]) => ({
@@ -118,9 +114,7 @@ export function ExceptionBreakdown({
     >
       <div className="mb-4 flex items-center gap-2">
         <AlertTriangle className="h-5 w-5 text-status-warning" />
-        <h3 className="text-lg font-semibold text-text-primary">
-          Exception Breakdown
-        </h3>
+        <h3 className="text-lg font-semibold text-text-primary">Exception Breakdown</h3>
         <span className="ml-auto rounded-full bg-status-warning-bg px-2 py-0.5 text-xs font-medium text-status-warning">
           {total} total
         </span>
@@ -156,9 +150,7 @@ export function ExceptionBreakdown({
             align="center"
             iconType="circle"
             iconSize={8}
-            formatter={(value) => (
-              <span className="text-xs text-text-secondary">{value}</span>
-            )}
+            formatter={(value) => <span className="text-xs text-text-secondary">{value}</span>}
           />
         </PieChart>
       </ResponsiveContainer>
@@ -186,9 +178,7 @@ export function RecentExceptionsList({
     >
       <div className="mb-4 flex items-center gap-2">
         <AlertTriangle className="h-5 w-5 text-status-warning" />
-        <h3 className="text-lg font-semibold text-text-primary">
-          Recent Exceptions
-        </h3>
+        <h3 className="text-lg font-semibold text-text-primary">Recent Exceptions</h3>
       </div>
 
       {displayExceptions.length === 0 ? (
@@ -227,10 +217,7 @@ function ExceptionRow({ exception }: { exception: RecentException }) {
       }}
       className="flex items-start gap-3 rounded-lg border border-border-v5 p-3"
     >
-      <div
-        className="rounded-lg p-2"
-        style={{ backgroundColor: `${config.color}15` }}
-      >
+      <div className="rounded-lg p-2" style={{ backgroundColor: `${config.color}15` }}>
         <Icon className="h-4 w-4" style={{ color: config.color }} />
       </div>
 
@@ -247,9 +234,7 @@ function ExceptionRow({ exception }: { exception: RecentException }) {
           Order #{exception.orderNumber} • {exception.driverName ?? "Unknown"}
         </p>
         {exception.description && (
-          <p className="mt-1 text-xs text-text-muted line-clamp-2">
-            {exception.description}
-          </p>
+          <p className="mt-1 text-xs text-text-muted line-clamp-2">{exception.description}</p>
         )}
       </div>
 
@@ -284,16 +269,11 @@ export function ExceptionSummaryCompact({
         </div>
       ) : (
         <>
-          <p className="text-sm font-medium text-text-secondary">
-            Top Issues ({total} total)
-          </p>
+          <p className="text-sm font-medium text-text-secondary">Top Issues ({total} total)</p>
           {topExceptions.map(([type, count]) => {
             const config = exceptionConfig[type as DeliveryExceptionType];
             return (
-              <div
-                key={type}
-                className="flex items-center justify-between text-sm"
-              >
+              <div key={type} className="flex items-center justify-between text-sm">
                 <span className="text-text-secondary">{config.label}</span>
                 <span
                   className={cn(

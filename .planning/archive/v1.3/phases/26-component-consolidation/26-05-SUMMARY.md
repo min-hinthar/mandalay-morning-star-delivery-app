@@ -53,6 +53,7 @@ Menu components migrated from ui-v8/menu/ to ui/menu/ with V8 suffix removal and
 ## What Was Done
 
 ### Task 1: Move Menu Components
+
 - Created `src/components/ui/menu/` directory
 - Moved 11 components from `ui-v8/menu/` to `ui/menu/`
 - Renamed V8-suffixed files to clean names:
@@ -65,6 +66,7 @@ Menu components migrated from ui-v8/menu/ to ui/menu/ with V8 suffix removal and
   - `SearchInputV8.tsx` -> `SearchInput.tsx`
 
 ### Task 2: Update Component Names and Imports
+
 - Removed V8 suffix from all component exports and props types
 - Updated `ItemDetailSheet` to use `Drawer` with `position="bottom"` (replacing BottomSheet)
 - Updated `ItemDetailSheet` to import Modal from `@/components/ui/Modal`
@@ -77,32 +79,34 @@ Menu components migrated from ui-v8/menu/ to ui/menu/ with V8 suffix removal and
   - `src/components/menu/UnifiedMenuItemCard/UnifiedMenuItemCard.tsx`
 
 ### Task 3: Create Barrel Export
+
 - Created clean `index.ts` with all 11 components and types exported
 - Added backwards-compat aliases in `ui-v8/index.ts`
 
 ## Component Inventory
 
-| Component | Old Name | New Name | Notes |
-|-----------|----------|----------|-------|
-| CategoryTabs | CategoryTabsV8 | CategoryTabs | Scrollspy category navigation |
-| ItemDetailSheet | ItemDetailSheetV8 | ItemDetailSheet | Uses Drawer for mobile, Modal for desktop |
-| MenuContent | MenuContentV8 | MenuContent | Full menu page composition |
-| MenuGrid | MenuGridV8 | MenuGrid | Responsive menu item grid |
-| MenuSection | MenuSectionV8 | MenuSection | Category section wrapper |
-| MenuSkeleton | MenuSkeletonV8 | MenuSkeleton | Loading skeleton |
-| MenuItemCardSkeleton | MenuItemCardV8Skeleton | MenuItemCardSkeleton | Card skeleton |
-| SearchSkeleton | SearchSkeletonV8 | SearchSkeleton | Search bar skeleton |
-| SearchInput | SearchInputV8 | SearchInput | Search with autocomplete |
-| SearchAutocomplete | - | SearchAutocomplete | Unchanged (no V8 suffix) |
-| BlurImage | - | BlurImage | Unchanged |
-| EmojiPlaceholder | - | EmojiPlaceholder | Unchanged |
-| FavoriteButton | - | FavoriteButton | Unchanged |
+| Component            | Old Name               | New Name             | Notes                                     |
+| -------------------- | ---------------------- | -------------------- | ----------------------------------------- |
+| CategoryTabs         | CategoryTabsV8         | CategoryTabs         | Scrollspy category navigation             |
+| ItemDetailSheet      | ItemDetailSheetV8      | ItemDetailSheet      | Uses Drawer for mobile, Modal for desktop |
+| MenuContent          | MenuContentV8          | MenuContent          | Full menu page composition                |
+| MenuGrid             | MenuGridV8             | MenuGrid             | Responsive menu item grid                 |
+| MenuSection          | MenuSectionV8          | MenuSection          | Category section wrapper                  |
+| MenuSkeleton         | MenuSkeletonV8         | MenuSkeleton         | Loading skeleton                          |
+| MenuItemCardSkeleton | MenuItemCardV8Skeleton | MenuItemCardSkeleton | Card skeleton                             |
+| SearchSkeleton       | SearchSkeletonV8       | SearchSkeleton       | Search bar skeleton                       |
+| SearchInput          | SearchInputV8          | SearchInput          | Search with autocomplete                  |
+| SearchAutocomplete   | -                      | SearchAutocomplete   | Unchanged (no V8 suffix)                  |
+| BlurImage            | -                      | BlurImage            | Unchanged                                 |
+| EmojiPlaceholder     | -                      | EmojiPlaceholder     | Unchanged                                 |
+| FavoriteButton       | -                      | FavoriteButton       | Unchanged                                 |
 
 ## Deviations from Plan
 
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Cart component imports already migrated**
+
 - **Found during:** Task 2
 - **Issue:** Files already had cart component imports updated to ui/cart (by lint rule)
 - **Fix:** Included these files in the commit as they're related consolidation work
@@ -120,8 +124,8 @@ Menu components migrated from ui-v8/menu/ to ui/menu/ with V8 suffix removal and
 
 ## Commits
 
-| Hash | Message |
-|------|---------|
+| Hash    | Message                                               |
+| ------- | ----------------------------------------------------- |
 | 688be4c | feat(26-05): migrate menu components from ui-v8 to ui |
 
 ## Next Phase Readiness
@@ -129,6 +133,7 @@ Menu components migrated from ui-v8/menu/ to ui/menu/ with V8 suffix removal and
 Ready for 26-06 (cart component migration) and 26-07 (transitions migration).
 
 **Dependencies satisfied:**
+
 - Modal in ui/ (from 26-02)
 - Drawer with position="bottom" (from 26-02)
 - Menu components now in ui/menu (this plan)

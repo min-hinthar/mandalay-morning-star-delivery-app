@@ -1,13 +1,7 @@
-'use client';
+"use client";
 
 import { m } from "framer-motion";
-import {
-  Plus,
-  RefreshCw,
-  LayoutGrid,
-  Eye,
-  Package,
-} from "lucide-react";
+import { Plus, RefreshCw, LayoutGrid, Eye, Package } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { DraftBanner } from "@/components/ui/admin/sections/DraftBanner";
@@ -62,9 +56,7 @@ export function SectionsToolbar({
             disabled={refreshing}
             className="border-border hover:bg-surface-tertiary"
           >
-            <RefreshCw
-              className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
-            />
+            <RefreshCw className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")} />
             Refresh
           </Button>
           <Button
@@ -120,9 +112,7 @@ export function SectionsToolbar({
               <Package className="h-5 w-5" />
               <span className="text-sm font-body font-medium">Total Items</span>
             </div>
-            <p className="text-3xl font-display font-bold text-text-primary mt-2">
-              {totalItems}
-            </p>
+            <p className="text-3xl font-display font-bold text-text-primary mt-2">{totalItems}</p>
           </div>
         </div>
       </m.div>

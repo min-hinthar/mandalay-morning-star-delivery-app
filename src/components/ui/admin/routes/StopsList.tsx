@@ -35,9 +35,7 @@ export function StopsList({
         <div className="rounded-full bg-interactive-primary-light w-20 h-20 mx-auto flex items-center justify-center mb-4">
           <Package className="h-10 w-10 text-interactive-primary" />
         </div>
-        <h2 className="text-xl font-display text-text-primary mb-2">
-          No stops in this route
-        </h2>
+        <h2 className="text-xl font-display text-text-primary mb-2">No stops in this route</h2>
         <p className="text-text-secondary max-w-md mx-auto">
           Add orders to this route to create delivery stops.
         </p>
@@ -53,9 +51,7 @@ export function StopsList({
       className="space-y-4"
     >
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-display text-text-primary">
-          Stops ({sortedStops.length})
-        </h2>
+        <h2 className="text-lg font-display text-text-primary">Stops ({sortedStops.length})</h2>
       </div>
 
       <div className="space-y-4">

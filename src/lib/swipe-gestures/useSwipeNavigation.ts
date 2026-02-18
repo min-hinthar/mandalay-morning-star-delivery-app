@@ -78,22 +78,14 @@ export function useSwipeNavigation(options: SwipeNavigationOptions): SwipeGestur
       const { offset, velocity } = info;
 
       // Swipe left = next (negative offset)
-      if (
-        (offset.x < -threshold || velocity.x < -velocityThreshold) &&
-        !isLast &&
-        onNext
-      ) {
+      if ((offset.x < -threshold || velocity.x < -velocityThreshold) && !isLast && onNext) {
         if (hapticEnabled) triggerHaptic("light");
         onNext();
         return;
       }
 
       // Swipe right = previous (positive offset)
-      if (
-        (offset.x > threshold || velocity.x > velocityThreshold) &&
-        !isFirst &&
-        onPrev
-      ) {
+      if ((offset.x > threshold || velocity.x > velocityThreshold) && !isFirst && onPrev) {
         if (hapticEnabled) triggerHaptic("light");
         onPrev();
       }

@@ -77,25 +77,27 @@ export interface DropdownProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-export function Dropdown({
-  children,
-  defaultOpen = false,
-  onOpenChange,
-}: DropdownProps) {
+export function Dropdown({ children, defaultOpen = false, onOpenChange }: DropdownProps) {
   const [isOpen, setIsOpenInternal] = useState(defaultOpen);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
-  const setIsOpen = useCallback((open: boolean) => {
-    setIsOpenInternal(open);
-    onOpenChange?.(open);
-  }, [onOpenChange]);
+  const setIsOpen = useCallback(
+    (open: boolean) => {
+      setIsOpenInternal(open);
+      onOpenChange?.(open);
+    },
+    [onOpenChange]
+  );
 
   // Memoize context value to prevent infinite re-renders
-  const contextValue = useMemo(() => ({
-    isOpen,
-    setIsOpen,
-    triggerRef,
-  }), [isOpen, setIsOpen]);
+  const contextValue = useMemo(
+    () => ({
+      isOpen,
+      setIsOpen,
+      triggerRef,
+    }),
+    [isOpen, setIsOpen]
+  );
 
   return (
     <DropdownContext.Provider value={contextValue}>
@@ -178,11 +180,7 @@ export interface DropdownContentProps {
   className?: string;
 }
 
-export function DropdownContent({
-  children,
-  align = "end",
-  className,
-}: DropdownContentProps) {
+export function DropdownContent({ children, align = "end", className }: DropdownContentProps) {
   const { isOpen, setIsOpen, triggerRef } = useDropdown();
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -192,10 +190,8 @@ export function DropdownContent({
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      const isOutsideContent =
-        contentRef.current && !contentRef.current.contains(target);
-      const isOutsideTrigger =
-        triggerRef.current && !triggerRef.current.contains(target);
+      const isOutsideContent = contentRef.current && !contentRef.current.contains(target);
+      const isOutsideTrigger = triggerRef.current && !triggerRef.current.contains(target);
 
       if (isOutsideContent && isOutsideTrigger) {
         setIsOpen(false);
@@ -339,10 +335,5 @@ export interface DropdownSeparatorProps {
 }
 
 export function DropdownSeparator({ className }: DropdownSeparatorProps) {
-  return (
-    <div
-      role="separator"
-      className={cn("h-px bg-border -mx-1 my-1", className)}
-    />
-  );
+  return <div role="separator" className={cn("h-px bg-border -mx-1 my-1", className)} />;
 }

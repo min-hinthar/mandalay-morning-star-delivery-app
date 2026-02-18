@@ -52,14 +52,9 @@ export const CartPageSummary = memo(function CartPageSummary({
         className
       )}
     >
-      <FreeDeliveryProgress
-        amountToFreeDelivery={amountToFreeDelivery}
-        className="mb-4"
-      />
+      <FreeDeliveryProgress amountToFreeDelivery={amountToFreeDelivery} className="mb-4" />
 
-      <h2 className="text-base font-display font-bold text-text-primary mb-4">
-        Order Summary
-      </h2>
+      <h2 className="text-base font-display font-bold text-text-primary mb-4">Order Summary</h2>
 
       <div className="space-y-2.5 text-sm">
         {/* Subtotal */}
@@ -70,11 +65,7 @@ export const CartPageSummary = memo(function CartPageSummary({
           className="flex justify-between text-text-secondary"
         >
           <span>Subtotal</span>
-          <PriceTicker
-            value={subtotalCents}
-            inCents
-            className="text-text-money"
-          />
+          <PriceTicker value={subtotalCents} inCents className="text-text-money" />
         </m.div>
 
         {/* Delivery Fee */}
@@ -89,11 +80,7 @@ export const CartPageSummary = memo(function CartPageSummary({
           {deliveryFeeCents === 0 ? (
             <span className="text-text-money font-semibold">FREE</span>
           ) : (
-            <PriceTicker
-              value={deliveryFeeCents}
-              inCents
-              className="text-text-money"
-            />
+            <PriceTicker value={deliveryFeeCents} inCents className="text-text-money" />
           )}
         </m.div>
 
@@ -106,11 +93,7 @@ export const CartPageSummary = memo(function CartPageSummary({
           className="flex justify-between text-text-secondary"
         >
           <span>Est. Tax</span>
-          <PriceTicker
-            value={estimatedTaxCents}
-            inCents
-            className="text-text-money"
-          />
+          <PriceTicker value={estimatedTaxCents} inCents className="text-text-money" />
         </m.div>
 
         {/* Minimum order shortfall */}
@@ -121,9 +104,7 @@ export const CartPageSummary = memo(function CartPageSummary({
             transition={getSpring(spring.gentle)}
             className="flex justify-between text-sm pt-1"
           >
-            <span className="text-red-500 dark:text-red-400 font-medium">
-              Below minimum
-            </span>
+            <span className="text-red-500 dark:text-red-400 font-medium">Below minimum</span>
             <span className="text-red-500 dark:text-red-400 font-semibold">
               ${(minimumShortfallCents / 100).toFixed(2)} short
             </span>
@@ -142,12 +123,7 @@ export const CartPageSummary = memo(function CartPageSummary({
           className="flex justify-between items-center font-semibold text-base pt-1"
         >
           <span className="text-text-primary">Estimated Total</span>
-          <PriceTicker
-            value={totalCents}
-            inCents
-            size="lg"
-            className="text-text-money font-bold"
-          />
+          <PriceTicker value={totalCents} inCents size="lg" className="text-text-money font-bold" />
         </m.div>
       </div>
     </m.div>

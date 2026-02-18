@@ -92,32 +92,32 @@ Each task was committed atomically:
 
 ### Created (12 files)
 
-| File | Lines | Extracts |
-|------|-------|----------|
-| `admin/menu/[id]/MenuItemFormFields.tsx` | 229 | Form fields, allergens, status toggles |
-| `admin/menu/[id]/MenuItemPhotoSection.tsx` | 231 | Photo upload, Drive URL verify, history |
-| `admin/sections/SectionsToolbar.tsx` | 131 | Draft banner, header, stats cards |
-| `admin/sections/SectionsList.tsx` | 201 | Reorder group, section cards, item selector |
-| `admin/categories/AddCategoryDialog.tsx` | 161 | Self-contained dialog with form + API call |
-| `admin/categories/CategoriesTable.tsx` | 182 | Table with ordering, toggle, delete |
-| `admin/menu/MenuFilterBar.tsx` | 77 | Search input + category badges |
-| `admin/menu/MenuItemsTable.tsx` | 243 | Items table with dropdown actions |
-| `admin/photos/PhotosStatsCards.tsx` | 71 | 3 stat cards: total, assigned, unassigned |
-| `admin/photos/PhotosFilters.tsx` | 102 | Search + filter badges + bulk actions |
-| `admin/routes/RoutesStatsCards.tsx` | 93 | 4 stat cards: total, planned, in-progress, completed |
-| `admin/drivers/DriversStatsCards.tsx` | 96 | 4 stat cards: total, active, rating, deliveries |
+| File                                       | Lines | Extracts                                             |
+| ------------------------------------------ | ----- | ---------------------------------------------------- |
+| `admin/menu/[id]/MenuItemFormFields.tsx`   | 229   | Form fields, allergens, status toggles               |
+| `admin/menu/[id]/MenuItemPhotoSection.tsx` | 231   | Photo upload, Drive URL verify, history              |
+| `admin/sections/SectionsToolbar.tsx`       | 131   | Draft banner, header, stats cards                    |
+| `admin/sections/SectionsList.tsx`          | 201   | Reorder group, section cards, item selector          |
+| `admin/categories/AddCategoryDialog.tsx`   | 161   | Self-contained dialog with form + API call           |
+| `admin/categories/CategoriesTable.tsx`     | 182   | Table with ordering, toggle, delete                  |
+| `admin/menu/MenuFilterBar.tsx`             | 77    | Search input + category badges                       |
+| `admin/menu/MenuItemsTable.tsx`            | 243   | Items table with dropdown actions                    |
+| `admin/photos/PhotosStatsCards.tsx`        | 71    | 3 stat cards: total, assigned, unassigned            |
+| `admin/photos/PhotosFilters.tsx`           | 102   | Search + filter badges + bulk actions                |
+| `admin/routes/RoutesStatsCards.tsx`        | 93    | 4 stat cards: total, planned, in-progress, completed |
+| `admin/drivers/DriversStatsCards.tsx`      | 96    | 4 stat cards: total, active, rating, deliveries      |
 
 ### Modified (7 page.tsx files)
 
-| File | Before | After | Reduction |
-|------|--------|-------|-----------|
-| `admin/menu/[id]/page.tsx` | 646 | 261 | 60% |
-| `admin/sections/page.tsx` | 588 | 369 | 37% |
-| `admin/categories/page.tsx` | 577 | 296 | 49% |
-| `admin/menu/page.tsx` | 527 | 293 | 44% |
-| `admin/photos/page.tsx` | 482 | 364 | 24% |
-| `admin/routes/page.tsx` | 448 | 365 | 19% |
-| `admin/drivers/page.tsx` | 417 | 326 | 22% |
+| File                        | Before | After | Reduction |
+| --------------------------- | ------ | ----- | --------- |
+| `admin/menu/[id]/page.tsx`  | 646    | 261   | 60%       |
+| `admin/sections/page.tsx`   | 588    | 369   | 37%       |
+| `admin/categories/page.tsx` | 577    | 296   | 49%       |
+| `admin/menu/page.tsx`       | 527    | 293   | 44%       |
+| `admin/photos/page.tsx`     | 482    | 364   | 24%       |
+| `admin/routes/page.tsx`     | 448    | 365   | 19%       |
+| `admin/drivers/page.tsx`    | 417    | 326   | 22%       |
 
 ## Decisions Made
 
@@ -144,5 +144,6 @@ None - no external service configuration required.
 - No blockers or concerns
 
 ---
-*Phase: 46-large-file-refactoring*
-*Completed: 2026-02-06*
+
+_Phase: 46-large-file-refactoring_
+_Completed: 2026-02-06_

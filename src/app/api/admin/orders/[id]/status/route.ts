@@ -44,10 +44,7 @@ interface OrderRow {
   user_id: string;
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: orderId } = await params;
 
   try {
@@ -118,24 +115,19 @@ export async function PATCH(
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/orders/[id]/status" });
-      return NextResponse.json(
-        { error: "Failed to update order status" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to update order status" }, { status: 500 });
     }
 
     // Create audit log entry
-    const { error: auditError } = await supabase
-      .from("order_audit_log")
-      .insert({
-        order_id: orderId,
-        action: "status_change",
-        actor_id: userId,
-        actor_role: "admin",
-        old_value: { status: currentStatus } as Json,
-        new_value: { status: newStatus } as Json,
-        reason: reason ?? null,
-      });
+    const { error: auditError } = await supabase.from("order_audit_log").insert({
+      order_id: orderId,
+      action: "status_change",
+      actor_id: userId,
+      actor_role: "admin",
+      old_value: { status: currentStatus } as Json,
+      new_value: { status: newStatus } as Json,
+      reason: reason ?? null,
+    });
 
     if (auditError) {
       // Non-fatal: log but don't fail
@@ -175,10 +167,7 @@ export async function PATCH(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/status" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -258,11 +247,13 @@ async function sendStatusEmail(
     // Fetch full order data for confirmation email
     const { data: orderData } = await supabase
       .from("orders")
-      .select(`
+      .select(
+        `
         total_cents, subtotal_cents, delivery_fee_cents, tax_cents,
         special_instructions, delivery_window_start, delivery_window_end,
         addresses (line_1, line_2, city, state, postal_code)
-      `)
+      `
+      )
       .eq("id", orderId)
       .single();
 
@@ -275,7 +266,12 @@ async function sendStatusEmail(
       customerName: profile.full_name || "Valued Customer",
       orderId,
       items: (orderItems || []).map(
-        (item: { name_snapshot: string; base_price_snapshot: number; quantity: number; line_total_cents: number }) => ({
+        (item: {
+          name_snapshot: string;
+          base_price_snapshot: number;
+          quantity: number;
+          line_total_cents: number;
+        }) => ({
           name: item.name_snapshot,
           basePrice: item.base_price_snapshot,
           quantity: item.quantity,

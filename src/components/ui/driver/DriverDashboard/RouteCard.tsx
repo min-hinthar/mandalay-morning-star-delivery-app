@@ -44,16 +44,13 @@ export function RouteCard({
           <Calendar className="w-12 h-12 text-text-muted mx-auto mb-3" />
         </m.div>
         <p className="font-semibold text-text-primary">No Route Today</p>
-        <p className="text-sm text-text-muted mt-1">
-          Enjoy your day off! Check back tomorrow.
-        </p>
+        <p className="text-sm text-text-muted mt-1">Enjoy your day off! Check back tomorrow.</p>
       </m.div>
     );
   }
 
-  const progress = route.stopCount > 0
-    ? Math.round((route.deliveredCount / route.stopCount) * 100)
-    : 0;
+  const progress =
+    route.stopCount > 0 ? Math.round((route.deliveredCount / route.stopCount) * 100) : 0;
 
   return (
     <m.div
@@ -135,12 +132,14 @@ export function RouteCard({
       <div className="p-4 pt-0">
         {route.status === "planned" && (
           <Button variant="primary" size="lg" className="w-full gap-2" onClick={onStartRoute}>
-            <Zap className="w-5 h-5" />Start Route
+            <Zap className="w-5 h-5" />
+            Start Route
           </Button>
         )}
         {route.status === "in_progress" && (
           <Button variant="primary" size="lg" className="w-full gap-2" onClick={onContinueRoute}>
-            Continue Route<ChevronRight className="w-5 h-5" />
+            Continue Route
+            <ChevronRight className="w-5 h-5" />
           </Button>
         )}
         {route.status === "completed" && (

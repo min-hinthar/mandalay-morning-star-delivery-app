@@ -40,9 +40,7 @@ export function DeleteAddressDialog({
         {address && (
           <div className="py-4">
             <div className="bg-surface-secondary rounded-card-sm p-4">
-              <p className="font-medium text-text-primary">
-                {address.label || "Address"}
-              </p>
+              <p className="font-medium text-text-primary">{address.label || "Address"}</p>
               <p className="text-sm text-text-secondary">{address.line1}</p>
               <p className="text-sm text-text-secondary">
                 {address.city}, {address.state} {address.postalCode}
@@ -54,12 +52,7 @@ export function DeleteAddressDialog({
           <Button variant="ghost" onClick={onCancel}>
             Cancel
           </Button>
-          <Button
-            variant="danger"
-            onClick={onConfirm}
-            disabled={isDeleting}
-            isLoading={isDeleting}
-          >
+          <Button variant="danger" onClick={onConfirm} disabled={isDeleting} isLoading={isDeleting}>
             Delete Address
           </Button>
         </DialogFooter>

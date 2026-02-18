@@ -14,6 +14,7 @@ Auth pages feel premium and trustworthy — branded design, social login (Google
 ## Implementation Decisions
 
 ### Auth Page Visual Identity
+
 - **Mood:** Warm & inviting — soft gradients, warm tones, gentle floating food
 - **Layout:** Centered card on desktop over animated background; full-width card on mobile
 - **Floating food:** Medium density (10-15 generic food emojis), varied sizes for depth, keep on mobile too
@@ -26,6 +27,7 @@ Auth pages feel premium and trustworthy — branded design, social login (Google
 - **Food component:** Reuse existing FloatingFoodEmojis from Phase 49
 
 ### Auth Method — Purely Passwordless
+
 - **Magic Link:** Email field sends magic link — no password field
 - **Google OAuth:** via Supabase OAuth
 - **Apple OAuth:** via Supabase OAuth (required, not optional)
@@ -33,6 +35,7 @@ Auth pages feel premium and trustworthy — branded design, social login (Google
 - **Removed routes:** Forgot-password and reset-password pages removed entirely
 
 ### Form Interaction & Flow
+
 - **Email field focus:** Floating label lift + subtle warm border glow (both combined)
 - **Validation:** Animated shake on invalid submit + inline error text below field
 - **Submit button:** Progress animation (gradient fill) while waiting for magic link to send
@@ -40,6 +43,7 @@ Auth pages feel premium and trustworthy — branded design, social login (Google
 - **Legal links:** "By continuing, you agree to our Terms and Privacy Policy" at card bottom — create placeholder /terms and /privacy pages
 
 ### Social Login Presentation
+
 - **Order:** Email magic link first → "or continue with" divider → social buttons below
 - **Section label:** "Quick sign in" label above social buttons
 - **Button layout:** Icon-only rounded rectangles, Google and Apple side by side
@@ -52,6 +56,7 @@ Auth pages feel premium and trustworthy — branded design, social login (Google
 - **OAuth error:** Toast notification (non-intrusive, auto-dismiss)
 
 ### Magic Link Confirmation
+
 - **Transition:** In-place card transformation (no page change)
 - **Email display:** Show user's email ("We sent a link to john@example.com")
 - **Envelope animation:** Multi-stage — envelope floats in, pulses/glows while waiting, opens with sparkle when link is clicked
@@ -61,6 +66,7 @@ Auth pages feel premium and trustworthy — branded design, social login (Google
 - **Expired link:** Friendly error page with one-tap "Send a new link" button
 
 ### Login Success Ceremony
+
 - **Transition:** Logo-to-layout morph — logo icon transforms/morphs into app header logo position
 - **Duration:** Medium (2-3 seconds)
 - **Personalization:** Shows user's name and Google avatar if available ("Welcome, John!")
@@ -68,10 +74,12 @@ Auth pages feel premium and trustworthy — branded design, social login (Google
 - **New vs returning:** Same experience for all users
 
 ### Branded Magic Link Email
+
 - Custom branded email template via Supabase (Morning Star branding, warm colors, logo)
 - Not using Supabase default email
 
 ### Claude's Discretion
+
 - Card surface treatment (frosted glass vs solid — optimize for readability)
 - Google/Apple button styling within brand guidelines
 - Exact animation curves and timing
@@ -102,5 +110,5 @@ Auth pages feel premium and trustworthy — branded design, social login (Google
 
 ---
 
-*Phase: 53-auth-experience*
-*Context gathered: 2026-02-09*
+_Phase: 53-auth-experience_
+_Context gathered: 2026-02-09_

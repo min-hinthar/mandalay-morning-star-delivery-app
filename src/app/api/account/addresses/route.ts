@@ -116,8 +116,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { label, line1, line2, city, state, postalCode, lat, lng, isDefault } =
-      result.data;
+    const { label, line1, line2, city, state, postalCode, lat, lng, isDefault } = result.data;
 
     const isFirstAddress = !count || count === 0;
     const shouldBeDefault = isDefault || isFirstAddress;

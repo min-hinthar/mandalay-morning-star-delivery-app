@@ -51,9 +51,7 @@ export function ActivityStatsCard() {
 
   return (
     <div className="rounded-card border border-border bg-surface-primary p-5 space-y-4">
-      <h2 className="font-display text-lg font-semibold text-text-primary">
-        Activity
-      </h2>
+      <h2 className="font-display text-lg font-semibold text-text-primary">Activity</h2>
 
       {loading ? (
         <div className="space-y-3">
@@ -77,9 +75,7 @@ export function ActivityStatsCard() {
             </div>
             <div>
               <p className="text-sm text-text-secondary">Last login</p>
-              <p className="text-base font-medium text-text-primary">
-                {lastLoginFormatted}
-              </p>
+              <p className="text-base font-medium text-text-primary">{lastLoginFormatted}</p>
             </div>
           </div>
 

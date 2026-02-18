@@ -52,6 +52,7 @@ completed: 2026-01-23
 - **Files created:** 1
 
 ## Accomplishments
+
 - TEST-01: Header clickability tests on /, /menu, /checkout routes including mobile viewport
 - TEST-02: Cart drawer open/close with DOM removal verification using .count()
 - TEST-03: Dropdown visibility and dismissal on outside click and Escape
@@ -66,9 +67,11 @@ Each task was committed atomically:
 3. **Task 3: Dropdown dismissal and no-blocking tests (TEST-03, TEST-04)** - `b94e43e` (test)
 
 ## Files Created/Modified
+
 - `e2e/v8-overlay-behavior.spec.ts` - 263 lines covering TEST-01 through TEST-04
 
 ## Decisions Made
+
 - Use `.count()` for DOM removal verification instead of just `not.toBeVisible()` - confirms AnimatePresence actually removes elements from DOM (the core V7->V8 fix)
 - Wait 400ms after Escape for AnimatePresence exit animations to complete
 - Conditional tests with `if (await element.isVisible())` for elements that may not exist on all routes
@@ -86,10 +89,12 @@ None.
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - V8 overlay behavior tests ready for CI integration
 - Tests verify the core V7->V8 click-blocking fix regression
 - Ready for plan 07-02 (mobile gesture tests) and 07-03 (visual regression)
 
 ---
-*Phase: 07-quality-testing*
-*Completed: 2026-01-23*
+
+_Phase: 07-quality-testing_
+_Completed: 2026-01-23_

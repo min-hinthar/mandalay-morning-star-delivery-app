@@ -2,15 +2,7 @@
 
 import { m } from "framer-motion";
 import { format, parseISO } from "date-fns";
-import {
-  ArrowLeft,
-  RefreshCw,
-  Play,
-  CheckCircle2,
-  Clock,
-  Zap,
-  AlertTriangle,
-} from "lucide-react";
+import { ArrowLeft, RefreshCw, Play, CheckCircle2, Clock, Zap, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +16,10 @@ import {
 import type { RouteStatus } from "@/types/driver";
 import type { RouteDetailResponse } from "./types";
 
-const STATUS_CONFIG: Record<RouteStatus, { label: string; className: string; icon: React.ReactNode }> = {
+const STATUS_CONFIG: Record<
+  RouteStatus,
+  { label: string; className: string; icon: React.ReactNode }
+> = {
   planned: {
     label: "Planned",
     className: "bg-status-info-bg text-status-info border-status-info/30",
@@ -32,7 +27,8 @@ const STATUS_CONFIG: Record<RouteStatus, { label: string; className: string; ico
   },
   in_progress: {
     label: "In Progress",
-    className: "bg-interactive-primary-light text-interactive-primary border-interactive-primary/30",
+    className:
+      "bg-interactive-primary-light text-interactive-primary border-interactive-primary/30",
     icon: <Play className="h-3.5 w-3.5" />,
   },
   completed: {
@@ -74,19 +70,12 @@ export function RouteHeader({
       className="flex flex-col md:flex-row md:items-center justify-between gap-4"
     >
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={onBack}
-          aria-label="Back to routes"
-        >
+        <Button variant="ghost" size="icon-sm" onClick={onBack} aria-label="Back to routes">
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-display text-text-primary">
-              Route Details
-            </h1>
+            <h1 className="text-2xl font-display text-text-primary">Route Details</h1>
             <Badge className={cn(statusConfig.className, "gap-1.5 border")}>
               {statusConfig.icon}
               {statusConfig.label}
@@ -115,11 +104,7 @@ export function RouteHeader({
         </Select>
 
         {route.status === "planned" && route.stops.length > 1 && (
-          <Button
-            variant="outline"
-            onClick={onOptimize}
-            leftIcon={<Zap className="h-4 w-4" />}
-          >
+          <Button variant="outline" onClick={onOptimize} leftIcon={<Zap className="h-4 w-4" />}>
             Optimize
           </Button>
         )}
@@ -134,12 +119,7 @@ export function RouteHeader({
           </Badge>
         )}
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onRefresh}
-          aria-label="Refresh route"
-        >
+        <Button variant="ghost" size="icon" onClick={onRefresh} aria-label="Refresh route">
           <RefreshCw className={cn("h-5 w-5", isUpdating && "animate-spin")} />
         </Button>
       </div>

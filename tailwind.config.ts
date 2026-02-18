@@ -273,7 +273,7 @@ const config: Config = {
       },
       spacing: {
         "0": "var(--space-0)",
-        "px": "var(--space-px)",
+        px: "var(--space-px)",
         "0.5": "var(--space-0-5)",
         "1": "var(--space-1)",
         "1.5": "var(--space-1-5)",
@@ -478,7 +478,8 @@ const config: Config = {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
         "pepper-gradient": "linear-gradient(-45deg, #A41034, #EBCD00, #52A52E, #00979D)",
-        "shimmer-gradient": "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+        "shimmer-gradient":
+          "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
       },
     },
   },

@@ -27,10 +27,7 @@ export const updateAddressSchema = createAddressSchema.partial();
 
 // Cancel order schema
 export const cancelOrderSchema = z.object({
-  reason: z
-    .string()
-    .min(10, "Please provide a reason (at least 10 characters)")
-    .max(500),
+  reason: z.string().min(10, "Please provide a reason (at least 10 characters)").max(500),
 });
 
 // Types

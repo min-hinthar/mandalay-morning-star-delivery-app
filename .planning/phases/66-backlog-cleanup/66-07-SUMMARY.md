@@ -60,6 +60,7 @@ completed: 2026-02-15
 - **Files modified:** 20 (Task 1) + 3 (Task 2)
 
 ## Accomplishments
+
 - Deleted both dead Supabase Edge Functions (send-order-confirmation + send-delivery-notification)
 - Removed 15 dead component/query files with zero imports
 - Removed 8 unused dependencies (5 prod + 3 dev)
@@ -75,6 +76,7 @@ Each task was committed atomically:
 2. **Task 2: Console.log cleanup and dead code audit report** - `3288e1d` (feat)
 
 ## Files Created/Modified
+
 - `supabase/functions/send-order-confirmation/` - Deleted (superseded by src/lib/email)
 - `supabase/functions/send-delivery-notification/` - Deleted (also superseded)
 - `src/components/ui/animated-image.tsx` - Deleted (zero imports)
@@ -93,6 +95,7 @@ Each task was committed atomically:
 - `.planning/phases/66-backlog-cleanup/66-07-DEAD-CODE-REPORT.md` - Full audit report
 
 ## Decisions Made
+
 - Deleted send-delivery-notification (confirmed dead via zero refs in src/ and supabase/ migrations)
 - Kept OrderDetailExpanded/config.ts (StatusTimelineCard, StatusChangeDialog, OrderHeaderCard all import from it)
 - Kept all database/analytics types as API contracts (conservative per plan guidance)
@@ -104,6 +107,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 2 - Missing Critical] send-delivery-notification also dead**
+
 - **Found during:** Task 1
 - **Issue:** Plan only confirmed send-order-confirmation dead; send-delivery-notification needed investigation
 - **Fix:** Verified zero references in src/ and supabase/, confirmed superseded by src/lib/email (Phase 54). Deleted.
@@ -111,6 +115,7 @@ Each task was committed atomically:
 - **Committed in:** d513452
 
 **2. [Rule 1 - Bug] OrderDetailExpanded barrel exported deleted components**
+
 - **Found during:** Task 1
 - **Issue:** After deleting 6 component files, index.tsx still exported OrderDetailExpanded and types
 - **Fix:** Updated barrel to re-export config.ts contents (STATUS_COLORS, STATUS_LABELS, etc.)
@@ -123,12 +128,15 @@ Each task was committed atomically:
 **Impact on plan:** Both necessary for correctness. No scope creep.
 
 ## Issues Encountered
+
 - Turbopack ENOENT build panic on first attempt (pre-existing OneDrive sync issue, documented in STATE.md). Cleared lock file and retried successfully.
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Dead code cleanup complete
 - Flagged items documented in 66-07-DEAD-CODE-REPORT.md for user review:
   - `/api/analytics/vitals` route (zero frontend refs, may be webhook target)
@@ -136,5 +144,6 @@ None - no external service configuration required.
 - Ready for remaining Phase 66 plans
 
 ---
-*Phase: 66-backlog-cleanup*
-*Completed: 2026-02-15*
+
+_Phase: 66-backlog-cleanup_
+_Completed: 2026-02-15_

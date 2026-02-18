@@ -87,10 +87,7 @@ export function useNavigationGuard({
   useEffect(() => {
     if (!enabled || allowBackNavigation) return;
 
-    if (
-      window.history.state?.navigationGuard &&
-      window.history.state._guardId
-    ) {
+    if (window.history.state?.navigationGuard && window.history.state._guardId) {
       guardIdRef.current = window.history.state._guardId;
       return;
     }
@@ -118,7 +115,7 @@ export function useNavigationGuard({
       window.history.pushState(
         { navigationGuard: true, _guardId: guardIdRef.current },
         "",
-        pathname,
+        pathname
       );
       pendingUrlRef.current = null; // back nav — proceed uses history.go
       setShowModal(true);
@@ -162,7 +159,7 @@ export function useNavigationGuard({
     window.history.pushState = function patchedPushState(
       data: unknown,
       unused: string,
-      url?: string | URL | null,
+      url?: string | URL | null
     ) {
       // If guard is disabled or no URL, pass through
       if (!enabledRef.current || !url) {

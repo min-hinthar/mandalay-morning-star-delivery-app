@@ -13,8 +13,4 @@ export { useFuzzySearch } from "./use-fuzzy-search";
 export type { EnrichedMenuItem, FuseSearchResult } from "./use-fuzzy-search";
 
 // Category helpers
-export {
-  groupResultsByCategory,
-  getCategoryEmoji,
-  deriveCategoryTabs,
-} from "./category-helpers";
+export { groupResultsByCategory, getCategoryEmoji, deriveCategoryTabs } from "./category-helpers";

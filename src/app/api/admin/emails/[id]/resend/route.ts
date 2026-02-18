@@ -45,10 +45,7 @@ interface ProfileRow {
  *
  * Resend a failed email. Only works for emails with status 'failed'.
  */
-export async function POST(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: logId } = await params;
 
   try {
@@ -69,44 +66,35 @@ export async function POST(
     };
 
     if (logError || !logEntry) {
-      return NextResponse.json(
-        { error: "Email log not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Email log not found" }, { status: 404 });
     }
 
     // Only resend failed emails
     if (logEntry.status !== "failed") {
-      return NextResponse.json(
-        { error: "Only failed emails can be resent" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Only failed emails can be resent" }, { status: 400 });
     }
 
     // Fetch order data to reconstruct the email
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: orderError } = (await supabase
       .from("orders")
       .select(
-        "id, user_id, total_cents, delivery_fee_cents, tax_cents, subtotal_cents, tip_cents, status, created_at, delivery_address, delivery_instructions, special_instructions",
+        "id, user_id, total_cents, delivery_fee_cents, tax_cents, subtotal_cents, tip_cents, status, created_at, delivery_address, delivery_instructions, special_instructions"
       )
       .eq("id", logEntry.order_id)
-      .single() as {
+      .single()) as {
       data: OrderRow | null;
       error: { message: string } | null;
     };
 
     if (orderError || !order) {
-      return NextResponse.json(
-        { error: "Original order not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Original order not found" }, { status: 404 });
     }
 
     // Fetch order items
-    const { data: orderItems } = await supabase
+    const { data: orderItems } = (await supabase
       .from("order_items")
       .select("name_snapshot, quantity, line_total_cents")
-      .eq("order_id", order.id) as {
+      .eq("order_id", order.id)) as {
       data: OrderItemRow[] | null;
     };
 
@@ -192,7 +180,7 @@ export async function POST(
     if (!result.success) {
       return NextResponse.json(
         { error: result.error || "Failed to resend email" },
-        { status: 500 },
+        { status: 500 }
       );
     }
 
@@ -208,9 +196,6 @@ export async function POST(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/emails/[id]/resend" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

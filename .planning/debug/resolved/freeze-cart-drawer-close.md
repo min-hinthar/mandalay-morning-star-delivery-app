@@ -32,10 +32,10 @@ started: After commits e456d66 and 7feac9b
 - timestamp: 2026-01-30T12:06:00Z
   checked: All useCartAnimationStore usages across codebase
   found: |
-    - CartButton.tsx line 41: uses selector (s) => s.setBadgeRef - CORRECT
-    - CartIndicator.tsx line 55: uses selector (s) => s.setBadgeRef - CORRECT
-    - FlyToCart.tsx line 64: NO selector - subscribes to all state - BUG
-  implication: FlyToCart.tsx is the only component without a selector
+  - CartButton.tsx line 41: uses selector (s) => s.setBadgeRef - CORRECT
+  - CartIndicator.tsx line 55: uses selector (s) => s.setBadgeRef - CORRECT
+  - FlyToCart.tsx line 64: NO selector - subscribes to all state - BUG
+    implication: FlyToCart.tsx is the only component without a selector
 
 - timestamp: 2026-01-30T12:07:00Z
   checked: AddToCartButton.tsx usage of useFlyToCart
@@ -45,11 +45,11 @@ started: After commits e456d66 and 7feac9b
 - timestamp: 2026-01-30T12:08:00Z
   checked: Store state changes that trigger re-renders
   found: |
-    - setBadgeRef on mount/unmount
-    - setIsAnimating during animation
-    - setFlyingElement during animation
-    - shouldPulseBadge changes (true->false after 300ms)
-  implication: When ItemDetailSheet closes, if any animation state changes, ALL useFlyToCart subscribers re-render
+  - setBadgeRef on mount/unmount
+  - setIsAnimating during animation
+  - setFlyingElement during animation
+  - shouldPulseBadge changes (true->false after 300ms)
+    implication: When ItemDetailSheet closes, if any animation state changes, ALL useFlyToCart subscribers re-render
 
 - timestamp: 2026-01-30T12:09:00Z
   checked: Commit 7feac9b fix analysis
@@ -64,31 +64,35 @@ started: After commits e456d66 and 7feac9b
 ## Resolution
 
 root_cause: |
-  useFlyToCart hook in FlyToCart.tsx (line 64) calls useCartAnimationStore() without a selector,
-  subscribing to the ENTIRE store state. This causes:
-  1. Every component using useFlyToCart (like AddToCartButton) re-renders on ANY store change
-  2. Store changes are frequent: badge registration, animation states, pulse timing
-  3. On page load: CartButton/CartIndicator call setBadgeRef -> all useFlyToCart subscribers re-render
-  4. On sheet/drawer close: cleanup or state changes trigger cascading re-renders
+useFlyToCart hook in FlyToCart.tsx (line 64) calls useCartAnimationStore() without a selector,
+subscribing to the ENTIRE store state. This causes:
 
-  Previous fix (7feac9b) only fixed the cleanup function to use getState(), but the main
-  hook still subscribes to the entire store via destructuring.
+1. Every component using useFlyToCart (like AddToCartButton) re-renders on ANY store change
+2. Store changes are frequent: badge registration, animation states, pulse timing
+3. On page load: CartButton/CartIndicator call setBadgeRef -> all useFlyToCart subscribers re-render
+4. On sheet/drawer close: cleanup or state changes trigger cascading re-renders
+
+Previous fix (7feac9b) only fixed the cleanup function to use getState(), but the main
+hook still subscribes to the entire store via destructuring.
 
 fix: |
-  Changed FlyToCart.tsx useFlyToCart hook to use individual selectors for each store value:
-  - const badgeRef = useCartAnimationStore((s) => s.badgeRef);
-  - const isAnimating = useCartAnimationStore((s) => s.isAnimating);
-  - const setIsAnimating = useCartAnimationStore((s) => s.setIsAnimating);
-  - const setFlyingElement = useCartAnimationStore((s) => s.setFlyingElement);
-  - const triggerBadgePulse = useCartAnimationStore((s) => s.triggerBadgePulse);
+Changed FlyToCart.tsx useFlyToCart hook to use individual selectors for each store value:
 
-  Now components only re-render when their specific subscribed values change.
+- const badgeRef = useCartAnimationStore((s) => s.badgeRef);
+- const isAnimating = useCartAnimationStore((s) => s.isAnimating);
+- const setIsAnimating = useCartAnimationStore((s) => s.setIsAnimating);
+- const setFlyingElement = useCartAnimationStore((s) => s.setFlyingElement);
+- const triggerBadgePulse = useCartAnimationStore((s) => s.triggerBadgePulse);
+
+Now components only re-render when their specific subscribed values change.
 
 verification: |
-  - TypeScript typecheck: PASS
-  - ESLint: PASS
-  - Production build: PASS
-  - Manual testing needed: page load, item detail sheet close, cart drawer close
+
+- TypeScript typecheck: PASS
+- ESLint: PASS
+- Production build: PASS
+- Manual testing needed: page load, item detail sheet close, cart drawer close
 
 files_changed:
-  - src/components/ui/cart/FlyToCart.tsx
+
+- src/components/ui/cart/FlyToCart.tsx

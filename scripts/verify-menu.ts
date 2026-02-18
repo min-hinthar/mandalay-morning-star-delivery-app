@@ -101,9 +101,7 @@ async function verifyMenu(): Promise<void> {
 
   sampleRows.forEach((item) => {
     console.log(
-      `  ${item.name_en} / ${item.name_my ?? "N/A"} - $${(
-        item.base_price_cents / 100
-      ).toFixed(2)}`
+      `  ${item.name_en} / ${item.name_my ?? "N/A"} - $${(item.base_price_cents / 100).toFixed(2)}`
     );
     if (item.allergens?.length) {
       console.log(`    Allergens: ${item.allergens.join(", ")}`);
@@ -123,9 +121,7 @@ async function verifyMenu(): Promise<void> {
     console.log(`  ${group.name} (${group.selection_type}):`);
     (group.modifier_options ?? []).forEach((option) => {
       const delta =
-        option.price_delta_cents > 0
-          ? ` +$${(option.price_delta_cents / 100).toFixed(2)}`
-          : "";
+        option.price_delta_cents > 0 ? ` +$${(option.price_delta_cents / 100).toFixed(2)}` : "";
       console.log(`    - ${option.name}${delta}`);
     });
   });

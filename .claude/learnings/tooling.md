@@ -15,6 +15,7 @@ git mv login-form.tsx login-form.tsx.tmp && git mv login-form.tsx.tmp LoginForm.
 ## Component Deletion Requires Barrel Cleanup
 
 When deleting component files:
+
 1. Remove exports from `index.ts` barrel files
 2. Check for imports across codebase
 3. Verify deletion didn't break type exports
@@ -28,10 +29,12 @@ When deleting component files:
 Use `no-restricted-imports` with multiple path patterns per directory:
 
 ```javascript
-patterns: [{
-  group: ["@/components/menu/*", "@/components/menu", "**/components/menu/*"],
-  message: "menu/ consolidated into ui/menu/. Import from @/components/ui/menu."
-}]
+patterns: [
+  {
+    group: ["@/components/menu/*", "@/components/menu", "**/components/menu/*"],
+    message: "menu/ consolidated into ui/menu/. Import from @/components/ui/menu.",
+  },
+];
 ```
 
 Pattern elements: `@/components/dir/*` (aliased deep), `@/components/dir` (aliased barrel), `**/components/dir/*` (relative).
@@ -43,6 +46,7 @@ Pattern elements: `@/components/dir/*` (aliased deep), `@/components/dir` (alias
 ## Barrel Export Organization
 
 Group exports by feature domain with comments:
+
 ```tsx
 // Category navigation
 export { CategoryTabsV8 } from "./CategoryTabsV8";
@@ -60,17 +64,16 @@ Google Fonts 403 errors in sandboxed environments are infrastructure issues, not
 
 ## Multiple Overlay Components is Intentional Architecture
 
-| Component | Purpose |
-|-----------|---------|
-| Drawer.tsx | Universal side/bottom drawer |
-| MobileDrawer.tsx | Left navigation menu |
-| Modal.tsx | Centered dialogs |
-| AuthModal.tsx | Auth flow |
-| ExceptionModal.tsx | Driver exceptions |
-| Dialog (Radix) | Admin forms |
+| Component          | Purpose                      |
+| ------------------ | ---------------------------- |
+| Drawer.tsx         | Universal side/bottom drawer |
+| MobileDrawer.tsx   | Left navigation menu         |
+| Modal.tsx          | Centered dialogs             |
+| AuthModal.tsx      | Auth flow                    |
+| ExceptionModal.tsx | Driver exceptions            |
+| Dialog (Radix)     | Admin forms                  |
 
 They share hooks (`useBodyScrollLock`, `useSwipeToClose`) but are architecturally separate. Fix shared hooks (affects all) vs component-specific code (affects one).
-
 
 ## CI Lint Uses --max-warnings 0
 

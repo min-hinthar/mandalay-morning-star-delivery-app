@@ -23,14 +23,16 @@ next_action: Fix all three issues
 ## Symptoms
 
 expected:
-  - Step 2 date picker should show specific week ranges like "next week", "next 2 weeks", "next 3 weeks" etc.
-  - Step 3 delivery time span text color should NOT be muted
-  - Step 3 place order button should be properly styled
+
+- Step 2 date picker should show specific week ranges like "next week", "next 2 weeks", "next 3 weeks" etc.
+- Step 3 delivery time span text color should NOT be muted
+- Step 3 place order button should be properly styled
 
 actual:
-  - Date picker showing generic "next week" instead of specific week ranges
-  - Delivery time text is muted/grayed out
-  - Place order button lacks proper styling
+
+- Date picker showing generic "next week" instead of specific week ranges
+- Delivery time text is muted/grayed out
+- Place order button lacks proper styling
 
 errors: None - styling/display issues
 
@@ -45,22 +47,26 @@ started: Never worked - always broken
 ## Resolution
 
 root_cause: |
-  Three separate styling/display issues:
-  1. TimeSlotPicker showed "Next Week" for all future dates instead of "In X Weeks"
-  2. TimeSlotDisplay used `text-muted` class making delivery time text too dim
-  3. Place Order button used custom inline styles with undefined `bg-status-success` token
+Three separate styling/display issues:
+
+1. TimeSlotPicker showed "Next Week" for all future dates instead of "In X Weeks"
+2. TimeSlotDisplay used `text-muted` class making delivery time text too dim
+3. Place Order button used custom inline styles with undefined `bg-status-success` token
 
 fix: |
-  1. Added `weekOffset` prop to DatePill component and calculated offsets based on whether first date cutoff passed. Badge now shows "Next Week", "In 2 Weeks", "In 3 Weeks" appropriately.
-  2. Changed TimeSlotDisplay spans from `text-muted` to `text-text-primary` and added `text-primary` to icons for better visibility.
-  3. Replaced custom motion.button with Button component using `variant="success"` which has proper styling including `bg-green`, hover states, and built-in loading state handling.
+
+1. Added `weekOffset` prop to DatePill component and calculated offsets based on whether first date cutoff passed. Badge now shows "Next Week", "In 2 Weeks", "In 3 Weeks" appropriately.
+2. Changed TimeSlotDisplay spans from `text-muted` to `text-text-primary` and added `text-primary` to icons for better visibility.
+3. Replaced custom motion.button with Button component using `variant="success"` which has proper styling including `bg-green`, hover states, and built-in loading state handling.
 
 verification: |
-  - TypeScript: No errors
-  - ESLint: No errors
-  - Build: Successful
+
+- TypeScript: No errors
+- ESLint: No errors
+- Build: Successful
 
 files_changed:
-  - src/components/ui/checkout/TimeSlotPicker.tsx
-  - src/components/ui/checkout/TimeSlotDisplay.tsx
-  - src/components/ui/checkout/PaymentStepV8.tsx
+
+- src/components/ui/checkout/TimeSlotPicker.tsx
+- src/components/ui/checkout/TimeSlotDisplay.tsx
+- src/components/ui/checkout/PaymentStepV8.tsx

@@ -93,17 +93,14 @@ export function ExceptionModal({
         return;
       }
 
-      const response = await fetch(
-        `/api/driver/routes/${routeId}/stops/${stopId}/exception`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type: selectedType,
-            description: description.trim() || undefined,
-          }),
-        }
-      );
+      const response = await fetch(`/api/driver/routes/${routeId}/stops/${stopId}/exception`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: selectedType,
+          description: description.trim() || undefined,
+        }),
+      });
 
       if (!response.ok) {
         const status = response.status;

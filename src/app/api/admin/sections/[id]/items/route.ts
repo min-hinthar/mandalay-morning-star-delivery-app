@@ -9,7 +9,14 @@ interface SectionItem {
   sort_order: number;
   menu_items: Pick<
     MenuItemsRow,
-    "id" | "name_en" | "name_my" | "description_en" | "image_url" | "base_price_cents" | "is_active" | "is_sold_out"
+    | "id"
+    | "name_en"
+    | "name_my"
+    | "description_en"
+    | "image_url"
+    | "base_price_cents"
+    | "is_active"
+    | "is_sold_out"
   >;
 }
 
@@ -21,10 +28,7 @@ const reorderItemsSchema = z.object({
   itemIds: z.array(z.string().uuid()),
 });
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const auth = await requireAdmin();
@@ -48,7 +52,8 @@ export async function GET(
 
     const { data: items, error } = await auth.supabase
       .from("featured_section_items")
-      .select(`
+      .select(
+        `
         item_id,
         sort_order,
         menu_items (
@@ -61,17 +66,15 @@ export async function GET(
           is_active,
           is_sold_out
         )
-      `)
+      `
+      )
       .eq("section_id", id)
       .order("sort_order", { ascending: true })
       .returns<SectionItem[]>();
 
     if (error) {
       logger.exception(error, { api: "admin/sections/[id]/items", flowId: "fetch" });
-      return NextResponse.json(
-        { error: "Failed to fetch items" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch items" }, { status: 500 });
     }
 
     const transformed = items.map((item) => ({
@@ -89,17 +92,11 @@ export async function GET(
     return NextResponse.json(transformed);
   } catch (error) {
     logger.exception(error, { api: "admin/sections/[id]/items", flowId: "fetch" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const auth = await requireAdmin();
@@ -171,10 +168,7 @@ export async function POST(
       }));
 
     if (itemsToInsert.length === 0) {
-      return NextResponse.json(
-        { error: "No valid items to add" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "No valid items to add" }, { status: 400 });
     }
 
     const { error: insertError } = await auth.supabase
@@ -183,10 +177,7 @@ export async function POST(
 
     if (insertError) {
       logger.exception(insertError, { api: "admin/sections/[id]/items", flowId: "add" });
-      return NextResponse.json(
-        { error: "Failed to add items" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to add items" }, { status: 500 });
     }
 
     // Update section updated_at
@@ -201,7 +192,8 @@ export async function POST(
     // Return updated items list
     const { data: items } = await auth.supabase
       .from("featured_section_items")
-      .select(`
+      .select(
+        `
         item_id,
         sort_order,
         menu_items (
@@ -214,37 +206,33 @@ export async function POST(
           is_active,
           is_sold_out
         )
-      `)
+      `
+      )
       .eq("section_id", id)
       .order("sort_order", { ascending: true })
       .returns<SectionItem[]>();
 
-    const transformed = items?.map((item) => ({
-      id: item.menu_items.id,
-      nameEn: item.menu_items.name_en,
-      nameMy: item.menu_items.name_my,
-      descriptionEn: item.menu_items.description_en,
-      imageUrl: item.menu_items.image_url,
-      basePriceCents: item.menu_items.base_price_cents,
-      isActive: item.menu_items.is_active,
-      isSoldOut: item.menu_items.is_sold_out,
-      sortOrder: item.sort_order,
-    })) ?? [];
+    const transformed =
+      items?.map((item) => ({
+        id: item.menu_items.id,
+        nameEn: item.menu_items.name_en,
+        nameMy: item.menu_items.name_my,
+        descriptionEn: item.menu_items.description_en,
+        imageUrl: item.menu_items.image_url,
+        basePriceCents: item.menu_items.base_price_cents,
+        isActive: item.menu_items.is_active,
+        isSoldOut: item.menu_items.is_sold_out,
+        sortOrder: item.sort_order,
+      })) ?? [];
 
     return NextResponse.json(transformed, { status: 201 });
   } catch (error) {
     logger.exception(error, { api: "admin/sections/[id]/items", flowId: "add" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const auth = await requireAdmin();
@@ -256,10 +244,7 @@ export async function DELETE(
     const itemId = searchParams.get("itemId");
 
     if (!itemId) {
-      return NextResponse.json(
-        { error: "itemId query parameter required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "itemId query parameter required" }, { status: 400 });
     }
 
     const { error } = await auth.supabase
@@ -270,10 +255,7 @@ export async function DELETE(
 
     if (error) {
       logger.exception(error, { api: "admin/sections/[id]/items", flowId: "remove" });
-      return NextResponse.json(
-        { error: "Failed to remove item" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to remove item" }, { status: 500 });
     }
 
     // Update section updated_at
@@ -288,17 +270,11 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     logger.exception(error, { api: "admin/sections/[id]/items", flowId: "remove" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const auth = await requireAdmin();
@@ -339,9 +315,6 @@ export async function PATCH(
     return NextResponse.json({ success: true });
   } catch (error) {
     logger.exception(error, { api: "admin/sections/[id]/items", flowId: "reorder" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

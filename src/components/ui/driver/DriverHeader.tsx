@@ -60,16 +60,12 @@ export function DriverHeader({
         )}
         <div className="flex flex-col">
           <h1 className="font-display text-lg font-semibold text-text-primary">{title}</h1>
-          {subtitle && (
-            <p className="font-body text-sm text-text-secondary">{subtitle}</p>
-          )}
+          {subtitle && <p className="font-body text-sm text-text-secondary">{subtitle}</p>}
         </div>
       </div>
 
       {/* Right side - custom content */}
-      {rightContent && (
-        <div className="flex items-center gap-2">{rightContent}</div>
-      )}
+      {rightContent && <div className="flex items-center gap-2">{rightContent}</div>}
     </header>
   );
 }

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { Plus, Loader2, FolderTree } from "lucide-react";
@@ -36,7 +36,11 @@ export function AddCategoryDialog({ onCategoryCreated }: AddCategoryDialogProps)
 
   const handleCreate = async () => {
     if (!newCategory.name.trim() || !newCategory.slug.trim()) {
-      toast({ title: "Validation error", description: "Name and slug are required", variant: "destructive" });
+      toast({
+        title: "Validation error",
+        description: "Name and slug are required",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -56,7 +60,10 @@ export function AddCategoryDialog({ onCategoryCreated }: AddCategoryDialogProps)
         throw new Error(error.error || "Failed to create category");
       }
 
-      toast({ title: "Created", description: `Category "${newCategory.name}" created successfully` });
+      toast({
+        title: "Created",
+        description: `Category "${newCategory.name}" created successfully`,
+      });
       setNewCategory({ name: "", slug: "" });
       setOpen(false);
       onCategoryCreated();
@@ -88,16 +95,12 @@ export function AddCategoryDialog({ onCategoryCreated }: AddCategoryDialogProps)
             Add New Category
           </DialogTitle>
           <DialogDescription className="font-body text-text-secondary">
-            Create a new menu category. Categories are used to organize
-            menu items.
+            Create a new menu category. Categories are used to organize menu items.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label
-              htmlFor="name"
-              className="text-sm font-body font-medium text-text-primary"
-            >
+            <Label htmlFor="name" className="text-sm font-body font-medium text-text-primary">
               Name
             </Label>
             <Input
@@ -115,10 +118,7 @@ export function AddCategoryDialog({ onCategoryCreated }: AddCategoryDialogProps)
             />
           </div>
           <div className="space-y-2">
-            <Label
-              htmlFor="slug"
-              className="text-sm font-body font-medium text-text-primary"
-            >
+            <Label htmlFor="slug" className="text-sm font-body font-medium text-text-primary">
               Slug
             </Label>
             <Input

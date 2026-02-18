@@ -82,13 +82,13 @@ Each task was committed atomically:
 
 ## Key Integrations
 
-| Component | Source | Purpose |
-|-----------|--------|---------|
-| Modal | Phase 2 (ui-v8/Modal) | Desktop overlay |
-| BottomSheet | Phase 2 (ui-v8/BottomSheet) | Mobile overlay |
-| AddToCartButton | Phase 4 (ui-v8/cart) | Add to cart with fly animation |
-| ModifierGroup | V6 (menu/modifier-group) | Modifier selection |
-| QuantitySelector | V6 (menu/quantity-selector) | Quantity control |
+| Component        | Source                      | Purpose                        |
+| ---------------- | --------------------------- | ------------------------------ |
+| Modal            | Phase 2 (ui-v8/Modal)       | Desktop overlay                |
+| BottomSheet      | Phase 2 (ui-v8/BottomSheet) | Mobile overlay                 |
+| AddToCartButton  | Phase 4 (ui-v8/cart)        | Add to cart with fly animation |
+| ModifierGroup    | V6 (menu/modifier-group)    | Modifier selection             |
+| QuantitySelector | V6 (menu/quantity-selector) | Quantity control               |
 
 ## Decisions Made
 
@@ -115,6 +115,7 @@ None - no external service configuration required.
 - Compatible with existing MenuItem type from `@/types/menu`
 
 ---
-*Phase: 05-menu-browsing*
-*Plan: 03*
-*Completed: 2026-01-23*
+
+_Phase: 05-menu-browsing_
+_Plan: 03_
+_Completed: 2026-01-23_

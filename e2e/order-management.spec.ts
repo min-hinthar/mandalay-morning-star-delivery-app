@@ -18,7 +18,10 @@ test.describe("Order History", () => {
 
     // Should redirect to login or show auth required message
     const isOnLoginPage = page.url().includes("login");
-    const hasAuthMessage = await page.getByText(/login|sign in|authenticate/i).isVisible().catch(() => false);
+    const hasAuthMessage = await page
+      .getByText(/login|sign in|authenticate/i)
+      .isVisible()
+      .catch(() => false);
 
     expect(isOnLoginPage || hasAuthMessage).toBeTruthy();
   });

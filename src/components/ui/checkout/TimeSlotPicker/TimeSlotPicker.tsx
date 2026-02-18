@@ -42,18 +42,14 @@ export function TimeSlotPicker({
 
   const weekOffsets = useMemo(() => {
     const firstDateCutoffPassed = availableDates[0]?.cutoffPassed ?? false;
-    return availableDates.map((_, index) =>
-      firstDateCutoffPassed ? index + 1 : index
-    );
+    return availableDates.map((_, index) => (firstDateCutoffPassed ? index + 1 : index));
   }, [availableDates]);
 
   const updateScrollButtons = useCallback(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
     setCanScrollLeft(container.scrollLeft > 0);
-    setCanScrollRight(
-      container.scrollLeft < container.scrollWidth - container.clientWidth - 10
-    );
+    setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 10);
   }, []);
 
   useEffect(() => {
@@ -78,24 +74,30 @@ export function TimeSlotPicker({
     });
   }, []);
 
-  const handleDateSelect = useCallback((date: DeliveryDate) => {
-    if (date.cutoffPassed) return;
-    if (selectedDelivery && selectedDelivery.date === date.dateString) return;
-    onSelectionChange({
-      date: date.dateString,
-      windowStart: TIME_WINDOWS[0].start,
-      windowEnd: TIME_WINDOWS[0].end,
-    });
-  }, [selectedDelivery, onSelectionChange]);
+  const handleDateSelect = useCallback(
+    (date: DeliveryDate) => {
+      if (date.cutoffPassed) return;
+      if (selectedDelivery && selectedDelivery.date === date.dateString) return;
+      onSelectionChange({
+        date: date.dateString,
+        windowStart: TIME_WINDOWS[0].start,
+        windowEnd: TIME_WINDOWS[0].end,
+      });
+    },
+    [selectedDelivery, onSelectionChange]
+  );
 
-  const handleTimeSelect = useCallback((slot: TimeWindow) => {
-    if (!selectedDate) return;
-    onSelectionChange({
-      date: selectedDate,
-      windowStart: slot.start,
-      windowEnd: slot.end,
-    });
-  }, [selectedDate, onSelectionChange]);
+  const handleTimeSelect = useCallback(
+    (slot: TimeWindow) => {
+      if (!selectedDate) return;
+      onSelectionChange({
+        date: selectedDate,
+        windowStart: slot.start,
+        windowEnd: slot.end,
+      });
+    },
+    [selectedDate, onSelectionChange]
+  );
 
   return (
     <div className={cn("space-y-6 w-full", className)}>
@@ -194,8 +196,7 @@ export function TimeSlotPicker({
             >
               {TIME_WINDOWS.map((slot, index) => {
                 const isSlotSelected =
-                  selectedTime?.start === slot.start &&
-                  selectedTime?.end === slot.end;
+                  selectedTime?.start === slot.start && selectedTime?.end === slot.end;
                 return (
                   <TimeSlotPill
                     key={slot.start}

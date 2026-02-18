@@ -7,10 +7,7 @@ import { transformAddress, type AddressRow } from "../transform";
 import { logger } from "@/lib/utils/logger";
 
 // GET /api/addresses/[id]
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const supabase = await createClient();
@@ -51,10 +48,7 @@ export async function GET(
 }
 
 // PUT /api/addresses/[id]
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const supabase = await createClient();
@@ -166,11 +160,7 @@ export async function DELETE(
       );
     }
 
-    const { error } = await supabase
-      .from("addresses")
-      .delete()
-      .eq("id", id)
-      .eq("user_id", user.id);
+    const { error } = await supabase.from("addresses").delete().eq("id", id).eq("user_id", user.id);
 
     if (error) throw error;
 

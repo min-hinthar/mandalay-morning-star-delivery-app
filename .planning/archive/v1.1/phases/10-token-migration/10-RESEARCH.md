@@ -16,34 +16,34 @@ Research identified **30 files** requiring z-index migration and **4 components*
 
 ### Token System Architecture
 
-| Layer | File | Purpose | Usage |
-|-------|------|---------|-------|
-| TypeScript | `src/design-system/tokens/z-index.ts` | Runtime constants | `zIndex.modal`, `zIndexVar.modal`, `zClass.modal` |
-| CSS | `src/styles/tokens.css` | CSS custom properties | `var(--zindex-modal)` |
-| Tailwind | `tailwind.config.ts` | Utility classes | `z-modal`, `z-dropdown` |
+| Layer      | File                                  | Purpose               | Usage                                             |
+| ---------- | ------------------------------------- | --------------------- | ------------------------------------------------- |
+| TypeScript | `src/design-system/tokens/z-index.ts` | Runtime constants     | `zIndex.modal`, `zIndexVar.modal`, `zClass.modal` |
+| CSS        | `src/styles/tokens.css`               | CSS custom properties | `var(--zindex-modal)`                             |
+| Tailwind   | `tailwind.config.ts`                  | Utility classes       | `z-modal`, `z-dropdown`                           |
 
 ### Z-Index Token Values
 
-| Token | Value | Semantic Use |
-|-------|-------|--------------|
-| `base` | 0 | Default layer |
-| `dropdown` | 10 | Dropdown menus |
-| `sticky` | 20 | Sticky headers |
-| `fixed` | 30 | Fixed positioning |
-| `modalBackdrop` | 40 | Modal overlays |
-| `modal` | 50 | Modal content |
-| `popover` | 60 | Popovers, flyouts |
-| `tooltip` | 70 | Tooltips |
-| `toast` | 80 | Toast notifications |
-| `max` | 100 | Emergency override |
+| Token           | Value | Semantic Use        |
+| --------------- | ----- | ------------------- |
+| `base`          | 0     | Default layer       |
+| `dropdown`      | 10    | Dropdown menus      |
+| `sticky`        | 20    | Sticky headers      |
+| `fixed`         | 30    | Fixed positioning   |
+| `modalBackdrop` | 40    | Modal overlays      |
+| `modal`         | 50    | Modal content       |
+| `popover`       | 60    | Popovers, flyouts   |
+| `tooltip`       | 70    | Tooltips            |
+| `toast`         | 80    | Toast notifications |
+| `max`           | 100   | Emergency override  |
 
 ### Color Token System
 
-| Property | CSS Variable | Tailwind Class |
-|----------|--------------|----------------|
-| Primary red | `var(--color-primary)` | `bg-primary`, `text-primary` |
-| Secondary yellow | `var(--color-secondary)` | `bg-secondary`, `text-secondary` |
-| Accent green | `var(--color-accent-green)` | `bg-green`, `text-green` |
+| Property         | CSS Variable                | Tailwind Class                   |
+| ---------------- | --------------------------- | -------------------------------- |
+| Primary red      | `var(--color-primary)`      | `bg-primary`, `text-primary`     |
+| Secondary yellow | `var(--color-secondary)`    | `bg-secondary`, `text-secondary` |
+| Accent green     | `var(--color-accent-green)` | `bg-green`, `text-green`         |
 
 ## Architecture Patterns
 
@@ -52,6 +52,7 @@ Research identified **30 files** requiring z-index migration and **4 components*
 **What:** For inline styles, import and use the numeric constant
 **When to use:** `style={{ zIndex: value }}` patterns
 **Example:**
+
 ```typescript
 // Source: src/components/ui-v8/Modal.tsx
 import { zIndex } from "@/design-system/tokens/z-index";
@@ -68,6 +69,7 @@ style={{ zIndex: zIndex.modal }}
 **What:** For style objects needing CSS variable syntax
 **When to use:** When CSS cascading or theming is needed
 **Example:**
+
 ```typescript
 import { zIndexVar } from "@/design-system/tokens/z-index";
 
@@ -79,6 +81,7 @@ style={{ zIndex: zIndexVar.modal }} // outputs "var(--zindex-modal)"
 **What:** For className-based z-index
 **When to use:** Tailwind/className strings
 **Example:**
+
 ```typescript
 import { zClass } from "@/design-system/tokens/z-index";
 
@@ -97,6 +100,7 @@ className={zClass.dropdown}
 **What:** Replace hardcoded hex values with CSS custom properties
 **When to use:** Gradient backgrounds
 **Example:**
+
 ```typescript
 // Before
 className="bg-gradient-to-r from-[#D4A017] via-[#A41034] to-[#D4A017]"
@@ -118,12 +122,12 @@ style={{
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Z-index values | Custom constants | `zIndex` from tokens | Centralized, ESLint-enforced |
-| Z-index CSS vars | String templates | `zIndexVar` from tokens | Type-safe, consistent |
-| Z-index classes | String literals | Tailwind `z-modal` etc | Config-driven |
-| Chart colors | Inline hex codes | CSS custom properties | Theme-aware, maintainable |
+| Problem          | Don't Build      | Use Instead             | Why                          |
+| ---------------- | ---------------- | ----------------------- | ---------------------------- |
+| Z-index values   | Custom constants | `zIndex` from tokens    | Centralized, ESLint-enforced |
+| Z-index CSS vars | String templates | `zIndexVar` from tokens | Type-safe, consistent        |
+| Z-index classes  | String literals  | Tailwind `z-modal` etc  | Config-driven                |
+| Chart colors     | Inline hex codes | CSS custom properties   | Theme-aware, maintainable    |
 
 ## Common Pitfalls
 
@@ -201,10 +205,11 @@ import { zClass } from "@/design-system/tokens/z-index";
 
 ```typescript
 // Before (footer.tsx)
-className="bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f23]"
+className = "bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f23]";
 
 // After - use semantic surface colors
-className="bg-gradient-to-br from-[var(--color-surface-primary)] via-[var(--color-surface-secondary)] to-[var(--color-surface-tertiary)]"
+className =
+  "bg-gradient-to-br from-[var(--color-surface-primary)] via-[var(--color-surface-secondary)] to-[var(--color-surface-tertiary)]";
 
 // Or for dark footer specifically, add token:
 // In tokens.css: --color-footer-bg-start: #1a1a2e;
@@ -270,21 +275,23 @@ className="bg-gradient-to-br from-[var(--color-surface-primary)] via-[var(--colo
 
 ### Color Token Migration (4 files)
 
-| File | Hardcoded Colors | Migration Strategy |
-|------|------------------|-------------------|
-| `src/components/layout/footer.tsx` | `#1a1a2e`, `#16213e`, `#0f0f23`, rgba values | Add footer-specific dark surface tokens or use existing dark theme tokens |
-| `src/components/layout/header.tsx` | `#D4A017`, `#A41034` in gradients | Use `from-secondary via-primary to-secondary` |
-| `src/components/ui/FlipCard.tsx` | `#A41034`, `#7a0c27`, `#EBCD00` | Use `from-primary to-primary-active`, `text-secondary` |
-| `src/components/admin/analytics/Charts.tsx` | V7_COLORS object with hex values | Convert to use CSS custom properties |
-| `src/components/admin/analytics/PerformanceChart.tsx` | V5_CHART_COLORS object | Convert to use CSS custom properties |
-| `src/components/admin/RevenueChart.tsx` | V6_CHART_COLORS object | Convert to use CSS custom properties |
+| File                                                  | Hardcoded Colors                             | Migration Strategy                                                        |
+| ----------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------- |
+| `src/components/layout/footer.tsx`                    | `#1a1a2e`, `#16213e`, `#0f0f23`, rgba values | Add footer-specific dark surface tokens or use existing dark theme tokens |
+| `src/components/layout/header.tsx`                    | `#D4A017`, `#A41034` in gradients            | Use `from-secondary via-primary to-secondary`                             |
+| `src/components/ui/FlipCard.tsx`                      | `#A41034`, `#7a0c27`, `#EBCD00`              | Use `from-primary to-primary-active`, `text-secondary`                    |
+| `src/components/admin/analytics/Charts.tsx`           | V7_COLORS object with hex values             | Convert to use CSS custom properties                                      |
+| `src/components/admin/analytics/PerformanceChart.tsx` | V5_CHART_COLORS object                       | Convert to use CSS custom properties                                      |
+| `src/components/admin/RevenueChart.tsx`               | V6_CHART_COLORS object                       | Convert to use CSS custom properties                                      |
 
 ## ESLint Validation
 
 ### Rule Location
+
 `eslint.config.mjs` lines 41-74
 
 ### What It Catches
+
 ```javascript
 // Rule 1: Arbitrary z-[number] values
 "z-[10]", "z-[999]" // Flagged
@@ -297,6 +304,7 @@ style={{ zIndex: 50 }} // Flagged
 ```
 
 ### Running Validation
+
 ```bash
 # Check all files for z-index warnings
 pnpm lint 2>&1 | grep -c "z-index"
@@ -306,19 +314,21 @@ npx eslint --no-warn-ignored src/components/homepage/Hero.tsx
 ```
 
 ### What It Does NOT Catch
+
 - Negative z-index values (`-z-10`)
 - zIndex with expressions (`zIndex: 100 - index`)
 - Hardcoded colors (separate rule needed)
 
 ## State of the Art
 
-| Old Approach | Current Approach | Impact |
-|--------------|------------------|--------|
-| `z-50` class | `z-modal` class | Semantic, maintainable |
-| `zIndex: 50` inline | `zIndex: zIndex.modal` | Type-safe, centralized |
-| Hardcoded hex colors | CSS custom properties | Theme-aware, consistent |
+| Old Approach         | Current Approach       | Impact                  |
+| -------------------- | ---------------------- | ----------------------- |
+| `z-50` class         | `z-modal` class        | Semantic, maintainable  |
+| `zIndex: 50` inline  | `zIndex: zIndex.modal` | Type-safe, centralized  |
+| Hardcoded hex colors | CSS custom properties  | Theme-aware, consistent |
 
 **Already migrated (V8 components):**
+
 - `src/components/ui-v8/Modal.tsx`
 - `src/components/ui-v8/Toast.tsx`
 - `src/components/ui-v8/BottomSheet.tsx`
@@ -349,6 +359,7 @@ npx eslint --no-warn-ignored src/components/homepage/Hero.tsx
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - `src/design-system/tokens/z-index.ts` - Token definitions
 - `src/styles/tokens.css` - CSS custom properties (lines 254-263)
 - `tailwind.config.ts` - Tailwind z-index config (lines 266-277)
@@ -356,12 +367,14 @@ npx eslint --no-warn-ignored src/components/homepage/Hero.tsx
 - V8 component examples (Modal, Toast, Header, etc.)
 
 ### Secondary (MEDIUM confidence)
+
 - Grep results for z-index patterns across codebase
 - File inventory counts from glob searches
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Token system: HIGH - Verified from source files
 - File inventory: HIGH - Verified with grep/glob
 - Migration patterns: HIGH - Verified from V8 examples

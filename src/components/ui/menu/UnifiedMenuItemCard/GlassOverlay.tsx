@@ -43,10 +43,7 @@ export const GlassOverlay = memo(function GlassOverlay({
     >
       {/* Base glass surface */}
       <div
-        className={cn(
-          "absolute inset-0 glass-menu-card",
-          rounded
-        )}
+        className={cn("absolute inset-0 glass-menu-card", rounded)}
         style={{
           overflow: "hidden",
           // Safari backface fix

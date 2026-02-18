@@ -47,10 +47,7 @@ export async function POST(
       .single();
 
     if (routeError || !route) {
-      return NextResponse.json(
-        { error: "Route not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Route not found" }, { status: 404 });
     }
 
     // Verify driver owns this route
@@ -71,10 +68,7 @@ export async function POST(
       .single();
 
     if (stopError || !stop) {
-      return NextResponse.json(
-        { error: "Stop not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Stop not found" }, { status: 404 });
     }
 
     // Parse multipart form data
@@ -82,18 +76,12 @@ export async function POST(
     const file = formData.get("photo") as File | null;
 
     if (!file) {
-      return NextResponse.json(
-        { error: "No photo file provided" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "No photo file provided" }, { status: 400 });
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { error: "File too large. Max size is 5MB." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "File too large. Max size is 5MB." }, { status: 400 });
     }
 
     // Validate file type
@@ -119,24 +107,16 @@ export async function POST(
 
     if (uploadError) {
       logger.exception(uploadError, { api: "driver/routes/[routeId]/stops/[stopId]/photo" });
-      return NextResponse.json(
-        { error: "Failed to upload photo" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to upload photo" }, { status: 500 });
     }
 
     // Get public URL
-    const { data: urlData } = supabase.storage
-      .from("delivery-photos")
-      .getPublicUrl(filename);
+    const { data: urlData } = supabase.storage.from("delivery-photos").getPublicUrl(filename);
 
     const photoUrl = urlData.publicUrl;
 
     // Update stop with photo URL
-    await supabase
-      .from("route_stops")
-      .update({ delivery_photo_url: photoUrl })
-      .eq("id", stopId);
+    await supabase.from("route_stops").update({ delivery_photo_url: photoUrl }).eq("id", stopId);
 
     return NextResponse.json({
       success: true,
@@ -144,9 +124,6 @@ export async function POST(
     });
   } catch (error) {
     logger.exception(error, { api: "driver/routes/[routeId]/stops/[stopId]/photo" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

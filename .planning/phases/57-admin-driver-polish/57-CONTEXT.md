@@ -14,6 +14,7 @@ Admin and driver dashboards receive premium visual finish matching the customer 
 ## Implementation Decisions
 
 ### Table & Card Styling
+
 - Card rows (not traditional tables) for orders, drivers, routes
 - Scale + shadow hover effect (tiny scale-up 1.01 + shadow increase)
 - Active status badges (In Transit, Preparing) soft-pulse; completed/cancelled static
@@ -32,6 +33,7 @@ Admin and driver dashboards receive premium visual finish matching the customer 
 - Mobile: stacked full-width cards showing status + name + items/amount + time, tap to expand
 
 ### Skeleton & Loading Feel
+
 - Skeleton-to-content: fade crossfade transition (skeleton fades out, content fades in simultaneously)
 - Dashboard stat cards: counting animation (numbers count up from 0 to final value)
 - Inline error card when data fails to load (replaces skeleton area with error + retry button)
@@ -41,6 +43,7 @@ Admin and driver dashboards receive premium visual finish matching the customer 
 - Claude's Discretion: shimmer direction, skeleton fidelity (high vs generic), shimmer color, min display time, initial vs refresh loading distinction
 
 ### Empty State Personality
+
 - Food emoji compositions as illustrations (matching existing brand pattern)
 - Playful + food-themed messaging tone (e.g., "The kitchen is quiet... for now")
 - Every empty state includes a CTA/action button
@@ -51,6 +54,7 @@ Admin and driver dashboards receive premium visual finish matching the customer 
 - Claude's Discretion: filtered-to-empty vs truly-empty messaging distinction
 
 ### Driver Data Presentation
+
 - On-time percentage: Claude's Discretion on visualization style
 - Driver history: summary cards (date, stop count, on-time %, total time) — collapsed by default, expandable for per-stop detail
 - Driver stop detail: full premium animation (status transitions, map marker pulse, timeline step sequence)
@@ -62,12 +66,14 @@ Admin and driver dashboards receive premium visual finish matching the customer 
 - Exception actions: "Mark Resolved" quick action on alert card + link to navigate to full detail
 
 ### Admin Dashboard Stats
+
 - All key metrics displayed: orders, revenue, active drivers, on-time rate, pending, exceptions
 - Each stat card links/navigates to its relevant detail page
 - Animated counter numbers on load
 - Stat cards with subtle teal gradients
 
 ### Color & Theme
+
 - Admin uses teal/cyan accent color (distinct from customer's warm gold)
 - Driver app also uses teal accent (operational apps share palette, distinct from customer)
 - Token-ready for dark mode (semantic tokens throughout, dark mode itself deferred)
@@ -75,24 +81,28 @@ Admin and driver dashboards receive premium visual finish matching the customer 
 - Subtle teal gradients on stat cards and feature cards
 
 ### Navigation
+
 - Admin sidebar: animated active indicator (slides to active item) + icon hover animations (wobble/scale)
 - Animated breadcrumbs with smooth transitions, chevron separators, clickable parents
 - Unified admin page header component: page title + animated count badge + action buttons area
 - Driver app: bottom tab bar with animated active indicator + badge counts for pending items
 
 ### Notification Styling
+
 - Floating card toasts (rounded card with shadow, slides in from top-right, icon + message + optional action)
 - Critical-only sounds (subtle chime for new orders and exceptions, silent for success/info)
 - Toast stacking: first visible, rest collapsed as "+3 more" badge, expandable
 - Swipe to dismiss + auto-dismiss with fade after timeout
 
 ### Form Polish
+
 - Floating labels (animate from inside input to above on focus, matching auth experience)
 - Validation: shake + inline error (invalid field shakes briefly + red text below + red border)
 - Save success: checkmark morph animation on button + success toast (double confirmation)
 - FloatingUnsavedBar on every admin form (consistent, prevents data loss)
 
 ### Claude's Discretion
+
 - Bulk action checkboxes (assess whether admin volume justifies it)
 - Existing filter/search UI polish (improve what's there, don't build new search)
 - Select/dropdown and date/time picker styling
@@ -126,5 +136,5 @@ Admin and driver dashboards receive premium visual finish matching the customer 
 
 ---
 
-*Phase: 57-admin-driver-polish*
-*Context gathered: 2026-02-11*
+_Phase: 57-admin-driver-polish_
+_Context gathered: 2026-02-11_

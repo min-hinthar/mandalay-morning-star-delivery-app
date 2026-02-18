@@ -2,7 +2,11 @@ import { z } from "zod";
 
 export const checkoutItemSchema = z.object({
   menuItemId: z.string().uuid("Invalid menu item ID"),
-  quantity: z.number().int().min(1, "Quantity must be at least 1").max(50, "Maximum quantity is 50"),
+  quantity: z
+    .number()
+    .int()
+    .min(1, "Quantity must be at least 1")
+    .max(50, "Maximum quantity is 50"),
   modifiers: z.array(
     z.object({
       optionId: z.string().uuid("Invalid modifier option ID"),

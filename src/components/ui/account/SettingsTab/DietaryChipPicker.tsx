@@ -18,10 +18,7 @@ interface DietaryChipPickerProps {
   onChange: (items: string[]) => void;
 }
 
-export function DietaryChipPicker({
-  selected,
-  onChange,
-}: DietaryChipPickerProps) {
+export function DietaryChipPicker({ selected, onChange }: DietaryChipPickerProps) {
   const { shouldAnimate } = useAnimationPreference();
 
   const toggle = (option: DietaryOption) => {
@@ -42,11 +39,7 @@ export function DietaryChipPicker({
             key={option}
             type="button"
             onClick={() => toggle(option)}
-            animate={
-              shouldAnimate
-                ? { scale: isSelected ? [1, 1.15, 1] : 1 }
-                : undefined
-            }
+            animate={shouldAnimate ? { scale: isSelected ? [1, 1.15, 1] : 1 } : undefined}
             transition={{ type: "spring", stiffness: 500, damping: 25 }}
             className={cn(
               "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-pill text-sm font-medium",

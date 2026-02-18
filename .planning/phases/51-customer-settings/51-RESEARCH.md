@@ -13,9 +13,11 @@ The primary work is: (1) restructure AccountClient from 4 tabs to 3 (Profile | O
 **Primary recommendation:** Follow the admin SettingsClient pattern (Tabs + forms + FloatingUnsavedBar) but adapt for customer context -- simpler, mobile-first, with sub-tabs inside the Settings tab. Create a single `useCustomerSettings` hook for fetch/save logic to avoid prop drilling. Use `framer-motion` chip toggle animations consistent with the "playful alive" design language.
 
 <user_constraints>
+
 ## User Constraints (from CONTEXT.md)
 
 ### Locked Decisions
+
 - **Settings page placement:** Replace Payment tab with Settings tab. Merge Addresses tab into Settings. Final account tabs: Profile | Orders | Settings (3 tabs, down from 4)
 - **Sub-tabs within Settings:** Nested navigation inside the Settings tab
 - **Reuse Phase 50 save UX:** Same floating bottom bar + save button morph animation
@@ -47,6 +49,7 @@ The primary work is: (1) restructure AccountClient from 4 tabs to 3 (Profile | O
 - **Theme persistence:** Both localStorage + DB sync (local wins on conflict)
 
 ### Claude's Discretion
+
 - Sub-tab grouping within Settings tab
 - Deep-link implementation (query param vs state-based)
 - Mobile sub-tab navigation style
@@ -58,16 +61,19 @@ The primary work is: (1) restructure AccountClient from 4 tabs to 3 (Profile | O
 - Font size preview approach
 
 ### Deferred Ideas (OUT OF SCOPE)
+
 - Subtle menu indicators for dietary restrictions on menu items
 - Language/locale preference and i18n infrastructure
 - Multiple saved addresses
 - Per-item notification sub-toggles within groups
-</user_constraints>
+  </user_constraints>
 
 ## Discretion Recommendations
 
 ### Sub-tab grouping: 3 sub-tabs
+
 **Recommendation:** 3 sub-tabs within Settings:
+
 1. **Preferences** -- Dietary restrictions + delivery instructions (personal preferences affecting orders)
 2. **Notifications** -- 3 notification group cards
 3. **Display** -- Theme, font size, animations, sounds
@@ -77,6 +83,7 @@ The primary work is: (1) restructure AccountClient from 4 tabs to 3 (Profile | O
 **Confidence:** HIGH -- mirrors admin 3-tab pattern, natural grouping
 
 ### Deep-link implementation: URL search params
+
 **Recommendation:** Use `?tab=settings&section=preferences` query parameters. AccountClient reads `searchParams` on mount to set initial tab/sub-tab. SettingsNudgeBanner links to `/account?tab=settings`.
 
 **Rationale:** Query params are shareable, bookmarkable, and work with browser back/forward. The existing AccountClient uses local `useState` for tab selection -- adding `useSearchParams` from `next/navigation` is trivial. State-based approaches (passing through context) add complexity without benefit.
@@ -84,6 +91,7 @@ The primary work is: (1) restructure AccountClient from 4 tabs to 3 (Profile | O
 **Confidence:** HIGH -- standard Next.js pattern
 
 ### Mobile sub-tab navigation: Horizontal pill strip (reuse Tabs component)
+
 **Recommendation:** Reuse the existing `<Tabs>` component for sub-tabs within Settings. On mobile, the Tabs component already scrolls horizontally with fade indicators. Use a smaller `layoutId` like `"settingsSubTab"` to avoid collision with the parent `"accountTab"`.
 
 **Rationale:** The Tabs component already handles mobile scroll, active pill animation, and accessibility (role="tablist"). No need for a different pattern. The sub-tabs are compact enough (3 items) to fit on most screens without scrolling.
@@ -91,6 +99,7 @@ The primary work is: (1) restructure AccountClient from 4 tabs to 3 (Profile | O
 **Confidence:** HIGH -- component already exists and handles mobile
 
 ### Custom allergy: Single text field producing multiple chips
+
 **Recommendation:** Single text input that creates chips on Enter/comma. Display custom entries as removable chips below the predefined ones. Max 5 custom entries, max 50 chars each.
 
 **Rationale:** Multiple separate inputs add UI complexity. A single field with chip creation is the standard pattern (similar to email tag inputs). Comma-separated or Enter-key creation is intuitive. Limit prevents abuse.
@@ -98,6 +107,7 @@ The primary work is: (1) restructure AccountClient from 4 tabs to 3 (Profile | O
 **Confidence:** HIGH
 
 ### Checkout dietary card: Informational only
+
 **Recommendation:** Display-only summary card in checkout review step. Show selected dietary restrictions as a read-only list with a "Edit in Settings" link. Do NOT make it editable inline.
 
 **Rationale:** Editing dietary restrictions during checkout is a rare need and adds form state complexity to an already multi-step flow. Checkout should be fast and focused. An "Edit in Settings" link covers the edge case without bloating the checkout.
@@ -105,9 +115,11 @@ The primary work is: (1) restructure AccountClient from 4 tabs to 3 (Profile | O
 **Confidence:** HIGH -- keeps checkout clean per decision "keep checkout flow clean"
 
 ### Notification expanded view: Bulleted list
+
 **Recommendation:** Bulleted list of sub-categories when card is expanded.
 
 Example for "Order Updates":
+
 - Order confirmation
 - Delivery status changes
 - Driver assignment
@@ -118,6 +130,7 @@ Example for "Order Updates":
 **Confidence:** MEDIUM -- either format works; bullets are faster to scan
 
 ### System theme option: Yes, include
+
 **Recommendation:** Add "System" as a third theme option alongside Light and Dark. The ThemeProvider already has `enableSystem` set. The `customer_settings.theme` column already defaults to `'system'`. The DynamicThemeProvider already supports `ThemeMode = "light" | "dark" | "auto"`.
 
 **Rationale:** All infrastructure supports it. Excluding it would mean removing an already-working feature. Most modern apps offer system theme. The column default is already `'system'`.
@@ -125,6 +138,7 @@ Example for "Order Updates":
 **Confidence:** HIGH -- infrastructure already supports it
 
 ### Theme/font size apply timing: Instant preview
+
 **Recommendation:** Apply theme changes and font size changes instantly (no on-save). These are localStorage-only display preferences -- they should feel immediate. The existing ThemeToggle already applies instantly.
 
 **Rationale:** Display preferences are device-local and non-destructive. Requiring a save step for visual preferences feels sluggish and doesn't match the existing ThemeToggle behavior (which is instant). Theme DB sync happens separately as a background operation.
@@ -132,6 +146,7 @@ Example for "Order Updates":
 **Confidence:** HIGH -- consistent with existing ThemeToggle behavior
 
 ### Font size preview: Live WYSIWYG
+
 **Recommendation:** Apply the selected font size to the entire page immediately when tapping an "Aa" button. The settings page itself serves as the preview. No separate preview text needed.
 
 **Rationale:** WYSIWYG is more intuitive than a sample text box. The user sees the effect on real content. Implementation is simpler (just set a CSS variable or class). The "Aa" buttons at different sizes already communicate what they do visually.
@@ -141,21 +156,24 @@ Example for "Order Updates":
 ## Standard Stack
 
 ### Core (already in project)
-| Library | Version | Purpose | Notes |
-|---------|---------|---------|-------|
-| next-themes | existing | Theme switching | Already configured with `enableSystem`, `attribute="class"` |
-| framer-motion | v12 | Animations | Already using `m`, `AnimatePresence`, spring tokens |
-| @supabase/ssr | existing | DB client | Browser client for settings CRUD |
-| zod | existing | Validation | For API route input validation |
-| lucide-react | existing | Icons | Package, Megaphone, Bell, Leaf, Wheat, etc. |
-| zustand | existing | State management | Not needed -- use local state + API |
+
+| Library       | Version  | Purpose          | Notes                                                       |
+| ------------- | -------- | ---------------- | ----------------------------------------------------------- |
+| next-themes   | existing | Theme switching  | Already configured with `enableSystem`, `attribute="class"` |
+| framer-motion | v12      | Animations       | Already using `m`, `AnimatePresence`, spring tokens         |
+| @supabase/ssr | existing | DB client        | Browser client for settings CRUD                            |
+| zod           | existing | Validation       | For API route input validation                              |
+| lucide-react  | existing | Icons            | Package, Megaphone, Bell, Leaf, Wheat, etc.                 |
+| zustand       | existing | State management | Not needed -- use local state + API                         |
 
 ### No New Dependencies
+
 No new packages needed. Everything required is already installed.
 
 ## Architecture Patterns
 
 ### Recommended Project Structure
+
 ```
 src/
 ├── app/
@@ -193,9 +211,11 @@ src/
 ```
 
 ### Pattern 1: Customer Settings Hook (useCustomerSettings)
+
 **What:** Centralized hook for fetching and saving customer settings to/from the API route.
 **When to use:** In all Settings sub-tab components.
 **Example:**
+
 ```typescript
 // useCustomerSettings.ts
 interface CustomerSettings {
@@ -221,8 +241,8 @@ export function useCustomerSettings() {
   }, []);
 
   // Computed hasChanges
-  const hasChanges = useMemo(() =>
-    JSON.stringify(settings) !== JSON.stringify(originalSettings),
+  const hasChanges = useMemo(
+    () => JSON.stringify(settings) !== JSON.stringify(originalSettings),
     [settings, originalSettings]
   );
 
@@ -237,15 +257,27 @@ export function useCustomerSettings() {
     setSettings(originalSettings);
   }, [originalSettings]);
 
-  return { settings, setSettings, originalSettings, isLoading, isSaving, hasChanges, save, discard };
+  return {
+    settings,
+    setSettings,
+    originalSettings,
+    isLoading,
+    isSaving,
+    hasChanges,
+    save,
+    discard,
+  };
 }
 ```
+
 **Source:** Based on existing admin SettingsClient pattern in `src/components/ui/admin/settings/SettingsClient/SettingsClient.tsx`
 
 ### Pattern 2: API Route (GET + PATCH)
+
 **What:** Server-side route for reading and writing customer_settings.
 **When to use:** Customer settings CRUD.
 **Example:**
+
 ```typescript
 // GET /api/account/settings
 // Uses lazy row creation: if no row exists, return defaults
@@ -254,17 +286,17 @@ export function useCustomerSettings() {
 
 export async function GET() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return unauthorized();
 
   // Lazy row creation
-  await supabase.from("customer_settings")
-    .insert({ user_id: user.id })
-    .select()
-    .single();
+  await supabase.from("customer_settings").insert({ user_id: user.id }).select().single();
   // ON CONFLICT DO NOTHING is handled by DB constraint
 
-  const { data } = await supabase.from("customer_settings")
+  const { data } = await supabase
+    .from("customer_settings")
     .select("*")
     .eq("user_id", user.id)
     .single();
@@ -276,12 +308,15 @@ export async function PATCH(request: NextRequest) {
   // Validate with Zod, upsert to customer_settings
 }
 ```
+
 **Source:** Based on existing `src/app/api/account/profile/route.ts` pattern
 
 ### Pattern 3: Dietary Chip with Pop Animation
+
 **What:** Framer Motion chip toggle with scale-up bounce.
 **When to use:** Dietary restriction picker.
 **Example:**
+
 ```typescript
 <m.button
   onClick={() => toggle(option)}
@@ -295,12 +330,15 @@ export async function PATCH(request: NextRequest) {
   {emoji} {label} {isSelected && <Check className="h-3 w-3" />}
 </m.button>
 ```
+
 **Source:** Project motion tokens (`spring.bouncyToggle`), existing DietaryPills in SettingsNudgeBanner
 
 ### Pattern 4: Expandable Notification Card
+
 **What:** Card with toggle + expandable detail area.
 **When to use:** Notification preference cards.
 **Example:**
+
 ```typescript
 <Card onClick={() => setExpanded(!expanded)}>
   <div className="flex items-center justify-between">
@@ -329,9 +367,11 @@ export async function PATCH(request: NextRequest) {
 ```
 
 ### Pattern 5: Font Size Preference (localStorage)
+
 **What:** CSS custom property approach for scalable font size.
 **When to use:** Display preferences section.
 **Example:**
+
 ```typescript
 // useFontSize.ts
 const FONT_SIZES = { small: 14, medium: 16, large: 18, xlarge: 20 } as const;
@@ -356,6 +396,7 @@ export function useFontSize() {
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Don't create a new store for settings:** Local state + API route is sufficient. Zustand store would add complexity for data that only lives on the settings page.
 - **Don't duplicate AddressesTab:** Wrap the existing component, don't rebuild it.
 - **Don't save display prefs to DB:** Font size, animations, sounds are explicitly localStorage-only per decision.
@@ -363,49 +404,55 @@ export function useFontSize() {
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Theme switching | Custom theme context | `next-themes` + existing ThemeProvider | Already configured, handles SSR, system detection |
-| Toggle switches | Custom toggle | Phase 50 ToggleSwitch component | Consistent, accessible, already styled |
-| Save UX | Custom save flow | Phase 50 SaveButton + FloatingUnsavedBar | Shared component designed for reuse |
-| Tab navigation | Custom tabs | Existing Tabs component | Handles mobile scroll, animations, a11y |
-| Confirm dialogs | Custom modal | Phase 50 ConfirmDialog | Uses existing Modal component |
-| Animations | CSS keyframes | Framer Motion + motion-tokens | Project standard, animation preference aware |
-| Sound effects | Custom audio | Existing theme-sounds.ts pattern | Already handles AudioContext, user preference |
+| Problem         | Don't Build          | Use Instead                              | Why                                               |
+| --------------- | -------------------- | ---------------------------------------- | ------------------------------------------------- |
+| Theme switching | Custom theme context | `next-themes` + existing ThemeProvider   | Already configured, handles SSR, system detection |
+| Toggle switches | Custom toggle        | Phase 50 ToggleSwitch component          | Consistent, accessible, already styled            |
+| Save UX         | Custom save flow     | Phase 50 SaveButton + FloatingUnsavedBar | Shared component designed for reuse               |
+| Tab navigation  | Custom tabs          | Existing Tabs component                  | Handles mobile scroll, animations, a11y           |
+| Confirm dialogs | Custom modal         | Phase 50 ConfirmDialog                   | Uses existing Modal component                     |
+| Animations      | CSS keyframes        | Framer Motion + motion-tokens            | Project standard, animation preference aware      |
+| Sound effects   | Custom audio         | Existing theme-sounds.ts pattern         | Already handles AudioContext, user preference     |
 
 ## Common Pitfalls
 
 ### Pitfall 1: Hydration Mismatch with localStorage Preferences
+
 **What goes wrong:** Reading localStorage during SSR/initial render causes hydration mismatch since server has no localStorage.
 **Why it happens:** React server-renders with default values, but client has stored preferences.
 **How to avoid:** Always use `useEffect` for localStorage reads. Use `isHydrated` state flag. Render skeleton/default until hydrated.
 **Warning signs:** Console warnings about hydration mismatch, flash of wrong theme/size on load.
 
 ### Pitfall 2: Stale Settings After Nudge Banner Save
+
 **What goes wrong:** User saves dietary restrictions via nudge banner, opens settings page, sees stale data.
 **Why it happens:** Nudge banner uses client Supabase directly; settings page fetches via API route.
 **How to avoid:** Always fetch fresh on settings page mount. Don't cache aggressively. The API route GET always reads from DB.
 **Warning signs:** Settings showing empty after nudge banner interactions.
 
 ### Pitfall 3: Race Condition on Tab Switch During Save
+
 **What goes wrong:** User saves, then immediately switches tabs. Save completes but `originalSettings` update targets unmounted sub-tab.
 **Why it happens:** Async save completes after component unmount.
 **How to avoid:** Lift save state to the SettingsTab container (not sub-tabs). Use the admin SettingsClient pattern where all settings are managed at the container level and passed down.
 **Warning signs:** Unsaved changes bar flickers, settings revert after tab switch.
 
 ### Pitfall 4: Font Size CSS Variable Not Applied on Load
+
 **What goes wrong:** Page loads with default font size, then jumps to user's preference after hydration.
 **Why it happens:** CSS variable is only set in useEffect, after initial render.
 **How to avoid:** Add a `<script>` tag in `layout.tsx` that reads localStorage and sets the CSS variable before React hydrates. Or use a CSS `@media` approach. Alternatively, accept the brief flash and focus on making it smooth with a transition.
 **Warning signs:** Text size jumps on page load.
 
 ### Pitfall 5: Multiple Tabs Components with Same layoutId
+
 **What goes wrong:** Account tab pill animation interferes with settings sub-tab pill animation.
 **Why it happens:** Both Tabs instances use the same default `layoutId="activeTab"`.
 **How to avoid:** Always pass unique `layoutId` props: `layoutId="accountTab"` (already done) and `layoutId="settingsSubTab"` for the nested tabs.
 **Warning signs:** Pill indicator flies between parent and child tabs.
 
 ### Pitfall 6: ToggleSwitch Click Propagation in Expandable Card
+
 **What goes wrong:** Clicking the toggle also triggers card expand/collapse.
 **Why it happens:** Click event bubbles from toggle to card container.
 **How to avoid:** `e.stopPropagation()` on the toggle click handler. Or make only the non-toggle area clickable for expand.
@@ -414,18 +461,20 @@ export function useFontSize() {
 ## Code Examples
 
 ### Dietary Emoji Map
+
 ```typescript
 const DIETARY_EMOJIS: Record<string, string> = {
-  "Vegetarian": "\u{1F331}",    // Seedling
-  "Vegan": "\u{1F33F}",         // Herb
-  "Gluten-free": "\u{1F33E}",   // Ear of rice (with cross in UI)
-  "Nut allergy": "\u{1F95C}",   // Peanuts (with warning)
-  "Dairy-free": "\u{1F95B}",    // Glass of milk (with cross)
-  "Halal": "\u{2728}",          // Sparkles (neutral)
+  Vegetarian: "\u{1F331}", // Seedling
+  Vegan: "\u{1F33F}", // Herb
+  "Gluten-free": "\u{1F33E}", // Ear of rice (with cross in UI)
+  "Nut allergy": "\u{1F95C}", // Peanuts (with warning)
+  "Dairy-free": "\u{1F95B}", // Glass of milk (with cross)
+  Halal: "\u{2728}", // Sparkles (neutral)
 };
 ```
 
 ### Notification Group Config
+
 ```typescript
 const NOTIFICATION_GROUPS = [
   {
@@ -446,12 +495,7 @@ const NOTIFICATION_GROUPS = [
     title: "Promotions & Deals",
     description: "Special offers and seasonal menus",
     icon: Megaphone,
-    subCategories: [
-      "Weekly deals",
-      "New menu items",
-      "Seasonal specials",
-      "Loyalty rewards",
-    ],
+    subCategories: ["Weekly deals", "New menu items", "Seasonal specials", "Loyalty rewards"],
     warningText: "You'll miss out on exclusive deals and offers",
   },
   {
@@ -471,6 +515,7 @@ const NOTIFICATION_GROUPS = [
 ```
 
 ### Query Param Tab Routing
+
 ```typescript
 // In AccountClient.tsx
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
@@ -482,9 +527,7 @@ const pathname = usePathname();
 // Initialize from URL params
 const initialTab = searchParams.get("tab") || "profile";
 const [activeTab, setActiveTab] = useState<AccountTab>(
-  ["profile", "orders", "settings"].includes(initialTab)
-    ? initialTab as AccountTab
-    : "profile"
+  ["profile", "orders", "settings"].includes(initialTab) ? (initialTab as AccountTab) : "profile"
 );
 
 // Update URL on tab change
@@ -498,6 +541,7 @@ const handleTabChange = (id: string) => {
 ```
 
 ### Customer Settings Zod Schema
+
 ```typescript
 // customer-settings.ts
 import { z } from "zod";
@@ -521,6 +565,7 @@ export type UpdateCustomerSettingsInput = z.infer<typeof updateCustomerSettingsS
 ```
 
 ### Font Size Segmented Control
+
 ```typescript
 const FONT_SIZE_OPTIONS = [
   { key: "small", label: "Aa", size: 13 },
@@ -548,36 +593,42 @@ const FONT_SIZE_OPTIONS = [
 
 ## Key Existing Infrastructure
 
-| Component | Location | Reuse Strategy |
-|-----------|----------|----------------|
-| SaveButton | `src/components/ui/admin/settings/SaveButton.tsx` | Import directly -- designed for reuse |
-| FloatingUnsavedBar | `src/components/ui/admin/settings/FloatingUnsavedBar.tsx` | Import directly |
-| ToggleSwitch | `src/components/ui/admin/settings/ToggleSwitch.tsx` | Import directly |
-| ConfirmDialog | `src/components/ui/admin/settings/ConfirmDialog.tsx` | Import directly |
-| Tabs | `src/components/ui/Tabs.tsx` | Nested with unique layoutId |
-| AddressesTab | `src/components/ui/account/AddressesTab/` | Embed inside Settings |
-| SettingsNudgeBanner | `src/components/ui/homepage/SettingsNudgeBanner.tsx` | Update link to `/account?tab=settings` |
-| theme-sounds.ts | `src/lib/theme-sounds.ts` | Reference for sound toggle pattern |
-| useAnimationPreference | `src/lib/hooks/useAnimationPreference.ts` | Use for "reduce animations" toggle |
-| ThemeProvider | `src/components/ui/theme/ThemeProvider.tsx` | Already has `enableSystem` |
+| Component              | Location                                                  | Reuse Strategy                         |
+| ---------------------- | --------------------------------------------------------- | -------------------------------------- |
+| SaveButton             | `src/components/ui/admin/settings/SaveButton.tsx`         | Import directly -- designed for reuse  |
+| FloatingUnsavedBar     | `src/components/ui/admin/settings/FloatingUnsavedBar.tsx` | Import directly                        |
+| ToggleSwitch           | `src/components/ui/admin/settings/ToggleSwitch.tsx`       | Import directly                        |
+| ConfirmDialog          | `src/components/ui/admin/settings/ConfirmDialog.tsx`      | Import directly                        |
+| Tabs                   | `src/components/ui/Tabs.tsx`                              | Nested with unique layoutId            |
+| AddressesTab           | `src/components/ui/account/AddressesTab/`                 | Embed inside Settings                  |
+| SettingsNudgeBanner    | `src/components/ui/homepage/SettingsNudgeBanner.tsx`      | Update link to `/account?tab=settings` |
+| theme-sounds.ts        | `src/lib/theme-sounds.ts`                                 | Reference for sound toggle pattern     |
+| useAnimationPreference | `src/lib/hooks/useAnimationPreference.ts`                 | Use for "reduce animations" toggle     |
+| ThemeProvider          | `src/components/ui/theme/ThemeProvider.tsx`               | Already has `enableSystem`             |
 
 ## Important Implementation Notes
 
 ### Shared Component Location
+
 The Phase 50 save components (SaveButton, FloatingUnsavedBar, ToggleSwitch, ConfirmDialog) currently live in `src/components/ui/admin/settings/`. Since Phase 51 reuses them for customer settings, consider one of:
+
 1. **Keep as-is and import from admin path** -- simplest, works fine since they have no admin-specific logic
 2. **Move to shared location** like `src/components/ui/settings/` -- cleaner but requires updating admin imports
 
 **Recommendation:** Option 1 (keep as-is). The components are generic despite their path. Moving them is a separate refactor.
 
 ### Tab Restructuring Impact
+
 Removing the Payment tab and merging Addresses into Settings affects:
+
 - `AccountClient.tsx` -- tab definitions, imports, rendering logic
 - `AddressesTab/` -- no internal changes, just rendered inside SettingsTab instead
 - `SettingsNudgeBanner.tsx` -- update "See all settings" link href
 
 ### DB Schema Alignment
+
 The `customer_settings` table columns map directly to the UI sections:
+
 - `dietary_restrictions` JSONB -> PreferencesSection (array of strings)
 - `delivery_instructions` TEXT -> PreferencesSection (text input)
 - `notification_prefs` JSONB -> NotificationsSection (object with 3 booleans)
@@ -587,16 +638,17 @@ The `customer_settings` table columns map directly to the UI sections:
 Display-only preferences (font size, animations, sounds) are **not** in the DB -- localStorage only.
 
 ### Checkout Integration
+
 The `PaymentStepV8.tsx` currently shows: address, delivery time, and order notes. The dietary summary card should be added as a new section between the order summary card and the notes input. It reads dietary restrictions from a fresh API call or from a context/store, NOT from the checkout store.
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Single ThemeToggle only | Settings page with Light/Dark/System | Phase 51 | Users can choose system theme |
-| No animation preference | `useAnimationPreference` hook | V7 redesign | Reduce animations toggle in settings |
-| No sound preference | `theme-sounds.ts` + localStorage | Phase 50 | Sound toggle in settings |
-| No font size preference | CSS variable `--font-size-base` | Phase 51 (NEW) | User-controlled text size |
+| Old Approach            | Current Approach                     | When Changed   | Impact                               |
+| ----------------------- | ------------------------------------ | -------------- | ------------------------------------ |
+| Single ThemeToggle only | Settings page with Light/Dark/System | Phase 51       | Users can choose system theme        |
+| No animation preference | `useAnimationPreference` hook        | V7 redesign    | Reduce animations toggle in settings |
+| No sound preference     | `theme-sounds.ts` + localStorage     | Phase 50       | Sound toggle in settings             |
+| No font size preference | CSS variable `--font-size-base`      | Phase 51 (NEW) | User-controlled text size            |
 
 ## Open Questions
 
@@ -609,6 +661,7 @@ The `PaymentStepV8.tsx` currently shows: address, delivery time, and order notes
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Codebase analysis: `src/components/ui/account/AccountClient.tsx` -- current 4-tab structure
 - Codebase analysis: `supabase/migrations/019_customer_settings_admin_expansion.sql` -- table schema
 - Codebase analysis: `src/components/ui/admin/settings/SettingsClient/SettingsClient.tsx` -- admin pattern
@@ -620,11 +673,13 @@ The `PaymentStepV8.tsx` currently shows: address, delivery time, and order notes
 - Codebase analysis: `src/components/ui/checkout/PaymentStepV8.tsx` -- checkout review step
 
 ### Secondary (MEDIUM confidence)
+
 - `.planning/phases/50-data-foundation-admin-settings/50-RESEARCH.md` -- Phase 50 decisions and patterns
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH -- no new dependencies, all existing
 - Architecture: HIGH -- follows established admin settings pattern
 - Pitfalls: HIGH -- based on direct codebase analysis

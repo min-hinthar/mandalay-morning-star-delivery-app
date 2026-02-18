@@ -20,10 +20,7 @@ interface SuggestionCardProps {
   onSelect: () => void;
 }
 
-const SuggestionCard = memo(function SuggestionCard({
-  item,
-  onSelect,
-}: SuggestionCardProps) {
+const SuggestionCard = memo(function SuggestionCard({ item, onSelect }: SuggestionCardProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
@@ -46,11 +43,7 @@ const SuggestionCard = memo(function SuggestionCard({
       <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-surface-secondary/50">
         {item.imageUrl ? (
           /* eslint-disable-next-line @next/next/no-img-element -- Dynamic external URL */
-          <img
-            src={item.imageUrl}
-            alt={item.nameEn}
-            className="w-full h-full object-cover"
-          />
+          <img src={item.imageUrl} alt={item.nameEn} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-xl">
             <span role="img" aria-label="Food">
@@ -62,12 +55,8 @@ const SuggestionCard = memo(function SuggestionCard({
 
       {/* Name + Price */}
       <div className="flex-1 min-w-0 text-left">
-        <p className="text-sm font-medium text-text-primary truncate">
-          {item.nameEn}
-        </p>
-        <p className="text-xs text-text-secondary">
-          {formatPrice(item.basePriceCents)}
-        </p>
+        <p className="text-sm font-medium text-text-primary truncate">{item.nameEn}</p>
+        <p className="text-xs text-text-secondary">{formatPrice(item.basePriceCents)}</p>
       </div>
     </m.button>
   );

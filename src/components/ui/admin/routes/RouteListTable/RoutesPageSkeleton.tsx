@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Skeleton } from '@/components/ui/skeleton/base';
+import { Skeleton } from "@/components/ui/skeleton/base";
 
 // ============================================
 // ROUTES PAGE SKELETON

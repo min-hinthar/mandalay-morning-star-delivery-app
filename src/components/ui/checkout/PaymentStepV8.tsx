@@ -16,14 +16,7 @@
 
 import { useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import {
-  ArrowLeft,
-  CreditCard,
-  ShieldCheck,
-  Lock,
-  MapPin,
-  Clock,
-} from "lucide-react";
+import { ArrowLeft, CreditCard, ShieldCheck, Lock, MapPin, Clock } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -131,9 +124,7 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
       <m.div variants={shouldAnimate ? staggerItem : undefined}>
         <div className="flex items-center gap-2 mb-1">
           <CreditCard className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-lg font-semibold text-text-primary">
-            Review & Pay
-          </h2>
+          <h2 className="font-display text-lg font-semibold text-text-primary">Review & Pay</h2>
         </div>
         <p className="font-body text-sm text-text-muted">
           Review your order and proceed to payment
@@ -192,18 +183,14 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
                     Delivery Address
                   </h3>
                 </div>
-                <p className="font-body text-text-primary text-left">
-                  {address?.formattedAddress}
-                </p>
+                <p className="font-body text-text-primary text-left">{address?.formattedAddress}</p>
               </div>
 
               {/* Time */}
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4 text-primary" />
-                  <h3 className="font-body text-sm font-medium text-text-muted">
-                    Delivery Time
-                  </h3>
+                  <h3 className="font-body text-sm font-medium text-text-muted">Delivery Time</h3>
                 </div>
                 {delivery && (
                   <TimeSlotDisplay
@@ -220,10 +207,7 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
             </m.div>
 
             {/* Notes Input with stagger */}
-            <m.div
-              variants={shouldAnimate ? staggerItem : undefined}
-              className="space-y-2"
-            >
+            <m.div variants={shouldAnimate ? staggerItem : undefined} className="space-y-2">
               <Label
                 htmlFor="customerNotes"
                 className="font-body text-sm font-medium text-text-primary"
@@ -267,12 +251,10 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
                   <ShieldCheck className="h-5 w-5 text-status-success" />
                 </m.div>
                 <div>
-                  <p className="text-sm font-medium text-status-success">
-                    Secure Payment
-                  </p>
+                  <p className="text-sm font-medium text-status-success">Secure Payment</p>
                   <p className="text-xs text-status-success">
-                    You&apos;ll be redirected to Stripe&apos;s secure checkout
-                    page to complete your payment.
+                    You&apos;ll be redirected to Stripe&apos;s secure checkout page to complete your
+                    payment.
                   </p>
                 </div>
               </div>
@@ -289,9 +271,7 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
                     transition={getSpring(spring.default)}
                     className="rounded-lg bg-status-error-bg border border-status-error/20 p-4"
                   >
-                    <p className="text-sm text-status-error">
-                      {error}
-                    </p>
+                    <p className="text-sm text-status-error">{error}</p>
                   </m.div>
                 </ErrorShake>
               )}

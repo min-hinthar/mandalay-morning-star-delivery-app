@@ -52,12 +52,7 @@ export function SearchInput({
   }, [autoFocus]);
 
   return (
-    <div
-      className={cn(
-        "flex items-center gap-3 border-b border-border/50 px-4 py-3",
-        className
-      )}
-    >
+    <div className={cn("flex items-center gap-3 border-b border-border/50 px-4 py-3", className)}>
       {/* Search icon */}
       <Search className="h-5 w-5 flex-shrink-0 text-text-muted" />
 

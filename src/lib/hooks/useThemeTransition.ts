@@ -18,19 +18,14 @@ export function useThemeTransition() {
   const DEBOUNCE_MS = 300;
 
   const toggleWithTransition = useCallback(
-    async (
-      event: React.MouseEvent,
-      toggleFn: () => void
-    ): Promise<void> => {
+    async (event: React.MouseEvent, toggleFn: () => void): Promise<void> => {
       // Debounce rapid toggles
       const now = Date.now();
       if (now - lastToggleRef.current < DEBOUNCE_MS) return;
       lastToggleRef.current = now;
 
       // Check for reduced motion preference
-      const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
       // Feature detection + reduced motion check
       if (!document.startViewTransition || prefersReducedMotion) {
@@ -59,10 +54,7 @@ export function useThemeTransition() {
         // Animate with circular clip-path
         document.documentElement.animate(
           {
-            clipPath: [
-              `circle(0px at ${x}px ${y}px)`,
-              `circle(${endRadius}px at ${x}px ${y}px)`,
-            ],
+            clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`],
           },
           {
             duration: 300,

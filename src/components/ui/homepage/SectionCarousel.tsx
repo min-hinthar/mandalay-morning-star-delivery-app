@@ -193,11 +193,7 @@ export function SectionCarousel({
             key={item.id}
             data-carousel-card
             data-index={index}
-            className={cn(
-              "flex-shrink-0",
-              "w-[280px] md:w-[320px]",
-              "snap-start"
-            )}
+            className={cn("flex-shrink-0", "w-[280px] md:w-[320px]", "snap-start")}
             style={{ scrollSnapAlign: "start" }}
           >
             <MenuCardWrapper

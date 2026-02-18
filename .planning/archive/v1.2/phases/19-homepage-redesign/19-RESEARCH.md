@@ -17,34 +17,39 @@ The decision to use Remotion for pre-rendered video (not live animation) is opti
 The established libraries/tools for this domain:
 
 ### Core (Already in Codebase)
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| framer-motion | 12.26.1 | Scroll animations, section reveals | Already primary animation library |
-| gsap | 3.14.2 | Complex sequences, ScrollTrigger backup | Installed, use for parallax if FM insufficient |
-| @gsap/react | 2.1.2 | React integration for GSAP | Properly handles cleanup |
+
+| Library       | Version | Purpose                                 | Why Standard                                   |
+| ------------- | ------- | --------------------------------------- | ---------------------------------------------- |
+| framer-motion | 12.26.1 | Scroll animations, section reveals      | Already primary animation library              |
+| gsap          | 3.14.2  | Complex sequences, ScrollTrigger backup | Installed, use for parallax if FM insufficient |
+| @gsap/react   | 2.1.2   | React integration for GSAP              | Properly handles cleanup                       |
 
 ### New for Video Hero
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| @remotion/cli | latest | Video rendering CLI | Official Remotion tooling |
-| @remotion/bundler | latest | Bundle compositions | Required for rendering |
-| @remotion/renderer | latest | Node.js rendering API | Programmatic render |
-| remotion | latest | Core composition framework | React-based video creation |
+
+| Library            | Version | Purpose                    | Why Standard               |
+| ------------------ | ------- | -------------------------- | -------------------------- |
+| @remotion/cli      | latest  | Video rendering CLI        | Official Remotion tooling  |
+| @remotion/bundler  | latest  | Bundle compositions        | Required for rendering     |
+| @remotion/renderer | latest  | Node.js rendering API      | Programmatic render        |
+| remotion           | latest  | Core composition framework | React-based video creation |
 
 ### Supporting (Already Available)
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| react-three-fiber | 9.5.0 | 3D elements in Remotion | Food models in video |
-| three | 0.182.0 | WebGL rendering | 3D scene setup |
+
+| Library           | Version | Purpose                 | When to Use          |
+| ----------------- | ------- | ----------------------- | -------------------- |
+| react-three-fiber | 9.5.0   | 3D elements in Remotion | Food models in video |
+| three             | 0.182.0 | WebGL rendering         | 3D scene setup       |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| Remotion video | Live React animation | Video = predictable performance, smaller bundle |
-| Framer Motion scroll | GSAP ScrollTrigger | FM simpler for section triggers, GSAP better for complex timelines |
-| Custom scroll spy | react-scrollspy | Custom = smaller bundle, full control |
+
+| Instead of           | Could Use            | Tradeoff                                                           |
+| -------------------- | -------------------- | ------------------------------------------------------------------ |
+| Remotion video       | Live React animation | Video = predictable performance, smaller bundle                    |
+| Framer Motion scroll | GSAP ScrollTrigger   | FM simpler for section triggers, GSAP better for complex timelines |
+| Custom scroll spy    | react-scrollspy      | Custom = smaller bundle, full control                              |
 
 **Installation (Remotion - dev only):**
+
 ```bash
 pnpm add -D @remotion/cli @remotion/bundler @remotion/renderer remotion
 ```
@@ -52,6 +57,7 @@ pnpm add -D @remotion/cli @remotion/bundler @remotion/renderer remotion
 ## Architecture Patterns
 
 ### Recommended Project Structure
+
 ```
 src/
 ├── components/
@@ -89,9 +95,11 @@ src/
 ```
 
 ### Pattern 1: Scroll Choreography with Framer Motion
+
 **What:** Centralized scroll state management with section-aware animations
 **When to use:** Multiple sections need coordinated scroll-based animations
 **Example:**
+
 ```typescript
 // Source: Framer Motion docs + codebase motion-tokens
 import { useScroll, useTransform, useSpring, motion } from "framer-motion";
@@ -116,9 +124,11 @@ function useScrollChoreography(sectionRef: RefObject<HTMLElement>) {
 ```
 
 ### Pattern 2: Section Navigation Dots with IntersectionObserver
+
 **What:** Side navigation showing current section with click-to-jump
 **When to use:** Long scrolling pages with distinct sections
 **Example:**
+
 ```typescript
 // Source: Community patterns + codebase IntersectionObserver usage
 function useScrollSpy(sectionIds: string[]) {
@@ -153,9 +163,11 @@ function useScrollSpy(sectionIds: string[]) {
 ```
 
 ### Pattern 3: Staggered Section Reveal (Always Replay)
+
 **What:** Elements animate in on every scroll into view (not once)
 **When to use:** Sections that benefit from repeated animation (per CONTEXT "always replay")
 **Example:**
+
 ```typescript
 // Source: motion-tokens.ts staggerContainer + CONTEXT decisions
 const sectionVariants = {
@@ -188,9 +200,11 @@ const itemVariants = {
 ```
 
 ### Pattern 4: Remotion Video Composition
+
 **What:** Pre-rendered food reveal video with multiple output formats
 **When to use:** Hero section requiring cinematic food animation
 **Example:**
+
 ```typescript
 // Source: Remotion docs fundamentals + animating-properties
 // remotion/compositions/HeroDesktop.tsx
@@ -226,6 +240,7 @@ export const HeroDesktop: React.FC = () => {
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Live Remotion rendering in browser:** Use pre-rendered videos only. Remotion is for build-time.
 - **GSAP ScrollTrigger without cleanup:** Always kill timelines in useEffect cleanup.
 - **viewport.once: true for replay animations:** Use `once: false` per CONTEXT decision.
@@ -236,50 +251,56 @@ export const HeroDesktop: React.FC = () => {
 
 Problems that look simple but have existing solutions:
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Video format handling | Custom codec detection | `<video>` with source tags | Browser handles format selection |
-| Scroll progress tracking | Manual scroll listeners | useScroll from framer-motion | Optimized, debounced, SSR-safe |
-| Section visibility | getBoundingClientRect spam | IntersectionObserver | GPU-accelerated, non-blocking |
-| Spring animations | Custom easing math | motion-tokens springs | Tuned for 120fps, tested |
-| Reduced motion | Custom media query | useAnimationPreference hook | Already handles 3 preference levels |
-| Carousel dots | Custom state management | Existing CarouselControls | Pattern in FeaturedCarousel |
+| Problem                  | Don't Build                | Use Instead                  | Why                                 |
+| ------------------------ | -------------------------- | ---------------------------- | ----------------------------------- |
+| Video format handling    | Custom codec detection     | `<video>` with source tags   | Browser handles format selection    |
+| Scroll progress tracking | Manual scroll listeners    | useScroll from framer-motion | Optimized, debounced, SSR-safe      |
+| Section visibility       | getBoundingClientRect spam | IntersectionObserver         | GPU-accelerated, non-blocking       |
+| Spring animations        | Custom easing math         | motion-tokens springs        | Tuned for 120fps, tested            |
+| Reduced motion           | Custom media query         | useAnimationPreference hook  | Already handles 3 preference levels |
+| Carousel dots            | Custom state management    | Existing CarouselControls    | Pattern in FeaturedCarousel         |
 
 **Key insight:** The codebase has extensive animation infrastructure. Reuse motion-tokens, useAnimationPreference, and existing component patterns rather than creating new systems.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Video Autoplay Blocking
+
 **What goes wrong:** Mobile browsers block autoplay with sound
 **Why it happens:** Browser policies require user interaction
 **How to avoid:** Always use `muted autoPlay playsInline` attributes
 **Warning signs:** Video doesn't play on mobile Safari/Chrome
 
 ### Pitfall 2: Scroll Jank from Too Many Transforms
+
 **What goes wrong:** Choppy scrolling with many parallax layers
 **Why it happens:** Too many elements with transform on scroll
 **How to avoid:** Limit parallax to 2-3 background layers, use `will-change: transform`
 **Warning signs:** Low FPS in Chrome DevTools Performance panel
 
 ### Pitfall 3: IntersectionObserver Memory Leaks
+
 **What goes wrong:** Observers accumulate, performance degrades
 **Why it happens:** Not disconnecting in useEffect cleanup
 **How to avoid:** Always `return () => observer.disconnect()` in useEffect
 **Warning signs:** Growing memory in DevTools, sluggish after navigation
 
 ### Pitfall 4: SSR Hydration Mismatch with Scroll State
+
 **What goes wrong:** "Text content does not match" errors
 **Why it happens:** Initial scroll position differs server vs client
 **How to avoid:** Use `useState` with `useEffect` for scroll-dependent state, not during render
 **Warning signs:** Console errors about hydration, UI flicker on load
 
 ### Pitfall 5: Large Video Files Blocking LCP
+
 **What goes wrong:** Poor Core Web Vitals, slow LCP
 **Why it happens:** Video file too large, not optimized
 **How to avoid:** Target <2MB per video, use poster image, consider preload="metadata"
 **Warning signs:** Lighthouse LCP >2.5s on mobile
 
 ### Pitfall 6: Scroll Snap Interfering with Parallax
+
 **What goes wrong:** Jerky snapping breaks parallax illusion
 **Why it happens:** scroll-snap-type conflicts with smooth scroll transforms
 **How to avoid:** Per CONTEXT: "Desktop only" scroll snap - disable on mobile
@@ -290,6 +311,7 @@ Problems that look simple but have existing solutions:
 Verified patterns from codebase and official sources:
 
 ### Video Hero Player Component
+
 ```typescript
 // Based on CONTEXT decisions: loop with pause when out of view
 "use client";
@@ -356,6 +378,7 @@ export function HeroVideo({ desktopSrc, mobileSrc, poster }: HeroVideoProps) {
 ```
 
 ### Section Navigation Dots Component
+
 ```typescript
 // Based on CONTEXT: right side, click to jump, hover shows label
 "use client";
@@ -429,6 +452,7 @@ export function SectionNavDots({ sections, activeIndex, onDotClick }: SectionNav
 ```
 
 ### Animated Section Wrapper (Always Replay)
+
 ```typescript
 // Based on CONTEXT: 50% visible trigger, 200-300ms, 50ms stagger, always replay
 "use client";
@@ -491,14 +515,15 @@ export function AnimatedSection({ children, className, id }: AnimatedSectionProp
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| GIF heroes | Pre-rendered MP4/WebM | 2023 | 80% smaller files, hardware decode |
-| Scroll listeners | IntersectionObserver | 2020+ | Non-blocking, GPU accelerated |
-| CSS scroll snap only | CSS snap + JS fallback | 2024 | Better cross-browser behavior |
-| Single video source | Responsive video (desktop/mobile) | 2023 | Proper aspect ratios per device |
+| Old Approach         | Current Approach                  | When Changed | Impact                             |
+| -------------------- | --------------------------------- | ------------ | ---------------------------------- |
+| GIF heroes           | Pre-rendered MP4/WebM             | 2023         | 80% smaller files, hardware decode |
+| Scroll listeners     | IntersectionObserver              | 2020+        | Non-blocking, GPU accelerated      |
+| CSS scroll snap only | CSS snap + JS fallback            | 2024         | Better cross-browser behavior      |
+| Single video source  | Responsive video (desktop/mobile) | 2023         | Proper aspect ratios per device    |
 
 **Deprecated/outdated:**
+
 - **Remotion Lambda for hero video:** Overkill for static content - just pre-render locally
 - **GSAP for simple scroll reveals:** Framer Motion simpler with useInView
 - **requestAnimationFrame scroll tracking:** IntersectionObserver preferred
@@ -525,6 +550,7 @@ Things that couldn't be fully resolved:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Remotion fundamentals: https://www.remotion.dev/docs/the-fundamentals
 - Remotion rendering: https://www.remotion.dev/docs/render
 - Remotion animation: https://www.remotion.dev/docs/animating-properties
@@ -533,17 +559,20 @@ Things that couldn't be fully resolved:
 - Codebase FeaturedCarousel.tsx - IntersectionObserver pattern, scroll snap
 
 ### Secondary (MEDIUM confidence)
+
 - Framer Motion scroll guide: https://blog.logrocket.com/react-scroll-animations-framer-motion/
 - IntersectionObserver scroll spy: https://blog.maximeheckel.com/posts/scrollspy-demystified/
 - GSAP vs Framer Motion comparison: https://motion.dev/docs/gsap-vs-motion
 
 ### Tertiary (LOW confidence)
+
 - Remotion food animation specific patterns - not found, general Remotion docs applied
 - Exact video bitrate recommendations - general web optimization guidelines applied
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - Libraries already in codebase, Remotion well-documented
 - Architecture: HIGH - Patterns derived from existing codebase + official docs
 - Pitfalls: HIGH - Common issues documented in community + verified against codebase

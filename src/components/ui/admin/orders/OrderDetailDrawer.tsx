@@ -109,15 +109,8 @@ export function OrderDetailDrawer({
           >
             {/* Close button */}
             <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-surface-primary/95 border-b border-border">
-              <h2 className="font-display text-lg font-bold text-text-primary">
-                Order Details
-              </h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="h-8 w-8 p-0"
-              >
+              <h2 className="font-display text-lg font-bold text-text-primary">Order Details</h2>
+              <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
                 <X className="h-4 w-4" />
                 <span className="sr-only">Close</span>
               </Button>
@@ -143,9 +136,7 @@ export function OrderDetailDrawer({
                   Customer
                 </h3>
                 <div className="rounded-xl bg-surface-secondary p-3 space-y-1">
-                  <p className="font-medium text-text-primary">
-                    {order.customerName || "Guest"}
-                  </p>
+                  <p className="font-medium text-text-primary">{order.customerName || "Guest"}</p>
                   <p className="text-sm text-text-muted">{order.customerEmail}</p>
                 </div>
               </section>
@@ -215,9 +206,7 @@ export function OrderDetailDrawer({
                   className="w-full text-accent-teal hover:text-accent-teal hover:bg-accent-teal/10"
                   asChild
                 >
-                  <a href={`/admin/orders/${order.id}`}>
-                    View Full Order Page
-                  </a>
+                  <a href={`/admin/orders/${order.id}`}>View Full Order Page</a>
                 </Button>
               </div>
             </div>

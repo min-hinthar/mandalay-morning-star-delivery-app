@@ -19,11 +19,7 @@ export interface NoResultsStateProps {
  * No-results state with popular items fallback.
  * Shown when query produces zero matches from both menu and order history.
  */
-export function NoResultsState({
-  query,
-  popularItems,
-  onSelectItem,
-}: NoResultsStateProps) {
+export function NoResultsState({ query, popularItems, onSelectItem }: NoResultsStateProps) {
   return (
     <m.div
       initial={{ opacity: 0, y: -4 }}
@@ -39,9 +35,7 @@ export function NoResultsState({
         <p className="text-sm font-medium text-text-primary">
           No results for &ldquo;{query}&rdquo;
         </p>
-        <p className="mt-1 text-xs text-text-muted">
-          Try a different search term
-        </p>
+        <p className="mt-1 text-xs text-text-muted">Try a different search term</p>
       </div>
 
       {/* Popular items to browse */}
@@ -88,9 +82,7 @@ export function NoResultsState({
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5 text-text-muted">
-                      <span className="text-base font-medium">
-                        {item.nameEn.charAt(0)}
-                      </span>
+                      <span className="text-base font-medium">{item.nameEn.charAt(0)}</span>
                     </div>
                   )}
                 </div>
@@ -99,9 +91,7 @@ export function NoResultsState({
                 <span className="flex-1 truncate text-sm font-medium text-text-primary">
                   {item.nameEn}
                 </span>
-                <span className="text-sm text-text-muted">
-                  {formatPrice(item.basePriceCents)}
-                </span>
+                <span className="text-sm text-text-muted">{formatPrice(item.basePriceCents)}</span>
               </m.div>
             </Command.Item>
           ))}

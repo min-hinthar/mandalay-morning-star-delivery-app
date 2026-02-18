@@ -5,9 +5,11 @@
 **Confidence:** HIGH
 
 <user_constraints>
+
 ## User Constraints (from CONTEXT.md)
 
 ### Locked Decisions
+
 - Hero text simplification is acceptable -- simpler animations are fine
 - Keep some subtle motion on the hero (light fade, slight slide) -- not fully static
 - Optimize full page load, not just hero -- below-fold content should lazy load too
@@ -42,6 +44,7 @@
 - Verification: Claude decides between manual Lighthouse and lightweight CI check
 
 ### Claude's Discretion
+
 - Hero entrance animation approach (visible-with-delayed-animation vs instant)
 - Which hero elements are server-visible (all vs just heading)
 - Visual transition smoothness between static and animated states
@@ -58,6 +61,7 @@
 - Error boundary / loading.tsx decisions
 
 ### Deferred Ideas (OUT OF SCOPE)
+
 None -- discussion stayed within phase scope
 </user_constraints>
 
@@ -74,25 +78,29 @@ The homepage itself has NO images in the hero (pure CSS gradients + emoji text o
 ## Standard Stack
 
 ### Core (already in project)
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| framer-motion | ^12.26.1 | Animation library | Already used across 293 files; LazyMotion + `m` component pattern |
-| next | 16.1.2 | Framework | App Router SSR, React 19, font/image optimization |
-| @vercel/speed-insights | ^1.3.1 | RUM monitoring | Already integrated, tracks LCP in production |
-| web-vitals | ^5.1.0 | CWV measurement | Already integrated in WebVitalsReporter |
-| @lhci/cli | ^0.15.1 | Lighthouse CI | Already configured in lighthouserc.js |
+
+| Library                | Version  | Purpose           | Why Standard                                                      |
+| ---------------------- | -------- | ----------------- | ----------------------------------------------------------------- |
+| framer-motion          | ^12.26.1 | Animation library | Already used across 293 files; LazyMotion + `m` component pattern |
+| next                   | 16.1.2   | Framework         | App Router SSR, React 19, font/image optimization                 |
+| @vercel/speed-insights | ^1.3.1   | RUM monitoring    | Already integrated, tracks LCP in production                      |
+| web-vitals             | ^5.1.0   | CWV measurement   | Already integrated in WebVitalsReporter                           |
+| @lhci/cli              | ^0.15.1  | Lighthouse CI     | Already configured in lighthouserc.js                             |
 
 ### Supporting (no new dependencies)
+
 No new libraries needed. This phase is entirely about reorganizing existing code.
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| Per-route domMax splitting | Global domMax (status quo) | Keeps all features but 10kb extra on every page load |
-| CSS transitions for layoutId | Keep all layoutId with domMax | CSS is lighter but less smooth for complex tab pills |
-| Touch handlers for drag | Keep drag with domMax | Touch handlers work but lose velocity/momentum physics |
+
+| Instead of                   | Could Use                     | Tradeoff                                               |
+| ---------------------------- | ----------------------------- | ------------------------------------------------------ |
+| Per-route domMax splitting   | Global domMax (status quo)    | Keeps all features but 10kb extra on every page load   |
+| CSS transitions for layoutId | Keep all layoutId with domMax | CSS is lighter but less smooth for complex tab pills   |
+| Touch handlers for drag      | Keep drag with domMax         | Touch handlers work but lose velocity/momentum physics |
 
 **Installation:**
+
 ```bash
 # No new packages needed
 ```
@@ -103,18 +111,18 @@ No new libraries needed. This phase is entirely about reorganizing existing code
 
 Source: [Motion docs - Reduce bundle size](https://motion.dev/docs/react-reduce-bundle-size)
 
-| Feature | domAnimation (15kb) | domMax (25kb) | Used in Codebase |
-|---------|:-------------------:|:-------------:|------------------|
-| `m.div` animate/transition | Yes | Yes | 293 files |
-| `initial`/`animate`/`exit` | Yes | Yes | Everywhere |
-| `AnimatePresence` | Yes | Yes | ~20 components |
-| `whileHover`/`whileTap`/`whileFocus` | Yes | Yes | Buttons, cards |
-| `variants` / `stagger` | Yes | Yes | Hero, lists, menus |
-| `useScroll`/`useTransform`/`useSpring` | Yes | Yes | Hero parallax |
-| **`layoutId`** | **NO** | Yes | **20+ components** |
-| **`layout` prop** | **NO** | Yes | **CartItemGroup** |
-| **`drag`/pan gestures** | **NO** | Yes | **Toast, CartItem, swipe** |
-| **`useAnimate`** | **NO** | Yes | **MagicLinkConfirmation** |
+| Feature                                | domAnimation (15kb) | domMax (25kb) | Used in Codebase           |
+| -------------------------------------- | :-----------------: | :-----------: | -------------------------- |
+| `m.div` animate/transition             |         Yes         |      Yes      | 293 files                  |
+| `initial`/`animate`/`exit`             |         Yes         |      Yes      | Everywhere                 |
+| `AnimatePresence`                      |         Yes         |      Yes      | ~20 components             |
+| `whileHover`/`whileTap`/`whileFocus`   |         Yes         |      Yes      | Buttons, cards             |
+| `variants` / `stagger`                 |         Yes         |      Yes      | Hero, lists, menus         |
+| `useScroll`/`useTransform`/`useSpring` |         Yes         |      Yes      | Hero parallax              |
+| **`layoutId`**                         |       **NO**        |      Yes      | **20+ components**         |
+| **`layout` prop**                      |       **NO**        |      Yes      | **CartItemGroup**          |
+| **`drag`/pan gestures**                |       **NO**        |      Yes      | **Toast, CartItem, swipe** |
+| **`useAnimate`**                       |       **NO**        |      Yes      | **MagicLinkConfirmation**  |
 
 ### Pattern 1: Async domAnimation Loading (Root Provider)
 
@@ -169,6 +177,7 @@ export function Providers({ children }: { children: ReactNode }) {
 ```
 
 **Recommendation:** Use CSS `@keyframes` for the hero heading entrance animation. The AnimatedHeadline word-stagger is the biggest offender -- each word starts at opacity:0 with rotateX:-90. Replace with:
+
 1. Server-render the `<h1>` as plain visible text (immediate LCP)
 2. Add a subtle CSS fade-in animation (no JS dependency)
 3. Keep the stagger word animation as an enhancement that plays after hydration if desired, but content must be readable without it
@@ -209,11 +218,14 @@ Nest inside route layouts that need it. LazyMotion supports nesting -- inner pro
   bottom: 0;
   height: 2px;
   background: var(--color-primary);
-  transition: left 0.2s var(--ease-out), width 0.2s var(--ease-out);
+  transition:
+    left 0.2s var(--ease-out),
+    width 0.2s var(--ease-out);
 }
 ```
 
 Components using layoutId that can migrate to CSS:
+
 - `BottomNav.tsx` -- `layoutId="bottomNavIndicator"`
 - `CategoryTabs.tsx` -- `layoutId="activeTabPill"`
 - `AdminNav.tsx` -- `layoutId="admin-nav-indicator"`
@@ -224,6 +236,7 @@ Components using layoutId that can migrate to CSS:
 - `FeaturedCarousel/CarouselControls.tsx` -- `layoutId="featuredCarouselDot"`
 
 Components requiring domMax (keep with async loader):
+
 - `AccountClient.tsx` -- `layoutId="accountTab"` (account route)
 - `SettingsTab.tsx` -- `layoutId="settingsSubTab"` (account route)
 - `AuthCard.tsx` / `LoginSuccessCeremony.tsx` -- `layoutId="app-logo"` (auth route)
@@ -234,18 +247,19 @@ Components requiring domMax (keep with async loader):
 
 ### Recommended Strategy: Hybrid Approach
 
-| Scope | Strategy | Why |
-|-------|----------|-----|
-| Root providers | Async `domAnimation` | Unblocks initial render for all pages |
-| Homepage hero | Server-visible text + CSS entrance animation | Fixes LCP directly |
-| Homepage below-fold | Already lazy-loaded (HowItWorks) | Good pattern, extend if needed |
-| Tab indicators (simple) | CSS transition replacement | No domMax needed |
-| Cart/Account routes | Async `domMax` nested provider | Preserves drag + layoutId |
-| Admin/Driver routes | Async `domMax` nested provider | Preserves layoutId nav indicators |
-| Toast (global) | Keep drag, load with async domMax in root | Non-LCP, loads after render |
-| `Tabs.tsx` (generic) | Refactor to CSS or accept domMax on routes using it | Depends on route |
+| Scope                   | Strategy                                            | Why                                   |
+| ----------------------- | --------------------------------------------------- | ------------------------------------- |
+| Root providers          | Async `domAnimation`                                | Unblocks initial render for all pages |
+| Homepage hero           | Server-visible text + CSS entrance animation        | Fixes LCP directly                    |
+| Homepage below-fold     | Already lazy-loaded (HowItWorks)                    | Good pattern, extend if needed        |
+| Tab indicators (simple) | CSS transition replacement                          | No domMax needed                      |
+| Cart/Account routes     | Async `domMax` nested provider                      | Preserves drag + layoutId             |
+| Admin/Driver routes     | Async `domMax` nested provider                      | Preserves layoutId nav indicators     |
+| Toast (global)          | Keep drag, load with async domMax in root           | Non-LCP, loads after render           |
+| `Tabs.tsx` (generic)    | Refactor to CSS or accept domMax on routes using it | Depends on route                      |
 
 ### Anti-Patterns to Avoid
+
 - **Removing all layoutId animations:** User explicitly wants "all animations keep working" -- migrate to CSS where trivial, keep with domMax where needed.
 - **Synchronous domMax import anywhere:** Even a single synchronous domMax import in the bundle entry point defeats the purpose. Verify all imports are async.
 - **Initial opacity:0 on LCP elements:** Never put `initial: { opacity: 0 }` on content that determines LCP. Server-render it visible.
@@ -253,48 +267,54 @@ Components requiring domMax (keep with async loader):
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Motion feature loading | Custom dynamic import wrapper | `LazyMotion features={loadFeatures}` | Built-in async loading with Suspense-like behavior |
-| Tab indicator animation | Complex JS position tracking | CSS `transition: left, width` | Pure CSS is 0kb JS, works without hydration |
-| Performance measurement | Custom timing code | Lighthouse CI (`pnpm lighthouse`) + web-vitals | Already configured, standardized metrics |
-| Image lazy loading | Custom IntersectionObserver | Next.js `<Image>` with default `loading="lazy"` | Built-in, handles srcset/sizes/formats |
+| Problem                 | Don't Build                   | Use Instead                                     | Why                                                |
+| ----------------------- | ----------------------------- | ----------------------------------------------- | -------------------------------------------------- |
+| Motion feature loading  | Custom dynamic import wrapper | `LazyMotion features={loadFeatures}`            | Built-in async loading with Suspense-like behavior |
+| Tab indicator animation | Complex JS position tracking  | CSS `transition: left, width`                   | Pure CSS is 0kb JS, works without hydration        |
+| Performance measurement | Custom timing code            | Lighthouse CI (`pnpm lighthouse`) + web-vitals  | Already configured, standardized metrics           |
+| Image lazy loading      | Custom IntersectionObserver   | Next.js `<Image>` with default `loading="lazy"` | Built-in, handles srcset/sizes/formats             |
 
 **Key insight:** The biggest LCP win comes from NOT doing things -- removing the synchronous domMax import and removing opacity:0 initial states. No new libraries or complex patterns needed.
 
 ## Common Pitfalls
 
 ### Pitfall 1: LazyMotion Nesting Confusion
+
 **What goes wrong:** Inner LazyMotion overrides outer one entirely. If a route has domAnimation and a component expects domMax features (layoutId), the component silently fails to animate.
 **Why it happens:** LazyMotion uses React context; inner provider replaces outer.
 **How to avoid:** When nesting, the inner LazyMotion must provide ALL features needed by its children (use domMax, not domAnimation, for the inner one). Document which routes load domMax.
 **Warning signs:** layoutId animations suddenly stop working, drag gestures unresponsive.
 
 ### Pitfall 2: CLS from Removing Initial Animation States
+
 **What goes wrong:** Removing `initial: { opacity: 0, y: 20 }` makes elements visible but at their final position. If the element's size depends on JS (e.g., dynamic text), it can cause layout shift.
 **Why it happens:** The element now participates in server-rendered layout, and if its dimensions change after hydration, CLS increases.
 **How to avoid:** Ensure hero elements have stable dimensions (fixed font sizes, no dynamic content). Test with `?animation=none` or similar to see server render without motion.
 **Warning signs:** CLS score increases after removing initial states.
 
 ### Pitfall 3: Flash of Unstyled Animation (FOUA)
+
 **What goes wrong:** Content renders visible, then briefly jumps/flickers when Framer Motion hydrates and applies its initial state.
 **Why it happens:** Server renders without Framer Motion. Client hydrates and Framer Motion sets `initial` styles inline, causing a flash.
 **How to avoid:** For hero content, remove `initial`/`animate` from `m.` components entirely, or use `initial={false}` to skip initial animation on mount. Use plain HTML elements for server-visible content.
 **Warning signs:** Visible flicker on page load, elements briefly jumping position.
 
 ### Pitfall 4: Async Feature Loading Timing
+
 **What goes wrong:** Animations don't play on initial page load because features haven't loaded yet.
 **Why it happens:** `LazyMotion features={loadFeatures}` resolves asynchronously. `m.div` renders immediately but animations wait for features to resolve.
 **How to avoid:** This is actually the desired behavior for LCP -- content renders immediately, animations start after features load. For hero, use CSS animations for the entrance so no JS dependency. For below-fold content, features will be loaded by the time user scrolls.
 **Warning signs:** Hero animation doesn't play at all (only if implementation is wrong).
 
 ### Pitfall 5: domMax Features Used in Unexpected Places
+
 **What goes wrong:** After migrating to domAnimation, some component breaks because it uses `layoutId` or `drag` in a non-obvious way (e.g., Tabs.tsx is generic and used on many routes).
 **Why it happens:** The `Tabs` component has `layoutId` built in and is used across admin, customer, and public routes.
 **How to avoid:** Audit every usage of `Tabs.tsx` component. Either: (a) refactor Tabs to use CSS transitions instead of layoutId, or (b) ensure all routes using Tabs have a domMax provider.
 **Warning signs:** Tab switching animation disappears or breaks.
 
 ### Pitfall 6: useAnimate Requires domMax
+
 **What goes wrong:** `MagicLinkConfirmation.tsx` uses `useAnimate` which is a domMax-only hook.
 **Why it happens:** `useAnimate` is part of the extended feature set.
 **How to avoid:** The auth route should have a domMax provider, or replace `useAnimate` with `animate` prop + state changes.
@@ -303,6 +323,7 @@ Components requiring domMax (keep with async loader):
 ## Code Examples
 
 ### Current Root Cause: Synchronous domMax (BEFORE)
+
 ```typescript
 // src/app/providers.tsx (CURRENT)
 import { LazyMotion, domMax } from "framer-motion";
@@ -314,6 +335,7 @@ import { LazyMotion, domMax } from "framer-motion";
 ```
 
 ### Fix: Async domAnimation (AFTER)
+
 ```typescript
 // src/app/providers.tsx (FIXED)
 import { LazyMotion } from "framer-motion";
@@ -327,6 +349,7 @@ const loadFeatures = () =>
 ```
 
 ### Current Hero Heading (BEFORE) - Blocks LCP
+
 ```typescript
 // src/components/ui/homepage/Hero/HeroSubComponents.tsx
 // AnimatedHeadline: each word starts invisible
@@ -347,6 +370,7 @@ const loadFeatures = () =>
 ```
 
 ### Fixed Hero Heading (AFTER) - Server Visible
+
 ```typescript
 // Option A: Plain h1 with CSS animation enhancement
 export function AnimatedHeadline({ text, className }: AnimatedHeadlineProps) {
@@ -368,6 +392,7 @@ export function AnimatedHeadline({ text, className }: AnimatedHeadlineProps) {
 ```
 
 ### CSS Tab Indicator Replacement
+
 ```typescript
 // BEFORE: Framer Motion layoutId
 {isActive && (
@@ -390,6 +415,7 @@ export function AnimatedHeadline({ text, className }: AnimatedHeadlineProps) {
 ## Codebase Audit Results
 
 ### Hero Analysis (Homepage LCP)
+
 - **LCP element:** `<h1>` heading text ("Authentic Burmese Cuisine Delivered to Your Door")
 - **No images in hero:** Pure CSS gradients (`GradientFallback`) + emoji text overlays (`FloatingEmoji`)
 - **Blocking animations:** 7 elements with `initial: { opacity: 0 }` in HeroContent + HeroSubComponents
@@ -403,8 +429,8 @@ export function AnimatedHeadline({ text, className }: AnimatedHeadlineProps) {
 |-----------|----------|-------|---------------|
 | BottomNav | `bottomNavIndicator` | Global customer | CSS transition |
 | CategoryTabs | `activeTabPill` | /menu | CSS transition |
-| AdminNav | `admin-nav-indicator` | /admin/* | Async domMax (admin layout) |
-| DriverNav | `driver-nav-indicator` | /driver/* | Async domMax (driver layout) |
+| AdminNav | `admin-nav-indicator` | /admin/_ | Async domMax (admin layout) |
+| DriverNav | `driver-nav-indicator` | /driver/_ | Async domMax (driver layout) |
 | Tabs (generic) | configurable | Multiple | CSS transition OR async domMax per route |
 | AccountClient | `accountTab` | /account | Async domMax (customer layout) |
 | SettingsTab | `settingsSubTab` | /account | Async domMax (customer layout) |
@@ -436,21 +462,22 @@ export function AnimatedHeadline({ text, className }: AnimatedHeadlineProps) {
 
 ### Route-Level domMax Needs Summary
 
-| Route Group | Needs domMax? | Why |
-|-------------|:-------------:|-----|
-| `(public)` homepage | **NO** | No layoutId/drag/layout on homepage |
-| `(public)` /menu | **NO** | CategoryTabs layoutId can be CSS; FeaturedCarousel dots can be CSS |
-| `(public)` other | **NO** | Privacy, terms, driver onboard -- simple pages |
-| `(customer)` /cart | **YES** | CartItem drag, CartItemGroup layout, Tabs layoutId |
-| `(customer)` /checkout | Maybe | Uses Tabs, AddressInput -- check if layoutId needed |
-| `(customer)` /account | **YES** | AccountClient layoutId, SettingsTab layoutId |
-| `(customer)` /orders | Maybe | OrderListAnimated, tracking -- audit needed |
-| `(auth)` /login | **YES** | AuthCard/LoginSuccess layoutId="app-logo", useAnimate |
-| `(admin)` all | **YES** | AdminNav layoutId, CardRow layoutId, multiple |
-| `(driver)` all | **YES** | DriverNav layoutId |
-| Global (Toast) | **YES** | drag="x" swipe dismiss |
+| Route Group            | Needs domMax? | Why                                                                |
+| ---------------------- | :-----------: | ------------------------------------------------------------------ |
+| `(public)` homepage    |    **NO**     | No layoutId/drag/layout on homepage                                |
+| `(public)` /menu       |    **NO**     | CategoryTabs layoutId can be CSS; FeaturedCarousel dots can be CSS |
+| `(public)` other       |    **NO**     | Privacy, terms, driver onboard -- simple pages                     |
+| `(customer)` /cart     |    **YES**    | CartItem drag, CartItemGroup layout, Tabs layoutId                 |
+| `(customer)` /checkout |     Maybe     | Uses Tabs, AddressInput -- check if layoutId needed                |
+| `(customer)` /account  |    **YES**    | AccountClient layoutId, SettingsTab layoutId                       |
+| `(customer)` /orders   |     Maybe     | OrderListAnimated, tracking -- audit needed                        |
+| `(auth)` /login        |    **YES**    | AuthCard/LoginSuccess layoutId="app-logo", useAnimate              |
+| `(admin)` all          |    **YES**    | AdminNav layoutId, CardRow layoutId, multiple                      |
+| `(driver)` all         |    **YES**    | DriverNav layoutId                                                 |
+| Global (Toast)         |    **YES**    | drag="x" swipe dismiss                                             |
 
 ### Third-Party Script Audit
+
 - **Sentry (`@sentry/nextjs` ^10.38.0):** Loaded via Next.js plugin, non-blocking (tunnel route `/monitoring`)
 - **Vercel Speed Insights:** `<SpeedInsights sampleRate={50} />` in root layout -- rendered as client component, loads async
 - **Vercel Analytics:** `<Analytics />` in root layout -- loads async
@@ -460,17 +487,20 @@ export function AnimatedHeadline({ text, className }: AnimatedHeadlineProps) {
 All third-party scripts are already deferred/non-blocking. No changes needed.
 
 ### Font Loading Audit
+
 - `Inter` and `Playfair_Display` both use `display: "swap"` and `preload: true` -- correct
 - Preconnect hints present for `fonts.googleapis.com` and `fonts.gstatic.com` -- correct
 - Only critical weights loaded for Playfair (400, 600, 700) -- good
 
 ### Image Loading Audit (Homepage)
+
 - **No images in hero section** -- LCP is text-based
 - HowItWorks section: uses `next/image` but is already lazy-loaded via `React.lazy()`
 - Below-fold sections (menu, testimonials): no direct image imports in homepage components
 - Menu item images use `BlurImage` component (needs separate audit for /menu page)
 
 ### loading.tsx Analysis
+
 - `src/app/(public)/loading.tsx` exists -- shows `<RouteLoading message="Loading..." />`
 - This is a **Suspense boundary** that wraps the page during streaming SSR
 - For homepage: the `getFeaturedSections()` server fetch triggers this loading state
@@ -479,14 +509,15 @@ All third-party scripts are already deferred/non-blocking. No changes needed.
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Sync `domMax` import | Async `domAnimation` + per-route `domMax` | Motion v4+ (2021) | 10-25kb less in critical path |
-| `initial: { opacity: 0 }` for entrance | Server-visible + CSS entrance animation | Next.js App Router era | LCP = FCP instead of LCP = FCP + animation delay |
-| Client-side data fetching | Server Components with async/await | Next.js 13+ (2023) | Already done correctly in this codebase |
-| `font-display: block` | `font-display: swap` + preload | Best practice since 2020 | Already done correctly in this codebase |
+| Old Approach                           | Current Approach                          | When Changed             | Impact                                           |
+| -------------------------------------- | ----------------------------------------- | ------------------------ | ------------------------------------------------ |
+| Sync `domMax` import                   | Async `domAnimation` + per-route `domMax` | Motion v4+ (2021)        | 10-25kb less in critical path                    |
+| `initial: { opacity: 0 }` for entrance | Server-visible + CSS entrance animation   | Next.js App Router era   | LCP = FCP instead of LCP = FCP + animation delay |
+| Client-side data fetching              | Server Components with async/await        | Next.js 13+ (2023)       | Already done correctly in this codebase          |
+| `font-display: block`                  | `font-display: swap` + preload            | Best practice since 2020 | Already done correctly in this codebase          |
 
 **Deprecated/outdated:**
+
 - `MotionConfig features` -- replaced by `LazyMotion` in Framer Motion 4.0
 - `motion.div` (full import) -- replaced by `m.div` (slim import) with LazyMotion. Already migrated.
 
@@ -515,6 +546,7 @@ All third-party scripts are already deferred/non-blocking. No changes needed.
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - [Motion docs - Reduce bundle size](https://motion.dev/docs/react-reduce-bundle-size) -- domAnimation vs domMax feature matrix, LazyMotion async loading pattern
 - [Next.js docs - Image Component](https://github.com/vercel/next.js/blob/v16.1.5/docs/01-app/03-api-reference/02-components/image.mdx) -- preload prop, priority for LCP
 - [Next.js docs - loading.tsx](https://github.com/vercel/next.js/blob/v16.1.5/docs/01-app/01-getting-started/04-linking-and-navigating.mdx) -- Suspense fallback behavior
@@ -522,15 +554,18 @@ All third-party scripts are already deferred/non-blocking. No changes needed.
 - Codebase audit: `src/app/providers.tsx`, `src/components/ui/homepage/Hero/`, all layoutId/drag/layout usages
 
 ### Secondary (MEDIUM confidence)
+
 - [Framer Motion Reduce Bundle Size](https://motion.dev/docs/react-reduce-bundle-size) -- Feature package sizes: domAnimation ~15kb, domMax ~25kb (verified via Context7)
 - Codebase `lighthouserc.js` -- Current thresholds and config
 
 ### Tertiary (LOW confidence)
+
 - LCP 8-11s figure from project STATE.md -- needs fresh measurement after Phase 59 changes
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH -- no new libraries, only reorganization of existing framer-motion usage
 - Architecture: HIGH -- LazyMotion async pattern is well-documented, domAnimation/domMax split is official API
 - Pitfalls: HIGH -- based on direct codebase audit identifying exact files and features

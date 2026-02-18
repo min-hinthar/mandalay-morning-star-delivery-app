@@ -122,10 +122,7 @@ export function QuantitySelector({
 
       {/* Quantity display with rubbery flip animation */}
       <div
-        className={cn(
-          sizes.display,
-          "relative flex items-center justify-center overflow-hidden"
-        )}
+        className={cn(sizes.display, "relative flex items-center justify-center overflow-hidden")}
       >
         <AnimatePresence mode="popLayout" initial={false}>
           <m.span
@@ -161,10 +158,7 @@ export function QuantitySelector({
                 : undefined
             }
             transition={rubberySpring}
-            className={cn(
-              "absolute font-semibold text-text-primary tabular-nums",
-              sizes.text
-            )}
+            className={cn("absolute font-semibold text-text-primary tabular-nums", sizes.text)}
           >
             {quantity}
           </m.span>

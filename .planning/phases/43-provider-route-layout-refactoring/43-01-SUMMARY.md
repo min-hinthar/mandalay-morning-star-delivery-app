@@ -60,6 +60,7 @@ completed: 2026-02-06
 - **Files modified:** 6
 
 ## Accomplishments
+
 - Created CartOverlays wrapper rendering CartBar + CartDrawer + FlyToCart as Fragment siblings
 - Added route-group layouts for (public) and (customer) that render CartOverlays alongside children
 - Cleaned providers.tsx to contain only theme/query/animation providers -- zero cart references
@@ -73,6 +74,7 @@ Each task was committed atomically:
 2. **Task 2: Remove cart from global providers and update CartIndicator fallback** - `77a1189` (refactor)
 
 ## Files Created/Modified
+
 - `src/components/ui/cart/CartOverlays.tsx` - DRY wrapper rendering CartBar + CartDrawer + FlyToCart
 - `src/app/(public)/layout.tsx` - Public route group layout with CartOverlays
 - `src/app/(customer)/layout.tsx` - Customer route group layout with CartOverlays
@@ -81,6 +83,7 @@ Each task was committed atomically:
 - `src/components/ui/layout/AppHeader/CartIndicator.tsx` - Added pathname-aware click handler with router.push fallback
 
 ## Decisions Made
+
 - CartOverlays imports from sibling files (`./CartBar`, `./CartDrawer`, `./FlyToCart`) rather than barrel index to avoid circular dependency
 - Route-group layouts marked `"use client"` -- this does NOT force child pages to be client components (children are a serialization boundary)
 - CartIndicator navigates to `/cart` on non-cart routes rather than being a no-op, giving admin/driver users a way to access their cart
@@ -90,6 +93,7 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 - `pnpm build` fails due to Google Fonts network fetch in sandboxed environment (not code-related). Lint, CSS lint, typecheck (0 errors), and all 343 tests pass.
 
 ## User Setup Required
@@ -97,10 +101,12 @@ None - plan executed exactly as written.
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Route-group layouts in place, ready for 43-02 (additional refactoring if planned)
 - Admin/driver/auth bundles no longer include cart component tree
 - CartIndicator provides graceful fallback on all routes
 
 ---
-*Phase: 43-provider-route-layout-refactoring*
-*Completed: 2026-02-06*
+
+_Phase: 43-provider-route-layout-refactoring_
+_Completed: 2026-02-06_

@@ -77,10 +77,7 @@ export const CategoryTabs = memo(function CategoryTabs({
   } | null>(null);
 
   // Generate section IDs for scrollspy (only used in uncontrolled mode)
-  const sectionIds = useMemo(
-    () => categories.map((cat) => `category-${cat.slug}`),
-    [categories]
-  );
+  const sectionIds = useMemo(() => categories.map((cat) => `category-${cat.slug}`), [categories]);
 
   // Use scrollspy hook (only active in uncontrolled mode)
   // Header height is 64px; offline banner offset is added dynamically by the hook
@@ -171,7 +168,7 @@ export const CategoryTabs = memo(function CategoryTabs({
       const tabWidth = activeTab.offsetWidth;
 
       // Calculate target scroll position to center the tab
-      const targetScrollLeft = tabOffsetLeft - (containerWidth / 2) + (tabWidth / 2);
+      const targetScrollLeft = tabOffsetLeft - containerWidth / 2 + tabWidth / 2;
 
       // Clamp to valid scroll range
       const maxScroll = container.scrollWidth - containerWidth;
@@ -206,10 +203,7 @@ export const CategoryTabs = memo(function CategoryTabs({
 
   // All tabs including "All" at the start
   const allTabs = useMemo(
-    () => [
-      { slug: null, name: "All", nameEn: "All", nameMy: undefined },
-      ...categories,
-    ],
+    () => [{ slug: null, name: "All", nameEn: "All", nameMy: undefined }, ...categories],
     [categories]
   );
 
@@ -241,10 +235,7 @@ export const CategoryTabs = memo(function CategoryTabs({
         ref={scrollContainerRef}
         role="tablist"
         aria-label="Menu categories"
-        className={cn(
-          "relative flex gap-2 overflow-x-auto scrollbar-hide",
-          "px-4 py-3"
-        )}
+        className={cn("relative flex gap-2 overflow-x-auto scrollbar-hide", "px-4 py-3")}
       >
         {/* CSS-transitioned pill indicator */}
         {indicatorStyle && (
@@ -262,9 +253,7 @@ export const CategoryTabs = memo(function CategoryTabs({
 
         {allTabs.map((tab) => {
           const isActive =
-            tab.slug === null
-              ? activeCategory === null
-              : activeCategory === tab.slug;
+            tab.slug === null ? activeCategory === null : activeCategory === tab.slug;
           const key = tab.slug ?? "__all__";
 
           return (
@@ -295,9 +284,7 @@ export const CategoryTabs = memo(function CategoryTabs({
               )}
             >
               {/* Tab label */}
-              <span className="relative z-0">
-                {tab.nameEn || tab.name}
-              </span>
+              <span className="relative z-0">{tab.nameEn || tab.name}</span>
             </m.button>
           );
         })}

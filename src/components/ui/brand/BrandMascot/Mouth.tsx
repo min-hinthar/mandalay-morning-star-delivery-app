@@ -60,10 +60,12 @@ export function Mouth({ expression, size }: MouthProps) {
             strokeWidth={2}
             fill="none"
             strokeLinecap="round"
-            animate={{ d: [
-              `M${mouthWidth * 0.2},${mouthHeight * 0.5} Q${mouthWidth * 0.5},${mouthHeight * 0.3} ${mouthWidth * 0.8},${mouthHeight * 0.5}`,
-              `M${mouthWidth * 0.2},${mouthHeight * 0.5} Q${mouthWidth * 0.5},${mouthHeight * 0.5} ${mouthWidth * 0.8},${mouthHeight * 0.5}`,
-            ]}}
+            animate={{
+              d: [
+                `M${mouthWidth * 0.2},${mouthHeight * 0.5} Q${mouthWidth * 0.5},${mouthHeight * 0.3} ${mouthWidth * 0.8},${mouthHeight * 0.5}`,
+                `M${mouthWidth * 0.2},${mouthHeight * 0.5} Q${mouthWidth * 0.5},${mouthHeight * 0.5} ${mouthWidth * 0.8},${mouthHeight * 0.5}`,
+              ],
+            }}
             transition={{ duration: 2, repeat: 5, ease: "easeInOut" }}
           />
         );

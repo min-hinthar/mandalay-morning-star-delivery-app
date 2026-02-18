@@ -2,12 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { m } from "framer-motion";
-import {
-  RefreshCw,
-  FolderTree,
-  CheckCircle,
-  UtensilsCrossed,
-} from "lucide-react";
+import { RefreshCw, FolderTree, CheckCircle, UtensilsCrossed } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToast";
 import { Button } from "@/components/ui/button";
@@ -59,9 +54,7 @@ export default function AdminCategoriesPage() {
       if (!response.ok) throw new Error("Failed to update category");
 
       setCategories((prev) =>
-        prev.map((c) =>
-          c.id === category.id ? { ...c, is_active: !c.is_active } : c
-        )
+        prev.map((c) => (c.id === category.id ? { ...c, is_active: !c.is_active } : c))
       );
     } catch {
       toast({
@@ -74,13 +67,9 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  const handleMove = async (
-    category: CategoryRow,
-    direction: "up" | "down"
-  ) => {
+  const handleMove = async (category: CategoryRow, direction: "up" | "down") => {
     const currentIndex = categories.findIndex((c) => c.id === category.id);
-    const targetIndex =
-      direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
 
     if (targetIndex < 0 || targetIndex >= categories.length) return;
 
@@ -108,8 +97,7 @@ export default function AdminCategoriesPage() {
       setCategories((prev) => {
         const newCategories = [...prev];
         const currentSortOrder = newCategories[currentIndex].sort_order;
-        newCategories[currentIndex].sort_order =
-          newCategories[targetIndex].sort_order;
+        newCategories[currentIndex].sort_order = newCategories[targetIndex].sort_order;
         newCategories[targetIndex].sort_order = currentSortOrder;
         return newCategories.sort((a, b) => a.sort_order - b.sort_order);
       });
@@ -134,11 +122,7 @@ export default function AdminCategoriesPage() {
       return;
     }
 
-    if (
-      !confirm(
-        `Are you sure you want to delete "${category.name}"? This cannot be undone.`
-      )
-    ) {
+    if (!confirm(`Are you sure you want to delete "${category.name}"? This cannot be undone.`)) {
       return;
     }
 
@@ -161,8 +145,7 @@ export default function AdminCategoriesPage() {
     } catch (err) {
       toast({
         title: "Error",
-        description:
-          err instanceof Error ? err.message : "Failed to delete category",
+        description: err instanceof Error ? err.message : "Failed to delete category",
         variant: "destructive",
       });
     } finally {
@@ -217,9 +200,7 @@ export default function AdminCategoriesPage() {
             disabled={refreshing}
             className="border-border hover:bg-surface-tertiary"
           >
-            <RefreshCw
-              className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")}
-            />
+            <RefreshCw className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")} />
             Refresh
           </Button>
           <AddCategoryDialog onCategoryCreated={handleCategoryCreated} />
@@ -238,9 +219,7 @@ export default function AdminCategoriesPage() {
           <div className="relative">
             <div className="flex items-center gap-2 text-primary">
               <FolderTree className="h-5 w-5" />
-              <span className="text-sm font-body font-medium">
-                Total Categories
-              </span>
+              <span className="text-sm font-body font-medium">Total Categories</span>
             </div>
             <p className="text-3xl font-display font-bold text-text-primary mt-2">
               {categories.length}
@@ -255,9 +234,7 @@ export default function AdminCategoriesPage() {
               <CheckCircle className="h-5 w-5" />
               <span className="text-sm font-body font-medium">Active</span>
             </div>
-            <p className="text-3xl font-display font-bold text-text-primary mt-2">
-              {activeCount}
-            </p>
+            <p className="text-3xl font-display font-bold text-text-primary mt-2">{activeCount}</p>
           </div>
         </div>
 
@@ -266,13 +243,9 @@ export default function AdminCategoriesPage() {
           <div className="relative">
             <div className="flex items-center gap-2 text-primary">
               <UtensilsCrossed className="h-5 w-5" />
-              <span className="text-sm font-body font-medium">
-                Total Items
-              </span>
+              <span className="text-sm font-body font-medium">Total Items</span>
             </div>
-            <p className="text-3xl font-display font-bold text-text-primary mt-2">
-              {totalItems}
-            </p>
+            <p className="text-3xl font-display font-bold text-text-primary mt-2">{totalItems}</p>
           </div>
         </div>
       </m.div>

@@ -91,6 +91,7 @@ Each task was committed atomically:
 ### User-Approved Deviation
 
 **1. Placeholder 3D model instead of planned rice bowl**
+
 - **Found during:** Task 1 (Download 3D food model)
 - **Issue:** Poly.Pizza URL unreachable, could not download planned Asian rice bowl GLB
 - **Resolution:** Used placeholder duck model to verify 3D pipeline works
@@ -121,5 +122,6 @@ None - no external service configuration required.
   - Performance optimizations
 
 ---
-*Phase: 16-3d-hero-core*
-*Completed: 2026-01-24*
+
+_Phase: 16-3d-hero-core_
+_Completed: 2026-01-24_

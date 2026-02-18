@@ -75,10 +75,7 @@ export function MenuAccordion({
     [allowMultiple]
   );
 
-  const isExpanded = useCallback(
-    (slug: string) => expandedSlugs.has(slug),
-    [expandedSlugs]
-  );
+  const isExpanded = useCallback((slug: string) => expandedSlugs.has(slug), [expandedSlugs]);
 
   // Filter out empty categories
   const nonEmptyCategories = categories.filter((cat) => cat.items.length > 0);
@@ -176,9 +173,7 @@ function AccordionCategory({
           <m.div
             animate={{ rotate: isExpanded ? 180 : 0 }}
             transition={
-              shouldReduceMotion
-                ? { duration: 0 }
-                : { duration: 0.3, ease: [0, 0, 0.2, 1] }
+              shouldReduceMotion ? { duration: 0 } : { duration: 0.3, ease: [0, 0, 0.2, 1] }
             }
           >
             <ChevronDown
@@ -231,11 +226,7 @@ function AccordionCategory({
                       : undefined
                   }
                 >
-                  {renderItem ? (
-                    renderItem(item, index)
-                  ) : (
-                    <DefaultItemCard item={item} />
-                  )}
+                  {renderItem ? renderItem(item, index) : <DefaultItemCard item={item} />}
                 </div>
               ))}
             </div>
@@ -275,9 +266,7 @@ function DefaultItemCard({ item }: { item: MenuItem }) {
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <h4 className="font-semibold text-[var(--color-text-primary)] truncate">
-          {item.nameEn}
-        </h4>
+        <h4 className="font-semibold text-[var(--color-text-primary)] truncate">{item.nameEn}</h4>
         {item.descriptionEn && (
           <p className="text-sm text-[var(--color-text-secondary)] line-clamp-1">
             {item.descriptionEn}

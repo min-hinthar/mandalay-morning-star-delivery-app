@@ -95,7 +95,9 @@ export async function POST(_request: Request, { params }: RouteParams) {
     // Fetch order items
     const { data: orderItems, error: itemsError } = await supabase
       .from("order_items")
-      .select("id, menu_item_id, name_snapshot, base_price_snapshot, quantity, line_total_cents, special_instructions")
+      .select(
+        "id, menu_item_id, name_snapshot, base_price_snapshot, quantity, line_total_cents, special_instructions"
+      )
       .eq("order_id", orderId)
       .returns<OrderItemRow[]>();
 
@@ -132,9 +134,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
     if (menuError) throw menuError;
 
     // Build menu items lookup
-    const menuItemsMap = new Map(
-      (menuItems || []).map((item) => [item.id, item])
-    );
+    const menuItemsMap = new Map((menuItems || []).map((item) => [item.id, item]));
 
     // Build modifiers lookup by order_item_id
     const modifiersByItem = new Map<string, ModifierRow[]>();
@@ -149,9 +149,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
     const warnings: Warning[] = [];
 
     for (const orderItem of orderItems) {
-      const menuItem = orderItem.menu_item_id
-        ? menuItemsMap.get(orderItem.menu_item_id)
-        : null;
+      const menuItem = orderItem.menu_item_id ? menuItemsMap.get(orderItem.menu_item_id) : null;
 
       // Check availability
       if (!menuItem || !menuItem.is_active) {

@@ -60,6 +60,7 @@ completed: 2026-01-28
 - **Files modified:** 3
 
 ## Accomplishments
+
 - FloatingEmoji component with drift/spiral/bob animations and CSS variable depth effects
 - GradientOrb component using radial gradients with theme-aware blur tokens
 - Hero integration with parallax layers, mouse tracking, and edge fade masks
@@ -73,11 +74,13 @@ Each task was committed atomically:
 3. **Task 3: Integrate emojis and orbs into Hero** - `f498f27` (feat)
 
 ## Files Created/Modified
+
 - `src/components/ui/homepage/FloatingEmoji.tsx` - Emoji component with 3 animation types and depth effects (198 lines)
 - `src/components/ui/homepage/GradientOrb.tsx` - Gradient orb with theme-aware blur (94 lines)
 - `src/components/ui/homepage/Hero.tsx` - Integration with mouse tracking and layer rendering
 
 ## Decisions Made
+
 - EMOJI_CONFIG: 13 emojis (4 far, 5 mid, 4 near) using hardcoded positions to avoid hydration mismatch
 - Animation variety: drift (horizontal float), spiral (rotating rise), bob (vertical bounce)
 - Mouse repel: calculated from center offset, max 20px, only on canHover devices
@@ -88,17 +91,21 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Hero visual layers complete with emojis and orbs
 - Ready for 31-04 (shimmer effects and polish) and 31-05 (final verification)
 - All depth tokens from 31-01 are being consumed
 - Parallax transforms from 31-02 are wired to layer components
 
 ---
-*Phase: 31-hero-redesign*
-*Completed: 2026-01-28*
+
+_Phase: 31-hero-redesign_
+_Completed: 2026-01-28_

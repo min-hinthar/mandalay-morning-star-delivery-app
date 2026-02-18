@@ -73,12 +73,8 @@ export function DrawerUserSection({ user, onClose }: DrawerUserSectionProps) {
 
           {/* User info */}
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-text-primary truncate">
-              {user.name || "Guest"}
-            </p>
-            {user.email && (
-              <p className="text-sm text-text-muted truncate">{user.email}</p>
-            )}
+            <p className="font-semibold text-text-primary truncate">{user.name || "Guest"}</p>
+            {user.email && <p className="text-sm text-text-muted truncate">{user.email}</p>}
           </div>
         </div>
       ) : (

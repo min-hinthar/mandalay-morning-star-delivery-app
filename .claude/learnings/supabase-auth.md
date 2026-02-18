@@ -41,6 +41,7 @@ USING (email = (auth.jwt() ->> 'email'));
 When `updateUserById` sets metadata server-side, client's session cookies still have old metadata.
 
 **Fix:** Check by email as fallback:
+
 ```typescript
 let inviteId = user.user_metadata?.invite_id;
 if (!inviteId) {

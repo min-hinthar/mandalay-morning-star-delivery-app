@@ -25,9 +25,13 @@ export function TimelineStep({ icon, title, description, isActive, index }: Time
       className="flex items-start gap-3"
     >
       <m.div
-        animate={isActive && shouldAnimate ? {
-          scale: [1, 1.2, 1],
-        } : undefined}
+        animate={
+          isActive && shouldAnimate
+            ? {
+                scale: [1, 1.2, 1],
+              }
+            : undefined
+        }
         transition={{
           duration: 2,
           repeat: 5,
@@ -35,9 +39,7 @@ export function TimelineStep({ icon, title, description, isActive, index }: Time
         }}
         className={cn(
           "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
-          isActive
-            ? "bg-primary text-text-inverse"
-            : "bg-surface-tertiary text-text-muted"
+          isActive ? "bg-primary text-text-inverse" : "bg-surface-tertiary text-text-muted"
         )}
       >
         {icon}

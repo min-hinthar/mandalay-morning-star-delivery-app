@@ -25,7 +25,10 @@ export interface RouteListTableProps {
 export type SortField = "deliveryDate" | "status" | "stopCount" | "completionRate";
 export type SortDirection = "asc" | "desc";
 
-export const STATUS_CONFIG: Record<RouteStatus, { label: string; className: string; icon: React.ReactNode }> = {
+export const STATUS_CONFIG: Record<
+  RouteStatus,
+  { label: string; className: string; icon: React.ReactNode }
+> = {
   planned: {
     label: "Planned",
     className: "bg-status-info-bg text-status-info border-status-info/30",
@@ -33,7 +36,8 @@ export const STATUS_CONFIG: Record<RouteStatus, { label: string; className: stri
   },
   in_progress: {
     label: "In Progress",
-    className: "bg-interactive-primary-light text-interactive-primary border-interactive-primary/30",
+    className:
+      "bg-interactive-primary-light text-interactive-primary border-interactive-primary/30",
     icon: <Play className="h-3.5 w-3.5" />,
   },
   completed: {

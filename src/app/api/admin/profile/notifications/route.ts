@@ -25,11 +25,7 @@ interface SettingsRow {
 }
 
 function parseNotificationPrefs(raw: Json): AdminNotificationPrefs {
-  if (
-    raw &&
-    typeof raw === "object" &&
-    !Array.isArray(raw)
-  ) {
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
     const parsed = adminNotificationPrefsSchema.safeParse(raw);
     if (parsed.success) return parsed.data;
   }
@@ -45,7 +41,9 @@ export async function GET() {
     const auth = await requireAdmin();
     if (!auth.success) {
       return NextResponse.json(
-        { error: { code: auth.status === 401 ? "UNAUTHORIZED" : "FORBIDDEN", message: auth.error } },
+        {
+          error: { code: auth.status === 401 ? "UNAUTHORIZED" : "FORBIDDEN", message: auth.error },
+        },
         { status: auth.status }
       );
     }
@@ -69,9 +67,7 @@ export async function GET() {
       );
     }
 
-    const prefs = settings
-      ? parseNotificationPrefs(settings.notification_prefs)
-      : DEFAULT_PREFS;
+    const prefs = settings ? parseNotificationPrefs(settings.notification_prefs) : DEFAULT_PREFS;
 
     return NextResponse.json({ data: prefs });
   } catch (error) {
@@ -92,7 +88,9 @@ export async function PUT(request: NextRequest) {
     const auth = await requireAdmin();
     if (!auth.success) {
       return NextResponse.json(
-        { error: { code: auth.status === 401 ? "UNAUTHORIZED" : "FORBIDDEN", message: auth.error } },
+        {
+          error: { code: auth.status === 401 ? "UNAUTHORIZED" : "FORBIDDEN", message: auth.error },
+        },
         { status: auth.status }
       );
     }
@@ -109,19 +107,17 @@ export async function PUT(request: NextRequest) {
     }
 
     // Upsert into customer_settings with sensible defaults for required columns
-    const { error: upsertError } = await supabase
-      .from("customer_settings")
-      .upsert(
-        {
-          user_id: userId,
-          notification_prefs: result.data as unknown as Json,
-          dietary_restrictions: [],
-          delivery_instructions: "",
-          theme: "system",
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" }
-      );
+    const { error: upsertError } = await supabase.from("customer_settings").upsert(
+      {
+        user_id: userId,
+        notification_prefs: result.data as unknown as Json,
+        dietary_restrictions: [],
+        delivery_instructions: "",
+        theme: "system",
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" }
+    );
 
     if (upsertError) {
       logger.exception(upsertError, {

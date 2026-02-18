@@ -33,7 +33,10 @@ interface StopCardProps {
   onClick?: () => void;
 }
 
-const statusConfig: Record<RouteStopStatus, { label: string; badgeClass: string; borderClass: string }> = {
+const statusConfig: Record<
+  RouteStopStatus,
+  { label: string; badgeClass: string; borderClass: string }
+> = {
   pending: {
     label: "Pending",
     badgeClass: "bg-amber-100 text-amber-800",
@@ -142,9 +145,7 @@ export function StopCard({
           {(etaDisplay || timeDisplay) && (
             <div className="flex items-center gap-1.5 mt-1.5 font-body text-sm text-text-muted">
               <Clock className="h-3.5 w-3.5" />
-              <span>
-                {etaDisplay ? `ETA ${etaDisplay}` : timeDisplay}
-              </span>
+              <span>{etaDisplay ? `ETA ${etaDisplay}` : timeDisplay}</span>
             </div>
           )}
         </div>

@@ -16,8 +16,7 @@ import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
 export function OfflineBanner() {
   const { isOnline, syncState, pendingCounts } = useOfflineSync();
 
-  const showBanner =
-    !isOnline || syncState === "syncing" || syncState === "synced";
+  const showBanner = !isOnline || syncState === "syncing" || syncState === "synced";
 
   // Determine banner content
   let icon: React.ReactNode;

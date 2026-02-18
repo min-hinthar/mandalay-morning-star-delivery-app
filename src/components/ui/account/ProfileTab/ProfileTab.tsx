@@ -36,7 +36,10 @@ export function ProfileTab() {
         setPhone(result.data.phone || "");
       } catch (error) {
         setHasError(true);
-        toast({ message: error instanceof Error ? error.message : "Failed to load profile", type: "error" });
+        toast({
+          message: error instanceof Error ? error.message : "Failed to load profile",
+          type: "error",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -55,12 +58,16 @@ export function ProfileTab() {
     const newErrors: FormErrors = {};
     const trimmedName = fullName.trim();
     if (trimmedName) {
-      if (trimmedName.length < VALIDATION.fullName.minLength) newErrors.fullName = `Name must be at least ${VALIDATION.fullName.minLength} characters`;
-      else if (trimmedName.length > VALIDATION.fullName.maxLength) newErrors.fullName = `Name must be less than ${VALIDATION.fullName.maxLength} characters`;
-      else if (!VALIDATION.fullName.pattern.test(trimmedName)) newErrors.fullName = "Name contains invalid characters";
+      if (trimmedName.length < VALIDATION.fullName.minLength)
+        newErrors.fullName = `Name must be at least ${VALIDATION.fullName.minLength} characters`;
+      else if (trimmedName.length > VALIDATION.fullName.maxLength)
+        newErrors.fullName = `Name must be less than ${VALIDATION.fullName.maxLength} characters`;
+      else if (!VALIDATION.fullName.pattern.test(trimmedName))
+        newErrors.fullName = "Name contains invalid characters";
     }
     const trimmedPhone = phone.trim();
-    if (trimmedPhone && !VALIDATION.phone.pattern.test(trimmedPhone)) newErrors.phone = "Please enter a valid phone number";
+    if (trimmedPhone && !VALIDATION.phone.pattern.test(trimmedPhone))
+      newErrors.phone = "Please enter a valid phone number";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [fullName, phone]);
@@ -87,7 +94,10 @@ export function ProfileTab() {
       const result = await response.json();
       if (!response.ok) {
         const errorMessage = result.error?.message || "Failed to update profile";
-        if (errorMessage.toLowerCase().includes("email")) { setErrors({ fullName: errorMessage }); return; }
+        if (errorMessage.toLowerCase().includes("email")) {
+          setErrors({ fullName: errorMessage });
+          return;
+        }
         throw new Error(errorMessage);
       }
       setProfile(result.data);
@@ -96,7 +106,10 @@ export function ProfileTab() {
       setTimeout(() => setShowSuccess(false), 2000);
       toast({ message: "Profile updated successfully", type: "success" });
     } catch (error) {
-      toast({ message: error instanceof Error ? error.message : "Failed to update profile", type: "error" });
+      toast({
+        message: error instanceof Error ? error.message : "Failed to update profile",
+        type: "error",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -112,25 +125,40 @@ export function ProfileTab() {
             <div className="rounded-full bg-status-error/10 w-16 h-16 mx-auto flex items-center justify-center mb-4">
               <User className="h-8 w-8 text-status-error" />
             </div>
-            <h3 className="text-lg font-display font-bold text-text-primary mb-2">Failed to load profile</h3>
-            <p className="font-body text-text-secondary mb-4">We couldn&apos;t load your profile information.</p>
-            <Button variant="primary" onClick={() => window.location.reload()}>Try Again</Button>
+            <h3 className="text-lg font-display font-bold text-text-primary mb-2">
+              Failed to load profile
+            </h3>
+            <p className="font-body text-text-secondary mb-4">
+              We couldn&apos;t load your profile information.
+            </p>
+            <Button variant="primary" onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  const memberSince = profile.createdAt ? format(parseISO(profile.createdAt), "MMMM d, yyyy") : "Unknown";
+  const memberSince = profile.createdAt
+    ? format(parseISO(profile.createdAt), "MMMM d, yyyy")
+    : "Unknown";
 
   return (
-    <m.div initial={shouldAnimate ? { opacity: 0 } : undefined} animate={shouldAnimate ? { opacity: 1 } : undefined}>
+    <m.div
+      initial={shouldAnimate ? { opacity: 0 } : undefined}
+      animate={shouldAnimate ? { opacity: 1 } : undefined}
+    >
       <Card className="shadow-card">
         <CardContent className="p-6">
           <div className="flex items-center gap-4 mb-6">
-            <div className="rounded-full bg-primary/10 p-4"><User className="h-8 w-8 text-primary" /></div>
+            <div className="rounded-full bg-primary/10 p-4">
+              <User className="h-8 w-8 text-primary" />
+            </div>
             <div>
-              <h2 className="text-xl font-display font-bold text-text-primary">Profile Information</h2>
+              <h2 className="text-xl font-display font-bold text-text-primary">
+                Profile Information
+              </h2>
               <p className="text-sm text-text-secondary">Manage your personal details</p>
             </div>
           </div>
@@ -138,43 +166,130 @@ export function ProfileTab() {
           <div className="space-y-6">
             {/* Full Name */}
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-text-primary mb-2">Full Name</label>
-              <Input id="fullName" type="text" value={fullName} onChange={(e) => handleFullNameChange(e.target.value)} placeholder="Enter your full name" aria-invalid={!!errors.fullName} aria-describedby={errors.fullName ? "fullName-error" : undefined} className={errors.fullName ? "border-status-error focus:ring-status-error" : ""} />
+              <label
+                htmlFor="fullName"
+                className="block text-sm font-medium text-text-primary mb-2"
+              >
+                Full Name
+              </label>
+              <Input
+                id="fullName"
+                type="text"
+                value={fullName}
+                onChange={(e) => handleFullNameChange(e.target.value)}
+                placeholder="Enter your full name"
+                aria-invalid={!!errors.fullName}
+                aria-describedby={errors.fullName ? "fullName-error" : undefined}
+                className={errors.fullName ? "border-status-error focus:ring-status-error" : ""}
+              />
               <AnimatePresence>
-                {errors.fullName && (<m.p id="fullName-error" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-1 text-sm text-status-error">{errors.fullName}</m.p>)}
+                {errors.fullName && (
+                  <m.p
+                    id="fullName-error"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-1 text-sm text-status-error"
+                  >
+                    {errors.fullName}
+                  </m.p>
+                )}
               </AnimatePresence>
             </div>
 
             {/* Phone */}
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-text-primary mb-2"><span className="flex items-center gap-2"><Phone className="h-4 w-4" />Phone Number</span></label>
-              <Input id="phone" type="tel" value={phone} onChange={(e) => handlePhoneChange(e.target.value)} placeholder="Enter your phone number" aria-invalid={!!errors.phone} aria-describedby={errors.phone ? "phone-error" : undefined} className={errors.phone ? "border-status-error focus:ring-status-error" : ""} />
+              <label htmlFor="phone" className="block text-sm font-medium text-text-primary mb-2">
+                <span className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  Phone Number
+                </span>
+              </label>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => handlePhoneChange(e.target.value)}
+                placeholder="Enter your phone number"
+                aria-invalid={!!errors.phone}
+                aria-describedby={errors.phone ? "phone-error" : undefined}
+                className={errors.phone ? "border-status-error focus:ring-status-error" : ""}
+              />
               <AnimatePresence>
-                {errors.phone && (<m.p id="phone-error" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-1 text-sm text-status-error">{errors.phone}</m.p>)}
+                {errors.phone && (
+                  <m.p
+                    id="phone-error"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-1 text-sm text-status-error"
+                  >
+                    {errors.phone}
+                  </m.p>
+                )}
               </AnimatePresence>
             </div>
 
             {/* Email - Display Only */}
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-2"><span className="flex items-center gap-2"><Mail className="h-4 w-4" />Email Address</span></label>
-              <div className="bg-surface-secondary rounded-input px-4 py-3 text-text-secondary">{profile.email || "No email set"}</div>
-              <p className="mt-1 text-xs text-text-muted">Contact support to change your email address</p>
+              <label className="block text-sm font-medium text-text-primary mb-2">
+                <span className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  Email Address
+                </span>
+              </label>
+              <div className="bg-surface-secondary rounded-input px-4 py-3 text-text-secondary">
+                {profile.email || "No email set"}
+              </div>
+              <p className="mt-1 text-xs text-text-muted">
+                Contact support to change your email address
+              </p>
             </div>
 
             {/* Member Since */}
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-2"><span className="flex items-center gap-2"><Calendar className="h-4 w-4" />Member Since</span></label>
-              <div className="bg-surface-secondary rounded-input px-4 py-3 text-text-secondary">{memberSince}</div>
+              <label className="block text-sm font-medium text-text-primary mb-2">
+                <span className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Member Since
+                </span>
+              </label>
+              <div className="bg-surface-secondary rounded-input px-4 py-3 text-text-secondary">
+                {memberSince}
+              </div>
             </div>
 
             {/* Save Button */}
             <div className="pt-4">
-              <Button variant="primary" size="lg" onClick={handleSave} disabled={!hasChanges || isSaving} isLoading={isSaving} className="w-full sm:w-auto min-w-[140px]">
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={handleSave}
+                disabled={!hasChanges || isSaving}
+                isLoading={isSaving}
+                className="w-full sm:w-auto min-w-[140px]"
+              >
                 <AnimatePresence mode="wait">
                   {showSuccess ? (
-                    <m.span key="success" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="flex items-center gap-2"><Check className="h-4 w-4" />Saved!</m.span>
+                    <m.span
+                      key="success"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      className="flex items-center gap-2"
+                    >
+                      <Check className="h-4 w-4" />
+                      Saved!
+                    </m.span>
                   ) : (
-                    <m.span key="default" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>{isSaving ? "Saving..." : "Save Changes"}</m.span>
+                    <m.span
+                      key="default"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      {isSaving ? "Saving..." : "Save Changes"}
+                    </m.span>
                   )}
                 </AnimatePresence>
               </Button>

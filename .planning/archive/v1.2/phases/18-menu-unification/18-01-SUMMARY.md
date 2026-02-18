@@ -44,12 +44,14 @@ Glassmorphism menu card with 3D tilt effect, state-machine add button, and Web A
 ## What Was Built
 
 ### Core Component
+
 - **UnifiedMenuItemCard**: Main component with 3 variants (menu, homepage, cart)
 - **3D tilt effect**: 18-degree max rotation using useMotionValue/useSpring/useTransform
 - **Shine overlay**: Moving light effect that follows mouse during hover
 - **Scale on hover**: 1.03x with spring animation
 
 ### Sub-components
+
 - **GlassOverlay**: Glassmorphism surface with 20px blur and hover border glow
 - **CardImage**: Image with parallax effect (+-10px) and shine overlay
 - **CardContent**: Typography hierarchy (name, Burmese name, description, price)
@@ -57,28 +59,29 @@ Glassmorphism menu card with 3D tilt effect, state-machine add button, and Web A
 - **DietaryBadges**: Icons with text labels for veg/vegan/spicy/popular/featured
 
 ### Utilities
+
 - **glass-menu-card CSS class**: 75% opacity, 20px blur, hover enhancement to 24px
 - **useCardSound hook**: Web Audio API with lazy-load and autoplay safety
 
 ## Key Patterns
 
 ### 3D Tilt Implementation
+
 ```typescript
 const mouseX = useMotionValue(0.5);
 const mouseY = useMotionValue(0.5);
-const rotateX = useSpring(
-  useTransform(mouseY, [0, 1], [18, -18]),
-  { stiffness: 150, damping: 15 }
-);
+const rotateX = useSpring(useTransform(mouseY, [0, 1], [18, -18]), { stiffness: 150, damping: 15 });
 ```
 
 ### State Machine Button
+
 ```typescript
 type ButtonState = "idle" | "adding" | "quantity";
 // idle: Add button -> adding: Checkmark animation -> quantity: +/- controls
 ```
 
 ### Mobile Tilt
+
 - Long-press (300ms) enables tilt play mode
 - Touch move updates mouse position values
 - Haptic feedback on mode activation
@@ -100,6 +103,7 @@ None - plan executed exactly as written.
 ## Next Phase Readiness
 
 Ready for 18-02:
+
 - UnifiedMenuItemCard component complete and functional
 - All sub-components exported for potential reuse
 - Cart integration working with existing cart-store
@@ -108,12 +112,12 @@ Ready for 18-02:
 
 ## Commits
 
-| Hash | Message |
-|------|---------|
-| abf212a | feat(18-01): add glassmorphism CSS utility and component structure |
-| 55ebf32 | feat(18-01): add 3D tilt sub-components and dietary badges |
+| Hash    | Message                                                               |
+| ------- | --------------------------------------------------------------------- |
+| abf212a | feat(18-01): add glassmorphism CSS utility and component structure    |
+| 55ebf32 | feat(18-01): add 3D tilt sub-components and dietary badges            |
 | dd5ce0e | feat(18-01): add AddButton state machine and main UnifiedMenuItemCard |
 
 ---
 
-*Completed: 2026-01-24*
+_Completed: 2026-01-24_

@@ -124,7 +124,8 @@ export async function GET(): Promise<NextResponse<ActiveRouteResponse | { error:
     // Get today's route with stops
     const { data: route, error: routeError } = await supabase
       .from("routes")
-      .select(`
+      .select(
+        `
         id,
         delivery_date,
         status,
@@ -164,7 +165,8 @@ export async function GET(): Promise<NextResponse<ActiveRouteResponse | { error:
             )
           )
         )
-      `)
+      `
+      )
       .eq("driver_id", driverId)
       .eq("delivery_date", todayStr)
       .in("status", ["planned", "in_progress"])
@@ -227,9 +229,6 @@ export async function GET(): Promise<NextResponse<ActiveRouteResponse | { error:
     });
   } catch (error) {
     logger.exception(error, { api: "driver/routes/active" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -38,9 +38,7 @@ export function MenuHeader({
       )}
     >
       <div className="mx-auto flex h-full max-w-5xl items-center justify-between gap-4 px-4">
-        <h1 className="font-display text-lg text-brand-red sm:text-xl">
-          Our Menu
-        </h1>
+        <h1 className="font-display text-lg text-brand-red sm:text-xl">Our Menu</h1>
 
         <div className="flex items-center gap-2">
           <SearchInput

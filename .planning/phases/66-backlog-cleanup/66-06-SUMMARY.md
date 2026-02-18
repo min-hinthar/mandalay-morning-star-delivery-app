@@ -55,6 +55,7 @@ completed: 2026-02-15
 - **Files modified:** 3
 
 ## Accomplishments
+
 - Reduced UnifiedMenuItemCard.tsx from 541 lines to 303 lines (well under 400 limit)
 - Extracted 3D tilt effect into useTiltEffect.ts (164 lines) with mouse/touch tracking and spring rotation
 - Extracted card interactions into useCardInteractions.ts (240 lines) with click, add, increment, decrement, favorite, and long-press handlers
@@ -67,11 +68,13 @@ Each task was committed atomically:
 1. **Task 1: Extract useTiltEffect and useCardInteractions hooks** - `f53389a` (refactor)
 
 ## Files Created/Modified
+
 - `src/components/ui/menu/UnifiedMenuItemCard/useTiltEffect.ts` - 3D tilt effect hook with mouse/touch position tracking, spring-smoothed rotation, and tilt style computation
 - `src/components/ui/menu/UnifiedMenuItemCard/useCardInteractions.ts` - Card interaction hook with click, add, increment, decrement, favorite toggle, long-press detection, and cart integration
 - `src/components/ui/menu/UnifiedMenuItemCard/UnifiedMenuItemCard.tsx` - Main component reduced to types, config, hook orchestration, and JSX render
 
 ## Decisions Made
+
 - Kept new hooks as internal implementation details -- not exported from barrel index.ts since consumers only need UnifiedMenuItemCard
 - Moved isHovered and isMobileTiltActive state into useTiltEffect since tilt owns their lifecycle
 - Moved totalQuantityInCart and hasRequiredModifiers computations into useCardInteractions since they drive interaction logic
@@ -82,16 +85,20 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 None.
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - BKLG-04 backlog item resolved: UnifiedMenuItemCard is under 400 lines
 - All consuming components (FeaturedCarousel, MenuGrid, SearchResultsGrid) compile without import changes
 - File organization follows established pattern from CLAUDE.md (subfolder with barrel exports)
 
 ---
-*Phase: 66-backlog-cleanup*
-*Completed: 2026-02-15*
+
+_Phase: 66-backlog-cleanup_
+_Completed: 2026-02-15_

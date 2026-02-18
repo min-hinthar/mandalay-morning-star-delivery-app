@@ -33,11 +33,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/utils/currency";
 import { format, parseISO } from "date-fns";
 import { OrderCardSkeleton } from "./OrderCardSkeleton";
-import {
-  STATUS_LABELS,
-  STATUS_COLORS,
-  CANCELLABLE_STATUSES,
-} from "./types";
+import { STATUS_LABELS, STATUS_COLORS, CANCELLABLE_STATUSES } from "./types";
 import type { Order, ReorderCartItem, ReorderWarning, OrderRow } from "./types";
 
 export function OrdersTab() {
@@ -60,8 +56,14 @@ export function OrdersTab() {
     setHasError(false);
     setIsLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setOrders([]); setIsLoading(false); return; }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        setOrders([]);
+        setIsLoading(false);
+        return;
+      }
 
       const { data: ordersData, error } = await supabase
         .from("orders")
@@ -92,7 +94,9 @@ export function OrdersTab() {
     }
   }, [supabase]);
 
-  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const handleReorder = async (orderId: string) => {
     setReorderingId(orderId);
@@ -128,13 +132,19 @@ export function OrdersTab() {
       });
 
       if (warnings && warnings.length > 0) {
-        toast({ message: `${warnings.length} item(s) had issues - check your cart`, type: "warning" });
+        toast({
+          message: `${warnings.length} item(s) had issues - check your cart`,
+          type: "warning",
+        });
       } else {
         toast({ message: "Items added to cart", type: "success" });
       }
       router.push("/cart");
     } catch (error) {
-      toast({ message: error instanceof Error ? error.message : "Failed to reorder", type: "error" });
+      toast({
+        message: error instanceof Error ? error.message : "Failed to reorder",
+        type: "error",
+      });
     } finally {
       setReorderingId(null);
     }
@@ -163,7 +173,10 @@ export function OrdersTab() {
       setOrderToCancel(null);
       fetchOrders();
     } catch (error) {
-      toast({ message: error instanceof Error ? error.message : "Failed to cancel order", type: "error" });
+      toast({
+        message: error instanceof Error ? error.message : "Failed to cancel order",
+        type: "error",
+      });
     } finally {
       setCancellingId(null);
     }
@@ -172,7 +185,9 @@ export function OrdersTab() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3, 4].map((i) => (<OrderCardSkeleton key={i} />))}
+        {[1, 2, 3, 4].map((i) => (
+          <OrderCardSkeleton key={i} />
+        ))}
       </div>
     );
   }
@@ -187,10 +202,15 @@ export function OrdersTab() {
         <div className="rounded-full bg-status-error/10 w-20 h-20 mx-auto flex items-center justify-center mb-6">
           <AlertCircle className="h-10 w-10 text-status-error" />
         </div>
-        <h2 className="text-xl font-display font-bold text-text-primary mb-2">Unable to load orders</h2>
-        <p className="font-body text-text-secondary mb-8">We couldn&apos;t fetch your order history. Please try again.</p>
+        <h2 className="text-xl font-display font-bold text-text-primary mb-2">
+          Unable to load orders
+        </h2>
+        <p className="font-body text-text-secondary mb-8">
+          We couldn&apos;t fetch your order history. Please try again.
+        </p>
         <Button variant="primary" size="lg" onClick={fetchOrders} className="shadow-elevated">
-          <RefreshCcw className="h-4 w-4 mr-2" />Try Again
+          <RefreshCcw className="h-4 w-4 mr-2" />
+          Try Again
         </Button>
       </m.div>
     );
@@ -254,8 +274,8 @@ export function OrdersTab() {
                         Order #{order.id.slice(0, 8).toUpperCase()}
                       </p>
                       <p className="text-sm text-text-secondary">
-                        {order.itemCount} item{order.itemCount !== 1 ? "s" : ""}{" "}
-                        &middot; {format(parseISO(order.placedAt), "MMM d, yyyy")}
+                        {order.itemCount} item{order.itemCount !== 1 ? "s" : ""} &middot;{" "}
+                        {format(parseISO(order.placedAt), "MMM d, yyyy")}
                       </p>
                       {order.deliveryWindowStart && (
                         <p className="text-sm text-text-secondary">
@@ -272,7 +292,8 @@ export function OrdersTab() {
                     </Badge>
                     {order.status === "pending" && (
                       <p className="text-xs text-amber-600 flex items-center justify-end gap-1 mt-1">
-                        <AlertCircle className="h-3 w-3" />Action required
+                        <AlertCircle className="h-3 w-3" />
+                        Action required
                       </p>
                     )}
                   </div>
@@ -324,7 +345,10 @@ export function OrdersTab() {
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <label htmlFor="cancelReason" className="block text-sm font-medium text-text-primary mb-2">
+            <label
+              htmlFor="cancelReason"
+              className="block text-sm font-medium text-text-primary mb-2"
+            >
               Cancellation Reason
             </label>
             <Input
@@ -335,7 +359,13 @@ export function OrdersTab() {
             />
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => { setCancelDialogOpen(false); setOrderToCancel(null); }}>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setCancelDialogOpen(false);
+                setOrderToCancel(null);
+              }}
+            >
               Keep Order
             </Button>
             <Button

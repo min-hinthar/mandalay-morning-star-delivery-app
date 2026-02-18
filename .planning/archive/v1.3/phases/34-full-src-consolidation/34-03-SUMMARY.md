@@ -52,7 +52,7 @@ completed: 2026-01-28
 
 - Deleted src/design-system/tokens/z-index.ts and motion.ts
 - Deleted src/design-system/tokens/ and src/design-system/ directories
-- Added ESLint guard blocking @/design-system/* imports
+- Added ESLint guard blocking @/design-system/\* imports
 - Updated zIndex message to reference new @/lib/design-system/ path
 - Verified build, typecheck, and lint all pass
 
@@ -80,9 +80,10 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Fixed overly broad ESLint pattern**
+
 - **Found during:** Task 2 (Add ESLint guard)
 - **Issue:** Initial pattern `**/design-system/*` was blocking imports from @/lib/design-system/
-- **Fix:** Removed glob pattern, kept only @/design-system/* and @/design-system
+- **Fix:** Removed glob pattern, kept only @/design-system/\* and @/design-system
 - **Files modified:** eslint.config.mjs
 - **Verification:** pnpm lint passes, @/lib/design-system imports work correctly
 - **Committed in:** ba5bfcb (Task 2 commit)
@@ -107,5 +108,6 @@ None - no external service configuration required.
 - All imports now use @/lib/design-system/tokens/
 
 ---
-*Phase: 34-full-src-consolidation*
-*Completed: 2026-01-28*
+
+_Phase: 34-full-src-consolidation_
+_Completed: 2026-01-28_

@@ -58,4 +58,5 @@ fix: Use `useCartAnimationStore.getState()` to access store actions in the clean
 verification: ESLint passes, TypeScript compiles, build succeeds. The fix uses getState() to access store actions in cleanup, avoiding the subscription that caused infinite re-renders. Original issue (button stuck disabled) is still fixed because resetAnimating(false) is called when timeline is killed.
 
 files_changed:
+
 - src/components/ui/cart/FlyToCart.tsx

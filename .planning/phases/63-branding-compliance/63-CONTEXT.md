@@ -14,6 +14,7 @@ Homepage communicates app purpose clearly and links to required legal pages for 
 ## Implementation Decisions
 
 ### Homepage Messaging
+
 - Tone: Professional + warm & personal — blend of credibility and family-run charm
 - Emphasize all three: meal subscription service, authentic Burmese cuisine, local LA delivery
 - Full business name: "Mandalay Morning Star Burmese Kitchen"
@@ -26,6 +27,7 @@ Homepage communicates app purpose clearly and links to required legal pages for 
 - Claude decides: whether to add "about" section, CTA, how-it-works steps, business detail level (delivery days/pricing), Google Sign-in mention, contact info display
 
 ### Legal Page Content
+
 - Both /privacy and /terms pages already exist — update content comprehensively
 - Full branded pages — match app's design system (header, footer, proper layout)
 - Update content to cover all data practices:
@@ -42,6 +44,7 @@ Homepage communicates app purpose clearly and links to required legal pages for 
 - Claude decides: CCPA/CPRA applicability, age restrictions policy, refund/cancellation policy placement, cookie policy coverage
 
 ### Footer/Nav Link Placement
+
 - Homepage already has a footer
 - Full footer: legal links, contact info, business listings, hours, copyright, attribution
 - Business listings: Yelp, Google Maps, Uber Eats, DoorDash, GrubHub (Claude searches for URLs during implementation)
@@ -54,6 +57,7 @@ Homepage communicates app purpose clearly and links to required legal pages for 
 - Claude decides: footer layout (columns vs stacked), responsive mobile behavior
 
 ### OAuth Verification Submission
+
 - App is already published (not in testing mode) — may show 'unverified app' warning
 - Only email + profile scopes expected (Claude confirms from codebase)
 - No demo video available
@@ -62,6 +66,7 @@ Homepage communicates app purpose clearly and links to required legal pages for 
 - Claude decides: whether to provide console update guidance vs code-only, checklist format
 
 ### Claude's Discretion
+
 - Homepage "about" section presence and content
 - CTA design and placement
 - "How it works" steps section
@@ -97,5 +102,5 @@ Homepage communicates app purpose clearly and links to required legal pages for 
 
 ---
 
-*Phase: 63-branding-compliance*
-*Context gathered: 2026-02-14*
+_Phase: 63-branding-compliance_
+_Context gathered: 2026-02-14_

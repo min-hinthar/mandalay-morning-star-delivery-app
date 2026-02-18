@@ -60,6 +60,7 @@ completed: 2026-02-10
 - **Files created:** 3
 
 ## Accomplishments
+
 - RefundNotification template with detailed breakdown table, refund details box, and distinct partial/full visual treatment
 - DeliveryReminder template with food excitement header, DeliveryBlock reuse, static map image, and side-by-side CTAs
 - Shared helpers module extracted to keep email templates under 400-line ESLint limit
@@ -72,11 +73,13 @@ Each task was committed atomically:
 2. **Task 2: DeliveryReminder email template (MAIL-04)** - `54df519` (feat)
 
 ## Files Created/Modified
+
 - `src/emails/RefundNotification.tsx` - Refund notification with full/partial breakdown, refund details, amber/green accent theming
 - `src/emails/DeliveryReminder.tsx` - Delivery reminder with food excitement, DeliveryBlock, static map, Track/Modify CTAs
 - `src/emails/helpers.ts` - Shared formatPrice, formatDate, shortOrderId, FONT_STACK, SERIF_STACK, APP_URL
 
 ## Decisions Made
+
 - **EMAIL-04-HELPERS:** Extracted shared `helpers.ts` from RefundNotification to stay under 400-line ESLint limit. Exports formatting utilities reusable across all templates.
 - **EMAIL-04-MAPFALLBACK:** Static map image conditionally rendered only when `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` env var is set and non-empty. "View on Google Maps" directions link always shown regardless.
 
@@ -85,6 +88,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Extracted helpers.ts to meet 400-line limit**
+
 - **Found during:** Task 1 (RefundNotification)
 - **Issue:** RefundNotification.tsx was 441 lines with inline helpers, exceeding ESLint max-lines (400) warning
 - **Fix:** Extracted formatPrice, formatDate, shortOrderId, font stack constants, and APP_URL into `src/emails/helpers.ts`
@@ -98,17 +102,21 @@ Each task was committed atomically:
 **Impact on plan:** Extraction improves code reuse across templates. No scope creep.
 
 ## Issues Encountered
+
 - lint-staged stash conflict on first commit attempt wiped staged file; cleared stash and recreated file to resolve
 - Task 1 commit also included previously untracked 54-03 files (OrderConfirmation.tsx, OrderTotalsTable.tsx, SuggestedItems.tsx, SupportSection.tsx) that lint-staged picked up from working directory
 
 ## User Setup Required
+
 None - no external service configuration required. Google Maps API key optional (graceful fallback).
 
 ## Next Phase Readiness
+
 - All 4 transactional email templates now complete (OrderConfirmation, Cancellation from 54-03, RefundNotification and DeliveryReminder from this plan)
 - Templates ready for integration with sendEmail() pipeline
 - Google Maps static map requires NEXT_PUBLIC_GOOGLE_MAPS_API_KEY for delivery reminder map image
 
 ---
-*Phase: 54-email-system*
-*Completed: 2026-02-10*
+
+_Phase: 54-email-system_
+_Completed: 2026-02-10_

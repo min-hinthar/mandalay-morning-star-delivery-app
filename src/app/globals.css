@@ -199,15 +199,15 @@
   --popover-foreground: #1a1a1a;
   --primary: #8b1a1a;
   --primary-foreground: #ffffff;
-  --secondary: #FFF7E6;
+  --secondary: #fff7e6;
   --secondary-foreground: #1a1a1a;
-  --muted: #F9FAFB;
+  --muted: #f9fafb;
   --muted-foreground: #5a5a5a;
   --accent: #d4af37;
   --accent-foreground: #1a1a1a;
   --destructive: #dc2626;
-  --border: #E5E7EB;
-  --input: #E5E7EB;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
   --ring: #8b1a1a;
   --chart-1: #8b1a1a;
   --chart-2: #34a853;
@@ -218,45 +218,45 @@
   --sidebar-foreground: #1a1a1a;
   --sidebar-primary: #8b1a1a;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #FFF7E6;
+  --sidebar-accent: #fff7e6;
   --sidebar-accent-foreground: #1a1a1a;
-  --sidebar-border: #E5E7EB;
+  --sidebar-border: #e5e7eb;
   --sidebar-ring: #8b1a1a;
 }
 
 .dark {
   /* Warm dark backgrounds - Burmese aesthetic, no cold grays */
-  --background: #1A1918;
-  --foreground: #F5F5F5;
+  --background: #1a1918;
+  --foreground: #f5f5f5;
   --card: #252423;
-  --card-foreground: #F5F5F5;
+  --card-foreground: #f5f5f5;
   --popover: #252423;
-  --popover-foreground: #F5F5F5;
-  --primary: #FF6B6B;
-  --primary-foreground: #FFFFFF;
-  --secondary: #302F2D;
-  --secondary-foreground: #F5F5F5;
-  --muted: #302F2D;
-  --muted-foreground: #A3A3A3;
-  --accent: #E5B523;
-  --accent-foreground: #1A1A1A;
-  --destructive: #F87171;
-  --border: #3D3B38;
-  --input: #3D3B38;
-  --ring: #FF6B6B;
-  --chart-1: #FF6B6B;
-  --chart-2: #4ADE80;
-  --chart-3: #E5B523;
-  --chart-4: #F87171;
-  --chart-5: #FBBF24;
-  --sidebar: #1A1918;
-  --sidebar-foreground: #F5F5F5;
-  --sidebar-primary: #FF6B6B;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #302F2D;
-  --sidebar-accent-foreground: #F5F5F5;
-  --sidebar-border: #3D3B38;
-  --sidebar-ring: #FF6B6B;
+  --popover-foreground: #f5f5f5;
+  --primary: #ff6b6b;
+  --primary-foreground: #ffffff;
+  --secondary: #302f2d;
+  --secondary-foreground: #f5f5f5;
+  --muted: #302f2d;
+  --muted-foreground: #a3a3a3;
+  --accent: #e5b523;
+  --accent-foreground: #1a1a1a;
+  --destructive: #f87171;
+  --border: #3d3b38;
+  --input: #3d3b38;
+  --ring: #ff6b6b;
+  --chart-1: #ff6b6b;
+  --chart-2: #4ade80;
+  --chart-3: #e5b523;
+  --chart-4: #f87171;
+  --chart-5: #fbbf24;
+  --sidebar: #1a1918;
+  --sidebar-foreground: #f5f5f5;
+  --sidebar-primary: #ff6b6b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #302f2d;
+  --sidebar-accent-foreground: #f5f5f5;
+  --sidebar-border: #3d3b38;
+  --sidebar-ring: #ff6b6b;
 }
 
 @layer base {
@@ -363,12 +363,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      var(--color-secondary-light),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, var(--color-secondary-light), transparent);
     transform: translateX(-100%);
     transition: transform var(--duration-slow) var(--ease-out);
   }
@@ -563,30 +558,17 @@
 
   /* Primary gradient - for CTAs and highlights */
   .bg-gradient-primary {
-    background: linear-gradient(
-      135deg,
-      var(--color-primary) 0%,
-      var(--color-primary-hover) 100%
-    );
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   }
 
   /* Shimmer gradient - for loading states */
   .bg-gradient-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent,
-      var(--color-skeleton-shimmer),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, var(--color-skeleton-shimmer), transparent);
   }
 
   /* Overlay gradient - for image overlays */
   .bg-gradient-overlay {
-    background: linear-gradient(
-      to top,
-      var(--color-overlay-heavy) 0%,
-      transparent 100%
-    );
+    background: linear-gradient(to top, var(--color-overlay-heavy) 0%, transparent 100%);
   }
 
   /* Card shine gradient - subtle highlight effect */
@@ -646,20 +628,12 @@
 
   /* Swipe delete indicator gradient */
   .bg-gradient-delete {
-    background: linear-gradient(
-      to left,
-      var(--color-status-error-bg) 0%,
-      transparent 100%
-    );
+    background: linear-gradient(to left, var(--color-status-error-bg) 0%, transparent 100%);
   }
 
   /* Text gradient for special headings */
   .text-gradient-primary {
-    background: linear-gradient(
-      90deg,
-      var(--color-primary) 0%,
-      var(--color-secondary) 100%
-    );
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -905,8 +879,12 @@
 }
 
 @keyframes fade-in {
-  from { opacity: 0.7; }
-  to { opacity: 1; }
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fade-in-up {

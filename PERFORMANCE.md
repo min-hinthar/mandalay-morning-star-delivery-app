@@ -6,20 +6,20 @@ This document captures the performance optimization work across eight phases, in
 
 ## Executive Summary
 
-| Metric | Before (v1.4) | After (v1.5) | Improvement |
-|--------|---------------|--------------|-------------|
-| LCP (Homepage, mobile) | 19.9s | 10.87s | 45% faster |
-| LCP (Menu, mobile) | 18.2s | 10.95s | 40% faster |
-| LCP (Cart, mobile) | N/A | ~9-10s | Baseline |
-| LCP (Checkout, mobile) | N/A | 8.13s | Baseline |
-| TBT (Homepage) | 5.5s | ~12s | Regressed* |
-| TBT (Menu) | 5.6s | ~15s | Regressed* |
-| CLS | 0 | 0 | Maintained |
-| Framer Motion bundle | ~34KB/component | ~4.6KB/component | 86% smaller |
-| Lighthouse Score (Homepage) | 30 | 32 | +2 points |
-| Lighthouse Score (Menu) | 35 | 30 | -5 points |
+| Metric                      | Before (v1.4)   | After (v1.5)     | Improvement |
+| --------------------------- | --------------- | ---------------- | ----------- |
+| LCP (Homepage, mobile)      | 19.9s           | 10.87s           | 45% faster  |
+| LCP (Menu, mobile)          | 18.2s           | 10.95s           | 40% faster  |
+| LCP (Cart, mobile)          | N/A             | ~9-10s           | Baseline    |
+| LCP (Checkout, mobile)      | N/A             | 8.13s            | Baseline    |
+| TBT (Homepage)              | 5.5s            | ~12s             | Regressed\* |
+| TBT (Menu)                  | 5.6s            | ~15s             | Regressed\* |
+| CLS                         | 0               | 0                | Maintained  |
+| Framer Motion bundle        | ~34KB/component | ~4.6KB/component | 86% smaller |
+| Lighthouse Score (Homepage) | 30              | 32               | +2 points   |
+| Lighthouse Score (Menu)     | 35              | 30               | -5 points   |
 
-*TBT values measured with different throttling settings (4x CPU vs baseline); not directly comparable.
+\*TBT values measured with different throttling settings (4x CPU vs baseline); not directly comparable.
 
 Eight phases, 21 plans executed. LCP target < 4s NOT MET (avg ~10s). However, 40-45% LCP improvement from v1.4 baseline achieved. Key bottlenecks identified for v1.6: JS execution time, network latency, DOM size.
 
@@ -38,10 +38,10 @@ Eight phases, 21 plans executed. LCP target < 4s NOT MET (avg ~10s). However, 40
 
 ### Results
 
-| Page | LCP Before | LCP After | Reduction |
-|------|-----------|-----------|-----------|
-| Homepage (mobile) | 19.9s | 11.4s | -8.5s (43%) |
-| Menu (mobile) | 18.2s | 9.8s | -8.4s (46%) |
+| Page              | LCP Before | LCP After | Reduction   |
+| ----------------- | ---------- | --------- | ----------- |
+| Homepage (mobile) | 19.9s      | 11.4s     | -8.5s (43%) |
+| Menu (mobile)     | 18.2s      | 9.8s      | -8.4s (46%) |
 
 ### Key Files
 
@@ -209,18 +209,19 @@ Eight phases, 21 plans executed. LCP target < 4s NOT MET (avg ~10s). However, 40
 
 ### Final LCP Measurements
 
-| Route | Phase 40 | Phase 47 | Target | Status |
-|-------|----------|----------|--------|--------|
-| Homepage / | 11.4s | 10.87s | < 4.0s | FAIL |
-| Menu /menu | 9.8s | 10.95s | < 4.0s | FAIL |
-| Cart /cart | N/A | ~9-10s | < 3.5s | FAIL |
-| Checkout /checkout | N/A | 8.13s | < 4.5s | FAIL |
+| Route              | Phase 40 | Phase 47 | Target | Status |
+| ------------------ | -------- | -------- | ------ | ------ |
+| Homepage /         | 11.4s    | 10.87s   | < 4.0s | FAIL   |
+| Menu /menu         | 9.8s     | 10.95s   | < 4.0s | FAIL   |
+| Cart /cart         | N/A      | ~9-10s   | < 3.5s | FAIL   |
+| Checkout /checkout | N/A      | 8.13s    | < 4.5s | FAIL   |
 
 **Overall:** LCP target < 4s NOT MET. Average LCP ~10s.
 
 ### Bundle Verification
 
 Phase 43 cart scoping confirmed via source code analysis:
+
 - Cart components (CartOverlays) present ONLY in (customer) and (public) layouts
 - Absent from admin, driver, auth route groups
 - Estimated savings: ~60KB per admin/driver route
@@ -228,6 +229,7 @@ Phase 43 cart scoping confirmed via source code analysis:
 ### Cart E2E Tests
 
 REQ-43.4, 43.8, 43.9 verified:
+
 - 19 test cases created in e2e/cart-flow.spec.ts
 - Happy path: Cart drawer close behaviors passing
 - Edge cases: Drawer close via button and Escape passing
@@ -246,41 +248,41 @@ REQ-43.4, 43.8, 43.9 verified:
 
 ### Core Web Vitals (Phase 47 Final)
 
-| Metric | Target | Homepage | Menu | Cart | Checkout |
-|--------|--------|----------|------|------|----------|
-| LCP | < 4.0s | 10.87s | 10.95s | ~9-10s | 8.13s |
-| FCP | < 1.8s | 3.20s | 3.06s | - | 1.63s |
-| TBT | < 0.3s | 12.06s | 15.29s | - | 5.40s |
-| CLS | < 0.1 | 0 | 0 | 0 | 0 |
-| Score | 90+ | 32 | 30 | - | 45 |
+| Metric | Target | Homepage | Menu   | Cart   | Checkout |
+| ------ | ------ | -------- | ------ | ------ | -------- |
+| LCP    | < 4.0s | 10.87s   | 10.95s | ~9-10s | 8.13s    |
+| FCP    | < 1.8s | 3.20s    | 3.06s  | -      | 1.63s    |
+| TBT    | < 0.3s | 12.06s   | 15.29s | -      | 5.40s    |
+| CLS    | < 0.1  | 0        | 0      | 0      | 0        |
+| Score  | 90+    | 32       | 30     | -      | 45       |
 
 ### Improvement from v1.4 Baseline
 
-| Metric | Homepage v1.4 | Homepage v1.5 | Menu v1.4 | Menu v1.5 |
-|--------|---------------|---------------|-----------|-----------|
-| LCP | 19.9s | 10.87s (-45%) | 18.2s | 10.95s (-40%) |
-| Score | 30 | 32 (+2) | 35 | 30 (-5) |
+| Metric | Homepage v1.4 | Homepage v1.5 | Menu v1.4 | Menu v1.5     |
+| ------ | ------------- | ------------- | --------- | ------------- |
+| LCP    | 19.9s         | 10.87s (-45%) | 18.2s     | 10.95s (-40%) |
+| Score  | 30            | 32 (+2)       | 35        | 30 (-5)       |
 
 ### Bundle Optimizations
 
-| Optimization | Impact |
-|-------------|--------|
-| Recharts code-split from admin initial bundle | ~180KB deferred |
-| Google Maps code-split from route/tracking pages | ~120KB deferred |
-| Cart components scoped out of admin/driver/auth | ~60KB removed |
-| Framer Motion per-component bundle | ~34KB to ~4.6KB (86% reduction) |
-| Dead GSAP plugins removed (SplitText, Flip, Observer) | Reduced registration overhead |
+| Optimization                                          | Impact                          |
+| ----------------------------------------------------- | ------------------------------- |
+| Recharts code-split from admin initial bundle         | ~180KB deferred                 |
+| Google Maps code-split from route/tracking pages      | ~120KB deferred                 |
+| Cart components scoped out of admin/driver/auth       | ~60KB removed                   |
+| Framer Motion per-component bundle                    | ~34KB to ~4.6KB (86% reduction) |
+| Dead GSAP plugins removed (SplitText, Flip, Observer) | Reduced registration overhead   |
 
 ### Infrastructure Added
 
-| Component | Purpose |
-|-----------|---------|
-| React Compiler | Auto-memoization for all 282 client components |
-| LazyMotion (domMax + strict) | Single animation feature load at root |
-| Lighthouse CI | PR-only performance regression monitoring |
-| importWithRetry | 3-retry exponential backoff for dynamic imports |
-| useViewportTrigger | IntersectionObserver-based deferred loading |
-| LoadingWithTimeout | Skeleton-to-timeout-message transitions |
+| Component                    | Purpose                                         |
+| ---------------------------- | ----------------------------------------------- |
+| React Compiler               | Auto-memoization for all 282 client components  |
+| LazyMotion (domMax + strict) | Single animation feature load at root           |
+| Lighthouse CI                | PR-only performance regression monitoring       |
+| importWithRetry              | 3-retry exponential backoff for dynamic imports |
+| useViewportTrigger           | IntersectionObserver-based deferred loading     |
+| LoadingWithTimeout           | Skeleton-to-timeout-message transitions         |
 
 ---
 
@@ -308,36 +310,36 @@ Phase 47 identified three key bottlenecks preventing LCP < 4s:
 
 ### Priority 1: JavaScript Execution Time (TBT 5-15s)
 
-| Opportunity | Expected Impact | Complexity |
-|------------|----------------|------------|
-| Bundle analysis and tree-shaking audit | TBT reduction 30-50% | Medium |
-| Defer non-critical JavaScript | TBT reduction, faster LCP | Medium |
-| Web Worker offloading for heavy computations | Main thread unblocking | High |
+| Opportunity                                  | Expected Impact           | Complexity |
+| -------------------------------------------- | ------------------------- | ---------- |
+| Bundle analysis and tree-shaking audit       | TBT reduction 30-50%      | Medium     |
+| Defer non-critical JavaScript                | TBT reduction, faster LCP | Medium     |
+| Web Worker offloading for heavy computations | Main thread unblocking    | High       |
 
 ### Priority 2: Network Latency (FCP ~3s)
 
-| Opportunity | Expected Impact | Complexity |
-|------------|----------------|------------|
-| Edge runtime for API routes | Lower TTFB 50-100ms | Medium |
-| Font subsetting / self-hosting | Eliminate Google Fonts dependency | Low |
-| Critical CSS extraction | Reduce render-blocking CSS | Medium |
-| Resource hints (preconnect, dns-prefetch) | Faster resource loading | Low |
+| Opportunity                               | Expected Impact                   | Complexity |
+| ----------------------------------------- | --------------------------------- | ---------- |
+| Edge runtime for API routes               | Lower TTFB 50-100ms               | Medium     |
+| Font subsetting / self-hosting            | Eliminate Google Fonts dependency | Low        |
+| Critical CSS extraction                   | Reduce render-blocking CSS        | Medium     |
+| Resource hints (preconnect, dns-prefetch) | Faster resource loading           | Low        |
 
 ### Priority 3: DOM Complexity
 
-| Opportunity | Expected Impact | Complexity |
-|------------|----------------|------------|
-| Virtualized lists for menu items | Reduce initial DOM nodes | Medium |
-| Lazy render below-fold sections | Faster initial paint | Low |
-| Simplify animation component trees | Reduce layout complexity | Medium |
+| Opportunity                        | Expected Impact          | Complexity |
+| ---------------------------------- | ------------------------ | ---------- |
+| Virtualized lists for menu items   | Reduce initial DOM nodes | Medium     |
+| Lazy render below-fold sections    | Faster initial paint     | Low        |
+| Simplify animation component trees | Reduce layout complexity | Medium     |
 
 ### Quick Wins
 
-| Opportunity | Expected Impact | Complexity |
-|------------|----------------|------------|
-| Service Worker precaching strategy | Faster repeat visits | Low |
-| Image CDN optimization (blur placeholders) | Perceived LCP improvement | Low |
-| Server-side rendering optimization | LCP reduction (server response time) | Medium |
+| Opportunity                                | Expected Impact                      | Complexity |
+| ------------------------------------------ | ------------------------------------ | ---------- |
+| Service Worker precaching strategy         | Faster repeat visits                 | Low        |
+| Image CDN optimization (blur placeholders) | Perceived LCP improvement            | Low        |
+| Server-side rendering optimization         | LCP reduction (server response time) | Medium     |
 
 **Current gap:** LCP is 8-11s (target < 4s). Phase 47 measurements confirmed the bottleneck is primarily JavaScript execution time (TBT 5-15s) and network latency (FCP ~3s). The v1.5 image optimization and code-splitting addressed the client-side hot path; further optimization requires tackling main thread work and server-side improvements.
 
@@ -346,6 +348,7 @@ Phase 47 identified three key bottlenecks preventing LCP < 4s:
 **v1.5 milestone NOT closed (2026-02-07)**
 
 User requested follow-up verification to confirm all Phase 47 updates are wired and working before milestone closure. Verification items:
+
 - [ ] Cart E2E tests integrated in CI pipeline
 - [ ] Lighthouse CI workflow triggering on PRs
 - [ ] LazyMotion + React Compiler active in production
@@ -353,6 +356,6 @@ User requested follow-up verification to confirm all Phase 47 updates are wired 
 
 ---
 
-*Last updated: 2026-02-07*
-*Phases covered: 40-47 (v1.5 Performance & Repo Health)*
-*Milestone status: Follow-up verification pending*
+_Last updated: 2026-02-07_
+_Phases covered: 40-47 (v1.5 Performance & Repo Health)_
+_Milestone status: Follow-up verification pending_

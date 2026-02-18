@@ -18,11 +18,7 @@ export interface CartItemGroupProps {
   validations: Map<string, CartItemValidation>;
   suggestions: Map<string, MenuItem[]>;
   onRemoveItem: (cartItemId: string) => void;
-  onReplaceItem: (
-    cartItemId: string,
-    suggestion: MenuItem,
-    originalQuantity: number
-  ) => void;
+  onReplaceItem: (cartItemId: string, suggestion: MenuItem, originalQuantity: number) => void;
   onEditItem: (item: CartItemType) => void;
   onDismissPriceChange: (cartItemId: string, newPriceCents: number) => void;
   /** Set of menuItemIds that have modifier groups (show edit icon) */
@@ -70,8 +66,7 @@ export const CartItemGroup = memo(function CartItemGroup({
             const validation = validations.get(item.cartItemId);
             const itemSuggestions = suggestions.get(item.cartItemId) ?? [];
             const isSoldOutOrUnavailable =
-              validation?.status === "sold-out" ||
-              validation?.status === "unavailable";
+              validation?.status === "sold-out" || validation?.status === "unavailable";
             const isPriceChanged = validation?.status === "price-changed";
 
             return (
@@ -79,9 +74,7 @@ export const CartItemGroup = memo(function CartItemGroup({
                 key={item.cartItemId}
                 layout={shouldAnimate ? true : undefined}
                 exit={
-                  shouldAnimate
-                    ? { opacity: 0, x: -200, transition: { duration: 0.2 } }
-                    : undefined
+                  shouldAnimate ? { opacity: 0, x: -200, transition: { duration: 0.2 } } : undefined
                 }
                 transition={getSpring(spring.gentle)}
               >
@@ -109,10 +102,7 @@ export const CartItemGroup = memo(function CartItemGroup({
                     <PriceChangeBadge
                       direction={validation.priceDirection}
                       onDismiss={() =>
-                        onDismissPriceChange(
-                          item.cartItemId,
-                          validation.newPriceCents!
-                        )
+                        onDismissPriceChange(item.cartItemId, validation.newPriceCents!)
                       }
                     />
                   </div>
@@ -123,11 +113,7 @@ export const CartItemGroup = memo(function CartItemGroup({
                   <SuggestionRow
                     suggestions={itemSuggestions}
                     onReplace={(suggestion) =>
-                      handleReplace(
-                        item.cartItemId,
-                        suggestion,
-                        item.quantity
-                      )
+                      handleReplace(item.cartItemId, suggestion, item.quantity)
                     }
                   />
                 )}

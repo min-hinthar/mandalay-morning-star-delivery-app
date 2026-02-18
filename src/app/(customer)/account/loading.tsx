@@ -1,5 +1,5 @@
-import { RouteLoading } from '@/components/ui/RouteLoading'
+import { RouteLoading } from "@/components/ui/RouteLoading";
 
 export default function AccountLoading() {
-  return <RouteLoading message="Loading account..." />
+  return <RouteLoading message="Loading account..." />;
 }

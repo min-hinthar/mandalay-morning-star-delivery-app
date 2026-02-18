@@ -13,10 +13,10 @@
  * <motion.div {...hover.lift} variants={variants.popIn} />
  */
 
-export * from './core';
-export * from './variants';
-export * from './stagger';
-export * from './effects';
-export * from './scroll';
-export * from './cards';
-export * from './utilities';
+export * from "./core";
+export * from "./variants";
+export * from "./stagger";
+export * from "./effects";
+export * from "./scroll";
+export * from "./cards";
+export * from "./utilities";

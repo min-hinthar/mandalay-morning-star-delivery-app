@@ -69,18 +69,14 @@ export function OrderCard({ order, index = 0 }: OrderCardProps) {
                     {format(parseISO(order.placedAt), "MMM d, yyyy")}
                   </p>
                   {deliveryDate && (
-                    <p className="text-sm text-muted-foreground">
-                      Delivery: {deliveryDate}
-                    </p>
+                    <p className="text-sm text-muted-foreground">Delivery: {deliveryDate}</p>
                   )}
                 </div>
               </div>
 
               <div className="flex items-center gap-4">
                 <div className="text-right">
-                  <p className="font-medium text-charcoal">
-                    {formatPrice(order.totalCents)}
-                  </p>
+                  <p className="font-medium text-charcoal">{formatPrice(order.totalCents)}</p>
                   <Badge className={ORDER_STATUS_COLORS[order.status]}>
                     {ORDER_STATUS_LABELS[order.status]}
                   </Badge>

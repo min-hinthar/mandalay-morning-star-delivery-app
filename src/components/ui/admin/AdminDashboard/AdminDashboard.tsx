@@ -2,20 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import {
-  Package,
-  Truck,
-  AlertTriangle,
-  RefreshCw,
-  Sparkles,
-  Zap,
-} from "lucide-react";
+import { Package, Truck, AlertTriangle, RefreshCw, Sparkles, Zap } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import {
-  spring,
-  staggerContainer,
-  celebration,
-} from "@/lib/motion-tokens";
+import { spring, staggerContainer, celebration } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { KPICard } from "./KPICard";
 import { KPISkeleton } from "./KPISkeleton";
@@ -48,9 +37,9 @@ export function AdminDashboard({
     goalTimeoutRef.current = setTimeout(() => setGoalCelebration(false), 3000);
   }, []);
 
-  const ordersToday = kpis.find(k => k.icon === "orders")?.value || 0;
-  const activeDrivers = kpis.find(k => k.icon === "drivers")?.value || 0;
-  const exceptionsCount = kpis.find(k => k.icon === "exceptions")?.value || 0;
+  const ordersToday = kpis.find((k) => k.icon === "orders")?.value || 0;
+  const activeDrivers = kpis.find((k) => k.icon === "drivers")?.value || 0;
+  const exceptionsCount = kpis.find((k) => k.icon === "exceptions")?.value || 0;
 
   return (
     <div className={cn("space-y-6", className)}>

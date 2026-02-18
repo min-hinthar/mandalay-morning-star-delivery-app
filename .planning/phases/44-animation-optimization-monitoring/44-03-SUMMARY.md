@@ -19,7 +19,8 @@ affects: [all future phases - performance regressions detected on PRs]
 # Tech tracking
 tech-stack:
   added: ["@lhci/cli@0.15.1", "treosh/lighthouse-ci-action@v12"]
-  patterns: ["PR-only CI jobs with warn-only assertions", "Lighthouse server mode with startServerCommand"]
+  patterns:
+    ["PR-only CI jobs with warn-only assertions", "Lighthouse server mode with startServerCommand"]
 
 key-files:
   modified:
@@ -55,6 +56,7 @@ completed: 2026-02-06
 - **Files modified:** 3
 
 ## Accomplishments
+
 - @lhci/cli installed and lighthouserc.js rewritten for server mode with 4 customer routes
 - All 6 assertions set to warn-only (FCP, LCP, CLS, TBT, performance score, accessibility score)
 - Lighthouse CI job added to GitHub Actions, runs only on PRs after build job passes
@@ -68,11 +70,13 @@ Each task was committed atomically:
 2. **Task 2: Add Lighthouse CI job to GitHub Actions** - `398a786` (feat)
 
 ## Files Created/Modified
+
 - `lighthouserc.js` - Rewritten: staticDistDir replaced with startServerCommand, customer routes only, all assertions warn-only
 - `.github/workflows/ci.yml` - Added lighthouse job: PR-only, needs build, treosh/lighthouse-ci-action@v12
 - `package.json` - Added @lhci/cli@0.15.1 devDependency
 
 ## Decisions Made
+
 - All assertions warn-only (no "error" level) -- performance monitoring without blocking PRs
 - Server mode via startServerCommand instead of staticDistDir -- required for App Router dynamic routes
 - 4 customer routes only (/, /menu, /cart, /checkout) -- tracking requires auth, admin/driver out of scope
@@ -83,16 +87,20 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Phase 44 (Animation Optimization & Monitoring) is now complete with all 3 plans executed
 - Lighthouse CI will automatically audit PRs for performance regressions
 - All phases 40-44 optimization work (Server Components, dynamic imports, React Compiler, LazyMotion, Lighthouse CI) now locked in with regression detection
 
 ---
-*Phase: 44-animation-optimization-monitoring*
-*Completed: 2026-02-06*
+
+_Phase: 44-animation-optimization-monitoring_
+_Completed: 2026-02-06_

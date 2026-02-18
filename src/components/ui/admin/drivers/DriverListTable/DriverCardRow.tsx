@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { Star, Phone, Eye, Pencil } from 'lucide-react';
-import { cn } from '@/lib/utils/cn';
-import { CardRow } from '@/components/ui/admin/CardRow';
-import { StatusBadge } from '@/components/ui/admin/StatusBadge';
-import { Button } from '@/components/ui/button';
-import { VehicleIcon, VEHICLE_LABELS } from './types';
-import type { AdminDriver } from './types';
+import { Star, Phone, Eye, Pencil } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+import { CardRow } from "@/components/ui/admin/CardRow";
+import { StatusBadge } from "@/components/ui/admin/StatusBadge";
+import { Button } from "@/components/ui/button";
+import { VehicleIcon, VEHICLE_LABELS } from "./types";
+import type { AdminDriver } from "./types";
 
 // ============================================
 // TYPES
@@ -25,30 +25,30 @@ export interface DriverCardRowProps {
 // ============================================
 
 const STATUS_TINT: Record<string, string> = {
-  active: 'bg-green-50/50',
-  inactive: 'bg-gray-50/50',
+  active: "bg-green-50/50",
+  inactive: "bg-gray-50/50",
 };
 
 // ============================================
 // AVATAR
 // ============================================
 
-function DriverAvatar({ name, size = 'md' }: { name: string | null; size?: 'sm' | 'md' }) {
+function DriverAvatar({ name, size = "md" }: { name: string | null; size?: "sm" | "md" }) {
   const initials = name
     ? name
-        .split(' ')
+        .split(" ")
         .map((n) => n[0])
-        .join('')
+        .join("")
         .toUpperCase()
         .slice(0, 2)
-    : 'DR';
+    : "DR";
 
-  const sizeClasses = size === 'sm' ? 'h-8 w-8 text-xs' : 'h-10 w-10 text-sm';
+  const sizeClasses = size === "sm" ? "h-8 w-8 text-xs" : "h-10 w-10 text-sm";
 
   return (
     <div
       className={cn(
-        'rounded-full bg-accent-teal/10 text-accent-teal flex items-center justify-center font-display font-semibold shrink-0',
+        "rounded-full bg-accent-teal/10 text-accent-teal flex items-center justify-center font-display font-semibold shrink-0",
         sizeClasses
       )}
     >
@@ -63,7 +63,7 @@ function DriverAvatar({ name, size = 'md' }: { name: string | null; size?: 'sm' 
 
 function RatingDisplay({ rating }: { rating: number | null }) {
   if (rating === null) {
-    return <span className="text-sm text-text-muted">{'\u2014'}</span>;
+    return <span className="text-sm text-text-muted">{"\u2014"}</span>;
   }
 
   return (
@@ -80,14 +80,8 @@ function RatingDisplay({ rating }: { rating: number | null }) {
 // COMPONENT
 // ============================================
 
-export function DriverCardRow({
-  driver,
-  selected,
-  onClick,
-  onView,
-  onEdit,
-}: DriverCardRowProps) {
-  const statusTint = STATUS_TINT[driver.isActive ? 'active' : 'inactive'];
+export function DriverCardRow({ driver, selected, onClick, onView, onEdit }: DriverCardRowProps) {
+  const statusTint = STATUS_TINT[driver.isActive ? "active" : "inactive"];
 
   return (
     <CardRow statusTint={statusTint} selected={selected} onClick={onClick} className="gap-4">
@@ -98,7 +92,7 @@ export function DriverCardRow({
           <DriverAvatar name={driver.fullName} />
           <div className="min-w-0">
             <p className="text-sm font-medium text-text-primary truncate">
-              {driver.fullName || 'Unnamed Driver'}
+              {driver.fullName || "Unnamed Driver"}
             </p>
             {driver.phone && (
               <div className="flex items-center gap-1 text-xs text-text-muted">
@@ -111,7 +105,7 @@ export function DriverCardRow({
 
         {/* Status */}
         <div className="min-w-[90px]">
-          <StatusBadge status={driver.isActive ? 'active' : 'inactive'} />
+          <StatusBadge status={driver.isActive ? "active" : "inactive"} />
         </div>
 
         {/* Deliveries */}
@@ -177,14 +171,12 @@ export function DriverCardRow({
             <DriverAvatar name={driver.fullName} size="sm" />
             <div>
               <p className="text-sm font-medium text-text-primary">
-                {driver.fullName || 'Unnamed Driver'}
+                {driver.fullName || "Unnamed Driver"}
               </p>
-              {driver.phone && (
-                <p className="text-xs text-text-muted">{driver.phone}</p>
-              )}
+              {driver.phone && <p className="text-xs text-text-muted">{driver.phone}</p>}
             </div>
           </div>
-          <StatusBadge status={driver.isActive ? 'active' : 'inactive'} />
+          <StatusBadge status={driver.isActive ? "active" : "inactive"} />
         </div>
         <div className="flex items-center gap-4 text-xs text-text-secondary">
           <span className="font-medium">{driver.deliveriesCount} deliveries</span>

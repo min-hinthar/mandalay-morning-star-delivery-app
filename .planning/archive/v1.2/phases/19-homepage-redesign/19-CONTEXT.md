@@ -14,6 +14,7 @@ Redesign homepage with Remotion-generated video hero and enhanced scroll animati
 ## Implementation Decisions
 
 ### Hero Section
+
 - **Technology:** Remotion for pre-rendered MP4/WebM video (not live React animation)
 - **Content:** Animated food reveal featuring Tea Leaf Salad, Mohinga, Shan Noodles
 - **Effects:** Steam + particles, motion blur + glow, all layered for maximum impact
@@ -27,6 +28,7 @@ Redesign homepage with Remotion-generated video hero and enhanced scroll animati
 - **Headline copy:** Claude's discretion — craft headline matching brand voice
 
 ### Scroll Choreography
+
 - **Philosophy:** Combination — parallax depth + staggered element reveals within sections
 - **Trigger point:** 50% visible (middle of viewport)
 - **Animation speed:** Snappy 200-300ms
@@ -43,37 +45,45 @@ Redesign homepage with Remotion-generated video hero and enhanced scroll animati
 ### Section Animations
 
 **Coverage Section:**
+
 - Integrated into How It Works Step 1 (not standalone section)
 
 **How It Works Section:**
+
 - 4 steps: Check Coverage → Order → Track → Enjoy
 - Step-by-step reveal with interactive scroll highlighting
 - Icons have continuous subtle motion (float, pulse)
 - Connectors draw between steps
 
 **Menu Section:**
+
 - Category tabs with full menu (all items, tabbed by category)
 - Tab switching: slide left/right animation based on direction
 - Uses UnifiedMenuItemCard with existing 3D tilt
 - "View Full Menu" prominent button at end
 
 **Testimonials Section:**
+
 - Auto-rotating carousel of reviews
 
 **CTA/Promo Banner:**
+
 - Floating entrance animation (floats up with shadow)
 - Pulsing glow border to draw attention
 
 **Footer:**
+
 - Animated reveal — columns stagger in on scroll
 
 ### Visual Hierarchy
+
 - **Section order:** Hero → How It Works (with Coverage) → Menu → Testimonials → CTA → Footer
 - **Width:** Mixed — Claude decides full-width vs contained per section
 - **Spacing:** Claude decides based on content
 - **Typography:** Claude decides scale matching brand
 
 ### Claude's Discretion
+
 - Scroll indicator below hero (or none)
 - Section dividers (wave, diagonal, line, or none)
 - Smooth scroll implementation (CSS vs JS)
@@ -104,5 +114,5 @@ Redesign homepage with Remotion-generated video hero and enhanced scroll animati
 
 ---
 
-*Phase: 19-homepage-redesign*
-*Context gathered: 2026-01-24*
+_Phase: 19-homepage-redesign_
+_Context gathered: 2026-01-24_

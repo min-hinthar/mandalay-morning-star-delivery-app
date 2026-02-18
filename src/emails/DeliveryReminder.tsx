@@ -8,10 +8,10 @@ import {
   Row,
   Section,
   Text,
-} from '@react-email/components';
-import { DeliveryBlock } from './components/DeliveryBlock';
-import { EmailLayout } from './components/EmailLayout';
-import { APP_URL, FONT_STACK, SERIF_STACK } from './helpers';
+} from "@react-email/components";
+import { DeliveryBlock } from "./components/DeliveryBlock";
+import { EmailLayout } from "./components/EmailLayout";
+import { APP_URL, FONT_STACK, SERIF_STACK } from "./helpers";
 
 // ============================================
 // TYPES
@@ -42,7 +42,7 @@ export interface DeliveryReminderProps {
 // ============================================
 
 function buildItemPreview(itemNames: string[]): string {
-  if (itemNames.length === 0) return 'your order';
+  if (itemNames.length === 0) return "your order";
   if (itemNames.length === 1) return itemNames[0];
   if (itemNames.length === 2) return `${itemNames[0]} & ${itemNames[1]}`;
   const remaining = itemNames.length - 2;
@@ -52,7 +52,7 @@ function buildItemPreview(itemNames: string[]): string {
 function buildFullAddress(address: DeliveryAddress): string {
   return [address.line1, address.line2, address.city, address.state, address.postalCode]
     .filter(Boolean)
-    .join(', ');
+    .join(", ");
 }
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -73,7 +73,7 @@ export function DeliveryReminder({
   driverName,
 }: DeliveryReminderProps) {
   const itemPreview = buildItemPreview(itemNames);
-  const previewText = `\uD83C\uDF5C Your ${itemNames[0] || 'order'} & more are coming today!`;
+  const previewText = `\uD83C\uDF5C Your ${itemNames[0] || "order"} & more are coming today!`;
   const fullAddress = buildFullAddress(address);
   const encodedAddress = encodeURIComponent(fullAddress);
   const mapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
@@ -86,31 +86,62 @@ export function DeliveryReminder({
   return (
     <EmailLayout emailType="reminder" previewText={previewText}>
       {/* Excitement Section */}
-      <Section style={{ padding: '32px 24px 16px 24px', backgroundColor: '#FFF9E6', textAlign: 'center' as const }}>
-        <Text style={{ fontSize: '32px', margin: '0 0 8px 0' }}>
-          {'\uD83C\uDF5C'} {'\uD83C\uDF72'} {'\uD83E\uDD62'}
+      <Section
+        style={{
+          padding: "32px 24px 16px 24px",
+          backgroundColor: "#FFF9E6",
+          textAlign: "center" as const,
+        }}
+      >
+        <Text style={{ fontSize: "32px", margin: "0 0 8px 0" }}>
+          {"\uD83C\uDF5C"} {"\uD83C\uDF72"} {"\uD83E\uDD62"}
         </Text>
         <Heading
           as="h2"
-          style={{ fontSize: '24px', fontWeight: 700, color: '#8B4513', fontFamily: SERIF_STACK, margin: '0 0 12px 0', lineHeight: '1.3' }}
+          style={{
+            fontSize: "24px",
+            fontWeight: 700,
+            color: "#8B4513",
+            fontFamily: SERIF_STACK,
+            margin: "0 0 12px 0",
+            lineHeight: "1.3",
+          }}
         >
           Your Burmese feast is arriving today!
         </Heading>
-        <Text style={{ fontSize: '16px', color: '#374151', fontFamily: FONT_STACK, margin: '0 0 8px 0', lineHeight: '1.5' }}>
+        <Text
+          style={{
+            fontSize: "16px",
+            color: "#374151",
+            fontFamily: FONT_STACK,
+            margin: "0 0 8px 0",
+            lineHeight: "1.5",
+          }}
+        >
           Dear {customerName}, get ready for
         </Text>
-        <Text style={{ fontSize: '18px', fontWeight: 700, color: '#A41034', fontFamily: FONT_STACK, margin: '0', lineHeight: '1.5' }}>
+        <Text
+          style={{
+            fontSize: "18px",
+            fontWeight: 700,
+            color: "#A41034",
+            fontFamily: FONT_STACK,
+            margin: "0",
+            lineHeight: "1.5",
+          }}
+        >
           {itemPreview}
           {itemCount > 2 && (
-            <span style={{ fontSize: '14px', fontWeight: 400, color: '#6B7280' }}>
-              {' '}({itemCount} items total)
+            <span style={{ fontSize: "14px", fontWeight: 400, color: "#6B7280" }}>
+              {" "}
+              ({itemCount} items total)
             </span>
           )}
         </Text>
       </Section>
 
       {/* Delivery Details via DeliveryBlock */}
-      <Section style={{ padding: '16px 0' }}>
+      <Section style={{ padding: "16px 0" }}>
         <DeliveryBlock
           address={address}
           windowStart={deliveryWindowStart}
@@ -121,40 +152,76 @@ export function DeliveryReminder({
       </Section>
 
       {/* Static Map Section */}
-      <Section style={{ padding: '0 24px 16px 24px' }}>
+      <Section style={{ padding: "0 24px 16px 24px" }}>
         {staticMapUrl && (
-          <Link href={mapsDirectionsUrl} style={{ textDecoration: 'none' }}>
+          <Link href={mapsDirectionsUrl} style={{ textDecoration: "none" }}>
             <Img
               src={staticMapUrl}
               alt={`Delivery location map for ${address.line1}`}
               width={580}
               height={200}
-              style={{ borderRadius: '8px', width: '100%', display: 'block' }}
+              style={{ borderRadius: "8px", width: "100%", display: "block" }}
             />
           </Link>
         )}
-        <Text style={{ fontSize: '13px', color: '#6B7280', fontFamily: FONT_STACK, margin: '8px 0 0 0', textAlign: 'center' as const }}>
-          <Link href={mapsDirectionsUrl} style={{ color: '#D4A017', textDecoration: 'underline', fontSize: '13px' }}>
-            {'\uD83D\uDCCD'} View on Google Maps
+        <Text
+          style={{
+            fontSize: "13px",
+            color: "#6B7280",
+            fontFamily: FONT_STACK,
+            margin: "8px 0 0 0",
+            textAlign: "center" as const,
+          }}
+        >
+          <Link
+            href={mapsDirectionsUrl}
+            style={{ color: "#D4A017", textDecoration: "underline", fontSize: "13px" }}
+          >
+            {"\uD83D\uDCCD"} View on Google Maps
           </Link>
         </Text>
       </Section>
 
       {/* Action Links */}
-      <Section style={{ padding: '8px 24px 0 24px' }}>
-        <Row style={{ width: '100%' }}>
-          <Column style={{ width: '50%', paddingRight: '6px' }}>
+      <Section style={{ padding: "8px 24px 0 24px" }}>
+        <Row style={{ width: "100%" }}>
+          <Column style={{ width: "50%", paddingRight: "6px" }}>
             <Button
               href={`${APP_URL}/orders/${orderId}`}
-              style={{ backgroundColor: '#A41034', color: '#FFFFFF', fontFamily: FONT_STACK, fontSize: '14px', fontWeight: 700, textDecoration: 'none', textAlign: 'center' as const, display: 'block', padding: '12px 16px', borderRadius: '8px', width: '100%' }}
+              style={{
+                backgroundColor: "#A41034",
+                color: "#FFFFFF",
+                fontFamily: FONT_STACK,
+                fontSize: "14px",
+                fontWeight: 700,
+                textDecoration: "none",
+                textAlign: "center" as const,
+                display: "block",
+                padding: "12px 16px",
+                borderRadius: "8px",
+                width: "100%",
+              }}
             >
               Track Your Order
             </Button>
           </Column>
-          <Column style={{ width: '50%', paddingLeft: '6px' }}>
+          <Column style={{ width: "50%", paddingLeft: "6px" }}>
             <Button
               href={`${APP_URL}/orders/${orderId}`}
-              style={{ backgroundColor: '#FFFFFF', color: '#A41034', fontFamily: FONT_STACK, fontSize: '14px', fontWeight: 700, textDecoration: 'none', textAlign: 'center' as const, display: 'block', padding: '12px 16px', borderRadius: '8px', width: '100%', border: '2px solid #A41034' }}
+              style={{
+                backgroundColor: "#FFFFFF",
+                color: "#A41034",
+                fontFamily: FONT_STACK,
+                fontSize: "14px",
+                fontWeight: 700,
+                textDecoration: "none",
+                textAlign: "center" as const,
+                display: "block",
+                padding: "12px 16px",
+                borderRadius: "8px",
+                width: "100%",
+                border: "2px solid #A41034",
+              }}
             >
               Modify Order
             </Button>
@@ -163,13 +230,25 @@ export function DeliveryReminder({
       </Section>
 
       {/* Need help? section */}
-      <Section style={{ padding: '24px' }}>
-        <Hr style={{ borderColor: '#E5E7EB', borderWidth: '1px 0 0 0', margin: '0 0 16px 0' }} />
-        <Text style={{ fontSize: '13px', color: '#9CA3AF', fontFamily: FONT_STACK, margin: '0', textAlign: 'center' as const, lineHeight: '1.6' }}>
-          Need help?{' '}
-          <Link href="mailto:admin@mandalaymorningstar.com" style={{ color: '#D4A017', textDecoration: 'underline' }}>
+      <Section style={{ padding: "24px" }}>
+        <Hr style={{ borderColor: "#E5E7EB", borderWidth: "1px 0 0 0", margin: "0 0 16px 0" }} />
+        <Text
+          style={{
+            fontSize: "13px",
+            color: "#9CA3AF",
+            fontFamily: FONT_STACK,
+            margin: "0",
+            textAlign: "center" as const,
+            lineHeight: "1.6",
+          }}
+        >
+          Need help?{" "}
+          <Link
+            href="mailto:admin@mandalaymorningstar.com"
+            style={{ color: "#D4A017", textDecoration: "underline" }}
+          >
             Contact our support team
-          </Link>{' '}
+          </Link>{" "}
           and we&apos;ll be happy to assist you.
         </Text>
       </Section>

@@ -38,10 +38,7 @@ function generateClickSound(
     // Quick attack, fast decay for click feel
     gainNode.gain.setValueAtTime(0, context.currentTime);
     gainNode.gain.linearRampToValueAtTime(volume, context.currentTime + 0.01);
-    gainNode.gain.exponentialRampToValueAtTime(
-      0.001,
-      context.currentTime + duration
-    );
+    gainNode.gain.exponentialRampToValueAtTime(0.001, context.currentTime + duration);
 
     oscillator.start(context.currentTime);
     oscillator.stop(context.currentTime + duration);
@@ -114,8 +111,7 @@ export function useCardSound() {
     try {
       const AudioContextClass =
         window.AudioContext ||
-        (window as typeof window & { webkitAudioContext?: typeof AudioContext })
-          .webkitAudioContext;
+        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
 
       if (AudioContextClass) {
         audioState.current.context = new AudioContextClass();

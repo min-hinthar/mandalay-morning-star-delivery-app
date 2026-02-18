@@ -66,12 +66,7 @@ interface StopDetailViewProps {
 // TIMELINE STEP SEQUENCE
 // ============================================
 
-const STATUS_FLOW: RouteStopStatus[] = [
-  "pending",
-  "enroute",
-  "arrived",
-  "delivered",
-];
+const STATUS_FLOW: RouteStopStatus[] = ["pending", "enroute", "arrived", "delivered"];
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "Pending",
@@ -124,9 +119,7 @@ function TimelineStepSequence({
                   isFuture && "h-5 w-5 border-2 border-border bg-surface-tertiary"
                 )}
               >
-                {isCompleted && (
-                  <Check className="h-3.5 w-3.5 text-text-inverse" strokeWidth={3} />
-                )}
+                {isCompleted && <Check className="h-3.5 w-3.5 text-text-inverse" strokeWidth={3} />}
                 {isCurrent && isFullMotion && (
                   <m.span
                     animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
@@ -134,9 +127,7 @@ function TimelineStepSequence({
                     className="absolute inset-0 rounded-full bg-accent-teal"
                   />
                 )}
-                {isCurrent && (
-                  <span className="relative h-2 w-2 rounded-full bg-surface-primary" />
-                )}
+                {isCurrent && <span className="relative h-2 w-2 rounded-full bg-surface-primary" />}
               </m.div>
               <span
                 className={cn(
@@ -186,11 +177,7 @@ function TimelineStepSequence({
 // MAP MARKER PULSE (uses existing pulse-ring keyframe from globals.css)
 // ============================================
 
-const ACTIVE_STOP_STATUSES = new Set<RouteStopStatus>([
-  "pending",
-  "enroute",
-  "arrived",
-]);
+const ACTIVE_STOP_STATUSES = new Set<RouteStopStatus>(["pending", "enroute", "arrived"]);
 
 function MapMarkerPulse() {
   return (
@@ -250,13 +237,10 @@ export function StopDetailView({
         const formData = new FormData();
         formData.append("photo", blob, "delivery-photo.jpg");
 
-        const response = await fetch(
-          `/api/driver/routes/${routeId}/stops/${stopId}/photo`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
+        const response = await fetch(`/api/driver/routes/${routeId}/stops/${stopId}/photo`, {
+          method: "POST",
+          body: formData,
+        });
 
         if (!response.ok) {
           if (response.status >= 500) {
@@ -285,8 +269,7 @@ export function StopDetailView({
   }, []);
 
   const canTakePhoto = currentStatus === "arrived";
-  const showMarkerPulse =
-    isFullMotion && ACTIVE_STOP_STATUSES.has(currentStatus);
+  const showMarkerPulse = isFullMotion && ACTIVE_STOP_STATUSES.has(currentStatus);
 
   return (
     <>

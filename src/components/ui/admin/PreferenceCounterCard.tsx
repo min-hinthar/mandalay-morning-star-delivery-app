@@ -55,8 +55,7 @@ export async function PreferenceCounterCard({ className }: PreferenceCounterCard
   }
 
   // Sort dietary restrictions by count (descending)
-  const sortedDietary = Object.entries(dietaryCounts)
-    .sort(([, a], [, b]) => b - a);
+  const sortedDietary = Object.entries(dietaryCounts).sort(([, a], [, b]) => b - a);
 
   const hasData = totalCustomers > 0;
 
@@ -97,7 +96,9 @@ export async function PreferenceCounterCard({ className }: PreferenceCounterCard
             )}
 
             {/* Notification opt-outs */}
-            {(notifOptOuts.order_updates > 0 || notifOptOuts.marketing > 0 || notifOptOuts.reminders > 0) && (
+            {(notifOptOuts.order_updates > 0 ||
+              notifOptOuts.marketing > 0 ||
+              notifOptOuts.reminders > 0) && (
               <div>
                 <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">
                   Notification Opt-outs

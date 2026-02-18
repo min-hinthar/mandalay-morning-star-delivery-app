@@ -22,16 +22,11 @@ interface NotificationsSectionProps {
   onUpdate: (key: keyof NotificationPrefs, value: boolean) => void;
 }
 
-export function NotificationsSection({
-  notificationPrefs,
-  onUpdate,
-}: NotificationsSectionProps) {
+export function NotificationsSection({ notificationPrefs, onUpdate }: NotificationsSectionProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-base font-semibold text-text-primary">
-          Email Notifications
-        </h3>
+        <h3 className="text-base font-semibold text-text-primary">Email Notifications</h3>
         <p className="mt-1 text-sm text-text-secondary">
           Choose which emails you&apos;d like to receive
         </p>

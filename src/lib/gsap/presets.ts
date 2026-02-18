@@ -152,11 +152,7 @@ export const scrollTriggerPresets = {
 /**
  * Create stagger delay for index
  */
-export function staggerDelay(
-  index: number,
-  baseDelay = 0.06,
-  maxDelay = 0.5
-): number {
+export function staggerDelay(index: number, baseDelay = 0.06, maxDelay = 0.5): number {
   return Math.min(index * baseDelay, maxDelay);
 }
 

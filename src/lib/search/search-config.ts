@@ -34,12 +34,12 @@ export const FUSE_CONFIG: IFuseOptions<EnrichedMenuItem> = {
 export const CATEGORY_EMOJI_MAP: Record<string, string> = {
   "all-day-breakfast": "\u{1F373}",
   "rice-noodles-soups": "\u{1F35C}",
-  "sides": "\u{1F961}",
+  sides: "\u{1F961}",
   "curries-a-la-carte": "\u{1F35B}",
-  "vegetables": "\u{1F966}",
+  vegetables: "\u{1F966}",
   "seafood-curries": "\u{1F990}",
   "appetizers-salads": "\u{1F957}",
-  "drinks": "\u{1F9CB}",
+  drinks: "\u{1F9CB}",
 };
 
 /**

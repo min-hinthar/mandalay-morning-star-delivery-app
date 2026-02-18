@@ -4,10 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
 import { logger } from "@/lib/utils/logger";
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const auth = await requireAdmin();
@@ -17,14 +14,16 @@ export async function GET(
 
     const { data: item, error } = await auth.supabase
       .from("menu_items")
-      .select(`
+      .select(
+        `
         *,
         menu_categories (
           id,
           name,
           slug
         )
-      `)
+      `
+      )
       .eq("id", id)
       .single();
 
@@ -33,25 +32,24 @@ export async function GET(
       if (error.code === "PGRST116") {
         return NextResponse.json({ error: "Menu item not found" }, { status: 404 });
       }
-      return NextResponse.json(
-        { error: "Failed to fetch menu item" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch menu item" }, { status: 500 });
     }
 
     return NextResponse.json(item);
   } catch (error) {
     logger.exception(error, { api: "admin/menu/[id]", flowId: "fetch" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 const updateMenuItemSchema = z.object({
   category_id: z.string().uuid("Invalid category ID").optional(),
-  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/, "Slug must be lowercase letters, numbers, and hyphens").optional(),
+  slug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase letters, numbers, and hyphens")
+    .optional(),
   name_en: z.string().min(1).max(200).optional(),
   name_my: z.string().max(200).optional().nullable(),
   description_en: z.string().max(1000).optional().nullable(),
@@ -63,10 +61,7 @@ const updateMenuItemSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const auth = await requireAdmin();
@@ -97,10 +92,7 @@ export async function PATCH(
     if (error) {
       logger.exception(error, { api: "admin/menu/[id]" });
       if (error.code === "PGRST116") {
-        return NextResponse.json(
-          { error: "Menu item not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: "Menu item not found" }, { status: 404 });
       }
       if (error.code === "23505") {
         return NextResponse.json(
@@ -108,10 +100,7 @@ export async function PATCH(
           { status: 409 }
         );
       }
-      return NextResponse.json(
-        { error: "Failed to update menu item" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to update menu item" }, { status: 500 });
     }
 
     // Revalidate menu cache so changes appear immediately
@@ -122,17 +111,11 @@ export async function PATCH(
     return NextResponse.json(item);
   } catch (error) {
     logger.exception(error, { api: "admin/menu/[id]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const auth = await requireAdmin();
@@ -149,24 +132,19 @@ export async function DELETE(
     if (count && count > 0) {
       return NextResponse.json(
         {
-          error: "Cannot delete menu item with existing orders. Consider marking it as inactive instead.",
+          error:
+            "Cannot delete menu item with existing orders. Consider marking it as inactive instead.",
           orderCount: count,
         },
         { status: 409 }
       );
     }
 
-    const { error } = await auth.supabase
-      .from("menu_items")
-      .delete()
-      .eq("id", id);
+    const { error } = await auth.supabase.from("menu_items").delete().eq("id", id);
 
     if (error) {
       logger.exception(error, { api: "admin/menu/[id]", flowId: "delete" });
-      return NextResponse.json(
-        { error: "Failed to delete menu item" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to delete menu item" }, { status: 500 });
     }
 
     // Revalidate menu cache so deletion reflects immediately
@@ -177,9 +155,6 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     logger.exception(error, { api: "admin/menu/[id]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

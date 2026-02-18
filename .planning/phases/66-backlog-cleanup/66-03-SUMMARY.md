@@ -69,6 +69,7 @@ completed: 2026-02-15
 - **Files modified:** 10
 
 ## Accomplishments
+
 - Custom branded markers for restaurant (red), vehicle (saffron), destination (jade) using AdvancedMarkerElement
 - Route progress line with jade solid (completed) and charcoal dashed (remaining) segments
 - Smooth driver marker animation via requestAnimationFrame with ease-out cubic interpolation (1s duration)
@@ -85,6 +86,7 @@ completed: 2026-02-15
 2. **Task 2: StatusStepper + split-view layout** - `e458a0c` (feat)
 
 ## Files Created/Modified
+
 - `src/components/ui/orders/tracking/DeliveryMap/CustomMarkers.tsx` - Branded marker DOM element factories
 - `src/components/ui/orders/tracking/DeliveryMap/RoutePolyline.tsx` - Route line with completed/remaining split
 - `src/components/ui/orders/tracking/DeliveryMap/MapContent.tsx` - Extracted map overlay rendering
@@ -97,6 +99,7 @@ completed: 2026-02-15
 - `src/components/ui/orders/tracking/index.ts` - Added StatusStepper export
 
 ## Decisions Made
+
 - Used raw DOM element helpers (not React components) for AdvancedMarkerElement content -- Google Maps API requires plain DOM
 - Ease-out cubic interpolation for marker animation provides natural deceleration feel
 - Split DeliveryMap.tsx into MapContent.tsx and MapLegend.tsx to stay under 400-line limit
@@ -110,6 +113,7 @@ completed: 2026-02-15
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Split DeliveryMap into sub-components for file size compliance**
+
 - **Found during:** Task 1
 - **Issue:** DeliveryMap.tsx grew to 677 lines, exceeding 400-line max-lines ESLint rule
 - **Fix:** Extracted MapContent.tsx (map overlays/markers rendering) and MapLegend.tsx (legend bar)
@@ -123,17 +127,21 @@ completed: 2026-02-15
 **Impact on plan:** Component split was mechanical extraction with no behavior change. No scope creep.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Enhanced tracking map and StatusStepper ready for visual review
 - All new DeliveryMap props (restaurantLocation, orderStatus, lastLocationUpdate) wired through TrackingPageClient
 - Split-view layout responsive across mobile/tablet/desktop
 - Next plans can build on the tracking UI foundation
 
 ---
-*Phase: 66-backlog-cleanup*
-*Completed: 2026-02-15*
+
+_Phase: 66-backlog-cleanup_
+_Completed: 2026-02-15_

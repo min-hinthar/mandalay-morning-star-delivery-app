@@ -37,15 +37,10 @@ export function ModifierGroup({
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h4 className="font-medium text-foreground">{group.name}</h4>
-          {selectionHint && (
-            <p className="text-sm text-muted-foreground">{selectionHint}</p>
-          )}
+          {selectionHint && <p className="text-sm text-muted-foreground">{selectionHint}</p>}
         </div>
         {isRequired && (
-          <Badge
-            variant="outline"
-            className="border-brand-red text-brand-red"
-          >
+          <Badge variant="outline" className="border-brand-red text-brand-red">
             Required
           </Badge>
         )}
@@ -82,9 +77,7 @@ export function ModifierGroup({
                 <span
                   className={cn(
                     "text-sm",
-                    option.priceDeltaCents > 0
-                      ? "text-muted-foreground"
-                      : "text-brand-green"
+                    option.priceDeltaCents > 0 ? "text-muted-foreground" : "text-brand-green"
                   )}
                 >
                   {option.priceDeltaCents > 0 ? "+" : ""}
@@ -138,9 +131,7 @@ export function ModifierGroup({
                   <span
                     className={cn(
                       "text-sm",
-                      option.priceDeltaCents > 0
-                        ? "text-muted-foreground"
-                        : "text-brand-green"
+                      option.priceDeltaCents > 0 ? "text-muted-foreground" : "text-brand-green"
                     )}
                   >
                     {option.priceDeltaCents > 0 ? "+" : ""}

@@ -16,7 +16,11 @@ const createSectionSchema = z.object({
   name: z.string().min(1).max(200),
   subtitle: z.string().max(500).optional().nullable(),
   icon: z.string().max(50).optional().nullable(),
-  accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Must be a hex color").optional().nullable(),
+  accentColor: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, "Must be a hex color")
+    .optional()
+    .nullable(),
   itemCount: z.number().int().min(1).max(20).optional().default(6),
   isVisible: z.boolean().optional().default(true),
 });
@@ -39,7 +43,8 @@ export async function GET() {
     // Get all sections (including soft-deleted for admin)
     const { data: sections, error } = await auth.supabase
       .from("featured_sections")
-      .select(`
+      .select(
+        `
         *,
         featured_section_items (
           item_id,
@@ -51,16 +56,14 @@ export async function GET() {
             base_price_cents
           )
         )
-      `)
+      `
+      )
       .order("sort_order", { ascending: true })
       .returns<SectionWithItems[]>();
 
     if (error) {
       logger.exception(error, { api: "admin/sections", flowId: "fetch" });
-      return NextResponse.json(
-        { error: "Failed to fetch sections" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch sections" }, { status: 500 });
     }
 
     // Transform to include actual item count
@@ -81,24 +84,22 @@ export async function GET() {
       createdAt: section.created_at,
       updatedAt: section.updated_at,
       updatedBy: section.updated_by,
-      items: section.featured_section_items
-        ?.sort((a, b) => a.sort_order - b.sort_order)
-        .map((item) => ({
-          id: item.menu_items.id,
-          nameEn: item.menu_items.name_en,
-          imageUrl: item.menu_items.image_url,
-          basePriceCents: item.menu_items.base_price_cents,
-          sortOrder: item.sort_order,
-        })) ?? [],
+      items:
+        section.featured_section_items
+          ?.sort((a, b) => a.sort_order - b.sort_order)
+          .map((item) => ({
+            id: item.menu_items.id,
+            nameEn: item.menu_items.name_en,
+            imageUrl: item.menu_items.image_url,
+            basePriceCents: item.menu_items.base_price_cents,
+            sortOrder: item.sort_order,
+          })) ?? [],
     }));
 
     return NextResponse.json(transformed);
   } catch (error) {
     logger.exception(error, { api: "admin/sections", flowId: "fetch" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -176,33 +177,30 @@ export async function POST(request: Request) {
           { status: 409 }
         );
       }
-      return NextResponse.json(
-        { error: "Failed to create section" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to create section" }, { status: 500 });
     }
 
-    return NextResponse.json({
-      id: section.id,
-      slug: section.slug,
-      name: section.name,
-      subtitle: section.subtitle,
-      icon: section.icon,
-      accentColor: section.accent_color,
-      sortOrder: section.sort_order,
-      itemCount: section.item_count,
-      isVisible: section.is_visible,
-      isPredefined: section.is_predefined,
-      deletedAt: section.deleted_at,
-      createdAt: section.created_at,
-      updatedAt: section.updated_at,
-      updatedBy: section.updated_by,
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        id: section.id,
+        slug: section.slug,
+        name: section.name,
+        subtitle: section.subtitle,
+        icon: section.icon,
+        accentColor: section.accent_color,
+        sortOrder: section.sort_order,
+        itemCount: section.item_count,
+        isVisible: section.is_visible,
+        isPredefined: section.is_predefined,
+        deletedAt: section.deleted_at,
+        createdAt: section.created_at,
+        updatedAt: section.updated_at,
+        updatedBy: section.updated_by,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     logger.exception(error, { api: "admin/sections", flowId: "create" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

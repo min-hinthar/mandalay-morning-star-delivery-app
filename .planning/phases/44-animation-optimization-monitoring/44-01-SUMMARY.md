@@ -49,6 +49,7 @@ completed: 2026-02-06
 - **Files modified:** 4
 
 ## Accomplishments
+
 - React Compiler enabled globally via `reactCompiler: true` in next.config.ts
 - babel-plugin-react-compiler@1.0.0 installed as devDependency
 - SplitText, Flip, Observer removed from GSAP plugin registration and exports
@@ -63,6 +64,7 @@ Each task was committed atomically:
 2. **Task 2: Remove dead GSAP plugins** - `783173a` (perf)
 
 ## Files Created/Modified
+
 - `next.config.ts` - Added `reactCompiler: true` as top-level config option
 - `package.json` - Added babel-plugin-react-compiler devDependency
 - `pnpm-lock.yaml` - Updated lockfile with new dependency
@@ -70,6 +72,7 @@ Each task was committed atomically:
 - `src/lib/gsap/presets.ts` - Updated stale SplitText comment
 
 ## Decisions Made
+
 - React Compiler enabled as top-level Next.js config (not under `experimental`) per Next.js 16 stable API
 - No per-component opt-outs needed -- all 282 client components compile cleanly with React Compiler
 - SplitText, Flip, Observer confirmed as dead code via codebase-wide grep (zero consumer files import them)
@@ -79,6 +82,7 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 - `pnpm build` fails due to Google Fonts network inaccessibility (403 from fonts.googleapis.com) in this environment. Confirmed this is a pre-existing issue unrelated to React Compiler changes -- identical failure occurs without any modifications. Verification performed via `pnpm typecheck` and `pnpm test` instead, both pass cleanly.
 
 ## User Setup Required
@@ -86,10 +90,12 @@ None - plan executed exactly as written.
 None - no external service configuration required.
 
 ## Next Phase Readiness
-- React Compiler active, ready for 44-02 (LazyMotion + motion.* to m.* migration)
+
+- React Compiler active, ready for 44-02 (LazyMotion + motion._ to m._ migration)
 - GSAP ScrollTrigger + useGSAP intact for all 4 consumer files (ParallaxLayer, RevealOnScroll, ScrollChoreographer, FlyToCart)
 - Build verification blocked by environment font network issue; should be validated in CI or environment with Google Fonts access
 
 ---
-*Phase: 44-animation-optimization-monitoring*
-*Completed: 2026-02-06*
+
+_Phase: 44-animation-optimization-monitoring_
+_Completed: 2026-02-06_

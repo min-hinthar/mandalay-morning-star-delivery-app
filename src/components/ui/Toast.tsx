@@ -9,25 +9,24 @@
  */
 
 import { m, AnimatePresence } from "framer-motion";
-import {
-  X,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Info,
-  Bell,
-  AlertOctagon,
-} from "lucide-react";
+import { X, CheckCircle, XCircle, AlertTriangle, Info, Bell, AlertOctagon } from "lucide-react";
 import { zIndex } from "@/lib/design-system/tokens/z-index";
 import { cn } from "@/lib/utils/cn";
 import { Portal } from "./Portal";
-import { useToast, type Toast as ToastType, type ToastType as ToastVariant } from "@/lib/hooks/useToastV8";
+import {
+  useToast,
+  type Toast as ToastType,
+  type ToastType as ToastVariant,
+} from "@/lib/hooks/useToastV8";
 
 // ============================================
 // ICON + COLOR MAP
 // ============================================
 
-const toastConfig: Record<ToastVariant, { icon: typeof CheckCircle; color: string; borderColor: string }> = {
+const toastConfig: Record<
+  ToastVariant,
+  { icon: typeof CheckCircle; color: string; borderColor: string }
+> = {
   success: {
     icon: CheckCircle,
     color: "text-green-600 dark:text-green-400",
@@ -169,11 +168,7 @@ export function ToastContainer() {
           ))}
 
           {hiddenCount > 0 && (
-            <CollapsedBadge
-              key="collapsed-badge"
-              count={hiddenCount}
-              onClick={toggleExpanded}
-            />
+            <CollapsedBadge key="collapsed-badge" count={hiddenCount} onClick={toggleExpanded} />
           )}
         </AnimatePresence>
       </div>

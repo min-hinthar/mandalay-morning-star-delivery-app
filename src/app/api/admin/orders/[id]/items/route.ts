@@ -45,10 +45,7 @@ interface OrderItemRow {
  * Update order item quantities. Quantity 0 removes the item.
  * Recalculates order total and logs to audit.
  */
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: orderId } = await params;
 
   try {
@@ -95,16 +92,15 @@ export async function PATCH(
     const itemIds = items.map((i) => i.id);
     const { data: orderItems, error: itemsError } = await supabase
       .from("order_items")
-      .select("id, order_id, name_snapshot, base_price_snapshot, quantity, line_total_cents, refunded_quantity")
+      .select(
+        "id, order_id, name_snapshot, base_price_snapshot, quantity, line_total_cents, refunded_quantity"
+      )
       .in("id", itemIds)
       .returns<OrderItemRow[]>();
 
     if (itemsError) {
       logger.exception(itemsError, { api: "admin/orders/[id]/items" });
-      return NextResponse.json(
-        { error: "Failed to fetch order items" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch order items" }, { status: 500 });
     }
 
     // Validate items belong to this order
@@ -161,10 +157,7 @@ export async function PATCH(
             api: "admin/orders/[id]/items",
             orderItemId: orderItem.id,
           });
-          return NextResponse.json(
-            { error: "Failed to remove item" },
-            { status: 500 }
-          );
+          return NextResponse.json({ error: "Failed to remove item" }, { status: 500 });
         }
 
         newValues[orderItem.id] = {
@@ -190,10 +183,7 @@ export async function PATCH(
             api: "admin/orders/[id]/items",
             orderItemId: orderItem.id,
           });
-          return NextResponse.json(
-            { error: "Failed to update item" },
-            { status: 500 }
-          );
+          return NextResponse.json({ error: "Failed to update item" }, { status: 500 });
         }
 
         newValues[orderItem.id] = {
@@ -225,10 +215,7 @@ export async function PATCH(
 
     if (orderUpdateError) {
       logger.exception(orderUpdateError, { api: "admin/orders/[id]/items" });
-      return NextResponse.json(
-        { error: "Failed to update order total" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to update order total" }, { status: 500 });
     }
 
     // Create audit log entry
@@ -278,9 +265,6 @@ export async function PATCH(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/items" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

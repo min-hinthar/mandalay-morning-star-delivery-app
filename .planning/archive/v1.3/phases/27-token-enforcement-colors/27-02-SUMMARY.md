@@ -103,24 +103,24 @@ Each task was committed atomically:
 
 ## Files Created/Modified
 
-| File | Changes |
-|------|---------|
-| `src/components/ui/dialog.tsx` | Overlay uses bg-overlay token |
-| `src/components/ui/Dropdown.tsx` | Surface uses bg-surface-primary |
-| `src/components/ui/success-checkmark.tsx` | Checkmark text uses text-text-inverse |
-| `src/components/ui/animated-toggle.tsx` | Knob uses bg-surface-primary |
-| `src/components/ui/theme-toggle.tsx` | Dark mode bg uses bg-overlay-light |
-| `src/components/ui/cart/CartBar.tsx` | Badge text, button text, surfaces |
-| `src/components/ui/cart/CartButton.tsx` | Hover state, badge ring, badge text |
-| `src/components/ui/cart/CartItem.tsx` | Swipe delete indicator |
-| `src/components/ui/cart/AddToCartButton.tsx` | Button text |
-| `src/components/ui/cart/ClearCartConfirmation.tsx` | Confirm button text |
-| `src/components/ui/cart/CartDrawer.tsx` | Badge text |
-| `src/components/ui/cart/CartSummary.tsx` | Truck indicator background |
-| `src/components/ui/menu/MenuContent.tsx` | Retry button text |
-| `src/components/ui/menu/ItemDetailSheet.tsx` | Sold-out overlay, footer background |
-| `src/components/ui/menu/FavoriteButton.tsx` | Glassmorphism background |
-| `src/components/ui/navigation/AppShell.tsx` | Shell background |
+| File                                               | Changes                               |
+| -------------------------------------------------- | ------------------------------------- |
+| `src/components/ui/dialog.tsx`                     | Overlay uses bg-overlay token         |
+| `src/components/ui/Dropdown.tsx`                   | Surface uses bg-surface-primary       |
+| `src/components/ui/success-checkmark.tsx`          | Checkmark text uses text-text-inverse |
+| `src/components/ui/animated-toggle.tsx`            | Knob uses bg-surface-primary          |
+| `src/components/ui/theme-toggle.tsx`               | Dark mode bg uses bg-overlay-light    |
+| `src/components/ui/cart/CartBar.tsx`               | Badge text, button text, surfaces     |
+| `src/components/ui/cart/CartButton.tsx`            | Hover state, badge ring, badge text   |
+| `src/components/ui/cart/CartItem.tsx`              | Swipe delete indicator                |
+| `src/components/ui/cart/AddToCartButton.tsx`       | Button text                           |
+| `src/components/ui/cart/ClearCartConfirmation.tsx` | Confirm button text                   |
+| `src/components/ui/cart/CartDrawer.tsx`            | Badge text                            |
+| `src/components/ui/cart/CartSummary.tsx`           | Truck indicator background            |
+| `src/components/ui/menu/MenuContent.tsx`           | Retry button text                     |
+| `src/components/ui/menu/ItemDetailSheet.tsx`       | Sold-out overlay, footer background   |
+| `src/components/ui/menu/FavoriteButton.tsx`        | Glassmorphism background              |
+| `src/components/ui/navigation/AppShell.tsx`        | Shell background                      |
 
 ## Decisions Made
 
@@ -151,5 +151,6 @@ None - no external service configuration required.
 - Files outside ui/ scope (auth/, driver/, orders/, layout/) still have violations - to be addressed in future plans
 
 ---
-*Phase: 27-token-enforcement-colors*
-*Completed: 2026-01-28*
+
+_Phase: 27-token-enforcement-colors_
+_Completed: 2026-01-28_

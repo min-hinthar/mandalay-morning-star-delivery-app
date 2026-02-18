@@ -11,12 +11,7 @@ import type { OrdersRow, AddressesRow, ProfilesRow } from "./database";
 
 export type RouteStatus = "planned" | "in_progress" | "completed";
 
-export type RouteStopStatus =
-  | "pending"
-  | "enroute"
-  | "arrived"
-  | "delivered"
-  | "skipped";
+export type RouteStopStatus = "pending" | "enroute" | "arrived" | "delivered" | "skipped";
 
 export type VehicleType = "car" | "motorcycle" | "bicycle" | "van" | "truck";
 

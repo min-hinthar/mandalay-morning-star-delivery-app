@@ -16,28 +16,29 @@ The codebase has 181 files importing from `framer-motion` with ~1400 `motion.*` 
 
 ### Core
 
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| `babel-plugin-react-compiler` | latest | React Compiler Babel plugin | Required by Next.js 16 `reactCompiler` config |
-| `framer-motion` | 12.26.1 (installed) | Animation library | Already in use; LazyMotion/m is built-in |
-| `gsap` | 3.14.2 (installed) | Scroll-linked animations | Already in use; modular imports built-in |
-| `@lhci/cli` | 0.15.x | Lighthouse CI CLI | Official Google tool for CI performance gates |
+| Library                       | Version             | Purpose                     | Why Standard                                  |
+| ----------------------------- | ------------------- | --------------------------- | --------------------------------------------- |
+| `babel-plugin-react-compiler` | latest              | React Compiler Babel plugin | Required by Next.js 16 `reactCompiler` config |
+| `framer-motion`               | 12.26.1 (installed) | Animation library           | Already in use; LazyMotion/m is built-in      |
+| `gsap`                        | 3.14.2 (installed)  | Scroll-linked animations    | Already in use; modular imports built-in      |
+| `@lhci/cli`                   | 0.15.x              | Lighthouse CI CLI           | Official Google tool for CI performance gates |
 
 ### Supporting
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `treosh/lighthouse-ci-action` | v12 | GitHub Actions Lighthouse integration | PR-triggered Lighthouse audits with artifact upload |
+| Library                       | Version | Purpose                               | When to Use                                         |
+| ----------------------------- | ------- | ------------------------------------- | --------------------------------------------------- |
+| `treosh/lighthouse-ci-action` | v12     | GitHub Actions Lighthouse integration | PR-triggered Lighthouse audits with artifact upload |
 
 ### Alternatives Considered
 
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| `framer-motion` | `motion` (renamed pkg) | Same code, but migration changes all import paths; not worth it during optimization phase |
-| `@lhci/cli` + GH Action | Vercel Speed Insights | Vercel SI is real-user monitoring, not synthetic CI gate |
-| `treosh/lighthouse-ci-action` | Raw `@lhci/cli` in workflow | Action provides better artifact handling + output composition |
+| Instead of                    | Could Use                   | Tradeoff                                                                                  |
+| ----------------------------- | --------------------------- | ----------------------------------------------------------------------------------------- |
+| `framer-motion`               | `motion` (renamed pkg)      | Same code, but migration changes all import paths; not worth it during optimization phase |
+| `@lhci/cli` + GH Action       | Vercel Speed Insights       | Vercel SI is real-user monitoring, not synthetic CI gate                                  |
+| `treosh/lighthouse-ci-action` | Raw `@lhci/cli` in workflow | Action provides better artifact handling + output composition                             |
 
 **Installation:**
+
 ```bash
 pnpm add -D babel-plugin-react-compiler @lhci/cli
 ```
@@ -47,16 +48,18 @@ pnpm add -D babel-plugin-react-compiler @lhci/cli
 ### React Compiler Configuration
 
 **next.config.ts** -- Top-level option (NOT under `experimental`):
+
 ```typescript
 const nextConfig: NextConfig = {
   reactCompiler: true,
   // ... existing config
-}
+};
 ```
 
 **Confidence: HIGH** -- Verified via official Next.js 16 docs. The `reactCompiler` option was promoted from experimental to stable following React Compiler's 1.0 release.
 
 **Key facts:**
+
 - Requires `babel-plugin-react-compiler` as devDependency
 - Next.js includes a custom SWC optimization that only applies the compiler to relevant files (those with JSX or hooks), minimizing build perf impact
 - Opt-out per file/component via `"use no memo"` directive at function top
@@ -65,6 +68,7 @@ const nextConfig: NextConfig = {
 ### LazyMotion + m Component Migration
 
 **Provider placement:** Root level in `src/app/providers.tsx`, wrapping `AnimationProvider`:
+
 ```typescript
 import { LazyMotion, domMax } from "framer-motion";
 
@@ -88,6 +92,7 @@ export function Providers({ children }: ProvidersProps) {
 **Feature bundle decision: `domMax` (not `domAnimation`)**
 
 Rationale -- the codebase uses features that require `domMax`:
+
 - `drag="x"` + `dragConstraints` in `CartItem.tsx`
 - `layoutId` in 10+ components: NavDots, Tabs, BottomNav, AdminLayout, CategoryTabs, TestimonialsCarousel, FeaturedCarousel/CarouselControls, SettingsClient, AccountClient
 
@@ -99,12 +104,14 @@ Rationale -- the codebase uses features that require `domMax`:
 **Loading strategy: Synchronous (not async)**
 
 Rationale:
+
 - Animations appear on every customer-facing page (homepage hero, menu, cart, checkout)
 - Async loading would cause a flash of unanimated content on first load
 - The ~25kb domMax is loaded ONCE at root vs the current ~34kb bundled per `motion` component import
 - Net bundle reduction: `m` component is ~4.6kb vs `motion` at ~34kb preloaded per usage site
 
 **m component import pattern:**
+
 ```typescript
 // Before (every file)
 import { motion, AnimatePresence } from "framer-motion";
@@ -120,6 +127,7 @@ import { m, AnimatePresence } from "framer-motion";
 ### GSAP Dead Plugin Removal
 
 **Current state** (`src/lib/gsap/index.ts`):
+
 ```typescript
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
@@ -130,17 +138,18 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText, Flip, Observer);
 
 **Audit results -- Plugin usage:**
 
-| Plugin | Imported In | Actually Used In Components | Verdict |
-|--------|-------------|----------------------------|---------|
-| ScrollTrigger | gsap/index.ts | ParallaxLayer, RevealOnScroll, ScrollChoreographer | KEEP |
-| SplitText | gsap/index.ts | NOWHERE | REMOVE (dead code) |
-| Flip | gsap/index.ts | NOWHERE (ETACountdown FlipDigit is Framer Motion, not GSAP Flip) | REMOVE (dead code) |
-| Observer | gsap/index.ts | NOWHERE (all Observer refs are browser IntersectionObserver/ResizeObserver) | REMOVE (dead code) |
-| useGSAP | gsap/index.ts | FlyToCart, ParallaxLayer, RevealOnScroll, ScrollChoreographer | KEEP |
+| Plugin        | Imported In   | Actually Used In Components                                                 | Verdict            |
+| ------------- | ------------- | --------------------------------------------------------------------------- | ------------------ |
+| ScrollTrigger | gsap/index.ts | ParallaxLayer, RevealOnScroll, ScrollChoreographer                          | KEEP               |
+| SplitText     | gsap/index.ts | NOWHERE                                                                     | REMOVE (dead code) |
+| Flip          | gsap/index.ts | NOWHERE (ETACountdown FlipDigit is Framer Motion, not GSAP Flip)            | REMOVE (dead code) |
+| Observer      | gsap/index.ts | NOWHERE (all Observer refs are browser IntersectionObserver/ResizeObserver) | REMOVE (dead code) |
+| useGSAP       | gsap/index.ts | FlyToCart, ParallaxLayer, RevealOnScroll, ScrollChoreographer               | KEEP               |
 
 **Confidence: HIGH** -- Verified by grepping every file for SplitText, Flip, Observer usage. Zero consumer references outside the registration file.
 
 **GSAP consumer files (only 4):**
+
 1. `src/components/ui/cart/FlyToCart.tsx` -- gsap core + timelines (no ScrollTrigger)
 2. `src/components/ui/scroll/ParallaxLayer.tsx` -- gsap + ScrollTrigger
 3. `src/components/ui/scroll/RevealOnScroll.tsx` -- gsap + ScrollTrigger
@@ -149,6 +158,7 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText, Flip, Observer);
 **Dynamic import recommendation: NO for GSAP components**
 
 Rationale:
+
 - All 3 scroll components are used on below-the-fold content (already deferred by scroll triggers)
 - FlyToCart is event-driven (only executes on add-to-cart)
 - GSAP core is ~60kb unminified; with only ScrollTrigger plugin, minimal overhead
@@ -158,6 +168,7 @@ Rationale:
 **ESLint enforcement: Document-only (not ESLint rule)**
 
 Rationale:
+
 - Only 4 GSAP consumer files, all properly importing from `@/lib/gsap`
 - Adding an ESLint rule for 4 files is overhead
 - The centralized `@/lib/gsap/index.ts` pattern is already well-established and documented
@@ -166,6 +177,7 @@ Rationale:
 ### Lighthouse CI Configuration
 
 **Existing state:**
+
 - `lighthouserc.js` exists with good assertions config
 - `pnpm lighthouse` script exists
 - `@lhci/cli` is NOT in package.json
@@ -173,12 +185,14 @@ Rationale:
 - Build artifacts already uploaded via `actions/upload-artifact@v4`
 
 **Config updates needed:**
+
 1. Change `staticDistDir: ".next"` to `startServerCommand: "pnpm start"` -- the staticDistDir approach doesn't work for Next.js App Router (needs running server for dynamic routes)
 2. Update URLs to match decision: homepage, menu, cart, checkout, tracking
 3. Change assertions from `"error"` to `"warn"` per decision (warn-only, not block)
 4. Keep `temporary-public-storage` for upload target (simplest, no server needed)
 
 **GitHub Actions workflow pattern:**
+
 ```yaml
 lighthouse:
   name: Lighthouse CI
@@ -206,11 +220,13 @@ lighthouse:
 **Run trigger: PR only (not every push)**
 
 Rationale:
+
 - Lighthouse runs are slow (~60-90s per URL x 3 runs x 5 URLs = ~15-25 min)
 - Running on every push to main doubles CI time for no value (main is already committed)
 - PR-only aligns with the decision: "PR comment only when a metric drops"
 
 **PR comment strategy:**
+
 - `treosh/lighthouse-ci-action@v12` with `temporaryPublicStorage: true` generates report links
 - Use outputs to compose a PR comment when scores drop below threshold
 - The Lighthouse CI GitHub App (installed from `https://github.com/apps/lighthouse-ci`) enables automatic status checks
@@ -248,47 +264,54 @@ lighthouserc.js            # MODIFY: Update collect/assert config
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Memoization optimization | Manual useMemo/useCallback audit | React Compiler (`reactCompiler: true`) | Compiler handles this automatically for 282 client files |
-| Performance regression detection | Custom bundle size tracking | Lighthouse CI + treosh action | Standard tool, tracks all Core Web Vitals, generates reports |
-| Animation feature code splitting | Custom dynamic import per animation feature | LazyMotion + domMax | Built into framer-motion, handles feature loading automatically |
-| PR performance comments | Custom GitHub API integration | Lighthouse CI GitHub App + `LHCI_GITHUB_APP_TOKEN` | Automatic status checks and report links |
+| Problem                          | Don't Build                                 | Use Instead                                        | Why                                                             |
+| -------------------------------- | ------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------- |
+| Memoization optimization         | Manual useMemo/useCallback audit            | React Compiler (`reactCompiler: true`)             | Compiler handles this automatically for 282 client files        |
+| Performance regression detection | Custom bundle size tracking                 | Lighthouse CI + treosh action                      | Standard tool, tracks all Core Web Vitals, generates reports    |
+| Animation feature code splitting | Custom dynamic import per animation feature | LazyMotion + domMax                                | Built into framer-motion, handles feature loading automatically |
+| PR performance comments          | Custom GitHub API integration               | Lighthouse CI GitHub App + `LHCI_GITHUB_APP_TOKEN` | Automatic status checks and report links                        |
 
 ## Common Pitfalls
 
 ### Pitfall 1: React Compiler Breaks Animation Refs/Effects
+
 **What goes wrong:** Framer Motion uses interior mutability (motionValue) and GSAP does direct DOM manipulation. React Compiler may over-memoize these patterns.
 **Why it happens:** Compiler assumes referential equality means value equality; animation libraries violate this assumption.
 **How to avoid:** Enable compiler globally, run full test suite, add `"use no memo"` only to components that actually fail.
 **Warning signs:** Animations freeze, motion values don't update, GSAP timelines don't fire callbacks.
 
-### Pitfall 2: Incomplete motion.* to m.* Migration
+### Pitfall 2: Incomplete motion._ to m._ Migration
+
 **What goes wrong:** A single remaining `motion.div` inside a LazyMotion strict tree throws a runtime error.
 **Why it happens:** 174 files with 1400 occurrences is a large migration. Easy to miss one.
 **How to avoid:**
+
 1. Use global search-replace (`motion.div` -> `m.div`, etc.) across all element types
 2. Update imports: `import { motion }` -> `import { m }`
 3. Enable `strict` mode on LazyMotion to catch any misses at runtime
 4. Run `pnpm build` and `pnpm test` to catch type/runtime errors
-**Warning signs:** Runtime throw: "motion component rendered within LazyMotion strict"
+   **Warning signs:** Runtime throw: "motion component rendered within LazyMotion strict"
 
 ### Pitfall 3: LazyMotion Provider Placement Below AnimatePresence
+
 **What goes wrong:** AnimatePresence exit animations fail because `m` components lose feature context during exit.
 **Why it happens:** When a component exits the tree, it may lose access to LazyMotion context if provider is below it.
 **How to avoid:** Place LazyMotion at the ROOT level (in providers.tsx), ABOVE all AnimatePresence usage.
 
 ### Pitfall 4: lighthouserc.js Using staticDistDir for Next.js
+
 **What goes wrong:** Lighthouse audits against raw .next output, missing dynamic routes, API routes, middleware.
 **Why it happens:** Current config uses `staticDistDir: ".next"` which doesn't start a server.
 **How to avoid:** Switch to `startServerCommand: "pnpm start"` with `startServerReadyPattern` and URL collection.
 
-### Pitfall 5: motion.* Used in Type-Only Contexts
+### Pitfall 5: motion.\* Used in Type-Only Contexts
+
 **What goes wrong:** Renaming `motion.div` breaks TypeScript types that reference `React.ComponentProps<typeof motion.div>`.
 **Why it happens:** Some files may use `motion` in type annotations, not just JSX.
 **How to avoid:** Search for `typeof motion.` in addition to JSX usage. Update type references to use `typeof m.div` etc.
 
 ### Pitfall 6: Framer Motion Imports Beyond motion/m
+
 **What goes wrong:** Other framer-motion imports (AnimatePresence, useAnimation, useScroll, etc.) don't need changing but import lines that destructure `motion` alongside them do.
 **Why it happens:** Import lines like `import { motion, AnimatePresence, useScroll } from "framer-motion"` need `motion` changed to `m` while keeping the rest.
 **How to avoid:** Careful import-line refactoring. Only change `motion` -> `m` in the destructured imports, leave other named exports unchanged.
@@ -296,16 +319,18 @@ lighthouserc.js            # MODIFY: Update collect/assert config
 ## Code Examples
 
 ### React Compiler Enable (next.config.ts)
+
 ```typescript
 // Source: https://nextjs.org/docs/app/api-reference/config/next-config-js/reactCompiler
 const nextConfig: NextConfig = {
   reactCompiler: true,
   reactStrictMode: true,
   // ... rest of existing config
-}
+};
 ```
 
 ### React Compiler Opt-Out (per-component)
+
 ```typescript
 // Source: https://react.dev/reference/react-compiler/directives/use-no-memo
 export default function ProblematicComponent() {
@@ -315,6 +340,7 @@ export default function ProblematicComponent() {
 ```
 
 ### LazyMotion Provider Setup (providers.tsx)
+
 ```typescript
 // Source: framer-motion docs (LazyMotion)
 import { LazyMotion, domMax } from "framer-motion";
@@ -336,7 +362,8 @@ export function Providers({ children }: ProvidersProps) {
 }
 ```
 
-### motion.* to m.* Migration (typical component)
+### motion._ to m._ Migration (typical component)
+
 ```typescript
 // BEFORE
 import { motion, AnimatePresence } from "framer-motion";
@@ -374,6 +401,7 @@ function MyComponent() {
 ```
 
 ### Cleaned GSAP Registration (lib/gsap/index.ts)
+
 ```typescript
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -400,6 +428,7 @@ export { gsap, useGSAP, ScrollTrigger };
 ```
 
 ### Updated lighthouserc.js
+
 ```javascript
 module.exports = {
   ci: {
@@ -450,6 +479,7 @@ module.exports = {
 ```
 
 ### Lighthouse CI GitHub Actions Job
+
 ```yaml
 lighthouse:
   name: Lighthouse CI
@@ -477,14 +507,15 @@ lighthouse:
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| `experimental.reactCompiler` | Top-level `reactCompiler` | Next.js 16 stable | Config key moved out of experimental |
-| Manual useMemo/useCallback | React Compiler auto-memo | React Compiler 1.0 | No manual memoization needed |
-| `import { motion } from "framer-motion"` (~34kb/import) | `import { m } from "framer-motion"` + LazyMotion (~4.6kb) | framer-motion v4+ | ~85% reduction in per-component animation cost |
-| `"framer-motion"` package | `"motion"` package | 2024 rebrand | Same API, new name; both packages work, migration not required |
+| Old Approach                                            | Current Approach                                          | When Changed       | Impact                                                         |
+| ------------------------------------------------------- | --------------------------------------------------------- | ------------------ | -------------------------------------------------------------- |
+| `experimental.reactCompiler`                            | Top-level `reactCompiler`                                 | Next.js 16 stable  | Config key moved out of experimental                           |
+| Manual useMemo/useCallback                              | React Compiler auto-memo                                  | React Compiler 1.0 | No manual memoization needed                                   |
+| `import { motion } from "framer-motion"` (~34kb/import) | `import { m } from "framer-motion"` + LazyMotion (~4.6kb) | framer-motion v4+  | ~85% reduction in per-component animation cost                 |
+| `"framer-motion"` package                               | `"motion"` package                                        | 2024 rebrand       | Same API, new name; both packages work, migration not required |
 
 **Deprecated/outdated:**
+
 - `motion/react-m` subpath export: Has a known bug with LazyMotion (issue #3091); import `m` from `"framer-motion"` directly instead
 - `optimizePackageImports: ["framer-motion"]` in next.config.ts: Can be removed after LazyMotion migration since m+domMax handles feature loading explicitly
 
@@ -513,6 +544,7 @@ lighthouse:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - [Next.js 16 reactCompiler docs](https://nextjs.org/docs/app/api-reference/config/next-config-js/reactCompiler) -- Config syntax, opt-out directive
 - [Next.js 16 blog post](https://nextjs.org/blog/next-16) -- React Compiler promotion to stable
 - [Motion reduce bundle size docs](https://motion.dev/docs/react-reduce-bundle-size) -- LazyMotion, m, domAnimation, domMax, strict mode
@@ -521,23 +553,27 @@ lighthouse:
 - [treosh/lighthouse-ci-action](https://github.com/treosh/lighthouse-ci-action) -- GitHub Actions v12 configuration, inputs/outputs
 
 ### Secondary (MEDIUM confidence)
+
 - [React Compiler in Next.js 16 (Medium)](https://medium.com/better-dev-nextjs-react/react-compiler-in-next-js-16-what-it-fixes-what-it-breaks-and-how-to-ship-it-safely-62881c4c0b74) -- Practical adoption patterns
 - [Motion/Framer Motion upgrade guide](https://motion.dev/docs/react-upgrade-guide) -- Package rename, import path changes
 - ["use no memo" directive (React docs)](https://react.dev/reference/react-compiler/directives/use-no-memo) -- Opt-out semantics
 
 ### Tertiary (LOW confidence)
+
 - [LazyMotion bug #3091](https://github.com/motiondivision/motion/issues/3091) -- Known issue with `motion/react-m` import path (avoid that path, use `"framer-motion"` directly)
 - [GSAP tree shaking forum](https://gsap.com/community/forums/topic/28599-gsap-imports-tree-shaking-reduce-bundle-size/) -- Community patterns for modular GSAP
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - React Compiler setup: HIGH -- Official docs verified, stable feature in Next.js 16
 - Framer Motion LazyMotion/m migration: HIGH -- API verified, import paths confirmed, feature requirements audited
 - GSAP dead plugin audit: HIGH -- Full codebase grep confirms SplitText/Flip/Observer unused
 - Lighthouse CI setup: HIGH -- Official docs + existing lighthouserc.js provides foundation
 
 **Codebase metrics (relevant to effort estimation):**
+
 - Files importing framer-motion: 181
 - Files with `motion.*` elements: 174
 - Total `motion.*` occurrences: ~1400

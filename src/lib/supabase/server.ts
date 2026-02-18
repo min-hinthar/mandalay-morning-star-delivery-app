@@ -44,8 +44,5 @@ export function createServiceClient() {
   if (!serviceKey) {
     throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
   }
-  return createPublicSupabaseClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    serviceKey
-  );
+  return createPublicSupabaseClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey);
 }

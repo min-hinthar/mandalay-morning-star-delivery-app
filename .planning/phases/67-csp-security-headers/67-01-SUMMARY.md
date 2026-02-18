@@ -48,6 +48,7 @@ completed: 2026-02-17
 - **Files modified:** 2
 
 ## Accomplishments
+
 - CSP header with directives for Google Maps, Supabase, Sentry, Google Fonts, Google Drive
 - Sentry CSP violation reporting via report-uri and Report-To headers
 - 5 security headers: HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
@@ -62,10 +63,12 @@ completed: 2026-02-17
 4. **Task 4: Upgrade CSP to enforcing mode** - `c5f9d2d` (feat)
 
 ## Files Created/Modified
+
 - `next.config.ts` - CSP header, security headers, Sentry DSN parsing, Report-To/Reporting-Endpoints
 - `eslint.config.mjs` - no-restricted-properties rule for cssText at warn level
 
 ## Decisions Made
+
 - Used `no-restricted-properties` instead of `no-restricted-syntax` — flat config merges rules by name, and the existing design token `no-restricted-syntax` error block would override the warn-level cssText rule for overlapping file globs
 - CSP validated via CI deployment before upgrading from Report-Only to enforcing
 
@@ -74,6 +77,7 @@ completed: 2026-02-17
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Used no-restricted-properties instead of no-restricted-syntax**
+
 - **Found during:** Task 2 (ESLint cssText rule)
 - **Issue:** ESLint flat config merges same-named rules — design token block's error-level `no-restricted-syntax` would override warn-level cssText rule for `src/components/**/*.tsx`
 - **Fix:** Used `no-restricted-properties` (separate rule name) which coexists with existing config
@@ -87,16 +91,20 @@ completed: 2026-02-17
 **Impact on plan:** Essential fix for ESLint rule coexistence. No scope creep.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - CSP enforcing mode active (SEC-02 satisfied)
 - ESLint cssText warnings active — Plan 02 will resolve all 6 warnings
 - Ready for Wave 2 (Plan 02: cssText replacement)
 
 ---
-*Phase: 67-csp-security-headers*
-*Completed: 2026-02-17*
+
+_Phase: 67-csp-security-headers_
+_Completed: 2026-02-17_

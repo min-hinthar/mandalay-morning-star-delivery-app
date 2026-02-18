@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkCoverage } from "@/lib/services/coverage";
 import { geocodeAddress } from "@/lib/services/geocoding";
-import {
-  addressFormSchema,
-  type AddressFormValues,
-} from "@/lib/validations/address";
+import { addressFormSchema, type AddressFormValues } from "@/lib/validations/address";
 import { transformAddress, type AddressRow } from "./transform";
 import { logger } from "@/lib/utils/logger";
 
@@ -72,8 +69,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { label, line1, line2, city, state, postalCode } =
-      result.data as AddressFormValues;
+    const { label, line1, line2, city, state, postalCode } = result.data as AddressFormValues;
 
     const fullAddress = `${line1}, ${city}, ${state} ${postalCode}`;
     const geocode = await geocodeAddress(fullAddress);

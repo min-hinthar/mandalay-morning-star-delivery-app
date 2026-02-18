@@ -45,9 +45,5 @@ export function AnimatedValue({ value, format, className }: AnimatedValueProps) 
     }
   }, [value, springValue, shouldAnimate]);
 
-  return (
-    <m.span className={cn("tabular-nums", className)}>
-      {displayValue}
-    </m.span>
-  );
+  return <m.span className={cn("tabular-nums", className)}>{displayValue}</m.span>;
 }

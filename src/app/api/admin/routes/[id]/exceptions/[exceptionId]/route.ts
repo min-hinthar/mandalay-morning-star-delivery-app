@@ -24,16 +24,16 @@ interface ExceptionWithRoute {
  * PATCH /api/admin/routes/[id]/exceptions/[exceptionId]
  * Resolve a delivery exception
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: routeId, exceptionId } = await params;
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -67,13 +67,15 @@ export async function PATCH(
     // Verify exception exists and belongs to a stop in this route
     const { data: exception, error: exceptionError } = await supabase
       .from("delivery_exceptions")
-      .select(`
+      .select(
+        `
         id,
         resolved_at,
         route_stops!inner (
           route_id
         )
-      `)
+      `
+      )
       .eq("id", exceptionId)
       .returns<ExceptionWithRoute[]>()
       .single();
@@ -92,10 +94,7 @@ export async function PATCH(
 
     // Check if already resolved
     if (exception.resolved_at) {
-      return NextResponse.json(
-        { error: "Exception already resolved" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Exception already resolved" }, { status: 400 });
     }
 
     // Update exception
@@ -109,15 +108,17 @@ export async function PATCH(
       })
       .eq("id", exceptionId)
       .select("id, resolved_at, resolved_by, resolution_notes")
-      .returns<{ id: string; resolved_at: string; resolved_by: string; resolution_notes: string }[]>()
+      .returns<
+        { id: string; resolved_at: string; resolved_by: string; resolution_notes: string }[]
+      >()
       .single();
 
     if (updateError) {
-      logger.exception(updateError, { api: "admin/routes/[id]/exceptions/[exceptionId]", flowId: "resolve-exception" });
-      return NextResponse.json(
-        { error: "Failed to resolve exception" },
-        { status: 500 }
-      );
+      logger.exception(updateError, {
+        api: "admin/routes/[id]/exceptions/[exceptionId]",
+        flowId: "resolve-exception",
+      });
+      return NextResponse.json({ error: "Failed to resolve exception" }, { status: 500 });
     }
 
     // Log new delivery date if provided (future enhancement: create new route stop)
@@ -138,9 +139,6 @@ export async function PATCH(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/routes/[id]/exceptions/[exceptionId]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

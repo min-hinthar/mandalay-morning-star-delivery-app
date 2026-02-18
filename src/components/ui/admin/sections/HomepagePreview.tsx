@@ -30,9 +30,7 @@ export function HomepagePreview({ className }: HomepagePreviewProps) {
     <div className={cn("flex flex-col h-full bg-surface-secondary", className)}>
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-border bg-surface-primary">
-        <h3 className="font-display font-semibold text-text-primary text-sm">
-          Homepage Preview
-        </h3>
+        <h3 className="font-display font-semibold text-text-primary text-sm">Homepage Preview</h3>
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
@@ -42,9 +40,7 @@ export function HomepagePreview({ className }: HomepagePreviewProps) {
             className="h-8 w-8 p-0"
             title="Refresh preview"
           >
-            <RefreshCw
-              className={cn("h-4 w-4", isRefreshing && "animate-spin")}
-            />
+            <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
           </Button>
           <a
             href="/"
@@ -87,10 +83,7 @@ export function HomepagePreview({ className }: HomepagePreviewProps) {
           variant="ghost"
           size="sm"
           onClick={() => setDeviceMode("desktop")}
-          className={cn(
-            "h-8 px-3",
-            deviceMode === "desktop" && "bg-primary/10 text-primary"
-          )}
+          className={cn("h-8 px-3", deviceMode === "desktop" && "bg-primary/10 text-primary")}
           title="Desktop view"
         >
           <Monitor className="h-4 w-4 mr-1.5" />
@@ -100,10 +93,7 @@ export function HomepagePreview({ className }: HomepagePreviewProps) {
           variant="ghost"
           size="sm"
           onClick={() => setDeviceMode("mobile")}
-          className={cn(
-            "h-8 px-3",
-            deviceMode === "mobile" && "bg-primary/10 text-primary"
-          )}
+          className={cn("h-8 px-3", deviceMode === "mobile" && "bg-primary/10 text-primary")}
           title="Mobile view"
         >
           <Smartphone className="h-4 w-4 mr-1.5" />

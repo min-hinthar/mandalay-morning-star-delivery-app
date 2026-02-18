@@ -23,11 +23,7 @@ export function LocationTracker({
   });
 
   // Determine status
-  const status = error
-    ? "error"
-    : isTracking
-    ? "tracking"
-    : "inactive";
+  const status = error ? "error" : isTracking ? "tracking" : "inactive";
 
   const statusConfig = {
     tracking: {
@@ -74,10 +70,7 @@ export function LocationTracker({
   // Detailed view with location info
   return (
     <div
-      className={cn(
-        "rounded-xl bg-surface-primary p-4 shadow-sm",
-        className
-      )}
+      className={cn("rounded-xl bg-surface-primary p-4 shadow-sm", className)}
       data-testid="location-tracker-detail"
     >
       <div className="flex items-center justify-between">
@@ -102,9 +95,7 @@ export function LocationTracker({
           </div>
           <div>
             <p className="font-medium text-text-primary">{config.label}</p>
-            {error && (
-              <p className="text-sm text-status-error">{error.message}</p>
-            )}
+            {error && <p className="text-sm text-status-error">{error.message}</p>}
             {isTracking && location && (
               <p className="text-sm text-text-secondary">
                 Accuracy: ±{Math.round(location.accuracy)}m
@@ -130,9 +121,7 @@ export function LocationTracker({
           <p>
             Lat: {location.latitude.toFixed(6)}, Lng: {location.longitude.toFixed(6)}
           </p>
-          {location.speed !== null && (
-            <p>Speed: {(location.speed * 2.237).toFixed(1)} mph</p>
-          )}
+          {location.speed !== null && <p>Speed: {(location.speed * 2.237).toFixed(1)} mph</p>}
         </div>
       )}
     </div>

@@ -21,14 +21,7 @@ export function OfflinePage() {
   return (
     <div className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center px-4 py-8 bg-gradient-to-br from-primary via-primary-hover to-primary-dark">
       {/* Brand logo */}
-      <Image
-        src="/logo.png"
-        alt="Morning Star"
-        width={56}
-        height={37}
-        className="mb-6"
-        priority
-      />
+      <Image src="/logo.png" alt="Morning Star" width={56} height={37} className="mb-6" priority />
 
       {/* Offline mascot */}
       <div className="text-center mb-4" role="img" aria-label="sleeping">
@@ -44,8 +37,8 @@ export function OfflinePage() {
 
       {/* Subtext */}
       <p className="text-base text-text-inverse/80 mb-8 text-center max-w-md">
-        It looks like you&apos;ve lost your internet connection. Here are some
-        pages you might have cached:
+        It looks like you&apos;ve lost your internet connection. Here are some pages you might have
+        cached:
       </p>
 
       {/* Cached page links */}

@@ -79,8 +79,7 @@ const serwist = new Serwist({
     },
     // Menu API - NetworkFirst with 15-minute cache TTL (OFFLINE-04)
     {
-      matcher: ({ url }) =>
-        url.pathname === "/api/menu" || url.pathname.startsWith("/api/menu/"),
+      matcher: ({ url }) => url.pathname === "/api/menu" || url.pathname.startsWith("/api/menu/"),
       handler: new NetworkFirst({
         cacheName: `menu-api-cache-${CACHE_VERSION}`,
         networkTimeoutSeconds: 5,
@@ -129,9 +128,7 @@ const serwist = new Serwist({
 });
 
 // Register NavigationRoute with denylist for safe navigation caching
-serwist.registerRoute(
-  new NavigationRoute(navigationHandler, { denylist })
-);
+serwist.registerRoute(new NavigationRoute(navigationHandler, { denylist }));
 
 // Listen for skip waiting message from update prompt (OFFLINE-11)
 self.addEventListener("message", (event: MessageEvent) => {

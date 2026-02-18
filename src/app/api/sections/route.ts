@@ -25,9 +25,6 @@ export async function GET() {
     );
   } catch (error) {
     logger.exception(error, { api: "sections", flowId: "fetch" });
-    return NextResponse.json(
-      { error: "Failed to fetch sections" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch sections" }, { status: 500 });
   }
 }

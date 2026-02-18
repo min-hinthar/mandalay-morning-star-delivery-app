@@ -125,5 +125,6 @@ None - no external service configuration required.
 - All exports barrel-exported and importable from `@/components/ui-v8/overlay` and `@/lib/hooks`
 
 ---
-*Phase: 02-overlay-infrastructure*
-*Completed: 2026-01-22*
+
+_Phase: 02-overlay-infrastructure_
+_Completed: 2026-01-22_

@@ -113,10 +113,12 @@ None - no external service configuration required.
 **Ready for Phase 42:** File size reduction and code splitting
 
 **Remaining performance targets:**
+
 - LCP: 9-11s (target <2.5s)
 - TBT: 2-3s (target <0.3s)
 - 5 files >400 lines to split
 
 ---
-*Phase: 41-server-component-conversions*
-*Completed: 2026-02-06*
+
+_Phase: 41-server-component-conversions_
+_Completed: 2026-02-06_

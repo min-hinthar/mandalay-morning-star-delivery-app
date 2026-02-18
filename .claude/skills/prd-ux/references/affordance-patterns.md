@@ -6,58 +6,59 @@ Universal patterns for making interactions obvious and intuitive.
 
 ### Interactive vs Static
 
-| Signal | Means Interactive | Means Static |
-|--------|-------------------|--------------|
-| Cursor | Pointer | Default |
-| Shadow | Elevated, clickable | Flat |
+| Signal | Means Interactive     | Means Static       |
+| ------ | --------------------- | ------------------ |
+| Cursor | Pointer               | Default            |
+| Shadow | Elevated, clickable   | Flat               |
 | Border | Editable or clickable | None or decorative |
-| Color | Saturated accent | Muted/gray |
-| Hover | State change | No change |
+| Color  | Saturated accent      | Muted/gray         |
+| Hover  | State change          | No change          |
 
 ### Button Affordances
 
-| Button Type | Visual Treatment | Expected Behavior |
-|-------------|------------------|-------------------|
-| Primary | Filled, accent color | Main action, one per screen |
-| Secondary | Outlined or muted | Alternative action |
-| Tertiary | Text only | Low-priority action |
-| Destructive | Red accent | Dangerous, confirm first |
-| Disabled | Grayed, 50% opacity | Can't click, explain why |
+| Button Type | Visual Treatment     | Expected Behavior           |
+| ----------- | -------------------- | --------------------------- |
+| Primary     | Filled, accent color | Main action, one per screen |
+| Secondary   | Outlined or muted    | Alternative action          |
+| Tertiary    | Text only            | Low-priority action         |
+| Destructive | Red accent           | Dangerous, confirm first    |
+| Disabled    | Grayed, 50% opacity  | Can't click, explain why    |
 
 ### Input Affordances
 
-| Input Type | Visual Signal | Interaction |
-|------------|---------------|-------------|
-| Text input | Border, white bg | Tap to type |
-| Dropdown | Chevron icon | Tap to select |
-| Checkbox | Square, checkmark | Tap to toggle |
-| Radio | Circle, dot | Tap to select (exclusive) |
-| Slider | Track + handle | Drag to adjust |
-| Toggle | Pill, on/off | Tap to switch |
+| Input Type | Visual Signal     | Interaction               |
+| ---------- | ----------------- | ------------------------- |
+| Text input | Border, white bg  | Tap to type               |
+| Dropdown   | Chevron icon      | Tap to select             |
+| Checkbox   | Square, checkmark | Tap to toggle             |
+| Radio      | Circle, dot       | Tap to select (exclusive) |
+| Slider     | Track + handle    | Drag to adjust            |
+| Toggle     | Pill, on/off      | Tap to switch             |
 
 ### Card Affordances
 
-| Card Type | Visual Cues | Behavior |
-|-----------|-------------|----------|
-| Clickable | Hover lift, cursor pointer | Entire card is tap target |
-| Expandable | Chevron, "Read more" | Tap to expand in place |
-| Actionable | Visible buttons | Specific actions on card |
-| Read-only | No hover effect | Display only |
+| Card Type  | Visual Cues                | Behavior                  |
+| ---------- | -------------------------- | ------------------------- |
+| Clickable  | Hover lift, cursor pointer | Entire card is tap target |
+| Expandable | Chevron, "Read more"       | Tap to expand in place    |
+| Actionable | Visible buttons            | Specific actions on card  |
+| Read-only  | No hover effect            | Display only              |
 
 ## Touch Target Guidelines
 
 ### Minimum Sizes
 
-| Platform | Minimum | Recommended | Spacing |
-|----------|---------|-------------|---------|
-| iOS | 44x44pt | 48x48pt | 8pt between |
-| Android | 48x48dp | 56x56dp | 8dp between |
-| Web (touch) | 44x44px | 48x48px | 8px between |
-| Web (mouse) | 24x24px | 32x32px | 4px between |
+| Platform    | Minimum | Recommended | Spacing     |
+| ----------- | ------- | ----------- | ----------- |
+| iOS         | 44x44pt | 48x48pt     | 8pt between |
+| Android     | 48x48dp | 56x56dp     | 8dp between |
+| Web (touch) | 44x44px | 48x48px     | 8px between |
+| Web (mouse) | 24x24px | 32x32px     | 4px between |
 
 ### Touch Target Expansion
 
 When visual element is smaller than touch target:
+
 ```css
 .small-icon-button {
   /* Visual size */
@@ -69,7 +70,7 @@ When visual element is smaller than touch target:
 }
 
 .small-icon-button::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: -12px; /* Expands to 48x48 */
 }
@@ -79,16 +80,16 @@ When visual element is smaller than touch target:
 
 ### Standard Layer System
 
-| Layer | Z-Index Range | Contents |
-|-------|---------------|----------|
-| Base | 0 | Page content |
-| Sticky | 10-20 | Sticky headers, footers |
-| Dropdown | 30-40 | Menus, popovers |
-| Overlay | 45-49 | Background dims |
-| Modal | 50 | Dialogs, sheets |
-| Toast | 60 | Notifications |
-| Tooltip | 70 | Contextual hints |
-| Critical | 9999 | Debug, system alerts |
+| Layer    | Z-Index Range | Contents                |
+| -------- | ------------- | ----------------------- |
+| Base     | 0             | Page content            |
+| Sticky   | 10-20         | Sticky headers, footers |
+| Dropdown | 30-40         | Menus, popovers         |
+| Overlay  | 45-49         | Background dims         |
+| Modal    | 50            | Dialogs, sheets         |
+| Toast    | 60            | Notifications           |
+| Tooltip  | 70            | Contextual hints        |
+| Critical | 9999          | Debug, system alerts    |
 
 ### Mobile Nav Pattern
 
@@ -105,12 +106,14 @@ When visual element is smaller than touch target:
 ### When to Consolidate
 
 **Consolidate when:**
+
 - Same data structure, different layout
 - Same behavior, different styling
 - Same component, different sizes
 - Same purpose, different contexts
 
 **Keep separate when:**
+
 - Behavior differs fundamentally
 - Logic complexity increases significantly
 - Testing becomes harder
@@ -120,15 +123,15 @@ When visual element is smaller than touch target:
 
 ```tsx
 interface CardProps {
-  variant: 'default' | 'compact' | 'featured';
+  variant: "default" | "compact" | "featured";
   // ... other props
 }
 
-function Card({ variant = 'default', ...props }: CardProps) {
+function Card({ variant = "default", ...props }: CardProps) {
   const styles = {
-    default: 'aspect-[4/3] p-4',
-    compact: 'aspect-square p-2',
-    featured: 'aspect-[16/9] p-6',
+    default: "aspect-[4/3] p-4",
+    compact: "aspect-square p-2",
+    featured: "aspect-[16/9] p-6",
   };
 
   return <div className={styles[variant]}>...</div>;
@@ -213,12 +216,12 @@ function Card({ variant = 'default', ...props }: CardProps) {
 
 ### Swipe Patterns
 
-| Gesture | Affordance Signal | Common Use |
-|---------|-------------------|------------|
-| Swipe left | Visible delete/action hint | Delete item |
-| Swipe right | Visible complete hint | Mark done |
-| Swipe down | Pull indicator | Refresh |
-| Swipe horizontal | Pagination dots | Navigate cards |
+| Gesture          | Affordance Signal          | Common Use     |
+| ---------------- | -------------------------- | -------------- |
+| Swipe left       | Visible delete/action hint | Delete item    |
+| Swipe right      | Visible complete hint      | Mark done      |
+| Swipe down       | Pull indicator             | Refresh        |
+| Swipe horizontal | Pagination dots            | Navigate cards |
 
 ### Long Press
 
@@ -229,34 +232,36 @@ function Card({ variant = 'default', ...props }: CardProps) {
 
 ### Drag Affordances
 
-| Drag Type | Visual Signal |
-|-----------|---------------|
-| Reorderable | Drag handle (⋮⋮) |
-| Resizable | Resize corner |
-| Moveable | Move cursor on grab |
-| Draggable | Elevation on drag |
+| Drag Type   | Visual Signal       |
+| ----------- | ------------------- |
+| Reorderable | Drag handle (⋮⋮)    |
+| Resizable   | Resize corner       |
+| Moveable    | Move cursor on grab |
+| Draggable   | Elevation on drag   |
 
 ## Hover State Design
 
 ### Hover Effect Types
 
-| Element | Hover Effect | Purpose |
-|---------|--------------|---------|
-| Link | Underline/color change | Confirm clickable |
-| Button | Background darken/lighten | Show active |
-| Card | Subtle lift + shadow | Show interactive |
-| Icon | Color/scale change | Confirm clickable |
-| Row | Background highlight | Show focused |
+| Element | Hover Effect              | Purpose           |
+| ------- | ------------------------- | ----------------- |
+| Link    | Underline/color change    | Confirm clickable |
+| Button  | Background darken/lighten | Show active       |
+| Card    | Subtle lift + shadow      | Show interactive  |
+| Icon    | Color/scale change        | Confirm clickable |
+| Row     | Background highlight      | Show focused      |
 
 ### Hover State Guidelines
 
 **Do:**
+
 - Keep hover effects subtle (5-10% opacity shift)
 - Make transitions smooth (150-200ms)
 - Ensure sufficient contrast change
 - Consider touch users (no hover)
 
 **Don't:**
+
 - Make critical info hover-only
 - Use jarring transitions
 - Rely on hover for essential actions
@@ -265,6 +270,7 @@ function Card({ variant = 'default', ...props }: CardProps) {
 ### Focus States
 
 Always pair hover with focus for accessibility:
+
 ```css
 .interactive-element:hover,
 .interactive-element:focus-visible {
@@ -279,13 +285,13 @@ Always pair hover with focus for accessibility:
 
 ### Disclosure Triggers
 
-| Trigger | Pattern | Use When |
-|---------|---------|----------|
-| Click/tap | Show/hide section | Related content |
-| Hover | Tooltip | Brief hints |
-| Scroll | Load more | Long lists |
-| Time | Reveal after delay | Onboarding |
-| Completion | Unlock next | Guided flows |
+| Trigger    | Pattern            | Use When        |
+| ---------- | ------------------ | --------------- |
+| Click/tap  | Show/hide section  | Related content |
+| Hover      | Tooltip            | Brief hints     |
+| Scroll     | Load more          | Long lists      |
+| Time       | Reveal after delay | Onboarding      |
+| Completion | Unlock next        | Guided flows    |
 
 ### Expand/Collapse
 
@@ -300,10 +306,10 @@ Always pair hover with focus for accessibility:
 
 ### Tooltip vs Popover
 
-| Tooltip | Popover |
-|---------|---------|
-| Hover triggered | Click triggered |
-| Text only | Rich content |
+| Tooltip             | Popover                |
+| ------------------- | ---------------------- |
+| Hover triggered     | Click triggered        |
+| Text only           | Rich content           |
 | Disappears on leave | Persists until dismiss |
-| Small (max 250px) | Can be larger |
-| No interaction | May have actions |
+| Small (max 250px)   | Can be larger          |
+| No interaction      | May have actions       |

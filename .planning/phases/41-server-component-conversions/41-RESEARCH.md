@@ -13,9 +13,11 @@ The conversion approach requires extracting data fetching to server components w
 **Primary recommendation:** Convert pages incrementally by extracting server-rendered static content from client wrappers, pushing interactivity to small leaf components, and creating shared loading.tsx/error.tsx files per route segment.
 
 <user_constraints>
+
 ## User Constraints (from CONTEXT.md)
 
 ### Locked Decisions
+
 - Convert 4 pages: home page, menu page, analytics page, order tracking page
 - Also convert nearby easy wins discovered during the process
 - Home page and menu page are highest LCP priority
@@ -41,6 +43,7 @@ The conversion approach requires extracting data fetching to server components w
 - Final hydration health check pass across whole app after all conversions
 
 ### Claude's Discretion
+
 - Conversion order across pages (safety vs impact balance)
 - Whether to split components with single hook/event handler (judged per case)
 - Audit categorization depth (binary vs reason-tagged)
@@ -49,33 +52,38 @@ The conversion approach requires extracting data fetching to server components w
 - Rollout strategy (incremental vs batched)
 
 ### Deferred Ideas (OUT OF SCOPE)
+
 None - discussion stayed within phase scope
 </user_constraints>
 
 ## Standard Stack
 
 ### Core (Already in Project)
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| Next.js | 16.1.2 | App Router, Server Components | Built-in RSC support |
-| React | 19.2.3 | Server/Client components | Native RSC primitives |
-| Framer Motion | 12.26.1 | Animations | Requires client-side - leaf nodes |
-| React Query | 5.90.1 | Client data fetching | Client-only hook patterns |
-| Zustand | 5.0.10 | Client state | Client-only store |
+
+| Library       | Version | Purpose                       | Why Standard                      |
+| ------------- | ------- | ----------------------------- | --------------------------------- |
+| Next.js       | 16.1.2  | App Router, Server Components | Built-in RSC support              |
+| React         | 19.2.3  | Server/Client components      | Native RSC primitives             |
+| Framer Motion | 12.26.1 | Animations                    | Requires client-side - leaf nodes |
+| React Query   | 5.90.1  | Client data fetching          | Client-only hook patterns         |
+| Zustand       | 5.0.10  | Client state                  | Client-only store                 |
 
 ### Testing Tools (Already in Project)
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| Vitest | 4.0.17 | Unit tests | Hydration test assertions |
-| Playwright | 1.57.0 | E2E tests | Browser hydration smoke tests |
-| Testing Library | 16.3.1 | Component tests | React rendering tests |
+
+| Library         | Version | Purpose         | When to Use                   |
+| --------------- | ------- | --------------- | ----------------------------- |
+| Vitest          | 4.0.17  | Unit tests      | Hydration test assertions     |
+| Playwright      | 1.57.0  | E2E tests       | Browser hydration smoke tests |
+| Testing Library | 16.3.1  | Component tests | React rendering tests         |
 
 ### Supporting (No New Dependencies Needed)
+
 The existing stack is sufficient. No new libraries required for this phase.
 
 ## Architecture Patterns
 
 ### Recommended Conversion Structure
+
 ```
 src/app/(public)/page.tsx           # Server Component (async)
 ├── Static header/sections          # Server rendered
@@ -91,9 +99,11 @@ src/components/ui/ComponentName/
 ```
 
 ### Pattern 1: Data Fetching Server Component with Client Leaf
+
 **What:** Server component fetches data, passes props to small client component
 **When to use:** Pages that fetch data and need interactive elements
 **Example:**
+
 ```typescript
 // Source: Context7 /vercel/next.js docs
 // page.tsx (Server Component)
@@ -120,9 +130,11 @@ export function InteractiveButton({ initialState }: { initialState: number }) {
 ```
 
 ### Pattern 2: Suspense Boundary with Loading States
+
 **What:** Wrap async server components in Suspense with skeleton fallback
 **When to use:** Any async data fetching that should stream
 **Example:**
+
 ```typescript
 // Source: Context7 /vercel/next.js docs
 import { Suspense } from 'react'
@@ -141,9 +153,11 @@ export default function Page() {
 ```
 
 ### Pattern 3: Route-Segment Loading/Error Files
+
 **What:** loading.tsx and error.tsx at route segment level
 **When to use:** Every converted route segment
 **Example:**
+
 ```typescript
 // loading.tsx
 import { BrandedSpinner } from '@/components/ui/branded-spinner'
@@ -178,6 +192,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Wrapping entire page in "use client":** Defeats the purpose; push boundaries to leaves
 - **Data fetching in client components:** Move to server components or React Query
 - **Importing server-only modules in client components:** Will fail at build time
@@ -186,70 +201,79 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Loading UI | Custom spinner from scratch | Polish existing BrandedSpinner | Already exists, just needs enhancement |
-| Error boundaries | Manual try/catch | Next.js error.tsx convention | Automatic error boundary wrapping |
-| Hydration detection | Console log parsing | React strict mode + Playwright assertions | Built-in detection, automated testing |
-| Bundle analysis | Manual size tracking | `pnpm analyze` (already configured) | @next/bundle-analyzer already set up |
+| Problem             | Don't Build                 | Use Instead                               | Why                                    |
+| ------------------- | --------------------------- | ----------------------------------------- | -------------------------------------- |
+| Loading UI          | Custom spinner from scratch | Polish existing BrandedSpinner            | Already exists, just needs enhancement |
+| Error boundaries    | Manual try/catch            | Next.js error.tsx convention              | Automatic error boundary wrapping      |
+| Hydration detection | Console log parsing         | React strict mode + Playwright assertions | Built-in detection, automated testing  |
+| Bundle analysis     | Manual size tracking        | `pnpm analyze` (already configured)       | @next/bundle-analyzer already set up   |
 
 **Key insight:** The project already has most infrastructure (spinner, error handling, testing). This phase is about architecture refactoring, not new feature development.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Hydration Mismatches
+
 **What goes wrong:** Server renders different HTML than client initial render
 **Why it happens:**
+
 - Using `typeof window !== 'undefined'` in render logic
 - Using `Date.now()`, `Math.random()` during render
 - Browser extensions modifying DOM
 - Locale-dependent formatting (dates, numbers)
-**How to avoid:**
+  **How to avoid:**
 - Use `useEffect` for client-only values
 - Use two-pass rendering with `isClient` state
 - Test with `suppressHydrationWarning` temporarily to isolate issue
 - Run builds with React strict mode (already enabled)
-**Warning signs:**
+  **Warning signs:**
 - "Text content does not match server-rendered HTML"
 - "Hydration failed because the initial UI does not match"
 - Content flashing/shifting on page load
 
 ### Pitfall 2: Accidental Client Component Infection
+
 **What goes wrong:** Large subtrees become client components unnecessarily
 **Why it happens:** Importing a client component propagates "use client" boundary
 **How to avoid:**
+
 - Review import chains
 - Split interactive bits into separate .client.tsx files
 - Use composition (children prop) instead of direct imports
-**Warning signs:**
+  **Warning signs:**
 - Bundle size doesn't decrease after conversion
 - Server component imports showing in client bundle
 
 ### Pitfall 3: Missing Suspense Boundaries
+
 **What goes wrong:** Entire page blocked until all async work completes
 **Why it happens:** No Suspense wrapper around async server components
 **How to avoid:**
+
 - Wrap every async component in Suspense
 - Create meaningful skeleton fallbacks
 - Use loading.tsx for route-level loading
-**Warning signs:**
+  **Warning signs:**
 - White screen until page fully loads
 - No streaming behavior visible
 
 ### Pitfall 4: Framer Motion SSR Issues
+
 **What goes wrong:** Animation components fail to render or hydrate incorrectly
 **Why it happens:** Framer Motion requires client-side execution
 **How to avoid:**
-- Keep all motion.* components in client component leaves
+
+- Keep all motion.\* components in client component leaves
 - Use `LazyMotion` for code splitting animations
 - Consider `shouldAnimate` guards (already in codebase)
-**Warning signs:**
+  **Warning signs:**
 - "useLayoutEffect does nothing on the server" warnings
 - Animations not playing on first load
 
 ## Code Examples
 
 ### Current Homepage Structure (Before)
+
 ```typescript
 // src/app/(public)/page.tsx - Server Component
 export default async function HomePage() {
@@ -265,6 +289,7 @@ export default async function HomePage() {
 ```
 
 ### Target Homepage Structure (After)
+
 ```typescript
 // src/app/(public)/page.tsx - Server Component
 export default async function HomePage() {
@@ -287,32 +312,34 @@ export default async function HomePage() {
 ```
 
 ### Hydration Test Pattern
+
 ```typescript
 // e2e/hydration-smoke.spec.ts
-import { test, expect } from '@playwright/test'
+import { test, expect } from "@playwright/test";
 
-const CONVERTED_ROUTES = ['/', '/menu', '/admin/analytics', '/orders/[id]/tracking']
+const CONVERTED_ROUTES = ["/", "/menu", "/admin/analytics", "/orders/[id]/tracking"];
 
-test.describe('Server Component Hydration', () => {
+test.describe("Server Component Hydration", () => {
   for (const route of CONVERTED_ROUTES) {
     test(`${route} hydrates without errors`, async ({ page }) => {
-      const errors: string[] = []
-      page.on('console', msg => {
-        if (msg.type() === 'error' && msg.text().includes('hydrat')) {
-          errors.push(msg.text())
+      const errors: string[] = [];
+      page.on("console", (msg) => {
+        if (msg.type() === "error" && msg.text().includes("hydrat")) {
+          errors.push(msg.text());
         }
-      })
+      });
 
-      await page.goto(route.replace('[id]', 'test-id'))
-      await page.waitForLoadState('networkidle')
+      await page.goto(route.replace("[id]", "test-id"));
+      await page.waitForLoadState("networkidle");
 
-      expect(errors).toHaveLength(0)
-    })
+      expect(errors).toHaveLength(0);
+    });
   }
-})
+});
 ```
 
 ### Loading Component Pattern
+
 ```typescript
 // src/components/ui/RouteLoading.tsx
 'use client' // Needs client for animation
@@ -342,14 +369,15 @@ export function RouteLoading({ message = 'Loading...' }: RouteLoadingProps) {
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| "use client" at page level | Push to leaf components | Next.js 13+ (2023) | 50-70% bundle reduction possible |
-| getServerSideProps | Server Components + async | Next.js 13+ (2023) | Simpler data flow, auto-streaming |
-| loading.js (Pages Router) | loading.tsx (App Router) | Next.js 13+ (2023) | Route-segment loading states |
-| Manual Suspense everywhere | React 19 + Next.js 16 streaming | 2024-2025 | Better default streaming |
+| Old Approach               | Current Approach                | When Changed       | Impact                            |
+| -------------------------- | ------------------------------- | ------------------ | --------------------------------- |
+| "use client" at page level | Push to leaf components         | Next.js 13+ (2023) | 50-70% bundle reduction possible  |
+| getServerSideProps         | Server Components + async       | Next.js 13+ (2023) | Simpler data flow, auto-streaming |
+| loading.js (Pages Router)  | loading.tsx (App Router)        | Next.js 13+ (2023) | Route-segment loading states      |
+| Manual Suspense everywhere | React 19 + Next.js 16 streaming | 2024-2025          | Better default streaming          |
 
 **Deprecated/outdated:**
+
 - `getServerSideProps`/`getStaticProps`: Replaced by async server components
 - `use client` at wrapper level: Anti-pattern now; push to leaves
 - Manual hydration error handling: React 19/Next.js 15+ have better error messages
@@ -357,38 +385,46 @@ export function RouteLoading({ message = 'Loading...' }: RouteLoadingProps) {
 ## Target Page Analysis
 
 ### Home Page (Highest Priority)
+
 **Current:** `src/app/(public)/page.tsx` → `HomePageClient` (519 lines)
 **Client dependencies:** framer-motion (animations), scroll hooks, mouse tracking
 **Conversion potential:** HIGH
+
 - Static sections: Hero headline/tagline, stats bar, testimonials text, CTA text
 - Client leaves: Animated headline, scroll spy dots, floating emojis
-**Estimated reduction:** ~200KB (animations stay, static content moves to server)
+  **Estimated reduction:** ~200KB (animations stay, static content moves to server)
 
 ### Menu Page (Highest Priority)
+
 **Current:** `src/app/(public)/menu/page.tsx` → `MenuContent` (365 lines)
 **Client dependencies:** useMenu hook, useSearchParams, framer-motion, favorites
 **Conversion potential:** MEDIUM-HIGH
+
 - Static sections: Category structure, item cards (without interaction)
 - Client leaves: CategoryTabs (scroll spy), ItemDetailSheet, FavoriteButton
-**Estimated reduction:** ~100KB
+  **Estimated reduction:** ~100KB
 
 ### Analytics Page
+
 **Current:** Already mostly server component! Uses async data fetching
 **Client dependencies:** Links only (client-side navigation)
 **Conversion potential:** LOW (already optimized)
 **Estimated reduction:** ~10KB (cleanup only)
 
 ### Order Tracking Page
+
 **Current:** `src/app/(customer)/orders/[id]/tracking/page.tsx` → `TrackingPageClient`
 **Client dependencies:** Realtime subscription, framer-motion, map
 **Conversion potential:** MEDIUM
+
 - Static sections: Header, order summary, delivery address
 - Client leaves: StatusTimeline, ETACountdown, DeliveryMap, SupportActions
-**Estimated reduction:** ~80KB
+  **Estimated reduction:** ~80KB
 
 ## Audit Strategy
 
 ### Full 275-File Audit Approach
+
 1. **Generate file list:** `find src -name "*.tsx" -o -name "*.ts" | xargs grep -l "use client"`
 2. **Categorize each file:**
    - `KEEP`: Requires client (hooks, events, animations)
@@ -399,12 +435,14 @@ export function RouteLoading({ message = 'Loading...' }: RouteLoadingProps) {
 4. **Track during conversion:** Update status as files are converted
 
 ### Conversion Order Recommendation
+
 1. **Analytics page** (lowest risk, verify infrastructure)
 2. **Menu page** (high LCP priority, medium complexity)
 3. **Home page** (highest impact, highest complexity)
 4. **Order tracking** (medium priority, real-time complexity)
 
 This order balances:
+
 - Starting with low-risk to validate approach
 - Hitting high-LCP-priority pages early
 - Saving complex real-time features for last
@@ -429,20 +467,24 @@ This order balances:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Context7 `/vercel/next.js` - Server/Client component patterns, loading.tsx, error.tsx
 - Context7 `/websites/react_dev` - Hydration mismatch handling, useEffect for client-only
 - Project codebase analysis - Current architecture review
 
 ### Secondary (MEDIUM confidence)
+
 - [Next.js Hydration Errors 2026](https://medium.com/@blogs-world/next-js-hydration-errors-in-2026-the-real-causes-fixes-and-prevention-checklist-4a8304d53702) - Common causes and fixes
 - [React Hydration Overlay](https://www.builder.io/blog/announcing-react-hydration-overlay) - Debugging tool option
 
 ### Tertiary (LOW confidence)
+
 - General web search results on hydration testing patterns
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - All tools already in project, patterns verified via Context7
 - Architecture: HIGH - Well-documented Next.js patterns, project structure understood
 - Pitfalls: HIGH - Documented in official sources, verified against project code

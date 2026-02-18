@@ -100,5 +100,6 @@ None - no external service configuration required.
 - CheckoutStepperV8 available for import from barrel
 
 ---
-*Phase: 06-checkout-flow*
-*Completed: 2026-01-23*
+
+_Phase: 06-checkout-flow_
+_Completed: 2026-01-23_

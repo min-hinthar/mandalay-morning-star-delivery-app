@@ -20,7 +20,9 @@ NOT:   /auth/login       (404)
 
 ```javascript
 // Creates unhandled rejection
-handleClick().catch((e) => { throw e; });
+handleClick().catch((e) => {
+  throw e;
+});
 ```
 
 **Pattern:** Don't wrap redirect-capable server actions in `.catch()`.
@@ -61,7 +63,7 @@ When using Next.js Image with fixed width, add `style={{ height: "auto" }}` to m
 // Consistent display across timezones
 const dayName = dateObj.toLocaleDateString("en-US", {
   weekday: "short",
-  timeZone: "America/Los_Angeles"
+  timeZone: "America/Los_Angeles",
 });
 ```
 
@@ -75,10 +77,12 @@ const dayName = dateObj.toLocaleDateString("en-US", {
 
 ```tsx
 const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-  if (!enabledRef.current) return;  // Check ref, not state
+  if (!enabledRef.current) return; // Check ref, not state
   e.preventDefault();
 };
-const disable = useCallback(() => { enabledRef.current = false; }, []);
+const disable = useCallback(() => {
+  enabledRef.current = false;
+}, []);
 ```
 
 **Apply when:** Navigation guards needing programmatic bypass before external redirect (Stripe, OAuth).

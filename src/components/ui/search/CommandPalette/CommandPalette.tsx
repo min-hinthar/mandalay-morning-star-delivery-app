@@ -64,12 +64,7 @@ const dialogVariants = {
 };
 
 // Hardcoded popular item slugs for no-results fallback
-const POPULAR_ITEM_SLUGS = [
-  "mohinga",
-  "tea-leaf-salad",
-  "shan-noodles",
-  "samosa",
-];
+const POPULAR_ITEM_SLUGS = ["mohinga", "tea-leaf-salad", "shan-noodles", "samosa"];
 
 /**
  * Linear-style command palette for menu item search
@@ -85,17 +80,12 @@ const POPULAR_ITEM_SLUGS = [
  * - Order history search for authenticated users
  * - Enhanced no-results with popular fallback
  */
-export function CommandPalette({
-  open,
-  onOpenChange,
-  categories,
-}: CommandPaletteProps) {
+export function CommandPalette({ open, onOpenChange, categories }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
-  const { recentSearches, addSearch, removeSearch, clearSearches } =
-    useRecentSearches();
+  const { recentSearches, addSearch, removeSearch, clearSearches } = useRecentSearches();
   const { search, enrichedItems } = useFuzzySearch(categories);
   const { user } = useAuth();
   const orderHistoryResults = useOrderHistorySearch(query, user?.id);
@@ -116,10 +106,7 @@ export function CommandPalette({
   }, [query]);
 
   // Fuzzy search results
-  const fuseResults = useMemo(
-    () => (query.trim() ? search(query) : []),
-    [search, query]
-  );
+  const fuseResults = useMemo(() => (query.trim() ? search(query) : []), [search, query]);
 
   // Derive category tabs from results
   const categoryTabs = useMemo(
@@ -129,19 +116,14 @@ export function CommandPalette({
 
   // Filter results by active tab
   const displayResults = useMemo(
-    () =>
-      activeTab
-        ? fuseResults.filter((r) => r.item._categorySlug === activeTab)
-        : fuseResults,
+    () => (activeTab ? fuseResults.filter((r) => r.item._categorySlug === activeTab) : fuseResults),
     [fuseResults, activeTab]
   );
 
   // Popular items for no-results fallback
   const popularFallbackItems = useMemo((): MenuItem[] => {
     // Tag-based first
-    const tagged = enrichedItems.filter((item) =>
-      item.tags?.includes("popular")
-    );
+    const tagged = enrichedItems.filter((item) => item.tags?.includes("popular"));
     if (tagged.length > 0) return tagged.slice(0, 4);
 
     // Slug-based fallback
@@ -175,12 +157,7 @@ export function CommandPalette({
 
   // Add to cart from item detail sheet
   const handleAddToCart = useCallback(
-    (
-      item: MenuItem,
-      modifiers: SelectedModifier[],
-      quantity: number,
-      notes: string
-    ) => {
+    (item: MenuItem, modifiers: SelectedModifier[], quantity: number, notes: string) => {
       useCartStore.getState().addItem({
         menuItemId: item.id,
         menuItemSlug: item.slug,
@@ -359,10 +336,7 @@ export function CommandPalette({
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.12 }}
                     >
-                      <SearchResults
-                        results={displayResults}
-                        onSelect={handleSelectItem}
-                      />
+                      <SearchResults results={displayResults} onSelect={handleSelectItem} />
                     </m.div>
                   </AnimatePresence>
                 )}

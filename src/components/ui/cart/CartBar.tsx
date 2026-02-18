@@ -121,9 +121,7 @@ function FreeDeliveryBanner() {
       <div className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full bg-gradient-delivery-success">
         {/* Static truck icon - removed infinite animation to prevent mobile crashes */}
         <Truck className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-        <span className="text-xs font-semibold text-text-money">
-          Free Delivery!
-        </span>
+        <span className="text-xs font-semibold text-text-money">Free Delivery!</span>
       </div>
     </div>
   );
@@ -133,10 +131,7 @@ function FreeDeliveryBanner() {
 // MAIN COMPONENT
 // ============================================
 
-export function CartBar({
-  className,
-  showCheckoutButton = true,
-}: CartBarProps) {
+export function CartBar({ className, showCheckoutButton = true }: CartBarProps) {
   const router = useRouter();
   const { isEmpty, itemCount, estimatedTotal, amountToFreeDelivery } = useCart();
   const { open } = useCartDrawer();
@@ -170,9 +165,7 @@ export function CartBar({
   // Calculate delivery progress
   const progressPercent = Math.min(
     100,
-    ((FREE_DELIVERY_THRESHOLD_CENTS - amountToFreeDelivery) /
-      FREE_DELIVERY_THRESHOLD_CENTS) *
-      100
+    ((FREE_DELIVERY_THRESHOLD_CENTS - amountToFreeDelivery) / FREE_DELIVERY_THRESHOLD_CENTS) * 100
   );
   const hasFreeDelivery = amountToFreeDelivery === 0;
 

@@ -66,7 +66,10 @@ export default async function OrderDetailPage({ params }: PageProps) {
   const supabase = await createClient();
 
   // Check authentication
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     redirect("/login");
@@ -75,7 +78,8 @@ export default async function OrderDetailPage({ params }: PageProps) {
   // Fetch order with items, modifiers, and address
   const { data: orderData, error: orderError } = await supabase
     .from("orders")
-    .select(`
+    .select(
+      `
       *,
       addresses (
         id,
@@ -100,7 +104,8 @@ export default async function OrderDetailPage({ params }: PageProps) {
           price_delta_snapshot
         )
       )
-    `)
+    `
+    )
     .eq("id", orderId)
     .eq("user_id", user.id)
     .returns<OrderQueryResult[]>()
@@ -133,11 +138,13 @@ export default async function OrderDetailPage({ params }: PageProps) {
     quantity: item.quantity,
     lineTotalCents: item.line_total_cents,
     specialInstructions: item.special_instructions,
-    modifiers: item.order_item_modifiers.map((mod): OrderItemModifier => ({
-      id: mod.id,
-      nameSnapshot: mod.name_snapshot,
-      priceDeltaSnapshot: mod.price_delta_snapshot,
-    })),
+    modifiers: item.order_item_modifiers.map(
+      (mod): OrderItemModifier => ({
+        id: mod.id,
+        nameSnapshot: mod.name_snapshot,
+        priceDeltaSnapshot: mod.price_delta_snapshot,
+      })
+    ),
   }));
 
   const order: Order = {
@@ -165,9 +172,10 @@ export default async function OrderDetailPage({ params }: PageProps) {
     ? format(parseISO(order.deliveryWindowStart), "EEEE, MMMM d, yyyy")
     : "Scheduled";
 
-  const deliveryTime = order.deliveryWindowStart && order.deliveryWindowEnd
-    ? `${format(parseISO(order.deliveryWindowStart), "h:mm a")} - ${format(parseISO(order.deliveryWindowEnd), "h:mm a")}`
-    : "Time slot selected";
+  const deliveryTime =
+    order.deliveryWindowStart && order.deliveryWindowEnd
+      ? `${format(parseISO(order.deliveryWindowStart), "h:mm a")} - ${format(parseISO(order.deliveryWindowEnd), "h:mm a")}`
+      : "Time slot selected";
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-cream to-lotus/30 pt-8 pb-32 px-4">
@@ -263,11 +271,10 @@ export default async function OrderDetailPage({ params }: PageProps) {
               {items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <div>
-                    <span className="font-medium">{item.quantity}x</span>{" "}
-                    {item.nameSnapshot}
+                    <span className="font-medium">{item.quantity}x</span> {item.nameSnapshot}
                     {item.modifiers.length > 0 && (
                       <span className="text-muted-foreground ml-1">
-                        ({item.modifiers.map(m => m.nameSnapshot).join(", ")})
+                        ({item.modifiers.map((m) => m.nameSnapshot).join(", ")})
                       </span>
                     )}
                     {item.specialInstructions && (
@@ -334,9 +341,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
           <div className="flex justify-center">
             <Button asChild variant="outline">
-              <Link href="/menu">
-                Order Again
-              </Link>
+              <Link href="/menu">Order Again</Link>
             </Button>
           </div>
         </div>

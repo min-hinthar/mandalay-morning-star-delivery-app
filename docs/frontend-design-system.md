@@ -11,6 +11,7 @@
 ### 1.1 Brand Essence
 
 **Mandalay Morning Star** evokes:
+
 - **Warmth**: Golden saffron, sunrise, hospitality
 - **Authenticity**: Burmese heritage, homestyle cooking
 - **Accessibility**: Fast-casual ordering, familiar patterns
@@ -43,40 +44,40 @@
 ```css
 :root {
   /* Primary — Saffron Gold (warm, inviting, premium) */
-  --color-saffron-50: #FFFBEB;
-  --color-saffron-100: #FEF3C7;
-  --color-saffron-200: #FDE68A;
-  --color-saffron-300: #FCD34D;
-  --color-saffron-400: #FBBF24;
-  --color-saffron-500: #D4A017;  /* Primary brand color */
-  --color-saffron-600: #B8860B;
-  --color-saffron-700: #92400E;
-  --color-saffron-800: #78350F;
-  --color-saffron-900: #451A03;
-  
+  --color-saffron-50: #fffbeb;
+  --color-saffron-100: #fef3c7;
+  --color-saffron-200: #fde68a;
+  --color-saffron-300: #fcd34d;
+  --color-saffron-400: #fbbf24;
+  --color-saffron-500: #d4a017; /* Primary brand color */
+  --color-saffron-600: #b8860b;
+  --color-saffron-700: #92400e;
+  --color-saffron-800: #78350f;
+  --color-saffron-900: #451a03;
+
   /* Secondary — Curry Brown (earthy, grounded) */
-  --color-curry-50: #FDF8F6;
-  --color-curry-100: #F2E8E5;
-  --color-curry-200: #EADDD7;
-  --color-curry-300: #D6C4BC;
-  --color-curry-400: #B8A398;
-  --color-curry-500: #8B4513;  /* Secondary accent */
-  --color-curry-600: #7C3E12;
-  --color-curry-700: #6D3710;
-  --color-curry-800: #5E300E;
-  --color-curry-900: #4A260B;
-  
+  --color-curry-50: #fdf8f6;
+  --color-curry-100: #f2e8e5;
+  --color-curry-200: #eaddd7;
+  --color-curry-300: #d6c4bc;
+  --color-curry-400: #b8a398;
+  --color-curry-500: #8b4513; /* Secondary accent */
+  --color-curry-600: #7c3e12;
+  --color-curry-700: #6d3710;
+  --color-curry-800: #5e300e;
+  --color-curry-900: #4a260b;
+
   /* Accent — Jade Green (action, success) */
-  --color-jade-50: #ECFDF5;
-  --color-jade-100: #D1FAE5;
-  --color-jade-200: #A7F3D0;
-  --color-jade-300: #6EE7B7;
-  --color-jade-400: #34D399;
-  --color-jade-500: #2E8B57;  /* Primary action color */
+  --color-jade-50: #ecfdf5;
+  --color-jade-100: #d1fae5;
+  --color-jade-200: #a7f3d0;
+  --color-jade-300: #6ee7b7;
+  --color-jade-400: #34d399;
+  --color-jade-500: #2e8b57; /* Primary action color */
   --color-jade-600: #059669;
   --color-jade-700: #047857;
-  --color-jade-800: #065F46;
-  --color-jade-900: #064E3B;
+  --color-jade-800: #065f46;
+  --color-jade-900: #064e3b;
 }
 ```
 
@@ -85,21 +86,21 @@
 ```css
 :root {
   /* Cream — Background warmth */
-  --color-cream-50: #FFFEF7;   /* Primary background */
-  --color-cream-100: #FFFCEB;
-  --color-cream-200: #FFF8D6;
-  
+  --color-cream-50: #fffef7; /* Primary background */
+  --color-cream-100: #fffceb;
+  --color-cream-200: #fff8d6;
+
   /* Charcoal — Text hierarchy */
-  --color-charcoal-50: #F9FAFB;
-  --color-charcoal-100: #F3F4F6;
-  --color-charcoal-200: #E5E7EB;
-  --color-charcoal-300: #D1D5DB;
-  --color-charcoal-400: #9CA3AF;
-  --color-charcoal-500: #6B7280;
-  --color-charcoal-600: #4B5563;
+  --color-charcoal-50: #f9fafb;
+  --color-charcoal-100: #f3f4f6;
+  --color-charcoal-200: #e5e7eb;
+  --color-charcoal-300: #d1d5db;
+  --color-charcoal-400: #9ca3af;
+  --color-charcoal-500: #6b7280;
+  --color-charcoal-600: #4b5563;
   --color-charcoal-700: #374151;
-  --color-charcoal-800: #1F2937;
-  --color-charcoal-900: #1A1A1A;  /* Primary text */
+  --color-charcoal-800: #1f2937;
+  --color-charcoal-900: #1a1a1a; /* Primary text */
 }
 ```
 
@@ -109,14 +110,14 @@
 :root {
   /* Semantic */
   --color-success: var(--color-jade-500);
-  --color-error: #DC2626;
-  --color-warning: #F59E0B;
-  --color-info: #3B82F6;
-  
+  --color-error: #dc2626;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+
   /* Overlays */
   --color-overlay-light: rgba(255, 255, 247, 0.95);
   --color-overlay-dark: rgba(26, 26, 26, 0.75);
-  
+
   /* Shadows (warm-tinted) */
   --shadow-sm: 0 1px 2px 0 rgba(139, 69, 19, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(139, 69, 19, 0.1), 0 2px 4px -1px rgba(139, 69, 19, 0.06);
@@ -134,16 +135,16 @@
 ```css
 :root {
   /* Display — Elegant serif for headings and brand */
-  --font-display: 'Playfair Display', 'Georgia', serif;
+  --font-display: "Playfair Display", "Georgia", serif;
 
   /* Body — Clean variable sans for readability (V5: Updated from DM Sans) */
-  --font-body: 'Inter', 'Helvetica Neue', sans-serif;
+  --font-body: "Inter", "Helvetica Neue", sans-serif;
 
   /* Mono — For prices, order numbers */
-  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+  --font-mono: "JetBrains Mono", "SF Mono", monospace;
 
   /* Burmese — Native script support */
-  --font-burmese: 'Padauk', 'Noto Sans Myanmar', sans-serif;
+  --font-burmese: "Padauk", "Noto Sans Myanmar", sans-serif;
 }
 ```
 
@@ -152,22 +153,22 @@
 ```css
 :root {
   /* Sizes (mobile-first) */
-  --text-xs: 0.75rem;     /* 12px */
-  --text-sm: 0.875rem;    /* 14px */
-  --text-base: 1rem;      /* 16px */
-  --text-lg: 1.125rem;    /* 18px */
-  --text-xl: 1.25rem;     /* 20px */
-  --text-2xl: 1.5rem;     /* 24px */
-  --text-3xl: 1.875rem;   /* 30px */
-  --text-4xl: 2.25rem;    /* 36px */
-  --text-5xl: 3rem;       /* 48px */
-  
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 1.875rem; /* 30px */
+  --text-4xl: 2.25rem; /* 36px */
+  --text-5xl: 3rem; /* 48px */
+
   /* Line heights */
   --leading-tight: 1.25;
   --leading-snug: 1.375;
   --leading-normal: 1.5;
   --leading-relaxed: 1.625;
-  
+
   /* Letter spacing */
   --tracking-tight: -0.025em;
   --tracking-normal: 0;
@@ -217,18 +218,18 @@
 ```css
 :root {
   --space-0: 0;
-  --space-1: 0.25rem;   /* 4px */
-  --space-2: 0.5rem;    /* 8px */
-  --space-3: 0.75rem;   /* 12px */
-  --space-4: 1rem;      /* 16px */
-  --space-5: 1.25rem;   /* 20px */
-  --space-6: 1.5rem;    /* 24px */
-  --space-8: 2rem;      /* 32px */
-  --space-10: 2.5rem;   /* 40px */
-  --space-12: 3rem;     /* 48px */
-  --space-16: 4rem;     /* 64px */
-  --space-20: 5rem;     /* 80px */
-  --space-24: 6rem;     /* 96px */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+  --space-20: 5rem; /* 80px */
+  --space-24: 6rem; /* 96px */
 }
 ```
 
@@ -283,7 +284,7 @@
 // Primary action (Add to Cart, Checkout)
 <Button variant="primary" size="lg">
   Add to Cart — $18.00
-</Button>
+</Button>;
 
 // Styles
 const buttonVariants = {
@@ -309,10 +310,10 @@ const buttonVariants = {
 };
 
 const buttonSizes = {
-  sm: 'px-3 py-1.5 text-sm rounded-lg',
-  md: 'px-4 py-2 text-base rounded-xl',
-  lg: 'px-6 py-3 text-lg rounded-xl',
-  xl: 'px-8 py-4 text-xl rounded-2xl',
+  sm: "px-3 py-1.5 text-sm rounded-lg",
+  md: "px-4 py-2 text-base rounded-xl",
+  lg: "px-6 py-3 text-lg rounded-xl",
+  xl: "px-8 py-4 text-xl rounded-2xl",
 };
 ```
 
@@ -334,22 +335,14 @@ const buttonSizes = {
         <span className="text-white font-semibold text-lg">Sold Out</span>
       </div>
     )}
-    {item.isPopular && (
-      <Badge className="absolute top-3 left-3">Popular</Badge>
-    )}
+    {item.isPopular && <Badge className="absolute top-3 left-3">Popular</Badge>}
   </div>
-  
+
   {/* Content */}
   <div className="p-4">
-    <h3 className="font-body font-semibold text-charcoal-900">
-      {item.nameEn}
-    </h3>
-    <p className="font-burmese text-sm text-charcoal-500 mt-0.5">
-      {item.nameMy}
-    </p>
-    <p className="text-sm text-charcoal-600 mt-2 line-clamp-2">
-      {item.descriptionEn}
-    </p>
+    <h3 className="font-body font-semibold text-charcoal-900">{item.nameEn}</h3>
+    <p className="font-burmese text-sm text-charcoal-500 mt-0.5">{item.nameMy}</p>
+    <p className="text-sm text-charcoal-600 mt-2 line-clamp-2">{item.descriptionEn}</p>
     <div className="flex items-center justify-between mt-4">
       <span className="font-mono font-semibold text-jade-600">
         ${(item.basePriceCents / 100).toFixed(2)}
@@ -367,7 +360,7 @@ const buttonSizes = {
 <nav className="sticky top-16 z-40 bg-cream-50/95 backdrop-blur-sm border-b border-saffron-200">
   <div className="container">
     <div className="flex gap-1 overflow-x-auto scrollbar-hide py-3 -mx-4 px-4">
-      {categories.map(cat => (
+      {categories.map((cat) => (
         <button
           key={cat.slug}
           onClick={() => scrollToCategory(cat.slug)}
@@ -395,16 +388,16 @@ const buttonSizes = {
     <SheetHeader className="border-b border-saffron-200 pb-4">
       <SheetTitle className="font-display text-2xl">Your Cart</SheetTitle>
       <SheetDescription>
-        {itemCount} {itemCount === 1 ? 'item' : 'items'}
+        {itemCount} {itemCount === 1 ? "item" : "items"}
       </SheetDescription>
     </SheetHeader>
-    
+
     <div className="flex-1 overflow-y-auto py-4">
-      {items.map(item => (
+      {items.map((item) => (
         <CartItem key={item.cartItemId} {...item} />
       ))}
     </div>
-    
+
     <SheetFooter className="border-t border-saffron-200 pt-4">
       <div className="w-full space-y-3">
         <div className="flex justify-between text-charcoal-600">
@@ -438,7 +431,7 @@ const buttonSizes = {
         <X className="w-5 h-5" />
       </Button>
     </div>
-    
+
     {/* Content */}
     <div className="p-6 overflow-y-auto max-h-[50vh]">
       <div className="flex items-start justify-between gap-4">
@@ -450,31 +443,29 @@ const buttonSizes = {
           ${(item.basePriceCents / 100).toFixed(2)}
         </span>
       </div>
-      
+
       <p className="text-charcoal-600 mt-4">{item.descriptionEn}</p>
-      
-      {item.allergens.length > 0 && (
-        <AllergenWarning allergens={item.allergens} className="mt-4" />
-      )}
-      
+
+      {item.allergens.length > 0 && <AllergenWarning allergens={item.allergens} className="mt-4" />}
+
       {/* Modifier groups */}
-      {item.modifierGroups.map(group => (
+      {item.modifierGroups.map((group) => (
         <ModifierGroup key={group.id} group={group} />
       ))}
-      
+
       {/* Quantity */}
       <QuantitySelector value={quantity} onChange={setQuantity} className="mt-6" />
-      
+
       {/* Notes */}
       <Textarea
         placeholder="Special instructions (optional)"
         value={notes}
-        onChange={e => setNotes(e.target.value)}
+        onChange={(e) => setNotes(e.target.value)}
         maxLength={500}
         className="mt-4"
       />
     </div>
-    
+
     {/* Footer */}
     <div className="p-6 border-t border-saffron-200 bg-cream-100">
       <Button
@@ -505,7 +496,7 @@ const buttonSizes = {
   --duration-normal: 300ms;
   --duration-slow: 500ms;
   --duration-slower: 700ms;
-  
+
   /* Easings */
   --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
@@ -543,13 +534,13 @@ export const listItemVariants = {
 
 // Cart drawer
 export const drawerVariants = {
-  hidden: { x: '100%' },
-  visible: { 
+  hidden: { x: "100%" },
+  visible: {
     x: 0,
-    transition: { type: 'spring', damping: 25, stiffness: 300 },
+    transition: { type: "spring", damping: 25, stiffness: 300 },
   },
-  exit: { 
-    x: '100%',
+  exit: {
+    x: "100%",
     transition: { duration: 0.2 },
   },
 };
@@ -557,13 +548,13 @@ export const drawerVariants = {
 // Modal
 export const modalVariants = {
   hidden: { opacity: 0, scale: 0.95 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     scale: 1,
-    transition: { type: 'spring', damping: 25, stiffness: 400 },
+    transition: { type: "spring", damping: 25, stiffness: 400 },
   },
-  exit: { 
-    opacity: 0, 
+  exit: {
+    opacity: 0,
     scale: 0.95,
     transition: { duration: 0.15 },
   },
@@ -572,9 +563,9 @@ export const modalVariants = {
 // Cart badge bounce
 export const badgeBounce = {
   initial: { scale: 1 },
-  animate: { 
+  animate: {
     scale: [1, 1.3, 1],
-    transition: { duration: 0.3, ease: 'easeOut' },
+    transition: { duration: 0.3, ease: "easeOut" },
   },
 };
 ```
@@ -612,7 +603,7 @@ export const badgeBounce = {
 // Checkbox/Radio selection
 <motion.div
   initial={false}
-  animate={{ 
+  animate={{
     backgroundColor: selected ? 'var(--color-jade-500)' : 'transparent',
     borderColor: selected ? 'var(--color-jade-500)' : 'var(--color-charcoal-300)',
   }}
@@ -659,7 +650,7 @@ import {
   AlertCircle,
   AlertTriangle,
   Info,
-} from 'lucide-react';
+} from "lucide-react";
 ```
 
 ### 7.2 Allergen Icons (Custom)
@@ -739,7 +730,8 @@ xl: 1280px
 }
 
 /* Generous tap areas for buttons */
-button, a {
+button,
+a {
   @apply min-h-[44px] px-4;
 }
 ```
@@ -823,7 +815,7 @@ function ItemCardSkeleton() {
       <ItemCardSkeleton />
     </motion.div>
   ))}
-</motion.div>
+</motion.div>;
 ```
 
 ### 10.2 Empty States
@@ -836,9 +828,7 @@ function EmptyCart() {
       <div className="w-20 h-20 rounded-full bg-saffron-100 flex items-center justify-center mb-4">
         <ShoppingCart className="w-10 h-10 text-saffron-500" />
       </div>
-      <h3 className="font-display text-xl font-semibold text-charcoal-900">
-        Your cart is empty
-      </h3>
+      <h3 className="font-display text-xl font-semibold text-charcoal-900">Your cart is empty</h3>
       <p className="text-charcoal-600 mt-2 max-w-xs">
         Explore our menu and add some delicious Burmese dishes!
       </p>
@@ -854,12 +844,8 @@ function NoResults({ query }: { query: string }) {
   return (
     <div className="text-center py-12">
       <Search className="w-12 h-12 text-charcoal-300 mx-auto" />
-      <h3 className="font-semibold text-charcoal-900 mt-4">
-        No results for "{query}"
-      </h3>
-      <p className="text-charcoal-600 mt-2">
-        Try adjusting your search or browse our categories
-      </p>
+      <h3 className="font-semibold text-charcoal-900 mt-4">No results for "{query}"</h3>
+      <p className="text-charcoal-600 mt-2">Try adjusting your search or browse our categories</p>
     </div>
   );
 }
@@ -872,14 +858,14 @@ function NoResults({ query }: { query: string }) {
 ```tsx
 // Form field error
 <div className="space-y-2">
-  <Label htmlFor="address" className={error ? 'text-red-600' : ''}>
+  <Label htmlFor="address" className={error ? "text-red-600" : ""}>
     Delivery Address
   </Label>
   <Input
     id="address"
-    className={error ? 'border-red-500 focus:ring-red-500' : ''}
+    className={error ? "border-red-500 focus:ring-red-500" : ""}
     aria-invalid={!!error}
-    aria-describedby={error ? 'address-error' : undefined}
+    aria-describedby={error ? "address-error" : undefined}
   />
   {error && (
     <p id="address-error" className="text-sm text-red-600 flex items-center gap-1">
@@ -887,7 +873,7 @@ function NoResults({ query }: { query: string }) {
       {error}
     </p>
   )}
-</div>
+</div>;
 
 // Coverage error banner
 function CoverageError({ distance, maxDistance }) {
@@ -896,8 +882,8 @@ function CoverageError({ distance, maxDistance }) {
       <AlertTriangle className="w-5 h-5" />
       <AlertTitle>Outside Delivery Area</AlertTitle>
       <AlertDescription>
-        Your address is {distance} miles from our kitchen. 
-        We currently deliver within {maxDistance} miles.
+        Your address is {distance} miles from our kitchen. We currently deliver within {maxDistance}{" "}
+        miles.
       </AlertDescription>
     </Alert>
   );
@@ -911,12 +897,10 @@ function ErrorPage({ error, reset }) {
         <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto">
           <AlertCircle className="w-8 h-8 text-red-500" />
         </div>
-        <h1 className="font-display text-2xl font-bold mt-6">
-          Something went wrong
-        </h1>
+        <h1 className="font-display text-2xl font-bold mt-6">Something went wrong</h1>
         <p className="text-charcoal-600 mt-2">{error.message}</p>
         <div className="flex gap-3 justify-center mt-6">
-          <Button variant="ghost" onClick={() => window.location.href = '/'}>
+          <Button variant="ghost" onClick={() => (window.location.href = "/")}>
             Go Home
           </Button>
           <Button variant="primary" onClick={reset}>
@@ -954,6 +938,7 @@ function ErrorPage({ error, reset }) {
 ## 13. Implementation Checklist
 
 ### Phase 1: Foundation
+
 - [ ] Tailwind config with custom colors, fonts, shadows
 - [ ] Typography components (headings, body, prices)
 - [ ] Button variants (primary, secondary, ghost, danger)
@@ -961,12 +946,14 @@ function ErrorPage({ error, reset }) {
 - [ ] Modal/Dialog wrapper with Framer Motion
 
 ### Phase 2: Menu Components
+
 - [ ] Category tabs with scroll behavior
 - [ ] Item card with all states (normal, hover, sold out)
 - [ ] Item detail modal with modifier groups
 - [ ] Search input with results
 
 ### Phase 3: Cart & Checkout
+
 - [ ] Cart drawer with animations
 - [ ] Cart item with quantity controls
 - [ ] Checkout stepper
@@ -974,6 +961,7 @@ function ErrorPage({ error, reset }) {
 - [ ] Time slot picker
 
 ### Phase 4: Polish
+
 - [ ] Loading skeletons everywhere
 - [ ] Empty states
 - [ ] Error states

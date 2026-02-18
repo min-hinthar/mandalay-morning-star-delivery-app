@@ -3,13 +3,7 @@
 import { useState, useEffect } from "react";
 import { m } from "framer-motion";
 import { format, nextSaturday, isSaturday } from "date-fns";
-import {
-  Loader2,
-  Route,
-  Calendar,
-  Users,
-  AlertCircle,
-} from "lucide-react";
+import { Loader2, Route, Calendar, Users, AlertCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -36,11 +30,7 @@ interface CreateRouteModalProps {
   onSubmit: (data: CreateRouteData) => Promise<void>;
 }
 
-export function CreateRouteModal({
-  open,
-  onOpenChange,
-  onSubmit,
-}: CreateRouteModalProps) {
+export function CreateRouteModal({ open, onOpenChange, onSubmit }: CreateRouteModalProps) {
   const [deliveryDate, setDeliveryDate] = useState(getDefaultDeliveryDate);
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
@@ -81,20 +71,28 @@ export function CreateRouteModal({
         const data = await res.json();
         setOrders(
           data
-            .filter(
-              (o: { status: string }) => o.status === "confirmed" || o.status === "preparing"
+            .filter((o: { status: string }) => o.status === "confirmed" || o.status === "preparing")
+            .map(
+              (o: {
+                id: string;
+                total_cents: number;
+                profiles?: { full_name: string | null };
+                delivery_window_start: string | null;
+                order_items: { quantity: number }[];
+                status: string;
+              }) => ({
+                id: o.id,
+                totalCents: o.total_cents,
+                customerName: o.profiles?.full_name || null,
+                deliveryWindowStart: o.delivery_window_start,
+                itemCount:
+                  o.order_items?.reduce(
+                    (sum: number, item: { quantity: number }) => sum + item.quantity,
+                    0
+                  ) || 0,
+                status: o.status,
+              })
             )
-            .map((o: { id: string; total_cents: number; profiles?: { full_name: string | null }; delivery_window_start: string | null; order_items: { quantity: number }[]; status: string }) => ({
-              id: o.id,
-              totalCents: o.total_cents,
-              customerName: o.profiles?.full_name || null,
-              deliveryWindowStart: o.delivery_window_start,
-              itemCount: o.order_items?.reduce(
-                (sum: number, item: { quantity: number }) => sum + item.quantity,
-                0
-              ) || 0,
-              status: o.status,
-            }))
         );
       }
     } catch (error) {
@@ -161,9 +159,7 @@ export function CreateRouteModal({
 
   const toggleOrderSelection = (orderId: string) => {
     setSelectedOrderIds((prev) =>
-      prev.includes(orderId)
-        ? prev.filter((id) => id !== orderId)
-        : [...prev, orderId]
+      prev.includes(orderId) ? prev.filter((id) => id !== orderId) : [...prev, orderId]
     );
     if (errors.orderIds) {
       setErrors((prev) => ({ ...prev, orderIds: undefined }));
@@ -224,12 +220,8 @@ export function CreateRouteModal({
               )}
               disabled={isSubmitting}
             />
-            {errors.deliveryDate && (
-              <p className="text-xs text-red-500">{errors.deliveryDate}</p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              Deliveries only occur on Saturdays
-            </p>
+            {errors.deliveryDate && <p className="text-xs text-red-500">{errors.deliveryDate}</p>}
+            <p className="text-xs text-muted-foreground">Deliveries only occur on Saturdays</p>
           </div>
 
           {/* Driver Selection */}

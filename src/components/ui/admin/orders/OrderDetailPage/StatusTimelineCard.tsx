@@ -25,11 +25,7 @@ interface StatusTimelineCardProps {
 
 export function StatusTimelineCard({ auditLog }: StatusTimelineCardProps) {
   return (
-    <CollapsibleCard
-      title="Status Timeline"
-      icon={<History className="h-4 w-4" />}
-      defaultOpen
-    >
+    <CollapsibleCard title="Status Timeline" icon={<History className="h-4 w-4" />} defaultOpen>
       {auditLog.length === 0 ? (
         <p className="text-sm text-text-muted">No status history</p>
       ) : (
@@ -39,8 +35,7 @@ export function StatusTimelineCard({ auditLog }: StatusTimelineCardProps) {
 
           <div className="space-y-3">
             {auditLog.map((entry) => {
-              const dotColor =
-                ACTION_DOT_COLORS[entry.action] || "bg-text-muted";
+              const dotColor = ACTION_DOT_COLORS[entry.action] || "bg-text-muted";
               return (
                 <div key={entry.id} className="flex items-start gap-3 relative">
                   {/* Dot */}
@@ -56,9 +51,7 @@ export function StatusTimelineCard({ auditLog }: StatusTimelineCardProps) {
                       {AUDIT_ACTION_LABELS[entry.action] || entry.action}
                     </p>
                     {entry.reason && (
-                      <p className="text-xs text-text-muted mt-0.5">
-                        {entry.reason}
-                      </p>
+                      <p className="text-xs text-text-muted mt-0.5">{entry.reason}</p>
                     )}
                     <p className="text-xs text-text-muted mt-0.5">
                       {format(parseISO(entry.createdAt), "MMM d, h:mm a")}

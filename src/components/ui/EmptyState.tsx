@@ -17,10 +17,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerDelay } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import {
-  type EmptyStateVariant,
-  variantConfigs,
-} from "./empty-state-variants";
+import { type EmptyStateVariant, variantConfigs } from "./empty-state-variants";
 
 export type { EmptyStateVariant };
 
@@ -52,17 +49,10 @@ function AnimatedIcon({
         transition={shouldAnimate ? { ...spring.ultraBouncy, delay: 0 } : undefined}
         className="relative mb-6"
       >
-        <div
-          className="absolute inset-0 rounded-full blur-xl opacity-70"
-          style={gradientStyle}
-        />
+        <div className="absolute inset-0 rounded-full blur-xl opacity-70" style={gradientStyle} />
         <m.span
           animate={shouldAnimate ? { y: [0, -6, 0] } : undefined}
-          transition={
-            shouldAnimate
-              ? { duration: 3, repeat: 5, ease: "easeInOut" }
-              : undefined
-          }
+          transition={shouldAnimate ? { duration: 3, repeat: 5, ease: "easeInOut" } : undefined}
           className="relative text-5xl select-none"
           role="img"
           aria-hidden="true"
@@ -83,17 +73,14 @@ function AnimatedIcon({
       transition={shouldAnimate ? { ...spring.ultraBouncy, delay: 0 } : undefined}
       className="relative mb-6"
     >
-      <div
-        className="absolute inset-0 rounded-full blur-xl opacity-70"
-        style={gradientStyle}
-      />
+      <div className="absolute inset-0 rounded-full blur-xl opacity-70" style={gradientStyle} />
       <div
         className={cn(
           "relative flex h-20 w-20 items-center justify-center rounded-full",
           isPositive
             ? "bg-green/10 text-green"
-            // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
-            : "bg-surface-tertiary sm:bg-surface-tertiary/80 sm:backdrop-blur-sm text-text-muted"
+            : // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
+              "bg-surface-tertiary sm:bg-surface-tertiary/80 sm:backdrop-blur-sm text-text-muted"
         )}
       >
         <Icon className="h-10 w-10" strokeWidth={1.5} />
@@ -154,10 +141,7 @@ export function EmptyState({
       initial={shouldAnimate ? { opacity: 0 } : undefined}
       animate={shouldAnimate ? { opacity: 1 } : undefined}
       transition={springConfig}
-      className={cn(
-        "flex flex-col items-center justify-center px-4 py-12 text-center",
-        className
-      )}
+      className={cn("flex flex-col items-center justify-center px-4 py-12 text-center", className)}
     >
       <AnimatedIcon
         Icon={Icon}
@@ -227,19 +211,11 @@ export function CartEmptyState() {
   return <EmptyState variant="cart" />;
 }
 
-export function SearchEmptyState({
-  query,
-  onClear,
-}: {
-  query?: string;
-  onClear?: () => void;
-}) {
+export function SearchEmptyState({ query, onClear }: { query?: string; onClear?: () => void }) {
   return (
     <EmptyState variant="search" searchQuery={query} onAction={onClear}>
       <div className="mt-6 font-body text-sm text-text-muted">
-        <p className="mb-3 font-medium text-text-secondary">
-          Popular searches:
-        </p>
+        <p className="mb-3 font-medium text-text-secondary">Popular searches:</p>
         <div className="flex flex-wrap justify-center gap-2">
           {["Mohinga", "Curry", "Noodles", "Seafood"].map((term) => (
             <span

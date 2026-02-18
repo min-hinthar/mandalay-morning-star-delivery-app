@@ -39,10 +39,12 @@ export function ArchiveConfirmModal({
         transition={spring.default}
         className="relative bg-surface-primary rounded-card-sm border border-border p-6 w-full max-w-md shadow-xl"
       >
-        <h2 className="text-xl font-display font-semibold text-text-primary mb-2">Archive Driver</h2>
+        <h2 className="text-xl font-display font-semibold text-text-primary mb-2">
+          Archive Driver
+        </h2>
         <p className="text-sm font-body text-text-secondary mb-6">
-          This will deactivate the driver and hide them from active lists. This action can be reversed by
-          reactivating the driver.
+          This will deactivate the driver and hide them from active lists. This action can be
+          reversed by reactivating the driver.
         </p>
 
         <div className="mb-6">

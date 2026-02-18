@@ -36,24 +36,18 @@ test.describe("Customer Feedback Authentication", () => {
  * with a delivered order.
  */
 test.describe.skip("Authenticated Feedback Flow", () => {
-  test("feedback page shows rating form for delivered order", async ({
-    page,
-  }) => {
+  test("feedback page shows rating form for delivered order", async ({ page }) => {
     // Navigate to feedback page for a delivered order
     await page.goto("/orders/test-delivered-order-id/feedback");
 
     // Should show the feedback form header
-    await expect(
-      page.getByRole("heading", { name: "How was your delivery?" })
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "How was your delivery?" })).toBeVisible();
 
     // Should show star rating component
     await expect(page.locator("[data-testid='star-rating']")).toBeVisible();
 
     // Should show optional feedback textarea
-    await expect(
-      page.getByPlaceholder("Tell us more about your experience...")
-    ).toBeVisible();
+    await expect(page.getByPlaceholder("Tell us more about your experience...")).toBeVisible();
 
     // Should show submit button (disabled without rating)
     const submitButton = page.getByRole("button", { name: "Submit Feedback" });
@@ -85,9 +79,7 @@ test.describe.skip("Authenticated Feedback Flow", () => {
 
     // Should show success message
     await expect(page.getByText("Thank You!")).toBeVisible();
-    await expect(
-      page.getByText("Your feedback helps us improve our service.")
-    ).toBeVisible();
+    await expect(page.getByText("Your feedback helps us improve our service.")).toBeVisible();
   });
 
   test("can submit feedback with rating and text", async ({ page }) => {
@@ -117,9 +109,7 @@ test.describe.skip("Authenticated Feedback Flow", () => {
     await expect(submitButton).toBeDisabled();
   });
 
-  test("shows already rated state for previously rated order", async ({
-    page,
-  }) => {
+  test("shows already rated state for previously rated order", async ({ page }) => {
     await page.goto("/orders/test-already-rated-order-id/feedback");
 
     // Should show thank you message
@@ -129,9 +119,7 @@ test.describe.skip("Authenticated Feedback Flow", () => {
     await expect(page.getByText("You rated this delivery on")).toBeVisible();
 
     // Should show Order Again button
-    await expect(
-      page.getByRole("link", { name: "Order Again" })
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Order Again" })).toBeVisible();
   });
 
   test("success state shows navigation options", async ({ page }) => {
@@ -143,14 +131,10 @@ test.describe.skip("Authenticated Feedback Flow", () => {
     await page.getByRole("button", { name: "Submit Feedback" }).click();
 
     // Should show Order Again link
-    await expect(
-      page.getByRole("link", { name: "Order Again" })
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Order Again" })).toBeVisible();
 
     // Should show View Order link
-    await expect(
-      page.getByRole("link", { name: "View Order" })
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "View Order" })).toBeVisible();
   });
 
   test("back button returns to order page", async ({ page }) => {
@@ -179,9 +163,7 @@ test.describe.skip("Authenticated Feedback Flow", () => {
     await page.goto("/orders/test-delivered-order-id/feedback");
 
     // Get the textarea
-    const textarea = page.getByPlaceholder(
-      "Tell us more about your experience..."
-    );
+    const textarea = page.getByPlaceholder("Tell us more about your experience...");
 
     // Check maxLength attribute
     await expect(textarea).toHaveAttribute("maxLength", "500");

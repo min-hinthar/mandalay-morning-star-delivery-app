@@ -23,7 +23,10 @@ export function CTABanner({ id }: CTABannerProps) {
   const { shouldAnimate, isFullMotion } = useAnimationPreference();
 
   return (
-    <section id={id} className="relative py-16 md:py-20 px-4 bg-gradient-to-br from-primary via-primary-hover to-primary overflow-hidden">
+    <section
+      id={id}
+      className="relative py-16 md:py-20 px-4 bg-gradient-to-br from-primary via-primary-hover to-primary overflow-hidden"
+    >
       {/* Decorative background overlay */}
       <div className="absolute inset-0 bg-overlay/10" />
 
@@ -78,8 +81,7 @@ export function CTABanner({ id }: CTABannerProps) {
             transition={{ delay: 0.15, duration: 0.4, ease: easing.default }}
             className="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-text-primary mb-4"
           >
-            Order by Friday 3pm for{" "}
-            <span className="text-primary">Saturday Delivery</span>
+            Order by Friday 3pm for <span className="text-primary">Saturday Delivery</span>
           </m.h2>
 
           {/* Subtext */}

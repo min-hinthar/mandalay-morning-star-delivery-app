@@ -1,12 +1,4 @@
-import {
-  Egg,
-  Fish,
-  Shell,
-  Wheat,
-  Milk,
-  Nut,
-  type LucideIcon,
-} from "lucide-react";
+import { Egg, Fish, Shell, Wheat, Milk, Nut, type LucideIcon } from "lucide-react";
 
 export interface AllergenInfo {
   label: string;

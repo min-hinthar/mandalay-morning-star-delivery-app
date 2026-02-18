@@ -42,9 +42,7 @@ export function OrderItemsCard({ items }: OrderItemsCardProps) {
                     x{item.quantity}
                   </span>
                   {isRefunded && (
-                    <span className="text-xs font-medium text-status-error">
-                      (Refunded)
-                    </span>
+                    <span className="text-xs font-medium text-status-error">(Refunded)</span>
                   )}
                 </div>
                 {item.specialInstructions && (

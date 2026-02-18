@@ -29,10 +29,7 @@ export function createRestaurantMarkerContent(): HTMLElement {
 }
 
 // ---- Vehicle Marker ----
-export function createVehicleMarkerContent(
-  heading: number | null,
-  isStale: boolean
-): HTMLElement {
+export function createVehicleMarkerContent(heading: number | null, isStale: boolean): HTMLElement {
   const rotation = heading ?? 0;
   const opacity = isStale ? "0.5" : "1";
   const container = document.createElement("div");

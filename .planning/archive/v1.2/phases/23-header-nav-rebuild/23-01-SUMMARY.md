@@ -61,6 +61,7 @@ completed: 2026-01-26
 - **Files modified:** 6
 
 ## Accomplishments
+
 - Velocity-aware scroll detection distinguishing fast (>300px/s) vs slow scrolling
 - Header visibility hook that pins header when overlays are open
 - Command palette keyboard shortcut (Cmd/Ctrl+K) with browser conflict prevention
@@ -109,5 +110,6 @@ None - no external service configuration required.
 - Hooks provide all necessary state for velocity-aware hide/show animations
 
 ---
-*Phase: 23-header-nav-rebuild*
-*Completed: 2026-01-26*
+
+_Phase: 23-header-nav-rebuild_
+_Completed: 2026-01-26_

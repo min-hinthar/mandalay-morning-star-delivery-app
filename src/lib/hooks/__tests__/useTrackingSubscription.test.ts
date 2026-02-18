@@ -23,9 +23,7 @@ describe("useShowLiveTracking", () => {
       heading: 180,
     };
 
-    const { result } = renderHook(() =>
-      useShowLiveTracking(orderStatus, driverLocation)
-    );
+    const { result } = renderHook(() => useShowLiveTracking(orderStatus, driverLocation));
 
     expect(result.current).toBe(true);
   });
@@ -47,18 +45,10 @@ describe("useShowLiveTracking", () => {
       heading: 180,
     };
 
-    const statuses: OrderStatus[] = [
-      "pending",
-      "confirmed",
-      "preparing",
-      "delivered",
-      "cancelled",
-    ];
+    const statuses: OrderStatus[] = ["pending", "confirmed", "preparing", "delivered", "cancelled"];
 
     for (const status of statuses) {
-      const { result } = renderHook(() =>
-        useShowLiveTracking(status, driverLocation)
-      );
+      const { result } = renderHook(() => useShowLiveTracking(status, driverLocation));
       expect(result.current).toBe(false);
     }
   });
@@ -258,8 +248,8 @@ describe("Realtime Update Handlers (mocked behavior)", () => {
     const payload = {
       new: {
         id: "test-location-id",
-        latitude: 34.0900,
-        longitude: -117.8800,
+        latitude: 34.09,
+        longitude: -117.88,
         heading: 270,
         accuracy: 10,
         recorded_at: "2026-01-18T14:25:00.000Z",

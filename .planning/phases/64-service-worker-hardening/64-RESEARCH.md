@@ -5,11 +5,13 @@
 **Confidence:** HIGH
 
 <user_constraints>
+
 ## User Constraints (from CONTEXT.md)
 
 ### Locked Decisions
 
 **Update Banner UX**
+
 - Bottom toast position (consistent with existing toast system)
 - Keep auto-reload countdown behavior (10-second countdown)
 - Countdown pauses on user interaction (typing, scrolling), resumes after idle
@@ -25,6 +27,7 @@
 - Same update behavior for all roles (customer, admin, driver)
 
 **Cache Invalidation Strategy**
+
 - Content-hash per file (not build timestamp) -- only changed assets re-downloaded on deploy
 - Menu API cache TTL extended to 15 minutes (from 5 minutes)
 - Admin pages: same caching as customer pages (admin API calls are NetworkFirst anyway)
@@ -34,10 +37,12 @@
 - Cache hit/miss metrics reported to Sentry/analytics for TTL tuning
 
 **Route Exclusions**
+
 - Auth callback and Sentry tunnel routes excluded from SW interception
 - Claude determines which additional routes are dangerous to cache (Stripe webhooks, health endpoint, etc.)
 
 **Offline Fallback Behavior**
+
 - Show last cached version of page when offline (with offline indicator)
 - Persistent banner at top of page: "You're offline -- showing cached content" (warning style, red/warning vs blue/info for update)
 - When NO cached version exists: branded offline page with links to cached pages
@@ -46,6 +51,7 @@
 - Non-queueable actions (Place Order) disabled with tooltip: "You're offline. Connect to place your order."
 
 **Cart Offline Queue**
+
 - Cart actions (add/remove/modify) queueable while offline
 - Migrate cart persistence from localStorage to IndexedDB (Zustand persist middleware)
 - Offline-queued cart items show "pending sync" badge until confirmed synced
@@ -53,6 +59,7 @@
 - Sync failure: error toast + keep item in cart marked as "unavailable" (user removes manually)
 
 ### Claude's Discretion
+
 - Version number source (package.json vs git hash vs timestamp)
 - Countdown reset behavior on dismiss + re-show
 - Banner animation style (slide up, fade in)
@@ -67,7 +74,7 @@
 - Cross-origin request interception policy
 - Font caching strategy
 - Driver route special treatment (leveraging Phase 56 offline sync)
-- Auth path exclusion scope (/auth/callback only vs /auth/*)
+- Auth path exclusion scope (/auth/callback only vs /auth/\*)
 - Health endpoint caching strategy
 - Document request caching approach (bypass vs NetworkFirst)
 - Pages to precache beyond /, /menu, /cart
@@ -80,10 +87,11 @@
 - Offline/update banner priority when both active
 
 ### Deferred Ideas (OUT OF SCOPE)
+
 - Full offline mutation queue for Place Order (cart-only queue for now)
 - Profile/settings offline mutations
 - Push notification offline action queuing (if not handled in Phase 64)
-</user_constraints>
+  </user_constraints>
 
 ## Summary
 
@@ -96,29 +104,33 @@ The implementation touches five domains: (1) replace `Date.now()` revisions with
 ## Standard Stack
 
 ### Core (Already Installed)
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| serwist | ^9.5.4 | SW runtime: precaching, caching strategies, routing | Fork of Workbox; already in use |
-| @serwist/next | ^9.5.4 | `defaultCache` runtime caching presets for Next.js | Already provides base cache rules |
-| @serwist/build | ^9.5.4 | Build-time manifest generation with content hashes | **Already installed as transitive dep of @serwist/next**; provides `getManifest()` |
-| esbuild | ^0.27.2 | SW bundling (Turbopack incompatible with @serwist/next plugin) | Already in use in `build-sw.mjs` |
-| zustand | ^5.0.10 | State management with `persist` middleware | Already manages cart state |
-| framer-motion | ^12.26.1 | Banner animations | Already used in UpdatePrompt |
+
+| Library        | Version  | Purpose                                                        | Why Standard                                                                       |
+| -------------- | -------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| serwist        | ^9.5.4   | SW runtime: precaching, caching strategies, routing            | Fork of Workbox; already in use                                                    |
+| @serwist/next  | ^9.5.4   | `defaultCache` runtime caching presets for Next.js             | Already provides base cache rules                                                  |
+| @serwist/build | ^9.5.4   | Build-time manifest generation with content hashes             | **Already installed as transitive dep of @serwist/next**; provides `getManifest()` |
+| esbuild        | ^0.27.2  | SW bundling (Turbopack incompatible with @serwist/next plugin) | Already in use in `build-sw.mjs`                                                   |
+| zustand        | ^5.0.10  | State management with `persist` middleware                     | Already manages cart state                                                         |
+| framer-motion  | ^12.26.1 | Banner animations                                              | Already used in UpdatePrompt                                                       |
 
 ### New Dependencies Required
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| idb-keyval | ^6.2.1 | Tiny (~600B) IndexedDB wrapper for Zustand persist | Cart localStorage -> IndexedDB migration |
+
+| Library    | Version | Purpose                                            | When to Use                              |
+| ---------- | ------- | -------------------------------------------------- | ---------------------------------------- |
+| idb-keyval | ^6.2.1  | Tiny (~600B) IndexedDB wrapper for Zustand persist | Cart localStorage -> IndexedDB migration |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| idb-keyval | Raw IndexedDB (like driver offline-store) | idb-keyval is 600B, simpler API, Zustand docs recommend it; raw IDB adds boilerplate for simple key-value needs |
-| idb-keyval | zustand-indexeddb | Community package with less adoption; idb-keyval is the Zustand-recommended approach |
-| @serwist/build getManifest | Manual crypto.createHash in build script | getManifest handles globbing, hashing, size filtering, dedup automatically; manual approach is error-prone |
-| Background Sync API | Custom IndexedDB queue | Background Sync has no Safari/Firefox support; custom queue already exists in driver offline-store pattern; use custom queue |
+
+| Instead of                 | Could Use                                 | Tradeoff                                                                                                                     |
+| -------------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| idb-keyval                 | Raw IndexedDB (like driver offline-store) | idb-keyval is 600B, simpler API, Zustand docs recommend it; raw IDB adds boilerplate for simple key-value needs              |
+| idb-keyval                 | zustand-indexeddb                         | Community package with less adoption; idb-keyval is the Zustand-recommended approach                                         |
+| @serwist/build getManifest | Manual crypto.createHash in build script  | getManifest handles globbing, hashing, size filtering, dedup automatically; manual approach is error-prone                   |
+| Background Sync API        | Custom IndexedDB queue                    | Background Sync has no Safari/Firefox support; custom queue already exists in driver offline-store pattern; use custom queue |
 
 **Installation:**
+
 ```bash
 pnpm add idb-keyval
 ```
@@ -126,6 +138,7 @@ pnpm add idb-keyval
 ## Architecture Patterns
 
 ### Current Service Worker Architecture
+
 ```
 src/
 ├── app/
@@ -157,6 +170,7 @@ src/
 ```
 
 ### Target Architecture After Phase 64
+
 ```
 src/
 ├── app/
@@ -189,9 +203,11 @@ src/
 ```
 
 ### Pattern 1: Content-Hash Precache Manifest with @serwist/build
+
 **What:** Replace `Date.now()` revision with `getManifest()` content-hash generation
 **When to use:** Build time, in `build-sw.mjs`
 **Example:**
+
 ```typescript
 // Source: https://serwist.pages.dev/docs/build/inject-manifest
 // Source: https://serwist.pages.dev/docs/serwist/guide/precaching
@@ -219,9 +235,11 @@ const { manifestEntries, count, size } = await getManifest({
 ```
 
 ### Pattern 2: NavigationRoute with Denylist
+
 **What:** Handle navigation requests with fallback, excluding dangerous routes
 **When to use:** In `sw.ts`, after Serwist constructor
 **Example:**
+
 ```typescript
 // Source: https://serwist.pages.dev/docs/serwist/runtime-caching/routing/navigation-route
 import { NavigationRoute, NetworkFirst } from "serwist";
@@ -234,8 +252,8 @@ const navigationRoute = new NavigationRoute(
   {
     denylist: [
       /^\/auth\/callback/,
-      /^\/monitoring/,         // Sentry tunnel route
-      /^\/api\//,              // All API routes
+      /^\/monitoring/, // Sentry tunnel route
+      /^\/api\//, // All API routes
     ],
   }
 );
@@ -244,9 +262,11 @@ serwist.registerRoute(navigationRoute);
 ```
 
 ### Pattern 3: Offline Fallback with setCatchHandler
+
 **What:** Serve branded offline page when network AND cache both fail
 **When to use:** In `sw.ts`
 **Example:**
+
 ```typescript
 // Source: https://serwist.pages.dev/docs/serwist/runtime-caching/routing
 serwist.setCatchHandler(async ({ request }) => {
@@ -259,9 +279,11 @@ serwist.setCatchHandler(async ({ request }) => {
 ```
 
 ### Pattern 4: Zustand Persist with idb-keyval (IndexedDB)
+
 **What:** Replace localStorage with IndexedDB for cart persistence
 **When to use:** In cart-store.ts
 **Example:**
+
 ```typescript
 // Source: https://github.com/pmndrs/zustand/blob/v5.0.8/docs/integrations/persisting-store-data.md
 import { get, set, del } from "idb-keyval";
@@ -288,9 +310,11 @@ persist(storeFunction, {
 ```
 
 ### Pattern 5: Interaction-Aware Update Banner
+
 **What:** Pause countdown on user interaction, resume after idle
 **When to use:** In UpdatePrompt rewrite
 **Example:**
+
 ```typescript
 // Listen for user interaction to pause countdown
 useEffect(() => {
@@ -298,10 +322,10 @@ useEffect(() => {
 
   const pause = () => setIsPaused(true);
   const events = ["scroll", "keydown", "touchstart", "mousedown"];
-  events.forEach(e => window.addEventListener(e, pause, { passive: true }));
+  events.forEach((e) => window.addEventListener(e, pause, { passive: true }));
 
   return () => {
-    events.forEach(e => window.removeEventListener(e, pause));
+    events.forEach((e) => window.removeEventListener(e, pause));
   };
 }, [showPrompt, isPaused]);
 
@@ -314,6 +338,7 @@ useEffect(() => {
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Date.now() as revision:** Every deploy re-downloads ALL assets regardless of changes. Use content hashes.
 - **skipWaiting: true in constructor:** Causes mid-session code swaps. Use manual skip-waiting via message pattern (already correct in codebase).
 - **Caching document requests with CacheFirst:** Stale HTML breaks hydration. Use NetworkFirst or bypass.
@@ -322,49 +347,55 @@ useEffect(() => {
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Precache manifest generation | Manual file hashing in build script | `@serwist/build` `getManifest()` | Handles globbing, hashing (md5), size limits, dedup, URL normalization |
-| IndexedDB key-value storage | Raw IndexedDB open/transaction/objectStore | `idb-keyval` (~600B) | Promise-based API, handles upgrades, no store setup needed |
-| Navigation route matching | Custom `fetch` event handler with URL parsing | `NavigationRoute` from serwist | Handles mode=navigate detection, allowlist/denylist, falls through correctly |
-| Cache versioning | Manual cache name tracking + deletion | Serwist precache lifecycle | Automatic old cache cleanup on SW activation |
-| Offline detection | Custom navigator.onLine polling | Existing `useCustomerOfflineSync` + `OfflineIndicator` | Already built and tested in Phase 56 |
+| Problem                      | Don't Build                                   | Use Instead                                            | Why                                                                          |
+| ---------------------------- | --------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| Precache manifest generation | Manual file hashing in build script           | `@serwist/build` `getManifest()`                       | Handles globbing, hashing (md5), size limits, dedup, URL normalization       |
+| IndexedDB key-value storage  | Raw IndexedDB open/transaction/objectStore    | `idb-keyval` (~600B)                                   | Promise-based API, handles upgrades, no store setup needed                   |
+| Navigation route matching    | Custom `fetch` event handler with URL parsing | `NavigationRoute` from serwist                         | Handles mode=navigate detection, allowlist/denylist, falls through correctly |
+| Cache versioning             | Manual cache name tracking + deletion         | Serwist precache lifecycle                             | Automatic old cache cleanup on SW activation                                 |
+| Offline detection            | Custom navigator.onLine polling               | Existing `useCustomerOfflineSync` + `OfflineIndicator` | Already built and tested in Phase 56                                         |
 
 **Key insight:** The codebase already has most offline infrastructure from Phase 56 (driver app). Phase 64 extends it to all routes rather than rebuilding from scratch.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Dual Service Worker Registration Conflict
+
 **What goes wrong:** `ServiceWorkerRegistration.tsx` registers at `/` scope, `useServiceWorker.ts` registers at `/driver` scope. Two registrations for the same SW file creates confusion -- the `/` scope SW controls all routes including `/driver`, making the `/driver` scope registration redundant.
 **Why it happens:** Phase 56 added driver-specific registration before root-scope existed.
 **How to avoid:** Consolidate to single root-scope registration in `ServiceWorkerRegistration.tsx`. Remove the `/driver` scope registration from `useServiceWorker.ts` or refactor it to only listen for messages/updates without re-registering.
 **Warning signs:** `navigator.serviceWorker.getRegistrations()` returns 2+ registrations.
 
 ### Pitfall 2: IndexedDB Async Hydration Flash
+
 **What goes wrong:** After migrating cart from localStorage (sync) to IndexedDB (async), the cart appears empty on first render until hydration completes.
 **Why it happens:** Zustand's `createJSONStorage` with async storage hydrates in a microtask, not synchronously.
 **How to avoid:** Use Zustand's `onRehydrateStorage` callback to track hydration state. Show skeleton/loading state during hydration. Consider migrating existing localStorage data to IndexedDB on first load.
 **Warning signs:** Cart count shows 0 momentarily, then jumps to correct count.
 
 ### Pitfall 3: Offline Page Not Available (Not Precached)
+
 **What goes wrong:** The offline fallback page returns a generic browser error because it wasn't in the precache manifest.
 **Why it happens:** Next.js App Router pages are dynamically rendered; they're not static files in `public/`. The offline page URL must be explicitly added to `additionalPrecacheEntries`.
 **How to avoid:** Create offline page as a static route. Add it to `additionalPrecacheEntries` in build script. Verify with Lighthouse or DevTools > Application > Cache Storage.
 **Warning signs:** `serwist.matchPrecache("/offline")` returns undefined in setCatchHandler.
 
 ### Pitfall 4: Sentry Tunnel Route Caching
+
 **What goes wrong:** SW intercepts `/monitoring` requests (Sentry tunnel), caches or modifies them, breaking Sentry error reporting.
 **Why it happens:** The Sentry tunnel is configured as `tunnelRoute: "/monitoring"` in `next.config.ts`. Without explicit exclusion, the SW may try to cache these POST requests.
 **How to avoid:** Add `/^\/monitoring/` to the NavigationRoute denylist AND ensure no runtime caching matcher captures `/monitoring`. API routes (POST) won't match `NavigationRoute` (GET navigate mode only), but a broad `fetch` handler could.
 **Warning signs:** Sentry events stop appearing in dashboard after SW hardening deploy.
 
 ### Pitfall 5: Update Banner During Checkout
+
 **What goes wrong:** Auto-reload during payment flow causes failed Stripe session, lost cart state.
 **Why it happens:** Countdown-based auto-reload doesn't check which page the user is on.
 **How to avoid:** Check `window.location.pathname` against deferral list (`/cart`, `/checkout`). Suppress banner entirely on these routes. Show it on next navigation to a non-sensitive page.
 **Warning signs:** Customer reports payment failure after seeing update banner.
 
 ### Pitfall 6: Content-Hash Scope Mismatch
+
 **What goes wrong:** Next.js `_next/static/` chunks already have content hashes in filenames, but the build script generates redundant revision hashes for them, bloating the manifest.
 **Why it happens:** `getManifest()` runs against `public/` dir which doesn't contain Next.js build output. Next.js chunks are served from `.next/static/` which maps to `/_next/static/` at runtime.
 **How to avoid:** Only use `getManifest()` for `public/` assets. Next.js build output is handled by `defaultCache` runtime caching (StaleWhileRevalidate for scripts/styles). The `dontCacheBustURLsMatching` regex handles hash-named files.
@@ -373,6 +404,7 @@ useEffect(() => {
 ## Code Examples
 
 ### Example 1: Revised build-sw.mjs with Content Hashing
+
 ```javascript
 // scripts/build-sw.mjs
 import { getManifest } from "@serwist/build";
@@ -380,9 +412,10 @@ import { build } from "esbuild";
 import { spawnSync } from "node:child_process";
 
 const projectRoot = resolve(__dirname, "..");
-const gitRevision = spawnSync("git", ["rev-parse", "HEAD"], {
-  encoding: "utf-8",
-}).stdout.trim() || crypto.randomUUID();
+const gitRevision =
+  spawnSync("git", ["rev-parse", "HEAD"], {
+    encoding: "utf-8",
+  }).stdout.trim() || crypto.randomUUID();
 
 // Generate content-hashed manifest from public/
 const { manifestEntries, count, size } = await getManifest({
@@ -417,6 +450,7 @@ await build({
 ```
 
 ### Example 2: Enhanced sw.ts with NavigationRoute and Fallbacks
+
 ```typescript
 // src/app/sw.ts
 import { defaultCache } from "@serwist/next/worker";
@@ -452,9 +486,9 @@ serwist.registerRoute(
     }),
     {
       denylist: [
-        /^\/auth\//,            // Auth callback + expired
-        /^\/monitoring/,        // Sentry tunnel
-        /^\/api\//,             // All API routes (handled separately)
+        /^\/auth\//, // Auth callback + expired
+        /^\/monitoring/, // Sentry tunnel
+        /^\/api\//, // All API routes (handled separately)
       ],
     }
   )
@@ -464,6 +498,7 @@ serwist.addEventListeners();
 ```
 
 ### Example 3: Cart IDB Storage with Migration
+
 ```typescript
 // src/lib/services/cart-idb-storage.ts
 import { get, set, del } from "idb-keyval";
@@ -496,6 +531,7 @@ export const cartIDBStorage: StateStorage = {
 ```
 
 ### Example 4: Version Number from package.json at Build Time
+
 ```javascript
 // In build-sw.mjs or next.config.ts
 import { readFileSync } from "fs";
@@ -511,47 +547,52 @@ const APP_VERSION = pkg.version; // "0.1.0"
 ## Codebase-Specific Findings
 
 ### Current State (What Exists)
-| Component | File | Status | Issue |
-|-----------|------|--------|-------|
-| SW source | `src/app/sw.ts` | Working | No NavigationRoute, no denylist, no fallback |
-| Build script | `scripts/build-sw.mjs` | Working | Uses `Date.now()` for ALL revisions |
-| Root registration | `ServiceWorkerRegistration.tsx` | Working | No version tracking |
-| Driver registration | `useServiceWorker.ts` | Working | Redundant `/driver` scope |
-| Update banner | `UpdatePrompt.tsx` | Working | 5s countdown, no pause, no version, no page deferral |
-| Offline indicator | `OfflineIndicator.tsx` | Working | Basic online/offline, no "cached content" messaging |
-| Driver offline store | `lib/services/offline-store/` | Complete | IndexedDB + retry + sync (Phase 56) |
-| Customer offline store | `lib/services/customer-offline-store.ts` | Working | Menu cache only |
-| Cart store | `lib/stores/cart-store.ts` | Working | localStorage via Zustand persist |
-| Toast system | `lib/hooks/useToastV8.ts` + `Toast.tsx` | Working | Imperative API: `toast({ message, type })` |
+
+| Component              | File                                     | Status   | Issue                                                |
+| ---------------------- | ---------------------------------------- | -------- | ---------------------------------------------------- |
+| SW source              | `src/app/sw.ts`                          | Working  | No NavigationRoute, no denylist, no fallback         |
+| Build script           | `scripts/build-sw.mjs`                   | Working  | Uses `Date.now()` for ALL revisions                  |
+| Root registration      | `ServiceWorkerRegistration.tsx`          | Working  | No version tracking                                  |
+| Driver registration    | `useServiceWorker.ts`                    | Working  | Redundant `/driver` scope                            |
+| Update banner          | `UpdatePrompt.tsx`                       | Working  | 5s countdown, no pause, no version, no page deferral |
+| Offline indicator      | `OfflineIndicator.tsx`                   | Working  | Basic online/offline, no "cached content" messaging  |
+| Driver offline store   | `lib/services/offline-store/`            | Complete | IndexedDB + retry + sync (Phase 56)                  |
+| Customer offline store | `lib/services/customer-offline-store.ts` | Working  | Menu cache only                                      |
+| Cart store             | `lib/stores/cart-store.ts`               | Working  | localStorage via Zustand persist                     |
+| Toast system           | `lib/hooks/useToastV8.ts` + `Toast.tsx`  | Working  | Imperative API: `toast({ message, type })`           |
 
 ### Routes to Exclude from SW Interception
-| Route | Reason | Type |
-|-------|--------|------|
-| `/auth/callback` | OAuth code exchange, must hit server fresh | Server redirect |
-| `/auth/*` | All auth routes should bypass SW | Auth flow |
-| `/monitoring` | Sentry tunnel (configured in `next.config.ts` line 175) | POST to Sentry |
-| `/api/webhooks/stripe` | Stripe signature verification requires raw body | Webhook POST |
-| `/api/webhooks/resend` | Resend webhook delivery | Webhook POST |
-| `/api/health` | Health check must always be live | GET |
-| `/api/checkout/session` | Stripe session creation | POST |
-| `/api/cron/*` | Cron job endpoints | Server-side |
+
+| Route                   | Reason                                                  | Type            |
+| ----------------------- | ------------------------------------------------------- | --------------- |
+| `/auth/callback`        | OAuth code exchange, must hit server fresh              | Server redirect |
+| `/auth/*`               | All auth routes should bypass SW                        | Auth flow       |
+| `/monitoring`           | Sentry tunnel (configured in `next.config.ts` line 175) | POST to Sentry  |
+| `/api/webhooks/stripe`  | Stripe signature verification requires raw body         | Webhook POST    |
+| `/api/webhooks/resend`  | Resend webhook delivery                                 | Webhook POST    |
+| `/api/health`           | Health check must always be live                        | GET             |
+| `/api/checkout/session` | Stripe session creation                                 | POST            |
+| `/api/cron/*`           | Cron job endpoints                                      | Server-side     |
 
 **Note:** API routes (`/api/*`) are POST/PATCH/DELETE which won't match `NavigationRoute` (mode=navigate only). The denylist in NavigationRoute only matters for GET document requests. Runtime caching matchers that use `request.destination` or URL matching handle API exclusions. Current SW only has specific matchers (images, menu API, static assets), so unmatched API routes already fall through to network.
 
 ### Precache Scope Recommendation
-| Asset | Strategy | Rationale |
-|-------|----------|-----------|
-| `/icons/icon-192.png` | Precache (content-hash) | App icon, small, critical |
-| `/icons/icon-512.png` | Precache (content-hash) | App icon, used for install |
-| `/logo.png` | Precache (content-hash) | Brand logo, critical |
-| `/manifest.json` | Precache (git revision) | PWA manifest |
-| `/`, `/menu`, `/cart` | Precache (git revision) | Core customer pages |
-| `/offline` | Precache (git revision) | Offline fallback (mandatory) |
-| `/images/sunset_ubein.png` | Runtime cache (CacheFirst) | 2MB, too large to precache |
-| `/_next/static/**` | Runtime cache (StaleWhileRevalidate via defaultCache) | Next.js build output, already hashed |
+
+| Asset                      | Strategy                                              | Rationale                            |
+| -------------------------- | ----------------------------------------------------- | ------------------------------------ |
+| `/icons/icon-192.png`      | Precache (content-hash)                               | App icon, small, critical            |
+| `/icons/icon-512.png`      | Precache (content-hash)                               | App icon, used for install           |
+| `/logo.png`                | Precache (content-hash)                               | Brand logo, critical                 |
+| `/manifest.json`           | Precache (git revision)                               | PWA manifest                         |
+| `/`, `/menu`, `/cart`      | Precache (git revision)                               | Core customer pages                  |
+| `/offline`                 | Precache (git revision)                               | Offline fallback (mandatory)         |
+| `/images/sunset_ubein.png` | Runtime cache (CacheFirst)                            | 2MB, too large to precache           |
+| `/_next/static/**`         | Runtime cache (StaleWhileRevalidate via defaultCache) | Next.js build output, already hashed |
 
 ### Version Number Recommendation
+
 **Use `package.json` version** (currently `"0.1.0"`).
+
 - Stable, human-readable, meaningful to users
 - Already in `package.json`, no extra tooling needed
 - Expose as `NEXT_PUBLIC_APP_VERSION` environment variable in `next.config.ts`
@@ -559,7 +600,9 @@ const APP_VERSION = pkg.version; // "0.1.0"
 - Timestamp conveys no meaning ("v1706803200"?)
 
 ### Cart Migration Strategy
+
 **One-time transparent migration with fallback:**
+
 1. Custom `StateStorage` wrapper checks IndexedDB first via `idb-keyval`
 2. If empty, checks localStorage for existing `"mms-cart"` key
 3. If found in localStorage, writes to IndexedDB, deletes from localStorage
@@ -568,7 +611,9 @@ const APP_VERSION = pkg.version; // "0.1.0"
 6. Cart UI shows skeleton during async hydration (sub-100ms in practice)
 
 ### Offline Queue for Cart
+
 **Use custom IndexedDB queue (not Background Sync API):**
+
 - Background Sync has no Safari or Firefox support (Chromium-only)
 - Project already has an IndexedDB queue pattern in `offline-store/` (driver app)
 - Cart actions are local-first (Zustand state) -- they don't need server sync
@@ -577,6 +622,7 @@ const APP_VERSION = pkg.version; // "0.1.0"
 - No actual queue needed for add/remove/modify since cart is client-side state
 
 **Clarification:** The "cart offline queue" requirement translates to:
+
 1. Cart persists in IndexedDB (survives SW cache clear, app close)
 2. Cart actions work offline (they already do -- it's client-side state)
 3. Visual indicator ("pending sync" badge) shows items added while offline
@@ -584,21 +630,27 @@ const APP_VERSION = pkg.version; // "0.1.0"
 5. The "sync" concept only applies if menu prices changed while offline -- validate on reconnect
 
 ### Admin Menu Cache-Bust Mechanism
+
 **Server header approach (recommended over query param):**
+
 - Admin menu save API (`/api/admin/menu`) returns `X-Menu-Cache-Version` header
 - Client-side: after menu update, call `caches.open("menu-api-cache-v1")` and delete matching entries
 - Or: bump a version key in Supabase that the menu API checks, returning `Cache-Control: no-cache` when version changes
 - Simpler: menu API already uses `NetworkFirst` -- cache is just a 15min fallback, not the primary source
 
 ### Cache Metrics Implementation
+
 **Lightweight approach using existing analytics:**
+
 - Add `performance.mark()` / `performance.measure()` in SW fetch handler
 - Report via existing `/api/analytics/vitals` endpoint
 - Track: cache hit rate per cache name, average response time, precache success rate
 - Use Sentry breadcrumbs for individual cache events (LOW granularity recommended to avoid noise)
 
 ### Banner Priority (Offline vs Update)
+
 **Offline banner wins, update banner deferred:**
+
 - If offline: show offline banner (top, warning style)
 - If update available while offline: suppress update banner (can't reload without network)
 - If online + update available: show update banner (bottom toast position)
@@ -606,15 +658,16 @@ const APP_VERSION = pkg.version; // "0.1.0"
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| `Date.now()` revision for all | Content-hash per file | Phase 64 | Only changed files re-downloaded |
-| 5s auto-reload countdown | 10s with interaction pause | Phase 64 | Better UX, no mid-action reloads |
-| No offline fallback | Branded offline page + NavigationRoute | Phase 64 | Graceful offline degradation |
-| localStorage cart | IndexedDB cart via idb-keyval | Phase 64 | Survives cache clear, better SW integration |
-| Separate /driver and / SW registrations | Single / registration | Phase 64 | No duplicate registration conflict |
+| Old Approach                            | Current Approach                       | When Changed | Impact                                      |
+| --------------------------------------- | -------------------------------------- | ------------ | ------------------------------------------- |
+| `Date.now()` revision for all           | Content-hash per file                  | Phase 64     | Only changed files re-downloaded            |
+| 5s auto-reload countdown                | 10s with interaction pause             | Phase 64     | Better UX, no mid-action reloads            |
+| No offline fallback                     | Branded offline page + NavigationRoute | Phase 64     | Graceful offline degradation                |
+| localStorage cart                       | IndexedDB cart via idb-keyval          | Phase 64     | Survives cache clear, better SW integration |
+| Separate /driver and / SW registrations | Single / registration                  | Phase 64     | No duplicate registration conflict          |
 
 **Deprecated/outdated:**
+
 - `@serwist/next` Webpack plugin approach: Not compatible with Turbopack. Custom esbuild build already in use.
 - Workbox (pre-Serwist): Serwist is the maintained fork, already in use.
 
@@ -638,11 +691,13 @@ const APP_VERSION = pkg.version; // "0.1.0"
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Serwist official docs (`/websites/serwist_pages_dev`) - precaching, NavigationRoute, fallbacks, caching strategies
 - Zustand official docs (`/pmndrs/zustand/v5.0.8`) - persist middleware, custom IndexedDB storage with idb-keyval
 - Codebase inspection - `sw.ts`, `build-sw.mjs`, `UpdatePrompt.tsx`, `cart-store.ts`, `offline-store/`, `next.config.ts`
 
 ### Secondary (MEDIUM confidence)
+
 - [Serwist precaching guide](https://serwist.pages.dev/docs/serwist/guide/precaching) - manifest format, revision strategies
 - [Serwist NavigationRoute docs](https://serwist.pages.dev/docs/serwist/runtime-caching/routing/navigation-route) - allowlist/denylist
 - [Serwist @serwist/build docs](https://serwist.pages.dev/docs/build/inject-manifest) - injectManifest/getManifest
@@ -650,12 +705,14 @@ const APP_VERSION = pkg.version; // "0.1.0"
 - [Zustand IndexedDB discussion](https://github.com/pmndrs/zustand/discussions/1721) - async hydration considerations
 
 ### Tertiary (LOW confidence)
+
 - Background Sync API browser support claims (based on web search, not verified against caniuse data directly)
 - idb-keyval bundle size claim (~600B) -- from npm listing, not independently verified
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - all libraries already in use or have official Zustand/Serwist documentation
 - Architecture: HIGH - patterns verified from Serwist docs + existing codebase patterns
 - Pitfalls: HIGH - identified from codebase inspection (dual registration, Date.now() revision, checkout flow)

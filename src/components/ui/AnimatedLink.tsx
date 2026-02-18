@@ -87,9 +87,11 @@ export const AnimatedLink = forwardRef<HTMLAnchorElement, AnimatedLinkProps>(
     const { shouldAnimate, getSpring } = useAnimationPreference();
 
     const springConfig = getSpring(spring.snappy);
-    const variant = underlineStyle !== "none"
-      ? underlineVariants[underlineStyle as keyof typeof underlineVariants] || underlineVariants.slide
-      : null;
+    const variant =
+      underlineStyle !== "none"
+        ? underlineVariants[underlineStyle as keyof typeof underlineVariants] ||
+          underlineVariants.slide
+        : null;
 
     const linkContent = (
       <m.span
@@ -239,17 +241,7 @@ export interface NavLinkProps extends Omit<AnimatedLinkProps, "underlineStyle"> 
 }
 
 export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
-  (
-    {
-      showDot = true,
-      size = "md",
-      isActive,
-      className,
-      children,
-      ...props
-    },
-    ref
-  ) => {
+  ({ showDot = true, size = "md", isActive, className, children, ...props }, ref) => {
     const { shouldAnimate, getSpring } = useAnimationPreference();
 
     const sizeClasses = {
@@ -335,9 +327,7 @@ export const BreadcrumbLink = forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>
   ({ isCurrent, className, children, ...props }, ref) => {
     if (isCurrent) {
       return (
-        <span className={cn("text-sm text-text-primary font-medium", className)}>
-          {children}
-        </span>
+        <span className={cn("text-sm text-text-primary font-medium", className)}>{children}</span>
       );
     }
 
@@ -345,10 +335,7 @@ export const BreadcrumbLink = forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>
       <AnimatedLink
         ref={ref}
         underlineStyle="none"
-        className={cn(
-          "text-sm text-text-muted hover:text-primary",
-          className
-        )}
+        className={cn("text-sm text-text-muted hover:text-primary", className)}
         {...props}
       >
         {children}

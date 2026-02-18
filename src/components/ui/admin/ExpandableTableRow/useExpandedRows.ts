@@ -25,10 +25,7 @@ export function useExpandedRows() {
     });
   }, []);
 
-  const isExpanded = useCallback(
-    (id: string) => expandedIds.has(id),
-    [expandedIds]
-  );
+  const isExpanded = useCallback((id: string) => expandedIds.has(id), [expandedIds]);
 
   const collapseAll = useCallback(() => {
     setExpandedIds(new Set());

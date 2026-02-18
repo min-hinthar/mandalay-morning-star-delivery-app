@@ -12,13 +12,17 @@ Systematically analyze PRD documentation to identify ambiguities, gaps, and area
 Complete these steps in order:
 
 ### Step 1: Locate PRD
+
 Identify the directory containing the PRD file.
 
 ### Step 2: Create Tracking Document
+
 Create a tracking file in the same directory as the PRD:
+
 - PRD `feature-auth.md` → create `feature-auth-clarification-session.md`
 
 Initialize with:
+
 ```markdown
 # PRD Clarification Session
 
@@ -33,21 +37,24 @@ Initialize with:
 ```
 
 ### Step 3: Select Depth
+
 Use AskUserQuestion to determine scope:
 
-| Depth | Questions | Best For |
-|-------|-----------|----------|
-| Quick | 5 | Bug fixes, small features |
-| Medium | 10 | Single-screen features |
-| Long | 20 | Multi-screen flows |
-| Ultralong | 35 | Full apps, complex logic |
+| Depth     | Questions | Best For                  |
+| --------- | --------- | ------------------------- |
+| Quick     | 5         | Bug fixes, small features |
+| Medium    | 10        | Single-screen features    |
+| Long      | 20        | Multi-screen flows        |
+| Ultralong | 35        | Full apps, complex logic  |
 
 ### Step 4: Update Tracking
+
 Record selected depth and begin questioning.
 
 ## Questioning Strategy
 
 ### Prioritization Framework
+
 1. **Critical Path** - Requirements blocking other features
 2. **High Ambiguity** - Vague language, missing criteria
 3. **Integration Points** - External systems, APIs
@@ -56,14 +63,18 @@ Record selected depth and begin questioning.
 6. **User Journey Gaps** - Missing steps, undefined states
 
 ### Adaptive Questioning
+
 After each answer:
+
 - New ambiguity revealed? Prioritize it
 - Related area clarified? Skip redundant questions
 - Contradiction found? Address immediately
 - New scope introduced? Flag for review
 
 ### Question Quality Standards
+
 Each question must be:
+
 - **Specific** - Reference exact PRD sections
 - **Actionable** - Answer informs requirement update
 - **Non-leading** - Avoid suggesting the answer
@@ -73,6 +84,7 @@ Each question must be:
 ## Category Coverage
 
 Distribute questions across:
+
 1. User/Stakeholder clarity
 2. Functional requirements
 3. Non-functional requirements
@@ -96,6 +108,7 @@ Distribute questions across:
 ## Session Completion
 
 After all questions:
+
 1. Summarize key clarifications
 2. List remaining ambiguities
 3. Suggest priority for unresolved items
@@ -104,8 +117,10 @@ After all questions:
 ## Tracking Format
 
 Append after each question:
+
 ```markdown
 ## Question [N]
+
 **Category**: [e.g., UX States, Error Handling]
 **Ambiguity**: [What gap was identified]
 **Question**: [What was asked]
@@ -120,6 +135,7 @@ Append after each question:
 ### Reference Files
 
 For detailed question patterns and strategies:
+
 - **`references/question-bank.md`** — 100+ categorized clarification questions
 - **`references/sequencing-strategy.md`** — Phase-based questioning, adaptive flow
 - **`references/scope-expansion.md`** — Handling discovered requirements
@@ -127,6 +143,7 @@ For detailed question patterns and strategies:
 ### Example Files
 
 Working examples in `examples/`:
+
 - **`clarification-session.md`** — Complete 10-question session example
 
 ---
@@ -135,37 +152,39 @@ Working examples in `examples/`:
 
 ### Depth Selection
 
-| Depth | Questions | Time Estimate |
-|-------|-----------|---------------|
-| Quick | 5 | 10-15 min |
-| Medium | 10 | 20-30 min |
-| Long | 20 | 45-60 min |
-| Ultralong | 35 | 90-120 min |
+| Depth     | Questions | Time Estimate |
+| --------- | --------- | ------------- |
+| Quick     | 5         | 10-15 min     |
+| Medium    | 10        | 20-30 min     |
+| Long      | 20        | 45-60 min     |
+| Ultralong | 35        | 90-120 min    |
 
 ### Scope Expansion Protocol
 
-| Expansion Size | Action |
-|----------------|--------|
-| Minor (1-2 items) | Absorb into current scope |
-| Medium (3-5 items) | Add to final sprint |
-| Major (6+ items) | Recommend new sprint |
+| Expansion Size     | Action                    |
+| ------------------ | ------------------------- |
+| Minor (1-2 items)  | Absorb into current scope |
+| Medium (3-5 items) | Add to final sprint       |
+| Major (6+ items)   | Recommend new sprint      |
 
 ### Decision Tracking Table
 
 Maintain throughout session:
+
 ```markdown
 ## Decisions
-| Question | Decision | Impact |
-|----------|----------|--------|
+
+| Question    | Decision      | Impact |
+| ----------- | ------------- | ------ |
 | Auth scope? | OAuth + email | +1 day |
-| i18n? | Deferred | None |
+| i18n?       | Deferred      | None   |
 ```
 
 ### Effective Question Examples
 
-| Category | Example | Why It Matters |
-|----------|---------|----------------|
-| Animation | "Success state before closing?" | Prevents dead interactions |
-| Performance | "Target LCP under 2.5s?" | Sets optimization boundaries |
-| Edge cases | "Item sold out mid-cart?" | Defines error recovery |
-| Accessibility | "Keyboard-only navigation?" | Clarifies a11y scope |
+| Category      | Example                         | Why It Matters               |
+| ------------- | ------------------------------- | ---------------------------- |
+| Animation     | "Success state before closing?" | Prevents dead interactions   |
+| Performance   | "Target LCP under 2.5s?"        | Sets optimization boundaries |
+| Edge cases    | "Item sold out mid-cart?"       | Defines error recovery       |
+| Accessibility | "Keyboard-only navigation?"     | Clarifies a11y scope         |

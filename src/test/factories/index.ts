@@ -2,19 +2,12 @@
  * Test data factories for creating mock objects
  */
 
-import type {
-  MenuItemsRow,
-  ModifierOptionsRow,
-  AddressesRow,
-  OrdersRow,
-} from "@/types/database";
+import type { MenuItemsRow, ModifierOptionsRow, AddressesRow, OrdersRow } from "@/types/database";
 
 /**
  * Create a mock menu item
  */
-export function createMockMenuItem(
-  overrides?: Partial<MenuItemsRow>
-): MenuItemsRow {
+export function createMockMenuItem(overrides?: Partial<MenuItemsRow>): MenuItemsRow {
   return {
     id: "menu-item-uuid",
     category_id: "category-uuid",
@@ -56,9 +49,7 @@ export function createMockModifierOption(
 /**
  * Create a mock address
  */
-export function createMockAddress(
-  overrides?: Partial<AddressesRow>
-): AddressesRow {
+export function createMockAddress(overrides?: Partial<AddressesRow>): AddressesRow {
   return {
     id: "address-uuid",
     user_id: "user-uuid",
@@ -116,9 +107,7 @@ export function createValidatedCartItem(
   quantity = 1
 ) {
   const item = createMockMenuItem(menuItem);
-  const mods = modifiers.map((m, i) =>
-    createMockModifierOption({ id: `mod-${i}`, ...m })
-  );
+  const mods = modifiers.map((m, i) => createMockModifierOption({ id: `mod-${i}`, ...m }));
 
   const modifierTotal = mods.reduce((sum, m) => sum + m.price_delta_cents, 0);
   const lineTotalCents = (item.base_price_cents + modifierTotal) * quantity;

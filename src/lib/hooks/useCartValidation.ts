@@ -4,11 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { useMenu } from "@/lib/hooks/useMenu";
 import type { MenuItem, MenuCategory } from "@/types/menu";
-import type {
-  CartItem,
-  CartItemValidation,
-  CartValidationResult,
-} from "@/types/cart";
+import type { CartItem, CartItemValidation, CartValidationResult } from "@/types/cart";
 
 // ============================================
 // useCartHydrated
@@ -19,9 +15,7 @@ import type {
  * Gates validation to prevent comparing against empty cart state.
  */
 export function useCartHydrated(): boolean {
-  const [hydrated, setHydrated] = useState(
-    useCartStore.persist.hasHydrated()
-  );
+  const [hydrated, setHydrated] = useState(useCartStore.persist.hasHydrated());
 
   useEffect(() => {
     if (hydrated) return;
@@ -50,9 +44,7 @@ interface MenuItemLookup {
   categoryId: string;
 }
 
-function buildMenuLookup(
-  categories: MenuCategory[]
-): Map<string, MenuItemLookup> {
+function buildMenuLookup(categories: MenuCategory[]): Map<string, MenuItemLookup> {
   const lookup = new Map<string, MenuItemLookup>();
   for (const category of categories) {
     for (const item of category.items) {
@@ -102,8 +94,7 @@ function validateCartItem(
       cartItemId: cartItem.cartItemId,
       status: "price-changed",
       newPriceCents: found.item.basePriceCents,
-      priceDirection:
-        found.item.basePriceCents > cartItem.basePriceCents ? "up" : "down",
+      priceDirection: found.item.basePriceCents > cartItem.basePriceCents ? "up" : "down",
     };
   }
 
@@ -205,18 +196,9 @@ export function useCartValidation(): CartValidationResult {
       }
 
       // Compute suggestions for sold-out and unavailable items
-      if (
-        validation.status === "sold-out" ||
-        validation.status === "unavailable"
-      ) {
-        const categoryId =
-          cartItem.categoryId ??
-          menuLookup.get(cartItem.menuItemId)?.categoryId;
-        const itemSuggestions = getSuggestions(
-          categoryId,
-          cartItem.menuItemId,
-          categories
-        );
+      if (validation.status === "sold-out" || validation.status === "unavailable") {
+        const categoryId = cartItem.categoryId ?? menuLookup.get(cartItem.menuItemId)?.categoryId;
+        const itemSuggestions = getSuggestions(categoryId, cartItem.menuItemId, categories);
         if (itemSuggestions.length > 0) {
           suggestions.set(cartItem.cartItemId, itemSuggestions);
         }

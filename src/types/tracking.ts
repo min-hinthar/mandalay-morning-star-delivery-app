@@ -287,11 +287,4 @@ export interface TrackingApiError {
 }
 
 // Re-export types from driver.ts for convenience
-export type {
-  EtaInfo,
-  StopInfo,
-  TrackingDriverInfo,
-  DriverLocation,
-  RouteStopStatus,
-  VehicleType,
-};
+export type { EtaInfo, StopInfo, TrackingDriverInfo, DriverLocation, RouteStopStatus, VehicleType };

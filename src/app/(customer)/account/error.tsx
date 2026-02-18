@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import { RouteError } from '@/components/ui/RouteError'
+import { RouteError } from "@/components/ui/RouteError";
 
 export default function AccountError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
-  return <RouteError error={error} reset={reset} context="account" />
+  return <RouteError error={error} reset={reset} context="account" />;
 }

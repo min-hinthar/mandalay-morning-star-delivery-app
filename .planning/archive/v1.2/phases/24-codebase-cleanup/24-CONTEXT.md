@@ -14,6 +14,7 @@ Remove 3D hero code and legacy implementations, consolidate to latest patterns o
 ## Implementation Decisions
 
 ### 3D Removal Scope
+
 - Remove ALL 3D code: R3F components, drei, GLB assets, 3D hooks, Scene wrapper
 - Uninstall npm packages: @react-three/fiber, @react-three/drei, three
 - Remove all GLB model files and 3D-specific images from public/
@@ -24,6 +25,7 @@ Remove 3D hero code and legacy implementations, consolidate to latest patterns o
 - Keep STATE.md 3D documentation for historical record
 
 ### Legacy Detection
+
 - Full audit: remove anything not actively imported/used
 - Aggressive detection: orphaned files + commented-out code + dead branches + single-use components flagged for inlining
 - Delete old header component (pre-Phase 23) completely — no backup
@@ -32,6 +34,7 @@ Remove 3D hero code and legacy implementations, consolidate to latest patterns o
 - Delete orphan test files for removed components
 
 ### Consolidation Criteria
+
 - Single source of truth: each component exported from ONE place only, fix all imports
 - Keep most recent version of duplicate utilities
 - Standardize all import paths to @/ format
@@ -40,6 +43,7 @@ Remove 3D hero code and legacy implementations, consolidate to latest patterns o
 - Create components/index.ts with clean public API exports
 
 ### Claude's Discretion
+
 - TODO/FIXME comment cleanup: remove obviously stale, keep valid
 - Hook file organization: group where sensible, keep separate otherwise
 - zClass token enforcement: fix obvious violations found during cleanup
@@ -76,5 +80,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 24-codebase-cleanup*
-*Context gathered: 2026-01-27*
+_Phase: 24-codebase-cleanup_
+_Context gathered: 2026-01-27_

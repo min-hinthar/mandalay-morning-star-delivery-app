@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { updateSettingsSchema, type SettingRow, type SettingsResponse } from "@/lib/validations/settings";
+import {
+  updateSettingsSchema,
+  type SettingRow,
+  type SettingsResponse,
+} from "@/lib/validations/settings";
 import { logger } from "@/lib/utils/logger";
 import type { ProfileRole } from "@/types/database";
 
@@ -17,7 +21,10 @@ export async function GET() {
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -43,10 +50,7 @@ export async function GET() {
 
     if (settingsError) {
       logger.exception(settingsError, { api: "admin/settings", flowId: "get-settings" });
-      return NextResponse.json(
-        { error: "Failed to fetch settings" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
     }
 
     // Group settings by category
@@ -60,7 +64,9 @@ export async function GET() {
       const category = setting.category as keyof SettingsResponse;
       if (category in response) {
         // Convert snake_case key to camelCase for API response
-        const camelKey = setting.key.replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
+        const camelKey = setting.key.replace(/_([a-z])/g, (_, letter: string) =>
+          letter.toUpperCase()
+        );
         // Type assertion needed: setting.value is unknown from JSONB, but matches category schemas
         const categorySettings = response[category];
         categorySettings[camelKey] = setting.value;
@@ -70,10 +76,7 @@ export async function GET() {
     return NextResponse.json(response);
   } catch (error) {
     logger.exception(error, { api: "admin/settings" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -86,7 +89,10 @@ export async function PATCH(request: NextRequest) {
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -133,20 +139,22 @@ export async function PATCH(request: NextRequest) {
 
     // Perform upserts
     for (const update of updates) {
-      const { error: updateError } = await supabase
-        .from("app_settings")
-        .upsert(
-          {
-            key: update.key,
-            value: update.value,
-            category: update.category,
-            updated_by: update.updated_by,
-          },
-          { onConflict: "key" }
-        );
+      const { error: updateError } = await supabase.from("app_settings").upsert(
+        {
+          key: update.key,
+          value: update.value,
+          category: update.category,
+          updated_by: update.updated_by,
+        },
+        { onConflict: "key" }
+      );
 
       if (updateError) {
-        logger.exception(updateError, { api: "admin/settings", flowId: "update-setting", key: update.key });
+        logger.exception(updateError, {
+          api: "admin/settings",
+          flowId: "update-setting",
+          key: update.key,
+        });
         return NextResponse.json(
           { error: `Failed to update setting: ${update.key}` },
           { status: 500 }
@@ -161,9 +169,6 @@ export async function PATCH(request: NextRequest) {
     });
   } catch (error) {
     logger.exception(error, { api: "admin/settings" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -69,12 +69,7 @@ export function TooltipProvider({ children }: TooltipProviderProps) {
   return <>{children}</>;
 }
 
-export function Tooltip({
-  children,
-  delayDuration = 200,
-  open,
-  onOpenChange,
-}: TooltipProps) {
+export function Tooltip({ children, delayDuration = 200, open, onOpenChange }: TooltipProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const triggerRef = useRef<HTMLSpanElement>(null);
 
@@ -89,12 +84,15 @@ export function Tooltip({
     [open, onOpenChange]
   );
 
-  const contextValue = useMemo<TooltipContextValue>(() => ({
-    isOpen,
-    setIsOpen,
-    triggerRef,
-    delayDuration,
-  }), [isOpen, setIsOpen, delayDuration]);
+  const contextValue = useMemo<TooltipContextValue>(
+    () => ({
+      isOpen,
+      setIsOpen,
+      triggerRef,
+      delayDuration,
+    }),
+    [isOpen, setIsOpen, delayDuration]
+  );
 
   return (
     <TooltipContext.Provider value={contextValue}>

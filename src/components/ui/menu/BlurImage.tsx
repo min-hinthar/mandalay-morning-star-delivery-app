@@ -108,10 +108,7 @@ export function BlurImage({
 
       {/* Static placeholder for non-shimmer */}
       {!showShimmer && !isLoaded && (
-        <div
-          className="absolute inset-0 z-10"
-          style={{ backgroundColor: placeholderColor }}
-        />
+        <div className="absolute inset-0 z-10" style={{ backgroundColor: placeholderColor }} />
       )}
 
       {/* Actual image */}
@@ -149,35 +146,19 @@ export function BlurImage({
 /**
  * BlurImage preset for menu cards (16:9)
  */
-export function BlurImageMenuCard(
-  props: Omit<BlurImageProps, "width" | "height" | "sizes">
-) {
+export function BlurImageMenuCard(props: Omit<BlurImageProps, "width" | "height" | "sizes">) {
   const imageProps = getImageProps("menuCard");
 
-  return (
-    <BlurImage
-      {...imageProps}
-      aspectRatio="16/9"
-      {...props}
-    />
-  );
+  return <BlurImage {...imageProps} aspectRatio="16/9" {...props} />;
 }
 
 /**
  * BlurImage preset for cart items (1:1)
  */
-export function BlurImageCartItem(
-  props: Omit<BlurImageProps, "width" | "height" | "sizes">
-) {
+export function BlurImageCartItem(props: Omit<BlurImageProps, "width" | "height" | "sizes">) {
   const imageProps = getImageProps("cartItem");
 
-  return (
-    <BlurImage
-      {...imageProps}
-      aspectRatio="1/1"
-      {...props}
-    />
-  );
+  return <BlurImage {...imageProps} aspectRatio="1/1" {...props} />;
 }
 
 export default BlurImage;

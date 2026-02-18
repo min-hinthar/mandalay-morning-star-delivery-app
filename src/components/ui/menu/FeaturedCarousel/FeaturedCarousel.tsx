@@ -99,9 +99,7 @@ export function FeaturedCarousel({
     const scrollAmount = cardWidth + gap;
 
     // Check if at end
-    const isAtEnd =
-      container.scrollLeft + container.clientWidth >=
-      container.scrollWidth - 10;
+    const isAtEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 10;
 
     if (isAtEnd) {
       // Scroll back to start
@@ -117,9 +115,7 @@ export function FeaturedCarousel({
   // Auto-scroll interval
   useInterval(
     scrollToNext,
-    autoScrollInterval > 0 && !isPaused && !userHasScrolled
-      ? autoScrollInterval
-      : null
+    autoScrollInterval > 0 && !isPaused && !userHasScrolled ? autoScrollInterval : null
   );
 
   // ==========================================
@@ -238,16 +234,13 @@ export function FeaturedCarousel({
   // CARD REF SETTER
   // ==========================================
 
-  const setCardRef = useCallback(
-    (index: number, el: HTMLDivElement | null) => {
-      if (el) {
-        cardRefs.current.set(index, el);
-      } else {
-        cardRefs.current.delete(index);
-      }
-    },
-    []
-  );
+  const setCardRef = useCallback((index: number, el: HTMLDivElement | null) => {
+    if (el) {
+      cardRefs.current.set(index, el);
+    } else {
+      cardRefs.current.delete(index);
+    }
+  }, []);
 
   // ==========================================
   // CLEANUP
@@ -302,11 +295,7 @@ export function FeaturedCarousel({
             ref={(el) => setCardRef(index, el as HTMLDivElement)}
             data-carousel-card
             data-index={index}
-            className={cn(
-              "flex-shrink-0",
-              "w-[280px] md:w-[320px]",
-              "snap-start"
-            )}
+            className={cn("flex-shrink-0", "w-[280px] md:w-[320px]", "snap-start")}
             style={{ scrollSnapAlign: "start" }}
           >
             <MenuCardWrapper

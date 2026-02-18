@@ -76,23 +76,25 @@ export function ItemSelector({
         if (response.ok) {
           const data = await response.json();
           // Transform from API format to our format
-          const items: SelectableItem[] = (data.data?.items || []).map((item: {
-            id: string;
-            nameEn: string;
-            nameMy?: string | null;
-            imageUrl: string | null;
-            basePriceCents: number;
-            isActive?: boolean;
-            isSoldOut?: boolean;
-          }) => ({
-            id: item.id,
-            nameEn: item.nameEn,
-            nameMy: item.nameMy,
-            imageUrl: item.imageUrl,
-            basePriceCents: item.basePriceCents,
-            isActive: item.isActive,
-            isSoldOut: item.isSoldOut,
-          }));
+          const items: SelectableItem[] = (data.data?.items || []).map(
+            (item: {
+              id: string;
+              nameEn: string;
+              nameMy?: string | null;
+              imageUrl: string | null;
+              basePriceCents: number;
+              isActive?: boolean;
+              isSoldOut?: boolean;
+            }) => ({
+              id: item.id,
+              nameEn: item.nameEn,
+              nameMy: item.nameMy,
+              imageUrl: item.imageUrl,
+              basePriceCents: item.basePriceCents,
+              isActive: item.isActive,
+              isSoldOut: item.isSoldOut,
+            })
+          );
           setSearchResults(items);
         }
       } catch (error) {
@@ -265,7 +267,9 @@ export function ItemSelector({
                         !isInSection && !isSelected && "border-border"
                       )}
                     >
-                      {(isInSection || isSelected) && <Check className="h-3 w-3 text-text-inverse" />}
+                      {(isInSection || isSelected) && (
+                        <Check className="h-3 w-3 text-text-inverse" />
+                      )}
                     </div>
 
                     {/* Image */}
@@ -297,7 +301,10 @@ export function ItemSelector({
                           </Badge>
                         )}
                         {item.isSoldOut && (
-                          <Badge variant="outline" className="text-xs border-status-error/30 text-status-error">
+                          <Badge
+                            variant="outline"
+                            className="text-xs border-status-error/30 text-status-error"
+                          >
                             Sold Out
                           </Badge>
                         )}
@@ -306,9 +313,7 @@ export function ItemSelector({
 
                     {/* Already added indicator */}
                     {isInSection && (
-                      <Badge className="bg-green/20 text-green border-0 shrink-0">
-                        Added
-                      </Badge>
+                      <Badge className="bg-green/20 text-green border-0 shrink-0">Added</Badge>
                     )}
                   </m.div>
                 );

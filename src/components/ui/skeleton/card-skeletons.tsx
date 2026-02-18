@@ -41,14 +41,7 @@ export function SkeletonCard({
       )}
     >
       {/* Image */}
-      {withImage && (
-        <Skeleton
-          height={imageHeight}
-          radius="none"
-          variant="shimmer"
-          withGrain
-        />
-      )}
+      {withImage && <Skeleton height={imageHeight} radius="none" variant="shimmer" withGrain />}
 
       {/* Content */}
       <div className="p-4 space-y-3">
@@ -62,9 +55,7 @@ export function SkeletonCard({
         </div>
 
         {/* Text lines */}
-        {textLines > 0 && (
-          <SkeletonText lines={textLines} lineHeight={14} gap={6} />
-        )}
+        {textLines > 0 && <SkeletonText lines={textLines} lineHeight={14} gap={6} />}
 
         {/* Action area */}
         <div className="flex justify-between items-center pt-2">
@@ -89,13 +80,7 @@ export function SkeletonMenuItem({ className }: { className?: string }) {
       )}
     >
       {/* Image */}
-      <Skeleton
-        width={80}
-        height={80}
-        radius="lg"
-        variant="shimmer"
-        withGrain
-      />
+      <Skeleton width={80} height={80} radius="lg" variant="shimmer" withGrain />
 
       {/* Content */}
       <div className="flex-1 space-y-2">

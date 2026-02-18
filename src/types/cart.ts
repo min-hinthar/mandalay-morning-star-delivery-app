@@ -58,11 +58,7 @@ export const MAX_CART_ITEMS = 50;
 // CART VALIDATION TYPES
 // ============================================
 
-export type CartItemValidationStatus =
-  | "valid"
-  | "sold-out"
-  | "unavailable"
-  | "price-changed";
+export type CartItemValidationStatus = "valid" | "sold-out" | "unavailable" | "price-changed";
 
 export interface CartItemValidation {
   cartItemId: string;

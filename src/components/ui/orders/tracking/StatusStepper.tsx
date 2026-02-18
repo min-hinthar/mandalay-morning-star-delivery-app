@@ -42,10 +42,7 @@ function getStepIndex(status: OrderStatus): number {
   return STATUS_INDEX[status] ?? -1;
 }
 
-export function StatusStepper({
-  currentStatus,
-  cancelledAt,
-}: StatusStepperProps) {
+export function StatusStepper({ currentStatus, cancelledAt }: StatusStepperProps) {
   const isCancelled = currentStatus === "cancelled" || !!cancelledAt;
   const activeIndex = getStepIndex(currentStatus);
 
@@ -55,7 +52,7 @@ export function StatusStepper({
   // Screen reader announcement
   const statusText = isCancelled
     ? "Order cancelled"
-    : STEPPER_STEPS[activeIndex]?.label ?? "Order placed";
+    : (STEPPER_STEPS[activeIndex]?.label ?? "Order placed");
 
   return (
     <div className="rounded-xl bg-surface-primary p-4 shadow-warm-sm">
@@ -98,17 +95,13 @@ export function StatusStepper({
                     <div
                       className={cn(
                         "flex h-8 w-8 items-center justify-center rounded-full",
-                        isCancelled
-                          ? "bg-charcoal-200"
-                          : "bg-charcoal-200"
+                        isCancelled ? "bg-charcoal-200" : "bg-charcoal-200"
                       )}
                     >
                       <step.icon
                         className={cn(
                           "h-4 w-4",
-                          isCancelled
-                            ? "text-charcoal-400"
-                            : "text-charcoal-400"
+                          isCancelled ? "text-charcoal-400" : "text-charcoal-400"
                         )}
                       />
                     </div>
@@ -131,9 +124,7 @@ export function StatusStepper({
                   <div
                     className={cn(
                       "mx-1 h-0.5 flex-1 rounded-full",
-                      !isCancelled && activeIndex > index
-                        ? "bg-jade-500"
-                        : "bg-charcoal-200"
+                      !isCancelled && activeIndex > index ? "bg-jade-500" : "bg-charcoal-200"
                     )}
                   />
                 )}

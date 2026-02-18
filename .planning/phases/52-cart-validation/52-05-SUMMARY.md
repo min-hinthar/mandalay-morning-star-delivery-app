@@ -58,6 +58,7 @@ completed: 2026-02-09
 - **Files modified:** 6
 
 ## Accomplishments
+
 - Checkout button pulse animation increased to 1.08 scale with green glow overlay during disabled-to-enabled transition
 - AttentionSection exit animation fixed: AnimatePresence moved to parent for proper height collapse when all problem items resolved
 - Committed previously orphaned ValidationOverlay and PriceChangeBadge components (created in plan 02 but never staged)
@@ -72,6 +73,7 @@ Each task was committed atomically:
 2. **Task 2: Phase 52 success criteria verification** - verification only, no code changes
 
 ## Files Created/Modified
+
 - `src/components/ui/cart/CartPage/CheckoutGate.tsx` - Increased pulse to 1.08, added green glow blur behind button on enable
 - `src/components/ui/cart/CartPage/AttentionSection.tsx` - Removed inner AnimatePresence, component now animated by parent wrapper
 - `src/components/ui/cart/CartPage/CartPageContent.tsx` - Added AnimatePresence wrapper around AttentionSection conditional
@@ -80,6 +82,7 @@ Each task was committed atomically:
 - `src/components/ui/cart/CartItem/index.tsx` - Committed barrel exports for ValidationOverlay and PriceChangeBadge
 
 ## Decisions Made
+
 - **CART-05-PULSE:** Checkout button pulse increased from 1.05 to 1.08 scale with a green glow (bg-green-500/30 blur-lg) behind the button during the 600ms justEnabled window. One-time finite animation, no infinite pulse.
 - **CART-05-ANIMPARENT:** AnimatePresence must wrap the conditional render in the parent component (CartPageContent), not inside the child component (AttentionSection). When AttentionSection was conditionally rendered and contained its own AnimatePresence, React unmounted the entire component (including AnimatePresence) before the exit animation could fire.
 
@@ -88,6 +91,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Committed orphaned ValidationOverlay and PriceChangeBadge files**
+
 - **Found during:** Task 1 (git status check)
 - **Issue:** Plan 52-02 created ValidationOverlay.tsx and PriceChangeBadge.tsx but they were never staged/committed. They existed only as untracked working tree files. The commit message `c39e7f7` references them but `git show --name-status` shows no files.
 - **Fix:** Included both files and the CartItem barrel exports in the task 1 commit
@@ -96,6 +100,7 @@ Each task was committed atomically:
 - **Committed in:** 85744c7 (Task 1 commit)
 
 **2. [Rule 1 - Bug] Fixed AttentionSection exit animation not firing**
+
 - **Found during:** Task 1 (animation polish review)
 - **Issue:** AttentionSection contained its own AnimatePresence wrapping the m.div, but the component itself was conditionally rendered by CartPageContent. When `problemItems.length` became 0, React unmounted the entire component including AnimatePresence before the exit animation could run.
 - **Fix:** Moved AnimatePresence to CartPageContent (parent) wrapping the conditional, removed inner AnimatePresence from AttentionSection
@@ -110,26 +115,30 @@ Each task was committed atomically:
 
 ## Phase 52 Success Criteria Verification
 
-| # | Criterion | Status | Evidence |
-|---|-----------|--------|----------|
-| 1 | Sold-out items show visual indicators (badge, gray-out) | PASS | CartItem renders ValidationOverlay with amber "Sold Out" badge, grays content with opacity-50 |
-| 2 | Price-changed items show stale price warning | PASS | PriceChangeBadge with amber (up) / green (down), dismissable, updates persisted price |
-| 3 | Unavailable items show inline error with remove/replace | PASS | ValidationOverlay with red "Unavailable" badge + remove button, SuggestionRow below with up to 3 replacements |
-| 4 | Cart page at /cart is fully implemented (not stub) | PASS | CartPageContent with two-column layout, category grouping, order summary, checkout gate |
-| 5 | Validation is hydration-safe (no false positives) | PASS | useCartHydrated gates render with skeleton, useCartValidation returns idle until hydrated |
+| #   | Criterion                                               | Status | Evidence                                                                                                      |
+| --- | ------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------- |
+| 1   | Sold-out items show visual indicators (badge, gray-out) | PASS   | CartItem renders ValidationOverlay with amber "Sold Out" badge, grays content with opacity-50                 |
+| 2   | Price-changed items show stale price warning            | PASS   | PriceChangeBadge with amber (up) / green (down), dismissable, updates persisted price                         |
+| 3   | Unavailable items show inline error with remove/replace | PASS   | ValidationOverlay with red "Unavailable" badge + remove button, SuggestionRow below with up to 3 replacements |
+| 4   | Cart page at /cart is fully implemented (not stub)      | PASS   | CartPageContent with two-column layout, category grouping, order summary, checkout gate                       |
+| 5   | Validation is hydration-safe (no false positives)       | PASS   | useCartHydrated gates render with skeleton, useCartValidation returns idle until hydrated                     |
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Phase 52 complete. All cart validation infrastructure, UI components, cart page, and drawer integration verified.
 - Edit item handler is a placeholder (TODO for future modifier editing)
 - Checkout flow at /checkout is a separate concern (not in Phase 52 scope)
 - No blockers for subsequent phases
 
 ---
-*Phase: 52-cart-validation*
-*Completed: 2026-02-09*
+
+_Phase: 52-cart-validation_
+_Completed: 2026-02-09_

@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 
 interface DriverContrastContextValue {
   /** Whether high contrast mode is enabled */
@@ -102,9 +95,7 @@ export function useDriverContrast(): DriverContrastContextValue {
   const context = useContext(DriverContrastContext);
 
   if (!context) {
-    throw new Error(
-      "useDriverContrast must be used within a DriverContrastProvider"
-    );
+    throw new Error("useDriverContrast must be used within a DriverContrastProvider");
   }
 
   return context;

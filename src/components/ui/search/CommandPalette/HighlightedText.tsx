@@ -14,9 +14,7 @@ export interface HighlightedTextProps {
 /**
  * Merge overlapping [start, end] ranges into non-overlapping sorted ranges.
  */
-function mergeRanges(
-  ranges: readonly [number, number][]
-): [number, number][] {
+function mergeRanges(ranges: readonly [number, number][]): [number, number][] {
   if (ranges.length === 0) return [];
 
   const sorted = [...ranges].sort((a, b) => a[0] - b[0]);
@@ -44,11 +42,7 @@ function mergeRanges(
  * merges overlapping ranges, and wraps matched portions in <mark>
  * with an amber/yellow accent background.
  */
-export function HighlightedText({
-  text,
-  matches,
-  fieldKey,
-}: HighlightedTextProps) {
+export function HighlightedText({ text, matches, fieldKey }: HighlightedTextProps) {
   if (!matches || matches.length === 0) {
     return <span>{text}</span>;
   }
@@ -75,9 +69,7 @@ export function HighlightedText({
   for (const [start, end] of merged) {
     // Plain text before this highlight
     if (cursor < start) {
-      segments.push(
-        <span key={`plain-${cursor}`}>{text.slice(cursor, start)}</span>
-      );
+      segments.push(<span key={`plain-${cursor}`}>{text.slice(cursor, start)}</span>);
     }
 
     // Highlighted match
@@ -95,9 +87,7 @@ export function HighlightedText({
 
   // Trailing plain text
   if (cursor < text.length) {
-    segments.push(
-      <span key={`plain-${cursor}`}>{text.slice(cursor)}</span>
-    );
+    segments.push(<span key={`plain-${cursor}`}>{text.slice(cursor)}</span>);
   }
 
   return <span>{segments}</span>;

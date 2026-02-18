@@ -47,12 +47,7 @@ const summaryRowVariants = {
 
 export function CartSummary({ className }: CartSummaryProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
-  const {
-    itemsSubtotal,
-    estimatedDeliveryFee,
-    estimatedTotal,
-    amountToFreeDelivery,
-  } = useCart();
+  const { itemsSubtotal, estimatedDeliveryFee, estimatedTotal, amountToFreeDelivery } = useCart();
 
   const hasFreeDelivery = amountToFreeDelivery === 0;
 

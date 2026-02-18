@@ -1,11 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Package,
-  AlertCircle,
-  Star,
-} from "lucide-react";
+import { Package, AlertCircle, Star } from "lucide-react";
 import { formatPrice } from "@/lib/utils/currency";
 import { format, subDays, startOfDay, eachDayOfInterval } from "date-fns";
 import Link from "next/link";
@@ -76,25 +72,19 @@ export default async function AdminDashboardPage() {
 
   // Calculate stats
   const totalOrders = orders.length;
-  const confirmedOrders = orders.filter(
-    (o) => o.status !== "cancelled" && o.status !== "pending"
-  );
+  const confirmedOrders = orders.filter((o) => o.status !== "cancelled" && o.status !== "pending");
   const deliveredOrders = orders.filter((o) => o.status === "delivered");
   const totalRevenue = confirmedOrders.reduce((sum, o) => sum + o.total_cents, 0);
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
-  const avgOrderValue = confirmedOrders.length > 0
-    ? Math.round(totalRevenue / confirmedOrders.length)
-    : 0;
+  const avgOrderValue =
+    confirmedOrders.length > 0 ? Math.round(totalRevenue / confirmedOrders.length) : 0;
 
   // Calculate fulfillment rate
-  const fulfillmentRate = totalOrders > 0
-    ? Math.round((deliveredOrders.length / totalOrders) * 100)
-    : 0;
+  const fulfillmentRate =
+    totalOrders > 0 ? Math.round((deliveredOrders.length / totalOrders) * 100) : 0;
 
   // Calculate free delivery orders (subtotal >= $100)
-  const freeDeliveryOrders = confirmedOrders.filter(
-    (o) => o.subtotal_cents >= 10000
-  ).length;
+  const freeDeliveryOrders = confirmedOrders.filter((o) => o.subtotal_cents >= 10000).length;
 
   // Create KPI data for V7 dashboard
   const kpiData: KPIData[] = [
@@ -166,7 +156,8 @@ export default async function AdminDashboardPage() {
   // Fetch 5 most recent orders
   const { data: recentOrdersData } = await supabase
     .from("orders")
-    .select(`
+    .select(
+      `
       id,
       status,
       total_cents,
@@ -175,7 +166,8 @@ export default async function AdminDashboardPage() {
         full_name,
         email
       )
-    `)
+    `
+    )
     .order("placed_at", { ascending: false })
     .limit(5)
     .returns<RecentOrderRow[]>();
@@ -185,13 +177,15 @@ export default async function AdminDashboardPage() {
   // Fetch popular items (top 5 by quantity sold in last 7 days)
   const { data: orderItemsData } = await supabase
     .from("order_items")
-    .select(`
+    .select(
+      `
       quantity,
       line_total_cents,
       menu_items (
         name_en
       )
-    `)
+    `
+    )
     .gte("created_at", sevenDaysAgo.toISOString())
     .returns<OrderItemRow[]>();
 
@@ -245,10 +239,7 @@ export default async function AdminDashboardPage() {
         <Card className="col-span-1">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Recent Orders</CardTitle>
-            <Link
-              href="/admin/orders"
-              className="text-sm text-brand-red hover:underline"
-            >
+            <Link href="/admin/orders" className="text-sm text-brand-red hover:underline">
               View all
             </Link>
           </CardHeader>
@@ -264,9 +255,7 @@ export default async function AdminDashboardPage() {
                     className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <div>
-                      <p className="font-medium text-sm">
-                        #{order.id.slice(0, 8).toUpperCase()}
-                      </p>
+                      <p className="font-medium text-sm">#{order.id.slice(0, 8).toUpperCase()}</p>
                       <p className="text-xs text-muted-foreground">
                         {order.profiles?.full_name || order.profiles?.email || "Guest"}
                       </p>
@@ -275,9 +264,7 @@ export default async function AdminDashboardPage() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-sm">
-                        {formatPrice(order.total_cents)}
-                      </p>
+                      <p className="font-medium text-sm">{formatPrice(order.total_cents)}</p>
                       <Badge className={STATUS_COLORS[order.status]}>
                         {STATUS_LABELS[order.status]}
                       </Badge>
@@ -312,9 +299,7 @@ export default async function AdminDashboardPage() {
                   <p className="font-medium text-yellow-800">
                     {pendingOrders} Pending Order{pendingOrders !== 1 ? "s" : ""}
                   </p>
-                  <p className="text-sm text-yellow-700">
-                    Awaiting payment confirmation.
-                  </p>
+                  <p className="text-sm text-yellow-700">Awaiting payment confirmation.</p>
                 </div>
               </div>
             )}
@@ -327,9 +312,7 @@ export default async function AdminDashboardPage() {
                 <Package className="h-5 w-5 text-brand-red" />
                 <div>
                   <p className="font-medium">Manage Orders</p>
-                  <p className="text-sm text-muted-foreground">
-                    View and update order statuses
-                  </p>
+                  <p className="text-sm text-muted-foreground">View and update order statuses</p>
                 </div>
               </div>
             </Link>
@@ -342,9 +325,7 @@ export default async function AdminDashboardPage() {
                 <Star className="h-5 w-5 text-brand-red" />
                 <div>
                   <p className="font-medium">Edit Menu</p>
-                  <p className="text-sm text-muted-foreground">
-                    Add, edit, or mark items sold out
-                  </p>
+                  <p className="text-sm text-muted-foreground">Add, edit, or mark items sold out</p>
                 </div>
               </div>
             </Link>

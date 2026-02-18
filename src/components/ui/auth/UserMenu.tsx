@@ -59,11 +59,7 @@ export function UserMenu({ user }: UserMenuProps): ReactElement {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-2 max-w-[200px]"
-        >
+        <Button variant="ghost" size="sm" className="gap-2 max-w-[200px]">
           <UserIcon className="h-4 w-4 shrink-0" />
           <span className="truncate hidden sm:inline">{user.email}</span>
         </Button>
@@ -72,9 +68,7 @@ export function UserMenu({ user }: UserMenuProps): ReactElement {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">Account</p>
-            <p className="text-xs leading-none text-muted-foreground truncate">
-              {user.email}
-            </p>
+            <p className="text-xs leading-none text-muted-foreground truncate">{user.email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

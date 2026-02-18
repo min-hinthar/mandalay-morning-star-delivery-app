@@ -14,6 +14,7 @@ Polish light and dark modes with smooth transitions. Fix footer text visibility,
 ## Implementation Decisions
 
 ### Color palette refinement
+
 - Pure dark (near-black) surfaces for dark mode — OLED-friendly, high contrast
 - Accents vibrant in dark mode, muted in light mode for optimal contrast
 - Full contrast audit across all text/background combinations
@@ -25,6 +26,7 @@ Polish light and dark modes with smooth transitions. Fix footer text visibility,
 - Build fresh color treatment based on brand colors (no external reference)
 
 ### Theme toggle animation
+
 - Circular button shape
 - Snappy spring physics (quick, responsive)
 - Subtle background behind icon
@@ -33,6 +35,7 @@ Polish light and dark modes with smooth transitions. Fix footer text visibility,
 - Icon hints on hover — subtle morph starts before click
 
 ### Theme transition effect
+
 - Circular reveal expanding from toggle button location
 - Fast duration (300ms)
 - Spring easing with slight overshoot at edges — playful feel
@@ -41,12 +44,14 @@ Polish light and dark modes with smooth transitions. Fix footer text visibility,
 - Origin always from toggle button location
 
 ### 3D scene adaptation
+
 - Warm directional light in light mode, cool ambient in dark mode
 - HDRI environment changes between themes (studio vs night feel)
 - Smooth lighting transition (~500ms lerp)
 - Contact shadows adapt: darker in light mode, subtle glow in dark mode
 
 ### Claude's Discretion
+
 - Footer text contrast level (AA vs AAA based on brand colors)
 - Border/divider treatment per component
 - Disabled state styling per component
@@ -75,5 +80,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 21-theme-refinements*
-*Context gathered: 2026-01-26*
+_Phase: 21-theme-refinements_
+_Context gathered: 2026-01-26_

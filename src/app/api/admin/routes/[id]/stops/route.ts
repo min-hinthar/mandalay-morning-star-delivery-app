@@ -10,16 +10,16 @@ import { updateRouteStats } from "./helpers";
  * POST /api/admin/routes/[id]/stops
  * Add orders to an existing route
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: routeId } = await params;
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -62,10 +62,7 @@ export async function POST(
     }
 
     if (route.status !== "planned") {
-      return NextResponse.json(
-        { error: "Can only add stops to planned routes" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Can only add stops to planned routes" }, { status: 400 });
     }
 
     // Get current max stop_index
@@ -87,17 +84,11 @@ export async function POST(
 
     if (ordersError) {
       logger.exception(ordersError, { api: "admin/routes/[id]/stops", flowId: "verify-orders" });
-      return NextResponse.json(
-        { error: "Failed to verify orders" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to verify orders" }, { status: 500 });
     }
 
     if (!orders || orders.length !== orderIds.length) {
-      return NextResponse.json(
-        { error: "Some orders not found" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Some orders not found" }, { status: 400 });
     }
 
     // Check if orders are already assigned to this route
@@ -125,32 +116,27 @@ export async function POST(
       status: "pending" as const,
     }));
 
-    const { error: insertError } = await supabase
-      .from("route_stops")
-      .insert(newStops);
+    const { error: insertError } = await supabase.from("route_stops").insert(newStops);
 
     if (insertError) {
       logger.exception(insertError, { api: "admin/routes/[id]/stops", flowId: "add-stops" });
-      return NextResponse.json(
-        { error: "Failed to add stops" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to add stops" }, { status: 500 });
     }
 
     // Update route stats
     await updateRouteStats(supabase, routeId);
 
-    return NextResponse.json({
-      routeId,
-      addedCount: orderIds.length,
-      message: "Stops added successfully",
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        routeId,
+        addedCount: orderIds.length,
+        message: "Stops added successfully",
+      },
+      { status: 201 }
+    );
   } catch (error) {
     logger.exception(error, { api: "admin/routes/[id]/stops" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -158,26 +144,23 @@ export async function POST(
  * PATCH /api/admin/routes/[id]/stops
  * Update a specific stop (via query param ?stopId=xxx)
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: routeId } = await params;
     const { searchParams } = new URL(request.url);
     const stopId = searchParams.get("stopId");
 
     if (!stopId) {
-      return NextResponse.json(
-        { error: "Stop ID required in query params" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Stop ID required in query params" }, { status: 400 });
     }
 
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -233,10 +216,7 @@ export async function PATCH(
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/routes/[id]/stops", flowId: "update-stop" });
-      return NextResponse.json(
-        { error: "Failed to update stop" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to update stop" }, { status: 500 });
     }
 
     // Update order status if delivered
@@ -260,10 +240,7 @@ export async function PATCH(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/routes/[id]/stops" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -271,26 +248,23 @@ export async function PATCH(
  * DELETE /api/admin/routes/[id]/stops
  * Remove a stop from route (via query param ?stopId=xxx)
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: routeId } = await params;
     const { searchParams } = new URL(request.url);
     const stopId = searchParams.get("stopId");
 
     if (!stopId) {
-      return NextResponse.json(
-        { error: "Stop ID required in query params" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Stop ID required in query params" }, { status: 400 });
     }
 
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -335,10 +309,7 @@ export async function DELETE(
 
     if (deleteError) {
       logger.exception(deleteError, { api: "admin/routes/[id]/stops", flowId: "remove-stop" });
-      return NextResponse.json(
-        { error: "Failed to remove stop" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to remove stop" }, { status: 500 });
     }
 
     // Reindex remaining stops
@@ -351,10 +322,7 @@ export async function DELETE(
 
     if (remainingStops) {
       for (let i = 0; i < remainingStops.length; i++) {
-        await supabase
-          .from("route_stops")
-          .update({ stop_index: i })
-          .eq("id", remainingStops[i].id);
+        await supabase.from("route_stops").update({ stop_index: i }).eq("id", remainingStops[i].id);
       }
     }
 
@@ -367,9 +335,6 @@ export async function DELETE(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/routes/[id]/stops" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

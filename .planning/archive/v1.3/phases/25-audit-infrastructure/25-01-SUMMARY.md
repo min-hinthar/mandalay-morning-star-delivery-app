@@ -55,6 +55,7 @@ completed: 2026-01-27
 - **Files modified:** 4
 
 ## Accomplishments
+
 - Token audit script detecting colors, spacing, effects, deprecated patterns, and dual imports
 - ESLint rules catching text-white, text-black, bg-white, bg-black patterns
 - Baseline established: 334 total violations (280 colors, 24 effects, 23 deprecated, 5 imports, 2 spacing)
@@ -70,12 +71,14 @@ Each task was committed atomically:
 3. **Task 3: Generate initial baseline report** - `fd42f55` (docs)
 
 ## Files Created/Modified
+
 - `scripts/audit-tokens.js` - Comprehensive 815-line audit script with TTY progress, markdown reporting, baseline tracking
 - `eslint.config.mjs` - Extended with text-white/black, bg-white/black pattern detection
 - `package.json` - Added `audit:tokens` npm script
 - `.planning/audit-report.md` - Initial baseline with 334 violations, by-type and by-file views
 
 ## Decisions Made
+
 - ESLint rules set at error level (not warn) for immediate visibility, but won't block builds during migration
 - Audit script exit code 1 for both critical violations AND regression detection
 - Baseline only auto-updates when violation counts decrease (regression protection)
@@ -86,25 +89,29 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 - Module warning about ES module syntax in CommonJS context - resolved by Node.js auto-detecting ESM
 - Exit code 1 is expected and correct behavior (critical violations exist)
 
 ## Next Phase Readiness
+
 - Baseline established for tracking progress across v1.3
 - Top files identified: DriverLayout.tsx (25), PhotoCapture.tsx (11), RouteOptimization.tsx (10)
 - ESLint catching violations during development
 - Ready for Phase 26 (design-tokens) to begin semantic token migration
 
 ### Violation Breakdown
-| Category | Critical | Warning | Total |
-|----------|----------|---------|-------|
-| Colors | 250 | 30 | 280 |
-| Effects | 20 | 4 | 24 |
-| Deprecated | 6 | 17 | 23 |
-| Imports | 5 | 0 | 5 |
-| Spacing | 2 | 0 | 2 |
-| **Total** | **283** | **51** | **334** |
+
+| Category   | Critical | Warning | Total   |
+| ---------- | -------- | ------- | ------- |
+| Colors     | 250      | 30      | 280     |
+| Effects    | 20       | 4       | 24      |
+| Deprecated | 6        | 17      | 23      |
+| Imports    | 5        | 0       | 5       |
+| Spacing    | 2        | 0       | 2       |
+| **Total**  | **283**  | **51**  | **334** |
 
 ---
-*Phase: 25-audit-infrastructure*
-*Completed: 2026-01-27*
+
+_Phase: 25-audit-infrastructure_
+_Completed: 2026-01-27_

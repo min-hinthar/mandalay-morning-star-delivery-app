@@ -65,12 +65,7 @@ export function MenuGrid({
       )}
     >
       {items.map((item, index) => (
-        <MenuCardWrapper
-          key={item.id}
-          itemId={item.id}
-          index={index}
-          replayOnScroll={true}
-        >
+        <MenuCardWrapper key={item.id} itemId={item.id} index={index} replayOnScroll={true}>
           <UnifiedMenuItemCard
             item={item}
             variant="menu"

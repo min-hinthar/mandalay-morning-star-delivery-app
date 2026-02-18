@@ -55,44 +55,19 @@ export const palettes = {
   ],
 
   /** Warm sunset tones */
-  sunset: [
-    "#FF6B6B",
-    "#FFA07A",
-    "#FFD93D",
-    "#FF8C00",
-  ],
+  sunset: ["#FF6B6B", "#FFA07A", "#FFD93D", "#FF8C00"],
 
   /** Cool ocean tones */
-  ocean: [
-    "#00979D",
-    "#4ECDC4",
-    "#45B7D1",
-    "#96CEB4",
-  ],
+  ocean: ["#00979D", "#4ECDC4", "#45B7D1", "#96CEB4"],
 
   /** Burmese gold accents */
-  gold: [
-    "#D4A017",
-    "#EBCD00",
-    "#FFD700",
-    "#DAA520",
-  ],
+  gold: ["#D4A017", "#EBCD00", "#FFD700", "#DAA520"],
 
   /** Night mode */
-  night: [
-    "#1a1a2e",
-    "#16213e",
-    "#0f3460",
-    "#1a1a2e",
-  ],
+  night: ["#1a1a2e", "#16213e", "#0f3460", "#1a1a2e"],
 
   /** Morning dawn */
-  dawn: [
-    "#FFE5D9",
-    "#FFCAD4",
-    "#F4ACB7",
-    "#FFB5A7",
-  ],
+  dawn: ["#FFE5D9", "#FFCAD4", "#F4ACB7", "#FFB5A7"],
 } as const;
 
 // ============================================
@@ -209,11 +184,7 @@ export class AnimatedGradient {
   /**
    * Interpolate between two colors
    */
-  private interpolateColor(
-    color1: GradientColor,
-    color2: GradientColor,
-    factor: number
-  ): string {
+  private interpolateColor(color1: GradientColor, color2: GradientColor, factor: number): string {
     const r = Math.round(color1.r + (color2.r - color1.r) * factor);
     const g = Math.round(color1.g + (color2.g - color1.g) * factor);
     const b = Math.round(color1.b + (color2.b - color1.b) * factor);
@@ -343,9 +314,7 @@ export function generateMeshGradient(config: MeshGradientConfig): string {
     const y = 20 + (i * 60) / complexity + Math.random() * 20;
     const size = 40 + Math.random() * 40;
 
-    gradients.push(
-      `radial-gradient(circle at ${x}% ${y}%, ${colors[i]} 0%, transparent ${size}%)`
-    );
+    gradients.push(`radial-gradient(circle at ${x}% ${y}%, ${colors[i]} 0%, transparent ${size}%)`);
   }
 
   return gradients.join(", ");

@@ -73,9 +73,7 @@ export function RouteListTable({
       let comparison = 0;
       switch (sortField) {
         case "deliveryDate":
-          comparison =
-            new Date(a.deliveryDate).getTime() -
-            new Date(b.deliveryDate).getTime();
+          comparison = new Date(a.deliveryDate).getTime() - new Date(b.deliveryDate).getTime();
           break;
         case "status":
           comparison = a.status.localeCompare(b.status);

@@ -125,11 +125,7 @@ export interface DynamicIconProps extends Omit<LucideProps, "name"> {
  * Supports both kebab-case ("utensils-crossed") and PascalCase ("UtensilsCrossed").
  * Falls back to Sparkles icon if name not found.
  */
-export function DynamicIcon({
-  name,
-  fallback: Fallback = Sparkles,
-  ...props
-}: DynamicIconProps) {
+export function DynamicIcon({ name, fallback: Fallback = Sparkles, ...props }: DynamicIconProps) {
   if (!name) {
     return <Fallback {...props} />;
   }

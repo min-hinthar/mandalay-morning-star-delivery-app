@@ -66,6 +66,7 @@ completed: 2026-02-10
 - **Files modified:** 4
 
 ## Accomplishments
+
 - Added webhook_events idempotency check-then-claim pattern before Stripe event processing (MAIL-05)
 - Replaced old Edge Function call with sendEmail() + OrderConfirmation React template for order confirmation
 - Added RefundNotification trigger on charge.refunded with full/partial refund detection
@@ -80,12 +81,14 @@ Each task was committed atomically:
 2. **Task 2: Admin + customer cancel/refund email triggers** - `ecfee88` (feat)
 
 ## Files Created/Modified
+
 - `src/app/api/webhooks/stripe/route.ts` - Webhook idempotency guard, OrderConfirmation + RefundNotification email triggers, removed old Edge Function call
 - `src/app/api/admin/orders/[id]/cancel/route.ts` - OrderCancellation email trigger when notifyCustomer is true
 - `src/app/api/admin/orders/[id]/refund/route.ts` - RefundNotification email trigger with item-level breakdown when notifyCustomer is true
 - `src/app/api/account/orders/[id]/cancel/route.ts` - OrderCancellation email trigger on customer-initiated cancellation
 
 ## Decisions Made
+
 - **EMAIL-05-FIREFORGET:** All sendEmail() calls use `void` keyword for fire-and-forget pattern. Email failures never block API responses. The sendEmail pipeline handles its own retry and error logging.
 - **EMAIL-05-IDEMPOTENCY:** Webhook idempotency uses two-step check-then-claim: SELECT for existing event_id, then INSERT with UNIQUE constraint as atomic guard against race conditions.
 - **EMAIL-05-CREATEELEMENT:** Used `React.createElement()` instead of JSX syntax in `.ts` route files since they don't have JSX transform configured. This avoids needing to rename files to `.tsx`.
@@ -95,18 +98,22 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 - Task 1 commit was absorbed into a parallel 54-06 execution's lint-staged stash cycle (commit `8f5c255`). Code is correct and present in the commit; only the commit message attribution shows 54-06 instead of 54-05. This is the same lint-staged stash issue documented in prior summaries.
 - Turbopack junction point error on Windows during build verification (stale `.next` cache from concurrent build). Resolved by clearing `.next` directory and rebuilding.
 
 ## User Setup Required
+
 None - no new external service configuration required. Existing RESEND_API_KEY from 54-01 is sufficient.
 
 ## Next Phase Readiness
+
 - All order lifecycle events now trigger appropriate branded emails
 - Email integration complete: confirmation, cancellation, refund all wired
 - Ready for 54-06 (admin email management / Resend webhook tracking)
 - Webhook idempotency prevents duplicate processing on Stripe retries
 
 ---
-*Phase: 54-email-system*
-*Completed: 2026-02-10*
+
+_Phase: 54-email-system_
+_Completed: 2026-02-10_

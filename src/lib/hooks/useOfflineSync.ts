@@ -56,9 +56,7 @@ interface UseOfflineSyncReturn {
   ) => Promise<void>;
 }
 
-export function useOfflineSync(
-  options?: UseOfflineSyncOptions
-): UseOfflineSyncReturn {
+export function useOfflineSync(options?: UseOfflineSyncOptions): UseOfflineSyncReturn {
   const [isOnline, setIsOnline] = useState(
     typeof navigator !== "undefined" ? navigator.onLine : true
   );
@@ -69,9 +67,7 @@ export function useOfflineSync(
     locations: 0,
     total: 0,
   });
-  const [lastSyncResult, setLastSyncResult] = useState<SyncResult | null>(
-    null
-  );
+  const [lastSyncResult, setLastSyncResult] = useState<SyncResult | null>(null);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const prevTotalRef = useRef<number>(0);
@@ -129,12 +125,7 @@ export function useOfflineSync(
 
   // Queue methods
   const queueStatusUpdate = useCallback(
-    async (
-      routeId: string,
-      stopId: string,
-      status: string,
-      deliveryNotes?: string
-    ) => {
+    async (routeId: string, stopId: string, status: string, deliveryNotes?: string) => {
       await pendingStatus.add(routeId, stopId, status, deliveryNotes);
       const total = await updatePendingCounts();
       prevTotalRef.current = total;
@@ -160,14 +151,7 @@ export function useOfflineSync(
       speed: number | null,
       routeId?: string
     ) => {
-      await pendingLocations.add(
-        latitude,
-        longitude,
-        accuracy,
-        heading,
-        speed,
-        routeId
-      );
+      await pendingLocations.add(latitude, longitude, accuracy, heading, speed, routeId);
       const total = await updatePendingCounts();
       prevTotalRef.current = total;
     },

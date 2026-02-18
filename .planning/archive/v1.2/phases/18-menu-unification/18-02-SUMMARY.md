@@ -105,5 +105,6 @@ None - no external service configuration required.
 - 18-03 menu page integration can proceed
 
 ---
-*Phase: 18-menu-unification*
-*Completed: 2026-01-24*
+
+_Phase: 18-menu-unification_
+_Completed: 2026-01-24_

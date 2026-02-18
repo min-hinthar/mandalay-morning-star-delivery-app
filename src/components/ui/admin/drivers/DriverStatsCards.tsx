@@ -122,7 +122,9 @@ export function DriverStatsCards({ driver }: DriverStatsCardsProps) {
           <Circle
             className={cn(
               "h-5 w-5",
-              driver.isActive ? "fill-accent-teal text-accent-teal" : "fill-text-muted text-text-muted"
+              driver.isActive
+                ? "fill-accent-teal text-accent-teal"
+                : "fill-text-muted text-text-muted"
             )}
           />
         }

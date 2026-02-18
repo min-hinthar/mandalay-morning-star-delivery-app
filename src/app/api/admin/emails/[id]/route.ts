@@ -28,10 +28,7 @@ interface NotificationLogDetailRow {
  *
  * Single email detail with delivery status timeline.
  */
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
   try {
@@ -45,7 +42,7 @@ export async function GET(
     const { data, error } = (await supabase
       .from("notification_logs")
       .select(
-        "id, order_id, user_id, notification_type, channel, recipient, subject, resend_id, status, error_message, metadata, sent_at, created_at",
+        "id, order_id, user_id, notification_type, channel, recipient, subject, resend_id, status, error_message, metadata, sent_at, created_at"
       )
       .eq("id", id)
       .single()) as {
@@ -54,10 +51,7 @@ export async function GET(
     };
 
     if (error || !data) {
-      return NextResponse.json(
-        { error: "Email log not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Email log not found" }, { status: 404 });
     }
 
     // Extract status timeline from metadata.resend_events
@@ -70,7 +64,7 @@ export async function GET(
     // Add the initial sent/failed event if not already in timeline
     if (data.sent_at) {
       const hasSentEvent = statusTimeline.some(
-        (e) => e.status === "sent" || e.status === "email.sent",
+        (e) => e.status === "sent" || e.status === "email.sent"
       );
       if (!hasSentEvent) {
         statusTimeline.unshift({
@@ -82,7 +76,7 @@ export async function GET(
 
     // Sort timeline chronologically
     statusTimeline.sort(
-      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     );
 
     return NextResponse.json({
@@ -106,9 +100,6 @@ export async function GET(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/emails/[id]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

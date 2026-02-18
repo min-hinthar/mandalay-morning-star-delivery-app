@@ -102,11 +102,7 @@ export function ManualEmailDialog({
       onClose={handleClose}
       title="Compose Email"
       size="lg"
-      header={
-        <ModalHeader>
-          {step === "compose" ? "Compose Email" : "Preview Email"}
-        </ModalHeader>
-      }
+      header={<ModalHeader>{step === "compose" ? "Compose Email" : "Preview Email"}</ModalHeader>}
       footer={
         <ModalFooter>
           {step === "compose" ? (
@@ -147,9 +143,7 @@ export function ManualEmailDialog({
         <div className="space-y-4">
           {/* Recipient (read-only) */}
           <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1">
-              To
-            </label>
+            <label className="block text-xs font-medium text-text-secondary mb-1">To</label>
             <div className="text-sm text-text-primary bg-surface-secondary/50 rounded px-3 py-2 border border-border-subtle">
               {customerEmail}
             </div>
@@ -176,9 +170,7 @@ export function ManualEmailDialog({
 
           {/* Body */}
           <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1">
-              Body
-            </label>
+            <label className="block text-xs font-medium text-text-secondary mb-1">Body</label>
             <TiptapEditor
               content={htmlBody}
               onChange={setHtmlBody}
@@ -188,9 +180,7 @@ export function ManualEmailDialog({
 
           {/* Auto-footer preview */}
           <div className="rounded border border-border-subtle bg-surface-secondary/30 p-3">
-            <p className="text-xs font-medium text-text-secondary mb-1">
-              Auto-included footer
-            </p>
+            <p className="text-xs font-medium text-text-secondary mb-1">Auto-included footer</p>
             <p className="text-xs text-text-muted">
               Regarding Order #{orderNumber}: {orderSummary}
             </p>

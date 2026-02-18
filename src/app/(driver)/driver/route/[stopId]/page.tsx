@@ -200,11 +200,7 @@ async function StopDetailPageContent({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-surface-secondary pb-20">
-      <DriverPageHeader
-        title={`Stop #${stop.stop_index}`}
-        showBack
-        backHref="/driver/route"
-      />
+      <DriverPageHeader title={`Stop #${stop.stop_index}`} showBack backHref="/driver/route" />
       <div className="p-4">
         <StopDetailView
           routeId={stop.route?.id ?? ""}

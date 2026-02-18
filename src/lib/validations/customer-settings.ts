@@ -18,6 +18,4 @@ export const updateCustomerSettingsSchema = z.object({
 });
 
 // Inferred type
-export type UpdateCustomerSettingsInput = z.infer<
-  typeof updateCustomerSettingsSchema
->;
+export type UpdateCustomerSettingsInput = z.infer<typeof updateCustomerSettingsSchema>;

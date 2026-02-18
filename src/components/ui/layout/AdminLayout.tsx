@@ -266,9 +266,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
 
       {/* Main Content */}
       <main className="flex-1">
-        <div className="mx-auto max-w-[var(--max-admin-width)] px-6 py-6">
-          {children}
-        </div>
+        <div className="mx-auto max-w-[var(--max-admin-width)] px-6 py-6">{children}</div>
       </main>
     </div>
   );
@@ -279,22 +277,14 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
  * Standard layout for admin dashboard pages
  */
 export function DashboardGrid({ children }: { children: ReactNode }) {
-  return (
-    <div className="grid gap-6 lg:grid-cols-12">
-      {children}
-    </div>
-  );
+  return <div className="grid gap-6 lg:grid-cols-12">{children}</div>;
 }
 
 /**
  * KPI Row - Full width row for KPI cards
  */
 export function KPIRow({ children }: { children: ReactNode }) {
-  return (
-    <div className="lg:col-span-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {children}
-    </div>
-  );
+  return <div className="lg:col-span-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{children}</div>;
 }
 
 /**

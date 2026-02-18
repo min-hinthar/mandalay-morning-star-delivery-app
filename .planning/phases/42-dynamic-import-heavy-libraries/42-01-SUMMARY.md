@@ -19,7 +19,8 @@ affects: [42-02 chart dynamic imports, 42-03 map dynamic imports]
 # Tech tracking
 tech-stack:
   added: []
-  patterns: [viewport-trigger-hook, dynamic-import-retry, loading-timeout-wrapper, skeleton-error-card-pair]
+  patterns:
+    [viewport-trigger-hook, dynamic-import-retry, loading-timeout-wrapper, skeleton-error-card-pair]
 
 key-files:
   created:
@@ -117,5 +118,6 @@ None - no external service configuration required.
 - Skeleton and error card pairs ready for Suspense fallback and error boundary usage
 
 ---
-*Phase: 42-dynamic-import-heavy-libraries*
-*Completed: 2026-02-06*
+
+_Phase: 42-dynamic-import-heavy-libraries_
+_Completed: 2026-02-06_

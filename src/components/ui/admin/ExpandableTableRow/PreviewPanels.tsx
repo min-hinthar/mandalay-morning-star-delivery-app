@@ -10,12 +10,7 @@
 import { type ReactNode } from "react";
 import Link from "next/link";
 import { m } from "framer-motion";
-import {
-  MapPin,
-  Package,
-  MessageSquare,
-  ExternalLink,
-} from "lucide-react";
+import { MapPin, Package, MessageSquare, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 // ============================================
@@ -62,10 +57,7 @@ export function QuickPreviewPanel({
                 className="flex items-center justify-between text-sm font-body"
               >
                 <span className="text-text-primary">
-                  <span className="text-primary font-medium">
-                    {item.quantity}x
-                  </span>{" "}
-                  {item.name}
+                  <span className="text-primary font-medium">{item.quantity}x</span> {item.name}
                 </span>
                 {item.price !== undefined && (
                   <span className="text-text-muted font-mono text-xs">
@@ -96,9 +88,7 @@ export function QuickPreviewPanel({
               Delivery Address
             </span>
           </div>
-          <p className="text-sm font-body text-text-primary leading-relaxed">
-            {address}
-          </p>
+          <p className="text-sm font-body text-text-primary leading-relaxed">{address}</p>
         </m.div>
       )}
 
@@ -161,11 +151,7 @@ interface RoutePreviewProps {
   detailsLink: string;
 }
 
-export function RoutePreviewPanel({
-  stops,
-  estimatedDuration,
-  detailsLink,
-}: RoutePreviewProps) {
+export function RoutePreviewPanel({ stops, estimatedDuration, detailsLink }: RoutePreviewProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <m.div
@@ -194,9 +180,7 @@ export function RoutePreviewPanel({
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-text-primary truncate">{stop.customerName}</p>
-                <p className="text-xs text-text-muted truncate">
-                  {stop.address}
-                </p>
+                <p className="text-xs text-text-muted truncate">{stop.address}</p>
               </div>
             </m.li>
           ))}
@@ -217,9 +201,7 @@ export function RoutePreviewPanel({
             className="text-sm font-body text-text-secondary"
           >
             Est. Duration:{" "}
-            <span className="font-medium text-text-primary">
-              {estimatedDuration}
-            </span>
+            <span className="font-medium text-text-primary">{estimatedDuration}</span>
           </m.div>
         )}
 
@@ -320,16 +302,12 @@ export function DriverPreviewPanel({
         </span>
         <div className="flex items-center gap-4 text-sm font-body">
           <div>
-            <span className="text-primary font-bold">
-              {recentDeliveries}
-            </span>{" "}
+            <span className="text-primary font-bold">{recentDeliveries}</span>{" "}
             <span className="text-text-secondary">deliveries</span>
           </div>
           {rating !== undefined && (
             <div>
-              <span className="text-secondary font-bold">
-                {rating.toFixed(1)}
-              </span>{" "}
+              <span className="text-secondary font-bold">{rating.toFixed(1)}</span>{" "}
               <span className="text-secondary">&#9733;</span>
             </div>
           )}

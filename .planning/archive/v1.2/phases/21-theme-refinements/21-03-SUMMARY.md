@@ -59,6 +59,7 @@ completed: 2026-01-26
 - **Files modified:** 3
 
 ## Accomplishments
+
 - ThemeAwareLighting component with smooth ~500ms lerp transitions
 - Warm studio lighting in light mode, cool night ambient in dark mode
 - Contact shadows that adapt (darker in light, subtle in dark)
@@ -72,12 +73,14 @@ Each task was committed atomically:
 2. **Task 2: Integrate into Hero3DCanvas** - `65b1479` (feat)
 
 ## Files Created/Modified
+
 - `src/components/3d/ThemeAwareLighting.tsx` - Theme-reactive lighting with lerped transitions
 - `src/components/3d/Hero3DCanvas.tsx` - Replaced static lighting with ThemeAwareLighting
 - `src/components/3d/index.ts` - Added ThemeAwareLighting export
 
 ## Decisions Made
-- **delta * 4 lerp factor:** Gives approximately 500ms to reach target values (smooth but responsive)
+
+- **delta \* 4 lerp factor:** Gives approximately 500ms to reach target values (smooth but responsive)
 - **Light mode colors:** Warm yellow (#fef3c7) directional, warm white (#fff7ed) ambient - studio photography feel
 - **Dark mode colors:** Cool blue-gray (#4a5568) directional, deep blue (#1e3a5f) ambient - evening/night feel
 - **Environment preset:** studio for light mode, night for dark mode (drei handles internal transitions)
@@ -96,10 +99,12 @@ None - clean execution.
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - THEME-05 satisfied: 3D scene lighting adapts to light/dark theme
 - Phase 21 complete: All 3 plans done
 - Ready for Phase 22: State Transitions
 
 ---
-*Phase: 21-theme-refinements*
-*Completed: 2026-01-26*
+
+_Phase: 21-theme-refinements_
+_Completed: 2026-01-26_

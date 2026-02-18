@@ -9,14 +9,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { m } from "framer-motion";
-import {
-  Package,
-  DollarSign,
-  CheckCircle,
-  Clock,
-  RefreshCw,
-  Calendar,
-} from "lucide-react";
+import { Package, DollarSign, CheckCircle, Clock, RefreshCw, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   MetricCard,
@@ -28,10 +21,7 @@ import {
   RecentExceptionsList,
   LeaderboardCompact,
 } from "@/components/ui/admin/analytics";
-import type {
-  DeliveryDashboardResponse,
-  MetricsPeriod,
-} from "@/types/analytics";
+import type { DeliveryDashboardResponse, MetricsPeriod } from "@/types/analytics";
 import { formatPrice } from "@/lib/utils/currency";
 
 const containerVariants = {
@@ -96,21 +86,14 @@ export function DeliveryMetricsDashboard() {
   const summary = data?.summary;
 
   return (
-    <m.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-6"
-    >
+    <m.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
       {/* Header */}
       <m.div
         variants={itemVariants}
         className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
         <div>
-          <h1 className="text-3xl font-display text-charcoal">
-            Delivery Metrics
-          </h1>
+          <h1 className="text-3xl font-display text-charcoal">Delivery Metrics</h1>
           <p className="text-charcoal-500">
             Track delivery performance, success rates, and operational metrics
           </p>
@@ -134,12 +117,7 @@ export function DeliveryMetricsDashboard() {
             ))}
           </div>
 
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={fetchData}
-            disabled={loading}
-          >
+          <Button variant="outline" size="icon" onClick={fetchData} disabled={loading}>
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
@@ -147,7 +125,10 @@ export function DeliveryMetricsDashboard() {
 
       {/* Date range indicator */}
       {summary && (
-        <m.div variants={itemVariants} className="flex items-center gap-2 text-sm text-charcoal-500">
+        <m.div
+          variants={itemVariants}
+          className="flex items-center gap-2 text-sm text-charcoal-500"
+        >
           <Calendar className="h-4 w-4" />
           <span>
             {new Date(summary.startDate).toLocaleDateString("en-US", {
@@ -238,20 +219,12 @@ export function DeliveryMetricsDashboard() {
       {/* Charts Row 2 */}
       <m.div variants={itemVariants} className="grid gap-6 lg:grid-cols-3">
         {/* ETA Accuracy */}
-        {data && (
-          <ETAAccuracyGauge value={data.summary.etaAccuracyRate} />
-        )}
-        {loading && !data && (
-          <div className="h-72 animate-pulse rounded-xl bg-charcoal-100" />
-        )}
+        {data && <ETAAccuracyGauge value={data.summary.etaAccuracyRate} />}
+        {loading && !data && <div className="h-72 animate-pulse rounded-xl bg-charcoal-100" />}
 
         {/* Peak Hours */}
-        {data && data.peakHours.length > 0 && (
-          <PeakHoursChart data={data.peakHours} />
-        )}
-        {loading && !data && (
-          <div className="h-72 animate-pulse rounded-xl bg-charcoal-100" />
-        )}
+        {data && data.peakHours.length > 0 && <PeakHoursChart data={data.peakHours} />}
+        {loading && !data && <div className="h-72 animate-pulse rounded-xl bg-charcoal-100" />}
 
         {/* Top Drivers */}
         <m.div
@@ -259,17 +232,12 @@ export function DeliveryMetricsDashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="rounded-xl bg-surface-primary p-6 shadow-warm-sm"
         >
-          <h3 className="mb-4 text-lg font-semibold text-charcoal-900">
-            Top Performers
-          </h3>
+          <h3 className="mb-4 text-lg font-semibold text-charcoal-900">Top Performers</h3>
           {data && <LeaderboardCompact entries={data.topDrivers} limit={5} />}
           {loading && !data && (
             <div className="space-y-2">
               {[...Array(5)].map((_, i) => (
-                <div
-                  key={i}
-                  className="h-10 animate-pulse rounded-lg bg-charcoal-100"
-                />
+                <div key={i} className="h-10 animate-pulse rounded-lg bg-charcoal-100" />
               ))}
             </div>
           )}
@@ -316,15 +284,11 @@ export function DeliveryMetricsDashboard() {
             </div>
             <div className="text-center">
               <p className="text-sm text-charcoal-500">Total Deliveries</p>
-              <p className="text-2xl font-bold text-jade">
-                {summary.totalDeliveries}
-              </p>
+              <p className="text-2xl font-bold text-jade">{summary.totalDeliveries}</p>
             </div>
             <div className="text-center">
               <p className="text-sm text-charcoal-500">Total Exceptions</p>
-              <p className="text-2xl font-bold text-amber-600">
-                {summary.totalExceptions}
-              </p>
+              <p className="text-2xl font-bold text-amber-600">{summary.totalExceptions}</p>
             </div>
           </div>
         </m.div>

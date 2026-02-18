@@ -70,11 +70,7 @@ export function MenuCardWrapper({
     return (
       <m.div
         data-menu-card={itemId}
-        className={cn(
-          "glow-gradient rounded-2xl",
-          fixedWidth,
-          className
-        )}
+        className={cn("glow-gradient rounded-2xl", fixedWidth, className)}
         initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
         whileInView={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
         viewport={{
@@ -95,11 +91,7 @@ export function MenuCardWrapper({
   return (
     <m.div
       data-menu-card={itemId}
-      className={cn(
-        "glow-gradient rounded-2xl",
-        fixedWidth,
-        className
-      )}
+      className={cn("glow-gradient rounded-2xl", fixedWidth, className)}
       initial={shouldAnimate ? { opacity: 0, y: 18 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={{

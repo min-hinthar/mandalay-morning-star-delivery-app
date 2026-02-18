@@ -84,9 +84,7 @@ function FlipDigit({ value, delay = 0 }: FlipDigitProps) {
             backfaceVisibility: "hidden",
           }}
         >
-          <span className="text-3xl font-bold text-text-primary tabular-nums">
-            {displayValue}
-          </span>
+          <span className="text-3xl font-bold text-text-primary tabular-nums">{displayValue}</span>
         </m.div>
       </AnimatePresence>
 
@@ -106,11 +104,7 @@ interface ProgressRingProps {
   strokeWidth?: number;
 }
 
-function ProgressRing({
-  progress,
-  size = 120,
-  strokeWidth = 8,
-}: ProgressRingProps) {
+function ProgressRing({ progress, size = 120, strokeWidth = 8 }: ProgressRingProps) {
   const { shouldAnimate } = useAnimationPreference();
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -138,22 +132,14 @@ function ProgressRing({
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeDasharray={circumference}
-        initial={
-          shouldAnimate ? { strokeDashoffset: circumference } : undefined
-        }
+        initial={shouldAnimate ? { strokeDashoffset: circumference } : undefined}
         animate={shouldAnimate ? { strokeDashoffset: offset } : undefined}
         transition={{ duration: 1, ease: "easeOut" }}
       />
 
       {/* Gradient definition */}
       <defs>
-        <linearGradient
-          id="progressGradient"
-          x1="0%"
-          y1="0%"
-          x2="100%"
-          y2="0%"
-        >
+        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#A41034" />
           <stop offset="50%" stopColor="#EBCD00" />
           <stop offset="100%" stopColor="#52A52E" />
@@ -216,9 +202,7 @@ function TimeWindowDisplay({
 
   return (
     <div className="flex-1">
-      <p className="text-sm font-medium text-text-secondary mb-2">
-        Estimated Arrival
-      </p>
+      <p className="text-sm font-medium text-text-secondary mb-2">Estimated Arrival</p>
       <AnimatePresence mode="wait">
         <m.p
           key={`${startTime}-${endTime}`}
@@ -245,16 +229,11 @@ function CountdownDisplay({
   liveMinutes: number;
   shouldAnimate: boolean;
 }) {
-  const minutesDisplay = String(Math.max(0, Math.floor(liveMinutes))).padStart(
-    2,
-    "0"
-  );
+  const minutesDisplay = String(Math.max(0, Math.floor(liveMinutes))).padStart(2, "0");
 
   return (
     <div className="flex-1">
-      <p className="text-sm font-medium text-text-secondary mb-2">
-        Arriving in
-      </p>
+      <p className="text-sm font-medium text-text-secondary mb-2">Arriving in</p>
 
       {/* Flip countdown display */}
       <div className="flex items-center gap-2 mb-1">
@@ -320,10 +299,7 @@ export function ETACountdown({
 
   // Calculate progress (assuming 60 min max for normalization)
   const displayMinutes = isCountdownMode ? liveMinutes : avgMinutes;
-  const progress = Math.max(
-    0,
-    Math.min(100, 100 - (displayMinutes / 60) * 100)
-  );
+  const progress = Math.max(0, Math.min(100, 100 - (displayMinutes / 60) * 100));
 
   // Loading state
   if (isCalculating) {
@@ -380,10 +356,7 @@ export function ETACountdown({
 
           {/* Dual format: countdown (<= 30 min) or time window (> 30 min) */}
           {isCountdownMode ? (
-            <CountdownDisplay
-              liveMinutes={liveMinutes}
-              shouldAnimate={shouldAnimate}
-            />
+            <CountdownDisplay liveMinutes={liveMinutes} shouldAnimate={shouldAnimate} />
           ) : (
             <TimeWindowDisplay
               estimatedArrival={estimatedArrival}
@@ -398,9 +371,7 @@ export function ETACountdown({
             <AnimatePresence mode="wait">
               <m.p
                 key={estimatedArrival}
-                initial={
-                  shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined
-                }
+                initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
                 animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
                 exit={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
                 className="text-2xl font-bold text-green"

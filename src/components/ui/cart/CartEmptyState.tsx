@@ -96,8 +96,7 @@ export function CartEmptyState({ onClose, className }: CartEmptyStateProps) {
         variants={shouldAnimate ? itemVariants : undefined}
         className="mt-2 text-sm font-body text-text-secondary max-w-[240px]"
       >
-        Browse our authentic Burmese dishes and add something delicious to your
-        cart!
+        Browse our authentic Burmese dishes and add something delicious to your cart!
       </m.p>
 
       {/* CTA Button */}
@@ -108,13 +107,7 @@ export function CartEmptyState({ onClose, className }: CartEmptyStateProps) {
         transition={getSpring(spring.snappy)}
         className="mt-8"
       >
-        <Button
-          variant="primary"
-          size="lg"
-          className="shadow-elevated"
-          onClick={onClose}
-          asChild
-        >
+        <Button variant="primary" size="lg" className="shadow-elevated" onClick={onClose} asChild>
           <Link href="/menu">Browse Menu</Link>
         </Button>
       </m.div>

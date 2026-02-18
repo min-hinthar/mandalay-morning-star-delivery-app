@@ -72,13 +72,7 @@ export function MobileMenu({
     pathname === href || (href !== "/" && pathname.startsWith(href));
 
   return (
-    <Drawer
-      isOpen={isOpen}
-      onClose={onClose}
-      position="left"
-      width="sm"
-      title="Menu"
-    >
+    <Drawer isOpen={isOpen} onClose={onClose} position="left" width="sm" title="Menu">
       <div className={cn("flex flex-col h-full", className)}>
         {/* Logo */}
         <Link
@@ -93,9 +87,7 @@ export function MobileMenu({
             height={43}
             className="w-16"
           />
-          <span className="font-display font-bold text-lg text-primary">
-            Morning Star
-          </span>
+          <span className="font-display font-bold text-lg text-primary">Morning Star</span>
         </Link>
 
         {/* User greeting */}
@@ -125,11 +117,7 @@ export function MobileMenu({
                     aria-current={active ? "page" : undefined}
                   >
                     {item.icon && (
-                      <span
-                        className={cn(
-                          active ? "text-primary" : "text-muted-foreground"
-                        )}
-                      >
+                      <span className={cn(active ? "text-primary" : "text-muted-foreground")}>
                         {item.icon}
                       </span>
                     )}

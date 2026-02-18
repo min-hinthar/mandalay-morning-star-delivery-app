@@ -13,10 +13,7 @@ import { LoadingWithTimeout } from "@/components/ui/LoadingWithTimeout";
 export const LazyRouteMap = dynamic(
   () =>
     importWithRetry(
-      () =>
-        import("@/components/ui/admin/routes/RouteMap").then(
-          (mod) => mod.RouteMap
-        ),
+      () => import("@/components/ui/admin/routes/RouteMap").then((mod) => mod.RouteMap),
       "RouteMap"
     ),
   {
@@ -39,10 +36,7 @@ export const LazyRouteMap = dynamic(
 export const LazyDeliveryMap = dynamic(
   () =>
     importWithRetry(
-      () =>
-        import("@/components/ui/orders/tracking/DeliveryMap").then(
-          (mod) => mod.DeliveryMap
-        ),
+      () => import("@/components/ui/orders/tracking/DeliveryMap").then((mod) => mod.DeliveryMap),
       "DeliveryMap"
     ),
   {

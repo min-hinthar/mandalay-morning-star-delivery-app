@@ -44,7 +44,8 @@ const AnimationContext = createContext<AnimationContextValue | null>(null);
  */
 export function AnimationProvider({ children }: { children: ReactNode }) {
   const { tier, isDetected } = useDeviceCapability();
-  const { shouldAnimate: userShouldAnimate, isReduced: userReducedMotion } = useAnimationPreference();
+  const { shouldAnimate: userShouldAnimate, isReduced: userReducedMotion } =
+    useAnimationPreference();
   const systemReducedMotion = useFramerReducedMotion();
 
   const value = useMemo((): AnimationContextValue => {
@@ -83,11 +84,7 @@ export function AnimationProvider({ children }: { children: ReactNode }) {
     };
   }, [tier, isDetected, userShouldAnimate, userReducedMotion, systemReducedMotion]);
 
-  return (
-    <AnimationContext.Provider value={value}>
-      {children}
-    </AnimationContext.Provider>
-  );
+  return <AnimationContext.Provider value={value}>{children}</AnimationContext.Provider>;
 }
 
 /**

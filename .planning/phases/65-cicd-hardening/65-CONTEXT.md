@@ -16,16 +16,19 @@ PRs are blocked by performance regressions and code quality violations. GitHub A
 ## Implementation Decisions
 
 ### Lighthouse CI — Routes & Configuration
+
 - Test all 5 public routes: /, /menu, /login, /privacy, /terms
 - Authenticated routes (admin, driver): Claude's discretion based on complexity vs value
 - Mobile and desktop testing: Claude's discretion based on app's user profiles
 
 ### Lighthouse CI — Thresholds & Metrics
+
 - Gate on: LCP (<4s), CLS (<0.15), performance score floor, accessibility score
 - Claude picks appropriate threshold values for score floors
 - Absolute thresholds (not regression-from-baseline) — Claude decides if baseline comparison adds value vs maintenance overhead
 
 ### Lighthouse CI — Execution
+
 - Number of runs per URL: Claude's discretion (balance speed vs variance)
 - Warn vs block behavior: Claude's discretion based on baseline maturity
 - CI serving strategy: Claude's discretion (local build+start vs Vercel preview)
@@ -36,6 +39,7 @@ PRs are blocked by performance regressions and code quality violations. GitHub A
 - Results reporting: Claude's discretion (PR comment, artifacts, or both)
 
 ### Lint Gates
+
 - CSS lint (pnpm lint:css) is a CI gate — required
 - TypeScript type checking (pnpm typecheck) is a CI gate — required
 - ESLint + Prettier formatting check: Claude's discretion on severity and scope
@@ -43,14 +47,17 @@ PRs are blocked by performance regressions and code quality violations. GitHub A
 - Warning treatment (--max-warnings 0 vs allow warnings): Claude's discretion
 
 ### CI Gate Additions
+
 - Unit tests (pnpm test): Claude's discretion on whether to include
 - Build step (pnpm build): Claude's discretion — Vercel already builds on PR
 
 ### Branch Protection
+
 - Checks are advisory only — do NOT require checks to pass for merge
 - CI results should be visible on PRs but not block merging
 
 ### CI Pipeline Structure
+
 - Job parallelization strategy: Claude's discretion
 - pnpm store caching: Claude's discretion
 - Node.js version strategy: Claude's discretion (single vs matrix)
@@ -62,6 +69,7 @@ PRs are blocked by performance regressions and code quality violations. GitHub A
 - Environment variables/secrets: Claude determines what's needed
 
 ### Claude's Discretion
+
 - All Lighthouse CI execution details (runs, tool, serving, reporting, bypass)
 - Lighthouse threshold exact values beyond LCP/CLS
 - Lint warning treatment and scope
@@ -94,5 +102,5 @@ PRs are blocked by performance regressions and code quality violations. GitHub A
 
 ---
 
-*Phase: 65-cicd-hardening*
-*Context gathered: 2026-02-15*
+_Phase: 65-cicd-hardening_
+_Context gathered: 2026-02-15_

@@ -1,12 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import {
-  useMotionValue,
-  useSpring,
-  useTransform,
-  type MotionValue,
-} from "framer-motion";
+import { useMotionValue, useSpring, useTransform, type MotionValue } from "framer-motion";
 
 // ============================================
 // TILT CONFIGURATION
@@ -57,10 +52,7 @@ export interface UseTiltEffectReturn {
  * Manages 3D tilt effect with mouse/touch tracking and spring-smoothed rotation.
  * Extracted from UnifiedMenuItemCard for file size reduction.
  */
-export function useTiltEffect({
-  enabled,
-  cardRef,
-}: UseTiltEffectOptions): UseTiltEffectReturn {
+export function useTiltEffect({ enabled, cardRef }: UseTiltEffectOptions): UseTiltEffectReturn {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobileTiltActive, setIsMobileTiltActive] = useState(false);
 

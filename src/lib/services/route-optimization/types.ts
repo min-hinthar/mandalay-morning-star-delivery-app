@@ -56,9 +56,10 @@ export interface OptimizeRouteStopsInput {
 /**
  * Validates that all stops have valid coordinates
  */
-export function validateStopsForOptimization(
-  stops: RoutableStop[]
-): { valid: boolean; errors: OptimizationError[] } {
+export function validateStopsForOptimization(stops: RoutableStop[]): {
+  valid: boolean;
+  errors: OptimizationError[];
+} {
   const errors: OptimizationError[] = [];
 
   for (const stop of stops) {

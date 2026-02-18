@@ -42,4 +42,3 @@ export function useReducedMotion(): boolean {
 export function useSystemReducedMotion(): boolean | null {
   return useFramerReducedMotion();
 }
-

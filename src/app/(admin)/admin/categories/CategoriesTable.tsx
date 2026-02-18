@@ -1,13 +1,6 @@
-'use client';
+"use client";
 
-import {
-  ChevronUp,
-  ChevronDown,
-  ToggleLeft,
-  ToggleRight,
-  Trash2,
-  AlertCircle,
-} from "lucide-react";
+import { ChevronUp, ChevronDown, ToggleLeft, ToggleRight, Trash2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -67,12 +60,8 @@ export function CategoriesTable({
             <TableHead className="w-[80px] font-body font-medium text-text-secondary">
               Order
             </TableHead>
-            <TableHead className="font-body font-medium text-text-secondary">
-              Name
-            </TableHead>
-            <TableHead className="font-body font-medium text-text-secondary">
-              Slug
-            </TableHead>
+            <TableHead className="font-body font-medium text-text-secondary">Name</TableHead>
+            <TableHead className="font-body font-medium text-text-secondary">Slug</TableHead>
             <TableHead className="text-center font-body font-medium text-text-secondary">
               Items
             </TableHead>
@@ -130,10 +119,7 @@ export function CategoriesTable({
                   </code>
                 </TableCell>
                 <TableCell className="text-center">
-                  <Badge
-                    variant="outline"
-                    className="border-border text-text-secondary font-body"
-                  >
+                  <Badge variant="outline" className="border-border text-text-secondary font-body">
                     {category.item_count}
                   </Badge>
                 </TableCell>
@@ -160,13 +146,10 @@ export function CategoriesTable({
                     disabled={isUpdating || category.item_count > 0}
                     className={cn(
                       "p-1 hover:bg-status-error/10",
-                      category.item_count > 0 &&
-                        "opacity-30 cursor-not-allowed"
+                      category.item_count > 0 && "opacity-30 cursor-not-allowed"
                     )}
                     title={
-                      category.item_count > 0
-                        ? "Cannot delete: has menu items"
-                        : "Delete category"
+                      category.item_count > 0 ? "Cannot delete: has menu items" : "Delete category"
                     }
                   >
                     <Trash2 className="h-4 w-4 text-status-error" />

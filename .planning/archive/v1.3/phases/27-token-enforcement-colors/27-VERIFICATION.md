@@ -68,71 +68,71 @@ Per user instructions, these files have proper ESLint disable comments and are N
 
 ### ROADMAP Success Criteria Analysis
 
-| Criterion | Status | Details |
-|-----------|--------|---------|
-| 1. Zero text-white or text-black in component files | VERIFIED | 0 violations (excluding documented exemptions with ESLint disables) |
-| 2. Zero bg-white or bg-black in component files | FAILED | 1 violation: CommandPalette mobile close button (bg-white/90 dark:bg-zinc-800/90) |
-| 3. Zero hardcoded hex colors in TSX files | ACCEPTABLE | Chart components use hex colors with CSS variable comments (Recharts compatibility) |
-| 4. All gradients use theme-aware CSS variables | VERIFIED | All gradients use semantic tokens (from-primary, from-secondary) or CSS utilities (bg-gradient-*) |
-| 5. Both themes render correctly on all pages | NEEDS HUMAN | Cannot verify programmatically (visual appearance) |
+| Criterion                                           | Status      | Details                                                                                            |
+| --------------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------- |
+| 1. Zero text-white or text-black in component files | VERIFIED    | 0 violations (excluding documented exemptions with ESLint disables)                                |
+| 2. Zero bg-white or bg-black in component files     | FAILED      | 1 violation: CommandPalette mobile close button (bg-white/90 dark:bg-zinc-800/90)                  |
+| 3. Zero hardcoded hex colors in TSX files           | ACCEPTABLE  | Chart components use hex colors with CSS variable comments (Recharts compatibility)                |
+| 4. All gradients use theme-aware CSS variables      | VERIFIED    | All gradients use semantic tokens (from-primary, from-secondary) or CSS utilities (bg-gradient-\*) |
+| 5. Both themes render correctly on all pages        | NEEDS HUMAN | Cannot verify programmatically (visual appearance)                                                 |
 
 **ROADMAP Score:** 4/5 criteria met (2 verified, 1 acceptable, 1 needs human, 1 failed)
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 1 | Overlay, skeleton, disabled tokens exist in CSS and Tailwind | VERIFIED | tokens.css has --color-overlay*, --color-skeleton*, --color-disabled* in :root and .dark; tailwind.config.ts maps utilities |
-| 2 | Zero text-white/text-black in homepage components | VERIFIED | grep shows 0 matches in src/components/ui/homepage/*.tsx |
-| 3 | Zero bg-white/bg-black in homepage components | VERIFIED | grep shows 0 matches in src/components/ui/homepage/*.tsx |
-| 4 | Zero text-white/text-black in checkout components | VERIFIED | grep shows 0 matches in src/components/ui/checkout/*.tsx |
-| 5 | Zero bg-white/bg-black in checkout components | VERIFIED | grep shows 0 matches in src/components/ui/checkout/*.tsx |
-| 6 | Zero text-white/text-black in ALL component files (excluding exemptions) | VERIFIED | 0 violations (PhotoCapture and DriverLayout have ESLint disable comments) |
-| 7 | Zero bg-white/bg-black in ALL component files (excluding exemptions) | FAILED | 1 violation: CommandPalette.tsx line 157, 159 |
-| 8 | Zero hardcoded hex colors in TSX files | ACCEPTABLE | Chart components use hex with comments referencing CSS variables (Recharts requires static colors) |
-| 9 | All gradients use theme-aware patterns | VERIFIED | All use semantic tokens (from-primary, from-secondary, from-green) or CSS utilities (bg-gradient-*) |
-| 10 | Gradient utilities defined in globals.css | VERIFIED | 14 utilities: bg-gradient-hero, bg-gradient-surface, bg-gradient-primary, bg-gradient-progress, etc. |
+| #   | Truth                                                                    | Status     | Evidence                                                                                                                     |
+| --- | ------------------------------------------------------------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Overlay, skeleton, disabled tokens exist in CSS and Tailwind             | VERIFIED   | tokens.css has --color-overlay*, --color-skeleton*, --color-disabled\* in :root and .dark; tailwind.config.ts maps utilities |
+| 2   | Zero text-white/text-black in homepage components                        | VERIFIED   | grep shows 0 matches in src/components/ui/homepage/\*.tsx                                                                    |
+| 3   | Zero bg-white/bg-black in homepage components                            | VERIFIED   | grep shows 0 matches in src/components/ui/homepage/\*.tsx                                                                    |
+| 4   | Zero text-white/text-black in checkout components                        | VERIFIED   | grep shows 0 matches in src/components/ui/checkout/\*.tsx                                                                    |
+| 5   | Zero bg-white/bg-black in checkout components                            | VERIFIED   | grep shows 0 matches in src/components/ui/checkout/\*.tsx                                                                    |
+| 6   | Zero text-white/text-black in ALL component files (excluding exemptions) | VERIFIED   | 0 violations (PhotoCapture and DriverLayout have ESLint disable comments)                                                    |
+| 7   | Zero bg-white/bg-black in ALL component files (excluding exemptions)     | FAILED     | 1 violation: CommandPalette.tsx line 157, 159                                                                                |
+| 8   | Zero hardcoded hex colors in TSX files                                   | ACCEPTABLE | Chart components use hex with comments referencing CSS variables (Recharts requires static colors)                           |
+| 9   | All gradients use theme-aware patterns                                   | VERIFIED   | All use semantic tokens (from-primary, from-secondary, from-green) or CSS utilities (bg-gradient-\*)                         |
+| 10  | Gradient utilities defined in globals.css                                | VERIFIED   | 14 utilities: bg-gradient-hero, bg-gradient-surface, bg-gradient-primary, bg-gradient-progress, etc.                         |
 
 **Score:** 8/10 truths verified (1 failed, 1 acceptable)
 
 ### Required Artifacts
 
-| Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| src/styles/tokens.css | Overlay, skeleton, disabled tokens | VERIFIED | All tokens present in :root and .dark |
-| tailwind.config.ts | Tailwind utility mappings | VERIFIED | overlay, skeleton, disabled, selection at lines 119-138 |
-| src/app/globals.css | Gradient utility classes | VERIFIED | 14 bg-gradient-* utilities defined |
-| Homepage components | Zero hardcoded colors | VERIFIED | All 4 migrated files clean |
-| Checkout components | Zero hardcoded colors | VERIFIED | All 6 migrated files clean |
-| Menu components | Semantic tokens only | VERIFIED | AddButton, UnifiedMenuItemCard fixed in 27-05 |
-| Drawer components | Semantic tokens only | VERIFIED | DrawerUserSection fixed in 27-05 |
-| Tracking components | Semantic tokens only | VERIFIED | StatusTimeline fixed in 27-06 |
-| Auth components | Semantic tokens only | VERIFIED | AuthModal, MagicLinkSent fixed in 27-06 |
-| Progress component | CSS gradient utility | VERIFIED | progress.tsx uses bg-gradient-progress (27-06) |
-| Search components | Semantic tokens only | PARTIAL | CommandPalette has 1 bg-white/90 violation |
-| Driver/Photo exemptions | ESLint disable comments | VERIFIED | PhotoCapture and DriverLayout have proper disable comments |
+| Artifact                | Expected                           | Status   | Details                                                    |
+| ----------------------- | ---------------------------------- | -------- | ---------------------------------------------------------- |
+| src/styles/tokens.css   | Overlay, skeleton, disabled tokens | VERIFIED | All tokens present in :root and .dark                      |
+| tailwind.config.ts      | Tailwind utility mappings          | VERIFIED | overlay, skeleton, disabled, selection at lines 119-138    |
+| src/app/globals.css     | Gradient utility classes           | VERIFIED | 14 bg-gradient-\* utilities defined                        |
+| Homepage components     | Zero hardcoded colors              | VERIFIED | All 4 migrated files clean                                 |
+| Checkout components     | Zero hardcoded colors              | VERIFIED | All 6 migrated files clean                                 |
+| Menu components         | Semantic tokens only               | VERIFIED | AddButton, UnifiedMenuItemCard fixed in 27-05              |
+| Drawer components       | Semantic tokens only               | VERIFIED | DrawerUserSection fixed in 27-05                           |
+| Tracking components     | Semantic tokens only               | VERIFIED | StatusTimeline fixed in 27-06                              |
+| Auth components         | Semantic tokens only               | VERIFIED | AuthModal, MagicLinkSent fixed in 27-06                    |
+| Progress component      | CSS gradient utility               | VERIFIED | progress.tsx uses bg-gradient-progress (27-06)             |
+| Search components       | Semantic tokens only               | PARTIAL  | CommandPalette has 1 bg-white/90 violation                 |
+| Driver/Photo exemptions | ESLint disable comments            | VERIFIED | PhotoCapture and DriverLayout have proper disable comments |
 
 ### Key Link Verification
 
-| From | To | Via | Status | Details |
-|------|----|----|--------|---------|
-| tailwind.config.ts | tokens.css | CSS variables | WIRED | overlay: { DEFAULT: "var(--color-overlay)" } |
-| Homepage components | Tailwind utilities | Class names | WIRED | Using text-text-inverse, bg-surface-primary |
-| Checkout components | Tailwind utilities | Class names | WIRED | Using text-text-inverse, bg-surface-primary |
-| Menu components | Tailwind utilities | Class names | WIRED | AddButton, UnifiedMenuItemCard use text-text-inverse, bg-overlay |
-| Drawer components | Tailwind utilities | Class names | WIRED | DrawerUserSection uses text-text-inverse |
-| Tracking components | Tailwind utilities | Class names | WIRED | StatusTimeline uses text-text-inverse, bg-surface-primary |
-| Auth components | Tailwind utilities | Class names | WIRED | AuthModal, MagicLinkSent use bg-overlay-light, bg-surface-primary |
-| globals.css gradients | tokens.css | var(--color-*) | WIRED | Gradient utilities reference CSS variables |
-| progress.tsx | gradient utilities | bg-gradient-progress | WIRED | Uses bg-gradient-progress class (27-06) |
+| From                  | To                 | Via                  | Status | Details                                                           |
+| --------------------- | ------------------ | -------------------- | ------ | ----------------------------------------------------------------- |
+| tailwind.config.ts    | tokens.css         | CSS variables        | WIRED  | overlay: { DEFAULT: "var(--color-overlay)" }                      |
+| Homepage components   | Tailwind utilities | Class names          | WIRED  | Using text-text-inverse, bg-surface-primary                       |
+| Checkout components   | Tailwind utilities | Class names          | WIRED  | Using text-text-inverse, bg-surface-primary                       |
+| Menu components       | Tailwind utilities | Class names          | WIRED  | AddButton, UnifiedMenuItemCard use text-text-inverse, bg-overlay  |
+| Drawer components     | Tailwind utilities | Class names          | WIRED  | DrawerUserSection uses text-text-inverse                          |
+| Tracking components   | Tailwind utilities | Class names          | WIRED  | StatusTimeline uses text-text-inverse, bg-surface-primary         |
+| Auth components       | Tailwind utilities | Class names          | WIRED  | AuthModal, MagicLinkSent use bg-overlay-light, bg-surface-primary |
+| globals.css gradients | tokens.css         | var(--color-\*)      | WIRED  | Gradient utilities reference CSS variables                        |
+| progress.tsx          | gradient utilities | bg-gradient-progress | WIRED  | Uses bg-gradient-progress class (27-06)                           |
 
 ### Anti-Patterns Found
 
-| File | Line | Pattern | Severity | Impact |
-|------|------|---------|----------|--------|
-| CommandPalette.tsx | 157 | bg-white/90 dark:bg-zinc-800/90 | Warning | Mobile close button not using semantic tokens |
-| CommandPalette.tsx | 159 | border-white/20 dark:border-white/10 | Warning | Mobile close button border not using semantic tokens |
-| Analytics charts | Multiple | Hex colors with CSS var comments | Info | Recharts compatibility — acceptable per design decision |
+| File               | Line     | Pattern                              | Severity | Impact                                                  |
+| ------------------ | -------- | ------------------------------------ | -------- | ------------------------------------------------------- |
+| CommandPalette.tsx | 157      | bg-white/90 dark:bg-zinc-800/90      | Warning  | Mobile close button not using semantic tokens           |
+| CommandPalette.tsx | 159      | border-white/20 dark:border-white/10 | Warning  | Mobile close button border not using semantic tokens    |
+| Analytics charts   | Multiple | Hex colors with CSS var comments     | Info     | Recharts compatibility — acceptable per design decision |
 
 ### Human Verification Required
 
@@ -165,11 +165,13 @@ Per user instructions, these files have proper ESLint disable comments and are N
 **Phase 27 completed 6 plans and significantly improved goal achievement.**
 
 **Progress vs. previous verification:**
+
 - **Gaps closed:** 13 violations (menu, drawer, tracking, auth, progress)
 - **Gaps remaining:** 1 violation (CommandPalette)
 - **Score improvement:** 3/5 → 4/5 success criteria
 
 **What was completed:**
+
 - Token foundation (overlay, skeleton, disabled tokens)
 - Homepage migration (4 components, 0 violations)
 - Checkout migration (6 components, 0 violations)
@@ -188,6 +190,7 @@ Per user instructions, these files have proper ESLint disable comments and are N
 **Assessment:**
 
 The CommandPalette violation is **low severity** because:
+
 - Uses Tailwind dark: modifier (is theme-aware)
 - Only affects mobile close button (small surface area)
 - Visual impact likely minimal
@@ -197,6 +200,7 @@ However, it **technically violates** success criterion #2 ("Zero bg-white or bg-
 **Recommendation:**
 
 Create one final micro-plan (27-07) to fix CommandPalette, OR document as acceptable deviation if:
+
 - Human verification confirms visual correctness in both themes
 - Team decides dark: modifier approach is acceptable for edge cases
 

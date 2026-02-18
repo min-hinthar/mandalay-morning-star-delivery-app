@@ -180,12 +180,7 @@ export function MenuContentClient({
   );
 
   const handleAddToCart = useCallback(
-    (
-      item: MenuItem,
-      modifiers: SelectedModifier[],
-      quantity: number,
-      notes: string
-    ) => {
+    (item: MenuItem, modifiers: SelectedModifier[], quantity: number, notes: string) => {
       addItem({
         menuItemId: item.id,
         menuItemSlug: item.slug,

@@ -36,7 +36,6 @@ describe("Checkout Session Validation", () => {
     });
 
     it("rejects missing addressId", () => {
-       
       const { addressId: _addressId, ...body } = validBody;
       const result = createCheckoutSessionSchema.safeParse(body);
       expect(result.success).toBe(false);
@@ -107,7 +106,6 @@ describe("Checkout Session Validation", () => {
     });
 
     it("allows optional customerNotes", () => {
-       
       const { customerNotes: _customerNotes, ...body } = validBody;
       const result = createCheckoutSessionSchema.safeParse(body);
       expect(result.success).toBe(true);
@@ -322,7 +320,9 @@ describe("Checkout Session Validation", () => {
       const lineItems = createStripeLineItems(items, 0);
 
       expect(lineItems).toHaveLength(1);
-      expect(lineItems.find((i) => i.price_data.product_data.name === "Delivery Fee")).toBeUndefined();
+      expect(
+        lineItems.find((i) => i.price_data.product_data.name === "Delivery Fee")
+      ).toBeUndefined();
     });
   });
 });

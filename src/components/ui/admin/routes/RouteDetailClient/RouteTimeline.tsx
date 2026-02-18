@@ -1,13 +1,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import {
-  CheckCircle,
-  Truck,
-  Clock,
-  XCircle,
-  SkipForward,
-} from "lucide-react";
+import { CheckCircle, Truck, Clock, XCircle, SkipForward } from "lucide-react";
 import { format, parseISO, differenceInMinutes } from "date-fns";
 import { cn } from "@/lib/utils/cn";
 import { staggerContainer, staggerItem } from "@/lib/motion-tokens";
@@ -103,20 +97,20 @@ function TimelineStop({ stop, index, isLast, timeBetween }: TimelineStopProps) {
   const { shouldAnimate } = useAnimationPreference();
   const config = STATUS_CONFIG[stop.status];
   const hasException = stop.exception && !stop.exception.resolved;
-  const deliveryTime = formatTime(stop.deliveredAt) || formatTime(stop.arrivedAt) || formatTime(stop.eta);
+  const deliveryTime =
+    formatTime(stop.deliveredAt) || formatTime(stop.arrivedAt) || formatTime(stop.eta);
 
   return (
-    <m.div
-      variants={staggerItem}
-      className="relative flex gap-4"
-    >
+    <m.div variants={staggerItem} className="relative flex gap-4">
       {/* Left column: dot + connecting line */}
       <div className="flex flex-col items-center">
         {/* Dot */}
         <m.div
           initial={shouldAnimate ? { scale: 0 } : undefined}
           animate={shouldAnimate ? { scale: 1 } : undefined}
-          transition={shouldAnimate ? { delay: index * 0.1, type: "spring", stiffness: 300 } : undefined}
+          transition={
+            shouldAnimate ? { delay: index * 0.1, type: "spring", stiffness: 300 } : undefined
+          }
           className={cn(
             "relative z-10 flex items-center justify-center",
             "w-8 h-8 rounded-full border-2",
@@ -145,16 +139,13 @@ function TimelineStop({ stop, index, isLast, timeBetween }: TimelineStopProps) {
       </div>
 
       {/* Right column: stop info card */}
-      <div
-        className={cn(
-          "flex-1 pb-6 min-w-0",
-          isLast && "pb-0"
-        )}
-      >
+      <div className={cn("flex-1 pb-6 min-w-0", isLast && "pb-0")}>
         <div
           className={cn(
             "rounded-xl bg-surface-primary border p-3 shadow-sm",
-            hasException ? "border-status-error/30 border-l-4 border-l-status-error" : "border-border",
+            hasException
+              ? "border-status-error/30 border-l-4 border-l-status-error"
+              : "border-border",
             stop.status === "delivered" && "border-l-4 border-l-status-success",
             stop.status === "enroute" && "border-l-4 border-l-status-in-transit",
             stop.status === "arrived" && "border-l-4 border-l-status-in-transit",
@@ -236,9 +227,7 @@ export function RouteTimeline({ stops }: RouteTimelineProps) {
             stop={stop}
             index={index}
             isLast={index === sortedStops.length - 1}
-            timeBetween={
-              index > 0 ? getTimeBetween(sortedStops[index - 1], stop) : null
-            }
+            timeBetween={index > 0 ? getTimeBetween(sortedStops[index - 1], stop) : null}
           />
         ))}
       </div>

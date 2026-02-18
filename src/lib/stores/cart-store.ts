@@ -114,16 +114,11 @@ export const useCartStore = create<CartStore>()(
         if (existingIndex !== -1) {
           // Merge: increment quantity of existing item
           const existing = items[existingIndex];
-          const newQuantity = Math.min(
-            existing.quantity + (item.quantity || 1),
-            MAX_ITEM_QUANTITY
-          );
+          const newQuantity = Math.min(existing.quantity + (item.quantity || 1), MAX_ITEM_QUANTITY);
 
           set({
             items: items.map((cartItem, idx) =>
-              idx === existingIndex
-                ? { ...cartItem, quantity: newQuantity }
-                : cartItem
+              idx === existingIndex ? { ...cartItem, quantity: newQuantity } : cartItem
             ),
           });
           return;
@@ -135,8 +130,7 @@ export const useCartStore = create<CartStore>()(
           return;
         }
 
-        const isOffline =
-          typeof navigator !== "undefined" && !navigator.onLine;
+        const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
 
         const newItem: CartItem = {
           menuItemId: item.menuItemId,
@@ -157,16 +151,11 @@ export const useCartStore = create<CartStore>()(
       },
 
       updateQuantity: (cartItemId, quantity) => {
-        const clampedQty = Math.min(
-          Math.max(1, quantity),
-          MAX_ITEM_QUANTITY
-        );
+        const clampedQty = Math.min(Math.max(1, quantity), MAX_ITEM_QUANTITY);
 
         set((state) => ({
           items: state.items.map((item) =>
-            item.cartItemId === cartItemId
-              ? { ...item, quantity: clampedQty }
-              : item
+            item.cartItemId === cartItemId ? { ...item, quantity: clampedQty } : item
           ),
         }));
       },
@@ -188,17 +177,14 @@ export const useCartStore = create<CartStore>()(
             (sum, mod) => sum + mod.priceDeltaCents,
             0
           );
-          const itemTotal =
-            (item.basePriceCents + modifierTotal) * item.quantity;
+          const itemTotal = (item.basePriceCents + modifierTotal) * item.quantity;
           return total + itemTotal;
         }, 0);
       },
 
       getEstimatedDeliveryFee: () => {
         const subtotal = get().getItemsSubtotal();
-        return subtotal >= FREE_DELIVERY_THRESHOLD_CENTS
-          ? 0
-          : DELIVERY_FEE_CENTS;
+        return subtotal >= FREE_DELIVERY_THRESHOLD_CENTS ? 0 : DELIVERY_FEE_CENTS;
       },
 
       getItemCount: () => {
@@ -224,10 +210,7 @@ export const useCartStore = create<CartStore>()(
               ? {
                   ...item,
                   modifiers: updates.modifiers,
-                  quantity: Math.min(
-                    Math.max(1, updates.quantity),
-                    MAX_ITEM_QUANTITY
-                  ),
+                  quantity: Math.min(Math.max(1, updates.quantity), MAX_ITEM_QUANTITY),
                   notes: updates.notes.trim(),
                   basePriceCents: updates.basePriceCents,
                 }
@@ -239,9 +222,7 @@ export const useCartStore = create<CartStore>()(
       updateItemPrice: (cartItemId, newPriceCents) => {
         set((state) => ({
           items: state.items.map((item) =>
-            item.cartItemId === cartItemId
-              ? { ...item, basePriceCents: newPriceCents }
-              : item
+            item.cartItemId === cartItemId ? { ...item, basePriceCents: newPriceCents } : item
           ),
         }));
       },

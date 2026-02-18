@@ -18,6 +18,7 @@ pnpm analyze:browser
 ```
 
 This opens an interactive visualization showing:
+
 - Chunk sizes (parsed and gzipped)
 - Module composition
 - Opportunities for code splitting
@@ -25,23 +26,23 @@ This opens an interactive visualization showing:
 
 ## Target Bundle Sizes
 
-| Bundle | Target | Current |
-|--------|--------|---------|
-| First Load JS | < 100KB | TBD |
-| Main Chunk | < 50KB | TBD |
-| Shared Chunks | < 30KB each | TBD |
-| Page-specific JS | < 20KB | TBD |
+| Bundle           | Target      | Current |
+| ---------------- | ----------- | ------- |
+| First Load JS    | < 100KB     | TBD     |
+| Main Chunk       | < 50KB      | TBD     |
+| Shared Chunks    | < 30KB each | TBD     |
+| Page-specific JS | < 20KB      | TBD     |
 
 ## Key Dependencies Size Impact
 
-| Package | Approx Size | Notes |
-|---------|-------------|-------|
-| framer-motion | ~45KB gzip | Animation library |
-| recharts | ~40KB gzip | Charts (admin only) |
-| @react-google-maps/api | ~25KB gzip | Maps (tracking only) |
-| @supabase/supabase-js | ~15KB gzip | Database client |
-| lucide-react | Tree-shakeable | Icons |
-| date-fns | Tree-shakeable | Date utils |
+| Package                | Approx Size    | Notes                |
+| ---------------------- | -------------- | -------------------- |
+| framer-motion          | ~45KB gzip     | Animation library    |
+| recharts               | ~40KB gzip     | Charts (admin only)  |
+| @react-google-maps/api | ~25KB gzip     | Maps (tracking only) |
+| @supabase/supabase-js  | ~15KB gzip     | Database client      |
+| lucide-react           | Tree-shakeable | Icons                |
+| date-fns               | Tree-shakeable | Date utils           |
 
 ## Optimization Strategies
 
@@ -63,24 +64,19 @@ experimental: {
 
 ```typescript
 // Heavy components should be lazy loaded
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
 // Charts - admin only
-const RevenueChart = dynamic(
-  () => import('@/components/admin/RevenueChart'),
-  { ssr: false }
-);
+const RevenueChart = dynamic(() => import("@/components/admin/RevenueChart"), { ssr: false });
 
 // Maps - tracking only
-const DeliveryMap = dynamic(
-  () => import('@/components/tracking/DeliveryMap'),
-  { ssr: false }
-);
+const DeliveryMap = dynamic(() => import("@/components/tracking/DeliveryMap"), { ssr: false });
 ```
 
 ### 3. Route-based Code Splitting
 
 Next.js automatically code-splits by route. Ensure:
+
 - Admin pages don't import customer components
 - Driver pages don't import admin components
 - Public pages are minimal
@@ -89,8 +85,8 @@ Next.js automatically code-splits by route. Ensure:
 
 ```typescript
 // Load analytics only in production
-if (process.env.NODE_ENV === 'production') {
-  import('./analytics').then(module => module.init());
+if (process.env.NODE_ENV === "production") {
+  import("./analytics").then((module) => module.init());
 }
 ```
 
@@ -110,6 +106,7 @@ After running `pnpm analyze`:
 
 **Symptoms**: First Load JS > 100KB
 **Solutions**:
+
 - Move heavy libraries to dynamic imports
 - Check for accidental server code in client bundles
 - Verify tree shaking is working
@@ -118,6 +115,7 @@ After running `pnpm analyze`:
 
 **Symptoms**: Same library appears multiple times in bundle
 **Solutions**:
+
 - Check for mismatched versions in package.json
 - Use pnpm's built-in deduplication
 - Add to webpack optimization.splitChunks
@@ -126,6 +124,7 @@ After running `pnpm analyze`:
 
 **Symptoms**: Admin/driver code in customer bundles
 **Solutions**:
+
 - Use proper route grouping `(admin)`, `(driver)`, `(customer)`
 - Check imports are not crossing boundaries
 - Use dynamic imports for cross-boundary components
@@ -135,6 +134,7 @@ After running `pnpm analyze`:
 ### 2026-01-18: Initial Analysis
 
 **Setup completed**:
+
 - Installed @next/bundle-analyzer
 - Added analyze scripts to package.json
 - Configured optimizePackageImports in next.config.ts
@@ -142,6 +142,7 @@ After running `pnpm analyze`:
 - Set up long-term caching headers
 
 **Next steps**:
+
 - Run full analysis after build
 - Document baseline metrics
 - Identify top optimization opportunities

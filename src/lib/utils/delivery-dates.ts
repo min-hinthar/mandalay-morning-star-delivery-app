@@ -1,8 +1,4 @@
-import {
-  CUTOFF_HOUR,
-  TIMEZONE,
-  type DeliveryDate,
-} from "@/types/delivery";
+import { CUTOFF_HOUR, TIMEZONE, type DeliveryDate } from "@/types/delivery";
 
 interface ZonedParts {
   year: number;
@@ -65,7 +61,9 @@ function getTimeZoneOffsetMinutes(date: Date): number {
   return hours * 60 + sign * minutes;
 }
 
-function zonedTimeToUtc(parts: Partial<ZonedParts> & Pick<ZonedParts, "year" | "month" | "day">): Date {
+function zonedTimeToUtc(
+  parts: Partial<ZonedParts> & Pick<ZonedParts, "year" | "month" | "day">
+): Date {
   const utcDate = new Date(
     Date.UTC(
       parts.year,
@@ -148,10 +146,7 @@ export function getCutoffForSaturday(saturday: Date): Date {
 /**
  * Check if we're past the cutoff for this Saturday.
  */
-export function isPastCutoff(
-  saturday: Date,
-  now: Date = new Date()
-): boolean {
+export function isPastCutoff(saturday: Date, now: Date = new Date()): boolean {
   const cutoff = getCutoffForSaturday(saturday);
   return now.getTime() > cutoff.getTime();
 }
@@ -176,9 +171,7 @@ export function getDeliveryDate(now: Date = new Date()): DeliveryDate {
 /**
  * Get time remaining until cutoff.
  */
-export function getTimeUntilCutoff(
-  now: Date = new Date()
-): {
+export function getTimeUntilCutoff(now: Date = new Date()): {
   hours: number;
   minutes: number;
   isPastCutoff: boolean;

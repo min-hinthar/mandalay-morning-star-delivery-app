@@ -1,5 +1,5 @@
-import { RouteLoading } from '@/components/ui/RouteLoading'
+import { RouteLoading } from "@/components/ui/RouteLoading";
 
 export default function ProfileLoading() {
-  return <RouteLoading message="Loading profile..." />
+  return <RouteLoading message="Loading profile..." />;
 }

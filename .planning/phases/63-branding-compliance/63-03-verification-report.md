@@ -6,6 +6,7 @@
 ## Verification Results
 
 ### 1. Privacy Policy Page
+
 - **Local code:** `src/app/(public)/privacy/page.tsx` -- 272 lines, comprehensive
 - **Content verified:** Google (OAuth), Sentry, Stripe, Resend, Vercel all disclosed
 - **Scopes disclosed:** openid, email, profile (non-sensitive)
@@ -13,17 +14,20 @@
 - **Deployed status:** OLD STUB CONTENT -- comprehensive rewrite NOT YET DEPLOYED
 
 ### 2. Terms of Service Page
+
 - **Local code:** `src/app/(public)/terms/page.tsx` -- 232 lines, comprehensive
 - **Content verified:** Food allergen disclaimer with "order at your own risk" language
 - **Production URL:** `https://delivery.mandalaymorningstar.com/terms`
 - **Deployed status:** OLD STUB CONTENT -- comprehensive rewrite NOT YET DEPLOYED
 
 ### 3. Homepage Footer Legal Links
+
 - **Local code:** `src/components/ui/homepage/SiteFooter.tsx` -- links to /privacy and /terms
 - **Layout integration:** `src/app/(public)/layout.tsx` includes SiteFooter
 - **Deployed status:** SiteFooter NOT YET DEPLOYED (no /privacy or /terms links on live homepage)
 
 ### 4. OAuth Scopes Confirmation
+
 - **File:** `src/components/ui/auth/SocialLoginButtons.tsx`
 - **Scopes parameter:** NONE explicitly set (confirmed via grep)
 - **Options set:** `queryParams: { access_type: "offline", prompt: "consent" }` -- these are NOT scopes
@@ -31,6 +35,7 @@
 - **Classification:** Non-sensitive scopes -- NO demo video required for verification
 
 ### 5. Google Cloud Console
+
 - **URL:** https://console.cloud.google.com/apis/credentials/consent
 - **Action needed:** User must configure consent screen and submit for verification
 

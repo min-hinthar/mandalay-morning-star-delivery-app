@@ -58,6 +58,7 @@ completed: 2026-02-07
 - **Files modified:** 1
 
 ## Accomplishments
+
 - Cart E2E tests passing: 18-19/19 (up from 6/19 baseline), exceeding 15+ target
 - Created robust `addItemToCart` helper that handles the full ItemDetailSheet modal flow (required modifiers, radiogroup selection, force-click, drawer auto-close)
 - Fixed 7 distinct selector/timing issues across 13 previously failing tests
@@ -69,23 +70,25 @@ completed: 2026-02-07
 2. **Task 2: Fix failing selectors** + **Task 3: Data-testid evaluation** - `d488125` (fix)
 
 ## Files Created/Modified
+
 - `e2e/cart-flow.spec.ts` - Refined all 19 test selectors, added addItemToCart helper, increased timeouts, scoped drawer selectors
 
 ## Decisions Made
 
-| Decision | Rationale |
-|----------|-----------|
-| aria-label selectors over data-testid | Components already have accessible labels; data-testid adds noise without benefit |
-| evaluate(el => el.click()) for drawer buttons | Playwright's force:true still enforces viewport checks; native DOM click bypasses completely |
-| Scope to data-testid="drawer" | Prevents matching elements behind the drawer overlay (e.g., CartBar's checkout button) |
-| No component changes | Existing Drawer has data-testid="drawer", Modal has data-testid="modal-backdrop" -- sufficient for testing |
-| Promise.all for checkout navigation | Click + waitForURL simultaneously prevents race conditions with dev server Fast Refresh |
+| Decision                                      | Rationale                                                                                                  |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| aria-label selectors over data-testid         | Components already have accessible labels; data-testid adds noise without benefit                          |
+| evaluate(el => el.click()) for drawer buttons | Playwright's force:true still enforces viewport checks; native DOM click bypasses completely               |
+| Scope to data-testid="drawer"                 | Prevents matching elements behind the drawer overlay (e.g., CartBar's checkout button)                     |
+| No component changes                          | Existing Drawer has data-testid="drawer", Modal has data-testid="modal-backdrop" -- sufficient for testing |
+| Promise.all for checkout navigation           | Click + waitForURL simultaneously prevents race conditions with dev server Fast Refresh                    |
 
 ## Deviations from Plan
 
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] ItemDetailSheet modal flow not handled**
+
 - **Found during:** Task 1 (Audit)
 - **Issue:** First menu item (Kyay-O / Si-Chat) has 2 required modifier groups; clicking "Add" opens modal instead of directly adding to cart. Original tests didn't handle this flow at all.
 - **Fix:** Created `addItemToCart` helper that detects modal, selects first radio in each radiogroup, clicks "Add to Cart" with force:true, and closes auto-opened drawer
@@ -93,6 +96,7 @@ completed: 2026-02-07
 - **Committed in:** d488125
 
 **2. [Rule 1 - Bug] Auto-opening cart drawer intercepting subsequent clicks**
+
 - **Found during:** Task 2 (Fix selectors)
 - **Issue:** HomepageMenuSection.handleAddToCart calls openCart() after adding item from modal, auto-opening the cart drawer which intercepts subsequent button clicks
 - **Fix:** After addItemToCart, detect if drawer opened and close it with Escape key
@@ -100,6 +104,7 @@ completed: 2026-02-07
 - **Committed in:** d488125
 
 **3. [Rule 1 - Bug] Auto-hiding header making cart button outside viewport**
+
 - **Found during:** Task 2 (Fix selectors)
 - **Issue:** AppHeader translates Y off-screen when user scrolls down; after addItemToCart scrolls the page, the "Open cart" button becomes invisible
 - **Fix:** Added window.scrollTo(top: 0) after addItemToCart with try-catch for dev server navigation
@@ -107,6 +112,7 @@ completed: 2026-02-07
 - **Committed in:** d488125
 
 **4. [Rule 1 - Bug] Checkout button matching wrong element**
+
 - **Found during:** Task 2 (Fix selectors)
 - **Issue:** page.getByRole("button", { name: /checkout/i }).first() matched CartBar's checkout button behind the drawer overlay instead of the drawer's "Proceed to Checkout" button
 - **Fix:** Scoped checkout button selector to drawer: `drawer.getByRole("button", { name: /proceed to checkout|checkout/i })`
@@ -114,6 +120,7 @@ completed: 2026-02-07
 - **Committed in:** d488125
 
 **5. [Rule 1 - Bug] Framer-motion animated buttons report "not stable"**
+
 - **Found during:** Task 2 (Fix selectors)
 - **Issue:** The "Clear cart" button uses framer-motion whileHover/whileTap, causing Playwright to report "element is not stable" during animation
 - **Fix:** Added force:true to animated button clicks and 500ms wait for drawer animation to settle
@@ -135,11 +142,13 @@ completed: 2026-02-07
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Cart E2E tests are reliable at 18-19/19 passing (target was 15+)
 - The 1 intermittent failure is a dev server compilation race condition, not a selector issue
 - Tests ready for CI pipeline integration (E2E job added in 47-04)
 - Ready for 47-06 (build verification)
 
 ---
-*Phase: 47-final-lcp-measurement-gap-closure*
-*Completed: 2026-02-07*
+
+_Phase: 47-final-lcp-measurement-gap-closure_
+_Completed: 2026-02-07_

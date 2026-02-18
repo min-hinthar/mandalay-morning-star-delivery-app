@@ -64,7 +64,8 @@ completed: 2026-01-27
 - **Files modified:** 4
 
 ## Accomplishments
-- Added 16 new shadow tokens including xs, none, inner-*, color variants, focus states, and text shadows
+
+- Added 16 new shadow tokens including xs, none, inner-\*, color variants, focus states, and text shadows
 - Added 7 blur tokens (none through 3xl) with CSS variable references
 - Mapped all new tokens to Tailwind utilities (shadow-xs, backdrop-blur-lg, etc.)
 - Created ESLint rules catching inline boxShadow and backdropFilter with hardcoded values
@@ -79,12 +80,14 @@ Each task was committed atomically:
 3. **Task 3: Update audit-tokens.js with enhanced detection** - `56299cc` (feat)
 
 ## Files Created/Modified
+
 - `src/styles/tokens.css` - Added 16 shadow tokens + 7 blur tokens for both light and dark mode
 - `tailwind.config.ts` - Mapped all new shadow utilities + added backdropBlur section
 - `eslint.config.mjs` - Added 3 ESLint rules for boxShadow/backdropFilter/filter enforcement
 - `scripts/audit-tokens.js` - Enhanced effects detection with inline pattern matching and fix suggestions
 
 ## Decisions Made
+
 - Shadow-xs uses subtle primary color tint (rgba(164, 16, 52, 0.03)) for brand consistency
 - Blur tokens use same pixel values in light and dark mode (blur is not theme-dependent)
 - ESLint boxShadow rule explicitly notes Framer Motion exception for animation interpolation
@@ -95,6 +98,7 @@ Each task was committed atomically:
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
@@ -102,11 +106,13 @@ None
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Token infrastructure complete for shadow and blur values
 - ESLint rules active and catching violations (40+ shadow-[...] patterns detected)
 - Ready for 29-02 migration of existing hardcoded shadows/blur values
 - Audit baseline established for tracking migration progress
 
 ---
-*Phase: 29-token-enforcement-effects*
-*Completed: 2026-01-27*
+
+_Phase: 29-token-enforcement-effects_
+_Completed: 2026-01-27_

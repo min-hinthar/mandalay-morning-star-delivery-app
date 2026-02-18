@@ -174,9 +174,10 @@ export function FloatingEmoji({
     willChange: "transform",
     transform: `translate3d(${repelX}px, ${repelY}px, 0)`,
     // Depth effects via CSS variables
-    filter: depth === "near"
-      ? `drop-shadow(var(--hero-emoji-shadow-${depth}))`
-      : `blur(var(--hero-emoji-blur-${depth})) drop-shadow(var(--hero-emoji-shadow-${depth}))`,
+    filter:
+      depth === "near"
+        ? `drop-shadow(var(--hero-emoji-shadow-${depth}))`
+        : `blur(var(--hero-emoji-blur-${depth})) drop-shadow(var(--hero-emoji-shadow-${depth}))`,
     opacity: depth === "near" ? 1 : `var(--hero-emoji-opacity-${depth})`,
   };
 

@@ -20,10 +20,7 @@ interface DriverInviteRow {
  * Revoke a pending driver invite
  * Note: [id] is the invite ID, not driver ID
  */
-export async function POST(
-  _request: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
 
@@ -58,10 +55,7 @@ export async function POST(
     }
 
     if (invite.revoked_at) {
-      return NextResponse.json(
-        { error: "This invite has already been revoked" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "This invite has already been revoked" }, { status: 400 });
     }
 
     // Revoke the invite
@@ -73,10 +67,7 @@ export async function POST(
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/drivers/[id]/revoke-invite", flowId: "revoke" });
-      return NextResponse.json(
-        { error: "Failed to revoke invite" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to revoke invite" }, { status: 500 });
     }
 
     logger.info("Driver invite revoked", {
@@ -94,9 +85,6 @@ export async function POST(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/drivers/[id]/revoke-invite" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

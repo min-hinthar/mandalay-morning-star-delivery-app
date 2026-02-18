@@ -54,6 +54,7 @@ started: Current behavior
 root_cause: The useSwipeToClose hook sets `touchAction: "pan-x"` on the drawer container (line 382 of swipe-gestures.ts), which prevents vertical scrolling. The scrollable content div inherits this restriction, blocking touch scroll on mobile.
 
 fix: Added `style={{ touchAction: "pan-y" }}` to:
+
 1. Drawer.tsx line 317 - the bottom sheet content wrapper
 2. ItemDetailSheet.tsx line 224 - the scrollable content area
 
@@ -62,5 +63,6 @@ This overrides the parent's pan-x restriction, allowing vertical scrolling in th
 verification: TypeScript passes, build passes. Needs runtime verification on mobile device.
 
 files_changed:
+
 - src/components/ui/Drawer.tsx
 - src/components/ui/menu/ItemDetailSheet.tsx

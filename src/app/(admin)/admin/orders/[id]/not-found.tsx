@@ -12,8 +12,7 @@ export default function OrderNotFound() {
         Order not found
       </h1>
       <p className="text-text-secondary text-sm mb-6 text-center max-w-md">
-        The order you&apos;re looking for doesn&apos;t exist or has been
-        removed.
+        The order you&apos;re looking for doesn&apos;t exist or has been removed.
       </p>
       <Link href="/admin/orders">
         <Button variant="outline">

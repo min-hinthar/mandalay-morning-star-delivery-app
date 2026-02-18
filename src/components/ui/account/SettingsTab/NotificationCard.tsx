@@ -104,12 +104,7 @@ export function NotificationCard({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <p
-              className={cn(
-                "px-4 pb-3 text-sm text-status-warning",
-                !expanded && "pt-0"
-              )}
-            >
+            <p className={cn("px-4 pb-3 text-sm text-status-warning", !expanded && "pt-0")}>
               {warningText}
             </p>
           </m.div>

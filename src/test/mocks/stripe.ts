@@ -71,10 +71,7 @@ export function createCheckoutCompletedEvent(
 /**
  * Mock Stripe event for checkout.session.expired
  */
-export function createCheckoutExpiredEvent(
-  orderId: string,
-  userId: string
-): Stripe.Event {
+export function createCheckoutExpiredEvent(orderId: string, userId: string): Stripe.Event {
   return {
     id: "evt_test_checkout_expired",
     type: "checkout.session.expired",
@@ -133,9 +130,7 @@ export function createChargeRefundedEvent(
 /**
  * Mock Stripe event for payment_intent.payment_failed
  */
-export function createPaymentFailedEvent(
-  orderId?: string
-): Stripe.Event {
+export function createPaymentFailedEvent(orderId?: string): Stripe.Event {
   return {
     id: "evt_test_payment_failed",
     type: "payment_intent.payment_failed",

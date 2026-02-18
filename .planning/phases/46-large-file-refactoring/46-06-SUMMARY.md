@@ -2,7 +2,17 @@
 phase: 46-large-file-refactoring
 plan: 06
 subsystem: ui
-tags: [refactoring, barrel-exports, motion-tokens, swipe-gestures, micro-interactions, analytics, offline-store, route-optimization]
+tags:
+  [
+    refactoring,
+    barrel-exports,
+    motion-tokens,
+    swipe-gestures,
+    micro-interactions,
+    analytics,
+    offline-store,
+    route-optimization,
+  ]
 
 # Dependency graph
 requires:
@@ -72,6 +82,7 @@ completed: 2026-02-06
 - **Files modified:** 44 (7 deleted, 39 created, minus git rename detections)
 
 ## Accomplishments
+
 - Split motion-tokens.ts (937 lines, 116 importers, 33 exports) into 7 sub-files with zero import breakage
 - Split 6 additional lib files (swipe-gestures, analytics-helpers, micro-interactions, offline-store, route-optimization, useSafeEffects)
 - All 39 sub-files under 400 lines (max: 331 lines in optimizer.ts)
@@ -87,6 +98,7 @@ Each task was committed atomically:
 ## Files Created/Modified
 
 ### motion-tokens/ (33 exports across 7 sub-files)
+
 - `src/lib/motion-tokens/index.ts` - Barrel re-exporting all 33 exports
 - `src/lib/motion-tokens/core.ts` - duration, easing, spring, transition (182 lines)
 - `src/lib/motion-tokens/variants.ts` - variants, hover, inputFocus, tap, overlay, badgeVariants, cartBarBounce, cartBarSlideUp (321 lines)
@@ -97,6 +109,7 @@ Each task was committed atomically:
 - `src/lib/motion-tokens/utilities.ts` - triggerHaptic (18 lines)
 
 ### swipe-gestures/ (21 exports across 6 sub-files)
+
 - `src/lib/swipe-gestures/index.ts` - Barrel
 - `src/lib/swipe-gestures/types.ts` - All type definitions
 - `src/lib/swipe-gestures/constants.ts` - SWIPE_THRESHOLDS, VELOCITY_THRESHOLDS, HAPTIC_DURATIONS
@@ -106,6 +119,7 @@ Each task was committed atomically:
 - `src/lib/swipe-gestures/useSwipeNavigation.ts` - useSwipeNavigation hook
 
 ### analytics-helpers/ (19 exports across 4 sub-files)
+
 - `src/lib/utils/analytics-helpers/index.ts` - Barrel
 - `src/lib/utils/analytics-helpers/transformations.ts` - transformDriverStats, transformDeliveryMetrics
 - `src/lib/utils/analytics-helpers/trends.ts` - calculateTrendPercentage, getTrendDirection, getDateRangeForPeriod, getPreviousPeriodRange
@@ -113,6 +127,7 @@ Each task was committed atomically:
 - `src/lib/utils/analytics-helpers/formatting.ts` - formatHourLabel, formatCurrency, formatPercent, formatDuration, formatNumber, formatRating
 
 ### micro-interactions/ (32 exports across 6 sub-files)
+
 - `src/lib/micro-interactions/index.ts` - Barrel + triggerHaptic re-export
 - `src/lib/micro-interactions/timing.ts` - timing, easing constants
 - `src/lib/micro-interactions/buttons.ts` - buttonHover, buttonTap, buttonVariants, primaryButtonVariants, iconButtonVariants, rotatingIconVariants
@@ -122,17 +137,20 @@ Each task was committed atomically:
 - `src/lib/micro-interactions/stagger.ts` - variableStagger, createVariableStaggerContainer, staggerChildren, listItemVariants, staggerContainerVariants
 
 ### offline-store/ (6 exports across 3 sub-files)
+
 - `src/lib/services/offline-store/index.ts` - Barrel
 - `src/lib/services/offline-store/db.ts` - Database core (openDB, generic CRUD)
 - `src/lib/services/offline-store/stores.ts` - routeCache, pendingStatus, pendingPhotos, pendingLocations
 - `src/lib/services/offline-store/sync.ts` - syncPendingItems, getPendingCounts
 
 ### route-optimization/ (6 exports across 2 sub-files)
+
 - `src/lib/services/route-optimization/index.ts` - Barrel
 - `src/lib/services/route-optimization/types.ts` - Types, KITCHEN_ORIGIN, validateStopsForOptimization
 - `src/lib/services/route-optimization/optimizer.ts` - optimizeRoute, optimizeRouteStops
 
 ### useSafeEffects/ (7 exports across 4 sub-files)
+
 - `src/lib/hooks/useSafeEffects/index.ts` - Barrel
 - `src/lib/hooks/useSafeEffects/useMountedRef.ts` - useMountedRef hook
 - `src/lib/hooks/useSafeEffects/useSafeTimeout.ts` - useSafeTimeout hook + SafeTimeoutControls type
@@ -140,6 +158,7 @@ Each task was committed atomically:
 - `src/lib/hooks/useSafeEffects/useSafeAsync.ts` - useSafeAsync hook + SafeAsyncControls type
 
 ## Decisions Made
+
 - motion-tokens core.ts holds all foundation tokens (duration, easing, spring, transition); all other sub-files import from core -- ensures one-directional dependencies with zero circular risk
 - route-optimization.ts split despite being only 1 line over 400 -- clean types/optimizer separation justified
 - micro-interactions barrel re-exports triggerHaptic from swipe-gestures to maintain existing public API for the 1 importer
@@ -149,6 +168,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Removed unused React imports in swipe-gestures/utils.ts**
+
 - **Found during:** Task 2 (swipe-gestures split)
 - **Issue:** useState, useCallback, useRef were imported but only useEffect was used (the hook functions moved to separate files)
 - **Fix:** Removed unused imports, kept only useEffect
@@ -162,16 +182,20 @@ Each task was committed atomically:
 **Impact on plan:** Trivial unused import cleanup. No scope creep.
 
 ## Issues Encountered
+
 - `pnpm build` fails due to Google Fonts fetch failure (network issue in CI environment) -- confirmed pre-existing, unrelated to changes. Typecheck and lint both pass clean.
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - All 7 lib files successfully split into subfolders
 - Codebase ready for 46-07 (final verification/cleanup plan)
 - No blockers or concerns
 
 ---
-*Phase: 46-large-file-refactoring*
-*Completed: 2026-02-06*
+
+_Phase: 46-large-file-refactoring_
+_Completed: 2026-02-06_

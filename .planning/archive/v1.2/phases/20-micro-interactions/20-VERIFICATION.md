@@ -26,84 +26,84 @@ re_verification:
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 1 | All buttons compress on press | ✓ VERIFIED | Button component uses whileTap: buttonPress preset. Imported in 49 files. No regression. |
-| 2 | All inputs glow on focus | ✓ VERIFIED | Input component animates boxShadow. 161 lines. No regression. |
-| 3 | Toggle switches bounce | ✓ VERIFIED | AnimatedToggle imported in HighContrastToggle.tsx (line 13), used line 31-36 with spring physics. GAP CLOSED. |
-| 4 | Branded spinner replaces generic | ✓ VERIFIED | BrandedSpinner imported in Button (line 8), used in loading state (line 183). Loader2 completely removed from Button. GAP CLOSED. |
-| 5 | Success checkmarks draw in | ✓ VERIFIED | Checkbox has pathLength animation. 85 lines. No regression. |
-| 6 | Error states shake | ✓ VERIFIED | ErrorShake imported in AddressFormV8 (line 9) and AuthModal (line 28), with triggerShake hooks. Used to wrap error messages. GAP CLOSED. |
-| 7 | Skeleton has shimmer | ✓ VERIFIED | Skeleton component has shimmerAnimation keyframes. No regression. |
-| 8 | Quantity selector rubbery | ✓ VERIFIED | QuantitySelector uses spring.rubbery (line 81). 199 lines. No regression. |
-| 9 | Images blur-to-sharp reveal | ✓ VERIFIED | AnimatedImage imported in CardImage.tsx (line 7) and ItemDetailSheetV8.tsx (line 21), used with variant="blur-scale". GAP CLOSED. |
-| 10 | Swipe velocity response | ✓ VERIFIED | createSwipeHandlers in micro-interactions.ts exists. No regression. |
-| 11 | Price ticker slot machine | ✓ VERIFIED | PriceTicker component exists. No regression. |
-| 12 | Favorite heart particle burst | ✓ VERIFIED | FavoriteButton component exists. No regression. |
+| #   | Truth                            | Status     | Evidence                                                                                                                                 |
+| --- | -------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | All buttons compress on press    | ✓ VERIFIED | Button component uses whileTap: buttonPress preset. Imported in 49 files. No regression.                                                 |
+| 2   | All inputs glow on focus         | ✓ VERIFIED | Input component animates boxShadow. 161 lines. No regression.                                                                            |
+| 3   | Toggle switches bounce           | ✓ VERIFIED | AnimatedToggle imported in HighContrastToggle.tsx (line 13), used line 31-36 with spring physics. GAP CLOSED.                            |
+| 4   | Branded spinner replaces generic | ✓ VERIFIED | BrandedSpinner imported in Button (line 8), used in loading state (line 183). Loader2 completely removed from Button. GAP CLOSED.        |
+| 5   | Success checkmarks draw in       | ✓ VERIFIED | Checkbox has pathLength animation. 85 lines. No regression.                                                                              |
+| 6   | Error states shake               | ✓ VERIFIED | ErrorShake imported in AddressFormV8 (line 9) and AuthModal (line 28), with triggerShake hooks. Used to wrap error messages. GAP CLOSED. |
+| 7   | Skeleton has shimmer             | ✓ VERIFIED | Skeleton component has shimmerAnimation keyframes. No regression.                                                                        |
+| 8   | Quantity selector rubbery        | ✓ VERIFIED | QuantitySelector uses spring.rubbery (line 81). 199 lines. No regression.                                                                |
+| 9   | Images blur-to-sharp reveal      | ✓ VERIFIED | AnimatedImage imported in CardImage.tsx (line 7) and ItemDetailSheetV8.tsx (line 21), used with variant="blur-scale". GAP CLOSED.        |
+| 10  | Swipe velocity response          | ✓ VERIFIED | createSwipeHandlers in micro-interactions.ts exists. No regression.                                                                      |
+| 11  | Price ticker slot machine        | ✓ VERIFIED | PriceTicker component exists. No regression.                                                                                             |
+| 12  | Favorite heart particle burst    | ✓ VERIFIED | FavoriteButton component exists. No regression.                                                                                          |
 
 **Score:** 12/12 truths verified (100% - ALL GAPS CLOSED)
 
 ### Required Artifacts
 
-| Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| src/lib/motion-tokens.ts | Motion springs | ✓ VERIFIED | Pre-existing, no regression |
-| src/components/ui/button.tsx | Framer Motion press + BrandedSpinner | ✓ VERIFIED | 237 lines. BrandedSpinner integrated (line 183), Loader2 removed. Gap closed. |
-| src/components/ui/input.tsx | Animated focus glow | ✓ VERIFIED | 161 lines, no regression |
-| src/components/ui/animated-toggle.tsx | Bouncy toggle switch | ✓ WIRED | 73 lines. Imported by HighContrastToggle.tsx. Gap closed. |
-| src/components/ui/branded-spinner.tsx | Morning Star spinner | ✓ WIRED | 141 lines. Imported by Button.tsx. Gap closed. |
-| src/components/ui/error-shake.tsx | Shake wrapper | ✓ WIRED | 73 lines. Imported by AddressFormV8.tsx + AuthModal.tsx (2 imports). Gap closed. |
-| src/components/ui/checkbox.tsx | Animated check draw | ✓ VERIFIED | 85 lines, no regression |
-| src/components/ui-v8/cart/QuantitySelector.tsx | Rubbery spring | ✓ VERIFIED | 199 lines, no regression |
-| src/components/ui/animated-image.tsx | Blur-to-sharp reveal | ✓ WIRED | 240 lines. Imported by CardImage.tsx + ItemDetailSheetV8.tsx (2 imports). Gap closed. |
-| src/lib/hooks/useSoundEffect.ts | Web Audio effects | ✓ CREATED | 7010 bytes. Intentionally not integrated yet (future use). |
-| src/components/ui/skeleton.tsx | Shimmer animation | ✓ VERIFIED | Pre-existing, no regression |
-| src/components/menu/UnifiedMenuItemCard/CardImage.tsx | AnimatedImage consumer | ✓ VERIFIED | Lines 89-97: AnimatedImage with variant="blur-scale" |
-| src/components/ui-v8/menu/ItemDetailSheetV8.tsx | AnimatedImage consumer | ✓ VERIFIED | Lines 196-204: AnimatedImage with variant="blur-scale" |
-| src/components/checkout/AddressFormV8.tsx | ErrorShake consumer | ✓ VERIFIED | Lines 47, 87-103: useErrorShake hook + ErrorShake wrapper |
-| src/components/auth/AuthModal.tsx | ErrorShake consumer | ✓ VERIFIED | Lines 219, 394-408: useErrorShake hook + ErrorShake wrapper |
-| src/components/driver/HighContrastToggle.tsx | AnimatedToggle consumer | ✓ VERIFIED | Lines 13, 31-36: AnimatedToggle with spring physics |
+| Artifact                                              | Expected                             | Status     | Details                                                                               |
+| ----------------------------------------------------- | ------------------------------------ | ---------- | ------------------------------------------------------------------------------------- |
+| src/lib/motion-tokens.ts                              | Motion springs                       | ✓ VERIFIED | Pre-existing, no regression                                                           |
+| src/components/ui/button.tsx                          | Framer Motion press + BrandedSpinner | ✓ VERIFIED | 237 lines. BrandedSpinner integrated (line 183), Loader2 removed. Gap closed.         |
+| src/components/ui/input.tsx                           | Animated focus glow                  | ✓ VERIFIED | 161 lines, no regression                                                              |
+| src/components/ui/animated-toggle.tsx                 | Bouncy toggle switch                 | ✓ WIRED    | 73 lines. Imported by HighContrastToggle.tsx. Gap closed.                             |
+| src/components/ui/branded-spinner.tsx                 | Morning Star spinner                 | ✓ WIRED    | 141 lines. Imported by Button.tsx. Gap closed.                                        |
+| src/components/ui/error-shake.tsx                     | Shake wrapper                        | ✓ WIRED    | 73 lines. Imported by AddressFormV8.tsx + AuthModal.tsx (2 imports). Gap closed.      |
+| src/components/ui/checkbox.tsx                        | Animated check draw                  | ✓ VERIFIED | 85 lines, no regression                                                               |
+| src/components/ui-v8/cart/QuantitySelector.tsx        | Rubbery spring                       | ✓ VERIFIED | 199 lines, no regression                                                              |
+| src/components/ui/animated-image.tsx                  | Blur-to-sharp reveal                 | ✓ WIRED    | 240 lines. Imported by CardImage.tsx + ItemDetailSheetV8.tsx (2 imports). Gap closed. |
+| src/lib/hooks/useSoundEffect.ts                       | Web Audio effects                    | ✓ CREATED  | 7010 bytes. Intentionally not integrated yet (future use).                            |
+| src/components/ui/skeleton.tsx                        | Shimmer animation                    | ✓ VERIFIED | Pre-existing, no regression                                                           |
+| src/components/menu/UnifiedMenuItemCard/CardImage.tsx | AnimatedImage consumer               | ✓ VERIFIED | Lines 89-97: AnimatedImage with variant="blur-scale"                                  |
+| src/components/ui-v8/menu/ItemDetailSheetV8.tsx       | AnimatedImage consumer               | ✓ VERIFIED | Lines 196-204: AnimatedImage with variant="blur-scale"                                |
+| src/components/checkout/AddressFormV8.tsx             | ErrorShake consumer                  | ✓ VERIFIED | Lines 47, 87-103: useErrorShake hook + ErrorShake wrapper                             |
+| src/components/auth/AuthModal.tsx                     | ErrorShake consumer                  | ✓ VERIFIED | Lines 219, 394-408: useErrorShake hook + ErrorShake wrapper                           |
+| src/components/driver/HighContrastToggle.tsx          | AnimatedToggle consumer              | ✓ VERIFIED | Lines 13, 31-36: AnimatedToggle with spring physics                                   |
 
 ### Key Link Verification
 
-| From | To | Via | Status | Details |
-|------|-----|-----|--------|---------|
-| Button | motion-tokens | import spring | ✓ WIRED | No regression |
-| Input | motion-tokens | import spring | ✓ WIRED | No regression |
-| Checkbox | motion-tokens | import spring | ✓ WIRED | No regression |
-| QuantitySelector | motion-tokens | import spring | ✓ WIRED | No regression |
-| AnimatedToggle | motion-tokens | import spring | ✓ WIRED | No regression |
-| Button to BrandedSpinner | import + usage | ✓ WIRED | Line 8 import, line 183 usage. Loader2 removed. GAP CLOSED. |
-| CardImage to AnimatedImage | import + usage | ✓ WIRED | Line 7 import, lines 89-97 usage with blur-scale. GAP CLOSED. |
-| ItemDetailSheetV8 to AnimatedImage | import + usage | ✓ WIRED | Line 21 import, lines 196-204 usage with blur-scale. GAP CLOSED. |
-| AddressFormV8 to ErrorShake | import + hook + wrapper | ✓ WIRED | Line 9 import, line 47 hook, lines 87-103 wrapper, line 72 triggerShake on validation error. GAP CLOSED. |
-| AuthModal to ErrorShake | import + hook + wrapper | ✓ WIRED | Line 28 import, line 219 hook, lines 394-408 wrapper, lines 239/251/263 triggerShake on errors. GAP CLOSED. |
-| HighContrastToggle to AnimatedToggle | import + usage | ✓ WIRED | Line 13 import, lines 31-36 usage with checked/onCheckedChange. GAP CLOSED. |
+| From                                 | To                      | Via           | Status                                                                                                      | Details       |
+| ------------------------------------ | ----------------------- | ------------- | ----------------------------------------------------------------------------------------------------------- | ------------- |
+| Button                               | motion-tokens           | import spring | ✓ WIRED                                                                                                     | No regression |
+| Input                                | motion-tokens           | import spring | ✓ WIRED                                                                                                     | No regression |
+| Checkbox                             | motion-tokens           | import spring | ✓ WIRED                                                                                                     | No regression |
+| QuantitySelector                     | motion-tokens           | import spring | ✓ WIRED                                                                                                     | No regression |
+| AnimatedToggle                       | motion-tokens           | import spring | ✓ WIRED                                                                                                     | No regression |
+| Button to BrandedSpinner             | import + usage          | ✓ WIRED       | Line 8 import, line 183 usage. Loader2 removed. GAP CLOSED.                                                 |
+| CardImage to AnimatedImage           | import + usage          | ✓ WIRED       | Line 7 import, lines 89-97 usage with blur-scale. GAP CLOSED.                                               |
+| ItemDetailSheetV8 to AnimatedImage   | import + usage          | ✓ WIRED       | Line 21 import, lines 196-204 usage with blur-scale. GAP CLOSED.                                            |
+| AddressFormV8 to ErrorShake          | import + hook + wrapper | ✓ WIRED       | Line 9 import, line 47 hook, lines 87-103 wrapper, line 72 triggerShake on validation error. GAP CLOSED.    |
+| AuthModal to ErrorShake              | import + hook + wrapper | ✓ WIRED       | Line 28 import, line 219 hook, lines 394-408 wrapper, lines 239/251/263 triggerShake on errors. GAP CLOSED. |
+| HighContrastToggle to AnimatedToggle | import + usage          | ✓ WIRED       | Line 13 import, lines 31-36 usage with checked/onCheckedChange. GAP CLOSED.                                 |
 
 ### Requirements Coverage
 
-| Requirement | Status | Evidence |
-|-------------|--------|----------|
-| MICRO-01: Button press compression | ✓ SATISFIED | Button whileTap animation, 49 imports |
-| MICRO-02: Input focus glow | ✓ SATISFIED | Input animated boxShadow |
-| MICRO-03: Toggle bouncy animation | ✓ SATISFIED | AnimatedToggle in HighContrastToggle. GAP CLOSED. |
-| MICRO-04: Branded loading spinner | ✓ SATISFIED | BrandedSpinner in Button loading state. GAP CLOSED. |
-| MICRO-05: Success checkmark draw | ✓ SATISFIED | Checkbox pathLength animation |
-| MICRO-06: Error shake animation | ✓ SATISFIED | ErrorShake in AddressFormV8 + AuthModal. GAP CLOSED. |
-| MICRO-07: Skeleton shimmer | ✓ SATISFIED | Skeleton shimmerAnimation |
-| MICRO-08: Quantity rubbery spring | ✓ SATISFIED | QuantitySelector spring.rubbery |
-| MICRO-09: Image blur-to-sharp | ✓ SATISFIED | AnimatedImage in CardImage + ItemDetailSheetV8. GAP CLOSED. |
-| MICRO-10: Swipe velocity response | ✓ SATISFIED | createSwipeHandlers utility |
-| MICRO-11: Price ticker animation | ✓ SATISFIED | PriceTicker component |
-| MICRO-12: Favorite heart particle | ✓ SATISFIED | FavoriteButton component |
+| Requirement                        | Status      | Evidence                                                    |
+| ---------------------------------- | ----------- | ----------------------------------------------------------- |
+| MICRO-01: Button press compression | ✓ SATISFIED | Button whileTap animation, 49 imports                       |
+| MICRO-02: Input focus glow         | ✓ SATISFIED | Input animated boxShadow                                    |
+| MICRO-03: Toggle bouncy animation  | ✓ SATISFIED | AnimatedToggle in HighContrastToggle. GAP CLOSED.           |
+| MICRO-04: Branded loading spinner  | ✓ SATISFIED | BrandedSpinner in Button loading state. GAP CLOSED.         |
+| MICRO-05: Success checkmark draw   | ✓ SATISFIED | Checkbox pathLength animation                               |
+| MICRO-06: Error shake animation    | ✓ SATISFIED | ErrorShake in AddressFormV8 + AuthModal. GAP CLOSED.        |
+| MICRO-07: Skeleton shimmer         | ✓ SATISFIED | Skeleton shimmerAnimation                                   |
+| MICRO-08: Quantity rubbery spring  | ✓ SATISFIED | QuantitySelector spring.rubbery                             |
+| MICRO-09: Image blur-to-sharp      | ✓ SATISFIED | AnimatedImage in CardImage + ItemDetailSheetV8. GAP CLOSED. |
+| MICRO-10: Swipe velocity response  | ✓ SATISFIED | createSwipeHandlers utility                                 |
+| MICRO-11: Price ticker animation   | ✓ SATISFIED | PriceTicker component                                       |
+| MICRO-12: Favorite heart particle  | ✓ SATISFIED | FavoriteButton component                                    |
 
 **Coverage:** 12/12 requirements satisfied (100%)
 
 ### Anti-Patterns Found
 
-| File | Line | Pattern | Severity | Impact |
-|------|------|---------|----------|--------|
-| - | - | None | - | All orphaned components resolved |
+| File | Line | Pattern | Severity | Impact                           |
+| ---- | ---- | ------- | -------- | -------------------------------- |
+| -    | -    | None    | -        | All orphaned components resolved |
 
 **No blocker anti-patterns.** Previous orphaned components are now integrated.
 

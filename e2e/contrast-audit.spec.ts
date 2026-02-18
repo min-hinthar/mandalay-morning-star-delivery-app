@@ -77,10 +77,7 @@ async function auditContrast(
 
   return {
     passed: contrastViolations.length === 0,
-    violationCount: contrastViolations.reduce(
-      (sum, v) => sum + v.nodes.length,
-      0
-    ),
+    violationCount: contrastViolations.reduce((sum, v) => sum + v.nodes.length, 0),
   };
 }
 
@@ -125,16 +122,10 @@ test.describe("Homepage Contrast (WCAG AAA)", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      "Homepage",
-      "light"
-    );
+    const { passed, violationCount } = await auditContrast(page, "Homepage", "light");
 
     // Log for audit report
-    console.log(
-      `Homepage (light): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
-    );
+    console.log(`Homepage (light): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`);
 
     // Test continues even with violations (for audit documentation)
     expect(violationCount).toBeDefined();
@@ -145,15 +136,9 @@ test.describe("Homepage Contrast (WCAG AAA)", () => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      "Homepage",
-      "dark"
-    );
+    const { passed, violationCount } = await auditContrast(page, "Homepage", "dark");
 
-    console.log(
-      `Homepage (dark): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
-    );
+    console.log(`Homepage (dark): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`);
     expect(violationCount).toBeDefined();
   });
 });
@@ -172,11 +157,7 @@ test.describe("Menu Page Contrast (WCAG AAA)", () => {
     await page.evaluate(() => window.scrollTo(0, 500));
     await page.waitForTimeout(500);
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      "Menu Page",
-      "light"
-    );
+    const { passed, violationCount } = await auditContrast(page, "Menu Page", "light");
 
     console.log(
       `Menu Page (light): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -192,15 +173,9 @@ test.describe("Menu Page Contrast (WCAG AAA)", () => {
     await page.evaluate(() => window.scrollTo(0, 500));
     await page.waitForTimeout(500);
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      "Menu Page",
-      "dark"
-    );
+    const { passed, violationCount } = await auditContrast(page, "Menu Page", "dark");
 
-    console.log(
-      `Menu Page (dark): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
-    );
+    console.log(`Menu Page (dark): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`);
     expect(violationCount).toBeDefined();
   });
 });
@@ -236,11 +211,7 @@ test.describe("Cart Drawer Contrast (WCAG AAA)", () => {
       await cartButton.click();
       await page.waitForTimeout(300);
 
-      const { passed, violationCount } = await auditContrast(
-        page,
-        "Cart Drawer",
-        "light"
-      );
+      const { passed, violationCount } = await auditContrast(page, "Cart Drawer", "light");
 
       console.log(
         `Cart Drawer (light): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -259,11 +230,7 @@ test.describe("Cart Drawer Contrast (WCAG AAA)", () => {
       await cartButton.click();
       await page.waitForTimeout(300);
 
-      const { passed, violationCount } = await auditContrast(
-        page,
-        "Cart Drawer",
-        "dark"
-      );
+      const { passed, violationCount } = await auditContrast(page, "Cart Drawer", "dark");
 
       console.log(
         `Cart Drawer (dark): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -283,11 +250,7 @@ test.describe("Login Page Contrast (WCAG AAA)", () => {
     await page.goto("/login");
     await page.waitForLoadState("networkidle");
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      "Login Page",
-      "light"
-    );
+    const { passed, violationCount } = await auditContrast(page, "Login Page", "light");
 
     console.log(
       `Login Page (light): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -300,11 +263,7 @@ test.describe("Login Page Contrast (WCAG AAA)", () => {
     await page.goto("/login");
     await page.waitForLoadState("networkidle");
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      "Login Page",
-      "dark"
-    );
+    const { passed, violationCount } = await auditContrast(page, "Login Page", "dark");
 
     console.log(
       `Login Page (dark): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -339,15 +298,9 @@ test.describe("Checkout Page Contrast (WCAG AAA)", () => {
 
     // May redirect to login - audit whatever page we land on
     const currentUrl = page.url();
-    const pageName = currentUrl.includes("login")
-      ? "Login (from checkout)"
-      : "Checkout Page";
+    const pageName = currentUrl.includes("login") ? "Login (from checkout)" : "Checkout Page";
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      pageName,
-      "light"
-    );
+    const { passed, violationCount } = await auditContrast(page, pageName, "light");
 
     console.log(
       `${pageName} (light): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -361,15 +314,9 @@ test.describe("Checkout Page Contrast (WCAG AAA)", () => {
     await page.waitForLoadState("networkidle");
 
     const currentUrl = page.url();
-    const pageName = currentUrl.includes("login")
-      ? "Login (from checkout)"
-      : "Checkout Page";
+    const pageName = currentUrl.includes("login") ? "Login (from checkout)" : "Checkout Page";
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      pageName,
-      "dark"
-    );
+    const { passed, violationCount } = await auditContrast(page, pageName, "dark");
 
     console.log(
       `${pageName} (dark): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -389,11 +336,7 @@ test.describe("Tracking Page Contrast (WCAG AAA)", () => {
     await page.goto("/orders/sample-order-id/tracking");
     await page.waitForLoadState("networkidle");
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      "Tracking Page",
-      "light"
-    );
+    const { passed, violationCount } = await auditContrast(page, "Tracking Page", "light");
 
     console.log(
       `Tracking Page (light): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -406,11 +349,7 @@ test.describe("Tracking Page Contrast (WCAG AAA)", () => {
     await page.goto("/orders/sample-order-id/tracking");
     await page.waitForLoadState("networkidle");
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      "Tracking Page",
-      "dark"
-    );
+    const { passed, violationCount } = await auditContrast(page, "Tracking Page", "dark");
 
     console.log(
       `Tracking Page (dark): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -429,11 +368,7 @@ test.describe("Driver Interface Contrast (WCAG AAA)", () => {
     await page.goto("/driver");
     await page.waitForLoadState("networkidle");
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      "Driver Dashboard",
-      "light"
-    );
+    const { passed, violationCount } = await auditContrast(page, "Driver Dashboard", "light");
 
     console.log(
       `Driver Dashboard (light): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -446,11 +381,7 @@ test.describe("Driver Interface Contrast (WCAG AAA)", () => {
     await page.goto("/driver");
     await page.waitForLoadState("networkidle");
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      "Driver Dashboard",
-      "dark"
-    );
+    const { passed, violationCount } = await auditContrast(page, "Driver Dashboard", "dark");
 
     console.log(
       `Driver Dashboard (dark): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -471,15 +402,9 @@ test.describe("Admin Interface Contrast (WCAG AAA)", () => {
 
     // May redirect to login
     const currentUrl = page.url();
-    const pageName = currentUrl.includes("login")
-      ? "Admin Login"
-      : "Admin Dashboard";
+    const pageName = currentUrl.includes("login") ? "Admin Login" : "Admin Dashboard";
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      pageName,
-      "light"
-    );
+    const { passed, violationCount } = await auditContrast(page, pageName, "light");
 
     console.log(
       `${pageName} (light): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -493,15 +418,9 @@ test.describe("Admin Interface Contrast (WCAG AAA)", () => {
     await page.waitForLoadState("networkidle");
 
     const currentUrl = page.url();
-    const pageName = currentUrl.includes("login")
-      ? "Admin Login"
-      : "Admin Dashboard";
+    const pageName = currentUrl.includes("login") ? "Admin Login" : "Admin Dashboard";
 
-    const { passed, violationCount } = await auditContrast(
-      page,
-      pageName,
-      "dark"
-    );
+    const { passed, violationCount } = await auditContrast(page, pageName, "dark");
 
     console.log(
       `${pageName} (dark): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -526,11 +445,7 @@ test.describe("Item Detail Modal Contrast (WCAG AAA)", () => {
       await menuItem.click();
       await page.waitForTimeout(300);
 
-      const { passed, violationCount } = await auditContrast(
-        page,
-        "Item Detail Modal",
-        "light"
-      );
+      const { passed, violationCount } = await auditContrast(page, "Item Detail Modal", "light");
 
       console.log(
         `Item Detail Modal (light): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`
@@ -549,11 +464,7 @@ test.describe("Item Detail Modal Contrast (WCAG AAA)", () => {
       await menuItem.click();
       await page.waitForTimeout(300);
 
-      const { passed, violationCount } = await auditContrast(
-        page,
-        "Item Detail Modal",
-        "dark"
-      );
+      const { passed, violationCount } = await auditContrast(page, "Item Detail Modal", "dark");
 
       console.log(
         `Item Detail Modal (dark): ${passed ? "PASSED" : `FAILED - ${violationCount} violations`}`

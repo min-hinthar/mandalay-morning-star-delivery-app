@@ -28,12 +28,7 @@ export interface SaveButtonProps {
 
 const SUCCESS_REVERT_MS = 1500;
 
-export function SaveButton({
-  onClick,
-  disabled = false,
-  hasChanges,
-  className,
-}: SaveButtonProps) {
+export function SaveButton({ onClick, disabled = false, hasChanges, className }: SaveButtonProps) {
   const [state, setState] = useState<SaveState>("idle");
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -114,12 +109,7 @@ export function SaveButton({
               transition={{ duration: 0.2 }}
               className="inline-flex items-center gap-2"
             >
-              <SuccessCheckmark
-                show
-                variant="minimal"
-                size={16}
-                className="text-text-inverse"
-              />
+              <SuccessCheckmark show variant="minimal" size={16} className="text-text-inverse" />
               Saved!
             </m.span>
           )}

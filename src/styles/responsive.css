@@ -10,11 +10,11 @@
    ============================================ */
 
 :root {
-  --bp-xs: 375px;   /* Small phones */
-  --bp-sm: 640px;   /* Large phones */
-  --bp-md: 768px;   /* Tablets */
-  --bp-lg: 1024px;  /* Laptops */
-  --bp-xl: 1280px;  /* Desktops */
+  --bp-xs: 375px; /* Small phones */
+  --bp-sm: 640px; /* Large phones */
+  --bp-md: 768px; /* Tablets */
+  --bp-lg: 1024px; /* Laptops */
+  --bp-xl: 1280px; /* Desktops */
   --bp-2xl: 1536px; /* Large screens */
 }
 

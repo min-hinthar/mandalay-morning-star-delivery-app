@@ -56,6 +56,7 @@ completed: 2026-02-11
 - **Files modified:** 3
 
 ## Accomplishments
+
 - ItemDetailSheet integrated into CommandPalette: tapping a search result opens item detail as overlay without closing the palette, query and results preserved
 - handleAddToCart wired to useCartStore.getState().addItem() for adding items from search
 - handleCloseItemDetail returns to search with query intact; handleOpenChange(false) clears all state
@@ -72,13 +73,15 @@ completed: 2026-02-11
 3. **Hero image fix + SearchResultCard tag cleanup** - `bcf97d2` (fix)
 
 ## Files Modified
+
 - `src/components/ui/search/CommandPalette/CommandPalette.tsx` - Integrated ItemDetailSheet with selectedItem state, handleAddToCart, handleCloseItemDetail
 - `src/components/ui/menu/ItemDetailSheet.tsx` - Replaced `<img>` with `<Image>`, added className pass-through prop
-- `src/components/ui/search/CommandPalette/SearchResultCard.tsx` - Tag filter (_optional), formatTagLabel(), consolidated layout
+- `src/components/ui/search/CommandPalette/SearchResultCard.tsx` - Tag filter (\_optional), formatTagLabel(), consolidated layout
 
 ## Decisions Made
+
 - **Next.js Image for Google Drive URLs:** Plain `<img>` tags fail silently (naturalWidth: 0, complete: true) because Google Drive thumbnail URLs respond with redirects + cookies that browsers block for cross-origin requests. Next.js `<Image>` proxies through `/_next/image`, bypassing CORS. `drive.google.com` was already in `next.config.ts` remotePatterns.
-- **Tag filter consolidation:** `_optional` suffix tags (e.g., "spicy_optional") are redundant with the base tag and produce raw ugly text. Filtered alongside existing `contains_*` and meta tag exclusions.
+- **Tag filter consolidation:** `_optional` suffix tags (e.g., "spicy*optional") are redundant with the base tag and produce raw ugly text. Filtered alongside existing `contains*\*` and meta tag exclusions.
 - **Single-line category + tags:** Reduced vertical clutter from 3 lines (category, tags, allergens) to 2 lines (category · tags, allergens). Allergen badge stays on its own line for safety-critical visibility.
 
 ## Deviations from Plan
@@ -86,6 +89,7 @@ completed: 2026-02-11
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Google Drive image URLs broken with plain img tag**
+
 - **Found during:** Playwright visual verification
 - **Issue:** ItemDetailSheet used `<img src={item.imageUrl}>` which fails for Google Drive thumbnail URLs (naturalWidth: 0)
 - **Fix:** Replaced with Next.js `<Image>` component with `fill`, `sizes`, and `priority` props
@@ -104,7 +108,7 @@ completed: 2026-02-11
 - `pnpm lint:css` — passed
 - `pnpm test` — 339 tests passed
 - `pnpm build` — succeeded
-- Playwright: Mohinga photo loads correctly (naturalWidth: 512) through /_next/image proxy
+- Playwright: Mohinga photo loads correctly (naturalWidth: 512) through /\_next/image proxy
 - Playwright: Search state preserved after closing item detail sheet
 - Playwright: Tag display shows "Vegetables · Vegetarian" (capitalized, no raw slugs)
 - Playwright: Allergen badge shows "Soy" on separate line
@@ -119,15 +123,19 @@ completed: 2026-02-11
 - **No deferred ideas implemented:** No browse-by-category, no allergen filter UI ✓
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Phase 55 Complete
+
 All 4 plans executed. Search enhancement fully deployed:
+
 - Plan 01: Fuse.js integration, search lib, hooks, AppHeader rewiring
 - Plan 02: Rich SearchResultCard, HighlightedText, CategoryTabs, SearchSkeleton
 - Plan 03: SearchEmptyState lifecycle, SearchOrderHistory, clear button, no-results fallback
 - Plan 04: ItemDetailSheet integration, hero image fix, tag cleanup
 
 ---
-*Phase: 55-search-enhancement*
-*Completed: 2026-02-11*
+
+_Phase: 55-search-enhancement_
+_Completed: 2026-02-11_

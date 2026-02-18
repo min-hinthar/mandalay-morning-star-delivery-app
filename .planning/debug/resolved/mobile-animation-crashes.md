@@ -55,15 +55,18 @@ started: Persisting after phase 35 (mobile crash prevention phase)
 ## Resolution
 
 root_cause: Two issues combined to cause mobile crashes:
-  1. `staggerContainer80(0.15)` called inline in JSX created new variants object on every render
-  2. Inner stagger container had `exit="exit"` creating nested exit animations (backdrop exit + panel exit + inner stagger exit)
 
-  When drawer closed, the combination of new variant objects being created during exit animation and multiple nested exit animations running simultaneously overwhelmed mobile devices.
+1. `staggerContainer80(0.15)` called inline in JSX created new variants object on every render
+2. Inner stagger container had `exit="exit"` creating nested exit animations (backdrop exit + panel exit + inner stagger exit)
+
+When drawer closed, the combination of new variant objects being created during exit animation and multiple nested exit animations running simultaneously overwhelmed mobile devices.
 
 fix:
-  1. Memoized `navStaggerVariants = staggerContainer80(0.15)` at module level
-  2. Removed `exit="exit"` from inner motion.div - let parent drawer panel handle exit animation
+
+1. Memoized `navStaggerVariants = staggerContainer80(0.15)` at module level
+2. Removed `exit="exit"` from inner motion.div - let parent drawer panel handle exit animation
 
 verification: Build passes, typecheck passes, lint passes.
 files_changed:
-  - src/components/ui/layout/MobileDrawer/MobileDrawer.tsx
+
+- src/components/ui/layout/MobileDrawer/MobileDrawer.tsx

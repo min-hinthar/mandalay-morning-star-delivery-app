@@ -78,9 +78,7 @@ export function HistorySummaryCard({ route, index }: HistorySummaryCardProps) {
   const deliveryDate = new Date(route.date + "T00:00:00");
   const displayDate = dateFormatter.format(deliveryDate);
 
-  const hours = route.totalDurationMinutes
-    ? (route.totalDurationMinutes / 60).toFixed(1)
-    : null;
+  const hours = route.totalDurationMinutes ? (route.totalDurationMinutes / 60).toFixed(1) : null;
 
   return (
     <m.div
@@ -164,9 +162,7 @@ export function HistorySummaryCard({ route, index }: HistorySummaryCardProps) {
                           <span className="text-xs font-medium text-text-muted w-5 shrink-0">
                             #{idx + 1}
                           </span>
-                          <span className="text-sm text-text-primary truncate">
-                            {stop.address}
-                          </span>
+                          <span className="text-sm text-text-primary truncate">{stop.address}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0 ml-2">
                           {stop.deliveredAt && (
@@ -179,9 +175,7 @@ export function HistorySummaryCard({ route, index }: HistorySummaryCardProps) {
                               "text-xs font-medium px-1.5 py-0.5 rounded-full",
                               isDelivered && "bg-green/10 text-green",
                               isSkipped && "bg-status-error/10 text-status-error",
-                              !isDelivered &&
-                                !isSkipped &&
-                                "bg-surface-tertiary text-text-muted"
+                              !isDelivered && !isSkipped && "bg-surface-tertiary text-text-muted"
                             )}
                           >
                             {stop.status}

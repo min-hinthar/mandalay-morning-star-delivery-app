@@ -26,13 +26,7 @@ export interface DayHours {
 }
 
 export type WeeklyStoreHours = Record<
-  | "monday"
-  | "tuesday"
-  | "wednesday"
-  | "thursday"
-  | "friday"
-  | "saturday"
-  | "sunday",
+  "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday",
   DayHours
 >;
 

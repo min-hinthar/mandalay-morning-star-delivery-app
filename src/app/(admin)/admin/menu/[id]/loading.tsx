@@ -1,5 +1,5 @@
-import { RouteLoading } from '@/components/ui/RouteLoading'
+import { RouteLoading } from "@/components/ui/RouteLoading";
 
 export default function MenuItemLoading() {
-  return <RouteLoading message="Loading menu item..." />
+  return <RouteLoading message="Loading menu item..." />;
 }

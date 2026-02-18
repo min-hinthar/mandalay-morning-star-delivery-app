@@ -49,8 +49,8 @@ export function ExpandableTableRow({
         target.closest("button") ||
         target.closest("a") ||
         target.closest('[role="menuitem"]') ||
-        target.closest('[data-radix-collection-item]') ||
-        target.closest('[data-state]') ||
+        target.closest("[data-radix-collection-item]") ||
+        target.closest("[data-state]") ||
         target.closest(".dropdown-trigger");
 
       if (isInteractive) return;

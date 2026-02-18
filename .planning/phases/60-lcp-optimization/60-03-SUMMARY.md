@@ -64,6 +64,7 @@ completed: 2026-02-14
 - **Files modified:** 8
 
 ## Accomplishments
+
 - Created reusable DomMaxProvider wrapping LazyMotion with async domMax import
 - Wrapped customer, admin, driver, and auth route layouts so drag/layoutId/layout/useAnimate features work on those routes
 - Removed Toast drag="x" prop (non-signature polish; X button and auto-timer dismiss still work with domAnimation)
@@ -78,6 +79,7 @@ Each task was committed atomically:
 2. **Task 2: Run verification suite** - no code changes, verification only
 
 ## Files Created/Modified
+
 - `src/components/providers/DomMaxProvider.tsx` - Async domMax LazyMotion wrapper component
 - `src/app/(auth)/layout.tsx` - New auth layout wrapping with DomMaxProvider
 - `src/app/(customer)/layout.tsx` - Customer layout wrapped with DomMaxProvider
@@ -88,6 +90,7 @@ Each task was committed atomically:
 - `src/components/ui/layout/AppHeader/DesktopHeader.tsx` - Removed layoutId="app-logo"
 
 ## Decisions Made
+
 - **Nested LazyMotion:** Inner DomMaxProvider overrides outer domAnimation provider per-route. Framer Motion supports this nesting pattern.
 - **Toast drag removed:** Toast swipe-to-dismiss was not listed as a signature animation. X button and auto-dismiss timer still work with domAnimation. Avoids needing global domMax.
 - **Header app-logo layoutId removed:** layoutId="app-logo" shared between MobileHeader/DesktopHeader and AuthCard/LoginSuccessCeremony. Cross-route layout animations don't work in App Router (different React trees), so the morph animation never actually fired.
@@ -106,6 +109,7 @@ None - plan executed exactly as written.
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Phase 60 (LCP Optimization) is complete across all 3 plans:
   - Plan 01: Async domAnimation + server-visible hero with CSS entrance animations
   - Plan 02: LayoutId indicators migrated to CSS transitions (7 components)
@@ -115,5 +119,6 @@ None - no external service configuration required.
 - Ready to proceed to Phase 61+
 
 ---
-*Phase: 60-lcp-optimization*
-*Completed: 2026-02-14*
+
+_Phase: 60-lcp-optimization_
+_Completed: 2026-02-14_

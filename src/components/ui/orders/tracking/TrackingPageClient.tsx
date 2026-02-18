@@ -50,26 +50,17 @@ interface TrackingPageClientProps {
   initialData: TrackingData;
 }
 
-export function TrackingPageClient({
-  orderId,
-  initialData,
-}: TrackingPageClientProps) {
-  const [orderStatus, setOrderStatus] = useState<OrderStatus>(
-    initialData.order.status
-  );
+export function TrackingPageClient({ orderId, initialData }: TrackingPageClientProps) {
+  const [orderStatus, setOrderStatus] = useState<OrderStatus>(initialData.order.status);
   const [routeStop, setRouteStop] = useState(initialData.routeStop);
-  const [driverLocation, setDriverLocation] = useState(
-    initialData.driverLocation
-  );
+  const [driverLocation, setDriverLocation] = useState(initialData.driverLocation);
   const [eta, setEta] = useState(initialData.eta);
 
   // Track previous status for transition effects
   const prevStatusRef = useRef<OrderStatus>(orderStatus);
 
   // Delayed delivered screen appearance (500ms after status change)
-  const [showDelivered, setShowDelivered] = useState(
-    orderStatus === "delivered"
-  );
+  const [showDelivered, setShowDelivered] = useState(orderStatus === "delivered");
 
   // Browser tab title
   useEffect(() => {
@@ -117,27 +108,16 @@ export function TrackingPageClient({
     onOrderUpdate: (status) => setOrderStatus(status),
     onStopUpdate: (stopData) => {
       if (stopData.status) {
-        setRouteStop((prev) =>
-          prev ? { ...prev, status: stopData.status! } : null
-        );
+        setRouteStop((prev) => (prev ? { ...prev, status: stopData.status! } : null));
       }
       if (stopData.eta) {
-        setRouteStop((prev) =>
-          prev ? { ...prev, eta: stopData.eta! } : null
-        );
+        setRouteStop((prev) => (prev ? { ...prev, eta: stopData.eta! } : null));
       }
     },
     onLocationUpdate: (location) => {
       setDriverLocation(location);
-      if (
-        initialData.order.address.lat &&
-        initialData.order.address.lng &&
-        routeStop
-      ) {
-        const remainingStops = calculateRemainingStops(
-          routeStop.currentStop,
-          routeStop.stopIndex
-        );
+      if (initialData.order.address.lat && initialData.order.address.lng && routeStop) {
+        const remainingStops = calculateRemainingStops(routeStop.currentStop, routeStop.stopIndex);
         const newEta = calculateETA({
           driverLocation: { lat: location.latitude, lng: location.longitude },
           customerLocation: {
@@ -164,9 +144,7 @@ export function TrackingPageClient({
       fullName: initialData.driver.fullName,
       profileImageUrl: initialData.driver.profileImageUrl,
       phone: initialData.driver.phone,
-      vehicleType:
-        (initialData.driver as { vehicleType?: VehicleType }).vehicleType ??
-        null,
+      vehicleType: (initialData.driver as { vehicleType?: VehicleType }).vehicleType ?? null,
     };
   }, [initialData.driver]);
 
@@ -178,11 +156,9 @@ export function TrackingPageClient({
     };
   }, [routeStop]);
 
-  const hasLocation =
-    !!initialData.order.address.lat && !!initialData.order.address.lng;
+  const hasLocation = !!initialData.order.address.lat && !!initialData.order.address.lng;
 
-  const isTerminalStatus =
-    orderStatus === "delivered" || orderStatus === "cancelled";
+  const isTerminalStatus = orderStatus === "delivered" || orderStatus === "cancelled";
 
   return (
     <div className="min-h-screen bg-cream">
@@ -215,9 +191,7 @@ export function TrackingPageClient({
                 </>
               )}
               {lastUpdateDisplay && (
-                <span className="text-charcoal-400">
-                  &bull; {lastUpdateDisplay}
-                </span>
+                <span className="text-charcoal-400">&bull; {lastUpdateDisplay}</span>
               )}
               <ShareButton orderId={orderId} orderStatus={orderStatus} />
               <button
@@ -262,9 +236,7 @@ export function TrackingPageClient({
             <AnimatePresence>
               {orderStatus === "cancelled" && (
                 <CancelledOverlay
-                  cancellationReason={
-                    initialData.order.cancellationReason
-                  }
+                  cancellationReason={initialData.order.cancellationReason}
                   orderId={orderId}
                 />
               )}

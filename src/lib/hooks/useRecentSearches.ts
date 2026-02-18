@@ -72,9 +72,7 @@ export function useRecentSearches(): UseRecentSearchesReturn {
 
     setRecentSearches((prev) => {
       // Remove duplicate if exists (will be added to top)
-      const filtered = prev.filter(
-        (search) => search.toLowerCase() !== trimmed.toLowerCase()
-      );
+      const filtered = prev.filter((search) => search.toLowerCase() !== trimmed.toLowerCase());
       // Add to top, limit to max
       const updated = [trimmed, ...filtered].slice(0, MAX_SEARCHES);
 
@@ -91,9 +89,7 @@ export function useRecentSearches(): UseRecentSearchesReturn {
 
   const removeSearch = useCallback((term: string) => {
     setRecentSearches((prev) => {
-      const updated = prev.filter(
-        (search) => search.toLowerCase() !== term.toLowerCase()
-      );
+      const updated = prev.filter((search) => search.toLowerCase() !== term.toLowerCase());
 
       // Persist to localStorage
       try {

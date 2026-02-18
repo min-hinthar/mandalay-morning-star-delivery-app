@@ -79,4 +79,3 @@ export async function geocodeAddress(address: string): Promise<GeocodingResult> 
     };
   }
 }
-

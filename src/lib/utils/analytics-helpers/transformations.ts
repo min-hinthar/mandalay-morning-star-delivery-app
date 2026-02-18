@@ -26,9 +26,7 @@ export function transformDriverStats(row: DriverStatsMvRow): DriverStats {
     deliveriesLast7Days: Number(row.deliveries_last_7_days) || 0,
     deliveriesLast30Days: Number(row.deliveries_last_30_days) || 0,
     onTimeRate: Number(row.on_time_rate) || 0,
-    avgDeliveryMinutes: row.avg_delivery_minutes
-      ? Number(row.avg_delivery_minutes)
-      : null,
+    avgDeliveryMinutes: row.avg_delivery_minutes ? Number(row.avg_delivery_minutes) : null,
     totalRatings: Number(row.total_ratings) || 0,
     avgRating: row.avg_rating ? Number(row.avg_rating) : null,
     ratingDistribution: {
@@ -54,9 +52,7 @@ export function transformDriverStats(row: DriverStatsMvRow): DriverStats {
 /**
  * Transform database row to DeliveryMetrics type
  */
-export function transformDeliveryMetrics(
-  row: DeliveryMetricsMvRow
-): DeliveryMetrics {
+export function transformDeliveryMetrics(row: DeliveryMetricsMvRow): DeliveryMetrics {
   return {
     date: row.delivery_date,
     totalOrders: Number(row.total_orders) || 0,

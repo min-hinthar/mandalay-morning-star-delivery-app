@@ -196,10 +196,7 @@ test.describe.skip("Authenticated Driver Flow", () => {
       const navButton = page.getByTestId("navigation-button");
       if (await navButton.isVisible()) {
         // Listen for new tab/window
-        const [newPage] = await Promise.all([
-          context.waitForEvent("page"),
-          navButton.click(),
-        ]);
+        const [newPage] = await Promise.all([context.waitForEvent("page"), navButton.click()]);
 
         // Should open Google Maps
         await expect(newPage.url()).toContain("google.com/maps");

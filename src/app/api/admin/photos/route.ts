@@ -3,7 +3,10 @@ import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import type { MenuItemsRow } from "@/types/database";
 
-interface MenuItemWithPhoto extends Pick<MenuItemsRow, "id" | "name_en" | "image_url" | "category_id"> {
+interface MenuItemWithPhoto extends Pick<
+  MenuItemsRow,
+  "id" | "name_en" | "image_url" | "category_id"
+> {
   menu_categories: {
     name: string;
   };
@@ -56,7 +59,8 @@ export async function GET(request: Request) {
     // Get all menu items with images (assigned photos)
     let query = auth.supabase
       .from("menu_items")
-      .select(`
+      .select(
+        `
         id,
         name_en,
         image_url,
@@ -64,7 +68,8 @@ export async function GET(request: Request) {
         menu_categories (
           name
         )
-      `)
+      `
+      )
       .not("image_url", "is", null);
 
     // Apply search filter for assigned photos
@@ -78,10 +83,7 @@ export async function GET(request: Request) {
 
     if (error) {
       logger.exception(error, { api: "admin/photos", flowId: "fetch" });
-      return NextResponse.json(
-        { error: "Failed to fetch photos" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch photos" }, { status: 500 });
     }
 
     // Transform to assigned photo info
@@ -113,9 +115,9 @@ export async function GET(request: Request) {
         // Get public URLs for unassigned photos
         unassignedPhotos = actualFiles.map((file) => {
           const storagePath = `unassigned/${file.name}`;
-          const { data: { publicUrl } } = auth.supabase.storage
-            .from("menu-photos")
-            .getPublicUrl(storagePath);
+          const {
+            data: { publicUrl },
+          } = auth.supabase.storage.from("menu-photos").getPublicUrl(storagePath);
 
           return {
             id: `unassigned-${file.name}`,
@@ -128,9 +130,7 @@ export async function GET(request: Request) {
 
         // Apply search filter to unassigned photos (match filename)
         if (search) {
-          unassignedPhotos = unassignedPhotos.filter((p) =>
-            p.name.toLowerCase().includes(search)
-          );
+          unassignedPhotos = unassignedPhotos.filter((p) => p.name.toLowerCase().includes(search));
         }
       }
     }
@@ -158,10 +158,7 @@ export async function GET(request: Request) {
     return NextResponse.json(response);
   } catch (error) {
     logger.exception(error, { api: "admin/photos", flowId: "fetch" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -181,10 +178,7 @@ export async function POST(request: Request) {
     const { imageUrl, menuItemId } = body;
 
     if (!imageUrl || typeof imageUrl !== "string") {
-      return NextResponse.json(
-        { error: "imageUrl is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "imageUrl is required" }, { status: 400 });
     }
 
     // If menuItemId provided, update the menu item's image_url
@@ -203,36 +197,33 @@ export async function POST(request: Request) {
       if (error) {
         logger.exception(error, { api: "admin/photos", flowId: "assign" });
         if (error.code === "PGRST116") {
-          return NextResponse.json(
-            { error: "Menu item not found" },
-            { status: 404 }
-          );
+          return NextResponse.json({ error: "Menu item not found" }, { status: 404 });
         }
-        return NextResponse.json(
-          { error: "Failed to assign photo" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to assign photo" }, { status: 500 });
       }
 
-      return NextResponse.json({
-        success: true,
-        menuItemId: item.id,
-        name: item.name_en,
-        imageUrl: item.image_url,
-      }, { status: 201 });
+      return NextResponse.json(
+        {
+          success: true,
+          menuItemId: item.id,
+          name: item.name_en,
+          imageUrl: item.image_url,
+        },
+        { status: 201 }
+      );
     }
 
     // If no menuItemId, just acknowledge the upload (photo is in storage but unassigned)
-    return NextResponse.json({
-      success: true,
-      imageUrl,
-      message: "Photo uploaded but not assigned to any menu item",
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        imageUrl,
+        message: "Photo uploaded but not assigned to any menu item",
+      },
+      { status: 201 }
+    );
   } catch (error) {
     logger.exception(error, { api: "admin/photos", flowId: "upload" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

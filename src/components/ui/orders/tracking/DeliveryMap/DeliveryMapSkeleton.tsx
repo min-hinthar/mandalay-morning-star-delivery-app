@@ -10,10 +10,7 @@ import { cn } from "@/lib/utils/cn";
 export function DeliveryMapSkeleton({ className }: { className?: string }) {
   return (
     <div
-      className={cn(
-        "rounded-xl bg-[var(--color-surface-muted)] animate-pulse",
-        className
-      )}
+      className={cn("rounded-xl bg-[var(--color-surface-muted)] animate-pulse", className)}
       style={{ minHeight: 300 }}
     >
       <div className="flex h-full items-center justify-center">

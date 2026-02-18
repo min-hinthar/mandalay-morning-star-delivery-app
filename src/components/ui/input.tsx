@@ -54,11 +54,7 @@ const inputVariants = cva(
           "focus-visible:border-status-error",
           "bg-status-error-bg",
         ].join(" "),
-        success: [
-          "border-green",
-          "focus-visible:border-green",
-          "bg-green-light",
-        ].join(" "),
+        success: ["border-green", "focus-visible:border-green", "bg-green-light"].join(" "),
       },
     },
     defaultVariants: {
@@ -74,9 +70,7 @@ type InputHTMLProps = Omit<
   "size" | "onDrag" | "onDragEnd" | "onDragStart" | "onAnimationStart"
 >;
 
-export interface InputProps
-  extends InputHTMLProps,
-    VariantProps<typeof inputVariants> {
+export interface InputProps extends InputHTMLProps, VariantProps<typeof inputVariants> {
   /** Error message to display below input */
   error?: string;
   /** Helper text to display below input */
@@ -116,7 +110,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           className={cn(inputVariants({ size, variant: effectiveVariant, className }))}
           ref={ref}
           aria-invalid={hasError}
-          aria-describedby={hasError ? `${props.id}-error` : helperText ? `${props.id}-helper` : undefined}
+          aria-describedby={
+            hasError ? `${props.id}-error` : helperText ? `${props.id}-helper` : undefined
+          }
           onFocus={handleFocus}
           onBlur={handleBlur}
           animate={shouldAnimate ? getGlowStyle() : undefined}
@@ -145,10 +141,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           </p>
         )}
         {!error && helperText && (
-          <p
-            id={`${props.id}-helper`}
-            className="mt-1.5 text-sm text-text-secondary"
-          >
+          <p id={`${props.id}-helper`} className="mt-1.5 text-sm text-text-secondary">
             {helperText}
           </p>
         )}

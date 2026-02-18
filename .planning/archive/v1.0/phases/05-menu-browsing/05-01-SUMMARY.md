@@ -106,5 +106,6 @@ None - no external service configuration required.
 - Section IDs match pattern `category-{slug}` for scrollspy
 
 ---
-*Phase: 05-menu-browsing*
-*Completed: 2026-01-23*
+
+_Phase: 05-menu-browsing_
+_Completed: 2026-01-23_

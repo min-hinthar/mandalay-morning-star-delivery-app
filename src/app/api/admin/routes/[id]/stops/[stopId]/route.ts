@@ -17,16 +17,16 @@ interface RouteParams {
  * PATCH /api/admin/routes/[id]/stops/[stopId]
  * Update individual stop status
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: routeId, stopId } = await params;
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -94,15 +94,24 @@ export async function PATCH(
       .eq("id", stopId)
       .eq("route_id", routeId)
       .select("id, order_id, status, arrived_at, delivered_at, delivery_notes")
-      .returns<{ id: string; order_id: string; status: string; arrived_at: string | null; delivered_at: string | null; delivery_notes: string | null }[]>()
+      .returns<
+        {
+          id: string;
+          order_id: string;
+          status: string;
+          arrived_at: string | null;
+          delivered_at: string | null;
+          delivery_notes: string | null;
+        }[]
+      >()
       .single();
 
     if (updateError) {
-      logger.exception(updateError, { api: "admin/routes/[id]/stops/[stopId]", flowId: "update-stop" });
-      return NextResponse.json(
-        { error: "Failed to update stop" },
-        { status: 500 }
-      );
+      logger.exception(updateError, {
+        api: "admin/routes/[id]/stops/[stopId]",
+        flowId: "update-stop",
+      });
+      return NextResponse.json({ error: "Failed to update stop" }, { status: 500 });
     }
 
     // Update order status if delivered
@@ -134,10 +143,7 @@ export async function PATCH(
         ),
       };
 
-      await supabase
-        .from("routes")
-        .update({ stats_json: stats })
-        .eq("id", routeId);
+      await supabase.from("routes").update({ stats_json: stats }).eq("id", routeId);
     }
 
     return NextResponse.json({
@@ -150,10 +156,7 @@ export async function PATCH(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/routes/[id]/stops/[stopId]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -161,16 +164,16 @@ export async function PATCH(
  * DELETE /api/admin/routes/[id]/stops/[stopId]
  * Remove a stop from route (only planned routes)
  */
-export async function DELETE(
-  _request: NextRequest,
-  { params }: RouteParams
-) {
+export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id: routeId, stopId } = await params;
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -226,11 +229,11 @@ export async function DELETE(
       .eq("route_id", routeId);
 
     if (deleteError) {
-      logger.exception(deleteError, { api: "admin/routes/[id]/stops/[stopId]", flowId: "delete-stop" });
-      return NextResponse.json(
-        { error: "Failed to remove stop" },
-        { status: 500 }
-      );
+      logger.exception(deleteError, {
+        api: "admin/routes/[id]/stops/[stopId]",
+        flowId: "delete-stop",
+      });
+      return NextResponse.json({ error: "Failed to remove stop" }, { status: 500 });
     }
 
     // Reindex remaining stops
@@ -243,10 +246,7 @@ export async function DELETE(
 
     if (remainingStops) {
       for (let i = 0; i < remainingStops.length; i++) {
-        await supabase
-          .from("route_stops")
-          .update({ stop_index: i })
-          .eq("id", remainingStops[i].id);
+        await supabase.from("route_stops").update({ stop_index: i }).eq("id", remainingStops[i].id);
       }
 
       // Update route stats
@@ -261,15 +261,15 @@ export async function DELETE(
           pending_stops: allStops.filter((s) => s.status === "pending").length,
           delivered_stops: allStops.filter((s) => s.status === "delivered").length,
           skipped_stops: allStops.filter((s) => s.status === "skipped").length,
-          completion_rate: allStops.length > 0
-            ? Math.round((allStops.filter((s) => s.status === "delivered").length / allStops.length) * 100)
-            : 0,
+          completion_rate:
+            allStops.length > 0
+              ? Math.round(
+                  (allStops.filter((s) => s.status === "delivered").length / allStops.length) * 100
+                )
+              : 0,
         };
 
-        await supabase
-          .from("routes")
-          .update({ stats_json: stats })
-          .eq("id", routeId);
+        await supabase.from("routes").update({ stats_json: stats }).eq("id", routeId);
       }
     }
 
@@ -279,9 +279,6 @@ export async function DELETE(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/routes/[id]/stops/[stopId]" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -53,14 +53,8 @@ export function TimeComparison({ route }: TimeComparisonProps) {
               : "bg-status-error/10 text-status-error"
           )}
         >
-          {isOnTime ? (
-            <TrendingDown className="h-3 w-3" />
-          ) : (
-            <TrendingUp className="h-3 w-3" />
-          )}
-          {isOnTime
-            ? `${Math.abs(delta)} min early`
-            : `+${delta} min late`}
+          {isOnTime ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
+          {isOnTime ? `${Math.abs(delta)} min early` : `+${delta} min late`}
         </span>
       </div>
 

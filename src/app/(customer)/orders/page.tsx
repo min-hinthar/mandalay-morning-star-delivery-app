@@ -20,7 +20,10 @@ export default async function OrdersPage() {
   const supabase = await createClient();
 
   // Check authentication
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     redirect("/login");
@@ -29,14 +32,16 @@ export default async function OrdersPage() {
   // Fetch user's orders
   const { data: ordersData, error: ordersError } = await supabase
     .from("orders")
-    .select(`
+    .select(
+      `
       id,
       status,
       total_cents,
       delivery_window_start,
       placed_at,
       order_items (quantity)
-    `)
+    `
+    )
     .eq("user_id", user.id)
     .order("placed_at", { ascending: false })
     .returns<OrderRow[]>();

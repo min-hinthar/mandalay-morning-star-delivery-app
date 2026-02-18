@@ -1,12 +1,7 @@
-'use client';
+"use client";
 
 import { m } from "framer-motion";
-import {
-  Route,
-  Clock,
-  TrendingUp,
-  CheckCircle2,
-} from "lucide-react";
+import { Route, Clock, TrendingUp, CheckCircle2 } from "lucide-react";
 
 interface RoutesStatsCardsProps {
   total: number;
@@ -15,12 +10,7 @@ interface RoutesStatsCardsProps {
   completed: number;
 }
 
-export function RoutesStatsCards({
-  total,
-  planned,
-  inProgress,
-  completed,
-}: RoutesStatsCardsProps) {
+export function RoutesStatsCards({ total, planned, inProgress, completed }: RoutesStatsCardsProps) {
   return (
     <m.div
       initial={{ opacity: 0, y: 10 }}
@@ -36,9 +26,7 @@ export function RoutesStatsCards({
             <Route className="h-5 w-5" />
             <span className="text-sm font-medium">Total Routes</span>
           </div>
-          <p className="text-3xl font-display text-charcoal mt-2">
-            {total}
-          </p>
+          <p className="text-3xl font-display text-charcoal mt-2">{total}</p>
         </div>
       </div>
 
@@ -50,9 +38,7 @@ export function RoutesStatsCards({
             <Clock className="h-5 w-5" />
             <span className="text-sm font-medium">Planned</span>
           </div>
-          <p className="text-3xl font-display text-charcoal mt-2">
-            {planned}
-          </p>
+          <p className="text-3xl font-display text-charcoal mt-2">{planned}</p>
         </div>
       </div>
 
@@ -64,9 +50,7 @@ export function RoutesStatsCards({
             <TrendingUp className="h-5 w-5" />
             <span className="text-sm font-medium">In Progress</span>
           </div>
-          <p className="text-3xl font-display text-charcoal mt-2">
-            {inProgress}
-          </p>
+          <p className="text-3xl font-display text-charcoal mt-2">{inProgress}</p>
         </div>
       </div>
 

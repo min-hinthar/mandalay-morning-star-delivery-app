@@ -54,6 +54,7 @@ completed: 2026-01-28
 - **Files modified:** 3
 
 ## Accomplishments
+
 - Tokenized all hardcoded CSS transitions in globals.css (0.3s -> var(--duration-slow))
 - Added comprehensive header documentation to motion-tokens.ts explaining FM numeric requirement
 - Added inline CSS equivalent comments to all 6 duration constants
@@ -68,11 +69,13 @@ Each task was committed atomically:
 3. **Task 3: Update ROADMAP.md with motion timing status** - `50dbd61` (docs)
 
 ## Files Created/Modified
+
 - `src/app/globals.css` - Tokenized transition durations (glass-menu-card, glow-gradient)
 - `src/lib/motion-tokens.ts` - Added FM-to-CSS token mapping documentation
 - `.planning/ROADMAP.md` - Phase 29 marked complete, added motion timing note
 
 ## Decisions Made
+
 - Mapped 0.3s (300ms) to --duration-slow (350ms) - closest token, 50ms difference imperceptible
 - Used --ease-out instead of generic "ease" for more dramatic deceleration
 - Documented FM numeric requirement rather than attempting to use CSS variables in spring physics
@@ -90,12 +93,14 @@ None - all transitions and documentation applied cleanly.
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Phase 29 (Token Enforcement - Effects) complete
 - All shadows, blur, and motion timing now use design system tokens
 - Next phases (30-32) can proceed: Mobile Stability, Hero Redesign, Quality Assurance
 - Framer Motion exception documented for future maintenance
 
 ---
-*Phase: 29-token-enforcement-effects*
-*Plan: 06*
-*Completed: 2026-01-28*
+
+_Phase: 29-token-enforcement-effects_
+_Plan: 06_
+_Completed: 2026-01-28_

@@ -98,10 +98,7 @@ export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Extract categories for command palette (preserves category context for search)
-    const categories = useMemo(
-      () => menuData?.data?.categories ?? [],
-      [menuData]
-    );
+    const categories = useMemo(() => menuData?.data?.categories ?? [], [menuData]);
 
     // User data for mobile drawer
     const drawerUser = useMemo(() => {
@@ -175,7 +172,10 @@ export const AppHeader = forwardRef<HTMLElement, AppHeaderProps>(
           {/* Top accent border with primary gradient glow */}
           <div
             className="absolute top-0 left-0 right-0 h-0.5 opacity-60"
-            style={{ background: "linear-gradient(to right, var(--color-secondary), var(--color-primary), var(--color-secondary))" }}
+            style={{
+              background:
+                "linear-gradient(to right, var(--color-secondary), var(--color-primary), var(--color-secondary))",
+            }}
             aria-hidden="true"
           />
 

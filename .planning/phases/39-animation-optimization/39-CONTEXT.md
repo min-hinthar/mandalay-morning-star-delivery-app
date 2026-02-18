@@ -14,6 +14,7 @@ Device-adaptive animations that scale based on hardware capability. Users on low
 ## Implementation Decisions
 
 ### Device Detection
+
 - Use navigator.deviceMemory + hardwareConcurrency for JS-based detection
 - Low-power threshold: ≤4 GB memory OR ≤4 CPU cores
 - prefers-reduced-motion only affects parallax (same set as low-power), not all animations
@@ -22,12 +23,14 @@ Device-adaptive animations that scale based on hardware capability. Users on low
 - No manual user toggle for animation tier
 
 ### Animation Tiers
+
 - Low-power disables: **parallax only**
 - Low-power keeps: stagger, floating emojis, micro-interactions, modal animations, card hover effects, scroll-triggered entrances, gradient animation, shimmer, confetti, page transitions (short fade)
 - Always enabled regardless of tier: cart bounce/pulse, loading spinners, shimmer placeholders
 - prefers-reduced-motion disables same set as low-power (parallax only)
 
 ### Conflict Resolution
+
 - Claude decides GSAP vs Framer Motion division based on current code
 - GSAP is primary for scroll-linked animations; Framer owns state-driven animations
 - AnimatePresence: direct keyed children only (no Fragments — wrap in div if needed)
@@ -37,6 +40,7 @@ Device-adaptive animations that scale based on hardware capability. Users on low
 - ScrollTrigger instances auto-kill via gsapContext cleanup
 
 ### Cart Feedback (Fly-to-Cart)
+
 - Fly-to-cart animation: small 64px thumbnail flies from card to cart icon
 - Works on all devices (including low-power)
 - Curved arc (Bezier) path, 300-400ms duration
@@ -53,6 +57,7 @@ Device-adaptive animations that scale based on hardware capability. Users on low
 - Sound respects system mute/silent mode
 
 ### Claude's Discretion
+
 - Exact GSAP vs Framer Motion division per component
 - Animation easing curves and timing fine-tuning
 - GSAP context implementation details
@@ -80,5 +85,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 39-animation-optimization*
-*Context gathered: 2026-02-05*
+_Phase: 39-animation-optimization_
+_Context gathered: 2026-02-05_

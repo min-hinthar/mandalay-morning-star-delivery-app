@@ -61,6 +61,7 @@ started: After Phase 15 (z-index token migration + R3F setup)
 root_cause: TailwindCSS 4 automatic content detection scans ALL markdown files in the repository (not just configured paths). Documentation files containing code examples with deprecated arbitrary z-index CSS variable syntax cause TailwindCSS to generate invalid wildcard fallback patterns in the compiled CSS.
 
 fix: Updated all documentation files to use current TailwindCSS 4 z-index utilities (z-modal, z-sticky, z-popover) instead of deprecated CSS variable syntax. Files updated:
+
 - docs/component-guide.md (already using correct patterns)
 - .claude/LEARNINGS.md (3 patterns updated)
 - .planning/research/ARCHITECTURE.md (2 patterns updated)
@@ -77,4 +78,5 @@ fix: Updated all documentation files to use current TailwindCSS 4 z-index utilit
 
 verification: Build completes successfully with zero CSS parsing warnings. Tested with `pnpm build`.
 files_changed:
-  - Multiple documentation files (see fix section above)
+
+- Multiple documentation files (see fix section above)

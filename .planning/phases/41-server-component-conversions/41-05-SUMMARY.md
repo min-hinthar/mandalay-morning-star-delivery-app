@@ -59,6 +59,7 @@ completed: 2026-02-06
 - **Files modified:** 4 (1 created, 2 modified, 1 deleted)
 
 ## Accomplishments
+
 - Created HomePageWrapper: tiny 46-line client component for scroll spy only
 - Moved all section composition from HomePageClient to server page.tsx
 - Hero analyzed and kept as client (tightly coupled with framer-motion)
@@ -75,6 +76,7 @@ Each task was committed atomically:
 4. **Remove HomePageClient.tsx** - `80626ca` (chore)
 
 ## Files Created/Modified
+
 - `src/components/ui/homepage/HomePageWrapper.tsx` - Minimal client wrapper (46 lines)
 - `src/app/(public)/page.tsx` - Server component with section composition (125 lines)
 - `src/components/ui/homepage/index.ts` - Export HomePageWrapper instead of HomePageClient
@@ -83,9 +85,11 @@ Each task was committed atomically:
 ## Decisions Made
 
 ### Hero Component Analysis (Task 2)
+
 **Decision:** Keep Hero as "use client" - do not split
 
 **Rationale:**
+
 - 519 lines with framer-motion throughout
 - Uses useScroll, useTransform, useSpring for scroll-linked parallax
 - AnimatedHeadline, StatItem, GradientFallback, HeroContent all use motion variants
@@ -94,9 +98,11 @@ Each task was committed atomically:
 - Per CONTEXT.md: "don't fight it" when conversion is impractical
 
 ### Server Composition Pattern
+
 **Decision:** Move section composition to server, keep HomePageWrapper minimal
 
 **Rationale:**
+
 - page.tsx is a server component - can import and render sections
 - Only SectionNavDots needs client state (scroll spy with IntersectionObserver)
 - HomePageWrapper wraps children, doesn't compose sections itself
@@ -109,14 +115,17 @@ None - plan executed exactly as written.
 Task 1 files (loading.tsx, error.tsx) already existed from prior 41-01 plan.
 
 ## Issues Encountered
+
 - Build lock prevented verification build (OneDrive file locks)
 - Typecheck and lint both pass, build verified structure is correct
 
 ## Next Phase Readiness
+
 - Home page refactored with minimal client boundary
 - Pattern established for other page conversions
 - Ready for 41-06 (tracking routes) or 41-07 (checkout flow)
 
 ---
-*Phase: 41-server-component-conversions*
-*Completed: 2026-02-06*
+
+_Phase: 41-server-component-conversions_
+_Completed: 2026-02-06_

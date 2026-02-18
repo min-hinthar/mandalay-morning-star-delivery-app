@@ -40,10 +40,7 @@ interface DriverProfileRow {
  * Assign or unassign a driver to an order.
  * Validates driver exists and is active.
  */
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: orderId } = await params;
 
   try {
@@ -94,30 +91,26 @@ export async function PATCH(
     if (driverId !== null) {
       const { data: driver, error: driverError } = await supabase
         .from("drivers")
-        .select(`
+        .select(
+          `
           id,
           is_active,
           profiles (
             full_name,
             email
           )
-        `)
+        `
+        )
         .eq("id", driverId)
         .returns<DriverRow[]>()
         .single();
 
       if (driverError || !driver) {
-        return NextResponse.json(
-          { error: "Driver not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: "Driver not found" }, { status: 404 });
       }
 
       if (!driver.is_active) {
-        return NextResponse.json(
-          { error: "Cannot assign inactive driver" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Cannot assign inactive driver" }, { status: 400 });
       }
 
       driverName = driver.profiles?.full_name ?? driver.profiles?.email ?? null;
@@ -128,12 +121,14 @@ export async function PATCH(
     if (order.assigned_driver_id) {
       const { data: prevDriver } = await supabase
         .from("drivers")
-        .select(`
+        .select(
+          `
           profiles (
             full_name,
             email
           )
-        `)
+        `
+        )
         .eq("id", order.assigned_driver_id)
         .returns<DriverProfileRow[]>()
         .single();
@@ -154,10 +149,7 @@ export async function PATCH(
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/orders/[id]/driver" });
-      return NextResponse.json(
-        { error: "Failed to update order" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
     }
 
     // Create audit log entry
@@ -206,9 +198,6 @@ export async function PATCH(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/driver" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

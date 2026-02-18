@@ -15,29 +15,33 @@ The project uses TailwindCSS 4 with CSS custom properties for theming. ESLint ru
 ## Standard Stack
 
 ### Core
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| TailwindCSS | 4.x | Utility-first CSS | Already in use, CSS variable theming is native |
-| CSS Custom Properties | Native | Theme tokens | Browser-native, no JS runtime needed |
-| class-variance-authority | Latest | Variant management | Already used in button.tsx, card.tsx |
+
+| Library                  | Version | Purpose            | Why Standard                                   |
+| ------------------------ | ------- | ------------------ | ---------------------------------------------- |
+| TailwindCSS              | 4.x     | Utility-first CSS  | Already in use, CSS variable theming is native |
+| CSS Custom Properties    | Native  | Theme tokens       | Browser-native, no JS runtime needed           |
+| class-variance-authority | Latest  | Variant management | Already used in button.tsx, card.tsx           |
 
 ### Supporting
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| ESLint no-restricted-syntax | Built-in | Enforcement | Block hardcoded colors at build time |
-| cn (clsx/tailwind-merge) | Latest | Class composition | Already standard in codebase |
+
+| Library                     | Version  | Purpose           | When to Use                          |
+| --------------------------- | -------- | ----------------- | ------------------------------------ |
+| ESLint no-restricted-syntax | Built-in | Enforcement       | Block hardcoded colors at build time |
+| cn (clsx/tailwind-merge)    | Latest   | Class composition | Already standard in codebase         |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| CSS variables | CSS-in-JS tokens | CSS vars are zero-runtime, already in use |
-| Manual grep | Custom ESLint rule | ESLint rules already exist, just need enforcement |
+
+| Instead of    | Could Use          | Tradeoff                                          |
+| ------------- | ------------------ | ------------------------------------------------- |
+| CSS variables | CSS-in-JS tokens   | CSS vars are zero-runtime, already in use         |
+| Manual grep   | Custom ESLint rule | ESLint rules already exist, just need enforcement |
 
 **No installation needed:** All tools are already in the project.
 
 ## Architecture Patterns
 
 ### Token System Structure (Already Exists)
+
 ```
 src/
 ├── styles/
@@ -48,24 +52,28 @@ src/
 ```
 
 ### Pattern 1: Semantic Token Mapping
+
 **What:** Map visual intent to semantic tokens
 **When to use:** Every color replacement
 **Example:**
+
 ```typescript
 // BEFORE (hardcoded)
-className="text-white bg-black"
+className = "text-white bg-black";
 
 // AFTER (semantic tokens)
-className="text-text-inverse bg-surface-inverse"
+className = "text-text-inverse bg-surface-inverse";
 
 // Context-specific example: text on dark hero background
-className="text-hero-text bg-hero-gradient-start"
+className = "text-hero-text bg-hero-gradient-start";
 ```
 
 ### Pattern 2: Theme-Aware Gradients
+
 **What:** Define gradient utilities in Tailwind config or use CSS variables
 **When to use:** Any gradient that should adapt to theme
 **Example:**
+
 ```css
 /* In globals.css @layer utilities */
 .bg-gradient-hero {
@@ -79,9 +87,11 @@ className="text-hero-text bg-hero-gradient-start"
 ```
 
 ### Pattern 3: Overlay/Backdrop Tokens
+
 **What:** Dedicated tokens for semi-transparent overlays
 **When to use:** Modals, drawers, image overlays
 **Example:**
+
 ```css
 /* In tokens.css :root */
 --color-overlay: rgba(0, 0, 0, 0.5);
@@ -93,15 +103,18 @@ className="text-hero-text bg-hero-gradient-start"
 ```
 
 ### Pattern 4: High-Contrast Mode Compatibility
+
 **What:** Driver mode uses `bg-black text-white` for accessibility
 **When to use:** DriverLayout high-contrast toggle
 **Decision:** Keep conditional classes for high-contrast mode:
+
 ```typescript
 // This is intentional for accessibility, not a violation
 className={highContrast ? "bg-black text-white" : "bg-background text-foreground"}
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Opacity-based text colors:** Use `text-muted-foreground` not `text-white/70`
 - **Hardcoded hex in arbitrary values:** Use semantic tokens (bg-primary) not `bg-[#fff]`
 - **Theme-unaware gradients:** Always use CSS variables in gradient definitions
@@ -109,41 +122,46 @@ className={highContrast ? "bg-black text-white" : "bg-background text-foreground
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Color replacement detection | Manual search | ESLint rules | Already configured, catches at build time |
-| Dark mode switching | JS toggle logic | TailwindCSS `dark:` variant | Native, no JS needed for styles |
-| Gradient theming | Multiple gradient classes | CSS var-based single class | One class, theme adapts automatically |
+| Problem                     | Don't Build               | Use Instead                 | Why                                       |
+| --------------------------- | ------------------------- | --------------------------- | ----------------------------------------- |
+| Color replacement detection | Manual search             | ESLint rules                | Already configured, catches at build time |
+| Dark mode switching         | JS toggle logic           | TailwindCSS `dark:` variant | Native, no JS needed for styles           |
+| Gradient theming            | Multiple gradient classes | CSS var-based single class  | One class, theme adapts automatically     |
 
 **Key insight:** The token system already exists and is comprehensive. This phase is migration, not design.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Opacity Suffix Confusion
+
 **What goes wrong:** Using `text-white/80` instead of semantic token
 **Why it happens:** Tailwind opacity shorthand is familiar
 **How to avoid:** Always ask "what does this color mean?" not "what color is it?"
 **Warning signs:** Any `/[number]` opacity suffix on white/black
 
 ### Pitfall 2: Context-Blind Token Selection
+
 **What goes wrong:** Using `text-foreground` on a dark gradient background
 **Why it happens:** Not considering the background context
 **How to avoid:** Match token to context: hero uses `text-hero-text`, surfaces use `text-foreground`
 **Warning signs:** White text invisible or black text invisible after theme switch
 
 ### Pitfall 3: Missing Dark Mode Test
+
 **What goes wrong:** Fix looks good in light mode, breaks in dark mode
 **Why it happens:** Only testing one theme
 **How to avoid:** Toggle theme after each batch of changes
 **Warning signs:** Text disappears, contrast issues, gradients look wrong
 
 ### Pitfall 4: High-Contrast Mode False Positives
+
 **What goes wrong:** Flagging DriverLayout's intentional `bg-black text-white`
 **Why it happens:** Accessibility mode requires literal black/white
 **How to avoid:** Check if code is inside high-contrast conditional
 **Warning signs:** Driver mode stops working after "fixing" colors
 
 ### Pitfall 5: Library Component Hardcoding
+
 **What goes wrong:** Recharts or other libraries render hardcoded colors
 **Why it happens:** Library components don't use Tailwind
 **How to avoid:** Use library's theming API or wrapper with CSS overrides
@@ -248,11 +266,11 @@ className="bg-gradient-surface"
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Tailwind color palette | CSS custom properties | TailwindCSS 4 | Native theming support |
-| `dark:` prefix everywhere | CSS vars that auto-adapt | 2024+ | Simpler markup, fewer classes |
-| Multiple theme stylesheets | Single stylesheet with vars | CSS vars maturity | Better performance |
+| Old Approach               | Current Approach            | When Changed      | Impact                        |
+| -------------------------- | --------------------------- | ----------------- | ----------------------------- |
+| Tailwind color palette     | CSS custom properties       | TailwindCSS 4     | Native theming support        |
+| `dark:` prefix everywhere  | CSS vars that auto-adapt    | 2024+             | Simpler markup, fewer classes |
+| Multiple theme stylesheets | Single stylesheet with vars | CSS vars maturity | Better performance            |
 
 **Current best practice:** Define all colors as CSS custom properties in a single tokens file, with theme-specific values in `:root` and `.dark` selectors. Reference in Tailwind config for utility generation.
 
@@ -270,35 +288,39 @@ className="bg-gradient-surface"
 
 ## Existing Violation Count (Approximate)
 
-| Pattern | Files | Instances |
-|---------|-------|-----------|
-| `text-white` | ~40 | ~100+ |
-| `text-black` | ~5 | ~10 |
-| `bg-white` | ~35 | ~70+ |
-| `bg-black` | ~15 | ~25 |
-| Hex in TSX | ~20 | ~40 |
-| Gradients needing work | ~15 | ~30 |
+| Pattern                | Files | Instances |
+| ---------------------- | ----- | --------- |
+| `text-white`           | ~40   | ~100+     |
+| `text-black`           | ~5    | ~10       |
+| `bg-white`             | ~35   | ~70+      |
+| `bg-black`             | ~15   | ~25       |
+| Hex in TSX             | ~20   | ~40       |
+| Gradients needing work | ~15   | ~30       |
 
 **Total estimated changes:** ~300 replacements across ~60 files
 
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - `/websites/tailwindcss` Context7 - CSS variables theming documentation
 - `src/styles/tokens.css` - Project's existing token definitions
 - `tailwind.config.ts` - Project's Tailwind configuration
 - `eslint.config.mjs` - Existing ESLint rules for color enforcement
 
 ### Secondary (MEDIUM confidence)
+
 - TailwindCSS v4 documentation on theme variables
 - Project's existing button.tsx and card.tsx as token usage examples
 
 ### Tertiary (LOW confidence)
+
 - None - all findings verified against codebase and official docs
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - All tools already in project
 - Architecture: HIGH - Patterns verified against existing codebase
 - Pitfalls: HIGH - Derived from actual code inspection

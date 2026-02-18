@@ -89,27 +89,29 @@ export const settingsCategorySchema = z.enum(["delivery", "operations", "notific
 
 export type SettingsCategory = z.infer<typeof settingsCategorySchema>;
 
-export const updateSettingsSchema = z.object({
-  category: settingsCategorySchema,
-  settings: z.record(z.string(), z.unknown()),
-}).refine(
-  (data) => {
-    // Validate settings based on category
-    switch (data.category) {
-      case "delivery":
-        return deliverySettingsSchema.partial().safeParse(data.settings).success;
-      case "operations":
-        return operationsSettingsSchema.partial().safeParse(data.settings).success;
-      case "notifications":
-        return notificationSettingsSchema.partial().safeParse(data.settings).success;
-      default:
-        return false;
+export const updateSettingsSchema = z
+  .object({
+    category: settingsCategorySchema,
+    settings: z.record(z.string(), z.unknown()),
+  })
+  .refine(
+    (data) => {
+      // Validate settings based on category
+      switch (data.category) {
+        case "delivery":
+          return deliverySettingsSchema.partial().safeParse(data.settings).success;
+        case "operations":
+          return operationsSettingsSchema.partial().safeParse(data.settings).success;
+        case "notifications":
+          return notificationSettingsSchema.partial().safeParse(data.settings).success;
+        default:
+          return false;
+      }
+    },
+    {
+      message: "Invalid settings for the specified category",
     }
-  },
-  {
-    message: "Invalid settings for the specified category",
-  }
-);
+  );
 
 export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>;
 

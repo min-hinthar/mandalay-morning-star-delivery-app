@@ -49,9 +49,7 @@ interface TrackingPageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({
-  params,
-}: TrackingPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: TrackingPageProps): Promise<Metadata> {
   const { id } = await params;
   return {
     title: `Track Order #${id.slice(0, 8)} | Mandalay Morning Star`,

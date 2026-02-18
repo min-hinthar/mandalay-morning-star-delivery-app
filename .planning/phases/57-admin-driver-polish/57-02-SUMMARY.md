@@ -94,11 +94,11 @@ completed: 2026-02-11
 
 ## Decisions Made
 
-| ID | Decision | Rationale |
-|----|----------|-----------|
-| ADMIN-02-TEALFILTER | Filter badges use accent-teal instead of brand-red | Admin uses teal accent per CONTEXT, not customer warm palette |
-| ADMIN-02-DATEGROUP | Orders grouped by date with sticky headers | Natural chronological grouping improves scanability over flat list |
-| ADMIN-02-LOADMORE | 20-item pages with Load More button | Progressive loading avoids overwhelming the DOM; shows remaining count |
+| ID                    | Decision                                                                    | Rationale                                                                        |
+| --------------------- | --------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| ADMIN-02-TEALFILTER   | Filter badges use accent-teal instead of brand-red                          | Admin uses teal accent per CONTEXT, not customer warm palette                    |
+| ADMIN-02-DATEGROUP    | Orders grouped by date with sticky headers                                  | Natural chronological grouping improves scanability over flat list               |
+| ADMIN-02-LOADMORE     | 20-item pages with Load More button                                         | Progressive loading avoids overwhelming the DOM; shows remaining count           |
 | ADMIN-02-DRAWERSTATUS | Drawer uses accent-teal buttons for forward status, status-error for cancel | Consistent teal accent for non-destructive actions; red reserved for destructive |
 
 ## Deviations from Plan
@@ -106,6 +106,7 @@ completed: 2026-02-11
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Fixed semantic token lint violations in OrderDetailDrawer**
+
 - **Found during:** Task 1 (OrderDetailDrawer implementation)
 - **Issue:** Used `bg-black/40` for backdrop and `text-white` for button text, both flagged by no-restricted-syntax ESLint rule
 - **Fix:** Changed to `bg-surface-inverse/40` and `text-text-inverse` per semantic token system
@@ -114,6 +115,7 @@ completed: 2026-02-11
 - **Committed in:** 60992fe
 
 **2. [Rule 1 - Bug] Removed unused `cn` import from OrderCardRow**
+
 - **Found during:** Task 1 (typecheck)
 - **Issue:** TypeScript flagged unused `cn` import (TS6133)
 - **Fix:** Removed the import
@@ -142,5 +144,6 @@ None - no external service configuration required.
 - All shared primitives from plan 01 validated in production use
 
 ---
-*Phase: 57-admin-driver-polish*
-*Completed: 2026-02-11*
+
+_Phase: 57-admin-driver-polish_
+_Completed: 2026-02-11_

@@ -2,7 +2,8 @@
 phase: 61-admin-pages
 plan: 03
 subsystem: ui
-tags: [react, next-js, admin, order-detail, collapsible-card, status-dialog, audit-log, email-history]
+tags:
+  [react, next-js, admin, order-detail, collapsible-card, status-dialog, audit-log, email-history]
 
 # Dependency graph
 requires:
@@ -75,6 +76,7 @@ completed: 2026-02-14
 - **Files modified:** 15
 
 ## Accomplishments
+
 - Order detail page renders at /admin/orders/[id] with breadcrumb navigation and back button
 - OrderHeaderCard shows status badge, priority toggle, delivery window, placed timestamp, driver, and status action buttons
 - CustomerInfoCard with clickable mailto/tel links, formatted address, static Google Maps embed, special instructions callout
@@ -94,6 +96,7 @@ Each task was committed atomically:
 2. **Task 2: StatusChangeDialog, StatusTimelineCard, EmailHistoryCard, and wiring** - `cc0c006` (feat)
 
 ## Files Created/Modified
+
 - `src/app/(admin)/admin/orders/[id]/page.tsx` - Order detail page route, renders OrderDetailClient
 - `src/app/(admin)/admin/orders/[id]/loading.tsx` - RouteLoading with "Loading order details..." message
 - `src/app/(admin)/admin/orders/[id]/not-found.tsx` - Branded 404 with Package icon and back link
@@ -111,6 +114,7 @@ Each task was committed atomically:
 - `src/components/ui/admin/orders/OrderDetailPage/EmailHistoryCard.tsx` - CollapsibleCard wrapper for EmailHistory
 
 ## Decisions Made
+
 - Used Modal component for StatusChangeDialog (ConfirmDialog only supports simple description string, not custom content with email preview, checkbox, and textarea)
 - Payment status derived from order status (no Stripe API call): delivered=Paid, cancelled=Refunded, else Pending
 - Google Maps static image uses `<img>` not `next/image` since dynamic external URLs cannot be optimized
@@ -124,12 +128,15 @@ None - plan executed exactly as written.
 Note: Task 1 files were found already committed from a previous session (commit `82ab063`). The content matched the plan requirements, so Task 1 was treated as pre-completed. Task 2 was freshly implemented and committed.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Order detail page fully functional with all 8 card sections
 - Status change workflow operational with optimistic updates
 - Email history integrated via existing EmailHistory component
@@ -137,5 +144,6 @@ None - no external service configuration required.
 - Google Maps static image requires NEXT_PUBLIC_GOOGLE_MAPS_API_KEY environment variable (optional, gracefully hidden if missing)
 
 ---
-*Phase: 61-admin-pages*
-*Completed: 2026-02-14*
+
+_Phase: 61-admin-pages_
+_Completed: 2026-02-14_

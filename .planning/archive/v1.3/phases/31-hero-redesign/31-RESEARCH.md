@@ -9,6 +9,7 @@
 The codebase has a mature animation infrastructure with both Framer Motion and GSAP available. The existing Hero.tsx in `src/components/ui/homepage/Hero.tsx` provides a solid foundation but needs significant redesign to meet CONTEXT.md requirements: floating emoji system, multi-layer parallax, theme-aware gradients with scroll animation, and removal of the BrandMascot.
 
 Key infrastructure already exists:
+
 - `parallaxPresets` in motion-tokens.ts with speed factors (0.1 background to 1.0 content)
 - `float()` and `floatGentle()` functions for floating animations
 - `useCanHover()` hook for touch/desktop detection
@@ -23,15 +24,16 @@ Key infrastructure already exists:
 
 Location: `src/components/ui/homepage/Hero.tsx`
 
-| Component | Purpose | Keep/Modify |
-|-----------|---------|-------------|
-| `Hero` | Main export, scroll tracking | MODIFY |
-| `HeroContent` | Text, CTA, mascot, stats | MODIFY (remove mascot) |
-| `GradientFallback` | Theme-aware gradient bg | REPLACE (new gradient system) |
-| `AnimatedHeadline` | Staggered word reveal | KEEP |
-| `StatItem` | Stats with motion | KEEP |
+| Component          | Purpose                      | Keep/Modify                   |
+| ------------------ | ---------------------------- | ----------------------------- |
+| `Hero`             | Main export, scroll tracking | MODIFY                        |
+| `HeroContent`      | Text, CTA, mascot, stats     | MODIFY (remove mascot)        |
+| `GradientFallback` | Theme-aware gradient bg      | REPLACE (new gradient system) |
+| `AnimatedHeadline` | Staggered word reveal        | KEEP                          |
+| `StatItem`         | Stats with motion            | KEEP                          |
 
 **Current patterns to preserve:**
+
 ```typescript
 // Scroll-based parallax (already in place)
 const { scrollYProgress } = useScroll({
@@ -42,25 +44,28 @@ const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
 ```
 
 **Code to remove:**
+
 - `BrandMascot` import and usage
 - `showMascot` prop and related rendering
 
 ### Current Gradient System
 
 Uses CSS variables from `tokens.css`:
+
 ```css
 /* Light mode */
---hero-gradient-start: #A41034;
---hero-gradient-mid: #5C0A1E;
+--hero-gradient-start: #a41034;
+--hero-gradient-mid: #5c0a1e;
 --hero-gradient-end: #1a0a0f;
 
 /* Dark mode */
---hero-gradient-start: #C41844;
---hero-gradient-mid: #6B0C24;
+--hero-gradient-start: #c41844;
+--hero-gradient-mid: #6b0c24;
 --hero-gradient-end: #1a0a0f;
 ```
 
 **Note:** CONTEXT.md specifies different gradients:
+
 - Light: Warm saffron-to-cream (not current red)
 - Dark: Rich black-to-subtle saffron glow
 
@@ -71,6 +76,7 @@ Will need NEW tokens or override existing hero gradient tokens.
 ### Framer Motion (Primary)
 
 Already used throughout codebase. Key imports:
+
 ```typescript
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { spring, staggerContainer } from "@/lib/motion-tokens";
@@ -86,6 +92,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 | `spring.wobbly` | 250 | 6 | Pronounced wobble |
 
 **Floating animation utilities** (already exist):
+
 ```typescript
 // src/lib/motion-tokens.ts
 export function float(index: number) {
@@ -116,14 +123,15 @@ export function floatGentle(index: number) {
 ### Parallax Presets
 
 `src/lib/motion-tokens.ts` provides speed factors for multi-layer parallax:
+
 ```typescript
 export const parallaxPresets = {
-  background: { speedFactor: 0.1 },  // Slowest
+  background: { speedFactor: 0.1 }, // Slowest
   far: { speedFactor: 0.25 },
   mid: { speedFactor: 0.4 },
   near: { speedFactor: 0.6 },
   foreground: { speedFactor: 0.8 },
-  content: { speedFactor: 1.0 },     // 1:1 with scroll
+  content: { speedFactor: 1.0 }, // 1:1 with scroll
 } as const;
 ```
 
@@ -132,6 +140,7 @@ export const parallaxPresets = {
 ### GSAP (Secondary)
 
 Available via `@/lib/gsap`:
+
 ```typescript
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
 import { gsapDuration, gsapEase } from "@/lib/gsap/presets";
@@ -142,6 +151,7 @@ import { gsapDuration, gsapEase } from "@/lib/gsap/presets";
 ### Animation Preference Hook
 
 **Critical:** Always check `shouldAnimate` before applying animations:
+
 ```typescript
 const { shouldAnimate, getSpring } = useAnimationPreference();
 
@@ -162,10 +172,12 @@ export function useCanHover(): boolean {
 ```
 
 **CONTEXT.md requirements:**
+
 - Desktop: Emojis shift away from cursor on hover
 - Touch: Autonomous floating only (no gyro/tilt)
 
 **Pattern to use:**
+
 ```typescript
 const canHover = useCanHover();
 
@@ -200,17 +212,18 @@ Per CONTEXT.md, need new hero-specific gradients:
 
 ```css
 /* Light mode - warm saffron to cream */
---hero-bg-start: var(--color-secondary);      /* Saffron */
---hero-bg-end: #FFFBF5;                        /* Warm cream */
+--hero-bg-start: var(--color-secondary); /* Saffron */
+--hero-bg-end: #fffbf5; /* Warm cream */
 
 /* Dark mode - black to saffron glow */
---hero-bg-start: #0a0a0a;                      /* Rich black */
---hero-bg-end: rgba(235, 205, 0, 0.15);        /* Subtle saffron glow */
+--hero-bg-start: #0a0a0a; /* Rich black */
+--hero-bg-end: rgba(235, 205, 0, 0.15); /* Subtle saffron glow */
 ```
 
 ### Theme Transition
 
 Tokens.css includes theme transition:
+
 ```css
 --theme-transition:
   background-color var(--duration-normal) var(--ease-in-out),
@@ -219,6 +232,7 @@ Tokens.css includes theme transition:
 ```
 
 For smooth 300ms crossfade (per CONTEXT.md), use CSS transitions rather than JS animation:
+
 ```css
 .hero-gradient {
   transition: background 300ms var(--ease-in-out);
@@ -231,13 +245,13 @@ For smooth 300ms crossfade (per CONTEXT.md), use CSS transitions rather than JS 
 
 Per CONTEXT.md: 4+ layers with gradient base, orbs, emojis, text
 
-| Layer | Content | Speed | Z-Index |
-|-------|---------|-------|---------|
-| 1 | Gradient background | 0 (static) | 0 |
-| 2 | Background orbs (far) | 0.1 | 1 |
-| 3 | Mid-distance orbs | 0.25-0.4 | 2 |
-| 4 | Floating emojis (near) | 0.4-0.6 | 3 |
-| 5 | Text + CTA | 0.8-1.0 | 4 |
+| Layer | Content                | Speed      | Z-Index |
+| ----- | ---------------------- | ---------- | ------- |
+| 1     | Gradient background    | 0 (static) | 0       |
+| 2     | Background orbs (far)  | 0.1        | 1       |
+| 3     | Mid-distance orbs      | 0.25-0.4   | 2       |
+| 4     | Floating emojis (near) | 0.4-0.6    | 3       |
+| 5     | Text + CTA             | 0.8-1.0    | 4       |
 
 ### Implementation Pattern
 
@@ -245,10 +259,10 @@ Per CONTEXT.md: 4+ layers with gradient base, orbs, emojis, text
 // Create parallax transforms for each layer
 const { scrollYProgress } = useScroll({ target: containerRef });
 
-const layer1Y = useTransform(scrollYProgress, [0, 1], ["0%", "5%"]);   // Orbs far
-const layer2Y = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);  // Orbs mid
-const layer3Y = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);  // Emojis
-const layer4Y = useTransform(scrollYProgress, [0, 1], ["0%", "35%"]);  // Text
+const layer1Y = useTransform(scrollYProgress, [0, 1], ["0%", "5%"]); // Orbs far
+const layer2Y = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]); // Orbs mid
+const layer3Y = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]); // Emojis
+const layer4Y = useTransform(scrollYProgress, [0, 1], ["0%", "35%"]); // Text
 
 // Apply with spring for smoothness
 const smoothLayer1Y = useSpring(layer1Y, { stiffness: 100, damping: 30 });
@@ -262,10 +276,10 @@ const smoothLayer1Y = useSpring(layer1Y, { stiffness: 100, damping: 30 });
 interface FloatingEmoji {
   id: string;
   emoji: string;
-  size: 'sm' | 'md' | 'lg';  // For depth perception
+  size: "sm" | "md" | "lg"; // For depth perception
   initialPosition: { x: number; y: number };
-  animationType: 'drift' | 'spiral' | 'bob';
-  depth: 'far' | 'mid' | 'near';  // Affects blur + opacity
+  animationType: "drift" | "spiral" | "bob";
+  depth: "far" | "mid" | "near"; // Affects blur + opacity
 }
 ```
 
@@ -276,6 +290,7 @@ Per CONTEXT.md: `['🍜', '🥟', '🍲', '🌶️']` - Burmese-themed
 ### Animation Variants
 
 **Drift:**
+
 ```typescript
 animate: {
   x: [startX, startX + 30, startX - 20, startX],
@@ -284,6 +299,7 @@ animate: {
 ```
 
 **Spiral:**
+
 ```typescript
 animate: {
   x: [0, 20, 0, -20, 0],
@@ -293,6 +309,7 @@ animate: {
 ```
 
 **Bob:**
+
 ```typescript
 animate: {
   y: [0, -20, 0],
@@ -302,24 +319,19 @@ animate: {
 
 ### Depth Effects
 
-| Depth | Size | Blur | Opacity | Parallax Speed |
-|-------|------|------|---------|----------------|
-| far | 24-32px | 2px | 0.6 | 0.25 |
-| mid | 36-48px | 0.5px | 0.8 | 0.4 |
-| near | 52-64px | 0 | 1.0 | 0.6 |
+| Depth | Size    | Blur  | Opacity | Parallax Speed |
+| ----- | ------- | ----- | ------- | -------------- |
+| far   | 24-32px | 2px   | 0.6     | 0.25           |
+| mid   | 36-48px | 0.5px | 0.8     | 0.4            |
+| near  | 52-64px | 0     | 1.0     | 0.6            |
 
 ### Edge Fading
 
 Use CSS mask for gradient fade at boundaries:
+
 ```css
 .emoji-container {
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 10%,
-    black 90%,
-    transparent 100%
-  );
+  mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
   -webkit-mask-image: /* same */;
 }
 ```
@@ -335,7 +347,7 @@ const handleMouseMove = (e: MouseEvent) => {
   const mouseY = (e.clientY - rect.top) / rect.height;
 
   // Emojis shift AWAY from cursor (repel effect)
-  emojis.forEach(emoji => {
+  emojis.forEach((emoji) => {
     const dx = emoji.x - mouseX;
     const dy = emoji.y - mouseY;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -356,15 +368,16 @@ Per CONTEXT.md: Radial gradients with soft glow/bloom effect
 
 ```typescript
 const orbColors = {
-  saffron: 'radial-gradient(circle, rgba(235, 205, 0, 0.4) 0%, transparent 70%)',
-  jade: 'radial-gradient(circle, rgba(82, 165, 46, 0.3) 0%, transparent 70%)',
-  ruby: 'radial-gradient(circle, rgba(164, 16, 52, 0.3) 0%, transparent 70%)',
+  saffron: "radial-gradient(circle, rgba(235, 205, 0, 0.4) 0%, transparent 70%)",
+  jade: "radial-gradient(circle, rgba(82, 165, 46, 0.3) 0%, transparent 70%)",
+  ruby: "radial-gradient(circle, rgba(164, 16, 52, 0.3) 0%, transparent 70%)",
 };
 ```
 
 ### Dark Mode Enhancement
 
 Per CONTEXT.md: Orbs brighter in dark mode
+
 ```css
 .dark .orb {
   opacity: 0.5; /* vs 0.3 in light mode */
@@ -373,13 +386,13 @@ Per CONTEXT.md: Orbs brighter in dark mode
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Parallax transforms | Custom scroll listener | Framer Motion `useScroll` + `useTransform` | Handles edge cases, RAF, cleanup |
-| Touch detection | `ontouchstart` checks | `useCanHover()` hook | Media query-based, no false positives |
-| Spring physics | Manual easing | `useSpring()` or spring presets | Physics-based, natural feel |
-| Theme detection | CSS class checking | tokens.css variables + data-theme | Consistent with existing system |
-| Animation preference | localStorage checks | `useAnimationPreference()` | Already handles hydration, persistence |
+| Problem              | Don't Build            | Use Instead                                | Why                                    |
+| -------------------- | ---------------------- | ------------------------------------------ | -------------------------------------- |
+| Parallax transforms  | Custom scroll listener | Framer Motion `useScroll` + `useTransform` | Handles edge cases, RAF, cleanup       |
+| Touch detection      | `ontouchstart` checks  | `useCanHover()` hook                       | Media query-based, no false positives  |
+| Spring physics       | Manual easing          | `useSpring()` or spring presets            | Physics-based, natural feel            |
+| Theme detection      | CSS class checking     | tokens.css variables + data-theme          | Consistent with existing system        |
+| Animation preference | localStorage checks    | `useAnimationPreference()`                 | Already handles hydration, persistence |
 
 ## Common Pitfalls
 
@@ -395,6 +408,7 @@ Per CONTEXT.md: Orbs brighter in dark mode
 **What goes wrong:** 12-15 continuously animating emojis cause frame drops
 **Why it happens:** Too many simultaneous animations, layout thrashing
 **How to avoid:**
+
 - Use `will-change: transform` on emoji elements
 - Use CSS transforms only (not top/left)
 - Consider CSS animations for simple float, Framer for scroll-linked
@@ -514,7 +528,7 @@ function GradientOrb({
 // Source: CONTEXT.md requirement for mouse interaction
 function useMouseRepel(containerRef: RefObject<HTMLElement>, emojis: Emoji[]) {
   const canHover = useCanHover();
-  const [offsets, setOffsets] = useState<Map<string, {x: number, y: number}>>(new Map());
+  const [offsets, setOffsets] = useState<Map<string, { x: number; y: number }>>(new Map());
 
   useEffect(() => {
     if (!canHover || !containerRef.current) return;
@@ -524,9 +538,9 @@ function useMouseRepel(containerRef: RefObject<HTMLElement>, emojis: Emoji[]) {
       const mouseX = (e.clientX - rect.left) / rect.width;
       const mouseY = (e.clientY - rect.top) / rect.height;
 
-      const newOffsets = new Map<string, {x: number, y: number}>();
+      const newOffsets = new Map<string, { x: number; y: number }>();
 
-      emojis.forEach(emoji => {
+      emojis.forEach((emoji) => {
         const dx = emoji.normalizedX - mouseX;
         const dy = emoji.normalizedY - mouseY;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -538,8 +552,8 @@ function useMouseRepel(containerRef: RefObject<HTMLElement>, emojis: Emoji[]) {
       setOffsets(newOffsets);
     };
 
-    containerRef.current.addEventListener('mousemove', handleMove, { passive: true });
-    return () => containerRef.current?.removeEventListener('mousemove', handleMove);
+    containerRef.current.addEventListener("mousemove", handleMove, { passive: true });
+    return () => containerRef.current?.removeEventListener("mousemove", handleMove);
   }, [canHover, emojis]);
 
   return offsets;
@@ -548,13 +562,14 @@ function useMouseRepel(containerRef: RefObject<HTMLElement>, emojis: Emoji[]) {
 
 ## State of the Art
 
-| Old Approach | Current Approach | Impact |
-|--------------|------------------|--------|
-| GSAP for all scroll | Framer Motion `useScroll` | Better React integration, simpler code |
-| Custom touch detection | `useCanHover()` media query | More reliable, no JS sniffing |
-| JS theme transitions | CSS `transition` property | Smoother, no layout thrash |
+| Old Approach           | Current Approach            | Impact                                 |
+| ---------------------- | --------------------------- | -------------------------------------- |
+| GSAP for all scroll    | Framer Motion `useScroll`   | Better React integration, simpler code |
+| Custom touch detection | `useCanHover()` media query | More reliable, no JS sniffing          |
+| JS theme transitions   | CSS `transition` property   | Smoother, no layout thrash             |
 
 **Deprecated/outdated:**
+
 - `prefersReducedMotion` OS check - codebase ignores OS setting, uses own preference
 - Direct `gsap.to()` for parallax - use GSAP ScrollTrigger or FM useScroll instead
 
@@ -573,6 +588,7 @@ function useMouseRepel(containerRef: RefObject<HTMLElement>, emojis: Emoji[]) {
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - `src/components/ui/homepage/Hero.tsx` - Current implementation reviewed
 - `src/lib/motion-tokens.ts` - All spring/parallax presets documented
 - `src/lib/hooks/useResponsive.ts` - useCanHover implementation
@@ -580,16 +596,19 @@ function useMouseRepel(containerRef: RefObject<HTMLElement>, emojis: Emoji[]) {
 - `src/lib/hooks/useAnimationPreference.ts` - Animation preference system
 
 ### Secondary (MEDIUM confidence)
+
 - `src/lib/webgl/gradients.ts` - Gradient utilities and palettes
 - `src/lib/gsap/` - GSAP setup and presets
 - `src/styles/animations.css` - CSS animation utilities
 
 ### Tertiary (LOW confidence)
+
 - None - all research from codebase
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - All libraries already in codebase
 - Architecture: HIGH - Patterns established in existing Hero.tsx
 - Pitfalls: HIGH - Based on codebase patterns and common React animation issues

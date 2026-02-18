@@ -48,9 +48,7 @@ function Dot({ index, isActive, label, onClick }: DotProps) {
         "relative rounded-full",
         "transition-all duration-200 ease-out",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-        isActive
-          ? "w-3 h-3 bg-primary"
-          : "w-2 h-2 bg-text-muted/30 hover:bg-text-muted/50"
+        isActive ? "w-3 h-3 bg-primary" : "w-2 h-2 bg-text-muted/30 hover:bg-text-muted/50"
       )}
       style={isActive ? { boxShadow: "var(--shadow-glow-primary)" } : undefined}
       whileHover={shouldAnimate ? { scale: 1.3 } : undefined}
@@ -106,13 +104,7 @@ function Dot({ index, isActive, label, onClick }: DotProps) {
  *   labels={["Home", "About", "Contact"]}
  * />
  */
-export function NavDots({
-  total,
-  current,
-  onSelect,
-  labels,
-  className,
-}: NavDotsProps) {
+export function NavDots({ total, current, onSelect, labels, className }: NavDotsProps) {
   const { shouldAnimate } = useAnimationPreference();
 
   const handleDotClick = useCallback(

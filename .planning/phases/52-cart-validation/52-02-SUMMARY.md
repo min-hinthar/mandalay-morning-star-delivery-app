@@ -63,6 +63,7 @@ completed: 2026-02-09
 - **Files modified:** 6
 
 ## Accomplishments
+
 - ValidationOverlay renders gray overlay with amber "Sold Out" or red "Unavailable" badge + remove button
 - PriceChangeBadge shows dismissable inline badge with amber (price up) or green (price down) treatment
 - SuggestionRow displays up to 3 replacement cards with thumbnail, name, and formatted price
@@ -76,6 +77,7 @@ Each task was committed atomically:
 2. **Task 2: Create SuggestionRow, AttentionSection, and CartPage barrel** - `5775354` (feat)
 
 ## Files Created/Modified
+
 - `src/components/ui/cart/CartItem/ValidationOverlay.tsx` - Gray overlay + status badge for sold-out/unavailable items
 - `src/components/ui/cart/CartItem/PriceChangeBadge.tsx` - Dismissable price-updated inline badge
 - `src/components/ui/cart/CartPage/SuggestionRow.tsx` - Horizontal row of 3 replacement suggestion cards
@@ -84,6 +86,7 @@ Each task was committed atomically:
 - `src/components/ui/cart/CartItem/index.tsx` - Added ValidationOverlay and PriceChangeBadge exports
 
 ## Decisions Made
+
 - Used `bg-surface-inverse/40` semantic token instead of raw `bg-black/40` for overlay background (lint rule compliance)
 - Defined `CartItemValidation` type locally in AttentionSection rather than adding to `cart.ts` prematurely -- will be promoted when the validation hook is built in plan 03
 - Made entire PriceChangeBadge a `<button>` element so the whole badge is tappable to dismiss (not just the X icon)
@@ -94,6 +97,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Fixed lint errors for semantic token usage**
+
 - **Found during:** Task 1 (ValidationOverlay)
 - **Issue:** ESLint `no-restricted-syntax` rule forbids raw `text-white` and `bg-black` -- must use semantic tokens
 - **Fix:** Replaced `text-white` with `text-text-inverse`, `bg-black/40` with `bg-surface-inverse/40`
@@ -107,17 +111,21 @@ Each task was committed atomically:
 **Impact on plan:** Semantic token substitution maintains visual consistency with design system. No scope creep.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - All 4 validation UI components ready for composition in cart page (plan 03)
 - CartPage barrel file established for plan 03 to add CartPageContent, CartPageHeader, etc.
 - AttentionSection accepts CartItem[] + validations Map -- ready for useCartValidation hook (plan 03)
 - SuggestionRow accepts MenuItem[] -- ready for suggestion lookup in validation hook
 
 ---
-*Phase: 52-cart-validation*
-*Completed: 2026-02-09*
+
+_Phase: 52-cart-validation_
+_Completed: 2026-02-09_

@@ -13,10 +13,7 @@ const createCategorySchema = z.object({
     .string()
     .min(1)
     .max(100)
-    .regex(
-      /^[a-z0-9-]+$/,
-      "Slug must be lowercase letters, numbers, and hyphens"
-    ),
+    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase letters, numbers, and hyphens"),
   name: z.string().min(1).max(200),
   sort_order: z.number().int().min(0).optional(),
   is_active: z.boolean().optional().default(true),
@@ -38,10 +35,7 @@ export async function GET() {
 
     if (error) {
       logger.exception(error, { api: "admin/categories", flowId: "fetch" });
-      return NextResponse.json(
-        { error: "Failed to fetch categories" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
     }
 
     // Get item counts per category
@@ -51,10 +45,7 @@ export async function GET() {
 
     if (countError) {
       logger.exception(countError, { api: "admin/categories", flowId: "fetch-counts" });
-      return NextResponse.json(
-        { error: "Failed to fetch item counts" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch item counts" }, { status: 500 });
     }
 
     // Count items per category
@@ -75,10 +66,7 @@ export async function GET() {
     return NextResponse.json(categoriesWithCounts);
   } catch (error) {
     logger.exception(error, { api: "admin/categories", flowId: "fetch" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -129,18 +117,12 @@ export async function POST(request: Request) {
           { status: 409 }
         );
       }
-      return NextResponse.json(
-        { error: "Failed to create category" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to create category" }, { status: 500 });
     }
 
     return NextResponse.json(category, { status: 201 });
   } catch (error) {
     logger.exception(error, { api: "admin/categories", flowId: "create" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -78,11 +78,25 @@ function getGradientStyleFromEmail(email?: string | null): React.CSSProperties {
   // Simple hash to pick from color options
   const hash = email.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const gradients: React.CSSProperties[] = [
-    { background: "linear-gradient(to bottom right, var(--color-secondary), var(--color-primary))" },
-    { background: "linear-gradient(to bottom right, var(--color-accent-magenta), var(--color-primary))" },
-    { background: "linear-gradient(to bottom right, var(--color-accent-teal), var(--color-accent-magenta))" },
-    { background: "linear-gradient(to bottom right, var(--color-accent-teal), var(--color-primary))" },
-    { background: "linear-gradient(to bottom right, var(--color-accent-green), var(--color-accent-teal))" },
+    {
+      background: "linear-gradient(to bottom right, var(--color-secondary), var(--color-primary))",
+    },
+    {
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-magenta), var(--color-primary))",
+    },
+    {
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-teal), var(--color-accent-magenta))",
+    },
+    {
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-teal), var(--color-primary))",
+    },
+    {
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-green), var(--color-accent-teal))",
+    },
   ];
   return gradients[hash % gradients.length];
 }
@@ -207,11 +221,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
         {/* Avatar image or initials fallback - use full size to respect className override */}
         {avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={avatarUrl}
-            alt=""
-            className="w-full h-full rounded-full object-cover"
-          />
+          <img src={avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
         ) : (
           <span
             className="flex w-full h-full items-center justify-center rounded-full text-sm font-bold text-text-inverse"
@@ -257,9 +267,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
           >
             {/* User info header */}
             <div className="px-3 py-2 border-b border-border">
-              <p className="text-sm font-medium text-text-primary truncate">
-                {name || user.email}
-              </p>
+              <p className="text-sm font-medium text-text-primary truncate">{name || user.email}</p>
               {name && user.email && (
                 <p className="text-xs text-text-muted truncate">{user.email}</p>
               )}

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { m, AnimatePresence } from "framer-motion";
 import { Search, Trash2 } from "lucide-react";

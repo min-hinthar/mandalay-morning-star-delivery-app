@@ -44,12 +44,7 @@ const pulseVariants = {
   },
 };
 
-export function ErrorShake({
-  shake,
-  children,
-  className,
-  onShakeComplete,
-}: ErrorShakeProps) {
+export function ErrorShake({ shake, children, className, onShakeComplete }: ErrorShakeProps) {
   const { shouldAnimate } = useAnimationPreference();
 
   if (!shouldAnimate) {

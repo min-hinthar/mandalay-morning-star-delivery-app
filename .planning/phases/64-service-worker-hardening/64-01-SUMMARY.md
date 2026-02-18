@@ -19,7 +19,12 @@ affects: [64-02, 64-03, 64-04, 65-lighthouse-ci]
 # Tech tracking
 tech-stack:
   added: ["@serwist/build"]
-  patterns: ["content-hash precache manifest", "NavigationRoute denylist", "offline fallback via SW fallbacks config"]
+  patterns:
+    [
+      "content-hash precache manifest",
+      "NavigationRoute denylist",
+      "offline fallback via SW fallbacks config",
+    ]
 
 key-files:
   created:
@@ -61,6 +66,7 @@ completed: 2026-02-15
 - **Files modified:** 6
 
 ## Accomplishments
+
 - Replaced Date.now() precache revisions with content-hashed entries via @serwist/build getManifest()
 - Added NavigationRoute with NetworkFirst strategy (3s timeout) and denylist for auth, Sentry tunnel, and API routes
 - Created branded /offline fallback page using existing error-page design system
@@ -75,6 +81,7 @@ Each task was committed atomically:
 2. **Task 2: NavigationRoute, denylist, offline fallback, menu TTL** - `e44e1fa` (feat)
 
 ## Files Created/Modified
+
 - `scripts/build-sw.mjs` - Rewritten to use @serwist/build getManifest() for content-hashed precache entries
 - `src/app/sw.ts` - Added NavigationRoute with denylist, fallbacks config, 15-min menu TTL
 - `src/app/offline/page.tsx` - Static offline fallback page with cached page links
@@ -83,6 +90,7 @@ Each task was committed atomically:
 - `package.json` - Added @serwist/build dev dependency
 
 ## Decisions Made
+
 - Used `@serwist/build` as explicit dev dependency (not available as transitive dep of @serwist/next)
 - Git short SHA as revision for dynamic pages; crypto.randomUUID() fallback if git unavailable
 - Removed post-build manifest injection (writeFileSync prepend) since esbuild `define` handles it
@@ -95,6 +103,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Installed @serwist/build as dev dependency**
+
 - **Found during:** Task 1 (build-sw.mjs rewrite)
 - **Issue:** Plan stated @serwist/build is "already installed as transitive dep of @serwist/next" but it was not available
 - **Fix:** Ran `pnpm add -D @serwist/build` to install explicitly
@@ -103,6 +112,7 @@ Each task was committed atomically:
 - **Committed in:** d51b790 (Task 1 commit)
 
 **2. [Rule 1 - Bug] Fixed lint violations for bg-white semantic token**
+
 - **Found during:** Task 2 (offline page creation)
 - **Issue:** ESLint `no-restricted-syntax` rule requires `bg-surface-primary` instead of `bg-white`
 - **Fix:** Replaced `bg-white` with `bg-surface-primary` in both offline page files
@@ -116,12 +126,15 @@ Each task was committed atomically:
 **Impact on plan:** Both auto-fixes necessary for correct operation. No scope creep.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Content-hash precache foundation ready for cache-busting improvements in subsequent plans
 - NavigationRoute with denylist enables safe navigation caching
 - Offline page precached and served as fallback for document failures
@@ -129,5 +142,6 @@ None - no external service configuration required.
 - Menu API 15-min TTL aligned with expected freshness requirements
 
 ---
-*Phase: 64-service-worker-hardening*
-*Completed: 2026-02-15*
+
+_Phase: 64-service-worker-hardening_
+_Completed: 2026-02-15_

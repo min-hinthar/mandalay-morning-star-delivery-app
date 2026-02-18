@@ -46,27 +46,30 @@ Navigation/scroll/transitions migrated to ui/ with PageTransition renamed (V8 su
 
 ## Commits
 
-| Hash | Type | Description |
-|------|------|-------------|
-| 93b2dac | feat | migrate navigation components to ui/ |
-| adc587c | feat | migrate scroll components to ui/ |
-| 08853f4 | feat | rename PageTransitionV8 to PageTransition |
-| e175b33 | fix | update MobileMenu Drawer prop (side -> position) |
-| 8d026c6 | chore | add backwards compat re-exports for transitions |
+| Hash    | Type  | Description                                      |
+| ------- | ----- | ------------------------------------------------ |
+| 93b2dac | feat  | migrate navigation components to ui/             |
+| adc587c | feat  | migrate scroll components to ui/                 |
+| 08853f4 | feat  | rename PageTransitionV8 to PageTransition        |
+| e175b33 | fix   | update MobileMenu Drawer prop (side -> position) |
+| 8d026c6 | chore | add backwards compat re-exports for transitions  |
 
 ## Tasks Completed
 
 ### Task 1: Migrate navigation components
+
 - Moved 5 components: AppShell, BottomNav, Header, MobileMenu, PageContainer
 - Updated MobileMenu to import Drawer from `@/components/ui`
 - Preserved existing barrel export structure
 
 ### Task 2: Migrate scroll components
+
 - Moved 3 components: ParallaxLayer, RevealOnScroll, ScrollChoreographer
 - Updated comment in index.ts to reference new path
 - No import changes needed (uses @/lib/gsap)
 
 ### Task 3: Migrate transitions and rename PageTransitionV8
+
 - Moved and renamed PageTransitionV8.tsx to PageTransition.tsx
 - Renamed interface PageTransitionV8Props -> PageTransitionProps
 - Renamed function export PageTransitionV8 -> PageTransition
@@ -77,6 +80,7 @@ Navigation/scroll/transitions migrated to ui/ with PageTransition renamed (V8 su
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Fixed MobileMenu Drawer prop name**
+
 - **Found during:** Task 1 verification (TypeScript check)
 - **Issue:** MobileMenu used `side="left"` prop but unified Drawer uses `position` prop
 - **Fix:** Changed `side="left"` to `position="left"`
@@ -84,6 +88,7 @@ Navigation/scroll/transitions migrated to ui/ with PageTransition renamed (V8 su
 - **Commit:** e175b33
 
 **2. [Rule 3 - Blocking] Added backwards compatibility for transitions**
+
 - **Found during:** TypeScript check
 - **Issue:** ui-v8/transitions/index.ts referenced moved PageTransitionV8.tsx
 - **Fix:** Updated to re-export from new ui/transitions location with aliases for backwards compat
@@ -104,6 +109,7 @@ MobileMenu imports Drawer from @/components/ui
 ## Files Changed
 
 ### Created
+
 - src/components/ui/navigation/AppShell.tsx
 - src/components/ui/navigation/BottomNav.tsx
 - src/components/ui/navigation/Header.tsx
@@ -118,16 +124,19 @@ MobileMenu imports Drawer from @/components/ui
 - src/components/ui/transitions/index.ts
 
 ### Deleted (via git mv)
-- src/components/ui-v8/navigation/* (all files)
-- src/components/ui-v8/scroll/* (all files)
+
+- src/components/ui-v8/navigation/\* (all files)
+- src/components/ui-v8/scroll/\* (all files)
 - src/components/ui-v8/transitions/PageTransitionV8.tsx
 
 ### Modified
+
 - src/components/ui-v8/transitions/index.ts (backwards compat re-exports)
 
 ## Known Issues
 
 TypeScript errors exist in the codebase from incomplete menu migration (plan 26-04/26-05):
+
 - ui-v8/menu components referenced but files in working directory
 - These are NOT from this plan and should be addressed by menu migration plan
 

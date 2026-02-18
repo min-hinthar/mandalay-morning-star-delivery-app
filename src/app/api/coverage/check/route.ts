@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CoverageCheckRequestSchema } from "@/lib/validators/coverage";
-import {
-  checkAddressCoverage,
-  checkCoverage,
-} from "@/lib/services/coverage";
+import { checkAddressCoverage, checkCoverage } from "@/lib/services/coverage";
 import { logger } from "@/lib/utils/logger";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {

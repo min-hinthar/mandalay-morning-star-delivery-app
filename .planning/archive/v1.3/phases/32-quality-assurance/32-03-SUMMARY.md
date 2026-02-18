@@ -84,19 +84,20 @@ Each task was committed atomically:
 
 ## Decisions Made
 
-| Decision | Rationale |
-|----------|-----------|
-| ESLint --max-warnings=0 | Blocks any ESLint errors, not just violations at error level |
-| reducedMotion for Hero tests | Floating emoji animations make visual comparison unstable |
-| maxDiffPixels: 2000, threshold: 0.3 | Gradient/orb rendering has minor variation between runs |
-| animations: "disabled" in screenshot | Further stabilizes visual comparison |
-| ESLint exemptions for FM blur | Framer Motion animation interpolation requires numeric values |
+| Decision                             | Rationale                                                     |
+| ------------------------------------ | ------------------------------------------------------------- |
+| ESLint --max-warnings=0              | Blocks any ESLint errors, not just violations at error level  |
+| reducedMotion for Hero tests         | Floating emoji animations make visual comparison unstable     |
+| maxDiffPixels: 2000, threshold: 0.3  | Gradient/orb rendering has minor variation between runs       |
+| animations: "disabled" in screenshot | Further stabilizes visual comparison                          |
+| ESLint exemptions for FM blur        | Framer Motion animation interpolation requires numeric values |
 
 ## Deviations from Plan
 
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Fixed ESLint blur rule violations in Hero.tsx**
+
 - **Found during:** Task 2 (Hero tests commit attempt)
 - **Issue:** AnimatedHeadline component had hardcoded blur values in Framer Motion variants
 - **Fix:** Added ESLint disable comments with token equivalent documentation (~--blur-md)
@@ -126,5 +127,6 @@ None - no external service configuration required.
 - Ready for next phase or additional visual regression coverage
 
 ---
-*Phase: 32-quality-assurance*
-*Completed: 2026-01-29*
+
+_Phase: 32-quality-assurance_
+_Completed: 2026-01-29_

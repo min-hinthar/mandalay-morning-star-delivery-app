@@ -96,7 +96,8 @@ export function DropdownAction({
 
   const variantStyles: Record<DropdownActionVariant, string> = {
     default: "",
-    destructive: "text-[var(--color-error)] focus:text-[var(--color-error)] focus:bg-[var(--color-error-light)]",
+    destructive:
+      "text-[var(--color-error)] focus:text-[var(--color-error)] focus:bg-[var(--color-error-light)]",
   };
 
   const isDisabled = disabled || isLoading;

@@ -27,12 +27,7 @@ export interface BackdropProps {
   zIndexValue?: number;
 }
 
-export function Backdrop({
-  isVisible,
-  onClick,
-  className,
-  zIndexValue,
-}: BackdropProps) {
+export function Backdrop({ isVisible, onClick, className, zIndexValue }: BackdropProps) {
   return (
     <AnimatePresence>
       {isVisible && (

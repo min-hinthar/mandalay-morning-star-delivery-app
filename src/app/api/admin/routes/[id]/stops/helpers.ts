@@ -2,10 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
-export async function updateRouteStats(
-  supabase: ServerClient,
-  routeId: string
-) {
+export async function updateRouteStats(supabase: ServerClient, routeId: string) {
   const { data: allStops } = await supabase
     .from("route_stops")
     .select("status")
@@ -21,16 +18,11 @@ export async function updateRouteStats(
       completion_rate:
         allStops.length > 0
           ? Math.round(
-              (allStops.filter((s) => s.status === "delivered").length /
-                allStops.length) *
-                100
+              (allStops.filter((s) => s.status === "delivered").length / allStops.length) * 100
             )
           : 0,
     };
 
-    await supabase
-      .from("routes")
-      .update({ stats_json: stats })
-      .eq("id", routeId);
+    await supabase.from("routes").update({ stats_json: stats }).eq("id", routeId);
   }
 }

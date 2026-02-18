@@ -22,9 +22,7 @@ test.describe("V7 Animation System", () => {
       await page.waitForLoadState("networkidle");
 
       // Check for motion elements (framer-motion adds data-framer-*)
-      const animatedElements = page.locator(
-        '[style*="transform"], [style*="opacity"]'
-      );
+      const animatedElements = page.locator('[style*="transform"], [style*="opacity"]');
       const count = await animatedElements.count();
 
       // Should have multiple animated elements on homepage
@@ -88,10 +86,7 @@ test.describe("V7 Animation System", () => {
         // Check that it has transform animation
         const hasTransform = await drawer.evaluate((el) => {
           const styles = window.getComputedStyle(el);
-          return (
-            styles.transform !== "none" ||
-            styles.transition.includes("transform")
-          );
+          return styles.transform !== "none" || styles.transition.includes("transform");
         });
 
         // Either has transform or is simply visible (animation may have completed)
@@ -117,9 +112,7 @@ test.describe("V7 Animation System", () => {
 
       // Check that animation durations are reduced
       const hasReducedMotion = await page.evaluate(() => {
-        return (
-          document.documentElement.getAttribute("data-v7-motion") === "reduced"
-        );
+        return document.documentElement.getAttribute("data-v7-motion") === "reduced";
       });
 
       expect(hasReducedMotion).toBeTruthy();
@@ -141,9 +134,7 @@ test.describe("V7 Animation System", () => {
 
       // Check preference is applied
       const hasNoMotion = await page.evaluate(() => {
-        return (
-          document.documentElement.getAttribute("data-v7-motion") === "none"
-        );
+        return document.documentElement.getAttribute("data-v7-motion") === "none";
       });
 
       expect(hasNoMotion).toBeTruthy();
@@ -186,7 +177,10 @@ test.describe("V7 Animation System", () => {
           let clsScore = 0;
           const observer = new PerformanceObserver((list) => {
             for (const entry of list.getEntries()) {
-              const layoutEntry = entry as PerformanceEntry & { hadRecentInput?: boolean; value?: number };
+              const layoutEntry = entry as PerformanceEntry & {
+                hadRecentInput?: boolean;
+                value?: number;
+              };
               if (!layoutEntry.hadRecentInput) {
                 clsScore += layoutEntry.value || 0;
               }
@@ -240,8 +234,7 @@ test.describe("V7 Animation System", () => {
       );
 
       // Calculate average FPS
-      const avgFrameTime =
-        frameTimes.reduce((a, b) => a + b, 0) / frameTimes.length;
+      const avgFrameTime = frameTimes.reduce((a, b) => a + b, 0) / frameTimes.length;
       const avgFps = 1000 / avgFrameTime;
 
       // Should maintain at least 30fps average (allowing for some variance)
@@ -259,9 +252,7 @@ test.describe("V7 Animation System", () => {
 
       // Check that initial animations have completed
       const animationsSettled = await page.evaluate(() => {
-        const animatingElements = document.querySelectorAll(
-          '[style*="opacity: 0"]'
-        );
+        const animatingElements = document.querySelectorAll('[style*="opacity: 0"]');
         return animatingElements.length === 0;
       });
 
@@ -282,18 +273,14 @@ test.describe("V7 Animation System", () => {
 
       if (await button.isVisible()) {
         // Get initial state
-        const initialScale = await button.evaluate(
-          (el) => window.getComputedStyle(el).transform
-        );
+        const initialScale = await button.evaluate((el) => window.getComputedStyle(el).transform);
 
         // Mouse down (tap start)
         await button.dispatchEvent("mousedown");
         await page.waitForTimeout(50);
 
         // Check for scale change
-        const pressedScale = await button.evaluate(
-          (el) => window.getComputedStyle(el).transform
-        );
+        const pressedScale = await button.evaluate((el) => window.getComputedStyle(el).transform);
 
         // Release
         await button.dispatchEvent("mouseup");
@@ -414,9 +401,7 @@ test.describe("Mobile Animation Performance", () => {
     await page.waitForLoadState("networkidle");
 
     // Find a swipeable element (carousel, drawer, etc.)
-    const carousel = page.locator(
-      '[data-testid="carousel"], [data-testid="category-carousel"]'
-    );
+    const carousel = page.locator('[data-testid="carousel"], [data-testid="category-carousel"]');
 
     if (await carousel.isVisible().catch(() => false)) {
       const box = await carousel.boundingBox();

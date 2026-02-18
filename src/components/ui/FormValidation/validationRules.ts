@@ -80,10 +80,7 @@ export const validationRules = {
   /**
    * Custom validation function
    */
-  custom: (
-    fn: (value: string) => boolean,
-    message: string
-  ): ValidationRule => ({
+  custom: (fn: (value: string) => boolean, message: string): ValidationRule => ({
     validate: fn,
     message,
   }),
@@ -91,10 +88,7 @@ export const validationRules = {
   /**
    * Match another field value
    */
-  matches: (
-    getValue: () => string,
-    message = "Values do not match"
-  ): ValidationRule => ({
+  matches: (getValue: () => string, message = "Values do not match"): ValidationRule => ({
     validate: (value) => value === getValue(),
     message,
   }),

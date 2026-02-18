@@ -168,21 +168,24 @@ started: Ongoing issue despite multiple fix rounds
 ## Resolution
 
 root_cause: Multiple components had setTimeout without proper cleanup, causing state updates on unmounted components:
-  1. BrandMascot.tsx - Recursive blink animation and click handler timeouts not tracked
-  2. AdminDashboard.tsx - Goal celebration timeout not tracked
-  3. PaymentSuccess.tsx - Copy order ID timeout not tracked
-  4. StopDetail.tsx - Copy address timeout not tracked
+
+1. BrandMascot.tsx - Recursive blink animation and click handler timeouts not tracked
+2. AdminDashboard.tsx - Goal celebration timeout not tracked
+3. PaymentSuccess.tsx - Copy order ID timeout not tracked
+4. StopDetail.tsx - Copy address timeout not tracked
 
 fix: Added proper cleanup for all setTimeout calls:
-  1. BrandMascot.tsx - Added isMounted guard and refs for blink timers, plus clickTimeoutRefs array for click handler
-  2. AdminDashboard.tsx - Added goalTimeoutRef with cleanup useEffect
-  3. PaymentSuccess.tsx - Added copyTimeoutRef with cleanup useEffect
-  4. StopDetail.tsx - Added copyTimeoutRef with cleanup useEffect
+
+1. BrandMascot.tsx - Added isMounted guard and refs for blink timers, plus clickTimeoutRefs array for click handler
+2. AdminDashboard.tsx - Added goalTimeoutRef with cleanup useEffect
+3. PaymentSuccess.tsx - Added copyTimeoutRef with cleanup useEffect
+4. StopDetail.tsx - Added copyTimeoutRef with cleanup useEffect
 
 verification: TypeScript and ESLint pass on all modified files
 
 files_changed:
-  - src/components/ui/brand/BrandMascot.tsx
-  - src/components/ui/admin/AdminDashboard.tsx
-  - src/components/ui/checkout/PaymentSuccess.tsx
-  - src/components/ui/driver/StopDetail.tsx
+
+- src/components/ui/brand/BrandMascot.tsx
+- src/components/ui/admin/AdminDashboard.tsx
+- src/components/ui/checkout/PaymentSuccess.tsx
+- src/components/ui/driver/StopDetail.tsx

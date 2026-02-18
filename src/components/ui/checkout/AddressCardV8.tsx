@@ -80,12 +80,7 @@ export function AddressCardV8({
             isSelected ? "bg-primary/10" : "bg-surface-secondary"
           )}
         >
-          <MapPin
-            className={cn(
-              "w-5 h-5",
-              isSelected ? "text-primary" : "text-text-muted"
-            )}
-          />
+          <MapPin className={cn("w-5 h-5", isSelected ? "text-primary" : "text-text-muted")} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -97,14 +92,8 @@ export function AddressCardV8({
               </span>
             )}
           </div>
-          <p className="text-sm text-text-muted truncate">
-            {address.line1}
-          </p>
-          {address.line2 && (
-            <p className="text-sm text-text-muted truncate">
-              {address.line2}
-            </p>
-          )}
+          <p className="text-sm text-text-muted truncate">{address.line1}</p>
+          {address.line2 && <p className="text-sm text-text-muted truncate">{address.line2}</p>}
           <p className="text-sm text-text-muted">
             {address.city}, {address.state} {address.postalCode}
           </p>

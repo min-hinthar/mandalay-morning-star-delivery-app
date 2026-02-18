@@ -37,23 +37,25 @@ human_verification:
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 1 | Z-index values are defined as CSS custom properties and consumed via TailwindCSS utilities | VERIFIED | CSS tokens in globals.css @theme (lines 58-67). TypeScript constants in z-index.ts (lines 33-42) correctly reference --z-index-* variables. |
-| 2 | ESLint/Stylelint fails the build when hardcoded z-index values are detected | VERIFIED | ESLint rules at warn level (line 46). Detects violations correctly. Migration tracker for 64 legacy violations. Prevents NEW violations. |
-| 3 | GSAP plugins can be used in components with proper cleanup via useGSAP | VERIFIED | GSAP 3.14.2 and @gsap/react 2.1.2 installed. Plugin registration in src/lib/gsap/index.ts (line 22). Presets available. |
-| 4 | Stacking context rules are documented and isolation boundaries are established | VERIFIED | docs/STACKING-CONTEXT.md exists with 161 lines covering tokens, patterns, isolation, troubleshooting. |
+| #   | Truth                                                                                      | Status   | Evidence                                                                                                                                     |
+| --- | ------------------------------------------------------------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Z-index values are defined as CSS custom properties and consumed via TailwindCSS utilities | VERIFIED | CSS tokens in globals.css @theme (lines 58-67). TypeScript constants in z-index.ts (lines 33-42) correctly reference --z-index-\* variables. |
+| 2   | ESLint/Stylelint fails the build when hardcoded z-index values are detected                | VERIFIED | ESLint rules at warn level (line 46). Detects violations correctly. Migration tracker for 64 legacy violations. Prevents NEW violations.     |
+| 3   | GSAP plugins can be used in components with proper cleanup via useGSAP                     | VERIFIED | GSAP 3.14.2 and @gsap/react 2.1.2 installed. Plugin registration in src/lib/gsap/index.ts (line 22). Presets available.                      |
+| 4   | Stacking context rules are documented and isolation boundaries are established             | VERIFIED | docs/STACKING-CONTEXT.md exists with 161 lines covering tokens, patterns, isolation, troubleshooting.                                        |
 
 **Score:** 4/4 truths verified
 
 ### Re-verification Summary
 
 **Previous verification (2026-01-22T09:01:34Z):**
+
 - Status: gaps_found
 - Score: 2/4 verified, 2/4 partial
 - 2 gaps identified blocking goal achievement
 
 **Gap closure plans executed:**
+
 - 01-04-PLAN.md - Fixed zIndexVar CSS variable names
 - 01-05-PLAN.md - Downgraded ESLint rules to warn, created migration tracker
 
@@ -76,42 +78,43 @@ human_verification:
 
 ### Required Artifacts
 
-| Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| src/app/globals.css | Z-index tokens in @theme | VERIFIED | Lines 57-67 contain all 10 tokens |
-| src/design-system/tokens/z-index.ts | TypeScript constants | VERIFIED | 61 lines. FIXED: All zIndexVar use --z-index-* prefix |
-| src/lib/gsap/index.ts | GSAP plugin registration | VERIFIED | 43 lines. Plugins registered at line 22 |
-| src/lib/gsap/presets.ts | Animation presets | VERIFIED | 173 lines with durations, easings, presets |
-| eslint.config.mjs | Z-index enforcement | VERIFIED | Lines 42-74. FIXED: Severity "warn" at line 46 |
-| .stylelintrc.json | CSS z-index enforcement | VERIFIED | Lines 4-7 block numeric z-index values |
-| docs/STACKING-CONTEXT.md | Documentation | VERIFIED | 161 lines with comprehensive guidance |
-| Z-INDEX-MIGRATION.md | Migration tracker | VERIFIED | NEW: Tracks 64 violations, maps to phases |
+| Artifact                            | Expected                 | Status   | Details                                                |
+| ----------------------------------- | ------------------------ | -------- | ------------------------------------------------------ |
+| src/app/globals.css                 | Z-index tokens in @theme | VERIFIED | Lines 57-67 contain all 10 tokens                      |
+| src/design-system/tokens/z-index.ts | TypeScript constants     | VERIFIED | 61 lines. FIXED: All zIndexVar use --z-index-\* prefix |
+| src/lib/gsap/index.ts               | GSAP plugin registration | VERIFIED | 43 lines. Plugins registered at line 22                |
+| src/lib/gsap/presets.ts             | Animation presets        | VERIFIED | 173 lines with durations, easings, presets             |
+| eslint.config.mjs                   | Z-index enforcement      | VERIFIED | Lines 42-74. FIXED: Severity "warn" at line 46         |
+| .stylelintrc.json                   | CSS z-index enforcement  | VERIFIED | Lines 4-7 block numeric z-index values                 |
+| docs/STACKING-CONTEXT.md            | Documentation            | VERIFIED | 161 lines with comprehensive guidance                  |
+| Z-INDEX-MIGRATION.md                | Migration tracker        | VERIFIED | NEW: Tracks 64 violations, maps to phases              |
 
 ### Key Link Verification
 
-| From | To | Via | Status | Details |
-|------|----|----|--------|---------|
-| z-index.ts | globals.css | CSS variable names | WIRED | FIXED: All 10 tokens aligned |
-| eslint.config.mjs | docs | Error messages | WIRED | References STACKING-CONTEXT.md |
-| .stylelintrc.json | CSS vars | Disallow hardcoded | WIRED | Blocks numeric values except -1, 1 |
-| gsap/index.ts | registerPlugin | Plugin registration | WIRED | Line 22 registers all plugins |
-| MIGRATION.md | Legacy components | Phased migration | WIRED | Maps 64 violations to Phase 2-5 |
+| From              | To                | Via                 | Status | Details                            |
+| ----------------- | ----------------- | ------------------- | ------ | ---------------------------------- |
+| z-index.ts        | globals.css       | CSS variable names  | WIRED  | FIXED: All 10 tokens aligned       |
+| eslint.config.mjs | docs              | Error messages      | WIRED  | References STACKING-CONTEXT.md     |
+| .stylelintrc.json | CSS vars          | Disallow hardcoded  | WIRED  | Blocks numeric values except -1, 1 |
+| gsap/index.ts     | registerPlugin    | Plugin registration | WIRED  | Line 22 registers all plugins      |
+| MIGRATION.md      | Legacy components | Phased migration    | WIRED  | Maps 64 violations to Phase 2-5    |
 
 ### Requirements Coverage
 
-| Requirement | Status | Evidence |
-|-------------|--------|----------|
-| FOUND-01: Z-index token system | SATISFIED | CSS tokens, TypeScript constants, variable names aligned |
-| FOUND-02: ESLint/Stylelint enforcement | SATISFIED | Both linters active, ESLint at warn with migration tracker |
-| FOUND-05: GSAP plugin registration | SATISFIED | Plugins registered, presets available, packages installed |
-| FOUND-07: Stacking context documentation | SATISFIED | Comprehensive 161-line documentation |
+| Requirement                              | Status    | Evidence                                                   |
+| ---------------------------------------- | --------- | ---------------------------------------------------------- |
+| FOUND-01: Z-index token system           | SATISFIED | CSS tokens, TypeScript constants, variable names aligned   |
+| FOUND-02: ESLint/Stylelint enforcement   | SATISFIED | Both linters active, ESLint at warn with migration tracker |
+| FOUND-05: GSAP plugin registration       | SATISFIED | Plugins registered, presets available, packages installed  |
+| FOUND-07: Stacking context documentation | SATISFIED | Comprehensive 161-line documentation                       |
 
 ### Anti-Patterns Found
 
 **Legacy Code (Pre-existing, Now Tracked):**
 
 64 violations across 28 files (documented in Z-INDEX-MIGRATION.md):
-- 57 Tailwind z-* classes
+
+- 57 Tailwind z-\* classes
 - 7 inline zIndex: number
 
 **Status:** Expected and managed. Migration tracker maps violations to Phase 2-5 rebuilds. ESLint at warn prevents NEW violations.
@@ -151,16 +154,19 @@ human_verification:
 **Re-verification mode:** Focused on previously failed items with regression checks
 
 **Gap 1 verification (full 3-level):**
+
 - Level 1 (Existence): z-index.ts exists
 - Level 2 (Substantive): 61 lines, exports all constants
 - Level 3 (Wired): Variable names match CSS definitions
 
 **Gap 2 verification (full 3-level):**
+
 - Level 1 (Existence): eslint.config.mjs exists, migration tracker created
 - Level 2 (Substantive): Rules comprehensive, tracker documents 64 violations
 - Level 3 (Wired): ESLint runs successfully with warnings
 
 **Regression checks (quick):**
+
 - GSAP files: Still exist with correct exports
 - Stacking docs: Still 161 lines
 - Stylelint rules: Still active

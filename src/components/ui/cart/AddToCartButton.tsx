@@ -223,9 +223,7 @@ export function AddToCartButton({
       disabled={isDisabled}
       variants={shouldAnimate ? buttonVariants : undefined}
       animate={shouldAnimate ? state : undefined}
-      transition={
-        state === "success" ? successTransition : getSpring(spring.snappy)
-      }
+      transition={state === "success" ? successTransition : getSpring(spring.snappy)}
       whileHover={shouldAnimate && !isDisabled ? { scale: 1.03 } : undefined}
       whileTap={shouldAnimate && !isDisabled ? { scale: 0.97 } : undefined}
       className={cn(

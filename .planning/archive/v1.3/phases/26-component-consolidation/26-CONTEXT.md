@@ -14,6 +14,7 @@ Merge ui-v8 components into ui/, eliminate V7 naming from public APIs, unify ove
 ## Implementation Decisions
 
 ### Migration Strategy
+
 - Big bang approach — single commit moves everything, updates all imports at once
 - Delete ui-v8/ folder immediately in the same commit
 - When both versions exist, ui-v8 wins (newer implementation)
@@ -28,6 +29,7 @@ Merge ui-v8 components into ui/, eliminate V7 naming from public APIs, unify ove
 - Fix circular dependencies immediately if they arise
 
 ### API Naming Conventions
+
 - Clean names only — no v7/v8 prefixes anywhere (Modal, not v7Modal or v8Modal)
 - Drop v7 prefix from exports — palettes not v7Palettes, gradients not v7Gradients
 - PascalCase file names — Modal.tsx, BottomSheet.tsx, Toast.tsx
@@ -38,6 +40,7 @@ Merge ui-v8 components into ui/, eliminate V7 naming from public APIs, unify ove
 - ComponentNameProps pattern for interfaces — ModalProps, ToastProps, DrawerProps
 
 ### Duplicate Resolution
+
 - V8 features only — drop V7 features not present in V8
 - TypeScript error for missing props — let type checker catch incompatibilities
 - Toast: Declarative only (<Toast /> component, no imperative showToast function)
@@ -47,6 +50,7 @@ Merge ui-v8 components into ui/, eliminate V7 naming from public APIs, unify ove
 - Document dropped V7 features in CONTEXT.md
 
 ### Deprecation Handling
+
 - Hard break — old import paths break immediately, no transition period
 - Remove v7/v8 prefixed exports immediately — no aliases
 - Update all internal consumers in same commit
@@ -57,6 +61,7 @@ Merge ui-v8 components into ui/, eliminate V7 naming from public APIs, unify ove
 - Use git mv to preserve file history through moves
 
 ### Claude's Discretion
+
 - Modal controlled vs uncontrolled mode support
 - Exact dead code detection tooling
 - Order of component migration within the big bang
@@ -79,11 +84,11 @@ None — discussion stayed within phase scope
 
 ## Dropped V7 Features (to document during execution)
 
-*This section will be populated during execution with any V7 features that don't exist in V8 and are being dropped.*
+_This section will be populated during execution with any V7 features that don't exist in V8 and are being dropped._
 
 </deferred>
 
 ---
 
-*Phase: 26-component-consolidation*
-*Context gathered: 2026-01-27*
+_Phase: 26-component-consolidation_
+_Context gathered: 2026-01-27_

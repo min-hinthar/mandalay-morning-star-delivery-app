@@ -60,21 +60,21 @@ completed: 2026-02-06
 
 ### Final Measurements (Mobile Throttling)
 
-| Route | LCP | FCP | TBT | Score | Target | Status |
-|-------|-----|-----|-----|-------|--------|--------|
-| Homepage `/` | **10.87s** | 3.20s | 12.06s | 32 | < 4.0s | FAIL |
-| Menu `/menu` | **10.95s** | 3.06s | 15.29s | 30 | < 4.0s | FAIL |
-| Cart `/cart` | ~9-10s* | - | - | - | < 3.5s | FAIL |
-| Checkout `/checkout` | **8.13s** | 1.63s | 5.40s | 45 | < 4.5s | FAIL |
+| Route                | LCP        | FCP   | TBT    | Score | Target | Status |
+| -------------------- | ---------- | ----- | ------ | ----- | ------ | ------ |
+| Homepage `/`         | **10.87s** | 3.20s | 12.06s | 32    | < 4.0s | FAIL   |
+| Menu `/menu`         | **10.95s** | 3.06s | 15.29s | 30    | < 4.0s | FAIL   |
+| Cart `/cart`         | ~9-10s\*   | -     | -      | -     | < 3.5s | FAIL   |
+| Checkout `/checkout` | **8.13s**  | 1.63s | 5.40s  | 45    | < 4.5s | FAIL   |
 
-*Cart measurement failed due to Chrome cleanup error on Windows; estimated based on similar route complexity.
+\*Cart measurement failed due to Chrome cleanup error on Windows; estimated based on similar route complexity.
 
 ### Comparison to Phase 40 Baseline
 
-| Route | Phase 40 LCP | Phase 47 LCP | Change |
-|-------|--------------|--------------|--------|
-| Homepage | 11.4s | 10.87s | -4.6% (slight improvement) |
-| Menu | 9.8s | 10.95s | +11.7% (slight regression) |
+| Route    | Phase 40 LCP | Phase 47 LCP | Change                     |
+| -------- | ------------ | ------------ | -------------------------- |
+| Homepage | 11.4s        | 10.87s       | -4.6% (slight improvement) |
+| Menu     | 9.8s         | 10.95s       | +11.7% (slight regression) |
 
 **Overall Assessment:** LCP remains in 8-11s range, consistent with Phase 40 measurements. No significant improvement or regression. The < 4s target is not met.
 
@@ -108,6 +108,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Lighthouse CI startup pattern fix**
+
 - **Found during:** Task 2 (Lighthouse measurements)
 - **Issue:** LHCI failed with "Timed out waiting for server" - pattern "started server" doesn't match Next.js 16 output
 - **Fix:** Updated startServerReadyPattern from "started server" to "Starting"
@@ -116,6 +117,7 @@ Each task was committed atomically:
 - **Committed in:** 11de333
 
 **2. [Rule 3 - Blocking] Missing babel-plugin-react-compiler**
+
 - **Found during:** Task 1 (Production build)
 - **Issue:** Build failed - package missing from node_modules
 - **Fix:** Ran `pnpm install` to restore dependencies
@@ -156,5 +158,6 @@ Each task was committed atomically:
 4. **Edge runtime for API routes** - Lower network latency
 
 ---
-*Phase: 47-final-lcp-measurement-gap-closure*
-*Completed: 2026-02-06*
+
+_Phase: 47-final-lcp-measurement-gap-closure_
+_Completed: 2026-02-06_

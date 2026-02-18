@@ -58,7 +58,8 @@ export const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     actionLabel: "Browse Menu",
     actionHref: "/menu",
     gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-secondary-light), var(--color-accent-orange-light))",
+      background:
+        "linear-gradient(to bottom right, var(--color-secondary-light), var(--color-accent-orange-light))",
     },
   },
   search: {
@@ -67,7 +68,8 @@ export const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     description: "Try different keywords or browse our categories",
     actionLabel: "Clear Search",
     gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-teal-light), var(--color-accent-magenta-light))",
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-teal-light), var(--color-accent-magenta-light))",
     },
   },
   orders: {
@@ -77,7 +79,8 @@ export const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     actionLabel: "Start Your Journey",
     actionHref: "/menu",
     gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-green-light), var(--color-accent-teal-light))",
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-green-light), var(--color-accent-teal-light))",
     },
   },
   favorites: {
@@ -87,7 +90,8 @@ export const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     actionLabel: "Discover favorites",
     actionHref: "/menu",
     gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-magenta-light), var(--color-primary-light))",
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-magenta-light), var(--color-primary-light))",
     },
   },
   "driver-route": {
@@ -95,7 +99,8 @@ export const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     title: "No route assigned today",
     description: "Check back later for your delivery assignments",
     gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-surface-tertiary), var(--color-surface-secondary))",
+      background:
+        "linear-gradient(to bottom right, var(--color-surface-tertiary), var(--color-surface-secondary))",
     },
   },
   "admin-orders": {
@@ -104,7 +109,8 @@ export const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     description: "Try adjusting your date filter to see more results",
     actionLabel: "Adjust filter",
     gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-magenta-light), var(--color-primary-light))",
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-magenta-light), var(--color-primary-light))",
     },
   },
   exceptions: {
@@ -113,7 +119,8 @@ export const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     description: "All deliveries are running smoothly",
     isPositive: true,
     gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-green-light), var(--color-status-success-bg))",
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-green-light), var(--color-status-success-bg))",
     },
   },
   "admin-drivers": {
@@ -122,7 +129,8 @@ export const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     description: "Your delivery team is waiting to be assembled",
     actionLabel: "Add Driver",
     gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-teal-light), var(--color-accent-green-light))",
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-teal-light), var(--color-accent-green-light))",
     },
   },
   "admin-routes": {
@@ -131,7 +139,8 @@ export const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     description: "Time to map out today's deliveries",
     actionLabel: "Create Route",
     gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-teal-light), var(--color-accent-orange-light))",
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-teal-light), var(--color-accent-orange-light))",
     },
   },
   "driver-history": {
@@ -139,7 +148,8 @@ export const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     title: "No delivery history yet",
     description: "Your past routes and deliveries will appear here",
     gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-surface-tertiary), var(--color-surface-secondary))",
+      background:
+        "linear-gradient(to bottom right, var(--color-surface-tertiary), var(--color-surface-secondary))",
     },
   },
   "admin-orders-filtered": {
@@ -148,7 +158,8 @@ export const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     description: "Try adjusting your filters to see more results",
     actionLabel: "Clear Filters",
     gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-magenta-light), var(--color-primary-light))",
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-magenta-light), var(--color-primary-light))",
     },
   },
   "admin-drivers-filtered": {
@@ -157,7 +168,8 @@ export const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     description: "Try adjusting your search to see more results",
     actionLabel: "Clear Search",
     gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-teal-light), var(--color-accent-magenta-light))",
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-teal-light), var(--color-accent-magenta-light))",
     },
   },
   "admin-routes-filtered": {
@@ -166,7 +178,8 @@ export const variantConfigs: Record<EmptyStateVariant, EmptyStateConfig> = {
     description: "Try a different date or filter to see routes",
     actionLabel: "Clear Filters",
     gradientStyle: {
-      background: "linear-gradient(to bottom right, var(--color-accent-orange-light), var(--color-accent-teal-light))",
+      background:
+        "linear-gradient(to bottom right, var(--color-accent-orange-light), var(--color-accent-teal-light))",
     },
   },
 };

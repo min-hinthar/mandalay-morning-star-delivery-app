@@ -1,8 +1,4 @@
-import {
-  ErrorPageShell,
-  ErrorMascot,
-  NavigationCardGrid,
-} from "@/components/ui/error-pages";
+import { ErrorPageShell, ErrorMascot, NavigationCardGrid } from "@/components/ui/error-pages";
 
 export default function NotFound() {
   return (

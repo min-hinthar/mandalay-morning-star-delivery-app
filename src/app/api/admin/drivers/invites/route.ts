@@ -32,7 +32,8 @@ export async function GET() {
     // Fetch pending invites with inviter profile
     const { data: invites, error: invitesError } = await supabase
       .from("driver_invites")
-      .select(`
+      .select(
+        `
         id,
         email,
         created_at,
@@ -41,7 +42,8 @@ export async function GET() {
         profiles:invited_by (
           full_name
         )
-      `)
+      `
+      )
       .is("revoked_at", null)
       .is("accepted_at", null)
       .order("created_at", { ascending: false })
@@ -49,10 +51,7 @@ export async function GET() {
 
     if (invitesError) {
       logger.exception(invitesError, { api: "admin/drivers/invites", flowId: "fetch" });
-      return NextResponse.json(
-        { error: "Failed to fetch invites" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch invites" }, { status: 500 });
     }
 
     // Transform to API response format
@@ -72,9 +71,6 @@ export async function GET() {
     return NextResponse.json(response);
   } catch (error) {
     logger.exception(error, { api: "admin/drivers/invites", flowId: "fetch" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

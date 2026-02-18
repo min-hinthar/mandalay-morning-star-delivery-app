@@ -78,8 +78,7 @@ export function useBodyScrollLock(
       document.body.style.overflow = "hidden";
 
       // Account for scrollbar width to prevent layout shift
-      const scrollbarWidth =
-        window.innerWidth - document.documentElement.clientWidth;
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       if (scrollbarWidth > 0) {
         document.body.style.paddingRight = `${scrollbarWidth}px`;
       }

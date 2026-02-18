@@ -33,7 +33,10 @@ export interface BrandMascotProps {
   "aria-label"?: string;
 }
 
-export const sizeConfig: Record<MascotSize, { container: number; face: number; eyes: number; mouth: number }> = {
+export const sizeConfig: Record<
+  MascotSize,
+  { container: number; face: number; eyes: number; mouth: number }
+> = {
   xs: { container: 40, face: 32, eyes: 4, mouth: 8 },
   sm: { container: 60, face: 48, eyes: 6, mouth: 12 },
   md: { container: 100, face: 80, eyes: 10, mouth: 20 },

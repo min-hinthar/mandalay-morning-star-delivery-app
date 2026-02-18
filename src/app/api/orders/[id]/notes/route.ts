@@ -22,16 +22,12 @@ const LOCKED_STATUSES = ["delivered", "cancelled"];
  * Update delivery instructions for an order.
  * Only order owner (or admin) can update, and only before delivery/cancellation.
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: orderId } = await params;
 
     // Validate UUID format
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(orderId)) {
       return NextResponse.json(
         { error: { code: "BAD_REQUEST", message: "Invalid order ID format" } },
@@ -120,8 +116,7 @@ export async function PATCH(
         {
           error: {
             code: "INVALID_STATUS",
-            message:
-              "Delivery instructions cannot be changed after delivery or cancellation",
+            message: "Delivery instructions cannot be changed after delivery or cancellation",
           },
         },
         { status: 400 }

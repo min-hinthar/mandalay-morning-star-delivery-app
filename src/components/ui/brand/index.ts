@@ -5,8 +5,4 @@
  */
 
 export { BrandMascot } from "./BrandMascot";
-export type {
-  BrandMascotProps,
-  MascotExpression,
-  MascotSize,
-} from "./BrandMascot";
+export type { BrandMascotProps, MascotExpression, MascotSize } from "./BrandMascot";

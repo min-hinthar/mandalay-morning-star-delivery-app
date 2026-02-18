@@ -18,33 +18,35 @@ React Three Fiber 9.5.0 is required for React 19.2.3 compatibility (v8.x throws 
 
 ### Core
 
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| three | 0.182.0 | WebGL 3D rendering engine | Industry standard, active development, ~600KB gzipped |
-| @react-three/fiber | 9.5.0 | React renderer for Three.js | Official React bindings, React 19 support in v9+ |
-| @react-three/drei | 10.7.7 | Helper components (Stage, useGLTF, OrbitControls) | Reduces boilerplate, maintained by pmndrs |
+| Library            | Version | Purpose                                           | Why Standard                                          |
+| ------------------ | ------- | ------------------------------------------------- | ----------------------------------------------------- |
+| three              | 0.182.0 | WebGL 3D rendering engine                         | Industry standard, active development, ~600KB gzipped |
+| @react-three/fiber | 9.5.0   | React renderer for Three.js                       | Official React bindings, React 19 support in v9+      |
+| @react-three/drei  | 10.7.7  | Helper components (Stage, useGLTF, OrbitControls) | Reduces boilerplate, maintained by pmndrs             |
 
 ### Supporting
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| detect-gpu | ^5.0.x | GPU tier classification | Performance fallback detection (Tier 0-3) |
-| gltf-transform | CLI | GLTF optimization | Asset pipeline: Draco compression, texture resize |
+| Library        | Version | Purpose                 | When to Use                                       |
+| -------------- | ------- | ----------------------- | ------------------------------------------------- |
+| detect-gpu     | ^5.0.x  | GPU tier classification | Performance fallback detection (Tier 0-3)         |
+| gltf-transform | CLI     | GLTF optimization       | Asset pipeline: Draco compression, texture resize |
 
 ### Alternatives Considered
 
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| drei Stage | Custom lighting | Stage provides sane defaults, custom offers control |
+| Instead of | Could Use          | Tradeoff                                                |
+| ---------- | ------------------ | ------------------------------------------------------- |
+| drei Stage | Custom lighting    | Stage provides sane defaults, custom offers control     |
 | detect-gpu | PerformanceMonitor | detect-gpu is pre-render, PerformanceMonitor is runtime |
 
 **Installation:**
+
 ```bash
 pnpm add three @react-three/fiber @react-three/drei
 pnpm add -D @types/three
 ```
 
 **Version verification (CRITICAL):**
+
 ```bash
 pnpm ls react @react-three/fiber three
 # Expected: react@19.2.3, @react-three/fiber@9.5.0, three@0.182.0
@@ -53,6 +55,7 @@ pnpm ls react @react-three/fiber three
 ## Architecture Patterns
 
 ### Recommended Project Structure
+
 ```
 src/
   components/
@@ -72,6 +75,7 @@ src/
 **What:** Dynamic import wrapper preventing SSR crashes
 **When to use:** All R3F components in Next.js
 **Example:**
+
 ```typescript
 // src/components/3d/Scene.tsx
 "use client";
@@ -116,6 +120,7 @@ const Scene = dynamic(() => import("@/components/3d/Scene").then(m => m.Scene), 
 **What:** Consistent z-index layering via token system
 **When to use:** All positioned elements (fixed, absolute, sticky)
 **Example:**
+
 ```typescript
 // Import the zClass helper
 import { zClass } from "@/design-system/tokens/z-index";
@@ -140,6 +145,7 @@ import { zClass } from "@/design-system/tokens/z-index";
 **What:** One persistent Canvas, route scene contents
 **When to use:** When 3D appears across multiple routes
 **Example:**
+
 ```typescript
 // Avoid: Multiple Canvas mounts cause WebGL context exhaustion
 {route === "/home" && <Canvas><HomeScene /></Canvas>}
@@ -162,13 +168,13 @@ import { zClass } from "@/design-system/tokens/z-index";
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| 3D model loading | Custom GLTF parser | useGLTF from drei | Handles Draco, caching, preloading |
-| Lighting setup | Manual light positioning | Stage from drei | Provides rembrandt/studio presets |
-| GPU detection | navigator.gpu checks | detect-gpu | Maintains benchmark database |
-| WebGL cleanup | Manual dispose() calls | R3F automatic cleanup | Canvas unmount handles disposal |
-| Orbit controls | Custom drag handlers | OrbitControls from drei | Touch, momentum, constraints |
+| Problem          | Don't Build              | Use Instead             | Why                                |
+| ---------------- | ------------------------ | ----------------------- | ---------------------------------- |
+| 3D model loading | Custom GLTF parser       | useGLTF from drei       | Handles Draco, caching, preloading |
+| Lighting setup   | Manual light positioning | Stage from drei         | Provides rembrandt/studio presets  |
+| GPU detection    | navigator.gpu checks     | detect-gpu              | Maintains benchmark database       |
+| WebGL cleanup    | Manual dispose() calls   | R3F automatic cleanup   | Canvas unmount handles disposal    |
+| Orbit controls   | Custom drag handlers     | OrbitControls from drei | Touch, momentum, constraints       |
 
 **Key insight:** Three.js ecosystem has mature helpers; custom solutions miss edge cases (touch, accessibility, memory leaks).
 
@@ -179,53 +185,59 @@ import { zClass } from "@/design-system/tokens/z-index";
 **What goes wrong:** Classes like `z-modal`, `z-fixed` applied but elements have no z-index
 **Why it happens:** TailwindCSS 4 doesn't generate utilities from `theme.extend.zIndex` config
 **How to avoid:**
+
 1. Use numeric classes: `z-30`, `z-50`, `z-[60]`
 2. OR define in CSS with `@theme { --z-index-modal: 50; }` (unquoted numbers!)
 3. Use `zClass` helper which returns working numeric classes
-**Warning signs:** Dropdowns/modals appearing behind content, clicks not registering
+   **Warning signs:** Dropdowns/modals appearing behind content, clicks not registering
 
 ### Pitfall 2: React Three Fiber v8 with React 19
 
 **What goes wrong:** `Cannot read properties of undefined (reading 'ReactCurrentOwner')`
 **Why it happens:** R3F v8 uses React 18 internals; React 19 changed them
 **How to avoid:**
+
 1. Install `@react-three/fiber@^9.5.0` (NOT v8.x)
 2. Verify: `pnpm ls @react-three/fiber` shows 9.x
-**Warning signs:** Crash on any Canvas render, deep React error
+   **Warning signs:** Crash on any Canvas render, deep React error
 
 ### Pitfall 3: SSR Crashes with Three.js
 
 **What goes wrong:** `ReferenceError: window is not defined` during build/SSR
 **Why it happens:** Three.js requires browser APIs (window, WebGL)
 **How to avoid:**
+
 1. `dynamic(() => import(), { ssr: false })` for Canvas components
 2. `useState(false)` mounted check in Scene wrapper
 3. No module-level Three.js imports in Server Components
-**Warning signs:** Build fails, hydration errors
+   **Warning signs:** Build fails, hydration errors
 
 ### Pitfall 4: WebGL Context Exhaustion
 
 **What goes wrong:** "WebGL context lost" after navigation, blank Canvas
 **Why it happens:** Browser limits concurrent WebGL contexts (8-16)
 **How to avoid:**
+
 1. Single Canvas pattern - don't mount/unmount between routes
 2. Route Canvas contents, not Canvas itself
 3. Use Portal to move Canvas DOM without remounting
-**Warning signs:** Works initially, breaks after several page navigations
+   **Warning signs:** Works initially, breaks after several page navigations
 
 ### Pitfall 5: Dropdown Inside Fixed Header Z-Index
 
 **What goes wrong:** Dropdown opens but clicks pass through (signout fails)
 **Why it happens:**
+
 - Dropdown uses `z-10` (from current dropdown-menu.tsx line 90)
 - Header uses `zClass.fixed` (z-30)
 - Dropdown is child of header, z-10 < 30 doesn't matter when nested
 - BUT other page content may overlap
-**How to avoid:**
+  **How to avoid:**
+
 1. Use Portal to render dropdown at document.body level
 2. Ensure dropdown uses `zClass.popover` (z-[60]) minimum
 3. Check no sibling elements create new stacking contexts
-**Warning signs:** Dropdown visible but unclickable
+   **Warning signs:** Dropdown visible but unclickable
 
 ### Pitfall 6: Quoted Values in @theme
 
@@ -241,15 +253,15 @@ import { zClass } from "@/design-system/tokens/z-index";
 ```typescript
 // src/components/ui/dropdown-menu.tsx line 90
 // Before (broken - too low, hardcoded)
-"absolute z-10 min-w-[8rem]..."
+"absolute z-10 min-w-[8rem]...";
 
 // After (working - uses token system)
 import { zClass } from "@/design-system/tokens/z-index";
 
 cn(
   "absolute min-w-[8rem]...",
-  zClass.popover  // z-[60]
-)
+  zClass.popover // z-[60]
+);
 ```
 
 ### TailwindCSS @theme Z-Index (optional enhancement)
@@ -329,14 +341,15 @@ export function useGPUTier() {
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| R3F v8 + React 18 | R3F v9 + React 19 | 2024 Q4 | Required for React 19 apps |
-| tailwind.config zIndex | @theme CSS-first | TailwindCSS 4.0 | Config zIndex ignored |
-| Multiple Canvas | Single Canvas pattern | Always best practice | Prevents context exhaustion |
-| Manual dispose() | R3F auto-cleanup | R3F v6+ | Less manual memory management |
+| Old Approach           | Current Approach      | When Changed         | Impact                        |
+| ---------------------- | --------------------- | -------------------- | ----------------------------- |
+| R3F v8 + React 18      | R3F v9 + React 19     | 2024 Q4              | Required for React 19 apps    |
+| tailwind.config zIndex | @theme CSS-first      | TailwindCSS 4.0      | Config zIndex ignored         |
+| Multiple Canvas        | Single Canvas pattern | Always best practice | Prevents context exhaustion   |
+| Manual dispose()       | R3F auto-cleanup      | R3F v6+              | Less manual memory management |
 
 **Deprecated/outdated:**
+
 - `@react-three/fiber@8.x`: Incompatible with React 19
 - `theme.extend.zIndex` in tailwind.config: Does not generate utilities in v4
 - Arbitrary z-index CSS variable syntax: Can cause CSS parsing errors (use named utilities instead)
@@ -360,6 +373,7 @@ export function useGPUTier() {
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - [GitHub Discussion #18031](https://github.com/tailwindlabs/tailwindcss/discussions/18031) - TailwindCSS 4 z-index @theme fix
 - [R3F Installation Docs](https://r3f.docs.pmnd.rs/getting-started/installation) - React 19 compatibility
 - [Next.js Issue #71836](https://github.com/vercel/next.js/issues/71836) - R3F v8/React 19 incompatibility
@@ -367,16 +381,19 @@ export function useGPUTier() {
 - Codebase z-index.ts - Verified working zClass helper
 
 ### Secondary (MEDIUM confidence)
+
 - [drei GitHub](https://github.com/pmndrs/drei) - useGLTF, Stage patterns
 - [detect-gpu npm](https://www.npmjs.com/package/detect-gpu) - GPU tier detection
 - [R3F Scaling Performance](https://r3f.docs.pmnd.rs/advanced/scaling-performance) - PerformanceMonitor
 
 ### Tertiary (LOW confidence)
+
 - [100 Three.js Best Practices](https://www.utsubo.com/blog/threejs-best-practices-100-tips) - General guidance, not verified
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Z-index fix: HIGH - Documented in ERROR_HISTORY.md, verified solution
 - R3F setup: HIGH - Official docs confirm v9/React 19 compatibility
 - SSR pattern: HIGH - Standard Next.js pattern, verified in Portal.tsx

@@ -132,10 +132,14 @@ export function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps
         {variant === "success" && (
           <m.div
             className="absolute top-3 right-3 w-2 h-2 rounded-full bg-green"
-            animate={shouldAnimate ? {
-              scale: [1, 1.5, 1],
-              opacity: [1, 0.5, 1],
-            } : undefined}
+            animate={
+              shouldAnimate
+                ? {
+                    scale: [1, 1.5, 1],
+                    opacity: [1, 0.5, 1],
+                  }
+                : undefined
+            }
             transition={{ duration: 2, repeat: 5 }}
           />
         )}
@@ -167,7 +171,10 @@ export function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps
                 ) : (
                   <TrendingDown className="w-3 h-3" />
                 )}
-                <span>{change > 0 ? "+" : ""}{Math.round(change)}%</span>
+                <span>
+                  {change > 0 ? "+" : ""}
+                  {Math.round(change)}%
+                </span>
               </m.div>
             )}
           </div>
@@ -190,9 +197,7 @@ export function KPICard({ data, index, refreshing, onGoalReached }: KPICardProps
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs">
               <span className="text-text-muted">Goal Progress</span>
-              <span className="font-medium text-text-secondary">
-                {Math.round(goalProgress)}%
-              </span>
+              <span className="font-medium text-text-secondary">{Math.round(goalProgress)}%</span>
             </div>
             <div className="h-2 rounded-full bg-surface-tertiary overflow-hidden">
               <m.div

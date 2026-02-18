@@ -45,18 +45,12 @@ export async function POST(
       .single();
 
     if (routeError || !route) {
-      return NextResponse.json(
-        { error: "Route not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Route not found" }, { status: 404 });
     }
 
     // Verify driver owns this route
     if (route.driver_id !== driverId) {
-      return NextResponse.json(
-        { error: "Not authorized to start this route" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Not authorized to start this route" }, { status: 403 });
     }
 
     // Check route can be started
@@ -79,10 +73,7 @@ export async function POST(
 
     if (updateError) {
       logger.exception(updateError, { api: "driver/routes/[routeId]/start" });
-      return NextResponse.json(
-        { error: "Failed to start route" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to start route" }, { status: 500 });
     }
 
     // Set first stop to "enroute"
@@ -96,10 +87,7 @@ export async function POST(
       .single();
 
     if (firstStop) {
-      await supabase
-        .from("route_stops")
-        .update({ status: "enroute" })
-        .eq("id", firstStop.id);
+      await supabase.from("route_stops").update({ status: "enroute" }).eq("id", firstStop.id);
     }
 
     return NextResponse.json({
@@ -109,9 +97,6 @@ export async function POST(
     });
   } catch (error) {
     logger.exception(error, { api: "driver/routes/[routeId]/start" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

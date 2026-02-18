@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { AnimatePresence, m } from "framer-motion";
 import { spring } from "@/lib/motion-tokens";
@@ -104,15 +98,15 @@ export function AuthCard({ children, className }: AuthCardProps) {
         <div className="p-7 sm:p-9">
           {showHeader && (
             <div className="flex flex-col items-center text-center">
-              <m.div
-                className="flex flex-col items-center gap-3"
-                layoutId="app-logo"
-              >
+              <m.div className="flex flex-col items-center gap-3" layoutId="app-logo">
                 {/* Logo with soft golden glow */}
                 <div className="relative">
                   <div
                     className="absolute inset-0 rounded-full blur-xl opacity-40"
-                    style={{ background: "radial-gradient(circle, hsla(40, 80%, 60%, 0.5), transparent 70%)" }}
+                    style={{
+                      background:
+                        "radial-gradient(circle, hsla(40, 80%, 60%, 0.5), transparent 70%)",
+                    }}
                     aria-hidden="true"
                   />
                   <Image
@@ -147,9 +141,7 @@ export function AuthCard({ children, className }: AuthCardProps) {
                     {headingCopy[state]}
                   </h1>
                   {subheadingCopy[state] && (
-                    <p className="mt-1.5 text-sm text-muted-foreground">
-                      {subheadingCopy[state]}
-                    </p>
+                    <p className="mt-1.5 text-sm text-muted-foreground">{subheadingCopy[state]}</p>
                   )}
                 </m.div>
               </AnimatePresence>

@@ -87,14 +87,14 @@ Each task was committed atomically:
 
 ## Decisions Made
 
-| Decision | Rationale |
-|----------|-----------|
+| Decision                             | Rationale                                                            |
+| ------------------------------------ | -------------------------------------------------------------------- |
 | Use FoodModelPlaceholder for testing | No real GLB model yet; procedural geometry allows full scene testing |
-| OrbitControls polar 45-82deg | Keep food viewable from appetizing top-down angles, not underneath |
-| OrbitControls azimuth +-60deg | Limit horizontal rotation to prevent spinning |
-| Environment preset="studio" | Simpler than custom HDRI, good food photography lighting |
-| antialias: false | Better mobile performance, minimal visual difference at screen res |
-| powerPreference: default | Avoids iOS memory pressure issues (not "high-performance") |
+| OrbitControls polar 45-82deg         | Keep food viewable from appetizing top-down angles, not underneath   |
+| OrbitControls azimuth +-60deg        | Limit horizontal rotation to prevent spinning                        |
+| Environment preset="studio"          | Simpler than custom HDRI, good food photography lighting             |
+| antialias: false                     | Better mobile performance, minimal visual difference at screen res   |
+| powerPreference: default             | Avoids iOS memory pressure issues (not "high-performance")           |
 
 ## Deviations from Plan
 
@@ -111,16 +111,19 @@ None - no external service configuration required.
 ## Next Phase Readiness
 
 Ready for 16-03 (Hero Integration):
+
 - Hero3DCanvas exported and working
 - FoodModelPlaceholder available for immediate testing
 - Test page at /3d-test verifies scene works
 - shouldAnimate prop ready for useAnimationPreference integration
 
 Remaining for 3D hero completion:
+
 - Real GLB model needs to be sourced/created (can swap FoodModelPlaceholder for FoodModel)
 - Hero.tsx integration (16-03)
 - Auto-rotation and polish (Phase 17)
 
 ---
-*Phase: 16-3d-hero-core*
-*Completed: 2026-01-24*
+
+_Phase: 16-3d-hero-core_
+_Completed: 2026-01-24_

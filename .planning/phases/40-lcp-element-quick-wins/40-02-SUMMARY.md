@@ -87,5 +87,6 @@ None.
 ## Self-Check: PASSED
 
 ---
-*Phase: 40-lcp-element-quick-wins*
-*Completed: 2026-02-06*
+
+_Phase: 40-lcp-element-quick-wins_
+_Completed: 2026-02-06_

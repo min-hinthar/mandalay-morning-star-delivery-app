@@ -16,11 +16,7 @@ export function GlassCard({ children, className }: GlassCardProps) {
 
   return (
     <m.div
-      whileHover={
-        shouldAnimate
-          ? { y: -8, scale: 1.02, transition: spring.snappy }
-          : undefined
-      }
+      whileHover={shouldAnimate ? { y: -8, scale: 1.02, transition: spring.snappy } : undefined}
       className={cn(
         "relative rounded-3xl p-6 md:p-8",
         // MOBILE CRASH PREVENTION: No backdrop-blur on mobile

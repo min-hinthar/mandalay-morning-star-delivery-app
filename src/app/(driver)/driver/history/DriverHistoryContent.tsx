@@ -71,11 +71,7 @@ function StatMiniCard({
 // COMPONENT
 // ============================================
 
-export function DriverHistoryContent({
-  driver,
-  routes,
-  totalRoutes,
-}: DriverHistoryContentProps) {
+export function DriverHistoryContent({ driver, routes, totalRoutes }: DriverHistoryContentProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (

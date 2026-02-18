@@ -17,10 +17,7 @@ interface UseDriverRatingReturn {
   error: string | null;
 }
 
-export function useDriverRating(
-  orderId: string,
-  initialRating?: number
-): UseDriverRatingReturn {
+export function useDriverRating(orderId: string, initialRating?: number): UseDriverRatingReturn {
   const [rating, setRating] = useState<number>(initialRating ?? 0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,16 +38,13 @@ export function useDriverRating(
           const data = (await response.json().catch(() => null)) as {
             error?: { message?: string };
           } | null;
-          throw new Error(
-            data?.error?.message ?? "Failed to submit rating"
-          );
+          throw new Error(data?.error?.message ?? "Failed to submit rating");
         }
 
         setRating(newRating);
         toast({ message: "Thanks for your rating!", type: "success" });
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to submit rating";
+        const message = err instanceof Error ? err.message : "Failed to submit rating";
         setError(message);
         toast({ message, type: "error" });
       } finally {

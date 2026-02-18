@@ -1,6 +1,14 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Star, AlertTriangle, Tag, CheckCircle, AlertCircle, XCircle, type LucideIcon } from "lucide-react";
+import {
+  Star,
+  AlertTriangle,
+  Tag,
+  CheckCircle,
+  AlertCircle,
+  XCircle,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -29,61 +37,27 @@ const badgeVariants = cva(
     variants: {
       variant: {
         // V6 Default: Primary deep red
-        default: [
-          "border-transparent",
-          "bg-primary text-text-inverse",
-        ],
+        default: ["border-transparent", "bg-primary text-text-inverse"],
         // V6 Secondary: Golden yellow
-        secondary: [
-          "border-transparent",
-          "bg-secondary text-text-primary",
-        ],
+        secondary: ["border-transparent", "bg-secondary text-text-primary"],
         // V6 Outline: Border with primary accent
-        outline: [
-          "border-primary",
-          "bg-transparent text-primary",
-        ],
+        outline: ["border-primary", "bg-transparent text-primary"],
 
         // Featured/Popular - Golden yellow with glow
-        featured: [
-          "border-transparent",
-          "bg-secondary text-text-primary",
-          "shadow-sm",
-        ],
+        featured: ["border-transparent", "bg-secondary text-text-primary", "shadow-sm"],
 
         // Allergen/Warning - Orange
-        allergen: [
-          "border-orange/30",
-          "bg-orange-light text-orange",
-        ],
+        allergen: ["border-orange/30", "bg-orange-light text-orange"],
 
         // Price modifiers
-        "price-discount": [
-          "border-green/30",
-          "bg-green-light text-green",
-        ],
-        "price-premium": [
-          "border-magenta/30",
-          "bg-magenta-light text-magenta",
-        ],
+        "price-discount": ["border-green/30", "bg-green-light text-green"],
+        "price-premium": ["border-magenta/30", "bg-magenta-light text-magenta"],
 
         // Status variants - V6 vibrant colors
-        "status-success": [
-          "border-green/30",
-          "bg-green-light text-green",
-        ],
-        "status-warning": [
-          "border-orange/30",
-          "bg-orange-light text-orange",
-        ],
-        "status-error": [
-          "border-status-error/30",
-          "bg-status-error-bg text-status-error",
-        ],
-        "status-info": [
-          "border-teal/30",
-          "bg-teal-light text-teal",
-        ],
+        "status-success": ["border-green/30", "bg-green-light text-green"],
+        "status-warning": ["border-orange/30", "bg-orange-light text-orange"],
+        "status-error": ["border-status-error/30", "bg-status-error-bg text-status-error"],
+        "status-info": ["border-teal/30", "bg-teal-light text-teal"],
       },
       size: {
         sm: "px-2 py-0.5 text-2xs",
@@ -111,8 +85,7 @@ const variantIcons: Partial<Record<NonNullable<BadgeProps["variant"]>, LucideIco
 };
 
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {
   /** Show variant-specific icon */
   showIcon?: boolean;
   /** Custom icon component */

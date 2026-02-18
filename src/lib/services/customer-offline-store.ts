@@ -49,10 +49,7 @@ function openDB(): Promise<IDBDatabase> {
 }
 
 // Generic store operations
-async function putToStore<T extends { id: string }>(
-  storeName: string,
-  item: T
-): Promise<void> {
+async function putToStore<T extends { id: string }>(storeName: string, item: T): Promise<void> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(storeName, "readwrite");
@@ -66,10 +63,7 @@ async function putToStore<T extends { id: string }>(
   });
 }
 
-async function getFromStore<T>(
-  storeName: string,
-  key: string
-): Promise<T | null> {
+async function getFromStore<T>(storeName: string, key: string): Promise<T | null> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(storeName, "readonly");
@@ -122,10 +116,7 @@ export const menuCache = {
     cachedAt: string;
     version: string;
   } | null> {
-    const cached = await getFromStore<MenuCacheEntry>(
-      STORES.MENU_CACHE,
-      "current"
-    );
+    const cached = await getFromStore<MenuCacheEntry>(STORES.MENU_CACHE, "current");
     if (!cached) return null;
     return {
       data: cached.data,

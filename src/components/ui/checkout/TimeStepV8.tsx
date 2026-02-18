@@ -54,8 +54,12 @@ export interface TimeStepV8Props {
 
 export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
   const { shouldAnimate } = useAnimationPreference();
-  const { delivery, setDelivery, nextStep: storeNextStep, prevStep: storePrevStep } =
-    useCheckoutStore();
+  const {
+    delivery,
+    setDelivery,
+    nextStep: storeNextStep,
+    prevStep: storePrevStep,
+  } = useCheckoutStore();
   const canProceed = useCanProceed();
 
   const handleNext = onNext || storeNextStep;
@@ -82,13 +86,9 @@ export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
       <m.div variants={shouldAnimate ? staggerItem : undefined}>
         <div className="flex items-center gap-2 mb-1">
           <Clock className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-lg font-semibold text-text-primary">
-            Delivery Time
-          </h2>
+          <h2 className="font-display text-lg font-semibold text-text-primary">Delivery Time</h2>
         </div>
-        <p className="font-body text-sm text-text-muted">
-          Choose your preferred delivery window
-        </p>
+        <p className="font-body text-sm text-text-muted">Choose your preferred delivery window</p>
       </m.div>
 
       {/* Time slot picker with stagger */}

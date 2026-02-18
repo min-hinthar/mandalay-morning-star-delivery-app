@@ -31,9 +31,7 @@ import {
  * 4. Retry with exponential backoff
  * 5. Notification log insert
  */
-export async function sendEmail(
-  options: SendEmailOptions,
-): Promise<SendEmailResult> {
+export async function sendEmail(options: SendEmailOptions): Promise<SendEmailResult> {
   const supabase = createServiceClient();
   const flowId = "email";
 
@@ -66,8 +64,7 @@ export async function sendEmail(
   // Step 2: User notification preference check
   // -----------------------------------------------
   const isMandatory =
-    options.mandatory ||
-    (MANDATORY_EMAIL_TYPES as readonly string[]).includes(options.type);
+    options.mandatory || (MANDATORY_EMAIL_TYPES as readonly string[]).includes(options.type);
 
   if (!isMandatory) {
     try {
@@ -184,8 +181,7 @@ export async function sendEmail(
 
       return { success: true, resendId: resendId ?? undefined };
     } catch (err) {
-      lastError =
-        err instanceof Error ? err.message : "Unknown send error";
+      lastError = err instanceof Error ? err.message : "Unknown send error";
       logger.warn(`Email send attempt ${attempt} threw`, {
         flowId,
         orderId: options.orderId,

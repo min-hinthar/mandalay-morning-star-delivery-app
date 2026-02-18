@@ -54,14 +54,7 @@ export const ORB_CONFIG_MID: OrbConfig[] = [
 // GRADIENT ORB COMPONENT
 // ============================================
 
-export function GradientOrb({
-  color,
-  size,
-  x,
-  y,
-  parallaxY,
-  className,
-}: GradientOrbProps) {
+export function GradientOrb({ color, size, x, y, parallaxY, className }: GradientOrbProps) {
   // Use CSS variables for theme-aware colors
   // --hero-orb-saffron, --hero-orb-jade, --hero-orb-ruby
   // --hero-orb-blur: 60px (light) / 80px (dark)

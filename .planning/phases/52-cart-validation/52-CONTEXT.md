@@ -14,6 +14,7 @@ Cart reflects reality — stale items are flagged, prices are current, and the c
 ## Implementation Decisions
 
 ### Stale Item UX
+
 - Sold-out items: gray overlay + "Sold Out" badge — clear and unmissable
 - Unavailable items (removed from menu): gray overlay + red badge — different color from sold-out (amber) to distinguish severity
 - Problem items float to top in a dedicated "Items needing attention" section
@@ -26,6 +27,7 @@ Cart reflects reality — stale items are flagged, prices are current, and the c
 - Both sold-out and unavailable items get the same inline suggestions treatment
 
 ### Cart Page Layout
+
 - Two-column layout on desktop: items left, order summary right; collapses to single column on mobile
 - Mini card style for cart items: thumbnail on top/left, details right, stepper below — more visual than compact rows
 - Items grouped by category under category headers (Soups, Rice, etc.)
@@ -41,6 +43,7 @@ Cart reflects reality — stale items are flagged, prices are current, and the c
 - Delivery instructions, dietary card, promo codes, delivery ETA — checkout only, not on cart page
 
 ### Checkout Gate
+
 - Checkout button disabled when stale/sold-out items exist OR minimum order not met
 - Warning banner above checkout button (not inside button text)
 - Banner is tappable — smooth-scrolls to attention section at top
@@ -50,6 +53,7 @@ Cart reflects reality — stale items are flagged, prices are current, and the c
 - Minimum order blocks checkout (not info-only)
 
 ### Validation Timing
+
 - Validation runs on cart page/drawer mount; timing details at Claude's discretion
 - Cart drawer also runs validation and shows full stale UX (gray overlay, badges, remove buttons)
 - Brief skeleton cards during validation — signals freshness check happening
@@ -61,6 +65,7 @@ Cart reflects reality — stale items are flagged, prices are current, and the c
 - Add-to-cart validation: Claude's discretion on performance tradeoff
 
 ### Price Change Handling
+
 - Amber "Price updated" badge on price-increased items; green "Price updated" badge on price-decreased items
 - Price-changed items stay in place (don't float to attention section) — less disruptive than sold-out
 - Price changes are info-only — don't block checkout
@@ -72,6 +77,7 @@ Cart reflects reality — stale items are flagged, prices are current, and the c
 - Customization/add-on availability changes: out of scope for this phase (price + item availability only)
 
 ### Claude's Discretion
+
 - Quantity stepper style (+/- buttons vs dropdown)
 - Zero-quantity removal behavior (direct remove vs confirm)
 - Empty cart state design (mascot or illustration)
@@ -108,5 +114,5 @@ Cart reflects reality — stale items are flagged, prices are current, and the c
 
 ---
 
-*Phase: 52-cart-validation*
-*Context gathered: 2026-02-08*
+_Phase: 52-cart-validation_
+_Context gathered: 2026-02-08_

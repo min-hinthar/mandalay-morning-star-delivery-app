@@ -23,8 +23,10 @@ describe("calculateHaversineDistance", () => {
   it("calculates correct distance between Covina kitchen and downtown LA", () => {
     // Covina kitchen to Downtown LA (~30km)
     const result = calculateHaversineDistance(
-      34.0894, -117.8897, // Covina
-      34.0522, -118.2437  // Downtown LA
+      34.0894,
+      -117.8897, // Covina
+      34.0522,
+      -118.2437 // Downtown LA
     );
     // Should be approximately 30-35km
     expect(result).toBeGreaterThan(28);
@@ -33,10 +35,7 @@ describe("calculateHaversineDistance", () => {
 
   it("calculates correct distance for nearby locations", () => {
     // ~1km apart
-    const result = calculateHaversineDistance(
-      34.0894, -117.8897,
-      34.0984, -117.8897
-    );
+    const result = calculateHaversineDistance(34.0894, -117.8897, 34.0984, -117.8897);
     // About 1km for 0.009 degrees latitude
     expect(result).toBeGreaterThan(0.9);
     expect(result).toBeLessThan(1.1);
@@ -44,8 +43,10 @@ describe("calculateHaversineDistance", () => {
 
   it("handles negative coordinates", () => {
     const result = calculateHaversineDistance(
-      -33.8688, 151.2093, // Sydney
-      -37.8136, 144.9631  // Melbourne
+      -33.8688,
+      151.2093, // Sydney
+      -37.8136,
+      144.9631 // Melbourne
     );
     // About 714km
     expect(result).toBeGreaterThan(700);
@@ -248,7 +249,7 @@ describe("isArrivingSoon", () => {
 
   it("returns false when driver is beyond threshold", () => {
     const driver = { lat: 34.0894, lng: -117.8897 };
-    const customer = { lat: 34.1000, lng: -117.8897 }; // ~1.2km
+    const customer = { lat: 34.1, lng: -117.8897 }; // ~1.2km
 
     expect(isArrivingSoon(driver, customer)).toBe(false);
   });

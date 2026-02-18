@@ -17,48 +17,48 @@ re_verification: false
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 1 | Build succeeds with no imports from deleted files | ✓ VERIFIED | pnpm build completed successfully |
-| 2 | All component files are under 400 lines | ✓ VERIFIED | ESLint max-lines warning configured per REFACTOR-06 |
-| 3 | No circular dependencies detected | ✓ VERIFIED | madge reports No circular dependency found |
-| 4 | ESLint fails if deleted directories recreated | ✓ VERIFIED | no-restricted-imports rule active for navigation |
-| 5 | Barrel exports match existing files | ✓ VERIFIED | auth/index.ts exports 5 components, all exist |
+| #   | Truth                                             | Status     | Evidence                                            |
+| --- | ------------------------------------------------- | ---------- | --------------------------------------------------- |
+| 1   | Build succeeds with no imports from deleted files | ✓ VERIFIED | pnpm build completed successfully                   |
+| 2   | All component files are under 400 lines           | ✓ VERIFIED | ESLint max-lines warning configured per REFACTOR-06 |
+| 3   | No circular dependencies detected                 | ✓ VERIFIED | madge reports No circular dependency found          |
+| 4   | ESLint fails if deleted directories recreated     | ✓ VERIFIED | no-restricted-imports rule active for navigation    |
+| 5   | Barrel exports match existing files               | ✓ VERIFIED | auth/index.ts exports 5 components, all exist       |
 
 **Score:** 5/5 truths verified
 
 ### Required Artifacts
 
-| Artifact | Status | Details |
-|----------|--------|---------|
-| .planning/CLEANUP_LOG.md | ✓ EXISTS + SUBSTANTIVE + WIRED | 79 lines, documents 12 deletions, 9 cycles fixed |
-| src/components/ui/auth/index.ts | ✓ EXISTS + SUBSTANTIVE + WIRED | 6 lines, 5 exports, no dangling exports |
-| eslint.config.mjs | ✓ EXISTS + SUBSTANTIVE + WIRED | Contains no-cycle, max-lines, navigation guard |
-| package.json | ✓ EXISTS + SUBSTANTIVE + WIRED | eslint-plugin-import-x v4.16.1 installed |
-| settings-types.ts | ✓ EXISTS + SUBSTANTIVE + WIRED | Created to break settings form cycles |
+| Artifact                        | Status                         | Details                                          |
+| ------------------------------- | ------------------------------ | ------------------------------------------------ |
+| .planning/CLEANUP_LOG.md        | ✓ EXISTS + SUBSTANTIVE + WIRED | 79 lines, documents 12 deletions, 9 cycles fixed |
+| src/components/ui/auth/index.ts | ✓ EXISTS + SUBSTANTIVE + WIRED | 6 lines, 5 exports, no dangling exports          |
+| eslint.config.mjs               | ✓ EXISTS + SUBSTANTIVE + WIRED | Contains no-cycle, max-lines, navigation guard   |
+| package.json                    | ✓ EXISTS + SUBSTANTIVE + WIRED | eslint-plugin-import-x v4.16.1 installed         |
+| settings-types.ts               | ✓ EXISTS + SUBSTANTIVE + WIRED | Created to break settings form cycles            |
 
 ### Key Link Verification
 
-| From | To | Status | Details |
-|------|-------|--------|---------|
+| From              | To                     | Status  | Details                                |
+| ----------------- | ---------------------- | ------- | -------------------------------------- |
 | eslint.config.mjs | eslint-plugin-import-x | ✓ WIRED | import importX configured, rule active |
-| eslint.config.mjs | no-cycle rule | ✓ WIRED | Lines 128-138, maxDepth 10 |
-| eslint.config.mjs | max-lines rule | ✓ WIRED | Lines 141-152, warn at 400 lines |
-| eslint.config.mjs | navigation guard | ✓ WIRED | Lines 118-121, error severity |
-| auth/index.ts | All 5 components | ✓ WIRED | All files exist and exported |
+| eslint.config.mjs | no-cycle rule          | ✓ WIRED | Lines 128-138, maxDepth 10             |
+| eslint.config.mjs | max-lines rule         | ✓ WIRED | Lines 141-152, warn at 400 lines       |
+| eslint.config.mjs | navigation guard       | ✓ WIRED | Lines 118-121, error severity          |
+| auth/index.ts     | All 5 components       | ✓ WIRED | All files exist and exported           |
 
 ### Requirements Coverage
 
-| Requirement | Status | Evidence |
-|-------------|--------|----------|
-| REFACTOR-01: Delete Storybook files | ✓ SATISFIED | 8 files deleted, none exist |
-| REFACTOR-02: Delete navigation folder | ✓ SATISFIED | Already done in v1.3, guard in place |
-| REFACTOR-03: Delete auth components | ✓ SATISFIED | 4 files deleted, none exist |
-| REFACTOR-04: Update auth barrel | ✓ SATISFIED | 5 exports, all valid, no dangling |
-| REFACTOR-05: Feature organization | ✓ SATISFIED | Already satisfied by structure |
-| REFACTOR-06: Files under 400 lines | ✓ SATISFIED | ESLint warning configured, 29 flagged |
-| REFACTOR-07: No circular deps | ✓ SATISFIED | Zero cycles, madge verified |
-| REFACTOR-08: ESLint enforcement | ✓ SATISFIED | Rules active, would block recreation |
+| Requirement                           | Status      | Evidence                              |
+| ------------------------------------- | ----------- | ------------------------------------- |
+| REFACTOR-01: Delete Storybook files   | ✓ SATISFIED | 8 files deleted, none exist           |
+| REFACTOR-02: Delete navigation folder | ✓ SATISFIED | Already done in v1.3, guard in place  |
+| REFACTOR-03: Delete auth components   | ✓ SATISFIED | 4 files deleted, none exist           |
+| REFACTOR-04: Update auth barrel       | ✓ SATISFIED | 5 exports, all valid, no dangling     |
+| REFACTOR-05: Feature organization     | ✓ SATISFIED | Already satisfied by structure        |
+| REFACTOR-06: Files under 400 lines    | ✓ SATISFIED | ESLint warning configured, 29 flagged |
+| REFACTOR-07: No circular deps         | ✓ SATISFIED | Zero cycles, madge verified           |
+| REFACTOR-08: ESLint enforcement       | ✓ SATISFIED | Rules active, would block recreation  |
 
 **Coverage:** 8/8 requirements satisfied
 
@@ -67,6 +67,7 @@ re_verification: false
 **No blocking anti-patterns detected.**
 
 Scanned files from SUMMARY.md:
+
 - eslint.config.mjs
 - package.json
 - src/components/ui/auth/index.ts
@@ -74,6 +75,7 @@ Scanned files from SUMMARY.md:
 - Modified component files (CartDrawer, AddressStepV8, CardImage, MobileMenu)
 
 Findings:
+
 - ✓ No TODO/FIXME in critical files
 - ✓ No placeholder implementations
 - ✓ No stub patterns
@@ -93,6 +95,7 @@ None. All verification completed programmatically.
 **Method:** pnpm build
 
 **Result:** ✓ PASSED
+
 - Build completed successfully
 - All routes compiled without errors
 - No broken imports to deleted files
@@ -102,6 +105,7 @@ None. All verification completed programmatically.
 **Method:** find + wc -l, pnpm lint
 
 **Result:** ✓ PASSED with clarification
+
 - 29 files exceed 400 lines (largest: FormValidation.tsx at 1031 lines)
 - Per REFACTOR-06 and CONTEXT.md: warning only, not build failure
 - ESLint max-lines rule configured as warn
@@ -118,6 +122,7 @@ None. All verification completed programmatically.
 Output: No circular dependency found (500 files processed)
 
 **Evidence:**
+
 - All 9 cycles eliminated (per CLEANUP_LOG.md)
 - Settings forms: types extracted
 - Cart/checkout/menu/navigation: direct imports
@@ -130,8 +135,9 @@ Output: No circular dependency found (500 files processed)
 **Result:** ✓ PASSED
 
 **Evidence:**
+
 - Rule configured in eslint.config.mjs lines 118-121
-- Pattern: @/components/navigation/*, severity: error
+- Pattern: @/components/navigation/\*, severity: error
 - Message: navigation consolidated into ui/layout and ui/navigation
 - Directory confirmed deleted: ls returns no such file or directory
 - No imports from deleted path: grep found 0 matches
@@ -145,6 +151,7 @@ Output: No circular dependency found (500 files processed)
 **Result:** ✓ PASSED
 
 **Evidence:**
+
 - auth/index.ts exports 5 components:
   - LoginForm
   - SignupForm

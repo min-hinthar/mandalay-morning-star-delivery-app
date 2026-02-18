@@ -129,22 +129,25 @@ export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkCo
           <div
             id="envelope-glow"
             className="absolute -inset-4 rounded-full blur-2xl opacity-30"
-            style={{ background: "radial-gradient(circle, hsla(40, 80%, 60%, 0.6), transparent 70%)" }}
+            style={{
+              background: "radial-gradient(circle, hsla(40, 80%, 60%, 0.6), transparent 70%)",
+            }}
             aria-hidden="true"
           />
 
           {/* Sparkle accents */}
-          {shouldAnimate && SPARKLE_POSITIONS.map((pos, i) => (
-            <m.div
-              key={i}
-              className="absolute text-secondary z-10"
-              style={{ top: pos.top, left: pos.left, right: pos.right, bottom: pos.bottom }}
-              animate={{ opacity: [0, 1, 0], scale: [0.5, 1, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity, delay: pos.delay, ease: "easeInOut" }}
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-            </m.div>
-          ))}
+          {shouldAnimate &&
+            SPARKLE_POSITIONS.map((pos, i) => (
+              <m.div
+                key={i}
+                className="absolute text-secondary z-10"
+                style={{ top: pos.top, left: pos.left, right: pos.right, bottom: pos.bottom }}
+                animate={{ opacity: [0, 1, 0], scale: [0.5, 1, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity, delay: pos.delay, ease: "easeInOut" }}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+              </m.div>
+            ))}
 
           {/* Envelope circle */}
           <div
@@ -159,8 +162,8 @@ export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkCo
       <div className="space-y-2 text-center">
         <h2 className="text-xl font-display font-bold text-text-primary">Check your email</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          We sent a magic link to{" "}
-          <strong className="text-text-primary font-medium">{email}</strong>.
+          We sent a magic link to <strong className="text-text-primary font-medium">{email}</strong>
+          .
           <br />
           Click the link to sign in instantly.
         </p>

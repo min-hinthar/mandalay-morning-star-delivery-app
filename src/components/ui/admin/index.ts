@@ -6,7 +6,13 @@ export type { AdminOrder } from "./OrdersTable";
 export { RevenueChart } from "./RevenueChart";
 export { LazyRevenueChart } from "./analytics/LazyCharts";
 export { PopularItems } from "./PopularItems";
-export { ExpandableTableRow, QuickPreviewPanel, DriverPreviewPanel, RoutePreviewPanel, useExpandedRows } from "./ExpandableTableRow";
+export {
+  ExpandableTableRow,
+  QuickPreviewPanel,
+  DriverPreviewPanel,
+  RoutePreviewPanel,
+  useExpandedRows,
+} from "./ExpandableTableRow";
 
 // Sub-directory re-exports
 export * from "./analytics";

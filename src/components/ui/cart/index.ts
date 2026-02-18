@@ -24,10 +24,7 @@ export { FreeDeliveryProgress } from "./FreeDeliveryProgress";
 export { CartEmptyState } from "./CartEmptyState";
 export { FlyToCart, useFlyToCart } from "./FlyToCart";
 export { AddToCartButton } from "./AddToCartButton";
-export {
-  ClearCartConfirmation,
-  useClearCartConfirmation,
-} from "./ClearCartConfirmation";
+export { ClearCartConfirmation, useClearCartConfirmation } from "./ClearCartConfirmation";
 export { CartOverlays } from "./CartOverlays";
 export { CartNavigationGuard } from "./CartNavigationGuard";
 export type { CartNavigationGuardProps } from "./CartNavigationGuard";

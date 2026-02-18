@@ -32,8 +32,9 @@
   --accent-strong: var(--a-800);
   --on-accent: var(--n-0);
 
-  --hero-gradient: radial-gradient(1200px circle at 20% 0%, var(--a-200), transparent 55%),
-                   radial-gradient(1200px circle at 80% 20%, var(--a-400), transparent 55%);
+  --hero-gradient:
+    radial-gradient(1200px circle at 20% 0%, var(--a-200), transparent 55%),
+    radial-gradient(1200px circle at 80% 20%, var(--a-400), transparent 55%);
 }
 
 .dark {

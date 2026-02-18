@@ -166,9 +166,7 @@ export function MetricCard({
               {calculatedTrend === "stable" && (
                 <>
                   <Minus className="h-4 w-4 text-text-muted" />
-                  <span className="text-sm font-body font-medium text-text-muted">
-                    No change
-                  </span>
+                  <span className="text-sm font-body font-medium text-text-muted">No change</span>
                 </>
               )}
               <span className="text-xs font-body text-text-muted">vs last period</span>
@@ -192,7 +190,9 @@ export function MetricCard({
       {/* V6 Subtle gradient overlay */}
       <div
         className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full"
-        style={{ background: "linear-gradient(to bottom right, var(--color-primary-light), transparent)" }}
+        style={{
+          background: "linear-gradient(to bottom right, var(--color-primary-light), transparent)",
+        }}
       />
     </m.div>
   );

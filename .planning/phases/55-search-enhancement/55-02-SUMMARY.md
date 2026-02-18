@@ -2,7 +2,8 @@
 phase: 55-search-enhancement
 plan: 02
 subsystem: ui
-tags: [search-results, rich-cards, category-tabs, match-highlighting, skeleton-loading, framer-motion]
+tags:
+  [search-results, rich-cards, category-tabs, match-highlighting, skeleton-loading, framer-motion]
 
 # Dependency graph
 requires:
@@ -20,7 +21,8 @@ affects: [55-03, 55-04]
 # Tech tracking
 tech-stack:
   added: []
-  patterns: [fuse-match-highlighting, category-tab-filtering, staggered-fade-in, crossfade-tab-switch]
+  patterns:
+    [fuse-match-highlighting, category-tab-filtering, staggered-fade-in, crossfade-tab-switch]
 
 key-files:
   created:
@@ -64,6 +66,7 @@ completed: 2026-02-11
 - **Files modified:** 3
 
 ## Accomplishments
+
 - Created HighlightedText component that extracts Fuse.js character-level match indices, merges overlapping ranges, and renders amber/yellow `<mark>` highlights
 - Created SearchResultCard with 64px rounded-xl thumbnails (Next.js Image), category emoji fallback, category badge, dietary/allergen tag pills, Popular badge with star icon, Sold Out overlay with opacity-50, and staggered fade-in via `staggerDelay()`
 - Created SearchCategoryTabs with horizontal scroll, "All" tab always first with total count, per-category counts, solid `bg-primary` active state with `layoutId` spring animation
@@ -80,6 +83,7 @@ Each task was committed atomically:
 2. **Task 2: Rewrite SearchResults and wire category tabs into CommandPalette** - `c5079f5` (feat)
 
 ## Files Created/Modified
+
 - `src/components/ui/search/CommandPalette/HighlightedText.tsx` - Match highlight renderer using Fuse indices with amber/yellow marks
 - `src/components/ui/search/CommandPalette/SearchResultCard.tsx` - Rich 64px card with thumbnail, badges, tags, sold-out/popular states
 - `src/components/ui/search/CommandPalette/SearchCategoryTabs.tsx` - Horizontal scrolling category pill tabs with layoutId active indicator
@@ -89,6 +93,7 @@ Each task was committed atomically:
 - `src/components/ui/search/CommandPalette/index.ts` - Added exports for 4 new components
 
 ## Decisions Made
+
 - **layoutId animation:** Used Framer Motion `layoutId="search-tab-indicator"` for smooth spring-animated active tab indicator that slides between pills
 - **Stagger cap at 320ms:** `staggerDelay(index, 0.04, 0.32)` ensures max 8 items animate before cap, keeping entrance animation under 350ms total
 - **80ms skeleton flash:** Even though Fuse.js is instant on ~78 items, the brief skeleton provides perceived loading feedback and satisfies the skeleton loading requirement
@@ -100,6 +105,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Fixed missing onRemoveRecent prop in CommandPalette**
+
 - **Found during:** Task 1 (typecheck)
 - **Issue:** SearchEmptyState required `onRemoveRecent` prop but CommandPalette didn't pass it, causing TS2741 error
 - **Fix:** Added `removeSearch` from `useRecentSearches()` destructuring and passed as `onRemoveRecent` prop
@@ -112,12 +118,15 @@ Each task was committed atomically:
 **Impact on plan:** Pre-existing type error fix. No scope creep.
 
 ## Issues Encountered
+
 - `pnpm build` fails with Turbopack junction point error (Windows/OneDrive environment issue, not code-related). `typecheck` and `lint` both pass cleanly, confirming code correctness.
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Rich result cards rendering with all visual states (thumbnails, badges, tags, sold-out, popular)
 - Category tabs filtering results by category with counts
 - Match highlighting using Fuse indices for precise character-level highlight
@@ -125,5 +134,6 @@ None - no external service configuration required.
 - Ready for plan 55-03 (additional polish) and 55-04 (final integration)
 
 ---
-*Phase: 55-search-enhancement*
-*Completed: 2026-02-11*
+
+_Phase: 55-search-enhancement_
+_Completed: 2026-02-11_

@@ -80,8 +80,8 @@ module.exports = {
   // Ignore elements that change frequently (dates, random content)
   // Use data-chromatic-ignore attribute in Storybook
   ignoreSelectors: [
-    '[data-chromatic-ignore]',
-    '.chromatic-ignore',
+    "[data-chromatic-ignore]",
+    ".chromatic-ignore",
     '[data-testid="timestamp"]',
     '[data-testid="random-content"]',
   ],

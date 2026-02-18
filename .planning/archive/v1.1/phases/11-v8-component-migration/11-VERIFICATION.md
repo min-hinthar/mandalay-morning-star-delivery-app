@@ -16,51 +16,51 @@ score: 3/3 must-haves verified
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 1 | TimeStep component resolves to TimeStepV8 in checkout flow | ✓ VERIFIED | `export { TimeStepV8 as TimeStep }` found in checkout/index.ts line 25 |
-| 2 | No TimeStepLegacy imports exist in codebase | ✓ VERIFIED | TimeStepLegacy exported in checkout/index.ts but zero imports found (`grep -r "import.*TimeStepLegacy" src/` returns empty) |
-| 3 | Zero v7-index imports remain in src/app/ and active component files | ✓ VERIFIED | `grep -r "from.*v7-index" src/` excluding barrel files themselves returns 0 results |
+| #   | Truth                                                               | Status     | Evidence                                                                                                                    |
+| --- | ------------------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 1   | TimeStep component resolves to TimeStepV8 in checkout flow          | ✓ VERIFIED | `export { TimeStepV8 as TimeStep }` found in checkout/index.ts line 25                                                      |
+| 2   | No TimeStepLegacy imports exist in codebase                         | ✓ VERIFIED | TimeStepLegacy exported in checkout/index.ts but zero imports found (`grep -r "import.*TimeStepLegacy" src/` returns empty) |
+| 3   | Zero v7-index imports remain in src/app/ and active component files | ✓ VERIFIED | `grep -r "from.*v7-index" src/` excluding barrel files themselves returns 0 results                                         |
 
 **Score:** 3/3 truths verified
 
 ### Required Artifacts
 
-| Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| `src/app/(admin)/admin/page.tsx` | Uses AdminDashboard from direct import | ✓ VERIFIED | Line 15: `import { AdminDashboard } from "@/components/admin/AdminDashboard"` — no v7-index |
-| `src/app/(driver)/driver/page.tsx` | Uses DriverDashboard from direct import | ✓ VERIFIED | Line 4: `import { DriverDashboard } from "@/components/driver/DriverDashboard"` — no v7-index |
-| `src/components/homepage/Hero.tsx` | Uses ParallaxContainer from direct import | ✓ VERIFIED | Line 16: `import { ParallaxContainer, ParallaxLayer, ParallaxGradient } from "@/components/layouts/ParallaxContainer"` — no v7-index |
-| `src/components/tracking/TrackingPageClient.tsx` | Uses direct component imports | ✓ VERIFIED | Lines 14-18: Direct imports from ./StatusTimeline, ./ETACountdown, etc. — no v7-index |
-| `src/components/checkout/index.ts` | Exports TimeStepV8 as TimeStep | ✓ VERIFIED | Line 25: `export { TimeStepV8 as TimeStep } from "./TimeStepV8"` confirmed |
+| Artifact                                         | Expected                                  | Status     | Details                                                                                                                              |
+| ------------------------------------------------ | ----------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/app/(admin)/admin/page.tsx`                 | Uses AdminDashboard from direct import    | ✓ VERIFIED | Line 15: `import { AdminDashboard } from "@/components/admin/AdminDashboard"` — no v7-index                                          |
+| `src/app/(driver)/driver/page.tsx`               | Uses DriverDashboard from direct import   | ✓ VERIFIED | Line 4: `import { DriverDashboard } from "@/components/driver/DriverDashboard"` — no v7-index                                        |
+| `src/components/homepage/Hero.tsx`               | Uses ParallaxContainer from direct import | ✓ VERIFIED | Line 16: `import { ParallaxContainer, ParallaxLayer, ParallaxGradient } from "@/components/layouts/ParallaxContainer"` — no v7-index |
+| `src/components/tracking/TrackingPageClient.tsx` | Uses direct component imports             | ✓ VERIFIED | Lines 14-18: Direct imports from ./StatusTimeline, ./ETACountdown, etc. — no v7-index                                                |
+| `src/components/checkout/index.ts`               | Exports TimeStepV8 as TimeStep            | ✓ VERIFIED | Line 25: `export { TimeStepV8 as TimeStep } from "./TimeStepV8"` confirmed                                                           |
 
 ### Key Link Verification
 
-| From | To | Via | Status | Details |
-|------|----|----|--------|---------|
-| checkout/index.ts | TimeStepV8.tsx | re-export mapping | ✓ WIRED | Barrel correctly aliases TimeStepV8 as TimeStep for backward compatibility |
-| src/app/(customer)/checkout/page.tsx | checkout barrel | import TimeStep | ✓ WIRED | Checkout page imports TimeStep from barrel, receives V8 version |
-| Admin dashboard page | AdminDashboard.tsx | direct import | ✓ WIRED | No v7-index intermediary, direct component import |
-| Driver dashboard page | DriverDashboard.tsx | direct import | ✓ WIRED | No v7-index intermediary, direct component import |
-| Hero component | ParallaxContainer.tsx | direct import | ✓ WIRED | Uses V8 layout components directly |
+| From                                 | To                    | Via               | Status  | Details                                                                    |
+| ------------------------------------ | --------------------- | ----------------- | ------- | -------------------------------------------------------------------------- |
+| checkout/index.ts                    | TimeStepV8.tsx        | re-export mapping | ✓ WIRED | Barrel correctly aliases TimeStepV8 as TimeStep for backward compatibility |
+| src/app/(customer)/checkout/page.tsx | checkout barrel       | import TimeStep   | ✓ WIRED | Checkout page imports TimeStep from barrel, receives V8 version            |
+| Admin dashboard page                 | AdminDashboard.tsx    | direct import     | ✓ WIRED | No v7-index intermediary, direct component import                          |
+| Driver dashboard page                | DriverDashboard.tsx   | direct import     | ✓ WIRED | No v7-index intermediary, direct component import                          |
+| Hero component                       | ParallaxContainer.tsx | direct import     | ✓ WIRED | Uses V8 layout components directly                                         |
 
 ### Requirements Coverage
 
 **Phase 11 Success Criteria (from ROADMAP.md):**
 
-| Requirement | Status | Evidence |
-|-------------|--------|----------|
-| 1. Admin dashboard renders using V8 components (no V7 imports) | ✓ SATISFIED | Zero v7-index imports in src/app/(admin)/ |
-| 2. Driver dashboard renders using V8 components (no V7 imports) | ✓ SATISFIED | Zero v7-index imports in src/app/(driver)/ |
-| 3. Homepage Hero uses V8 layout components | ✓ SATISFIED | Hero.tsx imports ParallaxContainer from layouts/ParallaxContainer |
-| 4. Tracking page uses V8 components | ✓ SATISFIED | TrackingPageClient.tsx uses direct imports, no v7-index |
-| 5. All TimeStep usages replaced with TimeStepV8 | ✓ SATISFIED | TimeStep resolves to TimeStepV8 via barrel re-export, no direct TimeStepLegacy usage |
+| Requirement                                                     | Status      | Evidence                                                                             |
+| --------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------ |
+| 1. Admin dashboard renders using V8 components (no V7 imports)  | ✓ SATISFIED | Zero v7-index imports in src/app/(admin)/                                            |
+| 2. Driver dashboard renders using V8 components (no V7 imports) | ✓ SATISFIED | Zero v7-index imports in src/app/(driver)/                                           |
+| 3. Homepage Hero uses V8 layout components                      | ✓ SATISFIED | Hero.tsx imports ParallaxContainer from layouts/ParallaxContainer                    |
+| 4. Tracking page uses V8 components                             | ✓ SATISFIED | TrackingPageClient.tsx uses direct imports, no v7-index                              |
+| 5. All TimeStep usages replaced with TimeStepV8                 | ✓ SATISFIED | TimeStep resolves to TimeStepV8 via barrel re-export, no direct TimeStepLegacy usage |
 
 ### Anti-Patterns Found
 
-| File | Line | Pattern | Severity | Impact |
-|------|------|---------|----------|--------|
-| src/components/tracking/TrackingPageClient.tsx | 51 | TODO comment | ℹ️ Info | Pre-existing note about future route_id extraction - not a blocker |
+| File                                           | Line | Pattern      | Severity | Impact                                                             |
+| ---------------------------------------------- | ---- | ------------ | -------- | ------------------------------------------------------------------ |
+| src/components/tracking/TrackingPageClient.tsx | 51   | TODO comment | ℹ️ Info  | Pre-existing note about future route_id extraction - not a blocker |
 
 **No blocker anti-patterns found.** The single TODO is a pre-existing enhancement note, not incomplete implementation.
 
@@ -77,6 +77,7 @@ None — all success criteria verified programmatically via import pattern analy
 **Files modified:** src/app/(admin)/admin/page.tsx
 
 **Verification commands:**
+
 ```bash
 grep "v7-index" src/app/(admin)/admin/page.tsx
 # Result: No matches
@@ -92,6 +93,7 @@ grep "AdminDashboard" src/app/(admin)/admin/page.tsx
 **Files modified:** src/app/(driver)/driver/page.tsx
 
 **Verification commands:**
+
 ```bash
 grep "v7-index" src/app/(driver)/driver/page.tsx
 # Result: No matches
@@ -105,6 +107,7 @@ grep "DriverDashboard" src/app/(driver)/driver/page.tsx
 ### 3. Component Import Migration (Plan 11-03)
 
 **Files modified:**
+
 - src/components/homepage/Hero.tsx
 - src/components/homepage/HomePageClient.tsx
 - src/components/tracking/TrackingPageClient.tsx
@@ -112,6 +115,7 @@ grep "DriverDashboard" src/app/(driver)/driver/page.tsx
 - src/components/menu/menu-content.tsx
 
 **Verification commands:**
+
 ```bash
 grep "v7-index" src/components/homepage/Hero.tsx
 # Result: No matches
@@ -130,6 +134,7 @@ grep "v7-index" src/components/tracking/TrackingPageClient.tsx
 **File verified:** src/components/checkout/index.ts
 
 **Verification commands:**
+
 ```bash
 grep "TimeStepV8 as TimeStep" src/components/checkout/index.ts
 # Result: export { TimeStepV8 as TimeStep } from "./TimeStepV8";
@@ -146,12 +151,14 @@ grep "TimeStep" src/app/(customer)/checkout/page.tsx
 ### 5. Comprehensive v7-index Elimination Check
 
 **Verification command:**
+
 ```bash
 grep -r "from.*v7-index" src/ --include="*.ts" --include="*.tsx" | grep -v "v7-index.ts:"
 # Result: 0 imports found
 ```
 
 **v7-index files still exist (expected — removal is Phase 13):**
+
 - src/components/admin/v7-index.ts
 - src/components/driver/v7-index.ts
 - src/components/layouts/v7-index.ts
@@ -172,6 +179,7 @@ grep -r "from.*v7-index" src/ --include="*.ts" --include="*.tsx" | grep -v "v7-i
 **Overall Status:** ✓ PASSED
 
 **What was achieved:**
+
 1. ✓ Admin dashboard migrated to direct V8 component imports
 2. ✓ Driver dashboard migrated to direct V8 component imports
 3. ✓ Homepage Hero migrated to V8 ParallaxContainer components
@@ -181,12 +189,14 @@ grep -r "from.*v7-index" src/ --include="*.ts" --include="*.tsx" | grep -v "v7-i
 7. ✓ All verification checks passed (lint, typecheck, tests per SUMMARY.md)
 
 **Files migrated:** 7 files across 4 plans
+
 - Plan 01: 1 file (admin/page.tsx)
 - Plan 02: 1 file (driver/page.tsx)
 - Plan 03: 5 files (Hero, HomePageClient, TrackingPageClient, HeaderClient, menu-content)
 - Plan 04: Verification only (confirmed checkout/index.ts TimeStep mapping)
 
 **Ready for Phase 12:** Dead code and export cleanup
+
 - v7-index barrel files can now be safely removed
 - Legacy component exports can be cleaned up
 - Unused barrel re-exports can be eliminated

@@ -9,6 +9,7 @@
 Database migration for customer settings table + expand admin settings with new fields + upgrade admin settings UX with premium save experience. Existing admin settings infrastructure (migration 010, API routes, tabbed UI) already exists — this phase builds on top of it.
 
 **Existing infrastructure (do not rebuild):**
+
 - `app_settings` table (migration 010) with delivery/operations/notifications categories
 - Admin settings API routes (GET/PATCH/restore)
 - 3-tab settings UI (DeliverySettingsForm, OperationsSettingsForm, NotificationSettingsForm)
@@ -20,6 +21,7 @@ Database migration for customer settings table + expand admin settings with new 
 ## Implementation Decisions
 
 ### Customer Settings Schema
+
 - **Table design:** Single row per customer (typed columns, not key-value pairs)
 - **Columns:** dietary_restrictions (JSONB), delivery_instructions (TEXT), default_address (JSONB), notification_prefs (JSONB), theme (TEXT), updated_at (timestamp)
 - **Dietary restrictions:** Predefined list + custom free-text field. Options include vegetarian, vegan, gluten-free, nut allergy, dairy-free, halal, plus custom
@@ -33,6 +35,7 @@ Database migration for customer settings table + expand admin settings with new 
 - **Theme storage:** Both localStorage + DB sync. Local wins on conflict (localStorage value synced to DB)
 
 ### Save Experience & Feedback
+
 - **Save animation:** Button morphs to checkmark — subtle scale down, text fades to checkmark icon, brief green pulse, reverts after ~1.5s
 - **Save timing:** Optimistic update — UI updates immediately, rolls back on server failure
 - **Error recovery:** Keep user's changes in form + persistent error banner at top with retry button (no rollback on failure)
@@ -45,6 +48,7 @@ Database migration for customer settings table + expand admin settings with new 
 - **No keyboard shortcuts** — click-only save
 
 ### Admin Settings Expansion
+
 - **New migration file** (019+) for new settings keys — existing 010 stays untouched
 - **Delivery tab additions:** Delivery time windows + delivery zones (with per-zone fees)
 - **Operations tab additions:** Store hours (simple open/close per day, toggle for closed days) + capacity limits (max orders per time slot, tied to delivery time windows)
@@ -54,6 +58,7 @@ Database migration for customer settings table + expand admin settings with new 
 - **Tab layout:** Claude's discretion — keep 3 tabs or add 4th "Schedule" tab
 
 ### Settings Defaults & Onboarding
+
 - **Customer dietary defaults:** All empty (opt-in) — no pre-checked restrictions
 - **Customer notification defaults:** All on (opt-out) — all 3 groups enabled by default
 - **Admin settings defaults:** Pre-populated using existing business logic (store hours from current operation, zones from current delivery radius, capacity from reasonable defaults)
@@ -63,6 +68,7 @@ Database migration for customer settings table + expand admin settings with new 
 - **Preference counter:** Simple aggregate counts on admin side (e.g., "12 customers with nut allergy"). Claude's discretion on placement (dashboard widget vs analytics section)
 
 ### Claude's Discretion
+
 - Address storage architecture (single JSONB column vs separate table)
 - Delivery time windows implementation (admin-configurable vs hardcoded)
 - Zones management UI placement (inline vs sub-page)
@@ -100,5 +106,5 @@ Database migration for customer settings table + expand admin settings with new 
 
 ---
 
-*Phase: 50-data-foundation-admin-settings*
-*Context gathered: 2026-02-08*
+_Phase: 50-data-foundation-admin-settings_
+_Context gathered: 2026-02-08_

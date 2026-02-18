@@ -45,15 +45,16 @@ Merged layout/ and layouts/ directories into ui/layout/, moved layout primitives
 
 ## Tasks Completed
 
-| Task | Name | Commit | Files |
-|------|------|--------|-------|
-| 1 | Move layout primitives to ui/ root | 8693b08 | Stack, Grid, Container, Cluster, SafeArea |
-| 2 | Create ui/layout/ and move app layouts | 189cc6e | AdminLayout, CheckoutLayout, DriverLayout, AppHeader, MobileDrawer |
-| 3 | Create ui/search/ with CommandPalette | 80ae9ae | CommandPalette directory |
+| Task | Name                                   | Commit  | Files                                                              |
+| ---- | -------------------------------------- | ------- | ------------------------------------------------------------------ |
+| 1    | Move layout primitives to ui/ root     | 8693b08 | Stack, Grid, Container, Cluster, SafeArea                          |
+| 2    | Create ui/layout/ and move app layouts | 189cc6e | AdminLayout, CheckoutLayout, DriverLayout, AppHeader, MobileDrawer |
+| 3    | Create ui/search/ with CommandPalette  | 80ae9ae | CommandPalette directory                                           |
 
 ## What Changed
 
 ### Task 1: Layout Primitives to ui/ Root
+
 - Moved 5 layout primitives from layouts/ to ui/
 - Stack, Grid, Container, Cluster, SafeArea now at ui/ root
 - Moved 3 story files for Stack, Grid, Container
@@ -61,6 +62,7 @@ Merged layout/ and layouts/ directories into ui/layout/, moved layout primitives
 - Added exports to ui/index.ts
 
 ### Task 2: App Layouts to ui/layout/
+
 - Created ui/layout/ directory
 - Moved AdminLayout, CheckoutLayout, DriverLayout from layouts/
 - Moved AppHeader/ directory from layout/
@@ -70,6 +72,7 @@ Merged layout/ and layouts/ directories into ui/layout/, moved layout primitives
 - Created ui/layout/index.ts with all exports
 
 ### Task 3: CommandPalette to ui/search/
+
 - Created ui/search/ directory
 - Moved CommandPalette/ from layout/ to ui/search/
 - Created ui/search/index.ts
@@ -78,14 +81,14 @@ Merged layout/ and layouts/ directories into ui/layout/, moved layout primitives
 
 ## Import Path Changes
 
-| Old Path | New Path |
-|----------|----------|
-| @/components/layouts/Stack | @/components/ui/Stack |
-| @/components/layouts/Grid | @/components/ui/Grid |
-| @/components/layouts/Container | @/components/ui/Container |
-| @/components/layouts/AdminLayout | @/components/ui/layout/AdminLayout |
-| @/components/layout/HeaderWrapper | @/components/ui/layout/HeaderWrapper |
-| @/components/layout/CommandPalette | @/components/ui/search |
+| Old Path                           | New Path                             |
+| ---------------------------------- | ------------------------------------ |
+| @/components/layouts/Stack         | @/components/ui/Stack                |
+| @/components/layouts/Grid          | @/components/ui/Grid                 |
+| @/components/layouts/Container     | @/components/ui/Container            |
+| @/components/layouts/AdminLayout   | @/components/ui/layout/AdminLayout   |
+| @/components/layout/HeaderWrapper  | @/components/ui/layout/HeaderWrapper |
+| @/components/layout/CommandPalette | @/components/ui/search               |
 
 ## Backwards Compatibility
 
@@ -123,6 +126,7 @@ src/components/
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Export conflict resolution**
+
 - **Found during:** Task 3
 - **Issue:** SearchInput and SearchEmptyState exported from both menu/ and search/
 - **Fix:** Renamed exports in search/index.ts to avoid conflicts

@@ -201,15 +201,11 @@ export function useLocationTracking({
     });
 
     // Start watching position
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      handlePosition,
-      handleError,
-      {
-        enableHighAccuracy: highAccuracy,
-        timeout: 30000,
-        maximumAge: 30000,
-      }
-    );
+    watchIdRef.current = navigator.geolocation.watchPosition(handlePosition, handleError, {
+      enableHighAccuracy: highAccuracy,
+      timeout: 30000,
+      maximumAge: 30000,
+    });
   }, [handlePosition, handleError, highAccuracy]);
 
   // Stop tracking

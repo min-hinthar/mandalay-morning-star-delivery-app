@@ -21,12 +21,7 @@ import { DisplaySection } from "./DisplaySection";
 
 type SettingsSection = "preferences" | "addresses" | "notifications" | "display";
 
-const VALID_SECTIONS: SettingsSection[] = [
-  "preferences",
-  "addresses",
-  "notifications",
-  "display",
-];
+const VALID_SECTIONS: SettingsSection[] = ["preferences", "addresses", "notifications", "display"];
 
 const SETTINGS_TABS = [
   {
@@ -61,19 +56,10 @@ export function SettingsTab({ initialSection }: SettingsTabProps) {
       ? (initialSection as SettingsSection)
       : "preferences";
 
-  const [activeSection, setActiveSection] =
-    useState<SettingsSection>(validatedSection);
+  const [activeSection, setActiveSection] = useState<SettingsSection>(validatedSection);
 
-  const {
-    settings,
-    isLoading,
-    isSaving,
-    hasChanges,
-    error,
-    save,
-    discard,
-    updateField,
-  } = useCustomerSettings();
+  const { settings, isLoading, isSaving, hasChanges, error, save, discard, updateField } =
+    useCustomerSettings();
 
   /** Immediately PATCH theme to DB (fire-and-forget, no loading state) */
   function handleThemeDbSync(theme: string) {
@@ -113,10 +99,7 @@ export function SettingsTab({ initialSection }: SettingsTabProps) {
       {!isLoading && settings && (
         <div>
           {activeSection === "preferences" && (
-            <PreferencesSection
-              settings={settings}
-              updateField={updateField}
-            />
+            <PreferencesSection settings={settings} updateField={updateField} />
           )}
           {activeSection === "addresses" && <AddressesTab />}
           {activeSection === "notifications" && (
@@ -130,19 +113,12 @@ export function SettingsTab({ initialSection }: SettingsTabProps) {
               }
             />
           )}
-          {activeSection === "display" && (
-            <DisplaySection onThemeChange={handleThemeDbSync} />
-          )}
+          {activeSection === "display" && <DisplaySection onThemeChange={handleThemeDbSync} />}
         </div>
       )}
 
       {/* Floating unsaved changes bar */}
-      <FloatingUnsavedBar
-        show={hasChanges}
-        onSave={save}
-        onDiscard={discard}
-        isSaving={isSaving}
-      />
+      <FloatingUnsavedBar show={hasChanges} onSave={save} onDiscard={discard} isSaving={isSaving} />
     </div>
   );
 }

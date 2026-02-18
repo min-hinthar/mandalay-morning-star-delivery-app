@@ -60,21 +60,14 @@ export function DeliverySuccessChart({
       >
         <div className="mb-4 flex items-center gap-2">
           <Package className="h-5 w-5 text-status-success" />
-          <h3 className="text-lg font-semibold text-text-primary">
-            Delivery Outcomes
-          </h3>
+          <h3 className="text-lg font-semibold text-text-primary">Delivery Outcomes</h3>
         </div>
 
         <ResponsiveContainer width="100%" height={height}>
           <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis
-              dataKey="date"
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
-            />
-            <YAxis
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
-            />
+            <XAxis dataKey="date" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
+            <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
             <Tooltip
               contentStyle={{
                 backgroundColor: "hsl(var(--background))",
@@ -86,9 +79,7 @@ export function DeliverySuccessChart({
               iconType="circle"
               iconSize={8}
               formatter={(value) => (
-                <span className="text-xs text-text-secondary capitalize">
-                  {value}
-                </span>
+                <span className="text-xs text-text-secondary capitalize">{value}</span>
               )}
             />
             <Bar
@@ -119,9 +110,7 @@ export function DeliverySuccessChart({
     >
       <div className="mb-4 flex items-center gap-2">
         <TrendingUp className="h-5 w-5 text-status-success" />
-        <h3 className="text-lg font-semibold text-text-primary">
-          Success Rate Trend
-        </h3>
+        <h3 className="text-lg font-semibold text-text-primary">Success Rate Trend</h3>
       </div>
 
       <ResponsiveContainer width="100%" height={height}>
@@ -133,10 +122,7 @@ export function DeliverySuccessChart({
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-          <XAxis
-            dataKey="date"
-            tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
-          />
+          <XAxis dataKey="date" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
           <YAxis
             domain={[0, 100]}
             tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
@@ -188,9 +174,7 @@ export function ETAAccuracyGauge({
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col items-center rounded-xl bg-surface-primary p-6 shadow-sm"
     >
-      <h3 className="mb-4 text-lg font-semibold text-text-primary">
-        ETA Accuracy
-      </h3>
+      <h3 className="mb-4 text-lg font-semibold text-text-primary">ETA Accuracy</h3>
 
       <div className="relative">
         <svg width="200" height="120" viewBox="0 0 200 120">
@@ -241,9 +225,7 @@ export function ETAAccuracyGauge({
         </div>
       </div>
 
-      <p className="mt-2 text-sm text-text-secondary">
-        Deliveries within estimated time
-      </p>
+      <p className="mt-2 text-sm text-text-secondary">Deliveries within estimated time</p>
     </m.div>
   );
 }

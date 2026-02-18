@@ -58,14 +58,11 @@ export function DeliveryActions({
         return;
       }
 
-      const response = await fetch(
-        `/api/driver/routes/${routeId}/stops/${stopId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
+      const response = await fetch(`/api/driver/routes/${routeId}/stops/${stopId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
       if (!response.ok) {
         const status = response.status;
@@ -91,10 +88,7 @@ export function DeliveryActions({
     }
   };
 
-  const renderButtonContent = (
-    icon: React.ReactNode,
-    label: string
-  ) => {
+  const renderButtonContent = (icon: React.ReactNode, label: string) => {
     if (queued) {
       return (
         <>
@@ -138,10 +132,7 @@ export function DeliveryActions({
             )}
             data-testid="mark-arrived-button"
           >
-            {renderButtonContent(
-              <MapPin className="h-6 w-6" />,
-              "Mark Arrived"
-            )}
+            {renderButtonContent(<MapPin className="h-6 w-6" />, "Mark Arrived")}
           </m.button>
         );
 
@@ -164,10 +155,7 @@ export function DeliveryActions({
             )}
             data-testid="mark-delivered-button"
           >
-            {renderButtonContent(
-              <Check className="h-6 w-6" />,
-              "Mark Delivered"
-            )}
+            {renderButtonContent(<Check className="h-6 w-6" />, "Mark Delivered")}
           </m.button>
         );
 
@@ -206,8 +194,7 @@ export function DeliveryActions({
     }
   };
 
-  const canReportException =
-    currentStatus !== "delivered" && currentStatus !== "skipped";
+  const canReportException = currentStatus !== "delivered" && currentStatus !== "skipped";
 
   return (
     <div className="space-y-3">

@@ -41,16 +41,16 @@ interface DriverRecord {
  * GET /api/admin/drivers/[id]/ratings
  * Get recent ratings for a driver with customer context
  */
-export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -83,7 +83,8 @@ export async function GET(
     // Fetch ratings with order and customer info
     const { data: ratings, error: ratingsError } = await supabase
       .from("driver_ratings")
-      .select(`
+      .select(
+        `
         id,
         rating,
         feedback_text,
@@ -94,7 +95,8 @@ export async function GET(
             full_name
           )
         )
-      `)
+      `
+      )
       .eq("driver_id", id)
       .order("submitted_at", { ascending: false })
       .limit(limit)
@@ -102,10 +104,7 @@ export async function GET(
 
     if (ratingsError) {
       logger.exception(ratingsError, { api: "admin/drivers/[id]/ratings" });
-      return NextResponse.json(
-        { error: "Failed to fetch ratings" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch ratings" }, { status: 500 });
     }
 
     // Count total ratings
@@ -135,9 +134,6 @@ export async function GET(
     return NextResponse.json(response);
   } catch (error) {
     logger.exception(error, { api: "admin/drivers/[id]/ratings" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

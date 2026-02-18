@@ -20,16 +20,16 @@ interface ActiveRouteCheck {
  * POST /api/admin/drivers/[id]/archive
  * Archive a driver with a required reason
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const supabase = await createClient();
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -73,10 +73,7 @@ export async function POST(
 
     // Check if already archived
     if (!driver.is_active) {
-      return NextResponse.json(
-        { error: "Driver is already archived" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Driver is already archived" }, { status: 400 });
     }
 
     // Check if driver has active routes (planned or in_progress)
@@ -90,7 +87,10 @@ export async function POST(
 
     if (activeRoutes && activeRoutes.length > 0) {
       return NextResponse.json(
-        { error: "Cannot archive driver with active routes. Please reassign or complete routes first." },
+        {
+          error:
+            "Cannot archive driver with active routes. Please reassign or complete routes first.",
+        },
         { status: 400 }
       );
     }
@@ -104,10 +104,7 @@ export async function POST(
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/drivers/[id]/archive", flowId: "archive" });
-      return NextResponse.json(
-        { error: "Failed to archive driver" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to archive driver" }, { status: 500 });
     }
 
     // Log the archive action with reason for audit purposes
@@ -126,9 +123,6 @@ export async function POST(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/drivers/[id]/archive" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

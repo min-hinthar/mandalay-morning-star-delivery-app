@@ -56,9 +56,7 @@ export function validateFile(file: File): { valid: boolean; error?: string } {
 /**
  * Get image dimensions from blob
  */
-async function getImageDimensions(
-  blob: Blob
-): Promise<{ width: number; height: number }> {
+async function getImageDimensions(blob: Blob): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(blob);
@@ -204,12 +202,10 @@ export async function moveMenuPhoto(
   const newPath = `${newMenuItemId}/${filename}`;
 
   // Upload to new location
-  const { error: uploadError } = await supabase.storage
-    .from(BUCKET)
-    .upload(newPath, fileData, {
-      contentType: "image/jpeg",
-      upsert: false,
-    });
+  const { error: uploadError } = await supabase.storage.from(BUCKET).upload(newPath, fileData, {
+    contentType: "image/jpeg",
+    upsert: false,
+  });
 
   if (uploadError) throw uploadError;
 

@@ -238,9 +238,7 @@ export const PriceTicker = forwardRef<HTMLSpanElement, PriceTickerProps>(
         )}
 
         {/* Direction indicator */}
-        <AnimatePresence>
-          {shouldAnimate && <DirectionIndicator />}
-        </AnimatePresence>
+        <AnimatePresence>{shouldAnimate && <DirectionIndicator />}</AnimatePresence>
       </span>
     );
   }
@@ -271,15 +269,9 @@ export function PriceChangeBadge({
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   const current = inCents ? currentPrice / 100 : currentPrice;
-  const original = originalPrice
-    ? inCents
-      ? originalPrice / 100
-      : originalPrice
-    : null;
+  const original = originalPrice ? (inCents ? originalPrice / 100 : originalPrice) : null;
 
-  const discount = original
-    ? Math.round(((original - current) / original) * 100)
-    : null;
+  const discount = original ? Math.round(((original - current) / original) * 100) : null;
 
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
@@ -332,24 +324,21 @@ export interface CounterTickerProps {
 }
 
 export const CounterTicker = forwardRef<HTMLSpanElement, CounterTickerProps>(
-  (
-    { value, prefix, suffix, size = "md", padZeros = 0, className },
-    ref
-  ) => {
+  ({ value, prefix, suffix, size = "md", padZeros = 0, className }, ref) => {
     const { shouldAnimate } = useAnimationPreference();
     const [prevValue, setPrevValue] = useState<number | null>(null);
 
     const sizes = sizeConfig[size];
-    const formattedValue = padZeros > 0
-      ? value.toString().padStart(padZeros, "0")
-      : value.toString();
+    const formattedValue =
+      padZeros > 0 ? value.toString().padStart(padZeros, "0") : value.toString();
     const digits = formattedValue.split("");
-    const prevDigits = prevValue !== null
-      ? (padZeros > 0
-          ? prevValue.toString().padStart(padZeros, "0")
-          : prevValue.toString()
-        ).split("")
-      : null;
+    const prevDigits =
+      prevValue !== null
+        ? (padZeros > 0
+            ? prevValue.toString().padStart(padZeros, "0")
+            : prevValue.toString()
+          ).split("")
+        : null;
 
     const direction = prevValue !== null && value >= prevValue ? "up" : "down";
 

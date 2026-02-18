@@ -46,11 +46,7 @@ interface ActiveRouteViewProps {
   stops: StopData[];
 }
 
-export function ActiveRouteView({
-  routeId,
-  routeStatus,
-  stops,
-}: ActiveRouteViewProps) {
+export function ActiveRouteView({ routeId, routeStatus, stops }: ActiveRouteViewProps) {
   const router = useRouter();
   const [isStarting, setIsStarting] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
@@ -140,13 +136,19 @@ export function ActiveRouteView({
           <m.div
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
-            transition={isFullMotion ? { type: "spring", stiffness: 80, damping: 20 } : { duration: 0.3 }}
+            transition={
+              isFullMotion ? { type: "spring", stiffness: 80, damping: 20 } : { duration: 0.3 }
+            }
             className="h-full rounded-full bg-accent-teal"
           />
         </div>
         <p className="mt-2 font-body text-xs text-text-secondary">
-          <AnimatedValue value={completedCount} format="number" className="font-semibold text-accent-teal" />
-          {" "}of {totalCount} stops completed
+          <AnimatedValue
+            value={completedCount}
+            format="number"
+            className="font-semibold text-accent-teal"
+          />{" "}
+          of {totalCount} stops completed
         </p>
         {deliveredCount > 0 && skippedCount > 0 && (
           <div className="mt-1 flex gap-4 font-body text-xs text-text-muted">
@@ -158,11 +160,7 @@ export function ActiveRouteView({
 
       {/* Location Tracker (when route in progress) */}
       {routeStatus === "in_progress" && (
-        <LocationTracker
-          routeId={routeId}
-          enabled={true}
-          showDetails={false}
-        />
+        <LocationTracker routeId={routeId} enabled={true} showDetails={false} />
       )}
 
       {/* Start Route Button (for planned routes) */}
@@ -226,10 +224,7 @@ export function ActiveRouteView({
       )}
 
       {/* Stop List */}
-      <StopList
-        stops={stops}
-        currentStopIndex={currentStopIndex}
-      />
+      <StopList stops={stops} currentStopIndex={currentStopIndex} />
     </m.div>
   );
 }

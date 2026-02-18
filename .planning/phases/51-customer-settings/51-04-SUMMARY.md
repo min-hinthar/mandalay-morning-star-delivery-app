@@ -64,6 +64,7 @@ completed: 2026-02-08
 - **Files modified:** 2
 
 ## Accomplishments
+
 - Created `useFontSize` hook that manages base font size via CSS custom property `--font-size-base` with localStorage persistence and hydration safety
 - Created `useSoundPreference` hook as lightweight toggle sharing the same `soundEffectsEnabled` localStorage key as `useSoundEffect` (no AudioContext)
 - Built `ThemeSelector` with Light/Dark/System options, color preview swatches, hydration-safe mounting, and instant apply via `next-themes`
@@ -79,6 +80,7 @@ Each task was committed atomically:
 2. **Task 2: Create ThemeSelector, FontSizeSelector, DisplaySection, and wire to SettingsTab** - `a6c782d` (feat)
 
 ## Files Created/Modified
+
 - `src/lib/hooks/useFontSize.ts` - Font size hook with FONT_SIZES const, CSS custom property, localStorage persistence
 - `src/lib/hooks/useSoundPreference.ts` - Sound preference toggle sharing localStorage key with useSoundEffect
 - `src/components/ui/account/SettingsTab/ThemeSelector.tsx` - Light/Dark/System selector with color swatches and next-themes integration
@@ -88,6 +90,7 @@ Each task was committed atomically:
 - `src/components/ui/account/SettingsTab/index.tsx` - Added barrel exports for DisplaySection, ThemeSelector, FontSizeSelector
 
 ## Decisions Made
+
 - **CUST-04-FONTCSS:** Font size applied via CSS custom property `--font-size-base` on `document.documentElement` for instant WYSIWYG preview without re-render. Three presets: small (14px), medium (16px), large (18px).
 - **CUST-04-SOUNDSYNC:** Created separate `useSoundPreference` hook that shares the same `soundEffectsEnabled` localStorage key as `useSoundEffect`. This avoids AudioContext overhead in the settings UI while keeping preferences in sync.
 - **CUST-04-THEMEFIRE:** Theme DB sync uses fire-and-forget PATCH to `/api/account/settings` -- no loading state needed since theme is already visually applied via next-themes. Theme does NOT trigger the FloatingUnsavedBar.
@@ -97,17 +100,21 @@ Each task was committed atomically:
 None -- plan executed exactly as written.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None -- no external service configuration required.
 
 ## Next Phase Readiness
+
 - Display sub-tab complete with all four sections functional
 - Plan 05 (Integration & Polish) can wire up dietary summary card and settings nudge banner
 - All localStorage hooks (font size, sound preference, animation preference) are app-wide ready
 - Theme syncs to both localStorage (next-themes) and database (immediate PATCH)
 
 ---
-*Phase: 51-customer-settings*
-*Completed: 2026-02-08*
+
+_Phase: 51-customer-settings_
+_Completed: 2026-02-08_

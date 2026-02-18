@@ -94,7 +94,11 @@ export function SectionCard({
 
   // Calculate days remaining for deleted sections (30-day recovery)
   const daysRemaining = isDeleted
-    ? Math.max(0, 30 - Math.floor((Date.now() - new Date(section.deletedAt!).getTime()) / (1000 * 60 * 60 * 24)))
+    ? Math.max(
+        0,
+        30 -
+          Math.floor((Date.now() - new Date(section.deletedAt!).getTime()) / (1000 * 60 * 60 * 24))
+      )
     : 0;
 
   return (
@@ -135,7 +139,9 @@ export function SectionCard({
               "transition-colors duration-fast"
             )}
             style={{
-              backgroundColor: section.accentColor ? `${section.accentColor}20` : "var(--primary-10)",
+              backgroundColor: section.accentColor
+                ? `${section.accentColor}20`
+                : "var(--primary-10)",
               color: section.accentColor || "var(--primary)",
             }}
           >
@@ -145,9 +151,7 @@ export function SectionCard({
           {/* Section Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="font-body font-medium text-text-primary truncate">
-                {section.name}
-              </h3>
+              <h3 className="font-body font-medium text-text-primary truncate">{section.name}</h3>
               {section.isPredefined && (
                 <Badge
                   variant="outline"
@@ -202,16 +206,9 @@ export function SectionCard({
                   variant="ghost"
                   size="sm"
                   onClick={() => onToggleVisibility(section)}
-                  className={cn(
-                    "p-2",
-                    section.isVisible ? "text-green" : "text-text-muted"
-                  )}
+                  className={cn("p-2", section.isVisible ? "text-green" : "text-text-muted")}
                 >
-                  {section.isVisible ? (
-                    <Eye className="h-4 w-4" />
-                  ) : (
-                    <EyeOff className="h-4 w-4" />
-                  )}
+                  {section.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                 </Button>
 
                 {/* Expand/Collapse */}

@@ -70,6 +70,7 @@ const progressPercent = Math.min(
 ```
 
 Features:
+
 - Animated progress bar toward free delivery threshold
 - Sparkle icon with wiggle animation
 - Free delivery achieved celebration with spring.ultraBouncy
@@ -97,6 +98,7 @@ Payment review step with enhanced loading states:
 ```
 
 Features:
+
 - Loading spinner with "Preparing secure checkout..." message
 - Security badge with animated shield icon
 - Processing state on Place Order button
@@ -105,11 +107,11 @@ Features:
 
 ## Commits
 
-| Hash | Message |
-|------|---------|
+| Hash    | Message                                                                    |
+| ------- | -------------------------------------------------------------------------- |
 | 5f5343b | feat(06-04): create CheckoutSummaryV8 with animated free delivery progress |
-| 57e1197 | feat(06-04): create PaymentStepV8 with loading states |
-| 192e6e7 | feat(06-04): integrate V8 summary and payment into checkout page |
+| 57e1197 | feat(06-04): create PaymentStepV8 with loading states                      |
+| 192e6e7 | feat(06-04): integrate V8 summary and payment into checkout page           |
 
 ## Deviations from Plan
 
@@ -148,6 +150,7 @@ export { PaymentStepV8 as PaymentStep } from "./PaymentStepV8";
 ## Next Phase Readiness
 
 Ready for 06-05 (Time Step V8) or remaining checkout flow work:
+
 - TimeStep needs V8 treatment (not in this plan)
 - Order confirmation already done in 06-02
 - All checkout step components animating consistently

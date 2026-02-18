@@ -83,13 +83,13 @@ Each task was committed atomically:
 
 ## Decisions Made
 
-| Decision | Rationale |
-|----------|-----------|
-| 2D fallback as designed experience | Low-end devices get optimized experience, not degraded 3D |
-| Dynamic import with ssr: false | Prevents WebGL SSR errors, Hero2DFallback shows during load |
-| 3D at zIndex 2, floating food at zIndex 3 | Food elements float in front of 3D model for depth |
-| show3D prop defaults to true | Allows disabling 3D for specific use cases or A/B testing |
-| Subtle float animation for 2D fallback | 6s ease-in-out cycle provides visual interest without distraction |
+| Decision                                  | Rationale                                                         |
+| ----------------------------------------- | ----------------------------------------------------------------- |
+| 2D fallback as designed experience        | Low-end devices get optimized experience, not degraded 3D         |
+| Dynamic import with ssr: false            | Prevents WebGL SSR errors, Hero2DFallback shows during load       |
+| 3D at zIndex 2, floating food at zIndex 3 | Food elements float in front of 3D model for depth                |
+| show3D prop defaults to true              | Allows disabling 3D for specific use cases or A/B testing         |
+| Subtle float animation for 2D fallback    | 6s ease-in-out cycle provides visual interest without distraction |
 
 ## Deviations from Plan
 
@@ -108,6 +108,7 @@ None - no external service configuration required.
 ## Next Phase Readiness
 
 Phase 16 (3D Hero Core) complete:
+
 - GPU tier detection working (tier 2+ shows 3D, tier 0-1 shows 2D)
 - 3D hero scene with interactive OrbitControls (drag rotation, pinch zoom)
 - Spring entrance animation
@@ -115,6 +116,7 @@ Phase 16 (3D Hero Core) complete:
 - All integrated into Hero.tsx parallax stack
 
 Requirements verified:
+
 - ✓ HERO3D-01: 3D food model renders (placeholder bowl)
 - ✓ HERO3D-02: Drag/touch rotation works smoothly with inertia
 - ✓ HERO3D-03: Pinch/scroll zoom works within constraints (min 2, max 6)
@@ -124,15 +126,18 @@ Requirements verified:
 - ✓ HERO3D-07: Reduced motion disables spring animation
 
 Ready for Phase 17 (3D Hero Polish):
+
 - Auto-rotation with pause-on-interact
 - Real GLB food model
 - HDRI environment for production
 - Performance optimization
 
 Assets needed:
+
 - Real GLB food model (currently using placeholder bowl)
 - 2D fallback image `/images/hero-dish-2d.jpg`
 
 ---
-*Phase: 16-3d-hero-core*
-*Completed: 2026-01-24*
+
+_Phase: 16-3d-hero-core_
+_Completed: 2026-01-24_

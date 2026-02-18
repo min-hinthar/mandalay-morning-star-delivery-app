@@ -72,7 +72,10 @@ export function StatusTimeline({
       initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={getSpring(spring.default)}
-      className={cn("rounded-2xl bg-surface-primary p-6 shadow-card border border-border", className)}
+      className={cn(
+        "rounded-2xl bg-surface-primary p-6 shadow-card border border-border",
+        className
+      )}
     >
       <m.div
         initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}

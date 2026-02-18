@@ -17,11 +17,11 @@ next_action: Fix LEARNINGS.md line 630 to use concrete class names instead of wi
 expected: Build completes successfully
 actual: Build fails with CSS optimization warning about `Unexpected token Delim('*')` in wildcard var class
 errors: |
-  Found 1 warning while optimizing generated CSS:
-  │   }
-  │   .bg-\[var\(--color-\*\)\] {
-  │     background-color: var(--color-WILDCARD);
-  ┆                                   ^-- Unexpected token Delim('*')
+Found 1 warning while optimizing generated CSS:
+│ }
+│ .bg-\[var\(--color-\*\)\] {
+│ background-color: var(--color-WILDCARD);
+┆ ^-- Unexpected token Delim('\*')
 reproduction: Run `next build` or `pnpm build`
 started: Unknown
 

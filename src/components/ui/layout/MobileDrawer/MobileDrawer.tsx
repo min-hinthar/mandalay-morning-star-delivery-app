@@ -161,8 +161,7 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
                 label={item.label}
                 icon={item.icon}
                 isActive={
-                  pathname === item.href ||
-                  (item.href !== "/" && pathname.startsWith(item.href))
+                  pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
                 }
                 onClick={onClose}
               />

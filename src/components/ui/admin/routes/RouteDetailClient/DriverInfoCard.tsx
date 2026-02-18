@@ -19,7 +19,12 @@ interface DriverInfoCardProps {
   onDriverChange: (driverId: string) => void;
 }
 
-export function DriverInfoCard({ route, drivers, isUpdating, onDriverChange }: DriverInfoCardProps) {
+export function DriverInfoCard({
+  route,
+  drivers,
+  isUpdating,
+  onDriverChange,
+}: DriverInfoCardProps) {
   return (
     <m.div
       initial={{ opacity: 0, y: 10 }}

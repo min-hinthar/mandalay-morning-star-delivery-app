@@ -56,9 +56,7 @@ function getCartDrawerTitle(page: Page) {
  */
 async function addItemToCart(page: Page) {
   // Click the first Add button on a menu item card
-  const addButton = page
-    .getByRole("button", { name: /add .* to cart/i })
-    .first();
+  const addButton = page.getByRole("button", { name: /add .* to cart/i }).first();
   await addButton.click();
 
   // Check if a detail modal/drawer opened (items with required modifiers)
@@ -114,9 +112,7 @@ async function addItemToCart(page: Page) {
     if (drawerOpened) {
       // Close via Escape key (more reliable than finding close button)
       await page.keyboard.press("Escape");
-      await cartDrawerTitle
-        .waitFor({ state: "hidden", timeout: 3000 })
-        .catch(() => {});
+      await cartDrawerTitle.waitFor({ state: "hidden", timeout: 3000 }).catch(() => {});
     }
   }
 
@@ -150,11 +146,9 @@ test.describe("Cart Flow - Happy Path", () => {
     // Wait for the button to be visible first (may take time after Fast Refresh reload)
     const cartButton = page.getByRole("button", { name: /open cart/i });
     await cartButton.waitFor({ state: "visible", timeout: 15000 });
-    await expect(cartButton).toHaveAttribute(
-      "aria-label",
-      /open cart, \d+ item/i,
-      { timeout: 10000 }
-    );
+    await expect(cartButton).toHaveAttribute("aria-label", /open cart, \d+ item/i, {
+      timeout: 10000,
+    });
   });
 
   test("user can modify quantity in cart drawer", async ({ page }) => {
@@ -215,9 +209,7 @@ test.describe("Cart Flow - Happy Path", () => {
 
       // ClearCartConfirmation modal has "Clear Cart" confirm button
       // This is rendered in a separate Modal portal, so search the whole page
-      const confirmButton = page
-        .getByRole("button", { name: /clear cart/i })
-        .last();
+      const confirmButton = page.getByRole("button", { name: /clear cart/i }).last();
       await confirmButton.waitFor({ state: "visible", timeout: 3000 });
       await confirmButton.click({ force: true });
     } else {
@@ -225,15 +217,18 @@ test.describe("Cart Flow - Happy Path", () => {
       const decreaseButton = drawer.getByRole("button", {
         name: /decrease quantity/i,
       });
-      if (await decreaseButton.first().isVisible().catch(() => false)) {
+      if (
+        await decreaseButton
+          .first()
+          .isVisible()
+          .catch(() => false)
+      ) {
         await decreaseButton.first().evaluate((el) => (el as HTMLElement).click());
       }
     }
 
     // Cart should show empty state
-    await expect(
-      page.getByText(/your cart is empty/i).first()
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/your cart is empty/i).first()).toBeVisible({ timeout: 5000 });
   });
 
   test("user can proceed to checkout from cart", async ({ page }) => {
@@ -286,9 +281,7 @@ test.describe("Cart Flow - Edge Cases", () => {
     await cartButton.click();
 
     // Should show empty state message
-    await expect(
-      page.getByText(/your cart is empty/i).first()
-    ).toBeVisible();
+    await expect(page.getByText(/your cart is empty/i).first()).toBeVisible();
   });
 
   test("cart persists across navigation", async ({ page }) => {
@@ -303,10 +296,7 @@ test.describe("Cart Flow - Edge Cases", () => {
 
     // Cart should still have items - check aria-label includes item count
     const cartButton = page.getByRole("button", { name: /open cart/i });
-    await expect(cartButton).toHaveAttribute(
-      "aria-label",
-      /open cart, \d+ item/i
-    );
+    await expect(cartButton).toHaveAttribute("aria-label", /open cart, \d+ item/i);
   });
 
   test("cart survives page reload", async ({ page }) => {
@@ -321,10 +311,7 @@ test.describe("Cart Flow - Edge Cases", () => {
 
     // Cart should still have item (localStorage persistence)
     const cartButton = page.getByRole("button", { name: /open cart/i });
-    await expect(cartButton).toHaveAttribute(
-      "aria-label",
-      /open cart, \d+ item/i
-    );
+    await expect(cartButton).toHaveAttribute("aria-label", /open cart, \d+ item/i);
   });
 
   test("can close cart drawer via close button", async ({ page }) => {
@@ -368,14 +355,12 @@ test.describe("Deep Link Verification", () => {
     await page.waitForLoadState("domcontentloaded");
 
     // Should show cart page (heading contains "Cart")
-    await expect(
-      page.getByRole("heading", { name: /cart/i }).first()
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("heading", { name: /cart/i }).first()).toBeVisible({
+      timeout: 15000,
+    });
   });
 
-  test("/checkout with empty cart redirects or shows login", async ({
-    page,
-  }) => {
+  test("/checkout with empty cart redirects or shows login", async ({ page }) => {
     // Visit checkout with empty cart
     await page.goto("/checkout");
     await page.waitForLoadState("domcontentloaded");
@@ -394,22 +379,15 @@ test.describe("Deep Link Verification", () => {
     await waitForPageReady(page);
 
     // Find an Add button on menu page
-    const addButton = page
-      .getByRole("button", { name: /add .* to cart/i })
-      .first();
-    const addButtonVisible = await addButton
-      .isVisible({ timeout: 5000 })
-      .catch(() => false);
+    const addButton = page.getByRole("button", { name: /add .* to cart/i }).first();
+    const addButtonVisible = await addButton.isVisible({ timeout: 5000 }).catch(() => false);
 
     if (addButtonVisible) {
       await addItemToCart(page);
 
       // Cart indicator should update
       const cartButton = page.getByRole("button", { name: /open cart/i });
-      await expect(cartButton).toHaveAttribute(
-        "aria-label",
-        /open cart, \d+ item/i
-      );
+      await expect(cartButton).toHaveAttribute("aria-label", /open cart, \d+ item/i);
     } else {
       // Menu page loaded but Add buttons may need scrolling
       await expect(page.getByRole("heading").first()).toBeVisible();
@@ -465,24 +443,16 @@ test.describe("Cart Regression Check", () => {
 
     // Check count is at least 1
     const cartButton = page.getByRole("button", { name: /open cart/i });
-    await expect(cartButton).toHaveAttribute(
-      "aria-label",
-      /open cart, \d+ item/i
-    );
+    await expect(cartButton).toHaveAttribute("aria-label", /open cart, \d+ item/i);
 
     // Add another item (same flow)
     await addItemToCart(page);
 
     // Check count increased (should be 2+)
-    await expect(cartButton).toHaveAttribute(
-      "aria-label",
-      /open cart, [2-9]\d* item/i
-    );
+    await expect(cartButton).toHaveAttribute("aria-label", /open cart, [2-9]\d* item/i);
   });
 
-  test("checkout button in cart bar navigates correctly", async ({
-    page,
-  }) => {
+  test("checkout button in cart bar navigates correctly", async ({ page }) => {
     await page.goto("/");
     await waitForPageReady(page);
 

@@ -7,8 +7,7 @@ export const EMAIL_FROM =
 
 export const EMAIL_REPLY_TO = "admin@mandalaymorningstar.com";
 
-export const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
+export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
 
 // ===========================================
 // BRAND COLORS (for email templates)
@@ -27,8 +26,7 @@ export const BRAND_COLORS = {
 // BUSINESS INFO
 // ===========================================
 
-export const BUSINESS_ADDRESS =
-  "750 Terrado Plaza, Suite 33, Covina, CA 91723";
+export const BUSINESS_ADDRESS = "750 Terrado Plaza, Suite 33, Covina, CA 91723";
 
 // ===========================================
 // RETRY CONFIG

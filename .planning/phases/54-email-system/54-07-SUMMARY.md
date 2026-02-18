@@ -71,6 +71,7 @@ completed: 2026-02-10
 - **Files modified:** 1
 
 ## Accomplishments
+
 - Email log list API with pagination, filtering by orderId/type/status/date-range, and configurable sorting
 - Email detail API returning delivery status timeline extracted from metadata.resend_events
 - Resend failed emails with full order data reconstruction and new idempotency key
@@ -86,6 +87,7 @@ Each task was committed atomically:
 2. **Task 2: Resend, manual trigger, test email routes + build helper** - `b7f4e12` (feat)
 
 ## Files Created/Modified
+
 - `src/app/api/admin/emails/route.ts` - GET email log list with pagination, filtering, sorting
 - `src/app/api/admin/emails/[id]/route.ts` - GET single email detail with delivery status timeline
 - `src/app/api/admin/emails/[id]/resend/route.ts` - POST resend failed email with order data reconstruction
@@ -95,6 +97,7 @@ Each task was committed atomically:
 - `src/lib/email/index.ts` - Added buildEmailElement export to barrel
 
 ## Decisions Made
+
 - **EMAIL-07-CASTQUERY:** Cast notification_logs query results in all admin email routes because notification_logs table is not defined in Database type (same approach as 54-06 cron/webhook routes)
 - **EMAIL-07-BUILDHELPER:** Created buildEmailElement() in src/lib/email/build.ts to centralize template selection logic rather than duplicating switch/case in resend, manual trigger, and test routes
 - **EMAIL-07-TESTBYPASS:** Test emails use getResendClient().emails.send() directly instead of sendEmail() pipeline because test emails are admin-initiated and should bypass kill switch and user preference checks
@@ -104,6 +107,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] notification_logs query chain type error**
+
 - **Found during:** Task 1 (email log list)
 - **Issue:** Using `.returns<T>()` before filter methods (`.eq()`, `.gte()`) causes TypeScript error because `.returns()` converts to PostgrestTransformBuilder which lacks filter methods
 - **Fix:** Removed `.returns()` from query chain, cast final `await query` result instead
@@ -117,17 +121,21 @@ Each task was committed atomically:
 **Impact on plan:** Type cast approach consistent with existing codebase pattern (54-06). No scope creep.
 
 ## Issues Encountered
+
 - Pre-existing typecheck error in `src/app/(admin)/admin/emails/page.tsx` (unused `cn` import) and `src/components/ui/admin/settings/SettingsClient/SettingsClient.tsx` (unused `EmailSettingsForm` import) -- both from parallel plan executions, not caused by this plan
 - Turbopack build-manifest.json ENOENT error on Windows during `pnpm build` -- documented pre-existing issue, compilation itself succeeds
 
 ## User Setup Required
+
 None - no new external service configuration required. Existing RESEND_API_KEY from 54-01 is sufficient.
 
 ## Next Phase Readiness
+
 - All admin email management API routes complete and ready for frontend consumption
 - Phase 54 email system fully complete: infrastructure (54-01), templates (54-02, 54-03, 54-04), route integration (54-05), cron/webhooks (54-06), admin API (54-07)
 - notification_logs table type should be added to database.ts to eliminate type casts (tech debt item)
 
 ---
-*Phase: 54-email-system*
-*Completed: 2026-02-10*
+
+_Phase: 54-email-system_
+_Completed: 2026-02-10_

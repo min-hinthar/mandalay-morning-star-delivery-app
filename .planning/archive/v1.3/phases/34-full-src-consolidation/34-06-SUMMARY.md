@@ -54,7 +54,7 @@ completed: 2026-01-28
 ## Accomplishments
 
 - Deleted src/contexts/ directory (111 lines of code removed)
-- Added ESLint no-restricted-imports guard for @/contexts/*
+- Added ESLint no-restricted-imports guard for @/contexts/\*
 - Verified typecheck and build pass with new configuration
 
 ## Task Commits
@@ -95,5 +95,6 @@ None - no external service configuration required.
 - All context imports now use @/app/contexts/
 
 ---
-*Phase: 34-full-src-consolidation*
-*Completed: 2026-01-28*
+
+_Phase: 34-full-src-consolidation_
+_Completed: 2026-01-28_

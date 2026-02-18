@@ -14,6 +14,7 @@ Driver status updates never get lost — pending actions queue locally and retry
 ## Implementation Decisions
 
 ### Queue architecture
+
 - Persist queue across app restarts with a **2-hour expiry** — entries older than 2 hours auto-discard on load
 - **Claude's Discretion:** Which queue to keep (Zustand vs IndexedDB) — researcher should analyze both implementations and recommend
 - **Claude's Discretion:** Whether to migrate existing data from the removed queue or start fresh
@@ -22,6 +23,7 @@ Driver status updates never get lost — pending actions queue locally and retry
 - **Claude's Discretion:** Connectivity detection strategy (navigator.onLine, health ping, or both)
 
 ### Retry behavior
+
 - **No jitter** on backoff delays — small driver fleet, thundering herd not a concern
 - **Claude's Discretion:** Backoff timing intervals — pick appropriate timing for delivery status updates
 - **Claude's Discretion:** Max retry attempts before giving up
@@ -32,6 +34,7 @@ Driver status updates never get lost — pending actions queue locally and retry
 - **Claude's Discretion:** Retry logging approach (server-persisted audit trail vs client-only)
 
 ### Offline UX feedback
+
 - **Persistent banner** when offline — fixed bar visible at all times while disconnected
 - Banner shows **pending queue count** (e.g., "Offline — 2 actions pending")
 - **Warning amber/yellow** color for the offline banner
@@ -42,6 +45,7 @@ Driver status updates never get lost — pending actions queue locally and retry
 - **Claude's Discretion:** Failed sync item indicator granularity
 
 ### Conflict resolution
+
 - **Claude's Discretion:** Server behavior when receiving stale updates (silent reject vs notify driver)
 - **Claude's Discretion:** Status transition enforcement (strict ordering vs last-write-wins)
 - **Claude's Discretion:** Idempotency key strategy (client UUID vs composite natural key)
@@ -69,5 +73,5 @@ None — discussion stayed within phase scope
 
 ---
 
-*Phase: 56-driver-offline-sync*
-*Context gathered: 2026-02-11*
+_Phase: 56-driver-offline-sync_
+_Context gathered: 2026-02-11_

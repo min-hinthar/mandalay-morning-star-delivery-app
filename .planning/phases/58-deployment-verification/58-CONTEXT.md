@@ -14,6 +14,7 @@ Validate production environment is healthy. Build a `/api/health` endpoint that 
 ## Implementation Decisions
 
 ### Health endpoint design
+
 - Check three services: Supabase, Stripe, Resend
 - Two-tier health check: quick config-presence check by default, `?deep=true` for live connectivity tests (actually call each service)
 - Response includes a top-level `production_ready: true/false` flag summarizing all checks
@@ -21,25 +22,30 @@ Validate production environment is healthy. Build a `/api/health` endpoint that 
 - Reports missing env var names (not values) when config is incomplete
 
 ### Failure reporting
+
 - Full error details exposed when a service is down (error message and type visible in response)
 - Sensitive values (API keys, connection strings) should be redacted — show error type, mask credentials
 
 ### Access & security
+
 - Publicly accessible at `/api/health` — no authentication required (standard for uptime monitors)
 - CORS: allow all origins (monitoring dashboards can call it from browsers)
 - Main domain path only: `delivery.mandalaymorningstar.com/api/health` — no custom subdomain
 - Exclude from service worker caching and analytics
 
 ### Env var validation
+
 - Same env vars across all Vercel scopes (preview, production, development)
 - Health endpoint reports which env vars are missing by name
 - Both automated detection (health endpoint) and manual checklist for initial Vercel setup
 
 ### Auth/callback & webhook checks
+
 - Health endpoint verifies auth/callback and webhook routes are reachable (not 404)
 - Included as part of the health check response, not separate endpoints
 
 ### Claude's Discretion
+
 - Response format (JSON structure, field naming)
 - Timeout per service check
 - Status levels (healthy/degraded/down vs binary)
@@ -80,5 +86,5 @@ Validate production environment is healthy. Build a `/api/health` endpoint that 
 
 ---
 
-*Phase: 58-deployment-verification*
-*Context gathered: 2026-02-13*
+_Phase: 58-deployment-verification_
+_Context gathered: 2026-02-13_

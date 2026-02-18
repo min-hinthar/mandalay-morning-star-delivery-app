@@ -37,29 +37,33 @@ started: Current state of codebase
 ## Resolution
 
 root_cause: Multiple issues across different categories:
+
 1. Unused variables in scripts/audit-tokens.js (not prefixed with underscore)
 2. Semantic token violations (bg-white, text-white, bg-black, text-black) in multiple components
 3. Stylelint not configured for Tailwind v4 @source directive
 4. Invalid eslint-disable comments referencing non-existent rules (@mandalay/no-hardcoded-colors, @mandalay/no-hardcoded-effects)
 5. Framer Motion animations using hardcoded blur/boxShadow values needing eslint exceptions
-6. Restricted import pattern too broad (blocking correct @/app/contexts/* imports)
+6. Restricted import pattern too broad (blocking correct @/app/contexts/\* imports)
 
 fix:
-1. Prefixed unused vars with underscore (_isVerbose, _err, _severityLabel)
+
+1. Prefixed unused vars with underscore (\_isVerbose, \_err, \_severityLabel)
 2. Replaced hardcoded colors with semantic tokens (bg-surface-primary, text-text-inverse, bg-surface-inverse)
 3. Updated .stylelintrc.json to add "source" to ignoreAtRules and configure custom-property-pattern
-4. Replaced invalid @mandalay/* rules with no-restricted-syntax
+4. Replaced invalid @mandalay/\* rules with no-restricted-syntax
 5. Added eslint-disable blocks for legitimate FM animation exceptions
-6. Fixed restricted imports pattern to not block @/app/contexts/*
+6. Fixed restricted imports pattern to not block @/app/contexts/\*
 7. Added file-level eslint-disable for DriverLayout.tsx (high-contrast mode needs raw black/white)
 
 verification:
+
 - pnpm lint: PASS (0 errors, 0 warnings)
 - pnpm lint:css: PASS (0 errors)
 - pnpm typecheck: PASS
 - pnpm build: PASS (only Node-level localstorage-file warning, not in our code)
 
 files_changed:
+
 - scripts/audit-tokens.js (unused var prefixes)
 - .stylelintrc.json (Tailwind v4 config)
 - eslint.config.mjs (restricted imports fix)

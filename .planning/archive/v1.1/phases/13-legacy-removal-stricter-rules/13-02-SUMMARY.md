@@ -85,7 +85,7 @@ Each task was committed atomically:
 
 ## Decisions Made
 
-None - followed plan as specified. Verified that _V5_CHART_COLORS in DriverLeaderboard.tsx and _Icon in CheckoutStepperV8.tsx were already properly prefixed.
+None - followed plan as specified. Verified that \_V5_CHART_COLORS in DriverLeaderboard.tsx and \_Icon in CheckoutStepperV8.tsx were already properly prefixed.
 
 ## Deviations from Plan
 
@@ -108,5 +108,6 @@ None - no external service configuration required.
 - Plan 13-01 handles remaining lib/store/utility files for complete strict mode preparation
 
 ---
-*Phase: 13-legacy-removal-stricter-rules*
-*Completed: 2026-01-23*
+
+_Phase: 13-legacy-removal-stricter-rules_
+_Completed: 2026-01-23_

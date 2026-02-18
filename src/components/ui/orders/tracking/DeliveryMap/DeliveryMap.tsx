@@ -82,14 +82,10 @@ export function DeliveryMap({
     deferRestore: true,
   });
 
-  const customerMarkerRef =
-    useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
-  const driverMarkerRef =
-    useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
-  const restaurantMarkerRef =
-    useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
-  const staleBadgeRef =
-    useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const customerMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const driverMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const restaurantMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const staleBadgeRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
@@ -111,14 +107,11 @@ export function DeliveryMap({
   const isPreDelivery =
     orderStatus && orderStatus !== "out_for_delivery" && orderStatus !== "delivered";
   const showDriverMarker = !isPreDelivery && !!driverLocation;
-  const showRestaurantMarker =
-    !!restaurantLocation && (isPreDelivery || showDriverMarker);
+  const showRestaurantMarker = !!restaurantLocation && (isPreDelivery || showDriverMarker);
 
   // Compute bounds from relevant markers
   const { center, bounds } = useMemo(() => {
-    const points: LatLng[] = [
-      { lat: customerLocation.lat, lng: customerLocation.lng },
-    ];
+    const points: LatLng[] = [{ lat: customerLocation.lat, lng: customerLocation.lng }];
     if (showDriverMarker && driverLocation) {
       points.push({ lat: driverLocation.lat, lng: driverLocation.lng });
     }
@@ -141,7 +134,13 @@ export function DeliveryMap({
         west: Math.min(...lngs) - 0.01,
       },
     };
-  }, [customerLocation, driverLocation, restaurantLocation, showDriverMarker, showRestaurantMarker]);
+  }, [
+    customerLocation,
+    driverLocation,
+    restaurantLocation,
+    showDriverMarker,
+    showRestaurantMarker,
+  ]);
 
   const fitMapBounds = useCallback(() => {
     if (!map || !bounds) return;
@@ -160,7 +159,9 @@ export function DeliveryMap({
   // Auto-fit on significant driver movement
   useEffect(() => {
     if (
-      !userHasPanned && driverLocation && prevDriverLocation.current &&
+      !userHasPanned &&
+      driverLocation &&
+      prevDriverLocation.current &&
       (Math.abs(driverLocation.lat - prevDriverLocation.current.lat) > AUTO_FIT_THRESHOLD ||
         Math.abs(driverLocation.lng - prevDriverLocation.current.lng) > AUTO_FIT_THRESHOLD)
     ) {
@@ -190,8 +191,10 @@ export function DeliveryMap({
   const animateMarkerTo = useCallback(
     (
       marker: google.maps.marker.AdvancedMarkerElement,
-      fromLat: number, fromLng: number,
-      toLat: number, toLng: number
+      fromLat: number,
+      fromLng: number,
+      toLat: number,
+      toLng: number
     ) => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
       const startTime = performance.now();
@@ -215,7 +218,9 @@ export function DeliveryMap({
   );
 
   useEffect(() => {
-    return () => { if (animationRef.current) cancelAnimationFrame(animationRef.current); };
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
   }, []);
 
   // ---- Destination marker ----
@@ -224,55 +229,88 @@ export function DeliveryMap({
     const content = createDestinationMarkerContent();
     if (customerMarkerRef.current) customerMarkerRef.current.map = null;
     customerMarkerRef.current = new google.maps.marker.AdvancedMarkerElement({
-      map, position: { lat: customerLocation.lat, lng: customerLocation.lng },
-      content, title: customerLocation.address,
+      map,
+      position: { lat: customerLocation.lat, lng: customerLocation.lng },
+      content,
+      title: customerLocation.address,
     });
-    return () => { if (customerMarkerRef.current) customerMarkerRef.current.map = null; };
+    return () => {
+      if (customerMarkerRef.current) customerMarkerRef.current.map = null;
+    };
   }, [map, isLoaded, customerLocation]);
 
   // ---- Restaurant marker ----
   useEffect(() => {
     if (!map || !isLoaded || !MAP_ID) return;
-    if (restaurantMarkerRef.current) { restaurantMarkerRef.current.map = null; restaurantMarkerRef.current = null; }
+    if (restaurantMarkerRef.current) {
+      restaurantMarkerRef.current.map = null;
+      restaurantMarkerRef.current = null;
+    }
     if (!showRestaurantMarker || !restaurantLocation) return;
     const content = createRestaurantMarkerContent();
     restaurantMarkerRef.current = new google.maps.marker.AdvancedMarkerElement({
-      map, position: restaurantLocation, content, title: "Restaurant",
+      map,
+      position: restaurantLocation,
+      content,
+      title: "Restaurant",
     });
-    return () => { if (restaurantMarkerRef.current) restaurantMarkerRef.current.map = null; };
+    return () => {
+      if (restaurantMarkerRef.current) restaurantMarkerRef.current.map = null;
+    };
   }, [map, isLoaded, showRestaurantMarker, restaurantLocation]);
 
   // ---- Driver marker with smooth animation ----
   useEffect(() => {
     if (!map || !isLoaded || !MAP_ID) return;
-    if (staleBadgeRef.current) { staleBadgeRef.current.map = null; staleBadgeRef.current = null; }
+    if (staleBadgeRef.current) {
+      staleBadgeRef.current.map = null;
+      staleBadgeRef.current = null;
+    }
     if (!showDriverMarker || !driverLocation) {
-      if (driverMarkerRef.current) { driverMarkerRef.current.map = null; driverMarkerRef.current = null; }
+      if (driverMarkerRef.current) {
+        driverMarkerRef.current.map = null;
+        driverMarkerRef.current = null;
+      }
       return;
     }
     const prevLoc = prevDriverLocation.current;
     if (!driverMarkerRef.current) {
       const content = createVehicleMarkerContent(driverLocation.heading, isStale);
       driverMarkerRef.current = new google.maps.marker.AdvancedMarkerElement({
-        map, position: { lat: driverLocation.lat, lng: driverLocation.lng },
-        content, title: "Your driver",
+        map,
+        position: { lat: driverLocation.lat, lng: driverLocation.lng },
+        content,
+        title: "Your driver",
       });
     } else {
       driverMarkerRef.current.content = createVehicleMarkerContent(driverLocation.heading, isStale);
       if (prevLoc && (prevLoc.lat !== driverLocation.lat || prevLoc.lng !== driverLocation.lng)) {
-        animateMarkerTo(driverMarkerRef.current, prevLoc.lat, prevLoc.lng, driverLocation.lat, driverLocation.lng);
+        animateMarkerTo(
+          driverMarkerRef.current,
+          prevLoc.lat,
+          prevLoc.lng,
+          driverLocation.lat,
+          driverLocation.lng
+        );
       } else {
         driverMarkerRef.current.position = { lat: driverLocation.lat, lng: driverLocation.lng };
       }
     }
     if (isStale && driverLocation) {
       staleBadgeRef.current = new google.maps.marker.AdvancedMarkerElement({
-        map, position: { lat: driverLocation.lat, lng: driverLocation.lng },
-        content: createStaleBadgeContent(staleMinutesAgo), zIndex: zIndex.max,
+        map,
+        position: { lat: driverLocation.lat, lng: driverLocation.lng },
+        content: createStaleBadgeContent(staleMinutesAgo),
+        zIndex: zIndex.max,
       });
     }
     prevDriverLocation.current = driverLocation;
-    return () => { if (staleBadgeRef.current) { staleBadgeRef.current.map = null; staleBadgeRef.current = null; } };
+    return () => {
+      if (staleBadgeRef.current) {
+        staleBadgeRef.current.map = null;
+        staleBadgeRef.current = null;
+      }
+    };
   }, [map, isLoaded, showDriverMarker, driverLocation, isStale, staleMinutesAgo, animateMarkerTo]);
 
   const onLoad = useCallback((m: google.maps.Map) => setMap(m), []);
@@ -283,14 +321,23 @@ export function DeliveryMap({
     try {
       const decoded = google.maps.geometry?.encoding?.decodePath(routePolyline);
       return decoded?.map((p) => ({ lat: p.lat(), lng: p.lng() })) || [];
-    } catch { return []; }
+    } catch {
+      return [];
+    }
   }, [routePolyline, isLoaded]);
 
   if (!isLoaded) {
     return (
-      <div className={cn("flex items-center justify-center bg-[var(--color-surface-muted)] rounded-xl animate-pulse", className)} style={{ minHeight: 300 }}>
+      <div
+        className={cn(
+          "flex items-center justify-center bg-[var(--color-surface-muted)] rounded-xl animate-pulse",
+          className
+        )}
+        style={{ minHeight: 300 }}
+      >
         <div className="flex flex-col items-center gap-2 text-[var(--color-text-muted)]">
-          <Loader2 className="h-8 w-8 animate-spin" /><span className="text-sm">Loading map...</span>
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="text-sm">Loading map...</span>
         </div>
       </div>
     );
@@ -298,10 +345,22 @@ export function DeliveryMap({
 
   if (loadError) {
     return (
-      <div className={cn("flex items-center justify-center bg-[var(--color-error-light)] rounded-xl", className)} style={{ minHeight: 300 }}>
+      <div
+        className={cn(
+          "flex items-center justify-center bg-[var(--color-error-light)] rounded-xl",
+          className
+        )}
+        style={{ minHeight: 300 }}
+      >
         <div className="flex flex-col items-center gap-3 text-[var(--color-error)]">
-          <MapPin className="h-8 w-8" /><span className="text-sm">Unable to load map</span>
-          <button onClick={() => window.location.reload()} className="rounded-lg bg-[var(--color-error)] px-4 py-1.5 text-xs font-medium text-text-inverse transition-opacity hover:opacity-90">Retry</button>
+          <MapPin className="h-8 w-8" />
+          <span className="text-sm">Unable to load map</span>
+          <button
+            onClick={() => window.location.reload()}
+            className="rounded-lg bg-[var(--color-error)] px-4 py-1.5 text-xs font-medium text-text-inverse transition-opacity hover:opacity-90"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -329,16 +388,30 @@ export function DeliveryMap({
 
   return (
     <>
-      <m.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
-        className={cn("relative rounded-xl overflow-hidden shadow-md", className)} style={{ minHeight: 300 }}>
+      <m.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className={cn("relative rounded-xl overflow-hidden shadow-md", className)}
+        style={{ minHeight: 300 }}
+      >
         <MapContent {...contentProps} inFullscreen={false} />
       </m.div>
       <AnimatePresence onExitComplete={restoreScrollPosition}>
         {isFullscreen && (
-          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-[var(--color-background)]">
-            <m.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} transition={{ duration: 0.2 }}
-              className="relative h-full w-full">
+          <m.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 bg-[var(--color-background)]"
+          >
+            <m.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="relative h-full w-full"
+            >
               <MapContent {...contentProps} inFullscreen={true} />
             </m.div>
           </m.div>

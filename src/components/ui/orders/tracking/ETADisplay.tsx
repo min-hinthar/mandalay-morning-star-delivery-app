@@ -69,9 +69,7 @@ export function ETADisplay({
 
         {/* V6 ETA Content */}
         <div className="flex-1">
-          <p className="text-sm font-body font-medium text-text-secondary">
-            Estimated Arrival
-          </p>
+          <p className="text-sm font-body font-medium text-text-secondary">Estimated Arrival</p>
           <AnimatePresence mode="wait">
             <m.p
               key={formattedRange}

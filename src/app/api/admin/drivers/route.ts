@@ -24,7 +24,8 @@ export async function GET() {
     // Fetch all drivers with profile info
     const { data: drivers, error: driversError } = await supabase
       .from("drivers")
-      .select(`
+      .select(
+        `
         id,
         user_id,
         vehicle_type,
@@ -42,16 +43,14 @@ export async function GET() {
           full_name,
           phone
         )
-      `)
+      `
+      )
       .order("created_at", { ascending: false })
       .returns<DriverWithProfile[]>();
 
     if (driversError) {
       logger.exception(driversError, { api: "admin/drivers", flowId: "fetch" });
-      return NextResponse.json(
-        { error: "Failed to fetch drivers" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch drivers" }, { status: 500 });
     }
 
     // Transform to API response format
@@ -74,10 +73,7 @@ export async function GET() {
     return NextResponse.json(response);
   } catch (error) {
     logger.exception(error, { api: "admin/drivers", flowId: "fetch" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -143,10 +139,7 @@ export async function POST(request: NextRequest) {
 
       if (driverError) {
         logger.exception(driverError, { api: "admin/drivers", flowId: "create" });
-        return NextResponse.json(
-          { error: "Failed to create driver" },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to create driver" }, { status: 500 });
       }
 
       // Update profile role to driver
@@ -155,30 +148,32 @@ export async function POST(request: NextRequest) {
         .update({ role: "driver", full_name: fullName, phone: phone ?? null })
         .eq("id", existingProfile.id);
 
-      return NextResponse.json({
-        id: newDriver.id,
-        userId: existingProfile.id,
-        email,
-        fullName,
-        message: "Driver created from existing user",
-      }, { status: 201 });
+      return NextResponse.json(
+        {
+          id: newDriver.id,
+          userId: existingProfile.id,
+          email,
+          fullName,
+          message: "Driver created from existing user",
+        },
+        { status: 201 }
+      );
     }
 
     // For new users, we need to use Supabase Admin API to create the auth user
     // This would require service role key - for now, return instructions
     // In production, you'd use supabase.auth.admin.createUser()
 
-    return NextResponse.json({
-      error: "New user creation requires admin invitation flow",
-      message: "Please use the invite system to add new drivers",
-      email,
-    }, { status: 400 });
-
+    return NextResponse.json(
+      {
+        error: "New user creation requires admin invitation flow",
+        message: "Please use the invite system to add new drivers",
+        email,
+      },
+      { status: 400 }
+    );
   } catch (error) {
     logger.exception(error, { api: "admin/drivers", flowId: "create" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

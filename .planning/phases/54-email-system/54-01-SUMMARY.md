@@ -70,6 +70,7 @@ completed: 2026-02-10
 - **Files modified:** 11
 
 ## Accomplishments
+
 - Installed resend, @react-email/components, @react-email/render, react-email
 - Created webhook_events idempotency table with service-role-only RLS
 - Built sendEmail() with 5-step pipeline: kill switch, pref check, render, retry send, log
@@ -83,6 +84,7 @@ Each task was committed atomically:
 2. **Task 2: Email service layer** - `55206b4` (feat)
 
 ## Files Created/Modified
+
 - `supabase/migrations/020_email_system.sql` - Webhook events table, enum expansions, email kill switch setting
 - `src/lib/email/client.ts` - Resend singleton client with env var validation
 - `src/lib/email/send.ts` - sendEmail() with kill switch, pref check, render, retry, logging
@@ -95,6 +97,7 @@ Each task was committed atomically:
 - `package.json` - Added resend, @react-email/components, @react-email/render, react-email
 
 ## Decisions Made
+
 - **EMAIL-01-CATEGORY:** Used existing 'notifications' category for email_sending_enabled setting instead of 'email' (plan said 'email' but app_settings CHECK constraint only allows delivery/operations/notifications)
 - **EMAIL-01-FAILOPEN:** Kill switch check fails open -- if app_settings query fails, sending continues rather than blocking all emails
 - **EMAIL-01-NEWCUST:** Customers without a customer_settings row are treated as fully opted-in (all preferences true by default)
@@ -104,6 +107,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] app_settings category constraint mismatch**
+
 - **Found during:** Task 1 (migration creation)
 - **Issue:** Plan specified category 'email' for email_sending_enabled, but app_settings table CHECK constraint only allows 'delivery', 'operations', 'notifications'
 - **Fix:** Used category 'notifications' instead of 'email'
@@ -112,6 +116,7 @@ Each task was committed atomically:
 - **Committed in:** a9630ce (Task 1 commit)
 
 **2. [Rule 1 - Bug] app_settings has no 'label' column**
+
 - **Found during:** Task 1 (migration creation)
 - **Issue:** Plan INSERT included a 'label' column that doesn't exist on app_settings table
 - **Fix:** Removed label from INSERT statement
@@ -125,19 +130,23 @@ Each task was committed atomically:
 **Impact on plan:** Both fixes necessary for migration correctness. No scope creep.
 
 ## Issues Encountered
+
 - lint-staged backup failure during Task 2 commit caused files to be committed under a prior session's 54-02 commit (55206b4). Code is correct and present; commit attribution is mixed.
 
 ## User Setup Required
 
 **External services require manual configuration:**
+
 - **RESEND_API_KEY:** Get from Resend Dashboard -> API Keys -> Create API Key. Add to `.env.local`
 - **Domain verification:** Verify `mail.mandalaymorningstar.com` in Resend Dashboard -> Domains -> Add Domain
 
 ## Next Phase Readiness
+
 - Email infrastructure complete; sendEmail() ready for template integration in 54-02
 - Resend domain verification needed before production email delivery
 - webhook_events table ready for Resend webhook handler in 54-05
 
 ---
-*Phase: 54-email-system*
-*Completed: 2026-02-10*
+
+_Phase: 54-email-system_
+_Completed: 2026-02-10_

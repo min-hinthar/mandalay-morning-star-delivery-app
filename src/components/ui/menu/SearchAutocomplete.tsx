@@ -72,18 +72,12 @@ interface SearchResultItemProps {
   shouldAnimate: boolean;
 }
 
-function SearchResultItem({
-  item,
-  index,
-  onSelect,
-  query,
-  shouldAnimate,
-}: SearchResultItemProps) {
+function SearchResultItem({ item, index, onSelect, query, shouldAnimate }: SearchResultItemProps) {
   // Highlight matching text in name
   const highlightMatch = (text: string): React.ReactNode => {
     if (!query.trim()) return text;
 
-    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
     const parts = text.split(regex);
 
     return parts.map((part, i) =>
@@ -122,11 +116,7 @@ function SearchResultItem({
       <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-surface-secondary">
         {item.imageUrl ? (
           /* eslint-disable-next-line @next/next/no-img-element -- Dynamic external URL */
-          <img
-            src={item.imageUrl}
-            alt={item.nameEn}
-            className="w-full h-full object-cover"
-          />
+          <img src={item.imageUrl} alt={item.nameEn} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-xl text-text-muted">
             <span role="img" aria-hidden="true">
@@ -138,24 +128,14 @@ function SearchResultItem({
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-text-primary truncate">
-          {highlightMatch(item.nameEn)}
-        </p>
-        {item.nameMy && (
-          <p className="text-sm text-text-secondary truncate">
-            {item.nameMy}
-          </p>
-        )}
+        <p className="font-medium text-text-primary truncate">{highlightMatch(item.nameEn)}</p>
+        {item.nameMy && <p className="text-sm text-text-secondary truncate">{item.nameMy}</p>}
       </div>
 
       {/* Price */}
       <div className="flex-shrink-0 text-right">
-        <p className="font-semibold text-primary">
-          ${(item.basePriceCents / 100).toFixed(2)}
-        </p>
-        {item.isSoldOut && (
-          <p className="text-xs text-red-500">Sold out</p>
-        )}
+        <p className="font-semibold text-primary">${(item.basePriceCents / 100).toFixed(2)}</p>
+        {item.isSoldOut && <p className="text-xs text-red-500">Sold out</p>}
       </div>
     </m.button>
   );
@@ -181,12 +161,8 @@ function LoadingState() {
 function EmptyState({ query }: { query: string }) {
   return (
     <div className="p-4 text-center text-text-secondary">
-      <p className="text-sm">
-        No results for &ldquo;{query}&rdquo;
-      </p>
-      <p className="text-xs mt-1 text-text-muted">
-        Try a different search term
-      </p>
+      <p className="text-sm">No results for &ldquo;{query}&rdquo;</p>
+      <p className="text-xs mt-1 text-text-muted">Try a different search term</p>
     </div>
   );
 }

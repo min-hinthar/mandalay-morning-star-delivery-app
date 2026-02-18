@@ -19,9 +19,9 @@
  * });
  */
 
-export * from './types';
-export * from './constants';
-export * from './utils';
-export * from './useSwipeToDelete';
-export * from './useSwipeToClose';
-export * from './useSwipeNavigation';
+export * from "./types";
+export * from "./constants";
+export * from "./utils";
+export * from "./useSwipeToDelete";
+export * from "./useSwipeToClose";
+export * from "./useSwipeNavigation";

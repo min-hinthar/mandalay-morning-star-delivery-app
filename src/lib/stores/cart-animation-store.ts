@@ -32,7 +32,7 @@ interface CartAnimationStore {
   /** Whether badge should pulse (triggered after fly completes) */
   shouldPulseBadge: boolean;
   /** Trigger badge pulse animation - returns cleanup function */
-  triggerBadgePulse: () => (() => void);
+  triggerBadgePulse: () => () => void;
   /** Cancel any pending pulse timeout */
   cancelPendingPulse: () => void;
 }
@@ -45,10 +45,11 @@ export const useCartAnimationStore = create<CartAnimationStore>((set) => ({
   setBadgeRef: (ref) => set({ badgeRef: ref }),
   flyingCount: 0,
   incrementFlying: () => set((s) => ({ flyingCount: s.flyingCount + 1, isAnimating: true })),
-  decrementFlying: () => set((s) => {
-    const newCount = Math.max(0, s.flyingCount - 1);
-    return { flyingCount: newCount, isAnimating: newCount > 0 };
-  }),
+  decrementFlying: () =>
+    set((s) => {
+      const newCount = Math.max(0, s.flyingCount - 1);
+      return { flyingCount: newCount, isAnimating: newCount > 0 };
+    }),
   isAnimating: false,
   // DEPRECATED: Kept for backwards compatibility, prefer incrementFlying/decrementFlying
   setIsAnimating: (isAnimating) => set({ isAnimating }),

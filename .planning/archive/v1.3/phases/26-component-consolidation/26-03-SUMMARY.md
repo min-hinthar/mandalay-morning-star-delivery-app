@@ -39,6 +39,7 @@ metrics:
 ## What Was Done
 
 ### Task 1: Migrate Toast and ToastProvider
+
 - Deleted Radix-based `toast.tsx` and `toaster.tsx`
 - Added V8 `Toast.tsx` with declarative API
 - Added V8 `ToastProvider.tsx`
@@ -46,12 +47,14 @@ metrics:
 - Updated `layout.tsx` to use ToastProvider wrapper instead of Toaster
 
 ### Task 2: Migrate Tooltip
+
 - Deleted CSS-only `tooltip.tsx`
 - Added V8 `Tooltip.tsx` with delayDuration and keyboard support
 - Exports: Tooltip, TooltipTrigger, TooltipContent, TooltipProvider
 - Fixed AdminNav.tsx import path (case-sensitive)
 
 ### Task 3: Migrate Dropdown
+
 - Added V8 `Dropdown.tsx` (simpler alternative to Radix DropdownMenu)
 - Exports: Dropdown, DropdownTrigger, DropdownContent, DropdownItem, DropdownSeparator
 - Both Dropdown and DropdownMenu coexist (different use cases)
@@ -61,6 +64,7 @@ metrics:
 ### Auto-fixed Issues
 
 **1. [Rule 3 - Blocking] Portal and Backdrop missing**
+
 - **Found during:** TypeScript check
 - **Issue:** Toast.tsx imports from "./Portal" which didn't exist
 - **Fix:** Portal.tsx and Backdrop.tsx were added in 26-02, but needed to ensure they exist
@@ -68,12 +72,14 @@ metrics:
 - **Note:** These files were also created in 26-02 plan
 
 **2. [Rule 1 - Bug] Case-sensitive import path**
+
 - **Found during:** TypeScript check
 - **Issue:** AdminNav.tsx imported from `@/components/ui/tooltip` (lowercase)
 - **Fix:** Updated to `@/components/ui/Tooltip` (correct case)
 - **Files modified:** src/components/admin/AdminNav.tsx
 
 **3. [Rule 2 - Missing Critical] Layout.tsx toast migration**
+
 - **Found during:** TypeScript check
 - **Issue:** layout.tsx still imported old Toaster component
 - **Fix:** Updated to use ToastProvider wrapper
@@ -106,12 +112,12 @@ pnpm typecheck  # PASS
 
 ## Commits
 
-| Hash | Message |
-|------|---------|
-| d6eeb65 | feat(26-03): migrate Toast and ToastProvider to ui/ |
-| 9f8bc7c | feat(26-03): migrate Tooltip to ui/ |
-| 9cace84 | feat(26-03): migrate Dropdown to ui/ |
-| e1d2fec | fix(26-03): add Portal and Backdrop to ui/ |
+| Hash    | Message                                                |
+| ------- | ------------------------------------------------------ |
+| d6eeb65 | feat(26-03): migrate Toast and ToastProvider to ui/    |
+| 9f8bc7c | feat(26-03): migrate Tooltip to ui/                    |
+| 9cace84 | feat(26-03): migrate Dropdown to ui/                   |
+| e1d2fec | fix(26-03): add Portal and Backdrop to ui/             |
 | c94db92 | fix(26-03): update layout.tsx and AdminNav.tsx imports |
 
 ## Next Phase Readiness
@@ -119,6 +125,7 @@ pnpm typecheck  # PASS
 **Blockers:** None
 
 **Pre-existing issues discovered:**
+
 - BottomSheet references in ui-v8 files were resolved by 26-02 commits
 - OneDrive sync causes file recreation issues (mitigated by git tracking)
 

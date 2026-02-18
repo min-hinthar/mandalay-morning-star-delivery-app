@@ -27,7 +27,11 @@ interface MenuItemRow {
 
 const createMenuItemSchema = z.object({
   category_id: z.string().uuid("Invalid category ID"),
-  slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/, "Slug must be lowercase letters, numbers, and hyphens"),
+  slug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase letters, numbers, and hyphens"),
   name_en: z.string().min(1).max(200),
   name_my: z.string().max(200).optional().nullable(),
   description_en: z.string().max(1000).optional().nullable(),
@@ -48,32 +52,28 @@ export async function GET() {
 
     const { data: items, error } = await auth.supabase
       .from("menu_items")
-      .select(`
+      .select(
+        `
         *,
         menu_categories (
           id,
           name,
           slug
         )
-      `)
+      `
+      )
       .order("created_at", { ascending: false })
       .returns<MenuItemRow[]>();
 
     if (error) {
       logger.exception(error, { api: "admin/menu", flowId: "fetch" });
-      return NextResponse.json(
-        { error: "Failed to fetch menu items" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch menu items" }, { status: 500 });
     }
 
     return NextResponse.json(items);
   } catch (error) {
     logger.exception(error, { api: "admin/menu", flowId: "fetch" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -108,18 +108,12 @@ export async function POST(request: Request) {
           { status: 409 }
         );
       }
-      return NextResponse.json(
-        { error: "Failed to create menu item" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to create menu item" }, { status: 500 });
     }
 
     return NextResponse.json(item, { status: 201 });
   } catch (error) {
     logger.exception(error, { api: "admin/menu", flowId: "create" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

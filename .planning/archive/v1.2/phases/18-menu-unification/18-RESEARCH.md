@@ -9,6 +9,7 @@
 This phase unifies menu item presentation across the application. The codebase already contains multiple menu card implementations (`MenuItemCard.tsx`, `menu-item-card.tsx`, `MenuItemCardV8.tsx`) with varying designs and features. A new unified `UnifiedMenuItemCard` component will consolidate these variants while adding glassmorphism styling and enhanced 3D tilt effects.
 
 The existing codebase provides strong foundations:
+
 - **Framer Motion** (`v12.26.1`) is already used extensively for animations including 3D tilt in `MenuItemCard.tsx`
 - **Design tokens** are established in `tokens.css` with semantic naming
 - **Glassmorphism utilities** exist in `globals.css` (`.glass`, `.glass-dark`)
@@ -21,22 +22,26 @@ The existing codebase provides strong foundations:
 ## Standard Stack
 
 ### Core (Already Installed)
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| framer-motion | 12.26.1 | Animation library | Already in use, handles 3D transforms, springs |
-| gsap | 3.14.2 | Complex animations | Already used for FlyToCart arc animation |
-| tailwindcss | 4.x | Styling | Project standard, design tokens |
-| lucide-react | 0.562.0 | Icons | Project standard |
+
+| Library       | Version | Purpose            | Why Standard                                   |
+| ------------- | ------- | ------------------ | ---------------------------------------------- |
+| framer-motion | 12.26.1 | Animation library  | Already in use, handles 3D transforms, springs |
+| gsap          | 3.14.2  | Complex animations | Already used for FlyToCart arc animation       |
+| tailwindcss   | 4.x     | Styling            | Project standard, design tokens                |
+| lucide-react  | 0.562.0 | Icons              | Project standard                               |
 
 ### Supporting (Already Installed)
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| clsx + tailwind-merge | via `cn()` | Class composition | All component styling |
-| zustand | 5.0.10 | State management | Cart, favorites state |
-| react-hook-form | 7.71.1 | Form handling | Item customization modals |
+
+| Library               | Version    | Purpose           | When to Use               |
+| --------------------- | ---------- | ----------------- | ------------------------- |
+| clsx + tailwind-merge | via `cn()` | Class composition | All component styling     |
+| zustand               | 5.0.10     | State management  | Cart, favorites state     |
+| react-hook-form       | 7.71.1     | Form handling     | Item customization modals |
 
 ### No New Dependencies Required
+
 The existing stack fully supports all phase requirements. Do not add:
+
 - react-tilt or vanilla-tilt (use framer-motion `useMotionValue`/`useTransform`)
 - embla-carousel or swiper (use existing scroll-based carousel pattern)
 - use-sound (haptic feedback via `navigator.vibrate` is already implemented)
@@ -44,6 +49,7 @@ The existing stack fully supports all phase requirements. Do not add:
 ## Architecture Patterns
 
 ### Recommended Component Structure
+
 ```
 src/
 ├── components/
@@ -64,9 +70,11 @@ src/
 ```
 
 ### Pattern 1: 3D Tilt with Framer Motion (Existing Pattern)
+
 **What:** Mouse-tracking 3D rotation with parallax and shine effect
 **When to use:** Menu cards on menu page and homepage
 **Example:**
+
 ```typescript
 // Source: src/components/menu/MenuItemCard.tsx (lines 226-270)
 const mouseX = useMotionValue(0.5);
@@ -97,9 +105,11 @@ const shineY = useTransform(mouseY, [0, 1], ["-100%", "200%"]);
 ```
 
 ### Pattern 2: Glassmorphism Surface
+
 **What:** Frosted glass effect with backdrop blur and semi-transparent background
 **When to use:** Card backgrounds, adapts to light/dark theme
 **Example:**
+
 ```css
 /* Source: src/app/globals.css (lines 194-210) */
 .glass {
@@ -126,9 +136,11 @@ const shineY = useTransform(mouseY, [0, 1], ["-100%", "200%"]);
 ```
 
 ### Pattern 3: Add Button State Machine
+
 **What:** Button transforms from "Add" to quantity controls after first add
 **When to use:** All menu cards with add-to-cart functionality
 **Example:**
+
 ```typescript
 // State machine: "idle" -> "adding" -> "quantity"
 const [state, setState] = useState<"idle" | "adding" | "quantity">("idle");
@@ -150,9 +162,11 @@ const handleAdd = () => {
 ```
 
 ### Pattern 4: Horizontal Carousel with Auto-scroll
+
 **What:** Native scroll container with framer-motion drag, auto-advance, pause on hover
 **When to use:** Homepage featured items (10 items)
 **Example:**
+
 ```typescript
 // Based on: src/components/menu/CategoryCarousel.tsx
 const [isPaused, setIsPaused] = useState(false);
@@ -179,6 +193,7 @@ useEffect(() => {
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Using CSS transform for tilt:** Use framer-motion `useMotionValue`/`useSpring` for smooth physics-based animation
 - **Adding third-party carousel libraries:** The native scroll + framer-motion drag pattern already works well
 - **Separate components per context:** Create one unified component with variants prop
@@ -186,68 +201,79 @@ useEffect(() => {
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| 3D tilt effect | Custom mouse tracking math | `useMotionValue` + `useSpring` + `useTransform` from framer-motion | Already implemented in MenuItemCard.tsx, physics-based springs |
-| Fly-to-cart animation | Custom DOM manipulation | Existing `useFlyToCart` hook | Already GSAP-powered with arc trajectory |
-| Quantity selector | Custom +/- controls | Existing `QuantitySelector` component | Already has flip animation, haptics |
-| Haptic feedback | Custom vibration patterns | `triggerHaptic()` from `lib/animations/cart.ts` | Already handles different intensities |
-| Animation preferences | Manual reduced-motion check | `useAnimationPreference()` hook | Already respects user settings |
+| Problem               | Don't Build                 | Use Instead                                                        | Why                                                            |
+| --------------------- | --------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------- |
+| 3D tilt effect        | Custom mouse tracking math  | `useMotionValue` + `useSpring` + `useTransform` from framer-motion | Already implemented in MenuItemCard.tsx, physics-based springs |
+| Fly-to-cart animation | Custom DOM manipulation     | Existing `useFlyToCart` hook                                       | Already GSAP-powered with arc trajectory                       |
+| Quantity selector     | Custom +/- controls         | Existing `QuantitySelector` component                              | Already has flip animation, haptics                            |
+| Haptic feedback       | Custom vibration patterns   | `triggerHaptic()` from `lib/animations/cart.ts`                    | Already handles different intensities                          |
+| Animation preferences | Manual reduced-motion check | `useAnimationPreference()` hook                                    | Already respects user settings                                 |
 
 **Key insight:** The codebase already has sophisticated animation infrastructure. The task is consolidation and enhancement, not creation.
 
 ## Common Pitfalls
 
 ### Pitfall 1: Backdrop-filter Performance on Low-end Devices
+
 **What goes wrong:** Glassmorphism causes frame drops on older mobile devices
 **Why it happens:** `backdrop-filter: blur()` is GPU-intensive, especially with animations
 **How to avoid:**
+
 - Use `detect-gpu` library (already installed) to check GPU tier
 - Reduce blur intensity or disable glassmorphism on tier < 2
 - Fallback to solid semi-transparent background
-**Warning signs:** Choppy animations, high paint times in DevTools
+  **Warning signs:** Choppy animations, high paint times in DevTools
 
 ### Pitfall 2: 3D Transform Z-index Issues
+
 **What goes wrong:** Cards overlap incorrectly during hover/tilt
 **Why it happens:** `transform: perspective()` creates new stacking context
 **How to avoid:**
+
 - Set explicit `z-index` on hovered card
 - Use `transformStyle: "preserve-3d"` on parent container
 - Increase z-index in `whileHover` state
-**Warning signs:** Cards appearing behind others during animation
+  **Warning signs:** Cards appearing behind others during animation
 
 ### Pitfall 3: Auto-scroll Carousel Interrupting User
+
 **What goes wrong:** Auto-advance continues during user drag/scroll
 **Why it happens:** No coordination between auto-scroll and user interaction
 **How to avoid:**
+
 - Pause auto-scroll on `onMouseEnter`, `onTouchStart`, `onDragStart`
 - Resume on `onMouseLeave` with delay
 - Cancel auto-scroll entirely if user has manually scrolled
-**Warning signs:** Jarring scroll jumps, fighting with user input
+  **Warning signs:** Jarring scroll jumps, fighting with user input
 
 ### Pitfall 4: Inconsistent Card Heights in Grid
+
 **What goes wrong:** Cards with varying content lengths create jagged grid
 **Why it happens:** Dynamic description lengths, optional elements
 **How to avoid:**
+
 - Use fixed aspect ratio for image (4:3 per CONTEXT.md)
 - Limit description to `line-clamp-2`
 - Use `min-height` on content section
 - Consider grid `align-items: stretch` with flex column on card
-**Warning signs:** Cards at different heights in same row
+  **Warning signs:** Cards at different heights in same row
 
 ### Pitfall 5: Sound Effects Without User Gesture
+
 **What goes wrong:** Browser blocks audio playback, console errors
 **Why it happens:** Autoplay policies require user interaction first
 **How to avoid:**
+
 - Only play sounds in response to click/tap events
 - Preload sounds after first user interaction
 - Use Web Audio API with user gesture context
 - Wrap in try/catch for blocked playback
-**Warning signs:** "NotAllowedError" in console
+  **Warning signs:** "NotAllowedError" in console
 
 ## Code Examples
 
 ### Unified Card Component Structure
+
 ```typescript
 // Source: Based on analysis of existing patterns
 interface UnifiedMenuItemCardProps {
@@ -293,6 +319,7 @@ const variantConfig = {
 ```
 
 ### Glassmorphism with Theme Adaptation
+
 ```typescript
 // CSS classes for theming
 const glassClasses = cn(
@@ -312,6 +339,7 @@ const glassClasses = cn(
 ```
 
 ### Shine Effect Layer
+
 ```typescript
 // Animated gradient overlay that follows mouse
 <motion.div
@@ -332,6 +360,7 @@ const glassClasses = cn(
 ```
 
 ### Featured Badge Component
+
 ```typescript
 // "Popular" or "Featured" badge
 const FeaturedBadge = ({ type }: { type: "popular" | "featured" }) => (
@@ -354,6 +383,7 @@ const FeaturedBadge = ({ type }: { type: "popular" | "featured" }) => (
 ```
 
 ### Staggered Scroll Reveal
+
 ```typescript
 // Cards animate in as they scroll into view
 <motion.div
@@ -371,14 +401,15 @@ const FeaturedBadge = ({ type }: { type: "popular" | "featured" }) => (
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| CSS transitions for tilt | Framer Motion springs | Already in codebase | Physics-based, interruptible animations |
-| Separate card per context | Unified with variants | This phase | Single source of truth, consistent styling |
-| Opacity-based glass | `color-mix()` + backdrop-filter | CSS Color Level 4 | Better color control, theme adaptable |
-| react-tilt library | Native framer-motion | Reduces dependencies | Already have 3D in motion-tokens |
+| Old Approach              | Current Approach                | When Changed         | Impact                                     |
+| ------------------------- | ------------------------------- | -------------------- | ------------------------------------------ |
+| CSS transitions for tilt  | Framer Motion springs           | Already in codebase  | Physics-based, interruptible animations    |
+| Separate card per context | Unified with variants           | This phase           | Single source of truth, consistent styling |
+| Opacity-based glass       | `color-mix()` + backdrop-filter | CSS Color Level 4    | Better color control, theme adaptable      |
+| react-tilt library        | Native framer-motion            | Reduces dependencies | Already have 3D in motion-tokens           |
 
 **Deprecated/outdated:**
+
 - `menu-item-card.tsx` (V6 style): Will be replaced by unified component
 - `MenuItemCard.tsx` (multiple variants): Will be consolidated
 - `MenuItemCardV8.tsx`: Will be absorbed into unified component
@@ -403,6 +434,7 @@ const FeaturedBadge = ({ type }: { type: "popular" | "featured" }) => (
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - `src/components/menu/MenuItemCard.tsx` - Existing 3D tilt implementation
 - `src/lib/motion-tokens.ts` - Animation presets and spring configurations
 - `src/app/globals.css` - Existing glassmorphism utilities
@@ -411,15 +443,18 @@ const FeaturedBadge = ({ type }: { type: "popular" | "featured" }) => (
 - `src/components/menu/CategoryCarousel.tsx` - Carousel implementation pattern
 
 ### Secondary (MEDIUM confidence)
+
 - [3D Shiny Card Tutorial](https://dev.to/arielbk/how-to-make-a-3d-shiny-card-animation-react-ts-and-framer-motion-ijf) - Framer Motion tilt technique
 - [Embla Carousel Best Practices](https://www.embla-carousel.com/get-started/react/) - Alternative carousel approach if native scroll proves insufficient
 
 ### Tertiary (LOW confidence)
+
 - [React Carousel Comparison 2026](https://blog.croct.com/post/best-react-carousel-slider-libraries) - Library recommendations (not needed for this phase)
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - No new dependencies, all libraries already in use
 - Architecture: HIGH - Patterns directly based on existing codebase implementations
 - Pitfalls: MEDIUM - Based on general web performance knowledge, verify with real device testing

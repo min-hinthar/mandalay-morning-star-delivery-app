@@ -13,9 +13,11 @@ The existing `FloatingFoodEmojis` component from error pages can be adapted for 
 **Primary recommendation:** Use Framer Motion `layoutId` for logo morph, `signInWithOAuth` with PKCE for social login, CSS keyframe animations for background gradient, and adapt the existing `FloatingFoodEmojis` component for auth pages.
 
 <user_constraints>
+
 ## User Constraints (from CONTEXT.md)
 
 ### Locked Decisions
+
 - **Mood:** Warm & inviting -- soft gradients, warm tones, gentle floating food
 - **Layout:** Centered card on desktop over animated background; full-width card on mobile
 - **Floating food:** Medium density (10-15 generic food emojis), varied sizes for depth, keep on mobile too
@@ -59,6 +61,7 @@ The existing `FloatingFoodEmojis` component from error pages can be adapted for 
 - **Branded email:** Custom branded email template via Supabase (Morning Star branding, warm colors, logo)
 
 ### Claude's Discretion
+
 - Card surface treatment (frosted glass vs solid -- optimize for readability)
 - Google/Apple button styling within brand guidelines
 - Exact animation curves and timing
@@ -67,35 +70,40 @@ The existing `FloatingFoodEmojis` component from error pages can be adapted for 
 - Social proof counter exact wording
 
 ### Deferred Ideas (OUT OF SCOPE)
+
 - **Google Places API for social proof counter** -- currently using static placeholder
 - **Onboarding flow for new users** -- not in this phase
-</user_constraints>
+  </user_constraints>
 
 ## Standard Stack
 
 ### Core (Already Installed)
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| `@supabase/ssr` | ^0.8.0 | Server-side auth with PKCE | Already in use, manages cookies automatically |
-| `@supabase/supabase-js` | ^2.90.1 | Auth client (`signInWithOAuth`, `signInWithOtp`) | Already in use for magic link |
-| `framer-motion` | ^12.26.1 | Layout animations, `layoutId` morph, `AnimatePresence` | Already in use throughout app |
-| `next-themes` | ^0.4.6 | Dark/light theme detection | Already in use |
-| `lucide-react` | ^0.562.0 | Icons (Mail, ArrowLeft, etc.) | Already in use |
-| `zod` | ^4.3.5 | Email validation schema | Already in use |
+
+| Library                 | Version  | Purpose                                                | Why Standard                                  |
+| ----------------------- | -------- | ------------------------------------------------------ | --------------------------------------------- |
+| `@supabase/ssr`         | ^0.8.0   | Server-side auth with PKCE                             | Already in use, manages cookies automatically |
+| `@supabase/supabase-js` | ^2.90.1  | Auth client (`signInWithOAuth`, `signInWithOtp`)       | Already in use for magic link                 |
+| `framer-motion`         | ^12.26.1 | Layout animations, `layoutId` morph, `AnimatePresence` | Already in use throughout app                 |
+| `next-themes`           | ^0.4.6   | Dark/light theme detection                             | Already in use                                |
+| `lucide-react`          | ^0.562.0 | Icons (Mail, ArrowLeft, etc.)                          | Already in use                                |
+| `zod`                   | ^4.3.5   | Email validation schema                                | Already in use                                |
 
 ### Supporting (Already Installed)
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `react-hook-form` | ^7.71.1 | Form state management | Email input with validation |
-| `@hookform/resolvers` | ^5.2.2 | Zod resolver for RHF | Schema validation integration |
-| `clsx` + `tailwind-merge` | latest | Conditional class names | All component styling |
+
+| Library                   | Version | Purpose                 | When to Use                   |
+| ------------------------- | ------- | ----------------------- | ----------------------------- |
+| `react-hook-form`         | ^7.71.1 | Form state management   | Email input with validation   |
+| `@hookform/resolvers`     | ^5.2.2  | Zod resolver for RHF    | Schema validation integration |
+| `clsx` + `tailwind-merge` | latest  | Conditional class names | All component styling         |
 
 ### No New Dependencies Required
+
 All functionality can be built with the existing stack. No new packages needed.
 
 ## Architecture Patterns
 
 ### Recommended Project Structure
+
 ```
 src/
 ├── app/
@@ -133,6 +141,7 @@ src/
 ```
 
 ### Pattern 1: Single Auth Page with State Machine
+
 **What:** One `/login` page manages all auth states: form, confirmation, success
 **When to use:** Purely passwordless auth with in-place transitions
 
@@ -168,25 +177,29 @@ function AuthCard() {
 ```
 
 ### Pattern 2: OAuth with PKCE via Server Action
+
 **What:** Initiate OAuth from client, exchange code in callback route
 **When to use:** Google and Apple social login
 
 ```typescript
 // Source: Context7 /supabase/supabase-js
 // Client-side: initiate OAuth
-'use client';
-import { createClient } from '@/lib/supabase/client';
+"use client";
+import { createClient } from "@/lib/supabase/client";
 
-async function handleOAuthLogin(provider: 'google' | 'apple') {
+async function handleOAuthLogin(provider: "google" | "apple") {
   const supabase = createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
       redirectTo: `${window.location.origin}/auth/callback`,
-      queryParams: provider === 'google' ? {
-        access_type: 'offline',
-        prompt: 'consent',
-      } : undefined,
+      queryParams:
+        provider === "google"
+          ? {
+              access_type: "offline",
+              prompt: "consent",
+            }
+          : undefined,
     },
   });
   // Supabase handles redirect automatically
@@ -197,6 +210,7 @@ async function handleOAuthLogin(provider: 'google' | 'apple') {
 ```
 
 ### Pattern 3: Logo Morph with layoutId
+
 **What:** Logo in auth card morphs to header logo position on login success
 **When to use:** Login success ceremony
 
@@ -213,6 +227,7 @@ async function handleOAuthLogin(provider: 'google' | 'apple') {
 ```
 
 ### Pattern 4: Unified signIn Server Action
+
 **What:** Single `signIn` action using `signInWithOtp` with `shouldCreateUser: true`
 **When to use:** Magic link for both new and existing users
 
@@ -232,6 +247,7 @@ export async function signIn(formData: FormData): Promise<ActionResult | void> {
 ```
 
 ### Anti-Patterns to Avoid
+
 - **AnimatePresence with input mount/unmount:** Do NOT unmount the email input during transitions. Animate opacity instead. Remounting loses input state and focus.
 - **OAuth on server side:** `signInWithOAuth` must be called from client (needs browser redirect). Don't try to call it from a server action.
 - **Backdrop-blur on mobile:** Causes Safari crashes. Use solid backgrounds on mobile, glassmorphism on `sm:` breakpoint only (existing pattern in codebase).
@@ -240,57 +256,64 @@ export async function signIn(formData: FormData): Promise<ActionResult | void> {
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| OAuth flow | Custom OAuth token handling | `supabase.auth.signInWithOAuth()` | PKCE flow handles CSRF, token exchange automatically |
-| Email validation | Regex patterns | `zod.string().email()` + `react-hook-form` | Edge cases (internationalized domains, plus addressing) |
-| Session management | Cookie parsing | `@supabase/ssr` `createClient()` | Handles refresh tokens, cookie chunking, PKCE verifier |
-| Rate limiting | New rate limiter | Existing `checkRateLimit()` in `src/lib/utils/rate-limit.ts` | Already built and used in auth actions |
-| Toast notifications | Custom toast for OAuth errors | Existing `useToast()` hook + `ToastProvider` | Already integrated app-wide |
-| Theme detection | Manual theme check | `next-themes` `useTheme()` | Already integrated via `ThemeProvider` |
-| Animation preferences | Manual reduced-motion check | `useAnimationPreference()` hook | Already handles full/reduced/none with spring helpers |
+| Problem               | Don't Build                   | Use Instead                                                  | Why                                                     |
+| --------------------- | ----------------------------- | ------------------------------------------------------------ | ------------------------------------------------------- |
+| OAuth flow            | Custom OAuth token handling   | `supabase.auth.signInWithOAuth()`                            | PKCE flow handles CSRF, token exchange automatically    |
+| Email validation      | Regex patterns                | `zod.string().email()` + `react-hook-form`                   | Edge cases (internationalized domains, plus addressing) |
+| Session management    | Cookie parsing                | `@supabase/ssr` `createClient()`                             | Handles refresh tokens, cookie chunking, PKCE verifier  |
+| Rate limiting         | New rate limiter              | Existing `checkRateLimit()` in `src/lib/utils/rate-limit.ts` | Already built and used in auth actions                  |
+| Toast notifications   | Custom toast for OAuth errors | Existing `useToast()` hook + `ToastProvider`                 | Already integrated app-wide                             |
+| Theme detection       | Manual theme check            | `next-themes` `useTheme()`                                   | Already integrated via `ThemeProvider`                  |
+| Animation preferences | Manual reduced-motion check   | `useAnimationPreference()` hook                              | Already handles full/reduced/none with spring helpers   |
 
 **Key insight:** The codebase already has comprehensive infrastructure for auth (Supabase), animations (Framer Motion + motion tokens), theming (next-themes), and toasts. This phase is primarily UI/UX work, not infrastructure.
 
 ## Common Pitfalls
 
 ### Pitfall 1: OAuth Redirect URL Mismatch
+
 **What goes wrong:** OAuth login fails with "redirect_uri_mismatch" error
 **Why it happens:** Google/Apple OAuth requires exact redirect URL match in provider console
 **How to avoid:** Register `https://[project-ref].supabase.co/auth/v1/callback` in Google Cloud Console and Apple Developer Portal. Also register `http://localhost:54321/auth/v1/callback` for local dev. The Supabase-level callback is different from the app-level `/auth/callback` route.
 **Warning signs:** Works in dev but fails in production, or vice versa
 
 ### Pitfall 2: Apple OAuth Requires Backend Configuration
+
 **What goes wrong:** Apple Sign In fails silently or returns no user info
 **Why it happens:** Apple requires Services ID, web redirect URL, and domain verification
 **How to avoid:** Configure in Apple Developer Portal: Services ID with Sign In with Apple enabled, add domain + return URL. Configure client ID and secret in Supabase Dashboard > Auth > Providers > Apple.
 **Warning signs:** Google works but Apple doesn't
 
 ### Pitfall 3: PKCE Verifier Cookie Not Set
+
 **What goes wrong:** `exchangeCodeForSession` fails with "PKCE verifier not found"
 **Why it happens:** Cookie is set during `signInWithOAuth` call but lost before callback
 **How to avoid:** Ensure `@supabase/ssr` middleware or server client properly handles cookies. The existing `server.ts` already configures `getAll`/`setAll` correctly. Don't use `supabase-js` vanilla client for OAuth initiation -- use `@supabase/ssr` browser client.
 **Warning signs:** Intermittent failures, especially on mobile Safari
 
 ### Pitfall 4: layoutId Conflicts Across Routes
+
 **What goes wrong:** Logo morph animation doesn't work or causes layout jumps
 **Why it happens:** `layoutId` requires both elements to be in the same `LayoutGroup` or page tree
 **How to avoid:** The login page and app header are in different route groups. Solution: use a shared layout component or `LayoutGroup` at the root level. Alternatively, use GSAP `Flip` plugin for cross-page morphs, or implement via View Transition API.
 **Warning signs:** Logo jumps instead of morphing, or morph doesn't trigger
 
 ### Pitfall 5: Floating Label Focus Management
+
 **What goes wrong:** Floating label doesn't animate correctly, or input loses focus
 **Why it happens:** Label position depends on both `:focus` and `:not(:placeholder-shown)` states
 **How to avoid:** Use CSS `peer` pattern: `<input class="peer" /> <label class="peer-focus:...">`. Don't rely on JS focus state alone -- CSS pseudo-classes are more reliable and accessible.
 **Warning signs:** Label overlaps input text, label doesn't float back down when empty
 
 ### Pitfall 6: Envelope Animation Performance
+
 **What goes wrong:** Multi-stage animation stutters or skips stages
 **Why it happens:** Chaining Framer Motion `animate` sequences incorrectly
 **How to avoid:** Use `useAnimate` hook or `animate` prop with keyframes array for multi-stage sequences. Each stage (float in -> pulse -> open with sparkle) should be a keyframe step, not separate state changes.
 **Warning signs:** Abrupt transitions between animation stages
 
 ### Pitfall 7: Email Template Variables in Supabase
+
 **What goes wrong:** Custom email template shows raw `{{ .ConfirmationURL }}` or broken links
 **Why it happens:** Supabase uses Go Templates syntax, not Handlebars
 **How to avoid:** Use `{{ .ConfirmationURL }}` for the magic link URL. Test templates in Supabase Dashboard preview. Use `{{ .SiteURL }}` for logo image URLs.
@@ -299,26 +322,27 @@ export async function signIn(formData: FormData): Promise<ActionResult | void> {
 ## Code Examples
 
 ### OAuth Login with Supabase (Client-Side)
+
 ```typescript
 // Source: Context7 /supabase/supabase-js
-'use client';
-import { createClient } from '@/lib/supabase/client';
-import { useToast } from '@/lib/hooks/useToast';
+"use client";
+import { createClient } from "@/lib/supabase/client";
+import { useToast } from "@/lib/hooks/useToast";
 
 function useSocialLogin() {
   const { toast } = useToast();
 
-  async function loginWithProvider(provider: 'google' | 'apple') {
+  async function loginWithProvider(provider: "google" | "apple") {
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
         // Google-specific: request offline access for refresh token
-        ...(provider === 'google' && {
+        ...(provider === "google" && {
           queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
+            access_type: "offline",
+            prompt: "consent",
           },
         }),
       },
@@ -326,9 +350,9 @@ function useSocialLogin() {
 
     if (error) {
       toast({
-        title: 'Sign in failed',
+        title: "Sign in failed",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     }
     // If no error, Supabase handles redirect automatically
@@ -339,16 +363,17 @@ function useSocialLogin() {
 ```
 
 ### Unified Magic Link Action
+
 ```typescript
 // Source: existing actions.ts pattern + Context7
-'use server';
+"use server";
 export async function signInWithMagicLink(formData: FormData): Promise<ActionResult> {
   const supabase = await createClient();
-  const email = formData.get('email') as string;
+  const email = formData.get("email") as string;
 
-  if (!email) return { error: 'Email is required' };
+  if (!email) return { error: "Email is required" };
 
-  const rateCheck = checkRateLimit(email, 'signIn');
+  const rateCheck = checkRateLimit(email, "signIn");
   if (!rateCheck.allowed) {
     return { error: `Too many attempts. Try again in ${rateCheck.retryAfterSeconds}s.` };
   }
@@ -368,22 +393,31 @@ export async function signInWithMagicLink(formData: FormData): Promise<ActionRes
 ```
 
 ### Animated Background Gradient (CSS)
+
 ```css
 /* Warm auth background gradient */
 @keyframes auth-gradient-shift {
-  0% { background-position: 0% 50%; }
-  33% { background-position: 50% 100%; }
-  66% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  33% {
+    background-position: 50% 100%;
+  }
+  66% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .auth-gradient {
   background: linear-gradient(
     135deg,
-    /* amber */   hsl(35, 90%, 65%),
+    /* amber */ hsl(35, 90%, 65%),
     /* soft coral */ hsl(15, 80%, 70%),
-    /* cream */   hsl(40, 60%, 85%),
-    /* amber */   hsl(35, 90%, 65%)
+    /* cream */ hsl(40, 60%, 85%),
+    /* amber */ hsl(35, 90%, 65%)
   );
   background-size: 400% 400%;
   animation: auth-gradient-shift 20s ease infinite;
@@ -403,6 +437,7 @@ export async function signInWithMagicLink(formData: FormData): Promise<ActionRes
 ```
 
 ### Floating Label Input Pattern
+
 ```tsx
 // CSS peer pattern for floating label
 <div className="relative">
@@ -428,9 +463,10 @@ export async function signInWithMagicLink(formData: FormData): Promise<ActionRes
 ```
 
 ### Multi-Stage Envelope Animation
+
 ```tsx
 // Source: Framer Motion keyframes
-import { m, useAnimate } from 'framer-motion';
+import { m, useAnimate } from "framer-motion";
 
 function EnvelopeAnimation() {
   const [scope, animate] = useAnimate();
@@ -438,11 +474,17 @@ function EnvelopeAnimation() {
   useEffect(() => {
     const sequence = async () => {
       // Stage 1: Float in from below
-      await animate('#envelope', { y: [50, 0], opacity: [0, 1] }, { duration: 0.6 });
+      await animate("#envelope", { y: [50, 0], opacity: [0, 1] }, { duration: 0.6 });
       // Stage 2: Pulse/glow while waiting
-      await animate('#envelope', { scale: [1, 1.05, 1] }, {
-        duration: 2, repeat: Infinity, ease: 'easeInOut'
-      });
+      await animate(
+        "#envelope",
+        { scale: [1, 1.05, 1] },
+        {
+          duration: 2,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }
+      );
     };
     sequence();
   }, [animate]);
@@ -458,6 +500,7 @@ function EnvelopeAnimation() {
 ```
 
 ### Logo Morph with layoutId
+
 ```tsx
 // Auth card logo (source)
 <m.div layoutId="app-logo" transition={spring.gentle}>
@@ -472,15 +515,16 @@ function EnvelopeAnimation() {
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Implicit OAuth flow | PKCE flow (default in `@supabase/ssr`) | 2024 | More secure, no tokens in URL fragment |
-| Separate login/signup | Single page with `shouldCreateUser` | Current best practice | Simpler UX, fewer routes |
-| Password-based auth | Passwordless (magic link + social) | Industry trend 2024-2025 | Higher conversion, no password management |
-| CSS transitions for page morphs | Framer Motion `layoutId` | FM v10+ | Automatic FLIP calculations, smooth morphs |
-| Custom OAuth implementation | `signInWithOAuth` + PKCE | Supabase SSR v0.4+ | Automatic cookie management, CSRF protection |
+| Old Approach                    | Current Approach                       | When Changed             | Impact                                       |
+| ------------------------------- | -------------------------------------- | ------------------------ | -------------------------------------------- |
+| Implicit OAuth flow             | PKCE flow (default in `@supabase/ssr`) | 2024                     | More secure, no tokens in URL fragment       |
+| Separate login/signup           | Single page with `shouldCreateUser`    | Current best practice    | Simpler UX, fewer routes                     |
+| Password-based auth             | Passwordless (magic link + social)     | Industry trend 2024-2025 | Higher conversion, no password management    |
+| CSS transitions for page morphs | Framer Motion `layoutId`               | FM v10+                  | Automatic FLIP calculations, smooth morphs   |
+| Custom OAuth implementation     | `signInWithOAuth` + PKCE               | Supabase SSR v0.4+       | Automatic cookie management, CSRF protection |
 
 **Deprecated/outdated:**
+
 - `signUp` with password: Not used in this phase (purely passwordless)
 - `resetPasswordForEmail` / `updatePassword`: Removed entirely
 - Implicit OAuth flow: PKCE is default and more secure
@@ -511,49 +555,54 @@ function EnvelopeAnimation() {
 ## Codebase Inventory: Files to Modify/Delete
 
 ### Files to DELETE
-| File | Reason |
-|------|--------|
-| `src/app/(auth)/signup/page.tsx` | Single page replaces separate signup |
-| `src/app/(auth)/forgot-password/page.tsx` | No password = no forgot password |
-| `src/app/auth/reset-password/page.tsx` | No password = no reset password |
-| `src/components/ui/auth/SignupForm.tsx` | Replaced by unified auth card |
-| `src/components/ui/auth/ForgotPasswordForm.tsx` | Removed |
-| `src/components/ui/auth/ResetPasswordForm.tsx` | Removed |
-| `src/components/ui/auth/LoginForm.tsx` | Replaced by new MagicLinkForm |
+
+| File                                            | Reason                               |
+| ----------------------------------------------- | ------------------------------------ |
+| `src/app/(auth)/signup/page.tsx`                | Single page replaces separate signup |
+| `src/app/(auth)/forgot-password/page.tsx`       | No password = no forgot password     |
+| `src/app/auth/reset-password/page.tsx`          | No password = no reset password      |
+| `src/components/ui/auth/SignupForm.tsx`         | Replaced by unified auth card        |
+| `src/components/ui/auth/ForgotPasswordForm.tsx` | Removed                              |
+| `src/components/ui/auth/ResetPasswordForm.tsx`  | Removed                              |
+| `src/components/ui/auth/LoginForm.tsx`          | Replaced by new MagicLinkForm        |
 
 ### Files to MODIFY
-| File | Changes |
-|------|---------|
-| `src/app/(auth)/login/page.tsx` | Complete rewrite: new premium UI |
-| `src/lib/supabase/actions.ts` | Remove `signUp`, `resetPassword`, `updatePassword`. Keep `signIn` (rename to `signInWithMagicLink`). Keep `signOut`. Ensure `shouldCreateUser: true`. |
-| `src/components/ui/auth/index.ts` | Update barrel exports |
-| `src/components/ui/auth/UserMenu.tsx` | Remove "Sign Up" button, keep "Sign In" only for unauthenticated state |
-| `src/components/ui/layout/AppHeader/DesktopHeader.tsx` | Add `layoutId` to logo for morph animation |
-| `src/components/ui/layout/AppHeader/MobileHeader.tsx` | Add `layoutId` to logo for morph animation |
+
+| File                                                   | Changes                                                                                                                                               |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/(auth)/login/page.tsx`                        | Complete rewrite: new premium UI                                                                                                                      |
+| `src/lib/supabase/actions.ts`                          | Remove `signUp`, `resetPassword`, `updatePassword`. Keep `signIn` (rename to `signInWithMagicLink`). Keep `signOut`. Ensure `shouldCreateUser: true`. |
+| `src/components/ui/auth/index.ts`                      | Update barrel exports                                                                                                                                 |
+| `src/components/ui/auth/UserMenu.tsx`                  | Remove "Sign Up" button, keep "Sign In" only for unauthenticated state                                                                                |
+| `src/components/ui/layout/AppHeader/DesktopHeader.tsx` | Add `layoutId` to logo for morph animation                                                                                                            |
+| `src/components/ui/layout/AppHeader/MobileHeader.tsx`  | Add `layoutId` to logo for morph animation                                                                                                            |
 
 ### Files to CREATE
-| File | Purpose |
-|------|---------|
-| `src/components/ui/auth/AuthCard.tsx` | Main card with state machine (form/confirmation/success) |
-| `src/components/ui/auth/AuthBackground.tsx` | Animated gradient + floating food background |
-| `src/components/ui/auth/MagicLinkForm.tsx` | Email input with floating label + validation |
-| `src/components/ui/auth/MagicLinkConfirmation.tsx` | Envelope animation + resend + spam hint |
-| `src/components/ui/auth/SocialLoginButtons.tsx` | Google + Apple icon buttons |
-| `src/components/ui/auth/LoginSuccessCeremony.tsx` | Logo morph + welcome message |
-| `src/components/ui/auth/OAuthLoadingOverlay.tsx` | Full-page "Redirecting to..." overlay |
-| `src/components/ui/auth/AuthFloatingFood.tsx` | Adapted FloatingFoodEmojis for auth context |
-| `src/app/(public)/terms/page.tsx` | Placeholder Terms of Service page |
-| `src/app/(public)/privacy/page.tsx` | Placeholder Privacy Policy page |
+
+| File                                               | Purpose                                                  |
+| -------------------------------------------------- | -------------------------------------------------------- |
+| `src/components/ui/auth/AuthCard.tsx`              | Main card with state machine (form/confirmation/success) |
+| `src/components/ui/auth/AuthBackground.tsx`        | Animated gradient + floating food background             |
+| `src/components/ui/auth/MagicLinkForm.tsx`         | Email input with floating label + validation             |
+| `src/components/ui/auth/MagicLinkConfirmation.tsx` | Envelope animation + resend + spam hint                  |
+| `src/components/ui/auth/SocialLoginButtons.tsx`    | Google + Apple icon buttons                              |
+| `src/components/ui/auth/LoginSuccessCeremony.tsx`  | Logo morph + welcome message                             |
+| `src/components/ui/auth/OAuthLoadingOverlay.tsx`   | Full-page "Redirecting to..." overlay                    |
+| `src/components/ui/auth/AuthFloatingFood.tsx`      | Adapted FloatingFoodEmojis for auth context              |
+| `src/app/(public)/terms/page.tsx`                  | Placeholder Terms of Service page                        |
+| `src/app/(public)/privacy/page.tsx`                | Placeholder Privacy Policy page                          |
 
 ### Tests to Update
-| File | Changes |
-|------|---------|
-| `src/components/ui/auth/__tests__/login-form.test.tsx` | Rewrite for new MagicLinkForm component |
-| `src/components/ui/auth/__tests__/signup-form.test.tsx` | DELETE (no more signup form) |
+
+| File                                                    | Changes                                 |
+| ------------------------------------------------------- | --------------------------------------- |
+| `src/components/ui/auth/__tests__/login-form.test.tsx`  | Rewrite for new MagicLinkForm component |
+| `src/components/ui/auth/__tests__/signup-form.test.tsx` | DELETE (no more signup form)            |
 
 ## Supabase Dashboard Configuration Required
 
 ### Email Templates (Dashboard > Auth > Templates)
+
 - **Magic Link template:** Custom HTML with Morning Star branding
   - Logo image: `{{ .SiteURL }}/logo.png`
   - Brand colors: `#A41034` (primary red), `#EBCD00` (golden yellow)
@@ -561,32 +610,38 @@ function EnvelopeAnimation() {
   - Template variables: `{{ .ConfirmationURL }}`, `{{ .SiteURL }}`
 
 ### Auth Providers (Dashboard > Auth > Providers)
+
 - **Google:** Enable, configure Client ID + Client Secret from Google Cloud Console
 - **Apple:** Enable, configure Services ID + Key from Apple Developer Portal
 
 ### Auth Settings (Dashboard > Auth > Settings)
+
 - **Site URL:** Production app URL
 - **Redirect URLs:** Add `http://localhost:3000/auth/callback` and production callback URL
 
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Context7 `/supabase/supabase-js` - OAuth signInWithOAuth API, magic link signInWithOtp, PKCE flow
 - Context7 `/websites/motion_dev` - layoutId shared layout animations, AnimatePresence
 - Existing codebase: `src/lib/supabase/actions.ts`, `src/components/ui/auth/`, `src/app/auth/callback/route.ts`
 
 ### Secondary (MEDIUM confidence)
+
 - [Supabase Email Templates docs](https://supabase.com/docs/guides/auth/auth-email-templates) - Go template variables, SMTP config
 - [Apple Sign In Usage Guidelines](https://developer.apple.com/sign-in-with-apple/usage-guidelines-for-websites-and-other-platforms/) - Button requirements
 - [Supabase Google OAuth docs](https://supabase.com/docs/guides/auth/social-login/auth-google) - Provider setup
 - [Supabase Apple OAuth docs](https://supabase.com/docs/guides/auth/social-login/auth-apple) - Provider setup
 
 ### Tertiary (LOW confidence)
+
 - Logo morph across route groups: needs prototype validation (see Open Question 1)
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - all libraries already installed and in use
 - Architecture: HIGH - patterns verified against existing codebase and Context7
 - Pitfalls: HIGH - common issues documented in Supabase/Framer Motion docs and project learnings

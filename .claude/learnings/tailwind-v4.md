@@ -7,6 +7,7 @@
 **Root Cause:** In Tailwind v4 + Turbopack, `tailwind.config.ts` is completely ignored. The `@config` directive is also silently ignored by Turbopack's CSS pipeline. The **only** source of truth for utility class generation is `@theme inline {}` in `globals.css`.
 
 **Self-referencing pattern:**
+
 ```css
 @theme inline {
   --color-status-success: var(--color-status-success);
@@ -29,6 +30,7 @@ Tailwind v4 auto-scans ALL files for utility class patterns — including `docs/
 **Problem:** Wildcard examples like `var(--shadow-*)` in docs generate invalid CSS (`Unexpected token Delim('*')`).
 
 **Fix:**
+
 ```css
 @import "tailwindcss";
 @source not "../../docs";
@@ -48,11 +50,17 @@ Custom `zIndex` theme extensions do NOT generate utility classes in v4.
 
 ```ts
 // Does NOT create z-modal class
-theme: { extend: { zIndex: { modal: '50' } } }
+theme: {
+  extend: {
+    zIndex: {
+      modal: "50";
+    }
+  }
+}
 
 // Use default scale or arbitrary values
-z-50       // Default scale
-z-[60]     // Arbitrary value
+z - 50; // Default scale
+z - [60]; // Arbitrary value
 ```
 
 **@theme variable naming:** CSS variables use full prefix (`--z-index-modal`), utilities strip it (`z-modal`). TypeScript helpers must reference full CSS variable name.
@@ -66,9 +74,10 @@ z-[60]     // Arbitrary value
 Tailwind v4's `@theme inline` block processes BEFORE `tokens.css` is imported. Desktop masks this with `backdrop-blur`, but mobile has blur disabled.
 
 **Fix:** Use explicit Tailwind colors for mobile-critical backgrounds:
+
 ```tsx
 // eslint-disable-next-line no-restricted-syntax
-className="bg-white dark:bg-black md:bg-white/80 md:dark:bg-black/80 md:backdrop-blur-md"
+className = "bg-white dark:bg-black md:bg-white/80 md:dark:bg-black/80 md:backdrop-blur-md";
 ```
 
 **Affected:** Modal, Drawer, MobileDrawer, ItemDetailSheet, CartBar, NavDots, SectionNavDots, SectionCarousel.

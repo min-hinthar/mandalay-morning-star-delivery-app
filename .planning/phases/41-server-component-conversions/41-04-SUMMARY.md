@@ -84,12 +84,14 @@ Each task was committed atomically:
 ### Keep MenuContent as Client Component
 
 **Rationale:** MenuContent is deeply integrated with:
+
 1. **React Query (useMenu):** Provides client-side caching, background refetching, stale-while-revalidate
 2. **Offline support:** IndexedDB caching via menuCache with automatic fallback
 3. **Multiple client hooks:** useFavorites, useCart, useCustomerOfflineSync
 4. **URL param handling:** useSearchParams for command palette integration
 
 Converting to server component would require:
+
 - Replacing React Query with server-side fetch (breaking caching/SWR)
 - Moving offline logic to service worker only (major architecture change)
 - Coordinating client state across multiple boundaries
@@ -99,12 +101,14 @@ Converting to server component would require:
 ### MenuContentClient as Future Enhancement Path
 
 Created MenuContentClient with:
+
 - Context provider for favorites, cart, offline state
 - useMenuInteractivity hook for granular access
 - ItemDetailSheet management
 - URL param item modal handling
 
 This enables future progressive enhancement when/if:
+
 - Server-side menu rendering becomes practical
 - Offline strategy moves to service worker
 - React Query is replaced with server actions
@@ -125,5 +129,6 @@ None - plan executed with pragmatic adaptation per CONTEXT.md guidance.
 - Ready for 41-05 (homepage route conversion)
 
 ---
-*Phase: 41-server-component-conversions*
-*Completed: 2026-02-06*
+
+_Phase: 41-server-component-conversions_
+_Completed: 2026-02-06_

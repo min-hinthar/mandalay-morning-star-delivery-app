@@ -58,7 +58,10 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
   const supabase = await createClient();
 
   // Check authentication
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     redirect("/login");
@@ -67,7 +70,8 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
   // Fetch order with items, modifiers, and address
   const { data: orderData, error: orderError } = await supabase
     .from("orders")
-    .select(`
+    .select(
+      `
       *,
       addresses (
         id,
@@ -92,7 +96,8 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
           price_delta_snapshot
         )
       )
-    `)
+    `
+    )
     .eq("id", orderId)
     .eq("user_id", user.id)
     .returns<OrderQueryResult[]>()
@@ -125,11 +130,13 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
     quantity: item.quantity,
     lineTotalCents: item.line_total_cents,
     specialInstructions: item.special_instructions,
-    modifiers: item.order_item_modifiers.map((mod): OrderItemModifier => ({
-      id: mod.id,
-      nameSnapshot: mod.name_snapshot,
-      priceDeltaSnapshot: mod.price_delta_snapshot,
-    })),
+    modifiers: item.order_item_modifiers.map(
+      (mod): OrderItemModifier => ({
+        id: mod.id,
+        nameSnapshot: mod.name_snapshot,
+        priceDeltaSnapshot: mod.price_delta_snapshot,
+      })
+    ),
   }));
 
   const order: Order = {

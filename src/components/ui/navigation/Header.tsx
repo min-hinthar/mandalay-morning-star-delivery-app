@@ -132,9 +132,7 @@ function HamburgerButton({ onClick }: HamburgerButtonProps) {
 function DefaultLogo() {
   return (
     <Link href="/" className="flex items-center gap-2">
-      <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-        Morning Star
-      </span>
+      <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Morning Star</span>
     </Link>
   );
 }
@@ -143,13 +141,7 @@ function DefaultLogo() {
 // HEADER COMPONENT
 // ============================================
 
-export function Header({
-  logo,
-  navItems = [],
-  rightContent,
-  onMenuClick,
-  className,
-}: HeaderProps) {
+export function Header({ logo, navItems = [], rightContent, onMenuClick, className }: HeaderProps) {
   // Scroll detection with threshold: 50
   const { isCollapsed, isAtTop } = useScrollDirection({ threshold: SCROLL_THRESHOLD });
 
@@ -198,41 +190,28 @@ export function Header({
           <HamburgerButton onClick={onMenuClick} />
 
           {/* Center: Logo */}
-          <div className="flex-1 flex justify-center">
-            {logo ?? <DefaultLogo />}
-          </div>
+          <div className="flex-1 flex justify-center">{logo ?? <DefaultLogo />}</div>
 
           {/* Right: Cart/Actions slot */}
-          <div className="flex items-center gap-1">
-            {rightContent}
-          </div>
+          <div className="flex items-center gap-1">{rightContent}</div>
         </div>
 
         {/* Desktop layout (md and above) */}
         <div className="hidden md:flex w-full items-center justify-between">
           {/* Left: Logo */}
-          <div className="flex-shrink-0">
-            {logo ?? <DefaultLogo />}
-          </div>
+          <div className="flex-shrink-0">{logo ?? <DefaultLogo />}</div>
 
           {/* Center: Nav links */}
           {navItems.length > 0 && (
             <nav className="flex items-center gap-1 mx-4">
               {navItems.map((item) => (
-                <NavLink
-                  key={item.href}
-                  href={item.href}
-                  label={item.label}
-                  icon={item.icon}
-                />
+                <NavLink key={item.href} href={item.href} label={item.label} icon={item.icon} />
               ))}
             </nav>
           )}
 
           {/* Right: Actions slot */}
-          <div className="flex items-center gap-2">
-            {rightContent}
-          </div>
+          <div className="flex items-center gap-2">{rightContent}</div>
         </div>
       </div>
     </m.header>

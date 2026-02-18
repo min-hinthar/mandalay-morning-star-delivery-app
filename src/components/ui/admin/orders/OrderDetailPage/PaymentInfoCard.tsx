@@ -18,17 +18,11 @@ export function PaymentInfoCard({ order }: PaymentInfoCardProps) {
   const paymentStatus = derivePaymentStatus(order.status);
 
   return (
-    <CollapsibleCard
-      title="Payment"
-      icon={<CreditCard className="h-4 w-4" />}
-      defaultOpen={false}
-    >
+    <CollapsibleCard title="Payment" icon={<CreditCard className="h-4 w-4" />} defaultOpen={false}>
       <div className="space-y-3 text-sm">
         <div className="flex items-center justify-between">
           <span className="text-text-secondary">Status</span>
-          <span className="font-medium text-text-primary">
-            {paymentStatus}
-          </span>
+          <span className="font-medium text-text-primary">{paymentStatus}</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-text-secondary">Method</span>

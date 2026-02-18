@@ -60,6 +60,7 @@ completed: 2026-01-28
 - **Files modified:** 8
 
 ## Accomplishments
+
 - Added --tabs-offset: 72px token for sticky tab positioning
 - Migrated CategoryTabs and MenuSkeleton from top-[72px] to top-[var(--tabs-offset)]
 - Migrated all chart components to use var(--radius-md) and var(--radius-xl) for borderRadius
@@ -75,6 +76,7 @@ Each task was committed atomically:
 **Note:** Chart migrations were completed in Phase 27 refinement work. Task 2 changes were idempotent (no-op).
 
 ## Files Created/Modified
+
 - `src/styles/tokens.css` - Added --tabs-offset: 72px layout token
 - `src/components/ui/menu/CategoryTabs.tsx` - Uses top-[var(--tabs-offset)]
 - `src/components/ui/menu/MenuSkeleton.tsx` - Uses top-[var(--tabs-offset)]
@@ -85,6 +87,7 @@ Each task was committed atomically:
 - `src/components/ui/admin/analytics/ExceptionBreakdown.tsx` - Uses var(--radius-md)
 
 ## Decisions Made
+
 - **--tabs-offset value of 72px:** Header (56px) + spacing (16px) for sticky tabs
 - **Preserved MorphingMenu numeric borderRadius:** Animation interpolation requires numeric strings
 
@@ -93,6 +96,7 @@ Each task was committed atomically:
 None - plan executed exactly as written. Chart migrations were already complete from prior work.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
@@ -100,10 +104,12 @@ None
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Phase 28 token enforcement complete
 - Layout tokens (--tabs-offset) now available for future sticky elements
 - Chart styling now uses design system tokens for consistency
 
 ---
-*Phase: 28-token-enforcement-layout*
-*Completed: 2026-01-28*
+
+_Phase: 28-token-enforcement-layout_
+_Completed: 2026-01-28_

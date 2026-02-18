@@ -35,26 +35,20 @@ export function calculateMetricsSummary(
   }
 
   const totalOrders = metrics.reduce((sum, m) => sum + m.totalOrders, 0);
-  const totalRevenueCents = metrics.reduce(
-    (sum, m) => sum + m.totalRevenueCents,
-    0
-  );
+  const totalRevenueCents = metrics.reduce((sum, m) => sum + m.totalRevenueCents, 0);
   const totalDeliveries = metrics.reduce((sum, m) => sum + m.deliveredCount, 0);
   const totalSkipped = metrics.reduce((sum, m) => sum + m.skippedCount, 0);
   const totalExceptions = metrics.reduce((sum, m) => sum + m.totalExceptions, 0);
 
   const avgSuccessRate =
     metrics.reduce((sum, m) => sum + m.deliverySuccessRate, 0) / metrics.length;
-  const avgEtaAccuracy =
-    metrics.reduce((sum, m) => sum + m.etaAccuracyRate, 0) / metrics.length;
+  const avgEtaAccuracy = metrics.reduce((sum, m) => sum + m.etaAccuracyRate, 0) / metrics.length;
 
   const validDurations = metrics.filter((m) => m.avgRouteDurationMinutes !== null);
   const avgRouteDuration =
     validDurations.length > 0
-      ? validDurations.reduce(
-          (sum, m) => sum + (m.avgRouteDurationMinutes || 0),
-          0
-        ) / validDurations.length
+      ? validDurations.reduce((sum, m) => sum + (m.avgRouteDurationMinutes || 0), 0) /
+        validDurations.length
       : null;
 
   // Calculate trends if previous data available
@@ -63,17 +57,10 @@ export function calculateMetricsSummary(
   let successRateTrend = 0;
 
   if (previousMetrics && previousMetrics.length > 0) {
-    const prevTotalOrders = previousMetrics.reduce(
-      (sum, m) => sum + m.totalOrders,
-      0
-    );
-    const prevTotalRevenue = previousMetrics.reduce(
-      (sum, m) => sum + m.totalRevenueCents,
-      0
-    );
+    const prevTotalOrders = previousMetrics.reduce((sum, m) => sum + m.totalOrders, 0);
+    const prevTotalRevenue = previousMetrics.reduce((sum, m) => sum + m.totalRevenueCents, 0);
     const prevAvgSuccess =
-      previousMetrics.reduce((sum, m) => sum + m.deliverySuccessRate, 0) /
-      previousMetrics.length;
+      previousMetrics.reduce((sum, m) => sum + m.deliverySuccessRate, 0) / previousMetrics.length;
 
     ordersTrend = calculateTrendPercentage(totalOrders, prevTotalOrders);
     revenueTrend = calculateTrendPercentage(totalRevenueCents, prevTotalRevenue);
@@ -88,19 +75,14 @@ export function calculateMetricsSummary(
     endDate: endDate.toISOString().split("T")[0],
     totalOrders,
     totalRevenueCents,
-    avgOrderValueCents:
-      totalOrders > 0 ? Math.round(totalRevenueCents / totalOrders) : 0,
+    avgOrderValueCents: totalOrders > 0 ? Math.round(totalRevenueCents / totalOrders) : 0,
     totalDeliveries,
     totalSkipped,
     deliverySuccessRate: Math.round(avgSuccessRate * 10) / 10,
     etaAccuracyRate: Math.round(avgEtaAccuracy * 10) / 10,
-    avgDailyOrders:
-      metrics.length > 0 ? Math.round(totalOrders / metrics.length) : 0,
-    avgDailyRevenue:
-      metrics.length > 0 ? Math.round(totalRevenueCents / metrics.length) : 0,
-    avgRouteDuration: avgRouteDuration
-      ? Math.round(avgRouteDuration * 10) / 10
-      : null,
+    avgDailyOrders: metrics.length > 0 ? Math.round(totalOrders / metrics.length) : 0,
+    avgDailyRevenue: metrics.length > 0 ? Math.round(totalRevenueCents / metrics.length) : 0,
+    avgRouteDuration: avgRouteDuration ? Math.round(avgRouteDuration * 10) / 10 : null,
     ordersTrend,
     revenueTrend,
     successRateTrend,
@@ -258,9 +240,7 @@ export function metricsToDataPoints(
 /**
  * Get rating distribution as percentages
  */
-export function getRatingPercentages(
-  distribution: RatingDistribution
-): RatingDistribution {
+export function getRatingPercentages(distribution: RatingDistribution): RatingDistribution {
   const total =
     distribution.fiveStar +
     distribution.fourStar +

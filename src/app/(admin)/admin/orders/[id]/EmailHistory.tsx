@@ -2,15 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import {
-  Mail,
-  ChevronDown,
-  ChevronUp,
-  RefreshCw,
-  Send,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
+import { Mail, ChevronDown, ChevronUp, RefreshCw, Send, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/lib/hooks/useToast";
@@ -95,9 +87,7 @@ export function EmailHistory({ orderId }: EmailHistoryProps) {
   const fetchEmails = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `/api/admin/emails?orderId=${encodeURIComponent(orderId)}`
-      );
+      const response = await fetch(`/api/admin/emails?orderId=${encodeURIComponent(orderId)}`);
       if (!response.ok) throw new Error("Failed to fetch email history");
       const result = await response.json();
       setEmails(result.data || []);
@@ -129,8 +119,7 @@ export function EmailHistory({ orderId }: EmailHistoryProps) {
         toast({ variant: "success", description: "Email resent" });
         fetchEmails();
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to resend";
+        const message = error instanceof Error ? error.message : "Failed to resend";
         toast({ variant: "destructive", description: message });
       } finally {
         setResendingId(null);
@@ -156,8 +145,7 @@ export function EmailHistory({ orderId }: EmailHistoryProps) {
         toast({ variant: "success", description: "Email sent" });
         fetchEmails();
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to send";
+        const message = error instanceof Error ? error.message : "Failed to send";
         toast({ variant: "destructive", description: message });
       } finally {
         setSendingType(null);
@@ -192,12 +180,7 @@ export function EmailHistory({ orderId }: EmailHistoryProps) {
           <Mail className="h-4 w-4" />
           Email History
         </h3>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={fetchEmails}
-          disabled={loading}
-        >
+        <Button variant="ghost" size="sm" onClick={fetchEmails} disabled={loading}>
           <RefreshCw className="h-3 w-3" />
         </Button>
       </div>
@@ -220,9 +203,7 @@ export function EmailHistory({ orderId }: EmailHistoryProps) {
                 {/* Row */}
                 <button
                   type="button"
-                  onClick={() =>
-                    setExpandedId(isExpanded ? null : email.id)
-                  }
+                  onClick={() => setExpandedId(isExpanded ? null : email.id)}
                   className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-surface-secondary/50 transition-colors"
                 >
                   <Mail className="h-4 w-4 shrink-0 text-text-muted" />
@@ -231,17 +212,11 @@ export function EmailHistory({ orderId }: EmailHistoryProps) {
                       {email.subject}
                     </p>
                     <p className="text-xs text-text-muted">
-                      {TYPE_LABELS[email.notification_type] ||
-                        email.notification_type}{" "}
-                      &middot; {formatDate(email.sent_at || email.created_at)}
+                      {TYPE_LABELS[email.notification_type] || email.notification_type} &middot;{" "}
+                      {formatDate(email.sent_at || email.created_at)}
                     </p>
                   </div>
-                  <Badge
-                    variant={
-                      STATUS_BADGE_MAP[email.status] || "default"
-                    }
-                    size="sm"
-                  >
+                  <Badge variant={STATUS_BADGE_MAP[email.status] || "default"} size="sm">
                     {email.status}
                   </Badge>
                   {isExpanded ? (
@@ -257,16 +232,12 @@ export function EmailHistory({ orderId }: EmailHistoryProps) {
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div>
                         <span className="text-text-muted">Recipient:</span>{" "}
-                        <span className="text-text-primary">
-                          {email.recipient}
-                        </span>
+                        <span className="text-text-primary">{email.recipient}</span>
                       </div>
                       {email.resend_id && (
                         <div>
                           <span className="text-text-muted">Resend ID:</span>{" "}
-                          <span className="text-text-primary font-mono">
-                            {email.resend_id}
-                          </span>
+                          <span className="text-text-primary font-mono">{email.resend_id}</span>
                         </div>
                       )}
                     </div>
@@ -280,31 +251,24 @@ export function EmailHistory({ orderId }: EmailHistoryProps) {
                     )}
 
                     {/* Status Timeline */}
-                    {email.metadata?.resend_events &&
-                      email.metadata.resend_events.length > 0 && (
-                        <div className="space-y-1">
-                          <p className="text-xs font-semibold text-text-secondary">
-                            Status Timeline
-                          </p>
-                          <div className="space-y-0.5">
-                            {email.metadata.resend_events.map(
-                              (event, idx) => (
-                                <div
-                                  key={idx}
-                                  className="flex items-center gap-2 text-xs text-text-muted"
-                                >
-                                  <div className="h-1.5 w-1.5 rounded-full bg-text-muted shrink-0" />
-                                  <span className="capitalize">
-                                    {event.status}
-                                  </span>
-                                  <span>&middot;</span>
-                                  <span>{formatDate(event.timestamp)}</span>
-                                </div>
-                              )
-                            )}
-                          </div>
+                    {email.metadata?.resend_events && email.metadata.resend_events.length > 0 && (
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold text-text-secondary">Status Timeline</p>
+                        <div className="space-y-0.5">
+                          {email.metadata.resend_events.map((event, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-2 text-xs text-text-muted"
+                            >
+                              <div className="h-1.5 w-1.5 rounded-full bg-text-muted shrink-0" />
+                              <span className="capitalize">{event.status}</span>
+                              <span>&middot;</span>
+                              <span>{formatDate(event.timestamp)}</span>
+                            </div>
+                          ))}
                         </div>
-                      )}
+                      </div>
+                    )}
 
                     {/* Resend button for failed emails */}
                     {email.status === "failed" && (

@@ -26,10 +26,7 @@ import { usePathname } from "next/navigation";
  * @param isOpen - Whether the overlay is currently open
  * @param onClose - Callback to close the overlay
  */
-export function useRouteChangeClose(
-  isOpen: boolean,
-  onClose: () => void
-): void {
+export function useRouteChangeClose(isOpen: boolean, onClose: () => void): void {
   const pathname = usePathname();
   const openedPathnameRef = useRef<string | null>(null);
   const isMountedRef = useRef(true);
@@ -54,11 +51,7 @@ export function useRouteChangeClose(
 
   // Close if pathname changed after opening
   useEffect(() => {
-    if (
-      isOpen &&
-      openedPathnameRef.current !== null &&
-      pathname !== openedPathnameRef.current
-    ) {
+    if (isOpen && openedPathnameRef.current !== null && pathname !== openedPathnameRef.current) {
       // Defer close to next microtask to avoid React state update cascades
       queueMicrotask(() => {
         if (isMountedRef.current) {

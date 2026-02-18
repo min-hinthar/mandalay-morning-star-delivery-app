@@ -55,7 +55,7 @@ completed: 2026-02-14
 - GET /api/health?deep=true runs live Supabase/Stripe/Resend connectivity and route reachability
 - production_ready flag requires all critical env vars + healthy services + reachable routes
 - HTTP 200 when healthy, 503 when degraded/down
-- CORS headers (Access-Control-Allow-Origin: *) for monitoring dashboards
+- CORS headers (Access-Control-Allow-Origin: \*) for monitoring dashboards
 - Cache-Control: no-store prevents stale health responses
 
 ## Task Commits
@@ -109,5 +109,6 @@ The following manual verification steps are awaiting user approval:
 - CORS allows any origin for external monitoring tool integration
 
 ---
-*Phase: 58-deployment-verification*
-*Completed: 2026-02-14*
+
+_Phase: 58-deployment-verification_
+_Completed: 2026-02-14_

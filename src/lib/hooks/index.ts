@@ -46,14 +46,8 @@ export {
   type UseHeaderVisibilityOptions,
   type UseHeaderVisibilityReturn,
 } from "./useHeaderVisibility";
-export {
-  useCommandPalette,
-  type UseCommandPaletteReturn,
-} from "./useCommandPalette";
-export {
-  useRecentSearches,
-  type UseRecentSearchesReturn,
-} from "./useRecentSearches";
+export { useCommandPalette, type UseCommandPaletteReturn } from "./useCommandPalette";
+export { useRecentSearches, type UseRecentSearchesReturn } from "./useRecentSearches";
 export { useActiveCategory } from "./useActiveCategory";
 export { useScrollSpy } from "./useScrollSpy";
 export { useDebounce } from "./useDebounce";
@@ -65,20 +59,14 @@ export { useDebounce } from "./useDebounce";
 export { useCart } from "./useCart";
 export { useCartDrawer } from "./useCartDrawer";
 export { useNavigationGuard } from "./useNavigationGuard";
-export type {
-  UseNavigationGuardOptions,
-  UseNavigationGuardReturn,
-} from "./useNavigationGuard";
+export type { UseNavigationGuardOptions, UseNavigationGuardReturn } from "./useNavigationGuard";
 
 // ============================================
 // DATA HOOKS
 // ============================================
 
 export { useMenu } from "./useMenu";
-export {
-  useOrderHistorySearch,
-  type OrderHistoryItem,
-} from "./useOrderHistorySearch";
+export { useOrderHistorySearch, type OrderHistoryItem } from "./useOrderHistorySearch";
 export { useAddresses } from "./useAddresses";
 export { useTimeSlot } from "./useTimeSlot";
 export { useCoverageCheck } from "./useCoverageCheck";
@@ -107,11 +95,7 @@ export { useTrackingSubscription } from "./useTrackingSubscription";
 
 export { useCustomerOfflineSync } from "./useCustomerOfflineSync";
 export { useOfflineSync } from "./useOfflineSync";
-export {
-  useServiceWorker,
-  invalidateMenuCache,
-  reportCacheMetrics,
-} from "./useServiceWorker";
+export { useServiceWorker, invalidateMenuCache, reportCacheMetrics } from "./useServiceWorker";
 export { useUpdateBanner } from "./useUpdateBanner";
 export type { UseUpdateBannerReturn } from "./useUpdateBanner";
 
@@ -134,12 +118,7 @@ export { useBodyScrollLock } from "./useBodyScrollLock";
 // SAFE EFFECT UTILITIES
 // ============================================
 
-export {
-  useMountedRef,
-  useSafeTimeout,
-  useSafeInterval,
-  useSafeAsync,
-} from "./useSafeEffects";
+export { useMountedRef, useSafeTimeout, useSafeInterval, useSafeAsync } from "./useSafeEffects";
 export type {
   SafeTimeoutControls,
   SafeIntervalControls,

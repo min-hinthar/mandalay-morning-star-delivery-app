@@ -27,14 +27,9 @@ interface DeliveryFeedbackFormProps {
   existingRating: ExistingRating | null;
 }
 
-export function DeliveryFeedbackForm({
-  orderId,
-  existingRating,
-}: DeliveryFeedbackFormProps) {
+export function DeliveryFeedbackForm({ orderId, existingRating }: DeliveryFeedbackFormProps) {
   const [rating, setRating] = useState(existingRating?.rating ?? 0);
-  const [feedbackText, setFeedbackText] = useState(
-    existingRating?.feedbackText ?? ""
-  );
+  const [feedbackText, setFeedbackText] = useState(existingRating?.feedbackText ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,11 +71,7 @@ export function DeliveryFeedbackForm({
   // Already rated - show read-only view
   if (existingRating) {
     return (
-      <m.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-6"
-      >
+      <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
         {/* Back Button */}
         <Button variant="ghost" asChild>
           <Link href={`/orders/${orderId}`} className="flex items-center gap-2">
@@ -100,9 +91,7 @@ export function DeliveryFeedbackForm({
             <CheckCircle className="h-8 w-8 text-jade" />
           </m.div>
 
-          <h1 className="mb-2 text-2xl font-display text-charcoal">
-            Thanks for your feedback!
-          </h1>
+          <h1 className="mb-2 text-2xl font-display text-charcoal">Thanks for your feedback!</h1>
           <p className="mb-6 text-charcoal-500">
             You rated this delivery on{" "}
             {new Date(existingRating.submittedAt).toLocaleDateString("en-US", {
@@ -187,11 +176,7 @@ export function DeliveryFeedbackForm({
 
   // Rating form
   return (
-    <m.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
-    >
+    <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       {/* Back Button */}
       <Button variant="ghost" asChild>
         <Link href={`/orders/${orderId}`} className="flex items-center gap-2">
@@ -213,12 +198,8 @@ export function DeliveryFeedbackForm({
             >
               <Star className="h-8 w-8 text-saffron" />
             </m.div>
-            <h1 className="text-2xl font-display text-charcoal">
-              How was your delivery?
-            </h1>
-            <p className="mt-2 text-charcoal-500">
-              Your feedback helps us serve you better
-            </p>
+            <h1 className="text-2xl font-display text-charcoal">How was your delivery?</h1>
+            <p className="mt-2 text-charcoal-500">Your feedback helps us serve you better</p>
           </div>
 
           {/* Star Rating */}
@@ -228,12 +209,7 @@ export function DeliveryFeedbackForm({
             transition={{ delay: 0.2 }}
             className="mb-8 flex justify-center"
           >
-            <StarRating
-              value={rating}
-              onChange={setRating}
-              size="lg"
-              showLabel
-            />
+            <StarRating value={rating} onChange={setRating} size="lg" showLabel />
           </m.div>
 
           {/* Feedback Text */}
@@ -245,9 +221,7 @@ export function DeliveryFeedbackForm({
           >
             <div className="mb-2 flex items-center gap-2 text-charcoal-600">
               <MessageSquare className="h-4 w-4" />
-              <span className="text-sm font-medium">
-                Additional feedback (optional)
-              </span>
+              <span className="text-sm font-medium">Additional feedback (optional)</span>
             </div>
             <Textarea
               value={feedbackText}
@@ -257,9 +231,7 @@ export function DeliveryFeedbackForm({
               className="resize-none"
               maxLength={500}
             />
-            <p className="mt-1 text-right text-xs text-charcoal-400">
-              {feedbackText.length}/500
-            </p>
+            <p className="mt-1 text-right text-xs text-charcoal-400">{feedbackText.length}/500</p>
           </m.div>
 
           {/* Error */}

@@ -25,10 +25,7 @@ export function MapSkeleton({
 }: MapSkeletonProps) {
   return (
     <div
-      className={cn(
-        "relative animate-pulse rounded-xl bg-surface-muted",
-        className
-      )}
+      className={cn("relative animate-pulse rounded-xl bg-surface-muted", className)}
       style={{ minHeight: height }}
       role="status"
       aria-label="Loading map"
@@ -37,7 +34,13 @@ export function MapSkeleton({
       {mobileHeight && (
         <style>{`@media (max-width: 767px) { [data-map-skeleton] { min-height: ${mobileHeight}px !important; } }`}</style>
       )}
-      {mobileHeight && <div data-map-skeleton="" className="absolute inset-0" style={{ minHeight: mobileHeight }} />}
+      {mobileHeight && (
+        <div
+          data-map-skeleton=""
+          className="absolute inset-0"
+          style={{ minHeight: mobileHeight }}
+        />
+      )}
 
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
         <MapPin className="h-8 w-8 text-text-muted" />

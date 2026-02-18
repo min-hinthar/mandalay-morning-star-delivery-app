@@ -119,10 +119,7 @@ export async function addToStore<T extends { id: string }>(
   });
 }
 
-export async function getFromStore<T>(
-  storeName: string,
-  key: string
-): Promise<T | null> {
+export async function getFromStore<T>(storeName: string, key: string): Promise<T | null> {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(storeName, "readonly");

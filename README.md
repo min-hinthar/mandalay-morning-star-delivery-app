@@ -19,6 +19,7 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 ## Features
 
 ### Customer Experience
+
 - Categorized menu with search, filters, and bilingual support (47 items, 8 categories)
 - Unified menu cards with glassmorphism, 3D tilt, and shine effects
 - Cart with Zustand persistence, swipe-to-delete, fly-to-cart animations
@@ -28,6 +29,7 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 - PWA: installable, offline menu browsing, push notifications
 
 ### Admin Dashboard
+
 - Menu item CRUD with photo uploads (Supabase Storage)
 - Order management with status updates, refunds
 - Driver management, invite system (magic link onboarding)
@@ -37,6 +39,7 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 - Email management: delivery log, resend failures, manual triggers, kill switch
 
 ### Driver Mobile Interface
+
 - Active route view with stop list and Google Maps
 - GPS location tracking (adaptive intervals)
 - Delivery photo capture with proof of delivery
@@ -44,6 +47,7 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 - Route optimization with before/after comparison
 
 ### Transactional Email System
+
 - 4 branded email templates: order confirmation, cancellation, refund, delivery reminder
 - React Email + Resend for rendering and delivery
 - Stripe webhook idempotency (prevents duplicate sends on retries)
@@ -54,6 +58,7 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 - Admin email log with search, filter, resend, and manual trigger
 
 ### Platform Capabilities
+
 - Animation-first design: GSAP timelines + Framer Motion components
 - Device-adaptive animations (low-power/high-power tiers)
 - OLED dark mode with circular reveal theme switching
@@ -64,53 +69,53 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 
 ### Performance (v1.5)
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| LCP (Homepage) | 19.9s | 11.4s | 43% faster |
-| LCP (Menu) | 18.2s | 9.8s | 46% faster |
+| Metric               | Before          | After            | Improvement |
+| -------------------- | --------------- | ---------------- | ----------- |
+| LCP (Homepage)       | 19.9s           | 11.4s            | 43% faster  |
+| LCP (Menu)           | 18.2s           | 9.8s             | 46% faster  |
 | Framer Motion bundle | ~34KB/component | ~4.6KB/component | 86% smaller |
 
 Key optimizations: CardImage to Next.js Image, LazyMotion with domMax, React Compiler enabled, Lighthouse CI regression gate. See [PERFORMANCE.md](./PERFORMANCE.md) for full optimization journey.
 
 ## Tech Stack
 
-| Layer | Technology | Version |
-|-------|-----------|---------|
-| Framework | Next.js (App Router) | 16.1.2 |
-| UI | React | 19.2.3 |
-| Language | TypeScript (strict mode) | 5.x |
-| Styling | Tailwind CSS + shadcn/ui + Radix UI | 4.x |
-| Animation | Framer Motion + GSAP | 12.26.1 + 3.14.2 |
-| Client State | Zustand | 5.0.10 |
-| Server State | TanStack React Query | 5.90.1 |
-| Forms | React Hook Form + Conform + Zod | 7.71.1 + 1.15.1 + 4.3.5 |
-| Auth & DB | Supabase (Auth + Postgres + RLS + Storage) | 2.90.1 |
-| Payments | Stripe | 20.1.2 |
-| Email | Resend + React Email | - |
-| Maps | Google Maps API (@react-google-maps/api) | 2.20.8 |
-| PWA | Serwist (Service Worker) | 9.5.4 |
-| Error Tracking | Sentry | 10.34.0 |
-| Analytics | Vercel Analytics | 1.6.1 |
-| Testing (Unit) | Vitest | 4.0.17 |
-| Testing (E2E) | Playwright | 1.57.0 |
-| Testing (A11y) | Axe-core | 4.11.0 |
-| Component Dev | Storybook | 10.1.11 |
-| Visual Testing | Chromatic | 5.0.0 |
-| Performance | Lighthouse CI | - |
-| Linting | ESLint 9 + Stylelint 17 + Prettier 3.7 | - |
-| Git Hooks | Husky + lint-staged | 9.1.7 |
-| Package Manager | pnpm | - |
-| Hosting | Vercel | - |
+| Layer           | Technology                                 | Version                 |
+| --------------- | ------------------------------------------ | ----------------------- |
+| Framework       | Next.js (App Router)                       | 16.1.2                  |
+| UI              | React                                      | 19.2.3                  |
+| Language        | TypeScript (strict mode)                   | 5.x                     |
+| Styling         | Tailwind CSS + shadcn/ui + Radix UI        | 4.x                     |
+| Animation       | Framer Motion + GSAP                       | 12.26.1 + 3.14.2        |
+| Client State    | Zustand                                    | 5.0.10                  |
+| Server State    | TanStack React Query                       | 5.90.1                  |
+| Forms           | React Hook Form + Conform + Zod            | 7.71.1 + 1.15.1 + 4.3.5 |
+| Auth & DB       | Supabase (Auth + Postgres + RLS + Storage) | 2.90.1                  |
+| Payments        | Stripe                                     | 20.1.2                  |
+| Email           | Resend + React Email                       | -                       |
+| Maps            | Google Maps API (@react-google-maps/api)   | 2.20.8                  |
+| PWA             | Serwist (Service Worker)                   | 9.5.4                   |
+| Error Tracking  | Sentry                                     | 10.34.0                 |
+| Analytics       | Vercel Analytics                           | 1.6.1                   |
+| Testing (Unit)  | Vitest                                     | 4.0.17                  |
+| Testing (E2E)   | Playwright                                 | 1.57.0                  |
+| Testing (A11y)  | Axe-core                                   | 4.11.0                  |
+| Component Dev   | Storybook                                  | 10.1.11                 |
+| Visual Testing  | Chromatic                                  | 5.0.0                   |
+| Performance     | Lighthouse CI                              | -                       |
+| Linting         | ESLint 9 + Stylelint 17 + Prettier 3.7     | -                       |
+| Git Hooks       | Husky + lint-staged                        | 9.1.7                   |
+| Package Manager | pnpm                                       | -                       |
+| Hosting         | Vercel                                     | -                       |
 
 ## Business Rules
 
-| Rule | Value |
-|------|-------|
-| Delivery Day | Saturday only, 11 AM - 7 PM PT |
-| Order Cutoff | Friday 3:00 PM PT |
-| Delivery Fee | $15 (free for orders $100+) |
-| Coverage Area | 50 miles AND 90 minutes drive time from kitchen |
-| Kitchen Location | 750 Terrado Plaza, Suite 33, Covina, CA 91723 |
+| Rule             | Value                                           |
+| ---------------- | ----------------------------------------------- |
+| Delivery Day     | Saturday only, 11 AM - 7 PM PT                  |
+| Order Cutoff     | Friday 3:00 PM PT                               |
+| Delivery Fee     | $15 (free for orders $100+)                     |
+| Coverage Area    | 50 miles AND 90 minutes drive time from kitchen |
+| Kitchen Location | 750 Terrado Plaza, Suite 33, Covina, CA 91723   |
 
 ## Getting Started
 
@@ -236,92 +241,93 @@ public/                          # Static assets (logos, icons, images)
 
 ## API Routes
 
-| Domain | Endpoints | Purpose |
-|--------|-----------|---------|
-| Menu | `/api/menu`, `/api/menu/search` | Menu browsing, search |
-| Sections | `/api/sections` | Featured sections |
-| Addresses | `/api/addresses[/id][/default]` | Address CRUD, geocoding |
-| Checkout | `/api/checkout/session` | Stripe session creation |
-| Coverage | `/api/coverage/check` | Delivery area validation |
-| Orders | `/api/orders[/id][/cancel][/rating]` | Order CRUD, feedback |
-| Tracking | `/api/tracking/[orderId]` | Real-time order tracking |
-| Webhooks | `/api/webhooks/stripe` | Payment + email triggers (idempotent) |
-| Webhooks | `/api/webhooks/resend` | Email delivery status tracking |
-| Cron | `/api/cron/delivery-reminders` | Morning-of delivery reminder emails |
-| Admin Menu | `/api/admin/menu[/id][/photo]` | Menu item management |
-| Admin Orders | `/api/admin/orders[/id][/...actions]` | Order management, refunds |
-| Admin Drivers | `/api/admin/drivers[/id][/routes][/ratings]` | Driver CRUD |
-| Admin Routes | `/api/admin/routes[/id][/optimize][/stops]` | Route management |
-| Admin Analytics | `/api/admin/analytics/[drivers\|delivery]` | Dashboard data |
-| Driver | `/api/driver/[me\|routes\|location]` | Driver operations |
-| Admin Emails | `/api/admin/emails[/id][/resend][/send]` | Email log, resend, manual trigger |
-| Test Email | `/api/emails/test` | Send test emails from admin settings |
-| Account | `/api/account/[profile\|orders\|addresses]` | Customer account |
+| Domain          | Endpoints                                    | Purpose                               |
+| --------------- | -------------------------------------------- | ------------------------------------- |
+| Menu            | `/api/menu`, `/api/menu/search`              | Menu browsing, search                 |
+| Sections        | `/api/sections`                              | Featured sections                     |
+| Addresses       | `/api/addresses[/id][/default]`              | Address CRUD, geocoding               |
+| Checkout        | `/api/checkout/session`                      | Stripe session creation               |
+| Coverage        | `/api/coverage/check`                        | Delivery area validation              |
+| Orders          | `/api/orders[/id][/cancel][/rating]`         | Order CRUD, feedback                  |
+| Tracking        | `/api/tracking/[orderId]`                    | Real-time order tracking              |
+| Webhooks        | `/api/webhooks/stripe`                       | Payment + email triggers (idempotent) |
+| Webhooks        | `/api/webhooks/resend`                       | Email delivery status tracking        |
+| Cron            | `/api/cron/delivery-reminders`               | Morning-of delivery reminder emails   |
+| Admin Menu      | `/api/admin/menu[/id][/photo]`               | Menu item management                  |
+| Admin Orders    | `/api/admin/orders[/id][/...actions]`        | Order management, refunds             |
+| Admin Drivers   | `/api/admin/drivers[/id][/routes][/ratings]` | Driver CRUD                           |
+| Admin Routes    | `/api/admin/routes[/id][/optimize][/stops]`  | Route management                      |
+| Admin Analytics | `/api/admin/analytics/[drivers\|delivery]`   | Dashboard data                        |
+| Driver          | `/api/driver/[me\|routes\|location]`         | Driver operations                     |
+| Admin Emails    | `/api/admin/emails[/id][/resend][/send]`     | Email log, resend, manual trigger     |
+| Test Email      | `/api/emails/test`                           | Send test emails from admin settings  |
+| Account         | `/api/account/[profile\|orders\|addresses]`  | Customer account                      |
 
 ## Database
 
 20+ tables with Row-Level Security on all tables:
 
-| Table | Purpose |
-|-------|---------|
-| `profiles` | User profiles (customer/admin/driver roles) |
-| `addresses` | Customer delivery addresses (geocoded) |
-| `menu_categories` | Menu categories with sort order |
-| `menu_items` | Menu items with modifiers, pricing |
-| `orders` / `order_items` | Orders and line items |
-| `drivers` | Driver profiles, vehicle info |
-| `routes` / `route_stops` | Delivery routes and stops |
-| `delivery_photos` | Proof of delivery photos |
-| `delivery_exceptions` | Delivery issue tracking |
-| `driver_ratings` | Customer feedback (1-5 stars) |
-| `notification_logs` | Email notification tracking (status, delivery events) |
-| `webhook_events` | Stripe webhook idempotency (prevents duplicate processing) |
-| `customer_settings` | Dietary, notification, display preferences |
-| `app_settings` | Admin-configurable settings (email kill switch, etc.) |
-| `featured_sections` | Dynamic homepage sections |
+| Table                    | Purpose                                                    |
+| ------------------------ | ---------------------------------------------------------- |
+| `profiles`               | User profiles (customer/admin/driver roles)                |
+| `addresses`              | Customer delivery addresses (geocoded)                     |
+| `menu_categories`        | Menu categories with sort order                            |
+| `menu_items`             | Menu items with modifiers, pricing                         |
+| `orders` / `order_items` | Orders and line items                                      |
+| `drivers`                | Driver profiles, vehicle info                              |
+| `routes` / `route_stops` | Delivery routes and stops                                  |
+| `delivery_photos`        | Proof of delivery photos                                   |
+| `delivery_exceptions`    | Delivery issue tracking                                    |
+| `driver_ratings`         | Customer feedback (1-5 stars)                              |
+| `notification_logs`      | Email notification tracking (status, delivery events)      |
+| `webhook_events`         | Stripe webhook idempotency (prevents duplicate processing) |
+| `customer_settings`      | Dietary, notification, display preferences                 |
+| `app_settings`           | Admin-configurable settings (email kill switch, etc.)      |
+| `featured_sections`      | Dynamic homepage sections                                  |
 
 **Security:** RLS enabled on all tables, `is_admin()` / `is_driver()` / `get_my_driver_id()` SECURITY DEFINER functions, all FK columns indexed.
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start development server |
-| `pnpm build` | Production build (Next.js + service worker) |
-| `pnpm start` | Start production server |
-| `pnpm lint` | Run ESLint |
-| `pnpm lint:css` | Run Stylelint |
-| `pnpm typecheck` | TypeScript type checking |
-| `pnpm test` | Unit tests (Vitest) |
-| `pnpm test:e2e` | E2E tests (Playwright) |
-| `pnpm test:a11y` | Accessibility tests |
-| `pnpm test:animations` | Animation tests |
-| `pnpm audit:tokens` | Design token audit |
-| `pnpm format:check` | Prettier format check |
-| `pnpm storybook` | Storybook dev server (port 6006) |
-| `pnpm build-storybook` | Build static Storybook |
-| `pnpm analyze` | Bundle analysis |
-| `pnpm lighthouse` | Lighthouse CI audit |
-| `pnpm seed:menu` | Seed menu data from YAML |
-| `pnpm verify:menu` | Verify menu data integrity |
-| `pnpm rls:test` | Test RLS policy isolation |
+| Command                | Description                                 |
+| ---------------------- | ------------------------------------------- |
+| `pnpm dev`             | Start development server                    |
+| `pnpm build`           | Production build (Next.js + service worker) |
+| `pnpm start`           | Start production server                     |
+| `pnpm lint`            | Run ESLint                                  |
+| `pnpm lint:css`        | Run Stylelint                               |
+| `pnpm typecheck`       | TypeScript type checking                    |
+| `pnpm test`            | Unit tests (Vitest)                         |
+| `pnpm test:e2e`        | E2E tests (Playwright)                      |
+| `pnpm test:a11y`       | Accessibility tests                         |
+| `pnpm test:animations` | Animation tests                             |
+| `pnpm audit:tokens`    | Design token audit                          |
+| `pnpm format:check`    | Prettier format check                       |
+| `pnpm storybook`       | Storybook dev server (port 6006)            |
+| `pnpm build-storybook` | Build static Storybook                      |
+| `pnpm analyze`         | Bundle analysis                             |
+| `pnpm lighthouse`      | Lighthouse CI audit                         |
+| `pnpm seed:menu`       | Seed menu data from YAML                    |
+| `pnpm verify:menu`     | Verify menu data integrity                  |
+| `pnpm rls:test`        | Test RLS policy isolation                   |
 
 **Verification command (run before committing):**
+
 ```bash
 pnpm lint && pnpm lint:css && pnpm typecheck && pnpm test && pnpm build
 ```
 
 ## Milestones
 
-| Version | Name | Phases | Plans | Shipped |
-|---------|------|--------|-------|---------|
-| v1.0 | MVP | 1-8 | 32 | 2026-01-23 |
-| v1.1 | Tech Debt Cleanup | 9-14 | 21 | 2026-01-23 |
-| v1.2 | Playful UI Overhaul | 15-24 | 29 | 2026-01-27 |
-| v1.3 | Full Codebase Consolidation | 25-34 | 53 | 2026-01-28 |
-| v1.4 | Mobile Excellence | 35-39 | 39 | 2026-02-05 |
-| v1.5 | Performance & Repo Health | 40-47 | 34 | 2026-02-07 |
-| **v1.6** | **Production Polish** | 48-57 | 30+ | In Progress |
+| Version  | Name                        | Phases | Plans | Shipped     |
+| -------- | --------------------------- | ------ | ----- | ----------- |
+| v1.0     | MVP                         | 1-8    | 32    | 2026-01-23  |
+| v1.1     | Tech Debt Cleanup           | 9-14   | 21    | 2026-01-23  |
+| v1.2     | Playful UI Overhaul         | 15-24  | 29    | 2026-01-27  |
+| v1.3     | Full Codebase Consolidation | 25-34  | 53    | 2026-01-28  |
+| v1.4     | Mobile Excellence           | 35-39  | 39    | 2026-02-05  |
+| v1.5     | Performance & Repo Health   | 40-47  | 34    | 2026-02-07  |
+| **v1.6** | **Production Polish**       | 48-57  | 30+   | In Progress |
 
 ## Deployment
 
@@ -337,6 +343,7 @@ pnpm lint && pnpm lint:css && pnpm typecheck && pnpm test && pnpm build
 ### Database Migration
 
 Run migration `020_email_system.sql` on your Supabase project. This creates:
+
 - `webhook_events` table (Stripe idempotency)
 - New enum values: `cancellation`, `refund`, `delivery_reminder` (notification_type); `opened`, `clicked` (notification_status)
 - `email_sending_enabled` app setting (admin kill switch)
@@ -400,41 +407,46 @@ Set `CRON_SECRET` in Vercel env vars, then Vercel automatically sends the `Autho
 
 ## Documentation
 
-| Document | Path |
-|----------|------|
-| Architecture | `docs/architecture.md` |
-| Data Model | `docs/04-data-model.md` |
-| Menu System | `docs/05-menu.md` |
-| Stripe Integration | `docs/06-stripe.md` |
+| Document               | Path                             |
+| ---------------------- | -------------------------------- |
+| Architecture           | `docs/architecture.md`           |
+| Data Model             | `docs/04-data-model.md`          |
+| Menu System            | `docs/05-menu.md`                |
+| Stripe Integration     | `docs/06-stripe.md`              |
 | Frontend Design System | `docs/frontend-design-system.md` |
-| Component Guide | `docs/component-guide.md` |
-| Deployment | `docs/DEPLOYMENT.md` |
-| Z-Index Strategy | `docs/STACKING-CONTEXT.md` |
-| Performance Guide | `PERFORMANCE.md` |
-| Change Log | `docs/change_log.md` |
-| Project Status | `docs/project_status.md` |
-| Business Context | `docs/00-context-pack.md` |
+| Component Guide        | `docs/component-guide.md`        |
+| Deployment             | `docs/DEPLOYMENT.md`             |
+| Z-Index Strategy       | `docs/STACKING-CONTEXT.md`       |
+| Performance Guide      | `PERFORMANCE.md`                 |
+| Change Log             | `docs/change_log.md`             |
+| Project Status         | `docs/project_status.md`         |
+| Business Context       | `docs/00-context-pack.md`        |
 
 ## Troubleshooting
 
 ### Auth Callback 303 Error
+
 1. Verify `NEXT_PUBLIC_APP_URL` in Vercel env vars
 2. Add production callback URL in Supabase Dashboard > Auth > URL Configuration
 3. Check browser console for CORS/redirect errors
 
 ### Build Failures
+
 ```bash
 pnpm lint && pnpm typecheck && pnpm build
 ```
+
 Common: missing env vars, TypeScript errors, ESLint violations
 
 ### Stripe Webhook Issues
+
 1. Verify webhook secret matches `STRIPE_WEBHOOK_SECRET`
 2. Check Stripe Dashboard > Developers > Webhooks for delivery logs
 3. Confirm endpoint URL: `/api/webhooks/stripe`
 4. Required events: `checkout.session.completed`, `payment_intent.succeeded`, `charge.refunded`
 
 ### Emails Not Sending
+
 1. Verify `RESEND_API_KEY` is set and valid
 2. Check admin kill switch: Admin > Settings > Email > Email Sending toggle must be ON
 3. Verify domain `mandalaymorningstar.com` is verified in Resend Dashboard
@@ -442,6 +454,7 @@ Common: missing env vars, TypeScript errors, ESLint violations
 5. View email log: Admin > Emails for delivery status and errors
 
 ### Database Connection
+
 1. Verify Supabase URL and keys
 2. Check Supabase Dashboard > Project Settings > API
 3. Confirm RLS policies: `SELECT * FROM testing.check_rls_enabled()`

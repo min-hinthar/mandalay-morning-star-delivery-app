@@ -37,9 +37,7 @@ function AccountClientInner() {
   // Read active tab from URL, validate, default to "profile"
   const tabParam = searchParams.get("tab");
   const activeTab: AccountTab =
-    tabParam && VALID_TABS.includes(tabParam as AccountTab)
-      ? (tabParam as AccountTab)
-      : "profile";
+    tabParam && VALID_TABS.includes(tabParam as AccountTab) ? (tabParam as AccountTab) : "profile";
 
   // Read section param for deep-linking into Settings sub-tabs
   const section = searchParams.get("section");
@@ -61,12 +59,9 @@ function AccountClientInner() {
       }
 
       const queryString = params.toString();
-      router.replace(
-        queryString ? `${pathname}?${queryString}` : pathname,
-        { scroll: false },
-      );
+      router.replace(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
     },
-    [searchParams, router, pathname],
+    [searchParams, router, pathname]
   );
 
   return (
@@ -80,12 +75,7 @@ function AccountClientInner() {
           My Account
         </m.h1>
 
-        <Tabs
-          tabs={TABS}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          className="mb-6"
-        />
+        <Tabs tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} className="mb-6" />
 
         <m.div
           key={activeTab}

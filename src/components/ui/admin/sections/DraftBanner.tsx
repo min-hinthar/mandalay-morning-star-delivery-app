@@ -11,10 +11,7 @@ interface DraftBannerProps {
   onPublishComplete?: () => void;
 }
 
-export function DraftBanner({
-  hasUnpublishedChanges,
-  onPublishComplete,
-}: DraftBannerProps) {
+export function DraftBanner({ hasUnpublishedChanges, onPublishComplete }: DraftBannerProps) {
   const [isPublishing, setIsPublishing] = useState(false);
 
   const handlePublish = async () => {

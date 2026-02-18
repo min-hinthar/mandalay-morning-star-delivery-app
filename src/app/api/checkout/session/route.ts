@@ -2,11 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
-import {
-  validateCartItems,
-  calculateOrderTotals,
-  createStripeLineItems,
-} from "@/lib/utils/order";
+import { validateCartItems, calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
 import { logger } from "@/lib/utils/logger";
 import type { CheckoutError, CheckoutErrorCode } from "@/types/checkout";
 import type {
@@ -18,7 +14,12 @@ import type {
   ProfilesRow,
 } from "@/types/database";
 
-function errorResponse(code: CheckoutErrorCode, message: string, status: number, details?: unknown) {
+function errorResponse(
+  code: CheckoutErrorCode,
+  message: string,
+  status: number,
+  details?: unknown
+) {
   const error: CheckoutError = { code, message, details };
   return NextResponse.json({ error }, { status });
 }
@@ -30,19 +31,17 @@ export async function POST(request: Request) {
     const parsed = createCheckoutSessionSchema.safeParse(body);
 
     if (!parsed.success) {
-      return errorResponse(
-        "VALIDATION_ERROR",
-        "Invalid request data",
-        400,
-        parsed.error.issues
-      );
+      return errorResponse("VALIDATION_ERROR", "Invalid request data", 400, parsed.error.issues);
     }
 
     const input = parsed.data;
 
     // Authenticate user
     const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return errorResponse("UNAUTHORIZED", "You must be logged in to checkout", 401);
@@ -62,14 +61,16 @@ export async function POST(request: Request) {
     }
 
     if (!address.is_verified) {
-      return errorResponse("OUT_OF_COVERAGE", "Address has not been verified for delivery coverage", 400);
+      return errorResponse(
+        "OUT_OF_COVERAGE",
+        "Address has not been verified for delivery coverage",
+        400
+      );
     }
 
     // Fetch all menu items and modifier options for validation
     const menuItemIds = input.items.map((item) => item.menuItemId);
-    const modifierOptionIds = input.items.flatMap((item) =>
-      item.modifiers.map((m) => m.optionId)
-    );
+    const modifierOptionIds = input.items.flatMap((item) => item.modifiers.map((m) => m.optionId));
 
     const { data: menuItemsData, error: menuError } = await supabase
       .from("menu_items")
@@ -84,7 +85,10 @@ export async function POST(request: Request) {
     const { data: modifierOptionsData, error: modifierError } = await supabase
       .from("modifier_options")
       .select("*")
-      .in("id", modifierOptionIds.length > 0 ? modifierOptionIds : ["00000000-0000-0000-0000-000000000000"])
+      .in(
+        "id",
+        modifierOptionIds.length > 0 ? modifierOptionIds : ["00000000-0000-0000-0000-000000000000"]
+      )
       .returns<ModifierOptionsRow[]>();
 
     if (modifierError) {
@@ -135,7 +139,11 @@ export async function POST(request: Request) {
       .single();
 
     if (orderError || !order) {
-      logger.exception(orderError, { userId: user.id, api: "checkout-session", flowId: "checkout" });
+      logger.exception(orderError, {
+        userId: user.id,
+        api: "checkout-session",
+        flowId: "checkout",
+      });
       return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
     }
 
@@ -157,7 +165,12 @@ export async function POST(request: Request) {
       .returns<OrderItemsRow[]>();
 
     if (orderItemsError || !orderItems) {
-      logger.exception(orderItemsError, { orderId: order.id, userId: user.id, api: "checkout-session", flowId: "checkout" });
+      logger.exception(orderItemsError, {
+        orderId: order.id,
+        userId: user.id,
+        api: "checkout-session",
+        flowId: "checkout",
+      });
       // Clean up the order
       await supabase.from("orders").delete().eq("id", order.id);
       return errorResponse("INTERNAL_ERROR", "Failed to create order items", 500);
@@ -191,7 +204,12 @@ export async function POST(request: Request) {
         .insert(orderItemModifiersToInsert);
 
       if (modifiersInsertError) {
-        logger.exception(modifiersInsertError, { orderId: order.id, userId: user.id, api: "checkout-session", flowId: "checkout" });
+        logger.exception(modifiersInsertError, {
+          orderId: order.id,
+          userId: user.id,
+          api: "checkout-session",
+          flowId: "checkout",
+        });
         // Clean up
         await supabase.from("order_items").delete().eq("order_id", order.id);
         await supabase.from("orders").delete().eq("id", order.id);
@@ -218,24 +236,27 @@ export async function POST(request: Request) {
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-    const session = await stripe.checkout.sessions.create({
-      customer: stripeCustomerId,
-      mode: "payment",
-      payment_method_types: ["card"],
-      line_items: lineItems,
-      metadata: {
-        order_id: order.id,
-        user_id: user.id,
-        scheduled_date: input.scheduledDate,
-        time_window_start: input.timeWindowStart,
-        time_window_end: input.timeWindowEnd,
+    const session = await stripe.checkout.sessions.create(
+      {
+        customer: stripeCustomerId,
+        mode: "payment",
+        payment_method_types: ["card"],
+        line_items: lineItems,
+        metadata: {
+          order_id: order.id,
+          user_id: user.id,
+          scheduled_date: input.scheduledDate,
+          time_window_start: input.timeWindowStart,
+          time_window_end: input.timeWindowEnd,
+        },
+        success_url: `${baseUrl}/orders/${order.id}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/checkout?cancelled=true`,
+        expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
       },
-      success_url: `${baseUrl}/orders/${order.id}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/checkout?cancelled=true`,
-      expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
-    }, {
-      idempotencyKey: `checkout_${order.id}`,
-    });
+      {
+        idempotencyKey: `checkout_${order.id}`,
+      }
+    );
 
     // Note: stripe_payment_intent_id is set by webhook on checkout.session.completed
     // session.payment_intent is null until payment completes

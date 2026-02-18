@@ -132,27 +132,14 @@ const SingleSkeleton = forwardRef<HTMLDivElement, Omit<SkeletonProps, "count" | 
 
     // Non-animated fallback
     if (!shouldAnimate) {
-      return (
-        <div
-          ref={ref}
-          className={baseClasses}
-          style={{ width, height }}
-        />
-      );
+      return <div ref={ref} className={baseClasses} style={{ width, height }} />;
     }
 
     // Shimmer variant
     if (variant === "shimmer") {
       return (
-        <div
-          ref={ref}
-          className={baseClasses}
-          style={{ width, height }}
-        >
-          <m.div
-            className="absolute inset-0 bg-gradient-shimmer"
-            {...shimmerAnimation}
-          />
+        <div ref={ref} className={baseClasses} style={{ width, height }}>
+          <m.div className="absolute inset-0 bg-gradient-shimmer" {...shimmerAnimation} />
           {withGrain && <GrainOverlay />}
         </div>
       );
@@ -181,11 +168,7 @@ const SingleSkeleton = forwardRef<HTMLDivElement, Omit<SkeletonProps, "count" | 
     // Grain variant (static with animated grain)
     if (variant === "grain") {
       return (
-        <div
-          ref={ref}
-          className={baseClasses}
-          style={{ width, height }}
-        >
+        <div ref={ref} className={baseClasses} style={{ width, height }}>
           <m.div
             className="absolute inset-0 opacity-30"
             style={{
@@ -207,12 +190,7 @@ const SingleSkeleton = forwardRef<HTMLDivElement, Omit<SkeletonProps, "count" | 
 
     // Pulse variant (default fallback)
     return (
-      <m.div
-        ref={ref}
-        className={baseClasses}
-        style={{ width, height }}
-        {...pulseAnimation}
-      >
+      <m.div ref={ref} className={baseClasses} style={{ width, height }} {...pulseAnimation}>
         {withGrain && <GrainOverlay />}
       </m.div>
     );
@@ -232,11 +210,7 @@ export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(
     }
 
     return (
-      <div
-        ref={ref}
-        className="flex flex-col"
-        style={{ gap }}
-      >
+      <div ref={ref} className="flex flex-col" style={{ gap }}>
         {Array.from({ length: count }).map((_, index) => (
           <SingleSkeleton key={index} {...props} />
         ))}

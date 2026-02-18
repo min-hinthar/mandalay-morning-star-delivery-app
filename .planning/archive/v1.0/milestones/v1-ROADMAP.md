@@ -18,6 +18,7 @@ A complete frontend rewrite transforming the Morning Star delivery app from a z-
 **Plans**: 5 plans
 
 Plans:
+
 - [x] 01-01-PLAN.md — Z-index token system with TailwindCSS @theme integration and TypeScript constants
 - [x] 01-02-PLAN.md — GSAP plugin registration (gsap, @gsap/react) and animation presets
 - [x] 01-03-PLAN.md — ESLint/Stylelint z-index enforcement and stacking context documentation
@@ -34,6 +35,7 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
+
 - [x] 02-01-PLAN.md — Portal, Backdrop primitives, motion tokens, color tokens, useRouteChangeClose and useBodyScrollLock hooks
 - [x] 02-02-PLAN.md — Modal dialog (responsive desktop/mobile) and BottomSheet with swipe-to-dismiss
 - [x] 02-03-PLAN.md — Side drawer with focus trap and Dropdown without event swallowing
@@ -49,6 +51,7 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
+
 - [x] 03-01-PLAN.md — AppShell layout wrapper and PageContainer spacing component
 - [x] 03-02-PLAN.md — Sticky header with scroll-aware shrink/blur effects
 - [x] 03-03-PLAN.md — Bottom navigation and mobile menu with auto-close
@@ -65,6 +68,7 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
+
 - [x] 04-01-PLAN.md — Cart button V8 with animated badge and header integration
 - [x] 04-02-PLAN.md — Cart item V8 with swipe-to-delete and quantity animations
 - [x] 04-03-PLAN.md — Cart drawer V8 composing BottomSheet/Drawer with order summary
@@ -81,6 +85,7 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
+
 - [x] 05-01-PLAN.md — Category tabs V8 with scrollspy using useActiveCategory hook
 - [x] 05-02-PLAN.md — Menu item card V8 with hover/tap effects, blur image, favorites, emoji placeholder
 - [x] 05-03-PLAN.md — Item detail sheet V8 using Phase 2 Modal/BottomSheet overlays
@@ -97,6 +102,7 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
+
 - [x] 06-01-PLAN.md — Checkout page step transitions with AnimatePresence and CheckoutStepperV8
 - [x] 06-02-PLAN.md — Form field micro-interactions with AnimatedFormField and AddressFormV8
 - [x] 06-03-PLAN.md — Address step V8 with animated cards and responsive overlays (Modal/BottomSheet)
@@ -113,6 +119,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
+
 - [x] 07-01-PLAN.md — E2E overlay behavior tests (TEST-01, TEST-02, TEST-03, TEST-04): header clickability, cart drawer behavior, dropdown dismissal, no-blocking verification
 - [x] 07-02-PLAN.md — V8 visual regression snapshots (TEST-05): header, overlays, cart drawer (desktop + mobile)
 
@@ -126,6 +133,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
+
 - [x] 08-01-PLAN.md — Wire MenuContentV8 into menu page and mount FlyToCart globally
 
 **Completed:** 2026-01-23
@@ -166,5 +174,5 @@ Plans:
 
 ---
 
-*Archived: 2026-01-23 as part of v1 milestone completion*
-*For current project status, see .planning/ROADMAP.md (next milestone)*
+_Archived: 2026-01-23 as part of v1 milestone completion_
+_For current project status, see .planning/ROADMAP.md (next milestone)_

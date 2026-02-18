@@ -19,11 +19,7 @@ interface AnimatedHeadlineProps {
 }
 
 export function AnimatedHeadline({ text, className }: AnimatedHeadlineProps) {
-  return (
-    <h1 className={cn(className, "animate-fade-in-up")}>
-      {text}
-    </h1>
-  );
+  return <h1 className={cn(className, "animate-fade-in-up")}>{text}</h1>;
 }
 
 // ============================================
@@ -40,9 +36,7 @@ export function StatItem({ icon, label, value }: StatItemProps) {
   return (
     <div className="flex items-center gap-3 px-4 py-2">
       {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
-      <div className="p-2 rounded-full bg-hero-stat-bg sm:backdrop-blur-sm">
-        {icon}
-      </div>
+      <div className="p-2 rounded-full bg-hero-stat-bg sm:backdrop-blur-sm">{icon}</div>
       <div className="text-left">
         <div className="text-xs text-hero-text-muted uppercase tracking-wide">{label}</div>
         <div className="text-sm font-semibold text-hero-text">{value}</div>
@@ -91,7 +85,7 @@ export function GradientFallback({ children, className }: GradientFallbackProps)
       {/* Gradient overlay for text readability */}
       <div
         className="absolute inset-0 bg-gradient-to-t via-transparent to-transparent"
-        style={{ ['--tw-gradient-from' as string]: 'var(--hero-overlay)' }}
+        style={{ ["--tw-gradient-from" as string]: "var(--hero-overlay)" }}
       />
 
       {/* Content layer */}

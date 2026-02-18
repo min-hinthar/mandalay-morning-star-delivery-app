@@ -64,18 +64,21 @@ started: Persisting after multiple rounds of fixes
 ## Resolution
 
 root_cause: Multiple cleanup issues specific to menu page:
+
 1. CategoryTabs requestAnimationFrame not properly cancelled (rafId assigned inside callback, no mount guard)
 2. useCardSound AudioContext never closed on unmount
 3. FlyToCart GSAP timeline not killed on unmount
 4. AddToCartButton async state updates via Promise-based setTimeout lacked proper cleanup
 
 fix: Applied 4 targeted fixes:
+
 1. CategoryTabs: Added isMounted guard and proper rafId tracking with cancelAnimationFrame
 2. useCardSound: Added useEffect cleanup that closes AudioContext on unmount
 3. FlyToCart: Added timelineRef to track GSAP timeline, kill on unmount
 4. AddToCartButton: Replaced async/await setTimeout with tracked timeout Set that clears on unmount
 
 verification:
+
 - TypeScript compilation: PASS
 - ESLint: PASS (0 errors, 0 warnings)
 - Stylelint: PASS
@@ -83,6 +86,7 @@ verification:
 - Tests: 343/343 PASS
 
 files_changed:
+
 - src/components/ui/menu/CategoryTabs.tsx - Fixed requestAnimationFrame cleanup with isMounted guard
 - src/components/ui/menu/UnifiedMenuItemCard/use-card-sound.ts - Added AudioContext cleanup on unmount
 - src/components/ui/cart/FlyToCart.tsx - Added GSAP timeline kill on unmount

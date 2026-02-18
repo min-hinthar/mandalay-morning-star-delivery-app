@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { driverAnalyticsQuerySchema } from "@/lib/validations/analytics";
 import { logger } from "@/lib/utils/logger";
-import {
-  transformDriverStats,
-  generateLeaderboard,
-} from "@/lib/utils/analytics-helpers";
+import { transformDriverStats, generateLeaderboard } from "@/lib/utils/analytics-helpers";
 import type { ProfileRole } from "@/types/database";
 import type {
   DriverStatsMvRow,
@@ -63,7 +60,10 @@ export async function GET(request: NextRequest) {
     // Refresh materialized views (in production, this would be scheduled)
     const { error: refreshError } = await supabase.rpc("refresh_analytics_views");
     if (refreshError) {
-      logger.warn("Failed to refresh analytics views", { api: "admin/analytics/drivers", flowId: "refresh-views" });
+      logger.warn("Failed to refresh analytics views", {
+        api: "admin/analytics/drivers",
+        flowId: "refresh-views",
+      });
       // Continue anyway - views might still have recent data
     }
 
@@ -74,16 +74,11 @@ export async function GET(request: NextRequest) {
       query = query.eq("is_active", true);
     }
 
-    const { data: driverStatsRows, error: statsError } = await query.returns<
-      DriverStatsMvRow[]
-    >();
+    const { data: driverStatsRows, error: statsError } = await query.returns<DriverStatsMvRow[]>();
 
     if (statsError) {
       logger.exception(statsError, { api: "admin/analytics/drivers" });
-      return NextResponse.json(
-        { error: "Failed to fetch driver analytics" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch driver analytics" }, { status: 500 });
     }
 
     // Transform to API format
@@ -98,16 +93,13 @@ export async function GET(request: NextRequest) {
 
     const avgTeamRating =
       activeDrivers.length > 0
-        ? activeDrivers.reduce(
-            (sum, d) => sum + (d.avgRating || 0),
-            0
-          ) / activeDrivers.filter((d) => d.avgRating !== null).length || null
+        ? activeDrivers.reduce((sum, d) => sum + (d.avgRating || 0), 0) /
+            activeDrivers.filter((d) => d.avgRating !== null).length || null
         : null;
 
     const avgOnTimeRate =
       activeDrivers.length > 0
-        ? activeDrivers.reduce((sum, d) => sum + d.onTimeRate, 0) /
-          activeDrivers.length
+        ? activeDrivers.reduce((sum, d) => sum + d.onTimeRate, 0) / activeDrivers.length
         : 0;
 
     const totalDeliveriesThisWeek = activeDrivers.reduce(
@@ -138,9 +130,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response);
   } catch (error) {
     logger.exception(error, { api: "admin/analytics/drivers" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

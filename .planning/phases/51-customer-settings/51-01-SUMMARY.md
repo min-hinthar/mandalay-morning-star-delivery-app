@@ -54,6 +54,7 @@ completed: 2026-02-08
 - **Files created:** 3
 
 ## Accomplishments
+
 - Customer settings API route with GET (lazy row creation) and PATCH (upsert with validation)
 - Zod schemas enforcing max lengths, valid enums, and array size limits
 - Shared TypeScript types covering dietary options, notification groups, and theme preference
@@ -67,11 +68,13 @@ Each task was committed atomically:
 2. **Task 2: Create customer settings API route** - `b27d9f3` (feat)
 
 ## Files Created/Modified
+
 - `src/components/ui/account/SettingsTab/settings-types.ts` - DietaryOption, NotificationPrefs, CustomerSettings interfaces, DIETARY_OPTIONS/EMOJIS, NOTIFICATION_GROUPS constants, defaults
 - `src/lib/validations/customer-settings.ts` - Zod schemas: updateCustomerSettingsSchema (partial), dietaryRestrictionSchema, notificationPrefsSchema
 - `src/app/api/account/settings/route.ts` - GET handler with lazy row creation, PATCH handler with Zod validation and upsert
 
 ## Decisions Made
+
 - **CUST-01-CAST:** Json JSONB columns cast through `unknown` intermediate to satisfy TypeScript strict mode (Json -> unknown -> NotificationPrefs)
 - **CUST-01-PARTIAL:** All schema fields optional for partial PATCH; only present fields included in upsert object
 
@@ -80,6 +83,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Fixed TypeScript strict cast for JSONB columns**
+
 - **Found during:** Task 2 (API route implementation)
 - **Issue:** Direct cast `row.notification_prefs as NotificationPrefs` fails because `Json` type (union including `Json[]`) doesn't overlap with `NotificationPrefs`
 - **Fix:** Added `unknown` intermediate: `as unknown as NotificationPrefs` and `as unknown as string[]`
@@ -93,16 +97,20 @@ Each task was committed atomically:
 **Impact on plan:** Standard TypeScript casting pattern for JSONB columns. No scope change.
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - API route ready for settings UI consumption (Plans 02-04)
 - Types file provides all interfaces and constants needed by SettingsTab components
 - Zod schemas enforce input validation matching DB constraints
 
 ---
-*Phase: 51-customer-settings*
-*Completed: 2026-02-08*
+
+_Phase: 51-customer-settings_
+_Completed: 2026-02-08_

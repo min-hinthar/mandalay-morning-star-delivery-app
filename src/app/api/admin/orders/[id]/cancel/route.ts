@@ -18,10 +18,7 @@ interface OrderRow {
  * Cancel an order with reason and audit logging.
  * Admin can cancel any order at any time.
  */
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: orderId } = await params;
 
   try {
@@ -58,18 +55,12 @@ export async function POST(
 
     // Check if already cancelled
     if (order.status === "cancelled") {
-      return NextResponse.json(
-        { error: "Order is already cancelled" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Order is already cancelled" }, { status: 400 });
     }
 
     // Check if delivered
     if (order.status === "delivered") {
-      return NextResponse.json(
-        { error: "Cannot cancel a delivered order" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Cannot cancel a delivered order" }, { status: 400 });
     }
 
     const previousStatus = order.status;
@@ -82,10 +73,7 @@ export async function POST(
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/orders/[id]/cancel" });
-      return NextResponse.json(
-        { error: "Failed to cancel order" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to cancel order" }, { status: 500 });
     }
 
     // Create audit log entry
@@ -166,9 +154,6 @@ export async function POST(
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/cancel" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

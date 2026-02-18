@@ -38,9 +38,7 @@ export function HeroContent({
     <div className="relative flex flex-col items-center justify-start min-h-[100svh] min-h-[100dvh] px-4 pt-24 pb-20 pb-safe md:pt-28 md:pb-24">
       <div className="max-w-4xl mx-auto text-center">
         {/* Time-based greeting badge */}
-        <div
-          className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1"
-        >
+        <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1">
           <span className="text-secondary">
             {timeOfDay === "morning" && "Good morning!"}
             {timeOfDay === "afternoon" && "Good afternoon!"}
@@ -58,21 +56,15 @@ export function HeroContent({
           className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-4 leading-tight"
         />
 
-        <p
-          className="text-lg md:text-xl text-hero-text/70 font-medium mb-6 animate-fade-in-up-delay-1"
-        >
+        <p className="text-lg md:text-xl text-hero-text/70 font-medium mb-6 animate-fade-in-up-delay-1">
           {tagline}
         </p>
 
-        <p
-          className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-10 font-body animate-fade-in-up-delay-2"
-        >
+        <p className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-10 font-body animate-fade-in-up-delay-2">
           {subheadline}
         </p>
 
-        <div
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-fade-in-up-delay-3"
-        >
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-fade-in-up-delay-3">
           <m.div
             whileHover={shouldAnimate ? { scale: 1.05, y: -2 } : undefined}
             whileTap={shouldAnimate ? { scale: 0.97 } : undefined}
@@ -102,14 +94,24 @@ export function HeroContent({
           </m.div>
         </div>
 
-        <div
-          className="flex flex-wrap justify-center items-center gap-2 md:gap-4 p-4 rounded-2xl bg-hero-stat-bg sm:bg-hero-stat-bg/50 sm:backdrop-blur-md border border-hero-text/10 animate-fade-in-up-delay-4"
-        >
-          <StatItem icon={<ChefHat className="w-4 h-4 text-secondary" />} label="Authentic" value="Burmese Recipes" />
+        <div className="flex flex-wrap justify-center items-center gap-2 md:gap-4 p-4 rounded-2xl bg-hero-stat-bg sm:bg-hero-stat-bg/50 sm:backdrop-blur-md border border-hero-text/10 animate-fade-in-up-delay-4">
+          <StatItem
+            icon={<ChefHat className="w-4 h-4 text-secondary" />}
+            label="Authentic"
+            value="Burmese Recipes"
+          />
           <div className="hidden md:block w-px h-10 bg-hero-text/20" />
-          <StatItem icon={<Clock className="w-4 h-4 text-secondary" />} label="Delivery" value="Every Saturday" />
+          <StatItem
+            icon={<Clock className="w-4 h-4 text-secondary" />}
+            label="Delivery"
+            value="Every Saturday"
+          />
           <div className="hidden md:block w-px h-10 bg-hero-text/20" />
-          <StatItem icon={<MapPin className="w-4 h-4 text-secondary" />} label="Coverage" value="50 Mile Radius" />
+          <StatItem
+            icon={<MapPin className="w-4 h-4 text-secondary" />}
+            label="Coverage"
+            value="50 Mile Radius"
+          />
         </div>
       </div>
 

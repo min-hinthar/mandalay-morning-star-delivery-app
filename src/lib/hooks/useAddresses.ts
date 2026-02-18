@@ -64,13 +64,7 @@ export function useUpdateAddress() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: AddressFormData;
-    }) => {
+    mutationFn: async ({ id, data }: { id: string; data: AddressFormData }) => {
       const res = await fetch(`/api/addresses/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

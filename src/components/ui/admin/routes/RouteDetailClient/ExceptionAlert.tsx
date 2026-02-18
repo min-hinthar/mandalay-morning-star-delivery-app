@@ -15,9 +15,7 @@ interface ExceptionAlertProps {
 export function ExceptionAlert({ stops, onMarkResolved }: ExceptionAlertProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
-  const unresolvedExceptions = stops.filter(
-    (s) => s.exception && !s.exception.resolved
-  );
+  const unresolvedExceptions = stops.filter((s) => s.exception && !s.exception.resolved);
 
   if (unresolvedExceptions.length === 0) return null;
 
@@ -35,7 +33,8 @@ export function ExceptionAlert({ stops, onMarkResolved }: ExceptionAlertProps) {
 
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-semibold text-text-primary">
-            {unresolvedExceptions.length} Unresolved Exception{unresolvedExceptions.length > 1 ? "s" : ""}
+            {unresolvedExceptions.length} Unresolved Exception
+            {unresolvedExceptions.length > 1 ? "s" : ""}
           </h3>
           <ul className="mt-2 space-y-1.5">
             {unresolvedExceptions.map((stop) => (

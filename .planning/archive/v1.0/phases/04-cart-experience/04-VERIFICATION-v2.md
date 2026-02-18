@@ -32,6 +32,7 @@ deferred_to_phase_5:
 **All gaps from previous verification have been resolved.** Phase 4 goal achieved.
 
 Gap closure plan 04-05 successfully integrated all V8 cart components into the live app:
+
 - ✅ CartDrawerV8 replaces V7 CartDrawer in providers.tsx
 - ✅ CartButtonV8 integrated into header with animated badge
 - ✅ ClearCartConfirmation modal wired to drawer with trash button
@@ -43,22 +44,24 @@ All 9 must-haves verified. Users now experience the V8 cart with animations, swi
 ## Re-Verification Comparison
 
 ### Previous Verification (2026-01-22T18:02:50Z)
+
 - **Status:** gaps_found
 - **Score:** 0/21 truths verified (0%)
 - **Issue:** All V8 components created but NONE integrated into app
 
 ### Current Verification (2026-01-22T23:34:01Z)
+
 - **Status:** passed ✅
 - **Score:** 9/9 must-haves verified (100%)
 - **Issue:** All integration gaps closed
 
 ### Gaps Closed (3/3)
 
-| Gap | Previous Status | Current Status | Evidence |
-|-----|----------------|----------------|----------|
-| CartDrawerV8 not integrated | ❌ FAILED | ✅ VERIFIED | providers.tsx line 6 imports, line 27 renders |
-| CartButtonV8 not in header | ❌ FAILED | ✅ VERIFIED | HeaderClient.tsx line 10 imports, line 80 renders |
-| ClearCartConfirmation not connected | ❌ FAILED | ✅ VERIFIED | CartDrawerV8.tsx line 32 imports, lines 110-128 button, lines 291-296 modal |
+| Gap                                 | Previous Status | Current Status | Evidence                                                                    |
+| ----------------------------------- | --------------- | -------------- | --------------------------------------------------------------------------- |
+| CartDrawerV8 not integrated         | ❌ FAILED       | ✅ VERIFIED    | providers.tsx line 6 imports, line 27 renders                               |
+| CartButtonV8 not in header          | ❌ FAILED       | ✅ VERIFIED    | HeaderClient.tsx line 10 imports, line 80 renders                           |
+| ClearCartConfirmation not connected | ❌ FAILED       | ✅ VERIFIED    | CartDrawerV8.tsx line 32 imports, lines 110-128 button, lines 291-296 modal |
 
 ### Regressions
 
@@ -68,32 +71,32 @@ None detected. All V8 cart components that existed before (CartItemV8, QuantityS
 
 ### Observable Truths
 
-| # | Truth | Status | Evidence |
-|---|-------|--------|----------|
-| 1 | Cart drawer opens as V8 BottomSheet on mobile | ✅ VERIFIED | CartDrawerV8.tsx lines 310-321, isMobile check renders BottomSheet |
-| 2 | Cart drawer opens as V8 Drawer on desktop | ✅ VERIFIED | CartDrawerV8.tsx lines 325-336, !isMobile renders Drawer |
-| 3 | Cart button in header shows animated badge with item count | ✅ VERIFIED | CartButtonV8.tsx lines 125-150, badge with count + pulse animation |
-| 4 | Clear cart button in drawer triggers confirmation modal | ✅ VERIFIED | CartDrawerV8.tsx lines 110-128 (button), 260-265 (hook), 291-296 (modal) |
-| 5 | Confirming clear removes all items from cart | ✅ VERIFIED | ClearCartConfirmation.tsx line 217, handleConfirm calls clearCart() |
-| 6 | Cart items display with swipe-to-delete gesture on mobile | ✅ VERIFIED | CartItemV8.tsx lines 129-155, drag gesture with threshold check |
-| 7 | Quantity controls show animated number transitions | ✅ VERIFIED | QuantitySelector.tsx lines 127-166, AnimatePresence flip animation |
-| 8 | Subtotal and free delivery progress display in cart footer | ✅ VERIFIED | CartSummary.tsx lines 51-120, progress bar animated to threshold |
-| 9 | Empty cart shows friendly state with browse menu CTA | ✅ VERIFIED | CartEmptyState.tsx lines 127-156, "Browse Menu" button → /menu |
+| #   | Truth                                                      | Status      | Evidence                                                                 |
+| --- | ---------------------------------------------------------- | ----------- | ------------------------------------------------------------------------ |
+| 1   | Cart drawer opens as V8 BottomSheet on mobile              | ✅ VERIFIED | CartDrawerV8.tsx lines 310-321, isMobile check renders BottomSheet       |
+| 2   | Cart drawer opens as V8 Drawer on desktop                  | ✅ VERIFIED | CartDrawerV8.tsx lines 325-336, !isMobile renders Drawer                 |
+| 3   | Cart button in header shows animated badge with item count | ✅ VERIFIED | CartButtonV8.tsx lines 125-150, badge with count + pulse animation       |
+| 4   | Clear cart button in drawer triggers confirmation modal    | ✅ VERIFIED | CartDrawerV8.tsx lines 110-128 (button), 260-265 (hook), 291-296 (modal) |
+| 5   | Confirming clear removes all items from cart               | ✅ VERIFIED | ClearCartConfirmation.tsx line 217, handleConfirm calls clearCart()      |
+| 6   | Cart items display with swipe-to-delete gesture on mobile  | ✅ VERIFIED | CartItemV8.tsx lines 129-155, drag gesture with threshold check          |
+| 7   | Quantity controls show animated number transitions         | ✅ VERIFIED | QuantitySelector.tsx lines 127-166, AnimatePresence flip animation       |
+| 8   | Subtotal and free delivery progress display in cart footer | ✅ VERIFIED | CartSummary.tsx lines 51-120, progress bar animated to threshold         |
+| 9   | Empty cart shows friendly state with browse menu CTA       | ✅ VERIFIED | CartEmptyState.tsx lines 127-156, "Browse Menu" button → /menu           |
 
 **Score:** 9/9 truths verified (100%)
 
 ### Required Artifacts
 
-| Artifact | Exists | Substantive | Wired | Status |
-|----------|--------|-------------|-------|--------|
-| `src/app/providers.tsx` | ✅ YES | ✅ YES (34 lines) | ✅ YES | ✅ VERIFIED |
-| `src/components/layout/HeaderClient.tsx` | ✅ YES | ✅ YES (97 lines) | ✅ YES | ✅ VERIFIED |
-| `src/components/ui-v8/cart/CartDrawerV8.tsx` | ✅ YES | ✅ YES (340 lines) | ✅ YES | ✅ VERIFIED |
-| `src/components/ui-v8/cart/CartButtonV8.tsx` | ✅ YES | ✅ YES (156 lines) | ✅ YES | ✅ VERIFIED |
-| `src/components/ui-v8/cart/CartItemV8.tsx` | ✅ YES | ✅ YES (407 lines) | ✅ YES | ✅ VERIFIED |
-| `src/components/ui-v8/cart/QuantitySelector.tsx` | ✅ YES | ✅ YES (194 lines) | ✅ YES | ✅ VERIFIED |
-| `src/components/ui-v8/cart/CartSummary.tsx` | ✅ YES | ✅ YES (220 lines) | ✅ YES | ✅ VERIFIED |
-| `src/components/ui-v8/cart/CartEmptyState.tsx` | ✅ YES | ✅ YES (162 lines) | ✅ YES | ✅ VERIFIED |
+| Artifact                                              | Exists | Substantive        | Wired  | Status      |
+| ----------------------------------------------------- | ------ | ------------------ | ------ | ----------- |
+| `src/app/providers.tsx`                               | ✅ YES | ✅ YES (34 lines)  | ✅ YES | ✅ VERIFIED |
+| `src/components/layout/HeaderClient.tsx`              | ✅ YES | ✅ YES (97 lines)  | ✅ YES | ✅ VERIFIED |
+| `src/components/ui-v8/cart/CartDrawerV8.tsx`          | ✅ YES | ✅ YES (340 lines) | ✅ YES | ✅ VERIFIED |
+| `src/components/ui-v8/cart/CartButtonV8.tsx`          | ✅ YES | ✅ YES (156 lines) | ✅ YES | ✅ VERIFIED |
+| `src/components/ui-v8/cart/CartItemV8.tsx`            | ✅ YES | ✅ YES (407 lines) | ✅ YES | ✅ VERIFIED |
+| `src/components/ui-v8/cart/QuantitySelector.tsx`      | ✅ YES | ✅ YES (194 lines) | ✅ YES | ✅ VERIFIED |
+| `src/components/ui-v8/cart/CartSummary.tsx`           | ✅ YES | ✅ YES (220 lines) | ✅ YES | ✅ VERIFIED |
+| `src/components/ui-v8/cart/CartEmptyState.tsx`        | ✅ YES | ✅ YES (162 lines) | ✅ YES | ✅ VERIFIED |
 | `src/components/ui-v8/cart/ClearCartConfirmation.tsx` | ✅ YES | ✅ YES (231 lines) | ✅ YES | ✅ VERIFIED |
 
 **All artifacts verified** - exist, substantive (no stubs), and wired into app.
@@ -103,35 +106,35 @@ None detected. All V8 cart components that existed before (CartItemV8, QuantityS
 
 ### Key Link Verification
 
-| From | To | Via | Status | Details |
-|------|-----|-----|--------|---------|
-| providers.tsx | CartDrawerV8 | import from @/components/ui-v8/cart | ✅ WIRED | Line 6 import, line 27 render |
-| HeaderClient.tsx | CartButtonV8 | import from @/components/ui-v8/cart | ✅ WIRED | Line 10 import, line 80 render |
-| CartDrawerV8 | ClearCartConfirmation | import and render | ✅ WIRED | Line 32 import, lines 260-265 hook, 291-296 component |
-| CartDrawerV8 | CartItemV8 | import and render | ✅ WIRED | Line 29 import, line 194 render in list |
-| CartDrawerV8 | CartSummary | import and render | ✅ WIRED | Line 30 import, line 222 render in footer |
-| CartDrawerV8 | CartEmptyState | import and render | ✅ WIRED | Line 31 import, lines 166, 282 render |
-| CartItemV8 | QuantitySelector | import and render | ✅ WIRED | Used for quantity controls |
-| CartButtonV8 | useCart | hook call | ✅ WIRED | Line 18 import, line 40 use itemCount |
-| CartButtonV8 | useCartDrawer | hook call | ✅ WIRED | Line 19 import, line 41 use open() |
-| CartDrawerV8 | useCart | hook call | ✅ WIRED | Line 23 import, line 259 use isEmpty, itemCount |
-| CartDrawerV8 | useCartDrawer | hook call | ✅ WIRED | Line 24 import, line 307 use isOpen, close |
-| ClearCartConfirmation | clearCart | useCart.clearCart() | ✅ WIRED | Line 217 calls clearCart() on confirm |
+| From                  | To                    | Via                                 | Status   | Details                                               |
+| --------------------- | --------------------- | ----------------------------------- | -------- | ----------------------------------------------------- |
+| providers.tsx         | CartDrawerV8          | import from @/components/ui-v8/cart | ✅ WIRED | Line 6 import, line 27 render                         |
+| HeaderClient.tsx      | CartButtonV8          | import from @/components/ui-v8/cart | ✅ WIRED | Line 10 import, line 80 render                        |
+| CartDrawerV8          | ClearCartConfirmation | import and render                   | ✅ WIRED | Line 32 import, lines 260-265 hook, 291-296 component |
+| CartDrawerV8          | CartItemV8            | import and render                   | ✅ WIRED | Line 29 import, line 194 render in list               |
+| CartDrawerV8          | CartSummary           | import and render                   | ✅ WIRED | Line 30 import, line 222 render in footer             |
+| CartDrawerV8          | CartEmptyState        | import and render                   | ✅ WIRED | Line 31 import, lines 166, 282 render                 |
+| CartItemV8            | QuantitySelector      | import and render                   | ✅ WIRED | Used for quantity controls                            |
+| CartButtonV8          | useCart               | hook call                           | ✅ WIRED | Line 18 import, line 40 use itemCount                 |
+| CartButtonV8          | useCartDrawer         | hook call                           | ✅ WIRED | Line 19 import, line 41 use open()                    |
+| CartDrawerV8          | useCart               | hook call                           | ✅ WIRED | Line 23 import, line 259 use isEmpty, itemCount       |
+| CartDrawerV8          | useCartDrawer         | hook call                           | ✅ WIRED | Line 24 import, line 307 use isOpen, close            |
+| ClearCartConfirmation | clearCart             | useCart.clearCart()                 | ✅ WIRED | Line 217 calls clearCart() on confirm                 |
 
 **All key links verified** - components properly imported, hooks called, functionality connected.
 
 ### Requirements Coverage
 
-| Requirement | Status | Evidence |
-|-------------|--------|----------|
-| CART-01 (drawer UI) | ✅ SATISFIED | CartDrawerV8 integrated, responsive BottomSheet/Drawer |
-| CART-02 (item display) | ✅ SATISFIED | CartItemV8 shows name, image, modifiers, quantity, price |
-| CART-03 (responsive) | ✅ SATISFIED | Mobile → BottomSheet (lines 310-321), Desktop → Drawer (325-336) |
-| CART-04 (fly animation) | ⏭️ DEFERRED | AddToCartButton/FlyToCart → Phase 5 (menu item cards) |
-| CART-05 (badge animation) | ✅ SATISFIED | CartButtonV8 badge pulses on count change (lines 66-84) |
-| CART-06 (quantity animation) | ✅ SATISFIED | QuantitySelector flip animation (lines 127-166) |
-| CART-07 (swipe-to-delete) | ✅ SATISFIED | CartItemV8 drag gesture (lines 129-155) |
-| CART-08 (free delivery) | ✅ SATISFIED | CartSummary progress bar (lines 51-120) |
+| Requirement                  | Status       | Evidence                                                         |
+| ---------------------------- | ------------ | ---------------------------------------------------------------- |
+| CART-01 (drawer UI)          | ✅ SATISFIED | CartDrawerV8 integrated, responsive BottomSheet/Drawer           |
+| CART-02 (item display)       | ✅ SATISFIED | CartItemV8 shows name, image, modifiers, quantity, price         |
+| CART-03 (responsive)         | ✅ SATISFIED | Mobile → BottomSheet (lines 310-321), Desktop → Drawer (325-336) |
+| CART-04 (fly animation)      | ⏭️ DEFERRED  | AddToCartButton/FlyToCart → Phase 5 (menu item cards)            |
+| CART-05 (badge animation)    | ✅ SATISFIED | CartButtonV8 badge pulses on count change (lines 66-84)          |
+| CART-06 (quantity animation) | ✅ SATISFIED | QuantitySelector flip animation (lines 127-166)                  |
+| CART-07 (swipe-to-delete)    | ✅ SATISFIED | CartItemV8 drag gesture (lines 129-155)                          |
+| CART-08 (free delivery)      | ✅ SATISFIED | CartSummary progress bar (lines 51-120)                          |
 
 **7/8 requirements satisfied** in Phase 4. CART-04 deferred to Phase 5 (planned).
 
@@ -142,6 +145,7 @@ None detected. All V8 cart components that existed before (CartItemV8, QuantityS
 **Warning anti-patterns:** None ✅
 
 **Code quality check:**
+
 - ✅ No TODO/FIXME comments
 - ✅ No console.log statements
 - ✅ No placeholder text
@@ -151,6 +155,7 @@ None detected. All V8 cart components that existed before (CartItemV8, QuantityS
 - ✅ All components have accessibility attributes
 
 **V7 → V8 migration complete:**
+
 - ✅ providers.tsx no longer imports from @/components/cart/v7-index
 - ✅ HeaderClient.tsx no longer passes cartCount/onCartClick props
 - ✅ All V8 cart components properly exported from barrel (index.ts)
@@ -162,7 +167,8 @@ The following items should be manually tested to confirm full functionality:
 #### 1. Mobile Responsive Behavior
 
 **Test:** Open cart on mobile device (< 640px width)
-**Expected:** 
+**Expected:**
+
 - Cart opens as bottom sheet from bottom of screen
 - Drag handle visible at top
 - Can swipe down to close
@@ -174,6 +180,7 @@ The following items should be manually tested to confirm full functionality:
 
 **Test:** Open cart on desktop (>= 640px width)
 **Expected:**
+
 - Cart opens as drawer from right side of screen
 - Smooth slide-in animation
 - Backdrop dims screen behind drawer
@@ -185,6 +192,7 @@ The following items should be manually tested to confirm full functionality:
 
 **Test:** On mobile, add item to cart, then swipe item left
 **Expected:**
+
 - Item slides left as you drag
 - Red delete background appears
 - Release past threshold → item removed with animation
@@ -196,6 +204,7 @@ The following items should be manually tested to confirm full functionality:
 
 **Test:** Click +/- buttons on cart item quantity
 **Expected:**
+
 - Number flips with animation (up for increment, down for decrement)
 - Decrementing to 0 removes item
 - Animation respects prefers-reduced-motion
@@ -206,6 +215,7 @@ The following items should be manually tested to confirm full functionality:
 
 **Test:** Add items to cart, watch progress bar
 **Expected:**
+
 - Progress bar animates toward 100% as subtotal increases
 - Shows "$ away from free delivery" text
 - When threshold reached, shows "Free delivery unlocked!" message
@@ -217,6 +227,7 @@ The following items should be manually tested to confirm full functionality:
 
 **Test:** Click trash icon in cart header
 **Expected:**
+
 - Modal appears with "Are you sure?" message
 - Shows item count in message
 - Cancel button closes modal without clearing
@@ -229,6 +240,7 @@ The following items should be manually tested to confirm full functionality:
 
 **Test:** Open cart with no items
 **Expected:**
+
 - Animated shopping bag icon
 - "Your cart is empty" heading
 - Description text about browsing menu
@@ -241,6 +253,7 @@ The following items should be manually tested to confirm full functionality:
 
 **Test:** Add item to cart from any page
 **Expected:**
+
 - Cart button badge appears with count
 - Badge pulses/bounces when count changes
 - Badge updates immediately on add/remove
@@ -252,6 +265,7 @@ The following items should be manually tested to confirm full functionality:
 
 **Test:** Enable prefers-reduced-motion in OS settings, use cart
 **Expected:**
+
 - All animations disabled (no pulse, no flip, no slide)
 - Transitions become instant
 - Functionality unchanged
@@ -275,26 +289,28 @@ All Phase 4 integration gaps from previous verification have been closed:
 3. ✅ **ClearCartConfirmation integration** - CartDrawerV8 now has trash button and modal
 
 **Deferred items (not gaps):**
+
 - AddToCartButton and FlyToCart integration → Phase 5 (Menu Browsing)
 - These components exist and are substantive but belong on menu item cards
 - Phase 5 will integrate them when building menu item components
 
 ## Success Criteria from ROADMAP.md
 
-| Criterion | Status | Evidence |
-|-----------|--------|----------|
-| Cart drawer opens as bottom sheet on mobile with opacity/backdrop | ✅ VERIFIED | CartDrawerV8 BottomSheet (lines 310-321) |
-| Cart drawer opens as side drawer on desktop with opacity/backdrop | ✅ VERIFIED | CartDrawerV8 Drawer (lines 325-336) |
-| User can adjust quantities with animated transitions | ✅ VERIFIED | QuantitySelector flip animation (lines 127-166) |
-| User can swipe item to reveal delete on mobile | ✅ VERIFIED | CartItemV8 drag gesture (lines 129-155) |
-| Add-to-cart triggers celebration (fly, pulse) | ⏭️ DEFERRED | Phase 5 - AddToCartButton on menu items |
-| Cart shows subtotal and free delivery progress | ✅ VERIFIED | CartSummary progress bar (lines 51-120) |
+| Criterion                                                         | Status      | Evidence                                        |
+| ----------------------------------------------------------------- | ----------- | ----------------------------------------------- |
+| Cart drawer opens as bottom sheet on mobile with opacity/backdrop | ✅ VERIFIED | CartDrawerV8 BottomSheet (lines 310-321)        |
+| Cart drawer opens as side drawer on desktop with opacity/backdrop | ✅ VERIFIED | CartDrawerV8 Drawer (lines 325-336)             |
+| User can adjust quantities with animated transitions              | ✅ VERIFIED | QuantitySelector flip animation (lines 127-166) |
+| User can swipe item to reveal delete on mobile                    | ✅ VERIFIED | CartItemV8 drag gesture (lines 129-155)         |
+| Add-to-cart triggers celebration (fly, pulse)                     | ⏭️ DEFERRED | Phase 5 - AddToCartButton on menu items         |
+| Cart shows subtotal and free delivery progress                    | ✅ VERIFIED | CartSummary progress bar (lines 51-120)         |
 
 **5/6 success criteria met** in Phase 4. Criterion #5 deferred to Phase 5 (planned).
 
 ## Technical Quality
 
 ### Code Metrics
+
 - **Total V8 cart components:** 9 files
 - **Total lines of V8 cart code:** ~2,126 lines
 - **Components integrated:** 9/9 (100%)
@@ -303,6 +319,7 @@ All Phase 4 integration gaps from previous verification have been closed:
 - **TODO/FIXME:** 0 ✅
 
 ### Architecture Quality
+
 - ✅ Consistent barrel exports (@/components/ui-v8/cart)
 - ✅ Proper hook composition (useCart, useCartDrawer, useClearCartConfirmation)
 - ✅ Animation preferences respected throughout
@@ -317,6 +334,7 @@ All Phase 4 integration gaps from previous verification have been closed:
 **Phase 4 is complete.** ✅ Ready to proceed to Phase 5 (Menu Browsing).
 
 Phase 5 will:
+
 1. Build menu item card components
 2. Integrate AddToCartButton with fly-to-cart animation
 3. Wire fly animation to CartButtonV8 badge (badge ref already registered)
@@ -326,6 +344,6 @@ Phase 5 will:
 
 ---
 
-*Verified: 2026-01-22T23:34:01Z*
-*Verifier: Claude (gsd-verifier)*
-*Re-verification: After gap closure plan 04-05*
+_Verified: 2026-01-22T23:34:01Z_
+_Verifier: Claude (gsd-verifier)_
+_Re-verification: After gap closure plan 04-05_

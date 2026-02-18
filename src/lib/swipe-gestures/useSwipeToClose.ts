@@ -39,10 +39,7 @@ export function useSwipeToClose(options: SwipeToCloseOptions): SwipeToCloseResul
       onDrag?.(offset);
 
       // Haptic at threshold
-      const reachedThreshold =
-        direction === "left"
-          ? offset < -threshold
-          : offset > threshold;
+      const reachedThreshold = direction === "left" ? offset < -threshold : offset > threshold;
 
       if (hapticEnabled && reachedThreshold && !hapticTriggeredRef.current) {
         triggerHaptic("light");
@@ -115,10 +112,7 @@ export function useSwipeToClose(options: SwipeToCloseOptions): SwipeToCloseResul
 
   const progress = Math.min(Math.abs(dragOffset) / threshold, 1);
 
-  const willClose =
-    direction === "left"
-      ? dragOffset < -threshold
-      : dragOffset > threshold;
+  const willClose = direction === "left" ? dragOffset < -threshold : dragOffset > threshold;
 
   // Calculate backdrop opacity (inverse of progress)
   const backdropOpacity = Math.max(1 - progress * 0.5, 0.5);

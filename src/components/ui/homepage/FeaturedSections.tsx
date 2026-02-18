@@ -40,22 +40,12 @@ interface SectionGridProps {
   onFavoriteToggle?: (item: MenuItem, isFavorite: boolean) => void;
 }
 
-function SectionGrid({
-  items,
-  onItemSelect,
-  favorites,
-  onFavoriteToggle,
-}: SectionGridProps) {
+function SectionGrid({ items, onItemSelect, favorites, onFavoriteToggle }: SectionGridProps) {
   return (
     <div className="px-4 md:px-6">
       <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         {items.map((item, index) => (
-          <MenuCardWrapper
-            key={item.id}
-            itemId={item.id}
-            index={index}
-            animateMode="viewport"
-          >
+          <MenuCardWrapper key={item.id} itemId={item.id} index={index} animateMode="viewport">
             <UnifiedMenuItemCard
               item={item}
               variant="menu"
@@ -92,24 +82,15 @@ function SectionHeader({ section }: SectionHeaderProps) {
         className="flex items-center gap-2 px-3 py-1.5 rounded-full"
         style={{ backgroundColor: bgColor }}
       >
-        <DynamicIcon
-          name={section.icon}
-          className="w-4 h-4"
-          style={{ color: accentColor }}
-        />
-        <span
-          className="text-sm font-body font-semibold"
-          style={{ color: accentColor }}
-        >
+        <DynamicIcon name={section.icon} className="w-4 h-4" style={{ color: accentColor }} />
+        <span className="text-sm font-body font-semibold" style={{ color: accentColor }}>
           {section.name}
         </span>
       </div>
 
       {/* Subtitle */}
       {section.subtitle && (
-        <p className="text-sm font-body text-text-muted hidden sm:block">
-          {section.subtitle}
-        </p>
+        <p className="text-sm font-body text-text-muted hidden sm:block">{section.subtitle}</p>
       )}
 
       {/* View All link */}

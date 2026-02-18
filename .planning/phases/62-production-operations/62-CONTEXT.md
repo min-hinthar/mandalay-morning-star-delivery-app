@@ -14,6 +14,7 @@ Social login, transactional email, payment webhooks, and search indexing work on
 ## Implementation Decisions
 
 ### OAuth Rollout
+
 - Google OAuth only — Apple Sign-in deferred (no Apple Developer account ready)
 - Consent screen published immediately with placeholder branding (no privacy policy yet — users see "unverified app" warning until Phase 63)
 - Consent screen name: "Mandalay Morning Star Delivery (Los Angeles)"
@@ -28,6 +29,7 @@ Social login, transactional email, payment webhooks, and search indexing work on
 - Verification: manual test with personal Google account
 
 ### Email Domain & Deliverability
+
 - Sending domain: mandalaymorningstar.com (root domain, not subdomain)
 - From address: admin@mandalaymorningstar.com
 - Sender name: "Mandalay Morning Star Burmese Kitchen (Los Angeles)"
@@ -40,6 +42,7 @@ Social login, transactional email, payment webhooks, and search indexing work on
 - admin@ inbox actively monitored via Google Workspace
 
 ### Stripe Webhook
+
 - Webhook endpoint already configured in Stripe dashboard pointing to production URL
 - STRIPE_WEBHOOK_SECRET already in Vercel production env vars
 - All Stripe env vars (secret key, publishable key, webhook secret) set in Vercel
@@ -53,12 +56,14 @@ Social login, transactional email, payment webhooks, and search indexing work on
 - Check which webhook events are subscribed during planning
 
 ### Search Console & SEO
+
 - Google Search Console verification via HTML meta tag (Next.js metadata API)
 - Verification code not yet obtained — will get during execution
 - Sitemap.xml: add or verify (Next.js auto-generation)
 - robots.txt: add to exclude auth-gated routes (/admin, /driver, /api)
 
 ### Health Endpoint Extensions
+
 - Extend existing /api/health to check new services:
   - Resend domain verification status
   - Google OAuth config validation (env vars present, redirect URL configured)
@@ -66,6 +71,7 @@ Social login, transactional email, payment webhooks, and search indexing work on
   - Search Console meta tag presence
 
 ### Claude's Discretion
+
 - DMARC policy level (recommend p=none for monitoring initially)
 - Email deliverability verification method (test email vs testing service)
 - Bounce notification handling (Resend dashboard vs webhook)
@@ -98,5 +104,5 @@ Social login, transactional email, payment webhooks, and search indexing work on
 
 ---
 
-*Phase: 62-production-operations*
-*Context gathered: 2026-02-14*
+_Phase: 62-production-operations_
+_Context gathered: 2026-02-14_

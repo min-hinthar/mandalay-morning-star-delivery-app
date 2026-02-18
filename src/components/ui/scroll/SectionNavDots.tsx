@@ -48,26 +48,26 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
   const collapseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Get section IDs for scroll spy
-  const sectionIds = useMemo(
-    () => sections.map((s) => s.id),
-    [sections]
-  );
+  const sectionIds = useMemo(() => sections.map((s) => s.id), [sections]);
 
   // Track active section index
   const activeIndex = useScrollSpy(sectionIds);
 
   // Handle click: snap scroll to section with haptic feedback
-  const handleClick = useCallback((index: number) => {
-    triggerHaptic("medium");
+  const handleClick = useCallback(
+    (index: number) => {
+      triggerHaptic("medium");
 
-    const el = document.getElementById(sections[index].id);
-    if (el) {
-      el.scrollIntoView({
-        behavior: shouldAnimate ? "smooth" : "auto",
-        block: "start",
-      });
-    }
-  }, [sections, shouldAnimate]);
+      const el = document.getElementById(sections[index].id);
+      if (el) {
+        el.scrollIntoView({
+          behavior: shouldAnimate ? "smooth" : "auto",
+          block: "start",
+        });
+      }
+    },
+    [sections, shouldAnimate]
+  );
 
   // Expand handlers
   const handleExpand = useCallback(() => {
@@ -164,9 +164,7 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
                 <m.span
                   className={cn(
                     "text-xs font-medium whitespace-nowrap",
-                    isActive
-                      ? "text-primary font-semibold"
-                      : "text-text-secondary"
+                    isActive ? "text-primary font-semibold" : "text-text-secondary"
                   )}
                   initial={{ opacity: 0, x: 8 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -186,9 +184,7 @@ export function SectionNavDots({ sections, className }: SectionNavDotsProps) {
             <m.span
               className={cn(
                 "rounded-full flex-shrink-0 transition-all duration-150",
-                isActive
-                  ? "w-2.5 h-2.5 bg-primary"
-                  : "w-2 h-2 bg-gray-400 dark:bg-gray-500"
+                isActive ? "w-2.5 h-2.5 bg-primary" : "w-2 h-2 bg-gray-400 dark:bg-gray-500"
               )}
               animate={{
                 scale: isActive && isExpanded ? 1.1 : 1,

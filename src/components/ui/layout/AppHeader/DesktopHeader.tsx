@@ -75,12 +75,7 @@ export function DesktopHeader({
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   return (
-    <div
-      className={cn(
-        "hidden md:flex items-center justify-between w-full relative",
-        className
-      )}
-    >
+    <div className={cn("hidden md:flex items-center justify-between w-full relative", className)}>
       {/* Left: Navigation */}
       <nav className="flex items-center gap-1">
         {navItems.map((item) => (
@@ -109,21 +104,13 @@ export function DesktopHeader({
             "flex items-center gap-2"
           )}
         >
-          <Image
-            src="/logo.png"
-            alt="Mandalay Morning Star"
-            width={48}
-            height={32}
-            priority
-          />
+          <Image src="/logo.png" alt="Mandalay Morning Star" width={48} height={32} priority />
           <span className="hidden lg:inline">Mandalay Morning Star</span>
         </Link>
       </m.div>
 
       {/* Right: Custom content (cart, search, theme, account indicators) */}
-      <div className="flex items-center gap-2">
-        {rightContent}
-      </div>
+      <div className="flex items-center gap-2">{rightContent}</div>
     </div>
   );
 }

@@ -24,9 +24,7 @@ export function ToggleSwitch({ id, checked, onChange, label, description }: Togg
         <Label htmlFor={id} className="text-base font-medium cursor-pointer">
           {label}
         </Label>
-        {description && (
-          <p className="mt-1 text-sm text-text-secondary">{description}</p>
-        )}
+        {description && <p className="mt-1 text-sm text-text-secondary">{description}</p>}
       </div>
       <button
         id={id}

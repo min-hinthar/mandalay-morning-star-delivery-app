@@ -56,8 +56,10 @@ const shakeVariants = {
 // VALIDATED INPUT
 // ============================================
 
-export interface ValidatedInputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "onChange"> {
+export interface ValidatedInputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "onChange"
+> {
   /** Validation rules to apply */
   rules?: ValidationRule[];
   /** External validation state (controlled) */
@@ -196,12 +198,10 @@ export const ValidatedInput = forwardRef<HTMLInputElement, ValidatedInputProps>(
     };
 
     // Build aria-describedby
-    const describedBy = [
-      message ? errorId : null,
-      helperText && !message ? helperId : null,
-    ]
-      .filter(Boolean)
-      .join(" ") || undefined;
+    const describedBy =
+      [message ? errorId : null, helperText && !message ? helperId : null]
+        .filter(Boolean)
+        .join(" ") || undefined;
 
     return (
       <div className={cn("w-full", containerClassName)}>
@@ -211,17 +211,12 @@ export const ValidatedInput = forwardRef<HTMLInputElement, ValidatedInputProps>(
             htmlFor={inputId}
             className={cn(
               "block text-sm font-medium mb-1.5",
-              disabled
-                ? "text-[var(--color-text-secondary)]"
-                : "text-[var(--color-text-primary)]"
+              disabled ? "text-[var(--color-text-secondary)]" : "text-[var(--color-text-primary)]"
             )}
           >
             {label}
             {props.required && (
-              <span
-                className="text-[var(--color-status-error)] ml-0.5"
-                aria-hidden="true"
-              >
+              <span className="text-[var(--color-status-error)] ml-0.5" aria-hidden="true">
                 *
               </span>
             )}
@@ -272,8 +267,7 @@ export const ValidatedInput = forwardRef<HTMLInputElement, ValidatedInputProps>(
               getBackgroundClass(),
               // Conditional padding
               leftIcon && "pl-10",
-              (state === "invalid" || (state === "valid" && showSuccess)) &&
-                "pr-10",
+              (state === "invalid" || (state === "valid" && showSuccess)) && "pr-10",
               // Disabled state
               disabled && "cursor-not-allowed opacity-60",
               className
@@ -319,10 +313,7 @@ export const ValidatedInput = forwardRef<HTMLInputElement, ValidatedInputProps>(
 
         {/* Helper text (only show when no error) */}
         {helperText && !message && (
-          <p
-            id={helperId}
-            className="mt-1.5 text-sm text-[var(--color-text-secondary)]"
-          >
+          <p id={helperId} className="mt-1.5 text-sm text-[var(--color-text-secondary)]">
             {helperText}
           </p>
         )}
