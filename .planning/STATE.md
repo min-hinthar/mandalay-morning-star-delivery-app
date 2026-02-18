@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 68 complete. Ready for Phase 69.
+**Current focus:** Phase 68 complete (gap closure done). Ready for Phase 69.
 
 ## Current Position
 
 Phase: 68 of 74 (RLS Audit & Hardening)
-Plan: 2 of 2 in current phase
+Plan: 3 of 3 in current phase (gap closure)
 Status: Phase complete
-Last activity: 2026-02-18 — Completed 68-02-PLAN.md (RLS test suite & verification)
+Last activity: 2026-02-18 — Completed 68-03-PLAN.md (RLS isolation test gap closure)
 
 Progress: [███░░░░░░░] ~28% (Phase 68 complete, 6 phases remain)
 
@@ -20,7 +20,7 @@ Progress: [███░░░░░░░] ~28% (Phase 68 complete, 6 phases rem
 
 **Velocity:**
 
-- Total plans completed: 290 (across v1.0-v1.8)
+- Total plans completed: 291 (across v1.0-v1.8)
 - Average duration: ~15 min
 - Total execution time: ~70 hours
 
@@ -56,6 +56,7 @@ Recent for v1.8:
 - All RLS function calls must use (select ...) initplan wrapper
 - pgTAP not installed on production; use direct pg_policy/pg_proc queries for RLS verification
 - 62-assertion regression test in supabase/tests/00_rls_policies.test.sql for future CI
+- RLS isolation test requires DRIVER_A/B and ADMIN env vars for 4-role coverage
 
 ### Pending Todos
 
@@ -71,5 +72,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Phase 68 complete (2/2 plans). Ready for Phase 69.
+Stopped at: Phase 68 complete (3/3 plans, including gap closure). Ready for Phase 69.
 Resume file: None
