@@ -18,6 +18,7 @@ import { useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { ArrowLeft, CreditCard, ShieldCheck, Lock, MapPin, Clock } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { handleRateLimitResponse } from "@/lib/hooks/useRateLimitToast";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
@@ -97,6 +98,12 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
           customerNotes: customerNotes || undefined,
         }),
       });
+
+      // Handle 429 rate limit with reassuring checkout-specific message
+      if (handleRateLimitResponse(response, { isOrderPlacement: true })) {
+        setIsCreatingSession(false);
+        return;
+      }
 
       const data = await response.json();
 
