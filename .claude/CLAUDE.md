@@ -121,4 +121,4 @@ lib-file/
 
 ## Verification
 
-Run before completing: `pnpm lint && pnpm lint:css && pnpm typecheck && pnpm test && pnpm build`
+Run before completing: `pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck && pnpm test && pnpm build`

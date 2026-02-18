@@ -71,7 +71,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       const email = invite?.email ?? "";
       return NextResponse.redirect(
         `${origin}/auth/expired?email=${encodeURIComponent(email)}&invite_id=${inviteId}`,
-        { status: 302 },
+        { status: 302 }
       );
     }
 
@@ -98,7 +98,7 @@ export async function GET(request: Request): Promise<NextResponse> {
           const email = invite?.email ?? "";
           return NextResponse.redirect(
             `${origin}/auth/expired?email=${encodeURIComponent(email)}&invite_id=${inviteId}`,
-            { status: 302 },
+            { status: 302 }
           );
         }
         return NextResponse.redirect(`${origin}/auth/expired`, { status: 302 });
