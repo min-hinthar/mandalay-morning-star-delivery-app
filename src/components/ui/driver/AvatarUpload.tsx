@@ -90,45 +90,42 @@ export function AvatarUpload({
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
-  const handleFileSelect = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-      // Reset file input for re-selection
-      e.target.value = "";
+    // Reset file input for re-selection
+    e.target.value = "";
 
-      // Validate
-      const validation = validateDriverPhoto(file);
-      if (!validation.valid) {
-        toast({ title: "Invalid file", description: validation.error, variant: "destructive" });
-        return;
-      }
+    // Validate
+    const validation = validateDriverPhoto(file);
+    if (!validation.valid) {
+      toast({ title: "Invalid file", description: validation.error, variant: "destructive" });
+      return;
+    }
 
-      try {
-        setIsCompressing(true);
+    try {
+      setIsCompressing(true);
 
-        // Compress (handles HEIC→JPEG, EXIF orientation, size reduction)
-        const compressed = await compressDriverPhoto(file);
+      // Compress (handles HEIC→JPEG, EXIF orientation, size reduction)
+      const compressed = await compressDriverPhoto(file);
 
-        // Create preview URL for crop modal
-        const previewUrl = URL.createObjectURL(compressed);
-        setPreviewSrc(previewUrl);
-        setCrop({ x: 0, y: 0 });
-        setZoom(1);
-        setShowCropModal(true);
-      } catch {
-        toast({
-          title: "Compression failed",
-          description: "Could not process the image. Try a different photo.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsCompressing(false);
-      }
-    },
-    []
-  );
+      // Create preview URL for crop modal
+      const previewUrl = URL.createObjectURL(compressed);
+      setPreviewSrc(previewUrl);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setShowCropModal(true);
+    } catch {
+      toast({
+        title: "Compression failed",
+        description: "Could not process the image. Try a different photo.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCompressing(false);
+    }
+  }, []);
 
   const handleCropConfirm = useCallback(async () => {
     if (!previewSrc || !croppedAreaPixels) return;

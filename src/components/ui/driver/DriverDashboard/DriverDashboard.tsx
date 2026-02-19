@@ -64,9 +64,7 @@ export function DriverDashboard({
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={getSpring(spring.default)}
         >
-          <h1 className="text-2xl font-bold text-text-primary">
-            Hello, {firstName}!
-          </h1>
+          <h1 className="text-2xl font-bold text-text-primary">Hello, {firstName}!</h1>
           <p className="flex items-center gap-1.5 text-text-muted mt-1">
             <Calendar className="h-4 w-4" />
             {dayOfWeek}, {dateDisplay}
