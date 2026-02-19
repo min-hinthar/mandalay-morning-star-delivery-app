@@ -55,6 +55,7 @@ interface ExceptionModalProps {
   routeId: string;
   stopId: string;
   onSuccess?: () => void;
+  testMode?: boolean;
 }
 
 export function ExceptionModal({
@@ -63,6 +64,7 @@ export function ExceptionModal({
   routeId,
   stopId,
   onSuccess,
+  testMode,
 }: ExceptionModalProps) {
   const [selectedType, setSelectedType] = useState<DeliveryExceptionType | null>(null);
   const [description, setDescription] = useState("");
@@ -83,6 +85,15 @@ export function ExceptionModal({
 
   const handleSubmit = async () => {
     if (!selectedType) return;
+
+    if (testMode) {
+      setIsSubmitting(true);
+      await new Promise((r) => setTimeout(r, 500));
+      setIsSubmitting(false);
+      onSuccess?.();
+      onClose();
+      return;
+    }
 
     setIsSubmitting(true);
     setError(null);

@@ -17,6 +17,7 @@ interface NavigationButtonProps {
   address?: string;
   className?: string;
   variant?: "primary" | "secondary";
+  testMode?: boolean;
 }
 
 export function NavigationButton({
@@ -25,8 +26,14 @@ export function NavigationButton({
   address,
   className,
   variant = "primary",
+  testMode,
 }: NavigationButtonProps) {
   const handleNavigate = () => {
+    if (testMode) {
+      window.alert("Navigation not active in test mode");
+      return;
+    }
+
     // Build Google Maps URL with destination coordinates
     const destination = address ? encodeURIComponent(address) : `${latitude},${longitude}`;
 

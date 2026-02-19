@@ -9,6 +9,7 @@ interface LocationTrackerProps {
   enabled: boolean;
   showDetails?: boolean;
   className?: string;
+  testMode?: boolean;
 }
 
 export function LocationTracker({
@@ -16,11 +17,15 @@ export function LocationTracker({
   enabled,
   showDetails = false,
   className,
+  testMode,
 }: LocationTrackerProps) {
   const { location, error, isTracking, isUpdating } = useLocationTracking({
-    enabled,
+    enabled: testMode ? false : enabled,
     routeId,
   });
+
+  // In test mode, render nothing (skip all geolocation)
+  if (testMode) return null;
 
   // Determine status
   const status = error ? "error" : isTracking ? "tracking" : "inactive";
