@@ -13,6 +13,7 @@ import { StreakDisplay } from "./StreakDisplay";
 import { RouteCard } from "./RouteCard";
 import { BadgesDisplay } from "./BadgesDisplay";
 import { ProfileCompletenessCard } from "./ProfileCompletenessCard";
+import { OnboardingWalkthroughCard } from "./OnboardingWalkthroughCard";
 import { EarningsSummaryCard } from "./EarningsSummaryCard";
 import { NextRouteChip } from "./NextRouteChip";
 
@@ -77,6 +78,9 @@ export function DriverDashboard({
 
         {/* Profile Completeness */}
         <ProfileCompletenessCard driver={driver} />
+
+        {/* Onboarding Walkthrough (new drivers only) */}
+        <OnboardingWalkthroughCard driver={driver} deliveriesCount={driver.deliveriesCount} />
 
         {/* Earnings Summary */}
         <EarningsSummaryCard
