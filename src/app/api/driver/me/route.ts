@@ -22,9 +22,11 @@ interface DriverMeResponse {
     fullName: string | null;
     phone: string | null;
     vehicleType: VehicleType | null;
+    licensePlate: string | null;
     profileImageUrl: string | null;
     deliveriesCount: number;
     ratingAvg: number;
+    createdAt: string;
   };
   todayRoute: {
     id: string;
@@ -55,10 +57,12 @@ export async function GET() {
     interface DriverQueryResult {
       id: string;
       vehicle_type: string | null;
+      license_plate: string | null;
       phone: string | null;
       profile_image_url: string | null;
       deliveries_count: number;
       rating_avg: number;
+      created_at: string;
     }
 
     const { data: driver, error: driverError } = await supabase
@@ -67,10 +71,12 @@ export async function GET() {
         `
         id,
         vehicle_type,
+        license_plate,
         phone,
         profile_image_url,
         deliveries_count,
-        rating_avg
+        rating_avg,
+        created_at
       `
       )
       .eq("id", driverId)
@@ -132,9 +138,11 @@ export async function GET() {
         fullName: profile?.full_name ?? null,
         phone: driver.phone,
         vehicleType: driver.vehicle_type as VehicleType | null,
+        licensePlate: driver.license_plate,
         profileImageUrl: driver.profile_image_url,
         deliveriesCount: driver.deliveries_count,
         ratingAvg: driver.rating_avg,
+        createdAt: driver.created_at,
       },
       todayRoute,
     });
