@@ -71,6 +71,24 @@ const dayName = dateObj.toLocaleDateString("en-US", {
 
 ---
 
+## `revalidatePath` Defaults to `"page"` — Layouts Not Invalidated
+
+`revalidatePath("/some-route")` defaults to `type: "page"`. This only invalidates `/some-route/page.tsx` — **NOT** the layout at that path, and NOT child pages.
+
+```tsx
+// BROKEN: layout data stays cached (avatar, nav props, context values)
+revalidatePath("/driver");
+
+// WORKING: invalidates layout AND all child pages
+revalidatePath("/driver", "layout");
+```
+
+When layouts provide data to child components (via context providers or props), stale layout = stale data everywhere.
+
+**Apply when:** Any `revalidatePath` call where the layout fetches data consumed by child pages — especially context providers set in layouts.
+
+---
+
 ## beforeunload Handler Must Check Ref
 
 `beforeunload` fires when `window.location.href` is set to external URL. Effect cleanup runs too late.

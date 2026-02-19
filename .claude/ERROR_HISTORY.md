@@ -529,6 +529,42 @@ Comprehensive audit for memory leaks and crash patterns found 0 critical issues.
 
 ---
 
+## 2026-02-19: Storage Migration Fails — Ownership of `storage.objects`
+
+**Date:** 2026-02-19 | **Type:** Migration/Permissions | **Severity:** Medium
+**Files:** `supabase/migrations/024_driver_photos_storage.sql`
+
+**Error:** `42501: must be owner of relation objects` + `42703` when running migration through Supabase Dashboard SQL Editor.
+
+**Root cause:** `storage.objects` is owned by `supabase_storage_admin`, not `postgres`. The SQL Editor runs as `postgres` and cannot CREATE/DROP POLICY on tables it doesn't own. The `42703` was a cascading error from the same failed execution.
+
+**Fix:** Applied via MCP `apply_migration` tool which uses the management API with service-role (elevated) permissions. Bucket creation (`INSERT INTO storage.buckets`) works fine as `postgres` — only the policy statements require the storage admin role.
+
+**Prevention:**
+1. Never apply storage object policies via Dashboard SQL Editor
+2. Use MCP `apply_migration` or `supabase db push` for storage migrations
+3. See `.claude/learnings/supabase-auth.md` for full pattern
+
+---
+
+## 2026-02-19: Driver Avatar Not Synced Between Header and Nav
+
+**Date:** 2026-02-19 | **Type:** Cache/Revalidation | **Severity:** Medium
+**Files:** `api/driver/profile/photo/route.ts`, `api/driver/profile/route.ts`, `driver/layout.tsx`, `DriverHeader.tsx`, `DriverNav.tsx`
+
+**Error:** After uploading a profile photo or saving profile (name), the avatar in DriverHeader (top bar) and DriverNav (bottom tab) didn't update despite `router.refresh()` being called client-side.
+
+**Root cause:** Both API routes called `revalidatePath("/driver")` which defaults to `type: "page"`. This only invalidates `/driver/page.tsx` (dashboard). The **layout** (`/driver/layout.tsx`) — which is the single source of avatar data for both DriverHeader (via context) and DriverNav (via props) — stayed cached with stale data.
+
+**Fix:** Changed to `revalidatePath("/driver", "layout")` in all 3 call sites. The `"layout"` type revalidates the layout AND all child pages.
+
+**Prevention:**
+1. When layouts provide data via context or props, always use `revalidatePath(path, "layout")`
+2. Default `"page"` type is almost never what you want when layout data matters
+3. See `.claude/learnings/nextjs.md` for pattern
+
+---
+
 ## 2026-01-26: Double-Add Cart Items (Button + Callback Both Mutate)
 
 **Type:** Logic | **Severity:** High
