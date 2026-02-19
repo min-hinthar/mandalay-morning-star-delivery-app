@@ -81,5 +81,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-18
-Stopped at: Phase 69 complete (3/3 plans, verification passed). Ready for Phase 70.
-Resume file: None
+Stopped at: Phase 70 context gathered. Ready for planning.
+Resume file: .planning/phases/70-role-based-auth-redirects/70-CONTEXT.md
