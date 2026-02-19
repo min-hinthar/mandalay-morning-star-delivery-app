@@ -124,8 +124,8 @@ Plans:
 
 Plans:
 
-- [ ] 71-01-PLAN.md — Storage bucket migration, driver profile API (PATCH), photo upload/delete API, profile page with form + circular crop + compression
-- [ ] 71-02-PLAN.md — Profile completeness checklist card on dashboard, avatar in header/nav, static greeting, driver identity in tracking view
+- [x] 71-01-PLAN.md — Storage bucket migration, driver profile API (PATCH), photo upload/delete API, profile page with form + circular crop + compression — completed 2026-02-19
+- [x] 71-02-PLAN.md — Profile completeness checklist card on dashboard, avatar in header/nav, static greeting, driver identity in tracking view — completed 2026-02-19
 
 #### Phase 72: Driver Earnings Dashboard
 
