@@ -115,7 +115,10 @@ export function ActiveRouteView({ routeId, routeStatus, stops }: ActiveRouteView
 
   return (
     <m.div
-      className={cn("space-y-4", isFullMotion && routeStatus === "in_progress" && "shadow-glow-primary")}
+      className={cn(
+        "space-y-4",
+        isFullMotion && routeStatus === "in_progress" && "shadow-glow-primary"
+      )}
       initial={shouldAnimate ? { opacity: 0 } : undefined}
       animate={shouldAnimate ? { opacity: 1 } : undefined}
       transition={getSpring(spring.default)}
