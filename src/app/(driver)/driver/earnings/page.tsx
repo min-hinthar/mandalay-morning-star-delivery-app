@@ -80,7 +80,9 @@ async function getEarningsData() {
   ]);
 
   const rateCents =
-    typeof payRateResult.data?.value === "number" ? payRateResult.data.value : DEFAULT_PAY_RATE_CENTS;
+    typeof payRateResult.data?.value === "number"
+      ? payRateResult.data.value
+      : DEFAULT_PAY_RATE_CENTS;
 
   const routes = routesResult.data ?? [];
   const routeEarnings = computeRouteEarnings(routes, rateCents);

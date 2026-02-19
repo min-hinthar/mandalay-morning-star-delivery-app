@@ -154,8 +154,7 @@ async function getDriverData() {
   }));
 
   // Compute earnings from pay rate and delivery counts
-  const rateCents =
-    typeof payRateResult.data?.value === "number" ? payRateResult.data.value : 500;
+  const rateCents = typeof payRateResult.data?.value === "number" ? payRateResult.data.value : 500;
   const todayDeliveredStops = (todayRoutesResult.data ?? []).reduce(
     (sum, r) => sum + (r.stats_json?.delivered_stops ?? 0),
     0
