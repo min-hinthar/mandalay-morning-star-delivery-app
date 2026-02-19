@@ -3,12 +3,17 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { getRoleDashboard } from "@/lib/auth/role-redirect";
 import { DriverNav } from "@/components/ui/driver/DriverNav";
 import { DriverShell } from "@/components/ui/driver/DriverShell";
+import { DriverAvatarProvider } from "@/components/ui/driver/DriverAvatarContext";
 import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
 import type { DriversRow } from "@/types/driver";
 import type { ProfileRole } from "@/types/database";
 
 interface ProfileRow {
   role: ProfileRole;
+}
+
+interface DriverProfileRow {
+  full_name: string | null;
 }
 
 export default async function DriverLayout({ children }: { children: React.ReactNode }) {
@@ -27,12 +32,12 @@ export default async function DriverLayout({ children }: { children: React.React
   // Query driver record WITHOUT is_active filter to detect deactivated vs no-record
   const { data: driver } = await supabase
     .from("drivers")
-    .select("id, user_id, is_active, vehicle_type, rating_avg, deliveries_count")
+    .select("id, user_id, is_active, vehicle_type, rating_avg, deliveries_count, profile_image_url")
     .eq("user_id", user.id)
     .returns<
       Pick<
         DriversRow,
-        "id" | "user_id" | "is_active" | "vehicle_type" | "rating_avg" | "deliveries_count"
+        "id" | "user_id" | "is_active" | "vehicle_type" | "rating_avg" | "deliveries_count" | "profile_image_url"
       >[]
     >()
     .single();
@@ -61,17 +66,30 @@ export default async function DriverLayout({ children }: { children: React.React
     redirect("/driver/deactivated");
   }
 
+  // Get driver name for avatar display
+  const { data: driverProfile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .returns<DriverProfileRow[]>()
+    .single();
+
+  const avatarUrl = driver.profile_image_url;
+  const driverName = driverProfile?.full_name ?? null;
+
   return (
     <DomMaxProvider>
-      <DriverShell>
-        <div className="flex min-h-screen flex-col bg-cream">
-          {/* Main content area - scrollable */}
-          <main className="flex-1 overflow-auto pb-20">{children}</main>
+      <DriverAvatarProvider avatarUrl={avatarUrl} driverName={driverName}>
+        <DriverShell>
+          <div className="flex min-h-screen flex-col bg-cream">
+            {/* Main content area - scrollable */}
+            <main className="flex-1 overflow-auto pb-20">{children}</main>
 
-          {/* Fixed bottom navigation */}
-          <DriverNav />
-        </div>
-      </DriverShell>
+            {/* Fixed bottom navigation */}
+            <DriverNav avatarUrl={avatarUrl} driverName={driverName} />
+          </div>
+        </DriverShell>
+      </DriverAvatarProvider>
     </DomMaxProvider>
   );
 }

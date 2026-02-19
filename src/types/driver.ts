@@ -442,6 +442,7 @@ export interface TrackingDriverInfo {
   profileImageUrl: string | null;
   phone: string | null;
   vehicleType?: VehicleType | null;
+  licensePlate?: string | null;
 }
 
 export interface EtaInfo {

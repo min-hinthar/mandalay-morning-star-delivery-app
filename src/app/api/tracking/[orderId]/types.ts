@@ -54,6 +54,7 @@ export interface DriverData {
   id: string;
   profile_image_url: string | null;
   vehicle_type: string | null;
+  license_plate: string | null;
   profiles: DriverProfileData | null;
 }
 
