@@ -120,12 +120,12 @@ Plans:
 1. Driver can edit name, phone, vehicle type, and license plate from /driver/profile page
 2. Driver can upload a profile photo that persists in Supabase Storage (driver-photos bucket)
 3. Dashboard shows profile completeness indicator highlighting missing fields
-   **Plans**: TBD
+   **Plans**: 2 plans (Wave 1: 01, Wave 2: 02 depends on 01)
 
 Plans:
 
-- [ ] 71-01: TBD
-- [ ] 71-02: TBD
+- [ ] 71-01-PLAN.md — Storage bucket migration, driver profile API (PATCH), photo upload/delete API, profile page with form + circular crop + compression
+- [ ] 71-02-PLAN.md — Profile completeness checklist card on dashboard, avatar in header/nav, static greeting, driver identity in tracking view
 
 #### Phase 72: Driver Earnings Dashboard
 
