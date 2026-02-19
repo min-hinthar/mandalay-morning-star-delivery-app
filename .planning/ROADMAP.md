@@ -102,12 +102,13 @@ Plans:
 3. Customer users redirect to /menu after login
 4. New drivers without active driver record redirect to /driver/onboard instead of /driver
 5. Admin and driver routes are protected at proxy level — unauthorized users cannot access them even by direct URL
-   **Plans**: TBD
+   **Plans**: 3 plans (Wave 1: 01 + 02 parallel, Wave 2: 03 depends on 01)
 
 Plans:
 
-- [ ] 70-01: TBD
-- [ ] 70-02: TBD
+- [ ] 70-01-PLAN.md — Middleware (proxy.ts), centralized getRoleDashboard, unified layout guards, auth route updates, admin_contact_info migration
+- [ ] 70-02-PLAN.md — Deactivated driver page, passwordless onboarding, invite metadata display, customer-to-driver upgrade confirmation
+- [ ] 70-03-PLAN.md — Role-aware login ceremony, CallbackSpinner with timeout, LoginPageClient role resolution
 
 #### Phase 71: Driver Profile Setup
 
