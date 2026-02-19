@@ -106,7 +106,7 @@ Plans:
 
 Plans:
 
-- [ ] 70-01-PLAN.md — Middleware (proxy.ts), centralized getRoleDashboard, unified layout guards, auth route updates, admin_contact_info migration
+- [x] 70-01-PLAN.md — Middleware (proxy.ts), centralized getRoleDashboard, unified layout guards, auth route updates, admin_contact_info migration — completed 2026-02-19
 - [x] 70-02-PLAN.md — Deactivated driver page, passwordless onboarding, invite metadata display, customer-to-driver upgrade confirmation — completed 2026-02-19
 - [ ] 70-03-PLAN.md — Role-aware login ceremony, CallbackSpinner with timeout, LoginPageClient role resolution
 
