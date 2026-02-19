@@ -38,7 +38,7 @@ Requirements for post-launch hardening, driver experience overhaul, and role-bas
 
 - [x] **DDASH-01**: Weekly earnings summary card showing computed earnings (per-delivery rate x completed deliveries)
 - [x] **DDASH-02**: Per-route earnings breakdown showing earnings for each completed route
-- [ ] **DDASH-03**: Earnings history chart using Recharts (bar/line) showing weekly/monthly trends
+- [x] **DDASH-03**: Earnings history chart using Recharts (bar/line) showing weekly/monthly trends
 - [ ] **DDASH-04**: Upcoming assigned routes visible on driver home (not just today's route)
 - [ ] **DDASH-05**: Weekly schedule view showing all planned routes for the coming week
 - [ ] **DDASH-06**: Availability scheduling — driver can mark available days of the week (recurring)
@@ -122,7 +122,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DPROF-05    | Phase 74 | Pending |
 | DDASH-01    | Phase 72 | Complete |
 | DDASH-02    | Phase 72 | Complete |
-| DDASH-03    | Phase 72 | Pending |
+| DDASH-03    | Phase 72 | Complete |
 | DDASH-04    | Phase 73 | Pending |
 | DDASH-05    | Phase 73 | Pending |
 | DDASH-06    | Phase 73 | Pending |

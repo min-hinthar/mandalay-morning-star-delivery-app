@@ -200,7 +200,7 @@ Note: Phases 68 and 69 are parallelizable (both are infra with no UI overlap).
 | 69. Distributed Rate Limiting              | v1.8      | 3/3            | ✓ Complete  | 2026-02-18 |
 | 70. Role-Based Auth Redirects              | v1.8      | Complete    | 2026-02-19 | 2026-02-19 |
 | 71. Driver Profile Setup                   | v1.8      | 0/TBD          | Not started | -         |
-| 72. Driver Earnings Dashboard              | 2/3 | In Progress|  | -         |
+| 72. Driver Earnings Dashboard              | 3/3 | Complete   | 2026-02-19 | -         |
 | 73. Driver Availability & Route Visibility | v1.8      | 0/TBD          | Not started | -         |
 | 74. Guided Walkthrough & Driver UI Polish  | v1.8      | 0/TBD          | Not started | -         |
 
