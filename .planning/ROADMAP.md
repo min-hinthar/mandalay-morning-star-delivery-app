@@ -179,13 +179,13 @@ Plans:
 2. Test delivery page (/driver/test-delivery) lets drivers practice the full delivery flow with mock route data
 3. Driver layouts are mobile-first with larger touch targets and better scan hierarchy
 4. Driver pages have animation polish, glassmorphism cards, and consistent design tokens matching customer-side quality
-   **Plans**: TBD
+   **Plans**: 3 plans (Wave 1: 01 + 02 parallel, Wave 2: 03 depends on 01 + 02)
 
 Plans:
 
-- [ ] 74-01: TBD
-- [ ] 74-02: TBD
-- [ ] 74-03: TBD
+- [ ] 74-01-PLAN.md — Onboarding walkthrough card + touch target fixes across 7 driver components
+- [ ] 74-02-PLAN.md — Test delivery page with mock data, testMode prop on API-calling components
+- [ ] 74-03-PLAN.md — Animation polish, glassmorphism cards, stagger animations, design token alignment
 
 ## Progress
 
