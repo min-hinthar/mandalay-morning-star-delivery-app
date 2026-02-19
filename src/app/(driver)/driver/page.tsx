@@ -108,9 +108,16 @@ async function getDriverData() {
   // Get today's date in LA timezone
   const { todayStr, dayOfWeek, dateDisplay } = getDateInfo();
 
-  // Get today's route + gamification + earnings data in parallel
-  const [routeResult, streakResult, weeklyResult, badgesResult, payRateResult, todayRoutesResult] =
-    await Promise.all([
+  // Get today's route + gamification + earnings data + next route in parallel
+  const [
+    routeResult,
+    streakResult,
+    weeklyResult,
+    badgesResult,
+    payRateResult,
+    todayRoutesResult,
+    nextRouteResult,
+  ] = await Promise.all([
       supabase
         .from("routes")
         .select("id, status, stats_json, started_at, optimized_polyline")
@@ -141,6 +148,17 @@ async function getDriverData() {
         .eq("delivery_date", todayStr)
         .eq("status", "completed")
         .returns<{ stats_json: RouteStats | null }[]>(),
+      // Next upcoming route after today
+      supabase
+        .from("routes")
+        .select("delivery_date")
+        .eq("driver_id", driver.id)
+        .gt("delivery_date", todayStr)
+        .in("status", ["planned", "in_progress"])
+        .order("delivery_date", { ascending: true })
+        .limit(1)
+        .returns<{ delivery_date: string }[]>()
+        .single(),
     ]);
 
   const route = routeResult.data;
@@ -184,6 +202,7 @@ async function getDriverData() {
           startedAt: route.started_at,
         }
       : null,
+    nextRouteDate: nextRouteResult.data?.delivery_date ?? null,
     streakDays,
     todayEarningsCents,
     weeklyEarningsCents,
