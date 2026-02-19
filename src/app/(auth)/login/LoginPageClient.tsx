@@ -23,6 +23,13 @@ import { createClient } from "@/lib/supabase/client";
 interface SuccessProfile {
   name: string | null;
   avatarUrl: string | null;
+  redirectTo?: string;
+  roleMessage?: string;
+}
+
+/** Validate that a redirect path is safe (no open redirect) */
+function isSafeRedirect(path: string): boolean {
+  return path.startsWith("/") && !path.startsWith("//") && !path.includes("://");
 }
 
 function AuthCardContent({
@@ -59,7 +66,12 @@ function AuthCardContent({
 
   if (state === "success") {
     return (
-      <LoginSuccessCeremony userName={successProfile.name} avatarUrl={successProfile.avatarUrl} />
+      <LoginSuccessCeremony
+        userName={successProfile.name}
+        avatarUrl={successProfile.avatarUrl}
+        redirectTo={successProfile.redirectTo}
+        roleMessage={successProfile.roleMessage}
+      />
     );
   }
 
@@ -106,7 +118,13 @@ function AuthCardContent({
   );
 }
 
-function AuthSessionListener({ onSuccess }: { onSuccess: (profile: SuccessProfile) => void }) {
+function AuthSessionListener({
+  onSuccess,
+  nextParam,
+}: {
+  onSuccess: (profile: SuccessProfile) => void;
+  nextParam?: string;
+}) {
   const { setState } = useAuthCard();
 
   useEffect(() => {
@@ -116,20 +134,48 @@ function AuthSessionListener({ onSuccess }: { onSuccess: (profile: SuccessProfil
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session?.user) return;
       if (event !== "SIGNED_IN" && event !== "INITIAL_SESSION") return;
+
       const metadata = session.user.user_metadata ?? {};
       const name =
         metadata.full_name ||
         metadata.name ||
         (session.user.email ? session.user.email.split("@")[0] : null);
       const avatarUrl = metadata.avatar_url ?? null;
-      onSuccess({ name: name ?? null, avatarUrl });
+
+      // Resolve role for redirect
+      const role = metadata.role as string | undefined;
+      let redirectTo = "/menu"; // default for customers
+      let roleMessage = "Taking you to the menu...";
+
+      if (role === "admin") {
+        redirectTo = "/admin";
+        roleMessage = "Loading your admin dashboard...";
+      } else if (role === "driver") {
+        redirectTo = "/driver";
+        roleMessage = "Loading your driver dashboard...";
+      }
+
+      // Honor ?next= if role matches
+      if (nextParam && isSafeRedirect(nextParam)) {
+        if (nextParam.startsWith("/admin") && role === "admin") {
+          redirectTo = nextParam;
+          roleMessage = "Loading your admin dashboard...";
+        } else if (nextParam.startsWith("/driver") && role === "driver") {
+          redirectTo = nextParam;
+          roleMessage = "Loading your driver dashboard...";
+        } else if (!nextParam.startsWith("/admin") && !nextParam.startsWith("/driver")) {
+          redirectTo = nextParam;
+        }
+      }
+
+      onSuccess({ name: name ?? null, avatarUrl, redirectTo, roleMessage });
       setState("success");
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [onSuccess, setState]);
+  }, [onSuccess, setState, nextParam]);
 
   return null;
 }
@@ -142,6 +188,8 @@ export function LoginPageClient() {
   const [successProfile, setSuccessProfile] = useState<SuccessProfile>({
     name: null,
     avatarUrl: null,
+    redirectTo: undefined,
+    roleMessage: undefined,
   });
 
   useEffect(() => {
@@ -160,7 +208,7 @@ export function LoginPageClient() {
       <OAuthLoadingOverlay provider={oauthProvider} />
       <AuthBackground>
         <AuthCard>
-          <AuthSessionListener onSuccess={setSuccessProfile} />
+          <AuthSessionListener onSuccess={setSuccessProfile} nextParam={redirectTo} />
           <AuthCardContent
             onOAuthStart={setOauthProvider}
             successProfile={successProfile}
