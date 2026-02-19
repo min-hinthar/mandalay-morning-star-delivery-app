@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { isDriverAvailable } from "@/lib/availability";
 import type { RouteDetailResponse, DriverOption } from "./types";
 
 interface DriverInfoCardProps {
@@ -100,11 +101,19 @@ export function DriverInfoCard({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="unassigned">Unassigned</SelectItem>
-            {drivers.map((driver) => (
-              <SelectItem key={driver.id} value={driver.id}>
-                {driver.fullName || driver.userId.slice(0, 8)}
-              </SelectItem>
-            ))}
+            {drivers.map((driver) => {
+              const available = isDriverAvailable(
+                driver.availability ?? null,
+                route.deliveryDate
+              );
+              const label = driver.fullName || driver.userId.slice(0, 8);
+              const displayLabel = available ? label : `${label} (Unavailable)`;
+              return (
+                <SelectItem key={driver.id} value={driver.id}>
+                  {displayLabel}
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
       </div>

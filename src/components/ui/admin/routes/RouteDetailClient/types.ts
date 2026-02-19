@@ -1,4 +1,10 @@
-import type { RouteStatus, DriverListItem, StopDetail, RouteStats } from "@/types/driver";
+import type {
+  RouteStatus,
+  DriverListItem,
+  StopDetail,
+  RouteStats,
+  DriverAvailability,
+} from "@/types/driver";
 
 export interface RouteDetailResponse {
   id: string;
@@ -17,6 +23,7 @@ export interface DriverOption {
   userId: string;
   fullName: string | null;
   isActive: boolean;
+  availability?: DriverAvailability | null;
 }
 
 export { type RouteStatus, type RouteStopStatus } from "@/types/driver";
