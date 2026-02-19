@@ -53,7 +53,12 @@ export async function GET() {
     }
     const { supabase, userId } = auth;
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/profile" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/profile",
+    });
     if (rl.limited) return rl.response;
 
     // Fetch profile
@@ -108,7 +113,12 @@ export async function PATCH(request: NextRequest) {
     }
     const { supabase, userId } = auth;
 
-    const rl2 = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/profile" });
+    const rl2 = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/profile",
+    });
     if (rl2.limited) return rl2.response;
 
     const body = await request.json();

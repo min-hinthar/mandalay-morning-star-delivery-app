@@ -77,7 +77,12 @@ export async function POST() {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/settings/restore" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: user.id,
+      role: "admin",
+      route: "admin/settings/restore",
+    });
     if (rl.limited) return rl.response;
 
     // Delete all existing settings and re-insert defaults

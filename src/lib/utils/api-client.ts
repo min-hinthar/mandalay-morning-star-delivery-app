@@ -22,10 +22,7 @@ interface ApiFetchOptions extends RequestInit {
  * Fetch wrapper that detects 429 responses and shows toast notification.
  * Throws `Error("Rate limited")` when rate limited so callers can stop processing.
  */
-export async function apiFetch(
-  url: string,
-  options?: ApiFetchOptions,
-): Promise<Response> {
+export async function apiFetch(url: string, options?: ApiFetchOptions): Promise<Response> {
   const { isOrderPlacement, ...fetchOptions } = options ?? {};
 
   const response = await fetch(url, fetchOptions);

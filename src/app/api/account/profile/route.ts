@@ -37,7 +37,12 @@ export async function GET() {
       );
     }
 
-    const rl = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "account/profile" });
+    const rl = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "account/profile",
+    });
     if (rl.limited) return rl.response;
 
     const { data: profile, error } = await supabase
@@ -79,7 +84,12 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const rlPatch = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "account/profile" });
+    const rlPatch = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "account/profile",
+    });
     if (rlPatch.limited) return rlPatch.response;
 
     const body = await request.json();

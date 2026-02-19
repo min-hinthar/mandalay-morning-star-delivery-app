@@ -37,7 +37,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/routes/:id" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: user.id,
+      role: "admin",
+      route: "admin/routes/:id",
+    });
     if (rl.limited) return rl.response;
 
     // Fetch route with all details
@@ -243,7 +248,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/routes/:id" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: user.id,
+      role: "admin",
+      route: "admin/routes/:id",
+    });
     if (rl.limited) return rl.response;
 
     const body = await request.json();
@@ -360,7 +370,12 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/routes/:id" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: user.id,
+      role: "admin",
+      route: "admin/routes/:id",
+    });
     if (rl.limited) return rl.response;
 
     // Check route status

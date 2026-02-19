@@ -43,7 +43,12 @@ export async function GET() {
     }
     const { supabase, driverId, userId } = auth;
 
-    const rl = await checkRateLimit({ limiter: driverActionLimiter, identifier: driverId, role: "driver", route: "driver/me" });
+    const rl = await checkRateLimit({
+      limiter: driverActionLimiter,
+      identifier: driverId,
+      role: "driver",
+      route: "driver/me",
+    });
     if (rl.limited) return rl.response;
 
     // Get driver profile with user data

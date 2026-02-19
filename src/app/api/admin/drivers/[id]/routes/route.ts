@@ -67,7 +67,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/drivers/:id/routes" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: user.id,
+      role: "admin",
+      route: "admin/drivers/:id/routes",
+    });
     if (rl.limited) return rl.response;
 
     // Parse query params

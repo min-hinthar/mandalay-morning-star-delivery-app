@@ -15,7 +15,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/reorder" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/sections/reorder",
+    });
     if (rl.limited) return rl.response;
 
     const body = await request.json();

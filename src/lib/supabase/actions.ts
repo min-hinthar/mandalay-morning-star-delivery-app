@@ -4,10 +4,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import {
-  checkServerActionRateLimit,
-  authSignInLimiter,
-} from "@/lib/rate-limit";
+import { checkServerActionRateLimit, authSignInLimiter } from "@/lib/rate-limit";
 
 export interface ActionResult {
   error?: string;

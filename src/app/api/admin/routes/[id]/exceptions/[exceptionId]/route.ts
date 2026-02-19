@@ -52,7 +52,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/routes/:id/exceptions/:exceptionId" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: user.id,
+      role: "admin",
+      route: "admin/routes/:id/exceptions/:exceptionId",
+    });
     if (rl.limited) return rl.response;
 
     // Parse and validate request body

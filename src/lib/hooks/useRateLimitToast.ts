@@ -20,18 +20,14 @@ interface RateLimitContext {
  *
  * @returns `true` if rate limited (caller should stop processing), `false` otherwise
  */
-export function handleRateLimitResponse(
-  response: Response,
-  context?: RateLimitContext,
-): boolean {
+export function handleRateLimitResponse(response: Response, context?: RateLimitContext): boolean {
   if (response.status !== 429) return false;
 
   if (context?.isOrderPlacement) {
     toast({
       variant: "warning",
       title: "Please wait",
-      description:
-        "Your order is being processed. Please don't submit again.",
+      description: "Your order is being processed. Please don't submit again.",
     });
   } else {
     toast({

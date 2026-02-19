@@ -14,7 +14,12 @@ export async function POST() {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/publish" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/sections/publish",
+    });
     if (rl.limited) return rl.response;
 
     const { error } = await auth.supabase

@@ -6,9 +6,9 @@ import { Loader2 } from "lucide-react";
 import { AuthBackground } from "./AuthBackground";
 
 interface CallbackSpinnerProps {
-  message: string;          // "Loading your driver dashboard..."
-  redirectTo: string;       // "/driver"
-  timeoutMs?: number;       // default 5000
+  message: string; // "Loading your driver dashboard..."
+  redirectTo: string; // "/driver"
+  timeoutMs?: number; // default 5000
 }
 
 export function CallbackSpinner({ message, redirectTo, timeoutMs = 5000 }: CallbackSpinnerProps) {

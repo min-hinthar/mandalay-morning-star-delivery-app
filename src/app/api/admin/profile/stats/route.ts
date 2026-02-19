@@ -20,7 +20,12 @@ export async function GET() {
     }
     const { supabase, userId } = auth;
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/profile/stats" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/profile/stats",
+    });
     if (rl.limited) return rl.response;
 
     // Get auth user for last_sign_in_at
