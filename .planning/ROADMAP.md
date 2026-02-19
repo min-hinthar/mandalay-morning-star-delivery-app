@@ -160,13 +160,13 @@ Plans:
 4. Weekly schedule view shows all planned routes for the coming week
 5. History page supports date-range filtering, pagination, and monthly summary with aggregate stats
 6. Admin can view driver availability when creating or assigning routes
-   **Plans**: TBD
+   **Plans**: 3 plans (Wave 1: 01 + 02 parallel, Wave 2: 03 depends on 01 + 02)
 
 Plans:
 
-- [ ] 73-01: TBD
-- [ ] 73-02: TBD
-- [ ] 73-03: TBD
+- [ ] 73-01-PLAN.md — DB migration (availability JSONB), availability API, AvailabilityPicker component set
+- [ ] 73-02-PLAN.md — Schedule page with day-grouped routes, upcoming routes API, NextRouteChip on dashboard
+- [ ] 73-03-PLAN.md — History page enhancements (period filter, pagination, monthly grouping) + admin availability indicators
 
 #### Phase 74: Guided Walkthrough & Driver UI Polish
 
