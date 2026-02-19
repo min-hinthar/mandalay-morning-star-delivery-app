@@ -134,3 +134,27 @@ USING (user_id = (select auth.uid()))
 All RLS policies in this project use initplan wrappers. Applies to: `is_admin()`, `auth.uid()`, `get_my_driver_id()`.
 
 **Apply when:** Writing or reviewing any RLS policy that calls a function.
+
+---
+
+## Storage Policy Ownership — `storage.objects` Requires Management API
+
+**Context:** Migration 024 (driver-photos bucket) failed with `42501: must be owner of relation objects` when run through Supabase Dashboard SQL Editor.
+
+**Learning:** `storage.objects` is owned by `supabase_storage_admin`, not `postgres`. The SQL Editor runs as `postgres` and cannot `CREATE POLICY` on tables it doesn't own.
+
+Existing storage policies (delivery-photos, menu-photos) were created via the management API during earlier migrations — same mechanism, elevated privileges.
+
+**Fix:** Use MCP `apply_migration` tool (management API) instead of the Dashboard SQL Editor for any migration that touches `storage.objects` policies.
+
+```
+-- These statements require supabase_storage_admin ownership:
+CREATE POLICY "..." ON storage.objects ...;
+DROP POLICY IF EXISTS "..." ON storage.objects;
+COMMENT ON POLICY "..." ON storage.objects ...;
+
+-- This works fine as postgres:
+INSERT INTO storage.buckets (...) VALUES (...);
+```
+
+**Apply when:** Writing any migration that creates/modifies/drops RLS policies on `storage.objects`. Always apply via MCP `apply_migration` or `supabase db push`, never via Dashboard SQL Editor.

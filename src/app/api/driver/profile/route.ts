@@ -74,8 +74,8 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
-    // Bust RSC cache for dashboard completeness card
-    revalidatePath("/driver");
+    // Bust RSC cache for layout (avatar context + nav) and all child pages
+    revalidatePath("/driver", "layout");
 
     return NextResponse.json({
       fullName: fullName ?? null,

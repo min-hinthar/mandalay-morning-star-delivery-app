@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    revalidatePath("/driver");
+    revalidatePath("/driver", "layout");
 
     return NextResponse.json({ profileImageUrl: publicUrl });
   } catch (error) {
@@ -179,7 +179,7 @@ export async function DELETE() {
       return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
     }
 
-    revalidatePath("/driver");
+    revalidatePath("/driver", "layout");
 
     return NextResponse.json({ success: true });
   } catch (error) {
