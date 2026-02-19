@@ -55,18 +55,26 @@ export async function GET(request: NextRequest) {
       .returns<DriverStatsResult[]>()
       .single();
 
-    // Get limit from query params (default 20)
+    // Get limit and offset from query params
     const url = new URL(request.url);
     const limit = Math.min(parseInt(url.searchParams.get("limit") || "20", 10), 100);
+    const offset = Math.max(parseInt(url.searchParams.get("offset") || "0", 10), 0);
 
-    // Get completed routes
+    // Get total count of completed routes
+    const { count: totalCount } = await supabase
+      .from("routes")
+      .select("id", { count: "exact", head: true })
+      .eq("driver_id", driverId)
+      .eq("status", "completed");
+
+    // Get completed routes with pagination
     const { data: routes, error: routesError } = await supabase
       .from("routes")
       .select("id, delivery_date, status, stats_json, started_at, completed_at")
       .eq("driver_id", driverId)
       .eq("status", "completed")
       .order("delivery_date", { ascending: false })
-      .limit(limit)
+      .range(offset, offset + limit - 1)
       .returns<RouteQueryResult[]>();
 
     if (routesError) {
@@ -97,6 +105,7 @@ export async function GET(request: NextRequest) {
         ratingAvg: driverStats?.rating_avg ?? 0,
       },
       routes: historyRoutes,
+      totalRoutes: totalCount ?? 0,
     });
   } catch (error) {
     logger.exception(error, { api: "driver/routes/history" });

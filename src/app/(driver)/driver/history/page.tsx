@@ -66,15 +66,22 @@ async function getDriverHistory() {
     redirect("/?error=not_driver");
   }
 
-  // Get past completed routes
-  const { data: routes } = await supabase
-    .from("routes")
-    .select("id, delivery_date, status, stats_json, started_at, completed_at")
-    .eq("driver_id", driver.id)
-    .eq("status", "completed")
-    .order("delivery_date", { ascending: false })
-    .limit(20)
-    .returns<RouteQueryResult[]>();
+  // Get total count + initial batch of completed routes
+  const [{ count: totalCount }, { data: routes }] = await Promise.all([
+    supabase
+      .from("routes")
+      .select("id", { count: "exact", head: true })
+      .eq("driver_id", driver.id)
+      .eq("status", "completed"),
+    supabase
+      .from("routes")
+      .select("id, delivery_date, status, stats_json, started_at, completed_at")
+      .eq("driver_id", driver.id)
+      .eq("status", "completed")
+      .order("delivery_date", { ascending: false })
+      .limit(20)
+      .returns<RouteQueryResult[]>(),
+  ]);
 
   const routeList = routes ?? [];
   const routeIds = routeList.map((r) => r.id);
@@ -176,7 +183,7 @@ async function getDriverHistory() {
       onTimePercentage: overallOnTime,
     },
     routes: routeData,
-    totalRoutes: routeList.length,
+    totalRoutes: totalCount ?? routeList.length,
   };
 }
 
