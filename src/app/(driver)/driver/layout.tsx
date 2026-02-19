@@ -1,9 +1,15 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { getRoleDashboard } from "@/lib/auth/role-redirect";
 import { DriverNav } from "@/components/ui/driver/DriverNav";
 import { DriverShell } from "@/components/ui/driver/DriverShell";
 import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
 import type { DriversRow } from "@/types/driver";
+import type { ProfileRole } from "@/types/database";
+
+interface ProfileRow {
+  role: ProfileRole;
+}
 
 export default async function DriverLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -18,12 +24,11 @@ export default async function DriverLayout({ children }: { children: React.React
     redirect("/login?next=/driver");
   }
 
-  // Check if user is an active driver
-  const { data: driver, error: driverError } = await supabase
+  // Query driver record WITHOUT is_active filter to detect deactivated vs no-record
+  const { data: driver } = await supabase
     .from("drivers")
     .select("id, user_id, is_active, vehicle_type, rating_avg, deliveries_count")
     .eq("user_id", user.id)
-    .eq("is_active", true)
     .returns<
       Pick<
         DriversRow,
@@ -32,9 +37,28 @@ export default async function DriverLayout({ children }: { children: React.React
     >()
     .single();
 
-  if (driverError || !driver) {
-    // Not a driver - redirect to home
-    redirect("/?error=not_driver");
+  if (!driver) {
+    // No driver record — check profile role to decide where to go
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single<ProfileRow>();
+
+    if (profile?.role === "driver") {
+      // Has driver role but no driver record — needs onboarding
+      redirect("/driver/onboard");
+    }
+
+    // Wrong role — silently redirect to their own dashboard
+    const serviceSupabase = createServiceClient();
+    const result = await getRoleDashboard(serviceSupabase, user.id);
+    redirect(result.path);
+  }
+
+  if (!driver.is_active) {
+    // Driver record exists but deactivated
+    redirect("/driver/deactivated");
   }
 
   return (

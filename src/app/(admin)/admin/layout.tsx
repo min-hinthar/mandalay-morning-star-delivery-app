@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { getRoleDashboard } from "@/lib/auth/role-redirect";
 import { AdminNav } from "@/components/ui/admin/AdminNav";
 import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
 import type { ProfileRole } from "@/types/database";
@@ -30,8 +31,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .single();
 
   if (profileError || !profile || profile.role !== "admin") {
-    // Not authorized - redirect to home with error
-    redirect("/?error=unauthorized");
+    // Not authorized — silently redirect to user's own dashboard (no error param)
+    const serviceSupabase = createServiceClient();
+    const result = await getRoleDashboard(serviceSupabase, user.id);
+    redirect(result.path);
   }
 
   return (
