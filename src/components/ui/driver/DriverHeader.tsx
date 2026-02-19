@@ -102,7 +102,7 @@ export function DriverHeader({
             <button
               type="button"
               onClick={() => setShowMenu((prev) => !prev)}
-              className="flex items-center justify-center rounded-full transition-transform duration-fast hover:scale-105 active:scale-95"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-transform duration-fast hover:scale-105 active:scale-95"
               aria-label="Profile menu"
             >
               {avatarUrl ? (
@@ -125,7 +125,7 @@ export function DriverHeader({
                 <Link
                   href="/driver/profile"
                   onClick={() => setShowMenu(false)}
-                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-secondary transition-colors"
+                  className="flex min-h-[44px] items-center gap-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-surface-secondary transition-colors"
                 >
                   <User className="h-4 w-4 text-text-muted" />
                   Profile
@@ -134,7 +134,7 @@ export function DriverHeader({
                 <button
                   type="button"
                   onClick={handleSignOut}
-                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-status-error hover:bg-surface-secondary transition-colors"
+                  className="flex min-h-[44px] w-full items-center gap-2.5 px-4 py-2.5 text-sm text-status-error hover:bg-surface-secondary transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign Out

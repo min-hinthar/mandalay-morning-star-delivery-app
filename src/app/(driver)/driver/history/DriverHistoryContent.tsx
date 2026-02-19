@@ -133,7 +133,7 @@ function MonthGroup({
       <button
         type="button"
         onClick={() => setExpanded((prev) => !prev)}
-        className="flex w-full items-center justify-between rounded-lg px-1 py-1.5 text-left transition-colors hover:bg-surface-secondary"
+        className="flex w-full min-h-[44px] items-center justify-between rounded-lg px-1 py-1.5 text-left transition-colors hover:bg-surface-secondary"
       >
         <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wide">
           {formatMonthHeader(monthKey)}
@@ -298,7 +298,7 @@ export function DriverHistoryContent({
             key={period.value}
             onClick={() => setSelectedPeriod(period.value)}
             className={cn(
-              "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex-1 min-h-[44px] rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
               selectedPeriod === period.value
                 ? "bg-secondary text-text-inverse"
                 : "text-text-secondary hover:text-text-primary"

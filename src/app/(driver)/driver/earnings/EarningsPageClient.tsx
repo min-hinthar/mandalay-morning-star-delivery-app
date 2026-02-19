@@ -119,7 +119,7 @@ export function EarningsPageClient({
             key={period.value}
             onClick={() => setSelectedPeriod(period.value)}
             className={cn(
-              "flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex-1 min-h-[44px] rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
               selectedPeriod === period.value
                 ? "bg-secondary text-text-inverse"
                 : "text-text-secondary hover:text-text-primary"

@@ -170,7 +170,7 @@ export function StopDetail({
           transition={{ delay: 0.1 }}
           onClick={handleCall}
           className={cn(
-            "flex w-full items-center gap-3 rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border",
+            "flex w-full min-h-[56px] items-center gap-3 rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border",
             "transition-all duration-fast hover:shadow-md active:scale-[0.99]"
           )}
           data-testid="call-button"
@@ -207,7 +207,7 @@ export function StopDetail({
           <button
             onClick={copyAddress}
             className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-input transition-colors duration-fast",
+              "flex min-h-[44px] min-w-[44px] items-center justify-center rounded-input transition-colors duration-fast",
               copied
                 ? "bg-green/10 text-green"
                 : "bg-surface-tertiary text-text-muted hover:bg-surface-secondary"
