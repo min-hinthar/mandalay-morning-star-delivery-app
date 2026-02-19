@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { getRoleDashboard } from "@/lib/auth/role-redirect";
 
 interface DriverInviteRow {
   id: string;
@@ -109,5 +110,17 @@ export async function GET(request: Request): Promise<NextResponse> {
     }
   }
 
-  return NextResponse.redirect(`${origin}${next}`, { status: 302 });
+  // Resolve role-based redirect
+  const roleClient = createServiceClient();
+  const {
+    data: { user: confirmedUser },
+  } = await supabase.auth.getUser();
+  const roleResult = confirmedUser
+    ? await getRoleDashboard(roleClient, confirmedUser.id)
+    : { path: next };
+
+  // For driver invites, always go to /driver/onboard
+  const finalPath = inviteId ? "/driver/onboard" : roleResult.path;
+
+  return NextResponse.redirect(`${origin}${finalPath}`, { status: 302 });
 }

@@ -1,6 +1,6 @@
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { getRoleDashboard } from "@/lib/auth/role-redirect";
 
 interface DriverInviteRow {
   id: string;
@@ -11,29 +11,6 @@ interface DriverInviteRow {
 /** Validate that a redirect path is safe (no open redirect) */
 function isSafeRedirect(path: string): boolean {
   return path.startsWith("/") && !path.startsWith("//") && !path.includes("://");
-}
-
-/** Resolve the dashboard path for a given user based on profiles.role */
-async function getRoleDashboard(supabase: SupabaseClient, userId: string): Promise<string> {
-  const { data } = await supabase.from("profiles").select("role").eq("id", userId).single();
-
-  const role = data?.role as string | undefined;
-
-  if (role === "admin") return "/admin";
-
-  if (role === "driver") {
-    // Only redirect to /driver if they have an active driver record
-    const { data: driver } = await supabase
-      .from("drivers")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("is_active", true)
-      .single();
-
-    if (driver) return "/driver";
-  }
-
-  return "/";
 }
 
 /**
@@ -154,17 +131,27 @@ export async function GET(request: Request): Promise<NextResponse> {
     }
 
     // Determine redirect target
-    // If next is /login (standard login flow), resolve by role
-    // Otherwise honor the deep link as-is
-    const isStandardLogin = next === "/login" || next === "/";
-
     // Use service client for role lookup — SSR cookie state after
     // exchangeCodeForSession can be inconsistent in Route Handlers,
     // causing RLS-gated queries to return no data.
     const roleClient = createServiceClient();
-    const redirectPath = isStandardLogin
-      ? await getRoleDashboard(roleClient, sessionData.session!.user.id)
-      : next;
+    const result = await getRoleDashboard(roleClient, sessionData.session!.user.id);
+
+    // If next is /login or / (standard login flow), resolve by role
+    const isStandardLogin = next === "/login" || next === "/";
+
+    let redirectPath = result.path;
+
+    if (!isStandardLogin) {
+      // Honor ?next= deep link — but verify role authorization
+      if (next.startsWith("/admin") && result.role !== "admin") {
+        redirectPath = result.path; // Unauthorized for /admin, go to own dashboard
+      } else if (next.startsWith("/driver") && result.role !== "driver") {
+        redirectPath = result.path; // Unauthorized for /driver, go to own dashboard
+      } else {
+        redirectPath = next; // Authorized — honor the deep link
+      }
+    }
 
     return NextResponse.redirect(`${origin}${redirectPath}`, { status: 302 });
   }
