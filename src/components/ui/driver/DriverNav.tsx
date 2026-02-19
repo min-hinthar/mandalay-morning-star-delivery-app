@@ -10,7 +10,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Package, History } from "lucide-react";
+import { Home, Package, Banknote, CalendarDays, History } from "lucide-react";
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { InitialsAvatar } from "./InitialsAvatar";
@@ -29,6 +29,20 @@ const navItems = [
     icon: Package,
     key: "route",
     exact: false,
+  },
+  {
+    label: "Earnings",
+    href: "/driver/earnings",
+    icon: Banknote,
+    key: "earnings",
+    exact: true,
+  },
+  {
+    label: "Schedule",
+    href: "/driver/schedule",
+    icon: CalendarDays,
+    key: "schedule",
+    exact: true,
   },
   {
     label: "History",
