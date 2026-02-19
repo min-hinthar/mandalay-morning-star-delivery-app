@@ -89,5 +89,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Phase 72 complete, verified 6/6 requirements
-Resume file: .planning/phases/72-driver-earnings-dashboard/72-VERIFICATION.md
+Stopped at: Phase 73 context gathered
+Resume file: .planning/phases/73-driver-availability-route-visibility/73-CONTEXT.md
