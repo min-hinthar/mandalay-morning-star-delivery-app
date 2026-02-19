@@ -57,9 +57,20 @@ type FieldErrors = Partial<Record<keyof FormData, string>>;
 interface OnboardingFormProps {
   email: string;
   inviteId: string;
+  invitedBy?: string;
+  inviteDate?: string;
+  expiryDate?: string;
+  inviteEmail?: string;
 }
 
-export function OnboardingForm({ email: _email, inviteId }: OnboardingFormProps): ReactElement {
+export function OnboardingForm({
+  email: _email,
+  inviteId,
+  invitedBy: _invitedBy,
+  inviteDate: _inviteDate,
+  expiryDate: _expiryDate,
+  inviteEmail: _inviteEmail,
+}: OnboardingFormProps): ReactElement {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);

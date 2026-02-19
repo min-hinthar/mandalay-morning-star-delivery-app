@@ -17,3 +17,4 @@ export { PhotoCapture } from "./PhotoCapture";
 export { OfflineBanner } from "./OfflineBanner";
 export { HighContrastToggle } from "./HighContrastToggle";
 export { OnboardingForm } from "./OnboardingForm";
+export { UpgradeConfirmation } from "./UpgradeConfirmation";
