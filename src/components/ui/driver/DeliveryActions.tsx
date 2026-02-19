@@ -23,6 +23,7 @@ interface DeliveryActionsProps {
   onQueuedOffline?: () => void;
   onException?: () => void;
   disabled?: boolean;
+  testMode?: boolean;
 }
 
 export function DeliveryActions({
@@ -33,6 +34,7 @@ export function DeliveryActions({
   onQueuedOffline,
   onException,
   disabled = false,
+  testMode,
 }: DeliveryActionsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +51,14 @@ export function DeliveryActions({
   };
 
   const updateStatus = async (newStatus: RouteStopStatus) => {
+    if (testMode) {
+      setIsLoading(true);
+      await new Promise((r) => setTimeout(r, 600 + Math.random() * 400));
+      setIsLoading(false);
+      onStatusChange?.(newStatus);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
