@@ -46,8 +46,8 @@ Requirements for post-launch hardening, driver experience overhaul, and role-bas
 - [ ] **DDASH-08**: History page date-range filtering
 - [ ] **DDASH-09**: History page pagination for large result sets
 - [ ] **DDASH-10**: Monthly summary view in history with aggregate stats
-- [ ] **DDASH-11**: Earnings streak and badges wired to existing unused dashboard props (badges, streakDays)
-- [ ] **DDASH-12**: Performance milestones computed from existing stats (100 deliveries badge, 5-star streak)
+- [x] **DDASH-11**: Earnings streak and badges wired to existing unused dashboard props (badges, streakDays)
+- [x] **DDASH-12**: Performance milestones computed from existing stats (100 deliveries badge, 5-star streak)
 
 ### Driver UI Polish
 
@@ -130,8 +130,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DDASH-08    | Phase 73 | Pending |
 | DDASH-09    | Phase 73 | Pending |
 | DDASH-10    | Phase 73 | Pending |
-| DDASH-11    | Phase 72 | Pending |
-| DDASH-12    | Phase 72 | Pending |
+| DDASH-11    | Phase 72 | Complete |
+| DDASH-12    | Phase 72 | Complete |
 | DUI-01      | Phase 72 | Complete |
 | DUI-02      | Phase 74 | Pending |
 | DUI-03      | Phase 74 | Pending |
