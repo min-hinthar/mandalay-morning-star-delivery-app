@@ -201,7 +201,7 @@ Note: Phases 68 and 69 are parallelizable (both are infra with no UI overlap).
 | 70. Role-Based Auth Redirects              | v1.8      | 3/3            | ✓ Complete  | 2026-02-19 |
 | 71. Driver Profile Setup                   | v1.8      | 2/2            | ✓ Complete  | 2026-02-19 |
 | 72. Driver Earnings Dashboard              | v1.8      | 3/3            | ✓ Complete  | 2026-02-19 |
-| 73. Driver Availability & Route Visibility | v1.8      | 0/TBD          | Not started | -         |
+| 73. Driver Availability & Route Visibility | 3/3 | Complete   | 2026-02-19 | -         |
 | 74. Guided Walkthrough & Driver UI Polish  | v1.8      | 0/TBD          | Not started | -         |
 
 **Historical:**
