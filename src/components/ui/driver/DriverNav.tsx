@@ -7,11 +7,13 @@
 
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Package, History } from "lucide-react";
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
+import { InitialsAvatar } from "./InitialsAvatar";
 
 const navItems = [
   {
@@ -43,9 +45,13 @@ const badgeSpring = { type: "spring" as const, stiffness: 400, damping: 20 };
 interface DriverNavProps {
   /** Optional badge counts keyed by tab key (home, route, history) */
   badges?: Record<string, number>;
+  /** Driver avatar URL for Home tab */
+  avatarUrl?: string | null;
+  /** Driver name for initials fallback */
+  driverName?: string | null;
 }
 
-export function DriverNav({ badges }: DriverNavProps) {
+export function DriverNav({ badges, avatarUrl, driverName }: DriverNavProps) {
   const pathname = usePathname();
 
   return (
@@ -82,13 +88,32 @@ export function DriverNav({ badges }: DriverNavProps) {
               )}
 
               <div className="relative">
-                <Icon
-                  className={cn(
-                    "h-6 w-6 transition-transform duration-fast",
-                    isActive && "scale-110"
-                  )}
-                  strokeWidth={isActive ? 2.5 : 2}
-                />
+                {/* Show avatar for Home tab when driver data available */}
+                {item.key === "home" && (avatarUrl || driverName) ? (
+                  avatarUrl ? (
+                    <Image
+                      src={avatarUrl}
+                      alt={driverName || "Driver"}
+                      width={24}
+                      height={24}
+                      className={cn(
+                        "h-6 w-6 rounded-full object-cover transition-transform duration-fast",
+                        isActive && "scale-110 ring-2 ring-accent-teal"
+                      )}
+                      unoptimized
+                    />
+                  ) : (
+                    <InitialsAvatar name={driverName ?? null} size="sm" className="h-6 w-6 text-2xs" />
+                  )
+                ) : (
+                  <Icon
+                    className={cn(
+                      "h-6 w-6 transition-transform duration-fast",
+                      isActive && "scale-110"
+                    )}
+                    strokeWidth={isActive ? 2.5 : 2}
+                  />
+                )}
 
                 {/* Badge count */}
                 {badgeCount > 0 && (

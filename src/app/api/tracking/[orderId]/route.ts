@@ -244,6 +244,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
             id,
             profile_image_url,
             vehicle_type,
+            license_plate,
             profiles!drivers_user_id_fkey (
               full_name,
               phone
@@ -261,6 +262,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
             profileImageUrl: driverData.profile_image_url,
             phone: driverData.profiles?.phone ?? null,
             vehicleType: (driverData.vehicle_type as VehicleType) ?? null,
+            licensePlate: driverData.license_plate ?? null,
           };
         }
       }
