@@ -13,7 +13,6 @@ const onboardSchema = z.object({
   phone: z.string().min(10, "Please enter a valid phone number"),
   vehicleType: z.enum(["car", "motorcycle", "bicycle", "van", "truck"]),
   licensePlate: z.string().min(2, "Please enter a valid license plate"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 interface DriverInviteRow {
@@ -44,7 +43,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { inviteId, fullName, phone, vehicleType, licensePlate, password } = result.data;
+    const { inviteId, fullName, phone, vehicleType, licensePlate } = result.data;
 
     // Get authenticated user from session
     const supabase = await createClient();
@@ -144,20 +143,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 1: Update user password
-    const { error: passwordError } = await supabase.auth.updateUser({
-      password,
-    });
-
-    if (passwordError) {
-      logger.exception(passwordError, { api: "driver/onboard", flowId: "updatePassword" });
-      return NextResponse.json(
-        { error: "Failed to set password. Please try again." },
-        { status: 500 }
-      );
-    }
-
-    // Step 2: Create or update profile record (existing users may have a customer profile)
+    // Step 1: Create or update profile record (existing users may have a customer profile)
     const { error: profileError } = await serviceSupabase.from("profiles").upsert(
       {
         id: user.id,
@@ -179,7 +165,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 3: Create driver record
+    // Step 2: Create driver record
     const { error: driverError } = await serviceSupabase.from("drivers").insert({
       user_id: user.id,
       vehicle_type: vehicleType,
@@ -199,7 +185,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Step 4: Mark invite as accepted
+    // Step 3: Mark invite as accepted
     const { error: updateError } = await serviceSupabase
       .from("driver_invites")
       .update({ accepted_at: new Date().toISOString() })

@@ -23,36 +23,41 @@ const vehicleTypes = [
 
 type VehicleType = (typeof vehicleTypes)[number]["value"];
 
-const onboardingSchema = z
-  .object({
-    fullName: z
-      .string()
-      .min(2, "Name must be at least 2 characters")
-      .max(100, "Name must be less than 100 characters"),
-    phone: z
-      .string()
-      .min(10, "Please enter a valid phone number")
-      .regex(/^[\d\s\-+()]+$/, "Phone number can only contain digits, spaces, and + - ( )"),
-    vehicleType: z.enum(["car", "motorcycle", "bicycle", "van", "truck"], {
-      message: "Please select a vehicle type",
-    }),
-    licensePlate: z
-      .string()
-      .min(2, "Please enter a valid license plate")
-      .regex(
-        /^[A-Z0-9\s\-]+$/i,
-        "License plate can only contain letters, numbers, spaces, and hyphens"
-      ),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+const onboardingSchema = z.object({
+  fullName: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must be less than 100 characters"),
+  phone: z
+    .string()
+    .min(10, "Please enter a valid phone number")
+    .regex(/^[\d\s\-+()]+$/, "Phone number can only contain digits, spaces, and + - ( )"),
+  vehicleType: z.enum(["car", "motorcycle", "bicycle", "van", "truck"], {
+    message: "Please select a vehicle type",
+  }),
+  licensePlate: z
+    .string()
+    .min(2, "Please enter a valid license plate")
+    .regex(
+      /^[A-Z0-9\s\-]+$/i,
+      "License plate can only contain letters, numbers, spaces, and hyphens"
+    ),
+});
 
 type FormData = z.infer<typeof onboardingSchema>;
 type FieldErrors = Partial<Record<keyof FormData, string>>;
+
+function formatDate(iso: string): string {
+  try {
+    return new Date(iso).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return iso;
+  }
+}
 
 interface OnboardingFormProps {
   email: string;
@@ -66,10 +71,10 @@ interface OnboardingFormProps {
 export function OnboardingForm({
   email: _email,
   inviteId,
-  invitedBy: _invitedBy,
-  inviteDate: _inviteDate,
-  expiryDate: _expiryDate,
-  inviteEmail: _inviteEmail,
+  invitedBy,
+  inviteDate,
+  expiryDate,
+  inviteEmail,
 }: OnboardingFormProps): ReactElement {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -81,8 +86,6 @@ export function OnboardingForm({
     phone: "",
     vehicleType: "" as VehicleType | "",
     licensePlate: "",
-    password: "",
-    confirmPassword: "",
   });
 
   const handleChange = (field: keyof typeof formData, value: string) => {
@@ -125,7 +128,6 @@ export function OnboardingForm({
           phone: result.data.phone,
           vehicleType: result.data.vehicleType,
           licensePlate: result.data.licensePlate.toUpperCase(),
-          password: result.data.password,
         }),
       });
 
@@ -146,10 +148,37 @@ export function OnboardingForm({
     }
   }
 
+  const hasInviteMetadata = invitedBy || inviteDate || expiryDate || inviteEmail;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {formError && (
         <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">{formError}</div>
+      )}
+
+      {hasInviteMetadata && (
+        <div className="bg-surface-secondary rounded-lg p-3 space-y-1">
+          {invitedBy && (
+            <p className="text-sm text-text-secondary">
+              <span className="font-medium">Invited by:</span> {invitedBy}
+            </p>
+          )}
+          {inviteDate && (
+            <p className="text-sm text-text-secondary">
+              <span className="font-medium">Invited:</span> {formatDate(inviteDate)}
+            </p>
+          )}
+          {expiryDate && (
+            <p className="text-sm text-text-secondary">
+              <span className="font-medium">Expires:</span> {formatDate(expiryDate)}
+            </p>
+          )}
+          {inviteEmail && (
+            <p className="text-sm text-text-secondary">
+              <span className="font-medium">Email:</span> {inviteEmail}
+            </p>
+          )}
+        </div>
       )}
 
       <div className="space-y-2">
@@ -243,40 +272,6 @@ export function OnboardingForm({
           disabled={isSubmitting}
           required
           className="uppercase"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label htmlFor="password" className="text-sm font-medium">
-          Password
-        </label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          placeholder="Minimum 8 characters"
-          value={formData.password}
-          onChange={(e) => handleChange("password", e.target.value)}
-          error={fieldErrors.password}
-          disabled={isSubmitting}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label htmlFor="confirmPassword" className="text-sm font-medium">
-          Confirm Password
-        </label>
-        <Input
-          id="confirmPassword"
-          name="confirmPassword"
-          type="password"
-          placeholder="Confirm your password"
-          value={formData.confirmPassword}
-          onChange={(e) => handleChange("confirmPassword", e.target.value)}
-          error={fieldErrors.confirmPassword}
-          disabled={isSubmitting}
-          required
         />
       </div>
 
