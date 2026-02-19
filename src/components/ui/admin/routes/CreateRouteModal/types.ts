@@ -10,10 +10,13 @@ export interface CreateRouteData {
   orderIds: string[];
 }
 
+import type { DriverAvailability } from "@/types/driver";
+
 export interface Driver {
   id: string;
   fullName: string | null;
   isActive: boolean;
+  availability?: DriverAvailability | null;
 }
 
 export interface Order {

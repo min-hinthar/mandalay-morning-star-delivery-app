@@ -45,6 +45,7 @@ export async function GET() {
         onboarding_completed_at,
         rating_avg,
         deliveries_count,
+        availability_json,
         created_at,
         updated_at,
         profiles (
@@ -76,6 +77,7 @@ export async function GET() {
       onboardingCompletedAt: driver.onboarding_completed_at,
       ratingAvg: driver.rating_avg,
       deliveriesCount: driver.deliveries_count,
+      availability: driver.availability_json ?? null,
       createdAt: driver.created_at,
     }));
 

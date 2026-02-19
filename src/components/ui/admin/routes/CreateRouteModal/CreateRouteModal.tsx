@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils/cn";
+import { isDriverAvailable } from "@/lib/availability";
 import { OrderSelectionList } from "./OrderSelectionList";
 import type { CreateRouteData, Driver, Order, FormErrors } from "./types";
 
@@ -54,7 +55,14 @@ export function CreateRouteModal({ open, onOpenChange, onSubmit }: CreateRouteMo
       const res = await fetch("/api/admin/drivers?active=true");
       if (res.ok) {
         const data = await res.json();
-        setDrivers(data.filter((d: Driver) => d.isActive));
+        setDrivers(
+          data
+            .filter((d: Driver & { availability?: unknown }) => d.isActive)
+            .map((d: Driver & { availability?: unknown }) => ({
+              ...d,
+              availability: d.availability ?? null,
+            }))
+        );
       }
     } catch (error) {
       console.error("Failed to fetch drivers:", error);
@@ -254,32 +262,48 @@ export function CreateRouteModal({ open, onOpenChange, onSubmit }: CreateRouteMo
                   >
                     <span className="text-xs font-medium">Unassigned</span>
                   </button>
-                  {drivers.map((driver) => (
-                    <button
-                      key={driver.id}
-                      type="button"
-                      onClick={() => setSelectedDriverId(driver.id)}
-                      className={cn(
-                        "flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all",
-                        selectedDriverId === driver.id
-                          ? "border-interactive-primary bg-interactive-primary-light text-interactive-primary"
-                          : "border-border-v5 bg-surface-primary hover:border-interactive-primary/50 text-text-primary"
-                      )}
-                      disabled={isSubmitting}
-                    >
-                      <div className="h-8 w-8 rounded-full bg-status-success-bg flex items-center justify-center text-status-success text-xs font-medium">
-                        {driver.fullName
-                          ?.split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()
-                          .slice(0, 2) || "DR"}
-                      </div>
-                      <span className="text-xs font-medium truncate max-w-full">
-                        {driver.fullName || "Unnamed"}
-                      </span>
-                    </button>
-                  ))}
+                  {drivers.map((driver) => {
+                    const available = isDriverAvailable(
+                      driver.availability ?? null,
+                      deliveryDate
+                    );
+                    return (
+                      <button
+                        key={driver.id}
+                        type="button"
+                        onClick={() => setSelectedDriverId(driver.id)}
+                        className={cn(
+                          "flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all",
+                          selectedDriverId === driver.id
+                            ? "border-interactive-primary bg-interactive-primary-light text-interactive-primary"
+                            : "border-border-v5 bg-surface-primary hover:border-interactive-primary/50 text-text-primary"
+                        )}
+                        disabled={isSubmitting}
+                      >
+                        <div className="h-8 w-8 rounded-full bg-status-success-bg flex items-center justify-center text-status-success text-xs font-medium">
+                          {driver.fullName
+                            ?.split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase()
+                            .slice(0, 2) || "DR"}
+                        </div>
+                        <span className="text-xs font-medium truncate max-w-full">
+                          {driver.fullName || "Unnamed"}
+                        </span>
+                        <span
+                          className={cn(
+                            "text-2xs px-1.5 py-0.5 rounded-full",
+                            available
+                              ? "bg-green/10 text-green"
+                              : "bg-amber-500/10 text-amber-600"
+                          )}
+                        >
+                          {available ? "Available" : "Unavailable"}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </>
               )}
             </div>
