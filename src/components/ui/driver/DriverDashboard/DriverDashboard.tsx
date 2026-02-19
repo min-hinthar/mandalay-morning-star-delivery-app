@@ -8,11 +8,11 @@ import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import type { DriverDashboardProps } from "./types";
-import { getGreeting } from "./types";
 import { StatCard } from "./StatCard";
 import { StreakDisplay } from "./StreakDisplay";
 import { RouteCard } from "./RouteCard";
 import { BadgesDisplay } from "./BadgesDisplay";
+import { ProfileCompletenessCard } from "./ProfileCompletenessCard";
 
 export function DriverDashboard({
   driver,
@@ -47,7 +47,6 @@ export function DriverDashboard({
     router.push("/driver/route");
   }, [router]);
 
-  const greeting = getGreeting();
   const firstName = driver.fullName?.split(" ")[0] ?? "Driver";
 
   return (
@@ -66,13 +65,16 @@ export function DriverDashboard({
           transition={getSpring(spring.default)}
         >
           <h1 className="text-2xl font-bold text-text-primary">
-            {greeting}, {firstName}! 👋
+            Hello, {firstName}!
           </h1>
           <p className="flex items-center gap-1.5 text-text-muted mt-1">
             <Calendar className="h-4 w-4" />
             {dayOfWeek}, {dateDisplay}
           </p>
         </m.div>
+
+        {/* Profile Completeness */}
+        <ProfileCompletenessCard driver={driver} />
 
         {/* Streak Display */}
         {streakDays > 0 && <StreakDisplay days={streakDays} />}

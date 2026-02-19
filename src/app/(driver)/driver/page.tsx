@@ -38,6 +38,7 @@ function getDateInfo(): { todayStr: string; dayOfWeek: string; dateDisplay: stri
 interface DriverQueryResult {
   id: string;
   vehicle_type: string | null;
+  license_plate: string | null;
   phone: string | null;
   profile_image_url: string | null;
   deliveries_count: number;
@@ -76,6 +77,7 @@ async function getDriverData() {
       `
       id,
       vehicle_type,
+      license_plate,
       phone,
       profile_image_url,
       deliveries_count,
@@ -138,6 +140,7 @@ async function getDriverData() {
       fullName: profile?.full_name ?? null,
       phone: driver.phone,
       vehicleType: driver.vehicle_type as VehicleType | null,
+      licensePlate: driver.license_plate,
       profileImageUrl: driver.profile_image_url,
       deliveriesCount: driver.deliveries_count,
       ratingAvg: driver.rating_avg,
