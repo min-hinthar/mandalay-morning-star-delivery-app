@@ -282,10 +282,7 @@ function EarningsRouteCard({ earning, rateCents, index }: EarningsRouteCardProps
           <span className="text-sm font-bold text-text-primary">
             {formatDollars(earning.earningsCents)}
           </span>
-          <m.div
-            animate={{ rotate: expanded ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-          >
+          <m.div animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
             <ChevronDown className="w-4 h-4 text-text-muted" />
           </m.div>
         </div>
@@ -302,8 +299,8 @@ function EarningsRouteCard({ earning, rateCents, index }: EarningsRouteCardProps
           >
             <div className="px-4 pb-4 pt-0 border-t border-border/50">
               <p className="text-sm text-text-secondary mt-3">
-                {earning.deliveredStops} stop{earning.deliveredStops !== 1 ? "s" : ""} delivered
-                at {formatDollars(rateCents)} per stop = {formatDollars(earning.earningsCents)}
+                {earning.deliveredStops} stop{earning.deliveredStops !== 1 ? "s" : ""} delivered at{" "}
+                {formatDollars(rateCents)} per stop = {formatDollars(earning.earningsCents)}
               </p>
             </div>
           </m.div>

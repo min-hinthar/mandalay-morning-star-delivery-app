@@ -14,9 +14,7 @@ const DEFAULT_PAY_RATE_CENTS = 500;
 function getStartDate(period: EarningsPeriod): string {
   const now = new Date();
   // Use LA timezone for date calculation
-  const laDate = new Date(
-    now.toLocaleString("en-US", { timeZone: TIMEZONE })
-  );
+  const laDate = new Date(now.toLocaleString("en-US", { timeZone: TIMEZONE }));
 
   switch (period) {
     case "daily":
