@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OnboardingForm } from "@/components/ui/driver/OnboardingForm";
+import { Card, CardContent } from "@/components/ui/card";
+import { OnboardWrapper } from "./OnboardWrapper";
 import { AlertCircle, Mail } from "lucide-react";
 import type { ReactElement } from "react";
 
@@ -14,6 +14,17 @@ interface InviteRow {
   id: string;
   accepted_at: string | null;
   email: string;
+  created_at: string;
+  expires_at: string | null;
+  invited_by: string | null;
+}
+
+interface ProfileRow {
+  full_name: string | null;
+}
+
+interface ProfileRoleRow {
+  role: string | null;
 }
 
 export default async function DriverOnboardPage(): Promise<ReactElement> {
@@ -89,7 +100,7 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
   if (!inviteId) {
     const { data: inviteByEmail } = await serviceSupabase
       .from("driver_invites")
-      .select("id, accepted_at, email")
+      .select("id, accepted_at, email, created_at, expires_at, invited_by")
       .eq("email", email.toLowerCase())
       .is("accepted_at", null)
       .is("revoked_at", null)
@@ -112,10 +123,10 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
       });
     }
   } else {
-    // Verify invite by ID
+    // Verify invite by ID — fetch with metadata
     const { data: inviteById } = await serviceSupabase
       .from("driver_invites")
-      .select("id, accepted_at, email")
+      .select("id, accepted_at, email, created_at, expires_at, invited_by")
       .eq("id", inviteId)
       .returns<InviteRow[]>()
       .single();
@@ -153,6 +164,34 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
     );
   }
 
+  // Check if invite is expired
+  if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
+    return (
+      <main className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-display text-brand-red">Morning Star</h1>
+            <p className="mt-2 text-muted">Driver Onboarding</p>
+          </div>
+          <Card variant="alert" alertAccent="error">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-status-error shrink-0 mt-0.5" />
+                <div>
+                  <h2 className="font-semibold text-text-primary mb-2">Invitation Expired</h2>
+                  <p className="text-sm text-text-secondary">
+                    Your invitation has expired. Please contact your administrator for a new
+                    invitation.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    );
+  }
+
   // Check if already completed onboarding
   if (invite.accepted_at) {
     // Check if they have a driver record
@@ -169,6 +208,29 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
     }
   }
 
+  // Fetch admin name who created the invite
+  let adminName: string | undefined;
+  if (invite.invited_by) {
+    const { data: adminProfile } = await serviceSupabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", invite.invited_by)
+      .returns<ProfileRow[]>()
+      .single();
+
+    adminName = adminProfile?.full_name ?? undefined;
+  }
+
+  // Check if user's current role is customer (for upgrade flow)
+  const { data: userProfile } = await serviceSupabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .returns<ProfileRoleRow[]>()
+    .single();
+
+  const isUpgrade = userProfile?.role === "customer";
+
   return (
     <main className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -176,23 +238,15 @@ export default async function DriverOnboardPage(): Promise<ReactElement> {
           <h1 className="text-3xl font-display text-brand-red">Morning Star</h1>
           <p className="mt-2 text-text-secondary">Complete Your Driver Registration</p>
         </div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Welcome to the Team</CardTitle>
-            <p className="text-sm text-text-secondary mt-1">
-              Complete your registration to start delivering with Morning Star.
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-text-secondary">Email Address</label>
-              <p className="text-sm text-text-primary bg-surface-secondary px-3 py-2 rounded-input">
-                {email}
-              </p>
-            </div>
-            <OnboardingForm email={email} inviteId={inviteId!} />
-          </CardContent>
-        </Card>
+        <OnboardWrapper
+          email={email}
+          inviteId={inviteId!}
+          isUpgrade={isUpgrade}
+          invitedBy={adminName}
+          inviteDate={invite.created_at}
+          expiryDate={invite.expires_at ?? undefined}
+          inviteEmail={invite.email}
+        />
       </div>
     </main>
   );
