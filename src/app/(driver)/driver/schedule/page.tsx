@@ -55,7 +55,7 @@ async function getScheduleData() {
     .single();
 
   if (driverError || !driver) {
-    redirect("/?error=not_driver");
+    redirect("/driver");
   }
 
   const todayStr = new Intl.DateTimeFormat("en-CA", {

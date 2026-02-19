@@ -45,7 +45,7 @@ async function getActiveRoute() {
     .single();
 
   if (!driver) {
-    redirect("/?error=not_driver");
+    redirect("/driver");
   }
 
   // Get today's date in LA timezone

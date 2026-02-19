@@ -80,7 +80,7 @@ async function getStopDetail(stopId: string) {
     .single();
 
   if (!driver) {
-    redirect("/?error=not_driver");
+    redirect("/driver");
   }
 
   // Get stop with all related data

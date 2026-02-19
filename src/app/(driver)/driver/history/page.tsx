@@ -63,7 +63,7 @@ async function getDriverHistory() {
     .single();
 
   if (!driver) {
-    redirect("/?error=not_driver");
+    redirect("/driver");
   }
 
   // Get total count + initial batch of completed routes
