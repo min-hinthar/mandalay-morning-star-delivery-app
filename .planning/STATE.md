@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 70 in progress (role-based auth redirects). Plans 01 and 02 complete.
+**Current focus:** Phase 70 complete (role-based auth redirects). Ready for Phase 71.
 
 ## Current Position
 
 Phase: 70 of 74 (Role-Based Auth Redirects)
-Plan: 1 of ? in current phase (middleware + centralized role redirect — just completed)
-Status: In progress
-Last activity: 2026-02-19 — Completed 70-01-PLAN.md (proxy.ts middleware + centralized getRoleDashboard)
+Plan: 3 of 3 in current phase (all plans complete)
+Status: Phase complete
+Last activity: 2026-02-19 — Completed 70-03-PLAN.md (role-aware login ceremony + CallbackSpinner)
 
-Progress: [████░░░░░░] ~39% (Phase 70: plans 01+02 complete)
+Progress: [█████░░░░░] ~50% (Phase 70: 3/3 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 297 (across v1.0-v1.8)
+- Total plans completed: 300 (across v1.0-v1.8)
 - Average duration: ~15 min
 - Total execution time: ~71 hours
 
@@ -71,6 +71,9 @@ Recent for v1.8:
 - getRoleDashboard() centralized in role-redirect.ts — single source of truth for role-to-dashboard
 - Authorization-checked ?next= deep linking in auth callback
 - Silent wrong-role redirects (no /?error= params) in admin/driver layout guards
+- Client-side role resolution from user_metadata for login ceremony redirect hint
+- Default customer redirect is /menu (not /)
+- isSafeRedirect duplicated in LoginPageClient (client component can't import from Route Handler)
 
 ### Pending Todos
 
@@ -87,5 +90,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 70-01-PLAN.md (proxy.ts middleware + centralized getRoleDashboard)
+Stopped at: Completed 70-03-PLAN.md — Phase 70 complete
 Resume file: None

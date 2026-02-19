@@ -108,7 +108,7 @@ Plans:
 
 - [x] 70-01-PLAN.md — Middleware (proxy.ts), centralized getRoleDashboard, unified layout guards, auth route updates, admin_contact_info migration — completed 2026-02-19
 - [x] 70-02-PLAN.md — Deactivated driver page, passwordless onboarding, invite metadata display, customer-to-driver upgrade confirmation — completed 2026-02-19
-- [ ] 70-03-PLAN.md — Role-aware login ceremony, CallbackSpinner with timeout, LoginPageClient role resolution
+- [x] 70-03-PLAN.md — Role-aware login ceremony, CallbackSpinner with timeout, LoginPageClient role resolution — completed 2026-02-19
 
 #### Phase 71: Driver Profile Setup
 
@@ -198,7 +198,7 @@ Note: Phases 68 and 69 are parallelizable (both are infra with no UI overlap).
 | 67. CSP & Security Headers                 | v1.8      | 3/3            | ✓ Complete  | 2026-02-17 |
 | 68. RLS Audit & Hardening                  | v1.8      | 3/3            | ✓ Complete  | 2026-02-17 |
 | 69. Distributed Rate Limiting              | v1.8      | 3/3            | ✓ Complete  | 2026-02-18 |
-| 70. Role-Based Auth Redirects              | v1.8      | 2/3            | In progress | -         |
+| 70. Role-Based Auth Redirects              | v1.8      | 3/3            | ✓ Complete  | 2026-02-19 |
 | 71. Driver Profile Setup                   | v1.8      | 0/TBD          | Not started | -         |
 | 72. Driver Earnings Dashboard              | v1.8      | 0/TBD          | Not started | -         |
 | 73. Driver Availability & Route Visibility | v1.8      | 0/TBD          | Not started | -         |
