@@ -20,12 +20,12 @@ export function StreakDisplay({ days }: StreakDisplayProps) {
       animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
       transition={getSpring(spring.ultraBouncy)}
       className={cn(
-        "relative overflow-hidden rounded-2xl p-4",
-        "bg-gradient-to-r",
+        "relative overflow-hidden rounded-2xl sm:backdrop-blur-sm p-4",
+        "bg-gradient-to-r shadow-card",
         isOnFire
           ? "from-orange-500/20 via-red-500/20 to-yellow-500/20 border-orange-500/30"
           : "from-primary/10 to-secondary/10 border-primary/20",
-        "border"
+        "border-2"
       )}
     >
       <div className="flex items-center justify-between">

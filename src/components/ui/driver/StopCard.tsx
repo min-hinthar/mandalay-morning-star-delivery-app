@@ -106,7 +106,7 @@ export function StopCard({
   return (
     <m.button
       variants={stopCardItem}
-      whileHover={isFullMotion ? { scale: 1.01 } : undefined}
+      whileHover={isFullMotion ? { y: -4, scale: 1.03 } : undefined}
       whileTap={isFullMotion ? { scale: 0.98 } : undefined}
       onClick={onClick}
       className={cn(

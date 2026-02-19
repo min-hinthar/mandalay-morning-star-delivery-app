@@ -21,7 +21,7 @@ export function BadgesDisplay({ badges }: BadgesDisplayProps) {
       initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={getSpring(spring.default)}
-      className={cn("rounded-2xl bg-surface-primary p-4", "shadow-card border border-border")}
+      className={cn("rounded-2xl bg-surface-primary/80 sm:backdrop-blur-sm p-4", "shadow-card border-2 border-border")}
     >
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold text-text-primary">Recent Badges</h3>
