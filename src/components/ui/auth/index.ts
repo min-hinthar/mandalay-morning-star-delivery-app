@@ -6,3 +6,4 @@ export { SocialLoginButtons } from "./SocialLoginButtons";
 export { MagicLinkConfirmation } from "./MagicLinkConfirmation";
 export { OAuthLoadingOverlay } from "./OAuthLoadingOverlay";
 export { LoginSuccessCeremony } from "./LoginSuccessCeremony";
+export { CallbackSpinner } from "./CallbackSpinner";
