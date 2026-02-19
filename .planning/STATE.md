@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 70 in progress (role-based auth redirects). Plan 02 complete.
+**Current focus:** Phase 70 in progress (role-based auth redirects). Plans 01 and 02 complete.
 
 ## Current Position
 
 Phase: 70 of 74 (Role-Based Auth Redirects)
-Plan: 2 of ? in current phase (deactivated page + passwordless onboarding)
+Plan: 1 of ? in current phase (middleware + centralized role redirect — just completed)
 Status: In progress
-Last activity: 2026-02-19 — Completed 70-02-PLAN.md (deactivated page, passwordless onboarding, upgrade confirmation)
+Last activity: 2026-02-19 — Completed 70-01-PLAN.md (proxy.ts middleware + centralized getRoleDashboard)
 
-Progress: [████░░░░░░] ~39% (Phase 70: 2 plans complete)
+Progress: [████░░░░░░] ~39% (Phase 70: plans 01+02 complete)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 296 (across v1.0-v1.8)
+- Total plans completed: 297 (across v1.0-v1.8)
 - Average duration: ~15 min
 - Total execution time: ~71 hours
 
@@ -67,6 +67,10 @@ Recent for v1.8:
 - Removed narrow return type annotations from driver routes for NextResponse<unknown> compatibility
 - Passwordless driver onboarding (no password in form or API, magic link auth only)
 - OnboardWrapper client component for server/client hybrid upgrade confirmation flow
+- proxy.ts (Next.js 16 convention) for session refresh; no DB queries in middleware
+- getRoleDashboard() centralized in role-redirect.ts — single source of truth for role-to-dashboard
+- Authorization-checked ?next= deep linking in auth callback
+- Silent wrong-role redirects (no /?error= params) in admin/driver layout guards
 
 ### Pending Todos
 
@@ -83,5 +87,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 70-02-PLAN.md (deactivated page, passwordless onboarding, upgrade confirmation)
+Stopped at: Completed 70-01-PLAN.md (proxy.ts middleware + centralized getRoleDashboard)
 Resume file: None
