@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 69 complete (distributed rate limiting). Next: Phase 70 (role-based auth redirects).
+**Current focus:** Phase 70 in progress (role-based auth redirects). Plan 02 complete.
 
 ## Current Position
 
-Phase: 69 of 74 (Distributed Rate Limiting)
-Plan: 3 of 3 in current phase (admin rate limiting + client-side 429 handler)
-Status: Phase complete
-Last activity: 2026-02-18 — Completed 69-03-PLAN.md (admin rate limiting + client-side 429 handler)
+Phase: 70 of 74 (Role-Based Auth Redirects)
+Plan: 2 of ? in current phase (deactivated page + passwordless onboarding)
+Status: In progress
+Last activity: 2026-02-19 — Completed 70-02-PLAN.md (deactivated page, passwordless onboarding, upgrade confirmation)
 
-Progress: [████░░░░░░] ~38% (Phase 69: 3/3 plans complete, phase done)
+Progress: [████░░░░░░] ~39% (Phase 70: 2 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 295 (across v1.0-v1.8)
+- Total plans completed: 296 (across v1.0-v1.8)
 - Average duration: ~15 min
 - Total execution time: ~71 hours
 
@@ -65,6 +65,8 @@ Recent for v1.8:
 - Sentry alert rule for rate limit spikes requires manual dashboard setup
 - getRedisClient() getter pattern for health check access to Redis singleton
 - Removed narrow return type annotations from driver routes for NextResponse<unknown> compatibility
+- Passwordless driver onboarding (no password in form or API, magic link auth only)
+- OnboardWrapper client component for server/client hybrid upgrade confirmation flow
 
 ### Pending Todos
 
@@ -80,6 +82,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-18
-Stopped at: Phase 70 context gathered. Ready for planning.
-Resume file: .planning/phases/70-role-based-auth-redirects/70-CONTEXT.md
+Last session: 2026-02-19
+Stopped at: Completed 70-02-PLAN.md (deactivated page, passwordless onboarding, upgrade confirmation)
+Resume file: None
