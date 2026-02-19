@@ -36,8 +36,8 @@ Requirements for post-launch hardening, driver experience overhaul, and role-bas
 
 ### Driver Dashboard
 
-- [ ] **DDASH-01**: Weekly earnings summary card showing computed earnings (per-delivery rate x completed deliveries)
-- [ ] **DDASH-02**: Per-route earnings breakdown showing earnings for each completed route
+- [x] **DDASH-01**: Weekly earnings summary card showing computed earnings (per-delivery rate x completed deliveries)
+- [x] **DDASH-02**: Per-route earnings breakdown showing earnings for each completed route
 - [ ] **DDASH-03**: Earnings history chart using Recharts (bar/line) showing weekly/monthly trends
 - [ ] **DDASH-04**: Upcoming assigned routes visible on driver home (not just today's route)
 - [ ] **DDASH-05**: Weekly schedule view showing all planned routes for the coming week
@@ -51,7 +51,7 @@ Requirements for post-launch hardening, driver experience overhaul, and role-bas
 
 ### Driver UI Polish
 
-- [ ] **DUI-01**: Driver bottom nav expanded with earnings and schedule tabs
+- [x] **DUI-01**: Driver bottom nav expanded with earnings and schedule tabs
 - [ ] **DUI-02**: Mobile-first driver layouts with larger touch targets and better scan hierarchy
 - [ ] **DUI-03**: Visual parity with customer side — animation polish, glassmorphism cards, consistent design tokens
 - [ ] **DUI-04**: Admin view of driver availability when creating/assigning routes
@@ -120,8 +120,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DPROF-03    | Phase 71 | Pending |
 | DPROF-04    | Phase 74 | Pending |
 | DPROF-05    | Phase 74 | Pending |
-| DDASH-01    | Phase 72 | Pending |
-| DDASH-02    | Phase 72 | Pending |
+| DDASH-01    | Phase 72 | Complete |
+| DDASH-02    | Phase 72 | Complete |
 | DDASH-03    | Phase 72 | Pending |
 | DDASH-04    | Phase 73 | Pending |
 | DDASH-05    | Phase 73 | Pending |
@@ -132,7 +132,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DDASH-10    | Phase 73 | Pending |
 | DDASH-11    | Phase 72 | Pending |
 | DDASH-12    | Phase 72 | Pending |
-| DUI-01      | Phase 72 | Pending |
+| DUI-01      | Phase 72 | Complete |
 | DUI-02      | Phase 74 | Pending |
 | DUI-03      | Phase 74 | Pending |
 | DUI-04      | Phase 73 | Pending |
