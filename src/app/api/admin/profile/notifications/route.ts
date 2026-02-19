@@ -50,7 +50,12 @@ export async function GET() {
     }
     const { supabase, userId } = auth;
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/profile/notifications" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/profile/notifications",
+    });
     if (rl.limited) return rl.response;
 
     const { data: settings, error } = await supabase
@@ -100,7 +105,12 @@ export async function PUT(request: NextRequest) {
     }
     const { supabase, userId } = auth;
 
-    const rl2 = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/profile/notifications" });
+    const rl2 = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/profile/notifications",
+    });
     if (rl2.limited) return rl2.response;
 
     const body = await request.json();

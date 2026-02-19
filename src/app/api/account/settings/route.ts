@@ -34,7 +34,12 @@ export async function GET() {
       );
     }
 
-    const rl = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "account/settings" });
+    const rl = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "account/settings",
+    });
     if (rl.limited) return rl.response;
 
     // Lazy row creation — DB ON CONFLICT DO NOTHING handles existing rows
@@ -91,7 +96,12 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const rlPatch = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "account/settings" });
+    const rlPatch = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "account/settings",
+    });
     if (rlPatch.limited) return rlPatch.response;
 
     const body = await request.json();

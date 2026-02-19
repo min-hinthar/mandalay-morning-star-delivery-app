@@ -39,7 +39,12 @@ export async function GET() {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/sections/most-popular/suggest" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/sections/most-popular/suggest",
+    });
     if (rl.limited) return rl.response;
 
     // Get order items with their menu items, excluding null menu_item_id

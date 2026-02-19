@@ -27,7 +27,12 @@ export async function GET() {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/drivers/invites" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/drivers/invites",
+    });
     if (rl.limited) return rl.response;
 
     // Use service client to bypass RLS

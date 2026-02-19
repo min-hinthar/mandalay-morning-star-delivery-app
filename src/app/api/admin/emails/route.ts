@@ -58,7 +58,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/emails" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/emails",
+    });
     if (rl.limited) return rl.response;
     const { supabase } = auth;
 

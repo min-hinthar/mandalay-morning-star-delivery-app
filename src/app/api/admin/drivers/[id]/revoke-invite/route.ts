@@ -31,7 +31,12 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/drivers/:id/revoke-invite" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/drivers/:id/revoke-invite",
+    });
     if (rl.limited) return rl.response;
     const { userId } = auth;
 

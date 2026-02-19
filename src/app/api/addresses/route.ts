@@ -22,7 +22,12 @@ export async function GET() {
       );
     }
 
-    const rl = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "addresses" });
+    const rl = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "addresses",
+    });
     if (rl.limited) return rl.response;
 
     const { data: addresses, error } = await supabase
@@ -63,7 +68,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const rlPost = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "addresses" });
+    const rlPost = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "addresses",
+    });
     if (rlPost.limited) return rlPost.response;
 
     const body = await request.json();

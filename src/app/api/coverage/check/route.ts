@@ -7,7 +7,12 @@ import { logger } from "@/lib/utils/logger";
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const ip = getClientIp(request);
-    const rl = await checkRateLimit({ limiter: publicReadLimiter, identifier: ip, role: "anon", route: "coverage/check" });
+    const rl = await checkRateLimit({
+      limiter: publicReadLimiter,
+      identifier: ip,
+      role: "anon",
+      route: "coverage/check",
+    });
     if (rl.limited) return rl.response;
 
     const body = await request.json();

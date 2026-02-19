@@ -53,7 +53,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/photos" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/photos",
+    });
     if (rl.limited) return rl.response;
 
     const { searchParams } = new URL(request.url);
@@ -178,7 +183,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/photos" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/photos",
+    });
     if (rl.limited) return rl.response;
 
     const body = await request.json();

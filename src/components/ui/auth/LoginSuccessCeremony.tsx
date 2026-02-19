@@ -11,8 +11,8 @@ import { spring } from "@/lib/motion-tokens";
 interface LoginSuccessCeremonyProps {
   userName?: string | null;
   avatarUrl?: string | null;
-  redirectTo?: string;       // Role-based redirect target (default "/menu")
-  roleMessage?: string;      // "Loading your driver dashboard..."
+  redirectTo?: string; // Role-based redirect target (default "/menu")
+  roleMessage?: string; // "Loading your driver dashboard..."
 }
 
 /* Sparkle ring positions — 6 sparkles evenly around the logo */
@@ -26,7 +26,12 @@ const SPARKLE_RING = Array.from({ length: 6 }, (_, i) => {
   };
 });
 
-export function LoginSuccessCeremony({ userName, avatarUrl, redirectTo, roleMessage }: LoginSuccessCeremonyProps) {
+export function LoginSuccessCeremony({
+  userName,
+  avatarUrl,
+  redirectTo,
+  roleMessage,
+}: LoginSuccessCeremonyProps) {
   const router = useRouter();
   const { shouldAnimate, getSpring } = useAnimationPreference();
 

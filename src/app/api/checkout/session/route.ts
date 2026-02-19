@@ -57,7 +57,12 @@ export async function POST(request: Request) {
     });
     if (rl.limited) {
       return NextResponse.json(
-        { error: { code: "RATE_LIMITED", message: "Your order is being processed. Please don't submit again." } },
+        {
+          error: {
+            code: "RATE_LIMITED",
+            message: "Your order is being processed. Please don't submit again.",
+          },
+        },
         { status: 429, headers: { "Retry-After": rl.response.headers.get("Retry-After") ?? "60" } }
       );
     }

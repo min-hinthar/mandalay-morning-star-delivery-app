@@ -43,7 +43,12 @@ export async function GET() {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/settings" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: user.id,
+      role: "admin",
+      route: "admin/settings",
+    });
     if (rl.limited) return rl.response;
 
     // Fetch all settings
@@ -114,7 +119,12 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: user.id, role: "admin", route: "admin/settings" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: user.id,
+      role: "admin",
+      route: "admin/settings",
+    });
     if (rl.limited) return rl.response;
 
     // Parse and validate request body

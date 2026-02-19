@@ -23,7 +23,12 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       );
     }
 
-    const rlGet = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "addresses/[id]" });
+    const rlGet = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "addresses/[id]",
+    });
     if (rlGet.limited) return rlGet.response;
 
     const { data: address, error } = await supabase
@@ -67,7 +72,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    const rlPut = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "addresses/[id]" });
+    const rlPut = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "addresses/[id]",
+    });
     if (rlPut.limited) return rlPut.response;
 
     const body = await request.json();
@@ -167,7 +177,12 @@ export async function DELETE(
       );
     }
 
-    const rlDel = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "addresses/[id]" });
+    const rlDel = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: user.id,
+      role: "customer",
+      route: "addresses/[id]",
+    });
     if (rlDel.limited) return rlDel.response;
 
     const { error } = await supabase.from("addresses").delete().eq("id", id).eq("user_id", user.id);

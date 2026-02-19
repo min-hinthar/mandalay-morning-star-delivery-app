@@ -42,7 +42,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
-    const rl = await checkRateLimit({ limiter: adminLimiter, identifier: auth.userId, role: "admin", route: "admin/orders/:id/refund" });
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "admin/orders/:id/refund",
+    });
     if (rl.limited) return rl.response;
     const { supabase, userId } = auth;
 
