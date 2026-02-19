@@ -102,10 +102,7 @@ export function DriverInfoCard({
           <SelectContent>
             <SelectItem value="unassigned">Unassigned</SelectItem>
             {drivers.map((driver) => {
-              const available = isDriverAvailable(
-                driver.availability ?? null,
-                route.deliveryDate
-              );
+              const available = isDriverAvailable(driver.availability ?? null, route.deliveryDate);
               const label = driver.fullName || driver.userId.slice(0, 8);
               const displayLabel = available ? label : `${label} (Unavailable)`;
               return (

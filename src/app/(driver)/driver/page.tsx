@@ -118,48 +118,48 @@ async function getDriverData() {
     todayRoutesResult,
     nextRouteResult,
   ] = await Promise.all([
-      supabase
-        .from("routes")
-        .select("id, status, stats_json, started_at, optimized_polyline")
-        .eq("driver_id", driver.id)
-        .eq("delivery_date", todayStr)
-        .in("status", ["planned", "in_progress"])
-        .returns<RouteQueryResult[]>()
-        .single(),
-      supabase.rpc("calculate_driver_streak", { p_driver_id: driver.id }),
-      supabase.rpc("calculate_driver_weekly_deliveries", { p_driver_id: driver.id }),
-      supabase
-        .from("driver_badges")
-        .select("id, badge_type, name, icon, earned_at")
-        .eq("driver_id", driver.id)
-        .order("earned_at", { ascending: false })
-        .returns<DriverBadgesRow[]>(),
-      supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "driver_pay_per_stop_cents")
-        .returns<AppSettingResult[]>()
-        .single(),
-      // Today's completed routes with stats for earnings calculation
-      supabase
-        .from("routes")
-        .select("stats_json")
-        .eq("driver_id", driver.id)
-        .eq("delivery_date", todayStr)
-        .eq("status", "completed")
-        .returns<{ stats_json: RouteStats | null }[]>(),
-      // Next upcoming route after today
-      supabase
-        .from("routes")
-        .select("delivery_date")
-        .eq("driver_id", driver.id)
-        .gt("delivery_date", todayStr)
-        .in("status", ["planned", "in_progress"])
-        .order("delivery_date", { ascending: true })
-        .limit(1)
-        .returns<{ delivery_date: string }[]>()
-        .single(),
-    ]);
+    supabase
+      .from("routes")
+      .select("id, status, stats_json, started_at, optimized_polyline")
+      .eq("driver_id", driver.id)
+      .eq("delivery_date", todayStr)
+      .in("status", ["planned", "in_progress"])
+      .returns<RouteQueryResult[]>()
+      .single(),
+    supabase.rpc("calculate_driver_streak", { p_driver_id: driver.id }),
+    supabase.rpc("calculate_driver_weekly_deliveries", { p_driver_id: driver.id }),
+    supabase
+      .from("driver_badges")
+      .select("id, badge_type, name, icon, earned_at")
+      .eq("driver_id", driver.id)
+      .order("earned_at", { ascending: false })
+      .returns<DriverBadgesRow[]>(),
+    supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "driver_pay_per_stop_cents")
+      .returns<AppSettingResult[]>()
+      .single(),
+    // Today's completed routes with stats for earnings calculation
+    supabase
+      .from("routes")
+      .select("stats_json")
+      .eq("driver_id", driver.id)
+      .eq("delivery_date", todayStr)
+      .eq("status", "completed")
+      .returns<{ stats_json: RouteStats | null }[]>(),
+    // Next upcoming route after today
+    supabase
+      .from("routes")
+      .select("delivery_date")
+      .eq("driver_id", driver.id)
+      .gt("delivery_date", todayStr)
+      .in("status", ["planned", "in_progress"])
+      .order("delivery_date", { ascending: true })
+      .limit(1)
+      .returns<{ delivery_date: string }[]>()
+      .single(),
+  ]);
 
   const route = routeResult.data;
   const streakDays = (streakResult.data as number) ?? 0;

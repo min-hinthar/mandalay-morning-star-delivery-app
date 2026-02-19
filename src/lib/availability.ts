@@ -49,10 +49,7 @@ const UTC_DAY_MAP: Record<number, DayOfWeek> = {
  * @param availability - Driver's availability preferences (null = available all days)
  * @param date - ISO date string "YYYY-MM-DD"
  */
-export function isDriverAvailable(
-  availability: DriverAvailability | null,
-  date: string
-): boolean {
+export function isDriverAvailable(availability: DriverAvailability | null, date: string): boolean {
   if (!availability || availability.available_days.length === 0) {
     // No preferences set — check blocked dates only
     if (availability?.blocked_dates?.includes(date)) {

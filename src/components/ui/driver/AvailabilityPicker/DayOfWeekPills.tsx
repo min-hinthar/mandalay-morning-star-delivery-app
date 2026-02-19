@@ -21,9 +21,7 @@ export function DayOfWeekPills({ selected, onChange }: DayOfWeekPillsProps) {
   const { shouldAnimate } = useAnimationPreference();
 
   const toggle = (day: DayOfWeek) => {
-    const next = selected.includes(day)
-      ? selected.filter((d) => d !== day)
-      : [...selected, day];
+    const next = selected.includes(day) ? selected.filter((d) => d !== day) : [...selected, day];
     onChange(next);
   };
 
