@@ -24,8 +24,10 @@ export interface DriverDashboardProps {
   } | null;
   /** Current streak days */
   streakDays?: number;
+  /** Today's earnings in cents */
+  todayEarningsCents: number;
   /** Weekly earnings in cents */
-  weeklyEarningsCents?: number;
+  weeklyEarningsCents: number;
   /** Badges earned */
   badges?: Array<{
     id: string;

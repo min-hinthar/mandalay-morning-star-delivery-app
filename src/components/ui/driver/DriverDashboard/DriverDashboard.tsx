@@ -13,12 +13,14 @@ import { StreakDisplay } from "./StreakDisplay";
 import { RouteCard } from "./RouteCard";
 import { BadgesDisplay } from "./BadgesDisplay";
 import { ProfileCompletenessCard } from "./ProfileCompletenessCard";
+import { EarningsSummaryCard } from "./EarningsSummaryCard";
 
 export function DriverDashboard({
   driver,
   todayRoute,
   streakDays = 0,
-  weeklyEarningsCents: _weeklyEarningsCents = 0,
+  todayEarningsCents = 0,
+  weeklyEarningsCents = 0,
   badges = [],
   dayOfWeek,
   dateDisplay,
@@ -73,6 +75,12 @@ export function DriverDashboard({
 
         {/* Profile Completeness */}
         <ProfileCompletenessCard driver={driver} />
+
+        {/* Earnings Summary */}
+        <EarningsSummaryCard
+          todayEarningsCents={todayEarningsCents}
+          weeklyEarningsCents={weeklyEarningsCents}
+        />
 
         {/* Streak Display */}
         {streakDays > 0 && <StreakDisplay days={streakDays} />}
