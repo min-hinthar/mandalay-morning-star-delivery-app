@@ -10,7 +10,7 @@
 - ✅ **v1.5 Performance & Repo Health** — Phases 40-47 (shipped 2026-02-07)
 - ✅ **v1.6 Production Polish** — Phases 48-57 (shipped 2026-02-13)
 - ✅ **v1.7 Production Deployment & Readiness** — Phases 58-66 (shipped 2026-02-16)
-- 🚧 **v1.8 Post-Launch Hardening & Driver Experience** — Phases 67-74 (in progress)
+- ✅ **v1.8 Post-Launch Hardening & Driver Experience** — Phases 67-74 (shipped 2026-02-19)
 
 ## Phases
 
@@ -29,7 +29,7 @@
 
 </details>
 
-### 🚧 v1.8 Post-Launch Hardening & Driver Experience (In Progress)
+### ✅ v1.8 Post-Launch Hardening & Driver Experience (Shipped 2026-02-19)
 
 **Milestone Goal:** Harden production security (CSP, RLS, rate limiting), overhaul driver experience (profile, earnings, availability, onboarding), and add role-based login redirects.
 
@@ -164,9 +164,9 @@ Plans:
 
 Plans:
 
-- [ ] 73-01-PLAN.md — DB migration (availability JSONB), availability API, AvailabilityPicker component set
-- [ ] 73-02-PLAN.md — Schedule page with day-grouped routes, upcoming routes API, NextRouteChip on dashboard
-- [ ] 73-03-PLAN.md — History page enhancements (period filter, pagination, monthly grouping) + admin availability indicators
+- [x] 73-01-PLAN.md — DB migration (availability JSONB), availability API, AvailabilityPicker component set
+- [x] 73-02-PLAN.md — Schedule page with day-grouped routes, upcoming routes API, NextRouteChip on dashboard
+- [x] 73-03-PLAN.md — History page enhancements (period filter, pagination, monthly grouping) + admin availability indicators
 
 #### Phase 74: Guided Walkthrough & Driver UI Polish
 
@@ -183,9 +183,9 @@ Plans:
 
 Plans:
 
-- [ ] 74-01-PLAN.md — Onboarding walkthrough card + touch target fixes across 7 driver components
-- [ ] 74-02-PLAN.md — Test delivery page with mock data, testMode prop on API-calling components
-- [ ] 74-03-PLAN.md — Animation polish, glassmorphism cards, stagger animations, design token alignment
+- [x] 74-01-PLAN.md — Onboarding walkthrough card + touch target fixes across 7 driver components — completed 2026-02-19
+- [x] 74-02-PLAN.md — Test delivery page with mock data, testMode prop on API-calling components — completed 2026-02-19
+- [x] 74-03-PLAN.md — Animation polish, glassmorphism cards, stagger animations, design token alignment — completed 2026-02-19
 
 ## Progress
 
@@ -201,8 +201,8 @@ Note: Phases 68 and 69 are parallelizable (both are infra with no UI overlap).
 | 70. Role-Based Auth Redirects              | v1.8      | 3/3            | ✓ Complete  | 2026-02-19 |
 | 71. Driver Profile Setup                   | v1.8      | 2/2            | ✓ Complete  | 2026-02-19 |
 | 72. Driver Earnings Dashboard              | v1.8      | 3/3            | ✓ Complete  | 2026-02-19 |
-| 73. Driver Availability & Route Visibility | 3/3 | Complete   | 2026-02-19 | -         |
-| 74. Guided Walkthrough & Driver UI Polish  | v1.8      | 0/TBD          | Not started | -         |
+| 73. Driver Availability & Route Visibility | v1.8      | 3/3            | ✓ Complete  | 2026-02-19 |
+| 74. Guided Walkthrough & Driver UI Polish  | v1.8      | 3/3            | ✓ Complete  | 2026-02-19 |
 
 **Historical:**
 
